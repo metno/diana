@@ -75,9 +75,6 @@
 #include "diUtilities.h"
 #include <puTools/miSetupParser.h>
 #include <puTools/mi_boost_compatibility.hh>
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
-
 
 #include "vcross_v2/VcrossQtManager.h"
 #include "vcross_v2/VcrossQuickmenues.h"
@@ -100,6 +97,9 @@
 #endif
 
 #include <signalhelper.h>
+
+// required to tell fimex to use log4cpp
+#include <fimex/Logger.h>
 
 #define MILOGGER_CATEGORY "diana.bdiana"
 #include <miLogger/miLogging.h>
@@ -438,8 +438,8 @@ void unpackloop(vector<std::string>& orig, // original strings..
       vs = miutil::split(lists[k].l[j], 0, "|");
       // check if correct number of arguments
       if (vs.size() != nkeys) {
-        METLIBS_LOG_ERROR("ERROR, number of arguments in loop at:'" << lists[k].l[j]
-               << "' line:" << origlines[start] << " does not match key:" << keys);
+        METLIBS_LOG_ERROR("ERROR, number of arguments in loop at: '" << lists[k].l[j]
+            << "' line:" << origlines[start] << " does not match key: '" << keys << "'");
         exit(1);
       }
       arguments.push_back(vs);
@@ -454,7 +454,7 @@ void unpackloop(vector<std::string>& orig, // original strings..
       // check if correct number of arguments
       if (vs.size() != nkeys) {
         METLIBS_LOG_ERROR("ERROR, number of arguments in loop at:'" << vs2[k]
-            << "' line:" << origlines[start] << " does not match key:" << keys);
+            << "' line:" << origlines[start] << " does not match key: '" << keys << "'");
         exit(1);
       }
       arguments.push_back(vs);
@@ -835,14 +835,14 @@ static void parse_spectrum_options(const vector<string>& opts)
 static bool readSetup(const std::string& constSetupfile, printerManager& printmanager)
 {
   std::string setupfile = constSetupfile;
-  METLIBS_LOG_INFO("Reading setupfile:" << setupfile);
+  METLIBS_LOG_INFO("Reading setupfile: '" << setupfile << "'");
 
   if (!LocalSetupParser::parse(setupfile)) {
-    METLIBS_LOG_ERROR("ERROR, an error occured while reading setup: " << setupfile);
+    METLIBS_LOG_ERROR("ERROR, an error occured while reading setup: '" << setupfile << "'");
     return false;
   }
   if (!printmanager.parseSetup()) {
-    METLIBS_LOG_ERROR("ERROR, an error occured while reading setup: " << setupfile);
+    METLIBS_LOG_ERROR("ERROR, an error occured while reading setup: '" << setupfile << "'");
     return false;
   }
 
@@ -865,8 +865,8 @@ int diana_readSetupFile(const char* setupFilename) {
     std::string setupfile(setupFilename);
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
-        return DIANA_ERROR;
+      METLIBS_LOG_ERROR("ERROR, unable to read setup: '" << setupfile << "'");
+      return DIANA_ERROR;
     }
     return DIANA_OK;
 }
@@ -1563,7 +1563,7 @@ static bool MAKE_CONTROLLER()
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
-    METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: " << setupfile);
+    METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: '" << setupfile << "'");
     return false;
   }
   return true;
@@ -1765,7 +1765,7 @@ static int parseAndProcess(istream &is)
 #endif
             return 99;
         }
-        METLIBS_LOG_INFO(main_controller->getMapArea());
+        METLIBS_LOG_INFO("map area = " << main_controller->getMapArea());
 
         if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
@@ -1885,11 +1885,11 @@ static int parseAndProcess(istream &is)
         if (canvasType == qt_qimage && raster && antialias)
           glEnable(GL_MULTISAMPLE);
 #endif
-     
+
 #if defined(USE_PAINTGL)
         vcrossmanager->plot(painter);
 #else
-        METLIBS_LOG_ERROR("Can't plot vertical crossections (V2) whithout using paintGL");
+        METLIBS_LOG_ERROR("Cannot plot vertical crossections whithout using paintGL");
 #endif
 
         // --------------------------------------------------------
@@ -2073,25 +2073,25 @@ static int parseAndProcess(istream &is)
             const QImage image = qpbuffer->toImage();
 
             if (verbose) {
-              METLIBS_LOG_INFO("- Saving image to:" << priop.fname);
+              METLIBS_LOG_INFO("- Saving image to: '" << priop.fname << "'");
             }
 
             bool result = false;
 
             if (raster_type == image_png || raster_type == image_unknown) {
               result = image.save(priop.fname.c_str());
-              METLIBS_LOG_INFO("--------- write_png: " << priop.fname);
+              METLIBS_LOG_INFO("--------- write_png: '" << priop.fname << "'");
 #ifdef VIDEO_EXPORT
             } else if (raster_type == image_avi) {
               result = addVideoFrame(image);
-              METLIBS_LOG_INFO("--------- write_avi_frame: " << priop.fname);
+              METLIBS_LOG_INFO("--------- write_avi_frame: '" << priop.fname << "'");
 #endif
             }
 
             if (verbose) {
               METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
             } else if (!result) {
-              METLIBS_LOG_ERROR(" ERROR, saving image to:" << priop.fname);
+              METLIBS_LOG_ERROR(" ERROR, saving image to: '" << priop.fname << "'");
             }
           }
         } else if (canvasType == qt_glframebuffer) {
@@ -2101,7 +2101,7 @@ static int parseAndProcess(istream &is)
             const QImage image = qfbuffer->toImage();
 
             if (verbose) {
-              METLIBS_LOG_INFO("- Saving image to:" << priop.fname);
+              METLIBS_LOG_INFO("- Saving image to: '" << priop.fname << "'");
             }
 
             bool result = false;
@@ -2113,12 +2113,12 @@ static int parseAndProcess(istream &is)
               result = addVideoFrame(image);
 #endif
             }
-            METLIBS_LOG_INFO("--------- write_png: " << priop.fname);
+            METLIBS_LOG_INFO("--------- write_png: '" << priop.fname << "'");
 
             if (verbose) {
               METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
             } else if (!result) {
-              METLIBS_LOG_ERROR(" ERROR, saving image to:" << priop.fname);
+              METLIBS_LOG_ERROR(" ERROR, saving image to: '" << priop.fname << "'");
             }
           }
         }
@@ -2139,8 +2139,8 @@ static int parseAndProcess(istream &is)
             image.setText(QString::number(i), QString::fromStdString(lines[i]));
 
           image.save(QString::fromStdString(priop.fname));
-    #if 0
-          milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
+#if 0
+          //milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
 
           bool empty = true;
           for (int py = 0; py < image.height(); ++py) {
@@ -2156,14 +2156,14 @@ static int parseAndProcess(istream &is)
           }
 
           if (empty)
-            COMMON_LOG::getInstance("common").infoStream() << "# vvv Empty plot (begin)";
+            METLIBS_LOG_INFO("# vvv Empty plot (begin)");
 
           // Write the input file text to the log.
           for (unsigned int i = 0; i < lines.size(); ++i)
-            COMMON_LOG::getInstance("common").infoStream() << lines[i];
+            METLIBS_LOG_INFO(lines[i]);
 
           if (empty)
-            COMMON_LOG::getInstance("common").infoStream() << "# ^^^ Empty plot (end)";
+            METLIBS_LOG_INFO("# ^^^ Empty plot (end)");
     #endif
         }
 #endif
@@ -2186,13 +2186,13 @@ static int parseAndProcess(istream &is)
           // save as PNG -----------------------------------------------
           if (raster_type == image_png || raster_type == image_unknown) {
             if (verbose) {
-              METLIBS_LOG_INFO("- Saving PNG-image to:" << img.filename);
+              METLIBS_LOG_INFO("- Saving PNG-image to: '" << img.filename << "'");
             }
             result = imageIO::write_png(img);
 #ifdef VIDEO_EXPORT
           } else if (raster_type == image_avi) {
             if (verbose) {
-              METLIBS_LOG_INFO("- Adding image to:" << img.filename);
+              METLIBS_LOG_INFO("- Adding image to: '" << img.filename << "'");
             }
 //            result = addVideoFrame(img);
 #endif
@@ -2200,7 +2200,7 @@ static int parseAndProcess(istream &is)
           if (verbose)
             METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
           else if (!result)
-            METLIBS_LOG_ERROR(" ERROR, saving PNG-image to:" << img.filename);
+            METLIBS_LOG_ERROR(" ERROR, saving PNG-image to: '" << img.filename << "'");
           // -------------------------------------------------------------
 
         }
@@ -2210,7 +2210,7 @@ static int parseAndProcess(istream &is)
           if (miutil::contains(priop.fname, "tmp_diana")) {
             METLIBS_LOG_INFO("Using shape option without file name, it will be created automatically");
           } else {
-            METLIBS_LOG_INFO("Using shape option with given file name : " << priop.fname);
+            METLIBS_LOG_INFO("Using shape option with given file name: '" << priop.fname << "'");
           }
           // first stop postscript-generation
           endHardcopy(plot_none);
@@ -2304,8 +2304,8 @@ static int parseAndProcess(istream &is)
           // Note that this option works bad for multi-page output:
           // use PRINT_DOCUMENT instead
           if (priop.printer.empty()) {
-            METLIBS_LOG_ERROR(" ERROR, printing document:" << priop.fname
-                   << "  Printer not defined!");
+            METLIBS_LOG_ERROR(" ERROR, printing document: '" << priop.fname
+                   << "'  Printer not defined!");
             continue;
           }
           // first stop postscript-generation
@@ -2318,7 +2318,7 @@ static int parseAndProcess(istream &is)
           printman->expandCommand(command, priop);
 
           if (verbose)
-            METLIBS_LOG_INFO("- Issuing print command:" << command);
+            METLIBS_LOG_INFO("- Issuing print command: '" << command << "'");
           int res = system(command.c_str());
           if (verbose)
             METLIBS_LOG_INFO(" result:" << res);
@@ -2366,7 +2366,7 @@ static int parseAndProcess(istream &is)
         // open filestream
         ofstream file(priop.fname.c_str());
         if (!file) {
-          METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+          METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
           return 1;
         }
         file << "PROG" << endl;
@@ -2392,7 +2392,7 @@ static int parseAndProcess(istream &is)
         // open filestream
         ofstream file(priop.fname.c_str());
         if (!file) {
-          METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+          METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
           return 1;
         }
 
@@ -2439,7 +2439,7 @@ static int parseAndProcess(istream &is)
       // open filestream
       ofstream file(priop.fname.c_str());
       if (!file) {
-        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
         return 1;
       }
       file << "PROG" << endl;
@@ -2496,7 +2496,7 @@ static int parseAndProcess(istream &is)
       spectrummanager->setTime(thetime);
 
       if (verbose)
-        METLIBS_LOG_INFO("- setting station:" << spectrum_station);
+        METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
       if (not spectrum_station.empty())
         spectrummanager->setStation(spectrum_station);
 
@@ -2506,7 +2506,7 @@ static int parseAndProcess(istream &is)
       // open filestream
       ofstream file(priop.fname.c_str());
       if (!file) {
-        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
         return 1;
       }
       file << "PROG" << endl;
@@ -2529,8 +2529,8 @@ static int parseAndProcess(istream &is)
         continue;
       }
       if (priop.printer.empty()) {
-        METLIBS_LOG_ERROR(" ERROR, printing document:" << priop.fname
-               << "  Printer not defined!");
+        METLIBS_LOG_ERROR(" ERROR, printing document: '" << priop.fname
+               << "'  Printer not defined!");
         continue;
       }
       // first stop postscript-generation
@@ -2543,7 +2543,7 @@ static int parseAndProcess(istream &is)
       printman->expandCommand(command, priop);
 
       if (verbose)
-        METLIBS_LOG_INFO("- Issuing print command:" << command);
+        METLIBS_LOG_INFO("- Issuing print command: '" << command << "'");
       int res = system(command.c_str());
       if (verbose)
         METLIBS_LOG_INFO("Result:" << res);
@@ -2591,7 +2591,7 @@ static int parseAndProcess(istream &is)
       //loop over files
       for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
         const std::string& filename = *it;
-        METLIBS_LOG_INFO("==== Reading file:" << filename);
+        METLIBS_LOG_INFO("==== Reading file: '" << filename << "'");
         filenames.push_back(filename);
         ifstream file(filename.c_str());
         while (file) {
@@ -2613,7 +2613,7 @@ static int parseAndProcess(istream &is)
         ost << "rm -f " << filenames[ik];
         std::string command = ost.str();
 
-        METLIBS_LOG_INFO("==== Cleaning up with:" << command);
+        METLIBS_LOG_INFO("==== Cleaning up with: '" << command << "'");
         int res = system(command.c_str());
 
         if (res != 0){
@@ -2686,12 +2686,12 @@ static int parseAndProcess(istream &is)
       if (main_controller->updatePlots(failOnMissingData)) {
 
           if (verbose)
-            METLIBS_LOG_INFO("- opening file " << priop.fname.c_str());
+            METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");
 
           // open filestream
           ofstream file(priop.fname.c_str());
           if (!file) {
-            METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+            METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
             return 1;
           }
 
@@ -2806,17 +2806,17 @@ static int parseAndProcess(istream &is)
       spectrummanager->setTime(thetime);
 
       if (verbose)
-        METLIBS_LOG_INFO("- setting station:" << spectrum_station);
+        METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
       if (not spectrum_station.empty())
         spectrummanager->setStation(spectrum_station);
 
       if (verbose)
-        METLIBS_LOG_INFO("- opening file " << priop.fname.c_str());
+        METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");
 
       // open filestream
       ofstream file(priop.fname.c_str());
       if (!file) {
-        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
         return 1;
       }
 
@@ -3331,12 +3331,12 @@ int diana_parseAndProcessString(const char* string)
 
 static int dispatchWork(const std::string &file)
 {
-  METLIBS_LOG_INFO("Reading input file: " << file);
+  METLIBS_LOG_INFO("Reading input file: '" << file << "'");
 
   // commands in file
   ifstream is(file.c_str());
   if (!is) {
-          COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
+          METLIBS_LOG_ERROR("ERROR, cannot open inputfile '" << batchinput << "'");
     return 99;
   }
   int res = parseAndProcess(is);
@@ -3349,7 +3349,7 @@ static int dispatchWork(const std::string &file)
   if (!fifo_name.empty()) {
     int fd = open(fifo_name.c_str(), O_WRONLY);
     if (fd == -1) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
+        METLIBS_LOG_ERROR("ERROR, can't open the fifo <" << fifo_name << ">!");
       goto ERROR;
     }
 
@@ -3360,10 +3360,10 @@ static int dispatchWork(const std::string &file)
         buf[0] = 'e';
 
     if (write(fd, buf, 1) == -1) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
+        METLIBS_LOG_ERROR("ERROR, can't write to fifo <" << fifo_name << ">!");
     } else {
       if (verbose)
-          COMMON_LOG::getInstance("common").infoStream() << "FIFO client <" << fifo_name << "> notified!";
+          METLIBS_LOG_INFO("FIFO client <" << fifo_name << "> notified!");
     }
 
     close(fd);
@@ -3382,13 +3382,13 @@ static int dispatchWork(const std::string &file)
 static void doWork()
 {
   if (command_path.empty()) {
-    COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
+    METLIBS_LOG_ERROR("ERROR, trying to scan for commands, but command_path not set!");
     return;
   }
 
   const diutil::string_v matches = diutil::glob(command_path);
   if (matches.empty()) {
-    COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
+    METLIBS_LOG_WARN("WARNING, scan for commands returned nothing");
     return;
   }
 
@@ -3410,8 +3410,6 @@ int diana_init(int _argc, char** _argv)
   std::string xhost = ":0.0"; // default DISPLAY
   std::string sarg;
   int port;
-  milogger::LogHandler * plog = NULL;
-
 
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
@@ -3577,49 +3575,22 @@ int diana_init(int _argc, char** _argv)
   if (false and batchinput.empty()) // FIXME removing the 'false' kills perl Metno::Bdiana
     printUsage(false);
 
-  // Init loghandler with debug level
-/*if (!logfilename.exists()) {
-    // If no log file name is given then use /etc/diana/<major>.<minor>/diana.logger
-    vector<string> versionPieces = miutil::split(VERSION, ".");
-    logfilename = "/etc/diana/" + versionPieces[0] + "." + versionPieces[1] + "/diana.logger";
-  }*/
+  // tell fimex to use log4cpp
+  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
+  milogger::LoggingConfig log4cpp(logfilename);
 
-//logging in wms do not work properly, all messages in error.log is better than nothing ...
-  //  if ( logfilename.empty() ){
-//    logfilename = "/etc/diana/";
-//    logfilename += PVERSION;
-//    logfilename += "/log4cpp.properties";
-//  }
-  if (QFileInfo(QString::fromStdString(logfilename)).exists()) {
-    cerr << "Using properties file: " << logfilename << endl;
-    plog = milogger::LogHandler::initLogHandler(logfilename);
-  } else {
-    cerr << "Properties file does not exist: " << logfilename << endl;
-//    cerr << "Using stderr instead." << endl;
-    plog = milogger::LogHandler::initLogHandler(2, cerr);
-  }
-
-  plog->setObjectName("diana.bdiana.main");
-  COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
+  METLIBS_LOG_INFO(argv[0].toStdString() << " : DIANA batch version " << VERSION);
 
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-          COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
-        << " WARNING !" << "\n"
-        << " X pixmaps or GLX pixelbuffers not supported" << "\n"
-        << " Forcing use of default canvas" << "\n"
-        << "===================================================";
+    METLIBS_LOG_WARN("X pixmaps or GLX pixelbuffers not supported. Forcing use of default canvas.");
     canvasType = default_canvas;
   }
 #endif
 
 #ifndef GLX_VERSION_1_3
   if (canvasType == glx_pixelbuffer) {
-          COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
-        << " WARNING !" << "\n"
-        << " This version of GLX does not support PixelBuffers." << "\n"
-        << " Forcing use of default canvas" << "\n"
-        << "===================================================";
+    METLIBS_LOG_WARN("This version of GLX does not support PixelBuffers. Forcing use of default canvas.");
     canvasType = default_canvas;
   }
 #endif
@@ -3628,7 +3599,7 @@ int diana_init(int _argc, char** _argv)
   if (canvasType == qt_glpixelbuffer) {
     METLIBS_LOG_INFO("qt_glpixelbuffer");
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
-      COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
+      METLIBS_LOG_ERROR("This system does not support OpenGL pbuffers.");
       diana_dealloc();
       return 1;
     }
@@ -3649,7 +3620,6 @@ int diana_init(int _argc, char** _argv)
       qwidget->makeCurrent();
 
       //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
-
     }
   }
 #endif
@@ -3662,7 +3632,7 @@ int diana_init(int _argc, char** _argv)
     while ((tries < 5)&&(!dpy)) {
       dpy = XOpenDisplay(xhost.c_str());
       if (!dpy) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
+        METLIBS_LOG_ERROR("ERROR, could not open X-display:" << xhost);
         if (tries == 4)
         {
           cerr << "ERROR, could not open X-display:" << xhost << " giving up!" << endl;
@@ -3681,7 +3651,7 @@ int diana_init(int _argc, char** _argv)
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
         (use_double_buffer ? dblBuf : snglBuf));
     if (!pdvi) {
-      COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
+      METLIBS_LOG_ERROR("ERROR, no RGB visual with depth buffer");
       diana_dealloc();
       return 1;
     }
@@ -3690,7 +3660,7 @@ int diana_init(int _argc, char** _argv)
     cx = glXCreateContext(dpy, pdvi,// display and visual
         0, 0); // sharing and direct rendering
     if (!cx) {
-      COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
+      METLIBS_LOG_ERROR("ERROR, could not create rendering context");
       diana_dealloc();
       return 1;
     }
@@ -3724,7 +3694,7 @@ int diana_init(int _argc, char** _argv)
   if (setupfilegiven) {
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
-      COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
+      METLIBS_LOG_ERROR("ERROR, unable to read setup:" << setupfile);
       diana_dealloc();
       return 99;
     }
@@ -3737,7 +3707,7 @@ int diana_init(int _argc, char** _argv)
     METLIBS_LOG_INFO("Reading input file: " << batchinput.c_str());
     ifstream is(batchinput.c_str());
     if (!is) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
+        METLIBS_LOG_ERROR("ERROR, cannot open inputfile " << batchinput);
       return 99;
     }
     int res = parseAndProcess(is);
@@ -3759,12 +3729,12 @@ int diana_init(int _argc, char** _argv)
     signalInit();
 
     if (verbose)
-        COMMON_LOG::getInstance("common").infoStream() << "PID: " << getpid();
+        METLIBS_LOG_INFO("PID: " << getpid());
 
     fs.open("bdiana.pid");
 
     if (!fs) {
-      COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
+      METLIBS_LOG_ERROR("ERROR, can't open file <bdiana.pid>!");
       diana_dealloc();
       return 1;
     }
@@ -3776,17 +3746,17 @@ int diana_init(int _argc, char** _argv)
       application->processEvents(); // do we actually care in this case?
       switch (waitOnSignal(10, timeout)) {
       case -1:
-          COMMON_LOG::getInstance("common").infoStream() << "ERROR, a waitOnSignal error occured!";
+          METLIBS_LOG_INFO("ERROR, a waitOnSignal error occured!");
         quit = true;
         break;
       case 0:
         if (verbose)
-                COMMON_LOG::getInstance("common").infoStream() << "SIGUSR1: received!";
+          METLIBS_LOG_INFO("SIGUSR1: received!");
         doWork();
         break;
       case 1:
         if (!timeout) {
-                COMMON_LOG::getInstance("common").infoStream()<< "SIGTERM, SIGINT: received!";
+          METLIBS_LOG_INFO("SIGTERM, SIGINT: received!");
           quit = true;
         }
       }
