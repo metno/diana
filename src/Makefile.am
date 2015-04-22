@@ -469,6 +469,18 @@ noinst_HEADERS += \
 	vcross_qt/qtVcrossWindow.h \
 	vcross_qt/qtVcrossSetup.h 
 
+noinst_HEADERS += \
+	wmsclient/WebMapDialog.h \
+	wmsclient/WebMapManager.h \
+	wmsclient/WebMapPainting.h \
+	wmsclient/WebMapPlot.h \
+	wmsclient/WebMapService.h \
+	wmsclient/WebMapSlippyOSM.h \
+	wmsclient/WebMapTile.h \
+	wmsclient/WebMapUtilities.h \
+	wmsclient/WebMapWMS.h \
+	wmsclient/WebMapWMTS.h
+
 if WITH_EMBEDDED
 if WITH_BATCH_ONLY
 # Headers
