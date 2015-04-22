@@ -258,9 +258,9 @@ contouring::level_t DianaLevelStep::level_for_value(float value) const
     return UNDEF_LEVEL;
   // invalid combinations of mMin and mMax are caught in set_limits
   if (mHaveMin and value < mMin)
-    value = mMin;
+    value = mMin - 0.5*mStep;
   if (mHaveMax and value > mMax)
-    value = mMax;
+    value = mMax + 0.5*mStep;
   return rounded_div(value - mOff, mStep);
 }
 
@@ -347,7 +347,7 @@ void DianaLines::paint_polygons()
         continue;
       setFillColour(mPlotOptions.undefColour);
     } else {
-      if ((level_min != DianaLevels::UNDEF_LEVEL and li <= level_min)
+      if ((level_min != DianaLevels::UNDEF_LEVEL and li < level_min)
           or (level_max != DianaLevels::UNDEF_LEVEL and li >= level_max)
           or (not mPlotOptions.zeroLine and li == 0))
       {
