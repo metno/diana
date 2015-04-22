@@ -59,6 +59,7 @@
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
+#include <boost/foreach.hpp>
 
 #include <cmath>
 #include <iomanip>
@@ -1042,11 +1043,24 @@ void VprofManager::initTimes()
 
   timeList.clear();
 
-  //assume common times...
-  if (vpdata.size()) timeList= vpdata[0]->getTimes();
+  set<miutil::miTime> set_times;
 
-  if (onlyObs)
-    timeList= obsTime;
+  for ( int i=0; i<vpdata.size(); ++i) {
+    vector<miutil::miTime> tmp_times = vpdata[i]->getTimes();
+    BOOST_FOREACH(const miutil::miTime& t, tmp_times) {
+      set_times.insert(t);
+    }
+  }
+
+  if ( onlyObs) {
+    BOOST_FOREACH(const miutil::miTime& t, obsTime) {
+      set_times.insert(t);
+    }
+  }
+
+  BOOST_FOREACH(const miutil::miTime& t, set_times) {
+    timeList.push_back(t);
+  }
 
   int n= timeList.size();
   int i= 0;
