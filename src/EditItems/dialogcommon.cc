@@ -174,23 +174,33 @@ QList<QSharedPointer<Layer> > createLayersFromFile(const QString &fileName, Laye
 }
 
 // Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
-QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, bool ensureUniqueNames, QString *error)
+QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, bool ensureUniqueNames, QString *error, QString *fileName)
 {
   *error = QString();
 
-  const QString fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
+  *fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
     DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isEmpty())
+  if (fileName->isEmpty())
     return QList<QSharedPointer<Layer> >();
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerManager, ensureUniqueNames, error);
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(*fileName, layerManager, ensureUniqueNames, error);
   QApplication::restoreOverrideCursor();
 
-  QFileInfo fi(fileName);
+  QFileInfo fi(*fileName);
   DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
 
   return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
+}
+
+// Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
+void createLayerGroupFromFile(LayerManager *layerManager)
+{
+  QString fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
+    DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+
+  if (!fileName.isEmpty())
+    layerManager->createNewLayerGroup(fileName, fileName);
 }
 
 class StringSelector : public QDialog

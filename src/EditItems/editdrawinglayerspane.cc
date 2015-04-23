@@ -256,7 +256,8 @@ void EditDrawingLayersPane::addEmpty()
 void EditDrawingLayersPane::addFromFile()
 {
   QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, true, &error);
+  QString fileName;
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, true, &error, &fileName);
   if (!error.isEmpty()) {
     QMessageBox::warning(0, "Error", QString("failed to add to layer group from file: %1").arg(error));
     return;

@@ -197,17 +197,8 @@ void LayerGroupsPane::addWidgetForLG(const QSharedPointer<LayerGroup> &layerGrou
 
 void LayerGroupsPane::addToLGFromFile()
 {
-  QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, true, &error);
-  if (!error.isEmpty()) {
-    QMessageBox::warning(0, "Error", QString("failed to add to layer group from file: %1").arg(error));
-    return;
-  }
+  createLayerGroupFromFile(layerMgr_);
 
-  if (layers.isEmpty())
-      return;
-
-  layerMgr_->addToNewLayerGroup(layers);
   EditItemManager::instance()->updateJoins();
 
   emit updated();
