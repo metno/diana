@@ -5,6 +5,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QImage>
+
 WebMapDimension::WebMapDimension(const std::string& identifier)
   : mIdentifier(identifier)
   , mDefaultIndex(0)
@@ -53,10 +55,24 @@ WebMapLayer::~WebMapLayer()
 {
 }
 
+int WebMapLayer::findDimensionByIdentifier(const std::string& dimId) const
+{
+  for (size_t i=0; i<countDimensions(); ++i) {
+    if (dimension(i).identifier() == dimId)
+      return i;
+  }
+  return -1;
+}
+
 // ========================================================================
 
 WebMapRequest::~WebMapRequest()
 {
+}
+
+QImage WebMapRequest::legendImage() const
+{
+  return QImage();
 }
 
 // ========================================================================

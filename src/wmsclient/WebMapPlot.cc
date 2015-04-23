@@ -145,6 +145,30 @@ void WebMapPlot::plot(PlotOrder porder)
         glEnd();
       }
     }
+    const QImage li = mRequest->legendImage();
+    if (!li.isNull()) {
+      METLIBS_LOG_DEBUG("about to plot legend...");
+      // draw legend using plotFillCell
+
+      const int w = li.width(), h = li.height();
+      const size_t N = (w+1)*(h+1);
+      float* vx = new float[N];
+      float* vy = new float[N];
+      size_t ixy = 0;
+      for (int iy=0; iy<=h; ++iy) {
+        for (int ix=0; ix<=w; ++ix) {
+          const float px = getStaticPlot()->getPhysWidth() - w - 10 + ix,
+              py = 10 + h - iy;
+          getStaticPlot()->PhysToMap(px, py, vx[ixy], vy[ixy]);
+          ixy += 1;
+        }
+      }
+      diutil::QImageData imagepixels(&li, vx, vy);
+      imagepixels.setColourTransform(mColourTransform);
+      diutil::drawFillCell(imagepixels);
+      delete[] vx;
+      delete[] vy;
+    }
   } else {
     METLIBS_LOG_DEBUG("waiting for tiles...");
   }
@@ -183,17 +207,6 @@ size_t WebMapPlot::countDimensions() const
     return mLayer->countDimensions();
 }
 
-int WebMapPlot::findDimensionByIdentifier(const std::string& dimId) const
-{
-  if (mLayer) {
-    for (size_t i=0; i<mLayer->countDimensions(); ++i) {
-      if (mLayer->dimension(i).identifier() == dimId)
-        return i;
-    }
-  }
-  return -1;
-}
-
 const std::string& WebMapPlot::dimensionTitle(size_t idx) const
 {
   if (!mLayer || idx >= mLayer->countDimensions())
@@ -208,14 +221,10 @@ const std::vector<std::string>& WebMapPlot::dimensionValues(size_t idx) const
   return mLayer->dimension(idx).values();
 }
 
-void WebMapPlot::setDimensionValue(size_t idx, const std::string& dimValue)
+void WebMapPlot::setDimensionValue(const std::string& dimId, const std::string& dimValue)
 {
-  if (!mLayer || idx >= mLayer->countDimensions())
-    return;
-
-  const std::string& dimId = mLayer->dimension(idx).identifier();
-  const std::vector<std::string>& dimValues = mLayer->dimension(idx).values();
-  if (!dimValue.empty() && std::find(dimValues.begin(), dimValues.end(), dimValue) != dimValues.end())
+  METLIBS_LOG_SCOPE(LOGVAL(dimId) << LOGVAL(dimValue));
+  if (!dimValue.empty())
     mDimensionValues[dimId] = dimValue;
   else
     mDimensionValues.erase(dimId);
@@ -249,11 +258,12 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
   if (bestIndex == mTimeSelected)
     return;
   mTimeSelected = bestIndex;
+  const std::string& timeId = timeDim.identifier();
   if (bestIndex >= 0) {
     METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << "='" << timeDim.value(bestIndex) << "'");
-    setDimensionValue(mTimeIndex, timeDim.value(bestIndex));
+    setDimensionValue(timeId, timeDim.value(bestIndex));
   } else {
-    setDimensionValue(mTimeIndex, EMPTY_STRING);
+    setDimensionValue(timeId, EMPTY_STRING);
   }
   dropRequest();
 }

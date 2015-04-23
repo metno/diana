@@ -1,6 +1,8 @@
 
 #include "WebMapTile.h"
 
+#include "WebMapUtilities.h"
+
 #include <QNetworkReply>
 
 #include <QFont>
@@ -10,20 +12,17 @@
 #define MILOGGER_CATEGORY "diana.WebMapWMS"
 #include <miLogger/miLogging.h>
 
-WebMapTile::WebMapTile(int column, int row, const Rectangle& rect)
-  : mColumn(column)
-  , mRow(row)
-  , mRect(rect)
-  , mReply(0)
+WebMapImage::WebMapImage()
+  : mReply(0)
 {
 }
 
-WebMapTile::~WebMapTile()
+WebMapImage::~WebMapImage()
 {
   dropRequest();
 }
 
-void WebMapTile::submit(QNetworkReply* r)
+void WebMapImage::submit(QNetworkReply* r)
 {
   METLIBS_LOG_SCOPE();
   dropRequest();
@@ -41,12 +40,12 @@ void WebMapTile::submit(QNetworkReply* r)
   }
 }
 
-void WebMapTile::abort()
+void WebMapImage::abort()
 {
   dropRequest();
 }
 
-void WebMapTile::dropRequest()
+void WebMapImage::dropRequest()
 {
   if (mReply) {
     disconnect(mReply, SIGNAL(finished()), this, SLOT(replyFinished()));
@@ -56,9 +55,9 @@ void WebMapTile::dropRequest()
   mReply = 0;
 }
 
-bool WebMapTile::loadImage(const char* format)
+bool WebMapImage::loadImage(const char* format)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(mColumn) << LOGVAL(mRow) << LOGVAL(format));
+  METLIBS_LOG_SCOPE();
   if (mReply) {
     METLIBS_LOG_DEBUG(LOGVAL(mReply->isFinished()) << LOGVAL(mReply->error()));
 
@@ -70,6 +69,10 @@ bool WebMapTile::loadImage(const char* format)
       fmt = "PNG";
     else if (ct == "image/jpeg")
       fmt = "JPEG";
+    else if (ct == "text/html") {
+      QString text = QString::fromUtf8(mReply->readAll().constData());
+      METLIBS_LOG_ERROR(LOGVAL(diutil::qs(text)));
+    }
     if (fmt != 0) {
 #if 0
       ok = mImage.load(mReply, fmt);
@@ -83,8 +86,27 @@ bool WebMapTile::loadImage(const char* format)
   return !mImage.isNull();
 }
 
+void WebMapImage::replyFinished()
+{
+  Q_EMIT finishedImage(this);
+}
+
+//========================================================================
+
+WebMapTile::WebMapTile(int column, int row, const Rectangle& rect)
+  : mColumn(column)
+  , mRow(row)
+  , mRect(rect)
+{
+}
+
+WebMapTile::~WebMapTile()
+{
+}
+
 void WebMapTile::dummyImage(int tw, int th)
 {
+  METLIBS_LOG_SCOPE();
   mImage = QImage(tw, th, QImage::Format_ARGB32);
   mImage.fill(Qt::transparent);
   QPainter p(&mImage);
@@ -103,5 +125,7 @@ void WebMapTile::dummyImage(int tw, int th)
 
 void WebMapTile::replyFinished()
 {
+  WebMapImage::replyFinished();
   Q_EMIT finished(this);
 }
+

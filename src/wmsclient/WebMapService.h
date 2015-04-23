@@ -107,6 +107,8 @@ public:
   const WebMapDimension& dimension(size_t idx) const
     { return mDimensions.at(idx); }
 
+  int findDimensionByIdentifier(const std::string& dimId) const;
+
 private:
   std::string mIdentifier;
   std::string mTitle;
@@ -149,6 +151,9 @@ public:
 
   /*! projection of all tiles */
   virtual const Projection& tileProjection() const = 0;
+
+  /*! legend image; might have isNull() == true */
+  virtual QImage legendImage() const;
 
 Q_SIGNALS:
   /*! the request is complete, ready for rendering, or aborted */

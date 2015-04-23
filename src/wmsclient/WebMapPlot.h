@@ -50,8 +50,6 @@ public:
 
   size_t countDimensions() const;
 
-  int findDimensionByIdentifier(const std::string& dimId) const;
-
   const std::string& dimensionTitle(size_t idx) const;
 
   const std::vector<std::string>& dimensionValues(size_t idx) const;
@@ -60,7 +58,7 @@ public:
   int timeDimension() const
     { return mTimeIndex; }
 
-  void setDimensionValue(size_t idx, const std::string& dimValue);
+  void setDimensionValue(const std::string& dimId, const std::string& dimValue);
 
   /*! selet time; if invalid or not found, use default time; ignored
    *  if no time dimension */

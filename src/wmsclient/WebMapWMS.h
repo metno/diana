@@ -37,8 +37,8 @@ public:
   void setDimensions(const WebMapDimension_v& dimensions)
     { mDimensions = dimensions; }
 
-  void setDefaultStyle(const std::string& styleId)
-    { mDefaultStyle = styleId; }
+  void setDefaultStyle(const std::string& styleId, const std::string& legendUrl = std::string())
+    { mDefaultStyle = styleId; mLegendUrl = legendUrl; }
 
   void setZoomRange(int minZoom, int maxZoom)
     { mMinZoom = minZoom; mMaxZoom = maxZoom; }
@@ -64,11 +64,15 @@ public:
   const std::string& defaultStyle() const
     { return mDefaultStyle; }
 
+  const std::string& legendUrl() const
+    { return mLegendUrl; }
+
 private:
   WebMapWmsCrsBoundingBox_v mCRS;
   int mMinZoom;
   int mMaxZoom;
   std::string mDefaultStyle;
+  std::string mLegendUrl;
 };
 
 typedef WebMapWMSLayer* WebMapWMSLayer_x;
@@ -111,8 +115,14 @@ public:
   const Projection& tileProjection() const
     { return mLayer->crsBoundingBox(mCrsIndex).projection; }
 
+  QImage legendImage() const;
+
+private:
+  bool checkRedirect(WebMapImage* image);
+
 private Q_SLOTS:
   void tileFinished(WebMapTile*);
+  void legendFinished(WebMapImage*);
 
 private:
   WebMapWMS_x mService;
@@ -122,7 +132,10 @@ private:
   std::map<std::string, std::string> mDimensionValues;
 
   std::vector<WebMapTile*> mTiles;
+  WebMapImage* mLegend;
   size_t mUnfinished;
+
+  QImage mLegendImage;
 };
 
 typedef boost::shared_ptr<WebMapRequest> WebMapRequest_p;
@@ -164,8 +177,8 @@ private:
   enum WmsVersion { WMS_111, WMS_130 };
 
   bool parseReply();
-  bool parseLayer(QDomElement& eLayer, std::string style, crs_bbox_m crs_bboxes,
-      WebMapDimension_v dimensions);
+  bool parseLayer(QDomElement& eLayer, std::string style,  std::string legendUrl,
+      crs_bbox_m crs_bboxes, WebMapDimension_v dimensions);
   void parseDimensionValues(WebMapDimension& dim, const QString& text, const QString& defaultValue);
 
 private Q_SLOTS:

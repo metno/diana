@@ -10,7 +10,45 @@
 class QNetworkReply;
 
 
-class WebMapTile : public QObject {
+class WebMapImage : public QObject {
+  Q_OBJECT;
+
+public:
+  WebMapImage();
+
+  ~WebMapImage();
+
+  const QImage& image() const
+    { return mImage; }
+
+  void submit(QNetworkReply* reply);
+
+  void abort();
+
+  bool loadImage(const char* format);
+  bool loadImage(const std::string& format)
+    { return loadImage(format.c_str()); }
+
+  const QNetworkReply* reply() const
+    { return mReply; }
+
+protected Q_SLOTS:
+  virtual void replyFinished();
+
+Q_SIGNALS:
+  void finishedImage(WebMapImage* self);
+
+private:
+  void dropRequest();
+
+protected:
+  QImage mImage;
+  QNetworkReply* mReply;
+};
+
+// ========================================================================
+
+class WebMapTile : public WebMapImage {
   Q_OBJECT;
 
 public:
@@ -26,36 +64,18 @@ public:
   const Rectangle& rect() const
     { return mRect; }
 
-  const QImage& image() const
-    { return mImage; }
-
-  void submit(QNetworkReply* reply);
-
-  void abort();
-
-  bool loadImage(const char* format);
-  bool loadImage(const std::string& format)
-    { return loadImage(format.c_str()); }
   void dummyImage(int tw, int th);
 
-  const QNetworkReply* reply() const
-    { return mReply; }
-
-private Q_SLOTS:
-  void replyFinished();
+protected /*Q_SLOTS*/:
+  void replyFinished() /* Q_DECL_OVERRIDE */;
 
 Q_SIGNALS:
   void finished(WebMapTile* self);
-
-private:
-  void dropRequest();
 
 protected:
   int mColumn;
   int mRow;
   Rectangle mRect;
-  QImage mImage;
-  QNetworkReply* mReply;
 };
 
 #endif // WebMapTile_h

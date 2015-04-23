@@ -165,11 +165,8 @@ WebMapPlot* WebMapManager::createPlot(const std::string& qmstring)
     const std::string& value = kv[1];
     if (key == "webmap.dim") {
       const std::vector<std::string> dnv = miutil::split(value, 1, "=");
-      if (dnv.size() == 2) {
-        const int dimIdx = plot->findDimensionByIdentifier(dnv[0]);
-        if (dimIdx >= 0)
-          plot->setDimensionValue(dimIdx, dnv[2]);
-      }
+      if (dnv.size() == 2)
+        plot->setDimensionValue(dnv[0], dnv[1]);
     } else if (key == "webmap.crs") {
       plot->setCRS(value);
     } else if (key == "webmap.time_tolerance") {
