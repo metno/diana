@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+    targetNamespace="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlswo="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlcore="http://xml.fmi.fi/namespace/woml/core/2011/11/15"
+    xmlns="http://www.w3.org/2001/XMLSchema" 
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:sch="http://www.ascc.net/xml/schematron" 
+    elementFormDefault="qualified" 
+    version="1.0">
+    
+    <annotation>
+        <appinfo>
+            <sch:title>Schematron validation</sch:title>
+            <sch:ns prefix="xlink" uri="http://www.w3.org/1999/xlink" />
+            <sch:ns prefix="woml" uri="http://xml.fmi.fi/namespace/woml/2011/11/15"/>
+            <sch:ns prefix="gml" uri="http://www.opengis.net/gml/3.2"/>
+            
+            <sch:pattern name="Check either href or content not both">
+                <sch:rule abstract="true" id="hrefOrContent">
+                    <sch:report test="@xlink:href and (*|text())"
+                        >Property element may not carry both a reference to an object and contain an object.</sch:report>
+                    <sch:assert test="@xlink:href | (*|text())"
+                        >Property element must either carry a reference to an object or contain an object.</sch:assert>
+                </sch:rule>
+            </sch:pattern>
+        </appinfo>
+        <documentation>
+            Front-like WOML objects as GML 3.2.1 Features.                
+            Author: Ilkka Rinne / FMI 2011.
+        </documentation>
+    </annotation>
+    
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd" />
+    <import namespace="http://xml.fmi.fi/namespace/woml/core/2011/11/15" schemaLocation="http://xml.fmi.fi/schema/woml/core/2011/11/15/woml-core.xsd" />
+    
+    <!-- ======================================================================================== -->
+    <element name="ColdFront" type="womlswo:ColdFrontType"
+        substitutionGroup="womlcore:AbstractLineObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="ColdFrontType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for cold fronts.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ======================================================================================== -->
+    <element name="WarmFront" type="womlswo:WarmFrontType"
+        substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ======================================================================================== -->
+    <complexType name="WarmFrontType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for warm fronts.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ================================================================================================ -->
+    <element name="OccludedFront" type="womlswo:OccludedFrontType"
+        substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ================================================================================================ -->
+    <complexType name="OccludedFrontType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for occluded fronts. Extends the AbstractLineObjectType
+                        by introducing "stationary" element for stationary occluded fronts.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType">
+                <sequence>
+                    <element name="stationary" type="boolean" minOccurs="0" maxOccurs="1" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ============================================================================ -->
+    <element name="JetStream" type="womlswo:JetStreamType" substitutionGroup="womlcore:AbstractLineObject">
+     <annotation>
+            <appinfo>
+                <sch:include href="./check-jet-stream-winds-pattern.sch"/>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ============================================================================ -->
+    <complexType name="JetStreamType">
+        <annotation>
+            <documentation>               
+                    Concrete Met Object type for jets. Extends the AbstractLineObjectType
+                    by introducing "segmentMaximumWinds" element.
+                    
+                    Different values for maximum wind speeds along the line
+                    are given by separating the control curve of the feature
+                    into several segments: each significant change in the
+                    wind speed and/or elevation of the jet begins a new curve
+                    segment. Wind speeds and the jet elevations for each
+                    segment must be given in segmentMaximumWinds property. 
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType">
+                <sequence>
+                    <element ref="womlswo:segmentMaximumWinds"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ============================================================================ -->
+    <element name="WarmAdvection" type="womlswo:WarmAdvectionType"
+        substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ============================================================================ -->
+    <complexType name="WarmAdvectionType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for warm temperature advection.
+                    In warm advection the wind blows from a region of 
+                    warm air to a region of cooler air.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    <!-- ============================================================================ -->
+    <element name="ColdAdvection" type="womlswo:ColdAdvectionType"
+        substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ============================================================================ -->
+    <complexType name="ColdAdvectionType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for cold temperature advection.
+                    In cold advection the wind blows from a region of 
+                    cool air to a region of warmer air.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    <!-- ============================================================================= -->
+    <element name="segmentMaximumWinds" type="womlswo:MaximumSegmentWindArrayPropertyType" />
+    <!-- ============================================================================= -->
+    <complexType name="MaximumSegmentWindArrayPropertyType" >
+        <sequence>
+           <element ref="womlswo:SegmentMaximumWind" minOccurs="1" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    
+    <!-- ============================================================================ -->
+    <element name="SegmentMaximumWind" type="womlswo:SegmentMaximumWindType"/>
+    <!-- ============================================================================ -->
+    <complexType name="SegmentMaximumWindType">
+      <annotation>
+        <documentation>The maximum wind speed associated with a curve segment
+        of a feature's geometry property. The elevation of the occurrence
+        of the mentioned wind speed may optionally be given using "elevation"
+        property</documentation>
+      </annotation>
+      <complexContent>
+        <extension base="gml:AbstractGMLType">
+          <sequence>
+            <element name="segmentIndex" type="integer" minOccurs="1" maxOccurs="1"/>
+            <element name="maximumWindSpeed" type="gml:MeasureType" minOccurs="1"
+                        maxOccurs="1" />
+            <element name="elevation" type="womlcore:ElevationPropertyType" minOccurs="0" maxOccurs="1"/>
+          </sequence>
+        </extension>
+      </complexContent>
+    </complexType>
+   
+</schema>

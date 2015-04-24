@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+    targetNamespace="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlswo="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlcore="http://xml.fmi.fi/namespace/woml/core/2011/11/15"
+    xmlns="http://www.w3.org/2001/XMLSchema" 
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:sch="http://www.ascc.net/xml/schematron" 
+    elementFormDefault="qualified" 
+    version="1.0">
+    
+    <annotation>
+        <appinfo>
+            <sch:title>Schematron validation</sch:title>
+            <sch:ns prefix="xlink" uri="http://www.w3.org/1999/xlink" />
+            <sch:pattern name="Check either href or content not both">
+                <sch:rule abstract="true" id="hrefOrContent">
+                    <sch:report test="@xlink:href and (*|text())"
+                        >Property element may not carry both a reference to an object and contain an object.</sch:report>
+                    <sch:assert test="@xlink:href | (*|text())"
+                        >Property element must either carry a reference to an object or contain an object.</sch:assert>
+                </sch:rule>
+            </sch:pattern>
+        </appinfo>
+        <documentation>
+            Cloudiness-related WOML objects as GML 3.2.1 Features.                
+            Author: Ilkka Rinne / FMI 2011.
+        </documentation>
+    </annotation>
+    
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd" />
+    <import namespace="http://xml.fmi.fi/namespace/woml/core/2011/11/15" schemaLocation="http://xml.fmi.fi/schema/woml/core/2011/11/15/woml-core.xsd" />
+    
+    <!-- ========================================================================================== -->
+    <element name="CloudArea" type="womlswo:CloudAreaType"
+        substitutionGroup="womlcore:AbstractSurfaceObject" />
+    <!-- ========================================================================================== -->
+    <complexType name="CloudAreaType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Area of cloud coverage including cloud type and coverage in percentage, eighths or
+                        cloud amount abbreviations according to the ICAO's "Annex 3 to the Convention on 
+                        International Civil Aviation: Meteorological Service 
+                        for International Air Navigation".</p>
+                    
+                    <p>Cloud areas may contain 0..n inner areas with different cloud type and coverage
+                        qualities. These area are defined by
+                        using innerArea element which is a property containing or referring to
+                        another CloudArea object. The exterior of the contained
+                        area object must be completely inside the exterior
+                        and not even partly cover the area inside any of the interior Rings
+                        of the parent object. If a value for any of the qualities is not
+                        given, it is assumed to be the same as in its parent.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractSurfaceObjectType">
+                <sequence>
+                    <element name="cloudType" type="womlswo:cloudTypeAnnex3Type" minOccurs="1"
+                        maxOccurs="1" />
+                    <choice>
+                        <element name="cloudCoverPercent" type="womlcore:percentageType"
+                            minOccurs="0" maxOccurs="1" />
+                        <element name="cloudCoverEighths" type="womlswo:cloudCoverEighthsType"
+                            minOccurs="0" maxOccurs="1" />
+                        <element name="cloudCoverAnnex3" type="womlswo:cloudCoverAnnex3Type"
+                            minOccurs="0" maxOccurs="unbounded" />
+                    </choice>
+                    <element name="innerArea" type="womlswo:CloudAreaPropertyType" minOccurs="0"
+                        maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="cloudAreaProperty" type="womlswo:CloudAreaPropertyType" />
+    <!-- ================================================================= -->
+    <complexType name="CloudAreaPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlswo:CloudArea" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+    
+    <simpleType name="cloudTypeAnnex3Type">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>From the ICAO's "Annex 3 to the Convention on 
+                        International Civil Aviation: Meteorological Service 
+                        for International Air Navigation", Appendix 1, page 16. 
+                    </p>
+                    <dl>
+                        <dt>CI</dt><dd>Cirrus</dd>
+                        <dt>CC</dt><dd>Cirrocumulus</dd>
+                        <dt>CS</dt><dd>Cirrostratus</dd>
+                        <dt>AC</dt><dd>Altocumulus</dd>
+                        <dt>AS</dt><dd>Altostratus</dd>
+                        <dt>NS</dt><dd>Nimbostratus</dd>
+                        <dt>SC</dt><dd>Stratocumulus</dd>
+                        <dt>ST</dt><dd>Stratus</dd>
+                        <dt>CU</dt><dd>Cumulus</dd>
+                        <dt>CB</dt><dd>Cumulonimbus</dd>
+                        <dt>UNKNOWN</dt><dd>Unknown type</dd>
+                    </dl>
+                </html:div>
+            </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="CI" />
+            <enumeration value="CC" />
+            <enumeration value="CS" />
+            <enumeration value="AC" />
+            <enumeration value="AS" />
+            <enumeration value="NS" />
+            <enumeration value="SC" />
+            <enumeration value="ST" />
+            <enumeration value="CU" />
+            <enumeration value="CB" />
+            <enumeration value="UNKNOWN" />
+        </restriction>
+    </simpleType>
+
+    <simpleType name="cloudCoverEighthsType">
+        <restriction base="string">
+            
+            <pattern value="[0-9]{1}/8" />
+        </restriction>
+    </simpleType>
+
+    <simpleType name="cloudCoverAnnex3Type">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>From the ICAO's "Annex 3 to the Convention on 
+                        International Civil Aviation: Meteorological Service 
+                        for International Air Navigation", Appendix 1, page 16. 
+                    </p>
+                    <dl>
+                        <dt>SKC</dt><dd>sky clear (0/8)</dd>
+                        <dt>FEW</dt><dd>few (1/8 to 2/8)</dd>
+                        <dt>SCT</dt><dd>scattered (3/8 to 4/8)</dd>
+                        <dt>BKN</dt><dd>broken (5/8 to 7/8)</dd>
+                        <dt>OVC</dt><dd>overcast (8/8)</dd>
+                        <dt>ISOL</dt><dd>individual CBs (isolated, CB only)</dd>
+                        <dt>OCNL</dt><dd>well-separated CBs (occasional, CB only)</dd>
+                        <dt>FRQ</dt><dd>CBs with little or no separation (frequent, CB only)</dd>
+                        <dt>EMBD</dt><dd>CBs embedded in layers of other clouds or concealed by haze (embedded, CB only)</dd>
+                    </dl>
+                </html:div>
+            </documentation>
+        </annotation>
+        <restriction base="string">
+            <enumeration value="SKC" />
+            <enumeration value="FEW" />
+            <enumeration value="SCT" />
+            <enumeration value="BKN" />
+            <enumeration value="OVC" />
+            <enumeration value="ISOL" />
+            <enumeration value="OCNL" />
+            <enumeration value="FRQ" />
+            <enumeration value="EMBD" />
+        </restriction>
+    </simpleType>
+</schema>

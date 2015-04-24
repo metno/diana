@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+  targetNamespace="http://xml.fmi.fi/namespace/woml/core/2012/11/15"
+  xmlns:womlcore="http://xml.fmi.fi/namespace/woml/core/2012/11/15"
+    xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:sch="http://www.ascc.net/xml/schematron" 
+    elementFormDefault="qualified" version="1.0">
+
+    <annotation>
+        <appinfo>
+            <sch:title>Schematron validation</sch:title>
+            <sch:ns prefix="woml" uri="http://xml.fmi.fi/namespace/woml/2012/07/21"/>
+            <sch:ns prefix="gml" uri="http://www.opengis.net/gml/3.2"/>
+            <sch:ns prefix="xlink" uri="http://www.w3.org/1999/xlink"/>
+            
+            <sch:pattern name="Check either href or content not both">                
+                <sch:rule abstract="true" id="hrefOrContent">
+                    <sch:report test="@xlink:href and (*|text())"
+                        >Property element may not carry both a reference to an object and contain an object.</sch:report>
+                    <sch:assert test="@xlink:href | (*|text())"
+                        >Property element must either carry a reference to an object or contain an object.</sch:assert>
+                </sch:rule>
+            </sch:pattern>            
+        </appinfo>
+        <documentation>
+            Core Weather Object Modelling Language (WOML) types and elements.
+            Author: Ilkka Rinne, FMI/Spatineo 2011-2012.
+        </documentation>
+    </annotation>
+
+    <import namespace="http://www.opengis.net/gml/3.2" 
+        schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd" />
+    
+    <include schemaLocation="woml-common.xsd" />
+   
+    <!-- CORE WOML FEATURE OBJECT AND PROPERTY TYPES & ELEMENTS -->
+    
+    <!-- ======================================================================================================== -->
+    <element name="MeteorologicalAnalysis" type="womlcore:MeteorologicalAnalysisType"
+        substitutionGroup="womlcore:ApprovedMeteorologicalObjectCollection" />
+    <!-- ======================================================================================================== -->
+    <complexType name="MeteorologicalAnalysisType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>A complete meteorological analysis of atmospheric and weather conditions for
+                        specific time and geographic region. At least one named target region must be given in addition
+                        to an approved collection of met objects.</p>
+                    
+                    <p>Zero or more data sources (such as
+                        numerical weather model runs) used for making this analysis may be given using
+                        usedReferenceData properties.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:ApprovedMeteorologicalObjectCollectionType">
+                <sequence>
+                    <element name="targetRegion" type="womlcore:GeographicRegionPropertyType"
+                            minOccurs="0" maxOccurs="unbounded" />
+                    <element name="analysisTime" type="dateTime" minOccurs="1" maxOccurs="1"
+                    />
+                    <element name="usedReferenceData" type="womlcore:DataSourceReferencePropertyType"
+                        minOccurs="0" maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="meteorologicalAnalysisProperty"
+        type="womlcore:MeteorologicalAnalysisPropertyType" />
+    <!-- ================================================================= -->
+    <complexType name="MeteorologicalAnalysisPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:MeteorologicalAnalysis" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+
+    </complexType>
+
+    <!-- ======================================================================================================== -->
+    <element name="WeatherForecast" type="womlcore:WeatherForecastType"
+        substitutionGroup="womlcore:ApprovedMeteorologicalObjectCollection" />
+    <!-- ======================================================================================================== -->
+    <complexType name="WeatherForecastType">
+        <annotation>
+            <documentation>
+               
+                    A "object-oriented" weather forecast for specified region and time period
+                        given at specific time. 
+                        
+                        The forecastTime is the "official release time" for the
+                        forecast, this may be somewhat different from the creationTime or
+                        latestModificationTime for this feature. An example:
+                        A forecaster creates the first version of the weather forecast
+                        for tomorrow evening today at 11:15. The forecast is to be 
+                        published at noon today. The final edits are done at 11:45. 
+                        In this case the forecastTime is 12:00 today, creationTime is 11:15, 
+                        latestModificationTime is 11:45 and the validTime is 15:00 - 21:00
+                        tomorrow.
+                    
+                    Zero or more data sources (such as
+                        numerical weather model runs, satellite images, weather observation data) 
+                        used for making this forecast may be given using
+                        usedReferenceData properties.
+               
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:ApprovedMeteorologicalObjectCollectionType">
+                <sequence>
+                    <element name="targetRegion" type="womlcore:GeographicRegionPropertyType"
+                            minOccurs="0" maxOccurs="unbounded" />                   
+                    <element name="forecastTime" type="dateTime" minOccurs="1" maxOccurs="1"/>
+                    <element name="usedReferenceData" type="womlcore:DataSourceReferencePropertyType"
+                        minOccurs="0" maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="weatherForecastProperty" type="womlcore:WeatherForecastPropertyType" />
+    <!-- ================================================================= -->
+    <complexType name="WeatherForecastPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:WeatherForecast" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+    
+    <!-- ======================================================================================================== -->
+    <element name="AbstractMeteorologicalObject" type="womlcore:AbstractMeteorologicalObjectType"
+        abstract="true" substitutionGroup="gml:AbstractFeature"/>
+    <!-- ======================================================================================================== -->
+    <complexType name="AbstractMeteorologicalObjectType" abstract="true">
+        <annotation>
+
+            <documentation>Abstract parent type for all Meteorological
+                Objects.
+            
+            A Meteorological objects may also carry a digital signature for its data in
+                <a href="http://www.w3.org/TR/xmldsig-core/#def-SignatureEnveloped">enveloped</a> fashion:
+                The object (and thus also the signature) is included inside the data block to be signed.
+                Digital signatures are provided for automatically ensuring the integrity 
+                and authenticity of the included data.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:DynamicFeatureType">
+                <sequence>
+                    <group ref="womlcore:BasicObjectMetadata"/>
+                    <element name="uncertaintyArea" type="womlcore:UncertaintyAreaPropertyType" minOccurs="0" maxOccurs="1"/>
+                    <element name="historyInterpolationRule" type="womlcore:TimeInterpolationPropertyType" minOccurs="0" maxOccurs="1"/>
+                    
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="meteorologicalObjectProperty" type="womlcore:MeteorologicalObjectPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:meteorologicalObjectProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="MeteorologicalObjectPropertyType">
+        <annotation>
+            <documentation>Container for met objects - follow gml:AssociationType pattern.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:AbstractMeteorologicalObject" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    
+    <!-- ======================================================================================================== -->
+    <element name="MeteorologicalObjectCollection"
+        type="womlcore:MeteorologicalObjectCollectionType"
+        substitutionGroup="gml:AbstractFeature" />
+    <!-- ======================================================================================================== -->
+    <complexType name="MeteorologicalObjectCollectionType">
+        <annotation>
+            <documentation>Parent type for collections of Met Objects.
+            Note: The model of this type is updated according to the new 
+            GML feature collection model defined in GML 3.2.1 spec Chapter 9.9.1.
+            This type no longer extends the gml:AbstractFeatureCollection (deprecated in GML 3.2).
+            GML feature collection is now any feature having a property of type
+            extending gml:AbstractFeatureMemberType.
+            
+            Only features substitutable for AbstractMeteorologicalObject are now allowed
+            as members of the collection.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractFeatureType">
+                <sequence>
+                    <element name="member" type="womlcore:MeteorologicalObjectMemberType" minOccurs="0" maxOccurs="unbounded"/>
+                    <group ref="womlcore:BasicObjectMetadata"/>
+                    <element name="sharedObjects"
+                        type="womlcore:ReferenceableObjectArrayAssociationType" minOccurs="0"
+                        maxOccurs="1" />
+                    
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="MeteorologicalObjectMemberType">
+        <annotation>
+            <documentation>Defined to support the new feature collection model in GML 3.2.1.
+            Only features substitutable for AbstractMeteorologicalObject are allowed.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractFeatureMemberType">
+                <sequence minOccurs="0">
+                    <element ref="womlcore:AbstractMeteorologicalObject"/>
+                </sequence>
+                <attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================================== -->
+    <element name="ApprovedMeteorologicalObjectCollection" type="womlcore:ApprovedMeteorologicalObjectCollectionType"
+       substitutionGroup="womlcore:MeteorologicalObjectCollection" />
+    <!-- ======================================================================================================== -->
+    <complexType name="ApprovedMeteorologicalObjectCollectionType" abstract="true">
+        <annotation>
+            <documentation>Abstract parent type for official (approved) Met Object collections.
+                The collections, such as weather analyses or (graphical) weather forecasts, can be
+                approved at several times, by several authorities and for several uses (see
+                ApprovalType).</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:MeteorologicalObjectCollectionType">
+                <sequence>
+                    <element ref="gml:validTime"/>
+                    <element name="approval" type="womlcore:ApprovalPropertyType" minOccurs="0"
+                        maxOccurs="unbounded" />
+                    <element name="envelopedSignature" type="womlcore:DigitalSignaturePropertyType" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    
+    <!-- ====================================================================================== -->
+    <element name="AbstractPointObject" type="womlcore:AbstractPointObjectType" abstract="true"
+        substitutionGroup="womlcore:AbstractMeteorologicalObject" />
+    <!-- ====================================================================================== -->
+    <complexType name="AbstractPointObjectType" abstract="true">
+        <annotation>
+            <documentation>Abstract parent type for all Met Objects located at a single
+                geosaptial point or point-like location (airport, city, observation station,..).
+                Moving point objects can be modeled using DynamicMeteorologicalObject with multiple
+                point objects as collection content.
+                
+                Display priority levels of point-like
+                objects can be given with displayPriority property: The rendering engine should
+                start dropping the objects out in descending priority order if it cannot properly
+                position all the point objects into the given display size.
+                
+                The "effectiveRadius" element may be used to define the circular area around
+                the single geospatial point that this object describes.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractMeteorologicalObjectType">
+                <sequence>
+                    <choice>
+                        <element name="controlPoint" type="gml:PointPropertyType" minOccurs="1" maxOccurs="1" />
+                        <element name="knownPlace" type="womlcore:KnownPlacePropertyType" minOccurs="1" maxOccurs="1" />
+                    </choice>
+                    <element name="priority" type="int" minOccurs="0" maxOccurs="1" />
+                    <element name="effectiveRadius" type="gml:MeasureType" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="pointObjectProperty" type="womlcore:PointObjectPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:pointObjectProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="PointObjectPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:AbstractPointObject" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+    
+
+    <!-- ==================================================================================== -->
+    <element name="AbstractLineObject" type="womlcore:AbstractLineObjectType" abstract="true"
+        substitutionGroup="womlcore:AbstractMeteorologicalObject">
+        <annotation>
+            <documentation>The controlCurve element contents are
+            further controlled by the included Schematron rules</documentation>
+            <appinfo>
+                <sch:include href="./check-control-curve-geometry-pattern.sch"/>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ==================================================================================== -->
+    <complexType name="AbstractLineObjectType" abstract="true">
+        <annotation>
+            <documentation>               
+                    Abstract parent type for WOML Objects defined line segments 
+                        between an ordered set of geospatial points.
+
+                    The points defined in each of the given line segments
+                        should be considered as one consecutive array of geospatial points. If there are more
+                        that one segment, the first point (in the orientation order) of each of the segments
+                        following the first one is ignored (the first and the last point coordinates 
+                        must always represent the same point).
+                    
+                    The orientation of the line is defined by attribute "orientation", starting from the first position
+                        in the position list and ending to the last position if positive.
+                        This may or may not affect the semantics and the rendering of the line object 
+                        (depending on whether the concrete types have a natural direction or not).
+                    
+                    If elevation
+                        property is given, its value must be added to possible height value of each of the
+                        points in the each line segment. If the CRS of the points is 2-dimensional, the
+                        value of the elevation should be interpreted as the static height value of each of
+                        the given (control)points.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractMeteorologicalObjectType">
+                <sequence>
+                    <element name="controlCurve" type="gml:CurvePropertyType" minOccurs="1" maxOccurs="1">
+                            <annotation>
+                                <documentation>                            
+                                    This element specifies the definitive geometry of the center line of the given line object in the given CRS.
+                                    Applications should use this information in rendering the line object when ever possible.
+                                    The using applications should note, that rendering the line in other CRS (projection) that the given one
+                                    probably requires a more complex path matching than simply re-projecting the control points. One possible way
+                                    would be sampling the curve as lineString with appropriate frequency, translating the sampled lineString,
+                                    and finally fitting a new cubic spline to the sampled and translated lineString.
+                                                                       
+                                </documentation>
+                            </annotation>
+                        </element>                                            
+                    <element name="startPointConnectsTo" type="womlcore:ConnectionPointReferenceType"
+                        minOccurs="0" maxOccurs="1" />
+                    <element name="endPointConnectsTo" type="womlcore:ConnectionPointReferenceType"
+                        minOccurs="0" maxOccurs="1" />
+                    <element name="elevation" type="womlcore:ElevationPropertyType" minOccurs="0"
+                        maxOccurs="1" />
+                </sequence>
+                <attribute name="orientation" type="gml:SignType" default="+" use="optional" />
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="lineObjectProperty" type="womlcore:LineObjectPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:lineObjectProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="LineObjectPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:AbstractLineObject" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    
+    <!-- ========================================================================================== -->
+    <element name="AbstractSurfaceObject" type="womlcore:AbstractSurfaceObjectType" abstract="true"
+        substitutionGroup="womlcore:AbstractMeteorologicalObject">
+        <annotation>
+            <documentation>The controlCurve element contents are
+                further controlled by the included Schematron rules</documentation>
+            <appinfo>
+                <sch:include href="./check-control-surface-geometry-pattern.sch"/>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ========================================================================================== -->
+    <complexType name="AbstractSurfaceObjectType">
+        <annotation>
+            <documentation>               
+                    Surface object's area is defined by a continuous surface as the value of the
+                    element "controlSurface". The surface consists of a single exterior ring
+                    an arbitrary amount of interior rings ("holes" inside the area). Each ring
+                    may consist an arbitrary amount of cubic spline or line string segments. 
+                    
+                    Surface interpolation is always "planar", meaning that all the points of
+                    the surface, including the exterior and interior rings, are on the same
+                    plane. The vertical position of this plane may be given by using the 
+                    "elevation" element.
+                    
+                    The object's surface may or may not be a named geographic region or a set of regions. 
+                    These regions may be identified by using "targetRegion" or "targetRegionReference"
+                    elements. If the boundaries of the target regions 
+                    (if available) should be considered as informational, the area of this object is 
+                    always defined by its primary geometry ("controlSurface").
+                    
+                    If the "elevation"
+                    property is given, its value must be added to possible height value of each of the
+                    points in the each line segment. If the CRS of the points is 2-dimensional, the
+                    value of the elevation should be interpreted as the static height value of each of
+                    the given (control)points.                   
+            </documentation>
+        </annotation>
+
+        <complexContent>
+            <extension base="womlcore:AbstractMeteorologicalObjectType">
+                <sequence>
+                    <element name="controlSurface" type="gml:SurfacePropertyType" minOccurs="1" maxOccurs="1" />                    
+                    <choice minOccurs="0" maxOccurs="unbounded">
+                        <element name="targetRegion" type="womlcore:GeographicRegionPropertyType"
+                                minOccurs="1" maxOccurs="1" />
+                        <element name="targetRegionReference" type="womlcore:catalogReferenceType" 
+                                minOccurs="1" maxOccurs="1"/>
+                    </choice>                    
+                    <element name="elevation" type="womlcore:ElevationPropertyType" minOccurs="0"
+                                maxOccurs="1" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="surfaceObjectProperty" type="womlcore:SurfaceObjectPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:surfaceObjectProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="SurfaceObjectPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:AbstractSurfaceObject" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+    
+    <!-- ========================================================================================== -->
+    <element name="UncertaintyArea" type="womlcore:UncertaintyAreaType"
+        substitutionGroup="gml:AbstractSurface" />
+    <!-- ========================================================================================== -->
+    <complexType name="UncertaintyAreaType">
+        <annotation>
+            <documentation>
+                UncertaintyArea describes the uncertainty typically associated with predicted weather object
+                of actually being located in the predicted place at the predicted time. The probability of
+                the forecast objects' location at the given valid time is given by the shape and 
+                the size of the exterior of the UncertaintyArea. The associated object must always reside
+                completely inside its UncertaintyArea.
+                
+                The probability of being located inside this area is given with the 
+                probabilityOfBeingLocatedInside property as decimal number between 0 and 1.
+                
+                UncertaintyAreas may be cascaded to describe the distribution of the 
+                location probability. The contained UncertaintyAreas must always have
+                greater probabilityOfBeingContainedInside value and their exterior must be
+                completely inside the parents exterior.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:PolygonType">
+                <sequence>                  
+                    <element name="probabilityOfBeingLocatedInside" minOccurs="1" maxOccurs="1">
+                        <simpleType>
+                            <restriction base="double">
+                                <minInclusive value="0"/>
+                                <maxInclusive value="1"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                    <element name="innerArea" type="womlcore:UncertaintyAreaPropertyType"
+                        minOccurs="0" maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ========================================================================================== -->
+    <element name="uncertaintyAreaProperty" type="womlcore:UncertaintyAreaPropertyType" />
+    <!-- ========================================================================================== -->
+    <complexType name="UncertaintyAreaPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:UncertaintyArea" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ==================================================================================== -->
+    <element name="PointObjectEvent" type="womlcore:PointObjectEventType"
+        substitutionGroup="gml:AbstractTimeSlice" />
+    <!-- ==================================================================================== -->
+    <complexType name="PointObjectEventType">
+        <annotation>
+            <documentation>Used for describing the dynamic properties of a point met object at a certain time instant. Instances of this type are meant 
+                to be used as contents of gml:history property of met objects changing in time (in the history or the future).</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractTimeSliceType">
+                <choice>
+                    <element name="controlPoint" type="gml:PointPropertyType" minOccurs="1" maxOccurs="1" />
+                    <element name="knownPlace" type="womlcore:KnownPlacePropertyType" minOccurs="1" maxOccurs="1" />
+                    <element name="uncertaintyArea" type="womlcore:UncertaintyAreaPropertyType" minOccurs="0" maxOccurs="1"/>
+                </choice>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="pointObjectEventProperty" type="womlcore:PointObjectEventPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:pointObjectHistoryProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="PointObjectEventPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:PointObjectEvent" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ==================================================================================== -->
+    <element name="LineObjectEvent" type="womlcore:LineObjectEventType"
+        substitutionGroup="gml:AbstractTimeSlice" />
+    <!-- ==================================================================================== -->
+    <complexType name="LineObjectEventType">
+        <annotation>
+            <documentation>Used for describing the dynamic properties of a line met object at a certain time instant. Instances of this type are meant 
+                to be used as contents of gml:history property of met objects changing in time (in the history or the future).</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractTimeSliceType">
+                <sequence>
+                    <element name="controlCurve" type="gml:CurvePropertyType" minOccurs="1" maxOccurs="1"/>
+                    <element name="startPointConnectsTo" type="womlcore:ConnectionPointReferenceType"
+                        minOccurs="0" maxOccurs="1" />
+                    <element name="endPointConnectsTo" type="womlcore:ConnectionPointReferenceType"
+                        minOccurs="0" maxOccurs="1" />
+                    <element name="uncertaintyArea" type="womlcore:UncertaintyAreaPropertyType" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="lineObjectEventProperty" type="womlcore:LineObjectEventPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:lineObjectHistoryProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="LineObjectEventPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:LineObjectEvent" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    
+    <!-- ==================================================================================== -->
+    <element name="SurfaceObjectEvent" type="womlcore:SurfaceObjectEventType"
+        substitutionGroup="gml:AbstractTimeSlice" />
+    <!-- ==================================================================================== -->
+    <complexType name="SurfaceObjectEventType">
+        <annotation>
+            <documentation>Used for describing the dynamic properties of a surface met object at a certain time instant. Instances of this type are meant 
+                to be used as contents of gml:history property of met objects changing in time (in the history or the future).</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractTimeSliceType">
+                <sequence>
+                    <element name="controlSurface" type="gml:SurfacePropertyType" minOccurs="1" maxOccurs="1" />
+                    <element name="uncertaintyArea" type="womlcore:UncertaintyAreaPropertyType" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="surfaceObjectEventProperty" type="womlcore:SurfaceObjectEventPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:surfaceObjectHistoryProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="SurfaceObjectEventPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:SurfaceObjectEvent" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <group name="BasicObjectMetadata">
+        <sequence>
+            <element name="metaData" type="womlcore:MeteorologicalObjectMetaDataPropertyType" minOccurs="0" maxOccurs="1"/>
+            <element name="creationTime" type="dateTime" minOccurs="1" maxOccurs="1" />
+            <element name="latestModificationTime" type="dateTime" minOccurs="0"
+                maxOccurs="1" />
+            <element name="shortInfo" type="womlcore:shortLocalizedStringType" minOccurs="0"
+                maxOccurs="unbounded" />
+            <element name="longInfo" type="womlcore:longLocalizedStringType" minOccurs="0"
+                maxOccurs="unbounded" />
+        </sequence>
+    </group>
+    
+</schema>

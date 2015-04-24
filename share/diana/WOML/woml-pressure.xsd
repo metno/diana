@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+    targetNamespace="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlswo="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlcore="http://xml.fmi.fi/namespace/woml/core/2011/11/15"
+    xmlns="http://www.w3.org/2001/XMLSchema" 
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:sch="http://www.ascc.net/xml/schematron" 
+    elementFormDefault="qualified" 
+    version="1.0">
+    
+    <annotation>
+        <appinfo>
+            <sch:title>Schematron validation</sch:title>
+            <sch:ns prefix="xlink" uri="http://www.w3.org/1999/xlink" />
+            <sch:pattern name="Check either href or content not both">
+                <sch:rule abstract="true" id="hrefOrContent">
+                    <sch:report test="@xlink:href and (*|text())"
+                        >Property element may not carry both a reference to an object and contain an object.</sch:report>
+                    <sch:assert test="@xlink:href | (*|text())"
+                        >Property element must either carry a reference to an object or contain an object.</sch:assert>
+                </sch:rule>
+            </sch:pattern>
+        </appinfo>
+        <documentation>
+            Pressure-related WOML objects as GML 3.2.1 Features.                
+            Author: Ilkka Rinne / FMI 2010.
+        </documentation>
+    </annotation>
+    
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd" />
+    <import namespace="http://xml.fmi.fi/namespace/woml/core/2011/11/15" schemaLocation="http://xml.fmi.fi/schema/woml/core/2011/11/15/woml-core.xsd" />
+    
+    <!-- ======================================================================================== -->
+    <element name="AbstractPressureCenter" type="womlswo:AbstractPressureCenterType" abstract="true"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="AbstractPressureCenterType" abstract="true">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractPointObjectType">
+              <sequence>
+                <element name="tendency" type="womlswo:PressureCenterTendencyType"/>
+                <element name="maximumWindSpeed" type="gml:MeasureType" minOccurs="0"
+                        maxOccurs="1" />
+              </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ======================================================================================== -->
+    <element name="LowPressureCenter" type="womlswo:LowPressureCenterType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="LowPressureCenterType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:AbstractPressureCenterType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="Cyclone" type="womlswo:CycloneType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="CycloneType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Cyclone
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:LowPressureCenterType" />             
+        </complexContent>
+    </complexType>
+    
+    
+    
+    <!-- ======================================================================================== -->
+    <element name="Mesolow" type="womlswo:MesolowType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="MesolowType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Mesolow
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:LowPressureCenterType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="PolarLow" type="womlswo:PolarLowType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="PolarLowType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#PolarLow
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:LowPressureCenterType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="PolarCyclone" type="womlswo:PolarCycloneType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="PolarCycloneType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#PolarCyclone
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:CycloneType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="TropicalCyclone" type="womlswo:TropicalCycloneType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="TropicalCycloneType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#TropicalCyclone
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:CycloneType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="Mesocyclone" type="womlswo:MesocycloneType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="MesocycloneType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Mesocyclone
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:CycloneType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="HighPressureCenter" type="womlswo:HighPressureCenterType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="HighPressureCenterType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for high pressure centers.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:AbstractPressureCenterType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="Anticyclone" type="womlswo:AnticycloneType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="AnticycloneType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Anticyclone
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:HighPressureCenterType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ======================================================================================== -->
+    <element name="Antimesocyclone" type="womlswo:AntimesocycloneType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="AntimesocycloneType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Antimesocyclone
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:AnticycloneType" />             
+        </complexContent>
+    </complexType>
+    
+    <!-- ============================================================================ -->
+    <element name="Trough" type="womlswo:TroughType" substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ============================================================================ -->
+    <complexType name="TroughType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for troughs.</p>
+                </html:div>
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Trough
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ============================================================================ -->
+    <element name="UpperTrough" type="womlswo:UpperTroughType"
+        substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ============================================================================ -->
+    <complexType name="UpperTroughType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for upper (high-level, aloft) troughs.</p>
+                </html:div>                
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    <!-- ============================================================================ -->
+    <element name="Ridge" type="womlswo:RidgeType" substitutionGroup="womlcore:AbstractLineObject"/>
+    <!-- ============================================================================ -->
+    <complexType name="RidgeType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for ridges (or wedges).</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPressure.owl#Ridge
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractLineObjectType" />
+        </complexContent>
+    </complexType>
+    
+    
+    
+    <simpleType name="PressureCenterTendencyType">
+      <restriction base="string">
+        <enumeration value="strengthening"/>
+        <enumeration value="weakening"/>
+      </restriction>
+    </simpleType>
+    
+    
+    
+</schema>
