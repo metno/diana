@@ -194,6 +194,14 @@ void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
           // layers, if no time property was found, make the item visible.
           item->setProperty("visible", true);
         }
+      } else if (time_prop == "TimeSpan:begin") {
+        // Make the item visible if the time is within the begin and end times
+        // for the item.
+        QDateTime beginTime = QDateTime::fromString(item->property("TimeSpan:begin").toString(), "yyyy-MM-ddThh:mm:ssZ");
+        QDateTime endTime = QDateTime::fromString(item->property("TimeSpan:end").toString(), "yyyy-MM-ddThh:mm:ssZ");
+        bool visible = (dateTime >= beginTime) && (dateTime < endTime);
+        item->setProperty("visible", visible);
+
       } else {
         // Make the item visible if the time is empty or equal to the current time.
         bool visible = (time_str.isEmpty() | (dateTimeStr == time_str));
