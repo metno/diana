@@ -1,3 +1,12 @@
+diana (3.38.0~a2-1) unstable; urgency=low
+
+  * wms client prototype
+  * Drawing: Support highlighting of drawing items outside editing mode.
+  * Drawing: Property display in drawing mode
+  * Drawing: Added hard-coded support for time spans for drawing items
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 27 Apr 2015 12:24:42 +0200
+
 diana (3.38.0~a1-1) unstable; urgency=low
 
   * FieldFunctions - new functions with several forecasthours
