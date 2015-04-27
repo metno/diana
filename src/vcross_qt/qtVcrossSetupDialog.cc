@@ -57,7 +57,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   : QDialog(parent), vcrossm(vm)
 {
   METLIBS_LOG_SCOPE();
-  setWindowTitle( tr("Diana Vertical Crossections - settings"));
+  setWindowTitle( tr("Diana Vertical Cross Sections - settings"));
 
   //******** create the various QT widgets to appear in dialog *****
 
@@ -235,8 +235,8 @@ void VcrossSetupDialog::initOptions()
   nrow++;
   opts= (VcrossSetupUI::useColour |
       VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
-  mSetupONMAPDRAW = new VcrossSetupUI(this, tr("Crossections on map"), glayout, nrow++, opts);
-  mSetupHITMAPDRAW = new VcrossSetupUI(this, tr("Selected crossection on map"), glayout, nrow++, opts);
+  mSetupONMAPDRAW = new VcrossSetupUI(this, tr("Cross sections on map"), glayout, nrow++, opts);
+  mSetupHITMAPDRAW = new VcrossSetupUI(this, tr("Selected cross section on map"), glayout, nrow++, opts);
 #endif
 
   if (nrow!=numrows) {

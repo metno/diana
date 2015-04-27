@@ -83,22 +83,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtAnnotationDialog.cc" line="66"/>
+        <location filename="../../../src/qtAnnotationDialog.cc" line="63"/>
         <source>Default</source>
         <translation type="unfinished">Por Defecto</translation>
     </message>
     <message>
-        <location filename="../../../src/qtAnnotationDialog.cc" line="75"/>
+        <location filename="../../../src/qtAnnotationDialog.cc" line="72"/>
         <source>Hide</source>
         <translation type="unfinished">Esconder</translation>
     </message>
     <message>
-        <location filename="../../../src/qtAnnotationDialog.cc" line="76"/>
+        <location filename="../../../src/qtAnnotationDialog.cc" line="73"/>
         <source>Apply + Hide</source>
         <translation type="unfinished">Aplicar+Esconder</translation>
     </message>
     <message>
-        <location filename="../../../src/qtAnnotationDialog.cc" line="77"/>
+        <location filename="../../../src/qtAnnotationDialog.cc" line="74"/>
         <source>Apply</source>
         <translation type="unfinished">Aplicar</translation>
     </message>
@@ -106,17 +106,17 @@
 <context>
     <name>ComplexPressureText</name>
     <message>
-        <location filename="../../../src/qtComplexPressureText.cc" line="103"/>
+        <location filename="../../../src/qtComplexPressureText.cc" line="104"/>
         <source>Write text</source>
         <translation type="unfinished">Escribir texto</translation>
     </message>
     <message>
-        <location filename="../../../src/qtComplexPressureText.cc" line="158"/>
+        <location filename="../../../src/qtComplexPressureText.cc" line="159"/>
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <location filename="../../../src/qtComplexPressureText.cc" line="160"/>
+        <location filename="../../../src/qtComplexPressureText.cc" line="161"/>
         <source>Cancel</source>
         <translation type="unfinished">Cancelar</translation>
     </message>
@@ -185,102 +185,102 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="210"/>
+        <location filename="../../../src/qtMainWindow.cc" line="212"/>
         <source>&amp;Save picture...</source>
         <translation>&amp;Guardar figura...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="213"/>
+        <location filename="../../../src/qtMainWindow.cc" line="215"/>
         <source>&amp;Email picture...</source>
         <translation>&amp;Enviar figura a correo electrónico...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="216"/>
+        <location filename="../../../src/qtMainWindow.cc" line="218"/>
         <source>Save &amp;animation...</source>
         <translation>Guardar &amp;animación...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="219"/>
+        <location filename="../../../src/qtMainWindow.cc" line="221"/>
         <source>&amp;Print...</source>
         <translation>&amp;Imprimir...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="224"/>
+        <location filename="../../../src/qtMainWindow.cc" line="226"/>
         <source>Print pre&amp;view...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="231"/>
+        <location filename="../../../src/qtMainWindow.cc" line="233"/>
         <source>&amp;Quit...</source>
         <translation>&amp;Salir...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="239"/>
+        <location filename="../../../src/qtMainWindow.cc" line="241"/>
         <source>S&amp;peed buttons</source>
         <translation>Botones &amp;Velocidad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="243"/>
+        <location filename="../../../src/qtMainWindow.cc" line="245"/>
         <source>A&amp;rchive mode</source>
         <translation>Modo &amp;Archivo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="247"/>
+        <location filename="../../../src/qtMainWindow.cc" line="249"/>
         <source>&amp;Automatic element choice</source>
         <translation>&amp;Selecció automática elemento</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="252"/>
+        <location filename="../../../src/qtMainWindow.cc" line="254"/>
         <source>A&amp;nnotations</source>
         <translation>A&amp;notaciones</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="256"/>
+        <location filename="../../../src/qtMainWindow.cc" line="258"/>
         <source>Scrollw&amp;heel zooming</source>
         <translation>Perilla &amp;acercamiento</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="260"/>
+        <location filename="../../../src/qtMainWindow.cc" line="262"/>
         <source>Select &amp;Font...</source>
         <translation>Seleccionar &amp;Fuente...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="266"/>
+        <location filename="../../../src/qtMainWindow.cc" line="268"/>
         <source>Reset area and replot</source>
         <translation>Redefinir área y graficar de nuevo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="270"/>
+        <location filename="../../../src/qtMainWindow.cc" line="272"/>
         <source>Reset all</source>
         <translation>Reiniciar todo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="274"/>
+        <location filename="../../../src/qtMainWindow.cc" line="276"/>
         <source>&amp;Apply plot</source>
         <translation>&amp;Aplicar gráfico</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="278"/>
+        <location filename="../../../src/qtMainWindow.cc" line="280"/>
         <source>Add to q&amp;uickmenu</source>
         <translation>Agregar al &amp;menú rápido</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="283"/>
+        <location filename="../../../src/qtMainWindow.cc" line="285"/>
         <source>P&amp;revious plot</source>
         <translation>Gráfico &amp;anterior</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="287"/>
+        <location filename="../../../src/qtMainWindow.cc" line="289"/>
         <source>&amp;Next plot</source>
         <translation>Gráfico &amp;siguiente</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="291"/>
+        <location filename="../../../src/qtMainWindow.cc" line="293"/>
         <source>&amp;Hide All</source>
         <translation>&amp;Esconder Todo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="297"/>
+        <location filename="../../../src/qtMainWindow.cc" line="299"/>
         <source>&amp;Quickmenu</source>
         <translation>&amp;Menú rápido</translation>
     </message>
@@ -289,72 +289,72 @@
         <translation type="obsolete">&amp;Mapas</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="310"/>
+        <location filename="../../../src/qtMainWindow.cc" line="312"/>
         <source>&amp;Fields</source>
         <translation>&amp;Campos</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="316"/>
+        <location filename="../../../src/qtMainWindow.cc" line="318"/>
         <source>&amp;Observations</source>
         <translation>&amp;Observaciones</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="322"/>
+        <location filename="../../../src/qtMainWindow.cc" line="324"/>
         <source>&amp;Satellites and Radar</source>
         <translation type="unfinished">&amp;Satelites y Radar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="334"/>
+        <location filename="../../../src/qtMainWindow.cc" line="336"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Editar Producto</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="340"/>
+        <location filename="../../../src/qtMainWindow.cc" line="342"/>
         <source>O&amp;bjects</source>
         <translation>&amp;Objetos</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="346"/>
+        <location filename="../../../src/qtMainWindow.cc" line="348"/>
         <source>&amp;Trajectories</source>
         <translation>&amp;Trayectorias</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="358"/>
+        <location filename="../../../src/qtMainWindow.cc" line="360"/>
         <source>&amp;Vertical Profiles</source>
         <translation>&amp;Perfiles Verticales</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="368"/>
+        <location filename="../../../src/qtMainWindow.cc" line="370"/>
         <source>Vertical &amp;Cross sections</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="378"/>
+        <location filename="../../../src/qtMainWindow.cc" line="380"/>
         <source>&amp;Wave spectra</source>
         <translation>&amp;Espectro de olas</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="389"/>
+        <location filename="../../../src/qtMainWindow.cc" line="391"/>
         <source>Zoom out</source>
         <translation>Alejarse</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="393"/>
+        <location filename="../../../src/qtMainWindow.cc" line="395"/>
         <source>&amp;Uffda Service</source>
         <translation>&amp;Servicio Uffda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="304"/>
+        <location filename="../../../src/qtMainWindow.cc" line="306"/>
         <source>Maps</source>
         <translation type="unfinished">Mapas</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="228"/>
+        <location filename="../../../src/qtMainWindow.cc" line="230"/>
         <source>Read setupfile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="398"/>
+        <location filename="../../../src/qtMainWindow.cc" line="400"/>
         <source>&amp;Measurements</source>
         <translation type="unfinished"></translation>
     </message>
@@ -363,142 +363,142 @@
         <translation type="obsolete">&amp;Editar Campo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="413"/>
+        <location filename="../../../src/qtMainWindow.cc" line="415"/>
         <source>Documentation</source>
         <translation>Documentación</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="419"/>
+        <location filename="../../../src/qtMainWindow.cc" line="421"/>
         <source>&amp;Accelerators</source>
         <translation>&amp;Aceleradores</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="423"/>
+        <location filename="../../../src/qtMainWindow.cc" line="425"/>
         <source>&amp;News</source>
         <translation>&amp;Noticias</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="407"/>
+        <location filename="../../../src/qtMainWindow.cc" line="409"/>
         <source>Edit Drawing Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="328"/>
+        <location filename="../../../src/qtMainWindow.cc" line="330"/>
         <source>Toggle Stations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="352"/>
+        <location filename="../../../src/qtMainWindow.cc" line="354"/>
         <source>Annotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="427"/>
+        <location filename="../../../src/qtMainWindow.cc" line="429"/>
         <source>Test &amp;results</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="431"/>
+        <location filename="../../../src/qtMainWindow.cc" line="433"/>
         <source>About Diana</source>
         <translation>Acerca de Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="439"/>
+        <location filename="../../../src/qtMainWindow.cc" line="441"/>
         <source>Run Backwards</source>
         <translation>Ejecutar hacia atrás</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="446"/>
+        <location filename="../../../src/qtMainWindow.cc" line="448"/>
         <source>Run Forewards</source>
         <translation>Ejecutar hacia adelante</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="453"/>
+        <location filename="../../../src/qtMainWindow.cc" line="455"/>
         <source>Step Backwards</source>
         <translation>Paso Previo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="459"/>
+        <location filename="../../../src/qtMainWindow.cc" line="461"/>
         <source>Step Forewards</source>
         <translation>Paso Siguiente</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="465"/>
+        <location filename="../../../src/qtMainWindow.cc" line="467"/>
         <source>Stop</source>
         <translation>Detener</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="472"/>
+        <location filename="../../../src/qtMainWindow.cc" line="474"/>
         <source>Run in loop</source>
         <translation>Ejecutar en un bucle</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="479"/>
+        <location filename="../../../src/qtMainWindow.cc" line="481"/>
         <source>Time control</source>
         <translation>Control de tiempo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="489"/>
+        <location filename="../../../src/qtMainWindow.cc" line="491"/>
         <source>Level up</source>
         <translation>Nivel superior</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="497"/>
+        <location filename="../../../src/qtMainWindow.cc" line="499"/>
         <source>Level down</source>
         <translation>Nivel inferior</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="506"/>
+        <location filename="../../../src/qtMainWindow.cc" line="508"/>
         <source>EPS cluster/member etc up</source>
         <translation>Grupo EPS/miembro etc arriba</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="515"/>
+        <location filename="../../../src/qtMainWindow.cc" line="517"/>
         <source>EPS cluster/member etc down</source>
         <translation>Grupo EPS/miembro etc abajo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="525"/>
+        <location filename="../../../src/qtMainWindow.cc" line="527"/>
         <source>Update observations</source>
         <translation>Actualizar observaciones</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="532"/>
+        <location filename="../../../src/qtMainWindow.cc" line="534"/>
         <source>Automatic updates</source>
         <translation>Actualizaciones automáticas</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="582"/>
+        <location filename="../../../src/qtMainWindow.cc" line="584"/>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="594"/>
+        <location filename="../../../src/qtMainWindow.cc" line="596"/>
         <source>O&amp;ptions</source>
         <translation>O&amp;pciones</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="620"/>
+        <location filename="../../../src/qtMainWindow.cc" line="622"/>
         <source>Info</source>
         <translation>Información</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="633"/>
+        <location filename="../../../src/qtMainWindow.cc" line="635"/>
         <source>Show</source>
         <translation>Mostrar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="663"/>
+        <location filename="../../../src/qtMainWindow.cc" line="665"/>
         <source>&amp;Help</source>
         <translation>&amp;Ayuda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="798"/>
+        <location filename="../../../src/qtMainWindow.cc" line="800"/>
         <source>ARCHIVE</source>
         <translation>ARCHIVO</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="810"/>
+        <location filename="../../../src/qtMainWindow.cc" line="812"/>
         <source>Diana</source>
         <translation>Diana</translation>
     </message>
@@ -910,7 +910,6 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
     </message>
     <message>
         <location filename="../../../src/qtEditDialog.cc" line="128"/>
-        <location filename="../../../src/qtEditDialog.cc" line="155"/>
         <source>Fog</source>
         <translation>Niebla</translation>
     </message>
@@ -992,7 +991,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
     </message>
     <message>
         <location filename="../../../src/qtEditDialog.cc" line="146"/>
-        <location filename="../../../src/qtEditDialog.cc" line="354"/>
+        <location filename="../../../src/qtEditDialog.cc" line="365"/>
         <source>Circle</source>
         <translation>Círculo</translation>
     </message>
@@ -1022,6 +1021,11 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Nubes</translation>
     </message>
     <message>
+        <location filename="../../../src/qtEditDialog.cc" line="155"/>
+        <source>Haze</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/qtEditDialog.cc" line="156"/>
         <source>Ice</source>
         <translation>Hielo</translation>
@@ -1037,42 +1041,82 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Area genérica</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="186"/>
+        <location filename="../../../src/qtEditDialog.cc" line="164"/>
+        <source>Drifting snow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="165"/>
+        <source>VMC-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="166"/>
+        <source>CAT-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="167"/>
+        <source>Line of thunderstorms red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="168"/>
+        <source>Line of thunderstorms green</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="169"/>
+        <source>Line of thunderstorms blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="170"/>
+        <source>Graupel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="171"/>
+        <source>Jet stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtEditDialog.cc" line="197"/>
         <source>Editing</source>
         <translation>Editando</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="200"/>
+        <location filename="../../../src/qtEditDialog.cc" line="211"/>
         <source>Save (local)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="201"/>
+        <location filename="../../../src/qtEditDialog.cc" line="212"/>
         <source>Save product to local disk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="204"/>
+        <location filename="../../../src/qtEditDialog.cc" line="215"/>
         <source>Save (common work disk)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="205"/>
+        <location filename="../../../src/qtEditDialog.cc" line="216"/>
         <source>Save product to common work disk, available to other users as input in edit mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="208"/>
+        <location filename="../../../src/qtEditDialog.cc" line="219"/>
         <source>Approve</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="209"/>
+        <location filename="../../../src/qtEditDialog.cc" line="220"/>
         <source>Approve product (makes the product available for other users and trigger production)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1219"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1230"/>
         <source>Problems saving product: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1089,111 +1133,111 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="obsolete">Enviar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="232"/>
+        <location filename="../../../src/qtEditDialog.cc" line="243"/>
         <source>Obs. timestep:</source>
         <translation>Tiempo de observ.:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="240"/>
+        <location filename="../../../src/qtEditDialog.cc" line="251"/>
         <source>Pause</source>
         <translation>Pausa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="246"/>
+        <location filename="../../../src/qtEditDialog.cc" line="257"/>
         <source>Comments</source>
         <translation>Comentarios</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="255"/>
+        <location filename="../../../src/qtEditDialog.cc" line="266"/>
         <source>Exit</source>
         <translation>Salir</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="259"/>
+        <location filename="../../../src/qtEditDialog.cc" line="270"/>
         <source>Hide</source>
         <translation>Esconder</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="262"/>
+        <location filename="../../../src/qtEditDialog.cc" line="273"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="306"/>
+        <location filename="../../../src/qtEditDialog.cc" line="317"/>
         <source>New analysis</source>
         <translation>Análisis nuevo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="307"/>
+        <location filename="../../../src/qtEditDialog.cc" line="318"/>
         <source>This will delete all your edits so far.
  Do you really want them to disappear?</source>
         <translation>Esto borrara todas sus ediciones hechas hasta el momento.
 ¿Está seguri que quiere eliminarlas?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="313"/>
+        <location filename="../../../src/qtEditDialog.cc" line="324"/>
         <source>New</source>
         <translation>Nuevo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="314"/>
+        <location filename="../../../src/qtEditDialog.cc" line="325"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="355"/>
+        <location filename="../../../src/qtEditDialog.cc" line="366"/>
         <source>Square</source>
         <translation>Cuadrado</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="356"/>
+        <location filename="../../../src/qtEditDialog.cc" line="367"/>
         <source>Ellipse(centre)</source>
         <translation>Elipse(centro)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="357"/>
+        <location filename="../../../src/qtEditDialog.cc" line="368"/>
         <source>Ellipse(focus)</source>
         <translation>Elipse(foco)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="375"/>
+        <location filename="../../../src/qtEditDialog.cc" line="386"/>
         <source>Ellipse shape</source>
         <translation>Elipse forma</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="420"/>
+        <location filename="../../../src/qtEditDialog.cc" line="431"/>
         <source>Show extra editing lines</source>
         <translation>Mostrar más lineas de edición</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="431"/>
-        <location filename="../../../src/qtEditDialog.cc" line="665"/>
+        <location filename="../../../src/qtEditDialog.cc" line="442"/>
+        <location filename="../../../src/qtEditDialog.cc" line="676"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="432"/>
-        <location filename="../../../src/qtEditDialog.cc" line="666"/>
+        <location filename="../../../src/qtEditDialog.cc" line="443"/>
+        <location filename="../../../src/qtEditDialog.cc" line="677"/>
         <source>Redo</source>
         <translation>Rehacer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="677"/>
+        <location filename="../../../src/qtEditDialog.cc" line="688"/>
         <source>Join fronts</source>
         <translation>Unir frentes</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1011"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1022"/>
         <source>Change borders</source>
         <translation>Cambiar fronteras</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1012"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1023"/>
         <source>Set data sources</source>
         <translation>Definir fuente de datos</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1032"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1043"/>
         <source>Exit merge</source>
         <translation>Salir mezclar</translation>
     </message>
@@ -1218,7 +1262,7 @@ como aprovado y listo.</translation>
         <translation type="obsolete">&amp;Producto aprobado</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1336"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1347"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
@@ -1235,97 +1279,97 @@ como aprovado y listo.</translation>
 </translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1221"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1232"/>
         <source>Save error:</source>
         <translation>Error al guardar:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1229"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1240"/>
         <source>Saved</source>
         <translation>Guardado</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1230"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1241"/>
         <source>saved</source>
         <translation>guardado</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1237"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1248"/>
         <source>and approved</source>
         <translation>y aprobado</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1239"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1250"/>
         <source>(approved)</source>
         <translation>(aprobado)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1265"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1276"/>
         <source>Error approve product</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1334"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1345"/>
         <source>Exit editing</source>
         <translation>Salir edición</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1335"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1346"/>
         <source>You have unsaved edits.
  Save before exiting?</source>
         <translation>Tiene ediciones sin guardar.
 ¿Quiere guardar antes de salir?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1336"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1347"/>
         <source>&amp;Save</source>
         <translation>&amp;Guardar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1336"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1347"/>
         <source>&amp;Don&apos;t save</source>
         <translation>&amp;No guardar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1352"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1363"/>
         <source>Send analysis</source>
         <translation>Enviar análisis</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1353"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1364"/>
         <source>Send last saved analysis to the database?</source>
         <translation>¿Enviar el último análisis guardado a la base de datos?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1354"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1365"/>
         <source>&amp;Send</source>
         <translation>&amp;Enviar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1354"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1365"/>
         <source>&amp;Don&apos;t send</source>
         <translation>&amp;No enviar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1467"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1478"/>
         <source>Error starting edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1554"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1801"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1565"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1812"/>
         <source>Undefined</source>
         <translation>SIn definir</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1559"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1806"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1570"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1817"/>
         <source>New value:</source>
         <translation>Valor nuevo:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1618"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1841"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1629"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1852"/>
         <source>Not saved</source>
         <translation>No grabado</translation>
     </message>
@@ -1384,92 +1428,92 @@ como aprovado y listo.</translation>
 <context>
     <name>EditItemManager</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="104"/>
+        <location filename="../../../src/diEditItemManager.cc" line="112"/>
         <source>Cut</source>
         <translation type="unfinished">Cortar</translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="105"/>
+        <location filename="../../../src/diEditItemManager.cc" line="113"/>
         <source>Ctrl+X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="102"/>
+        <location filename="../../../src/diEditItemManager.cc" line="110"/>
         <source>Copy</source>
         <translation type="unfinished">Copiar</translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="106"/>
+        <location filename="../../../src/diEditItemManager.cc" line="114"/>
         <source>Paste</source>
         <translation type="unfinished">Pegar</translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="108"/>
+        <location filename="../../../src/diEditItemManager.cc" line="116"/>
         <source>Join</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="110"/>
+        <location filename="../../../src/diEditItemManager.cc" line="118"/>
         <source>Unjoin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="111"/>
+        <location filename="../../../src/diEditItemManager.cc" line="119"/>
         <source>Ctrl+J</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="112"/>
+        <location filename="../../../src/diEditItemManager.cc" line="120"/>
         <source>Toggle reversed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="114"/>
+        <location filename="../../../src/diEditItemManager.cc" line="122"/>
         <source>Edit P&amp;roperties...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="114"/>
+        <location filename="../../../src/diEditItemManager.cc" line="122"/>
         <source>Show P&amp;roperties...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="115"/>
+        <location filename="../../../src/diEditItemManager.cc" line="123"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="116"/>
+        <location filename="../../../src/diEditItemManager.cc" line="124"/>
         <source>Edit Style...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="121"/>
+        <location filename="../../../src/diEditItemManager.cc" line="129"/>
         <source>&amp;Select</source>
         <translation type="unfinished">&amp;Seleccionar</translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="125"/>
+        <location filename="../../../src/diEditItemManager.cc" line="133"/>
         <source>Create &amp;Polyline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="129"/>
+        <location filename="../../../src/diEditItemManager.cc" line="137"/>
         <source>Create &amp;Symbol</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="133"/>
+        <location filename="../../../src/diEditItemManager.cc" line="141"/>
         <source>Text</source>
         <translation type="unfinished">Texto</translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="136"/>
+        <location filename="../../../src/diEditItemManager.cc" line="144"/>
         <source>Composite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="1427"/>
+        <location filename="../../../src/diEditItemManager.cc" line="1508"/>
         <source>To</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1482,7 +1526,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/editcomposite.cc" line="221"/>
+        <location filename="../../../src/EditItems/editcomposite.cc" line="209"/>
         <source>Edit Item</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2290,12 +2334,12 @@ como aprovado y listo.</translation>
 <context>
     <name>LayerGroupsPane</name>
     <message>
-        <location filename="../../../src/EditItems/layergroupspane.cc" line="145"/>
+        <location filename="../../../src/EditItems/layergroupspane.cc" line="150"/>
         <source>Layer Groups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/layergroupspane.cc" line="155"/>
+        <location filename="../../../src/EditItems/layergroupspane.cc" line="160"/>
         <source>Layer Collections</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3205,7 +3249,7 @@ como aprovado y listo.</translation>
 <context>
     <name>PropertiesEditor</name>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="91"/>
+        <location filename="../../../src/EditItems/properties.cc" line="75"/>
         <source>Item Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3213,18 +3257,20 @@ como aprovado y listo.</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../../src/EditItems/dialogcommon.cc" line="183"/>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="181"/>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="199"/>
         <source>Open File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/editdrawinglayerspane.cc" line="392"/>
-        <location filename="../../../src/EditItems/dialogcommon.cc" line="184"/>
+        <location filename="../../../src/EditItems/editdrawinglayerspane.cc" line="393"/>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="182"/>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="200"/>
         <source>KML files (*.kml);; All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/editdrawinglayerspane.cc" line="391"/>
+        <location filename="../../../src/EditItems/editdrawinglayerspane.cc" line="392"/>
         <source>Save File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4534,7 +4580,7 @@ Enviar antes de salir?</translation>
     <name>VcrossAddPlotDialog</name>
     <message>
         <location filename="../../../src/vcross_qt/vcross_plot_add_dialog.ui" line="14"/>
-        <source>Vertical Crossections -- Add Plot</source>
+        <source>Vertical Cross Sections -- Add Plot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4597,7 +4643,7 @@ Enviar antes de salir?</translation>
 <context>
     <name>VcrossDialog</name>
     <message>
-        <source>Vertical Crossections</source>
+        <source>Vertical Cross Sections</source>
         <translation type="obsolete">Lectura de anillos vertical</translation>
     </message>
     <message>
@@ -4834,7 +4880,7 @@ Enviar antes de salir?</translation>
     <name>VcrossSetupDialog</name>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="60"/>
-        <source>Diana Vertical Crossections - settings</source>
+        <source>Diana Vertical Cross Sections - settings</source>
         <translation>Configuracion de lectura de anillos vertical de Diana</translation>
     </message>
     <message>
@@ -4962,12 +5008,12 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="238"/>
-        <source>Crossections on map</source>
+        <source>Cross sections on map</source>
         <translation>Secciones tranversales en el mapa</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="239"/>
-        <source>Selected crossection on map</source>
+        <source>Selected cross section on map</source>
         <translation>Seleccionar secciones transversales en el mapa</translation>
     </message>
     <message>
@@ -5020,7 +5066,7 @@ Enviar antes de salir?</translation>
     <name>VcrossStyleDialog</name>
     <message>
         <location filename="../../../src/vcross_qt/vcross_style_dialog.ui" line="14"/>
-        <source>Vertical Crossections -- Style</source>
+        <source>Vertical Cross Sections -- Style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5311,7 +5357,7 @@ Enviar antes de salir?</translation>
 <context>
     <name>VcrossWindow</name>
     <message>
-        <source>Diana Vertical Crossections</source>
+        <source>Diana Vertical Cross Sections</source>
         <translation type="obsolete">Secciones verticales de Diana</translation>
     </message>
     <message>
@@ -5340,12 +5386,12 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="14"/>
-        <source>Vertical Crossections</source>
+        <source>Vertical Cross Sections</source>
         <translation type="unfinished">Lectura de anillos vertical</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="28"/>
-        <source>Show vertical crossection settings dialog</source>
+        <source>Show vertical cross section settings dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
@@ -5355,7 +5401,7 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="51"/>
-        <source>Print vertical crossection</source>
+        <source>Print vertical cross section</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
@@ -5365,7 +5411,7 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="61"/>
-        <source>Save vectical crossection as image</source>
+        <source>Save vertical cross section as image</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
@@ -5380,7 +5426,7 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="91"/>
-        <source>Close vertical crossection window</source>
+        <source>Close vertical cross section window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5390,12 +5436,12 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="117"/>
-        <source>Previous crossection</source>
+        <source>Previous cross section</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="155"/>
-        <source>Next crossection</source>
+        <source>Next cross section</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5420,7 +5466,7 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="372"/>
-        <source>Add field(s) to the vertical crossection view</source>
+        <source>Add field(s) to the vertical cross section view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5440,7 +5486,7 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="306"/>
-        <source>Add field(s) to the crossection view</source>
+        <source>Add field(s) to the cross section view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5847,6 +5893,200 @@ Enviar antes de salir?</translation>
         <location filename="../../../src/qtVprofWindow.cc" line="386"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Imágenes (*.png *.xpm *.bmp *.eps);;Todas (*.*)</translation>
+    </message>
+</context>
+<context>
+    <name>WebMapDialog</name>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="15"/>
+        <source>Web Maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="31"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="279"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="56"/>
+        <source>Choose service:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="63"/>
+        <source>Type to filter service name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="94"/>
+        <source>Type to filter layer name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="101"/>
+        <source>Waiting for webmap service …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="127"/>
+        <source>Start over (from service selection)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="130"/>
+        <source>Restart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="153"/>
+        <source>Back to the previous step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="156"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="176"/>
+        <source>Modify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="188"/>
+        <source>Choose the layer to modify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="201"/>
+        <source>Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="216"/>
+        <source>Choose a style provided by the webmap service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="257"/>
+        <source>Transform webmap to greyscale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="260"/>
+        <source>Grey</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="267"/>
+        <source>Change transparency:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="274"/>
+        <source>Scale layer transparency with this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="293"/>
+        <source>Add this to layer transparency after scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="322"/>
+        <source>Drawing order:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="329"/>
+        <source>Choose</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="333"/>
+        <source>Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="338"/>
+        <source>Shade background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="343"/>
+        <source>Shade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="348"/>
+        <source>Lines</source>
+        <translation type="unfinished">Líneas</translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="375"/>
+        <source>Time</source>
+        <translation type="unfinished">Tiempo</translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="387"/>
+        <source>Time tolerance:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="397"/>
+        <source>Time matching tolerance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="410"/>
+        <source>Check to fix time to a specific value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="413"/>
+        <source>Fixed time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="420"/>
+        <source>Time offset relative to plot time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="433"/>
+        <source>Time offset:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="446"/>
+        <source>Fixed time value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="459"/>
+        <source>Other dimensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="499"/>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/webmap_dialog.ui" line="522"/>
+        <source>&amp;Apply</source>
+        <translation type="unfinished">&amp;Aplicar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="222"/>
+        <source>Choose layer in service %1:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="276"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

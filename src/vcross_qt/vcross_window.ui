@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Vertical Crossections</string>
+   <string>Vertical Cross Sections</string>
   </property>
   <layout class="QGridLayout" name="layoutMain" rowstretch="0,0,1" columnstretch="0,1">
    <property name="margin">
@@ -25,7 +25,7 @@
      <item>
       <widget class="QPushButton" name="buttonSettings">
        <property name="toolTip">
-        <string>Show vertical crossection settings dialog</string>
+        <string>Show vertical cross section settings dialog</string>
        </property>
        <property name="text">
         <string>Settings…</string>
@@ -48,7 +48,7 @@
      <item>
       <widget class="QPushButton" name="buttonPrint">
        <property name="toolTip">
-        <string>Print vertical crossection</string>
+        <string>Print vertical cross section</string>
        </property>
        <property name="text">
         <string>Print…</string>
@@ -58,7 +58,7 @@
      <item>
       <widget class="QPushButton" name="buttonSave">
        <property name="toolTip">
-        <string>Save vectical crossection as image</string>
+        <string>Save vertical cross section as image</string>
        </property>
        <property name="text">
         <string>Save…</string>
@@ -88,7 +88,7 @@
      <item>
       <widget class="QPushButton" name="buttonClose">
        <property name="toolTip">
-        <string>Close vertical crossection window</string>
+        <string>Close vertical cross section window</string>
        </property>
        <property name="text">
         <string>Close</string>
@@ -114,7 +114,7 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Previous crossection</string>
+        <string>Previous cross section</string>
        </property>
        <property name="text">
         <string notr="true">&lt;</string>
@@ -152,7 +152,7 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Next crossection</string>
+        <string>Next cross section</string>
        </property>
        <property name="text">
         <string notr="true">&gt;</string>
@@ -303,7 +303,7 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Add field(s) to the crossection view</string>
+        <string>Add field(s) to the cross section view</string>
        </property>
        <property name="text">
         <string>Add</string>
@@ -369,7 +369,7 @@
     <string>Add fields…</string>
    </property>
    <property name="toolTip">
-    <string>Add field(s) to the vertical crossection view</string>
+    <string>Add field(s) to the vertical cross section view</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
