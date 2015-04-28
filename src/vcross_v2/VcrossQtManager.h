@@ -213,6 +213,9 @@ public:
   void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour);
   bool plot(QPainter& painter);
 
+  //! return axis position of point (x,y), formatted as text
+  QString axisPosition(int x, int y);
+
 Q_SIGNALS:
   void fieldChangeBegin(bool fromScript);
   void fieldAdded(int insertedIndex);

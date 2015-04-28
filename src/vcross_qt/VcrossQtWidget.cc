@@ -51,7 +51,7 @@ QtWidget::QtWidget(QWidget* parent)
 {
   METLIBS_LOG_SCOPE();
   setFocusPolicy(Qt::StrongFocus);
-  setMouseTracking(false);
+  setMouseTracking(true);
 
   dorubberband= false;
   dopanning= false;
@@ -203,6 +203,9 @@ void QtWidget::mouseMoveEvent(QMouseEvent* me)
     firstx= mousex;
     firsty= mousey;
     update();
+  } else {
+    const QString text = vcrossm->axisPosition(me->x(), me->y());
+    Q_EMIT mouseOverText(text);
   }
 }
 

@@ -60,6 +60,7 @@ class QHBoxLayout;
 class QPrinter;
 class QString;
 class QSpinBox;
+class QStatusBar;
 
 #ifndef Q_DECL_OVERRIDE
 #define Q_DECL_OVERRIDE /* empty */
@@ -156,12 +157,16 @@ private Q_SLOTS:
   void quitClicked();
   void helpClicked();
 
+  void onAxisPosition(const QString& text);
+
   // ---------- slots for vcross setup dialog
   //! called when the apply from setup dialog is clicked
   void changeSetup();
 
 private:
   std::auto_ptr<Ui_VcrossWindow> ui;
+  QStatusBar* mStatusBar;
+
   vcross::QtManager_p vcrossm;
 
   VcrossAddPlotDialog* vcAddPlotDialog;

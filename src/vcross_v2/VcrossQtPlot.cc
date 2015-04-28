@@ -101,6 +101,12 @@ const float FLTABLE[NFLTABLE] =  {
   25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 600, 700, 800, 999
 };
 
+namespace Unit {
+const float m = 1;
+const float nm = 1852 * m; // nautical mile
+const float km = 1000 * m;
+}
+
 // begin utility functions for y ticks
 
 float identity(float x)
@@ -113,10 +119,21 @@ float foot_to_meter(float ft)
   return ft / MetNo::Constants::ft_per_m;
 }
 
+float meter_to_foot(float m)
+{
+  return m * MetNo::Constants::ft_per_m;
+}
+
 float FL_to_hPa(float fl)
 {
   const double a = MetNo::Constants::geo_altitude_from_FL(fl);
   return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
+}
+
+float hPa_to_FL(float hPa)
+{
+  const double a = MetNo::Constants::ICAO_geo_altitude_from_pressure(hPa);
+  return MetNo::Constants::FL_from_geo_altitude(a);
 }
 
 typedef std::vector<float> ticks_t;
@@ -310,6 +327,73 @@ void QtPlot::getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rub
   x2 = mAxisY->getPaintMin();
   y2 = mAxisY->getPaintMax();
   rubberbandColour = mContrastColour;
+}
+
+QString QtPlot::axisPosition(int x, int y)
+{
+  if (!(mAxisX->legalPaint(x) && mAxisY->legalPaint(y)))
+    return QString();
+
+  const float vx = mAxisX->paint2value(x),
+      vy = mAxisY->paint2value(y);
+
+  QString text;
+  { // always show y
+    using namespace MetNo::Constants;
+
+    QString unit = QString::fromStdString(mAxisY->label());
+    tick_to_axis_f tta = identity;
+
+    if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
+      if (unit == "FL") {
+        tta = hPa_to_FL;
+        text += unit;
+        unit = QString();
+      }
+    } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE) {
+      if (unit == "Ft")
+        tta = meter_to_foot;
+    }
+
+    const float y = tta(vy);
+    text += QString::number(y, 'f', (y >= 10) ? 1 : 2);
+    text += unit;
+  }
+
+  if (not isTimeGraph()) { // show cross section name
+    if (mOptions->pDistance) {
+      float x = vx;
+
+      const float referenceDistance = fractionalRequestedDistance(mReferencePosition);
+      if (referenceDistance > 0)
+        x = std::abs(vx - referenceDistance);
+
+      QString uname;
+      if (miutil::to_lower(mOptions->distanceUnit) == "nm") {
+        x /= Unit::nm;
+        uname = "nm";
+      } else {
+        x /= Unit::km;
+        uname = "km";
+      }
+      text += " " + QString::number(x, 'f', 1) + uname;
+    }
+    if (mOptions->pGeoPos) {
+      std::vector<float>::const_iterator itX = std::lower_bound(mCrossectionDistances.begin(), mCrossectionDistances.end(), vx);
+      const size_t idx = itX - mCrossectionDistances.begin();
+      if (idx+1 < mCrossectionDistances.size()) {
+        const LonLat mouse = mCrossectionPoints.at(idx).stepTo(vx - *itX, mCrossectionPoints.at(idx+1));
+        const float lon = mouse.lonDeg(), lat = mouse.latDeg();
+        text += " ";
+        text += QString::number(std::abs(lon), 'f', 1) + QLatin1Char(lon >= 0 ? 'E' : 'W');
+        text += "/";
+        text += QString::number(std::abs(lat), 'f', 1) + QLatin1Char(lat >= 0 ? 'N' : 'S');
+      }
+    }
+  } else { // timegraph
+  }
+
+  return text;
 }
 
 void QtPlot::viewZoomIn(int px1, int py1, int px2, int py2)
@@ -818,14 +902,6 @@ void QtPlot::plotTitle(QPainter& painter)
     painter.setPen(util::QC(m.colour));
     painter.drawText(QPointF(mx, my), q_str);
   }
-}
-
-namespace {
-namespace Unit {
-const float m = 1;
-const float nm = 1852 * m; // nautical mile
-const float km = 1000 * m;
-}
 }
 
 void QtPlot::plotXLabels(QPainter& painter)

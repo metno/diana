@@ -549,6 +549,13 @@ void QtManager::getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& 
 
 // ------------------------------------------------------------------------
 
+QString QtManager::axisPosition(int x, int y)
+{
+  return mPlot->axisPosition(x, y);
+}
+
+// ------------------------------------------------------------------------
+
 bool QtManager::plot(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();

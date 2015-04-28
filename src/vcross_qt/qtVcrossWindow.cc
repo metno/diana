@@ -63,6 +63,7 @@
 #include <QPrinter>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QStatusBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -229,6 +230,11 @@ void VcrossWindow::setupUi()
 {
   ui->setupUi(this);
 
+  mStatusBar = new QStatusBar(this);
+  ui->layoutMain->addWidget(mStatusBar, 3, 0, 1, 2); // need to update if changing vcross_window.ui
+  connect(ui->vcross, SIGNAL(mouseOverText(const QString&)),
+      this, SLOT(onAxisPosition(const QString&)));
+
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
   new ActionButton(ui->toolAddField, ui->actionAddField, this);
 
@@ -250,6 +256,12 @@ void VcrossWindow::setupUi()
 
   ui->buttonTimePrevious->setIcon(back);
   ui->buttonTimeNext->setIcon(forward);
+}
+
+
+void VcrossWindow::onAxisPosition(const QString& text)
+{
+  mStatusBar->showMessage(text);
 }
 
 

@@ -85,6 +85,7 @@ protected:
 Q_SIGNALS:
   void stepTime(int direction);
   void stepCrossection(int direction);
+  void mouseOverText(const QString& text);
 
 private Q_SLOTS:
   void switchedTimeGraph(bool on);

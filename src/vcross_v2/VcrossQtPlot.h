@@ -116,6 +116,9 @@ public:
   void viewSetWindow(int w, int h);
   void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour);
 
+  //! return axis position of point (x,y), formatted as text
+  QString axisPosition(int x, int y);
+
   struct Rect {
     float x1, y1, x2, y2;
     Rect(float xx1, float yy1, float xx2, float yy2)
