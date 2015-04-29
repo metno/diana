@@ -707,31 +707,25 @@ void EditItemManager::plot(bool under, bool over)
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
-  const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
 
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isActive() && layer->isVisible()) {
+  QList<QSharedPointer<DrawingItemBase> > items = layerMgr_->allItems().toList();
+  qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
-      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-      qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
-
-      foreach (const QSharedPointer<DrawingItemBase> item, items) {
-        EditItemBase::DrawModes modes = EditItemBase::Normal;
-        if (isEditing()) {
-          if (selItems.contains(item))
-            modes |= EditItemBase::Selected;
-          if ((!hitItems_.isEmpty()) && (item == hitItems_.first()))
-            modes |= EditItemBase::Hovered;
-        }
-        if (itemsVisibilityForced_ || item->property("visible", true).toBool()) {
-          applyPlotOptions(item);
-          setFromLatLonPoints(*item, item->getLatLonPoints());
-          Editing(item.data())->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
-        }
-      }
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
+    EditItemBase::DrawModes modes = EditItemBase::Normal;
+    if (isEditing()) {
+      if (selItems.contains(item))
+        modes |= EditItemBase::Selected;
+      if ((!hitItems_.isEmpty()) && (item == hitItems_.first()))
+        modes |= EditItemBase::Hovered;
+    }
+    if (itemsVisibilityForced_ || item->property("visible", true).toBool()) {
+      applyPlotOptions(item);
+      setFromLatLonPoints(*item, item->getLatLonPoints());
+      Editing(item.data())->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
     }
   }
+
   if (hasIncompleteItem()) { // note that only complete items may be selected
     setFromLatLonPoints(*incompleteItem_, incompleteItem_->getLatLonPoints());
     Editing(incompleteItem_.data())->draw(

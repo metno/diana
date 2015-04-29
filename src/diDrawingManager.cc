@@ -473,28 +473,20 @@ void DrawingManager::plot(bool under, bool over)
   glPushMatrix();
   glTranslatef(editRect_.x1, editRect_.y1, 0.0);
   glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
-      PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
+           PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
-  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
+  QList<QSharedPointer<DrawingItemBase> > items = layerMgr_->allItems().toList();
+  qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isVisible()) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
 
-      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-      qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
-
-      foreach (const QSharedPointer<DrawingItemBase> item, items) {
-
-        if (item->property("visible", true).toBool()) {
-          applyPlotOptions(item);
-          setFromLatLonPoints(*item, item->getLatLonPoints());
-          item->draw();
-        }
-      }
+    if (item->property("visible", true).toBool()) {
+      applyPlotOptions(item);
+      setFromLatLonPoints(*item, item->getLatLonPoints());
+      item->draw();
     }
-
   }
+
   glPopMatrix();
 }
 
