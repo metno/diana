@@ -33,31 +33,12 @@
 #define MOVIEMAKER_H_
 
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <unistd.h>
 
-#include <QImage>
+class QImage;
 
-#ifdef HAVE_LOG4CXX
-#include <log4cxx/logger.h>
-#else
-#include <miLogger/logger.h>
-#endif
-
-extern "C" {
-#define __STDC_CONSTANT_MACROS
-#define __STDC_LIMIT_MACROS
-
-#ifndef INT64_C
-#define INT64_C(c) (c ## LL)
-#define UINT64_C(c) (c ## ULL)
-#endif
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/mathematics.h>
-}
+struct AVFormatContext;
+struct AVFrame;
+struct AVStream;
 
 struct OutputCtx {
   const char *fileName;
@@ -67,6 +48,7 @@ struct OutputCtx {
 
   short *videoBuffer;
 };
+
 
 class MovieMaker {
 public:
@@ -94,20 +76,11 @@ private:
 
   bool makeVideoFrame(const QImage *image);
   bool addVideoStream(OutputCtx *output);
-  AVFrame* allocPicture(PixelFormat pixFormat, int width, int height);
   bool openVideoEncoder(OutputCtx *output);
   bool initOutputStream(OutputCtx *output);
   void closeVideoEncoder(OutputCtx *output);
   void endOutputStream(OutputCtx *output);
-  void RGBtoYUV420P(const uint8_t *RGB, uint8_t *YUV, uint RGBIncrement,
-      bool swapRGB, int width, int height, bool flip);
   bool writeVideoFrame(OutputCtx *output);
-
-protected:
-#ifdef HAVE_LOG4CXX
-  log4cxx::LoggerPtr logger;
-#endif
-
 };
 
 #endif /*MOVIEMAKER_H_*/

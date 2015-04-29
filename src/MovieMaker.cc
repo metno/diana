@@ -33,9 +33,31 @@
 #include "config.h"
 #endif
 
+#include "MovieMaker.h"
+
+extern "C" {
+#define __STDC_CONSTANT_MACROS
+#define __STDC_LIMIT_MACROS
+
+#ifndef INT64_C
+#define INT64_C(c) (c ## LL)
+#define UINT64_C(c) (c ## ULL)
+#endif
+
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/mathematics.h>
+}
+
+#include <QImage>
+
+#include <sstream>
+#include <unistd.h>
+
 #include <sys/types.h>
 
-#include "MovieMaker.h"
+#define MILOGGER_CATEGORY "diana.MovieMaker"
+#include <miLogger/miLogging.h>
 
 //#define VIDEO_BUF_SIZE 1835008
 //#define VIDEO_BITRATE  6000 * 1024
@@ -45,12 +67,79 @@
 
 using namespace std;
 
+namespace avhelpers {
+
+#define rgbtoyuv(r, g, b, y, u, v) \
+  y=(uint8_t)( (((int)(66*r)   +(int)(129*g) +(int)(25*b) + 128) >> 8 ) + 16 ); \
+  u=(uint8_t)( (((int)(-38*r)  -(int)(74*g) +(int)(112*b) + 128) >> 8 ) + 128 ); \
+  v=(uint8_t)( (((int)(112*r)   -(int)(94*g) -(int)(18*b) + 128) >> 8 ) + 128 );
+
+void RGBtoYUV420P(const uint8_t *RGB, uint8_t *YUV,
+    uint RGBIncrement, bool swapRGB, int width, int height, bool flip)
+{
+  const unsigned planeSize = width * height;
+  const unsigned halfWidth = width >> 1;
+
+  // get pointers to the data
+  uint8_t *yplane = YUV;
+  uint8_t *uplane = YUV + planeSize;
+  uint8_t *vplane = YUV + planeSize + (planeSize >> 2);
+  const uint8_t *RGBIndex = RGB;
+  int RGBIdx[3];
+  RGBIdx[0] = 0;
+  RGBIdx[1] = 1;
+  RGBIdx[2] = 2;
+  if (swapRGB) {
+    RGBIdx[0] = 2;
+    RGBIdx[2] = 0;
+  }
+
+  for (int y = 0; y < (int) height; y++) {
+    uint8_t *yline = yplane + (y * width);
+    uint8_t *uline = uplane + ((y >> 1) * halfWidth);
+    uint8_t *vline = vplane + ((y >> 1) * halfWidth);
+
+    if (flip) // Flip horizontally
+      RGBIndex = RGB + (width * (height - 1 - y) * RGBIncrement);
+
+    for (int x = 0; x < width; x += 2) {
+      rgbtoyuv ( RGBIndex[RGBIdx[0]], RGBIndex[RGBIdx[1]], RGBIndex[RGBIdx[2]],
+          *yline, *uline, *vline );
+      RGBIndex += RGBIncrement;
+      yline++;
+      rgbtoyuv ( RGBIndex[RGBIdx[0]], RGBIndex[RGBIdx[1]], RGBIndex[RGBIdx[2]],
+          *yline, *uline, *vline );
+      RGBIndex += RGBIncrement;
+      yline++;
+      uline++;
+      vline++;
+    }
+  }
+}
+
+AVFrame* allocPicture(PixelFormat pixFormat, int width, int height)
+{
+  AVFrame *frame = avcodec_alloc_frame();
+  if (!frame)
+    return NULL;
+
+  int size = avpicture_get_size(static_cast<PixelFormat>(pixFormat), width, height);
+  uint8_t *buffer = (uint8_t*) av_malloc(size);
+  if (!buffer) {
+    av_free(frame);
+    return NULL;
+  }
+
+  avpicture_fill((AVPicture *) frame, buffer, static_cast<PixelFormat>(pixFormat), width, height);
+  return frame;
+}
+
+} // namespace avhelpers
+
 MovieMaker::MovieMaker(const string &filename, const string &format,
                        float delay)
 {
-#ifdef HAVE_LOG4CXX
-  logger = log4cxx::Logger::getLogger("diana.MovieMaker"); ///< LOG4CXX init
-#endif
+  METLIBS_LOG_SCOPE();
   g_strOutputVideoFile = filename;
   g_strOutputVideoFormat = format;
   this->delay = delay;
@@ -70,7 +159,8 @@ MovieMaker::MovieMaker(const string &filename, const string &format,
 
   outputVideo.fileName = g_strOutputVideoFile.c_str();
 
-  if (!initOutputStream(&outputVideo))LOG4CXX_ERROR(logger, "Cannot init output video stream");
+  if (!initOutputStream(&outputVideo))
+    METLIBS_LOG_ERROR("Cannot init output video stream '" << filename << "'");
 }
 
 MovieMaker::~MovieMaker()
@@ -131,23 +221,6 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   return true;
 }
 
-AVFrame *MovieMaker::allocPicture(PixelFormat pixFormat, int width, int height)
-{
-  AVFrame *frame = avcodec_alloc_frame();
-  if (!frame)
-    return NULL;
-
-  int size = avpicture_get_size(static_cast<PixelFormat>(pixFormat), width, height);
-  uint8_t *buffer = (uint8_t*) av_malloc(size);
-  if (!buffer) {
-    av_free(frame);
-    return NULL;
-  }
-
-  avpicture_fill((AVPicture *) frame, buffer, static_cast<PixelFormat>(pixFormat), width, height);
-  return frame;
-}
-
 bool MovieMaker::openVideoEncoder(OutputCtx *output)
 {
   AVCodecContext *video = output->videoStream->codec;
@@ -155,7 +228,7 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
   // find the video encoder and open it
   AVCodec *codec = avcodec_find_encoder(video->codec_id);
   if (!codec) {
-    LOG4CXX_ERROR(logger, "Video codec not found");
+    METLIBS_LOG_ERROR("Video codec not found");
     return false;
   }
 
@@ -165,16 +238,16 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
   const int ret_avco = avcodec_open(video, codec);
 #endif
   if (ret_avco < 0) {
-    LOG4CXX_ERROR(logger, "Could not open video codec");
+    METLIBS_LOG_ERROR("Could not open video codec");
     return false;
   }
 
   output->videoBuffer = (short *) av_malloc(VIDEO_BUF_SIZE);
 
   // allocate the encoded raw picture
-  output->frame = allocPicture(video->pix_fmt, video->width, video->height);
+  output->frame = avhelpers::allocPicture(video->pix_fmt, video->width, video->height);
   if (!output->frame) {
-    LOG4CXX_ERROR(logger, "Could not allocate picture");
+    METLIBS_LOG_ERROR("Could not allocate picture");
     return false;
   }
 
@@ -230,7 +303,7 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
     ostringstream msg;
     msg << "Could not open " << g_strOutputVideoFile.c_str() << " for writing"
         << endl;
-    LOG4CXX_ERROR(logger, msg.str());
+    METLIBS_LOG_ERROR(msg.str());
     return false;
   }
 
@@ -293,54 +366,6 @@ void MovieMaker::endOutputStream(OutputCtx *output)
   output->outputCtx = NULL;
 }
 
-#define rgbtoyuv(r, g, b, y, u, v) \
-  y=(uint8_t)( (((int)(66*r)   +(int)(129*g) +(int)(25*b) + 128) >> 8 ) + 16 ); \
-  u=(uint8_t)( (((int)(-38*r)  -(int)(74*g) +(int)(112*b) + 128) >> 8 ) + 128 ); \
-  v=(uint8_t)( (((int)(112*r)   -(int)(94*g) -(int)(18*b) + 128) >> 8 ) + 128 );
-
-void MovieMaker::RGBtoYUV420P(const uint8_t *RGB, uint8_t *YUV,
-    uint RGBIncrement, bool swapRGB, int width, int height, bool flip)
-{
-  const unsigned planeSize = width * height;
-  const unsigned halfWidth = width >> 1;
-
-  // get pointers to the data
-  uint8_t *yplane = YUV;
-  uint8_t *uplane = YUV + planeSize;
-  uint8_t *vplane = YUV + planeSize + (planeSize >> 2);
-  const uint8_t *RGBIndex = RGB;
-  int RGBIdx[3];
-  RGBIdx[0] = 0;
-  RGBIdx[1] = 1;
-  RGBIdx[2] = 2;
-  if (swapRGB) {
-    RGBIdx[0] = 2;
-    RGBIdx[2] = 0;
-  }
-
-  for (int y = 0; y < (int) height; y++) {
-    uint8_t *yline = yplane + (y * width);
-    uint8_t *uline = uplane + ((y >> 1) * halfWidth);
-    uint8_t *vline = vplane + ((y >> 1) * halfWidth);
-
-    if (flip) // Flip horizontally
-      RGBIndex = RGB + (width * (height - 1 - y) * RGBIncrement);
-
-    for (int x = 0; x < width; x += 2) {
-      rgbtoyuv ( RGBIndex[RGBIdx[0]], RGBIndex[RGBIdx[1]], RGBIndex[RGBIdx[2]],
-          *yline, *uline, *vline );
-      RGBIndex += RGBIncrement;
-      yline++;
-      rgbtoyuv ( RGBIndex[RGBIdx[0]], RGBIndex[RGBIdx[1]], RGBIndex[RGBIdx[2]],
-          *yline, *uline, *vline );
-      RGBIndex += RGBIncrement;
-      yline++;
-      uline++;
-      vline++;
-    }
-  }
-}
-
 bool MovieMaker::writeVideoFrame(OutputCtx *output)
 {
   AVCodecContext *video = output->videoStream->codec;
@@ -367,7 +392,7 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
     // write the compressed frame in the media file
     int ret = av_write_frame(output->outputCtx, &pkt);
     if (ret != 0) {
-      LOG4CXX_ERROR(logger, "Error while writing video frame");
+      METLIBS_LOG_ERROR("Error while writing video frame");
       return false;
     }
   }
@@ -417,8 +442,7 @@ bool MovieMaker::makeVideoFrame(const QImage *image)
   output->frame->linesize[2] = output->frame->linesize[1];
 
   // Copy data over from the QImage. Convert from 32bitRGB to YUV420P
-  RGBtoYUV420P(image->bits(), buffer, image->depth() / 8, true, width, height,
-      false);
+  avhelpers::RGBtoYUV420P(image->bits(), buffer, image->depth() / 8, true, width, height, false);
 
   double duration = ((double) output->videoStream->pts.val)
       * output->videoStream->time_base.num / output->videoStream->time_base.den
@@ -438,5 +462,4 @@ bool MovieMaker::makeVideoFrame(const QImage *image)
   }
 
   return true;
-
 }
