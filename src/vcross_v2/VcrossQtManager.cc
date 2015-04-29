@@ -866,6 +866,9 @@ int QtManager::insertField(const ModelReftime& model, const std::string& plot,
     if (inFieldChangeGroup == 0)
       updateCrossectionsTimes();
     // TODO trigger plot update
+  } else {
+    METLIBS_LOG_WARN("could not add plot '" << plot << "' for model '" << model.model
+        << "' with reference time " << util::to_miTime(model.reftime));
   }
   return idx;
 }
@@ -1043,6 +1046,8 @@ void QtManager::selectFields(const string_v& to_plot)
     } else {
       if (reftime.undef() && !model.empty()) {
         const vctime_v reftimes = getModelReferenceTimes(model);
+        if (reftimes.empty())
+          METLIBS_LOG_WARN("empty reference time list for model '" << model << "'");
         if (refhour != -1)
           reftime = getBestReferenceTime(reftimes, refoffset, refhour);
         if (reftime.undef() && !reftimes.empty())
