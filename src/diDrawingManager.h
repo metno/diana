@@ -155,7 +155,7 @@ protected:
 
   EditItems::LayerManager *layerMgr_; // Read by DrawingManager::plot() and EditItemManager::plot(). Read/written by EditDrawingDialog.
 
-  mutable QHash<int, QSharedPointer<EditItems::Layer> > plotElems_;
+  mutable QHash<int, QSharedPointer<EditItems::LayerGroup> > plotElems_;
 
 private:
 

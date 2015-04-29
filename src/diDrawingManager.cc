@@ -35,7 +35,6 @@
 #include <EditItems/drawingsymbol.h>
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
-#include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
@@ -264,7 +263,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   }
 
   // Only enable this manager if there are specific files loaded, not just
-  // if there are items in the layers.
+  // if there are items in the layer manager.
   setEnabled(!loaded_.isEmpty());
 
   return true;
@@ -401,8 +400,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::vector<miutil::miTime> output;
   std::set<miutil::miTime> times;
 
-  // Query the layer groups to find the available times. These will query
-  // individual layers as necessary.
+  // Query the layer groups to find the available times.
 
   QList<QSharedPointer<EditItems::LayerGroup> > layerGroups = layerMgr_->layerGroups();
   for (int i = layerGroups.size() - 1; i >= 0; --i) {
@@ -578,14 +576,14 @@ std::vector<PlotElement> DrawingManager::getPlotElements() const
   std::vector<PlotElement> pel;
   plotElems_.clear();
   int i = 0;
-  foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
-    if (!layer->isEmpty()) {
+  foreach (const QSharedPointer<EditItems::LayerGroup> &group, layerMgr_->layerGroups()) {
+    if (!group->isActive()) {
       pel.push_back(
             PlotElement(
               plotElementTag().toStdString(), QString("%1").arg(i).toStdString(),
-              plotElementTag().toStdString(), layer->isVisible()));
+              plotElementTag().toStdString(), group->isActive()));
     }
-    plotElems_.insert(i, layer);
+    plotElems_.insert(i, group);
     i++;
   }
   return pel;
@@ -611,7 +609,7 @@ void DrawingManager::enablePlotElement(const PlotElement &pe)
     return;
   }
 
-  plotElems_.value(i)->setVisible(pe.enabled, true);
+  plotElems_.value(i)->setActive(pe.enabled);
 }
 
 /**
@@ -632,7 +630,6 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 QList<QSharedPointer<DrawingItemBase> > DrawingManager::findHitItems(
     const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const
 {
-  // Find all items in all layers.
   QSet<QSharedPointer<DrawingItemBase> > allItems = layerMgr_->allItems();
   QList<QSharedPointer<DrawingItemBase> > hitItems;
 
