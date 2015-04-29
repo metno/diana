@@ -55,12 +55,18 @@ MovieMaker::MovieMaker(const string &filename, const string &format,
   g_strOutputVideoFormat = format;
   this->delay = delay;
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
+  static bool is_avcodec_initialised = false;
+  if (!is_avcodec_initialised) {
+    // must be called before using avcodec lib
+    avcodec_init();
+    is_avcodec_initialised = true;
+  }
+#endif
+
   // register all the codecs
   avcodec_register_all();
   av_register_all();
-
-  // must be called before using avcodec lib
-  avcodec_init();
 
   outputVideo.fileName = g_strOutputVideoFile.c_str();
 
@@ -84,7 +90,11 @@ std::string MovieMaker::outputFormat() const
 
 bool MovieMaker::addVideoStream(OutputCtx *output)
 {
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(54, 0, 0)
+  output->videoStream = avformat_new_stream(output->outputCtx, 0);
+#else
   output->videoStream = av_new_stream(output->outputCtx, 0);
+#endif
   if (!output->videoStream)
     return false;
 
@@ -149,7 +159,12 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
     return false;
   }
 
-  if (avcodec_open(video, codec) < 0) {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 0, 0)
+  const int ret_avco = avcodec_open2(video, codec, NULL);
+#else
+  const int ret_avco = avcodec_open(video, codec);
+#endif
+  if (ret_avco < 0) {
     LOG4CXX_ERROR(logger, "Could not open video codec");
     return false;
   }
@@ -164,11 +179,13 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
   }
 
   // The following settings will prevent warning messages from FFmpeg
-  float muxPreload = 0.5f;
-  float muxMaxDelay = 0.7f;
   //For svcd you might set it to:
   //mux_preload= (36000+3*1200) / 90000.0; //0.44
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(54, 0, 0)
+  float muxPreload = 0.5f;
   output->outputCtx->preload = (int) (muxPreload * AV_TIME_BASE);
+#endif
+  float muxMaxDelay = 0.7f;
   output->outputCtx->max_delay = (int) (muxMaxDelay * AV_TIME_BASE);
 
   return true;
@@ -201,19 +218,15 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
   if (!addVideoStream(output))
     return false;
 
-  if (av_set_parameters(output->outputCtx, NULL ) < 0)
-    return false;
-
   output->outputCtx->packet_size = 2048;
-  dump_format(output->outputCtx, 0, g_strOutputVideoFile.c_str(), 1);
+  av_dump_format(output->outputCtx, 0, g_strOutputVideoFile.c_str(), 1);
 
   // open the audio and video codecs and allocate the necessary encode buffers
   if (!openVideoEncoder(output))
     return false;
 
   // open the output file
-  if (url_fopen(&output->outputCtx->pb, g_strOutputVideoFile.c_str(),
-      URL_WRONLY) < 0) {
+  if (avio_open(&output->outputCtx->pb, g_strOutputVideoFile.c_str(), AVIO_FLAG_WRITE) < 0) {
     ostringstream msg;
     msg << "Could not open " << g_strOutputVideoFile.c_str() << " for writing"
         << endl;
@@ -223,8 +236,10 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
 
   // write the stream header
   output->outputCtx->packet_size = 2048;
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(54, 0, 0)
   output->outputCtx->mux_rate = 10080000;
-  av_write_header(output->outputCtx);
+#endif
+  avformat_write_header(output->outputCtx, NULL);
 
   return true;
 }
@@ -268,7 +283,7 @@ void MovieMaker::endOutputStream(OutputCtx *output)
 
   // close the output file
 #if LIBAVFORMAT_VERSION_INT >= (52<<16)
-  url_fclose (output->outputCtx->pb);
+  avio_close (output->outputCtx->pb);
 #else
   url_fclose(&output->outputCtx->pb);
 #endif

@@ -77,7 +77,7 @@ AC_DEFUN([METNO_WITH_AVFORMAT], [
 	# lz hack: avcodec needs -lz, but autoconf will insert it in
 	# lz hack: the wrong position if we list it in other-libs
 	LIBS="${LIBS} -lz"
-	AC_CHECK_LIB([avcodec], [av_find_opt], [], [
+	AC_CHECK_LIB([avcodec], [avcodec_alloc_frame], [], [
 	    AC_MSG_ERROR([the required avcodec library was not found])
 	])
 	AC_CHECK_LIB([avformat], [av_read_frame], [], [
