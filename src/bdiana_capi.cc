@@ -1840,6 +1840,8 @@ static int parseAndProcess(istream &is)
         // -- vcross plot
         if (!vcrossmanager)
           vcrossmanager = miutil::make_shared<vcross::QtManager>();
+        else
+          vcrossmanager->cleanup(); // needed to clear zoom history
 
         // set size of plotwindow
         if (!multiple_plots)

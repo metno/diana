@@ -481,8 +481,10 @@ void QtPlot::clear(bool keepX, bool keepY)
 
   mCrossectionLabel.clear();
   mCrossectionPoints.clear();
+  mCrossectionPointsRequested.clear();
   mCrossectionDistances.clear();
   mCrossectionBearings.clear();
+  mRequestedDistances.clear();
 
   mTimePoints.clear();
   mTimeDistances.clear();

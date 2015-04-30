@@ -260,6 +260,8 @@ private:
   void saveZoom();
   void restoreZoom();
 
+  void cleanupData();
+
 private:
   Collector_p mCollector;
   VcrossOptions_p mOptions;

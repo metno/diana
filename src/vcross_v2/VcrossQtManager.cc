@@ -144,14 +144,28 @@ QtManager::~QtManager()
 void QtManager::cleanup()
 {
   METLIBS_LOG_SCOPE();
+  mCrossectionZooms.clear();
+  removeAllFields();
+  cleanupData();
+}
 
+
+void QtManager::cleanupData()
+{
+  METLIBS_LOG_SCOPE();
   mCrossectionCurrent = -1;
+  mCrossectionLabels.clear();
+  mCrossectionPoints.clear();
+  mCrossectionPointsRequested.clear();
+  mCrossectionTimes.clear();
+
   mPlotTime = -1;
   mTimeGraphMode = false;
-  mCrossectionZooms.clear();
 
-  removeAllFields();
+  mMarkers.clear();
+  mReferencePosition = -1;
 
+  dataChange = CHANGED_SEL;
   mPlot->clear();
 }
 
@@ -837,6 +851,8 @@ void QtManager::fieldChangeDone()
 void QtManager::updateCrossectionsTimes()
 {
   if (dataChange & CHANGED_SEL) {
+    if (mCollector->countSelectedPlots() == 0 || getTimeCount() == 0 || getCrossectionCount() == 0)
+      cleanupData();
     // FIXME getCrossectionLabel call is too late, we have to remember the crossection label before changing the crossection list
     handleChangedCrossectionList(getCrossectionLabel());
     handleChangedTimeList(getTimeValue());
@@ -910,6 +926,8 @@ void QtManager::removeField(int idx)
   Q_EMIT fieldRemoved(idx);
   if (inFieldChangeGroup == 0)
     updateCrossectionsTimes();
+  else if (mCollector->countSelectedPlots() == 0)
+    cleanupData();
   // TODO trigger plot update
 }
 
@@ -942,6 +960,7 @@ void QtManager::removeAllFields()
     Q_EMIT fieldRemoved(0);
     // TODO trigger plot update
   }
+  cleanupData();
   fieldChangeDone();
 }
 
@@ -972,8 +991,6 @@ void QtManager::selectFields(const string_v& to_plot)
 
   fieldChangeStart(true);
   removeAllFields();
-  mMarkers.clear();
-  mReferencePosition = -1;
 
   for (string_v::const_iterator itL = to_plot.begin(); itL != to_plot.end(); ++itL) {
     const std::string& line = *itL;
