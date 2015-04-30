@@ -198,8 +198,8 @@ TEST(TestVcrossQtManager, Script)
   EXPECT_TRUE(ms.beginScript);
   EXPECT_EQ(1, ms.removed.size());
   EXPECT_EQ(1, ms.added.size());
-  EXPECT_EQ(0, ms.cslist); // we have the same model with the same set of crossections and times
-  EXPECT_EQ(0, ms.csindex);
+  EXPECT_EQ(1, ms.cslist); // selectFields removes all fields
+  EXPECT_EQ(1, ms.csindex);
   EXPECT_TRUE(ms.end);
   ms.reset();
 
@@ -242,8 +242,8 @@ TEST(TestVcrossQtManager, Reftime)
   EXPECT_TRUE(ms.beginScript);
   EXPECT_EQ(1, ms.removed.size());
   EXPECT_EQ(1, ms.added.size());
-  EXPECT_EQ(0, ms.cslist); // we have the same model with the same set of crossections and times
-  EXPECT_EQ(0, ms.csindex);
+  EXPECT_EQ(1, ms.cslist); // selectFields removes all fields
+  EXPECT_EQ(1, ms.csindex);
   EXPECT_TRUE(ms.end);
   ms.reset();
 
