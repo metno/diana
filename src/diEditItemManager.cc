@@ -973,31 +973,26 @@ void EditItemManager::emitItemChanged() const
 
   QList<QVariantMap> itemProps;
 
-  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+  foreach (const QSharedPointer<DrawingItemBase> item, layerMgr_->allItems()) {
+    const QString type(item->properties().value("style:type").toString());
+    if (itemChangeFilter_ != type)
+      continue;
 
-    foreach (const QSharedPointer<DrawingItemBase> item, layer->selectedItems()) {
-      const QString type(item->properties().value("style:type").toString());
-      if (itemChangeFilter_ != type)
-        continue;
+    QVariantMap props;
+    props.insert("type", type);
+    props.insert("layer:index", 0);
+    props.insert("layer:visible", true);
+    props.insert("id", item->id());
+    props.insert("visible", item->property("visible", true).toBool());
+    props.insert("Placemark:name", item->property("Placemark:name").toString());
+    //
+    setFromLatLonPoints(*item, item->getLatLonPoints());
+    QVariantList latLonPoints;
+    foreach (QPointF p, item->getLatLonPoints())
+      latLonPoints.append(p);
+    props.insert("latLonPoints", latLonPoints);
 
-      QVariantMap props;
-      props.insert("type", type);
-      props.insert("layer:index", i);
-      props.insert("layer:visible", layer->isVisible());
-      props.insert("id", item->id());
-      props.insert("visible", item->property("visible", true).toBool());
-      props.insert("Placemark:name", item->property("Placemark:name").toString());
-      //
-      setFromLatLonPoints(*item, item->getLatLonPoints());
-      QVariantList latLonPoints;
-      foreach (QPointF p, item->getLatLonPoints())
-        latLonPoints.append(p);
-      props.insert("latLonPoints", latLonPoints);
-
-      itemProps.append(props);
-    }
+    itemProps.append(props);
   }
 
   static bool lastCallMatched = false;
@@ -1043,12 +1038,10 @@ void EditItemManager::updateJoins(bool updateJoinCountsOnly)
   QHash<int, QList<DrawingItemBase *> > joins;
 
   // find all joins
-  foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
-    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items()) {
-      const int joinId = item->joinId();
-      if (joinId)
-        joins[qAbs(joinId)].append(item.data());
-    }
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->allItems()) {
+    const int joinId = item->joinId();
+    if (joinId)
+      joins[qAbs(joinId)].append(item.data());
   }
 
   foreach (const QList<DrawingItemBase *> &join, joins.values()) {
@@ -1093,15 +1086,13 @@ void EditItemManager::adjustSelectedJoinPoints()
   QHash<int, QList<DrawingItemBase *> > selJoins; // the selected items in each join
 
   // find all joins, separating unselected and selected items in each join
-  foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
-    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items()) {
-      const int absJoinId = qAbs(item->joinId());
-      if (absJoinId) {
-        if (item->selected())
-          selJoins[absJoinId].append(item.data());
-        else
-          unselJoins[absJoinId].append(item.data());
-      }
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->allItems()) {
+    const int absJoinId = qAbs(item->joinId());
+    if (absJoinId) {
+      if (item->selected())
+        selJoins[absJoinId].append(item.data());
+      else
+        unselJoins[absJoinId].append(item.data());
     }
   }
 

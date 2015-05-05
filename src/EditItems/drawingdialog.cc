@@ -73,15 +73,13 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
 
-  layerMgr_ = new EditItems::LayerManager();
-
   // create the GUI
   setWindowTitle(tr("Drawing Dialog"));
   setFocusPolicy(Qt::StrongFocus);
   QSplitter *splitter = new QSplitter(Qt::Vertical);
-  layerGroupsPane_ = new LayerGroupsPane(layerMgr_);
+  layerGroupsPane_ = new LayerGroupsPane();
   splitter->addWidget(layerGroupsPane_);
-  layersPane_ = new DrawingLayersPane(layerMgr_, tr("Active Layers"));
+  layersPane_ = new DrawingLayersPane(tr("Active Layers"));
   layersPane_->init();
   splitter->addWidget(layersPane_);
   splitter->setSizes(QList<int>() << 500 << 500);
@@ -93,28 +91,13 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   mainLayout->addLayout(createStandardButtons());
 
-#ifdef ENABLE_DRAWINGDIALOG_TESTING
-  QHBoxLayout *bottomLayout = new QHBoxLayout;
-  //
-  QPushButton *dsButton = new QPushButton("dump structure");
-  connect(dsButton, SIGNAL(clicked()), SLOT(dumpStructure()));
-  dsButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-  bottomLayout->addWidget(dsButton);
-  //
-  QCheckBox *infoCBox = new QCheckBox("show info");
-  connect(infoCBox, SIGNAL(toggled(bool)), SLOT(showInfo(bool)));
-  infoCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-  bottomLayout->addWidget(infoCBox);
-  //
-  bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
-  mainLayout->addLayout(bottomLayout);
-#endif // ENABLE_DRAWINGDIALOG_TESTING
-
   // load available layer groups
   QMap<QString, QString> drawings = drawm_->getDrawings();
   foreach (const QString &name, drawings.keys()) {
-    const QList<QSharedPointer<Layer> > layers;
-    layerMgr_->addToNewLayerGroup(layers, name, drawings[name]);
+    QSharedPointer<LayerGroup> layerGroup(new LayerGroup(name.isEmpty() ? "new layer group" : name));
+    layerGroup->setFileName(drawings[name]);
+    fileMap_[drawings[name]] = name;
+    layerGroupsPane_->addWidgetForLG(layerGroup);
   }
   layerGroupsPane_->updateWidgetStructure();
 
@@ -128,66 +111,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(layersPane_, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)));
 
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
-}
-
-#ifdef ENABLE_DRAWINGDIALOG_TESTING
-static void dumpLayerManagerStructure(const LayerManager *lm)
-{
-  const QList<QSharedPointer<LayerGroup> > &layerGroups = lm->layerGroups();
-  qDebug() << QString("LAYER GROUPS (%1):").arg(layerGroups.size()).toLatin1().data();
-  int i = 0;
-  foreach (const QSharedPointer<LayerGroup> &lg, layerGroups) {
-    QString layers_s;
-    const QList<QSharedPointer<Layer> > layers = lg->layersRef();
-    foreach (QSharedPointer<Layer> layer, layers)
-      layers_s.append(QString("%1 ").arg((long)(layer.data()), 0, 16));
-    qDebug()
-        <<
-           QString("  %1:%2  %3  >%4<  editable=%5  active=%6  layers: %7")
-           .arg(i + 1)
-           .arg(layerGroups.size())
-           .arg((long)(lg.data()), 0, 16)
-           .arg(lg->name(), 30)
-           .arg(lg->isEditable() ? 1 : 0)
-           .arg(lg->isActive() ? 1 : 0)
-           .arg(layers_s)
-           .toLatin1().data();
-    i++;
-  }
-
-  const QList<QSharedPointer<Layer> > &layers = lm->orderedLayers();
-  qDebug() << QString("ORDERED LAYERS (%1):").arg(layers.size()).toLatin1().data();
-  i = 0;
-  foreach (const QSharedPointer<Layer> &layer, layers) {
-    qDebug()
-        <<
-           QString("  %1:%2  %3  >%4<  [%5]  LG:%6  editable:%7  active:%8  visible:%9  nItems:%10  nSelItems:%11")
-           .arg(i + 1)
-           .arg(layers.size())
-           .arg((long)(layer.data()), 0, 16)
-           .arg(layer->name(), 30)
-           .arg(lm->selectedLayers().contains(layer) ? "sel" : "   ")
-           .arg((long)(layer->layerGroupRef().data()), 0, 16)
-           .arg(layer->isEditable() ? 1 : 0)
-           .arg(layer->isActive() ? 1 : 0)
-           .arg(layer->isVisible() ? 1 : 0)
-           .arg(layer->itemCount())
-           .arg(layer->selectedItemCount())
-           .toLatin1().data();
-    i++;
-  }
-}
-#endif // ENABLE_DRAWINGDIALOG_TESTING
-
-void DrawingDialog::dumpStructure()
-{
-#ifdef ENABLE_DRAWINGDIALOG_TESTING
-  qDebug() << "\nLAYER MANAGERS:";
-  qDebug() << "1: In DrawingDialog: =====================================";
-  dumpLayerManagerStructure(layerMgr_);
-  qDebug() << "\n2: In DrawingManager: =====================================";
-  dumpLayerManagerStructure(drawm_->getLayerManager());
-#endif // ENABLE_DRAWINGDIALOG_TESTING
 }
 
 void DrawingDialog::showInfo(bool checked)
@@ -245,27 +168,16 @@ void DrawingDialog::makeProduct()
 {
   // Obtain a set of the files in use.
   QSet<QString> sources;
-  foreach (const QSharedPointer<Layer> &layer, layerMgr_->orderedLayers()) {
-    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items())
-      sources.insert(item->property("srcFile").toString());
-  }
+  foreach (DrawingItemBase *item, drawm_->allItems())
+    sources.insert(item->property("srcFile").toString());
 
   // Map the files back to names for the drawings if possible.
   std::vector<std::string> inp;
-  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerMgr_->layerGroups()) {
-    // If the layer group is active and contains files that appear in the set
-    // of sources obtained above then add a line to the list of plot strings.
-    if (layerGroup->isActive()) {
-      foreach (QString file, layerGroup->files()) {
-        if (sources.contains(file)) {
-          if (layerGroup->name() == file)
-            inp.push_back("DRAWING file=\"" + file.toStdString() + "\"");
-          else
-            inp.push_back("DRAWING name=\"" + layerGroup->name().toStdString() + "\"");
-          break;
-        }
-      }
-    }
+  foreach (QString &source, sources) {
+    if (!fileMap_.contains(source))
+      inp.push_back("DRAWING file=\"" + source.toStdString() + "\"");
+    else
+      inp.push_back("DRAWING name=\"" + fileMap_.value(source).toStdString() + "\"");
   }
 
   putOKString(inp);

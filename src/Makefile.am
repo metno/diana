@@ -121,7 +121,8 @@ common_qt_sources = diManager.cc \
 	diDrawingManager.cc
 
 common_qt_sources += \
-	vcross_v2/VcrossQtContour.cc \
+        EditItems/layergroup.cc \
+        vcross_v2/VcrossQtContour.cc \
 	vcross_v2/VcrossQtManager.cc \
 	vcross_v2/VcrossQtPaint.cc \
 	vcross_v2/VcrossQtPlot.cc \
@@ -264,9 +265,6 @@ bdiana_qt_sources = \
 	diOrderListener.cc \
 	diOrderQueue.cc \
 	diWorkOrder.cc \
-	EditItems/layer.cc \
-	EditItems/layergroup.cc \
-	EditItems/layermanager.cc \
 	EditItems/timefilesextractor.cc
 
 
@@ -300,10 +298,8 @@ noinst_HEADERS = \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \
 	EditItems/edittext.h \
-	EditItems/layer.h \
-	EditItems/layergroup.h \
-	EditItems/layermanager.h \
 	EditItems/kml.h \
+	EditItems/layergroup.h \
 	EditItems/properties.h \
 	EditItems/style.h \
 	EditItems/timefilesextractor.h \

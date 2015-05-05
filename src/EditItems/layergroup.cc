@@ -30,7 +30,7 @@
 */
 
 #include <EditItems/kml.h>
-#include <EditItems/layer.h>
+#include <EditItems/drawingitembase.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/timefilesextractor.h>
 
@@ -54,8 +54,8 @@ LayerGroup::LayerGroup(const LayerGroup &other)
   , active_(other.active_)
   , tfiles_(other.tfiles_)
 {
-  foreach (const QSharedPointer<Layer> &layer, other.layers_)
-    layers_.append(QSharedPointer<Layer>(new Layer(*(layer.data()))));
+  foreach (const DrawingItemBase *item, other.items_)
+    items_.append(item->clone());
 }
 
 LayerGroup::~LayerGroup()
@@ -121,16 +121,6 @@ void LayerGroup::setActive(bool active)
   active_ = active;
 }
 
-const QList<QSharedPointer<Layer> > &LayerGroup::layersRef() const
-{
-  return layers_;
-}
-
-QList<QSharedPointer<Layer> > &LayerGroup::layersRef()
-{
-  return layers_;
-}
-
 QSet<QString> LayerGroup::getTimes() const
 {
   QSet<QString> times;
@@ -141,18 +131,13 @@ QSet<QString> LayerGroup::getTimes() const
   // The following strings could be made configurable:
   static const char* timeProps[2] = {"time", "TimeSpan:begin"};
 
-  foreach (const QSharedPointer<Layer> &layer, layersRef()) {
-
-    if (layer->isVisible()) {
-      foreach (const QSharedPointer<DrawingItemBase> item, layer->items()) {
-        QString timeStr;
-        for (unsigned int i = 0; i < 2; ++i) {
-          timeStr = item->propertiesRef().value(timeProps[i]).toString();
-          if (!timeStr.isEmpty()) {
-            times.insert(timeStr);
-            break;
-          }
-        }
+  foreach (const DrawingItemBase *item, items_) {
+    QString timeStr;
+    for (unsigned int i = 0; i < 2; ++i) {
+      timeStr = item->propertiesRef().value(timeProps[i]).toString();
+      if (!timeStr.isEmpty()) {
+        times.insert(timeStr);
+        break;
       }
     }
   }
@@ -175,38 +160,32 @@ void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
   // Update the visibility of items held in the layers of this group.
   QString dateTimeStr = dateTime.toString(Qt::ISODate) + "Z";
 
-  for (int i = 0; i < layers_.size(); ++i) {
+  foreach (DrawingItemBase *item, items_) {
+    QString time_str;
+    QString time_prop = timeProperty(item->propertiesRef(), time_str);
 
-    const QSharedPointer<EditItems::Layer> layer = layers_.at(i);
-    QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-
-    foreach (const QSharedPointer<DrawingItemBase> item, items) {
-      QString time_str;
-      QString time_prop = timeProperty(item->propertiesRef(), time_str);
-
-      if (time_prop.isEmpty()) {
-        if (isCollection()) {
-          // For layer groups containing a collection of files, make the layers
-          // visible only if the current file is appropriate for the new time.
-          item->setProperty("visible", allVisible);
-        } else {
-          // For layer groups containing a single file with its own times for
-          // layers, if no time property was found, make the item visible.
-          item->setProperty("visible", true);
-        }
-      } else if (time_prop == "TimeSpan:begin") {
-        // Make the item visible if the time is within the begin and end times
-        // for the item.
-        QDateTime beginTime = QDateTime::fromString(item->property("TimeSpan:begin").toString(), "yyyy-MM-ddThh:mm:ssZ");
-        QDateTime endTime = QDateTime::fromString(item->property("TimeSpan:end").toString(), "yyyy-MM-ddThh:mm:ssZ");
-        bool visible = (dateTime >= beginTime) && (dateTime < endTime);
-        item->setProperty("visible", visible);
-
+    if (time_prop.isEmpty()) {
+      if (isCollection()) {
+        // For layer groups containing a collection of files, make the layers
+        // visible only if the current file is appropriate for the new time.
+        item->setProperty("visible", allVisible);
       } else {
-        // Make the item visible if the time is empty or equal to the current time.
-        bool visible = (time_str.isEmpty() | (dateTimeStr == time_str));
-        item->setProperty("visible", visible);
+        // For layer groups containing a single file with its own times for
+        // layers, if no time property was found, make the item visible.
+        item->setProperty("visible", true);
       }
+    } else if (time_prop == "TimeSpan:begin") {
+      // Make the item visible if the time is within the begin and end times
+      // for the item.
+      QDateTime beginTime = QDateTime::fromString(item->property("TimeSpan:begin").toString(), "yyyy-MM-ddThh:mm:ssZ");
+      QDateTime endTime = QDateTime::fromString(item->property("TimeSpan:end").toString(), "yyyy-MM-ddThh:mm:ssZ");
+      bool visible = (dateTime >= beginTime) && (dateTime < endTime);
+      item->setProperty("visible", visible);
+
+    } else {
+      // Make the item visible if the time is empty or equal to the current time.
+      bool visible = (time_str.isEmpty() | (dateTimeStr == time_str));
+      item->setProperty("visible", visible);
     }
   }
 
@@ -256,6 +235,27 @@ void LayerGroup::setFiles(const QList<QPair<QFileInfo, QDateTime> > &tfiles)
 bool LayerGroup::isCollection() const
 {
   return !tfiles_.isEmpty();
+}
+
+QList<DrawingItemBase *> LayerGroup::items() const
+{
+  return items_;
+}
+
+void LayerGroup::setItems(QList<DrawingItemBase *> items)
+{
+  qDeleteAll(items_);
+  items_ = items;
+}
+
+void LayerGroup::addItem(DrawingItemBase *item)
+{
+  items_.append(item);
+}
+
+bool LayerGroup::removeItem(DrawingItemBase *item)
+{
+  return items_.removeOne(item);
 }
 
 } // namespace

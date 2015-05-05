@@ -59,8 +59,7 @@ private:
   DrawingManager *drawm_;
   LayerGroupsPane *layerGroupsPane_;
   DrawingLayersPane *layersPane_; // keeps the active layers
-  LayerManager *layerMgr_; // Read/written by DrawingDialog.
-                           // The Apply operation deep-copies the active layers of this->layerMgr_ into DrawingManager::layerMgr_.
+  QHash<QString, QString> fileMap_;
 
 private slots:
   virtual void updateTimes();

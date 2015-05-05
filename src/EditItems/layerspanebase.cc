@@ -538,11 +538,10 @@ void LayersPaneBase::editAttrsOfSingleSelected()
   editAttrs(layerWidget);
 }
 
-QString LayersPaneBase::saveLayers(const QList<QSharedPointer<Layer> > &layers_, const QString &fileName) const
+QString LayersPaneBase::saveItems(const QList<DrawingItemBase *> &items, const QString &fileName) const
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  QString error;
-  KML::saveLayersToFile(fileName, layers_, &error);
+  QString error = KML::saveItemsToFile(items, fileName);
   QApplication::restoreOverrideCursor();
   return error;
 }

@@ -172,7 +172,7 @@ private:
   bool multiSelectable_;
   bool layerUpdatesEnabled_;
 
-  QString saveLayers(const QList<QSharedPointer<Layer> > &, const QString &) const;
+  QString saveItems(const QList<DrawingItemBase *> &, const QString &) const;
   LayerWidget *widgetFromLayer(const QSharedPointer<Layer> &);
 
 signals:

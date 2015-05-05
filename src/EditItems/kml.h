@@ -43,36 +43,27 @@
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>
-#include <EditItems/layer.h>
-#include <EditItems/layermanager.h>
 
 // API for saving/loading to/from KML files.
-namespace KML {
+namespace KML
+{
+  QString saveItemsToFile(const QList<DrawingItemBase *> &items, const QString &fileName);
 
-void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error);
+  QDomElement createExtDataDataElement(QDomDocument &, const QString &, const QString &);
+  QHash<QString, QString> getExtendedData(const QDomNode &, const QString &);
 
-QDomElement createExtDataDataElement(QDomDocument &, const QString &, const QString &);
+  QList<QPointF> getPoints(const QDomNode &, QString *);
+  void findAncestorElements(const QDomNode &, QMap<QString, QDomElement> *, QString &);
 
-QHash<QString, QString> getExtendedData(const QDomNode &, const QString &);
+  QString getName(const QDomElement &, QString &);
+  QPair<QString, QString> getTimeSpan(const QDomElement &, QString &);
 
-QList<QPointF> getPoints(const QDomNode &, QString *);
+  bool loadSchema(QXmlSchema &, QString &);
+  QDomDocument createDomDocument(const QByteArray &, const QXmlSchema &, const QUrl &, QString &);
+  bool convertFromOldFormat(QByteArray &, QString &);
 
-void findAncestorElements(const QDomNode &, QMap<QString, QDomElement> *, QString *);
-
-QString getName(const QDomElement &, QString *);
-
-QPair<QString, QString> getTimeSpan(const QDomElement &, QString *);
-
-bool loadSchema(QXmlSchema &, QString *);
-QDomDocument createDomDocument(const QByteArray &, const QXmlSchema &, const QUrl &, QString *);
-bool convertFromOldFormat(QByteArray &, QString *);
-
-QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
-    EditItems::LayerManager *layerManager, const QDomDocument &doc, const QString &srcFileName, QString *error);
-
-QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems::LayerManager *layerManager,
-                                                        const QString &fileName, QString *error);
-
-} // namespace
+  QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &srcFileName, QString &error);
+  QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error);
+}
 
 #endif // KML_H

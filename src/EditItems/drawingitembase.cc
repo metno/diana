@@ -52,11 +52,11 @@ int DrawingItemBase::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm, bool setUniqueId) const
+DrawingItemBase *DrawingItemBase::clone(bool setUniqueId) const
 {
   DrawingItemBase *item = cloneSpecial(setUniqueId);
 
-  item->setLatLonPoints(dm->getLatLonPoints(*item));
+  item->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(item));
 
   const_cast<QVariantMap &>(propertiesRef()).remove("points");
   item->setProperties(properties());

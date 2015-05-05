@@ -85,21 +85,20 @@ QSet<QSharedPointer<DrawingItemBase> > LayerManager::itemsInSelectedLayers(bool 
 {
   QSet<QSharedPointer<DrawingItemBase> > items;
 
-  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->isSelected()) {
-      if (selectedItemsOnly)
-        items.unite(layer->selectedItems().toSet());
-      else
-        items.unite(layer->itemSet());
-    }
+  foreach(const QSharedPointer<LayerGroup> &group, layerGroups_)
+    if (selectedItemsOnly)
+      items.unite(group->selectedItems().toSet());
+    else
+      items.unite(group->itemSet());
+  }
 
   return items;
 }
 
 bool LayerManager::selectedLayersContainItem(const QSharedPointer<DrawingItemBase> &item) const
 {
-  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->isSelected() && layer->containsItem(item))
+  foreach (const QSharedPointer<LayerGroup> &group, layerGroups_)
+    if (group->isSelected() && layer->containsItem(item))
       return true;
   return false;
 }

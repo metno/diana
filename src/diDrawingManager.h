@@ -34,8 +34,7 @@
 #include "diManager.h"
 #include <diField/diGridConverter.h>
 #include <EditItems/drawingitembase.h>
-#include <EditItems/layermanager.h>
-#include <EditItems/layer.h>
+#include <EditItems/layergroup.h>
 #include <QHash>
 #include <QList>
 #include <QMap>
@@ -43,8 +42,6 @@
 #include <QSet>
 #include <QString>
 #include <QVariantMap>
-//#define QT_SHAREDPOINTER_TRACK_POINTERS
-#include <QSharedPointer>
 #include <vector>
 
 #if !defined(USE_PAINTGL)
@@ -61,7 +58,6 @@ class QKeyEvent;
 class QMouseEvent;
 
 class DrawingStyleManager;
-
 struct PlotElement;
 
 /**
@@ -75,9 +71,9 @@ public:
   class itemCompare
   {
   public:
-      inline bool operator()(const QSharedPointer<DrawingItemBase> t1, const QSharedPointer<DrawingItemBase> t2) const
+      inline bool operator()(const DrawingItemBase *t1, const DrawingItemBase *t2) const
       {
-          return (t1->id() < t2->id());
+          return (t1 < t2);
       }
   };
 
@@ -97,16 +93,15 @@ public:
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res);
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
-  QList<QSharedPointer<DrawingItemBase> > findHitItems(
-    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const;
+  QList<DrawingItemBase *> findHitItems(const QPointF &pos, QList<DrawingItemBase *> &missedItems) const;
 
-  QList<QPointF> getLatLonPoints(const DrawingItemBase &item) const;
-  void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const;
+  QList<QPointF> getLatLonPoints(const DrawingItemBase *item) const;
+  void setFromLatLonPoints(DrawingItemBase *item, const QList<QPointF> &latLonPoints) const;
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints) const;
 
   virtual DrawingItemBase *createItem(const QString &type);
-  virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
+  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString &error);
 
   static DrawingManager *instance();
 
@@ -120,8 +115,6 @@ public:
   // Dialog-related methods
   QMap<QString, QString> &getDrawings();
   QMap<QString, QString> &getLoaded();
-  EditItems::LayerManager *getLayerManager();
-  EditItems::LayerManager *getAuxLayerManager();
 
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
@@ -133,19 +126,22 @@ public:
   void enablePlotElement(const PlotElement &);
 
   int nextJoinId(bool = true);
-  void separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &);
+  void separateJoinIds(const QList<DrawingItemBase *> &);
+
+
+  QList<DrawingItemBase *> allItems() const;
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
 signals:
-  void itemsClicked(const QList<QSharedPointer<DrawingItemBase> > &items);
-  void itemsHovered(const QList<QSharedPointer<DrawingItemBase> > &items);
+  void itemsClicked(const QList<DrawingItemBase *> &items);
+  void itemsHovered(const QList<DrawingItemBase *> &items);
 
 protected:
-  virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
-  virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
-  void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
+  virtual void addItem_(DrawingItemBase *, EditItems::LayerGroup *group);
+  virtual void removeItem_(DrawingItemBase *, EditItems::LayerGroup *group = 0);
+  void applyPlotOptions(const DrawingItemBase *) const;
 
   static Rectangle editRect_;
 
@@ -153,9 +149,7 @@ protected:
   QMap<QString, QString> drawings_;
   QMap<QString, QString> loaded_;
 
-  EditItems::LayerManager *layerMgr_; // Read by DrawingManager::plot() and EditItemManager::plot(). Read/written by EditDrawingDialog.
-
-  mutable QHash<int, QSharedPointer<EditItems::LayerGroup> > plotElems_;
+  QList<EditItems::LayerGroup *> layerGroups_;
 
 private:
 

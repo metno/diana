@@ -36,7 +36,6 @@
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
 #include <EditItems/layergroup.h>
-#include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
@@ -72,7 +71,6 @@ DrawingManager::DrawingManager()
 {
   setEditRect(PLOTM->getPlotSize());
   styleManager_ = DrawingStyleManager::instance();
-  layerMgr_ = new EditItems::LayerManager();
 }
 
 DrawingManager::~DrawingManager()
@@ -85,50 +83,6 @@ DrawingManager *DrawingManager::instance()
     DrawingManager::self_ = new DrawingManager();
 
   return DrawingManager::self_;
-}
-
-int DrawingManager::nextJoinId_ = 1;
-
-int DrawingManager::nextJoinId(bool bump)
-{
-  // ### this function is not thread safe; use a mutex for that
-  const int origVal = nextJoinId_;
-  if (bump)
-    nextJoinId_++;
-  return origVal;
-}
-
-void DrawingManager::setNextJoinId(int val)
-{
-  // ### this function is not thread safe; use a mutex for that
-  if (val <= nextJoinId_) // only allow a higher value
-    return;
-  nextJoinId_ = val;
-}
-
-// Adjusts any join IDs in \a items to avoid conflicts with any existing joins (assuming existing join IDs are all < nextJoinId_).
-void DrawingManager::separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &items)
-{
-  int loAbsJoinId = 0;
-  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
-    const int absJoinId = qAbs(item->joinId());
-    if (absJoinId > 0)
-      loAbsJoinId = (loAbsJoinId ? qMin(loAbsJoinId, absJoinId) : absJoinId);
-  }
-
-  const int add = (DrawingManager::instance()->nextJoinId(false) - loAbsJoinId);
-  int hiAbsJoinId = 0;
-  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
-    const int joinId = item->joinId();
-    if (joinId) {
-      const int newAbsJoinId = qAbs(joinId) + add;
-      item->propertiesRef().insert("joinId", (joinId < 0) ? -newAbsJoinId : newAbsJoinId);
-      hiAbsJoinId = qMax(hiAbsJoinId, newAbsJoinId);
-    }
-  }
-
-  if (hiAbsJoinId)
-    setNextJoinId(hiAbsJoinId + 1);
 }
 
 bool DrawingManager::parseSetup()
@@ -229,7 +183,6 @@ bool DrawingManager::parseSetup()
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
   loaded_.clear();
-  layerMgr_->clear();
 
   if (inp.empty())
     return false;
@@ -292,31 +245,29 @@ DrawingItemBase *DrawingManager::createItem(const QString &type)
   return item;
 }
 
-QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString &error)
 {
-  Q_ASSERT(!vmap.empty());
-  Q_ASSERT(vmap.contains("type"));
-  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+  if (vmap.empty() || !vmap.contains("type") || !vmap.value("type").canConvert(QVariant::String))
+    return 0;
 
   QString type = vmap.value("type").toString().split("::").last();
   DrawingItemBase *item = createItem(type);
 
   if (item) {
     item->setProperties(vmap);
-    setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
+    setFromLatLonPoints(item, item->getLatLonPoints());
 
     DrawingItem_Composite::Composite *c = dynamic_cast<DrawingItem_Composite::Composite *>(item);
     if (c)
       c->createElements();
   }
 
-  return QSharedPointer<DrawingItemBase>(item);
+  return item;
 }
 
-void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
+void DrawingManager::addItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
 {
-  Q_ASSERT(!layerMgr_->selectedLayers().isEmpty());
-  layerMgr_->selectedLayers().first()->insertItem(item);
+  group->addItem(item);
 }
 
 bool DrawingManager::loadDrawing(const QString &name)
@@ -329,21 +280,35 @@ bool DrawingManager::loadDrawing(const QString &name)
   else
     fileName = name;
 
-  QSharedPointer<EditItems::LayerGroup> layerGroup = layerMgr_->createNewLayerGroup(name, fileName);
-  layerMgr_->addToNewLayerGroup(layerGroup, name);
+  QString error;
+
+  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  if (!error.isEmpty()) {
+    METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
+    return false;
+  }
+
+  EditItems::LayerGroup *layerGroup = new EditItems::LayerGroup(name.isEmpty() ? "new layer group" : name);
+  layerGroup->setFileName(fileName);
+  layerGroup->setItems(items);
+  layerGroups_.append(layerGroup);
   loaded_[name] = fileName;
 
   return true;
 }
 
-void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
+void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
 {
-  layerMgr_->removeItem(item);
+  if (!group) {
+    foreach (EditItems::LayerGroup *group, layerGroups_)
+      if (group->removeItem(item)) break;
+  } else
+    group->removeItem(item);
 }
 
-QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) const
+QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase *item) const
 {
-  const QList<QPointF> points = item.getPoints();
+  const QList<QPointF> points = item->getPoints();
   return PhysToGeo(points);
 }
 
@@ -367,11 +332,11 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const
+void DrawingManager::setFromLatLonPoints(DrawingItemBase *item, const QList<QPointF> &latLonPoints) const
 {
   if (!latLonPoints.isEmpty()) {
     QList<QPointF> points = GeoToPhys(latLonPoints);
-    item.setPoints(points);
+    item->setPoints(points);
   }
 }
 
@@ -401,11 +366,8 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::set<miutil::miTime> times;
 
   // Query the layer groups to find the available times.
-
-  QList<QSharedPointer<EditItems::LayerGroup> > layerGroups = layerMgr_->layerGroups();
-  for (int i = layerGroups.size() - 1; i >= 0; --i) {
-
-    QSet<QString> groupTimes = layerGroups.at(i)->getTimes();
+  for (int i = layerGroups_.size() - 1; i >= 0; --i) {
+    QSet<QString> groupTimes = layerGroups_.at(i)->getTimes();
     foreach (const QString &time, groupTimes)
       times.insert(miutil::miTime(time.toStdString()));
   }
@@ -447,7 +409,36 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   QString timeStr = QString::fromStdString(time.isoTime());
   QDateTime dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
 
-  layerMgr_->setTime(dateTime);
+  foreach (EditItems::LayerGroup *layerGroup, layerGroups_) {
+
+    bool allVisible = true;
+
+    if (layerGroup->isCollection()) {
+
+      // For layer groups containing a collection of files, make the layers
+      // visible only if the current file is appropriate for the new time.
+      allVisible = (dateTime == layerGroup->time());
+
+      if (!allVisible && layerGroup->hasTime(dateTime)) {
+
+        // Another time was requested and is available. Replace the existing
+        // items with those from the corresponding file.
+
+        QString fileName = layerGroup->fileName(dateTime);
+
+        QString error;
+        QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+        if (!error.isEmpty())
+          METLIBS_LOG_WARN(QString("LayerManager::addToNewLayerGroup: failed to load layer group from %1: %2")
+                           .arg(fileName).arg(error).toStdString());
+
+        layerGroup->setItems(items);
+        allVisible = true;
+      }
+    }
+
+    layerGroup->setTime(dateTime, allVisible);
+  }
 
   return found;
 }
@@ -473,14 +464,11 @@ void DrawingManager::plot(bool under, bool over)
   glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
            PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
-  QList<QSharedPointer<DrawingItemBase> > items = layerMgr_->allItems().toList();
-  qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
-
-  foreach (const QSharedPointer<DrawingItemBase> item, items) {
+  foreach (DrawingItemBase *item, allItems()) {
 
     if (item->property("visible", true).toBool()) {
       applyPlotOptions(item);
-      setFromLatLonPoints(*item, item->getLatLonPoints());
+      setFromLatLonPoints(item, item->getLatLonPoints());
       item->draw();
     }
   }
@@ -552,18 +540,13 @@ QSize DrawingManager::getSymbolSize(const QString &name) const
   return renderer.defaultSize();
 }
 
-void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &item) const
+void DrawingManager::applyPlotOptions(const DrawingItemBase *item) const
 {
   const bool antialiasing = item->property("antialiasing", true).toBool();
   if (antialiasing)
     glEnable(GL_MULTISAMPLE);
   else
     glDisable(GL_MULTISAMPLE);
-}
-
-EditItems::LayerManager *DrawingManager::getLayerManager()
-{
-  return layerMgr_;
 }
 
 void DrawingManager::setEditRect(Rectangle r)
@@ -574,18 +557,7 @@ void DrawingManager::setEditRect(Rectangle r)
 std::vector<PlotElement> DrawingManager::getPlotElements() const
 {
   std::vector<PlotElement> pel;
-  plotElems_.clear();
-  int i = 0;
-  foreach (const QSharedPointer<EditItems::LayerGroup> &group, layerMgr_->layerGroups()) {
-    if (!group->isActive()) {
-      pel.push_back(
-            PlotElement(
-              plotElementTag().toStdString(), QString("%1").arg(i).toStdString(),
-              plotElementTag().toStdString(), group->isActive()));
-    }
-    plotElems_.insert(i, group);
-    i++;
-  }
+  // ### FIX ME
   return pel;
 }
 
@@ -596,20 +568,7 @@ QString DrawingManager::plotElementTag() const
 
 void DrawingManager::enablePlotElement(const PlotElement &pe)
 {
-  const QString s = QString::fromStdString(pe.str);
-  bool ok = false;
-  const int i = s.toInt(&ok);
-  if (!ok) {
-    METLIBS_LOG_WARN("DM::enablePlotElement(): failed to extract int from pe.str:" << pe.str);
-    return;
-  }
-
-  if (!plotElems_.contains(i)) {
-    METLIBS_LOG_WARN("DM::enablePlotElement(): key not found in plotElems_:" << i);
-    return;
-  }
-
-  plotElems_.value(i)->setActive(pe.enabled);
+  // ### FIX ME - Map the element back to a layer group and enable it as required.
 }
 
 /**
@@ -619,7 +578,8 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
   if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
     // Find a list of items at the point passed in the event.
-    QList<QSharedPointer<DrawingItemBase> > hit = findHitItems(event->pos(), 0);
+    QList<DrawingItemBase *> missed;
+    QList<DrawingItemBase *> hit = findHitItems(event->pos(), missed);
     if (hit.size() > 0) {
       emit itemsHovered(hit);
       event->setAccepted(true);
@@ -627,18 +587,28 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
   }
 }
 
-QList<QSharedPointer<DrawingItemBase> > DrawingManager::findHitItems(
-    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const
+QList<DrawingItemBase *> DrawingManager::findHitItems(
+    const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
 {
-  QSet<QSharedPointer<DrawingItemBase> > allItems = layerMgr_->allItems();
-  QList<QSharedPointer<DrawingItemBase> > hitItems;
+  QList<DrawingItemBase *> hitItems;
 
-  foreach (const QSharedPointer<DrawingItemBase> &item, allItems) {
-    if (item->hit(pos, false))
-      hitItems.append(item);
-    else if (missedItems)
-      missedItems->append(item);
+  foreach (const EditItems::LayerGroup *group, layerGroups_) {
+    foreach (DrawingItemBase *item, group->items()) {
+      if (item->hit(pos, false))
+        hitItems.append(item);
+      else
+        missedItems.append(item);
+    }
   }
 
   return hitItems;
+}
+
+QList<DrawingItemBase *> DrawingManager::allItems() const
+{
+  QList<DrawingItemBase *> items;
+  foreach (const EditItems::LayerGroup *group, layerGroups_)
+    items += group->items();
+
+  return items;
 }

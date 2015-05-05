@@ -70,34 +70,18 @@ static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &i
   return kml;
 }
 
-// Saves a list of \a layers to \a fileName.
+// Saves a list of \a items to \a fileName.
 // The function leaves \a error empty iff it succeeds.
-void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error)
+QString saveItemsToFile(const QList<DrawingItemBase *> &items, const QString &fileName)
 {
-  *error = QString();
   QDomDocument doc;
 
   QDomDocumentFragment innerStruct = doc.createDocumentFragment();
 
-  // insert layers
-  QDomElement layersElem = doc.createElement("ExtendedData");
-  int layerIndex = 0;
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    layersElem.appendChild(KML::createExtDataDataElement(doc, QString("met:layer:%1:name").arg(layerIndex), layer->name()));
-    layersElem.appendChild(KML::createExtDataDataElement(doc, QString("met:layer:%1:visible").arg(layerIndex), layer->isVisible() ? "true" : "false"));
-    layerIndex++;
-  }
-  innerStruct.appendChild(layersElem);
-
   // insert items
-  layerIndex = 0;
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    for (int i = 0; i < layer->itemCount(); ++i) {
-      QHash<QString, QString> extraExtData;
-      extraExtData.insert("layerId", QString::number(layerIndex));
-      innerStruct.appendChild(layer->item(i)->toKML(extraExtData));
-    }
-    layerIndex++;
+  foreach (const DrawingItemBase *item, items) {
+    QHash<QString, QString> extraExtData;
+    innerStruct.appendChild(item->toKML(extraExtData));
   }
 
   const QByteArray kmlText = createKMLText(doc, innerStruct);
@@ -105,19 +89,17 @@ void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditIt
   // save KML text to file
   QFile file(fileName);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      *error = QString("failed to open %1 for writing").arg(fileName);
-      return;
+      return QString("failed to open %1 for writing").arg(fileName);
   }
   if (file.write(kmlText) == -1) {
-    *error = QString("failed to write to %1: %2").arg(fileName).arg(file.errorString());
-    return;
+    return QString("failed to write to %1: %2").arg(fileName).arg(file.errorString());
   }
   file.close();
 
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    layer->clearSrcFiles();
-    layer->insertSrcFile(fileName);
-  }
+  foreach (DrawingItemBase *item, items)
+    item->setProperty("srcFile", fileName);
+
+  return QString();
 }
 
 QDomElement createExtDataDataElement(QDomDocument &doc, const QString &name, const QString &value)
@@ -161,7 +143,7 @@ QHash<QString, QString> getExtendedData(const QDomNode &node, const QString &par
 
 // Returns the sequence of (lat, lon) points of a <cooordinates> element.
 // Leaves \a error empty iff no errors occurs.
-QList<QPointF> getPoints(const QDomNode &coordsNode, QString *error)
+QList<QPointF> getPoints(const QDomNode &coordsNode, QString &error)
 {
   const QString coords = coordsNode.firstChild().nodeValue();
   QList<QPointF> points;
@@ -169,19 +151,19 @@ QList<QPointF> getPoints(const QDomNode &coordsNode, QString *error)
   foreach (QString coord, coords.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
     const QStringList coordComps = coord.split(",", QString::SkipEmptyParts);
     if (coordComps.size() < 2) {
-      *error = QString("expected at least two components (i.e. lat, lon) in coordinate, found %1: %2")
+      error = QString("expected at least two components (i.e. lat, lon) in coordinate, found %1: %2")
           .arg(coordComps.size()).arg(coord);
       return QList<QPointF>();
     }
     bool ok;
     const double lon = coordComps.at(0).toDouble(&ok);
     if (!ok) {
-      *error = QString("failed to convert longitude string to double value: %1").arg(coordComps.at(0));
+      error = QString("failed to convert longitude string to double value: %1").arg(coordComps.at(0));
       return QList<QPointF>();
     }
     const double lat = coordComps.at(1).toDouble(&ok);
     if (!ok) {
-      *error = QString("failed to convert latitude string to double value: %1").arg(coordComps.at(1));
+      error = QString("failed to convert latitude string to double value: %1").arg(coordComps.at(1));
       return QList<QPointF>();
     }
     points.append(QPointF(lat, lon)); // note lat,lon order
@@ -192,10 +174,10 @@ QList<QPointF> getPoints(const QDomNode &coordsNode, QString *error)
 
 // Fills \a ancElems in with all ancestor elements of \a node. Assumes (and checks for) uniqueness
 // of ancestor tag names. Leaves \a error empty iff no error occurs.
-void findAncestorElements(const QDomNode &node, QMap<QString, QDomElement> *ancElems, QString *error)
+void findAncestorElements(const QDomNode &node, QMap<QString, QDomElement> *ancElems, QString &error)
 {
   ancElems->clear();
-  *error = QString();
+  error = QString();
   if (node.isNull())
     return;
 
@@ -208,13 +190,13 @@ void findAncestorElements(const QDomNode &node, QMap<QString, QDomElement> *ancE
 
 // Returns the string contained in the <name> child of \a elem.
 // Leaves \a error empty iff no error occurs (such as when \a elem doesn't have a <name> child!).
-QString getName(const QDomElement &elem, QString *error)
+QString getName(const QDomElement &elem, QString &error)
 {
   Q_ASSERT(!elem.isNull());
-  *error = QString();
+  error = QString();
   const QDomElement nameElem = elem.firstChildElement("name");
   if (nameElem.isNull()) {
-    *error = QString("element <%1> contains no <name> child").arg(elem.tagName());
+    error = QString("element <%1> contains no <name> child").arg(elem.tagName());
     return "";
   }
   return nameElem.firstChild().nodeValue();
@@ -222,26 +204,26 @@ QString getName(const QDomElement &elem, QString *error)
 
 // Returns the pair of strings that represents begin- and end time contained in the <TimeSpan> child of \a elem.
 // Leaves \a error empty iff no error occurs (such as when \a elem doesn't have a <TimeSpan> child!).
-QPair<QString, QString> getTimeSpan(const QDomElement &elem, QString *error)
+QPair<QString, QString> getTimeSpan(const QDomElement &elem, QString &error)
 {
   Q_ASSERT(!elem.isNull());
-  *error = QString();
+  error = QString();
 
   const QDomElement timeSpanElem = elem.firstChildElement("TimeSpan");
   if (timeSpanElem.isNull()) {
-    *error = QString("element <%1> contains no <TimeSpan> child").arg(elem.tagName());
+    error = QString("element <%1> contains no <TimeSpan> child").arg(elem.tagName());
     return QPair<QString, QString>();
   }
 
   const QDomElement beginTimeElem = timeSpanElem.firstChildElement("begin");
   if (beginTimeElem.isNull()) {
-    *error = "time span contains no begin time";
+    error = "time span contains no begin time";
     return QPair<QString, QString>();
   }
   //
   const QDomElement endTimeElem = timeSpanElem.firstChildElement("end");
   if (endTimeElem.isNull()) {
-    *error = "time span contains no end time";
+    error = "time span contains no end time";
     return QPair<QString, QString>();
   }
 
@@ -284,13 +266,13 @@ QString MessageHandler::lastMessage() const
 
 // Attempts to load \a fileName as a valid XML schema.
 // Returns true upon success, or false and a reason in \a error upon failure.
-static bool loadSchemaFromFile(QXmlSchema &schema, const QString &fileName, QString *error)
+static bool loadSchemaFromFile(QXmlSchema &schema, const QString &fileName, QString &error)
 {
-  *error = QString();
+  error = QString();
 
   QUrl schemaUrl(QUrl(QString("file://%1").arg(fileName)));
   if (!schemaUrl.isValid()) {
-    *error = QString("invalid schema: %1, reason: %2").arg(schemaUrl.path()).arg(schemaUrl.errorString());
+    error = QString("invalid schema: %1, reason: %2").arg(schemaUrl.path()).arg(schemaUrl.errorString());
     return false;
   }
 
@@ -299,7 +281,7 @@ static bool loadSchemaFromFile(QXmlSchema &schema, const QString &fileName, QStr
   msgHandler.reset();
   if (!schema.load(schemaUrl)) {
     Q_ASSERT(!schema.isValid());
-    *error = QString("failed to load schema: %1, reason: %2").arg(schemaUrl.path()).arg(msgHandler.lastMessage());
+    error = QString("failed to load schema: %1, reason: %2").arg(schemaUrl.path()).arg(msgHandler.lastMessage());
     return false;
   }
 
@@ -310,9 +292,9 @@ static bool loadSchemaFromFile(QXmlSchema &schema, const QString &fileName, QStr
 // Loads the KML schema from pre-defined candidate files in prioritized order.
 // Upon success, the function returns true and a valid schema in \a schema.
 // Otherwise, the function returns false and the failure reason for each candidate file in \a error.
-bool loadSchema(QXmlSchema &schema, QString *error)
+bool loadSchema(QXmlSchema &schema, QString &error)
 {
-  *error = QString();
+  error = QString();
 
   // open the schema file from a list of candidates in prioritized order
   const QString schemaBaseFileName("ogckml22.xsd");
@@ -324,7 +306,7 @@ bool loadSchema(QXmlSchema &schema, QString *error)
   foreach (const QString schemaFileName, candSchemaFileNames) {
     i++;
     QString schemaLoadError;
-    if (loadSchemaFromFile(schema, schemaFileName, &schemaLoadError)) {
+    if (loadSchemaFromFile(schema, schemaFileName, schemaLoadError)) {
       Q_ASSERT(schema.isValid());
       Q_ASSERT(schemaLoadError.isEmpty());
       break;
@@ -336,7 +318,7 @@ bool loadSchema(QXmlSchema &schema, QString *error)
   }
 
   if (!schema.isValid()) {
-    *error = QString(candSchemaErrors.join(", "));
+    error = QString(candSchemaErrors.join(", "));
     return false;
   }
 
@@ -345,10 +327,10 @@ bool loadSchema(QXmlSchema &schema, QString *error)
 
 // Creates a DOM document from the KML structure in \a data, validating against \a schema.
 // Returns a non-null document upon success, or a null document and a failure reason in \a error upon failure.
-QDomDocument createDomDocument(const QByteArray &data, const QXmlSchema &schema, const QUrl &docUri, QString *error)
+QDomDocument createDomDocument(const QByteArray &data, const QXmlSchema &schema, const QUrl &docUri, QString &error)
 {
   Q_ASSERT(schema.isValid());
-  *error = QString();
+  error = QString();
   MessageHandler msgHandler;
 
   // validate against schema
@@ -356,7 +338,7 @@ QDomDocument createDomDocument(const QByteArray &data, const QXmlSchema &schema,
   validator.setMessageHandler(&msgHandler);
   msgHandler.reset();
   if (!validator.validate(data, docUri)) {
-    *error = QString("failed to validate against schema: %1, reason: %2").arg(schema.documentUri().path()).arg(msgHandler.lastMessage());
+    error = QString("failed to validate against schema: %1, reason: %2").arg(schema.documentUri().path()).arg(msgHandler.lastMessage());
     return QDomDocument();
   }
 
@@ -366,7 +348,7 @@ QDomDocument createDomDocument(const QByteArray &data, const QXmlSchema &schema,
   QString err;
   QDomDocument doc;
   if (doc.setContent(data, &err, &line, &col) == false) {
-    *error = QString("parse error at line %1, column %2: %3").arg(line).arg(col).arg(err);
+    error = QString("parse error at line %1, column %2: %3").arg(line).arg(col).arg(err);
     return QDomDocument();
   }
 
@@ -376,9 +358,9 @@ QDomDocument createDomDocument(const QByteArray &data, const QXmlSchema &schema,
 
 // Returns a property map from \a s assumed to be in old format.
 // Sets \a error to a non-empty reason iff a failure occurs.
-static QMap<QString, QString> extractOldProperties(const QString &s, QString *error)
+static QMap<QString, QString> extractOldProperties(const QString &s, QString &error)
 {
-  *error = QString();
+  error = QString();
 
   QRegExp rx("^([^=;]+)=([^=;]*);");
   int pos = 0;
@@ -399,18 +381,18 @@ static QMap<QString, QString> extractOldProperties(const QString &s, QString *er
 
 // Upon success, the function returns a non-empty list of (lat,lon) points from a text of (lon,lat) points (note the order!).
 // Otherwise, the function puts a reason in \a error and returns an empty list.
-static QList<QPointF> getOldLatLonPoints(const QString &lonLatPoints, QString *error)
+static QList<QPointF> getOldLatLonPoints(const QString &lonLatPoints, QString &error)
 {
-  *error = QString();
+  error = QString();
   QList<QPointF> points;
 
   QStringList plist = lonLatPoints.split(QRegExp("[,\\s]+"), QString::SkipEmptyParts);
   if (plist.isEmpty()) {
-    *error = QString("no points found: %1").arg(lonLatPoints);
+    error = QString("no points found: %1").arg(lonLatPoints);
     return QList<QPointF>();
   }
   if (plist.size() % 2) {
-    *error = QString("found %1 points, which is not an even number: %2").arg(plist.size()).arg(lonLatPoints);
+    error = QString("found %1 points, which is not an even number: %2").arg(plist.size()).arg(lonLatPoints);
     return QList<QPointF>();
   }
 
@@ -418,12 +400,12 @@ static QList<QPointF> getOldLatLonPoints(const QString &lonLatPoints, QString *e
   for (int i = 0; i < plist.size() / 2; ++i) {
     const qreal lon = plist.at(2 * i).toDouble(&ok);
     if (!ok) {
-      *error = QString("failed to extract longitude component of point %1: %2").arg(i).arg(plist.at(2 * i));
+      error = QString("failed to extract longitude component of point %1: %2").arg(i).arg(plist.at(2 * i));
       return QList<QPointF>();
     }
     const qreal lat = plist.at(2 * i + 1).toDouble(&ok);
     if (!ok) {
-      *error = QString("failed to extract latitude component of point %1: %2").arg(i).arg(plist.at(2 * i + 1));
+      error = QString("failed to extract latitude component of point %1: %2").arg(i).arg(plist.at(2 * i + 1));
       return QList<QPointF>();
     }
 
@@ -436,31 +418,31 @@ static QList<QPointF> getOldLatLonPoints(const QString &lonLatPoints, QString *e
 // Creates a DrawingItemBase item of the right type from \a props.
 // Upon success, the function leaves \a error empty and returns a pointer to the new item.
 // Upon failure, the function puts a non-empty failure reason in \a error and returns 0.
-DrawingItemBase *createItemFromOldProperties(QMap<QString, QString> props, QString *error)
+DrawingItemBase *createItemFromOldProperties(QMap<QString, QString> props, QString &error)
 {
-  *error = QString();
+  error = QString();
 
   // ensure that mandatory properties exist:
   if (!props.contains("Object")) {
-    *error = "no 'Object' property found";
+    error = "no 'Object' property found";
     return 0;
   }
   if (!props.contains("LongitudeLatitude")) {
-    *error = "no 'LongitudeLatitude' property found";
+    error = "no 'LongitudeLatitude' property found";
     return 0;
   }
 
   // extract geographic point(s):
   const QList<QPointF> points = getOldLatLonPoints(props.value("LongitudeLatitude"), error);
   if (points.isEmpty()) {
-    *error = QString("failed to extract point(s): %1").arg(*error);
+    error = QString("failed to extract point(s): %1").arg(error);
     return 0;
   }
   if ((props.value("Object") == "Symbol") && (points.size() != 1)) {
-    *error = QString("invalid number of points for symbol: %1 (expected 1)").arg(points.size());
+    error = QString("invalid number of points for symbol: %1 (expected 1)").arg(points.size());
     return 0;
   } else if ((props.value("Object") != "Symbol") && (points.size() < 2)) {
-    *error = QString("invalid number of points for non-symbol: %1 (expected at least 2)").arg(points.size());
+    error = QString("invalid number of points for non-symbol: %1 (expected at least 2)").arg(points.size());
     return 0;
   }
 
@@ -490,9 +472,9 @@ DrawingItemBase *createItemFromOldProperties(QMap<QString, QString> props, QStri
 
 // Converts \a data from old format to new KML format. Upon success, the function replaces \a data with the converted data and returns true.
 // Otherwise, the function leaves \a data unchanged, passes a failure reason in \a error, and returns false.
-bool convertFromOldFormat(QByteArray &data, QString *error)
+bool convertFromOldFormat(QByteArray &data, QString &error)
 {
-  *error = QString();
+  error = QString();
   const QString in(data);
   QRegExp rx;
   int pos = 0;
@@ -504,7 +486,7 @@ bool convertFromOldFormat(QByteArray &data, QString *error)
     dt = QDateTime::fromString(rx.cap(1), "yyyyMMddhhmm");
     pos += rx.matchedLength();
   } else {
-    *error = "failed to extract date";
+    error = "failed to extract date";
     return false;
   }
   // ### dt unused for now
@@ -520,14 +502,14 @@ bool convertFromOldFormat(QByteArray &data, QString *error)
     int pos2;
     if ((pos2 = rx.indexIn(in.mid(pos))) >= 0) {
       QMap<QString, QString> props = extractOldProperties(rx.cap(1), error);
-      if (!error->isEmpty()) {
-        *error = QString("failed to extract object properties in old format: %1").arg(*error);
+      if (!error.isEmpty()) {
+        error = QString("failed to extract object properties in old format: %1").arg(error);
         return false;
       }
 
       const QSharedPointer<DrawingItemBase> item(createItemFromOldProperties(props, error));
-      if (!error->isEmpty()) {
-        *error = QString("failed to create tmp item from properties in old format: %1").arg(*error);
+      if (!error.isEmpty()) {
+        error = QString("failed to create tmp item from properties in old format: %1").arg(error);
         return false;
       }
 
@@ -551,14 +533,12 @@ bool convertFromOldFormat(QByteArray &data, QString *error)
  * Upon failure, the function returns an empty list of item layers and a failure reason in \a error.
  * If the document contains no layer information, the items are returned in a single layer with default properties.
  */
-QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
-    EditItems::LayerManager *layerManager, const QDomDocument &doc, const QString &srcFileName, QString *error)
+QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &srcFileName, QString &error)
 {
-  *error = QString();
+  QList<DrawingItemBase *> items;
+  error = QString();
 
   // *** PHASE 1: extract items
-
-  QList<QSharedPointer<DrawingItemBase> > items;
 
   // loop over <coordinates> elements
   QDomNodeList coordsNodes = doc.elementsByTagName("coordinates");
@@ -566,15 +546,15 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
     const QDomNode coordsNode = coordsNodes.item(i);
     // create item
     const QList<QPointF> points = getPoints(coordsNode, error);
-    if (!error->isEmpty())
-      return QList<QSharedPointer<EditItems::Layer> >();
+    if (!error.isEmpty())
+      return QList<DrawingItemBase *>();
 
     // Find the extended data associated with the coordinates.
 
     const QHash<QString, QString> pmExtData = getExtendedData(coordsNode, "Placemark");
     if (pmExtData.isEmpty()) {
-      *error = "<Placemark> element without <ExtendedData> element found";
-      return QList<QSharedPointer<EditItems::Layer> >();
+      error = "<Placemark> element without <ExtendedData> element found";
+      return QList<DrawingItemBase *>();
     }
 
     // Create a suitable item for this KML structure.
@@ -590,8 +570,8 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
       itemObj = DrawingManager::instance()->createItem(objectType);
 
     if (!itemObj) {
-      *error = QString("unknown element found");
-      return QList<QSharedPointer<EditItems::Layer> >();
+      error = QString("unknown element found");
+      return QList<DrawingItemBase *>();
     }
 
     if (objectType == "Composite") {
@@ -603,10 +583,8 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
     itemObj->setLatLonPoints(points);
     itemObj->fromKML(pmExtData);
 
-    Q_ASSERT(itemObj);
-    QSharedPointer<DrawingItemBase> item(Drawing(itemObj));
-    items.append(item);
-    DrawingItemBase *ditem = item.data();
+    items.append(itemObj);
+    DrawingItemBase *ditem = Drawing(itemObj);
 
     DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
 
@@ -622,8 +600,8 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
         bool ok;
         const int layerId = it.value().toInt(&ok);
         if (!ok) {
-          *error = QString("failed to parse met:layerId as integer: %1").arg(it.value());
-          return QList<QSharedPointer<EditItems::Layer> >();
+          error = QString("failed to parse met:layerId as integer: %1").arg(it.value());
+          return QList<DrawingItemBase *>();
         }
         ditem->setProperty("layerId", layerId);
 
@@ -631,8 +609,8 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
         bool ok;
         const int joinId = it.value().toInt(&ok);
         if (!ok) {
-          *error = QString("failed to parse met:joinId as integer: %1").arg(it.value());
-          return QList<QSharedPointer<EditItems::Layer> >();
+          error = QString("failed to parse met:joinId as integer: %1").arg(it.value());
+          return QList<DrawingItemBase *>();
         }
         ditem->setProperty("joinId", joinId);
 
@@ -645,132 +623,41 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
 
     QMap<QString, QDomElement> ancElems;
     findAncestorElements(coordsNode, &ancElems, error);
-    if (!error->isEmpty())
-      return QList<QSharedPointer<EditItems::Layer> >();
+    if (!error.isEmpty())
+      return QList<DrawingItemBase *>();
 
     if (ancElems.contains("Placemark")) {
       ditem->setProperty("Placemark:name", getName(ancElems.value("Placemark"), error));
-      if (!error->isEmpty())
-        return QList<QSharedPointer<EditItems::Layer> >();
+      if (!error.isEmpty())
+        return QList<DrawingItemBase *>();
 
       // Optionally obtain and use TimeSpan elements.
       QString warning;
-      QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Placemark"), &warning);
+      QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Placemark"), warning);
       if (warning.isEmpty()) {
         ditem->setProperty("TimeSpan:begin", timeSpan.first);
         ditem->setProperty("TimeSpan:end", timeSpan.second);
       }
 
     } else {
-      *error = "found <coordinates> element outside a <Placemark> element";
-      return QList<QSharedPointer<EditItems::Layer> >();
+      error = "found <coordinates> element outside a <Placemark> element";
+      return QList<DrawingItemBase *>();
     }
 
     if (ancElems.contains("Folder")) {
       ditem->setProperty("Folder:name", getName(ancElems.value("Folder"), error));
-      if (!error->isEmpty())
-        return QList<QSharedPointer<EditItems::Layer> >();
+      if (!error.isEmpty())
+        return QList<DrawingItemBase *>();
 
       QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Folder"), error);
-      if (!error->isEmpty())
-        return QList<QSharedPointer<EditItems::Layer> >();
+      if (!error.isEmpty())
+        return QList<DrawingItemBase *>();
       ditem->setProperty("TimeSpan:begin", timeSpan.first);
       ditem->setProperty("TimeSpan:end", timeSpan.second);
     }
   }
 
-
-  // *** PHASE 2: extract layer structure (if any)
-
-  QMap<int, QSharedPointer<EditItems::Layer> > idToLayer;
-  QDomNodeList docNodes = doc.elementsByTagName("Document");
-  if (docNodes.size() != 1) {
-    *error = QString("number of <Document> elements != 1: %1").arg(docNodes.size());
-    return QList<QSharedPointer<EditItems::Layer> >();
-  }
-
-  // expect to find layer information in the <ExtendedData> element directly under the <Document> element
-  const QHash<QString, QString> docExtData = getExtendedData(docNodes.item(0), "Document");
-
-  // read layer-specific key-value pairs in any order
-  QRegExp rx("^met:layer:(\\d+):(name|visible)$");
-  QHash<QString, int> nameToId; // to ensure unique layer names
-  foreach (QString key, docExtData.keys()) {
-    if (rx.indexIn(key) >= 0) {
-      bool ok;
-      const int id = rx.cap(1).toInt(&ok);
-      if (!ok) {
-        *error = QString("failed to extract layer ID as int: %1").arg(rx.cap(1));
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-      if (!idToLayer.contains(id))
-        idToLayer.insert(id, layerManager->createNewLayer());
-      QSharedPointer<EditItems::Layer> layer = idToLayer.value(id);
-      if (rx.cap(2) == "name") {
-        // register the layer name
-        const QString name = docExtData.value(key).trimmed();
-        if (name.isEmpty()) {
-          *error = QString("empty layer name found for key %1").arg(key);
-          return QList<QSharedPointer<EditItems::Layer> >();
-        }
-        if (nameToId.contains(name)) {
-          *error = QString("same name for layers %1 and %2: %3").arg(nameToId.value(name)).arg(id).arg(name);
-          return QList<QSharedPointer<EditItems::Layer> >();
-        }
-        nameToId.insert(name, id);
-        layer->setName(name);
-      } else if (rx.cap(2) == "visible") {
-        // register the layer visibility
-        const bool visible = ((QStringList() << "" << "0" << "false" << "off" << "no").indexOf(docExtData.value(key).trimmed().toLower()) == -1);
-        layer->setVisible(visible);
-      }
-    }
-  }
-
-  // ... validate the ID-sequence
-  for (int i = 0; i < idToLayer.size(); ++i) {
-    if (!idToLayer.contains(i)) {
-      *error = QString("missing layer with ID %1").arg(i);
-      return QList<QSharedPointer<EditItems::Layer> >();
-    }
-  }
-
-  // ... copy layers to list
-  QList<QSharedPointer<EditItems::Layer> > layers;
-  const int nlayers = idToLayer.size();
-  for (int i = 0; i < nlayers; ++i)
-    layers.append(idToLayer.value(i));
-
-
-  // *** PHASE 3: insert items into layers
-
-  QSharedPointer<EditItems::Layer> defaultLayer;
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
-    bool ok;
-    const int layerId = item->propertiesRef().value("layerId").toInt(&ok);
-    if (ok) {
-      // item has layer ID, so insert in one of the layers
-      if ((layerId < 0) || (layerId >= layers.size())) {
-        *error = QString("item with layer ID outside valid range ([0, %1]): %2").arg(layers.size() - 1).arg(layerId);
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-      layers.at(layerId)->insertItem(item);
-    } else {
-      // item does not have a layer ID, so insert in default layer
-      if (defaultLayer.isNull())
-        // create default layer with empty name (note: none of the other layers may have an empty name)
-        defaultLayer = layerManager->createNewLayer();
-      defaultLayer->insertItem(item);
-    }
-  }
-
-  if (!defaultLayer.isNull())
-    layers.prepend(defaultLayer);
-
-  foreach (const QSharedPointer<EditItems::Layer> &layer, layers)
-    layer->insertSrcFile(srcFileName);
-
-  return layers;
+  return items;
 }
 
 /**
@@ -779,23 +666,23 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
  * Otherwise, the function returns an empty list of item layers and a failure reason in \a error.
  * If the file contains no layer information, the items are returned in a single layer with default properties.
  */
-QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems::LayerManager *layerManager,
-                                                        const QString &fileName, QString *error)
+QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error)
 {
-  *error = QString();
+  error = QString();
+  QList<DrawingItemBase *> items;
 
   // load schema
   QXmlSchema schema;
   if (!loadSchema(schema, error)) {
-    *error = QString("failed to load KML schema: %1").arg(*error);
-    return QList<QSharedPointer<EditItems::Layer> >();
+    error = QString("failed to load KML schema: %1").arg(error);
+    return QList<DrawingItemBase *>();
   }
 
   // load data
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    *error = QString("failed to open file %1 for reading").arg(fileName);
-    return QList<QSharedPointer<EditItems::Layer> >();
+    error = QString("failed to open file %1 for reading").arg(fileName);
+    return QList<DrawingItemBase *>();
   }
   QByteArray data = file.readAll();
 
@@ -805,37 +692,28 @@ QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems::LayerManager 
   if (doc.isNull()) {
     // assume that the failure was caused by data being in old format
     QString old2newError;
-    if (!convertFromOldFormat(data, &old2newError)) {
-      *error = QString("failed to create DOM document:<br/>%1<br/><br/>also failed to convert from old format:<br/>%2").arg(*error).arg(old2newError);
-      return QList<QSharedPointer<EditItems::Layer> >();
+    if (!convertFromOldFormat(data, old2newError)) {
+      error = QString("failed to create DOM document:<br/>%1<br/><br/>also failed to convert from old format:<br/>%2").arg(error).arg(old2newError);
+      return QList<DrawingItemBase *>();
     }
 
     doc = createDomDocument(data, schema, docUri, error);
     if (doc.isNull()) {
-      *error = QString("failed to create DOM document after successfully converting from old format: %1").arg(*error);
-      return QList<QSharedPointer<EditItems::Layer> >();
+      error = QString("failed to create DOM document after successfully converting from old format: %1").arg(error);
+      return QList<DrawingItemBase *>();
     }
   }
 
   // at this point, a document is successfully created from either the new or the old format
 
   // parse document and create items
-  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument(
-        layerManager, doc, fileName, error);
+  items = createFromDomDocument(doc, fileName, error);
 
   // initialize screen coordinates from lat/lon
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    for (int i = 0; i < layer->itemCount(); ++i)
-      DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
-  }
+  foreach (DrawingItemBase *item, items)
+    DrawingManager::instance()->setFromLatLonPoints(item, item->getLatLonPoints());
 
-  // avoid conflict with existing joins
-  QList<QSharedPointer<DrawingItemBase> > items;
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers)
-    items.append(layer->items());
-  DrawingManager::instance()->separateJoinIds(items);
-
-  return layers;
+  return items;
 }
 
 } // namespace

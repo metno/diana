@@ -63,7 +63,7 @@ public:
   int id() const;
 
   // Returns a deep copy of this item.
-  DrawingItemBase *clone(const DrawingManager *, bool = true) const;
+  DrawingItemBase *clone(bool = true) const;
 
   // Copies state from another item.
   void setState(const DrawingItemBase *);
