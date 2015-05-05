@@ -894,8 +894,8 @@ void QtPlot::plotTitle(QPainter& painter)
     } else if (m.x != -1 || m.y != -1) {
       if (m.text.find_first_of("$%") != std::string::npos)
         q_str = QString::fromStdString(mCrossectionTime.format(m.text, "en"));
-      mx = m.x;
-      my = m.y;
+      mx = relative2screenx(m.x);
+      my = relative2screeny(m.y);
       const float w = painter.fontMetrics().width(q_str), border = 2;
       painter.fillRect(mx-border, my-mCharSize.height()-border, w+2*border,
           mCharSize.height() + 2*border, Qt::white);
@@ -1456,7 +1456,7 @@ void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
       labelwidth_y = painter.fontMetrics().width(label_y);
 
   const int border = 5, gap = 5;
-  int x = plot->poptions.vector_example_x, y = plot->poptions.vector_example_y;
+  int x = relative2screenx(plot->poptions.vector_example_x), y = relative2screeny(plot->poptions.vector_example_y);
   int middle = y + example_length/2, bottom = y + example_length;
   painter.fillRect(x-border, y-border, example_length + labelwidth_x + 4*gap + labelwidth_y + 2*border,
       example_length + 2*border, Qt::white);
@@ -1686,5 +1686,16 @@ void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
     painter.drawPolyline(polyline);
   painter.restore();
 }
+
+float QtPlot::relative2screenx(const float& x)
+{
+  return mAxisX->getPaintMin()*(1-x) + mAxisX->getPaintMax()*x;
+}
+
+float QtPlot::relative2screeny(const float& y)
+{
+  return mAxisY->getPaintMin()*(1-y) + mAxisY->getPaintMax()*y;
+}
+
 
 } // namespace vcross

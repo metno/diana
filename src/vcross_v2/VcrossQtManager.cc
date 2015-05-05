@@ -851,8 +851,6 @@ void QtManager::fieldChangeDone()
 void QtManager::updateCrossectionsTimes()
 {
   if (dataChange & CHANGED_SEL) {
-    if (mCollector->countSelectedPlots() == 0 || getTimeCount() == 0 || getCrossectionCount() == 0)
-      cleanupData();
     // FIXME getCrossectionLabel call is too late, we have to remember the crossection label before changing the crossection list
     handleChangedCrossectionList(getCrossectionLabel());
     handleChangedTimeList(getTimeValue());

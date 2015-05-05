@@ -381,8 +381,8 @@ public:
   bool      plot_under;     // plot field together with shade plots
   float     maxDiagonalInMeters;
 
-  int vector_example_x; // example vector x-position, for vcross, in screen coordinates
-  int vector_example_y; // example vector y-position, for vcross, in screen coordinates
+  float vector_example_x; // example vector x-position, for vcross, in relative coordinates
+  float vector_example_y; // example vector y-position, for vcross, in relative coordinates
   std::string vector_example_unit_x; // unit for x-component of sample vector
   std::string vector_example_unit_y; // unit for y-component of sample vector
 

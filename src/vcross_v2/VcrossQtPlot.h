@@ -206,6 +206,8 @@ private:
   std::string formatExtremeAnnotationValue(float value, float y);
 
   float fractionalRequestedDistance(float p);
+  float relative2screenx(const float& x);
+  float relative2screeny(const float& y);
 
 private:
   VcrossOptions_p mOptions;
