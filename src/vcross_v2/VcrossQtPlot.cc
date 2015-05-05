@@ -1477,6 +1477,7 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
   painter.setPen(QPen(color, plot->poptions.linewidth));
   painter.setBrush(color);
 
+  const int autofactor = 4;
   const int density = plot->poptions.density;
   const int xStep = std::max(density, 1);
   const bool xStepAuto = (density < 1);
@@ -1496,7 +1497,7 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
     const float px = mAxisX->value2paint(vx);
 
     const bool paintThisX = mAxisX->legalPaint(px)
-        and ((not xStepAuto) or (not paintedX) or (std::abs(px - lastX) >= 2*pa.size()));
+        and ((not xStepAuto) or (not paintedX) or (std::abs(px - lastX) >= autofactor*pa.size()));
     if (not paintThisX)
       continue;
 
@@ -1512,7 +1513,7 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
       const float vy = z_values->value(idx_z);
       const float py = mAxisY->value2paint(vy);
       const bool paintThisY = mAxisY->legalPaint(py)
-          and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= 2*pa.size()));
+          and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= autofactor*pa.size()));
       if (paintThisY) {
         const float wx = av0->value(idx_av0), wy = av1->value(idx_av1);
         if (not (isnan(wx) or isnan(wy))) {
