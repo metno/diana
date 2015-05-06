@@ -271,10 +271,11 @@ void EditDefineFieldDialog::fillList()
         str = splist[i].pid + std::string(" - ") +splist[i].ptime.isoTime()+ " - " +splist[i].filename;
       }
       QListWidgetItem* item = new QListWidgetItem(QString(str.c_str()));
-      bool italic= (splist[i].source==data_local);
-      QFont font = item->font();
-      font.setItalic(italic);
-      item->setFont(font);
+      if(splist[i].localSource) {
+        QFont font = item->font();
+        font.setItalic(true);
+        item->setFont(font);
+      }
       fBox->addItem(item);
     }
   }
