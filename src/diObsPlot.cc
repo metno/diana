@@ -113,6 +113,7 @@ ObsPlot::ObsPlot()
   popupText = false;
   qualityFlag = false;
   wmoFlag = false;
+  annotations = true;
 
   knotParameters.insert("ff");
   knotParameters.insert("ffk");
@@ -354,7 +355,7 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!isEnabled() || numPositions() == 0 || current < 0)
+  if (!isEnabled() || !annotations || numPositions() == 0 || current < 0)
     return false;
 
   float vectorAnnotationSize = 21 * getStaticPlot()->getPhysToMapScaleX();
@@ -384,6 +385,14 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
     }
   }
   return true;
+}
+
+const std::vector<std::string> ObsPlot::getObsExtraAnnotations() const
+{
+  if ( isEnabled() && annotations ) {
+    return labels;
+  }
+  return std::vector<std::string>();
 }
 
 ObsData& ObsPlot::getNextObs()
@@ -670,6 +679,8 @@ bool ObsPlot::prepare(const std::string& pin)
           poptions.arrowstyle = arrow_wind;
         else if (value == "wind_arrow")
           poptions.arrowstyle = arrow_wind_arrow;
+      } else if (key == "annotations") {
+        annotations = (miutil::to_lower(value) == "true");
       } else if (key == "font") {
         poptions.fontname = orig_value;
       } else if (key == "face") {

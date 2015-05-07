@@ -92,6 +92,7 @@ private:
   std::string image;
   int level;
   bool levelAsField;
+  bool annotations;
   std::string m_plottype;
   std::string dialogname;
 
@@ -403,8 +404,7 @@ public:
 
   void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare
 
-  const std::vector<std::string>& getObsExtraAnnotations() const // from PlotModule
-      { return labels; }
+  const std::vector<std::string> getObsExtraAnnotations() const; // from PlotModule
 
   bool updateObs(); // from PlotModule::updateObs
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
