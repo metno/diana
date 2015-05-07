@@ -661,10 +661,9 @@ QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QS
 }
 
 /**
- * Returns a list of item layers extracted from \a fileName.
+ * Returns a list of items extracted from \a fileName.
  * Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
  * Otherwise, the function returns an empty list of item layers and a failure reason in \a error.
- * If the file contains no layer information, the items are returned in a single layer with default properties.
  */
 QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error)
 {

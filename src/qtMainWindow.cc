@@ -919,19 +919,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   drawingDialog->hide();
   addDialog(drawingDialog);
 
-  EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
-  editDrawingDialog->hide();
-  addDialog(editDrawingDialog);
+  //EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
+  //editDrawingDialog->hide();
+  //addDialog(editDrawingDialog);
 
-  connect(drawingDialog, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), editDrawingDialog,
-          SLOT(handleNewEditLayerRequested(const QSharedPointer<Layer> &)));
-
-#ifdef ENABLE_EIM_TESTDIALOG
-  QAction *eimTestDialogToggleAction = new QAction(this);
-  eimTestDialogToggleAction->setShortcut(Qt::CTRL + Qt::Key_Backslash);
-  connect(eimTestDialogToggleAction, SIGNAL(triggered()), SLOT(toggleEIMTestDialog()));
-  addAction(eimTestDialogToggleAction);
-#endif // ENABLE_EIM_TESTDIALOG
+  //connect(drawingDialog, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), editDrawingDialog,
+  //        SLOT(handleNewEditLayerRequested(const QSharedPointer<Layer> &)));
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
     wmd->hide();
@@ -955,9 +948,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
   connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(handleEIMEditing(bool)));
 
-  connect(DrawingManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
-  connect(EditItemManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
-  connect(EditItemManager::instance()->getLayerManager(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
+  connect(EditItemManager::instance(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);

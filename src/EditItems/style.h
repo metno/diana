@@ -116,7 +116,7 @@ class StylePropertyEditor : public QObject
   Q_OBJECT
 public:
   virtual ~StylePropertyEditor();
-  void init(bool, const QSet<QSharedPointer<DrawingItemBase> > &, const QVariant &);
+  void init(bool, const QSet<DrawingItemBase *> &, const QVariant &);
   virtual QString labelText() const = 0;
   QWidget *widget();
   void reset();
@@ -128,7 +128,7 @@ protected:
 private:
   virtual IndexedEditor *createEditor() = 0;
   virtual QString name() const = 0;
-  QSet<QSharedPointer<DrawingItemBase> > items_;
+  QSet<DrawingItemBase *> items_;
   IndexedEditor *editor_;
   QVariant origInitVal_;
   bool lockingEnabled_;
@@ -142,7 +142,7 @@ class StyleEditor : public QDialog
   Q_OBJECT
 public:
   static StyleEditor *instance();
-  void edit(const QSet<QSharedPointer<DrawingItemBase> > &);
+  void edit(const QSet<DrawingItemBase *> &);
   QList<QSharedPointer<StylePropertyEditor> > lockedEditors(StylePropertyEditor *);
 private:
   StyleEditor();

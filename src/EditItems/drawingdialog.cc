@@ -27,38 +27,30 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <diDrawingManager.h>
-#include <diController.h>
-#include <EditItems/drawingdialog.h>
-#include <EditItems/toolbar.h>
-#include <EditItems/layergroupspane.h>
-#include <EditItems/drawinglayerspane.h>
+#include "diDrawingManager.h"
+#include "diController.h"
 
-#include <EditItems/editpolyline.h>
-#include <EditItems/editsymbol.h>
-#include <EditItems/edittext.h>
-#include <EditItems/editcomposite.h>
+#include "EditItems/drawingdialog.h"
+#include "EditItems/editpolyline.h"
+#include "EditItems/editsymbol.h"
+#include "EditItems/edittext.h"
+#include "EditItems/editcomposite.h"
+#include "EditItems/kml.h"
+#include "EditItems/layergroup.h"
+#include "EditItems/toolbar.h"
+
+#include "qtUtility.h"
 
 #include <drawing.xpm> // ### for now
+
 #include <QAction>
 #include <QApplication>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QSplitter>
 #include <QVBoxLayout>
-
-#include <EditItems/layer.h>
-#include <EditItems/layergroup.h>
-#include <EditItems/layermanager.h>
-#include <EditItems/kml.h>
-#include <QMessageBox>
-#include <QDir>
-
-#ifdef ENABLE_DRAWINGDIALOG_TESTING
-#include <QPushButton>
-#include <QCheckBox>
-#include <QDebug>
-#endif // ENABLE_DRAWINGDIALOG_TESTING
 
 namespace EditItems {
 
@@ -73,34 +65,27 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
 
-  // create the GUI
+  // Populate the dialog with the drawings held by the drawing manager.
+  drawingsModel_.setStringList(drawm_->getDrawings().keys());
+
+  // Create the GUI.
   setWindowTitle(tr("Drawing Dialog"));
   setFocusPolicy(Qt::StrongFocus);
-  QSplitter *splitter = new QSplitter(Qt::Vertical);
-  layerGroupsPane_ = new LayerGroupsPane();
-  splitter->addWidget(layerGroupsPane_);
-  layersPane_ = new DrawingLayersPane(tr("Active Layers"));
-  layersPane_->init();
-  splitter->addWidget(layersPane_);
-  splitter->setSizes(QList<int>() << 500 << 500);
-  //
-  //
-  QVBoxLayout *mainLayout = new QVBoxLayout;
-  setLayout(mainLayout);
-  mainLayout->addWidget(splitter);
+
+  QListView *drawingsList = new QListView();
+  drawingsList->setModel(&drawingsModel_);
+
+  QListView *activeList = new QListView();
+  activeList->setModel(&activeDrawingsModel_);
+
+  QVBoxLayout *mainLayout = new QVBoxLayout(this);
+  mainLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
+  mainLayout->addWidget(drawingsList);
+  mainLayout->addWidget(TitleLabel(tr("Active Drawings"), this));
+  mainLayout->addWidget(activeList);
 
   mainLayout->addLayout(createStandardButtons());
-
-  // load available layer groups
-  QMap<QString, QString> drawings = drawm_->getDrawings();
-  foreach (const QString &name, drawings.keys()) {
-    QSharedPointer<LayerGroup> layerGroup(new LayerGroup(name.isEmpty() ? "new layer group" : name));
-    layerGroup->setFileName(drawings[name]);
-    fileMap_[drawings[name]] = name;
-    layerGroupsPane_->addWidgetForLG(layerGroup);
-  }
-  layerGroupsPane_->updateWidgetStructure();
-
+/*
   // add connections
   connect(layerGroupsPane_, SIGNAL(updated()), layersPane_, SLOT(updateWidgetStructure()));
   connect(layersPane_, SIGNAL(updated()), layerGroupsPane_, SLOT(updateWidgetContents()));
@@ -108,17 +93,15 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(layerGroupsPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
   connect(layersPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
 
-  connect(layersPane_, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)));
-
+*/
+  connect(drawingsList, SIGNAL(activated(const QModelIndex &)), SLOT(activateDrawing(const QModelIndex &)));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 }
 
-void DrawingDialog::showInfo(bool checked)
-{
-  layerGroupsPane_->showInfo(checked);
-  layersPane_->showInfo(checked);
-}
-
+/**
+ * Returns the name of the component. This is used to relate the dialog to the
+ * corresponding manager, which also shares the same name.
+ */
 std::string DrawingDialog::name() const
 {
   return "DRAWING";
@@ -164,21 +147,31 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
   drawm_->processInput(inp);
 }
 
+void DrawingDialog::activateDrawing(const QModelIndex &index)
+{
+  // Read the drawing name and obtain the corresponding file name.
+  QString name = index.data().toString();
+  QString fileName = drawm_->getDrawings().value(name);
+
+  QStringList activeDrawings = activeDrawingsModel_.stringList();
+
+  if (!activeDrawings.contains(name)) {
+    // Add the drawing to the list of active drawings.
+    activeDrawings.append(name);
+    activeDrawingsModel_.setStringList(activeDrawings);
+  } else {
+    // Remove the drawing from the list of active drawings.
+    activeDrawings.removeOne(name);
+    activeDrawingsModel_.setStringList(activeDrawings);
+  }
+}
+
 void DrawingDialog::makeProduct()
 {
-  // Obtain a set of the files in use.
-  QSet<QString> sources;
-  foreach (DrawingItemBase *item, drawm_->allItems())
-    sources.insert(item->property("srcFile").toString());
-
-  // Map the files back to names for the drawings if possible.
+  // Compile a list of strings describing the files in use.
   std::vector<std::string> inp;
-  foreach (QString &source, sources) {
-    if (!fileMap_.contains(source))
-      inp.push_back("DRAWING file=\"" + source.toStdString() + "\"");
-    else
-      inp.push_back("DRAWING name=\"" + fileMap_.value(source).toStdString() + "\"");
-  }
+  foreach (const QString &name, activeDrawingsModel_.stringList())
+    inp.push_back("DRAWING name=\"" + name.toStdString() + "\"");
 
   putOKString(inp);
 
@@ -191,8 +184,25 @@ void DrawingDialog::makeProduct()
 void DrawingDialog::handleDialogUpdated()
 {
   indicateUnappliedChanges(true);
-  layersPane_->updateButtons();
+  //layersPane_->updateButtons();
 }
 
+
+DrawingModel::DrawingModel(QObject *parent)
+  : QStringListModel(parent)
+{
+}
+
+DrawingModel::~DrawingModel()
+{
+}
+
+Qt::ItemFlags DrawingModel::flags(const QModelIndex & index) const
+{
+  if (index.isValid())
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  else
+    return Qt::ItemIsEnabled;
+}
 
 } // namespace

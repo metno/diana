@@ -42,7 +42,7 @@ class DrawingLayersPane : public LayersPaneBase
 {
   Q_OBJECT
 public:
-  DrawingLayersPane(LayerManager *, const QString &);
+  DrawingLayersPane(const QString &);
   virtual void updateButtons();
 private:
   virtual void addContextMenuActions(QMenu &) const;

@@ -50,13 +50,13 @@ class LayerGroupWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerGroupWidget(const QSharedPointer<LayerGroup> &, bool, QWidget * = 0);
+  LayerGroupWidget(LayerGroup *, bool, QWidget * = 0);
   ~LayerGroupWidget();
-  const QSharedPointer<LayerGroup> layerGroup() const;
+  const LayerGroup *layerGroup() const;
   void updateLabels();
   void showInfo(bool);
 private:
-  QSharedPointer<LayerGroup> layerGroup_;
+  LayerGroup *layerGroup_;
   ClickableLabel *nameLabel_;
   ClickableLabel *infoLabel_;
 signals:
@@ -66,16 +66,18 @@ signals:
 class LayerGroupsPane : public QWidget
 {
   Q_OBJECT
+
 public:
-  LayerGroupsPane(LayerManager *);
+  LayerGroupsPane();
+  void addWidgetForLG(const LayerGroup *);
   void showInfo(bool);
   void updateWidgetStructure();
+
 private:
   QVBoxLayout *layout_;
   ScrollArea *scrollArea_; // ### necessary to keep as a member? (cf. activeLayersScrollArea_)
   QToolButton *addToNewLGFromFileButton_;
   bool showInfo_;
-  void addWidgetForLG(const QSharedPointer<LayerGroup> &);
   QList<LayerGroupWidget *> allWidgets();
   void removeWidget(LayerGroupWidget *);
   void addToLGFromFile();

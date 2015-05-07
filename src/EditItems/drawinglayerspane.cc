@@ -48,8 +48,8 @@
 
 namespace EditItems {
 
-DrawingLayersPane::DrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title, false, false, true)
+DrawingLayersPane::DrawingLayersPane(const QString &title)
+  : LayersPaneBase(title, false, false, true)
 {
   bottomLayout_->addWidget(moveUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move selected layer up", this, SLOT(moveSingleSelectedUp())));
   bottomLayout_->addWidget(moveDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move selected layer down", this, SLOT(moveSingleSelectedDown())));

@@ -32,16 +32,25 @@
 #ifndef DRAWINGDIALOG_H
 #define DRAWINGDIALOG_H
 
+#include <QHash>
+#include <QStringListModel>
+
 #include "qtDataDialog.h"
-#include <EditItems/layer.h>
 
 class DrawingManager;
-class LayerManager;
 
 namespace EditItems {
 
-class LayerGroupsPane;
-class DrawingLayersPane;
+class DrawingModel : public QStringListModel
+{
+  Q_OBJECT
+
+public:
+  DrawingModel(QObject *parent = 0);
+  virtual ~DrawingModel();
+
+  virtual Qt::ItemFlags flags(const QModelIndex & index) const;
+};
 
 class DrawingDialog : public DataDialog
 {
@@ -55,23 +64,16 @@ public:
   virtual std::vector<std::string> getOKString();
   virtual void putOKString(const std::vector<std::string> &);
 
-private:
-  DrawingManager *drawm_;
-  LayerGroupsPane *layerGroupsPane_;
-  DrawingLayersPane *layersPane_; // keeps the active layers
-  QHash<QString, QString> fileMap_;
-
 private slots:
+  void activateDrawing(const QModelIndex &index);
   virtual void updateTimes();
   void makeProduct();
   void handleDialogUpdated();
 
-  // ### FOR TESTING:
-  void dumpStructure();
-  void showInfo(bool);
-
-signals:
-  void newEditLayerRequested(const QSharedPointer<Layer> &);
+private:
+  DrawingModel drawingsModel_;
+  DrawingModel activeDrawingsModel_;
+  DrawingManager *drawm_;
 };
 
 } // namespace

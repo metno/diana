@@ -98,7 +98,7 @@ PropertiesEditor *PropertiesEditor::instance_ = 0;
 // Opens a modal dialog to show the properties of \a item.
 // The properties may be modified if \a readOnly is false.
 // Returns true iff the properties were changed.
-bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly, bool modal)
+bool PropertiesEditor::edit(DrawingItemBase *item, bool readOnly, bool modal)
 {
   const QVariantMap origProps = item->properties();
   if (origProps.isEmpty()) {

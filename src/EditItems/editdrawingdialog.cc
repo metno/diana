@@ -68,7 +68,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   // create the GUI
   setWindowTitle("Edit Drawing Dialog");
   setFocusPolicy(Qt::StrongFocus);
-  layersPane_ = new EditDrawingLayersPane(editm_->getLayerManager(), "Active Layers");
+  layersPane_ = new EditDrawingLayersPane("Active Layers");
   layersPane_->init();
   //
   QVBoxLayout *mainLayout = new QVBoxLayout;

@@ -213,7 +213,7 @@ void PolyLine::addPoint()
 {
   if (hoverLineIndex_ >= 0) {
     points_.insert(hoverLineIndex_ + 1, hoverPos_);
-    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
+    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(this));
     hoverLineIndex_ = -1;
     updateControlPoints();
   }

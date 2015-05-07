@@ -65,13 +65,14 @@ public:
   EditItemManager();
   virtual ~EditItemManager();
 
-  void addItem(const QSharedPointer<DrawingItemBase> &, bool = false, bool = false);
-  void editItem(const QSharedPointer<DrawingItemBase> &item);
+  void addItem(DrawingItemBase *, bool = false, bool = false);
   void editItem(DrawingItemBase *item);
-  void removeItem(const QSharedPointer<DrawingItemBase> &);
+  void removeItem(DrawingItemBase *);
+
+  QList<DrawingItemBase *> selectedItems() const;
 
   virtual DrawingItemBase *createItem(const QString &type);
-  virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
+  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
   // Returns the undo stack.
   QUndoStack *undoStack();
@@ -81,13 +82,12 @@ public:
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
 
-  QList<QSharedPointer<DrawingItemBase> > findHitItems(
-      const QPointF &, QList<QSharedPointer<DrawingItemBase> > * = 0) const;
+  QList<DrawingItemBase *> findHitItems(
+      const QPointF &pos, QList<DrawingItemBase *> &missedItems) const;
 
   bool processInput(const std::vector<std::string>& inp);
   void plot(bool under, bool over);
-  void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
-  void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+  void replaceItemStates(const QList<DrawingItemBase *> &);
 
   //virtual bool isEnabled() const;
   virtual void setEditing(bool enable);
@@ -118,7 +118,7 @@ public slots:
   void completeEditing();
   void copySelectedItems();
   void cutSelectedItems();
-  void deselectItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  void deselectItem(DrawingItemBase *, bool = true);
   void deselectAllItems(bool = true);
   void editProperties();
   void editStyle();
@@ -135,8 +135,7 @@ public slots:
   void redo();
   void repaint();
   void reset();
-  bool selectItem(const QSharedPointer<DrawingItemBase> &, bool = false, bool = true);
-  bool selectItem(int, bool = false, bool = true);
+  void selectItem(DrawingItemBase *, bool = false, bool = true);
   void setSelectMode();
   void startStopEditing(bool start);
   void undo();
@@ -159,6 +158,7 @@ signals:
   void itemAdded(DrawingItemBase *);
   void itemChanged(const QVariantMap &) const;
   void itemRemoved(int) const;
+  void itemStatesReplaced();
   void timesUpdated();
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
@@ -166,16 +166,16 @@ signals:
   void loadFile(const QString &) const;
 
 protected:
-  virtual void addItem_(const QSharedPointer<DrawingItemBase> &, bool = true, bool = false);
-  virtual void removeItem_(const QSharedPointer<DrawingItemBase> &, bool = true);
+  virtual void addItem_(DrawingItemBase *, bool = true, bool = false);
+  virtual void removeItem_(DrawingItemBase *, bool = true);
 
 private slots:
   void initNewItem(DrawingItemBase *item);
 
 private:
   bool selectingOnly_;
-  QList<QSharedPointer<DrawingItemBase> > hitItems_;
-  QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
+  QList<DrawingItemBase *> hitItems_;
+  DrawingItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   bool repaintNeeded_;
   bool skipRepaint_;
   quint32 hitOffset_;
@@ -209,7 +209,7 @@ private:
   void incompleteMouseDoubleClick(QMouseEvent *);
   void incompleteKeyPress(QKeyEvent *);
 
-  void copyItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+  void copyItems(const QSet<DrawingItemBase *> &);
 
   void updateActions();
   void updateTimes();
@@ -222,14 +222,17 @@ private:
 
   bool cycleHitOrder(QKeyEvent *);
 
-  QList<QList<QSharedPointer<DrawingItemBase> > > oldItemStates_;
+  QList<DrawingItemBase *> oldItemStates_;
   void saveItemStates();
   void pushModifyItemsCommand();
 
   void adjustSelectedJoinPoints();
 
-  QSharedPointer<DrawingItemBase> hitItem_; // current hit item
+  DrawingItemBase *hitItem_; // current hit item
   QHash<DrawingItemBase *, QList<QPointF> > oldGeoms_; // original geometries
+
+  // Maintain a list of layer groups that are used to hold editable items.
+  QList<EditItems::LayerGroup *> layerGroups_;
 
   static EditItemManager *self_;   // singleton instance pointer
 };
@@ -238,11 +241,11 @@ private:
 class ModifyItemsCommand : public QUndoCommand
 {
 public:
-  ModifyItemsCommand(const QList<QList<QSharedPointer<DrawingItemBase> > > &, const QList<QList<QSharedPointer<DrawingItemBase> > > &, const QString &);
+  ModifyItemsCommand(const QList<DrawingItemBase *> &, const QList<DrawingItemBase *> &, const QString &);
   virtual ~ModifyItemsCommand() {}
 private:
-  QList<QList<QSharedPointer<DrawingItemBase> > > oldItemStates_;
-  QList<QList<QSharedPointer<DrawingItemBase> > > newItemStates_;
+  QList<DrawingItemBase *> oldItemStates_;
+  QList<DrawingItemBase *> newItemStates_;
   virtual void undo();
   virtual void redo();
 };

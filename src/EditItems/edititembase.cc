@@ -110,7 +110,7 @@ void EditItemBase::movePointTo(int i, const QPointF &pos)
   Q_ASSERT(i >= 0);
   Q_ASSERT(i < Drawing(this)->points_.size());
   Drawing(this)->points_[i] = pos;
-  Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*(Drawing(this))));
+  Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints((Drawing(this))));
 }
 
 static void drawRect(const QRectF &r, int pad, int z = 1)
@@ -279,8 +279,8 @@ void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded)
 
 void EditItemBase::remove(QKeyEvent *event)
 {
-  if (EditItemManager::instance()->getLayerManager()->removeItem(Drawing(this)))
-    event->accept();
+  EditItemManager::instance()->removeItem(Drawing(this));
+  event->accept();
 }
 
 void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded)

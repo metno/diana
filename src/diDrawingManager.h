@@ -84,7 +84,7 @@ public:
   virtual bool parseSetup();
 
   virtual bool changeProjection(const Area& newArea);
-  virtual bool loadDrawing(const QString &fileName);
+  virtual bool loadDrawing(const QString &name, const QString &fileName);
   virtual bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
   virtual bool processInput(const std::vector<std::string>& inp);
@@ -127,7 +127,6 @@ public:
 
   int nextJoinId(bool = true);
   void separateJoinIds(const QList<DrawingItemBase *> &);
-
 
   QList<DrawingItemBase *> allItems() const;
 

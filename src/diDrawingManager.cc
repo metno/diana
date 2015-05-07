@@ -85,6 +85,50 @@ DrawingManager *DrawingManager::instance()
   return DrawingManager::self_;
 }
 
+int DrawingManager::nextJoinId_ = 1;
+
+int DrawingManager::nextJoinId(bool bump)
+{
+  // ### this function is not thread safe; use a mutex for that
+  const int origVal = nextJoinId_;
+  if (bump)
+    nextJoinId_++;
+  return origVal;
+}
+
+void DrawingManager::setNextJoinId(int val)
+{
+  // ### this function is not thread safe; use a mutex for that
+  if (val <= nextJoinId_) // only allow a higher value
+    return;
+  nextJoinId_ = val;
+}
+
+// Adjusts any join IDs in \a items to avoid conflicts with any existing joins (assuming existing join IDs are all < nextJoinId_).
+void DrawingManager::separateJoinIds(const QList<DrawingItemBase *> &items)
+{
+  int loAbsJoinId = 0;
+  foreach (DrawingItemBase *item, items) {
+    const int absJoinId = qAbs(item->joinId());
+    if (absJoinId > 0)
+      loAbsJoinId = (loAbsJoinId ? qMin(loAbsJoinId, absJoinId) : absJoinId);
+  }
+
+  const int add = (DrawingManager::instance()->nextJoinId(false) - loAbsJoinId);
+  int hiAbsJoinId = 0;
+  foreach (DrawingItemBase *item, items) {
+    const int joinId = item->joinId();
+    if (joinId) {
+      const int newAbsJoinId = qAbs(joinId) + add;
+      item->propertiesRef().insert("joinId", (joinId < 0) ? -newAbsJoinId : newAbsJoinId);
+      hiAbsJoinId = qMax(hiAbsJoinId, newAbsJoinId);
+    }
+  }
+
+  if (hiAbsJoinId)
+    setNextJoinId(hiAbsJoinId + 1);
+}
+
 bool DrawingManager::parseSetup()
 {
 #ifdef DEBUGPRINT
@@ -184,8 +228,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
   loaded_.clear();
 
-  if (inp.empty())
-    return false;
+  // Compile a list of files to load.
+  QStringList toLoad;
 
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
@@ -206,14 +250,54 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
       // Read the specified file, skipping to the next line if successful,
       // but returning false to indicate an error if unsuccessful.
-      if (key == "file" || key == "name") {
-        if (loadDrawing(value))
-          break;
-        else
-          return false;
-      }
+      if (key == "file" || key == "name")
+        toLoad.append(value);
     }
   }
+
+  QList<EditItems::LayerGroup *> loaded;
+
+  foreach (const QString &name, toLoad) {
+    // If the name corresponds to a key in the list of drawings then look up
+    // associated file name.
+    QString fileName;
+    if (drawings_.contains(name))
+      fileName = drawings_[name];
+    else
+      fileName = name;
+
+    // Is the file already loaded?
+    bool isLoaded = false;
+    EditItems::LayerGroup *group;
+
+    foreach (group, layerGroups_) {
+      if (group->fileName() == fileName) {
+        isLoaded = true;
+        break;
+      }
+    }
+
+    // If not, try to load it.
+    if (!isLoaded) {
+      if (!loadDrawing(name, fileName))
+        return false;
+
+      // The new group was appended to the list.
+      group = layerGroups_.last();
+    }
+
+    // Record the file name and layer group.
+    loaded_[name] = fileName;
+    loaded.append(group);
+  }
+
+  // Delete layer groups that are no longer loaded and replace the list with
+  // the new list of loaded groups.
+  foreach (EditItems::LayerGroup *group, layerGroups_) {
+    if (!loaded.contains(group))
+      delete group;
+  }
+  layerGroups_ = loaded;
 
   // Only enable this manager if there are specific files loaded, not just
   // if there are items in the layer manager.
@@ -270,16 +354,8 @@ void DrawingManager::addItem_(DrawingItemBase *item, EditItems::LayerGroup *grou
   group->addItem(item);
 }
 
-bool DrawingManager::loadDrawing(const QString &name)
+bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 {
-  // If the name corresponds to a key in the list of drawings then look up
-  // associated file name.
-  QString fileName;
-  if (drawings_.contains(name))
-    fileName = drawings_[name];
-  else
-    fileName = name;
-
   QString error;
 
   QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
@@ -292,7 +368,6 @@ bool DrawingManager::loadDrawing(const QString &name)
   layerGroup->setFileName(fileName);
   layerGroup->setItems(items);
   layerGroups_.append(layerGroup);
-  loaded_[name] = fileName;
 
   return true;
 }
@@ -381,12 +456,6 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 }
 
 /**
- * Returns the property name used to find the time for an item, or an empty
- * string if no suitable property name was found. The associated time string
- * is also updated with the time obtained from the property, if found.
-*/
-
-/**
  * Prepares the manager for display of, and interaction with, items that
  * correspond to the given \a time.
 */
@@ -429,7 +498,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
         QString error;
         QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
         if (!error.isEmpty())
-          METLIBS_LOG_WARN(QString("LayerManager::addToNewLayerGroup: failed to load layer group from %1: %2")
+          METLIBS_LOG_WARN(QString("DrawingManager::prepare: failed to load layer group from %1: %2")
                            .arg(fileName).arg(error).toStdString());
 
         layerGroup->setItems(items);

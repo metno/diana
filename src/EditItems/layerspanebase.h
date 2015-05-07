@@ -98,7 +98,7 @@ public:
   QString saveSelected(const QString &) const;
 
 protected:
-  LayersPaneBase(LayerManager *, const QString &, bool, bool, bool);
+  LayersPaneBase(const QString &, bool, bool, bool);
 
 protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
@@ -138,7 +138,6 @@ protected: // ### some of these may be private ... TBD
   QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &) const;
 
 protected:
-  LayerManager *layerMgr_;
   QHBoxLayout *bottomLayout_; // populated by subclass
   QSharedPointer<Layer> defaultLayer_;
   bool undoEnabled_;

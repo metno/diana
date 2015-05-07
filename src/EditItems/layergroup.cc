@@ -244,18 +244,45 @@ QList<DrawingItemBase *> LayerGroup::items() const
 
 void LayerGroup::setItems(QList<DrawingItemBase *> items)
 {
+  // The layer owns the items within it, so we can delete the items as well
+  // as clearing the list.
   qDeleteAll(items_);
   items_ = items;
+
+  // Populate the identifier hash with the new items.
+  ids_.clear();
+  foreach (DrawingItemBase *item, items)
+    ids_[item->id()] = item;
 }
 
 void LayerGroup::addItem(DrawingItemBase *item)
 {
   items_.append(item);
+  ids_[item->id()] = item;
 }
 
 bool LayerGroup::removeItem(DrawingItemBase *item)
 {
-  return items_.removeOne(item);
+  bool removed = items_.removeOne(item);
+  ids_.remove(item->id());
+  return removed;
+}
+
+/**
+ * Replace any items in this layer group whose identifiers match those in the
+ * list of replacement items.
+ */
+void LayerGroup::replaceItems(const QList<DrawingItemBase *> &items)
+{
+  foreach (DrawingItemBase *item, items) {
+    int id = item->id();
+    if (ids_.contains(id)) {
+      DrawingItemBase *oldItem = ids_.value(id);
+      int index = items_.indexOf(oldItem);
+      items_.replace(index, item);
+      ids_[id] = item;
+    }
+  }
 }
 
 } // namespace

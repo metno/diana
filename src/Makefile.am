@@ -37,7 +37,7 @@ common_cxx_sources = \
 	diPolyContouring.cc \
 	diController.cc \
 	diDisplayObjects.cc \
-	diEditManager.cc \
+        diEditManager.cc \
 	diEditObjects.cc \
 	diFieldEdit.cc \
 	diFieldPlot.cc \
@@ -148,8 +148,9 @@ if WITH_BATCH_ONLY
 diana_qt_sources =
 else
 diana_qt_sources = \
-	diEditItemManager.cc \
-	EditItems/editcomposite.cc \
+        diEditItemManager.cc \
+        EditItems/dialogcommon.cc \
+        EditItems/editcomposite.cc \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
@@ -158,14 +159,6 @@ diana_qt_sources = \
 	EditItems/style.cc \
 	EditItems/toolbar.cc \
 	EditItems/drawingdialog.cc \
-	EditItems/editdrawingdialog.cc \
-	EditItems/eimtestdialog.cc \
-	EditItems/layergroupspane.cc \
-	EditItems/layerspanebase.cc \
-	EditItems/drawinglayerspane.cc \
-	EditItems/editdrawinglayerspane.cc \
-	EditItems/dialogcommon.cc \
-	EditItems/modifylayerscommand.cc \
 	qtActionButton.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -286,35 +279,9 @@ noinst_HEADERS = \
 	diContouring.h \
 	diDisplayObjects.h \
 	diDrawingTypes.h \
-	diEditItemManager.h \
-	EditItems/drawingcomposite.h \
-	EditItems/drawingitembase.h \
-	EditItems/drawingpolyline.h \
-	EditItems/drawingstylemanager.h \
-	EditItems/drawingsymbol.h \
-	EditItems/drawingtext.h \
-	EditItems/editcomposite.h \
-	EditItems/edititembase.h \
-	EditItems/editpolyline.h \
-	EditItems/editsymbol.h \
-	EditItems/edittext.h \
-	EditItems/kml.h \
-	EditItems/layergroup.h \
-	EditItems/properties.h \
-	EditItems/style.h \
-	EditItems/timefilesextractor.h \
-	EditItems/toolbar.h \
-	EditItems/drawingdialog.h \
-	EditItems/editdrawingdialog.h \
-	EditItems/eimtestdialog.h \
-	EditItems/layergroupspane.h \
-	EditItems/layerspanebase.h \
-	EditItems/drawinglayerspane.h \
-	EditItems/editdrawinglayerspane.h \
-	EditItems/dialogcommon.h \
-	EditItems/modifylayerscommand.h \
 	diDrawingManager.h \
-	diEditManager.h \
+        diEditItemManager.h \
+        diEditManager.h \
 	diEditObjects.h \
 	diEditSpec.h \
 	diFieldEdit.h \
@@ -385,7 +352,26 @@ noinst_HEADERS = \
 	diWeatherObjects.h \
 	diWeatherSymbol.h \
 	diWorkOrder.h \
-	poly_contouring.hh \
+        EditItems/dialogcommon.h \
+        EditItems/drawingcomposite.h \
+        EditItems/drawingdialog.h \
+        EditItems/drawingitembase.h \
+        EditItems/drawingpolyline.h \
+        EditItems/drawingstylemanager.h \
+        EditItems/drawingsymbol.h \
+        EditItems/drawingtext.h \
+        EditItems/editcomposite.h \
+        EditItems/edititembase.h \
+        EditItems/editpolyline.h \
+        EditItems/editsymbol.h \
+        EditItems/edittext.h \
+        EditItems/kml.h \
+        EditItems/layergroup.h \
+        EditItems/properties.h \
+        EditItems/style.h \
+        EditItems/timefilesextractor.h \
+        EditItems/toolbar.h \
+        poly_contouring.hh \
 	reversible_list.hh \
 	polyStipMasks.h \
 	qtAddtoDialog.h \

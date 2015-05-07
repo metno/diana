@@ -44,6 +44,8 @@ class QToolButton;
 class QIcon;
 class QTextEdit;
 
+class DrawingItemBase;
+
 namespace EditItems {
 
 class CheckableLabel : public QLabel
@@ -104,9 +106,7 @@ class Layer;
 class LayerManager;
 
 QToolButton *createToolButton(const QIcon &, const QString &, const QObject *, const char *);
-QList<QSharedPointer<Layer> > createLayersFromFile(const QString &, LayerManager *, bool, QString *);
-QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *, bool, QString *, QString *);
-void createLayerGroupFromFile(LayerManager *layerManager);
+QList<DrawingItemBase *> createFromFile(const QString &, QString &);
 QString selectString(const QString &, const QString &, const QString &, const QStringList &, bool &);
 
 } // namespace

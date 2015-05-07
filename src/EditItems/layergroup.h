@@ -51,7 +51,7 @@ class LayerGroup : public QObject
   Q_OBJECT
 
 public:
-  LayerGroup(const QString &, bool = true, bool = false);
+  LayerGroup(const QString &name, bool editable = true, bool active = false);
   LayerGroup(const LayerGroup &);
   ~LayerGroup();
   int id() const;
@@ -76,6 +76,8 @@ public:
   void addItem(DrawingItemBase *item);
   bool removeItem(DrawingItemBase *item);
 
+  void replaceItems(const QList<DrawingItemBase *> &items);
+
 private:
   QString timeProperty(const QVariantMap &properties, QString &time_str);
 
@@ -87,6 +89,7 @@ private:
   bool editable_;
   bool active_;
   QList<DrawingItemBase *> items_;
+  QHash<int, DrawingItemBase *> ids_;
   QMap<QDateTime, QFileInfo> tfiles_;
   QDateTime currentTime_;
 };

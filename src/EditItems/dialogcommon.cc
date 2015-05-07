@@ -159,49 +159,33 @@ QToolButton *createToolButton(const QIcon &icon, const QString &toolTip, const Q
   return button;
 }
 
-// Returns a list of layers from \a fileName. Upon failure, a reason is passed in \a error.
-QList<QSharedPointer<Layer> > createLayersFromFile(const QString &fileName, LayerManager *layerManager, bool ensureUniqueNames, QString *error)
-{
-  *error = QString();
-
-  const QList<QSharedPointer<Layer> > layers = KML::createFromFile(layerManager, fileName, error);
-  if (ensureUniqueNames) {
-    foreach (const QSharedPointer<Layer> &layer, layers)
-      layerManager->ensureUniqueLayerName(layer);
-  }
-
-  return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
-}
-
-// Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
-QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, bool ensureUniqueNames, QString *error, QString *fileName)
-{
-  *error = QString();
-
-  *fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
-    DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
-  if (fileName->isEmpty())
-    return QList<QSharedPointer<Layer> >();
-
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(*fileName, layerManager, ensureUniqueNames, error);
-  QApplication::restoreOverrideCursor();
-
-  QFileInfo fi(*fileName);
-  DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
-
-  return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
-}
-
-// Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
-void createLayerGroupFromFile(LayerManager *layerManager)
+/**
+ * Returns a list of items from a file specified by the user. Upon failure, a
+ * reason is passed in \a error.
+ */
+QList<DrawingItemBase *> createFromFile(QString &error)
 {
   QString fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
     DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
 
-  if (!fileName.isEmpty())
-    layerManager->createNewLayerGroup(fileName, fileName);
+  if (fileName.isEmpty())
+    return QList<DrawingItemBase *>();
+
+  error = QString();
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  QApplication::restoreOverrideCursor();
+
+  if (!error.isEmpty()) {
+    QFileInfo fi(fileName);
+    DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+
+    return items;
+  } else
+    return QList<DrawingItemBase *>();
 }
+
 
 class StringSelector : public QDialog
 {

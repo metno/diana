@@ -69,8 +69,8 @@
 
 namespace EditItems {
 
-EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title, true, true, true)
+EditDrawingLayersPane::EditDrawingLayersPane(const QString &title)
+  : LayersPaneBase(title, true, true, true)
   , scratchLayerName_("SCRATCH")
   , addEmptyButton_(0)
   , addFromFileButton_(0)

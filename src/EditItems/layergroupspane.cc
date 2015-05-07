@@ -58,7 +58,7 @@
 
 namespace EditItems {
 
-LayerGroupWidget::LayerGroupWidget(const QSharedPointer<LayerGroup> &layerGroup, bool showInfo, QWidget *parent)
+LayerGroupWidget::LayerGroupWidget(LayerGroup *layerGroup, bool showInfo, QWidget *parent)
   : QWidget(parent)
   , layerGroup_(layerGroup)
 {
@@ -115,14 +115,13 @@ void LayerGroupWidget::showInfo(bool checked)
   updateLabels();
 }
 
-const QSharedPointer<LayerGroup> LayerGroupWidget::layerGroup() const
+const LayerGroup *LayerGroupWidget::layerGroup() const
 {
   return layerGroup_;
 }
 
-LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
+LayerGroupsPane::LayerGroupsPane()
   : showInfo_(false)
-  , layerMgr_(layerManager)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -188,7 +187,7 @@ void LayerGroupsPane::showInfo(bool checked)
   showInfo_ = checked;
 }
 
-void LayerGroupsPane::addWidgetForLG(const QSharedPointer<LayerGroup> &layerGroup)
+void LayerGroupsPane::addWidgetForLG(const LayerGroup *layerGroup)
 {
   LayerGroupWidget *lgWidget = new LayerGroupWidget(layerGroup, showInfo_);
   layout_->addWidget(lgWidget);
@@ -197,7 +196,7 @@ void LayerGroupsPane::addWidgetForLG(const QSharedPointer<LayerGroup> &layerGrou
 
 void LayerGroupsPane::addToLGFromFile()
 {
-  createLayerGroupFromFile(layerMgr_);
+  createLayerGroupFromFile();
 
   EditItemManager::instance()->updateJoins();
 
