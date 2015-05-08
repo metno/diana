@@ -170,7 +170,9 @@ void PaintGLContext::setPen()
 
         pen.setDashPattern(dashes);
         pen.setDashOffset(attributes.dashOffset/width);
-    }
+
+    } else if (attributes.lineStipple && attributes.dashes.isEmpty())
+        pen.setStyle(Qt::NoPen);
 
     painter->setPen(pen);
 }
@@ -1041,6 +1043,11 @@ void glLineStipple(GLint factor, GLushort pattern)
     bool gapStart = (pattern & 1) == 0;
     int number = 0;
     int total = 0;
+
+    if (pattern == 0) {
+        ctx->attributes.dashes = dashes;
+        return;
+    }
 
     for (int i = 0; i < 16; ++i) {
         GLushort dash = pattern & 1;
