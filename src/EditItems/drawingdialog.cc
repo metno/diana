@@ -66,7 +66,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
 
   // Populate the dialog with the drawings held by the drawing manager.
-  drawingsModel_.setStringList(drawm_->getDrawings().keys());
+  drawingsModel_.setItems(drawm_->getDrawings());
 
   // Create the GUI.
   setWindowTitle(tr("Drawing Dialog"));
@@ -152,24 +152,24 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 
 void DrawingDialog::activateDrawing(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  QStringList activeDrawings = activeDrawingsModel_.stringList();
+  QMap<QString, QString> activeDrawings = activeDrawingsModel_.items();
 
   // Read the names of deselected and selected drawings, removing from and
   // adding to the list of active drawings as necessary.
   foreach (const QModelIndex &index, deselected.indexes())
-    activeDrawings.removeOne(index.data().toString());
+    activeDrawings.remove(index.data().toString());
 
   foreach (const QModelIndex &index, selected.indexes())
-    activeDrawings.append(index.data().toString());
+    activeDrawings[index.data().toString()] = index.data(Qt::UserRole).toString();
 
-  activeDrawingsModel_.setStringList(activeDrawings);
+  activeDrawingsModel_.setItems(activeDrawings);
 }
 
 void DrawingDialog::makeProduct()
 {
   // Compile a list of strings describing the files in use.
   std::vector<std::string> inp;
-  foreach (const QString &name, activeDrawingsModel_.stringList())
+  foreach (const QString &name, activeDrawingsModel_.items().keys())
     inp.push_back("DRAWING name=\"" + name.toStdString() + "\"");
 
   putOKString(inp);
@@ -188,7 +188,7 @@ void DrawingDialog::handleDialogUpdated()
 
 
 DrawingModel::DrawingModel(QObject *parent)
-  : QStringListModel(parent)
+  : QAbstractListModel(parent)
 {
 }
 
@@ -196,12 +196,70 @@ DrawingModel::~DrawingModel()
 {
 }
 
-Qt::ItemFlags DrawingModel::flags(const QModelIndex & index) const
+QModelIndex DrawingModel::index(int row, int column, const QModelIndex &parent) const
+{
+  if (!parent.isValid()) {
+    if (row >= 0 && row < items_.size() && column == 0)
+      return createIndex(row, column, -1);
+  }
+  return QModelIndex();
+}
+
+int DrawingModel::rowCount(const QModelIndex &parent) const
+{
+  if (!parent.isValid())
+    return items_.size();
+  else
+    return 0;
+}
+
+QVariant DrawingModel::data(const QModelIndex &index, int role) const
+{
+  if (index.isValid() && index.row() >= 0 && index.row() < items_.size()) {
+    switch (role) {
+    case Qt::DisplayRole:
+      return QVariant(items_.keys().at(index.row()));
+    case Qt::UserRole:
+      return QVariant(items_.values().at(index.row()));
+    default:
+      ;
+    }
+  }
+
+  return QVariant();
+}
+
+QVariant DrawingModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+  if (role != Qt::DisplayRole)
+    return QVariant();
+
+  if (section == 0)
+    return tr("Name");
+  else if (section == 1)
+    return tr("Source");
+
+  return QVariant();
+}
+
+Qt::ItemFlags DrawingModel::flags(const QModelIndex &index) const
 {
   if (index.isValid())
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
   else
     return Qt::ItemIsEnabled;
+}
+
+QMap<QString, QString> DrawingModel::items() const
+{
+  return items_;
+}
+
+void DrawingModel::setItems(const QMap<QString, QString> &items)
+{
+  beginResetModel();
+  items_ = items;
+  endResetModel();
 }
 
 } // namespace

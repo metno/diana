@@ -41,7 +41,7 @@ class DrawingManager;
 
 namespace EditItems {
 
-class DrawingModel : public QStringListModel
+class DrawingModel : public QAbstractListModel
 {
   Q_OBJECT
 
@@ -49,7 +49,18 @@ public:
   DrawingModel(QObject *parent = 0);
   virtual ~DrawingModel();
 
-  virtual Qt::ItemFlags flags(const QModelIndex & index) const;
+  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+  Qt::ItemFlags flags(const QModelIndex &index) const;
+
+  QMap<QString, QString> items() const;
+  void setItems(const QMap<QString, QString> &items);
+
+private:
+  QMap<QString, QString> items_;
 };
 
 class DrawingDialog : public DataDialog
