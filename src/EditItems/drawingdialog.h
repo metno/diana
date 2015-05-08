@@ -65,7 +65,7 @@ public:
   virtual void putOKString(const std::vector<std::string> &);
 
 private slots:
-  void activateDrawing(const QModelIndex &index);
+  void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   virtual void updateTimes();
   void makeProduct();
   void handleDialogUpdated();

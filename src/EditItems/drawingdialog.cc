@@ -74,6 +74,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QListView *drawingsList = new QListView();
   drawingsList->setModel(&drawingsModel_);
+  drawingsList->setSelectionMode(QAbstractItemView::MultiSelection);
 
   QListView *activeList = new QListView();
   activeList->setModel(&activeDrawingsModel_);
@@ -94,7 +95,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(layersPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
 
 */
-  connect(drawingsList, SIGNAL(activated(const QModelIndex &)), SLOT(activateDrawing(const QModelIndex &)));
+  connect(drawingsList->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          SLOT(activateDrawing(const QItemSelection &, const QItemSelection &)));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 }
 
@@ -147,23 +150,19 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
   drawm_->processInput(inp);
 }
 
-void DrawingDialog::activateDrawing(const QModelIndex &index)
+void DrawingDialog::activateDrawing(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  // Read the drawing name and obtain the corresponding file name.
-  QString name = index.data().toString();
-  QString fileName = drawm_->getDrawings().value(name);
-
   QStringList activeDrawings = activeDrawingsModel_.stringList();
 
-  if (!activeDrawings.contains(name)) {
-    // Add the drawing to the list of active drawings.
-    activeDrawings.append(name);
-    activeDrawingsModel_.setStringList(activeDrawings);
-  } else {
-    // Remove the drawing from the list of active drawings.
-    activeDrawings.removeOne(name);
-    activeDrawingsModel_.setStringList(activeDrawings);
-  }
+  // Read the names of deselected and selected drawings, removing from and
+  // adding to the list of active drawings as necessary.
+  foreach (const QModelIndex &index, deselected.indexes())
+    activeDrawings.removeOne(index.data().toString());
+
+  foreach (const QModelIndex &index, selected.indexes())
+    activeDrawings.append(index.data().toString());
+
+  activeDrawingsModel_.setStringList(activeDrawings);
 }
 
 void DrawingDialog::makeProduct()
