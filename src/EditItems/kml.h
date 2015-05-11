@@ -52,10 +52,10 @@ namespace KML
   QDomElement createExtDataDataElement(QDomDocument &, const QString &, const QString &);
   QHash<QString, QString> getExtendedData(const QDomNode &, const QString &);
 
-  QList<QPointF> getPoints(const QDomNode &, QString *);
+  QList<QPointF> getPoints(const QDomNode &, QString &);
   void findAncestorElements(const QDomNode &, QMap<QString, QDomElement> *, QString &);
 
-  QString getName(const QDomElement &, QString &);
+  QString getChildText(const QDomElement &, const QString &, QString &);
   QPair<QString, QString> getTimeSpan(const QDomElement &, QString &);
 
   bool loadSchema(QXmlSchema &, QString &);
