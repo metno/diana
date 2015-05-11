@@ -153,7 +153,7 @@ void PaintGLContext::setPen()
     QPen pen = QPen(QColor::fromRgba(attributes.color), width);
     pen.setCapStyle(Qt::FlatCap);
     pen.setCosmetic(true);
-    if (attributes.lineStipple && !attributes.dashes.isEmpty()) {
+    if (attributes.lineStipple && attributes.dashes.size() > 1) {
         /* Set the dash pattern on the pen if defined, adjusting
            the length of each element to compensate for the line
            width. */
@@ -1066,9 +1066,7 @@ void glLineStipple(GLint factor, GLushort pattern)
 
     // If there is only one element then discard it and use an empty vector.
     // This will result in a solid line being plotted.
-    if (dashes.size() == 1)
-        dashes.clear();
-    else {
+    if (dashes.size() > 1) {
         // Ensure that the pattern has an even number of elements by inserting
         // a zero-size element if necessary.
         if (dashes.size() % 2 == 1)
