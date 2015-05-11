@@ -206,18 +206,18 @@ void findAncestorElements(const QDomNode &node, QMap<QString, QDomElement> *ancE
   }
 }
 
-// Returns the string contained in the <name> child of \a elem.
+// Returns the string contained in the \a child of \a elem.
 // Leaves \a error empty iff no error occurs (such as when \a elem doesn't have a <name> child!).
-QString getName(const QDomElement &elem, QString *error)
+QString getChildText(const QDomElement &elem, const QString &child, QString *error)
 {
   Q_ASSERT(!elem.isNull());
   *error = QString();
-  const QDomElement nameElem = elem.firstChildElement("name");
-  if (nameElem.isNull()) {
+  const QDomElement childElem = elem.firstChildElement(child);
+  if (childElem.isNull()) {
     *error = QString("element <%1> contains no <name> child").arg(elem.tagName());
     return "";
   }
-  return nameElem.firstChild().nodeValue();
+  return childElem.firstChild().nodeValue();
 }
 
 // Returns the pair of strings that represents begin- and end time contained in the <TimeSpan> child of \a elem.
@@ -649,12 +649,16 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
       return QList<QSharedPointer<EditItems::Layer> >();
 
     if (ancElems.contains("Placemark")) {
-      ditem->setProperty("Placemark:name", getName(ancElems.value("Placemark"), error));
+      ditem->setProperty("Placemark:name", getChildText(ancElems.value("Placemark"), "name", error));
       if (!error->isEmpty())
         return QList<QSharedPointer<EditItems::Layer> >();
 
-      // Optionally obtain and use TimeSpan elements.
       QString warning;
+
+      // Optionally obtain and use TimeSpan elements.
+      ditem->setProperty("Placemark:description", getChildText(ancElems.value("Placemark"), "description", &warning));
+
+      // Optionally obtain and use TimeSpan elements.
       QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Placemark"), &warning);
       if (warning.isEmpty()) {
         ditem->setProperty("TimeSpan:begin", timeSpan.first);
@@ -667,7 +671,7 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
     }
 
     if (ancElems.contains("Folder")) {
-      ditem->setProperty("Folder:name", getName(ancElems.value("Folder"), error));
+      ditem->setProperty("Folder:name", getChildText(ancElems.value("Folder"), "name", error));
       if (!error->isEmpty())
         return QList<QSharedPointer<EditItems::Layer> >();
 

@@ -59,7 +59,7 @@ QList<QPointF> getPoints(const QDomNode &, QString *);
 
 void findAncestorElements(const QDomNode &, QMap<QString, QDomElement> *, QString *);
 
-QString getName(const QDomElement &, QString *);
+QString getChildText(const QDomElement &, const QString &, QString *);
 
 QPair<QString, QString> getTimeSpan(const QDomElement &, QString *);
 
