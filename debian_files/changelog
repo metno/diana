@@ -1,3 +1,14 @@
+diana (3.38.0~rc1-1) unstable; urgency=low
+
+  * Drawing: Added support for reading description elements in KML files
+  * ObsPlot: possible to turn off annotations from asciiObs
+  * vcross: marker coordinates relative to axes
+  * vcross: WARN if model or plot not found
+  * vcross: show mouse axis position
+  * contour2: banana bugfix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 12 May 2015 09:21:25 +0200
+
 diana (3.38.0~a2-1) unstable; urgency=low
 
   * wms client prototype
