@@ -1,15 +1,15 @@
 LABEL \
-anno=<image=Met_RGB_Horisontal,size=0.1><horalign=center> \
-anno=<text="SKV-brief Sør",size=0.7><horalign=center> \
-anno=<text="SFC-FL150",size=0.7><horalign=center> \
-anno=<text=" ______________",size=0.7><horalign=center> \
-anno=<text="VALID 06 Z ",size=0.7><horalign=center> \
-anno=<text="%d %Beng %Y",size=0.7><horalign=center> \
-anno=<text=" ",size=0.3><horalign=center> \
+anno=<image=Met_RGB_Horisontal,size=0.2><horalign=center> \
+anno=<text="SKV-brief Sør"><horalign=center> \
+anno=<text="SFC-FL150"><horalign=center> \
+anno=<text=" ______________"><horalign=center> \
+anno=<text="VALID 06 Z "><horalign=center> \
+anno=<text="%d %Beng %Y"><horalign=center> \
+anno=<text=" "><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
 halign=right valign=top xoffset=0.0001 yoffset=0.0001 \
-font=BITMAPFONT fontsize=9 \
+font=BITMAPFONT fontsize=12 \
 margin=0.001 xratio=0.20 yratio=0.40
 
 
