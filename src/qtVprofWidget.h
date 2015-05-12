@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,21 +29,8 @@
 #ifndef VPROFWIDGET_H
 #define VPROFWIDGET_H
 
-#include <qglobal.h>
-
-#include "diVprofDiagram.h"
-#include "diVprofPlot.h"
-
-#include <map>
-
-#if !defined(USE_PAINTGL)
-#include <qgl.h>
-#else
-#include "PaintGL/paintgl.h"
-#include <QWidget>
-#define QGLWidget PaintGLWidget
-#endif
-#include <QKeyEvent>
+#include "diPaintable.h"
+#include <QObject>
 
 class VprofManager;
 
@@ -55,38 +40,26 @@ class VprofManager;
    Handles widget paint/redraw events.
    Receives mouse and keybord events and initiates actions.
 */
-class VprofWidget : public QGLWidget
+class VprofWidget : public QObject, public DiPaintable
 {
-  Q_OBJECT
+  Q_OBJECT;
 
 public:
-#if !defined(USE_PAINTGL)
-  VprofWidget(VprofManager *vpm, const QGLFormat fmt,
-             QWidget* parent = 0);
-#else
-  VprofWidget(VprofManager *vpm, QWidget* parent = 0);
-#endif
+  VprofWidget(VprofManager *vpm);
 
-  bool saveRasterImage(const std::string fname,
-  		       const std::string format,
-		       const int quality = -1);
+  void setCanvas(DiCanvas* c);
+  DiCanvas* canvas() const;
+  void paint(DiPainter* painter);
+  void resize(int w, int h);
 
-protected:
-
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
+  bool handleKeyEvents(QKeyEvent *ke);
 
 private:
   VprofManager *vprofm;
 
-  void keyPressEvent(QKeyEvent *me);
-
-signals:
+Q_SIGNALS:
   void timeChanged(int);
   void stationChanged(int);
-
 };
-
 
 #endif

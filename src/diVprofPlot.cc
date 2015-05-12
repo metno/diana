@@ -54,8 +54,7 @@ using namespace miutil;
 //#define DEBUGPRINT 1
 
 VprofPlot::VprofPlot()
-  : VprofTables()
-  , windInKnots(true)
+  : windInKnots(true)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -81,7 +80,7 @@ float VprofPlot::tabForValue(const float* tab, float x) const
   return tab[i]+(tab[i+1]-tab[i])*(x-i);
 }
 
-bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
+bool VprofPlot::plot(DiGLPainter* gl, VprofOptions *vpopt, int nplot)
 {
   METLIBS_LOG_SCOPE(LOGVAL(nplot));
 
@@ -102,10 +101,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   const int istyle = nplot % nstyles;
 
   const Colour c(vpopt->dataColour[istyle]);
-  glColor3ubv(c.RGB());
   const float dataWidth= vpopt->dataLinewidth[istyle];
   const float windWidth= vpopt->windLinewidth[istyle];
-  glLineWidth(dataWidth);
+  gl->setLineStyle(c, dataWidth);
 
   // levels for T (always)
   if (ptt.size()>0) {
@@ -121,8 +119,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     const size_t nlevel = std::min(maxLevels, tt.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= xz[k]+dx1deg*tt[k];
-    diutil::xyclip(nlevel,xx,yy,&xysize[1][0]);
-    UpdateOutput();
+    diutil::xyclip(nlevel,xx,yy,&xysize[1][0], gl);
   }
 
   // levels for Td (if not same as T levels)
@@ -136,14 +133,13 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 
   // Td
   if (vpopt->ptdtd && td.size()>0) {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(1,0xFFC0);
+    gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+    gl->LineStipple(1,0xFFC0);
     const size_t nlevel = std::min(maxLevels, td.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= xz[k]+dx1deg*td[k];
-    diutil::xyclip(nlevel,xx,yy,&xysize[1][0]);
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    diutil::xyclip(nlevel,xx,yy,&xysize[1][0], gl);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   // levels for wind and significant levels (if not same as T levels)
@@ -157,105 +153,20 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if (vpopt->pwind && uu.size()>0) {
     float xw= xysize[5][1] - xysize[5][0];
     float x0= xysize[5][0] + xw*0.5;
-    if (vpopt->windseparate) x0+=xw*float(nplot);
+    if (vpopt->windseparate)
+      x0+=xw*float(nplot);
     float ylim1= xysize[1][2];
     float ylim2= xysize[1][3];
-
-    int   n,n50,n10,n05;
-    float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
     float flagl = xw * 0.5 * 0.85;
-    float flagstep = flagl/10.;
-    float flagw = flagl * 0.35;
-    float hflagw = 0.6;
 
-    vector<float> vx,vy; // keep vertices for 50-knot flags
-
-    glLineWidth(windWidth);
-    glBegin(GL_LINES);
-
+    gl->setLineStyle(c, windWidth);
+    const float windScale = windInKnots ? 1 : (3600.0/1852.0);
     const size_t nlevel = std::min(maxLevels, std::min(uu.size(), vv.size()));
     for (unsigned int k=0; k<nlevel; k++) {
-      if (yy[k]>=ylim1 && yy[k]<=ylim2) {
-        gx= x0;
-        gy= yy[k];
-        ff= sqrtf(uu[k]*uu[k]+vv[k]*vv[k]);
-        if(!windInKnots)
-          ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
-
-        if (ff>0.00001){
-          gu= uu[k]/ff;
-          gv= vv[k]/ff;
-
-          // find no. of 50,10 and 5 knot flags
-          if (ff<182.49) {
-            n05  = int(ff*0.2 + 0.5);
-            n50  = n05/10;
-            n05 -= n50*10;
-            n10  = n05/2;
-            n05 -= n10*2;
-          } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
-          } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
-          } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
-          } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
-          }
-
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
-
-          // direction
-          glVertex2f(gx,gy);
-          gx = gx - flagl*gu;
-          gy = gy - flagl*gv;
-          glVertex2f(gx,gy);
-
-          // 50-knot flags, store for plot below
-          if (n50>0) {
-            for (n=0; n<n50; n++) {
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
-              vx.push_back(gx+dxf);
-              vy.push_back(gy+dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-            }
-            gx+=dx; gy+=dy;
-          }
-          // 10-knot flags
-          for (n=0; n<n10; n++) {
-            glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy+dyf);
-            gx+=dx; gy+=dy;
-          }
-          // 5-knot flag
-          if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
-            glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-          }
-        }
-      }
+      if (yy[k]>=ylim1 && yy[k]<=ylim2)
+        gl->drawWindArrow(uu[k] * windScale, vv[k] * windScale,
+            x0, yy[k], flagl, false);
     }
-    glEnd();
-    UpdateOutput();
-
-    unsigned int vi= vx.size();
-    if (vi>=3) {
-      // draw 50-knot flags
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glBegin(GL_TRIANGLES);
-      for (size_t i=0; i<vi; i++)
-        glVertex2f(vx[i],vy[i]);
-      glEnd();
-      UpdateOutput();
-    }
-    glLineWidth(dataWidth);
   }
 
   if (vpopt->pslwind && dd.size()>0) {
@@ -278,7 +189,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       float *used= new float[nlevel];
       size_t nused = 0;
       const float x= xysize[4][0]+(xysize[4][1]-xysize[4][0])*nplot+chxlab*0.5;
-      setFontsize(chylab);
+      setFontsize(gl, chylab);
 
       for (int sig=3; sig>=0; sig--) {
         for (int k=k1; k<=k2; k++) {
@@ -297,7 +208,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
               << setw(3) << setfill('0') << iff;
               std::string str= ostr.str();
               const float y= yy[k]-chylab*0.5;
-              fp->drawStr(str.c_str(),x,y,0.0);
+              gl->drawText(str, x, y, 0.0);
             }
           }
         }
@@ -305,7 +216,6 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       delete[] used;
     }
   }
-  UpdateOutput();
 
   // levels for vertical wind, omega (if not same as T levels)
   if (vpopt->pvwind && pom.size()>0) {
@@ -326,8 +236,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       xx[k]= x0 + scale*om[k];
     xylimit[0]= xysize[6][0];
     xylimit[1]= xysize[6][1];
-    diutil::xyclip(nlevel,xx,yy,xylimit);
-    UpdateOutput();
+    diutil::xyclip(nlevel,xx,yy,xylimit, gl);
   }
 
   if (!prognostic && (vpopt->prelhum || vpopt->pducting)) {
@@ -360,9 +269,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
         xx[k]= x0 + scale*rhum[k];
       xylimit[0]= xysize[7][0];
       xylimit[1]= xysize[7][1];
-      diutil::xyclip(nlevel,xx,yy,xylimit);
+      diutil::xyclip(nlevel,xx,yy,xylimit, gl);
     }
-    UpdateOutput();
   }
 
   // levels for ducting (same as T levels)
@@ -390,9 +298,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
         xx[k]= x0 + scale*duct[k];
       xylimit[0]= xysize[8][0];
       xylimit[1]= xysize[8][1];
-      diutil::xyclip(nlevel,xx,yy,xylimit);
+      diutil::xyclip(nlevel,xx,yy,xylimit, gl);
     }
-    UpdateOutput();
   }
 
   if (vpopt->pkindex && !text.kindexFound) {
@@ -400,15 +307,12 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       kindex(ptt,tt,td);
     else
       kindex(pcom,tcom,tdcom);
-    UpdateOutput();
   }
 
   // text
   text.index= nplot;
   text.colour= c;
   vptext.push_back(text);
-
-  UpdateOutput();
 
   delete[] xx;
   delete[] xz;

@@ -30,6 +30,7 @@
 #define diObsPlot_h
 
 #include "diPlot.h"
+#include "diGLPainter.h"
 #include "diObsData.h"
 
 #ifdef ROADOBS
@@ -204,7 +205,11 @@ private:
   short *iptab;
 
   float scale;
-  GLuint circle;
+
+  DiGLPainter::GLuint circle;
+  void prepareCircle(DiGLPainter* gl);
+  void drawCircle(DiGLPainter* gl);
+  void finishCircle(DiGLPainter* gl);
 
   //Metar
   struct metarww {
@@ -228,7 +233,7 @@ private:
   std::vector<int> all_this_area; // all stations within area
   std::vector<int> all_stations; // all stations, from last plot or from file
   std::vector<int> all_from_file; // all stations, from file or priority list
-	std::vector<int> stations_to_plot; // copy of list of stations that will be plotted
+  std::vector<int> stations_to_plot; // copy of list of stations that will be plotted
   //id of all stations shown, sorted by plot type
   static std::map<std::string, std::vector<std::string> > visibleStations;
 
@@ -256,88 +261,88 @@ private:
   void adjustRRR(float& value);
 
   bool checkPlotCriteria(int index);
-  void checkTotalColourCriteria(int index);
+  void checkTotalColourCriteria(DiGLPainter* gl, int index);
   std::string checkMarkerCriteria(int index);
-  void checkColourCriteria(const std::string& param, float value);
+  void checkColourCriteria(DiGLPainter* gl, const std::string& param, float value);
   void parameterDecode(std::string, bool = true);
 
   // used many times from plotList and once from plotAscii
-  void printUndef(float&, float&, bool align_right = false);
+  void printUndef(DiGLPainter* gl, float&, float&, bool align_right = false);
 
   // used only from plotList
-  void printList(float f, float& xpos, float& ypos, int precision,
+  void printList(DiGLPainter* gl, float f, float& xpos, float& ypos, int precision,
       bool align_right = false, std::string opt = "");
-  void printListParameter(const ObsData& dta, const Parameter& param,
+  void printListParameter(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
       float& xpos, float& ypos, float yStep, bool align_right, float xshift);
-  void printListSymbol(const ObsData& dta, const Parameter& param,
+  void printListSymbol(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
       float& xpos, float& ypos, float yStep, bool align_right, const float& xshift);
-  void printListRRR(const ObsData& dta, const std::string& param, float& xpos,
+  void printListRRR(DiGLPainter* gl, const ObsData& dta, const std::string& param, float& xpos,
       float& ypos, bool align_right);
-  void printListPos(const ObsData& dta,
+  void printListPos(DiGLPainter* gl, const ObsData& dta,
       float& xpos, float& ypos, float yStep, bool align_right);
 
-  void plotAscii(const ObsData& dta,const std::string& param, float& xpos, float& ypos, const float& yStep, bool align_right);
+  void plotAscii(DiGLPainter* gl, const ObsData& dta,const std::string& param,
+      float& xpos, float& ypos, const float& yStep, bool align_right);
 
   // used from plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printNumber(float, float, float, const std::string& align = "left",
-      bool = false, bool = false);
+  void printNumber(DiGLPainter* gl, float, float, float,
+      const std::string& align = "left", bool = false, bool = false);
 
   // from plotList, plotSynop
-  void printTime(const miutil::miTime&, float, float, bool align_right = false,
-      const std::string& = "");
+  void printTime(DiGLPainter* gl, const miutil::miTime&, float, float,
+      bool align_right = false, const std::string& = "");
 
   // from plotList and plotAscii
-  void printListString(const std::string& txt, float& xpos, float& ypos,
-      bool align_right = false);
+  void printListString(DiGLPainter* gl, const std::string& txt,
+      float& xpos, float& ypos, bool align_right = false);
 
-  float advanceByStringWidth(const std::string& txt, float& xpos);
+  float advanceByStringWidth(DiGLPainter* gl, const std::string& txt, float& xpos);
   void advanceByDD(int dd, float& xpos);
   bool checkQuality(const ObsData& dta) const;
   bool checkWMOnumber(const ObsData& dta) const;
 
   // from plotList, plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printString(const char *, float, float, bool align_right = false, bool =
-      false);
+  void printString(DiGLPainter* gl, const char *, float, float,
+      bool align_right = false, bool = false);
 
   // from plotMetar, ROAD/plotDBMetar (commented)
-  void metarSymbol(std::string, float, float, int&);
+  void metarSymbol(DiGLPainter* gl, const std::string&, float, float, int&);
 
   // from plotMetar, metarSymbol, ROAD/plotDBMetar (commented)
   void metarString2int(std::string ww, int intww[]);
 
   // from plotMetar, ROAD/plotDBMetar
-  void metarWind(int, int, float &, int &);
+  void metarWind(DiGLPainter* gl, int, int, float &, int &);
 
   // from plotList, plotSynop, ROAD/plotDBSynop
-  void arrow(float angle, float xpos, float ypos, float scale = 1.);
+  void arrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale = 1.);
 
   // from plotList, plotSynop, ROAD/plotDBSynop (commented out)
-  void zigzagArrow(float angle, float xpos, float ypos, float scale = 1.);
+  void zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale = 1.);
 
   // from plotList, plotSynop, plotMetar, metarSymbol, weather, pastWeather, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void symbol(int, float, float, float scale = 1, bool align_right = false);
+  void symbol(DiGLPainter* gl, int, float, float, float scale = 1, bool align_right = false);
 
   // from plotSynop, metarWind, ROAD/plotDBSynop
-  void cloudCover(const float& fN, const float& radius);
+  void cloudCover(DiGLPainter* gl, const float& fN, const float& radius);
 
   // from ROAD/plotDBSynop
-  void cloudCoverAuto(const float& fN, const float &radius);
+  void cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radius);
 
   // from plotList, plotAscii, plotSynop, ROAD/plotDBSynop
-  void plotWind(int dd, float ff_ms, bool ddvar, float radius, float current =
+  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current =
       -1);
-  //  void plotArrow(int,int, bool,float &);
 
   // used from plotList, plotSynop, ROAD/plotDBSynop, ROAD/plotDBMetar (commented out)
-  void weather(short int ww, float TTT, int zone, float x, float y,
+  void weather(DiGLPainter* gl, short int ww, float TTT, int zone, float x, float y,
       float scale = 1, bool align_right = false);
 
   // used only from plotList, plotSynop, and ROAD/plotDBSynop
-  void pastWeather(int w, float x, float y, float scale = 1, bool align_right =
+  void pastWeather(DiGLPainter* gl, int w, float x, float y, float scale = 1, bool align_right =
       false);
 
   // used only from plotList and plotSynop
-  void wave(const float& PwPw, const float& HwHw, float x, float y,
+  void wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float x, float y,
       bool align_right = false);
 
   // used only from plotList and plotSynop
@@ -347,13 +352,13 @@ private:
   int vis_direction(float dv);
 
   // used only from plotSynop
-  void amountOfClouds(short int, short int, float, float);
+  void amountOfClouds(DiGLPainter* gl, short int, short int, float, float);
 
   // ROAD only used in plotDBMetar, plotDBSynop
-  void amountOfClouds_1(short int Nh, short int h, float x, float y,
+  void amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, float x, float y,
       bool metar = false);
   // ROAD only, used in plotDBMetar, plotDBSynop
-  void amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2,
+  void amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, short int Ns2,
       short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4,
       float x, float y, bool metar = false);
 
@@ -361,17 +366,17 @@ private:
   void checkGustTime(ObsData &dta);
   void checkMaxWindTime(ObsData &dta);
 
-  void plotSynop(int index);
-  void plotList(int index);
-  void plotMetar(int index);
+  void plotSynop(DiGLPainter* gl, int index);
+  void plotList(DiGLPainter* gl, int index);
+  void plotMetar(DiGLPainter* gl, int index);
 #ifdef ROADOBS
-  void plotRoadobs(int index);
-  void plotDBSynop(int index);
-  void plotDBMetar(int index);
+  void plotRoadobs(DiGLPainter* gl, int index);
+  void plotDBSynop(DiGLPainter* gl, int index);
+  void plotDBMetar(DiGLPainter* gl, int index);
 #endif
-  void parameter_sort(std::string parameter, bool minValue);
-  void priority_sort(void);
-  void time_sort(void);
+  void parameter_sort(const std::string& parameter, bool minValue);
+  void priority_sort();
+  void time_sort();
 
   int getObsCount() const;
   int numVisiblePositions(); // slow!
@@ -391,7 +396,7 @@ public:
   // Returns the allObs boolean
   bool isallObs() {return allObs;};
 
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
   bool prepare(const std::string&);
   bool setData();
@@ -414,7 +419,7 @@ public:
     { labels.push_back(pin); }
 
   bool getPositions(std::vector<float>&, std::vector<float>&);
-  void obs_mslp(PlotOrder porder, float *);
+  void obs_mslp(DiGLPainter* gl, PlotOrder porder, float *);
 
   bool getObsPopupText(int xx,int yy, std::string& obstext );
 

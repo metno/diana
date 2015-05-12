@@ -38,12 +38,10 @@
 #include <diField/diGridConverter.h>
 #include <puTools/miTime.h>
 
-#include <GL/gl.h>
-
 #include <vector>
 
-class GLPfile;
-class FontManager;
+class DiCanvas;
+class DiGLPainter;
 
 /**
    StaticPlot keeps all previously static data shared by the various plotting classes.
@@ -66,13 +64,10 @@ private:
   Colour backContrastColour; // suitable contrast colour
   float gcd;          // great circle distance
   bool panning;       // panning in progress
-  FontManager* fp;    // master fontpack
   printerManager printman;   // printer manager
 
 public:
   static GridConverter gc;   // gridconverter class
-  GLPfile* psoutput;  // PostScript module
-  bool hardcopy;      // producing postscript
 
   // FIXME xyLimit and xyPart only used by obsolete config in MapPlot::prepare
   std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
@@ -81,17 +76,6 @@ public:
 public:
   StaticPlot();
   ~StaticPlot();
-
-  void psAddImage(const GLvoid*,GLint,GLint,GLint, // pixels,size,nx,ny
-		  GLfloat,GLfloat,GLfloat,GLfloat, // x,y,sx,sy
-		  GLint,GLint,GLint,GLint,   // start,stop
-		  GLenum,GLenum);  // format, type
-
-  /// init fonts
-  void initFontManager();
-
-  /// kill current FontManager, start new and init
-  void restartFontManager();
 
   /// return current area on map
   const Area& getMapArea() const
@@ -231,9 +215,6 @@ public:
   const Colour& getBackContrastColour()
     { return backContrastColour; }
 
-  /// return pointer to the FontManager
-  FontManager* getFontPack() {return fp;}
-
   /// mark this as 'redraw needed'
   void setDirty(bool dirty=true);
 
@@ -244,30 +225,8 @@ public:
   /// clear clipping variables
   void xyClear();
 
-  // hardcopy routines
-  /// start postscript output
-  bool startPSoutput(const printOptions& po);
-  /// add a stencil as x,y arrays (postscript only)
-  void addHCStencil(int size, const float* x, const float* y);
-  /// add a scissor in GL coordinates (postscript only)
-  void addHCScissor(double x0, double y0, // GL scissor
-		    double  w, double  h);
-  /// add a scissor in pixel coordinates (postscript only)
-  void addHCScissor(int x0, int y0, // Pixel scissor
-		    int  w, int  h);
-  /// remove all clipping (postscript only)
-  void removeHCClipping();
-  /// for postscript output - resample state vectors
-  void UpdateOutput();
-  /// start new page in postscript
-  bool startPSnewpage();
-  /// for postscript output - reset state vectors
-  void resetPage();
-  /// end postscript output
-  bool endPSoutput();
-
   /// set great circle distance
-  void updateGcd();
+  void updateGcd(DiGLPainter* gl);
 
   float getGcd()
     { return gcd; }
@@ -306,7 +265,9 @@ public:
     OVERLAY
   };
 
-  virtual void plot(PlotOrder zorder) = 0;
+  virtual void setCanvas(DiCanvas* canvas);
+
+  virtual void plot(DiGLPainter* gl, PlotOrder zorder) = 0;
 
   /// enable this plot object
   void setEnabled(bool enable=true);

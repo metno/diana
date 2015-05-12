@@ -6,6 +6,7 @@
 #include <vector>
 
 class Plot;
+class DiGLPainter;
 
 namespace diutil {
 
@@ -27,9 +28,11 @@ struct MapValueAnno {
 typedef std::vector<MapValueAnno> MapValueAnno_v;
 
 void xyclip(int npos, const float *x, const float *y, const float xylim[4],
-    MapValuePosition anno_position, const std::string& anno, MapValueAnno_v& anno_positions);
+    MapValuePosition anno_position, const std::string& anno,
+    MapValueAnno_v& anno_positions, DiGLPainter* gl);
 
-void xyclip(int npos, const float *x, const float *y, const float xylim[4]);
+void xyclip(int npos, const float *x, const float *y, const float xylim[4],
+    DiGLPainter* gl);
 
 } // namespace diutil
 

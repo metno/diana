@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -38,10 +36,12 @@
 #include "config.h"
 #endif
 
-#include <diFieldEdit.h>
-#include <diPlotModule.h>
-#include <diFieldPlotManager.h>
-#include <math.h>
+#include "diFieldEdit.h"
+#include "diPlotModule.h"
+#include "diFieldPlotManager.h"
+#include "diGLPainter.h"
+
+#include <cmath>
 
 #define MILOGGER_CATEGORY "diana.FieldEdit"
 #include <miLogger/miLogging.h>
@@ -57,25 +57,21 @@ bool     FieldEdit::drawExtraLines= false;
 
 
 FieldEdit::FieldEdit(FieldPlotManager* fm)
-: fieldPlotManager(fm), workfield(0), editfield(0), editfieldplot(0),
-showNumbers(false), numbersDisplayed(false),
-specset(false),minValue(fieldUndef), maxValue(fieldUndef),
-lastFileWritten(""), numundo(0), unsavedChanges(false), active(false),
-editStarted(false), operationStarted(false),
-posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), odata(0),
-numUndefReplaced(0), discontinuous(false),drawIsoline(false)
+  : fieldPlotManager(fm), workfield(0), editfield(0), editfieldplot(0),
+    showNumbers(false), numbersDisplayed(false),
+    specset(false),minValue(fieldUndef), maxValue(fieldUndef),
+    lastFileWritten(""), numundo(0), unsavedChanges(false), active(false),
+    editStarted(false), operationStarted(false),
+    posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), odata(0),
+    numUndefReplaced(0), discontinuous(false),drawIsoline(false)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 }
 
 
 FieldEdit::~FieldEdit()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   cleanup();
 }
 
@@ -3378,7 +3374,7 @@ bool FieldEdit::quicksmooth(int nsmooth, bool allDefined, int nx, int ny,
 }
 
 
-void FieldEdit::drawInfluence()
+void FieldEdit::drawInfluence(DiGLPainter* gl)
 {
 
   // draw influence
@@ -3387,37 +3383,22 @@ void FieldEdit::drawInfluence()
   //   shape==2: ellipse with line between focus points
   //   shape==3: square
 
-  const float drot=5.0*DEG_TO_RAD;
-  float d,x,y,rot;
+  float d,x,y;
   int   i;
 
   // draw centre box
   d= 5.0 * getStaticPlot()->getPhysToMapScaleX();
 
-  glColor4f(0.0,1.0,1.0,0.5);
-  glLineWidth(3.0);
-  glBegin(GL_LINE_LOOP);
-  glVertex2f(posx-d,posy-d);
-  glVertex2f(posx+d,posy-d);
-  glVertex2f(posx+d,posy+d);
-  glVertex2f(posx-d,posy+d);
-  glEnd();
+  gl->setLineStyle(Colour::fromF(0, 1, 1, 0.5), 3);
+  gl->drawRect(posx-d, posy-d, posx+d, posy+d);
 
-  Colour col= getStaticPlot()->getBackContrastColour();
-  glColor3ubv(col.RGB());
-  glLineWidth(2.0);
+  const Colour& col = getStaticPlot()->getBackContrastColour();
+  gl->setLineStyle(col, 2, false);
 
   if (influencetype==0) {
 
     // circle
-    glBegin(GL_LINE_LOOP);
-    for (i=0; i<72; ++i) {
-      rot= float(i)*drot;
-      x= posx + rcirclePlot * cosf(rot);
-      y= posy + rcirclePlot * sinf(rot);
-      glVertex2f(x,y);
-    }
-    glEnd();
+    gl->drawCircle(posx, posy, rcirclePlot);
 
   } else if (influencetype==1 || influencetype==2) {
     // ellipse
@@ -3430,68 +3411,63 @@ void FieldEdit::drawInfluence()
     float ecos= dx/a;
     float esin= dy/a;
     float ex,ey;
-    glBegin(GL_LINE_LOOP);
+    gl->Begin(DiGLPainter::gl_LINE_LOOP);
     x= posx + 0.*ecos - b*esin;  // avoiding sqrt(-0.00000001)=nan
     y= posy + 0.*esin + b*ecos;
-    glVertex2f(x,y);
+    gl->Vertex2f(x,y);
     for (i=1; i<36; ++i) {
       ey= b*float(18-i)/18.;
       ex= a*sqrtf(1.-(ey*ey)/(b*b));
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
-      glVertex2f(x,y);
+      gl->Vertex2f(x,y);
     }
     x= posx + 0.*ecos + b*esin;  // avoiding sqrt(-0.00000001)=nan
     y= posy + 0.*esin - b*ecos;
-    glVertex2f(x,y);
+    gl->Vertex2f(x,y);
     for (i=35; i>0; --i) {
       ey= b*float(18-i)/18.;
       ex= -a*sqrtf(1.-(ey*ey)/(b*b));
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
-      glVertex2f(x,y);
+      gl->Vertex2f(x,y);
     }
-    glEnd();
+    gl->End();
     if (influencetype==2) {
       // show line between focus points
-      glBegin(GL_LINES);
+      gl->Begin(DiGLPainter::gl_LINES);
       ex= -c*0.5;
       ey= 0.;
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
-      glVertex2f(x,y);
+      gl->Vertex2f(x,y);
       ex= c*0.5;
       ey= 0.;
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
-      glVertex2f(x,y);
-      glEnd();
+      gl->Vertex2f(x,y);
+      gl->End();
     }
 
   } else if (influencetype==3) {
 
     // square
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(posx-rcirclePlot,posy-rcirclePlot);
-    glVertex2f(posx+rcirclePlot,posy-rcirclePlot);
-    glVertex2f(posx+rcirclePlot,posy+rcirclePlot);
-    glVertex2f(posx-rcirclePlot,posy+rcirclePlot);
-    glEnd();
+    gl->drawRect(posx - rcirclePlot, posy - rcirclePlot, posx + rcirclePlot, posy + rcirclePlot);
   }
 
   if (showArrow) {
     float dx= (xArrow-posx)*0.15;
     float dy= (yArrow-posy)*0.15;
-    glLineWidth(3.0);
-    glBegin(GL_LINES);
-    glVertex2f(posx,posy);
-    glVertex2f(xArrow,yArrow);
-    glVertex2f(xArrow-dx-dy*0.667,yArrow-dy+dx*0.667);
-    glVertex2f(xArrow,yArrow);
-    glVertex2f(xArrow-dx+dy*0.667,yArrow-dy-dx*0.667);
-    glVertex2f(xArrow,yArrow);
-    glEnd();
-    glLineWidth(1.0);
+    gl->LineWidth(3.0);
+    gl->Begin(DiGLPainter::gl_LINES);
+    gl->Vertex2f(posx,posy);
+    gl->Vertex2f(xArrow,yArrow);
+    gl->Vertex2f(xArrow-dx-dy*0.667,yArrow-dy+dx*0.667);
+    gl->Vertex2f(xArrow,yArrow);
+    gl->Vertex2f(xArrow-dx+dy*0.667,yArrow-dy-dx*0.667);
+    gl->Vertex2f(xArrow,yArrow);
+    gl->End();
+    gl->LineWidth(1.0);
   }
 
   if ((drawExtraLines || drawIsoline) && isoline.x.size()>1) {
@@ -3503,15 +3479,15 @@ void FieldEdit::drawInfluence()
       yplot[i]= isoline.y[i] * editfield->gridResolutionY;
     }
 
-    glLineWidth(3.0);
-    glBegin(GL_LINE_STRIP);
+    gl->LineWidth(3.0);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
       if (!gc.getPoints(editfield->area.P(),maparea.P(),n,xplot,yplot)) n=0;
     }
     for (int i=0; i<n; ++i) {
-      glVertex2f(xplot[i],yplot[i]);
+      gl->Vertex2f(xplot[i],yplot[i]);
     }
-    glEnd();
+    gl->End();
     delete[] xplot;
     delete[] yplot;
 
@@ -3530,34 +3506,32 @@ void FieldEdit::drawInfluence()
       xplot[i]= xline[i] * editfield->gridResolutionX;
       yplot[i]= yline[i] * editfield->gridResolutionY;
     }
-    glLineWidth(1.0);
-    glBegin(GL_LINE_STRIP);
+    gl->LineWidth(1.0);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
       if (!gc.getPoints(editfield->area.P(),maparea.P(),n,xplot,yplot)) n=0;
     }
       for (int i=0; i<n; ++i) {
-        glVertex2f(xplot[i],yplot[i]);
+        gl->Vertex2f(xplot[i],yplot[i]);
       }
-    glEnd();
+    gl->End();
     delete[] xplot;
     delete[] yplot;
   }
 
 }
 
-
-void FieldEdit::plot(Plot::PlotOrder porder, bool showinfluence)
+void FieldEdit::plot(DiGLPainter* gl, Plot::PlotOrder porder, bool showinfluence)
 {
   METLIBS_LOG_SCOPE(LOGVAL(active));
+  editfieldplot->plot(gl, Plot::SHADE_BACKGROUND);
 
-  editfieldplot->plot(Plot::SHADE_BACKGROUND);
-
-  editfieldplot->plot(porder);
+  editfieldplot->plot(gl, porder);
   if (active && showinfluence)
-    drawInfluence();
+    drawInfluence(gl);
 
   if (active && showinfluence && showNumbers)
-    numbersDisplayed= editfieldplot->plotNumbers();
+    numbersDisplayed= editfieldplot->plotNumbers(gl);
   else
     numbersDisplayed= false;
 }

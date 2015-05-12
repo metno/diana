@@ -29,22 +29,23 @@
 #ifndef AreaBorder_h
 #define AreaBorder_h
 
-#include <diObjectPlot.h>
+#include "diObjectPlot.h"
 
 /**
   \brief Borders between areas when merging
-  
+
   The area borders are used when merging different analyses, to set
   the boundary lines between regions. The lines can be moved and
   rotated, and points can be removed in the same way as for fronts.
 */
-class AreaBorder: public ObjectPlot
+class AreaBorder : public ObjectPlot
 {
 private:
   float linewidth;
   float transitionwidth;
 
-  void drawThickLine();
+  void drawThickLine(DiGLPainter* gl);
+
   AreaBorder(const AreaBorder &rhs);
   AreaBorder& operator=(const AreaBorder &rhs);
 
@@ -53,32 +54,36 @@ public:
   ~AreaBorder();
 
   /// returns linewidth
-  float getLineWidth(){return linewidth;}
+  float getLineWidth() const
+    { return linewidth; }
+
   /// returns transitionswidth (the width of the overlap)
-  float getTransitionWidth(){return transitionwidth;}
+  float getTransitionWidth() const
+    { return transitionwidth; }
+
   /// sets transitionswidth (the width of the overlap)
   virtual void setTransitionWidth(float w)
-  { transitionwidth=w; if (transitionwidth<1) transitionwidth=1.; }
+    { transitionwidth=w; if (transitionwidth<1) transitionwidth=1.; }
 
-  /// draws the border
-  void plot(PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder);
 
   /// shows / marks node point/ points on front
   bool showLine(float x, float y);
+
   /// returns showLine
-  bool isOnObject(float x, float y) {return showLine(x,y);}
+  bool isOnObject(float x, float y)
+    {return showLine(x,y);}
+
   void increaseSize(float val);
-  void setType(int ty){}
-  bool setType(std::string tystring){type = 0; return true;}
+
+  void setType(int ty)
+    { }
+
+  bool setType(const std::string& tystring)
+    {type = 0; return true;}
+
   /// writes a string with Object and Type
   std::string writeTypeString();
-
 };
 
 #endif
-
-
-
-
-
-

@@ -76,7 +76,7 @@ public:
   /// checks if automatic joining of fronts on
   bool isAutoJoinOn(){return autoJoinOn;}
   /// draws points where fronts are joined 
-  void drawJoinPoints();
+  void drawJoinPoints(DiGLPainter* gl);
   /// sets scaleToField variable used for plotting areaBorders
   void setScaleToField(float s);
   /// returns text of marked text object

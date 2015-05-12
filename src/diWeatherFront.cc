@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,7 +31,10 @@
 #include "config.h"
 #endif
 
-#include <diWeatherFront.h>
+#include "diWeatherFront.h"
+
+#include "diGLPainter.h"
+
 #include <puTools/miStringFunctions.h>
 #include <sstream>
 
@@ -47,45 +48,36 @@ vector<editToolInfo> WeatherFront::allFronts; //info about fronts
 map<std::string,int> WeatherFront::frontTypes;   //finds front type number from name
 float WeatherFront::defaultLineWidth=8;
 
-// Default constructor
-
-WeatherFront::WeatherFront() : ObjectPlot(wFront),linewidth(defaultLineWidth)
+WeatherFront::WeatherFront()
+  : ObjectPlot(wFront)
+  , linewidth(defaultLineWidth)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront default constructror: " << defaultLineWidth);
-#endif
-  setType(0);         // default fronttype
+  METLIBS_LOG_SCOPE(LOGVAL(linewidth));
+  setType(0);
 }
 
-// Constructor taking front type as argument
-
-WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),linewidth(defaultLineWidth)
+WeatherFront::WeatherFront(int ty)
+  : ObjectPlot(wFront)
+  , linewidth(defaultLineWidth)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront(int) constructor: " << defaultLineWidth);
-#endif
-  setType(ty);         // fronttype
+  METLIBS_LOG_DEBUG(LOGVAL(linewidth));
+  setType(ty);
 }
 
-WeatherFront::WeatherFront(std::string tystring) : ObjectPlot(wFront),linewidth(defaultLineWidth)
+WeatherFront::WeatherFront(const std::string& tystring)
+  : ObjectPlot(wFront)
+  , linewidth(defaultLineWidth)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront(std::string) constructor: " << defaultLineWidth);
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(linewidth));
   // set correct fronttype
   if (!setType(tystring))
-    METLIBS_LOG_ERROR("WeatherFront constructor error, type " << tystring << " not found !!!");
-
+    METLIBS_LOG_ERROR("type '" << tystring << "' not found!");
 }
 
-
-
-//copy constructor
-
-WeatherFront::WeatherFront(const WeatherFront &rhs) : ObjectPlot(rhs){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront copy constructror");
-#endif
+WeatherFront::WeatherFront(const WeatherFront &rhs)
+  : ObjectPlot(rhs)
+{
+  METLIBS_LOG_SCOPE();
   linewidth=rhs.linewidth;    // default linewidth of front
   rubber = false; //draw rubber ?
   s_length = rhs.s_length;
@@ -97,8 +89,8 @@ WeatherFront::WeatherFront(const WeatherFront &rhs) : ObjectPlot(rhs){
   }
 }
 
-// Destructor
-WeatherFront::~WeatherFront(){
+WeatherFront::~WeatherFront()
+{
 }
 
 
@@ -111,8 +103,8 @@ void WeatherFront::defineFronts(vector<editToolInfo> fronts)
 
 
 
-
-void WeatherFront::recalculate(){
+void WeatherFront::recalculate()
+{
   //METLIBS_LOG_DEBUG("WeatherFront::recalculate");
   // Makes smooth lines
   int div=divSpline;  // div = subdivision points between to edge points
@@ -154,8 +146,6 @@ void WeatherFront::recalculate(){
       if (y > boundBox.y2){ boundBox.y2=y; }
     }
   }
-
-
 }
 
 
@@ -167,7 +157,7 @@ void WeatherFront::setState(const state s)
 }
 
 // draws the weather front
-void WeatherFront::plot(PlotOrder zorder)
+void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   if (!isEnabled())
     return;
@@ -194,78 +184,73 @@ void WeatherFront::plot(PlotOrder zorder)
       }
 
       //enable blending and set colour
-      glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+      gl->Enable(DiGLPainter::gl_BLEND);
+      gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+      gl->setColour(objectColour);
       switch (drawIndex){
       case Cold:
-        drawColds();
+        drawColds(gl);
         break;
       case Warm:
-        drawWarms();
+        drawWarms(gl);
         break;
       case Occluded:
-        drawOccluded();
+        drawOccluded(gl);
         break;
       case Stationary:
-        drawStationary();
+        drawStationary(gl);
         break;
       case TroughLine:
-        drawTroughLine(); // nothing to draw, only the line (below)
+        drawTroughLine(gl); // nothing to draw, only the line (below)
         break;
       case SquallLine:
-        drawSquallLine();
+        drawSquallLine(gl);
         break;
       case SigweatherFront:
-        if (currentState == passive) drawSigweather();
+        if (currentState == passive)
+          drawSigweather(gl);
         break;
       case ArrowLine:
-        drawArrowLine();
+        drawArrowLine(gl);
         break;
       }
 
       // for PostScript generation
-      getStaticPlot()->UpdateOutput();
+      gl->UpdateOutput();
 
       //draw line
-      if ( currentState == active || drawIndex != SigweatherFront ) {
-        glPushMatrix();
+      if (currentState == active || drawIndex != SigweatherFront) {
+        gl->PushMatrix();
 
         //draw the line, first set colour and linewidth
-        glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
-        glLineWidth(scaledlinewidth/2);
-        if (itsLinetype.stipple) {
-           glEnable(GL_LINE_STIPPLE);
-           glLineStipple(itsLinetype.factor,itsLinetype.bmap);
-        }
-        glBegin(GL_LINE_STRIP);        // Draw smooth line
-        if (spline){
+        gl->setLineStyle(objectColour, scaledlinewidth/2, itsLinetype);
+        gl->Begin(DiGLPainter::gl_LINE_STRIP);
+        if (spline) { // Draw smooth line
           for (int i=0; i<s_length; i++)
-            glVertex2f((x_s[i]),(y_s[i]));
-        } else{                        //Draw unsmoothed line
+            gl->Vertex2f((x_s[i]),(y_s[i]));
+        } else { // Draw unsmoothed line
           for (int i=0; i<end; i++)
-            glVertex2f(nodePoints[i].x,nodePoints[i].y);
+            gl->Vertex2f(nodePoints[i].x,nodePoints[i].y);
         }
-        glEnd();
-        glPopMatrix();
-        if (rubber) plotRubber();
+        gl->End();
+        gl->PopMatrix();
+        if (rubber)
+          plotRubber(gl);
       }
 
-      getStaticPlot()->UpdateOutput();
-      if (itsLinetype.stipple) {
-        glDisable(GL_LINE_STIPPLE);
-      }
+      gl->UpdateOutput();
+      gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+      gl->Disable(DiGLPainter::gl_BLEND);
 
-      glDisable(GL_BLEND);
-
-      drawNodePoints();
-      getStaticPlot()->UpdateOutput();
+      drawNodePoints(gl);
+      gl->UpdateOutput();
     }
   }
 }
 
 
-int WeatherFront::hitPoint(float x,float y){
+int WeatherFront::hitPoint(float x,float y)
+{
   //find out between which points we should split in two
   if (onLine(x,y)){
     return insert;
@@ -274,7 +259,8 @@ int WeatherFront::hitPoint(float x,float y){
 }
 
 
-bool WeatherFront::addFront(ObjectPlot * qfront){
+bool WeatherFront::addFront(ObjectPlot * qfront)
+{
   //qfront is added to front
   float x,y,xnew,ynew;
 
@@ -374,7 +360,8 @@ bool WeatherFront::showLine(float x, float y){
 
 
 /* Draw triangles on smooth line */
-void WeatherFront::drawColds(){
+void WeatherFront::drawColds(DiGLPainter* gl)
+{
   // METLIBS_LOG_DEBUG("WeatherFront::drawColds");
   // colds are blue triangles on the front
 
@@ -386,8 +373,8 @@ void WeatherFront::drawColds(){
   float s,slim,sprev = 0.0, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glLineWidth(1);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->LineWidth(1);
 
   slim= r*0.75;
   s= 0.;
@@ -455,11 +442,11 @@ void WeatherFront::drawColds(){
     ytop= (ystart+yend)*0.5 + dxs*0.6;
 
     if (ncount%2==0){
-      glBegin(GL_POLYGON);
-      glVertex2f(xstart,ystart);
-      glVertex2f(xend,yend);
-      glVertex2f(xtop,ytop);
-      glEnd();
+      gl->Begin(DiGLPainter::gl_POLYGON);
+      gl->Vertex2f(xstart,ystart);
+      gl->Vertex2f(xend,yend);
+      gl->Vertex2f(xtop,ytop);
+      gl->End();
     }
     ncount++;
 
@@ -470,15 +457,16 @@ void WeatherFront::drawColds(){
 
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
 
 /*
    Draw arch on smooth line
  */
-void WeatherFront::drawWarms(){
+void WeatherFront::drawWarms(DiGLPainter* gl)
+{
   //  METLIBS_LOG_DEBUG("WeatherFront::drawWarms");
   // warms are red arches on the front
 
@@ -500,8 +488,8 @@ void WeatherFront::drawWarms(){
     ywarmflag[j]= r*sin(j*flagstep);
   }
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glLineWidth(1);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->LineWidth(1);
 
   slim= r*0.75;
   s= 0.;
@@ -569,14 +557,14 @@ void WeatherFront::drawWarms(){
     ym= (ystart+yend)*0.5;
 
     if (ncount%2==0){
-      glPushMatrix();
-      glTranslatef(xm, ym, 0.0);
-      glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-      glBegin(GL_POLYGON);
+      gl->PushMatrix();
+      gl->Translatef(xm, ym, 0.0);
+      gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
+      gl->Begin(DiGLPainter::gl_POLYGON);
       for (j=0; j<nwarmflag; j++)
-        glVertex2f(xwarmflag[j],ywarmflag[j]);
-      glEnd();
-      glPopMatrix();
+        gl->Vertex2f(xwarmflag[j],ywarmflag[j]);
+      gl->End();
+      gl->PopMatrix();
     }
     ncount++;
 
@@ -588,16 +576,17 @@ void WeatherFront::drawWarms(){
 
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
 
 
 /*
   Draws triangles and arch on smooth line
  */
-void WeatherFront::drawOccluded(){
+void WeatherFront::drawOccluded(DiGLPainter* gl)
+{
   //  METLIBS_LOG_DEBUG("WeatherFront::drawOccluded");
 
   float r= scaledlinewidth*2*getDwidth();
@@ -619,8 +608,8 @@ void WeatherFront::drawOccluded(){
     ywarmflag[j]= r*sin(j*flagstep);
   }
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glLineWidth(1);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->LineWidth(1);
 
   slim= r*0.75;
   s= 0.;
@@ -684,9 +673,6 @@ void WeatherFront::drawOccluded(){
       yend= (y1+y2)*0.5;
     }
 
-
-
-
     ndrawflag++;
 
     if (ndrawflag==1) {
@@ -704,25 +690,25 @@ void WeatherFront::drawOccluded(){
       ym= (ystart1+yend1)*0.5;
 
       if (ncount%2==0){
-        glPushMatrix();
-        glTranslatef(xm, ym, 0.0);
-        glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-        glBegin(GL_POLYGON);
+        gl->PushMatrix();
+        gl->Translatef(xm, ym, 0.0);
+        gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
+        gl->Begin(DiGLPainter::gl_POLYGON);
         for (j=0; j<nwarmflag; j++)
-          glVertex2f(xwarmflag[j],ywarmflag[j]);
-        glEnd();
-        glPopMatrix();
+          gl->Vertex2f(xwarmflag[j],ywarmflag[j]);
+        gl->End();
+        gl->PopMatrix();
 
         dxs= xend - xstart;
         dys= yend - ystart;
         xtop= (xstart+xend)*0.5 - dys*0.6;
         ytop= (ystart+yend)*0.5 + dxs*0.6;
 
-        glBegin(GL_POLYGON);
-        glVertex2f(xstart,ystart);
-        glVertex2f(xend,yend);
-        glVertex2f(xtop,ytop);
-        glEnd();
+        gl->Begin(DiGLPainter::gl_POLYGON);
+        gl->Vertex2f(xstart,ystart);
+        gl->Vertex2f(xend,yend);
+        gl->Vertex2f(xtop,ytop);
+        gl->End();
       }
       ncount++;
 
@@ -737,15 +723,16 @@ void WeatherFront::drawOccluded(){
 
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
 
 /*
   Draws stationary front on smooth line
  */
-void WeatherFront::drawStationary(){
+void WeatherFront::drawStationary(DiGLPainter* gl)
+{
   //  METLIBS_LOG_DEBUG("WeatherFront::drawStationary");
   // colds are blue triangles on the front
 
@@ -767,8 +754,8 @@ void WeatherFront::drawStationary(){
     ywarmflag[j]= r*sin(j*flagstep);
   }
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glLineWidth(1);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->LineWidth(1);
 
   slim= r*0.5;
   s= 0.;
@@ -843,15 +830,15 @@ void WeatherFront::drawStationary(){
         xm= (xstart+xend)*0.5;
         ym= (ystart+yend)*0.5;
 
-        glColor3f(1.,0.,0.);
-        glPushMatrix();
-        glTranslatef(xm, ym, 0.0);
-        glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-        glBegin(GL_POLYGON);
+        gl->Color3f(1.,0.,0.);
+        gl->PushMatrix();
+        gl->Translatef(xm, ym, 0.0);
+        gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
+        gl->Begin(DiGLPainter::gl_POLYGON);
         for (j=0; j<nwarmflag; j++)
-          glVertex2f(xwarmflag[j],ywarmflag[j]);
-        glEnd();
-        glPopMatrix();
+          gl->Vertex2f(xwarmflag[j],ywarmflag[j]);
+        gl->End();
+        gl->PopMatrix();
 
       } else {
 
@@ -860,12 +847,12 @@ void WeatherFront::drawStationary(){
         xtop= (xstart+xend)*0.5 + dys*0.6;
         ytop= (ystart+yend)*0.5 - dxs*0.6;
 
-        glColor3f(0.,0.,1.);
-        glBegin(GL_POLYGON);
-        glVertex2f(xstart,ystart);
-        glVertex2f(xend,yend);
-        glVertex2f(xtop,ytop);
-        glEnd();
+        gl->Color3f(0.,0.,1.);
+        gl->Begin(DiGLPainter::gl_POLYGON);
+        gl->Vertex2f(xstart,ystart);
+        gl->Vertex2f(xend,yend);
+        gl->Vertex2f(xtop,ytop);
+        gl->End();
 
         ndrawflag=0;
       }
@@ -879,16 +866,17 @@ void WeatherFront::drawStationary(){
 
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
 
 
 /*
   Draws Squall line crosses on smooth line
  */
-void WeatherFront::drawSquallLine(){
+void WeatherFront::drawSquallLine(DiGLPainter* gl)
+{
   //  METLIBS_LOG_DEBUG("WeatherFront::drawSquallLine");
   // colds are blue triangles on the front
 
@@ -906,7 +894,7 @@ void WeatherFront::drawSquallLine(){
   r*=1.5;
   i=1;
 
-  glLineWidth(scaledlinewidth/2);
+  gl->LineWidth(scaledlinewidth/2);
 
   while (i<end) {
 
@@ -926,18 +914,13 @@ void WeatherFront::drawSquallLine(){
 
     if (ncount%2==0){
 
-      glPushMatrix();
-      glTranslatef(xm, ym, 0.0);
-      glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
+      gl->PushMatrix();
+      gl->Translatef(xm, ym, 0.0);
+      gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
 
-      glBegin(GL_LINES);
-      glVertex2f(-r,-r);
-      glVertex2f( r, r);
-      glVertex2f( r,-r);
-      glVertex2f(-r, r);
-      glEnd();
+      gl->drawCross(0, 0, r, true);
 
-      glPopMatrix();
+      gl->PopMatrix();
     }
     ncount++;
 
@@ -947,23 +930,24 @@ void WeatherFront::drawSquallLine(){
     s= 0.;
 
   }
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 }
 
 
 /*
   Draws arrowline
  */
-void WeatherFront::drawArrowLine(){
+void WeatherFront::drawArrowLine(DiGLPainter* gl)
+{
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
   int ncount=0;
 
   float xstart,ystart,xend,yend,xtop1,ytop1,xtop2,ytop2,dxs,dys,fraction;
   float s,slim,sprev;
-  int i,istart;
+  int i;
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
   //slim= r*4;
   slim= r*2.75;
@@ -981,7 +965,6 @@ void WeatherFront::drawArrowLine(){
       ncount++;
     }
     i++;
-    istart= i-1;
     fraction= (slim-sprev)/(s-sprev);
     xstart= x_s[i] - dxs * fraction;
     ystart= y_s[i] - dys * fraction;
@@ -1011,53 +994,23 @@ void WeatherFront::drawArrowLine(){
     xtop2= (xstart+xend)*0.5 + dys*0.6;
     ytop2= (ystart+yend)*0.5 - dxs*0.6;
 
-  //METLIBS_LOG_DEBUG("********** ncount =   " << ncount);
-    /*   glPointSize(4.0);
-  	//glLoadIdentity();
-	glColor3f(1.0, 0.0, 0.0); //red 
-	// Draw filtered points
-	glEnable(GL_POINT_SMOOTH);
-	glBegin(GL_POINTS);
-		glVertex2f(xstart,ystart);
-	glEnd();
-	glColor3f(0.0, 0.0, 1.0);     //blue
-	// Draw filtered points
-	glEnable(GL_POINT_SMOOTH);
-	glBegin(GL_POINTS);
-		glVertex2f(xtop1,ytop1);
-		glVertex2f(xtop2,ytop2);
-	glEnd();
-
-
-  	glColor3f(1.0, 0.75, 0.0);   //orange
-	// Draw filtered points
-	glEnable(GL_POINT_SMOOTH);
-	glBegin(GL_POINTS);
-		//glVertex2f(x_s[s_length-1], y_s[s_length-1]);
-		glVertex2f(xend,yend);
-	glEnd();*/
-	//glLoadIdentity();
     if (ncount > 0) {
-      glBegin(GL_POLYGON);
-      glVertex2f(x_s[s_length-1], y_s[s_length-1]);
-      glVertex2f(xtop1,ytop1);
-      glVertex2f(xtop2,ytop2);
-      glEnd();
+      gl->Begin(DiGLPainter::gl_POLYGON);
+      gl->Vertex2f(x_s[s_length-1], y_s[s_length-1]);
+      gl->Vertex2f(xtop1,ytop1);
+      gl->Vertex2f(xtop2,ytop2);
+      gl->End();
     }
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
-
-
-
-
 
 /*
   Draws TroughLine
  */
-void WeatherFront::drawTroughLine(){
+void WeatherFront::drawTroughLine(DiGLPainter* gl)
+{
   //  METLIBS_LOG_DEBUG("WeatherFront::drawTroughLine");
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
@@ -1067,8 +1020,8 @@ void WeatherFront::drawTroughLine(){
   float s,slim,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
 
- // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glLineWidth(scaledlinewidth);
+ // gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->LineWidth(scaledlinewidth);
 
   slim= r*0.75;
   s= sprev= dys= dxs= 0.;
@@ -1084,13 +1037,8 @@ void WeatherFront::drawTroughLine(){
     //METLIBS_LOG_DEBUG("********** s1 =   " << s);
       i++;
     }
-    if (s<slim) break;
-    METLIBS_LOG_DEBUG("********** s1 =   " << s);
-    METLIBS_LOG_DEBUG("********** i1 =   " << i);
-    METLIBS_LOG_DEBUG("********** dxs1 =   " << dxs);
-    METLIBS_LOG_DEBUG("********** dys1 =   " << dys);
-    METLIBS_LOG_DEBUG("********** slim =   " << slim);
-    METLIBS_LOG_DEBUG("********** sprev =   " << sprev);
+    if (s<slim)
+      break;
     i--;
     istart= i-1;
     fraction= (slim-sprev)/(s-sprev);
@@ -1106,8 +1054,8 @@ void WeatherFront::drawTroughLine(){
       s= sqrtf(dxs*dxs+dys*dys);
       i++;
     }
-    if (s<slim) break;
-    //METLIBS_LOG_DEBUG("********** i2 =   " << i);
+    if (s<slim)
+      break;
 
     i--;
     if (istart==i-1) {
@@ -1147,28 +1095,17 @@ void WeatherFront::drawTroughLine(){
     ytop2= (ystart+yend)*0.5 - dxs*0.6;
 
     if (ncount%2==0){
-    //METLIBS_LOG_DEBUG("********** ncount =   " << ncount);
-      /*glBegin(GL_POLYGON);
-      glVertex2f(xstart,ystart);
-      glVertex2f(xend,yend);
-      glVertex2f(xtop,ytop);
-      glEnd();*/
-//	glColor3f(1.0, 0.75, 0.0);   //orange
-//
       if (ncount%4==0) {
-         glBegin(GL_LINES);
-         //glVertex2f(xstart,ystart);
-         glVertex2f(xend,yend);
-         glVertex2f(xtop1,ytop1);
-         glEnd();
-      } else { 
-         glBegin(GL_LINES);
-         //glVertex2f(xstart,ystart);
-         glVertex2f(xend,yend);
-         glVertex2f(xtop2,ytop2);
-         glEnd();
+         gl->Begin(DiGLPainter::gl_LINES);
+         gl->Vertex2f(xend,yend);
+         gl->Vertex2f(xtop1,ytop1);
+         gl->End();
+      } else {
+         gl->Begin(DiGLPainter::gl_LINES);
+         gl->Vertex2f(xend,yend);
+         gl->Vertex2f(xtop2,ytop2);
+         gl->End();
       }
-
     }
     ncount++;
 
@@ -1179,15 +1116,11 @@ void WeatherFront::drawTroughLine(){
 
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
+}
 
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-}   //end of drawing TroughLine
-
-
-
-void WeatherFront::flip(){
+void WeatherFront::flip()
+{
   int end = nodePoints.size();
   for (int j=0; j < end/2; j++){
     float x=nodePoints[j].x;
@@ -1203,8 +1136,8 @@ void WeatherFront::flip(){
   recalculate();
 }
 
-
-void WeatherFront::setType(int ty){
+void WeatherFront::setType(int ty)
+{
   if (-1<ty && ty<int(allFronts.size()))
     type=ty;
   else if (ty==int(allFronts.size()))
@@ -1219,14 +1152,12 @@ void WeatherFront::setType(int ty){
   setSpline(allFronts[type].spline);
   setLineType(allFronts[type].linetype);
   setLineWidth(defaultLineWidth + allFronts[type].sizeIncrement);
-
 }
 
-bool WeatherFront::setType(std::string tystring){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront::setType(std::string)=" << tystring <<  endl);
-#endif
-  if (frontTypes.find(tystring)!=frontTypes.end()){
+bool WeatherFront::setType(std::string tystring)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(tystring));
+  if (frontTypes.find(tystring)!=frontTypes.end()) {
     type = frontTypes[tystring];
     setType(type);
     return true;
@@ -1235,8 +1166,9 @@ bool WeatherFront::setType(std::string tystring){
 }
 
 
-bool WeatherFront::setSpline(bool s){
-  if (spline!=s){
+bool WeatherFront::setSpline(bool s)
+{
+  if (spline!=s) {
     spline=s;
     recalculate();
     return true;
@@ -1258,7 +1190,8 @@ string WeatherFront::writeTypeString()
 
 
 
-void WeatherFront::drawSigweather(){
+void WeatherFront::drawSigweather(DiGLPainter* gl)
+{
   //METLIBS_LOG_DEBUG("WeatherFront::drawSigweather");
   recalculate();
   first=true;
@@ -1283,7 +1216,7 @@ void WeatherFront::drawSigweather(){
   if (x_s != 0)  delete[] x_s;
   if (y_s != 0)  delete[] y_s;
   x_s= y_s= 0;
-  glLineWidth(siglinewidth);
+  gl->LineWidth(siglinewidth);
   for (int i = 0; i < npoints-1; i++){
     float deltay,deltax;
     deltay = yplot[i+1]-yplot[i];
@@ -1298,14 +1231,14 @@ void WeatherFront::drawSigweather(){
     }
     float xx1=xplot[i]+deltax/2;
     float yy1=yplot[i]+deltay/2;
-    glPushMatrix();
-    glTranslatef(xx1, yy1, 0.0);
-    glRotatef(atan2(deltay,deltax)*RAD_TO_DEG,0.0,0.0,1.0);
-    glBegin(GL_LINE_STRIP);
+    gl->PushMatrix();
+    gl->Translatef(xx1, yy1, 0.0);
+    gl->Rotatef(atan2(deltay,deltax)*RAD_TO_DEG,0.0,0.0,1.0);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (int j=0; j<nflag; j++)
-      glVertex2f(xflag[j],yflag[j]);
-    glEnd();
-    glPopMatrix();
+      gl->Vertex2f(xflag[j],yflag[j]);
+    gl->End();
+    gl->PopMatrix();
   }
   if (xplot!=0) delete[] xplot;
   if (yplot!=0) delete[] yplot;
@@ -1314,7 +1247,8 @@ void WeatherFront::drawSigweather(){
 }
 
 
-bool WeatherFront::smooth(){
+bool WeatherFront::smooth()
+{
   //METLIBS_LOG_DEBUG("WeatherFront::smoth");
   //produces a curve with evenly spaced points
   float totalLength=0;

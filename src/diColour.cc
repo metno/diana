@@ -51,7 +51,8 @@ vector<Colour::ColourInfo> Colour::colours;
 Colour::Colour(const values& va) : v(va){
 }
 
-Colour::Colour(const unsigned long int hexv){
+Colour::Colour(unsigned long int hexv)
+{
   unsigned long int h= hexv;
 
   unsigned char a= 255;
@@ -88,61 +89,68 @@ Colour::Colour(const std::string& name_)
     name = lname;
   } else {
     set(atoi(vstr[0].c_str()),atoi(vstr[1].c_str()),
-	atoi(vstr[2].c_str()),atoi(vstr[3].c_str()));
+        atoi(vstr[2].c_str()),atoi(vstr[3].c_str()));
     name = lname;
   }
 }
 
-Colour::Colour(const unsigned char r, const unsigned char g,
-	       const unsigned char b, const unsigned char a){
+Colour::Colour(unsigned char r, unsigned char g, unsigned char b,  unsigned char a)
+{
   set(r,g,b,a);
-  name =miutil::from_number(int(r)) +":";
-  name+=miutil::from_number(int(g)) +":";
-  name+=miutil::from_number(int(b)) +":";
-  name+=miutil::from_number(int(a));
+  generateName();
 }
 
-// Copy constructor
-Colour::Colour(const Colour &rhs){
-  // elementwise copy
+Colour Colour::fromF(float r, float g, float b,  float a)
+{
+  Colour c;
+  c.setF(r,g,b,a);
+  c.generateName();
+  return c;
+}
+
+Colour::Colour(const Colour &rhs)
+{
   memberCopy(rhs);
 }
 
-// Destructor
-Colour::~Colour(){
+void Colour::generateName()
+{
+  name =miutil::from_number(R()) +":";
+  name+=miutil::from_number(G()) +":";
+  name+=miutil::from_number(B()) +":";
+  name+=miutil::from_number(A());
 }
 
-// Assignment operator
-Colour& Colour::operator=(const Colour &rhs){
+Colour& Colour::operator=(const Colour &rhs)
+{
   if (this != &rhs)
-    // elementwise copy
     memberCopy(rhs);
-
   return *this;
 }
 
-// Equality operator
-bool Colour::operator==(const Colour &rhs) const{
-  return v==rhs.v;
+bool Colour::operator==(const Colour &rhs) const
+{
+  return v == rhs.v;
 }
 
-void Colour::memberCopy(const Colour& rhs){
-  // copy members
+void Colour::memberCopy(const Colour& rhs)
+{
   v= rhs.v;
   name= rhs.name;
   colourindex= rhs.colourindex;
 }
 
 void Colour::define(const std::string& name_,
-		    const unsigned char r, const unsigned char g,
-		    const unsigned char b, const unsigned char a){
+    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+{
   Colour c(r,g,b,a);
   std::string lname= miutil::to_lower(name_);
   c.name= lname;
   cmap[lname]= c;
 }
 
-void Colour::define(const std::string name_, const values& va){
+void Colour::define(const std::string name_, const values& va)
+{
   Colour c(va);
   std::string lname= miutil::to_lower(name_);
   c.name= lname;
@@ -151,7 +159,6 @@ void Colour::define(const std::string name_, const values& va){
 
 void Colour::defineColourFromString(const std::string& rgba_string)
 {
-
   unsigned char r,g,b,a;
   vector<std::string> stokens = miutil::split(rgba_string, ":");
   if (stokens.size()>2 ) {
@@ -178,10 +185,10 @@ void Colour::setindex(const std::string& name_, const unsigned char index)
 void Colour::addColourInfo(const ColourInfo& ci)
 {
   if (not ci.name.empty()) {
-    for ( unsigned int q=0; q<colours.size(); q++ )
-      if ( colours[q].name == ci.name ){
-	colours[q] = ci;
-	return;
+    for (unsigned int q=0; q<colours.size(); q++)
+      if (colours[q].name == ci.name) {
+        colours[q] = ci;
+        return;
       }
   }
   colours.push_back(ci);
@@ -196,7 +203,8 @@ Colour Colour::contrastColour() const
     return Colour(255, 255, 255);
 }
 
-ostream& operator<<(ostream& out, const Colour& rhs){
+ostream& operator<<(ostream& out, const Colour& rhs)
+{
   return out <<
     " name: "  << rhs.name <<
     " red: "   << setw(3) << setfill('0') << int(rhs.v.rgba[0]) <<

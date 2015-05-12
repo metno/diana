@@ -33,6 +33,10 @@
 
 #include "diLocationPlot.h"
 
+#include "diGLPainter.h"
+
+#include <QPolygonF>
+
 #include <cmath>
 #include <set>
 
@@ -263,7 +267,7 @@ std::string LocationPlot::find(int x, int y)
 }
 
 
-void LocationPlot::plot(PlotOrder zorder)
+void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
   if (zorder != LINES || !isEnabled())
@@ -278,66 +282,51 @@ void LocationPlot::plot(PlotOrder zorder)
   }
 
   Colour   c1= Colour(locdata.colour);
-  Colour   c2= Colour(locdata.colourSelected);
   float    w1= locdata.linewidth;
-  float    w2= locdata.linewidthSelected;
   Linetype l1= Linetype(locdata.linetype);
-  Linetype l2= Linetype(locdata.linetypeSelected);
+  if (c1==getStaticPlot()->getBackgroundColour())
+    c1= getStaticPlot()->getBackContrastColour();
 
-  if (c1==getStaticPlot()->getBackgroundColour()) c1= getStaticPlot()->getBackContrastColour();
-  if (c2==getStaticPlot()->getBackgroundColour()) c2= getStaticPlot()->getBackContrastColour();
+  gl->setLineStyle(c1, w1, l1);
 
-  glColor3ubv(c1.RGB());
-  glLineWidth(w1);
-  if (l1.stipple) {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(l1.factor,l1.bmap);
-  }
-
-  int lselected= -1;
+  int lselected = -1;
 
   const int numLines= locinfo.size();
   for (int l=0; l<numLines; l++) {
     if (locdata.elements[l].name!=selectedName) {
-      drawLineOrPoint(l);
+      drawLineOrPoint(gl, l);
     } else {
-      lselected= l;
+      lselected = l;
     }
   }
-
-  getStaticPlot()->UpdateOutput();
-  glDisable(GL_LINE_STIPPLE);
+  gl->UpdateOutput();
 
   if (lselected>=0) {
-    glColor3ubv(c2.RGB());
-    glLineWidth(w2);
-    if (l2.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(l2.factor,l2.bmap);
-    }
-    drawLineOrPoint(lselected);
-    getStaticPlot()->UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    Colour   c2= Colour(locdata.colourSelected);
+    float    w2= locdata.linewidthSelected;
+    Linetype l2= Linetype(locdata.linetypeSelected);
+    if (c2==getStaticPlot()->getBackgroundColour())
+      c2= getStaticPlot()->getBackContrastColour();
+    gl->setLineStyle(c2, w2, l2);
+
+    drawLineOrPoint(gl, lselected);
+    gl->UpdateOutput();
   }
+
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 }
 
-
-void LocationPlot::drawLineOrPoint(int l)
+void LocationPlot::drawLineOrPoint(DiGLPainter* gl, int l)
 {
   const int n1 = locinfo[l].beginpos, n2= locinfo[l].endpos;
   if ((n2 - n1) > 1) {
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (int n=n1; n<n2; n++)
-      glVertex2f(px[n],py[n]);
-    glEnd();
+      gl->Vertex2f(px[n],py[n]);
+    gl->End();
   } else {
     const float size = getStaticPlot()->getPlotSize().width() * 0.004;
-    glBegin(GL_LINES);
-    glVertex2f(px[n1]-size,py[n1]);
-    glVertex2f(px[n1]+size,py[n1]);
-    glVertex2f(px[n1],py[n1]-size);
-    glVertex2f(px[n1],py[n1]+size);
-    glEnd();
+    gl->drawCross(px[n1],py[n1], size);
   }
 }
 

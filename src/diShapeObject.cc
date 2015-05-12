@@ -31,15 +31,14 @@
 #include "config.h"
 #endif
 
-#include <diShapeObject.h>
+#include "diShapeObject.h"
 
-#include <diColourShading.h>
-#include <diTesselation.h>
-#include <diFontManager.h>
+#include "diColourShading.h"
+#include "diGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
-#include <GL/glu.h>
+#include <QPolygonF>
 
 #define MILOGGER_CATEGORY "diana.ShapeObject"
 #include <miLogger/miLogging.h>
@@ -72,7 +71,6 @@ ShapeObject::~ShapeObject()
   }
 }
 
-
 ShapeObject::ShapeObject(const ShapeObject &rhs)
   : ObjectPlot(rhs)
 {
@@ -81,9 +79,8 @@ ShapeObject::ShapeObject(const ShapeObject &rhs)
 ShapeObject& ShapeObject::operator=(const ShapeObject &rhs)
 {
   METLIBS_LOG_SCOPE();
-  if (this == &rhs)
-    return *this;
-  memberCopy(rhs);
+  if (this != &rhs)
+    memberCopy(rhs);
   return *this;
 }
 
@@ -127,9 +124,9 @@ bool ShapeObject::changeProj(const Area& fromArea)
 
     for (int j=0; j<nVertices; j++) {
       tx[j] = orig_shapes[i]->padfX[j];
-	  // an ugly fix to avoid problem with -180.0, 180.0
-	  if (tx[j] == -180.0)
-		tx[j] = -179.999;
+      // an ugly fix to avoid problem with -180.0, 180.0
+      if (tx[j] == -180.0)
+        tx[j] = -179.999;
       ty[j] = orig_shapes[i]->padfY[j];
     }
     success = getStaticPlot()->GeoToMap(nVertices, tx, ty);
@@ -144,11 +141,11 @@ bool ShapeObject::changeProj(const Area& fromArea)
     tx = new float[2];
     ty = new float[2];
     tx[0] = orig_shapes[i]->dfXMin;
-	if (tx[0] == -180.0)
-		tx[0] = -179.999;
+    if (tx[0] == -180.0)
+      tx[0] = -179.999;
     tx[1] = orig_shapes[i]->dfXMax;
-	if (tx[1] == -180.0)
-		tx[1] = -179.999;
+    if (tx[1] == -180.0)
+      tx[1] = -179.999;
     ty[0] = orig_shapes[i]->dfYMin;
     ty[1] = orig_shapes[i]->dfYMax;
     success2 = getStaticPlot()->GeoToMap(nVertices, tx, ty);
@@ -160,9 +157,6 @@ bool ShapeObject::changeProj(const Area& fromArea)
     delete[] tx;
     delete[] ty;
   }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("done!");
-#endif
   return (success && success2);
 }
 
@@ -173,9 +167,8 @@ bool ShapeObject::read(std::string filename)
 
 bool ShapeObject::read(std::string filename, bool convertFromGeo)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ShapeObject::read(" << filename << "," << convertFromGeo);
-#endif
+  METLIBS_LOG_SCOPE(filename << "," << convertFromGeo);
+
   // shape reading
   SHPHandle hSHP;
   int nShapeType, nEntities, i;
@@ -192,8 +185,8 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
   for (i = 0; i < nEntities; i++) {
     SHPObject *psShape;
     psShape = SHPReadObject(hSHP, i);
-	orig_shapes.push_back(psShape);
-	psShape = SHPReadObject(hSHP, i);
+    orig_shapes.push_back(psShape);
+    psShape = SHPReadObject(hSHP, i);
     if (convertFromGeo) {
       float *tx;
       float *ty;
@@ -202,9 +195,9 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
       ty = new float[nVertices];
       for (int j=0; j<nVertices; j++) {
         tx[j] = psShape->padfX[j];
-		// an ugly fix to avoid problem with -180.0, 180.0
-		if (tx[j] == -180.0)
-			tx[j] = -179.999;
+        // an ugly fix to avoid problem with -180.0, 180.0
+        if (tx[j] == -180.0)
+          tx[j] = -179.999;
         ty[j] = psShape->padfY[j];
       }
       getStaticPlot()->GeoToMap(nVertices, tx, ty);
@@ -217,11 +210,11 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
       tx = new float[2];
       ty = new float[2];
       tx[0] = psShape->dfXMin;
-	  if (tx[0] == -180.0)
-		tx[0] = -179.999;
+      if (tx[0] == -180.0)
+        tx[0] = -179.999;
       tx[1] = psShape->dfXMax;
-	  if (tx[1] == -180.0)
-		tx[1] = -179.999;
+      if (tx[1] == -180.0)
+        tx[1] = -179.999;
       ty[0] = psShape->dfYMin;
       ty[1] = psShape->dfYMax;
       nVertices = 2;
@@ -255,35 +248,30 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
   return (idbf == 0);
 }
 
-void ShapeObject::plot(PlotOrder porder)
+void ShapeObject::plot(DiGLPainter* gl, PlotOrder porder)
 {
   makeColourmap();
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   int n=shapes.size();
   for (int i=0; i<n; i++) {
     if (shapes[i]->nSHPType!=5)
       continue;
+    Colour colour;
     if (intcolourmapMade) {
       int descr=dbfIntDescr[shapes[i]->nShapeId];
-      glColor4ubv(intcolourmap[descr].RGBA());
+      colour = intcolourmap[descr];
     } else if (doublecolourmapMade) {
       double descr=dbfDoubleDescr[shapes[i]->nShapeId];
-      glColor4ubv(doublecolourmap[descr].RGBA());
+      colour = doublecolourmap[descr];
     } else if (stringcolourmapMade) {
       std::string descr=dbfStringDescr[shapes[i]->nShapeId];
-      glColor4ubv(stringcolourmap[descr].RGBA());
+      colour = stringcolourmap[descr];
     }
-    //
-    glLineWidth(2);
+    gl->setLineStyle(colour, 2);
+
     int nparts=shapes[i]->nParts;
-    int *countpos= new int[nparts];//# of positions for each part
     int nv= shapes[i]->nVertices;
-    GLdouble *gldata= new GLdouble[nv*3];
-    int j=0;
     for (int jpart=0; jpart<nparts; jpart++) {
-      int nstop, ncount=0;
-      int nstart=shapes[i]->panPartStart[jpart];
+      int nstop, nstart=shapes[i]->panPartStart[jpart];
       if (jpart==nparts-1)
         nstop=nv;
       else
@@ -291,85 +279,67 @@ void ShapeObject::plot(PlotOrder porder)
       if (shapes[i]->padfX[0] == shapes[i]->padfX[nstop-1]
           && shapes[i]->padfY[0] == shapes[i]->padfY[nstop-1])
         nstop--;
-      for (int k = nstart; k < nstop; k++) {
-        gldata[j] = shapes[i]->padfX[k];
-        gldata[j+1]= shapes[i]->padfY[k];
-        gldata[j+2]= 0.0;
-        j+=3;
-        ncount++;
-      }
-      countpos[jpart]=ncount;
+      QPolygonF polygon;
+      for (int k = nstart; k < nstop; k++)
+        polygon << QPointF(shapes[i]->padfX[k], shapes[i]->padfY[k]);
+      gl->drawPolygon(polygon);
     }
-    beginTesselation();
-    tesselation(gldata, nparts, countpos);
-    endTesselation();
-    delete[] gldata;
   }
 }
 
-bool ShapeObject::plot(Area area, // current area
-		   double gcd, // size of plotarea in m
-		   bool land, // plot triangles
-		   bool cont, // plot contour-lines
-		   bool keepcont, // keep contourlines for later
-                   bool special, // special case, when plotting symbol instead of a point
-                   int symbol, // symbol number to be plotted
-                   std::string dbfcol, // column name in dfb file, text to be plotted
- 		   GLushort linetype, // contour line type
-		   float linewidth, // contour linewidth
-		   const unsigned char* lcolour, // contour linecolour
-		   const unsigned char* fcolour, // triangles fill colour
-		   const unsigned char* bcolour)
+bool ShapeObject::plot(DiGLPainter* gl,
+    const Area& area, // current area
+    double gcd, // size of plotarea in m
+    bool land, // plot triangles
+    bool cont, // plot contour-lines
+    bool keepcont, // keep contourlines for later
+    bool special, // special case, when plotting symbol instead of a point
+    int symbol, // symbol number to be plotted
+    const std::string& dbfcol, // column name in dfb file, text to be plotted
+    DiGLPainter::GLushort linetype, // contour line type
+    float linewidth, // contour linewidth
+    const unsigned char* lcolour, // contour linecolour
+    const unsigned char* fcolour, // triangles fill colour
+    const unsigned char* bcolour)
 {
-	float x1, y1, x2, y2;
-    int symbol_rad = 0; 
-	//GLenum errCode;
-    //const GLubyte *errString;
-	float scalefactor = gcd/7000000;
-	int fontSizeToPlot = int(2/scalefactor);
+  float x1, y1, x2, y2;
+  int symbol_rad = 0;
+  float scalefactor = gcd/7000000;
+  int fontSizeToPlot = int(2/scalefactor);
 
-    //also scale according to windowheight and width (standard is 500)
-    scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
-    //METLIBS_LOG_DEBUG("scalefactor =" <<scalefactor); 
-    fontSizeToPlot = int(fontSizeToPlot*scalefactor);
-    //symbol_rad = int(symbol * scalefactor);
-    symbol_rad = symbol;
-    //METLIBS_LOG_DEBUG("symbol_rad = " << symbol_rad); 
-    //METLIBS_LOG_DEBUG("fontSizeToPlot = " << fontSizeToPlot); 
+  //also scale according to windowheight and width (standard is 500)
+  scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
+  fontSizeToPlot = int(fontSizeToPlot*scalefactor);
+  symbol_rad = symbol;
 
-	x1= area.R().x1 -1.;
-	x2= area.R().x2 +1.;
-	y1= area.R().y1 -1.;
-	y2= area.R().y2 +1.;
+  x1= area.R().x1 -1.;
+  x2= area.R().x2 +1.;
+  y1= area.R().y1 -1.;
+  y2= area.R().y2 +1.;
 
-	float sizeWX, sizeWY;
+  float sizeWX, sizeWY;
 
-	sizeWX = x2 - x1;
-	sizeWY = y2 - y1;
+  sizeWX = x2 - x1;
+  sizeWY = y2 - y1;
 
-	// Compute the smallest visible part of map (approx 1/1000).
-	// the points should be reduced for this and the polygon should not be filled
-	float dX = sizeWX * .001;
-	float dY = sizeWY * .001;
+  // Compute the smallest visible part of map (approx 1/1000).
+  // the points should be reduced for this and the polygon should not be filled
+  float dX = sizeWX * .001;
+  float dY = sizeWY * .001;
 
-	// Compute the smallest visible part of map (approx 1/50).
-	// that should not be filled
-	float dsX = sizeWX * .01;
-	float dsY = sizeWY * .01;
+  // Compute the smallest visible part of map (approx 1/50).
+  // that should not be filled
+  float dsX = sizeWX * .01;
+  float dsY = sizeWY * .01;
 
 #ifdef DEBUGPRINT
-	METLIBS_LOG_DEBUG("x1=" << x1);
-	METLIBS_LOG_DEBUG("x2=" << x2);
-	METLIBS_LOG_DEBUG("y1=" << y1);
-	METLIBS_LOG_DEBUG("y2=" << y2);
-
-	METLIBS_LOG_DEBUG("sizeWX: " << sizeWX << " dX: " << dX); 
-	METLIBS_LOG_DEBUG("sizeWY: " << sizeWY << " dY: " << dY); 
+  METLIBS_LOG_DEBUG(LOGVAL(x1) << LOGVAL(x2) << LOGVAL(y1) << LOGVAL(y2));
+  METLIBS_LOG_DEBUG(LOGVAL(sizeWX) << LOGVAL(dX) << LOGVAL(sizeWY) << LOGVAL(dY));
 #endif
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    /* from shapefil.h */
-	/* -------------------------------------------------------------------- */
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  /* from shapefil.h */
+/* -------------------------------------------------------------------- */
 /*      Shape types (nSHPType)                                          */
 /* -------------------------------------------------------------------- */
 /*
@@ -401,496 +371,478 @@ bool ShapeObject::plot(Area area, // current area
 #define SHPP_FIRSTRING  4
 #define SHPP_RING       5
 */
-    // Retrieving text for plotting from the dbf file and col=dbfcol
-    vector<std::string> tmpDesc=dbfPlotDesc[dbfcol];
+  // Retrieving text for plotting from the dbf file and col=dbfcol
+  vector<std::string> tmpDesc=dbfPlotDesc[dbfcol];
 
-	int n=shapes.size();
+  int n=shapes.size();
 #ifdef DEBUGPRINT
-	METLIBS_LOG_DEBUG("***Map contains " << n <<  " shapes. ");
+  METLIBS_LOG_DEBUG("***Map contains " << n <<  " shapes. ");
 #endif
-	for (int i=0; i<n; i++) {
-		// Debug......
-		//if (i != 13) continue;
-		if ((shapes[i]->nSHPType!=SHPT_POLYGON)&&(shapes[i]->nSHPType!=SHPT_ARC)&&(shapes[i]->nSHPType!=SHPT_POINT)){
-			METLIBS_LOG_ERROR("shapes["<<i<<"]=" << shapes[i]->nSHPType << " unsupported shape type!");
-			continue;
-		}
-		// Check if shape is outside
-		if((((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && (shapes[i]->dfYMin > y2))
-		    || (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
+  for (int i=0; i<n; i++) {
+    // Debug......
+    //if (i != 13) continue;
+    if ((shapes[i]->nSHPType!=SHPT_POLYGON)&&(shapes[i]->nSHPType!=SHPT_ARC)&&(shapes[i]->nSHPType!=SHPT_POINT)){
+      METLIBS_LOG_ERROR("shapes["<<i<<"]=" << shapes[i]->nSHPType << " unsupported shape type!");
+      continue;
+    }
+    // Check if shape is outside
+    if((((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && (shapes[i]->dfYMin > y2))
+        || (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
 #ifdef DEBUGPRINT
-				METLIBS_LOG_DEBUG("minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax);
-				METLIBS_LOG_DEBUG("x1: " << x1 << " x2: " << x2 << " y1: " << y1 << " y2: " << y2);
-				METLIBS_LOG_DEBUG("shapes["<<i<<"] is outside");
+      METLIBS_LOG_DEBUG("minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax);
+      METLIBS_LOG_DEBUG("x1: " << x1 << " x2: " << x2 << " y1: " << y1 << " y2: " << y2);
+      METLIBS_LOG_DEBUG("shapes["<<i<<"] is outside");
 #endif
-				continue;
-		}
+      continue;
+    }
 
-		// Check if shape is to small
-		float xSize = fabs(shapes[i]->dfXMax - shapes[i]->dfXMin);
-		float ySize = fabs(shapes[i]->dfYMax - shapes[i]->dfYMin);
-		// there is no use reducing a line map
-		if (shapes[i]->nSHPType==SHPT_POLYGON)
-		{
-			if ((xSize < dY) && (ySize < dY))
-			{
+    // Check if shape is to small
+    float xSize = fabs(shapes[i]->dfXMax - shapes[i]->dfXMin);
+    float ySize = fabs(shapes[i]->dfYMax - shapes[i]->dfYMin);
+    // there is no use reducing a line map
+    if (shapes[i]->nSHPType==SHPT_POLYGON)
+    {
+      if ((xSize < dY) && (ySize < dY))
+      {
 #ifdef DEBUGPRINT
-				METLIBS_LOG_DEBUG("shapes["<<i<<"] is to small, xSize: " << xSize << " ySize: " << ySize << " dy: " << dY << " dx: " << dX);
+        METLIBS_LOG_DEBUG("shapes["<<i<<"] is to small, xSize: " << xSize << " ySize: " << ySize << " dy: " << dY << " dx: " << dX);
 #endif
-				continue;
-			}
-		}
-		int nparts=shapes[i]->nParts;
-		int nv= shapes[i]->nVertices;
-		/// CHECK IF MAP HAVE NO PARTS, the point map has no parts
-		// Here we have a special case to take care of...
-		if (shapes[i]->nSHPType==SHPT_POINT)
-		{
-			if (nparts == 0)
-			{
-                           if (special==true && nv==1){
-                               float cw,ch;
-                               std::string astring = " "+tmpDesc[i];
-                               getStaticPlot()->getFontPack()->set(poptions.fontname,"NORMAL",fontSizeToPlot); //getStaticPlot()->getFontPack()->set("Arial","BOLD",8);
-                               getStaticPlot()->getFontPack()->getStringSize(astring.c_str(),cw,ch);
-                               //getStaticPlot()->getFontPack()->drawStr(astring.c_str(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
-                               getStaticPlot()->getFontPack()->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
-                               //glDrawPixels((GLint)10, (GLint)10,GL_RGBA, GL_UNSIGNED_BYTE,cimage);
+        continue;
+      }
+    }
+    int nparts=shapes[i]->nParts;
+    int nv= shapes[i]->nVertices;
+    /// CHECK IF MAP HAVE NO PARTS, the point map has no parts
+    // Here we have a special case to take care of...
+    if (shapes[i]->nSHPType==SHPT_POINT)
+    {
+      if (nparts == 0)
+      {
+        if (special==true && nv==1){
+          float cw,ch;
+          std::string astring = " "+tmpDesc[i];
+          gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
+          gl->getTextSize(astring,cw,ch);
+          gl->drawText("SSS", shapes[i]->padfX[0], shapes[i]->padfY[0], 0.0);
 
-                               glLineWidth(2);
-			       glColor4ubv(lcolour);
-                               glBegin(GL_POLYGON);
-                                     
-                               GLfloat xc,yc;
-                               GLfloat radius=symbol_rad;          //16271;
-                               for(int j=0;j<150;j++){
-                                   xc = radius*cos(j*2*M_PI/150.0);
-                                   yc = radius*sin(j*2*M_PI/150.0);
-                                   glVertex2f(shapes[i]->padfX[0]+xc,shapes[i]->padfY[0]+yc);
-                               }
-                               glEnd(); 
-                           }
-                           else {
-				// set the point size
-				//glPointSize(linewidth*10);
-				glEnable(GL_POINT_SMOOTH);
-				glPointSize(linewidth*2);
-				glColor4ubv(lcolour);
-				// not so fast but accurate
-						
-				glBegin(GL_POINTS);
-				// just display the point(s)
-				for (int k = 0; k < nv; k++) {
-					glVertex2f(shapes[i]->padfX[k],shapes[i]->padfY[k]);
-	
-                        	}
-					
-				glEnd();
-				glDisable(GL_POINT_SMOOTH);
-                            }
-			}
-		}
+          gl->Color4ubv(lcolour);
+          gl->LineWidth(2);
+          gl->fillCircle(shapes[i]->padfX[0], shapes[i]->padfY[0], symbol_rad);
+        }
+        else {
+          gl->Color4ubv(lcolour);
 
-		int *countpos= new int[nparts];
-		//# of positions for each part
-		int *small= new int[nparts];
-		// should be set to 1 if part should not be filled ?!
-/*		
+          // just display the point(s) as circles
+          for (int k = 0; k < nv; k++) {
+            gl->fillCircle(shapes[i]->padfX[0], shapes[i]->padfY[0], linewidth*2);
+          }
+        }
+      }
+    }
+
+    int *countpos= new int[nparts];
+    //# of positions for each part
+    int *small= new int[nparts];
+    // should be set to 1 if part should not be filled ?!
+/*
+  #ifdef DEBUGPRINT
+  METLIBS_LOG_DEBUG("shapes["<<i<<"] contains " << nv << " vertices and " << nparts << " parts. ");
+  #endif*/
+    DiGLPainter::GLdouble *gldata= new DiGLPainter::GLdouble[nv*3];
+    DiGLPainter::GLdouble *pdata= new DiGLPainter::GLdouble[nv*2];
+    int j=0;
+    int pj=0;
+    bool visible = false;
+    for (int jpart=0; jpart<nparts; jpart++) {
+      visible = false;
+      int nstop, ncount=0;
+
+      // Get the starting point of this part (shapeobject consists of several parts)
+      int nstart=shapes[i]->panPartStart[jpart];
+
+      // Get the end point
+      if (jpart==nparts-1)
+        nstop=nv;
+      else
+        nstop=shapes[i]->panPartStart[jpart+1];
+
+      float minX=shapes[i]->padfX[nstart];
+      float minY=shapes[i]->padfY[nstart];
+      float maxX=shapes[i]->padfX[nstart];
+      float maxY=shapes[i]->padfY[nstart];
+
+      // Compute max and min for part
+      for (int k = nstart + 1; k < nstop; k++) {
+        if(shapes[i]->padfY[k] > maxY)
+          maxY=shapes[i]->padfY[k];
+        if(shapes[i]->padfY[k] < minY)
+          minY=shapes[i]->padfY[k];
+        if(shapes[i]->padfX[k] > maxX)
+          maxX = shapes[i]->padfX[k];
+        if(shapes[i]->padfX[k] < minX)
+          minX =shapes[i]->padfX[k];
+      }
+
+      // Reduce part that is to SMALL. Skipp it when filling polygon
+      // Compute size of plotting area and part
+      float sizepX, sizepY;
+
+      sizepX = maxX - minX;
+      sizepY = maxY - minY;
+
+      // Skip i less than .1%
+      /* some maps dont work well so we must skip this */
+
+      bool to_small = false;
+      small[jpart] = 0;
+      if ((sizepX < dX) && (sizepY < dY)) {
+        to_small = true;
+        small[jpart]=1;
+      }
+
+      int pv = 0;
+      // Allocate temporary buffer
+      // Assume, all points are valid.
+      int psize = nstop-nstart;
+      //METLIBS_LOG_DEBUG("Size of part[ " << jpart << " ]: " << psize);
+      DiGLPainter::GLdouble * xTemparr = new DiGLPainter::GLdouble[psize];
+      DiGLPainter::GLdouble * yTemparr = new DiGLPainter::GLdouble[psize];
+      int incr = 1;
+
+      xTemparr[pv] = shapes[i]->padfX[nstart];
+      yTemparr[pv] = shapes[i]->padfY[nstart];
+      pv++;
+
+      for (int k = nstart + 1; k < nstop; k=k+incr) {
+        xTemparr[pv] = shapes[i]->padfX[k];
+        yTemparr[pv] = shapes[i]->padfY[k];
+        pv++;
+      } // End first preprocess step, inside window.
+
+      int pk = 0;
+      if (shapes[i]->nSHPType!=SHPT_POINT)
+      {
+        if (to_small)
+        {
+          // reduce points, start, minX, maxX, minY, maxY and stop
+          // HM, not so good, disabled for the moment....
+          if (pv > 3)
+          {
+            //pj = 0;
+
+            gldata[j] = xTemparr[0];
+            gldata[j+1]= yTemparr[0];
+            gldata[j+2]= 0.0;
+            pdata[pj] = xTemparr[0];
+            pdata[pj+1]= yTemparr[0];
+            j+=3;
+            pj+=2;
+            ncount++;
+            for (pk = 1; pk < pv - 1; pk++)
+            {
+              if (xTemparr[pk] == minX)
+              {
+                gldata[j] = xTemparr[pk];
+                gldata[j+1]= yTemparr[pk];
+                gldata[j+2]= 0.0;
+                pdata[pj] = xTemparr[pk];
+                pdata[pj+1]= yTemparr[pk];
+                j+=3;
+                pj+=2;
+                ncount++;
+              }
+              if (xTemparr[pk] == minY)
+              {
+                gldata[j] = xTemparr[pk];
+                gldata[j+1]= yTemparr[pk];
+                gldata[j+2]= 0.0;
+                pdata[pj] = xTemparr[pk];
+                pdata[pj+1]= yTemparr[pk];
+                j+=3;
+                pj+=2;
+                ncount++;
+              }
+              if (xTemparr[pk] == maxX)
+              {
+                gldata[j] = xTemparr[pk];
+                gldata[j+1]= yTemparr[pk];
+                gldata[j+2]= 0.0;
+                pdata[pj] = xTemparr[pk];
+                pdata[pj+1]= yTemparr[pk];
+                j+=3;
+                pj+=2;
+                ncount++;
+              }
+              if (xTemparr[pk] == maxY)
+              {
+                gldata[j] = xTemparr[pk];
+                gldata[j+1]= yTemparr[pk];
+                gldata[j+2]= 0.0;
+                pdata[pj] = xTemparr[pk];
+                pdata[pj+1]= yTemparr[pk];
+                j+=3;
+                pj+=2;
+                ncount++;
+              }
+            }
+            gldata[j] = xTemparr[pv - 1];
+            gldata[j+1]= yTemparr[pv - 1];
+            gldata[j+2]= 0.0;
+            pdata[pj] = xTemparr[pv - 1];
+            pdata[pj+1]= yTemparr[pv - 1];
+            j+=3;
+            pj+=2;
+            ncount++;
+          }
+          else
+          {
+            //j = 0;
+            for (pk = 0; pk < pv; pk++)
+            {
+              // always display the 3 or less points
+
+              gldata[j] = xTemparr[pk];
+              gldata[j+1]= yTemparr[pk];
+              gldata[j+2]= 0.0;
+              pdata[pj] = xTemparr[pk];
+              pdata[pj+1]= yTemparr[pk];
+              j+=3;
+              pj+=2;
+              ncount++;
+            }
+          }
+        }
+        else
+        {
+          //j = 0;
+          int prev_k = 0;
+          for (pk = 0; pk < pv; pk++)
+          {
+            if (pk == 0)
+            {
+              // always display the first point
+
+              gldata[j] = xTemparr[pk];
+              gldata[j+1]= yTemparr[pk];
+              gldata[j+2]= 0.0;
+              pdata[pj] = xTemparr[pk];
+              pdata[pj+1]= yTemparr[pk];
+              j+=3;
+              pj+=2;
+              ncount++;
+
+            }
+            else
+            {
+              if (pk == pv - 1)
+              {
+
+                gldata[j] = xTemparr[pk];
+                gldata[j+1]= yTemparr[pk];
+                gldata[j+2]= 0.0;
+                pdata[pj] = xTemparr[pk];
+                pdata[pj+1]= yTemparr[pk];
+                j+=3;
+                pj+=2;
+                ncount++;
+              }
+              else
+              {
+                // Here, we should in some way reduce information, how ?
+                // Unfortunately, we kill the zoom, if we have the same dx an dy outside the visible window as in the window
+                // check x
+                double dx = dX;
+                double dy = dY;
+                if (xTemparr[pk] > x2)
+                  dx = dsX;
+                else if (xTemparr[pk] < x1)
+                  dx = dsX;
+                // check y
+                if (yTemparr[pk] > y2)
+                  dy = dsY;
+                else if (yTemparr[pk] < y1)
+                  dy = dsY;
+                if ((fabs(xTemparr[pk] - xTemparr[prev_k]) < dx)&&(fabs(yTemparr[pk] - yTemparr[prev_k]) < dy))
+                {
+                  continue;
+                }
+                gldata[j] = xTemparr[pk];
+                gldata[j+1]= yTemparr[pk];
+                gldata[j+2]= 0.0;
+                pdata[pj] = xTemparr[pk];
+                pdata[pj+1]= yTemparr[pk];
+                j+=3;
+                pj+=2;
+                ncount++;
+                prev_k = pk;
+              }
+            }
+          }
+        } // to_small
+      } // Not a point
+      else // a point map
+      {
+        for (pk = 0; pk < pv; pk++)
+        {
+          // always display all points
+
+          gldata[j] = xTemparr[pk];
+          gldata[j+1]= yTemparr[pk];
+          gldata[j+2]= 0.0;
+          pdata[pj] = xTemparr[pk];
+          pdata[pj+1]= yTemparr[pk];
+          j+=3;
+          pj+=2;
+          ncount++;
+        }
+      }
+      // get rid of temporary buffer
+      delete [] xTemparr;
+      delete [] yTemparr;
+      if (shapes[i]->nSHPType!=SHPT_POINT)
+      {
+        if(ncount > 1) {
+          visible = true;
+        }
+      }
+      else
+        visible = true;
+
+      countpos[jpart]=ncount;
 #ifdef DEBUGPRINT
-		METLIBS_LOG_DEBUG("shapes["<<i<<"] contains " << nv << " vertices and " << nparts << " parts. ");
-#endif*/
-		GLdouble *gldata= new GLdouble[nv*3];
-		GLdouble *pdata= new GLdouble[nv*2];
-		int j=0;
-		int pj=0;
-		bool visible = false;
-		for (int jpart=0; jpart<nparts; jpart++) {
-			visible = false;
-			int nstop, ncount=0;
-
-			// Get the starting point of this part (shapeobject consists of several parts)
-			int nstart=shapes[i]->panPartStart[jpart];
-
-			// Get the end point
-			if (jpart==nparts-1)
-				nstop=nv;
-			else
-				nstop=shapes[i]->panPartStart[jpart+1];
-
-			float minX=shapes[i]->padfX[nstart];
-			float minY=shapes[i]->padfY[nstart];
-			float maxX=shapes[i]->padfX[nstart];
-			float maxY=shapes[i]->padfY[nstart];
-
-			// Compute max and min for part
-			for (int k = nstart + 1; k < nstop; k++) {
-				if(shapes[i]->padfY[k] > maxY)
-					maxY=shapes[i]->padfY[k];
-				if(shapes[i]->padfY[k] < minY)
-					minY=shapes[i]->padfY[k];
-				if(shapes[i]->padfX[k] > maxX)
-					maxX = shapes[i]->padfX[k];
-				if(shapes[i]->padfX[k] < minX)
-					minX =shapes[i]->padfX[k];
-			}
-
-			// Reduce part that is to SMALL. Skipp it when filling polygon
-			// Compute size of plotting area and part
-			float sizepX, sizepY;
-
-			sizepX = maxX - minX;
-			sizepY = maxY - minY;
-
-
-			// Skip i less than .1%
-			/* some maps dont work well so we must skip this */
-
-			bool to_small = false;
-			small[jpart] = 0;
-			if ((sizepX < dX) && (sizepY < dY))
-			{
-				to_small = true;
-				small[jpart]=1;
-			}
-			
-			int pv = 0;
-			// Allocate temporary buffer
-			// Assume, all points are valid.
-			int psize = nstop-nstart;
-			//METLIBS_LOG_DEBUG("Size of part[ " << jpart << " ]: " << psize);
-			GLdouble * xTemparr = new GLdouble[psize];
-			GLdouble * yTemparr = new GLdouble[psize];
-			int incr = 1;
-			
-			xTemparr[pv] = shapes[i]->padfX[nstart];
-			yTemparr[pv] = shapes[i]->padfY[nstart];
-			pv++;
-
-			for (int k = nstart + 1; k < nstop; k=k+incr) {
-				xTemparr[pv] = shapes[i]->padfX[k];
-				yTemparr[pv] = shapes[i]->padfY[k];
-				pv++;
-
-			} // End first preprocess step, inside window.
-			
-			int pk = 0;
-			if (shapes[i]->nSHPType!=SHPT_POINT)
-			{
-				if (to_small)
-				{
-					// reduce points, start, minX, maxX, minY, maxY and stop
-					// HM, not so good, disabled for the moment....
-					if (pv > 3)
-					{
-						//pj = 0;
-
-						gldata[j] = xTemparr[0];
-						gldata[j+1]= yTemparr[0];
-						gldata[j+2]= 0.0;
-						pdata[pj] = xTemparr[0];
-						pdata[pj+1]= yTemparr[0];
-						j+=3;
-						pj+=2;
-						ncount++;
-						for (pk = 1; pk < pv - 1; pk++)
-						{
-							if (xTemparr[pk] == minX)
-							{
-								gldata[j] = xTemparr[pk];
-								gldata[j+1]= yTemparr[pk];
-								gldata[j+2]= 0.0;
-								pdata[pj] = xTemparr[pk];
-								pdata[pj+1]= yTemparr[pk];
-								j+=3;
-								pj+=2;
-								ncount++;
-							}
-							if (xTemparr[pk] == minY)
-							{
-								gldata[j] = xTemparr[pk];
-								gldata[j+1]= yTemparr[pk];
-								gldata[j+2]= 0.0;
-								pdata[pj] = xTemparr[pk];
-								pdata[pj+1]= yTemparr[pk];
-								j+=3;
-								pj+=2;
-								ncount++;
-							}
-							if (xTemparr[pk] == maxX)
-							{
-								gldata[j] = xTemparr[pk];
-								gldata[j+1]= yTemparr[pk];
-								gldata[j+2]= 0.0;
-								pdata[pj] = xTemparr[pk];
-								pdata[pj+1]= yTemparr[pk];
-								j+=3;
-								pj+=2;
-								ncount++;
-							}
-							if (xTemparr[pk] == maxY)
-							{
-								gldata[j] = xTemparr[pk];
-								gldata[j+1]= yTemparr[pk];
-								gldata[j+2]= 0.0;
-								pdata[pj] = xTemparr[pk];
-								pdata[pj+1]= yTemparr[pk];
-								j+=3;
-								pj+=2;
-								ncount++;
-							}
-						}
-						gldata[j] = xTemparr[pv - 1];
-						gldata[j+1]= yTemparr[pv - 1];
-						gldata[j+2]= 0.0;
-						pdata[pj] = xTemparr[pv - 1];
-						pdata[pj+1]= yTemparr[pv - 1];
-						j+=3;
-						pj+=2;
-						ncount++;
-
-					}
-					else
-					{
-						//j = 0;
-						for (pk = 0; pk < pv; pk++)
-						{
-							// always display the 3 or less points
-
-							gldata[j] = xTemparr[pk];
-							gldata[j+1]= yTemparr[pk];
-							gldata[j+2]= 0.0;
-							pdata[pj] = xTemparr[pk];
-							pdata[pj+1]= yTemparr[pk];
-							j+=3;
-							pj+=2;
-							ncount++;
-
-						}
-					}
-				}
-				else
-				{
-					//j = 0;
-					int prev_k = 0;
-					for (pk = 0; pk < pv; pk++)
-					{
-						
-						if (pk == 0)
-						{
-							// always display the first point
-
-							gldata[j] = xTemparr[pk];
-							gldata[j+1]= yTemparr[pk];
-							gldata[j+2]= 0.0;
-							pdata[pj] = xTemparr[pk];
-							pdata[pj+1]= yTemparr[pk];
-							j+=3;
-							pj+=2;
-							ncount++;
-
-						}
-						else
-						{	
-							if (pk == pv - 1)
-							{
-
-								gldata[j] = xTemparr[pk];
-								gldata[j+1]= yTemparr[pk];
-								gldata[j+2]= 0.0;
-								pdata[pj] = xTemparr[pk];
-								pdata[pj+1]= yTemparr[pk];
-								j+=3;
-								pj+=2;
-								ncount++;
-							}
-							else
-							{
-								// Here, we should in some way reduce information, how ?
-								// Unfortunately, we kill the zoom, if we have the same dx an dy outside the visible window as in the window
-								// check x
-								double dx = dX;
-								double dy = dY;
-								if (xTemparr[pk] > x2)
-									dx = dsX;
-								else if (xTemparr[pk] < x1)
-									dx = dsX;
-								// check y
-								if (yTemparr[pk] > y2)
-									dy = dsY;
-								else if (yTemparr[pk] < y1)
-									dy = dsY;
-								if ((fabs(xTemparr[pk] - xTemparr[prev_k]) < dx)&&(fabs(yTemparr[pk] - yTemparr[prev_k]) < dy))
-								{
-									continue;
-								}
-								gldata[j] = xTemparr[pk];
-								gldata[j+1]= yTemparr[pk];
-								gldata[j+2]= 0.0;
-								pdata[pj] = xTemparr[pk];
-								pdata[pj+1]= yTemparr[pk];
-								j+=3;
-								pj+=2;
-								ncount++;
-								prev_k = pk;
-							}
-						}
-					}
-				} // to_small
-			} // Not a point
-			else // a point map
-			{
-				for (pk = 0; pk < pv; pk++)
-				{
-					// always display all points
-
-					gldata[j] = xTemparr[pk];
-					gldata[j+1]= yTemparr[pk];
-					gldata[j+2]= 0.0;
-					pdata[pj] = xTemparr[pk];
-					pdata[pj+1]= yTemparr[pk];
-					j+=3;
-					pj+=2;
-					ncount++;
-				}
-			}
-			// get rid of temporary buffer
-			delete [] xTemparr;
-			delete [] yTemparr;
-			if (shapes[i]->nSHPType!=SHPT_POINT)
-			{
-				if(ncount > 1) {
-					visible = true;
-				}
-			}
-			else
-				visible = true;
-
-			countpos[jpart]=ncount;
-#ifdef DEBUGPRINT
-			METLIBS_LOG_DEBUG("Points to draw and fill [ " << jpart << " ]: " << ncount);
+      METLIBS_LOG_DEBUG("Points to draw and fill [ " << jpart << " ]: " << ncount);
 #endif
 
-		}
-		// Draw the shape object
+    }
+    // Draw the shape object
 
-		// draw the contour lines
-		if (cont && visible)
-		{
-			// NOTE: The opengl library do som optimizing stuff when using the glDrawArrays for more complex shapes
-			// therfore we must use the little slover method for shapes with more than one part.
+    // draw the contour lines
+    if (cont && visible)
+    {
+      // NOTE: The opengl library do som optimizing stuff when using the gl->DrawArrays for more complex shapes
+      // therfore we must use the little slover method for shapes with more than one part.
 
-			//void glEnableClientState(GLenum array) 
-			//Specifies the array to enable.
-			//Symbolic constants GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_INDEX_ARRAY, GL_NORMAL_ARRAY, GL_TEXTURE_COORD_ARRAY, and GL_EDGE_FLAG_ARRAY
-			//are acceptable parameters. 
-			if (nparts == 1)
-				glEnableClientState (GL_VERTEX_ARRAY);
+      //void gl->EnableClientState(DiGLPainter::GLenum array)
+      //Specifies the array to enable.
+      //Symbolic constants DiGLPainter::gl_VERTEX_ARRAY, DiGLPainter::gl_COLOR_ARRAY, DiGLPainter::gl_INDEX_ARRAY, DiGLPainter::gl_NORMAL_ARRAY, DiGLPainter::gl_TEXTURE_COORD_ARRAY, and DiGLPainter::gl_EDGE_FLAG_ARRAY
+      //are acceptable parameters.
+      if (nparts == 1)
+        gl->EnableClientState (DiGLPainter::gl_VERTEX_ARRAY);
 
-			if (shapes[i]->nSHPType!=SHPT_POINT)
-			{
-				glLineWidth(linewidth);
-				if (linetype!=0xFFFF) {
-					glLineStipple(1, linetype);
-					glEnable(GL_LINE_STIPPLE);
-				}
-			}
-			else
-			{
-				// set the point size
-				glPointSize(linewidth);
-				glEnable(GL_POINT_SMOOTH);
+      if (shapes[i]->nSHPType!=SHPT_POINT)
+      {
+        gl->LineWidth(linewidth);
+        if (linetype!=0xFFFF) {
+          gl->LineStipple(1, linetype);
+          gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+        }
+      }
+      else
+      {
+        // set the point size
+        gl->PointSize(linewidth);
+        gl->Enable(DiGLPainter::gl_POINT_SMOOTH);
 
-			}
-			glColor4ubv(lcolour);
+      }
+      gl->Color4ubv(lcolour);
 
-			//void glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer); 
-			//Specifies where spatial coordinate data can be accessed.
-			//pointer is the memory address of the first coordinate of the first vertex in the array.
-			//type specifies the data type (GL_SHORT, GL_INT, GL_FLOAT, or GL_DOUBLE) of each coordinate in the array.
-			//size is the number of coordinates per vertex, which must be 2, 3, or 4.
-			//stride is the byte offset between consecutive vertexes.
-			//If stride is 0, the vertices are understood to be tightly packed in the array. 
-			if (nparts == 1)
-				glVertexPointer(2, GL_DOUBLE, 0, pdata);
+      //void gl->VertexPointer(DiGLPainter::GLint size, DiGLPainter::GLenum type, GLsizei stride, const GLvoid *pointer);
+      //Specifies where spatial coordinate data can be accessed.
+      //pointer is the memory address of the first coordinate of the first vertex in the array.
+      //type specifies the data type (DiGLPainter::gl_SHORT, DiGLPainter::gl_INT, DiGLPainter::gl_FLOAT, or DiGLPainter::gl_DOUBLE) of each coordinate in the array.
+      //size is the number of coordinates per vertex, which must be 2, 3, or 4.
+      //stride is the byte offset between consecutive vertexes.
+      //If stride is 0, the vertices are understood to be tightly packed in the array.
+      if (nparts == 1)
+        gl->VertexPointer(2, DiGLPainter::gl_DOUBLE, 0, pdata);
 
-			//void glDrawArrays(GLenum mode, GLint first, GLsizei count); 
-			//Constructs a sequence of geometric primitives using array elements starting at first and ending at first+count-1 of each enabled array.
-			//mode specifies what kinds of primitives are constructed and is one of the same values accepted by glBegin();
-			//for example, GL_POLYGON, GL_LINE_LOOP, GL_LINES, GL_POINTS, and so on. 
-			
-			int a, p,npos,pos;
-			pos = 0;
-			int apos = 0;
-			for (p=0; p<nparts; p++) {
-				npos= countpos[p];
-				if (npos > 0)
-				{
-					if (nparts > 1)
-					{
-						// not so fast but accurate
-						if (shapes[i]->nSHPType!=SHPT_POINT)
-							glBegin(GL_LINE_STRIP);
-						else
-							glBegin(GL_POINTS);
+      //void gl->DrawArrays(DiGLPainter::GLenum mode, DiGLPainter::GLint first, GLsizei count);
+      //Constructs a sequence of geometric primitives using array elements starting at first and ending at first+count-1 of each enabled array.
+      //mode specifies what kinds of primitives are constructed and is one of the same values accepted by gl->Begin();
+      //for example, DiGLPainter::gl_POLYGON, DiGLPainter::gl_LINE_LOOP, DiGLPainter::gl_LINES, DiGLPainter::gl_POINTS, and so on.
 
-						for (a=0; a<npos; a++) {
-							glVertex2dv(&pdata[apos]);
-							apos+=2;
-						}
-						glEnd();
-					}
-					else
-					{
-						// Fast but some optimizing error may happen
-						if (shapes[i]->nSHPType!=SHPT_POINT)
-							glDrawArrays(GL_LINE_STRIP, pos, npos);
-						else
-							glDrawArrays(GL_POINTS, pos, npos);
-					}
+      int a, p,npos,pos;
+      pos = 0;
+      int apos = 0;
+      for (p=0; p<nparts; p++) {
+        npos= countpos[p];
+        if (npos > 0)
+        {
+          if (nparts > 1)
+          {
+            // not so fast but accurate
+            if (shapes[i]->nSHPType!=SHPT_POINT)
+              gl->Begin(DiGLPainter::gl_LINE_STRIP);
+            else
+              gl->Begin(DiGLPainter::gl_POINTS);
 
-				}
-				pos+=npos;
-			}
-			glFlush();
+            for (a=0; a<npos; a++) {
+              gl->Vertex2dv(&pdata[apos]);
+              apos+=2;
+            }
+            gl->End();
+          }
+          else
+          {
+            // Fast but some optimizing error may happen
+            if (shapes[i]->nSHPType!=SHPT_POINT)
+              gl->DrawArrays(DiGLPainter::gl_LINE_STRIP, pos, npos);
+            else
+              gl->DrawArrays(DiGLPainter::gl_POINTS, pos, npos);
+          }
 
-			if (shapes[i]->nSHPType!=SHPT_POINT)
-				glDisable(GL_LINE_STIPPLE);
-			else
-				glDisable(GL_POINT_SMOOTH);
-			if (nparts == 1)
-				glDisableClientState(GL_VERTEX_ARRAY);
+        }
+        pos+=npos;
+      }
+      gl->Flush();
 
-		}
-		// fill the polygons
-		if (land && visible && shapes[i]->nSHPType==SHPT_POLYGON) {
-			// sanity check, how?
-			int p,npos,pos;
-			pos = 0;
-			
-			for (p=0; p<nparts; p++) {
-				npos= countpos[p];
-				if (npos > 0)
-				{
+      if (shapes[i]->nSHPType!=SHPT_POINT)
+        gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+      else
+        gl->Disable(DiGLPainter::gl_POINT_SMOOTH);
+      if (nparts == 1)
+        gl->DisableClientState(DiGLPainter::gl_VERTEX_ARRAY);
 
-					if ((gldata[pos] != gldata[npos*3 + pos-3])&&(gldata[pos+1] != gldata[npos*3 + pos -2]))
-						METLIBS_LOG_WARN("shapes["<<i<<"] part["<<p<<"] not closed");
-				}
-				pos = pos + npos*3;
-			}
+    }
+    // fill the polygons
+    if (land && visible && shapes[i]->nSHPType==SHPT_POLYGON) {
+      // sanity check, how?
+      int p,npos,pos;
+      pos = 0;
 
+      for (p=0; p<nparts; p++) {
+        npos= countpos[p];
+        if (npos > 0)
+        {
+          if ((gldata[pos] != gldata[npos*3 + pos-3])&&(gldata[pos+1] != gldata[npos*3 + pos -2]))
+            METLIBS_LOG_WARN("shapes["<<i<<"] part["<<p<<"] not closed");
+        }
+        pos = pos + npos*3;
+      }
 
-			glColor4ubv(fcolour);
-			glLineWidth(linewidth);
-			optimized_tesselation(gldata, nparts, countpos, small);
-			glFlush();
-		}
-		delete[] gldata;
-		delete[] pdata;
-		delete[] countpos;
-		delete[] small;
+      gl->Color4ubv(fcolour);
+      gl->LineWidth(linewidth);
+      int pos0 = 0;
+      for (int i=0; i<nparts; ++i) {
+        QPolygonF poly;
+        for (int p=pos0; p<countpos[i]; ++i)
+          poly << QPointF(gldata[0], gldata[1]);
+        pos0 = countpos[i];
+        if (small[i]) {
+          poly << poly.at(0);
+          gl->drawPolyline(poly);
+        } else {
+          gl->drawPolygon(poly);
+        }
+      }
+    }
+    delete[] gldata;
+    delete[] pdata;
+    delete[] countpos;
+    delete[] small;
 
-	}
-	return true;
+  }
+  return true;
 }
 
 bool ShapeObject::getAnnoTable(std::string & str)
@@ -904,7 +856,7 @@ bool ShapeObject::getAnnoTable(std::string & str)
       ostringstream rs;
       //write colour
       rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-          << (int) col.B() <<";;";
+         << (int) col.B() <<";;";
       str+=rs.str()+q->first;
     }
   } else if (intcolourmapMade) {
@@ -914,7 +866,7 @@ bool ShapeObject::getAnnoTable(std::string & str)
       ostringstream rs;
       //write colour
       rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-          << (int) col.B() <<";;" << q->first;
+         << (int) col.B() <<";;" << q->first;
       str+=rs.str();
     }
   } else if (doublecolourmapMade) {
@@ -924,7 +876,7 @@ bool ShapeObject::getAnnoTable(std::string & str)
       ostringstream rs;
       //write colour
       rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-          << (int) col.B() <<";;" << q->first;
+         << (int) col.B() <<";;" << q->first;
       str+=rs.str();
     }
   }
@@ -1056,7 +1008,6 @@ void ShapeObject::setXY(vector<float> x, vector <float> y)
     }
   }
 }
-//#define DEBUGPRINT 1
 
 int ShapeObject::readDBFfile(const std::string& filename,
     vector<std::string>& dbfIntName, vector< vector<int> >& dbfIntDesc,
@@ -1143,40 +1094,40 @@ int ShapeObject::readDBFfile(const std::string& filename,
     METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
 #endif
   /* -------------------------------------------------------------------- */
-  /*	Read all the records 						*/
+  /*	Read all the records                                              */
   /* -------------------------------------------------------------------- */
 
   for (n=0; n<dbfIntName.size(); n++) {
     i= indexInt[n];
 #ifdef DEBUGPRINT
-	METLIBS_LOG_DEBUG("Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]);
+    METLIBS_LOG_DEBUG("Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]);
 #endif
-	for (iRecord=0; iRecord<nRecordCount; iRecord++) {
+    for (iRecord=0; iRecord<nRecordCount; iRecord++) {
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
         dbfIntDesc[n].push_back(0);
-	  else {
+      else {
         dbfIntDesc[n].push_back(DBFReadIntegerAttribute(hDBF, iRecord, i) );
 #ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("DBFReadIntegerAttribute(hDBF, iRecord, i)"
-              << DBFReadIntegerAttribute(hDBF, iRecord, i));
+            << DBFReadIntegerAttribute(hDBF, iRecord, i));
 #endif
-	  }
+      }
     }
   }
 
   for (n=0; n<dbfDoubleName.size(); n++) {
     i= indexDouble[n];
 #ifdef DEBUGPRINT
-	METLIBS_LOG_DEBUG("Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]);
-#endif    
-	for (iRecord=0; iRecord<nRecordCount; iRecord++) {
+    METLIBS_LOG_DEBUG("Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]);
+#endif
+    for (iRecord=0; iRecord<nRecordCount; iRecord++) {
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
         dbfDoubleDesc[n].push_back(0.0);
       else {
         dbfDoubleDesc[n].push_back(DBFReadDoubleAttribute(hDBF, iRecord, i) );
 #ifdef DEBUGPRINT
-          METLIBS_LOG_DEBUG("DBFReadDoubleAttribute( hDBF, iRecord, i )"
-              << DBFReadDoubleAttribute(hDBF, iRecord, i));
+        METLIBS_LOG_DEBUG("DBFReadDoubleAttribute( hDBF, iRecord, i )"
+            << DBFReadDoubleAttribute(hDBF, iRecord, i));
 #endif
       }
     }
@@ -1186,41 +1137,25 @@ int ShapeObject::readDBFfile(const std::string& filename,
     i= indexString[n];
     vector<std::string> tempStr;
 #ifdef DEBUGPRINT
-	METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
+    METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
 #endif
     for (iRecord=0; iRecord<nRecordCount; iRecord++) {
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
         dbfStringDesc[n].push_back("-");
       else {
         dbfStringDesc[n].push_back(std::string(DBFReadStringAttribute(hDBF,
-            iRecord, i) ) );
+                    iRecord, i) ) );
         tempStr.push_back(std::string(DBFReadStringAttribute(hDBF,
-            iRecord, i) ) );
+                    iRecord, i) ) );
 #ifdef DEBUGPRINT
-          METLIBS_LOG_DEBUG("DBFReadStringAttribute( hDBF, iRecord, i )"
-              << DBFReadStringAttribute(hDBF, iRecord, i) << "**temp= " << tempStr[iRecord]);
+        METLIBS_LOG_DEBUG("DBFReadStringAttribute( hDBF, iRecord, i )"
+            << DBFReadStringAttribute(hDBF, iRecord, i) << "**temp= " << tempStr[iRecord]);
 #endif
       }
     }
     dbfPlotDesc[dbfStringName[n]]=tempStr;
     tempStr.clear();
-
-    
-
   }
- /* map <std::string, vector<std::string> >::iterator it=dbfPlotDesc.begin();
-    for (; it!=dbfPlotDesc.end(); it++) {
-      vector<std::string> temp=it->second;
-        METLIBS_LOG_DEBUG("*** ID_temp " << it->first);
-      for (int ar=0; ar<temp.size(); ar++) {
-        METLIBS_LOG_DEBUG("***temp [" << ar <<"] =  " << temp[ar]);
-      }
-    }
-*/
-
-
-
-
 
 
   DBFClose(hDBF);
@@ -1276,49 +1211,4 @@ int ShapeObject::readDBFfile(const std::string& filename,
 void ShapeObject::writeCoordinates()
 {
   METLIBS_LOG_WARN("ShapeObject:writeCoordinates NOT IMPLEMENTED");
-  /*****************************************************************************
-   METLIBS_LOG_DEBUG("ShapeObject:writeCoordinates");
-   // open filestream
-   ofstream dbfile("shapelocations.txt");
-   if (!dbfile){
-   METLIBS_LOG_DEBUG("ERROR OPEN (WRITE) ");
-   return;
-   }
-
-   int n=shapes.size();
-   for (int i=0;i<n;i++){
-   if (shapes[i]->nSHPType!=5)
-   continue;
-   int nr=650+i;
-   dbfile << nr << "|" << "shape " << i << "|county|1|";
-   int nparts=shapes[i]->nParts;
-   METLIBS_LOG_DEBUG("number of parts " << nparts);
-   int nv= shapes[i]->nVertices;
-   int j=0;
-   for (int jpart=0;jpart<nparts;jpart++){
-   int nstop,ncount=0;
-   int nstart=shapes[i]->panPartStart[jpart];
-   if (jpart==nparts-1)
-   nstop=nv;
-   else
-   nstop=shapes[i]->panPartStart[jpart+1];
-   if (shapes[i]->padfX[0] == shapes[i]->padfX[nstop-1] &&
-   shapes[i]->padfY[0] == shapes[i]->padfY[nstop-1])
-   nstop--;
-   for(int k = nstart; k < nstop; k++ ){
-   METLIBS_LOG_DEBUG("x=" <<  shapes[i]->padfX[k]);
-   METLIBS_LOG_DEBUG("  y =" << shapes[i]->padfY[k]);
-   miCoordinates newcor(float(shapes[i]->padfX[k]),float(shapes[i]->padfY[k]));
-   METLIBS_LOG_DEBUG(newcor.str());
-   dbfile << newcor.iLon() << " " << newcor.iLat();
-   //dbfile << shapes[i]->padfX[k] << "   " << shapes[i]->padfY[k];
-   if (k!=nstop-1)
-   dbfile << ":";
-
-   }
-   }
-   dbfile << "|NULL|NULL|" << endl;
-   }
-   dbfile.close();
-   *****************************************************************************/
 }

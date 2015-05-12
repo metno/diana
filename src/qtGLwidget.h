@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,13 +29,11 @@
 #ifndef _qtGLwidget_h
 #define _qtGLwidget_h
 
-#include <qglobal.h>
+#include "diPaintable.h"
+#include "diMapMode.h"
+#include "diPrintOptions.h"
 
-#if !defined(USE_PAINTGL)
-#include <qgl.h>
-#else
-#include <QWidget>
-#endif
+#include <diField/diArea.h>
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -46,19 +42,8 @@
 #include <string>
 #include <map>
 
-#include <diField/diArea.h>
-#include <diMapMode.h>
-#include <diPrintOptions.h>
-
-#if defined(USE_PAINTGL)
-#include <GL/gl.h>
-#include "PaintGL/paintgl.h"
-class PaintGLContext;
-class QPrinter;
-#define QGLWidget PaintGLWidget
-#endif
-
 class Controller;
+class DiGLPainter;
 
 /**
    \brief the map OpenGL widget
@@ -66,36 +51,27 @@ class Controller;
    the map OpenGL widget supporting
    - simple underlay
    - keyboard/mouse event translation to Diana types
-
 */
-class GLwidget : public QGLWidget {
-
+class GLwidget : public QObject, public DiPaintable
+{
   Q_OBJECT
 
 public:
-#if !defined(USE_PAINTGL)
-  GLwidget(Controller*, const QGLFormat,
-           QWidget*);
-#else
-  GLwidget(Controller*, QWidget*);
-#endif
+  GLwidget(Controller*);
   ~GLwidget();
 
+#if 0
   /// save contents of widget as raster image
   bool saveRasterImage(const std::string fname,
-		       const std::string format,
-		       const int quality = -1);
+      const std::string format,
+      const int quality = -1);
+#endif
 
   /// toggles use of underlay
   void forceUnderlay(bool b)
-  {savebackground= b;}
+    {savebackground= b;}
 
-  /// start hardcopy plot
-  void startHardcopy(const printOptions& po);
-  /// end hardcopy plot
-  void endHardcopy();
-
-signals:
+Q_SIGNALS:
   /// single click signal
   void mouseGridPos(QMouseEvent* me);
   /// single click signal (right mouse button)
@@ -109,35 +85,30 @@ signals:
   /// mouse double click
   void mouseDoubleClick(QMouseEvent* me);
 
-protected:
+  void changeCursor(cursortype);
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL(int width, int height);
+public:
+  void setCanvas(DiCanvas* canvas);
+  void paint(DiPainter* gl);
+  void resize(int width, int height);
 
-  void changeCursor(const cursortype);
-
-  void handleMouseEvents(QMouseEvent*);
-  void handleKeyEvents(QKeyEvent*);
-
-  void wheelEvent(QWheelEvent*);
-  void keyPressEvent(QKeyEvent*);
-  void keyReleaseEvent(QKeyEvent*);
-  void mousePressEvent(QMouseEvent*);
-  void mouseReleaseEvent(QMouseEvent*);
-  void mouseDoubleClickEvent(QMouseEvent*);
-  void mouseMoveEvent(QMouseEvent*);
+  bool handleKeyEvents(QKeyEvent*);
+  bool handleMouseEvents(QMouseEvent*);
+  bool handleWheelEvents(QWheelEvent *we);
 
 private:
-  cursortype curcursor;    // current cursor
-  bool savebackground;     // use fake overlay
+  void drawUnderlay(DiGLPainter* gl);
+  void drawOverlay(DiGLPainter* gl);
+
+private:
   Controller* contr;       // gate to main system
   int plotw, ploth;        // size of widget (pixels)
+
+  bool savebackground;     // use fake overlay
+  bool useSavedUnderlay;
+  typedef unsigned int    GLuint;     /* 4-byte unsigned */
   GLuint *fbuffer;         // fake overlay buffer
   std::map<int,KeyType> keymap; // keymap's for keyboardevents
-
-protected slots:
-  void editPaint(bool drawb= true);
 };
 
 #endif

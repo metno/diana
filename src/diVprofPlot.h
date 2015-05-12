@@ -31,11 +31,11 @@
 #ifndef diVprofPlot_h
 #define diVprofPlot_h
 
-#include <diVprofTables.h>
-#include <diVprofOptions.h>
+#include "diGLPainter.h"
+#include "diVprofTables.h"
+#include "diVprofOptions.h"
 
 #include <puTools/miTime.h>
-#include <GL/gl.h>
 #include <vector>
 
 /**
@@ -60,7 +60,7 @@ class VprofPlot : public VprofTables
 public:
   VprofPlot();
   ~VprofPlot();
-  bool plot(VprofOptions *vpopt, int nplot);
+  bool plot(DiGLPainter* gl, VprofOptions *vpopt, int nplot);
   void setName(const std::string& name) { text.posName=name; }
 
 private:

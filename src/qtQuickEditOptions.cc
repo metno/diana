@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -60,12 +58,12 @@
 
 using namespace std;
 
-QuickEditOptions::QuickEditOptions(QWidget* parent,
-    vector<quickMenuOption>& opt)
-: QDialog(parent),
-  options(opt), keynum(-1)
+QuickEditOptions::QuickEditOptions(QWidget* parent, vector<quickMenuOption>& opt)
+  : QDialog(parent)
+  , options(opt)
+  , keynum(-1)
 {
-  QFont m_font= QFont( "Helvetica", 12, 75 );
+  QFont m_font= QFont("Helvetica", 12, 75);
 
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Change Dynamic Options")+"</b></em>", this);
   mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
@@ -168,27 +166,25 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   updateList();
 }
 
-vector<quickMenuOption> QuickEditOptions::getOptions(){
-
+vector<quickMenuOption> QuickEditOptions::getOptions()
+{
   vector<quickMenuOption> opt;
   int n=options.size();
   for(int i=0;i<n;i++){
     if( options[i].options.size() > 0 )
       opt.push_back(options[i]);
   }
-
   return opt;
-
 }
 
-void QuickEditOptions::helpClicked(){
-  emit help("quickeditoptions");
+void QuickEditOptions::helpClicked()
+{
+  Q_EMIT help("quickeditoptions");
 }
 
 
 void QuickEditOptions::updateList()
 {
-
   int origkeynum= keynum;
 
   list->clear();
@@ -220,9 +216,8 @@ void QuickEditOptions::updateList()
 
 void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in list
 {
-
   int idx = list->row(item);
-  if (idx < 0 || idx >= options.size())
+  if (idx < 0 || idx >= (int)options.size())
     return;
   keynum= idx;
 
@@ -280,7 +275,7 @@ void QuickEditOptions::newClicked()   // new key
       tr("Make new key with name:"),
       QLineEdit::Normal,
       QString::null, &ok);
-  if ( ok && !text.isEmpty() ){
+  if (ok && !text.isEmpty()) {
     quickMenuOption tmp;
     tmp.key= text.toStdString();
     options.insert(options.end(), tmp);
@@ -291,7 +286,8 @@ void QuickEditOptions::newClicked()   // new key
 
 void QuickEditOptions::renameClicked()// rename key
 {
-  if (keynum<0 || keynum>=int(options.size())) return;
+  if (keynum<0 || keynum>=int(options.size()))
+    return;
   bool ok = false;
   QString text = QInputDialog::getText(this,
       tr("New name"),
@@ -299,7 +295,7 @@ void QuickEditOptions::renameClicked()// rename key
       QLineEdit::Normal,
       options[keynum].key.c_str(),
       &ok);
-  if ( ok && !text.isEmpty() ){
+  if (ok && !text.isEmpty()) {
     options[keynum].key= text.toStdString();
     updateList();
   }
@@ -307,7 +303,8 @@ void QuickEditOptions::renameClicked()// rename key
 
 void QuickEditOptions::eraseClicked() // erase key
 {
-  if (keynum<0 || keynum>=int(options.size())) return;
+  if (keynum<0 || keynum>=int(options.size()))
+    return;
   options.erase(options.begin()+keynum);
   updateList();
 }

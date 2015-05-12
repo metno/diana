@@ -114,7 +114,9 @@ public:
   static void setStandardSize(int size1, int size2);
   /// add new point to weather symbol
   void addPoint(float x, float y);
-  void plot(PlotOrder zorder);
+
+  void plot(DiGLPainter* gl, PlotOrder zorder);
+
   /// set type of symbol
   void setType(int ty);
   /// set type of symbol

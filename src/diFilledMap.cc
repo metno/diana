@@ -36,7 +36,6 @@
 #include "diFilledMap.h"
 #include "diGlUtilities.h"
 #include "diUtilities.h"
-#include "diVprofDiagram.h"
 
 #include <puCtools/stat.h>
 
@@ -317,13 +316,14 @@ bool FilledMap::readheader()
   return true;
 }
 
-bool FilledMap::plot(Area area, // current area
-    Rectangle maprect, // the visible rectangle
+bool FilledMap::plot(DiGLPainter* gl,
+    const Area& area, // current area
+    const Rectangle& maprect, // the visible rectangle
     double gcd, // size of plotarea in m
     bool land, // plot triangles
     bool cont, // plot contour-lines
     bool keepcont, // keep contourlines for later
-    GLushort linetype, // contour line type
+    DiGLPainter::GLushort linetype, // contour line type
     float linewidth, // contour linewidth
     const unsigned char* lcolour, // contour linecolour
     const unsigned char* fcolour, // triangles fill colour
@@ -359,30 +359,30 @@ bool FilledMap::plot(Area area, // current area
   }
 
   //METLIBS_LOG_DEBUG("FilledMap::plot():" << filename);
-  glLineWidth(linewidth);
+  gl->LineWidth(linewidth);
   if (linetype != 0xFFFF) {
-    glLineStipple(1, linetype);
-    glEnable(GL_LINE_STIPPLE);
+    gl->LineStipple(1, linetype);
+    gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
   } else {
-    glDisable(GL_LINE_STIPPLE);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   if (cont && contexist) {
-    glColor4ubv(lcolour);
+    gl->Color4ubv(lcolour);
     for (int psize = 0; psize < numPolytiles; psize++) {
       int numpo = polydata[psize].polysize.size();
       int id1 = 0, id2;
       for (int ipp = 0; ipp < numpo; ipp++) {
         id2 = id1 + polydata[psize].polysize[ipp];
 
-        clipPrimitiveLines(id1, id2 - 1, polydata[psize].polyverx,
+        clipPrimitiveLines(gl, id1, id2 - 1, polydata[psize].polyverx,
             polydata[psize].polyvery, xylim, jumplimit);
         /*
-         glBegin(GL_LINE_STRIP);
+         gl->Begin(DiGLPainter::gl_LINE_STRIP);
          for (int iv = id1; iv < id2; iv++) {
-         glVertex2f(polydata[psize].polyverx[iv], polydata[psize].polyvery[iv]);
+         gl->Vertex2f(polydata[psize].polyverx[iv], polydata[psize].polyvery[iv]);
          }
-         glEnd();
+         gl->End();
          */
         id1 = id2;
       }
@@ -761,22 +761,22 @@ bool FilledMap::plot(Area area, // current area
         // draw triangles
         if (tidx > 0 && land) {
           if (type == 1)
-            glColor4ubv(bcolour);
+            gl->Color4ubv(bcolour);
           else
-            glColor4ubv(fcolour);
+            gl->Color4ubv(fcolour);
 
-          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+          gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
           // convert vertices
           area.P().convertFromGeographic(tidx, triverx, trivery);
 
-          clipTriangles(0, tidx, triverx, trivery, xylim, jumplimit);
+          clipTriangles(gl, 0, tidx, triverx, trivery, xylim, jumplimit);
           /*
-          glBegin(GL_TRIANGLES);
+          gl->Begin(DiGLPainter::gl_TRIANGLES);
           for (int iv = 0; iv < tidx; iv++) {
-            glVertex2f(triverx[iv], trivery[iv]);
+            gl->Vertex2f(triverx[iv], trivery[iv]);
           }
-          glEnd();
+          gl->End();
           */
         }
       }
@@ -790,20 +790,20 @@ bool FilledMap::plot(Area area, // current area
             polydata[psize].polyverx, polydata[psize].polyvery);
 
         if (cont) {
-          glColor4ubv(lcolour);
+          gl->Color4ubv(lcolour);
           int id1 = 0, id2;
           for (int ipp = 0; ipp < numpo; ipp++) {
             id2 = id1 + polydata[psize].polysize[ipp];
 
-            clipPrimitiveLines(id1, id2 - 1, polydata[psize].polyverx,
+            clipPrimitiveLines(gl, id1, id2 - 1, polydata[psize].polyverx,
                 polydata[psize].polyvery, xylim, jumplimit);
 /*
-             glBegin(GL_LINE_STRIP);
+             gl->Begin(DiGLPainter::gl_LINE_STRIP);
              for (int iv = id1; iv < id2; iv++) {
-             glVertex2f(polydata[psize].polyverx[iv],
+             gl->Vertex2f(polydata[psize].polyverx[iv],
              polydata[psize].polyvery[iv]);
              }
-             glEnd();
+             gl->End();
 */
             id1 = id2;
           }
@@ -821,18 +821,18 @@ bool FilledMap::plot(Area area, // current area
 
   //METLIBS_LOG_DEBUG("+++ Finished");
   fclose(pfile);
-  glDisable(GL_LINE_STIPPLE);
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   return true;
 }
 
-void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
+void FilledMap::clipTriangles(DiGLPainter* gl, int i1, int i2, float * x, float * y,
     float xylim[4], float jumplimit)
 {
   const float bigjump = 1000000;
-  bool antialiasing = glIsEnabled(GL_MULTISAMPLE);
-  if (antialiasing) glDisable(GL_MULTISAMPLE);
+  bool antialiasing = gl->IsEnabled(DiGLPainter::gl_MULTISAMPLE);
+  if (antialiasing) gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
-  glBegin(GL_TRIANGLES);
+  gl->Begin(DiGLPainter::gl_TRIANGLES);
   for (int iv = i1; iv < i2; iv += 3) {
     float x1 = x[iv], x2 = x[iv + 1], x3 = x[iv + 2];
     float y1 = y[iv], y2 = y[iv + 1], y3 = y[iv + 2];
@@ -845,22 +845,22 @@ void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
     if (jumplimit > bigjump || (fabsf(x1 - x2) < jumplimit && fabsf(x2 - x3)
         < jumplimit && fabsf(x1 - x3) < jumplimit && fabsf(y1 - y2) < jumplimit
         && fabsf(y2 - y3) < jumplimit && fabsf(y1 - y3) < jumplimit)) {
-      glVertex2f(x1, y1);
-      glVertex2f(x2, y2);
-      glVertex2f(x3, y3);
+      gl->Vertex2f(x1, y1);
+      gl->Vertex2f(x2, y2);
+      gl->Vertex2f(x3, y3);
     }
     /*
-     glVertex2f(x[iv], y[iv]);
-     glVertex2f(x[iv+1], y[iv+1]);
-     glVertex2f(x[iv+2], y[iv+2]);
+     gl->Vertex2f(x[iv], y[iv]);
+     gl->Vertex2f(x[iv+1], y[iv+1]);
+     gl->Vertex2f(x[iv+2], y[iv+2]);
     */
   }
-  glEnd();
+  gl->End();
 
-  if (antialiasing) glEnable(GL_MULTISAMPLE);
+  if (antialiasing) gl->Enable(DiGLPainter::gl_MULTISAMPLE);
 }
 
-void FilledMap::clipPrimitiveLines(int i1, int i2, float *x, float *y,
+void FilledMap::clipPrimitiveLines(DiGLPainter* gl, int i1, int i2, float *x, float *y,
     float xylim[4], float jumplimit)
 {
   int i, n = i1;
@@ -870,6 +870,6 @@ void FilledMap::clipPrimitiveLines(int i1, int i2, float *x, float *y,
         - y[n]) < jumplimit) {
       n++;
     }
-    diutil::xyclip(n - i, &x[i], &y[i], xylim);
+    diutil::xyclip(n - i, &x[i], &y[i], xylim, gl);
   }
 }

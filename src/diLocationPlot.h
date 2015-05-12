@@ -58,14 +58,14 @@ public:
   void hide() { visible= false; }
   void show() { visible= true; }
   bool isVisible() const { return visible; }
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
   bool changeProjection();
   std::string getName() { return locdata.name; }
   std::string find(int x, int y);
   void getAnnotation(std::string &str, Colour &col);
 
 private:
-  void drawLineOrPoint(int l);
+  void drawLineOrPoint(DiGLPainter* gl, int l);
 
 private:
   struct InternalLocationInfo {

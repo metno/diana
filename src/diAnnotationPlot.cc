@@ -32,10 +32,9 @@
 #endif
 
 #include "diAnnotationPlot.h"
-#include <diLegendPlot.h>
-#include <diFontManager.h>
-#include <diImageGallery.h>
-#include <GL/gl.h>
+#include "diImageGallery.h"
+#include "diGLPainter.h"
+#include "diLegendPlot.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -507,7 +506,7 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
   return true;
 }
 
-void AnnotationPlot::plot(PlotOrder zorder)
+void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
   if (zorder != LINES && zorder != OVERLAY)
@@ -540,33 +539,22 @@ void AnnotationPlot::plot(PlotOrder zorder)
   bbox = window;
 
   //check if annotations should be scaled, get new dimensions
-  getXYBox();
+  getXYBox(gl);
 
   int n = annotations.size();
 
   // draw filled area
   Colour fc = poptions.fillcolour;
   if (fc.A() < Colour::maxv && getColourMode()) {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    gl->Enable(DiGLPainter::gl_BLEND);
+    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
   }
   if (poptions.polystyle != poly_border && poptions.polystyle != poly_none) {
-    if (getColourMode())
-      glColor4ubv(fc.RGBA());
-    else
-      glIndexi(fc.Index());
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glBegin(GL_POLYGON);
-    glVertex2f(bbox.x1, bbox.y1);
-    glVertex2f(bbox.x1, bbox.y2);
-    glVertex2f(bbox.x2, bbox.y2);
-    glVertex2f(bbox.x2, bbox.y1);
-    glEnd();
+    gl->setColour(fc);
+    gl->fillRect(bbox);
   }
-  glDisable(GL_BLEND);
-
-
-  getStaticPlot()->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_BLEND);
+  gl->UpdateOutput();
 
   //plotAnno could be false if annotations too big for box
   // return here after plotted box only
@@ -581,92 +569,57 @@ void AnnotationPlot::plot(PlotOrder zorder)
     if (c == getStaticPlot()->getBackgroundColour())
       c = getStaticPlot()->getBackContrastColour();
     currentColour = c;
-    if (getColourMode())
-      glColor4ubv(c.RGBA());
-    else
-      glIndexi(c.Index());
-    plotElements(annotations[i].annoElements,
+    gl->setColour(c);
+    plotElements(gl, annotations[i].annoElements,
                  anno.rect.x1, anno.rect.y1, annotations[i].hei);
   }
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
   // draw outline
   if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
-    if (getColourMode())
-      glColor4ubv(poptions.bordercolour.RGBA());
-    else
-      glIndexi(poptions.bordercolour.Index());
-
-    glLineWidth(clinewidth);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(bbox.x1, bbox.y1);
-    glVertex2f(bbox.x1, bbox.y2);
-    glVertex2f(bbox.x2, bbox.y2);
-    glVertex2f(bbox.x2, bbox.y1);
-    glEnd();
+    gl->setLineStyle(Colour(poptions.bordercolour), clinewidth);
+    gl->drawRect(bbox);
   }
 
   //draw borders
   for (int i = 0; i < n; i++) {
-    if (annotations[i].polystyle == poly_border || annotations[i].polystyle
-        == poly_both) {
-      glColor4ubv(annotations[i].bordercolour.RGBA());
-      glBegin(GL_POLYGON);
-      glVertex2f(annotations[i].rect.x1, annotations[i].rect.y1);
-      glVertex2f(annotations[i].rect.x1, annotations[i].rect.y2);
-      glVertex2f(annotations[i].rect.x2, annotations[i].rect.y2);
-      glVertex2f(annotations[i].rect.x2, annotations[i].rect.y1);
-      glEnd();
+    if (annotations[i].polystyle == poly_border || annotations[i].polystyle == poly_both) {
+      gl->setColour(annotations[i].bordercolour);
+      gl->fillRect(annotations[i].rect);
     }
-    plotBorders();
+    plotBorders(gl);
   }
-
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 }
 
-bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
+bool AnnotationPlot::plotElements(DiGLPainter* gl,
+    vector<element>& annoEl, float& x, float& y,
     float annoHeight, bool horizontal)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
-  float fontsizeScale;
+  float fontsizeScale = gl->getSizeDiv();
   float wid, hei;
-  if (getStaticPlot()->hardcopy)
-    fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
-  else
-    fontsizeScale = 1.0;
 
   //    METLIBS_LOG_DEBUG("fontsizeScale:"<<fontsizeScale);
   for (size_t j = 0; j < annoEl.size(); j++) {
     if (!horizontal && j != 0)
       y -= annoEl[j].height;
 
-    if (getColourMode())
-      glColor4ubv(currentColour.RGBA());
-    else
-      glIndexi(currentColour.Index());
+    gl->setColour(currentColour);
 
     if (annoEl[j].polystyle == poly_fill || annoEl[j].polystyle == poly_both) {
 
-      Colour fc = poptions.fillcolour;
+      const Colour& fc = poptions.fillcolour;
       if (fc.A() < Colour::maxv && getColourMode()) {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        gl->Enable(DiGLPainter::gl_BLEND);
+        gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
       }
-      if (getColourMode())
-        glColor4ubv(fc.RGBA());
-      else
-        glIndexi(fc.Index());
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glBegin(GL_POLYGON);
-      glVertex2f(x - border, y - border);
-      glVertex2f(x + border + annoEl[j].width, y - border);
-      glVertex2f(x + border + annoEl[j].width, y + border + annoEl[j].height);
-      glVertex2f(x - border, y + border + annoEl[j].height);
-      glEnd();
-      glDisable(GL_BLEND);
+      gl->setColour(fc);
+      gl->fillRect(x - border, y - border, x + border + annoEl[j].width, y + border + annoEl[j].height);
+      gl->Disable(DiGLPainter::gl_BLEND);
     }
-    getStaticPlot()->UpdateOutput();
+    gl->UpdateOutput();
 
     // get coordinates of border, draw later
     if (annoEl[j].polystyle == poly_border || annoEl[j].polystyle == poly_both) {
@@ -678,10 +631,8 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       borderline.push_back(bl);
     }
 
-    if (not annoEl[j].textcolour.empty()) {
-      Colour c(annoEl[j].textcolour);
-      glColor4ubv(c.RGBA());
-    }
+    if (not annoEl[j].textcolour.empty())
+      gl->setColour(Colour(annoEl[j].textcolour));
 
     if (annoEl[j].eType == box) {
       wid = hei = 0.0;
@@ -689,7 +640,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       float tmpx = x, tmpy = y;
       if (horizontal && !annoEl[j].horizontal)
         y += annoEl[j].height - annoEl[j].subelement[0].height;
-      plotElements(annoEl[j].subelement, x, y, annoEl[j].height,
+      plotElements(gl, annoEl[j].subelement, x, y, annoEl[j].height,
           annoEl[j].horizontal);
       if (horizontal)
         y = tmpy;
@@ -702,22 +653,21 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       if (annoEl[j].eType == input && isMarked) {
         if (annoEl[j].isInside) {
           //red - ctrl-e works
-          glColor4f(1, 0, 0, 1.0);
+          gl->Color4f(1, 0, 0, 1.0);
         } else if (isMarked) {
           //show text to be edited in blue
-          glColor4f(0, 0, 1, 1.0);
+          gl->Color4f(0, 0, 1, 1.0);
         }
       }
-      getStaticPlot()->getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
-          * fontsizeToPlot);
+      gl->setFont(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize * fontsizeToPlot);
       std::string astring = annoEl[j].eText;
       astring += " ";
-      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), wid, hei);
+      gl->getTextSize(astring, wid, hei);
       wid *= fontsizeScale;
       hei *= fontsizeScale;
       if (annoEl[j].eHalign == align_right && j + 1 == annoEl.size())
         x = bbox.x2 - wid - border;
-      getStaticPlot()->getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
+      gl->drawText(astring, x, y, 0.0);
       //remember corners of box around text for marking and editing
       annoEl[j].x1 = x;
       annoEl[j].y1 = y;
@@ -728,25 +678,21 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
         //markert tekst
         float w, h;
         std::string substring = astring.substr(0, annoEl[j].itsCursor);
-        getStaticPlot()->getFontPack()->getStringSize(substring.c_str(), w, h);
-        glColor4f(0, 0, 0, 1.0);
-        glBegin(GL_LINE_STRIP);
-        glVertex2f(annoEl[j].x1 + w, annoEl[j].y1);
-        glVertex2f(annoEl[j].x1 + w, annoEl[j].y2);
-        glEnd();
+        gl->getTextSize(substring, w, h);
+        gl->setColour(Colour::fromF(0, 0, 0, 1));
+        gl->drawLine(annoEl[j].x1 + w, annoEl[j].y1, annoEl[j].x1 + w, annoEl[j].y2);
       }
     } else if (annoEl[j].eType == symbol) {
-      getStaticPlot()->getFontPack()->set(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
+      gl->setFont(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       float tmpwid;
-      getStaticPlot()->getFontPack()->getCharSize(annoEl[j].eCharacter, tmpwid, hei);
-      getStaticPlot()->getFontPack()->drawChar(annoEl[j].eCharacter, x, y, 0.0);
+      const std::string echar(1, annoEl[j].eCharacter);
+      gl->getTextSize(echar, tmpwid, hei);
+      gl->drawText(echar, x, y, 0.0);
       //set back to normal font and draw one blank
-      getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
-          * fontsizeToPlot);
-      std::string astring = " ";
-      getStaticPlot()->getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
-      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), wid, hei);
+      gl->setFont(poptions.fontname, poptions.fontface, annoEl[j].eSize * fontsizeToPlot);
+      gl->drawText(" ", x, y, 0.0);
+      gl->getTextSize(" ", wid, hei);
       wid *= fontsizeScale;
       wid += tmpwid;
       hei *= fontsizeScale;
@@ -755,19 +701,19 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       float scale = annoEl[j].eSize * scaleFactor;
       hei = ig.height_(annoEl[j].eImage) * getStaticPlot()->getPhysToMapScaleY() * scale;
       wid = ig.width_(annoEl[j].eImage) * getStaticPlot()->getPhysToMapScaleX() * scale;
-      ig.plotImage(getStaticPlot(), annoEl[j].eImage, x + wid / 2, y + hei / 2, true, scale,
+      ig.plotImage(gl, getStaticPlot(), annoEl[j].eImage, x + wid / 2, y + hei / 2, true, scale,
           annoEl[j].eAlpha);
     } else if (annoEl[j].eType == table) {
-      hei = annoEl[j].classplot->height();
+      hei = annoEl[j].classplot->height(gl);
       if (poptions.v_align == align_top)
-        annoEl[j].classplot->plotLegend(x, y + annoHeight);
+        annoEl[j].classplot->plotLegend(gl, x, y + annoHeight);
       else if (poptions.v_align == align_center)
-        annoEl[j].classplot->plotLegend(x, y + (annoHeight + hei) / 2.);
+        annoEl[j].classplot->plotLegend(gl, x, y + (annoHeight + hei) / 2.);
       else
-        annoEl[j].classplot->plotLegend(x, y + hei);
-      wid = annoEl[j].classplot->width();
+        annoEl[j].classplot->plotLegend(gl, x, y + hei);
+      wid = annoEl[j].classplot->width(gl);
     } else if (annoEl[j].eType == arrow) {
-      wid = plotArrow(x, y, annoEl[j].arrowLength, annoEl[j].arrowFeather);
+      wid = plotArrow(gl, x, y, annoEl[j].arrowLength, annoEl[j].arrowFeather);
     }
     if (horizontal)
       x += wid;
@@ -775,7 +721,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
   return true;
 }
 
-float AnnotationPlot::plotArrow(float x, float y, float l, bool feather)
+float AnnotationPlot::plotArrow(DiGLPainter* gl, float x, float y, float l, bool feather)
 {
   if (feather) {
     x += 0.1 * l;
@@ -784,15 +730,15 @@ float AnnotationPlot::plotArrow(float x, float y, float l, bool feather)
   float dx = 0.333333 * l;
   float dy = dx * 0.5;
 
-  //  glLineWidth(2.0);
-  glBegin(GL_LINES);
-  glVertex2f(x, y + dy);
-  glVertex2f(x + l, y + dy);
-  glVertex2f(x + l, y + dy);
-  glVertex2f(x + l - dx, y + dy * 2);
-  glVertex2f(x + l, y + dy);
-  glVertex2f(x + l - dx, y);
-  glEnd();
+  //  gl->LineWidth(2.0);
+  gl->Begin(DiGLPainter::gl_LINES);
+  gl->Vertex2f(x, y + dy);
+  gl->Vertex2f(x + l, y + dy);
+  gl->Vertex2f(x + l, y + dy);
+  gl->Vertex2f(x + l - dx, y + dy * 2);
+  gl->Vertex2f(x + l, y + dy);
+  gl->Vertex2f(x + l - dx, y);
+  gl->End();
 
   if (feather) {
     float x1 = x;
@@ -800,98 +746,79 @@ float AnnotationPlot::plotArrow(float x, float y, float l, bool feather)
     float x2 = x1 - 0.13 * l;
     float y2 = y1 + 0.28 * l;
 
-    glBegin(GL_LINES);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y2);
+    gl->Begin(DiGLPainter::gl_LINES);
+    gl->Vertex2f(x1, y1);
+    gl->Vertex2f(x2, y2);
     x1 += 0.13 * l;
     x2 += 0.13 * l;
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y2);
+    gl->Vertex2f(x1, y1);
+    gl->Vertex2f(x2, y2);
     x1 += 0.13 * l;
     x2 += 0.13 * l;
     x2 = (x1 + x2) / 2;
     y2 = (y1 + y2) / 2;
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y2);
-    glEnd();
+    gl->Vertex2f(x1, y1);
+    gl->Vertex2f(x2, y2);
+    gl->End();
   }
 
-  glLineWidth(1.0);
+  gl->LineWidth(1.0);
 
   return l;
 }
 
-void AnnotationPlot::plotBorders()
+void AnnotationPlot::plotBorders(DiGLPainter* gl)
 {
-  if (getColourMode())
-    glColor4ubv(poptions.bordercolour.RGBA());
-  else
-    glIndexi(poptions.bordercolour.Index());
-
-  glLineWidth(clinewidth);
+  gl->setLineStyle(poptions.bordercolour, clinewidth);
 
   int n = borderline.size();
-  for (int i = 0; i < n; i++) {
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(borderline[i].x1, borderline[i].y1);
-    glVertex2f(borderline[i].x1, borderline[i].y2);
-    glVertex2f(borderline[i].x2, borderline[i].y2);
-    glVertex2f(borderline[i].x2, borderline[i].y1);
-    glEnd();
-  }
+  for (int i = 0; i < n; i++)
+    gl->drawRect(borderline[i].x1, borderline[i].y1, borderline[i].x2, borderline[i].y2);
 }
 
-void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
+void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
+    vector<element> &annoEl, float& wid,
     float& hei, bool horizontal)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
-  float fontsizeScale;
+  float fontsizeScale = gl->getSizeDiv();
 
   float width = 0, height = 0;
   for (size_t j = 0; j < annoEl.size(); j++) {
     float w = 0.0, h = 0.0;
     if (annoEl[j].eType == text || annoEl[j].eType == input) {
-      getStaticPlot()->getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
+      gl->setFont(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = annoEl[j].eText;
       astring += " ";
-      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), w, h);
-      if (getStaticPlot()->hardcopy)
-        fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
-      else
-        fontsizeScale = 1.0;
+      gl->getTextSize(astring, w, h);
       w *= fontsizeScale;
       h *= fontsizeScale;
     } else if (annoEl[j].eType == image) {
-      std::string aimage = annoEl[j].eImage;
+      const std::string& aimage = annoEl[j].eImage;
       ImageGallery ig;
       float scale = annoEl[j].eSize * scaleFactor;
       h = ig.height_(aimage) * getStaticPlot()->getPhysToMapScaleY() * scale;
       w = ig.width_(aimage) * getStaticPlot()->getPhysToMapScaleX() * scale;
     } else if (annoEl[j].eType == table) {
-      h = annoEl[j].classplot->height();
-      w = annoEl[j].classplot->width();
+      h = annoEl[j].classplot->height(gl);
+      w = annoEl[j].classplot->width(gl);
     } else if (annoEl[j].eType == arrow) {
       h = annoEl[j].arrowLength / 2.;
       w = annoEl[j].arrowLength;
     } else if (annoEl[j].eType == symbol) {
-      getStaticPlot()->getFontPack()->set(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
+      gl->setFont(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      getStaticPlot()->getFontPack()->getCharSize(annoEl[j].eCharacter, w, h);
-      getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
+      gl->getCharSize(annoEl[j].eCharacter, w, h);
+      gl->setFont(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      if (getStaticPlot()->hardcopy)
-        fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
-      else
-        fontsizeScale = 1.0;
-      std::string astring = " ";
-      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), w, h);
+      gl->getTextSize(" ", w, h);
       w *= fontsizeScale;
       w += w;
       h *= fontsizeScale;
     } else if (annoEl[j].eType == box) {
-      getAnnoSize(annoEl[j].subelement, w, h, annoEl[j].horizontal);
+      getAnnoSize(gl, annoEl[j].subelement, w, h, annoEl[j].horizontal);
     }
 
     if (horizontal) {
@@ -917,7 +844,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
  * corresponds to the plot window.
  */
 
-void AnnotationPlot::getXYBox()
+void AnnotationPlot::getXYBox(DiGLPainter* gl)
 {
   //  METLIBS_LOG_DEBUG("getXYBox()");
 
@@ -935,7 +862,7 @@ void AnnotationPlot::getXYBox()
   int n = annotations.size();
 
   for (int i = 0; i < n; i++) {
-    getAnnoSize(annotations[i].annoElements, wid, hei);
+    getAnnoSize(gl, annotations[i].annoElements, wid, hei);
 
     annotations[i].wid = wid;
     annotations[i].hei = hei;

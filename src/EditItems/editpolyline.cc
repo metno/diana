@@ -29,9 +29,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <GL/gl.h>
 #include "drawingpolyline.h"
 #include "editpolyline.h"
+#include "diGLPainter.h"
 
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
@@ -236,11 +236,11 @@ void PolyLine::removePoint()
   }
 }
 
-void PolyLine::drawIncomplete() const
+void PolyLine::drawIncomplete(DiGLPainter*) const
 {
 }
 
-void PolyLine::drawHoverHighlightingBG(bool incomplete, bool selected) const
+void PolyLine::drawHoverHighlightingBG(DiGLPainter* gl, bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
@@ -250,42 +250,43 @@ void PolyLine::drawHoverHighlightingBG(bool incomplete, bool selected) const
   const int lineWidth = properties().value("style:linewidth").toInt(&ok);
   const int defaultLineWidth = 2;
   const int pad = 6;
-  DrawingStyleManager::instance()->highlightPolyLine(this, points_, (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180));
+  DrawingStyleManager::instance()->highlightPolyLine(gl, this, points_,
+      (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180));
 
   // highlight the control points
-  drawControlPoints(QColor(255, 0, 0, 255));
+  drawControlPoints(gl, QColor(255, 0, 0, 255));
 }
 
-void PolyLine::drawHoverHighlighting(bool incomplete, bool selected) const
+void PolyLine::drawHoverHighlighting(DiGLPainter* gl, bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
 
   if (hoverCtrlPointIndex_ >= 0) {
     // highlight the control point
-    drawHoveredControlPoint(QColor(255, 0, 0, 255), 2);
-    drawHoveredControlPoint(QColor(255, 255, 0, 255));
+    drawHoveredControlPoint(gl, QColor(255, 0, 0, 255), 2);
+    drawHoveredControlPoint(gl, QColor(255, 255, 0, 255));
   } else {
     // highlight the control points
     if (selected)
-      drawControlPoints(QColor(255, 0, 0, 255));
+      drawControlPoints(gl, QColor(255, 0, 0, 255));
 
     if (selected && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
       // highlight the insertion position of a new point
-      glColor3ub(0, 200, 0);
+      gl->Color3ub(0, 200, 0);
       const int w = 4;
       const int w_2 = w/2;
       const QRectF r(hoverPos_.x() - w_2, hoverPos_.y() - w_2, w, w);
-      glPushAttrib(GL_LINE_BIT);
-      glLineWidth(2);
+      gl->PushAttrib(DiGLPainter::gl_LINE_BIT);
+      gl->LineWidth(2);
       const int pad = 1;
-      glBegin(GL_LINE_LOOP);
-      glVertex3i(r.left() - pad,  r.bottom() + pad, 1);
-      glVertex3i(r.right() + pad, r.bottom() + pad, 1);
-      glVertex3i(r.right() + pad, r.top() - pad, 1);
-      glVertex3i(r.left() - pad,  r.top() - pad, 1);
-      glEnd();
-      glPopAttrib();
+      gl->Begin(DiGLPainter::gl_LINE_LOOP);
+      gl->Vertex3i(r.left() - pad,  r.bottom() + pad, 1);
+      gl->Vertex3i(r.right() + pad, r.bottom() + pad, 1);
+      gl->Vertex3i(r.right() + pad, r.top() - pad, 1);
+      gl->Vertex3i(r.left() - pad,  r.top() - pad, 1);
+      gl->End();
+      gl->PopAttrib();
     }
   }
 }

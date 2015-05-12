@@ -30,8 +30,9 @@
 #define _diFilledMap_h
 
 #include <diField/diGridConverter.h>
-#include <GL/gl.h>
 #include <vector>
+
+#include "diGLPainter.h"
 
 /**
    \brief Maps with filled land
@@ -93,9 +94,9 @@ private:
   long gettimestamp();
   bool readheader();
 
-  void clipTriangles(int i1, int i2, float * x, float * y, float xylim[4],
+  void clipTriangles(DiGLPainter* gl, int i1, int i2, float * x, float * y, float xylim[4],
       float jumplimit);
-  void clipPrimitiveLines(int i1, int i2, float *, float *, float xylim[4],
+  void clipPrimitiveLines(DiGLPainter* gl, int i1, int i2, float *, float *, float xylim[4],
       float jumplimit);
 
 public:
@@ -119,10 +120,10 @@ public:
    * @param bcolour, background color
    * @return successful plot
    */
-  bool plot(Area area, Rectangle maprect, double gcd, bool land, bool cont,
-      bool keepcont, GLushort linetype, float linewidth,
+  bool plot(DiGLPainter* gl, const Area& area, const Rectangle& maprect,
+      double gcd, bool land, bool cont,
+      bool keepcont, DiGLPainter::GLushort linetype, float linewidth,
       const unsigned char* lcolour, const unsigned char* fcolour, const unsigned char* bcolour);
-
 };
 
 #endif

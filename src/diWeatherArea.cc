@@ -33,9 +33,11 @@
 #include "config.h"
 #endif
 
-#include <diWeatherArea.h>
-#include <diTesselation.h>
-#include <polyStipMasks.h>
+#include "diWeatherArea.h"
+#include "diGLPainter.h"
+#include "polyStipMasks.h"
+
+#include <QPolygonF>
 
 #include <puTools/miStringFunctions.h>
 
@@ -49,13 +51,10 @@ vector<editToolInfo> WeatherArea::allAreas; //info about areas
 map<std::string, int> WeatherArea::areaTypes; //finds area type number from name
 float WeatherArea::defaultLineWidth = 4;
 
-// Default constructor
 WeatherArea::WeatherArea() :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherArea default constructor");
-#endif
+  METLIBS_LOG_SCOPE();
 
   setType(0);
 }
@@ -63,9 +62,7 @@ WeatherArea::WeatherArea() :
 WeatherArea::WeatherArea(int ty) :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherArea(int) constructor");
-#endif
+  METLIBS_LOG_SCOPE();
 
   setType(ty);
 }
@@ -73,9 +70,8 @@ WeatherArea::WeatherArea(int ty) :
 WeatherArea::WeatherArea(std::string tystring) :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherArea(std::string) constructor");
-#endif
+  METLIBS_LOG_SCOPE();
+
   // set correct areatype
   if (!setType(tystring))
     METLIBS_LOG_DEBUG("WeatherArea constructor error, type " << tystring
@@ -83,7 +79,6 @@ WeatherArea::WeatherArea(std::string tystring) :
 
 }
 
-// Destructor
 WeatherArea::~WeatherArea()
 {
 }
@@ -192,7 +187,7 @@ void WeatherArea::setState(const state s)
   currentState = s;
 }
 
-void WeatherArea::plot(PlotOrder zorder)
+void WeatherArea::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   if (!isEnabled())
     return;
@@ -202,13 +197,13 @@ void WeatherArea::plot(PlotOrder zorder)
     setWindowInfo();
 
     //enable blending and set colour
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ub(objectBorderColour.R(),objectBorderColour.G(),objectBorderColour.B(),objectBorderColour.A());
+    gl->Enable(DiGLPainter::gl_BLEND);
+    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+    gl->setColour(objectBorderColour);
 
     if (itsLinetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(itsLinetype.factor, itsLinetype.bmap);
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+      gl->LineStipple(itsLinetype.factor, itsLinetype.bmap);
     }
 
     float lwidth = 1.0;
@@ -223,81 +218,69 @@ void WeatherArea::plot(PlotOrder zorder)
         lwidth = 1;
     }
 
-    glLineWidth(lwidth);
+    gl->LineWidth(lwidth);
     int end = 0;
     if (currentState == active || !spline || s_length == 0) { // crude plotting: no splines or areafill
       end = nodePoints.size();
-      glBegin(GL_LINE_STRIP);
+      gl->Begin(DiGLPainter::gl_LINE_STRIP);
       for (int i = 0; i < end; i++)
-        glVertex2f(nodePoints[i].x, nodePoints[i].y);
+        gl->Vertex2f(nodePoints[i].x, nodePoints[i].y);
       if (end && !rubber)
-        glVertex2f(nodePoints[0].x, nodePoints[0].y);
-      glEnd();
+        gl->Vertex2f(nodePoints[0].x, nodePoints[0].y);
+      gl->End();
       if (rubber)
-        plotRubber();
+        plotRubber(gl);
 
     } else { // full plot: spline-border
       if (drawIndex == Sigweather && currentState == passive) {
-        drawSigweather();
+        drawSigweather(gl);
       } else {
         end = s_length;
-        glBegin(GL_LINE_STRIP);
+        gl->Begin(DiGLPainter::gl_LINE_STRIP);
         for (int i = 0; i < end; i++)
-          glVertex2f(x_s[i], y_s[i]);
-        glEnd();
+          gl->Vertex2f(x_s[i], y_s[i]);
+        gl->End();
       }
     }
 
     //draw fillArea
     if (fillArea && currentState == passive && end > 2) {
-      int j = 0;
+      QPolygonF polygon;
       int npos = end;
-      GLdouble *gldata = new GLdouble[npos * 3];
 
-      glShadeModel(GL_FLAT);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+      gl->ShadeModel(DiGLPainter::gl_FLAT);
+      gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+      gl->setColour(objectColour);
       if ( itsFilltype != NULL ) {
-        glEnable(GL_POLYGON_STIPPLE);
-        glPolygonStipple(itsFilltype);
+        gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
+        gl->PolygonStipple(itsFilltype);
       }
       if (!spline) {
         // check for identical end-points
         if (nodePoints[0] == nodePoints[npos - 1])
           npos--;
-        for (int i = 0; i < npos; i++) {
-          gldata[j] = nodePoints[i].x;
-          gldata[j + 1] = nodePoints[i].y;
-          gldata[j + 2] = 0.0;
-          j += 3;
-        }
+        for (int i = 0; i < npos; i++)
+          polygon << QPointF(nodePoints[i].x, nodePoints[i].y);
       } else {
         // check for identical end-points
         if (x_s[0] == x_s[npos - 1] && y_s[0] == y_s[npos - 1])
           npos--;
-        for (int i = 0; i < npos; i++) {
-          gldata[j] = x_s[i];
-          gldata[j + 1] = y_s[i];
-          gldata[j + 2] = 0.0;
-          j += 3;
-        }
+        for (int i = 0; i < npos; i++)
+          polygon << QPointF(x_s[i], y_s[i]);
       }
-      beginTesselation();
-      tesselation(gldata, 1, &npos);
-      endTesselation();
-      delete[] gldata;
+      gl->drawPolygon(polygon);
     }
 
     // for PostScript generation
-    getStaticPlot()->UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDisable(GL_POLYGON_STIPPLE);
-    glDisable(GL_BLEND);
+    gl->UpdateOutput();
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
+    gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
+    gl->Disable(DiGLPainter::gl_BLEND);
 
     // draws the edge rectangles / points that defines marking and moving
-    drawNodePoints();
-    getStaticPlot()->UpdateOutput();
+    drawNodePoints(gl);
+    gl->UpdateOutput();
   }
 }
 
@@ -484,7 +467,7 @@ string WeatherArea::writeTypeString()
   return ret;
 }
 
-void WeatherArea::drawSigweather()
+void WeatherArea::drawSigweather(DiGLPainter* gl)
 {
   //METLIBS_LOG_DEBUG("WeatherArea::drawSigweather");
   //calculate total length
@@ -521,7 +504,7 @@ void WeatherArea::drawSigweather()
   if (y_s != 0)
     delete[] y_s;
   x_s = y_s = 0;
-  glLineWidth(siglinewidth);
+  gl->LineWidth(siglinewidth);
   for (int i = 0; i < npoints - 1; i++) {
     float deltay, deltax;
     deltay = yplot[i + 1] - yplot[i];
@@ -536,14 +519,14 @@ void WeatherArea::drawSigweather()
     }
     float xx1 = xplot[i] + deltax / 2;
     float yy1 = yplot[i] + deltay / 2;
-    glPushMatrix();
-    glTranslatef(xx1, yy1, 0.0);
-    glRotatef(atan2(deltay, deltax) * RAD_TO_DEG, 0.0, 0.0, 1.0);
-    glBegin(GL_LINE_STRIP);
+    gl->PushMatrix();
+    gl->Translatef(xx1, yy1, 0.0);
+    gl->Rotatef(atan2(deltay, deltax) * RAD_TO_DEG, 0.0, 0.0, 1.0);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (int j = 0; j < nflag; j++)
-      glVertex2f(xflag[j], yflag[j]);
-    glEnd();
-    glPopMatrix();
+      gl->Vertex2f(xflag[j], yflag[j]);
+    gl->End();
+    gl->PopMatrix();
   }
   if (xplot != 0)
     delete[] xplot;

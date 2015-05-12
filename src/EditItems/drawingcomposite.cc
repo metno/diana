@@ -29,15 +29,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <QPainter>
-#include "GL/gl.h"
 #include "diDrawingManager.h"
 #include "drawingcomposite.h"
 #include "drawingpolyline.h"
 #include "drawingsymbol.h"
 #include "drawingtext.h"
 #include "drawingstylemanager.h"
-#include <diPlotModule.h>
+#include "diPlotModule.h"
+#include "diGLPainter.h"
 
 #define MILOGGER_CATEGORY "diana.Composite"
 #include <miLogger/miLogging.h>
@@ -54,7 +53,7 @@ Composite::~Composite()
 {
 }
 
-void Composite::draw()
+void Composite::draw(DiGLPainter* gl)
 {
   if (!created_)
     createElements();
@@ -70,18 +69,18 @@ void Composite::draw()
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
   // Use the fill colour defined in the style to fill the text area.
-  styleManager->beginFill(this);
-  styleManager->fillLoop(this, points);
-  styleManager->endFill(this);
+  styleManager->beginFill(gl, this);
+  styleManager->fillLoop(gl, this, points);
+  styleManager->endFill(gl, this);
 
   foreach (DrawingItemBase *element, elements_)
-    element->draw();
+    element->draw(gl);
 
   // Draw the outline using the border colour and line pattern defined in
   // the style.
-  styleManager->beginLine(this);
-  styleManager->drawLines(this, points);
-  styleManager->endLine(this);
+  styleManager->beginLine(gl, this);
+  styleManager->drawLines(gl, this, points);
+  styleManager->endLine(gl, this);
 }
 
 QRectF Composite::boundingRect() const

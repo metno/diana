@@ -49,27 +49,18 @@ public:
   SpectrumData(const std::string& modelname);
   ~SpectrumData();
   bool readFileHeader(vcross::Setup_p setup, const std::string& reftimestr);
-  std::vector<std::string> getNames()
-  {
-    return posName;
-  }
-  std::vector<float> getLatitudes()
-  {
-    return posLatitude;
-  }
-  std::vector<float> getLongitudes()
-  {
-    return posLongitude;
-  }
-  std::vector<miutil::miTime> getTimes()
-  {
-    return validTime;
-  }
+  const std::vector<std::string>& getNames()
+    { return posName; }
+  const std::vector<float>& getLatitudes()
+    { return posLatitude; }
+  const std::vector<float>& getLongitudes()
+    { return posLongitude; }
+  const std::vector<miutil::miTime>& getTimes()
+    { return validTime; }
 
   SpectrumPlot* getData(const std::string& name, const miutil::miTime& time);
 
 private:
-
   std::string modelName;
 
   std::string modelName2; // from file
@@ -89,7 +80,7 @@ private:
   std::vector<int> forecastHour;
   vcross::Source_p fs;
   vcross::Collector_p collector;
-   vcross::Time reftime;
+  vcross::Time reftime;
 };
 
 #endif

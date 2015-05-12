@@ -42,6 +42,7 @@
 #include "diColour.h"
 #include "diGlUtilities.h"
 #include "diLinetype.h"
+#include "diGLPainter.h"
 #include "diUtilities.h"
 
 #include <diField/diMetConstants.h>
@@ -59,13 +60,16 @@ using namespace std;
 
 static const float DEG_TO_RAD = M_PI / 180;
 
-VprofDiagram::VprofDiagram(VprofOptions *vpop) :
-  VprofTables(), vpopt(vpop),diagramInList(false),  drawlist(0), numtemp(0),
-      numprog(0)
+VprofDiagram::VprofDiagram(VprofOptions *vpop, DiGLPainter* GL)
+  : gl(GL)
+  , vpopt(vpop)
+  , diagramInList(false)
+  , drawlist(0)
+  , numtemp(0)
+  , numprog(0)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
+
   setDefaults();
   plotw = ploth = 0;
   plotwDiagram = plothDiagram = -1;
@@ -73,28 +77,25 @@ VprofDiagram::VprofDiagram(VprofOptions *vpop) :
 
 VprofDiagram::~VprofDiagram()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::~VprofDiagram");
-#endif
-  if (glIsList(drawlist))
-    glDeleteLists(drawlist, 1);
-  drawlist = 0;
+  METLIBS_LOG_SCOPE();
+
+  DiGLCanvas* canvas = gl->canvas();
+  if (canvas && canvas->supportsDrawLists() && drawlist != 0 && canvas->IsList(drawlist))
+    canvas->DeleteLists(drawlist, 1);
 }
 
 void VprofDiagram::changeOptions(VprofOptions *vpop)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::changeOptions");
-#endif
+  METLIBS_LOG_SCOPE();
+
   vpopt = vpop;
   newdiagram = true;
 }
 
 void VprofDiagram::changeNumber(int ntemp, int nprog)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::changeNumber  ntemp,nprog: "<<ntemp<<" "<<nprog);
-#endif
+  METLIBS_LOG_SCOPE("ntemp,nprog: "<<ntemp<<" "<<nprog);
+
   if (ntemp != numtemp || nprog != numprog) {
     numtemp = ntemp;
     numprog = nprog;
@@ -106,24 +107,20 @@ void VprofDiagram::setPlotWindow(int w, int h)
 {
   plotw = w;
   ploth = h;
-
-  resetPage();
 }
 
 void VprofDiagram::plot()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::plot");
-#endif
+  METLIBS_LOG_SCOPE();
 
   vptext.clear();
 
   Colour cback(vpopt->backgroundColour);
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 
-  glClearColor(cback.fR(), cback.fG(), cback.fB(), 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
+  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), 1.0);
+  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT);
 
   if (plotw < 5 || ploth < 5)
     return;
@@ -144,8 +141,9 @@ void VprofDiagram::plot()
   }
 
   if (redraw) {
-    if (diagramInList && glIsList(drawlist))
-      glDeleteLists(drawlist, 1);
+    DiGLCanvas* canvas = gl->canvas();
+    if (canvas && canvas->supportsDrawLists() && diagramInList && canvas->IsList(drawlist))
+      canvas->DeleteLists(drawlist, 1);
     if (newdiagram)
       prepare();
     diagramInList = false;
@@ -177,58 +175,47 @@ void VprofDiagram::plot()
   dx = x2 - x1;
   dy = y2 - y1;
 
-  glLoadIdentity();
-  glOrtho(x1, x2, y1, y2, -1., 1.);
+  gl->LoadIdentity();
+  gl->Ortho(x1, x2, y1, y2, -1., 1.);
 
   if (redraw)
-    makeFontsizes(dx, dy, plotw, ploth);
+    makeFontsizes(gl, dx, dy, plotw, ploth);
 
-  if (hardcopy) {
-    // must avoid using the GL-list due to several linewidths and -types
-    plotDiagram();
-    fpDrawStr(true);
-  } else if (redraw) {
+  DiGLCanvas* canvas = gl->canvas();
+  if (redraw) {
     // YE: Should we check for existing list ?!
     // Yes, I think so!
 
-#if !defined(USE_PAINTGL)
-    if (drawlist != 0) {
-      if (glIsList(drawlist))
-        glDeleteLists(drawlist, 1);
+    if (canvas && canvas->supportsDrawLists()) {
+      if (drawlist != 0 && canvas->IsList(drawlist))
+        canvas->DeleteLists(drawlist, 1);
+      drawlist = canvas->GenLists(1);
+      if (drawlist != 0)
+        gl->NewList(drawlist, DiGLPainter::gl_COMPILE_AND_EXECUTE);
+      else
+        METLIBS_LOG_WARN("Unable to create new displaylist, gl->GenLists(1) returns 0");
     }
-    drawlist = glGenLists(1);
-    if (drawlist != 0)
-      glNewList(drawlist, GL_COMPILE_AND_EXECUTE);
-    else
-      METLIBS_LOG_WARN("VprofDiagram::plot(): Unable to create new displaylist, glGenLists(1) returns 0");
-#endif
 
     plotDiagram();
 
-#if !defined(USE_PAINTGL)
     if (drawlist != 0)
-      glEndList();
-#endif
+      gl->EndList();
 
     fpDrawStr(true);
     if (drawlist != 0)
       diagramInList = true;
-  } else if (glIsList(drawlist)) {
-#if !defined(USE_PAINTGL)
-    glCallList(drawlist);
-#else
+  } else if (canvas && canvas->supportsDrawLists() && canvas->IsList(drawlist)) {
+    gl->CallList(drawlist);
+    fpDrawStr(false);
+  } else {
     plotDiagram();
-#endif
     fpDrawStr(false);
   }
-
 }
 
 void VprofDiagram::setDefaults()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::setDefaults");
-#endif
+  METLIBS_LOG_SCOPE();
 
   newdiagram = true;
 
@@ -250,9 +237,7 @@ void VprofDiagram::setDefaults()
 
 void VprofDiagram::prepare()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::prepare");
-#endif
+  METLIBS_LOG_SCOPE();
 
   // constants
   //const float t0 =273.15;
@@ -722,9 +707,7 @@ void VprofDiagram::prepare()
 
 void VprofDiagram::condensationtrails()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::condensationtrails");
-#endif
+  METLIBS_LOG_SCOPE();
   //
   // compute lines for evaluation of possibility for
   // condensation trails (kondensstriper fra fly)
@@ -878,17 +861,11 @@ void VprofDiagram::condensationtrails()
   // extrapolation to "impossible" top
   for (n = 0; n < 4; n++)
     cotrails[n][0] = 2. * cotrails[n][1] - cotrails[n][2];
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::condensationtrails finished");
-#endif
 }
 
 void VprofDiagram::plotDiagram()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::plotDiagram");
-#endif
+  METLIBS_LOG_SCOPE();
 
   // constants
   const float t0 = 273.15;
@@ -944,12 +921,6 @@ void VprofDiagram::plotDiagram()
 
   fpStr.clear();
 
-  //###############################################################
-  //for (n=0; n<mxysize; n++)
-  //  METLIBS_LOG_DEBUG("xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
-  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3]);
-  //###############################################################
-
   // thick lines not changed by dialogs...
   vpopt->pLinewidth2 = vpopt->pLinewidth1 + 2.;
   vpopt->tLinewidth2 = vpopt->tLinewidth1 + 2.;
@@ -957,22 +928,10 @@ void VprofDiagram::plotDiagram()
 
   // frame around the 'real' p-t diagram
   if (vpopt->pframe) {
-    Colour c(vpopt->frameColour);
-    glColor3ubv(c.RGB());
-    linetype = Linetype(vpopt->frameLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->frameLinewidth);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(xmind, ymind);
-    glVertex2f(xmaxd, ymind);
-    glVertex2f(xmaxd, ymaxd);
-    glVertex2f(xmind, ymaxd);
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->setLineStyle(Colour(vpopt->frameColour), vpopt->frameLinewidth,
+        Linetype(vpopt->frameLinetype));
+    gl->drawRect(xmind, ymind, xmaxd, ymaxd);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   // pressure lines (possibly at flight levels)
@@ -1007,40 +966,31 @@ void VprofDiagram::plotDiagram()
       y = yptab[i] + (yptab[i + 1] - yptab[i]) * (x - i);
       ylev.push_back(y);
     }
-    Colour c(vpopt->pColour);
-    glColor3ubv(c.RGB());
-    linetype = Linetype(vpopt->pLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->pLinewidth1);
-    glBegin(GL_LINES);
+    const Colour c(vpopt->pColour);
+    gl->setLineStyle(c, vpopt->pLinewidth1,
+        Linetype(vpopt->pLinetype));
+    gl->Begin(DiGLPainter::gl_LINES);
     for (k = 0; k < kk; k++) {
       if (ylev[k] > ymind && ylev[k] < ymaxd) {
         if (!hlev[k]) {
-          glVertex2f(xmind, ylev[k]);
-          glVertex2f(xmaxd, ylev[k]);
+          gl->Vertex2f(xmind, ylev[k]);
+          gl->Vertex2f(xmaxd, ylev[k]);
         } else {
-          glEnd();
-          UpdateOutput();
-          glLineWidth(vpopt->pLinewidth2);
-          glBegin(GL_LINES);
-          glVertex2f(xmind, ylev[k]);
-          glVertex2f(xmaxd, ylev[k]);
-          glEnd();
-          UpdateOutput();
-          glLineWidth(vpopt->pLinewidth1);
-          glBegin(GL_LINES);
+          gl->End();
+          gl->LineWidth(vpopt->pLinewidth2);
+          gl->Begin(DiGLPainter::gl_LINES);
+          gl->Vertex2f(xmind, ylev[k]);
+          gl->Vertex2f(xmaxd, ylev[k]);
+          gl->End();
+          gl->LineWidth(vpopt->pLinewidth1);
+          gl->Begin(DiGLPainter::gl_LINES);
         }
       }
     }
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->End();
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
     // labels (text/numbers)
     if (vpopt->plabelp) {
-      //       setFontsize(chylab);
       dy = chylab * 1.2;
       y1 = ymindf + dy * 0.5;
       y2 = ymaxdf - dy * 0.5;
@@ -1053,15 +1003,11 @@ void VprofDiagram::plotDiagram()
               ostringstream ostr;
               ostr << setw(3) << setfill('0') << vpopt->flightlevels[k];
               std::string str = ostr.str();
-              //  	      fp->getStringSize(str.c_str(), cw, ch);
-              //            fp->drawStr(str.c_str(),x1-cw,ylev[k]-chylab*0.5,0.0);
               fpInitStr(str, x1, ylev[k] - chylab * 0.5, 0.0, chylab, c, "x-w");
               y1 = ylev[k] + dy;
             }
           }
         }
-        //         fp->getStringSize("FL", cw, ch);
-        //         fp->drawStr("FL",x1-cw,ymind-chylab*1.25,0.0);
         fpInitStr("FL", x1 - cw, ymind - chylab * 1.25, 0.0, chylab, c);
       } else {
         // pressure levels
@@ -1081,18 +1027,13 @@ void VprofDiagram::plotDiagram()
               ostringstream ostr;
               ostr << setw(4) << setfill(' ') << ip;
               std::string str = ostr.str();
-              //  	      fp->getStringSize(str.c_str(), cw, ch);
-              //  	      fp->drawStr(str.c_str(),x1-cw,ylev[k]-chylab*0.5,0.0);
               fpInitStr(str, x1, ylev[k] - chylab * 0.5, 0.0, chylab, c, "x-w");
               y1 = ylev[k] + dy;
             }
           }
         }
-        //         fp->getStringSize("hPa", cw, ch);
-        //         fp->drawStr("hPa",x1-cw,ymind-chylab*1.25,0.0);
         fpInitStr("hPa", x1, ymind - chylab * 1.25, 0.0, chylab, c, "x-w");
       }
-      UpdateOutput();
     }
   }
 
@@ -1107,15 +1048,10 @@ void VprofDiagram::plotDiagram()
       it1 += tStep;
     if (it2 > itmax)
       it2 -= tStep;
-    Colour c(vpopt->tColour);
-    glColor3ubv(c.RGB());
-    linetype = Linetype(vpopt->tLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->tLinewidth1);
-    glBegin(GL_LINES);
+    const Colour c(vpopt->tColour);
+    gl->setLineStyle(c, vpopt->tLinewidth1,
+        Linetype(vpopt->tLinetype));
+    gl->Begin(DiGLPainter::gl_LINES);
     for (it = it1; it <= it2; it += tStep) {
       t = it;
       y1 = yptab[kpmax];
@@ -1131,24 +1067,21 @@ void VprofDiagram::plotDiagram()
         x2 = xmaxd;
       }
       if (it % 40 != 0) {
-        glVertex2f(x1, y1);
-        glVertex2f(x2, y2);
+        gl->Vertex2f(x1, y1);
+        gl->Vertex2f(x2, y2);
       } else {
-        glEnd();
-        UpdateOutput();
-        glLineWidth(vpopt->tLinewidth2);
-        glBegin(GL_LINES);
-        glVertex2f(x1, y1);
-        glVertex2f(x2, y2);
-        glEnd();
-        UpdateOutput();
-        glLineWidth(vpopt->tLinewidth1);
-        glBegin(GL_LINES);
+        gl->End();
+        gl->LineWidth(vpopt->tLinewidth2);
+        gl->Begin(DiGLPainter::gl_LINES);
+        gl->Vertex2f(x1, y1);
+        gl->Vertex2f(x2, y2);
+        gl->End();
+        gl->LineWidth(vpopt->tLinewidth1);
+        gl->Begin(DiGLPainter::gl_LINES);
       }
     }
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->End();
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
     // t numbers (labels)
     if (vpopt->plabelt) {
       float sintan = sinf(vpopt->tangle * DEG_TO_RAD);
@@ -1198,9 +1131,7 @@ void VprofDiagram::plotDiagram()
           ostringstream ostr;
           ostr << setw(numwid) << setfill(' ') << setiosflags(ios::showpos)
               << it;
-          std::string str = ostr.str();
-          //           fp->drawStr(str.c_str(),x,y,numrot);
-          fpInitStr(str.c_str(), x, y, numrot, chy, c, "", "SCALEFONT");
+          fpInitStr(ostr.str(), x, y, numrot, chy, c, "", "SCALEFONT");
           xnext = x + dxmin;
         }
       }
@@ -1248,13 +1179,10 @@ void VprofDiagram::plotDiagram()
           ostringstream ostr;
           ostr << setw(numwid) << setfill(' ') << setiosflags(ios::showpos)
               << it;
-          std::string str = ostr.str();
-          //           fp->drawStr(str.c_str(),x,y,numrot);
-          fpInitStr(str.c_str(), x, y, numrot, chy, c, "", "SCALEFONT");
+          fpInitStr(ostr.str(), x, y, numrot, chy, c, "", "SCALEFONT");
           ynext = y - dymin;
         }
       }
-      UpdateOutput();
     }
   }
 
@@ -1270,14 +1198,8 @@ void VprofDiagram::plotDiagram()
     itstep = vpopt->dryadiabatStep;
     if (itstep < 1)
       itstep = 5;
-    Colour c(vpopt->dryadiabatColour);
-    glColor3ubv(c.RGB());
-    linetype = Linetype(vpopt->dryadiabatLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->dryadiabatLinewidth);
+    gl->setLineStyle(Colour(vpopt->dryadiabatColour), vpopt->dryadiabatLinewidth,
+        Linetype(vpopt->dryadiabatLinetype));
     // find first and last dry adiabat to be drawn (at 1000 hPa, pi=cp)
     t = (xmind - xztab[kpmax]) / dx1deg;
     float th = cp * (t + t0) / pitab[kpmax];
@@ -1305,7 +1227,7 @@ void VprofDiagram::plotDiagram()
           t = th * cpinv * pitab[k] - t0;
           xline[k] = xztab[k] + dx1deg * t;
         }
-        diutil::xyclip(kpmax - k1 + 1, &xline[k1], &yline[k1], xylimit);
+        diutil::xyclip(kpmax - k1 + 1, &xline[k1], &yline[k1], xylimit, gl);
       }
     } else {
       // exner function as vertical coordinate, th is a straight line
@@ -1318,11 +1240,10 @@ void VprofDiagram::plotDiagram()
         xl[0] = xztab[kpmin] + dx1deg * t;
         t = th * cpinv * pitab[kpmax];
         xl[1] = xztab[kpmax] + dx1deg * t;
-        diutil::xyclip(2, xl, yl, xylimit);
+        diutil::xyclip(2, xl, yl, xylimit, gl);
       }
     }
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   // wet adiabats (always base at 0 degrees celsius, 1000 hPa)
@@ -1330,14 +1251,8 @@ void VprofDiagram::plotDiagram()
     itstep = vpopt->wetadiabatStep;
     if (itstep < 1)
       itstep = 10;
-    Colour c(vpopt->wetadiabatColour);
-    glColor3ubv(c.RGB());
-    linetype = Linetype(vpopt->wetadiabatLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->wetadiabatLinewidth);
+    gl->setLineStyle(Colour(vpopt->wetadiabatColour), vpopt->wetadiabatLinewidth,
+        Linetype(vpopt->wetadiabatLinetype));
     kmin = (vpopt->wetadiabatPmin + idptab - 1) / idptab;
     if (kmin < kpmin)
       kmin = kpmin;
@@ -1418,13 +1333,12 @@ void VprofDiagram::plotDiagram()
             xline[k] = xline[k + 1] + (xline[k] - xline[k + 1]) * x;
             yline[k] = yline[k + 1] + (yline[k] - yline[k + 1]) * x;
           }
-          diutil::xyclip(kpmax - k + 1, &xline[k], &yline[k], xylimit);
+          diutil::xyclip(kpmax - k + 1, &xline[k], &yline[k], xylimit, gl);
           yline[k] = ytmp;
         }
       }
     }
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   // mixing ratio (lines for constant mixing ratio) (humidity)
@@ -1432,18 +1346,9 @@ void VprofDiagram::plotDiagram()
     int set = vpopt->mixingratioSet;
     if (set < 0 || set >= int(vpopt->qtable.size()))
       set = 1;
-    Colour c(vpopt->mixingratioColour);
-    glColor3ubv(c.RGB());
-    //##################################### default i dialog ???????
-    //    glEnable(GL_LINE_STIPPLE);
-    //    glLineStipple(1,0xF8F8);
-    //##################################### default i dialog ???????
-    linetype = Linetype(vpopt->mixingratioLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->mixingratioLinewidth);
+    const Colour c(vpopt->mixingratioColour);
+    gl->setLineStyle(c, vpopt->mixingratioLinewidth,
+        Linetype(vpopt->mixingratioLinetype));
     float tempmin = vpopt->mixingratioTmin;
     kmin = (vpopt->mixingratioPmin + idptab - 1) / idptab;
     if (kmin < kpmin)
@@ -1484,7 +1389,7 @@ void VprofDiagram::plotDiagram()
           ytmp = yline[kstop];
         }
         if (kpmax - kstop + 1 > 1)
-          diutil::xyclip(kpmax - kstop + 1, &xline[kstop], &yline[kstop], xylimit);
+          diutil::xyclip(kpmax - kstop + 1, &xline[kstop], &yline[kstop], xylimit, gl);
         yline[kstop] = ytmp;
         xqsat.push_back(xline[kpmax]);
       }
@@ -1492,7 +1397,6 @@ void VprofDiagram::plotDiagram()
         // plot labels below the p-t diagram
         chx = chxlab * 0.8;
         chy = chylab * 0.8;
-        // 	setFontsize(chy);
         xnext = xmind + chx * 2.;
         xlast = xmaxd - chx * 2.;
         y = ymind - chy * 1.25;
@@ -1502,27 +1406,20 @@ void VprofDiagram::plotDiagram()
             ostr << vpopt->qtable[set][iq];
             std::string str = ostr.str();
             dx = str.length() * 0.5;
-            //             fp->drawStr(str.c_str(),xqsat[iq],y,0.0);
-            fpInitStr(str.c_str(), xqsat[iq], y, 0.0, chy, c);
+            fpInitStr(str, xqsat[iq], y, 0.0, chy, c);
             xnext = xqsat[iq] + chx * 4.;
           }
         }
       }
     }
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   // condensation trail lines (for kondensstriper fra fly)
   if (vpopt->pcotrails) {
-    Colour c(vpopt->cotrailsColour);
-    glColor3ubv(c.RGB());
-    linetype = Linetype(vpopt->cotrailsLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glLineWidth(vpopt->cotrailsLinewidth);
+    const Colour c(vpopt->cotrailsColour);
+    gl->setLineStyle(c, vpopt->cotrailsLinewidth,
+        Linetype(vpopt->cotrailsLinetype));
     kmin = vpopt->cotrailsPmin / idptab;
     kmax = (vpopt->cotrailsPmax + idptab - 1) / idptab;
     if (kmin < kpmin)
@@ -1535,10 +1432,9 @@ void VprofDiagram::plotDiagram()
         xline[k] = xztab[k] + dx1deg * cotrails[n][k];
         yline[k] = yptab[k];
       }
-      diutil::xyclip(kmax - kmin + 1, &xline[kmin], &yline[kmin], xylimit);
+      diutil::xyclip(kmax - kmin + 1, &xline[kmin], &yline[kmin], xylimit, gl);
     }
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
   // plot stuff around the p-t diagram..................................
@@ -1551,45 +1447,35 @@ void VprofDiagram::plotDiagram()
     x2 = xysize[3][1];
     y1 = xysize[3][2];
     y2 = xysize[3][3];
-    Colour c(vpopt->flevelsColour);
-    glColor3ubv(c.RGB());
+    const Colour c(vpopt->flevelsColour);
+    gl->setLineStyle(c, vpopt->flevelsLinewidth1);
     // flevelsLinetype....
-    glLineWidth(vpopt->flevelsLinewidth1);
     kk = vpopt->pflightlevels.size();
-    glBegin(GL_LINES);
+    gl->Begin(DiGLPainter::gl_LINES);
     for (k = 0; k < kk; k++) {
       x = vpopt->pflightlevels[k] * dpinv;
       i = int(x);
       y = yptab[i] + (yptab[i + 1] - yptab[i]) * (x - i);
       if (y > y1 && y < y2) {
         if (vpopt->flightlevels[k] % 50 == 0) {
-          glEnd();
-          UpdateOutput();
-          glLineWidth(vpopt->flevelsLinewidth2);
-          glBegin(GL_LINES);
-          glVertex2f(x2 - chx * 1.5, y);
-          glVertex2f(x2, y);
-          glEnd();
-          UpdateOutput();
-          glLineWidth(vpopt->flevelsLinewidth1);
-          glBegin(GL_LINES);
+          gl->End();
+          gl->LineWidth(vpopt->flevelsLinewidth2);
+          gl->Begin(DiGLPainter::gl_LINES);
+          gl->Vertex2f(x2 - chx * 1.5, y);
+          gl->Vertex2f(x2, y);
+          gl->End();
+          gl->LineWidth(vpopt->flevelsLinewidth1);
+          gl->Begin(DiGLPainter::gl_LINES);
         } else {
-          glVertex2f(x2 - chx * 0.85, y);
-          glVertex2f(x2, y);
+          gl->Vertex2f(x2 - chx * 0.85, y);
+          gl->Vertex2f(x2, y);
         }
       }
     }
-    glEnd();
-    UpdateOutput();
+    gl->End();
     if (vpopt->plabelflevels) {
-      //######################################################################
-      //METLIBS_LOG_DEBUG(" flightlevels.size()= "<< flightlevels.size());
-      //METLIBS_LOG_DEBUG("pflightlevels.size()= "<<pflightlevels.size());
-      //METLIBS_LOG_DEBUG("                  kk= "<<kk);
-      //######################################################################
       y1 += chy * 0.6;
       y2 -= chy * 0.6;
-      //       setFontsize(chy);
       x1 += chx * 0.5;
       for (k = 0; k < kk; k++) {
         if (vpopt->flightlevels[k] % 50 == 0) {
@@ -1599,16 +1485,12 @@ void VprofDiagram::plotDiagram()
           if (y > y1 && y < y2) {
             ostringstream ostr;
             ostr << setw(3) << setfill('0') << vpopt->flightlevels[k];
-            std::string str = ostr.str();
-            // 	    fp->drawStr(str.c_str(),x1,y-chy*0.5,0.);
-            fpInitStr(str.c_str(), x1, y - chy * 0.5, 0., chy, c);
+            fpInitStr(ostr.str(), x1, y - chy * 0.5, 0., chy, c);
             y1 = y + chy * 1.2;
           }
         }
       }
-      //       fp->drawStr("FL",x1,ymind-chy*1.25,0.);
       fpInitStr("FL", x1, ymind - chy * 1.25, 0., chy, c);
-      UpdateOutput();
     }
   }
 
@@ -1616,14 +1498,9 @@ void VprofDiagram::plotDiagram()
   Colour c2("red");
   if (c2 == c)
     c2 = Colour("green");
-  glColor3ubv(c.RGB());
-  linetype = Linetype(vpopt->frameLinetype);
-  if (linetype.stipple) {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(linetype.factor, linetype.bmap);
-  }
-  glLineWidth(vpopt->frameLinewidth);
-  glBegin(GL_LINES);
+  gl->setLineStyle(c, vpopt->frameLinewidth,
+        Linetype(vpopt->frameLinetype));
+  gl->Begin(DiGLPainter::gl_LINES);
 
   y1 = xysize[9][3];
   y2 = xysize[0][3];
@@ -1632,29 +1509,29 @@ void VprofDiagram::plotDiagram()
   if (vpopt->plabelp) {
     if (vpopt->pflevels || vpopt->pslwind) {
       x1 = xysize[2][0];
-      glVertex2f(x1, y1);
-      glVertex2f(x1, y2);
+      gl->Vertex2f(x1, y1);
+      gl->Vertex2f(x1, y2);
     }
   }
   if (vpopt->pflevels && vpopt->plabelflevels && vpopt->pslwind) {
     x1 = xysize[3][0];
-    glVertex2f(x1, y1);
-    glVertex2f(x1, y2);
+    gl->Vertex2f(x1, y1);
+    gl->Vertex2f(x1, y2);
   }
   if (vpopt->pslwind && numtemp + numprog > 1) {
     dx = xysize[4][1] - xysize[4][0];
     x1 = xysize[4][0];
     for (n = 1; n < numtemp + numprog; n++) {
       x1 += dx;
-      glVertex2f(x1, y1);
-      glVertex2f(x1, y2);
+      gl->Vertex2f(x1, y1);
+      gl->Vertex2f(x1, y2);
     }
   }
   if (vpopt->plabelt) {
     if (vpopt->pwind || (vpopt->pvwind && numprog > 0) || vpopt->prelhum) {
       x1 = xysize[2][1];
-      glVertex2f(x1, y1);
-      glVertex2f(x1, y2);
+      gl->Vertex2f(x1, y1);
+      gl->Vertex2f(x1, y2);
     }
   }
   if (vpopt->pwind && vpopt->windseparate && numtemp + numprog > 1) {
@@ -1662,48 +1539,45 @@ void VprofDiagram::plotDiagram()
     x1 = xysize[5][0];
     for (n = 1; n < numtemp + numprog; n++) {
       x1 += dx;
-      glVertex2f(x1, y1);
-      glVertex2f(x1, y2);
+      gl->Vertex2f(x1, y1);
+      gl->Vertex2f(x1, y2);
     }
   }
-  glEnd();
-  UpdateOutput();
-  glDisable(GL_LINE_STIPPLE);
+  gl->End();
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   bool sepline = vpopt->pwind;
 
   // vertical wind (up/down arrows showing air motion)
   if (vpopt->pvwind && numprog > 0) {
-    glBegin(GL_LINES);
+    gl->Begin(DiGLPainter::gl_LINES);
     if (sepline) {
-      glVertex2f(xysize[6][0], xysize[9][3]);
-      glVertex2f(xysize[6][0], xysize[0][3]);
+      gl->Vertex2f(xysize[6][0], xysize[9][3]);
+      gl->Vertex2f(xysize[6][0], xysize[0][3]);
     }
-    glVertex2f(xysize[6][0], ymaxd);
-    glVertex2f(xysize[6][1], ymaxd);
-    glVertex2f(xysize[6][0], ymind);
-    glVertex2f(xysize[6][1], ymind);
-    glEnd();
-    UpdateOutput();
+    gl->Vertex2f(xysize[6][0], ymaxd);
+    gl->Vertex2f(xysize[6][1], ymaxd);
+    gl->Vertex2f(xysize[6][0], ymind);
+    gl->Vertex2f(xysize[6][1], ymind);
+    gl->End();
     linetype = Linetype(vpopt->rangeLinetype);
     if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+      gl->LineStipple(linetype.factor, linetype.bmap);
     }
-    glLineWidth(vpopt->rangeLinewidth);
+    gl->LineWidth(vpopt->rangeLinewidth);
     x1 = (xysize[6][0] + xysize[6][1]) * 0.5;
-    glBegin(GL_LINES);
-    glVertex2f(x1, ymind);
-    glVertex2f(x1, ymaxd);
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
-    glLineWidth(vpopt->frameLinewidth);
+    gl->Begin(DiGLPainter::gl_LINES);
+    gl->Vertex2f(x1, ymind);
+    gl->Vertex2f(x1, ymaxd);
+    gl->End();
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+    gl->LineWidth(vpopt->frameLinewidth);
     // the arrows
     // (assuming that concave polygons doesn't work properly)
-    glShadeModel(GL_FLAT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glColor3ubv(c2.RGB());
+    gl->ShadeModel(DiGLPainter::gl_FLAT);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+    gl->setColour(c2, false);
     dx = (xysize[6][1] - xysize[6][0]) * 0.4;
     if (dx > chxlab * 0.8)
       dx = chxlab * 0.8;
@@ -1713,33 +1587,31 @@ void VprofDiagram::plotDiagram()
     yc = (ymaxd + xysize[6][3]) * 0.5;
     // down arrow (sinking motion, omega>0 !)
     xc = (xysize[6][0] + x1) * 0.5;
-    glBegin(GL_POLYGON);
-    glVertex2f(xc - dx * 0.4, yc + dy);
-    glVertex2f(xc - dx * 0.4, yc);
-    glVertex2f(xc + dx * 0.4, yc);
-    glVertex2f(xc + dx * 0.4, yc + dy);
-    glEnd();
-    glBegin(GL_POLYGON);
-    glVertex2f(xc - dx, yc);
-    glVertex2f(xc, yc - dy);
-    glVertex2f(xc + dx, yc);
-    glEnd();
-    UpdateOutput();
+    gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->Vertex2f(xc - dx * 0.4, yc + dy);
+    gl->Vertex2f(xc - dx * 0.4, yc);
+    gl->Vertex2f(xc + dx * 0.4, yc);
+    gl->Vertex2f(xc + dx * 0.4, yc + dy);
+    gl->End();
+    gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->Vertex2f(xc - dx, yc);
+    gl->Vertex2f(xc, yc - dy);
+    gl->Vertex2f(xc + dx, yc);
+    gl->End();
     // up arrow (raising motion, omega<0 !)
     xc = (xysize[6][1] + x1) * 0.5;
-    glBegin(GL_POLYGON);
-    glVertex2f(xc - dx * 0.4, yc);
-    glVertex2f(xc - dx * 0.4, yc - dy);
-    glVertex2f(xc + dx * 0.4, yc - dy);
-    glVertex2f(xc + dx * 0.4, yc);
-    glEnd();
-    glBegin(GL_POLYGON);
-    glVertex2f(xc - dx, yc);
-    glVertex2f(xc, yc + dy);
-    glVertex2f(xc + dx, yc);
-    glEnd();
-    UpdateOutput();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->Vertex2f(xc - dx * 0.4, yc);
+    gl->Vertex2f(xc - dx * 0.4, yc - dy);
+    gl->Vertex2f(xc + dx * 0.4, yc - dy);
+    gl->Vertex2f(xc + dx * 0.4, yc);
+    gl->End();
+    gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->Vertex2f(xc - dx, yc);
+    gl->Vertex2f(xc, yc + dy);
+    gl->Vertex2f(xc + dx, yc);
+    gl->End();
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
     // number showing the x-axis range of omega (+ hpa/s -)
     ostringstream ostr;
     ostr << vpopt->rvwind;
@@ -1752,100 +1624,83 @@ void VprofDiagram::plotDiagram()
       chx = dx / (k + 4);
       chy = chx * chylab / chxlab;
     }
-    //     setFontsize(chy);
-    //     fp->drawStr("+",xysize[6][0]+chx*0.3,ymind-chy*1.2,0.);
-    //     fp->drawStr("-",xysize[6][1]-chx*1.3,ymind-chy*1.2,0.);
     fpInitStr("+", xysize[6][0] + chx * 0.3, ymind - chy * 1.2, 0., chy, c2);
     fpInitStr("-", xysize[6][1] - chx * 1.3, ymind - chy * 1.2, 0., chy, c2);
-    //     fp->getStringSize(str.c_str(), cw, ch);
-    //     fp->drawStr(str.c_str(),xysize[6][0]+(dx-cw)*0.5,ymind-chy*1.2,0.);
-    fpInitStr(str.c_str(), xysize[6][0] + dx * 0.5, ymind - chy * 1.2, 0., chy,
+    fpInitStr(str, xysize[6][0] + dx * 0.5, ymind - chy * 1.2, 0., chy,
         c2, "x-w*0.5");
-    //     fp->getStringSize("hPa/s", cw, ch);
-    //     fp->drawStr("hPa/s",xysize[6][0]+(dx-cw)*0.5,ymind-chy*2.4,0.);
     fpInitStr("hPa/s", xysize[6][0] + dx * 0.5, ymind - chy * 2.4, 0., chy, c2,
         "x-w*0.5");
-    glColor3ubv(c.RGB());
+    gl->setColour(c, false);
     sepline = true;
-    UpdateOutput();
   }
 
   // relative humidity
   if (vpopt->prelhum) {
-    glBegin(GL_LINES);
+    gl->Begin(DiGLPainter::gl_LINES);
     if (sepline) {
-      glVertex2f(xysize[7][0], xysize[9][3]);
-      glVertex2f(xysize[7][0], xysize[0][3]);
+      gl->Vertex2f(xysize[7][0], xysize[9][3]);
+      gl->Vertex2f(xysize[7][0], xysize[0][3]);
     }
-    glVertex2f(xysize[7][0], ymaxd);
-    glVertex2f(xysize[7][1], ymaxd);
-    glVertex2f(xysize[7][0], ymind);
-    glVertex2f(xysize[7][1], ymind);
-    glEnd();
-    UpdateOutput();
+    gl->Vertex2f(xysize[7][0], ymaxd);
+    gl->Vertex2f(xysize[7][1], ymaxd);
+    gl->Vertex2f(xysize[7][0], ymind);
+    gl->Vertex2f(xysize[7][1], ymind);
+    gl->End();
     linetype = Linetype(vpopt->rangeLinetype);
     if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+      gl->LineStipple(linetype.factor, linetype.bmap);
     }
-    glLineWidth(vpopt->rangeLinewidth);
-    glBegin(GL_LINES);
+    gl->LineWidth(vpopt->rangeLinewidth);
+    gl->Begin(DiGLPainter::gl_LINES);
     dx = xysize[7][1] - xysize[7][0];
     for (n = 25; n <= 75; n += 25) {
       x1 = xysize[7][0] + dx * 0.01 * n;
-      glVertex2f(x1, ymind);
-      glVertex2f(x1, ymaxd);
+      gl->Vertex2f(x1, ymind);
+      gl->Vertex2f(x1, ymaxd);
     }
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->End();
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
     // frameLinetype...
-    glLineWidth(vpopt->frameLinewidth);
+    gl->LineWidth(vpopt->frameLinewidth);
     chx = chxlab;
     chy = chylab;
     if (chx * 3. > dx) {
       chx = dx / 3.;
       chy = chx * chylab / chxlab;
     }
-    //     setFontsize(chy);
     x = (xysize[7][0] + xysize[7][1]) * 0.5;
-    //      fp->drawStr("RH",x-chx,ymaxd+0.25*chy,0.0);
     fpInitStr("RH", x - chx, ymaxd + 0.25 * chy, 0.0, chy, c);
     if (chx * 6. > dx) {
       chx = dx / 6.;
       chy = chx * chylab / chxlab;
-      //       setFontsize(chy);
     }
-    glColor3ubv(c2.RGB());
-    //      fp->drawStr("0",xysize[7][0]+chx*0.3,ymind-1.25*chy,0.0);
+    gl->setColour(c2, false);
     fpInitStr("0", xysize[7][0] + chx * 0.3, ymind - 1.25 * chy, 0.0, chy, c2);
-    //      fp->drawStr("100",xysize[7][1]-chx*3.3,ymind-1.25*chy,0.0);
     fpInitStr("100", xysize[7][1] - chx * 3.3, ymind - 1.25 * chy, 0.0, chy, c2);
-    glColor3ubv(c.RGB());
+    gl->setColour(c, false);
     sepline = true;
-    UpdateOutput();
   }
 
   // ducting
   if (vpopt->pducting) {
-    glBegin(GL_LINES);
+    gl->Begin(DiGLPainter::gl_LINES);
     if (sepline) {
-      glVertex2f(xysize[8][0], xysize[9][3]);
-      glVertex2f(xysize[8][0], xysize[0][3]);
+      gl->Vertex2f(xysize[8][0], xysize[9][3]);
+      gl->Vertex2f(xysize[8][0], xysize[0][3]);
     }
-    glVertex2f(xysize[8][0], ymaxd);
-    glVertex2f(xysize[8][1], ymaxd);
-    glVertex2f(xysize[8][0], ymind);
-    glVertex2f(xysize[8][1], ymind);
-    glEnd();
-    UpdateOutput();
+    gl->Vertex2f(xysize[8][0], ymaxd);
+    gl->Vertex2f(xysize[8][1], ymaxd);
+    gl->Vertex2f(xysize[8][0], ymind);
+    gl->Vertex2f(xysize[8][1], ymind);
+    gl->End();
     linetype = Linetype(vpopt->rangeLinetype);
     if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+      gl->LineStipple(linetype.factor, linetype.bmap);
     }
-    glLineWidth(vpopt->rangeLinewidth);
-    glBegin(GL_LINES);
+    gl->LineWidth(vpopt->rangeLinewidth);
+    gl->Begin(DiGLPainter::gl_LINES);
     dx = xysize[8][1] - xysize[8][0];
     float rd = vpopt->ductingMax - vpopt->ductingMin;
     int istep = 50;
@@ -1856,15 +1711,14 @@ void VprofDiagram::plotDiagram()
     for (n = -800; n <= 800; n += istep) {
       x1 = xysize[8][1] + float(n) * dx / rd;
       if (x1 > xysize[8][0] && x1 < xysize[8][1]) {
-        glVertex2f(x1, ymind);
-        glVertex2f(x1, ymaxd);
+        gl->Vertex2f(x1, ymind);
+        gl->Vertex2f(x1, ymaxd);
       }
     }
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
+    gl->End();
+    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
     // frameLinetype...
-    glLineWidth(vpopt->frameLinewidth);
+    gl->LineWidth(vpopt->frameLinewidth);
     chx = chxlab;
     chy = chylab;
     if (chx * 5. > dx) {
@@ -1876,45 +1730,28 @@ void VprofDiagram::plotDiagram()
     std::string str1 = miutil::from_number(vpopt->ductingMin);
     std::string str3 = miutil::from_number(vpopt->ductingMax);
     float ch = chy;
-    glColor3ubv(c2.RGB());
-    fpInitStr(str1.c_str(), xysize[8][0], ymind - 1.25 * chy, 0.0, ch, c2,
-        "ductingmin");
-    fpInitStr(str3.c_str(), xysize[8][1], ymind - 1.25 * chy, 0.0, ch, c2,
-        "ductingmax");
-    glColor3ubv(c.RGB());
+    gl->setColour(c2, false);
+    fpInitStr(str1, xysize[8][0], ymind - 1.25 * chy, 0.0, ch, c2, "ductingmin");
+    fpInitStr(str3, xysize[8][1], ymind - 1.25 * chy, 0.0, ch, c2, "ductingmax");
+    gl->setColour(c, false);
     sepline = true;
-    UpdateOutput();
   }
 
   // line between diagram and text
   if (vpopt->ptext) {
-    glBegin(GL_LINES);
-    glVertex2f(xysize[0][0], xysize[9][3]);
-    glVertex2f(xysize[0][1], xysize[9][3]);
-    glEnd();
-    UpdateOutput();
+    gl->drawLine(xysize[0][0], xysize[9][3], xysize[0][1], xysize[9][3]);
   }
 
   // outer frame
   if (vpopt->pframe) {
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(xysize[0][0], xysize[0][2]);
-    glVertex2f(xysize[0][1], xysize[0][2]);
-    glVertex2f(xysize[0][1], xysize[0][3]);
-    glVertex2f(xysize[0][0], xysize[0][3]);
-    glEnd();
-    UpdateOutput();
+    gl->drawRect(xysize[0][0], xysize[0][2], xysize[0][1], xysize[0][3]);
   }
-
-  UpdateOutput();
 }
 
 void VprofDiagram::fpInitStr(const std::string& str, float x, float y, float z,
     float size, Colour c, std::string format, std::string font)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::fpInitStr");
-#endif
+  METLIBS_LOG_SCOPE();
 
   fpStrInfo strInfo;
   strInfo.str = str;
@@ -1931,19 +1768,18 @@ void VprofDiagram::fpInitStr(const std::string& str, float x, float y, float z,
 
 void VprofDiagram::fpDrawStr(bool first)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::fpDrawStr");
-#endif
+  METLIBS_LOG_SCOPE();
+
   float w, h;
   int n = fpStr.size();
   for (int i = 0; i < n; i++) {
     if ((not fpStr[i].font.empty())) {
-      fp->setFont(fpStr[i].font);
+      gl->setFont(fpStr[i].font);
     }
-    setFontsize(fpStr[i].size);
-    glColor3ubv(fpStr[i].c.RGB());
+    setFontsize(gl, fpStr[i].size);
+    gl->setColour(fpStr[i].c, false);
     if (first && (not fpStr[i].format.empty())) {
-      fp->getStringSize(fpStr[i].str.c_str(), w, h);
+      gl->getTextSize(fpStr[i].str, w, h);
       if (fpStr[i].format == "x-w")
         fpStr[i].x -= w;
       if (fpStr[i].format == "x-w*0.5")
@@ -1951,33 +1787,31 @@ void VprofDiagram::fpDrawStr(bool first)
       if (miutil::contains(fpStr[i].format, "ducting")) {
         std::string str2 = std::string("0");
         float w2, h2;
-        fp->getStringSize(str2.c_str(), w2, h2);
+        gl->getTextSize(str2, w2, h2);
         if (miutil::contains(fpStr[i].format, "min"))
           fpStr[i].x += w2 * 0.3;
         else
           fpStr[i].x -= w + w2 * 0.3;
       }
     }
-    fp->drawStr(fpStr[i].str.c_str(), fpStr[i].x, fpStr[i].y, fpStr[i].z);
+    gl->drawText(fpStr[i].str, fpStr[i].x, fpStr[i].y, fpStr[i].z);
     //reset font
-    fp->setFont(defaultFont);
+    gl->setFont(defaultFont);
   }
 }
 
 void VprofDiagram::plotText()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::plotText");
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (vpopt->ptext) {
 
     int i, n = vptext.size();
 
-    setFontsize(chytxt);
+    setFontsize(gl, chytxt);
 
     float wspace, w, h;
-    fp->getStringSize("oo", wspace, h);
+    gl->getTextSize("oo", wspace, h);
 
     vector<std::string> fctext(n);
     vector<std::string> geotext(n);
@@ -1985,10 +1819,10 @@ void VprofDiagram::plotText()
     float wmod = 0., wpos = 0., wfc = 0., wgeo = 0., wtime = 0.;
 
     for (i = 0; i < n; i++) {
-      fp->getStringSize(vptext[i].modelName.c_str(), w, h);
+      gl->getTextSize(vptext[i].modelName, w, h);
       if (wmod < w)
         wmod = w;
-      fp->getStringSize(vptext[i].posName.c_str(), w, h);
+      gl->getTextSize(vptext[i].posName, w, h);
       if (wpos < w)
         wpos = w;
     }
@@ -1998,7 +1832,7 @@ void VprofDiagram::plotText()
         ostr << "(" << setiosflags(ios::showpos) << vptext[i].forecastHour
             << ")";
         fctext[i] = ostr.str();
-        fp->getStringSize(fctext[i].c_str(), w, h);
+        gl->getTextSize(fctext[i], w, h);
         if (wfc < w)
           wfc = w;
       }
@@ -2017,7 +1851,7 @@ void VprofDiagram::plotText()
         else
           ostr << "W)";
         geotext[i] = ostr.str();
-        fp->getStringSize(geotext[i].c_str(), w, h);
+        gl->getTextSize(geotext[i], w, h);
         if (wgeo < w)
           wgeo = w;
       }
@@ -2035,7 +1869,7 @@ void VprofDiagram::plotText()
     }
 
     int ltime = 16;
-    fp->getStringSize("2222-22-22 23:59", wtime, h);
+    gl->getTextSize("2222-22-22 23:59", wtime, h);
 
     float xmod = xysize[9][0] + chxtxt * 0.5;
     float xpos = xmod + wmod + wspace;
@@ -2046,20 +1880,19 @@ void VprofDiagram::plotText()
     float y;
 
     for (int i = 0; i < n; i++) {
-      glColor3ubv(vptext[i].colour.RGB());
+      gl->setColour(vptext[i].colour, false);
       y = xysize[9][3] - chytxt * 1.5 * (vptext[i].index + 1);
-      fp->drawStr(vptext[i].modelName.c_str(), xmod, y, 0.0);
-      fp->drawStr(vptext[i].posName.c_str(), xpos, y, 0.0);
+      gl->drawText(vptext[i].modelName, xmod, y, 0.0);
+      gl->drawText(vptext[i].posName, xpos, y, 0.0);
       if (vptext[i].prognostic)
-        fp->drawStr(fctext[i].c_str(), xfc, y, 0.0);
+        gl->drawText(fctext[i], xfc, y, 0.0);
       std::string tstr = vptext[i].validTime.isoTime().substr(0, ltime);
-      fp->drawStr(tstr.c_str(), xtime, y, 0.0);
+      gl->drawText(tstr, xtime, y, 0.0);
       if (vpopt->pgeotext)
-        fp->drawStr(geotext[i].c_str(), xgeo, y, 0.0);
+        gl->drawText(geotext[i], xgeo, y, 0.0);
       if (vpopt->pkindex && vptext[i].kindexFound)
-        fp->drawStr(kitext[i].c_str(), xkindex, y, 0.0);
+        gl->drawText(kitext[i], xkindex, y, 0.0);
     }
-
   }
 
   vptext.clear();

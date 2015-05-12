@@ -80,7 +80,7 @@ using miutil::miTime;
 VprofManager::VprofManager()
 : amdarStationList(false), vpdiag(0), showObs(false),
   showObsTemp(false), showObsPilot(false), showObsAmdar(false),
-  plotw(0), ploth(0), hardcopy(false)
+  plotw(0), ploth(0), mCanvas(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -560,48 +560,26 @@ miTime VprofManager::setTime(int step, int dir)
   return plotTime;
 }
 
-// start hardcopy
-void VprofManager::startHardcopy(const printOptions& po){
-  if (hardcopy && hardcopystarted && vpdiag){
-    // if hardcopy in progress and same filename: make new page
-    if (po.fname == printoptions.fname){
-      vpdiag->startPSnewpage();
-      return;
-    }
-    // different filename: end current output and start a new
-    vpdiag->endPSoutput();
-  }
-  hardcopy= true;
-  printoptions= po;
-  hardcopystarted= false;
+void VprofManager::setCanvas(DiCanvas* c)
+{
+  delete vpdiag;
+  vpdiag = 0;
+
+  mCanvas = c;
 }
 
-// end hardcopy plot
-void VprofManager::endHardcopy(){
-  // postscript output
-  if (hardcopy && vpdiag) vpdiag->endPSoutput();
-  hardcopy= false;
-}
-
-
-bool VprofManager::plot()
+bool VprofManager::plot(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plotStations.size()) << LOGVAL(plotTime));
   selectedStations.clear();
   if (!vpdiag) {
-    vpdiag= new VprofDiagram(vpopt);
+    vpdiag= new VprofDiagram(vpopt, gl);
     vpdiag->setPlotWindow(plotw,ploth);
     int nobs= (showObs) ? 1 : 0;
     int nmod= vpdata.size();
     if (nobs+nmod==0)
       nobs= 1;
     vpdiag->changeNumber(nobs,nmod);
-  }
-
-  // postscript output
-  if (hardcopy && !hardcopystarted) {
-    vpdiag->startPSoutput(printoptions);
-    hardcopystarted= true;
   }
 
   vpdiag->plot();
@@ -620,7 +598,7 @@ bool VprofManager::plot()
         }
       }
       if (vp.get()){
-        vp->plot(vpopt, i);
+        vp->plot(gl, vpopt, i);
       }
     }
     if (showObs) {
@@ -702,7 +680,7 @@ bool VprofManager::plot()
           nn++;
         }
         if (vp) {
-          vp->plot(vpopt, vpdata.size());
+          vp->plot(gl, vpopt, vpdata.size());
           delete vp;
         }
       }
@@ -1045,14 +1023,14 @@ void VprofManager::initTimes()
 
   set<miutil::miTime> set_times;
 
-  for ( int i=0; i<vpdata.size(); ++i) {
+  for (size_t i=0; i<vpdata.size(); ++i) {
     vector<miutil::miTime> tmp_times = vpdata[i]->getTimes();
     BOOST_FOREACH(const miutil::miTime& t, tmp_times) {
       set_times.insert(t);
     }
   }
 
-  if ( onlyObs) {
+  if (onlyObs) {
     BOOST_FOREACH(const miutil::miTime& t, obsTime) {
       set_times.insert(t);
     }

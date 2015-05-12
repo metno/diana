@@ -37,8 +37,6 @@
 #include "diShapeObject.h"
 #include "diUtilities.h"
 
-#include <GL/gl.h>
-
 #include <vector>
 #include <map>
 #include <set>
@@ -64,9 +62,10 @@ private:
   bool areadefined; // area explicitly defined
   Area reqarea; // requested area
   bool isactive[3]; // active data for zorder
-  bool usedrawlists; // use OpenGL drawlists
-  GLuint drawlist[3]; // openGL drawlists
   diutil::MapValueAnno_v value_annotations;
+
+  DiGLCanvas* mCanvas;
+  DiGLPainter::GLuint drawlist[3]; // openGL drawlists
 
   static std::map<std::string,FilledMap> filledmaps;
   static std::set<std::string> usedFilledmaps;
@@ -85,7 +84,7 @@ private:
   * @param anno_position
   * @param anno
   */
-  void clipPrimitiveLines(int npos, float *, float *, float xylim[4],
+  void clipPrimitiveLines(DiGLPainter* gl, int npos, float *, float *, float xylim[4],
       float jumplimit, bool plotanno=false,
       diutil::MapValuePosition anno_position = diutil::map_right, const std::string& anno="");
   /**
@@ -98,7 +97,7 @@ private:
   * @return
   */
 
-  bool plotMapLand4(const std::string&, float[], const Linetype&, float,
+  bool plotMapLand4(DiGLPainter* gl, const std::string&, float[], const Linetype&, float,
       const Colour&);
   /**
    * Plot Lat/Lon lines with optional numbering
@@ -108,13 +107,13 @@ private:
    * @param plotResolution
    * @return
    */
-  bool plotGeoGrid(const MapInfo & mapinfo, bool plot_lon, bool plot_lat, int plotResolution = 100);
+  bool plotGeoGrid(DiGLPainter* gl, const MapInfo & mapinfo, bool plot_lon, bool plot_lat, int plotResolution = 100);
   /**
    * plot a map from a simple text formatted file
    * @param filename
    * @return
    */
-  bool plotLinesSimpleText(const std::string& filename);
+  bool plotLinesSimpleText(DiGLPainter* gl, const std::string& filename);
 
 public:
   MapPlot();
@@ -124,8 +123,10 @@ public:
   static bool checkFiles(bool);
   void markFiles();
 
+  void setCanvas(DiCanvas* canvas) /*Q_DECL_OVERRIDE*/;
+
   /// plot map in a specific zorder layer
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
   /// parse plotinfo
   bool prepare(const std::string&, const Area& rarea, bool ifequal =true);

@@ -41,9 +41,7 @@
 
 #include <diField/diRectangle.h>
 
-#ifdef USE_PAINTGL
 #include <QPrintPreviewDialog>
-#endif
 
 #ifdef VIDEO_EXPORT
 #include <MovieMaker.h>
@@ -199,11 +197,12 @@ private Q_SLOTS:
   void parseSetup();
   void hardcopy();
   void previewHardcopy();
+  void paintOnPrinter(QPrinter* printer);
   void saveraster();
-  void saveRasterImage(QString filename);
+  void saveRasterImage(const QString& filename);
+  void paintOnDevice(QPaintDevice* device);
   void emailPicture();
   void saveAnimation();
-  void makeEPS(const std::string& filename);
   void TimeSliderMoved();
   void TimeSelected();
   void setPlotTime(miutil::miTime& t);

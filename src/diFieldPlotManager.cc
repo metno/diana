@@ -892,9 +892,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           std::string fieldName = vPlotField[j].input[k];
           vector<std::string> vstr = miutil::split(fieldName,":");
           fieldName = vstr[0];
-          bool standard_name = false;
           if (vstr.size() == 2 && vstr[1] == "standard_name" ){
-            standard_name = true;
             if ( !set_standardName.count(fieldName) ) {
               break;
             }
@@ -911,7 +909,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           }
         }
 
-        if (ninput >= vPlotField[j].input.size()) {
+        if (ninput >= (int)vPlotField[j].input.size()) {
           plotNames.push_back(plotName);
           plotNameLevels[plotName] = levels;
         }
@@ -1031,7 +1029,6 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
 
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
-
   METLIBS_LOG_DEBUG("parsePin - PIN: "<<pin);
 
   // if difference

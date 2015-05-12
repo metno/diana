@@ -31,10 +31,9 @@
 #ifndef VPROFDIAGRAM_H
 #define VPROFDIAGRAM_H
 
-#include <diVprofTables.h>
-#include <diVprofOptions.h>
-
-#include <GL/gl.h>
+#include "diVprofTables.h"
+#include "diVprofOptions.h"
+#include "diGLPainter.h"
 
 #include <vector>
 
@@ -46,7 +45,7 @@ class VprofOptions;
 class VprofDiagram : public VprofTables
 {
 public:
-  VprofDiagram(VprofOptions *vpop);
+  VprofDiagram(VprofOptions *vpop, DiGLPainter* gl);
   ~VprofDiagram();
   void changeOptions(VprofOptions *vpop);
   void changeNumber(int ntemp, int nprog);
@@ -60,19 +59,20 @@ private:
   void condensationtrails();
   void plotDiagram();
   void fpInitStr(const std::string& str,
-		 float x, float y, float z,
-		 float size,
-		 Colour c,
-		 std::string format="",
-		 std::string font="");
+      float x, float y, float z,
+      float size,
+      Colour c,
+      std::string format="",
+      std::string font="");
   void fpDrawStr(bool first=false);
 
   //-----------------------------------------------
 
+  DiGLPainter* gl;
   VprofOptions *vpopt;
 
   bool diagramInList;
-  GLuint drawlist;    // openGL drawlist
+  DiGLPainter::GLuint drawlist;    // openGL drawlist
 
   int plotw, ploth;
   int plotwDiagram, plothDiagram;

@@ -78,8 +78,8 @@ public:
     virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
     virtual void incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded);
 
-    void draw(DrawModes, bool, bool = false);
-    void draw();
+    void draw(DiGLPainter* gl, DrawModes, bool, bool = false);
+    void draw(DiGLPainter* gl);
 
     QVariantMap clipboardVarMap() const;
     QString clipboardPlainText() const;
@@ -111,13 +111,13 @@ protected:
     virtual void updateControlPoints() = 0;
 
     // Draws graphics to indicate the incomplete state of the item (if applicable).
-    virtual void drawIncomplete() const {}
+    virtual void drawIncomplete(DiGLPainter* gl) const {}
 
-    virtual void drawHoverHighlightingBG(bool, bool) const {};
-    virtual void drawHoverHighlighting(bool, bool) const = 0;
+    virtual void drawHoverHighlightingBG(DiGLPainter* gl, bool, bool) const {};
+    virtual void drawHoverHighlighting(DiGLPainter* gl, bool, bool) const = 0;
 
-    void drawControlPoints(const QColor & = QColor(0, 0, 0, 255), const QColor & = QColor(0, 200, 200, 255), int = 0) const;
-    void drawHoveredControlPoint(const QColor & = QColor(0, 0, 0, 255), int = 0) const;
+    void drawControlPoints(DiGLPainter* gl, const QColor & = QColor(0, 0, 0, 255), const QColor & = QColor(0, 200, 200, 255), int = 0) const;
+    void drawHoveredControlPoint(DiGLPainter* gl, const QColor & = QColor(0, 0, 0, 255), int = 0) const;
 
     bool moving_;
     bool resizing_;

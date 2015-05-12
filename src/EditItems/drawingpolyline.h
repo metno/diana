@@ -61,7 +61,7 @@ protected:
   QColor color_;
 
 private:
-  virtual void draw();
+  virtual void draw(DiGLPainter* gl);
 };
 
 } // namespace

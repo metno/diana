@@ -29,8 +29,11 @@
 #ifndef _diShapeObject_h
 #define _diShapeObject_h
 
-#include <diObjectPlot.h>
+#include "diObjectPlot.h"
+#include "diGLPainter.h"
+
 #include <shapefil.h>
+
 #include <map>
 #include <vector>
 
@@ -84,21 +87,22 @@ public:
   bool read(std::string filename);
   bool read(std::string filename, bool convertFromGeo);
 
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
-  bool plot(Area area, // current area
-            double gcd, // size of plotarea in m
-            bool land, // plot triangles
-            bool cont, // plot contour-lines
-            bool keepcont, // keep contourlines for later
-            bool special, // special case, when plotting symbol instead of a point
-            int symbol, // symbol number to be plottet
-            std::string dbfcol, // text in dfb file to be plottet for that column
-            GLushort linetype, // contour line type
-            float linewidth, // contour linewidth
-            const unsigned char* lcolour, // contour linecolour
-            const unsigned char* fcolour, // triangles fill colour
-            const unsigned char* bcolour);
+  bool plot(DiGLPainter* gl,
+      const Area& area, // current area
+      double gcd, // size of plotarea in m
+      bool land, // plot triangles
+      bool cont, // plot contour-lines
+      bool keepcont, // keep contourlines for later
+      bool special, // special case, when plotting symbol instead of a point
+      int symbol, // symbol number to be plottet
+      const std::string& dbfcol, // text in dfb file to be plottet for that column
+      DiGLPainter::GLushort linetype, // contour line type
+      float linewidth, // contour linewidth
+      const unsigned char* lcolour, // contour linecolour
+      const unsigned char* fcolour, // triangles fill colour
+      const unsigned char* bcolour);
 
   virtual int getXYZsize();
   virtual std::vector<float> getX();

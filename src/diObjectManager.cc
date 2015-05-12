@@ -515,11 +515,11 @@ void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
     str.clear();
 }
 
-void ObjectManager::plotObjects(Plot::PlotOrder zorder)
+void ObjectManager::plotObjects(DiGLPainter* gl, Plot::PlotOrder zorder)
 {
   if (zorder == Plot::LINES) {
     objects.changeProjection(plotm->getStaticPlot()->getMapArea());
-    objects.plot(zorder);
+    objects.plot(gl, zorder);
   }
 }
 

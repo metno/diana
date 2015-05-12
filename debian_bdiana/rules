@@ -37,9 +37,8 @@ do-configure:
 	    --with-uic=/opt/qt4-headless/bin/uic \
 	    --with-lupdate=/opt/qt4-headless/bin/lupdate \
 	    --with-lrelease=/opt/qt4-headless/bin/lrelease \
-	    --enable-embedded \
-		--enable-perl \
-	    --enable-batch-only
+	    --disable-gui \
+	    --enable-perl
 
 override_dh_auto_install:
 	    mkdir -p $(DESTDIR)/usr/bin

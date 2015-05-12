@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -41,10 +39,10 @@
 #include <QVariantMap>
 #include <QColor>
 
-#include "diFontManager.h"
 #include "EditItems/drawingitembase.h"
 
 class DrawingStyleProperty;
+class DiCanvas;
 
 /**
   \brief Manager for drawing styles.
@@ -59,26 +57,32 @@ public:
 
   DrawingStyleManager();
   virtual ~DrawingStyleManager();
+
+  void setCanvas(DiCanvas* canvas)
+    { mCanvas = canvas; }
+  DiCanvas* canvas() const
+    { return mCanvas; }
+
   void addStyle(const DrawingItemBase::Category &category, const QHash<QString, QString> &definition);
 
   void setStyle(DrawingItemBase *, const QHash<QString, QString> &, const QString & = QString()) const;
   void setStyle(DrawingItemBase *, const QVariantMap &, const QString & = QString()) const;
   void setComplexTextList(const QStringList &strings);
 
-  void beginLine(DrawingItemBase *item);
-  void endLine(DrawingItemBase *item);
-  void beginFill(DrawingItemBase *item);
-  void endFill(DrawingItemBase *item);
+  void beginLine(DiGLPainter* gl, DrawingItemBase *item);
+  void endLine(DiGLPainter* gl, DrawingItemBase *item);
+  void beginFill(DiGLPainter* gl, DrawingItemBase *item);
+  void endFill(DiGLPainter* gl, DrawingItemBase *item);
 
-  void drawText(const DrawingItemBase *) const;
+  void drawText(DiGLPainter* gl, const DrawingItemBase *) const;
 
-  void highlightPolyLine(const DrawingItemBase *, const QList<QPointF> &, int, const QColor &, bool = false) const;
+  void highlightPolyLine(DiGLPainter* gl, const DrawingItemBase *, const QList<QPointF> &, int, const QColor &, bool = false) const;
 
-  void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0, bool = false) const;
-  void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
+  void drawLines(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points, int z = 0, bool = false) const;
+  void fillLoop(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points) const;
   void setFont(const DrawingItemBase *item) const;
 
-  void drawSymbol(const DrawingItemBase *) const;
+  void drawSymbol(DiGLPainter* gl, const DrawingItemBase *) const;
 
   static const QPainterPath interpolateToPath(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
@@ -103,7 +107,7 @@ public:
   static DrawingStyleManager *instance();
 
 private:
-  void drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
+  void drawDecoration(DiGLPainter* gl, const QVariantMap &style, const QString &decoration, bool closed,
                       const Side &side, const QList<QPointF> &points, int z,
                       unsigned int offset = 0) const;
   QVariantMap parse(const DrawingItemBase::Category &category,
@@ -114,6 +118,7 @@ private:
   QHash<DrawingItemBase::Category, QHash<QString, DrawingStyleProperty *> > properties_;
   static DrawingStyleManager *self_;  // singleton instance pointer
   QStringList complexTextList_;
+  DiCanvas* mCanvas;
 };
 
 class DrawingStyleProperty

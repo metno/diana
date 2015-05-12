@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,6 +39,7 @@
 #include <map>
 #include <set>
 
+class DiGLPainter;
 class SpectrumOptions;
 class SpectrumFile;
 class SpectrumData;
@@ -94,10 +93,6 @@ private:
   bool dataChange;
   std::vector<SpectrumPlot*> spectrumplots;
 
-  bool hardcopy;
-  printOptions printoptions;
-  bool hardcopystarted;
-
   std::map<std::string,std::string> menuConst;
 
   std::string getDefaultModel();
@@ -136,9 +131,7 @@ public:
   std::vector <std::string> getReferencetimes(const std::string& model);
   void setSelectedModels(const std::vector<std::string>& models);
 
-  bool plot();
-  void startHardcopy(const printOptions& po);
-  void endHardcopy();
+  bool plot(DiGLPainter* gl);
   void mainWindowTimeChanged(const miutil::miTime& time);
   std::string getAnnotationString();
 

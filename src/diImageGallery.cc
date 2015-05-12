@@ -33,15 +33,17 @@
 
 #include "diImageGallery.h"
 #include "diImageIO.h"
-#include "diPlot.h"
 #include "diUtilities.h"
 
 #include <puTools/miSetupParser.h>
+
 #include <fstream>
 
 #define MILOGGER_CATEGORY "diana.ImageGallery"
 #include <miLogger/miLogging.h>
 
+#define MILOGGER_CATEGORY "diana.ImageGallery"
+#include <miLogger/miLogging.h>
 using namespace::miutil;
 using namespace std;
 
@@ -53,8 +55,12 @@ map<int, vector<std::string> > ImageGallery::Type;
 
 
 ImageGallery::image::image()
-:alpha(true),width(0),height(0),data(0),type(basic),
-read_error(false)
+  :alpha(true)
+  ,width(0)
+  ,height(0)
+  ,data(0)
+  ,type(basic)
+  , read_error(false)
 {
 }
 
@@ -69,14 +75,15 @@ void ImageGallery::image::erase()
   width=  0;
   height= 0;
   alpha= true;
-  if (data!=0) delete[] data;
+  delete[] data;
   data= 0;
   type= basic;
   read_error= false;
 }
 
 ImageGallery::pattern::pattern()
-:pattern_data(0),read_error(false)
+  :pattern_data(0)
+  ,read_error(false)
 {
 }
 
@@ -88,7 +95,7 @@ ImageGallery::pattern::~pattern()
 void ImageGallery::pattern::erase()
 {
   name.clear();
-  if (pattern_data!=0) delete[] pattern_data;
+  delete[] pattern_data;
   pattern_data= 0;
   read_error= false;
 }
@@ -117,7 +124,6 @@ void ImageGallery::clear()
 
 void ImageGallery::addImageName(const std::string& filename, int type)
 {
-
   int n = filename.find_last_of("/");
   int m = filename.find_last_of(".");
   std::string name = filename.substr(n+1,m-n-1);
@@ -271,7 +277,7 @@ bool ImageGallery::addPattern(const std::string& name,
   Patterns[name].name=   name;
   Patterns[name].pattern_data= new unsigned char [128];
   for (int j=0; j<128; j++)
-    Patterns[name].pattern_data[j]= (GLubyte)d[j];
+    Patterns[name].pattern_data[j]= (DiGLPainter::GLubyte)d[j];
 
   return true;
 }
@@ -369,30 +375,27 @@ bool ImageGallery::delPattern(const std::string& name)
 }
 
 
-bool ImageGallery::plotImage_(StaticPlot* sp, const std::string name,
-    const float& gx, const float& gy,
-    const float scalex,
-    const float scaley,
-    const int alpha)
+bool ImageGallery::plotImage_(DiGLPainter* gl, StaticPlot* sp,
+    const std::string& name, float gx, float gy,
+    float scalex, float scaley, int alpha)
 {
-
   if (gx < sp->getPlotSize().x1 || gx >= sp->getPlotSize().x2 ||
       gy < sp->getPlotSize().y1 || gy >= sp->getPlotSize().y2)
     return true;
 
   int nx= Images[name].width;
   int ny= Images[name].height;
-  GLenum glformat= GL_RGBA;
+  DiGLPainter::GLenum glformat= DiGLPainter::gl_RGBA;
   int ncomp= 4;
 
   if (!Images[name].alpha){
-    glformat= GL_RGB;
+    glformat= DiGLPainter::gl_RGB;
     ncomp= 3;
   }
 
-  glRasterPos2f(gx,gy);
+  gl->RasterPos2f(gx,gy);
 
-  if (alpha != 255 && ncomp == 4 && !sp->hardcopy) {
+  if (alpha != 255 && ncomp == 4 /*&& !sp->hardcopy*/) {
     int fsize = nx*ny*ncomp;
     unsigned char* newdata= new unsigned char [fsize];
     unsigned char av= static_cast<unsigned char>(alpha);
@@ -402,47 +405,21 @@ bool ImageGallery::plotImage_(StaticPlot* sp, const std::string name,
       if ((j+1) % 4 == 0 && newdata[j] > av) newdata[j] = av;
     }
 
-    glDrawPixels((GLint)nx,
-        (GLint)ny,
-        glformat,
-        GL_UNSIGNED_BYTE,
-        newdata);
+    gl->DrawPixels((DiGLPainter::GLint)nx, (DiGLPainter::GLint)ny,
+        glformat, DiGLPainter::gl_UNSIGNED_BYTE, newdata);
 
     delete[] newdata;
 
   } else {
-    glDrawPixels((GLint)nx,
-        (GLint)ny,
-        glformat,
-        GL_UNSIGNED_BYTE,
-        Images[name].data);
+    gl->DrawPixels((DiGLPainter::GLint)nx, (DiGLPainter::GLint)ny,
+        glformat, DiGLPainter::gl_UNSIGNED_BYTE, Images[name].data);
   }
 
-  // for postscript output, add imagedata to glpfile
-  if (sp->hardcopy){
-    // change to pixel coordinates
-    const XY pg = sp->MapToPhys(XY(gx, gy));
-
-    if (!(pg.x() >= sp->getPhysWidth()
-            || pg.y() >= sp->getPhysHeight()
-            || pg.x() <= 0.0 || pg.y() <= 0.0))
-    {
-      sp->psAddImage(Images[name].data,
-          ncomp*nx*ny, nx, ny,
-          pg.x(), pg.y(), scalex, scaley,
-          0, 0, nx-1, ny-1,
-          glformat, GL_UNSIGNED_BYTE);
-
-      // for postscript output
-      sp->UpdateOutput();
-    }
-  }
   return true;
 }
 
-bool ImageGallery::plotMarker_(StaticPlot* sp, const std::string name,
-    const float& x, const float& y,
-    const float scale)
+bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
+    const std::string& name, float x, float y, float scale)
 {
   if (x < sp->getPlotSize().x1 || x >= sp->getPlotSize().x2 ||
       y < sp->getPlotSize().y1 || y >= sp->getPlotSize().y2)
@@ -450,34 +427,34 @@ bool ImageGallery::plotMarker_(StaticPlot* sp, const std::string name,
 
   int nlines=Images[name].line.size();
   if(nlines>0) {
-    glPushMatrix();
-    glTranslatef(x,y,0.0);
+    gl->PushMatrix();
+    gl->Translatef(x,y,0.0);
     float Scalex= scale*sp->getPhysToMapScaleX()*0.7;
     float Scaley= Scalex;
-    glScalef(Scalex,Scaley,0.0);
+    gl->Scalef(Scalex,Scaley,0.0);
 
     for(int k=0; k<nlines; k++){
 
-      glLineWidth(Images[name].line[k].width);
+      gl->LineWidth(Images[name].line[k].width);
 
       int num=Images[name].line[k].x.size();
 
       if(Images[name].line[k].fill){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glBegin(GL_POLYGON);
+        gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+        gl->Begin(DiGLPainter::gl_POLYGON);
         for (int j=0; j<num; j++) {
-          glVertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+          gl->Vertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
         }
-        glEnd();
+        gl->End();
       }else{
-        glBegin(GL_LINE_STRIP);
+        gl->Begin(DiGLPainter::gl_LINE_STRIP);
         for (int j=0; j<num; j++) {
-          glVertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+          gl->Vertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
         }
-        glEnd();
+        gl->End();
       }
     }
-    glPopMatrix();
+    gl->PopMatrix();
 
   }
   return true;
@@ -540,22 +517,20 @@ bool ImageGallery::readFile(const std::string name, const std::string filename)
   return true;
 }
 
-bool ImageGallery::plotImage(StaticPlot* sp, const std::string& name,
-    const float& x, const float& y,
-    const bool center,
-    const float scale,
-    const int alpha)
+bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
+    float x, float y, bool center, float scale, int alpha)
 {
-  if(!readImage(name)) return false;
+  METLIBS_LOG_SCOPE();
+  if(!readImage(name))
+    return false;
 
   if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::plot ERROR image not found:"
-    << name);
+    METLIBS_LOG_ERROR("image not found: '" << name << "'");
     return false;
   }
 
   if(Images[name].type == marker)
-    return plotMarker_(sp, name, x, y, scale);
+    return plotMarker_(gl, sp, name, x, y, scale);
 
   if (Images[name].data==0) {
     METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
@@ -576,35 +551,32 @@ bool ImageGallery::plotImage(StaticPlot* sp, const std::string& name,
     gy-= ny*sy*scale;
   }
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
-  glPixelZoom(scalex,scaley);
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);
+  gl->PixelZoom(scalex,scaley);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);
 
-  bool res= plotImage_(sp, name, gx, gy, scalex, scaley, alpha);
+  bool res= plotImage_(gl, sp, name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-  glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT,4);
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   return res;
 }
 
 
-bool ImageGallery::plotImages(StaticPlot* sp, const int n,
+bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
     const vector<std::string>& vn,
     const float* x, const float* y,
-    const bool center,
-    const float scale,
-    const int alpha)
+    bool center, float scale, int alpha)
 {
-
   if (n == 0){
     METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no positions:");
     return false;
@@ -622,12 +594,12 @@ bool ImageGallery::plotImages(StaticPlot* sp, const int n,
   float sx= scale*0.5*sp->getPhysToMapScaleX();
   float sy= scale*0.5*sp->getPhysToMapScaleY();
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
-  glPixelZoom(scalex,scaley);
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
+  gl->PixelZoom(scalex,scaley);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
 
   for (int j=0; j<n; j++){
     if (!Images.count(vn[j])){
@@ -639,7 +611,7 @@ bool ImageGallery::plotImages(StaticPlot* sp, const int n,
     if(!readImage(vn[j])) return false;
 
     if(Images[vn[j]].type == marker) {
-      plotMarker_(sp, vn[j], x[j], y[j], scale);
+      plotMarker_(gl, sp, vn[j], x[j], y[j], scale);
       continue;
     }
 
@@ -653,7 +625,7 @@ bool ImageGallery::plotImages(StaticPlot* sp, const int n,
     if (j == 0 || vn[j] != oldname){
       nx= Images[vn[j]].width;
       ny= Images[vn[j]].height;
-      glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);
+      gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);
     }
 
     if (center){
@@ -662,28 +634,27 @@ bool ImageGallery::plotImages(StaticPlot* sp, const int n,
       gy-= ny*sy;
     }
 
-    plotImage_(sp, vn[j], gx, gy, scalex, scaley, alpha);
+    plotImage_(gl, sp, vn[j], gx, gy, scalex, scaley, alpha);
     oldname = vn[j];
   }
 
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-  glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT,4);
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   return true;
 }
 
-bool ImageGallery::plotImages(StaticPlot* sp, const int n,
+bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
     const std::string& name,
     const float* x, const float* y,
-    const bool center,
-    const float scale,
-    const int alpha)
+    bool center, float scale, int alpha)
 {
-  if(!readImage(name)) return false;
+  if(!readImage(name))
+    return false;
 
   if (n == 0){
     METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no positions:");
@@ -691,27 +662,24 @@ bool ImageGallery::plotImages(StaticPlot* sp, const int n,
   }
 
   vector<std::string> vn(n,name);
-
-  return plotImages(sp, n, vn, x, y, center, scale, alpha);
+  return plotImages(gl, sp, n, vn, x, y, center, scale, alpha);
 }
 
 
-bool ImageGallery::plotImageAtPixel(StaticPlot* sp, const std::string& name,
-    const float& x, const float& y,
-    const bool center,
-    const float scale,
-    const int alpha)
+bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
+    const std::string& name, float x, float y,
+    bool center, float scale, int alpha)
 {
-  if(!readImage(name)) return false;
+  if(!readImage(name))
+    return false;
 
   if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::plot ERROR image not found:"
-    << name);
+    METLIBS_LOG_ERROR("ImageGallery::plot ERROR image not found:" << name);
     return false;
   }
 
   if(Images[name].type == marker)
-    return plotMarker_(sp, name, x, y, scale);
+    return plotMarker_(gl, sp, name, x, y, scale);
 
   if (Images[name].data==0) {
     METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
@@ -732,27 +700,27 @@ bool ImageGallery::plotImageAtPixel(StaticPlot* sp, const std::string& name,
 
   sp->PhysToMap(XY(gx, gy)).unpack(gx, gy);
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
-  glPixelZoom(scalex,scaley);
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);
+  gl->PixelZoom(scalex,scaley);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);
 
-  bool res= plotImage_(sp, name, gx, gy, scalex, scaley, alpha);
+  bool res= plotImage_(gl, sp, name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-  glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT,4);
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   return res;
 }
 
-GLubyte* ImageGallery::getPattern(std::string name)
+DiGLPainter::GLubyte* ImageGallery::getPattern(std::string name)
 {
 
   if(!readPattern(name)) return 0;

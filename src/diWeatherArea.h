@@ -31,7 +31,8 @@
 #ifndef WeatherArea_h
 #define WeatherArea_h
 
-#include <diObjectPlot.h>
+#include "diObjectPlot.h"
+#include "diGLPainter.h"
 
 #include <map>
 #include <string>
@@ -46,12 +47,12 @@ private:
   float linewidth;                // width of border (PlotOptions?)
   static float defaultLineWidth;
   bool fillArea;                  // fill area with pattern
-  const GLubyte* itsFilltype;
+  const DiGLPainter::GLubyte* itsFilltype;
   static std::vector<editToolInfo>  allAreas;
   static std::map<std::string,int> areaTypes;  //finds area type number from name
 
   void recalculate();
-  void drawSigweather();
+  void drawSigweather(DiGLPainter* gl);
   bool smooth();
 
   float * xplot;
@@ -62,13 +63,14 @@ private:
   virtual void setLineWidth(float w){linewidth=w;}
   bool setSpline(bool s);     // s=true if you want to spline
   void setFillArea(const std::string& filltype);   //set fillArea=true if !filltype.empty()
-  void setFilltype(const GLubyte* filltype){itsFilltype = filltype;}
+  void setFilltype(const DiGLPainter::GLubyte* filltype){itsFilltype = filltype;}
 public:
   WeatherArea();
   /// constructor with integer area type as argument
   WeatherArea(int ty);
   /// constructor with name of area type as argument
   WeatherArea(std::string tystring);
+
   ~WeatherArea();
   /// define map to find area type number from name
   static void defineAreas(std::vector<editToolInfo> areas);
@@ -76,7 +78,9 @@ public:
   static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation and whether area should be filled
   void setState(const state s);
-  void plot(PlotOrder zorder);
+
+  void plot(DiGLPainter* gl, PlotOrder zorder);
+
   /// shows / marks node point/ points on area
   bool showLine(float x, float y);
   /// set type of area

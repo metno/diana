@@ -29,11 +29,11 @@
 #ifndef ObjectPlot_h
 #define ObjectPlot_h
 
-#include <diPlot.h>
-#include <diCommonTypes.h>
-#include <diColour.h>
-#include <diObjectPoint.h>
-#include <diLinetype.h>
+#include "diPlot.h"
+#include "diCommonTypes.h"
+#include "diColour.h"
+#include "diObjectPoint.h"
+#include "diLinetype.h"
 
 #include <vector>
 #include <deque>
@@ -97,8 +97,8 @@ private:
   //translate norwegian->english in old files
   static std::map<std::string,std::string> editTranslations;
 
-  void drawTest();
-  void drawPoints(std::vector <float> xdraw, std::vector <float> ydraw);
+  void drawTest(DiGLPainter* gl);
+  void drawPoints(DiGLPainter* gl, const std::vector <float>& xdraw, const std::vector <float>& ydraw);
   bool isInsideBox(float x, float y,float x1,float y1,float x2,float y2);
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
@@ -146,7 +146,7 @@ protected:
 		 float ysmooth[]); // B-spline smooth
 
   virtual void recalculate();
-  void plotRubber();
+  void plotRubber(DiGLPainter* gl);
   float getDwidth(){return  window_dw;}           // returns width of main window
   float getDheight(){return  window_dh;}          // returns height of main window
   virtual void setType(int ty){type = ty;}
@@ -211,8 +211,8 @@ public:
   int endPoint(){return nodePoints.size()-1;}     ///< returns index to end point
   bool readObjectString(std::string objectString);   ///< reads string with object type, coordinates, colour
   std::string writeObjectString();                   ///< writes string with object type, coordinates, colour
-  void drawNodePoints();                          ///< draws all the node points
-  void drawJoinPoints();                          ///< draws all the join points
+  void drawNodePoints(DiGLPainter* gl);                          ///< draws all the node points
+  void drawJoinPoints(DiGLPainter* gl);                          ///< draws all the join points
 
   bool isInRegion(int region, int matrix_x, int matrix_y, double resx, double resy, int *);  ///< returns true if object inside geographical region
   int combIndex(int matrix_nx, int matrix_ny, double resx ,double resy, int *);             ///< returns index of combinematrix

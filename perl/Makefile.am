@@ -1,82 +1,3 @@
-# automake requires one = before the first +=
-common_ldflags =
-common_ldadd =
-
-if WITH_BATCH_ONLY
-common_ldflags += 
-else 
-common_ldflags += \
-	$(QUTILITIES_LDFLAGS)
-
-common_ldadd += \
-	$(QUTILITIES_LIBS)
-endif
-
-common_ldflags += \
-	$(DIFIELD_LDFLAGS) \
-	$(MIRASTER_LDFLAGS) \
-	$(PUCTOOLS_LDFLAGS) \
-	$(EMOS_LDFLAGS) \
-	$(PUDATATYPES_LDFLAGS) \
-	$(SHP_LDFLAGS) \
-	$(CURL_LDFLAGS) \
-	$(PNG_LDFLAGS) \
-        $(UU_LDFLAGS)
-
-common_ldadd += \
-	$(DIFIELD_LIBS) \
-	$(MIRASTER_LIBS) \
-	$(PUCTOOLS_LIBS) \
-	$(EMOS_LIBS)  $(FORTRAN_LIBS)\
-	$(PUDATATYPES_LIBS) \
-	$(SHP_LIBS) \
-	$(CURL_LIBS) \
-	$(PNG_LIBS) \
-        $(UU_LIBS)
-
-if WITH_NEWARKOBS
-common_ldflags += \
-	${NEWARKAPI_LDFLAGS}
-common_ldadd += \
-	${NEWARKAPI_LIBS}
-endif
-
-# Additional source code for RoadOBS support
-if WITH_GEOTIFF
-common_ldadd += \
-	${ROADAPI_LIBS} ${GRIBAPI_LIBS}
-endif
-
-# Additional source code for video export feature
-if WITH_VIDEO_EXPORT
-common_ldflags += $(AVFORMAT_LDFLAGS)
-common_ldadd += $(AVFORMAT_LIBS)
-endif
-
-# Embedded build support - remove X and OpenGL dependencies
-if WITH_EMBEDDED
-common_ldflags += 
-else
-common_ldflags += \
-        $(FTGL_LDFLAGS) \
-        $(GLP_LDFLAGS) \
-        $(GLTEXT_LDFLAGS) \
-        $(GLU_LDFLAGS)
-
-common_ldadd += \
-        $(FTGL_LIBS) \
-        $(GLP_LIBS) \
-        $(GLTEXT_LIBS) \
-        $(GLU_LIBS)
-endif
-
-common_ldflags += $(QT4_LDFLAGS)
-common_ldadd += $(QT4_LIBS)
-
-# Win32 support
-common_ldflags += $(WIN32_LDFLAGS)
-common_ldadd += $(WIN32_LIBS)
-
 
 
 if WITH_PERL
@@ -86,7 +7,7 @@ PERLDEPEND    = $(srcdir)/Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana
 PERLCONFIG    = PREFIX="$(prefix)" \
                 INSTALLDIRS=vendor \
                 INC="-Wall -I. -I$(abs_top_srcdir)/src" \
-                LIBS="$(common_ldflags) $(common_ldadd) -lboost_thread"
+                LIBS="$(top_builddir)/src/libdiana.la -lboost_thread"
 
 #if DEBUG
 #PERLCONFIG    += OPTIMIZE=-g
@@ -104,7 +25,7 @@ all-local: $(PERLMAKEFILE) $(PERLFILES)
 clean-local: $(PERLMAKEFILE)
 	make -C Metno-Bdiana $(AM_MAKEFLAGS) clean
 
-if !WITH_EMBEDDED
+if WITH_GUI
 check-local: $(PERLMAKEFILE)
 	make -C Metno-Bdiana $(AM_MAKEFLAGS) test
 endif
@@ -121,7 +42,7 @@ uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
 	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
 
-endif
+endif # WITH_PERL
 
 
 EXTRA_DIST = \

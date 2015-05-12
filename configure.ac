@@ -93,15 +93,10 @@ AC_ARG_ENABLE([xlib],
     [], [enable_xlib=no])
 AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 
-AC_ARG_ENABLE([embedded],
-    [AS_HELP_STRING([--enable-embedded], [enable embedded usage (removes X and OpenGL dependencies)])],
-	[], [enable_embedded=no])
-AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
-
-AC_ARG_ENABLE([batch-only],
-    [AS_HELP_STRING([--enable-batch-only], [only compile the batch version of diana (bdiana)])],
-        [], [enable_batch_only=no])
-AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
+AC_ARG_ENABLE([gui],
+    [AS_HELP_STRING([--enable-gui], [also compile the gui version of diana])],
+        [], [enable_gui=yes])
+AM_CONDITIONAL([WITH_GUI], [test x$enable_gui = xyes])
 
 AC_ARG_ENABLE([perl],
     [AS_HELP_STRING([--enable-perl], [enable perl module)])],
@@ -113,24 +108,19 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 # metlibs
 #
 # there must be a more elegant way to do this
+METNO_REQUIRE_PKG([FIMEX], [fimex], [0.57])
 METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([MIRASTER], [miRaster])
-
-AS_IF([test x$enable_embedded != xyes], [
-    METNO_REQUIRE_PKG([GLTEXT], [glText])
-    METNO_REQUIRE_PKG([GLP], [glp])
-    METNO_REQUIRE_PKG([GLU],[glu])
-])
-
-AS_IF([test x$enable_embedded != xyes], [
-    METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
-])
-
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
-AS_IF([test x$enable_batch_only != xyes], [
+
+AS_IF([test x$enable_gui = xyes], [
+    METNO_REQUIRE_PKG([GLTEXT], [glText])
+    METNO_REQUIRE_PKG([GLP], [glp])
+    METNO_REQUIRE_PKG([GLU],[glu])
+    METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
     METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
     METNO_REQUIRE_PKG([COSERVER], [coserver])
 ])
@@ -151,14 +141,9 @@ METNO_REQUIRE_QT4([
     XmlPatterns
 ])
 
-AS_IF([test x$enable_embedded != xyes], [
+AS_IF([test x$enable_gui = xyes], [
     METNO_REQUIRE_QT4([
         OpenGL
-    ])
-])
-
-AS_IF([test x$enable_batch_only != xyes], [
-    METNO_REQUIRE_QT4([
     ])
 ])
 

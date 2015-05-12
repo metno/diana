@@ -36,14 +36,13 @@
 #endif
 
 #include "diLegendPlot.h"
-#include "diFontManager.h"
 #include "diImageGallery.h"
-#include "diPlot.h"
+#include "diGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
 #include <cmath>
-#include <polyStipMasks.h>
+#include "polyStipMasks.h"
 
 #define MILOGGER_CATEGORY "diana.LegendPlot"
 #include <miLogger/miLogging.h>
@@ -164,28 +163,19 @@ void LegendPlot::memberCopy(const LegendPlot& rhs)
   showplot = rhs.showplot;
 }
 
-void LegendPlot::getStringSize(std::string str, float& width, float& height)
+void LegendPlot::getStringSize(DiGLPainter* gl, const std::string& str,
+    float& width, float& height)
 {
-  //Bugfix
-  //The postscript size of "-" are underestimated
-  if (staticPlot_->hardcopy){
-    int n = miutil::count_char(str, '-');
-    for(int i=0;i<n;i++) str+="-";
-  }
+  gl->getTextSize(str, width, height);
 
-  staticPlot_->getFontPack()->getStringSize(str.c_str(), width, height);
-
-  // fontsizeScale != 1 when postscript font size != X font size
-  if (staticPlot_->hardcopy){
-    float fontsizeScale = staticPlot_->getFontPack()->getSizeDiv();
-    width*=fontsizeScale;
-    height*=fontsizeScale;
-  }
+  float fontsizeScale = gl->getSizeDiv();
+  width*=fontsizeScale;
+  height*=fontsizeScale;
 
   height *= 1.2;
 }
 
-bool LegendPlot::plotLegend(float x, float y)
+bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
 {
   METLIBS_LOG_SCOPE();
   // fill the table with colours and textstrings from palette information
@@ -198,7 +188,7 @@ bool LegendPlot::plotLegend(float x, float y)
   //colour code strings
   for (int i=0; i<ncolours; i++){
     colourcodes[i].colourstr += suffix;
-    getStringSize(colourcodes[i].colourstr, width, height);
+    getStringSize(gl, colourcodes[i].colourstr, width, height);
     if (width>maxwidth) maxwidth= width;
     if (height>maxheight) maxheight= height;
   }
@@ -207,7 +197,7 @@ bool LegendPlot::plotLegend(float x, float y)
   int ntitle = 0;
   vector<std::string> vtitlestring;
   if((not titlestring.empty())){
-    getStringSize(titlestring, titlewidth, height);
+    getStringSize(gl, titlestring, titlewidth, height);
     if(titlewidth>maxwidth){
       vector<std::string> vs = miutil::split(titlestring, " ");
       if (vs.size()>=5) {
@@ -239,7 +229,7 @@ bool LegendPlot::plotLegend(float x, float y)
     ntitle = vtitlestring.size();
     titlewidth = 0;
     for (int i=0; i<ntitle; i++){
-      getStringSize(vtitlestring[i], width, height);
+      getStringSize(gl, vtitlestring[i], width, height);
       if (width>titlewidth) titlewidth = width;
       if (height>maxheight)   maxheight= height;
     }
@@ -249,7 +239,7 @@ bool LegendPlot::plotLegend(float x, float y)
 
   float xborder;
   float yborder;
-  getStringSize("c",xborder,yborder);
+  getStringSize(gl, "c",xborder,yborder);
   xborder /=2;
   yborder /=2;
   titlewidth  = titlewidth + 2*xborder;
@@ -278,20 +268,14 @@ bool LegendPlot::plotLegend(float x, float y)
 
   //draw title background
   if(ntitle>0){
-    glColor3ubv(poptions.fillcolour.RGB());
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glBegin(GL_POLYGON);
-    glVertex2f(x1title,y2title);
-    glVertex2f(x1title,y1title);
-    glVertex2f(x2title,y1title);
-    glVertex2f(x2title,y2title);
-    glEnd();
+    gl->setColour(poptions.fillcolour, false);
+    gl->fillRect(x1title, y2title, x2title, y1title);
 
     //draw title
-    glColor4ubv(poptions.textcolour.RGBA());
+    gl->setColour(poptions.textcolour);
     float titley1 = y2title-yborder-maxheight/2;
-    for (int i=0;i<ntitle;i++){
-      staticPlot_->getFontPack()->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
+    for (int i=0;i<ntitle;i++) {
+      gl->drawText(vtitlestring[i],(x1title+xborder),titley1);
       titley1 -= maxheight;
     }
   }
@@ -300,16 +284,24 @@ bool LegendPlot::plotLegend(float x, float y)
   if (showplot){
 
     //draw table background
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ubv(poptions.fillcolour.RGBA());
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glBegin(GL_POLYGON);
-    glVertex2f(x1table,y1table);
-    glVertex2f(x1table,y1title);
-    glVertex2f(x2table,y1title);
-    glVertex2f(x2table,y1table);
-    glEnd();
+    gl->Enable(DiGLPainter::gl_BLEND);
+    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+#if 0
+    gl->Color4ubv(poptions.fillcolour.RGBA());
+#else
+    gl->setColour(poptions.fillcolour);
+#endif
+#if 0
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+    gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->Vertex2f(x1table,y1table);
+    gl->Vertex2f(x1table,y1title);
+    gl->Vertex2f(x2table,y1title);
+    gl->Vertex2f(x2table,y1table);
+    gl->End();
+#else
+    gl->fillRect(x1table, y1table, x2table, y1title);
+#endif
 
     // draw table
     float x1box = x1table + xborder;
@@ -317,74 +309,64 @@ bool LegendPlot::plotLegend(float x, float y)
     float y2box = y1title - yborder;
     float y1box = y2box   - maxheight;
     ImageGallery ig;
-    glEnable(GL_POLYGON_STIPPLE);
+    gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
     for (int i=0;i<ncolours;i++){
       if(colourcodes[i].plotBox){
         //draw colour/pattern box
         // draw background of colour/pattern boxes
-        glColor3ubv(poptions.fillcolour.RGB());
-        glBegin(GL_POLYGON);
-        glVertex2f(x1box,y1box);
-        glVertex2f(x1box,y2box);
-        glVertex2f(x2box,y2box);
-        glVertex2f(x2box,y1box);
-        glEnd();
+        gl->setColour(poptions.fillcolour, false);
+#if 1 // FIXME this is a strange painting call
+        gl->Begin(DiGLPainter::gl_POLYGON);
+        gl->Vertex2f(x1box,y1box);
+        gl->Vertex2f(x1box,y2box);
+        gl->Vertex2f(x2box,y2box);
+        gl->Vertex2f(x2box,y1box);
+        gl->End();
+#else
+        gl->fillRect(x1box, y1box, x2box, y2box);
+#endif
         if((not colourcodes[i].pattern.empty())){
-          GLubyte* p=ig.getPattern(colourcodes[i].pattern);
+          DiGLPainter::GLubyte* p=ig.getPattern(colourcodes[i].pattern);
           if(p==0)
-            glPolygonStipple(solid);
+            gl->PolygonStipple(solid);
           else
-            glPolygonStipple(p);
+            gl->PolygonStipple(p);
         }else{
-          glPolygonStipple(solid);
+          gl->PolygonStipple(solid);
         }
-        glColor4ubv(colourcodes[i].colour.RGBA());
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glBegin(GL_POLYGON);
-        glVertex2f(x1box,y1box);
-        glVertex2f(x1box,y2box);
-        glVertex2f(x2box,y2box);
-        glVertex2f(x2box,y1box);
-        glEnd();
+        gl->setColour(colourcodes[i].colour);
+        gl->fillRect(x1box, y1box, x2box, y2box);
 
         // draw border of colour/pattern box
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glBegin(GL_POLYGON);
-        glVertex2f(x1box,y1box);
-        glVertex2f(x1box,y2box);
-        glVertex2f(x2box,y2box);
-        glVertex2f(x2box,y1box);
-        glEnd();
+        gl->drawRect(x1box, y1box, x2box, y2box);
       }
       //draw textstring
-      glColor4ubv(poptions.textcolour.RGBA());
-      std::string cstring = colourcodes[i].colourstr;
-      staticPlot_->getFontPack()->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
+      gl->setColour(poptions.textcolour);
+      gl->drawText(colourcodes[i].colourstr, (x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
-      staticPlot_->UpdateOutput();
+      gl->UpdateOutput();
     }
-    glDisable(GL_POLYGON_STIPPLE);
+    gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
   }
-  glDisable(GL_BLEND);
-
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   return true;
 }
 
-float LegendPlot::height()
+float LegendPlot::height(DiGLPainter* gl)
 {
   int ncolours = colourcodes.size();
   if(!ncolours) return 0.0;
 
-  staticPlot_->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
+  gl->setFont(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,maxheight=0,titlewidth=0;
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
     std::string cstring;
     cstring = colourcodes[i].colourstr;
-    getStringSize(cstring, width, height);
+    getStringSize(gl, cstring, width, height);
     if (height>maxheight) maxheight= height;
     if (width>maxwidth) maxwidth= width;
   }
@@ -392,7 +374,7 @@ float LegendPlot::height()
   //title
   int ntitle=0;
   if((not titlestring.empty())){
-    getStringSize(titlestring, titlewidth, height);
+    getStringSize(gl, titlestring, titlewidth, height);
     vector<std::string> vtitlestring;
     if(titlewidth>maxwidth){
       vtitlestring = miutil::split(titlestring, " ");
@@ -402,14 +384,14 @@ float LegendPlot::height()
     ntitle = vtitlestring.size();
     titlewidth = 0;
     for (int i=0; i<ntitle; i++){
-      getStringSize(vtitlestring[i], width, height);
+      getStringSize(gl, vtitlestring[i], width, height);
       if (height>maxheight)   maxheight= height;
     }
   }
 
   float xborder;
   float yborder;
-  getStringSize("c",xborder,yborder);
+  getStringSize(gl, "c",xborder,yborder);
   yborder /=4;
   float titleheight = maxheight*ntitle;
   float tableheight = maxheight*ncolours + 2*yborder;
@@ -417,25 +399,24 @@ float LegendPlot::height()
   return (tableheight + titleheight);
 }
 
-float LegendPlot::width()
+float LegendPlot::width(DiGLPainter* gl)
 {
-
   int ncolours = colourcodes.size();
   if(!ncolours) return 0.0;
 
-  staticPlot_->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
+  gl->setFont(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,titlewidth=0;
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
     std::string cstring;
     cstring = colourcodes[i].colourstr;
-    getStringSize(cstring, width, height);
+    getStringSize(gl, cstring, width, height);
     if (width>maxwidth) maxwidth= width;
   }
 
   //title
-  getStringSize(titlestring, titlewidth, height);
+  getStringSize(gl, titlestring, titlewidth, height);
   vector<std::string> vtitlestring;
   if(titlewidth>maxwidth){
     vtitlestring = miutil::split(titlestring, " ");
@@ -445,13 +426,13 @@ float LegendPlot::width()
   int ntitle = vtitlestring.size();
   titlewidth = 0;
   for (int i=0; i<ntitle; i++){
-    getStringSize(vtitlestring[i], width, height);
+    getStringSize(gl, vtitlestring[i], width, height);
     if (width>titlewidth) titlewidth = width;
   }
 
   float xborder;
   float yborder;
-  getStringSize("c",xborder,yborder);
+  getStringSize(gl, "c",xborder,yborder);
   xborder /=2;
   titlewidth  = titlewidth + 2*xborder;
   float tablewidth  = maxwidth + 6*xborder;

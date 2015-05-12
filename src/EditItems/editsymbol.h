@@ -48,9 +48,9 @@ public:
   virtual ~Symbol();
 
 protected:
-  virtual void draw();
-  virtual void drawHoverHighlightingBG(bool, bool) const;
-  virtual void drawHoverHighlighting(bool, bool) const;
+  virtual void draw(DiGLPainter* gl);
+  virtual void drawHoverHighlightingBG(DiGLPainter* gl, bool, bool) const;
+  virtual void drawHoverHighlighting(DiGLPainter* gl, bool, bool) const;
 
 private:
   virtual DrawingItemBase *cloneSpecial(bool) const;

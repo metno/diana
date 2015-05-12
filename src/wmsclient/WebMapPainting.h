@@ -32,6 +32,7 @@
 
 class Colour;
 class QImage;
+class DiGLPainter;
 
 namespace diutil {
 
@@ -46,7 +47,7 @@ public:
   virtual void position(int ix, int iy, float&x, float& y) const = 0;
 };
 
-void drawFillCell(const PixelData& pixels);
+void drawFillCell(DiGLPainter* gl, const PixelData& pixels);
 
 // ========================================================================
 

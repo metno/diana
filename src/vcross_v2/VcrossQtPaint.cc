@@ -19,39 +19,39 @@ PaintWindArrow::PaintWindArrow()
 {
 }
 
-void PaintWindArrow::paint(QPainter& painter, float u, float v, float gx, float gy) const
+// static
+void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines,
+    std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
+    float u, float v, float gx, float gy)
 {
   // step and size for flags
-  const float fStep = mSize / 10.0, fSize = mSize * 0.35;
+  const float fStep = size / 10.0, fSize = size * 0.35;
   const float KN5_SCALE = 0.6;
 
   const float ff = sqrtf(u*u + v*v);
   if (ff <= 0.00001 or isnan(ff))
     return;
-  
+
   const util::WindArrowFeathers waf = util::countFeathers(ff);
 
   const float unitX = u / ff,
       unitY = -v / ff; // -v because v is up, y coordinate increases down
 
-  const float flagDX = fStep * unitX, flagDY = fStep * unitY;
-  const float flagEndDX = fSize * unitY - flagDX, flagEndDY = -fSize * unitX - flagDY;
+  const float flagDX = fStep * unitX, flagDY = yFactor*(fStep * unitY);
+  const float flagEndDX = fSize * unitY - flagDX, flagEndDY = -yFactor*(fSize * unitX) - flagDY;
 
-  std::vector<QPointF> trianglePoints;
-  if (mWithArrowHead) {
+  if (withArrowHead) {
     const float a = -1.5, s = a * 0.5;
     trianglePoints.push_back(QPointF(gx, gy));
     trianglePoints.push_back(QPointF(gx + a*flagDX + s*flagDY, gy + a*flagDY - s*flagDX));
     trianglePoints.push_back(QPointF(gx + a*flagDX - s*flagDY, gy + a*flagDY + s*flagDX));
   }
 
-  QVector<QLineF> lines;
- 
   // direction
   QPointF p1(gx, gy);
   // move to end of arrow
-  gx -= mSize * unitX;
-  gy -= mSize * unitY;
+  gx -= size * unitX;
+  gy -= yFactor*(size * unitY);
   QPointF p2(gx, gy);
   lines.push_back(QLineF(p1, p2));
 
@@ -87,6 +87,14 @@ void PaintWindArrow::paint(QPainter& painter, float u, float v, float gx, float 
     }
     lines.push_back(QLineF(gx, gy, gx + KN5_SCALE * flagEndDX, gy + KN5_SCALE * flagEndDY));
   }
+}
+
+void PaintWindArrow::paint(QPainter& painter, float u, float v, float gx, float gy) const
+{
+  QVector<QLineF> lines;
+  std::vector<QPointF> trianglePoints;
+  makeArrowPrimitives(lines, trianglePoints, mSize, mWithArrowHead, 1, u, v, gx, gy);
+
   painter.drawLines(lines);
 
   // draw triangles
@@ -98,6 +106,7 @@ void PaintWindArrow::paint(QPainter& painter, float u, float v, float gx, float 
     }
   }
 }
+
 
 // ########################################################################
 

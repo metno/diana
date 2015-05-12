@@ -33,16 +33,11 @@
 
 #include "diPlot.h"
 
-#include "diFontManager.h"
+#include "diGLPainter.h"
 #include "diPlotModule.h"
 
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
-
-#include <qglobal.h>
-#if !defined(USE_PAINTGL)
-#include <glp/glpfile.h>
-#endif
 
 #define MILOGGER_CATEGORY "diana.Plot"
 #include <miLogger/miLogging.h>
@@ -66,9 +61,6 @@ StaticPlot::StaticPlot()
   , oceandepth(-1)    // current ocean depth
   , gcd(0)            // great circle distance (corner to corner)
   , panning(false)    // panning in progress
-  , fp(0)             // master fontpack
-  , psoutput(0)       // PostScript module
-  , hardcopy(false)   // producing postscript
 {
 }
 
@@ -81,8 +73,10 @@ Plot::Plot()
   , rgbmode(true)
 {
   METLIBS_LOG_SCOPE();
-  if (not getStaticPlot()->getFontPack())
-    getStaticPlot()->restartFontManager();
+}
+
+void Plot::setCanvas(DiCanvas* canvas)
+{
 }
 
 bool Plot::operator==(const Plot &rhs) const{
@@ -92,21 +86,6 @@ bool Plot::operator==(const Plot &rhs) const{
 StaticPlot* Plot::getStaticPlot() const
 {
   return PlotModule::instance()->getStaticPlot();
-}
-
-void StaticPlot::initFontManager()
-{
-  METLIBS_LOG_SCOPE();
-  if (fp)
-    fp->parseSetup();
-}
-
-void StaticPlot::restartFontManager()
-{
-  METLIBS_LOG_SCOPE();
-  delete fp;
-  fp = new FontManager();
-  initFontManager();
 }
 
 void Plot::setEnabled(bool e)
@@ -164,9 +143,6 @@ void StaticPlot::setPlotSize(const Rectangle& r)
   plotsize = r;
   updatePhysToMapScale();
   setDirty(true);
-
-  if (fp)
-    fp->setGlSize(r.width(), r.height());
 }
 
 
@@ -182,8 +158,6 @@ void StaticPlot::setPhysSize(float w, float h)
 {
   mPhys = XY(w, h);
   updatePhysToMapScale();
-  if (fp)
-    fp->setVpSize(w, h);
   setDirty(true);
 }
 
@@ -235,8 +209,10 @@ void StaticPlot::setDirty(bool f)
 }
 
 
-void StaticPlot::updateGcd()
+void StaticPlot::updateGcd(DiGLPainter* gl)
 {
+  gl->setVpGlSize(mPhys.x(), mPhys.y(), plotsize.width(), plotsize.height());
+
   // lat3,lon3, point where ratio between window scale and geographical scale
   // is computed, set to Oslo coordinates, can be changed according to area
   const float lat3 = 60,
@@ -319,163 +295,6 @@ std::string Plot::getPlotInfo(const std::string& return_tokens) const
   }
 
   return str;
-}
-
-bool StaticPlot::startPSoutput(const printOptions& po){
-  if (hardcopy) return false;
-
-  printOptions pro= po;
-  int feedsize= 30000000;
-  int print_options= 0;
-
-  // Fit output to page
-  if (pro.fittopage)
-    print_options= print_options | GLP_FIT_TO_PAGE;
-
-  // set colour mode
-  if (pro.colop==greyscale){
-    print_options= print_options | GLP_GREYSCALE;
-
-    /* Reversing colours should be an option from the GUI?
-    // calculate background colour intensity
-    float bci=
-    backgroundColour.fB()*0.0820 +
-    backgroundColour.fG()*0.6094 +
-    backgroundColour.fR()*0.3086;
-
-    if (bci < 0.2)
-    print_options= print_options | GLP_REVERSE;
-    */
-
-    if (pro.drawbackground)
-      print_options= print_options | GLP_DRAW_BACKGROUND;
-
-  } else if (pro.colop==blackwhite) {
-    print_options= print_options | GLP_BLACKWHITE;
-
-  } else {
-    if (pro.drawbackground)
-      print_options= print_options | GLP_DRAW_BACKGROUND;
-  }
-
-  // set orientation
-  if (pro.orientation==ori_landscape)
-    print_options= print_options | GLP_LANDSCAPE;
-  else if (pro.orientation==ori_portrait)
-    print_options= print_options | GLP_PORTRAIT;
-  else
-    print_options= print_options | GLP_AUTO_ORIENT;
-
-  // calculate line, point (and font?) scale
-  if (!pro.usecustomsize)
-    pro.papersize= printman.getSize(pro.pagesize);
-  PaperSize a4size;
-  float scale= 1.0;
-  if (abs(pro.papersize.vsize)>0)
-    scale= a4size.vsize/pro.papersize.vsize;
-
-  // check if extra output-commands
-  map<string,string> extra;
-  printman.checkSpecial(pro,extra);
-
-  // make GLPfile object
-  psoutput = new GLPfile(const_cast<char*>(pro.fname.c_str()),
-			 print_options, feedsize, &extra,
-			 pro.doEPS);
-
-
-  // set line and point scale
-  psoutput->setScales(0.5*scale, 0.5*scale);
-
-  psoutput->StartPage();
-  hardcopy= true;
-
-  // inform fontpack
-  if (fp){
-    fp->startHardcopy(psoutput);
-  }
-
-  return true;
-}
-
-// for postscript output
-void StaticPlot::UpdateOutput(){
-  if (psoutput) psoutput->UpdatePage(true);
-}
-
-bool StaticPlot::startPSnewpage()
-{
-  if (!hardcopy || !psoutput) return false;
-  glFlush();
-  if (psoutput->EndPage() != 0) {
-    METLIBS_LOG_WARN("startPSnewpage: EndPage BAD!!!");
-  }
-  psoutput->StartPage();
-  return true;
-}
-
-bool StaticPlot::endPSoutput(){
-  if (!hardcopy || !psoutput) return false;
-  glFlush();
-  if (psoutput->EndPage() == 0) {
-    delete psoutput;
-    psoutput = 0;
-  }
-  hardcopy= false;
-
-  if (fp) fp->endHardcopy();
-  return true;
-}
-
-
-void StaticPlot::psAddImage(const GLvoid* data,GLint size,GLint nx,GLint ny,
-		      GLfloat x,GLfloat y,GLfloat sx,GLfloat sy,
-		      GLint x1,GLint y1,GLint x2,GLint y2,
-		      GLenum format,GLenum type){
-  if (!psoutput) return;
-  bool blend_image_to_background = true;
-  psoutput->AddImage(data, size, nx, ny, x, y, sx, sy, x1, y1, x2, y2, format,
-      type, blend_image_to_background);
-}
-
-
-void StaticPlot::addHCStencil(int size, const float* x, const float* y)
-{
-  if (!psoutput)
-    return;
-  psoutput->addStencil(size,x,y);
-}
-
-// Scissoring in GL coordinates
-void StaticPlot::addHCScissor(double x0, double y0,
-			      double  w, double  h)
-{
-  if (!psoutput)
-    return;
-  psoutput->addScissor(x0,y0,w,h);
-}
-
-// Scissoring in pixel coordinates
-void StaticPlot::addHCScissor(int x0, int y0,
-			      int  w, int  h)
-{
-  if (!psoutput)
-    return;
-  psoutput->addScissor(x0,y0,w,h);
-}
-
-void StaticPlot::removeHCClipping()
-{
-  if (!psoutput)
-    return;
-  psoutput->removeClipping();
-}
-
-void StaticPlot::resetPage()
-{
-  if (!psoutput)
-    return;
-  psoutput->addReset();
 }
 
 // panning in progress

@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
  Copyright (C) 2006 met.no
 
  Contact information:
@@ -31,13 +29,14 @@
 #ifndef diPlotModule_h
 #define diPlotModule_h
 
-#include <diPlot.h>
-#include <diDrawingTypes.h>
-#include <diMapMode.h>
-#include <diPrintOptions.h>
+#include "diPlot.h"
+#include "diDrawingTypes.h"
+#include "diMapMode.h"
+#include "diPrintOptions.h"
+#include "diDisplayObjects.h"
+#include "diAreaObjects.h"
+
 #include <puTools/miTime.h>
-#include <diDisplayObjects.h>
-#include <diAreaObjects.h>
 
 #include <vector>
 #include <set>
@@ -151,10 +150,8 @@ private:
 
   std::vector<PlotElement> plotelements;
 
-  //Plot underlay
-  void plotUnder();
-  //Plot overlay
-  void plotOver();
+  void plotUnder(DiGLPainter* gl);
+  void plotOver(DiGLPainter* gl);
 
   //Free fields in FieldPlot
   void freeFields(FieldPlot *);
@@ -203,15 +200,17 @@ public:
   PlotModule();
   ~PlotModule();
 
+  void setCanvas(DiCanvas* canvas);
+
   /// the main plot routine (plot for underlay, plot for overlay)
-  void plot(bool under = true, bool over = true);
+  void plot(DiGLPainter* gl, bool under = true, bool over = true);
   /// split plot info strings and reroute them to appropriate handlers
   void preparePlots(const std::vector<std::string>&);
 
   /// get annotations
   const std::vector<AnnotationPlot*>& getAnnotations();
   /// plot annotations
-  std::vector<Rectangle> plotAnnotations();
+  std::vector<Rectangle> plotAnnotations(DiGLPainter* gl);
 
   /// get annotations from all plots
   void setAnnotations();
@@ -252,10 +251,9 @@ public:
   double getMarkedArea(const float& x, const float& y);
   double getWindowArea();
 
-  /// start hardcopy plot
   void startHardcopy(const printOptions& po);
-  /// end hardcopy plot
   void endHardcopy();
+
   /// set managers
   void setManagers(FieldManager*, FieldPlotManager*, ObsManager*, SatManager*,
       StationManager*, ObjectManager*, EditManager*);
@@ -415,9 +413,7 @@ public:
   managers_t managers;
 
   static PlotModule *instance()
-  {
-    return self;
-  }
+    { return self; }
 
   StaticPlot* getStaticPlot() const
     { return staticPlot_.get(); }

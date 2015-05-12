@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +31,10 @@
 #include "config.h"
 #endif
 
+#include "qtSpectrumWidget.h"
+#include "diSpectrumManager.h"
+#include "diGLPainter.h"
+
 #include <qapplication.h>
 #include <QFrame>
 #include <qimage.h>
@@ -41,111 +43,53 @@
 #define MILOGGER_CATEGORY "diana.SpectrumWidget"
 #include <miLogger/miLogging.h>
 
-#include "qtSpectrumWidget.h"
-#include "diSpectrumManager.h"
 
-#if defined(USE_PAINTGL)
-#include "GL/gl.h"
-#endif
-
-#if !defined(USE_PAINTGL)
-SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
-                        QWidget* parent)
-    : QGLWidget( fmt, parent), spectrumm(spm)
-#else
-SpectrumWidget::SpectrumWidget(SpectrumManager *spm, QWidget* parent)
-    : QGLWidget(parent, true), spectrumm(spm)
-#endif
+SpectrumWidget::SpectrumWidget(SpectrumManager *spm)
+  : spectrumm(spm)
+  , mCanvas(0)
 {
+}
 
-  if ( !isValid() ) {
-    qFatal("Failed to create OpenGL rendering context on this display");
-  }
+void SpectrumWidget::paint(DiPainter* p)
+{
+  METLIBS_LOG_SCOPE();
 
-  setFocusPolicy(Qt::StrongFocus);
+  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(p);
+  if (gl && spectrumm)
+    spectrumm->plot(gl);
 }
 
 
-//  Set up the OpenGL rendering state
-void SpectrumWidget::initializeGL()
+void SpectrumWidget::resize(int w, int h)
 {
+  METLIBS_LOG_SCOPE("w=" << w << " h=" << h);
 
-  METLIBS_LOG_DEBUG("SpectrumWidget::initializeGL");
-
-  glShadeModel( GL_FLAT );
-  setAutoBufferSwap(false);
-  glDrawBuffer(GL_BACK);
-}
-
-
-void SpectrumWidget::paintGL()
-{
-
-  METLIBS_LOG_DEBUG("SpectrumWidget::paintGL");
-
-  if (!spectrumm) return;
-
-  spectrumm->plot();
-
-  swapBuffers();
-}
-
-
-//  Set up the OpenGL view port, matrix mode, etc.
-void SpectrumWidget::resizeGL( int w, int h )
-{
-
-  METLIBS_LOG_DEBUG("SpectrumWidget::resizeGL  w=" << w << " h=" << h);
-
-  if (spectrumm) spectrumm->setPlotWindow(w,h);
-
-  glViewport( 0, 0, (GLint)w, (GLint)h );
-  //plotw= w;
-  //ploth= h;
-  updateGL();
-
-  setFocus();
+  if (spectrumm)
+    spectrumm->setPlotWindow(w,h);
 }
 
 // ---------------------- event callbacks -----------------
 
-void SpectrumWidget::keyPressEvent(QKeyEvent *me)
+bool SpectrumWidget::handleKeyEvents(QKeyEvent *ke)
 {
-  if (me->key()==Qt::Key_Left  ||
-      me->key()==Qt::Key_Right ||
-      me->key()==Qt::Key_Down  ||
-      me->key()==Qt::Key_Up) {
+  if (ke->type() != QKeyEvent::KeyPress)
+    return false;
 
-    if (me->key()==Qt::Key_Left){
-      spectrumm->setTime(-1);
-      emit timeChanged(-1);
-    } else if (me->key()==Qt::Key_Right){
-      spectrumm->setTime(+1);
-      emit timeChanged(+1);
-    }else if (me->key()==Qt::Key_Down){
-      spectrumm->setStation(-1);
-      emit stationChanged(-1);
-    }else if (me->key()==Qt::Key_Up){
-      spectrumm->setStation(+1);
-      emit stationChanged(+1);
-    }
-    updateGL();
+  if (ke->key()==Qt::Key_Left){
+    spectrumm->setTime(-1);
+    Q_EMIT timeChanged(-1);
+  } else if (ke->key()==Qt::Key_Right) {
+    spectrumm->setTime(+1);
+    Q_EMIT timeChanged(+1);
+  } else if (ke->key()==Qt::Key_Down) {
+    spectrumm->setStation(-1);
+    Q_EMIT stationChanged(-1);
+  } else if (ke->key()==Qt::Key_Up) {
+    spectrumm->setStation(+1);
+    Q_EMIT stationChanged(+1);
+  } else {
+    return false;
   }
-}
-
-
-bool SpectrumWidget::saveRasterImage(const std::string fname,
-			          const std::string format,
-			          const int quality)
-{
-
-  updateGL();
-  makeCurrent();
-  glFlush();
-
-  // test of new grabFrameBuffer command
-  QImage image= grabFrameBuffer(true); // withAlpha=TRUE
-  image.save(fname.c_str(), format.c_str(), quality );
 
   return true;
 }

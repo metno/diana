@@ -30,7 +30,7 @@
 */
 
 #include "edititembase.h"
-#include <GL/gl.h>
+#include "diGLPainter.h"
 
 #include <qglobal.h>
 
@@ -113,14 +113,14 @@ void EditItemBase::movePointTo(int i, const QPointF &pos)
   Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*(Drawing(this))));
 }
 
-static void drawRect(const QRectF &r, int pad, int z = 1)
+static void drawRect(DiGLPainter* gl, const QRectF &r, int pad, int z = 1)
 {
-  glBegin(GL_POLYGON);
-  glVertex3i(r.left() - pad,  r.bottom() + pad, z);
-  glVertex3i(r.right() + pad, r.bottom() + pad, z);
-  glVertex3i(r.right() + pad, r.top() - pad,    z);
-  glVertex3i(r.left() - pad,  r.top() - pad,    z);
-  glEnd();
+  gl->Begin(DiGLPainter::gl_POLYGON);
+  gl->Vertex3i(r.left() - pad,  r.bottom() + pad, z);
+  gl->Vertex3i(r.right() + pad, r.bottom() + pad, z);
+  gl->Vertex3i(r.right() + pad, r.top() - pad,    z);
+  gl->Vertex3i(r.left() - pad,  r.top() - pad,    z);
+  gl->End();
 }
 
 static bool isJoinedEndPoint(int joinCount, int joinId, int i, int n)
@@ -128,10 +128,10 @@ static bool isJoinedEndPoint(int joinCount, int joinId, int i, int n)
   return (joinCount > 1) && (((joinId < 0) && (i == 0)) || ((joinId > 0) && (i == (n - 1))));
 }
 
-void EditItemBase::drawControlPoints(const QColor &color, const QColor &joinColor, int pad) const
+void EditItemBase::drawControlPoints(DiGLPainter* gl, const QColor &color, const QColor &joinColor, int pad) const
 {
-  glPushAttrib(GL_POLYGON_BIT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
 
   const int jId = ConstDrawing(this)->joinId();
@@ -140,27 +140,27 @@ void EditItemBase::drawControlPoints(const QColor &color, const QColor &joinColo
   for (int i = 0; i < n; ++i) {
     int extraPad = 0;
     if (isJoinedEndPoint(jCount, jId, i, n)) {
-      glColor4ub(joinColor.red(), joinColor.green(), joinColor.blue(), joinColor.alpha());
+      gl->Color4ub(joinColor.red(), joinColor.green(), joinColor.blue(), joinColor.alpha());
       extraPad = 1;
     } else {
-      glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
+      gl->Color4ub(color.red(), color.green(), color.blue(), color.alpha());
     }
-    drawRect(controlPoints_.at(i), pad + extraPad);
+    drawRect(gl, controlPoints_.at(i), pad + extraPad);
   }
 
-  glPopAttrib();
+  gl->PopAttrib();
 }
 
-void EditItemBase::drawHoveredControlPoint(const QColor &color, int pad) const
+void EditItemBase::drawHoveredControlPoint(DiGLPainter* gl, const QColor &color, int pad) const
 {
   Q_ASSERT(hoverCtrlPointIndex_ >= 0);
-  glPushAttrib(GL_POLYGON_BIT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
-  drawRect(
+  gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Color4ub(color.red(), color.green(), color.blue(), color.alpha());
+  drawRect(gl,
         controlPoints_.at(hoverCtrlPointIndex_),
         pad + (isJoinedEndPoint(ConstDrawing(this)->joinCount(), ConstDrawing(this)->joinId(), hoverCtrlPointIndex_, controlPoints_.size()) ? 1 : 0));
-  glPopAttrib();
+  gl->PopAttrib();
 }
 
 /**
@@ -169,32 +169,32 @@ void EditItemBase::drawHoveredControlPoint(const QColor &color, int pad) const
  * \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
  * \a editingStyle is true iff the item's style is currently being edited.
  */
-void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
+void EditItemBase::draw(DiGLPainter* gl, DrawModes modes, bool incomplete, bool editingStyle)
 {
   // NOTE: if we're editing the style, highlighting and control points would only be in the way
 
   if ((!editingStyle) && (modes & Hovered))
-    drawHoverHighlightingBG(incomplete, modes & Selected);
+    drawHoverHighlightingBG(gl, incomplete, modes & Selected);
 
-  Drawing(this)->draw();
+  Drawing(this)->draw(gl);
 
   if (incomplete)
-    drawIncomplete();
+    drawIncomplete(gl);
 
   if (!editingStyle) {
     if (modes & Hovered)
-      drawHoverHighlighting(incomplete, modes & Selected);
+      drawHoverHighlighting(gl, incomplete, modes & Selected);
     if (modes & Selected)
-      drawControlPoints();
+      drawControlPoints(gl);
   }
 }
 
 /**
  * The default draw method only draws normal, unselected, non-hovered, complete items.
  */
-void EditItemBase::draw()
+void EditItemBase::draw(DiGLPainter* gl)
 {
-  draw(Normal, false);
+  draw(gl, Normal, false);
 }
 
 /**

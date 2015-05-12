@@ -72,7 +72,7 @@ public:
 
   void setStyleGrey(bool makeGrey);
 
-  void plot(PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder);
 
   void changeProjection();
 

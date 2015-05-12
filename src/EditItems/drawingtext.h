@@ -42,7 +42,7 @@ public:
   virtual ~Text();
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
-  virtual void draw();
+  virtual void draw(DiGLPainter* gl);
 
   virtual QStringList text() const;
   virtual void setText(const QStringList &lines);

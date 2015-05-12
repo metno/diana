@@ -1302,7 +1302,7 @@ bool EditObjects::changeCurrentFronts(){
 
     const int test = p1->place-nFrontsDeleted;
     if (p1->todo!=Insert &&
-        (test<0 || test>=objects.size())){
+        (test<0 || test>=(int)objects.size())){
       //HK ??? Something "strange" happened
       METLIBS_LOG_WARN("Warning! diEditObjects	::changeCurrentFronts "
       <<  "****************************************** "
@@ -1422,10 +1422,11 @@ bool EditObjects::findJoinedPoints(const float x,const float y,
  *  Methods for plotting                                    *
  ************************************************************/
 
-void EditObjects::drawJoinPoints(){
+void EditObjects::drawJoinPoints(DiGLPainter* gl)
+{
   int n= objects.size();
   for (int i=0; i<n; i++){
-    objects[i]->drawJoinPoints();
+    objects[i]->drawJoinPoints(gl);
   }
 }
 

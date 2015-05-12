@@ -1,7 +1,7 @@
 
 #include "diGlUtilities.h"
 
-#include <GL/gl.h>
+#include "diGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -31,7 +31,8 @@ MapValuePosition mapValuePositionFromText(const std::string& p)
 // ========================================================================
 
 void xyclip(int npos, const float *x, const float *y, const float xylim[4],
-    MapValuePosition anno_position, const std::string& anno, MapValueAnno_v& anno_positions)
+    MapValuePosition anno_position, const std::string& anno,
+    MapValueAnno_v& anno_positions, DiGLPainter* gl)
 {
   // ploting part(s) of the continuous line that is within the given
   // area, also the segments between 'neighboring point' both of which are
@@ -135,37 +136,38 @@ void xyclip(int npos, const float *x, const float *y, const float xylim[4],
       }
     } else if (k1 == 1) {
       // last point at a segment within the area
-      glBegin(GL_LINE_STRIP);
-      glVertex2f(xx, yy);
+      gl->Begin(DiGLPainter::gl_LINE_STRIP);
+      gl->Vertex2f(xx, yy);
       for (i = nint + 1; i < n; i++) {
-        glVertex2f(x[i], y[i]);
+        gl->Vertex2f(x[i], y[i]);
       }
-      glVertex2f(xc[0], yc[0]);
-      glEnd();
+      gl->Vertex2f(xc[0], yc[0]);
+      gl->End();
     } else if (nc > 0) {
       // two 'neighboring points' outside the area, but part of the line within
-      glBegin(GL_LINE_STRIP);
-      glVertex2f(xc[0], yc[0]);
-      glVertex2f(xc[1], yc[1]);
-      glEnd();
+      gl->Begin(DiGLPainter::gl_LINE_STRIP);
+      gl->Vertex2f(xc[0], yc[0]);
+      gl->Vertex2f(xc[1], yc[1]);
+      gl->End();
     }
   }
 
   if (k2 == 1) {
     // last point is within the area
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(xx, yy);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
+    gl->Vertex2f(xx, yy);
     for (i = nint + 1; i < npos; i++) {
-      glVertex2f(x[i], y[i]);
+      gl->Vertex2f(x[i], y[i]);
     }
-    glEnd();
+    gl->End();
   }
 }
 
-void xyclip(int npos, const float *x, const float *y, const float xylim[4])
+void xyclip(int npos, const float *x, const float *y, const float xylim[4],
+    DiGLPainter* gl)
 {
   MapValueAnno_v dummy;
-  xyclip(npos, x, y, xylim, map_none, std::string(), dummy);
+  xyclip(npos, x, y, xylim, map_none, std::string(), dummy, gl);
 }
 
 } // namespace diutil

@@ -45,6 +45,7 @@
 #include <QString>
 
 class AnnotationPlot;
+class DiGLPainter;
 class PlotModule;
 class ObjectManager;
 class FieldPlotManager;
@@ -129,7 +130,7 @@ private:
 
   bool unsentProduct; // true if last saved product has not been sent !
 
-  void plotSingleRegion(Plot::PlotOrder zorder);
+  void plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder);
 
   void initEditTools();
   void setMapmodeinfo();
@@ -233,7 +234,7 @@ public:
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
-  void plot(Plot::PlotOrder zorder);
+  void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
   /// show difference between observed mslp and edited mslp
   bool obs_mslp(ObsPositions& obsPositions);
   /// shows all hidden edit objects

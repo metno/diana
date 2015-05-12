@@ -47,9 +47,6 @@
 #include "diEditItemManager.h"
 
 #include "qtMainWindow.h"
-#if defined(USE_PAINTGL)
-#include "PaintGL/paintgl.h"
-#endif
 
 #include <puTools/miSetupParser.h>
 #include <iostream>
@@ -98,9 +95,6 @@ int main(int argc, char **argv)
   #endif
     QApplication a( argc, argv );
   #endif
-#endif
-#if defined(USE_PAINTGL)
-  PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
 #endif
 
   string logfilename;

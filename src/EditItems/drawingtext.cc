@@ -29,12 +29,15 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "GL/gl.h"
 #include "diDrawingManager.h"
 #include "EditItems/drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
 #include "diFontManager.h"
 #include "diPlotModule.h"
+#include "diGLPainter.h"
+
+#define MILOGGER_CATEGORY "diana.DrawingItem.Text"
+#include <miLogger/miLogging.h>
 
 namespace DrawingItem_Text {
 
@@ -52,7 +55,7 @@ Text::~Text()
 {
 }
 
-void Text::draw()
+void Text::draw(DiGLPainter* gl)
 {
   if (points_.isEmpty() || text().isEmpty())
     return;
@@ -64,17 +67,17 @@ void Text::draw()
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
   // Use the fill colour defined in the style to fill the text area.
-  styleManager->beginFill(this);
-  styleManager->fillLoop(this, points);
-  styleManager->endFill(this);
+  styleManager->beginFill(gl, this);
+  styleManager->fillLoop(gl, this, points);
+  styleManager->endFill(gl, this);
 
   // Draw the outline using the border colour and line pattern defined in the style.
-  styleManager->beginLine(this);
-  styleManager->drawLines(this, points, 0, true);
-  styleManager->endLine(this);
+  styleManager->beginLine(gl, this);
+  styleManager->drawLines(gl, this, points, 0, true);
+  styleManager->endLine(gl, this);
 
   // Draw the text itself.
-  styleManager->drawText(this);
+  styleManager->drawText(gl, this);
 }
 
 /**
@@ -89,20 +92,15 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   styleManager->setFont(this);
 
   // Obtain the width and height of the text in plot coordinates.
-  float width, height;
-  if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
-    width = height = 0;
-
-  float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
-
-  QSizeF size(scale * width, scale * height);
-
-  if (height == 0) {
-    PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize("X", width, height);
-    size.setHeight(scale * height);
+  float width = 0, height = 0;
+  if (DiCanvas* canvas = styleManager->canvas()) {
+    canvas->getTextSize(text.left(index).toStdString(), width, height);
+    if (height == 0)
+      canvas->getTextSize("X", width, height);
   }
 
-  return size;
+  const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
+  return QSize(scale * width, scale * height);
 }
 
 float Text::margin() const

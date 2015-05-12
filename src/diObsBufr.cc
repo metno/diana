@@ -346,7 +346,6 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   int hour = 0;
   int minute = 0;
   bool wmoNumber = false;
-  float heightOfSensor = -1.0;
   float depth = -1.0;
   int timePeriodMissing = -9999;
   int timePeriodHour = timePeriodMissing;
@@ -542,8 +541,9 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   7032  HEIGHT OF SENSOR, M
     case 7032:
-      if (values[j] < bufrMissing)
-        heightOfSensor = values[j];
+      if (values[j] < bufrMissing) {
+        /* never used heightOfSensor = values[j]; */
+      }
       break;
 
       //   7063  Depth, M

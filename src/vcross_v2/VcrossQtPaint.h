@@ -2,6 +2,10 @@
 #ifndef DIANA_VCROSS_DIVCROSSPAINT_H
 #define DIANA_VCROSS_DIVCROSSPAINT_H 1
 
+#include <QLineF>
+#include <QPointF>
+#include <QVector>
+
 class QPainter;
 
 namespace vcross {
@@ -42,6 +46,10 @@ struct PaintWindArrow : public PaintArrow {
    * \param py pixel y position
    */
   virtual void paint(QPainter& painter, float u, float v, float px, float py) const;
+
+  static void makeArrowPrimitives(QVector<QLineF>& lines,
+      std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
+      float u, float v, float gx, float gy);
 
   bool mWithArrowHead;
   float mSize;

@@ -34,6 +34,7 @@
 #include "editpolyline.h"
 #include "editsymbol.h"
 #include "edittext.h"
+#include "diGLPainter.h"
 
 #include <QAction>
 #include <QDialog>
@@ -162,30 +163,30 @@ void Composite::updateControlPoints()
 {
 }
 
-void Composite::drawHoverHighlighting(bool, bool) const
+void Composite::drawHoverHighlighting(DiGLPainter* gl, bool, bool) const
 {
   QRectF bbox = boundingRect();
 
-  glColor3ub(255, 0, 0);
-  glBegin(GL_LINE_LOOP);
-  glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
-  glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
-  glVertex2f(bbox.topRight().x(), bbox.topRight().y());
-  glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
-  glEnd();
+  gl->Color3ub(255, 0, 0);
+  gl->Begin(DiGLPainter::gl_LINE_LOOP);
+  gl->Vertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
+  gl->Vertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
+  gl->Vertex2f(bbox.topRight().x(), bbox.topRight().y());
+  gl->Vertex2f(bbox.topLeft().x(), bbox.topLeft().y());
+  gl->End();
 }
 
-void Composite::drawIncomplete() const
+void Composite::drawIncomplete(DiGLPainter* gl) const
 {
   QRectF bbox = boundingRect();
 
-  glColor3ub(0, 255, 0);
-  glBegin(GL_LINE_LOOP);
-  glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
-  glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
-  glVertex2f(bbox.topRight().x(), bbox.topRight().y());
-  glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
-  glEnd();
+  gl->Color3ub(0, 255, 0);
+  gl->Begin(DiGLPainter::gl_LINE_LOOP);
+  gl->Vertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
+  gl->Vertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
+  gl->Vertex2f(bbox.topRight().x(), bbox.topRight().y());
+  gl->Vertex2f(bbox.topLeft().x(), bbox.topLeft().y());
+  gl->End();
 }
 
 void Composite::editItem()

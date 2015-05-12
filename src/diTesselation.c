@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if !defined(USE_PAINTGL)
 #ifndef GLCALLBACK
 #ifdef GLAPIENTRY
 #define GLCALLBACK GLAPIENTRY
@@ -50,7 +49,6 @@
 #define GLCALLBACK APIENTRY
 #endif
 #endif
-#endif /* Q_WS_QWS Q_WS_QPA */
 
 /************************
 define DEBUGEACHCALLBACK
@@ -80,22 +78,14 @@ typedef struct {
 
 
 
-#if !defined(USE_PAINTGL)
 static void GLCALLBACK error_callback( GLenum err )
-#else
-static void error_callback( GLenum err )
-#endif
 {
   const GLubyte* errmsg;
   errmsg = gluErrorString( err );
   fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
 }
 
-#if !defined(USE_PAINTGL)
 static void GLCALLBACK combineCallback(GLdouble coords[3],
-#else
-static void combineCallback(GLdouble coords[3],
-#endif
                      VERTEX *vertex_data[4],
                      GLfloat weight[4], VERTEX **dataOut )
 {
@@ -229,6 +219,7 @@ void tesselation(GLdouble *gldata, int ncontours, const int *count)
   gluTessEndPolygon(tess);
 }
 
+#if 0
 void optimized_tesselation(GLdouble *gldata, int ncontours, const int *count, int *to_small)
 {
   int n,i,npos,j;
@@ -274,3 +265,4 @@ void optimized_tesselation(GLdouble *gldata, int ncontours, const int *count, in
   endTesselation();
   //gluTessEndPolygon(tess);
 }
+#endif

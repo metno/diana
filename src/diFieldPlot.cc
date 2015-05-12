@@ -36,25 +36,21 @@
 #include "diFieldPlot.h"
 
 #include "diContouring.h"
-#include "diPolyContouring.h"
-#include "diFontManager.h"
 #include "diColour.h"
-#include <diImageGallery.h>
-#include <diPlotOptions.h>
-#include <diColourShading.h>
+#include "diGLPainter.h"
+#include "diImageGallery.h"
+#include "diPlotOptions.h"
+#include "diPolyContouring.h"
+#include "diColourShading.h"
 
 #include <puTools/miStringFunctions.h>
-
-#include <GL/gl.h>
 
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlot"
-#define M_TIME
 #include <miLogger/miLogging.h>
 
 using namespace std;
@@ -63,9 +59,9 @@ using namespace miutil;
 const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
 
-FieldPlot::FieldPlot() :
-    overlay(false), pshade(false), vectorAnnotationSize(0), imagedata(
-        NULL), previrs(1)
+FieldPlot::FieldPlot()
+  : overlay(false), pshade(false), vectorAnnotationSize(0)
+  , imagedata(0), previrs(1)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -79,9 +75,9 @@ FieldPlot::~FieldPlot()
 void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
-  if (imagedata)
-    delete[] imagedata;
-  imagedata = NULL;
+  delete[] imagedata;
+  imagedata = 0;
+
   for (size_t i = 0; i < tmpfields.size(); i++)
     delete tmpfields[i];
   tmpfields.clear();
@@ -471,9 +467,9 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
 
-    std::string lg = "";
-    int k;
-    if ((k = anno[j].find("$lg=")) != string::npos) {
+    std::string lg;
+    size_t k = anno[j].find("$lg=");
+    if (k != string::npos) {
       lg = anno[j].substr(k, 7) + " ";
     }
 
@@ -555,23 +551,23 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-void FieldPlot::plot(PlotOrder zorder)
+void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   if (zorder == SHADE_BACKGROUND) {
-    plotUndefined();
+    plotUndefined(gl);
   } else if (zorder == SHADE) {
     if (getShadePlot())
-      plotMe();
+      plotMe(gl);
   } else if (zorder == LINES) {
     if (!getShadePlot() && !overlayBuffer())
-      plotMe();
+      plotMe(gl);
   } else if (zorder == OVERLAY) {
     if (overlay)
-      plotMe();
+      plotMe(gl);
   }
 }
 
-bool FieldPlot::plotMe()
+bool FieldPlot::plotMe(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
@@ -604,67 +600,69 @@ bool FieldPlot::plotMe()
       poptions.colours[i] = getStaticPlot()->getBackContrastColour();
 
   if (poptions.antialiasing)
-    glEnable(GL_MULTISAMPLE);
+    gl->Enable(DiGLPainter::gl_MULTISAMPLE);
   else
-    glDisable(GL_MULTISAMPLE);
+    gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
   // should be below all real fields
   if (poptions.gridLines > 0)
-    plotGridLines();
+    plotGridLines(gl);
   if (poptions.gridValue > 0)
-    plotNumbers();
+    plotNumbers(gl);
 
   if (poptions.use_stencil || poptions.update_stencil) {
     // Enable the stencil test for masking the field to be plotted or
     // updating the stencil.
-    glEnable(GL_STENCIL_TEST);
+    gl->Enable(DiGLPainter::gl_STENCIL_TEST);
 
     if (poptions.use_stencil) {
       // Test the stencil buffer values against a value of 0.
-      glStencilFunc(GL_EQUAL, 0, 0x01);
+      gl->StencilFunc(DiGLPainter::gl_EQUAL, 0, 0x01);
       // Do not update the stencil buffer when plotting.
-      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+      gl->StencilOp(DiGLPainter::gl_KEEP, DiGLPainter::gl_KEEP, DiGLPainter::gl_KEEP);
     }
   }
 
   bool ok = false;
 
   if (plottype == fpt_contour)
-    ok = plotContour();
+    ok = plotContour(gl);
   else if (plottype == fpt_contour2)
-    ok = plotContour2();
+    ok = plotContour2(gl);
   else if (plottype == fpt_wind)
-    ok = plotWind();
+    ok = plotWind(gl);
   else if (plottype == fpt_wind_temp_fl)
-    ok = plotWindAndValue(true);
+    ok = plotWindAndValue(gl, true);
   else if (plottype == fpt_wind_value)
-    ok = plotWindAndValue(false);
+    ok = plotWindAndValue(gl, false);
   else if (plottype == fpt_value)
-    ok = plotValue();
+    ok = plotValue(gl);
   else if (plottype == fpt_symbol)
-    ok = plotValue();
+    ok = plotValue(gl);
   else if (plottype == fpt_vector)
-    ok = plotVector();
+    ok = plotVector(gl);
   else if (plottype == fpt_direction)
-    ok = plotDirection();
+    ok = plotDirection(gl);
   else if (plottype == fpt_alpha_shade)
-    ok = plotAlpha_shade();
+    ok = plotAlpha_shade(gl);
   else if (plottype == fpt_alarm_box)
-    ok = plotAlarmBox();
+    ok = plotAlarmBox(gl);
   else if (plottype == fpt_fill_cell)
-    ok = plotFillCellExt();
+    ok = plotFillCellExt(gl);
   else if (plottype == fpt_frame)
-    ok = plotFrameOnly();
+    ok = plotFrameOnly(gl);
 
   if (poptions.use_stencil || poptions.update_stencil)
-    glDisable(GL_STENCIL_TEST);
+    gl->Disable(DiGLPainter::gl_STENCIL_TEST);
 
   return ok;
 }
 
-vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
+std::vector<float*> FieldPlot::prepareVectors(float* x, float* y)
 {
   METLIBS_LOG_SCOPE();
+
+  const bool rotateVectors = poptions.rotateVectors;
 
   vector<float*> uv;
   float *u = 0, *v = 0;
@@ -919,21 +917,94 @@ bool FieldPlot::getPoints(int n, float* x, float* y) const
   return getStaticPlot()->ProjToMap(fields[0]->area.P(), n, x, y);
 }
 
+namespace {
+
+bool mini_maxi(const float* data, size_t n, float UNDEF, float& mini, float& maxi)
+{
+  bool is_set = false;
+  for (size_t i = 0; i < n; ++i) {
+    const float v = data[i];
+    if (v == UNDEF)
+      continue;
+    if (!is_set || mini > v)
+      mini = v;
+    if (!is_set || maxi < v)
+      maxi = v;
+    is_set = true;
+  }
+  return is_set;
+}
+
+class ColourLimits {
+public:
+  ColourLimits()
+    : colours(0), limits(0), ncl(0) { }
+
+  void initialize(const PlotOptions& poptions, float mini, float maxi);
+  void setColour(DiPainter* gl, float c) const;
+
+  operator bool() const
+    { return ncl > 0; }
+
+private:
+  const std::vector<Colour>* colours;
+  const std::vector<float>* limits;
+  std::vector<Colour> colours_default;
+  std::vector<float> limits_default;
+  size_t ncl;
+};
+
+void ColourLimits::initialize(const PlotOptions& poptions, float mini, float maxi)
+{
+  METLIBS_LOG_SCOPE();
+  colours = &poptions.colours;
+  limits = &poptions.limits;
+
+  if (colours->size() < 2) {
+    METLIBS_LOG_DEBUG("using default colours");
+    colours_default.push_back(Colour::fromF(0.5, 0.5, 0.5));
+    colours_default.push_back(Colour::fromF(0, 0, 0));
+    colours_default.push_back(Colour::fromF(0, 1, 1));
+    colours_default.push_back(Colour::fromF(1, 0, 0));
+    colours = &colours_default;
+  }
+
+  if (limits->size() < 1) {
+    // default, should be handled when reading setup, if allowed...
+    const int nlim = 3;
+    const float dlim = (maxi - mini) / colours->size();
+    for (int i = 1; i <= nlim; i++) {
+      limits_default.push_back(mini + dlim*i);
+      METLIBS_LOG_DEBUG("using default limit[" << (i-1) << "]=" << limits_default.back());
+    }
+
+    limits = &limits_default;
+  }
+
+  ncl = std::min(colours->size()-1, limits->size());
+  METLIBS_LOG_DEBUG(LOGVAL(ncl));
+}
+
+void ColourLimits::setColour(DiPainter* gl, float c) const
+{
+  if (ncl > 0) {
+    size_t l = 0;
+    while (l < ncl && c > (*limits)[l]) // TODO binary search
+      l++;
+    gl->setColour(colours->at(l), false);
+  }
+}
+
+} // namespace
+
 // plot vector field as wind arrows
 // Fields u(0) v(1), optional- colorfield(2)
-bool FieldPlot::plotWind()
+bool FieldPlot::plotWind(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
   if (not checkFields(2))
     return false;
-  const bool colourwind = (fields.size() == 3);
-  const float* colourdata = 0;
-  if (colourwind) {
-    if (not fields[2] or not fields[2]->data)
-      return false;
-    colourdata = fields[2]->data;
-  }
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
@@ -942,7 +1013,7 @@ bool FieldPlot::plotWind()
     return false;
 
   // convert windvectors to correct projection
-  const vector<float*> uv = prepareVectors(x, y, poptions.rotateVectors);
+  const vector<float*> uv = prepareVectors(x, y);
   if (uv.size() != 2)
     return false;
   const float *u = uv[0];
@@ -956,81 +1027,19 @@ bool FieldPlot::plotWind()
   const int ny = fields[0]->ny;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
-  float* limits = 0;
-  const GLfloat* rgb = 0;
-  int nlim = poptions.limits.size();
-  int ncol = poptions.colours.size();
-
-  const int n_rgb_default = 4;
-  const GLfloat rgb_default[n_rgb_default * 3] = { 0.5, 0.5, 0.5, 0, 0, 0, 0, 1,
-      1, 1, 0, 0 };
-
-  if (colourwind) {
-    if (ncol >= 2) {
-      GLfloat* rgb_tmp = new GLfloat[ncol * 3];
-      for (int i = 0; i < ncol; i++) {
-        rgb_tmp[i * 3 + 0] = poptions.colours[i].fR();
-        rgb_tmp[i * 3 + 1] = poptions.colours[i].fG();
-        rgb_tmp[i * 3 + 2] = poptions.colours[i].fB();
-      }
-      rgb = rgb_tmp;
-    } else {
-      ncol = n_rgb_default;
-      rgb = rgb_default;
-    }
-
-    if (nlim >= 1) {
-
-      if (nlim > ncol - 1)
-        nlim = ncol - 1;
-      if (ncol > nlim + 1)
-        ncol = nlim + 1;
-      limits = new float[nlim];
-      for (int i = 0; i < nlim; i++) {
-        limits[i] = poptions.limits[i];
-      }
-
-    } else {
-
-      // default, should be handled when reading setup, if allowed...
-      const int maxdef = 4;
-      nlim = maxdef - 1;
-
-      float fmin = fieldUndef, fmax = -fieldUndef;
-      for (int i = 0; i < nx * ny; ++i) {
-        const float cv = colourdata[i];
-        if (cv != fieldUndef) {
-          if (fmin > cv)
-            fmin = cv;
-          if (fmax < cv)
-            fmax = cv;
-        }
-      }
-      if (fmin > fmax)
-        return false;
-
-      limits = new float[nlim];
-      float dlim = (fmax - fmin) / float(ncol);
-
-      for (int i = 0; i < nlim; i++) {
-        limits[i] = fmin + dlim * float(i + 1);
-      }
-    }
+  ColourLimits colours;
+  if (fields.size() == 3 && fields[2] && fields[2]->data) {
+    float mini, maxi;
+    if (!mini_maxi(fields[2]->data, nx * ny, fieldUndef, mini, maxi))
+      return false;
+    colours.initialize(poptions, mini, maxi);
   }
 
   const float unitlength = poptions.vectorunit / 10;
   const float flagl = sdist * 0.85 / unitlength;
-  const float flagstep = flagl / 10.;
-  const float flagw = flagl * 0.35;
-  const float hflagw = 0.6;
-  // for arrow tip
-  const float afac = -1.5, sfac = afac * 0.5;
-
-  vector<float> vx, vy; // keep vertices for 50-knot flags
-  vector<int> vc;    // keep the colour too
 
   ix1 -= step;
   if (ix1 < 0)
@@ -1048,158 +1057,39 @@ bool FieldPlot::plotWind()
   Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
 
-  Projection geoProj;
-  geoProj.setGeographic();
   const Projection& projection = getStaticPlot()->getMapArea().P();
 
-  glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  glBegin(GL_LINES);
+  gl->setLineStyle(poptions.linecolour, poptions.linewidth, false);
 
   for (int iy = iy1; iy < iy2; iy += step) {
     const int xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
     for (int ix = ix1; ix < ix2; ix += xstep) {
       const int i = iy * nx + ix;
 
-      //If southern hemisphere, turn the feathers
-      float xx = x[i];
-      float yy = y[i];
-      projection.convertToGeographic(1, &xx, &yy, geoProj);
+      if (u[i] == fieldUndef || v[i] == fieldUndef || !ms.isnear(x[i], y[i]))
+        continue;
+
+      if (colours) {
+        const float c = fields[2]->data[i];
+        if (c == fieldUndef)
+          continue;
+        else
+          colours.setColour(gl, c);
+      }
+
+      // If southern hemisphere, turn the feathers
+      float xx = x[i], yy = y[i];
+      projection.convertToGeographic(1, &xx, &yy);
       const int sign = (yy < 0) ? -1 : 1;
-
-      float gx = x[i];
-      float gy = y[i];
-      if (u[i] != fieldUndef && v[i] != fieldUndef && ms.isnear(gx, gy)) {
-        float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
-        if (ff > 0.00001 && (!colourwind || colourdata[i] != fieldUndef)) {
-
-          const float gu = u[i] / ff;
-          const float gv = v[i] / ff;
-
-          ff *= 3600.0 / 1852.0;
-
-          // find no. of 50,10 and 5 knot flags
-          int n50, n10, n05;
-          if (ff < 182.49) {
-            n05 = int(ff * 0.2 + 0.5);
-            n50 = n05 / 10;
-            n05 -= n50 * 10;
-            n10 = n05 / 2;
-            n05 -= n10 * 2;
-          } else if (ff < 190.) {
-            n50 = 3;
-            n10 = 3;
-            n05 = 0;
-          } else if (ff < 205.) {
-            n50 = 4;
-            n10 = 0;
-            n05 = 0;
-          } else if (ff < 225.) {
-            n50 = 4;
-            n10 = 1;
-            n05 = 0;
-          } else {
-            n50 = 5;
-            n10 = 0;
-            n05 = 0;
-          }
-
-          int l = 0;
-          if (colourwind) {
-            while (l < nlim && colourdata[i] > limits[l])
-              l++;
-            glColor3fv(&rgb[l * 3]);
-          }
-
-          const float dx = flagstep * gu;
-          const float dy = flagstep * gv;
-          const float dxf = -sign * flagw * gv - dx;
-          const float dyf = sign * flagw * gu - dy;
-
-          if (poptions.arrowstyle == arrow_wind_arrow) {
-            // arrow (drawn as two lines)
-            vx.push_back(gx);
-            vy.push_back(gy);
-            vx.push_back(gx + afac * dx + sfac * dy);
-            vy.push_back(gy + afac * dy - sfac * dx);
-            vx.push_back(gx + afac * dx - sfac * dy);
-            vy.push_back(gy + afac * dy + sfac * dx);
-          }
-          // direction
-          glVertex2f(gx, gy);
-          gx = gx - flagl * gu;
-          gy = gy - flagl * gv;
-          glVertex2f(gx, gy);
-
-          // 50-knot flags, store for plot below
-          if (n50 > 0) {
-            for (int n = 0; n < n50; n++) {
-              if (colourwind)
-                vc.push_back(l);
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx += dx * 2.;
-              gy += dy * 2.;
-              vx.push_back(gx + dxf);
-              vy.push_back(gy + dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-            }
-            gx += dx;
-            gy += dy;
-          }
-          // 10-knot flags
-          for (int n = 0; n < n10; n++) {
-            glVertex2f(gx, gy);
-            glVertex2f(gx + dxf, gy + dyf);
-            gx += dx;
-            gy += dy;
-          }
-          // 5-knot flag
-          if (n05 > 0) {
-            if (n50 + n10 == 0) {
-              gx += dx;
-              gy += dy;
-            }
-            glVertex2f(gx, gy);
-            glVertex2f(gx + hflagw * dxf, gy + hflagw * dyf);
-          }
-        }
-      }
+      const float KNOT = 3600.0 / 1852.0;
+      const float gu = u[i] * KNOT, gv = v[i] * KNOT * sign;
+      gl->drawWindArrow(gu, gv, x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow);
     }
   }
-  glEnd();
-
-  getStaticPlot()->UpdateOutput();
-
-  // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  const int vi = vx.size();
-  int j = 0;
-  if (vi >= 3) {
-    glBegin(GL_TRIANGLES);
-    for (int i = 0; i < vi; i += 3) {
-      if (colourwind) {
-        glColor3fv(&rgb[vc[j++] * 3]);
-      }
-      glVertex2f(vx[i], vy[i]);
-      glVertex2f(vx[i + 1], vy[i + 1]);
-      glVertex2f(vx[i + 2], vy[i + 2]);
-    }
-    glEnd();
-  }
-
-  getStaticPlot()->UpdateOutput();
-
-  if (rgb != rgb_default)
-    delete[] rgb;
-  delete[] limits;
-
-  glDisable(GL_LINE_STIPPLE);
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
@@ -1210,12 +1100,12 @@ bool FieldPlot::plotWind()
  ALGORITHM:
  */
 
-bool FieldPlot::plotValue()
+bool FieldPlot::plotValue(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
   if (fields.size() > 1)
-    return plotValues();
+    return plotValues(gl);
 
   if (not checkFields(1))
     return false;
@@ -1258,7 +1148,7 @@ bool FieldPlot::plotValue()
   const int nx = fields[0]->nx;
   const int ny = fields[0]->ny;
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   bool smallvalues = false;
@@ -1293,16 +1183,16 @@ bool FieldPlot::plotValue()
   if (iy2 > ny)
     iy2 = ny;
 
-  glColor3ubv(poptions.linecolour.RGB());
+  gl->setColour(poptions.linecolour, false);
 
   Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
 
   float fontsize = 10. * poptions.labelSize;
-  getStaticPlot()->getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
+  gl->setFont("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
-  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
+  gl->getCharSize('0', chx, chy);
   chy *= 0.75;
 
   for (iy = iy1; iy < iy2; iy += step) {
@@ -1317,17 +1207,17 @@ bool FieldPlot::plotValue()
 
         if (poptions.colours.size() > 2) {
           if (value < poptions.base) {
-            glColor3ubv(poptions.colours[0].RGB());
+            gl->setColour(poptions.colours[0], false);
           } else if (value > poptions.base) {
-            glColor3ubv(poptions.colours[2].RGB());
+            gl->setColour(poptions.colours[2], false);
           } else {
-            glColor3ubv(poptions.colours[1].RGB());
+            gl->setColour(poptions.colours[1], false);
           }
         }
 
         if (!classImages.empty()) { //plot symbol
           if (classImages.count(int(value))) {
-            ig.plotImage(getStaticPlot(), classImages[int(value)], gx, gy, true,
+            ig.plotImage(gl, getStaticPlot(), classImages[int(value)], gx, gy, true,
                 poptions.labelSize * 0.25);
           }
         } else { // plot value
@@ -1341,17 +1231,16 @@ bool FieldPlot::plotValue()
           }
           ostr << value;
           std::string str = ostr.str();
-          getStaticPlot()->getFontPack()->drawStr(str.c_str(), gx - chx / 2, gy - chy / 2, 0.0);
+          gl->drawText(str, gx - chx / 2, gy - chy / 2, 0.0);
         }
       }
     }
   }
-  glEnd();
-
-  getStaticPlot()->UpdateOutput();
+  gl->End();
+  gl->UpdateOutput();
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
@@ -1362,7 +1251,7 @@ bool FieldPlot::plotValue()
  ALGORITHM: Fields u(0) v(1) number(2)
  */
 
-bool FieldPlot::plotWindAndValue(bool flightlevelChart)
+bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1378,7 +1267,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
     return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv = prepareVectors(x, y, poptions.rotateVectors);
+  vector<float*> uv = prepareVectors(x, y);
   if (uv.size() != 2)
     return false;
   float *u = uv[0];
@@ -1394,7 +1283,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   const int ny = fields[0]->ny;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   float unitlength = poptions.vectorunit / 10;
@@ -1424,12 +1313,11 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   ms.setExtension(flagl);
   float fontsize = 7. * poptions.labelSize;
 
-  getStaticPlot()->getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
+  gl->setFont("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
-  getStaticPlot()->getFontPack()->getStringSize("ps00", chx, chy);
-
-  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
+  gl->getTextSize("ps00", chx, chy);
+  gl->getCharSize('0', chx, chy);
 
   // the real height for numbers 0-9 (width is ok)
   chy *= 0.75;
@@ -1458,12 +1346,11 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
 
   vector<int> vxstep;
 
-  glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
+  gl->setLineStyle(poptions.linecolour, poptions.linewidth, false);
 
   // plot wind............................................
 
-  glBegin(GL_LINES);
+  gl->Begin(DiGLPainter::gl_LINES);
 
   //Wind arrows are adjusted to lat=10 and Lon=10 if
   //poptions.density!=auto and proj=geographic
@@ -1529,10 +1416,10 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
           yb[nb][0] = gy;
 
           // direction
-          glVertex2f(gx, gy);
+          gl->Vertex2f(gx, gy);
           gx = gx - flagl * gu;
           gy = gy - flagl * gv;
-          glVertex2f(gx, gy);
+          gl->Vertex2f(gx, gy);
 
           xb[nb][1] = gx;
           yb[nb++][1] = gy;
@@ -1563,8 +1450,8 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
 
           // 10-knot flags
           for (int n = 0; n < n10; n++) {
-            glVertex2f(gx, gy);
-            glVertex2f(gx + dxf, gy + dyf);
+            gl->Vertex2f(gx, gy);
+            gl->Vertex2f(gx + dxf, gy + dyf);
             xb[nb][0] = gx;
             yb[nb][0] = gy;
             xb[nb][1] = gx + dxf;
@@ -1578,8 +1465,8 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
               gx += dx;
               gy += dy;
             }
-            glVertex2f(gx, gy);
-            glVertex2f(gx + hflagw * dxf, gy + hflagw * dyf);
+            gl->Vertex2f(gx, gy);
+            gl->Vertex2f(gx + hflagw * dxf, gy + hflagw * dyf);
             xb[nb][0] = gx;
             yb[nb][0] = gy;
             xb[nb][1] = gx + hflagw * dxf;
@@ -1614,21 +1501,19 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
       }
     }
   }
-  glEnd();
-
-  getStaticPlot()->UpdateOutput();
+  gl->End();
+  gl->UpdateOutput();
 
   // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   int vi = vx.size();
   if (vi >= 3) {
-    glBegin(GL_TRIANGLES);
+    gl->Begin(DiGLPainter::gl_TRIANGLES);
     for (i = 0; i < vi; i++)
-      glVertex2f(vx[i], vy[i]);
-    glEnd();
+      gl->Vertex2f(vx[i], vy[i]);
+    gl->End();
+    gl->UpdateOutput();
   }
-
-  getStaticPlot()->UpdateOutput();
 
   // plot numbers.................................................
 
@@ -1691,11 +1576,11 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
         value = (t[i] >= 0.0f) ? int(t[i] + 0.5f) : int(t[i] - 0.5f);
         if (poptions.colours.size() > 2) {
           if (value < poptions.base) {
-            glColor4ubv(poptions.colours[0].RGBA());
+            gl->setColour(poptions.colours[0]);
           } else if (value > poptions.base) {
-            glColor4ubv(poptions.colours[2].RGBA());
+            gl->setColour(poptions.colours[2]);
           } else {
-            glColor4ubv(poptions.colours[1].RGBA());
+            gl->setColour(poptions.colours[1]);
           }
         }
 
@@ -1711,19 +1596,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
         }
 
         std::string str = ostr.str();
-        getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //        y1= gy + ady[ipos0];
-        //        x2= x1 + w;
-        //        y2= y1 + chy;
-        //        glBegin(GL_LINE_LOOP);
-        //        glVertex2f(x1,y1);
-        //        glVertex2f(x2,y1);
-        //        glVertex2f(x2,y2);
-        //        glVertex2f(x1,y2);
-        //        glEnd();
-        //###########################################################################
+        gl->getTextSize(str, w, h);
 
         mused = nbx * nby;
         ipos1 = ipos0;
@@ -1761,7 +1634,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
         x2 = x1 + w;
         y2 = y1 + chy;
         if (getStaticPlot()->getMapSize().isinside(x1, y1) && getStaticPlot()->getMapSize().isinside(x2, y2)) {
-          getStaticPlot()->getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
+          gl->drawText(str, x1, y1, 0.0);
           // mark used space for number (line around)
           ib1 = int((x1 - bx) * bres);
           ib2 = int((x2 - bx) * bres) + 1;
@@ -1781,14 +1654,14 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
     }
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
   delete[] bmap;
 
-  glDisable(GL_LINE_STIPPLE);
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
@@ -1802,7 +1675,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
  colours are set by poptions.textcolour or poptions.colours
  minvalue and maxvalue refer to field1
  */
-bool FieldPlot::plotValues()
+bool FieldPlot::plotValues(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1826,7 +1699,7 @@ bool FieldPlot::plotValues()
   const int ny = fields[0]->ny;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   ix1 -= step;
@@ -1844,10 +1717,10 @@ bool FieldPlot::plotValues()
 
   float fontsize = 8. * poptions.labelSize;
 
-  getStaticPlot()->getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
+  gl->setFont("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
-  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
+  gl->getCharSize('0', chx, chy);
   float hchy = chy * 0.5;
 
   //-----------------------------------------------------------------------
@@ -1935,7 +1808,7 @@ bool FieldPlot::plotValues()
             ostringstream ostr;
             ostr << value;
             std::string str = ostr.str();
-            getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
+            gl->getTextSize(str, w, h);
 
             int ipos1 = position[j];
             x1 = gx + adx[ipos1] + cdx[ipos1] * w;
@@ -1943,8 +1816,8 @@ bool FieldPlot::plotValues()
             x2 = x1 + w;
             y2 = y1 + chy;
             if (getStaticPlot()->getMapSize().isinside(x1, y1) && getStaticPlot()->getMapSize().isinside(x2, y2)) {
-              glColor3ubv(col[j].RGB());
-              getStaticPlot()->getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
+              gl->setColour(col[j], false);
+              gl->drawText(str, x1, y1, 0.0);
             }
           }
         }
@@ -1954,437 +1827,71 @@ bool FieldPlot::plotValues()
           ostringstream ostr;
           ostr << "----";
           std::string str = ostr.str();
-          getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
+          gl->getTextSize(str, w, h);
 
           x1 = gx + adx[8] + cdx[8] * w;
           y1 = gy + ady[8];
           x2 = x1 + w;
           y2 = y1 + chy;
           if (getStaticPlot()->getMapSize().isinside(x1, y1) && getStaticPlot()->getMapSize().isinside(x2, y2)) {
-            getStaticPlot()->getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
+            gl->drawText(str, x1, y1, 0.0);
           }
         }
-
       }
     }
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
-  glDisable(GL_LINE_STIPPLE);
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   return true;
 }
 
 //  plot vector field as arrows (wind,sea current,...)
-bool FieldPlot::plotVector()
+bool FieldPlot::plotVector(DiGLPainter* gl)
 {
-  METLIBS_LOG_SCOPE();
-
-  if (fields.size() == 3)
-    return plotVectorColour();
+  METLIBS_LOG_SCOPE(LOGVAL(fields.size()));
 
   if (not checkFields(2))
     return false;
 
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
-    return false;
+  const float* colourfield = (fields.size() == 3 && fields[2] && fields[2]->data) ? fields[2]->data : 0;
 
-  // convert vectors to correct projection
-  vector<float*> uv = prepareVectors(x, y, poptions.rotateVectors);
-  if (uv.size() != 2)
-    return false;
-  float *u = uv[0];
-  float *v = uv[1];
-
-  int step = poptions.density;
-  float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
-  int xstep = step;
-
-  int i, ix, iy;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
-
-  if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
-  }
-
-  float unitlength = poptions.vectorunit;
-
-  // length if abs(vector) = unitlength
-  float arrowlength = sdist;
-
-  float scale = arrowlength / unitlength;
+  float arrowlength = 0;
+  const bool ok = plotArrows(gl, &FieldPlot::prepareVectors,
+      colourfield, arrowlength);
 
   // for annotations .... should probably be resized if very small or large...
   vectorAnnotationSize = arrowlength;
-  vectorAnnotationText = miutil::from_number(unitlength)
+  vectorAnnotationText = miutil::from_number(poptions.vectorunit)
       + poptions.vectorunitname;
 
-  // for arrow tip
-  const float afac = -0.333333;
-  const float sfac = afac * 0.5;
-
-  float gx, gy, dx, dy;
-
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
-
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(arrowlength * 1.5);
-
-  glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  glBegin(GL_LINES);
-
-  for (iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (ix = ix1; ix < ix2; ix += xstep) {
-      i = iy * nx + ix;
-      gx = x[i];
-      gy = y[i];
-      if (u[i] != fieldUndef && v[i] != fieldUndef
-          && (u[i] != 0.0f || v[i] != 0.0f) && ms.isnear(gx, gy)) {
-        dx = scale * u[i];
-        dy = scale * v[i];
-        // direction
-        glVertex2f(gx, gy);
-        gx = gx + dx;
-        gy = gy + dy;
-        glVertex2f(gx, gy);
-
-        // arrow (drawn as two lines)
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx + sfac * dy, gy + afac * dy - sfac * dx);
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx - sfac * dy, gy + afac * dy + sfac * dx);
-      }
-    }
-  }
-  glEnd();
-
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_LINE_STIPPLE);
-
-  if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
-
-  return true;
-}
-
-// PURPOSE:   plot vector field as arrows (wind,sea current,...)
-// ALGORITHM: Fields u(0) v(1) colorfield(2)
-bool FieldPlot::plotVectorColour()
-{
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(3))
-    return false;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
-    return false;
-
-  // convert vectors to correct projection
-  vector<float*> uv = prepareVectors(x, y, poptions.rotateVectors);
-  if (uv.size() != 2)
-    return false;
-  float *u = uv[0];
-  float *v = uv[1];
-
-  int step = poptions.density;
-  float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
-  int xstep = step;
-
-  int i, ix, iy, l;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
-
-  if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
-  }
-
-  float* limits = 0;
-  GLfloat* rgb = 0;
-
-  int nlim = poptions.limits.size();
-  int ncol = poptions.colours.size();
-
-  if (nlim >= 1 && ncol >= 2) {
-
-    if (nlim > ncol - 1)
-      nlim = ncol - 1;
-    if (ncol > nlim + 1)
-      ncol = nlim + 1;
-    limits = new float[nlim];
-    rgb = new GLfloat[ncol * 3];
-    for (i = 0; i < nlim; i++)
-      limits[i] = poptions.limits[i];
-    for (i = 0; i < ncol; i++) {
-      rgb[i * 3 + 0] = poptions.colours[i].fR();
-      rgb[i * 3 + 1] = poptions.colours[i].fG();
-      rgb[i * 3 + 2] = poptions.colours[i].fB();
-    }
-
-  } else {
-
-    // default, should be handled when reading setup, if allowed...
-    const int maxdef = 4;
-    float rgbdef[maxdef][3] = { { 0.5, 0.5, 0.5 }, { 0, 0, 0 }, { 0, 1, 1 }, {
-        1, 0, 0 } };
-
-    ncol = maxdef;
-    nlim = maxdef - 1;
-
-    float fmin = fieldUndef, fmax = -fieldUndef;
-    for (i = 0; i < nx * ny; ++i) {
-      if (fields[2]->data[i] != fieldUndef) {
-        if (fmin > fields[2]->data[i])
-          fmin = fields[2]->data[i];
-        if (fmax < fields[2]->data[i])
-          fmax = fields[2]->data[i];
-      }
-    }
-    if (fmin > fmax)
-      return false;
-
-    limits = new float[nlim];
-    rgb = new GLfloat[ncol * 3];
-    float dlim = (fmax - fmin) / float(ncol);
-    for (i = 0; i < nlim; i++)
-      limits[i] = fmin + dlim * float(i + 1);
-    for (i = 0; i < ncol; i++) {
-      rgb[i * 3 + 0] = rgbdef[i][0];
-      rgb[i * 3 + 1] = rgbdef[i][1];
-      rgb[i * 3 + 2] = rgbdef[i][2];
-    }
-
-  }
-
-  float unitlength = poptions.vectorunit;
-
-  // length if abs(vector) = unitlength
-  float arrowlength = sdist;
-
-  float scale = arrowlength / unitlength;
-
-  // for annotations .... should probably be resized if very small or large...
-  vectorAnnotationSize = arrowlength;
-  vectorAnnotationText = miutil::from_number(unitlength)
-      + poptions.vectorunitname;
-
-  // for arrow tip
-  const float afac = -0.333333;
-  const float sfac = afac * 0.5;
-
-  float gx, gy, dx, dy;
-
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
-
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(arrowlength * 1.5);
-
-  glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
-
-  glBegin(GL_LINES);
-
-  for (iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (ix = ix1; ix < ix2; ix += xstep) {
-      i = iy * nx + ix;
-      gx = x[i];
-      gy = y[i];
-
-      if (u[i] != fieldUndef && v[i] != fieldUndef
-          && (u[i] != 0.0f || v[i] != 0.0f) && fields[2]->data[i] != fieldUndef
-          && ms.isnear(gx, gy)) {
-
-        l = 0;
-        while (l < nlim && fields[2]->data[i] > limits[l])
-          l++;
-        glColor3fv(&rgb[l * 3]);
-
-        dx = scale * u[i];
-        dy = scale * v[i];
-
-        // direction
-        glVertex2f(gx, gy);
-        gx = gx + dx;
-        gy = gy + dy;
-        glVertex2f(gx, gy);
-
-        // arrow (drawn as two lines)
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx + sfac * dy, gy + afac * dy - sfac * dx);
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx - sfac * dy, gy + afac * dy + sfac * dx);
-      }
-    }
-  }
-  glEnd();
-
-  getStaticPlot()->UpdateOutput();
-
-  delete[] rgb;
-  delete[] limits;
-
-  glDisable(GL_LINE_STIPPLE);
-
-  if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
-
-  return true;
+  return ok;
 }
 
 /* plot true north direction field as arrows (wave,...) */
-bool FieldPlot::plotDirection()
+bool FieldPlot::plotDirection(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
-
-  if (fields.size() == 2)
-    return plotDirectionColour();
 
   if (not checkFields(1))
     return false;
+  const float* colourfield = (fields.size() == 2 && fields[1] && fields[1]->data) ? fields[1]->data : 0;
 
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
-    return false;
-
-  // convert directions to vectors in correct projection
-  vector<float*> uv = prepareDirectionVectors(x, y);
-  if (uv.size() != 2)
-    return false;
-  float *u = uv[0];
-  float *v = uv[1];
-
-  int step = poptions.density;
-  float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
-  int xstep = step;
-
-  int i, ix, iy;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
-
-  if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
-  }
-
-  // length if abs(vector) = 1
-  float arrowlength = sdist;
-  float unitlength = poptions.vectorunit;
-
-  float scale = arrowlength / unitlength;
-
-  // for arrow tip
-  const float afac = -0.333333;
-  const float sfac = afac * 0.5;
-
-  float gx, gy, dx, dy;
-
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
-
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(arrowlength * 1.0);
-
-  glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  glBegin(GL_LINES);
-
-  for (iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (ix = ix1; ix < ix2; ix += xstep) {
-      i = iy * nx + ix;
-      gx = x[i];
-      gy = y[i];
-      if (u[i] != fieldUndef && v[i] != fieldUndef && ms.isnear(gx, gy)) {
-        dx = scale * u[i];
-        dy = scale * v[i];
-
-        // direction
-        glVertex2f(gx, gy);
-        gx = gx + dx;
-        gy = gy + dy;
-        glVertex2f(gx, gy);
-
-        // arrow (drawn as two lines)
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx + sfac * dy, gy + afac * dy - sfac * dx);
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx - sfac * dy, gy + afac * dy + sfac * dx);
-      }
-    }
-  }
-  glEnd();
-
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_LINE_STIPPLE);
-
-  if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
-
-  return true;
+  float arrowlength_dummy = 0;
+  return plotArrows(gl, &FieldPlot::prepareDirectionVectors,
+      colourfield, arrowlength_dummy);
 }
 
-/*
- PURPOSE:   plot true north direction field as arrows (wave,...)
- * ALGORITHM: Fields: dd(0) colourfield(1)
- */
-bool FieldPlot::plotDirectionColour()
+//  plot vector field as arrows (wind,sea current,...)
+bool FieldPlot::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
+    const float* colourfield, float& arrowlength)
 {
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(2))
-    return false;
+  METLIBS_LOG_SCOPE(LOGVAL(fields.size()));
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
@@ -2392,8 +1899,8 @@ bool FieldPlot::plotDirectionColour()
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
-  // convert directions to vectors in correct projection
-  vector<float*> uv = prepareDirectionVectors(x, y);
+  // convert vectors to correct projection
+  vector<float*> uv = (this->*pre_vec)(x, y);
   if (uv.size() != 2)
     return false;
   float *u = uv[0];
@@ -2404,90 +1911,24 @@ bool FieldPlot::plotDirectionColour()
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep = step;
 
-  int i, ix, iy, l;
   const int nx = fields[0]->nx;
   const int ny = fields[0]->ny;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
-  float* limits = 0;
-  GLfloat* rgb = 0;
-
-  int nlim = poptions.limits.size();
-  int ncol = poptions.colours.size();
-
-  if (nlim >= 1 && ncol >= 2) {
-
-    if (nlim > ncol - 1)
-      nlim = ncol - 1;
-    if (ncol > nlim + 1)
-      ncol = nlim + 1;
-    limits = new float[nlim];
-    rgb = new GLfloat[ncol * 3];
-    for (i = 0; i < nlim; i++)
-      limits[i] = poptions.limits[i];
-    for (i = 0; i < ncol; i++) {
-      rgb[i * 3 + 0] = poptions.colours[i].fR();
-      rgb[i * 3 + 1] = poptions.colours[i].fG();
-      rgb[i * 3 + 2] = poptions.colours[i].fB();
-    }
-
-  } else {
-
-    // default, should be handled when reading setup, if allowed...
-    const int maxdef = 4;
-    float rgbdef[maxdef][3] = { { 0.5, 0.5, 0.5 }, { 0, 0, 0 }, { 0, 1, 1 }, {
-        1, 0, 0 } };
-
-    ncol = maxdef;
-    nlim = maxdef - 1;
-
-    float fmin = fieldUndef, fmax = -fieldUndef;
-    for (i = 0; i < nx * ny; ++i) {
-      if (fields[1]->data[i] != fieldUndef) {
-        if (fmin > fields[1]->data[i])
-          fmin = fields[1]->data[i];
-        if (fmax < fields[1]->data[i])
-          fmax = fields[1]->data[i];
-      }
-    }
-    if (fmin > fmax)
+  ColourLimits colours;
+  if (colourfield) {
+    float mini, maxi;
+    if (!mini_maxi(colourfield, nx * ny, fieldUndef, mini, maxi))
       return false;
-
-    limits = new float[nlim];
-    rgb = new GLfloat[ncol * 3];
-    float dlim = (fmax - fmin) / float(ncol);
-    for (i = 0; i < nlim; i++)
-      limits[i] = fmin + dlim * float(i + 1);
-    for (i = 0; i < ncol; i++) {
-      rgb[i * 3 + 0] = rgbdef[i][0];
-      rgb[i * 3 + 1] = rgbdef[i][1];
-      rgb[i * 3 + 2] = rgbdef[i][2];
-    }
-
+    colours.initialize(poptions, mini, maxi);
   }
-  //##############################################################
-  //  METLIBS_LOG_DEBUG("--------------");
-  //  METLIBS_LOG_DEBUG(" nlim,ncol: "<<nlim<<" "<<ncol);
-  //  for (i=0; i<nlim; i++)
-  //    METLIBS_LOG_DEBUG("   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-  //        <<"  lim= "<<limits[i]);
-  //  i=nlim;
-  //  METLIBS_LOG_DEBUG("   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]);
-  //##############################################################
 
-  // length if abs(vector) = 1
-  float arrowlength = sdist;
-  float unitlength = poptions.vectorunit;
-  float scale = arrowlength / unitlength;
-
-  // for arrow tip
-  const float afac = -0.333333;
-  const float sfac = afac * 0.5;
-
-  float gx, gy, dx, dy;
+  arrowlength = sdist;
+  const float unitlength = poptions.vectorunit;
+  const float scale = arrowlength / unitlength;
 
   ix1 -= step;
   if (ix1 < 0)
@@ -2503,60 +1944,42 @@ bool FieldPlot::plotDirectionColour()
     iy2 = ny;
 
   Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(arrowlength * 1.0);
+  ms.setExtension(arrowlength * 1.5);
 
-  glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
+  gl->setLineStyle(poptions.linecolour, poptions.linewidth, false);
 
-  glBegin(GL_LINES);
-
-  for (iy = iy1; iy < iy2; iy += step) {
+  for (int iy = iy1; iy < iy2; iy += step) {
     xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (ix = ix1; ix < ix2; ix += xstep) {
-      i = iy * nx + ix;
-      gx = x[i];
-      gy = y[i];
-      if (u[i] != fieldUndef && v[i] != fieldUndef
-          && fields[1]->data[i] != fieldUndef && ms.isnear(gx, gy)) {
+    for (int ix = ix1; ix < ix2; ix += xstep) {
+      const int i = iy * nx + ix;
 
-        l = 0;
-        while (l < nlim && fields[1]->data[i] > limits[l])
-          l++;
-        glColor3fv(&rgb[l * 3]);
+      const float gx = x[i], gy = y[i];
+      if (u[i] == fieldUndef || v[i] == fieldUndef
+          || (u[i] == 0 && v[i] == 0)
+          || !ms.isnear(gx, gy))
+        continue;
 
-        dx = scale * u[i];
-        dy = scale * v[i];
-
-        // direction
-        glVertex2f(gx, gy);
-        gx = gx + dx;
-        gy = gy + dy;
-        glVertex2f(gx, gy);
-
-        // arrow (drawn as two lines)
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx + sfac * dy, gy + afac * dy - sfac * dx);
-        glVertex2f(gx, gy);
-        glVertex2f(gx + afac * dx - sfac * dy, gy + afac * dy + sfac * dx);
+      if (colourfield && colours) {
+        const float c = colourfield[i];
+        if (c == fieldUndef)
+          continue;
+        colours.setColour(gl, c);
       }
+
+      gl->drawArrow(gx, gy, gx + scale * u[i], gy + scale * v[i], 0);
     }
   }
-  glEnd();
 
-  getStaticPlot()->UpdateOutput();
-
-  delete[] rgb;
-  delete[] limits;
-
-  glDisable(GL_LINE_STIPPLE);
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
 
 //  plot scalar field as contour lines
-bool FieldPlot::plotContour()
+bool FieldPlot::plotContour(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2622,7 +2045,7 @@ bool FieldPlot::plotContour()
     return false;
 
   if (getColourMode() && poptions.frame)
-    plotFrame(rnx, rny, x, y);
+    plotFrame(gl, rnx, rny, x, y);
 
   ipart[0] = ix1;
   ipart[1] = ix2;
@@ -2645,8 +2068,8 @@ bool FieldPlot::plotContour()
   if (labfmt[0] != 0) {
     float fontsize = 10. * poptions.labelSize;
 
-    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
-    getStaticPlot()->getFontPack()->getCharSize('0', chxlab, chylab);
+    gl->setFont(poptions.fontname, poptions.fontface, fontsize);
+    gl->getCharSize('0', chxlab, chylab);
 
     // the real height for numbers 0-9 (width is ok)
     chylab *= 0.75;
@@ -2729,19 +2152,19 @@ bool FieldPlot::plotContour()
     int idraw2 = 0;
 
     if (poptions.antialiasing)
-      glDisable(GL_MULTISAMPLE);
+      gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
     METLIBS_LOG_TIME("contour");
     res = contour(rnx, rny, data, x, y, ipart, 2, NULL, xylim, idraw, zrange,
         zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim,
         rlim, idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2,
         ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab,
-        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, getStaticPlot()->getFontPack(), poptions,
-        getStaticPlot()->psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
+        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, gl, poptions,
+        fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
         ftime.hour());
 
     if (poptions.antialiasing)
-      glEnable(GL_MULTISAMPLE);
+      gl->Enable(DiGLPainter::gl_MULTISAMPLE);
   }
 
   //Plot contour lines
@@ -2792,13 +2215,13 @@ bool FieldPlot::plotContour()
             icol[i] = i;
         }
       } else if (idraw > 0) {
-        glColor3ubv(poptions.linecolour.RGB());
+        gl->setColour(poptions.linecolour, false);
       } else {
-        glColor3ubv(poptions.linecolour_2.RGB());
+        gl->setColour(poptions.linecolour_2, false);
       }
     } else if (!getColourMode()) {
       // drawing in overlay ... NOT USED !!!!!!!!!!!!!!
-      glIndexi(poptions.linecolour.Index());
+      gl->Indexi(poptions.linecolour.Index());
     }
 
     if (poptions.minvalue_2 > -fieldUndef || poptions.maxvalue_2 < fieldUndef) {
@@ -2807,7 +2230,7 @@ bool FieldPlot::plotContour()
     }
 
     if (poptions.linewidths.size() == 1) {
-      glLineWidth(poptions.linewidth);
+      gl->LineWidth(poptions.linewidth);
     } else {
       if (idraw2 > 0) { // two set of plot options
         iwid[0] = 0;
@@ -2822,8 +2245,8 @@ bool FieldPlot::plotContour()
     }
 
     if (poptions.linetypes.size() == 1 && poptions.linetype.stipple) {
-      glLineStipple(poptions.linetype.factor, poptions.linetype.bmap);
-      glEnable(GL_LINE_STIPPLE);
+      gl->LineStipple(poptions.linetype.factor, poptions.linetype.bmap);
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
     } else {
       if (idraw2 > 0) { // two set of plot options
         ityp[0] = 0;
@@ -2848,8 +2271,8 @@ bool FieldPlot::plotContour()
         zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim,
         rlim, idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2,
         ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab,
-        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, getStaticPlot()->getFontPack(), poptions,
-        getStaticPlot()->psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
+        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, gl, poptions,
+        fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
         ftime.hour());
 
     //restore contour shading
@@ -2858,18 +2281,18 @@ bool FieldPlot::plotContour()
 
   if (poptions.extremeType != "None" && poptions.extremeType != "Ingen"
       && !poptions.extremeType.empty()) {
-    markExtreme();
+    markExtreme(gl);
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
-  glDisable(GL_LINE_STIPPLE);
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (!res)
     METLIBS_LOG_ERROR("contour error");
 
   if (poptions.update_stencil)
-    plotFrameStencil(rnx, rny, x, y);
+    plotFrameStencil(gl, rnx, rny, x, y);
 
   if (factor != 1)
     delete[] data;
@@ -2878,7 +2301,7 @@ bool FieldPlot::plotContour()
 }
 
 //  plot scalar field as contour lines using new contour algorithm
-bool FieldPlot::plotContour2()
+bool FieldPlot::plotContour2(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2903,34 +2326,33 @@ bool FieldPlot::plotContour2()
     return false;
 
   if (getColourMode() && poptions.frame)
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
 
   if (poptions.valueLabel)
-    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, 10 * poptions.labelSize);
+    gl->setFont(poptions.fontname, poptions.fontface, 10 * poptions.labelSize);
 
   {
     METLIBS_LOG_TIME("contour2");
-    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, getStaticPlot()->getFontPack(),
+    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, gl,
         poptions, fieldUndef))
       METLIBS_LOG_ERROR("contour2 error");
   }
   if (poptions.extremeType != "None" && poptions.extremeType != "Ingen"
       && !poptions.extremeType.empty())
-    markExtreme();
+    markExtreme(gl);
 
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_LINE_STIPPLE);
+  gl->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
 
 // plot scalar field as boxes with filled with patterns (cloud)
 //not used, do not work properly
-bool FieldPlot::plotBox_pattern()
+bool FieldPlot::plotBox_pattern(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2948,7 +2370,7 @@ bool FieldPlot::plotBox_pattern()
   const int nx = fields[0]->nx, nxc = nx;
   const int ny = fields[0]->ny;
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   const int npattern = 4;
@@ -2956,7 +2378,7 @@ bool FieldPlot::plotBox_pattern()
   float clim[npattern + 1] = { 25., 50., 75., 95., 0.9e+35 };
   int step[npattern] = { 16, 8, 4, 1 };
   int mark[npattern] = { 2, 2, 2, 1 };
-  GLubyte pattern[npattern][128], bit = 1;
+  DiGLPainter::GLubyte pattern[npattern][128], bit = 1;
   int istart, jstart, j, b, w;
   float cmin, cmax;
 
@@ -2977,11 +2399,11 @@ bool FieldPlot::plotBox_pattern()
     }
   }
 
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_POLYGON_STIPPLE);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
 
-  glColor3ubv(poptions.linecolour.RGB());
+  gl->setColour(poptions.linecolour, false);
 
   ix2++;
   iy2++;
@@ -3014,33 +2436,32 @@ bool FieldPlot::plotBox_pattern()
           i2++;
         i2++;
 
-        glPolygonStipple(&pattern[n][0]);
-        glBegin(GL_QUAD_STRIP);
+        gl->PolygonStipple(&pattern[n][0]);
+        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
 
         for (ix = i1; ix < i2; ix++) {
-          glVertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
-          glVertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
+          gl->Vertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
+          gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
         }
-        glEnd();
+        gl->End();
+        gl->UpdateOutput();
         i2 -= 2;
-        getStaticPlot()->UpdateOutput();
       } else
         i2 = nx;
 
     }
   }
 
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_POLYGON_STIPPLE);
+  gl->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
   return true;
 }
 
 // plot scalar field with RGBA (RGB=constant)
-bool FieldPlot::plotBox_alpha_shade()
+bool FieldPlot::plotBox_alpha_shade(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -3058,7 +2479,7 @@ bool FieldPlot::plotBox_alpha_shade()
   const int ny = fields[0]->ny;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   float cmin, cmax;
@@ -3082,10 +2503,10 @@ bool FieldPlot::plotBox_alpha_shade()
     }
   }
 
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   float red = poptions.linecolour.fR(), green = poptions.linecolour.fG(), blue =
       poptions.linecolour.fB(), alpha;
@@ -3114,20 +2535,20 @@ bool FieldPlot::plotBox_alpha_shade()
           i2++;
 
         i2++;
-        glBegin(GL_QUAD_STRIP);
+        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
 
         for (ix = i1; ix < i2; ix++) {
-          glVertex2f(x[(iy + 1) * nx + ix], y[(iy + 1) * nx + ix]);
+          gl->Vertex2f(x[(iy + 1) * nx + ix], y[(iy + 1) * nx + ix]);
           if (ix > i1) {
             alpha = (fields[0]->data[iy * nx + ix] - cmin) / (cmax - cmin);
             //if (fields[0]->data[iy*nx+ix-1]==fieldUndef) alpha=0.;
             //if (alpha < 0.) alpha=0.;
             //if (alpha > 1.) alpha=1.;
-            glColor4f(red, green, blue, alpha);
+            gl->Color4f(red, green, blue, alpha);
           }
-          glVertex2f(x[iy * nx + ix], y[iy * nx + ix]);
+          gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
         }
-        glEnd();
+        gl->End();
         i2 -= 2;
       } else
         i2 = nx;
@@ -3135,18 +2556,17 @@ bool FieldPlot::plotBox_alpha_shade()
     }
   }
 
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_BLEND);
+  gl->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
 
 //  plot some scalar field values with RGBA (RGB=constant)
-bool FieldPlot::plotAlarmBox()
+bool FieldPlot::plotAlarmBox(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -3227,13 +2647,13 @@ bool FieldPlot::plotAlarmBox()
   }
 
   if (poptions.frame) {
-    plotFrame(nxc, ny + 1, x, y);
+    plotFrame(gl, nxc, ny + 1, x, y);
   }
 
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
-  glColor3ubv(poptions.linecolour.RGB());
+  gl->setColour(poptions.linecolour, false);
 
   ix2++;
   iy2++;
@@ -3260,14 +2680,14 @@ bool FieldPlot::plotAlarmBox()
           i2++;
 
         i2++;
-        glBegin(GL_QUAD_STRIP);
+        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
 
         for (ix = i1; ix < i2; ix++) {
 
-          glVertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
-          glVertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
+          gl->Vertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
+          gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
         }
-        glEnd();
+        gl->End();
         i2 -= 2;
       } else
         i2 = nx;
@@ -3275,15 +2695,15 @@ bool FieldPlot::plotAlarmBox()
     }
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
   if (poptions.update_stencil)
-    plotFrameStencil(nxc, ny + 1, x, y);
+    plotFrameStencil(gl, nxc, ny + 1, x, y);
 
   return true;
 }
 
-bool FieldPlot::plotFillCellExt()
+bool FieldPlot::plotFillCellExt(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -3291,15 +2711,15 @@ bool FieldPlot::plotFillCellExt()
     return false;
   // projection is not equal...
   if (!getStaticPlot()->getMapArea().P().isAlmostEqual(fields[0]->area.P())) {
-    return plotFillCell();
+    return plotFillCell(gl);
   }
   // plotPixmap does not work when plotting fields
   // in geographic projection....
   if (fields[0]->area.P().isGeographic()) {
-    return plotFillCell();
+    return plotFillCell(gl);
   }
 
-  return plotPixmap();
+  return plotPixmap(gl);
 }
 
 unsigned char * FieldPlot::createRGBAImage(Field * field)
@@ -3398,7 +2818,7 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
   return cimage;
 }
 
-unsigned char * FieldPlot::resampleImage(int& currwid, int& currhei,
+unsigned char * FieldPlot::resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
     int& bmStartx, int& bmStarty, float& scalex, float& scaley, int& nx,
     int& ny)
 {
@@ -3408,8 +2828,8 @@ unsigned char * FieldPlot::resampleImage(int& currwid, int& currhei,
   unsigned char * cimage;
   int irs = 1;            // resample-size
 
-  GLint maxdims[2];      // find OpenGL maximums
-  glGetIntegerv(GL_MAX_VIEWPORT_DIMS, maxdims);
+  DiGLPainter::GLint maxdims[2];      // find OpenGL maximums
+  gl->GetIntegerv(DiGLPainter::gl_MAX_VIEWPORT_DIMS, maxdims);
   int maxww = maxdims[0];
   int maxhh = maxdims[1];
   int orignx = nx;
@@ -3461,9 +2881,8 @@ unsigned char * FieldPlot::resampleImage(int& currwid, int& currhei,
 
 }
 
-bool FieldPlot::plotPixmap()
+bool FieldPlot::plotPixmap(DiGLPainter* gl)
 {
-
   METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
@@ -3490,10 +2909,9 @@ bool FieldPlot::plotPixmap()
 
   const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
 
-  glLineWidth(poptions.linewidth);
-  glColor3ubv(poptions.bordercolour.RGB());
+  gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
   if (poptions.frame) {
-    plotFrame(rnx + 1, rny + 1, x, y);
+    plotFrame(gl, rnx + 1, rny + 1, x, y);
   }
 
   if (poptions.alpha < 255) {
@@ -3585,47 +3003,47 @@ bool FieldPlot::plotPixmap()
    If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
    cImage: Pointer to imagedata, either sat_image or resampled data
    */
-  unsigned char * cimage = resampleImage(currwid, currhei, bmStartx, bmStarty,
+  unsigned char * cimage = resampleImage(gl, currwid, currhei, bmStartx, bmStarty,
       scalex, scaley, fields[0]->nx, fields[0]->ny);
 
   // always needed (if not, slow oper...) ??????????????
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   // assure valid raster position after OpenGL transformations
   grStartx += getStaticPlot()->getPlotSize().width() * 0.0001;
   grStarty += getStaticPlot()->getPlotSize().height() * 0.0001;
 
-  glPixelZoom(scalex, scaley);
-  glPixelStorei(GL_UNPACK_SKIP_ROWS, bmStarty); //pixels
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS, bmStartx); //pixels
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, fields[0]->nx); //pixels on image
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glRasterPos2f(grStartx, grStarty); //glcoord.
+  gl->PixelZoom(scalex, scaley);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, bmStarty); //pixels
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, bmStartx); //pixels
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, fields[0]->nx); //pixels on image
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 1);
+  gl->RasterPos2f(grStartx, grStarty); //glcoord.
 
   //Strange, but needed
-  //if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
-  glBitmap(0, 0, 0., 0., bmxmove, bmymove, NULL);
-  glDrawPixels((GLint) currwid, (GLint) currhei, GL_RGBA, GL_UNSIGNED_BYTE,
+  //if (bmxmove<0. || bmymove<0.) gl->Bitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
+  gl->Bitmap(0, 0, 0., 0., bmxmove, bmymove, NULL);
+  gl->DrawPixels((DiGLPainter::GLint) currwid, (DiGLPainter::GLint) currhei, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
       cimage);
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-  glDisable(GL_BLEND);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, 0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, 0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
+  gl->Disable(DiGLPainter::gl_BLEND);
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
   //From plotFillCell
   if (poptions.update_stencil) {
-    plotFrameStencil(rnx + 1, rny + 1, x, y);
+    plotFrameStencil(gl, rnx + 1, rny + 1, x, y);
   }
   // From plotFillCell ends.
 
   return true;
 }
 
-bool FieldPlot::plotFillCell()
+bool FieldPlot::plotFillCell(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -3662,10 +3080,9 @@ bool FieldPlot::plotFillCell()
   if (ix1 > ix2 || iy1 > iy2)
     return false;
 
-  glLineWidth(poptions.linewidth);
-  glColor3ubv(poptions.bordercolour.RGB());
+  gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
   if (poptions.frame)
-    plotFrame(rnx + 1, rny + 1, x, y);
+    plotFrame(gl, rnx + 1, rny + 1, x, y);
 
   //auto -> 0
   if (poptions.density == 0) {
@@ -3686,10 +3103,10 @@ bool FieldPlot::plotFillCell()
     }
   }
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_QUADS);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+  gl->Begin(DiGLPainter::gl_QUADS);
   for (int iy = iy1; iy <= iy2; iy++) {
     for (int ix = ix1; ix <= ix2; ix++) {
 
@@ -3725,7 +3142,7 @@ bool FieldPlot::plotFillCell()
               index = npalettecolours - 1;
             if (index < 0)
               index = 0;
-            glColor4ubv(poptions.palettecolours[index].RGBA());
+            gl->setColour(poptions.palettecolours[index]);
           } else if (npalettecolours_cold != 0) {
             float base = poptions.lineinterval
                 * npalettecolours_cold - poptions.base;
@@ -3740,10 +3157,10 @@ bool FieldPlot::plotFillCell()
               index = npalettecolours_cold - 1;
             if (index < 0)
               index = 0;
-            glColor4ubv(poptions.palettecolours_cold[index].RGBA());
+            gl->setColour(poptions.palettecolours_cold[index]);
           } else {
             // Use index 0...
-            glColor4ubv(poptions.palettecolours[index].RGBA());
+            gl->setColour(poptions.palettecolours[index]);
           }
         } else {
           std::vector<float>::const_iterator it = poptions.linevalues.begin();
@@ -3752,37 +3169,36 @@ bool FieldPlot::plotFillCell()
           }
           if (it == poptions.linevalues.begin())
             continue; //less than first limit
-          glColor4ubv(
+          gl->Color4ubv(
               poptions.palettecolours[it - poptions.linevalues.begin() - 1].RGBA());
         }
 
         // lower-left corner of gridcell
-        glVertex2f(x1, y1);
+        gl->Vertex2f(x1, y1);
         // lower-right corner of gridcell
-        glVertex2f(x2, y2);
+        gl->Vertex2f(x2, y2);
         // upper-right corner of gridcell
-        glVertex2f(x3, y3);
+        gl->Vertex2f(x3, y3);
         // upper-left corner of gridcell
-        glVertex2f(x4, y4);
+        gl->Vertex2f(x4, y4);
       }
     }
   }
-  glEnd();
-  glDisable(GL_BLEND);
-
-  getStaticPlot()->UpdateOutput();
+  gl->End();
+  gl->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   if (poptions.update_stencil) {
     if (factor >= 2)
-      plotFrameStencil(rnx + 1, rny + 1, x, y);
+      plotFrameStencil(gl, rnx + 1, rny + 1, x, y);
     else
-      plotFrameStencil(nx + 1, ny + 1, x, y);
+      plotFrameStencil(gl, nx + 1, ny + 1, x, y);
   }
   return true;
 }
 
 // plot scalar field with RGBA (RGB=constant)
-bool FieldPlot::plotAlpha_shade()
+bool FieldPlot::plotAlpha_shade(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -3800,7 +3216,7 @@ bool FieldPlot::plotAlpha_shade()
     return false;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   float cmin, cmax;
@@ -3821,10 +3237,10 @@ bool FieldPlot::plotAlpha_shade()
       }
     }
   }
-  glShadeModel(GL_SMOOTH);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->ShadeModel(DiGLPainter::gl_SMOOTH);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   float red = poptions.linecolour.fR(), green = poptions.linecolour.fG(), blue =
       poptions.linecolour.fB(), alpha;
@@ -3832,7 +3248,7 @@ bool FieldPlot::plotAlpha_shade()
   ix2++;
 
   for (iy = iy1; iy < iy2; iy++) {
-    glBegin(GL_QUAD_STRIP);
+    gl->Begin(DiGLPainter::gl_QUAD_STRIP);
     for (ix = ix1; ix < ix2; ix++) {
 
       alpha = (fields[0]->data[(iy + 1) * nx + ix] - cmin) / (cmax - cmin);
@@ -3840,32 +3256,31 @@ bool FieldPlot::plotAlpha_shade()
         alpha = 0.;
       //if (alpha < 0.) alpha=0.;
       //if (alpha > 1.) alpha=1.;
-      glColor4f(red, green, blue, alpha);
-      glVertex2f(x[(iy + 1) * nx + ix], y[(iy + 1) * nx + ix]);
+      gl->Color4f(red, green, blue, alpha);
+      gl->Vertex2f(x[(iy + 1) * nx + ix], y[(iy + 1) * nx + ix]);
 
       alpha = (fields[0]->data[iy * nx + ix] - cmin) / (cmax - cmin);
       if (fields[0]->data[iy * nx + ix] == fieldUndef)
         alpha = 0.;
       //if (alpha < 0.) alpha=0.;
       //if (alpha > 1.) alpha=1.;
-      glColor4f(red, green, blue, alpha);
-      glVertex2f(x[iy * nx + ix], y[iy * nx + ix]);
+      gl->Color4f(red, green, blue, alpha);
+      gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
     }
-    glEnd();
+    gl->End();
   }
 
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_BLEND);
-  glShadeModel(GL_FLAT);
+  gl->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_BLEND);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
 
-bool FieldPlot::plotFrameOnly()
+bool FieldPlot::plotFrameOnly(DiGLPainter* gl)
 {
   if (not checkFields(1))
     return false;
@@ -3880,175 +3295,106 @@ bool FieldPlot::plotFrameOnly()
     return false;
 
   if (poptions.frame) {
-    plotFrame(nx, ny, x, y);
+    plotFrame(gl, nx, ny, x, y);
   }
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(gl, nx, ny, x, y);
 
   return true;
 }
 
-// plot frame for complete field area
-void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
+QPolygonF FieldPlot::makeFramePolygon(int nx, int ny, const float *x, const float *y) const
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny));
+  QPolygonF frame;
+  for (int ix = 0; ix < nx; ix++) {
+    const int iy = 0;
+    const int i = iy * nx + ix;
+    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
+      frame << QPointF(x[i], y[i]);
+    }
+  }
+  for (int iy = 1; iy < ny; iy++) {
+    const int ix = nx - 1;
+    const int i = iy * nx + ix;
+    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
+      frame << QPointF(x[i], y[i]);
+    }
+  }
+  for (int ix = nx - 2; ix >= 0; ix--) {
+    const int iy = ny - 1;
+    const int i = iy * nx + ix;
+    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
+      frame << QPointF(x[i], y[i]);
+    }
+  }
+  for (int iy = ny - 2; iy > 0; iy--) {
+    const int ix = 0;
+    const int i = iy * nx + ix;
+    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
+      frame << QPointF(x[i], y[i]);
+    }
+  }
+  return frame;
+}
+
+// plot frame for complete field area
+void FieldPlot::plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const float *y)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(nx) << LOGVAL(ny));
 
   if (!getColourMode())
     return;
 
-  if (fields.empty())
+  if (fields.empty() || !fields[0])
     return;
-  if (!fields[0])
-    return;
+
+  const QPolygonF frame = makeFramePolygon(nx, ny, x, y);
 
   // If the frame value is 2 or 3 then fill the frame with the background colour.
   if ((poptions.frame & 2) != 0) {
-    plotFilledFrame(nx, ny, x, y);
-    // Only plot a frame if the lowest bit is set (frame=3).
-    if ((poptions.frame & 1) == 0)
-      return;
+    gl->setColour(getStaticPlot()->getBackgroundColour(), false);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+    gl->drawPolygon(frame);
   }
-
-  glColor3ubv(poptions.bordercolour.RGB());
-  //glLineWidth(1);
-  glLineWidth(poptions.linewidth);
-
-  int ix, iy;
-
-  glBegin(GL_LINE_STRIP);
-  iy = 0;
-  for (ix = 0; ix < nx; ix++) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
+  if ((poptions.frame & 1) != 0) {
+    gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
+    gl->drawPolyline(frame);
   }
-  glEnd();
-
-  glBegin(GL_LINE_STRIP);
-  ix = nx - 1;
-  for (iy = 1; iy < ny; iy++) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
-  }
-  glEnd();
-
-  glBegin(GL_LINE_STRIP);
-  iy = ny - 1;
-  for (ix = nx - 1; ix >= 0; ix--) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
-  }
-  glEnd();
-
-  glBegin(GL_LINE_STRIP);
-  ix = 0;
-  for (iy = ny - 1; iy > 0; iy--) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
-  }
-  glEnd();
-
-  // glDisable(GL_LINE_STIPPLE);
-
-  getStaticPlot()->UpdateOutput();
-
-  return;
 }
 
-void FieldPlot::plotFrameStencil(const int nx, const int ny, float *x, float *y)
+void FieldPlot::plotFrameStencil(DiGLPainter* gl, int nx, int ny, const float *x, const float *y)
 {
-  const int ix1 = 0;
-  const int ix2 = nx;
-  const int iy1 = 0;
-  const int iy2 = ny;
-  int ix, iy;
-
   // Fill the frame in the stencil buffer with values.
-  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-  glDepthMask(GL_FALSE);
+  gl->ColorMask(DiGLPainter::gl_FALSE, DiGLPainter::gl_FALSE, DiGLPainter::gl_FALSE, DiGLPainter::gl_FALSE);
+  gl->DepthMask(DiGLPainter::gl_FALSE);
 
   // Fill the frame in the stencil buffer with non-zero values.
-  glStencilFunc(GL_ALWAYS, 1, 0x01);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->StencilFunc(DiGLPainter::gl_ALWAYS, 1, 0x01);
+  gl->StencilOp(DiGLPainter::gl_KEEP, DiGLPainter::gl_KEEP, DiGLPainter::gl_REPLACE);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
-  glBegin(GL_POLYGON);
-  iy = iy1;
-  for (ix = ix1; ix < ix2; ix++) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
+  const QPolygonF frame = makeFramePolygon(nx, ny, x, y);
+#if 0
+  gl->drawPolygon(DiGLPainter::gl_POLYGON); // does not update stencil in DiPaintGLPainter
+#else
+  gl->Begin(DiGLPainter::gl_POLYGON);
+  for (int i=0; i<frame.size(); ++i) {
+    const QPointF& p = frame.at(i);
+    gl->Vertex2f(p.x(), p.y());
   }
+  gl->End();
+#endif
 
-  ix = ix2 - 1;
-  for (iy = iy1 + 1; iy < iy2; iy++) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
-  }
-
-  iy = iy2 - 1;
-  for (ix = ix2 - 1; ix >= ix1; ix--) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
-  }
-
-  ix = ix1;
-  for (iy = iy2 - 1; iy > iy1; iy--) {
-    int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      glVertex2f(x[i], y[i]);
-    }
-  }
-
-  glEnd();
-
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDepthMask(GL_TRUE);
-}
-
-void FieldPlot::plotFilledFrame(const int nx, const int ny, float *x, float *y)
-{
-  const int ix1 = 0;
-  const int ix2 = nx;
-  const int iy1 = 0;
-  const int iy2 = ny;
-  int ix, iy;
-
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor4ub(getStaticPlot()->getBackgroundColour().R(), getStaticPlot()->getBackgroundColour().G(), getStaticPlot()->getBackgroundColour().B(),
-      getStaticPlot()->getBackgroundColour().A());
-  glDisable(GL_BLEND);
-
-  for (iy = iy1; iy < iy2 - 1; iy++) {
-    glBegin(GL_QUAD_STRIP);
-    for (ix = ix1; ix < ix2; ix++) {
-      int i = (iy * nx) + ix;
-      int j = ((iy + 1) * nx) + ix;
-      glVertex2f(x[i], y[i]);
-      glVertex2f(x[j], y[j]);
-    }
-    glEnd();
-  }
+  gl->ColorMask(DiGLPainter::gl_TRUE, DiGLPainter::gl_TRUE, DiGLPainter::gl_TRUE, DiGLPainter::gl_TRUE);
+  gl->DepthMask(DiGLPainter::gl_TRUE);
 }
 
 /*
  Mark extremepoints in a field with L/H (Low/High), C/W (Cold/Warm) or value
  */
-bool FieldPlot::markExtreme()
+bool FieldPlot::markExtreme(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -4136,13 +3482,13 @@ bool FieldPlot::markExtreme()
     extremeValue = "both";
   }
 
-  glColor3ubv(poptions.linecolour.RGB());
+  gl->setColour(poptions.linecolour, false);
 
   float fontsize = 28. * poptions.extremeSize;
-  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+  gl->setFont(poptions.fontname, poptions.fontface, fontsize);
 
   float chrx, chry;
-  getStaticPlot()->getFontPack()->getCharSize('L', chrx, chry);
+  gl->getCharSize('L', chrx, chry);
   // approx. real height for the character (width is ok)
   chry *= 0.75;
   float size = chry < chrx ? chrx : chry;
@@ -4323,34 +3669,24 @@ bool FieldPlot::markExtreme()
                   ostr.setf(ios::fixed);
                   ostr.precision(poptions.precision);
                   ostr << fpos;
-                  getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
+                  gl->drawText(ostr.str(), gx - chrx * 0.5,
                       gy - chry * 0.5, 0.0);
                 } else {
-                  getStaticPlot()->getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
+                  gl->drawText(pmarks[etype], gx - chrx * 0.5,
                       gy - chry * 0.5, 0.0);
                   if (extremeValue != "none") {
                     float fontsize = 18. * poptions.extremeSize;
-                    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+                    gl->setFont(poptions.fontname, poptions.fontface, fontsize);
                     ostringstream ostr;
                     ostr.setf(ios::fixed);
                     ostr.precision(poptions.precision);
                     ostr << fpos;
-                    getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
+                    gl->drawText(ostr.str(), gx - chrx * (-0.6),
                         gy - chry * 0.8, 0.0);
                   }
                   float fontsize = 28. * poptions.extremeSize;
-                  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
-
+                  gl->setFont(poptions.fontname, poptions.fontface, fontsize);
                 }
-
-                //#######################################################################
-                //		glBegin(GL_LINE_LOOP);
-                //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
-                //		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
-                //		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
-                //		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
-                //		glEnd();
-                //#######################################################################
               }
             }
           }
@@ -4365,7 +3701,7 @@ bool FieldPlot::markExtreme()
 }
 
 // draw the grid lines in some density
-bool FieldPlot::plotGridLines()
+bool FieldPlot::plotGridLines(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -4392,38 +3728,38 @@ bool FieldPlot::plotGridLines()
       return false;
   }
 
-  glColor4f(poptions.bordercolour.fR(), poptions.bordercolour.fG(),
+  gl->Color4f(poptions.bordercolour.fR(), poptions.bordercolour.fG(),
       poptions.bordercolour.fB(), 0.5);
-  glLineWidth(1.0);
+  gl->LineWidth(1.0);
 
   int ix, iy;
   ix1 = int(ix1 / step) * step;
   iy1 = int(iy1 / step) * step;
   int i;
   for (ix = ix1; ix < ix2; ix += step) {
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (iy = iy1; iy < iy2; iy++) {
       i = iy * nx + ix;
-      glVertex2f(x[i], y[i]);
+      gl->Vertex2f(x[i], y[i]);
     }
-    glEnd();
+    gl->End();
   }
   for (iy = iy1; iy < iy2; iy += step) {
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (ix = ix1; ix < ix2; ix++) {
       i = iy * nx + ix;
-      glVertex2f(x[i], y[i]);
+      gl->Vertex2f(x[i], y[i]);
     }
-    glEnd();
+    gl->End();
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
   return true;
 }
 
 // show areas with undefined field values
-bool FieldPlot::plotUndefined()
+bool FieldPlot::plotUndefined(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -4450,20 +3786,20 @@ bool FieldPlot::plotUndefined()
   int nxc = nx + 1;
 
   if (poptions.undefMasking == 1) {
-    glShadeModel(GL_FLAT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    gl->ShadeModel(DiGLPainter::gl_FLAT);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   } else {
-    glLineWidth(poptions.undefLinewidth + 0.1);
+    gl->LineWidth(poptions.undefLinewidth);
     if (poptions.undefLinetype.bmap != 0xFFFF) {
-      glLineStipple(1, poptions.undefLinetype.bmap);
-      glEnable(GL_LINE_STIPPLE);
+      gl->LineStipple(1, poptions.undefLinetype.bmap);
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
     }
   }
 
   if (poptions.undefColour == getStaticPlot()->getBackgroundColour())
     poptions.undefColour = getStaticPlot()->getBackContrastColour();
 
-  glColor3ubv(poptions.undefColour.RGB());
+  gl->setColour(poptions.undefColour, false);
 
   int ix, iy, ixbgn, ixend, iybgn, iyend;
 
@@ -4488,12 +3824,12 @@ bool FieldPlot::plotUndefined()
 
         if (poptions.undefMasking == 1) {
 
-          glBegin(GL_QUAD_STRIP);
+          gl->Begin(DiGLPainter::gl_QUAD_STRIP);
           for (ix = ixbgn; ix <= ixend; ix++) {
-            glVertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
-            glVertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
+            gl->Vertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
+            gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
           }
-          glEnd();
+          gl->End();
 
         } else {
 
@@ -4503,10 +3839,10 @@ bool FieldPlot::plotUndefined()
           // (but still drawing many "double" lines...)
 
           for (int iyy = iy; iyy <= iy + 1; iyy++) {
-            glBegin(GL_LINE_STRIP);
+            gl->Begin(DiGLPainter::gl_LINE_STRIP);
             for (ix = ixbgn; ix <= ixend; ix++)
-              glVertex2f(x[iyy * nxc + ix], y[iyy * nxc + ix]);
-            glEnd();
+              gl->Vertex2f(x[iyy * nxc + ix], y[iyy * nxc + ix]);
+            gl->End();
           }
         }
         ix = ixend + 1;
@@ -4535,10 +3871,10 @@ bool FieldPlot::plotUndefined()
           iyend = iy;
 
           for (int ixx = ix; ixx <= ix + 1; ixx++) {
-            glBegin(GL_LINE_STRIP);
+            gl->Begin(DiGLPainter::gl_LINE_STRIP);
             for (iy = iybgn; iy <= iyend; iy++)
-              glVertex2f(x[iy * nxc + ixx], y[iy * nxc + ixx]);
-            glEnd();
+              gl->Vertex2f(x[iy * nxc + ixx], y[iy * nxc + ixx]);
+            gl->End();
           }
           iy = iyend + 1;
         }
@@ -4546,9 +3882,8 @@ bool FieldPlot::plotUndefined()
     }
   }
 
-  getStaticPlot()->UpdateOutput();
-
-  glDisable(GL_LINE_STIPPLE);
+  gl->UpdateOutput();
+  gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   return true;
 }
@@ -4557,7 +3892,7 @@ bool FieldPlot::plotUndefined()
  plot field values as numbers in each gridpoint
  skip plotting if too many (or too small) numbers
  */
-bool FieldPlot::plotNumbers()
+bool FieldPlot::plotNumbers(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
@@ -4584,11 +3919,10 @@ bool FieldPlot::plotNumbers()
   iy2++;
 
   float fontsize = 16.;
-  //getStaticPlot()->getFontPack()->set("BITMAPFONT",poptions.fontface,fontsize);
-  getStaticPlot()->getFontPack()->set("BITMAPFONT", "bold", fontsize);
+  gl->setFont("BITMAPFONT", fontsize, DiCanvas::F_BOLD);
 
   float chx, chy;
-  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
+  gl->getCharSize('0', chx, chy);
   // the real height for numbers 0-9 (width is ok)
   chy *= 0.75;
 
@@ -4606,7 +3940,7 @@ bool FieldPlot::plotNumbers()
   }
   std::string str;
 
-  glColor3ubv(poptions.linecolour.RGB());
+  gl->setColour(poptions.linecolour, false);
 
   for (iy = iy1; iy < iy2; iy++) {
     for (ix = ix1; ix < ix2; ix++) {
@@ -4618,7 +3952,7 @@ bool FieldPlot::plotNumbers()
         ostringstream ostr;
         ostr << setprecision(iprec) << setiosflags(ios::fixed) << field[i];
         str = ostr.str();
-        getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
+        gl->getTextSize(str, w, h);
         w *= 0.5;
       } else {
         str = "X";
@@ -4627,11 +3961,11 @@ bool FieldPlot::plotNumbers()
 
       if (getStaticPlot()->getMapSize().isinside(gx - w, gy - hh)
           && getStaticPlot()->getMapSize().isinside(gx + w, gy + hh))
-        getStaticPlot()->getFontPack()->drawStr(str.c_str(), gx - w, gy - hh, 0.0);
+        gl->drawText(str, gx - w, gy - hh, 0.0);
     }
   }
 
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 
   // draw lines/boxes at borders between gridpoints..............................
 
@@ -4641,28 +3975,28 @@ bool FieldPlot::plotNumbers()
 
   const int nx = fields[0]->nx + 1;
 
-  glLineWidth(1.0);
+  gl->LineWidth(1.0);
 
   ix2++;
   iy2++;
 
   for (ix = ix1; ix < ix2; ix++) {
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (iy = iy1; iy < iy2; iy++) {
-      glVertex2f(x[iy * nx + ix], y[iy * nx + ix]);
+      gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
     }
-    glEnd();
+    gl->End();
   }
   for (iy = iy1; iy < iy2; iy++) {
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (ix = ix1; ix < ix2; ix++) {
       i = iy * nx + ix;
-      glVertex2f(x[iy * nx + ix], y[iy * nx + ix]);
+      gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
     }
-    glEnd();
+    gl->End();
   }
+  gl->UpdateOutput();
 
-  getStaticPlot()->UpdateOutput();
   return true;
 }
 

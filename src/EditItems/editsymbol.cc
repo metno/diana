@@ -29,9 +29,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <GL/gl.h>
 #include "drawingsymbol.h"
 #include "editsymbol.h"
+#include "diGLPainter.h"
 
 #include <EditItems/drawingstylemanager.h>
 
@@ -128,7 +128,7 @@ void Symbol::setPoints(const QList<QPointF> &points)
   setGeometry(points);
 }
 
-void Symbol::drawHoverHighlightingBG(bool incomplete, bool selected) const
+void Symbol::drawHoverHighlightingBG(DiGLPainter* gl, bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
@@ -138,25 +138,26 @@ void Symbol::drawHoverHighlightingBG(bool incomplete, bool selected) const
   const int lineWidth = properties().value("style:linewidth").toInt(&ok);
   const int defaultLineWidth = 2;
   const int pad = 6;
-  DrawingStyleManager::instance()->highlightPolyLine(this, boundingSquare(), (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180), true);
+  DrawingStyleManager::instance()->highlightPolyLine(gl, this, boundingSquare(),
+      (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180), true);
 
   // highlight the control points
-  drawControlPoints(QColor(255, 0, 0, 255));
+  drawControlPoints(gl, QColor(255, 0, 0, 255));
 }
 
-void Symbol::drawHoverHighlighting(bool incomplete, bool selected) const
+void Symbol::drawHoverHighlighting(DiGLPainter* gl, bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
 
   if (hoverCtrlPointIndex_ >= 0) {
     // highlight the control point
-    drawHoveredControlPoint(QColor(255, 0, 0, 255), 2);
-    drawHoveredControlPoint(QColor(255, 255, 0, 255));
+    drawHoveredControlPoint(gl, QColor(255, 0, 0, 255), 2);
+    drawHoveredControlPoint(gl, QColor(255, 255, 0, 255));
   } else {
     // highlight the control points
     if (selected)
-      drawControlPoints(QColor(255, 0, 0, 255));
+      drawControlPoints(gl, QColor(255, 0, 0, 255));
   }
 }
 
@@ -164,7 +165,7 @@ void Symbol::drawHoverHighlighting(bool incomplete, bool selected) const
  * Override the draw method in the corresponding drawing class to only draw
  * the bounding rectangle when resizing.
  */
-void Symbol::draw()
+void Symbol::draw(DiGLPainter* gl)
 {
   if (points_.isEmpty())
     return;
@@ -175,17 +176,17 @@ void Symbol::draw()
     // resizing process.
     const QList<QPointF> bbox = boundingSquare();
 
-    glColor3ub(255, 0, 0);
-    glPushAttrib(GL_LINE_BIT);
-    glLineWidth(2);
-    glBegin(GL_LINE_LOOP);
+    gl->Color3ub(255, 0, 0);
+    gl->PushAttrib(DiGLPainter::gl_LINE_BIT);
+    gl->LineWidth(2);
+    gl->Begin(DiGLPainter::gl_LINE_LOOP);
     foreach (QPointF p, boundingSquare())
-      glVertex3i(p.x(), p.y(), 1);
-    glEnd();
-    glPopAttrib();
+      gl->Vertex3i(p.x(), p.y(), 1);
+    gl->End();
+    gl->PopAttrib();
 
   } else
-    DrawingItem_Symbol::Symbol::draw();
+    DrawingItem_Symbol::Symbol::draw(gl);
 }
 
 } // namespace EditItem_Symbol

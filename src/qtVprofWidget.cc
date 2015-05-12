@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -35,6 +33,10 @@
 #include "config.h"
 #endif
 
+#include "qtVprofWidget.h"
+#include "diVprofManager.h"
+#include "diGLPainter.h"
+
 #include <QImage>
 #include <QKeyEvent>
 
@@ -45,100 +47,59 @@
 #define MILOGGER_CATEGORY "diana.VprofWidget"
 #include <miLogger/miLogging.h>
 
-#if !defined(USE_PAINTGL)
-VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
-                        QWidget* parent)
-    : QGLWidget( fmt, parent ), vprofm(vpm)
-#else
-VprofWidget::VprofWidget(VprofManager *vpm, QWidget* parent)
-    : PaintGLWidget(parent, true), vprofm(vpm)
-#endif
+VprofWidget::VprofWidget(VprofManager *vpm)
+  : vprofm(vpm)
 {
-
-  if ( !isValid() ) {
-    qFatal("Failed to create OpenGL rendering context on this display");
-  }
-
-  setFocusPolicy(Qt::StrongFocus);
 }
 
+void VprofWidget::setCanvas(DiCanvas* c)
+{
+  vprofm->setCanvas(c);
+}
 
-//  Set up the OpenGL rendering state
-void VprofWidget::initializeGL()
+DiCanvas* VprofWidget::canvas() const
+{
+  return vprofm->canvas();
+}
+
+void VprofWidget::paint(DiPainter* painter)
 {
   METLIBS_LOG_SCOPE();
 
-  glShadeModel( GL_FLAT );
-  setAutoBufferSwap(false);
-  glDrawBuffer(GL_BACK);
-}
-
-
-void VprofWidget::paintGL()
-{
-  METLIBS_LOG_SCOPE();
-
-  if (!vprofm) return;
-
-  { diutil::OverrideCursor waitCursor;
-    vprofm->plot();
+  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter);
+  if (gl && vprofm) {
+    diutil::OverrideCursor waitCursor;
+    vprofm->plot(gl);
   }
-
-  swapBuffers();
 }
 
-
-//  Set up the OpenGL view port, matrix mode, etc.
-void VprofWidget::resizeGL( int w, int h )
+void VprofWidget::resize(int w, int h)
 {
-  METLIBS_LOG_DEBUG("VprofWidget::resizeGL  w=" << w << " h=" << h);
-  if (vprofm) vprofm->setPlotWindow(w,h);
-
-  glViewport( 0, 0, (GLint)w, (GLint)h );
-  //plotw= w;
-  //ploth= h;
-  updateGL();
-
-  setFocus();
+  METLIBS_LOG_SCOPE("w=" << w << " h=" << h);
+  if (vprofm)
+    vprofm->setPlotWindow(w,h);
 }
 
 // ---------------------- event callbacks -----------------
 
-void VprofWidget::keyPressEvent(QKeyEvent *me)
+bool VprofWidget::handleKeyEvents(QKeyEvent *ke)
 {
-  if (me->key()==Qt::Key_Left  ||
-      me->key()==Qt::Key_Right ||
-      me->key()==Qt::Key_Down  ||
-      me->key()==Qt::Key_Up) {
+  if (ke->type() != QKeyEvent::KeyPress)
+    return false;
 
-    if (me->key()==Qt::Key_Left){
-      emit timeChanged(-1);
-    } else if (me->key()==Qt::Key_Right){
-      emit timeChanged(+1);
-    }else if (me->key()==Qt::Key_Down){
-      vprofm->setStation(-1);
-      emit stationChanged(-1);
-    }else if (me->key()==Qt::Key_Up){
-      vprofm->setStation(+1);
-      emit stationChanged(+1);
-    }
-    updateGL();
+  if (ke->key()==Qt::Key_Left){
+    Q_EMIT timeChanged(-1);
+  } else if (ke->key()==Qt::Key_Right) {
+    Q_EMIT timeChanged(+1);
+  } else if (ke->key()==Qt::Key_Down) {
+    vprofm->setStation(-1);
+    Q_EMIT stationChanged(-1);
+  } else if (ke->key()==Qt::Key_Up) {
+    vprofm->setStation(+1);
+    Q_EMIT stationChanged(+1);
+  } else {
+    return false;
   }
-}
-
-
-bool VprofWidget::saveRasterImage(const std::string fname,
-			          const std::string format,
-			          const int quality)
-{
-
-  updateGL();
-  makeCurrent();
-  glFlush();
-
-  // test of new grabFrameBuffer command
-  QImage image= grabFrameBuffer(true); // withAlpha=TRUE
-  image.save(fname.c_str(), format.c_str(), quality );
 
   return true;
 }

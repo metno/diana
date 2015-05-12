@@ -39,6 +39,7 @@
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
+#include "diGLPainter.h"
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
 
@@ -50,12 +51,6 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSvgRenderer>
-
-#if defined(USE_PAINTGL)
-#include "PaintGL/paintgl.h"
-#else
-#include <QGLContext>
-#endif
 
 #define PLOTM PlotModule::instance()
 
@@ -463,16 +458,23 @@ bool DrawingManager::changeProjection(const Area& newArea)
   return true;
 }
 
-void DrawingManager::plot(bool under, bool over)
+void DrawingManager::setCanvas(DiCanvas* canvas)
+{
+  Manager::setCanvas(canvas);
+  styleManager_->setCanvas(canvas);
+  imageCache_.clear(); // GL format might change
+}
+
+void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
 {
   if (!under)
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
-  glPushMatrix();
-  glTranslatef(editRect_.x1, editRect_.y1, 0.0);
-  glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
+  gl->PushMatrix();
+  gl->Translatef(editRect_.x1, editRect_.y1, 0.0);
+  gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
@@ -487,15 +489,15 @@ void DrawingManager::plot(bool under, bool over)
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
 
         if (item->property("visible", true).toBool()) {
-          applyPlotOptions(item);
+          applyPlotOptions(gl, item);
           setFromLatLonPoints(*item, item->getLatLonPoints());
-          item->draw();
+          item->draw(gl);
         }
       }
     }
 
   }
-  glPopMatrix();
+  gl->PopMatrix();
 }
 
 QMap<QString, QString> &DrawingManager::getDrawings()
@@ -522,7 +524,7 @@ QStringList DrawingManager::symbolNames(const QString &section) const
 {
   if (section.isNull())
     return symbols_.keys();
-  
+
   QStringList names = symbolSections_.value(section).toList();
   return names;
 }
@@ -535,8 +537,10 @@ QStringList DrawingManager::symbolSectionNames() const
 QImage DrawingManager::getCachedImage(const QString &name, int width, int height) const
 {
   const QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
-  if (!imageCache_.contains(key))
-    imageCache_.insert(key, QGLWidget::convertToGLFormat(getSymbolImage(name, width, height)));
+  if (!imageCache_.contains(key)) {
+    if (DiGLCanvas* c = dynamic_cast<DiGLCanvas*>(canvas()))
+      imageCache_.insert(key, c->convertToGLFormat(getSymbolImage(name, width, height)));
+  }
   return imageCache_.value(key);
 }
 
@@ -562,13 +566,13 @@ QSize DrawingManager::getSymbolSize(const QString &name) const
   return renderer.defaultSize();
 }
 
-void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &item) const
+void DrawingManager::applyPlotOptions(DiGLPainter *gl, const QSharedPointer<DrawingItemBase> &item) const
 {
   const bool antialiasing = item->property("antialiasing", true).toBool();
   if (antialiasing)
-    glEnable(GL_MULTISAMPLE);
+    gl->Enable(DiGLPainter::gl_MULTISAMPLE);
   else
-    glDisable(GL_MULTISAMPLE);
+    gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 }
 
 EditItems::LayerManager *DrawingManager::getLayerManager()

@@ -55,7 +55,7 @@ public:
   /// returns true of no objects or labels
   bool empty();
   /// plot all weather objects
-  void plot(Plot::PlotOrder porder);
+  void plot(DiGLPainter* gl, Plot::PlotOrder porder);
  /// check if objectplots are enabled
   bool isEnabled();
  /// enable/disable objectplots

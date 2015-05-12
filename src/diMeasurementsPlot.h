@@ -54,7 +54,10 @@ public:
   MeasurementsPlot();
   ~MeasurementsPlot();
 
-  void plot(Plot::PlotOrder porder);
+  ///change projection
+  bool prepare(void);
+  ///Start positions, colours, lines, field, etc
+  void plot(DiGLPainter* gl, Plot::PlotOrder porder);
 
   void changeProjection();
 

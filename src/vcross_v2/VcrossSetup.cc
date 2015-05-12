@@ -245,14 +245,12 @@ std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
   std::ostringstream ostr;
   
   if (cp->type == ConfiguredPlot::T_CONTOUR) {
-    bool usebase = false;
     if (po.colours.size() < 2 || po.colours.size() > 3) {
       ostr << PlotOptions::key_colour << '=' << po.linecolour.Name();
     } else {
       ostr << PlotOptions::key_colours << '=' << po.colours[0].Name();
       for (unsigned int j = 1; j < po.colours.size(); j++)
         ostr << "," << po.colours[j].Name();
-      usebase = true;
     }
     if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
       ostr << ' ' << PlotOptions::key_linetype << '=' << po.linetype.name;
@@ -260,7 +258,6 @@ std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
       ostr << ' ' << PlotOptions::key_linetypes << '=' << po.linetypes[0].name;
       for (unsigned int j = 1; j < po.linetypes.size(); j++)
         ostr << "," << po.linetypes[j].name;
-      usebase = true;
     }
     if (po.linewidths.size() < 2 || po.linewidths.size() > 3) {
       ostr << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth;
@@ -268,7 +265,6 @@ std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
       ostr << ' ' << PlotOptions::key_linewidths << '=' << po.linewidths[0];
       for (unsigned int j = 1; j < po.linewidths.size(); j++)
         ostr << "," << po.linewidths[j];
-      usebase = true;
     }
     if (po.linevalues.size() == 0 && po.loglinevalues.size() == 0) {
       ostr << ' ' << PlotOptions::key_lineinterval << '=' << po.lineinterval;

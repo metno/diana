@@ -34,7 +34,7 @@
 
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
-#include <diCommonTypes.h>
+#include "diCommonTypes.h"
 
 /**
   \brief Satellite and radar data

@@ -33,9 +33,10 @@
 #include "config.h"
 #endif
 
-#include <diSatManager.h>
+#include "diSatManager.h"
 
 #include "diPlotModule.h"
+#include "diSatPlot.h"
 #include "diUtilities.h"
 
 #include <puCtools/stat.h>
@@ -49,7 +50,6 @@
 #include <diGEOtiff.h>
 #endif
 
-#include <GL/gl.h>
 #include <fstream>
 #include <set>
 
@@ -60,7 +60,6 @@ using namespace miutil;
 
 static const std::vector<SatFileInfo> emptyfile;
 
-//#define DEBUGPRINT
 SatManager::SatManager()
 {
   //Max time between filelist updates in seconds
@@ -236,10 +235,10 @@ void SatManager::getSatAnnotations(std::vector<std::string>& anno)
     vsp[j]->getAnnotations(anno);
 }
 
-void SatManager::plot(Plot::PlotOrder porder)
+void SatManager::plot(DiGLPainter* gl, Plot::PlotOrder porder)
 {
   for (size_t i = 0; i < vsp.size(); i++)
-    vsp[i]->plot(porder);
+    vsp[i]->plot(gl, porder);
 }
 
 void SatManager::clear()
@@ -265,6 +264,14 @@ bool SatManager::setData()
       allok = false;
   }
   return allok;
+}
+
+bool SatManager::getSatArea(Area& a) const
+{
+  if (vsp.empty())
+    return false;
+  a = vsp.front()->getSatArea();
+  return true;
 }
 
 bool SatManager::setData(SatPlot *satp)

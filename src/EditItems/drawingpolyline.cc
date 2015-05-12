@@ -29,16 +29,16 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <math.h>
-#include "GL/gl.h"
 #include "drawingpolyline.h"
 #include "EditItems/drawingstylemanager.h"
+
+#include <cmath>
 
 namespace DrawingItem_PolyLine {
 
 PolyLine::PolyLine(int id)
   : DrawingItemBase(id)
-{ 
+{
 }
 
 PolyLine::~PolyLine()
@@ -200,7 +200,7 @@ qreal PolyLine::distance(const QPointF &p) const
   return minDist;
 }
 
-void PolyLine::draw()
+void PolyLine::draw(DiGLPainter* gl)
 {
   if (points_.isEmpty())
     return;
@@ -208,15 +208,15 @@ void PolyLine::draw()
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
   // Use the fill colour defined in the style.
-  styleManager->beginFill(this);
-  styleManager->fillLoop(this, points_);
-  styleManager->endFill(this);
+  styleManager->beginFill(gl, this);
+  styleManager->fillLoop(gl, this, points_);
+  styleManager->endFill(gl, this);
 
   // Draw the outline using the border colour and line pattern defined in
   // the style.
-  styleManager->beginLine(this);
-  styleManager->drawLines(this, points_);
-  styleManager->endLine(this);
+  styleManager->beginLine(gl, this);
+  styleManager->drawLines(gl, this, points_);
+  styleManager->endLine(gl, this);
 }
 
 QDomNode PolyLine::toKML() const

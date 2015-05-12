@@ -48,6 +48,9 @@ class PlotModule;
 class QKeyEvent;
 class QMouseEvent;
 
+class DiCanvas;
+class DiGLPainter;
+
 class Manager : public QObject
 {
   Q_OBJECT
@@ -62,9 +65,13 @@ public:
   virtual bool changeProjection(const Area& newArea) = 0;
   virtual bool prepare(const miutil::miTime &time) = 0;
 
-  virtual void plot(bool under, bool over) = 0;
-  virtual void plot(Plot::PlotOrder zorder)
-    { plot(zorder == Plot::LINES, zorder == Plot::OVERLAY); }
+  virtual void setCanvas(DiCanvas* canvas);
+  DiCanvas* canvas() const
+    { return mCanvas; }
+
+  virtual void plot(DiGLPainter* gl, bool under, bool over) = 0;
+  virtual void plot(DiGLPainter* gl, Plot::PlotOrder zorder)
+    { plot(gl, zorder == Plot::LINES, zorder == Plot::OVERLAY); }
 
   virtual bool processInput(const std::vector<std::string>& inp) = 0;
 
@@ -94,6 +101,8 @@ private:
   bool editing;
   // Whether the manager should accept key events instead of other components.
   bool focus;
+
+  DiCanvas* mCanvas;
 };
 
 #endif

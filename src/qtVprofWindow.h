@@ -72,8 +72,8 @@ public:
   void parseSetup();
   std::vector<std::string> writeLog(const std::string& logpart);
   void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion,
-	       int displayWidth, int displayHeight);
+      const std::string& thisVersion, const std::string& logVersion,
+      int displayWidth, int displayHeight);
 
   bool active;
 
@@ -83,6 +83,7 @@ protected:
 private:
   VprofManager * vprofm;
   VprofWidget * vprofw;
+  QWidget * vprofqw;
   VprofModelDialog * vpModelDialog;
   VprofSetupDialog * vpSetupDialog;
 
@@ -107,7 +108,8 @@ private:
   miutil::miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time
 
-  void makeEPS(const std::string& filename);
+  void saveRasterImage(const QString& filename);
+  void paintOnDevice(QPaintDevice* device);
 
 private slots:
   void modelClicked(bool on);

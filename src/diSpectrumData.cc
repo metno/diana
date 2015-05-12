@@ -33,18 +33,22 @@
 #include "config.h"
 #endif
 
-#include <diSpectrumData.h>
-#include <diSpectrumPlot.h>
+#include "diSpectrumData.h"
+#include "diSpectrumPlot.h"
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <diField/FimexSource.h>
 #include <diField/VcrossUtil.h>
+
 #include <boost/foreach.hpp>
+
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.SpectrumData"
 #include <miLogger/miLogging.h>
+
+static const float DEG_TO_RAD = M_PI / 180;
 
 using namespace std;
 using namespace miutil;
@@ -83,7 +87,8 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
     return false;
   }
 
-  BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
+  for(vcross::Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS != inv->crossections.end(); ++itCS) {
+    vcross::Crossection_cp cs = *itCS;
     for (size_t i=0; i<cs->length(); ++i) {
       const LonLat& p = cs->point(i);
       METLIBS_LOG_DEBUG(LOGVAL(p.latDeg()));

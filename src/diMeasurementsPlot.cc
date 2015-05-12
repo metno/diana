@@ -32,10 +32,12 @@
 #endif
 
 #include "diMeasurementsPlot.h"
+
+#include "diGLPainter.h"
+
 #include <puTools/miStringFunctions.h>
 #include <diField/diField.h>
 
-#include <GL/gl.h>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.MeasurementsPlot"
@@ -57,6 +59,7 @@ MeasurementsPlot::~MeasurementsPlot()
 {
   clearXY();
 }
+
 
 void MeasurementsPlot::clearXY()
 {
@@ -147,7 +150,7 @@ void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
   }
 }
 
-void MeasurementsPlot::plot(Plot::PlotOrder porder)
+void MeasurementsPlot::plot(DiGLPainter* gl, Plot::PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
 
@@ -162,19 +165,12 @@ void MeasurementsPlot::plot(Plot::PlotOrder porder)
 
   if (colour==getStaticPlot()->getBackgroundColour())
     colour= getStaticPlot()->getBackContrastColour();
-  glColor4ubv(colour.RGBA());
-  glLineWidth(float(lineWidth)+0.1f);
+  gl->setLineStyle(colour, lineWidth);
 
   float d= 5*getStaticPlot()->getPhysToMapScaleX();
 
   // plot  posistions
   int m = lon.size();
-  glBegin(GL_LINES);
-  for (int i=0; i<m; i++) {
-    glVertex2f(xpos[i]-d,ypos[i]-d);
-    glVertex2f(xpos[i]+d,ypos[i]+d);
-    glVertex2f(xpos[i]-d,ypos[i]+d);
-    glVertex2f(xpos[i]+d,ypos[i]-d);
-  }
-  glEnd();
+  for (int i=0; i<m; i++)
+    gl->drawCross(xpos[i], ypos[i], d, true);
 }

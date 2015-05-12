@@ -31,13 +31,15 @@
 #ifndef CONTOURING_H
 #define CONTOURING_H
 
+#include "diPlotOptions.h"
+
 #include <diField/diArea.h>
+
 #include <vector>
 #include <string>
 
-#if !defined(USE_PAINTGL)
-#include <glp/glpfile.h>
-#endif
+class DiPainter;
+class DiGLPainter;
 
   /// temporary field contouring info
   struct LinePart {
@@ -96,7 +98,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 	     int ibcol,
 	     int ibmap, int lbmap, int kbmap[],
 	     int nxbmap, int nybmap, float rbmap[],
-             FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
+             DiGLPainter* gl, const PlotOptions& poptions,
 	     const Area& fieldArea, const float& fieldUndef,
 	     const std::string& modelName = "", const std::string& paramName = "",
 	     const int& fhour = 0);
@@ -130,11 +132,11 @@ void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
 std::vector<float> findCrossing(float ycross, int n, float *x, float *y);
 
 /// uses OpenGL tesselation (triangulation) to shade between isolines
-void fillContours(std::vector<ContourLine*>& contourlines,
+void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines,
 		  int nx, int ny, float z[],
 		  int iconv, float *cxy, float *xz, float *yz, int idraw,
 		  const PlotOptions& poptions, bool drawBorders,
-                  GLPfile* psoutput, const Area& fieldArea,
+                  const Area& fieldArea,
 		  float zrange[], float zstep, float zoff,
 		  const float& fieldUndef);
 
@@ -143,7 +145,7 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 			    const float& fieldUndef);
 
 /// draw part of contour line
-void drawLine(int start, int stop, float* x, float* y);
+void drawLine(DiPainter* gl, int start, int stop, float* x, float* y);
 /// write shapefile
 void writeShapefile(std::vector<ContourLine*>& contourlines,
 		    int nx, int ny,

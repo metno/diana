@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -31,7 +29,7 @@
 #ifndef WeatherFront_h
 #define WeatherFront_h
 
-#include <diObjectPlot.h>
+#include "diObjectPlot.h"
 
 /**
   \brief A weather front that can be plotted and edited
@@ -39,7 +37,6 @@
 class WeatherFront: public ObjectPlot
 {
 private:
-
   float linewidth;
   static float defaultLineWidth;
   float scaledlinewidth;
@@ -50,14 +47,14 @@ private:
   float * yplot;
   bool first;
 
-  void drawColds();         // draws the blue triangles
-  void drawWarms();         // draws the red arc
-  void drawStationary();    // draws the red arc
-  void drawOccluded();      // draws the occluded
-  void drawSquallLine();    // draws the squall line crosses
-  void drawSigweather();    // draws significant weather bubbles
-  void drawArrowLine();          // draws line with arrow
-  void drawTroughLine();        // draws smhi-used troughline
+  void drawColds(DiGLPainter* gl);         // draws the blue triangles
+  void drawWarms(DiGLPainter* gl);         // draws the red arc
+  void drawStationary(DiGLPainter* gl);    // draws the red arc
+  void drawOccluded(DiGLPainter* gl);      // draws the occluded
+  void drawSquallLine(DiGLPainter* gl);    // draws the squall line crosses
+  void drawSigweather(DiGLPainter* gl);    // draws significant weather bubbles
+  void drawArrowLine(DiGLPainter* gl);          // draws line with arrow
+  void drawTroughLine(DiGLPainter* gl);        // draws smhi-used troughline
   bool smooth();
   void recalculate();
   float getLineWidth(){return linewidth;}
@@ -65,27 +62,32 @@ private:
   int hitPoint(float x,float y);
   bool setSpline(bool s);     // s=true if you want to spline
 
- public:
-  /// constructor
+public:
   WeatherFront();
+  WeatherFront(const WeatherFront &rhs);
+  WeatherFront& operator=(const WeatherFront &rhs);
+
   /// constructor with integer front type as argument
   WeatherFront(int ty);
+
   /// constructor with name of front type as argument
-  WeatherFront(std::string tystring);
-  /// copy constructor
-  WeatherFront(const WeatherFront &rhs);
-  /// Destructor
+  WeatherFront(const std::string& tystring);
+
   ~WeatherFront();
+
   /// define map to find front type number from name
   static void defineFronts(std::vector<editToolInfo> fronts);
+
   /// set default line width from setup
-  static void setDefaultLineWidth(float w){defaultLineWidth=w;}
+  static void setDefaultLineWidth(float w)
+    {defaultLineWidth=w;}
+
   /// set state to active or passive <br> also set whether to do spline interpolation
   void setState(const state s);
 
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
- ///< shows / marks node point/ points on front
+  /// shows / marks node point/ points on front
   bool showLine(float x, float y);
   /// set front type
   void setType(int ty);

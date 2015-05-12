@@ -37,7 +37,7 @@
 class Controller;
 class GLwidget;
 
-/** 
+/**
     \brief the main workarea
 
     provides a wrapper around the GLwidget
@@ -48,15 +48,30 @@ class WorkArea : public QWidget
   Q_OBJECT
 public:
   WorkArea(Controller *c,  QWidget* parent = 0);
-  
-  GLwidget* Glw(){return glw; }
+  ~WorkArea();
 
-public slots:
+  GLwidget* Glw()
+    { return glw; }
+
+  void setGlwCursor(const QCursor& c)
+    { qw->setCursor(c); }
+
+  void unsetGlwCursor()
+    { qw->unsetCursor(); }
+
+  void setGlwFocus()
+    { qw->setFocus(); }
+
+public Q_SLOTS:
   void updateGL();
+
+private Q_SLOTS:
+  void changeCursor(cursortype);
 
 protected:
   GLwidget *glw;
-  Controller *contr;
+  QWidget* qw;
+  cursortype currentCursor;
 };
 
 #endif

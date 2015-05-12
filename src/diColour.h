@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diColour.h 3903 2012-07-13 11:11:25Z lisbethb $
-
   Copyright (C) 2006-2013 met.no
 
   Contact information:
@@ -28,6 +26,7 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef diColour_h
 #define diColour_h
 
@@ -71,27 +70,25 @@ private:
   static std::map<std::string,Colour> cmap;
   static std::vector<ColourInfo> colours;
 
-  // Copy members
   void memberCopy(const Colour& rhs);
+  void generateName();
+
 public:
-  // Constructors
   Colour(const std::string&);
   Colour(const values&);
-  Colour(const unsigned long int =0);
-  Colour(const unsigned char, const unsigned char,
-	 const unsigned char, const unsigned char =maxv);
+  Colour(unsigned long int =0);
+  Colour(unsigned char, unsigned char, unsigned char, unsigned char = maxv);
+  static Colour fromF(float, float, float, float = 1.0f);
   Colour(const Colour &rhs);
-  // Destructor
-  ~Colour();
 
-  // Assignment operator
+  ~Colour() { }
+
   Colour& operator=(const Colour &rhs);
-  // Equality operator
   bool operator==(const Colour &rhs) const;
 
   // static functions for static colour-map
   static void define(const std::string&, const unsigned char, const unsigned char,
-		     const unsigned char, const unsigned char =maxv);
+      const unsigned char, const unsigned char =maxv);
   static void define(const std::string, const values&);
   static void defineColourFromString(const std::string& rgba_string);
   static void setindex(const std::string&, const unsigned char);
@@ -100,8 +97,7 @@ public:
   static void addColourInfo(const ColourInfo& ci);
   static std::vector<ColourInfo> getColourInfo(){return colours;}
 
-  void set(const unsigned char r, const unsigned char g,
-      const unsigned char b, const unsigned char a =maxv)
+  void set(unsigned char r, unsigned char g, unsigned char b, unsigned char a =maxv)
     { v.rgba[red]=r; v.rgba[green]=g; v.rgba[blue]=b; v.rgba[alpha]=a;}
 
   void setF(float r, float g, float b, float a = 1.0)
@@ -110,7 +106,8 @@ public:
   void set(const values& va)
     {v= va;}
 
-  void set(const cIndex i,const unsigned char b){v.rgba[i]=b;}
+  void set(const cIndex i,const unsigned char b)
+    { v.rgba[i]=b; }
 
   unsigned char R() const {return v.rgba[red];   }
   unsigned char G() const {return v.rgba[green]; }

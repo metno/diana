@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,9 +29,9 @@
 #ifndef _qt_spectrummainwindow_
 #define _qt_spectrummainwindow_
 
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
-#include <diStationPlot.h>
+#include "diCommonTypes.h"
+#include "diPrintOptions.h"
+#include "diStationPlot.h"
 
 #include <QMainWindow>
 #include <QString>
@@ -83,6 +81,7 @@ protected:
 private:
   SpectrumManager * spectrumm;
   SpectrumWidget * spectrumw;
+  QWidget* spectrumqw;
   SpectrumModelDialog * spModelDialog;
   SpectrumSetupDialog * spSetupDialog;
 
@@ -104,9 +103,10 @@ private:
 
   miutil::miTime mainWindowTime;
 
-  void makeEPS(const std::string& filename);
+  void saveRasterImage(const QString& filename);
+  void paintOnDevice(QPaintDevice* device);
 
-private slots:
+private Q_SLOTS:
   void modelClicked(bool on);
   void leftStationClicked();
   void rightStationClicked();
@@ -128,7 +128,7 @@ private slots:
   bool timeChangedSlot(int);
   bool stationChangedSlot(int);
 
-signals:
+Q_SIGNALS:
   void SpectrumHide();
   void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
@@ -136,7 +136,5 @@ signals:
   void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
   void setTime(const std::string&, const miutil::miTime&);
 };
+
 #endif
-
-
-

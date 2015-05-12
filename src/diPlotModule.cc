@@ -33,34 +33,30 @@
 #include "config.h"
 #endif
 
-#include <diPlotModule.h>
-#include <diObsPlot.h>
+#include "diPlotModule.h"
 
-#include <diFieldPlot.h>
-#include "diLocalSetupParser.h"
+#include "diObsManager.h"
+#include "diObsPlot.h"
+#include "diSatManager.h"
+#include "diStationManager.h"
+#include "diObjectManager.h"
+#include "diEditManager.h"
+#include "diFieldPlot.h"
+#include "diFieldPlotManager.h"
 #include "diLocationPlot.h"
-#include <diMapPlot.h>
-#include <diTrajectoryPlot.h>
-#include <diMeasurementsPlot.h>
-
-#include <diObsManager.h>
-#include <diSatManager.h>
-#include <diStationManager.h>
-#include <diObjectManager.h>
-#include <diEditManager.h>
-#include <diWeatherArea.h>
-#include <diStationPlot.h>
-#include <diMapManager.h>
-#include <diManager.h>
+#include "diManager.h"
+#include "diMapManager.h"
+#include "diMapPlot.h"
+#include "diMeasurementsPlot.h"
+#include "diStationPlot.h"
+#include "diTrajectoryPlot.h"
 #include "diUtilities.h"
+#include "diWeatherArea.h"
 
 #include <diField/diFieldManager.h>
 #include <diField/FieldSpecTranslation.h>
-#include <diFieldPlotManager.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
-
-#include <GL/gl.h>
 
 #include <QMouseEvent>
 
@@ -123,6 +119,15 @@ PlotModule::PlotModule() :
 PlotModule::~PlotModule()
 {
   cleanup();
+}
+
+void PlotModule::setCanvas(DiCanvas* canvas)
+{
+  // TODO also set for other plots, and for new plots
+  for (size_t i = 0; i < vmp.size(); i++)
+    vmp[i]->setCanvas(canvas);
+  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
+    it->second->setCanvas(canvas);
 }
 
 void PlotModule::preparePlots(const vector<string>& vpi)
@@ -937,9 +942,9 @@ void PlotModule::defineMapArea()
   previousrequestedarea = requestedarea;
 }
 
-// start hardcopy plot
-void PlotModule::startHardcopy(const printOptions& po)
+void PlotModule::startHardcopy(const printOptions&)
 {
+#ifdef DISABLED_STATICPLOT_PSOUTPUT
   if (hardcopy) {
     // if hardcopy in progress, and same filename: make new page
     if (po.fname == printoptions.fname) {
@@ -953,14 +958,16 @@ void PlotModule::startHardcopy(const printOptions& po)
   printoptions = po;
   // postscript output
   staticPlot_->startPSoutput(printoptions);
+#endif // DISABLED_STATICPLOT_PSOUTPUT
 }
 
-// end hardcopy plot
 void PlotModule::endHardcopy()
 {
+#ifdef DISABLED_STATICPLOT_PSOUTPUT
   if (hardcopy)
     staticPlot_->endPSoutput();
   hardcopy = false;
+#endif // DISABLED_STATICPLOT_PSOUTPUT
 }
 
 // -------------------------------------------------------------------------
@@ -969,7 +976,7 @@ void PlotModule::endHardcopy()
 // under: plot underlay part of image (static fields, sat.pict., obs. etc.)
 // over:  plot overlay part (editfield, objects etc.)
 //--------------------------------------------------------------------------
-void PlotModule::plot(bool under, bool over)
+void PlotModule::plot(DiGLPainter* gl, bool under, bool over)
 {
 #if defined(DEBUGPRINT) || defined(DEBUGREDRAW)
   METLIBS_LOG_SCOPE(LOGVAL(under) << LOGVAL(over));
@@ -977,19 +984,18 @@ void PlotModule::plot(bool under, bool over)
 
   //if plotarea has changed, calculate great circle distance...
   if (staticPlot_->getDirty())
-    staticPlot_->updateGcd();
+    staticPlot_->updateGcd(gl);
 
   if (under)
-    plotUnder();
+    plotUnder(gl);
 
   if (over)
-    plotOver();
+    plotOver(gl);
 
   staticPlot_->setDirty(false);
 }
 
-// plot underlay ---------------------------------------
-void PlotModule::plotUnder()
+void PlotModule::plotUnder(DiGLPainter* gl)
 {
 #ifdef DEBUGREDRAW
   METLIBS_LOG_SCOPE();
@@ -1000,82 +1006,85 @@ void PlotModule::plotUnder()
   Colour cback(staticPlot_->getBgColour().c_str());
 
   // set correct worldcoordinates
-  glLoadIdentity();
-  glOrtho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
+  gl->LoadIdentity();
+  gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
-  if (hardcopy)
+  if (gl->isHardcopy()) {
+#if 0
     staticPlot_->addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
         - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
+#endif
+  }
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   // Set the default stencil buffer value.
-  glClearStencil(0);
+  gl->ClearStencil(0);
 
-  glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
+  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
 
   // draw background (for hardcopy)
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor4f(cback.fR(), cback.fG(), cback.fB(), cback.fA());
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Color4f(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   const float d = 0;
-  glRectf(plotr.x1 + d, plotr.y1 + d, plotr.x2 - d, plotr.y2 - d);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glDisable(GL_BLEND);
+  gl->Rectf(plotr.x1 + d, plotr.y1 + d, plotr.x2 - d, plotr.y2 - d);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   // plot map-elements for lowest zorder
   for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(Plot::BACKGROUND);
+    vmp[i]->plot(gl, Plot::BACKGROUND);
 
   // plot satellite images
-  satm->plot(Plot::SHADE_BACKGROUND);
+  satm->plot(gl, Plot::SHADE_BACKGROUND);
 
   // mark undefined areas/values in field (before map)
   for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(Plot::SHADE_BACKGROUND);
+    vfp[i]->plot(gl, Plot::SHADE_BACKGROUND);
 
   // plot fields (shaded fields etc. before map)
   for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(Plot::SHADE);
+    vfp[i]->plot(gl, Plot::SHADE);
 
   // plot map-elements for auto zorder
   for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(Plot::LINES_BACKGROUND);
+    vmp[i]->plot(gl, Plot::LINES_BACKGROUND);
 
   // plot locationPlots (vcross,...)
   for (size_t i = 0; i < locationPlots.size(); i++)
-    locationPlots[i]->plot(Plot::LINES);
+    locationPlots[i]->plot(gl, Plot::LINES);
 
   // plot fields (isolines, vectors etc. after map)
   for (size_t i = 0; i < vfp.size(); i++) {
     if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer())
-      vfp[i]->plot(Plot::LINES);
+      vfp[i]->plot(gl, Plot::LINES);
   }
 
   // next line also calls objects.changeProjection
-  objm->plotObjects(Plot::LINES);
+  objm->plotObjects(gl, Plot::LINES);
 
   for (size_t i = 0; i < vareaobjects.size(); i++) {
     vareaobjects[i].changeProjection(staticPlot_->getMapArea());
-    vareaobjects[i].plot(Plot::LINES);
+    vareaobjects[i].plot(gl, Plot::LINES);
   }
 
   // plot station plots
   const std::vector<StationPlot*> stam_plots(stam->plots());
   for (size_t j = 0; j < stam_plots.size(); j++)
-    stam_plots[j]->plot(Plot::LINES);
+    stam_plots[j]->plot(gl, Plot::LINES);
 
   // plot inactive edit fields/objects under observations
   if (editm->isInEdit()) {
-    editm->plot(Plot::LINES);
+    editm->plot(gl, Plot::LINES);
   }
 
   // plot other objects, including drawing items
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     if (it->second->isEnabled()) {
       it->second->changeProjection(staticPlot_->getMapArea());
-      it->second->plot(Plot::LINES);
+      it->second->plot(gl, Plot::LINES);
     }
   }
 
@@ -1087,103 +1096,107 @@ void PlotModule::plotUnder()
   {
     ObsPlot::clearPos();
     for (size_t i = 0; i < vop.size(); i++)
-      vop[i]->plot(Plot::LINES);
+      vop[i]->plot(gl, Plot::LINES);
   }
 
   //plot trajectories
   for (size_t i = 0; i < vtp.size(); i++)
-    vtp[i]->plot(Plot::LINES);
+    vtp[i]->plot(gl, Plot::LINES);
 
   for (size_t i = 0; i < vMeasurementsPlot.size(); i++)
-    vMeasurementsPlot[i]->plot(Plot::LINES);
+    vMeasurementsPlot[i]->plot(gl, Plot::LINES);
 
   if (showanno && !editm->isInEdit()) {
     // plot Annotations
     for (size_t i = 0; i < vap.size(); i++)
-      vap[i]->plot(Plot::LINES);
+      vap[i]->plot(gl, Plot::LINES);
   }
 
-  if (hardcopy)
+  if (gl->isHardcopy()) {
+#if 0
     staticPlot_->removeHCClipping();
+#endif
+  }
 }
 
 // plot overlay ---------------------------------------
-void PlotModule::plotOver()
+void PlotModule::plotOver(DiGLPainter* gl)
 {
 #ifdef DEBUGREDRAW
   METLIBS_LOG_SCOPE();
 #endif
 
-  const Rectangle& plotr = staticPlot_->getPlotSize();
-
   // Check this!!!
   for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(Plot::OVERLAY);
+    vfp[i]->plot(gl, Plot::OVERLAY);
 
   // plot active draw- and editobjects here
   if (editm->isInEdit()) {
 
-    editm->plot(Plot::OVERLAY);
+    editm->plot(gl, Plot::OVERLAY);
 
     // if PPPP-mslp, calc. values and plot observations,
     // in overlay while changing the field
     if (obsm->obs_mslp() && (editm->getMapMode() == fedit_mode || editm->getMapMode() == combine_mode)) {
       if (editm->obs_mslp(obsm->getObsPositions())) {
-        obsm->calc_obs_mslp(Plot::OVERLAY, vop);
+        obsm->calc_obs_mslp(gl, Plot::OVERLAY, vop);
       }
     }
 
     // Annotations
     if (showanno) {
       for (size_t i = 0; i < vap.size(); i++)
-        vap[i]->plot(Plot::OVERLAY);
+        vap[i]->plot(gl, Plot::OVERLAY);
     }
     for (size_t i = 0; i < editVap.size(); i++)
-      editVap[i]->plot(Plot::OVERLAY);
+      editVap[i]->plot(gl, Plot::OVERLAY);
 
   } // if editm->isInEdit()
 
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     if (it->second->isEnabled()) {
       it->second->changeProjection(staticPlot_->getMapArea());
-      it->second->plot(Plot::OVERLAY);
+      it->second->plot(gl, Plot::OVERLAY);
     }
   }
 
-  if (hardcopy)
+  if (gl->isHardcopy()) {
+#ifdef DISABLED_STATICPLOT_PSOUTPUT
     staticPlot_->addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
         - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
+#endif // DISABLED_STATICPLOT_PSOUTPUT
+  }
 
   // plot map-elements for highest zorder
   for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(Plot::OVERLAY);
+    vmp[i]->plot(gl, Plot::OVERLAY);
 
-  staticPlot_->UpdateOutput();
+  gl->UpdateOutput();
 
   // frame (not needed if maprect==fullrect)
   Rectangle mr = staticPlot_->getMapSize();
   const Rectangle& fr = staticPlot_->getPlotSize();
   if (mr != fr || hardcopy) {
-    glShadeModel(GL_FLAT);
-    glColor3f(0.0, 0.0, 0.0);
-    glLineWidth(1.0);
+    gl->ShadeModel(DiGLPainter::gl_FLAT);
+    gl->Color3f(0.0, 0.0, 0.0);
+    gl->LineWidth(1.0);
     mr.x1 += 0.0001;
     mr.y1 += 0.0001;
     mr.x2 -= 0.0001;
     mr.y2 -= 0.0001;
-    glBegin(GL_LINES);
-    glVertex2f(mr.x1, mr.y1);
-    glVertex2f(mr.x2, mr.y1);
-    glVertex2f(mr.x2, mr.y1);
-    glVertex2f(mr.x2, mr.y2);
-    glVertex2f(mr.x2, mr.y2);
-    glVertex2f(mr.x1, mr.y2);
-    glVertex2f(mr.x1, mr.y2);
-    glVertex2f(mr.x1, mr.y1);
-    glEnd();
+    gl->Begin(DiGLPainter::gl_LINES);
+    gl->Vertex2f(mr.x1, mr.y1);
+    gl->Vertex2f(mr.x2, mr.y1);
+    gl->Vertex2f(mr.x2, mr.y1);
+    gl->Vertex2f(mr.x2, mr.y2);
+    gl->Vertex2f(mr.x2, mr.y2);
+    gl->Vertex2f(mr.x1, mr.y2);
+    gl->Vertex2f(mr.x1, mr.y2);
+    gl->Vertex2f(mr.x1, mr.y1);
+    gl->End();
   }
 
-  staticPlot_->UpdateOutput();
+  gl->UpdateOutput();
   // plot rubberbox
   if (dorubberband) {
 #ifdef DEBUGREDRAW
@@ -1194,20 +1207,15 @@ void PlotModule::plotOver()
     const XY pnew = staticPlot_->PhysToMap(XY(newx, newy));
 
     const Colour& bcontrast = staticPlot_->getBackContrastColour();
-    glColor4ubv(bcontrast.RGBA());
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth(2.0);
-    //glRectf(x1,y1,x2,y2); // Mesa problems ?
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(pold.x(), pold.y());
-    glVertex2f(pnew.x(), pold.y());
-    glVertex2f(pnew.x(), pnew.y());
-    glVertex2f(pold.x(), pnew.y());
-    glEnd();
+    gl->setLineStyle(bcontrast, 2);
+    gl->drawRect(pold.x(), pold.y(), pnew.x(), pnew.y());
   }
 
-  if (hardcopy)
+  if (gl->isHardcopy()) {
+#ifdef DISABLED_STATICPLOT_PSOUTPUT
     staticPlot_->removeHCClipping();
+#endif // DISABLED_STATICPLOT_PSOUTPUT
+  }
 }
 
 const vector<AnnotationPlot*>& PlotModule::getAnnotations()
@@ -1215,25 +1223,26 @@ const vector<AnnotationPlot*>& PlotModule::getAnnotations()
   return vap;
 }
 
-vector<Rectangle> PlotModule::plotAnnotations()
+vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
 {
-  const Rectangle& plotr = staticPlot_->getPlotSize();
+  staticPlot_->updateGcd(gl); // FIXME add mCanvas to staticPlot_ and drop this
 
   // set correct worldcoordinates
-  glLoadIdentity();
-  glOrtho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
+  gl->LoadIdentity();
+  const Rectangle& plotr = staticPlot_->getPlotSize();
+  gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
   Colour cback(staticPlot_->getBgColour().c_str());
 
-  glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
+  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
 
   vector<Rectangle> rectangles;
 
   unsigned int n = vap.size();
   for (unsigned int i = 0; i < n; i++) {
     //	METLIBS_LOG_DEBUG("i:"<<i);
-    vap[i]->plot(Plot::LINES);
+    vap[i]->plot(gl, Plot::LINES);
     rectangles.push_back(vap[i]->getBoundingBox());
   }
 
@@ -1270,8 +1279,11 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
 
   PlotAreaSetup();
 
-  if (hardcopy)
+#ifdef DISABLED_STATICPLOT_PSOUTPUT
+  if (gl->isHardcopy()) {
     staticPlot_->resetPage();
+  }
+#endif // DISABLED_STATICPLOT_PSOUTPUT
 }
 
 void PlotModule::freeFields(FieldPlot* fp)

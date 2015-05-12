@@ -55,7 +55,7 @@ public:
 
 protected:
   QList<QPointF> boundingSquare() const;
-  virtual void draw();
+  virtual void draw(DiGLPainter* gl);
 
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;

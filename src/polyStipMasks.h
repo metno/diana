@@ -31,8 +31,6 @@
 #ifndef _polyStipMasks_h
 #define _polyStipMasks_h
 
-#include <GL/gl.h>
-
 /**
    Polygon stippling masks for OpenGL glPolygonStipple 
    function.
@@ -40,6 +38,8 @@
    (last seen in ~faac/local/binsrc/bitmask)
    - Do not edit
 */
+
+typedef unsigned char   GLubyte;    /* 1-byte unsigned */
 
 const GLubyte empty[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 

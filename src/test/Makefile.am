@@ -1,5 +1,5 @@
 
-diana_lib = $(top_builddir)/src/libdiana.a
+diana_lib = $(top_builddir)/src/libdiana.la
 CLEANFILES =
 
 TESTS = 
@@ -40,10 +40,8 @@ CLEANFILES += $(dianaUnitTests_moc_sources)
 	@mkdir -p $(shell dirname $@)
 	$(MOC4) $(DEFAULT_INCLUDES) -o $@ $<
 
-if !WITH_EMBEDDED
 dianaUnitTests_SOURCES += \
     TestDianaLevels.cc
-endif
 
 LDFLAGS += -L.. \
     $(DIFIELD_LDFLAGS) \

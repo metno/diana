@@ -70,9 +70,6 @@ public:
   void print(QPrinter& printer);
   bool saveRasterImage(const QString& fname);
 
-  /** print using either given QPrinter (if USE_PAINTGL) or using the given printOptions */
-  //void print(QPrinter* qprt, const printOptions& priop);
-
 protected:
   virtual void paintEvent(QPaintEvent* event);
   virtual void resizeEvent(QResizeEvent* event);

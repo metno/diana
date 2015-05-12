@@ -32,14 +32,12 @@
 #endif
 
 #include "diWeatherSymbol.h"
-
 #include "diColour.h"
 #include "diComplexSymbolPlot.h"
-#include "diFontManager.h"
+#include "diGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
-//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.WeatherSymbol"
 #include <miLogger/miLogging.h>
 
@@ -74,7 +72,6 @@ WeatherSymbol::WeatherSymbol()
 }
 
 
-//constructor taking symboltype as argument
 WeatherSymbol::WeatherSymbol(int ty)
   : ObjectPlot(wSymbol)
   , complexSymbol(0)
@@ -84,15 +81,12 @@ WeatherSymbol::WeatherSymbol(int ty)
 }
 
 
-//constructor taking symboltype and type of object as argument
 WeatherSymbol::WeatherSymbol(std::string tystring,int objTy)
   : ObjectPlot(objTy),
     symbolSize(defaultSize)
   , complexSymbol(0)
 {
   METLIBS_LOG_SCOPE();
-
-  // set correct symboltype
   if (tystring.empty())
     setType(0);
   else if (!setType(tystring))
@@ -108,7 +102,7 @@ WeatherSymbol::WeatherSymbol(const WeatherSymbol &rhs)
   if (rhs.complexSymbol)
     complexSymbol= new ComplexSymbolPlot(*rhs.complexSymbol);
   else
-    complexSymbol=0;
+    complexSymbol = 0;
 }
 
 
@@ -158,7 +152,6 @@ void WeatherSymbol::defineRegions(vector<editToolInfo> regions)
 }
 
 
-
 void WeatherSymbol::setCurrentText(const std::string & newText)
 {
   currentText=newText;
@@ -182,15 +175,18 @@ std::string WeatherSymbol::getCurrentText()
   return currentText;
 }
 
+
 Colour::ColourInfo WeatherSymbol::getCurrentColour()
 {
   return currentColour;
 }
 
+
 void WeatherSymbol::initComplexList()
 {
   ComplexSymbolPlot::initComplexList();
 }
+
 
 set <string> WeatherSymbol::getComplexList()
 {
@@ -258,7 +254,6 @@ void WeatherSymbol::initCurrentComplexText(std::string edittool)
 }
 
 
-
 std::string WeatherSymbol::getAllRegions(int ir)
 {
   std::string region;
@@ -281,10 +276,7 @@ void WeatherSymbol::addPoint( float x , float y)
 }
 
 
-/*
-  Draws the weather symbol
- */
-void WeatherSymbol::plot(PlotOrder zorder)
+void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE(LOGVAL(drawIndex));
 
@@ -300,25 +292,26 @@ void WeatherSymbol::plot(PlotOrder zorder)
     int symbolSizeToPlot = int(symbolSize/scalefactor);
 
     //also scale according to windowheight and width (standard is 500)
-    scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
+    scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
+        +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
     symbolSizeToPlot = int(symbolSizeToPlot*scalefactor);
 
     fSense = symbolSizeToPlot/12;  //  sensitivity to mark object
     if (fSense < 1.0)
       fSense = 1.0; //HK ???
 
-    glPushMatrix();
+    gl->PushMatrix();
 
     //enable blending and set colour
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    gl->Enable(DiGLPainter::gl_BLEND);
+    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
     // SMHI
     //if (drawIndex == 900 ) setObjectColor(currentColour);
-    glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+    gl->setColour(objectColour);
 
     if (drawIndex == 3001) {
       if (complexSymbol) {
-        complexSymbol->drawTextBox(drawIndex,symbolSizeToPlot,rotation);
+        complexSymbol->drawTextBox(gl, drawIndex,symbolSizeToPlot,rotation);
       }
     }
     else
@@ -331,21 +324,21 @@ void WeatherSymbol::plot(PlotOrder zorder)
         if (drawIndex == 900 || (drawIndex >=1000 && drawIndex<=3000)){
           // this is a complex symbol
           if (complexSymbol) {
-            complexSymbol->draw(drawIndex,x,y,symbolSizeToPlot,rotation);
-            complexSymbol->getComplexBoundingBox(drawIndex,cw,ch,x,y);
+            complexSymbol->draw(gl, drawIndex,x,y,symbolSizeToPlot,rotation);
+            complexSymbol->getComplexBoundingBox(gl, drawIndex,cw,ch,x,y);
           }
 
         } else if (drawIndex>0) {
           // this is a normal symbol
-          getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-          getStaticPlot()->getFontPack()->getCharSize(drawIndex,cw,ch);
-          getStaticPlot()->getFontPack()->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
+          gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+          gl->getCharSize(drawIndex,cw,ch);
+          gl->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
 
         } else if (drawIndex==0){
           // this is a normal text
-          getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-          getStaticPlot()->getFontPack()->getStringSize(symbolString.c_str(),cw,ch);
-          getStaticPlot()->getFontPack()->drawStr(symbolString.c_str(),x-cw/2,y-ch/2,0.0);
+          gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+          gl->getTextSize(symbolString,cw,ch);
+          gl->drawText(symbolString,x-cw/2,y-ch/2,0.0);
         }
 
         // update boundBox according to symbolSizeToPlot
@@ -359,13 +352,13 @@ void WeatherSymbol::plot(PlotOrder zorder)
       }
     }
 
-    glPopMatrix();
-    glDisable(GL_BLEND);
+    gl->PopMatrix();
+    gl->Disable(DiGLPainter::gl_BLEND);
 
-    drawNodePoints();
+    drawNodePoints(gl);
   }
   // for PostScript generation
-  getStaticPlot()->UpdateOutput();
+  gl->UpdateOutput();
 }
 
 
@@ -404,6 +397,7 @@ void WeatherSymbol::changeDefaultSize()
   if (drawIndex < 1000)
     defaultSize = symbolSize;
 }
+
 
 void WeatherSymbol::setStandardSize(int size1, int size2)
 {
@@ -603,12 +597,14 @@ void WeatherSymbol::getComplexText(vector<string>& symbolText,
   }
 }
 
+
 void WeatherSymbol::getMultilineText(vector<string>& symbolText)
 {
   METLIBS_LOG_SCOPE();
   if (complexSymbol && drawIndex>=3000)
     complexSymbol->getMultilineText(symbolText);
 }
+
 
 void WeatherSymbol::readComplexText(std::string s)
 {
@@ -617,12 +613,14 @@ void WeatherSymbol::readComplexText(std::string s)
     complexSymbol->readComplexText(s);
 }
 
+
 void WeatherSymbol::changeMultilineText(const vector <std::string> & symbolText)
 {
   METLIBS_LOG_SCOPE();
   if (complexSymbol && drawIndex>=3000)
     complexSymbol->changeMultilineText(symbolText);
 }
+
 
 void WeatherSymbol::changeComplexText(const vector <std::string> & symbolText,
     const vector <std::string> & xText)

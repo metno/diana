@@ -61,10 +61,10 @@ public:
 
   bool prepare(const miutil::miTime&) Q_DECL_OVERRIDE;
 
-  void plot(bool, bool) Q_DECL_OVERRIDE
+  void plot(DiGLPainter*, bool, bool) Q_DECL_OVERRIDE
     { }
 
-  void plot(Plot::PlotOrder zorder) Q_DECL_OVERRIDE;
+  void plot(DiGLPainter* gl, Plot::PlotOrder zorder) Q_DECL_OVERRIDE;
 
   std::vector<PlotElement> getPlotElements() const Q_DECL_OVERRIDE;
 

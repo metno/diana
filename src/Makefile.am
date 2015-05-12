@@ -1,41 +1,34 @@
-# $Id$
 
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = . test/gtest test
 
-if WITH_BATCH_ONLY
-bin_PROGRAMS = bdiana
-else
-bin_PROGRAMS = diana.bin bdiana 
-endif
-noinst_LIBRARIES = libdiana.a
+# libexecdiana contains "exec" so that automake uses install-exec
+libexecdiana_LTLIBRARIES = libdiana.la
+libexecdianadir= $(pkglibdir)/@PVERSION@
 
-# automake requires one = before the first +=
-common_cppflags =
-common_ldflags =
-common_ldadd = libdiana.a
-CLEANFILES =
+bin_PROGRAMS = bdiana
+
+if WITH_GUI
+bin_PROGRAMS += diana.bin
+endif # WITH_GUI
 
 # convenience for developers using a non-standard $(prefix)
-common_cppflags += -I$(prefix)/include
-common_ldflags += -L$(prefix)/lib
+CPPFLAGS += -I$(prefix)/include
+LDFLAGS  += -L$(prefix)/lib
 
-# C source code common to diana and bdiana
-common_c_sources = \
-        diTesselation.c
+BUILT_SOURCES =
+CLEANFILES =
 
-# C++ source code common to diana and bdiana
-common_cxx_sources = \
+libdiana_la_SOURCES = \
 	diAnnotationPlot.cc \
 	diAreaBorder.cc \
 	diAreaObjects.cc \
 	diColour.cc \
 	diColourShading.cc \
 	diCommandParser.cc \
+	diController.cc \
 	diComplexSymbolPlot.cc \
 	diContouring.cc \
-	diPolyContouring.cc \
-	diController.cc \
 	diDisplayObjects.cc \
 	diEditManager.cc \
 	diEditObjects.cc \
@@ -43,7 +36,6 @@ common_cxx_sources = \
 	diFieldPlot.cc \
 	diFieldPlotManager.cc \
 	diFilledMap.cc \
-	diFontManager.cc \
 	diFtnVfile.cc \
 	diGlUtilities.cc \
 	diImageGallery.cc \
@@ -69,6 +61,7 @@ common_cxx_sources = \
 	diPlotModule.cc \
 	diPlotOptions.cc \
 	diPoint.cc \
+	diPolyContouring.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diSat.cc \
@@ -102,69 +95,81 @@ common_cxx_sources = \
 	EditItems/drawingsymbol.cc \
 	EditItems/drawingtext.cc \
 	EditItems/kml.cc \
-	poly_contouring.cc
+	EditItems/timefilesextractor.cc \
+	poly_contouring.cc \
+	wmsclient/WebMapPainting.cc \
+	wmsclient/WebMapUtilities.cc \
+	diPainter.cc \
+	diGLPainter.cc \
+	diPaintGLPainter.cc
 
-common_cppflags += -Ivcross_v2 -Ivcross_qt
-common_cxx_sources += \
+libdiana_la_SOURCES += \
 	vcross_v2/VcrossSetup.cc \
 	vcross_v2/VcrossComputer.cc \
 	vcross_v2/VcrossCollector.cc \
 	vcross_v2/VcrossEvaluate.cc \
-	vcross_v2/VcrossResolver.cc \
-	vcross_v2/VcrossOptions.cc
-
-common_ldadd += \
-	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
-
-# Qt sources
-common_qt_sources = diManager.cc \
-	diDrawingManager.cc
-
-common_qt_sources += \
+	vcross_v2/VcrossOptions.cc \
+	vcross_v2/VcrossQtAxis.cc \
 	vcross_v2/VcrossQtContour.cc \
-	vcross_v2/VcrossQtManager.cc \
 	vcross_v2/VcrossQtPaint.cc \
 	vcross_v2/VcrossQtPlot.cc \
 	vcross_v2/VcrossQtUtil.cc \
-	vcross_v2/VcrossQtAxis.cc \
+	vcross_v2/VcrossResolver.cc
+
+libdiana_la_CPPFLAGS = -Ivcross_v2 -Ivcross_qt
+libdiana_la_LIBADD = \
+	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
+
+libdiana_la_QTSOURCES = diManager.cc \
+	diDrawingManager.cc \
+	diOrderBook.cc \
+	diOrderClient.cc \
+	diOrderListener.cc \
+	diOrderQueue.cc \
+	diWorkOrder.cc \
+	EditItems/layer.cc \
+	EditItems/layergroup.cc \
+	EditItems/layermanager.cc \
+	vcross_v2/VcrossQtManager.cc \
 	vcross_v2/VcrossQuickmenues.cc \
 	wmsclient/WebMapManager.cc \
-	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapPlot.cc \
 	wmsclient/WebMapService.cc \
 	wmsclient/WebMapSlippyOSM.cc \
 	wmsclient/WebMapTile.cc \
-	wmsclient/WebMapUtilities.cc \
 	wmsclient/WebMapWMS.cc \
 	wmsclient/WebMapWMTS.cc
 
-common_qt_headers = \
+libdiana_la_QTHEADERS = \
 	diVcrossInterface.h
 
-diana_qt_forms =
+diana_bin_SOURCES = \
+	diFontManager.cc \
+        diTesselation.c \
+	diOpenGLPainter.cc \
+	diOpenGLWidget.cc \
+	diPaintable.cc
 
-if WITH_BATCH_ONLY
-diana_qt_sources =
-else
-diana_qt_sources = \
+diana_bin_QTSOURCES = \
 	diEditItemManager.cc \
+	diPaintGLWidget.cc \
+	EditItems/dialogcommon.cc \
+	EditItems/drawingdialog.cc \
+	EditItems/drawinglayerspane.cc \
 	EditItems/editcomposite.cc \
+	EditItems/editdrawingdialog.cc \
+	EditItems/editdrawinglayerspane.cc \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
 	EditItems/edittext.cc \
-	EditItems/properties.cc \
-	EditItems/style.cc \
-	EditItems/toolbar.cc \
-	EditItems/drawingdialog.cc \
-	EditItems/editdrawingdialog.cc \
 	EditItems/eimtestdialog.cc \
 	EditItems/layergroupspane.cc \
 	EditItems/layerspanebase.cc \
-	EditItems/drawinglayerspane.cc \
-	EditItems/editdrawinglayerspane.cc \
-	EditItems/dialogcommon.cc \
 	EditItems/modifylayerscommand.cc \
+	EditItems/properties.cc \
+	EditItems/style.cc \
+	EditItems/toolbar.cc \
 	qtActionButton.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -219,7 +224,7 @@ diana_qt_sources = \
 	qtVprofWindow.cc \
 	qtWorkArea.cc 
 
-diana_qt_sources += \
+diana_bin_QTSOURCES += \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossInterface.cc \
 	vcross_qt/qtVcrossLayerBar.cc \
@@ -232,48 +237,12 @@ diana_qt_sources += \
 	vcross_qt/VcrossQtWidget.cc \
 	wmsclient/WebMapDialog.cc
 
-diana_qt_forms += \
+diana_bin_QTFORMS = \
 	vcross_qt/vcross_plot_add_dialog.ui \
 	vcross_qt/vcross_style_dialog.ui \
 	vcross_qt/vcross_style_widget.ui \
 	vcross_qt/vcross_window.ui \
 	wmsclient/webmap_dialog.ui
-
-common_cppflags += \
-	$(QUTILITIES_CPPFLAGS)
-
-common_ldflags += \
-	$(QUTILITIES_LDFLAGS)
-
-common_ldadd += \
-	$(QUTILITIES_LIBS)
-
-common_cppflags += \
-	$(COSERVER_CPPFLAGS)
-
-common_ldflags += \
-	$(COSERVER_LDFLAGS)
-
-common_ldadd += \
-	$(COSERVER_LIBS)
-endif
-
-bdiana_qt_sources = \
-	diOrderBook.cc \
-	diOrderClient.cc \
-	diOrderListener.cc \
-	diOrderQueue.cc \
-	diWorkOrder.cc \
-	EditItems/layer.cc \
-	EditItems/layergroup.cc \
-	EditItems/layermanager.cc \
-	EditItems/timefilesextractor.cc
-
-
-if WITH_EMBEDDED
-bdiana_qt_sources += \
-	PaintGL/paintgl.cc
-endif
 
 noinst_HEADERS = \
 	MovieMaker.h \
@@ -481,25 +450,12 @@ noinst_HEADERS += \
 	wmsclient/WebMapWMS.h \
 	wmsclient/WebMapWMTS.h
 
-if WITH_EMBEDDED
-if WITH_BATCH_ONLY
-# Headers
 include_HEADERS = \
         diController.h \
         diLocalSetupParser.h
-else
-noinst_HEADERS += \
-        diController.h \
-        diLocalSetupParser.h
-endif
-else
-noinst_HEADERS += \
-        diController.h \
-        diLocalSetupParser.h
-endif
 
 # xpm files needed to build
-common_xpm_sources= active_object.xpm \
+diana_bin_xpm_SOURCES= active_object.xpm \
 	autoupdate.xpm \
 	back.xpm \
 	bakover.xpm \
@@ -635,7 +591,7 @@ common_xpm_sources= active_object.xpm \
 	weather_rain.xpm \
 	weather_storm.xpm
 
-common_cppflags += \
+libdiana_la_CPPFLAGS += \
 	$(DIFIELD_CPPFLAGS) \
 	$(MIRASTER_CPPFLAGS) \
 	$(PUCTOOLS_CPPFLAGS) \
@@ -646,7 +602,7 @@ common_cppflags += \
 	$(PNG_CPPFLAGS) \
 	$(UU_CPPFLAGS)
 
-common_ldflags += \
+libdiana_la_LDFLAGS = \
 	$(DIFIELD_LDFLAGS) \
 	$(MIRASTER_LDFLAGS) \
 	$(PUCTOOLS_LDFLAGS) \
@@ -657,7 +613,7 @@ common_ldflags += \
 	$(PNG_LDFLAGS) \
 	$(UU_LDFLAGS)
 
-common_ldadd += \
+libdiana_la_LIBADD += \
 	$(DIFIELD_LIBS) \
 	$(MIRASTER_LIBS) \
 	$(PUCTOOLS_LIBS) \
@@ -670,25 +626,25 @@ common_ldadd += \
 
 # Additional source code for SMHI support
 if WITH_SMHI
-common_cppflags += -DSMHI
+libdiana_la_CPPFLAGS += -DSMHI
 endif
 
 # Additional source code for mora support
 if WITH_NEWARKOBS
-common_cppflags += -DROADOBS -DNEWARK_INC
-common_cxx_sources += \
+libdiana_la_CPPFLAGS += -DROADOBS -DNEWARK_INC
+libdiana_la_SOURCES += \
 	diObsRoad.cc \
 	diVprofRTemp.cc
-common_ldflags += \
+libdiana_la_LDFLAGS += \
 	${NEWARKAPI_LDFLAGS}
-common_ldadd += \
+libdiana_la_LIBADD += \
 	${NEWARKAPI_LIBS}
 endif
 
 # Additional source code for Geotiff support
 if WITH_GEOTIFF
-common_cppflags += -DGEOTIFF
-common_cxx_sources += \
+libdiana_la_CPPFLAGS += -DGEOTIFF
+libdiana_la_SOURCES += \
 	diGEOtiff.cc
 noinst_HEADERS += \
 	diGEOtiff.h
@@ -696,8 +652,8 @@ endif
 
 # Additional source code for HDF5 support
 if WITH_HDF5
-common_cppflags += -DHDF5FILE
-common_cxx_sources += \
+libdiana_la_CPPFLAGS += -DHDF5FILE
+libdiana_la_SOURCES += \
 	diHDF5.cc
 noinst_HEADERS += \
 	diHDF5.h
@@ -705,104 +661,45 @@ endif
 
 # Additional source code for observation buffers
 if WITH_OBS_BUFR
-common_cxx_sources += \
+libdiana_la_SOURCES += \
 	diObsBufr.cc
-common_cppflags += -DBUFROBS
+libdiana_la_CPPFLAGS += -DBUFROBS
 endif
 
 # Additional source code for video export feature
 if WITH_VIDEO_EXPORT
-common_cxx_sources += MovieMaker.cc
-common_cppflags += -DVIDEO_EXPORT $(AVFORMAT_CPPFLAGS)
-common_ldflags += $(AVFORMAT_LDFLAGS)
-common_ldadd += $(AVFORMAT_LIBS)
+libdiana_la_SOURCES  += MovieMaker.cc
+libdiana_la_CPPFLAGS += -DVIDEO_EXPORT $(AVFORMAT_CPPFLAGS)
+libdiana_la_LDFLAGS  += $(AVFORMAT_LDFLAGS)
+libdiana_la_LIBADD   += $(AVFORMAT_LIBS)
 endif
 
-# Use Xlib-specific routines
-if WITH_XLIB
-common_cppflags += -DUSE_XLIB
-common_ldadd += -lX11
-endif
+libdiana_la_SOURCES += $(libdiana_la_QTSOURCES)
+nodist_libdiana_la_SOURCES = $(libdiana_la_QTSOURCES:.cc=.moc.cc) $(libdiana_la_QTHEADERS:.h=.moc.cc)
+BUILT_SOURCES += $(nodist_libdiana_la_SOURCES)
+CLEANFILES    += $(nodist_libdiana_la_SOURCES)
 
-# Embedded build support - remove X and OpenGL dependencies
-if WITH_EMBEDDED
-common_cppflags += \
-        -I$(top_srcdir)/src/PaintGL -I$(top_srcdir)/src/PaintGL/GL \
-        -DUSE_PAINTGL
+libdiana_la_CPPFLAGS += $(QT4_CPPFLAGS)
+libdiana_la_LDFLAGS  += $(QT4_LDFLAGS)
+libdiana_la_LIBADD   += $(QT4_LIBS)
 
-common_c_sources += \
-        PaintGL/GL/libtess/dict.c \
-        PaintGL/GL/libtess/geom.c \
-        PaintGL/GL/libtess/memalloc.c \
-        PaintGL/GL/libtess/mesh.c \
-        PaintGL/GL/libtess/normal.c \
-        PaintGL/GL/libtess/priorityq.c \
-        PaintGL/GL/libtess/render.c \
-        PaintGL/GL/libtess/sweep.c \
-        PaintGL/GL/libtess/tess.c \
-        PaintGL/GL/libtess/tessmono.c \
-        PaintGL/GL/libutil/error.c \
-        PaintGL/GL/libutil/glue.c
+libdiana_la_CPPFLAGS += $(WIN32_CPPFLAGS)
+libdiana_la_LDFLAGS  += $(WIN32_LDFLAGS)
+libdiana_la_LIBADD   += $(WIN32_LIBS)
 
-noinst_HEADERS +=  \
-        PaintGL/GL/gl.h \
-        PaintGL/GL/glu.h \
-        PaintGL/GL/gluos.h \
-        PaintGL/GL/libtess/dict.h \
-        PaintGL/GL/libtess/dict-list.h \
-        PaintGL/GL/libtess/geom.h \
-        PaintGL/GL/libtess/memalloc.h \
-        PaintGL/GL/libtess/mesh.h \
-        PaintGL/GL/libtess/normal.h \
-        PaintGL/GL/libtess/priorityq.h \
-        PaintGL/GL/libtess/priorityq-sort.h \
-        PaintGL/GL/libtess/render.h \
-        PaintGL/GL/libtess/sweep.h \
-        PaintGL/GL/libtess/tess.h \
-        PaintGL/GL/libtess/tessmono.h \
-        PaintGL/GL/libutil/gluint.h
+libdiana_la_SOURCES += \
+	bdiana_capi.cc \
+	signalhelper.cc
 
-if WITH_BATCH_ONLY
-include_HEADERS += PaintGL/paintgl.h
-else
-noinst_HEADERS += PaintGL/paintgl.h
-endif
+libdiana_la_LDFLAGS += -version-number @PVERSION_MAJOR@:@PVERSION_MINOR@:@PVERSION_PATCH@
 
-else
-common_cppflags += \
-        $(FTGL_CPPFLAGS) \
-        $(GLP_CPPFLAGS) \
-        $(GLTEXT_CPPFLAGS) \
-        $(GLU_CPPFLAGS)
-
-common_ldflags += \
-        $(FTGL_LDFLAGS) \
-        $(GLP_LDFLAGS) \
-        $(GLTEXT_LDFLAGS) \
-        $(GLU_LDFLAGS)
-
-common_ldadd += \
-        $(FTGL_LIBS) \
-        $(GLP_LIBS) \
-        $(GLTEXT_LIBS) \
-        $(GLU_LIBS)
-endif
-
-# Generated Qt source code
-common_moc_sources = $(common_qt_sources:.cc=.moc.cc) $(common_qt_headers:.h=.moc.cc)
-diana_moc_sources = $(diana_qt_sources:.cc=.moc.cc)
-bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
-diana_uic_headers = $(diana_qt_forms:.ui=.ui.h)
-CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources) $(diana_uic_headers)
 %.moc.cc: %.h
 	@mkdir -p $(shell dirname $@)
 	$(MOC4) $(DEFAULT_INCLUDES) -o $@ $<
 
-%.ui.h: %.ui
-	@mkdir -p $(shell dirname $@)
-	$(UIC4) -o $@ $<
-
-BUILT_SOURCES = $(diana_uic_headers)
+########################################################################
+########################################################################
+########################################################################
 
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_es.ts \
@@ -815,73 +712,75 @@ nodist_language_DATA=$(language_sources:.ts=.qm)
 CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
-	$(LUPDATE4) $(diana_qt_sources:%=$(srcdir)/%) \
-	    $(diana_qt_forms:%=$(srcdir)/%) \
+	$(LUPDATE4) $(diana_bin_QTSOURCES:%=$(srcdir)/%) \
+	    $(diana_bin_QTFORMS:%=$(srcdir)/%) \
 	    -ts $(language_sources)
 .PHONY: lupdate
 
-%.qm: %.ts  $(diana_qt_sources)
+%.qm: %.ts  $(diana_bin_QTSOURCES)
 	$(LRELEASE4)  $<
 
-# Problem:
-#
-#  - zlib is used by several other libraries, so it must come last
-#  - QtCore contains a complete copy of zlib
-#  - hence, we can not link with *both* Qt *and* zlib
-#  - therefore, we link with Qt only, and place it at the end.
-#
-common_cppflags += $(QT4_CPPFLAGS)
-common_ldflags += $(QT4_LDFLAGS)
-common_ldadd += $(QT4_LIBS)
+diana_uic_headers = $(diana_bin_QTFORMS:.ui=.ui.h)
 
-# Win32 support
-common_cppflags += $(WIN32_CPPFLAGS)
-common_ldflags += $(WIN32_LDFLAGS)
-common_ldadd += $(WIN32_LIBS)
+BUILT_SOURCES  += $(diana_uic_headers)
+CLEANFILES     += $(diana_uic_headers)
+noinst_HEADERS += $(diana_uic_headers)
 
-# Full set of source code for libdiana
-libdiana_a_SOURCES = \
-	$(common_c_sources) \
-	$(common_cxx_sources) \
-	$(common_qt_sources) \
-	$(bdiana_qt_sources) \
-	bdiana_capi.cc \
-	signalhelper.cc
+%.ui.h: %.ui
+	@mkdir -p $(shell dirname $@)
+	$(UIC4) -o $@ $<
 
-nodist_libdiana_a_SOURCES = \
-        $(common_moc_sources) \
-        $(bdiana_moc_sources)
-
-libdiana_a_CPPFLAGS = \
-	$(common_cppflags)
-# no LDFLAGS / LDADD needed for libdiana
+diana_bin_SOURCES += $(diana_bin_QTSOURCES)
+nodist_diana_bin_SOURCES = $(diana_bin_QTSOURCES:.cc=.moc.cc)
+BUILT_SOURCES += $(nodist_diana_bin_SOURCES)
+CLEANFILES    += $(nodist_diana_bin_SOURCES)
 
 # diana-specific sources (the rest is in libdiana)
-diana_bin_SOURCES = \
-	$(diana_qt_sources) \
-	$(common_xpm_sources) \
+diana_bin_SOURCES += \
+	$(diana_bin_xpm_SOURCES) \
 	$(language_sources) \
 	main_gui.cc \
 	qtImageGallery.cc \
 	qtPrintManager.cc \
 	qtUtility.cc
 
-nodist_diana_bin_SOURCES = \
-	$(diana_moc_sources)
+diana_bin_CPPFLAGS = \
+	-I $(builddir)/vcross_qt \
+	$(FIMEX_CPPFLAGS) \
+	$(QUTILITIES_CPPFLAGS) \
+	$(COSERVER_CPPFLAGS) \
+        $(FTGL_CPPFLAGS) \
+        $(GLP_CPPFLAGS) \
+        $(GLTEXT_CPPFLAGS) \
+        $(GLU_CPPFLAGS) \
+	$(QT4_CPPFLAGS)
 
-diana_bin_CPPFLAGS = $(common_cppflags)
-diana_bin_LDFLAGS = $(common_ldflags)
-diana_bin_LDADD = $(common_ldadd)
+diana_bin_LDFLAGS = \
+	$(FIMEX_LDFLAGS) \
+	$(QUTILITIES_LDFLAGS) \
+	$(COSERVER_LDFLAGS) \
+        $(FTGL_LDFLAGS) \
+        $(GLP_LDFLAGS) \
+        $(GLTEXT_LDFLAGS) \
+        $(GLU_LDFLAGS) \
+	$(QT4_LDFLAGS)
 
-# bdiana-specific sources (the rest is in libdiana)
-bdiana_SOURCES = \
-	bdiana.cc
+diana_bin_LDADD = \
+	$(FIMEX_LIBS) \
+	$(QUTILITIES_LIBS) \
+	$(COSERVER_LIBS) \
+        $(FTGL_LIBS) \
+        $(GLP_LIBS) \
+        $(GLTEXT_LIBS) \
+        $(GLU_LIBS) \
+	$(QT4_LIBS) \
+	libdiana.la
 
-nodist_bdiana_SOURCES =
-
-bdiana_CPPFLAGS = $(common_cppflags)
-bdiana_LDFLAGS = $(common_ldflags)
-bdiana_LDADD = $(common_ldadd)
+if WITH_XLIB
+# Use Xlib-specific routines
+diana_bin_CPPFLAGS += -DUSE_XLIB
+diana_bin_LDADD += -lX11
+endif # WITH_XLIB
 
 # Generated header
 main_gui.cc: diBuild.h
@@ -901,16 +800,9 @@ diBuild.h:
 
 CLEANFILES += diBuild.h
 
-if WITH_EMBEDDED
-# A shared library target for language binding experiments
-lib_LTLIBRARIES = libdiana.la
-if WITH_BATCH_ONLY
-libdiana_la_SOURCES = $(libdiana_a_SOURCES)
-else
-libdiana_la_SOURCES = $(diana_bin_SOURCES) $(diana_moc_sources)
-libdiana_la_SOURCES -= main_gui.cc
-endif
-libdiana_la_CPPFLAGS = $(libdiana_a_CPPFLAGS)
-libdiana_la_LDFLAGS = $(common_ldflags) -version-number @PVERSION_MAJOR@:@PVERSION_MINOR@:@PVERSION_PATCH@
-libdiana_la_LIBADD = @LTLIBOBJS@ $(common_ldadd)
-endif
+########################################################################
+########################################################################
+########################################################################
+
+bdiana_SOURCES = bdiana.cc
+bdiana_LDADD = libdiana.la

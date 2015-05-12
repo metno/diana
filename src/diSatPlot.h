@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -31,8 +29,8 @@
 #ifndef diSatPlot_h
 #define diSatPlot_h
 
-#include <diPlot.h>
-#include <diSat.h>
+#include "diPlot.h"
+#include "diSat.h"
 
 #include <vector>
 
@@ -48,14 +46,11 @@ private:
   unsigned char * imagedata; // dataarray for resampling
   int previrs;               // previous resampling coeff.
 
-  bool plotPixmap();
-  bool plotFillcell();
-  unsigned char * resampleImage(int& currwid, int& currhei,
+  bool plotPixmap(DiGLPainter* gl);
+  bool plotFillcell(DiGLPainter* gl);
+  unsigned char * resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
       int& bmStartx, int& bmStarty,
       float& scales, float& scaley, int& nx, int& ny);
-
-  GLuint texture;
-  bool hasTexture;
 
 public:
   SatPlot();
@@ -63,7 +58,7 @@ public:
 
   Sat *satdata;
 
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
   void setData(Sat *);
   void clearData();
   Area& getSatArea(void){ return satdata->area;}

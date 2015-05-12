@@ -29,14 +29,16 @@
 #ifndef ComplexSymbolPlot_h
 #define ComplexSymbolPlot_h
 
-#include <diPlot.h>
+#include "diPlot.h"
 
 #include <set>
 #include <vector>
 
+class DiGLPainter;
+
 /**
   \brief Draw complex sigmap symbols
-  
+
   The symbols are a combination of font symbols and text the user can enter
 */
 class ComplexSymbolPlot: public Plot
@@ -44,13 +46,13 @@ class ComplexSymbolPlot: public Plot
 public:
   ComplexSymbolPlot(int drawIndex);
 
-  void plot(PlotOrder porder)
+  void plot(DiGLPainter*, PlotOrder)
     { }
 
   /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot
-  void draw(int drawIndex, float x,float y,int size, float rot);
+  void draw(DiGLPainter* gl, int drawIndex, float x,float y,int size, float rot);
   /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot
-  void drawTextBox(int drawIndex,int size, float rot);
+  void drawTextBox(DiGLPainter* gl, int drawIndex,int size, float rot);
   /// hides/shows the white box behind symbol
   void hideBox();
   /// check if white box to be drawn
@@ -72,7 +74,7 @@ public:
   /// writes complex text to a string (read by readComplexText)
   std::string writeComplexText();
   /// get the the size and x,y of center of bounding box
-  void getComplexBoundingBox(int index, float& sw, float & sh, float & x, float & y);
+  void getComplexBoundingBox(DiGLPainter* gl, int index, float& sw, float & sh, float & x, float & y);
   void setBorderColour(const std::string& colstring){borderColour= Colour(colstring);}
   /// returns true if symbol is complex text
   static bool isComplexText(int drawIndex);
@@ -82,10 +84,10 @@ public:
   static bool isTextEdit(int drawIndex);
   /// gets current complex text (used in text dialog)
   static void getCurrentComplexText(std::vector<std::string> & symbolText,
-			     std::vector<std::string> & xText);
+      std::vector<std::string> & xText);
   /// sets current complex text (used in text dialog)
   static void setCurrentComplexText(const std::vector<std::string> & symbolText,
-			     const std::vector<std::string> & xText);
+      const std::vector<std::string> & xText);
   /// Initial values of current strings (used in text dialog)
   static void initCurrentStrings(int drawIndex);
   /// sets list of complex texts (used in text dialog)
@@ -95,49 +97,49 @@ public:
 
 private:
   void initStrings(int drawIndex);
-  void drawSigString(float x,float y,bool whitebox=true);
-  void drawSigEditString(float& x,float& y,bool whitebox=true);
-  void drawSigTextBoxString(float& x,float& y,bool whitebox=true);
-  void drawSigText(float x,float y, bool whitebox=true);
-  void drawSigTextBox();
-  void drawSigEditText(float x,float y, bool whitebox=true);
-  void drawColoredSigText(float x,float y,bool whitebox=true);
-  void drawDoubleSigText(float x,float y, bool whitebox=true);
-  void drawDoubleSigTextAndSymbol(int symbol,float x,float y);
-  void drawSig1(float x,float y, int metSymbol);
-  void drawSig5(float x,float y);
-  void drawSig6(float x,float y);
-  void drawSig7(float x,float y);
-  void drawSig8(float x,float y);
-  void drawSig9(float x,float y);
-  void drawSig10(float x,float y);
-  void drawSig11(float x,float y);
-  void drawSig12(float x,float y);
-  void drawSig13(float x,float y);
-  void drawSig14(float x,float y);
-  void drawSig15(float x,float y);
-  void drawSig16(float x,float y);
-  void drawSig17(float x,float y);
-  void drawSig22(float x,float y);
-  void drawSig27(float x,float y);
-  void drawSig28(float x,float y);
-  void drawSig29(float x,float y);
-  void drawSig30(float x,float y);
-  void drawSig31(float x,float y);
-  void drawSig32(float x,float y);
-  void drawSig33(float x,float y);
-  void drawSig34(float x,float y);
-  void drawSig36(float x,float y);
-  void drawSig40(float x,float y);
-  void drawBox(int index,float x, float y, bool fill=true);
-  void drawCircle(int index,float x, float y, bool circle=false);
-  void drawDiamond(int index,float x, float y);
-  void drawFlag(int index,float x, float y, bool fill=false);
-  void drawNuclear(float x,float y);
-  void drawPrecipitation(float x,float y);
-  void getComplexSize(int index, float& sw, float & sh);
-  void drawSymbol(int index,float x,float y);
-  void drawSigNumber(float x,float y);
+  void drawSigString(DiGLPainter* gl, float x,float y,bool whitebox=true);
+  void drawSigEditString(DiGLPainter* gl, float& x,float& y,bool whitebox=true);
+  void drawSigTextBoxString(DiGLPainter* gl, float& x,float& y,bool whitebox=true);
+  void drawSigText(DiGLPainter* gl, float x,float y, bool whitebox=true);
+  void drawSigTextBox(DiGLPainter* gl);
+  void drawSigEditText(DiGLPainter* gl, float x,float y, bool whitebox=true);
+  void drawColoredSigText(DiGLPainter* gl, float x,float y,bool whitebox=true);
+  void drawDoubleSigText(DiGLPainter* gl, float x,float y, bool whitebox=true);
+  void drawDoubleSigTextAndSymbol(DiGLPainter* gl, int symbol,float x,float y);
+  void drawSig1(DiGLPainter* gl, float x,float y, int metSymbol);
+  void drawSig5(DiGLPainter* gl, float x,float y);
+  void drawSig6(DiGLPainter* gl, float x,float y);
+  void drawSig7(DiGLPainter* gl, float x,float y);
+  void drawSig8(DiGLPainter* gl, float x,float y);
+  void drawSig9(DiGLPainter* gl, float x,float y);
+  void drawSig10(DiGLPainter* gl, float x,float y);
+  void drawSig11(DiGLPainter* gl, float x,float y);
+  void drawSig12(DiGLPainter* gl, float x,float y);
+  void drawSig13(DiGLPainter* gl, float x,float y);
+  void drawSig14(DiGLPainter* gl, float x,float y);
+  void drawSig15(DiGLPainter* gl, float x,float y);
+  void drawSig16(DiGLPainter* gl, float x,float y);
+  void drawSig17(DiGLPainter* gl, float x,float y);
+  void drawSig22(DiGLPainter* gl, float x,float y);
+  void drawSig27(DiGLPainter* gl, float x,float y);
+  void drawSig28(DiGLPainter* gl, float x,float y);
+  void drawSig29(DiGLPainter* gl, float x,float y);
+  void drawSig30(DiGLPainter* gl, float x,float y);
+  void drawSig31(DiGLPainter* gl, float x,float y);
+  void drawSig32(DiGLPainter* gl, float x,float y);
+  void drawSig33(DiGLPainter* gl, float x,float y);
+  void drawSig34(DiGLPainter* gl, float x,float y);
+  void drawSig36(DiGLPainter* gl, float x,float y);
+  void drawSig40(DiGLPainter* gl, float x,float y);
+  void drawBox(DiGLPainter* gl, int index,float x, float y, bool fill=true);
+  void drawCircle(DiGLPainter* gl, int index,float x, float y, bool circle=false);
+  void drawDiamond(DiGLPainter* gl, int index,float x, float y);
+  void drawFlag(DiGLPainter* gl, int index,float x, float y, bool fill=false);
+  void drawNuclear(DiGLPainter* gl, float x,float y);
+  void drawPrecipitation(DiGLPainter* gl, float x,float y);
+  void getComplexSize(DiGLPainter* gl, int index, float& sw, float & sh);
+  void drawSymbol(DiGLPainter* gl, int index,float x,float y);
+  void drawSigNumber(DiGLPainter* gl, float x,float y);
 
   //text used in new complex symbols
   static std::vector <std::string> currentSymbolStrings;

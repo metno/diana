@@ -103,13 +103,14 @@ void WeatherObjects::clear()
 
 /*********************************************/
 
-bool WeatherObjects::empty(){
-  return (objects.size() == 0 && itsLabels.size()==0);
+bool WeatherObjects::empty()
+{
+  return (objects.empty() && itsLabels.empty());
 }
 
 /*********************************************/
 
-void WeatherObjects::plot(Plot::PlotOrder porder)
+void WeatherObjects::plot(DiGLPainter* gl, Plot::PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
 
@@ -125,7 +126,7 @@ void WeatherObjects::plot(Plot::PlotOrder porder)
   for (int o=0; o<NORDER; ++o) {
     for (int i=0; i<n; i++){
       if (objects[i]->objectIs(order[o]))
-        objects[i]->plot(porder);
+        objects[i]->plot(gl, porder);
     }
   }
 }

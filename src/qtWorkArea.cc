@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,53 +31,94 @@
 #include "config.h"
 #endif
 
-// Qt
+#include "qtWorkArea.h"
+#include "qtGLwidget.h"
+#include "diEditItemManager.h"
+#include "diController.h"
+
 #include <QVBoxLayout>
 
-// Diana
-#include "qtGLwidget.h"
-#include "qtWorkArea.h"
-#include "diController.h"
-#include "diEditManager.h"
-#include "diDrawingManager.h"
-#include "diEditItemManager.h"
+#include <qpixmap.h>
+#include <qcursor.h>
+#include <paint_cursor.xpm>
+#include <paint_add_cursor.xpm>
+#include <paint_remove_cursor.xpm>
+#include <paint_forbidden_cursor.xpm>
 
 WorkArea::WorkArea(Controller *co,  QWidget* parent)
-    : QWidget( parent), contr(co)
+  : QWidget(parent)
+  , glw(new GLwidget(co))
+  , qw(DiPaintable::createWidget(glw, this))
+  , currentCursor(keep_it)
 {
+  qw->setMinimumSize( 300, 200 );
+  qw->setMouseTracking(true);
+
+  EditItemManager *editm = static_cast<EditItemManager *>(co->getManager("EDITDRAWING"));
+  if (editm)
+    connect(editm, SIGNAL(repaintNeeded()), qw, SLOT(updateGL())); // e.g. during undo/redo
+
+  connect(glw, SIGNAL(changeCursor(cursortype)),
+      this, SLOT(changeCursor(cursortype)));
+
   QVBoxLayout* vlayout = new QVBoxLayout(this);
-#if !defined(USE_PAINTGL)
-  // Create an openGL widget
-  QGLFormat fmt, ofmt;
-  ofmt= QGLFormat::defaultOverlayFormat();
-  ofmt.setDoubleBuffer(true);
-  QGLFormat::setDefaultOverlayFormat(ofmt);
-  fmt.setOverlay(false);
-  fmt.setDoubleBuffer(true);
-  glw = new GLwidget(contr, fmt, this);
-#else
-  glw = new GLwidget(contr, this);
-#endif
-  
-  if ( !glw->isValid() ) {
-#if !defined(USE_PAINTGL)
-    // Try without double-buffering
-    fmt.setDoubleBuffer(false);
-    glw->setFormat( fmt );
-    if ( !glw->isValid() ){
-      qCritical("Failed to create OpenGL rendering context on this display");
-    }
-#else
-    qCritical("Failed to create OpenGL rendering context on this display");
-#endif
-  }
-  glw->setMinimumSize( 300, 200 );
-  
-  // Start the geometry management
-  vlayout->addWidget(glw,1);
+  vlayout->addWidget(qw, 1);
   vlayout->activate();
+
+  changeCursor(normal_cursor);
 }
 
-void WorkArea::updateGL(){
-  glw->updateGL();
+WorkArea::~WorkArea()
+{
+  delete qw;
+  delete glw;
+}
+
+void WorkArea::updateGL()
+{
+  qw->update();
+}
+
+void WorkArea::changeCursor(const cursortype c)
+{
+  if (c == keep_it || c == currentCursor)
+    return;
+
+  switch (c) {
+  case edit_cursor:
+    qw->setCursor(Qt::ArrowCursor);
+    break;
+  case edit_move_cursor:
+    qw->setCursor(Qt::ArrowCursor);
+    break;
+  case edit_value_cursor:
+    qw->setCursor(Qt::UpArrowCursor);
+    break;
+  case draw_cursor:
+    qw->setCursor(Qt::PointingHandCursor);
+    break;
+  case paint_select_cursor:
+    qw->setCursor(Qt::UpArrowCursor);
+    break;
+  case paint_move_cursor:
+    qw->setCursor(Qt::SizeAllCursor);
+    break;
+  case paint_draw_cursor:
+    qw->setCursor(QCursor(QPixmap(paint_cursor_xpm), 0, 16));
+    break;
+  case paint_add_cursor:
+    qw->setCursor(QCursor(QPixmap(paint_add_cursor_xpm), 7, 1));
+    break;
+  case paint_remove_cursor:
+    qw->setCursor(QCursor(QPixmap(paint_remove_cursor_xpm), 7, 1));
+    break;
+  case paint_forbidden_cursor:
+    qw->setCursor(QCursor(QPixmap(paint_forbidden_cursor_xpm), 7, 1));
+    break;
+  case normal_cursor:
+  default:
+    qw->setCursor(Qt::ArrowCursor);
+    break;
+  }
+  currentCursor = c;
 }

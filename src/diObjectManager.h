@@ -31,13 +31,13 @@
 #ifndef _diObjectManager_h
 #define _diObjectManager_h
 
-#include <diMapMode.h>
-#include <diWeatherObjects.h>
-#include <diEditObjects.h>
-#include <diDisplayObjects.h>
-#include <diAreaBorder.h>
-#include <diCommonTypes.h>
-#include <diUndoFront.h>
+#include "diMapMode.h"
+#include "diWeatherObjects.h"
+#include "diEditObjects.h"
+#include "diDisplayObjects.h"
+#include "diAreaBorder.h"
+#include "diCommonTypes.h"
+#include "diUndoFront.h"
 
 #include <puTools/miTime.h>
 #include <diField/diArea.h>
@@ -199,7 +199,7 @@ public:
     { objects.getAnnotations(anno); }
   std::vector<std::string> getObjectLabels()
     { return objects.getObjectLabels(); }
-  void plotObjects(Plot::PlotOrder zorder);
+  void plotObjects(DiGLPainter* gl, Plot::PlotOrder zorder);
   void clearObjects()
     { objects.clear(); }
   void setObjAuto(bool autoF)

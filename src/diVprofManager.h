@@ -46,6 +46,8 @@
 class VprofOptions;
 class VprofData;
 class VprofDiagram;
+class DiCanvas;
+class DiGLPainter;
 
 /**
    \brief Managing Vertical Profile observation and prognostic sources.
@@ -151,11 +153,9 @@ private:
   miutil::miTime   plotTime;
   miutil::miTime ztime;
 
-  bool hardcopy;
-  printOptions printoptions;
-  bool hardcopystarted;
-
   std::map<std::string,std::string> menuConst;
+
+  DiCanvas* mCanvas;
 
   std::string getDefaultModel();
   void updateObsFileList();
@@ -165,18 +165,20 @@ private:
   void checkObsTime(int hour=-1);
 
   void renameAmdar(std::vector<std::string>& namelist,
-		   std::vector<float>& latitudelist,
-		   std::vector<float>& longitudelist,
-		   std::vector<std::string>& obslist,
-		   std::vector<miutil::miTime>& tlist,
-		   std::map<std::string,int>& amdarCount);
+      std::vector<float>& latitudelist,
+      std::vector<float>& longitudelist,
+      std::vector<std::string>& obslist,
+      std::vector<miutil::miTime>& tlist,
+      std::map<std::string,int>& amdarCount);
   void readAmdarStationList();
 
 public:
-  // constructor
   VprofManager();
-  // destructor
   ~VprofManager();
+
+  void setCanvas(DiCanvas* c);
+  DiCanvas* canvas() const
+    { return mCanvas; }
 
   // clenans up vhen user closes the vprof window
   void cleanup();
@@ -206,9 +208,7 @@ public:
   void setFieldModels(const std::vector<std::string>& fieldmodels);
   void setSelectedModels(const std::vector<std::string>& models, bool obs=false);
 
-  bool plot();
-  void startHardcopy(const printOptions& po);
-  void endHardcopy();
+  bool plot(DiGLPainter* gl);
   bool onlyObsState() { return onlyObs; }
   void mainWindowTimeChanged(const miutil::miTime& time);
   void updateObs();
@@ -216,7 +216,7 @@ public:
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion);
+      const std::string& thisVersion, const std::string& logVersion);
   /* Added for debug purposes */
   void printObsFiles(const ObsFile &of);
   void printObsFilePath(const ObsFilePath & ofp);

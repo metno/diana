@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -41,12 +39,12 @@
 #include <QString>
 #include <QHash>
 #include <QSharedPointer>
-#include <GL/gl.h>
 
 #define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
 #define ConstDrawing(i) dynamic_cast<const DrawingItemBase *>(i)
 
 class QDomDocumentFragment;
+class DiGLPainter;
 class DrawingManager;
 
 class DrawingItemBase
@@ -111,7 +109,7 @@ public:
   virtual void setLatLonPoints(const QList<QPointF> &points);
 
   // Draws the item.
-  virtual void draw() = 0;
+  virtual void draw(DiGLPainter* gl) = 0;
 
   // Returns the category of the item as required by the style manager.
   virtual Category category() const = 0;

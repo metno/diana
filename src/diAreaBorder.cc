@@ -33,9 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diAreaBorder.h>
+#include "diAreaBorder.h"
+#include "diGLPainter.h"
 
-//#include <cmath>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.AreaBorder"
@@ -55,23 +55,20 @@ AreaBorder::~AreaBorder()
 {
 }
 
-void AreaBorder::plot(PlotOrder porder)
+void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
 {
   if (isVisible){
     int end = nodePoints.size();
-    if (0<end){
+    if (0 < end) {
       setWindowInfo();
 
-      if (x != NULL)  delete[] x;
-      if (y != NULL)  delete[] y;
-      if (x_s != NULL)  delete[] x_s;
-      if (y_s != NULL)  delete[] y_s;
+      delete[] x;
+      delete[] y;
+      delete[] x_s;
+      delete[] y_s;
 
-
-      // for PostScript generation
-      getStaticPlot()->UpdateOutput();
-
-      glPushMatrix();
+      gl->UpdateOutput();
+      gl->PushMatrix();
 
       // spline
       int div= 5;
@@ -96,20 +93,20 @@ void AreaBorder::plot(PlotOrder porder)
       s_length=smoothline(length, &x[0], &y[0], 0, length-1,div, &x_s[0], &y_s[0]);
 
 
-      glColor3f(0.0,0.0,0.0);
-      glLineWidth(linewidth);
+      gl->Color3f(0.0,0.0,0.0);
+      gl->LineWidth(linewidth);
 
       //draw border
-      glBegin(GL_LINE_STRIP);        // Draws the smooth line
+      gl->Begin(DiGLPainter::gl_LINE_STRIP);        // Draws the smooth line
       for (int i=0; i<s_length; i++)
-        glVertex2f(x_s[i],y_s[i]);
-      glEnd();
+        gl->Vertex2f(x_s[i],y_s[i]);
+      gl->End();
 
-      drawThickLine();
+      drawThickLine(gl);
 
-      glPopMatrix();
-      drawNodePoints();
-      getStaticPlot()->UpdateOutput();
+      gl->PopMatrix();
+      drawNodePoints(gl);
+      gl->UpdateOutput();
     }
   }
 }
@@ -157,7 +154,7 @@ std::string AreaBorder::writeTypeString()
 }
 
 
-void AreaBorder::drawThickLine()
+void AreaBorder::drawThickLine(DiGLPainter* gl)
 {
   int p_length= s_length - 1;
   int i;
@@ -198,7 +195,7 @@ void AreaBorder::drawThickLine()
     y4[i-1]= y2[i]= (y4[i-1]+y2[i])*0.5;
   }
 
-  const GLubyte borderpattern[] = {
+  const DiGLPainter::GLubyte borderpattern[] = {
       0x88, 0x88, 0x88, 0x88, 0x00, 0x00, 0x00, 0x00,
       0x22, 0x22, 0x22, 0x22, 0x00, 0x00, 0x00, 0x00,
       0x88, 0x88, 0x88, 0x88, 0x00, 0x00, 0x00, 0x00,
@@ -216,20 +213,20 @@ void AreaBorder::drawThickLine()
       0x88, 0x88, 0x88, 0x88, 0x00, 0x00, 0x00, 0x00,
       0x22, 0x22, 0x22, 0x22, 0x00, 0x00, 0x00, 0x00};
 
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-  glEnable(GL_POLYGON_STIPPLE);
-  glPolygonStipple (borderpattern);
-  glBegin(GL_QUAD_STRIP);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK,DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
+  gl->PolygonStipple (borderpattern);
+  gl->Begin(DiGLPainter::gl_QUAD_STRIP);
   for (i=0; i<p_length; i++) {
-    glVertex2f(x1[i],y1[i]);
-    glVertex2f(x2[i],y2[i]);
+    gl->Vertex2f(x1[i],y1[i]);
+    gl->Vertex2f(x2[i],y2[i]);
   }
   i= p_length - 1;
-  glVertex2f(x3[i],y3[i]);
-  glVertex2f(x4[i],y4[i]);
-  glEnd();
-  glDisable(GL_POLYGON_STIPPLE);
+  gl->Vertex2f(x3[i],y3[i]);
+  gl->Vertex2f(x4[i],y4[i]);
+  gl->End();
+  gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
 
   delete[] x1;
   delete[] y1;

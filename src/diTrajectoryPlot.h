@@ -94,7 +94,7 @@ public:
   TrajectoryPlot();
   ~TrajectoryPlot();
 
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
   ///change projection
   bool prepare(void);

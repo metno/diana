@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -34,10 +32,17 @@
 #endif
 
 #include "diTrajectoryPlot.h"
+
+#include "diGLPainter.h"
+
 #include <diField/diField.h>
 #include <puTools/miStringFunctions.h>
-#include <GL/gl.h>
+
+#include <QPointF>
+#include <QPolygonF>
+
 #include <cmath>
+
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -49,7 +54,7 @@ using namespace std;
 using namespace miutil;
 
 TrajectoryPlot::TrajectoryPlot()
-:Plot(){
+{
   oldArea=getStaticPlot()->getMapArea();
   lineWidth=1;
   numMarker=1;
@@ -64,7 +69,8 @@ TrajectoryPlot::TrajectoryPlot()
 }
 
 
-TrajectoryPlot::~TrajectoryPlot(){
+TrajectoryPlot::~TrajectoryPlot()
+{
   delete fu1;
   delete fv1;
   clearData();
@@ -286,7 +292,7 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
 }
 
 
-void TrajectoryPlot::plot(PlotOrder zorder)
+void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
@@ -295,8 +301,7 @@ void TrajectoryPlot::plot(PlotOrder zorder)
 
   if (colour==getStaticPlot()->getBackgroundColour())
     colour= getStaticPlot()->getBackContrastColour();
-  glColor4ubv(colour.RGBA());
-  glLineWidth(float(lineWidth)+0.1f);
+  gl->setLineStyle(colour, lineWidth);
 
   float d= 5*getStaticPlot()->getPhysToMapScaleX();
 
@@ -305,14 +310,8 @@ void TrajectoryPlot::plot(PlotOrder zorder)
     // plot start posistions
 
     int m = x.size();
-    glBegin(GL_LINES);
-    for (int i=0; i<m; i++) {
-      glVertex2f(x[i]-d,y[i]-d);
-      glVertex2f(x[i]+d,y[i]+d);
-      glVertex2f(x[i]-d,y[i]+d);
-      glVertex2f(x[i]+d,y[i]-d);
-    }
-    glEnd();
+    for (int i=0; i<m; i++)
+      gl->drawCross(x[i], y[i], d, true);
 
   } else {
 
@@ -338,36 +337,30 @@ void TrajectoryPlot::plot(PlotOrder zorder)
     vector <float> xmark,ymark;
     TrajectoryData *td;
     for (int i=0; i<numTraj; i++) {
-      //      METLIBS_LOG_DEBUG("Traj no:"<<i);
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(lineType.factor,lineType.bmap);
-      glBegin(GL_LINE_STRIP);
+      gl->setLineStyle(colour, lineWidth, lineType);
+      QPolygonF points;
       for (int n=0; n<vtsize; n++) {
-        //        METLIBS_LOG_DEBUG("??:"<<n);
         td= vtrajdata[n];
         int j1= td->first[i];
         int j2= td->last[i] + 1;
         if (j1<j2) {
           int begin= td->ndata * i;
-          for (int j=j1; j<j2; j++){
-            //	    METLIBS_LOG_DEBUG("x:"<<td->x[begin+j]<<"  y:"<< td->y[begin+j]);
-            glVertex2f(td->x[begin+j], td->y[begin+j]);
-            miTime thistime = td->time[j];
-            int diff = miTime::minDiff(firstTime,thistime);
-            if (timeMarker && (n<vtsize-1 || j<j2-1)
-                &&  diff%timeMarker==0){
+          for (int j=j1; j<j2; j++) {
+            points << QPointF(td->x[begin+j], td->y[begin+j]);
+            const miTime& thistime = td->time[j];
+            int diff = miTime::minDiff(firstTime, thistime);
+            if (timeMarker && (n<vtsize-1 || j<j2-1) &&  diff%timeMarker==0) {
               xmark.push_back(td->x[begin+j]);
               ymark.push_back(td->y[begin+j]);
             }
           }
         }
       }
-      glEnd();
-      glDisable(GL_LINE_STIPPLE);
+      gl->drawPolyline(points);
+      gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
       int nmark=xmark.size();
 
-      glBegin(GL_LINES);
       for (int ih=1;ih<nmark;ih++){
         float  deltay = ymark[ih]-ymark[ih-1];
         float  deltax = xmark[ih]-xmark[ih-1];
@@ -378,13 +371,10 @@ void TrajectoryPlot::plot(PlotOrder zorder)
         float y1=ymark[ih]+dy;
         float x2=xmark[ih]+dx;
         float y2=ymark[ih]-dy;
-        glVertex2f(x1,y1);
-        glVertex2f(x2,y2);
+        gl->drawLine(x1, y1, x2, y2);
       }
-      glEnd();
       xmark.clear();
       ymark.clear();
-
     }
 
 
@@ -398,7 +388,6 @@ void TrajectoryPlot::plot(PlotOrder zorder)
     j1= 0;
     j2= 1;
     r= d*0.8;
-    glBegin(GL_LINES);
     for (int i=0; i<numTraj; i++) {
       if (runningBackward[i]) {
         x=  td->x[ndata*i+j1];
@@ -408,13 +397,10 @@ void TrajectoryPlot::plot(PlotOrder zorder)
         dr= sqrtf(dx*dx+dy*dy);
         dx/=dr;
         dy/=dr;
-        glVertex2f(x+r*(dx-dy), y+r*(dy+dx));
-        glVertex2f(x-r*(dx-dy), y-r*(dy+dx));
-        glVertex2f(x+r*(dx+dy), y+r*(dy-dx));
-        glVertex2f(x-r*(dx+dy), y-r*(dy-dx));
+        gl->drawLine(x+r*(dx-dy), y+r*(dy+dx), x-r*(dx-dy), y-r*(dy+dx));
+        gl->drawLine(x+r*(dx+dy), y+r*(dy-dx), x-r*(dx+dy), y-r*(dy-dx));
       }
     }
-    glEnd();
 
     // arrow in last position (in direction of movement, as data are stored)
     n= vtsize - 1;
@@ -423,7 +409,7 @@ void TrajectoryPlot::plot(PlotOrder zorder)
     j1= ndata - 1;
     j2= ndata - 2;
     r= d*1.3;
-    glBegin(GL_LINES);
+    QPolygonF points;
     for (int i=0; i<numTraj; i++) {
       if (runningForward[i]) {
         x=  td->x[ndata*i+j1];
@@ -433,26 +419,18 @@ void TrajectoryPlot::plot(PlotOrder zorder)
         dr= sqrtf(dx*dx+dy*dy);
         dx/=dr;
         dy/=dr;
-        glVertex2f(x-r*(dx+dy), y-r*(dy-dx));
-        glVertex2f(x,y);
-        glVertex2f(x,y);
-        glVertex2f(x-r*(dx-dy), y-r*(dy+dx));
+        points << QPointF(x-r*(dx+dy), y-r*(dy-dx));
+        points << QPointF(x, y);
+        points << QPointF(x-r*(dx-dy), y-r*(dy+dx));
+        gl->drawPolyline(points);
+        points.clear();
       }
     }
-    glEnd();
 
     // mark current time (not at first and last time)
     if (getStaticPlot()->getTime()>firstTime && getStaticPlot()->getTime()<lastTime) {
 
       r= d*1.4;
-      const int nc= 16;
-      float xc[nc];
-      float yc[nc];
-      float cstep= 2 * M_PI / float(nc);
-      for (int j=0; j<nc; j++) {
-        xc[j]= r * cosf(cstep*float(j));
-        yc[j]= r * sinf(cstep*float(j));
-      }
 
       int nt= -1;
       int it= -1;
@@ -461,22 +439,20 @@ void TrajectoryPlot::plot(PlotOrder zorder)
         td= vtrajdata[n];
         ndata= td->ndata;
         it= 0;
-        while (it<ndata && getStaticPlot()->getTime() > td->time[it]) it++;
-        if (it<ndata) nt= n;
+        while (it<ndata && getStaticPlot()->getTime() > td->time[it])
+          it++;
+        if (it<ndata)
+          nt = n;
         n++;
       }
       if (nt>=0) {
         td= vtrajdata[nt];
         ndata= td->ndata;
-        r= d;
         for (int i=0; i<numTraj; i++) {
           if (it>=td->first[i] && it<=td->last[i]) {
-            x= td->x[ndata*i+it];
-            y= td->y[ndata*i+it];
-            glBegin(GL_LINE_LOOP);
-            for (int j=0; j<nc; j++)
-              glVertex2f(x+xc[j], y+yc[j]);
-            glEnd();
+            const float x = td->x[ndata*i+it];
+            const float y = td->y[ndata*i+it];
+            gl->drawCircle(x, y, d);
           }
         }
       }
@@ -928,21 +904,19 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
 
 bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
 {
-  //output
-  ofstream fs;
+  METLIBS_LOG_SCOPE();
 
+  std::ofstream fs;
   fs.open(filename.c_str());
 
-  if(!fs){
-    METLIBS_LOG_ERROR("ERROR  printTrajectoryPositions: can't open file: "
-        <<filename);
+  if (!fs) {
+    METLIBS_LOG_ERROR("cannot open file '" <<filename << "'");
     return false;
   }
 
-
   int vtsize= vtrajdata.size();
-
-  if(vtsize==0) return false;
+  if(vtsize==0)
+    return false;
 
   int npos = (vtsize + 1) * numTraj;
   float xxx[npos];

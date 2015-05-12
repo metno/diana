@@ -245,11 +245,11 @@ void WebMapManager::addMap(WebMapPlot* plot)
   Q_EMIT webMapAdded(webmaps.size() - 1);
 }
 
-void WebMapManager::plot(Plot::PlotOrder zorder)
+void WebMapManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
   for (size_t i = 0; i < webmaps.size(); i++)
-    webmaps[i]->plot(zorder);
+    webmaps[i]->plot(gl, zorder);
 }
 
 std::vector<PlotElement> WebMapManager::getPlotElements() const

@@ -85,7 +85,7 @@ public:
       const QPointF &, QList<QSharedPointer<DrawingItemBase> > * = 0) const;
 
   bool processInput(const std::vector<std::string>& inp);
-  void plot(bool under, bool over);
+  void plot(DiGLPainter* gl, bool under, bool over);
   void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
   void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 

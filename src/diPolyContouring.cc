@@ -28,14 +28,9 @@
  */
 
 #include "diPolyContouring.h"
+#include "diGLPainter.h"
 
-#include "diFontManager.h"
-#include <diTesselation.h>
-
-#include <GL/gl.h>
-#if !defined(USE_PAINTGL)
-#include <glp/glpfile.h>
-#endif
+#include <QPolygonF>
 
 #include <boost/make_shared.hpp>
 
@@ -422,8 +417,9 @@ void DianaLines::add_contour_polygon(contouring::level_t level, const contouring
 class DianaGLLines : public DianaLines
 {
 public:
-  DianaGLLines(const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm)
-    : DianaLines(poptions, levels), mFM(fm) { }
+  DianaGLLines(DiGLPainter* gl, const PlotOptions& poptions,
+      const DianaLevels& levels)
+    : DianaLines(poptions, levels), mGL(gl) { }
 
 protected:
   void paint_polygons();
@@ -436,76 +432,62 @@ protected:
   void drawLabels(const point_v& points, contouring::level_t li);
 
 private:
-  FontManager* mFM;
+  DiGLPainter* mGL;
 };
 
 void DianaGLLines::paint_polygons()
 {
   METLIBS_LOG_TIME(LOGVAL(mPlotOptions.undefMasking));
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  mGL->ShadeModel(DiGLPainter::gl_FLAT);
+  mGL->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK,DiGLPainter::gl_FILL);
+  mGL->Enable(DiGLPainter::gl_BLEND);
+  mGL->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   DianaLines::paint_polygons();
 
-  glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-  glDisable(GL_BLEND);
-  glShadeModel(GL_FLAT);
-  glEdgeFlag(GL_TRUE);
+  mGL->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK,DiGLPainter::gl_LINE);
+  mGL->Disable(DiGLPainter::gl_BLEND);
+  mGL->ShadeModel(DiGLPainter::gl_FLAT);
+  mGL->EdgeFlag(DiGLPainter::gl_TRUE);
 }
 
 void DianaGLLines::paint_lines()
 {
-  glShadeModel(GL_FLAT);
+  mGL->ShadeModel(DiGLPainter::gl_FLAT);
   DianaLines::paint_lines();
 }
 
 void DianaGLLines::setFillColour(const Colour& colour)
 {
-  glColor4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
+#if 0
+  mGL->Color4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
+#else
+  mGL->setColour(colour);
+#endif
 }
 
 void DianaGLLines::setLine(const Colour& colour, const Linetype& linetype, int linewidth)
 {
-  if (linetype.stipple) {
-    glLineStipple(linetype.factor, linetype.bmap);
-    glEnable(GL_LINE_STIPPLE);
-  } else {
-    glDisable(GL_LINE_STIPPLE);
-  }
-  glLineWidth(linewidth);
-
-  glColor3ubv(colour.RGB());
+  mGL->setLineStyle(colour, linewidth, linetype);
 }
 
 void DianaGLLines::drawLine(const point_v& points)
 {
-  glBegin(GL_LINE_STRIP);
+  QPolygonF line;
   for (point_v::const_iterator it = points.begin(); it != points.end(); ++it)
-    glVertex2f(it->x, it->y);
-  glEnd();
+    line << QPointF(it->x, it->y);
+  mGL->drawPolyline(line);
 }
 
 void DianaGLLines::drawPolygons(const point_vv& polygons)
 {
   // METLIBS_LOG_TIME();
-
-  std::vector<int> lengths;
-  std::vector<GLdouble> points; // x, y, 0
-
   for (point_vv::const_iterator itL = polygons.begin(); itL != polygons.end(); ++itL) {
-    lengths.push_back(itL->size());
-    for (point_v::const_iterator p = itL->begin(); p != itL->end(); ++p) {
-      points.push_back(p->x);
-      points.push_back(p->y);
-      points.push_back(0);
-    }
+    QPolygonF polygon;
+    for (point_v::const_iterator p = itL->begin(); p != itL->end(); ++p)
+      polygon << QPointF(p->x, p->y);
+    mGL->drawPolygon(polygon);
   }
-  beginTesselation();
-  GLdouble* gldata = const_cast<GLdouble*>(&points[0]);
-  tesselation(gldata, lengths.size(), &lengths[0]);
-  endTesselation();
 }
 
 void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
@@ -518,7 +500,7 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
   const std::string lbl = o.str();
 
   float lbl_w = 0, lbl_h = 0;
-  if (not mFM->getStringSize(lbl.c_str(), lbl_w, lbl_h))
+  if (not mGL->getTextSize(lbl, lbl_w, lbl_h))
     return;
   if (lbl_h <= 0 or lbl_w <= 0)
     return;
@@ -560,7 +542,7 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
     // sitting on top of line
     const float tx = p0.x, ty = p0.y;
 #endif
-    mFM->drawStr(lbl.c_str(), tx, ty, angle_deg);
+    mGL->drawText(lbl, tx, ty, angle_deg);
     idx += 10*(idx - idx0);
   }
 }
@@ -593,7 +575,7 @@ boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& popt
 // same parameters as diContouring::contour, most of them ignored
 bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
     const float z[], const float xz[], const float yz[],
-    FontManager* fp, const PlotOptions& poptions, float fieldUndef)
+    DiGLPainter* gl, const PlotOptions& poptions, float fieldUndef)
 {
   DianaLevels_p levels = dianaLevelsForPlotOptions(poptions, fieldUndef);
 
@@ -601,7 +583,7 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
   DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
 
   const DianaField df(index, z, *levels, *positions);
-  DianaGLLines dl(poptions, *levels, fp);
+  DianaGLLines dl(gl, poptions, *levels);
 
   { METLIBS_LOG_TIME("contouring");
     try {

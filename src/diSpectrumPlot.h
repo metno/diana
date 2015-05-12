@@ -31,18 +31,14 @@
 #ifndef diSpectrumPlot_h
 #define diSpectrumPlot_h
 
-#include <diSpectrumOptions.h>
-#include <diPrintOptions.h>
+#include "diSpectrumOptions.h"
+#include "diPrintOptions.h"
 
-#include <diField/diField.h>
 #include <puTools/miTime.h>
-
-#include <GL/gl.h>
 
 #include <vector>
 
-class FontManager;
-class GLPfile;
+class DiGLPainter;
 
 /**
    \brief Plot wave spectrum
@@ -60,31 +56,13 @@ public:
   SpectrumPlot();
   ~SpectrumPlot();
 
-  // postscript output
-  static bool startPSoutput(const printOptions& po);
-  static void addHCStencil(const int& size,
-			   const float* x, const float* y);
-  static void addHCScissor(const int x0, const int y0,
-			   const int  w, const int  h);
-  static void removeHCClipping();
-  static void UpdateOutput();
-  static void resetPage();
-  static bool startPSnewpage();
-  static bool endPSoutput();
-
   static void startPlot(int numplots, int w, int h,
-			SpectrumOptions *spopt);
-  static void plotDiagram(SpectrumOptions *spopt);
+      SpectrumOptions *spopt, DiGLPainter* gl);
+  static void plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl);
 
-  bool plot(SpectrumOptions *spopt);
-
-protected:
-  static GLPfile* psoutput;  // PostScript module
-  static bool hardcopy;      // producing postscript
+  bool plot(SpectrumOptions *spopt, DiGLPainter* gl);
 
 private:
-
-  static FontManager* fp;  // fontpack
   static int plotw;
   static int ploth;
   static int numplot;
@@ -119,8 +97,6 @@ private:
   static float fontSize1;
   static float fontSize2;
   static float fontSizeLabel;
-  static float* xcircle;
-  static float* ycircle;
 
   static float eTotalMax;
 

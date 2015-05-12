@@ -29,11 +29,11 @@
 #ifndef diController_h
 #define diController_h
 
-#include <diColour.h>
-#include <diCommonTypes.h>
-#include <diDrawingTypes.h>
-#include <diMapMode.h>
-#include <diPrintOptions.h>
+#include "diColour.h"
+#include "diCommonTypes.h"
+#include "diDrawingTypes.h"
+#include "diMapMode.h"
+#include "diPrintOptions.h"
 
 #include <diField/diArea.h>
 #include <diField/diCommonFieldTypes.h>
@@ -44,6 +44,8 @@
 #include <set>
 
 class AnnotationPlot;
+class DiCanvas;
+class DiGLPainter;
 class PlotModule;
 struct LocationData;
 class FieldManager;
@@ -95,6 +97,9 @@ public:
   Controller();
   ~Controller();
 
+  void setCanvas(DiCanvas* canvas);
+  DiCanvas* canvas();
+
   EditManager*   getEditManager()   { return editm; };
   ObjectManager* getObjectManager() { return objm; };
   FieldManager* getFieldManager() { return fieldm; };
@@ -112,11 +117,11 @@ public:
   /// set new plotcommands
   void plotCommands(const std::vector<std::string>&);
   /// call PlotModule.plot()
-  void plot(bool over =true, bool under =true);
+  void plot(DiGLPainter* gl, bool over =true, bool under =true);
   /// get annotations
   std::vector<AnnotationPlot*> getAnnotations();
   /// plot annotations only
-  std::vector<Rectangle> plotAnnotations();
+  std::vector<Rectangle> plotAnnotations(DiGLPainter* gl);
   /// get plotwindow corners in GL-coordinates
   void getPlotSize(float& x1, float& y1, float& x2, float& y2);
   /// get plot area (incl. projection)

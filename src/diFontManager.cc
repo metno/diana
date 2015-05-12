@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
  Copyright (C) 2006 met.no
 
  Contact information:
@@ -33,8 +31,8 @@
 #include "config.h"
 #endif
 
-#include <diFontManager.h>
-#if !defined(USE_PAINTGL)
+#include "diFontManager.h"
+
 #ifdef USE_XLIB
 #include <glText/glTextX.h>
 #endif
@@ -44,7 +42,6 @@
 #include <glText/glTextTTTexture.h>
 #include <glText/glTextQtTexture.h>
 #include <glp/GLP.h>
-#endif
 
 #include "diLocalSetupParser.h"
 #include <puTools/miSetupParser.h>
@@ -73,14 +70,6 @@ static const std::string key_metsymbolfont = "metsymbolfont";
 FontManager::FontManager() :
   current_engine(0)
 {
-#if defined(USE_PAINTGL)
-  glText * fonts = new glText();
-  fontengines[key_scaleable] = fonts;
-  fontengines[key_ttbitmap] = fonts;
-  fontengines[key_ttpixmap] = fonts;
-  fontengines[key_tttexture] = fonts;
-  fontengines[key_texture] = fonts;
-#else
 #ifdef USE_XLIB
   glTextX * xfonts;
   if (!display_name.empty()) // do not use environment-var DISPLAY
@@ -104,7 +93,6 @@ FontManager::FontManager() :
 
   glTextQtTexture * texfonts = new glTextQtTexture();
   fontengines[key_texture] = texfonts;
-#endif
 }
 
 FontManager::~FontManager()
@@ -244,83 +232,50 @@ bool FontManager::parseSetup()
     std::string fontfilename = fontpath + "/" + fontname;
 
     if (fonttype_lc == key_bitmap) {
-#ifdef USE_XLIB
+#if defined(USE_XLIB)
       enginefamilies[key_bitmap].insert(fontfam);
-      if (fontengines[key_bitmap]) fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
-#else
-#if defined(USE_PAINTGL)
-      enginefamilies[key_bitmap].insert(fontfam);
-      if (fontengines[key_bitmap]) fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
+      if (fontengines[key_bitmap])
+        fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
 #else
       METLIBS_LOG_WARN("X-FONTS not supported!");
-#endif
 #endif
     } else if (fonttype_lc == key_scaleable) {
       enginefamilies[key_scaleable].insert(fontfam);
       if (fontengines[key_scaleable]) {
-#if defined(USE_PAINTGL)
-        static_cast<glText*> (fontengines[key_scaleable])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20);
-#else
-        static_cast<glTextTT*> (fontengines[key_scaleable])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20);
-#endif
+        fontengines[key_scaleable]
+            ->defineFont(fontfam, fontfilename, fontFace(fontface), 20);
       }
 
     } else if (fonttype_lc == key_ttbitmap) {
       enginefamilies[key_ttbitmap].insert(fontfam);
       if (fontengines[key_ttbitmap]) {
-#if defined(USE_PAINTGL)
-        static_cast<glText*> (fontengines[key_ttbitmap])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20, postscript,
-            psxscale, psyscale);
-#else
-        static_cast<glTextTTBitmap*> (fontengines[key_ttbitmap])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20, postscript,
-            psxscale, psyscale);
-#endif
+        fontengines[key_ttbitmap]
+            ->defineFont(fontfam, fontfilename, fontFace(fontface), 20,
+                postscript, psxscale, psyscale);
       }
 
     } else if (fonttype_lc == key_ttpixmap) {
       enginefamilies[key_ttpixmap].insert(fontfam);
       if (fontengines[key_ttpixmap]) {
-#if defined(USE_PAINTGL)
-        static_cast<glText*> (fontengines[key_ttpixmap])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20, postscript,
-            psxscale, psyscale);
-#else
-        static_cast<glTextTTPixmap*> (fontengines[key_ttpixmap])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20, postscript,
-            psxscale, psyscale);
-#endif
+        fontengines[key_ttpixmap]->defineFont(
+          fontfam, fontfilename, fontFace(fontface), 20, postscript,
+          psxscale, psyscale);
       }
 
     } else if (fonttype_lc == key_tttexture) {
       enginefamilies[key_tttexture].insert(fontfam);
       if (fontengines[key_tttexture]) {
-#if defined(USE_PAINTGL)
-        static_cast<glText*> (fontengines[key_tttexture])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20, postscript,
-            psxscale, psyscale);
-#else
-        static_cast<glTextTTTexture*> (fontengines[key_tttexture])->defineFont(
-            fontfam, fontfilename, fontFace(fontface), 20, postscript,
-            psxscale, psyscale);
-#endif
+        fontengines[key_tttexture]->defineFont(
+          fontfam, fontfilename, fontFace(fontface), 20, postscript,
+          psxscale, psyscale);
       }
 
     } else if (fonttype_lc == key_texture) {
       enginefamilies[key_texture].insert(fontfam);
       if (fontengines[key_texture]) {
-#if defined(USE_PAINTGL)
-        static_cast<glText*> (fontengines[key_texture])->defineFont(
-            fontfam, fontname, fontFace(fontface), 20, postscript, psxscale,
-            psyscale);
-#else
-        static_cast<glTextQtTexture*> (fontengines[key_texture])->defineFont(
-            fontfam, fontname, fontFace(fontface), 20, postscript, psxscale,
-            psyscale);
-#endif
+        fontengines[key_texture]->defineFont(
+          fontfam, fontname, fontFace(fontface), 20, postscript, psxscale,
+          psyscale);
       }
     }
   }
@@ -445,14 +400,7 @@ void FontManager::setScalingType(const glText::FontScaling fs)
 void FontManager::setGlSize(const float glx1, const float glx2,
     const float gly1, const float gly2)
 {
-  float glw = glx2 - glx1;
-  float glh = gly2 - gly1;
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->setGlSize(glw, glh);
-    }
-  }
+  setGlSize(glx2 - glx1, gly2 - gly1);
 }
 
 // set viewport size in GL coordinates

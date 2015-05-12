@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -36,6 +34,7 @@
 #include "EditItems/drawingitembase.h"
 #include "EditItems/drawingsymbol.h"
 #include "EditItems/drawingtext.h"
+#include "diGLPainter.h"
 #include <QApplication>
 #include <QComboBox>
 #include <QPainter>
@@ -44,7 +43,6 @@
 
 // Use the predefined fill patterns already defined for the existing editing and objects modes.
 #include "polyStipMasks.h"
-#include <diTesselation.h>
 
 static QColor parseColour(const QString &text)
 {
@@ -372,9 +370,9 @@ void DrawingStyleManager::setComplexTextList(const QStringList &strings)
   complexTextList_ = strings;
 }
 
-void DrawingStyleManager::beginLine(DrawingItemBase *item)
+void DrawingStyleManager::beginLine(DiGLPainter* gl, DrawingItemBase *item)
 {
-  glPushAttrib(GL_LINE_BIT);
+  gl->PushAttrib(DiGLPainter::gl_LINE_BIT);
 
   const QVariantMap style = getStyle(item);
 
@@ -382,44 +380,44 @@ void DrawingStyleManager::beginLine(DrawingItemBase *item)
   bool ok = false;
   const ushort linePattern = lpString.toUShort(&ok);
   if (ok) {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(2, linePattern);
+    gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+    gl->LineStipple(2, linePattern);
   }
 
   float lineWidth = style.value(DSP_linewidth::name()).toFloat();
-  glLineWidth(lineWidth);
+  gl->LineWidth(lineWidth);
 
   QColor borderColour = style.value(DSP_linecolour::name()).value<QColor>();
   bool alphaOk;
   const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
   if (borderColour.isValid())
-    glColor4ub(borderColour.red(), borderColour.green(), borderColour.blue(), alphaOk ? alpha : 255);
+    gl->Color4ub(borderColour.red(), borderColour.green(), borderColour.blue(), alphaOk ? alpha : 255);
 }
 
-void DrawingStyleManager::endLine(DrawingItemBase *item)
+void DrawingStyleManager::endLine(DiGLPainter* gl, DrawingItemBase *item)
 {
   Q_UNUSED(item)
 
-  glPopAttrib();
+  gl->PopAttrib();
 }
 
-void DrawingStyleManager::beginFill(DrawingItemBase *item)
+void DrawingStyleManager::beginFill(DiGLPainter* gl, DrawingItemBase *item)
 {
-  glPushAttrib(GL_POLYGON_BIT);
+  gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
 
   QVariantMap style = getStyle(item);
 
   QColor fillColour = style.value(DSP_fillcolour::name()).value<QColor>();
   bool alphaOk;
   const int alpha = style.value(DSP_fillalpha::name()).toInt(&alphaOk);
-  glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
+  gl->Color4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
   QString fillPattern = style.value(DSP_fillpattern::name()).toString();
 
   if (!fillPattern.isEmpty()) {
-    const GLubyte *fillPatternData = 0;
+    const DiGLPainter::GLubyte *fillPatternData = 0;
 
     if (fillPattern == "diagleft")
       fillPatternData = diagleft;
@@ -435,17 +433,17 @@ void DrawingStyleManager::beginFill(DrawingItemBase *item)
       fillPatternData = vldiagcross_little;
 
     if (fillPatternData) {
-      glEnable(GL_POLYGON_STIPPLE);
-      glPolygonStipple(fillPatternData);
+      gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
+      gl->PolygonStipple(fillPatternData);
     }
   }
 }
 
-void DrawingStyleManager::endFill(DrawingItemBase *item)
+void DrawingStyleManager::endFill(DiGLPainter* gl, DrawingItemBase *item)
 {
   Q_UNUSED(item)
 
-  glPopAttrib();
+  gl->PopAttrib();
 }
 
 DrawingStyleManager::StyleCategory DrawingStyleManager::styleCategory(const DrawingItemBase::Category &itemCategory, const QString &name) const
@@ -530,7 +528,8 @@ QStringList DrawingStyleManager::getComplexTextList() const
   return complexTextList_;
 }
 
-void DrawingStyleManager::highlightPolyLine(const DrawingItemBase *item, const QList<QPointF> &points, int lineWidth, const QColor &col, bool forceClosed) const
+void DrawingStyleManager::highlightPolyLine(DiGLPainter* gl, const DrawingItemBase *item,
+    const QList<QPointF> &points, int lineWidth, const QColor &col, bool forceClosed) const
 {
   QVariantMap style = getStyle(item);
   const bool closed = forceClosed || style.value(DSP_closed::name()).toBool();
@@ -544,10 +543,10 @@ void DrawingStyleManager::highlightPolyLine(const DrawingItemBase *item, const Q
   else
     points_ = points;
 
-  glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
+  gl->Color4ub(col.red(), col.green(), col.blue(), col.alpha());
 
-  glPushAttrib(GL_POLYGON_BIT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
   for (int i = 1; i < (points_.size() + (closed ? 1 : 0)); ++i) {
     const QPointF p1 = points_.at(i % points_.size());
@@ -555,26 +554,27 @@ void DrawingStyleManager::highlightPolyLine(const DrawingItemBase *item, const Q
     const QVector2D v(p1.x() - p0.x(), p1.y() - p0.y());
     const QVector2D u = QVector2D(-v.y(), v.x()).normalized();
 
-    glBegin(GL_POLYGON);
-    glVertex3f(p0.x() + lw_2 * u.x(), p0.y() + lw_2 * u.y(), z);
-    glVertex3f(p1.x() + lw_2 * u.x(), p1.y() + lw_2 * u.y(), z);
-    glVertex3f(p1.x() - lw_2 * u.x(), p1.y() - lw_2 * u.y(), z);
-    glVertex3f(p0.x() - lw_2 * u.x(), p0.y() - lw_2 * u.y(), z);
-    glEnd(); // GL_POLYGON
+    gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->Vertex3f(p0.x() + lw_2 * u.x(), p0.y() + lw_2 * u.y(), z);
+    gl->Vertex3f(p1.x() + lw_2 * u.x(), p1.y() + lw_2 * u.y(), z);
+    gl->Vertex3f(p1.x() - lw_2 * u.x(), p1.y() - lw_2 * u.y(), z);
+    gl->Vertex3f(p0.x() - lw_2 * u.x(), p0.y() - lw_2 * u.y(), z);
+    gl->End(); // DiGLPainter::gl_POLYGON
   }
 
-  glPopAttrib();
+  gl->PopAttrib();
 }
 
-void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z, bool forceClosed) const
+void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item,
+    const QList<QPointF> &points, int z, bool forceClosed) const
 {
   QVariantMap style = getStyle(item);
   bool closed = forceClosed || style.value(DSP_closed::name()).toBool();
 
   if (closed)
-    glBegin(GL_LINE_LOOP);
+    gl->Begin(DiGLPainter::gl_LINE_LOOP);
   else
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
 
   QList<QPointF> points_;
 
@@ -592,11 +592,11 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
     if ((!alphaOk) || (alpha >= 0)) {
       foreach (QPointF p, points_)
-        glVertex3i(p.x(), p.y(), z);
+        gl->Vertex3i(p.x(), p.y(), z);
     }
   }
 
-  glEnd(); // GL_LINE_LOOP or GL_LINE_STRIP
+  gl->End(); // DiGLPainter::gl_LINE_LOOP or DiGLPainter::gl_LINE_STRIP
 
   const bool reversed = !style.value(DSP_reversed::name()).toBool();
 
@@ -604,12 +604,12 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     QColor colour = style.value(DSP_decoration1_colour::name()).value<QColor>();
     bool alphaOk;
     const int alpha = style.value(DSP_decoration1_alpha::name()).toInt(&alphaOk);
-    glColor4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
+    gl->Color4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
 
     unsigned int offset = style.value(DSP_decoration1_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration1::name()).toList()) {
       QString decor = v.toString();
-      drawDecoration(style, decor, closed, reversed ? Outside : Inside, points_, z, offset);
+      drawDecoration(gl, style, decor, closed, reversed ? Outside : Inside, points_, z, offset);
       offset += 1;
     }
   }
@@ -618,12 +618,12 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     QColor colour = style.value(DSP_decoration2_colour::name()).value<QColor>();
     bool alphaOk;
     const int alpha = style.value(DSP_decoration2_alpha::name()).toInt(&alphaOk);
-    glColor4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
+    gl->Color4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
 
     unsigned int offset = style.value(DSP_decoration2_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration2::name()).toList()) {
       QString decor = v.toString();
-      drawDecoration(style, decor, closed, reversed ? Inside : Outside, points_, z, offset);
+      drawDecoration(gl, style, decor, closed, reversed ? Inside : Outside, points_, z, offset);
       offset += 1;
     }
   }
@@ -640,7 +640,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
  *
  * The \a z argument specifies the z coordinate of the decorations.
  */
-void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
+void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const QVariantMap &style, const QString &decoration, bool closed,
                                          const Side &side, const QList<QPointF> &points, int z,
                                          unsigned int offset) const
 {
@@ -654,10 +654,10 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal size = lineWidth * 5;
 
-    glPushAttrib(GL_POLYGON_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
-    glBegin(GL_TRIANGLES);
+    gl->Begin(DiGLPainter::gl_TRIANGLES);
 
     for (int i = offset; i < points_.size() + di; i += 4) {
 
@@ -670,14 +670,14 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
                                line.normalVector().unitVector().dy());
 
       QPointF p = midpoint + (sidef * size * normal);
-      glVertex3f(p.x(), p.y(), z);
-      glVertex3f(line.p1().x(), line.p1().y(), z);
-      glVertex3f(line.p2().x(), line.p2().y(), z);
+      gl->Vertex3f(p.x(), p.y(), z);
+      gl->Vertex3f(line.p1().x(), line.p1().y(), z);
+      gl->Vertex3f(line.p2().x(), line.p2().y(), z);
     }
 
-    glEnd(); // GL_TRIANGLES
+    gl->End(); // DiGLPainter::gl_TRIANGLES
 
-    glPopAttrib();
+    gl->PopAttrib();
 
   } else if (decoration == "arches") {
 
@@ -699,23 +699,23 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       QPointF midpoint = (line.p1() + line.p2())/2;
       qreal astep = qAbs(finish_angle - start_angle)/npoints;
 
-      glPushAttrib(GL_POLYGON_BIT);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+      gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
       // Create an arc using points on the circle with the predefined radius.
       // The direction we go around the circle is chosen to be consistent with
       // previous behaviour.
-      glBegin(GL_POLYGON);
+      gl->Begin(DiGLPainter::gl_POLYGON);
 
       for (int j = 0; j < npoints; ++j) {
         QPointF p = midpoint + QPointF(radius * qCos(start_angle + sidef * j*astep),
                                        radius * qSin(start_angle + sidef * j*astep));
-        glVertex3f(p.x(), p.y(), z);
+        gl->Vertex3f(p.x(), p.y(), z);
       }
 
-      glEnd(); // GL_POLYGON
+      gl->End(); // DiGLPainter::gl_POLYGON
 
-      glPopAttrib();
+      gl->PopAttrib();
     }
 
   } else if (decoration == "crosses") {
@@ -725,7 +725,7 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal size = lineWidth * 3;
 
-    glBegin(GL_LINES);
+    gl->Begin(DiGLPainter::gl_LINES);
 
     for (int i = offset; i < points_.size() + di; i += 2) {
 
@@ -736,16 +736,16 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
                                line.normalVector().unitVector().dy());
 
       QPointF p = midpoint + (size * normal) + (size * tangent);
-      glVertex3f(p.x(), p.y(), z);
+      gl->Vertex3f(p.x(), p.y(), z);
       p = midpoint - (size * normal) - (size * tangent);
-      glVertex3f(p.x(), p.y(), z);
+      gl->Vertex3f(p.x(), p.y(), z);
       p = midpoint - (size * normal) + (size * tangent);
-      glVertex3f(p.x(), p.y(), z);
+      gl->Vertex3f(p.x(), p.y(), z);
       p = midpoint + (size * normal) - (size * tangent);
-      glVertex3f(p.x(), p.y(), z);
+      gl->Vertex3f(p.x(), p.y(), z);
     }
 
-    glEnd(); // GL_LINES
+    gl->End(); // DiGLPainter::gl_LINES
 
   } else if (decoration == "arrow") {
 
@@ -767,16 +767,16 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     QPointF p1 = points_.last() - (lineLength * 2 * tangent) - dp;
     QPointF p2 = points_.last() - (lineLength * 2 * tangent) + dp;
 
-    glPushAttrib(GL_POLYGON_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
-    glBegin(GL_TRIANGLES);
-    glVertex3f(points_.last().x(), points_.last().y(), z);
-    glVertex3f(p1.x(), p1.y(), z);
-    glVertex3f(p2.x(), p2.y(), z);
-    glEnd(); // GL_TRIANGLES
+    gl->Begin(DiGLPainter::gl_TRIANGLES);
+    gl->Vertex3f(points_.last().x(), points_.last().y(), z);
+    gl->Vertex3f(p1.x(), p1.y(), z);
+    gl->Vertex3f(p2.x(), p2.y(), z);
+    gl->End(); // DiGLPainter::gl_TRIANGLES
 
-    glPopAttrib();
+    gl->PopAttrib();
 
   } else if (decoration == "SIGWX") {
 
@@ -785,7 +785,7 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     int npoints = lineWidth * 12;
 
-    glBegin(GL_LINE_STRIP);
+    gl->Begin(DiGLPainter::gl_LINE_STRIP);
 
     for (int i = 0; i < points_.size() + di; ++i) {
 
@@ -803,14 +803,14 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       for (int j = 0; j < npoints; ++j) {
         QPointF p = midpoint + QPointF(radius * qCos(start_angle + sidef * j*astep),
                                        radius * qSin(start_angle + sidef * j*astep));
-        glVertex3f(p.x(), p.y(), z);
+        gl->Vertex3f(p.x(), p.y(), z);
       }
     }
-    glEnd(); // GL_LINE_STRIP
+    gl->End(); // DiGLPainter::gl_LINE_STRIP
   }
 }
 
-void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const
+void DrawingStyleManager::fillLoop(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points) const
 {
   QVariantMap style = getStyle(item);
   bool closed = style.value(DSP_closed::name()).toBool();
@@ -822,21 +822,9 @@ void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPoi
     points_ = points;
 
   // draw the interior
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable( GL_BLEND );
-  GLdouble *gldata = new GLdouble[points_.size() * 3];
-  for (int i = 0; i < points_.size(); ++i) {
-    const QPointF p = points_.at(i);
-    gldata[3 * i] = p.x();
-    gldata[3 * i + 1] = p.y();
-    gldata[3 * i + 2] = 0.0;
-  }
-
-  beginTesselation();
-  int npoints = points_.size();
-  tesselation(gldata, 1, &npoints);
-  endTesselation();
-  delete[] gldata;
+  gl->BlendFunc( DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA );
+  gl->Enable( DiGLPainter::gl_BLEND );
+  gl->drawPolygon(QPolygonF::fromList(points_));
 }
 
 const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &points, bool closed)
@@ -974,7 +962,7 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
   return new_points;
 }
 
-void DrawingStyleManager::drawText(const DrawingItemBase *item_) const
+void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_) const
 {
   const DrawingItem_Text::Text *item = dynamic_cast<const DrawingItem_Text::Text *>(item_);
   if (!item)
@@ -986,9 +974,9 @@ void DrawingStyleManager::drawText(const DrawingItemBase *item_) const
   bool alphaOk;
   const int alpha = style.value(DSP_textalpha::name()).toInt(&alphaOk);
   if (textColour.isValid())
-    glColor4ub(textColour.red(), textColour.green(), textColour.blue(), alphaOk ? alpha : 255);
+    gl->Color4ub(textColour.red(), textColour.green(), textColour.blue(), alphaOk ? alpha : 255);
   else
-    glColor4ub(0, 0, 0, 255);
+    gl->Color4ub(0, 0, 0, 255);
 
   setFont(item);
   const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
@@ -998,11 +986,11 @@ void DrawingStyleManager::drawText(const DrawingItemBase *item_) const
 
   foreach (QString text, item->text()) {
     const QSizeF size = item->getStringSize(text);
-    glPushMatrix();
-    glTranslatef(x, y - size.height(), 0);
-    glScalef(scale, scale, 1.0);
-    PlotModule::instance()->getStaticPlot()->getFontPack()->drawStr(text.toStdString().c_str(), 0, 0, 0);
-    glPopMatrix();
+    gl->PushMatrix();
+    gl->Translatef(x, y - size.height(), 0);
+    gl->Scalef(scale, scale, 1.0);
+    gl->drawText(text.toStdString(), 0, 0, 0);
+    gl->PopMatrix();
     y -= size.height() * (1.0 + item->spacing());
   }
 }
@@ -1017,10 +1005,11 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item) const
   const QString fontFace = style.value(DSP_fontface::name(), QString::fromStdString(PlotOptions::defaultFontFace())).toString();
   const float fontSize = style.value(DSP_fontsize::name(), PlotOptions::defaultFontSize()).toFloat();
 
-  PlotModule::instance()->getStaticPlot()->getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize);
+  if (mCanvas)
+    mCanvas->setFont(fontName.toStdString(), fontFace.toStdString(), fontSize);
 }
 
-void DrawingStyleManager::drawSymbol(const DrawingItemBase *item) const
+void DrawingStyleManager::drawSymbol(DiGLPainter* gl, const DrawingItemBase *item) const
 {
   DrawingManager *dm = DrawingManager::instance();
 
@@ -1038,27 +1027,27 @@ void DrawingStyleManager::drawSymbol(const DrawingItemBase *item) const
 
   const QVariantMap style = getStyle(item);
 
-  glPushAttrib(GL_PIXEL_MODE_BIT);
+  gl->PushAttrib(DiGLPainter::gl_PIXEL_MODE_BIT);
 
   const QColor colour = style.value(DSP_symbolcolour::name()).value<QColor>();
   if (colour.isValid()) {
-    glPixelTransferf(GL_RED_BIAS, colour.red() / 255.0);
-    glPixelTransferf(GL_GREEN_BIAS, colour.green() / 255.0);
-    glPixelTransferf(GL_BLUE_BIAS, colour.blue() / 255.0);
+    gl->PixelTransferf(DiGLPainter::gl_RED_BIAS, colour.red() / 255.0);
+    gl->PixelTransferf(DiGLPainter::gl_GREEN_BIAS, colour.green() / 255.0);
+    gl->PixelTransferf(DiGLPainter::gl_BLUE_BIAS, colour.blue() / 255.0);
   }
 
   bool alphaOk;
   const int alpha = style.value(DSP_symbolalpha::name()).toInt(&alphaOk);
   if (alphaOk)
-    glPixelTransferf(GL_ALPHA_SCALE, alpha / 255.0);
+    gl->PixelTransferf(DiGLPainter::gl_ALPHA_SCALE, alpha / 255.0);
 
-  glEnable(GL_BLEND);
-  glRasterPos2f(
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->RasterPos2f(
         item->getPoints().at(0).x() - size / 2,
         item->getPoints().at(0).y() - aspect * size / 2);
-  glDrawPixels(image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+  gl->DrawPixels(image.width(), image.height(), DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, image.bits());
 
-  glPopAttrib();
+  gl->PopAttrib();
 }
 
 QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, const QString &name, const QString &value) const

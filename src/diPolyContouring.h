@@ -38,7 +38,7 @@
 
 #include "poly_contouring.hh"
 
-class FontManager;
+class DiGLPainter;
 
 class DianaLevels {
 public:
@@ -181,6 +181,6 @@ int find_index(bool repeat, int available, int i);
 
 bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
     const float z[], const float xz[], const float yz[],
-    FontManager* fp, const PlotOptions& poptions, float fieldUndef);
+    DiGLPainter* gl, const PlotOptions& poptions, float fieldUndef);
 
 #endif // diPolyContouring_hh

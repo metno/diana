@@ -195,7 +195,7 @@ public:
   ObsPositions& getObsPositions()
     { return obsPositions; }
   void clearObsPositions();
-  void calc_obs_mslp(Plot::PlotOrder porder,
+  void calc_obs_mslp(DiGLPainter* gl, Plot::PlotOrder porder,
       const std::vector<ObsPlot*>& oplot);
   void archiveMode(bool on)
     { useArchive=on; }

@@ -2721,15 +2721,13 @@ void EditManager::setEditMessage(const string& str)
 }
 
 
-void EditManager::plot(Plot::PlotOrder zorder)
+void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 {
   const bool under = (zorder == Plot::LINES);
   const bool over = (zorder == Plot::OVERLAY);
-//  METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
-//  <<"  showRegion="<<showRegion);
 
   if (apEditmessage)
-    apEditmessage->plot(zorder);
+    apEditmessage->plot(gl, zorder);
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
   bool plotcombine= false, plotregion= false;
@@ -2770,29 +2768,28 @@ void EditManager::plot(Plot::PlotOrder zorder)
   if (plotcombine && under){
     int n= objm->getCombiningObjects().objects.size();
     for (int i=0; i<n; i++)
-      objm->getCombiningObjects().objects[i]->plot(zorder);
+      objm->getCombiningObjects().objects[i]->plot(gl, zorder);
   }
 
   if (plototherfield || plotactivefield) {
     for (int i=0; i<nf; i++) {
       if (fedits[i]->editfield && fedits[i]->editfieldplot) {
         bool act= fedits[i]->activated();
-        if ((act && plotactivefield) || (!act && plototherfield)){
-          fedits[i]->plot(zorder, plotinfluence);
-        }
+        if ((act && plotactivefield) || (!act && plototherfield))
+          fedits[i]->plot(gl, zorder, plotinfluence);
       }
     }
   }
 
   if (plotobjects) {
-    objm->getEditObjects().plot(zorder);
+    objm->getEditObjects().plot(gl, zorder);
     if (over) {
-      objm->getEditObjects().drawJoinPoints();
+      objm->getEditObjects().drawJoinPoints(gl);
     }
   }
 
   if (plotregion)
-    plotSingleRegion(zorder);
+    plotSingleRegion(gl, zorder);
 
   if (plotcombine && over){
     int n= objm->getCombiningObjects().objects.size();
@@ -2835,14 +2832,14 @@ void EditManager::plot(Plot::PlotOrder zorder)
 
     objm->getCombiningObjects().setScaleToField(scale);
 
-    objm->getCombiningObjects().plot(zorder);
+    objm->getCombiningObjects().plot(gl, zorder);
 
-    objm->getCombiningObjects().drawJoinPoints();
+    objm->getCombiningObjects().drawJoinPoints(gl);
   }
 }
 
 
-void EditManager::plotSingleRegion(Plot::PlotOrder zorder)
+void EditManager::plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2855,7 +2852,7 @@ void EditManager::plotSingleRegion(Plot::PlotOrder zorder)
     if (showRegion<int(combinefields[i].size())) {
       if (combinefields[i][showRegion]->editfield &&
           combinefields[i][showRegion]->editfieldplot)
-        combinefields[i][showRegion]->plot(zorder, false);
+        combinefields[i][showRegion]->plot(gl, zorder, false);
     }
   }
 
@@ -2863,7 +2860,7 @@ void EditManager::plotSingleRegion(Plot::PlotOrder zorder)
     // projection may have been changed when showing single region data
     combineobjects[showRegion].changeProjection(plotm->getMapArea());
 
-    combineobjects[showRegion].plot(zorder);
+    combineobjects[showRegion].plot(gl, zorder);
   }
 }
 

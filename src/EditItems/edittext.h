@@ -55,8 +55,8 @@ private:
   virtual QList<QAction *> actions(const QPoint &) const;
 
 protected:
-  virtual void drawHoverHighlighting(bool, bool) const;
-  virtual void drawIncomplete() const;
+  virtual void drawHoverHighlighting(DiGLPainter* gl, bool, bool) const;
+  virtual void drawIncomplete(DiGLPainter* gl) const;
 
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();

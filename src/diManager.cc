@@ -33,12 +33,17 @@
 #include <puTools/miStringFunctions.h>
 
 Manager::Manager()
-    : enabled(false), editing(false), focus(false)
+  : enabled(false), editing(false), focus(false), mCanvas(0)
 {
 }
 
 Manager::~Manager()
 {
+}
+
+void Manager::setCanvas(DiCanvas* canvas)
+{
+  mCanvas = canvas;
 }
 
 bool Manager::isEnabled() const

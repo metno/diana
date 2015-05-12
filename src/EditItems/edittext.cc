@@ -31,6 +31,7 @@
 
 #include "edittext.h"
 #include "diEditItemManager.h"
+#include "diGLPainter.h"
 #include "diPlot.h"
 #include "diFontManager.h"
 #include "diPlotModule.h"
@@ -140,20 +141,20 @@ void Text::setPoints(const QList<QPointF> &points)
   setGeometry(points);
 }
 
-void Text::drawHoverHighlighting(bool, bool) const
+void Text::drawHoverHighlighting(DiGLPainter* gl, bool, bool) const
 {
   QRectF bbox = drawingRect();
 
-  glColor3ub(255, 0, 0);
-  glBegin(GL_LINE_LOOP);
-  glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
-  glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
-  glVertex2f(bbox.topRight().x(), bbox.topRight().y());
-  glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
-  glEnd();
+  gl->Color3ub(255, 0, 0);
+  gl->Begin(DiGLPainter::gl_LINE_LOOP);
+  gl->Vertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
+  gl->Vertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
+  gl->Vertex2f(bbox.topRight().x(), bbox.topRight().y());
+  gl->Vertex2f(bbox.topLeft().x(), bbox.topLeft().y());
+  gl->End();
 }
 
-void Text::drawIncomplete() const
+void Text::drawIncomplete(DiGLPainter* gl) const
 {
   if (points_.isEmpty())
     return;
@@ -162,13 +163,13 @@ void Text::drawIncomplete() const
   const float x = points_.first().x();
   const float y = points_.first().y();
   const float s = 4;
-  glColor3ub(255, 0, 0);
-  glBegin(GL_POLYGON);
-  glVertex2f(x - s, y - s);
-  glVertex2f(x + s, y - s);
-  glVertex2f(x + s, y + s);
-  glVertex2f(x - s, y + s);
-  glEnd();
+  gl->Color3ub(255, 0, 0);
+  gl->Begin(DiGLPainter::gl_POLYGON);
+  gl->Vertex2f(x - s, y - s);
+  gl->Vertex2f(x + s, y - s);
+  gl->Vertex2f(x + s, y + s);
+  gl->Vertex2f(x - s, y + s);
+  gl->End();
 }
 
 bool Text::editText()

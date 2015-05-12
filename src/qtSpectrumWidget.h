@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,18 +29,8 @@
 #ifndef SPECTRUMWIDGET_H
 #define SPECTRUMWIDGET_H
 
-#include <qglobal.h>
-
-#include <map>
-
-#if !defined(USE_PAINTGL)
-#include <qgl.h>
-#else
-#include "PaintGL/paintgl.h"
-#define QGLWidget PaintGLWidget
-#endif
-#include <QKeyEvent>
-#include <QWidget>
+#include "diPaintable.h"
+#include <QObject>
 
 class SpectrumManager;
 
@@ -52,38 +40,29 @@ class SpectrumManager;
    Handles widget paint/redraw events.
    Receives keybord events and initiates actions.
 */
-class SpectrumWidget : public QGLWidget
+class SpectrumWidget : public QObject, public DiPaintable
 {
-  Q_OBJECT
+  Q_OBJECT;
 
 public:
-#if !defined(USE_PAINTGL)
-  SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
-             QWidget* parent = 0);
-#else
-  SpectrumWidget(SpectrumManager *spm, QWidget* parent = 0);
-#endif
+  SpectrumWidget(SpectrumManager *spm);
 
-  bool saveRasterImage(const std::string fname,
-  		       const std::string format,
-		       const int quality = -1);
+  void setCanvas(DiCanvas* c)
+    { mCanvas = c; }
+  DiCanvas* canvas() const
+    { return mCanvas; }
+  void paint(DiPainter* painter);
+  void resize(int width, int height);
 
-protected:
+  bool handleKeyEvents(QKeyEvent*);
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
-
-private:
-  SpectrumManager *spectrumm;
-
-  void keyPressEvent(QKeyEvent *me);
-
-signals:
+Q_SIGNALS:
   void timeChanged(int);
   void stationChanged(int);
 
+private:
+  SpectrumManager *spectrumm;
+  DiCanvas* mCanvas;
 };
-
 
 #endif

@@ -32,10 +32,9 @@
 #include "WebMapPainting.h"
 #include "WebMapService.h"
 #include "WebMapUtilities.h"
+#include "diGLPainter.h"
 
 #include <QImage>
-
-#include <GL/gl.h>
 
 #define MILOGGER_CATEGORY "diana.WebMapPlot"
 #include <miLogger/miLogging.h>
@@ -97,7 +96,7 @@ void WebMapPlot::dropRequest()
   mRequest = 0;
 }
 
-void WebMapPlot::plot(PlotOrder porder)
+void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
   if (!isEnabled() || porder != LINES)
@@ -153,7 +152,7 @@ void WebMapPlot::plot(PlotOrder porder)
         getStaticPlot()->ProjToMap(tp, N, vx, vy);
         diutil::QImageData imagepixels(&ti, vx, vy);
         imagepixels.setColourTransform(mColourTransform);
-        diutil::drawFillCell(imagepixels);
+        diutil::drawFillCell(gl, imagepixels);
         delete[] vx;
         delete[] vy;
 
@@ -165,12 +164,12 @@ void WebMapPlot::plot(PlotOrder porder)
         getStaticPlot()->ProjToMap(tp, 4, corner_x, corner_y);
 
         const float red = 0, green = 1, blue = 0, alpha = 0;
-        glColor4f(red, green, blue, alpha);
-        glLineWidth(2.0);
-        glBegin(GL_LINE_LOOP);
+        gl->Color4f(red, green, blue, alpha);
+        gl->LineWidth(2.0);
+        gl->Begin(DiGLPainter::gl_LINE_LOOP);
         for (int i=0; i<4; ++i)
-          glVertex2f(corner_x[i], corner_y[i]);
-        glEnd();
+          gl->Vertex2f(corner_x[i], corner_y[i]);
+        gl->End();
       }
     }
     const QImage li = mRequest->legendImage();
@@ -193,7 +192,7 @@ void WebMapPlot::plot(PlotOrder porder)
       }
       diutil::QImageData imagepixels(&li, vx, vy);
       imagepixels.setColourTransform(mColourTransform);
-      diutil::drawFillCell(imagepixels);
+      diutil::drawFillCell(gl, imagepixels);
       delete[] vx;
       delete[] vy;
     }

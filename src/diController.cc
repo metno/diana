@@ -101,6 +101,16 @@ Controller::~Controller()
   delete WebMapManager::instance();
 }
 
+void Controller::setCanvas(DiCanvas* canvas)
+{
+  plotm->setCanvas(canvas);
+}
+
+DiCanvas* Controller::canvas()
+{
+  return DrawingManager::instance()->canvas(); // FIXME store elsewhere
+}
+
 // hack: indices for colorIndex mode set from gui
 void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
   int n= vc.size();
@@ -111,14 +121,14 @@ void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
 
 void  Controller::restartFontManager()
 {
-  plotm->getStaticPlot()->restartFontManager();
+  // plotm->getStaticPlot()->restartFontManager();
 }
 
 bool Controller::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  plotm->getStaticPlot()->initFontManager();
+  // plotm->getStaticPlot()->initFontManager();
 
   //Parse field sections
   vector<std::string> fieldSubSect = fieldm->subsections();
@@ -176,10 +186,10 @@ void Controller::plotCommands(const vector<string>& inp)
   plotm->preparePlots(inp);
 }
 
-void Controller::plot(bool under, bool over)
+void Controller::plot(DiGLPainter* gl, bool under, bool over)
 {
   METLIBS_LOG_SCOPE();
-  plotm->plot(under, over);
+  plotm->plot(gl, under, over);
 }
 
 vector<AnnotationPlot*> Controller::getAnnotations()
@@ -187,9 +197,9 @@ vector<AnnotationPlot*> Controller::getAnnotations()
   return plotm->getAnnotations();
 }
 
-vector<Rectangle> Controller::plotAnnotations()
+vector<Rectangle> Controller::plotAnnotations(DiGLPainter* gl)
 {
-  return plotm->plotAnnotations();
+  return plotm->plotAnnotations(gl);
 }
 
 // get plotwindow corners in GL-coordinates
@@ -256,13 +266,13 @@ double Controller::getWindowArea(){
   return plotm->getWindowArea();
 }
 
-// start hardcopy plot
-void Controller::startHardcopy(const printOptions& po){
+void Controller::startHardcopy(const printOptions& po)
+{
   plotm->startHardcopy(po);
 }
 
-// end hardcopy plot
-void Controller::endHardcopy(){
+void Controller::endHardcopy()
+{
   plotm->endHardcopy();
 }
 

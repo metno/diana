@@ -34,6 +34,7 @@
 #include <vector>
 #include <map>
 
+class DiGLPainter;
 class LegendPlot;
 
 /**
@@ -155,13 +156,13 @@ private:
   void addElement2Vector(std::vector<element>& v_e, const element& e, int index);
   bool decodeElement(std::string elementstring, element& el);
   //get size of annotation line
-  void getAnnoSize(std::vector<element>& annoEl, float& wid, float& hei,
+  void getAnnoSize(DiGLPainter* gl, std::vector<element>& annoEl, float& wid, float& hei,
       bool horizontal = true);
-  void getXYBox();
-  bool plotElements(std::vector<element>& annoEl, float& x, float& y,
+  void getXYBox(DiGLPainter* gl);
+  bool plotElements(DiGLPainter* gl, std::vector<element>& annoEl, float& x, float& y,
       float annoHeight, bool horizontal = true);
-  float plotArrow(float x, float y, float l, bool feather = false);
-  void plotBorders();
+  float plotArrow(DiGLPainter* gl, float x, float y, float l, bool feather = false);
+  void plotBorders(DiGLPainter* gl);
   std::vector<std::string> split(const std::string, const char, const char);
   std::string writeElement(element& annoEl);
 
@@ -170,7 +171,7 @@ public:
   AnnotationPlot(const std::string&);
   ~AnnotationPlot();
 
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
   ///decode plot info strings
   bool prepare(const std::string&);

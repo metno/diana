@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -32,10 +30,11 @@
 #define _diDrawingManager_h
 
 #include "diManager.h"
+#include "EditItems/drawingitembase.h"
+#include "EditItems/layermanager.h"
+#include "EditItems/layer.h"
+
 #include <diField/diGridConverter.h>
-#include <EditItems/drawingitembase.h>
-#include <EditItems/layermanager.h>
-#include <EditItems/layer.h>
 #include <QHash>
 #include <QList>
 #include <QMap>
@@ -46,13 +45,6 @@
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <vector>
-
-#if !defined(USE_PAINTGL)
-#include <qgl.h>
-#else
-#include "PaintGL/paintgl.h"
-#define QGLWidget PaintGLWidget
-#endif
 
 class PlotModule;
 class ObjectManager;
@@ -90,7 +82,8 @@ public:
   virtual bool changeProjection(const Area& newArea);
   virtual bool loadDrawing(const QString &fileName);
   virtual bool prepare(const miutil::miTime &time);
-  virtual void plot(bool under, bool over);
+  virtual void setCanvas(DiCanvas* canvas) /* Q_DECL_OVERRIDE*/;
+  virtual void plot(DiGLPainter* gl, bool under, bool over);
   virtual bool processInput(const std::vector<std::string>& inp);
   virtual std::vector<std::string> getAnnotations() const;
 
@@ -145,7 +138,7 @@ signals:
 protected:
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
   virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
-  void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
+  void applyPlotOptions(DiGLPainter *gl, const QSharedPointer<DrawingItemBase> &) const;
 
   static Rectangle editRect_;
 

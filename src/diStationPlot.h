@@ -133,7 +133,7 @@ public:
       const std::vector <float> & lats);
   /// constructor with station names,longitudes,latitudes and images
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
-        const std::vector <float> & lats, const std::vector <std::string> images);
+        const std::vector <float> & lats, const std::vector <std::string>& images);
   /// constructor with stations
   StationPlot(const std::vector <Station*> &stations);
   StationPlot(const std::string& commondesc,
@@ -145,7 +145,7 @@ public:
 
 
   /// plot stations
-  void plot(PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
   /// hide stations
   void hide();
@@ -230,16 +230,14 @@ private:
   std::vector<StationArea> stationAreas;  // areas containing stations
 
   //  void addStation(const std::string names);
-  void addStation(const float lon, const float lat,
-      const std::string name="",
-      const std::string image="",
-      int alpha=255, float scale=1.0);
+  void addStation(float lon, float lat, const std::string& name="",
+      const std::string& image="", int alpha=255, float scale=1.0);
   void addStation(Station* station);
   void defineCoordinates();
   void init();
-  void plotStation(int i);
-  void glPlot(Station::Status tp, float x, float y, float w, float h, bool selected = false);
-  void plotWind(int i, float x, float y, bool classic=false, float scale=1);
+  void plotStation(DiGLPainter* gl, int i);
+  void glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, float w, float h, bool selected = false);
+  void plotWind(DiGLPainter* gl, int i, float x, float y, bool classic=false, float scale=1);
 
   std::vector <float> xplot; //x-positions to plot in current projection
   std::vector <float> yplot; //y-positions to plot in current projection
@@ -260,7 +258,6 @@ private:
   int editIndex; //last selected editStation
   int index; //last selected
 
-  GLuint circle;
   ImageGallery ig;
 
   static std::string ddString[16]; // NN�,N�,�N�,�,�S� etc.

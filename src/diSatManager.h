@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -31,10 +29,9 @@
 #ifndef diSatManager_h
 #define diSatManager_h
 
-#include <diAnnotationPlot.h>
-#include <diSat.h>
-#include <diSatPlot.h>
-#include <diCommonTypes.h>
+#include "diAnnotationPlot.h"
+#include "diSat.h"
+#include "diCommonTypes.h"
 
 #include <puCtools/stat.h>
 #include <diField/TimeFilter.h>
@@ -43,21 +40,9 @@
 #include <set>
 #include <vector>
 
-//#ifndef HDF5_INC
-//#define HDF5_INC
-//#endif
-
-//#ifndef DEBUGPRINT
-//#define DEBUGPRINT
-//#endif
-
-
-//#ifdef HDF5_INC
-
-//#endif
+class SatPlot;
 
 /**
-
   \brief Managing satellite and radar images
 
   - parse setup
@@ -65,7 +50,6 @@
   - managing file/time info
   - read data
   - making rgb images, mosaic of images
-
 */
 class SatManager {
 
@@ -158,13 +142,12 @@ public:
   void enablePlotElement(const PlotElement& pe);
   void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
   void getSatAnnotations(std::vector<std::string>& anno);
-  void plot(Plot::PlotOrder porder);
+  void plot(DiGLPainter* gl, Plot::PlotOrder porder);
   void clear();
   bool getGridResolution(float& rx, float& ry);
 
   bool setData();
-  bool getSatArea(Area& a) const
-    { if (vsp.empty()) return false; a = vsp.front()->getSatArea(); return true; }
+  bool getSatArea(Area& a) const;
 
   bool isFileListChanged() const
     { return fileListChanged; }

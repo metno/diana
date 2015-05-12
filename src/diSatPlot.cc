@@ -31,85 +31,67 @@
 #include "config.h"
 #endif
 
-#include <diSatPlot.h>
+#include "diSatPlot.h"
+
+#include "diGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
-#include <QtGlobal>
-#if defined(USE_PAINTGL)
-#include <QtGui>
-#include <QtSvg>
-#include "PaintGL/paintgl.h"
-#else
-#include <QtOpenGL>
-#endif
-
-#define MILOGGER_CATEGORY "diana.MainWindow"
+#define MILOGGER_CATEGORY "diana.SatPlot"
 #include <miLogger/miLogging.h>
-
-#define NO_TEXTTURE
 
 using namespace::miutil;
 using namespace std;
 
 SatPlot::SatPlot()
- :Plot(), imagedata(0), previrs(1), satdata(0)
+ : imagedata(0), previrs(1), satdata(0)
 {
-    texture = 0;
-    hasTexture = false;
 }
 
-SatPlot::~SatPlot(){
-  if (satdata) delete satdata;
+SatPlot::~SatPlot()
+{
+  delete satdata;
   satdata = 0;
-  if (imagedata) delete[] imagedata;
+  delete[] imagedata;
   imagedata=0;
-  if (hasTexture) {
-    glDeleteTextures( 1, &texture );
-  }
 }
-
 
 void SatPlot::getSatAnnotation(std::string &str, Colour &col)
 {
   if (satdata->approved){
     str = satdata->annotation;
-    Colour c("black");
-    col = c;
+    col = Colour("black");
   } else
     str.erase();
 }
 
-
-
 void SatPlot::getSatName(std::string &str)
 {
-  if (satdata->approved){
-    std::string sat = miutil::trimmed(satdata->satellite_name + satdata->filetype);
-    str = sat;
+  if (satdata->approved) {
+    str = miutil::trimmed(satdata->satellite_name + satdata->filetype);
     if (satdata->mosaic)
       str+=" MOSAIKK ";
     else
       str+= " ";
-    str+=satdata->time.isoTime();
+    str += satdata->time.isoTime();
   } else
     str.erase();
 }
 
-
-
-void SatPlot::setData(Sat *data){
+void SatPlot::setData(Sat *data)
+{
   METLIBS_LOG_SCOPE();
   delete imagedata;
-  imagedata = NULL;
+  imagedata = 0;
   delete satdata;
-  satdata = NULL;
   satdata = data;
 }
-void SatPlot::clearData(){
+
+void SatPlot::clearData()
+{
   METLIBS_LOG_SCOPE();
   delete imagedata;
-  imagedata = NULL;
+  imagedata = 0;
 }
 
 void SatPlot::getCalibChannels(std::vector<std::string>& channels)
@@ -124,11 +106,8 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
   if (not isEnabled())
     return;
 
-  if ((satdata == NULL)||
-      (satdata->image == NULL)||
-      (!satdata->approved)) {
+  if (!satdata || !satdata->image || !satdata->approved)
     return;
-  }
 
   //x, y in map coordinates
   //Convert to satellite proj coordiantes
@@ -140,7 +119,7 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
   satdata->values(xpos,ypos,satval);
 }
 
-void SatPlot::plot(PlotOrder porder)
+void SatPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_TIME();
 
@@ -154,14 +133,13 @@ void SatPlot::plot(PlotOrder porder)
     return;
 
   if (!getStaticPlot()->getMapArea().P().isAlmostEqual(satdata->area.P()))
-    plotFillcell();
+    plotFillcell(gl);
   else
-    plotPixmap();
+    plotPixmap(gl);
 }
 
-bool SatPlot::plotFillcell()
+bool SatPlot::plotFillcell(DiGLPainter* gl)
 {
-
   int nx = satdata->nx;
   int ny = satdata->ny;
 
@@ -190,10 +168,10 @@ bool SatPlot::plotFillcell()
   if (ix1>ix2 || iy1>iy2)
     return false;
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_QUADS);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+  gl->Begin(DiGLPainter::gl_QUADS);
   vector<float>::iterator it;
   for (int iy=iy1; iy<=iy2-1; iy++) {
     for (int ix = ix1; ix <= ix2-1; ix++) {
@@ -213,29 +191,27 @@ bool SatPlot::plotFillcell()
       if(int(f4)==0  ) {
         continue;
       }
-      glColor4ub(f1,f2,f3,f4);
-      glVertex2f(x1, y1);
+      gl->Color4ub(f1,f2,f3,f4);
+      gl->Vertex2f(x1, y1);
       // lower-right corner of gridcell
-      glVertex2f(x2, y2);
+      gl->Vertex2f(x2, y2);
       // upper-right corner of gridcell
-      glVertex2f(x3, y3);
+      gl->Vertex2f(x3, y3);
       // upper-left corner of gridcell
-      glVertex2f(x4, y4);
+      gl->Vertex2f(x4, y4);
     }
   }
-  
-  glEnd();
-  glDisable(GL_BLEND);
+
+  gl->End();
+  gl->Disable(DiGLPainter::gl_BLEND);
 
   return true;
 }
 
-bool SatPlot::plotPixmap()
+bool SatPlot::plotPixmap(DiGLPainter* gl)
 {
   int nx = satdata->nx;
   int ny = satdata->ny;
-
-  int npos = 1;
 
   //Member variables, used in values().
   //Corners of total image (map coordinates)
@@ -295,10 +271,6 @@ bool SatPlot::plotPixmap()
   float bmxmove= (getStaticPlot()->getMapSize().x1>xmin) ? (xstart-grStartx)*scalex : 0;
   float bmymove= (getStaticPlot()->getMapSize().y1>ymin) ? (ystart-grStarty)*scaley : 0;
 
-  // for hardcopy
-  float pxstart= (xstart-getStaticPlot()->getMapSize().x1)*scalex;
-  float pystart= (ystart-getStaticPlot()->getMapSize().y1)*scaley;
-
   // update scaling with ratio image to map (was map to screen pixels)
   scalex*= satdata->gridResolutionX;
   scaley*= satdata->gridResolutionY;
@@ -307,141 +279,45 @@ bool SatPlot::plotPixmap()
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
   int currhei= bmStopy - bmStarty + 1;  // use pixels in image
 
-  // keep original copies (for hardcopy purposes)
-  int orignx =       nx;
-  int origny =       ny;
-  float origscalex=  scalex;
-  float origscaley=  scaley;
-  int origbmStartx=  bmStartx;
-  int origbmStarty=  bmStarty;
-  float origpxstart= pxstart;
-  float origpystart= pystart;
-
   /*
     If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
     cImage: Pointer to imagedata, either sat_image or resampled data
    */
-#ifdef NO_TEXTTURE
-  unsigned char * cimage = resampleImage(currwid,currhei,bmStartx,bmStarty,
-					 scalex,scaley,nx,ny);
+  unsigned char * cimage = resampleImage(gl, currwid,currhei,bmStartx,bmStarty, scalex,scaley,nx,ny);
 
   // always needed (if not, slow oper...) ??????????????
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   // assure valid raster position after OpenGL transformations
   grStartx += getStaticPlot()->getPlotSize().width() *0.0001;
   grStarty += getStaticPlot()->getPlotSize().height()*0.0001;
 
-  glPixelZoom(scalex,scaley);
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,bmStarty); //pixels
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,bmStartx);//pixels
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);//pixels on image
-  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-  glRasterPos2f(grStartx,grStarty); //glcoord.
+  gl->PixelZoom(scalex,scaley);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,bmStarty); //pixels
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,bmStartx);//pixels
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);//pixels on image
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT,1);
+  gl->RasterPos2f(grStartx,grStarty); //glcoord.
 
   //Strange, but needed
-  if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
+  if (bmxmove<0. || bmymove<0.) gl->Bitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
 
-  glDrawPixels((GLint)currwid, (GLint)currhei,
-      GL_RGBA, GL_UNSIGNED_BYTE,
+  gl->DrawPixels((DiGLPainter::GLint)currwid, (DiGLPainter::GLint)currhei,
+      DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
       cimage);
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-  glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);
-#else  
-  bool wrap =true;
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,0);
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT,4);
+  gl->Disable(DiGLPainter::gl_BLEND);
 
-  // allocate a texture name
-  if (!hasTexture) {
-    glGenTextures( 1, &texture );
-    //cerr << "Gentext: " << texture << endl;
-  }
-
-  // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-   glBindTexture(GL_TEXTURE_2D, texture);
-
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 
-                   GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
-                   GL_NEAREST);
-
-   // Generate The Texture
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, satdata->image);
-
-   /*
-      int t[4];
-      glGetIntegerv(GL_VIEWPORT, t);
-      cerr << "GL_VIEWPORT" << endl;
-      cerr<< t[0] << " " << t[1] << " " << t[2] << " " << t[3] << endl;
-      cerr << "nx " << nx<<" ny " << ny<< endl;
-   */
-    //Enable texturing on all models for now on.
-
-   //  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glEnable(GL_BLEND);
-   glEnable(GL_TEXTURE_2D);
-   //   glEnable(GL_ALPHA_TEST);
-
-   //   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-   glBindTexture(GL_TEXTURE_2D, texture);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-   glDisable(GL_LIGHTING);
-   glDisable(GL_FOG);
-   glDisable(GL_DEPTH_TEST);
-   glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-
-   glPushMatrix();
-
-   glBegin(GL_QUADS);
-      float w = nx -1;
-      float h = ny -1;
-   
-
-     //cerr << "nx " << nx << " ny " << ny << endl;
-     //cerr << "grStartx " << grStartx << " grStarty " << grStarty << " grStopx " << grStopx << " grStopy " << grStopy << endl;
-     //cerr << "bmStartx/nx bmStarty/ny bmStopx/nx bmStopy/ny" << endl;
-     //cerr << bmStartx << " " << bmStarty << " " << bmStopx << " " << bmStopy << endl;
-     //cerr << bmStartx/w << " " << bmStarty/h << " " << bmStopx/w << " " << bmStopy/h << endl;
-   
-
-      glTexCoord2f(bmStartx/w, bmStarty/h); glVertex3f(grStartx, grStarty, 0);
-      glTexCoord2f(bmStopx/w,  bmStarty/h); glVertex3f(grStopx, grStarty, 0);
-      glTexCoord2f(bmStopx/w,  bmStopy/h);  glVertex3f(grStopx, grStopy, 0);
-      glTexCoord2f(bmStartx/w, bmStopy/h);  glVertex3f(grStartx, grStopy, 0);
-    
-    glEnd();
-    glPopMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-#endif
-
-  // for postscript output, add imagedata to glpfile
-  if (getStaticPlot()->hardcopy){
-
-    getStaticPlot()->psAddImage(satdata->image,
-        4*orignx*origny, orignx, origny,
-        origpxstart, origpystart, origscalex, origscaley,
-        origbmStartx, origbmStarty, bmStopx, bmStopy,
-        GL_RGBA, GL_UNSIGNED_BYTE);
-
-    // for postscript output
-    getStaticPlot()->UpdateOutput();
-  }
+  gl->UpdateOutput();
   return true;
 }
 
-unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
+unsigned char * SatPlot::resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
     int& bmStartx, int& bmStarty,
     float& scalex, float& scaley,int& nx, int& ny)
 {
@@ -449,8 +325,8 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
   unsigned char * cimage;
   int irs= 1;            // resample-size
 
-  GLint maxdims[2];      // find OpenGL maximums
-  glGetIntegerv(GL_MAX_VIEWPORT_DIMS,maxdims);
+  DiGLPainter::GLint maxdims[2];      // find OpenGL maximums
+  gl->GetIntegerv(DiGLPainter::gl_MAX_VIEWPORT_DIMS,maxdims);
   int maxww= maxdims[0];
   int maxhh= maxdims[1];
   int orignx = nx;

@@ -31,11 +31,11 @@
 #ifndef _diFieldEdit_h
 #define _diFieldEdit_h
 
-#include <diCommonTypes.h>
-#include <diDrawingTypes.h>
-#include <diMapMode.h>
-#include <diFieldPlot.h>
-#include <diEditSpec.h>
+#include "diCommonTypes.h"
+#include "diDrawingTypes.h"
+#include "diMapMode.h"
+#include "diFieldPlot.h"
+#include "diEditSpec.h"
 
 #include <diField/diField.h>
 #include <diField/diGridConverter.h>
@@ -43,6 +43,7 @@
 #include <vector>
 #include <set>
 
+class DiGLPainter;
 class FieldPlotManager;
 
 /// info about influence of field edit operations
@@ -187,7 +188,7 @@ private:
 		   float *data, float *work,
 	           float *worku1, float *worku2);
 
-  void drawInfluence();
+  void drawInfluence(DiGLPainter* gl);
 
   StaticPlot* getStaticPlot() const;
 
@@ -219,7 +220,7 @@ public:
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }
-  void plot(Plot::PlotOrder porder, bool showinfluence);
+  void plot(DiGLPainter* gl, Plot::PlotOrder porder, bool showinfluence);
   bool getAnnotations(std::vector<std::string>& anno);
 };
 

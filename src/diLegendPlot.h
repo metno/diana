@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+class DiGLPainter;
 class StaticPlot;
 
 /**
@@ -78,7 +79,8 @@ private:
   LegendPlot& operator=(const LegendPlot &rhs);
 
   /// get width and height of string str with current font
-  void getStringSize(std::string str, float& width, float& height);
+  void getStringSize(DiGLPainter*, const std::string& str,
+      float& width, float& height);
 
 public:
   /// Constructor which reads string to get title and make vector of ColourCode
@@ -89,7 +91,7 @@ public:
   void setData(const std::string& title, const std::vector<ColourCode>& colourcode);
 
   /// plots the legend plot with top left corner at x,y
-  bool plotLegend(float x=0.0, float y=0.0);
+  bool plotLegend(DiGLPainter* gl, float x=0.0, float y=0.0);
 
   /// if x,y inside title bar, then the table should be hidden or shown
   void showSatTable(int x,int y);
@@ -117,9 +119,9 @@ public:
   void setAlignment(Alignment a){poptions.h_align=a;}
 
   /// calculates and returns total table height
-  float height();
+  float height(DiGLPainter* gl);
   /// calculates and returns total table width
-  float width();
+  float width(DiGLPainter* gl);
 };
 
 #endif // diLegendPlot_h

@@ -217,7 +217,7 @@ void SpectrumOptions::readOptions(const std::vector<std::string>& vstr)
 	else if (key=="peakDirectionColour")    peakDirectionColour= value;
 	else if (key=="peakDirectionLinewidth") peakDirectionLinewidth= atof(value.c_str());
 
-	else if (key=="freqMax")        freqMax= atof(value.c_str());
+	else if (key=="freqMax") {      freqMax= atof(value.c_str()); if (freqMax <= 1e-5) freqMax = 0.3; }
 
 	else if (key=="backgroundColour") backgroundColour= value;
 //####################################################################

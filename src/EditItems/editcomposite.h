@@ -60,8 +60,8 @@ public:
   virtual bool isEditable(DrawingItemBase *element) const;
 
 protected:
-  virtual void drawHoverHighlighting(bool, bool) const;
-  virtual void drawIncomplete() const;
+  virtual void drawHoverHighlighting(DiGLPainter* gl, bool, bool) const;
+  virtual void drawIncomplete(DiGLPainter* gl) const;
 
   virtual void move(const QPointF &pos);
   virtual void resize(const QPointF &);
@@ -72,7 +72,7 @@ protected:
   virtual DrawingItemBase *newSymbolItem() const;
   virtual DrawingItemBase *newTextItem() const;
 
-private slots:
+private Q_SLOTS:
   void editItem();
 
 private:
@@ -90,7 +90,7 @@ public:
 
   void applyChanges();
 
-private slots:
+private Q_SLOTS:
   void updateSymbol(QAction *action);
   void updateText(const QString &text);
 

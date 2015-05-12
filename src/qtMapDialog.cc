@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -63,29 +61,29 @@ using namespace std;
 /*********************************************/
 MapDialog::MapDialog(QWidget* parent, Controller* llctrl) :
   QDialog(parent)
-  {
+{
 #ifdef dMapDlg
-  METLIBS_LOG_DEBUG("MapDialog::MapDialog called");
+  METLIBS_LOG_SCOPE();
 #endif
   m_ctrl = llctrl;
   ConstructorCernel(llctrl->initMapDialog());
-  }
+}
 
 /*********************************************/
-MapDialog::MapDialog(QWidget* parent, const MapDialogInfo& mdi) :
-  QDialog(parent)
-  {
+MapDialog::MapDialog(QWidget* parent, const MapDialogInfo& mdi)
+  : QDialog(parent)
+{
 #ifdef dMapDlg
-  METLIBS_LOG_DEBUG("MapDialog::MapDialog called");
+  METLIBS_LOG_SCOPE();
 #endif
   ConstructorCernel(mdi);
-  }
+}
 
 /*********************************************/
 void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 {
 #ifdef dMapDlg
-  METLIBS_LOG_DEBUG("MapDialog::ConstructorCernel called");
+  METLIBS_LOG_SCOPE();
 #endif
 
   setWindowTitle(tr("Map and Area"));
@@ -265,7 +263,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   lonshowvalue=false;
   int lon_line= 0;
   int lon_linetype= 0;
-  int lon_col= 0;
   int lon_z= 2;
   int lon_dens= 0;
 
@@ -278,7 +275,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   latshowvalue=false;
   int lat_line= 0;
   int lat_linetype= 0;
-  int lat_col= 0;
   int lat_z= 2;
   int lat_dens= 0;
 
@@ -287,7 +283,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   framelw= "1";
   int ff_line= 0;
   int ff_linetype= 0;
-  int ff_col= 0;
   int ff_z= 2;
 
   int nm= m_MapDI.maps.size();
@@ -303,7 +298,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     lonshowvalue= m_MapDI.maps[nm].lon.showvalue;
     lon_line= atoi(lonlw.c_str())-1;
     lon_linetype= getIndex( linetypes, lonlt );
-    lon_col= getIndex( cInfo, lonc );
+    /*lon_col=*/ getIndex( cInfo, lonc );
     lon_z= lonz;
     lon_dens= 0;
     int dens= int(lond*1000);
@@ -323,7 +318,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     latshowvalue= m_MapDI.maps[nm].lat.showvalue;
     lat_line= atoi(latlw.c_str())-1;
     lat_linetype= getIndex( linetypes, latlt );
-    lat_col= getIndex( cInfo, latc );
+    /*lat_col=*/ getIndex( cInfo, latc );
     lat_z= latz;
     lat_dens= 0;
     dens= int(latd*1000);
@@ -341,7 +336,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     framez= m_MapDI.maps[nm].frame.zorder;
     ff_line= atoi(framelw.c_str())-1;
     ff_linetype= getIndex( linetypes, framelt );
-    ff_col= getIndex( cInfo, framec );
+    /*ff_col=*/ getIndex( cInfo, framec );
     ff_z= framez;
   }
 

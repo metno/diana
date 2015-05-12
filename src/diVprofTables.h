@@ -29,14 +29,14 @@
 #ifndef VPROFTABLES_H
 #define VPROFTABLES_H
 
-#include <qglobal.h>
+#include "diPrintOptions.h"
+#include "diColour.h"
 
-#include <diFontManager.h>
-#include <diPrintOptions.h>
-#include <diColour.h>
 #include <puTools/miTime.h>
-#include <GL/gl.h>
+
 #include <vector>
+
+class DiPainter;
 
 //=================================================
 // Superclass for VprofDiagram and VprofPlot,
@@ -59,8 +59,6 @@ const int mxysize= 10;  // the no. of areas/frames on a diagram (background)
 const int idptab= 5;
 // length of vertical tables (0-1300 hPa)
 const int mptab= 261;
-
-class GLPfile;
 
 /// Annotation info for Vertical Profile
 struct VprofText {
@@ -88,34 +86,16 @@ public:
   VprofTables();
   ~VprofTables();
 
-  // postscript output
-  bool startPSoutput(const printOptions& po);
-  void addHCStencil(const int& size,
-		    const float* x, const float* y);
-  void addHCScissor(const int x0, const int y0,
-		    const int  w, const int  h);
-  void removeHCClipping();
-  void UpdateOutput();
-  bool startPSnewpage();
-  void resetPage();
-  bool endPSoutput();
-
 protected:
-
   void clearCharsizes();
   void addCharsize(float chy);
-  void setFontsize(float chy);
-  void makeFontsizes(float wx, float wy, int vx, int vy);
+  void setFontsize(DiPainter* gl, float chy);
+  void makeFontsizes(DiPainter* gl, float wx, float wy, int vx, int vy);
 
   // fontpack and sizes
-  static FontManager* fp;
   static std::vector<float> charsizes;
   static std::vector<float> fontsizes;
   static std::string defaultFont;
-
-  // PostScript module
-  static GLPfile* psoutput;  // PostScript module
-  static bool hardcopy;      // producing postscript
 
   //---------------------------------------------------------------
 

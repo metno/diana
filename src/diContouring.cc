@@ -33,25 +33,24 @@
 #include "config.h"
 #endif
 
-#include <diFontManager.h>
-#include <diPlotOptions.h>
-#include <diContouring.h>
-#include <diTesselation.h>
-#include <diImageGallery.h>
-#include <polyStipMasks.h>
+#include "diContouring.h"
+
+#include "diGLPainter.h"
+#include "diImageGallery.h"
+#include "diPlotOptions.h"
+#include "polyStipMasks.h"
 
 #include <diField/diArea.h>
-#include <diField/diGridConverter.h>
 #include <puTools/miStringFunctions.h>
+
+#include <QPolygonF>
 
 #include <shapefil.h>
 
-#include <GL/gl.h>
 #include <cmath>
-#include <sstream>
 #include <fstream>
-#include <vector>
 #include <set>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.Contouring"
 #include <miLogger/miLogging.h>
@@ -74,7 +73,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     int ibcol,
     int ibmap, int lbmap, int kbmap[],
     int nxbmap, int nybmap, float rbmap[],
-    FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
+    DiGLPainter* gl, const PlotOptions& poptions,
     const Area& fieldArea, const float& fieldUndef,
     const std::string& modelName, const std::string& paramName,
     const int& fhour)
@@ -773,7 +772,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   else                           zzstp2 = 0.;
 
   // otherwise colours may not work...
-  glShadeModel(GL_FLAT);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
 
   // main loop over each contour level (zc=zvalue[])
 
@@ -886,27 +885,26 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       // line type
       if (ltypx != linetype[lev]) {
         //UpdateOutput();
-        if (psoutput) psoutput->UpdatePage(true);
         ltypx = linetype[lev];
         if (poptions.linetypes[ltypx].stipple) {
-          glLineStipple(poptions.linetypes[ltypx].factor,
+          gl->LineStipple(poptions.linetypes[ltypx].factor,
               poptions.linetypes[ltypx].bmap);
-          glEnable(GL_LINE_STIPPLE);
+          gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
         } else {
-          glDisable(GL_LINE_STIPPLE);
+          gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
         }
       }
 
       // line width
       if (iwidx != linewidth[lev]) {
         iwidx = linewidth[lev];
-        glLineWidth(poptions.linewidths[iwidx]);
+        gl->LineWidth(poptions.linewidths[iwidx]);
       }
 
       // line and text (label) colour
       if (icolx != icolour[lev]) {
         icolx = icolour[lev];
-        if (icolx>=0) glColor3ubv(poptions.colours[icolx].RGB());
+        if (icolx>=0) gl->setColour(poptions.colours[icolx], false);
       }
 
       // label format for each label
@@ -922,8 +920,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         //nnfrac=0;
         //-----------------------------------------
 
-        const char * cnumber= strlabel.c_str();
-        fp->getStringSize(cnumber, dxlab1, dxlab2);
+        gl->getTextSize(strlabel, dxlab1, dxlab2);
 
         dxlab  = stalab+dxlab1+endlab;
         dxlab2 = dxlab*dxlab;
@@ -2191,7 +2188,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           if (lev<nundef && !shading) {
             if      (iconv==1) posConvert(npos, &x[1], &y[1], cxy);
             else if (iconv==2) posConvert(npos, &x[1], &y[1], nx, ny, xz, yz);
-            drawLine(1,npos,x,y);
+            drawLine(gl, 1,npos,x,y);
           }
           if (shading) {
             ContourLine *cl= new ContourLine();
@@ -2277,7 +2274,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
             if (!shading) {
               if      (iconv==1) posConvert(l, xsmooth, ysmooth, cxy);
               else if (iconv==2) posConvert(l, xsmooth, ysmooth, nx, ny, xz, yz);
-              drawLine(0,l-1,xsmooth,ysmooth);
+              drawLine(gl, 0,l-1,xsmooth,ysmooth);
             }
             if (shading) {
               ContourLine *cl= new ContourLine();
@@ -2333,8 +2330,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         ostringstream cs;
         cs << zcb1 << " / " << zcb2;
         strlabel= cs.str();
-        const char * cnumber= strlabel.c_str();
-        fp->getStringSize(cnumber, dxlab1, dxlab2);
+        gl->getTextSize(strlabel, dxlab1, dxlab2);
         dxlab  = stalab+dxlab1+endlab;
         dxlab2 = dxlab*dxlab;
         splim2 = (dxlab+0.1*chrx*rchrx);
@@ -2736,7 +2732,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         // draw line from position 'n1' to 'n2'
 
         if (ismooth<1) {
-          drawLine(n1,n2,x,y);
+          drawLine(gl, n1,n2,x,y);
         } else {
           // line smoothing
           if (n1>np1) {
@@ -2754,7 +2750,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           l = smoothline(np,&x[ns],&y[ns],nfrst,nlast,
               ismooth,&xsmooth[0],&ysmooth[0]);
           if (l>1) {
-            drawLine(0,l-1,xsmooth,ysmooth);
+            drawLine(gl, 0,l-1,xsmooth,ysmooth);
           }
         }
 
@@ -2766,7 +2762,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         yy[0] = y[n2];
         xx[1] = xlabel;
         yy[1] = ylabel;
-        drawLine(0,1,xx,yy);
+        drawLine(gl, 0,1,xx,yy);
 
         if (ibcol>=0) {
           // blank background for label
@@ -2778,13 +2774,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         angle = atan2f(dyy,dxx) * RAD_TO_DEG;
 
 //        GLint *  params = new int[4];
-//        glGetIntegerv(GL_CURRENT_COLOR,  params);
+//        glGetIntegerv(DiGLPainter::gl_CURRENT_COLOR,  params);
 //        glColor3ubv(poptions.textcolour.RGB());
         const char * cnumber= strlabel.c_str();
-        fp->drawStr(cnumber,xlab,ylab,angle);
+        gl->drawText(cnumber,xlab,ylab,angle);
 
         // needed after drawStr, otherwise colour change may not work
-        glShadeModel(GL_FLAT);
+        gl->ShadeModel(DiGLPainter::gl_FLAT);
 //        glColor4i(params[0],params[1],params[2],params[3]);
 
         // draw line from (xend,yend) to 'n3'
@@ -2792,7 +2788,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         yy[0] = yend;
         xx[1] = x[n3];
         yy[1] = y[n3];
-        drawLine(0,1,xx,yy);
+        drawLine(gl, 0,1,xx,yy);
 
         // for next label
         dxx = x[n3]-xend;
@@ -3068,9 +3064,9 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     }
     // ...............................................................
 
-    fillContours(contourlines, nx, ny, z,
+    fillContours(gl, contourlines, nx, ny, z,
         iconv, cxy, xz, yz, idraw, poptions, drawBorders,
-        psoutput, fieldArea,zrange,zstep,zoff,fieldUndef);
+        fieldArea,zrange,zstep,zoff,fieldUndef);
   }
 
   if (shape && contourlines.size()>0) {
@@ -3988,8 +3984,8 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
  */
 vector<float> findCrossing(float ycross, int n, float *x, float *y)
 {
-  vector<float> xcross;
-  multiset<float> xset;
+  std::vector<float> xcross;
+  std::multiset<float> xset;
 
   float px,py,xc;
   px= x[n-1];
@@ -4012,11 +4008,11 @@ vector<float> findCrossing(float ycross, int n, float *x, float *y)
 }
 
 
-void fillContours(vector<ContourLine*>& contourlines,
+void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
     int nx, int ny, float z[],
     int iconv, float *cxy, float *xz, float *yz, int idraw,
     const PlotOptions& poptions, bool drawBorders,
-    GLPfile* psoutput, const Area& fieldArea,
+    const Area& fieldArea,
     float zrange[], float zstep, float zoff,
     const float& fieldUndef)
 {
@@ -4045,7 +4041,7 @@ void fillContours(vector<ContourLine*>& contourlines,
 
   ContourLine *cl;
   ContourLine *cl2;
-  int i,j,npos,jc,n,ncontours;
+  int i,jc,n,ncontours;
 
   vector< vector<int> > clindex(ncl);
   // NEW function for countourline indexes to use, separated from the other code,
@@ -4085,12 +4081,10 @@ void fillContours(vector<ContourLine*>& contourlines,
     }
   }
 
-  beginTesselation();
-
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK,DiGLPainter::gl_FILL);
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
   for (jc=0; jc<ncl; jc++) {
 
@@ -4130,15 +4124,15 @@ void fillContours(vector<ContourLine*>& contourlines,
             }
             if (ii>=0) {
               if (ii<ncolours)
-                glColor4ubv(colours[ii].RGBA());
+                gl->setColour(colours[ii]);
               if (ii<npatterns) {
                 ImageGallery ig;
-                glEnable(GL_POLYGON_STIPPLE);
+                gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
                 GLubyte* p = ig.getPattern(patterns[ii]);
                 if(p==0)
-                  glPolygonStipple(solid);
+                  gl->PolygonStipple(solid);
                 else
-                  glPolygonStipple(ig.getPattern(patterns[ii]));
+                  gl->PolygonStipple(ig.getPattern(patterns[ii]));
               }
             } else {
               continue;
@@ -4154,7 +4148,7 @@ void fillContours(vector<ContourLine*>& contourlines,
                 i= (ncolours_cold-ivalue-1)%ncolours_cold;
                 if (i<0) i+=ncolours_cold;
               }
-              glColor4ubv(colours_cold[i].RGBA());
+              gl->setColour(colours_cold[i]);
             } else if(ncolours>0) {
               if(poptions.repeat==0){
                 if(ivalue>ncolours-1){
@@ -4169,65 +4163,50 @@ void fillContours(vector<ContourLine*>& contourlines,
                 i= ivalue%ncolours;
                 if (i<0) i+=ncolours;
               }
-              glColor4ubv(colours[i].RGBA());
+              gl->setColour(colours[i]);
             } else { //no colours
-              glColor4ubv(poptions.fillcolour.RGBA());
+              gl->setColour(poptions.fillcolour);
             }
 
             if(npatterns>0){
               ImageGallery ig;
-              glEnable(GL_POLYGON_STIPPLE);
+              gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
               i= ivalue%npatterns;
               if (i<0) i+=npatterns;
               GLubyte* p = ig.getPattern(patterns[i]);
               if(p==0)
-                glPolygonStipple(solid);
+                gl->PolygonStipple(solid);
               else
-                glPolygonStipple(ig.getPattern(patterns[i]));
+                gl->PolygonStipple(ig.getPattern(patterns[i]));
             }
           }
 
-          int *countpos= new int[ncontours];
-          GLdouble *gldata= new GLdouble[nposis*3];
-
-          j= 0;
+          QList<QPolygonF> contours;
           for (n=0; n<ncontours; n++) {
             cl= contourlines[clindex[jc][n]];
-            npos= cl->npos - 1;
-            int kk=0;
+            const int npos = cl->npos-1;
+            int i;
+            QPolygonF polygon;
             for (i=0; i<npos; i++) {
               if (cl->xpos[i]==HUGE_VAL || cl->ypos[i]==HUGE_VAL) {
                 continue;
               }
-              gldata[j]  = cl->xpos[i];
-              gldata[j+1]= cl->ypos[i];
-              gldata[j+2]= 0.0;
-              j+=3;
-              kk++;
+              polygon << QPointF(cl->xpos[i], cl->ypos[i]);
             }
-            countpos[n]=kk;
+            if (polygon.size() >= 3)
+              contours << polygon;
           }
-
-          tesselation(gldata, ncontours, countpos);
-
-          if (psoutput) psoutput->UpdatePage(true);
-
-          glDisable(GL_POLYGON_STIPPLE);
-
-          delete[] gldata;
-          delete[] countpos;
+          gl->drawPolygons(contours);
+          gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
         }
       }
     }
   }
 
-  endTesselation();
-
-  glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-  glDisable(GL_BLEND);
-  glShadeModel(GL_FLAT);
-  glEdgeFlag(GL_TRUE);
-
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK,DiGLPainter::gl_LINE);
+  gl->Disable(DiGLPainter::gl_BLEND);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
+  gl->EdgeFlag(DiGLPainter::gl_TRUE);
 }
 
 void writeShapefile(vector<ContourLine*>& contourlines,
@@ -4430,7 +4409,7 @@ void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind
 
   ContourLine *cl;
   ContourLine *cl2;
-  int i,j,k,npos,ic,jc,nc,n;//,ncontours;
+  int i,j,k,ic,jc,nc,n;//,ncontours;
 
   float ycross,xtest;
   vector<float> xcross;
@@ -4467,7 +4446,6 @@ void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind
                 cl2->ymin >= cl->ymin && cl2->ymax <= cl->ymax) {
               if (ycross <= cl2->ymin || ycross >= cl2->ymax) {
                 ycross= cl2->ymin + (cl2->ymax - cl2->ymin) * 0.55;
-                npos= cl->npos;
                 xcross= findCrossing(ycross, cl->npos, cl->xpos, cl->ypos);
               }
               nc= xcross.size();
@@ -4826,21 +4804,19 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
   }
 }
 
-void drawLine(int start, int stop, float* x, float* y)
+void drawLine(DiPainter* gl, int start, int stop, float* x, float* y)
 {
-
-//split line if position is undefined
-  glBegin(GL_LINE_STRIP);
+  //split line if position is undefined
+  QPolygonF points;
   for (int i=start; i<stop+1; ++i) {
-    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-      glVertex2f(x[i], y[i]);
+    if (x[i]!=HUGE_VAL && y[i]!=HUGE_VAL) {
+      points << QPointF(x[i], y[i]);
     } else {
-      glEnd();
+      gl->drawPolyline(points);
+      points.clear();
       while(x[i]==HUGE_VAL || y[i]==HUGE_VAL ) ++i;
       --i;
-      glBegin(GL_LINE_STRIP);
     }
   }
-  glEnd();
-
+  gl->drawPolyline(points);
 }

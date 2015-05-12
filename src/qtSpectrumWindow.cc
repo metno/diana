@@ -41,6 +41,7 @@
 #include "qtSpectrumSetupDialog.h"
 #include "diSpectrumManager.h"
 #include "qtPrintManager.h"
+#include "diPaintGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -54,6 +55,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
+#include <QSvgGenerator>
 
 #define MILOGGER_CATEGORY "diana.SpectrumWindow"
 #include <miLogger/miLogging.h>
@@ -71,21 +73,12 @@ SpectrumWindow::SpectrumWindow()
 
   setWindowTitle( tr("Diana Wavespectrum") );
 
-#if !defined(USE_PAINTGL)
-  QGLFormat fmt;
-  fmt.setOverlay(false);
-  fmt.setDoubleBuffer(true);
-#endif
-  //central widget
-#if !defined(USE_PAINTGL)
-  spectrumw= new SpectrumWidget(spectrumm, fmt, this);
-#else
-  spectrumw= new SpectrumWidget(spectrumm, this);
-#endif
-  setCentralWidget(spectrumw);
+  spectrumw= new SpectrumWidget(spectrumm);
+  spectrumqw = DiPaintable::createWidget(spectrumw, this);
+
+  setCentralWidget(spectrumqw);
   connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(spectrumw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
-
 
   //tool bar and buttons
   spToolbar = new QToolBar(this);
@@ -186,15 +179,9 @@ SpectrumWindow::SpectrumWindow()
   connect(spSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
       SIGNAL(showsource(const std::string, const std::string)));
 
-
   //initialize everything in startUp
   firstTime = true;
   active = false;
-  //mainWindowTime= miutil::miTime::nowTime();
-
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::SpectrumWindow() finished");
-
 }
 
 
@@ -220,7 +207,7 @@ void SpectrumWindow::leftStationClicked()
   //called when the left Station button is clicked
   std::string s= spectrumm->setStation(-1);
   stationChangedSlot(-1);
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -229,7 +216,7 @@ void SpectrumWindow::rightStationClicked()
   //called when the right Station button is clicked
   std::string s= spectrumm->setStation(+1);
   stationChangedSlot(+1);
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -238,7 +225,7 @@ void SpectrumWindow::leftTimeClicked()
   //called when the left time button is clicked
   spectrumm->setTime(-1);
   timeChangedSlot(-1);
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -247,7 +234,7 @@ void SpectrumWindow::rightTimeClicked()
   //called when the right Station button is clicked
   spectrumm->setTime(+1);
   timeChangedSlot(+1);
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -346,9 +333,6 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     emit spectrumChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
-    //    METLIBS_LOG_WARN("WARNING! stationChangedSlot  station from spectrumm ="
-    // 	 << s    <<" not equal to stationBox text = " << sbs);
-    //current or last station plotted is not in the list, insert it...
     stationBox->insertItem(0,sq);
     stationBox->setCurrentIndex(0);
     return false;
@@ -358,106 +342,115 @@ bool SpectrumWindow::stationChangedSlot(int diff)
 
 void SpectrumWindow::printClicked()
 {
-  printerManager pman;
-  std::string command= pman.printCommand();
+  // FIXME same as MainWindow::hardcopy
+  QPrinter printer;
+  QPrintDialog printerDialog(&printer, this);
+  if (printerDialog.exec() != QDialog::Accepted || !printer.isValid())
+    return;
 
-  QPrinter qprt;
-  fromPrintOption(qprt,priop);
-
-  QPrintDialog printerDialog(&qprt, this);
-  if (printerDialog.exec()) {
-    if (!qprt.outputFileName().isNull()) {
-      priop.fname= qprt.outputFileName().toStdString();
-    } else {
-      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
-      miutil::replace(priop.fname, ' ','_');
-    }
-
-    // fill printOption from qprinter-selections
-    toPrintOption(qprt, priop);
-
-    // set printername
-    if (qprt.outputFileName().isNull())
-      priop.printer= qprt.printerName().toStdString();
-
-    // start the postscript production
-    diutil::OverrideCursor waitCursor;
-
-    spectrumm->startHardcopy(priop);
-    spectrumw->updateGL();
-    spectrumm->endHardcopy();
-    spectrumw->updateGL();
-
-    // if output to printer: call appropriate command
-    if (qprt.outputFileName().isNull()){
-      priop.numcopies= qprt.numCopies();
-
-      // expand command-variables
-      pman.expandCommand(command, priop);
-
-      int res = system(command.c_str());
-
-      if (res != 0){
-        METLIBS_LOG_WARN("Print command:" << command << " failed");
-      }
-    }
-  }
+  diutil::OverrideCursor waitCursor;
+  paintOnDevice(&printer);
 }
-
 
 void SpectrumWindow::saveClicked()
 {
+  // FIXME this is the same as MainWindow::saveraster
   static QString fname = "./"; // keep users preferred image-path for later
   QString s = QFileDialog::getSaveFileName(this,
       tr("Save plot as image"),
       fname,
-      tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+      tr("Images (*.png *.jpeg *.jpg *.xpm *.bmp *.svg);;PDF Files (*.pdf);;All (*.*)"));
 
-
-
-  if (!s.isNull()) {// got a filename
-    fname= s;
-    std::string filename= s.toStdString();
-    std::string format= "PNG";
-    int quality= -1; // default quality
-
-    // find format
-    if (miutil::contains(filename, ".xpm") || miutil::contains(filename, ".XPM"))
-      format= "XPM";
-    else if (miutil::contains(filename, ".bmp") || miutil::contains(filename, ".BMP"))
-      format= "BMP";
-    else if (miutil::contains(filename, ".eps") || miutil::contains(filename, ".epsf")){
-      // make encapsulated postscript
-      // NB: not screendump!
-      makeEPS(filename);
-      return;
-    }
-
-    // do the save
-    spectrumw->saveRasterImage(filename, format, quality);
-  }
+  if (s.isNull())
+    return;
+  fname = s;
+  saveRasterImage(fname);
 }
 
-
-void SpectrumWindow::makeEPS(const std::string& filename)
+void SpectrumWindow::saveRasterImage(const QString& filename)
 {
-  diutil::OverrideCursor waitCursor;
-  printOptions priop;
-  priop.fname= filename;
-  priop.colop= d_print::incolour;
-  priop.orientation= d_print::ori_automatic;
-  priop.pagesize= d_print::A4;
-  priop.numcopies= 1;
-  priop.usecustomsize= false;
-  priop.fittopage= false;
-  priop.drawbackground= true;
-  priop.doEPS= true;
+  // FIXME this is almost the same as MainWindow::saveRasterImage
 
-  spectrumm->startHardcopy(priop);
-  spectrumw->updateGL();
-  spectrumw->updateGL();
+  METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
+  QPrinter* printer = 0;
+  QImage* image = 0;
+  std::auto_ptr<QPaintDevice> device;
+  if (filename.endsWith(".pdf")) {
+    printer = new QPrinter(QPrinter::ScreenResolution);
+    printer->setOutputFormat(QPrinter::PdfFormat);
+    printer->setOutputFileName(filename);
+    printer->setFullPage(true);
+    printer->setPaperSize(spectrumqw->size(), QPrinter::DevicePixel);
+
+    // FIXME copy from bdiana
+    // According to QTBUG-23868, orientation and custom paper sizes do not
+    // play well together. Always use portrait.
+    printer->setOrientation(QPrinter::Portrait);
+
+    device.reset(printer);
+  } else if (filename.endsWith(".svg")) {
+    QSvgGenerator* generator = new QSvgGenerator();
+    generator->setFileName(filename);
+    generator->setSize(spectrumqw->size());
+    generator->setViewBox(QRect(0, 0, spectrumqw->width(), spectrumqw->height()));
+    generator->setTitle(tr("diana image"));
+    generator->setDescription(tr("Created by diana %1.").arg(PVERSION));
+
+    // FIXME copy from bdiana
+    // For some reason, QPrinter can determine the correct resolution to use, but
+    // QSvgGenerator cannot manage that on its own, so we take the resolution from
+    // a QPrinter instance which we do not otherwise use.
+    QPrinter sprinter;
+    generator->setResolution(sprinter.resolution());
+
+    device.reset(generator);
+  } else {
+    image = new QImage(spectrumqw->size(), QImage::Format_ARGB32_Premultiplied);
+    image->fill(Qt::transparent);
+    device.reset(image);
+  }
+
+  paintOnDevice(device.get());
+
+  if (image)
+    image->save(filename);
 }
 
+void SpectrumWindow::paintOnDevice(QPaintDevice* device)
+{
+  // FIXME this is almost the same as MainWindow::paintOnDevice
+  METLIBS_LOG_SCOPE();
+  DiCanvas* oldCanvas = spectrumw->canvas();
+
+  std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
+  std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
+  glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
+  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
+
+  const int ww = spectrumqw->width(), wh = spectrumqw->height(), dw = device->width(), dh = device->height();
+  METLIBS_LOG_DEBUG(LOGVAL(ww) << LOGVAL(wh) << LOGVAL(dw) << LOGVAL(dh));
+
+  QPainter painter;
+  painter.begin(device);
+
+  spectrumw->setCanvas(glcanvas.get());
+#if 1
+  glpainter->Viewport(0, 0, dw, dh);
+  spectrumw->resize(dw, dh);
+#else
+  painter.setWindow(0, 0, ww, wh);
+  glpainter->Viewport(0, 0, ww, wh);
+  spectrumw->resize(ww, wh);
+#endif
+
+  glpainter->begin(&painter);
+  spectrumw->paint(glpainter.get());
+  glpainter->end();
+  painter.end();
+
+  spectrumw->setCanvas(oldCanvas);
+  spectrumw->resize(ww, wh);
+}
 
 void SpectrumWindow::setupClicked(bool on)
 {
@@ -480,8 +473,6 @@ void SpectrumWindow::setupClicked(bool on)
 
 void SpectrumWindow::quitClicked()
 {
-  //called when the quit button is clicked
-
   METLIBS_LOG_DEBUG("quit clicked");
 
   //for now, only hide window, not really quit !
@@ -489,15 +480,6 @@ void SpectrumWindow::quitClicked()
   tsToolbar->hide();
   modelButton->setChecked(false);
   setupButton->setChecked(false);
-
-  /*****************************************************************
-  // cleanup selections in dialog and data in memory
-  spModelDialog->cleanup();
-  spectrumm->cleanup();
-
-  stationBox->clear();
-  timeBox->clear();
-   *****************************************************************/
 
   active = false;
   emit SpectrumHide();
@@ -508,8 +490,6 @@ void SpectrumWindow::quitClicked()
 
 void SpectrumWindow::updateClicked()
 {
-  //called when the update button in Spectrumwindow is clicked
-
   METLIBS_LOG_DEBUG("update clicked");
 
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
@@ -519,10 +499,7 @@ void SpectrumWindow::updateClicked()
 
 void SpectrumWindow::helpClicked()
 {
-  //called when the help button in Spectrumwindow is clicked
-
   METLIBS_LOG_DEBUG("help clicked");
-
   emit showsource("ug_spectrum.html");
 }
 
@@ -530,9 +507,6 @@ void SpectrumWindow::helpClicked()
 void SpectrumWindow::MenuOK()
 {
   //obsolete - nothing happens here
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::MenuOK()");
-
 }
 
 
@@ -553,7 +527,7 @@ void SpectrumWindow::changeModel()
   //get correct selection in comboboxes
   stationChangedSlot(0);
   timeChangedSlot(0);
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -563,7 +537,7 @@ void SpectrumWindow::changeSetup()
 
   METLIBS_LOG_DEBUG("SpectrumWindow::changeSetup()");
 
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -604,15 +578,6 @@ StationPlot* SpectrumWindow::getStations()
   // ADC set plotname (for StatusPlotButtons)
   stationPlot->setPlotName(ann);
 
-  //the coordinates are defined here
-
-  //  for (int i = 0; i<n;i++){
-  //     METLIBS_LOG_DEBUG("Station number " << i << " name = " << stations[i]
-  // 	 << " latitude = " << latitude[i]
-  // 	 << " longitude = " << longitude[i]);
-  //   }
-
-
   return stationPlot;
 }
 
@@ -633,7 +598,6 @@ void SpectrumWindow::updateStationBox()
   for (int i=0; i<n; i++){
     stationBox->addItem(QString(stations[i].c_str()));
   }
-
 }
 
 
@@ -662,7 +626,7 @@ void SpectrumWindow::stationBoxActivated(int index)
   std::string sbs=stationBox->currentText().toStdString();
   //if (index>=0 && index<stations.size()) {
   spectrumm->setStation(sbs);
-  spectrumw->updateGL();
+  spectrumqw->update();
   QString sq = sbs.c_str();
   emit spectrumChanged(sq); //name of current station (to mainWindow)
   //}
@@ -676,7 +640,7 @@ void SpectrumWindow::timeBoxActivated(int index)
   if (index>=0 && index<int(times.size())) {
     spectrumm->setTime(times[index]);
 
-    spectrumw->updateGL();
+    spectrumqw->update();
   }
 }
 
@@ -687,7 +651,7 @@ bool SpectrumWindow::changeStation(const std::string& station)
   METLIBS_LOG_DEBUG("SpectrumWindow::changeStation");
 
   spectrumm->setStation(station);
-  spectrumw->updateGL();
+  spectrumqw->update();
   raise();
   if (stationChangedSlot(0))
     return true;
@@ -708,7 +672,7 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
   //get correct selection in comboboxes
   stationChangedSlot(0);
   timeChangedSlot(0);
-  spectrumw->updateGL();
+  spectrumqw->update();
 }
 
 
@@ -721,7 +685,7 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
   spToolbar->show();
   tsToolbar->show();
   spModelDialog->updateModelfileList();
-  spectrumw->updateGL();
+  spectrumqw->update();
   changeModel();
   mainWindowTimeChanged(t);
 }

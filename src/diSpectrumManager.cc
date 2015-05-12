@@ -33,16 +33,17 @@
 #include "config.h"
 #endif
 
-#include <diSpectrumManager.h>
+#include "diSpectrumManager.h"
 
-#include <diSpectrumOptions.h>
-#include <diSpectrumFile.h>
-#include <diSpectrumData.h>
-#include <diSpectrumPlot.h>
+#include "diSpectrumOptions.h"
+#include "diSpectrumFile.h"
+#include "diSpectrumData.h"
+#include "diSpectrumPlot.h"
 #include "diUtilities.h"
 #include "vcross_v2/VcrossSetup.h"
-#include <diField/VcrossUtil.h>
 #include "vcross_v2/VcrossCollector.h"
+
+#include <diField/VcrossUtil.h>
 
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
@@ -56,11 +57,9 @@ using namespace::miutil;
 using namespace std;
 
 SpectrumManager::SpectrumManager()
-: plotw(0), ploth(0), dataChange(true), hardcopy(false)
+: plotw(0), ploth(0), dataChange(true)
 {
-
   METLIBS_LOG_SCOPE();
-
 
   spopt= new SpectrumOptions();  // defaults are set
 
@@ -75,9 +74,7 @@ SpectrumManager::SpectrumManager()
 
 SpectrumManager::~SpectrumManager()
 {
-
   METLIBS_LOG_SCOPE();
-
 
   delete spopt;
 
@@ -90,7 +87,6 @@ SpectrumManager::~SpectrumManager()
 
 void SpectrumManager::parseSetup()
 {
-
   METLIBS_LOG_SCOPE();
 
   //clear old setupinfo
@@ -147,13 +143,10 @@ void SpectrumManager::parseSetup()
 
 void SpectrumManager::setPlotWindow(int w, int h)
 {
-
   METLIBS_LOG_SCOPE(w << " " << h);
 
   plotw= w;
   ploth= h;
-
-  if (hardcopy) SpectrumPlot::resetPage();
 }
 
 
@@ -176,9 +169,7 @@ vector<std::string> SpectrumManager::getLineThickness()
 
 void SpectrumManager::setModel()
 {
-
   METLIBS_LOG_SCOPE();
-
 
   // should not clear all data, possibly needed again...
 
@@ -210,21 +201,16 @@ void SpectrumManager::setModel()
 
 void SpectrumManager::setStation(const std::string& station)
 {
-
   METLIBS_LOG_SCOPE(station);
 
-
   plotStation= station;
-
   dataChange= true;
 }
 
 
 void SpectrumManager::setTime(const miTime& time)
 {
-
   METLIBS_LOG_SCOPE(time);
-
 
   plotTime= time;
   dataChange= true;
@@ -233,9 +219,7 @@ void SpectrumManager::setTime(const miTime& time)
 
 std::string SpectrumManager::setStation(int step)
 {
-
   METLIBS_LOG_SCOPE(step);
-
 
   if (nameList.size()==0)
     return "";
@@ -261,9 +245,7 @@ std::string SpectrumManager::setStation(int step)
 
 miTime SpectrumManager::setTime(int step)
 {
-
   METLIBS_LOG_SCOPE(step);
-
 
   if (timeList.size()==0)
     return miTime::nowTime();
@@ -285,76 +267,36 @@ miTime SpectrumManager::setTime(int step)
   return plotTime;
 }
 
-
-// start hardcopy
-void SpectrumManager::startHardcopy(const printOptions& po)
+bool SpectrumManager::plot(DiGLPainter* gl)
 {
-  if (hardcopy && hardcopystarted){
-    // if hardcopy in progress and same filename: make new page
-    if (po.fname == printoptions.fname){
-      SpectrumPlot::startPSnewpage();
-      return;
-    }
-    // different filename: end current output and start a new
-    SpectrumPlot::endPSoutput();
-  }
-  hardcopy= true;
-  printoptions= po;
-  hardcopystarted= false;
-}
-
-
-// end hardcopy plot
-void SpectrumManager::endHardcopy(){
-  // postscript output
-  if (hardcopy) SpectrumPlot::endPSoutput();
-  hardcopy= false;
-}
-
-
-bool SpectrumManager::plot()
-{
-
   METLIBS_LOG_SCOPE(LOGVAL(plotStation) << LOGVAL(plotTime));
-
 
   if (dataChange) {
     preparePlot();
     dataChange= false;
   }
 
-  // postscript output
-  if (hardcopy && !hardcopystarted) {
-    SpectrumPlot::startPSoutput(printoptions);
-    hardcopystarted= true;
-  }
-
   int nmod= spfile.size();
-  if (nmod == 0) nmod = spdata.size();
+  if (nmod == 0)
+    nmod = spdata.size();
 
-  SpectrumPlot::startPlot(nmod,plotw,ploth,spopt);
+  SpectrumPlot::startPlot(nmod,plotw,ploth,spopt, gl);
 
   if (not plotStation.empty()) {
-
     int m= spectrumplots.size();
-
     for (int i=0; i<m; i++) {
-      if (spectrumplots[i]) {
-        spectrumplots[i]->plot(spopt);
-      }
+      if (spectrumplots[i])
+        spectrumplots[i]->plot(spopt, gl);
     }
-
   }
 
-  SpectrumPlot::plotDiagram(spopt);
-
+  SpectrumPlot::plotDiagram(spopt, gl);
   return true;
 }
 
 
 void SpectrumManager::preparePlot()
 {
-
   METLIBS_LOG_SCOPE();
 
   int n= spectrumplots.size();
@@ -380,21 +322,16 @@ void SpectrumManager::preparePlot()
 
 vector <std::string> SpectrumManager::getModelNames()
 {
-
   METLIBS_LOG_SCOPE();
-parseSetup();
+  parseSetup();
   return dialogModelNames;
 }
 
 
 vector <std::string> SpectrumManager::getModelFiles()
 {
-
   METLIBS_LOG_SCOPE();
-
-  vector<std::string> modelfiles= dialogFileNames;
-
-  return modelfiles;
+  return dialogFileNames;
 }
 
 std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& modelName)
@@ -407,7 +344,7 @@ std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& 
 
   collector->getResolver()->getSource(modelName)->update();
   const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
-   vector<miTime> rtv;
+  vector<miTime> rtv;
   rtv.reserve(reftimes.size());
   for (vcross::Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
     rf.push_back(vcross::util::to_miTime(*it).isoTime("T"));
@@ -474,7 +411,6 @@ bool SpectrumManager::initSpectrumFile(const SelectedModel& selectedModel)
 
 void SpectrumManager::initStations()
 {
-
   METLIBS_LOG_SCOPE();
 
   //merge lists from all models
@@ -565,15 +501,12 @@ void SpectrumManager::initStations()
   }
 
   METLIBS_LOG_DEBUG("plotStation" << plotStation);
-
 }
 
 
 void SpectrumManager::initTimes()
 {
-
-  METLIBS_LOG_DEBUG("SpectrumManager::initTimes");
-
+  METLIBS_LOG_SCOPE();
 
   timeList.clear();
 
@@ -592,11 +525,10 @@ void SpectrumManager::initTimes()
   }
 }
 
+
 void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 {
-
-  METLIBS_LOG_SCOPE(time);
-
+  METLIBS_LOG_SCOPE(LOGVAL(time));
 
   miTime mainWindowTime = time;
   //change plotTime
@@ -610,10 +542,9 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
       itime=i;
     }
   }
-  if (itime>-1) setTime(timeList[itime]);
+  if (itime>-1)
+    setTime(timeList[itime]);
 }
-
-
 
 
 std::string SpectrumManager::getAnnotationString()

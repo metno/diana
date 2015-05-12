@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,9 +31,9 @@
 #include "config.h"
 #endif
 
-#include <diSpectrumFile.h>
-#include <diSpectrumPlot.h>
-#include <diFtnVfile.h>
+#include "diSpectrumFile.h"
+#include "diSpectrumPlot.h"
+#include "diFtnVfile.h"
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
@@ -43,35 +41,29 @@
 #define MILOGGER_CATEGORY "diana.SpectrumFile"
 #include <miLogger/miLogging.h>
 
+static const float DEG_TO_RAD = M_PI / 180;
+
 using namespace std;
 using namespace miutil;
 
-// Default constructor
 SpectrumFile::SpectrumFile(const std::string& filename, const std::string& modelname)
-    : fileName(filename), modelName(modelname), vfile(0), modificationtime(0),
-      numPos(0), numTime(0), numDirec(0), numFreq(0), numExtra(0),
-      dataAddress(0)
+  : fileName(filename), modelName(modelname), vfile(0), modificationtime(0),
+    numPos(0), numTime(0), numDirec(0), numFreq(0), numExtra(0),
+    dataAddress(0)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ SpectrumFile::Constructor");
-#endif
+  METLIBS_LOG_SCOPE();
 }
 
-
-// Destructor
-SpectrumFile::~SpectrumFile() {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ SpectrumFile::Destructor");
-#endif
+SpectrumFile::~SpectrumFile()
+{
+  METLIBS_LOG_SCOPE();
   cleanup();
 }
 
-
 void SpectrumFile::cleanup()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ SpectrumFile::cleanup() fileName= " << fileName);
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(fileName));
+
   delete[] dataAddress;
   delete vfile;
   dataAddress= 0;
@@ -79,12 +71,9 @@ void SpectrumFile::cleanup()
   modificationtime= 0;
 }
 
-
 bool SpectrumFile::update()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ SpectrumFile::update() fileName= " << fileName);
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(fileName));
 
   bool ok= true;
 
@@ -96,22 +85,22 @@ bool SpectrumFile::update()
       if (readFileHeader())
         modificationtime= statbuf.st_ctime;
       else
-	ok= false;
+        ok= false;
     }
   } else {
     ok= false;
   }
 
-  if (!ok) cleanup();
+  if (!ok)
+    cleanup();
 
   return ok;
 }
 
 
-bool SpectrumFile::readFileHeader() {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ SpectrumFile::readFileHeader fileName= " << fileName);
-#endif
+bool SpectrumFile::readFileHeader()
+{
+  METLIBS_LOG_SCOPE(LOGVAL(fileName));
 
   // reading and storing information, not data
 
@@ -171,14 +160,11 @@ bool SpectrumFile::readFileHeader() {
       // may have one space at the end (n*2 characters stored in file)
       miutil::trim(str, false, true);
       if(!namemap.count(str)){
-	namemap[str]=0;
+        namemap[str]=0;
       } else {
-	namemap[str]++;
+        namemap[str]++;
       }
       if(namemap[str]>0) str = str + "(" + miutil::from_number(namemap[str]) + ")";
-//###################################################################
-//      METLIBS_LOG_DEBUG("name: "<<n<<" : "<<str);
-//###################################################################
       posName.push_back(str);
     }
     delete[] tmp;
@@ -194,10 +180,6 @@ bool SpectrumFile::readFileHeader() {
       int minute= tmp[i++];
       int fchour= tmp[i++];
       miTime t= miTime(year,month,day,hour,minute,0);
-//    if (fchour!=0) t.addHour(fchour);
-//###################################################################
-//      METLIBS_LOG_DEBUG("time "<<n<<" : "<<t);
-//###################################################################
       validTime.push_back(t);
       forecastHour.push_back(fchour);
     }
@@ -233,28 +215,29 @@ bool SpectrumFile::readFileHeader() {
 
 SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ SpectrumFile::getData   "<<name<<"   "<<time);
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(time));
 
   SpectrumPlot *spp= 0;
 
   if (!vfile) return spp;
 
   int iPos=0;
-  while (iPos<numPos && posName[iPos]!=name) iPos++;
+  while (iPos<numPos && posName[iPos]!=name)
+    iPos++;
 
-  if (iPos==numPos) return spp;
+  if (iPos==numPos)
+    return spp;
 
   int iTime= 0;
-  while (iTime<numTime && validTime[iTime]!=time) iTime++;
-  if (iTime==numTime) return spp;
+  while (iTime<numTime && validTime[iTime]!=time)
+    iTime++;
+  if (iTime==numTime)
+    return spp;
 
   spp= new SpectrumPlot();
 
   spp->prognostic= true;
 
-//spp->modelName= modelName;
   spp->modelName= modelName2;
   spp->posName= posName[iPos];
 
@@ -288,9 +271,6 @@ SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
     int iscale= tmp[numExtra-1];
 
     spec= vfile->getFloat(numDirec*numFreq,iscale,iundef);
-
-    //spp->iundef= iundef;
-
   }  // end of try
 
   catch (...) {
@@ -353,48 +333,10 @@ SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
       ydata[j*n+i]= frequences[j] * sindir[i];
     }
   }
-//###############################################
-//  for (int i=0; i<numDirec; i++)
-//    METLIBS_LOG_DEBUG("direc,angle,x,y:  "
-//        <<directions[i]<<"  "<<90.-directions[i]-rotation<<"  "
-//        <<cosdir[i]<<"  "<<sindir[i]);
-//###############################################
 
-//######################################################################
-/******************************************************************
-float specmin= spec[0];
-float specmax= spec[0];
-for (int i=0; i<numDirec*numFreq; i++) {
-  if (specmin>spec[i]) specmin= spec[i];
-  if (specmax<spec[i]) specmax= spec[i];
-}
-float sdatmin= sdata[0];
-float sdatmax= sdata[0];
-for (int i=0; i<m; i++) {
-  if (sdatmin>sdata[i]) sdatmin= sdata[i];
-  if (sdatmax<sdata[i]) sdatmax= sdata[i];
-}
-float etotmin= spp->eTotal[0];
-float etotmax= spp->eTotal[0];
-for (int i=0; i<numFreq; i++) {
-  if (etotmin>spp->eTotal[i]) etotmin= spp->eTotal[i];
-  if (etotmax<spp->eTotal[i]) etotmax= spp->eTotal[i];
-}
-METLIBS_LOG_DEBUG("   northRotation=   "<<spp->northRotation);
-METLIBS_LOG_DEBUG("   wspeed=          "<<spp->wspeed);
-METLIBS_LOG_DEBUG("   wdir=            "<<spp->wdir);
-METLIBS_LOG_DEBUG("   hmo=             "<<spp->hmo);
-METLIBS_LOG_DEBUG("   tPeak=           "<<spp->tPeak);
-METLIBS_LOG_DEBUG("   ddPeak=          "<<spp->ddPeak);
-METLIBS_LOG_DEBUG("   specmin,specmax: "<<specmin<<"  "<<specmax);
-METLIBS_LOG_DEBUG("   sdatmin,sdatmax: "<<sdatmin<<"  "<<sdatmax);
-METLIBS_LOG_DEBUG("   etotmin,etotmax: "<<etotmin<<"  "<<etotmax);
-******************************************************************/
-//######################################################################
-
-  if (spp->sdata) delete[] spp->sdata;
-  if (spp->xdata) delete[] spp->xdata;
-  if (spp->ydata) delete[] spp->ydata;
+  delete[] spp->sdata;
+  delete[] spp->xdata;
+  delete[] spp->ydata;
 
   spp->sdata= sdata;
   spp->xdata= xdata;

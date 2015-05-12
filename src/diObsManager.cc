@@ -766,7 +766,7 @@ void ObsManager::clearObsPositions()
   obsPositions.values = 0;
 }
 
-void ObsManager::calc_obs_mslp(Plot::PlotOrder porder,
+void ObsManager::calc_obs_mslp(DiGLPainter* gl, Plot::PlotOrder porder,
     const vector<ObsPlot*>& oplot)
 {
   if (!mslp)
@@ -774,7 +774,7 @@ void ObsManager::calc_obs_mslp(Plot::PlotOrder porder,
 
   ObsPlot::clearPos();
   for (size_t i = 0; i < oplot.size(); i++)
-    oplot[i]->obs_mslp(porder, obsPositions.values); // this is actually plotting data
+    oplot[i]->obs_mslp(gl, porder, obsPositions.values); // this is actually plotting data
 }
 
 ObsDialogInfo ObsManager::initDialog()

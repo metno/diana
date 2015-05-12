@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diObjectPlot.h>
+#include "diObjectPlot.h"
+
+#include "diGLPainter.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -689,101 +691,84 @@ void ObjectPlot::updateBoundBox()
   recalculate();
 }
 
-void ObjectPlot::drawJoinPoints(){
+void ObjectPlot::drawJoinPoints(DiGLPainter* gl)
+{
   if (!isVisible) return;
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glLineWidth(3);
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->LineWidth(3);
   if (inBoundBox){
     vector<float> x = getXjoined();
     vector<float> y = getYjoined();
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0,0,0.3);
+    gl->Enable(DiGLPainter::gl_BLEND);
+    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+    gl->Color4f(0,0,0,0.3);
     //draw all points in grey here (if cursor inside bounding box)
-    drawPoints(x,y);
-    glDisable(GL_BLEND);
+    drawPoints(gl, x,y);
+    gl->Disable(DiGLPainter::gl_BLEND);
   }
-  glColor4f(0,1,1,0.5);
+  gl->Color4f(0,1,1,0.5);
   vector<float> xmark = getXmarkedJoined();
   vector<float> ymark = getYmarkedJoined();
-  glColor4f(0,1,1,1.0);
+  gl->Color4f(0,1,1,1.0);
   //draw marked points here
-  drawPoints(xmark,ymark);
+  drawPoints(gl, xmark,ymark);
 }
 
 
-void ObjectPlot::drawNodePoints(){
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glEdgeFlag(GL_TRUE);
-  glShadeModel(GL_FLAT);
+void ObjectPlot::drawNodePoints(DiGLPainter* gl)
+{
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
+  gl->EdgeFlag(DiGLPainter::gl_TRUE);
+  gl->ShadeModel(DiGLPainter::gl_FLAT);
   if (inBoundBox){
     vector<float> x = getX();
     vector<float> y = getY();
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0,0,0.3);
+    gl->Enable(DiGLPainter::gl_BLEND);
+    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+    gl->Color4f(0,0,0,0.3);
     //draw all points in grey here (if cursor inside bounding box)
-    drawPoints(x,y);
-    glDisable(GL_BLEND);
+    drawPoints(gl, x,y);
+    gl->Disable(DiGLPainter::gl_BLEND);
   }
   vector<float> xmark = getXmarked();
   vector<float> ymark = getYmarked();
-  glColor4f(0,1,1,1.0);
+  gl->Color4f(0,1,1,1.0);
   //draw marked points here
-  drawPoints(xmark,ymark);
-  //###################################################################
-  //test= true; //test to show boundingbox and sensitive areas>
-  if (test) drawTest();
-  //###################################################################
+  drawPoints(gl, xmark,ymark);
+
+  if (test)
+    drawTest(gl);
 }
 
 
-void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
-  unsigned int msize=xdraw.size();
-  if (ydraw.size()<msize) msize=ydraw.size();
-  glLineWidth(2);
-  float deltaw=window_dw*w*0.5;
+void ObjectPlot::drawPoints(DiGLPainter* gl,
+    const vector <float>& xdraw, const vector <float>& ydraw)
+{
+  gl->LineWidth(2);
+  const float deltaw=window_dw*w*0.5;
+  unsigned int msize = std::min(xdraw.size(), ydraw.size());
   for (unsigned int i=0; i<msize; i++){
-    glBegin(GL_POLYGON);
-    if (objectIs(wFront) || objectIs(Border)){
-      glVertex2f(xdraw[i]- deltaw,ydraw[i]- deltaw);
-      glVertex2f(xdraw[i]+ deltaw,ydraw[i] - deltaw);
-      glVertex2f(xdraw[i]+ deltaw,ydraw[i] + deltaw);
-      glVertex2f(xdraw[i]- deltaw,ydraw[i] + deltaw);
+    if (objectIs(wFront) || objectIs(Border)) {
+      gl->fillRect(xdraw[i]- deltaw, ydraw[i]- deltaw, xdraw[i]+ deltaw, ydraw[i] + deltaw);
     } else if (objectIs(wArea)){
-      //Circle
-      GLfloat xc,yc;
-      GLfloat radius=deltaw;
-      for(int j=0;j<100;j++){
-        xc = radius*cos(j*2*M_PI/100.0);
-        yc = radius*sin(j*2*M_PI/100.0);
-        glVertex2f(xdraw[i]+xc,ydraw[i]+yc);
-      }
-    } else if (objectIs(wSymbol) || objectIs(RegionName)){
-      float deltaw=window_dw*w*0.5;
-      glVertex2f(xdraw[i]- deltaw,ydraw[i]- deltaw);
-      glVertex2f(xdraw[i]+ deltaw,ydraw[i] - deltaw);
-      glVertex2f(xdraw[i],ydraw[i] + deltaw);
+      gl->fillCircle(xdraw[i], ydraw[i], deltaw);
+    } else if (objectIs(wSymbol) || objectIs(RegionName)) {
+      gl->Begin(DiGLPainter::gl_POLYGON);
+      gl->Vertex2f(xdraw[i]- deltaw,ydraw[i]- deltaw);
+      gl->Vertex2f(xdraw[i]+ deltaw,ydraw[i] - deltaw);
+      gl->Vertex2f(xdraw[i],ydraw[i] + deltaw);
+      gl->End();
     }
-    glEnd();
   }
-
-
 }
 
 
-void ObjectPlot::drawTest(){
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-  if (test){
-    glColor4f(0.8,0.8,0,0.8);
-    glLineWidth(2);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(boundBox.x1,boundBox.y1);
-    glVertex2f(boundBox.x2,boundBox.y1);
-    glVertex2f(boundBox.x2,boundBox.y2);
-    glVertex2f(boundBox.x1,boundBox.y2);
-    glEnd();
+void ObjectPlot::drawTest(DiGLPainter* gl)
+{
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
+  gl->setLineStyle(Colour::fromF(0.8, 0.8, 0, 0.8), 2);
+  if (test) {
+    gl->drawRect(boundBox);
   }
   int size = nodePoints.size()-1;
   if (size > 1 && test){
@@ -805,29 +790,29 @@ void ObjectPlot::drawTest(){
         y3=y_s[i+1]-dy;
         x4=x_s[i+1]-dx;
         y4=y_s[i+1]+dy;
-        glColor4f(0.8,0.8,0.0,0.8);
-        glLineWidth(2);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(x1,y1);
-        glVertex2f(x2,y2);
-        glVertex2f(x3,y3);
-        glVertex2f(x4,y4);
-        glEnd();
+
+        gl->Begin(DiGLPainter::gl_LINE_LOOP);
+        gl->Vertex2f(x1,y1);
+        gl->Vertex2f(x2,y2);
+        gl->Vertex2f(x3,y3);
+        gl->Vertex2f(x4,y4);
+        gl->End();
       }
     }
   }
 }
 
 
-void ObjectPlot::plotRubber(){
+void ObjectPlot::plotRubber(DiGLPainter* gl)
+{
   int size = nodePoints.size();
-  glBegin(GL_LINE_STRIP);        // Draws line from end of front to cursor
+  gl->Begin(DiGLPainter::gl_LINE_STRIP);        // Draws line from end of front to cursor
   if (addTop)
-    glVertex2f(nodePoints[0].x,nodePoints[0].y);
+    gl->Vertex2f(nodePoints[0].x,nodePoints[0].y);
   else
-    glVertex2f(nodePoints[size-1].x,nodePoints[size-1].y);
-  glVertex2f(rubberx,rubbery);
-  glEnd();
+    gl->Vertex2f(nodePoints[size-1].x,nodePoints[size-1].y);
+  gl->Vertex2f(rubberx,rubbery);
+  gl->End();
 }
 
 
@@ -838,25 +823,30 @@ void ObjectPlot::setWindowInfo()
 }
 
 
-void  ObjectPlot::setBasisColor(std::string colour) {
+void  ObjectPlot::setBasisColor(std::string colour)
+{
   // sets basis color of object
   basisColor = colour;
   objectColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectColor(std::string colour) {
+void  ObjectPlot::setObjectColor(std::string colour)
+{
   objectColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectBorderColor(std::string colour) {
+void  ObjectPlot::setObjectBorderColor(std::string colour)
+{
   objectBorderColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectColor(Colour::ColourInfo colour) {
+void  ObjectPlot::setObjectColor(Colour::ColourInfo colour)
+{
   objectColour = Colour(colour.rgb[0],colour.rgb[1],colour.rgb[2]);
 }
 
-void  ObjectPlot::setObjectRGBColor(std::string rgbstring) {
+void  ObjectPlot::setObjectRGBColor(std::string rgbstring)
+{
   //METLIBS_LOG_DEBUG("rgba value is " << rgbstring);
   vector<std::string> colours2add=miutil::split(rgbstring, ",");
   int nColours = colours2add.size()/4;
@@ -870,19 +860,17 @@ void  ObjectPlot::setObjectRGBColor(std::string rgbstring) {
     }
     objectColour = Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
   }
-
 }
 
 
-Colour::ColourInfo  ObjectPlot::getObjectColor() {
+Colour::ColourInfo  ObjectPlot::getObjectColor()
+{
   Colour::ColourInfo colour;
   colour.rgb[0]= (int) objectColour.R();
   colour.rgb[1]= (int) objectColour.G();
   colour.rgb[2]= (int) objectColour.B();
-
   return colour;
 }
-
 
 bool ObjectPlot::readObjectString(std::string objectString)
 {
@@ -985,9 +973,8 @@ bool ObjectPlot::readObjectString(std::string objectString)
 }
 
 
-
-
-std::string ObjectPlot::writeObjectString(){
+std::string ObjectPlot::writeObjectString()
+{
   //write type of object
   std::string ret=writeTypeString();
   //ret+="LatitudeLongitude=\n";    // old and wrong!
@@ -1019,8 +1006,8 @@ std::string ObjectPlot::writeObjectString(){
 
 
 
-bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,double resx,double resy,
-    int * combinematrix){
+bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,double resx,double resy, int * combinematrix)
+{
   int end = nodePoints.size();
   for (int i=0; i < end; i++){
     float x1=nodePoints[i].x/resx;
@@ -1037,8 +1024,8 @@ bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,double resx,d
   return false;
 }
 
-int ObjectPlot::combIndex(int matrix_nx, int matrix_ny, double resx, double resy, int * combinematrix){
-
+int ObjectPlot::combIndex(int matrix_nx, int matrix_ny, double resx, double resy, int * combinematrix)
+{
   float x1=nodePoints[0].x/resx;
   float y1=nodePoints[0].y/resy;
   if (x1>=0. && x1<=matrix_nx-1. &&
@@ -1061,8 +1048,9 @@ bool ObjectPlot::resumeDrawing()
 }
 
 
-bool ObjectPlot::oktoJoin(bool joinAll){
-  if  (joinAll || ismarkSomePoint() || currentState == active){
+bool ObjectPlot::oktoJoin(bool joinAll)
+{
+  if  (joinAll || ismarkSomePoint() || currentState == active) {
     // only fronts can be joined
     // drawIndex from SigWeatherFront and higher are lines etc. not to be joined
     // empty fronts shouldn't be joined
@@ -1076,8 +1064,9 @@ bool ObjectPlot::oktoJoin(bool joinAll){
 
 
 
-bool ObjectPlot::oktoMerge(bool mergeAll,int index){
-  if  (mergeAll || ismarkSomePoint() || currentState == active){
+bool ObjectPlot::oktoMerge(bool mergeAll,int index)
+{
+  if  (mergeAll || ismarkSomePoint() || currentState == active) {
     if (objectIs(wFront) && index==drawIndex && nodePoints.size())
       return true;
     else
@@ -1088,8 +1077,9 @@ bool ObjectPlot::oktoMerge(bool mergeAll,int index){
 
 
 
-void ObjectPlot::setRubber(bool rub, const float x, const float y){
-  if (objectIs(wFront) || objectIs(wArea)){
+void ObjectPlot::setRubber(bool rub, const float x, const float y)
+{
+  if (objectIs(wFront) || objectIs(wArea)) {
     rubber = rub;
     rubberx = x;
     rubbery = y;
@@ -1104,7 +1094,8 @@ void ObjectPlot::setRubber(bool rub, const float x, const float y){
  curve
  */
 
-bool ObjectPlot::onLine(float x, float y){
+bool ObjectPlot::onLine(float x, float y)
+{
   int size = nodePoints.size();
   if (size > 1){
     if  (boundBox.isinside(x,y)){

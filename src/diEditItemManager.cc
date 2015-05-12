@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -29,23 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.EditItemManager"
-#include <miLogger/miLogging.h>
-
-#include <vector>
-
-#include <QtGui> // ### include only relevant headers ... TBD
-#include <QAction>
-#include <QApplication>
-#include <QMenu>
-#include <QMessageBox>
-
-#include <diLocalSetupParser.h>
-#include <puTools/miSetupParser.h>
-
 #include <diEditItemManager.h>
+#include "diGLPainter.h"
 #include <diPlotModule.h>
 #include <EditItems/editcomposite.h>
 #include <EditItems/edititembase.h>
@@ -60,6 +43,12 @@
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/toolbar.h>
 #include <qtMainWindow.h>
+
+#include <puTools/miSetupParser.h>
+
+#define MILOGGER_CATEGORY "diana.EditItemManager"
+#include <miLogger/miLogging.h>
+
 #include "paint_select2.xpm"
 #include "paint_create_polyline.xpm"
 #include "paint_create_symbol.xpm"
@@ -694,16 +683,16 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
   }
 }
 
-void EditItemManager::plot(bool under, bool over)
+void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
 {
   if (!over)
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
-  glPushMatrix();
-  glTranslatef(editRect_.x1, editRect_.y1, 0.0);
-  glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
+  gl->PushMatrix();
+  gl->Translatef(editRect_.x1, editRect_.y1, 0.0);
+  gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
@@ -725,20 +714,20 @@ void EditItemManager::plot(bool under, bool over)
             modes |= EditItemBase::Hovered;
         }
         if (itemsVisibilityForced_ || item->property("visible", true).toBool()) {
-          applyPlotOptions(item);
+          applyPlotOptions(gl, item);
           setFromLatLonPoints(*item, item->getLatLonPoints());
-          Editing(item.data())->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
+          Editing(item.data())->draw(gl, modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
         }
       }
     }
   }
   if (hasIncompleteItem()) { // note that only complete items may be selected
     setFromLatLonPoints(*incompleteItem_, incompleteItem_->getLatLonPoints());
-    Editing(incompleteItem_.data())->draw(
+    Editing(incompleteItem_.data())->draw(gl,
           ((!hitItems_.isEmpty()) && (incompleteItem_ == hitItems_.first())) ? EditItemBase::Hovered : EditItemBase::Normal, true);
   }
 
-  glPopMatrix();
+  gl->PopMatrix();
 }
 
 void EditItemManager::undo()

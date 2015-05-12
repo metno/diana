@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -31,7 +29,8 @@
 #ifndef _diImageGallery_h
 #define _diImageGallery_h
 
-#include <GL/gl.h> // for GLubyte
+#include "diPlot.h"
+#include "diGLPainter.h"
 
 #include <map>
 #include <string>
@@ -82,7 +81,7 @@ public:
   struct pattern {
     std::string name;
     std::string filename;
-    GLubyte* pattern_data;
+    DiGLPainter::GLubyte* pattern_data;
     bool read_error;
     pattern();
     ~pattern();
@@ -94,15 +93,11 @@ private:
   static std::map<std::string,pattern> Patterns;
   static std::map< int, std::vector<std::string> > Type;
 
-  bool plotImage_(StaticPlot* sp, const std::string name,         // OpenGL-plotting
-      const float& gx, const float& gy,
-      const float scalex,
-      const float scaley,
-      const int alpha);
+  bool plotImage_(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
+      float gx, float gy, float scalex, float scaley, int alpha);
 
-  bool plotMarker_(StaticPlot* sp, const std::string name,         // OpenGL-plotting
-      const float& x, const float& y,
-      const float scale);
+  bool plotMarker_(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
+      float x, float y, float scale);
 
   bool readImage(const std::string& name); //read data from file once
   bool readPattern(const std::string& name); //read data from file once
@@ -142,38 +137,27 @@ public:
   int   heightp(const std::string& name);
 
   /// plot one image at gl-pos
-  bool plotImage(StaticPlot* sp, const std::string& name,
-      const float& x, const float& y,
-      const bool center = true,
-      const float scale = 1.0,
-      const int alpha = 255);
+  bool plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
+      float x, float y, bool center = true, float scale = 1.0, int alpha = 255);
   /// plot several images at gl-positions (different images)
-  bool plotImages(StaticPlot* sp, const int n,
+  bool plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
       const std::vector<std::string>& vn,
       const float* x, const float* y,
-      const bool center = true,
-      const float scale = 1.0,
-      const int alpha = 255);
+      bool center = true, float scale = 1.0, int alpha = 255);
   /// plot several images at gl-positions (same image)
-  bool plotImages(StaticPlot* sp, const int n,
-      const std::string& name,
-      const float* x, const float* y,
-      const bool center = true,
-      const float scale = 1.0,
-      const int alpha = 255);
+  bool plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
+      const std::string& name, const float* x, const float* y,
+      bool center = true, float scale = 1.0, int alpha = 255);
   /// plot one image at pixel-pos
-  bool plotImageAtPixel(StaticPlot* sp, const std::string& name,
-      const float& x, const float& y,
-      const bool center = true,
-      const float scale = 1.0,
-      const int alpha = 255);
+  bool plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
+      float x, float y, bool center = true, float scale = 1.0, int alpha = 255);
   void printInfo() const;
   /// return all image-names of one type
   void ImageNames(std::vector<std::string>& vnames, int type) const;
   /// return filename
   std::string getFilename(const std::string& name, bool pattern=false);
   /// return binary pattern by name
-  GLubyte* getPattern(std::string name);
+  DiGLPainter::GLubyte* getPattern(std::string name);
   /// parse the images section of the setup file
   bool parseSetup();
 };

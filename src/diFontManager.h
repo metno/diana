@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
  Copyright (C) 2006 met.no
 
  Contact information:
@@ -33,11 +31,7 @@
 
 #include <qglobal.h>
 
-#if !defined(USE_PAINTGL)
 #include <glText/glText.h>
-#else
-#include "PaintGL/paintgl.h"
-#endif
 
 #include <set>
 #include <string>

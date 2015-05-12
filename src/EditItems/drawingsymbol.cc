@@ -30,10 +30,10 @@
 */
 
 
-#include "GL/gl.h"
 #include "drawingsymbol.h"
 #include "diDrawingManager.h"
 #include "EditItems/drawingstylemanager.h"
+#include "diGLPainter.h"
 
 namespace DrawingItem_Symbol {
 
@@ -87,11 +87,11 @@ bool Symbol::hit(const QRectF &rect) const
   return false; // for now
 }
 
-void Symbol::draw()
+void Symbol::draw(DiGLPainter* gl)
 {
   if (points_.isEmpty())
     return;
-  DrawingStyleManager::instance()->drawSymbol(this);
+  DrawingStyleManager::instance()->drawSymbol(gl, this);
 }
 
 QDomNode Symbol::toKML(const QHash<QString, QString> &extraExtData) const

@@ -58,6 +58,7 @@
 #include <QUrl>
 #include <QWhatsThis>
 #include <QMimeData>
+#include <QSvgGenerator>
 
 #include <QAction>
 #include <QShortcut>
@@ -121,6 +122,7 @@
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 #include "qtMailDialog.h"
+#include "diPaintGLPainter.h"
 
 #include <puTools/miSetupParser.h>
 
@@ -134,6 +136,8 @@
 #include "EditItems/toolbar.h"
 
 #include "EditItems/eimtestdialog.h"
+
+#include <QDebug>
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
 #include <miLogger/miLogging.h>
@@ -222,10 +226,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
   connect( filePrintAction, SIGNAL( triggered() ) , SLOT( hardcopy() ) );
   // --------------------------------------------------------------------
-#if defined(USE_PAINTGL)
   filePrintPreviewAction = new QAction( tr("Print pre&view..."),this );
   connect( filePrintPreviewAction, SIGNAL( triggered() ) , SLOT( previewHardcopy() ) );
-#endif
   // --------------------------------------------------------------------
   readSetupAction = new QAction( tr("Read setupfile"),this );
   connect( readSetupAction, SIGNAL( triggered() ) , SLOT( parseSetup() ) );
@@ -586,9 +588,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filemenu->addAction( emailPictureAction );
   filemenu->addAction( saveAnimationAction );
   filemenu->addAction( filePrintAction );
-#if defined(USE_PAINTGL)
   filemenu->addAction( filePrintPreviewAction );
-#endif
   filemenu->addSeparator();
   filemenu->addAction( fileQuitAction );
 
@@ -1178,7 +1178,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 void DianaMainWindow::start()
 {
   // read the log file
-  readLogFile();  
+  readLogFile();
 
   // init paint mode
   setEditDrawingMode(editDrawingToolBar->isVisible());
@@ -1204,20 +1204,20 @@ void DianaMainWindow::start()
   optOnOffAction->      setChecked( showelem );
   optAutoElementAction->setChecked( autoselect );
 
-  w->Glw()->setFocus();
-
+  w->setGlwFocus();
 }
 
 // -- destructor
 DianaMainWindow::~DianaMainWindow()
 {
+  contr->setCanvas(0);
   // no explicit destruction is necessary at this point
 }
 
 
 void DianaMainWindow::focusInEvent( QFocusEvent * )
 {
-  w->Glw()->setFocus();
+  w->setGlwFocus();
 }
 
 void DianaMainWindow::editUpdate(bool enabled)
@@ -2238,7 +2238,8 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
     if(token.size()>1){
       int n = letter.data.size();
-      if(n==0) 	contr->areaCommand(token[0],token[1],std::string(),letter.from);
+      if(n==0)
+        contr->areaCommand(token[0],token[1],std::string(),letter.from);
       for( int i=0;i<n;i++ )
         contr->areaCommand(token[0],token[1],letter.data[i],letter.from);
     }
@@ -2477,14 +2478,14 @@ void DianaMainWindow::sendPrintClicked(int id)
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
   pluginB->sendMessage(letter);
-     METLIBS_LOG_DEBUG("SENDING>>>>");
-     METLIBS_LOG_DEBUG("Command: "<<letter.command);
-     METLIBS_LOG_DEBUG("Description: "<<letter.description);
-     METLIBS_LOG_DEBUG("commonDesc: "<<letter.commondesc);
-     METLIBS_LOG_DEBUG("Common: "<<letter.common);
-         for(size_t i=0;i<letter.data.size();i++)
-   	METLIBS_LOG_DEBUG("data:"<<letter.data[i]);
-     METLIBS_LOG_DEBUG("To: "<<letter.to);
+  METLIBS_LOG_DEBUG("SENDING>>>>" << std::endl);
+  METLIBS_LOG_DEBUG("Command: "<<letter.command);
+  METLIBS_LOG_DEBUG("Description: "<<letter.description);
+  METLIBS_LOG_DEBUG("commonDesc: "<<letter.commondesc);
+  METLIBS_LOG_DEBUG("Common: "<<letter.common);
+  for(size_t i=0;i<letter.data.size();i++)
+    METLIBS_LOG_DEBUG("data:"<<letter.data[i]);
+  METLIBS_LOG_DEBUG("To: "<<letter.to);
 }
 
 void DianaMainWindow::updateObs()
@@ -2756,49 +2757,109 @@ void DianaMainWindow::idnumChange(int increment)
 
 void DianaMainWindow::saveraster()
 {
+  METLIBS_LOG_SCOPE();
 
-  METLIBS_LOG_DEBUG("DianaMainWindow::saveraster");
-
+#if 1
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s =
-      QFileDialog::getSaveFileName(this,
-          tr("Save plot as image"),
-          fname,
-          tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+  const QString s = QFileDialog::getSaveFileName(this,
+      tr("Save plot as image"),
+      fname,
+      tr("Images (*.png *.jpeg *.jpg *.xpm *.bmp *.svg);;PDF Files (*.pdf);;All (*.*)"));
+  if (s.isNull())
+    return;
+  fname = s;
+  saveRasterImage(fname);
+#else
+  saveRasterImage("/tmp/map.png");
+  saveRasterImage("/tmp/map.svg");
+  saveRasterImage("/tmp/map.pdf");
+#endif
+}
 
-  if (!s.isNull()) {// got a filename
-    fname= s;
-    std::string filename= s.toStdString();
-    std::string format= "PNG";
-    int quality= -1; // default quality
+void DianaMainWindow::saveRasterImage(const QString& filename)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
+  QPrinter* printer = 0;
+  QImage* image = 0;
+  std::auto_ptr<QPaintDevice> device;
+  if (filename.endsWith(".pdf")) {
+    printer = new QPrinter(QPrinter::ScreenResolution);
+    printer->setOutputFormat(QPrinter::PdfFormat);
+    printer->setOutputFileName(filename);
+    printer->setFullPage(true);
+    printer->setPaperSize(QSizeF(w->width(), w->height()), QPrinter::DevicePixel);
 
-    // find format
-    if (miutil::contains(filename, ".xpm") || miutil::contains(filename, ".XPM"))
-      format= "XPM";
-    else if (miutil::contains(filename, ".bmp") || miutil::contains(filename, ".BMP"))
-      format= "BMP";
-    else if (miutil::contains(filename, ".eps") || miutil::contains(filename, ".epsf")){
-      // make encapsulated postscript
-      // NB: not screendump!
-      makeEPS(filename);
-      return;
-    }
+    // FIXME copy from bdiana
+    // According to QTBUG-23868, orientation and custom paper sizes do not
+    // play well together. Always use portrait.
+    printer->setOrientation(QPrinter::Portrait);
 
-    // do the save
-    w->Glw()->saveRasterImage(filename, format, quality);
+    device.reset(printer);
+  } else if (filename.endsWith(".svg")) {
+    QSvgGenerator* generator = new QSvgGenerator();
+    generator->setFileName(filename);
+    generator->setSize(w->size());
+    generator->setViewBox(QRect(0, 0, w->width(), w->height()));
+    generator->setTitle(tr("diana image"));
+    generator->setDescription(tr("Created by diana %1.").arg(PVERSION));
+
+    // FIXME copy from bdiana
+    // For some reason, QPrinter can determine the correct resolution to use, but
+    // QSvgGenerator cannot manage that on its own, so we take the resolution from
+    // a QPrinter instance which we do not otherwise use.
+    QPrinter sprinter;
+    generator->setResolution(sprinter.resolution());
+
+    device.reset(generator);
+  } else {
+    image = new QImage(w->size(), QImage::Format_ARGB32_Premultiplied);
+    image->fill(Qt::transparent);
+    device.reset(image);
   }
+
+  paintOnDevice(device.get());
+
+  if (image)
+    image->save(filename);
 }
 
-void DianaMainWindow::saveRasterImage(QString filename) {
+void DianaMainWindow::paintOnDevice(QPaintDevice* device)
+{
+  METLIBS_LOG_SCOPE();
+  DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
 
-  std::string fname = filename.toStdString();
-  std::string format= "PNG";
-  int quality= -1; // default quality
-  w->Glw()->saveRasterImage(fname, format, quality);
+  std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
+  std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
+  glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
+  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
 
+  const int ww = w->width(), wh = w->height(), dw = device->width(), dh = device->height();
+  METLIBS_LOG_DEBUG(LOGVAL(ww) << LOGVAL(wh) << LOGVAL(dw) << LOGVAL(dh));
+
+  QPainter painter;
+  painter.begin(device);
+
+  w->Glw()->setCanvas(glcanvas.get());
+#if 1
+  glpainter->Viewport(0, 0, dw, dh);
+  w->Glw()->resize(dw, dh);
+#else
+  painter.setWindow(0, 0, ww, wh);
+  glpainter->Viewport(0, 0, ww, wh);
+  w->Glw()->resize(ww, wh);
+#endif
+
+  glpainter->begin(&painter);
+  w->Glw()->paint(glpainter.get());
+  glpainter->end();
+  painter.end();
+
+  w->Glw()->setCanvas(oldCanvas);
+  w->Glw()->resize(ww, wh);
 }
 
-void DianaMainWindow::emailPicture() {
+void DianaMainWindow::emailPicture()
+{
   mailm->show();
 }
 
@@ -2887,33 +2948,12 @@ void DianaMainWindow::saveAnimation() {
   }
 }
 #else
-void DianaMainWindow::saveAnimation() {
-  QMessageBox::information(this, tr("Compiled without video export"), tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
-}
-#endif
-
-void DianaMainWindow::makeEPS(const std::string& filename)
+void DianaMainWindow::saveAnimation()
 {
-  diutil::OverrideCursor waitCursor;
-  printOptions priop;
-  priop.fname= filename;
-  priop.colop= d_print::incolour;
-  priop.orientation= d_print::ori_automatic;
-  priop.pagesize= d_print::A4;
-  priop.numcopies= 1;
-  priop.usecustomsize= false;
-  priop.fittopage= false;
-  priop.drawbackground= true;
-  priop.doEPS= true;
-
-#if !defined(USE_PAINTGL)
-  w->Glw()->startHardcopy(priop);
-  w->updateGL();
-  w->Glw()->endHardcopy();
-  w->updateGL();
-#endif
+  QMessageBox::information(this, tr("Compiled without video export"),
+      tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
 }
-
+#endif
 
 void DianaMainWindow::parseSetup()
 {
@@ -2942,88 +2982,30 @@ void DianaMainWindow::parseSetup()
 
 void DianaMainWindow::hardcopy()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::hardcopy()");
+  METLIBS_LOG_SCOPE();
+  QPrinter printer;
+  QPrintDialog printerDialog(&printer, this);
+  if (printerDialog.exec() != QDialog::Accepted || !printer.isValid())
+    return;
 
+  diutil::OverrideCursor waitCursor;
+  paintOnDevice(&printer);
+}
+
+void DianaMainWindow::previewHardcopy()
+{
   QPrinter qprt;
-
-  // save the old printer name if user prints to file
-  std::string oldprinter = priop.printer;
-
-  std::string command= pman.printCommand();
-
-  fromPrintOption(qprt,priop);
-
-  QPrintDialog printerDialog(&qprt, this);
-  if (printerDialog.exec()==QDialog::Accepted) {
-    if (qprt.isValid()) {
-      if (!qprt.outputFileName().isNull()) {
-        priop.fname= qprt.outputFileName().toStdString();
-      } else {
-        priop.fname="/tmp/";
-        if (getenv("TMP") != NULL) {
-          priop.fname=getenv("TMP");
-        }
-        priop.fname+= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
-        miutil::replace(priop.fname, ' ', '_');
-      }
-      // fill printOption from qprinter-selections
-      toPrintOption(qprt, priop);
-
-      // set printername
-      if (qprt.outputFileName().isNull())
-        priop.printer= qprt.printerName().toStdString();
-
-      // start the postscript production
-      diutil::OverrideCursor waitCursor;
-      //     contr->startHardcopy(priop);
-#if !defined(USE_PAINTGL)
-      w->Glw()->startHardcopy(priop);
-      w->updateGL();
-      w->Glw()->endHardcopy();
-#else
-      w->Glw()->print(&qprt);
-#endif
-      w->updateGL();
-
-      // if output to printer: call appropriate command
-      if (qprt.outputFileName().isNull()){
-        //From Qt:On Windows, Mac OS X and X11 systems that support CUPS,
-        //this will always return 1 as these operating systems can internally
-        //handle the number of copies. (Doesn't work)
-        priop.numcopies= qprt.numCopies();
-
-        // expand command-variables
-        pman.expandCommand(command, priop);
-
-        //########################################################################
-        METLIBS_LOG_DEBUG("PRINT: "<< command);
-        //########################################################################
-        int res = system(command.c_str());
-
-        if (res != 0){
-           METLIBS_LOG_ERROR("Print command:" << command << " failed");
-         }
-
-      }  else {
-        // Reset printer name
-        priop.printer= oldprinter;
-      }
-
-      //     // reset number of copies (saves a lot of paper)
-      //     qprt.setNumCopies(1);
-    }
-  }
-}
-  void DianaMainWindow::previewHardcopy()
-  {
-#if defined(USE_PAINTGL)
-    QPrinter qprt;
-    QPrintPreviewDialog previewDialog(&qprt, this);
-    connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
-          w->Glw(), SLOT(print(QPrinter*)));
+  QPrintPreviewDialog previewDialog(&qprt, this);
+  connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
+      this, SLOT(paintOnPrinter(QPrinter*)));
   previewDialog.exec();
-#endif
 }
+
+void DianaMainWindow::paintOnPrinter(QPrinter* printer)
+{
+  paintOnDevice(printer);
+}
+
 
 // left mouse click -> mark trajectory position
 void DianaMainWindow::trajPositions(bool b)
@@ -4141,12 +4123,12 @@ void DianaMainWindow::updateDialog()
 
 void DianaMainWindow::setWorkAreaCursor(const QCursor &cursor)
 {
-    w->Glw()->setCursor(cursor);
+    w->setGlwCursor(cursor);
 }
 
 void DianaMainWindow::unsetWorkAreaCursor()
 {
-    w->Glw()->unsetCursor();
+    w->unsetGlwCursor();
 }
 
 void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)

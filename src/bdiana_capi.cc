@@ -48,13 +48,9 @@
 #include <iostream>
 
 #include <QtCore>
-#if defined(USE_PAINTGL)
 #include <QtGui>
 #include <QtSvg>
-#include "PaintGL/paintgl.h"
-#else
-#include <QtOpenGL>
-#endif
+#include "diPaintGLPainter.h"
 
 #include <diAnnotationPlot.h>
 #include <diController.h>
@@ -70,7 +66,6 @@
 #include <puTools/miTime.h>
 #include <diLocalSetupParser.h>
 #include <diPrintOptions.h>
-#include <diFontManager.h>
 #include <diImageIO.h>
 #include "diUtilities.h"
 #include <puTools/miSetupParser.h>
@@ -105,13 +100,6 @@
 #include <miLogger/miLogging.h>
 
 #include <diOrderBook.h>
-
-// Keep X headers last, otherwise Qt will be very unhappy
-#ifdef USE_XLIB
-#include <GL/glx.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
 
 /* Created at Wed May 23 15:28:41 2001 */
 
@@ -167,9 +155,7 @@ const std::string com_addhour = "addhour";
 const std::string com_addminute = "addminute";
 const std::string com_archive = "archive";
 const std::string com_keepplotarea = "keepplotarea";
-#if defined(USE_PAINTGL)
 const std::string com_plotannotationsonly = "plotannotationsonly";
-#endif
 
 const std::string com_fail_on_missing_data="failonmissingdata";
 const std::string com_multiple_plots = "multiple.plots";
@@ -197,7 +183,7 @@ const std::string com_describe_spectrum = "describe.spectrum";
 const std::string com_describe_end = "enddescribe";
 
 enum canvas {
-  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer, qt_qimage
+  qt_qimage
 };
 
 enum image_type {
@@ -240,36 +226,12 @@ VprofManager* vprofmanager = 0;
 vcross::QtManager_p vcrossmanager;
 SpectrumManager* spectrummanager = 0;
 
-#ifdef USE_XLIB
-// Attribs for OpenGL visual
-static int dblBuf[] = {GLX_DOUBLEBUFFER, GLX_RGBA, GLX_DEPTH_SIZE, 16,
-  GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_ALPHA_SIZE, 1,
-  //GLX_TRANSPARENT_TYPE, GLX_TRANSPARENT_RGB,
-  GLX_STENCIL_SIZE, 1, None};
-static int *snglBuf = &dblBuf[1];
-// Init the global variables...
-Display* dpy = 0;
-XVisualInfo* pdvi = 0; // X visual
-GLXContext cx = 0; // GL drawing context
-Pixmap pixmap = 0; // X pixmap
-GLXPixmap pix = 0; // GLX pixmap
-#ifdef GLX_VERSION_1_3
-GLXPbuffer pbuf = 0; // GLX Pixel Buffer
-#endif
-#endif
-
 QApplication * application = 0; // The Qt Application object
-#if !defined(USE_PAINTGL)
-QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
-QGLFramebufferObject * qfbuffer = 0; // The Qt GLFrameBuffer used as canvas
-QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
-#else
 QPainter painter;
-PaintGL wrapper;
-PaintGLContext context;
 QPrinter *printer = 0;
 QPainter pagePainter;
-#endif
+static DiPaintGLCanvas* glcanvas = 0;
+static DiPaintGLPainter* glpainter = 0;
 QPicture picture;
 QImage image;
 map<std::string, map<std::string,std::string> > outputTextMaps; // output text for cases where output data is XML/JSON
@@ -284,17 +246,6 @@ int deltax, deltay; // width and height of plotcells
 int margin, spacing; // margin and spacing for multiple plots
 bool multiple_newpage = false; // start new page for multiple plots
 
-bool use_double_buffer = true; // use double buffering
-#ifdef USE_XLIB
-int default_canvas = x_pixmap;
-#else
-#if defined(USE_PAINTGL)
-int default_canvas = qt_qimage;
-#else
-int default_canvas = qt_glpixelbuffer;
-#endif
-#endif
-int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
 bool use_firsttime = false;
 bool antialias = false;
@@ -317,18 +268,14 @@ bool toprinter = false;
 bool raster = false; // false means postscript
 bool shape = false; // false means postscript
 bool postscript = false;
-#if defined(USE_PAINTGL)
 bool svg = false;
 bool pdf = false;
-#endif
 bool json = false;
 int raster_type = image_png; // see enum image_type above
 
-#if defined(USE_PAINTGL)
 bool plotAnnotationsOnly = false;
 vector<Rectangle> annotationRectangles;
 QTransform annotationTransform;
-#endif
 
 /*
  more...
@@ -642,24 +589,6 @@ void endVideo()
 
 void startHardcopy(const plot_type pt, const printOptions priop)
 {
-#if !defined(USE_PAINTGL)
-  if (pt == plot_standard && main_controller) {
-    if (verbose)
-      METLIBS_LOG_INFO("- startHardcopy (standard)");
-    main_controller->startHardcopy(priop);
-  } else if (pt == plot_vprof && vprofmanager) {
-    if (verbose)
-      METLIBS_LOG_INFO("- startHardcopy (vprof)");
-    vprofmanager->startHardcopy(priop);
-  } else if (pt == plot_spectrum && spectrummanager) {
-    if (verbose)
-      METLIBS_LOG_INFO("- startHardcopy (spectrum)");
-    spectrummanager->startHardcopy(priop);
-  } else {
-    if (verbose)
-      METLIBS_LOG_INFO("- startHardcopy failure (missing manager)");
-  }
-#else // USE_PAINTGL
   if (!printer) {
     printer = new QPrinter();
     printer->setOutputFileName(QString::fromStdString(priop.fname));
@@ -699,39 +628,14 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     pagePainter.setClipRect(QRectF(0, 0, xsize, ysize));
   } else
       printer->newPage();
-#endif
   hardcopy_started[pt] = true;
 }
 
-#if defined(USE_PAINTGL)
 static void ensureNewContext();
 static void printPage(int ox, int oy);
-#endif
 
 void endHardcopy(const plot_type pt)
 {
-#if !defined(USE_PAINTGL)
-  // finish off postscript-sessions
-  if (pt == plot_standard && hardcopy_started[pt] && main_controller) {
-    if (verbose)
-      METLIBS_LOG_INFO("- endHardcopy (standard)");
-    main_controller->endHardcopy();
-  } else if (pt == plot_vprof && hardcopy_started[pt] && vprofmanager) {
-    if (verbose)
-      METLIBS_LOG_INFO("- endHardcopy (vprof)");
-    vprofmanager->endHardcopy();
-  } else if (pt == plot_spectrum && hardcopy_started[pt] && spectrummanager) {
-    if (verbose)
-      METLIBS_LOG_INFO("- endHardcopy (spectrum)");
-    spectrummanager->endHardcopy();
-  } else if (pt == plot_none) {
-    // stop all
-    endHardcopy(plot_standard);
-    endHardcopy(plot_vcross);
-    endHardcopy(plot_vprof);
-    endHardcopy(plot_spectrum);
-  }
-#else
   // Guard against this function being called before printing occurs
   // or in cases where it is unnecessary.
   if (!painter.isActive() || shape)
@@ -744,7 +648,6 @@ void endHardcopy(const plot_type pt)
 
   if (pdf || postscript)
     printPage(0, 0);
-#endif
   hardcopy_started[pt] = false;
 }
 
@@ -895,9 +798,6 @@ static void printUsage(bool showexample)
 #ifdef VIDEO_EXPORT
         " - as AVI (MS MPEG4-v2 video format)                            \n"
 #endif
-#if !defined(USE_PAINTGL)
-        " - using qtgl: all available raster formats in Qt               \n"
-#endif
         " - using qimage: all available raster formats in Qt             \n"
         "***************************************************             \n"
         "                                                                \n"
@@ -907,11 +807,7 @@ static void printUsage(bool showexample)
         " [-display xhost:display]"
         " [-example]"
         " ["
-#ifdef USE_XLIB
-        "-use_pixmap | -use_pbuffer |"
-#endif
         " -use_qimage ]"
-        " [-use_doublebuffer | -use_singlebuffer]"
         " [key=value key=value] \n"
         "                                                                        \n"
         "-i                : job-control file. See example below                 \n"
@@ -924,17 +820,7 @@ static void printUsage(bool showexample)
         "-signal           : production triggered by SIGUSR1 signal (see example)\n"
         "-libinput         : using bdiana_capi as library                        \n"
         "-example          : list example input-file and exit                    \n"
-#ifdef USE_XLIB
-        "-display          : x-server to use (default: env DISPLAY)              \n"
-        "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium            \n"
-        "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
-        "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
-#endif
         "-use_qimage       : use QImage as drawing medium                        \n"
-#if !defined(USE_PAINTGL)
-        "-use_doublebuffer : use double buffering OpenGL (default)               \n"
-        "-use_singlebuffer : use single buffering OpenGL                         \n"
-#endif
         "                                                                        \n"
         "special key/value pairs:                                                \n"
         " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
@@ -1341,7 +1227,6 @@ static miutil::miTime selectTime()
   return thetime;
 }
 
-#if defined(USE_PAINTGL)
 /*
  * Returns the area covered in the requested annotation in the ox, oy, xsize and ysize
  * variables passed as arguments. If the annotation number is -1 then the area covered
@@ -1487,17 +1372,19 @@ void createJsonAnnotation()
 
 static void ensureNewContext()
 {
-  bool was_printing = context.printing;
+  if (!glpainter)
+    return;
+
+  bool was_printing = glpainter->printing;
 
   if (!multiple_plots) {
-    if (context.isPainting())
-      context.end();
+    if (glpainter->isPainting())
+      glpainter->end();
     if (painter.isActive())
       painter.end();
   }
 
-  context.makeCurrent();
-  context.printing = was_printing;
+  glpainter->printing = was_printing;
 }
 
 static void printPage(int ox, int oy)
@@ -1507,45 +1394,46 @@ static void printPage(int ox, int oy)
 
 void createPaintDevice()
 {
+  METLIBS_LOG_SCOPE();
   ensureNewContext();
-  context.printing = false;
 
+  delete glpainter;
+  delete glcanvas;
+
+  bool printing = false;
   if (raster) {
     image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
     image.fill(qRgba(0, 0, 0, 0));
-    painter.begin(&image);
-    context.begin(&painter);
+    glcanvas = new DiPaintGLCanvas(&image);
 
   } else if (pdf || svg || json) {
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-    painter.begin(&picture);
-    context.begin(&painter);
-
+    glcanvas = new DiPaintGLCanvas(&picture);
     if (pdf)
-      context.printing = true;
+      printing = true;
 
   } else { // Postscript
 
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-    painter.begin(&picture);
-    context.begin(&painter);
-
-    context.printing = true;
+    glcanvas = new DiPaintGLCanvas(&picture);
+    printing = true;
   }
+
+  glpainter = new DiPaintGLPainter(glcanvas);
+  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
+  glpainter->Viewport(0, 0, xsize, ysize);
+
+  painter.begin(glcanvas->device());
+  glpainter->begin(&painter);
+  glpainter->printing = printing;
 }
-#endif
 
 void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int spacing)
 {
-#if !defined(USE_PAINTGL)
-  glViewport(margin + plotcol * (deltax + spacing), margin + plotrow * (deltay + spacing),
-             deltax, deltay);
-#else
-  glViewport(margin + plotcol * (deltax + spacing), ysize - (margin + (plotrow + 1) * (deltay + spacing)),
-             deltax, deltay);
-#endif
+  glpainter->Viewport(margin + plotcol * (deltax + spacing), ysize - (margin + (plotrow + 1) * (deltay + spacing)),
+      deltax, deltay);
 }
 
 #define FIND_END_COMMAND(COMMAND) \
@@ -1559,7 +1447,8 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
-  PlotModule::instance()->getStaticPlot()->restartFontManager();
+  METLIBS_LOG_ERROR("font manager initialisation was skipped");
+  // FIXME PlotModule::instance()->getStaticPlot()->restartFontManager();
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
@@ -1572,9 +1461,7 @@ static bool MAKE_CONTROLLER()
 
 static int parseAndProcess(istream &is)
 {
-#if defined(USE_PAINTGL)
   ensureNewContext();
-#endif
 
   // unpack loops, make lists, merge lines etc.
   int res = prepareInput(is);
@@ -1619,9 +1506,11 @@ static int parseAndProcess(istream &is)
       parse_spectrum_options(pcom);
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_plot || miutil::to_lower(lines[k])
-        == com_vcross_plot || miutil::to_lower(lines[k]) == com_vprof_plot
-        || miutil::to_lower(lines[k]) == com_spectrum_plot) {
+    } else if (miutil::to_lower(lines[k]) == com_plot
+        || miutil::to_lower(lines[k]) == com_vcross_plot
+        || miutil::to_lower(lines[k]) == com_vprof_plot
+        || miutil::to_lower(lines[k]) == com_spectrum_plot)
+    {
       // --- START PLOT ---
       if (miutil::to_lower(lines[k]) == com_plot) {
         plottype = plot_standard;
@@ -1707,10 +1596,8 @@ static int parseAndProcess(istream &is)
       if (plottype == plot_standard) {
         // -- normal plot
 
-#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
-#endif
         if (not MAKE_CONTROLLER())
           return 99;
         else {
@@ -1760,9 +1647,7 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- updatePlots");
         if (!main_controller->updatePlots(failOnMissingData)) {
             METLIBS_LOG_WARN("Failed to update plots.");
-#if defined(USE_PAINTGL)
             ensureNewContext();
-#endif
             return 99;
         }
         METLIBS_LOG_INFO("map area = " << main_controller->getMapArea());
@@ -1796,44 +1681,36 @@ static int parseAndProcess(istream &is)
           trajectory_started = false;
         }
 
-#if defined(USE_PAINTGL)
-        if (canvasType == qt_qimage && raster && antialias)
-          glEnable(GL_MULTISAMPLE);
-#endif
+        if (raster && antialias)
+          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
 
         if (verbose)
           METLIBS_LOG_INFO("- plot");
 
-#if defined(USE_PAINTGL)
         if (plotAnnotationsOnly) {
           // Plotting annotations only for the purpose of returning legends to a WMS
           // server front end.
           if (raster) {
-            annotationRectangles = main_controller->plotAnnotations();
-            annotationTransform = context.transform;
+            annotationRectangles = main_controller->plotAnnotations(glpainter);
+            annotationTransform = glpainter->transform;
           }
         } else
-#endif
         {
           if (shape)
-            main_controller->plot(true, false);
+            main_controller->plot(glpainter, true, false);
           else if (!json)
-            main_controller->plot(true, true);
+            main_controller->plot(glpainter, true, true);
         }
 
-#if defined(USE_PAINTGL)
         // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
         if (json)
           createJsonAnnotation();
-#endif
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
 
-#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
-#endif
         if (not MAKE_CONTROLLER())
           return 99;
 
@@ -1883,24 +1760,16 @@ static int parseAndProcess(istream &is)
         if (verbose)
           METLIBS_LOG_INFO("- plot");
 
-#if defined(USE_PAINTGL)
-        if (canvasType == qt_qimage && raster && antialias)
-          glEnable(GL_MULTISAMPLE);
-#endif
+        if (raster && antialias)
+          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
 
-#if defined(USE_PAINTGL)
         vcrossmanager->plot(painter);
-#else
-        METLIBS_LOG_ERROR("Cannot plot vertical crossections whithout using paintGL");
-#endif
 
         // --------------------------------------------------------
       } else if (plottype == plot_vprof) {
 
-#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
-#endif
         if (not MAKE_CONTROLLER())
           return 99;
 
@@ -1962,19 +1831,15 @@ static int parseAndProcess(istream &is)
         if (verbose)
           METLIBS_LOG_INFO("- plot");
 
-#if defined(USE_PAINTGL)
-        if (canvasType == qt_qimage && raster && antialias)
-          glEnable(GL_MULTISAMPLE);
-#endif
-        vprofmanager->plot();
+        if (raster && antialias)
+          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
+        vprofmanager->plot(glpainter);
 
         // --------------------------------------------------------
       } else if (plottype == plot_spectrum) {
 
-#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
-#endif
 
         // -- spectrum plot
         if (!spectrummanager) {
@@ -2033,100 +1898,23 @@ static int parseAndProcess(istream &is)
         if (verbose)
           METLIBS_LOG_INFO("- plot");
 
-#if defined(USE_PAINTGL)
-        if (canvasType == qt_qimage && raster && antialias)
-          glEnable(GL_MULTISAMPLE);
-#endif
-        spectrummanager->plot();
+        if (raster && antialias)
+          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
+        spectrummanager->plot(glpainter);
 
       }
       // --------------------------------------------------------
       // Write output to a file.
       // --------------------------------------------------------
 
-      if (use_double_buffer) {
-        // Double-buffering
-        if (canvasType == x_pixmap) {
-#ifdef USE_XLIB
-          glXSwapBuffers(dpy, pix);
-#endif
-        } else if (canvasType == glx_pixelbuffer) {
-#ifdef USE_XLIB
-#ifdef GLX_VERSION_1_3
-          glXSwapBuffers(dpy, pbuf);
-#endif
-#endif
-        } else if (canvasType == qt_glpixelbuffer) {
-          //METLIBS_LOG_ERROR("WARNING! double buffer swapping not implemented for qt_glpixelbuffer");
-        }
-      }
-
       if (raster) {
 
         if (verbose)
           METLIBS_LOG_INFO("- Preparing for raster output");
-        glFlush();
+        glpainter->Flush();
 
-#if !defined(USE_PAINTGL)
-        if (canvasType == qt_glpixelbuffer) {
-          if (qpbuffer == 0) {
-            METLIBS_LOG_ERROR(" ERROR. when saving image - qpbuffer is NULL");
-          } else {
-            const QImage image = qpbuffer->toImage();
-
-            if (verbose) {
-              METLIBS_LOG_INFO("- Saving image to: '" << priop.fname << "'");
-            }
-
-            bool result = false;
-
-            if (raster_type == image_png || raster_type == image_unknown) {
-              result = image.save(priop.fname.c_str());
-              METLIBS_LOG_INFO("--------- write_png: '" << priop.fname << "'");
-#ifdef VIDEO_EXPORT
-            } else if (raster_type == image_avi) {
-              result = addVideoFrame(image);
-              METLIBS_LOG_INFO("--------- write_avi_frame: '" << priop.fname << "'");
-#endif
-            }
-
-            if (verbose) {
-              METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
-            } else if (!result) {
-              METLIBS_LOG_ERROR(" ERROR, saving image to: '" << priop.fname << "'");
-            }
-          }
-        } else if (canvasType == qt_glframebuffer) {
-          if (qfbuffer == 0) {
-            METLIBS_LOG_ERROR(" ERROR. when saving image - qfbuffer is NULL");
-          } else {
-            const QImage image = qfbuffer->toImage();
-
-            if (verbose) {
-              METLIBS_LOG_INFO("- Saving image to: '" << priop.fname << "'");
-            }
-
-            bool result = false;
-
-            if (raster_type == image_png || raster_type == image_unknown) {
-              result = image.save(priop.fname.c_str());
-#ifdef VIDEO_EXPORT
-            } else if (raster_type == image_avi) {
-              result = addVideoFrame(image);
-#endif
-            }
-            METLIBS_LOG_INFO("--------- write_png: '" << priop.fname << "'");
-
-            if (verbose) {
-              METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
-            } else if (!result) {
-              METLIBS_LOG_ERROR(" ERROR, saving image to: '" << priop.fname << "'");
-            }
-          }
-        }
-#else
         // QWS/QPA output
-        if (canvasType == qt_qimage && raster) {
+        if (raster) {
           ensureNewContext();
 
           int ox = 0, oy = 0;
@@ -2166,9 +1954,8 @@ static int parseAndProcess(istream &is)
 
           if (empty)
             METLIBS_LOG_INFO("# ^^^ Empty plot (end)");
-    #endif
-        }
 #endif
+        }
         else {
           imageIO::Image_data img;
           img.width = xsize;
@@ -2180,7 +1967,7 @@ static int parseAndProcess(istream &is)
           img.nchannels = 4;
           img.data = new unsigned char[npixels * img.nchannels];
 
-          glReadPixels(0, 0, img.width, img.height, GL_RGBA, GL_UNSIGNED_BYTE,
+          glpainter->ReadPixels(0, 0, img.width, img.height, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
               img.data);
 
           int result = 0;
@@ -2219,7 +2006,6 @@ static int parseAndProcess(istream &is)
 
           // Anything more to be done here ???
 
-#if defined(USE_PAINTGL)
       } else if (svg) {
 
           ensureNewContext();
@@ -2300,34 +2086,6 @@ static int parseAndProcess(istream &is)
           printPage(ox, oy);
         }
       }
-#else
-      } else { // PostScript only
-        if (toprinter) { // automatic print of each page
-          // Note that this option works bad for multi-page output:
-          // use PRINT_DOCUMENT instead
-          if (priop.printer.empty()) {
-            METLIBS_LOG_ERROR(" ERROR, printing document: '" << priop.fname
-                   << "'  Printer not defined!");
-            continue;
-          }
-          // first stop postscript-generation
-          endHardcopy(plot_none);
-          multiple_newpage = true;
-
-          std::string command = printman->printCommand();
-          priop.numcopies = 1;
-
-          printman->expandCommand(command, priop);
-
-          if (verbose)
-            METLIBS_LOG_INFO("- Issuing print command: '" << command << "'");
-          int res = system(command.c_str());
-          if (verbose)
-            METLIBS_LOG_INFO(" result:" << res);
-        }
-      }
-#endif
-
       continue;
 
     } else if (miutil::to_lower(lines[k]) == com_time || miutil::to_lower(lines[k])
@@ -2892,128 +2650,6 @@ static int parseAndProcess(istream &is)
       // first stop ongoing postscript sessions
       endHardcopy(plot_none);
 
-      // create canvas
-      if (canvasType == x_pixmap) {
-#ifdef USE_XLIB
-        // delete old pixmaps
-        if (buffermade) {
-          if (pix) {
-            glXDestroyGLXPixmap(dpy, pix);
-          }
-          if (pixmap) {
-            XFreePixmap(dpy, pixmap);
-          }
-        }
-
-        //METLIBS_LOG_INFO("- Creating X pixmap..");
-        pixmap = XCreatePixmap(dpy, RootWindow(dpy, pdvi->screen),
-            xsize, ysize, pdvi->depth);
-        if (!pixmap) {
-          METLIBS_LOG_ERROR("ERROR, could not create X pixmap");
-          return 1;
-        }
-
-        //METLIBS_LOG_INFO("- Creating GLX pixmap..");
-        pix = glXCreateGLXPixmap(dpy, pdvi, pixmap);
-        if (!pix) {
-          METLIBS_LOG_ERROR("ERROR, could not create GLX pixmap");
-          return 1;
-        }
-
-        glXMakeCurrent(dpy, pix, cx);
-#endif
-      } else if (canvasType == glx_pixelbuffer) {
-
-#ifdef USE_XLIB
-#ifdef GLX_VERSION_1_3
-        // delete old PixelBuffer
-        if (buffermade && pbuf) {
-          glXDestroyPbuffer(dpy, pbuf);
-        }
-
-        int nelements;
-        GLXFBConfig* pbconfig = glXChooseFBConfig(dpy, DefaultScreen(dpy), (use_double_buffer ? dblBuf : snglBuf), &nelements);
-
-        if (nelements == 0) {
-          METLIBS_LOG_ERROR("ERROR, glXChooseFBConfig returned no configurations");
-          return 1;
-        }
-
-        static int pbufAttr[5];
-        int n = 0;
-        pbufAttr[n] = GLX_PBUFFER_WIDTH;
-        n++;
-        pbufAttr[n] = xsize;
-        n++;
-        pbufAttr[n] = GLX_PBUFFER_HEIGHT;
-        n++;
-        pbufAttr[n] = ysize;
-        n++;
-        pbufAttr[n] = None;
-        n++;
-
-        //METLIBS_LOG_INFO("- Creating GLX pbuffer..");
-        pbuf = glXCreatePbuffer(dpy, pbconfig[0], pbufAttr);
-        if (!pbuf) {
-          METLIBS_LOG_ERROR("ERROR, could not create GLX pbuffer");
-          return 1;
-        }
-
-        pdvi = glXGetVisualFromFBConfig(dpy, pbconfig[0]);
-        if (!pdvi) {
-          METLIBS_LOG_ERROR("ERROR, could not get visual from FBConfig");
-          return 1;
-        }
-
-        //METLIBS_LOG_INFO("- Create glx rendering context..");
-        cx = glXCreateContext(dpy, pdvi,// display and visual
-            0, 0); // sharing and direct rendering
-        if (!cx) {
-          METLIBS_LOG_ERROR("ERROR, could not create rendering context");
-          return 1;
-        }
-
-        glXMakeContextCurrent(dpy, pbuf, pbuf, cx);
-#endif
-#endif
-      } else if (canvasType == qt_glpixelbuffer) {
-
-#if !defined(USE_PAINTGL)
-        // delete old pixmaps
-        if (buffermade && qpbuffer) {
-          delete qpbuffer;
-        }
-
-        QGLFormat format = QGLFormat::defaultFormat();
-        //TODO: any specific format specifications?
-        qpbuffer = new QGLPixelBuffer(xsize, ysize, format, 0);
-
-        qpbuffer->makeCurrent();
-
-        if (not MAKE_CONTROLLER())
-          return 99;
-
-        main_controller->restartFontManager();
-
-      } else if (canvasType == qt_glframebuffer) {
-          // delete old pixmaps
-          if (buffermade && qfbuffer) {
-            delete qfbuffer;
-          }
-
-          //TODO -- need to set more format attributes than set in the qtwidget context?
-          //GLenum target = GL_TEXTURE_2D;
-          //QGLFramebufferObjectFormat formatFB;
-          //qfbuffer = new QGLFramebufferObject(xsize, ysize, formatFB);
-          qfbuffer = new QGLFramebufferObject(xsize, ysize);
-          qfbuffer->bind();
-          //qfbuffer->release();
-#endif
-      }
-      glShadeModel(GL_FLAT);
-
-      glViewport(0, 0, xsize, ysize);
-
       // for multiple plots
       priop.viewport_x0 = 0;
       priop.viewport_y0 = 0;
@@ -3060,10 +2696,8 @@ static int parseAndProcess(istream &is)
       shape = false;
       json = false;
       postscript = false;
-#if defined(USE_PAINTGL)
       svg = false;
       pdf = false;
-#endif
       if (value == "postscript") {
         postscript = true;
         raster = false;
@@ -3084,7 +2718,6 @@ static int parseAndProcess(istream &is)
         raster = true;
         raster_type = image_avi;
 
-#if defined(USE_PAINTGL)
       } else if (value == "pdf" || value == "svg" || value == "json") {
         raster = false;
         if (value == "pdf")
@@ -3096,20 +2729,12 @@ static int parseAndProcess(istream &is)
             outputTextMaps.clear();
             outputTextMapOrder.clear();
         }
-#endif
       } else {
         METLIBS_LOG_ERROR("ERROR, unknown output-format:" << lines[k] << " Linenumber:"
                << linenumbers[k]);
         return 1;
       }
 
-#if !defined(USE_PAINTGL)
-      if (raster && multiple_plots) {
-        METLIBS_LOG_ERROR("ERROR, multiple plots and raster-output cannot be used together: "
-            << lines[k] << " Linenumber:" << linenumbers[k]);
-        return 1;
-      }
-#endif
       if (raster || shape) {
         // first stop ongoing postscript sessions
         endHardcopy(plot_none);
@@ -3160,10 +2785,8 @@ static int parseAndProcess(istream &is)
     } else if (key == com_keepplotarea) {
       keeparea = (miutil::to_lower(value) == "yes");
 
-#if defined(USE_PAINTGL)
     } else if (key == com_plotannotationsonly) {
       plotAnnotationsOnly = (miutil::to_lower(value) == "yes");
-#endif
 
     } else if (key == com_antialiasing) {
       antialias = (miutil::to_lower(value) == "yes");
@@ -3172,31 +2795,20 @@ static int parseAndProcess(istream &is)
       failOnMissingData = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_multiple_plots) {
-#if !defined(USE_PAINTGL)
-      if (raster) {
-        METLIBS_LOG_ERROR("ERROR, multiple plots and raster-output cannot be used together: "
-            << lines[k] << " Linenumber:" << linenumbers[k]);
-        return 1;
-      }
-#endif
       if (miutil::to_lower(value) == "off") {
         multiple_newpage = false;
         multiple_plots = false;
-#if defined(USE_PAINTGL)
         endHardcopy(plot_none);
-#endif
-        glViewport(0, 0, xsize, ysize);
+        glpainter->Viewport(0, 0, xsize, ysize);
 
       } else {
         if (multiple_plots) {
           METLIBS_LOG_ERROR("Multiple plots are already enabled at line " << linenumbers[k]);
-#if defined(USE_PAINTGL)
           endHardcopy(plot_none);
           if (printer && pagePainter.isActive()) {
             pagePainter.end();
             delete printer;
           }
-#endif
         }
         vector<std::string> v1 = miutil::split(value, ",");
         if (v1.size() < 2) {
@@ -3242,10 +2854,8 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("Starting multiple_plot, rows:" << numrows << " , columns: "
                 << numcols);
 
-#if defined(USE_PAINTGL)
         // A new multiple plot needs a new paint device to be created.
         createPaintDevice();
-#endif
       }
 
     } else if (key == com_plotcell) {
@@ -3300,12 +2910,10 @@ static int parseAndProcess(istream &is)
 
   // finish off any dangling postscript-sessions
   endHardcopy(plot_none);
-#if defined(USE_PAINTGL)
   if (printer && pagePainter.isActive()) {
     pagePainter.end();
     delete printer;
   }
-#endif
 
   return 0;
 }
@@ -3484,27 +3092,6 @@ int diana_init(int _argc, char** _argv)
     } else if (sarg == "-example") {
       printUsage(true);
 
-    } else if (sarg == "-use_pbuffer") {
-      canvasType = glx_pixelbuffer;
-
-    } else if (sarg == "-use_pixmap") {
-      canvasType = x_pixmap;
-
-    } else if (sarg == "-use_qtgl") {
-      canvasType = qt_glpixelbuffer;
-
-    } else if (sarg == "-use_qtgl_fb") {
-      canvasType = qt_glframebuffer;
-
-    } else if (sarg == "-use_qimage") {
-      canvasType = qt_qimage;
-
-    } else if (sarg == "-use_singlebuffer") {
-      use_double_buffer = false;
-
-    } else if (sarg == "-use_doublebuffer") {
-      use_double_buffer = true;
-
     } else if (sarg == "-use_nowtime") {
         // Use time closest to the current time even if there exists a field
         // and not the timestamps for the future. This corresponds to the
@@ -3570,10 +3157,6 @@ int diana_init(int _argc, char** _argv)
     ac++;
   } // command line parameters
 
-
-  // prepare font-pack for display
-  FontManager::set_display_name(xhost);
-
   if (false and batchinput.empty()) // FIXME removing the 'false' kills perl Metno::Bdiana
     printUsage(false);
 
@@ -3582,92 +3165,6 @@ int diana_init(int _argc, char** _argv)
   milogger::LoggingConfig log4cpp(logfilename);
 
   METLIBS_LOG_INFO(argv[0].toStdString() << " : DIANA batch version " << VERSION);
-
-#ifndef USE_XLIB
-  if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-    METLIBS_LOG_WARN("X pixmaps or GLX pixelbuffers not supported. Forcing use of default canvas.");
-    canvasType = default_canvas;
-  }
-#endif
-
-#ifndef GLX_VERSION_1_3
-  if (canvasType == glx_pixelbuffer) {
-    METLIBS_LOG_WARN("This version of GLX does not support PixelBuffers. Forcing use of default canvas.");
-    canvasType = default_canvas;
-  }
-#endif
-
-#if !defined(USE_PAINTGL)
-  if (canvasType == qt_glpixelbuffer) {
-    METLIBS_LOG_INFO("qt_glpixelbuffer");
-    if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
-      METLIBS_LOG_ERROR("This system does not support OpenGL pbuffers.");
-      diana_dealloc();
-      return 1;
-    }
-  } else if (canvasType == qt_glframebuffer) {
-    if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
-      METLIBS_LOG_ERROR("This system does not support OpenGL framebuffers.");
-      diana_dealloc();
-      return 1;
-    } else {
-      //Create QGL widget as a rendering context
-      QGLFormat format = QGLFormat::defaultFormat();
-      format.setAlpha(true);
-      format.setDirectRendering(true);
-      if (use_double_buffer) {
-       format.setDoubleBuffer(true);
-      }
-      qwidget = new QGLWidget(format);
-      qwidget->makeCurrent();
-
-      //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
-    }
-  }
-#endif
-
-  if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-#ifdef USE_XLIB
-    // Try 5 times until give up
-    int tries = 0;
-    dpy = 0;
-    while ((tries < 5)&&(!dpy)) {
-      dpy = XOpenDisplay(xhost.c_str());
-      if (!dpy) {
-        METLIBS_LOG_ERROR("ERROR, could not open X-display:" << xhost);
-        if (tries == 4)
-        {
-          cerr << "ERROR, could not open X-display:" << xhost << " giving up!" << endl;
-          return 1;
-        }
-        sleep(2);
-        tries++;
-      }
-    }
-#endif
-  }
-
-  if (canvasType == x_pixmap) {
-#ifdef USE_XLIB
-    // find an OpenGL-capable RGB visual with depth buffer
-    pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
-        (use_double_buffer ? dblBuf : snglBuf));
-    if (!pdvi) {
-      METLIBS_LOG_ERROR("ERROR, no RGB visual with depth buffer");
-      diana_dealloc();
-      return 1;
-    }
-
-    // Create glx rendering context..
-    cx = glXCreateContext(dpy, pdvi,// display and visual
-        0, 0); // sharing and direct rendering
-    if (!cx) {
-      METLIBS_LOG_ERROR("ERROR, could not create rendering context");
-      diana_dealloc();
-      return 1;
-    }
-#endif
-  }
 
   priop.fname = "tmp_diana.ps";
   priop.colop = d_print::greyscale;
@@ -3713,9 +3210,7 @@ int diana_init(int _argc, char** _argv)
       return 99;
     }
     int res = parseAndProcess(is);
-#if defined(USE_PAINTGL)
     ensureNewContext();
-#endif
     if (res != 0)
       return 99;
   }
@@ -3799,53 +3294,17 @@ int diana_dealloc()
 {
   // clean up structures
 #ifdef VIDEO_EXPORT
-  if(movieMaker) endVideo();
+  if(movieMaker)
+    endVideo();
 #endif // VIDEO_EXPORT
 
-#ifdef USE_XLIB
-  if (pix) {
-    glXDestroyGLXPixmap(dpy, pix);
-  }
-  if (pixmap) {
-    XFreePixmap(dpy, pixmap);
-  }
-  if (cx) {
-	  glXDestroyContext(dpy, cx);
-  }
-  // Should we destroy the XVisualInfo also ? Yes!
-  if (pdvi)
-	  XFree(pdvi);
-#ifdef GLX_VERSION_1_3
-
-  if (buffermade && pbuf) {
-      glXDestroyPbuffer(dpy, pbuf);
-  }
-
-#endif
-  // Added 2013-03-20 : YE
-  int result = XCloseDisplay(dpy);
-  cerr << "XCloseDisplay returns: " << result << endl;
-#endif
-
-#if !defined(USE_PAINTGL)
-  if (qpbuffer) {
-    delete qpbuffer;
-  }
-  if (qfbuffer) {
-    delete qfbuffer;
-  }
-  if (qwidget) {
-    delete qwidget;
-  }
-#endif
-
-  if (vprofmanager)
-    delete vprofmanager;
-  if (spectrummanager)
-    delete spectrummanager;
-  if (main_controller)
-    delete main_controller;
+  delete vprofmanager;
+  delete spectrummanager;
+  delete main_controller;
   vcrossmanager = vcross::QtManager_p();
+
+  delete glpainter;
+  delete glcanvas;
 
   return DIANA_OK;
 }
