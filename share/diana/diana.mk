@@ -3,14 +3,9 @@ dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/SKVkart.txt \
 	share/diana/products/SKVkart_soer.txt \
 	share/diana/products/sigkart.txt \
-	share/diana/products/sigkarta_SodraFlyg.txt \
-	share/diana/products/sigkarta_SodraArlanda.txt \
-	share/diana/products/analys_Europa.txt \
 	share/diana/products/prognose+36.txt \
 	share/diana/products/prognose+18.txt \
-	share/diana/products/iskart.txt \
 	share/diana/products/bakkeanalyse.txt \
-	share/diana/products/ANAborders.TEST \
 	share/diana/products/ANAborders.DNMI
 
 fontsdir= $(datarootdir)/diana/@PVERSION@/fonts

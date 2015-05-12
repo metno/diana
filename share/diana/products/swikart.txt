@@ -1,4 +1,5 @@
-LABEL anno=<image=metno_sort_txt_big2,size=0.12><horalign=center> \
+LABEL \
+anno=<image=Met_RGB_Horisontal,size=0.1><horalign=center> \
 anno=<text="Issued by ENVN",face=bold,size=0.5> \
 <horalign=center>\
 tcolour=black plotrequested=true \

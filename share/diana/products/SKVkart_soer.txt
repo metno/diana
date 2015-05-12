@@ -1,5 +1,5 @@
 LABEL \
-anno=<image=wwwmet7,size=0.3><horalign=center> \
+anno=<image=Met_RGB_Horisontal,size=0.1><horalign=center> \
 anno=<text="SKV-brief Sør",size=0.7><horalign=center> \
 anno=<text="SFC-FL150",size=0.7><horalign=center> \
 anno=<text=" ______________",size=0.7><horalign=center> \
