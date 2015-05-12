@@ -96,7 +96,7 @@ EditItemManager::EditItemManager()
   , itemsVisibilityForced_(false)
   , itemPropsDirectlyEditable_(false)
 {
-  layerGroups_.append(new EditItems::LayerGroup("scratch", true, true));
+  layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, true);
 
   connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
@@ -314,7 +314,7 @@ DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, 
 
 void EditItemManager::addItem_(DrawingItemBase *item, bool updateNeeded, bool ignoreSelection)
 {
-  DrawingManager::addItem_(item, layerGroups_.at(0));
+  DrawingManager::addItem_(item, layerGroups_.value("scratch"));
   if (!ignoreSelection)
     selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
   emit itemAdded(item);
@@ -1765,8 +1765,9 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
 void EditItemManager::replaceItemStates(const QList<DrawingItemBase *> &itemStates)
 {
-  foreach (EditItems::LayerGroup *group, layerGroups_)
-    group->replaceItems(itemStates);
+  QMap<QString, EditItems::LayerGroup *>::iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
+    it.value()->replaceItems(itemStates);
 
   emit itemStatesReplaced();
 }

@@ -231,9 +231,6 @@ private:
   DrawingItemBase *hitItem_; // current hit item
   QHash<DrawingItemBase *, QList<QPointF> > oldGeoms_; // original geometries
 
-  // Maintain a list of layer groups that are used to hold editable items.
-  QList<EditItems::LayerGroup *> layerGroups_;
-
   static EditItemManager *self_;   // singleton instance pointer
 };
 

@@ -148,7 +148,7 @@ protected:
   QMap<QString, QString> drawings_;
   QMap<QString, QString> loaded_;
 
-  QList<EditItems::LayerGroup *> layerGroups_;
+  QMap<QString, EditItems::LayerGroup *> layerGroups_;
 
 private:
 

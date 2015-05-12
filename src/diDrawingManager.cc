@@ -255,7 +255,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  QList<EditItems::LayerGroup *> loaded;
+  QMap<QString, EditItems::LayerGroup *> loaded;
+  QMap<QString, EditItems::LayerGroup *>::const_iterator itl;
 
   foreach (const QString &name, toLoad) {
     // If the name corresponds to a key in the list of drawings then look up
@@ -270,7 +271,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     bool isLoaded = false;
     EditItems::LayerGroup *group;
 
-    foreach (group, layerGroups_) {
+    for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+      group = itl.value();
       if (group->fileName() == fileName) {
         isLoaded = true;
         break;
@@ -282,19 +284,21 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       if (!loadDrawing(name, fileName))
         return false;
 
-      // The new group was appended to the list.
-      group = layerGroups_.last();
+      // Obtain the group created by the loadDrawing() call.
+      group = layerGroups_.value(name);
     }
 
     // Record the file name and layer group.
     loaded_[name] = fileName;
-    loaded.append(group);
+    loaded[name] = group;
   }
 
   // Delete layer groups that are no longer loaded and replace the list with
   // the new list of loaded groups.
-  foreach (EditItems::LayerGroup *group, layerGroups_) {
-    if (!loaded.contains(group))
+  for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+    QString name = itl.key();
+    EditItems::LayerGroup *group = itl.value();
+    if (!loaded.contains(name))
       delete group;
   }
   layerGroups_ = loaded;
@@ -367,7 +371,7 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
   EditItems::LayerGroup *layerGroup = new EditItems::LayerGroup(name.isEmpty() ? "new layer group" : name);
   layerGroup->setFileName(fileName);
   layerGroup->setItems(items);
-  layerGroups_.append(layerGroup);
+  layerGroups_[name] = layerGroup;
 
   return true;
 }
@@ -375,8 +379,9 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
 {
   if (!group) {
-    foreach (EditItems::LayerGroup *group, layerGroups_)
-      if (group->removeItem(item)) break;
+    QMap<QString, EditItems::LayerGroup *>::iterator it;
+    for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
+      if (it.value()->removeItem(item)) break;
   } else
     group->removeItem(item);
 }
@@ -441,8 +446,10 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::set<miutil::miTime> times;
 
   // Query the layer groups to find the available times.
-  for (int i = layerGroups_.size() - 1; i >= 0; --i) {
-    QSet<QString> groupTimes = layerGroups_.at(i)->getTimes();
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+    EditItems::LayerGroup *group = it.value();
+    QSet<QString> groupTimes = it.value()->getTimes();
     foreach (const QString &time, groupTimes)
       times.insert(miutil::miTime(time.toStdString()));
   }
@@ -478,8 +485,10 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   QString timeStr = QString::fromStdString(time.isoTime());
   QDateTime dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
 
-  foreach (EditItems::LayerGroup *layerGroup, layerGroups_) {
+  QMap<QString, EditItems::LayerGroup *>::iterator itl;
+  for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
 
+    EditItems::LayerGroup *layerGroup = itl.value();
     bool allVisible = true;
 
     if (layerGroup->isCollection()) {
@@ -661,8 +670,9 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(
 {
   QList<DrawingItemBase *> hitItems;
 
-  foreach (const EditItems::LayerGroup *group, layerGroups_) {
-    foreach (DrawingItemBase *item, group->items()) {
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+    foreach (DrawingItemBase *item, it.value()->items()) {
       if (item->hit(pos, false))
         hitItems.append(item);
       else
@@ -676,8 +686,9 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(
 QList<DrawingItemBase *> DrawingManager::allItems() const
 {
   QList<DrawingItemBase *> items;
-  foreach (const EditItems::LayerGroup *group, layerGroups_)
-    items += group->items();
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
+    items += it.value()->items();
 
   return items;
 }
