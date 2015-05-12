@@ -765,6 +765,8 @@ void EditItemManager::abortEditing()
     // Release the keyboard focus.
     setFocus(false);
 
+    delete incompleteItem_;
+    incompleteItem_ = 0;
     hitItems_.clear();
 
     emit incompleteEditing(false);
@@ -779,6 +781,7 @@ void EditItemManager::completeEditing()
     setFocus(false);
 
     addItem(incompleteItem_); // causes repaint
+    incompleteItem_ = 0;
     pushModifyItemsCommand();
 
     //setSelectMode(); // restore default mode
