@@ -33,6 +33,7 @@
 
 #include "diFontManager.h"
 
+#ifdef WITH_GUI
 #ifdef USE_XLIB
 #include <glText/glTextX.h>
 #endif
@@ -42,6 +43,7 @@
 #include <glText/glTextTTTexture.h>
 #include <glText/glTextQtTexture.h>
 #include <glp/GLP.h>
+#endif
 
 #include "diLocalSetupParser.h"
 #include <puTools/miSetupParser.h>
@@ -70,6 +72,7 @@ static const std::string key_metsymbolfont = "metsymbolfont";
 FontManager::FontManager() :
   current_engine(0)
 {
+#ifdef WITH_GUI
 #ifdef USE_XLIB
   glTextX * xfonts;
   if (!display_name.empty()) // do not use environment-var DISPLAY
@@ -93,6 +96,14 @@ FontManager::FontManager() :
 
   glTextQtTexture * texfonts = new glTextQtTexture();
   fontengines[key_texture] = texfonts;
+#else
+  glText * fonts = new glText();
+  fontengines[key_scaleable] = fonts;
+  fontengines[key_ttbitmap] = fonts;
+  fontengines[key_ttpixmap] = fonts;
+  fontengines[key_tttexture] = fonts;
+  fontengines[key_texture] = fonts;
+#endif
 }
 
 FontManager::~FontManager()

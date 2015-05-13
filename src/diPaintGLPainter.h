@@ -62,18 +62,25 @@ struct RenderItem {
 class DiPaintGLCanvas : public DiGLCanvas
 {
 public:
+  enum FontScaling {
+    S_FIXEDSIZE, S_VIEWPORTSCALED
+  };
+  enum {
+    MAXFONTFACES = 4, MAXFONTS = 10, MAXFONTSIZES = 40
+  };
+
   DiPaintGLCanvas(QPaintDevice* device);
   ~DiPaintGLCanvas();
 
-  void setVpGlSize(float vpw, float vph, float glw, float glh) Q_DECL_OVERRIDE;
-  bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) Q_DECL_OVERRIDE;
-  bool setFont(const std::string& font) Q_DECL_OVERRIDE;
+  void setVpGlSize(float vpw, float vph, float glw, float glh);
+  bool setFont(const std::string& font, float size, FontFace face=F_NORMAL);
+  bool setFont(const std::string& font);
   bool setFontFace(FontFace face);
-  bool setFontSize(float size) Q_DECL_OVERRIDE;
-  bool getCharSize(char ch, float& w, float& h) Q_DECL_OVERRIDE;
-  bool getTextSize(const std::string& text, float& w, float& h) Q_DECL_OVERRIDE;
+  bool setFontSize(float size);
+  bool getCharSize(char ch, float& w, float& h);
+  bool getTextSize(const std::string& text, float& w, float& h);
 
-  QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
+  QImage convertToGLFormat(const QImage& i);
 
   float fontScaleX() const
     { return mFontScaleX; }
@@ -110,96 +117,96 @@ public:
   ~DiPaintGLPainter();
 
   // begin DiGLPainter interface
-  void Begin(GLenum mode) Q_DECL_OVERRIDE;
-  void Color3d(GLdouble red, GLdouble green, GLdouble blue) Q_DECL_OVERRIDE;
-  void Color3f(GLfloat red, GLfloat green, GLfloat blue) Q_DECL_OVERRIDE;
-  void Color3fv(const GLfloat *v) Q_DECL_OVERRIDE;
-  void Color3ub(GLubyte red, GLubyte green, GLubyte blue) Q_DECL_OVERRIDE;
-  void Color3ubv(const GLubyte *v) Q_DECL_OVERRIDE;
-  void Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha) Q_DECL_OVERRIDE;
-  void Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) Q_DECL_OVERRIDE;
-  void Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) Q_DECL_OVERRIDE;
-  void Color4fv(const GLfloat *v) Q_DECL_OVERRIDE;
-  void Color4ubv(const GLubyte *v) Q_DECL_OVERRIDE;
-  void End() Q_DECL_OVERRIDE;
-  void Indexi(GLint c) Q_DECL_OVERRIDE;
-  void RasterPos2f(GLfloat x, GLfloat y) Q_DECL_OVERRIDE;
-  void Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) Q_DECL_OVERRIDE;
-  void TexCoord2f(GLfloat s, GLfloat t) Q_DECL_OVERRIDE;
-  void Vertex2dv(const GLdouble *v) Q_DECL_OVERRIDE;
-  void Vertex2f(GLfloat x, GLfloat y) Q_DECL_OVERRIDE;
-  void Vertex2i(GLint x, GLint y) Q_DECL_OVERRIDE;
-  void Vertex3f(GLfloat x, GLfloat y, GLfloat z) Q_DECL_OVERRIDE;
-  void Vertex3i(GLint x, GLint y, GLint z) Q_DECL_OVERRIDE;
-  void DrawArrays(GLenum mode, GLint first, GLsizei count) Q_DECL_OVERRIDE;
-  void VertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr) Q_DECL_OVERRIDE;
-  void BlendFunc(GLenum sfactor, GLenum dfactor) Q_DECL_OVERRIDE;
-  void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) Q_DECL_OVERRIDE;
-  void Clear(GLbitfield mask) Q_DECL_OVERRIDE;
-  void ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) Q_DECL_OVERRIDE;
-  void Disable(GLenum cap) Q_DECL_OVERRIDE;
-  void DisableClientState(GLenum cap) Q_DECL_OVERRIDE; /* 1.1 */
-  void DrawBuffer(GLenum mode) Q_DECL_OVERRIDE;
-  void EdgeFlag(GLboolean flag) Q_DECL_OVERRIDE;
-  void Enable(GLenum cap) Q_DECL_OVERRIDE;
-  void EnableClientState(GLenum cap) Q_DECL_OVERRIDE; /* 1.1 */
-  void Flush(void) Q_DECL_OVERRIDE;
-  void GetFloatv(GLenum pname, GLfloat *params) Q_DECL_OVERRIDE;
-  void GetIntegerv(GLenum pname, GLint *params) Q_DECL_OVERRIDE;
-  GLboolean IsEnabled(GLenum cap) Q_DECL_OVERRIDE;
-  void LineStipple(GLint factor, GLushort pattern) Q_DECL_OVERRIDE;
-  void LineWidth(GLfloat width) Q_DECL_OVERRIDE;
-  void PointSize(GLfloat size) Q_DECL_OVERRIDE;
-  void PolygonMode(GLenum face, GLenum mode) Q_DECL_OVERRIDE;
-  void PolygonStipple(const GLubyte *mask) Q_DECL_OVERRIDE;
-  void PopAttrib(void) Q_DECL_OVERRIDE;
-  void PushAttrib(GLbitfield mask) Q_DECL_OVERRIDE;
-  void Scissor(GLint x, GLint y, GLsizei width, GLsizei height) Q_DECL_OVERRIDE;
+  void Begin(GLenum mode);
+  void Color3d(GLdouble red, GLdouble green, GLdouble blue);
+  void Color3f(GLfloat red, GLfloat green, GLfloat blue);
+  void Color3fv(const GLfloat *v);
+  void Color3ub(GLubyte red, GLubyte green, GLubyte blue);
+  void Color3ubv(const GLubyte *v);
+  void Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha);
+  void Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+  void Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
+  void Color4fv(const GLfloat *v);
+  void Color4ubv(const GLubyte *v);
+  void End();
+  void Indexi(GLint c);
+  void RasterPos2f(GLfloat x, GLfloat y);
+  void Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+  void TexCoord2f(GLfloat s, GLfloat t);
+  void Vertex2dv(const GLdouble *v);
+  void Vertex2f(GLfloat x, GLfloat y);
+  void Vertex2i(GLint x, GLint y);
+  void Vertex3f(GLfloat x, GLfloat y, GLfloat z);
+  void Vertex3i(GLint x, GLint y, GLint z);
+  void DrawArrays(GLenum mode, GLint first, GLsizei count);
+  void VertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
+  void BlendFunc(GLenum sfactor, GLenum dfactor);
+  void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+  void Clear(GLbitfield mask);
+  void ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+  void Disable(GLenum cap);
+  void DisableClientState(GLenum cap); /* 1.1 */
+  void DrawBuffer(GLenum mode);
+  void EdgeFlag(GLboolean flag);
+  void Enable(GLenum cap);
+  void EnableClientState(GLenum cap); /* 1.1 */
+  void Flush(void);
+  void GetFloatv(GLenum pname, GLfloat *params);
+  void GetIntegerv(GLenum pname, GLint *params);
+  GLboolean IsEnabled(GLenum cap);
+  void LineStipple(GLint factor, GLushort pattern);
+  void LineWidth(GLfloat width);
+  void PointSize(GLfloat size);
+  void PolygonMode(GLenum face, GLenum mode);
+  void PolygonStipple(const GLubyte *mask);
+  void PopAttrib(void);
+  void PushAttrib(GLbitfield mask);
+  void Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
   void Ortho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
-      GLdouble near_val, GLdouble far_val) Q_DECL_OVERRIDE;
-  void LoadIdentity(void) Q_DECL_OVERRIDE;
-  void PopMatrix(void) Q_DECL_OVERRIDE;
-  void PushMatrix(void) Q_DECL_OVERRIDE;
-  void Rotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z) Q_DECL_OVERRIDE;
-  void Scalef(GLfloat x, GLfloat y, GLfloat z) Q_DECL_OVERRIDE;
-  void Translatef(GLfloat x, GLfloat y, GLfloat z) Q_DECL_OVERRIDE;
-  void Viewport(GLint x, GLint y, GLsizei width, GLsizei height) Q_DECL_OVERRIDE;
-  void ShadeModel(GLenum mode) Q_DECL_OVERRIDE;
+      GLdouble near_val, GLdouble far_val);
+  void LoadIdentity(void);
+  void PopMatrix(void);
+  void PushMatrix(void);
+  void Rotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+  void Scalef(GLfloat x, GLfloat y, GLfloat z);
+  void Translatef(GLfloat x, GLfloat y, GLfloat z);
+  void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
+  void ShadeModel(GLenum mode);
   void Bitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
-      GLfloat xmove, GLfloat ymove, const GLubyte *bitmap) Q_DECL_OVERRIDE;
+      GLfloat xmove, GLfloat ymove, const GLubyte *bitmap);
   void DrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
-      const GLvoid *pixels) Q_DECL_OVERRIDE;
-  void PixelStorei(GLenum pname, GLint param) Q_DECL_OVERRIDE;
-  void PixelTransferf(GLenum pname, GLfloat param) Q_DECL_OVERRIDE;
-  void PixelZoom(GLfloat xfactor, GLfloat yfactor) Q_DECL_OVERRIDE;
+      const GLvoid *pixels);
+  void PixelStorei(GLenum pname, GLint param);
+  void PixelTransferf(GLenum pname, GLfloat param);
+  void PixelZoom(GLfloat xfactor, GLfloat yfactor);
   void ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
-      GLenum format, GLenum type, GLvoid *pixels) Q_DECL_OVERRIDE;
-  void DepthMask(GLboolean flag) Q_DECL_OVERRIDE;
-  void ClearStencil(GLint s) Q_DECL_OVERRIDE;
-  void StencilFunc(GLenum func, GLint ref, GLuint mask) Q_DECL_OVERRIDE;
-  void StencilOp(GLenum fail, GLenum zfail, GLenum zpass) Q_DECL_OVERRIDE;
-  void BindTexture(GLenum target, GLuint texture) Q_DECL_OVERRIDE;
-  void DeleteTextures(GLsizei n, const GLuint *textures) Q_DECL_OVERRIDE;
-  void GenTextures(GLsizei n, GLuint *textures) Q_DECL_OVERRIDE;
-  void TexEnvf(GLenum target, GLenum pname, GLfloat param) Q_DECL_OVERRIDE;
-  void TexParameteri(GLenum target, GLenum pname, GLint param) Q_DECL_OVERRIDE;
+      GLenum format, GLenum type, GLvoid *pixels);
+  void DepthMask(GLboolean flag);
+  void ClearStencil(GLint s);
+  void StencilFunc(GLenum func, GLint ref, GLuint mask);
+  void StencilOp(GLenum fail, GLenum zfail, GLenum zpass);
+  void BindTexture(GLenum target, GLuint texture);
+  void DeleteTextures(GLsizei n, const GLuint *textures);
+  void GenTextures(GLsizei n, GLuint *textures);
+  void TexEnvf(GLenum target, GLenum pname, GLfloat param);
+  void TexParameteri(GLenum target, GLenum pname, GLint param);
   void TexImage2D(GLenum target, GLint level, GLint internalFormat,
       GLsizei width, GLsizei height, GLint border,
-      GLenum format, GLenum type, const GLvoid *pixels) Q_DECL_OVERRIDE;
+      GLenum format, GLenum type, const GLvoid *pixels);
   bool supportsReadPixels() const
     { return false; }
   // end DiGLPainter interface
 
   // begin DiPainter interface
-  bool drawText(const std::string& text, float x, float y, float angle = 0) Q_DECL_OVERRIDE;
-  void drawCircle(float centerx, float centery, float radius) Q_DECL_OVERRIDE;
-  void fillCircle(float centerx, float centery, float radius) Q_DECL_OVERRIDE;
-  void drawRect(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
-  void fillRect(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
-  void drawLine(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
-  void drawPolyline(const QPolygonF& points) Q_DECL_OVERRIDE;
-  void drawPolygon(const QPolygonF& points) Q_DECL_OVERRIDE;
-  void drawPolygons(const QList<QPolygonF>& polygons) Q_DECL_OVERRIDE;
+  bool drawText(const std::string& text, float x, float y, float angle = 0);
+  void drawCircle(float centerx, float centery, float radius);
+  void fillCircle(float centerx, float centery, float radius);
+  void drawRect(float x1, float y1, float x2, float y2);
+  void fillRect(float x1, float y1, float x2, float y2);
+  void drawLine(float x1, float y1, float x2, float y2);
+  void drawPolyline(const QPolygonF& points);
+  void drawPolygon(const QPolygonF& points);
+  void drawPolygons(const QList<QPolygonF>& polygons);
   // end DiPainter interface
 
   void begin(QPainter *painter);

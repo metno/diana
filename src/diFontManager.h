@@ -31,7 +31,12 @@
 
 #include <qglobal.h>
 
+#ifdef WITH_GUI
 #include <glText/glText.h>
+#else
+#include "diPaintGLPainter.h"
+typedef DiPaintGLCanvas glText;
+#endif
 
 #include <set>
 #include <string>
@@ -67,11 +72,6 @@ public:
   {
     display_name = name;
   }
-
-  /// start PS output
-  void startHardcopy(GLPcontext*);
-  /// end PS output
-  void endHardcopy();
 
   /// for test purposes, sets up a standard set of fonts
   bool testDefineFonts(std::string path = "fonts");
