@@ -44,6 +44,7 @@
 #include <diLocalSetupParser.h>
 
 #include <puTools/miSetupParser.h>
+#include "diCommonTypes.h"
 
 #include <set>
 
@@ -656,4 +657,34 @@ QList<QSharedPointer<DrawingItemBase> > DrawingManager::findHitItems(
   }
 
   return hitItems;
+}
+
+/**
+ * Returns a vector containing triples of IDs, labels and coordinates for
+ * polylines in the KML file with the given \a fileName.
+ */
+vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
+{
+  vector<PolyLineInfo> info;
+
+  QString error;
+  QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile(layerMgr_, QString::fromStdString(fileName), &error);
+
+  if (error.isEmpty()) {
+    foreach (QSharedPointer<EditItems::Layer> layer, layers) {
+      foreach (QSharedPointer<DrawingItemBase> item, layer->items()) {
+        DrawingItemBase *ditem = item.data();
+        DrawingItem_PolyLine::PolyLine *polyLine = dynamic_cast<DrawingItem_PolyLine::PolyLine *>(ditem);
+        if (polyLine) {
+          vector<LonLat> coords;
+          foreach (QPointF p, polyLine->getLatLonPoints())
+            coords.push_back(LonLat::fromDegrees(p.y(), p.x()));
+
+          info.push_back(PolyLineInfo(polyLine->id(), polyLine->property("Placemark:name").toString().toStdString(), coords));
+        }
+      }
+    }
+  }
+
+  return info;
 }

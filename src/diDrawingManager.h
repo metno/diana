@@ -128,6 +128,8 @@ public:
   int nextJoinId(bool = true);
   void separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &);
 
+  std::vector<PolyLineInfo> loadCoordsFromKML(const std::string &fileName);
+
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 

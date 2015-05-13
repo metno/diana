@@ -31,6 +31,7 @@
 
 #include "diColour.h"
 
+#include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
 #include <diField/diArea.h>
 
@@ -287,7 +288,7 @@ struct editToolInfo {
 };
 
 /**
-  \breif global define for the ComplexPressureText tool
+  \brief global define for the ComplexPressureText tool
 */
 
 #ifndef TOOL_DECREASING
@@ -381,6 +382,17 @@ struct InfoFile {
  */
 enum frontType {
     Cold, Warm, Occluded, Stationary, TroughLine, ArrowLine, SquallLine, SigweatherFront, Line
+};
+
+/**
+   \brief information about polylines
+ */
+struct PolyLineInfo {
+  int id;
+  std::string name;
+  std::vector<LonLat> points;
+  PolyLineInfo(int i, std::string n, std::vector<LonLat> p)
+    : id(i), name(n), points(p) {}
 };
 
 #endif
