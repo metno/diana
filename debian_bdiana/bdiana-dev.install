@@ -1,7 +1,5 @@
 src/di*.h usr/include/diana
 src/MovieMaker.h usr/include/diana
-src/PaintGL/paintgl.h usr/include/diana/PaintGL
-src/PaintGL/GL/gl.h usr/include/diana/PaintGL/GL
 src/vcross_v2/*.h usr/include/diana/vcross_v2
 src/libdiana.a usr/lib
 src/.libs/libdiana.so* usr/lib
