@@ -31,12 +31,7 @@
 
 #include <qglobal.h>
 
-#ifdef WITH_GUI
 #include <glText/glText.h>
-#else
-#include "diPaintGLPainter.h"
-typedef DiPaintGLCanvas glText;
-#endif
 
 #include <set>
 #include <string>

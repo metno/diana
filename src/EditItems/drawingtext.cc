@@ -32,7 +32,6 @@
 #include "diDrawingManager.h"
 #include "EditItems/drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
-#include "diFontManager.h"
 #include "diPlotModule.h"
 #include "diGLPainter.h"
 

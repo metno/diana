@@ -33,7 +33,6 @@
 #include "diEditItemManager.h"
 #include "diGLPainter.h"
 #include "diPlot.h"
-#include "diFontManager.h"
 #include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/dialogcommon.h"

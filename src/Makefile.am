@@ -149,7 +149,7 @@ libdiana_la_QTHEADERS = \
 
 diana_bin_SOURCES = \
 	diFontManager.cc \
-        diTesselation.c \
+	diTesselation.c \
 	diOpenGLPainter.cc \
 	diOpenGLWidget.cc \
 	diPaintable.cc
