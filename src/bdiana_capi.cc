@@ -54,7 +54,6 @@
 
 #include <diAnnotationPlot.h>
 #include <diController.h>
-#include <diDrawingManager.h>
 #include <diFieldPlot.h>
 #include <diObsManager.h>
 #include <diObsPlot.h>
@@ -1448,13 +1447,14 @@ static bool MAKE_CONTROLLER()
 
   main_controller = new Controller;
   METLIBS_LOG_ERROR("font manager initialisation was skipped");
-  // FIXME PlotModule::instance()->getStaticPlot()->restartFontManager();
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
     METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: '" << setupfile << "'");
     return false;
   }
+
+  main_controller->setCanvas(glcanvas);
   return true;
 }
 
