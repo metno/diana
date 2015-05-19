@@ -827,12 +827,6 @@ QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems::LayerManager 
   const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument(
         layerManager, doc, fileName, error);
 
-  // initialize screen coordinates from lat/lon
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    for (int i = 0; i < layer->itemCount(); ++i)
-      DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
-  }
-
   // avoid conflict with existing joins
   QList<QSharedPointer<DrawingItemBase> > items;
   foreach (const QSharedPointer<EditItems::Layer> layer, layers)

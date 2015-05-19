@@ -193,7 +193,6 @@ QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
 
 void Text::fromKML(const QHash<QString, QString> &extraExtData)
 {
-  DrawingManager::instance()->setFromLatLonPoints(*this, getLatLonPoints());
   setText(extraExtData.value("met:text", "").split("\n"));
 }
 
