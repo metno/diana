@@ -1331,15 +1331,19 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 
 void DianaMainWindow::toggleEditDrawingMode()
 {
-  if (editDrawingToolBar->isVisible()) editDrawingToolBar->hide();
-  else editDrawingToolBar->show();
+  if (editDrawingToolBar->isVisible())
+    editDrawingToolBar->hide();
+  else
+    editDrawingToolBar->show();
   METLIBS_LOG_DEBUG("DianaMainWindow::toggleEditDrawingMode enabled " << editDrawingToolBar->isVisible());
 }
 
 void DianaMainWindow::setEditDrawingMode(bool enabled)
 {
-  if (enabled) editDrawingToolBar->show();
-  else editDrawingToolBar->hide();
+  if (enabled)
+    editDrawingToolBar->show();
+  else
+    editDrawingToolBar->hide();
 }
 
 void DianaMainWindow::editDrawingToolBarVisible(bool visible)

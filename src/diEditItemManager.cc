@@ -96,7 +96,8 @@ EditItemManager::EditItemManager()
   , itemsVisibilityForced_(false)
   , itemPropsDirectlyEditable_(false)
 {
-  layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, true);
+  // Create a default inactive layer group.
+  layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, false);
 
   connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
@@ -209,6 +210,9 @@ bool EditItemManager::parseSetup()
 
 void EditItemManager::setEditing(bool enable)
 {
+  // Enable the scratch layer if editing is enabled; otherwise disable it.
+  layerGroups_.value("scratch")->setActive(enable);
+
   selectingOnly_ = !enable;
 
   emit editing(enable);
@@ -1371,7 +1375,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       // get actions contributed by a hit item (if any)
       QList<DrawingItemBase *> missedItems;
       const QList<DrawingItemBase *> hitItems = findHitItems(me2.pos(), missedItems);
-      DrawingItemBase *hitItem; // consider only this item to be hit
+      DrawingItemBase *hitItem = 0; // consider only this item to be hit
       if (!hitItems.empty())
         hitItem = hitItems.first();
 
@@ -1486,7 +1490,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       // create a new item if necessary
       if ((me2.button() == Qt::LeftButton) && !hasIncompleteItem()) {
-        DrawingItemBase *item;
+        DrawingItemBase *item = 0;
 
         if (mode_ == CreatePolyLineMode) {
           item = Drawing(new EditItem_PolyLine::PolyLine());

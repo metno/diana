@@ -368,7 +368,8 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
     return false;
   }
 
-  EditItems::LayerGroup *layerGroup = new EditItems::LayerGroup(name.isEmpty() ? "new layer group" : name);
+  // Create a layer group for the file that is not editable but is active.
+  EditItems::LayerGroup *layerGroup = new EditItems::LayerGroup(name, false, true);
   layerGroup->setFileName(fileName);
   layerGroup->setItems(items);
   layerGroups_[name] = layerGroup;
@@ -448,7 +449,6 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   // Query the layer groups to find the available times.
   QMap<QString, EditItems::LayerGroup *>::const_iterator it;
   for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
-    EditItems::LayerGroup *group = it.value();
     QSet<QString> groupTimes = it.value()->getTimes();
     foreach (const QString &time, groupTimes)
       times.insert(miutil::miTime(time.toStdString()));
@@ -635,7 +635,14 @@ void DrawingManager::setEditRect(Rectangle r)
 std::vector<PlotElement> DrawingManager::getPlotElements() const
 {
   std::vector<PlotElement> pel;
-  // ### FIX ME
+
+  foreach (EditItems::LayerGroup *group, layerGroups_) {
+    if (group->isActive()) {
+      pel.push_back(PlotElement(plotElementTag().toStdString(), group->name().toStdString(),
+                                plotElementTag().toStdString(), group->isActive()));
+    }
+  }
+
   return pel;
 }
 
@@ -646,7 +653,12 @@ QString DrawingManager::plotElementTag() const
 
 void DrawingManager::enablePlotElement(const PlotElement &pe)
 {
-  // ### FIX ME - Map the element back to a layer group and enable it as required.
+  foreach (EditItems::LayerGroup *group, layerGroups_) {
+    if (group->name().toStdString() == pe.str) {
+      group->setActive(pe.enabled);
+      break;
+    }
+  }
 }
 
 /**
@@ -687,8 +699,10 @@ QList<DrawingItemBase *> DrawingManager::allItems() const
 {
   QList<DrawingItemBase *> items;
   QMap<QString, EditItems::LayerGroup *>::const_iterator it;
-  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
-    items += it.value()->items();
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+    if (it.value()->isActive())
+      items += it.value()->items();
+  }
 
   return items;
 }
