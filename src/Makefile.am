@@ -37,7 +37,7 @@ common_cxx_sources = \
 	diPolyContouring.cc \
 	diController.cc \
 	diDisplayObjects.cc \
-        diEditManager.cc \
+	diEditManager.cc \
 	diEditObjects.cc \
 	diFieldEdit.cc \
 	diFieldPlot.cc \
@@ -121,8 +121,8 @@ common_qt_sources = diManager.cc \
 	diDrawingManager.cc
 
 common_qt_sources += \
-        EditItems/layergroup.cc \
-        vcross_v2/VcrossQtContour.cc \
+	EditItems/layergroup.cc \
+	vcross_v2/VcrossQtContour.cc \
 	vcross_v2/VcrossQtManager.cc \
 	vcross_v2/VcrossQtPaint.cc \
 	vcross_v2/VcrossQtPlot.cc \
@@ -148,9 +148,9 @@ if WITH_BATCH_ONLY
 diana_qt_sources =
 else
 diana_qt_sources = \
-        diEditItemManager.cc \
-        EditItems/dialogcommon.cc \
-        EditItems/editcomposite.cc \
+	diEditItemManager.cc \
+	EditItems/dialogcommon.cc \
+	EditItems/editcomposite.cc \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
@@ -280,8 +280,8 @@ noinst_HEADERS = \
 	diDisplayObjects.h \
 	diDrawingTypes.h \
 	diDrawingManager.h \
-        diEditItemManager.h \
-        diEditManager.h \
+	diEditItemManager.h \
+	diEditManager.h \
 	diEditObjects.h \
 	diEditSpec.h \
 	diFieldEdit.h \
@@ -352,26 +352,26 @@ noinst_HEADERS = \
 	diWeatherObjects.h \
 	diWeatherSymbol.h \
 	diWorkOrder.h \
-        EditItems/dialogcommon.h \
-        EditItems/drawingcomposite.h \
-        EditItems/drawingdialog.h \
-        EditItems/drawingitembase.h \
-        EditItems/drawingpolyline.h \
-        EditItems/drawingstylemanager.h \
-        EditItems/drawingsymbol.h \
-        EditItems/drawingtext.h \
-        EditItems/editcomposite.h \
-        EditItems/edititembase.h \
-        EditItems/editpolyline.h \
-        EditItems/editsymbol.h \
-        EditItems/edittext.h \
-        EditItems/kml.h \
-        EditItems/layergroup.h \
-        EditItems/properties.h \
-        EditItems/style.h \
-        EditItems/timefilesextractor.h \
-        EditItems/toolbar.h \
-        poly_contouring.hh \
+	EditItems/dialogcommon.h \
+	EditItems/drawingcomposite.h \
+	EditItems/drawingdialog.h \
+	EditItems/drawingitembase.h \
+	EditItems/drawingpolyline.h \
+	EditItems/drawingstylemanager.h \
+	EditItems/drawingsymbol.h \
+	EditItems/drawingtext.h \
+	EditItems/editcomposite.h \
+	EditItems/edititembase.h \
+	EditItems/editpolyline.h \
+	EditItems/editsymbol.h \
+	EditItems/edittext.h \
+	EditItems/kml.h \
+	EditItems/layergroup.h \
+	EditItems/properties.h \
+	EditItems/style.h \
+	EditItems/timefilesextractor.h \
+	EditItems/toolbar.h \
+	poly_contouring.hh \
 	reversible_list.hh \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
