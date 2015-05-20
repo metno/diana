@@ -48,37 +48,31 @@
 #include "qtImageGallery.h"
 #include "qtUtility.h"
 
+#include <QAction>
+#include <QApplication>
+#include <QDateTime>
+#include <QDesktopServices>
+#include <QDesktopWidget>
 #include <QFileDialog>
+#include <QFocusEvent>
+#include <QFontDialog>
+#include <QFrame>
+#include <QIcon>
+#include <QLabel>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QProgressDialog>
+#include <QShortcut>
+#include <QStatusBar>
 #include <QTimerEvent>
-#include <QFocusEvent>
-#include <QFrame>
-#include <QDesktopServices>
+#include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 #include <QWhatsThis>
-#include <QMimeData>
-
-#include <QAction>
-#include <QShortcut>
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QDateTime>
-
-#include <qpushbutton.h>
-#include <qpixmap.h>
-#include <QIcon>
-#include <qtoolbar.h>
-#include <qtoolbutton.h>
-#include <QMenu>
-#include <qmenubar.h>
-#include <qnamespace.h>
-#include <qstatusbar.h>
-#include <qmessagebox.h>
-#include <qlabel.h>
-#include <qfontdialog.h>
-#include <qtooltip.h>
-#include <QProgressDialog>
 
 #include "qtMainWindow.h"
 #include "qtWorkArea.h"
