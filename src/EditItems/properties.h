@@ -65,6 +65,7 @@ class PropertiesEditor : public QDialog
 public:
   static PropertiesEditor *instance();
   bool edit(DrawingItemBase *item, bool readOnly = false, bool modal = true);
+  QStringList propertyRules(const QString &rule) const;
   void setPropertyRules(const QString &rule, const QStringList &values);
 
 private:

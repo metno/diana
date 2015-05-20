@@ -136,6 +136,7 @@ public slots:
 signals:
   void itemsClicked(const QList<DrawingItemBase *> &items);
   void itemsHovered(const QList<DrawingItemBase *> &items);
+  void updated();
 
 protected:
   virtual void addItem_(DrawingItemBase *, EditItems::LayerGroup *group);

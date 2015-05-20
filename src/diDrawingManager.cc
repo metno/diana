@@ -307,6 +307,10 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   // if there are items in the layer manager.
   setEnabled(!loaded_.isEmpty());
 
+  // Emit a signal to inform other components that the list of layer groups
+  // has been updated.
+  emit updated();
+
   return true;
 }
 

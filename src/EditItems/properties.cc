@@ -172,6 +172,14 @@ QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVari
   return editor;
 }
 
+QStringList PropertiesEditor::propertyRules(const QString &name) const
+{
+  if (rules_.contains(name))
+    return rules_.value(name);
+  else
+    return QStringList();
+}
+
 void PropertiesEditor::setPropertyRules(const QString &name, const QStringList &values)
 {
   rules_[name] = values;

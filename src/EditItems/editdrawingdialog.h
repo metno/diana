@@ -35,12 +35,26 @@
 #include "qtDataDialog.h"
 #include <QStringListModel>
 
+class DrawingManager;
 class EditItemManager;
 
 namespace EditItems {
 
-class LayerGroupsPane;
-class EditDrawingLayersPane;
+class EditDialogModel : public QStringListModel
+{
+  Q_OBJECT
+
+public:
+  EditDialogModel(const QString &header, QObject *parent = 0);
+  virtual ~EditDialogModel();
+
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+  Qt::ItemFlags flags(const QModelIndex &index) const;
+
+private:
+  QString header_;
+};
 
 class EditDrawingDialog : public DataDialog
 {
@@ -50,20 +64,25 @@ public:
   EditDrawingDialog(QWidget *, Controller *);
 
   virtual std::string name() const;
-  virtual void updateDialog() {} // n/a
-  virtual std::vector<std::string> getOKString() { return std::vector<std::string>(); } // n/a
-  virtual void putOKString(const std::vector<std::string> &) {} // n/a
+  virtual void updateDialog() {};
+  virtual std::vector<std::string> getOKString() { return std::vector<std::string>(); }
+  virtual void putOKString(const std::vector<std::string> &) {}
+
+public slots:
+  void updateChoices();
 
 signals:
   void resetChoices();
 
 private slots:
+  void filterItems();
   virtual void updateTimes() {} // n/a
 
 private:
+  DrawingManager *drawm_;
   EditItemManager *editm_;
-  QStringListModel propertyModel_;
-  QStringListModel valueModel_;
+  EditDialogModel *propertyModel_;
+  EditDialogModel *valueModel_;
 };
 
 } // namespace

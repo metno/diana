@@ -27,14 +27,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <diDrawingManager.h>
 #include <diEditItemManager.h>
 #include <EditItems/editdrawingdialog.h>
-#include <EditItems/toolbar.h>
 #include <EditItems/layergroup.h>
+#include <EditItems/properties.h>
+#include <EditItems/toolbar.h>
 #include <editdrawing.xpm> // ### for now
 
 #include <QAction>
 #include <QPushButton>
+#include <QTreeView>
 #include <QVBoxLayout>
 
 #include <qtUtility.h>
@@ -44,7 +47,13 @@ namespace EditItems {
 EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
 {
+  drawm_ = DrawingManager::instance();
+  connect(drawm_, SIGNAL(updated()), SLOT(updateChoices()));
+
   editm_ = EditItemManager::instance();
+  connect(editm_, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(updateChoices()));
+  connect(editm_, SIGNAL(itemChanged(const QVariantMap &)), SLOT(updateChoices()));
+  connect(editm_, SIGNAL(itemRemoved(int)), SLOT(updateChoices()));
 
   // Create an action that can be used to open the dialog from within a menu or toolbar.
   m_action = new QAction(QIcon(QPixmap(editdrawing_xpm)), tr("Edit Drawing Dialog"), this);
@@ -52,13 +61,18 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
 
-  QListView *propertyList = new QListView();
-  propertyList->setModel(&propertyModel_);
+  QTreeView *propertyList = new QTreeView();
+  propertyModel_ = new EditDialogModel(tr("Properties"), this);
+  propertyList->setModel(propertyModel_);
   propertyList->setSelectionMode(QAbstractItemView::MultiSelection);
+  propertyList->setRootIsDecorated(false);
+  propertyList->setSortingEnabled(true);
 
-  QListView *valueList = new QListView();
-  valueList->setModel(&valueModel_);
+  QTreeView *valueList = new QTreeView();
+  valueModel_ = new EditDialogModel(tr("Values"), this);
+  valueList->setModel(valueModel_);
   valueList->setSelectionMode(QAbstractItemView::MultiSelection);
+  valueList->setRootIsDecorated(false);
 
   QPushButton *resetButton = NormalPushButton(tr("Reset"), this);
   connect(resetButton, SIGNAL(clicked()), SIGNAL(resetChoices()));
@@ -78,13 +92,76 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   mainLayout->addLayout(viewLayout);
   mainLayout->addLayout(bottomLayout);
 
-  setWindowTitle("Edit Drawing Dialog");
+  setWindowTitle(tr("Edit Drawing Dialog"));
   setFocusPolicy(Qt::StrongFocus);
 }
 
 std::string EditDrawingDialog::name() const
 {
   return "EDITDRAWING";
+}
+
+void EditDrawingDialog::updateChoices()
+{
+  // Update the property list to show the available properties for all items,
+  // hiding those properties excluded in the setup file.
+  QSet<QString> hide = QSet<QString>::fromList(Properties::PropertiesEditor::instance()->propertyRules("hide"));
+
+  // Add some properties that we never want to show.
+  hide.insert("visible");
+
+  QSet<QString> properties;
+
+  foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
+    const QVariantMap &props = item->propertiesRef();
+    foreach (const QString &key, props.keys()) {
+      if (!key.contains(":") && !hide.contains(key))
+        properties.insert(key);
+      else {
+        QString section = key.split(":").first();
+        if (!hide.contains(section))
+          properties.insert(key);
+      }
+    }
+  }
+
+  propertyModel_->setStringList(properties.toList());
+}
+
+void EditDrawingDialog::filterItems()
+{
+  // Modify the visibility of the items depending on the properties and values selected.
+
+}
+
+
+EditDialogModel::EditDialogModel(const QString &header, QObject *parent)
+  : QStringListModel(parent)
+{
+  header_ = header;
+}
+
+EditDialogModel::~EditDialogModel()
+{
+}
+
+QVariant EditDialogModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+  if (role != Qt::DisplayRole)
+    return QVariant();
+
+  if (section == 0)
+    return QVariant(header_);
+  else
+    return QVariant();
+}
+
+Qt::ItemFlags EditDialogModel::flags(const QModelIndex &index) const
+{
+  if (index.isValid())
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  else
+    return Qt::ItemIsEnabled;
 }
 
 } // namespace
