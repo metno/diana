@@ -159,6 +159,7 @@ diana_qt_sources = \
 	EditItems/style.cc \
 	EditItems/toolbar.cc \
 	EditItems/drawingdialog.cc \
+	EditItems/editdrawingdialog.cc \
 	qtActionButton.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -361,6 +362,7 @@ noinst_HEADERS = \
 	EditItems/drawingsymbol.h \
 	EditItems/drawingtext.h \
 	EditItems/editcomposite.h \
+	EditItems/editdrawingdialog.h \
 	EditItems/edititembase.h \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \

@@ -86,15 +86,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   mainLayout->addWidget(activeList);
 
   mainLayout->addLayout(createStandardButtons());
-/*
-  // add connections
-  connect(layerGroupsPane_, SIGNAL(updated()), layersPane_, SLOT(updateWidgetStructure()));
-  connect(layersPane_, SIGNAL(updated()), layerGroupsPane_, SLOT(updateWidgetContents()));
 
-  connect(layerGroupsPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
-  connect(layersPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
-
-*/
   connect(drawingsList->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           SLOT(activateDrawing(const QItemSelection &, const QItemSelection &)));

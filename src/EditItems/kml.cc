@@ -708,10 +708,6 @@ QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error)
   // parse document and create items
   items = createFromDomDocument(doc, fileName, error);
 
-  // initialize screen coordinates from lat/lon
-  foreach (DrawingItemBase *item, items)
-    DrawingManager::instance()->setFromLatLonPoints(item, item->getLatLonPoints());
-
   return items;
 }
 

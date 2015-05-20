@@ -33,7 +33,7 @@
 #define EDITDRAWINGDIALOG_H
 
 #include "qtDataDialog.h"
-#include <EditItems/layer.h>
+#include <QStringListModel>
 
 class EditItemManager;
 
@@ -54,22 +54,16 @@ public:
   virtual std::vector<std::string> getOKString() { return std::vector<std::string>(); } // n/a
   virtual void putOKString(const std::vector<std::string> &) {} // n/a
 
-public slots:
-  void handleNewEditLayerRequested(const QSharedPointer<Layer> &);
-
-private:
-  EditItemManager *editm_;
-  EditDrawingLayersPane *layersPane_;
+signals:
+  void resetChoices();
 
 private slots:
   virtual void updateTimes() {} // n/a
 
-  // ### FOR TESTING:
-  void dumpStructure();
-  void showInfo(bool);
-  void showUndoStack(bool);
-
-  void setItemsVisibilityForced(bool);
+private:
+  EditItemManager *editm_;
+  QStringListModel propertyModel_;
+  QStringListModel valueModel_;
 };
 
 } // namespace

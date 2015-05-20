@@ -133,8 +133,6 @@
 #include "EditItems/editdrawingdialog.h"
 #include "EditItems/toolbar.h"
 
-#include "EditItems/eimtestdialog.h"
-
 #define MILOGGER_CATEGORY "diana.MainWindow"
 #include <miLogger/miLogging.h>
 
@@ -919,12 +917,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   drawingDialog->hide();
   addDialog(drawingDialog);
 
-  //EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
-  //editDrawingDialog->hide();
-  //addDialog(editDrawingDialog);
-
-  //connect(drawingDialog, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), editDrawingDialog,
-  //        SLOT(handleNewEditLayerRequested(const QSharedPointer<Layer> &)));
+  EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
+  editDrawingDialog->hide();
+  addDialog(editDrawingDialog);
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
     wmd->hide();
@@ -933,16 +928,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     connect(WebMapManager::instance(), SIGNAL(webMapsReady()), w, SLOT(updateGL()));
   }
 
-//  paintToolBar = new PaintToolBar(this);
-//  paintToolBar->setObjectName("PaintToolBar");
-//  addToolBar(Qt::BottomToolBarArea, paintToolBar);
-//  paintToolBar->hide();
-
   editDrawingToolBar = EditItems::ToolBar::instance();
   editDrawingToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
-  //paintToolBar->setEnabled(false); obsolete?
   connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
@@ -1056,8 +1045,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       help,SLOT(showsource(const std::string, const std::string)));
   connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
-//  connect( paintToolBar, SIGNAL(showsource(const std::string, const std::string)),
-//      help,SLOT(showsource(const std::string, const std::string)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
