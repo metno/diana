@@ -1335,6 +1335,7 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
 
 void DianaMainWindow::editDrawingToolBarVisible(bool visible)
 {
+  // Inform both the editing and drawing managers that editing is in progress.
   EditItemManager::instance()->setEditing(visible);
 }
 

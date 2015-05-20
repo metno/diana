@@ -162,8 +162,6 @@ EditItemManager::EditItemManager()
 
   setSelectMode();
   setEnabled(true);
-
-  Manager::setEditing(true); // get all mouse- and key events regardless of editing mode, but only allow full editing if selectingOnly_ == false
 }
 
 EditItemManager::~EditItemManager()
@@ -210,6 +208,8 @@ bool EditItemManager::parseSetup()
 
 void EditItemManager::setEditing(bool enable)
 {
+  Manager::setEditing(enable);
+
   // Enable the scratch layer if editing is enabled; otherwise disable it.
   layerGroups_.value("scratch")->setActive(enable);
 
@@ -1296,31 +1296,31 @@ void EditItemManager::handleSelectionChange()
 
 void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 {
-  if (!isEditing())
-    return;
-
   float dx, dy;
   int w, h;
 
-  if (event->type() == QEvent::MouseButtonPress && event->buttons() == Qt::LeftButton) {
+  if (!isEditing()) {
     // Allow context menus to be created for items in the drawing manager.
+    if (event->type() == QEvent::MouseButtonPress && event->buttons() == Qt::LeftButton) {
+      // Translate the mouse event by the current displacement of the viewport.
+      getViewportDisplacement(w, h, dx, dy);
+      QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
+                      event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
-    // Translate the mouse event by the current displacement of the viewport.
-    getViewportDisplacement(w, h, dx, dy);
-    QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
-                    event->globalPos(), event->button(), event->buttons(), event->modifiers());
+      DrawingManager *drawm = DrawingManager::instance();
 
-    DrawingManager *drawm = DrawingManager::instance();
-
-    QList<DrawingItemBase *> missedItems;
-    const QList<DrawingItemBase *> hitItems = drawm->findHitItems(me2.pos(), missedItems);
-    if (!hitItems.empty()) {
-      DrawingItemBase *hitItem; // consider only this item to be hit
-      hitItem = hitItems.first();
-      Properties::PropertiesEditor::instance()->edit(hitItem, true, false);
-      event->accept();
-      return;
+      QList<DrawingItemBase *> missedItems;
+      const QList<DrawingItemBase *> hitItems = drawm->findHitItems(me2.pos(), missedItems);
+      if (!hitItems.empty()) {
+        DrawingItemBase *hitItem; // consider only this item to be hit
+        hitItem = hitItems.first();
+        Properties::PropertiesEditor::instance()->edit(hitItem, true, false);
+        event->accept();
+        return;
+      }
     }
+    // Do not handle any other mouse events if editing is not in progress.
+    return;
   }
 
   event->ignore();

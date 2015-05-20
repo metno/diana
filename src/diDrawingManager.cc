@@ -670,10 +670,8 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
     // Find a list of items at the point passed in the event.
     QList<DrawingItemBase *> missed;
     QList<DrawingItemBase *> hit = findHitItems(event->pos(), missed);
-    if (hit.size() > 0) {
+    if (hit.size() > 0)
       emit itemsHovered(hit);
-      event->setAccepted(true);
-    }
   }
 }
 
