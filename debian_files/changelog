@@ -1,3 +1,9 @@
+diana (3.38.0~rc2-1) unstable; urgency=low
+
+  * Avoid projection warnings. 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 20 May 2015 10:06:05 +0200
+
 diana (3.38.0~rc1-1) unstable; urgency=low
 
   * Drawing: Added support for reading description elements in KML files
