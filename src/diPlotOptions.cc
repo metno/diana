@@ -173,7 +173,7 @@ map< std::string, std::string > PlotOptions::enabledOptions;
 PlotOptions::PlotOptions():
   options_1(true),options_2(false),
   textcolour(BlackC), linecolour(BlackC), linecolour_2(BlackC),
-  fillcolour(BlackC), bordercolour(BlackC), table(0),alpha(255), repeat(0),
+  fillcolour(BlackC), bordercolour(BlackC), table(1),alpha(255), repeat(0),
   linewidth(1), linewidth_2(1), colourcut(1), lineinterval(10.0), lineinterval_2(10.0),
   base(0.0), base_2(0.0), minvalue(-fieldUndef), minvalue_2(-fieldUndef),
   maxvalue(fieldUndef), maxvalue_2(fieldUndef), density(0), densityFactor(1.0),
