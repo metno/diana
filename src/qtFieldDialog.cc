@@ -1198,8 +1198,8 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   }
   if ( refTimeComboBox->count() ) {
     refTimeComboBox->setCurrentIndex(refTimeComboBox->count()-1);
+    updateFieldGroups();
   }
-  updateFieldGroups();
 }
 
 void FieldDialog::updateFieldGroups()
