@@ -51,15 +51,16 @@ public:
   /// be the same as the name used by the corresponding manager.
   virtual std::string name() const = 0;
 
-  /// Update the dialog after re-reading the setup file.
-  virtual void updateDialog() = 0;
   /// Returns the vector of command strings in use.
   virtual std::vector<std::string> getOKString() = 0;
   /// Set new command strings, representing them in the dialog.
   virtual void putOKString(const std::vector<std::string>& vstr) = 0;
 
 public slots:
+  /// Update the times that the dialog knows about.
   virtual void updateTimes() = 0;
+  /// Update the dialog after re-reading the setup file.
+  virtual void updateDialog() = 0;
 
 signals:
   void emitTimes(const std::string &, const std::vector<miutil::miTime> &);
@@ -67,6 +68,7 @@ signals:
   void applyData();
   void hideData();
   void showsource(const std::string, const std::string="");
+  void updated();
 
 private:
   QPushButton *applyhideButton;

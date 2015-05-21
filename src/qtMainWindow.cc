@@ -914,6 +914,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
   editDrawingDialog->hide();
   addDialog(editDrawingDialog);
+  connect(tslider, SIGNAL(valueChanged(int)), editDrawingDialog, SLOT(updateDialog()));
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
     wmd->hide();
@@ -4086,6 +4087,7 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
+  connect(dialog, SIGNAL(updated()), w, SLOT(updateGL()));
 
   if (QAction *action = dialog->action()) {
     dialogs[action] = dialog;

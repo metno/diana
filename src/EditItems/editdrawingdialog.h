@@ -37,6 +37,7 @@
 
 class DrawingManager;
 class EditItemManager;
+class QTreeView;
 
 namespace EditItems {
 
@@ -64,25 +65,31 @@ public:
   EditDrawingDialog(QWidget *, Controller *);
 
   virtual std::string name() const;
-  virtual void updateDialog() {};
   virtual std::vector<std::string> getOKString() { return std::vector<std::string>(); }
   virtual void putOKString(const std::vector<std::string> &) {}
+  virtual void updateTimes() {};
 
 public slots:
   void updateChoices();
+  void updateDialog();
 
 signals:
   void resetChoices();
 
 private slots:
+  void updateValues();
   void filterItems();
-  virtual void updateTimes() {} // n/a
 
 private:
+  QStringList currentProperties() const;
+  QSet<QString> currentValues() const;
+
   DrawingManager *drawm_;
   EditItemManager *editm_;
   EditDialogModel *propertyModel_;
   EditDialogModel *valueModel_;
+  QTreeView *propertyList_;
+  QTreeView *valueList_;
 };
 
 } // namespace

@@ -61,18 +61,24 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
 
-  QTreeView *propertyList = new QTreeView();
+  propertyList_ = new QTreeView();
   propertyModel_ = new EditDialogModel(tr("Properties"), this);
-  propertyList->setModel(propertyModel_);
-  propertyList->setSelectionMode(QAbstractItemView::MultiSelection);
-  propertyList->setRootIsDecorated(false);
-  propertyList->setSortingEnabled(true);
+  propertyList_->setModel(propertyModel_);
+  propertyList_->setSelectionMode(QAbstractItemView::MultiSelection);
+  propertyList_->setRootIsDecorated(false);
+  propertyList_->setSortingEnabled(true);
+  connect(propertyList_->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    SLOT(updateValues()));
 
-  QTreeView *valueList = new QTreeView();
+  valueList_ = new QTreeView();
   valueModel_ = new EditDialogModel(tr("Values"), this);
-  valueList->setModel(valueModel_);
-  valueList->setSelectionMode(QAbstractItemView::MultiSelection);
-  valueList->setRootIsDecorated(false);
+  valueList_->setModel(valueModel_);
+  valueList_->setSelectionMode(QAbstractItemView::MultiSelection);
+  valueList_->setRootIsDecorated(false);
+  connect(valueList_->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    SLOT(filterItems()));
 
   QPushButton *resetButton = NormalPushButton(tr("Reset"), this);
   connect(resetButton, SIGNAL(clicked()), SIGNAL(resetChoices()));
@@ -80,8 +86,8 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
 
   QHBoxLayout *viewLayout = new QHBoxLayout;
-  viewLayout->addWidget(propertyList);
-  viewLayout->addWidget(valueList);
+  viewLayout->addWidget(propertyList_);
+  viewLayout->addWidget(valueList_);
 
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   bottomLayout->addWidget(resetButton);
@@ -101,10 +107,12 @@ std::string EditDrawingDialog::name() const
   return "EDITDRAWING";
 }
 
+/**
+ * Updates the property list to show the available properties for all items,
+ * hiding those properties excluded in the setup file.
+ */
 void EditDrawingDialog::updateChoices()
 {
-  // Update the property list to show the available properties for all items,
-  // hiding those properties excluded in the setup file.
   QSet<QString> hide = QSet<QString>::fromList(Properties::PropertiesEditor::instance()->propertyRules("hide"));
 
   // Add some properties that we never want to show.
@@ -126,12 +134,90 @@ void EditDrawingDialog::updateChoices()
   }
 
   propertyModel_->setStringList(properties.toList());
+  updateValues();
+}
+
+void EditDrawingDialog::updateValues()
+{
+  QStringList properties = currentProperties();
+  QSet<QString> values;
+
+  foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
+    foreach (const QString &property, properties) {
+      QVariant value = item->property(property);
+      if (value.isValid())
+        values.insert(value.toString());
+    }
+  }
+
+  valueModel_->setStringList(values.toList());
+  filterItems();
+}
+
+/**
+ * Returns the selected properties in the property list, or all available
+ * properties if none are selected.
+ */
+QStringList EditDrawingDialog::currentProperties() const
+{
+  QModelIndexList indexes = propertyList_->selectionModel()->selectedIndexes();
+  QStringList properties;
+
+  if (!indexes.isEmpty()) {
+    foreach (const QModelIndex &index, indexes)
+      properties.append(index.data().toString());
+  } else
+    properties = propertyModel_->stringList();
+
+  return properties;
+}
+
+/**
+ * Returns the values for each of the current properties.
+ */
+QSet<QString> EditDrawingDialog::currentValues() const
+{
+  QModelIndexList indexes = valueList_->selectionModel()->selectedIndexes();
+  QSet<QString> values;
+
+  if (!indexes.isEmpty()) {
+    foreach (const QModelIndex &index, indexes)
+      values.insert(index.data().toString());
+  } else
+    values = QSet<QString>::fromList(valueModel_->stringList());
+
+  return values;
 }
 
 void EditDrawingDialog::filterItems()
 {
-  // Modify the visibility of the items depending on the properties and values selected.
+  QStringList properties = currentProperties();
+  QSet<QString> values = currentValues();
 
+  // Modify the visibility of the items depending on the properties and values selected.
+  foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
+
+    // Set each item to be invisible by default.
+    bool visible = false;
+
+    foreach (const QString &property, properties) {
+      QVariant value = item->property(property);
+      if (value.isValid() && values.contains(value.toString())) {
+        visible = true;
+        break;
+      }
+    }
+
+    item->setProperty("visible", visible);
+  }
+
+  emit updated();
+}
+
+void EditDrawingDialog::updateDialog()
+{
+  // The items may have been updated, so filter them again.
+  //filterItems();
 }
 
 
