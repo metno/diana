@@ -121,7 +121,7 @@ public:
 
   void setEditRect(Rectangle r);
 
-  virtual std::vector<PlotElement> getPlotElements() const;
+  virtual std::vector<PlotElement> getPlotElements();
   virtual QString plotElementTag() const;
   void enablePlotElement(const PlotElement &);
 
@@ -163,6 +163,8 @@ private:
 
   static int nextJoinId_;
   void setNextJoinId(int);
+
+  QHash<QString, EditItems::LayerGroup *> plotElements_;
 
   static DrawingManager *self_;  // singleton instance pointer
 };

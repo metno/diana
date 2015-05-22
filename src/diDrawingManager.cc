@@ -639,14 +639,19 @@ void DrawingManager::setEditRect(Rectangle r)
   DrawingManager::editRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
-std::vector<PlotElement> DrawingManager::getPlotElements() const
+std::vector<PlotElement> DrawingManager::getPlotElements()
 {
   std::vector<PlotElement> pel;
+  plotElements_.clear();
 
+  int i = 0;
   foreach (EditItems::LayerGroup *group, layerGroups_) {
     if (group->isActive()) {
-      pel.push_back(PlotElement(plotElementTag().toStdString(), group->name().toStdString(),
+      QString str = QString("%1").arg(i);
+      pel.push_back(PlotElement(plotElementTag().toStdString(), str.toStdString(),
                                 plotElementTag().toStdString(), group->isActive()));
+      plotElements_[str] = group;
+      i += 1;
     }
   }
 
@@ -660,12 +665,12 @@ QString DrawingManager::plotElementTag() const
 
 void DrawingManager::enablePlotElement(const PlotElement &pe)
 {
-  foreach (EditItems::LayerGroup *group, layerGroups_) {
-    if (group->name().toStdString() == pe.str) {
-      group->setActive(pe.enabled);
-      break;
-    }
-  }
+  QString str = QString::fromStdString(pe.str);
+  if (!plotElements_.contains(str))
+    return;
+
+  EditItems::LayerGroup *group = plotElements_.value(str);
+  group->setActive(pe.enabled);
 }
 
 /**

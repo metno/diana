@@ -38,7 +38,7 @@ public:
 
   void plot(Plot::PlotOrder zorder) Q_DECL_OVERRIDE;
 
-  std::vector<PlotElement> getPlotElements() const Q_DECL_OVERRIDE;
+  std::vector<PlotElement> getPlotElements() Q_DECL_OVERRIDE;
 
   bool processInput(const std::vector<std::string>&) Q_DECL_OVERRIDE;
 

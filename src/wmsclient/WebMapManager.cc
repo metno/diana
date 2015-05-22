@@ -224,7 +224,7 @@ void WebMapManager::plot(Plot::PlotOrder zorder)
     webmaps[i]->plot(zorder);
 }
 
-std::vector<PlotElement> WebMapManager::getPlotElements() const
+std::vector<PlotElement> WebMapManager::getPlotElements()
 {
   std::vector<PlotElement> pel;
   pel.reserve(webmaps.size());
