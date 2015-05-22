@@ -86,7 +86,7 @@ Sat::Sat (const std::string &pin) :
   alphaoperchanged(true),mosaicchanged(true)
   {
 
-  METLIBS_LOG_DEBUG("Sat constructor(pin)");
+  METLIBS_LOG_DEBUG(LOGVAL(pin)<<LOGVAL(cut));
 
   for (int i=0; i<maxch; i++)
     rawimage[i]= 0;

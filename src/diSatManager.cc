@@ -1670,12 +1670,6 @@ bool SatManager::parseSetup()
   Dialog.timediff.value=4;
   Dialog.timediff.scale=15;
 
-  // Workaround for SMHI images
-  if(formattype=="hdf5")
-    Dialog.cut.value=0;
-
-  //default values in dialog to be used in batch
-  Sat::setDefaultValues(Dialog);
 
   //read UFFDA classes
   const std::string section = "UFFDA";
