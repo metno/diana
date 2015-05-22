@@ -288,9 +288,9 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       group = layerGroups_.value(name);
     }
 
-    // Record the file name and layer group.
-    loaded_[name] = fileName;
+    // Record the layer group in the collection of replacement drawings.
     loaded[name] = group;
+    loaded_[name] = fileName;
   }
 
   // Delete layer groups that are no longer loaded and replace the list with
@@ -377,6 +377,9 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
   layerGroup->setFileName(fileName);
   layerGroup->setItems(items);
   layerGroups_[name] = layerGroup;
+
+  // Record the file name.
+  drawings_[name] = fileName;
 
   return true;
 }

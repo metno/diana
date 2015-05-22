@@ -75,11 +75,14 @@ public:
   virtual std::vector<std::string> getOKString();
   virtual void putOKString(const std::vector<std::string> &);
 
+public slots:
+  void loadFile();
+
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
-  virtual void updateTimes();
-  void makeProduct();
   void handleDialogUpdated();
+  void makeProduct();
+  virtual void updateTimes();
 
 private:
   DrawingModel drawingsModel_;

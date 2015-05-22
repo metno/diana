@@ -45,11 +45,9 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QDialogButtonBox>
-#include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QSplitter>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 namespace EditItems {
@@ -79,8 +77,17 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QListView *activeList = new QListView();
   activeList->setModel(&activeDrawingsModel_);
 
+  QPushButton *loadFileButton = new QPushButton(tr("Load drawing..."));
+  loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
+  connect(loadFileButton, SIGNAL(clicked()), SLOT(loadFile()));
+
+  QHBoxLayout *addLayout = new QHBoxLayout();
+  addLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
+  addLayout->addStretch();
+  addLayout->addWidget(loadFileButton);
+
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
-  mainLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
+  mainLayout->addLayout(addLayout);
   mainLayout->addWidget(drawingsList);
   mainLayout->addWidget(TitleLabel(tr("Active Drawings"), this));
   mainLayout->addWidget(activeList);
@@ -176,6 +183,27 @@ void DrawingDialog::handleDialogUpdated()
 {
   indicateUnappliedChanges(true);
   //layersPane_->updateButtons();
+}
+
+void DrawingDialog::loadFile()
+{
+  QString fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
+    drawm_->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+
+  if (fileName.isEmpty())
+    return;
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  bool success = drawm_->loadDrawing(fileName, fileName);
+  QApplication::restoreOverrideCursor();
+
+  if (success) {
+    // Update the working directory and the list of available drawings.
+    QFileInfo fi(fileName);
+    DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+    drawingsModel_.setItems(drawm_->getDrawings());
+  } else
+    QMessageBox::warning(this, tr("Open File"), tr("Failed to open file: %1").arg(fileName));
 }
 
 
