@@ -16,10 +16,6 @@ endif # WITH_GUI
 CPPFLAGS += -I$(prefix)/include
 LDFLAGS  += -L$(prefix)/lib
 
-if WITH_GUI
-CPPFLAGS += -DWITH_GUI
-endif
-
 BUILT_SOURCES =
 CLEANFILES =
 
