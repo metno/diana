@@ -1,3 +1,11 @@
+diana (3.38.0~rc3-1) unstable; urgency=low
+
+  * vcross: border around example arrows and marker labels
+  * canvas: init bdiana raster image with transparent fill
+  * FieldEdit: Bugfix - plot editfield in underlay when editing weather objects
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 May 2015 13:19:01 +0200
+
 diana (3.38.0~rc2-1) unstable; urgency=low
 
   * Avoid projection warnings. 
