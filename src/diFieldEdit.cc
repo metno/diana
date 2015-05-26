@@ -316,7 +316,6 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
   editfieldplot= new FieldPlot();
   editfieldplot->setData(vf, tprod);
   editfieldplot->setColourMode(true);
-  editfieldplot->setOverlayBuffer(true);
 
   return true;
 }

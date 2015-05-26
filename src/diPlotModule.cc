@@ -1049,8 +1049,7 @@ void PlotModule::plotUnder()
 
   // plot fields (isolines, vectors etc. after map)
   for (size_t i = 0; i < vfp.size(); i++) {
-    if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer())
-      vfp[i]->plot(Plot::LINES);
+    vfp[i]->plot(Plot::LINES);
   }
 
   // next line also calls objects.changeProjection
@@ -1115,10 +1114,6 @@ void PlotModule::plotOver()
 #endif
 
   const Rectangle& plotr = staticPlot_->getPlotSize();
-
-  // Check this!!!
-  for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(Plot::OVERLAY);
 
   // plot active draw- and editobjects here
   if (editm->isInEdit()) {
