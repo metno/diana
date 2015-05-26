@@ -1402,7 +1402,7 @@ void createPaintDevice()
   bool printing = false;
   if (raster) {
     image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
-    image.fill(qRgba(0, 0, 0, 0));
+    image.fill(Qt::transparent);
     glcanvas = new DiPaintGLCanvas(&image);
 
   } else if (pdf || svg || json) {
