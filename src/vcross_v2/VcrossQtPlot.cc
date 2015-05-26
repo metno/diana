@@ -880,6 +880,7 @@ void QtPlot::plotTitle(QPainter& painter)
     const OptionMarker& m = *im;
 
     QString q_str = QString::fromStdString(m.text);
+    painter.setPen(util::QC(m.colour));
 
     float mx = 0, my = y;
     if (m.position >= 0) {
@@ -897,11 +898,11 @@ void QtPlot::plotTitle(QPainter& painter)
       mx = relative2screenx(m.x);
       my = relative2screeny(m.y);
       const float w = painter.fontMetrics().width(q_str), border = 2;
-      painter.fillRect(mx-border, my-mCharSize.height()-border, w+2*border,
-          mCharSize.height() + 2*border, Qt::white);
+      const QRectF bgRect(mx-border, my-mCharSize.height(), w+2*border,
+          mCharSize.height() + 2*border);
+      painter.fillRect(bgRect, Qt::white);
+      painter.drawRect(bgRect);
     }
-
-    painter.setPen(util::QC(m.colour));
     painter.drawText(QPointF(mx, my), q_str);
   }
 }
@@ -1458,8 +1459,10 @@ void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
   const int border = 5, gap = 5;
   int x = relative2screenx(plot->poptions.vector_example_x), y = relative2screeny(plot->poptions.vector_example_y);
   int middle = y + example_length/2, bottom = y + example_length;
-  painter.fillRect(x-border, y-border, example_length + labelwidth_x + 4*gap + labelwidth_y + 2*border,
-      example_length + 2*border, Qt::white);
+  const QRectF bgRect(x-border, y-border, example_length + labelwidth_x + 4*gap + labelwidth_y + 2*border,
+      example_length + 2*border);
+  painter.fillRect(bgRect, Qt::white);
+  painter.drawRect(bgRect);
   pv.paint(painter, example_x, 0, x, middle);
   x += example_length + gap;
   painter.drawText(x, bottom, label_x);
