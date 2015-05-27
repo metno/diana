@@ -34,23 +34,26 @@
 #endif
 
 #include <diController.h>
-#include <diManager.h>
-#include <diPlotModule.h>
+
+#include "diManager.h"
+#include "diPlotModule.h"
+#include "diFieldPlotManager.h"
+#include "diObsManager.h"
+#include "diSatManager.h"
+#include "diObjectManager.h"
+#include "diDrawingManager.h"
+#include "diEditManager.h"
+#include "diStationManager.h"
+#include "diStationPlot.h"
+#include "diImageGallery.h"
+#include "diMapManager.h"
+#include "diLocalSetupParser.h"
+#include "wmsclient/WebMapManager.h"
+
+#include <diField/diArea.h>
 #include <diField/diRectangle.h>
 #include <diField/diArea.h>
 #include <diField/diFieldManager.h>
-#include <diFieldPlotManager.h>
-#include <diObsManager.h>
-#include <diSatManager.h>
-#include <diObjectManager.h>
-#include <diDrawingManager.h>
-#include <diEditManager.h>
-#include <diStationManager.h>
-#include <diStationPlot.h>
-#include <diImageGallery.h>
-#include <diMapManager.h>
-#include <diLocalSetupParser.h>
-#include "wmsclient/WebMapManager.h"
 
 #include <puTools/miSetupParser.h>
 
@@ -119,9 +122,10 @@ void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
   }
 }
 
-void  Controller::restartFontManager()
+bool Controller::updateFieldFileSetup(const std::vector<std::string>& lines,
+    std::vector<std::string>& errors)
 {
-  // plotm->getStaticPlot()->restartFontManager();
+  return getFieldManager()->updateFileSetup(lines, errors);
 }
 
 bool Controller::parseSetup()

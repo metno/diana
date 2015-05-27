@@ -31,12 +31,7 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-
-#include <sys/types.h>
-#include <sys/time.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
+#include "qtMainWindow.h"
 
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
@@ -47,6 +42,56 @@
 #include "qtTextDialog.h"
 #include "qtImageGallery.h"
 #include "qtUtility.h"
+#include "qtWorkArea.h"
+#include "qtVprofWindow.h"
+#include "qtSpectrumWindow.h"
+#include "qtDataDialog.h"
+#include "qtQuickMenu.h"
+#include "qtObsDialog.h"
+#include "qtSatDialog.h"
+#include "qtStationDialog.h"
+#include "qtMapDialog.h"
+#include "qtFieldDialog.h"
+#include "qtEditDialog.h"
+#include "qtObjectDialog.h"
+#include "qtTrajectoryDialog.h"
+#include "qtMeasurementsDialog.h"
+#include "qtSetupDialog.h"
+#include "qtPrintManager.h"
+#include "qtBrowserBox.h"
+#include "qtAddtoMenu.h"
+#include "qtUffdaDialog.h"
+#include "qtAnnotationDialog.h"
+#include "qtTextView.h"
+#include "qtMailDialog.h"
+
+#include "diController.h"
+#include "diEditItemManager.h"
+#include "diPaintGLPainter.h"
+#include "diPrintOptions.h"
+#include "diLocalSetupParser.h"
+#include "diStationManager.h"
+#include "diStationPlot.h"
+#include "diLocationData.h"
+#include "diLogFile.h"
+
+#include "EditItems/drawingdialog.h"
+#include "EditItems/editdrawingdialog.h"
+#include "EditItems/toolbar.h"
+#include "EditItems/eimtestdialog.h"
+#include "vcross_qt/qtVcrossInterface.h"
+#include "wmsclient/WebMapDialog.h"
+#include "wmsclient/WebMapManager.h"
+
+#include <qUtilities/qtHelpDialog.h>
+
+#include <coserver/ClientButton.h>
+#include <coserver/miMessage.h>
+#include <coserver/QLetterCommands.h>
+
+#include <puDatatypes/miCoordinates.h>
+
+#include <puTools/miSetupParser.h>
 
 #include <QFileDialog>
 #include <QPrintDialog>
@@ -59,13 +104,11 @@
 #include <QWhatsThis>
 #include <QMimeData>
 #include <QSvgGenerator>
-
 #include <QAction>
 #include <QShortcut>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDateTime>
-
 #include <qpushbutton.h>
 #include <qpixmap.h>
 #include <QIcon>
@@ -80,62 +123,16 @@
 #include <qfontdialog.h>
 #include <qtooltip.h>
 #include <QProgressDialog>
-
-#include "qtMainWindow.h"
-#include "qtWorkArea.h"
-#include "qtVprofWindow.h"
-#include "vcross_qt/qtVcrossInterface.h"
-#include "qtSpectrumWindow.h"
-#include "diController.h"
-#include "diPrintOptions.h"
-#include "diLocalSetupParser.h"
-#include "diStationManager.h"
-#include "diStationPlot.h"
-#include "diLocationData.h"
-#include "diLogFile.h"
-
-#include "qtDataDialog.h"
-#include "qtQuickMenu.h"
-#include "qtObsDialog.h"
-#include "qtSatDialog.h"
-#include "qtStationDialog.h"
-#include "qtMapDialog.h"
-#include "qtFieldDialog.h"
-#include "qtEditDialog.h"
-#include "qtObjectDialog.h"
-#include "qtTrajectoryDialog.h"
-#include "qtMeasurementsDialog.h"
-#include "qUtilities/qtHelpDialog.h"
-#include "qtSetupDialog.h"
-#include "qtPrintManager.h"
-#include "qtBrowserBox.h"
-#include "qtAddtoMenu.h"
-#include "qtUffdaDialog.h"
-#include "qtAnnotationDialog.h"
-#include <coserver/ClientButton.h>
-#include "qtTextView.h"
-#include <coserver/miMessage.h>
-#include <coserver/QLetterCommands.h>
-#include <puDatatypes/miCoordinates.h>
 #include <QErrorMessage>
 
-#include "wmsclient/WebMapDialog.h"
-#include "wmsclient/WebMapManager.h"
-#include "qtMailDialog.h"
-#include "diPaintGLPainter.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 
-#include <puTools/miSetupParser.h>
+#include <sys/types.h>
+#include <sys/time.h>
 
+#include <fstream>
 #include <iomanip>
-
-#include <diField/diFieldManager.h>
-
-#include "diEditItemManager.h"
-#include "EditItems/drawingdialog.h"
-#include "EditItems/editdrawingdialog.h"
-#include "EditItems/toolbar.h"
-
-#include "EditItems/eimtestdialog.h"
 
 #include <QDebug>
 
@@ -4163,7 +4160,7 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
   }
 
   std::vector<std::string> field_errors;
-  if (!contr->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+  if (!contr->updateFieldFileSetup(extra_field_lines, field_errors)) {
     METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
     for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
       METLIBS_LOG_ERROR(field_errors[kk]);

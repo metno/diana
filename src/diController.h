@@ -110,8 +110,9 @@ public:
   void addManager(const std::string &name, Manager *man);
   Manager *getManager(const std::string &name);
 
-  /// init static FontManager in class Plot
-  void restartFontManager();
+  bool updateFieldFileSetup(const std::vector<std::string>& lines,
+      std::vector<std::string>& errors);
+
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
