@@ -167,12 +167,7 @@ void LegendPlot::getStringSize(DiGLPainter* gl, const std::string& str,
     float& width, float& height)
 {
   gl->getTextSize(str, width, height);
-
-  float fontsizeScale = gl->getSizeDiv();
-  width*=fontsizeScale;
-  height*=fontsizeScale;
-
-  height *= 1.2;
+  height *= 1.2; // FIXME
 }
 
 bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)

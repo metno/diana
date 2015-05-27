@@ -110,7 +110,7 @@ private:
   bool unit_ms; //wind in m/s or knots
   bool parameterName; // parameter name printed in front of value (ascii only), from plotAscii
   bool popupText; // selected parameters in popup window
- 
+
   enum flag {
     QUALITY_GOOD = 4
   };
@@ -125,7 +125,6 @@ private:
   std::string annotation;
   std::vector<std::string> labels; // labels from ascii-files or PlotModule(edit)
   std::map<std::string, std::vector<std::string> > popupSpec;
-  float fontsizeScale; //needed when postscript font != X font
   float current; //cuurent, not wind
   bool firstplot;
   bool beendisabled; // obsplot was disabled while area changed

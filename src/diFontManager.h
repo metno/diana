@@ -131,8 +131,6 @@ public:
   int getFontSizeIndex();
   /// return name of font from index
   std::string getFontName(const int index);
-  /// requested-size divided by actual-size
-  float getSizeDiv();
 };
 
 #endif

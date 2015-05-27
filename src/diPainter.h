@@ -24,7 +24,6 @@ public:
   };
 
   virtual void setVpGlSize(float vpw, float vph, float glw, float glh) = 0;
-  virtual float getSizeDiv();
   virtual bool setFont(const std::string& font) = 0;
   virtual bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) = 0;
   bool setFont(const std::string& font, FontFace face, float size)
@@ -46,7 +45,6 @@ public:
     { return mCanvas; }
 
   void setVpGlSize(float vpw, float vph, float glw, float glh);
-  float getSizeDiv();
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, DiCanvas::FontFace face=DiCanvas::F_NORMAL);
   bool setFont(const std::string& font, DiCanvas::FontFace face, float size)

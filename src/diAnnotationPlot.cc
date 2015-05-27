@@ -598,10 +598,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
-  float fontsizeScale = gl->getSizeDiv();
   float wid, hei;
-
-  //    METLIBS_LOG_DEBUG("fontsizeScale:"<<fontsizeScale);
   for (size_t j = 0; j < annoEl.size(); j++) {
     if (!horizontal && j != 0)
       y -= annoEl[j].height;
@@ -663,8 +660,6 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       std::string astring = annoEl[j].eText;
       astring += " ";
       gl->getTextSize(astring, wid, hei);
-      wid *= fontsizeScale;
-      hei *= fontsizeScale;
       if (annoEl[j].eHalign == align_right && j + 1 == annoEl.size())
         x = bbox.x2 - wid - border;
       gl->drawText(astring, x, y, 0.0);
@@ -693,9 +688,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       gl->setFont(poptions.fontname, poptions.fontface, annoEl[j].eSize * fontsizeToPlot);
       gl->drawText(" ", x, y, 0.0);
       gl->getTextSize(" ", wid, hei);
-      wid *= fontsizeScale;
       wid += tmpwid;
-      hei *= fontsizeScale;
     } else if (annoEl[j].eType == image) {
       ImageGallery ig;
       float scale = annoEl[j].eSize * scaleFactor;
@@ -782,8 +775,6 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
-  float fontsizeScale = gl->getSizeDiv();
-
   float width = 0, height = 0;
   for (size_t j = 0; j < annoEl.size(); j++) {
     float w = 0.0, h = 0.0;
@@ -793,8 +784,6 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
       std::string astring = annoEl[j].eText;
       astring += " ";
       gl->getTextSize(astring, w, h);
-      w *= fontsizeScale;
-      h *= fontsizeScale;
     } else if (annoEl[j].eType == image) {
       const std::string& aimage = annoEl[j].eImage;
       ImageGallery ig;
@@ -814,9 +803,7 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
       gl->setFont(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
       gl->getTextSize(" ", w, h);
-      w *= fontsizeScale;
-      w += w;
-      h *= fontsizeScale;
+      w *= 2;
     } else if (annoEl[j].eType == box) {
       getAnnoSize(gl, annoEl[j].subelement, w, h, annoEl[j].horizontal);
     }

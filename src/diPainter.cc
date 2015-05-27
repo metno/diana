@@ -9,11 +9,6 @@
 
 #include <cmath>
 
-float DiCanvas::getSizeDiv()
-{
-  return 1.0;
-}
-
 bool DiCanvas::setFont(const std::string& font, const std::string& face, float size)
 {
   FontFace f = F_NORMAL;
@@ -38,13 +33,6 @@ void DiPainter::setVpGlSize(float vpw, float vph, float glw, float glh)
 {
   if (canvas())
     canvas()->setVpGlSize(vpw, vph, glw, glh);
-}
-
-float DiPainter::getSizeDiv()
-{
-  if (!canvas())
-    return false;
-  return canvas()->getSizeDiv();
 }
 
 bool DiPainter::setFont(const std::string& font)

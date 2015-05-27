@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1455,12 +1455,8 @@ void ObsPlot::nextObs(bool Next)
 /* this metod compute wich stations to plot
  and fills a vector with index to the internal stationlist that should get data
  from road */
- 
- /* We must remove the dependency op DiGLPainter here,
- because DiGLPainter is not defined when calling this
- method */
 
-bool ObsPlot::preparePlot(void)
+bool ObsPlot::preparePlot()
 {
   METLIBS_LOG_SCOPE();
 
@@ -1475,14 +1471,6 @@ bool ObsPlot::preparePlot(void)
   if (not numObs)
     return false;
 
-  //gl->setFont(poptions.fontname,poptions.fontface, 8 * textSize);
-  // fontsizeScale != 1 when postscript font size != X font size
-  /* Is fontsizeScale well defined here ?
-  if (gl->isHardcopy())
-    fontsizeScale = gl->getSizeDiv();
-  else
-    fontsizeScale = 1.0;
-  */
   scale= textSize*getStaticPlot()->getPhysToMapScaleX()*0.7;
 
   int num=numPar;
@@ -1532,20 +1520,8 @@ bool ObsPlot::preparePlot(void)
   vector<int> ptmp;
   vector<int>::iterator p,pbegin,pend;
 
-  if (getStaticPlot()->getDirty() || firstplot || beendisabled) { //new area 
-
-    //init of areaFreeSetup
-    // I think we should plot roadobs like synop here
-    // OBS!******************************************
-    /*
-    if (plottype()=="list" || plottype()=="ascii") {
-      float w,h;
-      gl->getTextSize("0",w,h);
-      w*=fontsizeScale;
-      float space= w*0.5;
-      areaFreeSetup(scale,space,num,xdist,ydist);
-    }
-    */
+  if (getStaticPlot()->getDirty() || firstplot || beendisabled) {
+    //new area
     thisObs = false;
 
     // new area, find stations inside current area
@@ -1827,13 +1803,6 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     gl->LineWidth(3);
 
   gl->setFont(poptions.fontname, poptions.fontface, 8 * textSize);
-
-  // fontsizeScale != 1 when postscript font size != X font size
-  if (gl->isHardcopy())
-    fontsizeScale = gl->getSizeDiv();
-  else
-    fontsizeScale = 1.0;
-
   scale = textSize * getStaticPlot()->getPhysToMapScaleX() * 0.7;
 
   if (poptions.antialiasing)
@@ -1913,7 +1882,6 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     if (plottype() == "list" || plottype() == "ascii") {
       float w, h;
       gl->getTextSize("0", w, h);
-      w *= fontsizeScale;
       float space = w * 0.5;
       areaFreeSetup(scale, space, num, xdist, ydist);
     }
@@ -2513,7 +2481,6 @@ float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const std::string& txt, flo
 {
   float w, h;
   gl->getTextSize(txt, w, h);
-  w *= fontsizeScale;
   if (!vertical_orientation)
     xpos += w / scale + 5;
   return w;
@@ -2562,8 +2529,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   float xshift = 0;
   float width, height;
   gl->getTextSize("0", width, height);
-  height *= fontsizeScale * 1.2;
-  width *= fontsizeScale;
+  height *= 1.2; // FIXME
   float yStep = height / scale; //depend on character height
   bool align_right = false;
   bool windOK = pFlag.count("Wind") && dta.fdata.count("dd")
@@ -4663,20 +4629,14 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std:
     }
     cs << f;
     float w, h;
-    std::string str = cs.str();
-    const char * c = str.c_str();
-    gl->getTextSize(c, w, h);
-    w *= fontsizeScale;
+    gl->getTextSize(cs.str(), w, h);
     x -= w - 30 * scale;
   }
 
   else if (align == "center") {
     float w, h;
     cs << f;
-    std::string str = cs.str();
-    const char * c = str.c_str();
-    gl->getTextSize(c, w, h);
-    w *= fontsizeScale;
+    gl->getTextSize(cs.str(), w, h);
     x -= w / 2;
   }
 
@@ -4690,10 +4650,7 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std:
     cs.precision(1);
     cs << f;
     float w, h;
-    std::string str = cs.str();
-    const char * c = str.c_str();
-    gl->getTextSize(c, w, h);
-    w *= fontsizeScale;
+    gl->getTextSize(cs.str(), w, h);
     x -= w - 30 * scale;
   } else if (align == "fill_2") {
     int i = diutil::float2int(f);
@@ -4750,10 +4707,8 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std:
 
   gl->drawText(str, x, y, 0.0);
 
-  if (line) {
-    const float w = cw*fontsizeScale, h = ch*fontsizeScale;
-    gl->drawLine(x, (y - h / 6), (x + w), (y - h / 6));
-  }
+  if (line)
+    gl->drawLine(x, (y - ch / 6), (x + cw), (y - ch / 6));
 }
 
 void ObsPlot::printString(DiGLPainter* gl, const char *c,
@@ -4763,11 +4718,8 @@ void ObsPlot::printString(DiGLPainter* gl, const char *c,
   y *= scale;
 
   float w, h;
-  if (align_right || line) {
+  if (align_right || line)
     gl->getTextSize(c, w, h);
-    w *= fontsizeScale;
-    h *= fontsizeScale;
-  }
   if (align_right)
     x -= w;
 
@@ -4798,7 +4750,6 @@ void ObsPlot::printTime(DiGLPainter* gl, const miTime& time,
   if (align_right) {
     float w, h;
     gl->getTextSize(s, w, h);
-    w *= fontsizeScale;
     x -= w;
   }
 

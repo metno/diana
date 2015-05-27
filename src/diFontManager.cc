@@ -505,11 +505,3 @@ std::string FontManager::getFontName(const int index)
     return "";
   return current_engine->getFontName(index);
 }
-
-float FontManager::getSizeDiv()
-{
-  if (!current_engine)
-    return 1.0;
-  return current_engine->getSizeDiv();
-}
-
