@@ -30,7 +30,6 @@
 #define _qt_spectrummainwindow_
 
 #include "diCommonTypes.h"
-#include "diPrintOptions.h"
 #include "diStationPlot.h"
 
 #include <QMainWindow>
@@ -45,7 +44,6 @@ class SpectrumWidget;
 class SpectrumManager;
 class SpectrumModelDialog;
 class SpectrumSetupDialog;
-class QPrinter;
 
 
 /**
@@ -69,8 +67,8 @@ public:
   void parseSetup();
   std::vector<std::string> writeLog(const std::string& logpart);
   void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion,
-	       int displayWidth, int displayHeight);
+      const std::string& thisVersion, const std::string& logVersion,
+      int displayWidth, int displayHeight);
 
   bool firstTime;
   bool active;

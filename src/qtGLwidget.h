@@ -60,13 +60,6 @@ public:
   GLwidget(Controller*);
   ~GLwidget();
 
-#if 0
-  /// save contents of widget as raster image
-  bool saveRasterImage(const std::string fname,
-      const std::string format,
-      const int quality = -1);
-#endif
-
   /// toggles use of underlay
   void forceUnderlay(bool b)
     {savebackground= b;}

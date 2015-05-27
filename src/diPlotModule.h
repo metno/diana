@@ -32,7 +32,6 @@
 #include "diPlot.h"
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
-#include "diPrintOptions.h"
 #include "diDisplayObjects.h"
 #include "diAreaObjects.h"
 
@@ -250,9 +249,6 @@ public:
       const bool horizontal);
   double getMarkedArea(const float& x, const float& y);
   double getWindowArea();
-
-  void startHardcopy(const printOptions& po);
-  void endHardcopy();
 
   /// set managers
   void setManagers(FieldManager*, FieldPlotManager*, ObsManager*, SatManager*,

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diVprofManager.h 4551 2014-10-21 13:10:06Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,12 +29,10 @@
 #ifndef VPROFMANAGER_H
 #define VPROFMANAGER_H
 
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
-#include <diField/TimeFilter.h>
-
+#include "diCommonTypes.h"
 #include "vcross_v2/VcrossSetup.h"
 
+#include <diField/TimeFilter.h>
 #include <puTools/miTime.h>
 
 #include <vector>

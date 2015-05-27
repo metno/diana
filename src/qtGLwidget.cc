@@ -242,32 +242,3 @@ bool GLwidget::handleWheelEvents(QWheelEvent *we)
   }
   return false;
 }
-
-#if 0
-void GLwidget::startHardcopy(const printOptions& po)
-{
-  makeCurrent();
-  contr->startHardcopy(po);
-}
-
-void GLwidget::endHardcopy()
-{
-  makeCurrent();
-  contr->endHardcopy();
-}
-
-bool GLwidget::saveRasterImage(const std::string fname, const std::string format,
-    const int quality)
-{
-
-  updateGL();
-  makeCurrent();
-  gl->Flush();
-
-  // test of new grabFrameBuffer command
-  QImage image = grabFrameBuffer(true); // withAlpha=TRUE
-  image.save(fname.c_str(), format.c_str(), quality);
-
-  return true;
-}
-#endif

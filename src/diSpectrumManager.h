@@ -30,7 +30,6 @@
 #define SPECTRUMMANAGER_H
 
 #include "diCommonTypes.h"
-#include "diPrintOptions.h"
 #include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>

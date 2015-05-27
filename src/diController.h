@@ -33,9 +33,7 @@
 #include "diCommonTypes.h"
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
-#include "diPrintOptions.h"
 
-#include <diField/diArea.h>
 #include <diField/diCommonFieldTypes.h>
 #include <puTools/miTime.h>
 
@@ -43,6 +41,7 @@
 #include <vector>
 #include <set>
 
+class Area;
 class AnnotationPlot;
 class DiCanvas;
 class DiGLPainter;
@@ -148,10 +147,6 @@ public:
   /// return area of entire window in m2
   double getWindowArea();
 
-  /// start hardcopy plot
-  void startHardcopy(const printOptions&);
-  /// end hardcopy plot
-  void endHardcopy();
   /// return current plottime
   void getPlotTime(std::string&);
   /// return current plottime
@@ -185,8 +180,8 @@ public:
   bool findObs(int,int);
   /// find name of obs in grid position x,y
   bool getObsName(int x,int y, std::string& name);
-  /// get obs popup text in grid position x,y 
-  std::string getObsPopupText(int x,int y); 
+  /// get obs popup text in grid position x,y
+  std::string getObsPopupText(int x,int y);
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket

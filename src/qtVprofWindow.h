@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,11 +29,11 @@
 #ifndef _qt_vprofmainwindow_
 #define _qt_vprofmainwindow_
 
-#include <qstring.h>
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
+#include "diCommonTypes.h"
 
+#include <QString>
 #include <QMainWindow>
+
 #include <vector>
 
 class QComboBox;
@@ -47,7 +45,6 @@ class VprofManager;
 class VprofModelDialog;
 class VprofSetupDialog;
 class StationPlot;
-class QPrinter;
 
 /**
   \brief Window for Vertical Profiles (soundings)
@@ -102,16 +99,13 @@ private:
   void stationChanged();
   void timeChanged();
 
-  // printerdefinitions
-  printOptions priop;
-
   miutil::miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time
 
   void saveRasterImage(const QString& filename);
   void paintOnDevice(QPaintDevice* device);
 
-private slots:
+private Q_SLOTS:
   void modelClicked(bool on);
   void leftStationClicked();
   void rightStationClicked();
@@ -134,7 +128,7 @@ private slots:
   void stationBoxActivated(int index);
   void timeBoxActivated(int index);
 
-signals:
+Q_SIGNALS:
   void VprofHide();
   void showsource(const std::string, const std::string=""); // activate help
   void stationChanged(const std::vector<std::string>& );

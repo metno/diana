@@ -38,6 +38,8 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
+#include <map>
+
 #define MILOGGER_CATEGORY "diana.SpectrumFile"
 #include <miLogger/miLogging.h>
 
@@ -154,7 +156,7 @@ bool SpectrumFile::readFileHeader()
 
     // position names, first length of each name
     tmp= vfile->getInt(numPos);
-    map<std::string, int> namemap;
+    std::map<std::string, int> namemap;
     for (n=0; n<numPos; n++) {
       std::string str= vfile->getString(tmp[n]);
       // may have one space at the end (n*2 characters stored in file)

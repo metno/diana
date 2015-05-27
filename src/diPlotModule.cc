@@ -942,34 +942,6 @@ void PlotModule::defineMapArea()
   previousrequestedarea = requestedarea;
 }
 
-void PlotModule::startHardcopy(const printOptions&)
-{
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-  if (hardcopy) {
-    // if hardcopy in progress, and same filename: make new page
-    if (po.fname == printoptions.fname) {
-      staticPlot_->startPSnewpage();
-      return;
-    }
-    // different filename: end current output and start a new
-    staticPlot_->endPSoutput();
-  }
-  hardcopy = true;
-  printoptions = po;
-  // postscript output
-  staticPlot_->startPSoutput(printoptions);
-#endif // DISABLED_STATICPLOT_PSOUTPUT
-}
-
-void PlotModule::endHardcopy()
-{
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-  if (hardcopy)
-    staticPlot_->endPSoutput();
-  hardcopy = false;
-#endif // DISABLED_STATICPLOT_PSOUTPUT
-}
-
 // -------------------------------------------------------------------------
 // Master plot-routine
 // The under/over toggles are used for speedy editing/drawing

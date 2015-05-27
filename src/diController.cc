@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -242,47 +240,43 @@ bool Controller::PhysToGeo(const float x,const float y,
 
 // return physical x,y from latitude,longitude
 bool Controller::GeoToPhys(const float lat,const float lon,
-    float& x,float& y){
+    float& x,float& y)
+{
   return plotm->GeoToPhys(lat,lon,x,y);
 }
 
 // return map x,y from physical x,y
 void Controller::PhysToMap(const float x,const float y,
-    float& xmap,float& ymap){
+    float& xmap,float& ymap)
+{
   plotm->PhysToMap(x,y,xmap,ymap);
 }
 
 /// return field grid x,y from map x,y if field defined and map proj = field proj
 bool Controller::MapToGrid(const float xmap, const float ymap,
-    float& gridx, float& gridy){
+    float& gridx, float& gridy)
+{
   return plotm->MapToGrid(xmap,ymap,gridx,gridy);
 }
 
-double Controller::getWindowDistances(const float& x, const float& y, const bool horizontal){
+double Controller::getWindowDistances(const float& x, const float& y, const bool horizontal)
+{
   return plotm->getWindowDistances(x, y, horizontal);
 }
 
-double Controller::getMarkedArea(const float& x, const float& y){
+double Controller::getMarkedArea(const float& x, const float& y)
+{
   return plotm->getMarkedArea(x, y);
 }
 
-double Controller::getWindowArea(){
+double Controller::getWindowArea()
+{
   return plotm->getWindowArea();
 }
 
-void Controller::startHardcopy(const printOptions& po)
-{
-  plotm->startHardcopy(po);
-}
-
-void Controller::endHardcopy()
-{
-  plotm->endHardcopy();
-}
-
-
 // return current plottime
-void Controller::getPlotTime(std::string& s){
+void Controller::getPlotTime(std::string& s)
+{
   plotm->getPlotTime(s);
 }
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,17 +31,18 @@
 #include "config.h"
 #endif
 
-#include "diUtilities.h"
 #include "qtVprofWindow.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
-#include "diStationPlot.h"
 #include "qtVprofWidget.h"
 #include "qtVprofModelDialog.h"
 #include "qtVprofSetupDialog.h"
-#include "diVprofManager.h"
 #include "qtPrintManager.h"
+
 #include "diPaintGLPainter.h"
+#include "diStationPlot.h"
+#include "diUtilities.h"
+#include "diVprofManager.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -67,7 +68,7 @@
 using namespace std;
 
 VprofWindow::VprofWindow()
-: QMainWindow( 0)
+  : QMainWindow(0)
 {
   vprofm = new VprofManager();
 
@@ -756,6 +757,7 @@ vector<string> VprofWindow::writeLog(const string& logpart)
     str= "VprofSetupDialog.pos " + miutil::from_number(vpSetupDialog->x()) + " " + miutil::from_number(vpSetupDialog->y());
     vstr.push_back(str);
 
+#if 0
     // printer name & options...
     if (not priop.printer.empty()){
       str= "PRINTER " + priop.printer;
@@ -766,6 +768,7 @@ vector<string> VprofWindow::writeLog(const string& logpart)
         str= "PRINTORIENTATION landscape";
       vstr.push_back(str);
     }
+#endif
 
   } else if (logpart=="setup") {
 
@@ -803,6 +806,7 @@ void VprofWindow::readLog(const string& logpart, const vector<string>& vstr,
 
       } else if (tokens.size()==2) {
 
+#if 0
         if (tokens[0]=="PRINTER") {
           priop.printer=tokens[1];
         } else if (tokens[0]=="PRINTORIENTATION") {
@@ -811,7 +815,7 @@ void VprofWindow::readLog(const string& logpart, const vector<string>& vstr,
           else
             priop.orientation=d_print::ori_landscape;
         }
-
+#endif
       }
     }
 

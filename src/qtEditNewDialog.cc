@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,7 +31,10 @@
 #include "config.h"
 #endif
 
-#include <iostream>
+#include "qtEditNewDialog.h"
+#include "qtUtility.h"
+#include "qtEditDefineField.h"
+#include "qtTimeSpinbox.h"
 
 #include "diController.h"
 #include "diEditManager.h"
@@ -53,21 +54,13 @@
 #include <QFrame>
 #include <QVBoxLayout>
 
-#include "qtEditNewDialog.h"
-#include "qtUtility.h"
-#include "qtEditDefineField.h"
-#include "qtTimeSpinbox.h"
-
-
-#include "kill.xpm"
-
 #define MILOGGER_CATEGORY "diana.EditNewDialog"
 #include <miLogger/miLogging.h>
 
 using namespace std;
 
-EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
-: QDialog(parent), m_ctrl(llctrl), m_editm(0)
+EditNewDialog::EditNewDialog(QWidget* parent, Controller* llctrl)
+  : QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
   m_editm= m_ctrl->getEditManager();
 

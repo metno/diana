@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,7 +30,6 @@
 #define diSpectrumPlot_h
 
 #include "diSpectrumOptions.h"
-#include "diPrintOptions.h"
 
 #include <puTools/miTime.h>
 

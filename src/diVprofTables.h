@@ -29,7 +29,6 @@
 #ifndef VPROFTABLES_H
 #define VPROFTABLES_H
 
-#include "diPrintOptions.h"
 #include "diColour.h"
 
 #include <puTools/miTime.h>
