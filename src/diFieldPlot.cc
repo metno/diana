@@ -3352,12 +3352,12 @@ void FieldPlot::plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const
 
   // If the frame value is 2 or 3 then fill the frame with the background colour.
   if ((poptions.frame & 2) != 0) {
-    gl->setColour(getStaticPlot()->getBackgroundColour(), false);
+    gl->setColour(getStaticPlot()->getBackgroundColour(), true);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
     gl->drawPolygon(frame);
   }
   if ((poptions.frame & 1) != 0) {
-    gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
+    gl->setLineStyle(poptions.bordercolour, poptions.linewidth, true);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
     gl->drawPolyline(frame);
   }
