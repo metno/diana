@@ -60,7 +60,7 @@ const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
 
 FieldPlot::FieldPlot()
-  : overlay(false), pshade(false), vectorAnnotationSize(0)
+  : pshade(false), vectorAnnotationSize(0)
   , imagedata(0), previrs(1)
 {
   METLIBS_LOG_SCOPE();
@@ -559,11 +559,10 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     if (getShadePlot())
       plotMe(gl);
   } else if (zorder == LINES) {
-    if (!getShadePlot() && !overlayBuffer())
+    if (!getShadePlot() )
       plotMe(gl);
   } else if (zorder == OVERLAY) {
-    if (overlay)
-      plotMe(gl);
+    plotMe(gl);
   }
 }
 

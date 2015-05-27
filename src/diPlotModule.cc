@@ -1058,8 +1058,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   // plot fields (isolines, vectors etc. after map)
   for (size_t i = 0; i < vfp.size(); i++) {
-    if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer())
-      vfp[i]->plot(gl, Plot::LINES);
+    vfp[i]->plot(gl, Plot::LINES);
   }
 
   // next line also calls objects.changeProjection
@@ -1125,10 +1124,6 @@ void PlotModule::plotOver(DiGLPainter* gl)
 #ifdef DEBUGREDRAW
   METLIBS_LOG_SCOPE();
 #endif
-
-  // Check this!!!
-  for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(gl, Plot::OVERLAY);
 
   // plot active draw- and editobjects here
   if (editm->isInEdit()) {

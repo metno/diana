@@ -54,10 +54,6 @@ public:
   FieldPlot();
   ~FieldPlot();
 
-  ///plot in overlay buffer
-  bool overlayBuffer(){return overlay;}
-  void setOverlayBuffer(bool overlay_){overlay=overlay_;}
-
   bool getDataAnnotations(std::vector<std::string>& anno);
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
@@ -86,8 +82,6 @@ private:
   std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time
   miutil::miTime analysisTime;   // time of model analysis
-
-  bool overlay; //plot in overlay;
 
   // plotting parameters
   std::string plottype;       // plot-method to use
