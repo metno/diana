@@ -750,7 +750,6 @@ diana_bin_CPPFLAGS = \
 	$(QUTILITIES_CPPFLAGS) \
 	$(COSERVER_CPPFLAGS) \
         $(FTGL_CPPFLAGS) \
-        $(GLP_CPPFLAGS) \
         $(GLTEXT_CPPFLAGS) \
         $(GLU_CPPFLAGS) \
 	$(QT4_CPPFLAGS)
@@ -760,7 +759,6 @@ diana_bin_LDFLAGS = \
 	$(QUTILITIES_LDFLAGS) \
 	$(COSERVER_LDFLAGS) \
         $(FTGL_LDFLAGS) \
-        $(GLP_LDFLAGS) \
         $(GLTEXT_LDFLAGS) \
         $(GLU_LDFLAGS) \
 	$(QT4_LDFLAGS)
@@ -770,7 +768,6 @@ diana_bin_LDADD = \
 	$(QUTILITIES_LIBS) \
 	$(COSERVER_LIBS) \
         $(FTGL_LIBS) \
-        $(GLP_LIBS) \
         $(GLTEXT_LIBS) \
         $(GLU_LIBS) \
 	$(QT4_LIBS) \

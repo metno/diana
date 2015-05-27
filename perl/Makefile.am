@@ -1,5 +1,4 @@
 
-
 if WITH_PERL
 PERL          = perl
 PERLMAKEFILE  = Metno-Bdiana/Makefile
@@ -20,18 +19,18 @@ $(PERLMAKEFILE): $(PERLDEPEND) Makefile.am $(PERLFILES:%=$(srcdir)/%)
 	cd Metno-Bdiana && $(PERL) $(abs_srcdir)/Metno-Bdiana/Makefile.PL $(PERLCONFIG)
 
 all-local: $(PERLMAKEFILE) $(PERLFILES)
-	make -C Metno-Bdiana $(AM_MAKEFLAGS)
+	$(MAKE) -C Metno-Bdiana $(AM_MAKEFLAGS)
 
 clean-local: $(PERLMAKEFILE)
-	make -C Metno-Bdiana $(AM_MAKEFLAGS) clean
+	$(MAKE) -C Metno-Bdiana $(AM_MAKEFLAGS) clean
 
 if WITH_GUI
 check-local: $(PERLMAKEFILE)
-	make -C Metno-Bdiana $(AM_MAKEFLAGS) test
+	$(MAKE) -C Metno-Bdiana $(AM_MAKEFLAGS) test
 endif
 
 install-exec-local:
-	make -C Metno-Bdiana $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
+	$(MAKE) -C Metno-Bdiana $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
 
 uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/Metno/Bdiana.pm
@@ -43,7 +42,6 @@ uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
 
 endif # WITH_PERL
-
 
 EXTRA_DIST = \
         Metno-Bdiana/ppport.h \

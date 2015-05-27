@@ -41,7 +41,6 @@
 #include <glText/glTextTTPixmap.h>
 #include <glText/glTextTTTexture.h>
 #include <glText/glTextQtTexture.h>
-#include <glp/GLP.h>
 
 #include "diLocalSetupParser.h"
 #include <puTools/miSetupParser.h>
@@ -101,26 +100,6 @@ FontManager::~FontManager()
   for (; itr != fontengines.end(); ++itr) {
     if (itr->second) {
       delete itr->second;
-    }
-  }
-}
-
-void FontManager::startHardcopy(GLPcontext* gc)
-{
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->startHardcopy(gc);
-    }
-  }
-}
-
-void FontManager::endHardcopy()
-{
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->endHardcopy();
     }
   }
 }

@@ -118,7 +118,6 @@ METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 
 AS_IF([test x$enable_gui = xyes], [
     METNO_REQUIRE_PKG([GLTEXT], [glText])
-    METNO_REQUIRE_PKG([GLP], [glp])
     METNO_REQUIRE_PKG([GLU],[glu])
     METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
     METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])

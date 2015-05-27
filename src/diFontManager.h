@@ -68,11 +68,6 @@ public:
     display_name = name;
   }
 
-  /// start PS output
-  void startHardcopy(GLPcontext*);
-  /// end PS output
-  void endHardcopy();
-
   /// for test purposes, sets up a standard set of fonts
   bool testDefineFonts(std::string path = "fonts");
   /// parse fontsection in setup file
