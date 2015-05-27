@@ -773,8 +773,15 @@ diana_bin_LDADD = \
 	$(QT4_LIBS) \
 	libdiana.la
 
+if WITH_SMHI
+diana_bin_CPPFLAGS += -DSMHI
+endif
+
+if WITH_VIDEO_EXPORT
+diana_bin_CPPFLAGS += -DVIDEO_EXPORT
+endif
+
 if WITH_XLIB
-# Use Xlib-specific routines
 diana_bin_CPPFLAGS += -DUSE_XLIB
 diana_bin_LDADD += -lX11
 endif # WITH_XLIB
