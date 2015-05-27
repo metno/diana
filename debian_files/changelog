@@ -1,3 +1,9 @@
+diana (3.38.0~rc3-2) unstable; urgency=low
+
+  * Deleted ANAborders.TEST by mistake
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 27 May 2015 15:46:42 +0200
+
 diana (3.38.0~rc3-1) unstable; urgency=low
 
   * vcross: border around example arrows and marker labels
