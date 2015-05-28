@@ -6,7 +6,8 @@ dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/prognose+36.txt \
 	share/diana/products/prognose+18.txt \
 	share/diana/products/bakkeanalyse.txt \
-	share/diana/products/ANAborders.DNMI
+	share/diana/products/ANAborders.DNMI \
+	share/diana/products/ANAborders.TEST
 
 fontsdir= $(datarootdir)/diana/@PVERSION@/fonts
 dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
