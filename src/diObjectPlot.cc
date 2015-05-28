@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -71,8 +69,22 @@ ObjectPlot::ObjectPlot(const ObjectPlot &rhs)
   memberCopy(rhs);
 }
 
+ObjectPlot& ObjectPlot::operator=(const ObjectPlot &rhs)
+{
+  METLIBS_LOG_SCOPE();
+  if (this != &rhs) {
+    delete[] x;
+    delete[] y;
+    delete[] x_s;
+    delete[] y_s;
+    memberCopy(rhs);
+  }
+  return *this;
+}
+
 ObjectPlot::~ObjectPlot()
 {
+  METLIBS_LOG_SCOPE();
   delete[] x;
   delete[] y;
   delete[] x_s;

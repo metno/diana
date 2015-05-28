@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
  Copyright (C) 2006 met.no
 
  Contact information:
@@ -123,6 +121,7 @@ PlotModule::~PlotModule()
 
 void PlotModule::setCanvas(DiCanvas* canvas)
 {
+  METLIBS_LOG_SCOPE();
   // TODO also set for other plots, and for new plots
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->setCanvas(canvas);

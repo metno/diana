@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -42,7 +40,6 @@
 #include <cfloat>
 #include <fstream>
 
-//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.MapPlot"
 #include <miLogger/miLogging.h>
 
@@ -90,9 +87,7 @@ void MapPlot::setCanvas(DiCanvas* c)
  */
 bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE(pinfo);
-#endif
 
   Area newarea;
   MapManager mapm;
@@ -140,7 +135,8 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
           getStaticPlot()->xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
           METLIBS_LOG_WARN("WARNING: using obsolete syntax xylimit");
           METLIBS_LOG_WARN("New syntax:");
-          METLIBS_LOG_WARN("AREA "<<newarea.P()<<" rectangle="<<getStaticPlot()->xyLimit[0]<<":"<<getStaticPlot()->xyLimit[1]<<":"<<getStaticPlot()->xyLimit[2]<<":"<<getStaticPlot()->xyLimit[3]);
+          METLIBS_LOG_WARN("AREA "<<newarea.P()<<" rectangle="<<getStaticPlot()->xyLimit[0]<<":"
+              <<getStaticPlot()->xyLimit[1]<<":"<<getStaticPlot()->xyLimit[2]<<":"<<getStaticPlot()->xyLimit[3]);
 
           if (getStaticPlot()->xyLimit[0]>=getStaticPlot()->xyLimit[1] || getStaticPlot()->xyLimit[2]>=getStaticPlot()->xyLimit[3])
             getStaticPlot()->xyLimit.clear();
@@ -245,8 +241,6 @@ void MapPlot::markFiles()
 void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
-  if (gl->canvas() != mCanvas)
-    setCanvas(gl->canvas());
 
   int zorder;
   if (porder == BACKGROUND)
@@ -257,6 +251,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     zorder = 2;
   else
     return;
+  METLIBS_LOG_DEBUG(LOGVAL(zorder));
 
   if (!isEnabled() || !isactive[zorder])
     return;
@@ -301,6 +296,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     makenew= true;
   }
 
+  METLIBS_LOG_DEBUG(LOGVAL(mapinfo.type) << LOGVAL(makenew));
   if (makenew) {
     std::string mapfile;
     // diagonal in pixels
@@ -359,37 +355,31 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
       }
 
     } else if (mapinfo.type=="shape") {
-      bool land= mapinfo.land.ison && mapinfo.land.zorder==zorder;
-      bool cont= mapinfo.contour.ison && mapinfo.contour.zorder==zorder;
-
-      Colour c= contopts.linecolour;
+      METLIBS_LOG_DEBUG(LOGVAL(mapinfo.land.ison) << LOGVAL(mapinfo.land.zorder)
+          << LOGVAL(mapinfo.contour.ison) << LOGVAL(mapinfo.contour.zorder));
+      const bool land= mapinfo.land.ison && mapinfo.land.zorder==zorder;
+      const bool cont= mapinfo.contour.ison && mapinfo.contour.zorder==zorder;
 
       if (shapemaps.count(mapfile) == 0) {
-#ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("Creating new shapeObject for map: " << mapfile);
-#endif
         shapemaps[mapfile] = ShapeObject();
-        shapemaps[mapfile].read(mapfile,true);
-        shapeareas[mapfile] = Area(getStaticPlot()->getMapArea());
+        shapemaps[mapfile].read(mapfile);
+        shapeareas[mapfile] = getStaticPlot()->getMapArea();
       }
       if (shapeareas[mapfile].P() != getStaticPlot()->getMapArea().P()) {
-#ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("Projection wrong for: " << mapfile);
-#endif
-        bool success = shapemaps[mapfile].changeProj(shapeareas[mapfile]);
-
-        // Reread file if unsuccessful
-        if(!success) {
+        METLIBS_LOG_DEBUG("reprojecting shape map from file '" << mapfile << "'");
+        if (!shapemaps[mapfile].changeProj()) {
           shapemaps[mapfile] = ShapeObject();
-          shapemaps[mapfile].read(mapfile,true);
+          shapemaps[mapfile].read(mapfile);
         }
-        shapeareas[mapfile] = Area(getStaticPlot()->getMapArea());
+        shapeareas[mapfile] = getStaticPlot()->getMapArea();
       }
-      Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
-      shapemaps[mapfile].plot(gl, fullarea, getStaticPlot()->getGcd(), land, cont, !cont && mapinfo.contour.ison,
-          mapinfo.special,mapinfo.symbol,mapinfo.dbfcol,
-          contopts.linetype.bmap, contopts.linewidth, c.RGBA(),
-          landopts.fillcolour.RGBA(), getStaticPlot()->getBackgroundColour().RGBA());
+      METLIBS_LOG_DEBUG("shape plot");
+      const Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
+      shapemaps[mapfile].plot(gl, fullarea, getStaticPlot()->getGcd(), land, cont,
+          mapinfo.special, mapinfo.symbol,
+          contopts.linetype, contopts.linewidth, contopts.linecolour,
+          landopts.fillcolour, getStaticPlot()->getBackgroundColour());
     } else {
       METLIBS_LOG_WARN("Unknown maptype for map " << mapinfo.name << " = "
           << mapinfo.type);

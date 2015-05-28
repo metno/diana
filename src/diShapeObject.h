@@ -32,6 +32,8 @@
 #include "diObjectPlot.h"
 #include "diGLPainter.h"
 
+#include <QPolygonF>
+
 #include <shapefil.h>
 
 #include <map>
@@ -42,7 +44,6 @@
  */
 class ShapeObject : public ObjectPlot {
 private:
-
   std::vector <Colour> colours;
   std::string fname; //field name to colour by
   std::map <std::string,Colour> stringcolourmap; //descr, colour
@@ -52,40 +53,60 @@ private:
   bool stringcolourmapMade;
   bool intcolourmapMade;
   bool doublecolourmapMade;
-  std::vector<std::string> dbfStringDescr;
-  std::vector<int> dbfIntDescr;
-  std::vector<double> dbfDoubleDescr;
-  GridConverter gc;
 
-  void makeColourmap();
-  void writeCoordinates();
-  // Copy members
-  void memberCopy(const ShapeObject& rhs);
-
-  std::vector <SHPObject*> shapes;
-  std::vector <SHPObject*> orig_shapes;
   std::vector<std::string> dbfIntName;
   std::vector<std::string> dbfDoubleName;
   std::vector<std::string> dbfStringName;
   std::vector< std::vector<int> > dbfIntDesc;
   std::vector< std::vector<double> > dbfDoubleDesc;
   std::vector< std::vector<std::string> > dbfStringDesc;
-  std::map <std::string, std::vector<std::string> > dbfPlotDesc;
-  int readDBFfile(const std::string& filename, std::vector<std::string>& dbfIntName,
-      std::vector< std::vector<int> >& dbfIntDesc, std::vector<std::string>& dbfDoubleName,
-      std::vector< std::vector<double> >& dbfDoubleDesc, std::vector<std::string>& dbfStringName,
-      std::vector< std::vector<std::string> >& dbfStringDesc);
+
+  int readDBFfile(const std::string& shpfilename);
+  void makeColourmap();
+  bool readProjection(const std::string& shpfilename);
+
+  Projection projection;
+  XY mReductionScale;
+
+  typedef boost::shared_ptr<SHPObject> SHPObject_p;
+  struct ShpData {
+    SHPObject_p shape;
+    int type() const
+      { return shape->nSHPType; }
+    int id() const
+      { return shape->nShapeId; }
+    int nvertices() const
+      { return shape->nVertices; }
+    int nparts() const
+      { return shape->nParts; }
+    int pbegin(int part) const
+      { return shape->panPartStart[part]; }
+    int pend(int part) const
+      { return (part < nparts()-1) ? pbegin(part+1) : nvertices(); }
+
+    ShpData(SHPObject_p s)
+      : shape(s) { }
+
+    Colour colour; //!< as read from dbase file
+
+    QList<QPolygonF> contours; //!< reprojected to map
+    Rectangle rect; //<! bounding box in map coordinates
+    std::vector<Rectangle> partRects;  //<! bounding boxes of parts in map coordinates
+
+    QList<QPolygonF> reduced; //!< reprojected to map, and reduced for map scale
+  };
+  typedef std::vector<ShpData> ShpData_v;
+  ShpData_v shapes;
+
+  //! reduce polygons by dropping segments that would be inside one pixel
+  void reduceForScale();
 
 public:
   ShapeObject();
   ~ShapeObject();
 
-  ShapeObject(const ShapeObject & rhs);
-  ShapeObject& operator=(const ShapeObject &shpObj);
-
-  bool changeProj(const Area& fromArea);
-  bool read(std::string filename);
-  bool read(std::string filename, bool convertFromGeo);
+  bool changeProj();
+  bool read(const std::string& filename);
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
@@ -94,21 +115,19 @@ public:
       double gcd, // size of plotarea in m
       bool land, // plot triangles
       bool cont, // plot contour-lines
-      bool keepcont, // keep contourlines for later
       bool special, // special case, when plotting symbol instead of a point
       int symbol, // symbol number to be plottet
-      const std::string& dbfcol, // text in dfb file to be plottet for that column
-      DiGLPainter::GLushort linetype, // contour line type
+      const Linetype& linetype, // contour line type
       float linewidth, // contour linewidth
-      const unsigned char* lcolour, // contour linecolour
-      const unsigned char* fcolour, // triangles fill colour
-      const unsigned char* bcolour);
+      const Colour& lcolour, // contour linecolour
+      const Colour& fcolour, // triangles fill colour
+      const Colour& bcolour);
 
   virtual int getXYZsize();
   virtual std::vector<float> getX();
   virtual std::vector<float> getY();
-  virtual void setXY(std::vector<float> x, std::vector <float> y);
-  virtual bool getAnnoTable(std::string & str);
+  virtual void setXY(const std::vector<float>& x, const std::vector<float>& y);
+  virtual bool getAnnoTable(std::string& str);
 };
 
 #endif

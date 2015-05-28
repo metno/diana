@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
  Copyright (C) 2006 met.no
 
  Contact information:
@@ -37,8 +35,8 @@
  \brief Manager of maps and predefined areas/projections
  */
 
-#include <diPlotOptions.h>
-#include <diCommonTypes.h>
+#include "diPlotOptions.h"
+#include "diCommonTypes.h"
 
 /**
  \brief Manager of maps and predefined areas/projections

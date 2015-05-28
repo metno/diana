@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -35,10 +35,15 @@
 
 #include "diColourShading.h"
 #include "diGLPainter.h"
+#include "diPoint.h"
 
+#include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
 
-#include <QPolygonF>
+#include <QFile>
+#include <QRegExp>
+
+#include <cfloat>
 
 #define MILOGGER_CATEGORY "diana.ShapeObject"
 #include <miLogger/miLogging.h>
@@ -47,12 +52,34 @@
 
 using namespace std;
 using namespace miutil;
-//#define DEBUGPRINT
+
+namespace /* anonymous */ {
+
+inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
+
+// anything > 1 will cause small painting errors; anything > 0 might
+// cause problems if the hardware has sub-pixel resolution (i.e. the
+// painting is scaled)
+const int MIN_PIXELS = 1;
+
+// factor by which to extend the map area
+const float AREA_EXTRA = 0.02;
+
+// parts/polygons smaller than this fraction of the map are regarded
+// as invisible
+const float AREA_VISIBLE = 0.005;
+
+const bool SKIP_SMALL = false;
+
+} // anonymous namespace
 
 ShapeObject::ShapeObject()
+  : mReductionScale(0, 0) // invalid
 {
+  projection.setGeographic();
+
   typeOfObject = ShapeXXX;
-  //standard colours
+
   ColourShading cs("standard");
   colours=cs.getColourShading();
   colourmapMade=false;
@@ -60,230 +87,157 @@ ShapeObject::ShapeObject()
 
 ShapeObject::~ShapeObject()
 {
-  int n=shapes.size();
-  int i=0;
-  for (i=0; i<n; i++) {
-    SHPDestroyObject(shapes[i]);
-  }
-  n=orig_shapes.size();
-  for (i=0; i<n; i++) {
-    SHPDestroyObject(orig_shapes[i]);
-  }
 }
 
-ShapeObject::ShapeObject(const ShapeObject &rhs)
-  : ObjectPlot(rhs)
-{
-}
-
-ShapeObject& ShapeObject::operator=(const ShapeObject &rhs)
-{
-  METLIBS_LOG_SCOPE();
-  if (this != &rhs)
-    memberCopy(rhs);
-  return *this;
-}
-
-void ShapeObject::memberCopy(const ShapeObject& rhs)
-{
-  ObjectPlot::memberCopy(rhs);
-
-  int n=shapes.size();
-  for (int i=0; i<n; i++) {
-    SHPDestroyObject(shapes[i]);
-  }
-
-  shapes.clear();
-
-  colours = rhs.colours;
-  fname = rhs.fname;
-  dbfIntName = rhs.dbfIntName;
-  dbfDoubleName = rhs.dbfDoubleName;
-  dbfStringName = rhs.dbfStringName;
-
-  // Copy shapes
-  int m=rhs.shapes.size();
-  for (int i=0; i<m; i++) {
-     shapes.push_back(rhs.shapes[i]);
-  }
-}
-
-bool ShapeObject::changeProj(const Area& fromArea)
+bool ShapeObject::changeProj()
 {
   METLIBS_LOG_SCOPE();
 
-  int nEntities = shapes.size();
-  bool success = false;
-  bool success2 = false;
-  for (int i=0; i<nEntities; i++) {
-    int nVertices=shapes[i]->nVertices;
-    float *tx;
-    float *ty;
-    tx = new float[nVertices];
-    ty = new float[nVertices];
+  int npoints = 0;
+  float *tx = 0, *ty = 0;
 
-    for (int j=0; j<nVertices; j++) {
-      tx[j] = orig_shapes[i]->padfX[j];
-      // an ugly fix to avoid problem with -180.0, 180.0
-      if (tx[j] == -180.0)
-        tx[j] = -179.999;
-      ty[j] = orig_shapes[i]->padfY[j];
+  bool success = true;
+  for (ShpData_v::iterator s = shapes.begin(); s != shapes.end(); ++s) {
+    const SHPObject_p shp = s->shape;
+
+    if (npoints < s->nvertices()) {
+      npoints = s->nvertices();
+      delete[] tx;
+      delete[] ty;
+      tx = new float[npoints];
+      ty = new float[npoints];
     }
-    success = getStaticPlot()->GeoToMap(nVertices, tx, ty);
 
-    for (int k=0; k<nVertices; k++) {
-      shapes[i]->padfX[k] = tx[k];
-      shapes[i]->padfY[k] = ty[k];
-    }
-    delete[] tx;
-    delete[] ty;
-    nVertices = 2;
-    tx = new float[2];
-    ty = new float[2];
-    tx[0] = orig_shapes[i]->dfXMin;
-    if (tx[0] == -180.0)
-      tx[0] = -179.999;
-    tx[1] = orig_shapes[i]->dfXMax;
-    if (tx[1] == -180.0)
-      tx[1] = -179.999;
-    ty[0] = orig_shapes[i]->dfYMin;
-    ty[1] = orig_shapes[i]->dfYMax;
-    success2 = getStaticPlot()->GeoToMap(nVertices, tx, ty);
+    for (int j=0; j<s->nvertices(); j++) {
+      tx[j] = s->shape->padfX[j];
+      ty[j] = s->shape->padfY[j];
 
-    shapes[i]->dfXMin = tx[0];
-    shapes[i]->dfXMax = tx[1];
-    shapes[i]->dfYMin = ty[0];
-    shapes[i]->dfYMax = ty[1];
-    delete[] tx;
-    delete[] ty;
-  }
-  return (success && success2);
-}
-
-bool ShapeObject::read(std::string filename)
-{
-  return read(filename, false);
-}
-
-bool ShapeObject::read(std::string filename, bool convertFromGeo)
-{
-  METLIBS_LOG_SCOPE(filename << "," << convertFromGeo);
-
-  // shape reading
-  SHPHandle hSHP;
-  int nShapeType, nEntities, i;
-  double adfMinBound[4], adfMaxBound[4];
-  hSHP = SHPOpen(filename.c_str(), "rb");
-
-  if (hSHP == NULL) {
-    METLIBS_LOG_ERROR("Unable to open: "<<filename);
-    return false;
-  }
-
-  SHPGetInfo(hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
-
-  for (i = 0; i < nEntities; i++) {
-    SHPObject *psShape;
-    psShape = SHPReadObject(hSHP, i);
-    orig_shapes.push_back(psShape);
-    psShape = SHPReadObject(hSHP, i);
-    if (convertFromGeo) {
-      float *tx;
-      float *ty;
-      int nVertices = psShape->nVertices;
-      tx = new float[nVertices];
-      ty = new float[nVertices];
-      for (int j=0; j<nVertices; j++) {
-        tx[j] = psShape->padfX[j];
+      if (projection.isGeographic()) {
         // an ugly fix to avoid problem with -180.0, 180.0
         if (tx[j] == -180.0)
           tx[j] = -179.999;
-        ty[j] = psShape->padfY[j];
+        tx[j] *= DEG_TO_RAD;
+        ty[j] *= DEG_TO_RAD;
       }
-      getStaticPlot()->GeoToMap(nVertices, tx, ty);
-      for (int j=0; j<nVertices; j++) {
-        psShape->padfX[j] = tx[j];
-        psShape->padfY[j] = ty[j];
-      }
-      delete[] tx;
-      delete[] ty;
-      tx = new float[2];
-      ty = new float[2];
-      tx[0] = psShape->dfXMin;
-      if (tx[0] == -180.0)
-        tx[0] = -179.999;
-      tx[1] = psShape->dfXMax;
-      if (tx[1] == -180.0)
-        tx[1] = -179.999;
-      ty[0] = psShape->dfYMin;
-      ty[1] = psShape->dfYMax;
-      nVertices = 2;
-      getStaticPlot()->GeoToMap(nVertices, tx, ty);
-      psShape->dfXMin = tx[0];
-      psShape->dfXMax = tx[1];
-      psShape->dfYMin = ty[0];
-      psShape->dfYMax = ty[1];
-      delete[] tx;
-      delete[] ty;
     }
-    shapes.push_back(psShape);
+    success &= getStaticPlot()->ProjToMap(projection, s->nvertices(), tx, ty);
+
+    s->contours.clear();
+    s->rect = Rectangle(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX);
+    s->partRects.clear();
+
+    int np = s->nparts();
+    if (np == 0 && s->type() == SHPT_POINT && s->nvertices() == 1)
+      np = 1;
+    for (int p=0, k=0; p<np; ++p) {
+      s->partRects.push_back(Rectangle(tx[k], ty[k], tx[k], ty[k]));
+      Rectangle& pr = s->partRects.back();
+      QPolygonF polygon;
+      for (int v=s->pbegin(p); v<s->pend(p); v++) {
+        polygon << QPointF(tx[v], ty[v]);
+        vcross::util::minimaximize(pr.x1, pr.x2, tx[v]);
+        vcross::util::minimaximize(pr.y1, pr.y2, ty[v]);
+      }
+      s->contours << polygon;
+      vcross::util::minimize(s->rect.x1, pr.x1);
+      vcross::util::minimize(s->rect.y1, pr.y1);
+      vcross::util::maximize(s->rect.x2, pr.x2);
+      vcross::util::maximize(s->rect.y2, pr.y2);
+    }
+  }
+
+  delete[] tx;
+  delete[] ty;
+
+  mReductionScale = XY(0, 0); // invalid
+
+  return success;
+}
+
+bool ShapeObject::read(const std::string& filename)
+{
+  METLIBS_LOG_TIME(filename);
+
+  SHPHandle hSHP = SHPOpen(filename.c_str(), "rb");
+  if (hSHP == NULL) {
+    METLIBS_LOG_ERROR("Unable to read shp file '" << filename << "'");
+    return false;
+  }
+
+  int nShapeType, nEntities;
+  double adfMinBound[4], adfMaxBound[4];
+  SHPGetInfo(hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
+
+  shapes.reserve(nEntities);
+  for (int i = 0; i < nEntities; i++) {
+    SHPObject_p shp(SHPReadObject(hSHP, i), SHPDestroyObject);
+    const int type = shp->nSHPType;
+    if (type == SHPT_POLYGON || type == SHPT_ARC || type == SHPT_POINT)
+      shapes.push_back(ShpData(shp));
   }
 
   SHPClose(hSHP);
-  //
 
-
-  //read dbf file
-
-  int idbf= readDBFfile(filename, dbfIntName, dbfIntDesc, dbfDoubleName,
-      dbfDoubleDesc, dbfStringName, dbfStringDesc);
+  bool dbf_ok = (readDBFfile(filename) == 0);
+  if (!readProjection(filename))
+    projection.setGeographic();
 
   colourmapMade=false;
   stringcolourmapMade=false;
   doublecolourmapMade=false;
   intcolourmapMade=false;
 
-  //writeCoordinates writes a file with coordinates to teddb
-  //writeCoordinates();
-  return (idbf == 0);
+  changeProj();
+
+  return dbf_ok;
+}
+
+// FIXME this might turn nice polygons into self-intersecting polygons
+void ShapeObject::reduceForScale()
+{
+  if (mReductionScale == getStaticPlot()->getPhysToMapScale())
+    return;
+  mReductionScale = getStaticPlot()->getPhysToMapScale();
+
+  METLIBS_LOG_TIME();
+  for (ShpData_v::iterator s = shapes.begin(); s != shapes.end(); ++s) {
+    if (s->type() == SHPT_POINT) {
+      // cannot reduce point data
+      continue;
+    }
+
+    s->reduced.clear();
+    for (int p=0; p < s->nparts(); p++) {
+      const QPolygonF& pp = s->contours.at(p);
+      QPolygonF ppr;
+      XY pp0 = getStaticPlot()->MapToPhys(fromQ(pp.at(0)));
+      ppr << pp.at(0);
+      for (int k = 1; k < pp.size()-1; k++) {
+        const XY ppk = getStaticPlot()->MapToPhys(fromQ(pp.at(k)));
+        const bool dx = (abs(pp0.x() - ppk.x()) >= MIN_PIXELS);
+        const bool dy = (abs(pp0.y() - ppk.y()) >= MIN_PIXELS);
+        if (dx || dy) {
+          ppr << pp.at(k);
+          pp0 = ppk;
+        }
+      }
+      ppr << pp.at(pp.size()-1);
+      s->reduced << ppr;
+    }
+  }
 }
 
 void ShapeObject::plot(DiGLPainter* gl, PlotOrder porder)
 {
+  METLIBS_LOG_TIME(LOGVAL(shapes.size()));
   makeColourmap();
-  int n=shapes.size();
-  for (int i=0; i<n; i++) {
-    if (shapes[i]->nSHPType!=5)
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
+    if (s->type() != SHPT_POLYGON)
       continue;
-    Colour colour;
-    if (intcolourmapMade) {
-      int descr=dbfIntDescr[shapes[i]->nShapeId];
-      colour = intcolourmap[descr];
-    } else if (doublecolourmapMade) {
-      double descr=dbfDoubleDescr[shapes[i]->nShapeId];
-      colour = doublecolourmap[descr];
-    } else if (stringcolourmapMade) {
-      std::string descr=dbfStringDescr[shapes[i]->nShapeId];
-      colour = stringcolourmap[descr];
-    }
-    gl->setLineStyle(colour, 2);
 
-    int nparts=shapes[i]->nParts;
-    int nv= shapes[i]->nVertices;
-    for (int jpart=0; jpart<nparts; jpart++) {
-      int nstop, nstart=shapes[i]->panPartStart[jpart];
-      if (jpart==nparts-1)
-        nstop=nv;
-      else
-        nstop=shapes[i]->panPartStart[jpart+1];
-      if (shapes[i]->padfX[0] == shapes[i]->padfX[nstop-1]
-          && shapes[i]->padfY[0] == shapes[i]->padfY[nstop-1])
-        nstop--;
-      QPolygonF polygon;
-      for (int k = nstart; k < nstop; k++)
-        polygon << QPointF(shapes[i]->padfX[k], shapes[i]->padfY[k]);
-      gl->drawPolygon(polygon);
-    }
+    gl->setLineStyle(s->colour, 2);
+    gl->drawPolygons(s->contours); // TODO optimize like in the other plot(...) function
   }
 }
 
@@ -292,595 +246,120 @@ bool ShapeObject::plot(DiGLPainter* gl,
     double gcd, // size of plotarea in m
     bool land, // plot triangles
     bool cont, // plot contour-lines
-    bool keepcont, // keep contourlines for later
     bool special, // special case, when plotting symbol instead of a point
     int symbol, // symbol number to be plotted
-    const std::string& dbfcol, // column name in dfb file, text to be plotted
-    DiGLPainter::GLushort linetype, // contour line type
+    const Linetype& linetype, // contour line type
     float linewidth, // contour linewidth
-    const unsigned char* lcolour, // contour linecolour
-    const unsigned char* fcolour, // triangles fill colour
-    const unsigned char* bcolour)
+    const Colour& lcolour, // contour linecolour
+    const Colour& fcolour, // triangles fill colour
+    const Colour& bcolour)
 {
-  float x1, y1, x2, y2;
-  int symbol_rad = 0;
-  float scalefactor = gcd/7000000;
-  int fontSizeToPlot = int(2/scalefactor);
+  METLIBS_LOG_TIME(LOGVAL(shapes.size()) << LOGVAL(land) << LOGVAL(cont));
+
+  reduceForScale();
 
   //also scale according to windowheight and width (standard is 500)
-  scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
-  fontSizeToPlot = int(fontSizeToPlot*scalefactor);
-  symbol_rad = symbol;
+  float scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
+      +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
+  int fontSizeToPlot = int(2*7000000/gcd * scalefactor);
+  int symbol_rad = symbol;
 
-  x1= area.R().x1 -1.;
-  x2= area.R().x2 +1.;
-  y1= area.R().y1 -1.;
-  y2= area.R().y2 +1.;
-
-  float sizeWX, sizeWY;
-
-  sizeWX = x2 - x1;
-  sizeWY = y2 - y1;
-
-  // Compute the smallest visible part of map (approx 1/1000).
-  // the points should be reduced for this and the polygon should not be filled
-  float dX = sizeWX * .001;
-  float dY = sizeWY * .001;
-
-  // Compute the smallest visible part of map (approx 1/50).
-  // that should not be filled
-  float dsX = sizeWX * .01;
-  float dsY = sizeWY * .01;
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(LOGVAL(x1) << LOGVAL(x2) << LOGVAL(y1) << LOGVAL(y2));
-  METLIBS_LOG_DEBUG(LOGVAL(sizeWX) << LOGVAL(dX) << LOGVAL(sizeWY) << LOGVAL(dY));
-#endif
+  const Rectangle areaX = diutil::adjustedRectangle(area.R(), AREA_EXTRA*area.R().width(),
+      AREA_EXTRA*area.R().height());
+  const float visibleW = areaX.width()  * AREA_VISIBLE;
+  const float visibleH = areaX.height() * AREA_VISIBLE;
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  /* from shapefil.h */
-/* -------------------------------------------------------------------- */
-/*      Shape types (nSHPType)                                          */
-/* -------------------------------------------------------------------- */
-/*
-#define SHPT_NULL       0
-#define SHPT_POINT      1
-#define SHPT_ARC        3
-#define SHPT_POLYGON    5
-#define SHPT_MULTIPOINT 8
-#define SHPT_POINTZ     11
-#define SHPT_ARCZ       13
-#define SHPT_POLYGONZ   15
-#define SHPT_MULTIPOINTZ 18
-#define SHPT_POINTM     21
-#define SHPT_ARCM       23
-#define SHPT_POLYGONM   25
-#define SHPT_MULTIPOINTM 28
-#define SHPT_MULTIPATCH 31
-*/
 
-/* -------------------------------------------------------------------- */
-/*      Part types - everything but SHPT_MULTIPATCH just uses           */
-/*      SHPP_RING.                                                      */
-/* -------------------------------------------------------------------- */
-/*
-#define SHPP_TRISTRIP   0
-#define SHPP_TRIFAN     1
-#define SHPP_OUTERRING  2
-#define SHPP_INNERRING  3
-#define SHPP_FIRSTRING  4
-#define SHPP_RING       5
-*/
-  // Retrieving text for plotting from the dbf file and col=dbfcol
-  vector<std::string> tmpDesc=dbfPlotDesc[dbfcol];
-
-  int n=shapes.size();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("***Map contains " << n <<  " shapes. ");
-#endif
-  for (int i=0; i<n; i++) {
-    // Debug......
-    //if (i != 13) continue;
-    if ((shapes[i]->nSHPType!=SHPT_POLYGON)&&(shapes[i]->nSHPType!=SHPT_ARC)&&(shapes[i]->nSHPType!=SHPT_POINT)){
-      METLIBS_LOG_ERROR("shapes["<<i<<"]=" << shapes[i]->nSHPType << " unsupported shape type!");
+  for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
+    if (s->contours.isEmpty())
       continue;
-    }
-    // Check if shape is outside
-    if((((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && (shapes[i]->dfYMin > y2))
-        || (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax);
-      METLIBS_LOG_DEBUG("x1: " << x1 << " x2: " << x2 << " y1: " << y1 << " y2: " << y2);
-      METLIBS_LOG_DEBUG("shapes["<<i<<"] is outside");
-#endif
+
+    if (!areaX.intersects(s->rect))
+      continue;
+
+    if (s->type() == SHPT_POINT) {
+      gl->setColour(lcolour);
+      const QPolygonF& p = s->contours.at(0);
+      if (s->nparts() == 0 && special==true && s->nvertices()==1) {
+        gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
+        gl->drawText("SSS", s->shape->padfX[0], s->shape->padfY[0], 0.0);
+        gl->setLineStyle(lcolour, 2);
+        gl->fillCircle(p.at(0).x(), p.at(0).y(), symbol_rad);
+      } else {
+        gl->setColour(lcolour);
+        for (int k = 0; k < p.size(); k++) {
+          gl->fillCircle(p.at(k).x(), p.at(k).y(), linewidth*2);
+        }
+      }
       continue;
     }
 
-    // Check if shape is to small
-    float xSize = fabs(shapes[i]->dfXMax - shapes[i]->dfXMin);
-    float ySize = fabs(shapes[i]->dfYMax - shapes[i]->dfYMin);
-    // there is no use reducing a line map
-    if (shapes[i]->nSHPType==SHPT_POLYGON)
-    {
-      if ((xSize < dY) && (ySize < dY))
-      {
-#ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("shapes["<<i<<"] is to small, xSize: " << xSize << " ySize: " << ySize << " dy: " << dY << " dx: " << dX);
-#endif
-        continue;
+    // now it is either a polyline (arc) or a polygon; data are in s->reduced
+    if (!land && !cont)
+      continue;
+
+    if (SKIP_SMALL && fabs(s->rect.width()) < visibleW && fabs(s->rect.height()) < visibleH)
+      continue;
+
+    QList<QPolygonF> contours;
+    for (int p=0; p < s->nparts(); p++) {
+      if (SKIP_SMALL) {
+        const Rectangle& pr = s->partRects[p];
+        const bool part_too_small = (pr.width() < visibleW && pr.height() < visibleH);
+        if (part_too_small || !areaX.intersects(pr))
+          continue;
       }
+
+      contours << s->reduced.at(p);
     }
-    int nparts=shapes[i]->nParts;
-    int nv= shapes[i]->nVertices;
-    /// CHECK IF MAP HAVE NO PARTS, the point map has no parts
-    // Here we have a special case to take care of...
-    if (shapes[i]->nSHPType==SHPT_POINT)
-    {
-      if (nparts == 0)
-      {
-        if (special==true && nv==1){
-          float cw,ch;
-          std::string astring = " "+tmpDesc[i];
-          gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
-          gl->getTextSize(astring,cw,ch);
-          gl->drawText("SSS", shapes[i]->padfX[0], shapes[i]->padfY[0], 0.0);
+    if (contours.isEmpty())
+      continue;
 
-          gl->Color4ubv(lcolour);
-          gl->LineWidth(2);
-          gl->fillCircle(shapes[i]->padfX[0], shapes[i]->padfY[0], symbol_rad);
-        }
-        else {
-          gl->Color4ubv(lcolour);
-
-          // just display the point(s) as circles
-          for (int k = 0; k < nv; k++) {
-            gl->fillCircle(shapes[i]->padfX[0], shapes[i]->padfY[0], linewidth*2);
-          }
-        }
-      }
+    if (land && s->type() == SHPT_POLYGON) {
+      gl->setColour(fcolour);
+      gl->drawPolygons(contours);
     }
-
-    int *countpos= new int[nparts];
-    //# of positions for each part
-    int *small= new int[nparts];
-    // should be set to 1 if part should not be filled ?!
-/*
-  #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("shapes["<<i<<"] contains " << nv << " vertices and " << nparts << " parts. ");
-  #endif*/
-    DiGLPainter::GLdouble *gldata= new DiGLPainter::GLdouble[nv*3];
-    DiGLPainter::GLdouble *pdata= new DiGLPainter::GLdouble[nv*2];
-    int j=0;
-    int pj=0;
-    bool visible = false;
-    for (int jpart=0; jpart<nparts; jpart++) {
-      visible = false;
-      int nstop, ncount=0;
-
-      // Get the starting point of this part (shapeobject consists of several parts)
-      int nstart=shapes[i]->panPartStart[jpart];
-
-      // Get the end point
-      if (jpart==nparts-1)
-        nstop=nv;
-      else
-        nstop=shapes[i]->panPartStart[jpart+1];
-
-      float minX=shapes[i]->padfX[nstart];
-      float minY=shapes[i]->padfY[nstart];
-      float maxX=shapes[i]->padfX[nstart];
-      float maxY=shapes[i]->padfY[nstart];
-
-      // Compute max and min for part
-      for (int k = nstart + 1; k < nstop; k++) {
-        if(shapes[i]->padfY[k] > maxY)
-          maxY=shapes[i]->padfY[k];
-        if(shapes[i]->padfY[k] < minY)
-          minY=shapes[i]->padfY[k];
-        if(shapes[i]->padfX[k] > maxX)
-          maxX = shapes[i]->padfX[k];
-        if(shapes[i]->padfX[k] < minX)
-          minX =shapes[i]->padfX[k];
-      }
-
-      // Reduce part that is to SMALL. Skipp it when filling polygon
-      // Compute size of plotting area and part
-      float sizepX, sizepY;
-
-      sizepX = maxX - minX;
-      sizepY = maxY - minY;
-
-      // Skip i less than .1%
-      /* some maps dont work well so we must skip this */
-
-      bool to_small = false;
-      small[jpart] = 0;
-      if ((sizepX < dX) && (sizepY < dY)) {
-        to_small = true;
-        small[jpart]=1;
-      }
-
-      int pv = 0;
-      // Allocate temporary buffer
-      // Assume, all points are valid.
-      int psize = nstop-nstart;
-      //METLIBS_LOG_DEBUG("Size of part[ " << jpart << " ]: " << psize);
-      DiGLPainter::GLdouble * xTemparr = new DiGLPainter::GLdouble[psize];
-      DiGLPainter::GLdouble * yTemparr = new DiGLPainter::GLdouble[psize];
-      int incr = 1;
-
-      xTemparr[pv] = shapes[i]->padfX[nstart];
-      yTemparr[pv] = shapes[i]->padfY[nstart];
-      pv++;
-
-      for (int k = nstart + 1; k < nstop; k=k+incr) {
-        xTemparr[pv] = shapes[i]->padfX[k];
-        yTemparr[pv] = shapes[i]->padfY[k];
-        pv++;
-      } // End first preprocess step, inside window.
-
-      int pk = 0;
-      if (shapes[i]->nSHPType!=SHPT_POINT)
-      {
-        if (to_small)
-        {
-          // reduce points, start, minX, maxX, minY, maxY and stop
-          // HM, not so good, disabled for the moment....
-          if (pv > 3)
-          {
-            //pj = 0;
-
-            gldata[j] = xTemparr[0];
-            gldata[j+1]= yTemparr[0];
-            gldata[j+2]= 0.0;
-            pdata[pj] = xTemparr[0];
-            pdata[pj+1]= yTemparr[0];
-            j+=3;
-            pj+=2;
-            ncount++;
-            for (pk = 1; pk < pv - 1; pk++)
-            {
-              if (xTemparr[pk] == minX)
-              {
-                gldata[j] = xTemparr[pk];
-                gldata[j+1]= yTemparr[pk];
-                gldata[j+2]= 0.0;
-                pdata[pj] = xTemparr[pk];
-                pdata[pj+1]= yTemparr[pk];
-                j+=3;
-                pj+=2;
-                ncount++;
-              }
-              if (xTemparr[pk] == minY)
-              {
-                gldata[j] = xTemparr[pk];
-                gldata[j+1]= yTemparr[pk];
-                gldata[j+2]= 0.0;
-                pdata[pj] = xTemparr[pk];
-                pdata[pj+1]= yTemparr[pk];
-                j+=3;
-                pj+=2;
-                ncount++;
-              }
-              if (xTemparr[pk] == maxX)
-              {
-                gldata[j] = xTemparr[pk];
-                gldata[j+1]= yTemparr[pk];
-                gldata[j+2]= 0.0;
-                pdata[pj] = xTemparr[pk];
-                pdata[pj+1]= yTemparr[pk];
-                j+=3;
-                pj+=2;
-                ncount++;
-              }
-              if (xTemparr[pk] == maxY)
-              {
-                gldata[j] = xTemparr[pk];
-                gldata[j+1]= yTemparr[pk];
-                gldata[j+2]= 0.0;
-                pdata[pj] = xTemparr[pk];
-                pdata[pj+1]= yTemparr[pk];
-                j+=3;
-                pj+=2;
-                ncount++;
-              }
-            }
-            gldata[j] = xTemparr[pv - 1];
-            gldata[j+1]= yTemparr[pv - 1];
-            gldata[j+2]= 0.0;
-            pdata[pj] = xTemparr[pv - 1];
-            pdata[pj+1]= yTemparr[pv - 1];
-            j+=3;
-            pj+=2;
-            ncount++;
-          }
-          else
-          {
-            //j = 0;
-            for (pk = 0; pk < pv; pk++)
-            {
-              // always display the 3 or less points
-
-              gldata[j] = xTemparr[pk];
-              gldata[j+1]= yTemparr[pk];
-              gldata[j+2]= 0.0;
-              pdata[pj] = xTemparr[pk];
-              pdata[pj+1]= yTemparr[pk];
-              j+=3;
-              pj+=2;
-              ncount++;
-            }
-          }
-        }
-        else
-        {
-          //j = 0;
-          int prev_k = 0;
-          for (pk = 0; pk < pv; pk++)
-          {
-            if (pk == 0)
-            {
-              // always display the first point
-
-              gldata[j] = xTemparr[pk];
-              gldata[j+1]= yTemparr[pk];
-              gldata[j+2]= 0.0;
-              pdata[pj] = xTemparr[pk];
-              pdata[pj+1]= yTemparr[pk];
-              j+=3;
-              pj+=2;
-              ncount++;
-
-            }
-            else
-            {
-              if (pk == pv - 1)
-              {
-
-                gldata[j] = xTemparr[pk];
-                gldata[j+1]= yTemparr[pk];
-                gldata[j+2]= 0.0;
-                pdata[pj] = xTemparr[pk];
-                pdata[pj+1]= yTemparr[pk];
-                j+=3;
-                pj+=2;
-                ncount++;
-              }
-              else
-              {
-                // Here, we should in some way reduce information, how ?
-                // Unfortunately, we kill the zoom, if we have the same dx an dy outside the visible window as in the window
-                // check x
-                double dx = dX;
-                double dy = dY;
-                if (xTemparr[pk] > x2)
-                  dx = dsX;
-                else if (xTemparr[pk] < x1)
-                  dx = dsX;
-                // check y
-                if (yTemparr[pk] > y2)
-                  dy = dsY;
-                else if (yTemparr[pk] < y1)
-                  dy = dsY;
-                if ((fabs(xTemparr[pk] - xTemparr[prev_k]) < dx)&&(fabs(yTemparr[pk] - yTemparr[prev_k]) < dy))
-                {
-                  continue;
-                }
-                gldata[j] = xTemparr[pk];
-                gldata[j+1]= yTemparr[pk];
-                gldata[j+2]= 0.0;
-                pdata[pj] = xTemparr[pk];
-                pdata[pj+1]= yTemparr[pk];
-                j+=3;
-                pj+=2;
-                ncount++;
-                prev_k = pk;
-              }
-            }
-          }
-        } // to_small
-      } // Not a point
-      else // a point map
-      {
-        for (pk = 0; pk < pv; pk++)
-        {
-          // always display all points
-
-          gldata[j] = xTemparr[pk];
-          gldata[j+1]= yTemparr[pk];
-          gldata[j+2]= 0.0;
-          pdata[pj] = xTemparr[pk];
-          pdata[pj+1]= yTemparr[pk];
-          j+=3;
-          pj+=2;
-          ncount++;
-        }
-      }
-      // get rid of temporary buffer
-      delete [] xTemparr;
-      delete [] yTemparr;
-      if (shapes[i]->nSHPType!=SHPT_POINT)
-      {
-        if(ncount > 1) {
-          visible = true;
-        }
-      }
-      else
-        visible = true;
-
-      countpos[jpart]=ncount;
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("Points to draw and fill [ " << jpart << " ]: " << ncount);
-#endif
-
+    if (cont) {
+      gl->setLineStyle(lcolour, linewidth, linetype);
+      for (int i=0; i<contours.size(); ++i)
+        gl->drawPolyline(contours.at(i));
     }
-    // Draw the shape object
-
-    // draw the contour lines
-    if (cont && visible)
-    {
-      // NOTE: The opengl library do som optimizing stuff when using the gl->DrawArrays for more complex shapes
-      // therfore we must use the little slover method for shapes with more than one part.
-
-      //void gl->EnableClientState(DiGLPainter::GLenum array)
-      //Specifies the array to enable.
-      //Symbolic constants DiGLPainter::gl_VERTEX_ARRAY, DiGLPainter::gl_COLOR_ARRAY, DiGLPainter::gl_INDEX_ARRAY, DiGLPainter::gl_NORMAL_ARRAY, DiGLPainter::gl_TEXTURE_COORD_ARRAY, and DiGLPainter::gl_EDGE_FLAG_ARRAY
-      //are acceptable parameters.
-      if (nparts == 1)
-        gl->EnableClientState (DiGLPainter::gl_VERTEX_ARRAY);
-
-      if (shapes[i]->nSHPType!=SHPT_POINT)
-      {
-        gl->LineWidth(linewidth);
-        if (linetype!=0xFFFF) {
-          gl->LineStipple(1, linetype);
-          gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
-        }
-      }
-      else
-      {
-        // set the point size
-        gl->PointSize(linewidth);
-        gl->Enable(DiGLPainter::gl_POINT_SMOOTH);
-
-      }
-      gl->Color4ubv(lcolour);
-
-      //void gl->VertexPointer(DiGLPainter::GLint size, DiGLPainter::GLenum type, GLsizei stride, const GLvoid *pointer);
-      //Specifies where spatial coordinate data can be accessed.
-      //pointer is the memory address of the first coordinate of the first vertex in the array.
-      //type specifies the data type (DiGLPainter::gl_SHORT, DiGLPainter::gl_INT, DiGLPainter::gl_FLOAT, or DiGLPainter::gl_DOUBLE) of each coordinate in the array.
-      //size is the number of coordinates per vertex, which must be 2, 3, or 4.
-      //stride is the byte offset between consecutive vertexes.
-      //If stride is 0, the vertices are understood to be tightly packed in the array.
-      if (nparts == 1)
-        gl->VertexPointer(2, DiGLPainter::gl_DOUBLE, 0, pdata);
-
-      //void gl->DrawArrays(DiGLPainter::GLenum mode, DiGLPainter::GLint first, GLsizei count);
-      //Constructs a sequence of geometric primitives using array elements starting at first and ending at first+count-1 of each enabled array.
-      //mode specifies what kinds of primitives are constructed and is one of the same values accepted by gl->Begin();
-      //for example, DiGLPainter::gl_POLYGON, DiGLPainter::gl_LINE_LOOP, DiGLPainter::gl_LINES, DiGLPainter::gl_POINTS, and so on.
-
-      int a, p,npos,pos;
-      pos = 0;
-      int apos = 0;
-      for (p=0; p<nparts; p++) {
-        npos= countpos[p];
-        if (npos > 0)
-        {
-          if (nparts > 1)
-          {
-            // not so fast but accurate
-            if (shapes[i]->nSHPType!=SHPT_POINT)
-              gl->Begin(DiGLPainter::gl_LINE_STRIP);
-            else
-              gl->Begin(DiGLPainter::gl_POINTS);
-
-            for (a=0; a<npos; a++) {
-              gl->Vertex2dv(&pdata[apos]);
-              apos+=2;
-            }
-            gl->End();
-          }
-          else
-          {
-            // Fast but some optimizing error may happen
-            if (shapes[i]->nSHPType!=SHPT_POINT)
-              gl->DrawArrays(DiGLPainter::gl_LINE_STRIP, pos, npos);
-            else
-              gl->DrawArrays(DiGLPainter::gl_POINTS, pos, npos);
-          }
-
-        }
-        pos+=npos;
-      }
-      gl->Flush();
-
-      if (shapes[i]->nSHPType!=SHPT_POINT)
-        gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
-      else
-        gl->Disable(DiGLPainter::gl_POINT_SMOOTH);
-      if (nparts == 1)
-        gl->DisableClientState(DiGLPainter::gl_VERTEX_ARRAY);
-
-    }
-    // fill the polygons
-    if (land && visible && shapes[i]->nSHPType==SHPT_POLYGON) {
-      // sanity check, how?
-      int p,npos,pos;
-      pos = 0;
-
-      for (p=0; p<nparts; p++) {
-        npos= countpos[p];
-        if (npos > 0)
-        {
-          if ((gldata[pos] != gldata[npos*3 + pos-3])&&(gldata[pos+1] != gldata[npos*3 + pos -2]))
-            METLIBS_LOG_WARN("shapes["<<i<<"] part["<<p<<"] not closed");
-        }
-        pos = pos + npos*3;
-      }
-
-      gl->Color4ubv(fcolour);
-      gl->LineWidth(linewidth);
-      int pos0 = 0;
-      for (int i=0; i<nparts; ++i) {
-        QPolygonF poly;
-        for (int p=pos0; p<countpos[i]; ++i)
-          poly << QPointF(gldata[0], gldata[1]);
-        pos0 = countpos[i];
-        if (small[i]) {
-          poly << poly.at(0);
-          gl->drawPolyline(poly);
-        } else {
-          gl->drawPolygon(poly);
-        }
-      }
-    }
-    delete[] gldata;
-    delete[] pdata;
-    delete[] countpos;
-    delete[] small;
-
   }
   return true;
 }
 
-bool ShapeObject::getAnnoTable(std::string & str)
+static void writeColour(std::ostream& rs, const Colour& col)
+{
+  rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
+     << (int) col.B() <<";;";
+}
+
+bool ShapeObject::getAnnoTable(std::string& str)
 {
   makeColourmap();
-  str="table=\""+ fname;
+  std::ostringstream rs;
+  rs << "table=\"" << fname;
   if (stringcolourmapMade) {
     map <std::string,Colour>::iterator q=stringcolourmap.begin();
     for (; q!=stringcolourmap.end(); q++) {
-      Colour col=q->second;
-      ostringstream rs;
-      //write colour
-      rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-         << (int) col.B() <<";;";
-      str+=rs.str()+q->first;
+      writeColour(rs, q->second);
+      rs << q->first;
     }
   } else if (intcolourmapMade) {
     map <int,Colour>::iterator q=intcolourmap.begin();
     for (; q!=intcolourmap.end(); q++) {
-      Colour col=q->second;
-      ostringstream rs;
-      //write colour
-      rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-         << (int) col.B() <<";;" << q->first;
-      str+=rs.str();
+      writeColour(rs, q->second);
+      rs << q->first;
     }
   } else if (doublecolourmapMade) {
     map <double,Colour>::iterator q=doublecolourmap.begin();
     for (; q!=doublecolourmap.end(); q++) {
-      Colour col=q->second;
-      ostringstream rs;
-      //write colour
-      rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-         << (int) col.B() <<";;" << q->first;
-      str+=rs.str();
+      writeColour(rs, q->second);
+      rs << q->first;
     }
   }
-
+  str = rs.str();
   return true;
 }
 
@@ -889,8 +368,10 @@ void ShapeObject::makeColourmap()
   if (colourmapMade)
     return;
   colourmapMade=true;
+
   if (poptions.palettecolours.size())
     colours= poptions.palettecolours;
+
   if (not poptions.fname.empty())
     fname=poptions.fname;
   else if (dbfStringName.size())
@@ -899,88 +380,70 @@ void ShapeObject::makeColourmap()
     fname=dbfDoubleName[0];
   else if (dbfIntName.size())
     fname=dbfIntName[0];
-  int n=shapes.size();
-  int ncolours= colours.size();
-  int ii=0;
-  //strings, first find which vector of strings to use, dbfStringDescr
-  int ndsn =dbfStringName.size();
-  for (int idsn=0; idsn < ndsn; idsn++) {
+
+  const int ncolours = colours.size();
+
+  // strings, first find which vector of strings to use, dbfStringDescr
+  for (size_t idsn=0; idsn < dbfStringName.size(); idsn++) {
     if (dbfStringName[idsn]==fname) {
-      dbfStringDescr=dbfStringDesc[idsn];
-      stringcolourmapMade=true;
-    }
-  }
-  if (stringcolourmapMade) {
-    for (int i=0; i<n; i++) {
-      std::string descr=dbfStringDescr[shapes[i]->nShapeId];
-      if (stringcolourmap.find(descr)==stringcolourmap.end()) {
-        stringcolourmap[descr]=colours[ii];
-        ii++;
-        if (ii==ncolours)
-          ii=0;
+      stringcolourmapMade = true;
+      const std::vector<std::string>& dbfStringDescr = dbfStringDesc[idsn];
+      for (size_t i=0, ii=0; i<shapes.size(); i++) {
+        const std::string& descr = dbfStringDescr[shapes[i].id()];
+        if (stringcolourmap.find(descr)==stringcolourmap.end())
+          stringcolourmap[descr] = colours[(ii++) % ncolours];
+        shapes[i].colour = stringcolourmap[descr];
       }
+      return;
     }
-    return;
   }
-  //
-  //int, first find which vector of double to use, dbfDoubleDescr
-  int nddn =dbfDoubleName.size();
-  for (int iddn=0; iddn < nddn; iddn++) {
+
+  // double, first find which vector of double to use, dbfDoubleDescr
+  for (size_t iddn=0; iddn < dbfDoubleName.size(); iddn++) {
     if (dbfDoubleName[iddn]==fname) {
-      dbfDoubleDescr=dbfDoubleDesc[iddn];
-      doublecolourmapMade=true;
-    }
-  }
-  if (doublecolourmapMade) {
-    for (int i=0; i<n; i++) {
-      double descr=dbfDoubleDescr[shapes[i]->nShapeId];
-      if (doublecolourmap.find(descr)==doublecolourmap.end()) {
-        doublecolourmap[descr]=colours[ii];
-        ii++;
-        if (ii==ncolours)
-          ii=0;
+      const std::vector<double>& dbfDoubleDescr = dbfDoubleDesc[iddn];
+      for (size_t i=0, ii=0; i<shapes.size(); i++) {
+        double descr=dbfDoubleDescr[shapes[i].id()];
+        if (doublecolourmap.find(descr)==doublecolourmap.end())
+          doublecolourmap[descr] = colours[(ii++) % ncolours];
+        shapes[i].colour = doublecolourmap[descr];
       }
+      return;
     }
-    return;
   }
-  //
-  int ndin =dbfIntName.size();
-  for (int idin=0; idin < ndin; idin++) {
+
+  // int, first find which vector of double to use, dbfIntDescr
+  for (size_t idin=0; idin < dbfIntName.size(); idin++) {
     if (dbfIntName[idin]==fname) {
-      dbfIntDescr=dbfIntDesc[idin];
+      const std::vector<int>& dbfIntDescr = dbfIntDesc[idin];
       intcolourmapMade=true;
-    }
-  }
-  if (intcolourmapMade) {
-    for (int i=0; i<n; i++) {
-      int descr=dbfIntDescr[shapes[i]->nShapeId];
-      if (intcolourmap.find(descr)==intcolourmap.end()) {
-        intcolourmap[descr]=colours[ii];
-        ii++;
-        if (ii==ncolours)
-          ii=0;
+      for (size_t i=0, ii=0; i<shapes.size(); i++) {
+        int descr = dbfIntDescr[shapes[i].id()];
+        if (intcolourmap.find(descr)==intcolourmap.end())
+          intcolourmap[descr] = colours[(ii++) % ncolours];
+        shapes[i].colour = intcolourmap[descr];
       }
+      return;
     }
-    return;
   }
 }
 
 int ShapeObject::getXYZsize()
 {
   int size=0;
-  int n=shapes.size();
-  for (int i=0; i<n; i++)
-    size+=shapes[i]->nVertices;
+  for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s)
+    size += s->nvertices();
   return size;
 }
 
 vector<float> ShapeObject::getX()
 {
   vector<float> x;
-  int n=shapes.size();
-  for (int i=0; i<n; i++) {
-    for (int j = 0; j < shapes[i]->nVertices; j++)
-      x.push_back(shapes[i]->padfX[j]);
+  x.reserve(getXYZsize());
+  for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
+    for (int p=0; p<s->contours.size(); ++p)
+      for (int v=0; v<s->contours.at(p).size(); ++v)
+        x.push_back(s->contours.at(p).at(v).x());
   }
   return x;
 }
@@ -988,227 +451,159 @@ vector<float> ShapeObject::getX()
 vector<float> ShapeObject::getY()
 {
   vector<float> y;
-  int n=shapes.size();
-  for (int i=0; i<n; i++) {
-    for (int j = 0; j < shapes[i]->nVertices; j++)
-      y.push_back(shapes[i]->padfY[j]);
+  y.reserve(getXYZsize());
+  for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
+    for (int p=0; p<s->contours.size(); ++p)
+      for (int v=0; v<s->contours.at(p).size(); ++v)
+        y.push_back(s->contours.at(p).at(v).y());
   }
   return y;
 }
 
-void ShapeObject::setXY(vector<float> x, vector <float> y)
+void ShapeObject::setXY(const std::vector<float>& x, const std::vector<float>& y)
 {
-  int n=shapes.size();
+  const size_t n = getXYZsize();
+  if (x.size() != n || y.size() != n) {
+    METLIBS_LOG_ERROR("invalid setXY");
+    return;
+  }
   int m=0;
-  for (int i=0; i<n; i++) {
-    for (int j = 0; j < shapes[i]->nVertices; j++) {
-      shapes[i]->padfX[j]=x[m];
-      shapes[i]->padfY[j]=y[m];
+  for (size_t i=0; i<shapes.size(); i++) {
+    double *sx = shapes[i].shape->padfX, *sy = shapes[i].shape->padfY;
+    for (int j = 0; j < shapes[i].shape->nVertices; j++) {
+      sx[j] = x[m];
+      sy[j] = y[m];
       m++;
     }
   }
 }
 
-int ShapeObject::readDBFfile(const std::string& filename,
-    vector<std::string>& dbfIntName, vector< vector<int> >& dbfIntDesc,
-    vector<std::string>& dbfDoubleName, vector< vector<double> >& dbfDoubleDesc,
-    vector<std::string>& dbfStringName, vector< vector<std::string> >& dbfStringDesc)
+int ShapeObject::readDBFfile(const std::string& filename)
 {
-  DBFHandle hDBF;
-  int i, iRecord;
-  size_t n;
-  int nWidth, nDecimals;
-  char szTitle[12];
+  METLIBS_LOG_SCOPE(LOGVAL(filename));
 
-  //int indexTema1= -1;
-  //int indexTema2= -1;
-  //int indexLength= -1;
-  int nFieldCount, nRecordCount;
-
-  vector<int> indexInt, indexDouble, indexString;
-
-  vector<int> dummyint;
-  vector<double> dummydouble;
-  vector<std::string> dummystring;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("readDBFfile: "<<filename);
-#endif
-  /* -------------------------------------------------------------------- */
-  /*      Open the file.                                                  */
-  /* -------------------------------------------------------------------- */
-  hDBF = DBFOpen(filename.c_str(), "rb");
+  DBFHandle hDBF = DBFOpen(filename.c_str(), "rb");
   if (hDBF == NULL) {
     METLIBS_LOG_ERROR("DBFOpen "<<filename<<" failed");
     return 2;
   }
 
-  /* -------------------------------------------------------------------- */
-  /*	If there is no data in this file let the user know.		*/
-  /* -------------------------------------------------------------------- */
-  if (DBFGetFieldCount(hDBF) == 0) {
+  const int nFieldCount = DBFGetFieldCount(hDBF);
+  const int nRecordCount = DBFGetRecordCount(hDBF);
+
+  if (nFieldCount == 0) {
     METLIBS_LOG_ERROR("There are no fields in this table!");
+    DBFClose(hDBF);
     return 3;
   }
 
-  nFieldCount = DBFGetFieldCount(hDBF);
-  nRecordCount = DBFGetRecordCount(hDBF);
+  std::vector<int> indexInt, indexDouble, indexString;
+
+  const std::vector<int> dummyint;
+  const std::vector<double> dummydouble;
+  const std::vector<std::string> dummystring;
 
   /* -------------------------------------------------------------------- */
   /*	Check header definitions.					*/
   /* -------------------------------------------------------------------- */
-  for (i = 0; i < nFieldCount; i++) {
-    DBFFieldType eType;
+  for (int i = 0; i < nFieldCount; i++) {
+    int nWidth, nDecimals;
+    char szTitle[12];
+    DBFFieldType eType = DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals);
+    METLIBS_LOG_DEBUG("---> '" << szTitle << "'");
 
-    eType = DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals);
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("---> "<<szTitle);
-#endif
-    std::string name= miutil::to_upper(szTitle);
-
+    const std::string name = miutil::to_upper(szTitle);
     if (eType == FTInteger) {
-      //          if (name=="LTEMA" || name=="FTEMA" || name=="VANNBR")  {
       indexInt.push_back(i);
       dbfIntName.push_back(name);
       dbfIntDesc.push_back(dummyint);
-      //          }
     } else if (eType == FTDouble) {
-      //          if (name == "LENGTH" ) {
       indexDouble.push_back(i);
       dbfDoubleName.push_back(name);
       dbfDoubleDesc.push_back(dummydouble);
-      //	    }
     } else if (eType == FTString) {
-      //          if (name == "VEGTYPE" ) {
       indexString.push_back(i);
       dbfStringName.push_back(name);
       dbfStringDesc.push_back(dummystring);
-      //	    }
     }
   }
-#ifdef DEBUGPRINT
-  for ( int n=0; n<dbfIntName.size(); n++)
+
+  for (size_t n=0; n<dbfIntName.size(); n++) {
+    int i = indexInt[n];
+    std::vector<int>& values = dbfIntDesc[n];
     METLIBS_LOG_DEBUG("Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]);
-  for (int n=0; n<dbfDoubleName.size(); n++)
+    for (int iRecord=0; iRecord<nRecordCount; iRecord++) {
+      int att = 0;
+      if (!DBFIsAttributeNULL(hDBF, iRecord, i))
+        att = DBFReadIntegerAttribute(hDBF, iRecord, i);
+      values.push_back(att);
+    }
+  }
+
+  for (size_t n=0; n<dbfDoubleName.size(); n++) {
+    int i= indexDouble[n];
+    std::vector<double>& values = dbfDoubleDesc[n];
     METLIBS_LOG_DEBUG("Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]);
-  for (int n=0; n<dbfStringName.size(); n++)
+    for (int iRecord=0; iRecord<nRecordCount; iRecord++) {
+      double att = 0.0;
+      if (!DBFIsAttributeNULL(hDBF, iRecord, i))
+        att = DBFReadDoubleAttribute(hDBF, iRecord, i);
+      values.push_back(att);
+    }
+  }
+
+  for (size_t n=0; n<dbfStringName.size(); n++) {
+    int i= indexString[n];
+    std::vector<std::string>& values = dbfStringDesc[n];
     METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
-#endif
-  /* -------------------------------------------------------------------- */
-  /*	Read all the records                                              */
-  /* -------------------------------------------------------------------- */
-
-  for (n=0; n<dbfIntName.size(); n++) {
-    i= indexInt[n];
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]);
-#endif
-    for (iRecord=0; iRecord<nRecordCount; iRecord++) {
-      if (DBFIsAttributeNULL(hDBF, iRecord, i) )
-        dbfIntDesc[n].push_back(0);
-      else {
-        dbfIntDesc[n].push_back(DBFReadIntegerAttribute(hDBF, iRecord, i) );
-#ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("DBFReadIntegerAttribute(hDBF, iRecord, i)"
-            << DBFReadIntegerAttribute(hDBF, iRecord, i));
-#endif
-      }
+    for (int iRecord=0; iRecord<nRecordCount; iRecord++) {
+      if (!DBFIsAttributeNULL(hDBF, iRecord, i))
+        values.push_back(DBFReadStringAttribute(hDBF, iRecord, i));
+      else
+        values.push_back("-");
     }
   }
-
-  for (n=0; n<dbfDoubleName.size(); n++) {
-    i= indexDouble[n];
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]);
-#endif
-    for (iRecord=0; iRecord<nRecordCount; iRecord++) {
-      if (DBFIsAttributeNULL(hDBF, iRecord, i) )
-        dbfDoubleDesc[n].push_back(0.0);
-      else {
-        dbfDoubleDesc[n].push_back(DBFReadDoubleAttribute(hDBF, iRecord, i) );
-#ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("DBFReadDoubleAttribute( hDBF, iRecord, i )"
-            << DBFReadDoubleAttribute(hDBF, iRecord, i));
-#endif
-      }
-    }
-  }
-
-  for (n=0; n<dbfStringName.size(); n++) {
-    i= indexString[n];
-    vector<std::string> tempStr;
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
-#endif
-    for (iRecord=0; iRecord<nRecordCount; iRecord++) {
-      if (DBFIsAttributeNULL(hDBF, iRecord, i) )
-        dbfStringDesc[n].push_back("-");
-      else {
-        dbfStringDesc[n].push_back(std::string(DBFReadStringAttribute(hDBF,
-                    iRecord, i) ) );
-        tempStr.push_back(std::string(DBFReadStringAttribute(hDBF,
-                    iRecord, i) ) );
-#ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("DBFReadStringAttribute( hDBF, iRecord, i )"
-            << DBFReadStringAttribute(hDBF, iRecord, i) << "**temp= " << tempStr[iRecord]);
-#endif
-      }
-    }
-    dbfPlotDesc[dbfStringName[n]]=tempStr;
-    tempStr.clear();
-  }
-
 
   DBFClose(hDBF);
 
-  double minlength=0.0;
-  double maxlength=0.0;
-  double avglength=0.0;
-  int n1=0, n10=0, n100=0, n1000=0;
-
-  unsigned int m= 0;
-  while (m<dbfDoubleName.size() && dbfDoubleName[m]!="LENGTH")
-    m++;
-
-  if (m<dbfDoubleName.size()) {
-    n= dbfDoubleDesc[m].size();
-    if (n>0) {
-      minlength= maxlength= dbfDoubleDesc[m][0];
-      for (i=0; i<int(n); i++) {
-        if (minlength>dbfDoubleDesc[m][i])
-          minlength= dbfDoubleDesc[m][i];
-        if (maxlength<dbfDoubleDesc[m][i])
-          maxlength= dbfDoubleDesc[m][i];
-        avglength+=dbfDoubleDesc[m][i];
-        if (dbfDoubleDesc[m][i]<1.0)
-          n1++;
-        if (dbfDoubleDesc[m][i]<10.0)
-          n10++;
-        if (dbfDoubleDesc[m][i]<100.0)
-          n100++;
-        if (dbfDoubleDesc[m][i]<1000.0)
-          n1000++;
-      }
-      avglength/=double(n);
-    }
-  }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("nFieldCount=      "<<nFieldCount);
-  METLIBS_LOG_DEBUG("nRecordCount=     "<<nRecordCount);
-
-  for (n=0; n<dbfIntName.size(); n++)
-    METLIBS_LOG_DEBUG("Int    description, size,name:  "<<dbfIntDesc[n].size()<<"  "
-        <<dbfIntName[n]);
-  for (n=0; n<dbfDoubleName.size(); n++)
-    METLIBS_LOG_DEBUG("Double description, size,name:  "<<dbfDoubleDesc[n].size()<<"  "
-        <<dbfDoubleName[n]);
-  for (n=0; n<dbfStringName.size(); n++)
-    METLIBS_LOG_DEBUG("String description, size,name:  "<<dbfStringDesc[n].size()<<"  "
-        <<dbfStringName[n]);
-#endif
   return 0;
 }
 
-void ShapeObject::writeCoordinates()
+bool ShapeObject::readProjection(const std::string& shpfilename)
 {
-  METLIBS_LOG_WARN("ShapeObject:writeCoordinates NOT IMPLEMENTED");
+  METLIBS_LOG_SCOPE();
+  QString prjfilename = QString::fromStdString(shpfilename);
+  if (!prjfilename.endsWith(".shp")) {
+    METLIBS_LOG_WARN("shp filename '" << shpfilename << "' does not end in '.shp'");
+    return false;
+  }
+
+  prjfilename.replace(prjfilename.size()-3, 3, "prj");
+  QFile prjfile(prjfilename);
+  METLIBS_LOG_DEBUG(LOGVAL(prjfile.size()));
+
+  prjfile.open(QIODevice::ReadOnly);
+  const QString prj(prjfile.readAll());
+  prjfile.close();
+
+  METLIBS_LOG_DEBUG(LOGVAL(prj.toStdString()));
+  if (prj.isEmpty())
+    return false;
+
+  if (prj.startsWith("PROJCS[\"")) {
+    const QRegExp r_utm("\"WGS_1984_UTM_Zone_(\\d+).\"");
+    if (r_utm.indexIn(prj, 0) != -1) {
+      const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
+          + " +ellps=WGS84 +datum=WGS84 +units=m";
+      METLIBS_LOG_DEBUG(LOGVAL(proj4.toStdString()));
+      projection.set_proj_definition(proj4.toStdString(), 1, 1);
+    }
+  } else if (prj.startsWith("GEOCS[\"GCS_WGS_1984\"")) {
+    projection.setGeographic();
+  } else {
+    METLIBS_LOG_WARN("shapefile prj not understood: " << prj.toStdString());
+    return false;
+  }
+
+  return true;
 }
