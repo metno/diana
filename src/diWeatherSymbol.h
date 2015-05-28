@@ -120,7 +120,7 @@ public:
   /// set type of symbol
   void setType(int ty);
   /// set type of symbol
-  bool setType(std::string tystring);
+  bool setType(const std::string& tystring);
   /// set size of symbol
   void setSize(float si){setSymbolSize(si);}
    /// set size of symbol

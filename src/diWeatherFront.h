@@ -92,7 +92,7 @@ public:
   /// set front type
   void setType(int ty);
   /// set front type
-  bool setType(std::string tystring);
+  bool setType(const std::string& tystring);
   /// turn front
   void flip();
   /// add qfront to front (the two fronts are merged)

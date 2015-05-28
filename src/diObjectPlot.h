@@ -73,17 +73,19 @@ public:
   /// sets inBoundBox variable to in
   void setInBoundBox(bool in){inBoundBox=in;}
 
-  /// this controlles the state of the points
-  enum state {
-    active,  //!< if active addpoints is legal
-    passive, //!< if passive no points could be added
-    locked   //!< if locked no changes can be made
-  };
+  enum state {active, passive, locked}; // this controlles the state of the points
+				  // if active addpoints is legal
+				  // if passive no points could be added
+				  // if locked no changes can be made
+
+
+
 
   /// translate norwegian->english in old files
   static void defineTranslations();
 
 private:
+
   float window_dw;  // scale of main window
   float window_dh;
   float w, h;
@@ -101,9 +103,9 @@ private:
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
 
+protected:
   void memberCopy(const ObjectPlot &rhs);
 
-protected:
   bool rubber;
   bool spline;                    // draw spline
   float rubberx,rubbery;
@@ -139,16 +141,16 @@ protected:
 
   void setWindowInfo();
   int smoothline(int npos, float x[], float y[],
-      int nfirst, int nlast,
-      int ismooth, float xsmooth[],
-      float ysmooth[]); // B-spline smooth
+		 int nfirst, int nlast,
+                 int ismooth, float xsmooth[],
+		 float ysmooth[]); // B-spline smooth
 
   virtual void recalculate();
   void plotRubber(DiGLPainter* gl);
   float getDwidth(){return  window_dw;}           // returns width of main window
   float getDheight(){return  window_dh;}          // returns height of main window
   virtual void setType(int ty){type = ty;}
-  virtual bool setType(std::string tystring){return false;}
+  virtual bool setType(const std::string& tystring){return false;}
   virtual void setIndex(int index){drawIndex=index;}
 
 public:

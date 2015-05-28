@@ -350,7 +350,7 @@ void WeatherArea::setType(int ty)
 
 }
 
-bool WeatherArea::setType(std::string tystring)
+bool WeatherArea::setType(const std::string& tystring)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherArea::setType(std::string)=" << tystring);

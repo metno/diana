@@ -1154,7 +1154,7 @@ void WeatherFront::setType(int ty)
   setLineWidth(defaultLineWidth + allFronts[type].sizeIncrement);
 }
 
-bool WeatherFront::setType(std::string tystring)
+bool WeatherFront::setType(const std::string& tystring)
 {
   METLIBS_LOG_SCOPE(LOGVAL(tystring));
   if (frontTypes.find(tystring)!=frontTypes.end()) {

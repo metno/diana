@@ -86,7 +86,7 @@ public:
   /// set type of area
   void setType(int ty);
   /// set type of area
-  bool setType(std::string tystring);
+  bool setType(const std::string& tystring);
   /// turn area
   void flip();
   /// returns true if point x,y on area line

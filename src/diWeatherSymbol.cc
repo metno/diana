@@ -474,7 +474,7 @@ void WeatherSymbol::increaseType(int val)
 }
 
 
-bool WeatherSymbol::setType(std::string tystring)
+bool WeatherSymbol::setType(const std::string& tystring)
 {
   METLIBS_LOG_SCOPE(LOGVAL(tystring));
 
