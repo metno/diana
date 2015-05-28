@@ -1,3 +1,9 @@
+diana (3.38.0~rc4-1) unstable; urgency=low
+
+  * Edit: Bugfix - Keep timestamp when using modelfields
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 May 2015 13:59:07 +0200
+
 diana (3.38.0~rc3-2) unstable; urgency=low
 
   * Deleted ANAborders.TEST by mistake
