@@ -2862,87 +2862,100 @@ void DianaMainWindow::emailPicture()
 
 
 #ifdef VIDEO_EXPORT
-void DianaMainWindow::saveAnimation() {
+void DianaMainWindow::saveAnimation()
+{
   static QString fname = "./"; // keep users preferred animation-path for later
 
-  QString s =
-      QFileDialog::getSaveFileName(this,
-          tr("Save animation from current fields, satellite images, etc. (*.mpg or *.avi)"),
-          fname,
-          tr("Movies (*.mpg *.avi);;All (*.*)"));
+  QString s = QFileDialog::getSaveFileName(this,
+      tr("Save animation from current fields, satellite images, etc. (*.mpg or *.avi)"),
+      fname,
+      tr("Movies (*.mpg *.avi);;All (*.*)"));
 
+  if (s.isNull())
+    return;
 
-  if (!s.isNull()) {// got a filename
-    fname = s;
-
-    const QString suffix = QFileInfo(s).suffix();
-    std::string format;
-
-    if (!suffix.compare(QLatin1String("mpg"), Qt::CaseInsensitive)) {
-      format = "mpg";
-    } else if (!suffix.compare(QLatin1String("avi"), Qt::CaseInsensitive)) {
-      format = "avi";
-    } else { // default to mpg
-      format = "mpg";
-      s += ".mpg";
-    }
-
-    std::string filename = s.toStdString();
-
-    float delay = timeout_ms * 0.001;
-    MovieMaker moviemaker(filename, format, delay);
-
-    // save current sizes
-    QSize mainWindowSize = size();
-    QSize workAreaSize = w->Glw()->size();
-
-    QMessageBox::information(
-        this,
-        tr("Making animation"),
-        tr(
-            "This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
-    resize(1440, 850); ///< w/o this, grabFrameBuffer() only returns the (OpenGL-)part of the WorkArea visible in the DianaMainWindow
-    showMinimized();
-
-    // first reset time-slider
-    miutil::miTime startTime = tslider->getStartTime();
-    tslider->set(startTime);
-    setPlotTime(startTime);
-
-    int nrOfTimesteps = tslider->numTimes();
-    int i = 0;
-
-    int maxProgress = nrOfTimesteps - tslider->current() - 1;
-    QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
-        0, maxProgress);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
-
-    /// save frames as images
-    while(tslider->current() < nrOfTimesteps-1) {
-      /// update progressbar
-      if(!progress.isHidden())
-        progress.setValue(i);
-
-      w->Glw()->resize(1280, 720);
-      QImage image = w->Glw()->grabFrameBuffer(true);
-      moviemaker.addImage(image);
-
-      /// go to next frame
-      stepforward();
-
-      ++i;
-    }
-    if(!progress.isHidden())
-      progress.setValue(i);
-
-    // restore sizes
-    w->Glw()->resize(workAreaSize);
-    resize(mainWindowSize);
-
-    showNormal();
-    QMessageBox::information(this, tr("Done"), tr("Animation completed."));
+  const QString suffix = QFileInfo(s).suffix();
+  std::string format = "mpg";
+  if (!suffix.compare(QLatin1String("avi"), Qt::CaseInsensitive)) {
+    format = "avi";
+  } else if (suffix.compare(QLatin1String("mpg"), Qt::CaseInsensitive)) {
+    s += ".mpg";
   }
+  fname = s;
+
+  std::string filename = s.toStdString();
+
+  float delay = timeout_ms * 0.001;
+  MovieMaker moviemaker(filename, format, delay);
+
+  QMessageBox::information(this, tr("Making animation"),
+      tr("This may take some time, depending on the number of timesteps and selected delay."
+          " Diana cannot be used until this process is completed."
+          " A message will be displayed upon completion."
+          " Press OK to begin."));
+
+  const int ww = w->width(), wh = w->height();
+  w->setVisible(false); // avoid handling repaint events while the canvas is replaced
+
+  // first reset time-slider
+  miutil::miTime startTime = tslider->getStartTime();
+  tslider->set(startTime);
+  setPlotTime(startTime);
+
+  int nrOfTimesteps = tslider->numTimes();
+
+  int maxProgress = nrOfTimesteps - tslider->current() - 1;
+  QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
+      0, maxProgress, this);
+  progress.setWindowModality(Qt::WindowModal);
+  progress.show();
+
+  const QSize videoSize(1440, 850);
+  QImage image(videoSize, QImage::Format_ARGB32_Premultiplied);
+
+  // ==================== copy> ====================
+  // FIXME this is a partial copy of paintOnDevice (but does not
+  // create a new DiPaintGLCanvas for each time step)
+  DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
+
+  std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(&image));
+  std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
+  glpainter->printing = false;
+  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
+
+  w->Glw()->setCanvas(glcanvas.get());
+  glpainter->Viewport(0, 0, videoSize.width(), videoSize.height());
+  w->Glw()->resize(videoSize.width(), videoSize.height());
+
+  QPainter painter;
+  // ==================== <copy ====================
+
+  /// save frames as images
+  for (int step = 0; tslider->current() < nrOfTimesteps-1; ++step, stepforward()) {
+    if (!progress.isHidden())
+      progress.setValue(step);
+
+    // ==================== <copy ====================
+    image.fill(Qt::transparent);
+    painter.begin(&image);
+    glpainter->begin(&painter);
+    w->Glw()->paint(glpainter.get());
+    glpainter->end();
+    painter.end();
+    // ==================== <copy ====================
+
+    moviemaker.addImage(image);
+  }
+  if (!progress.isHidden())
+    progress.setValue(nrOfTimesteps);
+
+  // ==================== <copy ====================
+  w->Glw()->setCanvas(oldCanvas);
+  w->Glw()->resize(ww, wh);
+  // ==================== <copy ====================
+  w->setVisible(true);
+
+  QMessageBox::information(this, tr("Done"), tr("Animation completed."));
 }
 #else
 void DianaMainWindow::saveAnimation()
