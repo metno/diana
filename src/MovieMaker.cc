@@ -137,7 +137,8 @@ AVFrame* allocPicture(PixelFormat pixFormat, int width, int height)
 } // namespace avhelpers
 
 MovieMaker::MovieMaker(const string &filename, const string &format,
-                       float delay)
+    float delay, const QSize& frameSize)
+  : mFrameSize(frameSize)
 {
   METLIBS_LOG_SCOPE();
   g_strOutputVideoFile = filename;
@@ -197,8 +198,8 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   //output->videoStream->sample_aspect_ratio.den = 16;
   //output->videoStream->sample_aspect_ratio.num = 9;
   //  video->dtg_active_format = FF_DTG_AFD_4_3; only used for decoding
-  video->width = 1280;
-  video->height = 720;
+  video->width = mFrameSize.width();
+  video->height = mFrameSize.height();
   video->time_base.den = 30000;
   video->time_base.num = 1001;
   //video->gop_size = 18;
@@ -266,16 +267,9 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
 
 bool MovieMaker::initOutputStream(OutputCtx *output)
 {
-  AVOutputFormat *outputFormat = 0;
-  if (!g_strOutputVideoFormat.compare("mpg")) {
-    outputFormat = av_guess_format("dvd", NULL, NULL);
-    if (outputFormat)
-        outputFormat->video_codec = CODEC_ID_MPEG2VIDEO;
-  } else if (!g_strOutputVideoFormat.compare("avi")) {
-      outputFormat = av_guess_format("avi", NULL, NULL);
-      if (outputFormat)
-          outputFormat->video_codec = CODEC_ID_MSMPEG4V2;
-  }
+  AVOutputFormat *outputFormat = av_guess_format(NULL, output->outputCtx->filename, NULL);
+  if (!outputFormat)
+    outputFormat = av_guess_format(g_strOutputVideoFormat.c_str(), NULL, NULL);
   if (!outputFormat)
     return false;
 
@@ -401,20 +395,16 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
 
 bool MovieMaker::addImage(const QImage &image)
 {
-  const QImage::Format format = QImage::Format_RGB32;
-  const QSize size(1280, 720);
+  const QImage::Format FORMAT = QImage::Format_RGB32;
 
-  QImage imageScaled = image;
+  QImage imageScaled;
+  if (image.size() == mFrameSize)
+    imageScaled = image;
+  else
+    imageScaled = image.scaled(mFrameSize);
 
-  if (imageScaled.format() != format)
-    imageScaled = imageScaled.convertToFormat(QImage::Format_RGB32);
-
-  if (imageScaled.size() != size) {
-    const qreal scaleWidth = qreal(size.width()) / imageScaled.width();
-    const qreal scaleHeight = qreal(size.height()) / imageScaled.height();
-    const QMatrix mat = QMatrix().scale(scaleWidth, scaleHeight);
-    imageScaled = imageScaled.transformed(mat);
-  }
+  if (imageScaled.format() != FORMAT)
+    imageScaled = imageScaled.convertToFormat(FORMAT);
 
   return makeVideoFrame(&imageScaled);
 }

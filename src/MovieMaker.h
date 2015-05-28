@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id: qtMainWindow.h 477 2008-05-06 09:53:22Z lisbethb $
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -32,6 +30,7 @@
 #ifndef MOVIEMAKER_H_
 #define MOVIEMAKER_H_
 
+#include <QSize>
 #include <string>
 
 class QImage;
@@ -57,7 +56,7 @@ public:
    * which quality it will be saved in.
    */
   MovieMaker(const std::string &filename, const std::string &format,
-             float delay);
+      float delay, const QSize& frameSize = QSize(1280, 720));
 
   ~MovieMaker();
 
@@ -66,8 +65,12 @@ public:
 
   bool addImage(const QImage &image);
 
+  QSize frameSize() const
+    { return mFrameSize; }
+
 private:
   float delay;
+  QSize mFrameSize;
   std::string g_strOutputVideoFile;
   std::string g_strOutputVideoFormat;
   std::string g_strInputImageFile;

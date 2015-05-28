@@ -2910,8 +2910,7 @@ void DianaMainWindow::saveAnimation()
   progress.setWindowModality(Qt::WindowModal);
   progress.show();
 
-  const QSize videoSize(1440, 850);
-  QImage image(videoSize, QImage::Format_ARGB32_Premultiplied);
+  QImage image(moviemaker.frameSize(), QImage::Format_ARGB32_Premultiplied);
 
   // ==================== copy> ====================
   // FIXME this is a partial copy of paintOnDevice (but does not
@@ -2924,8 +2923,8 @@ void DianaMainWindow::saveAnimation()
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
 
   w->Glw()->setCanvas(glcanvas.get());
-  glpainter->Viewport(0, 0, videoSize.width(), videoSize.height());
-  w->Glw()->resize(videoSize.width(), videoSize.height());
+  glpainter->Viewport(0, 0, image.width(), image.height());
+  w->Glw()->resize(image.width(), image.height());
 
   QPainter painter;
   // ==================== <copy ====================

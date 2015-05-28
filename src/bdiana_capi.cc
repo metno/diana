@@ -567,7 +567,7 @@ void startVideo(const printOptions priop)
 
   delete movieMaker;
   METLIBS_LOG_INFO("opening video stream |-->");
-  movieMaker = new MovieMaker(output, format, 0.2f);
+  movieMaker = new MovieMaker(output, format, 0.2f, QSize(xsize, ysize));
 }
 
 bool addVideoFrame(const QImage &img)
