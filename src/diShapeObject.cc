@@ -598,7 +598,7 @@ bool ShapeObject::readProjection(const std::string& shpfilename)
       METLIBS_LOG_DEBUG(LOGVAL(proj4.toStdString()));
       projection.set_proj_definition(proj4.toStdString(), 1, 1);
     }
-  } else if (prj.startsWith("GEOCS[\"GCS_WGS_1984\"")) {
+  } else if (prj.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
     projection.setGeographic();
   } else {
     METLIBS_LOG_WARN("shapefile prj not understood: " << prj.toStdString());
