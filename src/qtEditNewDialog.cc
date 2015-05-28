@@ -533,8 +533,6 @@ void EditNewDialog::handleFieldButton(int num)
     if (edf.fieldSelected()){
       products[currprod].fields[num].fromfname= edf.selectedField();
       products[currprod].fields[num].fromfield= true;
-      prodtime= miutil::miTime();
-      timespin->setTime(prodtime);
     } else if (edf.productSelected()){
       vector <savedProduct> vsap= edf.vselectedProd();
       if (vsap.size()){
