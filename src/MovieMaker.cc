@@ -267,9 +267,23 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
 
 bool MovieMaker::initOutputStream(OutputCtx *output)
 {
+#if 1
+  AVOutputFormat *outputFormat = 0;
+  if (!g_strOutputVideoFormat.compare("mpg")) {
+    outputFormat = av_guess_format("dvd", NULL, NULL);
+    if (outputFormat)
+        outputFormat->video_codec = CODEC_ID_MPEG2VIDEO;
+  } else if (!g_strOutputVideoFormat.compare("avi")) {
+      outputFormat = av_guess_format("avi", NULL, NULL);
+      if (outputFormat)
+          outputFormat->video_codec = CODEC_ID_MSMPEG4V2;
+  }
+#else
+  // this does not seem to work on precise
   AVOutputFormat *outputFormat = av_guess_format(NULL, output->outputCtx->filename, NULL);
   if (!outputFormat)
     outputFormat = av_guess_format(g_strOutputVideoFormat.c_str(), NULL, NULL);
+#endif
   if (!outputFormat)
     return false;
 
