@@ -129,16 +129,23 @@ bool ShapeObject::changeProj()
     int np = s->nparts();
     if (np == 0 && s->type() == SHPT_POINT && s->nvertices() == 1)
       np = 1;
-    for (int p=0, k=0; p<np; ++p) {
-      s->partRects.push_back(Rectangle(tx[k], ty[k], tx[k], ty[k]));
-      Rectangle& pr = s->partRects.back();
+    for (int p=0; p<np; ++p) {
+      const int pb = s->pbegin(p), pe = s->pend(p);
+
       QPolygonF polygon;
-      for (int v=s->pbegin(p); v<s->pend(p); v++) {
+      polygon << QPointF(tx[pb], ty[pb]);
+
+      s->partRects.push_back(Rectangle(tx[pb], ty[pb], tx[pb], ty[pb]));
+      Rectangle& pr = s->partRects.back();
+
+      for (int v=pb+1; v<pe; v++) {
         polygon << QPointF(tx[v], ty[v]);
         vcross::util::minimaximize(pr.x1, pr.x2, tx[v]);
         vcross::util::minimaximize(pr.y1, pr.y2, ty[v]);
       }
+
       s->contours << polygon;
+
       vcross::util::minimize(s->rect.x1, pr.x1);
       vcross::util::minimize(s->rect.y1, pr.y1);
       vcross::util::maximize(s->rect.x2, pr.x2);
