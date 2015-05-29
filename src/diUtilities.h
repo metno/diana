@@ -4,11 +4,14 @@
 
 #include <puTools/miTime.h>
 
+#include <QPolygonF>
+
 #include <map>
 #include <string>
 #include <vector>
 
 class Plot;
+class Rectangle;
 
 namespace diutil {
 
@@ -58,6 +61,14 @@ void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdat
 /*! Make list of numbers around 'number'.
  */
 std::vector<std::string> numberList(float number, const float* enormal);
+
+/*!
+ * Remove polygon segments where the points stay in the same "sector"
+ * outside of rect.
+ *
+ * WARNING: this will probably not work for polygons with holes
+ */
+QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon);
 
 } // namespace diutil
 

@@ -36,6 +36,7 @@
 #include "diColourShading.h"
 #include "diGLPainter.h"
 #include "diPoint.h"
+#include "diUtilities.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
@@ -56,6 +57,12 @@ using namespace miutil;
 namespace /* anonymous */ {
 
 inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
+
+inline bool encloses(const Rectangle& outer, const Rectangle& inner)
+{
+  return outer.isinside(inner.x1, inner.y1)
+      && outer.isinside(inner.x2, inner.y2);
+}
 
 // anything > 1 will cause small painting errors; anything > 0 might
 // cause problems if the hardware has sub-pixel resolution (i.e. the
@@ -271,8 +278,9 @@ bool ShapeObject::plot(DiGLPainter* gl,
   int fontSizeToPlot = int(2*7000000/gcd * scalefactor);
   int symbol_rad = symbol;
 
-  const Rectangle areaX = diutil::adjustedRectangle(area.R(), AREA_EXTRA*area.R().width(),
-      AREA_EXTRA*area.R().height());
+  const Rectangle areaX = diutil::adjustedRectangle(area.R(),
+      AREA_EXTRA*area.R().width()  + 2*linewidth * getStaticPlot()->getPhysToMapScaleX(),
+      AREA_EXTRA*area.R().height() + 2*linewidth * getStaticPlot()->getPhysToMapScaleY());
   const float visibleW = areaX.width()  * AREA_VISIBLE;
   const float visibleH = areaX.height() * AREA_VISIBLE;
 
@@ -296,7 +304,9 @@ bool ShapeObject::plot(DiGLPainter* gl,
       } else {
         gl->setColour(lcolour);
         for (int k = 0; k < p.size(); k++) {
-          gl->fillCircle(p.at(k).x(), p.at(k).y(), linewidth*2);
+          const QPointF& ppk = p.at(k);
+          if (areaX.isinside(ppk.x(), ppk.y()))
+            gl->fillCircle(ppk.x(), ppk.y(), linewidth*2);
         }
       }
       continue;
@@ -311,14 +321,29 @@ bool ShapeObject::plot(DiGLPainter* gl,
 
     QList<QPolygonF> contours;
     for (int p=0; p < s->nparts(); p++) {
+      const QPolygonF& part =s->reduced.at(p);
+      if (part.size() < 3)
+        continue;
+
+      const Rectangle& pr = s->partRects[p];
+      if (!areaX.intersects(pr))
+        continue;
+
       if (SKIP_SMALL) {
-        const Rectangle& pr = s->partRects[p];
         const bool part_too_small = (pr.width() < visibleW && pr.height() < visibleH);
-        if (part_too_small || !areaX.intersects(pr))
+        if (part_too_small)
           continue;
       }
 
-      contours << s->reduced.at(p);
+      // FIXME: not checking nparts == 1 might cause problems if polygons have holes
+      if (/*s->nparts() == 1 &&*/ part.size() >= 16 && !encloses(areaX, pr)) {
+        const QPolygonF trimmed = diutil::trimToRectangle(areaX, part);
+        METLIBS_LOG_DEBUG(LOGVAL(part.size()) << LOGVAL(trimmed.size()));
+        if (trimmed.size() >= 3)
+          contours << trimmed;
+      } else {
+        contours << part;
+      }
     }
     if (contours.isEmpty())
       continue;

@@ -4,6 +4,8 @@
 #include <QApplication>
 #include <QComboBox>
 
+#include <diField/diRectangle.h>
+
 #include <puCtools/glob_cache.h>
 #include <puCtools/puCglob.h>
 #include <puTools/miStringFunctions.h>
@@ -227,6 +229,63 @@ std::vector<std::string> numberList(float number, const float* enormal)
     vnumber.push_back(miutil::from_number(enormal[k] * ex));
   }
   return vnumber;
+}
+
+namespace detail {
+
+enum {
+  INSIDE = 0,
+  OUT_X_LEFT  = 2, OUT_X_RIGHT =  3, OUT_X_MASK =  3,
+  OUT_Y_BELOW = 8, OUT_Y_ABOVE = 12, OUT_Y_MASK = 12
+};
+
+int where(const Rectangle& rect, const QPointF& point)
+{
+  int w = INSIDE;
+  if (point.x() < rect.x1)
+    w |= OUT_X_LEFT;
+  else if (point.x() > rect.x2)
+    w |= OUT_X_RIGHT;
+  if (point.y() < rect.y1)
+    w |= OUT_Y_BELOW;
+  else if (point.y() > rect.y2)
+    w |= OUT_Y_ABOVE;
+  return w;
+}
+
+bool same_out(int w0, int w1)
+{
+  return (w0 != 0) && (w1 != 0)
+      && ((w0 & OUT_X_MASK) == (w1 & OUT_X_MASK))
+      && ((w0 & OUT_Y_MASK) == (w1 & OUT_Y_MASK));
+}
+
+} // namespace detail
+
+QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon)
+{
+  const int last = polygon.size()-1;
+
+  QPolygonF trimmed;
+
+  QPointF pp0 = polygon.at(0);
+  int w0 = detail::where(rect, pp0), w1;
+
+  for (int k = 1; k < last; k++) {
+    trimmed << pp0;
+    while (k<last) {
+      const QPointF& ppk = polygon.at(k);
+      w1 = detail::where(rect, ppk);
+      if (!detail::same_out(w0, w1))
+        break;
+      k += 1;
+    }
+    w0 = w1;
+    pp0 = polygon.at(k);
+  }
+  trimmed << polygon.at(last);
+
+  return trimmed;
 }
 
 } // namespace diutil

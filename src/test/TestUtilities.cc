@@ -28,6 +28,7 @@
 */
 
 #include <diUtilities.h>
+#include <diField/diRectangle.h>
 #include <diField/TimeFilter.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
 #include <gtest/gtest.h>
@@ -117,4 +118,23 @@ TEST(TestUtilities, numberList)
   const float enormal[] = { 1., 2., 2.5, 3., 4., 5., 6., 7., 8., 9., -1 };
   const std::vector<std::string> actual = diutil::numberList(1, enormal);
   EXPECT_EQ(expected, actual);
+}
+
+TEST(TestUtilities, trimToRectangle)
+{
+  const Rectangle rect(0, 0, 2, 2);
+  QPolygonF polygon;
+  polygon << QPointF(1, 1) // inside
+          << QPointF(3, 1) // right
+          << QPointF(5, 1) // right
+          << QPointF(5, 3) // right + above
+          << QPointF(5, 5) // right + above
+          << QPointF(3, 5) // right + above
+          << QPointF(1, 5) // above
+          << QPointF(1, 5) // above
+          << QPointF(1, 3) // above
+          << QPointF(1, 1);// inside
+
+  const QPolygonF trimmed = diutil::trimToRectangle(rect, polygon);
+  EXPECT_EQ(5, trimmed.size());
 }
