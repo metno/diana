@@ -73,19 +73,17 @@ public:
   /// sets inBoundBox variable to in
   void setInBoundBox(bool in){inBoundBox=in;}
 
-  enum state {active, passive, locked}; // this controlles the state of the points
-				  // if active addpoints is legal
-				  // if passive no points could be added
-				  // if locked no changes can be made
-
-
+  enum state {
+    active,  //!< if active addpoints is legal
+    passive, //!< if passive no points could be added
+    locked   //!< if locked no changes can be made
+  };
 
 
   /// translate norwegian->english in old files
   static void defineTranslations();
 
 private:
-
   float window_dw;  // scale of main window
   float window_dh;
   float w, h;
@@ -103,9 +101,9 @@ private:
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
 
-protected:
   void memberCopy(const ObjectPlot &rhs);
 
+protected:
   bool rubber;
   bool spline;                    // draw spline
   float rubberx,rubbery;

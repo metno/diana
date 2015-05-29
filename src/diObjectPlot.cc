@@ -84,7 +84,7 @@ ObjectPlot& ObjectPlot::operator=(const ObjectPlot &rhs)
 
 ObjectPlot::~ObjectPlot()
 {
-  METLIBS_LOG_SCOPE();
+  // METLIBS_LOG_SCOPE(); must not be enabled -- bdiana will crash
   delete[] x;
   delete[] y;
   delete[] x_s;
