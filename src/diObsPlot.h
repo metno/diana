@@ -143,7 +143,8 @@ private:
     more_than = 2,
     more_than_or_equal_to = 3,
     equal_to = 4,
-    no_sign = 5
+    equal_to_exact = 5,
+    no_sign = 6
   };
 
   struct baseCriteria {

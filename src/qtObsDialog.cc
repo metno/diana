@@ -595,6 +595,7 @@ void ObsDialog::makeExtension()
   signBox->addItem("<");
   signBox->addItem("<=");
   signBox->addItem("=");
+  signBox->addItem("==");
   signBox->addItem("");
   stepComboBox = new QComboBox(extension);
   numberList(stepComboBox,1.0);

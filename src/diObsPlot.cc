@@ -5675,6 +5675,9 @@ void ObsPlot::decodeCriteria(std::string critStr)
     } else if (miutil::contains(vcrit[0], "<")) {
       sep = "<";
       sign = less_than;
+    } else if (miutil::contains(vcrit[0], "==")) {
+      sep = "==";
+      sign = equal_to_exact;
     } else if (miutil::contains(vcrit[0], "=")) {
       sep = "=";
       sign = equal_to;
@@ -5784,6 +5787,7 @@ bool ObsPlot::baseCriteria::match(float value) const
       || (sign == more_than && value > limit)
       || (sign == more_than_or_equal_to && value >= limit - delta)
       || (sign == equal_to && std::abs(value - limit) < delta)
+      || (sign == equal_to_exact && std::abs(value - limit) == 0)
       || (sign == no_sign);
 }
 
