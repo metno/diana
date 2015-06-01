@@ -121,8 +121,11 @@ bool ShapeObject::changeProj()
 
       if (projection.isGeographic()) {
         // an ugly fix to avoid problem with -180.0, 180.0
-        if (tx[j] == -180.0)
-          tx[j] = -179.999;
+        const float DEG_LIM = 179.9;
+        if (tx[j] < -DEG_LIM)
+          tx[j] = -DEG_LIM;
+        else if (tx[j] > DEG_LIM)
+          tx[j] = DEG_LIM;
         tx[j] *= DEG_TO_RAD;
         ty[j] *= DEG_TO_RAD;
       }
