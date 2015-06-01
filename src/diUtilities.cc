@@ -264,26 +264,24 @@ bool same_out(int w0, int w1)
 
 QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon)
 {
-  const int last = polygon.size()-1;
-
   QPolygonF trimmed;
 
-  QPointF pp0 = polygon.at(0);
-  int w0 = detail::where(rect, pp0), w1;
-
-  for (int k = 1; k < last; k++) {
+  const int last = polygon.size();
+  for (int k0 = 0; k0 < last; k0++) {
+    QPointF pp0 = polygon.at(k0);
+    int w0 = detail::where(rect, pp0);
     trimmed << pp0;
-    while (k<last) {
-      const QPointF& ppk = polygon.at(k);
-      w1 = detail::where(rect, ppk);
-      if (!detail::same_out(w0, w1))
-        break;
-      k += 1;
-    }
-    w0 = w1;
-    pp0 = polygon.at(k);
+    if (w0 == detail::INSIDE)
+      continue;
+
+    int k1 = k0 + 1, w1;
+    while (k1 < last && ((w1 = detail::where(rect, polygon.at(k1))) == w0))
+      k1 += 1;
+
+    if (k1 > k0 + 1 && w1 == 0)
+      trimmed << polygon.at(k1 - 1);
+    k0 = k1 - 1;
   }
-  trimmed << polygon.at(last);
 
   return trimmed;
 }

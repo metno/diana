@@ -120,21 +120,68 @@ TEST(TestUtilities, numberList)
   EXPECT_EQ(expected, actual);
 }
 
+// tell googletest how to print QPolygonF objects
+// see https://code.google.com/p/googletest/wiki/AdvancedGuide#Teaching_Google_Test_How_to_Print_Your_Values
+static void PrintTo(const QPolygonF& polygon, ::std::ostream* out)
+{
+  *out << '[';
+  for (int i=0; i<polygon.size(); ++i)
+    *out << '(' << polygon.at(i).x() << ',' << polygon.at(i).y() << ')';
+  *out << ']';
+}
+
 TEST(TestUtilities, trimToRectangle)
 {
   const Rectangle rect(0, 0, 2, 2);
-  QPolygonF polygon;
-  polygon << QPointF(1, 1) // inside
-          << QPointF(3, 1) // right
-          << QPointF(5, 1) // right
-          << QPointF(5, 3) // right + above
-          << QPointF(5, 5) // right + above
-          << QPointF(3, 5) // right + above
-          << QPointF(1, 5) // above
-          << QPointF(1, 5) // above
-          << QPointF(1, 3) // above
-          << QPointF(1, 1);// inside
+  const Rectangle rect4(0, 0, 4, 4);
 
-  const QPolygonF trimmed = diutil::trimToRectangle(rect, polygon);
-  EXPECT_EQ(5, trimmed.size());
+  { QPolygonF polyin1, expect1;
+    polyin1 << QPointF(1, 1) // inside
+            << QPointF(3, 1) // right
+            << QPointF(5, 1) // right
+            << QPointF(5, 3) // right + above
+            << QPointF(5, 5) // right + above
+            << QPointF(3, 5) // right + above
+            << QPointF(1, 5) // above
+            << QPointF(1, 3) // above
+            << QPointF(1, 1);// inside
+    expect1 << QPointF(1, 1) // inside
+            << QPointF(3, 1) // right
+            << QPointF(5, 3) // right + above
+            << QPointF(1, 5) // above
+            << QPointF(1, 3) // above, included as it is the last point before going inside
+            << QPointF(1, 1);// inside
+    const QPolygonF actual1 = diutil::trimToRectangle(rect, polyin1);
+    EXPECT_EQ(expect1, actual1);
+  }
+
+  { QPolygonF polyin2, expect2;
+    polyin2 << QPointF(1, 1) // inside
+            << QPointF(5, 1) // right
+            << QPointF(5, 3) // right + above
+            << QPointF(1, 1);// inside
+    expect2 = polyin2;
+    const QPolygonF actual2 = diutil::trimToRectangle(rect, polyin2);
+    EXPECT_EQ(expect2, actual2);
+  }
+
+  { QPolygonF polyin3, expect3;
+    polyin3 << QPointF(1, 1) // inside
+            << QPointF(5, 1) // right
+            << QPointF(1, 3) // inside
+            << QPointF(1, 1);// inside
+    expect3 = polyin3;
+    const QPolygonF actual3 = diutil::trimToRectangle(rect4, polyin3);
+    EXPECT_EQ(expect3, actual3);
+  }
+
+  { QPolygonF polyin4, expect4;
+    polyin4 << QPointF(1, 1) // inside
+            << QPointF(3, 1) // inside
+            << QPointF(1, 3) // inside
+            << QPointF(1, 1);// inside
+    expect4 = polyin4;
+    const QPolygonF actual4 = diutil::trimToRectangle(rect4, polyin4);
+    EXPECT_EQ(expect4, actual4);
+  }
 }
