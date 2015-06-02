@@ -733,11 +733,8 @@ bool PlotModule::updateFieldPlot(const vector<std::string>& pin)
     }
   }
 
-  if (fv.size() && fv[0]->oceanDepth >= 0 && vop.size() > 0)
-    staticPlot_->setOceanDepth(int(fv[0]->oceanDepth));
-
-  if (fv.size() && fv[0]->pressureLevel >= 0 && vop.size() > 0)
-    staticPlot_->setPressureLevel(int(fv[0]->pressureLevel));
+  if (fv.size() && fv[0]->level >= 0 && vop.size() > 0)
+    staticPlot_->setVerticalLevel(int(fv[0]->level));
 
   for (size_t i = 0; i < vop.size(); i++) {
     if (vop[i]->LevelAsField()) {
@@ -778,10 +775,8 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   }
 
   if (fv.size()) {
-    // level for P-level observations "as field"
-    staticPlot_->setPressureLevel(int(fv[0]->pressureLevel));
-    // depth for ocean depth observations "as field"
-    staticPlot_->setOceanDepth(int(fv[0]->oceanDepth));
+    // level for vertical level observations "as field"
+    staticPlot_->setVerticalLevel(int(fv[0]->level));
   }
 
   // prepare data for satellite plots

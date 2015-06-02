@@ -57,8 +57,7 @@ private:
   XY mPhys;           // physical size of plotarea
   XY mPhysToMapScale; // ratio of plot size to physical size
   bool dirty;         // plotarea has changed
-  int pressureLevel;          // current pressure level
-  int oceandepth;       // current ocean depth
+  int verticalLevel;          // current vertical level
   std::string bgcolour;  // name of background colour
   Colour backgroundColour;   // background colour
   Colour backContrastColour; // suitable contrast colour
@@ -184,21 +183,13 @@ public:
   const miutil::miTime& getTime()
     { return ctime; }
 
-  /// set current pressure level
-  void setPressureLevel(int l)
-    { pressureLevel= l; }
+  /// set current vertical level
+  void setVerticalLevel(int l)
+    { verticalLevel= l; }
 
-  /// this is the current pressure level
-  int getPressureLevel()
-    { return pressureLevel; }
-
-  /// set current ocean depth
-  void setOceanDepth(int depth)
-    { oceandepth= depth; }
-
-  /// this is the current ocean depth
-  int getOceanDepth()
-    {return oceandepth;}
+  /// this is the current vertical level
+  int getVerticalLevel()
+    { return verticalLevel; }
 
   /// set name of background colour
   void setBgColour(const std::string& cn);

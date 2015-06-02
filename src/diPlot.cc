@@ -57,8 +57,7 @@ StaticPlot::StaticPlot()
   : mPhys(0, 0)       // physical plot size
   , mPhysToMapScale(1, 1)
   , dirty(true)       // plotsize has changed
-  , pressureLevel(-1) // current pressure level
-  , oceandepth(-1)    // current ocean depth
+  , verticalLevel(-1) // current vertical level
   , gcd(0)            // great circle distance (corner to corner)
   , panning(false)    // panning in progress
 {

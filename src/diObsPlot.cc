@@ -437,23 +437,15 @@ void ObsPlot::updateLevel(const std::string& dataType)
     return; //no levels
   }
 
-  if (dataType == "ocea") { //ocean
-    if (levelAsField) //from field
-      level = getStaticPlot()->getOceanDepth();
-    if (level == -1) {
-      level = 0; //default!!
-      //METLIBS_LOG_DEBUG("No sea level, using 0m");
-    }
-  } else { //temp, pilot,aireps
-    if (levelAsField) //from field
-      level = getStaticPlot()->getPressureLevel();
-    if (level == -1) {
-      if (dataType == "aireps")
-        level = 500; //default!!
-      else
-        level = 1000; //default!!
-      //METLIBS_LOG_DEBUG("No pressure level, using "<<level<<" hPa");
-    }
+  if (levelAsField) //from field
+    level = getStaticPlot()->getVerticalLevel();
+  if (level == -1) { //set default
+    if (dataType == "aireps")
+      level = 500;
+    else if (dataType == "ocea")
+      level = 0;
+    else
+      level = 1000;
   }
 }
 
