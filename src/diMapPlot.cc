@@ -121,35 +121,6 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
       } else if (miutil::to_upper(stokens[0])=="AREA") { //obsolete
         mapm.getMapAreaByName(stokens[1], newarea);
         areadef= true;
-      } else if (miutil::to_upper(stokens[0]) == "PROJECTION") { //obsolete
-        newarea.setArea(stokens[1]);
-        getStaticPlot()->xyLimit.clear();
-        areadef = true;
-      } else if (miutil::to_upper(stokens[0])=="XYLIMIT") { //todo: add warning and show new syntax
-        vector<std::string> vstr= miutil::split(stokens[1], 0, ",");
-        if (vstr.size()>=4) {
-          getStaticPlot()->xyLimit.clear();
-          getStaticPlot()->xyLimit.push_back((atof(vstr[0].c_str()) - 1.0)*newarea.P().getGridResolutionX());
-          getStaticPlot()->xyLimit.push_back((atof(vstr[1].c_str()) - 1.0)*newarea.P().getGridResolutionX());
-          getStaticPlot()->xyLimit.push_back((atof(vstr[2].c_str()) - 1.0)*newarea.P().getGridResolutionY());
-          getStaticPlot()->xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
-          METLIBS_LOG_WARN("WARNING: using obsolete syntax xylimit");
-          METLIBS_LOG_WARN("New syntax:");
-          METLIBS_LOG_WARN("AREA "<<newarea.P()<<" rectangle="<<getStaticPlot()->xyLimit[0]<<":"
-              <<getStaticPlot()->xyLimit[1]<<":"<<getStaticPlot()->xyLimit[2]<<":"<<getStaticPlot()->xyLimit[3]);
-
-          if (getStaticPlot()->xyLimit[0]>=getStaticPlot()->xyLimit[1] || getStaticPlot()->xyLimit[2]>=getStaticPlot()->xyLimit[3])
-            getStaticPlot()->xyLimit.clear();
-        }
-      } else if (miutil::to_upper(stokens[0])=="XYPART") {//obsolete
-        vector<std::string> vstr= miutil::split(stokens[1], 0, ",");
-        if (vstr.size()>=4) {
-          getStaticPlot()->xyPart.clear();
-          for (int j=0; j<4; j++)
-            getStaticPlot()->xyPart.push_back(atof(vstr[j].c_str()) * 0.01);
-          if (getStaticPlot()->xyPart[0]>=getStaticPlot()->xyPart[1] || getStaticPlot()->xyPart[2]>=getStaticPlot()->xyPart[3])
-            getStaticPlot()->xyPart.clear();
-        }
       }
     }
   }

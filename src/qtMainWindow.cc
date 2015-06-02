@@ -2391,11 +2391,12 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     return; // no need to repaint
   }
 
-  else if (letter.command == qmstrings::getmaparea) {
+  else if (letter.command == qmstrings::getmaparea) { //obsolete
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::maparea;
-    l.data.push_back(contr->getMapArea().toString());
+    std::string message = "Obsolet command: use getproj4maparea";
+    l.data.push_back(message);
     sendLetter(l);
     return; // no need to repaint
   }

@@ -2436,9 +2436,7 @@ void PlotModule::readLog(const vector<std::string>& vstr,
   for (size_t i = 0; i < vstr.size(); i++) {
 
     if(!area.setAreaFromString(vstr[i])) {
-      if(!area.setAreaFromLog(vstr[i])) { // try obsolete syntax
-        continue;
-      }
+      continue;
     }
     if (area.Name() == "F2") {
       myArea = area;

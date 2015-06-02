@@ -3932,10 +3932,6 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
   int iprec = 0;
   if (poptions.precision > 0) {
     iprec = poptions.precision;
-  } else {
-    iprec = -int(log10(fields[0]->storageScaling));
-    if (iprec < 0)
-      iprec = 0;
   }
   std::string str;
 

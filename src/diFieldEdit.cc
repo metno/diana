@@ -432,7 +432,7 @@ void FieldEdit::changeGrid()
   METLIBS_LOG_DEBUG(LOGVAL(areaspec)<< LOGVAL(gridResolutionX));
   std::string demands= "fine.interpolation";
   if (areaminimize) demands+= " minimize.area";
-  if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,0)) {
+  if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands)) {
     METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
   }
 }
