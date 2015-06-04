@@ -278,7 +278,7 @@ QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon)
     while (k1 < last && ((w1 = detail::where(rect, polygon.at(k1))) == w0))
       k1 += 1;
 
-    if (k1 > k0 + 1 && w1 == 0)
+    if (k1 > k0 + 1)
       trimmed << polygon.at(k1 - 1);
     k0 = k1 - 1;
   }
