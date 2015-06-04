@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -48,9 +46,9 @@
 */
 class EditObjects:public WeatherObjects{
 public:
-  
+
   EditObjects();
-  ~EditObjects(){}
+
   /// defines object modes and combine modes
   static void defineModes(std::map<int,object_modes>, std::map<int,combine_modes>);
   /// initializes class variables to false, clear strings
@@ -75,7 +73,7 @@ public:
   void setAutoJoinOn(bool on){autoJoinOn=on;}
   /// checks if automatic joining of fronts on
   bool isAutoJoinOn(){return autoJoinOn;}
-  /// draws points where fronts are joined 
+  /// draws points where fronts are joined
   void drawJoinPoints(DiGLPainter* gl);
   /// sets scaleToField variable used for plotting areaBorders
   void setScaleToField(float s);
@@ -109,7 +107,7 @@ public:
   bool inComplexTextMode();
   /// returns true of current symbol is complext text (for colored text)
   bool inComplexTextColorMode();
-  
+
   /// returns true if current symbol is edittext or textbox
   bool inEditTextMode();
   /// initial text for complex text symbols
@@ -121,7 +119,7 @@ public:
 private:
   mapMode mapmode;
   int editmode; // edit mode index
-  std::string drawingtool; 
+  std::string drawingtool;
 
   object_modes objectmode;
   combine_modes combinemode;
@@ -160,7 +158,7 @@ public:
   bool editResumeDrawing(const float x, const float y);
   /// deletes all marked points from objects
   bool editDeleteMarkedPoints();
-  /// move marked points, x and y are the distance to be moved 
+  /// move marked points, x and y are the distance to be moved
   bool editMoveMarkedPoints(const float x, const float y);
   /// rotate front when one point marked, x and y are the distance to be rotated
   bool editRotateLine(const float x, const float y);
@@ -184,7 +182,7 @@ public:
   void editHideAll();
   /// show all hidden objectts
   void editUnHideAll();
-  /// hide all combine objects from region 
+  /// hide all combine objects from region
   void editHideCombineObjects(std::string region);
   /// hide all combine objects from region number ir
   void editHideCombineObjects(int ir);
@@ -242,21 +240,19 @@ public:
   /// Removes everything from UndoFront buffers
   void undofrontClear();
   /// save current objects/operations to undoFront, returns true if anything changed
-  bool saveCurrentFronts(operation, UndoFront *); 
+  bool saveCurrentFronts(operation, UndoFront *);
   /// save objects to undoFront after reading, returns true if anything changed
-  bool saveCurrentFronts(int, UndoFront *); 
+  bool saveCurrentFronts(int, UndoFront *);
   /// reads the current undoBuffer, and updates objects
   bool changeCurrentFronts();
 
   /// Methods for finding and marking join points on fronts/borders
-  /// recursive routine to find all joined fronts belonging to point x,y 
+  /// recursive routine to find all joined fronts belonging to point x,y
   bool findAllJoined(const float x, const float y,objectType wType);
   /// returns true if x,y on joined point
   bool findJoinedPoints(const float x, const float y,objectType wType);
   /// routine to find fronts joined to pfront
   void findJoinedFronts(ObjectPlot*,objectType wType);
-
 };
 
 #endif
-

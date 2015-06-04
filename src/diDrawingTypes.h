@@ -72,7 +72,7 @@ enum eventOrder {
   normal_event,  // event in ongoing action
   stop_event     // last event for this action
 };
-  
+
 /// data for a complete edit event
 struct EditEvent {
   editType type;    ///< type of event

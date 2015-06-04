@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,12 +29,12 @@
 #ifndef _diDisplayObjects_h
 #define _diDisplayObjects_h
 
-#include <diObjectPlot.h>
-#include <diWeatherObjects.h>
-#include <diAreaBorder.h>
-#include <diUndoFront.h>
-#include <diMapMode.h>
-#include <diColour.h>
+#include "diObjectPlot.h"
+#include "diWeatherObjects.h"
+#include "diAreaBorder.h"
+#include "diUndoFront.h"
+#include "diMapMode.h"
+#include "diColour.h"
 
 #include <diField/diArea.h>
 #include <diField/diGridConverter.h>
@@ -50,7 +48,6 @@
 class DisplayObjects : public WeatherObjects {
 public:
   DisplayObjects();
-  ~DisplayObjects(){}
 
   /// initialize class variables to false/zero
   void init();
@@ -93,9 +90,9 @@ public:
     { return timeDiff; }
 
 private:
-  bool autoFile; // read new files
-  bool approved;          //objects approved for plotting
-  int timeDiff; 
+  bool autoFile;  //!< read new files
+  bool approved;  //!< objects approved for plotting
+  int timeDiff;
   std::string objectname;
   bool defined;
 

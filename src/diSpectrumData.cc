@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id: diSpectrumData.cc 3822 2013-11-01 19:42:36Z alexanderb $
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -38,7 +36,6 @@
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
-#include <diField/FimexSource.h>
 #include <diField/VcrossUtil.h>
 
 #include <boost/foreach.hpp>

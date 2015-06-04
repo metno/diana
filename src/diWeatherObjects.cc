@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,12 +32,12 @@
 #include "config.h"
 #endif
 
-#include <diWeatherObjects.h>
-#include <diDrawingTypes.h>
-#include <diWeatherFront.h>
-#include <diWeatherSymbol.h>
-#include <diWeatherArea.h>
-#include <diShapeObject.h>
+#include "diWeatherObjects.h"
+#include "diDrawingTypes.h"
+#include "diWeatherFront.h"
+#include "diWeatherSymbol.h"
+#include "diWeatherArea.h"
+#include "diShapeObject.h"
 #include "diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
@@ -54,17 +52,15 @@ using namespace::miutil;
 using namespace std;
 
 //static
-miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);
-
+const miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);
 
 /*********************************************/
 
 WeatherObjects::WeatherObjects()
 : xcopy(0), ycopy(0)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects constructor");
-#endif
+  METLIBS_LOG_SCOPE();
+
   //zero time = 00:00:00 UTC Jan 1 1970
   itsTime=ztime;
 
@@ -85,9 +81,8 @@ WeatherObjects::WeatherObjects()
 
 void WeatherObjects::clear()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::clear");
-#endif
+  METLIBS_LOG_SCOPE();
+
   int no = objects.size();
   for (int i=0; i<no; i++)
     delete objects[i];
@@ -97,7 +92,6 @@ void WeatherObjects::clear()
   itsOldComments = std::string();
   itsLabels.clear();
   itsOldLabels.clear();
-
 }
 
 
@@ -145,24 +139,24 @@ bool WeatherObjects::changeProjection(const Area& newArea)
     return false;
   }
 
-  int i,j,npos= 0;
-  int obsize = objects.size();
+  const int obsize = objects.size();
 
   //npos = number of points to be transformed = all object points
-  for (i=0; i<obsize; i++)
-    npos+= objects[i]->getXYZsize();
-  //plus one copy point(xopy,ycopy)
+  int npos= 0;
+  for (int i=0; i<obsize; i++)
+    npos += objects[i]->getXYZsize();
+  //plus one copy point(xcopy,ycopy)
   npos++;
 
   float *xpos = new float[npos];
   float *ypos = new float[npos];
-  int m,n= 0;
+  int n= 0;
 
-  for (i=0; i<obsize; i++){
-    m= objects[i]->getXYZsize();
+  for (int i=0; i<obsize; i++){
+    const int m= objects[i]->getXYZsize();
     vector<float> x=objects[i]->getX();
     vector<float> y=objects[i]->getY();
-    for (j=0; j<m; ++j) {
+    for (int j=0; j<m; ++j) {
       xpos[n]= x[j];
       ypos[n]= y[j];
       n++;
@@ -192,7 +186,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   ycopy=ypos[n];
 
   n= 0;
-  for (i=0; i<obsize; i++){
+  for (int i=0; i<obsize; i++){
     const int m= objects[i]->getXYZsize();
     const vector<float> x(&xpos[n], &xpos[n+m]);
     const vector<float> y(&ypos[n], &ypos[n+m]);
@@ -217,7 +211,7 @@ void WeatherObjects::updateObjects()
 {
   METLIBS_LOG_SCOPE();
 
-  int obsize = objects.size();
+  const int obsize = objects.size();
   for (int i=0; i<obsize; i++)
     objects[i]->updateBoundBox();
 }
@@ -225,12 +219,9 @@ void WeatherObjects::updateObjects()
 
 /*********************************************/
 
-bool
-WeatherObjects::readEditDrawFile(const std::string& fn,const Area& newArea){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::readEditDrawFile(2)");
-  METLIBS_LOG_DEBUG("filename" << fn);
-#endif
+bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea)
+{
+  METLIBS_LOG_SCOPE("filename" << fn);
 
   //if *.shp read shapefile
   if (diutil::endswith(fn, ".shp")) {
@@ -260,13 +251,13 @@ WeatherObjects::readEditDrawFile(const std::string& fn,const Area& newArea){
   /* ---------------------------------------------------------------------
  -----------------------start to read new format--------------------------
   -----------------------------------------------------------------------*/
-  std::string str,value,key,fileString;
-
   // read the first line check if it contains "date"
-  getline(file,str);
+  std::string str;
+  getline(file, str);
   //METLIBS_LOG_DEBUG("The first line read is " << str);
-  vector<std::string> stokens = miutil::split(str, 0, "=");
-  if ( stokens.size()==2) {
+  const std::vector<std::string> stokens = miutil::split(str, 0, "=");
+  std::string value,key;
+  if (stokens.size()==2) {
     key = miutil::to_lower(stokens[0]);
     value = stokens[1];
   }
@@ -277,7 +268,7 @@ WeatherObjects::readEditDrawFile(const std::string& fn,const Area& newArea){
     return false;
   }
 
-  fileString = std::string();
+  std::string fileString;
   // read file
   while (getline(file,str) && !file.eof()){
     if (str.empty() || str[0]=='#')
@@ -287,19 +278,17 @@ WeatherObjects::readEditDrawFile(const std::string& fn,const Area& newArea){
     if (miutil::contains(str, "Helvetica")) {
       miutil::replace(str, "Helvetica","BITMAPFONT");
     }
-    //check if this is a LABEL string
+    // check if this is a LABEL string
     if (diutil::startswith(str, "LABEL")) {
       if (useobject["anno"])
         itsOldLabels.push_back(str);
     } else {
-      fileString+=str;
+      fileString += str;
     }
   }
   file.close();
   return readEditDrawString(fileString, newArea);
 }
-
-
 
 bool WeatherObjects::readEditDrawString(const std::string& inputString,
     const Area& newArea, bool replace)
@@ -337,118 +326,100 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString,
     }
     if (key == "date"){
       //METLIBS_LOG_DEBUG("date of object file = " << timeFromString(value));
-    }
-    else if (key == "object"){
+    } else if (key == "object"){
       ObjectPlot * tObject;
-      if (value == "Front")
+      if (value == "Front") {
         if (useobject["front"])
           tObject = new WeatherFront();
-        else continue;
-      else if (value == "Symbol")
+        else
+          continue;
+      } else if (value == "Symbol") {
         if (useobject["symbol"])
           tObject = new WeatherSymbol();
-        else continue;
-      else if (value == "Area")
+        else
+          continue;
+      } else if (value == "Area") {
         if (useobject["area"])
           tObject = new WeatherArea();
-        else continue;
-      else if (value == "Border")
+        else
+          continue;
+      } else if (value == "Border")
         tObject = new AreaBorder();
       else if (value == "RegionName")
         tObject = new WeatherSymbol("",RegionName);
       else {
-        METLIBS_LOG_ERROR("WeatherObjects::readEditDrawString Unknown object:"
-        << value);
+        METLIBS_LOG_ERROR("Unknown object: '" << value << "'");
         continue;
       }
       if (tObject->readObjectString(objectStrings[i]))
         //add a new object
         addObject(tObject,replace);
-      else delete tObject;
+      else
+        delete tObject;
+    } else {
+      METLIBS_LOG_ERROR("Error! Object key '" << key << "'not found !");
     }
-    else METLIBS_LOG_ERROR("Error! Object key not found !");
   }
 
   changeProjection(newArea);
-
   return true;
 }
 
-std::string WeatherObjects::writeEditDrawString(const miTime& t){
+std::string WeatherObjects::writeEditDrawString(const miTime& t)
+{
+  METLIBS_LOG_SCOPE();
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::writeEditDrawString");
-#endif
-  if (empty()) return std::string();
+  if (empty())
+    return std::string();
 
-  Area oldarea= itsArea;
+  const Area oldarea = itsArea;
   changeProjection(geoArea);
 
-  //output stream
   ostringstream ostr;
+  ostr << "Date=" << stringFromTime(t, true) << ';' << endl << endl;
 
-  //write out the date
-  std::string date ="Date="+stringFromTime(t,true)+";";
-  ostr << date << endl << endl;
-
-  vector <ObjectPlot*>::iterator p = objects.begin();
-  while (p!=objects.end()){
-    ObjectPlot * pobject = *p;
-    ostr << pobject->writeObjectString();
-    p++;
-  }
+  for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p)
+    ostr << (*p)->writeObjectString();
 
   changeProjection(oldarea);
 
-  std::string objectString = ostr.str();
-  int n=itsLabels.size();
-  for  (int i=0;i<n;i++)
-    objectString+=itsLabels[i]+"\n";
-  return objectString;
+  const int n = itsLabels.size();
+  for (int i=0; i<n; i++)
+    ostr << itsLabels[i] << "\n";
+  return ostr.str();
 }
-
 
 /************************************************
  *  Methods for reading comments  ****************
  *************************************************/
 
-bool WeatherObjects::readEditCommentFile(const std::string fn){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::readEditCommentFile" << fn);
-#endif
+bool WeatherObjects::readEditCommentFile(const std::string fn)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(fn));
 
-  // open filestream
-  ifstream file(fn.c_str());
-  if (!file){
-#ifdef DEBUGPRINT
+  std::ifstream file(fn.c_str());
+  if (!file) {
     METLIBS_LOG_DEBUG("not found " << fn);
-#endif
     return false;
   }
 
-  std::string str,fileString;
-
-  fileString = std::string();
-  // read file
+  std::string str, fileString;
   while (getline(file,str) && !file.eof())
-    fileString+=str+"\n";
+    fileString += str + "\n";
 
   file.close();
 
   itsOldComments += fileString;
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("itsOldComments" << itsOldComments);
-#endif
 
   return true;
 }
 
+std::string WeatherObjects::readComments()
+{
+  METLIBS_LOG_SCOPE();
 
-std::string WeatherObjects::readComments(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::Read comments");
-#endif
   //read the old comments
   if (itsOldComments.empty())
     return "No comments";
@@ -462,18 +433,14 @@ std::string WeatherObjects::readComments(){
 
 vector <string> WeatherObjects::getObjectLabels()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::getObjectLabels");
-#endif
+  METLIBS_LOG_SCOPE();
   //oldLabels from object file
   return itsOldLabels;
 }
 
 vector<string> WeatherObjects::getEditLabels()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::getEditLabels");
-#endif
+  METLIBS_LOG_SCOPE();
   //new edited labels
   return itsLabels;
 }
@@ -482,59 +449,47 @@ vector<string> WeatherObjects::getEditLabels()
  *  Methods for reading and writing areaBorders  *
  *************************************************/
 
-bool WeatherObjects::readAreaBorders(const std::string fn,
+bool WeatherObjects::readAreaBorders(const std::string fn, const Area& newArea)
+{
+  METLIBS_LOG_SCOPE("filename = " << fn);
 
-    const Area& newArea){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::readAreaBorders");
-  METLIBS_LOG_DEBUG("filename = " << fn);
-#endif
-
-  // open filestream
-  ifstream file(fn.c_str());
+  std::ifstream file(fn.c_str());
   if (!file){
     METLIBS_LOG_ERROR("ERROR OPEN (READ) " << fn);
     return false;
   }
 
-
   std::string str,fileString;
-
-  fileString = std::string();
   // read file
   while (getline(file,str) && !file.eof())
-    fileString+=str+"\n";
+    fileString += str + "\n";
 
   file.close();
 
   return readEditDrawString(fileString,newArea);
-
 }
 
 
-
-bool WeatherObjects::writeAreaBorders(const std::string fn){
-
-  if (empty()) return false;
+bool WeatherObjects::writeAreaBorders(const std::string& fn)
+{
+  if (empty())
+    return false;
 
   // open filestream
-  ofstream file(fn.c_str());
+  std::ofstream file(fn.c_str());
   if (!file){
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << fn);
     return false;
   }
 
-  Area oldarea= itsArea;
+  const Area oldarea = itsArea;
   changeProjection(geoArea);
 
-  vector <ObjectPlot*>::iterator p = objects.begin();
-  while (p!=objects.end()){
-    ObjectPlot * pobject = *p;
+  for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p) {
+    ObjectPlot* pobject = *p;
     if (pobject->objectIs(Border))
       file << pobject->writeObjectString();
-    p++;
   }
-
 
   file.close();
 
@@ -542,52 +497,48 @@ bool WeatherObjects::writeAreaBorders(const std::string fn){
   return true;
 }
 
-
-
-
 // ---------------------------------------------------------------
 // ---------------------------------------------------------------
 // ---------------------------------------------------------------
 
-
-int WeatherObjects::objectCount(int type ){
+int WeatherObjects::objectCount(int type)
+{
   int ncount= 0;
-  vector <ObjectPlot*>::iterator p = objects.begin();
-  while (p!=objects.end()){
-    ObjectPlot * pobject = *p;
-    if (pobject->objectIs(type)) ncount++;
-    p++;
+  for (std::vector <ObjectPlot*>::const_iterator p = objects.begin(); p!=objects.end(); ++p) {
+    if ((*p)->objectIs(type))
+      ncount++;
   }
   return ncount;
 }
 
-void WeatherObjects::addObject(ObjectPlot * object, bool replace){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::addObject");
-#endif
-  if (!object) return;
+void WeatherObjects::addObject(ObjectPlot* object, bool replace)
+{
+  METLIBS_LOG_SCOPE();
+  if (!object)
+    return;
 
-  if(replace){ // remove old object
-    vector <ObjectPlot*>::iterator p = objects.begin();
-    while (p!=objects.end() && (*p)->getName()!= object->getName())p++;
-    if(p!=objects.end()){
+  if (replace) { // remove old object
+    std::vector<ObjectPlot*>::iterator p = objects.begin();
+    while (p!=objects.end() && (*p)->getName() != object->getName())
+      p++;
+    if (p!=objects.end())
       objects.erase(p);
-    }
   }
 
   objects.push_back(object);
   object->setRegion(prefix);
 }
 
-vector<ObjectPlot*>::iterator
-WeatherObjects::removeObject(vector<ObjectPlot*>::iterator p){
+vector<ObjectPlot*>::iterator WeatherObjects::removeObject(vector<ObjectPlot*>::iterator p)
+{
   return objects.erase(p);
 }
 
-
 /*********************************************/
 
-std::string WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
+// static
+std::string WeatherObjects::stringFromTime(const miTime& t, bool addMinutes)
+{
   int yyyy= t.year();
   int mm  = t.month();
   int dd  = t.day();
@@ -596,22 +547,22 @@ std::string WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
 
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << yyyy
-  << setw(2) << setfill('0') << mm
-  << setw(2) << setfill('0') << dd
-  << setw(2) << setfill('0') << hh;
+       << setw(2) << setfill('0') << mm
+       << setw(2) << setfill('0') << dd
+       << setw(2) << setfill('0') << hh;
   if (addMinutes)
     ostr << setw(2) << setfill('0') << mn;
 
-  std::string timestring = ostr.str();
-  return timestring;
+  return ostr.str();
 }
-
 
 /*********************************************/
 
-miTime WeatherObjects::timeFromString(std::string timeString)
+// static
+miTime WeatherObjects::timeFromString(const std::string& timeString)
 {
-  if (timeString.length()<10) return ztime;
+  if (timeString.length()<10)
+    return ztime;
   //get time from a string with yyyymmddhhmm
   int year= atoi(timeString.substr(0,4).c_str());
   int mon=  atoi(timeString.substr(4,2).c_str());
@@ -620,24 +571,24 @@ miTime WeatherObjects::timeFromString(std::string timeString)
   int min= 0;
   if (timeString.length() >= 12)
     min= atoi(timeString.substr(10,2).c_str());
-  if (year<0 || mon <0 || day<0 || hour<0 || min < 0) return ztime;
+  if (year<0 || mon <0 || day<0 || hour<0 || min < 0)
+    return ztime;
   return miTime(year,mon,day,hour,min,0);
 }
 
 /*********************************************/
 
-map<std::string,bool> WeatherObjects::decodeTypeString( std::string token){
-
+// static
+map<std::string,bool> WeatherObjects::decodeTypeString(const std::string& token)
+{
   map<std::string,bool> use;
   for (int i=0; i<numObjectTypes; i++)
     use[ObjectTypeNames[i]]= false;
-  vector<std::string> stokens;
   //types of objects to plot
-  token= token.substr(6,token.size()-6);
-  stokens= miutil::split(token, 0, ",");
+  vector<std::string> stokens = miutil::split(token.substr(6,token.size()-6), 0, ",");
   int m= stokens.size();
   for (int j=0; j<m; j++){
-    if (stokens[j]=="all"){
+    if (stokens[j] == "all"){
       for (int k=0; k<numObjectTypes; k++)
         use[ObjectTypeNames[k]]= true;
       break;
@@ -647,8 +598,7 @@ map<std::string,bool> WeatherObjects::decodeTypeString( std::string token){
   return use;
 }
 
-
-void WeatherObjects::enable(const bool b)
+void WeatherObjects::enable(bool b)
 {
   enabled = b;
 }

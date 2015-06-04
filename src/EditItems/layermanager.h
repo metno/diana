@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,19 +30,20 @@
 #ifndef EDITITEMSLAYERMANAGER_H
 #define EDITITEMSLAYERMANAGER_H
 
+#include "EditItems/drawingitembase.h"
+#include "EditItems/layergroup.h"
+
 #include <QObject>
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <QDateTime>
 #include <QList>
 #include <QBitArray>
-#include <EditItems/drawingitembase.h>
 
 class DrawingManager;
 
 namespace EditItems {
 
-class LayerGroup;
 class Layer;
 
 class LayerManager : public QObject
