@@ -838,6 +838,8 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
 {
   //METLIBS_LOG_DEBUG(__FUNCTION__);
 
+  int addFLindex = -1;
+
   fieldManager->getFieldGroups(modelName, refTime, vfgi);
 
   //Return vfgi whith parameter names from file + computed parameters
@@ -855,7 +857,11 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
 
     std::string zaxis = vfgi[i].zaxis;
     if( zaxis.empty() ) {
-      zaxis = "none";
+       zaxis = "none";
+    }
+
+    if( zaxis == "pressure" ) {
+      addFLindex = i;
     }
 //    //Make copy with field names from file
 //    if(fieldManager->isGridCollection(modelName) && !plotGroups) {
@@ -919,6 +925,23 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
     vfgi[i].fieldNames = plotNames;
     vfgi[i].levels = plotNameLevels;
 
+  }
+
+  //If pressurelevels, add flightlevels too. Just renaming levels
+  if (addFLindex > -1) {
+    FieldGroupInfo fgi = vfgi[addFLindex];
+    fgi.groupName = "flightlevel";
+    fgi.zaxis = "flightlevel";
+    std::map<std::string, std::vector<std::string> >::iterator it=vfgi[addFLindex].levels.begin();
+    for ( ; it != vfgi[addFLindex].levels.end(); ++it) {
+      for (size_t i=0; i<it->second.size(); ++i) {
+        fgi.levels[it->first][i] = FieldFunctions::getFlightLevel(it->second[i]);
+      }
+    }
+    for (size_t i=0; i<vfgi[addFLindex].levelNames.size(); ++i) {
+      fgi.levelNames[i] = FieldFunctions::getFlightLevel(vfgi[addFLindex].levelNames[i]);
+    }
+    vfgi.push_back(fgi);
   }
 
   //remove fieldgroups with no plots
