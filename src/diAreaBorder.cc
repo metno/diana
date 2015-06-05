@@ -79,11 +79,10 @@ void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
 
       for (unsigned int i=0; i<nodePoints.size(); i++){
         //skip points that are in the same position
-        if (i!=0 && nodePoints[i].x==nodePoints[i-1].x &&
-            nodePoints[i].y==nodePoints[i-1].y)
+        if (i!=0 && nodePoints[i] == nodePoints[i-1])
           continue;
-        x[length]=nodePoints[i].x;
-        y[length]=nodePoints[i].y;
+        x[length] = nodePoints[i].x();
+        y[length] = nodePoints[i].y();
         length++;
       }
 

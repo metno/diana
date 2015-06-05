@@ -123,9 +123,10 @@ public:
       const Colour& fcolour, // triangles fill colour
       const Colour& bcolour);
 
-  virtual int getXYZsize();
-  virtual std::vector<float> getX();
-  virtual std::vector<float> getY();
+  virtual int getXYZsize() const;
+  virtual XY getXY(int idx) const;
+  virtual std::vector<XY> getXY() const;
+
   virtual void setXY(const std::vector<float>& x, const std::vector<float>& y);
   virtual bool getAnnoTable(std::string& str);
 };

@@ -43,20 +43,16 @@ enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 enum AreaType{ Sigweather,Genericarea, Genericarea_constline};
 
 //spline points for fronts/areas/borders
-const int divSpline= 5;
+extern const int DIV_SPLINE;
 
 /**
-
   \brief plotting and editing weather objects (symbols, fronts and areas)
 
   this class holds one weather object
-
 */
 class ObjectPlot : public Plot {
 public:
-
   bool addTop; ///< add elements to top instead of bottom
-  bool test;   ///< show area for marking points
 
   /// returns true if markers changed after cursor move (in editCheckPosition)
   bool getMarkedChanged() {return markedChanged;}
@@ -95,8 +91,7 @@ private:
   //translate norwegian->english in old files
   static std::map<std::string,std::string> editTranslations;
 
-  void drawTest(DiGLPainter* gl);
-  void drawPoints(DiGLPainter* gl, const std::vector <float>& xdraw, const std::vector <float>& ydraw);
+  void drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw);
   bool isInsideBox(float x, float y,float x1,float y1,float x2,float y2);
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
@@ -268,16 +263,25 @@ public:
 
   float getFdeltaw(){return fSense*window_dw*w*0.5;}
 
-  virtual int getXYZsize(){return nodePoints.size();}        ///< returns number of nodepoints
-  virtual std::vector<float> getX();                              ///< returns x-values for all nodepoints
-  virtual std::vector<float> getY();                              ///< returns y-valyes for all nodepoints
+  ///< returns number of nodepoints
+  virtual int getXYZsize() const;
+
+  ///< returns x-values for all nodepoints
+  virtual XY getXY(int idx) const;
+
+  virtual std::vector<XY> getXY() const;
+
   virtual bool getAnnoTable(std::string & str){return false;}
-  std::vector<float> getXjoined();                                ///< returns x-values for all joined nodepoints
-  std::vector<float> getYjoined();                                ///< returns y-values for all joined nodepoints
-  std::vector<float> getXmarked();                                ///< returns x-values for all marked nodepoints
-  std::vector<float> getYmarked();                                ///< returns y-values for all marked nodepoints
-  std::vector<float> getXmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
-  std::vector<float> getYmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
+
+  /// returns xy-values for all joined nodepoints
+  std::vector<XY> getXYjoined() const;
+
+  /// returns xy-values for all marked nodepoints
+  std::vector<XY> getXYmarked() const;
+
+  /// returns xy-values for all marked and joined nodepoints
+  std::vector<XY> getXYmarkedJoined() const;
+
   virtual void setXY(const std::vector<float>& x, const std::vector<float>& y);      ///< sets x and y values for all nodepoints
 
   virtual float getLineWidth(){return 0;}

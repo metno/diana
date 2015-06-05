@@ -74,9 +74,7 @@ WeatherArea::WeatherArea(std::string tystring) :
 
   // set correct areatype
   if (!setType(tystring))
-    METLIBS_LOG_DEBUG("WeatherArea constructor error, type " << tystring
-        << " not found !!!");
-
+    METLIBS_LOG_ERROR("type " << tystring << " not found !!!");
 }
 
 WeatherArea::~WeatherArea()
@@ -99,17 +97,12 @@ void WeatherArea::recalculate()
     if (length < 3)
       return;
   } else { // Makes smooth lines
-    int div = divSpline; // div = subdivision points between to edge points
+    int div = DIV_SPLINE; // div = subdivision points between to edge points
 
-    if (x != 0)
-      delete[] x;
-    if (y != 0)
-      delete[] y;
-
-    if (x_s != 0)
-      delete[] x_s;
-    if (y_s != 0)
-      delete[] y_s;
+    delete[] x;
+    delete[] y;
+    delete[] x_s;
+    delete[] y_s;
     x = y = x_s = y_s = 0;
     s_length = 0;
 
@@ -127,8 +120,8 @@ void WeatherArea::recalculate()
       //skip points that are in the same position
       if (i != 0 && nodePoints[i] == nodePoints[i - 1])
         continue;
-      x[length] = nodePoints[i].x;
-      y[length] = nodePoints[i].y;
+      x[length] = nodePoints[i].x();
+      y[length] = nodePoints[i].y();
       length++;
     }
 
@@ -183,7 +176,6 @@ void WeatherArea::recalculate()
 // if set to active:  use crude plotting
 void WeatherArea::setState(const state s)
 {
-  //METLIBS_LOG_DEBUG("setState ");
   currentState = s;
 }
 
@@ -224,9 +216,9 @@ void WeatherArea::plot(DiGLPainter* gl, PlotOrder zorder)
       end = nodePoints.size();
       gl->Begin(DiGLPainter::gl_LINE_STRIP);
       for (int i = 0; i < end; i++)
-        gl->Vertex2f(nodePoints[i].x, nodePoints[i].y);
+        gl->Vertex2f(nodePoints[i].x(), nodePoints[i].y());
       if (end && !rubber)
-        gl->Vertex2f(nodePoints[0].x, nodePoints[0].y);
+        gl->Vertex2f(nodePoints[0].x(), nodePoints[0].y());
       gl->End();
       if (rubber)
         plotRubber(gl);
@@ -260,7 +252,7 @@ void WeatherArea::plot(DiGLPainter* gl, PlotOrder zorder)
         if (nodePoints[0] == nodePoints[npos - 1])
           npos--;
         for (int i = 0; i < npos; i++)
-          polygon << QPointF(nodePoints[i].x, nodePoints[i].y);
+          polygon << QPointF(nodePoints[i].x(), nodePoints[i].y());
       } else {
         // check for identical end-points
         if (x_s[0] == x_s[npos - 1] && y_s[0] == y_s[npos - 1])
@@ -429,15 +421,15 @@ bool WeatherArea::isInsideArea(float x, float y)
     }
   } else if (nodePoints.size() > 2) {
     n = nodePoints.size() - 1;
-    px = nodePoints[n - 1].x;
-    py = nodePoints[n - 1].y;
+    px = nodePoints[n - 1].x();
+    py = nodePoints[n - 1].y();
     for (int i = 0; i < n; i++) {
-      if ((py < y && nodePoints[i].y >= y) || (py >= y && nodePoints[i].y < y)) {
-        xc = px + (nodePoints[i].x - px) * (y - py) / (nodePoints[i].y - py);
+      if ((py < y && nodePoints[i].y() >= y) || (py >= y && nodePoints[i].y() < y)) {
+        xc = px + (nodePoints[i].x() - px) * (y - py) / (nodePoints[i].y() - py);
         xset.insert(xc);
       }
-      px = nodePoints[i].x;
-      py = nodePoints[i].y;
+      px = nodePoints[i].x();
+      py = nodePoints[i].y();
     }
   } else {
     return false;
@@ -608,12 +600,12 @@ void WeatherArea::flip()
 {
   int end = nodePoints.size();
   for (int j = 0; j < end / 2; j++) {
-    float x = nodePoints[j].x;
-    float y = nodePoints[j].y;
-    nodePoints[j].x = nodePoints[end - 1 - j].x;
-    nodePoints[j].y = nodePoints[end - 1 - j].y;
-    nodePoints[end - 1 - j].x = x;
-    nodePoints[end - 1 - j].y = y;
+    float x = nodePoints[j].x();
+    float y = nodePoints[j].y();
+    nodePoints[j].rx() = nodePoints[end - 1 - j].x();
+    nodePoints[j].ry() = nodePoints[end - 1 - j].y();
+    nodePoints[end - 1 - j].rx() = x;
+    nodePoints[end - 1 - j].ry() = y;
   }
 }
 

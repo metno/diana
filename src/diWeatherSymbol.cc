@@ -319,8 +319,8 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
       int end = nodePoints.size();
       for (int i=0; i<end; i++) {
         float cw=0,ch=0;
-        float x=nodePoints[i].x;
-        float y=nodePoints[i].y;
+        float x=nodePoints[i].x();
+        float y=nodePoints[i].y();
         if (drawIndex == 900 || (drawIndex >=1000 && drawIndex<=3000)){
           // this is a complex symbol
           if (complexSymbol) {

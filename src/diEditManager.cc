@@ -2375,11 +2375,10 @@ bool EditManager::recalcCombineMatrix(){
   int nposition=0;
   for (int i=0; i<cosize; i++){
     if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
-      vector <float> xborder=objm->getCombiningObjects().objects[i]->getX();
-      vector <float> yborder=objm->getCombiningObjects().objects[i]->getY();
       for (int j=0; j<numv[nborders]; j++) {
-        xposis[nposition]=xborder[j];
-        yposis[nposition]=yborder[j];
+        const XY& xyborder = objm->getCombiningObjects().objects[i]->getXY(j);
+        xposis[nposition]=xyborder.x();
+        yposis[nposition]=xyborder.y();
         nposition++;
       }
       nborders++;
@@ -2804,14 +2803,13 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
       npos= 0;
       for (int i=0; i<n; i++) {
         if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
-          vector <float> xborder=objm->getCombiningObjects().objects[i]->getX();
-          vector <float> yborder=objm->getCombiningObjects().objects[i]->getY();
-          int np= objm->getCombiningObjects().objects[i]->getXYZsize();
+          const int np = objm->getCombiningObjects().objects[i]->getXYZsize();
           for (int j=0; j<np; j++) {
-            x[npos]  = xborder[j];
-            y[npos++]= yborder[j];
-            x[npos]  = xborder[j] + 1.0;
-            y[npos++]= yborder[j] + 1.0;
+            const XY& xyborder = objm->getCombiningObjects().objects[i]->getXY(j);
+            x[npos]  = xyborder.x();
+            y[npos++]= xyborder.y();
+            x[npos]  = xyborder.x() + 1.0;
+            y[npos++]= xyborder.y() + 1.0;
           }
         }
       }

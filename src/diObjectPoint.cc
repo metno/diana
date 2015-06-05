@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,71 +27,46 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/* Created at Thu Jul 18 14:14:53 2002 */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
+#include "diObjectPoint.h"
+
 #define MILOGGER_CATEGORY "diana.ObjectPoint"
 #include <miLogger/miLogging.h>
 
-#include <diObjectPoint.h>
-
-/* Created at Thu Jul 18 14:14:53 2002 */
-
-// Default constructor
-ObjectPoint::ObjectPoint() {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Ny ObjectPoint() laget");
-#endif
-  x=0;
-  y=0;
-  marked=false;
-  joined=false;
+ObjectPoint::ObjectPoint()
+  : mXY(0, 0)
+  , mMarked(false)
+  , mJoined(false)
+{
+  METLIBS_LOG_SCOPE();
 }
 
-
-// x,y constructor
-ObjectPoint::ObjectPoint(float xin,float yin) {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Ny ObjectPoint(float,float) laget");
-#endif
-  x=xin;
-  y=yin;
-  marked=false;
-  joined=false;
+ObjectPoint::ObjectPoint(float xin, float yin)
+  : mXY(xin, yin)
+  , mMarked(false)
+  , mJoined(false)
+{
+  METLIBS_LOG_SCOPE();
 }
 
-
-// Equality operator
-bool ObjectPoint::operator==(const ObjectPoint &rhs) const{
-  //true if points in same position
-  if (x==rhs.x && y==rhs.y)
-    return true;
-  return false;
+bool ObjectPoint::operator==(const ObjectPoint &rhs) const
+{
+  return mXY == rhs.mXY;
 }
 
-//distance from point xm,ym
-float ObjectPoint::distSquared(float xm, float ym){
-  return (x-xm)*(x-xm)+(y-ym)*(y-ym);
+float ObjectPoint::distSquared(float xm, float ym) const
+{
+  const float dx = mXY.x() - xm, dy = mXY.y() - ym;
+  return dx*dx + dy*dy;
 }
 
-//check if point xm,ym is in rectangle with sides fdeltaw around point
-bool ObjectPoint::isInRectangle(float xm,float ym, float fdeltaw){
-  //METLIBS_LOG_DEBUG("ObjectPoint::isInRectangle");
-  myRect.x1=x - fdeltaw;
-  myRect.x2=x + fdeltaw;
-  myRect.y1=y - fdeltaw;
-  myRect.y2=y + fdeltaw;
-  if (myRect.isinside(xm,ym)){
-    //METLIBS_LOG_DEBUG("ObjectPoint::isInRectangle return true");
-    return true;
-  }
-  //METLIBS_LOG_DEBUG("ObjectPoint::isInRectangle return false");
-  return false;
+bool ObjectPoint::isInRectangle(float xm, float ym, float fdeltaw) const
+{
+  const Rectangle myRect(mXY.x() - fdeltaw, mXY.y() - fdeltaw, mXY.x() + fdeltaw, mXY.y() + fdeltaw);
+  return myRect.isinside(xm,ym);
 }
-
-
-
-

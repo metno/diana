@@ -206,8 +206,6 @@ public:
   void changeDefaultSize();
   /// increase object type by val
   bool editChangeObjectType(int val);
-  /// used for internal testing
-  void editTestFront();
   /// split front in two at x,y
   bool editSplitFront(const float x, const float y);
   /// all marked points unmarked

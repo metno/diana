@@ -273,8 +273,6 @@ public:
   void editResumeDrawing(const float x, const float y);
   /// split front in two at x,y
   void editSplitFront(const float x, const float y);
-  /// used for internal testing
-  void editTestFront();
   /// joined fronts are unjoined, so they can be moved apart
   void editUnJoinPoints();
   /// marked object points should stay marked, when mouse moves
