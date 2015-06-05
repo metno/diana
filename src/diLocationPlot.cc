@@ -299,7 +299,6 @@ void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       lselected = l;
     }
   }
-  gl->UpdateOutput();
 
   if (lselected>=0) {
     Colour   c2= Colour(locdata.colourSelected);
@@ -310,7 +309,6 @@ void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     gl->setLineStyle(c2, w2, l2);
 
     drawLineOrPoint(gl, lselected);
-    gl->UpdateOutput();
   }
 
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);

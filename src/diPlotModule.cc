@@ -975,13 +975,6 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   gl->LoadIdentity();
   gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
-  if (gl->isHardcopy()) {
-#if 0
-    staticPlot_->addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
-        - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
-#endif
-  }
-
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
 
@@ -1076,12 +1069,6 @@ void PlotModule::plotUnder(DiGLPainter* gl)
     for (size_t i = 0; i < vap.size(); i++)
       vap[i]->plot(gl, Plot::LINES);
   }
-
-  if (gl->isHardcopy()) {
-#if 0
-    staticPlot_->removeHCClipping();
-#endif
-  }
 }
 
 // plot overlay ---------------------------------------
@@ -1121,18 +1108,10 @@ void PlotModule::plotOver(DiGLPainter* gl)
     }
   }
 
-  if (gl->isHardcopy()) {
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-    staticPlot_->addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
-        - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
-#endif // DISABLED_STATICPLOT_PSOUTPUT
-  }
-
   // plot map-elements for highest zorder
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->plot(gl, Plot::OVERLAY);
 
-  gl->UpdateOutput();
 
   // frame (not needed if maprect==fullrect)
   Rectangle mr = staticPlot_->getMapSize();
@@ -1157,7 +1136,6 @@ void PlotModule::plotOver(DiGLPainter* gl)
     gl->End();
   }
 
-  gl->UpdateOutput();
   // plot rubberbox
   if (dorubberband) {
 #ifdef DEBUGREDRAW
@@ -1170,12 +1148,6 @@ void PlotModule::plotOver(DiGLPainter* gl)
     const Colour& bcontrast = staticPlot_->getBackContrastColour();
     gl->setLineStyle(bcontrast, 2);
     gl->drawRect(pold.x(), pold.y(), pnew.x(), pnew.y());
-  }
-
-  if (gl->isHardcopy()) {
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-    staticPlot_->removeHCClipping();
-#endif // DISABLED_STATICPLOT_PSOUTPUT
   }
 }
 
@@ -1239,12 +1211,6 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
   staticPlot_->setPhysSize(w, h);
 
   PlotAreaSetup();
-
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-  if (gl->isHardcopy()) {
-    staticPlot_->resetPage();
-  }
-#endif // DISABLED_STATICPLOT_PSOUTPUT
 }
 
 void PlotModule::freeFields(FieldPlot* fp)

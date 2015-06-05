@@ -67,7 +67,6 @@ void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
       delete[] x_s;
       delete[] y_s;
 
-      gl->UpdateOutput();
       gl->PushMatrix();
 
       // spline
@@ -105,7 +104,6 @@ void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
 
       gl->PopMatrix();
       drawNodePoints(gl);
-      gl->UpdateOutput();
     }
   }
 }

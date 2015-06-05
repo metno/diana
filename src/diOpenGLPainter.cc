@@ -219,9 +219,6 @@ void DiOpenGLPainter::PopAttrib()
 void DiOpenGLPainter::PushAttrib(GLbitfield mask)
 { glPushAttrib(mask); }
 
-void DiOpenGLPainter::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
-{ glScissor(x, y, width, height); }
-
 void DiOpenGLPainter::Ortho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
     GLdouble near_val, GLdouble far_val)
 { glOrtho(left, right, bottom, top, near_val, far_val); }

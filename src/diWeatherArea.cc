@@ -263,8 +263,6 @@ void WeatherArea::plot(DiGLPainter* gl, PlotOrder zorder)
       gl->drawPolygon(polygon);
     }
 
-    // for PostScript generation
-    gl->UpdateOutput();
     gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
     gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
@@ -272,7 +270,6 @@ void WeatherArea::plot(DiGLPainter* gl, PlotOrder zorder)
 
     // draws the edge rectangles / points that defines marking and moving
     drawNodePoints(gl);
-    gl->UpdateOutput();
   }
 }
 

@@ -215,9 +215,6 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
         break;
       }
 
-      // for PostScript generation
-      gl->UpdateOutput();
-
       //draw line
       if (currentState == active || drawIndex != SigweatherFront) {
         gl->PushMatrix();
@@ -238,12 +235,10 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
           plotRubber(gl);
       }
 
-      gl->UpdateOutput();
       gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
       gl->Disable(DiGLPainter::gl_BLEND);
 
       drawNodePoints(gl);
-      gl->UpdateOutput();
     }
   }
 }
@@ -456,8 +451,6 @@ void WeatherFront::drawColds(DiGLPainter* gl)
 
   }
 
-  gl->UpdateOutput();
-
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
 
@@ -567,15 +560,11 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
     }
     ncount++;
 
-
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r*1.5;
     s= 0.;
-
   }
-
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -586,8 +575,6 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
  */
 void WeatherFront::drawOccluded(DiGLPainter* gl)
 {
-  //  METLIBS_LOG_DEBUG("WeatherFront::drawOccluded");
-
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
@@ -721,8 +708,6 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
     s= 0.;
 
   }
-
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -862,10 +847,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r;
     s= 0.;
-
   }
-
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -927,11 +909,8 @@ void WeatherFront::drawSquallLine(DiGLPainter* gl)
     dys= ym - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r*4.;
     s= 0.;
-
   }
-  gl->UpdateOutput();
 }
-
 
 /*
   Draws arrowline
@@ -1000,7 +979,6 @@ void WeatherFront::drawArrowLine(DiGLPainter* gl)
       gl->Vertex2f(xtop2,ytop2);
       gl->End();
     }
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -1112,10 +1090,7 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r*1.5;
     s= 0.;
-
   }
-
-  gl->UpdateOutput();
 }
 
 void WeatherFront::flip()

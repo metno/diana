@@ -357,8 +357,6 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
 
     drawNodePoints(gl);
   }
-  // for PostScript generation
-  gl->UpdateOutput();
 }
 
 

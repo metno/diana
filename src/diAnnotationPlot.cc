@@ -554,7 +554,6 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     gl->fillRect(bbox);
   }
   gl->Disable(DiGLPainter::gl_BLEND);
-  gl->UpdateOutput();
 
   //plotAnno could be false if annotations too big for box
   // return here after plotted box only
@@ -573,7 +572,6 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     plotElements(gl, annotations[i].annoElements,
                  anno.rect.x1, anno.rect.y1, annotations[i].hei);
   }
-  gl->UpdateOutput();
 
   // draw outline
   if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
@@ -589,7 +587,6 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     }
     plotBorders(gl);
   }
-  gl->UpdateOutput();
 }
 
 bool AnnotationPlot::plotElements(DiGLPainter* gl,
@@ -616,7 +613,6 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       gl->fillRect(x - border, y - border, x + border + annoEl[j].width, y + border + annoEl[j].height);
       gl->Disable(DiGLPainter::gl_BLEND);
     }
-    gl->UpdateOutput();
 
     // get coordinates of border, draw later
     if (annoEl[j].polystyle == poly_border || annoEl[j].polystyle == poly_both) {

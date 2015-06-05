@@ -313,7 +313,6 @@ bool SatPlot::plotPixmap(DiGLPainter* gl)
   gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT,4);
   gl->Disable(DiGLPainter::gl_BLEND);
 
-  gl->UpdateOutput();
   return true;
 }
 

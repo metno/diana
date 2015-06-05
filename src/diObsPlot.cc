@@ -2085,41 +2085,31 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (plottype() == "synop") {
     for (int i = 0; i < n; i++) {
       plotSynop(gl, nextplot[i]);
-      if (i % 50 == 0)
-        gl->UpdateOutput();
     }
 
   } else if (plottype() == "metar") {
     for (int i = 0; i < n; i++) {
       plotMetar(gl, nextplot[i]);
-      if (i % 50 == 0)
-        gl->UpdateOutput();
     }
 
   } else if (plottype() == "list") {
     for (int i = 0; i < n; i++) {
       plotList(gl, nextplot[i]);
-      if (i % 50 == 0)
-        gl->UpdateOutput();
     }
 
   } else if (plottype() == "ascii") {
     for (int i = 0; i < n; i++) {
       plotList(gl, nextplot[i]);
-      if (i % 50 == 0)
-        gl->UpdateOutput();
     }
   }
 #ifdef ROADOBS
   else if (plottype() == "roadobs") {
     for (int i=0; i<n; i++) {
       plotRoadobs(gl, nextplot[i]);
-      if (i % 50 == 0) gl->UpdateOutput();
     }
   }
 #endif
 
-  gl->UpdateOutput();
 
   //reset
   finishCircle(gl);

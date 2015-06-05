@@ -1361,10 +1361,6 @@ void DiPaintGLPainter::Scalef(GLfloat x, GLfloat y, GLfloat z)
   this->transform = this->transform.scale(x, y);
 }
 
-void DiPaintGLPainter::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
-{
-}
-
 void DiPaintGLPainter::ShadeModel(GLenum mode)
 {
   switch (mode) {

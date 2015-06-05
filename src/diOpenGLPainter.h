@@ -82,7 +82,6 @@ public:
   void PolygonStipple(const GLubyte *mask);
   void PopAttrib(void);
   void PushAttrib(GLbitfield mask);
-  void Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
   void Ortho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
              GLdouble near_val, GLdouble far_val);
   void LoadIdentity(void);
