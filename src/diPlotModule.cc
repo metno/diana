@@ -256,8 +256,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
 {
   METLIBS_LOG_SCOPE();
 
-  staticPlot_->xyClear();
-
   // init inuse array
   const size_t nm = vmp.size();
   vector<bool> inuse(nm, false);
@@ -872,7 +870,6 @@ void PlotModule::defineMapArea()
 {
   bool mapdefined = false;
   Area newMapArea;
-  bool keep = keepcurrentarea;
 
   if (mapDefinedByUser) {     // area != "modell/sat-omr."
 
@@ -905,7 +902,6 @@ void PlotModule::defineMapArea()
   if (!mapdefined && editm->isInEdit()) {
     // set area equal to editfield-area
     if (editm->getFieldArea(newMapArea)) {
-      keep = true;
       mapdefined = mapDefinedByData = true;
     }
   }
@@ -931,7 +927,7 @@ void PlotModule::defineMapArea()
     mapdefined = mapDefinedByView = true;
   }
 
-  staticPlot_->setMapArea(newMapArea, keep);
+  staticPlot_->setMapArea(newMapArea);
 
   previousrequestedarea = requestedarea;
 }
@@ -1275,7 +1271,7 @@ void PlotModule::setMapArea(const Area& area)
 {
   const bool projChanged = (staticPlot_->getMapArea().P() != area.P());
 
-  staticPlot_->setMapArea(area, keepcurrentarea);
+  staticPlot_->setMapArea(area);
   PlotAreaSetup();
 
   if (projChanged) {
@@ -1289,7 +1285,7 @@ void PlotModule::setMapAreaFromMap(const Rectangle& rectangle)
 {
   const Area a(staticPlot_->getMapArea().P(), rectangle);
 
-  staticPlot_->setMapArea(a, false);
+  staticPlot_->setMapArea(a);
   PlotAreaSetup();
 
   updatePlots();

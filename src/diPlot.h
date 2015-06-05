@@ -68,10 +68,6 @@ private:
 public:
   static GridConverter gc;   // gridconverter class
 
-  // FIXME xyLimit and xyPart only used by obsolete config in MapPlot::prepare
-  std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-  std::vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
-
 public:
   StaticPlot();
   ~StaticPlot();
@@ -80,8 +76,8 @@ public:
   const Area& getMapArea() const
     { return area; }
 
-  /// set area, possibly trying to keep the current physical area
-  void setMapArea(const Area&, bool keepcurrentarea);
+  /// set area
+  void setMapArea(const Area&);
 
   /// with a new projection: find the best matching physical area with the current one
   Area findBestMatch(const Area&);
@@ -212,9 +208,6 @@ public:
   /// is redraw needed
   bool getDirty()
     { return dirty; }
-
-  /// clear clipping variables
-  void xyClear();
 
   /// set great circle distance
   void updateGcd(DiGLPainter* gl);

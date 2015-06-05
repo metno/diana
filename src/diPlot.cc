@@ -99,27 +99,13 @@ void StaticPlot::setBgColour(const std::string& cn)
   backContrastColour = backgroundColour.contrastColour();
 }
 
-void StaticPlot::setMapArea(const Area& a, bool keepcurrentarea)
+void StaticPlot::setMapArea(const Area& a)
 {
   if (!a.P().isDefined())
     return;
 
   // change plot-Area
   area = a;
-  if (!keepcurrentarea) {
-    if (xyLimit.size()==4) {
-      Rectangle rect(xyLimit[0],xyLimit[2],xyLimit[1],xyLimit[3]);
-      area.setR(rect);
-    } else if (xyPart.size()==4) {
-      Rectangle rect1= area.R();
-      Rectangle rect;
-      rect.x1= rect1.x1 + rect1.width() *xyPart[0];
-      rect.x2= rect1.x1 + rect1.width() *xyPart[1];
-      rect.y1= rect1.y1 + rect1.height()*xyPart[2];
-      rect.y2= rect1.y1 + rect1.height()*xyPart[3];
-      area.setR(rect);
-    }
-  }
   setDirty(true);
 }
 
@@ -237,12 +223,6 @@ void Plot::setColourMode(bool isrgb){
   rgbmode= isrgb;
 //   if (rgbmode) fp= std_fp;
 //   else fp= ovr_fp;
-}
-
-// static method
-void StaticPlot::xyClear(){
-  xyLimit.clear();
-  xyPart.clear();
 }
 
 void Plot::setPlotInfo(const std::string& pin)
