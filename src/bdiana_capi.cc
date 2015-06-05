@@ -1446,7 +1446,6 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
-  METLIBS_LOG_ERROR("font manager initialisation was skipped");
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
