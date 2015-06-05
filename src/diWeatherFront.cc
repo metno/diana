@@ -107,7 +107,7 @@ void WeatherFront::recalculate()
 {
   //METLIBS_LOG_DEBUG("WeatherFront::recalculate");
   // Makes smooth lines
-  int div=divSpline;  // div = subdivision points between to edge points
+  int div = DIV_SPLINE;  // div = subdivision points between to edge points
 
   if (x != NULL)  delete[] x;
   if (y != NULL)  delete[] y;
@@ -125,8 +125,8 @@ void WeatherFront::recalculate()
   for (unsigned int i=0; i<nodePoints.size(); i++){
     //skip points that are in the same position
     if (i!=0 && nodePoints[i]==nodePoints[i-1]) continue;
-    x[length]=nodePoints[i].x;
-    y[length]=nodePoints[i].y;
+    x[length]=nodePoints[i].x();
+    y[length]=nodePoints[i].y();
     length++;
   }
 
@@ -215,9 +215,6 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
         break;
       }
 
-      // for PostScript generation
-      gl->UpdateOutput();
-
       //draw line
       if (currentState == active || drawIndex != SigweatherFront) {
         gl->PushMatrix();
@@ -230,7 +227,7 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
             gl->Vertex2f((x_s[i]),(y_s[i]));
         } else { // Draw unsmoothed line
           for (int i=0; i<end; i++)
-            gl->Vertex2f(nodePoints[i].x,nodePoints[i].y);
+            gl->Vertex2f(nodePoints[i].x(), nodePoints[i].y());
         }
         gl->End();
         gl->PopMatrix();
@@ -238,12 +235,10 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
           plotRubber(gl);
       }
 
-      gl->UpdateOutput();
       gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
       gl->Disable(DiGLPainter::gl_BLEND);
 
       drawNodePoints(gl);
-      gl->UpdateOutput();
     }
   }
 }
@@ -265,27 +260,26 @@ bool WeatherFront::addFront(ObjectPlot * qfront)
   float x,y,xnew,ynew;
 
   if (addTop){
-    x=nodePoints.front().x;
-    y=nodePoints.front().y;
+    x=nodePoints.front().x();
+    y=nodePoints.front().y();
   } else {
-    x=nodePoints.back().x;
-    y=nodePoints.back().y;
+    x=nodePoints.back().x();
+    y=nodePoints.back().y();
   }
-  int end = qfront->getXYZsize();
-  vector<float> xq=qfront->getX();
-  vector<float> yq=qfront->getY();
+  const int end = qfront->getXYZsize();
+  const std::vector<XY> xyq = qfront->getXY();
   currentState = active;
   if (qfront->isBeginPoint(x,y,xnew,ynew)){
     movePoint(x,y,xnew,ynew);
     for (int i = 1;i<end;i++){
-      addPoint(xq[i],yq[i]);
+      addPoint(xyq[i].x(), xyq[i].y());
     }
   } else if (qfront->isEndPoint(x,y,xnew,ynew)){
     movePoint(x,y,xnew,ynew);
     for (int i = end-2;i>-1;i--){
-      addPoint(xq[i],yq[i]);
+      addPoint(xyq[i].x(), xyq[i].y());
     }
-  } else{
+  } else {
     return false;
   }
   currentState = passive;
@@ -309,7 +303,7 @@ ObjectPlot* WeatherFront::splitFront(float x,float y){
   }
   int start = nodePoints.size()-1;
   for(int i=start;i>=ihit;i--){
-    newFront->addPoint(nodePoints[i].x,nodePoints[i].y);
+    newFront->addPoint(nodePoints[i].x(), nodePoints[i].y());
     nodePoints.erase(nodePoints.begin()+i);
   }
   //last add point x,y to the beginning of new front
@@ -457,8 +451,6 @@ void WeatherFront::drawColds(DiGLPainter* gl)
 
   }
 
-  gl->UpdateOutput();
-
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
 
@@ -568,15 +560,11 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
     }
     ncount++;
 
-
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r*1.5;
     s= 0.;
-
   }
-
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -587,8 +575,6 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
  */
 void WeatherFront::drawOccluded(DiGLPainter* gl)
 {
-  //  METLIBS_LOG_DEBUG("WeatherFront::drawOccluded");
-
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
@@ -722,8 +708,6 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
     s= 0.;
 
   }
-
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -863,10 +847,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r;
     s= 0.;
-
   }
-
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -928,11 +909,8 @@ void WeatherFront::drawSquallLine(DiGLPainter* gl)
     dys= ym - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r*4.;
     s= 0.;
-
   }
-  gl->UpdateOutput();
 }
-
 
 /*
   Draws arrowline
@@ -1001,7 +979,6 @@ void WeatherFront::drawArrowLine(DiGLPainter* gl)
       gl->Vertex2f(xtop2,ytop2);
       gl->End();
     }
-  gl->UpdateOutput();
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 }
@@ -1113,25 +1090,22 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys) + r*1.5;
     s= 0.;
-
   }
-
-  gl->UpdateOutput();
 }
 
 void WeatherFront::flip()
 {
   int end = nodePoints.size();
   for (int j=0; j < end/2; j++){
-    float x=nodePoints[j].x;
-    float y=nodePoints[j].y;
-    bool joined = nodePoints[j].joined;
-    nodePoints[j].x=nodePoints[end-1-j].x;
-    nodePoints[j].y=nodePoints[end-1-j].y;
-    nodePoints[j].joined=nodePoints[end-1-j].joined;
-    nodePoints[end-1-j].x=x;
-    nodePoints[end-1-j].y=y;
-    nodePoints[end-1-j].joined=joined;
+    float x=nodePoints[j].x();
+    float y=nodePoints[j].y();
+    bool joined = nodePoints[j].joined();
+    nodePoints[j].rx()=nodePoints[end-1-j].x();
+    nodePoints[j].ry()=nodePoints[end-1-j].y();
+    nodePoints[j].setJoined(nodePoints[end-1-j].joined());
+    nodePoints[end-1-j].rx()=x;
+    nodePoints[end-1-j].ry()=y;
+    nodePoints[end-1-j].setJoined(joined);
   }
   recalculate();
 }

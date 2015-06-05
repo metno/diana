@@ -58,7 +58,6 @@ private:
   XY mPhysToMapScale; // ratio of plot size to physical size
   bool dirty;         // plotarea has changed
   int verticalLevel;          // current vertical level
-  std::string bgcolour;  // name of background colour
   Colour backgroundColour;   // background colour
   Colour backContrastColour; // suitable contrast colour
   float gcd;          // great circle distance
@@ -68,10 +67,6 @@ private:
 public:
   static GridConverter gc;   // gridconverter class
 
-  // FIXME xyLimit and xyPart only used by obsolete config in MapPlot::prepare
-  std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-  std::vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
-
 public:
   StaticPlot();
   ~StaticPlot();
@@ -80,8 +75,8 @@ public:
   const Area& getMapArea() const
     { return area; }
 
-  /// set area, possibly trying to keep the current physical area
-  void setMapArea(const Area&, bool keepcurrentarea);
+  /// set area
+  void setMapArea(const Area&);
 
   /// with a new projection: find the best matching physical area with the current one
   Area findBestMatch(const Area&);
@@ -194,17 +189,18 @@ public:
   /// set name of background colour
   void setBgColour(const std::string& cn);
 
-  /// return the name of the current background colour
-  const std::string& getBgColour()
-    { return bgcolour; }
-
   /// return the current background colour
-  const Colour& getBackgroundColour()
+  const Colour& getBackgroundColour() const
     { return backgroundColour; }
 
   /// return colour with good contrast to background
-  const Colour& getBackContrastColour()
+  const Colour& getBackContrastColour() const
     { return backContrastColour; }
+
+  /*! return another colour than the current background colour
+   * Warning: may return c, therefore c must not be a temporary object
+   */
+  const Colour& notBackgroundColour(const Colour& c) const;
 
   /// mark this as 'redraw needed'
   void setDirty(bool dirty=true);
@@ -212,9 +208,6 @@ public:
   /// is redraw needed
   bool getDirty()
     { return dirty; }
-
-  /// clear clipping variables
-  void xyClear();
 
   /// set great circle distance
   void updateGcd(DiGLPainter* gl);

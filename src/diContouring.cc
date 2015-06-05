@@ -884,7 +884,6 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
       // line type
       if (ltypx != linetype[lev]) {
-        //UpdateOutput();
         ltypx = linetype[lev];
         if (poptions.linetypes[ltypx].stipple) {
           gl->LineStipple(poptions.linetypes[ltypx].factor,

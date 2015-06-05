@@ -880,7 +880,7 @@ void QtPlot::plotTitle(QPainter& painter)
     const OptionMarker& m = *im;
 
     QString q_str = QString::fromStdString(m.text);
-    painter.setPen(util::QC(m.colour));
+    painter.setPen(util::QC(Colour(m.colour)));
 
     float mx = 0, my = y;
     if (m.position >= 0) {
@@ -1082,7 +1082,7 @@ void QtPlot::plotSurface(QPainter& painter)
 
   painter.save();
   painter.setPen(Qt::NoPen);
-  painter.setBrush(vcross::util::QC(mOptions->surfaceColour));
+  painter.setBrush(vcross::util::QC(Colour(mOptions->surfaceColour)));
 
   QPolygonF polygon; // TODO set pen etc
   const int nx = mSurface->shape().length(H_COORD);

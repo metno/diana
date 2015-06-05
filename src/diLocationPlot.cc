@@ -281,12 +281,10 @@ void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       return;
   }
 
-  Colour   c1= Colour(locdata.colour);
+  const Colour lc(locdata.colour);
+  const Colour& c1 = getStaticPlot()->notBackgroundColour(lc);
   float    w1= locdata.linewidth;
   Linetype l1= Linetype(locdata.linetype);
-  if (c1==getStaticPlot()->getBackgroundColour())
-    c1= getStaticPlot()->getBackContrastColour();
-
   gl->setLineStyle(c1, w1, l1);
 
   int lselected = -1;
@@ -299,18 +297,15 @@ void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       lselected = l;
     }
   }
-  gl->UpdateOutput();
 
   if (lselected>=0) {
-    Colour   c2= Colour(locdata.colourSelected);
+    const Colour lc(locdata.colourSelected);
+    const Colour& c2= getStaticPlot()->notBackgroundColour(lc);
     float    w2= locdata.linewidthSelected;
     Linetype l2= Linetype(locdata.linetypeSelected);
-    if (c2==getStaticPlot()->getBackgroundColour())
-      c2= getStaticPlot()->getBackContrastColour();
     gl->setLineStyle(c2, w2, l2);
 
     drawLineOrPoint(gl, lselected);
-    gl->UpdateOutput();
   }
 
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);

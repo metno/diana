@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,10 +29,9 @@
 #ifndef _ObjectPoint_h
 #define _ObjectPoint_h
 
-
 /* Created at Thu Jul 18 14:15:29 2002 */
 
-#include <diField/diRectangle.h>
+#include "diPoint.h"
 
 /**
   \brief One point of an ObjectPlot
@@ -43,27 +40,52 @@
 */
 class ObjectPoint {
 private:
-  float x;
-  float y;
-  bool marked;
-  bool joined;
-  Rectangle myRect;
+  XY mXY;
+  bool mMarked;
+  bool mJoined;
 
-  friend class ObjectPlot;   
-  friend class WeatherFront;
-  friend class WeatherSymbol;
-  friend class WeatherArea;
-  friend class AreaBorder;
-   
 public:
   ObjectPoint();
-  ObjectPoint(float xin,float yin);
-  /// true if point xm,ym is in rectangle with sides fdeltaw around point
-  bool isInRectangle(float xm,float ym, float fdeltaw);
-  /// distance from point to xm,ym
-  float distSquared(float xm, float ym);
+  ObjectPoint(float xin, float yin);
+
+  const XY& xy() const
+    { return mXY; }
+
+  void setXY(float x, float y)
+    { mXY = XY(x, y); }
+
+  bool marked() const
+    { return mMarked; }
+
+  void setMarked(bool m)
+    { mMarked = m; }
+
+  bool joined() const
+    { return mJoined; }
+
+  void setJoined(bool j)
+    { mJoined = j; }
+
+  float x() const
+    { return mXY.x(); }
+
+  float y() const
+    { return mXY.y(); }
+
+  float& rx()
+    { return mXY.rx(); }
+
+  float& ry()
+    { return mXY.ry(); }
+
   /// true if points in same position
-  bool operator==(const ObjectPoint &rhs ) const;
+  bool operator==(const ObjectPoint &rhs) const;
+
+  /// true if point xm,ym is in rectangle with sides fdeltaw around point
+  bool isInRectangle(float xm, float ym, float fdeltaw) const;
+
+  /// distance from point to xm,ym
+  float distSquared(float xm, float ym) const;
 };
 
 #endif

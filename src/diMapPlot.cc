@@ -271,7 +271,8 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (makenew) {
     std::string mapfile;
     // diagonal in pixels
-    float physdiag= sqrt(getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth()+getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight());
+    float physdiag= sqrt(getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth()
+        +getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight());
     // map resolution i km/pixel
     float mapres= (physdiag > 0.0 ? getStaticPlot()->getGcd()/(physdiag*1000) : 0.0);
 
@@ -290,16 +291,14 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
       mapfile= mapinfo.mapfiles[fnum].fname;
     }
 
-    Colour c= contopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(contopts.linecolour);
 
     if (mapinfo.type=="normal" || mapinfo.type=="pland") {
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
-        float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
-        if (!plotMapLand4(gl, mapfile, xylim, contopts.linetype,
-            contopts.linewidth, c))
+        float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2,
+                          getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
+        if (!plotMapLand4(gl, mapfile, xylim, contopts.linetype, contopts.linewidth, c))
           METLIBS_LOG_ERROR("ERROR OPEN/READ " << mapfile);
       }
 
@@ -358,7 +357,6 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 
     if (makelist)
       gl->EndList();
-    gl->UpdateOutput();
 
   } else {
     // execute old display list
@@ -381,9 +379,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
     //    METLIBS_LOG_DEBUG("Plotting frame for layer:" << zorder);
     const Rectangle& reqr = reqarea.R();
-    Colour c= ffopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(ffopts.linecolour);
     gl->setLineStyle(c, ffopts.linewidth, ffopts.linetype);
     if (reqarea.P()==getStaticPlot()->getMapArea().P()) {
       gl->drawRect(reqr);
@@ -431,10 +427,8 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
       delete[] x;
       delete[] y;
     }
-    gl->UpdateOutput();
   }
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 }
 
@@ -1001,9 +995,7 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
 
   if (plot_lon && ilon1<=ilon2) {
 
-    Colour c= lonopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(lonopts.linecolour);
     gl->setLineStyle(c, lonopts.linewidth, lonopts.linetype);
 
     // curved longitude lines
@@ -1043,7 +1035,6 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
       delete[] y;
     }
   }
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (value_annotations.size() > 0) {
@@ -1062,15 +1053,12 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();
-    gl->UpdateOutput();
   }
 
   // draw latitude lines......................................
 
   if (plot_lat && ilat1<=ilat2) {
-    Colour c= latopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(latopts.linecolour);
     gl->setLineStyle(c, latopts.linewidth, latopts.linetype);
 
     // curved latitude lines
@@ -1112,7 +1100,6 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
     }
   }
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (value_annotations.size() > 0) {
@@ -1131,7 +1118,6 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();
-    gl->UpdateOutput();
   }
 
   /*  }*/
@@ -1154,11 +1140,10 @@ bool MapPlot::plotLinesSimpleText(DiGLPainter* gl, const std::string& filename)
   if (file.bad())
     return false;
 
-  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
+  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2,
+                    getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
 
-  Colour c= contopts.linecolour;
-  if (c==getStaticPlot()->getBackgroundColour())
-    c= getStaticPlot()->getBackContrastColour();
+  const Colour& c = getStaticPlot()->notBackgroundColour(contopts.linecolour);
   gl->setLineStyle(c, contopts.linewidth, contopts.linetype);
 
   const int nmax= 2000;
@@ -1220,7 +1205,6 @@ bool MapPlot::plotLinesSimpleText(DiGLPainter* gl, const std::string& filename)
 
   file.close();
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   return (nlines>0);

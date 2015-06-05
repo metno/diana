@@ -154,11 +154,10 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
   for (int i=0; i<obsize; i++){
     const int m= objects[i]->getXYZsize();
-    vector<float> x=objects[i]->getX();
-    vector<float> y=objects[i]->getY();
     for (int j=0; j<m; ++j) {
-      xpos[n]= x[j];
-      ypos[n]= y[j];
+      const XY& xy = objects[i]->getXY(j);
+      xpos[n]= xy.x();
+      ypos[n]= xy.y();
       n++;
     }
   }

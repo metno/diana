@@ -590,13 +590,10 @@ bool FieldPlot::plotMe(DiGLPainter* gl)
   }
 
   // avoid background colour
-  if (poptions.bordercolour == getStaticPlot()->getBackgroundColour())
-    poptions.bordercolour = getStaticPlot()->getBackContrastColour();
-  if (poptions.linecolour == getStaticPlot()->getBackgroundColour())
-    poptions.linecolour = getStaticPlot()->getBackContrastColour();
+  poptions.bordercolour = getStaticPlot()->notBackgroundColour(poptions.bordercolour);
+  poptions.linecolour   = getStaticPlot()->notBackgroundColour(poptions.linecolour);
   for (unsigned int i = 0; i < poptions.colours.size(); i++)
-    if (poptions.colours[i] == getStaticPlot()->getBackgroundColour())
-      poptions.colours[i] = getStaticPlot()->getBackContrastColour();
+    poptions.colours[i] = getStaticPlot()->notBackgroundColour(poptions.colours[i]);
 
   if (poptions.antialiasing)
     gl->Enable(DiGLPainter::gl_MULTISAMPLE);
@@ -1236,7 +1233,6 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
     }
   }
   gl->End();
-  gl->UpdateOutput();
 
   if (poptions.update_stencil)
     plotFrameStencil(gl, nx, ny, x, y);
@@ -1501,7 +1497,6 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
     }
   }
   gl->End();
-  gl->UpdateOutput();
 
   // draw 50-knot flags
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
@@ -1511,7 +1506,6 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
     for (i = 0; i < vi; i++)
       gl->Vertex2f(vx[i], vy[i]);
     gl->End();
-    gl->UpdateOutput();
   }
 
   // plot numbers.................................................
@@ -1652,8 +1646,6 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
       }
     }
   }
-
-  gl->UpdateOutput();
 
   delete[] bmap;
 
@@ -1839,8 +1831,6 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
       }
     }
   }
-
-  gl->UpdateOutput();
 
   if (poptions.update_stencil)
     plotFrameStencil(gl, nx, ny, x, y);
@@ -2283,7 +2273,6 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
     markExtreme(gl);
   }
 
-  gl->UpdateOutput();
 
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
@@ -2340,7 +2329,6 @@ bool FieldPlot::plotContour2(DiGLPainter* gl)
       && !poptions.extremeType.empty())
     markExtreme(gl);
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   if (poptions.update_stencil)
@@ -2443,7 +2431,6 @@ bool FieldPlot::plotBox_pattern(DiGLPainter* gl)
           gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
         }
         gl->End();
-        gl->UpdateOutput();
         i2 -= 2;
       } else
         i2 = nx;
@@ -2451,7 +2438,6 @@ bool FieldPlot::plotBox_pattern(DiGLPainter* gl)
     }
   }
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
 
   if (poptions.update_stencil)
@@ -2555,7 +2541,6 @@ bool FieldPlot::plotBox_alpha_shade(DiGLPainter* gl)
     }
   }
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_BLEND);
 
   if (poptions.update_stencil)
@@ -2693,8 +2678,6 @@ bool FieldPlot::plotAlarmBox(DiGLPainter* gl)
 
     }
   }
-
-  gl->UpdateOutput();
 
   if (poptions.update_stencil)
     plotFrameStencil(gl, nxc, ny + 1, x, y);
@@ -3032,7 +3015,6 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
   gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
   gl->Disable(DiGLPainter::gl_BLEND);
 
-  gl->UpdateOutput();
   //From plotFillCell
   if (poptions.update_stencil) {
     plotFrameStencil(gl, rnx + 1, rny + 1, x, y);
@@ -3184,7 +3166,6 @@ bool FieldPlot::plotFillCell(DiGLPainter* gl)
     }
   }
   gl->End();
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_BLEND);
 
   if (poptions.update_stencil) {
@@ -3269,7 +3250,6 @@ bool FieldPlot::plotAlpha_shade(DiGLPainter* gl)
     gl->End();
   }
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_BLEND);
   gl->ShadeModel(DiGLPainter::gl_FLAT);
 
@@ -3752,8 +3732,6 @@ bool FieldPlot::plotGridLines(DiGLPainter* gl)
     gl->End();
   }
 
-  gl->UpdateOutput();
-
   return true;
 }
 
@@ -3795,8 +3773,7 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
     }
   }
 
-  if (poptions.undefColour == getStaticPlot()->getBackgroundColour())
-    poptions.undefColour = getStaticPlot()->getBackContrastColour();
+  poptions.undefColour = getStaticPlot()->notBackgroundColour(poptions.undefColour);
 
   gl->setColour(poptions.undefColour, false);
 
@@ -3881,7 +3858,6 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
     }
   }
 
-  gl->UpdateOutput();
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 
   return true;
@@ -3960,8 +3936,6 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
     }
   }
 
-  gl->UpdateOutput();
-
   // draw lines/boxes at borders between gridpoints..............................
 
   // convert gridpoints to correct projection
@@ -3990,7 +3964,6 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
     }
     gl->End();
   }
-  gl->UpdateOutput();
 
   return true;
 }

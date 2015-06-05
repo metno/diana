@@ -74,10 +74,10 @@ private:
   void generateName();
 
 public:
-  Colour(const std::string&);
-  Colour(const values&);
-  Colour(unsigned long int =0);
-  Colour(unsigned char, unsigned char, unsigned char, unsigned char = maxv);
+  explicit Colour(const std::string&);
+  explicit Colour(const values&);
+  explicit Colour(unsigned long int =0);
+  explicit Colour(unsigned char, unsigned char, unsigned char, unsigned char = maxv);
   static Colour fromF(float, float, float, float = 1.0f);
   Colour(const Colour &rhs);
 
@@ -106,7 +106,7 @@ public:
   void set(const values& va)
     {v= va;}
 
-  void set(const cIndex i,const unsigned char b)
+  void set(cIndex i, unsigned char b)
     { v.rgba[i]=b; }
 
   unsigned char R() const {return v.rgba[red];   }
@@ -126,8 +126,6 @@ public:
   const std::string& Name() const {return name;}
 
   Colour contrastColour() const;
-
-  void readColourMap(const std::string fname);
 
   friend std::ostream& operator<<(std::ostream& out, const Colour& rhs);
 };
@@ -152,10 +150,8 @@ inline Colour::values& Colour::values::operator=(const Colour::values &rhs){
 }
 
 inline bool Colour::values::operator==(const Colour::values &rhs) const {
-  return (rgba[0]==rhs.rgba[0] &&
-	  rgba[1]==rhs.rgba[1] &&
-	  rgba[2]==rhs.rgba[2] &&
-	  rgba[3]==rhs.rgba[3]);
+  return (rgba[0]==rhs.rgba[0] && rgba[1]==rhs.rgba[1] &&
+      rgba[2]==rhs.rgba[2] && rgba[3]==rhs.rgba[3]);
 }
 
 #endif

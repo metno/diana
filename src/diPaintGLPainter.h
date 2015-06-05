@@ -161,7 +161,6 @@ public:
   void PolygonStipple(const GLubyte *mask) Q_DECL_OVERRIDE;
   void PopAttrib(void) Q_DECL_OVERRIDE;
   void PushAttrib(GLbitfield mask) Q_DECL_OVERRIDE;
-  void Scissor(GLint x, GLint y, GLsizei width, GLsizei height) Q_DECL_OVERRIDE;
   void Ortho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
       GLdouble near_val, GLdouble far_val) Q_DECL_OVERRIDE;
   void LoadIdentity(void) Q_DECL_OVERRIDE;

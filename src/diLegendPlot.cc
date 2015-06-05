@@ -340,7 +340,6 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
       gl->drawText(colourcodes[i].colourstr, (x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
-      gl->UpdateOutput();
     }
     gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
   }

@@ -57,9 +57,6 @@ public:
   virtual bool drawText(const std::string& text, float x, float y, float angle = 0) = 0;
   virtual bool drawChar(char chr, float x, float y, float angle = 0);
 
-  virtual bool isHardcopy();
-  virtual void UpdateOutput();
-
   // ========================================
   // higher level functions
 

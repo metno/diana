@@ -203,10 +203,6 @@ public:
     gl_POINT_SMOOTH = 0x0B10
   };
 
-  enum ScissorBox { /* Scissor box */
-    gl_SCISSOR_TEST = 0x0C11
-  };
-
   enum Multisampling { /* Multisampling */
     gl_MULTISAMPLE = 0x809D
   };
@@ -262,7 +258,6 @@ public:
   virtual void PolygonStipple(const GLubyte *mask) = 0;
   virtual void PopAttrib(void) = 0;
   virtual void PushAttrib(GLbitfield mask) = 0;
-  virtual void Scissor(GLint x, GLint y, GLsizei width, GLsizei height) = 0;
   virtual void Ortho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
              GLdouble near_val, GLdouble far_val) = 0;
   virtual void LoadIdentity(void) = 0;

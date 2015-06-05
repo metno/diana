@@ -463,7 +463,7 @@ void ShapeObject::makeColourmap()
   }
 }
 
-int ShapeObject::getXYZsize()
+int ShapeObject::getXYZsize() const
 {
   int size=0;
   for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s)
@@ -471,28 +471,31 @@ int ShapeObject::getXYZsize()
   return size;
 }
 
-vector<float> ShapeObject::getX()
+XY ShapeObject::getXY(int idx) const
 {
-  vector<float> x;
-  x.reserve(getXYZsize());
+  int s0 = 0;
   for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
-    for (int p=0; p<s->contours.size(); ++p)
-      for (int v=0; v<s->contours.at(p).size(); ++v)
-        x.push_back(s->contours.at(p).at(v).x());
+    for (int p=0; p<s->contours.size(); ++p) {
+      const int s1 = s0 + s->contours.at(p).size();
+      if (idx >= s0 && idx < s1)
+        return fromQ(s->contours.at(p).at(idx - s0));
+      s0 = s1;
+    }
   }
-  return x;
+  // index out of bounds
+  return XY(0, 0);
 }
 
-vector<float> ShapeObject::getY()
+std::vector<XY> ShapeObject::getXY() const
 {
-  vector<float> y;
-  y.reserve(getXYZsize());
+  std::vector<XY> xy;
+  xy.reserve(getXYZsize());
   for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
     for (int p=0; p<s->contours.size(); ++p)
       for (int v=0; v<s->contours.at(p).size(); ++v)
-        y.push_back(s->contours.at(p).at(v).y());
+        xy.push_back(fromQ(s->contours.at(p).at(v)));
   }
-  return y;
+  return xy;
 }
 
 void ShapeObject::setXY(const std::vector<float>& x, const std::vector<float>& y)

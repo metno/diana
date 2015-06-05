@@ -83,15 +83,6 @@ bool DiPainter::drawChar(char chr, float x, float y, float angle)
   return drawText(chrs, x, y, angle);
 }
 
-bool DiPainter::isHardcopy()
-{
-  return false;
-}
-
-void DiPainter::UpdateOutput()
-{
-}
-
 void DiPainter::drawRect(const Rectangle& r)
 {
   drawRect(r.x1, r.y1, r.x2, r.y2);

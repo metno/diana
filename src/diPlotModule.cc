@@ -256,8 +256,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
 {
   METLIBS_LOG_SCOPE();
 
-  staticPlot_->xyClear();
-
   // init inuse array
   const size_t nm = vmp.size();
   vector<bool> inuse(nm, false);
@@ -669,7 +667,7 @@ void PlotModule::setAnnotations()
 
   for (size_t i = 0; i < vap.size(); i++) {
     vap[i]->setData(annotations, fieldAnalysisTime);
-    vap[i]->setfillcolour(staticPlot_->getBgColour());
+    vap[i]->setfillcolour(staticPlot_->getBackgroundColour());
   }
 
   //annotations from data
@@ -872,7 +870,6 @@ void PlotModule::defineMapArea()
 {
   bool mapdefined = false;
   Area newMapArea;
-  bool keep = keepcurrentarea;
 
   if (mapDefinedByUser) {     // area != "modell/sat-omr."
 
@@ -905,7 +902,6 @@ void PlotModule::defineMapArea()
   if (!mapdefined && editm->isInEdit()) {
     // set area equal to editfield-area
     if (editm->getFieldArea(newMapArea)) {
-      keep = true;
       mapdefined = mapDefinedByData = true;
     }
   }
@@ -931,7 +927,7 @@ void PlotModule::defineMapArea()
     mapdefined = mapDefinedByView = true;
   }
 
-  staticPlot_->setMapArea(newMapArea, keep);
+  staticPlot_->setMapArea(newMapArea);
 
   previousrequestedarea = requestedarea;
 }
@@ -969,18 +965,11 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   const Rectangle& plotr = staticPlot_->getPlotSize();
 
-  Colour cback(staticPlot_->getBgColour().c_str());
+  const Colour& cback = staticPlot_->getBackgroundColour();
 
   // set correct worldcoordinates
   gl->LoadIdentity();
   gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
-
-  if (gl->isHardcopy()) {
-#if 0
-    staticPlot_->addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
-        - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
-#endif
-  }
 
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
@@ -1076,12 +1065,6 @@ void PlotModule::plotUnder(DiGLPainter* gl)
     for (size_t i = 0; i < vap.size(); i++)
       vap[i]->plot(gl, Plot::LINES);
   }
-
-  if (gl->isHardcopy()) {
-#if 0
-    staticPlot_->removeHCClipping();
-#endif
-  }
 }
 
 // plot overlay ---------------------------------------
@@ -1121,18 +1104,10 @@ void PlotModule::plotOver(DiGLPainter* gl)
     }
   }
 
-  if (gl->isHardcopy()) {
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-    staticPlot_->addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
-        - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
-#endif // DISABLED_STATICPLOT_PSOUTPUT
-  }
-
   // plot map-elements for highest zorder
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->plot(gl, Plot::OVERLAY);
 
-  gl->UpdateOutput();
 
   // frame (not needed if maprect==fullrect)
   Rectangle mr = staticPlot_->getMapSize();
@@ -1157,7 +1132,6 @@ void PlotModule::plotOver(DiGLPainter* gl)
     gl->End();
   }
 
-  gl->UpdateOutput();
   // plot rubberbox
   if (dorubberband) {
 #ifdef DEBUGREDRAW
@@ -1170,12 +1144,6 @@ void PlotModule::plotOver(DiGLPainter* gl)
     const Colour& bcontrast = staticPlot_->getBackContrastColour();
     gl->setLineStyle(bcontrast, 2);
     gl->drawRect(pold.x(), pold.y(), pnew.x(), pnew.y());
-  }
-
-  if (gl->isHardcopy()) {
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-    staticPlot_->removeHCClipping();
-#endif // DISABLED_STATICPLOT_PSOUTPUT
   }
 }
 
@@ -1193,8 +1161,7 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
   const Rectangle& plotr = staticPlot_->getPlotSize();
   gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
-  Colour cback(staticPlot_->getBgColour().c_str());
-
+  const Colour& cback = staticPlot_->getBackgroundColour();
   gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
 
@@ -1239,12 +1206,6 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
   staticPlot_->setPhysSize(w, h);
 
   PlotAreaSetup();
-
-#ifdef DISABLED_STATICPLOT_PSOUTPUT
-  if (gl->isHardcopy()) {
-    staticPlot_->resetPage();
-  }
-#endif // DISABLED_STATICPLOT_PSOUTPUT
 }
 
 void PlotModule::freeFields(FieldPlot* fp)
@@ -1309,7 +1270,7 @@ void PlotModule::setMapArea(const Area& area)
 {
   const bool projChanged = (staticPlot_->getMapArea().P() != area.P());
 
-  staticPlot_->setMapArea(area, keepcurrentarea);
+  staticPlot_->setMapArea(area);
   PlotAreaSetup();
 
   if (projChanged) {
@@ -1323,7 +1284,7 @@ void PlotModule::setMapAreaFromMap(const Rectangle& rectangle)
 {
   const Area a(staticPlot_->getMapArea().P(), rectangle);
 
-  staticPlot_->setMapArea(a, false);
+  staticPlot_->setMapArea(a);
   PlotAreaSetup();
 
   updatePlots();

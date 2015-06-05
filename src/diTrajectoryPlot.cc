@@ -186,7 +186,7 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
           else
             fieldStr = orig_value;
         } else if (key == "colour" )
-          colour = value;
+          colour = Colour(value);
         else if (key == "linewidth" )
           lineWidth = atoi(value.c_str());
         else if (key == "linetype" )
@@ -299,14 +299,12 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (!plot_on || !isEnabled() || zorder != LINES)
     return;
 
-  if (colour==getStaticPlot()->getBackgroundColour())
-    colour= getStaticPlot()->getBackContrastColour();
+  colour = getStaticPlot()->notBackgroundColour(colour);
   gl->setLineStyle(colour, lineWidth);
 
   float d= 5*getStaticPlot()->getPhysToMapScaleX();
 
   if (vtrajdata.size()==0) {
-
     // plot start posistions
 
     int m = x.size();
@@ -314,8 +312,6 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       gl->drawCross(x[i], y[i], d, true);
 
   } else {
-
-
     // plot trajectories
 
     int vtsize= vtrajdata.size();
@@ -882,17 +878,13 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
 void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
 {
-  //#### if (vtrajdata.size()>0) {
   if (plot_on && vtrajdata.size()>0) {
     int l= 16;
     if (firstTime.min()==0 && lastTime.min()==0) l= 13;
     s= "Trajektorier " + fieldStr
         + " "   + firstTime.isoTime().substr(0,l)
         + " - " +  lastTime.isoTime().substr(0,l) + " UTC";
-    if (colour==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
-    else
-      c= colour;
+    c = getStaticPlot()->notBackgroundColour(colour);
   } else {
     s= "";
   }
