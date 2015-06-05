@@ -590,13 +590,10 @@ bool FieldPlot::plotMe(DiGLPainter* gl)
   }
 
   // avoid background colour
-  if (poptions.bordercolour == getStaticPlot()->getBackgroundColour())
-    poptions.bordercolour = getStaticPlot()->getBackContrastColour();
-  if (poptions.linecolour == getStaticPlot()->getBackgroundColour())
-    poptions.linecolour = getStaticPlot()->getBackContrastColour();
+  poptions.bordercolour = getStaticPlot()->notBackgroundColour(poptions.bordercolour);
+  poptions.linecolour   = getStaticPlot()->notBackgroundColour(poptions.linecolour);
   for (unsigned int i = 0; i < poptions.colours.size(); i++)
-    if (poptions.colours[i] == getStaticPlot()->getBackgroundColour())
-      poptions.colours[i] = getStaticPlot()->getBackContrastColour();
+    poptions.colours[i] = getStaticPlot()->notBackgroundColour(poptions.colours[i]);
 
   if (poptions.antialiasing)
     gl->Enable(DiGLPainter::gl_MULTISAMPLE);
@@ -3776,8 +3773,7 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
     }
   }
 
-  if (poptions.undefColour == getStaticPlot()->getBackgroundColour())
-    poptions.undefColour = getStaticPlot()->getBackContrastColour();
+  poptions.undefColour = getStaticPlot()->notBackgroundColour(poptions.undefColour);
 
   gl->setColour(poptions.undefColour, false);
 

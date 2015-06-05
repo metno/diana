@@ -291,17 +291,14 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
       mapfile= mapinfo.mapfiles[fnum].fname;
     }
 
-    Colour c= contopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(contopts.linecolour);
 
     if (mapinfo.type=="normal" || mapinfo.type=="pland") {
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
         float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2,
                           getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
-        if (!plotMapLand4(gl, mapfile, xylim, contopts.linetype,
-            contopts.linewidth, c))
+        if (!plotMapLand4(gl, mapfile, xylim, contopts.linetype, contopts.linewidth, c))
           METLIBS_LOG_ERROR("ERROR OPEN/READ " << mapfile);
       }
 
@@ -382,9 +379,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
     //    METLIBS_LOG_DEBUG("Plotting frame for layer:" << zorder);
     const Rectangle& reqr = reqarea.R();
-    Colour c= ffopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(ffopts.linecolour);
     gl->setLineStyle(c, ffopts.linewidth, ffopts.linetype);
     if (reqarea.P()==getStaticPlot()->getMapArea().P()) {
       gl->drawRect(reqr);
@@ -1000,9 +995,7 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
 
   if (plot_lon && ilon1<=ilon2) {
 
-    Colour c= lonopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(lonopts.linecolour);
     gl->setLineStyle(c, lonopts.linewidth, lonopts.linetype);
 
     // curved longitude lines
@@ -1065,9 +1058,7 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
   // draw latitude lines......................................
 
   if (plot_lat && ilat1<=ilat2) {
-    Colour c= latopts.linecolour;
-    if (c==getStaticPlot()->getBackgroundColour())
-      c= getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(latopts.linecolour);
     gl->setLineStyle(c, latopts.linewidth, latopts.linetype);
 
     // curved latitude lines
@@ -1149,11 +1140,10 @@ bool MapPlot::plotLinesSimpleText(DiGLPainter* gl, const std::string& filename)
   if (file.bad())
     return false;
 
-  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
+  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2,
+                    getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
 
-  Colour c= contopts.linecolour;
-  if (c==getStaticPlot()->getBackgroundColour())
-    c= getStaticPlot()->getBackContrastColour();
+  const Colour& c = getStaticPlot()->notBackgroundColour(contopts.linecolour);
   gl->setLineStyle(c, contopts.linewidth, contopts.linetype);
 
   const int nmax= 2000;

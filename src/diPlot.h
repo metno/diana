@@ -58,7 +58,6 @@ private:
   XY mPhysToMapScale; // ratio of plot size to physical size
   bool dirty;         // plotarea has changed
   int verticalLevel;          // current vertical level
-  std::string bgcolour;  // name of background colour
   Colour backgroundColour;   // background colour
   Colour backContrastColour; // suitable contrast colour
   float gcd;          // great circle distance
@@ -190,17 +189,18 @@ public:
   /// set name of background colour
   void setBgColour(const std::string& cn);
 
-  /// return the name of the current background colour
-  const std::string& getBgColour()
-    { return bgcolour; }
-
   /// return the current background colour
-  const Colour& getBackgroundColour()
+  const Colour& getBackgroundColour() const
     { return backgroundColour; }
 
   /// return colour with good contrast to background
-  const Colour& getBackContrastColour()
+  const Colour& getBackContrastColour() const
     { return backContrastColour; }
+
+  /*! return another colour than the current background colour
+   * Warning: may return c, therefore c must not be a temporary object
+   */
+  const Colour& notBackgroundColour(const Colour& c) const;
 
   /// mark this as 'redraw needed'
   void setDirty(bool dirty=true);

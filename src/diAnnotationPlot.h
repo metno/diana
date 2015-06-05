@@ -178,7 +178,7 @@ public:
   ///set data annotations
   bool setData(const std::vector<Annotation>& a,
       const std::vector<miutil::miTime>& fieldAnalysisTime);
-  void setfillcolour(std::string colname);
+  void setfillcolour(const Colour& c);
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot

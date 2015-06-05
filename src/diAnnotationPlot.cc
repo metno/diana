@@ -164,12 +164,10 @@ const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs
   return evs;
 }
 
-void AnnotationPlot::setfillcolour(std::string colname)
+void AnnotationPlot::setfillcolour(const Colour& c)
 {
-  if (atype == anno_data) {
-    Colour c(colname);
+  if (atype == anno_data)
     poptions.fillcolour = c;
-  }
 }
 
 bool AnnotationPlot::prepare(const std::string& pin)
@@ -564,9 +562,7 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   for (int i = 0; i < n; i++) {
     Annotation & anno = annotations[i];
     //draw one annotation - one line
-    Colour c = anno.col;
-    if (c == getStaticPlot()->getBackgroundColour())
-      c = getStaticPlot()->getBackContrastColour();
+    const Colour& c = getStaticPlot()->notBackgroundColour(anno.col);
     currentColour = c;
     gl->setColour(c);
     plotElements(gl, annotations[i].annoElements,

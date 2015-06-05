@@ -1782,9 +1782,8 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (updateDeltaTimes())
     getStaticPlot()->setDirty(true);
 
-  Colour selectedColour = origcolour;
-  if (origcolour == getStaticPlot()->getBackgroundColour())
-    origcolour = getStaticPlot()->getBackContrastColour();
+  const Colour selectedColour = origcolour;
+  origcolour = getStaticPlot()->notBackgroundColour(origcolour);
   gl->setColour(origcolour);
 
   if (textSize < 1.75)
@@ -2068,8 +2067,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     Colour col("red");
     if (col == colour)
       col = Colour("blue");
-    if (col == getStaticPlot()->getBackgroundColour())
-      col = getStaticPlot()->getBackContrastColour();
+    col = getStaticPlot()->notBackgroundColour(col);
     gl->setColour(col);
     int m = notplot.size();
     float d = 4.5 * scale;

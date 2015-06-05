@@ -667,7 +667,7 @@ void PlotModule::setAnnotations()
 
   for (size_t i = 0; i < vap.size(); i++) {
     vap[i]->setData(annotations, fieldAnalysisTime);
-    vap[i]->setfillcolour(staticPlot_->getBgColour());
+    vap[i]->setfillcolour(staticPlot_->getBackgroundColour());
   }
 
   //annotations from data
@@ -965,7 +965,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   const Rectangle& plotr = staticPlot_->getPlotSize();
 
-  Colour cback(staticPlot_->getBgColour().c_str());
+  const Colour& cback = staticPlot_->getBackgroundColour();
 
   // set correct worldcoordinates
   gl->LoadIdentity();
@@ -1161,8 +1161,7 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
   const Rectangle& plotr = staticPlot_->getPlotSize();
   gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
-  Colour cback(staticPlot_->getBgColour().c_str());
-
+  const Colour& cback = staticPlot_->getBackgroundColour();
   gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
 

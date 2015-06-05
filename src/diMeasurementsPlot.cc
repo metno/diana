@@ -139,7 +139,7 @@ void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
           }
           clearXY();
         } else if (key == "colour") {
-          colour = value;
+          colour = Colour(value);
         }
         else if (key == "linewidth")
           lineWidth = atoi(value.c_str());
@@ -163,8 +163,7 @@ void MeasurementsPlot::plot(DiGLPainter* gl, Plot::PlotOrder porder)
   if (!xpos)
     return;
 
-  if (colour==getStaticPlot()->getBackgroundColour())
-    colour= getStaticPlot()->getBackContrastColour();
+  colour = getStaticPlot()->notBackgroundColour(colour);
   gl->setLineStyle(colour, lineWidth);
 
   float d= 5*getStaticPlot()->getPhysToMapScaleX();

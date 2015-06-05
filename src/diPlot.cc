@@ -94,9 +94,16 @@ void Plot::setEnabled(bool e)
 
 void StaticPlot::setBgColour(const std::string& cn)
 {
-  bgcolour = cn;
-  backgroundColour = Colour(bgcolour);
+  backgroundColour = Colour(cn);
   backContrastColour = backgroundColour.contrastColour();
+}
+
+const Colour& StaticPlot::notBackgroundColour(const Colour& c) const
+{
+  if (c == getBackgroundColour())
+    return getBackContrastColour();
+  else
+    return c;
 }
 
 void StaticPlot::setMapArea(const Area& a)
