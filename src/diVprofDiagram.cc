@@ -115,12 +115,8 @@ void VprofDiagram::plot()
 
   vptext.clear();
 
-  Colour cback(vpopt->backgroundColour);
-
+  gl->clear(Colour(vpopt->backgroundColour));
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
-
-  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), 1.0);
-  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT);
 
   if (plotw < 5 || ploth < 5)
     return;
