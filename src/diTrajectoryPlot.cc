@@ -331,12 +331,11 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
 
     vector <float> xmark,ymark;
-    TrajectoryData *td;
     for (int i=0; i<numTraj; i++) {
       gl->setLineStyle(colour, lineWidth, lineType);
       QPolygonF points;
       for (int n=0; n<vtsize; n++) {
-        td= vtrajdata[n];
+        const TrajectoryData *td = vtrajdata[n];
         int j1= td->first[i];
         int j2= td->last[i] + 1;
         if (j1<j2) {
@@ -379,7 +378,7 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
     // "x" in first position (in direction of movement, as data are stored)
     n= 0;
-    td= vtrajdata[n];
+    TrajectoryData* td= vtrajdata[n];
     ndata= td->ndata;
     j1= 0;
     j2= 1;
@@ -628,17 +627,9 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
   }
 
-  // map ratios
-  float *xmapr, *ymapr, *coriolis;
-  float dxgrid, dygrid;
-  int imapr=2;  // xmapratio/dxgrid and ymapratio/dygrid
-  // mapratios in Norlam style (inverse of Hirlam style)
-  int icori=0;
-  if (!getStaticPlot()->gc.getMapFields(fu1->area, imapr, icori,
-      fu1->nx, fu1->ny, &xmapr, &ymapr, &coriolis,
-      dxgrid, dygrid)) {
-    METLIBS_LOG_ERROR("TrajectoryPlot::compute : getStaticPlot()->gc.getMapFields ERROR."
-        <<"  Cannot compute trajectories !");
+  const float *xmapr, *ymapr;
+  if (!getStaticPlot()->gc.getMapFields(fu1->area, fu1->nx, fu1->ny, &xmapr, &ymapr, 0)) {
+    METLIBS_LOG_ERROR("getMapFields ERROR, cannot compute trajectories!");
     stopComputation();
     return false;
   }
@@ -648,13 +639,17 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   frx->ny=     fu1->ny;
   frx->area=   fu1->area;
   frx->allDefined= true;
-  frx->data=   xmapr;
+  frx->data = new float[frx->nx*frx->ny];
+  for (int i=0; i<frx->nx*frx->ny; ++i)
+    frx->data[i] = xmapr[i];
   Field* fry= new Field();
   fry->nx=     fu1->nx;
   fry->ny=     fu1->ny;
   fry->area=   fu1->area;
   fry->allDefined= true;
-  fry->data=   ymapr;
+  fry->data = new float[fry->nx*fry->ny];
+  for (int i=0; i<fry->nx*fry->ny; ++i)
+    fry->data[i] = ymapr[i];
 
   int ndata= nstep;
   if (firstStep) ndata++;
@@ -857,8 +852,6 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   else
     firstTime= t2;
 
-  frx->data= 0;  // was just a pointer to the GridConverter data !
-  fry->data= 0;  // was just a pointer to the GridConverter data !
   delete frx;
   delete fry;
 
@@ -880,7 +873,8 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
 {
   if (plot_on && vtrajdata.size()>0) {
     int l= 16;
-    if (firstTime.min()==0 && lastTime.min()==0) l= 13;
+    if (firstTime.min()==0 && lastTime.min()==0)
+      l= 13;
     s= "Trajektorier " + fieldStr
         + " "   + firstTime.isoTime().substr(0,l)
         + " - " +  lastTime.isoTime().substr(0,l) + " UTC";

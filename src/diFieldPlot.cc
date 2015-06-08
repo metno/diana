@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -42,6 +42,7 @@
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
 #include "diColourShading.h"
+#include "diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -78,10 +79,7 @@ void FieldPlot::clearFields()
   delete[] imagedata;
   imagedata = 0;
 
-  for (size_t i = 0; i < tmpfields.size(); i++)
-    delete tmpfields[i];
-  tmpfields.clear();
-
+  diutil::delete_all_and_clear(tmpfields);
   fields.clear();
 }
 
@@ -180,15 +178,12 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 //  set list of field-pointers, update datatime
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
 {
-  METLIBS_LOG_DEBUG(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
+  METLIBS_LOG_SCOPE(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
 
   clearFields();
 
   fields = vf;
   ftime = t;
-
-
-
 
   if (fields.empty()) {
     setPlotName("");

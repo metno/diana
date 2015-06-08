@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id: diPlotOptions.cc 369 2007-11-02 08:55:24Z lisbethb $
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -33,13 +31,17 @@
 #include "config.h"
 #endif
 
-#include <diFieldPlotManager.h>
-#include <diPlotOptions.h>
+#include "diFieldPlotManager.h"
+#include "diPlotOptions.h"
+
 #include <diField/FieldSpecTranslation.h>
 #include <diField/diFieldFunctions.h>
+
 #include <puTools/miSetupParser.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+
 #include <iostream>
 #include <iomanip>
 
@@ -56,29 +58,23 @@ FieldPlotManager::FieldPlotManager(FieldManager* fm) :
 
 void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
 {
-
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
     fieldNames.push_back(vPlotField[i].name);
   }
-
 }
 
 bool FieldPlotManager::parseSetup()
 {
-
-  if ( !parseFieldPlotSetup() ) {
+  if (!parseFieldPlotSetup())
     return false;
-  }
-  if ( !parseFieldGroupSetup() ) {
+  if (!parseFieldGroupSetup())
     return false;
-  }
   return true;
 }
 
 bool FieldPlotManager::parseFieldPlotSetup()
 {
-
-  METLIBS_LOG_DEBUG("bool FieldPlotManager::parseSetup");
+  METLIBS_LOG_SCOPE();
 
   std::string sect_name = "FIELD_PLOT";
   vector<std::string> lines;
@@ -256,7 +252,6 @@ bool FieldPlotManager::parseFieldPlotSetup()
 
 bool FieldPlotManager::parseFieldGroupSetup()
 {
-
   std::string sect_name = "FIELD_GROUPS";
   vector<std::string> lines;
 
@@ -270,7 +265,7 @@ bool FieldPlotManager::parseFieldGroupSetup()
 
   int nlines = lines.size();
 
-    for (int l = 0; l < nlines; l++) {
+  for (int l = 0; l < nlines; l++) {
     vector<std::string> tokens= miutil::split_protected(lines[l], '"','"');
     if ( tokens.size()== 2 ) {
       vector<std::string> stokens= miutil::split_protected(tokens[0], '"','"',"=",true);
@@ -355,7 +350,6 @@ vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool spl
 
 vector<std::string> FieldPlotManager::getFields()
 {
-
   set<std::string> paramSet;
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
     for (unsigned int j = 0; j < vPlotField[i].input.size(); j++) {
@@ -374,7 +368,6 @@ vector<std::string> FieldPlotManager::getFields()
   }
 
   return param;
-
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
@@ -443,7 +436,6 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 
 vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
 {
-
   vector<std::string> levels;
 
   vector<std::string> tokens = miutil::split(pinfo, " ");
@@ -470,12 +462,10 @@ vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
   }
 
   return levels;
-
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(
     vector<FieldRequest>& request, bool updateSources)
-
 {
   METLIBS_LOG_SCOPE();
 
@@ -501,11 +491,8 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
     std::vector<std::string> config,
     const std::vector<std::string>& option)
 {
-
-
   return fieldManager->addGridCollection(fileType, modelName, filenames,
       format,config, option);
-
 }
 
 
@@ -526,8 +513,6 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
   std::string plotName;
   std::string pin = pin_const;
   parsePin(pin, vfieldrequest, plotName);
-
-
 
   bool ok = false;
   for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
@@ -556,16 +541,13 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
 
     makeFieldText(fout, plotName, vfieldrequest[i].flightlevel);
     vfout.push_back(fout);
-
   }
 
   return true;
-
 }
 
 void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
 {
-
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
     if ( flightlevel ) {
@@ -601,12 +583,10 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
     std::string sclock = fout->validFieldTime.isoClock();
     std::string shour = sclock.substr(0, 2);
     std::string smin = sclock.substr(3, 2);
-    if (smin == "00") {
-      timetext = fout->validFieldTime.isoDate() + " " + shour + " UTC";
-    } else {
-      timetext = fout->validFieldTime.isoDate() + " " + shour + ":" + smin
-          + " UTC";
-    }
+    timetext = fout->validFieldTime.isoDate() + " " + shour;
+    if (smin != "00")
+      timetext += ":" + smin;
+    timetext += " UTC";
   }
 
   fout->name = plotName;
@@ -620,7 +600,6 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
 bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     const std::string& fspec2, const miTime& const_ptime, vector<Field*>& fv)
 {
-
   fv.clear();
   vector<Field*> fv1;
   vector<Field*> fv2;
@@ -826,26 +805,18 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
   METLIBS_LOG_DEBUG("F1-F2: progtext:       "<<f1->progtext);
   METLIBS_LOG_DEBUG("F1-F2: timetext:       "<<f1->timetext);
   METLIBS_LOG_DEBUG("-----------------------------------------------------");
-  bool ok = fieldManager->makeDifferenceFields(fv, fv2);
-  if (!ok) {
-    return false;
-  }
-  return true;
-
+  return fieldManager->makeDifferenceFields(fv, fv2);
 }
 
 void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
-  //METLIBS_LOG_DEBUG(__FUNCTION__);
-
   int addFLindex = -1;
 
   fieldManager->getFieldGroups(modelName, refTime, vfgi);
 
   //Return vfgi whith parameter names from file + computed parameters
-  if(!plotGroups) {
+  if (!plotGroups)
     return;
-  }
 
   //replace parameters in vfgi with plots defined in setup
   size_t nvfgi = vfgi.size();
@@ -856,21 +827,14 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
     std::map<std::string, std::vector<std::string> > plotNameLevels;
 
     std::string zaxis = vfgi[i].zaxis;
-    if( zaxis.empty() ) {
+    if (zaxis.empty()) {
        zaxis = "none";
-    }
-
-    if( zaxis == "pressure" ) {
+    } else if (zaxis == "pressure") {
       addFLindex = i;
     }
-//    //Make copy with field names from file
-//    if(fieldManager->isGridCollection(modelName) && !plotGroups) {
-//      vfgi.push_back(vfgi[i]);
-//      vfgi[vfgi.size()-1].plotDefinitions = false;
-//    }
 
     //use groupname from setup if defined
-    if ( groupNames.count(vfgi[i].groupName)) {
+    if (groupNames.count(vfgi[i].groupName)) {
       vfgi[i].groupName = groupNames[vfgi[i].groupName];
     }
 
@@ -919,12 +883,10 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           plotNames.push_back(plotName);
           plotNameLevels[plotName] = levels;
         }
-
       }
 
     vfgi[i].fieldNames = plotNames;
     vfgi[i].levels = plotNameLevels;
-
   }
 
   //If pressurelevels, add flightlevels too. Just renaming levels
@@ -953,7 +915,6 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
         break;
     }
   }
-
 }
 
 std::string FieldPlotManager::getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour)
@@ -971,9 +932,7 @@ void FieldPlotManager::parseString( std::string& pin,
     vector<std::string>& paramNames,
     std::string& plotName )
 {
-
-  METLIBS_LOG_DEBUG("parseString PIN: "<<pin);
-
+  METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   std::vector<std::string> tokens;
   //NB! what about ""
@@ -1052,7 +1011,7 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
 
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
-  METLIBS_LOG_DEBUG("parsePin - PIN: "<<pin);
+  METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   // if difference
   std::string fspec1,fspec2;
@@ -1065,7 +1024,6 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   if ( oldSyntax ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-//  METLIBS_LOG_DEBUG("PIN NEW: "<<pin);
 
   FieldRequest fieldrequest;
   vector<std::string> paramNames;
@@ -1090,9 +1048,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
     }
   }
 
-
   return true;
-
 }
 
 bool FieldPlotManager::writeField(FieldRequest fieldrequest, const Field* field)
@@ -1102,7 +1058,6 @@ bool FieldPlotManager::writeField(FieldRequest fieldrequest, const Field* field)
 
 vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName, FieldRequest fieldrequest)
 {
-
   //search through vPlotField
   //if plotName and vcoord ok -> use it
   //else use fieldname= plotname
@@ -1126,9 +1081,7 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
       }
 
       return vfieldrequest;
-
     }
-
   }
 
   //If plotName not defined, use plotName as fieldName
