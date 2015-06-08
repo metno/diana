@@ -167,8 +167,6 @@ public:
   bool setPlotTime(miutil::miTime&);
   /// update plots
   bool updatePlots(bool failOnMissingData=false);
-  /// update FieldPlots
-  void updateFieldPlot(const std::vector<std::string>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
   /// set colourindices from gui

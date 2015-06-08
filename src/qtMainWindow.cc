@@ -2717,12 +2717,9 @@ void DianaMainWindow::levelDown()
 void DianaMainWindow::levelChange(int increment)
 {
   diutil::OverrideCursor waitCursor;
-  // update field dialog and FieldPlots
-  contr->updateFieldPlot(fm->changeLevel(increment, 0));
-  updateGLSlot();
-
-  toolLevelUpAction->  setEnabled(fm->levelsExists(true,0));
-  toolLevelDownAction->setEnabled(fm->levelsExists(false,0));
+  // update field dialog
+  fm->changeLevel(increment,0);
+  MenuOK();
 }
 
 
@@ -2743,12 +2740,9 @@ void DianaMainWindow::idnumDown()
 void DianaMainWindow::idnumChange(int increment)
 {
   diutil::OverrideCursor waitCursor;
-  // update field dialog and FieldPlots
-  contr->updateFieldPlot(fm->changeLevel(increment, 1));
-  updateGLSlot();
-
-  toolIdnumUpAction->  setEnabled(fm->levelsExists(true,1));
-  toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
+  // update field dialog
+  fm->changeLevel(increment, 1);
+  MenuOK();
 }
 
 

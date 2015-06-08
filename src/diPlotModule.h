@@ -214,8 +214,6 @@ public:
   /// get annotations from all plots
   void setAnnotations();
 
-  /// update FieldPlots
-  bool updateFieldPlot(const std::vector<std::string>& pin);
   /// update all plot objects, returning true if successful
   bool updatePlots(bool failOnMissingData = false);
   /// toggle conservative map area

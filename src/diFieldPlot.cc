@@ -113,16 +113,6 @@ bool FieldPlot::updateNeeded(string& pin)
   return false;
 }
 
-// check if current has same level
-bool FieldPlot::updatePinNeeded(const std::string& pin)
-{
-  if (pinfo == pin)
-    return false;
-
-  pinfo = pin;
-  return true;
-}
-
 void FieldPlot::getFieldAnnotation(string& s, Colour& c)
 {
   if (poptions.options_1)

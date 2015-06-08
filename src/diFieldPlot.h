@@ -59,8 +59,6 @@ public:
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
   bool updateNeeded(std::string&);
-  // check if current has same level
-  bool updatePinNeeded(const std::string& pin);
   bool prepare(const std::string& fname, const std::string&);
   bool setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea();

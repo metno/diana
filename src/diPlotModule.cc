@@ -708,47 +708,6 @@ void PlotModule::setAnnotations()
   }
 }
 
-
-bool PlotModule::updateFieldPlot(const vector<std::string>& pin)
-{
-  vector<Field*> fv;
-  const miTime& t = staticPlot_->getTime();
-
-  if (pin.size() !=vfp.size()) {
-    METLIBS_LOG_WARN("Not possible to update levels/runs - FieldDialog has been changed, click apply to update FieldPlots");
-    return false;
-  }
-
-  for (size_t i = 0; i < vfp.size(); i++) {
-    if (vfp[i]->updatePinNeeded(pin[i])) {
-      // Make the updated fields or return false.
-      if (!fieldplotm->makeFields(pin[i], t, fv))
-        return false;
-      //free old fields
-      freeFields(vfp[i]);
-      //set new fields
-      vfp[i]->setData(fv, t);
-    }
-  }
-
-  if (fv.size() && fv[0]->level >= 0 && vop.size() > 0)
-    staticPlot_->setVerticalLevel(int(fv[0]->level));
-
-  for (size_t i = 0; i < vop.size(); i++) {
-    if (vop[i]->LevelAsField()) {
-      if (!obsm->prepare(vop[i], t))
-        METLIBS_LOG_WARN("updateLevel: ObsManager returned false from prepare");
-    }
-  }
-
-  // get annotations from all plots
-  setAnnotations();
-
-  // Successful update
-  return true;
-}
-
-
 bool PlotModule::updatePlots(bool failOnMissingData)
 {
   METLIBS_LOG_SCOPE();

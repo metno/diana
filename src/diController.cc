@@ -319,11 +319,6 @@ bool Controller::updatePlots(bool failOnMissingData){
   return plotm->updatePlots( failOnMissingData );
 }
 
-void Controller::updateFieldPlot(const vector<string>& pin)
-{
-  plotm->updateFieldPlot(pin);
-}
-
 // reload obsevations
 void Controller::updateObs(){
   plotm->updateObs();
