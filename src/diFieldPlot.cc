@@ -822,12 +822,14 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
       step = 1;
     } else {
 
-      dist *= float(step);
       if (step > poptions.densityFactor && poptions.densityFactor > 0) {
         step /= (poptions.densityFactor);
       }
     }
   }
+
+  dist *= float(step);
+
   //adjust ix1,iy1 to make sure that same grid points are used when panning
   ixx1 = int(ixx1 / step) * step;
   iyy1 = int(iyy1 / step) * step;
