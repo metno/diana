@@ -386,12 +386,7 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 
 void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
 {
-  if (!group) {
-    QMap<QString, EditItems::LayerGroup *>::iterator it;
-    for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
-      if (it.value()->removeItem(item)) break;
-  } else
-    group->removeItem(item);
+  group->removeItem(item);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase *item) const

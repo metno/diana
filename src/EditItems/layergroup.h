@@ -54,7 +54,6 @@ public:
   LayerGroup(const QString &name, bool editable = true, bool active = false);
   LayerGroup(const LayerGroup &);
   ~LayerGroup();
-  int id() const;
   QString name() const;
   void setName(const QString &);
   QString fileName(const QDateTime &dateTime = QDateTime()) const;
@@ -71,19 +70,16 @@ public:
   void setFiles(const QList<QPair<QFileInfo, QDateTime> > &tfiles);
   bool isCollection() const;
 
+  DrawingItemBase *item(int id) const;
   QList<DrawingItemBase *> items() const;
   void setItems(QList<DrawingItemBase *> items);
   void addItem(DrawingItemBase *item);
-  bool removeItem(DrawingItemBase *item);
-
-  void replaceItems(const QList<DrawingItemBase *> &items);
+  void removeItem(DrawingItemBase *item);
+  void replaceStates(const QHash<int, QVariantMap> &states);
 
 private:
   QString timeProperty(const QVariantMap &properties, QString &time_str);
 
-  int id_;
-  static int nextId_;
-  static int nextId();
   QString name_;
   QString fileName_;
   bool editable_;

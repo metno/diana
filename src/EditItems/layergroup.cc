@@ -40,16 +40,14 @@
 namespace EditItems {
 
 LayerGroup::LayerGroup(const QString &name, bool editable, bool active)
-  : id_(nextId())
-  , name_(name)
+  : name_(name)
   , editable_(editable)
   , active_(active)
 {
 }
 
 LayerGroup::LayerGroup(const LayerGroup &other)
-  : id_(other.id_)
-  , name_(other.name_)
+  : name_(other.name_)
   , editable_(other.editable_)
   , active_(other.active_)
   , tfiles_(other.tfiles_)
@@ -60,18 +58,6 @@ LayerGroup::LayerGroup(const LayerGroup &other)
 
 LayerGroup::~LayerGroup()
 {
-}
-
-int LayerGroup::id() const
-{
-  return id_;
-}
-
-int LayerGroup::nextId_ = 0;
-
-int LayerGroup::nextId()
-{
-  return nextId_++; // ### not thread safe; use a mutex for that
 }
 
 QString LayerGroup::name() const
@@ -237,6 +223,14 @@ bool LayerGroup::isCollection() const
   return !tfiles_.isEmpty();
 }
 
+DrawingItemBase *LayerGroup::item(int id) const
+{
+  if (ids_.contains(id))
+    return ids_.value(id);
+  else
+    return 0;
+}
+
 QList<DrawingItemBase *> LayerGroup::items() const
 {
   return items_;
@@ -257,30 +251,47 @@ void LayerGroup::setItems(QList<DrawingItemBase *> items)
 
 void LayerGroup::addItem(DrawingItemBase *item)
 {
+  // Since an item can be created and added to a layer group then re-added
+  // immediately by the corresponding redo command, we need to ensure it is
+  // not added twice.
+  int id = item->id();
+  if (ids_.contains(id)) return;
+
   items_.append(item);
-  ids_[item->id()] = item;
+  ids_[id] = item;
 }
 
-bool LayerGroup::removeItem(DrawingItemBase *item)
+void LayerGroup::removeItem(DrawingItemBase *item)
 {
-  bool removed = items_.removeOne(item);
-  ids_.remove(item->id());
-  return removed;
+  // Since an item can be removed from a layer group then re-removed
+  // immediately by the corresponding redo command, we need to ensure it is
+  // not removed twice.
+  int id = item->id();
+  if (!ids_.contains(id)) return;
+
+  items_.removeOne(item);
+  ids_.remove(id);
+  return;
 }
 
 /**
- * Replace any items in this layer group whose identifiers match those in the
- * list of replacement items.
+ * Replace the states of items in this layer group whose identifiers match
+ * those in the supplied hash.
  */
-void LayerGroup::replaceItems(const QList<DrawingItemBase *> &items)
+void LayerGroup::replaceStates(const QHash<int, QVariantMap> &states)
 {
-  foreach (DrawingItemBase *item, items) {
-    int id = item->id();
+  foreach (int id, states.keys()) {
     if (ids_.contains(id)) {
-      DrawingItemBase *oldItem = ids_.value(id);
-      int index = items_.indexOf(oldItem);
-      items_.replace(index, item);
-      ids_[id] = item;
+      // Replace the item's state with the new one.
+      DrawingItemBase *item = ids_.value(id);
+      QVariantMap properties = states.value(id);
+      QList<QVariant> llp = properties.value("latLonPoints").toList();
+      properties.remove("latLonPoints");
+      item->setProperties(properties, true);
+      QList<QPointF> latLonPoints;
+      foreach (QVariant v, llp)
+        latLonPoints.append(v.toPointF());
+      item->setLatLonPoints(latLonPoints);
     }
   }
 }

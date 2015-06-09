@@ -125,7 +125,7 @@ void DrawingItemBase::setProperties(const QVariantMap &properties, bool ignorePo
 int DrawingItemBase::joinId() const
 {
   bool ok;
-  const int joinId = properties().value("joinId").toInt(&ok);
+  const int joinId = property("joinId").toInt(&ok);
   return ok ? joinId : 0;
 }
 

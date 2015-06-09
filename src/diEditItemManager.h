@@ -87,7 +87,9 @@ public:
 
   bool processInput(const std::vector<std::string>& inp);
   void plot(bool under, bool over);
-  void replaceItemStates(const QList<DrawingItemBase *> &);
+  void replaceItemStates(const QHash<int, QVariantMap> &states,
+                         QList<DrawingItemBase *> removeItems,
+                         QList<DrawingItemBase *> addItems);
 
   //virtual bool isEnabled() const;
   virtual void setEditing(bool enable);
@@ -118,6 +120,7 @@ public slots:
   void completeEditing();
   void copySelectedItems();
   void cutSelectedItems();
+  void deleteSelectedItems();
   void deselectItem(DrawingItemBase *, bool = true);
   void deselectAllItems(bool = true);
   void editProperties();
@@ -173,9 +176,13 @@ private slots:
   void initNewItem(DrawingItemBase *item);
 
 private:
-  bool selectingOnly_;
+  DrawingItemBase *hitItem_; // current hit item
   QList<DrawingItemBase *> hitItems_;
   DrawingItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
+  QHash<int, QVariantMap> oldStates_;
+  QList<DrawingItemBase *> oldItems_;
+
+  bool selectingOnly_;
   bool repaintNeeded_;
   bool skipRepaint_;
   quint32 hitOffset_;
@@ -222,14 +229,11 @@ private:
 
   bool cycleHitOrder(QKeyEvent *);
 
-  QList<DrawingItemBase *> oldItemStates_;
   void saveItemStates();
-  void pushModifyItemsCommand();
+  QHash<int, QVariantMap> getStates(const QList<DrawingItemBase *> &items) const;
+  void pushUndoCommands();
 
   void adjustSelectedJoinPoints();
-
-  DrawingItemBase *hitItem_; // current hit item
-  QHash<DrawingItemBase *, QList<QPointF> > oldGeoms_; // original geometries
 
   static EditItemManager *self_;   // singleton instance pointer
 };
@@ -238,11 +242,18 @@ private:
 class ModifyItemsCommand : public QUndoCommand
 {
 public:
-  ModifyItemsCommand(const QList<DrawingItemBase *> &, const QList<DrawingItemBase *> &, const QString &);
-  virtual ~ModifyItemsCommand() {}
+  ModifyItemsCommand(const QHash<int, QVariantMap> &oldItemStates,
+                     const QHash<int, QVariantMap> &newItemStates,
+                     QList<DrawingItemBase *> removeItems,
+                     QList<DrawingItemBase *> addItems);
+  virtual ~ModifyItemsCommand();
+
 private:
-  QList<DrawingItemBase *> oldItemStates_;
-  QList<DrawingItemBase *> newItemStates_;
+  QHash<int, QVariantMap> oldItemStates_;
+  QHash<int, QVariantMap> newItemStates_;
+  QList<DrawingItemBase *> removeItems_;
+  QList<DrawingItemBase *> addItems_;
+
   virtual void undo();
   virtual void redo();
 };

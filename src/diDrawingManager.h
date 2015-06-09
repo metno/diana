@@ -140,7 +140,7 @@ signals:
 
 protected:
   virtual void addItem_(DrawingItemBase *, EditItems::LayerGroup *group);
-  virtual void removeItem_(DrawingItemBase *, EditItems::LayerGroup *group = 0);
+  virtual void removeItem_(DrawingItemBase *, EditItems::LayerGroup *group);
   void applyPlotOptions(const DrawingItemBase *) const;
 
   static Rectangle editRect_;
