@@ -67,7 +67,7 @@ public:
 
   void addItem(DrawingItemBase *, bool = false, bool = false);
   void editItem(DrawingItemBase *item);
-  void removeItem(DrawingItemBase *);
+  void removeItem(DrawingItemBase *item);
 
   QList<DrawingItemBase *> selectedItems() const;
 
@@ -180,7 +180,7 @@ private:
   QList<DrawingItemBase *> hitItems_;
   DrawingItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   QHash<int, QVariantMap> oldStates_;
-  QList<DrawingItemBase *> oldItems_;
+  QHash<int, DrawingItemBase *> removedItems_;
 
   bool selectingOnly_;
   bool repaintNeeded_;
@@ -229,7 +229,6 @@ private:
 
   bool cycleHitOrder(QKeyEvent *);
 
-  void saveItemStates();
   QHash<int, QVariantMap> getStates(const QList<DrawingItemBase *> &items) const;
   void pushUndoCommands();
 

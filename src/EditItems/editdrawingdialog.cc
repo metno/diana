@@ -96,7 +96,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->addLayout(viewLayout);
-//mainLayout->addWidget(editm_->getUndoView());
+  mainLayout->addWidget(editm_->getUndoView());
   mainLayout->addLayout(bottomLayout);
 
   setWindowTitle(tr("Edit Drawing Dialog"));

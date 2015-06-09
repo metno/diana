@@ -334,7 +334,9 @@ void EditItemManager::editItem(DrawingItemBase *item)
 
 void EditItemManager::removeItem(DrawingItemBase *item)
 {
-  item->setLatLonPoints(getLatLonPoints(item)); // convert screen coords to geo coords
+  // Convert screen coords to geo coords in preparation for being stored in
+  // an undo command.
+  item->setLatLonPoints(getLatLonPoints(item));
   removeItem_(item);
 }
 
@@ -344,6 +346,9 @@ void EditItemManager::removeItem_(DrawingItemBase *item, bool updateNeeded)
   DrawingManager::removeItem_(item, group);
   hitItems_.removeOne(item);
   deselectItem(item);
+
+  removedItems_[item->id()] = item;
+
   updateJoins();
   emit itemRemoved(item->id());
   if (updateNeeded)
@@ -1121,11 +1126,8 @@ void EditItemManager::deleteSelectedItems()
 {
   const QSet<DrawingItemBase *> items = selectedItems().toSet();
 
-  QHash<int, QVariantMap> states = getStates(selectedItems());
-  QHash<int, QVariantMap> emptyStates;
-  QList<DrawingItemBase *> emptyItems;
-
-  undoStack_.push(new ModifyItemsCommand(states, emptyStates, selectedItems(), emptyItems));
+  foreach (DrawingItemBase *item, items)
+    removeItem(item);
 
   // ### the following is necessary only if items were actually removed
   updateActionsAndTimes();
@@ -1136,11 +1138,8 @@ void EditItemManager::cutSelectedItems()
   const QSet<DrawingItemBase *> items = selectedItems().toSet();
   copyItems(items);
 
-  QHash<int, QVariantMap> states = getStates(selectedItems());
-  QHash<int, QVariantMap> emptyStates;
-  QList<DrawingItemBase *> emptyItems;
-
-  undoStack_.push(new ModifyItemsCommand(states, emptyStates, selectedItems(), emptyItems));
+  foreach (DrawingItemBase *item, items)
+    removeItem(item);
 
   // ### the following is necessary only if items were actually removed
   updateActionsAndTimes();
@@ -1387,9 +1386,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
     const QSet<DrawingItemBase *> origSelItems = selectedItems().toSet();
 
-    if (!hasIncompleteItem())
-      saveItemStates(); // record current item states
-
     if ((me2.button() == Qt::RightButton) && !hasIncompleteItem()) {
       // open a context menu
 
@@ -1604,13 +1600,6 @@ bool EditItemManager::cycleHitOrder(QKeyEvent *event)
   return false;
 }
 
-// Saves the state of all items in the current layer structure.
-void EditItemManager::saveItemStates()
-{
-  EditItems::LayerGroup *group = layerGroups_.value("scratch");
-  oldStates_ = getStates(group->items());
-}
-
 static void addDiffsToDescr(QString &descr, const QString &format, int nDiffs)
 {
   if (nDiffs > 0)
@@ -1666,8 +1655,6 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
   if (event->type() == QEvent::KeyPress) {
 
-    saveItemStates(); // record current item states
-
     if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)) {
       deleteSelectedItems();
     } else if (cutAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
@@ -1722,7 +1709,7 @@ void EditItemManager::pushUndoCommands()
 
   QList<DrawingItemBase *> removeItems;
   foreach (int id, oldIds - newIds)
-    removeItems.append(group->item(id));
+    removeItems.append(removedItems_.value(id));
 
   QList<DrawingItemBase *> addItems;
   foreach (int id, newIds - oldIds)
@@ -1768,6 +1755,7 @@ void EditItemManager::replaceItemStates(const QHash<int, QVariantMap> &states,
 
   // Record the states so that changes can be tracked against the current ones.
   oldStates_ = states;
+  removedItems_.clear();
   emit itemStatesReplaced();
 }
 
