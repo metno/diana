@@ -55,6 +55,7 @@ public:
   ~FieldPlot();
 
   bool getDataAnnotations(std::vector<std::string>& anno);
+  int getLevel() const;
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 

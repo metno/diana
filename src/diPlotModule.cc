@@ -712,28 +712,26 @@ bool PlotModule::updatePlots()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<Field*> fv;
   const miTime& t = staticPlot_->getTime();
 
   bool nodata = vmp.empty(); // false when data are found
 
   // prepare data for field plots
+  bool haveFieldData = false;
   for (size_t i = 0; i < vfp.size(); i++) {
     std::string pin;
     if (vfp[i]->updateNeeded(pin)) {
-      if (fieldplotm->makeFields(pin, t, fv)) {
-        nodata = false;
-      }
-      //free old fields
+      std::vector<Field*> fv;
+      if (fieldplotm->makeFields(pin, t, fv))
+        haveFieldData = true;
       freeFields(vfp[i]);
-      //set new fields
       vfp[i]->setData(fv, t);
     }
   }
-
-  if (fv.size()) {
+  if (haveFieldData) {
+    nodata = false;
     // level for vertical level observations "as field"
-    staticPlot_->setVerticalLevel(int(fv[0]->level));
+    staticPlot_->setVerticalLevel(vfp.back()->getLevel());
   }
 
   // prepare data for satellite plots

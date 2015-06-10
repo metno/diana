@@ -100,6 +100,13 @@ bool FieldPlot::getRealFieldArea(Area& a)
   return true;
 }
 
+int FieldPlot::getLevel() const
+{
+  if (not checkFields(1))
+    return 0;
+  return fields[0]->level;
+}
+
 // check if current data from plottime
 bool FieldPlot::updateNeeded(string& pin)
 {
