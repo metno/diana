@@ -681,8 +681,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       gy /= editfield->gridResolutionY;
 
       float fv;
-      int interpoltype= 0;
-      if (!editfield->interpolate(1,&gx,&gy,&fv,interpoltype))
+      if (!editfield->interpolate(1,&gx,&gy,&fv, Field::I_BILINEAR))
         fv=fieldUndef;
       if (fv!=fieldUndef) {
         //####################################################
@@ -1004,8 +1003,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         lineincrement= 1./float(nsmooth+1);
         xline.clear();
         yline.clear();
-        int interpoltype= 0;
-        if (!editfield->interpolate(1,&gx,&gy,&fline,interpoltype))
+        if (!editfield->interpolate(1,&gx,&gy,&fline,Field::I_BILINEAR))
           fline=fieldUndef;
         if (fline==fieldUndef) return false;
         isoline= findIsoLine(gx,gy,fline,nsmooth,nx,ny,workfield->data,false);
@@ -1035,8 +1033,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       } else if (editstate==edit_class_line) {
         xline.clear();
         yline.clear();
-        int interpoltype= 0; // just find a value to start the line
-        if (!editfield->interpolate(1,&gx,&gy,&fline,interpoltype))
+        // just find a value to start the line
+        if (!editfield->interpolate(1,&gx,&gy,&fline, Field::I_BILINEAR))
           fline=fieldUndef;
         if (fline==fieldUndef) {
 #ifdef DEBUGCLASSES
@@ -1063,8 +1061,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         numsmooth= 0;
 
       } else if (editstate==edit_class_copy) {
-        int interpoltype= 2;
-        if (!editfield->interpolate(1,&gx,&gy,&brushValue,interpoltype))
+        if (!editfield->interpolate(1,&gx,&gy,&brushValue, Field::I_NEAREST))
           brushValue=fieldUndef;
         if (brushValue==fieldUndef) return false;
         editBrush(gx,gy);
@@ -1251,9 +1248,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       rcirclePlot= def_rcircle * (rcircle/orcircle) * editfield->gridResolutionX;
 
       // stop line(-move) if outside the field area or near undefined
-      int interpoltype= 0;
       float fv;
-      if (editfield->interpolate(1,&gx,&gy,&fv,interpoltype)) {
+      if (editfield->interpolate(1,&gx,&gy,&fv, Field::I_BILINEAR)) {
         if (fv==fieldUndef) fline=fieldUndef;
       }
       change= true;
@@ -1276,9 +1272,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       editClassLine();
       change= true;
       // stop line(-move) if outside the field area or near undefined
-      int interpoltype= 2;
       float fv;
-      if (editfield->interpolate(1,&gx,&gy,&fv,interpoltype)) {
+      if (editfield->interpolate(1,&gx,&gy,&fv, Field::I_NEAREST)) {
         if (fv==fieldUndef) fline=fieldUndef;
       }
 
@@ -1535,9 +1530,7 @@ void FieldEdit::editMove(float px, float py) {
     }
   }
 
-  // bessel (4x4 points) interpolation and extrapolation at boundaries
-  int interpoltype=101;
-  if (workfield->interpolate(nposw,xpos,ypos,zpos,interpoltype)) {
+  if (workfield->interpolate(nposw,xpos,ypos,zpos, Field::I_BESSEL_EX)) {
     m=0;
     n=0;
     for (j=j1; j<j2; ++j)
@@ -1721,8 +1714,7 @@ void FieldEdit::editLine()
   }
 
   // bessel (4x4 points) interpolation and extrapolation at boundaries
-  int interpoltype=101;
-  if (workfield->interpolate(nposw,xposw,yposw,zposw,interpoltype)) {
+  if (workfield->interpolate(nposw,xposw,yposw,zposw, Field::I_BESSEL_EX)) {
     nposw=0;
 
     for (j=j1; j<j2; ++j) {
@@ -1821,8 +1813,7 @@ void FieldEdit::editLimitedLine() {
   delete[] hxpos;
   delete[] hypos;
 
-  int interpoltyp=101;
-  if (!workfield->interpolate(npos,xpos,ypos,zpos,interpoltyp)) {
+  if (!workfield->interpolate(npos,xpos,ypos,zpos, Field::I_BESSEL_EX)) {
     delete[] xpos;
     delete[] ypos;
     delete[] zpos;
@@ -1925,9 +1916,7 @@ void FieldEdit::editLimitedLine() {
     }
   }
 
-  // bessel (4x4 points) interpolation and extrapolation at boundaries
-  int interpoltype=101;
-  if (workfield->interpolate(nposw,xposw,yposw,zposw,interpoltype)) {
+  if (workfield->interpolate(nposw,xposw,yposw,zposw, Field::I_BESSEL_EX)) {
     nposw= -1;
     for (j=j1; j<j2; ++j) {
       for (i=i1; i<i2; ++i) {
@@ -2787,11 +2776,10 @@ void FieldEdit::editClassLine()
   if (npline<2) return;
 
   if (classLineValue==fieldUndef) {
-    int interpoltype= 0;
     float fv= fieldUndef;
     px= xline[npos-1];
     py= yline[npos-1];
-    editfield->interpolate(1,&px,&py,&fv,interpoltype);
+    editfield->interpolate(1,&px,&py,&fv, Field::I_BILINEAR);
     if (fv==fieldUndef || fabsf(fv-fline)<0.5) {
 #ifdef DEBUGCLASSES
       METLIBS_LOG_DEBUG("!!!!!!!!!!!!!!! NO classLine !!!!!!!!!!!!!!!!!");

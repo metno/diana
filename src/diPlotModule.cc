@@ -1166,9 +1166,7 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
 
 void PlotModule::freeFields(FieldPlot* fp)
 {
-  vector<Field*> v = fp->getFields();
-  for (unsigned int i = 0; i < v.size(); i++)
-    fieldm->freeField(v[i]);
+  fieldplotm->freeFields(fp->getFields());
   fp->clearFields();
 }
 

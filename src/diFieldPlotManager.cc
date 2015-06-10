@@ -589,6 +589,12 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
   fout->timetext = timetext;
 }
 
+void FieldPlotManager::freeFields(const std::vector<Field*>& fv)
+{
+  for (size_t i = 0; i < fv.size(); i++)
+    fieldManager->freeField(fv[i]);
+}
+
 bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     const std::string& fspec2, const miTime& const_ptime, vector<Field*>& fv)
 {
@@ -598,11 +604,7 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
 
   if (makeFields(fspec1, const_ptime, fv1)) {
     if (!makeFields(fspec2, const_ptime, fv2)) {
-
-      for (unsigned int i = 0; i < fv1.size(); i++) {
-        fieldManager->freeField(fv1[i]);
-        fv1[i] = NULL;
-      }
+      freeFields(fv1);
       return false;
     }
   } else {
@@ -616,10 +618,7 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     *fv[i] = *fv1[i];
   }
 
-  for (unsigned int i = 0; i < fv1.size(); i++) {
-    fieldManager->freeField(fv1[i]);
-    fv1[i] = NULL;
-  }
+  freeFields(fv1);
 
   //make Difference Field text
   Field* f1 = fv[0];

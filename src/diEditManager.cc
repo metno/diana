@@ -2883,11 +2883,11 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
   }
 
   //get values
-  int interpoltype=1;
   if (!fedits[0]->editfield->interpolate(obsPositions.numObs,
-      obsPositions.xpos, obsPositions.ypos,
-      obsPositions.values,
-      interpoltype)) return false;
+          obsPositions.xpos, obsPositions.ypos,
+          obsPositions.values,
+          Field::I_BESSEL))
+    return false;
 
   return true;
 }

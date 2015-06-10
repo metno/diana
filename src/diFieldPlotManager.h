@@ -111,12 +111,12 @@ public:
   /// Write field to file
   bool writeField(FieldRequest fieldrequest, const Field* field);
 
-private:
+  void freeFields(const std::vector<Field*>& fields);
 
+private:
   std::vector<PlotField> vPlotField;
 
-  std::vector<std::string>
-      splitComStr(const std::string& s, bool splitall);
+  std::vector<std::string> splitComStr(const std::string& s, bool splitall);
 
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
