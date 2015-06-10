@@ -1449,4 +1449,8 @@ composite="Predefined Text over Predefined Text inside blue curved rectangle" ob
 
 # Predefined text strings for use in composite objects.
 complextext="BKN/OVC STF,RA,RADZ,SHRA,SN,SHSN,LOC FG,BR,NSC,RASN,SHSNGS,SHRASN,SHRA,BR/FG,DZ,FZRA,SFC VIS,LT 5 KM,ISOL,EMBD CB,SCT/BKN,CB/TCU"
+
+# Property editor rules
+hide-property-sections="style"
+show-property-sections="met:info:,TimeSpan:,srcFile"
 </DRAWING>
