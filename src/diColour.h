@@ -109,6 +109,9 @@ public:
   void set(cIndex i, unsigned char b)
     { v.rgba[i]=b; }
 
+  void setF(cIndex i, float b)
+    { v.rgba[i]=b*maxv; }
+
   unsigned char R() const {return v.rgba[red];   }
   unsigned char G() const {return v.rgba[green]; }
   unsigned char B() const {return v.rgba[blue];  }

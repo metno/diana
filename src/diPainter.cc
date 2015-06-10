@@ -108,20 +108,25 @@ void DiPainter::drawArrow(float x1, float y1, float x2, float y2, float headsize
 {
   // direction
   drawLine(x1, y1, x2, y2);
+  drawArrowHead(x1, y1, x2, y2, headsize);
+}
 
+void DiPainter::drawArrowHead(float x1, float y1, float x2, float y2, float headsize)
+{
   // arrow (drawn as two lines)
   float dx = x2 - x1, dy = y2 - y1;
-  if (dx != 0 || dy != 0) {
-    if (headsize != 0) {
-      const float scale = headsize/std::sqrt(dx*dx + dy*dy);
-      dx *= scale;
-      dy *= scale;
-    }
-    const float a = -1/3., s = a / 2;
-    QPolygonF points;
-    points << QPointF(x2 + a*dx + s*dy, y2 + a*dy - s*dx);
-    points << QPointF(x2, y2);
-    points << QPointF(x2 + a*dx - s*dy, y2 + a*dy + s*dx);
-    drawPolyline(points);
+  if (dx == 0 && dy == 0)
+    return;
+
+  if (headsize != 0) {
+    const float scale = headsize/std::sqrt(dx*dx + dy*dy);
+    dx *= scale;
+    dy *= scale;
   }
+  const float a = -1/3., s = a / 2;
+  QPolygonF points;
+  points << QPointF(x2 + a*dx + s*dy, y2 + a*dy - s*dx);
+  points << QPointF(x2, y2);
+  points << QPointF(x2 + a*dx - s*dy, y2 + a*dy + s*dx);
+  drawPolyline(points);
 }

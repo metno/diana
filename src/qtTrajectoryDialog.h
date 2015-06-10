@@ -45,46 +45,42 @@ class QCheckBox;
 
 /**
   \brief Dialogue for 2D-trajectories
-   
+
    -select of start positions
    -select colours, lines etc
    -start computation
-
 */
 class TrajectoryDialog: public QDialog
 {
   Q_OBJECT
 
 public:
-
-  TrajectoryDialog( QWidget* parent,Controller* llctrl);
+  TrajectoryDialog(QWidget* parent, Controller* llctrl);
 
   ///add position to list of positions
   void mapPos(float lat, float lon);
+
   //send all positions to TrajectoryPlotdiObsDi
   void sendAllPositions();
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
+
 protected:
   void closeEvent( QCloseEvent* );
 
 private:
   Controller* contr;
- 
+
   struct posStruct {
     double lat,lon;
-    int radius;
-    std::string numPos;
   };
   std::vector<posStruct> positionVector;
-   
-  //init QT stuff
+
   std::vector<Colour::ColourInfo> colourInfo;
   std::vector<std::string> linetypes;
 
-  //qt widget
   QLabel* fieldName;
   QComboBox* colbox;
   QComboBox* lineWidthBox;
@@ -92,24 +88,17 @@ private:
   GeoPosLineEdit* edit;
   QListWidget* posList;
   QCheckBox* posButton;
-  QSpinBox* radiusSpin;
-  QSpinBox* timeSpin;
   QPushButton* deleteButton;
   QPushButton* deleteAllButton;
   QPushButton* startCalcButton;
-  QComboBox* numposBox;
 
-  //functions
-  std::string makeString();
-  void update_posList(float lat, float lon); 
+private:
+  void update_posList(float lat, float lon);
 
-private slots:
+private Q_SLOTS:
   void colourSlot(int);
   void lineWidthSlot(int);
   void lineTypeSlot(int);
-  void timeSpinSlot(int);
-  void numposSlot(int);
-  void radiusSpinChanged(int);
   void posButtonToggled(bool);
   void posListSlot();
   void deleteClicked();
@@ -121,10 +110,10 @@ private slots:
   void quitClicked();
   void editDone();
 
- public slots:
- void showplus();
+public Q_SLOTS:
+  void showplus();
 
-signals:
+Q_SIGNALS:
   void markPos(bool);
   void TrajHide();
   void updateTrajectories();

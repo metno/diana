@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,65 +29,17 @@
 #ifndef diTrajectoryPlot_h
 #define diTrajectoryPlot_h
 
-#include <diPlot.h>
-#include <vector>
-#include <deque>
-#include <diLinetype.h>
+#include "diPlot.h"
+#include "diLinetype.h"
+#include "diTrajectoryGenerator.h"
 
-class Field;
+#include <QPolygonF>
+#include <vector>
 
 /**
    \brief Computes and plots 2-D trajectories from wind fields shown
 */
 class TrajectoryPlot : public Plot {
-private:
-  std::string fieldStr;
-  Colour colour;
-  int lineWidth;
-  Linetype lineType;
-  int numMarker;
-  int markerRadius;
-  std::vector<float> x;
-  std::vector<float> y;
-  std::vector<float> lat;
-  std::vector<float> lon;
-  Area oldArea;
-  bool plot_on;
-  int timeMarker;
-
- struct TrajectoryData {
-  Area    area;
-  int     ndata;
-  miutil::miTime *time;   // time[ndata]
-  int    *first;  // first existing index, "x[i][first[i]]"
-  int    *last;   // last  existing index, "x[i][ last[i]]"
-  float  *x;  // "x[numTraj][ndata]"
-  float  *y;  // "y[numTraj][ndata]"
-};
-
-
-  Field *fu1;
-  Field *fv1;
-
-  miutil::miTime firstTime;
-  miutil::miTime lastTime;
-  float  timeStep;      // timestep in seconds
-  int    numIterations; // fixed no. of iterations each timestep
-		        // (no convergence test)
-  int    numTraj;       // no. of trajectories (start positions)
-
-  bool computing;
-  bool firstStep;
-
-  Area fieldArea;
-
-  bool* runningForward;
-  bool* runningBackward;
-
-  std::deque<TrajectoryData*> vtrajdata;
-
-  TrajectoryPlot(const TrajectoryPlot &rhs){}
-
 public:
   TrajectoryPlot();
   ~TrajectoryPlot();
@@ -98,18 +48,53 @@ public:
 
   ///change projection
   bool prepare(void);
-  ///Start positions, colours, lines, field, etc
-  int  trajPos(const std::vector<std::string>&);
 
-  bool startComputation(std::vector<Field*> vf);
-  void stopComputation();
-  void clearData();
-  bool compute(std::vector<Field*> vf);
+  ///Start positions, colours, lines, field, etc
+  int trajPos(const std::vector<std::string>&);
+
+  const std::string& getFieldName() const
+    { return fieldStr; }
+
+  const TrajectoryGenerator::LonLat_v& getStartPositions() const
+    { return startPositions; }
+
+  int getIterationCount() const
+    { return numIterations; }
+
+  float getTimeStep() const
+    { return timeStep; }
+
+  void setTrajectoryData(const TrajectoryData_v& t);
+
   void getTrajectoryAnnotation(std::string& s, Colour& c);
 
-  bool inComputation() { return computing; }
-  std::string getFieldName() { return fieldStr; }
   bool printTrajectoryPositions(const std::string& filename);
+
+private:
+  TrajectoryPlot(const TrajectoryPlot &rhs); // not implemented
+  TrajectoryPlot& operator=(const TrajectoryPlot &rhs); // not implemented
+
+  void clearData();
+
+private:
+  std::string fieldStr;
+
+  Colour colourPast;
+  Colour colourFuture;
+  int lineWidth;
+  Linetype lineType;
+  bool plot_on;
+
+  Area oldArea;
+  bool mNeedPrepare;
+
+  TrajectoryGenerator::LonLat_v startPositions;
+
+  TrajectoryData_v trajectories;
+  std::vector<QPolygonF> reprojectedXY;
+
+  float  timeStep;      // timestep in seconds
+  int    numIterations; // fixed no. of iterations each timestep
 };
 
 #endif

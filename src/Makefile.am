@@ -75,6 +75,7 @@ libdiana_la_SOURCES = \
 	diSpectrumPlot.cc \
 	diStationManager.cc \
 	diStationPlot.cc \
+	diTrajectoryGenerator.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
 	diUtilities.cc \
@@ -344,6 +345,7 @@ noinst_HEADERS = \
 	diStationManager.h \
 	diStationPlot.h \
 	diTesselation.h \
+	diTrajectoryGenerator.h \
 	diTrajectoryPlot.h \
 	diUndoFront.h \
 	diUtilities.h \

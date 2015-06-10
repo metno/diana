@@ -81,6 +81,7 @@ public:
 
   virtual void drawCross(float x, float y, float dxy, bool diagonal = false);
   virtual void drawArrow(float x1, float y1, float x2, float y2, float headsize = 0);
+  virtual void drawArrowHead(float x1, float y1, float x2, float y2, float headsize = 0);
   virtual void drawWindArrow(float u, float v, float x, float y,
       float arrowSize, bool withArrowHead) = 0;
 

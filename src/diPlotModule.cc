@@ -47,6 +47,7 @@
 #include "diMapPlot.h"
 #include "diMeasurementsPlot.h"
 #include "diStationPlot.h"
+#include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
 #include "diUtilities.h"
 #include "diWeatherArea.h"
@@ -789,20 +790,6 @@ bool PlotModule::updatePlots()
   // Prepare/compute trajectories - change projection
   if (vtp.size() > 0) {
     vtp[0]->prepare();
-
-    if (vtp[0]->inComputation()) {
-      std::string fieldname = miutil::to_lower(vtp[0]->getFieldName());
-      int i = 0, n = vfp.size();
-      while (i < n && miutil::to_lower(vfp[i]->getTrajectoryFieldName()) != fieldname)
-        i++;
-      if (i < n) {
-        vector<Field*> vf = vfp[i]->getFields();
-        // may have 2 or 3 fields (the 3rd a colour-setting field)
-        if (vf.size() >= 2) {
-          vtp[0]->compute(vf);
-        }
-      }
-    }
     nodata = false;
   }
 
@@ -2278,31 +2265,40 @@ vector<std::string> PlotModule::getTrajectoryFields()
   return vstr;
 }
 
+const FieldPlot* PlotModule::findTrajectoryPlot(const std::string& fieldname)
+{
+  for (size_t i = 0; i < vfp.size(); ++i) {
+    if (miutil::to_lower(vfp[i]->getTrajectoryFieldName()) == fieldname)
+      return vfp[i];
+  }
+  return 0;
+}
+
 bool PlotModule::startTrajectoryComputation()
 {
+  METLIBS_LOG_SCOPE();
   if (vtp.size() < 1)
     return false;
 
-  std::string fieldname = miutil::to_lower(vtp[0]->getFieldName());
-
-  int i = 0, n = vfp.size();
-
-  while (i < n && miutil::to_lower(vfp[i]->getTrajectoryFieldName()) != fieldname)
-    i++;
-  if (i == n)
+  const FieldPlot* fp = findTrajectoryPlot(miutil::to_lower(vtp[0]->getFieldName()));
+  if (!fp)
     return false;
 
-  vector<Field*> vf = vfp[i]->getFields();
-  if (vf.size() < 2)
-    return false;
+  TrajectoryGenerator tg(fieldplotm, fp, staticPlot_->getTime());
+  tg.setIterationCount(vtp[0]->getIterationCount());
+  tg.setTimeStep(vtp[0]->getTimeStep());
+  const TrajectoryGenerator::LonLat_v& pos = vtp[0]->getStartPositions();
+  for (size_t i=0; i<pos.size(); ++i)
+    tg.addPosition(pos.at(i));
 
-  return vtp[0]->startComputation(vf);
+  const TrajectoryData_v trajectories = tg.compute();
+  vtp[0]->setTrajectoryData(trajectories);
+
+  return true;
 }
 
 void PlotModule::stopTrajectoryComputation()
 {
-  if (vtp.size() > 0)
-    vtp[0]->stopComputation();
 }
 
 // write trajectory positions to file
