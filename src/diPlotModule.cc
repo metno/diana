@@ -708,7 +708,7 @@ void PlotModule::setAnnotations()
   }
 }
 
-bool PlotModule::updatePlots(bool failOnMissingData)
+bool PlotModule::updatePlots()
 {
   METLIBS_LOG_SCOPE();
 
@@ -821,8 +821,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   // because we need to reproject the items to screen coordinates.
   callManagersChangeProjection();
 
-  // Successful update
-  return !(failOnMissingData && nodata);
+  return !nodata;
 }
 
 void PlotModule::defineMapArea()

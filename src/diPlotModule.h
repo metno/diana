@@ -215,7 +215,8 @@ public:
   void setAnnotations();
 
   /// update all plot objects, returning true if successful
-  bool updatePlots(bool failOnMissingData = false);
+  bool updatePlots();
+
   /// toggle conservative map area
   void keepCurrentArea(bool b)
   {

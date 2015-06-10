@@ -315,8 +315,9 @@ void Controller::keepCurrentArea(bool b){
 }
 
 // update plot-classes with new data
-bool Controller::updatePlots(bool failOnMissingData){
-  return plotm->updatePlots( failOnMissingData );
+bool Controller::updatePlots()
+{
+  return plotm->updatePlots();
 }
 
 // reload obsevations

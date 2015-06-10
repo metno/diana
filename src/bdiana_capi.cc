@@ -1644,7 +1644,7 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           METLIBS_LOG_INFO("- updatePlots");
-        if (!main_controller->updatePlots(failOnMissingData)) {
+        if (!main_controller->updatePlots() && failOnMissingData) {
             METLIBS_LOG_WARN("Failed to update plots.");
             ensureNewContext();
             return 99;
@@ -2442,7 +2442,7 @@ static int parseAndProcess(istream &is)
       if (verbose)
         METLIBS_LOG_INFO("- updatePlots");
 
-      if (main_controller->updatePlots(failOnMissingData)) {
+      if (main_controller->updatePlots() || !failOnMissingData) {
 
           if (verbose)
             METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");

@@ -166,7 +166,7 @@ public:
   /// set plottime
   bool setPlotTime(miutil::miTime&);
   /// update plots
-  bool updatePlots(bool failOnMissingData=false);
+  bool updatePlots();
   /// toggle area conservatism
   void keepCurrentArea(bool);
   /// set colourindices from gui
