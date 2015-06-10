@@ -1579,6 +1579,11 @@ void DiPaintGLPainter::drawLine(float x1, float y1, float x2, float y2)
 void DiPaintGLPainter::drawPolyline(const QPolygonF& points)
 {
   setPen();
+  if (blend)
+    painter->setCompositionMode(blendMode);
+  else
+    painter->setCompositionMode(QPainter::CompositionMode_Source);
+
   painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
   setClipPath();
   painter->drawPolyline(transform.map(points));
