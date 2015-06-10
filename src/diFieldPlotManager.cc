@@ -595,7 +595,7 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     if (!makeFields(fspec2, const_ptime, fv2)) {
 
       for (unsigned int i = 0; i < fv1.size(); i++) {
-        fieldManager->fieldcache->freeField(fv1[i]);
+        fieldManager->freeField(fv1[i]);
         fv1[i] = NULL;
       }
       return false;
@@ -612,7 +612,7 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
   }
 
   for (unsigned int i = 0; i < fv1.size(); i++) {
-    fieldManager->fieldcache->freeField(fv1[i]);
+    fieldManager->freeField(fv1[i]);
     fv1[i] = NULL;
   }
 

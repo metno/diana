@@ -334,7 +334,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
   // to avoid memory consumption!
   if (inp.empty()) {
     // No fields will be used any more...
-    fieldm->fieldcache->flush();
+    fieldm->flushCache();
     return;
   }
 
@@ -1169,10 +1169,8 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
 void PlotModule::freeFields(FieldPlot* fp)
 {
   vector<Field*> v = fp->getFields();
-  for (unsigned int i = 0; i < v.size(); i++) {
-    fieldm->fieldcache->freeField(v[i]);
-    v[i] = NULL;
-  }
+  for (unsigned int i = 0; i < v.size(); i++)
+    fieldm->freeField(v[i]);
   fp->clearFields();
 }
 
