@@ -1754,7 +1754,7 @@ void EditItemManager::replaceItemStates(const QHash<int, QVariantMap> &states,
   group->replaceStates(states);
 
   // Record the states so that changes can be tracked against the current ones.
-  oldStates_ = states;
+  oldStates_ = getStates(allItems());
   removedItems_.clear();
   emit itemStatesReplaced();
 }
@@ -1769,19 +1769,27 @@ ModifyItemsCommand::ModifyItemsCommand(const QHash<int, QVariantMap> &oldItemSta
   : oldItemStates_(oldItemStates),
     newItemStates_(newItemStates), removeItems_(removeItems), addItems_(addItems)
 {
-  // We should ideally reduce the hashes to only include information about
-  // the items that have changed.
   QSet<int> oldIds = oldItemStates.keys().toSet();
   QSet<int> newIds = newItemStates.keys().toSet();
-  QSet<int> ids = oldIds | newIds;
+
+  // Only include information about the states that have changed.
+  QSet<int> common = oldIds & newIds;
+  int n = common.size();
+  foreach (int id, common) {
+    if (oldItemStates.value(id) == newItemStates.value(id)) {
+      oldItemStates_.remove(id);
+      newItemStates_.remove(id);
+      n--;
+    }
+  }
 
   QStringList desc;
   if (!removeItems.isEmpty())
     desc.append(QApplication::translate("ModifyItemsCommand", "%1 items removed").arg(removeItems.size()));
   if (!addItems.isEmpty())
     desc.append(QApplication::translate("ModifyItemsCommand", "%1 items added").arg(addItems.size()));
-  if (!ids.isEmpty())
-    desc.append(QApplication::translate("ModifyItemsCommand", "%1 items modified").arg(ids.size()));
+  if (n > 0)
+    desc.append(QApplication::translate("ModifyItemsCommand", "%1 items modified").arg(n));
 
   setText(desc.join(", "));
 }
