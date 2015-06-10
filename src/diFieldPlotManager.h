@@ -70,7 +70,7 @@ public:
       std::vector<Field*>& fv);
 
   bool makeFields(const std::string& pin, const miutil::miTime& ptime,
-      std::vector<Field*>& vfout,bool toCache = false);
+      std::vector<Field*>& vfout);
 
   bool addGridCollection(const std::string fileType,
       const std::string& modelName,

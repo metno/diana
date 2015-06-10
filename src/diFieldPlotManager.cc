@@ -40,9 +40,7 @@
 #include <puTools/miSetupParser.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
 
-#include <iostream>
 #include <iomanip>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
@@ -497,7 +495,7 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
 
 
 bool FieldPlotManager::makeFields(const std::string& pin_const,
-    const miTime& const_ptime, vector<Field*>& vfout, bool toCache)
+    const miTime& const_ptime, vector<Field*>& vfout)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pin_const));
 
@@ -514,30 +512,19 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
   std::string pin = pin_const;
   parsePin(pin, vfieldrequest, plotName);
 
-  bool ok = false;
   for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
 
-    if (vfieldrequest[i].ptime.undef()) {
+    if (vfieldrequest[i].ptime.undef())
       vfieldrequest[i].ptime = const_ptime;
-    }
 
-    if (vfieldrequest[i].hourOffset != 0 || vfieldrequest[i].minOffset != 0) {
+    if (vfieldrequest[i].hourOffset != 0)
       vfieldrequest[i].ptime.addHour(vfieldrequest[i].hourOffset);
+    if (vfieldrequest[i].minOffset != 0)
       vfieldrequest[i].ptime.addMin(vfieldrequest[i].minOffset);
-    }
-    Field* fout = NULL;
-    // we must try to use the cache, if specified...
-    int cacheoptions = FieldManager::READ_ALL;
-    if (toCache) {
-      cacheoptions = cacheoptions | FieldManager::WRITE_ALL;
-    }
-    //    ok = fieldManager->makeField(fout, modelName, fieldName[i], ptime,
-    //        levelName, idnumName, hourDiff, cacheoptions);
 
-    ok = fieldManager->makeField(fout, vfieldrequest[i],cacheoptions);
-    if (!ok) {
+    Field* fout = 0;
+    if (!fieldManager->makeField(fout, vfieldrequest[i], FieldManager::READ_ALL))
       return false;
-    }
 
     makeFieldText(fout, plotName, vfieldrequest[i].flightlevel);
     vfout.push_back(fout);
