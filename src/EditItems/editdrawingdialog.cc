@@ -76,12 +76,13 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   valueList_->setModel(valueModel_);
   valueList_->setSelectionMode(QAbstractItemView::MultiSelection);
   valueList_->setRootIsDecorated(false);
+  valueList_->setSortingEnabled(true);
   connect(valueList_->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
     SLOT(filterItems()));
 
   QPushButton *resetButton = NormalPushButton(tr("Reset"), this);
-  connect(resetButton, SIGNAL(clicked()), SIGNAL(resetChoices()));
+  connect(resetButton, SIGNAL(clicked()), SLOT(updateChoices()));
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
   connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
 
@@ -110,26 +111,22 @@ std::string EditDrawingDialog::name() const
 
 /**
  * Updates the property list to show the available properties for all items,
- * hiding those properties excluded in the setup file.
+ * only showing those properties defined in the setup file.
  */
 void EditDrawingDialog::updateChoices()
 {
-  QSet<QString> hide = QSet<QString>::fromList(Properties::PropertiesEditor::instance()->propertyRules("hide"));
-
-  // Add some properties that we never want to show.
-  hide.insert("visible");
+  QSet<QString> show = QSet<QString>::fromList(Properties::PropertiesEditor::instance()->propertyRules("show"));
 
   QSet<QString> properties;
 
   foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
     const QVariantMap &props = item->propertiesRef();
     foreach (const QString &key, props.keys()) {
-      if (!key.contains(":") && !hide.contains(key))
-        properties.insert(key);
-      else {
-        QString section = key.split(":").first();
-        if (!hide.contains(section))
+      foreach (const QString &section, show) {
+        if (key.startsWith(section)) {
           properties.insert(key);
+          break;
+        }
       }
     }
   }
@@ -195,22 +192,8 @@ void EditDrawingDialog::filterItems()
   QStringList properties = currentProperties();
   QSet<QString> values = currentValues();
 
-  // Modify the visibility of the items depending on the properties and values selected.
-  foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
-
-    // Set each item to be invisible by default.
-    bool visible = false;
-
-    foreach (const QString &property, properties) {
-      QVariant value = item->property(property);
-      if (value.isValid() && values.contains(value.toString())) {
-        visible = true;
-        break;
-      }
-    }
-
-    item->setProperty("visible", visible);
-  }
+  drawm_->setFilter(QPair<QStringList, QSet<QString> >(properties, values));
+  editm_->setFilter(QPair<QStringList, QSet<QString> >(properties, values));
 
   emit updated();
 }

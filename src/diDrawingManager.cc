@@ -546,7 +546,7 @@ void DrawingManager::plot(bool under, bool over)
 
   foreach (DrawingItemBase *item, allItems()) {
 
-    if (item->property("visible", true).toBool()) {
+    if (isItemVisible(item)) {
       applyPlotOptions(item);
       setFromLatLonPoints(item, item->getLatLonPoints());
       item->draw();
@@ -710,4 +710,34 @@ QList<DrawingItemBase *> DrawingManager::allItems() const
   }
 
   return items;
+}
+
+bool DrawingManager::isItemVisible(DrawingItemBase * item) const
+{
+  bool visible = item->property("visible", true).toBool();
+  if (!visible) return false;
+
+  // Set each item to be visible if none of its properties match those
+  // in the property list. Otherwise, items are invisible by default.
+  visible = false;
+  bool hasAtLeastOneProperty = false;
+
+  foreach (const QString &property, filter_.first) {
+    QVariant value = item->property(property);
+    hasAtLeastOneProperty |= value.isValid();
+    if (value.isValid() && filter_.second.contains(value.toString())) {
+      visible = true;
+      break;
+    }
+  }
+
+  if (hasAtLeastOneProperty)
+    return visible;
+  else
+    return true;
+}
+
+void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
+{
+  filter_ = filter;
 }

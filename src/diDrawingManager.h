@@ -128,7 +128,9 @@ public:
   int nextJoinId(bool = true);
   void separateJoinIds(const QList<DrawingItemBase *> &);
 
-  QList<DrawingItemBase *> allItems() const;
+  virtual QList<DrawingItemBase *> allItems() const;
+  bool isItemVisible(DrawingItemBase *item) const;
+  void setFilter(const QPair<QStringList, QSet<QString> > &filter);
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
@@ -150,9 +152,9 @@ protected:
   QMap<QString, QString> loaded_;
 
   QMap<QString, EditItems::LayerGroup *> layerGroups_;
+  QPair<QStringList, QSet<QString> > filter_;
 
 private:
-
   GridConverter gc_;
   QString workDir_;
 

@@ -73,9 +73,6 @@ public slots:
   void updateChoices();
   void updateDialog();
 
-signals:
-  void resetChoices();
-
 private slots:
   void updateValues();
   void filterItems();

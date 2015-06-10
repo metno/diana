@@ -200,6 +200,10 @@ bool EditItemManager::parseSetup()
       QStringList values = items.value("hide-property-sections").split(",");
       Properties::PropertiesEditor::instance()->setPropertyRules("hide", values);
     }
+    if (items.contains("show-property-sections")) {
+      QStringList values = items.value("show-property-sections").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("show", values);
+    }
   }
 
   // Let the base class parse the section of the setup file.
@@ -685,7 +689,7 @@ void EditItemManager::plot(bool under, bool over)
       if ((!hitItems_.isEmpty()) && (item == hitItems_.first()))
         modes |= EditItemBase::Hovered;
     }
-    if (itemsVisibilityForced_ || item->property("visible", true).toBool()) {
+    if (itemsVisibilityForced_ || isItemVisible(item)) {
       applyPlotOptions(item);
       setFromLatLonPoints(item, item->getLatLonPoints());
       Editing(item)->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
