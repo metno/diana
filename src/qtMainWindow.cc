@@ -1355,7 +1355,7 @@ void DianaMainWindow::editDrawingToolBarVisible(bool visible)
 
 void DianaMainWindow::winResize(int w, int h)
 {
-  this->resize(w,h); 
+  this->resize(w,h);
 }
 
 void DianaMainWindow::resetArea()

@@ -83,7 +83,7 @@ void FieldPlot::clearFields()
   fields.clear();
 }
 
-const Area& FieldPlot::getFieldArea()
+const Area& FieldPlot::getFieldArea() const
 {
   if (fields.size() && fields[0])
     return fields[0]->area;
@@ -92,7 +92,7 @@ const Area& FieldPlot::getFieldArea()
 }
 
 //  return area for existing field
-bool FieldPlot::getRealFieldArea(Area& a)
+bool FieldPlot::getRealFieldArea(Area& a) const
 {
   if (not checkFields(1))
     return false;
@@ -108,7 +108,7 @@ int FieldPlot::getLevel() const
 }
 
 // check if current data from plottime
-bool FieldPlot::updateNeeded(string& pin)
+bool FieldPlot::updateNeeded(string& pin) const
 {
   if (ftime.undef()
       || (ftime != getStaticPlot()->getTime() && !miutil::contains(pinfo, " time="))
@@ -120,7 +120,7 @@ bool FieldPlot::updateNeeded(string& pin)
   return false;
 }
 
-void FieldPlot::getFieldAnnotation(string& s, Colour& c)
+void FieldPlot::getFieldAnnotation(string& s, Colour& c) const
 {
   if (poptions.options_1)
     c = poptions.linecolour;
@@ -135,7 +135,7 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 {
   //merge current plotOptions (from pin) with plotOptions form setup
   pinfo = pin;
-  poptions.fillFieldPlotOptions(fname, pinfo, poptions);
+  PlotOptions::fillFieldPlotOptions(fname, pinfo, poptions);
   plottype = poptions.plottype;
   if (poptions.enabled == false)
     setEnabled(false);

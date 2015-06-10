@@ -203,11 +203,13 @@ public:
 
   /// the main plot routine (plot for underlay, plot for overlay)
   void plot(DiGLPainter* gl, bool under = true, bool over = true);
+
   /// split plot info strings and reroute them to appropriate handlers
   void preparePlots(const std::vector<std::string>&);
 
   /// get annotations
   const std::vector<AnnotationPlot*>& getAnnotations();
+
   /// plot annotations
   std::vector<Rectangle> plotAnnotations(DiGLPainter* gl);
 

@@ -334,9 +334,11 @@ bool Controller::getObsName(int x, int y, std::string& name){
   return plotm->getObsName(x,y,name);
 }
 
-std::string Controller::getObsPopupText(int x, int y){
-  return plotm->getObsPopupText(x,y); 
+std::string Controller::getObsPopupText(int x, int y)
+{
+  return plotm->getObsPopupText(x,y);
 }
+
 // plot other observations
 void Controller::nextObs(bool next){
   plotm->nextObs(next);

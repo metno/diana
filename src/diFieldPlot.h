@@ -59,16 +59,16 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
-  bool updateNeeded(std::string&);
+  bool updateNeeded(std::string&) const;
   bool prepare(const std::string& fname, const std::string&);
   bool setData(const std::vector<Field*>&, const miutil::miTime&);
-  const Area& getFieldArea();
-  bool getRealFieldArea(Area&);
+  const Area& getFieldArea() const;
+  bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
-  void getFieldAnnotation(std::string&, Colour&);
-  std::vector<Field*> getFields() {return fields; }
-  miutil::miTime getTime() const {return ftime;}
-  miutil::miTime getAnalysisTime() const {return analysisTime;}
+  void getFieldAnnotation(std::string&, Colour&) const;
+  const std::vector<Field*>& getFields() const {return fields; }
+  const miutil::miTime& getTime() const {return ftime;}
+  const miutil::miTime& getAnalysisTime() const {return analysisTime;}
   bool plotUndefined(DiGLPainter* gl);
   bool plotNumbers(DiGLPainter* gl);
   std::string getModelName();

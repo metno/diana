@@ -49,6 +49,23 @@
 using namespace std;
 using namespace miutil;
 
+namespace {
+void appendText(std::string& text, const std::string& append, const std::string& separator=" ")
+{
+  if (append.empty())
+    return;
+  if (!text.empty())
+    text += separator;
+  text += append;
+}
+std::string appendedText(const std::string& text, const std::string& append, const std::string& separator=" ")
+{
+  std::string t(text);
+  appendText(t, append, separator);
+  return t;
+}
+} // namespace
+
 FieldPlotManager::FieldPlotManager(FieldManager* fm) :
       fieldManager(fm)
 {
@@ -372,32 +389,22 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     bool updateSources)
 {
   METLIBS_LOG_SCOPE();
-  vector<miTime> fieldtime;
 
-  int numf = pinfos.size();
-
-  vector<FieldRequest> request;
-  std::string modelName, modelName2, fieldName;
-
-  for (int i = 0; i < numf; i++) {
-
-    // if difference, use first field
+  std::vector<FieldRequest> request;
+  for (size_t i = 0; i < pinfos.size(); i++) {
     std::string fspec1,fspec2;
-    if (!splitDifferenceCommandString(pinfos[i],fspec1,fspec2)) {
+    if (!splitDifferenceCommandString(pinfos[i],fspec1,fspec2))
+      // if difference, use first field
       fspec1 = pinfos[i];
-    }
 
-    vector<FieldRequest> fieldrequest;
+    std::vector<FieldRequest> fieldrequest;
     std::string plotName;
     parsePin(fspec1, fieldrequest,plotName);
     request.insert(request.begin(),fieldrequest.begin(),fieldrequest.end());
-
   }
 
-
-  if (request.size() == 0) {
-    return fieldtime;
-  }
+  if (request.size() == 0)
+    return std::vector<miutil::miTime>();
 
   return getFieldTime(request, updateSources);
 }
@@ -462,16 +469,16 @@ vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
   return levels;
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(
-    vector<FieldRequest>& request, bool updateSources)
+vector<miTime> FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request,
+    bool updateSources)
 {
   METLIBS_LOG_SCOPE();
 
   vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
-    if (request[i].plotDefinition ) {
-      vector<FieldRequest> fr = getParamNames(request[i].paramName,request[i]);
-      if ( fr.size()>0 ) {
+    if (request[i].plotDefinition) {
+      std::vector<FieldRequest> fr = getParamNames(request[i].paramName, request[i]);
+      if (!fr.empty()) {
         request[i].paramName = fr[0].paramName;
         request[i].standard_name = fr[0].standard_name;
       }
@@ -537,15 +544,13 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
 {
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
-    if ( flightlevel ) {
+    if (flightlevel) {
       fieldtext += " " + FieldFunctions::pLevel2flightLevel[fout->leveltext];
     } else {
       fieldtext += " " + fout->leveltext;
     }
   }
-  if (!fout->idnumtext.empty()) {
-    fieldtext += " " + fout->idnumtext;
-  }
+  appendText(fieldtext, fout->idnumtext);
 
   if( !fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
     fout->forecastHour = miutil::miTime::hourDiff(fout->validFieldTime, fout->analysisTime);
@@ -566,7 +571,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
   }
 
   std::string timetext;
-  if( !fout->validFieldTime.undef() ) {
+  if (!fout->validFieldTime.undef()) {
     std::string sclock = fout->validFieldTime.isoClock();
     std::string shour = sclock.substr(0, 2);
     std::string smin = sclock.substr(3, 2);
@@ -664,116 +669,78 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     ndiff = 1;
   }
 
-  if (diff[0]) {
+  if (diff[0])
     f1->modelName = "( " + text1[0] + " - " + text2[0] + " )";
-  }
   if (diff[1] && (diff[2] || diff[3])) {
     f1->name = "( " + text1[1];
-    if (!text1[2].empty()) {
-      f1->name += " " + text1[2];
-    }
-    if (!text1[3].empty()) {
-      f1->name += " " + text1[3];
-    }
+    appendText(f1->name, text1[2]);
+    appendText(f1->name, text1[3]);
+
     f1->name += " - " + text2[1];
-    if (!text2[2].empty()) {
-      f1->name += " " + text2[2];
-    }
-    if (!text2[3].empty()) {
-      f1->name += " " + text2[3];
-    }
+    appendText(f1->name, text2[2]);
+    appendText(f1->name, text2[3]);
+
     f1->name += " )";
     f1->leveltext.clear();
-    if (diff[2] && diff[3]) {
+    if (diff[2] && diff[3])
       ndiff -= 2;
-    } else {
-      ndiff--;
-    }
+    else
+      ndiff -= 1;
   } else {
-    if (diff[1]) {
+    if (diff[1])
       f1->name = "( " + text1[1] + " - " + text2[1] + " )";
-    }
-    if (diff[2]) {
+    if (diff[2])
       f1->leveltext = "( " + text1[2] + " - " + text2[2] + " )";
-    }
-    if (diff[3]) {
+    if (diff[3])
       f1->idnumtext = "( " + text1[3] + " - " + text2[3] + " )";
-    }
   }
-  if (diff[4]) {
+  if (diff[4])
     f1->progtext = "( " + text1[4] + " - " + text2[4] + " )";
-  }
-  if (diff[5]) {
+  if (diff[5])
     f1->timetext = "( " + text1[5] + " - " + text2[5] + " )";
-  }
   if (ndiff == 1) {
     f1->fieldText = f1->modelName + " " + f1->name;
-    if (!f1->leveltext.empty()) {
-      f1->fieldText += " " + f1->leveltext;
-    }
+    appendText(f1->fieldText, f1->leveltext);
     f1->text = f1->fieldText + " " + f1->progtext;
     f1->fulltext = f1->text + " " + f1->timetext;
   } else {
     if (nbgn == 1 && nend <= 3) {
-      if (!text1[2].empty()) {
-        text1[1] += " " + text1[2];
-      }
-      if (!text1[3].empty()) {
-        text1[1] += " " + text1[3];
-      }
-      if (!text2[2].empty()) {
-        text2[1] += " " + text2[2];
-      }
-      if (!text2[3].empty()) {
-        text2[1] += " " + text2[3];
-      }
+      appendText(text1[1], text1[2]);
+      appendText(text1[1], text1[3]);
+      appendText(text2[1], text2[2]);
+      appendText(text2[1], text2[3]);
+
       text1[2].clear();
       text1[3].clear();
       text2[2].clear();
       text2[3].clear();
       nend = 1;
     }
-    int nmax[3] =
-    { 5, 4, 3 };
+    const int nmax[3] = { 5, 4, 3 };
     std::string ftext[3];
     for (int t = 0; t < 3; t++) {
-      if (nbgn > nmax[t]) {
+      if (nbgn > nmax[t])
         nbgn = nmax[t];
-      }
-      if (nend > nmax[t]) {
+      if (nend > nmax[t])
         nend = nmax[t];
-      }
-      bool first = true;
-      for (int n = 0; n < nbgn; n++) {
-        if (first) {
-          ftext[t] = text1[n];
-        } else {
+      if (nbgn > 0) {
+        ftext[t] = text1[0];
+        for (int n = 1; n < nbgn; n++)
           ftext[t] += " " + text1[n];
-        }
-        first = false;
       }
-      if (first) {
-        ftext[t] = "(";
-      } else {
-        ftext[t] += " (";
-      }
-      for (int n = nbgn; n <= nend; n++) {
-        if (!text1[n].empty()) {
-          ftext[t] += " " + text1[n];
-        }
-      }
+      appendText(ftext[t], "(");
+      for (int n = nbgn; n <= nend; n++)
+        appendText(ftext[t], text1[n]);
+
       ftext[t] += " -";
-      for (int n = nbgn; n <= nend; n++) {
-        if (!text2[n].empty()) {
-          ftext[t] += " " + text2[n];
-        }
-      }
+
+      for (int n = nbgn; n <= nend; n++)
+        appendText(ftext[t], text2[n]);
+
       ftext[t] += " )";
-      for (int n = nend + 1; n <= nmax[t]; n++) {
-        if (!text1[n].empty()) {
-          ftext[t] += " " + text1[n];
-        }
-      }
+
+      for (int n = nend + 1; n <= nmax[t]; n++)
+        appendText(ftext[t], text1[n]);
     }
     f1->fulltext = ftext[0];
     f1->text = ftext[1];
@@ -792,6 +759,7 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
   METLIBS_LOG_DEBUG("F1-F2: progtext:       "<<f1->progtext);
   METLIBS_LOG_DEBUG("F1-F2: timetext:       "<<f1->timetext);
   METLIBS_LOG_DEBUG("-----------------------------------------------------");
+
   return fieldManager->makeDifferenceFields(fv, fv2);
 }
 
@@ -996,7 +964,7 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
   }
 }
 
-bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
+bool FieldPlotManager::parsePin(std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pin));
 
@@ -1007,8 +975,8 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   }
 
   std::string  origPin = pin;
-  bool oldSyntax = (pin.find("model=") == std::string::npos);
-  if ( oldSyntax ) {
+  const bool oldSyntax = (pin.find("model=") == std::string::npos);
+  if (oldSyntax) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
 
@@ -1017,7 +985,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   parseString(pin, fieldrequest, paramNames, plotName);
 
   // Try to parse old syntax once more, parse modelName
-  if ( oldSyntax && !fieldManager->modelOK(fieldrequest.modelName) ) {
+  if (oldSyntax && !fieldManager->modelOK(fieldrequest.modelName)) {
     METLIBS_LOG_WARN("Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName);
     pin = FieldSpecTranslation::getNewFieldString(origPin, true);
     paramNames.clear();
@@ -1026,10 +994,10 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   }
 
   //  //plotName -> fieldName
-  if ( fieldrequest.plotDefinition) {
+  if (fieldrequest.plotDefinition) {
     vfieldrequest = getParamNames(plotName,fieldrequest);
   } else {
-    for ( size_t i=0; i<paramNames.size();i++ ) {
+    for (size_t i=0; i<paramNames.size(); i++) {
       fieldrequest.paramName = paramNames[i];
       vfieldrequest.push_back(fieldrequest);
     }
