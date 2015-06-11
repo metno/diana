@@ -704,6 +704,33 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(
   return hitItems;
 }
 
+/**
+ * Returns a vector containing triples of IDs, labels and coordinates for
+ * polylines in the KML file with the given \a fileName.
+ */
+vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
+{
+  vector<PolyLineInfo> info;
+
+  QString error;
+  QList<DrawingItemBase *> items = KML::createFromFile(QString::fromStdString(fileName), error);
+
+  if (error.isEmpty()) {
+    foreach (DrawingItemBase *item, items) {
+      DrawingItem_PolyLine::PolyLine *polyLine = dynamic_cast<DrawingItem_PolyLine::PolyLine *>(item);
+      if (polyLine) {
+        vector<LonLat> coords;
+        foreach (QPointF p, polyLine->getLatLonPoints())
+          coords.push_back(LonLat::fromDegrees(p.y(), p.x()));
+
+        info.push_back(PolyLineInfo(polyLine->id(), polyLine->property("Placemark:name").toString().toStdString(), coords));
+      }
+    }
+  }
+
+  return info;
+}
+
 QList<DrawingItemBase *> DrawingManager::allItems() const
 {
   QList<DrawingItemBase *> items;
