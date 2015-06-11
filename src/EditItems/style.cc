@@ -157,7 +157,7 @@ void StylePropertyEditor::reset()
     setCurrentIndex(origInitVal_);
 }
 
-void StylePropertyEditor::init(bool applicable, const QSet<QSharedPointer<DrawingItemBase> > &items, const QVariant &initVal)
+void StylePropertyEditor::init(bool applicable, const QSet<DrawingItemBase *> &items, const QVariant &initVal)
 {
   items_ = items;
   if (applicable) {
@@ -204,7 +204,7 @@ void StylePropertyEditor::updateItems(int index)
 
   const QString fullName = QString("style:%1").arg(name());
 
-  foreach (QSharedPointer<DrawingItemBase> item, items_)
+  foreach (DrawingItemBase *item, items_)
     item->propertiesRef().insert(fullName, userData);
 }
 
@@ -227,8 +227,9 @@ void StylePropertyEditor::handleCurrentIndexChanged(int index)
 
 DrawingStyleManager::LockCategory StylePropertyEditor::lockCategory() const
 {
+  DrawingItemBase *item = *(items_.begin());
   return (!items_.isEmpty())
-      ? DrawingStyleManager::instance()->lockCategory(items_.begin()->data()->category(), name())
+      ? DrawingStyleManager::instance()->lockCategory(item->category(), name())
       : DrawingStyleManager::LockNone;
 }
 
@@ -435,7 +436,7 @@ private:
 class EditStyleProperty
 {
 public:
-  StylePropertyEditor *createEditor(const QString &propName, const QSet<QSharedPointer<DrawingItemBase> > &items, const QVariantMap &sprops)
+  StylePropertyEditor *createEditor(const QString &propName, const QSet<DrawingItemBase *> &items, const QVariantMap &sprops)
   {
     StylePropertyEditor *editor = createSpecialEditor();
     if (editor)
@@ -629,13 +630,13 @@ StyleEditor *StyleEditor::instance_ = 0;
 
 // Returns the union of all style properties of \a items.
 // Style properties that differ in at least two items will be indicated as invalid (i.e. a default QVariant).
-static QVariantMap getStylePropsUnion(const QSet<QSharedPointer<DrawingItemBase> > &items)
+static QVariantMap getStylePropsUnion(const QSet<DrawingItemBase *> &items)
 {
   QVariantMap sprops;
   QRegExp rx("style:(.+)");
 
   // loop over items
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
+  foreach (DrawingItemBase *item, items) {
     const QVariantMap &props = item->propertiesRef();
 
     // loop over style properties
@@ -660,13 +661,13 @@ static QVariantMap getStylePropsUnion(const QSet<QSharedPointer<DrawingItemBase>
 }
 
 // Returns the style properties of \a items.
-static QMap<DrawingItemBase *, QVariantMap> getStyleProps(const QSet<QSharedPointer<DrawingItemBase> > &items)
+static QMap<DrawingItemBase *, QVariantMap> getStyleProps(const QSet<DrawingItemBase *> &items)
 {
   QMap<DrawingItemBase *, QVariantMap> spropsMap;
   QRegExp rx("style:(.+)");
 
   // loop over items
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
+  foreach (DrawingItemBase *item, items) {
     const QVariantMap &props = item->propertiesRef();
 
     QVariantMap sprops;
@@ -677,19 +678,20 @@ static QMap<DrawingItemBase *, QVariantMap> getStyleProps(const QSet<QSharedPoin
         sprops.insert(key, props.value(key));
     }
 
-    spropsMap.insert(item.data(), sprops);
+    spropsMap.insert(item, sprops);
   }
 
   return spropsMap;
 }
 
 // Opens a modal dialog to edit the style properties of \a items.
-void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
+void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
 {
   if (items.isEmpty())
     return;
 
-  DrawingItemBase::Category itemCategory = items.begin()->data()->category();
+  DrawingItemBase *item = *(items.begin());
+  DrawingItemBase::Category itemCategory = item->category();
 
   // get initial values
   savedProps_ = getStyleProps(items);
@@ -759,7 +761,7 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
   }
 
   // save current properties
-  const QList<QSharedPointer<DrawingItemBase> > itemList = items.toList();
+  const QList<DrawingItemBase *> itemList = items.toList();
   const QList<QVariantMap> oldProperties = DrawingItemBase::properties(itemList);
 
   // open dialog

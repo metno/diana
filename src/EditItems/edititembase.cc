@@ -110,7 +110,7 @@ void EditItemBase::movePointTo(int i, const QPointF &pos)
   Q_ASSERT(i >= 0);
   Q_ASSERT(i < Drawing(this)->points_.size());
   Drawing(this)->points_[i] = pos;
-  Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*(Drawing(this))));
+  Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints((Drawing(this))));
 }
 
 static void drawRect(DiGLPainter* gl, const QRectF &r, int pad, int z = 1)
@@ -277,22 +277,13 @@ void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded)
   event->accept();
 }
 
-void EditItemBase::remove(QKeyEvent *event)
-{
-  if (EditItemManager::instance()->getLayerManager()->removeItem(Drawing(this)))
-    event->accept();
-}
-
 void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded)
 {
-  if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)) {
-    remove(event);
-  } else if (
-             (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
-             ((event->key() == Qt::Key_Left)
-              || (event->key() == Qt::Key_Right)
-              || (event->key() == Qt::Key_Down)
-              || (event->key() == Qt::Key_Up))) {
+  if ((event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
+      ((event->key() == Qt::Key_Left)
+    || (event->key() == Qt::Key_Right)
+    || (event->key() == Qt::Key_Down)
+    || (event->key() == Qt::Key_Up))) {
     nudge(event, repaintNeeded);
   }
 }

@@ -44,49 +44,9 @@ class QToolButton;
 class QIcon;
 class QTextEdit;
 
+class DrawingItemBase;
+
 namespace EditItems {
-
-class CheckableLabel : public QLabel
-{
-  Q_OBJECT
-public:
-  CheckableLabel(bool, const QPixmap &, const QString &, const QString &, bool = true);
-  void setChecked(bool);
-  bool isChecked() { return checked_; }
-private:
-  bool checked_;
-  QPixmap pixmap_;
-  QString checkedToolTip_;
-  QString uncheckedToolTip_;
-  bool clickable_;
-  void mousePressEvent(QMouseEvent *);
-public slots:
-  void checkAndNotify(bool);
-signals:
-  void mouseClicked(QMouseEvent *);
-  void checked(bool);
-};
-
-class ClickableLabel : public QLabel
-{
-  Q_OBJECT
-public:
-  ClickableLabel(const QString & = QString());
-private:
-  void mousePressEvent(QMouseEvent *);
-  void mouseDoubleClickEvent(QMouseEvent *);
-signals:
-  void mouseClicked(QMouseEvent *);
-  void mouseDoubleClicked(QMouseEvent *);
-};
-
-class ScrollArea : public QScrollArea
-{
-public:
-  ScrollArea(QWidget * = 0);
-private:
-  void keyPressEvent(QKeyEvent *);
-};
 
 class TextEditor : public QDialog
 {
@@ -99,15 +59,6 @@ public:
 private:
   QTextEdit *textEdit_;
 };
-
-class Layer;
-class LayerManager;
-
-QToolButton *createToolButton(const QIcon &, const QString &, const QObject *, const char *);
-QList<QSharedPointer<Layer> > createLayersFromFile(const QString &, LayerManager *, bool, QString *);
-QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *, bool, QString *, QString *);
-void createLayerGroupFromFile(LayerManager *layerManager);
-QString selectString(const QString &, const QString &, const QString &, const QStringList &, bool &);
 
 } // namespace
 

@@ -38,24 +38,20 @@
 #include <QPair>
 #include <QSet>
 #include <QString>
-//#define QT_SHAREDPOINTER_TRACK_POINTERS
-#include <QSharedPointer>
 #include <QVariantMap>
 
-namespace EditItems {
+class DrawingItemBase;
 
-class Layer;
-class LayerManager;
+namespace EditItems {
 
 class LayerGroup : public QObject
 {
   Q_OBJECT
-  friend class LayerManager;
+
 public:
-  LayerGroup(const QString &, bool = true, bool = false);
+  LayerGroup(const QString &name, bool editable = true, bool active = false);
   LayerGroup(const LayerGroup &);
   ~LayerGroup();
-  int id() const;
   QString name() const;
   void setName(const QString &);
   QString fileName(const QDateTime &dateTime = QDateTime()) const;
@@ -63,8 +59,7 @@ public:
   bool isEditable() const;
   bool isActive() const;
   void setActive(bool);
-  const QList<QSharedPointer<Layer> > &layersRef() const;
-  QList<QSharedPointer<Layer> > &layersRef();
+
   QSet<QString> getTimes() const;
   QDateTime time() const;
   bool hasTime(const QDateTime &dateTime) const;
@@ -73,17 +68,22 @@ public:
   void setFiles(const QList<QPair<QFileInfo, QDateTime> > &tfiles);
   bool isCollection() const;
 
+  DrawingItemBase *item(int id) const;
+  QList<DrawingItemBase *> items() const;
+  void setItems(QList<DrawingItemBase *> items);
+  void addItem(DrawingItemBase *item);
+  void removeItem(DrawingItemBase *item);
+  void replaceStates(const QHash<int, QVariantMap> &states);
+
 private:
   QString timeProperty(const QVariantMap &properties, QString &time_str);
 
-  int id_;
-  static int nextId_;
-  static int nextId();
   QString name_;
   QString fileName_;
   bool editable_;
   bool active_;
-  QList<QSharedPointer<Layer> > layers_;
+  QList<DrawingItemBase *> items_;
+  QHash<int, DrawingItemBase *> ids_;
   QMap<QDateTime, QFileInfo> tfiles_;
   QDateTime currentTime_;
 };

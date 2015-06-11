@@ -79,7 +79,7 @@ public:
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
 
   virtual std::vector<std::string> getAnnotations() const = 0;
-  virtual std::vector<PlotElement> getPlotElements() const = 0;
+  virtual std::vector<PlotElement> getPlotElements() = 0;
 
   virtual bool isEnabled() const;
   virtual void setEnabled(bool enable);

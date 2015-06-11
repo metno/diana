@@ -52,11 +52,11 @@ int DrawingItemBase::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm, bool setUniqueId) const
+DrawingItemBase *DrawingItemBase::clone(bool setUniqueId) const
 {
   DrawingItemBase *item = cloneSpecial(setUniqueId);
 
-  item->setLatLonPoints(dm->getLatLonPoints(*item));
+  item->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(item));
 
   const_cast<QVariantMap &>(propertiesRef()).remove("points");
   item->setProperties(properties());
@@ -125,7 +125,7 @@ void DrawingItemBase::setProperties(const QVariantMap &properties, bool ignorePo
 int DrawingItemBase::joinId() const
 {
   bool ok;
-  const int joinId = properties().value("joinId").toInt(&ok);
+  const int joinId = property("joinId").toInt(&ok);
   return ok ? joinId : 0;
 }
 
@@ -346,10 +346,10 @@ bool DrawingItemBase::selected() const
   return selected_;
 }
 
-QList<QVariantMap> DrawingItemBase::properties(const QList<QSharedPointer<DrawingItemBase> > &items)
+QList<QVariantMap> DrawingItemBase::properties(const QList<DrawingItemBase *> &items)
 {
   QList<QVariantMap> props;
-  foreach(const QSharedPointer<DrawingItemBase> &item, items)
+  foreach(const DrawingItemBase *item, items)
     props.append(item->properties());
   return props;
 }

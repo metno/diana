@@ -132,7 +132,7 @@ void Composite::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bo
     EditItemManager::instance()->setFocus(true);
 
     // Update the geographic points and the control points.
-    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
+    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(this));
     createElements();
     updateRect();
   }

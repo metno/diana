@@ -134,7 +134,6 @@ protected:
 
 private:
     void nudge(QKeyEvent *, bool &);
-    void remove(QKeyEvent *);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(EditItemBase::DrawModes)

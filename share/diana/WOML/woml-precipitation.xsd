@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+    targetNamespace="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlswo="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"
+    xmlns:womlcore="http://xml.fmi.fi/namespace/woml/core/2011/11/15"
+    xmlns="http://www.w3.org/2001/XMLSchema" 
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:sch="http://www.ascc.net/xml/schematron" 
+    elementFormDefault="qualified" 
+    version="1.0">
+    
+    <annotation>
+        <appinfo>
+            <sch:title>Schematron validation</sch:title>
+            <sch:ns prefix="xlink" uri="http://www.w3.org/1999/xlink" />
+            <sch:pattern name="Check either href or content not both">
+                <sch:rule abstract="true" id="hrefOrContent">
+                    <sch:report test="@xlink:href and (*|text())"
+                        >Property element may not carry both a reference to an object and contain an object.</sch:report>
+                    <sch:assert test="@xlink:href | (*|text())"
+                        >Property element must either carry a reference to an object or contain an object.</sch:assert>
+                </sch:rule>
+            </sch:pattern>
+        </appinfo>
+        <documentation>
+            Cloudiness-related WOML objects as GML 3.2.1 Features.                
+            Author: Ilkka Rinne / FMI 2011.
+        </documentation>
+    </annotation>
+    
+    <import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd" />
+    <import namespace="http://xml.fmi.fi/namespace/woml/core/2011/11/15" schemaLocation="http://xml.fmi.fi/schema/woml/core/2011/11/15/woml-core.xsd" />
+    
+     <!-- ========================================================================================== -->
+    <element name="SurfacePrecipitationArea" type="womlswo:SurfacePrecipitationAreaType"
+        substitutionGroup="womlcore:AbstractSurfaceObject" />
+    <!-- ========================================================================================== -->
+    <complexType name="SurfacePrecipitationAreaType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Area of precipitation to be observed on the ground.
+                        Area is modelled as continuous patch of abstract earth surface (without topology)
+                        defined by an exterior Ring and 0..n interior Rings ("holes").</p>
+                    
+                    <p>Exactly one rain (water) phase can be defined for the area.</p>
+                    
+                    <p>The continuity (as in continuous rain) and the showeriness (as in rain showers) 
+                        of the rain can both be specified as a floating point number between 0 and 1.</p>
+                    
+                    <p>Precipitation areas may contain 0..n inner areas with different rain phase,
+                        continuity and/or showeriness qualities. These area are defined by
+                        using innerArea element which is a property containing or referring to
+                        another SurfacePrecipitationArea object. The exterior of the contained
+                        area object must be completely inside the exterior
+                        and not even partly cover the area inside any of the interior Rings
+                        of the parent object. If a value for any of the qualities is not
+                        given, it is assumed to be the same as in its parent.</p>
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractSurfaceObjectType">
+                <sequence>
+                    <element name="rainPhase" type="womlswo:rainPhaseType" minOccurs="0"
+                        maxOccurs="1" />
+                    <element name="continuity" type="womlcore:percentageType" minOccurs="0"
+                        maxOccurs="1" />
+                    <element name="showeriness" type="womlcore:percentageType" minOccurs="0"
+                        maxOccurs="1" />
+                    <element name="approximateRainFall" type="gml:MeasureType" minOccurs="0" 
+                        maxOccurs="1"/>
+                    <element name="innerArea" type="womlswo:SurfacePrecipitationAreaPropertyType"
+                        minOccurs="0" maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="surfacePrecipitationAreaProperty"
+        type="womlswo:SurfacePrecipitationAreaPropertyType" />
+    <!-- ================================================================= -->
+    <complexType name="SurfacePrecipitationAreaPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlswo:SurfacePrecipitationArea" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+    
+    <simpleType name="rainPhaseType">
+        <restriction base="string">
+            <enumeration value="rain" />
+            <enumeration value="snow" />
+            <enumeration value="fog" />
+            <enumeration value="sleet" />
+            <enumeration value="hail" />
+            <enumeration value="freezing-precipitation" />
+            <enumeration value="drizzle" />
+            <enumeration value="mixed" />
+            <enumeration value="unknown" />
+        </restriction>
+    </simpleType>
+    
+    <!-- ======================================================================================== -->
+    <element name="Storm" type="womlswo:StormType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="StormType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for storms.</p>
+                    
+                    See http://sweet.jpl.nasa.gov/2.1/phenAtmoPrecipitation.owl#Storm
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:AbstractPointObjectType">
+              <sequence>
+                <element name="rainPhase" type="womlswo:rainPhaseType" minOccurs="0"
+                        maxOccurs="1" />                    
+                <element name="approximateRainFall" type="gml:MeasureType" minOccurs="0" 
+                        maxOccurs="1"/>
+                <element name="isThunderstorm" type="boolean" minOccurs="0" maxOccurs="1"/>
+              </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    
+    <!-- ======================================================================================== -->
+    <element name="ConvectiveStorm" type="womlswo:ConvectiveStormType"
+        substitutionGroup="womlcore:AbstractPointObject" />
+    <!-- ======================================================================================== -->
+    <complexType name="ConvectiveStormType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p>Concrete Met Object type for low pressure centers.</p>
+                </html:div>
+                
+                See http://sweet.jpl.nasa.gov/2.1/phenAtmoPrecipitation.owl#ConvectiveStorm
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlswo:StormType" />             
+        </complexContent>
+    </complexType>
+</schema>

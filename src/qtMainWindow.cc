@@ -93,36 +93,68 @@
 
 #include <puTools/miSetupParser.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QDateTime>
+#include <QDesktopServices>
+#include <QDesktopWidget>
 #include <QFileDialog>
+#include <QFocusEvent>
+#include <QFontDialog>
+#include <QFrame>
+#include <QIcon>
+#include <QLabel>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QProgressDialog>
+#include <QShortcut>
+#include <QStatusBar>
 #include <QTimerEvent>
-#include <QFocusEvent>
-#include <QFrame>
-#include <QDesktopServices>
+#include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 #include <QWhatsThis>
-#include <QMimeData>
-#include <QSvgGenerator>
-#include <QAction>
-#include <QShortcut>
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QDateTime>
-#include <qpushbutton.h>
-#include <qpixmap.h>
-#include <QIcon>
-#include <qtoolbar.h>
-#include <qtoolbutton.h>
-#include <QMenu>
-#include <qmenubar.h>
-#include <qnamespace.h>
-#include <qstatusbar.h>
-#include <qmessagebox.h>
-#include <qlabel.h>
-#include <qfontdialog.h>
-#include <qtooltip.h>
-#include <QProgressDialog>
+
+#include "qtMainWindow.h"
+#include "qtWorkArea.h"
+#include "qtVprofWindow.h"
+#include "vcross_qt/qtVcrossInterface.h"
+#include "qtSpectrumWindow.h"
+#include "diController.h"
+#include "diPrintOptions.h"
+#include "diLocalSetupParser.h"
+#include "diStationManager.h"
+#include "diStationPlot.h"
+#include "diLocationData.h"
+#include "diLogFile.h"
+
+#include "qtDataDialog.h"
+#include "qtQuickMenu.h"
+#include "qtObsDialog.h"
+#include "qtSatDialog.h"
+#include "qtStationDialog.h"
+#include "qtMapDialog.h"
+#include "qtFieldDialog.h"
+#include "qtEditDialog.h"
+#include "qtObjectDialog.h"
+#include "qtTrajectoryDialog.h"
+#include "qtMeasurementsDialog.h"
+#include "qUtilities/qtHelpDialog.h"
+#include "qtSetupDialog.h"
+#include "qtPrintManager.h"
+#include "qtBrowserBox.h"
+#include "qtAddtoMenu.h"
+#include "qtUffdaDialog.h"
+#include "qtAnnotationDialog.h"
+#include <coserver/ClientButton.h>
+#include "qtTextView.h"
+#include <coserver/miMessage.h>
+#include <coserver/QLetterCommands.h>
+#include <puDatatypes/miCoordinates.h>
 #include <QErrorMessage>
 
 #include <boost/algorithm/string.hpp>
@@ -134,7 +166,12 @@
 #include <fstream>
 #include <iomanip>
 
-#include <QDebug>
+#include <diField/diFieldManager.h>
+
+#include "diEditItemManager.h"
+#include "EditItems/drawingdialog.h"
+#include "EditItems/editdrawingdialog.h"
+#include "EditItems/toolbar.h"
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
 #include <miLogger/miLogging.h>
@@ -919,16 +956,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
   editDrawingDialog->hide();
   addDialog(editDrawingDialog);
-
-  connect(drawingDialog, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), editDrawingDialog,
-          SLOT(handleNewEditLayerRequested(const QSharedPointer<Layer> &)));
-
-#ifdef ENABLE_EIM_TESTDIALOG
-  QAction *eimTestDialogToggleAction = new QAction(this);
-  eimTestDialogToggleAction->setShortcut(Qt::CTRL + Qt::Key_Backslash);
-  connect(eimTestDialogToggleAction, SIGNAL(triggered()), SLOT(toggleEIMTestDialog()));
-  addAction(eimTestDialogToggleAction);
-#endif // ENABLE_EIM_TESTDIALOG
+  connect(tslider, SIGNAL(valueChanged(int)), editDrawingDialog, SLOT(updateDialog()));
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
     wmd->hide();
@@ -937,24 +965,16 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     connect(WebMapManager::instance(), SIGNAL(webMapsReady()), w, SLOT(updateGL()));
   }
 
-//  paintToolBar = new PaintToolBar(this);
-//  paintToolBar->setObjectName("PaintToolBar");
-//  addToolBar(Qt::BottomToolBarArea, paintToolBar);
-//  paintToolBar->hide();
-
   editDrawingToolBar = EditItems::ToolBar::instance();
   editDrawingToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
-  //paintToolBar->setEnabled(false); obsolete?
   connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
   connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(handleEIMEditing(bool)));
 
-  connect(DrawingManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
-  connect(EditItemManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
-  connect(EditItemManager::instance()->getLayerManager(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
+  connect(EditItemManager::instance(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -1062,8 +1082,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       help,SLOT(showsource(const std::string, const std::string)));
   connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
-//  connect( paintToolBar, SIGNAL(showsource(const std::string, const std::string)),
-//      help,SLOT(showsource(const std::string, const std::string)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -1337,19 +1355,24 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 
 void DianaMainWindow::toggleEditDrawingMode()
 {
-  if (editDrawingToolBar->isVisible()) editDrawingToolBar->hide();
-  else editDrawingToolBar->show();
+  if (editDrawingToolBar->isVisible())
+    editDrawingToolBar->hide();
+  else
+    editDrawingToolBar->show();
   METLIBS_LOG_DEBUG("DianaMainWindow::toggleEditDrawingMode enabled " << editDrawingToolBar->isVisible());
 }
 
 void DianaMainWindow::setEditDrawingMode(bool enabled)
 {
-  if (enabled) editDrawingToolBar->show();
-  else editDrawingToolBar->hide();
+  if (enabled)
+    editDrawingToolBar->show();
+  else
+    editDrawingToolBar->hide();
 }
 
 void DianaMainWindow::editDrawingToolBarVisible(bool visible)
 {
+  // Inform both the editing and drawing managers that editing is in progress.
   EditItemManager::instance()->setEditing(visible);
 }
 
@@ -4094,6 +4117,7 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
+  connect(dialog, SIGNAL(updated()), w, SLOT(updateGL()));
 
   if (QAction *action = dialog->action()) {
     dialogs[action] = dialog;

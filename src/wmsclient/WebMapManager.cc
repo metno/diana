@@ -252,7 +252,7 @@ void WebMapManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
     webmaps[i]->plot(gl, zorder);
 }
 
-std::vector<PlotElement> WebMapManager::getPlotElements() const
+std::vector<PlotElement> WebMapManager::getPlotElements()
 {
   std::vector<PlotElement> pel;
   pel.reserve(webmaps.size());

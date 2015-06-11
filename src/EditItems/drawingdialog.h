@@ -32,16 +32,36 @@
 #ifndef DRAWINGDIALOG_H
 #define DRAWINGDIALOG_H
 
+#include <QHash>
+#include <QStringListModel>
+
 #include "qtDataDialog.h"
-#include <EditItems/layer.h>
 
 class DrawingManager;
-class LayerManager;
 
 namespace EditItems {
 
-class LayerGroupsPane;
-class DrawingLayersPane;
+class DrawingModel : public QAbstractListModel
+{
+  Q_OBJECT
+
+public:
+  DrawingModel(QObject *parent = 0);
+  virtual ~DrawingModel();
+
+  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+  Qt::ItemFlags flags(const QModelIndex &index) const;
+
+  QMap<QString, QString> items() const;
+  void setItems(const QMap<QString, QString> &items);
+
+private:
+  QMap<QString, QString> items_;
+};
 
 class DrawingDialog : public DataDialog
 {
@@ -55,24 +75,19 @@ public:
   virtual std::vector<std::string> getOKString();
   virtual void putOKString(const std::vector<std::string> &);
 
-private:
-  DrawingManager *drawm_;
-  LayerGroupsPane *layerGroupsPane_;
-  DrawingLayersPane *layersPane_; // keeps the active layers
-  LayerManager *layerMgr_; // Read/written by DrawingDialog.
-                           // The Apply operation deep-copies the active layers of this->layerMgr_ into DrawingManager::layerMgr_.
+public slots:
+  void loadFile();
 
 private slots:
-  virtual void updateTimes();
-  void makeProduct();
+  void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void handleDialogUpdated();
+  void makeProduct();
+  virtual void updateTimes();
 
-  // ### FOR TESTING:
-  void dumpStructure();
-  void showInfo(bool);
-
-signals:
-  void newEditLayerRequested(const QSharedPointer<Layer> &);
+private:
+  DrawingModel drawingsModel_;
+  DrawingModel activeDrawingsModel_;
+  DrawingManager *drawm_;
 };
 
 } // namespace

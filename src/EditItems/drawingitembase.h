@@ -61,7 +61,7 @@ public:
   int id() const;
 
   // Returns a deep copy of this item.
-  DrawingItemBase *clone(const DrawingManager *, bool = true) const;
+  DrawingItemBase *clone(bool = true) const;
 
   // Copies state from another item.
   void setState(const DrawingItemBase *);
@@ -123,7 +123,7 @@ public:
   void setSelected(bool = true);
   bool selected() const;
 
-  static QList<QVariantMap> properties(const QList<QSharedPointer<DrawingItemBase> > &);
+  static QList<QVariantMap> properties(const QList<DrawingItemBase *> &);
 
 protected:
   virtual DrawingItemBase *cloneSpecial(bool) const
@@ -152,7 +152,7 @@ private:
   QDomElement createPlacemarkElement(QDomDocument &) const;
 };
 
-Q_DECLARE_METATYPE( QSharedPointer<DrawingItemBase> )
+Q_DECLARE_METATYPE(DrawingItemBase*)
 
 #if (QT_VERSION < QT_VERSION_CHECK(4, 8, 0))
 //#define QT_SHAREDPOINTER_TRACK_POINTERS

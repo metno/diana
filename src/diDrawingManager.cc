@@ -35,9 +35,7 @@
 #include <EditItems/drawingsymbol.h>
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
-#include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
-#include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
 #include "diGLPainter.h"
 #include <diPlotModule.h>
@@ -69,7 +67,6 @@ DrawingManager::DrawingManager()
 {
   setEditRect(PLOTM->getPlotSize());
   styleManager_ = DrawingStyleManager::instance();
-  layerMgr_ = new EditItems::LayerManager();
 }
 
 DrawingManager::~DrawingManager()
@@ -104,10 +101,10 @@ void DrawingManager::setNextJoinId(int val)
 }
 
 // Adjusts any join IDs in \a items to avoid conflicts with any existing joins (assuming existing join IDs are all < nextJoinId_).
-void DrawingManager::separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &items)
+void DrawingManager::separateJoinIds(const QList<DrawingItemBase *> &items)
 {
   int loAbsJoinId = 0;
-  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
+  foreach (DrawingItemBase *item, items) {
     const int absJoinId = qAbs(item->joinId());
     if (absJoinId > 0)
       loAbsJoinId = (loAbsJoinId ? qMin(loAbsJoinId, absJoinId) : absJoinId);
@@ -115,7 +112,7 @@ void DrawingManager::separateJoinIds(const QList<QSharedPointer<DrawingItemBase>
 
   const int add = (DrawingManager::instance()->nextJoinId(false) - loAbsJoinId);
   int hiAbsJoinId = 0;
-  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
+  foreach (DrawingItemBase *item, items) {
     const int joinId = item->joinId();
     if (joinId) {
       const int newAbsJoinId = qAbs(joinId) + add;
@@ -226,10 +223,9 @@ bool DrawingManager::parseSetup()
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
   loaded_.clear();
-  layerMgr_->clear();
 
-  if (inp.empty())
-    return false;
+  // Compile a list of files to load.
+  QStringList toLoad;
 
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
@@ -250,18 +246,66 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
       // Read the specified file, skipping to the next line if successful,
       // but returning false to indicate an error if unsuccessful.
-      if (key == "file" || key == "name") {
-        if (loadDrawing(value))
-          break;
-        else
-          return false;
-      }
+      if (key == "file" || key == "name")
+        toLoad.append(value);
     }
   }
 
+  QMap<QString, EditItems::LayerGroup *> loaded;
+  QMap<QString, EditItems::LayerGroup *>::const_iterator itl;
+
+  foreach (const QString &name, toLoad) {
+    // If the name corresponds to a key in the list of drawings then look up
+    // associated file name.
+    QString fileName;
+    if (drawings_.contains(name))
+      fileName = drawings_[name];
+    else
+      fileName = name;
+
+    // Is the file already loaded?
+    bool isLoaded = false;
+    EditItems::LayerGroup *group;
+
+    for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+      group = itl.value();
+      if (group->fileName() == fileName) {
+        isLoaded = true;
+        break;
+      }
+    }
+
+    // If not, try to load it.
+    if (!isLoaded) {
+      if (!loadDrawing(name, fileName))
+        return false;
+
+      // Obtain the group created by the loadDrawing() call.
+      group = layerGroups_.value(name);
+    }
+
+    // Record the layer group in the collection of replacement drawings.
+    loaded[name] = group;
+    loaded_[name] = fileName;
+  }
+
+  // Delete layer groups that are no longer loaded and replace the list with
+  // the new list of loaded groups.
+  for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+    QString name = itl.key();
+    EditItems::LayerGroup *group = itl.value();
+    if (!loaded.contains(name))
+      delete group;
+  }
+  layerGroups_ = loaded;
+
   // Only enable this manager if there are specific files loaded, not just
-  // if there are items in the layers.
+  // if there are items in the layer manager.
   setEnabled(!loaded_.isEmpty());
+
+  // Emit a signal to inform other components that the list of layer groups
+  // has been updated.
+  emit updated();
 
   return true;
 }
@@ -289,58 +333,61 @@ DrawingItemBase *DrawingManager::createItem(const QString &type)
   return item;
 }
 
-QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString &error)
 {
-  Q_ASSERT(!vmap.empty());
-  Q_ASSERT(vmap.contains("type"));
-  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+  if (vmap.empty() || !vmap.contains("type") || !vmap.value("type").canConvert(QVariant::String))
+    return 0;
 
   QString type = vmap.value("type").toString().split("::").last();
   DrawingItemBase *item = createItem(type);
 
   if (item) {
     item->setProperties(vmap);
-    setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
+    setFromLatLonPoints(item, item->getLatLonPoints());
 
     DrawingItem_Composite::Composite *c = dynamic_cast<DrawingItem_Composite::Composite *>(item);
     if (c)
       c->createElements();
   }
 
-  return QSharedPointer<DrawingItemBase>(item);
+  return item;
 }
 
-void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
+void DrawingManager::addItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
 {
-  Q_ASSERT(!layerMgr_->selectedLayers().isEmpty());
-  layerMgr_->selectedLayers().first()->insertItem(item);
+  group->addItem(item);
 }
 
-bool DrawingManager::loadDrawing(const QString &name)
+bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 {
-  // If the name corresponds to a key in the list of drawings then look up
-  // associated file name.
-  QString fileName;
-  if (drawings_.contains(name))
-    fileName = drawings_[name];
-  else
-    fileName = name;
+  QString error;
 
-  QSharedPointer<EditItems::LayerGroup> layerGroup = layerMgr_->createNewLayerGroup(name, fileName);
-  layerMgr_->addToNewLayerGroup(layerGroup, name);
-  loaded_[name] = fileName;
+  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  if (!error.isEmpty()) {
+    METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
+    return false;
+  }
+
+  // Create a layer group for the file that is not editable but is active.
+  EditItems::LayerGroup *layerGroup = new EditItems::LayerGroup(name, false, true);
+  layerGroup->setFileName(fileName);
+  layerGroup->setItems(items);
+  layerGroups_[name] = layerGroup;
+
+  // Record the file name.
+  drawings_[name] = fileName;
 
   return true;
 }
 
-void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
+void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
 {
-  layerMgr_->removeItem(item);
+  group->removeItem(item);
 }
 
-QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) const
+QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase *item) const
 {
-  const QList<QPointF> points = item.getPoints();
+  const QList<QPointF> points = item->getPoints();
   return PhysToGeo(points);
 }
 
@@ -364,11 +411,11 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const
+void DrawingManager::setFromLatLonPoints(DrawingItemBase *item, const QList<QPointF> &latLonPoints) const
 {
   if (!latLonPoints.isEmpty()) {
     QList<QPointF> points = GeoToPhys(latLonPoints);
-    item.setPoints(points);
+    item->setPoints(points);
   }
 }
 
@@ -397,13 +444,10 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::vector<miutil::miTime> output;
   std::set<miutil::miTime> times;
 
-  // Query the layer groups to find the available times. These will query
-  // individual layers as necessary.
-
-  QList<QSharedPointer<EditItems::LayerGroup> > layerGroups = layerMgr_->layerGroups();
-  for (int i = layerGroups.size() - 1; i >= 0; --i) {
-
-    QSet<QString> groupTimes = layerGroups.at(i)->getTimes();
+  // Query the layer groups to find the available times.
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+    QSet<QString> groupTimes = it.value()->getTimes();
     foreach (const QString &time, groupTimes)
       times.insert(miutil::miTime(time.toStdString()));
   }
@@ -415,12 +459,6 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 
   return output;
 }
-
-/**
- * Returns the property name used to find the time for an item, or an empty
- * string if no suitable property name was found. The associated time string
- * is also updated with the time obtained from the property, if found.
-*/
 
 /**
  * Prepares the manager for display of, and interaction with, items that
@@ -445,7 +483,38 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   QString timeStr = QString::fromStdString(time.isoTime());
   QDateTime dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
 
-  layerMgr_->setTime(dateTime);
+  QMap<QString, EditItems::LayerGroup *>::iterator itl;
+  for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+
+    EditItems::LayerGroup *layerGroup = itl.value();
+    bool allVisible = true;
+
+    if (layerGroup->isCollection()) {
+
+      // For layer groups containing a collection of files, make the layers
+      // visible only if the current file is appropriate for the new time.
+      allVisible = (dateTime == layerGroup->time());
+
+      if (!allVisible && layerGroup->hasTime(dateTime)) {
+
+        // Another time was requested and is available. Replace the existing
+        // items with those from the corresponding file.
+
+        QString fileName = layerGroup->fileName(dateTime);
+
+        QString error;
+        QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+        if (!error.isEmpty())
+          METLIBS_LOG_WARN(QString("DrawingManager::prepare: failed to load layer group from %1: %2")
+                           .arg(fileName).arg(error).toStdString());
+
+        layerGroup->setItems(items);
+        allVisible = true;
+      }
+    }
+
+    layerGroup->setTime(dateTime, allVisible);
+  }
 
   return found;
 }
@@ -478,25 +547,13 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
   gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
-  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
+  foreach (DrawingItemBase *item, allItems()) {
 
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isVisible()) {
-
-      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-      qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
-
-      foreach (const QSharedPointer<DrawingItemBase> item, items) {
-
-        if (item->property("visible", true).toBool()) {
-          applyPlotOptions(gl, item);
-          setFromLatLonPoints(*item, item->getLatLonPoints());
-          item->draw(gl);
-        }
-      }
+    if (isItemVisible(item)) {
+      applyPlotOptions(item);
+      setFromLatLonPoints(item, item->getLatLonPoints());
+      item->draw();
     }
-
   }
   gl->PopMatrix();
 }
@@ -567,7 +624,7 @@ QSize DrawingManager::getSymbolSize(const QString &name) const
   return renderer.defaultSize();
 }
 
-void DrawingManager::applyPlotOptions(DiGLPainter *gl, const QSharedPointer<DrawingItemBase> &item) const
+void DrawingManager::applyPlotOptions(DiGLPainter *gl, const DrawingItemBase *item) const
 {
   const bool antialiasing = item->property("antialiasing", true).toBool();
   if (antialiasing)
@@ -576,31 +633,27 @@ void DrawingManager::applyPlotOptions(DiGLPainter *gl, const QSharedPointer<Draw
     gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 }
 
-EditItems::LayerManager *DrawingManager::getLayerManager()
-{
-  return layerMgr_;
-}
-
 void DrawingManager::setEditRect(Rectangle r)
 {
   DrawingManager::editRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
-std::vector<PlotElement> DrawingManager::getPlotElements() const
+std::vector<PlotElement> DrawingManager::getPlotElements()
 {
   std::vector<PlotElement> pel;
-  plotElems_.clear();
+  plotElements_.clear();
+
   int i = 0;
-  foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
-    if (!layer->isEmpty()) {
-      pel.push_back(
-            PlotElement(
-              plotElementTag().toStdString(), QString("%1").arg(i).toStdString(),
-              plotElementTag().toStdString(), layer->isVisible()));
+  foreach (EditItems::LayerGroup *group, layerGroups_) {
+    if (group->isActive()) {
+      QString str = QString("%1").arg(i);
+      pel.push_back(PlotElement(plotElementTag().toStdString(), str.toStdString(),
+                                plotElementTag().toStdString(), group->isActive()));
+      plotElements_[str] = group;
+      i += 1;
     }
-    plotElems_.insert(i, layer);
-    i++;
   }
+
   return pel;
 }
 
@@ -611,20 +664,12 @@ QString DrawingManager::plotElementTag() const
 
 void DrawingManager::enablePlotElement(const PlotElement &pe)
 {
-  const QString s = QString::fromStdString(pe.str);
-  bool ok = false;
-  const int i = s.toInt(&ok);
-  if (!ok) {
-    METLIBS_LOG_WARN("DM::enablePlotElement(): failed to extract int from pe.str:" << pe.str);
+  QString str = QString::fromStdString(pe.str);
+  if (!plotElements_.contains(str))
     return;
-  }
 
-  if (!plotElems_.contains(i)) {
-    METLIBS_LOG_WARN("DM::enablePlotElement(): key not found in plotElems_:" << i);
-    return;
-  }
-
-  plotElems_.value(i)->setVisible(pe.enabled, true);
+  EditItems::LayerGroup *group = plotElements_.value(str);
+  group->setActive(pe.enabled);
 }
 
 /**
@@ -634,57 +679,69 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
   if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
     // Find a list of items at the point passed in the event.
-    QList<QSharedPointer<DrawingItemBase> > hit = findHitItems(event->pos(), 0);
-    if (hit.size() > 0) {
+    QList<DrawingItemBase *> missed;
+    QList<DrawingItemBase *> hit = findHitItems(event->pos(), missed);
+    if (hit.size() > 0)
       emit itemsHovered(hit);
-      event->setAccepted(true);
-    }
   }
 }
 
-QList<QSharedPointer<DrawingItemBase> > DrawingManager::findHitItems(
-    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const
+QList<DrawingItemBase *> DrawingManager::findHitItems(
+    const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
 {
-  // Find all items in all layers.
-  QSet<QSharedPointer<DrawingItemBase> > allItems = layerMgr_->allItems();
-  QList<QSharedPointer<DrawingItemBase> > hitItems;
+  QList<DrawingItemBase *> hitItems;
 
-  foreach (const QSharedPointer<DrawingItemBase> &item, allItems) {
-    if (item->hit(pos, false))
-      hitItems.append(item);
-    else if (missedItems)
-      missedItems->append(item);
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+    foreach (DrawingItemBase *item, it.value()->items()) {
+      if (item->hit(pos, false))
+        hitItems.append(item);
+      else
+        missedItems.append(item);
+    }
   }
 
   return hitItems;
 }
 
-/**
- * Returns a vector containing triples of IDs, labels and coordinates for
- * polylines in the KML file with the given \a fileName.
- */
-vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
+QList<DrawingItemBase *> DrawingManager::allItems() const
 {
-  vector<PolyLineInfo> info;
+  QList<DrawingItemBase *> items;
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+    if (it.value()->isActive())
+      items += it.value()->items();
+  }
 
-  QString error;
-  QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile(layerMgr_, QString::fromStdString(fileName), &error);
+  return items;
+}
 
-  if (error.isEmpty()) {
-    foreach (QSharedPointer<EditItems::Layer> layer, layers) {
-      foreach (QSharedPointer<DrawingItemBase> item, layer->items()) {
-        DrawingItemBase *ditem = item.data();
-        DrawingItem_PolyLine::PolyLine *polyLine = dynamic_cast<DrawingItem_PolyLine::PolyLine *>(ditem);
-        if (polyLine) {
-          vector<LonLat> coords;
-          foreach (QPointF p, polyLine->getLatLonPoints())
-            coords.push_back(LonLat::fromDegrees(p.y(), p.x()));
+bool DrawingManager::isItemVisible(DrawingItemBase * item) const
+{
+  bool visible = item->property("visible", true).toBool();
+  if (!visible) return false;
 
-          info.push_back(PolyLineInfo(polyLine->id(), polyLine->property("Placemark:name").toString().toStdString(), coords));
-        }
-      }
+  // Set each item to be visible if none of its properties match those
+  // in the property list. Otherwise, items are invisible by default.
+  visible = false;
+  bool hasAtLeastOneProperty = false;
+
+  foreach (const QString &property, filter_.first) {
+    QVariant value = item->property(property);
+    hasAtLeastOneProperty |= value.isValid();
+    if (value.isValid() && filter_.second.contains(value.toString())) {
+      visible = true;
+      break;
     }
   }
 
-  return info;
+  if (hasAtLeastOneProperty)
+    return visible;
+  else
+    return true;
+}
+
+void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
+{
+  filter_ = filter;
 }

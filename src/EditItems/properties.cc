@@ -98,7 +98,7 @@ PropertiesEditor *PropertiesEditor::instance_ = 0;
 // Opens a modal dialog to show the properties of \a item.
 // The properties may be modified if \a readOnly is false.
 // Returns true iff the properties were changed.
-bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly, bool modal)
+bool PropertiesEditor::edit(DrawingItemBase *item, bool readOnly, bool modal)
 {
   const QVariantMap origProps = item->properties();
   if (origProps.isEmpty()) {
@@ -170,6 +170,14 @@ QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVari
     METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
   }
   return editor;
+}
+
+QStringList PropertiesEditor::propertyRules(const QString &name) const
+{
+  if (rules_.contains(name))
+    return rules_.value(name);
+  else
+    return QStringList();
 }
 
 void PropertiesEditor::setPropertyRules(const QString &name, const QStringList &values)

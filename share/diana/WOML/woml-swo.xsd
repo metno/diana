@@ -1,0 +1,21 @@
+<schema
+    targetNamespace="http://xml.fmi.fi/namespace/woml/swo/2011/11/15"    
+    xmlns="http://www.w3.org/2001/XMLSchema" 
+    elementFormDefault="qualified" 
+    version="1.0">
+    
+    <annotation>       
+        <documentation>
+            Sensible Weather Object (SWO) WOML objects as GML 3.2.1 Features.                
+            Author: Ilkka Rinne / FMI 2011.
+        </documentation>
+    </annotation>
+    <!-- ====================================================================== -->
+    <include schemaLocation="woml-symbol.xsd"/>
+    <include schemaLocation="woml-front.xsd"/>
+    <include schemaLocation="woml-cloud.xsd"/>
+    <include schemaLocation="woml-precipitation.xsd"/>
+    <include schemaLocation="woml-pressure.xsd"/>
+   
+    <!-- ====================================================================== -->
+</schema>

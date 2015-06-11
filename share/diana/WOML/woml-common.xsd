@@ -1,0 +1,1165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+    targetNamespace="http://xml.fmi.fi/namespace/woml/core/2012/11/15"
+    xmlns:womlcore="http://xml.fmi.fi/namespace/woml/core/2012/11/15"
+    xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"
+    xmlns:sch="http://www.ascc.net/xml/schematron" elementFormDefault="qualified" version="1.0">
+
+    <annotation>
+        <appinfo>
+            <sch:title>Schematron validation</sch:title>           
+            <sch:ns prefix="xlink" uri="http://www.w3.org/1999/xlink" />
+            <sch:pattern name="Check either href or content not both">
+                <sch:rule abstract="true" id="hrefOrContent">
+                    <sch:report test="@xlink:href and (*|text())"
+                        >Property element may not carry both a reference to an object and contain an object.</sch:report>
+                    <sch:assert test="@xlink:href | (*|text())"
+                        >Property element must either carry a reference to an object or contain an object.</sch:assert>
+                </sch:rule>
+            </sch:pattern>
+        </appinfo>
+        <documentation>
+            <html:div xmlns="http://www.w3.org/1999/xhtml">
+                <p>This document describes the common helper objects and properties used 
+                in Weather Object Modelling Language (WOML) schemas.</p>
+                
+                <p>For detailed info see <a href="http://xml.fmi.fi/namespace/woml/core/2010/11/15">documentation</a></p>
+                
+                <p>Author: Ilkka Rinne, FMI/Spatineo 2009-2012.</p>
+            </html:div>
+        </documentation>
+    </annotation>
+
+    <import namespace="http://www.opengis.net/gml/3.2" 
+        schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd" />
+    <import namespace="http://www.w3.org/XML/1998/namespace"
+        schemaLocation="http://www.w3.org/2001/03/xml.xsd" />
+
+    <import namespace="http://purl.org/dc/elements/1.1/"
+        schemaLocation="http://dublincore.org/schemas/xmls/simpledc20021212.xsd" />
+    <import namespace="http://www.w3.org/2000/09/xmldsig#" 
+        schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"/>
+
+    <!-- ================================================= -->
+    <element name="Approval" type="womlcore:ApprovalType" substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================= -->
+    <complexType name="ApprovalType">
+        <annotation>
+            <documentation>
+                Indication of approval of the connected feature  or feature collection for
+                a specified purposes by an authority.
+                
+               
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+                    <element name="approvedBy" type="womlcore:AuthorityPropertyType" minOccurs="1" maxOccurs="1" />
+                    <element name="approvalTime" type="dateTime" minOccurs="1" maxOccurs="1" />
+                    <element name="approvedFor" type="womlcore:shortStringType" minOccurs="0"
+                        maxOccurs="unbounded" />                   
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="approvalProperty" type="womlcore:ApprovalPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:approvalProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="ApprovalPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:Approval" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+
+    <!-- ================================================= -->
+    <element name="GeographicRegion" type="womlcore:GeographicRegionType" substitutionGroup="gml:AbstractFeature" />
+    <!-- ================================================= -->
+    <complexType name="GeographicRegionType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractFeatureType">
+                <sequence>
+                    <element name="boundary" type="gml:LinearRingPropertyType" minOccurs="0" maxOccurs="1"/>
+                    <element name="regionId" type="womlcore:regionIdType" minOccurs="1" maxOccurs="unbounded"/>
+                    <element name="localizedName" type="womlcore:shortLocalizedStringType"
+                        minOccurs="0" maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="geographicRegionProperty" type="womlcore:GeographicRegionPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:geographicRegionProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="GeographicRegionPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:GeographicRegion" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ========================================================================= -->
+    <element name="geographicRegionArrayMembers" type="womlcore:GeographicRegionArrayAssociationType" />
+    <!-- ========================================================================= -->
+    <complexType name="GeographicRegionArrayAssociationType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <sequence>
+            <element ref="womlcore:GeographicRegion" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+    </complexType>
+    
+    <!-- ========================================================================= -->
+    <element name="geographicRegionReference" type="womlcore:GeographicRegionReferenceType" />
+    <!-- ========================================================================= -->
+    <complexType name="GeographicRegionReferenceType">
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    
+    <!-- ================================================= -->
+    <element name="Elevation" type="womlcore:ElevationType" substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================= -->
+    <complexType name="ElevationType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+                    <element name="coordinateReferenceSystem" type="anyURI" minOccurs="1" maxOccurs="1"/>
+                    <choice>
+                        <element name="value" type="gml:MeasureType" minOccurs="1" maxOccurs="1" />
+                        <sequence>
+                            <element name="valueLowerLimit" type="gml:MeasureType" minOccurs="0" maxOccurs="1" />
+                            <element name="valueUpperLimit" type="gml:MeasureType" minOccurs="0" maxOccurs="1" />
+                        </sequence>                        
+                    </choice>                   
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================= -->
+    <element name="elevationProperty" type="womlcore:ElevationPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:elevationProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================= -->
+    <complexType name="ElevationPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:Elevation" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+
+        
+    <!-- =============================================================== -->
+    <element name="SimpleTimePeriod" type="womlcore:SimpleTimePeriodType"
+        substitutionGroup="gml:AbstractTimeObject" />
+    <!-- =============================================================== -->
+    <complexType name="SimpleTimePeriodType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractTimeObjectType">
+                <sequence>
+                    <element name="begin" type="dateTime" minOccurs="0" maxOccurs="1" />
+                    <element name="end" type="dateTime" minOccurs="0" maxOccurs="1" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ============================================================================= -->
+    <element name="simpleTimePeriodProperty" type="womlcore:SimpleTimePeriodPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:validTimePeriodProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ============================================================================= -->
+    <complexType name="SimpleTimePeriodPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:SimpleTimePeriod" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+        
+
+
+    <!-- =================================================== -->
+    <element name="KnownPlace" type="womlcore:KnownPlaceType" substitutionGroup="gml:AbstractGML" />
+    <!-- =================================================== -->
+    <complexType name="KnownPlaceType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+                    <element name="localizedName" type="womlcore:shortLocalizedStringType"
+                        minOccurs="0" maxOccurs="unbounded" />
+                    <element name="locationId" type="womlcore:locationIdType" minOccurs="0"
+                        maxOccurs="unbounded" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- =========================================================================== -->
+    <element name="knownPlaceProperty" type="womlcore:KnownPlacePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:knownPlaceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- =========================================================================== -->
+    <complexType name="KnownPlacePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:KnownPlace" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+
+    <!-- =========================================================================== -->
+    <element name="MeteorologicalObjectMetaData" type="womlcore:MeteorologicalObjectMetaDataType" substitutionGroup="gml:AbstractGML"/>
+    <!-- =========================================================================== -->
+    <complexType name="MeteorologicalObjectMetaDataType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+                    <element ref="dc:title" minOccurs="0" />
+                    <element ref="dc:creator" minOccurs="0" />
+                    <element ref="dc:subject" minOccurs="0" />
+                    <element ref="dc:description" minOccurs="0" />
+                    <element ref="dc:publisher" minOccurs="0" />
+                    <element ref="dc:contributor" minOccurs="0" />
+                    <element ref="dc:date" minOccurs="0" />
+                    <element ref="dc:type" minOccurs="0" />
+                    <element ref="dc:format" minOccurs="0" />
+                    <element ref="dc:identifier" minOccurs="0" />
+                    <element ref="dc:source" minOccurs="0" />
+                    <element ref="dc:language" minOccurs="0" />
+                    <element ref="dc:relation" minOccurs="0" />
+                    <element ref="dc:coverage" minOccurs="0" />
+                    <element ref="dc:rights" minOccurs="0" />
+                    <element name="keyword" type="womlcore:meteorologicalKeywordType" minOccurs="0"
+                        maxOccurs="unbounded" />
+                    <element name="genericProperty" type="womlcore:namedSimpleValueType" minOccurs="0" 
+                        maxOccurs="unbounded"/>                    
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- =========================================================================== -->
+    <element name="meteorologicalObjectMetaDataProperty"
+        type="womlcore:MeteorologicalObjectMetaDataPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:meteorologicalObjectMeataDataProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- =========================================================================== -->
+    <complexType name="MeteorologicalObjectMetaDataPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:MeteorologicalObjectMetaData" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+
+    <!-- ================================================================= -->
+    <element name="ResourceReference" type="womlcore:ResourceReferenceType"
+        substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================================= -->
+    <complexType name="ResourceReferenceType">
+        <annotation>
+            <documentation>              
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>                    
+                    <element name="uri" type="anyURI" minOccurs="1" maxOccurs="1" />
+                    <element name="mimeType" type="anyURI" minOccurs="0" maxOccurs="1" />
+                    <element name="title" type="string" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="resourceReferenceProperty" type="womlcore:ResourceReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:resourceReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="ResourceReferencePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:ResourceReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+        
+    </complexType>
+    
+    
+    <!-- =================================================== -->
+    <element name="DataSourceReference" type="womlcore:DataSourceReferenceType" substitutionGroup="gml:AbstractGML" />
+    <!-- =================================================== -->
+    <complexType name="DataSourceReferenceType">
+        <annotation>
+            <documentation>                
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+                    <element name="onlineResource" type="womlcore:ResourceReferenceType" minOccurs="0" maxOccurs="1"/>
+                    <element name="metaData" minOccurs="0" maxOccurs="1">
+                        <complexType>
+                            <sequence>
+                                <any minOccurs="0" maxOccurs="unbounded" />
+                            </sequence>
+                        </complexType>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ========================================================================= -->
+    <element name="dataSourceReferenceProperty" type="womlcore:DataSourceReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:dataSourceReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ========================================================================= -->
+    <complexType name="DataSourceReferencePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:DataSourceReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ================================================================= -->
+    <element name="SatelliteImageReference" type="womlcore:SatelliteImageReferenceType"
+        substitutionGroup="womlcore:DataSourceReference" />
+    <!-- ================================================================= -->
+    <complexType name="SatelliteImageReferenceType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                <p />
+            </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:DataSourceReferenceType">
+                <sequence>
+                    <element name="instrument" type="womlcore:shortStringType" minOccurs="1"
+                        maxOccurs="1" />
+                    <element name="channel" type="womlcore:shortStringType" minOccurs="0"
+                        maxOccurs="unbounded" />
+                    <element name="referenceTime" type="dateTime" minOccurs="1" maxOccurs="1" />                    
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="satelliteImageReferenceProperty"
+        type="womlcore:SatelliteImageReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:satelliteImageReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="SatelliteImageReferencePropertyType">
+        <annotation>
+            <documentation>Container for sat image reference - follow gml:ArrayAssociationType pattern.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:SatelliteImageReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+
+    <!-- ================================================================= -->
+    <element name="RadarImageReference" type="womlcore:RadarImageReferenceType"
+        substitutionGroup="womlcore:DataSourceReference" />
+    <!-- ================================================================= -->
+    <complexType name="RadarImageReferenceType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:DataSourceReferenceType">
+                <sequence>
+                    <element name="instrument" type="womlcore:shortStringType" minOccurs="1"
+                        maxOccurs="1" />
+                    <choice>
+                        <element ref="gml:pointProperty" minOccurs="1" maxOccurs="1" />
+                        <element ref="womlcore:knownPlaceProperty" minOccurs="1" maxOccurs="1" />
+                    </choice>                     
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="radarImageReferenceProperty" type="womlcore:RadarImageReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:radarImageReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="RadarImageReferencePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:RadarImageReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+
+    </complexType>
+
+    <!-- ================================================================= -->
+    <element name="WeatherForecastReference" type="womlcore:WeatherForecastReferenceType"
+        substitutionGroup="womlcore:DataSourceReference" />
+    <!-- ================================================================= -->
+    <complexType name="WeatherForecastReferenceType">
+        <annotation>
+            <documentation>                
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:DataSourceReferenceType">
+                <sequence>
+                    <element name="targetRegion" type="womlcore:GeographicRegionPropertyType" minOccurs="1"
+                        maxOccurs="unbounded" />
+                    <element name="analysisTime" type="dateTime" minOccurs="1" maxOccurs="1" />                 
+                    <element name="resultTime" type="dateTime" minOccurs="0" maxOccurs="1" />
+                    <element name="validityTime" type="womlcore:SimpleTimePeriodPropertyType"
+                        minOccurs="0" maxOccurs="1" />                       
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="weatherForecastReferenceProperty"
+        type="womlcore:WeatherForecastReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:weatherForecastReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="WeatherForecastReferencePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:WeatherForecastReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- =================================================== -->
+    <element name="NumericalModelRunForecastReference" type="womlcore:NumericalModelRunForecastReferenceType"
+        substitutionGroup="womlcore:DataSourceReference" />
+    <!-- =================================================== -->
+    <complexType name="NumericalModelRunForecastReferenceType">
+        <annotation>
+            <documentation>              
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:WeatherForecastReferenceType">
+                <sequence>
+                    <element name="model" type="womlcore:NumericalWeatherModelPropertyType" minOccurs="1"
+                        maxOccurs="1" />                    
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ========================================================================= -->
+    <element name="numericalModelRunForecastReferenceProperty" type="womlcore:NumericalModelRunForecastReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:numericalModelRunForecastReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ========================================================================= -->
+    <complexType name="NumericalModelRunForecastReferencePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:NumericalModelRunForecastReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+        
+    </complexType>
+
+
+    <!-- ================================================================= -->
+    <element name="MeteorologicalAnalysisReference"
+        type="womlcore:MeteorologicalAnalysisReferenceType" substitutionGroup="womlcore:DataSourceReference" />
+    <!-- ================================================================= -->
+    <complexType name="MeteorologicalAnalysisReferenceType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="womlcore:DataSourceReferenceType">
+                <sequence>
+                    <element name="targetRegion" type="womlcore:GeographicRegionPropertyType" minOccurs="1"
+                        maxOccurs="unbounded" />
+                    <element name="analysisTime" type="dateTime" minOccurs="0" maxOccurs="1" />                                      
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="meteorologicalAnalysisReferenceProperty"
+        type="womlcore:MeteorologicalAnalysisReferencePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:meteorologicalAnalysisReferenceProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="MeteorologicalAnalysisReferencePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+
+        <sequence minOccurs="0">
+            <element ref="womlcore:MeteorologicalAnalysisReference" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    
+    <!-- ================================================================= -->
+    <element name="TimeInterpolation"
+        type="womlcore:TimeInterpolationType" substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================================= -->
+    <complexType name="TimeInterpolationType">
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+                <sequence>
+                    <element name="method" type="womlcore:timeInterpolationMethodType" minOccurs="1"
+                        maxOccurs="1" />
+                    <element name="maxResolution" type="gml:TimeIntervalLengthType" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    
+    <!-- ================================================================================= -->
+    <element name="timeInterpolationProperty"
+        type="womlcore:TimeInterpolationPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:timeInterpolationProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="TimeInterpolationPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:TimeInterpolation" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ================================================================= -->
+    <element name="TimeAggregation"
+        type="womlcore:TimeAggregationType" substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================================================= -->
+    <complexType name="TimeAggregationType">
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+        <sequence>
+            <element name="function" minOccurs="1" maxOccurs="1">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="avg" />
+                        <enumeration value="slidingAvg" />
+                        <enumeration value="mean" />
+                        <enumeration value="min" />
+                        <enumeration value="max" />
+                        <enumeration value="count" />
+                        <enumeration value="sum" />
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="aggregationTime" type="gml:TimeIntervalLengthType" minOccurs="1" maxOccurs="1"/>
+        </sequence>
+            </extension>
+            </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="timeAggregationProperty"
+        type="womlcore:TimeAggregationPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:timeAggregationProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="TimeAggregationPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:TimeAggregation" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ================================================================= -->
+    <element name="Authority"
+        type="womlcore:AuthorityType" substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================================================= -->
+    <complexType name="AuthorityType">
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+              <sequence>
+                <element name="authorityId" type="anyURI" minOccurs="1" maxOccurs="1"/>
+                <element name="localizedName" type="womlcore:longLocalizedStringType" minOccurs="0" maxOccurs="unbounded" />
+              </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ================================================================================= -->
+    <element name="authorityProperty"
+        type="womlcore:AuthorityPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:authorityProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="AuthorityPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:Authority" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ================================================================= -->
+    <element name="NumericalWeatherModel"
+        type="womlcore:NumericalWeatherModelType" substitutionGroup="gml:AbstractGML" />
+    <!-- ================================================================================= -->
+    <complexType name="NumericalWeatherModelType">
+        <complexContent>
+            <extension base="gml:AbstractGMLType">
+        <sequence>
+            <element name="modelIdentifier" type="anyURI" minOccurs="1" maxOccurs="1"/>
+            <element name="specifier" type="womlcore:shortStringType" minOccurs="0" maxOccurs="1" />
+        </sequence>
+            </extension>
+            </complexContent>
+    </complexType>
+    
+    <!-- ================================================================================= -->
+    <element name="numericalWeatherModelProperty"
+        type="womlcore:NumericalWeatherModelPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:numericalWeatherModelProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="NumericalWeatherModelPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="womlcore:NumericalWeatherModel" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    
+    <!-- ================================================================================= -->
+    <element name="digitalSignatureProperty"
+        type="womlcore:DigitalSignaturePropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:digitalSignatureProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ================================================================================= -->
+    <complexType name="DigitalSignaturePropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        
+        <sequence minOccurs="0">
+            <element ref="dsig:Signature" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    
+    <!-- ========================================================================= -->
+    <element name="referenceableObjects" type="womlcore:ReferenceableObjectArrayAssociationType" />
+    <!-- ========================================================================= -->
+    <complexType name="ReferenceableObjectArrayAssociationType">
+        <annotation>
+            <documentation>
+                A collection of GML objects meant to be referenced from outside this
+                type of element.
+            </documentation>
+        </annotation>
+        <sequence>
+            <element ref="gml:AbstractGML" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+    </complexType>
+    
+    
+
+
+    <!-- ============================================================================= -->
+    <element name="ConnectionPoint" type="womlcore:ConnectionPointType" 
+        substitutionGroup="gml:AbstractGML"/>
+    <!-- ============================================================================= -->
+    <complexType name="ConnectionPointType">
+        <annotation>
+            <documentation>
+                <html:div xmlns="http://www.w3.org/1999/xhtml">
+                    <p />
+                </html:div>
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="gml:AbstractGeometricPrimitiveType">
+                <sequence>
+                    <element ref="gml:pos" />
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <!-- ============================================================================= -->
+    <element name="connectionPointProperty" type="womlcore:ConnectionPointPropertyType">
+        <annotation>
+            <appinfo>
+                <sch:pattern name="refAndContent co-occurence prohibited">
+                    <sch:rule context="womlcore:connectionPointProperty">
+                        <sch:extends rule="hrefOrContent" />
+                    </sch:rule>
+                </sch:pattern>
+            </appinfo>
+        </annotation>
+    </element>
+    <!-- ============================================================================= -->
+    <complexType name="ConnectionPointPropertyType">
+        <annotation>
+            <documentation>To be used when using this object type as property of n GML object
+                type according to the GML object-property-association model (it is not allowed for
+                GML Objects to contain other GML Objects as direct children). Enables referencing to
+                an existing object using xlink:href attribute.</documentation>
+        </annotation>
+        <sequence minOccurs="0">
+            <element ref="womlcore:ConnectionPoint" />
+        </sequence>
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+        
+    </complexType>
+    
+    
+    
+    <!-- ========================================================================= -->
+    <element name="connectionPointReference" type="womlcore:ConnectionPointReferenceType" />
+    <!-- ========================================================================= -->
+    <complexType name="ConnectionPointReferenceType">
+        <attributeGroup ref="gml:AssociationAttributeGroup" />
+    </complexType>
+    <complexType name="shortLocalizedStringType">
+        <annotation>
+            <documentation>A short string-valued text designed to be able to fit into a single
+                varchar type field in a database.</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="womlcore:shortStringType">
+                <attribute ref="xml:lang" use="required" />
+            </extension>
+        </simpleContent>
+    </complexType>
+    
+    
+    <!-- General helper types -->
+    
+    <simpleType name="shortStringType">
+        <annotation>
+            <documentation />
+        </annotation>
+        <restriction base="string">
+            <minLength value="0" />
+            <maxLength value="128" />
+        </restriction>
+    </simpleType>
+
+    <complexType name="longLocalizedStringType">
+        <annotation>
+            <documentation>A short string-valued text designed to be able to fit into a single
+                varchar type field in a database.</documentation>
+        </annotation>
+        <simpleContent>
+            <extension base="womlcore:longStringType">
+                <attribute ref="xml:lang" use="required" />
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <simpleType name="longStringType">
+        <annotation>
+            <documentation />
+        </annotation>
+        <restriction base="string">
+            <minLength value="0" />
+            <maxLength value="4096" />
+        </restriction>
+    </simpleType>
+
+    <simpleType name="percentageType">
+        <annotation>
+            <documentation />
+        </annotation>
+        <restriction base="float">
+            <minInclusive value="0" />
+            <maxInclusive value="1" />
+        </restriction>
+    </simpleType>
+
+    <complexType name="locationIdType">
+        <simpleContent>
+            <extension base="womlcore:shortStringType">
+                <attribute name="scheme" use="required">
+                    <simpleType>
+                        <restriction base="string">
+                            <enumeration value="wmocode" />
+                            <enumeration value="lpnn" />
+                            <enumeration value="icao" />
+                            <enumeration value="other" />
+                            <!-- Enumerate administrative region authority codes here, from INSPIRE? -->
+                        </restriction>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+    
+    <complexType name="regionIdType">
+        <simpleContent>
+            <extension base="womlcore:shortStringType">
+                <attribute name="scheme" use="required">
+                    <simpleType>
+                        <restriction base="string">
+                            <!-- Enumerate administrative region authority codes here, from INSPIRE? -->
+                        </restriction>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="meteorologicalKeywordType">
+        <simpleContent>
+            <extension base="womlcore:shortStringType">
+                <attribute name="fixedVocabulary" use="optional">
+                    <simpleType>
+                        <restriction base="string">
+                            <enumeration value="generic" />
+                            <enumeration value="satellite" />
+                            <enumeration value="radar" />
+                            <enumeration value="nwm" />
+                            <enumeration value="observation" />
+                            <enumeration value="forecast" />
+                        </restriction>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+    
+    <complexType name="namedSimpleValueType">
+        <simpleContent>
+            <extension base="womlcore:shortStringType">
+                <attribute name="name" use="required" />                
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="catalogReferenceType">
+        <simpleContent>
+            <extension base="anyURI">
+                <attribute name="scheme" use="required">
+                    <simpleType>
+                        <restriction base="string">
+                            <enumeration value="wmo" />
+                            <enumeration value="fmi" />
+                            <enumeration value="icao" />
+                            <enumeration value="ogc" />
+                            <enumeration value="other" />
+                        </restriction>
+                    </simpleType>
+                </attribute>
+            </extension>
+        </simpleContent>
+    </complexType>
+    
+    <simpleType name="timeInterpolationMethodType">
+        <restriction base="string">
+            <enumeration value="linear" />
+            <enumeration value="nearest-neighbour" />
+        </restriction>
+    </simpleType>
+
+
+    
+</schema>
