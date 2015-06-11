@@ -49,8 +49,9 @@ QAction *DataDialog::action() const
   return m_action;
 }
 
-void DataDialog::closeEvent(QCloseEvent *event)
+void DataDialog::hideEvent(QHideEvent *event)
 {
+  QDialog::hideEvent(event);
   emit hideData();
 }
 
@@ -66,7 +67,7 @@ QLayout *DataDialog::createStandardButtons()
 
   applyButton->setDefault(true);
 
-  connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
+  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
   connect(refreshButton, SIGNAL(clicked()), SLOT(updateTimes()));
   connect(applyhideButton, SIGNAL(clicked()), SLOT(applyhideClicked()));

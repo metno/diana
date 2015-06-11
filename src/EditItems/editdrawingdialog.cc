@@ -84,7 +84,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   QPushButton *resetButton = NormalPushButton(tr("Reset"), this);
   connect(resetButton, SIGNAL(clicked()), SLOT(updateChoices()));
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
-  connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
+  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
 
   QHBoxLayout *viewLayout = new QHBoxLayout;
   viewLayout->addWidget(propertyList_);

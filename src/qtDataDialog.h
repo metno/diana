@@ -75,7 +75,7 @@ private:
   QPushButton *applyButton;
 
 protected:
-  virtual void closeEvent(QCloseEvent *event);
+  virtual void hideEvent(QHideEvent *event);
   QLayout *createStandardButtons();
   void indicateUnappliedChanges(bool);
 

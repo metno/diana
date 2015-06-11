@@ -168,7 +168,6 @@
 
 #include <diField/diFieldManager.h>
 
-#include "diEditItemManager.h"
 #include "EditItems/drawingdialog.h"
 #include "EditItems/editdrawingdialog.h"
 #include "EditItems/toolbar.h"
