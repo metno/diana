@@ -550,9 +550,9 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
   foreach (DrawingItemBase *item, allItems()) {
 
     if (isItemVisible(item)) {
-      applyPlotOptions(item);
+      applyPlotOptions(gl, item);
       setFromLatLonPoints(item, item->getLatLonPoints());
-      item->draw();
+      item->draw(gl);
     }
   }
   gl->PopMatrix();

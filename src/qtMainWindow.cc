@@ -78,7 +78,6 @@
 #include "EditItems/drawingdialog.h"
 #include "EditItems/editdrawingdialog.h"
 #include "EditItems/toolbar.h"
-#include "EditItems/eimtestdialog.h"
 #include "vcross_qt/qtVcrossInterface.h"
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
@@ -113,6 +112,7 @@
 #include <QProgressDialog>
 #include <QShortcut>
 #include <QStatusBar>
+#include <QSvgGenerator>
 #include <QTimerEvent>
 #include <QToolBar>
 #include <QToolButton>
