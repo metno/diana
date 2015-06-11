@@ -1274,8 +1274,8 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
     if (staticPlot_->getMapArea().P() == vfp[0]->getFieldArea().P()) {
       vector<Field*> ff = vfp[0]->getFields();
       if (ff.size()>0) {
-        gridx = xmap/ff[0]->gridResolutionX;
-        gridy = ymap/ff[0]->gridResolutionY;
+        gridx = xmap/ff[0]->area.resolutionX;
+        gridy = ymap/ff[0]->area.resolutionY;
         return true;
       }
     }

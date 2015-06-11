@@ -62,8 +62,8 @@ public:
   void setData(Sat *);
   void clearData();
   Area& getSatArea(void){ return satdata->area;}
-  double getGridResolutionX(){ return satdata->gridResolutionX;}
-  double getGridResolutionY() {return satdata->gridResolutionY;}
+  double getGridResolutionX(){ return satdata->area.resolutionX;}
+  double getGridResolutionY() {return satdata->area.resolutionY;}
   void getSatAnnotation(std::string &, Colour &);
   void getSatName(std::string &);
   void getCalibChannels(std::vector<std::string>& channels );

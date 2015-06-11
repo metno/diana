@@ -264,7 +264,7 @@ bool FieldPlot::getTableAnnotations(vector<string>& anno)
       if (!poptions.repeat) {
         cmin = poptions.base;
       } else {
-        int ndata = fields[0]->nx * fields[0]->ny;
+        int ndata = fields[0]->area.gridSize();
         for (int i = 0; i < ndata; ++i) {
           if (fields[0]->data[i] != fieldUndef) {
             if (cmin > fields[0]->data[i])
@@ -680,7 +680,7 @@ std::vector<float*> FieldPlot::prepareVectors(float* x, float* y)
     *(tmpfields[1]) = *(fields[1]);
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
-    int npos = fields[0]->nx * fields[0]->ny;
+    int npos = fields[0]->area.gridSize();
     if (!getStaticPlot()->ProjToMap(tmpfields[0]->area, npos, x, y, u, v)) {
       return uv;
     }
@@ -720,7 +720,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y)
     *(tmpfields[1]) = *(fields[0]);
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
-    int npos = fields[0]->nx * fields[0]->ny;
+    int npos = fields[0]->area.gridSize();
     for (int i = 0; i < npos; i++)
       v[i] = 1.0f;
 
@@ -741,8 +741,8 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
     int iy2, int maxElementsX, int& step, float& dist)
 {
   int i, ix, iy;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
   int ix1 = ixx1;
   int iy1 = iyy1;
 
@@ -836,7 +836,7 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
 int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
     float sdist)
 {
-  const int nx = fields[0]->nx;
+  const int nx = fields[0]->area.nx;
   if (nx < 3)
     return 1;
 
@@ -893,9 +893,9 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
 
 bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes, bool cached) const
 {
-  if (not getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
-          getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(),
-          boxes, fields[0]->nx / factor, fields[0]->ny / factor, &x, &y, ix1, ix2, iy1, iy2, cached))
+  const GridArea f0area = fields[0]->area.scaled(factor);
+  if (not getStaticPlot()->gc.getGridPoints(f0area, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(),
+          boxes, &x, &y, ix1, ix2, iy1, iy2, cached))
     return false;
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -1013,8 +1013,8 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
 
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
@@ -1135,8 +1135,8 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
   int xstep = step;
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
   }
@@ -1268,8 +1268,8 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   int xstep = step;
 
   int i, ix, iy;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
 
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
@@ -1680,8 +1680,8 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
   setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, step, sdist);
   int xstep = step;
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
 
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
@@ -1894,8 +1894,8 @@ bool FieldPlot::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep = step;
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
 
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
@@ -2002,19 +2002,19 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
     return false;
   }
 
-  const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
+  const int rnx = fields[0]->area.nx / factor, rny = fields[0]->area.ny / factor;
 
   // Create a resampled data array to pass to the contour function.
   float *data;
   if (factor != 1) {
-    METLIBS_LOG_INFO("Resampled field from" << LOGVAL(fields[0]->nx) << LOGVAL(fields[0]->ny)
+    METLIBS_LOG_INFO("Resampled field from" << LOGVAL(fields[0]->area.nx) << LOGVAL(fields[0]->area.ny)
         << " to" << LOGVAL(rnx) << LOGVAL(rny));
     data = new float[rnx * rny];
     int i = 0;
     for (int iy = 0; iy < rny; ++iy) {
       int j = 0;
       for (int ix = 0; ix < rnx; ++ix) {
-        data[(i * rnx) + j] = fields[0]->data[(iy * fields[0]->nx * factor) + (ix * factor)];
+        data[(i * rnx) + j] = fields[0]->data[(iy * fields[0]->area.nx * factor) + (ix * factor)];
         ++j;
       }
       ++i;
@@ -2302,8 +2302,8 @@ bool FieldPlot::plotContour2(DiGLPainter* gl)
 
   if (ix1 >= ix2 || iy1 >= iy2)
     return false;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
   if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
     return false;
 
@@ -2348,8 +2348,8 @@ bool FieldPlot::plotBox_pattern(DiGLPainter* gl)
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
-  const int nx = fields[0]->nx, nxc = nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx, nxc = nx;
+  const int ny = fields[0]->area.ny;
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
   }
@@ -2454,8 +2454,8 @@ bool FieldPlot::plotBox_alpha_shade(DiGLPainter* gl)
     return false;
 
   int ix, iy, i1, i2;
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx;
+  const int ny = fields[0]->area.ny;
 
   if (poptions.frame) {
     plotFrame(gl, nx, ny, x, y);
@@ -2558,8 +2558,8 @@ bool FieldPlot::plotAlarmBox(DiGLPainter* gl)
     return false;
 
   int ix, iy, i1, i2;
-  const int nx = fields[0]->nx, nxc = nx + 1;
-  const int ny = fields[0]->ny;
+  const int nx = fields[0]->area.nx, nxc = nx + 1;
+  const int ny = fields[0]->area.ny;
 
   // vmin,vmax: ok range, without alarm !!!
   float vmin = -fieldUndef;
@@ -2702,8 +2702,8 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
 {
   METLIBS_LOG_SCOPE();
 
-  int nx = field->nx;
-  int ny = field->ny;
+  int nx = field->area.nx;
+  int ny = field->area.ny;
   Colour pixelColor;
   unsigned char * cimage = new unsigned char[4 * nx * ny];
   for (int iy = 0; iy < ny; iy++)
@@ -2870,7 +2870,7 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
     poptions.palettecolours = ColourShading::getColourShading("standard");
   }
 
-  int factor = resamplingFactor(fields[0]->nx, fields[0]->ny);
+  int factor = resamplingFactor(fields[0]->area.nx, fields[0]->area.ny);
 
   if (factor < 2)
     factor = 1;
@@ -2883,7 +2883,7 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
       return false;
   }
 
-  const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
+  const int rnx = fields[0]->area.nx / factor, rny = fields[0]->area.ny / factor;
 
   gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
   if (poptions.frame) {
@@ -2909,8 +2909,8 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
   float ymin = 0.;
   if (not getPoints(1, &xmin, &ymin))
     return false;
-  float xmax = fields[0]->nx * fields[0]->gridResolutionX;
-  float ymax = fields[0]->ny * fields[0]->gridResolutionY;
+  float xmax = fields[0]->area.nx * fields[0]->area.resolutionX;
+  float ymax = fields[0]->area.ny * fields[0]->area.resolutionY;
 
   if (not getPoints(1, &xmax, &ymax))
     return false;
@@ -2936,21 +2936,21 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
   float y2 = getStaticPlot()->getMapSize().y2;
   if (!getStaticPlot()->MapToProj(fields[0]->area.P(), 1, &x2, &y2))
     return false;
-  x1 /= fields[0]->gridResolutionX;
-  x2 /= fields[0]->gridResolutionX;
-  y1 /= fields[0]->gridResolutionY;
-  y2 /= fields[0]->gridResolutionY;
+  x1 /= fields[0]->area.resolutionX;
+  x2 /= fields[0]->area.resolutionX;
+  y1 /= fields[0]->area.resolutionY;
+  y2 /= fields[0]->area.resolutionY;
 
   // Corners of image shown (image coordinates)
   int bmStartx = (getStaticPlot()->getMapSize().x1 > xmin) ? int(x1) : 0;
   int bmStarty = (getStaticPlot()->getMapSize().y1 > ymin) ? int(y1) : 0;
-  int bmStopx = (getStaticPlot()->getMapSize().x2 < xmax) ? int(x2) : (fields[0]->nx - 1);
-  int bmStopy = (getStaticPlot()->getMapSize().y2 < ymax) ? int(y2) : (fields[0]->ny - 1);
+  int bmStopx = (getStaticPlot()->getMapSize().x2 < xmax) ? int(x2) : (fields[0]->area.nx - 1);
+  int bmStopy = (getStaticPlot()->getMapSize().y2 < ymax) ? int(y2) : (fields[0]->area.ny - 1);
 
   // lower left corner of displayed image part, in map coordinates
   // (part of lower left pixel may well be outside screen)
-  float xstart = bmStartx * fields[0]->gridResolutionX;
-  float ystart = bmStarty * fields[0]->gridResolutionY;
+  float xstart = bmStartx * fields[0]->area.resolutionX;
+  float ystart = bmStarty * fields[0]->area.resolutionY;
   if (not getPoints(1, &xstart, &ystart))
     return false;
 
@@ -2959,8 +2959,8 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
   float bmymove = (getStaticPlot()->getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
 
   // update scaling with ratio image to map (was map to screen pixels)
-  scalex *= fields[0]->gridResolutionX;
-  scaley *= fields[0]->gridResolutionY;
+  scalex *= fields[0]->area.resolutionX;
+  scaley *= fields[0]->area.resolutionY;
 
   // width of image (pixels)
   int currwid = bmStopx - bmStartx + 1;  // use pixels in image
@@ -2980,7 +2980,7 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
    cImage: Pointer to imagedata, either sat_image or resampled data
    */
   unsigned char * cimage = resampleImage(gl, currwid, currhei, bmStartx, bmStarty,
-      scalex, scaley, fields[0]->nx, fields[0]->ny);
+      scalex, scaley, fields[0]->area.nx, fields[0]->area.ny);
 
   // always needed (if not, slow oper...) ??????????????
   gl->Enable(DiGLPainter::gl_BLEND);
@@ -2993,7 +2993,7 @@ bool FieldPlot::plotPixmap(DiGLPainter* gl)
   gl->PixelZoom(scalex, scaley);
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, bmStarty); //pixels
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, bmStartx); //pixels
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, fields[0]->nx); //pixels on image
+  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, fields[0]->area.nx); //pixels on image
   gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 1);
   gl->RasterPos2f(grStartx, grStarty); //glcoord.
 
@@ -3032,8 +3032,8 @@ bool FieldPlot::plotFillCell(DiGLPainter* gl)
     poptions.palettecolours = ColourShading::getColourShading("standard");
   }
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
+  int nx = fields[0]->area.nx;
+  int ny = fields[0]->area.ny;
   int rnx, rny;
 
   // convert gridbox corners to correct projection
@@ -3180,8 +3180,8 @@ bool FieldPlot::plotAlpha_shade(DiGLPainter* gl)
     return false;
 
   int ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
+  int nx = fields[0]->area.nx;
+  int ny = fields[0]->area.ny;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
@@ -3258,8 +3258,8 @@ bool FieldPlot::plotFrameOnly(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
+  int nx = fields[0]->area.nx;
+  int ny = fields[0]->area.ny;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
@@ -3374,8 +3374,8 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
+  int nx = fields[0]->area.nx;
+  int ny = fields[0]->area.ny;
 
   int ix1, ix2, iy1, iy2;
 
@@ -3681,7 +3681,7 @@ bool FieldPlot::plotGridLines(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->nx;
+  int nx = fields[0]->area.nx;
 
   int ix1, ix2, iy1, iy2;
 
@@ -3742,8 +3742,8 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
+  int nx = fields[0]->area.nx;
+  int ny = fields[0]->area.ny;
 
   int ix1, ix2, iy1, iy2;
 
@@ -3909,7 +3909,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
 
   for (iy = iy1; iy < iy2; iy++) {
     for (ix = ix1; ix < ix2; ix++) {
-      i = iy * fields[0]->nx + ix;
+      i = iy * fields[0]->area.nx + ix;
       gx = x[i];
       gy = y[i];
 
@@ -3936,7 +3936,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
     return false;
 
-  const int nx = fields[0]->nx + 1;
+  const int nx = fields[0]->area.nx + 1;
 
   gl->LineWidth(1.0);
 

@@ -14,12 +14,10 @@ const Field* duplicateFieldWidthData(const Field* f, const float* data)
 {
   METLIBS_LOG_SCOPE();
   Field* frx= new Field();
-  frx->nx=     f->nx;
-  frx->ny=     f->ny;
   frx->area=   f->area;
   frx->allDefined= true;
-  frx->data = new float[frx->nx*frx->ny];
-  for (int i=0; i<frx->nx*frx->ny; ++i)
+  frx->data = new float[frx->area.gridSize()];
+  for (int i=0; i<frx->area.gridSize(); ++i)
     frx->data[i] = data[i];
   return frx;
 }
@@ -222,7 +220,7 @@ void TrajectoryGenerator::calculateMapFields()
   METLIBS_LOG_SCOPE();
   const Field* fu1 = fp->getFields().front();
   const float *xmapr, *ymapr;
-  if (!StaticPlot::gc.getMapFields(fu1->area, fu1->nx, fu1->ny, &xmapr, &ymapr, 0)) {
+  if (!StaticPlot::gc.getMapFields(fu1->area, &xmapr, &ymapr, 0)) {
     METLIBS_LOG_ERROR("getMapFields ERROR, cannot compute trajectories!");
     return;
   }
@@ -249,9 +247,10 @@ void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miut
   for (int i=0; i<npos; i++) {
     if (mAborted[i])
       continue;
-    if (xt[i] < -1 || xt[i]>fu1->nx || yt[i] < -1 || yt[i] > fu1->ny) {
+    if (xt[i] < -1 || xt[i]>fu1->area.nx || yt[i] < -1 || yt[i] > fu1->area.ny) {
       mAborted[i] = true;
-      METLIBS_LOG_DEBUG(LOGVAL(xt[i]) << LOGVAL(fu1->nx) << LOGVAL(yt[i]) << LOGVAL(fu1->ny));
+      METLIBS_LOG_DEBUG(LOGVAL(xt[i]) << LOGVAL(fu1->area.nx)
+          << LOGVAL(yt[i]) << LOGVAL(fu1->area.ny));
     }
   }
 

@@ -166,7 +166,7 @@ WebMapSlippyOSM::WebMapSlippyOSM(const std::string& identifier, const QUrl& url,
   , mNetworkAccess(network)
   , mNextRefresh(0)
   , mRefeshReply(0)
-  , mProjection("+init=epsg:3857", 1, 1)
+  , mProjection("+init=epsg:3857")
 {
   METLIBS_LOG_SCOPE();
 }

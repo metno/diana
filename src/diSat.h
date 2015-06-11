@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,9 +30,10 @@
 #ifndef diSat_h
 #define diSat_h
 
+#include "diCommonTypes.h"
+
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
-#include "diCommonTypes.h"
 
 /**
   \brief Satellite and radar data
@@ -61,11 +60,9 @@ public:
   int alpha;             ///< alpha-blending value
   int maxDiff;          ///< max allowed timedifference in minutes
   bool classtable;      ///< use classtable
-  int nx;               ///< horizontal size of image
-  int ny;               ///< vertical size of image
-  Area area;            ///< Satellite area/projection
-  double gridResolutionX; /// Grid Resolution in the X direction
-  double gridResolutionY; /// Grid Resolution in the Y direction
+
+  GridArea area;            ///< Satellite area/projection
+
   miutil::miTime time;          ///< valid time
   std::string annotation;  ///< annotation string
   std::string plotname;    ///< unique plotname

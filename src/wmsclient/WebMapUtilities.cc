@@ -120,13 +120,13 @@ Projection projectionForCRS(const std::string& crs)
   static const char PREFIX_URN_EPSG[] = "urn:ogc:def:crs:EPSG::";
 
   if (crs == "EPSG:900913")
-    return Projection("+init=epsg:3857", 1, 1);
+    return Projection("+init=epsg:3857");
   else if (diutil::startswith(crs, PREFIX_EPSG))
-    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_EPSG)-1), 1, 1);
+    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_EPSG)-1));
   else if (diutil::startswith(crs, PREFIX_URN_EPSG))
-    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_URN_EPSG)-1), 1, 1);
+    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_URN_EPSG)-1));
   else if (crs == "CRS:84")
-    return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs", 1, 1);
+    return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs");
   else
     return Projection();
 }

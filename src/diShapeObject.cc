@@ -634,7 +634,7 @@ bool ShapeObject::readProjection(const std::string& shpfilename)
       const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
           + " +ellps=WGS84 +datum=WGS84 +units=m";
       METLIBS_LOG_DEBUG(LOGVAL(proj4.toStdString()));
-      projection.set_proj_definition(proj4.toStdString(), 1, 1);
+      projection.set_proj_definition(proj4.toStdString());
     }
   } else if (prj.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
     projection.setGeographic();

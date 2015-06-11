@@ -484,8 +484,8 @@ void SatManager::setPalette(Sat* satdata, SatFileInfo &fInfo)
   //  PURPOSE:   uses palette to put data from image into satdata.image
   METLIBS_LOG_SCOPE(miTime::nowTime());
 
-  int nx=satdata->nx;
-  int ny=satdata->ny;
+  int nx=satdata->area.nx;
+  int ny=satdata->area.ny;
   int size =nx*ny;
 
   // image(RGBA)
@@ -532,8 +532,8 @@ void SatManager::setRGB(Sat* satdata)
   METLIBS_LOG_SCOPE(satdata->filetype);
 
   int i, j, k;
-  int nx=satdata->nx;
-  int ny=satdata->ny;
+  int nx=satdata->area.nx;
+  int ny=satdata->area.ny;
   int size =nx*ny;
 
   if (size==0)
@@ -727,12 +727,11 @@ void SatManager::setRGB(Sat* satdata)
 void SatManager::cutImage(Sat* satdata, unsigned char *image, float cut, int &index1,
     int &index2)
 {
-
   //  * PURPOSE:   (1-cut)*#pixels should have a value between index1 and index2
 
   int i;
   int nindex[256];
-  int size=satdata->nx*satdata->ny;
+  int size=satdata->area.gridSize();
 
   for (i=0; i<256; i++)
     nindex[i]=0;
@@ -869,7 +868,7 @@ void SatManager::addMosaicfiles(Sat* satdata)
     if (!ok)
       continue;
 
-    int size =sd.nx*sd.ny;
+    int size =sd.area.gridSize();
     if (sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay || sd.Bx!=satdata->Bx || sd.By
         !=satdata->By) {
       METLIBS_LOG_WARN("File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok");
@@ -1186,7 +1185,7 @@ void SatManager::cutImageRGBA(Sat* satdata, unsigned char *image, float cut, int
 
   int i;
   int nindexR[256], nindexG[256], nindexB[256];
-  int size=satdata->nx*satdata->ny;
+  int size=satdata->area.gridSize();
 
   for (i=0; i<256; i++) {
     nindexR[i]=0;

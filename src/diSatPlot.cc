@@ -113,8 +113,8 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
   //Convert to satellite proj coordiantes
   getStaticPlot()->MapToProj(satdata->area.P(), 1, &x, &y);
   // convert to satellite pixel
-  int xpos = x/satdata->gridResolutionX;
-  int ypos = y/satdata->gridResolutionY;
+  int xpos = x/satdata->area.resolutionX;
+  int ypos = y/satdata->area.resolutionY;
 
   satdata->values(xpos,ypos,satval);
 }
@@ -140,8 +140,8 @@ void SatPlot::plot(DiGLPainter* gl, PlotOrder porder)
 
 bool SatPlot::plotFillcell(DiGLPainter* gl)
 {
-  int nx = satdata->nx;
-  int ny = satdata->ny;
+  int nx = satdata->area.nx;
+  int ny = satdata->area.ny;
 
   int ix1, ix2, iy1, iy2;
   float *x, *y;
@@ -160,11 +160,10 @@ bool SatPlot::plotFillcell(DiGLPainter* gl)
   double gridH = ny*getStaticPlot()->getPhysToMapScaleY()/double(cy[1] - cy[0]);
   int factor = std::max(1, int(std::min(gridW, gridH)));
 
-  int rnx = nx / factor;
-  int rny = ny / factor;
-  getStaticPlot()->gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
+  const GridArea areaScaled = satdata->area.scaled(factor);
+  getStaticPlot()->gc.getGridPoints(areaScaled,
       getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true,
-      rnx, rny, &x, &y, ix1, ix2, iy1, iy2);
+      &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2)
     return false;
 
@@ -175,14 +174,14 @@ bool SatPlot::plotFillcell(DiGLPainter* gl)
   vector<float>::iterator it;
   for (int iy=iy1; iy<=iy2-1; iy++) {
     for (int ix = ix1; ix <= ix2-1; ix++) {
-      float x1 = x[iy * (rnx+1) + ix];
-      float x2 = x[iy * (rnx+1) + (ix+1)];
-      float x3 = x[(iy+1) * (rnx+1) + (ix+1)];
-      float x4 = x[(iy+1) * (rnx+1) + ix];
-      float y1 = y[iy * (rnx+1) +ix];
-      float y2 = y[(iy) * (rnx+1) +(ix+1)];
-      float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
-      float y4 = y[(iy+1) * (rnx+1) +(ix)];
+      float x1 = x[iy * (areaScaled.nx+1) + ix];
+      float x2 = x[iy * (areaScaled.nx+1) + (ix+1)];
+      float x3 = x[(iy+1) * (areaScaled.nx+1) + (ix+1)];
+      float x4 = x[(iy+1) * (areaScaled.nx+1) + ix];
+      float y1 = y[iy * (areaScaled.nx+1) +ix];
+      float y2 = y[(iy) * (areaScaled.nx+1) +(ix+1)];
+      float y3 = y[(iy+1) * (areaScaled.nx+1) +(ix+1)];
+      float y4 = y[(iy+1) * (areaScaled.nx+1) +(ix)];
 
       char f1 = satdata->image[(ix * factor + (iy * (nx) * factor))*4];
       char f2 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+1];
@@ -210,8 +209,8 @@ bool SatPlot::plotFillcell(DiGLPainter* gl)
 
 bool SatPlot::plotPixmap(DiGLPainter* gl)
 {
-  int nx = satdata->nx;
-  int ny = satdata->ny;
+  int nx = satdata->area.nx;
+  int ny = satdata->area.ny;
 
   //Member variables, used in values().
   //Corners of total image (map coordinates)
@@ -219,8 +218,8 @@ bool SatPlot::plotPixmap(DiGLPainter* gl)
   ymin = 0.;
   if (!getStaticPlot()->ProjToMap(satdata->area.P(), 1, &xmin, &ymin))
     return false;
-  xmax = nx* satdata->gridResolutionX;
-  ymax = ny* satdata->gridResolutionY;
+  xmax = nx* satdata->area.resolutionX;
+  ymax = ny* satdata->area.resolutionY;
 
   if (!getStaticPlot()->ProjToMap(satdata->area.P(), 1, &xmax, &ymax))
     return false;
@@ -249,10 +248,10 @@ bool SatPlot::plotPixmap(DiGLPainter* gl)
   float y2= getStaticPlot()->getMapSize().y2;
   if (!getStaticPlot()->MapToProj(satdata->area.P(), 1, &x2, &y2))
     return false;
-  x1/=satdata->gridResolutionX;
-  x2/=satdata->gridResolutionX;
-  y1/=satdata->gridResolutionY;
-  y2/=satdata->gridResolutionY;
+  x1/=satdata->area.resolutionX;
+  x2/=satdata->area.resolutionX;
+  y1/=satdata->area.resolutionY;
+  y2/=satdata->area.resolutionY;
 
   // Corners of image shown (image coordinates)
   int bmStartx= (getStaticPlot()->getMapSize().x1>xmin) ? int(x1) : 0;
@@ -262,8 +261,8 @@ bool SatPlot::plotPixmap(DiGLPainter* gl)
 
   // lower left corner of displayed image part, in map coordinates
   // (part of lower left pixel may well be outside screen)
-  float xstart = bmStartx*satdata->gridResolutionX;
-  float ystart = bmStarty*satdata->gridResolutionY;
+  float xstart = bmStartx*satdata->area.resolutionX;
+  float ystart = bmStarty*satdata->area.resolutionY;
   if (!getStaticPlot()->ProjToMap(satdata->area.P(), 1, &xstart, &ystart))
     return false;
 
@@ -272,8 +271,8 @@ bool SatPlot::plotPixmap(DiGLPainter* gl)
   float bmymove= (getStaticPlot()->getMapSize().y1>ymin) ? (ystart-grStarty)*scaley : 0;
 
   // update scaling with ratio image to map (was map to screen pixels)
-  scalex*= satdata->gridResolutionX;
-  scaley*= satdata->gridResolutionY;
+  scalex*= satdata->area.resolutionX;
+  scaley*= satdata->area.resolutionY;
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
