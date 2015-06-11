@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -103,9 +101,7 @@ private:
   bool numbersDisplayed;
 
   bool specset;
-  Area areaspec;
-  double gridResolutionX;
-  double gridResolutionY;
+  GridArea areaspec;
 
   bool areaminimize;
   float minValue,maxValue; // used if not fieldUndef

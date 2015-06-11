@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,11 +31,12 @@
 #include "config.h"
 #endif
 
-#include <diMItiff.h>
+#include "diMItiff.h"
+
+#include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.MItiff"
 #include <miLogger/miLogging.h>
-#include <puTools/miStringFunctions.h>
 
 MItiff::MItiff()
 {
@@ -128,8 +127,8 @@ bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
   sd.time = ginfo.time;
 
   //dimension
-  sd.nx=ginfo.xsize;
-  sd.ny=ginfo.ysize;
+  sd.area.nx=ginfo.xsize;
+  sd.area.ny=ginfo.ysize;
 
   //grid
   sd.TrueLat= ginfo.trueLat;
@@ -154,42 +153,40 @@ bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
   return true;
 }
 
-
 bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels)
 {
   int aa = satimg::day_night(fInfo.name);
 
-  if(aa<0) return false;
+  if(aa<0)
+    return false;
 
   //ex: channelinfo=twilight:4;day:1+2+4;night:3+4+5
   std::vector<std::string> vchannels = miutil::split(fInfo.channelinfo,";");
 
-  if ( vchannels.size()==3 ) {
+  if (vchannels.size() == 3) {
 
     std::map< std::string, std::string > mchannels;
-    for ( int i=0; i<3 ;++i ) {
+    for (int i=0; i<3 ; ++i) {
       std::vector<std::string> token = miutil::split(vchannels[i],":");
-      if ( token.size() == 2 ) {
+      if (token.size() == 2) {
         mchannels[token[0]] = token[1];
       }
     }
-    if ( aa==0 ){       //twilight
+    if (aa == 0) {       //twilight
       channels = mchannels["twilight"];
-    } else if ( aa==2 ) { //day
+    } else if (aa == 2) { //day
       channels = mchannels["day"];
-    } else if ( aa==1 ) { //night
+    } else if (aa == 1) { //night
       channels = mchannels["night"];
     }
   } else {
-
-    if(aa==0){       //twilight
+    if (aa == 0){       //twilight
       channels = fInfo.channel.at(4-1); //"4"
-    } else if(aa==2){ //day
+    } else if (aa == 2) { //day
       channels = fInfo.channel.at(1-1) + "+" + fInfo.channel.at(2-1) + "+" + fInfo.channel.at(4-1); //"1+2+4";
-    } else if(aa==1){ //night
+    } else if (aa == 1) { //night
       channels = fInfo.channel.at(3-1) + "+" + fInfo.channel.at(4-1) + "+" + fInfo.channel.at(5-1); //"3+4+5";
     }
-
   }
 
   return true;

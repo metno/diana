@@ -1918,11 +1918,11 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
           if (matrix_nx==0 && matrix_ny==0) {
             matrix_nx= nx;
             matrix_ny= ny;
-            gridResolutionX = fed->gridResolutionX;
-            gridResolutionY = fed->gridResolutionY;
+            gridResolutionX = fed->areaspec.resolutionX;
+            gridResolutionY = fed->areaspec.resolutionY;
           } else if (nx!=matrix_nx || ny!=matrix_ny
-              || gridResolutionX != fed->gridResolutionX
-              || gridResolutionY != fed->gridResolutionY) {
+              || gridResolutionX != fed->areaspec.resolutionX
+              || gridResolutionY != fed->areaspec.resolutionY) {
             ok= false;
           }
         } else {

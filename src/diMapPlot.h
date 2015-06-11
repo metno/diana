@@ -84,7 +84,7 @@ private:
   * @param anno_position
   * @param anno
   */
-  void clipPrimitiveLines(DiGLPainter* gl, int npos, float *, float *, float xylim[4],
+  void clipPrimitiveLines(DiGLPainter* gl, int npos, float *, float *, const float xylim[4],
       float jumplimit, bool plotanno=false,
       diutil::MapValuePosition anno_position = diutil::map_right, const std::string& anno="");
   /**
@@ -97,7 +97,7 @@ private:
   * @return
   */
 
-  bool plotMapLand4(DiGLPainter* gl, const std::string&, float[], const Linetype&, float,
+  bool plotMapLand4(DiGLPainter* gl, const std::string&, const float[], const Linetype&, float,
       const Colour&);
   /**
    * Plot Lat/Lon lines with optional numbering

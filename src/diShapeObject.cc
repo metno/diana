@@ -83,7 +83,7 @@ const bool SKIP_SMALL = false;
 ShapeObject::ShapeObject()
   : mReductionScale(0, 0) // invalid
 {
-  projection.setGeographic();
+  projection = Projection::geographic();
 
   typeOfObject = ShapeXXX;
 
@@ -197,7 +197,7 @@ bool ShapeObject::read(const std::string& filename)
 
   bool dbf_ok = (readDBFfile(filename) == 0);
   if (!readProjection(filename))
-    projection.setGeographic();
+    projection = Projection::geographic();
 
   colourmapMade=false;
   stringcolourmapMade=false;
@@ -634,10 +634,10 @@ bool ShapeObject::readProjection(const std::string& shpfilename)
       const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
           + " +ellps=WGS84 +datum=WGS84 +units=m";
       METLIBS_LOG_DEBUG(LOGVAL(proj4.toStdString()));
-      projection.set_proj_definition(proj4.toStdString(), 1, 1);
+      projection.set_proj_definition(proj4.toStdString());
     }
   } else if (prj.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
-    projection.setGeographic();
+    projection = Projection::geographic();
   } else {
     METLIBS_LOG_WARN("shapefile prj not understood: " << prj.toStdString());
     return false;

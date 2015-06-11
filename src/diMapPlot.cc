@@ -46,6 +46,24 @@
 using namespace std;
 using namespace miutil;
 
+namespace {
+
+bool calculateGeogridParameters(const Projection& p, const Rectangle& maprect, float & lonmin,
+    float & lonmax, float & latmin, float & latmax)
+{
+  if (!p.adjustedLatLonBoundingBox(maprect, lonmin, lonmax, latmin, latmax))
+    return false;
+
+  if (latmin < -89.95 && !p.isLegal(0.0, -90.0))
+    latmin = -89.95;
+  if (latmax > 89.95 && !p.isLegal(0.0, 90.0))
+    latmax = 89.95;
+
+  return true;
+}
+
+} // namespace
+
 // static members
 map<std::string,FilledMap> MapPlot::filledmaps;
 set<std::string> MapPlot::usedFilledmaps;
@@ -296,8 +314,8 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     if (mapinfo.type=="normal" || mapinfo.type=="pland") {
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
-        float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2,
-                          getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
+        const Rectangle& ms = getStaticPlot()->getMapSize();
+        const float xylim[4]= { ms.x1, ms.x2, ms.y1, ms.y2 };
         if (!plotMapLand4(gl, mapfile, xylim, contopts.linetype, contopts.linewidth, c))
           METLIBS_LOG_ERROR("ERROR OPEN/READ " << mapfile);
       }
@@ -432,7 +450,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
 }
 
-bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, float xylim[],
+bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, const float xylim[],
     const Linetype& linetype, float linewidth, const Colour& colour)
 {
   //
@@ -502,8 +520,6 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, float x
   //  met.no    25.05.2009  Audun Christoffersen ... independent on met.no projections
   //---------------------------------------------------------------------
 
-  Projection geoProj;
-  geoProj.setGeographic();
   const Projection& projection = getStaticPlot()->getMapArea().P();
 
   const unsigned int nwrec = 1024;
@@ -660,7 +676,7 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, float x
           x1 = x[np - 1];
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
-          int b = projection.convertFromGeographic(np,x,y,geoProj);
+          int b = projection.convertFromGeographic(np,x,y);
           if (b!=0){
             METLIBS_LOG_WARN("plotMapLand4(0), getPoints returned false");
           }
@@ -724,7 +740,7 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, float x
       }
     }
     nn = n;
-    int b = projection.convertToGeographic(nn,x,y,geoProj);
+    int b = projection.convertToGeographic(nn,x,y);
     if (b!=0){
       METLIBS_LOG_WARN("plotMapLand4(1), getPoints returned false");
     }
@@ -872,7 +888,7 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, float x
                   x1 = x[np - 1];
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
-                  int b = projection.convertFromGeographic(np,x,y, geoProj);
+                  int b = projection.convertFromGeographic(np,x,y);
                   if (b!=0){
                     METLIBS_LOG_WARN("plotMapLand4(2), getPoints returned false");
                   }
@@ -935,18 +951,12 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
   if (plotResolution<1)
     plotResolution= 100;
 
-
-  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
+  const float jumplimit = p.getMapLinesJumpLimit();
+  float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
+  if (!calculateGeogridParameters(p, getStaticPlot()->getMapSize(), lonmin, lonmax, latmin, latmax))
+    return false;
 
   int n, j;
-  float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
-  float jumplimit;
-
-  bool b = p.calculateGeogridParameters(xylim, lonmin, lonmax, latmin, latmax,
-      jumplimit);
-
-  if (!b) return false;
-
   int ilon1= int(lonmin/longitudeStep);
   int ilon2= int(lonmax/longitudeStep);
   int ilat1= int(latmin/latitudeStep);
@@ -1025,6 +1035,8 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
           y[n] = glat + dlat * float(n);
         }
         if (getStaticPlot()->GeoToMap(nlat, x, y)) {
+          const Rectangle& ms = getStaticPlot()->getMapSize();
+          const float xylim[4]= { ms.x1, ms.x2, ms.y1, ms.y2 };
           clipPrimitiveLines(gl, nlat, x, y, xylim, jumplimit, lon_values,
               lon_valuepos, plotstr);
         } else {
@@ -1089,6 +1101,8 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
           y[n] = glat;
         }
         if (getStaticPlot()->GeoToMap(nlon, x, y)) {
+          const Rectangle& ms = getStaticPlot()->getMapSize();
+          const float xylim[4]= { ms.x1, ms.x2, ms.y1, ms.y2 };
           clipPrimitiveLines(gl, nlon, x, y, xylim, jumplimit, lat_values,
               lat_valuepos, plotstr);
         } else {
@@ -1210,7 +1224,7 @@ bool MapPlot::plotLinesSimpleText(DiGLPainter* gl, const std::string& filename)
   return (nlines>0);
 }
 
-void MapPlot::clipPrimitiveLines(DiGLPainter* gl, int npos, float *x, float *y, float xylim[4],
+void MapPlot::clipPrimitiveLines(DiGLPainter* gl, int npos, float *x, float *y, const float xylim[4],
     float jumplimit, bool plotanno, diutil::MapValuePosition anno_position, const std::string& anno)
 {
   int i, n = 0;

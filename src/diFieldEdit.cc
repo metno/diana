@@ -105,9 +105,6 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   miTime tprod= editfield->validFieldTime;
   vector<Field*> vf;
   vf.push_back(editfield);
-  gridResolutionX = rhs.gridResolutionX;
-  gridResolutionY = rhs.gridResolutionY;
-
 
   // fieldPlot
   editfieldplot= new FieldPlot();
@@ -235,8 +232,8 @@ bool FieldEdit::changedEditField(){
 void FieldEdit::getFieldSize(int &nx, int &ny) {
 
   if (editfield) {
-    nx= editfield->nx;
-    ny= editfield->ny;
+    nx= editfield->area.nx;
+    ny= editfield->area.ny;
   } else {
     nx= ny= 0;
   }
@@ -256,10 +253,8 @@ void FieldEdit::setSpec( EditProduct& ep, int fnum) {
       format,config, option);
   gridinventory::Grid grid = fieldPlotManager->getFieldGrid(ep.templateFilename);
   Rectangle r(0,0,(grid.nx-1)*grid.x_resolution,(grid.ny-1)*grid.y_resolution);
-  Projection p(grid.projection,grid.x_resolution,grid.y_resolution);
-  areaspec = Area(p,r);
-  gridResolutionX = grid.x_resolution;
-  gridResolutionY = grid.y_resolution;
+  Projection p(grid.projection);
+  areaspec = GridArea(Area(p,r), grid.nx, grid.ny, grid.x_resolution, grid.y_resolution);
 
   areaminimize= ep.areaminimize;
   minValue=     ep.fields[fnum].minValue;
@@ -323,8 +318,8 @@ void FieldEdit::makeWorkfield()
   workfield= 0;
 
   if (!editfield->allDefined) {
-    int nx= editfield->nx;
-    int ny= editfield->ny;
+    int nx= editfield->area.nx;
+    int ny= editfield->area.ny;
     int nundef= 0;
     float avg= 0.0;
     for (int i=0; i<nx*ny; i++) {
@@ -429,10 +424,11 @@ void FieldEdit::makeWorkfield()
 
 void FieldEdit::changeGrid()
 {
-  METLIBS_LOG_DEBUG(LOGVAL(areaspec)<< LOGVAL(gridResolutionX));
+  METLIBS_LOG_DEBUG(LOGVAL(areaspec));
   std::string demands= "fine.interpolation";
-  if (areaminimize) demands+= " minimize.area";
-  if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands)) {
+  if (areaminimize)
+    demands+= " minimize.area";
+  if (!editfield->changeGrid(areaspec,demands)) {
     METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
   }
 }
@@ -520,11 +516,12 @@ METLIBS_LOG_SCOPE();
   prepareEditFieldPlot(fieldname,tprod);
 }
 
-void FieldEdit::setConstantValue(float value) {
+void FieldEdit::setConstantValue(float value)
+{
+  if (!editfield)
+    return;
 
-  if (!editfield) return;
-
-  int fsize= editfield->nx * editfield->ny;
+  int fsize= editfield->area.gridSize();
   for (int i=0; i<fsize; ++i)
     editfield->data[i]= value;
 
@@ -533,8 +530,8 @@ void FieldEdit::setConstantValue(float value) {
 
 
 bool FieldEdit::readEditFieldFile(const std::string& filename,
-    const std::string& fieldname,
-    const miTime& tprod){
+    const std::string& fieldname, const miTime& tprod)
+{
   METLIBS_LOG_SCOPE();
 
   cleanup();
@@ -546,15 +543,14 @@ bool FieldEdit::readEditFieldFile(const std::string& filename,
   changeGrid();
 
   return prepareEditFieldPlot(fieldname,tprod);
-
 }
 
-bool FieldEdit::writeEditFieldFile(const std::string& filename) {
-
+bool FieldEdit::writeEditFieldFile(const std::string& filename)
+{
   METLIBS_LOG_SCOPE(LOGVAL(filename));
 
-  if (!editfield) return false;
-  if (!editfield->data) return false;
+  if (!editfield || !editfield->data)
+    return false;
 
   unsavedChanges = false;
   FieldRequest fieldrequest;
@@ -568,20 +564,19 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename) {
     fieldrequest.output_time = editfield->validFieldTime.isoTime();
   }
   return fieldPlotManager->writeField(fieldrequest,editfield);
-
 }
 
 
-void FieldEdit::activate() {
-
+void FieldEdit::activate()
+{
   operationStarted= false;
 
-  if (!editfield) return;
-  if (!editfieldplot) return;
+  if (!editfield || !editfieldplot)
+    return;
 
   if (!editStarted) {
     // set a small default influence size
-    float d= 20 * getStaticPlot()->getPhysToMapScaleX() / editfield->gridResolutionX;
+    float d= 20 * getStaticPlot()->getPhysToMapScaleX() / editfield->area.resolutionX;
 
     def_rcircle=   d;
     def_axellipse= d;
@@ -595,14 +590,15 @@ void FieldEdit::activate() {
   axellipse=     def_axellipse;
   ayellipse=     def_ayellipse;
   ecellipse=     def_ecellipse;
-  rcirclePlot=   rcircle*editfield->gridResolutionX;
-  axellipsePlot= axellipse*editfield->gridResolutionX;
-  ayellipsePlot= ayellipse*editfield->gridResolutionY;
+  rcirclePlot=   rcircle*editfield->area.resolutionX;
+  axellipsePlot= axellipse*editfield->area.resolutionX;
+  ayellipsePlot= ayellipse*editfield->area.resolutionY;
 
   convertpos= false;
   justDoneUndoRedo= false;
 
-  if (!workfield) makeWorkfield();
+  if (!workfield)
+    makeWorkfield();
 
   active= true;
 }
@@ -649,19 +645,19 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (ee.order==start_event) {
         posx = ee.x;
         posy = ee.y;
-        xfirst= ee.x/editfield->gridResolutionX;
-        yfirst= ee.y/editfield->gridResolutionY;
+        xfirst= ee.x/editfield->area.resolutionX;
+        yfirst= ee.y/editfield->area.resolutionY;
         influencetype= def_influencetype;
         ecellipse=     def_ecellipse;
       } else {
-        float dx= ee.x/editfield->gridResolutionX - xfirst;
-        float dy= ee.y/editfield->gridResolutionY - yfirst;
+        float dx= ee.x/editfield->area.resolutionX - xfirst;
+        float dy= ee.y/editfield->area.resolutionY - yfirst;
         def_rcircle=   sqrtf(dx*dx+dy*dy);
-        rcirclePlot= def_rcircle*editfield->gridResolutionX;
+        rcirclePlot= def_rcircle*editfield->area.resolutionX;
         def_axellipse = dx;
         def_ayellipse = dy;
-        axellipsePlot = def_axellipse*editfield->gridResolutionX;
-        ayellipsePlot = def_ayellipse*editfield->gridResolutionY;
+        axellipsePlot = def_axellipse*editfield->area.resolutionX;
+        ayellipsePlot = def_ayellipse*editfield->area.resolutionY;
       }
 
     } else if (ee.type==edit_inspection && existing) {
@@ -677,8 +673,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           return false;
         }
       }
-      gx /= editfield->gridResolutionX;
-      gy /= editfield->gridResolutionY;
+      gx /= editfield->area.resolutionX;
+      gy /= editfield->area.resolutionY;
 
       float fv;
       if (!editfield->interpolate(1,&gx,&gy,&fv, Field::I_BILINEAR))
@@ -688,8 +684,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         const PlotOptions poptions= editfieldplot->getPlotOptions();
         discontinuous= poptions.discontinuous!=0;
         //####################################################
-        nx= editfield->nx;
-        ny= editfield->ny;
+        nx= editfield->area.nx;
+        ny= editfield->area.ny;
         int nsmooth=0;
         isoline= findIsoLine(gx,gy,fv,nsmooth,nx,ny,workfield->data,discontinuous);
         if (!isoline.x.size()) {
@@ -870,8 +866,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         return false;
       }
     }
-    gx /= editfield->gridResolutionX;
-    gy /= editfield->gridResolutionY;
+    gx /= editfield->area.resolutionX;
+    gy /= editfield->area.resolutionY;
 
     if (ee.order==start_event) {
 
@@ -889,8 +885,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       }
 
       // tar vare paa originalverdier
-      nx= editfield->nx;
-      ny= editfield->ny;
+      nx= editfield->area.nx;
+      ny= editfield->area.ny;
       fsize= nx*ny;
       if (!odata) odata= new float[fsize];
 
@@ -914,9 +910,9 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       ayellipse=     def_ayellipse;
       ecellipse=     def_ecellipse;
       // keep map coordinates for plotting (may be changed later)
-      rcirclePlot=   rcircle * editfield->gridResolutionX;
-      axellipsePlot= axellipse * editfield->gridResolutionX;
-      ayellipsePlot= ayellipse * editfield->gridResolutionY;
+      rcirclePlot=   rcircle * editfield->area.resolutionX;
+      axellipsePlot= axellipse * editfield->area.resolutionX;
+      ayellipsePlot= ayellipse * editfield->area.resolutionY;
       showArrow=     false;
 
       maparea = getStaticPlot()->getMapArea();
@@ -924,8 +920,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       convertpos= (maparea.P() != editfield->area.P());
 
       if (convertpos) {
-        const float frx = editfield->gridResolutionX,
-            fry = editfield->gridResolutionY;
+        const float frx = editfield->area.resolutionX,
+            fry = editfield->area.resolutionY;
         float rx[3] = { gx*frx,
                         (gx-axellipse*0.5f)*frx,
                         (gx+axellipse*0.5f)*frx };
@@ -937,16 +933,16 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           METLIBS_LOG_ERROR("EDIT: getPoints error");
           return false;
         }
-        gx= rx[0]/editfield->gridResolutionX;
-        gy= ry[0]/editfield->gridResolutionY;
+        gx= rx[0]/editfield->area.resolutionX;
+        gy= ry[0]/editfield->area.resolutionY;
         // WARNING: Convertion may cause a different influence area
         //          on the field data than shown (circle/ellipse).
         //          Problem occurring when scaling in x and y directions
         //          get very different (circle on map is not a circle
         //          in the field, ellipse ???).
         //          Cannot avoid this while showing an image.
-        axellipse = (rx[2]-rx[1])/editfield->gridResolutionX;
-        ayellipse = (ry[2]-ry[1])/editfield->gridResolutionY;
+        axellipse = (rx[2]-rx[1])/editfield->area.resolutionX;
+        ayellipse = (ry[2]-ry[1])/editfield->area.resolutionY;
         rcircle= sqrtf(axellipse*axellipse+ayellipse*ayellipse);
       }
 
@@ -963,18 +959,18 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       numsmooth= 0;
 
       if (editstate==edit_value) {
-        yrefpos= ee.y/editfield->gridResolutionY;
+        yrefpos= ee.y/editfield->area.resolutionY;
         Rectangle rf= maparea.R();
         // changing along the map height
-        deltascale = 2.0 * lineinterval / (rf.height()/editfield->gridResolutionY);
+        deltascale = 2.0 * lineinterval / (rf.height()/editfield->area.resolutionY);
         convertpos= false;
 
       } else if (editstate==edit_gradient) {
-        xrefpos= ee.x/ editfield->gridResolutionX;
-        yrefpos= ee.y/ editfield->gridResolutionY;
+        xrefpos= ee.x/ editfield->area.resolutionX;
+        yrefpos= ee.y/ editfield->area.resolutionY;
         Rectangle rf= maparea.R();
         // changing along the map height
-        deltascale = 10.0 * lineinterval / (rf.height()/editfield->gridResolutionY);
+        deltascale = 10.0 * lineinterval / (rf.height()/editfield->area.resolutionY);
         convertpos= false;
 
       } else if (editstate==edit_line         ||
@@ -992,8 +988,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           }
         }
         for( int i=0; i<4; i++) {
-          rx[i] /= editfield->gridResolutionX;
-          ry[i] /= editfield->gridResolutionY;
+          rx[i] /= editfield->area.resolutionX;
+          ry[i] /= editfield->area.resolutionY;
         }
         float avg= (sqrtf((rx[0]-rx[1])*(rx[0]-rx[1])+(ry[0]-ry[1])*(ry[0]-ry[1]))
             +sqrtf((rx[2]-rx[3])*(rx[2]-rx[3])+(ry[2]-ry[3])*(ry[2]-ry[3])))*0.5;
@@ -1152,9 +1148,9 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       axellipse=     def_axellipse;
       ayellipse=     def_ayellipse;
       ecellipse=     def_ecellipse;
-      rcirclePlot=   rcircle * editfield->gridResolutionX;
-      axellipsePlot= axellipse * editfield->gridResolutionX;
-      ayellipsePlot= ayellipse * editfield->gridResolutionY;
+      rcirclePlot=   rcircle * editfield->area.resolutionX;
+      axellipsePlot= axellipse * editfield->area.resolutionX;
+      ayellipsePlot= ayellipse * editfield->area.resolutionY;
       showArrow=     false;
 
       operationStarted= false;
@@ -1178,11 +1174,11 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (orcircle!=rcircle || oaxellipse!=axellipse
           || oayellipse!=ayellipse) {
         if (influencetype==0) {
-          rcirclePlot = def_rcircle * (rcircle/orcircle) * editfield->gridResolutionX;
+          rcirclePlot = def_rcircle * (rcircle/orcircle) * editfield->area.resolutionX;
         } else if (convertpos) {
           // may be not the best we could do...
-          const float frx = editfield->gridResolutionX,
-              fry = editfield->gridResolutionY;
+          const float frx = editfield->area.resolutionX,
+              fry = editfield->area.resolutionY;
           float rx[2] = { (gx-axellipse*0.5f)*frx,
                           (gx+axellipse*0.5f)*frx };
           float ry[2] = { (gy-ayellipse*0.5f)*fry,
@@ -1195,8 +1191,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           axellipsePlot= rx[1]-rx[0];
           ayellipsePlot= ry[1]-ry[0];
         } else {
-          axellipsePlot= axellipse*editfield->gridResolutionX;
-          ayellipsePlot= ayellipse*editfield->gridResolutionY;
+          axellipsePlot= axellipse*editfield->area.resolutionX;
+          ayellipsePlot= ayellipse*editfield->area.resolutionY;
         }
       }
 
@@ -1245,7 +1241,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       else
         editLimitedLine();
 
-      rcirclePlot= def_rcircle * (rcircle/orcircle) * editfield->gridResolutionX;
+      rcirclePlot= def_rcircle * (rcircle/orcircle) * editfield->area.resolutionX;
 
       // stop line(-move) if outside the field area or near undefined
       float fv;
@@ -1362,8 +1358,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
     bool geo)
 {
-  const float frx = editfield->gridResolutionX,
-      fry = editfield->gridResolutionY;
+  const float frx = editfield->area.resolutionX,
+      fry = editfield->area.resolutionY;
   float rx[2] = { fi.posx, fi.posx + fi.axellipse * frx};
   float ry[2] = { fi.posy, fi.posy + fi.ayellipse * fry};
   if (geo) {
@@ -1383,11 +1379,11 @@ void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
   def_ecellipse=     fi.ecellipse;
   influencetype=                def_influencetype;
   rcircle=       def_rcircle;
-  rcirclePlot=   def_rcircle * editfield->gridResolutionX;
+  rcirclePlot=   def_rcircle * editfield->area.resolutionX;
   axellipse=     def_axellipse;
-  axellipsePlot= def_axellipse * editfield->gridResolutionX;
+  axellipsePlot= def_axellipse * editfield->area.resolutionX;
   ayellipse=     def_ayellipse;
-  ayellipsePlot= def_ayellipse * editfield->gridResolutionY;
+  ayellipsePlot= def_ayellipse * editfield->area.resolutionY;
   ecellipse=                    def_ecellipse;
 }
 
@@ -1396,8 +1392,8 @@ FieldInfluence FieldEdit::getFieldInfluence(bool geo) {
 
   FieldInfluence fi;
 
-  const float frx = editfield->gridResolutionX,
-      fry = editfield->gridResolutionY;
+  const float frx = editfield->area.resolutionX,
+      fry = editfield->area.resolutionY;
 
   float scale= rcirclePlot / def_rcircle/ frx;
   float dx= scale * def_axellipse;
@@ -3462,8 +3458,8 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     float *xplot= new float[n];
     float *yplot= new float[n];
     for (int i=0; i<n; ++i) {
-      xplot[i]= isoline.x[i] * editfield->gridResolutionX;
-      yplot[i]= isoline.y[i] * editfield->gridResolutionY;
+      xplot[i]= isoline.x[i] * editfield->area.resolutionX;
+      yplot[i]= isoline.y[i] * editfield->area.resolutionY;
     }
 
     gl->LineWidth(3.0);
@@ -3490,8 +3486,8 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     float *xplot= new float[n];
     float *yplot= new float[n];
     for (int i=0; i<n; ++i) {
-      xplot[i]= xline[i] * editfield->gridResolutionX;
-      yplot[i]= yline[i] * editfield->gridResolutionY;
+      xplot[i]= xline[i] * editfield->area.resolutionX;
+      yplot[i]= yline[i] * editfield->area.resolutionY;
     }
     gl->LineWidth(1.0);
     gl->Begin(DiGLPainter::gl_LINE_STRIP);
@@ -3505,7 +3501,6 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     delete[] xplot;
     delete[] yplot;
   }
-
 }
 
 void FieldEdit::plot(DiGLPainter* gl, Plot::PlotOrder porder, bool showinfluence)

@@ -65,10 +65,7 @@ WeatherObjects::WeatherObjects()
   itsTime=ztime;
 
   // correct spec. when making Projection for long/lat coordinates
-  Projection geop;
-  geop.setGeographic();
-  geop.setUsingLatLonValues(true);
-  geoArea.setP(geop);
+  geoArea.setP(Projection::geographic());
 
   useobject.clear();
   //use all objects if nothing else specified
@@ -83,17 +80,13 @@ void WeatherObjects::clear()
 {
   METLIBS_LOG_SCOPE();
 
-  int no = objects.size();
-  for (int i=0; i<no; i++)
-    delete objects[i];
-  objects.clear();
-  prefix = std::string();
-  filename= std::string();
-  itsOldComments = std::string();
+  diutil::delete_all_and_clear(objects);
+  prefix.clear();
+  filename.clear();
+  itsOldComments.clear();
   itsLabels.clear();
   itsOldLabels.clear();
 }
-
 
 /*********************************************/
 
@@ -142,11 +135,10 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   const int obsize = objects.size();
 
   //npos = number of points to be transformed = all object points
-  int npos= 0;
+  //plus one copy point(xcopy,ycopy)
+  int npos = 1;
   for (int i=0; i<obsize; i++)
     npos += objects[i]->getXYZsize();
-  //plus one copy point(xcopy,ycopy)
-  npos++;
 
   float *xpos = new float[npos];
   float *ypos = new float[npos];
@@ -166,9 +158,9 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   ypos[n]=ycopy;
 
   bool converted;
-  if (itsArea.P().getUsingLatLonValues()) {
+  if (itsArea.P() == geoArea.P()) {
     converted = (newArea.P().convertFromGeographic(npos,xpos,ypos) == 0);
-  } else if (newArea.P().getUsingLatLonValues()) {
+  } else if (newArea.P() == geoArea.P()) {
     converted = (itsArea.P().convertToGeographic(npos,xpos,ypos) == 0);
   } else {
     converted = gc.getPoints(itsArea.P(),newArea.P(),npos,xpos,ypos);

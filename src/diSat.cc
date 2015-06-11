@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -33,7 +31,7 @@
 #include "config.h"
 #endif
 
-#include <diSat.h>
+#include "diSat.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -49,30 +47,25 @@ int Sat::defaultAlpha=255;
 int Sat::defaultTimediff=60;
 bool Sat::defaultClasstable=false;
 
-// Default constructor
 Sat::Sat() :
   approved(false),  autoFile(true),
   cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
   maxDiff(defaultTimediff), classtable(defaultClasstable),
-  nx(0), ny(0), palette(false), mosaic(false),
+  palette(false), mosaic(false),
   commonColourStretch(false), image(0), calibidx(-1),
   channelschanged(true), rgboperchanged(true),
   alphaoperchanged(true),mosaicchanged(true)
-  {
-
-  METLIBS_LOG_DEBUG("Sat constructor");
-
-  for (int i=0; i<maxch; i ++)
-    rawimage[i]= 0;
-  for (int i=0; i<3; i++)
-    origimage[i]= NULL;
-  }
-
-// Copy constructor
-Sat::Sat (const Sat &rhs)
 {
-  METLIBS_LOG_DEBUG("Sat copy constructor  ");
-  // elementwise copy
+  METLIBS_LOG_SCOPE();
+  for (int i=0; i<maxch; i++)
+    rawimage[i] = 0;
+  for (int i=0; i<3; i++)
+    origimage[i] = 0;
+}
+
+Sat::Sat(const Sat &rhs)
+{
+  METLIBS_LOG_SCOPE();
   memberCopy(rhs);
 }
 
@@ -80,18 +73,17 @@ Sat::Sat (const std::string &pin) :
   approved(false),  autoFile(true),
   cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
   maxDiff(defaultTimediff), classtable(defaultClasstable),
-  nx(0), ny(0), palette(false), mosaic(false),
+  palette(false), mosaic(false),
   commonColourStretch(false), image(0), calibidx(-1),
   channelschanged(true), rgboperchanged(true),
   alphaoperchanged(true),mosaicchanged(true)
-  {
-
-  METLIBS_LOG_DEBUG(LOGVAL(pin)<<LOGVAL(cut));
+{
+  METLIBS_LOG_SCOPE(LOGVAL(pin)<<LOGVAL(cut));
 
   for (int i=0; i<maxch; i++)
-    rawimage[i]= 0;
+    rawimage[i] = 0;
   for (int i=0; i<3; i++)
-    origimage[i]= NULL;
+    origimage[i] = 0;
 
   std::vector<std::string> tokens= miutil::split(pin);
   int n= tokens.size();
@@ -140,15 +132,11 @@ Sat::Sat (const std::string &pin) :
     }
   }
 
-  METLIBS_LOG_DEBUG("cut = " << cut); METLIBS_LOG_DEBUG("alphaCut = " << alphacut);
-  METLIBS_LOG_DEBUG("alpha = " << alpha);
-  METLIBS_LOG_DEBUG("maxDiff = " << maxDiff);
-  METLIBS_LOG_DEBUG("classtable = " << classtable);
-  }
+  METLIBS_LOG_DEBUG(LOGVAL(cut) << LOGVAL(alphacut) << LOGVAL(alpha) << LOGVAL(maxDiff) << LOGVAL(classtable));
+}
 
 Sat::~Sat()
 {
-  METLIBS_LOG_DEBUG("Sat destructor  nx=" << nx << " ny=" << ny);
   cleanup();
 }
 
@@ -156,20 +144,20 @@ Sat& Sat::operator=(const Sat &rhs)
 {
   METLIBS_LOG_SCOPE();
 
-  if (this == &rhs) return *this;
-  // elementwise copy
-  memberCopy(rhs);
-
+  if (this != &rhs)
+    memberCopy(rhs);
   return *this;
 }
 
-bool Sat::operator==(const Sat &rhs) const {
+bool Sat::operator==(const Sat &rhs) const
+{
   return false;
 }
 
 void Sat::memberCopy(const Sat& rhs)
 {
-  METLIBS_LOG_DEBUG("Sat memberCopy nx=" << rhs.nx << " ny=" << rhs.ny);
+  METLIBS_LOG_SCOPE(LOGVAL(rhs.area.nx) << LOGVAL(rhs.area.ny));
+
   // first clean up images etc.
   cleanup();
 
@@ -185,11 +173,9 @@ void Sat::memberCopy(const Sat& rhs)
   maxDiff= rhs.maxDiff;
   classtable= rhs.classtable;
   hideColour=rhs.hideColour;
-  nx = rhs.nx;
-  ny = rhs.ny;
+
   area= rhs.area;
-  gridResolutionX = rhs.gridResolutionX;
-  gridResolutionY = rhs.gridResolutionY;
+
   time= rhs.time;
   annotation= rhs.annotation;
   plotname= rhs.plotname;
@@ -209,7 +195,7 @@ void Sat::memberCopy(const Sat& rhs)
   lastMosaicFileTime=rhs.lastMosaicFileTime;
   commonColourStretch=rhs.commonColourStretch;
   // copy images
-  long size= nx*ny;
+  long size= area.gridSize();
 
   if (size) {
     image = new unsigned char[size];
@@ -253,8 +239,8 @@ void Sat::setDefaultValues(const SatDialogInfo & Dialog)
  */
 void Sat::values(int x, int y, std::vector<SatValues>& satval)
 {
-  if (x>=0 && x<nx && y>=0 && y<ny && approved) { // inside image/legal image
-    int index = nx*(ny-y-1) + x;
+  if (x>=0 && x<area.nx && y>=0 && y<area.ny && approved) { // inside image/legal image
+    int index = area.nx*(area.ny-y-1) + x;
 
     //return value from  all channels
 
@@ -504,60 +490,50 @@ void Sat::setPlotName()
 
 void Sat::setArea()
 {
-
-  METLIBS_LOG_DEBUG("Sat::setArea: " << Ax<<" : "<<Ay<<" : "<<Bx<<" : "<<By << " : " << proj_string);
+  METLIBS_LOG_SCOPE(Ax<<" : "<<Ay<<" : "<<Bx<<" : "<<By << " : " << proj_string);
 
   // If the mitiff image contains no proj string, it is probably transformed to +R=6371000
   // and adjusted to fit nwp-data and maps.
   //These adjustments require no conversion between +R=6371000 and ellps=WGS84,
   // and therefore no +datum or +towgs84 are given.
-  if ( proj_string == "" ) {
-       std::stringstream tmp_proj_string;
-       tmp_proj_string << "+proj=stere";
-       tmp_proj_string << " +lon_0=" << GridRot;
-       tmp_proj_string << " +lat_ts=" << TrueLat;
-       tmp_proj_string << " +lat_0=90";
-       tmp_proj_string << " +R=6371000";
-       tmp_proj_string << " +units=km";
-       tmp_proj_string << " +x_0=" << (Bx*-1000.);
-       tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*ny*1000.);
-       proj_string = tmp_proj_string.str();
+  if (proj_string == "") {
+    std::stringstream tmp_proj_string;
+    tmp_proj_string << "+proj=stere";
+    tmp_proj_string << " +lon_0=" << GridRot;
+    tmp_proj_string << " +lat_ts=" << TrueLat;
+    tmp_proj_string << " +lat_0=90";
+    tmp_proj_string << " +R=6371000";
+    tmp_proj_string << " +units=km";
+    tmp_proj_string << " +x_0=" << (Bx*-1000.);
+    tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*area.ny*1000.);
+    proj_string = tmp_proj_string.str();
   }
-  Projection p(proj_string, Ax, Ay);
+  Projection p(proj_string);
   area.setP(p);
-  gridResolutionX = Ax;
-  gridResolutionY = Ay;
-  Rectangle r(0., 0., nx*gridResolutionX, ny*gridResolutionY);
-
+  area.resolutionX = Ax;
+  area.resolutionY = Ay;
+  Rectangle r(0., 0., area.nx*area.resolutionX, area.ny*area.resolutionY);
   area.setR(r);
-
 }
 
 void Sat::cleanup()
 {
+  METLIBS_LOG_SCOPE(LOGVAL(area.nx) << LOGVAL(area.ny));
 
-  METLIBS_LOG_DEBUG("Sat cleanup nx=" << nx << " ny=" << ny);
+  area.nx = 0;
+  area.ny = 0;
 
-  nx = 0;
-  ny = 0;
-
-  // delete plot image
-  if (image!=0)
-    delete[] image;
+  delete[] image;
   image = 0;
 
-  // delete raw images
   for (int i=0; i<maxch; i++) {
-    if (rawimage[i]!=0)
-      delete[] rawimage[i];
+    delete[] rawimage[i];
     rawimage[i]= 0;
   }
 
   for(int j=0; j<3; j++) {
-    if(origimage[j] != NULL) {
-      delete[] origimage[j];
-    }
-    origimage[j] = NULL;
+    delete[] origimage[j];
+    origimage[j] = 0;
   }
 
   calibidx= -1;

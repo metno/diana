@@ -50,6 +50,8 @@
 
 /* Created at Wed Aug  8 09:54:14 2001 */
 
+namespace {
+
 const float bignum = FLT_MAX;
 
 const int nwrec = 1024; // recordsize in 2-byte integers
@@ -69,6 +71,8 @@ inline void int16to32(const short a, const short b, int& i)
 {
   i = int((a << 16) | (b & 65535));
 }
+
+} // namespace
 
 FilledMap::FilledMap() :
   filename(""), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
@@ -333,9 +337,8 @@ bool FilledMap::plot(DiGLPainter* gl,
 
   bool startfresh = false;
 
-  float xylim[4] =
-    { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
-  float jumplimit = area.P().getMapLinesJumpLimit();
+  float xylim[4] = { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
+  const float jumplimit = area.P().getMapLinesJumpLimit();
 
   // check if mapfile has been altered since header was read
   bool filechanged = false;
@@ -405,23 +408,20 @@ bool FilledMap::plot(DiGLPainter* gl,
   short wp = 0;
   short indata[nwrec]; // a record
 
-  float geomin; // minimum size of polygon in geo degrees
-  geomin = gcd / 20000000;
+  // minimum size of polygon in geo degrees
+  float geomin = gcd / 20000000;
   geomin = geomin * geomin;
 
-  Projection srcProj;
-  srcProj.setGeographic();
-
+  //Projection srcProj = Projection::geographic();
   //Projection srcProj("+proj=lonlat +ellps=WGS84 +datum=WGS84", DEG_TO_RAD, DEG_TO_RAD);
   //Projection srcProj("+proj=lonlat +a=6371000.0 +b=6371000.0",DEG_TO_RAD,DEG_TO_RAD);
   //Projection srcProj("+proj=lonlat +ellps=WGS84 ",DEG_TO_RAD,DEG_TO_RAD);
   //+to_meter=.0174532925199432958
 
-  if (area.P() != proj || startfresh) {
-    bool cutsouth = false;//!area.P().isLegal(0.0,-90.0);
-    bool cutnorth = false;//!area.P().isLegal(0.0,90.0);
-    area.P().filledMapCutparameters(cutnorth, cutsouth);
-    cutnorth = false; // no dangerous tiles at north pole
+  if (startfresh || area.P() != proj) {
+    const bool cutsouth = !area.P().isLegal(0.0, -90.0);
+    // const bool cutnorth = !area.P().isLegal(0.0, 90.0);
+    const bool cutnorth = false; // no dangerous tiles at north pole
 
     // convert all borders to correct projection
     for (int i = 0; i < numGroups; i++) {
@@ -849,15 +849,11 @@ void FilledMap::clipTriangles(DiGLPainter* gl, int i1, int i2, float * x, float 
       gl->Vertex2f(x2, y2);
       gl->Vertex2f(x3, y3);
     }
-    /*
-     gl->Vertex2f(x[iv], y[iv]);
-     gl->Vertex2f(x[iv+1], y[iv+1]);
-     gl->Vertex2f(x[iv+2], y[iv+2]);
-    */
   }
   gl->End();
 
-  if (antialiasing) gl->Enable(DiGLPainter::gl_MULTISAMPLE);
+  if (antialiasing)
+    gl->Enable(DiGLPainter::gl_MULTISAMPLE);
 }
 
 void FilledMap::clipPrimitiveLines(DiGLPainter* gl, int i1, int i2, float *x, float *y,

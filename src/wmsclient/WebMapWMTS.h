@@ -37,6 +37,8 @@
 #include <QImage>
 #include <QUrl>
 
+#include <map>
+
 class QNetworkAccessManager;
 class QNetworkReply;
 

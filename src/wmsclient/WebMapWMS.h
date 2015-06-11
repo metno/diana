@@ -38,6 +38,8 @@
 #include <QImage>
 #include <QUrl>
 
+#include <map>
+
 class WebMapTile;
 
 class QDomElement;

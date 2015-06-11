@@ -393,10 +393,8 @@ void QtManager::fillLocationData(LocationData& ld)
 {
   METLIBS_LOG_SCOPE();
 
-  Projection pgeo;
-  pgeo.setGeographic();
   const Rectangle rgeo(0, 0, 90, 360);
-  const Area geoArea(pgeo, rgeo);
+  const Area geoArea(Projection::geographic(), rgeo);
 
   std::ostringstream annot;
   annot << "Vertikalsnitt";
