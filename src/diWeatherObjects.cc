@@ -65,9 +65,7 @@ WeatherObjects::WeatherObjects()
   itsTime=ztime;
 
   // correct spec. when making Projection for long/lat coordinates
-  Projection geop;
-  geop.setGeographic();
-  geoArea.setP(geop);
+  geoArea.setP(Projection::geographic());
 
   useobject.clear();
   //use all objects if nothing else specified
