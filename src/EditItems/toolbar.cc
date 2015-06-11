@@ -56,6 +56,14 @@ ToolBar::ToolBar(QWidget *parent)
   QActionGroup *actionGroup = new QActionGroup(this);
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
 
+  QAction *undoAction = actions[EditItemManager::Undo];
+  addAction(undoAction);
+  actionGroup->addAction(undoAction);
+
+  QAction *redoAction = actions[EditItemManager::Redo];
+  addAction(redoAction);
+  actionGroup->addAction(redoAction);
+
   // *** select ***
   selectAction_ = actions[EditItemManager::Select];
   addAction(selectAction_);

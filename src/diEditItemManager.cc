@@ -115,7 +115,9 @@ EditItemManager::EditItemManager()
   editStyleAction_ = new QAction(tr("Edit Style..."), this);
   //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
   undoAction_ = undoStack_.createUndoAction(this);
+  undoAction_->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
   redoAction_ = undoStack_.createRedoAction(this);
+  redoAction_->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowForward));
 
   selectAction_ = new QAction(QPixmap(paint_select2_xpm), tr("&Select"), this);
   //selectAction->setShortcut(tr("Ctrl+???"));
