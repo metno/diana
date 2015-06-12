@@ -300,13 +300,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   }
   vmp = new_vmp;
 
-  // remove filled maps not used (free memory)
-  if (MapPlot::checkFiles(true)) {
-    for (size_t i = 0; i < vmp.size(); i++)
-      vmp[i]->markFiles();
-    MapPlot::checkFiles(false);
-  }
-
   // check area
   if (!mapDefinedByUser && arearequested) {
     mapDefinedByUser = (rarea.P().isDefined());
