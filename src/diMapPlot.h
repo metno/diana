@@ -67,8 +67,6 @@ private:
   DiGLCanvas* mCanvas;
   DiGLPainter::GLuint drawlist[3]; // openGL drawlists
 
-  static std::map<std::string,FilledMap> filledmaps;
-  static std::set<std::string> usedFilledmaps;
   static std::map<std::string,ShapeObject> shapemaps;
   static std::map<std::string,Area> shapeareas;
 
@@ -119,10 +117,6 @@ public:
   MapPlot();
   ~MapPlot();
 
-  // check for changing mapfiles
-  static bool checkFiles(bool);
-  void markFiles();
-
   void setCanvas(DiCanvas* canvas) /*Q_DECL_OVERRIDE*/;
 
   /// plot map in a specific zorder layer
@@ -133,6 +127,19 @@ public:
 
   /// return the area asked for
   bool requestedArea(Area& rarea); // return requested area
+
+private:
+  static void referenceFilledMaps(const MapInfo& mi);
+  static void dereferenceFilledMaps(const MapInfo& mi);
+
+  static FilledMap* fetchFilledMap(const std::string& filename);
+
+  typedef std::map<std::string, FilledMap> fmObjects_t;
+  static fmObjects_t filledmapObjects; // filename -> map
+
+  // filename -> reference count; separate from "filledmaps" because it may contain more elements
+  typedef std::map<std::string, int> fmRefCounts_t;
+  static fmRefCounts_t filledmapRefCounts;
 };
 
 #endif

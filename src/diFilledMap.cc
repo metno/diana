@@ -74,12 +74,6 @@ inline void int16to32(const short a, const short b, int& i)
 
 } // namespace
 
-FilledMap::FilledMap() :
-  filename(""), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
-      numPolytiles(0), polydata(0), opened(false), contexist(false)
-{
-}
-
 FilledMap::FilledMap(const std::string fn) :
   filename(fn), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
       numPolytiles(0), polydata(0), opened(false), contexist(false)
@@ -331,10 +325,8 @@ bool FilledMap::plot(DiGLPainter* gl,
     float linewidth, // contour linewidth
     const unsigned char* lcolour, // contour linecolour
     const unsigned char* fcolour, // triangles fill colour
-    const unsigned char* bcolour)
-{ // background color
-
-
+    const unsigned char* bcolour) // background color
+{
   bool startfresh = false;
 
   float xylim[4] = { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };

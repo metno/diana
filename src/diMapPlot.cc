@@ -65,8 +65,9 @@ bool calculateGeogridParameters(const Projection& p, const Rectangle& maprect, f
 } // namespace
 
 // static members
-map<std::string,FilledMap> MapPlot::filledmaps;
-set<std::string> MapPlot::usedFilledmaps;
+std::map<std::string, FilledMap> MapPlot::filledmapObjects;
+std::map<std::string, int> MapPlot::filledmapRefCounts;
+
 map<std::string,ShapeObject> MapPlot::shapemaps;
 map<std::string,Area> MapPlot::shapeareas;
 
@@ -87,6 +88,7 @@ MapPlot::MapPlot()
 MapPlot::~MapPlot()
 {
   METLIBS_LOG_SCOPE();
+  dereferenceFilledMaps(mapinfo);
 }
 
 void MapPlot::setCanvas(DiCanvas* c)
@@ -148,6 +150,10 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
   if (ifequal && !equal) // check if essential mapinfo remains the same
     return false;
 
+  // first reference the new, then dereference the old
+  referenceFilledMaps(tmpinfo);
+  dereferenceFilledMaps(mapinfo);
+
   mapinfo= tmpinfo;
 
   //Background colour
@@ -191,37 +197,71 @@ bool MapPlot::requestedArea(Area& rarea)
   return areadefined;
 }
 
-// static function
-bool MapPlot::checkFiles(bool first)
+// static
+void MapPlot::referenceFilledMaps(const MapInfo& mi)
 {
-  if (first) {
-    if (filledmaps.size()==0)
-      return false;
-  } else {
-    // erase the filledmaps not used
-    set<std::string>::iterator uend= usedFilledmaps.end();
-    map<std::string,FilledMap>::iterator p= filledmaps.begin();
-    vector<std::string> erasemaps;
-    while (p!=filledmaps.end()) {
-      if (usedFilledmaps.find(p->first)==uend)
-        erasemaps.push_back(p->first);
-      p++;
+  METLIBS_LOG_SCOPE(LOGVAL(mi.type));
+  if (mi.type != "triangles")
+    return;
+
+  for (size_t i=0; i<mi.mapfiles.size(); i++) {
+    const std::string& fn = mi.mapfiles[i].fname;
+    METLIBS_LOG_DEBUG(LOGVAL(fn));
+    fmRefCounts_t::iterator it = filledmapRefCounts.find(fn);
+    if (it != filledmapRefCounts.end()) {
+      METLIBS_LOG_DEBUG(LOGVAL(it->second) << " += 1");
+      it->second += 1;
+    } else {
+      METLIBS_LOG_DEBUG("insert");
+      filledmapRefCounts.insert(std::make_pair(fn, 1));
+      // do not insert an object into filledmapObjects yet
     }
-    int n= erasemaps.size();
-    for (int i=0; i<n; i++)
-      filledmaps.erase(erasemaps[i]);
   }
-  usedFilledmaps.clear();
-  return true;
 }
 
-void MapPlot::markFiles()
+// static
+void MapPlot::dereferenceFilledMaps(const MapInfo& mi)
 {
-  if (mapinfo.type=="triangles") {
-    int n= mapinfo.mapfiles.size();
-    for (int i=0; i<n; i++)
-      usedFilledmaps.insert(mapinfo.mapfiles[i].fname);
+  METLIBS_LOG_SCOPE(LOGVAL(mi.type));
+  if (mi.type != "triangles")
+    return;
+
+  for (size_t i=0; i<mi.mapfiles.size(); i++) {
+    const std::string& fn = mi.mapfiles[i].fname;
+    METLIBS_LOG_DEBUG(LOGVAL(fn));
+    fmRefCounts_t::iterator it = filledmapRefCounts.find(fn);
+    if (it != filledmapRefCounts.end()) {
+      METLIBS_LOG_DEBUG(LOGVAL(it->second) << " -= 1");
+      it->second -= 1;
+      if (it->second == 0) {
+        METLIBS_LOG_DEBUG("erase '" << fn << "'");
+        filledmapObjects.erase(fn);
+        filledmapRefCounts.erase(fn);
+      }
+    } else {
+      METLIBS_LOG_ERROR("decreasing refcount for filled map file '" << fn << "' wich has not been referenced");
+    }
   }
+}
+
+// static
+FilledMap* MapPlot::fetchFilledMap(const std::string& filename)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(filename));
+  fmObjects_t::iterator it = filledmapObjects.find(filename);
+  if (it != filledmapObjects.end())
+    return &(it->second);
+
+#if 1 || defined(DEBUG_FETCHFILLEDMAP)
+  if (filledmapRefCounts.find(filename) == filledmapRefCounts.end()) {
+    METLIBS_LOG_ERROR("refusing to access filled map file '" << filename
+        << "' wich has not been referenced");
+    return 0;
+  }
+#endif
+
+  METLIBS_LOG_DEBUG("insert new filledmap '" << filename << "'");
+  return &(filledmapObjects.insert(std::make_pair(filename, FilledMap(filename))).first->second);
 }
 
 /*
@@ -325,14 +365,13 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
       bool cont= mapinfo.contour.ison && mapinfo.contour.zorder==zorder;
 
       if (land || cont) {
-        if (filledmaps.count(mapfile)==0) {
-          filledmaps[mapfile]= FilledMap(mapfile);
+        if (FilledMap* fm = fetchFilledMap(mapfile)) {
+          Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
+          fm->plot(gl, fullarea, getStaticPlot()->getMapSize(), getStaticPlot()->getGcd(), land, cont, !cont
+              && mapinfo.contour.ison, contopts.linetype.bmap,
+              contopts.linewidth, c.RGBA(), landopts.fillcolour.RGBA(),
+              getStaticPlot()->getBackgroundColour().RGBA());
         }
-        Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
-        filledmaps[mapfile].plot(gl, fullarea, getStaticPlot()->getMapSize(), getStaticPlot()->getGcd(), land, cont, !cont
-            && mapinfo.contour.ison, contopts.linetype.bmap,
-            contopts.linewidth, c.RGBA(), landopts.fillcolour.RGBA(),
-            getStaticPlot()->getBackgroundColour().RGBA());
       }
 
     } else if (mapinfo.type=="lines_simple_text") {
