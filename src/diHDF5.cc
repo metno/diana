@@ -198,8 +198,8 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   sd.time = ginfo.time;
 
   //dimension
-  sd.nx=ginfo.xsize;
-  sd.ny=ginfo.ysize;
+  sd.area.nx=ginfo.xsize;
+  sd.area.ny=ginfo.ysize;
 
   //grid
   sd.TrueLat= ginfo.trueLat;
