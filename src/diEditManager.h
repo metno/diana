@@ -251,19 +251,4 @@ public:
   const std::string insertTime(const std::string&, const miutil::miTime&);
 };
 
-
-//useful functions not belonging to EditManager
-editToolInfo newEditToolInfo(const std::string & newName,
-			     const int newIndex,
-			     const std::string & newColour="black",
-			     const std::string & newBorderColour="black",
-			     const int & newSizeIncrement=0,
-			     const bool & newSpline=true,
-			     const std::string& newLinetype ="solid",
-			     const std::string& newFilltype="");
-editModeInfo newEditModeInfo(const std::string & newmode,
-			     const std::vector <editToolInfo> newtools);
-mapModeInfo newMapModeInfo(const std::string & newmode,
-			   const std::vector <editModeInfo> newmodeinfo);
-
 #endif
