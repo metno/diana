@@ -107,7 +107,7 @@ void DataDialog::indicateUnappliedChanges(bool on)
 void DataDialog::applyhideClicked()
 {
   emit applyData();
-  emit hideData();
+  hide();
 }
 
 void DataDialog::helpClicked()

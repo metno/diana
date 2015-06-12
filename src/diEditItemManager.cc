@@ -1376,7 +1376,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     return;
   }
 
-
   if (event->type() == QEvent::MouseButtonPress) {
 
     const QSet<DrawingItemBase *> origSelItems = selectedItems().toSet();
