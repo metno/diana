@@ -300,13 +300,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   }
   vmp = new_vmp;
 
-  // remove filled maps not used (free memory)
-  if (MapPlot::checkFiles(true)) {
-    for (size_t i = 0; i < vmp.size(); i++)
-      vmp[i]->markFiles();
-    MapPlot::checkFiles(false);
-  }
-
   // check area
   if (!mapDefinedByUser && arearequested) {
     mapDefinedByUser = (rarea.P().isDefined());
@@ -1051,28 +1044,12 @@ void PlotModule::plotOver(DiGLPainter* gl)
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->plot(gl, Plot::OVERLAY);
 
-
   // frame (not needed if maprect==fullrect)
-  Rectangle mr = staticPlot_->getMapSize();
-  const Rectangle& fr = staticPlot_->getPlotSize();
-  if (mr != fr || hardcopy) {
+  if (hardcopy || staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
     gl->ShadeModel(DiGLPainter::gl_FLAT);
-    gl->Color3f(0.0, 0.0, 0.0);
-    gl->LineWidth(1.0);
-    mr.x1 += 0.0001;
-    mr.y1 += 0.0001;
-    mr.x2 -= 0.0001;
-    mr.y2 -= 0.0001;
-    gl->Begin(DiGLPainter::gl_LINES);
-    gl->Vertex2f(mr.x1, mr.y1);
-    gl->Vertex2f(mr.x2, mr.y1);
-    gl->Vertex2f(mr.x2, mr.y1);
-    gl->Vertex2f(mr.x2, mr.y2);
-    gl->Vertex2f(mr.x2, mr.y2);
-    gl->Vertex2f(mr.x1, mr.y2);
-    gl->Vertex2f(mr.x1, mr.y2);
-    gl->Vertex2f(mr.x1, mr.y1);
-    gl->End();
+    gl->setLineStyle(Colour(0, 0, 0), 1.0);
+    const Rectangle mr = diutil::adjustedRectangle(staticPlot_->getMapSize(), -0.0001, -0.0001);
+    gl->drawRect(mr.x1, mr.y1, mr.x2, mr.y2);
   }
 
   // plot rubberbox
@@ -1084,8 +1061,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
     const XY pold = staticPlot_->PhysToMap(XY(oldx, oldy));
     const XY pnew = staticPlot_->PhysToMap(XY(newx, newy));
 
-    const Colour& bcontrast = staticPlot_->getBackContrastColour();
-    gl->setLineStyle(bcontrast, 2);
+    gl->setLineStyle(staticPlot_->getBackContrastColour(), 2);
     gl->drawRect(pold.x(), pold.y(), pnew.x(), pnew.y());
   }
 }

@@ -68,6 +68,51 @@
 using namespace miutil;
 using namespace std;
 
+namespace {
+//useful functions not belonging to EditManager
+
+editToolInfo newEditToolInfo(const std::string & newName,
+    const int newIndex,
+    const std::string & newColour="black",
+    const std::string & newBorderColour="black",
+    const int & newSizeIncrement=0,
+    const bool & newSpline=true,
+    const std::string& newLinetype ="solid",
+    const std::string& newFilltype="")
+{
+  editToolInfo eToolInfo;
+  eToolInfo.name=  newName;
+  eToolInfo.index= newIndex;
+  eToolInfo.colour= newColour;
+  eToolInfo.borderColour= newBorderColour;
+  eToolInfo.sizeIncrement= newSizeIncrement;
+  eToolInfo.spline=newSpline;
+  eToolInfo.linetype=newLinetype;
+  eToolInfo.filltype=newFilltype;
+  return eToolInfo;
+}
+
+editModeInfo newEditModeInfo(const std::string & newmode,
+    const vector<editToolInfo>& newtools)
+{
+  editModeInfo eModeInfo;
+  eModeInfo.editmode=newmode;
+  eModeInfo.edittools=newtools;
+  return eModeInfo;
+}
+
+mapModeInfo newMapModeInfo(const std::string & newmode,
+    const vector<editModeInfo>& newmodeinfo)
+{
+  mapModeInfo mModeInfo;
+  mModeInfo.mapmode= newmode;
+  mModeInfo.editmodeinfo= newmodeinfo;
+  return mModeInfo;
+}
+
+} // namespace
+
+
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
 : plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
 combinematrix(0),numregs(0), hiddenObjects(false),
@@ -84,7 +129,6 @@ hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
   ObjectPlot::defineTranslations();
   unsentProduct = false;
   moved=false;
-
 }
 
 EditManager::~EditManager()
@@ -334,10 +378,9 @@ bool EditManager::parseSetup()
 }
 
 
-
 void EditManager::readCommandFile(EditProduct & ep)
 {
-  METLIBS_LOG_DEBUG("++ EditManager::readCommandFile");
+  METLIBS_LOG_SCOPE();
   // the commands OKstrings to be exectuted when we start an
   // edit session, for the time being called from parseSeup
   // and the OKstrings stored for each product
@@ -397,13 +440,12 @@ void EditManager::readCommandFile(EditProduct & ep)
  -----------------------------------------------------------------------*/
 
 
-EditDialogInfo EditManager::getEditDialogInfo(){
-
+EditDialogInfo EditManager::getEditDialogInfo()
+{
   //info about edit objects to dialog
 
   EditDialogInfo EditDI;
   EditDI.mapmodeinfo=mapmodeinfo;
-
   return EditDI;
 }
 
@@ -3306,43 +3348,4 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
   }
 
   return es;
-}
-
-//useful functions not belonging to EditManager
-
-editToolInfo newEditToolInfo(const std::string & newName,
-    const int newIndex,
-    const std::string & newColour,
-    const std::string & newBorderColour,
-    const int & newsizeIncrement,
-    const bool& newSpline,
-    const std::string& newLinetype,
-    const std::string& newFilltype){
-  editToolInfo eToolInfo;
-  eToolInfo.name=  newName;
-  eToolInfo.index= newIndex;
-  eToolInfo.colour= newColour;
-  eToolInfo.borderColour= newBorderColour;
-  eToolInfo.sizeIncrement= newsizeIncrement;
-  eToolInfo.spline=newSpline;
-  eToolInfo.linetype=newLinetype;
-  eToolInfo.filltype=newFilltype;
-  return eToolInfo;
-}
-
-editModeInfo newEditModeInfo(const std::string & newmode,
-    const vector <editToolInfo> newtools){
-  editModeInfo eModeInfo;
-  eModeInfo.editmode=newmode;
-  eModeInfo.edittools=newtools;
-  return eModeInfo;
-}
-
-
-mapModeInfo newMapModeInfo(const std::string & newmode,
-    const vector <editModeInfo> newmodeinfo){
-  mapModeInfo mModeInfo;
-  mModeInfo.mapmode= newmode;
-  mModeInfo.editmodeinfo= newmodeinfo;
-  return mModeInfo;
 }
