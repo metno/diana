@@ -1621,14 +1621,6 @@ static bool fuzzyEqual(const QList<QPointF> &p1, const QList<QPointF> &p2)
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
   event->ignore();
-  res.savebackground= true;   // Save the background after painting.
-  res.background= false;      // Don't paint the background.
-  res.repaint= false;
-
-  if (selectedItems().isEmpty()) // skip if no items are selected
-    return;
-
-  //QHash<int, QVariantMap> oldStates = getStates(selectedItems());
 
   res.repaint = true;
   res.background = true;
