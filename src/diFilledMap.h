@@ -29,14 +29,14 @@
 #ifndef _diFilledMap_h
 #define _diFilledMap_h
 
+#include "diGLPainter.h"
+
 #include <diField/diGridConverter.h>
 #include <vector>
 
-#include "diGLPainter.h"
-
 /**
    \brief Maps with filled land
-   
+
    Data and plotter for maps with filled land (pre-calculated triangles)
 */
 
@@ -100,10 +100,11 @@ private:
       float jumplimit);
 
 public:
-
-  FilledMap();
   FilledMap(const std::string fn);
   ~FilledMap();
+
+  const std::string& getFilename() const
+    { return filename; }
 
   /**
    * Plot map (OpenGL)
