@@ -29,6 +29,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <QAction>
 #include <QLayout>
 #include <QPushButton>
 
@@ -52,7 +53,7 @@ QAction *DataDialog::action() const
 void DataDialog::hideEvent(QHideEvent *event)
 {
   QDialog::hideEvent(event);
-  emit hideData();
+  if (m_action) m_action->setChecked(false);
 }
 
 QLayout *DataDialog::createStandardButtons()

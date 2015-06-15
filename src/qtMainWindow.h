@@ -208,8 +208,6 @@ private Q_SLOTS:
   void setPlotTime(miutil::miTime& t);
   void SliderSet();
   void editUpdate(bool = true);
-  void handleEIMEditing(bool);
-  void toggleEIMTestDialog();
 
   void toggleDialogs();
   void toggleStatusBar();

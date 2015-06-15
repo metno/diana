@@ -155,7 +155,7 @@ diana_bin_QTSOURCES = \
 	EditItems/dialogcommon.cc \
 	EditItems/drawingdialog.cc \
 	EditItems/editcomposite.cc \
-	EditItems/editdrawingdialog.cc \
+	EditItems/filterdrawingdialog.cc \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
@@ -333,7 +333,7 @@ noinst_HEADERS = \
 	EditItems/drawingsymbol.h \
 	EditItems/drawingtext.h \
 	EditItems/editcomposite.h \
-	EditItems/editdrawingdialog.h \
+	EditItems/filterdrawingdialog.h \
 	EditItems/edititembase.h \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \

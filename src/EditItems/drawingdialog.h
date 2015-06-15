@@ -41,6 +41,8 @@ class DrawingManager;
 
 namespace EditItems {
 
+class FilterDrawingDialog;
+
 class DrawingModel : public QAbstractListModel
 {
   Q_OBJECT
@@ -75,6 +77,9 @@ public:
   virtual std::vector<std::string> getOKString();
   virtual void putOKString(const std::vector<std::string> &);
 
+signals:
+  void filterToggled(bool);
+
 public slots:
   void loadFile();
 
@@ -88,6 +93,7 @@ private:
   DrawingModel drawingsModel_;
   DrawingModel activeDrawingsModel_;
   DrawingManager *drawm_;
+  FilterDrawingDialog *filterDialog_;
 };
 
 } // namespace

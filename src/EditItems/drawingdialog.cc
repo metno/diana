@@ -31,6 +31,7 @@
 #include "diController.h"
 
 #include "EditItems/drawingdialog.h"
+#include "EditItems/filterdrawingdialog.h"
 #include "EditItems/editpolyline.h"
 #include "EditItems/editsymbol.h"
 #include "EditItems/edittext.h"
@@ -81,17 +82,29 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
   connect(loadFileButton, SIGNAL(clicked()), SLOT(loadFile()));
 
+  QPushButton *filterButton = new QPushButton(tr("Filter items..."));
+  filterButton->setCheckable(true);
+  filterDialog_ = new FilterDrawingDialog(this);
+  connect(filterButton, SIGNAL(toggled(bool)), filterDialog_, SLOT(setVisible(bool)));
+  connect(filterDialog_, SIGNAL(updated()), SIGNAL(updated()));
+  connect(filterDialog_, SIGNAL(finished(int)), filterButton, SLOT(toggle()));
+
   QHBoxLayout *addLayout = new QHBoxLayout();
   addLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
   addLayout->addStretch();
   addLayout->addWidget(loadFileButton);
+
+  QHBoxLayout *buttonLayout = new QHBoxLayout();
+  buttonLayout->addWidget(filterButton);
+  buttonLayout->addStretch();
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->addLayout(addLayout);
   mainLayout->addWidget(drawingsList);
   mainLayout->addWidget(TitleLabel(tr("Active Drawings"), this));
   mainLayout->addWidget(activeList);
-
+  mainLayout->addLayout(buttonLayout);
+  mainLayout->addStretch();
   mainLayout->addLayout(createStandardButtons());
 
   connect(drawingsList->selectionModel(),

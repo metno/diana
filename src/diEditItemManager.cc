@@ -153,6 +153,7 @@ EditItemManager::EditItemManager()
 
   setSelectMode();
   setEnabled(true);
+  updateActionsAndTimes();
 }
 
 EditItemManager::~EditItemManager()

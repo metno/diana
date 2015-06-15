@@ -29,7 +29,7 @@
 
 #include <diDrawingManager.h>
 #include <diEditItemManager.h>
-#include <EditItems/editdrawingdialog.h>
+#include <EditItems/filterdrawingdialog.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/properties.h>
 #include <EditItems/toolbar.h>
@@ -44,8 +44,8 @@
 
 namespace EditItems {
 
-EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
-  : DataDialog(parent, ctrl)
+FilterDrawingDialog::FilterDrawingDialog(QWidget *parent)
+  : QDialog(parent)
 {
   drawm_ = DrawingManager::instance();
   connect(drawm_, SIGNAL(updated()), SLOT(updateChoices()));
@@ -55,14 +55,8 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editm_, SIGNAL(itemChanged(const QVariantMap &)), SLOT(updateChoices()));
   connect(editm_, SIGNAL(itemRemoved(int)), SLOT(updateChoices()));
 
-  // Create an action that can be used to open the dialog from within a menu or toolbar.
-  m_action = new QAction(QIcon(QPixmap(editdrawing_xpm)), tr("Edit Drawing Dialog"), this);
-  m_action->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_B);
-  m_action->setCheckable(true);
-  m_action->setIconVisibleInMenu(true);
-
   propertyList_ = new QTreeView();
-  propertyModel_ = new EditDialogModel(tr("Properties"), this);
+  propertyModel_ = new FilterDrawingModel(tr("Properties"), this);
   propertyList_->setModel(propertyModel_);
   propertyList_->setSelectionMode(QAbstractItemView::MultiSelection);
   propertyList_->setRootIsDecorated(false);
@@ -72,7 +66,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
     SLOT(updateValues()));
 
   valueList_ = new QTreeView();
-  valueModel_ = new EditDialogModel(tr("Values"), this);
+  valueModel_ = new FilterDrawingModel(tr("Values"), this);
   valueList_->setModel(valueModel_);
   valueList_->setSelectionMode(QAbstractItemView::MultiSelection);
   valueList_->setRootIsDecorated(false);
@@ -84,7 +78,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   QPushButton *resetButton = NormalPushButton(tr("Reset"), this);
   connect(resetButton, SIGNAL(clicked()), SLOT(updateChoices()));
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
-  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
+  connect(hideButton, SIGNAL(clicked()), SLOT(accept()));
 
   QHBoxLayout *viewLayout = new QHBoxLayout;
   viewLayout->addWidget(propertyList_);
@@ -104,16 +98,11 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   setFocusPolicy(Qt::StrongFocus);
 }
 
-std::string EditDrawingDialog::name() const
-{
-  return "EDITDRAWING";
-}
-
 /**
  * Updates the property list to show the available properties for all items,
  * only showing those properties defined in the setup file.
  */
-void EditDrawingDialog::updateChoices()
+void FilterDrawingDialog::updateChoices()
 {
   QSet<QString> show = QSet<QString>::fromList(Properties::PropertiesEditor::instance()->propertyRules("show"));
 
@@ -135,7 +124,7 @@ void EditDrawingDialog::updateChoices()
   updateValues();
 }
 
-void EditDrawingDialog::updateValues()
+void FilterDrawingDialog::updateValues()
 {
   QStringList properties = currentProperties();
   QSet<QString> values;
@@ -156,7 +145,7 @@ void EditDrawingDialog::updateValues()
  * Returns the selected properties in the property list, or all available
  * properties if none are selected.
  */
-QStringList EditDrawingDialog::currentProperties() const
+QStringList FilterDrawingDialog::currentProperties() const
 {
   QModelIndexList indexes = propertyList_->selectionModel()->selectedIndexes();
   QStringList properties;
@@ -173,7 +162,7 @@ QStringList EditDrawingDialog::currentProperties() const
 /**
  * Returns the values for each of the current properties.
  */
-QSet<QString> EditDrawingDialog::currentValues() const
+QSet<QString> FilterDrawingDialog::currentValues() const
 {
   QModelIndexList indexes = valueList_->selectionModel()->selectedIndexes();
   QSet<QString> values;
@@ -187,7 +176,7 @@ QSet<QString> EditDrawingDialog::currentValues() const
   return values;
 }
 
-void EditDrawingDialog::filterItems()
+void FilterDrawingDialog::filterItems()
 {
   QStringList properties = currentProperties();
   QSet<QString> values = currentValues();
@@ -198,24 +187,24 @@ void EditDrawingDialog::filterItems()
   emit updated();
 }
 
-void EditDrawingDialog::updateDialog()
+void FilterDrawingDialog::updateDialog()
 {
   // The items may have been updated, so filter them again.
   //filterItems();
 }
 
 
-EditDialogModel::EditDialogModel(const QString &header, QObject *parent)
+FilterDrawingModel::FilterDrawingModel(const QString &header, QObject *parent)
   : QStringListModel(parent)
 {
   header_ = header;
 }
 
-EditDialogModel::~EditDialogModel()
+FilterDrawingModel::~FilterDrawingModel()
 {
 }
 
-QVariant EditDialogModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant FilterDrawingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (role != Qt::DisplayRole)
     return QVariant();
@@ -226,7 +215,7 @@ QVariant EditDialogModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-Qt::ItemFlags EditDialogModel::flags(const QModelIndex &index) const
+Qt::ItemFlags FilterDrawingModel::flags(const QModelIndex &index) const
 {
   if (index.isValid())
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
