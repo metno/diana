@@ -76,8 +76,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   drawingsList->setModel(&drawingsModel_);
   drawingsList->setSelectionMode(QAbstractItemView::MultiSelection);
 
-  QListView *activeList = new QListView();
-  activeList->setModel(&activeDrawingsModel_);
+  activeList_ = new QListView();
+  activeList_->setModel(&activeDrawingsModel_);
+  activeList_->setSelectionMode(QAbstractItemView::MultiSelection);
 
   QPushButton *loadFileButton = new QPushButton(tr("Load drawing..."));
   loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
@@ -94,6 +95,10 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   saveFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_DialogSaveButton));
   connect(saveFileButton, SIGNAL(clicked()), SLOT(saveFile()));
 
+  editButton_ = new QPushButton(tr("Edit drawings"));
+  editButton_->setEnabled(false);
+  connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
+
   QHBoxLayout *addLayout = new QHBoxLayout();
   addLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
   addLayout->addStretch();
@@ -102,13 +107,14 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addWidget(filterButton);
   buttonLayout->addWidget(saveFileButton);
+  buttonLayout->addWidget(editButton_);
   buttonLayout->addStretch();
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->addLayout(addLayout);
   mainLayout->addWidget(drawingsList);
   mainLayout->addWidget(TitleLabel(tr("Active Drawings"), this));
-  mainLayout->addWidget(activeList);
+  mainLayout->addWidget(activeList_);
   mainLayout->addLayout(buttonLayout);
   mainLayout->addStretch();
   mainLayout->addLayout(createStandardButtons());
@@ -116,6 +122,12 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(drawingsList->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           SLOT(activateDrawing(const QItemSelection &, const QItemSelection &)));
+  connect(drawingsList->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          SLOT(updateButtons()));
+  connect(activeList_->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          SLOT(updateButtons()));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 }
 
@@ -201,7 +213,6 @@ void DrawingDialog::makeProduct()
 void DrawingDialog::handleDialogUpdated()
 {
   indicateUnappliedChanges(true);
-  //layersPane_->updateButtons();
 }
 
 void DrawingDialog::loadFile()
@@ -264,6 +275,39 @@ void DrawingDialog::saveFile()
     DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
   } else
     QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
+}
+
+void DrawingDialog::updateButtons()
+{
+  editButton_->setEnabled(activeList_->selectionModel()->hasSelection());
+}
+
+/**
+ * Copy the drawings highlighted in the active list to the edit manager.
+ */
+void DrawingDialog::editDrawings()
+{
+  EditItemManager *editm = EditItemManager::instance();
+  EditItems::LayerGroup *scratch = editm->layerGroup("scratch");
+
+  // Load the drawings into the edit manager.
+  foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
+    QString name = index.data().toString();
+    QString fileName = index.data(Qt::UserRole).toString();
+    QString error = editm->loadDrawing(name, fileName);
+
+    if (error.isEmpty()) {
+      // Copy the items from each newly created layer group into the scratch layer group.
+      foreach (DrawingItemBase *item, editm->layerGroup(name)->items())
+        scratch->addItem(item);
+    }
+
+    // Remove the named layer group from both the drawing and edit managers.
+    drawm_->removeLayerGroup(name);
+    editm->removeLayerGroup(name);
+  }
+
+  emit startEditing();
 }
 
 

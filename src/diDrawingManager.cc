@@ -772,3 +772,23 @@ void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
 {
   filter_ = filter;
 }
+
+/**
+ * Returns the layer group identified by the given name.
+ */
+EditItems::LayerGroup *DrawingManager::layerGroup(const QString &name)
+{
+  if (layerGroups_.contains(name))
+    return layerGroups_.value(name);
+  else
+    return 0;
+}
+
+/**
+ * Removes the layer group with the given name. The items held within are not deleted.
+ */
+void DrawingManager::removeLayerGroup(const QString &name)
+{
+  layerGroups_.remove(name);
+  emit updated();
+}

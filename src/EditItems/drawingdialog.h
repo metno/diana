@@ -33,6 +33,7 @@
 #define DRAWINGDIALOG_H
 
 #include <QHash>
+#include <QListView>
 #include <QStringListModel>
 
 #include "qtDataDialog.h"
@@ -79,6 +80,7 @@ public:
 
 signals:
   void filterToggled(bool);
+  void startEditing();
 
 public slots:
   void loadFile();
@@ -86,8 +88,10 @@ public slots:
 
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
+  void editDrawings();
   void handleDialogUpdated();
   void makeProduct();
+  void updateButtons();
   virtual void updateTimes();
 
 private:
@@ -95,6 +99,8 @@ private:
   DrawingModel activeDrawingsModel_;
   DrawingManager *drawm_;
   FilterDrawingDialog *filterDialog_;
+  QListView *activeList_;
+  QPushButton *editButton_;
 };
 
 } // namespace

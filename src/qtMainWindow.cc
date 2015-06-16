@@ -963,6 +963,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
   connect(EditItemManager::instance(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
+  connect(drawingDialog, SIGNAL(startEditing()), editDrawingToolBar, SLOT(show()));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);

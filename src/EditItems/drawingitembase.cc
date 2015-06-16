@@ -333,7 +333,8 @@ QDomNode DrawingItemBase::toKML(const QHash<QString, QString> &extraExtData) con
     finalElem = folderElem;
   } else {
     QDomElement placemarkElem = createPlacemarkElement(doc);
-    placemarkElem.appendChild(createTimeSpanElement(doc));
+    if (properties_.contains("TimeSpan:begin") && properties_.contains("TimeSpan:end"))
+      placemarkElem.appendChild(createTimeSpanElement(doc));
     placemarkElem.appendChild(extDataElem);
     placemarkElem.appendChild(popElem);
     finalElem = placemarkElem;

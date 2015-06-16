@@ -127,6 +127,8 @@ public:
   void setFilter(const QPair<QStringList, QSet<QString> > &filter);
 
   std::vector<PolyLineInfo> loadCoordsFromKML(const std::string &fileName);
+  EditItems::LayerGroup *layerGroup(const QString &name);
+  void removeLayerGroup(const QString &name);
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
