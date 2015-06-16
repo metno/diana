@@ -451,7 +451,7 @@ bool FieldPlot::getTableAnnotations(vector<string>& anno)
 
 bool FieldPlot::getDataAnnotations(vector<string>& anno)
 {
-  METLIBS_LOG_DEBUG("getDataAnnotations:"<<anno.size());
+  METLIBS_LOG_SCOPE(LOGVAL(anno.size()));
 
   if (not checkFields(1))
     return false;
@@ -466,44 +466,22 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
     }
 
     if (miutil::contains(anno[j], "$referencetime")) {
-      if (fields.size() && fields[0]) {
-        std::string refString = analysisTime.format("%Y%m%d %H");
-        miutil::replace(anno[j], "$referencetime", refString);
-      }
+      std::string refString = analysisTime.format("%Y%m%d %H");
+      miutil::replace(anno[j], "$referencetime", refString);
     }
     if (miutil::contains(anno[j], "$forecasthour")) {
-      if (fields.size() && fields[0]) {
-        ostringstream ost;
-        ost << fields[0]->forecastHour;
-        miutil::replace(anno[j], "$forecasthour", ost.str());
-      }
+      ostringstream ost;
+      ost << fields[0]->forecastHour;
+      miutil::replace(anno[j], "$forecasthour", ost.str());
     }
-    if (miutil::contains(anno[j], "$currenttime")) {
-      if (fields.size() && fields[0]) {
-        miutil::replace(anno[j], "$currenttime", fields[0]->timetext);
-      }
-    }
+    miutil::replace(anno[j], "$currenttime", fields[0]->timetext);
     if (miutil::contains(anno[j], "$validtime")) {
-      if (fields.size() && fields[0]) {
-        miutil::replace(anno[j], "$validtime",
-            fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg));
-      }
+      miutil::replace(anno[j], "$validtime",
+          fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg));
     }
-    if (miutil::contains(anno[j], "$model")) {
-      if (fields.size() && fields[0]) {
-        miutil::replace(anno[j], "$model", fields[0]->modelName);
-      }
-    }
-    if (miutil::contains(anno[j], "$idnum")) {
-      if (fields.size() && fields[0]) {
-        miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);
-      }
-    }
-    if (miutil::contains(anno[j], "$level")) {
-      if (fields.size() && fields[0]) {
-        miutil::replace(anno[j], "$level", fields[0]->leveltext);
-      }
-    }
+    miutil::replace(anno[j], "$model", fields[0]->modelName);
+    miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);
+    miutil::replace(anno[j], "$level", fields[0]->leveltext);
 
     if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize > 0.
         && not vectorAnnotationText.empty()) {
@@ -519,14 +497,6 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
       } else {
         startString = anno[j];
       }
-      //       //if asking for spesific field
-      //       if(miutil::contains(anno[j], "arrow=")){
-      //         std::string name = startString.substr(startString.find_first_of("=")+1);
-      //         if( name[0]=='"' )
-      // 	  miutil::remove(name, '"');
-      //         miutil::trim(name);
-      //         if(!fields[0]->miutil::contains(fieldText, name)) continue;
-      //       }
 
       std::string str = "arrow=" + miutil::from_number(vectorAnnotationSize)
           + ",tcolour=" + poptions.linecolour.Name() + endString;
@@ -534,7 +504,6 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
       str = "text=\" " + vectorAnnotationText + "\"" + ",tcolour="
           + poptions.linecolour.Name() + endString;
       anno.push_back(str);
-
     }
   }
 
@@ -2698,99 +2667,74 @@ bool FieldPlot::plotFillCellExt(DiGLPainter* gl)
   return plotPixmap(gl);
 }
 
+const Colour* FieldPlot::colourForValue(float value) const
+{
+  if (value < poptions.minvalue || value > poptions.maxvalue)
+    return 0;
+
+  const int npalettecolours = poptions.palettecolours.size(),
+      npalettecolours_cold = poptions.palettecolours_cold.size();
+
+  if (poptions.linevalues.empty()) {
+    if (poptions.lineinterval <= 0)
+      return 0;
+    int index = int((value - poptions.base) / poptions.lineinterval);
+    if (value > poptions.base) {
+      if (npalettecolours == 0)
+        return 0;
+      index = diutil::find_index(poptions.repeat, npalettecolours, index);
+      return &poptions.palettecolours[index];
+    } else if (npalettecolours_cold != 0) {
+      index = diutil::find_index(poptions.repeat, npalettecolours_cold, -index);
+      return &poptions.palettecolours_cold[index];
+    } else {
+      if (npalettecolours == 0)
+        return 0;
+      // Use index 0...
+      return &poptions.palettecolours[0];
+    }
+  } else {
+    std::vector<float>::const_iterator it
+        = std::lower_bound(poptions.linevalues.begin(), poptions.linevalues.end(), value);
+    if (it == poptions.linevalues.begin())
+      return 0;
+    int index = it - poptions.linevalues.begin() - 1;
+    return &poptions.palettecolours[index];
+  }
+  return 0;
+}
+
 unsigned char * FieldPlot::createRGBAImage(Field * field)
 {
   METLIBS_LOG_SCOPE();
 
   int nx = field->area.nx;
   int ny = field->area.ny;
-  Colour pixelColor;
   unsigned char * cimage = new unsigned char[4 * nx * ny];
-  for (int iy = 0; iy < ny; iy++)
+  for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < nx; ix++) {
       // The index for bitmap
       int newi = (iy * nx + ix) * 4;
       // Index in field
       int oldi = ix + (iy * nx);
       float value = field->data[oldi];
-      if (value == fieldUndef){
+
+      const Colour* pixelColor = 0;
+      if (value != fieldUndef)
+        pixelColor = colourForValue(value);
+      if (pixelColor) {
+        cimage[newi + 0] = pixelColor->R();
+        cimage[newi + 1] = pixelColor->G();
+        cimage[newi + 2] = pixelColor->B();
+        cimage[newi + 3] = pixelColor->A();
+      } else {
         cimage[newi + 0] = 0;
         cimage[newi + 1] = 0;
         cimage[newi + 2] = 0;
         cimage[newi + 3] = 0;
-
-        continue;
       }
-      if (value >= poptions.minvalue && value <= poptions.maxvalue) {
-
-        // set pixel value
-        // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
-        int index = 0;
-        int npalettecolours = poptions.palettecolours.size();
-        int npalettecolours_cold = poptions.palettecolours_cold.size();
-        if (poptions.linevalues.size() == 0) {
-
-          if (value > poptions.base) {
-            if (poptions.repeat) {
-              index = int((value - poptions.base) / poptions.lineinterval)
-                  % npalettecolours;
-            } else {
-              // Just divide by lineintervall...
-              index = int((value - poptions.base) / poptions.lineinterval);
-            }
-            if (index > npalettecolours - 1)
-              index = npalettecolours - 1;
-            if (index < 0)
-              index = 0;
-            pixelColor.set(poptions.palettecolours[index].R(),
-                poptions.palettecolours[index].G(),
-                poptions.palettecolours[index].B(),
-                poptions.palettecolours[index].A());
-          } else if (npalettecolours_cold != 0) {
-            float base = poptions.lineinterval
-                * npalettecolours_cold - poptions.base;
-            if (poptions.repeat) {
-              index = int((value + base) / poptions.lineinterval)
-                  % npalettecolours_cold;
-            } else {
-              index = int((value + base) / poptions.lineinterval);
-            }
-            index = npalettecolours_cold - 1 - index;
-            if (index > npalettecolours_cold - 1)
-              index = npalettecolours_cold - 1;
-            if (index < 0)
-              index = 0;
-            pixelColor.set(poptions.palettecolours_cold[index].R(),
-                poptions.palettecolours_cold[index].G(),
-                poptions.palettecolours_cold[index].B(),
-                poptions.palettecolours_cold[index].A());
-          } else {
-            // Use index 0...
-            pixelColor.set(poptions.palettecolours[index].R(),
-                poptions.palettecolours[index].G(),
-                poptions.palettecolours[index].B(),
-                poptions.palettecolours[index].A());
-          }
-        } else {
-          std::vector<float>::const_iterator it = poptions.linevalues.begin();
-          while (*it < value && it != poptions.linevalues.end()) {
-            it++;
-          }
-          if (it == poptions.linevalues.begin())
-            continue; //less than first limit
-          index = it - poptions.linevalues.begin() - 1;
-          pixelColor.set(poptions.palettecolours[index].R(),
-              poptions.palettecolours[index].G(),
-              poptions.palettecolours[index].B(),
-              poptions.palettecolours[index].A());
-        }
-        cimage[newi + 0] = pixelColor.R();
-        cimage[newi + 1] = pixelColor.G();
-        cimage[newi + 2] = pixelColor.B();
-        cimage[newi + 3] = pixelColor.A();
-      }
-
     }
+  }
   return cimage;
 }
 
@@ -2798,7 +2742,6 @@ unsigned char * FieldPlot::resampleImage(DiGLPainter* gl, int& currwid, int& cur
     int& bmStartx, int& bmStarty, float& scalex, float& scaley, int& nx,
     int& ny)
 {
-
   METLIBS_LOG_SCOPE(LOGVAL(scalex));
 
   unsigned char * cimage;
@@ -2854,7 +2797,6 @@ unsigned char * FieldPlot::resampleImage(DiGLPainter* gl, int& currwid, int& cur
   }
 
   return cimage;
-
 }
 
 bool FieldPlot::plotPixmap(DiGLPainter* gl)
@@ -3088,7 +3030,8 @@ bool FieldPlot::plotFillCell(DiGLPainter* gl)
       float value = fields[0]->data[ix * factor + (iy * (nx) * factor)];
       if (value == fieldUndef)
         continue;
-      if (value >= poptions.minvalue && value <= poptions.maxvalue) {
+      if (const Colour* c = colourForValue(value)) {
+        gl->setColour(*c);
 
         float x1 = x[iy * (rnx + 1) + ix];
         float x2 = x[iy * (rnx + 1) + (ix + 1)];
@@ -3098,55 +3041,6 @@ bool FieldPlot::plotFillCell(DiGLPainter* gl)
         float y2 = y[(iy) * (rnx + 1) + (ix + 1)];
         float y3 = y[(iy + 1) * (rnx + 1) + (ix + 1)];
         float y4 = y[(iy + 1) * (rnx + 1) + (ix)];
-
-        // set fillcolor of cell
-        // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
-        if (poptions.linevalues.size() == 0) {
-          int index = 0;
-          int npalettecolours = poptions.palettecolours.size();
-          int npalettecolours_cold = poptions.palettecolours_cold.size();
-          if (value > poptions.base) {
-            if (poptions.repeat) {
-              index = int((value - poptions.base) / poptions.lineinterval)
-                      % npalettecolours;
-            } else {
-              // Just divide by lineintervall...
-              index = int((value - poptions.base) / poptions.lineinterval);
-            }
-            if (index > npalettecolours - 1)
-              index = npalettecolours - 1;
-            if (index < 0)
-              index = 0;
-            gl->setColour(poptions.palettecolours[index]);
-          } else if (npalettecolours_cold != 0) {
-            float base = poptions.lineinterval
-                * npalettecolours_cold - poptions.base;
-            if (poptions.repeat) {
-              index = int((value + base) / poptions.lineinterval)
-                      % npalettecolours_cold;
-            } else {
-              index = int((value + base) / poptions.lineinterval);
-            }
-            index = npalettecolours_cold - 1 - index;
-            if (index > npalettecolours_cold - 1)
-              index = npalettecolours_cold - 1;
-            if (index < 0)
-              index = 0;
-            gl->setColour(poptions.palettecolours_cold[index]);
-          } else {
-            // Use index 0...
-            gl->setColour(poptions.palettecolours[index]);
-          }
-        } else {
-          std::vector<float>::const_iterator it = poptions.linevalues.begin();
-          while (*it < value && it != poptions.linevalues.end()) {
-            it++;
-          }
-          if (it == poptions.linevalues.begin())
-            continue; //less than first limit
-          gl->Color4ubv(
-              poptions.palettecolours[it - poptions.linevalues.begin() - 1].RGBA());
-        }
 
         // lower-left corner of gridcell
         gl->Vertex2f(x1, y1);
