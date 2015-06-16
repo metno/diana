@@ -94,10 +94,14 @@ float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 
 PlotModule *PlotModule::self = 0;
 
-PlotModule::PlotModule() :
-               showanno(true), staticPlot_(new StaticPlot()), hardcopy(false),
-               dorubberband(false),
-               keepcurrentarea(true), obsnr(0)
+PlotModule::PlotModule()
+  : showanno(true)
+  , staticPlot_(new StaticPlot())
+  , mCanvas(0)
+  , hardcopy(false)
+  , dorubberband(false)
+  , keepcurrentarea(true)
+  , obsnr(0)
 {
   self = this;
   oldx = newx = oldy = newy = startx = starty = 0;
@@ -123,7 +127,8 @@ PlotModule::~PlotModule()
 void PlotModule::setCanvas(DiCanvas* canvas)
 {
   METLIBS_LOG_SCOPE();
-  // TODO also set for other plots, and for new plots
+  // TODO set for all existing plots, and for new plots
+  mCanvas = canvas;
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->setCanvas(canvas);
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
@@ -288,6 +293,7 @@ void PlotModule::prepareMap(const vector<string>& inp)
     if (!mp->prepare(inp[k], rarea, false)) {
       delete mp;
     } else {
+      mp->setCanvas(mCanvas);
       arearequested |= mp->requestedArea(rarea);
       new_vmp.push_back(mp);
     }
@@ -344,6 +350,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
     } else {
       plotenabled.restore(fp, fp->getPlotInfo("model,plot,parameter,reftime"));
       vfp.push_back(fp);
+      fp->setCanvas(mCanvas);
     }
   }
 }
@@ -369,6 +376,7 @@ void PlotModule::prepareObs(const vector<string>& inp)
     ObsPlot *op = obsm->createObsPlot(inp[i]);
     if (op) {
       plotenabled.restore(op, op->getPlotInfo(3));
+      op->setCanvas(mCanvas);
 
       if (vobsTimes.empty()) {
         obsOneTime ot;
