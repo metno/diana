@@ -82,6 +82,7 @@ signals:
 
 public slots:
   void loadFile();
+  void saveFile();
 
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);

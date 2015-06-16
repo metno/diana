@@ -277,7 +277,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     // If not, try to load it.
     if (!isLoaded) {
-      if (!loadDrawing(name, fileName))
+      if (!loadDrawing(name, fileName).isEmpty())
         return false;
 
       // Obtain the group created by the loadDrawing() call.
@@ -358,14 +358,14 @@ void DrawingManager::addItem_(DrawingItemBase *item, EditItems::LayerGroup *grou
   group->addItem(item);
 }
 
-bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
+QString DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 {
   QString error;
 
   QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
-    return false;
+    return error;
   }
 
   // Create a layer group for the file that is not editable but is active.
@@ -377,7 +377,7 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
   // Record the file name.
   drawings_[name] = fileName;
 
-  return true;
+  return error;
 }
 
 void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)

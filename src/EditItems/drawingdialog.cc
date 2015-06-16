@@ -27,8 +27,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diDrawingManager.h"
 #include "diController.h"
+#include "diDrawingManager.h"
+#include "diEditItemManager.h"
 
 #include "EditItems/drawingdialog.h"
 #include "EditItems/filterdrawingdialog.h"
@@ -89,6 +90,10 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(filterDialog_, SIGNAL(updated()), SIGNAL(updated()));
   connect(filterDialog_, SIGNAL(finished(int)), filterButton, SLOT(toggle()));
 
+  QPushButton *saveFileButton = new QPushButton(tr("Save visible items"));
+  saveFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_DialogSaveButton));
+  connect(saveFileButton, SIGNAL(clicked()), SLOT(saveFile()));
+
   QHBoxLayout *addLayout = new QHBoxLayout();
   addLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
   addLayout->addStretch();
@@ -96,6 +101,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addWidget(filterButton);
+  buttonLayout->addWidget(saveFileButton);
   buttonLayout->addStretch();
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -207,16 +213,57 @@ void DrawingDialog::loadFile()
     return;
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  bool success = drawm_->loadDrawing(fileName, fileName);
+  QString error = drawm_->loadDrawing(fileName, fileName);
   QApplication::restoreOverrideCursor();
 
-  if (success) {
+  if (error.isEmpty()) {
     // Update the working directory and the list of available drawings.
     QFileInfo fi(fileName);
     DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
     drawingsModel_.setItems(drawm_->getDrawings());
+  } else {
+    QMessageBox warning(QMessageBox::Warning, tr("Open File"),
+                        tr("Failed to open file: %1").arg(fileName),
+                        QMessageBox::Cancel, this);
+    warning.setDetailedText(error);
+    warning.exec();
+  }
+}
+
+void DrawingDialog::saveFile()
+{
+  QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
+    drawm_->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+
+  if (fileName.isEmpty())
+    return;
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
+  // Obtain all visible drawing and editing items, filter them for visibility,
+  // and save the resulting collection.
+  EditItemManager *editm = EditItemManager::instance();
+
+  QList<DrawingItemBase *> items;
+  foreach (DrawingItemBase *item, drawm_->allItems()) {
+    if (drawm_->isItemVisible(item))
+      items.append(item);
+  }
+
+  foreach (DrawingItemBase *item, editm->allItems()) {
+    if (editm->isItemVisible(item))
+      items.append(item);
+  }
+
+  QString error = KML::saveItemsToFile(items, fileName);
+  QApplication::restoreOverrideCursor();
+
+  if (error.isEmpty()) {
+    // Update the working directory and the list of available drawings.
+    QFileInfo fi(fileName);
+    DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
   } else
-    QMessageBox::warning(this, tr("Open File"), tr("Failed to open file: %1").arg(fileName));
+    QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
 }
 
 

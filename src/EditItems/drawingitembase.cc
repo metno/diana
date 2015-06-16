@@ -33,6 +33,7 @@
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/kml.h>
+#include <QDebug>
 
 DrawingItemBase::DrawingItemBase(int id__)
     : id_((id__ >= 0) ? id__ : nextId())
@@ -224,10 +225,12 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash
   }
   extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:objectType", objectType));
 
-  // style properties
+  // style and met properties
   foreach (const QString key, properties_.keys()) {
     if (key.startsWith("style:"))
       extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:%1").arg(key), properties_.value(key).toString()));
+    else if (key.startsWith("met:"))
+      extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("%1").arg(key), properties_.value(key).toString()));
   }
 
   // join ID
@@ -293,13 +296,19 @@ QDomElement DrawingItemBase::createTimeSpanElement(QDomDocument &doc) const
 // Returns a new <Placemark> element.
 QDomElement DrawingItemBase::createPlacemarkElement(QDomDocument &doc) const
 {
-  QDomElement nameElem = doc.createElement("name");
-  const QString name = propertiesRef().contains("Placemark:name")
-      ? propertiesRef().value("Placemark:name").toString()
-      : QString("anonymous placemark %1").arg(id());
-  nameElem.appendChild(doc.createTextNode(name));
   QDomElement placemarkElem = doc.createElement("Placemark");
-  placemarkElem.appendChild(nameElem);
+  static const char* props[2] = {"name", "description"};
+
+  // Add the properties beginning with "Placemark:" given in the above array
+  // to the Placemark element as child elements containing text. They have to
+  // be specified in the order given.
+  for (int i = 0; i < 2; ++i) {
+    QString prop = QString("Placemark:%1").arg(props[i]);
+    QString value = property(prop).toString();
+    QDomElement childElem = doc.createElement(props[i]);
+    childElem.appendChild(doc.createTextNode(value));
+    placemarkElem.appendChild(childElem);
+  }
   return placemarkElem;
 }
 
@@ -324,6 +333,7 @@ QDomNode DrawingItemBase::toKML(const QHash<QString, QString> &extraExtData) con
     finalElem = folderElem;
   } else {
     QDomElement placemarkElem = createPlacemarkElement(doc);
+    placemarkElem.appendChild(createTimeSpanElement(doc));
     placemarkElem.appendChild(extDataElem);
     placemarkElem.appendChild(popElem);
     finalElem = placemarkElem;
