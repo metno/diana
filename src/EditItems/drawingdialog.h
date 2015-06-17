@@ -91,6 +91,7 @@ private slots:
   void editDrawings();
   void handleDialogUpdated();
   void makeProduct();
+  void showActiveContextMenu(const QPoint &pos);
   void updateButtons();
   virtual void updateTimes();
 

@@ -79,6 +79,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   activeList_ = new QListView();
   activeList_->setModel(&activeDrawingsModel_);
   activeList_->setSelectionMode(QAbstractItemView::MultiSelection);
+  activeList_->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(activeList_, SIGNAL(customContextMenuRequested(const QPoint &)),
+          SLOT(showActiveContextMenu(const QPoint &)));
 
   QPushButton *loadFileButton = new QPushButton(tr("Load drawing..."));
   loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
@@ -308,6 +311,21 @@ void DrawingDialog::editDrawings()
   }
 
   emit startEditing();
+}
+
+void DrawingDialog::showActiveContextMenu(const QPoint &pos)
+{
+  QModelIndex index = activeList_->indexAt(pos);
+  if (index.isValid())
+    activeList_->selectionModel()->select(index, QItemSelectionModel::Select);
+
+  if (!activeList_->selectionModel()->hasSelection())
+    return;
+
+  QMenu menu;
+  QAction *editAction = menu.addAction(tr("Edit"));
+  if (menu.exec(activeList_->viewport()->mapToGlobal(pos)) == editAction)
+    editDrawings();
 }
 
 
