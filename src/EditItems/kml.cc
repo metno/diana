@@ -96,9 +96,6 @@ QString saveItemsToFile(const QList<DrawingItemBase *> &items, const QString &fi
   }
   file.close();
 
-  foreach (DrawingItemBase *item, items)
-    item->setProperty("srcFile", fileName);
-
   return QString();
 }
 

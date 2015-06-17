@@ -72,9 +72,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   setWindowTitle(tr("Drawing Dialog"));
   setFocusPolicy(Qt::StrongFocus);
 
-  QListView *drawingsList = new QListView();
-  drawingsList->setModel(&drawingsModel_);
-  drawingsList->setSelectionMode(QAbstractItemView::MultiSelection);
+  drawingsList_ = new QListView();
+  drawingsList_->setModel(&drawingsModel_);
+  drawingsList_->setSelectionMode(QAbstractItemView::MultiSelection);
 
   activeList_ = new QListView();
   activeList_->setModel(&activeDrawingsModel_);
@@ -115,17 +115,17 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->addLayout(addLayout);
-  mainLayout->addWidget(drawingsList);
+  mainLayout->addWidget(drawingsList_);
   mainLayout->addWidget(TitleLabel(tr("Active Drawings"), this));
   mainLayout->addWidget(activeList_);
   mainLayout->addLayout(buttonLayout);
   mainLayout->addStretch();
   mainLayout->addLayout(createStandardButtons());
 
-  connect(drawingsList->selectionModel(),
+  connect(drawingsList_->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           SLOT(activateDrawing(const QItemSelection &, const QItemSelection &)));
-  connect(drawingsList->selectionModel(),
+  connect(drawingsList_->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           SLOT(updateButtons()));
   connect(activeList_->selectionModel(),
@@ -252,13 +252,11 @@ void DrawingDialog::saveFile()
   if (fileName.isEmpty())
     return;
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-
   // Obtain all visible drawing and editing items, filter them for visibility,
   // and save the resulting collection.
   EditItemManager *editm = EditItemManager::instance();
-
   QList<DrawingItemBase *> items;
+
   foreach (DrawingItemBase *item, drawm_->allItems()) {
     if (drawm_->isItemVisible(item))
       items.append(item);
@@ -269,6 +267,7 @@ void DrawingDialog::saveFile()
       items.append(item);
   }
 
+  QApplication::setOverrideCursor(Qt::WaitCursor);
   QString error = KML::saveItemsToFile(items, fileName);
   QApplication::restoreOverrideCursor();
 
@@ -276,6 +275,13 @@ void DrawingDialog::saveFile()
     // Update the working directory and the list of available drawings.
     QFileInfo fi(fileName);
     DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+
+    QVariantMap props;
+    props["srcFile"] = fileName;
+    foreach (DrawingItemBase *item, items)
+      editm->updateItem(item, props);
+
+    editm->pushUndoCommands();
   } else
     QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
 }
@@ -291,33 +297,38 @@ void DrawingDialog::updateButtons()
 void DrawingDialog::editDrawings()
 {
   EditItemManager *editm = EditItemManager::instance();
-  EditItems::LayerGroup *scratch = editm->layerGroup("scratch");
 
-  // Load the drawings into the edit manager.
+  // Obtain lists of names and file names.
+  QStringList names;
+  QStringList fileNames;
   foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
-    QString name = index.data().toString();
-    QString fileName = index.data(Qt::UserRole).toString();
-    QString error = editm->loadDrawing(name, fileName);
-
-    if (error.isEmpty()) {
-      // Copy the items from each newly created layer group into the scratch layer group.
-      foreach (DrawingItemBase *item, editm->layerGroup(name)->items())
-        scratch->addItem(item);
-    }
-
-    // Remove the named layer group from both the drawing and edit managers.
-    drawm_->removeLayerGroup(name);
-    editm->removeLayerGroup(name);
+    names.append(index.data().toString());
+    fileNames.append(index.data(Qt::UserRole).toString());
   }
 
+  // Load the drawings into the edit manager.
+  for (int i = 0; i < names.size(); ++i) {
+    QString error = editm->loadDrawing(names.at(i), fileNames.at(i));
+    if (error.isEmpty()) {
+      // Deselect the named drawing from the drawing list in order to remove
+      // it from the active list.
+      drawingsList_->selectionModel()->select(drawingsModel_.find(names.at(i)), QItemSelectionModel::Toggle);
+    }
+  }
+
+  // Deselecting the drawing from the list does not automatically remove it
+  // from the drawing manager if it was present there, so we need to apply
+  // the change.
+  emit applyData();
   emit startEditing();
 }
 
 void DrawingDialog::showActiveContextMenu(const QPoint &pos)
 {
+  QItemSelectionModel *selectionModel = activeList_->selectionModel();
   QModelIndex index = activeList_->indexAt(pos);
-  if (index.isValid())
-    activeList_->selectionModel()->select(index, QItemSelectionModel::Select);
+  if (index.isValid() && !selectionModel->isSelected(index))
+    selectionModel->select(index, QItemSelectionModel::Select);
 
   if (!activeList_->selectionModel()->hasSelection())
     return;
@@ -402,6 +413,11 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
   beginResetModel();
   items_ = items;
   endResetModel();
+}
+
+QModelIndex DrawingModel::find(const QString &name)
+{
+  return createIndex(items_.keys().indexOf(name), 0, -1);
 }
 
 } // namespace

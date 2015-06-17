@@ -88,7 +88,7 @@ EditItemManager::EditItemManager()
   // Create a default inactive layer group.
   layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, false);
 
-  connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
+  connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SIGNAL(timesUpdated()));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
   connect(this, SIGNAL(incompleteEditing(bool)), SLOT(startStopEditing(bool)));
 
@@ -351,21 +351,14 @@ void EditItemManager::removeItem_(DrawingItemBase *item, bool updateNeeded)
     update();
 }
 
-void EditItemManager::initNewItem(DrawingItemBase *item)
+void EditItemManager::updateItem(DrawingItemBase *item, const QVariantMap &props)
 {
-/*
-  // Use the current time for the new item.
-  miutil::miTime time;
-  PLOTM->getPlotTime(time);
+  QMap<QString, QVariant>::const_iterator it;
 
-  QVariantMap p = item->propertiesRef();
-  if (!p.contains("time"))
-    p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
+  for (it = props.begin(); it != props.end(); ++it)
+    item->setProperty(it.key(), it.value());
 
-  item->setProperties(p);
-*/
-  // Let other components know about any changes to item times.
-  emit timesUpdated();
+  emit itemChanged(item->properties());
 }
 
 void EditItemManager::reset()
@@ -1744,6 +1737,26 @@ void EditItemManager::replaceItemStates(const QHash<int, QVariantMap> &states,
   oldStates_ = getStates(allItems());
   removedItems_.clear();
   emit itemStatesReplaced();
+}
+
+QString EditItemManager::loadDrawing(const QString &name, const QString &fileName)
+{
+  QString error;
+
+  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  if (!error.isEmpty()) {
+    METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
+    return error;
+  }
+
+  // Add the items to the scratch layer group.
+  EditItems::LayerGroup *layerGroup = layerGroups_.value("scratch");
+  foreach (DrawingItemBase *item, items)
+    layerGroup->addItem(item);
+
+  pushUndoCommands();
+
+  return error;
 }
 
 

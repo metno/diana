@@ -62,6 +62,8 @@ public:
   QMap<QString, QString> items() const;
   void setItems(const QMap<QString, QString> &items);
 
+  QModelIndex find(const QString &name);
+
 private:
   QMap<QString, QString> items_;
 };
@@ -101,6 +103,7 @@ private:
   DrawingManager *drawm_;
   FilterDrawingDialog *filterDialog_;
   QListView *activeList_;
+  QListView *drawingsList_;
   QPushButton *editButton_;
 };
 

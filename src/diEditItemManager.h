@@ -65,18 +65,31 @@ public:
   EditItemManager();
   virtual ~EditItemManager();
 
+  QHash<Action, QAction*> actions();
+  virtual bool parseSetup();
+  void plot(DiGLPainter* gl, bool under, bool over);
+  bool processInput(const std::vector<std::string>& inp);
+
+  void sendMouseEvent(QMouseEvent* event, EventResult& res);
+  void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
+  void getViewportDisplacement(int &w, int &h, float &dx, float &dy);
+
+  virtual void setEditing(bool enable);
+
   void addItem(DrawingItemBase *, bool = false, bool = false);
   void editItem(DrawingItemBase *item);
   void removeItem(DrawingItemBase *item);
+  void updateItem(DrawingItemBase *item, const QVariantMap &props);
 
   QList<DrawingItemBase *> selectedItems() const;
 
   virtual DrawingItemBase *createItem(const QString &type);
   virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
+  virtual QString loadDrawing(const QString &name, const QString &fileName);
 
-  // Returns the undo stack.
   QUndoStack *undoStack();
-
+  QUndoView *getUndoView();
+  void pushUndoCommands();
   bool canRedo() const;
   bool canUndo() const;
   bool hasIncompleteItem() const;
@@ -85,26 +98,13 @@ public:
   QList<DrawingItemBase *> findHitItems(
       const QPointF &pos, QList<DrawingItemBase *> &missedItems) const;
 
-  bool processInput(const std::vector<std::string>& inp);
-  void plot(DiGLPainter* gl, bool under, bool over);
   void replaceItemStates(const QHash<int, QVariantMap> &states,
                          QList<DrawingItemBase *> removeItems,
                          QList<DrawingItemBase *> addItems);
 
-  //virtual bool isEnabled() const;
-  virtual void setEditing(bool enable);
-
-  void sendMouseEvent(QMouseEvent* event, EventResult& res);
-  void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
-  void getViewportDisplacement(int &w, int &h, float &dx, float &dy);
-
-  QHash<Action, QAction*> actions();
-  QUndoView *getUndoView();
-
   void enableItemChangeNotification(bool = true);
   void setItemChangeFilter(const QString &);
   void emitItemChanged() const;
-
   void emitLoadFile(const QString &) const;
 
   void setItemsVisibilityForced(bool);
@@ -112,8 +112,6 @@ public:
   virtual QString plotElementTag() const;
 
   void updateJoins(bool = false);
-
-  virtual bool parseSetup();
 
 public slots:
   void abortEditing();
@@ -172,9 +170,6 @@ protected:
   virtual void addItem_(DrawingItemBase *, bool = true, bool = false);
   virtual void removeItem_(DrawingItemBase *, bool = true);
 
-private slots:
-  void initNewItem(DrawingItemBase *item);
-
 private:
   DrawingItemBase *hitItem_; // current hit item
   QList<DrawingItemBase *> hitItems_;
@@ -230,7 +225,6 @@ private:
   bool cycleHitOrder(QKeyEvent *);
 
   QHash<int, QVariantMap> getStates(const QList<DrawingItemBase *> &items) const;
-  void pushUndoCommands();
 
   void adjustSelectedJoinPoints();
 
