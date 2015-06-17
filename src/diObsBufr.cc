@@ -379,21 +379,27 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   1001  WMO BLOCK NUMBER
     case 1001:
-      wmoBlock = int(values[j]);
-      d.zone = wmoBlock;
+      if (values[j] < bufrMissing) {
+        wmoBlock = int(values[j]);
+        d.zone = wmoBlock;
+      }
       break;
 
       //   1002  WMO STATION NUMBER
     case 1002:
-      wmoStation = int(values[j]);
-      d.fdata["wmonumber"] = float(wmoStation);
-      wmoNumber = true;
+      if (values[j] < bufrMissing) {
+        wmoStation = int(values[j]);
+        d.fdata["wmonumber"] = float(wmoStation);
+        wmoNumber = true;
+      }
       break;
 
       //   1005 BUOY/PLATFORM IDENTIFIER
     case 1005:
-      d.id = miutil::from_number(values[j]);
-      d.zone= 99;
+      if (values[j] < bufrMissing) {
+        d.id = miutil::from_number(values[j]);
+        d.zone= 99;
+      }
       break;
 
       //001006 AIRCRAFT FLIGHT NUMBER
@@ -1109,15 +1115,19 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 
     //   1001  WMO BLOCK NUMBER
     case 1001:
-      wmoBlock = int(values[j]);
-      nn++;
+      if (values[j] < bufrMissing) {
+        wmoBlock = int(values[j]);
+        nn++;
+      }
       break;
 
       //   1002  WMO STATION NUMBER
     case 1002:
-      wmoStation = int(values[j]);
-      wmoNumber = true;
-      nn++;
+      if (values[j] < bufrMissing) {
+        wmoStation = int(values[j]);
+        wmoNumber = true;
+        nn++;
+      }
       break;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
@@ -1249,20 +1259,26 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
         //   1001  WMO BLOCK NUMBER
       case 1001:
-        wmoBlock = int(values[j]);
-        d.zone = wmoBlock;
+        if (values[j] < bufrMissing) {
+          wmoBlock = int(values[j]);
+          d.zone = wmoBlock;
+        }
         break;
 
         //   1002  WMO STATION NUMBER
       case 1002:
-        wmoStation = int(values[j]);
-        wmoNumber = true;
+        if (values[j] < bufrMissing) {
+          wmoStation = int(values[j]);
+          wmoNumber = true;
+        }
         break;
 
         //   1005 BUOY/PLATFORM IDENTIFIER [NUMERIC]
       case 1005:
-        d.id = miutil::from_number(int(values[j]));
-        d.zone = 99;
+        if (values[j] < bufrMissing) {
+          d.id = miutil::from_number(int(values[j]));
+          d.zone = 99;
+        }
         break;
 
         //   001007 SATELLITE IDENTIFIER [CODE TABLE]
