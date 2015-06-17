@@ -206,6 +206,9 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
 
   //if station(no)
   vector<std::string> token = miutil::split(station, "(");
+  if (token.empty())
+    return 0;
+
   if (token.size() == 2)
     index = atoi(token[1].c_str());
 
