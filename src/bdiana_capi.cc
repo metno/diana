@@ -1397,6 +1397,8 @@ void createPaintDevice()
   ensureNewContext();
 
   delete glpainter;
+  if (main_controller)
+    main_controller->setCanvas(0);
   delete glcanvas;
 
   bool printing = false;
@@ -1419,6 +1421,9 @@ void createPaintDevice()
     glcanvas = new DiPaintGLCanvas(&picture);
     printing = true;
   }
+
+  if (main_controller)
+    main_controller->setCanvas(glcanvas);
 
   glpainter = new DiPaintGLPainter(glcanvas);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
@@ -1446,6 +1451,7 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
+  main_controller->setCanvas(glcanvas);
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
@@ -1453,7 +1459,6 @@ static bool MAKE_CONTROLLER()
     return false;
   }
 
-  main_controller->setCanvas(glcanvas);
   return true;
 }
 
