@@ -170,6 +170,9 @@ private:
       std::vector<float>& latitudelist, std::vector<float>& longitudelist,
       std::vector<std::string>& obslist, std::vector<miutil::miTime>& tlist);
 
+  void updateSelectedStations();
+  void plotVpData(DiGLPainter* gl);
+
 public:
   VprofManager();
   ~VprofManager();

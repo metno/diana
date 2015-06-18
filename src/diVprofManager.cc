@@ -408,25 +408,22 @@ void VprofManager::setModel()
 
 void VprofManager::setStation(const std::string& station)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(station));
   plotStations.clear();
   plotStations.push_back(station);
+  updateSelectedStations();
 }
 
 void VprofManager::setStations(const std::vector<std::string>& stations)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(stations.size()));
   if (!stations.empty()) {
     plotStations = stations;
-    METLIBS_LOG_DEBUG(LOGVAL(plotStations.back()));
+    updateSelectedStations();
   }
 }
 
 void VprofManager::setTime(const miTime& time)
 {
-  METLIBS_LOG_SCOPE(time);
-
-  plotTime= time;
+  plotTime = time;
   if (onlyObs)
     initStations();
 }
@@ -449,6 +446,7 @@ std::string VprofManager::setStation(int step)
 
   plotStations.clear();
   plotStations.push_back(nameList[i]);
+  updateSelectedStations();
   return plotStations.front();
 }
 
@@ -510,10 +508,51 @@ void VprofManager::setCanvas(DiCanvas* c)
   mCanvas = c;
 }
 
+void VprofManager::updateSelectedStations()
+{
+  selectedStations.clear();
+
+  std::auto_ptr<VprofPlot> vp;
+  for (size_t i=0; i<vpdata.size(); i++) {
+    for (size_t j=0; j<plotStations.size(); ++j) {
+      vp.reset(vpdata[i]->getData(plotStations[j], plotTime));
+      if (vp.get()) {
+        selectedStations.push_back(plotStations[j]);
+        break;
+      }
+    }
+  }
+
+  if (!showObs)
+    return;
+
+  for (size_t i=0; i<obsList.size(); i++) {
+    std::vector<std::string>::const_iterator it
+        = std::find(plotStations.begin(), plotStations.end(), nameList[i]);
+    if (it != plotStations.end()) {
+      selectedStations.push_back(*it);
+      break;
+    }
+  }
+}
+
+void VprofManager::plotVpData(DiGLPainter* gl)
+{
+  for (size_t i=0; i<vpdata.size(); i++) {
+    for (size_t j=0; j<plotStations.size(); ++j) {
+      std::auto_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime));
+      if (vp.get()) {
+        vp->plot(gl, vpopt, i);
+        break;
+      }
+    }
+  }
+}
+
 bool VprofManager::plot(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plotStations.size()) << LOGVAL(plotTime));
-  selectedStations.clear();
+
   if (!vpdiag) {
     vpdiag= new VprofDiagram(vpopt, gl);
     vpdiag->setPlotWindow(plotw,ploth);
@@ -527,40 +566,21 @@ bool VprofManager::plot(DiGLPainter* gl)
   vpdiag->plot();
 
   if (!plotStations.empty()) {
+    plotVpData(gl);
 
-    for (size_t i=0; i<vpdata.size(); i++) {
-
-      std::auto_ptr<VprofPlot> vp;
-
-      for ( size_t j=0; j<plotStations.size(); ++j){
-        vp.reset(vpdata[i]->getData(plotStations[j],plotTime));
-        if (vp.get()) {
-          selectedStations.push_back(plotStations[j]);
-          break;
-        }
-      }
-      if (vp.get()){
-        vp->plot(gl, vpopt, i);
-      }
-    }
     if (showObs) {
       // obsList corresponds to the obsList.size() first entries of nameList
       METLIBS_LOG_DEBUG(LOGVAL(obsList.size()));
-      size_t i=0;
+      size_t i = 0;
       for (i = 0; i<obsList.size(); i++) {
-        std::vector<std::string>::const_iterator it
-            = std::find(plotStations.begin(), plotStations.end(), nameList[i]);
-        if (it != plotStations.end()) {
-          selectedStations.push_back(*it);
+        if (std::find(plotStations.begin(), plotStations.end(), nameList[i]) != plotStations.end())
           break;
-        }
       }
       if (i<obsList.size()) {
         checkObsTime(plotTime.hour());
 
         METLIBS_LOG_DEBUG(LOGVAL(obsList.size()) << LOGVAL(i) << LOGVAL(obsList[i]));
-        vector<std::string> stationList;
-        stationList.push_back(obsList[i]);
+        const std::vector<std::string> stationList(1, obsList[i]);
         int nf= obsfiles.size();
         int nn= 0;
         VprofPlot *vp= 0;
