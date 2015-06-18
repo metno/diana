@@ -81,6 +81,7 @@ public:
   void removeItem(DrawingItemBase *item);
   void updateItem(DrawingItemBase *item, const QVariantMap &props);
 
+  virtual QList<DrawingItemBase *> allItems() const;
   QList<DrawingItemBase *> selectedItems() const;
 
   virtual DrawingItemBase *createItem(const QString &type);

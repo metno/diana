@@ -150,7 +150,10 @@ void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
     QString time_str;
     QString time_prop = timeProperty(item->propertiesRef(), time_str);
 
-    if (time_prop.isEmpty()) {
+    if (editable_)
+      item->setProperty("visible", true);
+
+    else if (time_prop.isEmpty()) {
       if (isCollection()) {
         // For layer groups containing a collection of files, make the layers
         // visible only if the current file is appropriate for the new time.

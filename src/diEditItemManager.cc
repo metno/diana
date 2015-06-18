@@ -651,7 +651,7 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
 
 void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
 {
-  if (!over)
+  if (!over || !isEditing())
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
@@ -724,6 +724,16 @@ bool EditItemManager::canUndo() const
 bool EditItemManager::canRedo() const
 {
   return undoStack_.canRedo();
+}
+
+QList<DrawingItemBase *> EditItemManager::allItems() const
+{
+  QList<DrawingItemBase *> items;
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
+    items += it.value()->items();
+
+  return items;
 }
 
 QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
@@ -1749,10 +1759,8 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
     return error;
   }
 
-  // Add the items to the scratch layer group.
-  EditItems::LayerGroup *layerGroup = layerGroups_.value("scratch");
   foreach (DrawingItemBase *item, items)
-    layerGroup->addItem(item);
+    addItem(item);
 
   pushUndoCommands();
 

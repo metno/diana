@@ -306,20 +306,27 @@ void DrawingDialog::editDrawings()
     fileNames.append(index.data(Qt::UserRole).toString());
   }
 
-  // Load the drawings into the edit manager.
+  // Load the drawings into the edit manager and construct a selection that
+  // will be used to deselect items in the drawing list.
+  QItemSelection selection;
+
   for (int i = 0; i < names.size(); ++i) {
     QString error = editm->loadDrawing(names.at(i), fileNames.at(i));
     if (error.isEmpty()) {
-      // Deselect the named drawing from the drawing list in order to remove
-      // it from the active list.
-      drawingsList_->selectionModel()->select(drawingsModel_.find(names.at(i)), QItemSelectionModel::Toggle);
+      QModelIndex index = drawingsModel_.find(names.at(i));
+      selection.select(index, index);
     }
   }
+
+  // Deselect the named drawings from the drawing list in order to remove
+  // them from the active list.
+  drawingsList_->selectionModel()->select(selection, QItemSelectionModel::Toggle);
 
   // Deselecting the drawing from the list does not automatically remove it
   // from the drawing manager if it was present there, so we need to apply
   // the change.
   emit applyData();
+
   emit startEditing();
 }
 

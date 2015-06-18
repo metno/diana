@@ -54,6 +54,7 @@ FilterDrawingDialog::FilterDrawingDialog(QWidget *parent)
   connect(editm_, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(updateChoices()));
   connect(editm_, SIGNAL(itemChanged(const QVariantMap &)), SLOT(updateChoices()));
   connect(editm_, SIGNAL(itemRemoved(int)), SLOT(updateChoices()));
+  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateChoices()));
 
   propertyList_ = new QTreeView();
   propertyModel_ = new FilterDrawingModel(tr("Properties"), this);
