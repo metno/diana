@@ -58,6 +58,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
 {
   drawm_ = DrawingManager::instance();
+  editm_ = EditItemManager::instance();
 
   // create an action that can be used to open the dialog from within a menu or toolbar
   m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
@@ -87,6 +88,11 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
   connect(loadFileButton, SIGNAL(clicked()), SLOT(loadFile()));
 
+  QHBoxLayout *addLayout = new QHBoxLayout();
+  addLayout->addWidget(TitleLabel(tr("Products"), this));
+  addLayout->addStretch();
+  addLayout->addWidget(loadFileButton);
+
   QPushButton *filterButton = new QPushButton(tr("Filter items..."));
   filterButton->setCheckable(true);
   filterDialog_ = new FilterDrawingDialog(this);
@@ -94,33 +100,54 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(filterDialog_, SIGNAL(updated()), SIGNAL(updated()));
   connect(filterDialog_, SIGNAL(finished(int)), filterButton, SLOT(toggle()));
 
-  QPushButton *saveFileButton = new QPushButton(tr("Save visible items"));
-  saveFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_DialogSaveButton));
-  connect(saveFileButton, SIGNAL(clicked()), SLOT(saveFile()));
+  QPushButton *saveVisibleButton = new QPushButton(tr("Save visible items"));
+  saveVisibleButton->setIcon(qApp->style()->standardIcon(QStyle::SP_DialogSaveButton));
+  connect(saveVisibleButton, SIGNAL(clicked()), SLOT(saveFile()));
 
   editButton_ = new QPushButton(tr("Edit drawings"));
   editButton_->setEnabled(false);
   connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
 
-  QHBoxLayout *addLayout = new QHBoxLayout();
-  addLayout->addWidget(TitleLabel(tr("Available Drawings"), this));
-  addLayout->addStretch();
-  addLayout->addWidget(loadFileButton);
-
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addWidget(filterButton);
-  buttonLayout->addWidget(saveFileButton);
+  buttonLayout->addWidget(saveVisibleButton);
   buttonLayout->addWidget(editButton_);
   buttonLayout->addStretch();
+
+
+  QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit Mode"));
+  connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
+  connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
+  QCheckBox *hideEditItemsCheckBox = new QCheckBox(tr("Hide Edit Items"));
+  hideEditItemsCheckBox->setEnabled(false);
+  connect(hideEditItemsCheckBox, SIGNAL(toggled(bool)), SLOT(hideEditItems(bool)));
+  connect(editModeCheckBox, SIGNAL(toggled(bool)), hideEditItemsCheckBox, SLOT(setEnabled(bool)));
+
+  QVBoxLayout *editLayout = new QVBoxLayout();
+  editLayout->addWidget(TitleLabel(tr("Edit"), this));
+  editLayout->addWidget(editModeCheckBox);
+  editLayout->addWidget(hideEditItemsCheckBox);
+
+  QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
+  QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
+
+  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
+  connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
+
+  QHBoxLayout *hideApplyLayout = new QHBoxLayout();
+  hideApplyLayout->addWidget(hideButton);
+  hideApplyLayout->addStretch();
+  hideApplyLayout->addWidget(applyButton);
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->addLayout(addLayout);
   mainLayout->addWidget(drawingsList_);
-  mainLayout->addWidget(TitleLabel(tr("Active Drawings"), this));
+  mainLayout->addWidget(TitleLabel(tr("Selected Products"), this));
   mainLayout->addWidget(activeList_);
   mainLayout->addLayout(buttonLayout);
+  mainLayout->addLayout(editLayout);
   mainLayout->addStretch();
-  mainLayout->addLayout(createStandardButtons());
+  mainLayout->addLayout(hideApplyLayout);
 
   connect(drawingsList_->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -254,7 +281,6 @@ void DrawingDialog::saveFile()
 
   // Obtain all visible drawing and editing items, filter them for visibility,
   // and save the resulting collection.
-  EditItemManager *editm = EditItemManager::instance();
   QList<DrawingItemBase *> items;
 
   foreach (DrawingItemBase *item, drawm_->allItems()) {
@@ -262,8 +288,8 @@ void DrawingDialog::saveFile()
       items.append(item);
   }
 
-  foreach (DrawingItemBase *item, editm->allItems()) {
-    if (editm->isItemVisible(item))
+  foreach (DrawingItemBase *item, editm_->allItems()) {
+    if (editm_->isItemVisible(item))
       items.append(item);
   }
 
@@ -279,9 +305,9 @@ void DrawingDialog::saveFile()
     QVariantMap props;
     props["srcFile"] = fileName;
     foreach (DrawingItemBase *item, items)
-      editm->updateItem(item, props);
+      editm_->updateItem(item, props);
 
-    editm->pushUndoCommands();
+    editm_->pushUndoCommands();
   } else
     QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
 }
@@ -296,8 +322,6 @@ void DrawingDialog::updateButtons()
  */
 void DrawingDialog::editDrawings()
 {
-  EditItemManager *editm = EditItemManager::instance();
-
   // Obtain lists of names and file names.
   QStringList names;
   QStringList fileNames;
@@ -311,7 +335,7 @@ void DrawingDialog::editDrawings()
   QItemSelection selection;
 
   for (int i = 0; i < names.size(); ++i) {
-    QString error = editm->loadDrawing(names.at(i), fileNames.at(i));
+    QString error = editm_->loadDrawing(names.at(i), fileNames.at(i));
     if (error.isEmpty()) {
       QModelIndex index = drawingsModel_.find(names.at(i));
       selection.select(index, index);
@@ -327,7 +351,7 @@ void DrawingDialog::editDrawings()
   // the change.
   emit applyData();
 
-  emit startEditing();
+  emit editingMode(true);
 }
 
 void DrawingDialog::showActiveContextMenu(const QPoint &pos)
@@ -346,6 +370,11 @@ void DrawingDialog::showActiveContextMenu(const QPoint &pos)
     editDrawings();
 }
 
+void DrawingDialog::hideEditItems(bool hidden)
+{
+  editm_->setEnabled(!hidden);
+  emit updated();
+}
 
 DrawingModel::DrawingModel(QObject *parent)
   : QAbstractListModel(parent)

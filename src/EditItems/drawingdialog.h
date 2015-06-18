@@ -39,6 +39,7 @@
 #include "qtDataDialog.h"
 
 class DrawingManager;
+class EditItemManager;
 
 namespace EditItems {
 
@@ -82,7 +83,7 @@ public:
 
 signals:
   void filterToggled(bool);
-  void startEditing();
+  void editingMode(bool);
 
 public slots:
   void loadFile();
@@ -92,6 +93,7 @@ private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void editDrawings();
   void handleDialogUpdated();
+  void hideEditItems(bool hidden);
   void makeProduct();
   void showActiveContextMenu(const QPoint &pos);
   void updateButtons();
@@ -101,6 +103,7 @@ private:
   DrawingModel drawingsModel_;
   DrawingModel activeDrawingsModel_;
   DrawingManager *drawm_;
+  EditItemManager *editm_;
   FilterDrawingDialog *filterDialog_;
   QListView *activeList_;
   QListView *drawingsList_;

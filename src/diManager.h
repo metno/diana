@@ -82,10 +82,12 @@ public:
   virtual std::vector<PlotElement> getPlotElements() = 0;
 
   virtual bool isEnabled() const;
-  virtual void setEnabled(bool enable);
   virtual bool isEditing() const;
-  virtual void setEditing(bool enable);
   virtual bool hasFocus() const;
+
+public slots:
+  virtual void setEnabled(bool enable);
+  virtual void setEditing(bool enable);
   virtual void setFocus(bool enable);
 
 signals:

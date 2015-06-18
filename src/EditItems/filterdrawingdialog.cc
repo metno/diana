@@ -105,23 +105,32 @@ FilterDrawingDialog::FilterDrawingDialog(QWidget *parent)
  */
 void FilterDrawingDialog::updateChoices()
 {
-  QSet<QString> show = QSet<QString>::fromList(Properties::PropertiesEditor::instance()->propertyRules("show"));
+  Properties::PropertiesEditor *ed = Properties::PropertiesEditor::instance();
+  QSet<QString> show = QSet<QString>::fromList(ed->propertyRules("show"));
+  QSet<QString> hide = QSet<QString>::fromList(ed->propertyRules("hide"));
 
-  QSet<QString> properties;
+  QSet<QString> keep;
+  QSet<QString> discard;
 
   foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
     const QVariantMap &props = item->propertiesRef();
     foreach (const QString &key, props.keys()) {
       foreach (const QString &section, show) {
         if (key.startsWith(section)) {
-          properties.insert(key);
+          keep.insert(key);
+          break;
+        }
+      }
+      foreach (const QString &section, hide) {
+        if (key.startsWith(section)) {
+          discard.insert(key);
           break;
         }
       }
     }
   }
 
-  propertyModel_->setStringList(properties.toList());
+  propertyModel_->setStringList((keep - discard).toList());
   updateValues();
 }
 

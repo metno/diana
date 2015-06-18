@@ -651,7 +651,7 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
 
 void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
 {
-  if (!over || !isEditing())
+  if (!over || !isEditing() || !isEnabled())
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
