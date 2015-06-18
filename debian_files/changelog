@@ -1,3 +1,10 @@
+diana (3.38.2-1) unstable; urgency=low
+
+  * Vprof: bugfix - only use crossections with length 1
+  * ObsBufr: check vector size before access
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 18 Jun 2015 10:39:34 +0200
+
 diana (3.38.1-1) unstable; urgency=low
 
   * FieldPlot: Bugfix - setAutoStep
