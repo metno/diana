@@ -55,7 +55,7 @@ model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_cr
     if (not inv)
       continue;
     size_t index;
-    Crossection_cp cs = inv->findCrossectionPoint(user_crossection,index);
+    Crossection_cp cs = inv->findCrossectionPoint(user_crossection);
     if (not cs)
       continue;
     name2value_t& n2v = model_values[mr];
