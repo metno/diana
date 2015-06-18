@@ -186,8 +186,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
         const int num = oplot->numPositions();
         ObsBufr bufr;
         oplot->setDataType(dataType);
-        bufr.setObsPlot(oplot);
-        if (not bufr.init(filename, "obsplot")) {
+        if (!bufr.setObsPlot(oplot, filename)) {
           //reset oplot
           oplot->resetObs(num);
         }

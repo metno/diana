@@ -1878,7 +1878,7 @@ void DianaMainWindow::modelChangedSlot()
   METLIBS_LOG_SCOPE();
   if (!vpWindow)
     return;
-  StationPlot * sp = vpWindow->getStations() ;
+  StationPlot * sp = vpWindow->getStations();
   sp->setName("vprof");
   sp->setImage("vprof_normal","vprof_selected");
   sp->setIcon("vprof_icon");
@@ -3190,18 +3190,18 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   bool needupdate= false; // updateGL necessary
 
   std::string uffstation = contr->findStation(x,y,"uffda");
-  if (!uffstation.empty()) uffm->pointClicked(uffstation);
+  if (!uffstation.empty())
+    uffm->pointClicked(uffstation);
 
   //show closest observation
-  if( contr->findObs(x,y) ){
+  if (contr->findObs(x,y)) {
     needupdate= true;
   }
 
-  //find the name of stations clicked/pointed
-  //at
+  //find the name of stations clicked/pointed at
   vector<std::string> stations = contr->findStations(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
-  if (vpWindow&& stations.size()!=0)
+  if (vpWindow && !stations.empty())
     vpWindow->changeStations(stations);
 
   //find the name of station we clicked/pointed

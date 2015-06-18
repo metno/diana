@@ -409,7 +409,7 @@ vector<Station*> StationManager::findStations(int x, int y)
   return stations;
 }
 
-string StationManager::findStation(int x, int y, std::string name, int id)
+string StationManager::findStation(int x, int y, const std::string& name, int id)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((id == -1 || id == it->second->getId())
@@ -423,7 +423,7 @@ string StationManager::findStation(int x, int y, std::string name, int id)
   return std::string();
 }
 
-vector<string> StationManager::findStations(int x, int y, std::string name, int id)
+vector<string> StationManager::findStations(int x, int y, const std::string& name, int id)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((id == -1 || id == it->second->getId()) && (name == it->second->getName())) {
@@ -471,15 +471,15 @@ void StationManager::stationCommand(const std::string& command,
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((id == -1 || id == it->second->getId()) &&
-        (name == it->second->getName() || name.empty())) {
+        (name == it->second->getName() || name.empty()))
+    {
       it->second->stationCommand(command, data, misc);
       break;
     }
   }
 }
 
-void StationManager::stationCommand(const std::string& command, const std::string& name,
-    int id)
+void StationManager::stationCommand(const std::string& command, const std::string& name, int id)
 {
   if (command == "delete") {
     map <std::string,StationPlot*>::iterator p = stationPlots.begin();
