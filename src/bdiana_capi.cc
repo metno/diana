@@ -1407,19 +1407,12 @@ void createPaintDevice()
     image.fill(Qt::transparent);
     glcanvas = new DiPaintGLCanvas(&image);
 
-  } else if (pdf || svg || json) {
+  } else {
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
     glcanvas = new DiPaintGLCanvas(&picture);
-    if (pdf)
+    if (pdf || (!svg && !json /* i.e. postscript*/))
       printing = true;
-
-  } else { // Postscript
-
-    picture = QPicture();
-    picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-    glcanvas = new DiPaintGLCanvas(&picture);
-    printing = true;
   }
 
   if (main_controller)
