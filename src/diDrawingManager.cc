@@ -745,7 +745,7 @@ QList<DrawingItemBase *> DrawingManager::allItems() const
 
 bool DrawingManager::isItemVisible(DrawingItemBase * item) const
 {
-  bool visible = item->property("visible", true).toBool();
+  bool visible = item->isVisible();
   if (!visible) return false;
 
   // Set each item to be visible if none of its properties match those

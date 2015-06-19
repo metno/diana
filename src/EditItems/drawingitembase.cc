@@ -39,6 +39,7 @@ DrawingItemBase::DrawingItemBase(int id__)
     : id_((id__ >= 0) ? id__ : nextId())
     , selected_(false)
     , joinCount_(0)
+    , visible_(false)
 {
 }
 
@@ -79,6 +80,16 @@ void DrawingItemBase::setState(const DrawingItemBase *item)
 
   selected_ = item->selected_;
   joinCount_ = item->joinCount_;
+}
+
+bool DrawingItemBase::isVisible() const
+{
+  return visible_;
+}
+
+void DrawingItemBase::setVisible(bool visible)
+{
+  visible_ = visible;
 }
 
 QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const

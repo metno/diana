@@ -10,7 +10,7 @@ do-configure: configure-stamp
 	@true
 configure-stamp:
 	./autogen.sh
-	./configure  \
+	./configure $(confflags) \
 	    --disable-silent-rules \
 	    --enable-geotiff \
             --enable-obs-bufr \

@@ -68,6 +68,9 @@ public:
 
   virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
+  bool isVisible() const;
+  void setVisible(bool visible);
+
   QVariant property(const QString &name, const QVariant &default_ = QVariant()) const;
   void setProperty(const QString &name, const QVariant &value);
   // Returns the item's properties.
@@ -138,6 +141,7 @@ protected:
   mutable QVariantMap properties_;
   QList<QPointF> points_;
   QList<QPointF> latLonPoints_;
+  bool visible_;
 
 private:
   int id_;

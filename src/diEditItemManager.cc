@@ -739,7 +739,7 @@ QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos, QList
 {
   QList<DrawingItemBase *> hitItems;
   foreach (DrawingItemBase *item, allItems()) {
-    if ((!itemsVisibilityForced_) && (!item->property("visible", true).toBool()))
+    if ((!itemsVisibilityForced_) && (!item->isVisible()))
       continue;
     if (item->hit(pos, true))
       hitItems.append(item);
@@ -951,7 +951,7 @@ void EditItemManager::emitItemChanged() const
     props.insert("layer:index", 0);
     props.insert("layer:visible", true);
     props.insert("id", item->id());
-    props.insert("visible", item->property("visible", true).toBool());
+    props.insert("visible", item->isVisible());
     props.insert("Placemark:name", item->property("Placemark:name").toString());
     //
     setFromLatLonPoints(item, item->getLatLonPoints());

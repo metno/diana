@@ -38,6 +38,7 @@
 
 #include "qtDataDialog.h"
 
+class DrawingItemBase;
 class DrawingManager;
 class EditItemManager;
 
@@ -63,7 +64,8 @@ public:
   QMap<QString, QString> items() const;
   void setItems(const QMap<QString, QString> &items);
 
-  QModelIndex find(const QString &name);
+  QModelIndex find(const QString &name) const;
+  void appendDrawing(const QString &name, const QString &fileName);
 
 private:
   QMap<QString, QString> items_;
@@ -87,7 +89,8 @@ signals:
 
 public slots:
   void loadFile();
-  void saveFile();
+  void saveAllItems();
+  void saveVisibleItems();
 
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
@@ -100,6 +103,8 @@ private slots:
   virtual void updateTimes();
 
 private:
+  void updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName);
+
   DrawingModel drawingsModel_;
   DrawingModel activeDrawingsModel_;
   DrawingManager *drawm_;

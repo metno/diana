@@ -100,9 +100,12 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(filterDialog_, SIGNAL(updated()), SIGNAL(updated()));
   connect(filterDialog_, SIGNAL(finished(int)), filterButton, SLOT(toggle()));
 
-  QPushButton *saveVisibleButton = new QPushButton(tr("Save visible items"));
-  saveVisibleButton->setIcon(qApp->style()->standardIcon(QStyle::SP_DialogSaveButton));
-  connect(saveVisibleButton, SIGNAL(clicked()), SLOT(saveFile()));
+  QToolButton *fileButton = new QToolButton();
+  fileButton->setText(tr("File"));
+  QMenu *fileMenu = new QMenu(tr("File"), this);
+  connect(fileMenu->addAction(tr("Save Visible Items...")), SIGNAL(triggered()), SLOT(saveVisibleItems()));
+  connect(fileMenu->addAction(tr("Save All Items...")), SIGNAL(triggered()), SLOT(saveAllItems()));
+  fileButton->setMenu(fileMenu);
 
   editButton_ = new QPushButton(tr("Edit drawings"));
   editButton_->setEnabled(false);
@@ -110,10 +113,14 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addWidget(filterButton);
-  buttonLayout->addWidget(saveVisibleButton);
+  buttonLayout->addWidget(fileButton);
   buttonLayout->addWidget(editButton_);
   buttonLayout->addStretch();
 
+  QFrame *editTopSeparator = new QFrame();
+  editTopSeparator->setFrameShape(QFrame::HLine);
+  QFrame *editBottomSeparator = new QFrame();
+  editBottomSeparator->setFrameShape(QFrame::HLine);
 
   QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit Mode"));
   connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
@@ -124,9 +131,11 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editModeCheckBox, SIGNAL(toggled(bool)), hideEditItemsCheckBox, SLOT(setEnabled(bool)));
 
   QVBoxLayout *editLayout = new QVBoxLayout();
+  editLayout->addWidget(editTopSeparator);
   editLayout->addWidget(TitleLabel(tr("Edit"), this));
   editLayout->addWidget(editModeCheckBox);
   editLayout->addWidget(hideEditItemsCheckBox);
+  editLayout->addWidget(editBottomSeparator);
 
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
   QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
@@ -261,7 +270,8 @@ void DrawingDialog::loadFile()
     // Update the working directory and the list of available drawings.
     QFileInfo fi(fileName);
     DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
-    drawingsModel_.setItems(drawm_->getDrawings());
+    // Append a new row and insert the new drawing as an item there.
+    drawingsModel_.appendDrawing(fileName, fileName);
   } else {
     QMessageBox warning(QMessageBox::Warning, tr("Open File"),
                         tr("Failed to open file: %1").arg(fileName),
@@ -271,9 +281,31 @@ void DrawingDialog::loadFile()
   }
 }
 
-void DrawingDialog::saveFile()
+void DrawingDialog::saveAllItems()
 {
-  QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
+  QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save All Items"),
+    drawm_->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+
+  if (fileName.isEmpty())
+    return;
+
+  // Obtain all visible drawing and editing items, filter them for visibility,
+  // and save the resulting collection.
+  QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QString error = KML::saveItemsToFile(items, fileName);
+  QApplication::restoreOverrideCursor();
+
+  if (error.isEmpty())
+    updateFileInfo(items, fileName);
+  else
+    QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
+}
+
+void DrawingDialog::saveVisibleItems()
+{
+  QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save Visible Items"),
     drawm_->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
 
   if (fileName.isEmpty())
@@ -297,19 +329,24 @@ void DrawingDialog::saveFile()
   QString error = KML::saveItemsToFile(items, fileName);
   QApplication::restoreOverrideCursor();
 
-  if (error.isEmpty()) {
-    // Update the working directory and the list of available drawings.
-    QFileInfo fi(fileName);
-    DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
-
-    QVariantMap props;
-    props["srcFile"] = fileName;
-    foreach (DrawingItemBase *item, items)
-      editm_->updateItem(item, props);
-
-    editm_->pushUndoCommands();
-  } else
+  if (error.isEmpty())
+    updateFileInfo(items, fileName);
+  else
     QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
+}
+
+void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName)
+{
+  // Update the working directory and the list of available drawings.
+  QFileInfo fi(fileName);
+  DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+
+  QVariantMap props;
+  props["srcFile"] = fileName;
+  foreach (DrawingItemBase *item, items)
+    editm_->updateItem(item, props);
+
+  editm_->pushUndoCommands();
 }
 
 void DrawingDialog::updateButtons()
@@ -455,9 +492,23 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
   endResetModel();
 }
 
-QModelIndex DrawingModel::find(const QString &name)
+QModelIndex DrawingModel::find(const QString &name) const
 {
   return createIndex(items_.keys().indexOf(name), 0, -1);
+}
+
+void DrawingModel::appendDrawing(const QString &name, const QString &fileName)
+{
+  // Since the underlying data is sorted, we need to insert the drawing into
+  // the map in order to find out where it will be inserted, so we do that to
+  // a new map before notifying other components and updating the map.
+  QMap<QString, QString> items = items_;
+  items[name] = fileName;
+  int row = items.keys().indexOf(name);
+
+  beginInsertRows(QModelIndex(), row, row);
+  items_ = items;
+  endInsertRows();
 }
 
 } // namespace
