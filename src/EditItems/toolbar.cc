@@ -177,8 +177,8 @@ ToolBar::ToolBar(QWidget *parent)
   compositeCombo_->setCurrentIndex(0);
   setCompositeType(0);
 
-  // Select the first action in the group by default.
-  actionGroup->actions().at(0)->trigger();
+  // Select the select action by default.
+  selectAction_->trigger();
 }
 
 void ToolBar::setCreatePolyLineAction(const QString &type)

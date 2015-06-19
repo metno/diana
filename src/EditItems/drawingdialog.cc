@@ -334,6 +334,8 @@ void DrawingDialog::editDrawings()
   // will be used to deselect items in the drawing list.
   QItemSelection selection;
 
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
   for (int i = 0; i < names.size(); ++i) {
     QString error = editm_->loadDrawing(names.at(i), fileNames.at(i));
     if (error.isEmpty()) {
@@ -341,6 +343,8 @@ void DrawingDialog::editDrawings()
       selection.select(index, index);
     }
   }
+
+  QApplication::restoreOverrideCursor();
 
   // Deselect the named drawings from the drawing list in order to remove
   // them from the active list.

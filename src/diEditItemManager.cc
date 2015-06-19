@@ -83,7 +83,6 @@ EditItemManager::EditItemManager()
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
   , itemsVisibilityForced_(false)
-  , itemPropsDirectlyEditable_(false)
 {
   // Create a default inactive layer group.
   layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, false);
@@ -110,7 +109,7 @@ EditItemManager::EditItemManager()
   unjoinAction_->setShortcut(tr("Ctrl+J"));
   toggleReversedAction_ = new QAction(tr("Toggle reversed"), this);
   toggleReversedAction_->setShortcut(QString("R"));
-  editPropertiesAction_ = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
+  editPropertiesAction_ = new QAction(tr("Edit P&roperties..."), this);
   editPropertiesAction_->setShortcut(tr("Ctrl+R"));
   editStyleAction_ = new QAction(tr("Edit Style..."), this);
   //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
@@ -867,7 +866,7 @@ void EditItemManager::editProperties()
 
   // NOTE: we only support editing properties for one item at a time for now
   DrawingItemBase *item = selItems.first();
-  if (Properties::PropertiesEditor::instance()->edit(item, !itemPropsDirectlyEditable_))
+  if (Properties::PropertiesEditor::instance()->edit(item))
     repaint();
 }
 
