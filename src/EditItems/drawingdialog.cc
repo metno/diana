@@ -131,7 +131,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
   QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
 
-  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
+  connect(hideButton, SIGNAL(clicked()), SLOT(close()));
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
 
   QHBoxLayout *hideApplyLayout = new QHBoxLayout();

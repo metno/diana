@@ -39,6 +39,7 @@
 DataDialog::DataDialog(QWidget *parent, Controller *ctrl)
   : QDialog(parent), applyhideButton(0), applyButton(0), m_ctrl(ctrl), m_action(0)
 {
+  connect(this, SIGNAL(finished(int)), SLOT(unsetAction()));
 }
 
 DataDialog::~DataDialog()
@@ -50,9 +51,14 @@ QAction *DataDialog::action() const
   return m_action;
 }
 
-void DataDialog::hideEvent(QHideEvent *event)
+void DataDialog::closeEvent(QCloseEvent *event)
 {
-  QDialog::hideEvent(event);
+  QDialog::closeEvent(event);
+  unsetAction();
+}
+
+void DataDialog::unsetAction()
+{
   if (m_action) m_action->setChecked(false);
 }
 
@@ -68,7 +74,7 @@ QLayout *DataDialog::createStandardButtons()
 
   applyButton->setDefault(true);
 
-  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
+  connect(hideButton, SIGNAL(clicked()), SLOT(close()));
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
   connect(refreshButton, SIGNAL(clicked()), SLOT(updateTimes()));
   connect(applyhideButton, SIGNAL(clicked()), SLOT(applyhideClicked()));
@@ -108,7 +114,7 @@ void DataDialog::indicateUnappliedChanges(bool on)
 void DataDialog::applyhideClicked()
 {
   emit applyData();
-  hide();
+  close();
 }
 
 void DataDialog::helpClicked()
