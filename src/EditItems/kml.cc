@@ -587,22 +587,13 @@ QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QS
 
     ditem->setProperty("srcFile", srcFileName);
 
-    // Keep all the met: properties, treating the layerId and joinId properties specially.
+    // Keep all the met: properties, treating the joinId property specially.
     QHashIterator<QString, QString> it(pmExtData);
     while (it.hasNext()) {
 
       it.next();
 
-      if (it.key() == "met:layerId") {
-        bool ok;
-        const int layerId = it.value().toInt(&ok);
-        if (!ok) {
-          error = QString("failed to parse met:layerId as integer: %1").arg(it.value());
-          return QList<DrawingItemBase *>();
-        }
-        ditem->setProperty("layerId", layerId);
-
-      } else if (it.key() == "met:joinId") {
+      if (it.key() == "met:joinId") {
         bool ok;
         const int joinId = it.value().toInt(&ok);
         if (!ok) {
