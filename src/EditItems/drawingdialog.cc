@@ -37,8 +37,8 @@
 #include "EditItems/editsymbol.h"
 #include "EditItems/edittext.h"
 #include "EditItems/editcomposite.h"
+#include "EditItems/itemgroup.h"
 #include "EditItems/kml.h"
-#include "EditItems/layergroup.h"
 #include "EditItems/toolbar.h"
 
 #include "qtUtility.h"

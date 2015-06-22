@@ -30,7 +30,7 @@
 #include <diDrawingManager.h>
 #include <diEditItemManager.h>
 #include <EditItems/filterdrawingdialog.h>
-#include <EditItems/layergroup.h>
+#include <EditItems/itemgroup.h>
 #include <EditItems/properties.h>
 #include <EditItems/toolbar.h>
 #include <editdrawing.xpm> // ### for now

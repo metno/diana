@@ -34,7 +34,7 @@
 
 #include <diField/diGridConverter.h>
 #include <EditItems/drawingitembase.h>
-#include <EditItems/layergroup.h>
+#include <EditItems/itemgroup.h>
 #include <QHash>
 #include <QList>
 #include <QMap>
@@ -127,8 +127,8 @@ public:
   void setFilter(const QPair<QStringList, QSet<QString> > &filter);
 
   std::vector<PolyLineInfo> loadCoordsFromKML(const std::string &fileName);
-  EditItems::LayerGroup *layerGroup(const QString &name);
-  void removeLayerGroup(const QString &name);
+  EditItems::ItemGroup *itemGroup(const QString &name);
+  void removeItemGroup(const QString &name);
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
@@ -139,8 +139,8 @@ signals:
   void updated();
 
 protected:
-  virtual void addItem_(DrawingItemBase *, EditItems::LayerGroup *group);
-  virtual void removeItem_(DrawingItemBase *, EditItems::LayerGroup *group);
+  virtual void addItem_(DrawingItemBase *, EditItems::ItemGroup *group);
+  virtual void removeItem_(DrawingItemBase *, EditItems::ItemGroup *group);
   void applyPlotOptions(DiGLPainter *gl, const DrawingItemBase *) const;
 
   static Rectangle editRect_;
@@ -149,7 +149,7 @@ protected:
   QMap<QString, QString> drawings_;
   QMap<QString, QString> loaded_;
 
-  QMap<QString, EditItems::LayerGroup *> layerGroups_;
+  QMap<QString, EditItems::ItemGroup *> itemGroups_;
   QPair<QStringList, QSet<QString> > filter_;
 
 private:
@@ -164,7 +164,7 @@ private:
   static int nextJoinId_;
   void setNextJoinId(int);
 
-  QHash<QString, EditItems::LayerGroup *> plotElements_;
+  QHash<QString, EditItems::ItemGroup *> plotElements_;
 
   static DrawingManager *self_;  // singleton instance pointer
 };

@@ -31,22 +31,22 @@
 
 #include <EditItems/kml.h>
 #include <EditItems/drawingitembase.h>
-#include <EditItems/layergroup.h>
+#include <EditItems/itemgroup.h>
 #include <EditItems/timefilesextractor.h>
 
-#define MILOGGER_CATEGORY "diana.LayerGroup"
+#define MILOGGER_CATEGORY "diana.ItemGroup"
 #include <miLogger/miLogging.h>
 
 namespace EditItems {
 
-LayerGroup::LayerGroup(const QString &name, bool editable, bool active)
+ItemGroup::ItemGroup(const QString &name, bool editable, bool active)
   : name_(name)
   , editable_(editable)
   , active_(active)
 {
 }
 
-LayerGroup::LayerGroup(const LayerGroup &other)
+ItemGroup::ItemGroup(const ItemGroup &other)
   : name_(other.name_)
   , editable_(other.editable_)
   , active_(other.active_)
@@ -56,21 +56,21 @@ LayerGroup::LayerGroup(const LayerGroup &other)
     items_.append(item->clone());
 }
 
-LayerGroup::~LayerGroup()
+ItemGroup::~ItemGroup()
 {
 }
 
-QString LayerGroup::name() const
+QString ItemGroup::name() const
 {
   return name_;
 }
 
-void LayerGroup::setName(const QString &n)
+void ItemGroup::setName(const QString &n)
 {
   name_ = n;
 }
 
-QString LayerGroup::fileName(const QDateTime &dateTime) const
+QString ItemGroup::fileName(const QDateTime &dateTime) const
 {
   if (dateTime.isNull())
     return fileName_;
@@ -78,7 +78,7 @@ QString LayerGroup::fileName(const QDateTime &dateTime) const
     return tfiles_.value(dateTime).filePath();
 }
 
-void LayerGroup::setFileName(const QString &filePathOrPattern)
+void ItemGroup::setFileName(const QString &filePathOrPattern)
 {
   if (filePathOrPattern.contains("[")) {
     // For collections of files, find all the file names and store them internally.
@@ -92,22 +92,22 @@ void LayerGroup::setFileName(const QString &filePathOrPattern)
     fileName_ = filePathOrPattern;
 }
 
-bool LayerGroup::isEditable() const
+bool ItemGroup::isEditable() const
 {
   return editable_;
 }
 
-bool LayerGroup::isActive() const
+bool ItemGroup::isActive() const
 {
   return active_;
 }
 
-void LayerGroup::setActive(bool active)
+void ItemGroup::setActive(bool active)
 {
   active_ = active;
 }
 
-QSet<QString> LayerGroup::getTimes() const
+QSet<QString> ItemGroup::getTimes() const
 {
   QSet<QString> times;
 
@@ -131,17 +131,17 @@ QSet<QString> LayerGroup::getTimes() const
   return times;
 }
 
-QDateTime LayerGroup::time() const
+QDateTime ItemGroup::time() const
 {
   return currentTime_;
 }
 
-bool LayerGroup::hasTime(const QDateTime &dateTime) const
+bool ItemGroup::hasTime(const QDateTime &dateTime) const
 {
   return tfiles_.contains(dateTime);
 }
 
-void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
+void ItemGroup::setTime(const QDateTime &dateTime, bool allVisible)
 {
   // Update the visibility of items held in the layers of this group.
   QString dateTimeStr = dateTime.toString(Qt::ISODate) + "Z";
@@ -185,7 +185,7 @@ void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
  * Returns the property name used to hold the time of an item in its properties map,
  * modifying the time_str string to return the time itself.
  */
-QString LayerGroup::timeProperty(const QVariantMap &properties, QString &time_str)
+QString ItemGroup::timeProperty(const QVariantMap &properties, QString &time_str)
 {
   static const char* timeProps[2] = {"time", "TimeSpan:begin"};
 
@@ -198,7 +198,7 @@ QString LayerGroup::timeProperty(const QVariantMap &properties, QString &time_st
   return QString();
 }
 
-QSet<QString> LayerGroup::files() const
+QSet<QString> ItemGroup::files() const
 {
   // If the layer does not contain a collection of files, return the single
   // file held. Otherwise, convert the collection to a set of file names.
@@ -215,18 +215,18 @@ QSet<QString> LayerGroup::files() const
   }
 }
 
-void LayerGroup::setFiles(const QList<QPair<QFileInfo, QDateTime> > &tfiles)
+void ItemGroup::setFiles(const QList<QPair<QFileInfo, QDateTime> > &tfiles)
 {
   for (int i = 0; i < tfiles.size(); ++i)
     tfiles_[tfiles.at(i).second] = tfiles.at(i).first;
 }
 
-bool LayerGroup::isCollection() const
+bool ItemGroup::isCollection() const
 {
   return !tfiles_.isEmpty();
 }
 
-DrawingItemBase *LayerGroup::item(int id) const
+DrawingItemBase *ItemGroup::item(int id) const
 {
   if (ids_.contains(id))
     return ids_.value(id);
@@ -234,12 +234,12 @@ DrawingItemBase *LayerGroup::item(int id) const
     return 0;
 }
 
-QList<DrawingItemBase *> LayerGroup::items() const
+QList<DrawingItemBase *> ItemGroup::items() const
 {
   return items_;
 }
 
-void LayerGroup::setItems(QList<DrawingItemBase *> items)
+void ItemGroup::setItems(QList<DrawingItemBase *> items)
 {
   // The layer owns the items within it, so we can delete the items as well
   // as clearing the list.
@@ -252,7 +252,7 @@ void LayerGroup::setItems(QList<DrawingItemBase *> items)
     ids_[item->id()] = item;
 }
 
-void LayerGroup::addItem(DrawingItemBase *item)
+void ItemGroup::addItem(DrawingItemBase *item)
 {
   // Since an item can be created and added to a layer group then re-added
   // immediately by the corresponding redo command, we need to ensure it is
@@ -264,7 +264,7 @@ void LayerGroup::addItem(DrawingItemBase *item)
   ids_[id] = item;
 }
 
-void LayerGroup::removeItem(DrawingItemBase *item)
+void ItemGroup::removeItem(DrawingItemBase *item)
 {
   // Since an item can be removed from a layer group then re-removed
   // immediately by the corresponding redo command, we need to ensure it is
@@ -281,7 +281,7 @@ void LayerGroup::removeItem(DrawingItemBase *item)
  * Replace the states of items in this layer group whose identifiers match
  * those in the supplied hash.
  */
-void LayerGroup::replaceStates(const QHash<int, QVariantMap> &states)
+void ItemGroup::replaceStates(const QHash<int, QVariantMap> &states)
 {
   foreach (int id, states.keys()) {
     if (ids_.contains(id)) {

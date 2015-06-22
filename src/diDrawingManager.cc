@@ -34,8 +34,8 @@
 #include <EditItems/drawingpolyline.h>
 #include <EditItems/drawingsymbol.h>
 #include <EditItems/drawingtext.h>
+#include <EditItems/itemgroup.h>
 #include <EditItems/kml.h>
-#include <EditItems/layergroup.h>
 #include <EditItems/drawingstylemanager.h>
 #include "diGLPainter.h"
 #include <diPlotModule.h>
@@ -251,8 +251,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  QMap<QString, EditItems::LayerGroup *> loaded;
-  QMap<QString, EditItems::LayerGroup *>::const_iterator itl;
+  QMap<QString, EditItems::ItemGroup *> loaded;
+  QMap<QString, EditItems::ItemGroup *>::const_iterator itl;
 
   foreach (const QString &name, toLoad) {
     // If the name corresponds to a key in the list of drawings then look up
@@ -265,9 +265,9 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     // Is the file already loaded?
     bool isLoaded = false;
-    EditItems::LayerGroup *group;
+    EditItems::ItemGroup *group;
 
-    for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+    for (itl = itemGroups_.begin(); itl != itemGroups_.end(); ++itl) {
       group = itl.value();
       if (group->fileName() == fileName) {
         isLoaded = true;
@@ -281,7 +281,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
         return false;
 
       // Obtain the group created by the loadDrawing() call.
-      group = layerGroups_.value(name);
+      group = itemGroups_.value(name);
     }
 
     // Record the layer group in the collection of replacement drawings.
@@ -291,13 +291,13 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
   // Delete layer groups that are no longer loaded and replace the list with
   // the new list of loaded groups.
-  for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+  for (itl = itemGroups_.begin(); itl != itemGroups_.end(); ++itl) {
     QString name = itl.key();
-    EditItems::LayerGroup *group = itl.value();
+    EditItems::ItemGroup *group = itl.value();
     if (!loaded.contains(name))
       delete group;
   }
-  layerGroups_ = loaded;
+  itemGroups_ = loaded;
 
   // Only enable this manager if there are specific files loaded, not just
   // if there are items in the layer manager.
@@ -353,7 +353,7 @@ DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, Q
   return item;
 }
 
-void DrawingManager::addItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
+void DrawingManager::addItem_(DrawingItemBase *item, EditItems::ItemGroup *group)
 {
   group->addItem(item);
 }
@@ -369,10 +369,10 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
   }
 
   // Create a layer group for the file that is not editable but is active.
-  EditItems::LayerGroup *layerGroup = new EditItems::LayerGroup(name, false, true);
-  layerGroup->setFileName(fileName);
-  layerGroup->setItems(items);
-  layerGroups_[name] = layerGroup;
+  EditItems::ItemGroup *itemGroup = new EditItems::ItemGroup(name, false, true);
+  itemGroup->setFileName(fileName);
+  itemGroup->setItems(items);
+  itemGroups_[name] = itemGroup;
 
   // Record the file name.
   drawings_[name] = fileName;
@@ -380,7 +380,7 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
   return error;
 }
 
-void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
+void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::ItemGroup *group)
 {
   group->removeItem(item);
 }
@@ -445,8 +445,8 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::set<miutil::miTime> times;
 
   // Query the layer groups to find the available times.
-  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
-  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+  QMap<QString, EditItems::ItemGroup *>::const_iterator it;
+  for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
     QSet<QString> groupTimes = it.value()->getTimes();
     foreach (const QString &time, groupTimes)
       times.insert(miutil::miTime(time.toStdString()));
@@ -483,24 +483,24 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   QString timeStr = QString::fromStdString(time.isoTime());
   QDateTime dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
 
-  QMap<QString, EditItems::LayerGroup *>::iterator itl;
-  for (itl = layerGroups_.begin(); itl != layerGroups_.end(); ++itl) {
+  QMap<QString, EditItems::ItemGroup *>::iterator itl;
+  for (itl = itemGroups_.begin(); itl != itemGroups_.end(); ++itl) {
 
-    EditItems::LayerGroup *layerGroup = itl.value();
+    EditItems::ItemGroup *itemGroup = itl.value();
     bool allVisible = true;
 
-    if (layerGroup->isCollection()) {
+    if (itemGroup->isCollection()) {
 
       // For layer groups containing a collection of files, make the layers
       // visible only if the current file is appropriate for the new time.
-      allVisible = (dateTime == layerGroup->time());
+      allVisible = (dateTime == itemGroup->time());
 
-      if (!allVisible && layerGroup->hasTime(dateTime)) {
+      if (!allVisible && itemGroup->hasTime(dateTime)) {
 
         // Another time was requested and is available. Replace the existing
         // items with those from the corresponding file.
 
-        QString fileName = layerGroup->fileName(dateTime);
+        QString fileName = itemGroup->fileName(dateTime);
 
         QString error;
         QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
@@ -508,12 +508,12 @@ bool DrawingManager::prepare(const miutil::miTime &time)
           METLIBS_LOG_WARN(QString("DrawingManager::prepare: failed to load layer group from %1: %2")
                            .arg(fileName).arg(error).toStdString());
 
-        layerGroup->setItems(items);
+        itemGroup->setItems(items);
         allVisible = true;
       }
     }
 
-    layerGroup->setTime(dateTime, allVisible);
+    itemGroup->setTime(dateTime, allVisible);
   }
 
   return found;
@@ -644,7 +644,7 @@ std::vector<PlotElement> DrawingManager::getPlotElements()
   plotElements_.clear();
 
   int i = 0;
-  foreach (EditItems::LayerGroup *group, layerGroups_) {
+  foreach (EditItems::ItemGroup *group, itemGroups_) {
     if (group->isActive()) {
       QString str = QString("%1").arg(i);
       pel.push_back(PlotElement(plotElementTag().toStdString(), str.toStdString(),
@@ -668,7 +668,7 @@ void DrawingManager::enablePlotElement(const PlotElement &pe)
   if (!plotElements_.contains(str))
     return;
 
-  EditItems::LayerGroup *group = plotElements_.value(str);
+  EditItems::ItemGroup *group = plotElements_.value(str);
   group->setActive(pe.enabled);
 }
 
@@ -691,8 +691,8 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(
 {
   QList<DrawingItemBase *> hitItems;
 
-  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
-  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+  QMap<QString, EditItems::ItemGroup *>::const_iterator it;
+  for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
     foreach (DrawingItemBase *item, it.value()->items()) {
       if (item->hit(pos, false))
         hitItems.append(item);
@@ -734,8 +734,8 @@ vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
 QList<DrawingItemBase *> DrawingManager::allItems() const
 {
   QList<DrawingItemBase *> items;
-  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
-  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it) {
+  QMap<QString, EditItems::ItemGroup *>::const_iterator it;
+  for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
     if (it.value()->isActive())
       items += it.value()->items();
   }
@@ -776,10 +776,10 @@ void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
 /**
  * Returns the layer group identified by the given name.
  */
-EditItems::LayerGroup *DrawingManager::layerGroup(const QString &name)
+EditItems::ItemGroup *DrawingManager::itemGroup(const QString &name)
 {
-  if (layerGroups_.contains(name))
-    return layerGroups_.value(name);
+  if (itemGroups_.contains(name))
+    return itemGroups_.value(name);
   else
     return 0;
 }
@@ -787,8 +787,8 @@ EditItems::LayerGroup *DrawingManager::layerGroup(const QString &name)
 /**
  * Removes the layer group with the given name. The items held within are not deleted.
  */
-void DrawingManager::removeLayerGroup(const QString &name)
+void DrawingManager::removeItemGroup(const QString &name)
 {
-  layerGroups_.remove(name);
+  itemGroups_.remove(name);
   emit updated();
 }
