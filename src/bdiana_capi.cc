@@ -58,6 +58,7 @@
 #include <diObsManager.h>
 #include <diObsPlot.h>
 #include <diPlotModule.h>
+#include "diQuickMenues.h"
 #include <diSatManager.h>
 #include <diSatPlot.h>
 
@@ -1624,6 +1625,9 @@ static int parseAndProcess(istream &is)
         // necessary to set time before plotCommands()..?
         thetime = miTime::nowTime();
         main_controller->setPlotTime(thetime);
+
+        if (updateCommandSyntax(pcom))
+          METLIBS_LOG_WARN("The plot commands are outdated, please update!");
 
         if (verbose)
           METLIBS_LOG_INFO("- sending plotCommands");

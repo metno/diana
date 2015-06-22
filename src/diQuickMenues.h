@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,16 +51,18 @@ struct quickMenuItem{
 struct quickMenu{
   std::string filename; ///< file containing menu definitions
   std::string name;     ///< name of menuitem
-  int plotindex;     ///< 
-  std::vector<quickMenuOption> opt;   /// any quickMenuOption 
+  int plotindex;        ///<
+  std::vector<quickMenuOption> opt;   /// any quickMenuOption
   std::deque<quickMenuItem> menuitems;/// all items in this menu
 };
 
 /// write a quick-menu to file
-bool writeQuickMenu(const quickMenu& qm, bool newSyntax=false);
+bool writeQuickMenu(const quickMenu& qm);
+
 /// read quick-menu file, and fill struct
 bool readQuickMenu(quickMenu& qm);
+
 /// if old syntax, update
-int updateSyntax(std::string& line);
+bool updateCommandSyntax(std::vector<std::string>& lines);
 
 #endif
