@@ -58,6 +58,7 @@
 #include <diObsManager.h>
 #include <diObsPlot.h>
 #include <diPlotModule.h>
+#include "diQuickMenues.h"
 #include <diSatManager.h>
 #include <diSatPlot.h>
 
@@ -1397,6 +1398,8 @@ void createPaintDevice()
   ensureNewContext();
 
   delete glpainter;
+  if (main_controller)
+    main_controller->setCanvas(0);
   delete glcanvas;
 
   bool printing = false;
@@ -1405,20 +1408,16 @@ void createPaintDevice()
     image.fill(Qt::transparent);
     glcanvas = new DiPaintGLCanvas(&image);
 
-  } else if (pdf || svg || json) {
+  } else {
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
     glcanvas = new DiPaintGLCanvas(&picture);
-    if (pdf)
+    if (pdf || (!svg && !json /* i.e. postscript*/))
       printing = true;
-
-  } else { // Postscript
-
-    picture = QPicture();
-    picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-    glcanvas = new DiPaintGLCanvas(&picture);
-    printing = true;
   }
+
+  if (main_controller)
+    main_controller->setCanvas(glcanvas);
 
   glpainter = new DiPaintGLPainter(glcanvas);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
@@ -1446,6 +1445,7 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
+  main_controller->setCanvas(glcanvas);
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
@@ -1453,7 +1453,6 @@ static bool MAKE_CONTROLLER()
     return false;
   }
 
-  main_controller->setCanvas(glcanvas);
   return true;
 }
 
@@ -1626,6 +1625,9 @@ static int parseAndProcess(istream &is)
         // necessary to set time before plotCommands()..?
         thetime = miTime::nowTime();
         main_controller->setPlotTime(thetime);
+
+        if (updateCommandSyntax(pcom))
+          METLIBS_LOG_WARN("The plot commands are outdated, please update!");
 
         if (verbose)
           METLIBS_LOG_INFO("- sending plotCommands");

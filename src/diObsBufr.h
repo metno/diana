@@ -43,24 +43,21 @@ class VprofPlot;
 class ObsBufr {
 
 private:
-
-  bool BUFRdecode(int* ibuff, int ilen, const std::string& format);
+  enum Format { FORMAT_STATIONINFO, FORMAT_VPROFPLOT, FORMAT_OBSPLOT };
+  bool BUFRdecode(int* ibuff, int ilen, Format format);
   bool get_diana_data(int ktdexl, int *ktdexp, double* values,
-		      const char cvals[][80], int len_cvals, 
-		      int subset, int kelem, ObsData &d);
+      const char* cvals, int subset, int kelem, ObsData &d);
 
   bool get_station_info(int ktdexl, int *ktdexp, double* values,
-			const char cvals[][80], int len_cvals,
-			int subset, int kelem);
+      const char* cvals, int subset, int kelem);
 
   bool get_diana_data_level(int ktdexl, int *ktdexp, double* values,
-			    const char cvals[][80], int len_cvals, 
-			    int subset, int kelem, ObsData &d,
-			    int level);
+      const char* cvals, int subset, int kelem, ObsData &d, int level);
 
   bool get_data_level(int ktdexl, int *ktdexp, double* values,
-		      const char cvals[][80], int len_cvals, 
-		      int subset, int kelem, miutil::miTime time);
+      const char* cvals, int subset, int kelem, miutil::miTime time);
+
+  bool init(const std::string& filename, Format format);
 
   std::string cloudAmount(int i);
   std::string cloudHeight(int i);
@@ -83,8 +80,8 @@ private:
   std::string strStation;
 
 public:
-  ObsBufr(){;}
-  bool init(const std::string& filename, const std::string& format);
+  ObsBufr();
+
   bool ObsTime(const std::string& filename,miutil::miTime& time);
   bool readStationInfo(const std::vector<std::string>& bufr_file,
       std::vector<std::string>& namelist,
@@ -95,8 +92,10 @@ public:
       const std::string& modelName,
       const std::string& station,
       const miutil::miTime& time);
-  ObsPlot*   getObsPlot(){return oplot;}
-  void setObsPlot(ObsPlot* op){oplot=op;}
+
+  ObsPlot* getObsPlot()
+    { return oplot; }
+  bool setObsPlot(ObsPlot* op, const std::string& filename);
 };
 
 #endif

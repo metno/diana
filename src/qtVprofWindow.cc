@@ -118,36 +118,49 @@ VprofWindow::VprofWindow()
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
 
+  const QSizePolicy sp_fix_ex(QSizePolicy::Fixed,   QSizePolicy::MinimumExpanding);
+  const QSizePolicy sp_min_ex(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
   //combobox to select station
-  QPushButton *leftStationButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  leftStationButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  leftStationButton->setEnabled(false);
+  leftStationButton->setSizePolicy(sp_fix_ex);
   connect(leftStationButton, SIGNAL(clicked()), SLOT(leftStationClicked()) );
   leftStationButton->setAutoRepeat(true);
 
-  vector<std::string> stations;
-  stations.push_back("                         ");
-  stationBox = ComboBox( this, stations, true, 0);
+  stationBox = new QComboBox(this);
+  stationBox->setEnabled(false);
+  stationBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  stationBox->setSizePolicy(sp_min_ex);
   connect( stationBox, SIGNAL( activated(int) ), SLOT( stationBoxActivated(int) ) );
 
-  QPushButton *rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  rightStationButton->setEnabled(false);
+  rightStationButton->setSizePolicy(sp_fix_ex);
   connect(rightStationButton, SIGNAL(clicked()), SLOT(rightStationClicked()) );
   rightStationButton->setAutoRepeat(true);
 
-  QPushButton *leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  leftTimeButton->setEnabled(false);
+  leftTimeButton->setSizePolicy(sp_fix_ex);
   connect(leftTimeButton, SIGNAL(clicked()), SLOT(leftTimeClicked()) );
   leftTimeButton->setAutoRepeat(true);
 
-  //combobox to select time
-  vector<std::string> times;
-  times.push_back("2002-01-01 00");
-  timeBox = ComboBox( this, times, true, 0);
+  timeBox = new QComboBox(this);
+  timeBox->setEnabled(false);
+  timeBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  timeBox->setSizePolicy(sp_min_ex);
   connect( timeBox, SIGNAL( activated(int) ), SLOT( timeBoxActivated(int) ) );
 
-  QPushButton *rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  rightTimeButton->setEnabled(false);
+  rightTimeButton->setSizePolicy(sp_fix_ex);
   connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
   timeSpinBox = new QSpinBox( this );
   timeSpinBox->setValue(0);
+  timeBox->setSizePolicy(sp_min_ex);
 
   vpToolbar->addWidget(modelButton);
   vpToolbar->addWidget(setupButton);
@@ -190,98 +203,87 @@ VprofWindow::VprofWindow()
 
 /***************************************************************************/
 
-void VprofWindow::modelClicked( bool on ){
-  //called when the model button is clicked
-  if( on ){
-    METLIBS_LOG_DEBUG("Model button clicked on");
-    vpModelDialog->show();
-  } else {
-    METLIBS_LOG_DEBUG("Model button clicked off");
-    vpModelDialog->hide();
-  }
+void VprofWindow::modelClicked(bool on)
+{
+  vpModelDialog->setVisible(on);
 }
 
 /***************************************************************************/
 
-void VprofWindow::leftStationClicked(){
+void VprofWindow::leftStationClicked()
+{
   stationClicked(-1);
 }
 
-void VprofWindow::rightStationClicked(){
+void VprofWindow::rightStationClicked()
+{
   stationClicked(1);
 }
 
-void VprofWindow::stationClicked(int i){
-
+void VprofWindow::stationClicked(int i)
+{
   int index = stationBox->currentIndex() - i;
-  if(index < 0) {
-    //set index to the last in the box !
+  if (index < 0)
     index=stationBox->count()-1;
-  } else if(index > stationBox->count()-1) {
-    //set index to the first in the box !
+  else if (index > stationBox->count()-1)
     index = 0;
-  }
 
   stationBox->setCurrentIndex(index);
-  vprofm->setStation(stationBox->currentText().toStdString());
-  vector<string> stations;
-  stations.push_back(stationBox->currentText().toStdString());
-  emit stationChanged(stations); //name of current stations (to mainWindow)
+  const std::string s = stationBox->currentText().toStdString();
+  vprofm->setStation(s);
+
+  std::vector<std::string> stations(1, s);
+  Q_EMIT stationChanged(stations); //name of current stations (to mainWindow)
 
   vprofqw->update();
 }
 
-
 /***************************************************************************/
 
-void VprofWindow::leftTimeClicked(){
+void VprofWindow::leftTimeClicked()
+{
   timeClicked(-1);
 }
 
-void VprofWindow::rightTimeClicked(){
+void VprofWindow::rightTimeClicked()
+{
   timeClicked(1);
 }
 
-void VprofWindow::timeClicked(int i){
-  //called when the right Station button is clicked
-  vprofm->setTime(timeSpinBox->value(),i);
+void VprofWindow::timeClicked(int i)
+{
+  vprofm->setTime(timeSpinBox->value(), i);
   timeChanged();
-  vprofqw->update();;
+  vprofqw->update();
 }
-
 
 /***************************************************************************/
 
-void VprofWindow::timeChanged(){
+void VprofWindow::timeChanged()
+{
   METLIBS_LOG_SCOPE();
 
-  if (!timeBox->count()) return;
+  if (!timeBox->count())
+    return;
 
-  miutil::miTime t = vprofm->getTime();
+  const miutil::miTime& t = vprofm->getTime();
 
-  std::string tstring=t.isoTime(false,false);
-  std::string tbs=timeBox->currentText().toStdString();
-  //search timeList
-  int n = timeBox->count();
-  for (int i = 0; i<n;i++){
-    if(tstring ==timeBox->itemText(i).toStdString()){
-      METLIBS_LOG_DEBUG(LOGVAL(timeBox->itemText(i).toStdString()));
+  const QString qt = QString::fromStdString(t.isoTime(false,false));
+  for (int i = 0; i<timeBox->count(); i++) {
+    if (qt == timeBox->itemText(i)) {
       timeBox->setCurrentIndex(i);
-      tbs=timeBox->currentText().toStdString();
       break;
     }
   }
 
   if (onlyObs) {
     //emit to main Window (updates stationPlot)
-    emit modelChanged();
-    //update combobox lists of stations and time
+    Q_EMIT modelChanged();
     updateStationBox();
-    //get correct selection in comboboxes
     stationChanged();
   }
 
-  emit setTime("vprof",t);
+  Q_EMIT setTime("vprof", t);
 }
 
 
@@ -299,9 +301,9 @@ void VprofWindow::stationChanged()
   if (!vs.size()) {
     vs.push_back(vprofm->getLastStation());
   }
-  int n = stationBox->count();
-  for(int i = 0;i<n;i++){
-    if (vs[0]==stationBox->itemText(i).toStdString()){
+  const QString qs = QString::fromStdString(vs[0]);
+  for (int i = 0;i<stationBox->count(); i++) {
+    if (qs == stationBox->itemText(i)) {
       stationBox->setCurrentIndex(i);
       break;
     }
@@ -427,31 +429,19 @@ void VprofWindow::paintOnDevice(QPaintDevice* device)
 
 /***************************************************************************/
 
-void VprofWindow::setupClicked(bool on){
-  //called when the setup button is clicked
-  if( on ){
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Setup button clicked on");
-#endif
+void VprofWindow::setupClicked(bool on)
+{
+  if (on)
     vpSetupDialog->start();
-    vpSetupDialog->show();
-
-  } else {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Setup button clicked off");
-#endif
-    vpSetupDialog->hide();
-  }
+  vpSetupDialog->setVisible(on);
 }
-
 
 /***************************************************************************/
 
-void VprofWindow::quitClicked(){
-  //called when the quit button is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("quit clicked");
-#endif
+void VprofWindow::quitClicked()
+{
+  METLIBS_LOG_SCOPE();
+
   //for now, only hide window, not really quit !
   vpToolbar->hide();
   tsToolbar->hide();
@@ -459,64 +449,44 @@ void VprofWindow::quitClicked(){
   setupButton->setChecked(false);
   // NOTE: flush the fieldCache...
   vprofm->cleanup();
-  
+
   active = false;
-  emit VprofHide();
+  Q_EMIT VprofHide();
   vector<miutil::miTime> t;
-  emit emitTimes("vprof",t);
-}
-
-
-/***************************************************************************/
-
-void VprofWindow::hideClicked(){
-  //called when the hide button in Vprofwindow is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("hide clicked");
-#endif
+  Q_EMIT emitTimes("vprof",t);
 }
 
 /***************************************************************************/
 
-void VprofWindow::updateClicked(){
-  //called when the update button in Vprofwindow is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("update clicked");
-#endif
+void VprofWindow::hideClicked()
+{
+}
+
+/***************************************************************************/
+
+void VprofWindow::updateClicked()
+{
+  METLIBS_LOG_SCOPE();
+
   vprofm->updateObs();      // check obs.files
-  miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
-  mainWindowTimeChanged(t);
+  mainWindowTimeChanged(mainWindowTime); // use the main time (fields etc.)
 }
 
 /***************************************************************************/
 
-void VprofWindow::helpClicked(){
-  //called when the help button in Vprofwindow is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("help clicked");
-#endif
-  emit showsource("ug_verticalprofiles.html");
+void VprofWindow::helpClicked()
+{
+  Q_EMIT showsource("ug_verticalprofiles.html");
 }
-
 
 /***************************************************************************/
 
-void VprofWindow::MenuOK(){
-  //obsolete - nothing happens here
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::MenuOK()");
-#endif
-}
-
-
-/***************************************************************************/
-
-void VprofWindow::changeModel(){
+void VprofWindow::changeModel()
+{
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::changeModel()");
-#endif
+  METLIBS_LOG_SCOPE();
+
   { diutil::OverrideCursor waitCursor;
     vprofm->setModel();
   }
@@ -524,8 +494,8 @@ void VprofWindow::changeModel(){
   onlyObs= vprofm->onlyObsState();
 
   //emit to main Window (updates stationPlot)
-  emit modelChanged();
-  //update combobox lists of stations and time
+  Q_EMIT modelChanged();
+
   updateStationBox();
   updateTimeBox();
   //get correct selection in comboboxes
@@ -534,135 +504,107 @@ void VprofWindow::changeModel(){
   vprofqw->update();
 }
 
-
 /***************************************************************************/
 
-void VprofWindow::changeSetup(){
-  //called when the apply from setup dialog is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::changeSetup()");
-#endif
+void VprofWindow::changeSetup()
+{
+  METLIBS_LOG_SCOPE();
   vprofqw->update();
 }
 
-
-
 /***************************************************************************/
 
-void VprofWindow::hideModel(){
-  //called when the hide button (from model dialog) is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::hideModel()");
-#endif
+void VprofWindow::hideModel()
+{
   vpModelDialog->hide();
   modelButton->setChecked(false);
 }
 
 /***************************************************************************/
-void VprofWindow::hideSetup(){
-  //called when the hide button (from setup dialog) is clicked
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::hideSetup()");
-#endif
+
+void VprofWindow::hideSetup()
+{
   vpSetupDialog->hide();
   setupButton->setChecked(false);
 }
 
 /***************************************************************************/
 
-StationPlot* VprofWindow::getStations(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::getStations()");
-#endif
+StationPlot* VprofWindow::getStations()
+{
+  METLIBS_LOG_SCOPE();
+
   const vector <std::string> stations = vprofm->getStationList();
   const vector <float> latitude = vprofm->getLatitudes();
   const vector <float> longitude = vprofm->getLongitudes();
+
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
   std::string ann = vprofm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
-
-  // ADC set plotname (for StatusPlotButtons)
-  stationPlot->setPlotName(ann);
-
-  //the coordinates are defined here
-#ifdef DEBUGPRINT
-  //  for (int i = 0; i<n;i++){
-  //     METLIBS_LOG_DEBUG("Station number " << i << " name = " << stations[i]
-  // 	 << " latitude = " << latitude[i]
-  // 	 << " longitude = " << longitude[i]);
-  //   }
-#endif
-
+  stationPlot->setPlotName(ann); // ADC set plotname (for StatusPlotButtons)
   return stationPlot;
 }
 
 /***************************************************************************/
 
-void VprofWindow::updateStationBox(){
-  //update list of stations in stationBox
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::updateStationBox");
-#endif
+void VprofWindow::updateStationBox()
+{
+  METLIBS_LOG_SCOPE();
 
   stationBox->clear();
-  vector<std::string> stations= vprofm->getStationList();
-
+  std::vector<std::string> stations = vprofm->getStationList();
   std::sort(stations.begin(),stations.end());
 
-  //add dummy to make stationBox wide enough
-  stations.push_back("                        ");
+  for (size_t i=0; i<stations.size(); i++)
+    stationBox->addItem(QString::fromStdString(stations[i]));
 
-  int n =stations.size();
-  for (int i=0; i<n; i++){
-    stationBox->addItem((stations[i].c_str()));
-  }
+  stationBox        ->setEnabled(!stations.empty());
+  leftStationButton ->setEnabled(!stations.empty());
+  rightStationButton->setEnabled(!stations.empty());
 }
-
 
 /***************************************************************************/
 
-void VprofWindow::updateTimeBox(){
-  //update list of times
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWindow::updateTimeBox");
-#endif
+void VprofWindow::updateTimeBox()
+{
+  METLIBS_LOG_SCOPE();
 
   timeBox->clear();
-  vector<miutil::miTime> times= vprofm->getTimeList();
+  const std::vector<miutil::miTime>& times = vprofm->getTimeList();
+  for (size_t i=0; i<times.size(); i++)
+    timeBox->addItem(QString::fromStdString(times[i].isoTime(false,false)));
 
-  int n =times.size();
-  for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
-  }
+  timeBox        ->setEnabled(!times.empty());
+  leftTimeButton ->setEnabled(!times.empty());
+  rightTimeButton->setEnabled(!times.empty());
 
-  emit emitTimes("vprof",times);
+  Q_EMIT emitTimes("vprof", times);
 }
 
 /***************************************************************************/
 
-void VprofWindow::stationBoxActivated(int index){
-
-  std::string sbs=stationBox->currentText().toStdString();
+void VprofWindow::stationBoxActivated(int index)
+{
+  std::string sbs = stationBox->currentText().toStdString();
   vprofm->setStation(sbs);
   vprofqw->update();
-  vector<string> stations;
-  stations.push_back(sbs);
-  emit stationChanged(stations); //name of current station (to mainWindow)
 
+  const std::vector<std::string> stations(1, sbs);
+  Q_EMIT stationChanged(stations); // name of current station (to mainWindow)
 }
 
 /***************************************************************************/
 
-void VprofWindow::timeBoxActivated(int index){
-
-  vector<miutil::miTime> times= vprofm->getTimeList();
+void VprofWindow::timeBoxActivated(int index)
+{
+  const std::vector<miutil::miTime>& times = vprofm->getTimeList();
 
   if (index>=0 && index<int(times.size())) {
     vprofm->setTime(times[index]);
 
     if (onlyObs) {
       //emit to main Window (updates stationPlot)
-      emit modelChanged();
+      Q_EMIT modelChanged();
       //update combobox lists of stations and time
       updateStationBox();
       //get correct selection in comboboxes
@@ -675,7 +617,6 @@ void VprofWindow::timeBoxActivated(int index){
 
 /***************************************************************************/
 
-
 void VprofWindow::changeStation(const string& station)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
@@ -687,26 +628,25 @@ void VprofWindow::changeStations(const std::vector<string>& stations)
 {
   METLIBS_LOG_SCOPE(LOGVAL(stations.size()));
   vprofm->setStations(stations);
-
   stationChanged();
 }
 
-
 /***************************************************************************/
 
-void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
+void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(t));
 
   // keep time for next "update" (in case not found now)
-  mainWindowTime= t;
+  mainWindowTime = t;
 
-  if (!active) return;
+  if (!active)
+    return;
 
-  METLIBS_LOG_DEBUG("vprofWindow::mainWindowTimeChanged called with time " << t);
   vprofm->mainWindowTimeChanged(t);
   if (onlyObs) {
     //emit to main Window (updates stationPlot)
-    emit modelChanged();
-    //update combobox lists of stations and time
+    Q_EMIT modelChanged();
     updateStationBox();
     updateTimeBox();
   }
@@ -719,8 +659,9 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
 /***************************************************************************/
 
-void VprofWindow::startUp(const miutil::miTime& t){
-  METLIBS_LOG_INFO("vprofWindow::startUp called with time " << t);
+void VprofWindow::startUp(const miutil::miTime& t)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(t));
   active = true;
   vpToolbar->show();
   tsToolbar->show();
@@ -735,10 +676,8 @@ void VprofWindow::startUp(const miutil::miTime& t){
 
 void VprofWindow::parseSetup()
 {
-
   vprofm->parseSetup();
   vpModelDialog->updateModelfileList();
-
 }
 
 vector<string> VprofWindow::writeLog(const string& logpart)
@@ -828,6 +767,7 @@ void VprofWindow::readLog(const string& logpart, const vector<string>& vstr,
 
 /***************************************************************************/
 
-void VprofWindow::closeEvent(QCloseEvent * e) {
+void VprofWindow::closeEvent(QCloseEvent * e)
+{
   quitClicked();
 }

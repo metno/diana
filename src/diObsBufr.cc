@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -40,6 +38,8 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
+#include <boost/shared_array.hpp>
+
 #include <algorithm>
 #include <cstdio>
 #include <iomanip>
@@ -75,9 +75,33 @@ extern void bus012_(int* ilen, int* ibuff, int* ksup,
 using namespace std;
 using namespace miutil;
 
+namespace {
 const double bufrMissing = 1.6e+38;
+const int len_cnames = 64, len_cunits = 24, len_cvals = 80;
+const std::string substr(const char* cvals, int index, int len)
+{
+  cvals += index * len_cvals;
+  return std::string(cvals, cvals + len);
+}
+void add_substr(std::string& s, const char* cvals, int index, int len)
+{
+  cvals += index * len_cvals;
+  s.append(cvals, len);
+}
+} // namespace
 
-bool ObsBufr::init(const std::string& bufr_file, const std::string& format)
+ObsBufr::ObsBufr()
+  : oplot(0)
+{
+}
+
+bool ObsBufr::setObsPlot(ObsPlot* op, const std::string& filename)
+{
+  oplot = op;
+  return init(filename, FORMAT_OBSPLOT);
+}
+
+bool ObsBufr::init(const std::string& bufr_file, Format format)
 {
   METLIBS_LOG_SCOPE();
   obsTime = miTime(); //undef
@@ -176,14 +200,12 @@ bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
     vector<std::string>& namelist, vector<miTime>& timelist, vector<float>& latitudelist,
     vector<float>& longitudelist)
 {
-
   id.clear();
   idmap.clear();
   id_time.clear();
 
-  for( size_t i=0; i< bufr_file.size(); i++) {
-    init(bufr_file[i], "stationInfo");
-  }
+  for (size_t i=0; i< bufr_file.size(); i++)
+    init(bufr_file[i], FORMAT_STATIONINFO);
 
   namelist = id;
   timelist = id_time;
@@ -194,10 +216,9 @@ bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
 }
 
 VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
-    const std::string& modelName,
-    const std::string& station,
-    const miTime& time)
+    const std::string& modelName, const std::string& station, const miTime& time)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(station));
 
   index = izone = istation = 0;
   vplot = new VprofPlot;
@@ -206,6 +227,10 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
 
   //if station(no)
   vector<std::string> token = miutil::split(station, "(");
+  METLIBS_LOG_DEBUG(LOGVAL(token.size()));
+  if (token.empty())
+    return 0;
+
   if (token.size() == 2)
     index = atoi(token[1].c_str());
 
@@ -217,58 +242,53 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
     istation = ii - izone * 1000;
   }
 
-  for( size_t i=0; i< bufr_file.size(); i++) {
+  for (size_t i=0; i< bufr_file.size(); i++) {
     //init returns true when reaching end of file, returns false when station is found
-    if (!init(bufr_file[i], "vprofplot") ) {
+    if (!init(bufr_file[i], FORMAT_VPROFPLOT)) {
       return vplot;
     }
   }
 
   // No station found
-  return NULL;
-
+  return 0;
 }
 
-bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const std::string& format)
+bool ObsBufr::BUFRdecode(int* ibuff, int ilen, Format format)
 {
-  //   METLIBS_LOG_DEBUG("  // Decode BUFR message into fully decoded form.");
+  // Decode BUFR message into fully decoded form
+  METLIBS_LOG_SCOPE(LOGVAL(format));
 
-  const int kelem = 40000; //length of subsection
-  const int kvals = 440000;
-
-  const int len_cnames = 64, len_cunits = 24, len_cvals = 80;
-
-  static int ksup[9];
-  static int ksec0[3];
-  static int ksec1[40];
-  static int ksec2[4096];
-  static int ksec3[4];
-  static int ksec4[2];
-
-  static char cnames[kelem][len_cnames];
-  static char cunits[kelem][len_cunits];
-  static char cvals[kvals][len_cvals];
-  static double values[kvals];
-
-  static int ktdlst[kelem];
-  static int ktdexp[kelem];
-  int ktdlen;
-  int ktdexl;
   int kerr;
 
-  int kkvals = kvals;
+  int ksup[9];
+  int ksec0[3];
+  int ksec1[40];
+  int ksec2[4096];
+  int ksec3[4];
+  int ksec4[2];
   bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
-  if (kerr > 0)
-    METLIBS_LOG_ERROR("ObsBufr: Error in BUS012: KERR=" << kerr);
-  int kxelem = kvals / ksup[5];
-  if (kxelem > kelem)
-    kxelem = kelem;
+  if (kerr > 0) {
+    METLIBS_LOG_ERROR("Error in BUS012: KERR=" << kerr);
+    return true;
+  }
+
+  const int kelem = 60000; //length of subsection
+  const int kvals = 440000;
+
+  boost::shared_array<char> cnames(new char[kelem * len_cnames]);
+  boost::shared_array<char> cunits(new char[kelem * len_cunits]);
+  boost::shared_array<char> cvals (new char[kvals * len_cvals]);
+  boost::shared_array<double> values(new double[kvals]);
+
+  int kkvals = kvals;
+  int kxelem = std::min(kvals / ksup[5], kelem);
+  int ktdlen, ktdexl;
 
   bufrex_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, ksec3, ksec4, &kxelem,
-      &cnames[0][0], &cunits[0][0], &kkvals, values, &cvals[0][0], &kerr,
+      cnames.get(), cunits.get(), &kkvals, values.get(), cvals.get(), &kerr,
       len_cnames, len_cunits, len_cvals);
   if (kerr > 0) {
-    METLIBS_LOG_ERROR("ObsBufr::BUFRdecode: Error in BUFREX: KERR=" << kerr);
+    METLIBS_LOG_ERROR("Error in BUFREX: KERR=" << kerr);
     return true;
   }
 
@@ -293,45 +313,46 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const std::string& format)
   // Return list of Data Descriptors from Section 3 of Bufr message, and
   // total/requested list of elements. BUFREX must have been called before BUSEL.
 
-
+  boost::shared_array<int> ktdlst(new int[kelem]), ktdexp(new int[kelem]);
   for (int i = 1; i < nsubset + 1; i++) {
+    busel2_(&i, &kxelem, &ktdlen, ktdlst.get(), &ktdexl, ktdexp.get(), cnames.get(), cunits.get(), &kerr);
+    if (kerr > 0) {
+      METLIBS_LOG_ERROR("Error in BUSEL: KERR=" << kerr);
+      continue;
+    }
 
-    busel2_(&i, &kxelem, &ktdlen, ktdlst, &ktdexl, ktdexp, &cnames[0][0],
-        &cunits[0][0], &kerr);
-    if (kerr > 0)
-      METLIBS_LOG_ERROR("ObsBufr::init: Error in BUSEL: KERR=" << kerr);
-
-    if (miutil::to_lower(format) == "obsplot") {
-
+    if (format == FORMAT_OBSPLOT) {
       ObsData & obs = oplot->getNextObs();
 
       if (oplot->getLevel() < -1) {
-        if (!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, i - 1,
-            kxelem, obs) || !oplot->timeOK(obs.obsTime)){
+        if (!get_diana_data(ktdexl, ktdexp.get(), values.get(), cvals.get(), i - 1, kxelem, obs)
+            || !oplot->timeOK(obs.obsTime))
+        {
           oplot->removeObs();
         }
       } else {
-        if (!get_diana_data_level(ktdexl, ktdexp, values, cvals, len_cvals, i
-            - 1, kxelem, obs, oplot->getLevel()) || !oplot->timeOK(obs.obsTime))
+        if (!get_diana_data_level(ktdexl, ktdexp.get(), values.get(), cvals.get(),
+                i - 1, kxelem, obs, oplot->getLevel())
+            || !oplot->timeOK(obs.obsTime))
+        {
           oplot->removeObs();
+        }
       }
-    } else if (miutil::to_lower(format) == "vprofplot") {
+    } else if (format == FORMAT_VPROFPLOT) {
       //will return without reading more subsets, fix later
-      return !get_data_level(ktdexl, ktdexp, values, cvals, len_cvals, i - 1,
-          kxelem, obsTime);
-    } else if (miutil::to_lower(format) == "stationinfo") {
-      get_station_info(ktdexl, ktdexp, values, cvals, len_cvals, i - 1, kelem);
+      return !get_data_level(ktdexl, ktdexp.get(), values.get(), cvals.get(),
+          i - 1, kxelem, obsTime);
+    } else if (format == FORMAT_STATIONINFO) {
+      get_station_info(ktdexl, ktdexp.get(), values.get(), cvals.get(), i - 1, kelem);
     }
-
   }
 
   return true;
 }
 
 bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
-    const char cvals[][80], int len_cvals, int subset, int kelem, ObsData &d)
+    const char* cvals, int subset, int kelem, ObsData &d)
 {
-
   d.fdata.clear();
 
   // constants for changing to met.no units
@@ -376,21 +397,27 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   1001  WMO BLOCK NUMBER
     case 1001:
-      wmoBlock = int(values[j]);
-      d.zone = wmoBlock;
+      if (values[j] < bufrMissing) {
+        wmoBlock = int(values[j]);
+        d.zone = wmoBlock;
+      }
       break;
 
       //   1002  WMO STATION NUMBER
     case 1002:
-      wmoStation = int(values[j]);
-      d.fdata["wmonumber"] = float(wmoStation);
-      wmoNumber = true;
+      if (values[j] < bufrMissing) {
+        wmoStation = int(values[j]);
+        d.fdata["wmonumber"] = float(wmoStation);
+        wmoNumber = true;
+      }
       break;
 
       //   1005 BUOY/PLATFORM IDENTIFIER
     case 1005:
-      d.id = miutil::from_number(values[j]);
-      d.zone= 99;
+      if (values[j] < bufrMissing) {
+        d.id = miutil::from_number(values[j]);
+        d.zone= 99;
+      }
       break;
 
       //001006 AIRCRAFT FLIGHT NUMBER
@@ -398,9 +425,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     {
       if (! wmoNumber) {
         int index = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 6; k++) {
-          d.id += cvals[index][k];
-        }
+        add_substr(d.id, cvals, index, 6);
       }
     }
     break;
@@ -410,9 +435,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     {
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 7; k++) {
-          d.id += cvals[index][k];
-        }
+        add_substr(d.id, cvals, index, 7);
         d.zone= 99;
       }
     }
@@ -422,9 +445,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 1015:
     {
       int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 10; k++) {
-        d.name += cvals[index][k];
-      }
+      add_substr(d.name, cvals, index, 10);
     }
     break;
 
@@ -432,9 +453,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 1019:
     {
       int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 10; k++) {
-        d.name += cvals[index][k];
-      }
+      add_substr(d.name, cvals, index, 10);
     }
     break;
 
@@ -442,9 +461,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 1063:
     {
       int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 4; k++) {
-        d.metarId += cvals[index][k];
-      }
+      add_substr(d.metarId, cvals, index, 4);
     }
     break;
 
@@ -460,9 +477,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     {
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 5; k++) {
-          d.id += cvals[index][k];
-        }
+        add_substr(d.id, cvals, index, 5);
       }
     }
     break;
@@ -939,9 +954,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       // 020019 SIGNIFICANT RECENT WEATHER PHENOMENA, CCITTIA5
     case 20019: {
       int index = int(values[j]) / 1000 - 1;
-      std::string ww;
-      for (int k = 0; k < 9; k++)
-        ww += cvals[index][k];
+      std::string ww = substr(cvals, index, 9);
       miutil::trim(ww);
       if (not ww.empty())
         d.ww.push_back(ww);
@@ -951,9 +964,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     // 020020 SIGNIFICANT RECENT WEATHER PHENOMENA, CCITTIA5
     case 20020: {
       int index = int(values[j]) / 1000 - 1;
-      std::string REww;
-      for (int j = 0; j < 4; j++)
-        REww += cvals[index][j];
+      std::string REww = substr(cvals, index, 4);
       miutil::trim(REww);
       if (not REww.empty())
         d.REww.push_back(REww);
@@ -983,13 +994,13 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //       // 022012 PERIOD OF WIND WAVES, s
       //     case 22012:
       //       if (values[j]<bufrMissing)
-      // 	d.fdata["PwPw"] = values[j];
+      //         d.fdata["PwPw"] = values[j];
       //       break;
 
       //       // 022022 HEIGHT OF WIND WAVES, m
       //     case 22022:
       //       if (values[j]<bufrMissing)
-      // 	d.fdata["HwHw"] = values[j];
+      //         d.fdata["HwHw"] = values[j];
       //       break;
 
       // 022013 PERIOD OF SWELL WAVES, s (first system of swell)
@@ -1086,9 +1097,9 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 }
 
 bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
-    const char cvals[][80], int len_cvals, int subset, int kelem)
+    const char* cvals, int subset, int kelem)
 {
-
+  METLIBS_LOG_SCOPE();
   int wmoBlock = 0;
   int wmoStation = 0;
   int year = 0;
@@ -1098,7 +1109,6 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   int minute = 0;
   std::string station;
   bool wmoNumber = false;
-  int nn = 0; //what is nn used for??
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
 
@@ -1106,31 +1116,28 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 
     //   1001  WMO BLOCK NUMBER
     case 1001:
-      wmoBlock = int(values[j]);
-      nn++;
+      if (values[j] < bufrMissing)
+        wmoBlock = int(values[j]);
+      else
+        METLIBS_LOG_WARN("1001 WMO block number == missing!");
       break;
 
       //   1002  WMO STATION NUMBER
     case 1002:
-      wmoStation = int(values[j]);
-      wmoNumber = true;
-      nn++;
+      if (values[j] < bufrMissing) {
+        wmoStation = int(values[j]);
+        wmoNumber = true;
+      } else
+        METLIBS_LOG_WARN("1002 WMO station number == missing!");
       break;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
     case 1194:
-    {
-      if ( !wmoNumber ) {
+      if (!wmoNumber) {
         int index = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 6; k++) {
-          station+= cvals[index][k];
-        }
-        if (not station.empty()) {
-          nn += 2;
-        }
+        add_substr(station, cvals, index, 6);
       }
-    }
     break;
 
     //   4001  YEAR
@@ -1163,7 +1170,6 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     case 5001:
     case 5002:
       latitude.push_back(values[j]);
-      nn++;
       break;
 
       //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
@@ -1171,9 +1177,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     case 6001:
     case 6002:
       longitude.push_back(values[j]);
-      nn++;
       break;
-
     }
   }
 
@@ -1192,14 +1196,12 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     idmap[station] = 1;
   }
   id.push_back(ostr.str());
-  id_time.push_back( miTime(year, month, day, hour, minute, 0));
+  id_time.push_back(miutil::miTime(year, month, day, hour, minute, 0));
   return true;
-
 }
 
 bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
-    const char cvals[][80], int len_cvals, int subset, int kelem, ObsData &d,
-    int level)
+    const char* cvals, int subset, int kelem, ObsData &d, int level)
 {
   //    METLIBS_LOG_DEBUG("get_diana_data");
   d.fdata.clear();
@@ -1246,20 +1248,26 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
         //   1001  WMO BLOCK NUMBER
       case 1001:
-        wmoBlock = int(values[j]);
-        d.zone = wmoBlock;
+        if (values[j] < bufrMissing) {
+          wmoBlock = int(values[j]);
+          d.zone = wmoBlock;
+        }
         break;
 
         //   1002  WMO STATION NUMBER
       case 1002:
-        wmoStation = int(values[j]);
-        wmoNumber = true;
+        if (values[j] < bufrMissing) {
+          wmoStation = int(values[j]);
+          wmoNumber = true;
+        }
         break;
 
         //   1005 BUOY/PLATFORM IDENTIFIER [NUMERIC]
       case 1005:
-        d.id = miutil::from_number(int(values[j]));
-        d.zone = 99;
+        if (values[j] < bufrMissing) {
+          d.id = miutil::from_number(int(values[j]));
+          d.zone = 99;
+        }
         break;
 
         //   001007 SATELLITE IDENTIFIER [CODE TABLE]
@@ -1267,9 +1275,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       {
         if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
-          for (int k = 0; k < 4; k++) {
-            d.id += cvals[index][k];
-          }
+          add_substr(d.id, cvals, index, 4);
         }
       }
       break;
@@ -1279,9 +1285,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       {
         if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
-          for (int k = 0; k < 4; k++) {
-            d.id += cvals[index][k];
-          }
+          add_substr(d.id, cvals, index, 4);
           d.zone = 99;
         }
       }
@@ -1523,7 +1527,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 }
 
 bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
-    const char cvals[][80], int len_cvals, int subset, int kelem, miTime time)
+    const char* cvals, int subset, int kelem, miTime time)
 {
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
@@ -1638,17 +1642,14 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 
       {
         if ( !found ) {
-          station.clear();
           int iindex = int(values[j]) / 1000 - 1;
-          for (int k = 0; k < 6; k++) {
-            station += cvals[iindex][k];
-          }
+          station = substr(cvals, iindex, 6);
           miutil::trim(strStation);
           miutil::trim(station);
-          if( strStation != station ) {
+          if (strStation != station) {
             return false;
           }
-          if( index != ii){
+          if (index != ii) {
             ii++;
             return false;
           }

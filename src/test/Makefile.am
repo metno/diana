@@ -24,6 +24,7 @@ dianaUnitTests_SOURCES = \
     TestLogFileIO.cc \
     TestPlotOptions.cc \
     TestPoint.cc \
+    TestQuickMenues.cc \
     TestUtilities.cc \
     TestWebMap.cc \
     gtestMain.cc

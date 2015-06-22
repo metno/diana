@@ -331,10 +331,8 @@ public:
   void makeStationPlot(const std::string& commondesc, const std::string& common,
       const std::string& description, int from,
       const  std::vector<std::string>& data);
-  void deleteStations(std::string name);
-  void deleteStations(int id=-2);
-  std::string findStation(int, int,std::string name,int id=-1);
-  std::vector<std::string> findStations(int, int,std::string name,int id=-1);
+  std::string findStation(int, int, const std::string& name, int id=-1);
+  std::vector<std::string> findStations(int, int, const std::string& name, int id=-1);
   void findStations(int, int, bool add, std::vector<std::string>& name, std::vector<int>& id,
       std::vector<std::string>& station);
   void getEditStation(int step, std::string& name, int& id,
@@ -382,8 +380,8 @@ public:
 
   // Miscellaneous get methods
   const std::vector<SatPlot*>& getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  std::vector<FieldPlot*> getFieldPlots() const;      // Returns a vector of defined field plots.
-  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+  const std::vector<FieldPlot*>& getFieldPlots() const;     // Returns a vector of defined field plots.
+  const std::vector<ObsPlot*>& getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
 #endif
