@@ -152,11 +152,8 @@ bool PropertiesEditor::edit(DrawingItemBase *item, bool readOnly, bool modal)
 
 QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVariant &val, bool readOnly)
 {
-  if (rules_.contains("hide") && propertyName.contains(":")) {
-    QString section = propertyName.split(":").first();
-    if (rules_.value("hide").contains(section))
-      return 0;
-  }
+  if (!canEditProperty(propertyName))
+    return 0;
 
   QWidget *editor = 0;
   if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) || (val.type() == QVariant::Bool) ||
@@ -170,6 +167,30 @@ QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVari
     METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
   }
   return editor;
+}
+
+bool PropertiesEditor::canEditProperty(const QString &propertyName) const
+{
+  if (rules_.contains("hide") && propertyName.contains(":")) {
+    QString section = propertyName.split(":").first();
+    if (rules_.value("hide").contains(section))
+      return false;
+  }
+  return true;
+}
+
+/**
+ * Returns whether the given item is editable. By default, items are not
+ * editable unless one or more properties are editable. This covers the case
+ * where an item has no properties at all.
+ */
+bool PropertiesEditor::canEditItem(DrawingItemBase *item) const
+{
+  foreach (const QString key, item->propertiesRef().keys()) {
+    if (canEditProperty(key))
+      return true;
+  }
+  return false;
 }
 
 QStringList PropertiesEditor::propertyRules(const QString &name) const

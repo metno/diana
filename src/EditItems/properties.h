@@ -67,6 +67,8 @@ public:
   bool edit(DrawingItemBase *item, bool readOnly = false, bool modal = true);
   QStringList propertyRules(const QString &rule) const;
   void setPropertyRules(const QString &rule, const QStringList &values);
+  bool canEditProperty(const QString &propertyName) const;
+  bool canEditItem(DrawingItemBase *item) const;
 
 private:
   PropertiesEditor();

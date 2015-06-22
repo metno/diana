@@ -1430,7 +1430,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction_);
-      editPropertiesAction_->setEnabled(selItems.size() == 1);
+      bool canEditProperties = (selItems.size() == 1) && Properties::PropertiesEditor::instance()->canEditItem(selItems.first());
+      editPropertiesAction_->setEnabled(canEditProperties);
       contextMenu.addAction(editStyleAction_);
       editStyleAction_->setEnabled(!selItems.isEmpty() && !selectedCategories.contains(DrawingItemBase::Composite));
 
