@@ -53,7 +53,6 @@
 #include "diWeatherArea.h"
 
 #include <diField/diFieldManager.h>
-#include <diField/FieldSpecTranslation.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 
@@ -224,7 +223,6 @@ void PlotModule::prepareArea(const vector<string>& inp)
     METLIBS_LOG_DEBUG("More AREA definitions, using: " <<inp[0]);
 
   const std::string key_name=  "name";
-  const std::string key_areaname=  "areaname"; //old syntax
   const std::string key_proj=  "proj4string";
   const std::string key_rectangle=  "rectangle";
 
@@ -237,10 +235,11 @@ void PlotModule::prepareArea(const vector<string>& inp)
     if (stokens.size() > 1) {
       const std::string key= miutil::to_lower(stokens[0]);
 
-      if (key==key_name || key==key_areaname){
+      if (key==key_name) {
         if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
           METLIBS_LOG_WARN("Unknown AREA definition: "<< inp[0]);
         }
+
       } else if (key==key_proj){
         if ( proj.set_proj_definition(stokens[1]) ) {
           requestedarea.setP(proj);
@@ -256,6 +255,9 @@ void PlotModule::prepareArea(const vector<string>& inp)
       }
     }
   }
+  // check area
+  mapDefinedByUser = requestedarea.P().isDefined();
+  staticPlot_->setRequestedarea(requestedarea);
 }
 
 void PlotModule::prepareMap(const vector<string>& inp)
@@ -266,9 +268,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   const size_t nm = vmp.size();
   vector<bool> inuse(nm, false);
 
-  // keep requested areas
-  Area rarea = requestedarea;
-  bool arearequested = requestedarea.P().isDefined();
 
   std::vector<MapPlot*> new_vmp; // new vector of map plots
 
@@ -276,10 +275,9 @@ void PlotModule::prepareMap(const vector<string>& inp)
     bool isok = false;
     for (size_t j = 0; j < nm; j++) {
       if (!inuse[j]) { // not already taken
-        if (vmp[j]->prepare(inp[k], rarea, true)) {
+        if (vmp[j]->prepare(inp[k], true)) {
           inuse[j] = true;
           isok = true;
-          arearequested |= vmp[j]->requestedArea(rarea);
           new_vmp.push_back(vmp[j]);
           break;
         }
@@ -290,11 +288,10 @@ void PlotModule::prepareMap(const vector<string>& inp)
 
     // make new mapPlot object and push it on the list
     MapPlot *mp = new MapPlot();
-    if (!mp->prepare(inp[k], rarea, false)) {
+    if (!mp->prepare(inp[k], false)) {
       delete mp;
     } else {
       mp->setCanvas(mCanvas);
-      arearequested |= mp->requestedArea(rarea);
       new_vmp.push_back(mp);
     }
   } // end plotinfo loop
@@ -306,12 +303,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   }
   vmp = new_vmp;
 
-  // check area
-  if (!mapDefinedByUser && arearequested) {
-    mapDefinedByUser = (rarea.P().isDefined());
-    requestedarea = rarea;
-    staticPlot_->setRequestedarea(requestedarea);
-  }
 }
 
 void PlotModule::prepareFields(const vector<string>& inp)

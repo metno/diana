@@ -105,14 +105,11 @@ void MapPlot::setCanvas(DiCanvas* c)
 /*
  Extract plotting-parameters from PlotInfo.
  */
-bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
+bool MapPlot::prepare(const std::string& pinfo, bool ifequal)
 {
   METLIBS_LOG_SCOPE(pinfo);
 
-  Area newarea;
   MapManager mapm;
-
-  reqarea = rarea; //get requested area from previous MapPlot
 
   // split on blank, preserve ""
   vector<std::string> tokens= miutil::split_protected(pinfo, '"','"'," ",true);
@@ -121,16 +118,8 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
     return false;
   }
 
-  //new syntax
-  //pinfo AREA defines area (projection,rectangle)
-  //pinfo MAP defines map (which map, colours, lat,lon etc)
-  //obsolete
-  //pinfo MAP contains "area=..."
-
-
   std::string bgcolourname;
   MapInfo tmpinfo;
-  bool areadef=false;
   for (int i=0; i<n; i++) {
     vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
     if (stokens.size()==2) {
@@ -138,9 +127,6 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
         mapm.getMapInfoByName(stokens[1], tmpinfo);
       } else if (miutil::to_upper(stokens[0])=="BACKCOLOUR") {
         bgcolourname= stokens[1];
-      } else if (miutil::to_upper(stokens[0])=="AREA") { //obsolete
-        mapm.getMapAreaByName(stokens[1], newarea);
-        areadef= true;
       }
     }
   }
@@ -165,11 +151,6 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
     }
   }
 
-  if (areadef) {
-    reqarea= newarea;
-  }
-  areadefined= areadef;
-
   // fill in new options for mapinfo and make proper PlotOptions
   // the different map-elements
   mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, lonopts, latopts, ffopts);
@@ -186,15 +167,6 @@ bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
   mapchanged= true;
 
   return true;
-}
-
-// return requested area
-bool MapPlot::requestedArea(Area& rarea)
-{
-  if (areadefined) {
-    rarea= reqarea;
-  }
-  return areadefined;
 }
 
 // static
@@ -292,7 +264,8 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     haspanned= false;
   }
 
-  bool frameok = (reqarea.P().isDefined());
+  bool frameok = getStaticPlot()->getRequestedarea().P().isDefined();
+
   bool makenew= false;
   bool makelist= false;
 
@@ -435,55 +408,10 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   // plot frame
   if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
     //    METLIBS_LOG_DEBUG("Plotting frame for layer:" << zorder);
-    const Rectangle& reqr = reqarea.R();
+    const Rectangle& reqr = getStaticPlot()->getRequestedarea().R();
     const Colour& c = getStaticPlot()->notBackgroundColour(ffopts.linecolour);
     gl->setLineStyle(c, ffopts.linewidth, ffopts.linetype);
-    if (reqarea.P()==getStaticPlot()->getMapArea().P()) {
-      gl->drawRect(reqr);
-    } else {
-      // frame belongs to a different projection
-      // ..plot it in the current projection
-
-      // first check if difference only in translation/scaling
-      bool similarAreas=false;
-      //      gc.checkAreaSimilarity(reqarea, area, similarAreas);
-      // number of subdivisions for each frame-side
-      int nsub = (similarAreas ? 1 : 20);
-      int npos = 4*nsub;
-      float *x= new float[npos];
-      float *y= new float[npos];
-      float dx= (reqr.x2 - reqr.x1)/float(nsub);
-      float dy= (reqr.y2 - reqr.y1)/float(nsub);
-      float px, py;
-      int i;
-      // fill float-arrays with x,y in original projection
-      x[0]=x[3*nsub]= reqr.x1;
-      x[nsub]=x[2*nsub]= reqr.x2;
-      y[0]=y[nsub]= reqr.y1;
-      y[2*nsub]=y[3*nsub]= reqr.y2;
-      for (i=1, px= reqr.x1+dx; i<nsub; px+=dx, i++) {
-        x[i]= x[3*nsub-i]= px;
-        y[i]= reqr.y1;
-        y[3*nsub-i]= reqr.y2;
-      }
-      for (i=nsub+1, py= reqr.y1+dy; i<2*nsub; py+=dy, i++) {
-        y[i]= y[5*nsub-i]= py;
-        x[i]= reqr.x2;
-        x[5*nsub-i]= reqr.x1;
-      }
-      // convert points to current projection
-      getStaticPlot()->ProjToMap(reqarea.P(), npos, x, y);
-
-      gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
-      gl->Begin(DiGLPainter::gl_LINE_LOOP);
-      for (int i=0; i<npos; i++) {
-        gl->Vertex2f(x[i], y[i]);
-      }
-      gl->End();
-
-      delete[] x;
-      delete[] y;
-    }
+    gl->drawRect(reqr);
   }
 
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);

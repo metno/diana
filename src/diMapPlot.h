@@ -59,8 +59,6 @@ private:
   PlotOptions lonopts; // lon options
   PlotOptions latopts; // lat options
   PlotOptions ffopts; // frame options
-  bool areadefined; // area explicitly defined
-  Area reqarea; // requested area
   bool isactive[3]; // active data for zorder
   diutil::MapValueAnno_v value_annotations;
 
@@ -123,10 +121,7 @@ public:
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
   /// parse plotinfo
-  bool prepare(const std::string&, const Area& rarea, bool ifequal =true);
-
-  /// return the area asked for
-  bool requestedArea(Area& rarea); // return requested area
+  bool prepare(const std::string&, bool ifequal =true);
 
 private:
   static void referenceFilledMaps(const MapInfo& mi);
