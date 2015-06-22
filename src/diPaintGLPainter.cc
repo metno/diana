@@ -557,9 +557,10 @@ void DiPaintGLPainter::renderPrimitive()
   }
   case gl_QUADS: {
     // Optimisation: Diana only ever draws filled, blended quads without edges.
-    if (blend)
+    if (blend) {
       painter->setPen(Qt::NoPen);
-    else
+      painter->setCompositionMode(blendMode);
+    } else
       setPolygonColor(attributes.color);
 
     QPolygonF quad(4);

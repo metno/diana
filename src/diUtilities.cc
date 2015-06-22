@@ -33,6 +33,22 @@ string_v glob(const std::string& pattern, int glob_flags, bool& error)
   return matches;
 }
 
+int find_index(bool repeat, int available, int i)
+{
+  if (repeat) {
+    i %= available;
+    if (i<0)
+      i += available;
+    return i;
+  }
+  else if (i<=0)
+    return 0;
+  else if (i<available)
+    return i;
+  else
+    return available-1;
+}
+
 static bool startsOrEndsWith(const std::string& txt, const std::string& sub,
     int startcompare)
 {
@@ -67,33 +83,6 @@ bool getFromFile(const std::string& filename, string_v& lines)
   file.close();
   return true;
 }
-
-#if 0
-static size_t write_dataa(void *buffer, size_t size, size_t nmemb, void *userp)
-{
-  string tmp =(char *)buffer; // FIXME according to curl doc, buffer is not 0-terminated
-  (*(string*) userp)+=tmp.substr(0,nmemb);
-  return (size_t)(size *nmemb);
-}
-bool getFromHttp(const std::string &url, string_v& lines)
-{
-  CURL *curl = curl_easy_init();
-  if (not curl)
-    return false;
-
-  string data;
-  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_dataa);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
-  const CURLcode res = curl_easy_perform(curl);
-  curl_easy_cleanup(curl);
-
-  const string_v result = miutil::split(data, "\n");
-  lines.insert(lines.end(), result.begin(), result.end());
-
-  return (res == 0);
-}
-#else
 
 namespace detail {
 /* assumes that lines is a non-empty string vector; appends to the
@@ -158,7 +147,6 @@ bool getFromHttp(const std::string &url_, string_v& lines)
   METLIBS_LOG_DEBUG(LOGVAL(res) << LOGVAL(http_code));
   return (res == 0) and http_code == 200;
 }
-#endif
 
 bool getFromAny(const std::string &uof, string_v& lines)
 {
@@ -188,7 +176,7 @@ void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdat
 
   const int daydiff = miutil::miTime::hourDiff(miutil::miTime(refdate,clock),miutil::miTime(nowdate,clock))/24;
   const int hour = reftime.hour();
-  
+
   std::string replacement = "refhour=" + miutil::from_number(hour);
   if (daydiff < 0)
     replacement += " refoffset=" + miutil::from_number(daydiff);
@@ -251,13 +239,6 @@ int where(const Rectangle& rect, const QPointF& point)
   else if (point.y() > rect.y2)
     w |= OUT_Y_ABOVE;
   return w;
-}
-
-bool same_out(int w0, int w1)
-{
-  return (w0 != 0) && (w1 != 0)
-      && ((w0 & OUT_X_MASK) == (w1 & OUT_X_MASK))
-      && ((w0 & OUT_Y_MASK) == (w1 & OUT_Y_MASK));
 }
 
 } // namespace detail

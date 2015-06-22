@@ -29,6 +29,7 @@
 
 #include "diPolyContouring.h"
 #include "diGLPainter.h"
+#include "diUtilities.h"
 
 #include <QPolygonF>
 
@@ -53,22 +54,6 @@ static inline int rounded_div(float value, float unit)
         return i+1;
     else
         return i;
-}
-
-int find_index(bool repeat, int available, int i)
-{
-  if (repeat) {
-    i %= available;
-    if (i<0)
-      i += available;
-    return i;
-  }
-  else if (i<=0)
-    return 0;
-  else if (i<available)
-    return i;
-  else
-    return available-1;
 }
 
 
@@ -349,12 +334,12 @@ void DianaLines::paint_polygons()
         continue;
       }
       if (li <= 0 and ncolours_cold) {
-        const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -li);
+        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
         setFillColour(mPlotOptions.palettecolours_cold[idx]);
       } else {
         if (li <= 0 and not mPlotOptions.loglinevalues.empty())
           continue;
-        const int idx = find_index(mPlotOptions.repeat, ncolours, li - 1);
+        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours, li - 1);
         setFillColour(mPlotOptions.palettecolours[idx]);
       }
     }

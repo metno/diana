@@ -123,6 +123,8 @@ private:
 
   std::auto_ptr<StaticPlot> staticPlot_;
 
+  DiCanvas* mCanvas;
+
   // postscript production members
   printOptions printoptions;
   bool hardcopy;
