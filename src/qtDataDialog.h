@@ -57,6 +57,8 @@ public:
   virtual void putOKString(const std::vector<std::string>& vstr) = 0;
 
 public slots:
+  /// Unsets the dialog action in order to make the dialog ready for opening.
+  void unsetAction();
   /// Update the times that the dialog knows about.
   virtual void updateTimes() = 0;
   /// Update the dialog after re-reading the setup file.

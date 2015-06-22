@@ -277,7 +277,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     // If not, try to load it.
     if (!isLoaded) {
-      if (!loadDrawing(name, fileName))
+      if (!loadDrawing(name, fileName).isEmpty())
         return false;
 
       // Obtain the group created by the loadDrawing() call.
@@ -358,14 +358,14 @@ void DrawingManager::addItem_(DrawingItemBase *item, EditItems::LayerGroup *grou
   group->addItem(item);
 }
 
-bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
+QString DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 {
   QString error;
 
   QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
-    return false;
+    return error;
   }
 
   // Create a layer group for the file that is not editable but is active.
@@ -377,7 +377,7 @@ bool DrawingManager::loadDrawing(const QString &name, const QString &fileName)
   // Record the file name.
   drawings_[name] = fileName;
 
-  return true;
+  return error;
 }
 
 void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::LayerGroup *group)
@@ -704,6 +704,33 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(
   return hitItems;
 }
 
+/**
+ * Returns a vector containing triples of IDs, labels and coordinates for
+ * polylines in the KML file with the given \a fileName.
+ */
+vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
+{
+  vector<PolyLineInfo> info;
+
+  QString error;
+  QList<DrawingItemBase *> items = KML::createFromFile(QString::fromStdString(fileName), error);
+
+  if (error.isEmpty()) {
+    foreach (DrawingItemBase *item, items) {
+      DrawingItem_PolyLine::PolyLine *polyLine = dynamic_cast<DrawingItem_PolyLine::PolyLine *>(item);
+      if (polyLine) {
+        vector<LonLat> coords;
+        foreach (QPointF p, polyLine->getLatLonPoints())
+          coords.push_back(LonLat::fromDegrees(p.y(), p.x()));
+
+        info.push_back(PolyLineInfo(polyLine->id(), polyLine->property("Placemark:name").toString().toStdString(), coords));
+      }
+    }
+  }
+
+  return info;
+}
+
 QList<DrawingItemBase *> DrawingManager::allItems() const
 {
   QList<DrawingItemBase *> items;
@@ -718,7 +745,7 @@ QList<DrawingItemBase *> DrawingManager::allItems() const
 
 bool DrawingManager::isItemVisible(DrawingItemBase * item) const
 {
-  bool visible = item->property("visible", true).toBool();
+  bool visible = item->isVisible();
   if (!visible) return false;
 
   // Set each item to be visible if none of its properties match those
@@ -744,4 +771,24 @@ bool DrawingManager::isItemVisible(DrawingItemBase * item) const
 void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
 {
   filter_ = filter;
+}
+
+/**
+ * Returns the layer group identified by the given name.
+ */
+EditItems::LayerGroup *DrawingManager::layerGroup(const QString &name)
+{
+  if (layerGroups_.contains(name))
+    return layerGroups_.value(name);
+  else
+    return 0;
+}
+
+/**
+ * Removes the layer group with the given name. The items held within are not deleted.
+ */
+void DrawingManager::removeLayerGroup(const QString &name)
+{
+  layerGroups_.remove(name);
+  emit updated();
 }

@@ -83,12 +83,11 @@ EditItemManager::EditItemManager()
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
   , itemsVisibilityForced_(false)
-  , itemPropsDirectlyEditable_(false)
 {
   // Create a default inactive layer group.
   layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, false);
 
-  connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
+  connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SIGNAL(timesUpdated()));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
   connect(this, SIGNAL(incompleteEditing(bool)), SLOT(startStopEditing(bool)));
 
@@ -110,12 +109,14 @@ EditItemManager::EditItemManager()
   unjoinAction_->setShortcut(tr("Ctrl+J"));
   toggleReversedAction_ = new QAction(tr("Toggle reversed"), this);
   toggleReversedAction_->setShortcut(QString("R"));
-  editPropertiesAction_ = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
+  editPropertiesAction_ = new QAction(tr("Edit P&roperties..."), this);
   editPropertiesAction_->setShortcut(tr("Ctrl+R"));
   editStyleAction_ = new QAction(tr("Edit Style..."), this);
   //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
   undoAction_ = undoStack_.createUndoAction(this);
+  undoAction_->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
   redoAction_ = undoStack_.createRedoAction(this);
+  redoAction_->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowForward));
 
   selectAction_ = new QAction(QPixmap(paint_select2_xpm), tr("&Select"), this);
   //selectAction->setShortcut(tr("Ctrl+???"));
@@ -151,6 +152,7 @@ EditItemManager::EditItemManager()
 
   setSelectMode();
   setEnabled(true);
+  updateActionsAndTimes();
 }
 
 EditItemManager::~EditItemManager()
@@ -348,21 +350,14 @@ void EditItemManager::removeItem_(DrawingItemBase *item, bool updateNeeded)
     update();
 }
 
-void EditItemManager::initNewItem(DrawingItemBase *item)
+void EditItemManager::updateItem(DrawingItemBase *item, const QVariantMap &props)
 {
-/*
-  // Use the current time for the new item.
-  miutil::miTime time;
-  PLOTM->getPlotTime(time);
+  QMap<QString, QVariant>::const_iterator it;
 
-  QVariantMap p = item->propertiesRef();
-  if (!p.contains("time"))
-    p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
+  for (it = props.begin(); it != props.end(); ++it)
+    item->setProperty(it.key(), it.value());
 
-  item->setProperties(p);
-*/
-  // Let other components know about any changes to item times.
-  emit timesUpdated();
+  emit itemChanged(item->properties());
 }
 
 void EditItemManager::reset()
@@ -655,7 +650,7 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
 
 void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
 {
-  if (!over)
+  if (!over || !isEditing() || !isEnabled())
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
@@ -730,11 +725,21 @@ bool EditItemManager::canRedo() const
   return undoStack_.canRedo();
 }
 
+QList<DrawingItemBase *> EditItemManager::allItems() const
+{
+  QList<DrawingItemBase *> items;
+  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
+  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
+    items += it.value()->items();
+
+  return items;
+}
+
 QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
 {
   QList<DrawingItemBase *> hitItems;
   foreach (DrawingItemBase *item, allItems()) {
-    if ((!itemsVisibilityForced_) && (!item->property("visible", true).toBool()))
+    if ((!itemsVisibilityForced_) && (!item->isVisible()))
       continue;
     if (item->hit(pos, true))
       hitItems.append(item);
@@ -861,7 +866,7 @@ void EditItemManager::editProperties()
 
   // NOTE: we only support editing properties for one item at a time for now
   DrawingItemBase *item = selItems.first();
-  if (Properties::PropertiesEditor::instance()->edit(item, !itemPropsDirectlyEditable_))
+  if (Properties::PropertiesEditor::instance()->edit(item))
     repaint();
 }
 
@@ -946,7 +951,7 @@ void EditItemManager::emitItemChanged() const
     props.insert("layer:index", 0);
     props.insert("layer:visible", true);
     props.insert("id", item->id());
-    props.insert("visible", item->property("visible", true).toBool());
+    props.insert("visible", item->isVisible());
     props.insert("Placemark:name", item->property("Placemark:name").toString());
     //
     setFromLatLonPoints(item, item->getLatLonPoints());
@@ -1374,7 +1379,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     return;
   }
 
-
   if (event->type() == QEvent::MouseButtonPress) {
 
     const QSet<DrawingItemBase *> origSelItems = selectedItems().toSet();
@@ -1426,7 +1430,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction_);
-      editPropertiesAction_->setEnabled(selItems.size() == 1);
+      bool canEditProperties = (selItems.size() == 1) && Properties::PropertiesEditor::instance()->canEditItem(selItems.first());
+      editPropertiesAction_->setEnabled(canEditProperties);
       contextMenu.addAction(editStyleAction_);
       editStyleAction_->setEnabled(!selItems.isEmpty() && !selectedCategories.contains(DrawingItemBase::Composite));
 
@@ -1620,14 +1625,6 @@ static bool fuzzyEqual(const QList<QPointF> &p1, const QList<QPointF> &p2)
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
   event->ignore();
-  res.savebackground= true;   // Save the background after painting.
-  res.background= false;      // Don't paint the background.
-  res.repaint= false;
-
-  if (selectedItems().isEmpty()) // skip if no items are selected
-    return;
-
-  //QHash<int, QVariantMap> oldStates = getStates(selectedItems());
 
   res.repaint = true;
   res.background = true;
@@ -1750,6 +1747,24 @@ void EditItemManager::replaceItemStates(const QHash<int, QVariantMap> &states,
   oldStates_ = getStates(allItems());
   removedItems_.clear();
   emit itemStatesReplaced();
+}
+
+QString EditItemManager::loadDrawing(const QString &name, const QString &fileName)
+{
+  QString error;
+
+  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  if (!error.isEmpty()) {
+    METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
+    return error;
+  }
+
+  foreach (DrawingItemBase *item, items)
+    addItem(item);
+
+  pushUndoCommands();
+
+  return error;
 }
 
 

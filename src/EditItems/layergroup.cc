@@ -150,15 +150,18 @@ void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
     QString time_str;
     QString time_prop = timeProperty(item->propertiesRef(), time_str);
 
-    if (time_prop.isEmpty()) {
+    if (editable_)
+      item->setVisible(true);
+
+    else if (time_prop.isEmpty()) {
       if (isCollection()) {
         // For layer groups containing a collection of files, make the layers
         // visible only if the current file is appropriate for the new time.
-        item->setProperty("visible", allVisible);
+        item->setVisible(allVisible);
       } else {
         // For layer groups containing a single file with its own times for
         // layers, if no time property was found, make the item visible.
-        item->setProperty("visible", true);
+        item->setVisible(true);
       }
     } else if (time_prop == "TimeSpan:begin") {
       // Make the item visible if the time is within the begin and end times
@@ -166,12 +169,12 @@ void LayerGroup::setTime(const QDateTime &dateTime, bool allVisible)
       QDateTime beginTime = QDateTime::fromString(item->property("TimeSpan:begin").toString(), "yyyy-MM-ddThh:mm:ssZ");
       QDateTime endTime = QDateTime::fromString(item->property("TimeSpan:end").toString(), "yyyy-MM-ddThh:mm:ssZ");
       bool visible = (dateTime >= beginTime) && (dateTime < endTime);
-      item->setProperty("visible", visible);
+      item->setVisible(visible);
 
     } else {
       // Make the item visible if the time is empty or equal to the current time.
       bool visible = (time_str.isEmpty() | (dateTimeStr == time_str));
-      item->setProperty("visible", visible);
+      item->setVisible(visible);
     }
   }
 

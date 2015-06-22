@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITDRAWINGDIALOG_H
-#define EDITDRAWINGDIALOG_H
+#ifndef FILTERDRAWINGDIALOG_H
+#define FILTERDRAWINGDIALOG_H
 
 #include "qtDataDialog.h"
 #include <QStringListModel>
@@ -41,13 +41,13 @@ class QTreeView;
 
 namespace EditItems {
 
-class EditDialogModel : public QStringListModel
+class FilterDrawingModel : public QStringListModel
 {
   Q_OBJECT
 
 public:
-  EditDialogModel(const QString &header, QObject *parent = 0);
-  virtual ~EditDialogModel();
+  FilterDrawingModel(const QString &header, QObject *parent = 0);
+  virtual ~FilterDrawingModel();
 
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
@@ -57,17 +57,15 @@ private:
   QString header_;
 };
 
-class EditDrawingDialog : public DataDialog
+class FilterDrawingDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  EditDrawingDialog(QWidget *, Controller *);
+  FilterDrawingDialog(QWidget *parent);
 
-  virtual std::string name() const;
-  virtual std::vector<std::string> getOKString() { return std::vector<std::string>(); }
-  virtual void putOKString(const std::vector<std::string> &) {}
-  virtual void updateTimes() {};
+signals:
+  void updated();
 
 public slots:
   void updateChoices();
@@ -83,12 +81,12 @@ private:
 
   DrawingManager *drawm_;
   EditItemManager *editm_;
-  EditDialogModel *propertyModel_;
-  EditDialogModel *valueModel_;
+  FilterDrawingModel *propertyModel_;
+  FilterDrawingModel *valueModel_;
   QTreeView *propertyList_;
   QTreeView *valueList_;
 };
 
 } // namespace
 
-#endif // EDITDRAWINGDIALOG_H
+#endif // FILTERDRAWINGDIALOG_H

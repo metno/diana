@@ -56,6 +56,14 @@ ToolBar::ToolBar(QWidget *parent)
   QActionGroup *actionGroup = new QActionGroup(this);
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
 
+  QAction *undoAction = actions[EditItemManager::Undo];
+  addAction(undoAction);
+  actionGroup->addAction(undoAction);
+
+  QAction *redoAction = actions[EditItemManager::Redo];
+  addAction(redoAction);
+  actionGroup->addAction(redoAction);
+
   // *** select ***
   selectAction_ = actions[EditItemManager::Select];
   addAction(selectAction_);
@@ -169,8 +177,8 @@ ToolBar::ToolBar(QWidget *parent)
   compositeCombo_->setCurrentIndex(0);
   setCompositeType(0);
 
-  // Select the first action in the group by default.
-  actionGroup->actions().at(0)->trigger();
+  // Select the select action by default.
+  selectAction_->trigger();
 }
 
 void ToolBar::setCreatePolyLineAction(const QString &type)

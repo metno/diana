@@ -75,9 +75,6 @@
 #include "diLocationData.h"
 #include "diLogFile.h"
 
-#include "EditItems/drawingdialog.h"
-#include "EditItems/editdrawingdialog.h"
-#include "EditItems/toolbar.h"
 #include "vcross_qt/qtVcrossInterface.h"
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
@@ -168,9 +165,7 @@
 
 #include <diField/diFieldManager.h>
 
-#include "diEditItemManager.h"
 #include "EditItems/drawingdialog.h"
-#include "EditItems/editdrawingdialog.h"
 #include "EditItems/toolbar.h"
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
@@ -953,11 +948,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   drawingDialog->hide();
   addDialog(drawingDialog);
 
-  EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
-  editDrawingDialog->hide();
-  addDialog(editDrawingDialog);
-  connect(tslider, SIGNAL(valueChanged(int)), editDrawingDialog, SLOT(updateDialog()));
-
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
     wmd->hide();
     addDialog(wmd);
@@ -972,9 +962,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
-  connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(handleEIMEditing(bool)));
-
   connect(EditItemManager::instance(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
+  connect(drawingDialog, SIGNAL(editingMode(bool)), editDrawingToolBar, SLOT(setVisible(bool)));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -1240,21 +1229,6 @@ void DianaMainWindow::editUpdate(bool enabled)
   METLIBS_LOG_DEBUG("DianaMainWindow::editUpdate");
   w->Glw()->forceUnderlay(enabled);
   w->updateGL();
-}
-
-void DianaMainWindow::handleEIMEditing(bool enabled)
-{
-  if (enabled)
-    setEditDrawingMode(true);
-  editUpdate(enabled);
-}
-
-void DianaMainWindow::toggleEIMTestDialog()
-{
-#ifdef ENABLE_EIM_TESTDIALOG
-  static EIMTestDialog *eimTestDialog = new EIMTestDialog(this);
-  eimTestDialog->setVisible(!eimTestDialog->isVisible());
-#endif // ENABLE_EIM_TESTDIALOG
 }
 
 void DianaMainWindow::quickMenuApply(const vector<string>& s)
@@ -4112,7 +4086,6 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
 {
   dialogNames[dialog->name()] = dialog;
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
-  connect(dialog, SIGNAL(hideData()), SLOT(updateDialog()));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &)),
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
@@ -4145,7 +4118,7 @@ void DianaMainWindow::updateDialog()
   else if (!action)
     return;
 
-  action->setChecked(!action->isChecked());
+  action->toggle();
 }
 
 void DianaMainWindow::setWorkAreaCursor(const QCursor &cursor)

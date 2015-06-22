@@ -77,7 +77,7 @@ public:
   virtual bool parseSetup();
 
   virtual bool changeProjection(const Area& newArea);
-  virtual bool loadDrawing(const QString &name, const QString &fileName);
+  virtual QString loadDrawing(const QString &name, const QString &fileName);
   virtual bool prepare(const miutil::miTime &time);
   virtual void setCanvas(DiCanvas* canvas) /* Q_DECL_OVERRIDE*/;
   virtual void plot(DiGLPainter* gl, bool under, bool over);
@@ -127,6 +127,8 @@ public:
   void setFilter(const QPair<QStringList, QSet<QString> > &filter);
 
   std::vector<PolyLineInfo> loadCoordsFromKML(const std::string &fileName);
+  EditItems::LayerGroup *layerGroup(const QString &name);
+  void removeLayerGroup(const QString &name);
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;

@@ -537,10 +537,12 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     bool handled = false;
     if (!(me->modifiers() & Qt::ShiftModifier)) {
       for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-        it->second->sendMouseEvent(me, res);
-        if (me->isAccepted()) {
-          handled = true;
-          break;
+        if (it->second->isEnabled()) {
+          it->second->sendMouseEvent(me, res);
+          if (me->isAccepted()) {
+            handled = true;
+            break;
+          }
         }
       }
     }
@@ -593,7 +595,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   // A more general way to override normal keypress behaviour is to query
   // the managers to find any that are in editing mode.
   for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-    if (it->second->isEditing()) {
+    if (it->second->isEnabled() && it->second->isEditing()) {
       res.savebackground = true;
       it->second->sendKeyboardEvent(ke, res);
       if (it->second->hasFocus())
