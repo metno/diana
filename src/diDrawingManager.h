@@ -123,6 +123,7 @@ public:
   void separateJoinIds(const QList<DrawingItemBase *> &);
 
   virtual QList<DrawingItemBase *> allItems() const;
+  bool matchesFilter(DrawingItemBase *item) const;
   bool isItemVisible(DrawingItemBase *item) const;
   void setFilter(const QPair<QStringList, QSet<QString> > &filter);
 
@@ -134,6 +135,7 @@ public slots:
   std::vector<miutil::miTime> getTimes() const;
 
 signals:
+  void drawingLoaded(const QString &name);
   void itemsClicked(const QList<DrawingItemBase *> &items);
   void itemsHovered(const QList<DrawingItemBase *> &items);
   void updated();

@@ -65,7 +65,10 @@ public:
   void setItems(const QMap<QString, QString> &items);
 
   QModelIndex find(const QString &name) const;
+
+public slots:
   void appendDrawing(const QString &name, const QString &fileName);
+  void appendDrawing(const QString &fileName);
 
 private:
   QMap<QString, QString> items_;
@@ -90,13 +93,13 @@ signals:
 public slots:
   void loadFile();
   void saveAllItems();
+  void saveFilteredItems();
   void saveVisibleItems();
 
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void editDrawings();
   void handleDialogUpdated();
-  void hideEditItems(bool hidden);
   void makeProduct();
   void showActiveContextMenu(const QPoint &pos);
   void updateButtons();
@@ -104,6 +107,7 @@ private slots:
 
 private:
   void updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName);
+  void saveFile(const QList<DrawingItemBase *> &items, const QString &fileName);
 
   DrawingModel drawingsModel_;
   DrawingModel activeDrawingsModel_;

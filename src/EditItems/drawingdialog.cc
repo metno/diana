@@ -68,6 +68,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // Populate the dialog with the drawings held by the drawing manager.
   drawingsModel_.setItems(drawm_->getDrawings());
+  connect(drawm_, SIGNAL(drawingLoaded(QString)), &drawingsModel_, SLOT(appendDrawing(QString)));
 
   // Create the GUI.
   setWindowTitle(tr("Drawing Dialog"));
@@ -104,6 +105,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   fileButton->setText(tr("File"));
   QMenu *fileMenu = new QMenu(tr("File"), this);
   connect(fileMenu->addAction(tr("Save Visible Items...")), SIGNAL(triggered()), SLOT(saveVisibleItems()));
+  connect(fileMenu->addAction(tr("Save Filtered Items...")), SIGNAL(triggered()), SLOT(saveFilteredItems()));
   connect(fileMenu->addAction(tr("Save All Items...")), SIGNAL(triggered()), SLOT(saveAllItems()));
   fileButton->setMenu(fileMenu);
 
@@ -125,16 +127,11 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit Mode"));
   connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
   connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
-  QCheckBox *hideEditItemsCheckBox = new QCheckBox(tr("Hide Edit Items"));
-  hideEditItemsCheckBox->setEnabled(false);
-  connect(hideEditItemsCheckBox, SIGNAL(toggled(bool)), SLOT(hideEditItems(bool)));
-  connect(editModeCheckBox, SIGNAL(toggled(bool)), hideEditItemsCheckBox, SLOT(setEnabled(bool)));
 
   QVBoxLayout *editLayout = new QVBoxLayout();
   editLayout->addWidget(editTopSeparator);
   editLayout->addWidget(TitleLabel(tr("Edit"), this));
   editLayout->addWidget(editModeCheckBox);
-  editLayout->addWidget(hideEditItemsCheckBox);
   editLayout->addWidget(editBottomSeparator);
 
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
@@ -289,18 +286,35 @@ void DrawingDialog::saveAllItems()
   if (fileName.isEmpty())
     return;
 
-  // Obtain all visible drawing and editing items, filter them for visibility,
-  // and save the resulting collection.
+  // Obtain all visible drawing and editing items and save the resulting collection.
   QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  QString error = KML::saveItemsToFile(items, fileName);
-  QApplication::restoreOverrideCursor();
+  saveFile(items, fileName);
+}
 
-  if (error.isEmpty())
-    updateFileInfo(items, fileName);
-  else
-    QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
+void DrawingDialog::saveFilteredItems()
+{
+  QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save Filtered Items"),
+    drawm_->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+
+  if (fileName.isEmpty())
+    return;
+
+  // Obtain all drawing and editing items, filter them for visibility, and
+  // save the resulting collection.
+  QList<DrawingItemBase *> items;
+
+  foreach (DrawingItemBase *item, drawm_->allItems()) {
+    if (drawm_->matchesFilter(item))
+      items.append(item);
+  }
+
+  foreach (DrawingItemBase *item, editm_->allItems()) {
+    if (editm_->matchesFilter(item))
+      items.append(item);
+  }
+
+  saveFile(items, fileName);
 }
 
 void DrawingDialog::saveVisibleItems()
@@ -325,6 +339,11 @@ void DrawingDialog::saveVisibleItems()
       items.append(item);
   }
 
+  saveFile(items, fileName);
+}
+
+void DrawingDialog::saveFile(const QList<DrawingItemBase *> &items, const QString &fileName)
+{
   QApplication::setOverrideCursor(Qt::WaitCursor);
   QString error = KML::saveItemsToFile(items, fileName);
   QApplication::restoreOverrideCursor();
@@ -411,12 +430,6 @@ void DrawingDialog::showActiveContextMenu(const QPoint &pos)
     editDrawings();
 }
 
-void DrawingDialog::hideEditItems(bool hidden)
-{
-  editm_->setEnabled(!hidden);
-  emit updated();
-}
-
 DrawingModel::DrawingModel(QObject *parent)
   : QAbstractListModel(parent)
 {
@@ -495,6 +508,11 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
 QModelIndex DrawingModel::find(const QString &name) const
 {
   return createIndex(items_.keys().indexOf(name), 0, -1);
+}
+
+void DrawingModel::appendDrawing(const QString &fileName)
+{
+  appendDrawing(fileName, fileName);
 }
 
 void DrawingModel::appendDrawing(const QString &name, const QString &fileName)

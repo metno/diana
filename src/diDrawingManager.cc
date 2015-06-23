@@ -376,6 +376,7 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
 
   // Record the file name.
   drawings_[name] = fileName;
+  emit drawingLoaded(name);
 
   return error;
 }
@@ -743,14 +744,26 @@ QList<DrawingItemBase *> DrawingManager::allItems() const
   return items;
 }
 
-bool DrawingManager::isItemVisible(DrawingItemBase * item) const
+/**
+ * Returns true if the item is intrinsically visible and not excluded by
+ * the current filter.
+ */
+bool DrawingManager::isItemVisible(DrawingItemBase *item) const
 {
   bool visible = item->isVisible();
   if (!visible) return false;
 
-  // Set each item to be visible if none of its properties match those
-  // in the property list. Otherwise, items are invisible by default.
-  visible = false;
+  return matchesFilter(item);
+}
+
+/**
+ * Returns true if the item is included by the current filter.
+ */
+bool DrawingManager::matchesFilter(DrawingItemBase *item) const
+{
+  // Each item is visible if none of its properties match those in the
+  // property list. Otherwise, items are invisible by default.
+  bool visible = false;
   bool hasAtLeastOneProperty = false;
 
   foreach (const QString &property, filter_.first) {

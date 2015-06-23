@@ -268,7 +268,7 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipR
   } else {
     if (!item->getLatLonPoints().isEmpty())
       setFromLatLonPoints(item, item->getLatLonPoints()); // obtain screen coords from geo coords
-    addItem_(item, true, true);
+    addItem_(item, false, true);
   }
 
   if (!skipRepaint)
@@ -941,15 +941,13 @@ void EditItemManager::emitItemChanged() const
 
   QList<QVariantMap> itemProps;
 
-  foreach (DrawingItemBase *item, allItems()) {
+  foreach (DrawingItemBase *item, selectedItems()) {
     const QString type(item->properties().value("style:type").toString());
     if (itemChangeFilter_ != type)
       continue;
 
     QVariantMap props;
     props.insert("type", type);
-    props.insert("layer:index", 0);
-    props.insert("layer:visible", true);
     props.insert("id", item->id());
     props.insert("visible", item->isVisible());
     props.insert("Placemark:name", item->property("Placemark:name").toString());
@@ -1760,7 +1758,7 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
   }
 
   foreach (DrawingItemBase *item, items)
-    addItem(item);
+    addItem(item, false, true);
 
   pushUndoCommands();
 
