@@ -1271,11 +1271,13 @@ void  EditDialog::sendClicked()
 
 void  EditDialog::approveClicked()
 {
-  if (!undoFrontButton->isEnabled() && !undoFieldButton->isEnabled() ) {
-    QString message = "Can't approve empty product";
-    QMessageBox::warning( this, tr("Error approve product"),message);
+  int ret = QMessageBox::warning(this, tr("Warnig - approve product"),
+                                  tr("Do you really want to approve an unchanged product?"),
+                                  QMessageBox::Yes | QMessageBox::Cancel,
+                                  QMessageBox::Cancel);
+  if ( ret==QMessageBox::Cancel)
     return;
-  }
+
   saveEverything(true,true);
   if (m_editm->showAllObjects()) emit editUpdate();
 }
