@@ -44,8 +44,8 @@
 
 namespace EditItems {
 
-FilterDrawingDialog::FilterDrawingDialog(QWidget *parent)
-  : QDialog(parent)
+FilterDrawingWidget::FilterDrawingWidget(QWidget *parent)
+  : QWidget(parent)
 {
   drawm_ = DrawingManager::instance();
   connect(drawm_, SIGNAL(updated()), SLOT(updateChoices()));
@@ -76,34 +76,28 @@ FilterDrawingDialog::FilterDrawingDialog(QWidget *parent)
     SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
     SLOT(filterItems()));
 
-  QPushButton *resetButton = NormalPushButton(tr("Reset"), this);
-  connect(resetButton, SIGNAL(clicked()), SLOT(updateChoices()));
-  QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
-  connect(hideButton, SIGNAL(clicked()), SLOT(accept()));
-
-  QHBoxLayout *viewLayout = new QHBoxLayout;
+  QVBoxLayout *viewLayout = new QVBoxLayout;
   viewLayout->addWidget(propertyList_);
   viewLayout->addWidget(valueList_);
 
-  QHBoxLayout *bottomLayout = new QHBoxLayout;
-  bottomLayout->addWidget(resetButton);
-  bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
-  bottomLayout->addWidget(hideButton);
+  QFrame *separator = new QFrame();
+  separator->setFrameShape(QFrame::VLine);
 
-  QVBoxLayout *mainLayout = new QVBoxLayout(this);
+  QHBoxLayout *mainLayout = new QHBoxLayout(this);
+  mainLayout->addWidget(separator);
   mainLayout->addLayout(viewLayout);
-  mainLayout->addWidget(editm_->getUndoView());
-  mainLayout->addLayout(bottomLayout);
+  //mainLayout->addWidget(editm_->getUndoView());
+}
 
-  setWindowTitle(tr("Edit Drawing Dialog"));
-  setFocusPolicy(Qt::StrongFocus);
+FilterDrawingWidget::~FilterDrawingWidget()
+{
 }
 
 /**
  * Updates the property list to show the available properties for all items,
  * only showing those properties defined in the setup file.
  */
-void FilterDrawingDialog::updateChoices()
+void FilterDrawingWidget::updateChoices()
 {
   Properties::PropertiesEditor *ed = Properties::PropertiesEditor::instance();
   QSet<QString> show = QSet<QString>::fromList(ed->propertyRules("show"));
@@ -134,7 +128,7 @@ void FilterDrawingDialog::updateChoices()
   updateValues();
 }
 
-void FilterDrawingDialog::updateValues()
+void FilterDrawingWidget::updateValues()
 {
   QStringList properties = currentProperties();
   QSet<QString> values;
@@ -155,7 +149,7 @@ void FilterDrawingDialog::updateValues()
  * Returns the selected properties in the property list, or all available
  * properties if none are selected.
  */
-QStringList FilterDrawingDialog::currentProperties() const
+QStringList FilterDrawingWidget::currentProperties() const
 {
   QModelIndexList indexes = propertyList_->selectionModel()->selectedIndexes();
   QStringList properties;
@@ -172,7 +166,7 @@ QStringList FilterDrawingDialog::currentProperties() const
 /**
  * Returns the values for each of the current properties.
  */
-QSet<QString> FilterDrawingDialog::currentValues() const
+QSet<QString> FilterDrawingWidget::currentValues() const
 {
   QModelIndexList indexes = valueList_->selectionModel()->selectedIndexes();
   QSet<QString> values;
@@ -186,7 +180,7 @@ QSet<QString> FilterDrawingDialog::currentValues() const
   return values;
 }
 
-void FilterDrawingDialog::filterItems()
+void FilterDrawingWidget::filterItems()
 {
   QStringList properties = currentProperties();
   QSet<QString> values = currentValues();
@@ -197,12 +191,9 @@ void FilterDrawingDialog::filterItems()
   emit updated();
 }
 
-void FilterDrawingDialog::updateDialog()
-{
-  // The items may have been updated, so filter them again.
-  //filterItems();
-}
-
+// ======================================================
+// Model for displaying item properties and their values.
+// ======================================================
 
 FilterDrawingModel::FilterDrawingModel(const QString &header, QObject *parent)
   : QStringListModel(parent)

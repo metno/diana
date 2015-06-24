@@ -1757,10 +1757,18 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
     return error;
   }
 
+  // Return early if the file was empty.
+  if (items.isEmpty())
+    return error;
+
   foreach (DrawingItemBase *item, items)
     addItem(item, false, true);
 
   pushUndoCommands();
+
+  // Record the file name.
+  drawings_[name] = fileName;
+  emit drawingLoaded(name);
 
   return error;
 }
