@@ -62,8 +62,8 @@ namespace KML
   QDomDocument createDomDocument(const QByteArray &, const QXmlSchema &, const QUrl &, QString &);
   bool convertFromOldFormat(QByteArray &, QString &);
 
-  QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &srcFileName, QString &error);
-  QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error);
+  QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &name, const QString &srcFileName, QString &error);
+  QList<DrawingItemBase *> createFromFile(const QString &name, const QString &fileName, QString &error);
 }
 
 #endif // KML_H

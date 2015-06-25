@@ -362,7 +362,7 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
 {
   QString error;
 
-  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
     return error;
@@ -504,7 +504,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
         QString fileName = itemGroup->fileName(dateTime);
 
         QString error;
-        QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+        QList<DrawingItemBase *> items = KML::createFromFile(itemGroup->name(), fileName, error);
         if (!error.isEmpty())
           METLIBS_LOG_WARN(QString("DrawingManager::prepare: failed to load layer group from %1: %2")
                            .arg(fileName).arg(error).toStdString());
@@ -714,7 +714,8 @@ vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
   vector<PolyLineInfo> info;
 
   QString error;
-  QList<DrawingItemBase *> items = KML::createFromFile(QString::fromStdString(fileName), error);
+  QString fname = QString::fromStdString(fileName);
+  QList<DrawingItemBase *> items = KML::createFromFile(fname, fname, error);
 
   if (error.isEmpty()) {
     foreach (DrawingItemBase *item, items) {

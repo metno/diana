@@ -60,6 +60,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 {
   drawm_ = DrawingManager::instance();
   editm_ = EditItemManager::instance();
+  connect(drawm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
+  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
 
   // create an action that can be used to open the dialog from within a menu or toolbar
   m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
@@ -122,10 +124,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // Save and edit buttons
 
-  quickSaveButton_ = new QPushButton(tr("Save"));
+  quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
-  connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton(QString)));
-  connect(editm_, SIGNAL(editing(bool)), quickSaveButton_, SLOT(setEnabled(bool)));
+  connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
   connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
 
   QToolButton *saveAsButton = new QToolButton();
@@ -165,6 +166,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   connect(hideButton, SIGNAL(clicked()), SLOT(close()));
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
+  connect(applyButton, SIGNAL(clicked()), SLOT(updateQuickSaveButton()));
 
   QHBoxLayout *hideApplyLayout = new QHBoxLayout();
   hideApplyLayout->addWidget(hideButton);
@@ -412,6 +414,9 @@ void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const 
     editm_->updateItem(item, props);
 
   editm_->pushUndoCommands();
+
+  // Disable the quick save button because we are no longer working on a named product.
+  quickSaveButton_->setEnabled(false);
 }
 
 void DrawingDialog::updateButtons()
@@ -480,11 +485,26 @@ void DrawingDialog::showActiveContextMenu(const QPoint &pos)
     editDrawings();
 }
 
-void DrawingDialog::updateQuickSaveButton(const QString &name)
+void DrawingDialog::updateQuickSaveButton()
 {
-  quickSaveButton_->setText(tr("Save '%1'...").arg(name));
-  quickSaveButton_->setEnabled(true);
-  lastEdited_ = name;
+  QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
+  QSet<QString> products;
+
+  foreach (DrawingItemBase *item, items) {
+    QString product = item->property("product").toString();
+    if (!product.isEmpty())
+      products.insert(product);
+  }
+
+  if (products.size() == 1) {
+    quickSaveName_ = products.values().first();
+    quickSaveButton_->setText(tr("Quick save '%1'").arg(quickSaveName_));
+    quickSaveButton_->setEnabled(true);
+  } else {
+    quickSaveName_ = QString();
+    quickSaveButton_->setText(tr("Quick save"));
+    quickSaveButton_->setEnabled(false);
+  }
 }
 
 /**
@@ -495,24 +515,8 @@ void DrawingDialog::quickSave()
 {
   QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
 
-  // Obtain the file name for the last edited product.
-  QString fileName = editm_->getDrawings().value(lastEdited_);
-  bool otherProducts = false;
-
-  foreach (DrawingItemBase *item, items) {
-    QString srcFile = item->property("srcFile").toString();
-    if (srcFile != fileName && !srcFile.isEmpty()) {
-      otherProducts = true;
-      break;
-    }
-  }
-
-  if (otherProducts) {
-    if (QMessageBox::question(this, tr("Quick Save"),
-        tr("Really save items from multiple products to product '%1'?").arg(lastEdited_),
-        QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel)
-      return;
-  }
+  // Obtain the file name for the only product being edited.
+  QString fileName = editm_->getDrawings().value(quickSaveName_);
 
   saveFile(items, fileName);
 }

@@ -1751,7 +1751,7 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
 {
   QString error;
 
-  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
     return error;

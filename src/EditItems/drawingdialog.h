@@ -106,7 +106,7 @@ private slots:
   void makeProduct();
   void showActiveContextMenu(const QPoint &pos);
   void updateButtons();
-  void updateQuickSaveButton(const QString &name);
+  void updateQuickSaveButton();
   virtual void updateTimes();
 
 private:
@@ -124,7 +124,7 @@ private:
   QPushButton *editButton_;
   QPushButton *filterButton_;
   QPushButton *quickSaveButton_;
-  QString lastEdited_;
+  QString quickSaveName_;
 };
 
 } // namespace
