@@ -30,16 +30,16 @@
 #include <diEditItemManager.h>
 #include "diGLPainter.h"
 #include <diPlotModule.h>
+#include <EditItems/drawingstylemanager.h>
 #include <EditItems/editcomposite.h>
 #include <EditItems/edititembase.h>
 #include <EditItems/editpolyline.h>
 #include <EditItems/editsymbol.h>
 #include <EditItems/edittext.h>
+#include <EditItems/itemgroup.h>
 #include <EditItems/kml.h>
 #include <EditItems/properties.h>
 #include <EditItems/style.h>
-#include <EditItems/layergroup.h>
-#include <EditItems/drawingstylemanager.h>
 #include <EditItems/toolbar.h>
 #include <qtMainWindow.h>
 
@@ -85,7 +85,7 @@ EditItemManager::EditItemManager()
   , itemsVisibilityForced_(false)
 {
   // Create a default inactive layer group.
-  layerGroups_["scratch"] = new EditItems::LayerGroup("scratch", true, false);
+  itemGroups_["scratch"] = new EditItems::ItemGroup("scratch", true, false);
 
   connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SIGNAL(timesUpdated()));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
@@ -206,7 +206,7 @@ void EditItemManager::setEditing(bool enable)
   Manager::setEditing(enable);
 
   // Enable the scratch layer if editing is enabled; otherwise disable it.
-  layerGroups_.value("scratch")->setActive(enable);
+  itemGroups_.value("scratch")->setActive(enable);
 
   selectingOnly_ = !enable;
 
@@ -268,7 +268,7 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipR
   } else {
     if (!item->getLatLonPoints().isEmpty())
       setFromLatLonPoints(item, item->getLatLonPoints()); // obtain screen coords from geo coords
-    addItem_(item, true, true);
+    addItem_(item, false, true);
   }
 
   if (!skipRepaint)
@@ -313,7 +313,7 @@ DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, 
 
 void EditItemManager::addItem_(DrawingItemBase *item, bool updateNeeded, bool ignoreSelection)
 {
-  DrawingManager::addItem_(item, layerGroups_.value("scratch"));
+  DrawingManager::addItem_(item, itemGroups_.value("scratch"));
   if (!ignoreSelection)
     selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
   emit itemAdded(item);
@@ -337,7 +337,7 @@ void EditItemManager::removeItem(DrawingItemBase *item)
 
 void EditItemManager::removeItem_(DrawingItemBase *item, bool updateNeeded)
 {
-  EditItems::LayerGroup *group = layerGroups_.value("scratch");
+  EditItems::ItemGroup *group = itemGroups_.value("scratch");
   DrawingManager::removeItem_(item, group);
   hitItems_.removeOne(item);
   deselectItem(item);
@@ -728,8 +728,8 @@ bool EditItemManager::canRedo() const
 QList<DrawingItemBase *> EditItemManager::allItems() const
 {
   QList<DrawingItemBase *> items;
-  QMap<QString, EditItems::LayerGroup *>::const_iterator it;
-  for (it = layerGroups_.begin(); it != layerGroups_.end(); ++it)
+  QMap<QString, EditItems::ItemGroup *>::const_iterator it;
+  for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it)
     items += it.value()->items();
 
   return items;
@@ -941,15 +941,13 @@ void EditItemManager::emitItemChanged() const
 
   QList<QVariantMap> itemProps;
 
-  foreach (DrawingItemBase *item, allItems()) {
+  foreach (DrawingItemBase *item, selectedItems()) {
     const QString type(item->properties().value("style:type").toString());
     if (itemChangeFilter_ != type)
       continue;
 
     QVariantMap props;
     props.insert("type", type);
-    props.insert("layer:index", 0);
-    props.insert("layer:visible", true);
     props.insert("id", item->id());
     props.insert("visible", item->isVisible());
     props.insert("Placemark:name", item->property("Placemark:name").toString());
@@ -1687,7 +1685,7 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
 void EditItemManager::pushUndoCommands()
 {
-  EditItems::LayerGroup *group = layerGroups_.value("scratch");
+  EditItems::ItemGroup *group = itemGroups_.value("scratch");
   QHash<int, QVariantMap> newStates = getStates(group->items());
 
   // Return immediately if nothing has changed.
@@ -1733,7 +1731,7 @@ QHash<int, QVariantMap> EditItemManager::getStates(const QList<DrawingItemBase *
 void EditItemManager::replaceItemStates(const QHash<int, QVariantMap> &states,
     QList<DrawingItemBase *> removeItems, QList<DrawingItemBase *> addItems)
 {
-  EditItems::LayerGroup *group = layerGroups_.value("scratch");
+  EditItems::ItemGroup *group = itemGroups_.value("scratch");
 
   foreach(DrawingItemBase *item, removeItems)
     group->removeItem(item);
@@ -1753,16 +1751,24 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
 {
   QString error;
 
-  QList<DrawingItemBase *> items = KML::createFromFile(fileName, error);
+  QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
     return error;
   }
 
+  // Return early if the file was empty.
+  if (items.isEmpty())
+    return error;
+
   foreach (DrawingItemBase *item, items)
-    addItem(item);
+    addItem(item, false, true);
 
   pushUndoCommands();
+
+  // Record the file name.
+  drawings_[name] = fileName;
+  emit drawingLoaded(name);
 
   return error;
 }

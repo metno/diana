@@ -523,12 +523,15 @@ bool convertFromOldFormat(QByteArray &data, QString &error)
 }
 
 /**
- * Returns a list of item layers extracted from DOM document \a doc originally loaded from source file \a srcFileName.
- * Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
- * Upon failure, the function returns an empty list of item layers and a failure reason in \a error.
- * If the document contains no layer information, the items are returned in a single layer with default properties.
+ * Returns a list of items extracted from the given DOM document \a doc
+ * originally loaded as a product with the given \a name from source file
+ * \a srcFileName.
+ * Upon success, the function returns a non-empty list of items and leaves
+ * \a error empty. Upon failure, the function returns an empty list of items
+ * and a failure reason in \a error.
  */
-QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &srcFileName, QString &error)
+QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &name,
+                                               const QString &srcFileName, QString &error)
 {
   QList<DrawingItemBase *> items;
   error = QString();
@@ -583,6 +586,7 @@ QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QS
 
     DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
 
+    ditem->setProperty("product", name);
     ditem->setProperty("srcFile", srcFileName);
 
     // Keep all the met: properties, treating the joinId property specially.
@@ -655,7 +659,7 @@ QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QS
  * Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
  * Otherwise, the function returns an empty list of item layers and a failure reason in \a error.
  */
-QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error)
+QList<DrawingItemBase *> createFromFile(const QString &name, const QString &fileName, QString &error)
 {
   error = QString();
   QList<DrawingItemBase *> items;
@@ -696,7 +700,7 @@ QList<DrawingItemBase *> createFromFile(const QString &fileName, QString &error)
   // at this point, a document is successfully created from either the new or the old format
 
   // parse document and create items
-  items = createFromDomDocument(doc, fileName, error);
+  items = createFromDomDocument(doc, name, fileName, error);
 
   return items;
 }

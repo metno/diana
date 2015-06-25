@@ -72,9 +72,7 @@ PropertiesEditor::PropertiesEditor()
 {
   setWindowTitle(tr("Item Properties"));
 
-  QVBoxLayout *layout = new QVBoxLayout(this);
   formWidget_ = new QWidget();
-  layout->addWidget(formWidget_);
 
   buttonBox_ = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
   connect(buttonBox_->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
@@ -82,6 +80,11 @@ PropertiesEditor::PropertiesEditor()
 
   readOnlyButtonBox_ = new QDialogButtonBox(QDialogButtonBox::Close);
   connect(readOnlyButtonBox_->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(reject()));
+
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  layout->addWidget(formWidget_);
+  layout->addWidget(buttonBox_);
+  layout->addWidget(readOnlyButtonBox_);
 }
 
 PropertiesEditor *PropertiesEditor::instance()
@@ -116,9 +119,15 @@ bool PropertiesEditor::edit(DrawingItemBase *item, bool readOnly, bool modal)
   }
 
   // set button box
-  layout()->removeWidget(buttonBox_);
-  layout()->removeWidget(readOnlyButtonBox_);
-  layout()->addWidget(readOnly ? readOnlyButtonBox_ : buttonBox_);
+  if (readOnly) {
+    readOnlyButtonBox_->show();
+    buttonBox_->hide();
+  } else {
+    readOnlyButtonBox_->hide();
+    buttonBox_->show();
+  }
+
+  adjustSize();
 
   // open dialog
   if (!modal)

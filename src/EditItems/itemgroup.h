@@ -27,8 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSLAYERGROUP_H
-#define EDITITEMSLAYERGROUP_H
+#ifndef EDITITEMSITEMGROUP_H
+#define EDITITEMSITEMGROUP_H
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -44,14 +44,14 @@ class DrawingItemBase;
 
 namespace EditItems {
 
-class LayerGroup : public QObject
+class ItemGroup : public QObject
 {
   Q_OBJECT
 
 public:
-  LayerGroup(const QString &name, bool editable = true, bool active = false);
-  LayerGroup(const LayerGroup &);
-  ~LayerGroup();
+  ItemGroup(const QString &name, bool editable = true, bool active = false);
+  ItemGroup(const ItemGroup &);
+  ~ItemGroup();
   QString name() const;
   void setName(const QString &);
   QString fileName(const QDateTime &dateTime = QDateTime()) const;
@@ -90,4 +90,4 @@ private:
 
 } // namespace
 
-#endif // EDITITEMSLAYERGROUP_H
+#endif // EDITITEMSITEMGROUP_H

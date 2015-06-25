@@ -32,8 +32,8 @@
 #ifndef FILTERDRAWINGDIALOG_H
 #define FILTERDRAWINGDIALOG_H
 
-#include "qtDataDialog.h"
 #include <QStringListModel>
+#include <QWidget>
 
 class DrawingManager;
 class EditItemManager;
@@ -57,19 +57,19 @@ private:
   QString header_;
 };
 
-class FilterDrawingDialog : public QDialog
+class FilterDrawingWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  FilterDrawingDialog(QWidget *parent);
+  FilterDrawingWidget(QWidget *parent = 0);
+  virtual ~FilterDrawingWidget();
 
 signals:
   void updated();
 
 public slots:
   void updateChoices();
-  void updateDialog();
 
 private slots:
   void updateValues();

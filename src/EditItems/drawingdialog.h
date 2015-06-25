@@ -31,7 +31,6 @@
 #define DRAWINGDIALOG_H
 
 #include <QHash>
-#include <QListView>
 #include <QStringListModel>
 
 #include "qtDataDialog.h"
@@ -39,10 +38,11 @@
 class DrawingItemBase;
 class DrawingManager;
 class EditItemManager;
+class QListView;
 
 namespace EditItems {
 
-class FilterDrawingDialog;
+class FilterDrawingWidget;
 
 class DrawingModel : public QAbstractListModel
 {
@@ -63,7 +63,10 @@ public:
   void setItems(const QMap<QString, QString> &items);
 
   QModelIndex find(const QString &name) const;
+
+public slots:
   void appendDrawing(const QString &name, const QString &fileName);
+  void appendDrawing(const QString &fileName);
 
 private:
   QMap<QString, QString> items_;
@@ -87,30 +90,39 @@ signals:
 
 public slots:
   void loadFile();
+  void quickSave();
   void saveAllItems();
+  void saveFilteredItems();
+  void saveSelectedItems();
   void saveVisibleItems();
 
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void editDrawings();
+  void extend(bool enable);
   void handleDialogUpdated();
-  void hideEditItems(bool hidden);
   void makeProduct();
   void showActiveContextMenu(const QPoint &pos);
   void updateButtons();
+  void updateQuickSaveButton();
   virtual void updateTimes();
 
 private:
   void updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName);
+  void saveFile(const QList<DrawingItemBase *> &items, const QString &fileName);
 
   DrawingModel drawingsModel_;
   DrawingModel activeDrawingsModel_;
+  DrawingModel editingModel_;
   DrawingManager *drawm_;
   EditItemManager *editm_;
-  FilterDrawingDialog *filterDialog_;
+  FilterDrawingWidget *filterWidget_;
   QListView *activeList_;
   QListView *drawingsList_;
   QPushButton *editButton_;
+  QPushButton *filterButton_;
+  QPushButton *quickSaveButton_;
+  QString quickSaveName_;
 };
 
 } // namespace

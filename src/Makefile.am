@@ -128,7 +128,7 @@ libdiana_la_QTSOURCES = diManager.cc \
 	diOrderListener.cc \
 	diOrderQueue.cc \
 	diWorkOrder.cc \
-	EditItems/layergroup.cc \
+	EditItems/itemgroup.cc \
 	vcross_v2/VcrossQtManager.cc \
 	vcross_v2/VcrossQuickmenues.cc \
 	wmsclient/WebMapManager.cc \
@@ -339,7 +339,7 @@ noinst_HEADERS = \
 	EditItems/editsymbol.h \
 	EditItems/edittext.h \
 	EditItems/kml.h \
-	EditItems/layergroup.h \
+	EditItems/itemgroup.h \
 	EditItems/properties.h \
 	EditItems/style.h \
 	EditItems/timefilesextractor.h \
