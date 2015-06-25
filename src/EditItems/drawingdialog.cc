@@ -615,6 +615,10 @@ void DrawingModel::appendDrawing(const QString &fileName)
 
 void DrawingModel::appendDrawing(const QString &name, const QString &fileName)
 {
+  // If the drawing is already in the model then return immediately.
+  if (items_.contains(name))
+    return;
+
   // Since the underlying data is sorted, we need to insert the drawing into
   // the map in order to find out where it will be inserted, so we do that to
   // a new map before notifying other components and updating the map.
