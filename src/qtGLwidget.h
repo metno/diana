@@ -81,7 +81,6 @@ Q_SIGNALS:
   void changeCursor(cursortype);
 
 public:
-  void discardSavedUnderlay();
   void setCanvas(DiCanvas* canvas);
   void paint(DiPainter* gl);
   void resize(int width, int height);
