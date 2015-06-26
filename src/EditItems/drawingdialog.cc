@@ -277,13 +277,6 @@ void DrawingDialog::makeProduct()
 
   // Update the available times.
   updateTimes();
-
-  indicateUnappliedChanges(false); // indicate that the DrawingManager is now synchronized with the dialog
-}
-
-void DrawingDialog::handleDialogUpdated()
-{
-  indicateUnappliedChanges(true);
 }
 
 void DrawingDialog::loadFile()
@@ -492,7 +485,8 @@ void DrawingDialog::updateQuickSaveButton()
 
   foreach (DrawingItemBase *item, items) {
     QString product = item->property("product").toString();
-    if (!product.isEmpty())
+    QString srcFile = item->property("srcFile").toString();
+    if (!product.isEmpty() && product != srcFile)
       products.insert(product);
   }
 

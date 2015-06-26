@@ -1340,8 +1340,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   }
 
   event->ignore();
-  res.savebackground= true;   // Save the background after painting.
-  res.background= false;      // Don't paint the background.
+  res.savebackground = false;   // Don't save the background after painting.
+  res.background= false;        // Don't paint the background.
   res.repaint= false;
   //res.newcursor= edit_cursor;
   res.newcursor= keep_it;

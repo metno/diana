@@ -74,6 +74,12 @@ WorkArea::~WorkArea()
   delete glw;
 }
 
+void WorkArea::fullUpdate()
+{
+  glw->discardSavedUnderlay();
+  qw->update();
+}
+
 void WorkArea::updateGL()
 {
   qw->update();

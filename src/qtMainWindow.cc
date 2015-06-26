@@ -946,6 +946,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
   drawingDialog->hide();
+  connect(drawingDialog, SIGNAL(applyData()), w, SLOT(fullUpdate()));
   addDialog(drawingDialog);
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);

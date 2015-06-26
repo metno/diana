@@ -63,6 +63,7 @@ public:
     { qw->setFocus(); }
 
 public Q_SLOTS:
+  void fullUpdate();
   void updateGL();
 
 private Q_SLOTS:

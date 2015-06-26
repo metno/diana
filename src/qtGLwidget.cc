@@ -62,6 +62,11 @@ void GLwidget::setCanvas(DiCanvas* canvas)
   fbuffer = 0;
 }
 
+void GLwidget::discardSavedUnderlay()
+{
+  useSavedUnderlay = false;
+}
+
 void GLwidget::paint(DiPainter* painter)
 {
   if (DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter)) {
