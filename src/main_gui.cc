@@ -119,19 +119,26 @@ int main(int argc, char **argv)
 
     } else if (sarg=="-s" || sarg=="--setup") {
       ac++;
-      if (ac >= argc)
+      if (ac >= argc) {
         printUsage();
+        return 99;
+      }
       setupfile= argv[ac];
 
     } else if (sarg=="-l" || sarg=="--lang") {
       ac++;
-      if (ac >= argc)
+      if (ac >= argc) {
         printUsage();
+        return 99;
+      }
       cl_lang= argv[ac];
 
     } else if (sarg=="-L" || sarg=="--logger") {
       ac++;
-      if (ac >= argc) printUsage();
+      if (ac >= argc) {
+        printUsage();
+        return 99;
+      }
       logfilename= argv[ac];
 
     } else if (sarg=="-v" || sarg=="--version") {
@@ -140,8 +147,10 @@ int main(int argc, char **argv)
 
     } else if (sarg=="-T" || sarg=="--title") {
       ac++;
-      if (ac >= argc)
+      if (ac >= argc) {
         printUsage();
+        return 99;
+      }
       diana_title = argv[ac];
 
     } else {
