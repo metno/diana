@@ -72,7 +72,7 @@ void GLwidget::paint(DiPainter* painter)
 
 void GLwidget::drawUnderlay(DiGLPainter* gl)
 {
-  if (useSavedUnderlay && fbuffer) {
+  if (useSavedUnderlay && fbuffer && !savebackground) {
     float glx1, gly1, glx2, gly2, delta;
     contr->getPlotSize(glx1, gly1, glx2, gly2);
     delta = (fabs(glx1 - glx2) * 0.1 / plotw);

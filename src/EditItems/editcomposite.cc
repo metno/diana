@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2014 met.no
 
   Contact information:
@@ -94,10 +92,7 @@ DrawingItemBase *Composite::cloneSpecial(bool setUniqueId) const
   return item;
 }
 
-void Composite::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-                           QSet<QSharedPointer<DrawingItemBase> > *items,
-                           const QSet<QSharedPointer<DrawingItemBase> > *selItems,
-                           bool *multiItemOp)
+void Composite::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
     pressedCtrlPointIndex_ = -1;

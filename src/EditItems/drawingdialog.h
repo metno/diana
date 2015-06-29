@@ -100,7 +100,6 @@ private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void editDrawings();
   void extend(bool enable);
-  void handleDialogUpdated();
   void makeProduct();
   void showActiveContextMenu(const QPoint &pos);
   void updateButtons();

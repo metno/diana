@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2014 met.no
 
   Contact information:
@@ -45,11 +43,7 @@ public:
   Composite(int = -1);
   virtual ~Composite();
 
-  virtual void mousePress(QMouseEvent *event, bool &repaintNeeded,
-                          QList<QUndoCommand *> *undoCommands,
-                          QSet<QSharedPointer<DrawingItemBase> > *items = 0,
-                          const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0,
-                          bool *multiItemOp = 0);
+  virtual void mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp = 0);
 
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
