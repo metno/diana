@@ -155,7 +155,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   filterButton_->setCheckable(true);
   filterButton_->setChecked(false);
   filterWidget_ = new FilterDrawingWidget();
-  filterWidget_->hide();
   connect(filterButton_, SIGNAL(toggled(bool)), SLOT(extend(bool)));
   connect(filterWidget_, SIGNAL(updated()), SIGNAL(updated()));
 
@@ -186,7 +185,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->addLayout(leftLayout);
-  layout->addWidget(filterWidget_);
 
   connect(drawingsList_->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -199,7 +197,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
           SLOT(updateButtons()));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
-  resize(minimumSize());
+  setOrientation(Qt::Horizontal);
+  setExtension(filterWidget_);
 }
 
 /**
@@ -517,9 +516,8 @@ void DrawingDialog::quickSave()
 
 void DrawingDialog::extend(bool enable)
 {
-  filterWidget_->setVisible(enable);
+  showExtension(enable);
   filterButton_->setText(enable ? tr("Hide filters <<<") : tr("Show filters >>>"));
-  adjustSize();
 }
 
 // ====================================================================

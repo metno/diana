@@ -124,7 +124,9 @@ void FilterDrawingWidget::updateChoices()
     }
   }
 
-  propertyModel_->setStringList((keep - discard).toList());
+  QStringList choices = (keep - discard).toList();
+  choices.sort();
+  propertyModel_->setStringList(choices);
   updateValues();
 }
 
@@ -141,7 +143,9 @@ void FilterDrawingWidget::updateValues()
     }
   }
 
-  valueModel_->setStringList(values.toList());
+  QStringList valuesList = values.toList();
+  valuesList.sort();
+  valueModel_->setStringList(valuesList);
   filterItems();
 }
 

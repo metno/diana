@@ -762,24 +762,16 @@ bool DrawingManager::isItemVisible(DrawingItemBase *item) const
  */
 bool DrawingManager::matchesFilter(DrawingItemBase *item) const
 {
-  // Each item is visible if none of its properties match those in the
-  // property list. Otherwise, items are invisible by default.
-  bool visible = false;
-  bool hasAtLeastOneProperty = false;
+  // Each item is visible only if all of its properties match those in the
+  // property list.
 
   foreach (const QString &property, filter_.first) {
     QVariant value = item->property(property);
-    hasAtLeastOneProperty |= value.isValid();
-    if (value.isValid() && filter_.second.contains(value.toString())) {
-      visible = true;
-      break;
-    }
+    if (value.isValid() && !filter_.second.contains(value.toString()))
+      return false;
   }
 
-  if (hasAtLeastOneProperty)
-    return visible;
-  else
-    return true;
+  return true;
 }
 
 void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
