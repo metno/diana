@@ -31,7 +31,6 @@
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/kml.h>
-#include <QDebug>
 
 DrawingItemBase::DrawingItemBase(int id__)
     : id_((id__ >= 0) ? id__ : nextId())
