@@ -178,10 +178,17 @@ QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVari
 
 bool PropertiesEditor::canEditProperty(const QString &propertyName) const
 {
-  if (rules_.contains("hide") && propertyName.contains(":")) {
-    QString section = propertyName.split(":").first();
-    if (rules_.value("hide").contains(section))
-      return false;
+  if (rules_.contains("hide")) {
+    // Namespaced properties are visible until explicitly hidden by rules.
+    if (propertyName.contains(":")) {
+      QString section = propertyName.split(":").first();
+      if (rules_.value("hide").contains(section))
+        return false;
+      else
+        return true;
+    }
+    // Non-namespaced properties are hidden.
+    return false;
   }
   return true;
 }
