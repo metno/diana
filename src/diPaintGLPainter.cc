@@ -1579,6 +1579,10 @@ void DiPaintGLPainter::drawLine(float x1, float y1, float x2, float y2)
 
 void DiPaintGLPainter::drawPolyline(const QPolygonF& points)
 {
+  if (points.size() < 2) {
+    METLIBS_LOG_ERROR("invalid polyline, size=" << points.size());
+    return;
+  }
   setPen();
   if (blend)
     painter->setCompositionMode(blendMode);
@@ -1593,6 +1597,10 @@ void DiPaintGLPainter::drawPolyline(const QPolygonF& points)
 
 void DiPaintGLPainter::drawPolygon(const QPolygonF& points)
 {
+  if (points.size() < 3) {
+    METLIBS_LOG_ERROR("invalid polylgon, size=" << points.size());
+    return;
+  }
   const QPolygonF tpoints = transform.map(points);
   setPolygonColor(attributes.color);
   painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
@@ -1605,6 +1613,10 @@ void DiPaintGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
 {
   QPainterPath path;
   Q_FOREACH(const QPolygonF& p, polygons) {
+    if (p.size() < 3) {
+      METLIBS_LOG_ERROR("invalid polygon, size=" << p.size());
+      return;
+    }
     path.addPolygon(transform.map(p));
   }
   setPolygonColor(attributes.color);
