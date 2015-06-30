@@ -1,3 +1,10 @@
+diana (3.38.3-1) unstable; urgency=low
+
+  * vprof: check for invalid values before plotting
+  * EditDialog - fixed warnig, possible to approve unchanged product
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 30 Jun 2015 14:48:58 +0200
+
 diana (3.38.2-1) unstable; urgency=low
 
   * Vprof: bugfix - only use crossections with length 1
