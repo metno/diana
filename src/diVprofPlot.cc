@@ -53,6 +53,27 @@ using namespace miutil;
 
 //#define DEBUGPRINT 1
 
+namespace {
+bool is_invalid(float f)
+{
+  return isnan(f) || abs(f) >= 1e20;
+}
+bool is_invalid_int(int i)
+{
+  const int LIMIT = (1<<30);
+  return i < -LIMIT || i > LIMIT;
+}
+
+bool is_valid(const std::vector<float>& data)
+{
+  return std::find_if(data.begin(), data.end(), is_invalid) == data.end();
+}
+bool is_valid(const std::vector<int>& data)
+{
+  return std::find_if(data.begin(), data.end(), is_invalid_int) == data.end();
+}
+} // namespace
+
 VprofPlot::VprofPlot()
   : windInKnots(true)
 {
@@ -116,140 +137,180 @@ bool VprofPlot::plot(DiGLPainter* gl, VprofOptions *vpopt, int nplot)
 
   // T
   if (vpopt->ptttt and tt.size() >= ptt.size()) {
-    const size_t nlevel = std::min(maxLevels, tt.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      xx[k]= xz[k]+dx1deg*tt[k];
-    diutil::xyclip(nlevel,xx,yy,&xysize[1][0], gl);
+    if (is_valid(tt)) {
+      const size_t nlevel = std::min(maxLevels, tt.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        xx[k]= xz[k]+dx1deg*tt[k];
+      diutil::xyclip(nlevel,xx,yy,&xysize[1][0], gl);
+    } else {
+      METLIBS_LOG_INFO("invalid tt values");
+    }
   }
 
   // levels for Td (if not same as T levels)
   if (vpopt->ptdtd && ptd.size()>0) {
-    const size_t nlevel = std::min(maxLevels, ptd.size());
-    for (unsigned int k=0; k<nlevel; k++) {
-      yy[k] = tabForValue(yptab, ptd[k]);
-      xz[k] = tabForValue(xztab, ptd[k]);
+    if (is_valid(ptd)) {
+      const size_t nlevel = std::min(maxLevels, ptd.size());
+      for (unsigned int k=0; k<nlevel; k++) {
+        yy[k] = tabForValue(yptab, ptd[k]);
+        xz[k] = tabForValue(xztab, ptd[k]);
+      }
+    } else {
+      METLIBS_LOG_INFO("invalid ptd values");
     }
   }
 
   // Td
   if (vpopt->ptdtd && td.size()>0) {
-    gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
-    gl->LineStipple(1,0xFFC0);
-    const size_t nlevel = std::min(maxLevels, td.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      xx[k]= xz[k]+dx1deg*td[k];
-    diutil::xyclip(nlevel,xx,yy,&xysize[1][0], gl);
-    gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+    if (is_valid(td)) {
+      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
+      gl->LineStipple(1,0xFFC0);
+      const size_t nlevel = std::min(maxLevels, td.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        xx[k]= xz[k]+dx1deg*td[k];
+      diutil::xyclip(nlevel,xx,yy,&xysize[1][0], gl);
+      gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+    } else {
+      METLIBS_LOG_INFO("invalid td values");
+    }
   }
 
   // levels for wind and significant levels (if not same as T levels)
   if ((vpopt->pwind || vpopt->pslwind) && puv.size()>0) {
+    if (is_valid(puv)) {
     const size_t nlevel = std::min(maxLevels, puv.size());
     for (unsigned int k=0; k<nlevel; k++)
       yy[k] = tabForValue(yptab, puv[k]);
+    } else {
+      METLIBS_LOG_INFO("invalid puv values");
+    }
   }
 
   // wind (u(e/w) and v(n/s)in unit knots)
   if (vpopt->pwind && uu.size()>0) {
-    float xw= xysize[5][1] - xysize[5][0];
-    float x0= xysize[5][0] + xw*0.5;
-    if (vpopt->windseparate)
-      x0+=xw*float(nplot);
-    float ylim1= xysize[1][2];
-    float ylim2= xysize[1][3];
-    float flagl = xw * 0.5 * 0.85;
+    if (is_valid(uu) && is_valid(vv)) {
+      float xw= xysize[5][1] - xysize[5][0];
+      float x0= xysize[5][0] + xw*0.5;
+      if (vpopt->windseparate)
+        x0+=xw*float(nplot);
+      float ylim1= xysize[1][2];
+      float ylim2= xysize[1][3];
+      float flagl = xw * 0.5 * 0.85;
 
-    gl->setLineStyle(c, windWidth);
-    const float windScale = windInKnots ? 1 : (3600.0/1852.0);
-    const size_t nlevel = std::min(maxLevels, std::min(uu.size(), vv.size()));
-    for (unsigned int k=0; k<nlevel; k++) {
-      if (yy[k]>=ylim1 && yy[k]<=ylim2)
-        gl->drawWindArrow(uu[k] * windScale, vv[k] * windScale,
-            x0, yy[k], flagl, false);
+      gl->setLineStyle(c, windWidth);
+      const float windScale = windInKnots ? 1 : (3600.0/1852.0);
+      const size_t nlevel = std::min(maxLevels, std::min(uu.size(), vv.size()));
+      for (unsigned int k=0; k<nlevel; k++) {
+        if (yy[k]>=ylim1 && yy[k]<=ylim2)
+          gl->drawWindArrow(uu[k] * windScale, vv[k] * windScale,
+              x0, yy[k], flagl, false);
+      }
+    } else {
+      METLIBS_LOG_INFO("invalid uu/vv values");
     }
   }
 
   if (vpopt->pslwind && dd.size()>0) {
-    // significant wind levels, wind as numbers (temp and prog)
-    // (other levels also if space)
-    float dchy= chylab*1.3;
-    float ylim1= xysize[4][2]+dchy*0.5;
-    float ylim2= xysize[4][3]-dchy*0.5;
-    int k1= -1;
-    int k2= -1;
-    const size_t nlevel = maxLevels;
-    for (unsigned int k=0; k<nlevel; k++) {
-      if (yy[k]>ylim1 && yy[k]<ylim2) {
-        if (k1==-1) k1= k;
-        k2= k;
+    if (is_valid(dd)) {
+      // significant wind levels, wind as numbers (temp and prog)
+      // (other levels also if space)
+      float dchy= chylab*1.3;
+      float ylim1= xysize[4][2]+dchy*0.5;
+      float ylim2= xysize[4][3]-dchy*0.5;
+      int k1= -1;
+      int k2= -1;
+      const size_t nlevel = maxLevels;
+      for (unsigned int k=0; k<nlevel; k++) {
+        if (yy[k]>ylim1 && yy[k]<ylim2) {
+          if (k1==-1) k1= k;
+          k2= k;
+        }
       }
-    }
 
-    if (k1>=0) {
-      float *used= new float[nlevel];
-      size_t nused = 0;
-      const float x= xysize[4][0]+(xysize[4][1]-xysize[4][0])*nplot+chxlab*0.5;
-      setFontsize(gl, chylab);
+      if (k1>=0) {
+        float *used= new float[nlevel];
+        size_t nused = 0;
+        const float x= xysize[4][0]+(xysize[4][1]-xysize[4][0])*nplot+chxlab*0.5;
+        setFontsize(gl, chylab);
 
-      for (int sig=3; sig>=0; sig--) {
-        for (int k=k1; k<=k2; k++) {
-          if (sigwind[k]==sig) {
-            ylim1= yy[k]-dchy;
-            ylim2= yy[k]+dchy;
-            size_t i= 0;
-            while (i<nused && (used[i]<ylim1 || used[i]>ylim2)) i++;
-            if (i==nused) {
-              used[nused++]= yy[k];
-              int idd= (dd[k]+5)/10;
-              int iff= ff[k];
-              if (idd==0 && iff>0) idd=36;
-              ostringstream ostr;
-              ostr << setw(2) << setfill('0') << idd << "-"
-              << setw(3) << setfill('0') << iff;
-              std::string str= ostr.str();
-              const float y= yy[k]-chylab*0.5;
-              gl->drawText(str, x, y, 0.0);
+        for (int sig=3; sig>=0; sig--) {
+          for (int k=k1; k<=k2; k++) {
+            if (sigwind[k]==sig) {
+              ylim1= yy[k]-dchy;
+              ylim2= yy[k]+dchy;
+              size_t i= 0;
+              while (i<nused && (used[i]<ylim1 || used[i]>ylim2)) i++;
+              if (i==nused) {
+                used[nused++]= yy[k];
+                int idd= (dd[k]+5)/10;
+                int iff= ff[k];
+                if (idd==0 && iff>0) idd=36;
+                ostringstream ostr;
+                ostr << setw(2) << setfill('0') << idd << "-"
+                     << setw(3) << setfill('0') << iff;
+                std::string str= ostr.str();
+                const float y= yy[k]-chylab*0.5;
+                gl->drawText(str, x, y, 0.0);
+              }
             }
           }
         }
+        delete[] used;
       }
-      delete[] used;
+    } else {
+      METLIBS_LOG_INFO("invalid dd values");
     }
   }
 
   // levels for vertical wind, omega (if not same as T levels)
   if (vpopt->pvwind && pom.size()>0) {
-    const size_t nlevel = std::min(maxLevels, pom.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      yy[k] = tabForValue(yptab, pom[k]);
+    if (is_valid(pom)) {
+      const size_t nlevel = std::min(maxLevels, pom.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        yy[k] = tabForValue(yptab, pom[k]);
+    } else {
+      METLIBS_LOG_INFO("invalid pom values");
+    }
   }
 
   float xylimit[4] = { 0., 0., xysize[1][2], xysize[1][3] };
 
   // vertical wind, omega
   if (vpopt->pvwind && om.size()>0) {
-    float dx= xysize[6][1] - xysize[6][0];
-    float x0= xysize[6][0] + dx*0.5;
-    float scale= -dx/vpopt->rvwind;
-    const size_t nlevel = std::min(maxLevels, om.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      xx[k]= x0 + scale*om[k];
-    xylimit[0]= xysize[6][0];
-    xylimit[1]= xysize[6][1];
-    diutil::xyclip(nlevel,xx,yy,xylimit, gl);
+    if (is_valid(om)) {
+      float dx= xysize[6][1] - xysize[6][0];
+      float x0= xysize[6][0] + dx*0.5;
+      float scale= -dx/vpopt->rvwind;
+      const size_t nlevel = std::min(maxLevels, om.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        xx[k]= x0 + scale*om[k];
+      xylimit[0]= xysize[6][0];
+      xylimit[1]= xysize[6][1];
+      diutil::xyclip(nlevel,xx,yy,xylimit, gl);
+    } else {
+      METLIBS_LOG_INFO("invalid om values");
+    }
   }
 
   if (!prognostic && (vpopt->prelhum || vpopt->pducting)) {
-    const size_t nlevel = std::min(maxLevels, pcom.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      yy[k] = tabForValue(yptab, pcom[k]);
+    if (is_valid(pcom)) {
+      const size_t nlevel = std::min(maxLevels, pcom.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        yy[k] = tabForValue(yptab, pcom[k]);
+    } else {
+      METLIBS_LOG_INFO("invalid pcom values");
+    }
   }
 
   // levels for relative humidity (same as T levels)
   if (vpopt->prelhum && ptt.size()>0 && (ptt.size() == ptd.size())) {
-    const size_t nlevel = std::min(maxLevels, ptt.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      yy[k] = tabForValue(yptab, ptt[k]);
+    if (is_valid(ptt)) {
+      const size_t nlevel = std::min(maxLevels, ptt.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        yy[k] = tabForValue(yptab, ptt[k]);
+    } else {
+      METLIBS_LOG_INFO("invalid ptt values");
+    }
   }
 
   // relative humidity
@@ -275,9 +336,13 @@ bool VprofPlot::plot(DiGLPainter* gl, VprofOptions *vpopt, int nplot)
 
   // levels for ducting (same as T levels)
   if (vpopt->pducting && ptt.size()>0 && (ptt.size() == ptd.size())) {
-    const size_t nlevel = std::min(maxLevels, ptt.size());
-    for (unsigned int k=0; k<nlevel; k++)
-      yy[k] = tabForValue(yptab, ptt[k]);
+    if (is_valid(ptt)) {
+      const size_t nlevel = std::min(maxLevels, ptt.size());
+      for (unsigned int k=0; k<nlevel; k++)
+        yy[k] = tabForValue(yptab, ptt[k]);
+    } else {
+      METLIBS_LOG_INFO("invalid ptt values");
+    }
   }
 
   // ducting
@@ -328,7 +393,7 @@ void VprofPlot::relhum(const vector<float>& tt, const vector<float>& td)
   using namespace MetNo::Constants;
 
   int nlev= tt.size();
-  if (tt.size() != td.size()) {
+  if (tt.size() != td.size() || !is_valid(tt) || !is_valid(td)) {
     rhum.clear();
     return;
   }
@@ -379,7 +444,9 @@ void VprofPlot::ducting(const vector<float>& pp,
   const float p0inv= 1./p0;
 
   int nlev= pp.size();
-  if (nlev<2 || td.size() != pp.size() || tt.size() != pp.size()) {
+  if (nlev<2 || td.size() != pp.size() || tt.size() != pp.size()
+      || !is_valid(td) || !is_valid(pp) || !is_valid(tt))
+  {
     duct.clear();
     return;
   }
@@ -433,7 +500,8 @@ void VprofPlot::kindex(const vector<float>& pp,
   text.kindexFound= false;
 
   const int nlev= pp.size();
-  if (nlev<2 || td.size() != pp.size() || tt.size() != pp.size())
+  if (nlev<2 || td.size() != pp.size() || tt.size() != pp.size()
+      || !is_valid(td) || !is_valid(pp) || !is_valid(tt))
     return;
 
   const bool pIncreasing= (pp[0]<pp[nlev-1]);
