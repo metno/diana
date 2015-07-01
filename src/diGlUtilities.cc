@@ -182,6 +182,7 @@ void xyclip(int npos, const float *x, const float *y, const float xylim[4],
     if (n-nint-1 >= 2) {
       polyline.clear();
       polyline.reserve(n - nint - 1);
+      add(polyline, xx, yy);
       for (i = nint + 1; i < npos; i++)
         add(polyline, x[i], y[i]);
       gl->drawPolyline(polyline);
