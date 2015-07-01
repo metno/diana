@@ -240,7 +240,7 @@ std::string FieldSpecTranslation__getNewFieldString(const std::string& pin, bool
   std::ostringstream ost;
   size_t k = 0;
   if (withModel) {
-    int imodel;
+    size_t imodel;
     if (n >= 3 && tokens[0] == "FIELD") {
       //FIELD <modelName> <plotName>
       ost << "FIELD";
@@ -251,8 +251,11 @@ std::string FieldSpecTranslation__getNewFieldString(const std::string& pin, bool
       // <modelName> <plotName>
       imodel = 0;
     }
-    ost << " model=" << tokens[imodel]
-        << " plot="  << tokens[imodel+1];
+    while (imodel < n && tokens[imodel].empty())
+      imodel += 1;
+    if (imodel+1 < n)
+      ost << " model=" << tokens[imodel]
+          << " plot="  << tokens[imodel+1];
     k = imodel + 2;
   }
 
@@ -262,6 +265,8 @@ std::string FieldSpecTranslation__getNewFieldString(const std::string& pin, bool
     if (vtoken.size() >= 2) {
       std::string key = boost::algorithm::to_lower_copy(vtoken[0]);
       if (key == "level" ) {
+        if (vtoken[1] == "0m")
+          continue;
         ost << " vcoord=" << FieldSpecTranslation__getVcoorFromLevel(vtoken[1])
             << " vlevel=" << vtoken[1];
       } else if (key == "idnum") {
@@ -316,6 +321,7 @@ std::string updateLine(std::string line)
   // these were present before diana 3.39
   miutil::replace(line, "_3_farger", "");
   miutil::replace(line, "test.contour.shading=1", "palettecolours=standard");
+  miutil::replace(line, " test.contour.shading=0", "");
 
   if (miutil::contains(line, "st.nr("))
     miutil::replace(line, "st.nr", "st.no");

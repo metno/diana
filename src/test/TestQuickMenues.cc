@@ -110,3 +110,28 @@ TEST(TestQuickMenues, UpdateField)
     EXPECT_EQ(expect, lines);
   }
 }
+
+TEST(TestQuickMenues, UpdateField2)
+{
+  { // challenge: two spaces at start
+    std::vector<std::string> lines;
+    lines.push_back("FIELD  @LOCALEC.GEO.0.25.@EC MSLP dim=1");
+    lines.push_back("FIELD  @LOCALAROME-MetCoOp-PP.@Z nedb.1t.max-pp colour=blue");
+    std::vector<std::string> expect;
+    expect.push_back("FIELD model=@LOCALEC.GEO.0.25.@EC plot=MSLP dim=1");
+    expect.push_back("FIELD model=@LOCALAROME-MetCoOp-PP.@Z plot=nedb.1t.max-pp colour=blue");
+
+    EXPECT_TRUE(updateCommandSyntax(lines));
+    EXPECT_EQ(expect, lines);
+  }
+
+  { // challenge: drop level=0m
+    std::vector<std::string> lines;
+    lines.push_back("FIELD WAM.10km.@Z Significant_Wave_Height level=0m colour=red");
+    std::vector<std::string> expect;
+    expect.push_back("FIELD model=WAM.10km.@Z plot=Significant_Wave_Height colour=red");
+
+    EXPECT_TRUE(updateCommandSyntax(lines));
+    EXPECT_EQ(expect, lines);
+  }
+}
