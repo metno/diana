@@ -28,6 +28,9 @@ typedef std::vector<std::string> string_v;
 //! glob filenames, return matches, or empty if error
 string_v glob(const std::string& pattern, int glob_flags, bool& error);
 
+//! return adjusted i so that it is between 0 and available; if repeat, return i % available
+int find_index(bool repeat, int available, int i);
+
 //! glob filenames, return matches, or empty if error
 inline string_v glob(const std::string& pattern, int glob_flags=0)
 { bool error; return glob(pattern, glob_flags, error); }

@@ -34,7 +34,6 @@
 #include "diFieldPlotManager.h"
 #include "diPlotOptions.h"
 
-#include <diField/FieldSpecTranslation.h>
 #include <diField/diFieldFunctions.h>
 
 #include <puTools/miSetupParser.h>
@@ -973,24 +972,9 @@ bool FieldPlotManager::parsePin(std::string& pin, vector<FieldRequest>& vfieldre
     return parsePin(fspec1, vfieldrequest, plotName);
   }
 
-  std::string  origPin = pin;
-  const bool oldSyntax = (pin.find("model=") == std::string::npos);
-  if (oldSyntax) {
-    pin = FieldSpecTranslation::getNewFieldString(pin);
-  }
-
   FieldRequest fieldrequest;
   vector<std::string> paramNames;
   parseString(pin, fieldrequest, paramNames, plotName);
-
-  // Try to parse old syntax once more, parse modelName
-  if (oldSyntax && !fieldManager->modelOK(fieldrequest.modelName)) {
-    METLIBS_LOG_WARN("Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName);
-    pin = FieldSpecTranslation::getNewFieldString(origPin, true);
-    paramNames.clear();
-    parseString(pin, fieldrequest, paramNames, plotName);
-    METLIBS_LOG_WARN("New modelName: " <<fieldrequest.modelName);
-  }
 
   //  //plotName -> fieldName
   if (fieldrequest.plotDefinition) {

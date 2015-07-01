@@ -2,7 +2,7 @@
 # $Id: configure.ac 4440 2014-09-04 12:05:03Z lisbethb $
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.38.0~rc1], [diana@met.no])
+AC_INIT([diana], [3.39.0~a1], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign])
@@ -122,6 +122,9 @@ AS_IF([test x$enable_gui = xyes], [
     METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
     METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
     METNO_REQUIRE_PKG([COSERVER], [coserver])
+    METNO_REQUIRE_QT4([Core Gui OpenGL Network Svg Xml XmlPatterns])
+],[
+    METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])
 ])
 
 AS_IF([test x$enable_newarkobs = xyes], [
@@ -131,21 +134,6 @@ AS_IF([test x$enable_newarkobs = xyes], [
 #
 # Other third-party dependencies
 #
-METNO_REQUIRE_QT4([
-    Core
-    Gui
-    Network
-    Svg
-    Xml
-    XmlPatterns
-])
-
-AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_QT4([
-        OpenGL
-    ])
-])
-
 METNO_REQUIRE_BOOST
 METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])

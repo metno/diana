@@ -1042,6 +1042,8 @@ std::string PlotOptions::toString()
     addOption(ostr, key_extremeSize, extremeSize);
     addOption(ostr, key_extremeRadius, extremeRadius);
     addOption(ostr, key_palettecolours, !palettecolours.empty() ? palettename : OFF);
+    if ( alpha < 255)
+      addOption(ostr, key_alpha, alpha);
 
     if( !filePalette.empty() ) {
       addOption(ostr, key_filepalette, filePalette);

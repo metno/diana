@@ -955,7 +955,8 @@ vector<miTime> Controller::getObsTimes(const vector<string>& name)
 
 //********** plotting and selecting stations on the map***************
 
-void Controller::putStations(StationPlot* stationPlot){
+void Controller::putStations(StationPlot* stationPlot)
+{
   stam->putStations(stationPlot);
   plotm->setAnnotations();
 }
@@ -969,24 +970,28 @@ void Controller::makeStationPlot(const string& commondesc,
   stam->makeStationPlot(commondesc,common,description,from,data);
 }
 
-std::string Controller::findStation(int x, int y, std::string name, int id){
+std::string Controller::findStation(int x, int y, const std::string& name, int id)
+{
   return stam->findStation(x,y,name,id);
 }
 
-std::vector<std::string> Controller::findStations(int x, int y, std::string name, int id){
+std::vector<std::string> Controller::findStations(int x, int y, const std::string& name, int id)
+{
   return stam->findStations(x,y,name,id);
 }
 
 void Controller::findStations(int x, int y, bool add,
     vector<std::string>& name,
     vector<int>& id,
-    vector<std::string>& station){
+    vector<std::string>& station)
+{
   stam->findStations(x,y,add,name,id,station);
 }
 
 void Controller::getEditStation(int step,
     std::string& name, int& id,
-    vector<std::string>& stations){
+    vector<std::string>& stations)
+{
   stam->getEditStation(step,name,id,stations);
 }
 
@@ -1005,6 +1010,7 @@ void Controller::stationCommand(const string& command,
   if (command == "annotation")
     plotm->setAnnotations();
 }
+
 void Controller::stationCommand(const string& command,
     const string& name, int id)
 {
@@ -1012,10 +1018,12 @@ void Controller::stationCommand(const string& command,
 
   plotm->setAnnotations();
 }
+
 float Controller::getStationsScale()
 {
   return stam->getStationsScale();
 }
+
 void Controller::setStationsScale(float new_scale)
 {
   stam->setStationsScale(new_scale);
@@ -1040,40 +1048,34 @@ vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
 
 
 //********** plotting and selecting locationPlots on the map **************
-void Controller::putLocation(const LocationData& locationdata){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Controller::putLocation");
-#endif
+void Controller::putLocation(const LocationData& locationdata)
+{
+  METLIBS_LOG_SCOPE();
   plotm->putLocation(locationdata);
 }
 
-void Controller::updateLocation(const LocationData& locationdata){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Controller::updateLocation");
-#endif
+void Controller::updateLocation(const LocationData& locationdata)
+{
+  METLIBS_LOG_SCOPE();
   plotm->updateLocation(locationdata);
 }
 
-void Controller::deleteLocation(const std::string& name){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Controller::deleteLocation: " << name);
-#endif
+void Controller::deleteLocation(const std::string& name)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(name));
   plotm->deleteLocation(name);
 }
 
 void Controller::setSelectedLocation(const std::string& name,
-    const std::string& elementname){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Controller::setSelectedLocation: " << name << "," << elementname);
-#endif
-  plotm->setSelectedLocation(name,elementname);
+    const std::string& elementname)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(elementname));
+  plotm->setSelectedLocation(name, elementname);
 }
 
 string Controller::findLocation(int x, int y, const string& name)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Controller::findLocation: " << x << "," << y << "," << name);
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y) << LOGVAL(name));
   return plotm->findLocation(x,y,name);
 }
 
@@ -1109,7 +1111,8 @@ void Controller::readLog(const vector<string>& vstr,
   plotm->readLog(vstr,thisVersion,logVersion);
 }
 
-bool Controller::useScrollwheelZoom() {
+bool Controller::useScrollwheelZoom()
+{
   return scrollwheelZoom;
 }
 
@@ -1119,12 +1122,12 @@ const vector<SatPlot*>& Controller::getSatellitePlots() const
   return satm->getSatellitePlots();
 }
 
-vector<FieldPlot*> Controller::getFieldPlots() const
+const std::vector<FieldPlot*>& Controller::getFieldPlots() const
 {
   return plotm->getFieldPlots();
 }
 
-vector<ObsPlot*> Controller::getObsPlots() const
+const std::vector<ObsPlot*>& Controller::getObsPlots() const
 {
   return plotm->getObsPlots();
 }

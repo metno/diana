@@ -62,12 +62,8 @@ private:
 
   enum FileFormat {
     metnoobs,
-#ifdef ROADOBS
     bufr,
     roadobs
-#else
-    bufr
-#endif
   };
 
   struct ObsFile {
@@ -93,7 +89,6 @@ private:
     std::string stationfile;
     std::string databasefile;
 #endif
-
   };
 
   struct SelectedModel{
@@ -168,6 +163,16 @@ private:
       std::map<std::string,int>& amdarCount);
   void readAmdarStationList();
 
+  void readBufrFile(int i, std::vector<std::string>& namelist,
+      std::vector<float>& latitudelist, std::vector<float>& longitudelist,
+      std::vector<miutil::miTime>& tlist);
+  void readRoadFile(int i, std::vector<std::string>& namelist,
+      std::vector<float>& latitudelist, std::vector<float>& longitudelist,
+      std::vector<std::string>& obslist, std::vector<miutil::miTime>& tlist);
+
+  void updateSelectedStations();
+  void plotVpData(DiGLPainter* gl);
+
 public:
   VprofManager();
   ~VprofManager();
@@ -181,7 +186,8 @@ public:
   // parseSetup and init obsfilelist
   void init();
 
-  VprofOptions* getOptions() { return vpopt; }
+  VprofOptions* getOptions()
+    { return vpopt; }
   void setPlotWindow(int w, int h);
 
   void parseSetup();
@@ -191,21 +197,30 @@ public:
   void setTime(const miutil::miTime& time);
   std::string setStation(int step);
   miutil::miTime setTime(int step, int dir);
-  const miutil::miTime getTime(){return plotTime;}
-  const std::vector<std::string> getStations(){return selectedStations;}
-  const std::string getLastStation(){return lastStation;}
-  const std::vector<std::string>& getStationList() { return nameList; }
-  const std::vector<float>& getLatitudes(){return latitudeList;}
-  const std::vector<float>& getLongitudes(){return longitudeList;}
-  const std::vector<miutil::miTime>&   getTimeList()    { return timeList; }
+  const miutil::miTime& getTime()
+    { return plotTime; }
+  const std::vector<std::string>& getStations()
+    { return selectedStations; }
+  const std::string& getLastStation()
+    { return lastStation; }
+  const std::vector<std::string>& getStationList()
+    { return nameList; }
+  const std::vector<float>& getLatitudes()
+    { return latitudeList; }
+  const std::vector<float>& getLongitudes()
+    { return longitudeList; }
+  const std::vector<miutil::miTime>& getTimeList()
+    { return timeList; }
   std::vector <std::string> getModelNames();
-  std::vector <std::string> getModelFiles(){return dialogFileNames;}
+  const std::vector<std::string>& getModelFiles()
+    { return dialogFileNames; }
   std::vector <std::string> getReferencetimes(const std::string model);
   void setFieldModels(const std::vector<std::string>& fieldmodels);
   void setSelectedModels(const std::vector<std::string>& models, bool obs=false);
 
   bool plot(DiGLPainter* gl);
-  bool onlyObsState() { return onlyObs; }
+  bool onlyObsState()
+    { return onlyObs; }
   void mainWindowTimeChanged(const miutil::miTime& time);
   void updateObs();
   std::string getAnnotationString();

@@ -53,7 +53,6 @@
 #include "diWeatherArea.h"
 
 #include <diField/diFieldManager.h>
-#include <diField/FieldSpecTranslation.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 
@@ -94,10 +93,14 @@ float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 
 PlotModule *PlotModule::self = 0;
 
-PlotModule::PlotModule() :
-               showanno(true), staticPlot_(new StaticPlot()), hardcopy(false),
-               dorubberband(false),
-               keepcurrentarea(true), obsnr(0)
+PlotModule::PlotModule()
+  : showanno(true)
+  , staticPlot_(new StaticPlot())
+  , mCanvas(0)
+  , hardcopy(false)
+  , dorubberband(false)
+  , keepcurrentarea(true)
+  , obsnr(0)
 {
   self = this;
   oldx = newx = oldy = newy = startx = starty = 0;
@@ -123,7 +126,8 @@ PlotModule::~PlotModule()
 void PlotModule::setCanvas(DiCanvas* canvas)
 {
   METLIBS_LOG_SCOPE();
-  // TODO also set for other plots, and for new plots
+  // TODO set for all existing plots, and for new plots
+  mCanvas = canvas;
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->setCanvas(canvas);
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
@@ -219,7 +223,6 @@ void PlotModule::prepareArea(const vector<string>& inp)
     METLIBS_LOG_DEBUG("More AREA definitions, using: " <<inp[0]);
 
   const std::string key_name=  "name";
-  const std::string key_areaname=  "areaname"; //old syntax
   const std::string key_proj=  "proj4string";
   const std::string key_rectangle=  "rectangle";
 
@@ -232,10 +235,11 @@ void PlotModule::prepareArea(const vector<string>& inp)
     if (stokens.size() > 1) {
       const std::string key= miutil::to_lower(stokens[0]);
 
-      if (key==key_name || key==key_areaname){
+      if (key==key_name) {
         if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
           METLIBS_LOG_WARN("Unknown AREA definition: "<< inp[0]);
         }
+
       } else if (key==key_proj){
         if ( proj.set_proj_definition(stokens[1]) ) {
           requestedarea.setP(proj);
@@ -251,6 +255,9 @@ void PlotModule::prepareArea(const vector<string>& inp)
       }
     }
   }
+  // check area
+  mapDefinedByUser = requestedarea.P().isDefined();
+  staticPlot_->setRequestedarea(requestedarea);
 }
 
 void PlotModule::prepareMap(const vector<string>& inp)
@@ -261,9 +268,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   const size_t nm = vmp.size();
   vector<bool> inuse(nm, false);
 
-  // keep requested areas
-  Area rarea = requestedarea;
-  bool arearequested = requestedarea.P().isDefined();
 
   std::vector<MapPlot*> new_vmp; // new vector of map plots
 
@@ -271,10 +275,9 @@ void PlotModule::prepareMap(const vector<string>& inp)
     bool isok = false;
     for (size_t j = 0; j < nm; j++) {
       if (!inuse[j]) { // not already taken
-        if (vmp[j]->prepare(inp[k], rarea, true)) {
+        if (vmp[j]->prepare(inp[k], true)) {
           inuse[j] = true;
           isok = true;
-          arearequested |= vmp[j]->requestedArea(rarea);
           new_vmp.push_back(vmp[j]);
           break;
         }
@@ -285,10 +288,10 @@ void PlotModule::prepareMap(const vector<string>& inp)
 
     // make new mapPlot object and push it on the list
     MapPlot *mp = new MapPlot();
-    if (!mp->prepare(inp[k], rarea, false)) {
+    if (!mp->prepare(inp[k], false)) {
       delete mp;
     } else {
-      arearequested |= mp->requestedArea(rarea);
+      mp->setCanvas(mCanvas);
       new_vmp.push_back(mp);
     }
   } // end plotinfo loop
@@ -300,12 +303,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   }
   vmp = new_vmp;
 
-  // check area
-  if (!mapDefinedByUser && arearequested) {
-    mapDefinedByUser = (rarea.P().isDefined());
-    requestedarea = rarea;
-    staticPlot_->setRequestedarea(requestedarea);
-  }
 }
 
 void PlotModule::prepareFields(const vector<string>& inp)
@@ -344,6 +341,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
     } else {
       plotenabled.restore(fp, fp->getPlotInfo("model,plot,parameter,reftime"));
       vfp.push_back(fp);
+      fp->setCanvas(mCanvas);
     }
   }
 }
@@ -369,6 +367,7 @@ void PlotModule::prepareObs(const vector<string>& inp)
     ObsPlot *op = obsm->createObsPlot(inp[i]);
     if (op) {
       plotenabled.restore(op, op->getPlotInfo(3));
+      op->setCanvas(mCanvas);
 
       if (vobsTimes.empty()) {
         obsOneTime ot;

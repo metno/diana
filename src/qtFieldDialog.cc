@@ -57,7 +57,6 @@
 
 #include <diField/diRectangle.h>
 #include <diPlotOptions.h>
-#include <diField/FieldSpecTranslation.h>
 #include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
@@ -190,10 +189,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey("reftime", "", 1, CommandParser::cmdString);
   cp->addKey("refhour", "", 1, CommandParser::cmdInt);
   cp->addKey("refoffset", "", 1, CommandParser::cmdInt);
-
-  // old syntax
-  cp->addKey("level", "", 1, CommandParser::cmdString);
-  cp->addKey("idnum", "", 1, CommandParser::cmdString);
 
   cp->addKey("hour.offset", "", 1, CommandParser::cmdInt);
   cp->addKey("hour.diff", "", 1, CommandParser::cmdInt);
@@ -1220,19 +1215,6 @@ void FieldDialog::updateFieldGroups()
 
   int nvfgi = vfgi.size();
 
-  //Translate level names if not cdmSyntax
-  for (int i = 0; i < nvfgi; i++) {
-
-    if( !vfgi[i].cdmSyntax ) {
-      for(size_t ii = 0; ii <  vfgi[i].levelNames.size(); ii++ ) {
-
-        vfgi[i].levelNames[ii] = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].levelNames[ii]);
-      }
-      vfgi[i].defaultLevel = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].defaultLevel);
-    }
-
-  }
-
   int i, indexFGR;
 
   if (nvfgi > 0) {
@@ -1630,7 +1612,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       if ( int(vfgi[indexFGR].units.size()) > indexF ) {
         sf.unit = vfgi[indexFGR].units[indexF];
       }
-      sf.cdmSyntax = vfgi[indexFGR].cdmSyntax;
       sf.plotDefinition = fieldGroupCheckBox->isChecked();
       sf.minus = false;
 
@@ -3236,58 +3217,35 @@ std::string FieldDialog::getParamString(int i)
 {
   ostringstream ostr;
 
-  if( selectedFields[i].cdmSyntax ) {
-    if (selectedFields[i].inEdit)
-      ostr << " model="<< editName;
-    else
-      ostr <<" model="<< selectedFields[i].modelName;
+  if (selectedFields[i].inEdit)
+    ostr << " model="<< editName;
+  else
+    ostr <<" model="<< selectedFields[i].modelName;
 
-    if ( !selectedFields[i].refTime.empty() ) {
-      ostr <<" reftime="<<selectedFields[i].refTime;
-    }
-
-    if (selectedFields[i].plotDefinition) {
-      ostr << " plot=" << selectedFields[i].fieldName;
-    } else {
-      ostr << " parameter=" << selectedFields[i].fieldName;
-    }
-
-    if (!selectedFields[i].level.empty() ) {
-      if ( !selectedFields[i].zaxis.empty() ) {
-        ostr << " vcoord=" << selectedFields[i].zaxis;
-      }
-      ostr << " vlevel=" << selectedFields[i].level;
-    }
-    if (!selectedFields[i].idnum.empty()) {
-      ostr << " elevel=" << selectedFields[i].idnum;
-    }
-    if (selectedFields[i].hourOffset != 0)
-      ostr << " hour.offset=" << selectedFields[i].hourOffset;
-
-    if (selectedFields[i].hourDiff != 0)
-      ostr << " hour.diff=" << selectedFields[i].hourDiff;
-
-  } else {
-
-    if (selectedFields[i].inEdit)
-      ostr << editName;
-    else
-      ostr << selectedFields[i].modelName;
-
-    ostr << " " << selectedFields[i].fieldName;
-
-    if (!selectedFields[i].level.empty())
-      ostr << " level=" << selectedFields[i].level;
-    if (!selectedFields[i].idnum.empty())
-      ostr << " idnum=" << selectedFields[i].idnum;
-
-    if (selectedFields[i].hourOffset != 0)
-      ostr << " hour.offset=" << selectedFields[i].hourOffset;
-
-    if (selectedFields[i].hourDiff != 0)
-      ostr << " hour.diff=" << selectedFields[i].hourDiff;
-
+  if ( !selectedFields[i].refTime.empty() ) {
+    ostr <<" reftime="<<selectedFields[i].refTime;
   }
+
+  if (selectedFields[i].plotDefinition) {
+    ostr << " plot=" << selectedFields[i].fieldName;
+  } else {
+    ostr << " parameter=" << selectedFields[i].fieldName;
+  }
+
+  if (!selectedFields[i].level.empty() ) {
+    if ( !selectedFields[i].zaxis.empty() ) {
+      ostr << " vcoord=" << selectedFields[i].zaxis;
+    }
+    ostr << " vlevel=" << selectedFields[i].level;
+  }
+  if (!selectedFields[i].idnum.empty()) {
+    ostr << " elevel=" << selectedFields[i].idnum;
+  }
+  if (selectedFields[i].hourOffset != 0)
+    ostr << " hour.offset=" << selectedFields[i].hourOffset;
+
+  if (selectedFields[i].hourDiff != 0)
+    ostr << " hour.diff=" << selectedFields[i].hourDiff;
 
   return ostr.str();
 }
@@ -3478,48 +3436,14 @@ void FieldDialog::putOKString(const vector<std::string>& vstr,
     SelectedField sf;
     sf.external = external; // from QuickMenu
     bool decodeOK = false;
-    sf.cdmSyntax = miutil::contains(str,"model=");
 
     if (checkOptions) {
-      str = checkFieldOptions(str, sf.cdmSyntax);
+      str = checkFieldOptions(str);
       if (str.empty())
         continue;
     }
 
-    if ( sf.cdmSyntax ) {
-      decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
-    } else {
-      decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
-    }
-
-    //old string from quickMenu or bdiana, rewrite string in new syntax
-    if( ! decodeOK && !sf.cdmSyntax) {
-      //First try - decode model string - model + refhour + refoffset
-      sf.fieldOpts.clear();
-      std::string oldString = str;
-      str = FieldSpecTranslation::getNewFieldString(oldString, true);
-      sf.cdmSyntax = true;
-
-      if (checkOptions) {
-        str = checkFieldOptions(str, sf.cdmSyntax);
-        if (str.empty())
-          continue;
-      }
-      decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
-
-      if( ! decodeOK ) {
-        // Second try - do not decode model string
-        sf.fieldOpts.clear();
-        str = FieldSpecTranslation::getNewFieldString(oldString,false);
-
-        if (checkOptions) {
-          str = checkFieldOptions(str, sf.cdmSyntax);
-          if (str.empty())
-            continue;
-        }
-        decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
-      }
-    }
+    decodeOK = decodeString(str, sf, allTimeSteps);
 
     if ( decodeOK ) {
 
@@ -3563,31 +3487,10 @@ void FieldDialog::putOKString(const vector<std::string>& vstr,
       for (int i = 0; i < m; i++) {
         if (selectedFields[i].indexMGR == indexMGR && selectedFields[i].indexM == indexM) {
           bool groupOK = true;
-          if ( selectedFields[i].cdmSyntax ) {
-            if (indexFGR < 0
-                || selectedFields[i].zaxis != vfgi[indexFGR].zaxis
-                || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis) {
-              //                || selectedFields[i].grid != vfgi[indexFGR].grid ) {
-              groupOK = false;
-            }
-          } else { //old syntax
-            int ml;
-            if ((ml = vfgi[indexFGR].levelNames.size()) > 0) {
-              int l = 0;
-              while (l < ml && vfgi[indexFGR].levelNames[l]
-                                                         != selectedFields[i].level)
-                l++;
-              if (l == ml)
-                groupOK = false;
-            }
-            if ((ml = vfgi[indexFGR].idnumNames.size()) > 0) {
-              int l = 0;
-              while (l < ml && vfgi[indexFGR].idnumNames[l]
-                                                         != selectedFields[i].idnum)
-                l++;
-              if (l == ml)
-                groupOK = false;
-            }
+          if (indexFGR < 0
+              || selectedFields[i].zaxis != vfgi[indexFGR].zaxis
+              || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis) {
+            groupOK = false;
           }
           if ( groupOK ) {
             int j = 0;
@@ -3618,7 +3521,7 @@ void FieldDialog::putOKString(const vector<std::string>& vstr,
   }
 }
 
-bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
+bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
 {
   vector<ParsedCommand> vpc;
 
@@ -3739,165 +3642,6 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
   return false;
 }
 
-bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
-{
-  std::string vfg2_model, model, field, level, idnum, fOpts;
-  int hourOffset, hourDiff;
-  int indexMGR, indexM, indexFGR, indexF;
-
-  vector<ParsedCommand> vpc;
-
-  vpc = cp->parse(fieldString);
-
-  model.clear();
-  field.clear();
-  level.clear();
-  idnum.clear();
-  fOpts.clear();
-  hourOffset = 0;
-  hourDiff = 0;
-
-  //######################################################################
-  //    for (int j = 0; j < vpc.size(); j++) {
-  //      METLIBS_LOG_DEBUG("   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-  //          << "   " << vpc[j].allValue);
-  //    }
-  //######################################################################
-
-  if (vpc.size() > 1 && vpc[0].key == "unknown") {
-    model = vpc[0].allValue; // modelName
-    if (vpc[1].key == "unknown") {
-      field = vpc[1].allValue; // fieldName
-      for (unsigned int j = 2; j < vpc.size(); j++) {
-        if (vpc[j].key == "level")
-          level = vpc[j].allValue;
-        else if (vpc[j].key == "idnum")
-          idnum = vpc[j].allValue;
-        else if (vpc[j].key == "hour.offset" && !vpc[j].intValue.empty())
-          hourOffset = vpc[j].intValue[0];
-        else if (vpc[j].key == "hour.diff" && !vpc[j].intValue.empty())
-          hourDiff = vpc[j].intValue[0];
-        else if (vpc[j].key == "allTimeSteps" && vpc[j].allValue == "on")
-          allTimeSteps = true;
-        else if (vpc[j].key != "unknown") {
-          if (!fOpts.empty())
-            fOpts += " ";
-          fOpts += (vpc[j].key + "=" + vpc[j].allValue);
-        }
-      }
-    }
-  }
-
-  //######################################################################
-  //     METLIBS_LOG_DEBUG(" ->" << model << " " << field << " l= " << level << " l2= "
-  //        << idnum);
-  //######################################################################
-  vector<FieldGroupInfo> vfg2;
-  int nvfg = 0;
-
-  //  if (model != vfg2_model) {
-  indexMGR = indexM = -1;
-  getFieldGroups(model, "",indexMGR, indexM, true, vfg2);
-  //    vfg2_model = model;
-  nvfg = vfg2.size();
-  //  }
-
-  indexF = -1;
-  indexFGR = -1;
-  int j = 0;
-  bool ok = false;
-
-  while (!ok && j < nvfg) {
-    //      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName;
-
-    // Old syntax: Model, new syntax: Model(gridnr)
-    std::string modelName = vfg2[j].modelName;
-    if (miutil::contains(vfg2[j].modelName,"(") && !miutil::contains(model,"(")) {
-      modelName = modelName.substr(0, modelName.find(("(")));
-    }
-    if (!miutil::contains(vfg2[j].modelName,"(") && miutil::contains(model,"(")) {
-      model = model.substr(0, model.find(("(")));
-    }
-
-    if (modelName == model) {
-      //        cout << "Found model:" << modelName << " in index:" << j;
-      int m = vfg2[j].fieldNames.size();
-      int i = 0;
-      while (i < m && vfg2[j].fieldNames[i] != field){
-        //          cout << " .. skipping field:" << vfg2[j].fieldNames[i];
-        i++;
-      }
-
-      if (i < m) {
-        ok = true;
-        int m;
-        if ((m = vfg2[j].levelNames.size()) > 0 && !level.empty()) {
-          //            cout << " .. level is not empty";
-          int l = 0;
-          while (l < m && vfg2[j].levelNames[l] != level)
-            l++;
-          if (l == m && cp->isInt(level)) {
-            level += "hPa";
-            l = 0;
-            while (l < m && vfg2[j].levelNames[l] != level)
-              l++;
-            if (l < m)
-              level = vfg2[j].levelNames[l];
-          }
-          if (l == m){
-            //             cout << " .. did not find level:" << level << " ok=false";
-            ok = false;
-          }
-        } else if (!vfg2[j].levelNames.empty()) {
-          ok = false;
-        } else {
-          level.clear();
-        }
-        if ((m = vfg2[j].idnumNames.size()) > 0 && !idnum.empty()) {
-          int l = 0;
-          while (l < m && vfg2[j].idnumNames[l] != idnum)
-            l++;
-          if (l == m)
-            ok = false;
-        } else if (!vfg2[j].idnumNames.empty()) {
-          ok = false;
-        } else {
-          idnum.clear();
-        }
-        if (ok) {
-          indexFGR = j;
-          indexF = i;
-        }
-      }
-    }
-    j++;
-  }
-
-  if (indexFGR >= 0 && indexF >= 0) {
-    sf.inEdit = false;
-    sf.indexMGR = indexMGR;
-    sf.indexM = indexM;
-    sf.modelName = vfg2[indexFGR].modelName;
-    sf.fieldName = vfg2[indexFGR].fieldNames[indexF];
-    if(vfg2[indexFGR].levels[sf.fieldName].size() > 0 ) {
-      sf.levelOptions = vfg2[indexFGR].levels[sf.fieldName];
-    } else {
-      sf.levelOptions = vfg2[indexFGR].levelNames;
-    }
-    sf.idnumOptions = vfg2[indexFGR].idnumNames;
-    sf.level = level;
-    sf.idnum = idnum;
-    sf.hourOffset = hourOffset;
-    sf.hourDiff = hourDiff;
-    sf.fieldOpts = fOpts;
-    sf.minus = false;
-    return true;
-  }
-  //############################################################################
-  //     else METLIBS_LOG_DEBUG("  error");
-  //############################################################################
-  return false;
-}
 
 
 bool FieldDialog::fieldDifference(const std::string& str,
@@ -4074,7 +3818,7 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
   ivstr++;
 }
 
-std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSyntax)
+std::string FieldDialog::checkFieldOptions(const std::string& str)
 {
   METLIBS_LOG_SCOPE("str="<<str);
 
@@ -4088,16 +3832,10 @@ std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSynta
   int nlog = vplog.size();
 
   // find fieldname
-  if( cdmSyntax ) {
-    for (unsigned int j = 0; j < vplog.size(); j++) {
-      if (vplog[j].key == "plot" || vplog[j].key == "parameter" ) {
-        fieldname = vplog[j].allValue;
-        break;
-      }
-    }
-  } else {
-    if (nlog >= 2 && vplog[0].key == "unknown" && vplog[1].key == "unknown") {
-      fieldname = vplog[1].allValue;
+  for (unsigned int j = 0; j < vplog.size(); j++) {
+    if (vplog[j].key == "plot" || vplog[j].key == "parameter" ) {
+      fieldname = vplog[j].allValue;
+      break;
     }
   }
 
@@ -4113,11 +3851,6 @@ std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSynta
       //        METLIBS_LOG_DEBUG("        log " << j << " : id " << vplog[j].idNumber
       //        << "  " << vplog[j].key << " = " << vplog[j].allValue);
       //##################################################################
-
-      // model + field, old syntax
-      if ( !cdmSyntax ) {
-        newstr += vplog[0].allValue + " " + vplog[1].allValue;
-      }
 
       for (int i = 0; i < nlog; i++) {
         if (vplog[i].idNumber == 1)
@@ -4371,9 +4104,7 @@ void FieldDialog::changeModel()
   std::string newRefTime = vfgi[indexFGR].refTime;
   if ( (oldModel == newModel) && (oldRefTime == newRefTime) )
     return;
-  //ignore (gridnr)
-  newModel = newModel.substr(0, newModel.find("("));
-  oldModel = oldModel.substr(0, oldModel.find("("));
+
   fieldbox->blockSignals(true);
 
   int nvfgi = vfgi.size();
@@ -4448,7 +4179,6 @@ void FieldDialog::changeModel()
         selectedFields[i].levelOptions = vfgi[gbest].levelNames;
         selectedFields[i].idnumOptions = vfgi[gbest].idnumNames;
         selectedFields[i].refTime = vfgi[indexFGR].refTime;
-        selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
         selectedFields[i].plotDefinition = fieldGroupCheckBox->isChecked();
 
         std::string str = selectedFields[i].modelName + " "
@@ -4767,14 +4497,8 @@ void FieldDialog::fieldEditUpdate(std::string str)
     } else {
       std::string modelName;
       std::string fieldName;
-      if ( miutil::contains(str,"model=") ) {
-        bool allTimeSteps;
-        decodeString_cdmSyntax(str, sf, allTimeSteps);
-      } else if (vstr.size() >= 2) {
-        // new edit field
-        sf.modelName = vstr[0];
-        sf.fieldName = vstr[1];
-      }
+      bool allTimeSteps;
+      decodeString(str, sf, allTimeSteps);
       for (i = 0; i < n; i++) {
         if (!selectedFields[i].inEdit) {
           if (selectedFields[i].modelName == sf.modelName

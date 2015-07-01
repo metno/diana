@@ -243,10 +243,7 @@ bool AnnotationPlot::prepare(const std::string& pin)
       } else if (key == "clinewidth") {
         clinewidth = atoi(value.c_str());
       } else if (key == "plotrequested") {
-        if (value == "true")
-          plotRequested = true;
-        else
-          plotRequested = false;
+        plotRequested = (value == "true");
       }
 
     }
@@ -286,7 +283,7 @@ void AnnotationPlot::splitAnnotations()
 
 bool AnnotationPlot::putElements()
 {
-  METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
+  METLIBS_LOG_SCOPE();
   //decode strings, put into elements...
   vector<std::string> tokens, elementstrings;
   vector<Annotation> anew;

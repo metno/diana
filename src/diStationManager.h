@@ -72,9 +72,9 @@ public:
   ///held by this object
   std::vector<Station*> findStations(int x, int y);
   ///find station in position x,y in StationPlot with name and id
-  std::string findStation(int x, int y,std::string name,int id=-1);
+  std::string findStation(int x, int y, const std::string& name, int id=-1);
   ///find stations close to position x,y in StationPlot with name and id
-  std::vector<std::string> findStations(int x, int y,std::string name,int id=-1);
+  std::vector<std::string> findStations(int x, int y, const std::string& name, int id=-1);
   ///look for station in position x,y in all StationPlots
   void findStations(int x, int y, bool add,
       std::vector<std::string>& name, std::vector<int>& id,
@@ -103,7 +103,7 @@ private:
   stationDialogInfo m_info;
 
   //stations to be plotted
-  typedef std::map <std::string,StationPlot*> stationPlots_t;
+  typedef std::map <std::string, StationPlot*> stationPlots_t;
   stationPlots_t stationPlots;
 };
 

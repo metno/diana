@@ -5,6 +5,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QPolygonF>
+
 #define MILOGGER_CATEGORY "diana.GlUtilities"
 #include <miLogger/miLogging.h>
 
@@ -30,6 +32,25 @@ MapValuePosition mapValuePositionFromText(const std::string& p)
 
 // ========================================================================
 
+namespace {
+inline bool add(QPolygonF& polyline, const QPointF& p)
+{
+  if (isnan(p.x()) || isnan(p.y()))
+    return false;
+
+  const float LIMIT = 1e20;
+  if (abs(p.x()) >= LIMIT || abs(p.y()) >= LIMIT)
+    return false;
+
+  polyline << p;
+  return true;
+}
+inline bool add(QPolygonF& polyline, float x, float y)
+{
+  return add(polyline, QPointF(x, y));
+}
+} // namespace
+
 void xyclip(int npos, const float *x, const float *y, const float xylim[4],
     MapValuePosition anno_position, const std::string& anno,
     MapValueAnno_v& anno_positions, DiGLPainter* gl)
@@ -45,6 +66,8 @@ void xyclip(int npos, const float *x, const float *y, const float xylim[4],
   //  ------
   //  x(npos),y(npos): line with 'npos' points (npos>1)
   //  xylim(1-4):      x1,x2,y1,y2 limits of given area
+
+  QPolygonF polyline;
 
   int nint, nc, n, i, k1, k2;
   float xa, xb, ya, yb, x1, x2, y1, y2;
@@ -136,30 +159,34 @@ void xyclip(int npos, const float *x, const float *y, const float xylim[4],
       }
     } else if (k1 == 1) {
       // last point at a segment within the area
-      gl->Begin(DiGLPainter::gl_LINE_STRIP);
-      gl->Vertex2f(xx, yy);
-      for (i = nint + 1; i < n; i++) {
-        gl->Vertex2f(x[i], y[i]);
+      if (n - nint + 1 >= 2) {
+        polyline.clear();
+        polyline.reserve(n - nint + 1);
+        add(polyline, xx, yy);
+        for (i = nint + 1; i < n; i++)
+          add(polyline, x[i], y[i]);
+        add(polyline, xc[0], yc[0]);
+        gl->drawPolyline(polyline);
       }
-      gl->Vertex2f(xc[0], yc[0]);
-      gl->End();
     } else if (nc > 0) {
       // two 'neighboring points' outside the area, but part of the line within
-      gl->Begin(DiGLPainter::gl_LINE_STRIP);
-      gl->Vertex2f(xc[0], yc[0]);
-      gl->Vertex2f(xc[1], yc[1]);
-      gl->End();
+      polyline.clear();
+      add(polyline, xc[0], yc[0]);
+      add(polyline, xc[1], yc[1]);
+      gl->drawPolyline(polyline);
     }
   }
 
   if (k2 == 1) {
     // last point is within the area
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    gl->Vertex2f(xx, yy);
-    for (i = nint + 1; i < npos; i++) {
-      gl->Vertex2f(x[i], y[i]);
+    if (n-nint-1 >= 2) {
+      polyline.clear();
+      polyline.reserve(n - nint - 1);
+      add(polyline, xx, yy);
+      for (i = nint + 1; i < npos; i++)
+        add(polyline, x[i], y[i]);
+      gl->drawPolyline(polyline);
     }
-    gl->End();
   }
 }
 

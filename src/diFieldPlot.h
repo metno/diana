@@ -127,6 +127,7 @@ private:
    */
   bool plotFillCell(DiGLPainter* gl);
   bool plotFillCellExt(DiGLPainter* gl);
+  const Colour* colourForValue(float value) const;
   unsigned char * createRGBAImage(Field * field);
   unsigned char * resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
     int& bmStartx, int& bmStarty,

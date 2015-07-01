@@ -100,13 +100,12 @@ private:
     std::string taxis;
     std::string grid;
     std::string unit;
-    bool cdmSyntax;
     bool plotDefinition;
     bool levelmove;
     bool idnummove;
     SelectedField() : inEdit(false), external(false),
         hourOffset(0), hourDiff(0), minus(false),
-        cdmSyntax(true), plotDefinition(true), levelmove(true), idnummove(true)
+        plotDefinition(true), levelmove(true), idnummove(true)
     {
     }
   };
@@ -136,8 +135,7 @@ public:
   bool levelsExists(bool up, int type=0);
   void putOKString(const std::vector<std::string>& vstr,
 		   bool checkOptions=true, bool external=true);
-  bool decodeString_cdmSyntax(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
-  bool decodeString_oldSyntax(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
+  bool decodeString(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
   void getEditPlotOptions(std::map< std::string, std::map<std::string,std::string> >& po);
@@ -170,7 +168,7 @@ private:
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR, int& indexM,
 		      bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
-  std::string checkFieldOptions(const std::string& str, bool cdmSyntax);
+  std::string checkFieldOptions(const std::string& str);
   std::string getFieldOptions(const std::string& fieldName, bool reset, bool edit=false) const;
 
   bool fieldDifference(const std::string& str,
