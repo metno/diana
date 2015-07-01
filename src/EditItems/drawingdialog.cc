@@ -101,27 +101,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   addLayout->addStretch();
   addLayout->addWidget(loadFileButton);
 
-  // Editing
-
-  QFrame *editTopSeparator = new QFrame();
-  editTopSeparator->setFrameShape(QFrame::HLine);
-  QFrame *editBottomSeparator = new QFrame();
-  editBottomSeparator->setFrameShape(QFrame::HLine);
-
-  QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit Mode"));
-  connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
-  connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
-
-  QHBoxLayout *editTitleLayout = new QHBoxLayout();
-  editTitleLayout->addWidget(TitleLabel(tr("Recently Edited"), this));
-  editTitleLayout->addStretch();
-  editTitleLayout->addWidget(editModeCheckBox);
-
-  QVBoxLayout *editLayout = new QVBoxLayout();
-  editLayout->addWidget(editTopSeparator);
-  editLayout->addLayout(editTitleLayout);
-  editLayout->addWidget(editBottomSeparator);
-
   // Save and edit buttons
 
   quickSaveButton_ = new QPushButton(tr("Quick save"));
@@ -149,7 +128,16 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   buttonLayout->addWidget(editButton_);
   buttonLayout->addStretch();
 
-  // Filter button and widget
+  // Editing/Filtering
+
+  QFrame *editTopSeparator = new QFrame();
+  editTopSeparator->setFrameShape(QFrame::HLine);
+  QFrame *editBottomSeparator = new QFrame();
+  editBottomSeparator->setFrameShape(QFrame::HLine);
+
+  QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit mode"));
+  connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
+  connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
 
   filterButton_ = new QPushButton(tr("Show filters >>>"));
   filterButton_->setCheckable(true);
@@ -157,6 +145,19 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   filterWidget_ = new FilterDrawingWidget();
   connect(filterButton_, SIGNAL(toggled(bool)), SLOT(extend(bool)));
   connect(filterWidget_, SIGNAL(updated()), SIGNAL(updated()));
+
+  QCheckBox *showAllCheckBox = new QCheckBox(tr("Show all items"));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SLOT(setAllItemsVisible(bool)));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
+
+  QVBoxLayout *editLayout = new QVBoxLayout();
+  editLayout->addWidget(editTopSeparator);
+  editLayout->addWidget(TitleLabel(tr("Editing/Filtering"), this));
+  editLayout->addWidget(editModeCheckBox);
+  editLayout->addWidget(filterButton_);
+  editLayout->addWidget(showAllCheckBox);
+  editLayout->addWidget(editBottomSeparator);
 
   // Apply and hide
 
@@ -179,7 +180,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   leftLayout->addWidget(activeList_);
   leftLayout->addLayout(buttonLayout);
   leftLayout->addLayout(editLayout);
-  leftLayout->addWidget(filterButton_);
   leftLayout->addStretch();
   leftLayout->addLayout(hideApplyLayout);
 

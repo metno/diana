@@ -751,10 +751,12 @@ QList<DrawingItemBase *> DrawingManager::allItems() const
  */
 bool DrawingManager::isItemVisible(DrawingItemBase *item) const
 {
-  bool visible = item->isVisible();
-  if (!visible) return false;
-
-  return matchesFilter(item);
+  if (allItemsVisible_)
+    return true;
+  else if (!item->isVisible())
+    return false;
+  else
+    return matchesFilter(item);
 }
 
 /**
@@ -777,6 +779,11 @@ bool DrawingManager::matchesFilter(DrawingItemBase *item) const
 void DrawingManager::setFilter(const QPair<QStringList, QSet<QString> > &filter)
 {
   filter_ = filter;
+}
+
+void DrawingManager::setAllItemsVisible(bool enable)
+{
+  allItemsVisible_ = enable;
 }
 
 /**
