@@ -278,7 +278,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       if (!loadDrawing(name, fileName).isEmpty())
         return false;
 
-      // Obtain the group created by the loadDrawing() call.
+      // Obtain the group created by the above call.
       group = itemGroups_.value(name);
     }
 
@@ -471,17 +471,15 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   std::vector<miutil::miTime>::const_iterator it;
   std::vector<miutil::miTime> times = getTimes();
 
-  for (it = times.begin(); it != times.end(); ++it) {
-    if (*it == time) {
-      found = true;
-      break;
-    }
+  found = find(times.begin(), times.end(), time) != times.end();
+
+  QDateTime dateTime;
+  if (!time.undef()) {
+    QString timeStr = QString::fromStdString(time.isoTime());
+    dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
   }
 
   // Update layer groups to change the visibility of items.
-  QString timeStr = QString::fromStdString(time.isoTime());
-  QDateTime dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
-
   QMap<QString, EditItems::ItemGroup *>::iterator itl;
   for (itl = itemGroups_.begin(); itl != itemGroups_.end(); ++itl) {
 
@@ -515,6 +513,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     itemGroup->setTime(dateTime, allVisible);
   }
 
+  emit timesUpdated();
   return found;
 }
 
