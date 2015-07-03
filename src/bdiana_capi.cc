@@ -1599,7 +1599,7 @@ static int handlePlotCommand(int& k)
     }
     METLIBS_LOG_INFO("map area = " << main_controller->getMapArea());
 
-    if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
+    if (!raster && !shape && !json && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_standard, priop);
       multiple_newpage = false;
 #ifdef VIDEO_EXPORT
@@ -1692,7 +1692,7 @@ static int handlePlotCommand(int& k)
       priop.fname = thetime.format(priop.fname);
     }
 
-    if (!raster && (!multiple_plots || multiple_newpage)) {
+    if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vcross, priop);
       multiple_newpage = false;
 #ifdef VIDEO_EXPORT
@@ -1763,7 +1763,7 @@ static int handlePlotCommand(int& k)
     if (vprof_stations.size())
       vprofmanager->setStations(vprof_stations);
 
-    if (!raster && (!multiple_plots || multiple_newpage)) {
+    if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vprof, priop);
       multiple_newpage = false;
 #ifdef VIDEO_EXPORT
@@ -1830,7 +1830,7 @@ static int handlePlotCommand(int& k)
     if (not spectrum_station.empty())
       spectrummanager->setStation(spectrum_station);
 
-    if (!raster && (!multiple_plots || multiple_newpage)) {
+    if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_spectrum, priop);
       multiple_newpage = false;
 #ifdef VIDEO_EXPORT
