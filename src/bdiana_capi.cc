@@ -41,7 +41,6 @@
 
 #include <ctype.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <unistd.h>
 
 #include <fstream>
@@ -91,8 +90,6 @@
 # include <MovieMaker.h>
 #endif
 
-#include <signalhelper.h>
-
 // required to tell fimex to use log4cpp
 #include <fimex/Logger.h>
 
@@ -132,12 +129,7 @@ const std::string com_plotend = "plot.end";
 
 const std::string com_print_document = "print_document";
 
-const std::string com_wait_for_commands = "wait_for_commands";
-const std::string com_wait_end = "wait.end";
-const std::string com_fifo_name = "fifo";
-
 const std::string com_setupfile = "setupfile";
-const std::string com_command_path = "command_path";
 const std::string com_buffersize = "buffersize";
 
 const std::string com_papersize = "papersize";
@@ -283,7 +275,7 @@ QTransform annotationTransform;
 vector<std::string> vs, vvs, vvvs;
 bool setupread = false;
 bool buffermade = false;
-vector<std::string> lines, tmplines;
+vector<std::string> lines, tmplines, extra_field_lines;
 vector<int> linenumbers, tmplinenumbers;
 
 bool plot_trajectory = false;
@@ -303,11 +295,6 @@ vector<stringlist> lists;
 
 printerManager * printman;
 printOptions priop;
-
-bool wait_for_signals = false;
-bool wait_for_input = false; // if running as lib
-
-std::string fifo_name;
 
 std::string logfilename;
 
@@ -758,12 +745,25 @@ static bool readSetup(const std::string& constSetupfile, printerManager& printma
   return true;
 }
 
+static bool ensureSetup()
+{
+  if (!setupread)
+    setupread = readSetup(setupfile, *printman);
+  if (!setupread) {
+    METLIBS_LOG_ERROR("ERROR, no setupinformation..exiting");
+    return false;
+  }
+  return true;
+}
+
 /*
  * public C-version of above readSetup
  */
 int diana_readSetupFile(const char* setupFilename) {
 
-    using namespace std; using namespace miutil;
+    using namespace std;
+    using namespace miutil;
+
     printman = new printerManager();
     std::string setupfile(setupFilename);
     setupread = readSetup(setupfile, *printman);
@@ -817,10 +817,7 @@ static void printUsage(bool showexample)
         "                  : production triggered by TCP connection              \n"
         "                    addr is a hostname or IP address                    \n"
         "                    port is an optional port number, default is 3190    \n" // diOrderListener::DEFAULT_PORT
-        "-signal           : production triggered by SIGUSR1 signal (see example)\n"
-        "-libinput         : using bdiana_capi as library                        \n"
         "-example          : list example input-file and exit                    \n"
-        "-use_qimage       : use QImage as drawing medium                        \n"
         "                                                                        \n"
         "special key/value pairs:                                                \n"
         " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
@@ -1082,32 +1079,6 @@ static void printUsage(bool showexample)
             "#  You can not mix map plots, cross sections or soundings in one file\n"
             "#  \n"
             "#- Use of alpha-channel blending is not supported in postscript \n"
-            "#--------------------------------------------------------------   \n"
-            "#* Interactive batch-plotting *                  \n"
-            "#  To make plots on-demand, you will find this feature useful.  \n"
-            "#  Put this in the input-file:  \n"
-            "#    command_path=<some_path> \n"
-            "#    wait_for_commands \n"
-            "#  and bdiana will wait at the \'wait_for_commands\' line, periodically\n"
-            "#  checking \'<some_path>\' for a matching filename. When found, the \n"
-            "#  file(s) are read and the instructions within executed. If the line:\n"
-            "#    wait.end \n"
-            "#  is encountered, bdiana will stop waiting for commands. \n"
-            "#  The \'command_path\' must specify a complete filename - optionally \n"
-            "#  with wildcards. Example: \'/tmp/*.txt\' \n"
-            "#  NB: all files found are deleted immediately after reading.  \n"
-            "#--------------------------------------------------------------   \n"
-            "#* Batch-plotting triggered by Signals *                  \n"
-            "#  Alternative on-demand production (developed for use in WMS) \n"
-            "#  Start bdiana with the -signal commandline option. \n"
-            "#  After the initial input/setup have been read, bdiana will write its \n"
-            "#  pid-number to file bdiana.pid, and wait for a SIGUSR1-signal from an \n"
-            "#  external process. After a signal is received, the command_path is scanned\n"
-            "#  for commandfile(s), and these will be processed in the same fashion as\n"
-            "#  in the wait_for_commands section above.\n"
-            "#  If a confirmative answer is required, add the command fifo=<name>, and\n"
-            "#  bdiana will write the single character \'r\' to the named FIFO. NB: The \n"
-            "#  FIFO must exist! \n"
             "#--------------------------------------------------------------        \n"
             "#* Get Capabilities *                                                  \n"
             "#  Developed for use in WMS                                            \n"
@@ -1434,10 +1405,18 @@ void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int s
       deltax, deltay);
 }
 
-#define FIND_END_COMMAND(COMMAND) \
-  for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != COMMAND; i++, k++) \
-    pcom.push_back(lines[i]); \
+std::vector<std::string> FIND_END_COMMAND(int& k, const std::string& COMMAND, bool* found_end = 0)
+{
+  const int linenum = lines.size();
+  std::vector<std::string> pcom;
+  int i = k + 1;
+  for (; i < linenum && miutil::to_lower(lines[i]) != COMMAND; i++, k++)
+    pcom.push_back(lines[i]);
   k++;
+  if (found_end)
+    *found_end = (i<linenum);
+  return pcom;
+}
 
 static bool MAKE_CONTROLLER()
 {
@@ -1456,6 +1435,1203 @@ static bool MAKE_CONTROLLER()
   return true;
 }
 
+static void handleVprofOpt(int& k)
+{
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vprof_opt_end);
+  parse_vprof_options(pcom);
+}
+
+static void handleVcrossOpt(int& k)
+{
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vcross_opt_end);
+  if (!vcrossmanager)
+    vcrossmanager = miutil::make_shared<vcross::QtManager>();
+  vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+}
+
+static void handleSpectrumOpt(int& k)
+{
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_spectrum_opt_end);
+  parse_spectrum_options(pcom);
+}
+
+static int handlePlotCommand(int& k)
+{
+  // --- START PLOT ---
+  const std::string command = miutil::to_lower(lines[k]);
+  if (command == com_plot) {
+    plottype = plot_standard;
+    if (verbose)
+      METLIBS_LOG_INFO("Preparing new standard-plot");
+
+  } else if (command == com_vcross_plot) {
+    plottype = plot_vcross;
+    if (verbose)
+      METLIBS_LOG_INFO("Preparing new vcross-plot");
+
+  } else if (command == com_vprof_plot) {
+    plottype = plot_vprof;
+    if (verbose)
+      METLIBS_LOG_INFO("Preparing new vprof-plot");
+
+  } else if (command == com_spectrum_plot) {
+    plottype = plot_spectrum;
+    if (verbose)
+      METLIBS_LOG_INFO("Preparing new spectrum-plot");
+  }
+
+  // if new plottype: make sure previous postscript-session is stopped
+  if (prevplottype != plot_none && plottype != prevplottype) {
+    endHardcopy(prevplottype);
+  }
+  prevplottype = plottype;
+
+  if (multiple_plots && multiple_plottype != plot_none
+      && hardcopy_started[multiple_plottype] && multiple_plottype
+      != plottype) {
+    METLIBS_LOG_ERROR("ERROR, you can not mix STANDARD/VCROSS/VPROF/SPECTRUM in multiple plots "
+        << "..Exiting..");
+    return 1;
+  }
+  multiple_plottype = plottype;
+
+  if (multiple_plots && shape ) {
+    METLIBS_LOG_ERROR("ERROR, you can not use shape option for multiple plots "
+        << "..Exiting..");
+    return 1;
+  }
+  if ( !(plottype == plot_none || plottype == plot_standard)  && shape ) {
+    METLIBS_LOG_ERROR("ERROR, you can only use plottype STANDARD when using shape option"
+        << "..Exiting..");
+    return 1;
+  }
+
+  if (!buffermade) {
+    METLIBS_LOG_ERROR("ERROR, no buffersize set..exiting");
+    return 1;
+  }
+  if (!ensureSetup())
+    return 99;
+
+  const int linenum = lines.size();
+  vector<string> pcom;
+  for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != com_endplot
+           && miutil::to_lower(lines[i]) != com_plotend; i++, k++) {
+    if (shape ) {
+      if ( (miutil::contains(lines[i], "OBS") || miutil::contains(lines[i], "SAT") || miutil::contains(lines[i], "OBJECTS") ||
+              miutil::contains(lines[i], "EDITFIELD") || miutil::contains(lines[i], "TRAJECTORY"))) {
+        METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
+        return 1;
+      }
+      if ( miutil::contains(lines[i], "FIELD") ) {
+        std::string shapeFileName=priop.fname;
+        lines[i]+= " shapefilename=" + shapeFileName;
+        if ( miutil::contains(lines[i], "shapefile=0") )
+          miutil::replace(lines[i], "shapefile=0","shapefile=1");
+        else if (not miutil::contains(lines[i], "shapefile="))
+          lines[i]+=" shapefile=1";
+      }
+    }
+    pcom.push_back(lines[i]);
+  }
+  k++;
+
+  if (plottype == plot_standard) {
+    // -- normal plot
+
+    if (!multiple_plots)
+      createPaintDevice();
+    if (not MAKE_CONTROLLER())
+      return 99;
+    else {
+      vector<std::string> field_errors;
+      if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+        METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
+        for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
+          METLIBS_LOG_ERROR(field_errors[kk]);
+      }
+      extra_field_lines.clear();
+    }
+
+    // turn on/off archive-mode (observations)
+    main_controller->archiveMode(useArchive);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- setPlotWindow");
+    if (!multiple_plots)
+      main_controller->setPlotWindow(xsize, ysize);
+    else
+      main_controller->setPlotWindow(deltax, deltay);
+
+    // keeparea= false: use selected area or field/sat-area
+    // keeparea= true : keep previous used area (if possible)
+    main_controller->keepCurrentArea(keeparea);
+
+    // necessary to set time before plotCommands()..?
+    thetime = miTime::nowTime();
+    main_controller->setPlotTime(thetime);
+
+    if (updateCommandSyntax(pcom))
+      METLIBS_LOG_WARN("The plot commands are outdated, please update!");
+
+    if (verbose)
+      METLIBS_LOG_INFO("- sending plotCommands");
+    main_controller->plotCommands(pcom);
+
+    thetime = selectTime();
+
+    if (verbose)
+      METLIBS_LOG_INFO("- plotting for time:" << thetime);
+    main_controller->setPlotTime(thetime);
+
+    //expand filename
+    if (miutil::contains(priop.fname, "%")) {
+      priop.fname = thetime.format(priop.fname);
+    }
+
+    if (verbose)
+      METLIBS_LOG_INFO("- updatePlots");
+    if (!main_controller->updatePlots() && failOnMissingData) {
+      METLIBS_LOG_WARN("Failed to update plots.");
+      ensureNewContext();
+      return 99;
+    }
+    METLIBS_LOG_INFO("map area = " << main_controller->getMapArea());
+
+    if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
+      startHardcopy(plot_standard, priop);
+      multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+    } else if (raster && raster_type == image_avi) {
+      startVideo(priop);
+#endif
+    }
+
+    if (multiple_plots)
+      subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
+
+    if (plot_trajectory && !trajectory_started) {
+      vector<string> vstr;
+      vstr.push_back("clear");
+      vstr.push_back("delete");
+      vstr.push_back(trajectory_options);
+      main_controller->trajPos(vstr);
+      //main_controller->trajTimeMarker(trajectory_timeMarker);
+      main_controller->startTrajectoryComputation();
+      trajectory_started = true;
+    } else if (!plot_trajectory && trajectory_started) {
+      vector<string> vstr;
+      vstr.push_back("clear");
+      vstr.push_back("delete");
+      main_controller->trajPos(vstr);
+      trajectory_started = false;
+    }
+
+    if (raster && antialias)
+      glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- plot");
+
+    if (plotAnnotationsOnly) {
+      // Plotting annotations only for the purpose of returning legends to a WMS
+      // server front end.
+      if (raster) {
+        annotationRectangles = main_controller->plotAnnotations(glpainter);
+        annotationTransform = glpainter->transform;
+      }
+    } else
+    {
+      if (shape)
+        main_controller->plot(glpainter, true, false);
+      else if (!json)
+        main_controller->plot(glpainter, true, true);
+    }
+
+    // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
+    if (json)
+      createJsonAnnotation();
+
+    // --------------------------------------------------------
+  } else if (plottype == plot_vcross) {
+
+    if (!multiple_plots)
+      createPaintDevice();
+    if (not MAKE_CONTROLLER())
+      return 99;
+
+    // -- vcross plot
+    if (!vcrossmanager)
+      vcrossmanager = miutil::make_shared<vcross::QtManager>();
+    else
+      vcrossmanager->cleanup(); // needed to clear zoom history
+
+    // set size of plotwindow
+    if (!multiple_plots)
+      vcrossmanager->setPlotWindow(xsize, ysize);
+    else
+      vcrossmanager->setPlotWindow(deltax, deltay);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- sending vcross plot commands");
+    vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+
+    if (ptime.undef()) {
+      thetime = vcrossmanager->getTimeValue();
+      if (verbose)
+        METLIBS_LOG_INFO("VCROSS has default time:" << thetime);
+    } else
+      thetime = ptime;
+    if (verbose)
+      METLIBS_LOG_INFO("- plotting for time:" << thetime);
+    vcrossmanager->setTimeToBestMatch(thetime);
+
+    //expand filename
+    if (miutil::contains(priop.fname, "%")) {
+      priop.fname = thetime.format(priop.fname);
+    }
+
+    if (!raster && (!multiple_plots || multiple_newpage)) {
+      startHardcopy(plot_vcross, priop);
+      multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+    } else if (raster && raster_type == image_avi) {
+      startVideo(priop);
+#endif
+    }
+
+    if (multiple_plots)
+      subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- plot");
+
+    if (raster && antialias)
+      glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
+
+    vcrossmanager->plot(painter);
+
+    // --------------------------------------------------------
+  } else if (plottype == plot_vprof) {
+
+    if (!multiple_plots)
+      createPaintDevice();
+    if (not MAKE_CONTROLLER())
+      return 99;
+
+    // -- vprof plot
+    if (!vprofmanager) {
+      vprofmanager = new VprofManager();
+      vprofmanager->init();
+    }
+
+    // set size of plotwindow
+    if (!multiple_plots)
+      vprofmanager->setPlotWindow(xsize, ysize);
+    else
+      vprofmanager->setPlotWindow(deltax, deltay);
+
+    // extract options for plot
+    parse_vprof_options(pcom);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- sending plotCommands");
+    if (vprof_optionschanged)
+      vprofmanager->getOptions()->readOptions(vprof_options);
+    vprof_optionschanged = false;
+    vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
+    vprofmanager->setModel();
+
+    if (ptime.undef()) {
+      thetime = vprofmanager->getTime();
+      if (verbose)
+        METLIBS_LOG_INFO("VPROF has default time:" << thetime);
+    } else
+      thetime = ptime;
+    if (verbose)
+      METLIBS_LOG_INFO("- plotting for time:" << thetime);
+    vprofmanager->setTime(thetime);
+
+    //expand filename
+    if (miutil::contains(priop.fname, "%")) {
+      priop.fname = thetime.format(priop.fname);
+    }
+
+    if (verbose)
+      METLIBS_LOG_INFO("- setting station:" << vprof_stations.size());
+    if (vprof_stations.size())
+      vprofmanager->setStations(vprof_stations);
+
+    if (!raster && (!multiple_plots || multiple_newpage)) {
+      startHardcopy(plot_vprof, priop);
+      multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+    } else if (raster && raster_type == image_avi) {
+      startVideo(priop);
+#endif
+    }
+
+    if (multiple_plots)
+      subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- plot");
+
+    if (raster && antialias)
+      glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
+    vprofmanager->plot(glpainter);
+
+    // --------------------------------------------------------
+  } else if (plottype == plot_spectrum) {
+
+    if (!multiple_plots)
+      createPaintDevice();
+
+    // -- spectrum plot
+    if (!spectrummanager) {
+      spectrummanager = new SpectrumManager;
+    }
+
+    // set size of plotwindow
+    if (!multiple_plots)
+      spectrummanager->setPlotWindow(xsize, ysize);
+    else
+      spectrummanager->setPlotWindow(deltax, deltay);
+
+    // extract options for plot
+    parse_spectrum_options(pcom);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- sending plotCommands");
+    if (spectrum_optionschanged)
+      spectrummanager->getOptions()->readOptions(spectrum_options);
+    spectrum_optionschanged = false;
+    spectrummanager->setSelectedModels(spectrum_models);
+    spectrummanager->setModel();
+
+    if (ptime.undef()) {
+      thetime = spectrummanager->getTime();
+      if (verbose)
+        METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
+    } else
+      thetime = ptime;
+    if (verbose)
+      METLIBS_LOG_INFO("- plotting for time:" << thetime);
+    spectrummanager->setTime(thetime);
+
+    //expand filename
+    if (miutil::contains(priop.fname, "%")) {
+      priop.fname = thetime.format(priop.fname);
+    }
+
+    if (verbose)
+      METLIBS_LOG_INFO("- setting station:" << spectrum_station);
+    if (not spectrum_station.empty())
+      spectrummanager->setStation(spectrum_station);
+
+    if (!raster && (!multiple_plots || multiple_newpage)) {
+      startHardcopy(plot_spectrum, priop);
+      multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+    } else if (raster && raster_type == image_avi) {
+      startVideo(priop);
+#endif
+    }
+
+    if (multiple_plots)
+      subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
+
+    if (verbose)
+      METLIBS_LOG_INFO("- plot");
+
+    if (raster && antialias)
+      glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
+    spectrummanager->plot(glpainter);
+
+  }
+  // --------------------------------------------------------
+  // Write output to a file.
+  // --------------------------------------------------------
+
+  if (raster) {
+
+    if (verbose)
+      METLIBS_LOG_INFO("- Preparing for raster output");
+    glpainter->Flush();
+
+    // QWS/QPA output
+    if (raster) {
+      ensureNewContext();
+
+      int ox = 0, oy = 0;
+      if (plotAnnotationsOnly) {
+        getAnnotationsArea(ox, oy, xsize, ysize);
+        image = image.copy(-ox, -oy, xsize, ysize);
+        plotAnnotationsOnly = false;
+      }
+
+      // Add the input file text as meta-data in the image.
+      for (unsigned int i = 0; i < lines.size(); ++i)
+        image.setText(QString::number(i), QString::fromStdString(lines[i]));
+
+      image.save(QString::fromStdString(priop.fname));
+#if 0
+      //milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
+
+      bool empty = true;
+      for (int py = 0; py < image.height(); ++py) {
+        QRgb *scanLine = (QRgb*)(image.scanLine(py));
+        for (int px = 0; px < image.width(); ++px) {
+          if (qAlpha(scanLine[px]) != 0) {
+            empty = false;
+            break;
+          }
+        }
+        if (!empty)
+          break;
+      }
+
+      if (empty)
+        METLIBS_LOG_INFO("# vvv Empty plot (begin)");
+
+      // Write the input file text to the log.
+      for (unsigned int i = 0; i < lines.size(); ++i)
+        METLIBS_LOG_INFO(lines[i]);
+
+      if (empty)
+        METLIBS_LOG_INFO("# ^^^ Empty plot (end)");
+#endif
+    }
+    else {
+      imageIO::Image_data img;
+      img.width = xsize;
+      img.height = ysize;
+      img.filename = priop.fname;
+      int npixels;
+
+      npixels = img.width * img.height;
+      img.nchannels = 4;
+      img.data = new unsigned char[npixels * img.nchannels];
+
+      glpainter->ReadPixels(0, 0, img.width, img.height, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
+          img.data);
+
+      int result = 0;
+
+      // save as PNG -----------------------------------------------
+      if (raster_type == image_png || raster_type == image_unknown) {
+        if (verbose) {
+          METLIBS_LOG_INFO("- Saving PNG-image to: '" << img.filename << "'");
+        }
+        result = imageIO::write_png(img);
+#ifdef VIDEO_EXPORT
+      } else if (raster_type == image_avi) {
+        if (verbose) {
+          METLIBS_LOG_INFO("- Adding image to: '" << img.filename << "'");
+        }
+//            result = addVideoFrame(img);
+#endif
+      }
+      if (verbose)
+        METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
+      else if (!result)
+        METLIBS_LOG_ERROR(" ERROR, saving PNG-image to: '" << img.filename << "'");
+      // -------------------------------------------------------------
+
+    }
+
+  } else if (shape) { // Only shape output
+
+    if (miutil::contains(priop.fname, "tmp_diana")) {
+      METLIBS_LOG_INFO("Using shape option without file name, it will be created automatically");
+    } else {
+      METLIBS_LOG_INFO("Using shape option with given file name: '" << priop.fname << "'");
+    }
+    // first stop postscript-generation
+    endHardcopy(plot_none);
+
+    // Anything more to be done here ???
+
+  } else if (svg) {
+
+    ensureNewContext();
+
+    int ox = 0, oy = 0;
+    if (plotAnnotationsOnly) {
+      getAnnotationsArea(ox, oy, xsize, ysize);
+    }
+
+    // For some reason, QPrinter can determine the correct resolution to use, but
+    // QSvgGenerator cannot manage that on its own, so we take the resolution from
+    // a QPrinter instance which we do not otherwise use.
+    QPrinter sprinter;
+    QSvgGenerator svgFile;
+    svgFile.setFileName(QString::fromStdString(priop.fname));
+    svgFile.setSize(QSize(xsize, ysize));
+    svgFile.setViewBox(QRect(0, 0, xsize, ysize));
+    svgFile.setResolution(sprinter.resolution());
+    painter.begin(&svgFile);
+    painter.drawPicture(ox, oy, picture);
+    painter.end();
+
+  } else if (pdf) {
+
+    ensureNewContext();
+
+    if (!multiple_plots) {
+      int ox = 0, oy = 0;
+      if (plotAnnotationsOnly) {
+        getAnnotationsArea(ox, oy, xsize, ysize);
+      }
+
+      printPage(ox, oy);
+    }
+
+  } else if (json) {
+
+    ensureNewContext();
+
+    QFile outputFile(QString::fromStdString(priop.fname));
+    if (outputFile.open(QFile::WriteOnly)) {
+      outputFile.write("{\n");
+
+      unsigned int i = 0;
+      for (vector<std::string>::iterator iti = outputTextMapOrder.begin(); iti != outputTextMapOrder.end(); ++iti, ++i) {
+        outputFile.write("  \"");
+        outputFile.write(QString::fromStdString(*iti).toUtf8());
+        outputFile.write("\": {\n");
+        map<std::string,std::string> textMap = outputTextMaps[*iti];
+        unsigned int j = 0;
+        for (map<std::string,std::string>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
+          outputFile.write("    \"");
+          outputFile.write(QString::fromStdString(itj->first).toUtf8());
+          outputFile.write("\": ");
+          outputFile.write(QString::fromStdString(itj->second).toUtf8());
+          if (j != textMap.size() - 1)
+            outputFile.write(",");
+          outputFile.write("\n");
+        }
+        outputFile.write("  }");
+        if (i != outputTextMaps.size() - 1)
+          outputFile.write(",");
+        outputFile.write("\n");
+      }
+      outputFile.write("}\n");
+      outputFile.close();
+    }
+  } else { // Postscript
+
+    ensureNewContext();
+
+    if (!multiple_plots) {
+      int ox = 0, oy = 0;
+      if (plotAnnotationsOnly) {
+        getAnnotationsArea(ox, oy, xsize, ysize);
+      }
+
+      printPage(ox, oy);
+    }
+  }
+  return 0;
+}
+
+static int handleTimeCommand(int& k)
+{
+  if (!ensureSetup())
+    return 99;
+
+  if (not MAKE_CONTROLLER())
+    return 99;
+
+  if (verbose)
+    METLIBS_LOG_INFO("- finding times");
+
+  //Find ENDTIME
+  const std::string command = miutil::to_lower(lines[k]);
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
+
+  // necessary to set time before plotCommands()..?
+  thetime = miTime::nowTime();
+  main_controller->setPlotTime(thetime);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- sending plotCommands");
+  main_controller->plotCommands(pcom);
+
+  set<miTime> okTimes;
+  main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union", true);
+
+  // open filestream
+  ofstream file(priop.fname.c_str());
+  if (!file) {
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
+    return 1;
+  }
+  file << "PROG" << endl;
+  set<miTime>::iterator p = okTimes.begin();
+  for (; p != okTimes.end(); p++) {
+    file << (*p).format(time_format) << endl;
+  }
+  file.close();
+  return 0;
+}
+
+static int handleLevelCommand(int& k)
+{
+  if (!ensureSetup())
+    return 99;
+
+  if (not MAKE_CONTROLLER())
+    return 99;
+
+  if (verbose)
+    METLIBS_LOG_INFO("- finding levels");
+
+  //Find ENDLEVEL
+  const int linenum = lines.size();
+  vector<std::string> pcom;
+  for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != com_endlevel; i++, k++)
+    pcom.push_back(lines[i]);
+  k++;
+
+  vector<string> levels;
+
+  // open filestream
+  ofstream file(priop.fname.c_str());
+  if (!file) {
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
+    return 1;
+  }
+
+  for (unsigned int i = 0; i < pcom.size(); i++) {
+    levels = main_controller->getFieldLevels(pcom[i]);
+
+    for (unsigned int j = 0; j < levels.size(); j++) {
+      file << levels[j] << endl;
+    }
+    file << endl;
+  }
+
+  file.close();
+  return 0;
+}
+
+static int handleTimeVprofCommand(int& k)
+{
+  if (verbose)
+    METLIBS_LOG_INFO("- finding times");
+
+  //Find ENDTIME
+  const std::string command = miutil::to_lower(lines[k]);
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
+
+  if (!vprofmanager) {
+    vprofmanager = new VprofManager();
+    vprofmanager->init();
+  }
+  // extract options for plot
+  parse_vprof_options(pcom);
+
+  if (vprof_optionschanged)
+    vprofmanager->getOptions()->readOptions(vprof_options);
+
+  vprof_optionschanged = false;
+  vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
+  vprofmanager->setModel();
+
+  vector<miTime> okTimes = vprofmanager->getTimeList();
+
+  // open filestream
+  ofstream file(priop.fname.c_str());
+  if (!file) {
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
+    return 1;
+  }
+  file << "PROG" << endl;
+  vector<miTime>::iterator p = okTimes.begin();
+  for (; p != okTimes.end(); p++) {
+    file << (*p).format(time_format) << endl;
+  }
+  file.close();
+  return 0;
+}
+
+static int handleTimeSpectrumCommand(int& k)
+{
+  // read setup
+  if (!ensureSetup())
+    return 99;
+
+  if (not MAKE_CONTROLLER())
+    return 99;
+
+  if (verbose)
+    METLIBS_LOG_INFO("- finding times");
+
+  //Find ENDTIME
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
+
+  if (!spectrummanager)
+    spectrummanager = new SpectrumManager;
+
+  // extract options for plot
+  parse_spectrum_options(pcom);
+
+  if (spectrum_optionschanged)
+    spectrummanager->getOptions()->readOptions(spectrum_options);
+
+  spectrum_optionschanged = false;
+  spectrummanager->setSelectedModels(spectrum_models);
+  spectrummanager->setModel();
+
+  if (ptime.undef()) {
+    thetime = spectrummanager->getTime();
+    if (verbose)
+      METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
+  } else
+    thetime = ptime;
+  if (verbose)
+    METLIBS_LOG_INFO("- describing spectrum for time:" << thetime);
+  spectrummanager->setTime(thetime);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
+  if (not spectrum_station.empty())
+    spectrummanager->setStation(spectrum_station);
+
+  vector<miTime> okTimes = spectrummanager->getTimeList();
+  set<miTime> constTimes;
+
+  // open filestream
+  ofstream file(priop.fname.c_str());
+  if (!file) {
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
+    return 1;
+  }
+  file << "PROG" << endl;
+  vector<miTime>::iterator p = okTimes.begin();
+  for (; p != okTimes.end(); p++) {
+    file << (*p).format(time_format) << endl;
+  }
+  file << "CONST" << endl;
+/*      p = constTimes.begin();
+      for (; p != constTimes.end(); p++) {
+        file << (*p).format(time_format) << endl;
+      }*/
+  file.close();
+  return 0;
+}
+
+static int handlePrintDocument(int& k)
+{
+  if (raster) {
+    METLIBS_LOG_ERROR(" ERROR, trying to print raster-image!");
+    return 1;
+  }
+  if (priop.printer.empty()) {
+    METLIBS_LOG_ERROR(" ERROR, printing document: '" << priop.fname
+        << "'  Printer not defined!");
+    return 1;
+  }
+  // first stop postscript-generation
+  endHardcopy(plot_none);
+  multiple_newpage = true;
+
+  std::string command = printman->printCommand();
+  priop.numcopies = 1;
+
+  printman->expandCommand(command, priop);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- Issuing print command: '" << command << "'");
+  int res = system(command.c_str());
+  if (verbose)
+    METLIBS_LOG_INFO("Result:" << res);
+  return res;
+}
+
+static int handleFieldFilesCommand(int& k)
+{
+  bool found_end = false;
+  int kk = k+1;
+  const std::vector<std::string> pcom = FIND_END_COMMAND(kk, com_field_files_end, &found_end);
+  extra_field_lines.insert(extra_field_lines.end(), pcom.begin(), pcom.end());
+
+  if (!found_end) {
+    METLIBS_LOG_ERROR("no " << com_field_files_end << " found:" << lines[k] << " Linenumber:" << linenumbers[k]);
+    return 1;
+  }
+  k = kk; // skip the </FIELD_FILES> line
+  return 0;
+}
+
+static int handleDescribeCommand(int& k)
+{
+  if (verbose)
+    METLIBS_LOG_INFO("- finding information about data sources");
+
+  //Find ENDDESCRIBE
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_describe_end);
+
+  if (not MAKE_CONTROLLER())
+    return 99;
+
+  if (verbose)
+    METLIBS_LOG_INFO("- sending plotCommands");
+  main_controller->plotCommands(pcom);
+
+  thetime = selectTime();
+
+  if (verbose)
+    METLIBS_LOG_INFO("- describing field for time: " << thetime);
+  main_controller->setPlotTime(thetime);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- updatePlots");
+
+  if (main_controller->updatePlots() || !failOnMissingData) {
+
+    if (verbose)
+      METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");
+
+    // open filestream
+    ofstream file(priop.fname.c_str());
+    if (!file) {
+      METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
+      return 1;
+    }
+
+    vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
+    std::set<std::string> fieldPatterns;
+
+    FieldManager* fieldManager = main_controller->getFieldManager();
+    for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
+      std::string modelName = (*it)->getModelName();
+      std::vector<std::string> fileNames = fieldManager->getFileNames(modelName);
+      fieldPatterns.insert(fileNames.begin(), fileNames.end());
+    }
+
+    const SatManager::Prod_t& satProducts = main_controller->getSatelliteManager()->getProductsInfo();
+    set<std::string> satPatterns;
+    set<std::string> satFiles;
+
+    const vector<SatPlot*>& satellitePlots = main_controller->getSatellitePlots();
+    for (vector<SatPlot*>::const_iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
+      Sat* sat = (*it)->satdata;
+      const SatManager::Prod_t::const_iterator itp = satProducts.find(sat->satellite);
+      if (itp != satProducts.end()) {
+        const SatManager::SubProd_t::const_iterator itsp = itp->second.find(sat->satellite);
+        if (itsp != itp->second.end()) {
+          const SatManager::subProdInfo& satInfo = itsp->second;
+          for (vector<SatFileInfo>::const_iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
+            satFiles.insert(itsf->name);
+            if (itsf->name == sat->actualfile) {
+              for (vector<string>::const_iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
+                satPatterns.insert(*itp);
+            }
+          }
+        }
+      }
+    }
+
+    map<string,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
+    set<std::string> obsPatterns;
+    set<std::string> obsFiles;
+
+    vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
+    for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
+      vector<string> obsFileNames = (*it)->getFileNames();
+      for (vector<string>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
+        obsFiles.insert(*itf);
+
+        for (map<string,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
+          for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
+            if (*itf == itof->filename) {
+              for (vector<ObsManager::patternInfo>::iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)
+                obsPatterns.insert(itp->pattern);
+            }
+
+          }
+        }
+      }
+    }
+
+    file << "FILES" << endl;
+    for (std::set<std::string>::iterator it = fieldPatterns.begin(); it != fieldPatterns.end(); ++it)
+      file << *it << endl;
+    for (set<std::string>::iterator it = satFiles.begin(); it != satFiles.end(); ++it)
+      file << *it << endl;
+    for (set<std::string>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
+      file << *it << endl;
+    for (set<std::string>::iterator it = obsFiles.begin(); it != obsFiles.end(); ++it)
+      file << *it << endl;
+    for (set<std::string>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
+      file << *it << endl;
+
+    file.close();
+  }
+  return 0;
+}
+
+static int handleDescribeSpectrumCommand(int& k)
+{
+  if (verbose)
+    METLIBS_LOG_INFO("- finding information about data sources");
+
+  //Find ENDDESCRIBE
+  const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_describe_end);
+
+  if (not MAKE_CONTROLLER())
+    return 99;
+
+  if (!spectrummanager)
+    spectrummanager = new SpectrumManager;
+
+  // extract options for plot
+  parse_spectrum_options(pcom);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- sending plotCommands");
+
+  if (spectrum_optionschanged)
+    spectrummanager->getOptions()->readOptions(spectrum_options);
+
+  spectrum_optionschanged = false;
+  spectrummanager->setSelectedModels(spectrum_models);
+  spectrummanager->setModel();
+
+  if (ptime.undef()) {
+    thetime = spectrummanager->getTime();
+    if (verbose)
+      METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
+  } else
+    thetime = ptime;
+  if (verbose)
+    METLIBS_LOG_INFO("- describing spectrum for time:" << thetime);
+  spectrummanager->setTime(thetime);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
+  if (not spectrum_station.empty())
+    spectrummanager->setStation(spectrum_station);
+
+  if (verbose)
+    METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");
+
+  // open filestream
+  ofstream file(priop.fname.c_str());
+  if (!file) {
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
+    return 1;
+  }
+
+  vector<std::string> modelFiles = spectrummanager->getModelFiles();
+  file << "FILES" << endl;
+  for (vector<std::string>::const_iterator it = modelFiles.begin(); it != modelFiles.end(); ++it)
+    file << *it << endl;
+
+  file.close();
+  return 0;
+}
+
+static int handleBuffersize(int& k, const std::string& value)
+{
+  const std::vector<std::string> vvs = miutil::split(value, "x");
+  if (vvs.size() < 2) {
+    METLIBS_LOG_ERROR("ERROR, buffersize should be WxH:" << lines[k]
+        << " Linenumber:" << linenumbers[k]);
+    return 1;
+  }
+  const int tmp_xsize = miutil::to_int(vvs[0]);
+  const int tmp_ysize = miutil::to_int(vvs[1]);
+
+  // if requested buffersize identical to current: do nothing
+  if (buffermade && tmp_xsize == xsize && tmp_ysize == ysize)
+    return 0;
+
+  xsize = tmp_xsize;
+  ysize = tmp_ysize;
+
+  // first stop ongoing postscript sessions
+  endHardcopy(plot_none);
+
+  // for multiple plots
+  priop.viewport_x0 = 0;
+  priop.viewport_y0 = 0;
+  priop.viewport_width = xsize;
+  priop.viewport_height = ysize;
+
+  buffermade = true;
+  return 0;
+}
+
+static int handlePapersize(int& k, const std::string& value)
+{
+  const std::vector<std::string> vvvs = miutil::split(value, ","); // could contain both pagesize and papersize
+  for (unsigned int l = 0; l < vvvs.size(); l++) {
+    if (miutil::contains(vvvs[l], "x")) {
+      vvs = miutil::split(vvvs[l], "x");
+      if (vvs.size() < 2) {
+        METLIBS_LOG_ERROR("ERROR, papersize should be WxH or WxH,PAPERTYPE or PAPERTYPE:"
+            << lines[k] << " Linenumber:" << linenumbers[k]);
+        return 1;
+      }
+      priop.papersize.hsize = atoi(vvs[0].c_str());
+      priop.papersize.vsize = atoi(vvs[1].c_str());
+      priop.usecustomsize = true;
+    } else {
+      priop.pagesize = printman->getPage(vvvs[l]);
+    }
+  }
+  return 0;
+}
+
+static int handleOutputCommand(int& k, const std::string& value)
+{
+  const std::string lvalue = miutil::to_lower(value);
+  raster = false;
+  shape = false;
+  json = false;
+  postscript = false;
+  svg = false;
+  pdf = false;
+  if (lvalue == "postscript") {
+    postscript = true;
+    raster = false;
+    priop.doEPS = false;
+  } else if (lvalue == "eps") {
+    raster = false;
+    priop.doEPS = true;
+  } else if (lvalue == "png" || lvalue == "raster") {
+    raster = true;
+    if (lvalue == "png")
+      raster_type = image_png;
+    else
+      raster_type = image_unknown;
+
+  } else if (lvalue == "shp") {
+    shape = true;
+  } else if (lvalue == "avi") {
+    raster = true;
+    raster_type = image_avi;
+
+  } else if (lvalue == "pdf" || lvalue == "svg" || lvalue == "json") {
+    raster = false;
+    if (lvalue == "pdf")
+      pdf = true;
+    else if (lvalue == "svg")
+      svg = true;
+    else {
+      json = true;
+      outputTextMaps.clear();
+      outputTextMapOrder.clear();
+    }
+  } else {
+    METLIBS_LOG_ERROR("ERROR, unknown output-format:" << lines[k] << " Linenumber:"
+        << linenumbers[k]);
+    return 1;
+  }
+
+  if (raster || shape) {
+    // first stop ongoing postscript sessions
+    endHardcopy(plot_none);
+  }
+  return 0;
+}
+
+static int handleMultiplePlotsCommand(int& k, const std::string& value)
+{
+  if (miutil::to_lower(value) == "off") {
+    multiple_newpage = false;
+    multiple_plots = false;
+    endHardcopy(plot_none);
+    glpainter->Viewport(0, 0, xsize, ysize);
+
+  } else {
+    if (multiple_plots) {
+      METLIBS_LOG_ERROR("Multiple plots are already enabled at line " << linenumbers[k]);
+      endHardcopy(plot_none);
+      if (printer && pagePainter.isActive()) {
+        pagePainter.end();
+        delete printer;
+      }
+    }
+    vector<std::string> v1 = miutil::split(value, ",");
+    if (v1.size() < 2) {
+      METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k]
+          << " Linenumber:" << linenumbers[k]);
+      multiple_plots = false;
+      return 1;
+    }
+    numrows = atoi(v1[0].c_str());
+    numcols = atoi(v1[1].c_str());
+    if (numrows < 1 || numcols < 1) {
+      METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k]
+          << " Linenumber:" << linenumbers[k]);
+      multiple_plots = false;
+      return 1;
+    }
+    float fmargin = 0.0;
+    float fspacing = 0.0;
+    if (v1.size() > 2) {
+      fspacing = atof(v1[2].c_str());
+      if (fspacing >= 100 || fspacing < 0) {
+        METLIBS_LOG_WARN("WARNING, illegal value for spacing:" << lines[k]
+            << " Linenumber:" << linenumbers[k]);
+        fspacing = 0;
+      }
+    }
+    if (v1.size() > 3) {
+      fmargin = atof(v1[3].c_str());
+      if (fmargin >= 100 || fmargin < 0) {
+        METLIBS_LOG_WARN("WARNING, illegal value for margin:" << lines[k]
+            << " Linenumber:" << linenumbers[k]);
+        fmargin = 0;
+      }
+    }
+    margin = int(xsize * fmargin / 100.0);
+    spacing = int(xsize * fspacing / 100.0);
+    deltax = (xsize - 2 * margin - (numcols - 1) * spacing) / numcols;
+    deltay = (ysize - 2 * margin - (numrows - 1) * spacing) / numrows;
+    multiple_plots = true;
+    multiple_newpage = true;
+    plotcol = plotrow = 0;
+    if (verbose)
+      METLIBS_LOG_INFO("Starting multiple_plot, rows:" << numrows << " , columns: "
+          << numcols);
+
+    // A new multiple plot needs a new paint device to be created.
+    createPaintDevice();
+  }
+
+  return 0;
+}
+
+static int handlePlotCellCommand(int& k, const std::string& value)
+{
+  if (!multiple_plots) {
+    METLIBS_LOG_ERROR("ERROR, multiple plots not initialised:" << lines[k]
+        << " Linenumber:" << linenumbers[k]);
+    return 1;
+  } else {
+    vector<std::string> v1 = miutil::split(value, ",");
+    if (v1.size() != 2) {
+      METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k]
+          << " Linenumber:" << linenumbers[k]);
+      return 1;
+    }
+    plotrow = atoi(v1[0].c_str());
+    plotcol = atoi(v1[1].c_str());
+    if (plotrow < 0 || plotrow >= numrows || plotcol < 0 || plotcol >= numcols) {
+      METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k]
+          << " Linenumber:" << linenumbers[k]);
+      return 1;
+    }
+    // row 0 should be on top of page
+    plotrow = (numrows - 1 - plotrow);
+  }
+  return 0;
+}
 
 static int parseAndProcess(istream &is)
 {
@@ -1466,1131 +2642,76 @@ static int parseAndProcess(istream &is)
   if (res != 0)
     return res;
 
-  vector<std::string> extra_field_lines;
-
-  int linenum = lines.size();
+  const int linenum = lines.size();
 
   // parse input - and perform plots
   for (int k = 0; k < linenum; k++) {// input-line loop
     // start parsing...
-    if (miutil::to_lower(lines[k]) == com_vprof_opt) {
-      vector<string> pcom;
-      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i])
-          != com_vprof_opt_end; i++, k++)
-        pcom.push_back(lines[i]);
-      k++;
-      parse_vprof_options(pcom);
+    const std::string command = miutil::to_lower(lines[k]);
+    if (command == com_vprof_opt) {
+      handleVprofOpt(k);
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_vcross_opt) {
-      vector<string> pcom;
-      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i])
-          != com_vcross_opt_end; i++, k++)
-        pcom.push_back(lines[i]);
-      k++;
-
-      if (!vcrossmanager)
-        vcrossmanager = miutil::make_shared<vcross::QtManager>();
-      vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
-
+    } else if (command == com_vcross_opt) {
+      handleVcrossOpt(k);
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_spectrum_opt) {
-      vector<string> pcom;
-      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i])
-          != com_spectrum_opt_end; i++, k++)
-        pcom.push_back(lines[i]);
-      k++;
-      parse_spectrum_options(pcom);
+    } else if (command == com_spectrum_opt) {
+      handleSpectrumOpt(k);
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_plot
-        || miutil::to_lower(lines[k]) == com_vcross_plot
-        || miutil::to_lower(lines[k]) == com_vprof_plot
-        || miutil::to_lower(lines[k]) == com_spectrum_plot)
+    } else if (command == com_plot || command == com_vcross_plot
+        || command == com_vprof_plot || command == com_spectrum_plot)
     {
-      // --- START PLOT ---
-      if (miutil::to_lower(lines[k]) == com_plot) {
-        plottype = plot_standard;
-        if (verbose)
-          METLIBS_LOG_INFO("Preparing new standard-plot");
-
-      } else if (miutil::to_lower(lines[k]) == com_vcross_plot) {
-        plottype = plot_vcross;
-        if (verbose)
-          METLIBS_LOG_INFO("Preparing new vcross-plot");
-
-      } else if (miutil::to_lower(lines[k]) == com_vprof_plot) {
-        plottype = plot_vprof;
-        if (verbose)
-          METLIBS_LOG_INFO("Preparing new vprof-plot");
-
-      } else if (miutil::to_lower(lines[k]) == com_spectrum_plot) {
-        plottype = plot_spectrum;
-        if (verbose)
-          METLIBS_LOG_INFO("Preparing new spectrum-plot");
-      }
-
-      // if new plottype: make sure previous postscript-session is stopped
-      if (prevplottype != plot_none && plottype != prevplottype) {
-        endHardcopy(prevplottype);
-      }
-      prevplottype = plottype;
-
-      if (multiple_plots && multiple_plottype != plot_none
-          && hardcopy_started[multiple_plottype] && multiple_plottype
-          != plottype) {
-        METLIBS_LOG_ERROR("ERROR, you can not mix STANDARD/VCROSS/VPROF/SPECTRUM in multiple plots "
-            << "..Exiting..");
-        return 1;
-      }
-      multiple_plottype = plottype;
-
-      if (multiple_plots && shape ) {
-        METLIBS_LOG_ERROR("ERROR, you can not use shape option for multiple plots "
-            << "..Exiting..");
-        return 1;
-      }
-      if ( !(plottype == plot_none || plottype == plot_standard)  && shape ) {
-        METLIBS_LOG_ERROR("ERROR, you can only use plottype STANDARD when using shape option"
-            << "..Exiting..");
-        return 1;
-      }
-
-      if (!buffermade) {
-        METLIBS_LOG_ERROR("ERROR, no buffersize set..exiting");
-        return 1;
-      }
-      if (!setupread) {
-        setupread = readSetup(setupfile, *printman);
-        if (!setupread) {
-          METLIBS_LOG_ERROR("ERROR, no setupinformation..exiting");
-          return 99;
-        }
-      }
-
-      vector<string> pcom;
-      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != com_endplot
-          && miutil::to_lower(lines[i]) != com_plotend; i++, k++) {
-        if (shape ) {
-                if ( (miutil::contains(lines[i], "OBS") || miutil::contains(lines[i], "SAT") || miutil::contains(lines[i], "OBJECTS") ||
-                        miutil::contains(lines[i], "EDITFIELD") || miutil::contains(lines[i], "TRAJECTORY"))) {
-                        METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
-                        return 1;
-                }
-                if ( miutil::contains(lines[i], "FIELD") ) {
-                        std::string shapeFileName=priop.fname;
-                        lines[i]+= " shapefilename=" + shapeFileName;
-                        if ( miutil::contains(lines[i], "shapefile=0") )
-                                miutil::replace(lines[i], "shapefile=0","shapefile=1");
-                        else if (not miutil::contains(lines[i], "shapefile="))
-                                lines[i]+=" shapefile=1";
-                }
-        }
-        pcom.push_back(lines[i]);
-      }
-      k++;
-
-      if (plottype == plot_standard) {
-        // -- normal plot
-
-        if (!multiple_plots)
-          createPaintDevice();
-        if (not MAKE_CONTROLLER())
-          return 99;
-        else {
-          vector<std::string> field_errors;
-          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
-            METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
-            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
-              METLIBS_LOG_ERROR(field_errors[kk]);
-          }
-          extra_field_lines.clear();
-        }
-
-        // turn on/off archive-mode (observations)
-        main_controller->archiveMode(useArchive);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- setPlotWindow");
-        if (!multiple_plots)
-          main_controller->setPlotWindow(xsize, ysize);
-        else
-          main_controller->setPlotWindow(deltax, deltay);
-
-        // keeparea= false: use selected area or field/sat-area
-        // keeparea= true : keep previous used area (if possible)
-        main_controller->keepCurrentArea(keeparea);
-
-        // necessary to set time before plotCommands()..?
-        thetime = miTime::nowTime();
-        main_controller->setPlotTime(thetime);
-
-        if (updateCommandSyntax(pcom))
-          METLIBS_LOG_WARN("The plot commands are outdated, please update!");
-
-        if (verbose)
-          METLIBS_LOG_INFO("- sending plotCommands");
-        main_controller->plotCommands(pcom);
-
-        thetime = selectTime();
-
-        if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        main_controller->setPlotTime(thetime);
-
-        //expand filename
-        if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
-        }
-
-        if (verbose)
-          METLIBS_LOG_INFO("- updatePlots");
-        if (!main_controller->updatePlots() && failOnMissingData) {
-            METLIBS_LOG_WARN("Failed to update plots.");
-            ensureNewContext();
-            return 99;
-        }
-        METLIBS_LOG_INFO("map area = " << main_controller->getMapArea());
-
-        if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
-          startHardcopy(plot_standard, priop);
-          multiple_newpage = false;
-#ifdef VIDEO_EXPORT
-        } else if (raster && raster_type == image_avi) {
-            startVideo(priop);
-#endif
-        }
-
-        if (multiple_plots)
-          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
-
-        if (plot_trajectory && !trajectory_started) {
-          vector<string> vstr;
-          vstr.push_back("clear");
-          vstr.push_back("delete");
-          vstr.push_back(trajectory_options);
-          main_controller->trajPos(vstr);
-          //main_controller->trajTimeMarker(trajectory_timeMarker);
-          main_controller->startTrajectoryComputation();
-          trajectory_started = true;
-        } else if (!plot_trajectory && trajectory_started) {
-          vector<string> vstr;
-          vstr.push_back("clear");
-          vstr.push_back("delete");
-          main_controller->trajPos(vstr);
-          trajectory_started = false;
-        }
-
-        if (raster && antialias)
-          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- plot");
-
-        if (plotAnnotationsOnly) {
-          // Plotting annotations only for the purpose of returning legends to a WMS
-          // server front end.
-          if (raster) {
-            annotationRectangles = main_controller->plotAnnotations(glpainter);
-            annotationTransform = glpainter->transform;
-          }
-        } else
-        {
-          if (shape)
-            main_controller->plot(glpainter, true, false);
-          else if (!json)
-            main_controller->plot(glpainter, true, true);
-        }
-
-        // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
-        if (json)
-          createJsonAnnotation();
-
-        // --------------------------------------------------------
-      } else if (plottype == plot_vcross) {
-
-        if (!multiple_plots)
-          createPaintDevice();
-        if (not MAKE_CONTROLLER())
-          return 99;
-
-        // -- vcross plot
-        if (!vcrossmanager)
-          vcrossmanager = miutil::make_shared<vcross::QtManager>();
-        else
-          vcrossmanager->cleanup(); // needed to clear zoom history
-
-        // set size of plotwindow
-        if (!multiple_plots)
-          vcrossmanager->setPlotWindow(xsize, ysize);
-        else
-          vcrossmanager->setPlotWindow(deltax, deltay);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- sending vcross plot commands");
-        vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
-
-        if (ptime.undef()) {
-          thetime = vcrossmanager->getTimeValue();
-          if (verbose)
-            METLIBS_LOG_INFO("VCROSS has default time:" << thetime);
-        } else
-          thetime = ptime;
-        if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        vcrossmanager->setTimeToBestMatch(thetime);
-
-        //expand filename
-        if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
-        }
-
-        if (!raster && (!multiple_plots || multiple_newpage)) {
-          startHardcopy(plot_vcross, priop);
-          multiple_newpage = false;
-#ifdef VIDEO_EXPORT
-        } else if (raster && raster_type == image_avi) {
-          startVideo(priop);
-#endif
-        }
-
-        if (multiple_plots)
-          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- plot");
-
-        if (raster && antialias)
-          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
-
-        vcrossmanager->plot(painter);
-
-        // --------------------------------------------------------
-      } else if (plottype == plot_vprof) {
-
-        if (!multiple_plots)
-          createPaintDevice();
-        if (not MAKE_CONTROLLER())
-          return 99;
-
-        // -- vprof plot
-        if (!vprofmanager) {
-          vprofmanager = new VprofManager();
-          vprofmanager->init();
-        }
-
-        // set size of plotwindow
-        if (!multiple_plots)
-          vprofmanager->setPlotWindow(xsize, ysize);
-        else
-          vprofmanager->setPlotWindow(deltax, deltay);
-
-        // extract options for plot
-        parse_vprof_options(pcom);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- sending plotCommands");
-        if (vprof_optionschanged)
-          vprofmanager->getOptions()->readOptions(vprof_options);
-        vprof_optionschanged = false;
-        vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
-        vprofmanager->setModel();
-
-        if (ptime.undef()) {
-          thetime = vprofmanager->getTime();
-          if (verbose)
-            METLIBS_LOG_INFO("VPROF has default time:" << thetime);
-        } else
-          thetime = ptime;
-        if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        vprofmanager->setTime(thetime);
-
-        //expand filename
-        if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
-        }
-
-        if (verbose)
-          METLIBS_LOG_INFO("- setting station:" << vprof_stations.size());
-        if (vprof_stations.size())
-          vprofmanager->setStations(vprof_stations);
-
-        if (!raster && (!multiple_plots || multiple_newpage)) {
-          startHardcopy(plot_vprof, priop);
-          multiple_newpage = false;
-#ifdef VIDEO_EXPORT
-        } else if (raster && raster_type == image_avi) {
-          startVideo(priop);
-#endif
-        }
-
-        if (multiple_plots)
-          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- plot");
-
-        if (raster && antialias)
-          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
-        vprofmanager->plot(glpainter);
-
-        // --------------------------------------------------------
-      } else if (plottype == plot_spectrum) {
-
-        if (!multiple_plots)
-          createPaintDevice();
-
-        // -- spectrum plot
-        if (!spectrummanager) {
-          spectrummanager = new SpectrumManager;
-        }
-
-        // set size of plotwindow
-        if (!multiple_plots)
-          spectrummanager->setPlotWindow(xsize, ysize);
-        else
-          spectrummanager->setPlotWindow(deltax, deltay);
-
-        // extract options for plot
-        parse_spectrum_options(pcom);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- sending plotCommands");
-        if (spectrum_optionschanged)
-          spectrummanager->getOptions()->readOptions(spectrum_options);
-        spectrum_optionschanged = false;
-        spectrummanager->setSelectedModels(spectrum_models);
-        spectrummanager->setModel();
-
-        if (ptime.undef()) {
-          thetime = spectrummanager->getTime();
-          if (verbose)
-            METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
-        } else
-          thetime = ptime;
-        if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        spectrummanager->setTime(thetime);
-
-        //expand filename
-        if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
-        }
-
-        if (verbose)
-          METLIBS_LOG_INFO("- setting station:" << spectrum_station);
-        if (not spectrum_station.empty())
-          spectrummanager->setStation(spectrum_station);
-
-        if (!raster && (!multiple_plots || multiple_newpage)) {
-          startHardcopy(plot_spectrum, priop);
-          multiple_newpage = false;
-#ifdef VIDEO_EXPORT
-        } else if (raster && raster_type == image_avi) {
-          startVideo(priop);
-#endif
-        }
-
-        if (multiple_plots)
-          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- plot");
-
-        if (raster && antialias)
-          glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
-        spectrummanager->plot(glpainter);
-
-      }
-      // --------------------------------------------------------
-      // Write output to a file.
-      // --------------------------------------------------------
-
-      if (raster) {
-
-        if (verbose)
-          METLIBS_LOG_INFO("- Preparing for raster output");
-        glpainter->Flush();
-
-        // QWS/QPA output
-        if (raster) {
-          ensureNewContext();
-
-          int ox = 0, oy = 0;
-          if (plotAnnotationsOnly) {
-            getAnnotationsArea(ox, oy, xsize, ysize);
-            image = image.copy(-ox, -oy, xsize, ysize);
-            plotAnnotationsOnly = false;
-          }
-
-          // Add the input file text as meta-data in the image.
-          for (unsigned int i = 0; i < lines.size(); ++i)
-            image.setText(QString::number(i), QString::fromStdString(lines[i]));
-
-          image.save(QString::fromStdString(priop.fname));
-#if 0
-          //milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
-
-          bool empty = true;
-          for (int py = 0; py < image.height(); ++py) {
-            QRgb *scanLine = (QRgb*)(image.scanLine(py));
-            for (int px = 0; px < image.width(); ++px) {
-              if (qAlpha(scanLine[px]) != 0) {
-                empty = false;
-                break;
-              }
-            }
-            if (!empty)
-              break;
-          }
-
-          if (empty)
-            METLIBS_LOG_INFO("# vvv Empty plot (begin)");
-
-          // Write the input file text to the log.
-          for (unsigned int i = 0; i < lines.size(); ++i)
-            METLIBS_LOG_INFO(lines[i]);
-
-          if (empty)
-            METLIBS_LOG_INFO("# ^^^ Empty plot (end)");
-#endif
-        }
-        else {
-          imageIO::Image_data img;
-          img.width = xsize;
-          img.height = ysize;
-          img.filename = priop.fname;
-          int npixels;
-
-          npixels = img.width * img.height;
-          img.nchannels = 4;
-          img.data = new unsigned char[npixels * img.nchannels];
-
-          glpainter->ReadPixels(0, 0, img.width, img.height, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
-              img.data);
-
-          int result = 0;
-
-          // save as PNG -----------------------------------------------
-          if (raster_type == image_png || raster_type == image_unknown) {
-            if (verbose) {
-              METLIBS_LOG_INFO("- Saving PNG-image to: '" << img.filename << "'");
-            }
-            result = imageIO::write_png(img);
-#ifdef VIDEO_EXPORT
-          } else if (raster_type == image_avi) {
-            if (verbose) {
-              METLIBS_LOG_INFO("- Adding image to: '" << img.filename << "'");
-            }
-//            result = addVideoFrame(img);
-#endif
-          }
-          if (verbose)
-            METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
-          else if (!result)
-            METLIBS_LOG_ERROR(" ERROR, saving PNG-image to: '" << img.filename << "'");
-          // -------------------------------------------------------------
-
-        }
-
-      } else if (shape) { // Only shape output
-
-          if (miutil::contains(priop.fname, "tmp_diana")) {
-            METLIBS_LOG_INFO("Using shape option without file name, it will be created automatically");
-          } else {
-            METLIBS_LOG_INFO("Using shape option with given file name: '" << priop.fname << "'");
-          }
-          // first stop postscript-generation
-          endHardcopy(plot_none);
-
-          // Anything more to be done here ???
-
-      } else if (svg) {
-
-          ensureNewContext();
-
-          int ox = 0, oy = 0;
-          if (plotAnnotationsOnly) {
-            getAnnotationsArea(ox, oy, xsize, ysize);
-          }
-
-          // For some reason, QPrinter can determine the correct resolution to use, but
-          // QSvgGenerator cannot manage that on its own, so we take the resolution from
-          // a QPrinter instance which we do not otherwise use.
-          QPrinter sprinter;
-          QSvgGenerator svgFile;
-          svgFile.setFileName(QString::fromStdString(priop.fname));
-          svgFile.setSize(QSize(xsize, ysize));
-          svgFile.setViewBox(QRect(0, 0, xsize, ysize));
-          svgFile.setResolution(sprinter.resolution());
-          painter.begin(&svgFile);
-          painter.drawPicture(ox, oy, picture);
-          painter.end();
-
-      } else if (pdf) {
-
-        ensureNewContext();
-
-        if (!multiple_plots) {
-          int ox = 0, oy = 0;
-          if (plotAnnotationsOnly) {
-            getAnnotationsArea(ox, oy, xsize, ysize);
-          }
-
-          printPage(ox, oy);
-        }
-
-      } else if (json) {
-
-        ensureNewContext();
-
-        QFile outputFile(QString::fromStdString(priop.fname));
-        if (outputFile.open(QFile::WriteOnly)) {
-          outputFile.write("{\n");
-
-          unsigned int i = 0;
-          for (vector<std::string>::iterator iti = outputTextMapOrder.begin(); iti != outputTextMapOrder.end(); ++iti, ++i) {
-            outputFile.write("  \"");
-            outputFile.write(QString::fromStdString(*iti).toUtf8());
-            outputFile.write("\": {\n");
-            map<std::string,std::string> textMap = outputTextMaps[*iti];
-            unsigned int j = 0;
-            for (map<std::string,std::string>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
-              outputFile.write("    \"");
-              outputFile.write(QString::fromStdString(itj->first).toUtf8());
-              outputFile.write("\": ");
-              outputFile.write(QString::fromStdString(itj->second).toUtf8());
-              if (j != textMap.size() - 1)
-                outputFile.write(",");
-              outputFile.write("\n");
-            }
-            outputFile.write("  }");
-            if (i != outputTextMaps.size() - 1)
-              outputFile.write(",");
-            outputFile.write("\n");
-          }
-          outputFile.write("}\n");
-          outputFile.close();
-        }
-      } else { // Postscript
-
-        ensureNewContext();
-
-        if (!multiple_plots) {
-          int ox = 0, oy = 0;
-          if (plotAnnotationsOnly) {
-            getAnnotationsArea(ox, oy, xsize, ysize);
-          }
-
-          printPage(ox, oy);
-        }
-      }
-      continue;
-
-    } else if (miutil::to_lower(lines[k]) == com_time || miutil::to_lower(lines[k])
-        == com_level) {
-
-      // read setup
-      if (!setupread) {
-        setupread = readSetup(setupfile, *printman);
-        if (!setupread) {
-          METLIBS_LOG_ERROR("ERROR, no setupinformation..exiting");
-          return 99;
-        }
-      }
-
-      if (not MAKE_CONTROLLER())
+      if (handlePlotCommand(k))
         return 99;
-
-      if (miutil::to_lower(lines[k]) == com_time) {
-
-        if (verbose)
-          METLIBS_LOG_INFO("- finding times");
-
-        //Find ENDTIME
-        vector<string> pcom;
-        FIND_END_COMMAND(com_endtime)
-
-        // necessary to set time before plotCommands()..?
-        thetime = miTime::nowTime();
-        main_controller->setPlotTime(thetime);
-
-        if (verbose)
-          METLIBS_LOG_INFO("- sending plotCommands");
-        main_controller->plotCommands(pcom);
-
-        set<miTime> okTimes;
-        main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union", true);
-
-        // open filestream
-        ofstream file(priop.fname.c_str());
-        if (!file) {
-          METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
-          return 1;
-        }
-        file << "PROG" << endl;
-        set<miTime>::iterator p = okTimes.begin();
-        for (; p != okTimes.end(); p++) {
-          file << (*p).format(time_format) << endl;
-        }
-        file.close();
-
-      } else if (miutil::to_lower(lines[k]) == com_level) {
-
-        if (verbose)
-          METLIBS_LOG_INFO("- finding levels");
-
-        //Find ENDLEVEL
-        vector<std::string> pcom;
-        for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != com_endlevel; i++, k++)
-          pcom.push_back(lines[i]);
-        k++;
-
-        vector<string> levels;
-
-        // open filestream
-        ofstream file(priop.fname.c_str());
-        if (!file) {
-          METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
-          return 1;
-        }
-
-        for (unsigned int i = 0; i < pcom.size(); i++) {
-          levels = main_controller->getFieldLevels(pcom[i]);
-
-          for (unsigned int j = 0; j < levels.size(); j++) {
-            file << levels[j] << endl;
-          }
-          file << endl;
-        }
-
-        file.close();
-
-      }
-
       continue;
-
-    } else if (miutil::to_lower(lines[k]) == com_time_vprof) {
-
-      if (verbose)
-        METLIBS_LOG_INFO("- finding times");
-
-      //Find ENDTIME
-      vector<string> pcom;
-      FIND_END_COMMAND(com_endtime)
-
-      if (!vprofmanager) {
-        vprofmanager = new VprofManager();
-        vprofmanager->init();
-      }
-      // extract options for plot
-      parse_vprof_options(pcom);
-
-      if (vprof_optionschanged)
-        vprofmanager->getOptions()->readOptions(vprof_options);
-
-      vprof_optionschanged = false;
-      vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
-      vprofmanager->setModel();
-
-      vector<miTime> okTimes = vprofmanager->getTimeList();
-
-      // open filestream
-      ofstream file(priop.fname.c_str());
-      if (!file) {
-        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
-        return 1;
-      }
-      file << "PROG" << endl;
-      vector<miTime>::iterator p = okTimes.begin();
-      for (; p != okTimes.end(); p++) {
-        file << (*p).format(time_format) << endl;
-      }
-      file.close();
-
-      continue;
-
-    } else if (miutil::to_lower(lines[k]) == com_time_spectrum) {
-
-      // read setup
-      if (!setupread) {
-        setupread = readSetup(setupfile, *printman);
-        if (!setupread) {
-          METLIBS_LOG_ERROR("ERROR, no setupinformation..exiting");
-          return 99;
-        }
-      }
-
-      if (not MAKE_CONTROLLER())
+    } else if (command == com_time) {
+      if (handleTimeCommand(k))
         return 99;
-
-      if (verbose)
-        METLIBS_LOG_INFO("- finding times");
-
-      //Find ENDTIME
-      vector<string> pcom;
-      FIND_END_COMMAND(com_endtime)
-
-      if (!spectrummanager)
-        spectrummanager = new SpectrumManager;
-
-      // extract options for plot
-      parse_spectrum_options(pcom);
-
-      if (spectrum_optionschanged)
-        spectrummanager->getOptions()->readOptions(spectrum_options);
-
-      spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models);
-      spectrummanager->setModel();
-
-      if (ptime.undef()) {
-        thetime = spectrummanager->getTime();
-        if (verbose)
-          METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
-      } else
-        thetime = ptime;
-      if (verbose)
-        METLIBS_LOG_INFO("- describing spectrum for time:" << thetime);
-      spectrummanager->setTime(thetime);
-
-      if (verbose)
-        METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
-      if (not spectrum_station.empty())
-        spectrummanager->setStation(spectrum_station);
-
-      vector<miTime> okTimes = spectrummanager->getTimeList();
-      set<miTime> constTimes;
-
-      // open filestream
-      ofstream file(priop.fname.c_str());
-      if (!file) {
-        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
-        return 1;
-      }
-      file << "PROG" << endl;
-      vector<miTime>::iterator p = okTimes.begin();
-      for (; p != okTimes.end(); p++) {
-        file << (*p).format(time_format) << endl;
-      }
-      file << "CONST" << endl;
-/*      p = constTimes.begin();
-      for (; p != constTimes.end(); p++) {
-        file << (*p).format(time_format) << endl;
-      }*/
-      file.close();
-
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_print_document) {
-      if (raster) {
-        METLIBS_LOG_ERROR(" ERROR, trying to print raster-image!");
-        continue;
-      }
-      if (priop.printer.empty()) {
-        METLIBS_LOG_ERROR(" ERROR, printing document: '" << priop.fname
-               << "'  Printer not defined!");
-        continue;
-      }
-      // first stop postscript-generation
-      endHardcopy(plot_none);
-      multiple_newpage = true;
-
-      std::string command = printman->printCommand();
-      priop.numcopies = 1;
-
-      printman->expandCommand(command, priop);
-
-      if (verbose)
-        METLIBS_LOG_INFO("- Issuing print command: '" << command << "'");
-      int res = system(command.c_str());
-      if (verbose)
-        METLIBS_LOG_INFO("Result:" << res);
-
-      continue;
-
-    } else if (miutil::to_lower(lines[k]) == com_wait_for_commands) {
-      /*
-       ====================================
-       ========= TEST - feed commands from files
-       ====================================
-       */
-
-      if (command_path.empty()) {
-        METLIBS_LOG_ERROR("ERROR, wait_for_commands found, but command_path not set");
-        continue;
-      }
-      static int prev_iclock = -1;
-      int iclock;
-      float diff = 0;
-      miTime nowtime = miTime::nowTime();
-
-      // using clock-cycle-command
-      iclock = clock();
-      if (prev_iclock > 0)
-        diff = float(iclock - prev_iclock) / float(CLOCKS_PER_SEC);
-
-      METLIBS_LOG_INFO("================ WAIT FOR COMMANDS, TIME is:" << nowtime
-            << ", seconds spent on previous command(s):" << diff);
-
-      std::string pattern = command_path;
-      vector<std::string> newlines;
-      std::string waitline = com_wait_for_commands;
-
-      diutil::string_v matches;
-      while ((matches = diutil::glob(pattern)).empty())
-        pu_sleep(1);
-
-      nowtime = miTime::nowTime();
-      prev_iclock = clock();
-      METLIBS_LOG_INFO("================ FOUND COMMAND-FILE(S), TIME is:" << nowtime);
-
-      vector<std::string> filenames;
-
-      //loop over files
-      for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-        const std::string& filename = *it;
-        METLIBS_LOG_INFO("==== Reading file: '" << filename << "'");
-        filenames.push_back(filename);
-        ifstream file(filename.c_str());
-        while (file) {
-          std::string str;
-          if (getline(file, str)) {
-            miutil::trim(str);
-            if (str.length() > 0 && str[0] != '#') {
-              if (miutil::contains(miutil::to_lower(str), com_wait_end))
-                waitline = ""; // blank out waitline
-              else
-                newlines.push_back(str);
-            }
-          }
-        }
-      }
-      // remove processed files
-      for (unsigned int ik = 0; ik < filenames.size(); ik++) {
-        ostringstream ost;
-        ost << "rm -f " << filenames[ik];
-        std::string command = ost.str();
-
-        METLIBS_LOG_INFO("==== Cleaning up with: '" << command << "'");
-        int res = system(command.c_str());
-
-        if (res != 0){
-          METLIBS_LOG_WARN("Command:" << command << " failed");
-        }
-      }
-      // add new wait-command
-      if (waitline.size() > 0)
-        newlines.push_back(waitline);
-      // insert commandlines into the command-queue
-      lines.erase(lines.begin() + k, lines.begin() + k + 1);
-      lines.insert(lines.begin() + k, newlines.begin(), newlines.end());
-      linenum = lines.size();
-      k--;
-
-      METLIBS_LOG_INFO("================ EXECUTING COMMANDS");
-      continue;
-      // =============================================================
-
-    } else if (miutil::to_lower(lines[k]) == com_field_files) {
-      // Read lines until </FIELD_FILES> is read.
-
-      int kk;
-      for (kk = k + 1; kk < linenum; ++kk) {
-        if (miutil::to_lower(lines[kk]) != com_field_files_end)
-           extra_field_lines.push_back(lines[kk]);
-        else
-          break;
-      }
-
-      if (kk < linenum)
-        k = kk;         // skip the </FIELD_FILES> line
-      else {
-          METLIBS_LOG_ERROR("ERROR, no " << com_field_files_end << " found:" << lines[k]
-                 << " Linenumber:" << linenumbers[k]);
-        return 1;
-      }
-      continue;
-
-    } else if (miutil::to_lower(lines[k]) == com_field_files_end) {
-      METLIBS_LOG_WARN("WARNING, " << com_field_files_end << " found:" << lines[k]
-            << " Linenumber:" << linenumbers[k]);
-      continue;
-
-    } else if (miutil::to_lower(lines[k]) == com_describe) {
-
-      if (verbose)
-        METLIBS_LOG_INFO("- finding information about data sources");
-
-      //Find ENDDESCRIBE
-      vector<string> pcom;
-      FIND_END_COMMAND(com_describe_end)
-
-      if (not MAKE_CONTROLLER())
+    } else if (command == com_level) {
+      if (handleLevelCommand(k))
         return 99;
-
-      if (verbose)
-        METLIBS_LOG_INFO("- sending plotCommands");
-      main_controller->plotCommands(pcom);
-
-      thetime = selectTime();
-
-      if (verbose)
-        METLIBS_LOG_INFO("- describing field for time: " << thetime);
-      main_controller->setPlotTime(thetime);
-
-      if (verbose)
-        METLIBS_LOG_INFO("- updatePlots");
-
-      if (main_controller->updatePlots() || !failOnMissingData) {
-
-          if (verbose)
-            METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");
-
-          // open filestream
-          ofstream file(priop.fname.c_str());
-          if (!file) {
-            METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
-            return 1;
-          }
-
-          vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
-          std::set<std::string> fieldPatterns;
-
-          FieldManager* fieldManager = main_controller->getFieldManager();
-          for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
-            std::string modelName = (*it)->getModelName();
-            std::vector<std::string> fileNames = fieldManager->getFileNames(modelName);
-            fieldPatterns.insert(fileNames.begin(), fileNames.end());
-          }
-
-          const SatManager::Prod_t& satProducts = main_controller->getSatelliteManager()->getProductsInfo();
-          set<std::string> satPatterns;
-          set<std::string> satFiles;
-
-          const vector<SatPlot*>& satellitePlots = main_controller->getSatellitePlots();
-          for (vector<SatPlot*>::const_iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
-            Sat* sat = (*it)->satdata;
-            const SatManager::Prod_t::const_iterator itp = satProducts.find(sat->satellite);
-            if (itp != satProducts.end()) {
-              const SatManager::SubProd_t::const_iterator itsp = itp->second.find(sat->satellite);
-              if (itsp != itp->second.end()) {
-                const SatManager::subProdInfo& satInfo = itsp->second;
-                for (vector<SatFileInfo>::const_iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
-                  satFiles.insert(itsf->name);
-                  if (itsf->name == sat->actualfile) {
-                    for (vector<string>::const_iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
-                      satPatterns.insert(*itp);
-                  }
-                }
-              }
-            }
-          }
-
-          map<string,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
-          set<std::string> obsPatterns;
-          set<std::string> obsFiles;
-
-          vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
-          for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
-              vector<string> obsFileNames = (*it)->getFileNames();
-              for (vector<string>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
-                  obsFiles.insert(*itf);
-
-                  for (map<string,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
-                      for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
-                          if (*itf == itof->filename) {
-                              for (vector<ObsManager::patternInfo>::iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)
-                                  obsPatterns.insert(itp->pattern);
-                          }
-
-                      }
-                  }
-              }
-          }
-
-          file << "FILES" << endl;
-          for (std::set<std::string>::iterator it = fieldPatterns.begin(); it != fieldPatterns.end(); ++it)
-            file << *it << endl;
-          for (set<std::string>::iterator it = satFiles.begin(); it != satFiles.end(); ++it)
-            file << *it << endl;
-          for (set<std::string>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
-            file << *it << endl;
-          for (set<std::string>::iterator it = obsFiles.begin(); it != obsFiles.end(); ++it)
-            file << *it << endl;
-          for (set<std::string>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
-            file << *it << endl;
-
-          file.close();
-      }
-
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_describe_spectrum) {
-
-      if (verbose)
-        METLIBS_LOG_INFO("- finding information about data sources");
-
-      //Find ENDDESCRIBE
-      vector<string> pcom;
-      FIND_END_COMMAND(com_describe_end)
-
-      if (not MAKE_CONTROLLER())
+    } else if (command == com_time_vprof) {
+      if (handleTimeVprofCommand(k))
         return 99;
-
-      if (!spectrummanager)
-        spectrummanager = new SpectrumManager;
-
-      // extract options for plot
-      parse_spectrum_options(pcom);
-
-      if (verbose)
-        METLIBS_LOG_INFO("- sending plotCommands");
-
-      if (spectrum_optionschanged)
-        spectrummanager->getOptions()->readOptions(spectrum_options);
-
-      spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models);
-      spectrummanager->setModel();
-
-      if (ptime.undef()) {
-        thetime = spectrummanager->getTime();
-        if (verbose)
-          METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
-      } else
-        thetime = ptime;
-      if (verbose)
-        METLIBS_LOG_INFO("- describing spectrum for time:" << thetime);
-      spectrummanager->setTime(thetime);
-
-      if (verbose)
-        METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
-      if (not spectrum_station.empty())
-        spectrummanager->setStation(spectrum_station);
-
-      if (verbose)
-        METLIBS_LOG_INFO("- opening file '" << priop.fname << "'");
-
-      // open filestream
-      ofstream file(priop.fname.c_str());
-      if (!file) {
-        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
-        return 1;
-      }
-
-      vector<std::string> modelFiles = spectrummanager->getModelFiles();
-      file << "FILES" << endl;
-      for (vector<std::string>::const_iterator it = modelFiles.begin(); it != modelFiles.end(); ++it)
-        file << *it << endl;
-
-      file.close();
-
       continue;
 
-    } else if (miutil::to_lower(lines[k]) == com_describe_end) {
+    } else if (command == com_time_spectrum) {
+      if (handleTimeSpectrumCommand(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_print_document) {
+      if (handlePrintDocument(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_field_files) {
+      if (handleFieldFilesCommand(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_field_files_end) {
+      if (handleFieldFilesCommand(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_describe) {
+      if (handleDescribeCommand(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_describe_spectrum) {
+      if (handleDescribeSpectrumCommand(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_describe_end) {
       METLIBS_LOG_ERROR("WARNING, " << com_describe_end << " found:" << lines[k]
              << " Linenumber:" << linenumbers[k]);
       continue;
@@ -2613,69 +2734,20 @@ static int parseAndProcess(istream &is)
 
     if (key == com_setupfile) {
       if (setupread) {
-        METLIBS_LOG_WARN("WARNING, setupfile overrided by command line option. Linenumber:"
-            << linenumbers[k]);
-        //      return 1;
+        METLIBS_LOG_WARN("setupfile overrided by command line option. Linenumber:" << linenumbers[k]);
       } else {
         setupfile = value;
-        setupread = readSetup(setupfile, *printman);
-        if (!setupread) {
-          METLIBS_LOG_ERROR("ERROR, no setupinformation..exiting");
+        if (!ensureSetup())
           return 99;
-        }
       }
-
-    } else if (key == com_command_path) {
-      command_path = value;
-
-    } else if (key == com_fifo_name) {
-      fifo_name = value;
 
     } else if (key == com_buffersize) {
-      vvs = miutil::split(value, "x");
-      if (vvs.size() < 2) {
-        METLIBS_LOG_ERROR("ERROR, buffersize should be WxH:" << lines[k]
-               << " Linenumber:" << linenumbers[k]);
-        return 1;
-      }
-      int tmp_xsize = atoi(vvs[0].c_str());
-      int tmp_ysize = atoi(vvs[1].c_str());
-
-      // if requested buffersize identical to current: do nothing
-      if (buffermade && tmp_xsize == xsize && tmp_ysize == ysize)
-        continue;
-
-      xsize = tmp_xsize;
-      ysize = tmp_ysize;
-
-      // first stop ongoing postscript sessions
-      endHardcopy(plot_none);
-
-      // for multiple plots
-      priop.viewport_x0 = 0;
-      priop.viewport_y0 = 0;
-      priop.viewport_width = xsize;
-      priop.viewport_height = ysize;
-
-      buffermade = true;
+      if (handleBuffersize(k, value))
+        return 99;
 
     } else if (key == com_papersize) {
-      vvvs = miutil::split(value, ","); // could contain both pagesize and papersize
-      for (unsigned int l = 0; l < vvvs.size(); l++) {
-        if (miutil::contains(vvvs[l], "x")) {
-          vvs = miutil::split(vvvs[l], "x");
-          if (vvs.size() < 2) {
-            METLIBS_LOG_ERROR("ERROR, papersize should be WxH or WxH,PAPERTYPE or PAPERTYPE:"
-                << lines[k] << " Linenumber:" << linenumbers[k]);
-            return 1;
-          }
-          priop.papersize.hsize = atoi(vvs[0].c_str());
-          priop.papersize.vsize = atoi(vvs[1].c_str());
-          priop.usecustomsize = true;
-        } else {
-          priop.pagesize = printman->getPage(vvvs[l]);
-        }
-      }
+      if (handlePapersize(k, value))
+        return 99;
 
     } else if (key == com_filename) {
       if (value.empty()) {
@@ -2692,54 +2764,8 @@ static int parseAndProcess(istream &is)
       priop.printer = value;
 
     } else if (key == com_output) {
-      value = miutil::to_lower(value);
-      raster = false;
-      shape = false;
-      json = false;
-      postscript = false;
-      svg = false;
-      pdf = false;
-      if (value == "postscript") {
-        postscript = true;
-        raster = false;
-        priop.doEPS = false;
-      } else if (value == "eps") {
-        raster = false;
-        priop.doEPS = true;
-      } else if (value == "png" || value == "raster") {
-        raster = true;
-        if (value == "png")
-          raster_type = image_png;
-        else
-          raster_type = image_unknown;
-
-      } else if (value == "shp") {
-        shape = true;
-      } else if (value == "avi") {
-        raster = true;
-        raster_type = image_avi;
-
-      } else if (value == "pdf" || value == "svg" || value == "json") {
-        raster = false;
-        if (value == "pdf")
-            pdf = true;
-        else if (value == "svg")
-            svg = true;
-        else {
-            json = true;
-            outputTextMaps.clear();
-            outputTextMapOrder.clear();
-        }
-      } else {
-        METLIBS_LOG_ERROR("ERROR, unknown output-format:" << lines[k] << " Linenumber:"
-               << linenumbers[k]);
-        return 1;
-      }
-
-      if (raster || shape) {
-        // first stop ongoing postscript sessions
-        endHardcopy(plot_none);
-      }
+      if (handleOutputCommand(k, value))
+        return 99;
 
     } else if (key == com_colour) {
       if (miutil::to_lower(value) == "greyscale")
@@ -2796,92 +2822,12 @@ static int parseAndProcess(istream &is)
       failOnMissingData = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_multiple_plots) {
-      if (miutil::to_lower(value) == "off") {
-        multiple_newpage = false;
-        multiple_plots = false;
-        endHardcopy(plot_none);
-        glpainter->Viewport(0, 0, xsize, ysize);
-
-      } else {
-        if (multiple_plots) {
-          METLIBS_LOG_ERROR("Multiple plots are already enabled at line " << linenumbers[k]);
-          endHardcopy(plot_none);
-          if (printer && pagePainter.isActive()) {
-            pagePainter.end();
-            delete printer;
-          }
-        }
-        vector<std::string> v1 = miutil::split(value, ",");
-        if (v1.size() < 2) {
-          METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k]
-                << " Linenumber:" << linenumbers[k]);
-          multiple_plots = false;
-          return 1;
-        }
-        numrows = atoi(v1[0].c_str());
-        numcols = atoi(v1[1].c_str());
-        if (numrows < 1 || numcols < 1) {
-          METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k]
-                << " Linenumber:" << linenumbers[k]);
-          multiple_plots = false;
-          return 1;
-        }
-        float fmargin = 0.0;
-        float fspacing = 0.0;
-        if (v1.size() > 2) {
-          fspacing = atof(v1[2].c_str());
-          if (fspacing >= 100 || fspacing < 0) {
-            METLIBS_LOG_WARN("WARNING, illegal value for spacing:" << lines[k]
-                  << " Linenumber:" << linenumbers[k]);
-            fspacing = 0;
-          }
-        }
-        if (v1.size() > 3) {
-          fmargin = atof(v1[3].c_str());
-          if (fmargin >= 100 || fmargin < 0) {
-            METLIBS_LOG_WARN("WARNING, illegal value for margin:" << lines[k]
-                  << " Linenumber:" << linenumbers[k]);
-            fmargin = 0;
-          }
-        }
-        margin = int(xsize * fmargin / 100.0);
-        spacing = int(xsize * fspacing / 100.0);
-        deltax = (xsize - 2 * margin - (numcols - 1) * spacing) / numcols;
-        deltay = (ysize - 2 * margin - (numrows - 1) * spacing) / numrows;
-        multiple_plots = true;
-        multiple_newpage = true;
-        plotcol = plotrow = 0;
-        if (verbose)
-          METLIBS_LOG_INFO("Starting multiple_plot, rows:" << numrows << " , columns: "
-                << numcols);
-
-        // A new multiple plot needs a new paint device to be created.
-        createPaintDevice();
-      }
+      if (handleMultiplePlotsCommand(k, value))
+        return 99;
 
     } else if (key == com_plotcell) {
-      if (!multiple_plots) {
-        METLIBS_LOG_ERROR("ERROR, multiple plots not initialised:" << lines[k]
-               << " Linenumber:" << linenumbers[k]);
-        return 1;
-      } else {
-        vector<std::string> v1 = miutil::split(value, ",");
-        if (v1.size() != 2) {
-          METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k]
-                << " Linenumber:" << linenumbers[k]);
-          return 1;
-        }
-        plotrow = atoi(v1[0].c_str());
-        plotcol = atoi(v1[1].c_str());
-        if (plotrow < 0 || plotrow >= numrows || plotcol < 0 || plotcol
-            >= numcols) {
-          METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k]
-                << " Linenumber:" << linenumbers[k]);
-          return 1;
-        }
-        // row 0 should be on top of page
-        plotrow = (numrows - 1 - plotrow);
-      }
+      if (handlePlotCellCommand(k, value))
+        return 99;
 
     } else if (key == com_trajectory) {
       if (miutil::to_lower(value) == "on") {
@@ -2934,80 +2880,6 @@ int diana_parseAndProcessString(const char* string)
 
     return DIANA_ERROR;
 }
-
-
-/*
- SIGNAL HANDLING ROUTINES
- */
-
-static int dispatchWork(const std::string &file)
-{
-  METLIBS_LOG_INFO("Reading input file: '" << file << "'");
-
-  // commands in file
-  ifstream is(file.c_str());
-  if (!is) {
-          METLIBS_LOG_ERROR("ERROR, cannot open inputfile '" << batchinput << "'");
-    return 99;
-  }
-  int res = parseAndProcess(is);
-  if (res == 0) {
-    //Prosessing of file done, remove it!
-    unlink(file.c_str());
-  }
-
-  // if fifo name set, write response to fifo
-  if (!fifo_name.empty()) {
-    int fd = open(fifo_name.c_str(), O_WRONLY);
-    if (fd == -1) {
-        METLIBS_LOG_ERROR("ERROR, can't open the fifo <" << fifo_name << ">!");
-      goto ERROR;
-    }
-
-    char buf[1];
-    if (res == 0)
-        buf[0] = 'r';
-    else
-        buf[0] = 'e';
-
-    if (write(fd, buf, 1) == -1) {
-        METLIBS_LOG_ERROR("ERROR, can't write to fifo <" << fifo_name << ">!");
-    } else {
-      if (verbose)
-          METLIBS_LOG_INFO("FIFO client <" << fifo_name << "> notified!");
-    }
-
-    close(fd);
-    fifo_name = "";
-  }
-
-  if (res != 0)
-      return 99;
-
-  return 0;
-
-  ERROR: unlink(file.c_str());
-  return -1;
-}
-
-static void doWork()
-{
-  if (command_path.empty()) {
-    METLIBS_LOG_ERROR("ERROR, trying to scan for commands, but command_path not set!");
-    return;
-  }
-
-  const diutil::string_v matches = diutil::glob(command_path);
-  if (matches.empty()) {
-    METLIBS_LOG_WARN("WARNING, scan for commands returned nothing");
-    return;
-  }
-
-  // loop over files
-  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it)
-    dispatchWork(*it);
-}
-
 
 
 /*
@@ -3081,15 +2953,6 @@ int diana_init(int _argc, char** _argv)
     } else if (sarg == "-v") {
       verbose = true;
 
-    } else if (sarg == "-signal") {
-      if (orderbook != NULL) {
-        cerr << "ERROR, can't have both -address and -signal" << endl;
-        return 1;
-      }
-      wait_for_signals = true;
-
-    } else if (sarg == "-libinput") {
-      wait_for_input = true;
     } else if (sarg == "-example") {
       printUsage(true);
 
@@ -3100,10 +2963,6 @@ int diana_init(int _argc, char** _argv)
         use_nowtime = true;
 
     } else if (sarg.find("-address=") == 0) {
-      if (wait_for_signals) {
-        cerr << "ERROR, can't have both -address and -signal" << endl;
-        return 1;
-      }
       if (orderbook == NULL) {
         orderbook = new diOrderBook();
         orderbook->start();
@@ -3216,50 +3075,7 @@ int diana_init(int _argc, char** _argv)
       return 99;
   }
 
-  /*
-   Signal handling
-   */
-  if (wait_for_signals) {
-    ofstream fs;
-    bool timeout;
-    bool quit = false;
-
-    signalInit();
-
-    if (verbose)
-        METLIBS_LOG_INFO("PID: " << getpid());
-
-    fs.open("bdiana.pid");
-
-    if (!fs) {
-      METLIBS_LOG_ERROR("ERROR, can't open file <bdiana.pid>!");
-      diana_dealloc();
-      return 1;
-    }
-
-    fs << getpid() << endl;
-    fs.close();
-
-    while (!quit) {
-      application->processEvents(); // do we actually care in this case?
-      switch (waitOnSignal(10, timeout)) {
-      case -1:
-          METLIBS_LOG_INFO("ERROR, a waitOnSignal error occured!");
-        quit = true;
-        break;
-      case 0:
-        if (verbose)
-          METLIBS_LOG_INFO("SIGUSR1: received!");
-        doWork();
-        break;
-      case 1:
-        if (!timeout) {
-          METLIBS_LOG_INFO("SIGTERM, SIGINT: received!");
-          quit = true;
-        }
-      }
-    }
-  } else if (orderbook != NULL) {
+  if (orderbook != NULL) {
     bool quit = false;
     /*
      * XXX should handle SIGTERM / SIGINT somehow; currently, quit can
@@ -3283,10 +3099,8 @@ int diana_init(int _argc, char** _argv)
         application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
-  } else if (wait_for_input) {
-    // nothing to be done, just a dummy
   } else if (batchinput.empty()) {
-    METLIBS_LOG_WARN("Neither -address nor -signal was specified");
+    METLIBS_LOG_WARN("No -address was specified");
   }
   return DIANA_OK;
 }
