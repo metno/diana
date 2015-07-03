@@ -1883,12 +1883,11 @@ void DianaMainWindow::modelChangedSlot()
   updateGLSlot();
 }
 
-
 void DianaMainWindow::onVcrossRequestLoadCrossectionsFile(const QStringList& filenames)
 {
   vcrossEditManagerEnableSignals();
   for (int i=0; i<filenames.size(); ++i)
-    EditItemManager::instance()->emitLoadFile(filenames.at(i));
+    DrawingManager::instance()->loadDrawing(filenames.at(i), filenames.at(i));
 }
 
 

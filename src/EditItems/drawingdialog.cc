@@ -39,6 +39,7 @@
 #include "EditItems/editcomposite.h"
 #include "EditItems/itemgroup.h"
 #include "EditItems/kml.h"
+#include "EditItems/timefilesextractor.h"
 #include "EditItems/toolbar.h"
 
 #include "qtUtility.h"
@@ -49,8 +50,8 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QHBoxLayout>
-#include <QListView>
 #include <QMessageBox>
+#include <QTreeView>
 #include <QVBoxLayout>
 
 namespace EditItems {
@@ -79,12 +80,19 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // Products and selected products
 
-  drawingsList_ = new QListView();
+  drawingsList_ = new QTreeView();
+  drawingsList_->setHeaderHidden(true);
+  drawingsList_->setRootIsDecorated(true);
   drawingsList_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   drawingsList_->setModel(&drawingsModel_);
   drawingsList_->setSelectionMode(QAbstractItemView::MultiSelection);
+  drawingsList_->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(drawingsList_, SIGNAL(customContextMenuRequested(const QPoint &)),
+          SLOT(showDrawingContextMenu(const QPoint &)));
 
-  activeList_ = new QListView();
+  activeList_ = new QTreeView();
+  activeList_->setHeaderHidden(true);
+  activeList_->setRootIsDecorated(false);
   activeList_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   activeList_->setModel(&activeDrawingsModel_);
   activeList_->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -101,28 +109,11 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   addLayout->addStretch();
   addLayout->addWidget(loadFileButton);
 
-  // Editing
-
-  QFrame *editTopSeparator = new QFrame();
-  editTopSeparator->setFrameShape(QFrame::HLine);
-  QFrame *editBottomSeparator = new QFrame();
-  editBottomSeparator->setFrameShape(QFrame::HLine);
-
-  QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit Mode"));
-  connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
-  connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
-
-  QHBoxLayout *editTitleLayout = new QHBoxLayout();
-  editTitleLayout->addWidget(TitleLabel(tr("Recently Edited"), this));
-  editTitleLayout->addStretch();
-  editTitleLayout->addWidget(editModeCheckBox);
-
-  QVBoxLayout *editLayout = new QVBoxLayout();
-  editLayout->addWidget(editTopSeparator);
-  editLayout->addLayout(editTitleLayout);
-  editLayout->addWidget(editBottomSeparator);
-
   // Save and edit buttons
+
+  quickLoadButton_ = new QPushButton(tr("Reload"));
+  quickLoadButton_->setEnabled(false);
+  connect(quickLoadButton_, SIGNAL(clicked()), SLOT(quickLoad()));
 
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
@@ -144,20 +135,42 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
 
   QHBoxLayout *buttonLayout = new QHBoxLayout();
+  buttonLayout->addWidget(quickLoadButton_);
   buttonLayout->addWidget(quickSaveButton_);
   buttonLayout->addWidget(saveAsButton);
   buttonLayout->addWidget(editButton_);
   buttonLayout->addStretch();
 
-  // Filter button and widget
+  // Editing/Filtering
+
+  QFrame *editTopSeparator = new QFrame();
+  editTopSeparator->setFrameShape(QFrame::HLine);
+  QFrame *editBottomSeparator = new QFrame();
+  editBottomSeparator->setFrameShape(QFrame::HLine);
+
+  QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit mode"));
+  connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
+  connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
 
   filterButton_ = new QPushButton(tr("Show filters >>>"));
   filterButton_->setCheckable(true);
   filterButton_->setChecked(false);
   filterWidget_ = new FilterDrawingWidget();
-  filterWidget_->hide();
   connect(filterButton_, SIGNAL(toggled(bool)), SLOT(extend(bool)));
   connect(filterWidget_, SIGNAL(updated()), SIGNAL(updated()));
+
+  QCheckBox *showAllCheckBox = new QCheckBox(tr("Show all items"));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SLOT(setAllItemsVisible(bool)));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
+
+  QVBoxLayout *editLayout = new QVBoxLayout();
+  editLayout->addWidget(editTopSeparator);
+  editLayout->addWidget(TitleLabel(tr("Editing/Filtering"), this));
+  editLayout->addWidget(editModeCheckBox);
+  editLayout->addWidget(filterButton_);
+  editLayout->addWidget(showAllCheckBox);
+  editLayout->addWidget(editBottomSeparator);
 
   // Apply and hide
 
@@ -180,13 +193,11 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   leftLayout->addWidget(activeList_);
   leftLayout->addLayout(buttonLayout);
   leftLayout->addLayout(editLayout);
-  leftLayout->addWidget(filterButton_);
   leftLayout->addStretch();
   leftLayout->addLayout(hideApplyLayout);
 
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->addLayout(leftLayout);
-  layout->addWidget(filterWidget_);
 
   connect(drawingsList_->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -199,7 +210,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
           SLOT(updateButtons()));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
-  resize(minimumSize());
+  setOrientation(Qt::Horizontal);
+  setExtension(filterWidget_);
 }
 
 /**
@@ -251,17 +263,31 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
   drawm_->processInput(inp);
 }
 
+/**
+ * Read the names of deselected and selected drawings, removing from and
+ * adding to the list of active drawings as necessary.
+ */
 void DrawingDialog::activateDrawing(const QItemSelection &selected, const QItemSelection &deselected)
 {
   QMap<QString, QString> activeDrawings = activeDrawingsModel_.items();
 
-  // Read the names of deselected and selected drawings, removing from and
-  // adding to the list of active drawings as necessary.
-  foreach (const QModelIndex &index, deselected.indexes())
-    activeDrawings.remove(index.data().toString());
+  // Remove any deselected drawings.
+  foreach (const QModelIndex &index, deselected.indexes()) {
+    if (!drawingsModel_.hasChildren(index)) {
+      QString name = index.data().toString();
+      QString fileName = index.data(DrawingModel::FileNameRole).toString();
+      activeDrawings.remove(index.data().toString());
+    }
+  }
 
-  foreach (const QModelIndex &index, selected.indexes())
-    activeDrawings[index.data().toString()] = index.data(Qt::UserRole).toString();
+  // Add any selected drawings.
+  foreach (const QModelIndex &index, selected.indexes()) {
+    if (!drawingsModel_.hasChildren(index)) {
+      QString name = index.data().toString();
+      QString fileName = index.data(DrawingModel::FileNameRole).toString();
+      activeDrawings[name] = fileName;
+    }
+  }
 
   activeDrawingsModel_.setItems(activeDrawings);
 }
@@ -269,9 +295,12 @@ void DrawingDialog::activateDrawing(const QItemSelection &selected, const QItemS
 void DrawingDialog::makeProduct()
 {
   // Compile a list of strings describing the files in use.
+  QMap<QString, QString> items = activeDrawingsModel_.items();
+  QMap<QString, QString>::const_iterator it;
+
   std::vector<std::string> inp;
-  foreach (const QString &name, activeDrawingsModel_.items().keys())
-    inp.push_back("DRAWING name=\"" + name.toStdString() + "\"");
+  for (it = items.constBegin(); it != items.constEnd(); ++it)
+    inp.push_back("DRAWING name=\"" + it.key().toStdString() + "\"");
 
   putOKString(inp);
 
@@ -408,7 +437,8 @@ void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const 
 
   editm_->pushUndoCommands();
 
-  // Disable the quick save button because we are no longer working on a named product.
+  // Disable the reload and quick save buttons because we are no longer working on a named product.
+  quickLoadButton_->setEnabled(false);
   quickSaveButton_->setEnabled(false);
 }
 
@@ -427,32 +457,19 @@ void DrawingDialog::editDrawings()
   QStringList fileNames;
   foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
     names.append(index.data().toString());
-    fileNames.append(index.data(Qt::UserRole).toString());
+    fileNames.append(index.data(DrawingModel::FileNameRole).toString());
   }
 
-  // Load the drawings into the edit manager and construct a selection that
-  // will be used to deselect items in the drawing list.
-  QItemSelection selection;
-
+  // Load the drawings into the edit manager.
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  for (int i = 0; i < names.size(); ++i) {
-    QString error = editm_->loadDrawing(names.at(i), fileNames.at(i));
-    if (error.isEmpty()) {
-      QModelIndex index = drawingsModel_.find(names.at(i));
-      selection.select(index, index);
-    }
-  }
+  for (int i = 0; i < names.size(); ++i)
+    editm_->loadDrawing(names.at(i), fileNames.at(i));
 
   QApplication::restoreOverrideCursor();
 
-  // Deselect the named drawings from the drawing list in order to remove
-  // them from the active list.
-  drawingsList_->selectionModel()->select(selection, QItemSelectionModel::Toggle);
-
-  // Add the drawings to the editing list.
-  for (int i = 0; i < names.size(); ++i)
-    editingModel_.appendDrawing(names.at(i), fileNames.at(i));
+  // Remove the selected active drawings.
+  removeActiveDrawings();
 
   // Deselecting the drawing from the list does not automatically remove it
   // from the drawing manager if it was present there, so we need to apply
@@ -460,6 +477,27 @@ void DrawingDialog::editDrawings()
   emit applyData();
 
   emit editingMode(true);
+}
+
+void DrawingDialog::removeActiveDrawings()
+{
+  // Construct a selection that will be used to deselect items in the drawing list.
+  QItemSelection selection;
+
+  foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
+    QString fileName = index.data(DrawingModel::FileNameRole).toString();
+    QModelIndex dindex = drawingsModel_.findFile(fileName);
+    // If no corresponding name is found in the drawings list, remove the
+    // item directly.
+    if (dindex.isValid())
+      selection.select(dindex, dindex);
+    else
+      activeDrawingsModel_.removeRow(index.row());
+  }
+
+  // Deselect the named drawings from the drawing list in order to remove
+  // them from the active list.
+  drawingsList_->selectionModel()->select(selection, QItemSelectionModel::Toggle);
 }
 
 void DrawingDialog::showActiveContextMenu(const QPoint &pos)
@@ -474,8 +512,24 @@ void DrawingDialog::showActiveContextMenu(const QPoint &pos)
 
   QMenu menu;
   QAction *editAction = menu.addAction(tr("Edit"));
-  if (menu.exec(activeList_->viewport()->mapToGlobal(pos)) == editAction)
+  QAction *removeAction = menu.addAction(tr("Remove"));
+  QAction *result = menu.exec(activeList_->viewport()->mapToGlobal(pos));
+  if (result == editAction)
     editDrawings();
+  else if (result == removeAction)
+    removeActiveDrawings();
+}
+
+void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
+{
+  //QItemSelectionModel *selectionModel = drawingsList_->selectionModel();
+  QModelIndex index = drawingsList_->indexAt(pos);
+
+  if (!index.isValid())
+    return;
+
+  QString fileName = index.data(DrawingModel::FileNameRole).toString();
+  // ###
 }
 
 void DrawingDialog::updateQuickSaveButton()
@@ -494,16 +548,38 @@ void DrawingDialog::updateQuickSaveButton()
     quickSaveName_ = products.values().first();
     quickSaveButton_->setText(tr("Quick save '%1'").arg(quickSaveName_));
     quickSaveButton_->setEnabled(true);
+    quickLoadButton_->setText(tr("Reload '%1'").arg(quickSaveName_));
+    quickLoadButton_->setEnabled(true);
   } else {
     quickSaveName_ = QString();
     quickSaveButton_->setText(tr("Quick save"));
     quickSaveButton_->setEnabled(false);
+    quickLoadButton_->setText(tr("Reload"));
+    quickLoadButton_->setEnabled(false);
   }
 }
 
 /**
- * Saves all items to the last edited file, allowing the user to cancel the
- * operation if there are items from other products present.
+ * Reload items from the last edited file.
+ */
+void DrawingDialog::quickLoad()
+{
+  // Obtain the file name for the only product being edited.
+  QString fileName = editm_->getDrawings().value(quickSaveName_);
+
+  // Find all the items belonging to the product and remove them.
+  foreach (DrawingItemBase *item, editm_->allItems()) {
+    if (item->property("product").toString() == quickSaveName_)
+      editm_->removeItem(item);
+  }
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  QString error = editm_->loadDrawing(fileName, fileName);
+  QApplication::restoreOverrideCursor();
+}
+
+/**
+ * Saves all items to the last edited file.
  */
 void DrawingDialog::quickSave()
 {
@@ -517,9 +593,8 @@ void DrawingDialog::quickSave()
 
 void DrawingDialog::extend(bool enable)
 {
-  filterWidget_->setVisible(enable);
+  showExtension(enable);
   filterButton_->setText(enable ? tr("Hide filters <<<") : tr("Show filters >>>"));
-  adjustSize();
 }
 
 // ====================================================================
@@ -538,30 +613,92 @@ DrawingModel::~DrawingModel()
 QModelIndex DrawingModel::index(int row, int column, const QModelIndex &parent) const
 {
   if (!parent.isValid()) {
-    if (row >= 0 && row < items_.size() && column == 0)
-      return createIndex(row, column, -1);
+    // Top level item - use an invalid row value as an identifier.
+    if (row < items_.size())
+      return createIndex(row, column, 0xffffffff);
+  } else {
+    // Child item - store the parent's row in the created index.
+    if (parent.row() >= 0 && parent.row() < items_.size())
+      return createIndex(row, column, parent.row());
   }
+
   return QModelIndex();
+}
+
+QModelIndex DrawingModel::parent(const QModelIndex &index) const
+{
+  // The root item and top level items return an invalid index.
+  if (!index.isValid() || index.internalId() == 0xffffffff)
+    return QModelIndex();
+
+  // Child items return an index that refers to the relevant top level item.
+  return createIndex(index.internalId(), 0, 0xffffffff);
+}
+
+bool DrawingModel::hasChildren(const QModelIndex &index) const
+{
+  // The root item has children.
+  if (!index.isValid())
+    return true;
+
+  // Child items have no children.
+  if (index.internalId() != 0xffffffff)
+    return false;
+
+  // Top level items have children if there is more than one file associated
+  // with them.
+  if (index.row() >= 0 && index.row() < items_.size()) {
+    QString fileName = items_.values().at(index.row());
+    return fileName.contains("[");
+  } else
+    return false;
+}
+
+int DrawingModel::columnCount(const QModelIndex &parent) const
+{
+  return 1;
 }
 
 int DrawingModel::rowCount(const QModelIndex &parent) const
 {
   if (!parent.isValid())
     return items_.size();
-  else
+  else if (parent.row() >= 0 && parent.row() < items_.size() && parent.column() == 0) {
+    if (hasChildren(parent)) {
+      // If the top level item has children then use its file name to obtain
+      // a list of matching files.
+      QString fileName = items_.values().at(parent.row());
+      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
+      return tfiles.size();
+    } else
+      return 1;
+  } else
     return 0;
 }
 
 QVariant DrawingModel::data(const QModelIndex &index, int role) const
 {
-  if (index.isValid() && index.row() >= 0 && index.row() < items_.size()) {
-    switch (role) {
-    case Qt::DisplayRole:
-      return QVariant(items_.keys().at(index.row()));
-    case Qt::UserRole:
-      return QVariant(items_.values().at(index.row()));
-    default:
-      ;
+  if (!index.isValid() || index.row() < 0 || index.column() != 0)
+    return QVariant();
+
+  if (index.internalId() == 0xffffffff) {
+    // Top level item
+    if (index.row() < items_.size()) {
+      switch (role) {
+      case NameRole:
+        return QVariant(items_.keys().at(index.row()));
+      case FileNameRole:
+        return QVariant(items_.values().at(index.row()));
+      default:
+        ;
+      }
+    }
+  } else if (index.internalId() < items_.size()) {
+    // Child item
+    QString fileName = items_.values().at(index.internalId());
+    if (role == NameRole || role == FileNameRole) {
+      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
+      return QVariant(tfiles.at(index.row()).first.filePath());
     }
   }
 
@@ -583,10 +720,26 @@ QVariant DrawingModel::headerData(int section, Qt::Orientation orientation, int 
 
 Qt::ItemFlags DrawingModel::flags(const QModelIndex &index) const
 {
-  if (index.isValid())
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-  else
+  if (index.isValid() && hasChildren(index))
     return Qt::ItemIsEnabled;
+  else
+    return QAbstractListModel::flags(index);
+}
+
+bool DrawingModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+  if (row < 0 || row >= items_.size())
+    return false;
+
+  beginRemoveRows(parent, row, count);
+  while (count > 0) {
+    // Find the key that corresponds to the given row.
+    QString key = items_.keys().at(row);
+    items_.remove(key);
+    count--;
+  }
+  endRemoveRows();
+  return true;
 }
 
 QMap<QString, QString> DrawingModel::items() const
@@ -603,12 +756,40 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
 
 QModelIndex DrawingModel::find(const QString &name) const
 {
-  return createIndex(items_.keys().indexOf(name), 0, -1);
+  return createIndex(items_.keys().indexOf(name), 0, 0xffffffff);
+}
+
+QModelIndex DrawingModel::findFile(const QString &fileName) const
+{
+  // Check the items in the model to ensure that we don't add an existing product.
+  QStringList topLevelFileNames = items_.values();
+
+  // Check top level items.
+  for (int row = 0; row < items_.size(); ++row) {
+    if (topLevelFileNames.at(row) == fileName)
+      return createIndex(row, 0, 0xffffffff);
+  }
+
+  // Check children if items have them.
+  for (int row = 0; row < items_.size(); ++row) {
+    QString topLevelFileName = topLevelFileNames.at(row);
+    if (topLevelFileName.contains("[")) {
+      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(topLevelFileName);
+      for (int child = 0; child < tfiles.size(); ++child) {
+        if (tfiles.value(child).first.filePath() == fileName)
+          return createIndex(child, 0, row);
+      }
+    }
+  }
+
+  // We didn't find the file, so return an invalid model index.
+  return QModelIndex();
 }
 
 void DrawingModel::appendDrawing(const QString &fileName)
 {
-  appendDrawing(fileName, fileName);
+  if (!findFile(fileName).isValid())
+    appendDrawing(fileName, fileName);
 }
 
 void DrawingModel::appendDrawing(const QString &name, const QString &fileName)
@@ -617,13 +798,13 @@ void DrawingModel::appendDrawing(const QString &name, const QString &fileName)
   if (items_.contains(name))
     return;
 
-  // Since the underlying data is sorted, we need to insert the drawing into
-  // the map in order to find out where it will be inserted, so we do that to
-  // a new map before notifying other components and updating the map.
   QMap<QString, QString> items = items_;
   items[name] = fileName;
   int row = items.keys().indexOf(name);
 
+  // Since the underlying data is sorted, we need to insert the drawing into
+  // the map in order to find out where it will be inserted, so we do that to
+  // a new map before notifying other components and updating the map.
   beginInsertRows(QModelIndex(), row, row);
   items_ = items;
   endInsertRows();

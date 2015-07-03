@@ -133,6 +133,7 @@ public:
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
+  void setAllItemsVisible(bool enable);
 
 signals:
   void drawingLoaded(const QString &name);
@@ -153,6 +154,7 @@ protected:
 
   QMap<QString, EditItems::ItemGroup *> itemGroups_;
   QPair<QStringList, QSet<QString> > filter_;
+  bool allItemsVisible_;
 
 private:
   GridConverter gc_;
