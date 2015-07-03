@@ -275,16 +275,18 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     // If not, try to load it.
     if (!isLoaded) {
-      if (!loadDrawing(name, fileName).isEmpty())
-        return false;
-
-      // Obtain the group created by the above call.
-      group = itemGroups_.value(name);
+      if (loadDrawing(name, fileName).isEmpty()) {
+        isLoaded = true;
+        // Obtain the group created by the above call.
+        group = itemGroups_.value(name);
+      }
     }
 
-    // Record the layer group in the collection of replacement drawings.
-    loaded[name] = group;
-    loaded_[name] = fileName;
+    if (isLoaded) {
+      // Record the layer group in the collection of replacement drawings.
+      loaded[name] = group;
+      loaded_[name] = fileName;
+    }
   }
 
   // Delete layer groups that are no longer loaded and replace the list with
@@ -362,7 +364,7 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
 
   QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
-    METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
+    METLIBS_LOG_WARN("Failed to open file: " << fileName.toStdString());
     return error;
   }
 
@@ -502,7 +504,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
         QString error;
         QList<DrawingItemBase *> items = KML::createFromFile(itemGroup->name(), fileName, error);
         if (!error.isEmpty())
-          METLIBS_LOG_WARN(QString("DrawingManager::prepare: failed to load layer group from %1: %2")
+          METLIBS_LOG_WARN(QString("DrawingManager::prepare: failed to load items from %1: %2")
                            .arg(fileName).arg(error).toStdString());
 
         itemGroup->setItems(items);
