@@ -416,6 +416,7 @@ void DiPaintGLPainter::setPolygonColor(const QRgb &color)
       colours << qRgba(0, 0, 0, 0) << attributes.color;
       attributes.mask.setColorTable(colours);
       painter->setBrush(attributes.mask);
+      painter->setBrushOrigin(viewport.bottomLeft()); // is this correct?
     } else
       painter->setBrush(QColor::fromRgba(color));
     break;
@@ -1293,7 +1294,7 @@ void DiPaintGLPainter::PolygonMode(GLenum face, GLenum mode)
 
 void DiPaintGLPainter::PolygonStipple(const GLubyte *mask)
 {
-  this->attributes.mask = QImage(mask, 32, 32, QImage::Format_Mono);
+  this->attributes.mask = QImage(mask, 32, 32, QImage::Format_Mono).mirrored();
   QVector<QRgb> colours;
   colours << qRgba(0, 0, 0, 0) << this->attributes.color;
   this->attributes.mask.setColorTable(colours);

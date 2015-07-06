@@ -4131,7 +4131,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
                 if(p==0)
                   gl->PolygonStipple(solid);
                 else
-                  gl->PolygonStipple(ig.getPattern(patterns[ii]));
+                  gl->PolygonStipple(p);
               }
             } else {
               continue;
@@ -4176,7 +4176,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
               if(p==0)
                 gl->PolygonStipple(solid);
               else
-                gl->PolygonStipple(ig.getPattern(patterns[i]));
+                gl->PolygonStipple(p);
             }
           }
 
