@@ -61,7 +61,7 @@ int findZoomForScale(float z0denominator, float denominator)
   if (denominator <= 0)
     return 0;
 
-  return (int) round(log(z0denominator / denominator) / log(2));
+  return std::max(0, (int) round(log(z0denominator / denominator) / log(2)) - 1);
 }
 
 bool hasAttributeValue(const QDomElement& e, const QString& a, const QStringList& values)
