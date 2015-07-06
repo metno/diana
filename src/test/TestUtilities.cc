@@ -58,6 +58,12 @@ TEST(TestUtilities, EndsWith)
   EXPECT_FALSE(diutil::endswith("fish", "fishy"));
 }
 
+TEST(TestUtilities, ReplacedChars)
+{
+  ASSERT_EQ("hei ho", diutil::replaced_chars("hei ho", "!\"#%", '_'));
+  ASSERT_EQ("h_ei___ _h_o_", diutil::replaced_chars("h\"ei#%% \"h_o!", "!\"#%", '_'));
+}
+
 TEST(TestUtilities, AppendCharsSplitNewline)
 {
   const char* input[] =  {

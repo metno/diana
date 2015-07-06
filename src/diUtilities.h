@@ -38,6 +38,10 @@ inline string_v glob(const std::string& pattern, int glob_flags=0)
 bool startswith(const std::string& txt, const std::string& start);
 bool endswith(const std::string& txt, const std::string& end);
 
+void replace_chars(std::string& txt, const char* replace, const char with);
+inline std::string replaced_chars(const std::string& txt, const char* replace, const char with)
+{ std::string t(txt); replace_chars(t, replace, with); return t; }
+
 namespace detail {
 void append_chars_split_newline(string_v& lines, const char* buffer, size_t nbuffer);
 }
