@@ -8,8 +8,12 @@
 
 class FontManager;
 
+class QGLWidget;
+
 class DiOpenGLCanvas : public DiGLCanvas {
 public:
+  DiOpenGLCanvas(QGLWidget* widget);
+
   void setVpGlSize(float vpw, float vph, float glw, float glh);
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, FontFace face);
@@ -27,11 +31,15 @@ public:
 
   QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
 
+  GLuint bindTexture(const QImage& image);
+  void deleteTexture(GLuint texid);
+
 private:
   void initializeFP();
 
 private:
   std::auto_ptr<FontManager> mFP;
+  QGLWidget* mWidget;
 };
 
 class DiOpenGLPainter : public DiGLPainter {
@@ -124,6 +132,8 @@ public:
   bool drawText(const std::string& text, float x, float y, float angle);
   void drawPolygon(const QPolygonF& points);
   void drawPolygons(const QList<QPolygonF>& polygons) Q_DECL_OVERRIDE;
+
+  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth);
 };
 
 #endif // DIOPENGLPAINTER_H

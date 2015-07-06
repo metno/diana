@@ -198,8 +198,12 @@ void select_tiles(tilexy_s& tiles,
     assert(nb == 4);
     const float x1 = (border_x_t[1] - border_x_t[0]), x2 = (border_x_t[2] - border_x_t[0]);
     const float y1 = (border_y_t[1] - border_y_t[0]), y2 = (border_y_t[2] - border_y_t[0]);
-    if (x1*y2 > x2*y1)
+    if (x1*y2 > x2*y1) {
+      METLIBS_LOG_DEBUG("adding tile " << LOGVAL(ix0) << LOGVAL(iy0));
       tiles.insert(tilexy(ix0, iy0));
+    } else {
+      METLIBS_LOG_DEBUG("not adding backside tile " << LOGVAL(ix0) << LOGVAL(iy0));
+    }
     return;
   }
 

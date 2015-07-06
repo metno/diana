@@ -30,28 +30,14 @@
 #define diSatPlot_h
 
 #include "diPlot.h"
-#include "diSat.h"
 
-#include <vector>
+#include "diRasterPlot.h"
+#include "diSat.h"
 
 /**
   \brief Plot satellite and radar images
 */
-class SatPlot : public Plot {
-private:
-
-  float xmin, xmax, ymin, ymax; //corners in maprect coordinates
-  SatPlot(const SatPlot &rhs){}
-
-  unsigned char * imagedata; // dataarray for resampling
-  int previrs;               // previous resampling coeff.
-
-  bool plotPixmap(DiGLPainter* gl);
-  bool plotFillcell(DiGLPainter* gl);
-  unsigned char * resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
-      int& bmStartx, int& bmStarty,
-      float& scales, float& scaley, int& nx, int& ny);
-
+class SatPlot : public Plot, protected RasterPlot {
 public:
   SatPlot();
   ~SatPlot();
@@ -61,9 +47,12 @@ public:
   void plot(DiGLPainter* gl, PlotOrder zorder);
   void setData(Sat *);
   void clearData();
-  Area& getSatArea(void){ return satdata->area;}
-  double getGridResolutionX(){ return satdata->area.resolutionX;}
-  double getGridResolutionY() {return satdata->area.resolutionY;}
+  Area& getSatArea()
+    { return satdata->area; }
+  double getGridResolutionX() const
+    { return satdata->area.resolutionX; }
+  double getGridResolutionY() const
+    { return satdata->area.resolutionY; }
   void getSatAnnotation(std::string &, Colour &);
   void getSatName(std::string &);
   void getCalibChannels(std::vector<std::string>& channels );
@@ -72,6 +61,17 @@ public:
   ///get legend
   bool getAnnotations(std::vector<std::string>& anno);
   void setSatAuto(bool, const std::string&, const std::string&);
+
+protected:
+  StaticPlot* rasterStaticPlot() Q_DECL_OVERRIDE
+    { return getStaticPlot(); }
+  const GridArea& rasterArea() Q_DECL_OVERRIDE
+    { return satdata->area; }
+  QImage rasterScaledImage(const GridArea&, int scale) Q_DECL_OVERRIDE;
+
+private:
+  SatPlot(const SatPlot &rhs);  // not implemented
+  SatPlot& operator=(const SatPlot &rhs); // not implemented
 };
 
 #endif

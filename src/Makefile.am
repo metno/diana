@@ -64,6 +64,7 @@ libdiana_la_SOURCES = \
 	diPolyContouring.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
+	diRasterPlot.cc \
 	diSat.cc \
 	diSatManager.cc \
 	diSatPlot.cc \
@@ -297,6 +298,7 @@ noinst_HEADERS = \
 	diPoint.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
+	diRasterPlot.h \
 	diSat.h \
 	diSatManager.h \
 	diSatPlot.h \

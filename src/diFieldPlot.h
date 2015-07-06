@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,7 +30,10 @@
 #define diFieldPlot_h
 
 #include "diPlot.h"
+
 #include "diCommonTypes.h"
+#include "diRasterPlot.h"
+
 #include <diField/diField.h>
 #include <puTools/miTime.h>
 
@@ -48,7 +49,7 @@ class DiGLPainter;
   Holds the (scalar) field(s) after reading and any computations.
   Contains all field plotting methodes except contouring.
 */
-class FieldPlot : public Plot {
+class FieldPlot : public Plot, protected RasterPlot {
 
 public:
   FieldPlot();
@@ -115,28 +116,10 @@ private:
 
   bool plotContour(DiGLPainter* gl);
   bool plotContour2(DiGLPainter* gl);
-  bool plotBox_pattern(DiGLPainter* gl);
-  bool plotBox_alpha_shade(DiGLPainter* gl);
-  bool plotAlarmBox(DiGLPainter* gl);
 
-  /**
-   * Fills grid cells with a color, according to an input table and the grid cells values.
-   * NOTE: Define "values" and "palettecolors" of equal size in the setup-file
-   * ("values" are then mapped to "palettecolors")
-   * @return Returns true on success
-   */
-  bool plotFillCell(DiGLPainter* gl);
-  bool plotFillCellExt(DiGLPainter* gl);
+  bool plotRaster(DiGLPainter* gl);
   const Colour* colourForValue(float value) const;
-  unsigned char * createRGBAImage(Field * field);
-  unsigned char * resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
-    int& bmStartx, int& bmStarty,
-    float& scalex, float& scaley,int& nx, int& ny);
-  bool plotPixmap(DiGLPainter* gl);
-  unsigned char * imagedata; // dataarray for resampling and transforming field to RGBA image
-  int previrs;               // previous resampling coeff.
 
-  bool plotAlpha_shade(DiGLPainter* gl);
   bool plotFrameOnly(DiGLPainter* gl);
   void plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const float *y);
   void plotFrameStencil(DiGLPainter* gl, int nx, int ny, const float *x, const float *y);
@@ -151,8 +134,19 @@ private:
    */
   bool checkFields(size_t count) const;
 
-  bool getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor=1, bool boxes=false, bool cached=true) const;
+  bool getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor=1, bool boxes=false) const;
   bool getPoints(int n, float* x, float* y) const;
+
+  bool centerOnGridpoint() const;
+
+protected:
+  StaticPlot* rasterStaticPlot() Q_DECL_OVERRIDE
+    { return getStaticPlot(); }
+  const GridArea& rasterArea() Q_DECL_OVERRIDE
+    { return fields[0]->area; }
+
+  //! create image for alpha_shade, fill_cell, or alarm_box
+  QImage rasterScaledImage(const GridArea&, int scale) Q_DECL_OVERRIDE;
 };
 
 #endif

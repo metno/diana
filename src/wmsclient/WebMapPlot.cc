@@ -41,6 +41,7 @@
 
 static const std::string EMPTY_STRING;
 static const std::vector<std::string> EMPTY_STRING_V;
+static const bool DEBUG_TILE_BORDERS = true;
 
 WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
   : mService(service)
@@ -50,7 +51,9 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
   , mTimeSelected(-1)
   , mTimeTolerance(3600)
   , mTimeOffset(0)
-  , mColourTransform(new diutil::SimpleColourTransform)
+  , mAlphaOffset(0)
+  , mAlphaScale(1)
+  , mMakeGrey(false)
   , mRequest(0)
 {
   if (mService) {
@@ -63,7 +66,6 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
 WebMapPlot::~WebMapPlot()
 {
   dropRequest();
-  delete mColourTransform;
 }
 
 std::string WebMapPlot::title() const
@@ -96,9 +98,45 @@ void WebMapPlot::dropRequest()
   mRequest = 0;
 }
 
+namespace {
+
+class TimeTaker {
+public:
+  TimeTaker() : mTotal(0) { }
+  void start();
+  void stop();
+  double total() const
+    { return mTotal; }
+private:
+  struct timeval mStarted;
+  double mTotal;
+};
+
+void TimeTaker::start()
+{
+  gettimeofday(&mStarted, 0);
+}
+
+void TimeTaker::stop()
+{
+  struct timeval stopped;
+  gettimeofday(&stopped, 0);
+  const double s = (((double)stopped.tv_sec*1000000.0 + (double)stopped.tv_usec)
+      -((double)mStarted.tv_sec*1000000.0 + (double)mStarted.tv_usec))/1000000.0;
+  mTotal += s;
+}
+
+std::ostream& operator<<(std::ostream& out, const TimeTaker& t)
+{
+  out << t.total() << 's';
+  return out;
+}
+
+} // namespace
+
 void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
   if (!isEnabled() || porder != LINES)
     return;
   if (!mLayer)
@@ -130,48 +168,75 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     METLIBS_LOG_DEBUG("about to plot tiles...");
     const Projection& tp = mRequest->tileProjection();
     METLIBS_LOG_DEBUG(LOGVAL(tp.getProjDefinitionExpanded()));
+
+    TimeTaker timerP, timerR;
+    extern size_t sub_linear, sub_small;
+    sub_linear = sub_small = 0;
+    size_t n_realloc = 0;
+
+    size_t vxy_N = 0;
+    float *vx = 0, *vy = 0, *vxy = 0;
+
     for (size_t i=0; i<mRequest->countTiles(); ++i) {
       const Rectangle& tr = mRequest->tileRect(i);
-      const QImage& ti = mRequest->tileImage(i);
+      const QImage ti = diutil::convertImage(mRequest->tileImage(i), mAlphaOffset, mAlphaScale, mMakeGrey);
+
       if (!ti.isNull()) {
         METLIBS_LOG_DEBUG("tile " << i << " is valid, rectangle=" << tr);
-        // draw tile using plotFillCell
 
-        const size_t N = (ti.width()+1)*(ti.height()+1);
-        float* vx = new float[N];
-        float* vy = new float[N];
-        const double dx = tr.width() / ti.width(), dy = tr.height() / ti.height();
+        const size_t width = ti.width(), height = ti.height(), width1 = width+1, height1 = height+1;
+        timerR.start();
+
+        const size_t N = width1*height1;
+        if (N != vxy_N) {
+          n_realloc += 1;
+          delete[] vx;
+          delete[] vy;
+          delete[] vxy;
+          vx = new float[N];
+          vy = new float[N];
+          vxy = new float[2*N];
+          vxy_N = N;
+        }
+        const double dx = tr.width() / width, dy = tr.height() / height;
         size_t ixy = 0;
-        for (int iy=0; iy<=ti.height(); ++iy) {
-          for (int ix=0; ix<=ti.width(); ++ix) {
+        for (size_t iy=0; iy<=height; ++iy) {
+          for (size_t ix=0; ix<=width; ++ix) {
             vx[ixy] = tr.x1 + ix*dx;
             vy[ixy] = tr.y2 - iy*dy;
             ixy += 1;
           }
         }
+        assert(ixy == N);
         getStaticPlot()->ProjToMap(tp, N, vx, vy);
-        diutil::QImageData imagepixels(&ti, vx, vy);
-        imagepixels.setColourTransform(mColourTransform);
-        diutil::drawFillCell(gl, imagepixels);
-        delete[] vx;
-        delete[] vy;
+        for (size_t jxy = 0; jxy < N; ++jxy) {
+          vxy[2*jxy  ] = vx[jxy];
+          vxy[2*jxy+1] = vy[jxy];
+        }
+        timerR.stop();
 
-      } else {
-        METLIBS_LOG_DEBUG("tile " << i << " is null, drawing rectangle " << tr);
+        timerP.start();
+        gl->drawReprojectedImage(ti, vxy, true);
+        timerP.stop();
+      }
+      if (DEBUG_TILE_BORDERS || ti.isNull()) {
         // draw rect
         float corner_x[4] = { tr.x1, tr.x2, tr.x2, tr.x1 };
         float corner_y[4] = { tr.y1, tr.y1, tr.y2, tr.y2 };
         getStaticPlot()->ProjToMap(tp, 4, corner_x, corner_y);
 
-        const float red = 0, green = 1, blue = 0, alpha = 0;
-        gl->Color4f(red, green, blue, alpha);
-        gl->LineWidth(2.0);
+        gl->setLineStyle(Colour::fromF(0, 0, 1, 1), 1);
         gl->Begin(DiGLPainter::gl_LINE_LOOP);
         for (int i=0; i<4; ++i)
           gl->Vertex2f(corner_x[i], corner_y[i]);
         gl->End();
       }
     }
+    delete[] vxy;
+    delete[] vx;
+    delete[] vy;
+    METLIBS_LOG_DEBUG("spent " << timerR << " with reprojecting and " << timerP << " with painting"
+        << LOGVAL(sub_small) << LOGVAL(sub_linear) << LOGVAL(n_realloc));
     const QImage li = mRequest->legendImage();
     if (!li.isNull()) {
       METLIBS_LOG_DEBUG("about to plot legend...");
@@ -191,7 +256,7 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
         }
       }
       diutil::QImageData imagepixels(&li, vx, vy);
-      imagepixels.setColourTransform(mColourTransform);
+      //imagepixels.setColourTransform(mColourTransform);
       diutil::drawFillCell(gl, imagepixels);
       delete[] vx;
       delete[] vy;
@@ -203,12 +268,13 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 
 void WebMapPlot::setStyleAlpha(float offset, float scale)
 {
-  mColourTransform->setStyleAlpha(offset, scale);
+  mAlphaOffset = offset;
+  mAlphaScale = scale;
 }
 
 void WebMapPlot::setStyleGrey(bool makeGrey)
 {
-  mColourTransform->setStyleGrey(makeGrey);
+  mMakeGrey = makeGrey;
 }
 
 void WebMapPlot::requestCompleted()

@@ -112,6 +112,8 @@ private:
   bool mGrey;
 };
 
+QImage convertImage(QImage image, float alpha_offset, float alpha_scale, bool make_grey);
+
 } // namespace diutil
 
 #endif // WebMapPainting_h

@@ -118,7 +118,8 @@ private:
   std::string mFixedTime;
 
   std::string mCRS;
-  diutil::SimpleColourTransform* mColourTransform;
+  float mAlphaOffset, mAlphaScale;
+  bool mMakeGrey;
 
   std::map<std::string, std::string> mDimensionValues;
 
