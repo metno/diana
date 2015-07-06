@@ -44,6 +44,7 @@
 #include <QLabel>
 #include <QFrame>
 #include <QInputDialog>
+#include <QFile>
 #include <QFileDialog>
 #include <QTextEdit>
 #include <QRegExp>
@@ -535,13 +536,10 @@ void QuickAdmin::eraseClicked()
 {
   copyClicked();
   if (activeElement == -1) {
-    //remove file
-    if (system(NULL)) {
-      //      if( system( rm menus[activeMenu].fielname)==0){
-      std::string sys = "rm " + menus[activeMenu].filename;
-      if (system(sys.c_str()) == 0) {
-        METLIBS_LOG_INFO("Removing file:" << menus[activeMenu].filename);
-      }
+    // remove file
+    QFile qmfile(QString::fromStdString(menus[activeMenu].filename));
+    if (!qmfile.remove()) {
+      METLIBS_LOG_INFO("Could not remove file: '" << menus[activeMenu].filename << "'");
     }
     menus.erase(menus.begin() + activeMenu);
     lastcustom--;
