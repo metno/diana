@@ -2992,26 +2992,27 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->area.nx;
-  int ny = fields[0]->area.ny;
+  const bool center_on_gridpoint = centerOnGridpoint()
+      || plottype == fpt_contour; // old contour does some tricks with undefined values
+
+  const int nx_fld = fields[0]->area.nx, ny_fld = fields[0]->area.ny;
+  const int nx_pts = nx_fld + (center_on_gridpoint ? 1 : 0);
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, centerOnGridpoint()))
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, center_on_gridpoint))
     return false;
-  if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
+  if (ix1 >= nx_fld || ix2 < 0 || iy1 >= ny_fld || iy2 < 0)
     return false;
 
-  const int nxc = nx + 1;
-  const is_undef undef_f0(fields[0]->data, nx);
+  const is_undef undef_f0(fields[0]->data, nx_fld);
 
-  poptions.undefColour = getStaticPlot()->notBackgroundColour(poptions.undefColour);
-  METLIBS_LOG_DEBUG(LOGVAL(poptions.undefMasking));
+  const Colour undefC = getStaticPlot()->notBackgroundColour(poptions.undefColour);
 
   if (poptions.undefMasking == 1) {
     // filled undefined areas
-    gl->setColour(poptions.undefColour, false);
+    gl->setColour(undefC, false);
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
@@ -3032,16 +3033,16 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
         // fill
         gl->Begin(DiGLPainter::gl_QUAD_STRIP);
         for (; ixx <= ix; ++ixx) {
-          int idx = diutil::index(nxc, ixx, iy);
-          gl->Vertex2f(x[idx + nxc], y[idx + nxc]);
-          gl->Vertex2f(x[idx],       y[idx]);
+          int idx0 = diutil::index(nx_pts, ixx, iy), idx1 = idx0 + nx_pts;
+          gl->Vertex2f(x[idx1], y[idx1]);
+          gl->Vertex2f(x[idx0], y[idx0]);
         }
         gl->End();
       }
     }
   } else {
     // grid lines around undefined cells
-    gl->setLineStyle(poptions.undefColour, poptions.undefLinewidth, poptions.undefLinetype, false);
+    gl->setLineStyle(undefC, poptions.undefLinewidth, poptions.undefLinetype, false);
 
     // line is where at least one of two neighbouring cells is undefined
     diutil::PolylinePainter pp(gl);
@@ -3055,7 +3056,7 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
         if (ix >= ix2)
           break;
 
-        int idx = diutil::index(nxc, ix, iy);
+        int idx = diutil::index(nx_pts, ix, iy);
         pp.add(x, y, idx);
         do {
           ix += 1;
@@ -3075,11 +3076,11 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
         if (iy >= iy2)
           break;
 
-        int idx = diutil::index(nxc, ix, iy);
+        int idx = diutil::index(nx_pts, ix, iy);
         pp.add(x, y, idx);
         do {
           iy += 1;
-          idx += nxc;
+          idx += nx_pts;
           pp.add(x, y, idx);
         } while (iy < iy2 && !(!undef_f0(ix, iy) && (ix == ix1 || !undef_f0(ix-1, iy))));
         pp.draw();
