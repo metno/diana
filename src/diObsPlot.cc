@@ -2629,9 +2629,10 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& param,
     float& xpos, float& ypos, const float& yStep, bool align_right)
 {
-  if (pFlag.count(param)) {
+  ObsData::stringdata_t::const_iterator its = dta.stringdata.find(param);
+  if (pFlag.count(param) && its != dta.stringdata.end()) {
     ypos -= yStep;
-    std::string str = dta.stringdata.find(param)->second;
+    std::string str = its->second;
     miutil::remove(str, '"');
     float value = atof(str.c_str());
     if (parameterName)
