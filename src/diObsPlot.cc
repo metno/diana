@@ -2629,16 +2629,20 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& param,
     float& xpos, float& ypos, const float& yStep, bool align_right)
 {
-  ObsData::stringdata_t::const_iterator its = dta.stringdata.find(param);
-  if (pFlag.count(param) && its != dta.stringdata.end()) {
+  if (pFlag.count(param) ) {
     ypos -= yStep;
-    std::string str = its->second;
-    miutil::remove(str, '"');
-    float value = atof(str.c_str());
-    if (parameterName)
-      str = param + " " + str;
-    checkColourCriteria(gl, param, value);
-    printListString(gl, str, xpos, ypos, align_right);
+    ObsData::stringdata_t::const_iterator its = dta.stringdata.find(param);
+    if (its != dta.stringdata.end()) {
+      std::string str = its->second;
+      miutil::remove(str, '"');
+      float value = atof(str.c_str());
+      if (parameterName)
+        str = param + " " + str;
+      checkColourCriteria(gl, param, value);
+      printListString(gl, str, xpos, ypos, align_right);
+    } else {
+      printUndef(gl, xpos, ypos, align_right);
+    }
   }
 }
 
