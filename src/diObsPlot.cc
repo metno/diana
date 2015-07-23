@@ -540,6 +540,7 @@ bool ObsPlot::prepare(const std::string& pin)
   colourcriteria.clear();
   totalcolourcriteria.clear();
   markercriteria.clear();
+  markersizecriteria.clear();
 
   //Default
   poptions.fontname = "BITMAPFONT";
@@ -2526,6 +2527,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   checkTotalColourCriteria(gl, index);
 
   const std::string thisImage = checkMarkerCriteria(index);
+  float thisMarkerSize = checkMarkersizeCriteria(index);
 
   ImageGallery ig;
   float xShift = ig.widthp(image) / 2;
@@ -2537,9 +2539,9 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       const std::string& thatImage = it->second;
       xShift = ig.widthp(thatImage) / 2;
       yShift = ig.heightp(thatImage) / 2;
-      ig.plotImage(gl, getStaticPlot(), thatImage, x[index], y[index], true, markerSize);
+      ig.plotImage(gl, getStaticPlot(), thatImage, x[index], y[index], true, thisMarkerSize);
     } else {
-      ig.plotImage(gl, getStaticPlot(), thisImage, x[index], y[index], true, markerSize);
+      ig.plotImage(gl, getStaticPlot(), thisImage, x[index], y[index], true, thisMarkerSize);
     }
   }
 
@@ -5694,6 +5696,12 @@ void ObsPlot::decodeCriteria(std::string critStr)
       mc.sign = sign;
       mc.marker = vcrit[1];
       markercriteria[parameter].push_back(mc);
+    } else if (vcrit.size() > 2 && miutil::to_lower(vcrit[2]) == "markersize") {
+      markersizeCriteria mc;
+      mc.limit = limit;
+      mc.sign = sign;
+      mc.size = atof(vcrit[1].c_str());
+      markersizecriteria[parameter].push_back(mc);
     } else {
       Colour c(vcrit[1]);
       colourCriteria cc;
@@ -5839,6 +5847,8 @@ std::string ObsPlot::checkMarkerCriteria(int index)
     float value = 0;
     if (not getValueForCriteria(index, p->first, value))
       continue;
+    if (p->first == "RRR")
+      adjustRRR(value);
 
     for (size_t i = 0; i < p->second.size(); i++) {
       if (p->second[i].match(value))
@@ -5847,6 +5857,31 @@ std::string ObsPlot::checkMarkerCriteria(int index)
   }
 
   return marker;
+}
+
+float ObsPlot::checkMarkersizeCriteria(int index)
+{
+  if (markersizecriteria.empty())
+    return markerSize;
+
+  float relSize = 1.0;
+  map<std::string, vector<markersizeCriteria> >::iterator p =
+      markersizecriteria.begin();
+
+  for (; p != markersizecriteria.end(); p++) {
+    float value = 0;
+    if (not getValueForCriteria(index, p->first, value))
+      continue;
+    if (p->first == "RRR")
+      adjustRRR(value);
+
+    for (size_t i = 0; i < p->second.size(); i++) {
+      if (p->second[i].match(value))
+        relSize = p->second[i].size;
+    }
+  }
+
+  return relSize * markerSize;
 }
 
 void ObsPlot::changeParamColour(const std::string& param, bool select)

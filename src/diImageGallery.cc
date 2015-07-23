@@ -436,22 +436,32 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
     for(int k=0; k<nlines; k++){
 
       gl->LineWidth(Images[name].line[k].width);
-
-      int num=Images[name].line[k].x.size();
-
-      if(Images[name].line[k].fill){
-        gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        for (int j=0; j<num; j++) {
-          gl->Vertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+      if (!Images[name].line[k].colour.empty()){
+        gl->setColour(Colour(Images[name].line[k].colour));
+      }
+      if ( Images[name].line[k].circle ) {
+        if(Images[name].line[k].fill){
+          gl->fillCircle(0,0,Images[name].line[k].radius);
+        } else {
+          gl->drawCircle(0,0,Images[name].line[k].radius);
         }
-        gl->End();
-      }else{
-        gl->Begin(DiGLPainter::gl_LINE_STRIP);
-        for (int j=0; j<num; j++) {
-          gl->Vertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+      } else {
+        int num=Images[name].line[k].x.size();
+
+        if(Images[name].line[k].fill){
+          gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+          gl->Begin(DiGLPainter::gl_POLYGON);
+          for (int j=0; j<num; j++) {
+            gl->Vertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+          }
+          gl->End();
+        }else{
+          gl->Begin(DiGLPainter::gl_LINE_STRIP);
+          for (int j=0; j<num; j++) {
+            gl->Vertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+          }
+          gl->End();
         }
-        gl->End();
       }
     }
     gl->PopMatrix();
@@ -494,20 +504,27 @@ bool ImageGallery::readFile(const std::string name, const std::string filename)
       l.y.clear();
       l.fill=false;
       l.width=1;
+      l.circle=false;
     }
     if( tokens[0] == "lto" || tokens[0] == "mvto" ){
       vector<std::string> coor = miutil::split(tokens[1], ",");
       if(coor.size() != 2) continue;
       l.x.push_back(atof(coor[0].c_str()));
       l.y.push_back(atof(coor[1].c_str()));
+    } else if( tokens[0] == "circle" ) {
+      l.radius = atoi(tokens[1].c_str());
+      METLIBS_LOG_DEBUG(LOGVAL(l.radius));
+      l.circle = true;
     } else if( tokens[0] == "lw" ) {
       l.width = atoi(tokens[1].c_str());
+    } else if( tokens[0] == "colour" ) {
+      l.colour = tokens[1];
     } else if( tokens[0] == "mode" ) {
       if(tokens[1] == "fill")
         l.fill = true;
     }
   }
-  if(l.x.size()>0) {
+  if(l.x.size()>0 || l.circle) {
     Images[name].line.push_back(l);
   }
 

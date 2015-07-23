@@ -166,10 +166,15 @@ private:
     std::string marker;
   };
 
+  struct markersizeCriteria: public baseCriteria {
+    float size;
+  };
+
   std::map<std::string, std::vector<plotCriteria> > plotcriteria;
   std::map<std::string, std::vector<colourCriteria> > colourcriteria;
   std::map<std::string, std::vector<colourCriteria> > totalcolourcriteria;
   std::map<std::string, std::vector<markerCriteria> > markercriteria;
+  std::map<std::string, std::vector<markersizeCriteria> > markersizecriteria;
 
   std::map<std::string, bool> sortcriteria;
   //which parameters to plot
@@ -263,6 +268,7 @@ private:
   bool checkPlotCriteria(int index);
   void checkTotalColourCriteria(DiGLPainter* gl, int index);
   std::string checkMarkerCriteria(int index);
+  float checkMarkersizeCriteria(int index);
   void checkColourCriteria(DiGLPainter* gl, const std::string& param, float value);
   void parameterDecode(std::string, bool = true);
 

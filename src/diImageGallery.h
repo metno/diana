@@ -56,8 +56,11 @@ public:
   struct Line {
     int width;
     bool fill;
+    bool circle;
     std::vector<float>x;
     std::vector<float>y;
+    float radius;
+    std::string colour;
   };
 
   /// Image data (binary)
