@@ -272,6 +272,20 @@ void ExpandColourBox(QComboBox* box, const Colour& col)
   ExpandColourBox(box, pixcolor, QString::fromStdString(col.Name()));
 }
 
+void SetCurrentItemColourBox(QComboBox* box, const std::string& value)
+{
+  int nr_colours = box->count();
+  QString col = value.c_str();
+  int i = 0;
+  while (i < nr_colours && col != box->itemText(i))
+    i++;
+  if (i == nr_colours) {
+    Colour::defineColourFromString(value);
+    ExpandColourBox(box,Colour(value));
+  }
+  box->setCurrentIndex(i);
+
+}
 /*********************************************/
 
 QPixmap pixmapForColourShading(const std::vector<Colour>& colour)

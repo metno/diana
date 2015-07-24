@@ -1879,16 +1879,8 @@ void FieldDialog::enableFieldOptions()
       updateFieldOptions(PlotOptions::key_colour_2, "off");
       colour2ComboBox->setCurrentIndex(0);
     } else {
-      QString col = vpcopt[nc].allValue.c_str();
-      i = 0;
-      while (i < nr_colours && col != colour2ComboBox->itemText(i) )
-        i++;
-      if (i == nr_colours) {
-        Colour::defineColourFromString(vpcopt[nc].allValue);
-        ExpandColourBox(colour2ComboBox,Colour(vpcopt[nc].allValue));
-      }
+      SetCurrentItemColourBox(colour2ComboBox,vpcopt[nc].allValue);
       updateFieldOptions(PlotOptions::key_colour_2, vpcopt[nc].allValue);
-      colour2ComboBox->setCurrentIndex(i);
     }
   }
 
@@ -1898,16 +1890,8 @@ void FieldDialog::enableFieldOptions()
       updateFieldOptions(PlotOptions::key_colour, "off");
       colorCbox->setCurrentIndex(0);
     } else {
-      QString col = vpcopt[nc].allValue.c_str();
-      i = 1;
-      while (i < nr_colours && col != colorCbox->itemText(i))
-        i++;
-      if (i == nr_colours) {
-        Colour::defineColourFromString(vpcopt[nc].allValue);
-        ExpandColourBox(colorCbox,Colour(vpcopt[nc].allValue));
-      }
-      updateFieldOptions(PlotOptions::key_colour, vpcopt[nc].allValue);
-      colorCbox->setCurrentIndex(i);
+    SetCurrentItemColourBox(colorCbox,vpcopt[nc].allValue);
+    updateFieldOptions(PlotOptions::key_colour, vpcopt[nc].allValue);
     }
   }
 
@@ -1917,15 +1901,7 @@ void FieldDialog::enableFieldOptions()
     vector<std::string> colours = miutil::split(vpcopt[nc].allValue,",");
     if (colours.size() == 3) {
       for (int j = 0; j < 3; j++) {
-        i = 1;
-        QString col = colours[j].c_str();
-        while (i < nr_colours && col != threeColourBox[j]->itemText(i) )
-          i++;
-        if (i == nr_colours) {
-          Colour::defineColourFromString(colours[j]);
-          ExpandColourBox(threeColourBox[j], Colour(colours[j]));
-        }
-        threeColourBox[j]->setCurrentIndex(i);
+        SetCurrentItemColourBox(threeColourBox[j],colours[j]);
       }
       threeColoursChanged();
     }
@@ -2016,17 +1992,8 @@ void FieldDialog::enableFieldOptions()
 
   //pattern colour
   if ((nc = cp->findKey(vpcopt, PlotOptions::key_pcolour)) >= 0) {
-    int nr_colours = patternColourBox->count();
-    QString col = vpcopt[nc].allValue.c_str();
-    i = 0;
-    while (i < nr_colours && col != patternColourBox->itemText(i) )
-      i++;
-    if (i == nr_colours) {
-      Colour::defineColourFromString(vpcopt[nc].allValue);
-      ExpandColourBox(patternColourBox,Colour(vpcopt[nc].allValue));
-    }
+    SetCurrentItemColourBox(patternColourBox, vpcopt[nc].allValue);
     updateFieldOptions(PlotOptions::key_pcolour, vpcopt[nc].allValue);
-    patternColourBox->setCurrentIndex(i);
   }
 
   //table
@@ -2284,17 +2251,8 @@ void FieldDialog::enableFieldOptions()
 
   // undefined masking colour
   if ((nc = cp->findKey(vpcopt, PlotOptions::key_undefColour)) >= 0) {
-    int nr_colours = undefColourCbox->count();
-    QString col = vpcopt[nc].allValue.c_str();
-    i = 0;
-    while (i < nr_colours && col != undefColourCbox->itemText(i) )
-      i++;
-    if (i == nr_colours) {
-      Colour::defineColourFromString(vpcopt[nc].allValue);
-      ExpandColourBox(undefColourCbox,Colour(vpcopt[nc].allValue));
-    }
+    SetCurrentItemColourBox(undefColourCbox, vpcopt[nc].allValue);
     updateFieldOptions("undef.colour", vpcopt[nc].allValue);
-    undefColourCbox->setCurrentIndex(i);
   }
 
   // undefined masking linewidth
