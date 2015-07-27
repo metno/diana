@@ -117,8 +117,9 @@ public:
 
   void setCanvas(DiCanvas* canvas) /*Q_DECL_OVERRIDE*/;
 
-  /// plot map in a specific zorder layer
-  void plot(DiGLPainter* gl, PlotOrder zorder);
+  /// plot map/lat/lon/frame in a specific zorder layer
+  void plot(DiGLPainter* gl, PlotOrder porder);
+  void plotMap(DiGLPainter* gl, int zorder);
 
   /// parse plotinfo
   bool prepare(const std::string&, bool ifequal =true);

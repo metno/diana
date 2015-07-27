@@ -304,7 +304,7 @@ public:
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();
-  bool MapInfoParser(std::string& str, MapInfo& mi, bool tostr);
+  bool MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool map);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui

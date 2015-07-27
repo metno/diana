@@ -905,11 +905,14 @@ MapDialogInfo Controller::initMapDialog(){
   return mapm.getMapDialogInfo();
 }
 
-bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr)
+bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool map)
 {
   MapManager mapm;
   if (tostr){
-    str= mapm.MapInfo2str(mi);
+    if( map)
+      str= mapm.MapInfo2str(mi);
+    else
+      str= mapm.MapExtra2str(mi);
     return true;
   } else {
     PlotOptions a,b,c,d,e;
