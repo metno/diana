@@ -54,7 +54,7 @@ void glVertexPosition(DiGLPainter* gl, const PixelData& pixels, int ix, int iy)
 
 void drawFillCell(DiGLPainter* gl, const PixelData& pixels)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
@@ -140,6 +140,37 @@ void SimpleColourTransform::transform(Colour& c) const
   if (changeAlpha)
     a = mAlphaOffset + a*mAlphaScale;
   c.setF(r, g, b, a);
+}
+
+static Qt::ImageConversionFlags icf = Qt::DiffuseAlphaDither | Qt::NoOpaqueDetection;
+
+void ensureImageFormat(QImage& image, QImage::Format format)
+{
+  if (image.format() != format)
+    image = image.convertToFormat(format, icf);
+}
+
+QImage convertImage(QImage image, float alpha_offset, float alpha_scale, bool make_grey)
+{
+  const bool change_alpha = (alpha_offset != 0 || alpha_scale != 1);
+  if (change_alpha || make_grey) {
+    ensureImageFormat(image, QImage::Format_ARGB32);
+    for (int i=0; i<image.height(); ++i) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(i));
+      for (int j=0; j<image.width(); ++j) {
+        QRgb& p = rgb[j];
+        int r = qRed(p), g = qGreen(p), b = qBlue(p), a = qAlpha(p);
+        if (make_grey)
+          r = g = b = (r+g+b)/3;
+        if (change_alpha)
+          a = alpha_offset + alpha_scale*a;
+        p = qRgba(r, g, b, a);
+      }
+    }
+  }
+
+  ensureImageFormat(image, QImage::Format_ARGB32_Premultiplied);
+  return image;
 }
 
 } // namespace diutil

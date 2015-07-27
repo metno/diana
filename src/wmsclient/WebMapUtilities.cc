@@ -37,6 +37,8 @@
 
 #include <QStringList>
 
+#include <boost/shared_array.hpp>
+
 #include <iomanip>
 #include <sstream>
 
@@ -152,8 +154,7 @@ void select_tiles(tilexy_s& tiles,
       nby = (ny + stepy - 1)/stepy,
       nb = 2*(nbx + nby);
   const float top = y0, bottom = y0+ny*dy, left = x0, right = x0 + nx*dx;
-  float *border_x_t = new float[nb],
-      *border_y_t = new float[nb];
+  boost::shared_array<float> border_x_t(new float[nb]), border_y_t(new float[nb]);
   { int ixy = 0;
     // bottom and top border
     for (int i=0; i<nx; i += stepx, ixy += 2) {
@@ -178,14 +179,14 @@ void select_tiles(tilexy_s& tiles,
   }
 
   // border in view projection
-  p_view.convertPoints(p_tiles, nb, border_x_t, border_y_t);
+  p_view.convertPoints(p_tiles, nb, border_x_t.get(), border_y_t.get());
   METLIBS_LOG_DEBUG("tile corners=" << Rectangle(x0, y0, x0+nx*dx, y0+ny*dy));
 
   // bounding box in view proj
-  const float min_x_v = *std::min_element(border_x_t, border_x_t + nb);
-  const float max_x_v = *std::max_element(border_x_t, border_x_t + nb);
-  const float min_y_v = *std::min_element(border_y_t, border_y_t + nb);
-  const float max_y_v = *std::max_element(border_y_t, border_y_t + nb);
+  const float min_x_v = *std::min_element(border_x_t.get(), border_x_t.get() + nb);
+  const float max_x_v = *std::max_element(border_x_t.get(), border_x_t.get() + nb);
+  const float min_y_v = *std::min_element(border_y_t.get(), border_y_t.get() + nb);
+  const float max_y_v = *std::max_element(border_y_t.get(), border_y_t.get() + nb);
   const Rectangle tbbx(min_x_v, min_y_v, max_x_v, max_y_v);
   METLIBS_LOG_DEBUG(LOGVAL(tbbx) << LOGVAL(r_view)
       << " intersects=" << tbbx.intersects(r_view));
@@ -197,8 +198,12 @@ void select_tiles(tilexy_s& tiles,
     assert(nb == 4);
     const float x1 = (border_x_t[1] - border_x_t[0]), x2 = (border_x_t[2] - border_x_t[0]);
     const float y1 = (border_y_t[1] - border_y_t[0]), y2 = (border_y_t[2] - border_y_t[0]);
-    if (x1*y2 > x2*y1)
+    if (x1*y2 > x2*y1) {
+      METLIBS_LOG_DEBUG("adding tile " << LOGVAL(ix0) << LOGVAL(iy0));
       tiles.insert(tilexy(ix0, iy0));
+    } else {
+      METLIBS_LOG_DEBUG("not adding backside tile " << LOGVAL(ix0) << LOGVAL(iy0));
+    }
     return;
   }
 

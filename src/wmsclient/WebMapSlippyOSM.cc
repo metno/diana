@@ -72,7 +72,7 @@ int findZoomForScale(float denominator)
   if (denominator <= 0)
     return 0;
 
-  return (int) round(log(ZOOM_0_DENOMINATOR / denominator) / log(2));
+  return std::max(0, (int) round(log(ZOOM_0_DENOMINATOR / denominator) / log(2)) - 1);
 }
 
 } // anonymous namespace

@@ -70,6 +70,17 @@ bool endswith(const std::string& txt, const std::string& end)
       ((int)txt.size()) - ((int)end.size()));
 }
 
+void replace_chars(std::string& txt, const char* replace_these, const char replace_with)
+{
+  size_t pos = 0;
+  while (pos < txt.size()
+      && (pos = txt.find_first_of(replace_these, pos)) != std::string::npos)
+  {
+    txt[pos] = replace_with;
+    pos += 1;
+  }
+}
+
 bool getFromFile(const std::string& filename, string_v& lines)
 {
   std::ifstream file(filename.c_str());

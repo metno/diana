@@ -16,7 +16,7 @@ static QGLFormat oglfmt()
 
 DiOpenGLWidget::DiOpenGLWidget(DiPaintable* p, QWidget* parent)
   : QGLWidget(oglfmt(), parent)
-  , glcanvas(new DiOpenGLCanvas())
+  , glcanvas(new DiOpenGLCanvas(this))
   , glpainter(new DiOpenGLPainter(glcanvas.get()))
   , paintable(p)
 {

@@ -416,6 +416,7 @@ void DiPaintGLPainter::setPolygonColor(const QRgb &color)
       colours << qRgba(0, 0, 0, 0) << attributes.color;
       attributes.mask.setColorTable(colours);
       painter->setBrush(attributes.mask);
+      painter->setBrushOrigin(viewport.bottomLeft()); // is this correct?
     } else
       painter->setBrush(QColor::fromRgba(color));
     break;
@@ -1293,7 +1294,7 @@ void DiPaintGLPainter::PolygonMode(GLenum face, GLenum mode)
 
 void DiPaintGLPainter::PolygonStipple(const GLubyte *mask)
 {
-  this->attributes.mask = QImage(mask, 32, 32, QImage::Format_Mono);
+  this->attributes.mask = QImage(mask, 32, 32, QImage::Format_Mono).mirrored();
   QVector<QRgb> colours;
   colours << qRgba(0, 0, 0, 0) << this->attributes.color;
   this->attributes.mask.setColorTable(colours);
@@ -1624,6 +1625,104 @@ void DiPaintGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
   setClipPath();
   painter->drawPath(path);
   unsetClipPath();
+}
+
+inline size_t index(size_t w, size_t x, size_t y) { return y*w + x; }
+
+size_t sub_small = 0, sub_linear = 0;
+
+void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
+    size_t x0, size_t y0, size_t x1, size_t y1)
+{
+  const float MH_LIMIT = 1.5;
+  const int SZ_LIMIT = 2;
+
+  const size_t w = x1 - x0, h = y1 - y0, iw = image.width();
+  const size_t xm = (x0+x1)/2, ym = (y0+y1)/2;
+  const QPointF &p00 = mapPositions.at(index(iw+1, x0, y0)),
+      &p01 = mapPositions.at(index(iw+1, x0, y1)),
+      &p10 = mapPositions.at(index(iw+1, x1, y0)),
+      &p11 = mapPositions.at(index(iw+1, x1, y1));
+
+  bool paint = false;
+  if (w <= SZ_LIMIT || h <= SZ_LIMIT) {
+    sub_small += 1;
+    paint = true;
+  } else {
+    const QPointF &pm0 = mapPositions.at(index(iw+1, xm, y0)),
+        &p0m = mapPositions.at(index(iw+1, x0, ym)),
+        &p1m = mapPositions.at(index(iw+1, x1, ym)),
+        &pm1 = mapPositions.at(index(iw+1, xm, y1)),
+        &pmm = mapPositions.at(index(iw+1, xm, ym));
+
+    const QPointF im0 = (p00 + p10)*0.5,
+        i0m = (p00 + p01)*0.5,
+        im1 = (p01 + p11)*0.5,
+        i1m = (p10 + p11)*0.5,
+        imm = (p00 + p01 + p10 + p11)*0.25;
+
+    paint=((pm0-im0).manhattanLength() < MH_LIMIT
+        && (pm1-im1).manhattanLength() < MH_LIMIT
+        && (p0m-i0m).manhattanLength() < MH_LIMIT
+        && (p1m-i1m).manhattanLength() < MH_LIMIT
+        && (pmm-imm).manhattanLength() < MH_LIMIT);
+    if (paint)
+      sub_linear += 1;
+  }
+  if (paint) {
+    static Qt::ImageConversionFlags icf = Qt::DiffuseAlphaDither | Qt::NoOpaqueDetection;
+
+    const QRectF srcRect(0, 0, w, h);
+    QPolygonF src;
+    src << srcRect.topLeft() << srcRect.topRight()
+        << srcRect.bottomRight() << srcRect.bottomLeft();
+
+    QPolygonF tgt;
+    tgt << p00 << p10 << p11 << p01;
+
+    QTransform t;
+    if (QTransform::quadToQuad(src, tgt, t)) {
+      painter->setTransform(t);
+      const QRectF isub(x0, y0, w, h);
+      painter->drawImage(QPointF(0, 0), image, isub, icf);
+    }
+  } else if (w > h) {
+    drawReprojectedSubImage(image, mapPositions, x0, y0, xm, y1);
+    drawReprojectedSubImage(image, mapPositions, xm, y0, x1, y1);
+  } else {
+    drawReprojectedSubImage(image, mapPositions, x0, y0, x1, ym);
+    drawReprojectedSubImage(image, mapPositions, x0, ym, x1, y1);
+  }
+}
+
+void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth)
+{
+  METLIBS_LOG_TIME();
+
+  PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
+  Enable(gl_BLEND);
+  BlendFunc(gl_SRC_ALPHA, gl_ONE_MINUS_SRC_ALPHA);
+  ShadeModel(gl_FLAT);
+  if (blend)
+    painter->setCompositionMode(blendMode);
+  else
+    painter->setCompositionMode(QPainter::CompositionMode_Source);
+
+  const size_t width = image.width(), height = image.height(),
+      size11 = (width+1)*(height+1);
+
+  QPolygonF positions;
+  positions.reserve(size11);
+  for (size_t i = 0; i < size11; ++i)
+    positions << QPointF(mapPositionsXY[2*i], mapPositionsXY[2*i+1]);
+  positions = transform.map(positions);
+
+  const bool pst = painter->testRenderHint(QPainter::SmoothPixmapTransform);
+  painter->setRenderHint(QPainter::SmoothPixmapTransform, smooth);
+  painter->save(); // we will change the transformation matrix
+  drawReprojectedSubImage(image, positions, 0, 0, width, height);
+  painter->restore();
+  painter->setRenderHint(QPainter::SmoothPixmapTransform, pst);
 }
 
 // ========================================================================

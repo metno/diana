@@ -388,15 +388,21 @@ void ObsAscii::decodeData()
     if (useTime) {
       miClock clock;
       miDate date;
+      int hour=0, min=0, sec=0;
       if (isoTime) {
         if (getColumnValue("time", pstr, text)) {
-          clock = miClock(text);
+          vector<std::string> tpart = miutil::split(text,":");
+          hour = miutil::to_int(tpart[0]);
+          if ( tpart.size() > 1 )
+            min = miutil::to_int(tpart[1]);
+          if ( tpart.size() > 2 )
+            sec = miutil::to_int(tpart[2]);
+          clock = miClock(hour, min, sec);
         } else {
           METLIBS_LOG_WARN("time column missing");
           continue;
         }
       } else {
-        int hour=0, min=0, sec=0;
         if (getColumnValue("hour", pstr, hour)) {
           getColumnValue("min", pstr, min); // no problem if missing, assume min = sec = 00
           getColumnValue("sec", pstr, sec);

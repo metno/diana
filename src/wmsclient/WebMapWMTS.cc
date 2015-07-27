@@ -72,7 +72,7 @@ WebMapWMTSTileMatrix_cx findMatrixForScale(WebMapWMTSTileMatrixSet_cx matrixSet,
   double bestRatio = 1;
   for (size_t i=0; i<matrixSet->countMatrices(); ++i) {
     const WebMapWMTSTileMatrix& matrix = matrixSet->matrix(i);
-    double ratio = matrix.scaleDenominator() / denominator;
+    double ratio = 0.5 * matrix.scaleDenominator() / denominator;
     METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(matrix.identifier())
         << LOGVAL(matrix.scaleDenominator()) << LOGVAL(ratio));
     if (ratio < 1/MAX_RATIO)

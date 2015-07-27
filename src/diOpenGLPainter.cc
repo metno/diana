@@ -7,10 +7,32 @@
 #include "diTesselation.h"
 
 #include <QGLWidget>
+#include <QGLContext>
+#include <QImage>
 #include <QPolygonF>
+#include <QVector2D>
+
+#include <boost/shared_array.hpp>
+
+#include <cassert>
 
 #define MILOGGER_CATEGORY "diana.DiOpenGLPainter"
 #include <miLogger/miLogging.h>
+
+DiOpenGLCanvas::DiOpenGLCanvas(QGLWidget* widget)
+  : mWidget(widget)
+{
+}
+
+GLuint DiOpenGLCanvas::bindTexture(const QImage& image)
+{
+  return mWidget->bindTexture(image);
+}
+
+void DiOpenGLCanvas::deleteTexture(GLuint texid)
+{
+  mWidget->deleteTexture(texid);
+}
 
 void DiOpenGLCanvas::initializeFP()
 {
@@ -353,4 +375,59 @@ void DiOpenGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
 
   delete[] gldata;
   delete[] countpos;
+}
+
+void DiOpenGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth)
+{
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  const GLuint width = image.width(), height = image.height(),
+      size = width * height, size1 = (width+1) * (height+1);
+
+  glVertexPointer(2, GL_FLOAT, 0, mapPositionsXY);
+  glEnableClientState(GL_VERTEX_ARRAY);
+
+  boost::shared_array<GLubyte> big(new GLubyte[4*size1]);
+  size_t ib = 0;
+  for (size_t iy=0; iy<height; ++iy) {
+    for (size_t ix=0; ix<width; ++ix) {
+      const QRgb p = image.pixel(ix, iy);
+      big[ib++] = qRed(p);
+      big[ib++] = qGreen(p);
+      big[ib++] = qBlue(p);
+      big[ib++] = qAlpha(p);
+    }
+    // transparent pixel at end of line
+    for (size_t i=0; i<4; ++i)
+      big[ib++] = 0;
+  }
+  for (size_t ix=0; ix<=width; ++ix) {
+    for (size_t i=0; i<4; ++i)
+      big[ib++] = 0;
+  }
+  glColorPointer(4, GL_UNSIGNED_BYTE, 0, big.get());
+  glEnableClientState(GL_COLOR_ARRAY);
+
+  QVector<GLuint> indices;
+  indices.reserve(4*size);
+  for (GLuint iy=0; iy < height; ++iy) {
+    for (GLuint ix=0; ix < width; ++ix) {
+      const QRgb p = image.pixel(ix, iy);
+      if (qAlpha(p) == 0)
+        continue;
+      const GLuint i00 = (width+1) * iy + ix, i01 = i00 + (width+1), i10 = i00 + 1, i11 = i01 + 1;
+      indices.append(i10);
+      indices.append(i11);
+      indices.append(i01);
+      indices.append(i00);
+    }
+  }
+
+  glDrawElements(GL_QUADS, indices.size(), GL_UNSIGNED_INT, indices.constData());
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 }

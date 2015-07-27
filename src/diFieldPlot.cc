@@ -38,12 +38,14 @@
 #include "diContouring.h"
 #include "diColour.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "diImageGallery.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
 #include "diColourShading.h"
 #include "diUtilities.h"
 
+#include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
 
 #include <algorithm>
@@ -60,9 +62,101 @@ using namespace miutil;
 const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
 
+namespace {
+
+class is_undef {
+public:
+  is_undef(const float* fd, int w)
+    : fielddata(fd), width(w) { }
+  inline bool operator()(int ix, int iy) const
+    { return diutil::is_undefined(fielddata[diutil::index(width, ix, iy)]); }
+private:
+  const float* fielddata;
+  int width;
+};
+
+bool mini_maxi(const float* data, size_t n, float UNDEF, float& mini, float& maxi)
+{
+  bool is_set = false;
+  for (size_t i = 0; i < n; ++i) {
+    const float v = data[i];
+    if (v == UNDEF)
+      continue;
+    if (!is_set || mini > v)
+      mini = v;
+    if (!is_set || maxi < v)
+      maxi = v;
+    is_set = true;
+  }
+  return is_set;
+}
+
+class ColourLimits {
+public:
+  ColourLimits()
+    : colours(0), limits(0), ncl(0) { }
+
+  void initialize(const PlotOptions& poptions, float mini, float maxi);
+  void setColour(DiPainter* gl, float c) const;
+
+  operator bool() const
+    { return ncl > 0; }
+
+private:
+  const std::vector<Colour>* colours;
+  const std::vector<float>* limits;
+  std::vector<Colour> colours_default;
+  std::vector<float> limits_default;
+  size_t ncl;
+};
+
+void ColourLimits::initialize(const PlotOptions& poptions, float mini, float maxi)
+{
+  METLIBS_LOG_SCOPE();
+  colours = &poptions.colours;
+  limits = &poptions.limits;
+
+  if (colours->size() < 2) {
+    METLIBS_LOG_DEBUG("using default colours");
+    colours_default.push_back(Colour::fromF(0.5, 0.5, 0.5));
+    colours_default.push_back(Colour::fromF(0, 0, 0));
+    colours_default.push_back(Colour::fromF(0, 1, 1));
+    colours_default.push_back(Colour::fromF(1, 0, 0));
+    colours = &colours_default;
+  }
+
+  if (limits->size() < 1) {
+    // default, should be handled when reading setup, if allowed...
+    const int nlim = 3;
+    const float dlim = (maxi - mini) / colours->size();
+    for (int i = 1; i <= nlim; i++) {
+      limits_default.push_back(mini + dlim*i);
+      METLIBS_LOG_DEBUG("using default limit[" << (i-1) << "]=" << limits_default.back());
+    }
+
+    limits = &limits_default;
+  }
+
+  ncl = std::min(colours->size()-1, limits->size());
+  METLIBS_LOG_DEBUG(LOGVAL(ncl));
+}
+
+void ColourLimits::setColour(DiPainter* gl, float c) const
+{
+  if (ncl > 0) {
+    size_t l = 0;
+    while (l < ncl && c > (*limits)[l]) // TODO binary search
+      l++;
+    gl->setColour(colours->at(l), false);
+  }
+}
+
+} // namespace
+
+// ========================================================================
+
 FieldPlot::FieldPlot()
   : pshade(false), vectorAnnotationSize(0)
-  , imagedata(0), previrs(1)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -76,9 +170,6 @@ FieldPlot::~FieldPlot()
 void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
-  delete[] imagedata;
-  imagedata = 0;
-
   diutil::delete_all_and_clear(tmpfields);
   fields.clear();
 }
@@ -140,6 +231,8 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
   if (poptions.enabled == false)
     setEnabled(false);
 
+  rasterClear();
+
   if (poptions.maxDiagonalInMeters > -1) {
     METLIBS_LOG_INFO(
       " FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<getStaticPlot()->getRequestedarea().getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters);
@@ -178,6 +271,7 @@ bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
   METLIBS_LOG_SCOPE(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
 
   clearFields();
+  rasterClear();
 
   fields = vf;
   ftime = t;
@@ -600,12 +694,8 @@ bool FieldPlot::plotMe(DiGLPainter* gl)
     ok = plotVector(gl);
   else if (plottype == fpt_direction)
     ok = plotDirection(gl);
-  else if (plottype == fpt_alpha_shade)
-    ok = plotAlpha_shade(gl);
-  else if (plottype == fpt_alarm_box)
-    ok = plotAlarmBox(gl);
-  else if (plottype == fpt_fill_cell)
-    ok = plotFillCellExt(gl);
+  else if (plottype == fpt_alpha_shade || plottype == fpt_alarm_box || plottype == fpt_fill_cell)
+    ok = plotRaster(gl);
   else if (plottype == fpt_frame)
     ok = plotFrameOnly(gl);
 
@@ -860,11 +950,11 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
   return xstep;
 }
 
-bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes, bool cached) const
+bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes) const
 {
   const GridArea f0area = fields[0]->area.scaled(factor);
   if (not getStaticPlot()->gc.getGridPoints(f0area, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(),
-          boxes, &x, &y, ix1, ix2, iy1, iy2, cached))
+          boxes, &x, &y, ix1, ix2, iy1, iy2))
     return false;
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -875,86 +965,6 @@ bool FieldPlot::getPoints(int n, float* x, float* y) const
 {
   return getStaticPlot()->ProjToMap(fields[0]->area.P(), n, x, y);
 }
-
-namespace {
-
-bool mini_maxi(const float* data, size_t n, float UNDEF, float& mini, float& maxi)
-{
-  bool is_set = false;
-  for (size_t i = 0; i < n; ++i) {
-    const float v = data[i];
-    if (v == UNDEF)
-      continue;
-    if (!is_set || mini > v)
-      mini = v;
-    if (!is_set || maxi < v)
-      maxi = v;
-    is_set = true;
-  }
-  return is_set;
-}
-
-class ColourLimits {
-public:
-  ColourLimits()
-    : colours(0), limits(0), ncl(0) { }
-
-  void initialize(const PlotOptions& poptions, float mini, float maxi);
-  void setColour(DiPainter* gl, float c) const;
-
-  operator bool() const
-    { return ncl > 0; }
-
-private:
-  const std::vector<Colour>* colours;
-  const std::vector<float>* limits;
-  std::vector<Colour> colours_default;
-  std::vector<float> limits_default;
-  size_t ncl;
-};
-
-void ColourLimits::initialize(const PlotOptions& poptions, float mini, float maxi)
-{
-  METLIBS_LOG_SCOPE();
-  colours = &poptions.colours;
-  limits = &poptions.limits;
-
-  if (colours->size() < 2) {
-    METLIBS_LOG_DEBUG("using default colours");
-    colours_default.push_back(Colour::fromF(0.5, 0.5, 0.5));
-    colours_default.push_back(Colour::fromF(0, 0, 0));
-    colours_default.push_back(Colour::fromF(0, 1, 1));
-    colours_default.push_back(Colour::fromF(1, 0, 0));
-    colours = &colours_default;
-  }
-
-  if (limits->size() < 1) {
-    // default, should be handled when reading setup, if allowed...
-    const int nlim = 3;
-    const float dlim = (maxi - mini) / colours->size();
-    for (int i = 1; i <= nlim; i++) {
-      limits_default.push_back(mini + dlim*i);
-      METLIBS_LOG_DEBUG("using default limit[" << (i-1) << "]=" << limits_default.back());
-    }
-
-    limits = &limits_default;
-  }
-
-  ncl = std::min(colours->size()-1, limits->size());
-  METLIBS_LOG_DEBUG(LOGVAL(ncl));
-}
-
-void ColourLimits::setColour(DiPainter* gl, float c) const
-{
-  if (ncl > 0) {
-    size_t l = 0;
-    while (l < ncl && c > (*limits)[l]) // TODO binary search
-      l++;
-    gl->setColour(colours->at(l), false);
-  }
-}
-
-} // namespace
 
 // plot vector field as wind arrows
 // Fields u(0) v(1), optional- colorfield(2)
@@ -2300,371 +2310,166 @@ bool FieldPlot::plotContour2(DiGLPainter* gl)
   return true;
 }
 
-// plot scalar field as boxes with filled with patterns (cloud)
-//not used, do not work properly
-bool FieldPlot::plotBox_pattern(DiGLPainter* gl)
+bool FieldPlot::centerOnGridpoint() const
 {
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(1))
-    return false;
-
-  int i, ix, iy, i1, i2;
-
-  // convert gridbox corners to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
-    return false;
-
-  const int nx = fields[0]->area.nx, nxc = nx;
-  const int ny = fields[0]->area.ny;
-  if (poptions.frame) {
-    plotFrame(gl, nx, ny, x, y);
-  }
-
-  const int npattern = 4;
-  //float clim[npattern+1] = { 30., 50., 70., 90., 0.9e+35 };
-  float clim[npattern + 1] = { 25., 50., 75., 95., 0.9e+35 };
-  int step[npattern] = { 16, 8, 4, 1 };
-  int mark[npattern] = { 2, 2, 2, 1 };
-  DiGLPainter::GLubyte pattern[npattern][128], bit = 1;
-  int istart, jstart, j, b, w;
-  float cmin, cmax;
-
-  for (int n = 0; n < npattern; n++) {
-    for (i = 0; i < 128; i++)
-      pattern[n][i] = 0;
-    for (jstart = 0; jstart < mark[n]; jstart++) {
-      for (istart = 0; istart < mark[n]; istart++) {
-        for (j = jstart; j < 32; j += step[n]) {
-          for (i = istart; i < 32; i += step[n]) {
-            b = i + j * 32;
-            w = b / 8;
-            b = 7 - (b - w * 8);
-            pattern[n][w] = pattern[n][w] | (bit << b);
-          }
-        }
-      }
-    }
-  }
-
-  gl->ShadeModel(DiGLPainter::gl_FLAT);
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
-
-  gl->setColour(poptions.linecolour, false);
-
-  ix2++;
-  iy2++;
-
-  for (iy = iy1; iy < iy2; iy++) {
-    i2 = ix1 - 1;
-
-    while (i2 < ix2 - 1) {
-
-      i1 = i2 + 1;
-
-      // find start of cloud area
-      while (i1 < ix2
-          && (fields[0]->data[iy * nx + i1] < clim[0]
-              || fields[0]->data[iy * nx + i1] == fieldUndef))
-        i1++;
-      if (i1 < ix2) {
-
-        int n = 1;
-        while (n < npattern && fields[0]->data[iy * nx + i1] > clim[n])
-          n++;
-        n--;
-        cmin = clim[n];
-        cmax = clim[n + 1];
-
-        i2 = i1 + 1;
-        // find end of cloud area
-        while (i2 < ix2 && fields[0]->data[iy * nx + i2] >= cmin
-            && fields[0]->data[iy * nx + i2] < cmax)
-          i2++;
-        i2++;
-
-        gl->PolygonStipple(&pattern[n][0]);
-        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
-
-        for (ix = i1; ix < i2; ix++) {
-          gl->Vertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
-          gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
-        }
-        gl->End();
-        i2 -= 2;
-      } else
-        i2 = nx;
-
-    }
-  }
-
-  gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
-
-  if (poptions.update_stencil)
-    plotFrameStencil(gl, nx, ny, x, y);
-  return true;
+  return plottype == fpt_alpha_shade
+      || plottype == fpt_alarm_box
+      || plottype == fpt_fill_cell;
 }
 
-// plot scalar field with RGBA (RGB=constant)
-bool FieldPlot::plotBox_alpha_shade(DiGLPainter* gl)
+bool FieldPlot::plotRaster(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
     return false;
 
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
-    return false;
-
-  int ix, iy, i1, i2;
-  const int nx = fields[0]->area.nx;
-  const int ny = fields[0]->area.ny;
-
-  if (poptions.frame) {
+  float *x = 0, *y = 0;
+  int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
+  if (poptions.frame || poptions.update_stencil) {
+    const bool boxes = centerOnGridpoint();
+    int ix1, ix2, iy1, iy2;
+    if (!getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, boxes) || !x || !y)
+      x = y = 0;
+    if (boxes) {
+      // extend frame
+      nx += 1;
+      ny += 1;
+    }
+  }
+  if (x && y && poptions.frame) {
+    gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
     plotFrame(gl, nx, ny, x, y);
   }
 
-  float cmin, cmax;
+  rasterPaint(gl);
 
-  //cmin=0.;  cmax=100.;
-
-  if (poptions.minvalue > -fieldUndef && poptions.maxvalue < fieldUndef) {
-    cmin = poptions.minvalue;
-    cmax = poptions.maxvalue;
-  } else {
-    //##### not nice in timeseries... !!!!!!!!!!!!!!!!!!!!!
-    cmin = fieldUndef;
-    cmax = -fieldUndef;
-    for (int i = 0; i < nx * ny; ++i) {
-      if (fields[0]->data[i] != fieldUndef) {
-        if (cmin > fields[0]->data[i])
-          cmin = fields[0]->data[i];
-        if (cmax < fields[0]->data[i])
-          cmax = fields[0]->data[i];
-      }
-    }
-  }
-
-  gl->ShadeModel(DiGLPainter::gl_FLAT);
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Enable(DiGLPainter::gl_BLEND);
-  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-
-  float red = poptions.linecolour.fR(), green = poptions.linecolour.fG(), blue =
-      poptions.linecolour.fB(), alpha;
-
-  ix2++;
-  iy2++;
-
-  for (iy = iy1; iy < iy2; iy++) {
-    i2 = ix1 - 1;
-
-    while (i2 < ix2 - 1) {
-
-      i1 = i2 + 1;
-
-      // find start of cloud area
-      while (i1 < ix2
-          && (fields[0]->data[iy * nx + i1] < cmin
-              || fields[0]->data[iy * nx + i1] == fieldUndef))
-        i1++;
-      if (i1 < ix2) {
-
-        i2 = i1 + 1;
-        // find end of cloud area
-        while (i2 < ix2 && fields[0]->data[iy * nx + i2] >= cmax
-            && fields[0]->data[iy * nx + i2] != fieldUndef)
-          i2++;
-
-        i2++;
-        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
-
-        for (ix = i1; ix < i2; ix++) {
-          gl->Vertex2f(x[(iy + 1) * nx + ix], y[(iy + 1) * nx + ix]);
-          if (ix > i1) {
-            alpha = (fields[0]->data[iy * nx + ix] - cmin) / (cmax - cmin);
-            //if (fields[0]->data[iy*nx+ix-1]==fieldUndef) alpha=0.;
-            //if (alpha < 0.) alpha=0.;
-            //if (alpha > 1.) alpha=1.;
-            gl->Color4f(red, green, blue, alpha);
-          }
-          gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
-        }
-        gl->End();
-        i2 -= 2;
-      } else
-        i2 = nx;
-
-    }
-  }
-
-  gl->Disable(DiGLPainter::gl_BLEND);
-
-  if (poptions.update_stencil)
+  if (x && y && poptions.update_stencil) {
     plotFrameStencil(gl, nx, ny, x, y);
+  }
 
   return true;
 }
 
-//  plot some scalar field values with RGBA (RGB=constant)
-bool FieldPlot::plotAlarmBox(DiGLPainter* gl)
+// implementing RasterPlot virtual function
+QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   if (not checkFields(1))
-    return false;
+    return QImage();
 
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
-    return false;
+  const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
+  QImage image(scar.nx, scar.ny, QImage::Format_ARGB32);
 
-  int ix, iy, i1, i2;
-  const int nx = fields[0]->area.nx, nxc = nx + 1;
-  const int ny = fields[0]->area.ny;
+  if (plottype == fpt_alpha_shade) {
+    float cmin, cmax;
+    if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
+      cmin = poptions.minvalue;
+      cmax = poptions.maxvalue;
+    } else {
+      //##### not nice in timeseries... !!!!!!!!!!!!!!!!!!!!!
+      cmin = fieldUndef;
+      cmax = -fieldUndef;
+      for (int i = 0; i < nx * ny; ++i) {
+        if (fields[0]->data[i] != fieldUndef)
+          vcross::util::minimaximize(cmin, cmax, fields[0]->data[i]);
+      }
+    }
+    const float cdiv = 1 / (cmax - cmin);
+    const unsigned char red = poptions.linecolour.R(), green = poptions.linecolour.G(),
+        blue = poptions.linecolour.B();
 
-  // vmin,vmax: ok range, without alarm !!!
-  float vmin = -fieldUndef;
-  float vmax = fieldUndef;
+    for (int iy=0; iy<scar.ny; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
+      for (int ix=0; ix<scar.nx; ++ix) {
+        const float v0 = fields[0]->data[scale*(ix + iy*nx)];
+        unsigned char alpha = 0;
+        if (v0 != fieldUndef
+#ifdef DEBUG_UNDEF
+            && !fake_undefined(ix, iy)
+#endif
+          )
+          alpha = (unsigned char)(255 * (v0 - cmin) * cdiv);
+        rgb[ix] = qRgba(red, green, blue, alpha);
+      }
+    }
+  } else if (plottype == fpt_fill_cell) {
+    if (poptions.palettecolours.empty())
+      poptions.palettecolours = ColourShading::getColourShading("standard");
 
-  int sf = poptions.forecastLength.size();
-  int s1 = poptions.forecastValueMin.size();
-  int s2 = poptions.forecastValueMax.size();
+    for (int iy=0; iy<scar.ny; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
+      for (int ix=0; ix<scar.nx; ++ix) {
+        float value = fields[0]->data[scale*(ix + iy*nx)];
+        const Colour* c = 0;
+        if (value != fieldUndef
+#ifdef DEBUG_UNDEF
+            && !fake_undefined(ix, iy)
+#endif
+)
+          c = colourForValue(value);
+        if (c != 0)
+          rgb[ix] = qRgba(c->R(), c->G(), c->B(), poptions.alpha);
+        else
+          rgb[ix] = 0;
+      }
+    }
+  } else if (plottype == fpt_alarm_box) {
+    // analyse unscaled data!
 
-  // rather print error message than do something wrong
+    float vmin = -fieldUndef, vmax = fieldUndef;
 
-  if (sf > 1) {
+    const std::vector<int>& fcl = poptions.forecastLength;
 
-    int fc = fields[0]->forecastHour; // forecast hour
+    const size_t sf = fcl.size(), s1 = poptions.forecastValueMin.size(),
+        s2 = poptions.forecastValueMax.size();
+    METLIBS_LOG_DEBUG(LOGVAL(sf) << LOGVAL(s1) << LOGVAL(s2));
+    if (sf > 1) {
+      const int fc = fields[0]->forecastHour;
+      std::vector<int>::const_iterator it = std::lower_bound(fcl.begin(), fcl.end(), fc);
+      if (it == fcl.begin() || it == fcl.end())
+        return QImage();
+      const  int i = (it - fcl.begin());
+      const float r1 = float(fcl[i] - fc) / float(fcl[i] - fcl[i - 1]);
+      const float r2 = 1 - r1;
+      METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(r1) << LOGVAL(r2));
 
-    if (fc < poptions.forecastLength[0])
-      return false;
-    if (fc > poptions.forecastLength[sf - 1])
-      return false;
-
-    int i = 1;
-    while (i < sf && fc > poptions.forecastLength[i])
-      i++;
-    if (i == sf)
-      i = sf - 1;
-
-    float r1 = float(poptions.forecastLength[i] - fc)
-        / float(poptions.forecastLength[i] - poptions.forecastLength[i - 1]);
-    float r2 = 1. - r1;
-
-    if (sf == s1 && s2 == 0) {
-
-      vmin = r1 * poptions.forecastValueMin[i - 1]
-          + r2 * poptions.forecastValueMin[i];
-
-    } else if (sf == s2 && s1 == 0) {
-
-      vmax = r1 * poptions.forecastValueMax[i - 1]
-          + r2 * poptions.forecastValueMax[i];
-
-    } else if (sf == s1 && sf == s2) {
-
-      vmin = r1 * poptions.forecastValueMin[i - 1]
-          + r2 * poptions.forecastValueMin[i];
-      vmax = r1 * poptions.forecastValueMax[i - 1]
-          + r2 * poptions.forecastValueMax[i];
-
+      if (sf == s1)
+        vmin = r1 * poptions.forecastValueMin[i-1] + r2 * poptions.forecastValueMin[i];
+      if (sf == s2)
+        vmax = r1 * poptions.forecastValueMax[i-1] + r2 * poptions.forecastValueMax[i];
+    } else if (sf == 0 && s1 == 0 && s2 == 0) {
+      vmin = poptions.minvalue;
+      vmax = poptions.maxvalue;
+      METLIBS_LOG_DEBUG("no fc values" << LOGVAL(vmin) << LOGVAL(vmax));
     } else {
       METLIBS_LOG_ERROR("ERROR in setup!");
-      return false;
+      return QImage();
     }
 
-  } else if (sf == 0 && s1 == 0 && s2 == 0) {
+    const Colour& ca = poptions.linecolour;
+    const QRgb c_alarm = qRgba(ca.R(), ca.G(), ca.B(), 255), c_ok = 0;
 
-    vmin = poptions.minvalue;
-    vmax = poptions.maxvalue;
-
-  } else {
-
-    METLIBS_LOG_ERROR("ERROR in setup!");
-    return false;
-
-  }
-
-  if (poptions.frame) {
-    plotFrame(gl, nxc, ny + 1, x, y);
-  }
-
-  gl->ShadeModel(DiGLPainter::gl_FLAT);
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-
-  gl->setColour(poptions.linecolour, false);
-
-  ix2++;
-  iy2++;
-
-  for (iy = iy1; iy < iy2; iy++) {
-    i2 = ix1 - 1;
-    while (i2 < ix2 - 1) {
-
-      i1 = i2 + 1;
-
-      // find start of alarm area
-      while (i1 < ix2
-          && (fields[0]->data[iy * nx + i1] == fieldUndef
-              || (fields[0]->data[iy * nx + i1] < vmin
-                  || fields[0]->data[iy * nx + i1] > vmax)))
-        i1++;
-      if (i1 < ix2) {
-
-        i2 = i1 + 1;
-        // find end of alarm area
-        while (i2 < ix2 && fields[0]->data[iy * nx + i2] != fieldUndef
-            && fields[0]->data[iy * nx + i2] >= vmin
-            && fields[0]->data[iy * nx + i2] <= vmax)
-          i2++;
-
-        i2++;
-        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
-
-        for (ix = i1; ix < i2; ix++) {
-
-          gl->Vertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
-          gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
+    for (int iy=0; iy<scar.ny; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
+      for (int ix=0; ix<scar.nx; ++ix) {
+        bool is_alarm = false;
+        for (int iyy = iy*scale; !is_alarm && iyy < (iy+1)*scale && iyy < ny; ++iyy) {
+          for (int ixx = ix*scale; !is_alarm && ixx < (ix+1)*scale && ixx < nx; ++ixx) {
+            const float v = fields[0]->data[ixx + iyy*nx];
+            if (v != fieldUndef && v >= vmin && v <= vmax)
+              is_alarm = true;
+          }
         }
-        gl->End();
-        i2 -= 2;
-      } else
-        i2 = nx;
-
+        rgb[ix] = is_alarm ? c_alarm : c_ok;
+      }
     }
+  } else {
+    METLIBS_LOG_ERROR("programming error, plotRaster with plottype == " << plottype);
+    return QImage();
   }
-
-  if (poptions.update_stencil)
-    plotFrameStencil(gl, nxc, ny + 1, x, y);
-
-  return true;
-}
-
-bool FieldPlot::plotFillCellExt(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(1))
-    return false;
-  // projection is not equal...
-  if (!getStaticPlot()->getMapArea().P().isAlmostEqual(fields[0]->area.P())) {
-    return plotFillCell(gl);
-  }
-  // plotPixmap does not work when plotting fields
-  // in geographic projection....
-  if (fields[0]->area.P().isGeographic()) {
-    return plotFillCell(gl);
-  }
-
-  return plotPixmap(gl);
+  return image;
 }
 
 const Colour* FieldPlot::colourForValue(float value) const
@@ -2702,449 +2507,6 @@ const Colour* FieldPlot::colourForValue(float value) const
     return &poptions.palettecolours[index];
   }
   return 0;
-}
-
-unsigned char * FieldPlot::createRGBAImage(Field * field)
-{
-  METLIBS_LOG_SCOPE();
-
-  int nx = field->area.nx;
-  int ny = field->area.ny;
-  unsigned char * cimage = new unsigned char[4 * nx * ny];
-  for (int iy = 0; iy < ny; iy++) {
-    for (int ix = 0; ix < nx; ix++) {
-      // The index for bitmap
-      int newi = (iy * nx + ix) * 4;
-      // Index in field
-      int oldi = ix + (iy * nx);
-      float value = field->data[oldi];
-
-      const Colour* pixelColor = 0;
-      if (value != fieldUndef)
-        pixelColor = colourForValue(value);
-      if (pixelColor) {
-        cimage[newi + 0] = pixelColor->R();
-        cimage[newi + 1] = pixelColor->G();
-        cimage[newi + 2] = pixelColor->B();
-        cimage[newi + 3] = pixelColor->A();
-      } else {
-        cimage[newi + 0] = 0;
-        cimage[newi + 1] = 0;
-        cimage[newi + 2] = 0;
-        cimage[newi + 3] = 0;
-      }
-    }
-  }
-  return cimage;
-}
-
-unsigned char * FieldPlot::resampleImage(DiGLPainter* gl, int& currwid, int& currhei,
-    int& bmStartx, int& bmStarty, float& scalex, float& scaley, int& nx,
-    int& ny)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(scalex));
-
-  unsigned char * cimage;
-  int irs = 1;            // resample-size
-
-  DiGLPainter::GLint maxdims[2];      // find OpenGL maximums
-  gl->GetIntegerv(DiGLPainter::gl_MAX_VIEWPORT_DIMS, maxdims);
-  int maxww = maxdims[0];
-  int maxhh = maxdims[1];
-  int orignx = nx;
-  if (currwid > maxww || currhei > maxhh) {
-
-    if ((currwid - maxww) > (currhei - maxhh)) {
-      irs = (currwid / maxww) + 1;
-    } else {
-      irs = (currhei / maxhh) + 1;
-    }
-
-    currwid /= irs;
-    currhei /= irs;
-    bmStartx /= irs;
-    bmStarty /= irs;
-    nx /= irs;
-    ny /= irs;
-    scalex *= irs;
-    scaley *= irs;
-
-    // check if correct resampling already available..
-    if (irs != previrs) {
-      METLIBS_LOG_DEBUG(" resampling image:" << irs);
-
-      previrs = irs;
-      cimage = new unsigned char[4 * nx * ny];
-      for (int iy = 0; iy < ny; iy++)
-        for (int ix = 0; ix < nx; ix++) {
-          int newi = (iy * nx + ix) * 4;
-          int oldi = (irs * iy * orignx + irs * ix) * 4;
-          cimage[newi + 0] = imagedata[oldi + 0];
-          cimage[newi + 1] = imagedata[oldi + 1];
-          cimage[newi + 2] = imagedata[oldi + 2];
-          cimage[newi + 3] = imagedata[oldi + 3];
-        }
-      if (imagedata) {
-        delete[] imagedata;
-        imagedata = cimage;
-      }
-    }
-    // Point to resampled data
-    cimage = imagedata;
-  } else {
-    // No resampling: use original image
-    cimage = imagedata;
-  }
-
-  return cimage;
-}
-
-bool FieldPlot::plotPixmap(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(1))
-    return false;
-
-  // How to deal with palettecolours_cold
-  // For now, don't create one
-  if (poptions.palettecolours.size() == 0) {
-    poptions.palettecolours = ColourShading::getColourShading("standard");
-  }
-
-  int factor = resamplingFactor(fields[0]->area.nx, fields[0]->area.ny);
-
-  if (factor < 2)
-    factor = 1;
-
-  // convert all gridpoints only if needed by plotFrame or update_stencil
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (  poptions.update_stencil || poptions.frame ) {
-    if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, true))
-      return false;
-  }
-
-  const int rnx = fields[0]->area.nx / factor, rny = fields[0]->area.ny / factor;
-
-  gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
-  if (poptions.frame) {
-    plotFrame(gl, rnx + 1, rny + 1, x, y);
-  }
-
-  if (poptions.alpha < 255) {
-    for (size_t i = 0; i < poptions.palettecolours.size(); i++) {
-      poptions.palettecolours[i].set(Colour::alpha,
-          (unsigned char) poptions.alpha);
-    }
-    for (size_t i = 0; i < poptions.palettecolours_cold.size(); i++) {
-      poptions.palettecolours_cold[i].set(Colour::alpha,
-          (unsigned char) poptions.alpha);
-    }
-  }
-
-  // From plotFillCell ends.
-
-  //Member variables, used in values().
-  //Corners of total image (map coordinates)
-  float xmin = 0.;
-  float ymin = 0.;
-  if (not getPoints(1, &xmin, &ymin))
-    return false;
-  float xmax = fields[0]->area.nx * fields[0]->area.resolutionX;
-  float ymax = fields[0]->area.ny * fields[0]->area.resolutionY;
-
-  if (not getPoints(1, &xmax, &ymax))
-    return false;
-
-  // scaling
-  float scalex = 1/getStaticPlot()->getPhysToMapScaleX();
-  float scaley = 1/getStaticPlot()->getPhysToMapScaleY();
-
-  // Corners of image shown (map coordinates)
-  // special care of lat/lon projection global
-  // xmin is wrong for these projections...
-  // handled in plotfillcellext.
-
-  float grStartx = std::max(getStaticPlot()->getMapSize().x1, xmin);
-  float grStarty = std::max(getStaticPlot()->getMapSize().y1, ymin);
-
-  // Corners of total image (image coordinates)
-  float x1 = getStaticPlot()->getMapSize().x1;
-  float y1 = getStaticPlot()->getMapSize().y1;
-  if (!getStaticPlot()->MapToProj(fields[0]->area.P(), 1, &x1, &y1))
-    return false;
-  float x2 = getStaticPlot()->getMapSize().x2;
-  float y2 = getStaticPlot()->getMapSize().y2;
-  if (!getStaticPlot()->MapToProj(fields[0]->area.P(), 1, &x2, &y2))
-    return false;
-  x1 /= fields[0]->area.resolutionX;
-  x2 /= fields[0]->area.resolutionX;
-  y1 /= fields[0]->area.resolutionY;
-  y2 /= fields[0]->area.resolutionY;
-
-  // Corners of image shown (image coordinates)
-  int bmStartx = (getStaticPlot()->getMapSize().x1 > xmin) ? int(x1) : 0;
-  int bmStarty = (getStaticPlot()->getMapSize().y1 > ymin) ? int(y1) : 0;
-  int bmStopx = (getStaticPlot()->getMapSize().x2 < xmax) ? int(x2) : (fields[0]->area.nx - 1);
-  int bmStopy = (getStaticPlot()->getMapSize().y2 < ymax) ? int(y2) : (fields[0]->area.ny - 1);
-
-  // lower left corner of displayed image part, in map coordinates
-  // (part of lower left pixel may well be outside screen)
-  float xstart = bmStartx * fields[0]->area.resolutionX;
-  float ystart = bmStarty * fields[0]->area.resolutionY;
-  if (not getPoints(1, &xstart, &ystart))
-    return false;
-
-  //Strange, but needed
-  float bmxmove = (getStaticPlot()->getMapSize().x1 > xmin) ? (xstart - grStartx) * scalex : 0;
-  float bmymove = (getStaticPlot()->getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
-
-  // update scaling with ratio image to map (was map to screen pixels)
-  scalex *= fields[0]->area.resolutionX;
-  scaley *= fields[0]->area.resolutionY;
-
-  // width of image (pixels)
-  int currwid = bmStopx - bmStartx + 1;  // use pixels in image
-  int currhei = bmStopy - bmStarty + 1;  // use pixels in image
-
-  /*
-   create an original image from the field if not created before...
-   */
-
-  if (imagedata == NULL) {
-    // Create image from field
-    imagedata = createRGBAImage(fields[0]);
-  }
-
-  /*
-   If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
-   cImage: Pointer to imagedata, either sat_image or resampled data
-   */
-  unsigned char * cimage = resampleImage(gl, currwid, currhei, bmStartx, bmStarty,
-      scalex, scaley, fields[0]->area.nx, fields[0]->area.ny);
-
-  // always needed (if not, slow oper...) ??????????????
-  gl->Enable(DiGLPainter::gl_BLEND);
-  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-
-  // assure valid raster position after OpenGL transformations
-  grStartx += getStaticPlot()->getPlotSize().width() * 0.0001;
-  grStarty += getStaticPlot()->getPlotSize().height() * 0.0001;
-
-  gl->PixelZoom(scalex, scaley);
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, bmStarty); //pixels
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, bmStartx); //pixels
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, fields[0]->area.nx); //pixels on image
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 1);
-  gl->RasterPos2f(grStartx, grStarty); //glcoord.
-
-  //Strange, but needed
-  //if (bmxmove<0. || bmymove<0.) gl->Bitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
-  gl->Bitmap(0, 0, 0., 0., bmxmove, bmymove, NULL);
-  gl->DrawPixels((DiGLPainter::GLint) currwid, (DiGLPainter::GLint) currhei, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
-      cimage);
-  //Reset gl
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, 0);
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, 0);
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
-  gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
-  gl->Disable(DiGLPainter::gl_BLEND);
-
-  //From plotFillCell
-  if (poptions.update_stencil) {
-    plotFrameStencil(gl, rnx + 1, rny + 1, x, y);
-  }
-  // From plotFillCell ends.
-
-  return true;
-}
-
-bool FieldPlot::plotFillCell(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(1))
-    return false;
-
-  vector<Colour> palette;
-  // How to deal with palettecolours_cold
-  // For now, dont create one
-  if (poptions.palettecolours.size() == 0) {
-    poptions.palettecolours = ColourShading::getColourShading("standard");
-  }
-
-  int nx = fields[0]->area.nx;
-  int ny = fields[0]->area.ny;
-  int rnx, rny;
-
-  // convert gridbox corners to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-
-  int factor = resamplingFactor(nx, ny);
-  if (factor < 2)
-    factor = 1;
-
-  rnx = nx / factor;
-  rny = ny / factor;
-  getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, true); // no check here as ix2 needs to be "fixed"
-
-  // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
-  if (ix2 == nx - 1)
-    ix2--;
-
-  if (ix1 > ix2 || iy1 > iy2)
-    return false;
-
-  gl->setLineStyle(poptions.bordercolour, poptions.linewidth, false);
-  if (poptions.frame)
-    plotFrame(gl, rnx + 1, rny + 1, x, y);
-
-  //auto -> 0
-  if (poptions.density == 0) {
-    poptions.density = 10;
-  }
-
-  //  float dx = poptions.density*(0.1) * (x[1]-x[0]);
-  //  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
-
-  if (poptions.alpha < 255) {
-    for (size_t i = 0; i < poptions.palettecolours.size(); i++) {
-      poptions.palettecolours[i].set(Colour::alpha,
-          (unsigned char) poptions.alpha);
-    }
-    for (size_t i = 0; i < poptions.palettecolours_cold.size(); i++) {
-      poptions.palettecolours_cold[i].set(Colour::alpha,
-          (unsigned char) poptions.alpha);
-    }
-  }
-
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Enable(DiGLPainter::gl_BLEND);
-  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-  gl->Begin(DiGLPainter::gl_QUADS);
-  for (int iy = iy1; iy <= iy2; iy++) {
-    for (int ix = ix1; ix <= ix2; ix++) {
-
-      float value = fields[0]->data[ix * factor + (iy * (nx) * factor)];
-      if (value == fieldUndef)
-        continue;
-      if (const Colour* c = colourForValue(value)) {
-        gl->setColour(*c);
-
-        float x1 = x[iy * (rnx + 1) + ix];
-        float x2 = x[iy * (rnx + 1) + (ix + 1)];
-        float x3 = x[(iy + 1) * (rnx + 1) + (ix + 1)];
-        float x4 = x[(iy + 1) * (rnx + 1) + ix];
-        float y1 = y[iy * (rnx + 1) + ix];
-        float y2 = y[(iy) * (rnx + 1) + (ix + 1)];
-        float y3 = y[(iy + 1) * (rnx + 1) + (ix + 1)];
-        float y4 = y[(iy + 1) * (rnx + 1) + (ix)];
-
-        // lower-left corner of gridcell
-        gl->Vertex2f(x1, y1);
-        // lower-right corner of gridcell
-        gl->Vertex2f(x2, y2);
-        // upper-right corner of gridcell
-        gl->Vertex2f(x3, y3);
-        // upper-left corner of gridcell
-        gl->Vertex2f(x4, y4);
-      }
-    }
-  }
-  gl->End();
-  gl->Disable(DiGLPainter::gl_BLEND);
-
-  if (poptions.update_stencil) {
-    if (factor >= 2)
-      plotFrameStencil(gl, rnx + 1, rny + 1, x, y);
-    else
-      plotFrameStencil(gl, nx + 1, ny + 1, x, y);
-  }
-  return true;
-}
-
-// plot scalar field with RGBA (RGB=constant)
-bool FieldPlot::plotAlpha_shade(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (not checkFields(1))
-    return false;
-
-  int ix, iy;
-  int nx = fields[0]->area.nx;
-  int ny = fields[0]->area.ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
-    return false;
-
-  if (poptions.frame) {
-    plotFrame(gl, nx, ny, x, y);
-  }
-
-  float cmin, cmax;
-
-  if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
-    cmin = poptions.minvalue;
-    cmax = poptions.maxvalue;
-  } else {
-    //##### not nice in timeseries... !!!!!!!!!!!!!!!!!!!!!
-    cmin = fieldUndef;
-    cmax = -fieldUndef;
-    for (int i = 0; i < nx * ny; ++i) {
-      if (fields[0]->data[i] != fieldUndef) {
-        if (cmin > fields[0]->data[i])
-          cmin = fields[0]->data[i];
-        if (cmax < fields[0]->data[i])
-          cmax = fields[0]->data[i];
-      }
-    }
-  }
-  gl->ShadeModel(DiGLPainter::gl_SMOOTH);
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Enable(DiGLPainter::gl_BLEND);
-  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-
-  float red = poptions.linecolour.fR(), green = poptions.linecolour.fG(), blue =
-      poptions.linecolour.fB(), alpha;
-
-  ix2++;
-
-  for (iy = iy1; iy < iy2; iy++) {
-    gl->Begin(DiGLPainter::gl_QUAD_STRIP);
-    for (ix = ix1; ix < ix2; ix++) {
-
-      alpha = (fields[0]->data[(iy + 1) * nx + ix] - cmin) / (cmax - cmin);
-      if (fields[0]->data[(iy + 1) * nx + ix] == fieldUndef)
-        alpha = 0.;
-      //if (alpha < 0.) alpha=0.;
-      //if (alpha > 1.) alpha=1.;
-      gl->Color4f(red, green, blue, alpha);
-      gl->Vertex2f(x[(iy + 1) * nx + ix], y[(iy + 1) * nx + ix]);
-
-      alpha = (fields[0]->data[iy * nx + ix] - cmin) / (cmax - cmin);
-      if (fields[0]->data[iy * nx + ix] == fieldUndef)
-        alpha = 0.;
-      //if (alpha < 0.) alpha=0.;
-      //if (alpha > 1.) alpha=1.;
-      gl->Color4f(red, green, blue, alpha);
-      gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
-    }
-    gl->End();
-  }
-
-  gl->Disable(DiGLPainter::gl_BLEND);
-  gl->ShadeModel(DiGLPainter::gl_FLAT);
-
-  if (poptions.update_stencil)
-    plotFrameStencil(gl, nx, ny, x, y);
-
-  return true;
 }
 
 bool FieldPlot::plotFrameOnly(DiGLPainter* gl)
@@ -3575,11 +2937,8 @@ bool FieldPlot::plotGridLines(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->area.nx;
-
-  int ix1, ix2, iy1, iy2;
-
   // convert gridpoints to correct projection
+  int ix1, ix2, iy1, iy2;
   float *x, *y;
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
@@ -3587,37 +2946,34 @@ bool FieldPlot::plotGridLines(DiGLPainter* gl)
   ix2++;
   iy2++;
 
-  int step = poptions.gridLines;
-  int maxlines = poptions.gridLinesMax;
-
-  if (maxlines > 0) {
-    if ((ix2 - ix1) / step > maxlines || (iy2 - iy1) / step > maxlines)
-      return false;
+  const int step = poptions.gridLines;
+  if (step <= 0 || (poptions.gridLinesMax > 0
+          && ((ix2 - ix1) / step > poptions.gridLinesMax
+              || (iy2 - iy1) / step > poptions.gridLinesMax)))
+  {
+    return false;
   }
 
-  gl->Color4f(poptions.bordercolour.fR(), poptions.bordercolour.fG(),
-      poptions.bordercolour.fB(), 0.5);
-  gl->LineWidth(1.0);
+  Colour bc = poptions.bordercolour;
+  bc.setF(Colour::alpha, 0.5);
+  gl->setLineStyle(bc, 1);
 
-  int ix, iy;
   ix1 = int(ix1 / step) * step;
   iy1 = int(iy1 / step) * step;
-  int i;
-  for (ix = ix1; ix < ix2; ix += step) {
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    for (iy = iy1; iy < iy2; iy++) {
-      i = iy * nx + ix;
-      gl->Vertex2f(x[i], y[i]);
-    }
-    gl->End();
+
+  const int nx = fields[0]->area.nx;
+
+  diutil::PolylinePainter pp(gl);
+  for (int ix = ix1; ix < ix2; ix += step) {
+    for (int iy = iy1; iy < iy2; iy++)
+      pp.add(x, y, diutil::index(nx, ix, iy));
+    pp.draw();
   }
-  for (iy = iy1; iy < iy2; iy += step) {
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    for (ix = ix1; ix < ix2; ix++) {
-      i = iy * nx + ix;
-      gl->Vertex2f(x[i], y[i]);
-    }
-    gl->End();
+
+  for (int iy = iy1; iy < iy2; iy += step) {
+    for (int ix = ix1; ix < ix2; ix++)
+      pp.add(x, y, diutil::index(nx, ix, iy));
+    pp.draw();
   }
 
   return true;
@@ -3636,112 +2992,98 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  int nx = fields[0]->area.nx;
-  int ny = fields[0]->area.ny;
+  const bool center_on_gridpoint = centerOnGridpoint()
+      || plottype == fpt_contour; // old contour does some tricks with undefined values
 
-  int ix1, ix2, iy1, iy2;
+  const int nx_fld = fields[0]->area.nx, ny_fld = fields[0]->area.ny;
+  const int nx_pts = nx_fld + (center_on_gridpoint ? 1 : 0);
 
   // convert gridpoints to correct projection
+  int ix1, ix2, iy1, iy2;
   float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, center_on_gridpoint))
     return false;
-  if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
+  if (ix1 >= nx_fld || ix2 < 0 || iy1 >= ny_fld || iy2 < 0)
     return false;
 
-  int nxc = nx + 1;
+  const is_undef undef_f0(fields[0]->data, nx_fld);
+
+  const Colour undefC = getStaticPlot()->notBackgroundColour(poptions.undefColour);
 
   if (poptions.undefMasking == 1) {
+    // filled undefined areas
+    gl->setColour(undefC, false);
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  } else {
-    gl->LineWidth(poptions.undefLinewidth);
-    if (poptions.undefLinetype.bmap != 0xFFFF) {
-      gl->LineStipple(1, poptions.undefLinetype.bmap);
-      gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
-    }
-  }
 
-  poptions.undefColour = getStaticPlot()->notBackgroundColour(poptions.undefColour);
+    for (int iy = iy1; iy <= iy2; iy++) {
+      int ix = ix1;
+      while (ix <= ix2) {
+        // find start of undef
+        while (ix <= ix2 && !undef_f0(ix, iy))
+          ix += 1;
+        if (ix > ix2)
+          break;
 
-  gl->setColour(poptions.undefColour, false);
+        int ixx = ix;
+        // find end of undef
+        while (ix <= ix2 && undef_f0(ix, iy))
+          ix += 1;
 
-  int ix, iy, ixbgn, ixend, iybgn, iyend;
-
-  ix2++;
-  iy2++;
-
-  for (iy = iy1; iy < iy2; iy++) {
-
-    ix = ix1;
-
-    while (ix < ix2) {
-
-      while (ix < ix2 && fields[0]->data[iy * nx + ix] != fieldUndef)
-        ix++;
-
-      if (ix < ix2) {
-
-        ixbgn = ix++;
-        while (ix < ix2 && fields[0]->data[iy * nx + ix] == fieldUndef)
-          ix++;
-        ixend = ix;
-
-        if (poptions.undefMasking == 1) {
-
-          gl->Begin(DiGLPainter::gl_QUAD_STRIP);
-          for (ix = ixbgn; ix <= ixend; ix++) {
-            gl->Vertex2f(x[(iy + 1) * nxc + ix], y[(iy + 1) * nxc + ix]);
-            gl->Vertex2f(x[iy * nxc + ix], y[iy * nxc + ix]);
-          }
-          gl->End();
-
-        } else {
-
-          // drawing lines
-          // here only drawing lines in grid x direction (y dir. below),
-          // avoiding plot of many short lines that are connected
-          // (but still drawing many "double" lines...)
-
-          for (int iyy = iy; iyy <= iy + 1; iyy++) {
-            gl->Begin(DiGLPainter::gl_LINE_STRIP);
-            for (ix = ixbgn; ix <= ixend; ix++)
-              gl->Vertex2f(x[iyy * nxc + ix], y[iyy * nxc + ix]);
-            gl->End();
-          }
+        // fill
+        gl->Begin(DiGLPainter::gl_QUAD_STRIP);
+        for (; ixx <= ix; ++ixx) {
+          int idx0 = diutil::index(nx_pts, ixx, iy), idx1 = idx0 + nx_pts;
+          gl->Vertex2f(x[idx1], y[idx1]);
+          gl->Vertex2f(x[idx0], y[idx0]);
         }
-        ix = ixend + 1;
+        gl->End();
       }
     }
-  }
+  } else {
+    // grid lines around undefined cells
+    gl->setLineStyle(undefC, poptions.undefLinewidth, poptions.undefLinetype, false);
 
-  if (poptions.undefMasking > 1) {
+    // line is where at least one of two neighbouring cells is undefined
+    diutil::PolylinePainter pp(gl);
 
-    // linedrawing in grid y direction (undefMasking>1)
+    // horizontal lines
+    for (int iy = iy1; iy <= iy2; iy++) {
+      int ix = ix1;
+      while (ix <= ix2) {
+        while (ix <= ix2 && (!undef_f0(ix, iy) && (iy == iy1 || !undef_f0(ix, iy-1))))
+          ix += 1;
+        if (ix >= ix2)
+          break;
 
-    for (ix = ix1; ix < ix2; ix++) {
+        int idx = diutil::index(nx_pts, ix, iy);
+        pp.add(x, y, idx);
+        do {
+          ix += 1;
+          idx += 1;
+          pp.add(x, y, idx);
+        } while (ix < ix2 && !(!undef_f0(ix, iy) && (iy == iy1 || !undef_f0(ix, iy-1))));
+        pp.draw();
+      }
+    }
 
-      iy = iy1;
+    // vertical lines
+    for (int ix = ix1; ix <= ix2; ix++) {
+      int iy = iy1;
+      while (iy <= iy2) {
+        while (iy <= iy2 && (!undef_f0(ix, iy) && (ix == ix1 || !undef_f0(ix-1, iy))))
+          iy += 1;
+        if (iy >= iy2)
+          break;
 
-      while (iy < iy2) {
-
-        while (iy < iy2 && fields[0]->data[iy * nx + ix] != fieldUndef)
-          iy++;
-
-        if (iy < iy2) {
-
-          iybgn = iy++;
-          while (iy < iy2 && fields[0]->data[iy * nx + ix] == fieldUndef)
-            iy++;
-          iyend = iy;
-
-          for (int ixx = ix; ixx <= ix + 1; ixx++) {
-            gl->Begin(DiGLPainter::gl_LINE_STRIP);
-            for (iy = iybgn; iy <= iyend; iy++)
-              gl->Vertex2f(x[iy * nxc + ixx], y[iy * nxc + ixx]);
-            gl->End();
-          }
-          iy = iyend + 1;
-        }
+        int idx = diutil::index(nx_pts, ix, iy);
+        pp.add(x, y, idx);
+        do {
+          iy += 1;
+          idx += nx_pts;
+          pp.add(x, y, idx);
+        } while (iy < iy2 && !(!undef_f0(ix, iy) && (ix == ix1 || !undef_f0(ix-1, iy))));
+        pp.draw();
       }
     }
   }
@@ -3799,7 +3141,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
   }
   std::string str;
 
-  gl->setColour(poptions.linecolour, false);
+  gl->setLineStyle(poptions.linecolour, 1, false);
 
   for (iy = iy1; iy < iy2; iy++) {
     for (ix = ix1; ix < ix2; ix++) {
@@ -3832,25 +3174,19 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
 
   const int nx = fields[0]->area.nx + 1;
 
-  gl->LineWidth(1.0);
-
   ix2++;
   iy2++;
 
-  for (ix = ix1; ix < ix2; ix++) {
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    for (iy = iy1; iy < iy2; iy++) {
-      gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
-    }
-    gl->End();
+  diutil::PolylinePainter pp(gl);
+  for (int ix = ix1; ix < ix2; ix++) {
+    for (int iy = iy1; iy < iy2; iy++)
+      pp.add(x, y, diutil::index(nx, ix, iy));
+    pp.draw();
   }
-  for (iy = iy1; iy < iy2; iy++) {
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    for (ix = ix1; ix < ix2; ix++) {
-      i = iy * nx + ix;
-      gl->Vertex2f(x[iy * nx + ix], y[iy * nx + ix]);
-    }
-    gl->End();
+  for (int iy = iy1; iy < iy2; iy++) {
+    for (int ix = ix1; ix < ix2; ix++)
+      pp.add(x, y, diutil::index(nx, ix, iy));
+    pp.draw();
   }
 
   return true;

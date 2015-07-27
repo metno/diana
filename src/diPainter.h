@@ -8,6 +8,8 @@
 class Colour;
 class Linetype;
 class Rectangle;
+
+class QImage;
 class QPolygonF;
 
 #ifndef Q_DECL_OVERRIDE
@@ -84,6 +86,8 @@ public:
   virtual void drawArrowHead(float x1, float y1, float x2, float y2, float headsize = 0);
   virtual void drawWindArrow(float u, float v, float x, float y,
       float arrowSize, bool withArrowHead) = 0;
+
+  virtual void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth) = 0;
 
 private:
   DiCanvas* mCanvas;
