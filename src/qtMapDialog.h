@@ -103,9 +103,11 @@ private slots:
   void cont_checkboxActivated(bool);
   void cont_linecboxActivated(int index);
   void cont_linetypeboxActivated(int index);
+  void cont_colorcboxActivated(int index);
   void cont_zordercboxActivated(int index);
 
   void land_checkboxActivated(bool);
+  void land_colorcboxActivated(int index);
   void land_zordercboxActivated(int index);
 
   void helpClicked();

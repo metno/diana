@@ -222,6 +222,8 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   // colorcbox
   cont_colorlabel= new QLabel(tr("Colour"), cont_frame);
   cont_colorcbox = ColourBox( cont_frame, cInfo, false, 0 , "", true);
+  connect( cont_colorcbox, SIGNAL( activated(int) ),
+      SLOT( cont_colorcboxActivated(int) ) );
   // zorder
   cont_zorderlabel= new QLabel(tr("Plot position"), cont_frame);
   cont_zorder= ComboBox( cont_frame, zorders, false, 0 );
@@ -243,6 +245,8 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   // colorcbox
   land_colorlabel= new QLabel(tr("Colour"), land_frame);
   land_colorcbox = ColourBox( land_frame, cInfo, false, 0, "", true );
+  connect( land_colorcbox, SIGNAL( activated(int) ),
+      SLOT( land_colorcboxActivated(int) ) );
   // zorder
   land_zorderlabel= new QLabel(tr("Plot position"), land_frame);
   land_zorder= ComboBox( land_frame, zorders, false, 0 );
@@ -878,6 +882,15 @@ void MapDialog::cont_linetypeboxActivated(int index)
   m_MapDI.maps[activemap].contour.linetype = linetypes[index];
 }
 
+void MapDialog::cont_colorcboxActivated(int index)
+{
+  if (activemap < 0) {
+    METLIBS_LOG_ERROR("colorcboxactivated::Catastrophic: activemap < 0");
+    return;
+  }
+  m_MapDI.maps[activemap].contour.linecolour = cont_colorcbox->currentText().toStdString();
+}
+
 void MapDialog::cont_zordercboxActivated(int index)
 {
   if (activemap < 0) {
@@ -905,6 +918,15 @@ void MapDialog::land_checkboxActivated(bool on)
     land_colorcbox->setEnabled(false);
     land_zorder->setEnabled(false);
   }
+}
+
+void MapDialog::land_colorcboxActivated(int index)
+{
+  if (activemap < 0) {
+    METLIBS_LOG_ERROR("colorcboxactivated::Catastrophic: activemap < 0");
+    return;
+  }
+  m_MapDI.maps[activemap].land.fillcolour = land_colorcbox->currentText().toStdString();
 }
 
 void MapDialog::land_zordercboxActivated(int index)
