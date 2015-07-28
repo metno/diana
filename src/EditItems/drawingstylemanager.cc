@@ -502,16 +502,26 @@ QVariantMap DrawingStyleManager::getStyle(DrawingItemBase *item) const
   return getStyle(const_cast<const DrawingItemBase *>(item));
 }
 
+/**
+ * Get the style for the given item, merging the base style with any style
+ * properties defined in the item itself.
+ */
 QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 {
-  // Merge the base style with any style properties defined in the item itself.
+  // Obtain the base style.
   const QString styleName = item->property("style:type").toString();
   QVariantMap style = styles_[item->category()].value(styleName);
 
+  // Collect any style properties in the item itself.
+  QHash<QString, QString> styleProperties;
   foreach (QString key, item->propertiesRef().keys()) {
     if (key.startsWith("style:"))
-      style[key.mid(6)] = item->propertiesRef().value(key);
+      styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
   }
+
+  // Override any properties with custom properties.
+  foreach (QString propName, properties_[item->category()].keys())
+    style[propName] = properties_[item->category()].value(propName)->parse(styleProperties);
 
   return style;
 }
@@ -594,6 +604,7 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
   const bool reversed = !style.value(DSP_reversed::name()).toBool();
 
   if (style.value(DSP_decoration1::name()).isValid()) {
+
     QColor colour = style.value(DSP_decoration1_colour::name()).value<QColor>();
     bool alphaOk;
     const int alpha = style.value(DSP_decoration1_alpha::name()).toInt(&alphaOk);
