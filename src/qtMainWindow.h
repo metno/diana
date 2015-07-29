@@ -110,10 +110,7 @@ class DianaMainWindow: public QMainWindow
 {
   Q_OBJECT
 public:
-  DianaMainWindow(Controller*,
-		  const std::string& ver_str,
-		  const std::string& buils_str,
-		  const std::string& dianaTitle="Diana");
+  DianaMainWindow(Controller*, const std::string& dianaTitle="Diana");
   ~DianaMainWindow();
 
   /// check if news file has changed since last startup
@@ -287,8 +284,6 @@ private:
   bool uffda;
   bool doAutoUpdate;
 
-  std::string version_string;
-  std::string build_string;
   int displayWidth,displayHeight;
 
   /// Actions

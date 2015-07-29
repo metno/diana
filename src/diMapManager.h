@@ -78,6 +78,8 @@ public:
       PlotOptions& ffopts);
   /// make string representation of one MapInfo
   std::string MapInfo2str(const MapInfo&);
+  /// make string representation of lat/lon/frame/background info
+  std::string MapExtra2str(const MapInfo&);
   /// get all defined maps and areas for the GUI
   MapDialogInfo getMapDialogInfo();
 

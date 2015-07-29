@@ -774,23 +774,31 @@ diana_bin_CPPFLAGS += -DUSE_XLIB
 diana_bin_LDADD += -lX11
 endif # WITH_XLIB
 
-# Generated header
-main_gui.cc: diBuild.h
-diBuild.h:
-	@if [ -s $@ ]; then \
-		olddate=`grep build_string $@ | cut -f2 -d\"`; \
+# generate version info header
+BUILT_SOURCES += diBuild.cc
+CLEANFILES += diBuild.h
+
+libdiana_la_SOURCES += diBuild.cc
+diBuild.cc: diBuild.cc.tmp
+	@if cmp -s $@ $< ; then \
+	    echo "UNCHANGED $@"; \
 	else \
-		olddate="firsttime"; \
-	fi; \
-	today=`date +%Y-%m-%d`; \
-	if [ ! x$$olddate = x$$today ]; then \
-	  	echo '#define build_string "'$$today'"' >$@ ; \
-	  	echo "UPDATED $@ $$today"; \
-	else \
-	  	echo "UNCHANGED $@ $$olddate"; \
+	    cp -f $< $@ ; \
+	    echo "UPDATED $@:"; \
+	    cat $@ ; \
 	fi
 
-CLEANFILES += diBuild.h
+diBuild.cc.tmp:
+	@today=`date +%Y-%m-%d` ; \
+	if git --git-dir="$(top_srcdir)/.git" --work-tree="$(top_srcdir)" status > /dev/null; then \
+	    commit=`git --git-dir="$(top_srcdir)/.git" --work-tree="$(top_srcdir)" describe --abbrev=40 --dirty --always`; \
+	else \
+	    commit="unknown"; \
+	fi; \
+	echo "#include <diBuild.h>" > $@ ; \
+	echo 'const char diana_build_string[] = "'$$today'";'  >> $@ ; \
+	echo 'const char diana_build_commit[] = "'$$commit'";' >> $@
+.PHONY: diBuild.cc.tmp
 
 ########################################################################
 ########################################################################

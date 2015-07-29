@@ -84,7 +84,6 @@ private slots:
   void lon_checkboxActivated(bool);
   void lon_linecboxActivated(int index);
   void lon_linetypeboxActivated(int index);
-  void lon_colorcboxActivated(int index);
   void lon_densitycboxActivated(int index);
   void lon_zordercboxActivated(int index);
   void lon_showValueActivated(bool);
@@ -92,17 +91,13 @@ private slots:
   void lat_checkboxActivated(bool);
   void lat_linecboxActivated(int index);
   void lat_linetypeboxActivated(int index);
-  void lat_colorcboxActivated(int index);
   void lat_densitycboxActivated(int index);
   void lat_zordercboxActivated(int index);
   void lat_showValueActivated(bool);
 
-  void backcolorcboxActivated(int index);
-
   void showframe_checkboxActivated(bool);
   void ff_linecboxActivated(int index);
   void ff_linetypeboxActivated(int index);
-  void ff_colorcboxActivated(int index);
   void ff_zordercboxActivated(int index);
 
   void cont_checkboxActivated(bool);
@@ -161,7 +156,6 @@ private:
   QCheckBox* lon_showvalue;
   QComboBox* lon_valuepos;
   bool lonb;
-  std::string lonc;
   std::string lonlw;
   std::string lonlt;
   int lonz;
@@ -183,7 +177,6 @@ private:
   QCheckBox* lat_showvalue;
   QComboBox* lat_valuepos;
   bool latb;
-  std::string latc;
   std::string latlw;
   std::string latlt;
   int latz;
@@ -206,7 +199,6 @@ private:
   QComboBox* ff_linetypebox;
   QComboBox* ff_colorcbox;
   QComboBox* ff_zorder;
-  std::string framec;
   std::string framelw;
   std::string framelt;
   int framez;

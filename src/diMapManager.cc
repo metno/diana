@@ -36,6 +36,9 @@
 #include <diMapManager.h>
 #include <puTools/miSetupParser.h>
 
+#define MILOGGER_CATEGORY "diana.MapManager"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
 using namespace std;
 
@@ -265,6 +268,7 @@ bool MapManager::fillMapInfo(const std::string& str, MapInfo& mi,
     PlotOptions& contopts, PlotOptions& landopts, PlotOptions& lonopts,
     PlotOptions& latopts, PlotOptions& ffopts)
 {
+
   const std::string key_name = "map";
   const std::string key_type = "type";
   const std::string key_file = "file";
@@ -437,6 +441,12 @@ std::string MapManager::MapInfo2str(const MapInfo& mi)
     ost << " land.colour=" << mi.land.fillcolour;
     ost << " land.zorder=" << mi.land.zorder;
   }
+  return ost.str();
+}
+
+std::string MapManager::MapExtra2str(const MapInfo& mi)
+{
+  ostringstream ost;
   ost << " lon=" << (mi.lon.ison ? "on" : "off");
   if (mi.lon.ison) {
     ost << " lon.colour=" << mi.lon.linecolour;

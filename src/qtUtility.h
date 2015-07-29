@@ -93,6 +93,8 @@ void installColours(QComboBox* box, const std::vector<Colour::ColourInfo>& cInfo
 
 void ExpandColourBox(QComboBox* box, const Colour& col);
 
+void SetCurrentItemColourBox(QComboBox* box, const std::string& value);
+
 QPixmap pixmapForColourShading(const std::vector<Colour>& colour);
 
 void installPalette(QComboBox* box, const std::vector<ColourShading::ColourShadingInfo>& csInfo, bool name=false);

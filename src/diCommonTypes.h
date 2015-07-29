@@ -145,7 +145,7 @@ struct MapElementOption {
   bool showvalue;      ///< plot value string (latlon)
   std::string value_pos;  ///< value position (0=left, 1=bottom, 2=both) (latlon)
   float fontsize;      ///< fontsize for value plotting (latlon)
-  MapElementOption() : ison(false) {}
+  MapElementOption() : ison(false), zorder(1), density(10), showvalue(false), fontsize(10) {}
 };
 
 /**

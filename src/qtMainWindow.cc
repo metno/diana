@@ -65,6 +65,7 @@
 #include "qtTextView.h"
 #include "qtMailDialog.h"
 
+#include "diBuild.h"
 #include "diController.h"
 #include "diEditItemManager.h"
 #include "diPaintGLPainter.h"
@@ -216,10 +217,7 @@ static const char LOCATIONS_VCROSS[] = "vcross";
 
 DianaMainWindow *DianaMainWindow::self = 0;
 
-DianaMainWindow::DianaMainWindow(Controller *co,
-    const std::string& ver_str,
-    const std::string& build_str,
-    const std::string& dianaTitle)
+DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   : QMainWindow(),
     push_command(true),browsing(false),
     markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
@@ -229,9 +227,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   , timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
   METLIBS_LOG_SCOPE();
-
-  version_string = ver_str;
-  build_string = build_str;
 
   setWindowIcon(QIcon(QPixmap(diana_icon_xpm)));
   setWindowTitle(tr(dianaTitle.c_str()));
@@ -2532,7 +2527,13 @@ void DianaMainWindow::showUrl()
 void DianaMainWindow::about()
 {
   QString str =
-      tr("Diana - a 2D presentation system for meteorological data, including fields, observations,\nsatellite- and radarimages, vertical profiles and cross sections.\nDiana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.\n")+"\n" + tr("To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). \n") +"\n\n"+ tr("version:") + " " + version_string.c_str()+"\n"+ tr("build:") + " " + build_string.c_str();
+      tr("Diana - a 2D presentation system for meteorological data, including fields, observations,\nsatellite- and radarimages, vertical profiles and cross sections.\nDiana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.\n")
+      +"\n"
+      + tr("To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). \n")
+      +"\n\n"
+      + tr("version:") + " " + VERSION + "\n"
+      + tr("build: ") + " " + diana_build_string + "\n"
+      + tr("commit: ") + " " + diana_build_commit;
 
   QMessageBox::about( this, tr("about Diana"), str );
 }
@@ -3568,7 +3569,7 @@ void DianaMainWindow::writeLogFile()
   }
 
   LogFileIO logfile;
-  logfile.getSection("MAIN.LOG").addLines(writeLog(version_string, build_string));
+  logfile.getSection("MAIN.LOG").addLines(writeLog(VERSION, diana_build_string));
   logfile.getSection("CONTROLLER.LOG").addLines(contr->writeLog());
   logfile.getSection("MAP.LOG").addLines(mm->writeLog());
   logfile.getSection("FIELD.LOG").addLines( fm->writeLog());
@@ -3616,6 +3617,7 @@ void DianaMainWindow::readLogFile()
 
   METLIBS_LOG_INFO("READ " << logfilepath);
 
+  const std::string version_string(VERSION);
   readLog(logfile.getSection("MAIN.LOG").lines(), version_string, logVersion);
   contr->readLog(logfile.getSection("CONTROLLER.LOG").lines(), version_string, logVersion);
   mm->readLog(logfile.getSection("MAP.LOG").lines(), version_string, logVersion);

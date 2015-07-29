@@ -221,7 +221,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( cont_linetypeboxActivated(int) ) );
   // colorcbox
   cont_colorlabel= new QLabel(tr("Colour"), cont_frame);
-  cont_colorcbox = ColourBox( cont_frame, cInfo, false, 0 ); // last one index
+  cont_colorcbox = ColourBox( cont_frame, cInfo, false, 0 , "", true);
   connect( cont_colorcbox, SIGNAL( activated(int) ),
       SLOT( cont_colorcboxActivated(int) ) );
   // zorder
@@ -244,7 +244,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( land_checkboxActivated(bool) ) );
   // colorcbox
   land_colorlabel= new QLabel(tr("Colour"), land_frame);
-  land_colorcbox = ColourBox( land_frame, cInfo, false, 0 ); // last one index
+  land_colorcbox = ColourBox( land_frame, cInfo, false, 0, "", true );
   connect( land_colorcbox, SIGNAL( activated(int) ),
       SLOT( land_colorcboxActivated(int) ) );
   // zorder
@@ -255,7 +255,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 
   // --- Latlon options ------------------------------
   lonb= false;
-  lonc= "black";
   lonlw= "1";
   lonlt="solid";
   lonz=2;
@@ -267,7 +266,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   int lon_dens= 0;
 
   latb= false;
-  latc= "black";
   latlw= "1";
   latlt="solid";
   latz=2;
@@ -279,7 +277,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   int lat_dens= 0;
 
   // --- Frame options ------------------------------
-  framec= "black";
   framelw= "1";
   int ff_line= 0;
   int ff_linetype= 0;
@@ -290,7 +287,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     nm--;
 
     lonb= m_MapDI.maps[nm].lon.ison;
-    lonc= m_MapDI.maps[nm].lon.linecolour;
     lonlw= m_MapDI.maps[nm].lon.linewidth;
     lonlt= m_MapDI.maps[nm].lon.linetype;
     lond= m_MapDI.maps[nm].lon.density;
@@ -298,7 +294,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     lonshowvalue= m_MapDI.maps[nm].lon.showvalue;
     lon_line= atoi(lonlw.c_str())-1;
     lon_linetype= getIndex( linetypes, lonlt );
-    /*lon_col=*/ getIndex( cInfo, lonc );
     lon_z= lonz;
     lon_dens= 0;
     int dens= int(lond*1000);
@@ -310,7 +305,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     }
 
     latb= m_MapDI.maps[nm].lat.ison;
-    latc= m_MapDI.maps[nm].lat.linecolour;
     latlw= m_MapDI.maps[nm].lat.linewidth;
     latlt= m_MapDI.maps[nm].lat.linetype;
     latd= m_MapDI.maps[nm].lat.density;
@@ -318,7 +312,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     latshowvalue= m_MapDI.maps[nm].lat.showvalue;
     lat_line= atoi(latlw.c_str())-1;
     lat_linetype= getIndex( linetypes, latlt );
-    /*lat_col=*/ getIndex( cInfo, latc );
     lat_z= latz;
     lat_dens= 0;
     dens= int(latd*1000);
@@ -330,13 +323,11 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     }
 
     // frame
-    framec= m_MapDI.maps[nm].frame.linecolour;
     framelw= m_MapDI.maps[nm].frame.linewidth;
     framelt= m_MapDI.maps[nm].frame.linetype;
     framez= m_MapDI.maps[nm].frame.zorder;
     ff_line= atoi(framelw.c_str())-1;
     ff_linetype= getIndex( linetypes, framelt );
-    /*ff_col=*/ getIndex( cInfo, framec );
     ff_z= framez;
   }
 
@@ -366,9 +357,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( lon_linetypeboxActivated(int) ) );
   // colorcbox
   lon_colorlabel= new QLabel(tr("Colour"), lon_frame);
-  lon_colorcbox = ColourBox( lon_frame, cInfo, false, 0 ); // last one index
-  connect( lon_colorcbox, SIGNAL( activated(int) ),
-      SLOT( lon_colorcboxActivated(int) ) );
+  lon_colorcbox = ColourBox( lon_frame, cInfo, false, 0, "", true );
   // density
   lon_densitylabel= new QLabel(tr("Density"), lon_frame);
   lon_density= ComboBox( lon_frame, densities, true, lon_dens );
@@ -385,7 +374,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   connect( lon_showvalue, SIGNAL( toggled(bool) ),SLOT( lon_showValueActivated(bool) ) );
   lon_showvalue->setChecked(lonshowvalue);
   // value pos
-  lon_valuepos= ComboBox( lon_frame, positions_tr, true, 0 );
+  lon_valuepos= ComboBox( lon_frame, positions_tr, true, 1 );
   showlon->setChecked(lonb);
 
   // Show latitude lines
@@ -414,9 +403,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( lat_linetypeboxActivated(int) ) );
   // colorcbox
   lat_colorlabel= new QLabel(tr("Colour"), lat_frame);
-  lat_colorcbox = ColourBox( lat_frame, cInfo, false, 0 ); // last one index
-  connect( lat_colorcbox, SIGNAL( activated(int) ),
-      SLOT( lat_colorcboxActivated(int) ) );
+  lat_colorcbox = ColourBox( lat_frame, cInfo, false, 0, "", true );
   // density
   lat_densitylabel= new QLabel(tr("Density"), lat_frame);
   lat_density= ComboBox( lat_frame, densities, true, lat_dens );
@@ -433,7 +420,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   connect( lat_showvalue, SIGNAL( toggled(bool) ),SLOT( lat_showValueActivated(bool) ) );
   lat_showvalue->setChecked(latshowvalue);
   // value pos
-  lat_valuepos= ComboBox( lat_frame, positions_tr, true, 1);
+  lat_valuepos= ComboBox( lat_frame, positions_tr, true, 0);
 
   showlat->setChecked(latb);
 
@@ -462,9 +449,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( ff_linetypeboxActivated(int) ) );
   // colorcbox
   ff_colorlabel= new QLabel(tr("Colour"), ff_frame);
-  ff_colorcbox = ColourBox( ff_frame, cInfo, false, 0 ); // last one index
-  connect( ff_colorcbox, SIGNAL( activated(int) ),
-      SLOT( ff_colorcboxActivated(int) ) );
+  ff_colorcbox = ColourBox( ff_frame, cInfo, false, 0, "", true );
   // zorder
   ff_zorderlabel= new QLabel(tr("Plot position"), ff_frame);
   ff_zorder= ComboBox( ff_frame, zorders, true, ff_z );
@@ -473,10 +458,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 
   // Background colour
   backcolorlabel= TitleLabel( tr("Background colour"), this);
-  backcolorcbox= ColourBox( this, cInfo, true, 0 ); // last one index
-  backcolorcbox->setCurrentIndex(1);//Default colour white OBS
-  connect( backcolorcbox, SIGNAL( activated(int) ),
-      SLOT( backcolorcboxActivated(int) ) );
+  backcolorcbox= ColourBox( this, cInfo, true, 1 , "", true);
 
   // =============================================================
 
@@ -718,11 +700,6 @@ void MapDialog::ff_linetypeboxActivated(int index)
   framelt = linetypes[index];
 }
 
-void MapDialog::ff_colorcboxActivated(int index)
-{
-  framec = cInfo[index].name;
-}
-
 void MapDialog::ff_zordercboxActivated(int index)
 {
   framez = index;
@@ -812,7 +789,6 @@ void MapDialog::selectedMapboxClicked(QListWidgetItem* item)
     || m_MapDI.maps[activemap].type == "shape");
 
   bool ison = m_MapDI.maps[activemap].contour.ison;
-  int m_colIndex = getIndex(cInfo, m_MapDI.maps[activemap].contour.linecolour);
   int m_linewIndex = atoi(m_MapDI.maps[activemap].contour.linewidth.c_str()) - 1;
   int m_linetIndex = getIndex(linetypes,
       m_MapDI.maps[activemap].contour.linetype);
@@ -833,18 +809,17 @@ void MapDialog::selectedMapboxClicked(QListWidgetItem* item)
 
   // set contours options
   contours->setChecked(ison);
-  cont_colorcbox->setCurrentIndex(m_colIndex);
+  SetCurrentItemColourBox(cont_colorcbox,m_MapDI.maps[activemap].contour.linecolour);
   cont_linecbox->setCurrentIndex(m_linewIndex);
   cont_linetypebox->setCurrentIndex(m_linetIndex);
   cont_zorder->setCurrentIndex(m_zIndex);
 
   // set filled land options
   ison = m_MapDI.maps[activemap].land.ison;
-  m_colIndex = getIndex(cInfo, m_MapDI.maps[activemap].land.fillcolour);
   m_zIndex = m_MapDI.maps[activemap].land.zorder;
 
   filledland->setChecked(ison);
-  land_colorcbox->setCurrentIndex(m_colIndex);
+  SetCurrentItemColourBox(land_colorcbox,m_MapDI.maps[activemap].land.fillcolour);
   land_zorder->setCurrentIndex(m_zIndex);
 }
 
@@ -913,7 +888,7 @@ void MapDialog::cont_colorcboxActivated(int index)
     METLIBS_LOG_ERROR("colorcboxactivated::Catastrophic: activemap < 0");
     return;
   }
-  m_MapDI.maps[activemap].contour.linecolour = cInfo[index].name;
+  m_MapDI.maps[activemap].contour.linecolour = cont_colorcbox->currentText().toStdString();
 }
 
 void MapDialog::cont_zordercboxActivated(int index)
@@ -951,7 +926,7 @@ void MapDialog::land_colorcboxActivated(int index)
     METLIBS_LOG_ERROR("colorcboxactivated::Catastrophic: activemap < 0");
     return;
   }
-  m_MapDI.maps[activemap].land.fillcolour = cInfo[index].name;
+  m_MapDI.maps[activemap].land.fillcolour = land_colorcbox->currentText().toStdString();
 }
 
 void MapDialog::land_zordercboxActivated(int index)
@@ -986,11 +961,6 @@ void MapDialog::lon_linecboxActivated(int index)
 void MapDialog::lon_linetypeboxActivated(int index)
 {
   lonlt = linetypes[index];
-}
-
-void MapDialog::lon_colorcboxActivated(int index)
-{
-  lonc = cInfo[index].name;
 }
 
 void MapDialog::lon_densitycboxActivated(int index)
@@ -1031,11 +1001,6 @@ void MapDialog::lat_linetypeboxActivated(int index)
   latlt = linetypes[index];
 }
 
-void MapDialog::lat_colorcboxActivated(int index)
-{
-  latc = cInfo[index].name;
-}
-
 void MapDialog::lat_densitycboxActivated(int index)
 {
   latd = atof(densities[index].c_str());
@@ -1051,14 +1016,6 @@ void MapDialog::lat_showValueActivated(bool on)
   latshowvalue = on;
 }
 
-// -----------------
-
-void MapDialog::backcolorcboxActivated(int index)
-{
-#ifdef dMapDlg
-  METLIBS_LOG_DEBUG("MapDialog::backcolorcboxActivated called");
-#endif
-}
 
 /*
  BUTTONS
@@ -1120,126 +1077,82 @@ vector<string> MapDialog::getOKString()
 #endif
   vector<string> vstr;
 
-//Area string
-  ostringstream areastr;
-
+  //Area string
   if (areabox->currentRow() > -1) {
+    ostringstream areastr;
     areastr << "AREA";
     areastr << " name=" << areabox->currentItem()->text().toStdString();
     vstr.push_back(areastr.str());
   }
 
   //Map strings
-  int lindex;
   int numselected = selectedmaps.size();
 
-  if (numselected == 0 && areabox->count()>0 ) { // no maps selected
-    int backc = backcolorcbox->currentIndex();
+  if (numselected == 0 ) { // no maps selected
+    // clear log-list
+    logmaps.clear();
+  }
 
+  vector<int> lmaps; // check for logging
+
+  for (int i = 0; i < numselected; i++) {
+    int lindex = selectedmaps[i];
+    // check if ok to log
+    if (m_MapDI.maps[lindex].logok)
+      lmaps.push_back(lindex);
     ostringstream ostr;
-    ostr << "MAP"
-    << " backcolour="
-    << (backc >= 0 && backc < int(cInfo.size()) ? cInfo[backc].name : "white");
-
-    // set latlon options
-    MapInfo mi;
-    mi.contour.ison = false;
-    mi.land.ison = false;
-
-    mi.lon.ison = lonb;
-    mi.lon.linecolour = lonc;
-    mi.lon.linewidth = lonlw;
-    mi.lon.linetype = lonlt;
-    mi.lon.zorder = lonz;
-    mi.lon.density = lond;
-    mi.lon.showvalue = lonshowvalue;
-    if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size()))
-      mi.lon.value_pos = positions[lon_valuepos->currentIndex()];
-
-    mi.lat.ison = latb;
-    mi.lat.linecolour = latc;
-    mi.lat.linewidth = latlw;
-    mi.lat.linetype = latlt;
-    mi.lat.zorder = latz;
-    mi.lat.density = latd;
-    mi.lat.showvalue = latshowvalue;
-    if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size()))
-      mi.lat.value_pos = positions[lat_valuepos->currentIndex()];
-
-    mi.frame.ison = frameb;
-    mi.frame.linecolour = framec;
-    mi.frame.linewidth = framelw;
-    mi.frame.linetype = framelt;
+    ostr << "MAP";
 
     std::string mstr;
-    m_ctrl->MapInfoParser(mstr, mi, true);
+    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[lindex], true,true);
     ostr << " " << mstr;
 
     vstr.push_back(ostr.str());
-
-    // clear log-list
-    logmaps.clear();
-
-  } else {
-
-    vector<int> lmaps; // check for logging
-
-    for (int i = 0; i < numselected; i++) {
-      lindex = selectedmaps[i];
-      // check if ok to log
-      if (m_MapDI.maps[lindex].logok)
-        lmaps.push_back(lindex);
-      ostringstream ostr;
-      ostr << "MAP";
-      if (i == numselected - 1) { // common options for last map only
-        int backc = backcolorcbox->currentIndex();
-        ostr << " backcolour="
-        << (backc >= 0 && backc < int(cInfo.size()) ? cInfo[backc].name
-            : "white");
-
-        // set latlon options
-        m_MapDI.maps[lindex].lon.ison = lonb;
-        m_MapDI.maps[lindex].lon.linecolour = lonc;
-        m_MapDI.maps[lindex].lon.linewidth = lonlw;
-        m_MapDI.maps[lindex].lon.linetype = lonlt;
-        m_MapDI.maps[lindex].lon.zorder = lonz;
-        m_MapDI.maps[lindex].lon.density = lond;
-        m_MapDI.maps[lindex].lon.showvalue = lonshowvalue;
-        if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size()))
-        m_MapDI.maps[lindex].lon.value_pos = positions[lon_valuepos->currentIndex()];
-
-        m_MapDI.maps[lindex].lat.ison = latb;
-        m_MapDI.maps[lindex].lat.linecolour = latc;
-        m_MapDI.maps[lindex].lat.linewidth = latlw;
-        m_MapDI.maps[lindex].lat.linetype = latlt;
-        m_MapDI.maps[lindex].lat.zorder = latz;
-        m_MapDI.maps[lindex].lat.density = latd;
-        m_MapDI.maps[lindex].lat.showvalue = latshowvalue;
-        if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size()))
-          m_MapDI.maps[lindex].lat.value_pos = positions[lat_valuepos->currentIndex()];
-
-
-        // set frame options
-        m_MapDI.maps[lindex].frame.ison = frameb;
-        m_MapDI.maps[lindex].frame.linecolour = framec;
-        m_MapDI.maps[lindex].frame.linewidth = framelw;
-        m_MapDI.maps[lindex].frame.linetype = framelt;
-
-      } else {
-        m_MapDI.maps[lindex].lon.ison = false;
-        m_MapDI.maps[lindex].lat.ison = false;
-        m_MapDI.maps[lindex].frame.ison = false;
-      }
-
-      std::string mstr;
-      m_ctrl->MapInfoParser(mstr, m_MapDI.maps[lindex], true);
-      ostr << " " << mstr;
-
-      vstr.push_back(ostr.str());
-    }
-    if (lmaps.size() > 0)
-      logmaps = lmaps;
   }
+  if (lmaps.size() > 0)
+    logmaps = lmaps;
+
+
+  // background/lat/lon/frame info
+  ostringstream ostr;
+  ostr << "MAP backcolour=" << backcolorcbox->currentText().toStdString();
+
+  // set latlon options
+  MapInfo mi;
+  mi.contour.ison = false;
+  mi.land.ison = false;
+
+  mi.lon.ison = lonb;
+  mi.lon.linecolour = lon_colorcbox->currentText().toStdString();
+  mi.lon.linewidth = lonlw;
+  mi.lon.linetype = lonlt;
+  mi.lon.zorder = lonz;
+  mi.lon.density = lond;
+  mi.lon.showvalue = lonshowvalue;
+  if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size()))
+    mi.lon.value_pos = positions[lon_valuepos->currentIndex()];
+
+  mi.lat.ison = latb;
+  mi.lat.linecolour = lat_colorcbox->currentText().toStdString();
+  mi.lat.linewidth = latlw;
+  mi.lat.linetype = latlt;
+  mi.lat.zorder = latz;
+  mi.lat.density = latd;
+  mi.lat.showvalue = latshowvalue;
+  if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size()))
+    mi.lat.value_pos = positions[lat_valuepos->currentIndex()];
+
+  mi.frame.ison = frameb;
+  mi.frame.linecolour = ff_colorcbox->currentText().toStdString();
+  mi.frame.linewidth = framelw;
+  mi.frame.linetype = framelt;
+  mi.frame.zorder = framez;
+
+  std::string mstr;
+  m_ctrl->MapInfoParser(mstr, mi, true, false);
+  ostr << mstr;
+
+  vstr.push_back(ostr.str());
 
   return vstr;
 }
@@ -1254,7 +1167,7 @@ void MapDialog::putOKString(const vector<string>& vstr)
   vector<int> themaps;
   vector<std::string> tokens, stokens;
   std::string bgcolour, area;
-  int lastmap = -1;
+  MapInfo mi;
 
   int iline;
   for (iline = 0; iline < n; iline++) {
@@ -1267,19 +1180,24 @@ void MapDialog::putOKString(const vector<string>& vstr)
     std::string themap = "";
     tokens = miutil::split(str, " ");
     int m = tokens.size();
-    if (m > 0 && (miutil::to_upper(tokens[0]) != "MAP" && miutil::to_upper(tokens[0]) != "AREA"))
-      continue;
-    for (int j = 0; j < m; j++) {
-      stokens = miutil::split(tokens[j], 0, "=");
-      if (stokens.size() == 2) {
-        if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
-          bgcolour = stokens[1];
-        else if (miutil::to_upper(stokens[0]) == "NAME" || miutil::to_upper(stokens[0]) == "AREANAME" || miutil::to_upper(stokens[0]) == "AREA")
+    if (miutil::to_upper(tokens[0]) == "AREA"){
+      for (int j = 0; j < m; j++) {
+        stokens = miutil::split(tokens[j], 0, "=");
+        if (miutil::to_upper(stokens[0]) == "NAME")
           area = stokens[1];
-        else if (miutil::to_upper(stokens[0]) == "MAP")
-          themap = stokens[1];
       }
-    }
+      } else if (miutil::to_upper(tokens[0]) == "MAP" )
+      for (int j = 0; j < m; j++) {
+        stokens = miutil::split(tokens[j], 0, "=");
+        if (stokens.size() == 2) {
+          if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
+            bgcolour = stokens[1];
+          else if (miutil::to_upper(stokens[0]) == "MAP")
+            themap = stokens[1];
+          else if (miutil::to_upper(stokens[0]) == "AREA")
+            area = stokens[1];
+        }
+      }
 
     // find the logged map in full list
     if (not themap.empty()) {
@@ -1287,14 +1205,15 @@ void MapDialog::putOKString(const vector<string>& vstr)
       for (int k = 0; k < numMaps; k++)
         if (m_MapDI.maps[k].name == themap) {
           idx = k;
-          lastmap = idx;
           themaps.push_back(k); // keep list of selected maps
           break;
         }
       // update options
       if (idx >= 0) {
-        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false);
+        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
       }
+    } else {
+      m_ctrl->MapInfoParser(str, mi, false, false);
     }
   }
 
@@ -1316,106 +1235,97 @@ void MapDialog::putOKString(const vector<string>& vstr)
     mapbox->item(themaps[i])->setSelected(true);
   }
 
-  if (lastmap >= 0 && lastmap <int(m_MapDI.maps.size())) {
-    // set latlon options
-    lonb = m_MapDI.maps[lastmap].lon.ison;
-    lonc = m_MapDI.maps[lastmap].lon.linecolour;
-    lonlw = m_MapDI.maps[lastmap].lon.linewidth;
-    lonlt = m_MapDI.maps[lastmap].lon.linetype;
-    lonz = m_MapDI.maps[lastmap].lon.zorder;
-    lond = m_MapDI.maps[lastmap].lon.density;
-    lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
+  // set latlon options
+  lonb = mi.lon.ison;
+  lonlw = mi.lon.linewidth;
+  lonlt = mi.lon.linetype;
+  lonz = mi.lon.zorder;
+  lond = mi.lon.density;
+  lonshowvalue = mi.lon.showvalue;
 
-    int m_colIndex = getIndex(cInfo, lonc);
-    int m_linewIndex = atoi(lonlw.c_str()) - 1;
-    int m_linetIndex = getIndex(linetypes, lonlt);
-    // find density index
-    int m_densIndex = 0;
-    int dens = int(lond * 1000);
-    for (unsigned int k = 0; k < densities.size(); k++)
-      if (int(atof(densities[k].c_str()) * 1000) == dens) {
-        m_densIndex = k;
-        break;
-      }
-    int m_zIndex = lonz;
-    showlon->setChecked(lonb);
-    if (m_colIndex >= 0)
-      lon_colorcbox->setCurrentIndex(m_colIndex);
-    if (m_linewIndex >= 0)
-      lon_linecbox->setCurrentIndex(m_linewIndex);
-    if (m_linetIndex >= 0)
-      lon_linetypebox->setCurrentIndex(m_linetIndex);
-    if (m_densIndex >= 0)
-      lon_density->setCurrentIndex(m_densIndex);
-    if (m_zIndex >= 0)
-      lon_zorder->setCurrentIndex(m_zIndex);
-    lon_showvalue->setChecked(lonshowvalue);
-    if (positions_map.count(m_MapDI.maps[lastmap].lon.value_pos)) {
-      lon_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lon.value_pos]);
+  int m_linewIndex = atoi(lonlw.c_str()) - 1;
+  int m_linetIndex = getIndex(linetypes, lonlt);
+  // find density index
+  int m_densIndex = 0;
+  int dens = int(lond * 1000);
+  for (unsigned int k = 0; k < densities.size(); k++)
+    if (int(atof(densities[k].c_str()) * 1000) == dens) {
+      m_densIndex = k;
+      break;
     }
-    latb = m_MapDI.maps[lastmap].lat.ison;
-    latc = m_MapDI.maps[lastmap].lat.linecolour;
-    latlw = m_MapDI.maps[lastmap].lat.linewidth;
-    latlt = m_MapDI.maps[lastmap].lat.linetype;
-    latz = m_MapDI.maps[lastmap].lat.zorder;
-    latd = m_MapDI.maps[lastmap].lat.density;
-    latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
+  int m_zIndex = lonz;
+  showlon->setChecked(lonb);
+  SetCurrentItemColourBox(lon_colorcbox,mi.lon.linecolour);
+  if (m_linewIndex >= 0)
+    lon_linecbox->setCurrentIndex(m_linewIndex);
+  if (m_linetIndex >= 0)
+    lon_linetypebox->setCurrentIndex(m_linetIndex);
+  if (m_densIndex >= 0)
+    lon_density->setCurrentIndex(m_densIndex);
+  if (m_zIndex >= 0)
+    lon_zorder->setCurrentIndex(m_zIndex);
+  lon_showvalue->setChecked(lonshowvalue);
+  if (positions_map.count(mi.lon.value_pos)) {
+    METLIBS_LOG_INFO(LOGVAL(mi.lon.value_pos));
+    lon_valuepos->setCurrentIndex(positions_map[mi.lon.value_pos]);
+  }
+  latb = mi.lat.ison;
+  latlw = mi.lat.linewidth;
+  latlt = mi.lat.linetype;
+  latz = mi.lat.zorder;
+  latd = mi.lat.density;
+  latshowvalue = mi.lat.showvalue;
 
-    m_colIndex = getIndex(cInfo, latc);
-    m_linewIndex = atoi(latlw.c_str()) - 1;
-    m_linetIndex = getIndex(linetypes, latlt);
-    // find density index
-    m_densIndex = 0;
-    dens = int(latd * 1000);
-    for (unsigned int k = 0; k < densities.size(); k++)
-      if (int(atof(densities[k].c_str()) * 1000) == dens) {
-        m_densIndex = k;
-        break;
-      }
-    m_zIndex = latz;
-    showlat->setChecked(latb);
-    if (m_colIndex >= 0)
-      lat_colorcbox->setCurrentIndex(m_colIndex);
-    if (m_linewIndex >= 0)
-      lat_linecbox->setCurrentIndex(m_linewIndex);
-    if (m_linetIndex >= 0)
-      lat_linetypebox->setCurrentIndex(m_linetIndex);
-    if (m_densIndex >= 0)
-      lat_density->setCurrentIndex(m_densIndex);
-    if (m_zIndex >= 0)
-      lat_zorder->setCurrentIndex(m_zIndex);
-    lat_showvalue->setChecked(latshowvalue);
-    if (positions_map.count(m_MapDI.maps[lastmap].lat.value_pos)) {
-      lat_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lat.value_pos]);
+  m_linewIndex = atoi(latlw.c_str()) - 1;
+  m_linetIndex = getIndex(linetypes, latlt);
+  // find density index
+  m_densIndex = 0;
+  dens = int(latd * 1000);
+  for (unsigned int k = 0; k < densities.size(); k++)
+    if (int(atof(densities[k].c_str()) * 1000) == dens) {
+      m_densIndex = k;
+      break;
     }
-
-    // set frame options
-    frameb = m_MapDI.maps[lastmap].frame.ison;
-    framec = m_MapDI.maps[lastmap].frame.linecolour;
-    framelw = m_MapDI.maps[lastmap].frame.linewidth;
-    framelt = m_MapDI.maps[lastmap].frame.linetype;
-    framez = m_MapDI.maps[lastmap].frame.zorder;
-
-    m_colIndex = getIndex(cInfo, framec);
-    m_linewIndex = atoi(framelw.c_str()) - 1;
-    m_linetIndex = getIndex(linetypes, framelt);
-    m_zIndex = framez;
-
-    showframe->setChecked(frameb);
-    if (m_colIndex >= 0)
-      ff_colorcbox->setCurrentIndex(m_colIndex);
-    if (m_linewIndex >= 0)
-      ff_linecbox->setCurrentIndex(m_linewIndex);
-    if (m_linetIndex >= 0)
-      ff_linetypebox->setCurrentIndex(m_linetIndex);
-    if (m_zIndex >= 0)
-      ff_zorder->setCurrentIndex(m_zIndex);
+  m_zIndex = latz;
+  showlat->setChecked(latb);
+  SetCurrentItemColourBox(lat_colorcbox,mi.lat.linecolour);
+  if (m_linewIndex >= 0)
+    lat_linecbox->setCurrentIndex(m_linewIndex);
+  if (m_linetIndex >= 0)
+    lat_linetypebox->setCurrentIndex(m_linetIndex);
+  if (m_densIndex >= 0)
+    lat_density->setCurrentIndex(m_densIndex);
+  if (m_zIndex >= 0)
+    lat_zorder->setCurrentIndex(m_zIndex);
+  lat_showvalue->setChecked(latshowvalue);
+  if (positions_map.count(mi.lat.value_pos)) {
+    METLIBS_LOG_INFO(LOGVAL(mi.lat.value_pos));
+    lat_valuepos->setCurrentIndex(positions_map[mi.lat.value_pos]);
   }
 
+  // set frame options
+  frameb = mi.frame.ison;
+  framelw = mi.frame.linewidth;
+  framelt = mi.frame.linetype;
+  framez = mi.frame.zorder;
+
+  m_linewIndex = atoi(framelw.c_str()) - 1;
+  m_linetIndex = getIndex(linetypes, framelt);
+  m_zIndex = framez;
+
+  showframe->setChecked(frameb);
+  SetCurrentItemColourBox(ff_colorcbox,mi.frame.linecolour);
+  if (m_linewIndex >= 0)
+    ff_linecbox->setCurrentIndex(m_linewIndex);
+  if (m_linetIndex >= 0)
+    ff_linetypebox->setCurrentIndex(m_linetIndex);
+  if (m_zIndex >= 0)
+    ff_zorder->setCurrentIndex(m_zIndex);
+
+
   // set background
-  int m_colIndex = getIndex(cInfo, bgcolour);
-  if (m_colIndex >= 0)
-    backcolorcbox->setCurrentIndex(m_colIndex);
+  SetCurrentItemColourBox(backcolorcbox,bgcolour);
+
 
 }
 
@@ -1452,55 +1362,50 @@ vector<string> MapDialog::writeLog()
   int n = m_MapDI.maps.size();
   for (int i = 0; i < n; i++) {
     ostringstream ostr;
-    if (i == n - 1) { // common options for last map only
-      // qt4 fix: added .toStdString()
-      if ( areabox->currentRow() >= 0 ) {
-        ostr << "area="
-            << areabox->item(areabox->currentRow())->text().toStdString()
-            << " backcolour=" << cInfo[backcolorcbox->currentIndex()].name << " ";
-      }
-      // set lon options
-      m_MapDI.maps[i].lon.ison = lonb;
-      m_MapDI.maps[i].lon.linecolour = lonc;
-      m_MapDI.maps[i].lon.linewidth = lonlw;
-      m_MapDI.maps[i].lon.linetype = lonlt;
-      m_MapDI.maps[i].lon.zorder = lonz;
-      m_MapDI.maps[i].lon.density = lond;
-      m_MapDI.maps[i].lon.showvalue = lonshowvalue;
-      if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size())){
-        m_MapDI.maps[i].lon.value_pos = positions[lon_valuepos->currentIndex()];
-      }
-
-      m_MapDI.maps[i].lat.ison = latb;
-      m_MapDI.maps[i].lat.linecolour = latc;
-      m_MapDI.maps[i].lat.linewidth = latlw;
-      m_MapDI.maps[i].lat.linetype = latlt;
-      m_MapDI.maps[i].lat.zorder = latz;
-      m_MapDI.maps[i].lat.density = latd;
-      m_MapDI.maps[i].lat.showvalue = latshowvalue;
-      if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size())){
-        m_MapDI.maps[i].lat.value_pos = positions[lat_valuepos->currentIndex()];
-      }
-
-
-      // set frame options
-      m_MapDI.maps[i].frame.ison = frameb;
-      m_MapDI.maps[i].frame.linecolour = framec;
-      m_MapDI.maps[i].frame.linewidth = framelw;
-      m_MapDI.maps[i].frame.linetype = framelt;
-    } else {
-      m_MapDI.maps[i].lon.ison = false;
-      m_MapDI.maps[i].lat.ison = false;
-      m_MapDI.maps[i].frame.ison = false;
-    }
-
     std::string mstr;
-    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[i], true);
+    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[i], true, true);
     ostr << mstr;
-
     vstr.push_back(ostr.str());
-    vstr.push_back("-------------------");
   }
+
+  // set lon options
+  MapInfo mi;
+  mi.lon.ison = lonb;
+  mi.lon.linecolour = lon_colorcbox->currentText().toStdString();
+  mi.lon.linewidth = lonlw;
+  mi.lon.linetype = lonlt;
+  mi.lon.zorder = lonz;
+  mi.lon.density = lond;
+  mi.lon.showvalue = lonshowvalue;
+  if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size())){
+    mi.lon.value_pos = positions[lon_valuepos->currentIndex()];
+  }
+
+  // set lat options
+  mi.lat.ison = latb;
+  mi.lat.linecolour = lat_colorcbox->currentText().toStdString();
+  mi.lat.linewidth = latlw;
+  mi.lat.linetype = latlt;
+  mi.lat.zorder = latz;
+  mi.lat.density = latd;
+  mi.lat.showvalue = latshowvalue;
+  if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size())){
+    mi.lat.value_pos = positions[lat_valuepos->currentIndex()];
+  }
+
+  // set frame options
+  mi.frame.ison = frameb;
+  mi.frame.linecolour = ff_colorcbox->currentText().toStdString();
+  mi.frame.linewidth = framelw;
+  mi.frame.linetype = framelt;
+
+  //write backcolour/lat/lon/frame
+  ostringstream ostr;
+  ostr << "backcolour=" << backcolorcbox->currentText().toStdString() << " ";
+  std::string mstr;
+  m_ctrl->MapInfoParser(mstr, mi, true, false);
+  ostr << mstr;
+  vstr.push_back(ostr.str());
 
   // end of complete map-list
   vstr.push_back("=================== Selected maps =========");
@@ -1512,6 +1417,14 @@ vector<string> MapDialog::writeLog()
     lindex = logmaps[i];
     vstr.push_back(m_MapDI.maps[lindex].name);
   }
+
+  vstr.push_back("-------------------");
+
+  vstr.push_back("=================== Selected area ============");
+
+  // write name of current selected area
+  if ( areabox->currentRow() >= 0 )
+    vstr.push_back(areabox->item(areabox->currentRow())->text().toStdString());
 
   vstr.push_back("=================== Favorites ============");
   // write favorite options
@@ -1534,8 +1447,7 @@ void MapDialog::readLog(const vector<string>& vstr,
   vector<int> themaps;
   vector<std::string> tokens, stokens;
   std::string bgcolour, area;
-  int lastmap = -1;
-
+  MapInfo mi;
   int iline;
   for (iline = 0; iline < n; iline++) {
     std::string str = vstr[iline];
@@ -1552,7 +1464,7 @@ void MapDialog::readLog(const vector<string>& vstr,
       if (stokens.size() == 2) {
         if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
           bgcolour = stokens[1];
-        else if (miutil::to_upper(stokens[0]) == "AREA")
+        else if (miutil::to_upper(stokens[0]) == "AREA") //obsolete syntax
           area = stokens[1];
         else if (miutil::to_upper(stokens[0]) == "MAP")
           themap = stokens[1];
@@ -1564,13 +1476,13 @@ void MapDialog::readLog(const vector<string>& vstr,
       for (int k = 0; k < numMaps; k++)
         if (m_MapDI.maps[k].name == themap) {
           idx = k;
-          lastmap = idx;
-          //	  themaps.push_back(k); // just for old log-files
           break;
         }
       // update options
       if (idx >= 0)
-        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false);
+        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
+    } else {
+      m_ctrl->MapInfoParser(str, mi, false, false);
     }
   }
 
@@ -1609,6 +1521,20 @@ void MapDialog::readLog(const vector<string>& vstr,
   }
   usefavorite->setEnabled(favorite.size() > 0);
 
+
+  //read area
+  if (iline < n && vstr[iline][0] == '=') {
+    iline++;
+    for (; iline < n; iline++) {
+      std::string str = vstr[iline];
+      miutil::trim(str);
+      if (str.empty())
+        continue;
+      if (str[0] == '=')
+        break;
+      area = str;
+    }
+  }
   // reselect area
   int area_index = 0;
   for (unsigned int i = 0; i < m_MapDI.areas.size(); i++)
@@ -1617,6 +1543,7 @@ void MapDialog::readLog(const vector<string>& vstr,
       break;
     }
   areabox->setCurrentRow(area_index);
+
 
   // deselect all maps
   mapbox->clearSelection();
@@ -1629,107 +1556,96 @@ void MapDialog::readLog(const vector<string>& vstr,
   // keep for logging
   logmaps = themaps;
 
-  if (lastmap > 0) {
-    // set lon options
-    lonb = m_MapDI.maps[lastmap].lon.ison;
-    lonc = m_MapDI.maps[lastmap].lon.linecolour;
-    lonlw = m_MapDI.maps[lastmap].lon.linewidth;
-    lonlt = m_MapDI.maps[lastmap].lon.linetype;
-    lonz = m_MapDI.maps[lastmap].lon.zorder;
-    lond = m_MapDI.maps[lastmap].lon.density;
-    lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
+  // set lon options
+  lonb = mi.lon.ison;
+  lonlw = mi.lon.linewidth;
+  lonlt = mi.lon.linetype;
+  lonz = mi.lon.zorder;
+  lond = mi.lon.density;
+  lonshowvalue = mi.lon.showvalue;
 
-    int m_colIndex = getIndex(cInfo, lonc);
-    int m_linewIndex = atoi(lonlw.c_str()) - 1;
-    int m_linetIndex = getIndex(linetypes, lonlt);
-    // find density index
-    int m_densIndex = 0;
-    int dens = int(lond * 1000);
-    for (unsigned int k = 0; k < densities.size(); k++)
-      if (int(atof(densities[k].c_str()) * 1000) == dens) {
-        m_densIndex = k;
-        break;
-      }
-    int m_zIndex = lonz;
-    showlon->setChecked(lonb);
-    if (m_colIndex >= 0)
-      lon_colorcbox->setCurrentIndex(m_colIndex);
-    if (m_linewIndex >= 0)
-      lon_linecbox->setCurrentIndex(m_linewIndex);
-    if (m_linetIndex >= 0)
-      lon_linetypebox->setCurrentIndex(m_linetIndex);
-    if (m_densIndex >= 0)
-      lon_density->setCurrentIndex(m_densIndex);
-    if (m_zIndex >= 0)
-      lon_zorder->setCurrentIndex(m_zIndex);
-    lon_showvalue->setChecked(lonshowvalue);
-    if (positions_map.count(m_MapDI.maps[lastmap].lon.value_pos)) {
-      lon_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lon.value_pos]);
+  int m_linewIndex = atoi(lonlw.c_str()) - 1;
+  int m_linetIndex = getIndex(linetypes, lonlt);
+  // find density index
+  int m_densIndex = 0;
+  int dens = int(lond * 1000);
+  for (unsigned int k = 0; k < densities.size(); k++)
+    if (int(atof(densities[k].c_str()) * 1000) == dens) {
+      m_densIndex = k;
+      break;
     }
-    // set lat options
-    latb = m_MapDI.maps[lastmap].lat.ison;
-    latc = m_MapDI.maps[lastmap].lat.linecolour;
-    latlw = m_MapDI.maps[lastmap].lat.linewidth;
-    latlt = m_MapDI.maps[lastmap].lat.linetype;
-    latz = m_MapDI.maps[lastmap].lat.zorder;
-    latd = m_MapDI.maps[lastmap].lat.density;
-    latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
+  int m_zIndex = lonz;
+  showlon->setChecked(lonb);
+  SetCurrentItemColourBox(lon_colorcbox,mi.lon.linecolour);
+  if (m_linewIndex >= 0)
+    lon_linecbox->setCurrentIndex(m_linewIndex);
+  if (m_linetIndex >= 0)
+    lon_linetypebox->setCurrentIndex(m_linetIndex);
+  if (m_densIndex >= 0)
+    lon_density->setCurrentIndex(m_densIndex);
+  if (m_zIndex >= 0)
+    lon_zorder->setCurrentIndex(m_zIndex);
+  lon_showvalue->setChecked(lonshowvalue);
+  if (positions_map.count(mi.lon.value_pos)) {
+    lon_valuepos->setCurrentIndex(positions_map[mi.lon.value_pos]);
+  }
+  // set lat options
+  latb = mi.lat.ison;
+  latlw = mi.lat.linewidth;
+  latlt = mi.lat.linetype;
+  latz = mi.lat.zorder;
+  latd = mi.lat.density;
+  latshowvalue = mi.lat.showvalue;
 
-    m_colIndex = getIndex(cInfo, latc);
-    m_linewIndex = atoi(latlw.c_str()) - 1;
-    m_linetIndex = getIndex(linetypes, latlt);
-    // find density index
-    m_densIndex = 0;
-    dens = int(latd * 1000);
-    for (unsigned int k = 0; k < densities.size(); k++)
-      if (int(atof(densities[k].c_str()) * 1000) == dens) {
-        m_densIndex = k;
-        break;
-      }
-    m_zIndex = latz;
-    showlat->setChecked(latb);
-    if (m_colIndex >= 0)
-      lat_colorcbox->setCurrentIndex(m_colIndex);
-    if (m_linewIndex >= 0)
-      lat_linecbox->setCurrentIndex(m_linewIndex);
-    if (m_linetIndex >= 0)
-      lat_linetypebox->setCurrentIndex(m_linetIndex);
-    if (m_densIndex >= 0)
-      lat_density->setCurrentIndex(m_densIndex);
-    if (m_zIndex >= 0)
-      lat_zorder->setCurrentIndex(m_zIndex);
-    lat_showvalue->setChecked(latshowvalue);
-//    if (latvaluepos >= 0)
-    if (positions_map.count(m_MapDI.maps[lastmap].lat.value_pos)) {
-      lat_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lat.value_pos]);
+  m_linewIndex = atoi(latlw.c_str()) - 1;
+  m_linetIndex = getIndex(linetypes, latlt);
+  // find density index
+  m_densIndex = 0;
+  dens = int(latd * 1000);
+  for (unsigned int k = 0; k < densities.size(); k++)
+    if (int(atof(densities[k].c_str()) * 1000) == dens) {
+      m_densIndex = k;
+      break;
     }
-
-    // set frame options
-    frameb = m_MapDI.maps[lastmap].frame.ison;
-    framec = m_MapDI.maps[lastmap].frame.linecolour;
-    framelw = m_MapDI.maps[lastmap].frame.linewidth;
-    framelt = m_MapDI.maps[lastmap].frame.linetype;
-    framez = m_MapDI.maps[lastmap].frame.zorder;
-
-    m_colIndex = getIndex(cInfo, framec);
-    m_linewIndex = atoi(framelw.c_str()) - 1;
-    m_linetIndex = getIndex(linetypes, framelt);
-    m_zIndex = lonz;
-
-    showframe->setChecked(frameb);
-    if (m_colIndex >= 0)
-      ff_colorcbox->setCurrentIndex(m_colIndex);
-    if (m_linewIndex >= 0)
-      ff_linecbox->setCurrentIndex(m_linewIndex);
-    if (m_linetIndex >= 0)
-      ff_linetypebox->setCurrentIndex(m_linetIndex);
-    if (m_zIndex >= 0)
-      ff_zorder->setCurrentIndex(m_zIndex);
+  m_zIndex = latz;
+  showlat->setChecked(latb);
+  SetCurrentItemColourBox(lat_colorcbox,mi.lat.linecolour);
+  if (m_linewIndex >= 0)
+    lat_linecbox->setCurrentIndex(m_linewIndex);
+  if (m_linetIndex >= 0)
+    lat_linetypebox->setCurrentIndex(m_linetIndex);
+  if (m_densIndex >= 0)
+    lat_density->setCurrentIndex(m_densIndex);
+  if (m_zIndex >= 0)
+    lat_zorder->setCurrentIndex(m_zIndex);
+  lat_showvalue->setChecked(latshowvalue);
+  //    if (latvaluepos >= 0)
+  if (positions_map.count(mi.lat.value_pos)) {
+    lat_valuepos->setCurrentIndex(positions_map[mi.lat.value_pos]);
   }
 
+  // set frame options
+  frameb = mi.frame.ison;
+  framelw = mi.frame.linewidth;
+  framelt = mi.frame.linetype;
+  framez = mi.frame.zorder;
+
+  m_linewIndex = atoi(framelw.c_str()) - 1;
+  m_linetIndex = getIndex(linetypes, framelt);
+  m_zIndex = lonz;
+
+  showframe->setChecked(frameb);
+  SetCurrentItemColourBox(ff_colorcbox,mi.frame.linecolour);
+  if (m_linewIndex >= 0)
+    ff_linecbox->setCurrentIndex(m_linewIndex);
+  if (m_linetIndex >= 0)
+    ff_linetypebox->setCurrentIndex(m_linetIndex);
+  if (m_zIndex >= 0)
+    ff_zorder->setCurrentIndex(m_zIndex);
+
+
   // set background
-  int m_colIndex = getIndex(cInfo, bgcolour);
-  if (m_colIndex >= 0)
-    backcolorcbox->setCurrentIndex(m_colIndex);
+  SetCurrentItemColourBox(backcolorcbox,bgcolour);
+
 }
 
