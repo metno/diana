@@ -513,15 +513,17 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
   QVariantMap style = styles_[item->category()].value(styleName);
 
   // Collect any style properties in the item itself.
-  QHash<QString, QString> styleProperties;
+  QHash<QString, QVariant> styleProperties;
   foreach (QString key, item->propertiesRef().keys()) {
     if (key.startsWith("style:"))
-      styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
+      styleProperties[key.mid(6)] = item->propertiesRef().value(key);
   }
 
   // Override any properties with custom properties.
-  foreach (QString propName, properties_[item->category()].keys())
-    style[propName] = properties_[item->category()].value(propName)->parse(styleProperties);
+  foreach (QString propName, properties_[item->category()].keys()) {
+    if (styleProperties.contains(propName))
+      style[propName] = styleProperties.value(propName);
+  }
 
   return style;
 }
