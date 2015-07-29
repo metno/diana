@@ -61,8 +61,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 {
   drawm_ = DrawingManager::instance();
   editm_ = EditItemManager::instance();
-  connect(drawm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
-  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
 
   // create an action that can be used to open the dialog from within a menu or toolbar
   m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
@@ -118,6 +116,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
+  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
   connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
 
   QToolButton *saveAsButton = new QToolButton();
@@ -488,6 +487,7 @@ void DrawingDialog::removeActiveDrawings()
   foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
     QString fileName = index.data(DrawingModel::FileNameRole).toString();
     QModelIndex dindex = drawingsModel_.findFile(fileName);
+
     // If no corresponding name is found in the drawings list, remove the
     // item directly.
     if (dindex.isValid())
@@ -535,21 +535,23 @@ void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
 
 void DrawingDialog::updateQuickSaveButton()
 {
-  QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
-  QSet<QString> products;
+  QList<DrawingItemBase *> items = editm_->allItems();
+  QSet<QPair<QString, QString> > products;
 
   foreach (DrawingItemBase *item, items) {
     QString product = item->property("product").toString();
     QString srcFile = item->property("srcFile").toString();
-    if (!product.isEmpty() && product != srcFile)
-      products.insert(product);
+    if (product == srcFile)
+      product = QFileInfo(srcFile).fileName();
+    products.insert(QPair<QString, QString>(product, srcFile));
   }
 
   if (products.size() == 1) {
-    quickSaveName_ = products.values().first();
-    quickSaveButton_->setText(tr("Quick save '%1'").arg(quickSaveName_));
+    QString visibleName = products.values().first().first;
+    quickSaveName_ = products.values().first().second;
+    quickSaveButton_->setText(tr("Quick save '%1'").arg(visibleName));
     quickSaveButton_->setEnabled(true);
-    quickLoadButton_->setText(tr("Reload '%1'").arg(quickSaveName_));
+    quickLoadButton_->setText(tr("Reload '%1'").arg(visibleName));
     quickLoadButton_->setEnabled(true);
   } else {
     quickSaveName_ = QString();
@@ -770,17 +772,13 @@ QModelIndex DrawingModel::find(const QString &name) const
 QModelIndex DrawingModel::findFile(const QString &fileName) const
 {
   // Check the items in the model to ensure that we don't add an existing product.
-
-  // Check top level items.
-  for (int row = 0; row < order_.size(); ++row) {
-    if (order_.at(row) == fileName)
-      return createIndex(row, 0, 0xffffffff);
-  }
-
-  // Check children if items have them. ### FIXME
   for (int row = 0; row < order_.size(); ++row) {
     QString name = order_.at(row);
     QString topLevelFileName = items_.value(name);
+    if (topLevelFileName == fileName)
+      return createIndex(row, 0, 0xffffffff);
+
+    // Check children if items have them.
     if (topLevelFileName.contains("[")) {
       QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(topLevelFileName);
       for (int child = 0; child < tfiles.size(); ++child) {
