@@ -31,7 +31,6 @@
 /src/.deps/
 /src/diana.bin
 /src/diana_bin-*.o
-/src/diBuild.h
 /src/libdiana.a
 /src/libdiana_a-*.o
 /src/.libs/
