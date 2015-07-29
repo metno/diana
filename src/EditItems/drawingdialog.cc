@@ -163,6 +163,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SLOT(setAllItemsVisible(bool)));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(setDisabled(bool)));
 
   QVBoxLayout *editLayout = new QVBoxLayout();
   editLayout->addWidget(editTopSeparator);
@@ -602,7 +603,7 @@ void DrawingDialog::extend(bool enable)
 // ====================================================================
 
 DrawingModel::DrawingModel(QObject *parent)
-  : QAbstractListModel(parent)
+  : QAbstractItemModel(parent)
 {
 }
 
@@ -614,11 +615,11 @@ QModelIndex DrawingModel::index(int row, int column, const QModelIndex &parent) 
 {
   if (!parent.isValid()) {
     // Top level item - use an invalid row value as an identifier.
-    if (row < items_.size())
+    if (row < order_.size())
       return createIndex(row, column, 0xffffffff);
   } else {
     // Child item - store the parent's row in the created index.
-    if (parent.row() >= 0 && parent.row() < items_.size())
+    if (parent.row() >= 0 && parent.row() < order_.size())
       return createIndex(row, column, parent.row());
   }
 
@@ -648,7 +649,8 @@ bool DrawingModel::hasChildren(const QModelIndex &index) const
   // Top level items have children if there is more than one file associated
   // with them.
   if (index.row() >= 0 && index.row() < items_.size()) {
-    QString fileName = items_.values().at(index.row());
+    QString name = order_.at(index.row());
+    QString fileName = items_.value(name);
     return fileName.contains("[");
   } else
     return false;
@@ -662,12 +664,14 @@ int DrawingModel::columnCount(const QModelIndex &parent) const
 int DrawingModel::rowCount(const QModelIndex &parent) const
 {
   if (!parent.isValid())
-    return items_.size();
+    return order_.size();
+
   else if (parent.row() >= 0 && parent.row() < items_.size() && parent.column() == 0) {
     if (hasChildren(parent)) {
       // If the top level item has children then use its file name to obtain
       // a list of matching files.
-      QString fileName = items_.values().at(parent.row());
+      QString name = order_.at(parent.row());
+      QString fileName = items_.value(name);
       QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
       return tfiles.size();
     } else
@@ -683,19 +687,21 @@ QVariant DrawingModel::data(const QModelIndex &index, int role) const
 
   if (index.internalId() == 0xffffffff) {
     // Top level item
-    if (index.row() < items_.size()) {
+    QString name = order_.at(index.row());
+    if (index.row() < order_.size()) {
       switch (role) {
       case NameRole:
-        return QVariant(items_.keys().at(index.row()));
+        return QVariant(name);
       case FileNameRole:
-        return QVariant(items_.values().at(index.row()));
+        return QVariant(items_.value(name));
       default:
         ;
       }
     }
-  } else if (index.internalId() < items_.size()) {
+  } else if (index.internalId() < order_.size()) {
     // Child item
-    QString fileName = items_.values().at(index.internalId());
+    QString name = order_.at(index.internalId());
+    QString fileName = items_.value(name);
     if (role == NameRole || role == FileNameRole) {
       QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
       return QVariant(tfiles.at(index.row()).first.filePath());
@@ -723,19 +729,20 @@ Qt::ItemFlags DrawingModel::flags(const QModelIndex &index) const
   if (index.isValid() && hasChildren(index))
     return Qt::ItemIsEnabled;
   else
-    return QAbstractListModel::flags(index);
+    return QAbstractItemModel::flags(index);
 }
 
 bool DrawingModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-  if (row < 0 || row >= items_.size())
+  if (row < 0 || row >= order_.size())
     return false;
 
   beginRemoveRows(parent, row, count);
   while (count > 0) {
     // Find the key that corresponds to the given row.
-    QString key = items_.keys().at(row);
+    QString key = order_.at(row);
     items_.remove(key);
+    order_.removeAt(row);
     count--;
   }
   endRemoveRows();
@@ -751,28 +758,29 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
 {
   beginResetModel();
   items_ = items;
+  order_ = items.keys();
   endResetModel();
 }
 
 QModelIndex DrawingModel::find(const QString &name) const
 {
-  return createIndex(items_.keys().indexOf(name), 0, 0xffffffff);
+  return createIndex(order_.indexOf(name), 0, 0xffffffff);
 }
 
 QModelIndex DrawingModel::findFile(const QString &fileName) const
 {
   // Check the items in the model to ensure that we don't add an existing product.
-  QStringList topLevelFileNames = items_.values();
 
   // Check top level items.
-  for (int row = 0; row < items_.size(); ++row) {
-    if (topLevelFileNames.at(row) == fileName)
+  for (int row = 0; row < order_.size(); ++row) {
+    if (order_.at(row) == fileName)
       return createIndex(row, 0, 0xffffffff);
   }
 
-  // Check children if items have them.
-  for (int row = 0; row < items_.size(); ++row) {
-    QString topLevelFileName = topLevelFileNames.at(row);
+  // Check children if items have them. ### FIXME
+  for (int row = 0; row < order_.size(); ++row) {
+    QString name = order_.at(row);
+    QString topLevelFileName = items_.value(name);
     if (topLevelFileName.contains("[")) {
       QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(topLevelFileName);
       for (int child = 0; child < tfiles.size(); ++child) {
@@ -798,15 +806,11 @@ void DrawingModel::appendDrawing(const QString &name, const QString &fileName)
   if (items_.contains(name))
     return;
 
-  QMap<QString, QString> items = items_;
-  items[name] = fileName;
-  int row = items.keys().indexOf(name);
+  int row = order_.size();
 
-  // Since the underlying data is sorted, we need to insert the drawing into
-  // the map in order to find out where it will be inserted, so we do that to
-  // a new map before notifying other components and updating the map.
   beginInsertRows(QModelIndex(), row, row);
-  items_ = items;
+  items_[name] = fileName;
+  order_.append(name);
   endInsertRows();
 }
 

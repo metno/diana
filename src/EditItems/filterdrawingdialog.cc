@@ -150,8 +150,7 @@ void FilterDrawingWidget::updateValues()
 }
 
 /**
- * Returns the selected properties in the property list, or all available
- * properties if none are selected.
+ * Returns the selected properties in the property list.
  */
 QStringList FilterDrawingWidget::currentProperties() const
 {
@@ -161,8 +160,7 @@ QStringList FilterDrawingWidget::currentProperties() const
   if (!indexes.isEmpty()) {
     foreach (const QModelIndex &index, indexes)
       properties.append(index.data().toString());
-  } else
-    properties = propertyModel_->stringList();
+  }
 
   return properties;
 }

@@ -31,7 +31,8 @@
 #define DRAWINGDIALOG_H
 
 #include <QHash>
-#include <QStringListModel>
+#include <QAbstractItemModel>
+#include <QItemSelection>
 
 #include "qtDataDialog.h"
 
@@ -44,7 +45,7 @@ namespace EditItems {
 
 class FilterDrawingWidget;
 
-class DrawingModel : public QAbstractListModel
+class DrawingModel : public QAbstractItemModel
 {
   Q_OBJECT
 
@@ -80,6 +81,7 @@ public slots:
 
 private:
   QMap<QString, QString> items_;
+  QStringList order_;
 };
 
 class DrawingDialog : public DataDialog
