@@ -776,7 +776,7 @@ endif # WITH_XLIB
 
 # generate version info header
 BUILT_SOURCES += diBuild.cc
-CLEANFILES += diBuild.h
+CLEANFILES += diBuild.cc diBuild.cc.tmp
 
 libdiana_la_SOURCES += diBuild.cc
 diBuild.cc: diBuild.cc.tmp
