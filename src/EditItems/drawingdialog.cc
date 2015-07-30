@@ -538,15 +538,18 @@ void DrawingDialog::updateQuickSaveButton()
   QList<DrawingItemBase *> items = editm_->allItems();
   QSet<QPair<QString, QString> > products;
 
+  // Find all the products being edited.
   foreach (DrawingItemBase *item, items) {
-    QString product = item->property("product").toString();
     QString srcFile = item->property("srcFile").toString();
+    if (srcFile.isEmpty())
+      continue;
+    QString product = item->property("product").toString();
     if (product == srcFile)
       product = QFileInfo(srcFile).fileName();
     products.insert(QPair<QString, QString>(product, srcFile));
   }
 
-  if (products.size() == 1) {
+  if (products.size() == 1 && !products.values().first().second.isEmpty()) {
     QString visibleName = products.values().first().first;
     quickSaveName_ = products.values().first().second;
     quickSaveButton_->setText(tr("Quick save '%1'").arg(visibleName));
