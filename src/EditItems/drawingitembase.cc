@@ -231,13 +231,25 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash
     objectType = "Undefined";
     break;
   }
-  extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:objectType", objectType));
+
+  if (!properties_.contains("met:objectType"))
+    extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:objectType", objectType));
+
+  QString styleType = properties_.value("style:type").toString();
+  if (!properties_.contains("met:style:type"))
+    extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:style:type", styleType));
 
   // style and met properties
+  QVariantMap defaultStyleProperties = DrawingStyleManager::instance()->getStyle(category(), styleType);
+  QVariantMap allStyleProperties = DrawingStyleManager::instance()->getStyle(this);
+
+  foreach (const QString key, allStyleProperties.keys()) {
+    if (!defaultStyleProperties.contains(key) || allStyleProperties.value(key).toString() != defaultStyleProperties.value(key).toString())
+      extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:style:%1").arg(key), allStyleProperties.value(key).toString()));
+  }
+
   foreach (const QString key, properties_.keys()) {
-    if (key.startsWith("style:"))
-      extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:%1").arg(key), properties_.value(key).toString()));
-    else if (key.startsWith("met:"))
+    if (key.startsWith("met:"))
       extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("%1").arg(key), properties_.value(key).toString()));
   }
 
