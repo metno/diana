@@ -873,6 +873,11 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
   return fieldm->getBestReferenceTime(model, refOffset, refHour);
 }
 
+miutil::miTime Controller::getFieldReferenceTime()
+{
+  return plotm->getFieldReferenceTime();
+}
+
 void Controller::getFieldGroups(const std::string& modelName,
     std::string refTime,
     bool plotGroups,

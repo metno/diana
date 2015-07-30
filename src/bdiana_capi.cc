@@ -297,14 +297,15 @@ int default_canvas = qt_glpixelbuffer;
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
 bool use_firsttime = false;
+bool use_referencetime = false;
 bool antialias = false;
 bool failOnMissingData=false;
 
 // replaceable values for plot-commands
 vector<keyvalue> keys;
 
-miTime thetime, ptime, fixedtime;
-
+miTime fixedtime, ptime;
+int addhour=0, addminute=0;
 std::string batchinput;
 // diana setup file
 std::string setupfile = "diana.setup";
@@ -1297,48 +1298,53 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
-static miutil::miTime selectTime()
+static void selectTime()
 {
-  map<string,vector<miTime> > times;
-  main_controller->getPlotTimes(times, false);
-  miTime thetime;
 
-  // Check for times in a certain order, initialising a time vector as
-  // empty vectors if the getPlotTimes function did not return one for
-  // a given data type.
   if (ptime.undef()) {
-    if (use_nowtime) {
-      thetime = selectNowTime(times["fields"], times["satellites"],
-          times["observations"], times["objects"],
-          times["products"]);
-    } else if ( use_firsttime ) {
-      if (times["fields"].size() > 0)
-        thetime = times.at("fields").front();
-      else if (times["satellites"].size() > 0)
-        thetime = times.at("satellites").front();
-      else if (times["observations"].size() > 0)
-        thetime = times.at("observations").front();
-      else if (times["objects"].size() > 0)
-        thetime = times.at("objects").front();
-      else if (times["products"].size() > 0)
-        thetime = times.at("products").front();
-    } else {
-      if (times["fields"].size() > 0)
-        thetime = times.at("fields").back();
-      else if (times["satellites"].size() > 0)
-        thetime = times.at("satellites").back();
-      else if (times["observations"].size() > 0)
-        thetime = times.at("observations").back();
-      else if (times["objects"].size() > 0)
-        thetime = times.at("objects").back();
-      else if (times["products"].size() > 0)
-        thetime = times.at("products").back();
-    }
-    fixedtime = ptime = thetime;
-  } else
-    thetime = ptime;
 
-  return thetime;
+    if (use_referencetime) {
+      ptime = main_controller->getFieldReferenceTime();
+    } else {
+
+      // Check for times in a certain order, initialising a time vector as
+      // empty vectors if the getPlotTimes function did not return one for
+      // a given data type.
+      map<string,vector<miTime> > times;
+      main_controller->getPlotTimes(times, false);
+      if (use_nowtime) {
+        ptime = selectNowTime(times["fields"], times["satellites"],
+            times["observations"], times["objects"],
+            times["products"]);
+      } else if ( use_firsttime ) {
+        if (times["fields"].size() > 0)
+          ptime = times.at("fields").front();
+        else if (times["satellites"].size() > 0)
+          ptime = times.at("satellites").front();
+        else if (times["observations"].size() > 0)
+          ptime = times.at("observations").front();
+        else if (times["objects"].size() > 0)
+          ptime = times.at("objects").front();
+        else if (times["products"].size() > 0)
+          ptime = times.at("products").front();
+      } else {
+        if (times["fields"].size() > 0)
+          ptime = times.at("fields").back();
+        else if (times["satellites"].size() > 0)
+          ptime = times.at("satellites").back();
+        else if (times["observations"].size() > 0)
+          ptime = times.at("observations").back();
+        else if (times["objects"].size() > 0)
+          ptime = times.at("objects").back();
+        else if (times["products"].size() > 0)
+          ptime = times.at("products").back();
+      }
+    }
+    fixedtime=ptime;
+  }
+  ptime=fixedtime;
+  ptime.addHour(addhour);
+  ptime.addMin(addminute);
 }
 
 #if defined(USE_PAINTGL)
@@ -1475,7 +1481,7 @@ void createJsonAnnotation()
   // The wms clients did not accept metadata, temporarily removed until clients are fixed
   //  map<std::string,std::string> metaDataMap;
 //
-//  std::string thetime;
+//  std::string ptime;
 //  main_controller->getPlotTime(thetime);
 //  if ( !ptime.undef() ) {
 //    metaDataMap["request time"] = std::string("\"") + ptime.isoTime() + std::string("\"");
@@ -1738,22 +1744,22 @@ static int parseAndProcess(istream &is)
         main_controller->keepCurrentArea(keeparea);
 
         // necessary to set time before plotCommands()..?
-        thetime = miTime::nowTime();
+        miTime thetime = miTime::nowTime();
         main_controller->setPlotTime(thetime);
 
         if (verbose)
           METLIBS_LOG_INFO("- sending plotCommands");
         main_controller->plotCommands(pcom);
 
-        thetime = selectTime();
+        selectTime();
 
         if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        main_controller->setPlotTime(thetime);
+          METLIBS_LOG_INFO("- plotting for time:" << ptime);
+        main_controller->setPlotTime(ptime);
 
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
+          priop.fname = ptime.format(priop.fname);
         }
 
         if (verbose)
@@ -1854,18 +1860,21 @@ static int parseAndProcess(istream &is)
         vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
 
         if (ptime.undef()) {
-          thetime = vcrossmanager->getTimeValue();
+          ptime = vcrossmanager->getTimeValue();
           if (verbose)
-            METLIBS_LOG_INFO("VCROSS has default time:" << thetime);
-        } else
-          thetime = ptime;
+            METLIBS_LOG_INFO("VCROSS has default time:" << ptime);
+        } else {
+          ptime = fixedtime;
+        }
+        ptime.addHour(addhour);
+        ptime.addMin(addminute);
         if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        vcrossmanager->setTimeToBestMatch(thetime);
+          METLIBS_LOG_INFO("- plotting for time:" << ptime);
+        vcrossmanager->setTimeToBestMatch(ptime);
 
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
+          priop.fname = ptime.format(priop.fname);
         }
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
@@ -1928,18 +1937,21 @@ static int parseAndProcess(istream &is)
         vprofmanager->setModel();
 
         if (ptime.undef()) {
-          thetime = vprofmanager->getTime();
+          ptime = vprofmanager->getTime();
           if (verbose)
-            METLIBS_LOG_INFO("VPROF has default time:" << thetime);
-        } else
-          thetime = ptime;
+            METLIBS_LOG_INFO("VPROF has default time:" << ptime);
+        } else {
+          ptime = fixedtime;
+        }
+        ptime.addHour(addhour);
+        ptime.addMin(addminute);
         if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        vprofmanager->setTime(thetime);
+          METLIBS_LOG_INFO("- plotting for time:" << ptime);
+        vprofmanager->setTime(ptime);
 
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
+          priop.fname = ptime.format(priop.fname);
         }
 
         if (verbose)
@@ -1999,18 +2011,21 @@ static int parseAndProcess(istream &is)
         spectrummanager->setModel();
 
         if (ptime.undef()) {
-          thetime = spectrummanager->getTime();
+          ptime = spectrummanager->getTime();
           if (verbose)
-            METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
-        } else
-          thetime = ptime;
+            METLIBS_LOG_INFO("SPECTRUM has default time:" << ptime);
+        } else {
+          ptime = fixedtime;
+        }
+        ptime.addHour(addhour);
+        ptime.addMin(addminute);
         if (verbose)
-          METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        spectrummanager->setTime(thetime);
+          METLIBS_LOG_INFO("- plotting for time:" << ptime);
+        spectrummanager->setTime(ptime);
 
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
-          priop.fname = thetime.format(priop.fname);
+          priop.fname = ptime.format(priop.fname);
         }
 
         if (verbose)
@@ -2355,7 +2370,7 @@ static int parseAndProcess(istream &is)
         FIND_END_COMMAND(com_endtime)
 
         // necessary to set time before plotCommands()..?
-        thetime = miTime::nowTime();
+        miTime thetime = miTime::nowTime();
         main_controller->setPlotTime(thetime);
 
         if (verbose)
@@ -2488,14 +2503,17 @@ static int parseAndProcess(istream &is)
       spectrummanager->setModel();
 
       if (ptime.undef()) {
-        thetime = spectrummanager->getTime();
+        ptime = spectrummanager->getTime();
         if (verbose)
-          METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
-      } else
-        thetime = ptime;
+          METLIBS_LOG_INFO("SPECTRUM has default time:" << ptime);
+      } else {
+        ptime = fixedtime;
+      }
+      ptime.addHour(addhour);
+      ptime.addMin(addminute);
       if (verbose)
-        METLIBS_LOG_INFO("- describing spectrum for time:" << thetime);
-      spectrummanager->setTime(thetime);
+        METLIBS_LOG_INFO("- describing spectrum for time:" << ptime);
+      spectrummanager->setTime(ptime);
 
       if (verbose)
         METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
@@ -2676,11 +2694,11 @@ static int parseAndProcess(istream &is)
         METLIBS_LOG_INFO("- sending plotCommands");
       main_controller->plotCommands(pcom);
 
-      thetime = selectTime();
+      selectTime();
 
       if (verbose)
-        METLIBS_LOG_INFO("- describing field for time: " << thetime);
-      main_controller->setPlotTime(thetime);
+        METLIBS_LOG_INFO("- describing field for time: " << ptime);
+      main_controller->setPlotTime(ptime);
 
       if (verbose)
         METLIBS_LOG_INFO("- updatePlots");
@@ -2798,14 +2816,17 @@ static int parseAndProcess(istream &is)
       spectrummanager->setModel();
 
       if (ptime.undef()) {
-        thetime = spectrummanager->getTime();
+        ptime = spectrummanager->getTime();
         if (verbose)
-          METLIBS_LOG_INFO("SPECTRUM has default time:" << thetime);
-      } else
-        thetime = ptime;
+          METLIBS_LOG_INFO("SPECTRUM has default time:" << ptime);
+      } else {
+        ptime = fixedtime;
+      }
+      ptime.addHour(addhour);
+      ptime.addMin(addminute);
       if (verbose)
-        METLIBS_LOG_INFO("- describing spectrum for time:" << thetime);
-      spectrummanager->setTime(thetime);
+        METLIBS_LOG_INFO("- describing spectrum for time:" << ptime);
+      spectrummanager->setTime(ptime);
 
       if (verbose)
         METLIBS_LOG_INFO("- setting station: '" << spectrum_station << "'");
@@ -3134,22 +3155,19 @@ static int parseAndProcess(istream &is)
         priop.orientation = d_print::ori_automatic;
 
     } else if (key == com_addhour) {
-      if (!fixedtime.undef()) {
-        ptime = fixedtime;
-        ptime.addHour(atoi(value.c_str()));
-      }
+      addhour=atoi(value.c_str());
 
     } else if (key == com_addminute) {
-      if (!fixedtime.undef()) {
-        ptime = fixedtime;
-        ptime.addMin(atoi(value.c_str()));
-      }
+      addminute = atoi(value.c_str());
 
     } else if (key == com_settime) {
+      ptime = miTime(); //undef
       if ( value == "nowtime" || value == "current" ) {
         use_nowtime = true;
       } else if ( value == "firsttime" ) {
           use_firsttime = true;
+      } else if ( value == "referencetime" ) {
+          use_referencetime = true;
       } else if (miTime::isValid(value)) {
         fixedtime = ptime = miTime(value);
       }
