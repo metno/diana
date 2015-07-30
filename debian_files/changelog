@@ -1,3 +1,11 @@
+diana (3.38.4-1) unstable; urgency=low
+
+  * ObsPlot plotAscii bugfix: check that stringdata exists
+  * add git commit id to build info file
+  * bdiana: new option settime=referencetime
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 30 Jul 2015 14:42:49 +0200
+
 diana (3.38.3-1) unstable; urgency=low
 
   * vprof: check for invalid values before plotting
