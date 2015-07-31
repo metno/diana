@@ -162,7 +162,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SLOT(setAllItemsVisible(bool)));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
-  connect(showAllCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(setDisabled(bool)));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(disableFilter(bool)));
 
   QVBoxLayout *editLayout = new QVBoxLayout();
   editLayout->addWidget(editTopSeparator);
@@ -671,7 +671,7 @@ int DrawingModel::rowCount(const QModelIndex &parent) const
   if (!parent.isValid())
     return order_.size();
 
-  else if (parent.row() >= 0 && parent.row() < items_.size() && parent.column() == 0) {
+  else if (parent.row() >= 0 && parent.row() < order_.size() && parent.column() == 0) {
     if (hasChildren(parent)) {
       // If the top level item has children then use its file name to obtain
       // a list of matching files.

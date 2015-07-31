@@ -125,7 +125,7 @@ public:
   virtual QList<DrawingItemBase *> allItems() const;
   bool matchesFilter(DrawingItemBase *item) const;
   bool isItemVisible(DrawingItemBase *item) const;
-  void setFilter(const QPair<QStringList, QSet<QString> > &filter);
+  void setFilter(const QHash<QString, QStringList> &filter);
 
   std::vector<PolyLineInfo> loadCoordsFromKML(const std::string &fileName);
   EditItems::ItemGroup *itemGroup(const QString &name);
@@ -153,7 +153,7 @@ protected:
   QMap<QString, QString> loaded_;
 
   QMap<QString, EditItems::ItemGroup *> itemGroups_;
-  QPair<QStringList, QSet<QString> > filter_;
+  QHash<QString, QStringList> filter_;
   bool allItemsVisible_;
 
 private:

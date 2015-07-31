@@ -41,7 +41,7 @@ class QTreeView;
 
 namespace EditItems {
 
-class FilterDrawingModel : public QStringListModel
+class FilterDrawingModel : public QAbstractItemModel
 {
   Q_OBJECT
 
@@ -49,12 +49,22 @@ public:
   FilterDrawingModel(const QString &header, QObject *parent = 0);
   virtual ~FilterDrawingModel();
 
+  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+  QModelIndex parent(const QModelIndex &index) const;
+  bool hasChildren(const QModelIndex &index = QModelIndex()) const;
+  int columnCount(const QModelIndex &parent = QModelIndex()) const;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
   Qt::ItemFlags flags(const QModelIndex &index) const;
 
+  void setProperties(const QHash<QString, QStringList> &choices);
+
 private:
   QString header_;
+  QHash<QString, QStringList> choices_;
+  QStringList order_;
 };
 
 class FilterDrawingWidget : public QWidget
@@ -70,21 +80,18 @@ signals:
 
 public slots:
   void updateChoices();
+  void disableFilter(bool disable);
 
 private slots:
-  void updateValues();
   void filterItems();
 
 private:
-  QStringList currentProperties() const;
-  QSet<QString> currentValues() const;
+  QHash<QString, QStringList> currentProperties() const;
 
   DrawingManager *drawm_;
   EditItemManager *editm_;
   FilterDrawingModel *propertyModel_;
-  FilterDrawingModel *valueModel_;
   QTreeView *propertyList_;
-  QTreeView *valueList_;
 };
 
 } // namespace
