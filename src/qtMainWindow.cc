@@ -3692,7 +3692,13 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
   for (it = dialogs.begin(); it != dialogs.end(); ++it) {
     str = it->second->name() + ".pos " + miutil::from_number(it->second->x()) + " " + miutil::from_number(it->second->y());
     vstr.push_back(str);
-    str = it->second->name() + ".size " + miutil::from_number(it->second->width()) + " " + miutil::from_number(it->second->height());
+    if (it->second->extension() && it->second->extension()->isVisible()) {
+      if (it->second->orientation() == Qt::Horizontal)
+        str = it->second->name() + ".size " + miutil::from_number(it->second->width() - it->second->extension()->width()) + " " + miutil::from_number(it->second->height());
+      else
+        str = it->second->name() + ".size " + miutil::from_number(it->second->width()) + " " + miutil::from_number(it->second->height() - it->second->extension()->height());
+    } else
+      str = it->second->name() + ".size " + miutil::from_number(it->second->width()) + " " + miutil::from_number(it->second->height());
     vstr.push_back(str);
   }
 
