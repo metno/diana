@@ -155,11 +155,11 @@ void ItemGroup::setTime(const QDateTime &dateTime, bool allVisible)
 
     else if (time_prop.isEmpty()) {
       if (isCollection()) {
-        // For layer groups containing a collection of files, make the layers
+        // For item groups containing a collection of files, make the layers
         // visible only if the current file is appropriate for the new time.
         item->setVisible(allVisible);
       } else {
-        // For layer groups containing a single file with its own times for
+        // For item groups containing a single file with its own times for
         // layers, if no time property was found, make the item visible.
         item->setVisible(true);
       }
@@ -254,7 +254,7 @@ void ItemGroup::setItems(QList<DrawingItemBase *> items)
 
 void ItemGroup::addItem(DrawingItemBase *item)
 {
-  // Since an item can be created and added to a layer group then re-added
+  // Since an item can be created and added to a item group then re-added
   // immediately by the corresponding redo command, we need to ensure it is
   // not added twice.
   int id = item->id();
@@ -266,7 +266,7 @@ void ItemGroup::addItem(DrawingItemBase *item)
 
 void ItemGroup::removeItem(DrawingItemBase *item)
 {
-  // Since an item can be removed from a layer group then re-removed
+  // Since an item can be removed from a item group then re-removed
   // immediately by the corresponding redo command, we need to ensure it is
   // not removed twice.
   int id = item->id();
@@ -278,7 +278,7 @@ void ItemGroup::removeItem(DrawingItemBase *item)
 }
 
 /**
- * Replace the states of items in this layer group whose identifiers match
+ * Replace the states of items in this item group whose identifiers match
  * those in the supplied hash.
  */
 void ItemGroup::replaceStates(const QHash<int, QVariantMap> &states)
