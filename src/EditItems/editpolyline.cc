@@ -50,6 +50,7 @@ PolyLine::PolyLine(int id)
   color_.setGreen(0);
   color_.setBlue(0);
 
+  addPoint_act_->setShortcut(tr("+"));
   QObject::connect(addPoint_act_, SIGNAL(triggered()), SLOT(addPoint()));
   QObject::connect(removePoint_act_, SIGNAL(triggered()), SLOT(removePoint()));
 }
