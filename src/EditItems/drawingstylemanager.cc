@@ -388,6 +388,9 @@ void DrawingStyleManager::beginLine(DiGLPainter* gl, DrawingItemBase *item)
   gl->LineWidth(lineWidth);
 
   QColor borderColour = style.value(DSP_linecolour::name()).value<QColor>();
+  if (!borderColour.isValid())
+    borderColour = QColor(Qt::black);
+
   bool alphaOk;
   const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
   if (borderColour.isValid())
@@ -408,8 +411,16 @@ void DrawingStyleManager::beginFill(DiGLPainter* gl, DrawingItemBase *item)
   QVariantMap style = getStyle(item);
 
   QColor fillColour = style.value(DSP_fillcolour::name()).value<QColor>();
+
   bool alphaOk;
-  const int alpha = style.value(DSP_fillalpha::name()).toInt(&alphaOk);
+  int alpha = style.value(DSP_fillalpha::name()).toInt(&alphaOk);
+
+  if (!fillColour.isValid()) {
+    fillColour = QColor(Qt::gray);
+    alpha = 50;
+    alphaOk = true;
+  }
+
   gl->Color4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
@@ -832,7 +843,8 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const QVariantMap &sty
 void DrawingStyleManager::fillLoop(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points) const
 {
   QVariantMap style = getStyle(item);
-  bool closed = style.value(DSP_closed::name()).toBool();
+  QVariant value = style.value(DSP_closed::name());
+  bool closed = value.isValid() ? value.toBool() : true;
 
   QList<QPointF> points_;
   if (style.value(DSP_linesmooth::name()).toBool())
