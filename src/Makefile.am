@@ -887,7 +887,7 @@ bdiana_LDADD = $(common_ldadd)
 BUILT_SOURCES += diBuild.cc
 CLEANFILES += diBuild.cc diBuild.cc.tmp
 
-libdiana_la_SOURCES += diBuild.cc
+libdiana_a_SOURCES += diBuild.cc
 diBuild.cc: diBuild.cc.tmp
 	@if cmp -s $@ $< ; then \
 	    echo "UNCHANGED $@"; \
