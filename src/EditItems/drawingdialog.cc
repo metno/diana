@@ -111,10 +111,12 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   quickLoadButton_ = new QPushButton(tr("Reload"));
   quickLoadButton_->setEnabled(false);
-  connect(quickLoadButton_, SIGNAL(clicked()), SLOT(quickLoad()));
+  connect(quickLoadButton_, SIGNAL(clicked()), SLOT(reload()));
 
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
+  connect(drawm_, SIGNAL(drawingLoaded(QString)), SLOT(updateReloadButton()));
+  connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateReloadButton()));
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
   connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
   connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
@@ -533,9 +535,12 @@ void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
   // ###
 }
 
-void DrawingDialog::updateQuickSaveButton()
+/**
+ * Returns a set of string pairs containing the product and source file of
+ * each item in the given list.
+ */
+QSet<QPair<QString, QString> > DrawingDialog::itemProducts(const QList<DrawingItemBase *> &items)
 {
-  QList<DrawingItemBase *> items = editm_->allItems();
   QSet<QPair<QString, QString> > products;
 
   // Find all the products being edited.
@@ -549,38 +554,59 @@ void DrawingDialog::updateQuickSaveButton()
     products.insert(QPair<QString, QString>(product, srcFile));
   }
 
+  return products;
+}
+
+void DrawingDialog::updateQuickSaveButton()
+{
+  QSet<QPair<QString, QString> > products = itemProducts(editm_->allItems());
+
   if (products.size() == 1 && !products.values().first().second.isEmpty()) {
     QString visibleName = products.values().first().first;
     quickSaveName_ = products.values().first().second;
     quickSaveButton_->setText(tr("Quick save '%1'").arg(visibleName));
     quickSaveButton_->setEnabled(true);
-    quickLoadButton_->setText(tr("Reload '%1'").arg(visibleName));
-    quickLoadButton_->setEnabled(true);
   } else {
     quickSaveName_ = QString();
     quickSaveButton_->setText(tr("Quick save"));
     quickSaveButton_->setEnabled(false);
-    quickLoadButton_->setText(tr("Reload"));
-    quickLoadButton_->setEnabled(false);
   }
 }
 
-/**
- * Reload items from the last edited file.
- */
-void DrawingDialog::quickLoad()
+void DrawingDialog::updateReloadButton()
 {
-  // Obtain the file name for the only product being edited.
-  QString fileName = editm_->getDrawings().value(quickSaveName_);
+  QSet<QPair<QString, QString> > products = itemProducts(drawm_->allItems() + editm_->allItems());
+  quickLoadButton_->setEnabled(!products.isEmpty());
+}
 
-  // Find all the items belonging to the product and remove them.
+/**
+ * Reload items from all drawings.
+ */
+void DrawingDialog::reload()
+{
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
+  // Reload all editable items with associated files.
+
+  QSet<QPair<QString, QString> > products = itemProducts(editm_->allItems());
+  QSet<QString> fileNames;
+
+  QSet<QPair<QString, QString> >::const_iterator it;
+  for (it = products.begin(); it != products.end(); ++it)
+    fileNames.insert(it->second);
+
+  // Find all the items belonging to the products and remove them.
   foreach (DrawingItemBase *item, editm_->allItems()) {
-    if (item->property("product").toString() == quickSaveName_)
+    if (fileNames.contains(item->property("srcFile").toString()))
       editm_->removeItem(item);
   }
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  QString error = editm_->loadDrawing(fileName, fileName);
+  for (it = products.begin(); it != products.end(); ++it)
+    QString error = editm_->loadDrawing(it->first, it->second);
+
+  // Reload all non-editable drawings by effectively clicking the apply button.
+  emit applyData();
+
   QApplication::restoreOverrideCursor();
 }
 

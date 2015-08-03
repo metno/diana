@@ -102,8 +102,8 @@ signals:
 
 public slots:
   void loadFile();
-  void quickLoad();
   void quickSave();
+  void reload();
   void saveAllItems();
   void saveFilteredItems();
   void saveSelectedItems();
@@ -119,9 +119,11 @@ private slots:
   void showDrawingContextMenu(const QPoint &pos);
   void updateButtons();
   void updateQuickSaveButton();
+  void updateReloadButton();
   virtual void updateTimes();
 
 private:
+  QSet<QPair<QString, QString> > itemProducts(const QList<DrawingItemBase *> &items);
   void updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName);
   void saveFile(const QList<DrawingItemBase *> &items, const QString &fileName);
 

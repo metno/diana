@@ -76,7 +76,7 @@ public:
 
   void addItem(DrawingItemBase *, bool = false, bool = false);
   void editItem(DrawingItemBase *item);
-  void removeItem(DrawingItemBase *item);
+  virtual void removeItem(DrawingItemBase *item);
   void updateItem(DrawingItemBase *item, const QVariantMap &props);
 
   virtual QList<DrawingItemBase *> allItems() const;
