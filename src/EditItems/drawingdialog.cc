@@ -119,6 +119,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateReloadButton()));
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
   connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
+  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateReloadButton()));
   connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
 
   QToolButton *saveAsButton = new QToolButton();
@@ -423,7 +424,7 @@ void DrawingDialog::saveFile(const QList<DrawingItemBase *> &items, const QStrin
   if (error.isEmpty())
     updateFileInfo(items, fileName);
   else
-    QMessageBox::warning(this, tr("Save File"), tr("Failed to save file: %1").arg(fileName));
+    QMessageBox::warning(this, tr("Save File"), tr("Failed to save file '%1'. Error was '%2'.").arg(fileName).arg(error));
 }
 
 void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName)
@@ -637,11 +638,7 @@ void DrawingDialog::reload()
 void DrawingDialog::quickSave()
 {
   QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
-
-  // Obtain the file name for the only product being edited.
-  QString fileName = editm_->getDrawings().value(quickSaveName_);
-
-  saveFile(items, fileName);
+  saveFile(items, quickSaveName_);
 }
 
 void DrawingDialog::extend(bool enable)
