@@ -80,8 +80,11 @@ public slots:
   void appendDrawing(const QString &fileName);
 
 private:
+  QStringList listFiles(const QString &fileName) const;
+
   QMap<QString, QString> items_;
   QStringList order_;
+  QHash<QString, QStringList> fileCache_;
 };
 
 class DrawingDialog : public DataDialog

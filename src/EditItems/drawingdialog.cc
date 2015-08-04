@@ -586,10 +586,31 @@ void DrawingDialog::reload()
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  // Reload all editable items with associated files.
+  // Update the list of drawings.
+
+  // Record the active drawings and clear the active list by toggling the
+  // selected drawings.
+  QSet<QString> fileNames = activeDrawingsModel_.items().values().toSet();
+  drawingsList_->selectionModel()->select(drawingsList_->selectionModel()->selection(),
+                                          QItemSelectionModel::Toggle);
+
+  QMap<QString, QString> items = drawingsModel_.items();
+  drawingsModel_.setItems(items);
+
+  // Filter out any drawings that are no longer available.
+  QItemSelection selection;
+  foreach (const QString &fileName, fileNames) {
+    QModelIndex index = drawingsModel_.findFile(fileName);
+    if (index.isValid())
+      selection.select(index, index);
+  }
+
+  drawingsList_->selectionModel()->select(selection, QItemSelectionModel::Toggle);
+
+  // Reload all editable items that have files associated with them.
 
   QSet<QPair<QString, QString> > products = itemProducts(editm_->allItems());
-  QSet<QString> fileNames;
+  fileNames.clear();
 
   QSet<QPair<QString, QString> >::const_iterator it;
   for (it = products.begin(); it != products.end(); ++it)
@@ -703,8 +724,7 @@ int DrawingModel::rowCount(const QModelIndex &parent) const
       // a list of matching files.
       QString name = order_.at(parent.row());
       QString fileName = items_.value(name);
-      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
-      return tfiles.size();
+      return listFiles(fileName).size();
     } else
       return 1;
   } else
@@ -734,12 +754,30 @@ QVariant DrawingModel::data(const QModelIndex &index, int role) const
     QString name = order_.at(index.internalId());
     QString fileName = items_.value(name);
     if (role == NameRole || role == FileNameRole) {
-      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
-      return QVariant(tfiles.at(index.row()).first.filePath());
+      QStringList files = listFiles(fileName);
+      if (index.row() < files.size())
+        return QVariant(files.at(index.row()));
     }
   }
 
   return QVariant();
+}
+
+QStringList DrawingModel::listFiles(const QString &fileName) const
+{
+  if (fileCache_.contains(fileName))
+    return fileCache_.value(fileName);
+
+  QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(fileName);
+  QStringList files;
+  for (int i = 0; i < tfiles.size(); ++i)
+    files.append(tfiles.at(i).first.filePath());
+
+  // We would like to be able to cache lists of files for consistency but
+  // the API insists on everything being const, so we step around that to
+  // get what we want.
+  const_cast<DrawingModel *>(this)->fileCache_[fileName] = files;
+  return files;
 }
 
 QVariant DrawingModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -790,6 +828,7 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
   beginResetModel();
   items_ = items;
   order_ = items.keys();
+  fileCache_.clear();
   endResetModel();
 }
 
@@ -809,9 +848,9 @@ QModelIndex DrawingModel::findFile(const QString &fileName) const
 
     // Check children if items have them.
     if (topLevelFileName.contains("[")) {
-      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(topLevelFileName);
-      for (int child = 0; child < tfiles.size(); ++child) {
-        if (tfiles.value(child).first.filePath() == fileName)
+      QStringList files = listFiles(topLevelFileName);
+      for (int child = 0; child < files.size(); ++child) {
+        if (files.value(child) == fileName)
           return createIndex(child, 0, row);
       }
     }
