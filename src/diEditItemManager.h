@@ -54,7 +54,7 @@ class EditItemManager : public DrawingManager
 
 public:
   enum Action {
-    Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
+    SelectAll, Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
     CreatePolyLine, CreateSymbol, CreateText, CreateComposite
   };
 
@@ -136,6 +136,7 @@ public slots:
   void repaint();
   void reset();
   void selectItem(DrawingItemBase *, bool = false, bool = true);
+  void selectAllItems();
   void setSelectMode();
   void startStopEditing(bool start);
   void undo();
@@ -184,6 +185,7 @@ private:
   QUndoStack undoStack_;
   UndoView *undoView_;
 
+  QAction* selectAllAction_;
   QAction* copyAction_;
   QAction* cutAction_;
   QAction* pasteAction_;

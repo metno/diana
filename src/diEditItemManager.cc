@@ -97,6 +97,7 @@ EditItemManager::EditItemManager()
   connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
   connect(&undoStack_, SIGNAL(indexChanged(int)), this, SLOT(repaint()));
 
+  selectAllAction_ = new QAction(tr("Select All"), this);
   copyAction_ = new QAction(tr("Copy"), this);
   copyAction_->setShortcut(QKeySequence::Copy);
   cutAction_ = new QAction(tr("Cut"), this);
@@ -107,7 +108,7 @@ EditItemManager::EditItemManager()
   joinAction_->setShortcut(QString("J"));
   unjoinAction_ = new QAction(tr("Unjoin"), this);
   unjoinAction_->setShortcut(tr("Ctrl+J"));
-  toggleReversedAction_ = new QAction(tr("Toggle reversed"), this);
+  toggleReversedAction_ = new QAction(tr("Toggle Reversed"), this);
   toggleReversedAction_->setShortcut(QString("R"));
   editPropertiesAction_ = new QAction(tr("Edit P&roperties..."), this);
   editPropertiesAction_->setShortcut(tr("Ctrl+R"));
@@ -136,6 +137,7 @@ EditItemManager::EditItemManager()
   createCompositeAction_ = new QAction(tr("Composite"), this);
   createCompositeAction_->setCheckable(true);
 
+  connect(selectAllAction_, SIGNAL(triggered()), SLOT(selectAllItems()));
   connect(copyAction_, SIGNAL(triggered()), SLOT(copySelectedItems()));
   connect(cutAction_, SIGNAL(triggered()), SLOT(cutSelectedItems()));
   connect(pasteAction_, SIGNAL(triggered()), SLOT(pasteItems()));
@@ -817,6 +819,20 @@ void EditItemManager::selectItem(DrawingItemBase *item, bool exclusive, bool not
     emit selectionChanged();
 }
 
+void EditItemManager::selectAllItems()
+{
+  bool selected = false;
+
+  foreach (DrawingItemBase *item, allItems()) {
+    if (!item->selected()) {
+      item->setSelected(true);
+      selected = true;
+    }
+  }
+  if (selected)
+    emit selectionChanged();
+}
+
 void EditItemManager::deselectItem(DrawingItemBase *item, bool notify)
 {
   item->setSelected(false);
@@ -843,6 +859,7 @@ void EditItemManager::deselectAllItems(bool notify)
 QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
 {
   QHash<Action, QAction*> a;
+  a[SelectAll] = selectAllAction_;
   a[Cut] = cutAction_;
   a[Copy] = copyAction_;
   a[Paste] = pasteAction_;
@@ -891,6 +908,7 @@ void EditItemManager::setStyleType()
 void EditItemManager::updateActions()
 {
   const QSet<DrawingItemBase *> selItems = selectedItems().toSet();
+  selectAllAction_->setEnabled(allItems().size() > 0);
   cutAction_->setEnabled(selItems.size() > 0);
   copyAction_->setEnabled(selItems.size() > 0);
   pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
@@ -1405,6 +1423,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
         selectedCategories.insert(item->category());
 
       QMenu contextMenu;
+      contextMenu.addAction(selectAllAction_);
+      contextMenu.addSeparator();
       contextMenu.addAction(copyAction_);
       contextMenu.addAction(cutAction_);
       contextMenu.addAction(pasteAction_);
