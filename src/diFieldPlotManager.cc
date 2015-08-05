@@ -408,6 +408,25 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
   return getFieldTime(request, updateSources);
 }
 
+miTime FieldPlotManager::getFieldReferenceTime(const string& pinfo)
+{
+  METLIBS_LOG_SCOPE();
+
+  std::string fspec1,fspec2;
+
+  // if difference, use first field
+  if (!splitDifferenceCommandString(pinfo,fspec1,fspec2))
+    fspec1 = pinfo;
+
+  std::string plotName;
+  FieldRequest request;
+  vector<std::string> paramNames;
+  parseString(pinfo, request, paramNames, plotName);
+
+  std::string timestr = fieldManager->getBestReferenceTime(request.modelName, request.refoffset, request.refhour);
+  return miTime(timestr);
+}
+
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     int& timediff, const std::string& pinfo, bool updateSources)
 {
@@ -880,7 +899,7 @@ gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
   return fieldManager->getGrid(model);
 }
 
-void FieldPlotManager::parseString( std::string& pin,
+void FieldPlotManager::parseString( const std::string& pin,
     FieldRequest& fieldrequest,
     vector<std::string>& paramNames,
     std::string& plotName )

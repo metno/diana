@@ -264,6 +264,8 @@ public:
   void getPlotTime(std::string&);
   /// return current plottime
   void getPlotTime(miutil::miTime&);
+  /// return referencetime of first FieldPlot
+  miutil::miTime getFieldReferenceTime();
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times,
       bool updateSources = false);

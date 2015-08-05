@@ -97,6 +97,8 @@ public:
   std::vector<miutil::miTime> getFieldTime(const std::vector<std::string>& pinfos,
       bool updateSources=false);
 
+  miutil::miTime getFieldReferenceTime(const std::string& pinfo);
+
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
       int& timediff, const std::string& pinfo,
@@ -122,7 +124,7 @@ private:
 
   bool splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2);
 
-  void parseString(std::string& pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
+  void parseString(const std::string& pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
 
   void flightlevel2pressure(FieldRequest& frq);
 
