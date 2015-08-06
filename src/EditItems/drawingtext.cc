@@ -191,6 +191,8 @@ QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
 
 void Text::fromKML(const QHash<QString, QString> &extraExtData)
 {
+  // Remove any previously defined default properties.
+  properties_.clear();
   setText(extraExtData.value("met:text", "").split("\n"));
 }
 
