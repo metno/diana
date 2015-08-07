@@ -33,10 +33,10 @@
 #include <EditItems/kml.h>
 
 DrawingItemBase::DrawingItemBase(int id__)
-    : id_((id__ >= 0) ? id__ : nextId())
+    : visible_(false)
+    , id_((id__ >= 0) ? id__ : nextId())
     , selected_(false)
     , joinCount_(0)
-    , visible_(false)
 {
 }
 
