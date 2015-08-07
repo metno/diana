@@ -960,7 +960,7 @@ void QtPlot::plotXLabels(QPainter& painter)
           if (tickX >= nextLabelX) {
             float v_distance = distance;
             if (referenceDistance > 0)
-              v_distance = abs(distance - referenceDistance);
+              v_distance = std::abs(distance - referenceDistance);
             std::ostringstream xostr;
             xostr << std::setprecision(precision) << std::setiosflags(std::ios::fixed)
                   << std::abs(v_distance / unit) << uname;

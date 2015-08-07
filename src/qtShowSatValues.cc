@@ -111,7 +111,6 @@ void ShowSatValues::SetChannels(const std::vector<std::string>& channel)
     channelChanged(channelbox->currentIndex());
   else
     channelbox->setToolTip( QString());
-
 }
 
 void ShowSatValues::ShowValues(const std::vector<SatValues> &satval)
@@ -119,29 +118,23 @@ void ShowSatValues::ShowValues(const std::vector<SatValues> &satval)
   if (not channelbox->count())
     return;
 
-  std::ostringstream svalue;
-  int n = satval.size();
+  const int n = satval.size();
   int i=0;
-//   cerr <<"ShowValues:"<<n<<endl;
-//   cerr <<"channelbox->currentItem():"<<channelbox->currentItem()<<endl;
-  while(i<n && satval[i].channel != tooltip[channelbox->currentIndex()]) i++;
+  while(i<n && satval[i].channel != tooltip[channelbox->currentIndex()])
+    i++;
 
-  //no value
-  if(i==n){
-     chlabel->setText("");
-     return;
+  std::ostringstream svalue;
+  if (i < n){
+    if (satval[i].value < -999)
+      svalue << satval[i].text;
+    else if (miutil::contains(satval[i].channel, "Infrared")
+        || miutil::contains(satval[i].channel, "IR_CAL")
+        || miutil::contains(satval[i].channel, "TEMP"))
+      svalue << std::setprecision(1) << std::setiosflags(std::ios::fixed)
+             << satval[i].value <<"\260C"; // latin1 degree sign
+    else
+      svalue << std::setprecision(2) << std::setiosflags(std::ios::fixed)
+             << satval[i].value;
   }
-
-   if (miutil::contains(satval[i].channel, "Infrared")
-       || miutil::contains(satval[i].channel, "IR_CAL")
-       || miutil::contains(satval[i].channel, "TEMP"))
-     svalue << std::setprecision(1) << std::setiosflags(std::ios::fixed)<< satval[i].value <<"°C";
-   else
-     svalue << std::setprecision(2) << std::setiosflags(std::ios::fixed)<< satval[i].value;
-   //check values
-//    cerr <<"satval[i].value:"<<satval[i].value<<endl;
-   if (satval[i].value < -999)
-     chlabel->setText(satval[i].text.c_str());
-   else
-     chlabel->setText(svalue.str().c_str());
+  chlabel->setText(QString::fromStdString(svalue.str()));
 }

@@ -1404,6 +1404,16 @@ void PlotModule::getPlotTime(miTime& t)
   t = staticPlot_->getTime();
 }
 
+miutil::miTime PlotModule::getFieldReferenceTime()
+{
+  if (vfp.size() ){
+    std::string pinfo = vfp[0]->getPlotInfo();
+    return fieldplotm->getFieldReferenceTime(pinfo);
+  } else {
+    return miutil::miTime();
+  }
+}
+
 void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
     bool updateSources)
 {

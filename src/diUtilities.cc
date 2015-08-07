@@ -70,6 +70,22 @@ bool endswith(const std::string& txt, const std::string& end)
       ((int)txt.size()) - ((int)end.size()));
 }
 
+void appendText(std::string& text, const std::string& append, const std::string& separator)
+{
+  if (append.empty())
+    return;
+  if (!text.empty())
+    text += separator;
+  text += append;
+}
+
+std::string appendedText(const std::string& text, const std::string& append, const std::string& separator)
+{
+  std::string t(text);
+  appendText(t, append, separator);
+  return t;
+}
+
 void replace_chars(std::string& txt, const char* replace_these, const char replace_with)
 {
   size_t pos = 0;
