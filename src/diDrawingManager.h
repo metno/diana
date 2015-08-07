@@ -142,8 +142,6 @@ signals:
   void updated();
 
 protected:
-  virtual void addItem_(DrawingItemBase *, EditItems::ItemGroup *group);
-  virtual void removeItem_(DrawingItemBase *, EditItems::ItemGroup *group);
   void applyPlotOptions(DiGLPainter *gl, const DrawingItemBase *) const;
 
   static Rectangle editRect_;

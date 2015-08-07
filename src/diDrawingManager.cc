@@ -353,11 +353,6 @@ DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, Q
   return item;
 }
 
-void DrawingManager::addItem_(DrawingItemBase *item, EditItems::ItemGroup *group)
-{
-  group->addItem(item);
-}
-
 QString DrawingManager::loadDrawing(const QString &name, const QString &fileName)
 {
   QString error;
@@ -379,11 +374,6 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
   emit drawingLoaded(name);
 
   return error;
-}
-
-void DrawingManager::removeItem_(DrawingItemBase *item, EditItems::ItemGroup *group)
-{
-  group->removeItem(item);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase *item) const

@@ -83,7 +83,7 @@ public:
   QList<DrawingItemBase *> selectedItems() const;
 
   virtual DrawingItemBase *createItem(const QString &type);
-  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
+  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString &error);
   virtual QString loadDrawing(const QString &name, const QString &fileName);
 
   QUndoStack *undoStack();
@@ -165,10 +165,6 @@ signals:
   void unsetWorkAreaCursor();
   void editing(bool);
   void loadFile(const QString &) const;
-
-protected:
-  virtual void addItem_(DrawingItemBase *, bool = true, bool = false);
-  virtual void removeItem_(DrawingItemBase *, bool = true);
 
 private:
   DrawingItemBase *hitItem_; // current hit item

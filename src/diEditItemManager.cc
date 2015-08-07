@@ -278,7 +278,9 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipR
   } else {
     if (!item->getLatLonPoints().isEmpty())
       setFromLatLonPoints(item, item->getLatLonPoints()); // obtain screen coords from geo coords
-    addItem_(item, false, true);
+
+    itemGroups_.value("scratch")->addItem(item);
+    emit itemAdded(item);
   }
 
   if (!skipRepaint)
@@ -300,7 +302,7 @@ DrawingItemBase *EditItemManager::createItem(const QString &type)
   return Drawing(item);
 }
 
-DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString &error)
 {
   Q_ASSERT(!vmap.empty());
   Q_ASSERT(vmap.contains("type"));
@@ -321,16 +323,6 @@ DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, 
   return Drawing(item);
 }
 
-void EditItemManager::addItem_(DrawingItemBase *item, bool updateNeeded, bool ignoreSelection)
-{
-  DrawingManager::addItem_(item, itemGroups_.value("scratch"));
-  if (!ignoreSelection)
-    selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
-  emit itemAdded(item);
-  if (updateNeeded)
-    update();
-}
-
 void EditItemManager::editItem(DrawingItemBase *item)
 {
   incompleteItem_ = item;
@@ -342,13 +334,8 @@ void EditItemManager::removeItem(DrawingItemBase *item)
   // Convert screen coords to geo coords in preparation for being stored in
   // an undo command.
   item->setLatLonPoints(getLatLonPoints(item));
-  removeItem_(item);
-}
 
-void EditItemManager::removeItem_(DrawingItemBase *item, bool updateNeeded)
-{
-  EditItems::ItemGroup *group = itemGroups_.value("scratch");
-  DrawingManager::removeItem_(item, group);
+  itemGroups_.value("scratch")->removeItem(item);
   hitItems_.removeOne(item);
   deselectItem(item);
 
@@ -356,8 +343,7 @@ void EditItemManager::removeItem_(DrawingItemBase *item, bool updateNeeded)
 
   updateJoins();
   emit itemRemoved(item->id());
-  if (updateNeeded)
-    update();
+  update();
 }
 
 void EditItemManager::updateItem(DrawingItemBase *item, const QVariantMap &props)
@@ -1180,7 +1166,7 @@ void EditItemManager::pasteItems()
 
     foreach (QVariant cbItem, cbItems) {
       QString error;
-      DrawingItemBase *item = createItemFromVarMap(cbItem.toMap(), &error);
+      DrawingItemBase *item = createItemFromVarMap(cbItem.toMap(), error);
       if (item) {
         item->setSelected();
         item->propertiesRef().insert("joinId", 0);
