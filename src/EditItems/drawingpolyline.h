@@ -42,7 +42,6 @@ class PolyLine : public DrawingItemBase
 public:
   PolyLine(int = -1);
   virtual ~PolyLine();
-  virtual QDomNode toKML() const;
 
   virtual bool hit(const QPointF &, bool) const;
   virtual bool hit(const QRectF &) const;
