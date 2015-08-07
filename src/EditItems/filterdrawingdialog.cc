@@ -55,6 +55,7 @@ FilterDrawingWidget::FilterDrawingWidget(QWidget *parent)
   connect(editm_, SIGNAL(itemChanged(const QVariantMap &)), SLOT(updateChoices()));
   connect(editm_, SIGNAL(itemRemoved(int)), SLOT(updateChoices()));
   connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateChoices()));
+  connect(editm_, SIGNAL(editing(bool)), SLOT(updateChoices()));
 
   propertyList_ = new QTreeView();
   propertyModel_ = new FilterDrawingModel(tr("Properties"), this);
@@ -87,8 +88,16 @@ FilterDrawingWidget::~FilterDrawingWidget()
 void FilterDrawingWidget::updateChoices()
 {
   Properties::PropertiesEditor *ed = Properties::PropertiesEditor::instance();
-  QSet<QString> show = QSet<QString>::fromList(ed->propertyRules("show"));
-  QSet<QString> hide = QSet<QString>::fromList(ed->propertyRules("hide"));
+  QSet<QString> show;
+  QSet<QString> hide;
+
+  if (editm_->isEditing()) {
+    show = QSet<QString>::fromList(ed->propertyRules("show-editing"));
+    hide = QSet<QString>::fromList(ed->propertyRules("hide-editing"));
+  } else {
+    show = QSet<QString>::fromList(ed->propertyRules("show-drawing"));
+    hide = QSet<QString>::fromList(ed->propertyRules("hide-drawing"));
+  }
 
   QHash<QString, QSet<QString> > choices;
 
@@ -126,6 +135,10 @@ void FilterDrawingWidget::updateChoices()
   }
 
   propertyModel_->setProperties(prepared);
+
+  // The available properties may have changed, causing the filters to be
+  // invalid, so ensure that they are updated.
+  filterItems();
 }
 
 /**

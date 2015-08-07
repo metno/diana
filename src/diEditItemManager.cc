@@ -189,13 +189,21 @@ bool EditItemManager::parseSetup()
     }
 
     // Check for different types of definition.
-    if (items.contains("hide-property-sections")) {
-      QStringList values = items.value("hide-property-sections").split(",");
-      Properties::PropertiesEditor::instance()->setPropertyRules("hide", values);
+    if (items.contains("hide-property-sections-drawing")) {
+      QStringList values = items.value("hide-property-sections-drawing").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("hide-drawing", values);
     }
-    if (items.contains("show-property-sections")) {
-      QStringList values = items.value("show-property-sections").split(",");
-      Properties::PropertiesEditor::instance()->setPropertyRules("show", values);
+    if (items.contains("hide-property-sections-editing")) {
+      QStringList values = items.value("hide-property-sections-editing").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("hide-editing", values);
+    }
+    if (items.contains("show-property-sections-drawing")) {
+      QStringList values = items.value("show-property-sections-drawing").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("show-drawing", values);
+    }
+    if (items.contains("show-property-sections-editing")) {
+      QStringList values = items.value("show-property-sections-editing").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("show-editing", values);
     }
   }
 
