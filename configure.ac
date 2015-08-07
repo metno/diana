@@ -141,7 +141,7 @@ METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
     METNO_REQUIRE_C_LIBRARY([ZLIB], [z], [zlib.h], [zlibVersion])
-    METNO_REQUIRE_AVFORMAT
+    METNO_REQUIRE_PKG([AVFORMAT], [libavformat], [], [])
 ])
 
 METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
