@@ -35,7 +35,7 @@
 #
 AC_DEFUN([METNO_WITH_AVFORMAT], [
     # --with-avformat magic
-    METNO_WITH_LIBRARY([avformat], [avformat], [avformat library], [$1])
+    METNO_WITH_LIBRARY([AVFORMAT], [avformat], [avformat library], [$1])
 
     # is libavformat required, or did the user request it?
     AS_IF([test x"${with_avformat}" != x"no" -o x"${require_avformat}" = x"yes"], [
