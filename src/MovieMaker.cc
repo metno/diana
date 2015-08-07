@@ -190,7 +190,12 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
     return false;
 
   AVCodecContext *video = output->videoStream->codec;
+  // not sure which version replaced CodecID -> AVCodecID
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54, 0, 0)
+  video->codec_id = (AVCodecID) output->outputCtx->oformat->video_codec;
+#else
   video->codec_id = (CodecID) output->outputCtx->oformat->video_codec;
+#endif
   video->codec_type = AVMEDIA_TYPE_VIDEO;
   video->bit_rate = VIDEO_BITRATE;
   //video->sample_aspect_ratio.den = 16;
