@@ -54,11 +54,11 @@ public:
   ~AreaBorder();
 
   /// returns linewidth
-  float getLineWidth() const
+  float getLineWidth() // superclass does not have const
     { return linewidth; }
 
   /// returns transitionswidth (the width of the overlap)
-  float getTransitionWidth() const
+  float getTransitionWidth() // superclass does not have const
     { return transitionwidth; }
 
   /// sets transitionswidth (the width of the overlap)
