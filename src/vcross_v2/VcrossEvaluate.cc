@@ -54,7 +54,6 @@ model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_cr
     Inventory_cp inv = src->getInventory(mr.reftime);
     if (not inv)
       continue;
-    size_t index;
     Crossection_cp cs = inv->findCrossectionPoint(user_crossection);
     if (not cs)
       continue;

@@ -56,7 +56,7 @@ void WebMapDimension::clearValues()
 
 const std::string& WebMapDimension::defaultValue() const
 {
-  if (mDefaultIndex >= 0 && mDefaultIndex < mValues.size())
+  if (/*mDefaultIndex >= 0 &&*/ mDefaultIndex < mValues.size())
     return mValues[mDefaultIndex];
   static const std::string DEFAULT("default");
   return DEFAULT;

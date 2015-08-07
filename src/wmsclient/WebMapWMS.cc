@@ -566,12 +566,14 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
 
     const std::string lName = miutil::to_lower(sName);
     const bool isTime = (lName == "time");
+#ifdef WMS_DO_NOT_IGNORE_ELEVATION
     const bool isElevation = (lName == "elevation");
+#endif
     if (isTime && sUnits != "ISO8601") {
       METLIBS_LOG_DEBUG("time dimension with bad unit '" << sUnits << "'");
       return false;
     }
-#if 0
+#ifdef WMS_DO_NOT_IGNORE_ELEVATION
     if (isElevation && !diutil::startswith(sUnits, "EPSG:")) {
       METLIBS_LOG_DEBUG("elevation dimension with bad unit '" << sUnits << "'");
       return false;
