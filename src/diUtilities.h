@@ -38,6 +38,9 @@ inline string_v glob(const std::string& pattern, int glob_flags=0)
 bool startswith(const std::string& txt, const std::string& start);
 bool endswith(const std::string& txt, const std::string& end);
 
+void appendText(std::string& text, const std::string& append, const std::string& separator=" ");
+std::string appendedText(const std::string& text, const std::string& append, const std::string& separator=" ");
+
 void replace_chars(std::string& txt, const char* replace, const char with);
 inline std::string replaced_chars(const std::string& txt, const char* replace, const char with)
 { std::string t(txt); replace_chars(t, replace, with); return t; }

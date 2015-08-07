@@ -33,6 +33,7 @@
 
 #include "diFieldPlotManager.h"
 #include "diPlotOptions.h"
+#include "diUtilities.h"
 
 #include <diField/diFieldFunctions.h>
 
@@ -47,23 +48,6 @@
 
 using namespace std;
 using namespace miutil;
-
-namespace {
-void appendText(std::string& text, const std::string& append, const std::string& separator=" ")
-{
-  if (append.empty())
-    return;
-  if (!text.empty())
-    text += separator;
-  text += append;
-}
-std::string appendedText(const std::string& text, const std::string& append, const std::string& separator=" ")
-{
-  std::string t(text);
-  appendText(t, append, separator);
-  return t;
-}
-} // namespace
 
 FieldPlotManager::FieldPlotManager(FieldManager* fm) :
       fieldManager(fm)
@@ -568,7 +552,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
       fieldtext += " " + fout->leveltext;
     }
   }
-  appendText(fieldtext, fout->idnumtext);
+  diutil::appendText(fieldtext, fout->idnumtext);
 
   if( !fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
     fout->forecastHour = miutil::miTime::hourDiff(fout->validFieldTime, fout->analysisTime);
@@ -690,12 +674,12 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     f1->modelName = "( " + text1[0] + " - " + text2[0] + " )";
   if (diff[1] && (diff[2] || diff[3])) {
     f1->name = "( " + text1[1];
-    appendText(f1->name, text1[2]);
-    appendText(f1->name, text1[3]);
+    diutil::appendText(f1->name, text1[2]);
+    diutil::appendText(f1->name, text1[3]);
 
     f1->name += " - " + text2[1];
-    appendText(f1->name, text2[2]);
-    appendText(f1->name, text2[3]);
+    diutil::appendText(f1->name, text2[2]);
+    diutil::appendText(f1->name, text2[3]);
 
     f1->name += " )";
     f1->leveltext.clear();
@@ -717,15 +701,15 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
     f1->timetext = "( " + text1[5] + " - " + text2[5] + " )";
   if (ndiff == 1) {
     f1->fieldText = f1->modelName + " " + f1->name;
-    appendText(f1->fieldText, f1->leveltext);
+    diutil::appendText(f1->fieldText, f1->leveltext);
     f1->text = f1->fieldText + " " + f1->progtext;
     f1->fulltext = f1->text + " " + f1->timetext;
   } else {
     if (nbgn == 1 && nend <= 3) {
-      appendText(text1[1], text1[2]);
-      appendText(text1[1], text1[3]);
-      appendText(text2[1], text2[2]);
-      appendText(text2[1], text2[3]);
+      diutil::appendText(text1[1], text1[2]);
+      diutil::appendText(text1[1], text1[3]);
+      diutil::appendText(text2[1], text2[2]);
+      diutil::appendText(text2[1], text2[3]);
 
       text1[2].clear();
       text1[3].clear();
@@ -745,19 +729,19 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
         for (int n = 1; n < nbgn; n++)
           ftext[t] += " " + text1[n];
       }
-      appendText(ftext[t], "(");
+      diutil::appendText(ftext[t], "(");
       for (int n = nbgn; n <= nend; n++)
-        appendText(ftext[t], text1[n]);
+        diutil::appendText(ftext[t], text1[n]);
 
       ftext[t] += " -";
 
       for (int n = nbgn; n <= nend; n++)
-        appendText(ftext[t], text2[n]);
+        diutil::appendText(ftext[t], text2[n]);
 
       ftext[t] += " )";
 
       for (int n = nend + 1; n <= nmax[t]; n++)
-        appendText(ftext[t], text1[n]);
+        diutil::appendText(ftext[t], text1[n]);
     }
     f1->fulltext = ftext[0];
     f1->text = ftext[1];
