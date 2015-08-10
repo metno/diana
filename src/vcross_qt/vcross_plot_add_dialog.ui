@@ -25,53 +25,8 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="modelPage">
-      <layout class="QVBoxLayout" name="layoutModels" stretch="0,0,1">
-       <property name="spacing">
-        <number>2</number>
-       </property>
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="modelLabel">
-         <property name="text">
-          <string>Choose a &amp;model:</string>
-         </property>
-         <property name="buddy">
-          <cstring>modelFilter</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="modelFilter">
-         <property name="placeholderText">
-          <string>type to filter models</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListView" name="modelList">
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="VcrossReftimePage" name="reftimePage">
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="">
-       <property name="spacing">
-        <number>2</number>
-       </property>
-       <property name="margin">
-        <number>0</number>
-       </property>
-      </layout>
-     </widget>
+     <widget class="VcrossModelPage" name="modelPage" />
+     <widget class="VcrossReftimePage" name="reftimePage" />
      <widget class="QWidget" name="plotPage">
       <layout class="QVBoxLayout" name="layoutFields" stretch="0,0,0,0,1">
        <property name="spacing">
@@ -193,6 +148,12 @@
    <class>VcrossReftimePage</class>
    <extends>QWidget</extends>
    <header>vcross_qt/qtVcrossReftimePage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VcrossModelPage</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossModelPage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

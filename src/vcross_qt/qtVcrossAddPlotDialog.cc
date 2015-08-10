@@ -34,6 +34,7 @@
 #endif
 
 #include "vcross_qt/qtVcrossAddPlotDialog.h"
+#include "vcross_qt/qtVcrossModelPage.h"
 #include "vcross_qt/qtVcrossReftimePage.h"
 
 #include "diUtilities.h"
@@ -74,12 +75,7 @@ void VcrossAddPlotDialog::setupUi()
   ui->buttonBack->setIcon(QPixmap(bakover_xpm));
   ui->buttonNext->setIcon(QPixmap(forward_xpm));
 
-  modelNames = new QStringListModel(this);
-  modelSorter = new QSortFilterProxyModel(this);
-  modelSorter->setFilterCaseSensitivity(Qt::CaseInsensitive);
-  modelSorter->setSourceModel(modelNames);
-  ui->modelList->setModel(modelSorter);
-
+  ui->modelPage->setManager(vcrossm);
   ui->reftimePage->setManager(vcrossm);
 
   plotNames = new QStringListModel(this);
@@ -88,11 +84,9 @@ void VcrossAddPlotDialog::setupUi()
   plotSorter->setSourceModel(plotNames);
   ui->plotList->setModel(plotSorter);
 
-  connect(ui->modelFilter, SIGNAL(textChanged(const QString&)),
-      this, SLOT(onModelFilter(const QString&)));
-  connect(ui->modelList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection&)),
+  connect(ui->modelPage, SIGNAL(completeStatusChanged(bool)),
       this, SLOT(checkModelComplete()));
-  connect(ui->modelList, SIGNAL(activated(const QModelIndex&)),
+  connect(ui->modelPage, SIGNAL(requestNext()),
       this, SLOT(onNext()));
 
   connect(ui->reftimePage, SIGNAL(completeStatusChanged(bool)),
@@ -166,31 +160,16 @@ void VcrossAddPlotDialog::onAdd()
 void VcrossAddPlotDialog::initializeModelPage(bool forward)
 {
   ui->stack->setCurrentIndex(ModelPage);
-
-  if (forward) {
-    ui->modelFilter->clear();
-
-    const std::vector<std::string> models = vcrossm->getAllModels();
-    QStringList msl;
-    for (size_t i=0; i<models.size(); ++i)
-      msl << QString::fromStdString(models[i]);
-
-    modelNames->setStringList(msl);
-  }
+  ui->modelPage->initialize(forward);
   ui->buttonRestart->setEnabled(false);
   ui->buttonBack->setEnabled(false);
-  ui->buttonNext->setEnabled(isModelComplete());
+  checkModelComplete();
   ui->buttonAdd->setEnabled(false);
-}
-
-void VcrossAddPlotDialog::onModelFilter(const QString& text)
-{
-  modelSorter->setFilterFixedString(text);
 }
 
 bool VcrossAddPlotDialog::isModelComplete() const
 {
-  return (not ui->modelList->selectionModel()->selectedIndexes().isEmpty());
+  return ui->modelPage->isComplete();
 }
 
 void VcrossAddPlotDialog::checkModelComplete()
@@ -201,11 +180,7 @@ void VcrossAddPlotDialog::checkModelComplete()
 
 QString VcrossAddPlotDialog::selectedModel() const
 {
-  const QModelIndexList si = ui->modelList->selectionModel()->selectedIndexes();
-  if (si.size() == 1)
-    return modelNames->stringList().at(modelSorter->mapToSource(si.at(0)).row());
-  else
-    return QString();
+  return ui->modelPage->selected();
 }
 
 void VcrossAddPlotDialog::initializeReftimePage(bool forward)
