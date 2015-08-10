@@ -64,6 +64,7 @@ VcrossAddPlotDialog::VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p m)
   METLIBS_LOG_SCOPE();
 
   setupUi();
+  restart();
 }
 
 void VcrossAddPlotDialog::setupUi()

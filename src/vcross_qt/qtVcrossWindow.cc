@@ -280,7 +280,6 @@ void VcrossWindow::onRequestStyleEditor(int position)
 void VcrossWindow::onAddField()
 {
   METLIBS_LOG_SCOPE();
-  vcAddPlotDialog->restart();
   vcAddPlotDialog->show();
 }
 
