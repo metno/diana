@@ -151,6 +151,7 @@ protected:
   QMap<QString, QString> loaded_;
 
   QMap<QString, EditItems::ItemGroup *> itemGroups_;
+  QMap<QString, QDateTime> lastUpdated_;
   QHash<QString, QStringList> filter_;
   bool allItemsVisible_;
 

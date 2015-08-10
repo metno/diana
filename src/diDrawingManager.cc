@@ -342,6 +342,11 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
 {
   QString error;
 
+  bool exists = itemGroups_.contains(name);
+  QDateTime lastModified = QFileInfo(fileName).lastModified();
+  if (exists && lastModified <= lastUpdated_.value(name))
+    return error;
+
   QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to open file: " << fileName.toStdString());
@@ -355,10 +360,13 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
 
   // If an group exists with the same name, delete it before inserting the
   // new group into the map.
-  if (itemGroups_.contains(name))
+  if (exists)
     delete itemGroups_.value(name);
 
+  // Update the item groups map, but also keep a record of when files were
+  // last updated.
   itemGroups_[name] = itemGroup;
+  lastUpdated_[name] = lastModified;
 
   // Record the file name.
   drawings_[name] = fileName;
