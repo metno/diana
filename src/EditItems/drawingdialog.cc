@@ -109,9 +109,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // Save and edit buttons
 
-  quickLoadButton_ = new QPushButton(tr("Reload"));
-  connect(quickLoadButton_, SIGNAL(clicked()), SLOT(reload()));
-
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
@@ -133,7 +130,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
 
   QHBoxLayout *buttonLayout = new QHBoxLayout();
-  buttonLayout->addWidget(quickLoadButton_);
   buttonLayout->addWidget(quickSaveButton_);
   buttonLayout->addWidget(saveAsButton);
   buttonLayout->addWidget(editButton_);
@@ -175,13 +171,17 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
   QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
+  QPushButton *quickLoadButton = new QPushButton(tr("Reload"));
 
   connect(hideButton, SIGNAL(clicked()), SLOT(close()));
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
   connect(applyButton, SIGNAL(clicked()), SLOT(updateQuickSaveButton()));
+  connect(quickLoadButton, SIGNAL(clicked()), SLOT(reload()));
 
   QHBoxLayout *hideApplyLayout = new QHBoxLayout();
   hideApplyLayout->addWidget(hideButton);
+  hideApplyLayout->addStretch();
+  hideApplyLayout->addWidget(quickLoadButton);
   hideApplyLayout->addStretch();
   hideApplyLayout->addWidget(applyButton);
 

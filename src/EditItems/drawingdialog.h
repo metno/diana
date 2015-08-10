@@ -138,7 +138,6 @@ private:
   QTreeView *drawingsList_;
   QPushButton *editButton_;
   QPushButton *filterButton_;
-  QPushButton *quickLoadButton_;
   QPushButton *quickSaveButton_;
   QString quickSaveName_;
 };
