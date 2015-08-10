@@ -49,6 +49,7 @@ class Controller;
 struct LocationData;
 class ToggleButton;
 class VcrossAddPlotDialog;
+class VcrossReplaceModelDialog;
 class VcrossStyleDialog;
 class VcrossSetupDialog;
 class Ui_VcrossWindow;
@@ -143,6 +144,7 @@ private Q_SLOTS:
   void onAddField();
   void onShowStyleDialog();
   void onRemoveAllFields();
+  void onReplaceModel();
   void leftCrossectionClicked();
   void rightCrossectionClicked();
   void crossectionBoxActivated(int index);
@@ -170,6 +172,7 @@ private:
   vcross::QtManager_p vcrossm;
 
   VcrossAddPlotDialog* vcAddPlotDialog;
+  VcrossReplaceModelDialog* vcReplaceModelDialog;
   VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
   bool dynEditManagerConnected;

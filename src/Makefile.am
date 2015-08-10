@@ -223,9 +223,13 @@ diana_bin_QTSOURCES += \
 	vcross_qt/qtVcrossInterface.cc \
 	vcross_qt/qtVcrossLayerBar.cc \
 	vcross_qt/qtVcrossLayerButton.cc \
+	vcross_qt/qtVcrossLayerList.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
 	vcross_qt/qtVcrossAddPlotDialog.cc \
+	vcross_qt/qtVcrossModelPage.cc \
+	vcross_qt/qtVcrossReftimePage.cc \
+	vcross_qt/qtVcrossReplaceModelDialog.cc \
 	vcross_qt/qtVcrossStyleDialog.cc \
 	vcross_qt/qtVcrossStyleWidget.cc \
 	vcross_qt/VcrossQtWidget.cc \
@@ -233,6 +237,9 @@ diana_bin_QTSOURCES += \
 
 diana_bin_QTFORMS = \
 	vcross_qt/vcross_plot_add_dialog.ui \
+	vcross_qt/vcross_modelpage.ui \
+	vcross_qt/vcross_reftimepage.ui \
+	vcross_qt/vcross_replace_model_dialog.ui \
 	vcross_qt/vcross_style_dialog.ui \
 	vcross_qt/vcross_style_widget.ui \
 	vcross_qt/vcross_window.ui \
@@ -421,7 +428,17 @@ noinst_HEADERS += \
 	vcross_v2/VcrossQtPlot.h \
 	vcross_v2/VcrossQtUtil.h \
 	vcross_v2/VcrossQtAxis.h \
+	vcross_qt/qtVcrossInterface.h \
+	vcross_qt/qtVcrossLayerBar.h \
+	vcross_qt/qtVcrossLayerButton.h
+	src/vcross_qt/qtVcrossLayerList.h \
+	vcross_qt/qtVcrossModelPage.h \
+	vcross_qt/qtVcrossReftimePage.h \
+	src/vcross_qt/qtVcrossReplaceModelDialog.h \
+	vcross_qt/qtVcrossSetup.h \
 	vcross_qt/qtVcrossSetupDialog.h \
+	vcross_qt/qtVcrossStyleDialog.h \
+	vcross_qt/qtVcrossStyleWidget.h \
 	vcross_qt/VcrossQtWidget.h \
 	vcross_qt/qtVcrossWindow.h \
 	vcross_qt/qtVcrossSetup.h 

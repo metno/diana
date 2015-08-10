@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,63 +27,44 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef QTVCROSSADDPLOTDIALOG_H
-#define QTVCROSSADDPLOTDIALOG_H
+#ifndef QTVCROSSREFTIMEPAGE_H
+#define QTVCROSSREFTIMEPAGE_H
 
 #include "vcross_v2/VcrossQtManager.h"
 
-#include <QDialog>
+#include <QWidget>
+
 #include <memory>
 
 class QSortFilterProxyModel;
 class QStringListModel;
 
-class Ui_VcrossAddPlotDialog;
+class Ui_VcrossReftimePage;
 
-class VcrossAddPlotDialog : public QDialog {
+class VcrossReftimePage : public QWidget {
   Q_OBJECT
 
 public:
-  VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p vsm);
+  VcrossReftimePage(QWidget* parent=0);
+  void setManager(vcross::QtManager_p vm);
 
-public Q_SLOTS:
-  void restart();
+public:
+  void initialize(const QString& model, bool forward);
+  bool isComplete() const;
+  QString selected() const;
 
-private:
-  void setupUi();
-
-  QString selectedModel() const;
-  QString selectedReferenceTime() const;
-  QStringList selectedPlots() const;
-
-  void initializeModelPage(bool forward);
-  bool isModelComplete() const;
-
-  void initializeReftimePage(bool forward);
-  bool isReftimeComplete() const;
-
-  void initializePlotPage(bool forward);
-  bool isPlotComplete() const;
+Q_SIGNALS:
+  void completeStatusChanged(bool complete);
+  void requestNext();
 
 private Q_SLOTS:
-  void onBack();
-  void onNext();
-  void onAdd();
-
-  void checkModelComplete();
-  void checkReftimeComplete();
-  void checkPlotComplete();
-
-  void onPlotFilter(const QString& text);
+  void checkComplete();
+  void listActivated();
 
 private:
-  enum { ModelPage, ReftimePage, PlotPage };
-
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossAddPlotDialog> ui;
-
-  QStringListModel* plotNames;
-  QSortFilterProxyModel* plotSorter;
+  std::auto_ptr<Ui_VcrossReftimePage> ui;
+  QStringListModel* referenceTimes;
 };
 
-#endif // QTVCROSSADDPLOTDIALOG_H
+#endif // QTVCROSSREFTIMEPAGE_H

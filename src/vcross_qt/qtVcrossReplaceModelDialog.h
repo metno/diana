@@ -27,24 +27,21 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef QTVCROSSADDPLOTDIALOG_H
-#define QTVCROSSADDPLOTDIALOG_H
+#ifndef QTVCROSSREPLACEMODELDIALOG_H
+#define QTVCROSSREPLACEMODELDIALOG_H
 
 #include "vcross_v2/VcrossQtManager.h"
 
 #include <QDialog>
 #include <memory>
 
-class QSortFilterProxyModel;
-class QStringListModel;
+class Ui_VcrossReplaceModelDialog;
 
-class Ui_VcrossAddPlotDialog;
-
-class VcrossAddPlotDialog : public QDialog {
+class VcrossReplaceModelDialog : public QDialog {
   Q_OBJECT
 
 public:
-  VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p vsm);
+  VcrossReplaceModelDialog(QWidget* parent, vcross::QtManager_p vsm);
 
 public Q_SLOTS:
   void restart();
@@ -52,9 +49,12 @@ public Q_SLOTS:
 private:
   void setupUi();
 
+  QStringList selectedPlots() const;
   QString selectedModel() const;
   QString selectedReferenceTime() const;
-  QStringList selectedPlots() const;
+
+  void initializePlotsPage(bool forward);
+  bool isPlotsComplete() const;
 
   void initializeModelPage(bool forward);
   bool isModelComplete() const;
@@ -62,28 +62,20 @@ private:
   void initializeReftimePage(bool forward);
   bool isReftimeComplete() const;
 
-  void initializePlotPage(bool forward);
-  bool isPlotComplete() const;
-
 private Q_SLOTS:
   void onBack();
   void onNext();
-  void onAdd();
+  void onReplace();
 
+  void checkPlotsComplete();
   void checkModelComplete();
   void checkReftimeComplete();
-  void checkPlotComplete();
-
-  void onPlotFilter(const QString& text);
 
 private:
-  enum { ModelPage, ReftimePage, PlotPage };
+  enum { PlotsPage, ModelPage, ReftimePage };
 
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossAddPlotDialog> ui;
-
-  QStringListModel* plotNames;
-  QSortFilterProxyModel* plotSorter;
+  std::auto_ptr<Ui_VcrossReplaceModelDialog> ui;
 };
 
-#endif // QTVCROSSADDPLOTDIALOG_H
+#endif // QTVCROSSREPLACEMODELDIALOG_H

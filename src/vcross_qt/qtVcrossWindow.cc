@@ -33,8 +33,9 @@
 
 #include "qtVcrossWindow.h"
 
-#include "qtVcrossStyleDialog.h"
 #include "qtVcrossAddPlotDialog.h"
+#include "qtVcrossReplaceModelDialog.h"
+#include "qtVcrossStyleDialog.h"
 
 #include "diLocationData.h"
 #include "diLogFile.h"
@@ -84,6 +85,7 @@
 #include "info.xpm"
 #include "icon_settings.xpm"
 #include "kill.xpm"
+#include "loop.xpm"
 #include "palette.xpm"
 
 using namespace vcross;
@@ -182,6 +184,9 @@ VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
   vcAddPlotDialog = new VcrossAddPlotDialog(this, vcrossm);
   vcAddPlotDialog->setVisible(false);
 
+  vcReplaceModelDialog = new VcrossReplaceModelDialog(this, vcrossm);
+  vcReplaceModelDialog->setVisible(false);
+
   vcStyleDialog = new VcrossStyleDialog(this);
   vcStyleDialog->setManager(vcrossm);
   vcStyleDialog->setVisible(false);
@@ -247,6 +252,7 @@ void VcrossWindow::setupUi()
   ui->buttonSave->setIcon(QPixmap(filesave));
   ui->buttonSettings->setIcon(QPixmap(icon_settings));
 
+  ui->toolReplaceModel->setIcon(QPixmap(loop_xpm));
   ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
 
   const QPixmap back(bakover_xpm), forward(forward_xpm);
@@ -274,17 +280,21 @@ void VcrossWindow::onRequestStyleEditor(int position)
 void VcrossWindow::onAddField()
 {
   METLIBS_LOG_SCOPE();
-  vcAddPlotDialog->restart();
   vcAddPlotDialog->show();
 }
 
+void VcrossWindow::onReplaceModel()
+{
+  METLIBS_LOG_SCOPE();
+  vcReplaceModelDialog->restart();
+  vcReplaceModelDialog->show();
+}
 
 void VcrossWindow::onRemoveAllFields()
 {
   METLIBS_LOG_SCOPE();
   vcrossm->removeAllFields();
 }
-
 
 void VcrossWindow::onShowStyleDialog()
 {

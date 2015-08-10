@@ -311,6 +311,22 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="toolReplaceModel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Replace model/reference time …</string>
+       </property>
+       <property name="text">
+        <string notr="true">Rpl</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="toolShowStyle">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -648,10 +664,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>toolReplaceModel</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>onReplaceModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onAddField()</slot>
   <slot>onRemoveAllFields()</slot>
+  <slot>onReplaceModel()</slot>
   <slot>leftCrossectionClicked()</slot>
   <slot>rightCrossectionClicked()</slot>
   <slot>crossectionBoxActivated(int)</slot>
