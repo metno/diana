@@ -86,8 +86,6 @@ private:
   QStringListModel* modelNames;
   QSortFilterProxyModel* modelSorter;
 
-  QStringListModel* referenceTimes;
-
   QStringListModel* plotNames;
   QSortFilterProxyModel* plotSorter;
 };

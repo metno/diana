@@ -34,10 +34,10 @@
 #endif
 
 #include "vcross_qt/qtVcrossAddPlotDialog.h"
+#include "vcross_qt/qtVcrossReftimePage.h"
 
 #include "diUtilities.h"
 #include "qtUtility.h"
-#include "vcross_v2/VcrossQtManager.h"
 
 #include <diField/diMetConstants.h>
 #include <puTools/miStringFunctions.h>
@@ -80,8 +80,7 @@ void VcrossAddPlotDialog::setupUi()
   modelSorter->setSourceModel(modelNames);
   ui->modelList->setModel(modelSorter);
 
-  referenceTimes = new QStringListModel(this);
-  ui->reftimeList->setModel(referenceTimes);
+  ui->reftimePage->setManager(vcrossm);
 
   plotNames = new QStringListModel(this);
   plotSorter = new QSortFilterProxyModel(this);
@@ -96,9 +95,9 @@ void VcrossAddPlotDialog::setupUi()
   connect(ui->modelList, SIGNAL(activated(const QModelIndex&)),
       this, SLOT(onNext()));
 
-  connect(ui->reftimeList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection&)),
+  connect(ui->reftimePage, SIGNAL(completeStatusChanged(bool)),
       this, SLOT(checkReftimeComplete()));
-  connect(ui->reftimeList, SIGNAL(activated(const QModelIndex&)),
+  connect(ui->reftimePage, SIGNAL(requestNext()),
       this, SLOT(onNext()));
 
   connect(ui->plotFilter, SIGNAL(textChanged(const QString&)),
@@ -212,32 +211,16 @@ QString VcrossAddPlotDialog::selectedModel() const
 void VcrossAddPlotDialog::initializeReftimePage(bool forward)
 {
   ui->stack->setCurrentIndex(ReftimePage);
-
-  const QString model = selectedModel();
-  ui->reftimeLabelModel->setText(tr("Chosen model: %1")
-      .arg(model));
-  if (forward) {
-    diutil::OverrideCursor waitCursor;
-    const vcross::QtManager::vctime_v reftimes = vcrossm->getModelReferenceTimes(selectedModel().toStdString());
-    QStringList rsl;
-    for (size_t i=0; i<reftimes.size(); ++i)
-      rsl << QString::fromStdString(reftimes[i].isoTime());
-
-    referenceTimes->setStringList(rsl);
-    if (referenceTimes->rowCount() > 0) {
-      const QModelIndex latest = referenceTimes->index(referenceTimes->rowCount()-1, 0);
-      ui->reftimeList->selectionModel()->setCurrentIndex(latest, QItemSelectionModel::ClearAndSelect);
-    }
-  }
+  ui->reftimePage->initialize(selectedModel(), forward);
   ui->buttonRestart->setEnabled(true);
   ui->buttonBack->setEnabled(true);
-  ui->buttonNext->setEnabled(isReftimeComplete());
+  checkReftimeComplete();
   ui->buttonAdd->setEnabled(false);
 }
 
 bool VcrossAddPlotDialog::isReftimeComplete() const
 {
-  return (not ui->reftimeList->selectionModel()->selectedIndexes().isEmpty());
+  return ui->reftimePage->isComplete();
 }
 
 void VcrossAddPlotDialog::checkReftimeComplete()
@@ -248,11 +231,7 @@ void VcrossAddPlotDialog::checkReftimeComplete()
 
 QString VcrossAddPlotDialog::selectedReferenceTime() const
 {
-  const QModelIndexList si = ui->reftimeList->selectionModel()->selectedIndexes();
-  if (si.size() == 1)
-    return referenceTimes->stringList().at(si.at(0).row());
-  else
-    return QString();
+  return ui->reftimePage->selected();
 }
 
 void VcrossAddPlotDialog::initializePlotPage(bool forward)
