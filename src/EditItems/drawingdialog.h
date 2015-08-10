@@ -122,7 +122,6 @@ private slots:
   void showDrawingContextMenu(const QPoint &pos);
   void updateButtons();
   void updateQuickSaveButton();
-  void updateReloadButton();
   virtual void updateTimes();
 
 private:

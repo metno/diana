@@ -110,16 +110,12 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   // Save and edit buttons
 
   quickLoadButton_ = new QPushButton(tr("Reload"));
-  quickLoadButton_->setEnabled(false);
   connect(quickLoadButton_, SIGNAL(clicked()), SLOT(reload()));
 
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
-  connect(drawm_, SIGNAL(drawingLoaded(QString)), SLOT(updateReloadButton()));
-  connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateReloadButton()));
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
   connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
-  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateReloadButton()));
   connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
 
   QToolButton *saveAsButton = new QToolButton();
@@ -440,8 +436,7 @@ void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const 
 
   editm_->pushUndoCommands();
 
-  // Disable the reload and quick save buttons because we are no longer working on a named product.
-  quickLoadButton_->setEnabled(false);
+  // Disable the quick save button because we are no longer working on a named product.
   quickSaveButton_->setEnabled(false);
 }
 
@@ -572,12 +567,6 @@ void DrawingDialog::updateQuickSaveButton()
     quickSaveButton_->setText(tr("Quick save"));
     quickSaveButton_->setEnabled(false);
   }
-}
-
-void DrawingDialog::updateReloadButton()
-{
-  QSet<QPair<QString, QString> > products = itemProducts(drawm_->allItems() + editm_->allItems());
-  quickLoadButton_->setEnabled(!products.isEmpty());
 }
 
 /**

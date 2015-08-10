@@ -261,28 +261,13 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     else
       fileName = name;
 
-    // Is the file already loaded?
-    bool isLoaded = false;
     EditItems::ItemGroup *group;
 
-    for (itl = itemGroups_.begin(); itl != itemGroups_.end(); ++itl) {
-      group = itl.value();
-      if (group->fileName() == fileName) {
-        isLoaded = true;
-        break;
-      }
-    }
-
-    // If not, try to load it.
-    if (!isLoaded) {
-      if (loadDrawing(name, fileName).isEmpty()) {
-        isLoaded = true;
-        // Obtain the group created by the above call.
-        group = itemGroups_.value(name);
-      }
-    }
-
-    if (isLoaded) {
+    // Load the file, whether it was previously loaded or not.
+    QString error = loadDrawing(name, fileName);
+    if (error.isEmpty()) {
+      // Obtain the group created by the loadDrawing call.
+      group = itemGroups_.value(name);
       // Record the layer group in the collection of replacement drawings.
       loaded[name] = group;
       loaded_[name] = fileName;
@@ -367,6 +352,12 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
   EditItems::ItemGroup *itemGroup = new EditItems::ItemGroup(name, false, true);
   itemGroup->setFileName(fileName);
   itemGroup->setItems(items);
+
+  // If an group exists with the same name, delete it before inserting the
+  // new group into the map.
+  if (itemGroups_.contains(name))
+    delete itemGroups_.value(name);
+
   itemGroups_[name] = itemGroup;
 
   // Record the file name.
