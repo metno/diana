@@ -3157,9 +3157,9 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
 
     std::string str;
     if (selectedFields[i].inEdit) {
-      str = "EDITFIELD " + ostr.str();
+      str = "EDITFIELD" + ostr.str();
     } else {
-      str = "FIELD " + ostr.str();
+      str = "FIELD" + ostr.str();
     }
 
     // the OK string
