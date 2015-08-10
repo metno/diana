@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VcrossReplaceModelDialog</class>
+ <widget class="QDialog" name="VcrossReplaceModelDialog">
+  <property name="windowTitle">
+   <string>Vertical Cross Sections -- Replace Model</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="margin">
+    <number>2</number>
+   </property>
+   <item>
+    <widget class="QStackedWidget" name="stack">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="VcrossLayerList" name="plotsPage"/>
+     <widget class="VcrossModelPage" name="modelPage" />
+     <widget class="VcrossReftimePage" name="reftimePage" />
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonRestart">
+       <property name="text">
+        <string>&amp;Restart</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonBack">
+       <property name="text">
+        <string>&amp;Back</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonNext">
+       <property name="text">
+        <string>&amp;Next</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonReplace">
+       <property name="text">
+        <string>Repl&amp;ace</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VcrossReftimePage</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossReftimePage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VcrossModelPage</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossModelPage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VcrossLayerList</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossLayerList.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
