@@ -170,8 +170,6 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     METLIBS_LOG_DEBUG(LOGVAL(tp.getProjDefinitionExpanded()));
 
     TimeTaker timerP, timerR;
-    extern size_t sub_linear, sub_small;
-    sub_linear = sub_small = 0;
     size_t n_realloc = 0;
 
     size_t vxy_N = 0;
@@ -236,7 +234,7 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     delete[] vx;
     delete[] vy;
     METLIBS_LOG_DEBUG("spent " << timerR << " with reprojecting and " << timerP << " with painting"
-        << LOGVAL(sub_small) << LOGVAL(sub_linear) << LOGVAL(n_realloc));
+        << LOGVAL(n_realloc));
     const QImage li = mRequest->legendImage();
     if (!li.isNull()) {
       METLIBS_LOG_DEBUG("about to plot legend...");

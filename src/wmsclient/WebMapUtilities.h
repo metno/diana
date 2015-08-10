@@ -117,5 +117,4 @@ void select_tiles(tilexy_s& tiles,
 
 } // namespace diutil
 
-
 #endif // WebMapUtilities_h

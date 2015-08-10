@@ -34,6 +34,8 @@
 #include "config.h"
 #endif
 
+#include "diPoint.h"
+
 #include <diField/diArea.h>
 #include <QImage>
 #include <boost/shared_array.hpp>
@@ -64,7 +66,7 @@ private:
   int calculateScaleFactor();
   void updateImage();
   void getGridPoints();
-  void checkVisible(int& ix1, int& ix2, int& iy1, int& iy2);
+  diutil::Rect_v checkVisible();
 
 private:
   Projection mMapProjection;
@@ -76,5 +78,17 @@ private:
   size_t mNPositions;
   boost::shared_array<float> mPositionsXY;
 };
+
+// ========================================================================
+
+namespace diutil {
+
+bool tile_front(const XY& left, const XY& mid, const XY& right);
+
+Rect_v select_tiles(const Rect& rect, const GridArea& grid,
+    boost::shared_array<float> gridPositionsXY,
+    const Rectangle& r_view, bool select_front);
+
+} // namespace diutil
 
 #endif // RASTERPLOT_H

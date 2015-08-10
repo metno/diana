@@ -1,6 +1,8 @@
 
 #include "diPoint.h"
 
+#include <iostream>
+
 namespace diutil {
 
 void adjustRectangle(Rectangle& r, float dx, float dy)
@@ -55,4 +57,25 @@ Rectangle fixedAspectRatio(const Rectangle& rect, float requested_w_over_h, bool
   return r;
 }
 
+bool contains(const Rectangle& outer, const Rectangle& inner)
+{
+  if (inner.x1 < outer.x1 || inner.x2 > outer.x2)
+    return false;
+  if (inner.y1 < outer.y1 || inner.y2 > outer.y2)
+    return false;
+  return true;
+}
+
 } // namespace diutil
+
+std::ostream& operator<<(std::ostream& out, const XY& xy)
+{
+  out << '(' << xy.x() << ';' << xy.y() << ')';
+  return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const diutil::Rect& r)
+{
+  out << "[x=" << r.x1 << ':' << r.x2 << ";y=" << r.y1 << ':' << r.y2 << ']';
+  return out;
+}

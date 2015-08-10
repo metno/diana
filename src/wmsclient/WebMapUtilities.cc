@@ -29,10 +29,15 @@
 
 #include "WebMapUtilities.h"
 
+#include "diGlUtilities.h"
+#include "diPoint.h"
+#include "diRasterPlot.h"
 #include "diUtilities.h"
 
+#include <diField/diArea.h>
 #include <diField/diProjection.h>
 #include <diField/diRectangle.h>
+
 #include <puTools/miStringFunctions.h>
 
 #include <QStringList>
@@ -139,6 +144,7 @@ void select_tiles(tilexy_s& tiles,
     int ix0, int nx, float x0, float dx, int iy0, int ny, float y0, float dy,
     const Projection& p_tiles, const Rectangle& r_view, const Projection& p_view)
 {
+  const bool select_front = false;
   if (nx <= 0 || ny <= 0)
     return;
 
@@ -196,13 +202,15 @@ void select_tiles(tilexy_s& tiles,
 
   if (nx == 1 && ny == 1) {
     assert(nb == 4);
-    const float x1 = (border_x_t[1] - border_x_t[0]), x2 = (border_x_t[2] - border_x_t[0]);
-    const float y1 = (border_y_t[1] - border_y_t[0]), y2 = (border_y_t[2] - border_y_t[0]);
-    if (x1*y2 > x2*y1) {
+    const XY left (border_x_t[1], border_y_t[1]);
+    const XY mid  (border_x_t[0], border_y_t[0]);
+    const XY right(border_x_t[2], border_y_t[2]);
+    const bool tile_front = diutil::tile_front(left, mid, right);
+    if (select_front == tile_front) {
       METLIBS_LOG_DEBUG("adding tile " << LOGVAL(ix0) << LOGVAL(iy0));
       tiles.insert(tilexy(ix0, iy0));
     } else {
-      METLIBS_LOG_DEBUG("not adding backside tile " << LOGVAL(ix0) << LOGVAL(iy0));
+      METLIBS_LOG_DEBUG("not adding unwanted face tile " << LOGVAL(ix0) << LOGVAL(iy0));
     }
     return;
   }

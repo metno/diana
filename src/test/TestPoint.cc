@@ -56,3 +56,34 @@ TEST(TestPoint, AspectRatio)
   EXPECT_FLOAT_EQ(0.1, r01s.width() / r01s.height());
   EXPECT_EQ(Rectangle(45, 0, 55, 100), r01s);
 }
+
+TEST(TestPoint, RectangleContains)
+{
+  const Rectangle outer(1, 1, 8, 8);
+
+  ASSERT_TRUE(diutil::contains(outer, outer));
+  ASSERT_TRUE(diutil::contains(outer, Rectangle(2, 2, 7, 7)));
+  ASSERT_TRUE(diutil::contains(outer, Rectangle(2, 1, 1, 3)));
+
+  ASSERT_FALSE(diutil::contains(outer, Rectangle(0, 0, 3, 3)));
+  ASSERT_FALSE(diutil::contains(outer, Rectangle(7, 2, 9, 3)));
+  ASSERT_FALSE(diutil::contains(outer, Rectangle(2, 7, 3, 9)));
+}
+
+TEST(TestPoint, BasicRect)
+{
+  const diutil::Rect r1(1, 5, 3, 8);
+  ASSERT_EQ(1, r1.x1);
+  ASSERT_EQ(3, r1.x2);
+
+  ASSERT_EQ(5, r1.y1);
+  ASSERT_EQ(8, r1.y2);
+
+  ASSERT_EQ(2, r1.width());
+  ASSERT_EQ(3, r1.height());
+
+  ASSERT_FALSE(r1.empty());
+
+  ASSERT_TRUE(diutil::Rect(3, 8, 3, 8).empty());
+  ASSERT_TRUE(diutil::Rect().empty());
+}

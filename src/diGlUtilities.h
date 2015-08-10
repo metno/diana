@@ -2,6 +2,8 @@
 #ifndef diGlUtilities_h
 #define diGlUtilities_h 1
 
+#include "diPoint.h"
+
 #include <QPolygonF>
 
 #include <string>
@@ -36,6 +38,9 @@ inline size_t index(int width, int ix, int iy)
 }
 
 bool is_undefined(float v);
+
+inline bool is_undefined(const XY& xy)
+{ return is_undefined(xy.x()) || is_undefined(xy.y()); }
 
 class PolylinePainter {
 public:

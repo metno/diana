@@ -377,7 +377,8 @@ void DiOpenGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
   delete[] countpos;
 }
 
-void DiOpenGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth)
+void DiOpenGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
+    const diutil::Rect_v& imageparts, bool smooth)
 {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -385,7 +386,7 @@ void DiOpenGLPainter::drawReprojectedImage(const QImage& image, const float* map
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   const GLuint width = image.width(), height = image.height(),
-      size = width * height, size1 = (width+1) * (height+1);
+      size1 = (width+1) * (height+1);
 
   glVertexPointer(2, GL_FLOAT, 0, mapPositionsXY);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -412,17 +413,18 @@ void DiOpenGLPainter::drawReprojectedImage(const QImage& image, const float* map
   glEnableClientState(GL_COLOR_ARRAY);
 
   QVector<GLuint> indices;
-  indices.reserve(4*size);
-  for (GLuint iy=0; iy < height; ++iy) {
-    for (GLuint ix=0; ix < width; ++ix) {
-      const QRgb p = image.pixel(ix, iy);
-      if (qAlpha(p) == 0)
-        continue;
-      const GLuint i00 = (width+1) * iy + ix, i01 = i00 + (width+1), i10 = i00 + 1, i11 = i01 + 1;
-      indices.append(i10);
-      indices.append(i11);
-      indices.append(i01);
-      indices.append(i00);
+  for (diutil::Rect_v::const_iterator it = imageparts.begin(); it != imageparts.end(); ++it) {
+    for (int iy=it->y1; iy < it->y2; ++iy) {
+      for (int ix=it->x1; ix < it->x2; ++ix) {
+        const QRgb p = image.pixel(ix, iy);
+        if (qAlpha(p) == 0)
+          continue;
+        const GLuint i00 = (width+1) * iy + ix, i01 = i00 + (width+1), i10 = i00 + 1, i11 = i01 + 1;
+        indices.append(i10);
+        indices.append(i11);
+        indices.append(i01);
+        indices.append(i00);
+      }
     }
   }
 

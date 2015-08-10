@@ -206,7 +206,8 @@ public:
   void drawPolyline(const QPolygonF& points) Q_DECL_OVERRIDE;
   void drawPolygon(const QPolygonF& points) Q_DECL_OVERRIDE;
   void drawPolygons(const QList<QPolygonF>& polygons) Q_DECL_OVERRIDE;
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth) Q_DECL_OVERRIDE;
+  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
+      const diutil::Rect_v& imageparts, bool smooth) Q_DECL_OVERRIDE;
   // end DiPainter interface
 
   void begin(QPainter *painter);
@@ -277,7 +278,7 @@ private:
   void paintRect(float x1, float y1, float x2, float y2);
 
   void drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
-      size_t x0, size_t y0, size_t x1, size_t y1);
+      const diutil::Rect& imagepart);
 };
 
 #endif // PAINTGLPAINTER_H

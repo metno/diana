@@ -133,7 +133,8 @@ public:
   void drawPolygon(const QPolygonF& points);
   void drawPolygons(const QList<QPolygonF>& polygons) Q_DECL_OVERRIDE;
 
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth);
+  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
+      const diutil::Rect_v& imageparts, bool smooth);
 };
 
 #endif // DIOPENGLPAINTER_H

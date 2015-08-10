@@ -1627,16 +1627,26 @@ void DiPaintGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
   unsetClipPath();
 }
 
-inline size_t index(size_t w, size_t x, size_t y) { return y*w + x; }
-
-size_t sub_small = 0, sub_linear = 0;
+namespace {
+inline size_t index(size_t w, size_t x, size_t y)
+{
+  return y*w + x;
+}
+} // namespace
 
 void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
-    size_t x0, size_t y0, size_t x1, size_t y1)
+    const diutil::Rect& part)
 {
-  const float MH_LIMIT = 1.5;
-  const int SZ_LIMIT = 2;
+//#define HIGH_QUALITY_BUT_SLOW 1
+#if defined(HIGH_QUALITY_BUT_SLOW)
+  const float MH_LIMIT = 0;
+  const int SZ_LIMIT = 1;
+#else
+  const float MH_LIMIT = 0.5;
+  const int SZ_LIMIT = 16;
+#endif
 
+  const int x0 = part.x1, x1 = part.x2, y0 = part.y1, y1 = part.y2;
   const size_t w = x1 - x0, h = y1 - y0, iw = image.width();
   const size_t xm = (x0+x1)/2, ym = (y0+y1)/2;
   const QPointF &p00 = mapPositions.at(index(iw+1, x0, y0)),
@@ -1645,10 +1655,9 @@ void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolyg
       &p11 = mapPositions.at(index(iw+1, x1, y1));
 
   bool paint = false;
-  if (w <= SZ_LIMIT || h <= SZ_LIMIT) {
-    sub_small += 1;
+  if (w <= SZ_LIMIT && h <= SZ_LIMIT) {
     paint = true;
-  } else {
+  } else if (MH_LIMIT > 0) {
     const QPointF &pm0 = mapPositions.at(index(iw+1, xm, y0)),
         &p0m = mapPositions.at(index(iw+1, x0, ym)),
         &p1m = mapPositions.at(index(iw+1, x1, ym)),
@@ -1666,39 +1675,64 @@ void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolyg
         && (p0m-i0m).manhattanLength() < MH_LIMIT
         && (p1m-i1m).manhattanLength() < MH_LIMIT
         && (pmm-imm).manhattanLength() < MH_LIMIT);
-    if (paint)
-      sub_linear += 1;
   }
   if (paint) {
     static Qt::ImageConversionFlags icf = Qt::DiffuseAlphaDither | Qt::NoOpaqueDetection;
 
-    const QRectF srcRect(0, 0, w, h);
-    QPolygonF src;
-    src << srcRect.topLeft() << srcRect.topRight()
-        << srcRect.bottomRight() << srcRect.bottomLeft();
-
     QPolygonF tgt;
     tgt << p00 << p10 << p11 << p01;
+    if (w <= 1 && h <= 1) {
+      const QRgb p = image.pixel(x0, y0);
+      if (qAlpha(p) > 0) {
+        painter->setBrush(QColor::fromRgba(p));
+        painter->setTransform(QTransform());
+        painter->drawPolygon(tgt);
+      }
+      return;
+    } else {
+      QTransform t;
+      if (QTransform::squareToQuad(tgt, t)) {
+        t = QTransform::fromScale(1.0/w, 1.0/h) * t;
 
-    QTransform t;
-    if (QTransform::quadToQuad(src, tgt, t)) {
-      painter->setTransform(t);
-      const QRectF isub(x0, y0, w, h);
-      painter->drawImage(QPointF(0, 0), image, isub, icf);
+        // somehow, Qt somehow likes to transform polygons in a
+        // strange way, e.g. moving the third point to -2e8,-2e8; the
+        // following is an attempt to work around this problem
+        bool mapped_ok = true;
+        const QPointF t_rect_corners[4] = {
+          t.map(QPointF(x0,   y0)),
+          t.map(QPointF(x0+w, y0)),
+          t.map(QPointF(x0+w, y0+h)),
+          t.map(QPointF(x0,   y0+h))
+        };
+        const QRectF r(x0, y0, w, h);
+        const QPolygonF t_rect_poly = t.map(QPolygonF(r));
+        for (int i=0; i<4; ++i) {
+          qreal mh = (t_rect_corners[i] - t_rect_poly[i]).manhattanLength();
+          if (mh > 1) {
+            mapped_ok = false;
+            break;
+          }
+        }
+        if (mapped_ok) {
+          painter->setTransform(t);
+          painter->drawImage(QRectF(0, 0, w+1e-5, h+1e-5), image, r, icf);
+          return;
+        }
+      }
     }
-  } else if (w > h) {
-    drawReprojectedSubImage(image, mapPositions, x0, y0, xm, y1);
-    drawReprojectedSubImage(image, mapPositions, xm, y0, x1, y1);
+  }
+  if (w > h) {
+    drawReprojectedSubImage(image, mapPositions, diutil::Rect(x0, y0, xm, y1));
+    drawReprojectedSubImage(image, mapPositions, diutil::Rect(xm, y0, x1, y1));
   } else {
-    drawReprojectedSubImage(image, mapPositions, x0, y0, x1, ym);
-    drawReprojectedSubImage(image, mapPositions, x0, ym, x1, y1);
+    drawReprojectedSubImage(image, mapPositions, diutil::Rect(x0, y0, x1, ym));
+    drawReprojectedSubImage(image, mapPositions, diutil::Rect(x0, ym, x1, y1));
   }
 }
 
-void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth)
+void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
+    const diutil::Rect_v& imageparts, bool smooth)
 {
-  METLIBS_LOG_TIME();
-
   PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
   Enable(gl_BLEND);
   BlendFunc(gl_SRC_ALPHA, gl_ONE_MINUS_SRC_ALPHA);
@@ -1717,11 +1751,17 @@ void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* ma
     positions << QPointF(mapPositionsXY[2*i], mapPositionsXY[2*i+1]);
   positions = transform.map(positions);
 
+  const bool paa = painter->testRenderHint(QPainter::Antialiasing);
+  painter->setRenderHint(QPainter::Antialiasing, false);
   const bool pst = painter->testRenderHint(QPainter::SmoothPixmapTransform);
   painter->setRenderHint(QPainter::SmoothPixmapTransform, smooth);
   painter->save(); // we will change the transformation matrix
-  drawReprojectedSubImage(image, positions, 0, 0, width, height);
+  painter->setPen(Qt::NoPen);
+  for (diutil::Rect_v::const_iterator it = imageparts.begin(); it != imageparts.end(); ++it) {
+    drawReprojectedSubImage(image, positions, *it);
+  }
   painter->restore();
+  painter->setRenderHint(QPainter::Antialiasing, paa);
   painter->setRenderHint(QPainter::SmoothPixmapTransform, pst);
 }
 

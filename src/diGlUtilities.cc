@@ -33,7 +33,7 @@ MapValuePosition mapValuePositionFromText(const std::string& p)
 bool is_undefined(float v)
 {
   const float LIMIT = 1e20;
-  return (isnan(v) || std::abs(v) >= LIMIT);
+  return v == HUGE_VAL || isnan(v) || fabsf(v) >= LIMIT || isinf(v);
 }
 
 PolylinePainter& PolylinePainter::addValid(float vx, float vy)
