@@ -1637,14 +1637,31 @@ inline size_t index(size_t w, size_t x, size_t y)
 void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
     const diutil::Rect& part)
 {
-//#define HIGH_QUALITY_BUT_SLOW 1
-#if defined(HIGH_QUALITY_BUT_SLOW)
-  const float MH_LIMIT = 0;
-  const int SZ_LIMIT = 1;
-#else
+  const bool HIGH_QUALITY_BUT_SLOW = true;
+  if (HIGH_QUALITY_BUT_SLOW) {
+    painter->setTransform(QTransform());
+    QPolygonF poly;
+    for (int y = part.y1; y<part.y2; ++y) {
+      const int iw1 = image.width() + 1, y0 = y*iw1, y1 = y0 + iw1;
+      for (int x = part.x1; x<part.x2; ++x) {
+        const QRgb p = image.pixel(x, y);
+        if (qAlpha(p) > 0) {
+          poly.clear();
+          poly << mapPositions.at(y0 + x)
+               << mapPositions.at(y0 + x + 1)
+               << mapPositions.at(y1 + x + 1)
+               << mapPositions.at(y1 + x);
+          painter->setBrush(QColor::fromRgba(p));
+          painter->drawPolygon(poly);
+        }
+      }
+    }
+    return;
+  }
+
+  // faster, but there might be empty pixels and some distortions
   const float MH_LIMIT = 0.5;
   const int SZ_LIMIT = 16;
-#endif
 
   const int x0 = part.x1, x1 = part.x2, y0 = part.y1, y1 = part.y2;
   const size_t w = x1 - x0, h = y1 - y0, iw = image.width();
