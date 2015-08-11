@@ -144,7 +144,7 @@ void select_tiles(tilexy_s& tiles,
     int ix0, int nx, float x0, float dx, int iy0, int ny, float y0, float dy,
     const Projection& p_tiles, const Rectangle& r_view, const Projection& p_view)
 {
-  const bool select_front = false;
+  const bool select_front = true;
   if (nx <= 0 || ny <= 0)
     return;
 
