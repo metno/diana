@@ -53,7 +53,15 @@ AC_LANG_PUSH([C++])
 AC_CXX_HAVE_STD
 AC_CXX_HAVE_STL
 
+# Check compiler supporting openmp in C++ and C
+AC_ARG_ENABLE(openmp, [  --enable-openmp         enable use of openmp [[default=no]]],[
+  if test "$enableval" = yes; then
+AX_OPENMP([AC_DEFINE(HAVE_OPENMP,1,[Define if OpenMP is enabled])
+           CXXFLAGS="$CXXFLAGS $OPENMP_CXXFLAGS";CFLAGS="$CFLAGS $OPENMP_CXXFLAGS"],[])
+  fi
+], [])
 AC_LANG_POP([C++])
+AC_SUBST(OPENMP_CXXFLAGS)
 
 #
 # Features
@@ -109,7 +117,6 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 #
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([FIMEX], [fimex], [0.57])
-METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([MIRASTER], [miRaster])
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
@@ -129,6 +136,15 @@ AS_IF([test x$enable_gui = xyes], [
 
 AS_IF([test x$enable_newarkobs = xyes], [
     METNO_REQUIRE_PKG([NEWARKAPI], [newarkAPI])
+])
+
+METNO_ENABLE([GRIBFILE], [gribfile], [support for fields in Grib file], [no])
+METNO_ENABLE_CONDITIONAL([GRIBFILE], [gribfile])
+
+METNO_IF_ENABLED([gribfile], [
+    METNO_REQUIRE_C_LIBRARY([GRIB_API], [grib_api], [grib_api.h], [grib_index_new], [-lm -lpng])
+    # For now, smhi uses GribAPI...
+    METNO_REQUIRE_C_LIBRARY([GRIBAPI], [GribAPI])
 ])
 
 #
@@ -161,7 +177,7 @@ AS_IF([test x$enable_obs_bufr = xyes], [
 # udunits2
 METNO_REQUIRE_C_LIBRARY([UU], [udunits2], [udunits2.h], [ut_new_system])
 
-GTEST_CHECK([src/test/gtest])
+GTEST_CHECK([test/gtest])
 
 #
 # Output
@@ -174,7 +190,8 @@ AC_CONFIG_FILES([etc/diana/diana.setup])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([src/Makefile src/test/Makefile src/test/gtest/Makefile])
+AC_CONFIG_FILES([src/Makefile src/diField/Makefile])
+AC_CONFIG_FILES([test/Makefile test/gtest/Makefile])
 AC_CONFIG_FILES([perl/Makefile perl/Metno-Bdiana/lib/Metno/Bdiana.pm])
 AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop])
 AC_OUTPUT

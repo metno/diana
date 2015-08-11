@@ -1,6 +1,6 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
-SUBDIRS = . test/gtest test
+SUBDIRS = diField .
 
 # libexecdiana contains "exec" so that automake uses install-exec
 libexecdiana_LTLIBRARIES = libdiana.la
@@ -597,7 +597,6 @@ diana_bin_xpm_SOURCES= active_object.xpm \
 	weather_storm.xpm
 
 libdiana_la_CPPFLAGS += \
-	$(DIFIELD_CPPFLAGS) \
 	$(MIRASTER_CPPFLAGS) \
 	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
@@ -608,7 +607,7 @@ libdiana_la_CPPFLAGS += \
 	$(UU_CPPFLAGS)
 
 libdiana_la_LDFLAGS = \
-	$(DIFIELD_LDFLAGS) \
+	${FIMEX_LDFLAGS} \
 	$(MIRASTER_LDFLAGS) \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
@@ -619,7 +618,8 @@ libdiana_la_LDFLAGS = \
 	$(UU_LDFLAGS)
 
 libdiana_la_LIBADD += \
-	$(DIFIELD_LIBS) \
+	diField/libdiField.la \
+	${FIMEX_LIBS} \
 	$(MIRASTER_LIBS) \
 	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) $(FORTRAN_LIBS) \
