@@ -117,7 +117,6 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 #
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([FIMEX], [fimex], [0.57])
-METNO_REQUIRE_PKG([MIRASTER], [miRaster])
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
@@ -153,6 +152,7 @@ METNO_IF_ENABLED([gribfile], [
 METNO_REQUIRE_BOOST
 METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
+METNO_REQUIRE_BOOST_FEATURE([thread])
 
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
@@ -168,6 +168,25 @@ METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
 
 # libcurl - the multiprotocol file transfer library 
 METNO_REQUIRE_C_LIBRARY([CURL], [curl], [curl/curl.h])
+
+METNO_WITH_LIBRARY([GEOTIFF], [geotiff], [geotiff], [yes])
+METNO_IF_WITH([geotiff], [
+  AC_CHECK_HEADER([libgeotiff/geotiff.h], [break])
+  if test x"$ac_cv_header_libgeotiff_geotiff_h" == xyes
+  then
+    METNO_REQUIRE_C_LIBRARY([GEOTIFF], [geotiff], [libgeotiff/geotiff.h], [main], [${ZLIB_LIBS} ${TIFF_LIBS}])
+    GEOTIFF_CPPFLAGS="${GEOTIFF_CPPFLAGS} -DLIBGEOTIFF"
+  else
+    METNO_REQUIRE_C_LIBRARY([GEOTIFF], [geotiff], [geotiff/geotiff.h], [main], [${ZLIB_LIBS} ${TIFF_LIBS}])
+  fi
+  METNO_REQUIRE_C_LIBRARY([JPEG], [jpeg], [jpeglib.h], [jpeg_read_header])
+  METNO_REQUIRE_C_LIBRARY([TIFF], [tiff], [tiff.h], [TIFFOpen], [${ZLIB_LIBS} ${JPEG_LIBS}])
+], [])
+METNO_WITH_CONDITIONAL([GEOTIFF], [geotiff])
+
+# hdf5
+METNO_WITH_HDF5([no])
+METNO_WITH_CONDITIONAL([HDF5], [hdf5])
 
 # EMOSLIB
 AS_IF([test x$enable_obs_bufr = xyes], [
@@ -190,7 +209,7 @@ AC_CONFIG_FILES([etc/diana/diana.setup])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([src/Makefile src/diField/Makefile])
+AC_CONFIG_FILES([src/Makefile src/diField/Makefile src/miRaster/Makefile])
 AC_CONFIG_FILES([test/Makefile test/gtest/Makefile])
 AC_CONFIG_FILES([perl/Makefile perl/Metno-Bdiana/lib/Metno/Bdiana.pm])
 AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop])

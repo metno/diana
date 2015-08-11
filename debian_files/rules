@@ -12,7 +12,7 @@ configure-stamp:
 	./autogen.sh
 	./configure $(confflags) \
 	    --disable-silent-rules \
-	    --enable-geotiff \
+	    --with-geotiff \
             --enable-obs-bufr \
             --enable-video-export \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \

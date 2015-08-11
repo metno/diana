@@ -50,7 +50,6 @@ CLEANFILES += $(dianaUnitTests_moc_sources)
 CPPFLAGS += \
     $(AM_CPPFLAGS) -I$(top_srcdir)/src \
     -DTEST_SRCDIR=\"$(abs_srcdir)\" -DTEST_BUILDDIR=\"$(abs_builddir)\" \
-    $(MIRASTER_CPPFLAGS) \
     $(EMOS_CPPFLAGS) \
     $(PUDATATYPES_CPPFLAGS) \
     $(SHP_CPPFLAGS) \
@@ -59,7 +58,6 @@ CPPFLAGS += \
     $(QT4_CPPFLAGS)
 
 LDFLAGS += \
-    $(MIRASTER_LDFLAGS) \
     $(EMOS_LDFLAGS) \
     $(PUDATATYPES_LDFLAGS) \
     $(SHP_LDFLAGS) \

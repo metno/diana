@@ -15,6 +15,6 @@ override_dh_auto_configure:
 	    --enable-obs-bufr \
 	    --enable-video-export \
 	    --disable-silent-rules \
-	    --enable-geotiff \
+	    --with-geotiff \
 	    --enable-embedded \
 	    --program-suffix=-nogl

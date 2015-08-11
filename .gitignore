@@ -47,9 +47,11 @@
 /src/test_diOrderBook-*.o
 /src/test-diPlotOptions
 /src/test_diPlotOptions-*.o
-/src/diField/Makefile
-/src/diField/Makefile.in
+/src/*/Makefile
+/src/*/Makefile.in
+/test/Makefile
 /test/Makefile.in
+/test/gtest/Makefile
 /test/gtest/Makefile.in
 /stamp-h1
 /debian
