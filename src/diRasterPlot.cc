@@ -264,7 +264,7 @@ tile_overlap select_tile_rects(Rect_v& tiles, const Rect& rect,
     const XY cTR(gridPosition(grid, gridPositionsXY, rect.x2, rect.y2));
     check_point check;
     bool accept_coord = check(cBL) && check(cTR) && check(cBR) && check(cTL)
-        && contains(r_view, check.bbx);
+        && r_view.intersects(check.bbx);
     if (accept_coord) {
       bool good_side = (tile_front(cBL, cTL, cTR) == select_front)
           && (tile_front(cTL, cTR, cBR) == select_front)
