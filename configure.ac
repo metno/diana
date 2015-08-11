@@ -81,11 +81,6 @@ AC_ARG_ENABLE([geotiff],
     [], [enable_geotiff=no])
 AM_CONDITIONAL([WITH_GEOTIFF], [test x$enable_geotiff = xyes])
 
-AC_ARG_ENABLE([hdf5],
-    [AS_HELP_STRING([--enable-hdf5], [enable HDF5 support])],
-    [], [enable_hdf5=no])
-AM_CONDITIONAL([WITH_HDF5], [test x$enable_hdf5 = xyes])
-
 AC_ARG_ENABLE([obs-bufr],
     [AS_HELP_STRING([--disable-obs-bufr], [disable observation buffers])],
     [], [enable_obs_bufr=no])
@@ -112,34 +107,18 @@ AC_ARG_ENABLE([perl],
 AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
-#
-# metlibs
-#
-# there must be a more elegant way to do this
-METNO_REQUIRE_PKG([FIMEX], [fimex], [0.57])
-METNO_REQUIRE_PKG([MILOGGER], [miLogger])
-METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
-METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
-METNO_REQUIRE_PKG([PUTOOLS], [puTools])
+METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.57])
+METNO_REQUIRE_PKGS([METLIBS], [miLogger puTools puDatatypes])
 
 AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_PKG([GLTEXT], [glText])
-    METNO_REQUIRE_PKG([GLU],[glu])
-    METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
-    METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
-    METNO_REQUIRE_PKG([COSERVER], [coserver])
+    METNO_REQUIRE_PKGS([METLIBSUI], [coserver qUtilities glText glu])
     METNO_REQUIRE_QT4([Core Gui OpenGL Network Svg Xml XmlPatterns])
 ],[
     METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])
 ])
 
-AS_IF([test x$enable_newarkobs = xyes], [
-    METNO_REQUIRE_PKG([NEWARKAPI], [newarkAPI])
-])
-
 METNO_ENABLE([GRIBFILE], [gribfile], [support for fields in Grib file], [no])
 METNO_ENABLE_CONDITIONAL([GRIBFILE], [gribfile])
-
 METNO_IF_ENABLED([gribfile], [
     METNO_REQUIRE_C_LIBRARY([GRIB_API], [grib_api], [grib_api.h], [grib_index_new], [-lm -lpng])
     # For now, smhi uses GribAPI...
@@ -154,23 +133,26 @@ METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
 METNO_REQUIRE_BOOST_FEATURE([thread])
 
-# libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
-    METNO_REQUIRE_C_LIBRARY([ZLIB], [z], [zlib.h], [zlibVersion])
     METNO_REQUIRE_PKG([AVFORMAT], [libavformat], [], [])
 ])
+AS_IF([test x$enable_obs_bufr = xyes], [
+    METNO_REQUIRE_PKG([EMOS], [emos], [], [])
+])
+AS_IF([test x$enable_newarkobs = xyes], [
+    METNO_REQUIRE_PKG([NEWARKAPI], [newarkAPI])
+])
 
-METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
+METNO_REQUIRE_PKGS([PNG], [libpng >= 1.2])
+METNO_REQUIRE_PKGS([CURL], [libcurl >= 7])
+METNO_REQUIRE_PKGS([UU], [udunits >= 2])
 
-
-# shapefile
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
-
-# libcurl - the multiprotocol file transfer library 
-METNO_REQUIRE_C_LIBRARY([CURL], [curl], [curl/curl.h])
+METNO_REQUIRE_C_LIBRARY([PROJ], [proj], [proj_api.h], [pj_init_plus])
 
 METNO_WITH_LIBRARY([GEOTIFF], [geotiff], [geotiff], [yes])
 METNO_IF_WITH([geotiff], [
+  METNO_REQUIRE_PKG([TIFF], [libtiff-4], [], [])
   AC_CHECK_HEADER([libgeotiff/geotiff.h], [break])
   if test x"$ac_cv_header_libgeotiff_geotiff_h" == xyes
   then
@@ -179,22 +161,12 @@ METNO_IF_WITH([geotiff], [
   else
     METNO_REQUIRE_C_LIBRARY([GEOTIFF], [geotiff], [geotiff/geotiff.h], [main], [${ZLIB_LIBS} ${TIFF_LIBS}])
   fi
-  METNO_REQUIRE_C_LIBRARY([JPEG], [jpeg], [jpeglib.h], [jpeg_read_header])
-  METNO_REQUIRE_C_LIBRARY([TIFF], [tiff], [tiff.h], [TIFFOpen], [${ZLIB_LIBS} ${JPEG_LIBS}])
 ], [])
 METNO_WITH_CONDITIONAL([GEOTIFF], [geotiff])
 
 # hdf5
 METNO_WITH_HDF5([no])
 METNO_WITH_CONDITIONAL([HDF5], [hdf5])
-
-# EMOSLIB
-AS_IF([test x$enable_obs_bufr = xyes], [
-    METNO_REQUIRE_PKG([EMOS], [emos], [], [])
-])
-
-# udunits2
-METNO_REQUIRE_C_LIBRARY([UU], [udunits2], [udunits2.h], [ut_new_system])
 
 GTEST_CHECK([test/gtest])
 

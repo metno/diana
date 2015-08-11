@@ -28,9 +28,7 @@ libdiField_la_CPPFLAGS = -fPIC \
 	${BOOST_CPPFLAGS} \
 	${PROJ_CPPFLAGS} \
 	${UDUNITS_CPPFLAGS} \
-	${LOG4CPP_CPPFLAGS} \
-	${PUCTOOLS_CPPFLAGS} \
-	${PUTOOLS_CPPFLAGS}
+	${METLIBS_CPPFLAGS}
 
 # these are only for shared libraries
 #libdiField_la_LDFLAGS =

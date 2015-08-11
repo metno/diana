@@ -51,7 +51,7 @@ CPPFLAGS += \
     $(AM_CPPFLAGS) -I$(top_srcdir)/src \
     -DTEST_SRCDIR=\"$(abs_srcdir)\" -DTEST_BUILDDIR=\"$(abs_builddir)\" \
     $(EMOS_CPPFLAGS) \
-    $(PUDATATYPES_CPPFLAGS) \
+    $(METLIBS_CPPFLAGS) \
     $(SHP_CPPFLAGS) \
     $(gtest_CFLAGS) \
     $(PNG_CPPFLAGS) \
@@ -59,7 +59,7 @@ CPPFLAGS += \
 
 LDFLAGS += \
     $(EMOS_LDFLAGS) \
-    $(PUDATATYPES_LDFLAGS) \
+    $(METLIBS_LDFLAGS) \
     $(SHP_LDFLAGS) \
     $(gtest_LDFLAGS) \
     $(PNG_LDFLAGS) \
@@ -73,18 +73,15 @@ LDADD += \
 
 dianaGuiTests_CPPFLAGS = \
     $(CPPFLAGS) \
-    $(GLTEXT_CPPFLAGS) \
-    $(GLU_CPPFLAGS)
+    $(METLIBSUI_CPPFLAGS)
 
 dianaGuiTests_LDFLAGS = \
     $(LDFLAGS) \
-    $(GLTEXT_LDFLAGS) \
-    $(GLU_LDFLAGS)
+    $(METLIBSUI_LDFLAGS)
 
 dianaGuiTests_LDADD = \
     $(LDADD) \
-    $(GLTEXT_LIBS) \
-    $(GLU_LIBS)
+    $(METLIBSUI_LIBS)
 
 diFieldTest_SOURCES = \
     FieldFunctionsTest.cc \
@@ -92,20 +89,15 @@ diFieldTest_SOURCES = \
     gtestMain.cc
 
 diFieldTest_LDFLAGS = \
-    $(PUDATATYPES_LDFLAGS) \
-    $(PUTOOLS_LDFLAGS) \
-    $(MILOGGER_LDFLAGS) \
-    $(PUCTOOLS_LDFLAGS) \
+    $(METLIBS_LDFLAGS) \
     ${UDUNITS_LDFLAGS} \
-    $(PROJ_LDFLAGS) $(BOOST_LDFLAGS) \
+    $(PROJ_LDFLAGS) \
+    $(BOOST_LDFLAGS) \
     $(gtest_LDFLAGS)
 
 diFieldTest_CPPFLAGS = \
     -I$(top_srcdir)/src/diField \
-    $(PUDATATYPES_CPPFLAGS) \
-    $(PUTOOLS_CPPFLAGS) \
-    $(PUCTOOLS_CPPFLAGS) \
-    $(MILOGGER_CPPFLAGS) \
+    $(METLIBS_CPPFLAGS) \
     ${UDUNITS_CPPFLAGS} \
     $(PROJ_CPPFLAGS) \
     $(BOOST_CPPFLAGS) \

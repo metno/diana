@@ -597,10 +597,9 @@ diana_bin_xpm_SOURCES= active_object.xpm \
 	weather_storm.xpm
 
 libdiana_la_CPPFLAGS += \
-	$(PUCTOOLS_CPPFLAGS) \
+	${FIMEX_CPPFLAGS} \
+	$(METLIBS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
-	$(PUDATATYPES_CPPFLAGS) \
-	$(PUTOOLS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
@@ -609,10 +608,8 @@ libdiana_la_CPPFLAGS += \
 
 libdiana_la_LDFLAGS = \
 	${FIMEX_LDFLAGS} \
-	$(PUCTOOLS_LDFLAGS) \
+	$(METLIBS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
-	$(PUDATATYPES_LDFLAGS) \
-	$(PUTOOLS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
@@ -623,10 +620,8 @@ libdiana_la_LIBADD += \
 	miRaster/libmiRaster.la \
 	diField/libdiField.la \
 	${FIMEX_LIBS} \
-	$(PUCTOOLS_LIBS) \
+	$(METLIBS_LIBS) \
 	$(EMOS_LIBS) $(FORTRAN_LIBS) \
-	$(PUDATATYPES_LIBS) \
-	$(PUTOOLS_LIBS) \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
@@ -759,30 +754,18 @@ diana_bin_SOURCES += \
 
 diana_bin_CPPFLAGS = \
 	-I $(builddir)/vcross_qt \
-	$(FIMEX_CPPFLAGS) \
-	$(QUTILITIES_CPPFLAGS) \
-	$(COSERVER_CPPFLAGS) \
-        $(FTGL_CPPFLAGS) \
-        $(GLTEXT_CPPFLAGS) \
-        $(GLU_CPPFLAGS) \
+	${FIMEX_CPPFLAGS} \
+	$(METLIBSUI_CPPFLAGS) \
 	$(QT4_CPPFLAGS)
 
 diana_bin_LDFLAGS = \
-	$(FIMEX_LDFLAGS) \
-	$(QUTILITIES_LDFLAGS) \
-	$(COSERVER_LDFLAGS) \
-        $(FTGL_LDFLAGS) \
-        $(GLTEXT_LDFLAGS) \
-        $(GLU_LDFLAGS) \
+	${FIMEX_LDFLAGS} \
+	$(METLIBSUI_LDFLAGS) \
 	$(QT4_LDFLAGS)
 
 diana_bin_LDADD = \
-	$(FIMEX_LIBS) \
-	$(QUTILITIES_LIBS) \
-	$(COSERVER_LIBS) \
-        $(FTGL_LIBS) \
-        $(GLTEXT_LIBS) \
-        $(GLU_LIBS) \
+	${FIMEX_LIBS} \
+	$(METLIBSUI_LIBS) \
 	$(QT4_LIBS) \
 	libdiana.la
 

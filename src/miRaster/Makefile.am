@@ -5,9 +5,7 @@ noinst_LTLIBRARIES = libmiRaster.la
 libmiRaster_la_SOURCES = satimg.cc
 
 libmiRaster_la_CPPFLAGS = -fPIC \
-	${LOG4CPP_CPPFLAGS} \
-	${PUCTOOLS_CPPFLAGS} \
-	${PUTOOLS_CPPFLAGS} \
+	${METLIBS_CPPFLAGS} \
 	${PROJ_CPPFLAGS} \
 	${TIFF_CPPFLAGS}
 
@@ -16,16 +14,12 @@ libmiRaster_la_LIBADD =
 
 #if ENABLE_SHARED_LIBRARY
 #libmiRaster_la_LDFLAGS += \
-#	${LOG4CPP_LDFLAGS} \
-#	${PUCTOOLS_LDFLAGS} \
-#	${PUTOOLS_LDFLAGS} \
+#	${METLIBS_LDFLAGS} \
 #	${PROJ_LDFLAGS} \
 #	${TIFF_LDFLAGS}
 #
 #libmiRaster_la_LIBADD += \
-#	${LOG4CPP_LIBS} \
-#	${PUCTOOLS_LIBS} \
-#	${PUTOOLS_LIBS} \
+#	${METLIBS_LIBS} \
 #	${PROJ_LIBS} \
 #	${TIFF_LIBS}
 #endif
