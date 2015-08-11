@@ -171,10 +171,10 @@ void VprofManager::parseSetup()
 #ifdef ROADOBS
     /* Here we know that it is the extended obs format */
     else if (tokens.size()==4) {
-      const std::vector<std::string> tokens1= miutil::split(tokens[0], "=");
-      const std::vector<std::string> tokens2= miutil::split(tokens[1], "=");
-      const std::vector<std::string> tokens3= miutil::split(tokens[2], "=");
-      const std::vector<std::string> tokens4= miutil::split(tokens[3], "=");
+      std::vector<std::string> tokens1= miutil::split(tokens[0], "=");
+      std::vector<std::string> tokens2= miutil::split(tokens[1], "=");
+      std::vector<std::string> tokens3= miutil::split(tokens[2], "=");
+      std::vector<std::string> tokens4= miutil::split(tokens[3], "=");
       if (tokens1.size()==2 && tokens2.size()==2 && tokens3.size()==2 && tokens4.size()==2
           && miutil::to_lower(tokens2[0])=="p"
           && miutil::to_lower(tokens3[0])=="s"
@@ -914,7 +914,7 @@ void VprofManager::readRoadFile(int i, vector <std::string>& namelist,
       latitudelist.clear();
       longitudelist.clear();
       obslist.clear();
-      const vector<diStation>& stations = *its;
+      vector<diStation> stations = *its->second;
       for (size_t i = 0; i < stations.size(); i++) {
         const diStation& s = stations[i];
         namelist.push_back(s.name());
@@ -1190,7 +1190,7 @@ void VprofManager::printObsFiles(const ObsFile &of)
 {
   METLIBS_LOG_DEBUG("ObsFile: <" << LOGVAL(of.filename) << LOGVAL(of.obstype) << LOGVAL(of.fileformat)
       << LOGVAL(of.time.isoTime(true, true)) << LOGVAL(of.modificationTime)
-      IF_ROADOBS(<< LOGVAL(ofp.parameterfile) << LOGVAL(ofp.stationfile) << LOGVAL(ofp.databasefile))
+      IF_ROADOBS(<< LOGVAL(of.parameterfile) << LOGVAL(of.stationfile) << LOGVAL(of.databasefile))
       <<  '>');
 }
 
