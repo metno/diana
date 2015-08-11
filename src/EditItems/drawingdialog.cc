@@ -107,34 +107,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   addLayout->addStretch();
   addLayout->addWidget(loadFileButton);
 
-  // Save and edit buttons
-
-  quickSaveButton_ = new QPushButton(tr("Quick save"));
-  quickSaveButton_->setEnabled(false);
-  connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
-  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
-  connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
-
-  QToolButton *saveAsButton = new QToolButton();
-  saveAsButton->setText(tr("Save as"));
-  saveAsButton->setPopupMode(QToolButton::InstantPopup);
-  QMenu *saveAsMenu = new QMenu(tr("Save as..."), this);
-  connect(saveAsMenu->addAction(tr("Save All Items...")), SIGNAL(triggered()), SLOT(saveAllItems()));
-  connect(saveAsMenu->addAction(tr("Save Filtered Items...")), SIGNAL(triggered()), SLOT(saveFilteredItems()));
-  connect(saveAsMenu->addAction(tr("Save Visible Items...")), SIGNAL(triggered()), SLOT(saveVisibleItems()));
-  connect(saveAsMenu->addAction(tr("Save Selected Items...")), SIGNAL(triggered()), SLOT(saveSelectedItems()));
-  saveAsButton->setMenu(saveAsMenu);
-
-  editButton_ = new QPushButton(tr("Edit"));
-  editButton_->setEnabled(false);
-  connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
-
-  QHBoxLayout *buttonLayout = new QHBoxLayout();
-  buttonLayout->addWidget(quickSaveButton_);
-  buttonLayout->addWidget(saveAsButton);
-  buttonLayout->addWidget(editButton_);
-  buttonLayout->addStretch();
-
   // Editing/Filtering
 
   QFrame *editTopSeparator = new QFrame();
@@ -159,12 +131,41 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(disableFilter(bool)));
 
+  quickSaveButton_ = new QPushButton(tr("Quick save"));
+  quickSaveButton_->setEnabled(false);
+  connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
+  connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
+  connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
+
+  QToolButton *saveAsButton = new QToolButton();
+  saveAsButton->setText(tr("Save as"));
+  saveAsButton->setPopupMode(QToolButton::InstantPopup);
+  QMenu *saveAsMenu = new QMenu(tr("Save as..."), this);
+  connect(saveAsMenu->addAction(tr("Save All Items...")), SIGNAL(triggered()), SLOT(saveAllItems()));
+  connect(saveAsMenu->addAction(tr("Save Filtered Items...")), SIGNAL(triggered()), SLOT(saveFilteredItems()));
+  connect(saveAsMenu->addAction(tr("Save Visible Items...")), SIGNAL(triggered()), SLOT(saveVisibleItems()));
+  connect(saveAsMenu->addAction(tr("Save Selected Items...")), SIGNAL(triggered()), SLOT(saveSelectedItems()));
+  saveAsButton->setMenu(saveAsMenu);
+
+  editButton_ = new QPushButton(tr("Edit"));
+  editButton_->setEnabled(false);
+  connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
+
+  QHBoxLayout *saveButtonLayout = new QHBoxLayout();
+  saveButtonLayout->addWidget(quickSaveButton_);
+  saveButtonLayout->addWidget(saveAsButton);
+  saveButtonLayout->addWidget(editButton_);
+
+  QHBoxLayout *filterButtonLayout = new QHBoxLayout();
+  filterButtonLayout->addWidget(showAllCheckBox);
+  filterButtonLayout->addWidget(filterButton_);
+
   QVBoxLayout *editLayout = new QVBoxLayout();
   editLayout->addWidget(editTopSeparator);
   editLayout->addWidget(TitleLabel(tr("Editing/Filtering"), this));
   editLayout->addWidget(editModeCheckBox);
-  editLayout->addWidget(filterButton_);
-  editLayout->addWidget(showAllCheckBox);
+  editLayout->addLayout(filterButtonLayout);
+  editLayout->addLayout(saveButtonLayout);
   editLayout->addWidget(editBottomSeparator);
 
   // Apply and hide
@@ -190,7 +191,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   leftLayout->addWidget(drawingsList_);
   leftLayout->addWidget(TitleLabel(tr("Selected Products"), this));
   leftLayout->addWidget(activeList_);
-  leftLayout->addLayout(buttonLayout);
   leftLayout->addLayout(editLayout);
   leftLayout->addStretch();
   leftLayout->addLayout(hideApplyLayout);
@@ -342,10 +342,8 @@ void DrawingDialog::saveAllItems()
   if (fileName.isEmpty())
     return;
 
-  // Obtain all drawing and editing items and save the resulting collection.
-  QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
-
-  saveFile(items, fileName);
+  // Obtain all editing items and save the resulting collection.
+  saveFile(editm_->allItems(), fileName);
 }
 
 void DrawingDialog::saveFilteredItems()
@@ -359,11 +357,6 @@ void DrawingDialog::saveFilteredItems()
   // Obtain all drawing and editing items, filter them for visibility, and
   // save the resulting collection.
   QList<DrawingItemBase *> items;
-
-  foreach (DrawingItemBase *item, drawm_->allItems()) {
-    if (drawm_->matchesFilter(item))
-      items.append(item);
-  }
 
   foreach (DrawingItemBase *item, editm_->allItems()) {
     if (editm_->matchesFilter(item))
@@ -397,11 +390,6 @@ void DrawingDialog::saveVisibleItems()
 
   // Obtain all visible drawing and editing items and save the resulting collection.
   QList<DrawingItemBase *> items;
-
-  foreach (DrawingItemBase *item, drawm_->allItems()) {
-    if (drawm_->isItemVisible(item))
-      items.append(item);
-  }
 
   foreach (DrawingItemBase *item, editm_->allItems()) {
     if (editm_->isItemVisible(item))
