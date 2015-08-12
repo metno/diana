@@ -2,6 +2,8 @@
 #include <FimexSource.h>
 #include <VcrossUtil.h>
 
+#include <fimex/CDMconstants.h> // fimex version number
+
 #include <gtest/gtest.h>
 
 #include <fstream>
@@ -633,7 +635,14 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   ASSERT_EQ(shape.lengths(), ash_c_values->shape().lengths());
 
   Values::ShapeIndex idx(vertical_p_values->shape());
-  idx.set(Values::GEO_X, positions.size()-2);
+#if MIFI_VERSION_MAJOR == 0 && MIFI_VERSION_MINOR >= 59
+  const int p_offset = 2;
+#else
+  // newer fimex versions (after svn rev 1908) do not insert duplicate
+  // points between line segments
+  const int p_offset = 1;
+#endif
+  idx.set(Values::GEO_X, positions.size()-p_offset);
   idx.set(Values::GEO_Z, 13);
   EXPECT_FLOAT_EQ(505.81207,    vertical_p_values->value(idx));
   EXPECT_FLOAT_EQ(5859.9058,    vertical_h_values->value(idx));
