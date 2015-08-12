@@ -1341,7 +1341,7 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
 
 void DianaMainWindow::editDrawingToolBarVisible(bool visible)
 {
-  // Inform both the editing and drawing managers that editing is in progress.
+  // Inform the editing manager that editing is in progress.
   EditItemManager::instance()->setEditing(visible);
 }
 
@@ -1882,7 +1882,7 @@ void DianaMainWindow::onVcrossRequestLoadCrossectionsFile(const QStringList& fil
 {
   vcrossEditManagerEnableSignals();
   for (int i=0; i<filenames.size(); ++i)
-    DrawingManager::instance()->loadDrawing(filenames.at(i), filenames.at(i));
+    EditItemManager::instance()->loadDrawing(filenames.at(i), filenames.at(i));
 }
 
 
