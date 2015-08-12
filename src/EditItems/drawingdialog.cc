@@ -614,7 +614,7 @@ void DrawingDialog::reload()
  */
 void DrawingDialog::quickSave()
 {
-  QList<DrawingItemBase *> items = drawm_->allItems() + editm_->allItems();
+  QList<DrawingItemBase *> items = editm_->allItems();
   saveFile(items, quickSaveName_);
 }
 
