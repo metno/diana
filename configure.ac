@@ -152,7 +152,11 @@ METNO_REQUIRE_C_LIBRARY([PROJ], [proj], [proj_api.h], [pj_init_plus])
 
 METNO_WITH_LIBRARY([GEOTIFF], [geotiff], [geotiff], [yes])
 METNO_IF_WITH([geotiff], [
-  METNO_REQUIRE_PKG([TIFF], [libtiff-4], [], [])
+  METNO_CHECK_PKG([TIFF], [libtiff-4], [], [])
+  AS_IF([test x"$TIFF_FOUND" = x], [
+    METNO_REQUIRE_C_LIBRARY([JPEG], [jpeg], [jpeglib.h], [jpeg_read_header])
+    METNO_REQUIRE_C_LIBRARY([TIFF], [tiff], [tiff.h], [TIFFOpen], [${ZLIB_LIBS} ${JPEG_LIBS}])
+  ])
   AC_CHECK_HEADER([libgeotiff/geotiff.h], [break])
   if test x"$ac_cv_header_libgeotiff_geotiff_h" == xyes
   then
