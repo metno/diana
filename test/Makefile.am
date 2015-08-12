@@ -52,6 +52,7 @@ CPPFLAGS += \
     -DTEST_SRCDIR=\"$(abs_srcdir)\" -DTEST_BUILDDIR=\"$(abs_builddir)\" \
     $(EMOS_CPPFLAGS) \
     $(METLIBS_CPPFLAGS) \
+    $(FIMEX_CPPFLAGS) \
     $(SHP_CPPFLAGS) \
     $(gtest_CFLAGS) \
     $(PNG_CPPFLAGS) \
@@ -60,6 +61,7 @@ CPPFLAGS += \
 LDFLAGS += \
     $(EMOS_LDFLAGS) \
     $(METLIBS_LDFLAGS) \
+    $(FIMEX_LDFLAGS) \
     $(SHP_LDFLAGS) \
     $(gtest_LDFLAGS) \
     $(PNG_LDFLAGS) \
@@ -90,6 +92,7 @@ diFieldTest_SOURCES = \
 
 diFieldTest_LDFLAGS = \
     $(METLIBS_LDFLAGS) \
+    $(FIMEX_LDFLAGS) \
     ${UDUNITS_LDFLAGS} \
     $(PROJ_LDFLAGS) \
     $(BOOST_LDFLAGS) \
@@ -98,6 +101,7 @@ diFieldTest_LDFLAGS = \
 diFieldTest_CPPFLAGS = \
     -I$(top_srcdir)/src/diField \
     $(METLIBS_CPPFLAGS) \
+    $(FIMEX_CPPFLAGS) \
     ${UDUNITS_CPPFLAGS} \
     $(PROJ_CPPFLAGS) \
     $(BOOST_CPPFLAGS) \
