@@ -38,8 +38,6 @@
 /src/.libs/
 /src/Makefile
 /src/Makefile.in
-/src/test/Makefile.in
-/src/test/gtest/Makefile.in
 /src/*.moc.cc
 /src/*.moc.o
 /src/*/*.moc.cc
@@ -49,6 +47,12 @@
 /src/test_diOrderBook-*.o
 /src/test-diPlotOptions
 /src/test_diPlotOptions-*.o
+/src/*/Makefile
+/src/*/Makefile.in
+/test/Makefile
+/test/Makefile.in
+/test/gtest/Makefile
+/test/gtest/Makefile.in
 /stamp-h1
 /debian
 /do-configure

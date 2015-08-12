@@ -12,11 +12,9 @@ configure-stamp:
 	./autogen.sh
 	./configure $(confflags) \
 	    --disable-silent-rules \
-	    --enable-geotiff \
+	    --with-geotiff \
             --enable-obs-bufr \
-@metno_config_if ^trusty
-            --disable-video-export \
-@metno_config_endif
+            --enable-video-export \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)
 	touch $@

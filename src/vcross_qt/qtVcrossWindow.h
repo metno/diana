@@ -117,6 +117,8 @@ private:
   void repaintPlotIfNotInGroup();
   void repaintPlot();
 
+  void ensureStyleDialog();
+
 private Q_SLOTS:
   // from layer button bar
   void onRequestStyleEditor(int position);
@@ -175,6 +177,12 @@ private:
   VcrossReplaceModelDialog* vcReplaceModelDialog;
   VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
+  // positions of dialogs from the logfile
+  QPoint mPositionAddPlot;
+  QPoint mPositionReplaceModel;
+  QPoint mPositionStyle;
+  QPoint mPositionSetup;
+
   bool dynEditManagerConnected;
 
   // printerdefinitions

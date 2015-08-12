@@ -27,7 +27,7 @@ do-configure:
 	    --prefix=/usr \
 	    --enable-obs-bufr \
 	    --enable-video-export \
-	    --enable-geotiff \
+	    --with-geotiff \
 	    --with-qt4=/opt/qt4-headless \
 	    --with-qt4-includedir=/opt/qt4-headless/include \
 	    --with-qt4-libdir=/opt/qt4-headless/lib \
