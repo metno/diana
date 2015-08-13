@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+#include "diField/VcrossData.h"
+
 class LogFileIO;
 struct LocationData;
 
@@ -117,6 +119,12 @@ public:
 
   virtual void readLog(const LogFileIO& logfile, const std::string& thisVersion, const std::string& logVersion,
       int displayWidth, int displayHeight) = 0;
+};
+
+struct CrossSection
+{
+  std::string mLabel;
+  vcross::LonLat_v mPoints;
 };
 
 Q_DECLARE_INTERFACE(VcrossInterface, "metno.diana.VcrossInterface/1.0");
