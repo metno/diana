@@ -34,9 +34,15 @@ void VcrossStyleDialog::setManager(vcross::QtManager_p vsm)
         this, SLOT(onFieldUpdated(int)));
     disconnect(vcrossm.get(), SIGNAL(fieldRemoved(int)),
         this, SLOT(onFieldRemoved(int)));
+
+    while (mPlots->rowCount() > 0)
+      onFieldRemoved(mPlots->rowCount() - 1);
   }
   vcrossm = vsm;
   if (vcrossm) {
+    for (int i=0; i<vcrossm->getFieldCount(); ++i)
+      onFieldAdded(i);
+
     connect(vcrossm.get(), SIGNAL(fieldAdded(int)),
         this, SLOT(onFieldAdded(int)));
     connect(vcrossm.get(), SIGNAL(fieldOptionsChanged(int)),
