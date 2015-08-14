@@ -271,11 +271,15 @@ void VcrossWindow::setupUi()
 
   const QPixmap back(bakover_xpm), forward(forward_xpm);
 
-  ui->buttonCsPrevious->setIcon(back);
-  ui->buttonCsNext->setIcon(forward);
+  ui->actionPreviousCs->setIcon(back);
+  ui->actionNextCs->setIcon(forward);
+  ui->buttonCsPrevious->setDefaultAction(ui->actionPreviousCs);
+  ui->buttonCsNext->setDefaultAction(ui->actionNextCs);
 
-  ui->buttonTimePrevious->setIcon(back);
-  ui->buttonTimeNext->setIcon(forward);
+  ui->actionPreviousTime->setIcon(back);
+  ui->actionNextTime->setIcon(forward);
+  ui->buttonTimePrevious->setDefaultAction(ui->actionPreviousTime);
+  ui->buttonTimeNext->setDefaultAction(ui->actionNextTime);
 }
 
 
@@ -448,7 +452,7 @@ void VcrossWindow::crossectionBoxActivated(int index)
 void VcrossWindow::stepTime(int direction)
 {
   METLIBS_LOG_SCOPE(LOGVAL(direction));
-  const int step = std::max(ui->timeSpinBox->value(), 1)
+  const int step = ui->comboTimeStep->currentText().toInt()
       * (direction < 0 ? -1 : 1);
 
   const int ntimes = vcrossm->getTimeCount();
@@ -492,7 +496,7 @@ void VcrossWindow::timeListChangedSlot()
   ui->comboTime->setEnabled(enabled);
   ui->buttonTimePrevious->setEnabled(enabled);
   ui->buttonTimeNext->setEnabled(enabled);
-  ui->timeSpinBox->setEnabled(enabled);
+  ui->comboTimeStep->setEnabled(enabled);
 
   enableTimeGraphIfSupported();
 }

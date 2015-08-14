@@ -110,23 +110,10 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
   if (dorubberband || dopanning || !vcrossm)
     return;
 
-  bool change= true, handled = true;
+  bool change = false, handled = false;
 
-  if (me->modifiers() & Qt::ControlModifier) {
-
-    if (me->key()==Qt::Key_Left) {
-      Q_EMIT stepTime(-1);
-    } else if (me->key()==Qt::Key_Right) {
-      Q_EMIT stepTime(+1);
-    } else if (me->key()==Qt::Key_Down) {
-      Q_EMIT stepCrossection(-1);
-    } else if (me->key()==Qt::Key_Up) {
-      Q_EMIT stepCrossection(+1);
-    } else {
-      handled = false;
-      change= false;
-    }
-  } else {
+  if (!(me->modifiers() & Qt::ControlModifier)) {
+    change = handled = true;
     float x1, y1, x2, y2;
     Colour rbc;
     vcrossm->getPlotSize(x1, y1, x2, y2, rbc);
@@ -141,7 +128,7 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
       vcrossm->movePart(0, arrowKeyDirection*ploth/8);
     } else if (me->key()==Qt::Key_X) {
       vcrossm->increasePart();
-    } else if (me->key()==Qt::Key_Z && me->modifiers() & Qt::ShiftModifier) {
+    } else if (me->key()==Qt::Key_Z && (me->modifiers() & Qt::ShiftModifier)) {
       vcrossm->increasePart();
     } else if (me->key()==Qt::Key_Z) {
       const int dw= int(plotw/1.3), dh= int(ploth/1.3);
