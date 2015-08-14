@@ -46,7 +46,7 @@
 namespace vcross {
 
 QtWidget::QtWidget(QWidget* parent)
-  : VCROSS_GL(QGLWidget(QGLFormat(QGL::SampleBuffers), parent),QWidget(parent))
+  : QWidget(parent)
   , arrowKeyDirection(1)
 {
   METLIBS_LOG_SCOPE();
@@ -160,7 +160,7 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
   if (change)
     update();
   else if (!handled)
-    VCROSS_GL(QGLWidget,QWidget)::keyPressEvent(me);
+    QWidget::keyPressEvent(me);
 }
 
 void QtWidget::mousePressEvent(QMouseEvent* me)

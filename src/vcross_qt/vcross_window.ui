@@ -83,6 +83,9 @@
        <property name="text">
         <string>Help</string>
        </property>
+       <property name="shortcut">
+        <string>F1</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -388,7 +391,38 @@
     <string>Add field(s) to the vertical cross section view</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>Ctrl+L, A</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionReplaceModel">
+   <property name="text">
+    <string>Replace Model</string>
+   </property>
+   <property name="toolTip">
+    <string>Replace model/reference time …</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L, R</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionShowStyle">
+   <property name="text">
+    <string>Style…</string>
+   </property>
+   <property name="toolTip">
+    <string>Show style dialog</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L, S</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
    </property>
   </action>
  </widget>
@@ -649,30 +683,30 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolShowStyle</sender>
-   <signal>clicked()</signal>
+   <sender>actionReplaceModel</sender>
+   <signal>triggered()</signal>
    <receiver>VcrossWindow</receiver>
-   <slot>onShowStyleDialog()</slot>
+   <slot>onReplaceModel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>104</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>344</x>
+     <x>332</x>
      <y>236</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>toolReplaceModel</sender>
-   <signal>clicked()</signal>
+   <sender>actionShowStyle</sender>
+   <signal>triggered()</signal>
    <receiver>VcrossWindow</receiver>
-   <slot>onReplaceModel()</slot>
+   <slot>onShowStyleDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>102</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>332</x>

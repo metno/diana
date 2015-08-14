@@ -41,7 +41,6 @@
 #include "diLogFile.h"
 #include "diUtilities.h"
 
-#include "qtActionButton.h"
 #include "qtUtility.h"
 #include "qtVcrossSetupDialog.h"
 #include "qtPrintManager.h"
@@ -253,9 +252,15 @@ void VcrossWindow::setupUi()
       this, SLOT(onAxisPosition(const QString&)));
 
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
-  new ActionButton(ui->toolAddField, ui->actionAddField, this);
+  ui->toolAddField->setDefaultAction(ui->actionAddField);
 
-  ui->toolShowStyle->setIcon(QPixmap(palette_xpm));
+  ui->actionReplaceModel->setIcon(QPixmap(loop_xpm));
+  ui->toolReplaceModel->setDefaultAction(ui->actionReplaceModel);
+
+  ui->actionShowStyle->setIcon(QPixmap(palette_xpm));
+  ui->toolShowStyle->setDefaultAction(ui->actionShowStyle);
+
+  ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
 
   ui->toggleTimeGraph->setIcon(QPixmap(clock_xpm));
   ui->buttonClose->setIcon(QPixmap(exit_xpm));
@@ -263,9 +268,6 @@ void VcrossWindow::setupUi()
   ui->buttonPrint->setIcon(QPixmap(fileprint_xpm));
   ui->buttonSave->setIcon(QPixmap(filesave));
   ui->buttonSettings->setIcon(QPixmap(icon_settings));
-
-  ui->toolReplaceModel->setIcon(QPixmap(loop_xpm));
-  ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
 
   const QPixmap back(bakover_xpm), forward(forward_xpm);
 
