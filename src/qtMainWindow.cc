@@ -955,9 +955,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
   connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
-  connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
-  connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
-  connect(EditItemManager::instance(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
+  EditItemManager *editm = EditItemManager::instance();
+  connect(editm, SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
+  connect(editm, SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
+  connect(editm, SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
   connect(drawingDialog, SIGNAL(editingMode(bool)), editDrawingToolBar, SLOT(setVisible(bool)));
 
   textview = new TextView(this);
