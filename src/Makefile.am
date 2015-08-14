@@ -4,12 +4,14 @@ SUBDIRS = miRaster diField .
 
 # libexecdiana contains "exec" so that automake uses install-exec
 libexecdiana_LTLIBRARIES = libdiana.la
-libexecdianadir= $(pkglibdir)/@PVERSION@
 
 bin_PROGRAMS = bdiana
 
 if WITH_GUI
 bin_PROGRAMS += diana.bin
+libexecdianadir= $(pkglibdir)/@PVERSION@
+else
+libexecdianadir= $(libdir)
 endif # WITH_GUI
 
 # convenience for developers using a non-standard $(prefix)

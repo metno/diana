@@ -1,4 +1,0 @@
-src/di*.h usr/include/diana
-src/MovieMaker.h usr/include/diana
-src/vcross_v2/*.h usr/include/diana/vcross_v2
-src/.libs/libdiana.so* usr/lib
