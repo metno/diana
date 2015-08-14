@@ -179,6 +179,11 @@ void FilterDrawingWidget::disableFilter(bool disable)
   emit updated();
 }
 
+QStringList FilterDrawingWidget::properties() const
+{
+  return propertyModel_->properties();
+}
+
 // ======================================================
 // Model for displaying item properties and their values.
 // ======================================================
@@ -295,6 +300,10 @@ Qt::ItemFlags FilterDrawingModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
+QStringList FilterDrawingModel::properties() const
+{
+  return order_;
+}
 
 void FilterDrawingModel::setProperties(const QHash<QString, QStringList> &choices)
 {

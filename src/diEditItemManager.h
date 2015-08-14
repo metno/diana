@@ -104,7 +104,6 @@ public:
   void enableItemChangeNotification(bool = true);
   void setItemChangeFilter(const QString &);
   void emitItemChanged() const;
-  void emitLoadFile(const QString &) const;
 
   void setItemsVisibilityForced(bool);
 
@@ -164,7 +163,6 @@ signals:
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
   void editing(bool);
-  void loadFile(const QString &) const;
 
 private:
   DrawingItemBase *hitItem_; // current hit item
