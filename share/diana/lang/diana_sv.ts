@@ -3214,6 +3214,14 @@ Vil du spara innan du avslutar?</translation>
     </message>
 </context>
 <context>
+    <name>QtUtility</name>
+    <message>
+        <location filename="../../../src/qtUtility.cc" line="685"/>
+        <source>Shortcut: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QuickAdmin</name>
     <message>
         <location filename="../../../src/qtQuickAdmin.cc" line="130"/>
@@ -5257,22 +5265,22 @@ Vill du skicka innan du avslutar?</translation>
         <translation type="obsolete">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="554"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="561"/>
         <source>Images (*.png *.xpm *.bmp);;All (*.*)</source>
         <translation>Bilder (*.png *.xpm *.bmp);;Alla (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="559"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="566"/>
         <source>Save image failed</source>
         <translation>Fel vid sparande av bild.</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="560"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="567"/>
         <source>Saving the vertical cross section plot as &apos;%1&apos; failed. Sorry.</source>
         <translation>Sparande av vertikalsnittet som bild i &apos;%1&apos; gick fel. Beklagar.</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="552"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="559"/>
         <source>Save plot as image</source>
         <translation>Spara plott som bild</translation>
     </message>

@@ -4026,6 +4026,14 @@ Vil du kjøre dine endringer først?</translation>
     </message>
 </context>
 <context>
+    <name>QtUtility</name>
+    <message>
+        <location filename="../../../src/qtUtility.cc" line="685"/>
+        <source>Shortcut: %1</source>
+        <translation>Tastekombinasjon: %1</translation>
+    </message>
+</context>
+<context>
     <name>QuickAdmin</name>
     <message>
         <location filename="../../../src/qtQuickAdmin.cc" line="130"/>
@@ -6206,22 +6214,22 @@ Vil du sende før du avslutter?</translation>
         <translation type="obsolete">&amp;Neste plott</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="554"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="561"/>
         <source>Images (*.png *.xpm *.bmp);;All (*.*)</source>
         <translation>Bilder (*.png *.xpm *.bmp);;Alle (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="559"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="566"/>
         <source>Save image failed</source>
         <translation>Lagring som bilde feilet</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="560"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="567"/>
         <source>Saving the vertical cross section plot as &apos;%1&apos; failed. Sorry.</source>
         <translation>Lagring av vertikalsnittet som bilde i &apos;%1&apos; feilet. Beklager.</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="552"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="559"/>
         <source>Save plot as image</source>
         <translation>Lagre plott som bilde</translation>
     </message>

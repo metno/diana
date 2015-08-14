@@ -252,12 +252,15 @@ void VcrossWindow::setupUi()
       this, SLOT(onAxisPosition(const QString&)));
 
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
+  diutil::addShortcutToTooltip(ui->actionAddField);
   ui->toolAddField->setDefaultAction(ui->actionAddField);
 
   ui->actionReplaceModel->setIcon(QPixmap(loop_xpm));
+  diutil::addShortcutToTooltip(ui->actionReplaceModel);
   ui->toolReplaceModel->setDefaultAction(ui->actionReplaceModel);
 
   ui->actionShowStyle->setIcon(QPixmap(palette_xpm));
+  diutil::addShortcutToTooltip(ui->actionShowStyle);
   ui->toolShowStyle->setDefaultAction(ui->actionShowStyle);
 
   ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
@@ -273,11 +276,15 @@ void VcrossWindow::setupUi()
 
   ui->actionPreviousCs->setIcon(back);
   ui->actionNextCs->setIcon(forward);
+  diutil::addShortcutToTooltip(ui->actionPreviousCs);
+  diutil::addShortcutToTooltip(ui->actionNextCs);
   ui->buttonCsPrevious->setDefaultAction(ui->actionPreviousCs);
   ui->buttonCsNext->setDefaultAction(ui->actionNextCs);
 
   ui->actionPreviousTime->setIcon(back);
   ui->actionNextTime->setIcon(forward);
+  diutil::addShortcutToTooltip(ui->actionPreviousTime);
+  diutil::addShortcutToTooltip(ui->actionNextTime);
   ui->buttonTimePrevious->setDefaultAction(ui->actionPreviousTime);
   ui->buttonTimeNext->setDefaultAction(ui->actionNextTime);
 }

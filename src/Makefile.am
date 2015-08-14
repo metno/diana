@@ -721,6 +721,7 @@ CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
 	$(LUPDATE4) $(diana_bin_QTSOURCES:%=$(srcdir)/%) \
+	    $(srcdir)/qtUtility.cc \
 	    $(diana_bin_QTFORMS:%=$(srcdir)/%) \
 	    -ts $(language_sources)
 .PHONY: lupdate

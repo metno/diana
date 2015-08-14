@@ -3683,6 +3683,14 @@ Do you want to run your changes first?</source>
     </message>
 </context>
 <context>
+    <name>QtUtility</name>
+    <message>
+        <location filename="../../../src/qtUtility.cc" line="685"/>
+        <source>Shortcut: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QuickAdmin</name>
     <message>
         <location filename="../../../src/qtQuickAdmin.cc" line="100"/>
@@ -6013,22 +6021,22 @@ Do you want to run your changes first?</source>
         <translation type="obsolete">&amp;Следующее изображение</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="552"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="559"/>
         <source>Save plot as image</source>
         <translation>Сохранить изображение как картинку</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="554"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="561"/>
         <source>Images (*.png *.xpm *.bmp);;All (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="559"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="566"/>
         <source>Save image failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="560"/>
+        <location filename="../../../src/vcross_qt/qtVcrossWindow.cc" line="567"/>
         <source>Saving the vertical cross section plot as &apos;%1&apos; failed. Sorry.</source>
         <translation type="unfinished"></translation>
     </message>
