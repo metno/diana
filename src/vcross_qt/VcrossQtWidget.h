@@ -32,14 +32,7 @@
 #include "diColour.h"
 #include "vcross_v2/VcrossQtManager.h"
 
-//#define VCROSS_GLWIDGET 1
-#ifdef VCROSS_GLWIDGET
-#include <QGLWidget>
-#define VCROSS_GL(gl,nogl) gl
-#else
 #include <QWidget>
-#define VCROSS_GL(gl,nogl) nogl
-#endif
 
 class QKeyEvent;
 class QMouseEvent;
@@ -53,11 +46,7 @@ namespace vcross {
    Handles widget paint/redraw events.
    Receives mouse and keybord events and initiates actions.
 */
-#ifdef VCROSS_GLWIDGET // cannot use VCROSS_GL here because moc-qt4 does not understand
-class QtWidget : public QGLWidget
-#else
 class QtWidget : public QWidget
-#endif
 {
   Q_OBJECT;
 

@@ -2,7 +2,7 @@
 # $Id: configure.ac 4440 2014-09-04 12:05:03Z lisbethb $
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.39.0~a2], [diana@met.no])
+AC_INIT([diana], [3.39.0~a3], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign])
@@ -129,6 +129,7 @@ METNO_IF_ENABLED([gribfile], [
 # Other third-party dependencies
 #
 METNO_REQUIRE_BOOST
+METNO_REQUIRE_BOOST_FEATURE([date_time])
 METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
 METNO_REQUIRE_BOOST_FEATURE([thread])
@@ -145,7 +146,7 @@ AS_IF([test x$enable_newarkobs = xyes], [
 
 METNO_REQUIRE_PKGS([PNG], [libpng >= 1.2])
 METNO_REQUIRE_PKGS([CURL], [libcurl >= 7])
-METNO_REQUIRE_PKGS([UU], [udunits >= 2])
+METNO_REQUIRE_PKGS([UDUNITS], [udunits >= 2])
 
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
 METNO_REQUIRE_C_LIBRARY([PROJ], [proj], [proj_api.h], [pj_init_plus])

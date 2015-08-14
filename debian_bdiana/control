@@ -4,14 +4,15 @@ Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 7.4.15), g++,
  perl, lsb-release, autoconf (>=2.61), automake (>= 1.10),
- libtool (>= 1.5),
- qt4-qmake-headless, libqt4-headless-dev, libemos-dev,
+ libtool (>= 1.5), qt4-qmake-headless, libqt4-headless-dev,
+ metlibs-putools-dev (>= 5.0.0), metlibs-milogger-dev (>= 5.0.0),
  metlibs-pudatatypes-dev (>= 5.0.0),
- metlibs-milogger-dev (>= 5.0.0), metlibs-puctools-dev (>= 5.0.0),
- libboost-date-time-dev, libboost-regex-dev, libboost-thread-dev,
- libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
- libavformat-dev,
- cmake, libgtest-dev, libudunits2-dev
+ libfimex-dev (>= 0.57),
+ libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
+ libboost-system-dev, libboost-thread-dev,
+ libtiff-dev, libgeotiff-dev, libpng-dev, libudunits2-dev, libproj-dev,
+ libavformat-dev, libshp-dev, libemos-dev,
+ cmake, libgtest-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 

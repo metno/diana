@@ -41,7 +41,6 @@
 #include "diLogFile.h"
 #include "diUtilities.h"
 
-#include "qtActionButton.h"
 #include "qtUtility.h"
 #include "qtVcrossSetupDialog.h"
 #include "qtPrintManager.h"
@@ -253,9 +252,18 @@ void VcrossWindow::setupUi()
       this, SLOT(onAxisPosition(const QString&)));
 
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
-  new ActionButton(ui->toolAddField, ui->actionAddField, this);
+  diutil::addShortcutToTooltip(ui->actionAddField);
+  ui->toolAddField->setDefaultAction(ui->actionAddField);
 
-  ui->toolShowStyle->setIcon(QPixmap(palette_xpm));
+  ui->actionReplaceModel->setIcon(QPixmap(loop_xpm));
+  diutil::addShortcutToTooltip(ui->actionReplaceModel);
+  ui->toolReplaceModel->setDefaultAction(ui->actionReplaceModel);
+
+  ui->actionShowStyle->setIcon(QPixmap(palette_xpm));
+  diutil::addShortcutToTooltip(ui->actionShowStyle);
+  ui->toolShowStyle->setDefaultAction(ui->actionShowStyle);
+
+  ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
 
   ui->toggleTimeGraph->setIcon(QPixmap(clock_xpm));
   ui->buttonClose->setIcon(QPixmap(exit_xpm));
@@ -264,16 +272,21 @@ void VcrossWindow::setupUi()
   ui->buttonSave->setIcon(QPixmap(filesave));
   ui->buttonSettings->setIcon(QPixmap(icon_settings));
 
-  ui->toolReplaceModel->setIcon(QPixmap(loop_xpm));
-  ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
-
   const QPixmap back(bakover_xpm), forward(forward_xpm);
 
-  ui->buttonCsPrevious->setIcon(back);
-  ui->buttonCsNext->setIcon(forward);
+  ui->actionPreviousCs->setIcon(back);
+  ui->actionNextCs->setIcon(forward);
+  diutil::addShortcutToTooltip(ui->actionPreviousCs);
+  diutil::addShortcutToTooltip(ui->actionNextCs);
+  ui->buttonCsPrevious->setDefaultAction(ui->actionPreviousCs);
+  ui->buttonCsNext->setDefaultAction(ui->actionNextCs);
 
-  ui->buttonTimePrevious->setIcon(back);
-  ui->buttonTimeNext->setIcon(forward);
+  ui->actionPreviousTime->setIcon(back);
+  ui->actionNextTime->setIcon(forward);
+  diutil::addShortcutToTooltip(ui->actionPreviousTime);
+  diutil::addShortcutToTooltip(ui->actionNextTime);
+  ui->buttonTimePrevious->setDefaultAction(ui->actionPreviousTime);
+  ui->buttonTimeNext->setDefaultAction(ui->actionNextTime);
 }
 
 
@@ -446,7 +459,7 @@ void VcrossWindow::crossectionBoxActivated(int index)
 void VcrossWindow::stepTime(int direction)
 {
   METLIBS_LOG_SCOPE(LOGVAL(direction));
-  const int step = std::max(ui->timeSpinBox->value(), 1)
+  const int step = ui->comboTimeStep->currentText().toInt()
       * (direction < 0 ? -1 : 1);
 
   const int ntimes = vcrossm->getTimeCount();
@@ -490,7 +503,7 @@ void VcrossWindow::timeListChangedSlot()
   ui->comboTime->setEnabled(enabled);
   ui->buttonTimePrevious->setEnabled(enabled);
   ui->buttonTimeNext->setEnabled(enabled);
-  ui->timeSpinBox->setEnabled(enabled);
+  ui->comboTimeStep->setEnabled(enabled);
 
   enableTimeGraphIfSupported();
 }

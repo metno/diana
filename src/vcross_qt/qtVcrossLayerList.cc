@@ -90,10 +90,7 @@ void VcrossLayerList::onPlotSelectionChanged()
 
 void VcrossLayerList::selectAll()
 {
-  if (plots->rowCount() > 0) {
-    const QItemSelection all(plots->index(0, 0), plots->index(plots->rowCount()-1, 0));
-    plotsList->selectionModel()->select(all, QItemSelectionModel::Select);
-  }
+  diutil::selectAllRows(plotsList);
 }
 
 QList<int> VcrossLayerList::selected() const

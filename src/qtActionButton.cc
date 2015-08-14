@@ -1,7 +1,7 @@
 #include "qtActionButton.h"
 
 #include <QAction>
-     
+
 ActionButton::ActionButton(QAbstractButton *button, QAction* action, QObject* parent)
   : QObject(parent)
   , mButton(button)
@@ -10,7 +10,7 @@ ActionButton::ActionButton(QAbstractButton *button, QAction* action, QObject* pa
   doConnect();
   updateFromAction();
 }
-     
+
 void ActionButton::setAction(QAction *action)
 {
   if (mAction == action)
@@ -27,19 +27,19 @@ void ActionButton::doConnect()
   if (mAction and mButton) {
     connect(mAction, SIGNAL(changed()), this, SLOT(updateFromAction()));
     connect(mButton, SIGNAL(clicked()), mAction, SLOT(trigger()));
-    connect(mButton, SIGNAL(toggled(bool)), mAction, SLOT(toggle()));
+    connect(mButton, SIGNAL(toggled(bool)), mAction, SLOT(setChecked(bool)));
   }
 }
-     
+
 void ActionButton::doDisconnect()
 {
   if (mAction and mButton) {
     disconnect(mAction, SIGNAL(changed()), this, SLOT(updateFromAction()));
     disconnect(mButton, SIGNAL(clicked()), mAction, SLOT(trigger()));
-    disconnect(mButton, SIGNAL(toggled(bool)), mAction, SLOT(toggle()));
+    disconnect(mButton, SIGNAL(toggled(bool)), mAction, SLOT(setChecked(bool)));
   }
 }
-     
+
 void ActionButton::updateFromAction()
 {
   mButton->setText(mAction->text());

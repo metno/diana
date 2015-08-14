@@ -243,6 +243,8 @@ void VcrossAddPlotDialog::initializePlotPage(bool forward)
 void VcrossAddPlotDialog::onPlotFilter(const QString& text)
 {
   plotSorter->setFilterFixedString(text);
+  if (plotSorter->rowCount() == 1)
+    diutil::selectAllRows(ui->plotList);
 }
 
 bool VcrossAddPlotDialog::isPlotComplete() const

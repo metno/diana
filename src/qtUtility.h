@@ -35,12 +35,15 @@
 #include "diColourShading.h"
 #include "diPattern.h"
 
-#include <QPixmap>
+#include <QCursor>
 #include <QLabel>
+#include <QPixmap>
 
 #include <string>
 #include <vector>
 
+class QAbstractItemView;
+class QAction;
 class QWidget;
 class QPushButton;
 class QComboBox;
@@ -49,7 +52,6 @@ class QLabel;
 class QLCDNumber;
 class QCheckBox;
 class QSlider;
-class QPixmap;
 class QColor;
 
 
@@ -139,13 +141,6 @@ void listWidget(QListWidget* box, const std::vector<std::string>& vstr, int defI
 
 QPixmap* linePixmap(const std::string& pattern, int linewidth);
 
-#include <QCursor>
-
-#include <string>
-#include <vector>
-
-class QComboBox;
-
 namespace diutil {
 
 class OverrideCursor {
@@ -157,6 +152,19 @@ public:
 /*! Fill combobox with values around 'number'.
  */
 std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff);
+
+/** select all rows in an item view */
+void selectAllRows(QAbstractItemView* view);
+
+void appendText(QString& text, const QString& append, const QString& separator=" ");
+QString appendedText(const QString& text, const QString& append, const QString& separator=" ");
+
+/** Add a shortcut hint to the current tooltip (if there is a shortcut).
+ *
+ *  It is not god to call this function several times without
+ *  resetting the tooltip text inbetween.
+ */
+void addShortcutToTooltip(QAction* action);
 
 } // namespace diutil
 
