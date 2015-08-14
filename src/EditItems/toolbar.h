@@ -43,9 +43,10 @@ class ToolBar : public QToolBar
   Q_OBJECT
 public:
   static ToolBar *instance();
-  void setCreatePolyLineAction(const QString &);
 
-private slots:
+public slots:
+  void setSelectAction();
+  void setCreatePolyLineAction(const QString &);
   void setPolyLineType(int index);
   void setSymbolType(int index);
   void setTextType(int index);
