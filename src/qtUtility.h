@@ -41,6 +41,7 @@
 #include <string>
 #include <vector>
 
+class QAbstractItemView;
 class QWidget;
 class QPushButton;
 class QComboBox;
@@ -157,6 +158,9 @@ public:
 /*! Fill combobox with values around 'number'.
  */
 std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff);
+
+/** select all rows in an item view */
+void selectAllRows(QAbstractItemView* view);
 
 } // namespace diutil
 

@@ -68,6 +68,8 @@ QString VcrossModelPage::selected() const
 void VcrossModelPage::onFilter(const QString& text)
 {
   modelSorter->setFilterFixedString(text);
+  if (modelSorter->rowCount() == 1)
+    diutil::selectAllRows(ui->modelList);
 }
 
 void VcrossModelPage::checkComplete()

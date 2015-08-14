@@ -651,4 +651,13 @@ std::vector<std::string> numberList(QComboBox* cBox, float number, const float* 
   return numbers;
 }
 
+void selectAllRows(QAbstractItemView* view)
+{
+  QAbstractItemModel* model = view->model();
+  if (model->rowCount() > 0) {
+    const QItemSelection all(model->index(0, 0), model->index(model->rowCount()-1, 0));
+    view->selectionModel()->select(all, QItemSelectionModel::Select);
+  }
+}
+
 } // namespace diutil
