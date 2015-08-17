@@ -1430,6 +1430,7 @@ vector<string> MapDialog::writeLog()
   // write favorite options
   for (unsigned int i = 0; i < favorite.size(); i++) {
     vstr.push_back(favorite[i]);
+    METLIBS_LOG_INFO(LOGVAL(favorite[i]));
   }
 
   vstr.push_back("===========================================");
@@ -1505,23 +1506,6 @@ void MapDialog::readLog(const vector<string>& vstr,
     }
   }
 
-  // read favorite
-  favorite.clear();
-  if (iline < n && vstr[iline][0] == '=') {
-    iline++;
-    for (; iline < n; iline++) {
-      std::string str = vstr[iline];
-      miutil::trim(str);
-      if (str.empty())
-        continue;
-      if (str[0] == '=')
-        break;
-      favorite.push_back(str);
-    }
-  }
-  usefavorite->setEnabled(favorite.size() > 0);
-
-
   //read area
   if (iline < n && vstr[iline][0] == '=') {
     iline++;
@@ -1535,6 +1519,25 @@ void MapDialog::readLog(const vector<string>& vstr,
       area = str;
     }
   }
+
+  // read favorite
+  favorite.clear();
+  if (iline < n && vstr[iline][0] == '=') {
+    iline++;
+    for (; iline < n; iline++) {
+      std::string str = vstr[iline];
+      METLIBS_LOG_INFO(LOGVAL(str));
+      miutil::trim(str);
+      if (str.empty())
+        continue;
+      if (str[0] == '=')
+        break;
+      favorite.push_back(str);
+    }
+  }
+  usefavorite->setEnabled(favorite.size() > 0);
+
+
   // reselect area
   int area_index = 0;
   for (unsigned int i = 0; i < m_MapDI.areas.size(); i++)
