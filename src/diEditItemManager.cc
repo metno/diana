@@ -1570,10 +1570,12 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   }
 
   res.repaint = needsRepaint();
-  res.action = canUndo() ? objects_changed : no_action;
 
-  if (event->type() != QEvent::MouseMove)
+  if (event->type() != QEvent::MouseMove) {
     updateActionsAndTimes();
+    res.action = canUndo() ? objects_changed : no_action;
+  } else
+    res.action = browsing; // allow the main window to update the coordinates label
 }
 
 void EditItemManager::getViewportDisplacement(int &w, int &h, float &dx, float &dy)
