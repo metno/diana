@@ -181,6 +181,11 @@ ToolBar::ToolBar(QWidget *parent)
   selectAction_->trigger();
 }
 
+void ToolBar::setSelectAction()
+{
+  selectAction_->trigger();
+}
+
 void ToolBar::setCreatePolyLineAction(const QString &type)
 {
   const int index = polyLineCombo_->findText(type);

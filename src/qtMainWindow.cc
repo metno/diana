@@ -955,9 +955,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
   connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
-  connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
-  connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
-  connect(EditItemManager::instance(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
+  EditItemManager *editm = EditItemManager::instance();
+  connect(editm, SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
+  connect(editm, SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
+  connect(editm, SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
   connect(drawingDialog, SIGNAL(editingMode(bool)), editDrawingToolBar, SLOT(setVisible(bool)));
 
   textview = new TextView(this);
@@ -1341,7 +1342,7 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
 
 void DianaMainWindow::editDrawingToolBarVisible(bool visible)
 {
-  // Inform both the editing and drawing managers that editing is in progress.
+  // Inform the editing manager that editing is in progress.
   EditItemManager::instance()->setEditing(visible);
 }
 
@@ -1881,8 +1882,6 @@ void DianaMainWindow::modelChangedSlot()
 void DianaMainWindow::onVcrossRequestLoadCrossectionsFile(const QStringList& filenames)
 {
   vcrossEditManagerEnableSignals();
-  for (int i=0; i<filenames.size(); ++i)
-    DrawingManager::instance()->loadDrawing(filenames.at(i), filenames.at(i));
 }
 
 

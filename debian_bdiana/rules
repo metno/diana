@@ -25,6 +25,7 @@ do-configure:
 	./configure $(confflags) \
 	    --disable-silent-rules \
 	    --prefix=/usr \
+	    --libdir=/usr/lib/bdiana/@PVERSION_MAJOR_DOT_MINOR@ \
 	    --enable-obs-bufr \
 	    --enable-video-export \
 	    --with-geotiff \

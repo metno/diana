@@ -59,6 +59,7 @@ public:
 
   Qt::ItemFlags flags(const QModelIndex &index) const;
 
+  QStringList properties() const;
   void setProperties(const QHash<QString, QStringList> &choices);
 
 private:
@@ -74,6 +75,8 @@ class FilterDrawingWidget : public QWidget
 public:
   FilterDrawingWidget(QWidget *parent = 0);
   virtual ~FilterDrawingWidget();
+
+  QStringList properties() const;
 
 signals:
   void updated();

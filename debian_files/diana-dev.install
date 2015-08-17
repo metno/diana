@@ -1,4 +1,5 @@
 src/di*.h usr/include/diana
+src/diField/*.h usr/include/diana/diField
+src/EditItems/*.h usr/include/diana/EditItems
 src/MovieMaker.h usr/include/diana
 src/vcross_v2/*.h usr/include/diana/vcross_v2
-src/.libs/libdiana.so* usr/lib

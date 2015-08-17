@@ -6,7 +6,8 @@ PERLDEPEND    = $(srcdir)/Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana
 PERLCONFIG    = PREFIX="$(prefix)" \
                 INSTALLDIRS=vendor \
                 INC="-Wall -I. -I$(abs_top_srcdir)/src" \
-                LIBS="$(top_builddir)/src/libdiana.la -lboost_thread"
+                LIBS="-lboost_thread" \
+                MYEXTLIB="../../src/.libs/libdiana.so -Wl,-rpath=$(libdir)"
 
 #if DEBUG
 #PERLCONFIG    += OPTIMIZE=-g

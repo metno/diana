@@ -4,12 +4,14 @@ SUBDIRS = miRaster diField .
 
 # libexecdiana contains "exec" so that automake uses install-exec
 libexecdiana_LTLIBRARIES = libdiana.la
-libexecdianadir= $(pkglibdir)/@PVERSION@
 
 bin_PROGRAMS = bdiana
 
 if WITH_GUI
 bin_PROGRAMS += diana.bin
+libexecdianadir= $(pkglibdir)/@PVERSION@
+else
+libexecdianadir= $(libdir)
 endif # WITH_GUI
 
 # convenience for developers using a non-standard $(prefix)
@@ -120,6 +122,7 @@ libdiana_la_SOURCES += \
 
 libdiana_la_CPPFLAGS = -Ivcross_v2 -Ivcross_qt
 libdiana_la_LIBADD = \
+	$(BOOST_DATE_TIME_LIBS) \
 	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
 
 libdiana_la_QTSOURCES = diManager.cc \
@@ -603,8 +606,9 @@ libdiana_la_CPPFLAGS += \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
+	${GEOTIFF_CPPFLAGS} \
 	$(TIFF_CPPFLAGS) \
-	$(UU_CPPFLAGS)
+	$(UDUNITS_CPPFLAGS)
 
 libdiana_la_LDFLAGS = \
 	${FIMEX_LDFLAGS} \
@@ -613,8 +617,9 @@ libdiana_la_LDFLAGS = \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
+	${GEOTIFF_LDFLAGS} \
 	$(TIFF_LDFLAGS) \
-	$(UU_LDFLAGS)
+	$(UDUNITS_LDFLAGS)
 
 libdiana_la_LIBADD += \
 	miRaster/libmiRaster.la \
@@ -625,8 +630,9 @@ libdiana_la_LIBADD += \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
+	${GEOTIFF_LIBS} \
 	$(TIFF_LIBS) \
-	$(UU_LIBS)
+	$(UDUNITS_LIBS)
 
 # Additional source code for SMHI support
 if WITH_SMHI
@@ -721,6 +727,7 @@ CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
 	$(LUPDATE4) $(diana_bin_QTSOURCES:%=$(srcdir)/%) \
+	    $(srcdir)/qtUtility.cc \
 	    $(diana_bin_QTFORMS:%=$(srcdir)/%) \
 	    -ts $(language_sources)
 .PHONY: lupdate

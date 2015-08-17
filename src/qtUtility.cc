@@ -42,6 +42,7 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QAction>
 #include <QApplication>
 #include <qcombobox.h>
 #include <QListWidget>
@@ -649,6 +650,41 @@ std::vector<std::string> numberList(QComboBox* cBox, float number, const float* 
   cBox->setCurrentIndex(current);
 
   return numbers;
+}
+
+void selectAllRows(QAbstractItemView* view)
+{
+  QAbstractItemModel* model = view->model();
+  if (model->rowCount() > 0) {
+    const QItemSelection all(model->index(0, 0), model->index(model->rowCount()-1, 0));
+    view->selectionModel()->select(all, QItemSelectionModel::Select);
+  }
+}
+
+void appendText(QString& text, const QString& append, const QString& separator)
+{
+  if (append.isEmpty())
+    return;
+  if (!text.isEmpty())
+    text += separator;
+  text += append;
+}
+
+QString appendedText(const QString& text, const QString& append, const QString& separator)
+{
+  QString t(text);
+  appendText(t, append, separator);
+  return t;
+}
+
+void addShortcutToTooltip(QAction* action)
+{
+  QString sc = action->shortcut().toString();
+  if (!sc.isEmpty()) {
+    QString tt = action->toolTip();
+    diutil::appendText(tt, qApp->translate("QtUtility", "Shortcut: %1").arg(sc), "\n");
+    action->setToolTip(tt);
+  }
 }
 
 } // namespace diutil

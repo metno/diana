@@ -12,7 +12,7 @@ WriteMakefile(
     DEFINE            => '-Wall', # e.g., '-DHAVE_SOMETHING'
     INC               => '',   # set from commandline in perl/Makefile.am
     LIBS              => [''], # set from commandline in perl/Makefile.am
-    MYEXTLIB          => '../../src/.libs/libdiana.so',
+    MYEXTLIB          => '', # set from perl/Makefile.am
 );
 
 

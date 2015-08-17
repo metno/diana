@@ -42,6 +42,13 @@
 #include <QRegExp>
 #include <QDateTime>
 
+// Support for vertical cross sections
+#include "diField/VcrossData.h"
+#include "diVcrossInterface.h"
+
+#define MILOGGER_CATEGORY "diana.KML"
+#include <miLogger/miLogging.h>
+
 namespace KML {
 
 // Finalizes KML document \a doc and returns a textual representation of it.
@@ -703,6 +710,42 @@ QList<DrawingItemBase *> createFromFile(const QString &name, const QString &file
   items = createFromDomDocument(doc, name, fileName, error);
 
   return items;
+}
+
+std::vector<CrossSection> loadCrossSections(const QString &fileName)
+{
+  METLIBS_LOG_SCOPE();
+
+  std::vector<CrossSection> crossSections;
+  QString error;
+
+  // Try to load each file, warning and skipping it if it cannot be loaded.
+  QList<DrawingItemBase *> items = KML::createFromFile(fileName, fileName, error);
+  if (!error.isEmpty()) {
+    METLIBS_LOG_WARN("Failed to load file '" << fileName.toStdString() << "'");
+    return crossSections;
+  }
+
+  // For each cross section found, create a structure containing a name and
+  // a list of geographic coordinates.
+
+  foreach (DrawingItemBase *item, items) {
+    vcross::LonLat_v empty;
+
+    if (item->property("style:type") == "Cross section") {
+      std::string name = item->property("Placemark:name").toString().toStdString();
+      vcross::LonLat_v points;
+      foreach (const QPointF &point, item->getLatLonPoints())
+        points.push_back(LonLat(point.y(), point.x()));
+
+      CrossSection cs;
+      cs.mLabel = name;
+      cs.mPoints = empty;
+      crossSections.push_back(cs);
+    }
+  }
+
+  return crossSections;
 }
 
 } // namespace

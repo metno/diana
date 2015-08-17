@@ -7,6 +7,7 @@ libmiRaster_la_SOURCES = satimg.cc
 libmiRaster_la_CPPFLAGS = -fPIC \
 	${METLIBS_CPPFLAGS} \
 	${PROJ_CPPFLAGS} \
+	${GEOTIFF_CPPFLAGS} \
 	${TIFF_CPPFLAGS}
 
 libmiRaster_la_LDFLAGS = -fPIC

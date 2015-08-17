@@ -83,6 +83,9 @@
        <property name="text">
         <string>Help</string>
        </property>
+       <property name="shortcut">
+        <string>F1</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -252,13 +255,54 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="timeSpinBox">
+      <widget class="QComboBox" name="comboTimeStep">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>Number of times to step forward/backward when using the time arrow buttons</string>
        </property>
-       <property name="minimum">
-        <number>1</number>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
        </property>
+       <item>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">4</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">6</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">12</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">24</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -388,7 +432,82 @@
     <string>Add field(s) to the vertical cross section view</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>Ctrl+L, A</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionReplaceModel">
+   <property name="text">
+    <string>Replace Model</string>
+   </property>
+   <property name="toolTip">
+    <string>Replace model/reference time …</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L, R</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionShowStyle">
+   <property name="text">
+    <string>Style…</string>
+   </property>
+   <property name="toolTip">
+    <string>Show style dialog</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L, S</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionPreviousCs">
+   <property name="text">
+    <string>Previous cross section</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to previous cross section</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
+   </property>
+  </action>
+  <action name="actionNextCs">
+   <property name="text">
+    <string>Next cross section</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to next cross section</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
+   </property>
+  </action>
+  <action name="actionPreviousTime">
+   <property name="text">
+    <string>Previous time</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to previous time</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Left</string>
+   </property>
+  </action>
+  <action name="actionNextTime">
+   <property name="text">
+    <string>Next time</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to next time</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Right</string>
    </property>
   </action>
  </widget>
@@ -481,70 +600,6 @@
     <hint type="sourcelabel">
      <x>635</x>
      <y>16</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonCsNext</sender>
-   <signal>clicked()</signal>
-   <receiver>VcrossWindow</receiver>
-   <slot>rightCrossectionClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>122</x>
-     <y>47</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonCsPrevious</sender>
-   <signal>clicked()</signal>
-   <receiver>VcrossWindow</receiver>
-   <slot>leftCrossectionClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>15</x>
-     <y>47</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonTimeNext</sender>
-   <signal>clicked()</signal>
-   <receiver>VcrossWindow</receiver>
-   <slot>rightTimeClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>47</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonTimePrevious</sender>
-   <signal>clicked()</signal>
-   <receiver>VcrossWindow</receiver>
-   <slot>leftTimeClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>47</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -649,30 +704,94 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolShowStyle</sender>
-   <signal>clicked()</signal>
+   <sender>actionReplaceModel</sender>
+   <signal>triggered()</signal>
    <receiver>VcrossWindow</receiver>
-   <slot>onShowStyleDialog()</slot>
+   <slot>onReplaceModel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>104</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>344</x>
+     <x>332</x>
      <y>236</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>toolReplaceModel</sender>
-   <signal>clicked()</signal>
+   <sender>actionShowStyle</sender>
+   <signal>triggered()</signal>
    <receiver>VcrossWindow</receiver>
-   <slot>onReplaceModel()</slot>
+   <slot>onShowStyleDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>25</x>
-     <y>102</y>
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPreviousCs</sender>
+   <signal>triggered()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>leftCrossectionClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNextCs</sender>
+   <signal>triggered()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>rightCrossectionClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPreviousTime</sender>
+   <signal>triggered()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>leftTimeClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNextTime</sender>
+   <signal>triggered()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>rightTimeClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>332</x>
