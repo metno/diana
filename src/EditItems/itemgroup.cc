@@ -165,10 +165,14 @@ void ItemGroup::setTime(const QDateTime &dateTime, bool allVisible)
       }
     } else if (time_prop == "TimeSpan:begin") {
       // Make the item visible if the time is within the begin and end times
-      // for the item.
+      // for the item, or if the time, begin time and end time are all the same.
       QDateTime beginTime = QDateTime::fromString(item->property("TimeSpan:begin").toString(), "yyyy-MM-ddThh:mm:ssZ");
       QDateTime endTime = QDateTime::fromString(item->property("TimeSpan:end").toString(), "yyyy-MM-ddThh:mm:ssZ");
-      bool visible = (dateTime >= beginTime) && (dateTime < endTime);
+      bool visible;
+      if (beginTime == endTime)
+        visible = (dateTime == beginTime);
+      else
+        visible = (dateTime >= beginTime) && (dateTime < endTime);
       item->setVisible(visible);
 
     } else {
