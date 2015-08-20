@@ -30,11 +30,13 @@
 #include "drawingpolyline.h"
 #include "editpolyline.h"
 #include "diGLPainter.h"
+#include "qtStatusGeopos.h"
 
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 
 #include <QAction>
+#include <QToolTip>
 
 namespace EditItem_PolyLine {
 
@@ -115,8 +117,18 @@ void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectin
   EditItemBase::mouseHover(event, repaintNeeded);
   if ((hoverCtrlPointIndex_ < 0) && !(selectingOnly)) {
     hoverLineIndex_ = hitLine(hoverPos_);
+    QToolTip::hideText();
   } else {
     hoverLineIndex_ = -1;
+    QPointF p = latLonPoints_.at(hoverCtrlPointIndex_);
+    int latDeg, latMin, lonDeg, lonMin;
+    StatusGeopos::degreesMinutes(p.x(), latDeg, latMin);
+    StatusGeopos::degreesMinutes(p.y(), lonDeg, lonMin);
+    QString text, ns = (p.x() >= 0.0) ? "N" : "S", we = (p.y() >= 0.0) ? "E" : "W";
+    text = QString("%1\xB0 %2'%3").arg(latDeg).arg(latMin).arg(ns);
+    text += QString(" %1\xB0 %2'%3").arg(lonDeg).arg(lonMin).arg(we);
+
+    QToolTip::showText(QCursor::pos(), text);
   }
 }
 

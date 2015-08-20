@@ -175,3 +175,10 @@ void StatusGeopos::undefPosition()
   latlabel->setText("");
   lonlabel->setText("");
 }
+
+void StatusGeopos::degreesMinutes(float value, int &deg, int &min)
+{
+  min = int(fabsf(value) * 60. + 0.5);
+  deg = min / 60;
+  min = min % 60;
+}

@@ -57,6 +57,8 @@ public:
   void setPosition(float, float);
   void undefPosition();
 
+  static void degreesMinutes(float value, int &deg, int &min);
+
 protected:
   QLabel *latlabel;
   QLabel *lonlabel;
