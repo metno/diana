@@ -111,6 +111,11 @@ public:
   // Sets the item's geographic points.
   virtual void setLatLonPoints(const QList<QPointF> &points);
 
+  // Returns the item's geographic points in a form suitable for export.
+  virtual QList<QPointF> exportLatLonPoints() const;
+  // Sets the item's geographic points using an imported list.
+  virtual void importLatLonPoints(const QList<QPointF> &points);
+
   // Draws the item.
   virtual void draw(DiGLPainter* gl) = 0;
 

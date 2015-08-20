@@ -47,6 +47,11 @@ public:
   virtual bool hit(const QRectF &) const;
   int hitLine(const QPointF &) const;
 
+  // Returns the item's geographic points in a form suitable for export.
+  virtual QList<QPointF> exportLatLonPoints() const;
+  // Sets the item's geographic points using an imported list.
+  virtual void importLatLonPoints(const QList<QPointF> &points);
+
   static qreal dist2(const QPointF &, const QPointF &);
   static qreal distance2(const QPointF &, const QPointF &, const QPointF &);
   qreal distance(const QPointF &) const;

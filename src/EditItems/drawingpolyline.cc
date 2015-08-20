@@ -198,6 +198,37 @@ qreal PolyLine::distance(const QPointF &p) const
   return minDist;
 }
 
+/**
+ * Override the base function to include an additional point for polygons
+ * for compatibility with the KML specification.
+ */
+QList<QPointF> PolyLine::exportLatLonPoints() const
+{
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+
+  // For closed areas with more than one point where the first and last points
+  // differ, add a copy of the first point to the end of the list.
+  if (latLonPoints_.size() > 1 && styleManager->getStyle(this).value("closed").toBool() &&
+      latLonPoints_.first() != latLonPoints_.last())
+    return latLonPoints_ + latLonPoints_.mid(0, 1);
+  else
+    return latLonPoints_;
+}
+
+/**
+ * Override the base function to discard the additional point supplied
+ * with polygons that are defined to be compatible with the KML specification.
+ */
+void PolyLine::importLatLonPoints(const QList<QPointF> &points)
+{
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  if (points.size() > 2 && styleManager->getStyle(this).value("closed").toBool() &&
+      points.first() == points.last())
+    latLonPoints_ = points.mid(0, points.size() - 1);
+  else
+    latLonPoints_ = points;
+}
+
 void PolyLine::draw(DiGLPainter* gl)
 {
   if (points_.isEmpty())

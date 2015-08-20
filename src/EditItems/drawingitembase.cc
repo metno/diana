@@ -199,12 +199,22 @@ qreal DrawingItemBase::sqr(qreal x) { return x * x; }
 
 QList<QPointF> DrawingItemBase::getLatLonPoints() const
 {
-    return latLonPoints_;
+  return latLonPoints_;
+}
+
+QList<QPointF> DrawingItemBase::exportLatLonPoints() const
+{
+  return latLonPoints_;
 }
 
 void DrawingItemBase::setLatLonPoints(const QList<QPointF> &points)
 {
-    latLonPoints_ = points;
+  latLonPoints_ = points;
+}
+
+void DrawingItemBase::importLatLonPoints(const QList<QPointF> &points)
+{
+  latLonPoints_ = points;
 }
 
 // Returns a new <ExtendedData> element.
@@ -273,8 +283,10 @@ QDomElement DrawingItemBase::createPointOrPolygonElement(QDomDocument &doc) cons
 
   // create the <coordinates> element
   QString coords;
-  foreach (QPointF point, getLatLonPoints())
+  QList<QPointF> points = exportLatLonPoints();
+  foreach (const QPointF &point, points)
     coords.append(QString("%1,%2,0\n").arg(point.y()).arg(point.x())); // note lon,lat order
+
   QDomElement coordsElem = doc.createElement("coordinates");
   coordsElem.appendChild(doc.createTextNode(coords));
 

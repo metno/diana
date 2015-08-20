@@ -584,14 +584,13 @@ QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QS
       static_cast<DrawingItem_Composite::Composite *>(itemObj)->createElements();
     }
 
-    // Initialise the geographic position and read the extended data for the item.
-    itemObj->setLatLonPoints(points);
-    itemObj->fromKML(pmExtData);
-
-    items.append(itemObj);
     DrawingItemBase *ditem = Drawing(itemObj);
-
     DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
+
+    // Initialise the geographic position and read the extended data for the item.
+    itemObj->importLatLonPoints(points);
+    itemObj->fromKML(pmExtData);
+    items.append(itemObj);
 
     ditem->setProperty("product", name);
     ditem->setProperty("srcFile", srcFileName);
