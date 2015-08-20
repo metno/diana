@@ -1652,11 +1652,15 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
     return;
   }
 
-  if (event->type() == QEvent::KeyPress) {
+  // First, pass key presses to the items themselves.
 
-    if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)) {
-      deleteSelectedItems();
-    } else if (cutAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+  if (event->type() == QEvent::KeyPress)
+    keyPress(event);
+
+  // Process unhandled key presses to perform high level operations.
+
+  if (!event->isAccepted() && event->type() == QEvent::KeyPress) {
+    if (cutAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       cutSelectedItems();
     } else if (copyAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       copySelectedItems();
@@ -1676,13 +1680,11 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
     } else if (event->modifiers().testFlag(Qt::NoModifier) && (event->key() == Qt::Key_Escape)) {
       setSelectMode();
       return;
-    }
+    } else if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))
+      deleteSelectedItems();
   } else {
     return;
   }
-
-  if (!event->isAccepted())
-    keyPress(event);
 
   repaintNeeded_ = true; // ### for now
 
