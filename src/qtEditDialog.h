@@ -184,8 +184,6 @@ private:
   QListWidget* m_Fronteditmethods;
   QListWidget* m_Fieldeditmethods;
   QListWidget* m_SelectAreas;
-  QMessageBox* mb;
-  QMessageBox* mb2;
 
   EditNewDialog* enew;
   EditComment* ecomment;

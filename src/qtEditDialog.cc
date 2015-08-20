@@ -314,15 +314,6 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   connect(ecomment,SIGNAL(CommentHide()),SLOT(hideComment()));
   ecomment->hide();
 
-  mb = new QMessageBox(tr("New analysis"),
-      tr("This will delete all your edits so far.\n Do you really want them to disappear?"),
-      QMessageBox::Warning,
-      QMessageBox::Yes | QMessageBox::Default,
-      QMessageBox::Cancel | QMessageBox::Escape,
-      Qt::NoButton,
-      this);
-  mb->setButtonText( QMessageBox::Yes, tr("New") );
-  mb->setButtonText( QMessageBox::Cancel, tr("Cancel"));
 
 
 }//end constructor EditDialog
