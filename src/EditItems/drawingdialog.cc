@@ -629,6 +629,10 @@ void DrawingDialog::extend(bool enable)
 
 void DrawingDialog::showItemInformation(const QList<DrawingItemBase *> &items)
 {
+  // Don't show property tooltips when in editing mode.
+  if (editm_->isEditing())
+    return;
+
   // Create a tooltip containing the values of any filtered properties for
   // the first item in the list that contains them.
 
