@@ -579,18 +579,18 @@ QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QS
       return QList<DrawingItemBase *>();
     }
 
-    if (objectType == "Composite") {
-      Drawing(itemObj)->setProperty("style:type", pmExtData.value("met:style:type"));
-      static_cast<DrawingItem_Composite::Composite *>(itemObj)->createElements();
-    }
+    Drawing(itemObj)->setProperty("style:type", pmExtData.value("met:style:type"));
 
-    DrawingItemBase *ditem = Drawing(itemObj);
-    DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
+    if (objectType == "Composite")
+      static_cast<DrawingItem_Composite::Composite *>(itemObj)->createElements();
 
     // Initialise the geographic position and read the extended data for the item.
     itemObj->importLatLonPoints(points);
     itemObj->fromKML(pmExtData);
     items.append(itemObj);
+
+    DrawingItemBase *ditem = Drawing(itemObj);
+    DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
 
     ditem->setProperty("product", name);
     ditem->setProperty("srcFile", srcFileName);
