@@ -612,14 +612,18 @@ void EditItemManager::keyPress(QKeyEvent *event)
   // process each of the originally selected items
   foreach (int origSelId, origSelIds) {
 
-    // at this point, the item may or may not exist (it may have been removed in an earlier iteration)
-
+    // At this point, the item may or may not exist (it may have been removed
+    // in an earlier iteration). If it still exists, pass the event to it.
     DrawingItemBase *origSelItem = idToItem(origSelItems, origSelId);
+
     if (origSelItem) {
-      // it still exists, so pass the event
       bool rpn = false;
       Editing(origSelItem)->keyPress(event, rpn);
-      Q_UNUSED(rpn); // ### for now
+
+      // If the item needs to be repainted, take that as a hint for us to
+      // update its geographic coordinates.
+      if (rpn)
+        origSelItem->setLatLonPoints(getLatLonPoints(origSelItem));
 
       adjustSelectedJoinPoints();
     }
@@ -1682,8 +1686,6 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       return;
     } else if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))
       deleteSelectedItems();
-  } else {
-    return;
   }
 
   repaintNeeded_ = true; // ### for now

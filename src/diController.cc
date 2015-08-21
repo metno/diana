@@ -597,7 +597,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
     if (it->second->isEnabled() && it->second->isEditing()) {
       it->second->sendKeyboardEvent(ke, res);
-      if (it->second->hasFocus())
+      if (ke->isAccepted() || it->second->hasFocus())
         return;
     }
   }

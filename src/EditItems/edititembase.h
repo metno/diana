@@ -129,9 +129,6 @@ protected:
     QPoint hoverPos_;
 
     static int controlPointSize() { return 8; }
-
-private:
-    void nudge(QKeyEvent *, bool &);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(EditItemBase::DrawModes)

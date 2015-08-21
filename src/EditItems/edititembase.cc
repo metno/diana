@@ -262,27 +262,31 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
   Q_UNUSED(repaintNeeded)
 }
 
-void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded)
-{
-  QPointF pos;
-  const qreal nudgeVal = 1; // nudge item by this much
-  if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
-  else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
-  else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
-  else pos += QPointF(0, nudgeVal); // Key_Up
-  moveBy(pos);
-  repaintNeeded = true;
-  event->accept();
-}
-
 void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded)
 {
-  if ((event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
-      ((event->key() == Qt::Key_Left)
-    || (event->key() == Qt::Key_Right)
-    || (event->key() == Qt::Key_Down)
-    || (event->key() == Qt::Key_Up))) {
-    nudge(event, repaintNeeded);
+  if (event->modifiers() & Qt::ShiftModifier) {
+    QPointF pos;
+    const qreal nudgeVal = 1; // nudge item by this much
+    switch (event->key()) {
+    case Qt::Key_Left:
+      pos += QPointF(-nudgeVal, 0);
+      break;
+    case Qt::Key_Right:
+      pos += QPointF(nudgeVal, 0);
+      break;
+    case Qt::Key_Down:
+      pos += QPointF(0, -nudgeVal);
+      break;
+    case Qt::Key_Up:
+      pos += QPointF(0, nudgeVal);
+      break;
+    default:
+      return;
+    }
+
+    moveBy(pos);
+    repaintNeeded = true;
+    event->accept();
   }
 }
 
