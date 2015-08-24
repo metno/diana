@@ -99,8 +99,8 @@ void PolyLine::updateHoverPos(const QPoint &pos)
 void PolyLine::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
-    pressedCtrlPointIndex_ = hitControlPoint(event->pos());
-    resizing_ = (pressedCtrlPointIndex_ >= 0);
+    mousePressControlPoints(event, repaintNeeded);
+    resizing_ = !pressedCtrlPointIndex_.isEmpty();
     moving_ = !resizing_;
     basePoints_ = points_;
     baseMousePos_ = event->pos();
@@ -153,6 +153,7 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
       hoverLineIndex_ = hitLine(hoverPos_);
     repaintNeeded = true;
     event->accept();
+    return;
 
   } else if ((hoverCtrlPointIndex_ < 0) &&
              (hoverLineIndex_ >= 0) &&
@@ -168,12 +169,13 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
     hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
     repaintNeeded = true;
     event->accept();
+    return;
 
   } else if (event->modifiers() & Qt::ShiftModifier) {
 
     // Nudge polyline or point
 
-    if (pressedCtrlPointIndex_ >= 0) {
+    if (!pressedCtrlPointIndex_.isEmpty()) {
       QPointF pos;
       const qreal nudgeVal = 1; // nudge item by this much
       switch (event->key()) {
@@ -193,14 +195,16 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
         return;
       }
 
-      movePointTo(pressedCtrlPointIndex_, points_.at(pressedCtrlPointIndex_) + pos);
+      foreach (const int index, pressedCtrlPointIndex_)
+        movePointTo(index, points_.at(index) + pos);
+
       repaintNeeded = true;
       event->accept();
+      return;
     }
-
-  } else {
-    EditItemBase::keyPress(event, repaintNeeded);
   }
+
+  EditItemBase::keyPress(event, repaintNeeded);
 }
 
 void PolyLine::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -247,10 +251,11 @@ void PolyLine::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &c
 void PolyLine::resize(const QPointF &pos)
 {
   const QPointF delta = pos - baseMousePos_;
-  Q_ASSERT(pressedCtrlPointIndex_ >= 0);
-  Q_ASSERT(pressedCtrlPointIndex_ < controlPoints_.size());
+  Q_ASSERT(!pressedCtrlPointIndex_.isEmpty());
   Q_ASSERT(basePoints_.size() == points_.size());
-  points_[pressedCtrlPointIndex_] = basePoints_.at(pressedCtrlPointIndex_) + delta;
+  foreach (const int index, pressedCtrlPointIndex_)
+    points_[index] = basePoints_.at(index) + delta;
+
   updateControlPoints();
 }
 

@@ -53,6 +53,7 @@ public:
     Q_DECLARE_FLAGS(DrawModes, DrawMode)
 
     virtual void mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp = 0);
+    virtual void mousePressControlPoints(QMouseEvent *event, bool &repaintNeeded);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
@@ -124,7 +125,7 @@ protected:
     QList<QPointF> basePoints_;
 
     QPointF baseMousePos_;
-    int pressedCtrlPointIndex_;
+    QSet<int> pressedCtrlPointIndex_;
     int hoverCtrlPointIndex_;
     QPoint hoverPos_;
 

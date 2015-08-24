@@ -95,8 +95,8 @@ DrawingItemBase *Composite::cloneSpecial(bool setUniqueId) const
 void Composite::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
-    pressedCtrlPointIndex_ = -1;
-    resizing_ = (pressedCtrlPointIndex_ >= 0);
+    pressedCtrlPointIndex_.clear();
+    resizing_ = !pressedCtrlPointIndex_.isEmpty();
     moving_ = !resizing_;
     basePoints_ = points_;
     baseMousePos_ = event->pos();
