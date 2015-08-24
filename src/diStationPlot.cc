@@ -213,7 +213,6 @@ void StationPlot::init()
   id = -1;
   priority = 1;
   index = -1;
-  editIndex = -1;
 }
 
 StationPlot::~StationPlot()
@@ -252,7 +251,6 @@ void StationPlot::addStation(float lon, float lat, const std::string& newname,
     newStation->isVisible = true;
     newStation->image = newimage;
   }
-  newStation->edit = false;
   newStation->status = Station::noStatus;
 
   addStation(newStation);
@@ -715,10 +713,6 @@ int StationPlot::setSelectedStation(int i, bool add)
     stations[i]->isSelected = true;
     index = i;
 
-    //edit
-    if (stations[i]->edit)
-      editIndex = i;
-
     return i;
   }
   return -1;
@@ -789,94 +783,6 @@ void StationPlot::setUseStationName(bool normal, bool selected)
   useStationNameSelected = selected;
 }
 
-void StationPlot::setEditStations(const vector<string>& st)
-{
-  int m = st.size();
-
-  int n = stations.size();
-  for (int i = 0; i < n; i++) {
-    int j = 0;
-    while (j < m && st[j] != stations[i]->name)
-      j++;
-    if (j < m) {
-      stations[i]->edit = true;
-    } else {
-      stations[i]->edit = false;
-    }
-  }
-
-  editIndex = 0;
-
-  if (!m) { //no edit stations
-    editIndex = -1;
-    return;
-  }
-}
-
-bool StationPlot::getEditStation(int step, std::string& nname, int& iid,
-    vector<std::string>& sstations)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (editIndex < 0)
-    return false;
-
-  bool add = (nname == "add");
-  nname = name;
-  iid = id;
-
-  int n = stations.size();
-
-  if (step == 0) {
-    for (int i = 0; i < n; i++)
-      if (stations[i]->isSelected && stations[i]->edit) {
-        sstations.push_back(stations[i]->name);
-      }
-    return stations.size();
-  }
-
-  int i;
-  if (step > 0) {
-    i = editIndex + 1;
-    while (i < n && (!stations[i]->edit))
-      i++;
-    if (i == n) {
-      i = 0;
-      while (i < n && (!stations[i]->edit))
-        i++;
-    }
-  } else {
-    i = editIndex - 1;
-    while (i > -1 && !stations[i]->edit)
-      i--;
-    if (i == -1) {
-      i = n - 1;
-      while (i > -1 && !stations[i]->edit)
-        i--;
-    }
-  }
-
-  if (i < n && i > -1) {
-    editIndex = i;
-    setSelectedStation(i, add);
-
-    //if stations[i] isn't on the map, pan the map
-    const Rectangle& r = getStaticPlot()->getMapArea().R();
-    if (!r.isinside(xplot[i], yplot[i])) {
-      Rectangle request(r);
-      request.putinside(xplot[i], yplot[i]);
-      PlotModule::instance()->setMapAreaFromMap(request);
-    }
-
-    for (int i = 0; i < n; i++)
-      if (stations[i]->isSelected && stations[i]->edit) {
-        sstations.push_back(stations[i]->name);
-      }
-    return true;
-  }
-
-  return false;
-}
 
 bool StationPlot::stationCommand(const string& command,
     const vector<string>& data, const string& misc)
@@ -1036,10 +942,6 @@ bool StationPlot::stationCommand(const string& command,
       }
     }
 
-    return true;
-
-  } else if (command == "setEditStations") {
-    setEditStations(data);
     return true;
 
   } else if (command == "annotation" && data.size() > 0) {

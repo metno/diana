@@ -337,8 +337,6 @@ public:
   std::vector<std::string> findStations(int, int, const std::string& name, int id=-1);
   void findStations(int, int, bool add, std::vector<std::string>& name, std::vector<int>& id,
       std::vector<std::string>& station);
-  void getEditStation(int step, std::string& name, int& id,
-      std::vector<std::string>& stations);
   void getStationData(std::vector<std::string>& data);
   void stationCommand(const std::string& Command,
       const std::vector<std::string>& data,
