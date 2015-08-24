@@ -451,15 +451,6 @@ void StationManager::findStations(int x, int y, bool add, std::vector<std::strin
   }
 }
 
-void StationManager::getEditStation(int step, std::string& name, int& id,
-    vector<std::string>& stations)
-{
-  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if (it->second->getEditStation(step, name, id, stations))
-      return;
-  }
-}
-
 void StationManager::getStationData(vector<std::string>& data)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)

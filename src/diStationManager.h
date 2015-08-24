@@ -79,9 +79,6 @@ public:
   void findStations(int x, int y, bool add,
       std::vector<std::string>& name, std::vector<int>& id,
       std::vector<std::string>& station);
-  ///get editable stations, returns name/id of StationPlot and stations
-  void getEditStation(int step, std::string& name, int& id,
-          std::vector<std::string>& stations);
   void getStationData(std::vector<std::string>& data);
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,

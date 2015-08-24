@@ -996,13 +996,6 @@ void Controller::findStations(int x, int y, bool add,
   stam->findStations(x,y,add,name,id,station);
 }
 
-void Controller::getEditStation(int step,
-    std::string& name, int& id,
-    vector<std::string>& stations)
-{
-  stam->getEditStation(step,name,id,stations);
-}
-
 void Controller::getStationData(vector<std::string>& data)
 {
   stam->getStationData(data);

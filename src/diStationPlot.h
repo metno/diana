@@ -79,7 +79,6 @@ struct Station {
   std::string image2;
   bool isVisible;
   bool isSelected;
-  bool edit;
   int dd,ff,north;
   int alpha;
   float scale;
@@ -207,9 +206,6 @@ public:
   void setUseStationName(bool normal, bool selected);
   void setIcon(std::string icon){iconName = icon;}
   std::string getIcon(){return iconName;}
-  void setEditStations(const std::vector<std::string>& );
-  bool getEditStation(int step, std::string& name, int& id,
-      std::vector<std::string>& stations);
   bool stationCommand(const std::string& Command,
       const std::vector<std::string>& data,
       const std::string& misc="");
@@ -255,7 +251,6 @@ private:
   std::string textStyle;
   std::string imageNormal,imageSelected;
   std::string iconName;
-  int editIndex; //last selected editStation
   int index; //last selected
 
   ImageGallery ig;

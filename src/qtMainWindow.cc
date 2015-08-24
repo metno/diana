@@ -2126,14 +2126,6 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     return;
   }
 
-  else if (letter.command == qmstrings::seteditpositions ){
-    //     commondesc = dataset;
-    //     description = name;
-    contr->stationCommand("setEditStations",
-        letter.data,letter.common,letter.from);
-    //    sendSelectedStations(qmstrings::selectposition);
-  }
-
   else if (letter.command == qmstrings::annotation ){
     //     commondesc = dataset;
     //     description = annotation;
@@ -2155,15 +2147,6 @@ void DianaMainWindow::processLetter(const miMessage &letter)
 
   }
 
-  //   else if (letter.command == qmstrings::changeimage ){ //Obsolete
-  //     //description: dataset;stationname:image
-  //     //find name of data set from description
-  //     vector<std::string> desc = miutil::split(letter.description, ";");
-  //     if( desc.size() < 2 ) return;
-  //       contr->stationCommand("changeImageandText",
-  // 			    letter.data,desc[0],letter.from,desc[1]);
-  //   }
-
   else if (letter.command == qmstrings::changeimageandtext ){
     //METLIBS_LOG_DEBUG("Change text and image\n");
     //description: dataSet;stationname:image:text:alignment
@@ -2183,16 +2166,6 @@ void DianaMainWindow::processLetter(const miMessage &letter)
           letter.description);
     }
   }
-
-  //   else if (letter.command == qmstrings::changeimageandimage ){ //Obsolete
-  //     //METLIBS_LOG_DEBUG("Change image and image\n");
-  //     //description: dataset;stationname:image:image2
-  //     //find name of data set from description
-  //     vector<std::string> desc = miutil::split(letter.description, ";");
-  //     if( desc.size() < 2 ) return;
-  //       contr->stationCommand("changeImageandText",
-  // 			    letter.data,desc[0],letter.from,desc[1]);
-  //   }
 
   else if (letter.command == qmstrings::selectposition ){
     //commondesc: dataset
@@ -3319,193 +3292,24 @@ void DianaMainWindow::sendSelectedStations(const std::string& command)
 
 void DianaMainWindow::catchKeyPress(QKeyEvent* ke)
 {
-  if (!em->inedit() && qsocket) {
-
-    if( ke->key() == Qt::Key_Plus || ke->key() == Qt::Key_Minus){
-      std::string dataset;
-      int id;
-      vector<std::string> stations;
-      contr->getEditStation(0,dataset,id,stations);
-      if (not dataset.empty()) {
-        miMessage letter;
-        letter.command = qmstrings::editposition;
-        letter.commondesc = "dataset";
-        letter.common = dataset;
-        if(ke->modifiers() & Qt::ControlModifier)
-          letter.description = "position:value_2";
-        else if(ke->modifiers() & Qt::AltModifier)
-          letter.description = "position:value_3";
-        else
-          letter.description = "position:value_1";
-        for(unsigned int i=0;i<stations.size();i++){
-          std::string str = stations[i];
-          if( ke->key() == Qt::Key_Plus )
-            str += ":+1";
-          else
-            str += ":-1";
-          letter.data.push_back(str);
-        }
-        letter.to = id;
-        sendLetter(letter);
-      }
-    }
-
-    else if( ke->modifiers() & Qt::ControlModifier){
-
-      if( ke->key() == Qt::Key_C ) {
-        sendSelectedStations(qmstrings::copyvalue);
-      }
-
-      else if( ke->key() == Qt::Key_U) {
-        contr->stationCommand("unselect");
-        sendSelectedStations(qmstrings::selectposition);
-        w->updateGL();
-      }
-
-      else {
-        std::string keyString;
-        if(ke->key() == Qt::Key_G) keyString = "ctrl_G";
-        else if(ke->key() == Qt::Key_S)  keyString = "ctrl_S";
-        else if(ke->key() == Qt::Key_Z)  keyString = "ctrl_Z";
-        else if(ke->key() == Qt::Key_Y)  keyString = "ctrl_Y";
-        else return;
-
-        miMessage letter;
-        letter.command    = qmstrings::sendkey;
-        letter.commondesc =  "key";
-        letter.common =  keyString;
-        letter.to = qmstrings::all;;
-        sendLetter(letter);
-      }
-    }
-
-    else if( ke->modifiers() & Qt::AltModifier){
-      std::string keyString;
-      if(ke->key() == Qt::Key_F5) keyString = "alt_F5";
-      else if(ke->key() == Qt::Key_F6) keyString = "alt_F6";
-      else if(ke->key() == Qt::Key_F7) keyString = "alt_F7";
-      else if(ke->key() == Qt::Key_F8) keyString = "alt_F8";
-      else return;
-
-      miMessage letter;
-      letter.command    = qmstrings::sendkey;
-      letter.commondesc =  "key";
-      letter.common =  keyString;
-      letter.to = qmstrings::all;
-      sendLetter(letter);
-    }
-
-
-    else if( ke->key() == Qt::Key_W || ke->key() == Qt::Key_S ) {
-      std::string name;
-      int id;
-      vector<std::string> stations;
-      int step = (ke->key() == Qt::Key_S) ? 1 : -1;
-      if(ke->modifiers() & Qt::ShiftModifier) name = "add";
-      contr->getEditStation(step,name,id,stations);
-      if (not name.empty() && not stations.empty()) {
-        miMessage letter;
-        letter.to = qmstrings::all;
-        //	METLIBS_LOG_DEBUG("To: "<<letter.to);
-        letter.command    = qmstrings::selectposition;
-        letter.commondesc =  "dataset";
-        letter.common     =  name;
-        letter.description =  "station";
-        letter.data.push_back(stations[0]);
-        sendLetter(letter);
-
-      }
-      w->updateGL();
-    }
-
-    else if( ke->key() == Qt::Key_N || ke->key() == Qt::Key_P ) {
-      //      int id=vselectAreas[ia].id;
-      miMessage letter;
-      letter.command = qmstrings::selectarea;
-      letter.description = "next";
-      if( ke->key() == Qt::Key_P )
-        letter.data.push_back("-1");
-      else
-        letter.data.push_back("+1");
-      letter.to = qmstrings::all;;
-      sendLetter(letter);
-    }
-
-    else if( ke->key() == Qt::Key_A || ke->key() == Qt::Key_D ) {
-      miMessage letter;
-      letter.command    = qmstrings::changetype;
-      if( ke->key() == Qt::Key_A )
-        letter.data.push_back("-1");
-      else
-        letter.data.push_back("+1");
-      letter.to = qmstrings::all;;
-      sendLetter(letter);
-    }
-
-    else if( ke->key() == Qt::Key_Escape) {
-      miMessage letter;
-      letter.command    = qmstrings::copyvalue;
-      letter.commondesc =  "dataset";
-      letter.description =  "name";
-      letter.to = qmstrings::all;;
-      sendLetter(letter);
-    }
-
-    //FIXME (?): Will resize stationplots when connected to a coserver, regardless of which other client(s) are connected.
-    if (ke->modifiers() & Qt::ControlModifier && ke->key() == Qt::Key_Plus) {
-      float current_scale = contr->getStationsScale();
-      contr->setStationsScale(current_scale + 0.1); //FIXME: No hardcoding of increment.
-      w->updateGL();
-    }
-    if (ke->modifiers() & Qt::ControlModifier && ke->key() == Qt::Key_Minus) {
-      float current_scale = contr->getStationsScale();
-      contr->setStationsScale(current_scale - 0.1); //FIXME: No hardcoding of decrement.
-      w->updateGL();
-    }
-
-  }
 }
 
 void DianaMainWindow::undo()
 {
-  if(em->inedit()){
+  if(em->inedit())
     em->undoEdit();
-  }else {
-    miMessage letter;
-    letter.command    = qmstrings::sendkey;
-    letter.commondesc =  "key";
-    letter.common =  "ctrl_Z";
-    letter.to = qmstrings::all;;
-    sendLetter(letter);
-  }
 }
 
 void DianaMainWindow::redo()
 {
   if(em->inedit())
     em->redoEdit();
-  else {
-    miMessage letter;
-    letter.command    = qmstrings::sendkey;
-    letter.commondesc =  "key";
-    letter.common =  "ctrl_Y";
-    letter.to = qmstrings::all;;
-    sendLetter(letter);
-  }
 }
 
 void DianaMainWindow::save()
 {
   if(em->inedit())
     em->saveEdit();
-  else {
-    miMessage letter;
-    letter.command    = qmstrings::sendkey;
-    letter.commondesc =  "key";
-    letter.common =  "ctrl_S";
-    letter.to = qmstrings::all;;
-    sendLetter(letter);
-  }
 }
 
 void DianaMainWindow::toggleToolBar()
