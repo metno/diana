@@ -140,8 +140,12 @@ void PolyLine::showTip()
 
 void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
 {
-  if (((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)
-       || (event->key() == Qt::Key_Minus)) && (hoverCtrlPointIndex_ >= 0)) {
+  if ((hoverCtrlPointIndex_ >= 0) &&
+      ((event->key() == Qt::Key_Backspace) ||
+       (event->key() == Qt::Key_Delete) ||
+       (event->key() == Qt::Key_Minus))) {
+
+    // Remove point
     const QList<QPointF> origPoints = getPoints();
     removePoint();
     hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
@@ -149,14 +153,51 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
       hoverLineIndex_ = hitLine(hoverPos_);
     repaintNeeded = true;
     event->accept();
-  } else if (((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter)
-              || (event->key() == Qt::Key_Plus) || (event->key() == Qt::Key_Insert))
-             && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0) && (hoverPos_ != QPoint(-1, -1))) {
+
+  } else if ((hoverCtrlPointIndex_ < 0) &&
+             (hoverLineIndex_ >= 0) &&
+             (hoverPos_ != QPoint(-1, -1)) &&
+             ((event->key() == Qt::Key_Return) ||
+              (event->key() == Qt::Key_Enter) ||
+              (event->key() == Qt::Key_Plus) ||
+              (event->key() == Qt::Key_Insert))) {
+
+    // Add point
     const QList<QPointF> origPoints = getPoints();
     addPoint();
     hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
     repaintNeeded = true;
     event->accept();
+
+  } else if (event->modifiers() & Qt::ShiftModifier) {
+
+    // Nudge polyline or point
+
+    if (pressedCtrlPointIndex_ >= 0) {
+      QPointF pos;
+      const qreal nudgeVal = 1; // nudge item by this much
+      switch (event->key()) {
+      case Qt::Key_Left:
+        pos += QPointF(-nudgeVal, 0);
+        break;
+      case Qt::Key_Right:
+        pos += QPointF(nudgeVal, 0);
+        break;
+      case Qt::Key_Down:
+        pos += QPointF(0, -nudgeVal);
+        break;
+      case Qt::Key_Up:
+        pos += QPointF(0, nudgeVal);
+        break;
+      default:
+        return;
+      }
+
+      movePointTo(pressedCtrlPointIndex_, points_.at(pressedCtrlPointIndex_) + pos);
+      repaintNeeded = true;
+      event->accept();
+    }
+
   } else {
     EditItemBase::keyPress(event, repaintNeeded);
   }
