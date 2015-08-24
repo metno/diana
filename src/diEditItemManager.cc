@@ -517,6 +517,8 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     foreach (DrawingItemBase *item, selectedItems()) {
       Editing(item)->mouseMove(event, rpn);
       item->setLatLonPoints(getLatLonPoints(item));
+      // Call the item's method to process the event as a hover event in
+      // order to allow polyline items to show coordinate tooltips.
       Editing(item)->mouseHover(event, rpn);
       if (rpn) repaintNeeded_ = true;
     }
