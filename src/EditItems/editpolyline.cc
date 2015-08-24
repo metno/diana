@@ -120,16 +120,22 @@ void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectin
     QToolTip::hideText();
   } else {
     hoverLineIndex_ = -1;
-    QPointF p = latLonPoints_.at(hoverCtrlPointIndex_);
-    int latDeg, latMin, lonDeg, lonMin;
-    StatusGeopos::degreesMinutes(p.x(), latDeg, latMin);
-    StatusGeopos::degreesMinutes(p.y(), lonDeg, lonMin);
-    QString text, ns = (p.x() >= 0.0) ? "N" : "S", we = (p.y() >= 0.0) ? "E" : "W";
-    text = QString("%1\xB0 %2'%3").arg(latDeg).arg(latMin).arg(ns);
-    text += QString(" %1\xB0 %2'%3").arg(lonDeg).arg(lonMin).arg(we);
-
-    QToolTip::showText(QCursor::pos(), text);
+    showTip();
   }
+}
+
+void PolyLine::showTip()
+{
+  QPointF p = latLonPoints_.at(hoverCtrlPointIndex_);
+  int latDeg, latMin, lonDeg, lonMin;
+  StatusGeopos::degreesMinutes(p.x(), latDeg, latMin);
+  StatusGeopos::degreesMinutes(p.y(), lonDeg, lonMin);
+
+  QString text, ns = (p.x() >= 0.0) ? "N" : "S", we = (p.y() >= 0.0) ? "E" : "W";
+  text = QString("%1\xB0 %2'%3").arg(latDeg).arg(latMin).arg(ns);
+  text += QString(" %1\xB0 %2'%3").arg(lonDeg).arg(lonMin).arg(we);
+
+  QToolTip::showText(QCursor::pos(), text);
 }
 
 void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)

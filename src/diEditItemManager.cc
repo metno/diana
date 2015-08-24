@@ -517,6 +517,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     foreach (DrawingItemBase *item, selectedItems()) {
       Editing(item)->mouseMove(event, rpn);
       item->setLatLonPoints(getLatLonPoints(item));
+      Editing(item)->mouseHover(event, rpn);
       if (rpn) repaintNeeded_ = true;
     }
 
