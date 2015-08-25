@@ -331,40 +331,31 @@ bool GridConverter::getVectorRotationElements(const Area& data_area,
     setAngleBufferSize(defringsize_angles);
 
   // search buffer for existing point-set
-  int n = anglebuffer->size();
-  bool found = false;
-  int i = -1;
-  while (!found && i < n - 1) {
-    i++;
-    found = ((*anglebuffer)[i].area == data_area)
-        && ((*anglebuffer)[i].map_area.P() == map_area.P())
-        && (nvec == (*anglebuffer)[i].area.gridSize());
-  }
-
-  if (found) {
-    *cosx = (*anglebuffer)[i].x;
-    *sinx = (*anglebuffer)[i].y;
-  } else {
-    // need to calculate new rotation elements
-    Points p;
-    anglebuffer->push(p); // push a new points structure on the ring
-    (*anglebuffer)[0].area = GridArea(data_area);
-    (*anglebuffer)[0].map_area = map_area;
-    (*anglebuffer)[0].npos = nvec;
-    (*anglebuffer)[0].gridboxes = false;
-    (*anglebuffer)[0].x = new float[nvec];
-    (*anglebuffer)[0].y = new float[nvec];
-
-    int ierror = map_area.P().calculateVectorRotationElements(data_area.P(),
-        nvec, x, y, (*anglebuffer)[0].x, (*anglebuffer)[0].y);
-    if (ierror) {
-      METLIBS_LOG_ERROR("getVectorRotationElements error :" << ierror);
-      anglebuffer->pop();
-      return false;
+  const int n = anglebuffer->size();
+  for (int i=0; i < n; ++i) {
+    const Points& pi = (*anglebuffer)[i];
+    if (pi.area == data_area && pi.map_area.P() == map_area.P() && pi.npos == nvec) {
+      *cosx = pi.x;
+      *sinx = pi.y;
+      return true;
     }
-    *cosx = (*anglebuffer)[0].x;
-    *sinx = (*anglebuffer)[0].y;
   }
+
+  // need to calculate new rotation elements
+  anglebuffer->push(Points()); // push a new points structure on the ring
+  Points& p0 = (*anglebuffer)[0];
+  p0.area = GridArea(data_area);
+  p0.map_area = map_area;
+  p0.npos = nvec;
+  p0.x = new float[nvec];
+  p0.y = new float[nvec];
+
+  if (map_area.P().calculateVectorRotationElements(data_area.P(), nvec, x, y, p0.x, p0.y)) {
+    anglebuffer->pop();
+    return false;
+  }
+  *cosx = p0.x;
+  *sinx = p0.y;
   return true;
 }
 
