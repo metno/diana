@@ -67,8 +67,8 @@ DrawingItemBase *Text::cloneSpecial(bool setUniqueId) const
 void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
-    pressedCtrlPointIndex_ = -1;
-    resizing_ = (pressedCtrlPointIndex_ >= 0);
+    mousePressControlPoints(event, repaintNeeded);
+    resizing_ = !pressedCtrlPointIndex_.isEmpty();
     moving_ = !resizing_;
     basePoints_ = points_;
     baseMousePos_ = event->pos();

@@ -25,22 +25,23 @@
       Completed charts are stored in a shared directory for distribution to other regional offices.
       Charts can also be saved in the user's working directory.
     <ul>
-      <li><a href="#newproduct">Start a new product</a>
-      <li><a href="#normalediting">Normal editing</a>
+      <li><a href="#viewing-drawing-products">Viewing drawing products</a>
+      <li><a href="#editing-products">Editing products</a>
 	<ul>
 	  <li><a href="#drawing-fronts-and-areas">Drawing fronts and areas</a></li>
 	  <li><a href="#drawing-symbols">Drawing symbols</a></li>
 	  <li><a href="#drawing-text-labels">Drawing text labels</a></li>
 	  <li><a href="#drawing-composite-objects">Drawing composite objects</a></li>
+      <li><a href="#saving-products">Saving products</a></li>
 	</ul></li>
       <li><a href="#quickdrawings">Creating simple pictures</a></li>
       <li><a href="#Comments">Comments</a></li>
       <li><a href="#Form">Form</a></li>
     </ul>
     <!-- PAGEBREAK -->
-    <a NAME="newproduct"></a>
+    <a NAME="viewing-drawing-products"></a>
     <br>
-    <h3> Start a new product</h3>
+    <h3>Viewing drawing products</h3>
     <p>
     New products are created using the Drawing Dialogue which can be
     accessed via the <b>Show</b> menu or by pressing <i>Alt-B</i>.
@@ -51,44 +52,64 @@
     <a href="ug_satdialogue.html">images</a> and other data you require before
     you start drawing.
     </p>
-    <table WIDTH="100%" >
-	<tr VALIGN="TOP">
-	  <td><img SRC="edit-drawing-dialog.png" ALT="Edit Drawing Dialogue"></td>
-	</tr>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <tr>
+    <td><img src="drawing-dialog.png" alt="Drawing Dialogue"></td>
+    <td><p>
+    The dialogue shows a list of <b>Products</b>. These contain the products that
+    you can view and edit. Below this is a list of <b>Selected Products</b> that
+    are being viewed by the user. Initially, the list of selected products is
+    empty.
+    </p>
+    <p>
+    To add a product to the list of selected products, select it in the upper
+    list by clicking it. The product will then appear in the lower list.
+    Click the <b>Apply</b> button to view the selected products in Diana's
+    work area.
+    </p>
+    <p>
+    To remove a selected product from the work area, either deselect it by
+    clicking on it in the <b>Products</b> list or right-click on it in the
+    <b>Selected Products</b> list to open a context menu and choose
+    <b>Remove</b>. Click <b>Apply</b> to update the work area.
+    </p>
+    <p>
+    Products can also be loaded from disk by clicking the <b>Load drawing...</b>
+    button at the top-right of the window. This allows the user to select a file
+    from their working directory, or from other locations on the disk.
+    </p>
+    </td></tr>
     </table>
     <p>
-    The dialogue shows a list of <b>Active Layers</b>. These contain the
-    objects that you can edit. Initially, there is only an empty scratch
-    layer present in the list which can be used for quick work-in-progress
-    drawings.
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <tr>
+    <td><p>
+    Objects from the selected products can be filtered before they are shown.
+    In the <b>Editing/Filtering</b> section of the dialogue, click the
+    <b>Show filters</b> button to view the properties that can be used to
+    filter objects and the values held by those properties. Click on the
+    values to select and deselect the ones that should be used to filter the
+    visible objects - note that this has an immediate effect on the objects
+    in the work area.
     </p>
-    <p>
-    Layers are visible in the main window when the <img src="drawing-visible.png">
-    (visible) icon is present next to the name of the layer in the list. To hide
-    a layer, click the icon next to its name. Click in the gap to make the layer
-    visible again.
-    </p>
-    <p>
-    New layers can be added by clicking the <img src="drawing-addempty.png">
-    (add empty layer) button, and the currently selected layers can be deleted
-    by clicking the <img src="drawing-remove.png"> (remove layer) button. Note
-    that the scratch layer cannot be deleted.
-    </p>
-    <p>
-    Layers can also be loaded from disk by clicking the
-    <img src="drawing-fileopen.png"> (open file) button. This allows the user to
-    select a file from their working directory, or from other locations on the
-    disk. To save one or more layers to a file, click the
-    <img src="drawing-filesave.png"> (save file) button. This opens a dialogue
-    that lets you choose name and location of the file that will contain the
-    objects.
-    </p>
-    <p>
-    The other buttons are explained below.
-    </p>
+    </td>
+    <td><img src="drawing-dialog-filters.png" alt="Property filters"></td>
+    </tr>
+    </table>
+
     <!-- PAGEBREAK -->
-      <a NAME="normalediting"></a>
-    <h3> Normal Editing</h3>
+      <a name="editing-products"></a>
+    <h3>Editing products</h3>
+    <p>
+    To edit objects from an existing product, first add it to the list of
+    selected products as described above, right-click the product in the
+    selected list to open a context menu and choose <b>Edit</b>. 
+    </p>
+
     <p>
     Objects can be created and edited using the drawing toolbar which is
     shown by opening the <b>Show</b> menu and selecting the <b>Edit Drawing
@@ -282,5 +303,15 @@
     </tr>
     </table>
 
+    <a name="saving-products"></a>
+    <p><b>Saving products</b></p>
+
+    <p>
+    To save the products that are being edited, 
+    one or more layers to a file, click the (save file) button. This opens a dialogue
+    that lets you choose name and location of the file that will contain the
+    objects.
+    The other buttons are explained below.
+    </p>
   </body>
 </html>

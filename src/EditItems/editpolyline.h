@@ -30,7 +30,7 @@
 #ifndef EDITITEM_POLYLINE_H
 #define EDITITEM_POLYLINE_H
 
-#include <QtGui> // ### include only relevant headers ... TBD
+#include <QObject>
 #include <diDrawingManager.h>
 #include "EditItems/edititembase.h"
 #include "EditItems/drawingpolyline.h"
@@ -79,6 +79,7 @@ private:
 private slots:
     void addPoint();
     void removePoint();
+    void showTip();
 };
 
 } // namespace EditItem_PolyLine

@@ -46,7 +46,7 @@ void EditItemBase::init()
 {
   moving_ = false;
   resizing_ = false;
-  pressedCtrlPointIndex_ = -1;
+  pressedCtrlPointIndex_.clear();
   hoverCtrlPointIndex_ = -1;
 }
 
@@ -140,9 +140,11 @@ void EditItemBase::drawControlPoints(DiGLPainter* gl, const QColor &color, const
     if (isJoinedEndPoint(jCount, jId, i, n)) {
       gl->Color4ub(joinColor.red(), joinColor.green(), joinColor.blue(), joinColor.alpha());
       extraPad = 1;
-    } else {
+    } else if (pressedCtrlPointIndex_.contains(i))
+      gl->Color4ub(255, 0, 0, 255);
+    else
       gl->Color4ub(color.red(), color.green(), color.blue(), color.alpha());
-    }
+
     drawRect(gl, controlPoints_.at(i), pad + extraPad);
   }
 
@@ -211,6 +213,25 @@ void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *mul
   Q_UNUSED(event)
   Q_UNUSED(repaintNeeded)
   Q_UNUSED(multiItemOp)
+}
+
+/**
+ * Handles a mouse press \a event where the click may intersect with a control point,
+ * updating the set of selected points and updating the \a repaintNeeded flag as
+ * necessary.
+ */
+void EditItemBase::mousePressControlPoints(QMouseEvent *event, bool &repaintNeeded)
+{
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    pressedCtrlPointIndex_.clear();
+    repaintNeeded = true;
+  }
+
+  int index = hitControlPoint(event->pos());
+  if (index > -1) {
+    pressedCtrlPointIndex_.insert(index);
+    repaintNeeded = true;
+  }
 }
 
 /**

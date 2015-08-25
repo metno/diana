@@ -134,6 +134,7 @@ public slots:
   void redo();
   void repaint();
   void reset();
+  void save();
   void selectItem(DrawingItemBase *, bool = false, bool = true);
   void selectAllItems();
   void setSelectMode();
@@ -163,6 +164,7 @@ signals:
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
   void editing(bool);
+  void saveRequested();
 
 private:
   DrawingItemBase *hitItem_; // current hit item
