@@ -222,17 +222,14 @@ void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *mul
  */
 void EditItemBase::mousePressControlPoints(QMouseEvent *event, bool &repaintNeeded)
 {
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    pressedCtrlPointIndex_.clear();
+    repaintNeeded = true;
+  }
+
   int index = hitControlPoint(event->pos());
-  if (index == -1) {
-    if (!pressedCtrlPointIndex_.isEmpty()) {
-      pressedCtrlPointIndex_.clear();
-      repaintNeeded = true;
-    }
-  } else {
-    if (pressedCtrlPointIndex_.contains(index))
-      pressedCtrlPointIndex_.remove(index);
-    else
-      pressedCtrlPointIndex_.insert(index);
+  if (index > -1) {
+    pressedCtrlPointIndex_.insert(index);
     repaintNeeded = true;
   }
 }
