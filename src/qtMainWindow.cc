@@ -3298,12 +3298,22 @@ void DianaMainWindow::undo()
 {
   if(em->inedit())
     em->undoEdit();
+  else {
+    EditItemManager *editm = EditItemManager::instance();
+    if (editm->isEditing())
+      editm->undo();
+  }
 }
 
 void DianaMainWindow::redo()
 {
   if(em->inedit())
     em->redoEdit();
+  else {
+    EditItemManager *editm = EditItemManager::instance();
+    if (editm->isEditing())
+      editm->redo();
+  }
 }
 
 void DianaMainWindow::save()
