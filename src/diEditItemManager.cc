@@ -1791,6 +1791,10 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
   return error;
 }
 
+void EditItemManager::save()
+{
+  emit saveRequested();
+}
 
 // Command classes
 

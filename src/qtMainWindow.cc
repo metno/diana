@@ -3320,6 +3320,11 @@ void DianaMainWindow::save()
 {
   if(em->inedit())
     em->saveEdit();
+  else {
+    EditItemManager *editm = EditItemManager::instance();
+    if (editm->isEditing())
+      editm->save();
+  }
 }
 
 void DianaMainWindow::toggleToolBar()
