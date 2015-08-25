@@ -3167,7 +3167,7 @@ static int parseAndProcess(istream &is)
       } else if ( value == "referencetime" ) {
           use_referencetime = true;
       } else if (miTime::isValid(value)) {
-        fixedtime = ptime = miTime(value);
+        fixedtime =  miTime(value);
       }
 
     } else if (key == com_archive) {
@@ -3572,7 +3572,7 @@ int diana_init(int _argc, char** _argv)
         // temporary: force plottime
         if (tmp.key == "TIME") {
           if (miTime::isValid(tmp.value)) {
-            fixedtime = ptime = miTime(tmp.value);
+            fixedtime = miTime(tmp.value);
           } else {
             cerr << "ERROR, invalid TIME-variable on commandline:" << tmp.value
                 << endl;
