@@ -1011,7 +1011,7 @@ name=Obsflagg       file=$(share_diana_dir)/obsflag.html
 #name=Norway[F6]..... defines key F6 as shortcommand key for area Norway.
 #---------------------------------------------------------------------------
 
-name=Data-area proj4string=undefined
+name=model/sat-area   proj4string=""  rectangle=0:0:0:0
 name=Europa  proj4string="+proj=stere +lat_ts=60 +lat_0=90.0 +lon_0=0 +x_0=5.71849e+06 +y_0=7.37385e+06 +R=6.371e+06"  rectangle=2.50e+06:9.02e+06:2.20e+06:6.67e+06
      
 name=proj_ortho_north  proj4string="+proj=ortho +lon_0=0 +lat_0=90 +a=6371000.0 +b=6371000.0" rectangle=-6e+06:5e+06:-6.3e+06:8.5e+06
