@@ -78,7 +78,7 @@ private:
 
 private slots:
     void addPoint();
-    void removePoint();
+    void removePoints();
     void showTip();
 };
 

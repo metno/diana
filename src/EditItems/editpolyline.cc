@@ -54,7 +54,7 @@ PolyLine::PolyLine(int id)
 
   addPoint_act_->setShortcut(tr("+"));
   QObject::connect(addPoint_act_, SIGNAL(triggered()), SLOT(addPoint()));
-  QObject::connect(removePoint_act_, SIGNAL(triggered()), SLOT(removePoint()));
+  QObject::connect(removePoint_act_, SIGNAL(triggered()), SLOT(removePoints()));
 }
 
 PolyLine::~PolyLine()
@@ -140,20 +140,16 @@ void PolyLine::showTip()
 
 void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
 {
-  if ((hoverCtrlPointIndex_ >= 0) &&
-      ((event->key() == Qt::Key_Backspace) ||
-       (event->key() == Qt::Key_Delete) ||
-       (event->key() == Qt::Key_Minus))) {
+  if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete) ||
+      (event->key() == Qt::Key_Minus)) {
 
-    // Remove point
-    const QList<QPointF> origPoints = getPoints();
-    removePoint();
-    hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
-    if (hoverCtrlPointIndex_ < 0) // no control point beneath the one we just removed, so check if we hit a line
-      hoverLineIndex_ = hitLine(hoverPos_);
-    repaintNeeded = true;
-    event->accept();
-    return;
+    if (!pressedCtrlPointIndex_.isEmpty()) {
+      // Remove selected points
+      removePoints();
+      repaintNeeded = true;
+      event->accept();
+      return;
+    }
 
   } else if ((hoverCtrlPointIndex_ < 0) &&
              (hoverLineIndex_ >= 0) &&
@@ -282,20 +278,34 @@ void PolyLine::addPoint()
   }
 }
 
-void PolyLine::removePoint()
+void PolyLine::removePoints()
 {
-  if ((hoverCtrlPointIndex_ >= 0) && (hoverCtrlPointIndex_ < points_.size()) && (points_.size() > 2)) {
-    points_.removeAt(hoverCtrlPointIndex_);
-    latLonPoints_.removeAt(hoverCtrlPointIndex_);
-    const int origHCPIndex = hoverCtrlPointIndex_;
-    hoverCtrlPointIndex_ = -1;
-    updateControlPoints();
+  QList<QPointF> newPoints, newLatLonPoints;
 
-    // unjoin polyline if removing a joined end point
-    if (((origHCPIndex == 0) && (joinId() < 0)) || ((origHCPIndex == points_.size()) && (joinId() > 0))) {
-      propertiesRef().insert("joinId", 0);
-      EditItemManager::instance()->updateJoins();
+  for (int i = 0; i < points_.size(); ++i) {
+    if (!pressedCtrlPointIndex_.contains(i)) {
+      newPoints.append(points_.at(i));
+      newLatLonPoints.append(latLonPoints_.at(i));
     }
+  }
+
+  if (newPoints.size() < 2)
+    return;
+
+  points_ = newPoints;
+  latLonPoints_ = newLatLonPoints;
+
+  QSet<int> origHCPIndexes = pressedCtrlPointIndex_;
+  pressedCtrlPointIndex_.clear();
+  if (hoverCtrlPointIndex_ >= points_.size())
+    hoverCtrlPointIndex_ = -1;
+
+  updateControlPoints();
+
+  // unjoin polyline if removing a joined end point
+  if ((origHCPIndexes.contains(0) && (joinId() < 0)) || (origHCPIndexes.contains(points_.size()) && (joinId() > 0))) {
+    propertiesRef().insert("joinId", 0);
+    EditItemManager::instance()->updateJoins();
   }
 }
 
