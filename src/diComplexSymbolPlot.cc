@@ -236,7 +236,7 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex)
     currentSymbolStrings.push_back("");
     break;
   case 1036:
-    currentSymbolStrings.push_back("0\xB0:x"); // was "0°:x";
+    currentSymbolStrings.push_back("0\xB0:x"); // was "0ï¿½:x";
     currentSymbolStrings.push_back("");
     break;
  case 1040:
@@ -1516,18 +1516,20 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       getComplexSize(gl, 1000,sw,sh);
       break;
     case 1034:
-      if (symbolStrings.size()>1){
-        getComplexSize(gl, 1026,cw2,ch2);
+      getComplexSize(gl, 1026,cw2,ch2);
         gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      if (symbolStrings.size()>0){
         gl->getTextSize(symbolStrings[0],cw1,ch1);
-        cw1 += (cw2*1);
-        gl->getTextSize(symbolStrings[1],cw2,ch2);
-        if (cw2>cw1)
-          cw1=cw2;
-        ch1 += ch2;
-        sw = cw1 * 1.3;
-        sh = ch1 * 1.3;
+        cw2 += cw1;
       }
+      if (symbolStrings.size()>1){
+        gl->getTextSize(symbolStrings[1],cw1,ch1);
+        if (cw1>cw2)
+          cw2=cw1;
+        ch2 += ch1;
+      }
+      sw = cw2 * 1.3;
+      sh = ch2 * 1.3;
       break;
     case 1035:
       gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
