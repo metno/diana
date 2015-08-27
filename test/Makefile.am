@@ -69,6 +69,8 @@ LDFLAGS += \
 
 LDADD += \
     $(req_libs) \
+    $(METLIBS_LIBS) \
+    $(FIMEX_LIBS) \
     $(gtest_LIBS) \
     $(QT4_LIBS) \
     $(BOOST_SYSTEM_LIBS)
@@ -109,6 +111,8 @@ diFieldTest_CPPFLAGS = \
 
 diFieldTest_LDADD = \
     $(req_libs) \
+    $(METLIBS_LIBS) \
+    $(FIMEX_LIBS) \
     $(BOOST_DATE_TIME_LIBS)  \
     $(gtest_LIBS)
 
