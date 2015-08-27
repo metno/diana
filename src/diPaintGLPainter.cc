@@ -1599,7 +1599,7 @@ void DiPaintGLPainter::drawPolyline(const QPolygonF& points)
 void DiPaintGLPainter::drawPolygon(const QPolygonF& points)
 {
   if (points.size() < 3) {
-    METLIBS_LOG_ERROR("invalid polylgon, size=" << points.size());
+    METLIBS_LOG_ERROR("invalid polygon, size=" << points.size());
     return;
   }
   const QPolygonF tpoints = transform.map(points);

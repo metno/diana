@@ -855,7 +855,10 @@ void DrawingStyleManager::fillLoop(DiGLPainter* gl, const DrawingItemBase *item,
   // draw the interior
   gl->BlendFunc( DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA );
   gl->Enable( DiGLPainter::gl_BLEND );
-  gl->drawPolygon(QPolygonF::fromList(points_));
+  if (points_.size() >= 3)
+    gl->drawPolygon(QPolygonF::fromList(points_));
+  else
+    gl->drawPolyline(QPolygonF::fromList(points_));
 }
 
 const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &points, bool closed)
