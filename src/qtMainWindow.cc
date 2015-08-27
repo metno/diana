@@ -783,24 +783,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   //  addToolBar(Qt::RightToolBarArea,mainToolbar);
 
   mainToolbar->addAction( showResetAreaAction         );
-  mainToolbar->addAction( showQuickmenuAction         );
-  mainToolbar->addAction( showMapDialogAction         );
-  mainToolbar->addAction( showFieldDialogAction       );
-  mainToolbar->addAction( showObsDialogAction         );
-  mainToolbar->addAction( showSatDialogAction         );
-  mainToolbar->addAction( showStationDialogAction     );
-  mainToolbar->addAction( showObjectDialogAction      );
-  mainToolbar->addAction( showTrajecDialogAction      );
-  mainToolbar->addAction( showMeasurementsDialogAction   );
-  mainToolbar->addAction( showProfilesDialogAction    );
-  mainToolbar->addAction( showCrossSectionDialogAction);
-  mainToolbar->addAction( showWaveSpectrumDialogAction);
-
-  mainToolbar->addSeparator();
-  mainToolbar->addAction( showEditDialogAction );
-  mainToolbar->addSeparator();
-  mainToolbar->addSeparator();
-  mainToolbar->addAction( showResetAllAction );
 
 
   /****************** Status bar *****************************/
@@ -899,31 +881,36 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
 
   qm= new QuickMenu(this, contr);
   qm->hide();
-
-  fm= new FieldDialog(this, contr);
-  fm->hide();
-
-  om= new ObsDialog(this, contr);
-  om->hide();
-
-  sm= new SatDialog(this, contr);
-  sm->hide();
-
-  stm= new StationDialog(this, contr);
-  stm->hide();
+  mainToolbar->addAction( showQuickmenuAction         );
 
   mm= new MapDialog(this, contr);
   mm->hide();
+  mainToolbar->addAction( showMapDialogAction         );
 
-  em= new EditDialog( this, contr );
-  em->hide();
+  fm= new FieldDialog(this, contr);
+  fm->hide();
+  mainToolbar->addAction( showFieldDialogAction       );
+
+  om= new ObsDialog(this, contr);
+  om->hide();
+  mainToolbar->addAction( showObsDialogAction         );
+
+  sm= new SatDialog(this, contr);
+  sm->hide();
+  mainToolbar->addAction( showSatDialogAction         );
+
+  stm= new StationDialog(this, contr);
+  stm->hide();
+  mainToolbar->addAction( showStationDialogAction     );
 
   objm = new ObjectDialog(this,contr);
   objm->hide();
+  mainToolbar->addAction( showObjectDialogAction      );
 
   trajm = new TrajectoryDialog(this,contr);
   trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
+  mainToolbar->addAction( showTrajecDialogAction      );
 
   annom = new AnnotationDialog(this,contr);
   annom->setFocusPolicy(Qt::StrongFocus);
@@ -932,6 +919,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   measurementsm = new MeasurementsDialog(this,contr);
   measurementsm->setFocusPolicy(Qt::StrongFocus);
   measurementsm->hide();
+  mainToolbar->addAction( showMeasurementsDialogAction   );
 
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
@@ -966,6 +954,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(textview,SIGNAL(printClicked(int)),SLOT(sendPrintClicked(int)));
   textview->hide();
 
+  em= new EditDialog( this, contr );
+  em->hide();
+  mainToolbar->addAction( showEditDialogAction );
 
   //used for testing qickMenus without dialogs
   //connect(qm, SIGNAL(Apply(const vector<std::string>&,bool)),
@@ -1071,6 +1062,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
 
+  mainToolbar->addSeparator();
+
   // vertical profiles
   // create a new main window
 #ifndef DISABLE_VPROF
@@ -1081,6 +1074,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(vpWindow,SIGNAL(stationChanged(const std::vector<std::string> &)),
       SLOT(stationChangedSlot(const std::vector<std::string> &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
+  mainToolbar->addAction( showProfilesDialogAction    );
 #endif
 
   // vertical crossections
@@ -1107,6 +1101,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
     connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
         SLOT(nextHVcrossPlot()));
   }
+  mainToolbar->addAction( showCrossSectionDialogAction);
 #endif
 
   // Wave spectrum
@@ -1120,6 +1115,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
       SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),
       SLOT(spectrumSetChangedSlot()));
+  mainToolbar->addAction( showWaveSpectrumDialogAction);
 #endif
 
   // browse plots
@@ -1168,6 +1164,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
     connect( spWindow ,SIGNAL(setTime(const std::string&, const miutil::miTime&)),
         tslider,SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
+
+  mainToolbar->addSeparator();
+  mainToolbar->addAction( showResetAllAction );
 
   setAcceptDrops(true);
 
@@ -3922,9 +3921,7 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
     connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
     connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
     showmenu->addAction(action);
-#if defined(SHOW_DRAWING_MODE_BUTTON_IN_MAIN_TOOLBAR)
     mainToolbar->addAction(action);
-#endif
   }
 }
 
