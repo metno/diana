@@ -45,6 +45,8 @@
 #include "qtVcrossSetupDialog.h"
 #include "qtPrintManager.h"
 
+#include "EditItems/kml.h"
+
 #include <diField/VcrossUtil.h>
 
 #include <puTools/miStringFunctions.h>
@@ -641,6 +643,15 @@ void VcrossWindow::slotCheckEditmode(bool editing)
     ui->toggleCsEdit->setChecked(editing);
 }
 
+static QList<QPointF> toQPointList(const QList<QVariant>& qvariantList)
+{
+  QList<QPointF> points;
+  points.reserve(qvariantList.size());
+  for (QList<QVariant>::const_iterator it = qvariantList.begin(); it != qvariantList.end(); ++it)
+    points << it->toPointF();
+  return points;
+}
+
 void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
 {
   METLIBS_LOG_SCOPE();
@@ -656,13 +667,9 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
     label = props.value(KEY_NAME).toString();
   if (label.isEmpty())
     label = QString("dyn_%1").arg(props.value(KEY_ID).toInt());
-  
-  vcross::LonLat_v points;
-  foreach (QVariant v, props.value(KEY_POINTS).toList()) {
-    const QPointF p = v.toPointF();
-    const float lat = p.x(), lon = p.y(); // FIXME swpa x <-> y
-    points.push_back(LonLat::fromDegrees(lon, lat));
-  }
+
+  const QList<QPointF> qpoints = toQPointList(props.value(KEY_POINTS).toList());
+  const vcross::LonLat_v points = KML::latLonDegQPointsToLonLat(qpoints);
   if (points.size() < 2)
     return;
 

@@ -167,6 +167,7 @@
 #include <diField/diFieldManager.h>
 
 #include "EditItems/drawingdialog.h"
+#include "EditItems/kml.h"
 #include "EditItems/toolbar.h"
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
@@ -1890,7 +1891,7 @@ void DianaMainWindow::vcrossEditManagerEnableSignals()
     vcrossEditManagerConnected = true;
 
     EditItemManager::instance()->enableItemChangeNotification();
-    EditItemManager::instance()->setItemChangeFilter("Cross section");
+    EditItemManager::instance()->setItemChangeFilter(CROSS_SECTION_TYPE);
     connect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
         vcInterface.get(), SLOT(editManagerChanged(const QVariantMap &)), Qt::UniqueConnection);
     connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
@@ -1904,7 +1905,7 @@ void DianaMainWindow::vcrossEditManagerEnableSignals()
 void DianaMainWindow::onVcrossRequestEditManager(bool on)
 {
   if (on) {
-    EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
+    EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
     EditItems::ToolBar::instance()->show();
     vcrossEditManagerEnableSignals();
   } else {

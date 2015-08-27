@@ -126,6 +126,7 @@ struct CrossSection
   std::string mLabel;
   vcross::LonLat_v mPoints;
 };
+typedef std::vector<CrossSection> CrossSection_v;
 
 Q_DECLARE_INTERFACE(VcrossInterface, "metno.diana.VcrossInterface/1.0");
 
