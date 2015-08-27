@@ -543,6 +543,7 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
   EXPECT_FLOAT_EQ(449.39999, air_pt_values->value(idx));
 }
 
+#if 0 // disabled due to a problem with fimex
 TEST(FimexReftimeSourceTest, TestEmepDynVcross)
 {
   ReftimeSource_p fs = openFimexFile(EMEP_ETNA_FILE);
@@ -635,6 +636,7 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   EXPECT_FLOAT_EQ(259.99149, vertical_h_values->value(idx));
   EXPECT_FLOAT_EQ(121.61005, ash_c_values->value(idx));
 }
+#endif // disabled due to a problem with fimex
 
 TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
 {
