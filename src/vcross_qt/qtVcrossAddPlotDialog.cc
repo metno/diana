@@ -143,9 +143,9 @@ void VcrossAddPlotDialog::onAdd()
   const std::string model = selectedModel().toStdString();
   const miutil::miTime reftime(selectedReferenceTime().toStdString());
   vcross::QtManager::PlotSpec ps(model, reftime, "");
-
   const QStringList plots = selectedPlots();
   if (!plots.isEmpty()) {
+    diutil::OverrideCursor waitCursor;
     vcrossm->fieldChangeStart(false);
     for (int i=0; i<plots.size(); ++i) {
       const std::string fld = plots.at(i).toStdString();

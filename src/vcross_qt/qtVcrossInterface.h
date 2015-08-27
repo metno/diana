@@ -77,15 +77,12 @@ private Q_SLOTS:
 
 private:
   bool checkWindow();
-  void loadPredefinedCS();
 
 private:
   vcross::QtManager_p vcrossm;
   std::auto_ptr<vcross::VcrossQuickmenues> quickmenues;
 
   VcrossWindow* window;
-
-  std::set<std::string> mPredefinedCsFiles;
 };
 
 #endif // _qt_vcrossmainwindow_

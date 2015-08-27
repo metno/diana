@@ -42,6 +42,12 @@
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>
 
+// Support for vertical cross sections
+#include "diField/VcrossData.h"
+#include "diVcrossInterface.h"
+
+extern const char CROSS_SECTION_TYPE[];
+
 // API for saving/loading to/from KML files.
 namespace KML
 {
@@ -62,6 +68,10 @@ namespace KML
 
   QList<DrawingItemBase *> createFromDomDocument(const QDomDocument &doc, const QString &name, const QString &srcFileName, QString &error);
   QList<DrawingItemBase *> createFromFile(const QString &name, const QString &fileName, QString &error);
+
+  LonLat latLonDegQPointToLonLat(const QPointF &point);
+  vcross::LonLat_v latLonDegQPointsToLonLat(const QList<QPointF>& points);
+  CrossSection_v loadCrossSections(const QString &fileName);
 }
 
 #endif // KML_H

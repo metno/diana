@@ -12,18 +12,6 @@
 
 using namespace vcross;
 
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <fimex/Logger.h> // required to tell fimex to use log4cpp
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);            \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
-
 typedef boost::shared_ptr<FimexSource> FimexSource_p;
 
 static const char SIMRA_FILE[] = "simra_vc.nc";
@@ -74,7 +62,6 @@ static ReftimeSource_p openFimexFile(const std::string& file)
 
 TEST(FimexReftimeSourceTest, TestSimraVcross0)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(SIMRA_FILE);
   if (not fs)
     return;
@@ -124,7 +111,6 @@ TEST(FimexReftimeSourceTest, TestSimraVcross0)
 
 TEST(FimexReftimeSourceTest, TestSimraVcross1)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(SIMRA_FILE);
   if (not fs)
     return;
@@ -173,7 +159,6 @@ TEST(FimexReftimeSourceTest, TestSimraVcross1)
 
 TEST(FimexReftimeSourceTest, TestSimraVcrossVertical)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(SIMRA_FILE);
   if (not fs)
     return;
@@ -237,7 +222,6 @@ TEST(FimexReftimeSourceTest, TestSimraVcrossVertical)
 
 TEST(FimexReftimeSourceTest, TestSimraTimegraph)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(SIMRA_FILE);
   if (not fs)
     return;
@@ -278,7 +262,6 @@ TEST(FimexReftimeSourceTest, TestSimraTimegraph)
 
 TEST(FimexReftimeSourceTest, TestSimraVprofile)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(SIMRA_FILE);
   if (not fs)
     return;
@@ -318,7 +301,6 @@ TEST(FimexReftimeSourceTest, TestSimraVprofile)
 
 TEST(FimexReftimeSourceTest, TestAromeVcross1)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(AROME_FILE);
   if (not fs)
     return;
@@ -367,7 +349,6 @@ TEST(FimexReftimeSourceTest, TestAromeVcross1)
 
 TEST(FimexReftimeSourceTest, TestAromeVcrossVertical)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(AROME_FILE);
   if (not fs)
     return;
@@ -431,7 +412,6 @@ TEST(FimexReftimeSourceTest, TestAromeVcrossVertical)
 
 TEST(FimexReftimeSourceTest, TestAromeTimegraph)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(AROME_FILE);
   if (not fs)
     return;
@@ -494,7 +474,6 @@ TEST(FimexReftimeSourceTest, TestAromeTimegraph)
 
 TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(HIRLAM_FILE);
   if (not fs)
     return;
@@ -564,9 +543,9 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
   EXPECT_FLOAT_EQ(449.39999, air_pt_values->value(idx));
 }
 
+#if 0 // disabled due to a problem with fimex
 TEST(FimexReftimeSourceTest, TestEmepDynVcross)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(EMEP_ETNA_FILE);
   if (not fs)
     return;
@@ -657,10 +636,10 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   EXPECT_FLOAT_EQ(259.99149, vertical_h_values->value(idx));
   EXPECT_FLOAT_EQ(121.61005, ash_c_values->value(idx));
 }
+#endif // disabled due to a problem with fimex
 
 TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(AROMESMHI_FILE);
   if (not fs)
     return;
@@ -742,7 +721,6 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
 
 TEST(FimexReftimeSourceTest, TestBangladeshVcross)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(BANGLADESH_FILE);
   if (not fs)
     return;
@@ -827,7 +805,6 @@ TEST(FimexReftimeSourceTest, TestBangladeshVcross)
 
 TEST(FimexReftimeSourceTest, TestBangladeshVprof)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(BANGLADESH_FILE);
   if (not fs)
     return;
@@ -886,7 +863,6 @@ TEST(FimexReftimeSourceTest, TestBangladeshVprof)
 
 TEST(FimexReftimeSourceTest, WaveSpectra1)
 {
-  configureLogging();
   ReftimeSource_p fs = openFimexFile(WAVE_FILE);
   if (not fs)
     return;
@@ -946,8 +922,6 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
 
 TEST(FimexSourceTest, TestAromeReftimes)
 {
-  configureLogging();
-
   unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc");
   unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_18.nc");
   unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_00.nc");
@@ -985,8 +959,6 @@ TEST(FimexSourceTest, TestAromeReftimes)
 
 TEST(FimexSourceTest, TestAromeReftimesStar)
 {
-  configureLogging();
-
   unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc");
   unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_18.nc");
   unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_00.nc");

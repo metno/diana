@@ -42,6 +42,8 @@
 
 #include "diField/VcrossData.h"
 
+extern const char LOCATIONS_VCROSS[]; // defined in vcross_v2/VcrossQtManager.cc
+
 class LogFileIO;
 struct LocationData;
 
@@ -126,6 +128,7 @@ struct CrossSection
   std::string mLabel;
   vcross::LonLat_v mPoints;
 };
+typedef std::vector<CrossSection> CrossSection_v;
 
 Q_DECLARE_INTERFACE(VcrossInterface, "metno.diana.VcrossInterface/1.0");
 

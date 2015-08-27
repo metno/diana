@@ -34,6 +34,7 @@
 #include "VcrossSetup.h"
 #include "VcrossQtPlot.h"
 #include "diLocationData.h"
+#include "EditItems/kml.h" // for struct CrossSection
 
 #include <puTools/miTime.h>
 
@@ -66,6 +67,44 @@ private:
       : position(-1), text(t), colour(c), x(xx), y(yy) { }
   };
   typedef std::vector<Marker> Marker_v;
+
+  class CS {
+  public:
+    explicit CS(Crossection_cp sourceCS)
+      : mSourceCS(sourceCS) { }
+    CS(const std::string& label, const LonLat_v& requested)
+      : mLabel(label), mPointsRequested(requested) { }
+
+    const std::string& label() const
+      { return mSourceCS ? mSourceCS->label() : mLabel; }
+
+    size_t length() const
+      { return mSourceCS? mSourceCS->length() : mPointsRequested.size(); }
+    const LonLat& point(int i) const
+      { return mSourceCS ? mSourceCS->point(i) : mPointsRequested.at(i); }
+
+    size_t lengthRequested() const
+      { return mSourceCS ? mSourceCS->lengthRequested() : mPointsRequested.size(); }
+    const LonLat& pointRequested(int i) const
+      { return mSourceCS ? mSourceCS->pointRequested(i) : mPointsRequested.at(i); }
+
+    bool dynamic() const
+      { return !mSourceCS || mSourceCS->dynamic(); }
+    Crossection_cp sourceCS() const
+      { return mSourceCS; }
+    void setSourceCS(Crossection_cp scs)
+      { mSourceCS = scs; }
+    bool hasSourceCS() const
+      { return mSourceCS.get() != 0; }
+
+    bool operator==(const CS& other) const;
+
+  private:
+    Crossection_cp mSourceCS;
+    std::string mLabel;
+    LonLat_v mPointsRequested;
+  };
+  typedef std::vector<CS> CS_v;
 
 public:
   typedef miutil::miTime vctime_t;
@@ -168,12 +207,12 @@ public:
   int getCrossectionCount() const;
   void addDynamicCrossection(const QString& label, const LonLat_v& points);
   void removeDynamicCrossection(const QString& label);
-  void getCrossections(LocationData& locationdata);
+  const LocationData& getCrossections() const
+    { return locationData; }
   LonLat_v getDynamicCrossectionPoints(const QString& label);
 
-  //! list of filenames with predefined cross-sections
-  const std::set<std::string>& getCrossectionPredefinitions() const
-    { return mCsPredefined; }
+  bool hasPredefinedDynamicCrossections() const
+    { return mHasSupportForDynamicCs && mHasPredefinedDynamicCs; }
 
   //! true if at least one selected model supports dynamic cross-sections
   bool supportsDynamicCrossections() const
@@ -255,7 +294,20 @@ private:
 
   void preparePlot();
 
-  void fillLocationData(LocationData& locationdata);
+  void updateLocationData();
+
+  bool goodCrossSectionLength(size_t length) const;
+  CS_v loadCsFromFile(const std::string& filename);
+  CS& crossection()
+    { return mCrossections.at(mCrossectionCurrent); }
+  const CS& crossection() const
+    { return mCrossections.at(mCrossectionCurrent); }
+  LonLat_v crossectionPoints() const;
+  LonLat_v crossectionPointsRequested() const;
+  bool isValidCsIndex(int i) const
+    { return i >= 0 && i < getCrossectionCount(); }
+  bool hasValidCsIndex() const
+    { return isValidCsIndex(mCrossectionCurrent); }
 
   void saveZoom();
   void restoreZoom();
@@ -271,21 +323,21 @@ private:
   int dataChange;
   int inFieldChangeGroup;
 
-  string_v mCrossectionLabels;
-  LonLat_v mCrossectionPoints;
-  LonLat_v mCrossectionPointsRequested;
-  int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
-  LocationData locationData;
+  CS_v mCrossections;
+  int mCrossectionCurrent; //! mCrossections index of current cross section
+  LocationData locationData; //! kind of duplicate of mCrossections in a different structure
 
   vctime_v mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time
 
   bool mTimeGraphMode; //! true iff in timegraph mode
 
-  //! filenames of predefined cross-sections
-  std::set<std::string> mCsPredefined;
+  //! map filename -> crossections for cross-sections defined in kml files
+  typedef std::map<std::string, CrossSection_v> cspredefined_m;
+  cspredefined_m mCsPredefined;
 
   bool mHasSupportForDynamicCs;
+  bool mHasPredefinedDynamicCs;
 
   typedef std::map<std::string, QtPlot::Rect> cs_zoom_t;
   cs_zoom_t mCrossectionZooms;

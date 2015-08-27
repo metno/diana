@@ -42,12 +42,10 @@
 #include <QRegExp>
 #include <QDateTime>
 
-// Support for vertical cross sections
-#include "diField/VcrossData.h"
-#include "diVcrossInterface.h"
-
 #define MILOGGER_CATEGORY "diana.KML"
 #include <miLogger/miLogging.h>
+
+const char CROSS_SECTION_TYPE[] = "Cross section";
 
 namespace KML {
 
@@ -711,11 +709,22 @@ QList<DrawingItemBase *> createFromFile(const QString &name, const QString &file
   return items;
 }
 
-std::vector<CrossSection> loadCrossSections(const QString &fileName)
+LonLat latLonDegQPointToLonLat(const QPointF &point)
 {
-  METLIBS_LOG_SCOPE();
+  return LonLat::fromDegrees(point.y(), point.x());
+}
 
-  std::vector<CrossSection> crossSections;
+vcross::LonLat_v latLonDegQPointsToLonLat(const QList<QPointF>& points)
+{
+  vcross::LonLat_v lonLat(points.size());
+  std::transform(points.begin(), points.end(), lonLat.begin(),
+      latLonDegQPointToLonLat);
+  return lonLat;
+}
+
+CrossSection_v loadCrossSections(const QString &fileName)
+{
+  CrossSection_v crossSections;
   QString error;
 
   // Try to load each file, warning and skipping it if it cannot be loaded.
@@ -728,18 +737,11 @@ std::vector<CrossSection> loadCrossSections(const QString &fileName)
   // For each cross section found, create a structure containing a name and
   // a list of geographic coordinates.
 
-  foreach (DrawingItemBase *item, items) {
-    vcross::LonLat_v empty;
-
-    if (item->property("style:type") == "Cross section") {
-      std::string name = item->property("Placemark:name").toString().toStdString();
-      vcross::LonLat_v points;
-      foreach (const QPointF &point, item->getLatLonPoints())
-        points.push_back(LonLat(point.y(), point.x()));
-
+  Q_FOREACH (DrawingItemBase *item, items) {
+    if (item->property("style:type") == CROSS_SECTION_TYPE) {
       CrossSection cs;
-      cs.mLabel = name;
-      cs.mPoints = empty;
+      cs.mLabel = item->property("Placemark:name").toString().toStdString();
+      cs.mPoints = latLonDegQPointsToLonLat(item->getLatLonPoints());
       crossSections.push_back(cs);
     }
   }

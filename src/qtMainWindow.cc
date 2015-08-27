@@ -167,6 +167,7 @@
 #include <diField/diFieldManager.h>
 
 #include "EditItems/drawingdialog.h"
+#include "EditItems/kml.h"
 #include "EditItems/toolbar.h"
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
@@ -212,8 +213,6 @@
 //#define DISABLE_WAVESPEC 1
 
 using namespace std;
-
-static const char LOCATIONS_VCROSS[] = "vcross";
 
 DianaMainWindow *DianaMainWindow::self = 0;
 
@@ -783,24 +782,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   //  addToolBar(Qt::RightToolBarArea,mainToolbar);
 
   mainToolbar->addAction( showResetAreaAction         );
-  mainToolbar->addAction( showQuickmenuAction         );
-  mainToolbar->addAction( showMapDialogAction         );
-  mainToolbar->addAction( showFieldDialogAction       );
-  mainToolbar->addAction( showObsDialogAction         );
-  mainToolbar->addAction( showSatDialogAction         );
-  mainToolbar->addAction( showStationDialogAction     );
-  mainToolbar->addAction( showObjectDialogAction      );
-  mainToolbar->addAction( showTrajecDialogAction      );
-  mainToolbar->addAction( showMeasurementsDialogAction   );
-  mainToolbar->addAction( showProfilesDialogAction    );
-  mainToolbar->addAction( showCrossSectionDialogAction);
-  mainToolbar->addAction( showWaveSpectrumDialogAction);
-
-  mainToolbar->addSeparator();
-  mainToolbar->addAction( showEditDialogAction );
-  mainToolbar->addSeparator();
-  mainToolbar->addSeparator();
-  mainToolbar->addAction( showResetAllAction );
 
 
   /****************** Status bar *****************************/
@@ -899,31 +880,36 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
 
   qm= new QuickMenu(this, contr);
   qm->hide();
-
-  fm= new FieldDialog(this, contr);
-  fm->hide();
-
-  om= new ObsDialog(this, contr);
-  om->hide();
-
-  sm= new SatDialog(this, contr);
-  sm->hide();
-
-  stm= new StationDialog(this, contr);
-  stm->hide();
+  mainToolbar->addAction( showQuickmenuAction         );
 
   mm= new MapDialog(this, contr);
   mm->hide();
+  mainToolbar->addAction( showMapDialogAction         );
 
-  em= new EditDialog( this, contr );
-  em->hide();
+  fm= new FieldDialog(this, contr);
+  fm->hide();
+  mainToolbar->addAction( showFieldDialogAction       );
+
+  om= new ObsDialog(this, contr);
+  om->hide();
+  mainToolbar->addAction( showObsDialogAction         );
+
+  sm= new SatDialog(this, contr);
+  sm->hide();
+  mainToolbar->addAction( showSatDialogAction         );
+
+  stm= new StationDialog(this, contr);
+  stm->hide();
+  mainToolbar->addAction( showStationDialogAction     );
 
   objm = new ObjectDialog(this,contr);
   objm->hide();
+  mainToolbar->addAction( showObjectDialogAction      );
 
   trajm = new TrajectoryDialog(this,contr);
   trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
+  mainToolbar->addAction( showTrajecDialogAction      );
 
   annom = new AnnotationDialog(this,contr);
   annom->setFocusPolicy(Qt::StrongFocus);
@@ -932,6 +918,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   measurementsm = new MeasurementsDialog(this,contr);
   measurementsm->setFocusPolicy(Qt::StrongFocus);
   measurementsm->hide();
+  mainToolbar->addAction( showMeasurementsDialogAction   );
 
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
@@ -966,6 +953,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(textview,SIGNAL(printClicked(int)),SLOT(sendPrintClicked(int)));
   textview->hide();
 
+  em= new EditDialog( this, contr );
+  em->hide();
+  mainToolbar->addAction( showEditDialogAction );
 
   //used for testing qickMenus without dialogs
   //connect(qm, SIGNAL(Apply(const vector<std::string>&,bool)),
@@ -1071,6 +1061,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
 
+  mainToolbar->addSeparator();
+
   // vertical profiles
   // create a new main window
 #ifndef DISABLE_VPROF
@@ -1081,6 +1073,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(vpWindow,SIGNAL(stationChanged(const std::vector<std::string> &)),
       SLOT(stationChangedSlot(const std::vector<std::string> &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
+  mainToolbar->addAction( showProfilesDialogAction    );
 #endif
 
   // vertical crossections
@@ -1107,6 +1100,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
     connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
         SLOT(nextHVcrossPlot()));
   }
+  mainToolbar->addAction( showCrossSectionDialogAction);
 #endif
 
   // Wave spectrum
@@ -1120,6 +1114,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
       SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),
       SLOT(spectrumSetChangedSlot()));
+  mainToolbar->addAction( showWaveSpectrumDialogAction);
 #endif
 
   // browse plots
@@ -1168,6 +1163,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
     connect( spWindow ,SIGNAL(setTime(const std::string&, const miutil::miTime&)),
         tslider,SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
+
+  mainToolbar->addSeparator();
+  mainToolbar->addAction( showResetAllAction );
 
   setAcceptDrops(true);
 
@@ -1891,7 +1889,7 @@ void DianaMainWindow::vcrossEditManagerEnableSignals()
     vcrossEditManagerConnected = true;
 
     EditItemManager::instance()->enableItemChangeNotification();
-    EditItemManager::instance()->setItemChangeFilter("Cross section");
+    EditItemManager::instance()->setItemChangeFilter(CROSS_SECTION_TYPE);
     connect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
         vcInterface.get(), SLOT(editManagerChanged(const QVariantMap &)), Qt::UniqueConnection);
     connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
@@ -1905,7 +1903,7 @@ void DianaMainWindow::vcrossEditManagerEnableSignals()
 void DianaMainWindow::onVcrossRequestEditManager(bool on)
 {
   if (on) {
-    EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
+    EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
     EditItems::ToolBar::instance()->show();
     vcrossEditManagerEnableSignals();
   } else {
@@ -1917,7 +1915,6 @@ void DianaMainWindow::onVcrossRequestEditManager(bool on)
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot to " << name.toStdString());
-  //METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot ");
   std::string s= name.toStdString();
   contr->setSelectedLocation(LOCATIONS_VCROSS, s);
   w->updateGL();
@@ -1927,12 +1924,13 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
 void DianaMainWindow::crossectionSetChangedSlot(const LocationData& locations)
 {
   METLIBS_LOG_SCOPE();
-  if (locations.elements.empty()) {
+  if (locations.elements.empty())
     contr->deleteLocation(LOCATIONS_VCROSS);
-  } else {
-    LocationData ed = locations;
-    ed.name = LOCATIONS_VCROSS;
-    contr->putLocation(ed);
+  else if (locations.name == LOCATIONS_VCROSS)
+    contr->putLocation(locations);
+  else {
+    METLIBS_LOG_ERROR("bad name '" << locations.name << "' for vcross location data");
+    return;
   }
   updateGLSlot();
 }
@@ -3922,9 +3920,7 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
     connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
     connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
     showmenu->addAction(action);
-#if defined(SHOW_DRAWING_MODE_BUTTON_IN_MAIN_TOOLBAR)
     mainToolbar->addAction(action);
-#endif
   }
 }
 
