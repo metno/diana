@@ -134,7 +134,35 @@ void FilterDrawingWidget::updateChoices()
     prepared[it.key()] = valueList;
   }
 
+  // Record the currently selected filter values.
+  QHash<QString, QStringList> selected;
+
+  foreach (const QModelIndex &index, propertyList_->selectionModel()->selectedIndexes()) {
+    if (index.parent().isValid()) {
+      QString name = index.parent().data().toString();
+      QStringList values = selected.value(name);
+      values.append(index.data().toString());
+      selected[name] = values;
+    }
+  }
+
+  // Replace the properties in the model with the ones for the current objects.
   propertyModel_->setProperties(prepared);
+
+  // Repopulate the selection model for the filter list.
+  propertyList_->selectionModel()->reset();
+  QItemSelection selection;
+
+  foreach (const QString &name, selected.keys()) {
+    // Find the properties whose values were previously selected.
+    foreach (const QString &value, selected.value(name)) {
+      QModelIndex index = propertyModel_->find(name, value);
+      if (index.isValid())
+        selection.select(index, index);
+    }
+  }
+
+  propertyList_->selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
 
   // The available properties may have changed, causing the filters to be
   // invalid, so ensure that they are updated.
@@ -300,6 +328,9 @@ Qt::ItemFlags FilterDrawingModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
+/**
+ * Returns the property names in a well-defined order.
+ */
 QStringList FilterDrawingModel::properties() const
 {
   return order_;
@@ -311,6 +342,19 @@ void FilterDrawingModel::setProperties(const QHash<QString, QStringList> &choice
   choices_ = choices;
   order_ = choices.keys();
   endResetModel();
+}
+
+QModelIndex FilterDrawingModel::find(const QString &name, const QString &value) const
+{
+  int i = order_.indexOf(name);
+  if (i == -1)
+    return QModelIndex();
+
+  int j = choices_.value(name).indexOf(value);
+  if (j == -1)
+    return QModelIndex();
+
+  return createIndex(j, 0, i);
 }
 
 } // namespace

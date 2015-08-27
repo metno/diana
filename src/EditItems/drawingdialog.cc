@@ -521,7 +521,7 @@ void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
     return;
 
   QString fileName = index.data(DrawingModel::FileNameRole).toString();
-  // ###
+  // ### It should be possible to directly mark the file for editing.
 }
 
 /**

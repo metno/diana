@@ -62,6 +62,8 @@ public:
   QStringList properties() const;
   void setProperties(const QHash<QString, QStringList> &choices);
 
+  QModelIndex find(const QString &name, const QString &value) const;
+
 private:
   QString header_;
   QHash<QString, QStringList> choices_;
