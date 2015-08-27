@@ -136,6 +136,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editm_, SIGNAL(drawingLoaded(QString)), SLOT(updateQuickSaveButton()));
   connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateQuickSaveButton()));
   connect(quickSaveButton_, SIGNAL(clicked()), SLOT(quickSave()));
+  connect(editm_, SIGNAL(reloadRequested()), SLOT(reload()));
   connect(editm_, SIGNAL(saveRequested()), SLOT(quickSave()));
 
   QToolButton *saveAsButton = new QToolButton();

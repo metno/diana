@@ -164,6 +164,7 @@ signals:
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
   void editing(bool);
+  void reloadRequested();
   void saveRequested();
 
 private:

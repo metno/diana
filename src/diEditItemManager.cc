@@ -604,8 +604,14 @@ void EditItemManager::keyPress(QKeyEvent *event)
     return;
   }
 
-  if (event->key() == Qt::Key_Escape)
+  if (event->key() == Qt::Key_Escape) {
+    event->accept();
     return;
+  } else if ((event->key() == Qt::Key_R) && (event->modifiers() == Qt::ControlModifier)) {
+    emit reloadRequested();
+    event->accept();
+    return;
+  }
 
   const QSet<DrawingItemBase *> origSelItems = selectedItems().toSet();
   QSet<int> origSelIds;
