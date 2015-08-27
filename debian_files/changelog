@@ -1,3 +1,9 @@
+diana (3.39.0~a4-1) unstable; urgency=low
+
+  * Edit - shortcuts, multiple selection, etc
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 27 Aug 2015 11:40:04 +0200
+
 diana (3.39.0~a3-1) unstable; urgency=low
 
   * vcross - shortcuts
