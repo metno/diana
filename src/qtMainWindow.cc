@@ -214,8 +214,6 @@
 
 using namespace std;
 
-static const char LOCATIONS_VCROSS[] = "vcross";
-
 DianaMainWindow *DianaMainWindow::self = 0;
 
 DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
@@ -1917,7 +1915,6 @@ void DianaMainWindow::onVcrossRequestEditManager(bool on)
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot to " << name.toStdString());
-  //METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot ");
   std::string s= name.toStdString();
   contr->setSelectedLocation(LOCATIONS_VCROSS, s);
   w->updateGL();
@@ -1927,12 +1924,13 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
 void DianaMainWindow::crossectionSetChangedSlot(const LocationData& locations)
 {
   METLIBS_LOG_SCOPE();
-  if (locations.elements.empty()) {
+  if (locations.elements.empty())
     contr->deleteLocation(LOCATIONS_VCROSS);
-  } else {
-    LocationData ed = locations;
-    ed.name = LOCATIONS_VCROSS;
-    contr->putLocation(ed);
+  else if (locations.name == LOCATIONS_VCROSS)
+    contr->putLocation(locations);
+  else {
+    METLIBS_LOG_ERROR("bad name '" << locations.name << "' for vcross location data");
+    return;
   }
   updateGLSlot();
 }

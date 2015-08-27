@@ -102,7 +102,14 @@ miutil::miTime getBestReferenceTime(const std::vector<miutil::miTime>& reftimes,
   return miutil::miTime();
 }
 
+bool operator!=(const LonLat& a, const LonLat& b)
+{
+  return a.lon() != b.lon() || a.lat() != b.lat();
+}
+
 } // namespace anonymous
+
+const char LOCATIONS_VCROSS[] = "vcross"; // declared in diVcrossInterface.h
 
 namespace vcross {
 
@@ -110,6 +117,23 @@ QtManager::PlotSpec::PlotSpec(const std::string& model, const vctime_t& reftime,
   : mModelReftime(model, util::from_miTime(reftime))
   , mField(field)
 {
+}
+
+// ########################################################################
+
+bool QtManager::CS::operator==(const CS& other) const
+{
+  if (hasSourceCS() != other.hasSourceCS())
+    return false;
+  if (label() != other.label())
+    return false;
+  if (length() != other.length())
+    return false;
+  for (size_t i = 0; i<length(); ++i) {
+    if (point(i) != other.point(i))
+      return false;
+  }
+  return true;
 }
 
 // ########################################################################
@@ -124,6 +148,7 @@ QtManager::QtManager()
   , mPlotTime(-1)
   , mTimeGraphMode(false)
   , mHasSupportForDynamicCs(false)
+  , mHasPredefinedDynamicCs(false)
 {
   METLIBS_LOG_SCOPE();
   string_v sources, computations, plots;
@@ -145,6 +170,7 @@ void QtManager::cleanup()
 {
   METLIBS_LOG_SCOPE();
   mCrossectionZooms.clear();
+  mCsPredefined.clear(); // clear kml-file cache
   removeAllFields();
   cleanupData();
 }
@@ -154,9 +180,7 @@ void QtManager::cleanupData()
 {
   METLIBS_LOG_SCOPE();
   mCrossectionCurrent = -1;
-  mCrossectionLabels.clear();
-  mCrossectionPoints.clear();
-  mCrossectionPointsRequested.clear();
+  mCrossections.clear();
   mCrossectionTimes.clear();
 
   mPlotTime = -1;
@@ -197,8 +221,23 @@ int QtManager::getCrossectionIndex() const
 void QtManager::setCrossectionIndex(int index)
 {
   METLIBS_LOG_SCOPE(LOGVAL(index));
-  if (index != mCrossectionCurrent && index >= 0 && index < getCrossectionCount()) {
+  if (index != mCrossectionCurrent && isValidCsIndex(index)) {
     mCrossectionCurrent = index;
+    CS& mcs = crossection();
+    if (!mcs.hasSourceCS()) {
+      const ModelReftime model1 = mCollector->getFirstModel();
+      if (!model1.model.empty()) {
+        if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
+          if (src->supportsDynamicCrossections(model1.reftime)) {
+            Crossection_cp scs = src->addDynamicCrossection(model1.reftime, mcs.label(),
+                crossectionPointsRequested());
+            mcs.setSourceCS(scs);
+            updateLocationData();
+            Q_EMIT crossectionListChanged();
+          }
+        }
+      }
+    }
     handleChangedCrossection();
   }
 }
@@ -217,8 +256,8 @@ int QtManager::findCrossectionIndex(const QString& label)
 
 QString QtManager::getCrossectionLabel(int index) const
 {
-  if (index >= 0 && index < getCrossectionCount())
-    return QString::fromStdString(mCrossectionLabels.at(index));
+  if (isValidCsIndex(index))
+    return QString::fromStdString(mCrossections.at(index).label());
   else
     return QString();
 }
@@ -226,12 +265,13 @@ QString QtManager::getCrossectionLabel(int index) const
 
 int QtManager::getCrossectionCount() const
 {
-  return mCrossectionLabels.size();
+  return mCrossections.size();
 }
 
 
 void QtManager::addDynamicCrossection(const QString& label, const LonLat_v& points)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(label.toStdString()));
   const Source_Reftime_ps dynSources = listDynamicSources();
   for (Source_Reftime_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it) {
     Source_p src = it->first;
@@ -278,61 +318,60 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
 {
   METLIBS_LOG_SCOPE(LOGVAL(oldLabel.toStdString()));
 
-  mCsPredefined.clear();
   const bool hadSupportForDynamicCs = mHasSupportForDynamicCs;
   mHasSupportForDynamicCs = false;
+  mHasPredefinedDynamicCs = false;
 
-  std::set<LocationElement, lt_LocationElement> le;
   const ModelReftime model1 = mCollector->getFirstModel();
   METLIBS_LOG_DEBUG(LOGVAL(model1));
 
-  string_s labels;
+  CS_v newCrossections;
+  typedef std::map<std::string, size_t> csindex_m;
+  csindex_m newCrossectionIndex;
   if (!model1.model.empty()) {
     if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
+      // load predefined cross sections from a file, if given; this
+      // should be done before listing cross sections from the source
+      // in order to keep the order of cross sections from the file
       if (src->supportsDynamicCrossections(model1.reftime)) {
         mHasSupportForDynamicCs = true;
         const std::map<std::string,std::string>& options = mCollector->getSetup()->getModelOptions(model1.model);
-        if (not options.empty()) {
-          const std::map<std::string,std::string>::const_iterator it = options.find("predefined_cs");
-          if (it != options.end() and not it->second.empty()) {
-            mCsPredefined.insert(it->second);
-          }
+        const std::map<std::string,std::string>::const_iterator it = options.find("predefined_cs");
+        if (it != options.end() && !it->second.empty()) {
+          newCrossections = loadCsFromFile(it->second);
+          for (size_t i=0; i<newCrossections.size(); ++i)
+            newCrossectionIndex[newCrossections[i].label()] = i;
+          mHasPredefinedDynamicCs = !newCrossections.empty();
         }
       }
-
+      // first list the cross sections known by the source
       if (Inventory_cp inv = src->getInventory(model1.reftime)) {
         for (Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS!= inv->crossections.end(); ++itCS) {
-          Crossection_cp cs = *itCS;
-
-          if ((isTimeGraph() && cs->length() != 1)
-              || (!isTimeGraph() && cs->length() < 2))
+          Crossection_cp scs = *itCS;
+          if (!goodCrossSectionLength(scs->length()))
             continue;
-          LocationElement el;
-          el.name = cs->label();
-          for (size_t i = 0; i<cs->length(); ++i) {
-            el.xpos.push_back(cs->point(i).lonDeg());
-            el.ypos.push_back(cs->point(i).latDeg());
+          csindex_m::iterator itI = newCrossectionIndex.find(scs->label());
+          if (itI != newCrossectionIndex.end()) {
+            CS& mcs = newCrossections[itI->second];
+            mcs.setSourceCS(scs);
+          } else {
+            const CS mcs(scs);
+            newCrossectionIndex[mcs.label()] = newCrossections.size();
+            newCrossections.push_back(mcs);
           }
-          le.insert(el);
-
-          labels.insert(cs->label());
         }
       }
     }
   }
 
-  string_v newLabels;
-  util::from_set(newLabels, labels);
-  if (newLabels != mCrossectionLabels
-      || hadSupportForDynamicCs != mHasSupportForDynamicCs)
-  {
+  const bool changed = (hadSupportForDynamicCs != mHasSupportForDynamicCs
+      || mCrossections != newCrossections);
+  if (changed) {
     dataChange |= CHANGED_CS;
-    std::swap(mCrossectionLabels, newLabels);
+    std::swap(mCrossections, newCrossections);
     mCrossectionCurrent = -1;
 
-    locationData.elements.clear();
-    locationData.elements.insert(locationData.elements.end(), le.begin(), le.end());
-    fillLocationData(locationData);
+    updateLocationData();
 
     Q_EMIT crossectionListChanged();
     if (getCrossectionCount() > 0)
@@ -342,35 +381,11 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
 
 void QtManager::handleChangedCrossection()
 {
-  // FIXME this is a bad function, it will not work if models have the same cross-section label but different points
-
-  mCrossectionPoints.clear();
-  mCrossectionPointsRequested.clear();
-  if (mCrossectionCurrent >= 0 and mCrossectionCurrent < getCrossectionCount()) {
-    const std::string& label = mCrossectionLabels.at(mCrossectionCurrent);
-    const ModelReftime& mr = mCollector->getFirstModel();
-    if (Source_p src = mCollector->getSetup()->findSource(mr.model))
-      if (Inventory_cp inv = src->getInventory(mr.reftime))
-        if (Crossection_cp cs = inv->findCrossectionByLabel(label)) {
-          mCrossectionPoints.reserve(cs->length());
-          for (size_t i = 0; i<cs->length(); ++i)
-            mCrossectionPoints.push_back(cs->point(i));
-          mCrossectionPointsRequested.reserve(cs->lengthRequested());
-          for (size_t i = 0; i<cs->lengthRequested(); ++i)
-            mCrossectionPointsRequested.push_back(cs->pointRequested(i));
-        }
-  } else {
+  if (!hasValidCsIndex())
     mCrossectionCurrent = -1;
-  }
 
   dataChange |= CHANGED_CS;
   Q_EMIT crossectionIndexChanged(mCrossectionCurrent);
-}
-
-
-void QtManager::getCrossections(LocationData& locationdata)
-{
-  locationdata = locationData;
 }
 
 
@@ -389,27 +404,83 @@ QtManager::Source_Reftime_ps QtManager::listDynamicSources() const
 }
 
 
-void QtManager::fillLocationData(LocationData& ld)
+void QtManager::updateLocationData()
 {
   METLIBS_LOG_SCOPE();
 
-  const Rectangle rgeo(0, 0, 90, 360);
-  const Area geoArea(Projection::geographic(), rgeo);
+  const Area geoArea(Projection::geographic(), Rectangle(0, 0, 90, 360));
 
-  std::ostringstream annot;
-  annot << "Vertikalsnitt";
-  ld.name =              "vcross";
-  ld.locationType =      location_line;
-  ld.area =              geoArea;
-  ld.annotation =        annot.str();
-  ld.colour =            mOptions->vcOnMapColour;
-  ld.linetype =          mOptions->vcOnMapLinetype;
-  ld.linewidth =         mOptions->vcOnMapLinewidth;
-  ld.colourSelected =    mOptions->vcSelectedOnMapColour;
-  ld.linetypeSelected =  mOptions->vcSelectedOnMapLinetype;
-  ld.linewidthSelected = mOptions->vcSelectedOnMapLinewidth;
+  locationData.name =              LOCATIONS_VCROSS;
+  locationData.locationType =      location_line;
+  locationData.area =              geoArea;
+  locationData.annotation =        "Vertikalsnitt";
+  locationData.colour =            mOptions->vcOnMapColour;
+  locationData.linetype =          mOptions->vcOnMapLinetype;
+  locationData.linewidth =         mOptions->vcOnMapLinewidth;
+  locationData.colourSelected =    mOptions->vcSelectedOnMapColour;
+  locationData.linetypeSelected =  mOptions->vcSelectedOnMapLinetype;
+  locationData.linewidthSelected = mOptions->vcSelectedOnMapLinewidth;
+  locationData.elements.clear();
+  for (CS_v::const_iterator itCS = mCrossections.begin(); itCS!= mCrossections.end(); ++itCS) {
+    const CS& cs = *itCS;
+    LocationElement el;
+    el.name = cs.label();
+    for (size_t i = 0; i<cs.length(); ++i) {
+      el.xpos.push_back(cs.point(i).lonDeg());
+      el.ypos.push_back(cs.point(i).latDeg());
+    }
+    locationData.elements.push_back(el);
+  }
 }
 
+
+bool QtManager::goodCrossSectionLength(size_t length) const
+{
+  if (isTimeGraph())
+    return length == 1;
+  else
+    return length >= 2;
+}
+
+
+QtManager::CS_v QtManager::loadCsFromFile(const std::string& kmlfile)
+{
+  METLIBS_LOG_TIME();
+  cspredefined_m::iterator itP = mCsPredefined.find(kmlfile);
+  if (itP == mCsPredefined.end()) {
+    const CrossSection_v fromfile = KML::loadCrossSections(QString::fromStdString(kmlfile));
+    itP = mCsPredefined.insert(std::make_pair(kmlfile, fromfile)).first;
+  }
+  CS_v crossections;
+  for (CrossSection_v::const_iterator itCS = itP->second.begin(); itCS != itP->second.end(); ++itCS) {
+    if (goodCrossSectionLength(itCS->mPoints.size()))
+      crossections.push_back(CS(itCS->mLabel, itCS->mPoints));
+  }
+  return crossections;
+}
+
+
+LonLat_v QtManager::crossectionPoints() const
+{
+  LonLat_v lls;
+  if (hasValidCsIndex()) {
+    const CS& cs = crossection();
+    for (size_t i=0; i<cs.length(); ++i)
+      lls.push_back(cs.point(i));
+  }
+  return lls;
+}
+
+LonLat_v QtManager::crossectionPointsRequested() const
+{
+  LonLat_v lls;
+  if (hasValidCsIndex()) {
+    const CS& cs = crossection();
+    for (size_t i=0; i<cs.lengthRequested(); ++i)
+      lls.push_back(cs.pointRequested(i));
+  }
+  return lls;
+}
 
 void QtManager::setTimeIndex(int index)
 {
@@ -595,10 +666,7 @@ void QtManager::preparePlot()
   METLIBS_LOG_SCOPE(LOGVAL(mCrossectionCurrent) << LOGVAL(isTimeGraph()));
 
   const ModelReftime model1 = mCollector->getFirstModel();
-  if (getCrossectionIndex() < 0 || getCrossectionIndex() >= getCrossectionCount()
-      || (isTimeGraph() && mCrossectionPoints.size() != 1)
-      || model1.model.empty())
-  {
+  if (!hasValidCsIndex() || model1.model.empty()) {
     mPlot->clear();
     return;
   }
@@ -626,10 +694,10 @@ void QtManager::preparePlot()
     const Time user_time = util::from_miTime(getTimeValue(getTimeIndex()));
     METLIBS_LOG_DEBUG(LOGVAL(user_time.unit) << LOGVAL(user_time.value));
     model_values = vc_fetch_crossection(mCollector, cs, user_time);
-    mPlot->setHorizontalCross(cs, getTimeValue(), mCrossectionPoints,
-        mCrossectionPointsRequested);
+    mPlot->setHorizontalCross(cs, getTimeValue(), crossectionPoints(),
+        crossectionPointsRequested());
   } else {
-    const LonLat& ll = mCrossectionPoints.at(0);
+    const LonLat& ll = crossection().point(0);
     model_values = vc_fetch_timegraph(mCollector, ll);
     mPlot->setHorizontalTime(ll, mCrossectionTimes);
   }
@@ -868,9 +936,7 @@ void QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts,
 int QtManager::insertField(const ModelReftime& model, const std::string& plot,
     const string_v& options, int idx)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(idx));
   idx = mCollector->insertPlot(model, plot, options, idx);
-  METLIBS_LOG_DEBUG(LOGVAL(idx));
   if (idx >= 0) {
     dataChange |= CHANGED_SEL;
 

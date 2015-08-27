@@ -98,7 +98,6 @@ bool VcrossWindowInterface::checkWindow()
 void VcrossWindowInterface::onVcrossHide()
 {
   vcrossm->cleanup();
-  mPredefinedCsFiles.clear();
   Q_EMIT VcrossHide();
 }
 
@@ -204,12 +203,8 @@ void VcrossWindowInterface::crossectionListChangedSlot()
 {
   METLIBS_LOG_SCOPE();
 
-  LocationData locations;
-  vcrossm->getCrossections(locations);
-  Q_EMIT crossectionSetChanged(locations);
+  Q_EMIT crossectionSetChanged(vcrossm->getCrossections());
   Q_EMIT crossectionChanged(vcrossm->getCrossectionLabel());
-
-  loadPredefinedCS();
 }
 
 
@@ -218,24 +213,4 @@ void VcrossWindowInterface::crossectionChangedSlot(int current)
   METLIBS_LOG_SCOPE();
   // send name of current crossection (to mainWindow)
   Q_EMIT crossectionChanged(vcrossm->getCrossectionLabel());
-}
-
-
-void VcrossWindowInterface::loadPredefinedCS()
-{
-  METLIBS_LOG_SCOPE();
-  if (!vcrossm->supportsDynamicCrossections())
-    return;
-
-  typedef std::set<std::string> string_s;
-  const string_s& csPredefined = vcrossm->getCrossectionPredefinitions();
-  if (not csPredefined.empty()) {
-    QStringList filenames;
-    for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it) {
-      if (mPredefinedCsFiles.insert(*it).second)
-        filenames << QString::fromStdString(*it);
-    }
-    if (!filenames.isEmpty())
-      Q_EMIT requestLoadCrossectionFiles(filenames);
-  }
 }

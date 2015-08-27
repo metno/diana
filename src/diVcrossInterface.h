@@ -42,6 +42,8 @@
 
 #include "diField/VcrossData.h"
 
+extern const char LOCATIONS_VCROSS[]; // defined in vcross_v2/VcrossQtManager.cc
+
 class LogFileIO;
 struct LocationData;
 
