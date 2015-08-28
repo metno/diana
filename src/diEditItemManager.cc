@@ -1854,3 +1854,62 @@ void ModifyItemsCommand::redo()
 {
   EditItemManager::instance()->replaceItemStates(newItemStates_, removeItems_, addItems_);
 }
+
+int ModifyItemsCommand::id() const
+{
+  return 0x4d6f6469; // "Modi"
+}
+
+bool ModifyItemsCommand::mergeWith(const QUndoCommand *command)
+{
+  if (command->id() != id())
+    return false;
+
+  // Don't merge commands that add or remove items.
+  if (!addItems_.isEmpty() || !removeItems_.isEmpty())
+    return false;
+
+  const ModifyItemsCommand *cmd = static_cast<const ModifyItemsCommand *>(command);
+
+  // Don't merge commands that add or remove items.
+  if (!cmd->addItems_.isEmpty() || !cmd->removeItems_.isEmpty())
+    return false;
+
+  // Only merge commands that operate on the same items.
+  if (newItemStates_.keys() != cmd->newItemStates_.keys())
+    return false;
+
+  // Only merge commands that involve only geometry changes.
+  QHash<int, QVariantMap> changes;
+  foreach (int id, newItemStates_.keys()) {
+
+    QVariantMap oldProps = cmd->oldItemStates_.value(id);
+    QVariantMap newProps = cmd->newItemStates_.value(id);
+
+    QList<QVariant> oldPoints = oldProps.value("latLonPoints").toList();
+    QList<QVariant> newPoints = newProps.value("latLonPoints").toList();
+
+    if (oldPoints == newPoints)
+      return false;
+
+    for (int i = 0; i < oldPoints.size(); ++i) {
+      if ((newPoints.at(i).toPointF() - oldPoints.at(i).toPointF()).manhattanLength() > 4)
+        return false;
+    }
+
+    // Discard the geometry properties and compare the others. Exit if the
+    // others are not identical.
+    oldProps.remove("latLonPoints");
+    newProps.remove("latLonPoints");
+    foreach (const QString &key, oldProps.keys()) {
+      if (oldProps.value(key) != newProps.value(key))
+        return false;
+    }
+  }
+
+  // Add the new geometries to the existing states.
+  foreach (int id, newItemStates_.keys())
+    newItemStates_[id]["latLonPoints"] = cmd->newItemStates_.value(id).value("latLonPoints");
+
+  return true;
+}

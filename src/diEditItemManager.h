@@ -239,6 +239,9 @@ public:
                      QList<DrawingItemBase *> addItems);
   virtual ~ModifyItemsCommand();
 
+  virtual int id() const;
+  virtual bool mergeWith(const QUndoCommand *command);
+
 private:
   QHash<int, QVariantMap> oldItemStates_;
   QHash<int, QVariantMap> newItemStates_;
