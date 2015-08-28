@@ -41,6 +41,7 @@
 #include <sstream>
 
 #include "wmsclient/webmap_dialog.ui.h"
+#include "icon_wms_32.xpm"
 
 #define MILOGGER_CATEGORY "diana.WebMapDialog"
 #include <miLogger/miLogging.h>
@@ -92,7 +93,7 @@ WebMapDialog::WebMapDialog(QWidget *parent, Controller *ctrl)
 {
   METLIBS_LOG_SCOPE();
 
-  m_action = new QAction("Web Maps", this);
+  m_action = new QAction(QPixmap(icon_wms_32_xpm), tr("Web Maps"), this);
   m_action->setCheckable(true);
 
   setupUi();
