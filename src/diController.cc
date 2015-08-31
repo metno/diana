@@ -401,11 +401,6 @@ vector<string> Controller::getFieldModels()
   return plotm->getFieldModels();
 }
 
-//obs time step changed in edit dialog
-void Controller::obsStepChanged(int step){
-  plotm->obsStepChanged(step);
-}
-
 // get name++ of current channels (with calibration)
 vector<string> Controller::getCalibChannels()
 {
@@ -659,16 +654,6 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       return;
     } else if (ke->key() == Qt::Key_F11){
       //    METLIBS_LOG_WARN("Show next plot (apply)");
-      return;
-      //####################################################################
-    } else if ((ke->key() == Qt::Key_Left && ke->modifiers() & Qt::ShiftModifier) ||
-        (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) )
-    {
-      const bool forward = (ke->key() == Qt::Key_Left);
-      plotm->obsTime(forward,res);  // change observation time only
-      res.repaint= true;
-      res.background= true;
-      if (inEdit) res.savebackground= true;
       return;
       //####################################################################
     } else if (!(ke->modifiers() & Qt::ControlModifier) &&

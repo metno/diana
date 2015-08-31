@@ -56,7 +56,6 @@
 #include "qtEditComment.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
-#include "qtTimeStepSpinbox.h"
 #include "qtComplexText.h"
 #include "qtComplexPressureText.h"
 #include "qtEditText.h"
@@ -239,14 +238,6 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
       SLOT( tabSelected( int ) ));
   // **********
 
-  //Spinbox for observation time step
-  timelabel= new QLabel( tr("Obs. timestep:"), this );
-  timestepspin= new TimeStepSpinbox(this);
-  timestepspin->setMinimum(1);
-  timestepspin->setValue(1);
-  stepchanged(1);
-  connect(timestepspin, SIGNAL(valueChanged(int)), SLOT(stepchanged(int)));
-
   //toggle button for comments dialog
   pausebutton = new ToggleButton(this, tr("Pause"));
   connect(pausebutton, SIGNAL(toggled(bool)), SLOT(pauseClicked(bool)));
@@ -258,8 +249,6 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   connect(commentbutton, SIGNAL(toggled(bool)), SLOT(commentClicked(bool)));
 
   QHBoxLayout* h2layout = new QHBoxLayout();
-  h2layout->addWidget(timelabel);
-  h2layout->addWidget(timestepspin);
   h2layout->addWidget(pausebutton);
   h2layout->addWidget(commentbutton);
 
@@ -1273,11 +1262,6 @@ void  EditDialog::approveClicked()
 
   saveEverything(true,true);
   if (m_editm->showAllObjects()) emit editUpdate();
-}
-
-void  EditDialog::stepchanged(int step)
-{
-  m_ctrl->obsStepChanged(step);
 }
 
 void  EditDialog::commentClicked( bool on )

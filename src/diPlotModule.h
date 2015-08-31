@@ -142,13 +142,6 @@ private:
   bool dorubberband;
   bool keepcurrentarea;
 
-  struct obsOneTime {
-    std::vector<ObsPlot*> vobsOneTime; // vector of obs plots, same time
-  };
-  std::vector<obsOneTime> vobsTimes;   // vector of structs, different times
-  int obsnr; //which obs time
-  int obsTimeStep;
-
   std::vector<PlotElement> plotelements;
 
   void plotUnder(DiGLPainter* gl);
@@ -288,10 +281,6 @@ public:
   std::string getObsPopupText(int x, int y);
    ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
-  ///in edit mode: change obs time, leave the rest unchanged
-  void obsTime(bool forward, EventResult& res);
-  ///sets the step used in obsTime()
-  void obsStepChanged(int step);
 
   //Area
   ///put area into list of area objects
