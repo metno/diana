@@ -3139,7 +3139,7 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig15",1015,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig24",1024,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig13",1013,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig21",1021,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig21",1021,"red"));
   sigsymbols.push_back(newEditToolInfo("Sig9",1009,"black"));
   //all texts have index ending in 0
   sigsymbols.push_back(newEditToolInfo("Tekst_2",2000,"black"));
