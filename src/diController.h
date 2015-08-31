@@ -202,8 +202,6 @@ public:
   bool printTrajectoryPositions(const std::string& filename);
   /// get field models used (for Vprof etc.)
   std::vector<std::string> getFieldModels();
-  /// obs time step changed
-  void obsStepChanged(int);
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
   /// show pixel values in status bar

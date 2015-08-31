@@ -60,7 +60,6 @@ class Controller;
 class EditManager;
 class ObjectManager;
 
-class TimeStepSpinbox;
 
 /**
    \brief Dialogue for editing fields and weather objects and for combining
@@ -133,7 +132,6 @@ private slots:
   void sendClicked();
   void approveClicked();
   void tabSelected( int );
-  void stepchanged( int );
   void commentClicked(bool);
   void pauseClicked(bool);
   void hideComment();
@@ -251,9 +249,6 @@ private:
   EditProduct currprod;
   EditProductId currid;
   miutil::miTime prodtime;
-
-  TimeStepSpinbox* timestepspin;
-  QLabel* timelabel;
 
   bool getText(std::string &, Colour::ColourInfo &);
   bool getEditText(std::vector<std::string> &);
