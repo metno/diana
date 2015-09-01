@@ -41,7 +41,7 @@ share_dir       = @datarootdir@
 bin_dir         = @bindir@
 share_diana_dir = $(share_dir)/diana/@PVERSION@
 OPDATA    = $(share_diana_dir)/demodata
-MAPDIR    = $(share_diana_dir)/maps
+MAPDIR    = $(share_dir)/diana/maps
 
 <BASIC>
 fontpath=$(share_diana_dir)/fonts
