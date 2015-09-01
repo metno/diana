@@ -1,3 +1,9 @@
+diana (3.39.0~rc1-1) unstable; urgency=low
+
+  * fimex - 0.59.1-1
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 01 Sep 2015 09:22:15 +0200
+
 diana (3.39.0~a4-1) unstable; urgency=low
 
   * Edit - shortcuts, multiple selection, etc
