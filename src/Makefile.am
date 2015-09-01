@@ -718,7 +718,8 @@ libdiana_la_LDFLAGS += -version-number @PVERSION_MAJOR@:@PVERSION_MINOR@:@PVERSI
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_es.ts \
 	$(top_srcdir)/share/diana/lang/diana_ru.ts \
-	$(top_srcdir)/share/diana/lang/diana_sv.ts
+	$(top_srcdir)/share/diana/lang/diana_sv.ts \
+	$(top_srcdir)/share/diana/lang/diana_en.ts
 
 languagedir= $(datarootdir)/diana/@PVERSION@/lang
 nodist_language_DATA=$(language_sources:.ts=.qm)

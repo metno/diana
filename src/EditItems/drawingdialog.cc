@@ -503,8 +503,11 @@ void DrawingDialog::showActiveContextMenu(const QPoint &pos)
     return;
 
   QMenu menu;
-  QAction *editAction = menu.addAction(tr("Edit"));
-  QAction *removeAction = menu.addAction(tr("Remove"));
+  int products = activeList_->selectionModel()->selectedRows().size();
+  QAction *editAction = menu.addAction(
+    qApp->translate("DrawingDialog", "Edit %n product(s)", 0, QCoreApplication::CodecForTr, products));
+  QAction *removeAction = menu.addAction(
+    qApp->translate("DrawingDialog", "Remove %n product(s)", 0, QCoreApplication::CodecForTr, products));
   QAction *result = menu.exec(activeList_->viewport()->mapToGlobal(pos));
   if (result == editAction)
     editDrawings();
