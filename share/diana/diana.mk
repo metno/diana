@@ -288,4 +288,6 @@ dist_symbols_DATA= \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg \
-	share/diana/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
+	share/diana/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg \
+	share/diana/images/symbols/Vertical_Profile.svg \
+	share/diana/images/symbols/Time_Graph.svg

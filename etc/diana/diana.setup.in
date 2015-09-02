@@ -1289,44 +1289,46 @@ m=WAM.50KM.12  f=$(OPDATA)/wave/wamspec12.dat
 
 <DRAWING>
 # Symbol styles
-symbol="Arrow" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Right_Arrow.svg
-symbol="Cold" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Cold.svg
-symbol="Diagonal Cross" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Diagonal_Cross.svg
-symbol="Drizzle" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Drizzle.svg
-symbol="Freezing Drizzle" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Freezing_Drizzle.svg
-symbol="Freezing Precipitation" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg
-symbol="High Pressure" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_High_Pressure.svg
-symbol="Hail" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Hail_Filled.svg
-symbol="Low Pressure" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Low_Pressure.svg
-symbol="Moderate Aircraft Icing" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg
-symbol="Moderate Turbulence" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_ModerateTurbulence.svg
-symbol="Mountain Waves" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MountainWaves.svg
-symbol="Mountain Obscuration" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MountainObscuration.svg
-symbol="Pressure Centre Location" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_PressureCentreLocation.svg
-symbol="Radioactive Materials In The Atmosphere" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_RadioactiveMaterialsInTheAtmosphere.svg
-symbol="Rain" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Rain.svg
-symbol="Severe Aircraft Icing" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereAircraftIcing.svg
-symbol="Severe Sand Or Dust Haze" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereSandOrDustHaze.svg
-symbol="Severe Turbulence" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereTurbulence.svg
-symbol="Sleet" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Sleet.svg
-symbol="Sleet Shower" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Sleet_Shower.svg
-symbol="Shower" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Shower.svg
-symbol="Snow" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Snow.svg
-symbol="Snow Shower" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Snow_Shower.svg
-symbol="Thunderstorms" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Thunderstorms.svg
-symbol="Thunderstorms with Hail" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Thunderstorms_with_Hail.svg
-symbol="Tropical Cyclone" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_TropicalCyclone.svg
-symbol="Visible Volcanic Ash Cloud" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_VisibleVolcanicAshCloud.svg
-symbol="Volcanic Eruption" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg
-symbol="Warm" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Warm.svg
-symbol="Widespread Blowing Snow" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadBlowingSnow.svg
-symbol="Widespread Fog" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog.svg
-symbol="Widespread Fog" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog_with_V.svg
-symbol="Widespread Haze" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadHaze.svg
-symbol="Widespread Mist" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg
-symbol="Widespread Sandstorm Or Duststorm" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg
-symbol="Widespread Smoke" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg
-symbol="Wind Arrow Or Flight Level Double Bar" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
+symbol="Arrow" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Right_Arrow.svg
+symbol="Cold" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Cold.svg
+symbol="Diagonal Cross" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Diagonal_Cross.svg
+symbol="Drizzle" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Drizzle.svg
+symbol="Freezing Drizzle" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Freezing_Drizzle.svg
+symbol="Freezing Precipitation" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg
+symbol="High Pressure" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_High_Pressure.svg
+symbol="Hail" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Hail_Filled.svg
+symbol="Low Pressure" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Low_Pressure.svg
+symbol="Moderate Aircraft Icing" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg
+symbol="Moderate Turbulence" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_ModerateTurbulence.svg
+symbol="Mountain Waves" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MountainWaves.svg
+symbol="Mountain Obscuration" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MountainObscuration.svg
+symbol="Pressure Centre Location" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_PressureCentreLocation.svg
+symbol="Radioactive Materials In The Atmosphere" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_RadioactiveMaterialsInTheAtmosphere.svg
+symbol="Rain" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Rain.svg
+symbol="Severe Aircraft Icing" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereAircraftIcing.svg
+symbol="Severe Sand Or Dust Haze" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereSandOrDustHaze.svg
+symbol="Severe Turbulence" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereTurbulence.svg
+symbol="Sleet" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Sleet.svg
+symbol="Sleet Shower" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Sleet_Shower.svg
+symbol="Shower" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Shower.svg
+symbol="Snow" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Snow.svg
+symbol="Snow Shower" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Snow_Shower.svg
+symbol="Thunderstorms" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Thunderstorms.svg
+symbol="Thunderstorms with Hail" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Thunderstorms_with_Hail.svg
+symbol="Tropical Cyclone" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_TropicalCyclone.svg
+symbol="Visible Volcanic Ash Cloud" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_VisibleVolcanicAshCloud.svg
+symbol="Volcanic Eruption" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg
+symbol="Warm" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Warm.svg
+symbol="Widespread Blowing Snow" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadBlowingSnow.svg
+symbol="Widespread Fog" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog.svg
+symbol="Widespread Fog" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog_with_V.svg
+symbol="Widespread Haze" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadHaze.svg
+symbol="Widespread Mist" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg
+symbol="Widespread Sandstorm Or Duststorm" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg
+symbol="Widespread Smoke" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg
+symbol="Wind Arrow Or Flight Level Double Bar" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
+symbol="Vertical Profile" section="Analysis" file=$(share_diana_dir)/images/symbols/Vertical_Profile.svg
+symbol="Time Graph" section="Analysis" file=$(share_diana_dir)/images/symbols/Time_Graph.svg
 
 # Polyline styles
 style="Precipitation"                           linecolour=darkgreen linewidth=2 linesmooth=true closed=true

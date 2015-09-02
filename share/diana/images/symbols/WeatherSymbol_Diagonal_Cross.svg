@@ -13,7 +13,7 @@
    viewBox="-27.5 -27.5 55 55"
    id="svg2"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="WeatherSymbol_Cross.svg">
+   sodipodi:docname="WeatherSymbol_Diagonal_Cross.svg">
   <defs
      id="defs15" />
   <sodipodi:namedview
@@ -45,9 +45,9 @@
        snapvisiblegridlinesonly="true" />
   </sodipodi:namedview>
   <title
-     id="title3">Symbols for significant weather: Snow</title>
+     id="title3">Diagonal cross</title>
   <desc
-     id="desc5">WMO/ICAO international aviation weather symbol: Symbols for significant weather: Snow</desc>
+     id="desc5"></desc>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -56,16 +56,16 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title>Symbols for significant weather: Snow: Version0.1: statusProvisional</dc:title>
-        <dc:date>2013-04-30</dc:date>
+        <dc:title>Diagonal cross</dc:title>
+        <dc:date>2015-09-02</dc:date>
         <dc:creator>
           <cc:Agent>
-            <dc:title>WMO CAeM</dc:title>
+            <dc:title></dc:title>
           </cc:Agent>
         </dc:creator>
         <dc:publisher>
           <cc:Agent>
-            <dc:title>WMO/ICAO</dc:title>
+            <dc:title></dc:title>
           </cc:Agent>
         </dc:publisher>
         <dc:rights>
@@ -73,8 +73,8 @@
             <dc:title>Creative Commons Attribution 3.0 Unported Licence</dc:title>
           </cc:Agent>
         </dc:rights>
-        <dc:identifier>http://codes.wmo.int/49/3/1/15</dc:identifier>
-        <dc:source>WMO-No.49 Technical Regulations, Volume II Meteorological Service for International Air Navigation, C.3.1, Appendix 1</dc:source>
+        <dc:identifier></dc:identifier>
+        <dc:source></dc:source>
         <dc:language>English</dc:language>
         <dc:subject>
           <rdf:Bag>
@@ -85,10 +85,10 @@
           </rdf:Bag>
         </dc:subject>
         <dc:coverage>Global</dc:coverage>
-        <dc:description>WMO/ICAO international aviation weather symbol: Symbols for significant weather: Snow: Version0.1: statusPROVISIONAL</dc:description>
+        <dc:description>Diagonal cross</dc:description>
         <dc:contributor>
           <cc:Agent>
-            <dc:title>Chris Little</dc:title>
+            <dc:title></dc:title>
           </cc:Agent>
         </dc:contributor>
         <cc:license
