@@ -48,6 +48,7 @@ public slots:
   void setSelectAction();
   void setCreatePolyLineAction(const QString &);
   void setPolyLineType(int index);
+  void setCreateSymbolAction(const QString &type);
   void setSymbolType(int index);
   void setTextType(int index);
   void setCompositeType(int index);

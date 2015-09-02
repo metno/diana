@@ -202,6 +202,15 @@ void ToolBar::setPolyLineType(int index)
   polyLineAction_->setData(polyLineCombo_->itemData(index));
 }
 
+void ToolBar::setCreateSymbolAction(const QString &type)
+{
+  const int index = symbolCombo_->findText(type);
+  if (index >= 0) {
+    symbolCombo_->setCurrentIndex(index);
+    symbolAction_->trigger();
+  }
+}
+
 void ToolBar::setSymbolType(int index)
 {
   // Obtain the style identifier from the style action and store it in the

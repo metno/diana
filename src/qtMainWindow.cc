@@ -1889,7 +1889,6 @@ void DianaMainWindow::vcrossEditManagerEnableSignals()
     vcrossEditManagerConnected = true;
 
     EditItemManager::instance()->enableItemChangeNotification();
-    EditItemManager::instance()->setItemChangeFilter(CROSS_SECTION_TYPE);
     connect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
         vcInterface.get(), SLOT(editManagerChanged(const QVariantMap &)), Qt::UniqueConnection);
     connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
@@ -1900,10 +1899,14 @@ void DianaMainWindow::vcrossEditManagerEnableSignals()
 }
 
 
-void DianaMainWindow::onVcrossRequestEditManager(bool on)
+void DianaMainWindow::onVcrossRequestEditManager(bool on, bool timeGraph)
 {
   if (on) {
-    EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
+    if (timeGraph)
+      EditItems::ToolBar::instance()->setCreateSymbolAction(TIME_GRAPH_TYPE);
+    else
+      EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
+
     EditItems::ToolBar::instance()->show();
     vcrossEditManagerEnableSignals();
   } else {

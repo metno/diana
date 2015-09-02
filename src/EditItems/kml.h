@@ -47,6 +47,7 @@
 #include "diVcrossInterface.h"
 
 extern const char CROSS_SECTION_TYPE[];
+extern const char TIME_GRAPH_TYPE[];
 
 // API for saving/loading to/from KML files.
 namespace KML

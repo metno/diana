@@ -46,6 +46,7 @@
 #include <miLogger/miLogging.h>
 
 const char CROSS_SECTION_TYPE[] = "Cross section";
+const char TIME_GRAPH_TYPE[] = "Time Graph";
 
 namespace KML {
 

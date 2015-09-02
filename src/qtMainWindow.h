@@ -223,7 +223,7 @@ private Q_SLOTS:
   void crossectionChangedSlot(const QString& name);
   void updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>&);
   void onVcrossRequestLoadCrossectionsFile(const QStringList& filenames);
-  void onVcrossRequestEditManager(bool on);
+  void onVcrossRequestEditManager(bool on, bool timeGraph);
 
   void spectrumChangedSlot(const QString& name);
   void spectrumSetChangedSlot();
