@@ -3136,7 +3136,7 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
     bool minus = false;
     if (i + 1 < n && selectedFields[i + 1].minus) {
       minus = true;
-      ostr << "( ";
+      ostr << " ( ";
     }
 
     ostr << getParamString(i);
