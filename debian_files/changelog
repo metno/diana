@@ -1,3 +1,10 @@
+diana (3.39.0~rc2-1) unstable; urgency=low
+
+  * Added infrastructure to allow the vcross manager to start time graph symbol placement.
+  * Fields - bugfix FIELD string
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Sep 2015 13:28:13 +0200
+
 diana (3.39.0~rc1-1) unstable; urgency=low
 
   * fimex - 0.59.1-1
