@@ -102,7 +102,6 @@ public:
                          QList<DrawingItemBase *> addItems);
 
   void enableItemChangeNotification(bool = true);
-  void setItemChangeFilter(const QString &);
   void emitItemChanged() const;
 
   void setItemsVisibilityForced(bool);
@@ -215,7 +214,6 @@ private:
   void updateTimes();
   void updateActionsAndTimes();
 
-  QString itemChangeFilter_;
   bool itemChangeNotificationEnabled_;
   bool itemsVisibilityForced_;
   bool itemPropsDirectlyEditable_;

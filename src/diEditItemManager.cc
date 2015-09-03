@@ -605,7 +605,6 @@ void EditItemManager::keyPress(QKeyEvent *event)
   }
 
   if (event->key() == Qt::Key_Escape) {
-    event->accept();
     return;
   } else if ((event->key() == Qt::Key_R) && (event->modifiers() == Qt::ControlModifier)) {
     emit reloadRequested();
@@ -951,11 +950,6 @@ void EditItemManager::enableItemChangeNotification(bool enabled)
   itemChangeNotificationEnabled_ = enabled;
 }
 
-void EditItemManager::setItemChangeFilter(const QString &itemType)
-{
-  itemChangeFilter_ = itemType;
-}
-
 // Emits the itemChanged() signal to notify about a _potential_ change to a single-selected
 // item filtered according to setItemChangeFilter().
 // The signal is also emitted whenever the above condition goes from true to false.
@@ -967,10 +961,8 @@ void EditItemManager::emitItemChanged() const
   QList<QVariantMap> itemProps;
 
   foreach (DrawingItemBase *item, selectedItems()) {
-    const QString type(item->properties().value("style:type").toString());
-    if (itemChangeFilter_ != type)
-      continue;
 
+    const QString type(item->properties().value("style:type").toString());
     QVariantMap props;
     props.insert("type", type);
     props.insert("id", item->id());
