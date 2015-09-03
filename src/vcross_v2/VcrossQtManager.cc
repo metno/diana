@@ -184,7 +184,7 @@ void QtManager::cleanupData()
   mCrossectionTimes.clear();
 
   mPlotTime = -1;
-  mTimeGraphMode = false;
+  switchTimeGraph(false);
 
   mMarkers.clear();
   mReferencePosition = -1;

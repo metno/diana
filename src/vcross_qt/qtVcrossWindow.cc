@@ -201,7 +201,7 @@ VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
   ui->comboTime->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
 
   connect(ui->toggleCsEdit, SIGNAL(toggled(bool)),
-      SIGNAL(requestVcrossEditor(bool)));
+      this, SLOT(onToggleDrawEdit(bool)));
 
   ui->layerButtons->setManager(vcrossm);
   connect(ui->layerButtons, SIGNAL(requestStyleEditor(int)),
@@ -391,6 +391,11 @@ void VcrossWindow::onFieldChangeEnd()
   mInFieldChangeGroup = mGroupChangedFields = false;
 }
 
+void VcrossWindow::onToggleDrawEdit(bool enableEdit)
+{
+  Q_EMIT requestVcrossEditor(enableEdit, vcrossm->isTimeGraph());
+}
+
 /***************************************************************************/
 
 void VcrossWindow::stepCrossection(int direction)
@@ -520,6 +525,8 @@ void VcrossWindow::timeGraphModeChangedSlot(bool on)
   METLIBS_LOG_SCOPE(LOGVAL(on));
   if (on != ui->toggleTimeGraph->isChecked())
     ui->toggleTimeGraph->setChecked(on);
+  if (ui->toggleCsEdit->isChecked())
+    Q_EMIT requestVcrossEditor(true, vcrossm->isTimeGraph());
   timeListChangedSlot();
 }
 
@@ -590,8 +597,11 @@ void VcrossWindow::timeGraphClicked(bool on)
   // called when the timeGraph button is clicked
   METLIBS_LOG_SCOPE("on=" << on);
 
-  if (on != vcrossm->isTimeGraph())
+  if (on != vcrossm->isTimeGraph()) {
     vcrossm->switchTimeGraph(on);
+    if (ui->toggleCsEdit->isChecked())
+      Q_EMIT requestVcrossEditor(true, on);
+  }
 }
 
 /***************************************************************************/

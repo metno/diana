@@ -97,7 +97,7 @@ Q_SIGNALS: // defined in VcrossInterface
   void VcrossHide();
   void requestHelpPage(const std::string&, const std::string& = ""); // activate help
   //! called when draw/edit button is toggled
-  void requestVcrossEditor(bool on);
+  void requestVcrossEditor(bool on, bool tg);
   void vcrossHistoryNext();
   void vcrossHistoryPrevious();
 
@@ -156,6 +156,7 @@ private Q_SLOTS:
   void printClicked();
   void saveClicked();
   void onShowSetupDialog();
+  void onToggleDrawEdit(bool enableEdit);
   void timeGraphClicked(bool on);
   void quitClicked();
   void helpClicked();

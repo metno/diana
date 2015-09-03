@@ -63,8 +63,8 @@ Q_SIGNALS: // emitted by vcross
   //! help window
   void requestHelpPage(const std::string& source, const std::string& tag="");
 
-  //! request starting the edit manager for vertical crossections
-  void requestVcrossEditor(bool on);
+  //! request starting the edit manager for vertical cross sections or time graphs
+  void requestVcrossEditor(bool on, bool tg);
 
   //! changed list of crossections and/or the style
   void crossectionSetChanged(const LocationData& locations);

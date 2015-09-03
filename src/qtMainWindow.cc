@@ -1085,8 +1085,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
         SLOT(hideVcrossWindow()));
     connect(vcInterface.get(), SIGNAL(requestHelpPage(const std::string&, const std::string&)),
         help, SLOT(showsource(const std::string&, const std::string&)));
-    connect(vcInterface.get(), SIGNAL(requestVcrossEditor(bool)),
-        SLOT(onVcrossRequestEditManager(bool)));
+    connect(vcInterface.get(), SIGNAL(requestVcrossEditor(bool, bool)),
+        SLOT(onVcrossRequestEditManager(bool, bool)));
     connect(vcInterface.get(), SIGNAL(crossectionChanged(const QString &)),
         SLOT(crossectionChangedSlot(const QString &)));
     connect(vcInterface.get(), SIGNAL(crossectionSetChanged(const LocationData&)),

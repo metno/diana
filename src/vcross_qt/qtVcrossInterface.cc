@@ -79,8 +79,8 @@ bool VcrossWindowInterface::checkWindow()
     connect(window, SIGNAL(requestHelpPage(const std::string&, const std::string&)),
         this, SIGNAL(requestHelpPage(const std::string&, const std::string&)));
 
-    connect(window, SIGNAL(requestVcrossEditor(bool)),
-      this, SIGNAL(requestVcrossEditor(bool)));
+    connect(window, SIGNAL(requestVcrossEditor(bool, bool)),
+      this, SIGNAL(requestVcrossEditor(bool, bool)));
 
     connect(window, SIGNAL(vcrossHistoryPrevious()),
         this, SIGNAL(vcrossHistoryPrevious()));
