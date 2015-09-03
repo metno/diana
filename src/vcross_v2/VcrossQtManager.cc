@@ -184,7 +184,6 @@ void QtManager::cleanupData()
   mCrossectionTimes.clear();
 
   mPlotTime = -1;
-  switchTimeGraph(false);
 
   mMarkers.clear();
   mReferencePosition = -1;
@@ -557,7 +556,7 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
     std::swap(mCrossectionTimes, newTimes);
     mPlotTime = -1;
 
-    if (mTimeGraphMode && !supportsTimeGraph())
+    if (!supportsTimeGraph())
       switchTimeGraph(false);
 
     dataChange |= CHANGED_TIME;
@@ -903,14 +902,14 @@ void QtManager::fieldChangeStart(bool script)
 
 void QtManager::fieldChangeDone()
 {
-  if (inFieldChangeGroup == 1) {
+  if (inFieldChangeGroup > 0) {
     updateCrossectionsTimes();
-    Q_EMIT fieldChangeEnd();
-  }
-  if (inFieldChangeGroup > 0)
+    if (inFieldChangeGroup == 1)
+      Q_EMIT fieldChangeEnd();
     inFieldChangeGroup -= 1;
-  else
+  } else {
     METLIBS_LOG_ERROR("wrong call to fieldChangeDone, inFieldChangeGroup == " << inFieldChangeGroup);
+  }
 }
 
 
