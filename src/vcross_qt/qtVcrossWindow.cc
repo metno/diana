@@ -665,9 +665,9 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
   METLIBS_LOG_SCOPE();
 
   // these have to match the keys used by EditItemManager::emitItemChanged
-  const char KEY_POINTS[] = "latLonPoints", KEY_ID[] = "id", KEY_NAME[] = "Placemark:name";
+  const char KEY_POINTS[] = "latLonPoints", KEY_ID[] = "id", KEY_NAME[] = "Placemark:name", KEY_TYPE[] = "type";
 
-  if (not (props.contains(KEY_POINTS) and props.contains(KEY_ID)))
+  if (not (props.contains(KEY_POINTS) and props.contains(KEY_ID) and props.contains(KEY_TYPE)))
     return;
 
   QString label;
@@ -678,8 +678,17 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
 
   const QList<QPointF> qpoints = toQPointList(props.value(KEY_POINTS).toList());
   const vcross::LonLat_v points = KML::latLonDegQPointsToLonLat(qpoints);
-  if (points.size() < 2)
-    return;
+  if (vcrossm->isTimeGraph()) {
+    if (points.size() != 1)
+      return;
+    if (!props.value(KEY_TYPE).toString().contains(TIME_GRAPH_TYPE))
+      return;
+  } else {
+    if (points.size() < 2)
+      return;
+    if (!props.value(KEY_TYPE).toString().contains(CROSS_SECTION_TYPE))
+      return;
+  }
 
   vcrossm->addDynamicCrossection(label, points);
 }
