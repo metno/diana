@@ -448,9 +448,10 @@ void VcrossWindow::enableDynamicCsIfSupported()
 {
   METLIBS_LOG_SCOPE();
   const bool supported = vcrossm->supportsDynamicCrossections(),
-      predefined = vcrossm->hasPredefinedDynamicCrossections();
+      predefined = vcrossm->hasPredefinedDynamicCrossections(),
+      enabled = ui->toggleCsEdit->isChecked();
   ui->toggleCsEdit->setEnabled(supported);
-  ui->toggleCsEdit->setChecked(supported && !predefined);
+  ui->toggleCsEdit->setChecked(supported && (!predefined || enabled));
 }
 
 
