@@ -96,7 +96,6 @@ public:
 Q_SIGNALS: // defined in VcrossInterface
   void VcrossHide();
   void requestHelpPage(const std::string&, const std::string& = ""); // activate help
-  void requestLoadCrossectionFiles(const QStringList& filenames);
   //! called when draw/edit button is toggled
   void requestVcrossEditor(bool on);
   void vcrossHistoryNext();

@@ -79,9 +79,6 @@ bool VcrossWindowInterface::checkWindow()
     connect(window, SIGNAL(requestHelpPage(const std::string&, const std::string&)),
         this, SIGNAL(requestHelpPage(const std::string&, const std::string&)));
 
-    connect(window, SIGNAL(requestLoadCrossectionFiles(const QStringList&)),
-        this, SIGNAL(requestLoadCrossectionFiles(const QStringList&)));
-
     connect(window, SIGNAL(requestVcrossEditor(bool)),
       this, SIGNAL(requestVcrossEditor(bool)));
 

@@ -63,9 +63,6 @@ Q_SIGNALS: // emitted by vcross
   //! help window
   void requestHelpPage(const std::string& source, const std::string& tag="");
 
-  //! help window
-  void requestLoadCrossectionFiles(const QStringList& filenames);
-
   //! request starting the edit manager for vertical crossections
   void requestVcrossEditor(bool on);
 
