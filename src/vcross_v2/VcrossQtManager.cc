@@ -271,11 +271,13 @@ int QtManager::getCrossectionCount() const
 void QtManager::addDynamicCrossection(const QString& label, const LonLat_v& points)
 {
   METLIBS_LOG_SCOPE(LOGVAL(label.toStdString()));
+  const std::string lbl = label.toStdString();
   const Source_Reftime_ps dynSources = listDynamicSources();
   for (Source_Reftime_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it) {
     Source_p src = it->first;
     const Time& reftime = it->second;
-    src->addDynamicCrossection(reftime, label.toStdString(), points);
+    src->addDynamicCrossection(reftime, lbl, points);
+    mCrossectionZooms.erase(lbl);
   }
 
   handleChangedCrossectionList(label);
