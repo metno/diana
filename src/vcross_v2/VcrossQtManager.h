@@ -181,7 +181,7 @@ public:
     std::string mField;
   };
 
-  void addField(const PlotSpec& ps, const std::string& fieldOpts, int index, bool updateUserFieldOptions=true);
+  int addField(const PlotSpec& ps, const std::string& fieldOpts, int index, bool updateUserFieldOptions=true);
   void updateField(int index, const std::string& fieldOpts);
   void removeField(int index);
   void moveField(int indexOld, int indexNew);

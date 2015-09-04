@@ -925,12 +925,13 @@ void QtManager::updateCrossectionsTimes()
 }
 
 
-void QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts,
+int QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts,
     int idx, bool updateUserFieldOptions)
 {
   idx = insertField(ps.modelReftime(), ps.field(), miutil::split(fieldOpts), idx);
   if (idx >= 0 && updateUserFieldOptions)
     userFieldOptions[ps.field()] = fieldOpts;
+  return idx;
 }
 
 
