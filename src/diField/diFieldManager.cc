@@ -1045,7 +1045,7 @@ std::string FieldManager::getBestReferenceTime(const std::string& modelName,
     int refOffset, int refHour)
 {
   set<std::string> refTimes;
-  GridCollectionPtr pgc = getGridCollection(modelName, "", false);
+  GridCollectionPtr pgc = getGridCollection(modelName, "", true);
 
   if (pgc)
     refTimes = pgc->getReferenceTimes();
