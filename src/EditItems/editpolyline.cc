@@ -124,6 +124,18 @@ void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectin
   }
 }
 
+void PolyLine::mouseMove(QMouseEvent *event, bool &repaintNeeded)
+{
+  EditItemBase::mouseMove(event, repaintNeeded);
+  if (hoverCtrlPointIndex_ < 0) {
+    hoverLineIndex_ = hitLine(hoverPos_);
+    QToolTip::hideText();
+  } else {
+    hoverLineIndex_ = -1;
+    showTip();
+  }
+}
+
 void PolyLine::showTip()
 {
   QPointF p = latLonPoints_.at(hoverCtrlPointIndex_);
@@ -224,8 +236,11 @@ void PolyLine::incompleteMouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
   if (points_.size() > 0) {
     points_.last() = QPointF(event->pos());
+    hoverCtrlPointIndex_ = points_.size() - 1;
+    showTip();
     repaintNeeded = true;
-  }
+  } else
+    QToolTip::hideText();
 }
 
 void PolyLine::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)

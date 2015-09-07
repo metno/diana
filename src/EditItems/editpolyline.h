@@ -52,6 +52,7 @@ private:
 
     virtual void mousePress(QMouseEvent *, bool &, bool *);
     virtual void mouseHover(QMouseEvent *, bool &, bool = false);
+    virtual void mouseMove(QMouseEvent *event, bool &repaintNeeded);
     virtual void keyPress(QKeyEvent *, bool &);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
