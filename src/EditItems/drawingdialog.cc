@@ -153,10 +153,15 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   editButton_->setEnabled(false);
   connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
 
+  QPushButton *clearButton = new QPushButton(tr("Clear"));
+  clearButton->setEnabled(true);
+  connect(clearButton, SIGNAL(clicked()), SLOT(clearDrawings()));
+
   QHBoxLayout *saveButtonLayout = new QHBoxLayout();
   saveButtonLayout->addWidget(quickSaveButton_);
   saveButtonLayout->addWidget(saveAsButton);
   saveButtonLayout->addWidget(editButton_);
+  saveButtonLayout->addWidget(clearButton);
 
   QHBoxLayout *filterButtonLayout = new QHBoxLayout();
   filterButtonLayout->addWidget(showAllCheckBox);
@@ -436,6 +441,16 @@ void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const 
 void DrawingDialog::updateButtons()
 {
   editButton_->setEnabled(activeList_->selectionModel()->hasSelection());
+}
+
+/**
+ * Clears the editable drawings.
+ */
+void DrawingDialog::clearDrawings()
+{
+  editm_->selectAllItems();
+  editm_->deleteSelectedItems();
+  editm_->pushUndoCommands();
 }
 
 /**

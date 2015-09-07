@@ -114,6 +114,7 @@ public slots:
 
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
+  void clearDrawings();
   void editDrawings();
   void extend(bool enable);
   void makeProduct();
