@@ -238,6 +238,11 @@ DrawingItemBase *ItemGroup::item(int id) const
     return 0;
 }
 
+bool ItemGroup::isEmpty() const
+{
+  return items_.isEmpty();
+}
+
 QList<DrawingItemBase *> ItemGroup::items() const
 {
   return items_;

@@ -155,7 +155,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QPushButton *clearButton = new QPushButton(tr("Clear"));
   clearButton->setEnabled(true);
-  connect(clearButton, SIGNAL(clicked()), SLOT(clearDrawings()));
+  connect(clearButton, SIGNAL(clicked()), SLOT(clearItems()));
 
   QHBoxLayout *saveButtonLayout = new QHBoxLayout();
   saveButtonLayout->addWidget(quickSaveButton_);
@@ -446,7 +446,7 @@ void DrawingDialog::updateButtons()
 /**
  * Clears the editable drawings.
  */
-void DrawingDialog::clearDrawings()
+void DrawingDialog::clearItems()
 {
   editm_->selectAllItems();
   editm_->deleteSelectedItems();
@@ -458,6 +458,14 @@ void DrawingDialog::clearDrawings()
  */
 void DrawingDialog::editDrawings()
 {
+  if (!editm_->isEmpty()) {
+    QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Clear Existing Objects"),
+      tr("You are already editing some objects. Shall I remove them?"),
+      QMessageBox::Yes | QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+      clearItems();
+  }
+
   // Obtain lists of names and file names.
   QStringList names;
   QStringList fileNames;

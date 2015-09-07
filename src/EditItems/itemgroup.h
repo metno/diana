@@ -69,6 +69,7 @@ public:
   bool isCollection() const;
 
   DrawingItemBase *item(int id) const;
+  bool isEmpty() const;
   QList<DrawingItemBase *> items() const;
   void setItems(QList<DrawingItemBase *> items);
   void addItem(DrawingItemBase *item);

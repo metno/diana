@@ -721,6 +721,17 @@ vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
   return info;
 }
 
+bool DrawingManager::isEmpty() const
+{
+  QMap<QString, EditItems::ItemGroup *>::const_iterator it;
+  for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
+    if (!it.value()->isEmpty())
+      return false;
+  }
+
+  return true;
+}
+
 QList<DrawingItemBase *> DrawingManager::allItems() const
 {
   QList<DrawingItemBase *> items;

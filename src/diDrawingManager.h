@@ -122,6 +122,7 @@ public:
   int nextJoinId(bool = true);
   void separateJoinIds(const QList<DrawingItemBase *> &);
 
+  virtual bool isEmpty() const;
   virtual QList<DrawingItemBase *> allItems() const;
   bool matchesFilter(DrawingItemBase *item) const;
   bool isItemVisible(DrawingItemBase *item) const;
