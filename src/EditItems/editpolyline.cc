@@ -183,30 +183,49 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
 
     // Nudge polyline or point
 
-    if (!pressedCtrlPointIndex_.isEmpty()) {
-      QPointF pos;
-      const qreal nudgeVal = 1; // nudge item by this much
+    DrawingManager *drawm = DrawingManager::instance();
+    QList<QPointF> latLonPoints = drawm->PhysToGeo(points_);
+
+    foreach (const int index, pressedCtrlPointIndex_) {
+
+      // Obtain the geographic coordinates of each pressed control point.
+      QPointF p = latLonPoints.at(index);
+      float latMin = qRound(p.x() * 60);
+      float lonMin = qRound(p.y() * 60);
+
       switch (event->key()) {
       case Qt::Key_Left:
-        pos += QPointF(-nudgeVal, 0);
+        lonMin -= 1;
         break;
       case Qt::Key_Right:
-        pos += QPointF(nudgeVal, 0);
+        lonMin += 1;
         break;
       case Qt::Key_Down:
-        pos += QPointF(0, -nudgeVal);
+        latMin -= 1;
         break;
       case Qt::Key_Up:
-        pos += QPointF(0, nudgeVal);
+        latMin += 1;
         break;
       default:
-        return;
+        continue;
       }
 
-      foreach (const int index, pressedCtrlPointIndex_)
-        movePointTo(index, points_.at(index) + pos);
+      float lat = qMin(qMax(-90.0, latMin/60.0), 90.0);
+      float lon = lonMin/60.0;
 
+      if (lon < -180.0) lon += 360.0;
+      if (lon >= 180.0) lon -= 360.0;
+
+      latLonPoints[index] = QPointF(lat, lon);
       repaintNeeded = true;
+    }
+
+    if (repaintNeeded) {
+      QList<QPointF> newPoints = drawm->GeoToPhys(latLonPoints);
+
+      foreach (const int index, pressedCtrlPointIndex_)
+        movePointTo(index, newPoints.at(index));
+
       event->accept();
       return;
     }
