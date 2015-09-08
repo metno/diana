@@ -1,3 +1,14 @@
+diana (3.39.0~rc3-1) unstable; urgency=low
+
+  * Edit Made a first attempt to do minute-accuracy adjustment of points.
+  * Edit Added tooltips to show the positions of points in polylines as they are placed.
+  * Edit Added a question dialog to ask the user if current editable objects should be discarded.
+  * Edit Added a clear button to remove all editable objects.
+  * vcross: bugfix replace field
+  * FieldManager - if referencetime is not given explicitly, check for new files
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 08 Sep 2015 15:42:45 +0200
+
 diana (3.39.0~rc2-1) unstable; urgency=low
 
   * Added infrastructure to allow the vcross manager to start time graph symbol placement.
