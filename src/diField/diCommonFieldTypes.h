@@ -41,28 +41,29 @@
 //--------------------------------------------------
 
 /**
+   \brief  detailed data for one variable
+*/
+struct FieldInfo {
+  std::string fieldName;
+  std::string groupName;
+  std::string standard_name;
+  std::string units;
+  std::vector<std::string>  vlevels;
+  std::vector<std::string> elevels; //(EPS clusters, EPS single runs etc.)
+  std::string default_vlevel;
+  std::string default_elevel;
+  std::string vcoord;
+  std::string ecoord;
+};
+/**
    \brief GUI detailed data for one fieldgroup
 */
 struct FieldGroupInfo {
-  std::string modelName; // this may be an extended name (name[ANA], name(gridName),..)
   std::string groupName;
-  std::vector<std::string> fieldNames;
-  std::vector<std::string> standard_names;
-  std::vector<std::string> units;
-  std::vector<std::string>  levelNames;  // size=0 means no levels
-  std::map<std::string, std::vector<std::string> > levels;  // size=0 means no levels, first=fieldName
-  std::vector<std::string> idnumNames;  // size=0 means no idnums (EPS clusters, EPS single runs etc.)
-  std::string defaultLevel;
-  std::string defaultIdnum;
-  //Used in gridio
-  std::string refTime;
-  std::string zaxis;
-  std::string extraaxis;
-//  std::string taxis;
-  std::string grid;
-  bool cdmSyntax;
   bool plotDefinitions;
-  FieldGroupInfo() : cdmSyntax(true), plotDefinitions(true) {}
+  std::vector<std::string> fieldNames;
+  std::map<std::string,FieldInfo> fields;
+  FieldGroupInfo() : plotDefinitions(true) {}
 };
 
 /**

@@ -79,8 +79,6 @@ private:
   struct SelectedField {
     bool inEdit;
     bool external;     // from QuickMenu,...
-    int indexMGR; //index model group
-    int indexM;   //index model
     int indexRefTime; //index reference time
     std::string modelName;
     std::string fieldName;
@@ -166,7 +164,7 @@ private:
   void updateTime();
   void setLevel();
   void setIdnum();
-  void getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR, int& indexM,
+  void getFieldGroups(const std::string& model, const std::string& refTime,
 		      bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
   std::string checkFieldOptions(const std::string& str);
   std::string getFieldOptions(const std::string& fieldName, bool reset, bool edit=false) const;
@@ -196,8 +194,6 @@ private:
 
   std::string editName;  // replacing the modelName during editing
 
-  std::map<std::string,std::string> fgTranslations;
-
   // map<fieldName,fieldOptions>
   std::map<std::string,std::string> setupFieldOptions;
   std::map<std::string,std::string> fieldOptions;
@@ -211,8 +207,6 @@ private:
   int numEditFields;
   std::vector<SelectedField> selectedField2edit;
   std::vector<bool>          selectedField2edit_exists;
-
-  std::vector<int> countSelected;
 
   std::vector< std::vector<std::string> > plottypes_dim;
   std::vector<std::string> plottypes;
@@ -231,6 +225,7 @@ private:
   bool     currentFieldOptsInEdit;
 
   // info about selected model, fields, levels, idnums and plot options
+  std::string currentModel;
   std::vector<FieldGroupInfo> vfgi;
 
   std::vector<FieldDialogInfo> m_modelgroup;

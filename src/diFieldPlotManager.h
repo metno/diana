@@ -85,7 +85,7 @@ public:
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool updateSources=false);
 
   /// return all field groups for one model/file (to FieldDialog)
-  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotdefienitions, std::vector<FieldGroupInfo>& vfgi);
 
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
