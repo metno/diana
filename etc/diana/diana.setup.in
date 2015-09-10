@@ -226,6 +226,7 @@ manualcommands==$(share_diana_dir)/printer.def
 #------------------------------------------------------------
 </QUICKMENUS>
 
+<FIELD_COMPUTE>
 
 # See diFieldFunctions.h or other documnetation
 
