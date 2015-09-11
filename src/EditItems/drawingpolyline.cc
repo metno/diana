@@ -43,11 +43,11 @@ PolyLine::~PolyLine()
 {
 }
 
-bool PolyLine::hit(const QPointF &pos, bool selected) const
+DrawingItemBase::HitType PolyLine::hit(const QPointF &pos, bool selected) const
 {
   // Have we hit the edge?
   if (points_.size() >= 2 && hitLine(pos) != -1)
-    return true;
+    return Line;
 
   const QVariantMap style = DrawingStyleManager::instance()->getStyle(this);
 
@@ -56,20 +56,20 @@ bool PolyLine::hit(const QPointF &pos, bool selected) const
     if (style.value("linesmooth").toBool()) {
       const QPainterPath path = DrawingStyleManager::interpolateToPath(points_, closed);
       if (path.contains(pos))
-        return true;
+        return Area;
     } else {
       const QPolygonF polygon(points_.toVector());
       if (polygon.containsPoint(pos, Qt::OddEvenFill))
-        return true;
+        return Area;
     }
   }
-  return false;
+  return None;
 }
 
-bool PolyLine::hit(const QRectF &rect) const
+DrawingItemBase::HitType PolyLine::hit(const QRectF &rect) const
 {
   Q_UNUSED(rect);
-  return false; // for now
+  return None; // for now
 }
 
 /**

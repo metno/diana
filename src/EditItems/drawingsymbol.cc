@@ -73,16 +73,19 @@ QRectF Symbol::boundingRect() const
   return QRectF(points_.at(0).x() - size/2, points_.at(0).y() - aspect*size/2, size, aspect*size);
 }
 
-bool Symbol::hit(const QPointF &pos, bool selected) const
+DrawingItemBase::HitType Symbol::hit(const QPointF &pos, bool selected) const
 {
   const QPolygonF polygon(boundingSquare().toVector());
-  return polygon.containsPoint(pos, Qt::OddEvenFill);
+  if (polygon.containsPoint(pos, Qt::OddEvenFill))
+    return Area;
+  else
+    return None;
 }
 
-bool Symbol::hit(const QRectF &rect) const
+DrawingItemBase::HitType Symbol::hit(const QRectF &rect) const
 {
   Q_UNUSED(rect);
-  return false; // for now
+  return None; // for now
 }
 
 void Symbol::draw(DiGLPainter* gl)

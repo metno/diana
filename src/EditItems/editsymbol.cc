@@ -58,10 +58,13 @@ DrawingItemBase *Symbol::cloneSpecial(bool setUniqueId) const
   return item;
 }
 
-bool Symbol::hit(const QPointF &pos, bool selected) const
+DrawingItemBase::HitType Symbol::hit(const QPointF &pos, bool selected) const
 {
   const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);
-  return hitSelectedControlPoint || DrawingItem_Symbol::Symbol::hit(pos, selected);
+  if (hitSelectedControlPoint)
+    return Area;
+  else
+    return DrawingItem_Symbol::Symbol::hit(pos, selected);
 }
 
 // ### similar to PolyLine::mousePress - move common code to base class?

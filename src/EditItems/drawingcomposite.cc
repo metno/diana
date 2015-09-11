@@ -100,16 +100,22 @@ void Composite::updateRect()
   points_[1] = rect.center();
 }
 
-bool Composite::hit(const QPointF &pos, bool selected) const
+DrawingItemBase::HitType Composite::hit(const QPointF &pos, bool selected) const
 {
   QRectF box = boundingRect();
-  return box.contains(pos);
+  if (box.contains(pos))
+    return Area;
+  else
+    return None;
 }
 
-bool Composite::hit(const QRectF &bbox) const
+DrawingItemBase::HitType Composite::hit(const QRectF &bbox) const
 {
   QRectF box = boundingRect();
-  return box.intersects(bbox);
+  if (box.intersects(bbox))
+    return Area;
+  else
+    return None;
 }
 
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const

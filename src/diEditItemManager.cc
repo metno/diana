@@ -505,7 +505,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     if (!hitItems.empty()) {
       hitItems_ = hitItems;
 
-      // send mouse hover event to the hover item
+      // Send a mouse hover event to the first hover item.
       Editing(hitItems_.first())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
     } else if (!origHitItems.isEmpty()) {
@@ -543,7 +543,7 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
     Editing(incompleteItem_)->incompleteMouseHover(event, rpn);
     incompleteItem_->setLatLonPoints(getLatLonPoints(incompleteItem_));
     if (rpn) repaintNeeded_ = true;
-    if (incompleteItem_->hit(event->pos(), false))
+    if (incompleteItem_->hit(event->pos(), false) != DrawingItemBase::None)
       hitItems_ = QList<DrawingItemBase *>() << incompleteItem_;
   } else {
     bool rpn = false;
@@ -745,15 +745,23 @@ QList<DrawingItemBase *> EditItemManager::allItems() const
 
 QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
 {
-  QList<DrawingItemBase *> hitItems;
+  QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes;
+
   foreach (DrawingItemBase *item, allItems()) {
     if ((!itemsVisibilityForced_) && (!item->isVisible()))
       continue;
-    if (item->hit(pos, true))
-      hitItems.append(item);
+    DrawingItemBase::HitType type = item->hit(pos, true);
+    if (type != DrawingItemBase::None)
+      hitItemTypes[type].append(item);
     else
       missedItems.append(item);
   }
+
+  // Create a list of hit items in order of priority.
+  QList<DrawingItemBase *> hitItems;
+  hitItems += hitItemTypes.value(DrawingItemBase::Point);
+  hitItems += hitItemTypes.value(DrawingItemBase::Line);
+  hitItems += hitItemTypes.value(DrawingItemBase::Area);
 
   if (hitItems.size() > 1) { // rotate list
     const int steps = hitOffset_ % hitItems.size();

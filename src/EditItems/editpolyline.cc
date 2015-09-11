@@ -68,11 +68,11 @@ DrawingItemBase *PolyLine::cloneSpecial(bool setUniqueId) const
   return item;
 }
 
-bool PolyLine::hit(const QPointF &pos, bool selected) const
+DrawingItemBase::HitType PolyLine::hit(const QPointF &pos, bool selected) const
 {
   // Have we hit a control point?
   if (selected && (hitControlPoint(pos) >= 0))
-    return true;
+    return Point;
 
   return DrawingItem_PolyLine::PolyLine::hit(pos, selected);
 }

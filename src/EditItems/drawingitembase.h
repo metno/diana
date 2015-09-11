@@ -53,6 +53,7 @@ class DrawingItemBase
 
 public:
   enum Category { PolyLine, Symbol, Text, Composite };
+  enum HitType { None, Point, Line, Area };
 
   DrawingItemBase(int);
   virtual ~DrawingItemBase();
@@ -99,12 +100,12 @@ public:
   // Returns true iff the item is hit at \a pos.
   // The item is considered selected iff \a selected is true (a selected item may typically be hit at
   // control points as well).
-  virtual bool hit(const QPointF &pos, bool selected) const = 0;
+  virtual HitType hit(const QPointF &pos, bool selected) const = 0;
 
   // Returns true iff the item is considered to be hit by \a rect.
   // Whether this means that the item's shape is partially or fully inside \a rect is
   // up to the item itself.
-  virtual bool hit(const QRectF &bbox) const = 0;
+  virtual HitType hit(const QRectF &bbox) const = 0;
 
   // Returns the item's geographic points.
   virtual QList<QPointF> getLatLonPoints() const;

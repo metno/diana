@@ -43,8 +43,8 @@ public:
   PolyLine(int = -1);
   virtual ~PolyLine();
 
-  virtual bool hit(const QPointF &, bool) const;
-  virtual bool hit(const QRectF &) const;
+  virtual HitType hit(const QPointF &, bool) const;
+  virtual HitType hit(const QRectF &) const;
   int hitLine(const QPointF &) const;
 
   // Returns the item's geographic points in a form suitable for export.

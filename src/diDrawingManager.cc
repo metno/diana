@@ -683,7 +683,7 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(
   QMap<QString, EditItems::ItemGroup *>::const_iterator it;
   for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
     foreach (DrawingItemBase *item, it.value()->items()) {
-      if (item->hit(pos, false))
+      if (item->hit(pos, false) != DrawingItemBase::None)
         hitItems.append(item);
       else
         missedItems.append(item);
