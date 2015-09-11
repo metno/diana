@@ -109,9 +109,9 @@ public:
   /// check if model exists
   bool modelOK(const std::string& modelName);
 
-  /// return all field groups for one model/file (to FieldDialog)
-  void getFieldGroups(const std::string& modelName, const std::string& refTime,
-      std::vector<FieldGroupInfo>& vfgi);
+  /// return all variables/levels for one model/file (to FieldDialog)
+  void getFieldInfo(const std::string& modelName, const std::string& refTime,
+      std::map<std::string,FieldInfo>& fieldInfo);
 
   /// return grid from requested model, if the model contains more grids, the first one is returned
   gridinventory::Grid getGrid(const std::string& modelName);

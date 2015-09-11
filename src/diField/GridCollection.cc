@@ -331,10 +331,7 @@ bool GridCollection::dataExists_gridParameter(const gridinventory::Inventory& in
       // found parameter - check specifics
 
       // Zaxis
-      //if zaxis_native_name (name of zaxis with one level) is given, then search for this name
       std::string zaxis = p.key.zaxis;
-      if ( p.zaxis_native_name == parkey.zaxis )
-        zaxis = p.zaxis_native_name;
       METLIBS_LOG_DEBUG("searching for z axis '" << zaxis << "'");
       const std::set<Zaxis>::const_iterator zaitr = miutil::find_if(reftimeInv.zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
       if (zaitr == reftimeInv.zaxes.end()) {

@@ -798,7 +798,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
           find_if(coordSys.begin(), coordSys.end(),
               CompleteCoordinateSystemForComparator(CDMparamName));
 
-      std::string xaxisname, yaxisname, taxisname, zaxisname, zaxis_native_name, projectionname;
+      std::string xaxisname, yaxisname, taxisname, zaxisname, projectionname;
       if (varSysIt != coordSys.end()) {
         CoordinateSystem::ConstAxisPtr axis = (*varSysIt)->getTimeAxis();
         taxisname = (axis.get() == 0) ? "" : axis->getName();
@@ -809,8 +809,6 @@ bool FimexIO::makeInventory(const std::string& reftime)
         axis = (*varSysIt)->getGeoYAxis();
         yaxisname = (axis.get() == 0) ? "" : axis->getName();
 
-        // If param has zaxis with one level, do not use zaxis in inventory.
-        // param.zaxis_native_name is used in getData
         axis = (*varSysIt)->getGeoZAxis();
         if ( axis.get() != 0 ) {
           DataPtr data = feltReader->getScaledData(axis->getName());
@@ -819,11 +817,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
             boost::shared_ptr<const VerticalTransformation> vtran = (*varSysIt)->getVerticalTransformation();
             verticalType = vtran->getName();
           }
-          if (data && (verticalType !="height" || data->size() > 1) ) {
-            zaxisname = axis->getName();
-          } else {
-            zaxis_native_name = axis->getName();
-          }
+          zaxisname = axis->getName();
         }
 
         boost::shared_ptr<const MetNoFimex::Projection> projection = (*varSysIt)->getProjection();
@@ -834,15 +828,12 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
       //extraAxis
       //Each parameter may only have one extraAxis
-      std::string eaxisname, eaxis_native_name;
+      std::string eaxisname;
       const vector<string>& shape = cdm.getVariable(CDMparamName).getShape();
       BOOST_FOREACH(const std::string& dim, shape) {
         BOOST_FOREACH(const gridinventory::ExtraAxis& eaxis, extraaxes) {
           if (eaxis.name == dim) {
-            if (eaxis.values.size() > 1)
-              eaxisname = dim;
-            else
-              eaxis_native_name = dim;
+            eaxisname = dim;
             break;
           }
         }
@@ -861,9 +852,6 @@ bool FimexIO::makeInventory(const std::string& reftime)
       if (cdm.getAttribute(CDMparamName, "long_name", attr)) {
         param.long_name  = attr.getStringValue();
       }
-      //Name of zaxis/eaxis with one level, used in getData
-      param.zaxis_native_name = zaxis_native_name;
-      param.eaxis_native_name = eaxis_native_name;
       //add axis/grid-id - not a part of key, but used to find times, levels, etc
       param.zaxis_id = name2id[zaxisname];
       param.taxis_id = taxisname;
@@ -912,16 +900,9 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReaderPtr reader, co
     const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index)
 {
 
-  // params with zaxis with one level: param.key.zaxis is empty, use param.zaxis_native_name
-  std::string zaxisname;
-  if ( param.zaxis_native_name.empty() ) {
-    zaxisname = param.key.zaxis;
-  } else {
-    zaxisname = param.zaxis_native_name;
-  }
   // find the taxis, zaxis and extraaxis for this variable
   const gridinventory::Taxis& taxis = getTaxis(reftime, param.key.taxis);
-  const gridinventory::Zaxis& zaxis = getZaxis(reftime, zaxisname);
+  const gridinventory::Zaxis& zaxis = getZaxis(reftime, param.key.zaxis);
   const gridinventory::ExtraAxis& extraaxis = getExtraAxis(reftime, param.key.extraaxis);
 
   const size_t taxis_index = findTimeIndex(taxis, time);

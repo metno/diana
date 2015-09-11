@@ -161,7 +161,6 @@ public:
 public:
   int vc_type; ///< coordinate type
   bool positive; //direction of axsis
-  std::string nativeName;
   std::string verticalType;
 
   Zaxis() :
@@ -263,10 +262,8 @@ public:
   std::string nativekey;
   std::string calibration;
   std::string zaxis_id;
-  std::string zaxis_native_name;
   std::string taxis_id;
   std::string extraaxis_id;
-  std::string eaxis_native_name;
 
   GridParameter()
   {

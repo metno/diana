@@ -462,24 +462,17 @@ bool FieldManager::modelOK(const std::string& modelName)
       return false;
   return true;
 }
-
-void FieldManager::getFieldGroups(const std::string& modelName, const std::string& refTime,
-    std::vector<FieldGroupInfo>& vfgi)
+void FieldManager::getFieldInfo(const std::string& modelName, const std::string& refTime,
+    std::map<std::string,FieldInfo>& fieldInfo)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
 
-  vfgi.clear();
+  fieldInfo.clear();
 
-
-  GridCollectionPtr pgc = getGridCollection(modelName, refTime, false,
-      false);
+  GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false);
   if (not pgc)
     return;
 
-  // The parameters are sorted in FieldGroups according to zaxis and extraaxsis
-  std::map<std::string, FieldGroupInfo> map_fgi;
-
-  // make groups
   gridinventory::Inventory inventory = pgc->getExpandedInventory();
 
   std::map<std::string, gridinventory::ReftimeInventory>::iterator ritr =
@@ -494,54 +487,40 @@ void FieldManager::getFieldGroups(const std::string& modelName, const std::strin
   }
 
   BOOST_FOREACH(const gridinventory::GridParameter& gp, ritr->second.parameters){
-  set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(gp.zaxis_id);
-  std::string verticalType = "Surface";
-  if ( zitr!=ritr->second.zaxes.end() ) {
-    if (!zitr->verticalType.empty()) {
-      verticalType = zitr->verticalType;
+    set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(gp.zaxis_id);
+//    std::string extraAxis = gp.key.extraaxis;
+    FieldInfo vi;
+    vi.fieldName = gp.key.name;
+    vi.standard_name = gp.standard_name;
+    if ( zitr!=ritr->second.zaxes.end() ) {
+      vi.vlevels= zitr->getStringValues();
+      vi.vcoord = zitr->verticalType;
+      if (zitr->vc_type == FieldFunctions::vctype_oceandepth) {
+        vi.default_vlevel = vi.vlevels.front();
+      }
     }
-  }
-  std::string extraAxis = gp.key.extraaxis;
-  std::string groupName;
-  if ( extraAxis.empty() )
-  groupName = verticalType;
-  else
-  groupName = verticalType + "_" + extraAxis;
-  if ( !map_fgi.count(groupName) ) {
-    FieldGroupInfo fgi;
-    fgi.modelName = modelName;
-    fgi.refTime = ritr->second.referencetime;
-    fgi.zaxis = verticalType;
-    fgi.levelNames= zitr->getStringValues();
-    if (zitr->vc_type == FieldFunctions::vctype_oceandepth) {
-      fgi.defaultLevel = fgi.levelNames.front();
-    }
-    fgi.groupName = groupName;
     set<gridinventory::ExtraAxis>::iterator eitr = ritr->second.extraaxes.find(gp.extraaxis_id);
     if ( eitr!=ritr->second.extraaxes.end() ) {
-      //fgi.extraaxis = eitr->name;
-      fgi.idnumNames = eitr->getStringValues();
+      vi.ecoord = eitr->name;
+      vi.elevels = eitr->getStringValues();
     }
-    map_fgi[groupName]=fgi;
+    // groupname based on coordinates
+    if ( vi.ecoord.empty() && vi.vcoord.empty()) {
+      vi.groupName = "Surface";
+    } else if ( vi.vcoord.empty() ) {
+      vi.groupName = vi.ecoord;
+    } else if ( vi.ecoord.empty() ) {
+      vi.groupName = vi.vcoord;
+    } else {
+      vi.groupName = vi.vcoord + "_" + vi.ecoord;
+    }
+
+    fieldInfo[vi.fieldName]=vi;
   }
-  map_fgi[groupName].fieldNames.push_back(gp.key.name);
-  map_fgi[groupName].standard_names.push_back(gp.standard_name);
-  if ( zitr!=ritr->second.zaxes.end() ) {
-    map_fgi[groupName].levels[gp.key.name]= zitr->getStringValues();
-  }
+
 }
 
-  std::map<std::string, FieldGroupInfo>::const_iterator itr = map_fgi.begin();
-  for (; itr != map_fgi.end(); ++itr) {
-    vfgi.push_back(itr->second);
-  }
 
-}
-
-
-// ==================================================
-// GridIO changes
-// ==================================================
 FieldManager::GridCollectionPtr FieldManager::getGridCollection(
     const std::string& modelName, const std::string& refTime, bool rescan,
     bool checkSourceChanged)
@@ -800,11 +779,11 @@ void FieldManager::addComputedParameters(
     METLIBS_LOG_DEBUG(LOGVAL(newparameter.key.extraaxis));
     //add parameter with derived zaxis (flightlevel)
     set<gridinventory::Zaxis>::iterator dzitr = inventory.zaxes.find(newparameter.key.zaxis);
-    if (dzitr != inventory.zaxes.end() && !(*dzitr).nativeName.empty() ) {
-      gridinventory::GridParameter derivedparameter = newparameter;
-      newparameter.key.zaxis = (*dzitr).nativeName;
+//    if (dzitr != inventory.zaxes.end() && !(*dzitr).nativeName.empty() ) {
+//      gridinventory::GridParameter derivedparameter = newparameter;
+//      newparameter.key.zaxis = (*dzitr).nativeName;
       inventory.parameters.insert(newparameter);
-    }
+//    }
   } else {
     METLIBS_LOG_DEBUG("not found");
   }

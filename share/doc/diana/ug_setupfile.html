@@ -121,6 +121,8 @@
 	  <td>defines common (for all sources) field computations </td></tr>
 	<tr><td><a href="#FIELD_PLOT">FIELD_PLOT</a></td>
 	  <td>defines fields for visualisation with default plot options </td></tr>
+	<tr><td><a href="#FIELD_GROUPS">FIELD_GROUPS</a></td>
+	  <td>defines translations of field group names </td></tr>
 	<tr><td><a href="#FIELD_FILES">FIELD_FILES</a></td>
 	  <td>lists files or other sources for field data </td></tr>
 	 <tr><td><a href="#FIMEX_SETUP">FIMEX_SETUP</a></td>
@@ -318,8 +320,11 @@ field4=multiply(field1,9.8067)
 		bottom number, and the third element the top number.</td></tr>
     </table>
     <p>
+ 
+The plots are sorted into fieldgroups according to "fieldgroup" given in the plot definition, or vertical/ensemble-axis if no group name is given
+<p>
 
-    <br>Example:
+<b>Examples:</b>
     <pre>
 field=MSLP
       colour=blue linetype=solid linewidth=1 line.interval=5.
@@ -327,6 +332,7 @@ field=MSLP
 end.field
 
 field=WIND
+      fieldgroup=Surface 
       colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
       plot=WIND(u,v)
 end.field
@@ -354,8 +360,27 @@ field=ICING-SUM-LAYER
       colours=black,black,blue minvalue=0
       plot=Value(icing.top.scaled, icing.bottom.scaled, icing.height.scaled)
 end.field
+
+loop [MM]=0.1,0.5,1.0,2.5,5.0,7.5,10,15,20,25,30,40,50,100
+field=Probability_Precip>[MM]mm/6h
+     fieldgroup="EPS probability"
+     colour=red line.interval=10. units=0.01
+     plot=CONTOUR(prob_accumprecip.6h>[MM]mm)
+end.field
+
     </pre>
     <p>
+
+    <a name="FIELD_GROUPS"></a><h3>Section FIELD_GROUPS</h3>
+
+Translations of the group names, both the automatic generated names and the names given in the plot definitions
+<p>
+<b>Examples:</b>
+    <pre>
+name=my_name group=Surface
+name=pressure_levels group=pressure
+name=pressure_levels(members) group=pressure_ensemble
+    </pre>
 
     <a name="FIELD_FILES"></a><h3>Section FIELD_FILES</h3>
     list of files or other sources of field data.

@@ -1032,12 +1032,8 @@ void MapDialog::saveFavoriteClicked()
 
 void MapDialog::useFavorite()
 {
-  /*
-  METLIBS_LOG_DEBUG("useFavorite:");
-  for (int i=0; i<favorite.size();i++)
-    METLIBS_LOG_DEBUG(favorite[i]);
-   */
-  putOKString(favorite);
+  if ( favorite.size() )
+    putOKString(favorite);
 }
 
 void MapDialog::useFavoriteClicked()
@@ -1266,7 +1262,6 @@ void MapDialog::putOKString(const vector<string>& vstr)
     lon_zorder->setCurrentIndex(m_zIndex);
   lon_showvalue->setChecked(lonshowvalue);
   if (positions_map.count(mi.lon.value_pos)) {
-    METLIBS_LOG_INFO(LOGVAL(mi.lon.value_pos));
     lon_valuepos->setCurrentIndex(positions_map[mi.lon.value_pos]);
   }
   latb = mi.lat.ison;
@@ -1299,7 +1294,6 @@ void MapDialog::putOKString(const vector<string>& vstr)
     lat_zorder->setCurrentIndex(m_zIndex);
   lat_showvalue->setChecked(latshowvalue);
   if (positions_map.count(mi.lat.value_pos)) {
-    METLIBS_LOG_INFO(LOGVAL(mi.lat.value_pos));
     lat_valuepos->setCurrentIndex(positions_map[mi.lat.value_pos]);
   }
 
@@ -1430,7 +1424,6 @@ vector<string> MapDialog::writeLog()
   // write favorite options
   for (unsigned int i = 0; i < favorite.size(); i++) {
     vstr.push_back(favorite[i]);
-    METLIBS_LOG_INFO(LOGVAL(favorite[i]));
   }
 
   vstr.push_back("===========================================");
@@ -1526,7 +1519,6 @@ void MapDialog::readLog(const vector<string>& vstr,
     iline++;
     for (; iline < n; iline++) {
       std::string str = vstr[iline];
-      METLIBS_LOG_INFO(LOGVAL(str));
       miutil::trim(str);
       if (str.empty())
         continue;
