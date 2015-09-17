@@ -216,11 +216,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
           SLOT(updateButtons()));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
-  connect(drawm_, SIGNAL(itemsHovered(const QList<DrawingItemBase *> &)),
-                  SLOT(showItemInformation(const QList<DrawingItemBase *> &)));
-  connect(editm_, SIGNAL(itemsHovered(const QList<DrawingItemBase *> &)),
-                  SLOT(showItemInformation(const QList<DrawingItemBase *> &)));
-
   setOrientation(Qt::Horizontal);
   setExtension(filterWidget_);
 }
@@ -655,34 +650,6 @@ void DrawingDialog::extend(bool enable)
 {
   showExtension(enable);
   filterButton_->setText(enable ? tr("Hide filters <<<") : tr("Show filters >>>"));
-}
-
-void DrawingDialog::showItemInformation(const QList<DrawingItemBase *> &items)
-{
-  // Create a tooltip containing the values of any filtered properties for
-  // the first item in the list that contains them.
-
-  QSet<QString> allowed = filterWidget_->properties().toSet();
-
-  foreach (DrawingItemBase *item, items) {
-    if (!item->isVisible())
-      continue;
-
-    QStringList lines;
-
-    QVariantMap properties = item->propertiesRef();
-    foreach (const QString &key, properties.keys()) {
-      if (allowed.contains(key))
-        lines.append(QString("%1: %2").arg(key).arg(properties.value(key).toString()));
-    }
-
-    if (!lines.isEmpty()) {
-      QString text = lines.join("\n");
-      editm_->showToolTipText(1, text);
-      return;
-    } else
-      editm_->showToolTipText(1, "");
-  }
 }
 
 // ====================================================================

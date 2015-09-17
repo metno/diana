@@ -152,6 +152,11 @@ EditItemManager::EditItemManager()
   connect(createTextAction_, SIGNAL(triggered()), SLOT(setCreateTextMode()));
   connect(createCompositeAction_, SIGNAL(triggered()), SLOT(setCreateCompositeMode()));
 
+  connect(DrawingManager::instance(), SIGNAL(itemsHovered(const QList<DrawingItemBase *> &)),
+          SLOT(showItemInformation(const QList<DrawingItemBase *> &)));
+  connect(this, SIGNAL(itemsHovered(const QList<DrawingItemBase *> &)),
+                SLOT(showItemInformation(const QList<DrawingItemBase *> &)));
+
   setSelectMode();
   setEnabled(true);
   updateActionsAndTimes();
@@ -204,6 +209,14 @@ bool EditItemManager::parseSetup()
     if (items.contains("show-property-sections-editing")) {
       QStringList values = items.value("show-property-sections-editing").split(",");
       Properties::PropertiesEditor::instance()->setPropertyRules("show-editing", values);
+    }
+    if (items.contains("show-tooltips-drawing")) {
+      QStringList values = items.value("show-tooltips-drawing").split(",");
+      tooltipDrawingProperties = values.toSet();
+    }
+    if (items.contains("show-tooltips-editing")) {
+      QStringList values = items.value("show-tooltips-editing").split(",");
+      tooltipEditingProperties = values.toSet();
     }
   }
 
@@ -1801,6 +1814,42 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
 void EditItemManager::save()
 {
   emit saveRequested();
+}
+
+void EditItemManager::showItemInformation(const QList<DrawingItemBase *> &items)
+{
+  // Create a tooltip containing the values of any filtered properties for
+  // the first item in the list that contains them.
+
+  QSet<QString> allowed;
+  if (isEditing())
+    allowed = tooltipEditingProperties;
+  else
+    allowed = tooltipDrawingProperties;
+
+  foreach (DrawingItemBase *item, items) {
+    if (!item->isVisible())
+      continue;
+
+    QStringList lines;
+
+    QVariantMap properties = item->propertiesRef();
+    foreach (const QString &key, properties.keys()) {
+      foreach (const QString &section, allowed) {
+        if (key.startsWith(section)) {
+          QString keyEnd = key.mid(section.size());
+          lines.append(QString("%1: %2").arg(keyEnd).arg(properties.value(key).toString()));
+        }
+      }
+    }
+
+    if (!lines.isEmpty()) {
+      QString text = lines.join("\n");
+      showToolTipText(1, text);
+      return;
+    } else
+      showToolTipText(1, "");
+  }
 }
 
 void EditItemManager::showToolTipText(int priority, const QString &text)

@@ -121,7 +121,6 @@ private slots:
   void removeActiveDrawings();
   void showActiveContextMenu(const QPoint &pos);
   void showDrawingContextMenu(const QPoint &pos);
-  void showItemInformation(const QList<DrawingItemBase *> &items);
   void updateButtons();
   void updateQuickSaveButton();
   virtual void updateTimes();

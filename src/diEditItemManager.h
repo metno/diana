@@ -149,6 +149,7 @@ private slots:
   void setCreateTextMode();
   void setCreateCompositeMode();
   void handleSelectionChange();
+  void showItemInformation(const QList<DrawingItemBase *> &items);
 
 signals:
   void selectionChanged();
@@ -181,10 +182,13 @@ private:
   QPoint lastHoverPos_;
   QUndoStack undoStack_;
   UndoView *undoView_;
+
   struct ToolTip {
     int priority;
     QString text;
     } tooltip_; // hold the current tooltip and its role
+  QSet<QString> tooltipDrawingProperties;
+  QSet<QString> tooltipEditingProperties;
 
   QAction* selectAllAction_;
   QAction* copyAction_;
