@@ -137,6 +137,7 @@ public slots:
   void selectItem(DrawingItemBase *, bool = false, bool = true);
   void selectAllItems();
   void setSelectMode();
+  void showToolTipText(int priority, const QString &text = QString());
   void startStopEditing(bool start);
   void undo();
 
@@ -180,6 +181,10 @@ private:
   QPoint lastHoverPos_;
   QUndoStack undoStack_;
   UndoView *undoView_;
+  struct ToolTip {
+    int priority;
+    QString text;
+    } tooltip_; // hold the current tooltip and its role
 
   QAction* selectAllAction_;
   QAction* copyAction_;

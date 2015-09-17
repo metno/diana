@@ -117,7 +117,7 @@ void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectin
   EditItemBase::mouseHover(event, repaintNeeded);
   if ((hoverCtrlPointIndex_ < 0) && !(selectingOnly)) {
     hoverLineIndex_ = hitLine(hoverPos_);
-    QToolTip::hideText();
+    EditItemManager::instance()->showToolTipText(2, "");
   } else {
     hoverLineIndex_ = -1;
     showTip();
@@ -129,7 +129,7 @@ void PolyLine::mouseMove(QMouseEvent *event, bool &repaintNeeded)
   EditItemBase::mouseMove(event, repaintNeeded);
   if (hoverCtrlPointIndex_ < 0) {
     hoverLineIndex_ = hitLine(hoverPos_);
-    QToolTip::hideText();
+    EditItemManager::instance()->showToolTipText(2, "");
   } else {
     hoverLineIndex_ = -1;
     showTip();
@@ -147,7 +147,7 @@ void PolyLine::showTip()
   text = QString("%1\xB0 %2'%3").arg(latDeg).arg(latMin).arg(ns);
   text += QString(" %1\xB0 %2'%3").arg(lonDeg).arg(lonMin).arg(we);
 
-  QToolTip::showText(QCursor::pos(), text);
+  EditItemManager::instance()->showToolTipText(2, text);
 }
 
 void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)

@@ -290,15 +290,15 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipR
 DrawingItemBase *EditItemManager::createItem(const QString &type)
 {
   EditItemBase *item = 0;
-  if (type == "PolyLine") {
+  if (type == "PolyLine")
     item = new EditItem_PolyLine::PolyLine();
-  } else if (type == "Symbol") {
+  else if (type == "Symbol")
     item = new EditItem_Symbol::Symbol();
-  } else if (type == "Text") {
+  else if (type == "Text")
     item = new EditItem_Text::Text();
-  } else if (type == "Composite") {
+  else if (type == "Composite")
     item = new EditItem_Composite::Composite();
-  }
+
   return Drawing(item);
 }
 
@@ -508,6 +508,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
       // Send a mouse hover event to the first hover item.
       Editing(hitItems_.first())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
+      emit itemsHovered(hitItems_);
     } else if (!origHitItems.isEmpty()) {
       Editing(origHitItems.first())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
@@ -1800,6 +1801,22 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
 void EditItemManager::save()
 {
   emit saveRequested();
+}
+
+void EditItemManager::showToolTipText(int priority, const QString &text)
+{
+  // Update the tooltip if it is not visible, the existing text is empty,
+  // the existing tooltip has the same priority or the new tip has a
+  // higher priority and contains text.
+  if (!QToolTip::isVisible() || tooltip_.text.isEmpty() || priority == tooltip_.priority
+      || (priority > tooltip_.priority && !text.isEmpty())) {
+    tooltip_.priority = priority;
+    tooltip_.text = text;
+    if (!text.isEmpty())
+      QToolTip::showText(QCursor::pos(), text);
+    else
+      QToolTip::hideText();
+  }
 }
 
 // Command classes

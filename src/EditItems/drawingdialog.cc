@@ -218,6 +218,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   connect(drawm_, SIGNAL(itemsHovered(const QList<DrawingItemBase *> &)),
                   SLOT(showItemInformation(const QList<DrawingItemBase *> &)));
+  connect(editm_, SIGNAL(itemsHovered(const QList<DrawingItemBase *> &)),
+                  SLOT(showItemInformation(const QList<DrawingItemBase *> &)));
 
   setOrientation(Qt::Horizontal);
   setExtension(filterWidget_);
@@ -339,7 +341,7 @@ void DrawingDialog::loadFile()
     QMessageBox warning(QMessageBox::Warning, tr("Open File"),
                         tr("Failed to open file: %1").arg(fileName),
                         QMessageBox::Cancel, this);
-    warning.setDetailedText(error);
+    warning.setInformativeText(error);
     warning.exec();
   }
 }
@@ -657,10 +659,6 @@ void DrawingDialog::extend(bool enable)
 
 void DrawingDialog::showItemInformation(const QList<DrawingItemBase *> &items)
 {
-  // Don't show property tooltips when in editing mode.
-  if (editm_->isEditing())
-    return;
-
   // Create a tooltip containing the values of any filtered properties for
   // the first item in the list that contains them.
 
@@ -680,9 +678,10 @@ void DrawingDialog::showItemInformation(const QList<DrawingItemBase *> &items)
 
     if (!lines.isEmpty()) {
       QString text = lines.join("\n");
-      QToolTip::showText(QCursor::pos(), text);
+      editm_->showToolTipText(1, text);
       return;
-    }
+    } else
+      editm_->showToolTipText(1, "");
   }
 }
 
