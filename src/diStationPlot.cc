@@ -36,6 +36,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <QString>
+
 #define MILOGGER_CATEGORY "diana.StationPlot"
 #include <miLogger/miLogging.h>
 
@@ -400,7 +402,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     for (int it = 0; it < nt; it++) {
       float cw, ch;
       gl->setColour(textColour);
-      std::string text = stations[i]->vsText[it].text;
+      const std::string& text = stations[i]->vsText[it].text;
       gl->setFont("BITMAPFONT", textStyle, textSize);
       gl->getTextSize(text, cw, ch);
       if (stations[i]->vsText[it].hAlign == align_center)
@@ -410,8 +412,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       else if (stations[i]->vsText[it].hAlign == align_bottom) {
         if (stations[i]->isSelected)
           gl->Color3ub(255, 255, 255); //white
-          glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w,
-              ch);
+        glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w, ch);
         gl->setColour(textColour);
         gl->drawText(text, x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
       }
@@ -1256,13 +1257,12 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
   if (ff > 0 && !classic) {
     gl->setFont("BITMAPFONT", "normal", 10);
     float sW, sH;
-    ostringstream ost;
-    ost << ff;
-    gl->getTextSize(ost.str(), sW, sH);
+    const QString ost = QString::number(ff);
+    gl->getTextSize(ost, sW, sH);
     float sx = x - 0.45 * sW;
     float sy = y - 0.35 * sH;
     gl->Color4f(1.0, 1.0, 1.0, 1.0); //white
-    gl->drawText(ost.str(), sx, sy);
+    gl->drawText(ost, sx, sy);
   }
 
   if (stations[ii]->isSelected) {

@@ -91,7 +91,7 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   // Obtain the width and height of the text in plot coordinates.
   float width = 0, height = 0;
   if (DiCanvas* canvas = styleManager->canvas()) {
-    canvas->getTextSize(text.left(index).toStdString(), width, height);
+    canvas->getTextSize(text.left(index), width, height);
     if (height == 0)
       canvas->getTextSize("X", width, height);
   }

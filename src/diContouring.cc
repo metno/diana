@@ -44,6 +44,7 @@
 #include <puTools/miStringFunctions.h>
 
 #include <QPolygonF>
+#include <QString>
 
 #include <shapefil.h>
 
@@ -868,7 +869,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     verAttach[0]      [ycorner[2]]= 2 + maxLines;
   }
 
-  std::string strlabel;
+  QString strlabel;
 
   for (lev=firstLev; lev<nvalue; ++lev)
   {
@@ -909,9 +910,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       // label format for each label
       if (nzfrmt<0 && !drawBorders) {
 
-        ostringstream cs;
-        cs << zc;
-        strlabel= cs.str();
+        strlabel= QString::number(zc);
         // numberformat(zc,1,nnfrmt,nnwdth,nnfrac);
         //-----------------------------------------
         //nnfrmt=1;
@@ -2326,9 +2325,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       if (drawBorders) {
         float zcb1= (zleft<zright) ? zleft : zright;
         float zcb2= (zleft>zright) ? zleft : zright;
-        ostringstream cs;
-        cs << zcb1 << " / " << zcb2;
-        strlabel= cs.str();
+        strlabel = QString("%1 / %2").arg(zcb1).arg(zcb2);
         gl->getTextSize(strlabel, dxlab1, dxlab2);
         dxlab  = stalab+dxlab1+endlab;
         dxlab2 = dxlab*dxlab;
@@ -2775,8 +2772,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 //        GLint *  params = new int[4];
 //        glGetIntegerv(DiGLPainter::gl_CURRENT_COLOR,  params);
 //        glColor3ubv(poptions.textcolour.RGB());
-        const char * cnumber= strlabel.c_str();
-        gl->drawText(cnumber,xlab,ylab,angle);
+        gl->drawText(strlabel,xlab,ylab,angle);
 
         // needed after drawStr, otherwise colour change may not work
         gl->ShadeModel(DiGLPainter::gl_FLAT);
