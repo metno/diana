@@ -66,16 +66,13 @@ using namespace std;
 using namespace miutil;
 
 namespace /* anonymous */{
-std::vector<std::string> split_on_comma(const std::string& txt,
-    const char* comma = ",")
-    {
+std::vector<std::string> split_on_comma(const std::string& txt, const char* comma = ",")
+{
   std::vector<std::string> s;
   boost::algorithm::split(s, txt, boost::algorithm::is_any_of(comma));
   return s;
-    }
+}
 } /* anonymous namespace */
-
-// #define DEBUGPRINT 1
 
 ObsManager::ObsManager()
 {
@@ -169,7 +166,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
     //set setuptext for ascii
     if (popupSpec.size() > 0) {
       oplot->setPopupSpec(popupSpec);
-    }  
+    }
 
     for (size_t j = 0; j < finfo.size(); j++) {
       const std::string& filetype = finfo[j].filetype;
@@ -214,6 +211,8 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
       if (it != metaDataMap.end() and it->second)
         oplot->mergeMetaData(it->second->getMetaData());
     }
+    if (!pi.textCodec.empty())
+      oplot->setTextCodec(pi.textCodec.c_str());
   }
 
   if (oplot->setData()) {
@@ -635,7 +634,6 @@ vector<miTime> ObsManager::getObsTimes(const vector<string>& pinfos)
   }
 
   return getTimes(obsTypes);
-
 }
 
 void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
@@ -661,7 +659,6 @@ void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 
   normalTimes = getTimes(obsTypes);
-
 }
 
 // return observation times for list of obsTypes
@@ -1476,8 +1473,7 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
 
 bool ObsManager::parseSetup()
 {
-
-  METLIBS_LOG_DEBUG("Obs: parseSetup");
+  METLIBS_LOG_SCOPE();
   const std::string obs_name = "OBSERVATION_FILES";
   vector<std::string> sect_obs;
 
@@ -1587,8 +1583,7 @@ bool ObsManager::parseSetup()
 
   for (unsigned int i = 0; i < sect_obs.size(); i++) {
 
-    vector<std::string> token = miutil::split_protected(sect_obs[i], '"', '"',
-        "=", true);
+    vector<std::string> token = miutil::split_protected(sect_obs[i], '"', '"', "=", true);
 
     if (token.size() != 2) {
       std::string errmsg = "Line must contain '='";
@@ -1734,7 +1729,8 @@ bool ObsManager::parseSetup()
     } else if (key == "timeinfo" && newprod) {
       Prod[prod].timeInfo = token[1];
       miutil::remove(Prod[prod].timeInfo, '"');
-
+    } else if (key == "textcodec") {
+      Prod[prod].textCodec = token[1];
     }
     //printProdInfo(Prod[prod]);
   }
@@ -1821,12 +1817,11 @@ bool ObsManager::parseSetup()
   // Handling of popup window specification
   const std::string obs_popup_data = "OBSERVATION_POPUP_SPEC";
   vector<std::string> sect_popup_data;
- 
+
   if (SetupParser::getSection(obs_popup_data,sect_popup_data)){
     popupSpec = sect_popup_data;
 
   }
-
 
   return true;
 }
@@ -2080,7 +2075,7 @@ void ObsManager::processHqcCommand(const std::string& command,
   }
 }
 
-map<std::string, ObsManager::ProdInfo> ObsManager::getProductsInfo() const
+const std::map<std::string, ObsManager::ProdInfo>& ObsManager::getProductsInfo() const
 {
   return Prod;
 }

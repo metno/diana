@@ -39,6 +39,9 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
+#include <QString>
+#include <QTextCodec>
+
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -75,6 +78,7 @@ static inline bool is_true(const std::string& value)
 }
 
 ObsPlot::ObsPlot()
+  : mTextCodec(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -337,6 +341,24 @@ ObsPlot::~ObsPlot()
   delete[] y;
 }
 
+QString ObsPlot::decodeText(const std::string& text) const
+{
+  if (mTextCodec != 0)
+    return mTextCodec->toUnicode(text.c_str());
+  else
+    return QString::fromLatin1(text.c_str());
+}
+
+void ObsPlot::setTextCodec(QTextCodec* codec)
+{
+  mTextCodec = codec;
+}
+
+void ObsPlot::setTextCodec(const char* codecName)
+{
+  setTextCodec(QTextCodec::codecForName(codecName));
+}
+
 void ObsPlot::getObsAnnotation(string &str, Colour &col)
 {
   //Append to number of plots to the annotation string
@@ -406,8 +428,7 @@ void ObsPlot::mergeMetaData(const std::map<std::string, ObsData>& metaData)
 {
   //METLIBS_LOG_DEBUG(__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size());
   for (size_t i = 0; i < obsp.size(); ++i) {
-    const std::map<std::string, ObsData>::const_iterator itM = metaData.find(
-        obsp[i].id);
+    const std::map<std::string, ObsData>::const_iterator itM = metaData.find(obsp[i].id);
     if (itM != metaData.end()) {
       obsp[i].xpos = itM->second.xpos;
       obsp[i].ypos = itM->second.ypos;
@@ -2294,7 +2315,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const Para
     const std::map<string, string>::const_iterator s_p = dta.stringdata.find(param.name);
     if (s_p != dta.stringdata.end()) {
       checkColourCriteria(gl, param.name,undef);
-      printListString(gl, s_p->second, xpos, ypos, align_right);
+      printListString(gl, decodeText(s_p->second), xpos, ypos, align_right);
     } else {
       const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
       if (f_p != dta.fdata.end()) {
@@ -2330,7 +2351,7 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Paramet
     if (p != dta.fdata.end() && q != dta.fdata.end()) {
       checkColourCriteria(gl, param.name, p->second);
       wave(gl, q->second, p->second, xpos, ypos, align_right);
-      std::string str = "00/00";
+      const QString str = "00/00";
       advanceByStringWidth(gl, str, xpos);
     } else {
       printUndef(gl, xpos, ypos, align_right);
@@ -2394,37 +2415,19 @@ void ObsPlot::printListRRR(DiGLPainter* gl, const ObsData& dta, const std::strin
 void ObsPlot::printListPos(DiGLPainter* gl, const ObsData& dta,
     float& xpos, float& ypos, float yStep, bool align_right)
 {
-  ostringstream slat, slon;
-  slat << setw(6) << setprecision(2) << setiosflags(ios::fixed)
-                << fabsf(dta.ypos);
-  if (dta.ypos >= 0.)
-    slat << 'N';
-  else
-    slat << 'S';
-  slon << setw(6) << setprecision(2) << setiosflags(ios::fixed)
-                << fabsf(dta.xpos);
-  if (dta.xpos >= 0.)
-    slon << 'E';
-  else
-    slon << 'W';
   ypos -= yStep;
-  std::string strlat = slat.str();
-  std::string strlon = slon.str();
+  QString str1 = diutil::formatLatitude (dta.ypos, 2, 6);
+  QString str2 = diutil::formatLongitude(dta.xpos, 2, 6);;
+  if (yStep <= 0)
+    str1.swap(str2); // change order of lon and lat
+
   checkColourCriteria(gl, "Pos", 0);
 
-  if (yStep > 0 ) {
-    printString(gl, strlat.c_str(), xpos, ypos, align_right);
-    advanceByStringWidth(gl, strlat, xpos);
-    ypos -= yStep;
-    printString(gl, strlon.c_str(), xpos, ypos, align_right);
-    advanceByStringWidth(gl, strlon, xpos);
-  } else {
-    printString(gl, strlon.c_str(), xpos, ypos, align_right);
-    advanceByStringWidth(gl, strlon, xpos);
-    ypos -= yStep;
-    printString(gl, strlat.c_str(), xpos, ypos, align_right);
-    advanceByStringWidth(gl, strlat, xpos);
-  }
+  printString(gl, str1, xpos, ypos, align_right);
+  advanceByStringWidth(gl, str1, xpos);
+  ypos -= yStep;
+  printString(gl, str2, xpos, ypos, align_right);
+  advanceByStringWidth(gl, str2, xpos);
 }
 
 void ObsPlot::printUndef(DiGLPainter* gl, float& xpos, float& ypos, bool align_right)
@@ -2437,28 +2440,34 @@ void ObsPlot::printList(DiGLPainter* gl, float f, float& xpos, float& ypos, int 
     bool align_right, std::string opt)
 {
   if (f != undef) {
-    std::ostringstream cs;
-    cs.setf(ios::fixed);
-    cs.precision(precision);
+    bool do_showplus = false, do_showpoint = false, do_fill = false;
     const std::vector<std::string> vstr = miutil::split(opt, ",");
     for (size_t i = 0; i < vstr.size(); i++) {
       if (vstr[i] == "showplus")
-        cs.setf(ios::showpos);
+        do_showplus = true;
       else if (vstr[i] == "showpoint") {
-        cs.setf(ios::showpoint);
+        do_showpoint = true;
       } else if (vstr[i] == "fill_2") {
-        cs.width(2);
-        cs.fill('0');
+        do_fill = true;
       }
     }
-    cs << f;
-    printListString(gl, cs.str(), xpos, ypos, align_right);
+
+    QString cs;
+    if (do_showplus)
+      cs.append(f >= 0 ? '+' : '-');
+    cs.append(QString::number(f, 'f', precision));
+    if (do_showpoint && precision == 0)
+      cs.append('.');
+    if (do_fill)
+      cs = cs.rightJustified(2, '0');
+
+    printListString(gl, cs, xpos, ypos, align_right);
   } else {
     printListString(gl, "X", xpos, ypos, align_right);
   }
 }
 
-float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const std::string& txt, float& xpos)
+float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const QString& txt, float& xpos)
 {
   float w, h;
   gl->getTextSize(txt, w, h);
@@ -2467,7 +2476,7 @@ float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const std::string& txt, flo
   return w;
 }
 
-void ObsPlot::printListString(DiGLPainter* gl, const std::string& txt, float& xpos, float& ypos,
+void ObsPlot::printListString(DiGLPainter* gl, const QString& txt, float& xpos, float& ypos,
     bool align_right)
 {
   float x = xpos * scale;
@@ -2641,7 +2650,7 @@ void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& 
       if (parameterName)
         str = param + " " + str;
       checkColourCriteria(gl, param, value);
-      printListString(gl, str, xpos, ypos, align_right);
+      printListString(gl, decodeText(str), xpos, ypos, align_right);
     } else {
       printUndef(gl, xpos, ypos, align_right);
     }
@@ -2823,9 +2832,10 @@ void ObsPlot::plotDBMetar(DiGLPainter* gl,int index)
   //limit of variable wind direction
   int dndx = 16;
   if (dndndn_value!= undef && dxdxdx_value != undef) {
-    ostringstream cs;
-    cs << dndndn_value / 10 << "V" << dxdxdx_value / 10;
-    printString(gl, cs.str().c_str(), iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
+    QString cs = QString("%1V%2")
+        .arg(dndndn_value / 10)
+        .arg(dxdxdx_value / 10);
+    printString(gl, cs, iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
     dndx = 2;
   }
   //Wind gust
@@ -2999,7 +3009,7 @@ void ObsPlot::plotDBMetar(DiGLPainter* gl,int index)
   //Id
   if (icao_value != "X") {
     checkColourCriteria(gl, "Name", 0);
-    printString(gl, icao_value.c_str(),iptab[lpos+46]+2,iptab[lpos+47]+2);
+    printString(gl, decodeText(icao_value), iptab[lpos+46]+2,iptab[lpos+47]+2);
   }
 
   gl->PopMatrix();
@@ -3625,11 +3635,11 @@ void ObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   {
     checkColourCriteria(gl, "Name",0);
     int wmo = (int)wmono_value;
-    char buf[128];
+    QString buf;
     if (station_type == road::diStation::WMO)
-      sprintf(buf, "%d", wmo);
+      buf.setNum(wmo);
     else if (station_type == road::diStation::SHIP)
-      strcpy(buf, call_sign.c_str());
+      buf = decodeText(call_sign);
 
     if( sss_value != undef) //if snow
       printString(gl, buf,iptab[lpos+46]+2,iptab[lpos+47]+15);
@@ -3939,25 +3949,25 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   // Ship or buoy identifier
   if (pFlag.count("id") && dta.zone == 99) {
     checkColourCriteria(gl, "Id", 0);
-    std::string kjTegn = dta.id;
+    QString kjTegn = decodeText(dta.id);
     if (timeFlag)
-      printString(gl, kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47] + 15);
+      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47] + 15);
     else
-      printString(gl, kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47]);
+      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47]);
   }
 
   //Wmo block + station number - land stations
   if ((pFlag.count("st.no(5)") || pFlag.count("st.no(3)")) && dta.zone != 99) {
     checkColourCriteria(gl, "St.no(5)", 0);
-    std::string kjTegn = dta.id;
+    QString kjTegn = decodeText(dta.id);
     if (!pFlag.count("st.no(5)") && kjTegn.size() > 4) {
-      kjTegn = kjTegn.substr(2, 3);
+      kjTegn = kjTegn.mid(2, 3);
       checkColourCriteria(gl, "St.no(3)", 0);
     }
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
-      printString(gl, kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47] + 15);
+      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47] + 15);
     else
-      printString(gl, kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47]);
+      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47]);
   }
 
   //Sea temperature
@@ -3994,7 +4004,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       ypos += 13;
     if ((pFlag.count("sss") && dta.fdata.count("sss")))
       ypos += 13;
-    printString(gl, dta.id.c_str(), iptab[lpos + 46], ypos);
+    printString(gl, decodeText(dta.id), iptab[lpos + 46], ypos);
   }
 
   //Flag + red/yellow/green
@@ -4012,7 +4022,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   //Type of station (replace Cl)
   bool typeFlag = (pFlag.count("st.type") && (not dta.dataType.empty()));
   if (typeFlag)
-    printString(gl, dta.dataType.c_str(), iptab[lpos + 22], iptab[lpos + 23]);
+    printString(gl, decodeText(dta.dataType), iptab[lpos + 22], iptab[lpos + 23]);
 
   // Man. precip, marked by dot
   if (precip) {
@@ -4033,7 +4043,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       ypos += 15;
     if (pFlag.count("sss") && dta.fdata.count("sss"))
       ypos += 15; //if snow
-    printString(gl, dta.flag[hqcFlag].c_str(), iptab[lpos + 46], ypos);
+    printString(gl, decodeText(dta.flag[hqcFlag]), iptab[lpos + 46], ypos);
   }
 
   //red circle
@@ -4093,9 +4103,10 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   int dndx = 16;
   if (pFlag.count("dndx") && (f_p = dta.fdata.find("dndndn")) != fend && (f2_p =
       dta.fdata.find("dxdxdx")) != fend) {
-    ostringstream cs;
-    cs << f_p->second / 10 << "V" << f2_p->second / 10;
-    printString(gl, cs.str().c_str(), iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
+    QString cs = QString("%1V%2")
+        .arg(f_p->second / 10)
+        .arg(f2_p->second / 10);
+    printString(gl, cs, iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
     dndx = 2;
   }
   //Wind gust
@@ -4206,7 +4217,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     } else { //Clouds
       int ncl = dta.cloud.size();
       for (int i = 0; i < ncl; i++)
-        printString(gl, dta.cloud[i].c_str(), iptab[lpos + 18 + i * 4] + 2,
+        printString(gl, decodeText(dta.cloud[i]), iptab[lpos + 18 + i * 4] + 2,
             iptab[lpos + 19 + i * 4] + 2);
     }
   }
@@ -4224,7 +4235,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   //Id
   if (pFlag.count("id")) {
     checkColourCriteria(gl, "Id", 0);
-    printString(gl, dta.metarId.c_str(), xid, yid);
+    printString(gl, decodeText(dta.metarId), xid, yid);
   }
 
   gl->PopMatrix();
@@ -4698,7 +4709,7 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std:
     gl->drawLine(x, (y - ch / 6), (x + cw), (y - ch / 6));
 }
 
-void ObsPlot::printString(DiGLPainter* gl, const char *c,
+void ObsPlot::printString(DiGLPainter* gl, const QString& c,
     float x, float y, bool align_right, bool line)
 {
   x *= scale;
@@ -4794,67 +4805,63 @@ int ObsPlot::vis_direction(float dv)
 void ObsPlot::amountOfClouds(DiGLPainter* gl, short int Nh, short int h,
     float x, float y)
 {
-  ostringstream ost;
+  QString ost;
   if (Nh > -1 && Nh < 10)
-    ost << Nh;
+    ost.setNum(Nh);
   else
-    ost << "x";
+    ost = "x";
 
-  const std::string str = ost.str();
-  gl->drawText(str, x * scale, y * scale, 0.0);
+  gl->drawText(ost, x * scale, y * scale, 0.0);
 
   x += 8;
   y -= 3;
   gl->drawText("/", x * scale, y * scale, 0.0);
 
-  ostringstream ostr;
   x += 6; // += 8;
   y -= 3;
   if (h > -1 && h < 10)
-    ostr << h;
+    ost.setNum(h);
   else
-    ostr << "x";
+    ost = "x";
 
-  gl->drawText(ostr.str(), x * scale, y * scale, 0.0);
+  gl->drawText(ost, x * scale, y * scale, 0.0);
 }
 
 void ObsPlot::amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, float x, float y,
     bool metar)
 {
-  ostringstream ost;
+  QString ost;
   if (Nh > -1)
     if (metar) {
       if (Nh == 8)
-        ost << "O";
+        ost = "O";
       else if (Nh == 11)
-        ost << "S";
+        ost = "S";
       else if (Nh == 12)
-        ost << "B";
+        ost = "B";
       else if (Nh == 13)
-        ost << "F";
+        ost = "F";
       else
-        ost << Nh;
+        ost.setNum(Nh);
     } else
-      ost << Nh;
+      ost.setNum(Nh);
   else
-    ost << "x";
+    ost = "x";
 
-  const std::string str = ost.str();
-  gl->drawText(str, x * scale, y * scale, 0.0);
+  gl->drawText(ost, x * scale, y * scale, 0.0);
 
   x += 8;
   y -= 2;
   gl->drawText("/", x * scale, y * scale, 0.0);
 
-  ostringstream ostr;
   x += 6; // += 8;
   y -= 2;
   if (h > -1)
-    ostr << h;
+    ost.setNum(h);
   else
-    ostr << "x";
+    ost = "x";
 
-  gl->drawText(ostr.str(), x * scale, y * scale, 0.0);
+  gl->drawText(ost, x * scale, y * scale, 0.0);
 }
 
 void ObsPlot::amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, short int Ns2,
@@ -4865,145 +4872,137 @@ void ObsPlot::amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, 
 
   if (Ns4 != undef || hs4 != undef) {
     x = x_org;
-    ostringstream ost;
+    QString ost;
     if (Ns4 > -1)
       if (metar) {
         if (Ns4 == 8)
-          ost << "O";
+          ost = "O";
         else if (Ns4 == 11)
-          ost << "S";
+          ost = "S";
         else if (Ns4 == 12)
-          ost << "B";
+          ost = "B";
         else if (Ns4 == 13)
-          ost << "F";
+          ost = "F";
         else
-          ost << Ns4;
+          ost.setNum(Ns4);
       } else
-        ost << Ns4;
+        ost.setNum(Ns4);
     else
-      ost << "x";
+      ost = "x";
 
-    const std::string str = ost.str();
-    gl->drawText(str, x * scale, y * scale, 0.0);
-    x += 10 * str.size();
+    gl->drawText(ost, x * scale, y * scale, 0.0);
+    x += 10 * ost.size();
     gl->drawText("-", x * scale, y * scale, 0.0);
 
-    ostringstream ostr;
     x += 8;
     if (hs4 != undef)
-      ostr << hs4;
+      ost.setNum(hs4);
     else
-      ostr << "x";
+      ost = "x";
 
-    gl->drawText(ostr.str(), x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
     y -= 12;
   }
   if (Ns3 != undef || hs3 != undef) {
     x = x_org;
-    ostringstream ost;
+    QString ost;
     if (Ns3 > -1)
       if (metar) {
         if (Ns3 == 8)
-          ost << "O";
+          ost = "O";
         else if (Ns3 == 11)
-          ost << "S";
+          ost = "S";
         else if (Ns3 == 12)
-          ost << "B";
+          ost = "B";
         else if (Ns3 == 13)
-          ost << "F";
+          ost = "F";
         else
-          ost << Ns3;
+          ost.setNum(Ns3);
       } else
-        ost << Ns3;
+        ost.setNum(Ns3);
     else
-      ost << "x";
+      ost = "x";
 
-    const std::string str = ost.str();
-    gl->drawText(str, x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
 
-    x += 10 * str.size();
+    x += 10 * ost.size();
     gl->drawText("-", x * scale, y * scale, 0.0);
 
-    ostringstream ostr;
     x += 8;
     if (hs3 != undef)
-      ostr << hs3;
+      ost.setNum(hs3);
     else
-      ostr << "x";
+      ost = "x";
 
-    gl->drawText(ostr.str(), x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
     y -= 12;
   }
   if (Ns2 != undef || hs2 != undef) {
     x = x_org;
-    ostringstream ost;
+    QString ost;
     if (Ns2 > -1)
       if (metar) {
         if (Ns2 == 8)
-          ost << "O";
+          ost = "O";
         else if (Ns2 == 11)
-          ost << "S";
+          ost = "S";
         else if (Ns2 == 12)
-          ost << "B";
+          ost = "B";
         else if (Ns2 == 13)
-          ost << "F";
+          ost = "F";
         else
-          ost << Ns2;
+          ost.setNum(Ns2);
       } else
-        ost << Ns2;
+        ost.setNum(Ns2);
     else
-      ost << "x";
+      ost = "x";
 
-    const std::string str = ost.str();
-    gl->drawText(str, x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
 
-    x += 10 * str.size();
+    x += 10 * ost.size();
     gl->drawText("-", x * scale, y * scale, 0.0);
 
-    ostringstream ostr;
     x += 8;
     if (hs2 != undef)
-      ostr << hs2;
+      ost.setNum(hs2);
     else
-      ostr << "x";
+      ost = "x";
 
-    gl->drawText(ostr.str(), x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
     y -= 12;
   }
   if (Ns1 != undef || hs1 != undef) {
     x = x_org;
-    ostringstream ost;
+    QString ost;
     if (Ns1 > -1)
       if (metar) {
         if (Ns1 == 8)
-          ost << "O";
+          ost = "O";
         else if (Ns1 == 11)
-          ost << "S";
+          ost = "S";
         else if (Ns1 == 12)
-          ost << "B";
+          ost = "B";
         else if (Ns1 == 13)
-          ost << "F";
+          ost = "F";
         else
-          ost << Ns1;
+          ost.setNum(Ns1);
       } else
-        ost << Ns1;
+        ost.setNum(Ns1);
     else
-      ost << "x";
+      ost = "x";
 
-    const std::string str = ost.str();
-    gl->drawText(str, x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
 
-    x += 10 * str.size();
+    x += 10 * ost.size();
     gl->drawText("-", x * scale, y * scale, 0.0);
 
-    ostringstream ostr;
     x += 8;
     if (hs1 != undef)
-      ostr << hs1;
+      ost.setNum(hs1);
     else
-      ostr << "x";
+      ost = "x";
 
-    gl->drawText(ostr.str(), x * scale, y * scale, 0.0);
+    gl->drawText(ost, x * scale, y * scale, 0.0);
     y -= 12;
   }
 }
@@ -5528,25 +5527,21 @@ void ObsPlot::pastWeather(DiGLPainter* gl, int w, float xpos, float ypos, float 
 void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float x, float y,
     bool align_right)
 {
-  ostringstream cs;
+  QString cs;
 
   int pwpw = diutil::float2int(PwPw);
   int hwhw = diutil::float2int(HwHw * 2); // meters -> half meters
   if (pwpw >= 0 && pwpw < 100) {
-    cs.width(2);
-    cs.fill('0');
-    cs << pwpw;
+    cs = QString::number(pwpw).rightJustified(2, '0');
   } else
-    cs << "xx";
-  cs << "/";
+    cs = "xx";
+  cs += "/";
   if (hwhw >= 0 && hwhw < 100) {
-    cs.width(2);
-    cs.fill('0');
-    cs << hwhw;
+    cs += QString::number(hwhw).rightJustified(2, '0');
   } else
-    cs << "xx";
+    cs += "xx";
 
-  printListString(gl, cs.str(), x, y, align_right);
+  printListString(gl, cs, x, y, align_right);
 }
 
 bool ObsPlot::readTable(const std::string& type, const std::string& filename)

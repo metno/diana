@@ -80,6 +80,9 @@ std::vector<std::string> numberList(float number, const float* enormal);
  */
 QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon);
 
+QString formatLongitude(float lon, int precision, int width=0);
+QString formatLatitude(float lat, int precision, int width=0);
+
 } // namespace diutil
 
 #endif // diUtilities_h
