@@ -18,8 +18,7 @@ public:
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, FontFace face);
   bool setFontSize(float size);
-  bool getCharSize(char ch, float& w, float& h);
-  bool getTextSize(const std::string& text, float& w, float& h);
+  bool getTextSize(const QString& text, float& w, float& h);
 
   inline FontManager* fp()
     { if (!mFP.get()) initializeFP(); return mFP.get(); }
@@ -129,7 +128,7 @@ public:
 
   // ========================================
 
-  bool drawText(const std::string& text, float x, float y, float angle);
+  bool drawText(const QString& text, float x, float y, float angle);
   void drawPolygon(const QPolygonF& points);
   void drawPolygons(const QList<QPolygonF>& polygons) Q_DECL_OVERRIDE;
 

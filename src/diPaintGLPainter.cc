@@ -156,8 +156,6 @@ bool DiPaintGLCanvas::parseFontSetup()
   defaults[key_scalefont] = "Arial";
   defaults[key_metsymbolfont] = "Symbol";
 
-  enginefamilies.clear();
-
   std::string fontpath = LocalSetupParser::basicValue("fontpath");
   if (fontpath.empty())
     fontpath = "fonts/";
@@ -169,13 +167,7 @@ bool DiPaintGLCanvas::parseFontSetup()
 
   int n = sect_fonts.size();
   for (int i = 0; i < n; i++) {
-    std::string fontfam = "";
-    std::string fontname = "";
-    std::string fonttype = "";
-    std::string fontface = "";
-    std::string postscript = "";
-    float psxscale = 1.0;
-    float psyscale = 1.0;
+    std::string fontfam, fontname, fonttype;
 
     std::vector<std::string> stokens = miutil::split(sect_fonts[i], " ");
     for (unsigned int j = 0; j < stokens.size(); j++) {
@@ -187,16 +179,10 @@ bool DiPaintGLCanvas::parseFontSetup()
         fontfam = val;
       else if (key == key_fonttype)
         fonttype = val;
-      else if (key == key_fontface)
-        fontface = val;
       else if (key == key_fontname)
         fontname = val;
-      else if (key == key_postscript)
-        postscript = val;
-      else if (key == key_psxscale)
-        psxscale = atof(val.c_str());
-      else if (key == key_psyscale)
-        psyscale = atof(val.c_str());
+      else if (key == key_fontface || key == key_postscript || key == key_psxscale || key == key_psyscale)
+        ; // ignore these options
       else if (key == key_fontpath)
         fontpath = val;
       else
@@ -210,33 +196,18 @@ bool DiPaintGLCanvas::parseFontSetup()
     std::string fontfilename = fontpath + "/" + fontname;
 
     if (fonttype_lc == key_bitmap) {
-      enginefamilies[key_bitmap].insert(fontfam);
-    } else if (fonttype_lc == key_scaleable) {
-      enginefamilies[key_scaleable].insert(fontfam);
-      defineFont(fontfam, fontfilename, fontFace(fontface), 20);
-    } else if (fonttype_lc == key_ttbitmap) {
-      enginefamilies[key_ttbitmap].insert(fontfam);
-      defineFont(fontfam, fontfilename, fontFace(fontface), 20,
-          postscript, psxscale, psyscale);
-    } else if (fonttype_lc == key_ttpixmap) {
-      enginefamilies[key_ttpixmap].insert(fontfam);
-      defineFont(fontfam, fontfilename, fontFace(fontface), 20,
-          postscript, psxscale, psyscale);
-    } else if (fonttype_lc == key_tttexture) {
-      enginefamilies[key_tttexture].insert(fontfam);
-      defineFont(fontfam, fontfilename, fontFace(fontface), 20,
-          postscript, psxscale, psyscale);
-    } else if (fonttype_lc == key_texture) {
-      defineFont(fontfam, fontname, fontFace(fontface), 20,
-          postscript, psxscale, psyscale);
+      // nothing
+    } else if (fonttype_lc == key_scaleable || fonttype_lc == key_ttbitmap || fonttype_lc == key_ttpixmap
+        || fonttype_lc == key_tttexture || fonttype_lc == key_texture)
+    {
+      defineFont(fontfam, fontfilename);
     }
   }
 
   return true;
 }
 
-bool DiPaintGLCanvas::defineFont(const std::string& font, const std::string& fontfilename,
-    FontFace, int, const std::string&, float, float)
+bool DiPaintGLCanvas::defineFont(const std::string& font, const std::string& fontfilename)
 {
   METLIBS_LOG_SCOPE(LOGVAL(font) << LOGVAL(fontfilename));
   int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
@@ -247,27 +218,16 @@ bool DiPaintGLCanvas::defineFont(const std::string& font, const std::string& fon
   if (families.isEmpty())
     return false;
 
-  Q_FOREACH(QString family, families) {
-    fontMap[QString::fromStdString(font)] = family;
+  const QString qfont = QString::fromStdString(font);
+  Q_FOREACH(const QString& family, families) {
+    fontMap[qfont] = family;
   }
 
   return true;
 }
 
-bool DiPaintGLCanvas::getCharSize(char c, float& w, float& h)
+bool DiPaintGLCanvas::getTextSize(const QString& str, float& w, float& h)
 {
-  // Use the same code as the glTextTT class.
-  char s[2];
-  s[0] = (char) c;
-  s[1] = '\0';
-
-  return getTextSize(s, w, h);
-}
-
-bool DiPaintGLCanvas::getTextSize(const std::string& s, float& w, float& h)
-{
-  QString str = QString::fromStdString(s);
-
   QFontMetricsF fm(mFont, mDevice);
   QRectF rect = fm.boundingRect(str);
   w = rect.width() * mFontScaleX;
@@ -1784,7 +1744,7 @@ void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* ma
 
 // ========================================================================
 
-bool DiPaintGLPainter::drawText(const std::string& s,
+bool DiPaintGLPainter::drawText(const QString& str,
     const float x, const float y, const float a)
 {
   if (!this->colorMask)
@@ -1797,7 +1757,6 @@ bool DiPaintGLPainter::drawText(const std::string& s,
   DiPaintGLCanvas* c = (DiPaintGLCanvas*)canvas();
   const QFont& font = c->font();
   this->painter->setFont(font);
-  QString str = QString::fromStdString(s);
   QFontMetricsF fm = painter->fontMetrics();
 
   // No need to record this transformation.

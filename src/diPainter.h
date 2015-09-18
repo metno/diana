@@ -13,6 +13,7 @@ class Rectangle;
 
 class QImage;
 class QPolygonF;
+class QString;
 
 #ifndef Q_DECL_OVERRIDE
 #define Q_DECL_OVERRIDE
@@ -34,8 +35,10 @@ public:
     { return setFont(font, size, face); }
   bool setFont(const std::string& font, const std::string& face, float size);
   virtual bool setFontSize(float size) = 0;
-  virtual bool getCharSize(char ch, float& w, float& h) = 0;
-  virtual bool getTextSize(const std::string& text, float& w, float& h) = 0;
+  bool getCharSize(int ch, float& w, float& h);
+  bool getTextSize(const char* text, float& w, float& h);
+  bool getTextSize(const std::string& text, float& w, float& h);
+  virtual bool getTextSize(const QString& text, float& w, float& h) = 0;
 };
 
 class DiPainter {
@@ -55,11 +58,15 @@ public:
     { return setFont(font, size, face); }
   bool setFont(const std::string& font, const std::string& face, float size);
   bool setFontSize(float size);
-  bool getCharSize(char ch, float& w, float& h);
+  bool getTextSize(const QString& text, float& w, float& h);
   bool getTextSize(const std::string& text, float& w, float& h);
+  bool getTextSize(const char* text, float& w, float& h);
+  bool getCharSize(int ch, float& w, float& h);
 
-  virtual bool drawText(const std::string& text, float x, float y, float angle = 0) = 0;
-  virtual bool drawChar(char chr, float x, float y, float angle = 0);
+  virtual bool drawText(const QString& text, float x, float y, float angle = 0) = 0;
+  bool drawText(const std::string& text, float x, float y, float angle = 0);
+  bool drawText(const char* text, float x, float y, float angle = 0);
+  bool drawChar(int chr, float x, float y, float angle = 0);
 
   // ========================================
   // higher level functions
