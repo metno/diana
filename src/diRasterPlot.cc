@@ -163,7 +163,7 @@ diutil::Rect_v RasterPlot::checkVisible()
     return diutil::Rect_v(1, diutil::Rect(ix1, iy1, ix2, iy2));
   } else {
     // different projections, need to search indices
-#if 0
+#if 1
     // old version selecting only one rectangle
     diutil::Rect_v rects(1);
     diutil::Rect& r = rects.back();
