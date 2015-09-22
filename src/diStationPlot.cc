@@ -550,7 +550,7 @@ Station* StationPlot::stationAt(int x, int y)
   if (found.size() > 0) {
     const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
 
-    float min_r = square(10.0f * getStaticPlot()->getPhysToMapScaleX());
+    float min_r = square(100.0f * getStaticPlot()->getPhysToMapScaleX());
     int min_i = 0;
 
     // Find the closest station to the point within a given radius.
@@ -612,8 +612,8 @@ vector<std::string> StationPlot::findStation(int x, int y, bool add)
     return stationstring;
 
   Station* found = stationAt(x, y);
-
   if (found && found != stations[index]) {
+
     add = found->isSelected || add;
     setSelectedStation(found->name, add);
 
