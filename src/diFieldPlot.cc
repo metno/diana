@@ -2352,7 +2352,8 @@ bool FieldPlot::plotRaster(DiGLPainter* gl)
 }
 
 // implementing RasterPlot virtual function
-QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
+QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
+    const diutil::Rect& bbx, const diutil::Rect_v& cells)
 {
   METLIBS_LOG_TIME();
 
@@ -2360,7 +2361,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
     return QImage();
 
   const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
-  QImage image(scar.nx, scar.ny, QImage::Format_ARGB32);
+  QImage image(bbx.width(), bbx.height(), QImage::Format_ARGB32);
 
   if (plottype == fpt_alpha_shade) {
     float cmin, cmax;
@@ -2380,9 +2381,9 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
     const unsigned char red = poptions.linecolour.R(), green = poptions.linecolour.G(),
         blue = poptions.linecolour.B();
 
-    for (int iy=0; iy<scar.ny; ++iy) {
-      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
-      for (int ix=0; ix<scar.nx; ++ix) {
+    for (int iy=bbx.y1; iy<bbx.y2; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy - bbx.y1));
+      for (int ix=bbx.x1; ix<bbx.x2; ++ix) {
         const float v0 = fields[0]->data[scale*(ix + iy*nx)];
         unsigned char alpha = 0;
         if (v0 != fieldUndef
@@ -2391,16 +2392,16 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
 #endif
           )
           alpha = (unsigned char)(255 * (v0 - cmin) * cdiv);
-        rgb[ix] = qRgba(red, green, blue, alpha);
+        rgb[ix - bbx.x1] = qRgba(red, green, blue, alpha);
       }
     }
   } else if (plottype == fpt_fill_cell) {
     if (poptions.palettecolours.empty())
       poptions.palettecolours = ColourShading::getColourShading("standard");
 
-    for (int iy=0; iy<scar.ny; ++iy) {
-      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
-      for (int ix=0; ix<scar.nx; ++ix) {
+    for (int iy=bbx.y1; iy<bbx.y2; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy - bbx.y1));
+      for (int ix=bbx.x1; ix<bbx.x2; ++ix) {
         float value = fields[0]->data[scale*(ix + iy*nx)];
         const Colour* c = 0;
         if (value != fieldUndef
@@ -2410,9 +2411,9 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
 )
           c = colourForValue(value);
         if (c != 0)
-          rgb[ix] = qRgba(c->R(), c->G(), c->B(), poptions.alpha);
+          rgb[ix - bbx.x1] = qRgba(c->R(), c->G(), c->B(), poptions.alpha);
         else
-          rgb[ix] = 0;
+          rgb[ix - bbx.x1] = 0;
       }
     }
   } else if (plottype == fpt_alarm_box) {
@@ -2451,9 +2452,9 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
     const Colour& ca = poptions.linecolour;
     const QRgb c_alarm = qRgba(ca.R(), ca.G(), ca.B(), 255), c_ok = 0;
 
-    for (int iy=0; iy<scar.ny; ++iy) {
-      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
-      for (int ix=0; ix<scar.nx; ++ix) {
+    for (int iy=bbx.y1; iy<bbx.y2; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy - bbx.y1));
+      for (int ix=bbx.x1; ix<bbx.x2; ++ix) {
         bool is_alarm = false;
         for (int iyy = iy*scale; !is_alarm && iyy < (iy+1)*scale && iyy < ny; ++iyy) {
           for (int ixx = ix*scale; !is_alarm && ixx < (ix+1)*scale && ixx < nx; ++ixx) {
@@ -2462,7 +2463,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale)
               is_alarm = true;
           }
         }
-        rgb[ix] = is_alarm ? c_alarm : c_ok;
+        rgb[ix - bbx.x1] = is_alarm ? c_alarm : c_ok;
       }
     }
   } else {

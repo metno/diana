@@ -55,7 +55,8 @@ protected:
   virtual const GridArea& rasterArea() = 0;
 
   //! must be implmented to create an image of the raster data matching scaledArea()
-  virtual QImage rasterScaledImage(const GridArea& scar, int scale) = 0;
+  virtual QImage rasterScaledImage(const GridArea& scar, int scale,
+      const diutil::Rect& bbx, const diutil::Rect_v& cells) = 0;
 
   void rasterClear();
 
@@ -64,7 +65,7 @@ protected:
 
 private:
   int calculateScaleFactor();
-  void updateImage();
+  void updateScale();
   void getGridPoints();
   diutil::Rect_v checkVisible();
 

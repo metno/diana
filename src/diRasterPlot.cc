@@ -84,7 +84,7 @@ int RasterPlot::calculateScaleFactor()
   }
 }
 
-void RasterPlot::updateImage()
+void RasterPlot::updateScale()
 {
   const int scale = calculateScaleFactor();
   if (!mImageScaled.isNull() && scale == mScaleFactor)
@@ -92,7 +92,6 @@ void RasterPlot::updateImage()
 
   mScaleFactor = scale;
   mAreaScaled = rasterArea().scaled(mScaleFactor);
-  mImageScaled = rasterScaledImage(mAreaScaled, mScaleFactor);
 }
 
 void RasterPlot::getGridPoints()
@@ -190,17 +189,67 @@ void RasterPlot::rasterPaint(DiPainter* gl)
 {
   METLIBS_LOG_TIME();
 
-  updateImage();
-  if (mImageScaled.isNull())
+  updateScale();
+  if (mScaleFactor == 0)
     return;
 
   // TODO only needed when projection or map scale changes
   getGridPoints();
 
   // TODO only needed after getGridPoints or when view rect changes
-  const diutil::Rect_v cells = checkVisible();
+  diutil::Rect_v cells = checkVisible();
+  if (cells.empty())
+    return;
 
-  gl->drawReprojectedImage(mImageScaled, mPositionsXY.get(), cells, false);
+  // calculate bounding box in raster index coordinates; TODO only needed when 'cells' have changed
+  diutil::Rect_v::const_iterator itC = cells.begin();
+  diutil::Rect bbx = *itC;
+  for (++itC; itC != cells.end(); ++itC) {
+    vcross::util::minimize(bbx.x1, itC->x1);
+    vcross::util::minimize(bbx.y1, itC->y1);
+    vcross::util::maximize(bbx.x2, itC->x2);
+    vcross::util::maximize(bbx.y2, itC->y2);
+  }
+#if 1
+  // if the bbx is just slightly smaller, do not use it
+  if (bbx.width()*bbx.height() >= 0.9 * mAreaScaled.nx * mAreaScaled.ny)
+    bbx = diutil::Rect(0, 0, mAreaScaled.nx, mAreaScaled.ny);
+#endif
+
+  boost::shared_array<float> positionsXY;
+  if (bbx.x1 > 0 || bbx.x2 < mAreaScaled.nx || bbx.y1 > 0 || bbx.y2 < mAreaScaled.ny) {
+    // shift cells to match bbx
+    for (diutil::Rect_v::iterator itC = cells.begin(); itC != cells.end(); ++itC) {
+      itC->x1 -= bbx.x1;
+      itC->x2 -= bbx.x1;
+      itC->y1 -= bbx.y1;
+      itC->y2 -= bbx.y1;
+    }
+    // cut out bbx from mPositionsXY
+    const int bbw1 = bbx.width()+1, bbh1 = bbx.height()+1;
+    positionsXY = boost::shared_array<float>(new float[2 * bbw1 * bbh1]);
+    int idx = 0;
+    for (int iy=bbx.y1; iy <= bbx.y2; ++iy) {
+      int idy = 2*(iy*(mAreaScaled.nx+1) + bbx.x1);
+      for (int ix=bbx.x1; ix <= bbx.x2; ++ix) {
+        positionsXY[idx++] = mPositionsXY[idy++];
+        positionsXY[idx++] = mPositionsXY[idy++];
+      }
+    }
+  } else {
+    positionsXY = mPositionsXY;
+  }
+
+  // update image; required also if time or style or so has changed
+  mImageScaled = rasterScaledImage(mAreaScaled, mScaleFactor, bbx, cells);
+  if (mImageScaled.isNull())
+    return;
+  if (mImageScaled.width() != bbx.width() || mImageScaled.height() != bbx.height()) {
+    METLIBS_LOG_ERROR("raster scaled image size does not match bbx");
+    return;
+  }
+
+  gl->drawReprojectedImage(mImageScaled, positionsXY.get(), cells, false);
 }
 
 // ========================================================================

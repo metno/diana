@@ -146,7 +146,8 @@ protected:
     { return fields[0]->area; }
 
   //! create image for alpha_shade, fill_cell, or alarm_box
-  QImage rasterScaledImage(const GridArea&, int scale) Q_DECL_OVERRIDE;
+  QImage rasterScaledImage(const GridArea&, int scale,
+      const diutil::Rect& bbx, const diutil::Rect_v& cells) Q_DECL_OVERRIDE;
 };
 
 #endif

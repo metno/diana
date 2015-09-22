@@ -129,16 +129,17 @@ void SatPlot::plot(DiGLPainter* gl, PlotOrder porder)
 }
 
 // implementing RasterPlot virtual function
-QImage SatPlot::rasterScaledImage(const GridArea& scar, int scale)
+QImage SatPlot::rasterScaledImage(const GridArea& scar, int scale,
+    const diutil::Rect& bbx, const diutil::Rect_v& cells)
 {
   METLIBS_LOG_TIME();
   const int nx = satdata->area.nx;
-  QImage image(scar.nx, scar.ny, QImage::Format_ARGB32);
-  for (int iy=0; iy<scar.ny; ++iy) {
-    QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy));
-    for (int ix=0; ix<scar.nx; ++ix) {
+  QImage image(bbx.width(), bbx.height(), QImage::Format_ARGB32);
+  for (int iy=bbx.y1; iy<bbx.y2; ++iy) {
+    QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy - bbx.y1));
+    for (int ix=bbx.x1; ix<bbx.x2; ++ix) {
       const unsigned char* p = &satdata->image[(ix + iy * nx)*scale*4];
-      rgb[ix] = qRgba(p[0], p[1], p[2], p[3]);
+      rgb[ix - bbx.x1] = qRgba(p[0], p[1], p[2], p[3]);
     }
   }
   return image;
