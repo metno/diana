@@ -1925,7 +1925,7 @@ void FieldDialog::enableFieldOptions()
       if (nci >= 0 && (!vpcopt[nci].floatValue.empty())) {
         float ekv = vpcopt[nci].floatValue[0];
         lineintervals = numberList(lineintervalCbox, ekv,true);
-        numberList(interval2ComboBox, ekv,true);
+        lineintervals2 = numberList(interval2ComboBox, ekv,true);
       }
       if (ncv >= 0) {
         linevaluesField->setText(QString::fromStdString(vpcopt[ncv].allValue));
