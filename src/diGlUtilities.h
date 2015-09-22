@@ -42,6 +42,9 @@ bool is_undefined(float v);
 inline bool is_undefined(const XY& xy)
 { return is_undefined(xy.x()) || is_undefined(xy.y()); }
 
+inline bool is_undefined(const QPointF& xy)
+{ return is_undefined(xy.x()) || is_undefined(xy.y()); }
+
 class PolylinePainter {
 public:
   PolylinePainter(DiPainter* p)

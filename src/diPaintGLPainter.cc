@@ -29,6 +29,7 @@
 
 #include "diPaintGLPainter.h"
 
+#include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
 
 #include <puTools/miSetupParser.h>
@@ -1645,15 +1646,22 @@ void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolyg
       const int iw1 = image.width() + 1, y0 = y*iw1, y1 = y0 + iw1;
       for (int x = part.x1; x<part.x2; ++x) {
         const QRgb p = image.pixel(x, y);
-        if (qAlpha(p) > 0) {
-          poly.clear();
-          poly << mapPositions.at(y0 + x)
-               << mapPositions.at(y0 + x + 1)
-               << mapPositions.at(y1 + x + 1)
-               << mapPositions.at(y1 + x);
-          painter->setBrush(QColor::fromRgba(p));
-          painter->drawPolygon(poly);
-        }
+        if (qAlpha(p) == 0)
+          continue;
+
+        poly.clear();
+        poly << mapPositions.at(y0 + x)
+             << mapPositions.at(y0 + x + 1)
+             << mapPositions.at(y1 + x + 1)
+             << mapPositions.at(y1 + x);
+        bool have_invalid = false;
+        for (int i=0; !have_invalid && i<4; ++i)
+          have_invalid |= diutil::is_undefined(poly.at(i));
+        if (have_invalid)
+          continue;
+
+        painter->setBrush(QColor::fromRgba(p));
+        painter->drawPolygon(poly);
       }
     }
     return;
@@ -1764,9 +1772,12 @@ void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* ma
 
   QPolygonF positions;
   positions.reserve(size11);
-  for (size_t i = 0; i < size11; ++i)
-    positions << QPointF(mapPositionsXY[2*i], mapPositionsXY[2*i+1]);
-  positions = transform.map(positions);
+  for (size_t i = 0; i < size11; ++i) {
+    QPointF p(mapPositionsXY[2*i], mapPositionsXY[2*i+1]);
+    if (!diutil::is_undefined(p))
+      p = transform.map(p);
+    positions << p;
+  }
 
   const bool paa = painter->testRenderHint(QPainter::Antialiasing);
   painter->setRenderHint(QPainter::Antialiasing, false);
