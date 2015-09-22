@@ -1083,8 +1083,12 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
-    d.stringdata["Date"] = d.obsTime.format("%m-%d");
-    d.stringdata["Time"] = d.obsTime.format("%H.%M");
+    ostringstream ostr;
+    ostr << month<<"-"<<day;
+    d.stringdata["Date"] = ostr.str();
+    ostr.clear();
+    ostr << hour<<"-"<<minute;
+    d.stringdata["Time"] = ostr.str();
   }
 
   //skip obs if xpos or ypos  or obsTime not ok
