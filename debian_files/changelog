@@ -1,3 +1,11 @@
+diana (3.39.0~rc4-1) unstable; urgency=low
+
+  * Drawing/Edit Improved selection handeling and tooltips
+  * RasterPlot Improved performance
+  * ObsPlot Bugfix: Improved performance
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 23 Sep 2015 14:25:05 +0200
+
 diana (3.39.0~rc3-1) unstable; urgency=low
 
   * Edit Made a first attempt to do minute-accuracy adjustment of points.
