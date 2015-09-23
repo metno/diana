@@ -28,6 +28,7 @@
 */
 
 #include <diUtilities.h>
+#include <util/format_int.h>
 #include <diField/diRectangle.h>
 #include <diField/TimeFilter.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
@@ -114,6 +115,16 @@ TEST(TestUtilities, replace_reftime_with_offset)
     diutil::replace_reftime_with_offset(pstr, nowDate);
     EXPECT_EQ(pstr_ex, pstr);
   }
+}
+
+TEST(TestUtilities, format_int)
+{
+  int month = 7, day = 24;
+  std::string out = "%m-%d";
+  diutil::format_int(month, out, 0, 2, '0');
+  diutil::format_int(day,   out, 3, 2, '0');
+  diutil::format_int(0,     out, 8, 3, 'x');
+  ASSERT_EQ("07-24   xx0", out);
 }
 
 TEST(TestUtilities, numberList)

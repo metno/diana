@@ -34,6 +34,7 @@
 #include "diObsBufr.h"
 #include "diObsData.h"
 #include "diVprofPlot.h"
+#include "util/format_int.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
@@ -87,6 +88,25 @@ void add_substr(std::string& s, const char* cvals, int index, int len)
 {
   cvals += index * len_cvals;
   s.append(cvals, len);
+}
+
+void put_date_time(ObsData& d, int month, int day, int hour, int minute)
+{
+  std::string out = "MM-DD";
+  diutil::format_int(month, out, 0, 2);
+  diutil::format_int(day,   out, 3, 2);
+  d.stringdata["Date"] = out;
+
+  out[2] = '.';
+  diutil::format_int(hour,   out, 0, 2);
+  diutil::format_int(minute, out, 3, 2);
+  d.stringdata["Time"] = out;
+}
+void format_wmo(std::string& out, int wmoBlock, int wmoStation)
+{
+  out.resize(5, '0');
+  diutil::format_int(wmoBlock,   out, 0, 2);
+  diutil::format_int(wmoStation, out, 2, 3);
 }
 } // namespace
 
@@ -1054,9 +1074,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
 
   if (wmoNumber) {
-    ostringstream ostr;
-    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0') << wmoStation;
-    d.id = ostr.str();
+    format_wmo(d.id, wmoBlock, wmoStation);
   }
 
   //Metar cloud
@@ -1083,12 +1101,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
-    ostringstream ostr;
-    ostr << month<<"-"<<day;
-    d.stringdata["Date"] = ostr.str();
-    ostr.clear();
-    ostr << hour<<"-"<<minute;
-    d.stringdata["Time"] = ostr.str();
+    put_date_time(d, month, day, hour, minute);
   }
 
   //skip obs if xpos or ypos  or obsTime not ok
@@ -1185,21 +1198,20 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     }
   }
 
-  ostringstream ostr;
   if (wmoNumber) {
-    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0') << wmoStation;
-    station = ostr.str();
-  } else {
-    ostr << station;
+    format_wmo(station, wmoBlock, wmoStation);
   }
 
-  if (idmap.count(station)) {
-    ostr << "(" << idmap[station] << ")";
-    idmap[station]++;
+  idmap_t::iterator itS = idmap.find(station);
+  if (itS != idmap.end()) {
+    std::ostringstream ostr;
+    ostr << station << "(" << itS->second << ")";
+    id.push_back(ostr.str());
+    itS->second++;
   } else {
-    idmap[station] = 1;
+    id.push_back(station);
+    idmap.insert(std::make_pair(station, 1));
   }
-  id.push_back(ostr.str());
   id_time.push_back(miutil::miTime(year, month, day, hour, minute, 0));
   return true;
 }
@@ -1513,9 +1525,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
     return false;
   }
   if (wmoNumber) {
-    ostringstream ostr;
-    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0') << wmoStation;
-    d.id = ostr.str();
+    format_wmo(d.id, wmoBlock, wmoStation);
   }
 
   if ( !d.id.empty())
@@ -1524,8 +1534,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
     d.stringdata["Name"] = d.name;
   //TIME
   d.obsTime = miTime(year, month, day, hour, minute, 0);
-  d.stringdata["Date"] = d.obsTime.format("%m-%d");
-  d.stringdata["Time"] = d.obsTime.format("%H.%M");
+  put_date_time(d, month, day, hour, minute);
 
   return true;
 }
@@ -1835,10 +1844,10 @@ std::string ObsBufr::cloudAmount(int i)
 
 std::string ObsBufr::cloudHeight(int i)
 {
-  ostringstream cl;
   i /= 30;
-  cl << setw(3) << setfill('0') << i;
-  return std::string(cl.str());
+  std::string cl(3, '0');
+  diutil::format_int(i, cl, 0, 3, '0');
+  return cl;
 }
 
 std::string ObsBufr::cloud_TCU_CB(int i)
@@ -1870,7 +1879,7 @@ float ObsBufr::height_of_clouds(double height)
     return 7.0;
   if (height < 2500)
     return 8.0;
-  return 9.0; 
+  return 9.0;
 }
 
 void ObsBufr::cloud_type(ObsData& d, double v)
