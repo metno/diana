@@ -1,5 +1,6 @@
 
 #include <diGridConverter.h>
+#include <diPoint.h>
 
 #include <gtest/gtest.h>
 #include <iomanip>
@@ -55,5 +56,58 @@ TEST(GridConverterTest, GetMapFields)
     EXPECT_FLOAT_EQ(expect_x[i]*SCALE, xmapr[i]) << " i=" << i << " x";
     EXPECT_FLOAT_EQ(expect_y[i]*SCALE, ymapr[i]) << " i=" << i << " y";
     EXPECT_FLOAT_EQ(expect_c[i],    coriolis[i]) << " i=" << i << " c";
+  }
+}
+
+namespace {
+
+diutil::Rect findGridLimits(const GridArea& area, const Rectangle& mapRect,
+    bool center_on_gridpoint, const float* positionsX, const float* positionsY)
+{
+  diutil::Rect r;
+  GridConverter::findGridLimits(area, mapRect, center_on_gridpoint,
+      positionsX, positionsY, r.x1, r.x2, r.y1, r.y2);
+  return r;
+}
+
+bool operator==(const diutil::Rect& a, const diutil::Rect& b)
+{
+  return a.x1 == b.x1 && a.x2 == b.x2 && a.y1 == b.y1 && a.y2 == b.y2;
+}
+
+} // namespace
+
+TEST(GridConverterTest, FindGridLimits)
+{
+  const GridArea fieldGridArea(Area(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
+          Rectangle(0,0,6.27913,3.14166)), 1440, 721, 0.00436354, 0.00436342);
+
+  float *positionsX, *positionsY;
+  const Area dummyMapArea(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
+      Rectangle(1.01817,1.81882,5.25533,2.42006));
+  GridConverter gc;
+  gc.getGridPoints(fieldGridArea, dummyMapArea, true, &positionsX, &positionsY);
+
+  const diutil::Rect ex_rects[] = {
+    diutil::Rect(0,152,422,609),
+    diutil::Rect(0,0,1439,720),
+    diutil::Rect(0,129,1026,720),
+    diutil::Rect(0,0,1439,720),
+    diutil::Rect(0,0,1439,720),
+    diutil::Rect(0,0,1439,720)
+  };
+  const int N = sizeof(ex_rects)/sizeof(ex_rects[0]);
+  const Rectangle map_rects[N] = {
+    Rectangle(-0.448535,0.66958,1.83301,2.64988),
+    Rectangle(-1.82378,-0.524082,3.20825,3.84354),
+    Rectangle(-0.565771,0.567823,4.46626,4.93544),
+    Rectangle(0,-1.1542,6.27913,4.29586),
+    Rectangle(-1.56978,-1.1542,4.70935,4.29586),
+    Rectangle(1.56978,-1.1542,7.84891,4.29586)
+  };
+
+  for (int i=0; i<N; ++i) {
+    const diutil::Rect actual_rect = findGridLimits(fieldGridArea, map_rects[i], true, positionsX, positionsY);
+    EXPECT_TRUE(ex_rects[i] == actual_rect) << "expected " << ex_rects[i] << " got " << actual_rect;
   }
 }
