@@ -763,7 +763,7 @@ bool DrawingManager::isItemVisible(DrawingItemBase *item) const
  */
 bool DrawingManager::matchesFilter(DrawingItemBase *item) const
 {
-  // Each item is visible only if it contains all of the properties contained
+  // Each item is visible if all of its filterable properties are enabled
   // in the filter with values from those provided by the filter.
 
   foreach (const QString &property, filter_.keys()) {

@@ -55,18 +55,22 @@ public:
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+  bool setData(const QModelIndex &index, const QVariant &value, int role);
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
   Qt::ItemFlags flags(const QModelIndex &index) const;
 
   QStringList properties() const;
-  void setProperties(const QHash<QString, QStringList> &choices);
+  void setProperties(const QHash<QString, QStringList> &choices,
+                     const QHash<QString, QList<Qt::CheckState> > &checked);
 
   QModelIndex find(const QString &name, const QString &value) const;
+  QHash<QString, QStringList> checkedItems() const;
 
 private:
   QString header_;
   QHash<QString, QStringList> choices_;
+  QHash<QString, QList<Qt::CheckState> > checked_;
   QStringList order_;
 };
 
@@ -91,8 +95,6 @@ private slots:
   void filterItems();
 
 private:
-  QHash<QString, QStringList> currentProperties() const;
-
   DrawingManager *drawm_;
   EditItemManager *editm_;
   FilterDrawingModel *propertyModel_;
