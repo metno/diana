@@ -69,7 +69,8 @@ private:
   miutil::miTime obsTime;
   VprofPlot *vplot;
   ObsPlot   *oplot;
-  std::map<std::string,int> idmap;
+  typedef std::map<std::string,int> idmap_t;
+  idmap_t idmap;
   std::vector<std::string> id;
   std::vector<miutil::miTime> id_time;
   std::vector<float> latitude;
@@ -93,8 +94,6 @@ public:
       const std::string& station,
       const miutil::miTime& time);
 
-  ObsPlot* getObsPlot()
-    { return oplot; }
   bool setObsPlot(ObsPlot* op, const std::string& filename);
 };
 

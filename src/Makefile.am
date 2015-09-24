@@ -103,6 +103,8 @@ libdiana_la_SOURCES = \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
+	util/debug_timer.cc \
+	util/format_int.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -415,6 +417,8 @@ noinst_HEADERS = \
 	qtVprofWindow.h \
 	qtWorkArea.h \
 	signalhelper.h \
+	util/debug_timer.h \
+	util/format_int.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \
