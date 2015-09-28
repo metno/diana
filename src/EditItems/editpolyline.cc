@@ -218,6 +218,8 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
 
       latLonPoints[index] = QPointF(lat, lon);
       repaintNeeded = true;
+      if (hoverCtrlPointIndex_ != -1)
+        showTip();
     }
 
     if (repaintNeeded) {
