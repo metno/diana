@@ -35,6 +35,7 @@
 #include "qtQuickEditOptions.h"
 #include "qtUtility.h"
 #include "diUtilities.h"
+#include "diLocalSetupParser.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -95,7 +96,6 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
   activeElement(-1), copyMenu(-1), copyElement(-1),firstcustom(fc), lastcustom(lc)
 {
   setModal(true);
-  QFont m_font = QFont("Helvetica", 12, 75);
 
   QLabel* mainlabel = new QLabel("<em><b>" + tr("Edit quickmenus") + "</b></em>", this);
   mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
@@ -397,6 +397,7 @@ static void initQmName(quickMenu& qm)
   qm.filename = qm.name + ".quick";
   miutil::replace(qm.filename, "..", "__");
   diutil::replace_chars(qm.filename, " \t\n\r,;:/\\(){}[]$`'\"*+?~&%#!|><", '_');
+  qm.filename = LocalSetupParser::basicValue("homedir") + "/" + qm.filename;
 }
 
 void QuickAdmin::newClicked()
@@ -536,14 +537,11 @@ void QuickAdmin::copyClicked()
 void QuickAdmin::pasteClicked()
 {
   if (copyElement == -1) {
-    //     METLIBS_LOG_DEBUG("Paste menu:" << copyMenu << " after menu:" << activeMenu);
+    METLIBS_LOG_DEBUG("Paste menu:" << copyMenu << " after menu:" << activeMenu);
     quickMenu tmp = MenuCopy;
-    miutil::trim(tmp.name);
-    miutil::replace(tmp.name, ",", " ");
-    tmp.filename = tmp.name + "2.quick";
-    miutil::replace(tmp.filename, " ", "_");
+    tmp.name += "2";
+    initQmName(tmp);
     tmp.plotindex = 0;
-
     menus.insert(menus.begin() + activeMenu + 1, tmp);
     if (firstcustom < 0) {
       firstcustom = 1;
@@ -567,7 +565,6 @@ void QuickAdmin::pasteClicked()
 
   pasteButton->setText(tr("Paste"));
   pasteButton->setEnabled(false);
-  //   pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
   updateWidgets();
 }
 
@@ -594,19 +591,6 @@ void QuickAdmin::comChanged()
     return;
   if (activeElement < 0 || activeMenu < 0)
     return;
-  //   int ni= comedit->numLines();
-  //   int ni= comedit->paragraphs();
-  //   vector<std::string> s;
-  //   for (int i=0; i<ni; i++){
-  // //     std::string str= comedit->textLine(i).toStdString();
-  //     std::string str= comedit->text(i).toStdString();
-  //     miutil::trim(str);
-  //     if (miutil::contains(str, "\n"))
-  //       str.erase(str.end()-1);
-  //     if ((not str.empty())) s.push_back(str);
-  //   }
-
-  //Qt4
   vector<string> s;
   string str = comedit->toPlainText().toStdString();
   if (not str.empty())
@@ -617,7 +601,6 @@ void QuickAdmin::comChanged()
 void QuickAdmin::optionClicked()
 {
   QuickEditOptions* qeo = new QuickEditOptions(this, menus[activeMenu].opt);
-  //connect(qeo, SIGNAL(help(const char*)), this, SIGNAL(help(const char*)));
   if (qeo->exec()) {
     menus[activeMenu].opt = qeo->getOptions();
   }

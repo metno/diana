@@ -262,16 +262,19 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   for (int iy = 0; iy < ny; iy++) {
     const int idx0 = xy_offset*(iy *nx);
     bool was_inside = maprect.isinside(x[idx0], y[idx0]);
-    int left = -1;
+    int left = was_inside ? 0 : -1;
     int right = -1;
+    if (was_inside)
+      vcross::util::minimaximize(iy1, iy2, iy);
 
     for (int ix = 1; ix < nx; ix++) {
       const int idx = xy_offset*(iy * nx + ix);
       const bool inside = maprect.isinside(x[idx], y[idx]);
-      if (inside)
+      if (inside) {
         vcross::util::minimaximize(iy1, iy2, iy);
-      if (!was_inside && inside)
-        left = ix;
+        if (left == -1)
+          left = ix;
+      }
       if (was_inside && !inside)
         right = ix - 1;
 

@@ -3775,8 +3775,7 @@ void FieldDialog::changeModel()
         int m = vfgi[j].fieldNames.size();
         int k = 0;
         while (k < m &&
-            !(vfgi[j].fieldNames[k] == selectedFields[i].fieldName &&
-                vfgi[j].fields[vfgi[j].fieldNames[k]].vcoord == selectedFields[i].zaxis)){
+            !(vfgi[j].fieldNames[k] == selectedFields[i].fieldName )) {
           k++;
         }
         if (k < m ) {

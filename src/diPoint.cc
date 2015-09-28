@@ -76,6 +76,10 @@ std::ostream& operator<<(std::ostream& out, const XY& xy)
 
 std::ostream& operator<<(std::ostream& out, const diutil::Rect& r)
 {
+#if 1
   out << "[x=" << r.x1 << ':' << r.x2 << ";y=" << r.y1 << ':' << r.y2 << ']';
+#else
+  out << "Rect(" << r.x1 << ',' << r.y1 << ',' << r.x2 << ',' << r.y2 << ')';
+#endif
   return out;
 }

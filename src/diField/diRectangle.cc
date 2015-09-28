@@ -60,8 +60,12 @@ bool Rectangle::operator!=(const Rectangle &rhs) const
 
 std::ostream& operator<<(std::ostream& output, const Rectangle& r)
 {
+#if 1
   return output << "rectangle=" << r.x1 << ":" << r.x2 << ":" << r.y1 << ":"
       << r.y2;
+#else
+  return output << "Rectangle(" << << r.x1 << ',' << r.y1 << ',' << r.x2 << ',' << r.y2 << ')';
+#endif
 }
 
 void Rectangle::setDefault()
