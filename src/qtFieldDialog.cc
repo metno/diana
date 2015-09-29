@@ -1315,13 +1315,13 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
   //find first plot with levels, use use this plot to select next level
   int i = 0;
   if ( type==0 ) { //vertical levels
-    while ( i < n && selectedFields[i].levelOptions.size() == 0) i++;
+    while ( i < n && selectedFields[i].levelOptions.size() < 2 ) i++;
     if( i != n ) {
       vlevels = selectedFields[i].levelOptions;
       level = selectedFields[i].level;
     }
   } else { // extra levels
-    while ( i < n && selectedFields[i].idnumOptions.size() == 0) i++;
+    while ( i < n && selectedFields[i].idnumOptions.size() < 2 ) i++;
     if( i != n ) {
       vlevels = selectedFields[i].idnumOptions;
       level = selectedFields[i].idnum;
@@ -3137,7 +3137,7 @@ bool FieldDialog::levelsExists(bool up, int type)
   if ( type == 0 ) {
 
     int i = 0;
-    while ( i < n && selectedFields[i].levelOptions.size() == 0) i++;
+    while ( i < n && selectedFields[i].levelOptions.size() <2 ) i++;
     if( i == n ) {
       return false;
     } else {
@@ -3152,7 +3152,7 @@ bool FieldDialog::levelsExists(bool up, int type)
   } else {
 
     int i = 0;
-    while ( i < n && selectedFields[i].idnumOptions.size() == 0) i++;
+    while ( i < n && selectedFields[i].idnumOptions.size() <2 ) i++;
     if( i == n ) {
       return false;
     } else {
@@ -3342,7 +3342,8 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
   int indexFGR = 0;
   while (indexFGR < nvfg) {
     if ( vfg[indexFGR].fields.find(sf.fieldName) != vfg[indexFGR].fields.end()
-        && sf.zaxis == vfg[indexFGR].fields[sf.fieldName].vcoord
+        && (sf.zaxis == vfg[indexFGR].fields[sf.fieldName].vcoord
+            || (sf.zaxis.empty() && vfg[indexFGR].fields[sf.fieldName].vlevels.size() == 1))
         && (sf.idnum.empty() == (vfg[indexFGR].fields[sf.fieldName].elevels.size()==0) )) {
       fieldFound = true;
       break;
@@ -3356,11 +3357,9 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
     sf.idnumOptions = vfg[indexFGR].fields[sf.fieldName].elevels;
     sf.minus = false;
     return true;
+  } else {
+    METLIBS_LOG_DEBUG("  Field not found: "<<LOGVAL(fieldString));
   }
-
-  //############################################################################
-       else METLIBS_LOG_DEBUG("  error");
-  //############################################################################
 
   return false;
 }
