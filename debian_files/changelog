@@ -1,3 +1,11 @@
+diana (3.39.0~rc5-1) unstable; urgency=low
+
+  * FieldDialog bugfix - ignore vcoord if no of vlevels=1
+  * QuickMenu read/write files to homedir ($HOME/.diana)
+  * Drawing/Edit Changed the filter widget and tooltip 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 29 Sep 2015 12:01:05 +0200
+
 diana (3.39.0~rc4-1) unstable; urgency=low
 
   * Drawing/Edit Improved selection handeling and tooltips
