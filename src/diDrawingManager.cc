@@ -768,7 +768,7 @@ bool DrawingManager::matchesFilter(DrawingItemBase *item) const
 
   foreach (const QString &property, filter_.keys()) {
     QVariant value = item->property(property);
-    if (!value.isValid() || !filter_.value(property).contains(value.toString()))
+    if (value.isValid() && !filter_.value(property).contains(value.toString()))
       return false;
   }
 

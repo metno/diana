@@ -130,6 +130,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(showAllCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
   connect(showAllCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(disableFilter(bool)));
+  connect(showAllCheckBox, SIGNAL(toggled(bool)), filterButton_, SLOT(setDisabled(bool)));
 
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
