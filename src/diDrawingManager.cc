@@ -65,6 +65,7 @@ DrawingManager::DrawingManager()
 {
   setEditRect(PLOTM->getPlotSize());
   styleManager_ = DrawingStyleManager::instance();
+  allItemsVisible_ = false;
 }
 
 DrawingManager::~DrawingManager()
