@@ -53,7 +53,6 @@ amdarStationList=$(share_diana_dir)/amdar.stations
 languagepaths=$(share_diana_dir)/lang:lang:../lang:$(prefix)/translations:${QTDIR}/translations
 setenv=BUFR_TABLES,/usr/local/lib/bufrtables/,1
 language=en
-avatars=${HOME}/.diana/avatars/*.png
 </BASIC>
 
 <FONTS>
@@ -213,10 +212,10 @@ empty=0000000000000000
 
 
 <PRINTING>
-printcommand=lpr -h -{hash}{numcopies} -P {printer} {filename}
+printcommand=lpr -r -h -{hash}{numcopies} -P {printer} {filename}
 
 # user-defined printer-specific commands
-manualcommands==$(share_diana_dir)/printer.def
+manualcommands=$(share_diana_dir)/printer.def
 </PRINTING>
 
 
@@ -274,7 +273,7 @@ relative_humidity_pl:level=700hPa:unit=0.01,air_temperature_pl:level=850hPa:unit
 showalter.index=showalterindex.plevel_th_rh(air_potential_temperature_pl:level=500hPa,air_potential_temperature_pl:level=850hPa,\
 relative_humidity_pl:level=850hPa:unit=0.01)
 showalter.index=showalterindex.plevel_tk_rh(air_temperature_pl:level=500hPa:unit=kelvin,\
-air_temperature_pl:level=850hPa:unit=kelvin,relative_humidity:unit=0.01_pl:level=850hPa)
+air_temperature_pl:level=850hPa:unit=kelvin,relative_humidity_pl:unit=0.01:level=850hPa)
 
 boyden.index=boydenindex.plevel_th_z(air_potential_temperature_pl:level=700hPa,\
 geopotential_height_pl:level=700hPa,geopotential_height_pl:level=1000hPa)
@@ -311,7 +310,7 @@ air_pressure_ml=pressure.hlevel_xx_psurf(air_potential_temperature_ml,surface_ai
 air_pressure_ml=pressure.hlevel_xx_psurf(air_temperature_ml:unit=kelvin,surface_air_pressure:unit=hectopascal)
 
 # computations in misc atmospheric level types levels (needs pressure in all levels) (".alevel_")
-air_temperature=tk.alevel_th_p(air_potential_temperature,air_pressure:unit=hectopascal)
+air_temperature_al=tk.alevel_th_p(air_potential_temperature_ml,air_pressure_ml:unit=hectopascal)
 air_potential_temperature=th.alevel_tk_p(air_temperature:unit=kelvin,air_pressure:unit=hectopascal)
 
 the_ml=the.alevel_th_q_p(air_potential_temperature,specific_humidity,air_pressure:unit=hectopascal)
@@ -336,12 +335,15 @@ ug_pl,vg_pl=geostrophic_wind.ilevel_mpot(montgomery.potential_pl)
 
 # level independent computations, including surface
 
+fog_area_fraction_sf=equivalent_to(fog_area_fraction:level=E.0.99852)
+fog_area_fraction_sf=equivalent_to(fog_area_fraction:level=E.0.998815)
 x_wind_10m=equivalent_to(u_wind_10m)
 y_wind_10m=equivalent_to(v_wind_10m)
 x_wind=equivalent_to(u_wind)
 y_wind=equivalent_to(v_wind)
 air_pressure_at_sea_level=equivalent_to(sea_level_pressure:unit=hectopascal)
 accumprecip.6h_mean=equivalent_to(precipitation_amount_acc_6h)
+altitude=equivalent_to(surface_altitude)
 
 air_temperature_2m=temp_k2c(tk2m)
 air_temperature_0m=temp_k2c(tk0m)
@@ -396,6 +398,8 @@ accumprecip.6h=equivalent_to(precipitation_amount_acc_6h)
 accumprecip.12h=sum_of_forecast_hours(precipitation_amount_acc_6h,-6,0)
 accumprecip.24h=sum_of_forecast_hours(precipitation_amount_acc_6h,-18,-12,-6,0)
 accumprecip.36h=sum_of_forecast_hours(precipitation_amount_acc_6h,-30,-24,-18,-12,-6,0)
+accumprecip.240h=sum_of_forecast_hours(precipitation_amount_acc_6h,-234,-228,-222,-216,-210,-204,-198,-192,-186,-180,-174,-168,-162,-156,-150,-144,-138,-132,-126,-120,-114,-108,-102,-96,-90,-84,-78,-72,-66,-60,-54,-48,-42,-36,-30,-24,-18,-12,-6,0)
+
 
 accumprecip.3h=sum_of_forecast_hours(uk_precip3h,0)
 accumprecip.6h=sum_of_forecast_hours(uk_precip3h,-3,0)
@@ -410,6 +414,8 @@ accumprecip.12h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m2,-12
 accumprecip.18h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m2,-18,0)
 accumprecip.24h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m2,-24,0)
 accumprecip.36h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m2,-36,0)
+accumprecip.48h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m2,-48,0)
+accumprecip.72h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m2,-72,0)
 
 accumfrontalprecip.1h=accum.diff.forecast.hour(lwe_thickness_of_stratiform_precipitation_amount,-1,0)
 accumfrontalprecip.3h=accum.diff.forecast.hour(lwe_thickness_of_stratiform_precipitation_amount,-3,0)
@@ -506,7 +512,7 @@ dz.500-1000_stddev=subtract(geopotential_height_pl_stddev:level=500hPa,geopotent
 peps_t.2max_c=temp_k2c(peps_t.2max)
 peps_t.2min_c=temp_k2c(peps_t.2min)
 
-z.foot.inflight=multiply(z.inflight,3.2808399)
+height_above_runway_inflight_foot=multiply(height_above_runway_inflight,3.2808399)
 
 ff.maxwind=vector.abs(x_wind_max,y_wind_max)
 ff.maxwind.knot=vector.abs(x_wind_max:unit=knots,y_wind_max:unit=knots)
@@ -516,7 +522,7 @@ ff.maxwind_low=vector.abs(x_wind_max_low,y_wind_max_low)
 ff.maxwind_low.knot=vector.abs(x_wind_max_low:unit=knots,y_wind_max_low:unit=knots)
 flightlevel.maxwind_low=pressure2FlightLevel(p_wind_max_low)
 
-flightlevel.inflight=pressure2FlightLevel(p.inflight)
+flightlevel_inflight=pressure2FlightLevel(air_pressure_inflight)
 
 flightlevel_theta=pressure2FlightLevel(air_pressure_theta:unit=hectopascal)
 flightlevel_ml=pressure2FlightLevel(air_pressure_ml:unit=hectopascal)
@@ -542,6 +548,7 @@ fluxsl.6h=add(fluxsens.6h,fluxlat.6h)
 fluxsl.12h=add(fluxsens.12h,fluxlat.12h)	
 
 air_temperature_pl_celsius=temp_k2c(air_temperature_pl)
+the_pl_celcius=temp_k2c(the_pl)
 
 vorticity_pl=rel.vorticity(x_wind_pl,y_wind_pl)
 divergence_pl=divergence(x_wind_pl,y_wind_pl)
@@ -587,7 +594,7 @@ ff_pl=vector.abs(x_wind_pl,y_wind_pl)
 ff_ml=vector.abs(x_wind_ml,y_wind_ml)
 ff_theta=vector.abs(x_wind_theta,y_wind_theta)
 ff10m=vector.abs(x_wind_10m,y_wind_10m)
-ff.inflight=vector.abs(u.inflight,v.inflight)
+ff_inflight=vector.abs(x_wind_inflight,y_wind_inflight)
 
 ffknots_pl=vector.abs(x_wind_pl:units=knots,y_wind_pl:units=knots)
 ffknots_ml=vector.abs(x_wind_ml:unit=knots,y_wind_ml:unit=knots)
@@ -772,6 +779,9 @@ x_wind_10m_mean=mean_value(x_wind_10m:ecoord=ensemble_member)
 y_wind_10m_mean=mean_value(y_wind_10m:ecoord=ensemble_member)
 geopotential_height_pl_mean=mean_value(geopotential_height_pl:ecoord=ensemble_member)
 geopotential_height_pl_stddev=stddev(geopotential_height_pl:ecoord=ensemble_member)
+precipitation_amount_acc_mean=mean_value(precipitation_amount_acc:unit=kg/m2:ecoord=ensemble_member)
+precipitation_amount_acc_stddev=stddev(precipitation_amount_acc:unit=kg/m2:ecoord=ensemble_member)
+precipitation_amount_acc_variance=multiply(precipitation_amount_acc_stddev,precipitation_amount_acc_stddev)
 
 #Wind_probabilities
 prob_wind>14ms=probability_above(ff10m:ecoord=ensemble_member,13.8)
@@ -792,6 +802,16 @@ prob_wind_gust>28ms=probability_above(wind_speed_of_gust:ecoord=ensemble_member,
 prob_wind_gust>33ms=probability_above(wind_speed_of_gust:ecoord=ensemble_member,32.6)
 prob_wind_gust>35ms=probability_above(wind_speed_of_gust:ecoord=ensemble_member,35.0)
 prob_wind_gust>40ms=probability_above(wind_speed_of_gust:ecoord=ensemble_member,40.0)
+
+#Wind gust probabilities_6h
+prob_wind_gust_6h>14ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,13.8)
+prob_wind_gust_6h>17ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,17.1)
+prob_wind_gust_6h>21ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,20.7)
+prob_wind_gust_6h>24ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,24.4)
+prob_wind_gust_6h>28ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,28.4)
+prob_wind_gust_6h>33ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,32.6)
+prob_wind_gust_6h>35ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,35.0)
+prob_wind_gust_6h>40ms=probability_above(wind_speed_of_gust_10m_max6h:ecoord=ensemble_member,40.0)
 
 #Precipitation_probabilities 6h
 prob_accumprecip.6h>0.1mm=probability_above(accumprecip.6h:ecoord=ensemble_member,0.1)
@@ -862,6 +882,93 @@ prob_t2m<-30=probability_below(air_temperature_2m:ecoord=ensemble_member,-30)
 prob_t2m<-35=probability_below(air_temperature_2m:ecoord=ensemble_member,-35)
 prob_t2m<-40=probability_below(air_temperature_2m:ecoord=ensemble_member,-40)
 prob_t2m<-45=probability_below(air_temperature_2m:ecoord=ensemble_member,-45)
+
+MSLP.min66=min_of_fields(air_pressure_at_sea_level:fchour=-66:unit=hectopascal)
+MSLP.min66index=index_of_fields_min(air_pressure_at_sea_level:fchour=-66:unit=hectopascal)
+MSLP.min24=min_of_fields(air_pressure_at_sea_level:fchour=-24:unit=hectopascal)
+MSLP.min24index=index_of_fields_min(air_pressure_at_sea_level:fchour=-24:unit=hectopascal)
+
+pressure.tendency.min63=min_of_fields(pressure.tendency:fchour=-63)
+pressure.tendency.min63index=index_of_fields_min(pressure.tendency:fchour=-63)
+pressure.tendency.min24=min_of_fields(pressure.tendency:fchour=-24)
+pressure.tendency.min24index=index_of_fields_min(pressure.tendency:fchour=-24)
+
+ff10m.max66=max_of_fields(ff10m:fchour=-66)
+ff10m.max66index=index_of_fields_max(ff10m:fchour=-66)
+ff10m.max24=max_of_fields(ff10m:fchour=-23)
+ff10m.max24index=index_of_fields_max(ff10m:fchour=-23)
+
+gust.max66=max_of_fields(wind_speed_of_gust:fchour=-66)
+gust.max66index=index_of_fields_max(wind_speed_of_gust:fchour=-66)
+gust.max24=max_of_fields(wind_speed_of_gust:fchour=-23)
+gust.max24index=index_of_fields_max(wind_speed_of_gust:fchour=-23)
+
+t2m.min66=min_of_fields(air_temperature_2m:fchour=-66:units=celsius)
+t2m.min66index=index_of_fields_min(air_temperature_2m:fchour=-66:units=celsius)
+t2m.min24=min_of_fields(air_temperature_2m:fchour=-23:units=celsius)
+t2m.min24index=index_of_fields_min(air_temperature_2m:fchour=-23:units=celsius)
+
+t2m.max66=max_of_fields(air_temperature_2m:fchour=-66:units=celsius)
+t2m.max66index=index_of_fields_max(air_temperature_2m:fchour=-66:units=celsius)
+t2m.max24=max_of_fields(air_temperature_2m:fchour=-23:units=celsius)
+t2m.max24index=index_of_fields_max(air_temperature_2m:fchour=-23:units=celsius)
+
+nedb.1t.max65=max_of_fields(accumprecip.1h:fchour=-65)
+nedb.1t.max65index=index_of_fields_max(accumprecip.1h:fchour=-65)
+nedb.1t.max24=max_of_fields(accumprecip.1h:fchour=-23)
+nedb.1t.max24index=index_of_fields_max(accumprecip.1h:fchour=-23)
+
+snow.1t.max65=max_of_fields(accumsnow_total_water.1h:fchour=-65)
+snow.1t.max65index=index_of_fields_max(accumsnow_total_water.1h:fchour=-65)
+snow.1t.max24=max_of_fields(accumsnow_total_water.1h:fchour=-23)
+snow.1t.max24index=index_of_fields_max(accumsnow_total_water.1h:fchour=-23)
+
+showalter.min66=min_of_fields(showalter.index:fchour=-66)
+showalter.min66index=index_of_fields_min(showalter.index:fchour=-66)
+showalter.min24=min_of_fields(showalter.index:fchour=-23)
+showalter.min24index=index_of_fields_min(showalter.index:fchour=-23)
+
+graupelfall_amount.1h=equivalent_to(graupelfall_amount)
+graupelfall_amount.3h=sum_of_forecast_hours(graupelfall_amount,-2,-1,0)
+graupelfall_amount.6h=sum_of_forecast_hours(graupelfall_amount,-5,-4,-3,-2,-1,0)
+graupelfall_amount.3h=sum_of_fields(graupelfall_amount:fchour=-3)
+graupelfall_amount.6h=sum_of_fields(graupelfall_amount:fchour=-5)
+graupelfall_amount.12h=sum_of_fields(graupelfall_amount:fchour=-11)
+graupelfall_amount.18h=sum_of_fields(graupelfall_amount:fchour=-17)
+graupelfall_amount.24h=sum_of_fields(graupelfall_amount:fchour=-23)
+graupelfall_amount.36h=sum_of_fields(graupelfall_amount:fchour=-35)
+
+graupelfall_amount.1h.max65=max_of_fields(graupelfall_amount.1h:fchour=-65)
+graupelfall_amount.1h.max65index=index_of_fields_max(graupelfall_amount.1h:fchour=-65)
+graupelfall_amount.1h.max24=max_of_fields(graupelfall_amount.1h:fchour=-23)
+graupelfall_amount.1h.max24index=index_of_fields_max(graupelfall_amount.1h:fchour=-23)
+
+#wave
+x_stokes_drift=equivalent_to(xsd)
+y_stokes_drift=equivalent_to(ysd)
+sea_surface_swell_wave_period=equivalent_to(tmp_swell)
+sea_surface_wind_wave_period=equivalent_to(tmp_sea)
+peak_sea_surface_swell_wave_period=equivalent_to(tp_swell)
+peak_sea_surface_wind_wave_period=equivalent_to(tp_sea)
+significant_swell_wave_height=equivalent_to(hs_swell)
+significant_wind_wave_height=equivalent_to(hs_sea)
+peak_wave_direction=equivalent_to(Pdir)
+mean_wave_period=equivalent_to(tmp)
+peak_wave_period=equivalent_to(tp)
+significant_wave_height=equivalent_to(hs)
+mean_wave_direction=equivalent_to(thq)
+ffstoke=vector.abs(x_stokes_drift,y_stokes_drift)
+
+#sea_surface_wind_wave_to_direction=equivalent_to(thq_sea)
+#sea_surface_swell_wave_to_direction=equivalent_to(thw_swell)
+#sea_floor_depth_below_sea_level=equivalent_to(depth)
+
+#obsole
+mass_fraction_of_cloud_liquid_water_in_air_surface=equivalent_to(cloud_liquid_water_content_of_atmosphere_layer_surface)
+mass_fraction_of_cloud_liquid_water_in_air_ml=equivalent_to(cloud_liquid_water_content_of_atmosphere_layer_ml)
+air_temperature_2m_min6h=equivalent_to(min_air_temperature_2m)
+air_temperature_2m_max6h=equivalent_to(max_air_temperature_2m)
+wind_speed_of_gust_10m_max6h=equivalent_to(max_wind_speed_of_gust_10m)
 </FIELD_COMPUTE>
 
 
@@ -873,45 +980,422 @@ prob_t2m<-45=probability_below(air_temperature_2m:ecoord=ensemble_member,-45)
 ##### surface etc. ##########
 
 field=MSLP
-      colour=blue linetype=solid linewidth=1 line.interval=5. unit=hectopascal
-      plot=CONTOUR(air_pressure_at_sea_level:standard_name)
+      text = "Mean Sea Level Pressure"
+      colour=blue linetype=solid linewidth=1
+      line.interval=5. units=hectopascal
+      plot=CONTOUR(air_pressure_at_sea_level)
 end.field
 
-field=T
-      colour=red line.interval=2. 
-      plot=CONTOUR(air_temperature_c)
+field=Tendency
+      colour=red linetype=solid linewidth=1 line.interval=1.
+      zero.line=0 field.smooth=1
+      # prefer tendency(surface_air_pressure), if not found try tendency(mslp)
+      plot=CONTOUR(pressure.tendency)
 end.field
 
-field=TH
-      colour=red line.interval=2. 
-      plot=CONTOUR(air_potential_temperature)
+field=T.2M
+      text = "2m Temperature"
+      colour=red line.interval=2. units=celsius
+      plot=CONTOUR(air_temperature_2m)
 end.field
 
-field=WIND
-      colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
-      plot=WIND(x_wind,y_wind)
+field=WIND.10M
+      colour=red linetype=solid linewidth=1 density=AUTO
+      vector.unit=10
+      plot=WIND(x_wind_10m,y_wind_10m)
 end.field
 
-
-field=FF
-      plot=CONTOUR(ff)
+field=WIND.10M.ARROW
+      colour=red linetype=solid linewidth=2 density=AUTO
+      vector.unit=10.
+      plot=VECTOR(x_wind_10m,y_wind_10m)
 end.field
- 
-field=FF.Beaufort
-      line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
-      plot=CONTOUR(ffknots)
+
+field=FF.10M
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      line.values=8.0,10.8,13.9,17.2,20.8,24.5,28.5,32.7
+      plot=CONTOUR(ff10m)
+end.field
+
+field=FF.10M.KNOTS
+      line.values=15.5,20.9,27.0,33.4,40.4,47.6,55.4,63.5
+      plot=CONTOUR(ff10mknots)
 end.field 
-
 
 loop [HR]=1,3,6,12,24,36
 loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
 "0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
 "0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400"
 
-field=Precipitation.[HR]h
+field=PRECIP.[HR]T
       colour=red linetype=solid linewidth=1 line.values=[LINE]
       plot=CONTOUR(accumprecip.[HR]h)
 end.field
+
+field=cloud_area_fraction
+      colour=red line.values=40,60,80,100 units=0.01 
+      plot=ALPHA_SHADE(cloud_area_fraction)
+end.field
+
+field=fog
+      colour=red line.values=40,60,80,100 units=0.01
+      plot=ALPHA_SHADE(fog_area_fraction)
+end.field
+
+field=low_clouds
+      colour=white line.values=40,60,80,100 units=0.01
+      plot=ALPHA_SHADE(low_type_cloud_area_fraction)
+end.field
+
+field=medium_clouds
+      colour=red line.values=40,60,80,100 units=0.01
+      plot=ALPHA_SHADE(medium_type_cloud_area_fraction)
+end.field
+
+field=high_clouds
+      colour=red line.values=40,60,80,100 units=0.01
+      plot=ALPHA_SHADE(high_type_cloud_area_fraction)
+end.field
+
+
+field=Visibility
+      plot=CONTOUR(visibility_in_air)
+end.field 
+
+field=TCLW
+      colour=red linetype=solid linewidth=1 line.interval=0.1
+      plot=CONTOUR(cloud_liquid_water_content_of_atmosphere_layer_surface)
+end.field
+
+field=Total-totals
+      colour=black linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(total.totals)
+end.field
+
+field=K-INDEX
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(k.index)
+end.field
+
+field=BOYDEN-INDEX
+      colour=red linetype=solid linewidth=1 line.interval=4.
+      plot=CONTOUR(boyden.index)
+end.field
+
+field=SHOWALTER-INDEX
+      colour=red linetype=solid linewidth=1 line.interval=4.
+      plot=CONTOUR(showalter.index)
+end.field
+
+field=WIND.GUST
+      colour=blue linetype=solid linewidth=1 line.interval=5.
+      line.values=8.0,10.8,13.9,17.2,20.8,24.5,28.5,32.7
+      plot=CONTOUR(wind_speed_of_gust)
+end.field
+
+field=WIND.GUST.KNOTS
+      line.values=15.5,20.9,27.0,33.4,40.4,47.6,55.4,63.5 units=knots
+      plot=CONTOUR(wind_speed_of_gust)
+end.field
+
+field=Td.2M
+      #"Dewpoint temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2.5 units=celsius
+      plot=CONTOUR(dew_point_temperature_2m)
+end.field
+
+field=RH.2M
+      #"2m Relative Humidity"
+      colour=red linetype=solid linewidth=1 line.interval=2. units=0.01
+      plot=CONTOUR(relative_humidity_2m)
+end.field
+
+field=CAPE
+      #"Convective Potential Available Energy"
+      colour=red linetype=solid linewidth=1 line.interval=100.
+      plot=CONTOUR(specific_convective_available_potential_energy)
+end.field
+
+loop [P1]=500,700,850,500,500,700,700,500
+loop [P2]=1000,1000,1000,925,950,925,950,850
+field=DZ([P1]-[P2])
+      #"Thickness"
+      colour=red linetype=solid linewidth=1 line.interval=40.
+      plot=CONTOUR(dz.[P1]-[P2])
+end.field
+
+loop [P1]=850,700,500,850,700,500,700,500
+loop [P2]=925,925,925,950,950,950,850,850
+field=THE_DIFF([P1]-[P2])
+      #"Equivalent Potential Temperature Diff [P2]-[P1]"
+      colour=red linetype=solid linewidth=1 line.interval=1
+      plot=CONTOUR(thediff.[P1]-[P2])
+end.field
+
+loop [HR] = 1,3,6,12,18,24
+loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
+"0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
+"0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400","0.5,1,2,4,6,10,15,...70,80,...400"
+
+field="frontal_precipitation.[HR]h"
+      colour=red linetype=solid linewidth=1 line.values=[LINE] 
+      plot=CONTOUR(accumfrontalprecip.[HR]h)
+end.field
+
+loop [HR] = 1,3,6,12,18,24,36
+loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
+"0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
+"0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400","0.5,1,2,4,6,10,15,...70,80,...400"
+
+field="convective_precipitation.[HR]h"
+      colour=red linetype=solid linewidth=1 line.values=[LINE] 
+      plot=CONTOUR(accumconvecprecip.[HR]h)
+end.field
+
+
+field=precipitation_accumulated
+      colour=red linetype=solid linewidth=1 units=kg/m2
+      line.values=1,2,4,6,10,15,...50,60,...500
+      plot=CONTOUR(precipitation_amount_acc)
+end.field
+
+
+field=SST
+      colour=red  line.interval=2. units=celsius
+      plot=CONTOUR(sea_surface_temperature)
+end.field
+
+field=U10M
+      colour=red linetype=solid linewidth=1 line.interval=2.5
+      zero.line=1
+      plot=CONTOUR(x_wind_10m)
+end.field
+
+field=V10M
+      colour=red linetype=solid linewidth=1 line.interval=2.5
+      zero.line=1
+      plot=CONTOUR(y_wind_10m)
+end.field
+
+field=ozone
+  plot=CONTOUR(atmosphere_mass_content_of_ozone)
+end.field
+
+field=precipwater
+  plot=CONTOUR(atmosphere_mass_content_of_water_vapor)
+end.field
+
+######## Fields in several vertical coordinates (p/eta/sigma/pv/....) ##### 
+
+field=Z
+      #"Height"
+      colour=blue linetype=solid linewidth=1 line.interval=40.
+      plot=CONTOUR(geopotential_height_pl)
+end.field
+
+field=WIND
+      colour=red linetype=solid linewidth=1 density=AUTO
+      vector.unit=10
+      plot=WIND(x_wind_pl,y_wind_pl)
+end.field
+
+field=WIND.ARROW
+      colour=red linetype=solid linewidth=2 density=AUTO
+      vector.unit=10.
+      plot=VECTOR(x_wind_pl,y_wind_pl)
+end.field
+
+field=WIND+TEMP
+      colour=red linetype=solid linewidth=1 density=AUTO vector.unit=10. 
+      limits=-1,0,1 colours=red,green,blue
+      plot=WIND_TEMP_FL(x_wind_pl,y_wind_pl,air_temperature_pl_celsius)
+end.field
+
+field=WIND+FF
+      linetype=solid linewidth=1 density=AUTO vector.unit=10.
+      plot=WIND_COLOUR(x_wind_pl,y_wind_pl,ff_pl)
+end.field
+
+field=FF
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      line.values=8.0,10.8,13.9,17.2,20.8,24.5,28.5,32.7
+      plot=CONTOUR(ff_pl)
+end.field
+
+field=FF.KNOTS
+      line.values=15.5,20.9,27.0,33.4,40.4,47.6,55.4,63.5
+      plot=CONTOUR(ffknots_pl)
+end.field
+
+field=T
+      #"Temperature"
+      colour=red linetype=solid linewidth=1 line.interval=3. unit=celsius
+      plot=CONTOUR(air_temperature_pl_celsius)
+end.field
+
+field=U
+      colour=red linetype=solid linewidth=1 line.interval=40.
+      zero.line=1
+      plot=CONTOUR(x_wind_pl)
+end.field
+
+field=V
+      colour=red linetype=solid linewidth=1 line.interval=40.
+      zero.line=1
+      plot=CONTOUR(y_wind_pl)
+end.field
+
+field=TH
+      #"Potential Temperature"
+      colour=red linetype=solid linewidth=1 line.interval=3.
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(air_potential_temperature_pl)
+end.field
+
+field=THE
+      #"Equivalent Potential Temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2.5
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(the_pl)
+end.field
+
+field=THE_GRADIENT
+      colour=red linetype=solid linewidth=1 line.interval=2
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(the.gradient_pl)
+end.field
+
+field=Td
+      #"Dewpoint temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2.5 units=celsius
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(dew_point_temperature_pl)
+end.field
+
+field=RH
+      #"Relative Humidity"
+      colour=red linetype=solid linewidth=1 line.interval=10.
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(relative_humidity_pl)
+end.field
+
+field=Q
+      #"Specific Humidity"
+      colour=red linetype=solid linewidth=1 line.interval=0.05
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(specific_humidity_pl)
+end.field
+
+field=TFP
+      colour=red linetype=solid linewidth=1 line.interval=1. zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(tfp_pl)
+end.field
+
+field=vorticity
+      colour=red linetype=solid linewidth=1 line.interval=0.00005
+      zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(vorticity_pl)
+end.field
+
+field=divergence
+      colour=red linetype=solid linewidth=1 line.interval=0.00005
+      zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(divergence_pl)
+end.field
+
+field=abs.vorticity
+      colour=red linetype=solid linewidth=1 line.interval=0.00005
+      zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(absvorticity_pl)
+end.field
+
+field=geostrofic.vorticity
+      colour=red linetype=solid linewidth=1 line.interval=0.00005
+      zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(gvorticity_pl)
+end.field
+
+field=advection(vorticity)
+      colour=red linetype=solid linewidth=1 line.interval=0.0001
+      zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(advection.vorticity_pl)
+end.field
+
+field=advection(T)
+      colour=red linetype=solid linewidth=1 line.interval=3.
+      zero.line=1
+      vcoord=pressure,flightlevel
+      plot=CONTOUR(advection.t_pl)
+end.field
+
+################################ SEA ##########################################
+
+field=sea_surface_swell_wave_significant_height
+      colour=red line.interval=1.
+      plot=CONTOUR(sea_surface_swell_wave_significant_height)
+end.field
+
+field=sea_surface_wave_significant_height
+      colour=red line.interval=1.
+      plot=CONTOUR(sea_surface_wave_significant_height)
+end.field
+
+field=sea_surface_wave_period_at_variance_spectral_density_maximum
+      colour=red line.interval=1.
+      plot=CONTOUR(sea_surface_wave_period_at_variance_spectral_density_maximum)
+end.field
+
+field=mean_wave_period
+      colour=red line.interval=1.
+      plot=CONTOUR(mean_wave_period)
+end.field
+
+field=significant_wind_wave_height
+      colour=red line.interval=1.
+      plot=CONTOUR(significant_wind_wave_height)
+end.field
+
+field=sea_surface_swell_wave_significant_height
+      colour=red line.interval=1.
+      plot=CONTOUR(sea_surface_swell_wave_significant_height)
+end.field
+
+field=sea_surface_swell_wave_period
+      colour=red line.interval=1.
+      plot=CONTOUR(sea_surface_swell_wave_period)
+end.field
+
+field=mean_wave_direction
+      colour=red line.interval=1.
+      plot=DIRECTION(mean_wave_direction)
+end.field
+
+field=sea_surface_swell_wave_from_direction
+      colour=red line.interval=1.
+      plot=DIRECTION(sea_surface_swell_wave_from_direction)
+end.field
+
+field=sea_surface_wind_wave_to_direction
+      colour=red line.interval=1.
+      plot=DIRECTION(sea_surface_wind_wave_to_direction)
+end.field
+
+field=Stokes_Drift
+      colour=red density=AUTO vector.unit=0.2
+      plot=VECTOR(x_stokes_drift,y_stokes_drift)
+end.field
+
+field=altitude
+      colour=red line.interval=250.
+      plot=CONTOUR(altitude)
+end.field
+
 
 </FIELD_PLOT>
 
@@ -925,7 +1409,10 @@ name=theta vc_type=isentropic levelsuffix=K
 name=height vc_type=oceandepth levelsuffix=m
 </FIELD_VERTICAL_COORDINATES>
 
-  
+<FIELD_GROUPS>
+name=Surface group=height
+</FIELD_GROUPS>
+
 
 <FIELD_FILES>
 
@@ -934,16 +1421,9 @@ name=height vc_type=oceandepth levelsuffix=m
 #-------------------------------------------------------------------------------
 
 
-filegroup=Hirlam
-m=hirlam24km t=fimex format=netcdf \
-f=$(OPDATA)/hirlam12/hirlam12ml.nc \
-f=$(OPDATA)/hirlam12/hirlam12pl.nc 
-
-m=hirlam12km t=fimex format=netcdf \
-f=$(OPDATA)/hirlam12/hirlam12sf-1h.nc \
-f=$(OPDATA)/hirlam12/hirlam12sf-3h.nc 
-
-
+filegroup=Arome
+m=arome-PP    f=http://thredds.met.no/thredds/dodsC/arome25/arome_metcoop_default2_5km_latest.nc  t=netcdf
+m=arome       f=http://thredds.met.no/thredds/dodsC/arome25/arome_metcoop_test2_5km_latest.nc  t=netcdf
 </FIELD_FILES>
 
 
@@ -1076,10 +1556,6 @@ limit=0.1 file=$(MAPDIR)/landwvs1m.dat  # wvs(1:1mill)
 limit=0   file=$(MAPDIR)/landwvs250k.dat# wvs(1:250.000)
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 #
-map=Norden_wgs84 type=shape \
-file=/disk1/tmp/geotiff/shape_geotiff//Norden_wgs84.shp \
-contour=on cont.colour=darkgray cont.linetype=solid cont.linewidth=1 \
-land=on land.colour=darkred
 
 </MAP_TYPE>
 
@@ -1092,6 +1568,7 @@ name="met.no SurfaceAnalysis"  file=$(OPDATA)/diana/SurfaceAnalysis/objects/DNMI
 
 </OBJECTS>
 
+<EDIT>
 product="MSLP_analysis"
   # save_dir is input/output
   local_save_dir= ${HOME}/.diana/work
@@ -1152,113 +1629,123 @@ end.product
 
 <VERTICAL_PROFILE_FILES>
 bufr.temp=  $(OPDATA)/bufr/temp_[yyyymmddHH].bufr
-
+m=arome f=http://thredds.met.no/thredds/dodsC/arome25vc/AROME_MetCoOp_vc_latest.nc t=netcdf
 </VERTICAL_PROFILE_FILES>
 
 <VERTICAL_PROFILE_COMPUTATIONS>
+
+tdk=tdk_from_tk_rh(air_temperature_pl,relative_humidity_pl)
+vp_air_temperature_celsius=convert_unit(air_temperature_pl,celsius)
+vp_dew_point_temperature_celsius=convert_unit(tdk,celsius)
+vp_x_wind_ms=identity(x_wind_pl)
+vp_y_wind_ms=identity(y_wind_pl)
+vp_relative_humidity=identity(relative_humidity_pl)
 air_temperature_ml=tk_from_th(air_potential_temperature_ml)
 relative_humidity_ml=rh_from_tk_q(air_temperature_ml,specific_humidity_ml)
 relative_humidity_ml=rh_from_th_q(air_potential_temperature_ml,specific_humidity_ml)
 tdk=tdk_from_th_q(air_potential_temperature_ml,specific_humidity_ml)
 tdk=tdk_from_tk_q(air_temperature_ml,specific_humidity_ml)
 air_temperature_celsius_ml=convert_unit(air_temperature_ml,celsius)
+
 vp_air_temperature_celsius=convert_unit(air_temperature_ml,celsius)
 vp_dew_point_temperature_celsius=convert_unit(tdk,celsius)
 vp_x_wind_ms=identity(x_wind_ml)
 vp_y_wind_ms=identity(y_wind_ml)
 vp_relative_humidity=identity(relative_humidity_ml)
-vp_omega_pas=multiply(upward_air_velocity_ml,const:0.01)
+# next line is a hack to convert from velcity in m/s to velocity in hPa/s
+vp_omega_pas=multiply(upward_air_velocity_ml,const:-0.01)
 </VERTICAL_PROFILE_COMPUTATIONS>
 
 
-<VERTICAL_CROSSECTION_FILES>
-#m=HIRLAM.8KM.00   f=$(OPDATA)/hirlam8/vc8km00.dat
-m=UM.4KM          f=$(OPDATA)/um4km/vcUM4km.dat
-</VERTICAL_CROSSECTION_FILES>
 
 <VERTICAL_CROSSECTION_FILES>
-m=EC_bfs f=$(OPDATA2)/ec/bf/nc4/ec_bfs_vc_[yyyymmddHH].nc t=netcdf
+m=arome f=http://thredds.met.no/thredds/dodsC/arome25vc/AROME_MetCoOp_vc_latest.nc t=netcdf
 </VERTICAL_CROSSECTION_FILES>
-
-
-<VERTICAL_CROSSECTION_PARAMETERS>
-air_temperature[AROME-Metcoop.vcross.*]=air_temperature_ml
-x_wind_ml[AROME-Metcoop.vcross.*]=x_wind_ml
-y_wind_ml[AROME-Metcoop.vcross.*]=y_wind_ml
-w[AROME-Metcoop.vcross.*]=upward_air_velocity_ml
-w[AROME-Metcoop.vcross.*]=upward_air_velocity_ml
-surface_geopotential[AROME-Metcoop.vcross.*]=surface_geopotential
-surface_geopotential[AROME-Metcoop.vcross.*]=surface_geopotential
-
-</VERTICAL_CROSSECTION_PARAMETERS>
-
 
 <VERTICAL_CROSSECTION_COMPUTATIONS>
-air_temperature_ml=tk_from_th(air_potential_temperature_ml)
-#vc_surface_height=height_above_msl_from_surface_geopotential(surface_geopotential)
-#vc_surface_pressure=convert_unit(surface_air_pressure,hPa)
+# not sure which model uses "altitude" for "surface_altitude"; old simra models did
+vc_surface_altitude  = convert_unit(altitude,m)
+vc_surface_altitude  = convert_unit(surface_altitude,m)
+vc_surface_altitude  = height_above_msl_from_surface_geopotential(surface_geopotential)
 vc_surface_pressure  = convert_unit(surface_air_pressure,hPa)
-vc_surface_height    = height_above_msl_from_surface_geopotential(surface_geopotential)
-vc_specific_humidity = identity(specific_humidity_ml)
-vc_air_temperature   = identity(air_temperature_ml)
-#relative_humidity_ml = vcf_rh_from_tk_q(air_temperature_ml)
-tc            = convert_unit(air_temperature_ml,celsius)
+
+vc_inflight_altitude = identity(altitude_inflight)
+vc_inflight_pressure = identity(air_pressure_inflight)
+
+# vc...height had been used in old version of diana
+vc_inflight_height   = identity(vc_inflight_altitude)
+vc_surface_height    = identity(vc_surface_altitude)
+
+tk            = identity(air_temperature_ml)
+tk            = tk_from_th(air_potential_temperature_ml)
+tc            = convert_unit(tk,celsius)
 th            = th_from_tk(air_temperature_ml)
-air_potential_temperature  = the_from_tk_q(air_temperature_ml,specific_humidity_ml)
+th            = identity(air_potential_temperature_ml)
+the           = the_from_tk_q(air_temperature_ml,specific_humidity_ml)
+the           = the_from_th_q(air_potential_temperature_ml,specific_humidity_ml)
 rh            = rh_from_tk_q(air_temperature_ml,specific_humidity_ml)
 rh            = rh_from_th_q(air_potential_temperature_ml,specific_humidity_ml)
+rh            = identity(relative_humidity_ml)
 ff_total_ms   = total(x_wind_ml, y_wind_ml)
 ff_total_kt   = convert_unit(ff_total_ms,knot)
 ff_normal     = normal(x_wind_ml, y_wind_ml)
 ff_tangential = tangential(x_wind_ml, y_wind_ml)
-w_scaled      = multiply(upward_air_velocity_ml,const:100)
 sqrt_tke      = sqrt(turbulent_kinetic_energy_ml)
+x_wind        =identity(x_wind_ml)
+y_wind        =identity(y_wind_ml)
+q             =identity(specific_humidity_ml)
+w             =identity(upward_air_velocity_ml)
+omega         =identity(omega_ml)
 
+tk            = identity(air_temperature_pl)
+tk            = tk_from_th(air_potential_temperature_pl)
+th            = th_from_tk(air_temperature_pl)
+th            = identity(air_potential_temperature_pl)
+the           = the_from_tk_q(air_temperature_pl,specific_humidity_pl)
+the           = the_from_th_q(air_potential_temperature_pl,specific_humidity_pl)
+rh            = rh_from_tk_q(air_temperature_pl,specific_humidity_pl)
+rh            = rh_from_th_q(air_potential_temperature_pl,specific_humidity_pl)
+rh            = identity(relative_humidity_pl)
+ff_total_ms   = total(x_wind_pl, y_wind_pl)
+ff_normal     = normal(x_wind_pl, y_wind_pl)
+ff_tangential = tangential(x_wind_pl, y_wind_pl)
+sqrt_tke      = sqrt(turbulent_kinetic_energy_pl)
+x_wind        =identity(x_wind_pl)
+y_wind        =identity(y_wind_pl)
+q             =identity(specific_humidity_pl)
+w             =identity(upward_air_velocity_pl)
+omega         =identity(omega_pl)
+cloud_area_fraction_ml =identity(cloud_area_fraction_in_atmosphere_layer_ml)
 </VERTICAL_CROSSECTION_COMPUTATIONS>
 
 
 <VERTICAL_CROSSECTION_PLOTS>
 name=EMEP_ash   plot=CONTOUR(ash_concentration) colour=green
 name=Wind       plot=WIND(ff_tangential,ff_normal)         colour=blue
-name=WindXY     plot=VECTOR(x_wind_ml,y_wind_ml)              colour=green
-name=Temp(C)    plot=CONTOUR(tc)                       colour=red  line.interval=1.
-name=Temp(K)    plot=CONTOUR(air_temperature_ml)        colour=red  line.interval=1.
-name=THE        plot=CONTOUR(air_potential_temperature) colour=blue  line.interval=4.
-name=Skydekke   plot=CONTOUR(cloud_area_fraction_ml) colour=blue  line.interval=0.2
+name=WindNSEW   plot=WIND(x_wind,y_wind)                   colour=green
+name=Temp(C)    plot=CONTOUR(tc)  colour=red  line.interval=1.
+name=Temp(K)    plot=CONTOUR(tk)  colour=red  line.interval=1.
+name=THE        plot=CONTOUR(the) colour=blue  line.interval=4.
+name=Clouds   plot=CONTOUR(cloud_area_fraction_ml) colour=blue  line.interval=0.2
 
 # Atmospheric model data
 name=TH        plot=CONTOUR(th) colour=blue line.interval=4.
-name=Q         plot=CONTOUR(specific_humidity_ml)  colour=blue  line.interval=0.001
+name=Q         plot=CONTOUR(q)  colour=blue  line.interval=0.001
 name=RH        plot=CONTOUR(rh) colour=red  line.interval=10.
-name=W         plot=CONTOUR(upward_air_velocity_ml)  colour=red  line.interval=0.1
-#name=Pot.Virv. plot=CONTOUR(pv) colour=red  line.interval=1.
-#name=Wind      plot=WIND(ff_tangent,ff_normal)        colour=black
-#name=Wind_NSEW plot=WIND(ff_east_west,ff_north_south) colour=black
-#name=VT+OMEGA       plot=VT+OMEGA(ff_tangent,omega)   colour=darkgreen vector.unit=1.
-#name=(VT-VGT)+OMEGA plot=VT+OMEGA(ffag_tangent,omega) colour=darkgreen vector.unit=1.
-name=VT+W*100        plot=VECTOR(ff_tangential,w_scaled)   colour=darkgreen vector.unit=1.
-#name=(VT-VGT)+W     plot=VT+W(ffag_tangent,w) colour=darkgreen vector.unit=1.
-#name=Sat.ekviv.pot.temp plot=CONTOUR(thesat) colour=red line.interval=4.
-#name=M(Vn+f*s) plot=CONTOUR(m) colour=red line.interval=4.
-#name=Omega     plot=CONTOUR(omega) colour=red line.interval=0.001
+name=W         plot=CONTOUR(w)  colour=red  line.interval=0.1
+name=VT+W*scale plot=VECTOR(ff_tangential,w)   colour=darkgreen vector.unit=1. vector.scale.x=1 vector.scale.y=50
+name=Omega     plot=CONTOUR(omega) colour=red line.interval=0.001
+name=VT+Omega*scale plot=VECTOR(ff_tangential,omega) colour=darkgreen vector.unit=1. vector.scale.x=1 vector.scale.y=-500
 name=FF          plot=CONTOUR(ff_total_ms)       colour=red  line.interval=4.
 name=FF.knots     plot=CONTOUR(ff_total_kt) colour=red  line.interval=4.
 name=FF_normal   plot=CONTOUR(ff_normal)      colour=red  line.interval=4.
 name=FF_tangent  plot=CONTOUR(ff_tangential)     colour=blue line.interval=4.
-name=TKE_SQRT plot=CONTOUR(sqrt_tke) colour=red line.interval=0.5
-#name=Duct.OLD        plot=CONTOUR(d1)         colour=black line.interval=10.
-#name=QCLOUD      plot=CONTOUR(cloud_liquid_water_content_of_atmosphere_layer)     colour=red   line.interval=0.0001
-#
-#name=U(x_grid)  plot=CONTOUR(u)  colour=red  line.interval=4.
-#name=V(y_grid)  plot=CONTOUR(v)  colour=blue line.interval=4.
-#name=Ug(x_grid) plot=CONTOUR(ug) colour=red  line.interval=4.
-#name=Vg(y_grid) plot=CONTOUR(vg) colour=blue line.interval=4.
-#
-#name=HV          plot=CONTOUR(hv_total)       colour=red  line.interval=0.0004
-#name=HV_vektor   plot=VECTOR(hv_tangent,hv_normal) colour=red vector.unit=0.001
-#name=HV_normal   plot=CONTOUR(hv_normal)      colour=red  line.interval=0.0004
-#name=HV_tangent  plot=CONTOUR(hv_tangent)     colour=blue line.interval=0.0004
-#
+name=TKE_SQRT    plot=CONTOUR(sqrt_tke) colour=red line.interval=0.5
+name=QCLOUD      plot=CONTOUR(mass_fraction_of_cloud_liquid_water_in_air_ml)     colour=red   line.interval=0.0001
+name=cloud_water plot=CONTOUR(cloud_liquid_water_content_of_atmosphere_layer_ml) colour=red   line.interval=0.0001
+
+# SIMRA
+name=Turbulence  plot=CONTOUR(turbulence_index_ml)        colour=blue line.interval=0.1
 ## misc. parameters from postprocessing
 #name=DUCTING   plot=CONTOUR(ducting) colour=red  line.interval=5.
 #name=ICING     plot=CONTOUR(icingind) colour=blue line.interval=1.
@@ -1276,8 +1763,9 @@ name=TKE_SQRT plot=CONTOUR(sqrt_tke) colour=red line.interval=0.5
 #name=Current_east_west    plot=CONTOUR(ffcurr_east_west)   colour=blue line.interval=0.1
 #name=Ucurr(x_grid)   plot=CONTOUR(ucurr)        colour=red  line.interval=0.1
 #name=Vcurr(y_grid)   plot=CONTOUR(vcurr)        colour=blue line.interval=0.1
-
 </VERTICAL_CROSSECTION_PLOTS>
+
+
 
 <SPECTRUM_FILES>
 
@@ -1322,7 +1810,7 @@ symbol="Volcanic Eruption" section="Forecast" file=$(share_diana_dir)/images/sym
 symbol="Warm" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Warm.svg
 symbol="Widespread Blowing Snow" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadBlowingSnow.svg
 symbol="Widespread Fog" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog.svg
-symbol="Widespread Fog" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog_with_V.svg
+symbol="Widespread Fog with V" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog_with_V.svg
 symbol="Widespread Haze" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadHaze.svg
 symbol="Widespread Mist" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg
 symbol="Widespread Sandstorm Or Duststorm" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg
@@ -1395,14 +1883,20 @@ style="Significant weather (ICE/TCU/CB) front"  linewidth=2 linesmooth=true deco
                                                 fillalpha=0
 style="Jet stream"                              linecolour=black linewidth=3 linesmooth=true decoration1=arrow \
                                                 closed=false fillalpha=0
-style="Cross section"                           linecolour=150:0:150 linewidth=3 linepattern=solid linesmooth=false \
+style="Cross section"                           linecolour=black linewidth=3 linepattern=solid linesmooth=false \
                                                 fillalpha=0 closed=false
-style="Plain line" linecolour=black linewidth=3 linesmooth=true closed=false fillalpha=0 linewidth=2
+style="Runway"                                  linecolour=black linewidth=10 linepattern=solid linesmooth=false \
+                                                fillalpha=0 closed=false
+style="Plain line"                              linecolour=black linewidth=3 linesmooth=true closed=false fillalpha=0 \
+                                                linewidth=2
+style="Line"                                    linecolour=black linewidth=1 linesmooth=false closed=true fillalpha=0 
+style="Sigmet"                                  linecolour=black linewidth=1 linesmooth=false closed=true 
 
 # Text styles
-textstyle="Label" linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=10
-textstyle="Large text" linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=20
-textstyle="SIGWX label" linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=25
+textstyle="Label"           linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=10
+textstyle="Large text"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=20
+textstyle="SIGWX label"     linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=25
+textstyle="Label Gale"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=blue fontsize=11
 
 # Composite styles
 composite="Text above Text" objects=text:text values="Text:Text" styles="SIGWX label:SIGWX label" layout=vertical linealpha=0 \
@@ -1454,6 +1948,16 @@ composite="Predefined Text over Predefined Text inside blue curved rectangle" ob
 complextext="BKN/OVC STF,RA,RADZ,SHRA,SN,SHSN,LOC FG,BR,NSC,RASN,SHSNGS,SHRASN,SHRA,BR/FG,DZ,FZRA,SFC VIS,LT 5 KM,ISOL,EMBD CB,SCT/BKN,CB/TCU"
 
 # Property editor rules
-hide-property-sections="style,met:style"
-show-property-sections="met:info:,TimeSpan:,srcFile"
+hide-property-sections-drawing="style,met:style"
+show-property-sections-drawing="met:info:"
+hide-property-sections-editing="style,met:style"
+show-property-sections-editing="met:info:,TimeSpan:"
+show-tooltips-drawing="met:info:,TimeSpan:"
+show-tooltips-editing="met:info:,TimeSpan:"
 </DRAWING>
+
+<WEBMAP_SERVICES>
+service.id=OSM service.type=slippy service.url=file:$(share_diana_dir)/products/slippy_maps.xml
+service.id=metno-vaerportal-wms service.type=wms service.url=http://public-wms.met.no/verportal/verportal.map?service=WMS&REQUEST=GetCapabilities&VERSION=1.3.0
+service.id=kartverket-wmts service.type=wmts service.url=http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities
+</WEBMAP_SERVICES>
