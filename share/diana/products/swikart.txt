@@ -40,8 +40,8 @@ bcolour=black fcolour=white polystyle=both halign=center valign=bottom \
 font=BITMAPFONT fontsize=16 face=normal xoffset=0 yoffset=0 \
 margin=0.015 xratio=0.99 yratio=0.26
 
-				
-MAP area=SWIkart backcolour=white showframe=yes map=Vanlig contour=on \
+AREA name=SWIkart
+MAP backcolour=white showframe=yes map=Vanlig contour=on \
 cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
 land=off  latlon=off
 

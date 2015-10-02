@@ -13,13 +13,13 @@ font=BITMAPFONT fontsize=12 \
 margin=0.001 xratio=0.20 yratio=0.40
 
 
-
-MAP area=SKVbrief_soer map=Gshhs-Auto contour=on cont.colour=grey50 cont.linewidth=1\
-cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0\
-latlon=off
+AREA name=SKVbrief_soer 
+MAP map=Gshhs-Auto contour=on cont.colour=grey50 cont.linewidth=1\
+cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0
 MAP map=Riksgrense contour=on cont.colour=grey50 cont.linewidth=1\
-cont.linetype=solid cont.zorder=1 land=off latlon=on \
-latlon.colour=grey90 \
+cont.linetype=solid cont.zorder=1 land=off 
+MAP backcolour=white \
+latlon=on latlon.colour=grey90 \
 latlon.linewidth=1 latlon.linetype=solid latlon.density=10 \
 latlon.zorder=0 frame=on frame.colour=black frame.linewidth=1 \
 frame.linetype=solid frame.zorder=2

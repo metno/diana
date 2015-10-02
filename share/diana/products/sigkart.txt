@@ -54,15 +54,16 @@ valign=bottom xoffset=0.00001 yoffset=0.0000001 margin=0.01 \
 xratio=0.31 yratio=0.35
 
 
-
-MAP area=NyttSigkart4 backcolour=white map==Euro1 contour=on \
-cont.colour=grey50 cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
+AREA name=NyttSigkart4
+MAP map==Euro1 \
+contour=on cont.colour=grey50 cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
 land=off latlon=off frame=on
 MAP map=Riksgrense contour=on cont.colour=grey50 cont.linewidth=1\
-cont.linetype=solid cont.zorder=1 land=off latlon=on \
-latlon.colour=grey90 \
-latlon.linewidth=1 latlon.linetype=solid latlon.density=15 \
-latlon.zorder=0 frame=on frame.colour=black frame.linewidth=1 \
+cont.linetype=solid cont.zorder=1 land=off 
+MAP backcolour=white \
+latlon=on latlon.colour=grey90 latlon.linewidth=1 \
+latlon.linetype=solid latlon.density=15 latlon.zorder=0 \
+frame=on frame.colour=black frame.linewidth=1 \
 frame.linetype=solid frame.zorder=2
 
 
