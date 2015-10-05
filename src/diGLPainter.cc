@@ -58,12 +58,15 @@ void DiGLPainter::drawCircle(float centerx, float centery, float radius)
   const int NPOINTS = 120;
   const float STEP = 2 * M_PI / NPOINTS;
 
+  PushMatrix();
+  Translatef(centerx, centery, 0.0);
   Begin(gl_LINE_LOOP);
   for (int i=0; i<NPOINTS; i++) {
     const float angle = i*STEP;
     Vertex2f(radius*std::cos(angle), radius*std::sin(angle));
   }
   End();
+  PopMatrix();
 }
 
 void DiGLPainter::fillCircle(float centerx, float centery, float radius)
@@ -71,6 +74,8 @@ void DiGLPainter::fillCircle(float centerx, float centery, float radius)
   const int NPOINTS = 120;
   const float STEP = 2 * M_PI / NPOINTS;
 
+  PushMatrix();
+  Translatef(centerx, centery, 0.0);
   PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
   Begin(gl_POLYGON);
   for (int i=0; i<NPOINTS; i++) {
@@ -78,6 +83,7 @@ void DiGLPainter::fillCircle(float centerx, float centery, float radius)
     Vertex2f(radius*std::cos(angle), radius*std::sin(angle));
   }
   End();
+  PopMatrix();
 }
 
 void DiGLPainter::drawLine(float x1, float y1, float x2, float y2)
