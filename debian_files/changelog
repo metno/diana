@@ -1,3 +1,11 @@
+diana (3.39.0~rc6-1) unstable; urgency=low
+
+  * FieldEdit - Bugfix drawCircle
+  * bdiana - Fixed uninitialised member variable that broke time handling in bdiana
+  * diana.setup.in - added arome from thredds, updated some plots
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 05 Oct 2015 13:01:53 +0200
+
 diana (3.39.0~rc5-1) unstable; urgency=low
 
   * FieldDialog bugfix - ignore vcoord if no of vlevels=1
