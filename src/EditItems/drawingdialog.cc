@@ -491,6 +491,39 @@ void DrawingDialog::editDrawings()
   emit editingMode(true);
 }
 
+/**
+ * Copy the drawings with the given index in the product list to the edit manager.
+ */
+void DrawingDialog::editDrawing(const QModelIndex &index)
+{
+  if (!editm_->isEmpty()) {
+    QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Clear Existing Objects"),
+      tr("You are already editing some objects. Shall I remove them?"),
+      QMessageBox::Yes | QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+      clearItems();
+  }
+
+  QString name = index.data().toString();
+  QString fileName = index.data(DrawingModel::FileNameRole).toString();
+
+  // Load the drawing into the edit manager.
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  editm_->loadDrawing(name, fileName);
+  QApplication::restoreOverrideCursor();
+
+  // If the drawing was selected in the product list then deselect it.
+  if (drawingsList_->selectionModel()->selectedIndexes().contains(index))
+    drawingsList_->selectionModel()->select(index, QItemSelectionModel::Toggle);
+
+  // Deselecting the drawing from the list does not automatically remove it
+  // from the drawing manager if it was present there, so we need to apply
+  // the change.
+  emit applyData();
+
+  emit editingMode(true);
+}
+
 void DrawingDialog::removeActiveDrawings()
 {
   // Construct a selection that will be used to deselect items in the drawing list.
@@ -544,8 +577,11 @@ void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
   if (!index.isValid())
     return;
 
-  QString fileName = index.data(DrawingModel::FileNameRole).toString();
-  // ### It should be possible to directly mark the file for editing.
+  QMenu menu;
+  QAction *editAction = menu.addAction(tr("Edit product"));
+  QAction *result = menu.exec(drawingsList_->viewport()->mapToGlobal(pos));
+  if (result == editAction)
+    editDrawing(index);
 }
 
 /**
@@ -577,11 +613,11 @@ void DrawingDialog::updateQuickSaveButton()
   if (products.size() == 1 && !products.values().first().second.isEmpty()) {
     QString visibleName = products.values().first().first;
     quickSaveName_ = products.values().first().second;
-    quickSaveButton_->setText(tr("Quick save '%1'").arg(visibleName));
+    quickSaveButton_->setToolTip(tr("Quick save '%1'").arg(visibleName));
     quickSaveButton_->setEnabled(true);
   } else {
     quickSaveName_ = QString();
-    quickSaveButton_->setText(tr("Quick save"));
+    quickSaveButton_->setToolTip(tr("Quick save"));
     quickSaveButton_->setEnabled(false);
   }
 }
