@@ -57,6 +57,9 @@ Q_SIGNALS:
   void SetupApply();
   void showsource(const std::string&, const std::string& = "");
 
+private Q_SLOTS:
+  void onVcrossOptionsChanged();
+
 private:
   void initOptions();
   void setup(vcross::VcrossOptions * vcopt);

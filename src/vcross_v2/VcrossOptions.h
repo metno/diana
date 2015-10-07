@@ -50,12 +50,10 @@ public:
   void setDefaults();
 
   // log and setup
-  std::vector<std::string> writeOptions();
+  std::vector<std::string> writeOptions() const;
   void readOptions(const std::vector<std::string>& vstr);
 
-//private:
-  bool changed;
-
+public:
   bool     pText;
   std::string textColour;
 
