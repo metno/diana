@@ -105,6 +105,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   vlayout->addLayout(hlayout1);
   vlayout->addLayout(hlayout2);
 
+  connect(vcrossm.get(), SIGNAL(vcrossOptionsChanged()), this, SLOT(onVcrossOptionsChanged()));
   isInitialized=false;
 }
 
@@ -261,12 +262,8 @@ void VcrossSetupDialog::standardClicked()
 
 void VcrossSetupDialog::start()
 {
-  if (isInitialized)
-    return;
-
-  // pointer to logged options (the first time)
-  vcross::VcrossOptions* vcopt = vcrossm->getOptions();
-  setup(vcopt);
+  if (!isInitialized)
+    onVcrossOptionsChanged();
   isInitialized = true;
 }
 
@@ -533,4 +530,10 @@ void VcrossSetupDialog::applyhideClicked()
 {
   applyClicked();
   hide();
+}
+
+void VcrossSetupDialog::onVcrossOptionsChanged()
+{
+  if (vcrossm && vcrossm->getOptions())
+    setup(vcrossm->getOptions());
 }

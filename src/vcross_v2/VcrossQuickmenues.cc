@@ -161,6 +161,7 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
     }
   }
   manager->fieldChangeDone();
+  manager->updateOptions();
 }
 
 

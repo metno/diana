@@ -206,6 +206,8 @@ void QtManager::parseSetup(const string_v& sources, const string_v&computations,
 
 void QtManager::updateOptions()
 {
+  Q_EMIT vcrossOptionsChanged();
+
   mCollector->setUpdateRequiredNeeded(); // might (no longer) need to request inflight
   preparePlot();
 }

@@ -271,6 +271,8 @@ Q_SIGNALS:
 
   void timeGraphModeChanged(bool on);
 
+  void vcrossOptionsChanged();
+
 private:
   int insertField(const ModelReftime& model, const std::string& plot,
       const string_v& options, int idx);

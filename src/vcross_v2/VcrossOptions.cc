@@ -188,8 +188,6 @@ void VcrossOptions::setDefaults()
   vcSelectedOnMapColour=    "red";
   vcSelectedOnMapLinetype=  "solid";
   vcSelectedOnMapLinewidth= 4.;
-
-  changed= true;
 }
 
 static const char* asBool(bool b)
@@ -197,7 +195,7 @@ static const char* asBool(bool b)
   return (b ? "on" : "off");
 }
 
-std::vector<std::string> VcrossOptions::writeOptions()
+std::vector<std::string> VcrossOptions::writeOptions() const
 {
   METLIBS_LOG_SCOPE();
 

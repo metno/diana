@@ -241,6 +241,7 @@ miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
 
   if (startsWith(unit, "days")) {
     if (UnitsConverterPtr uconv = unitConverter(unit, DAYS_SINCE_1900)) {
+      value = uconv->convert(value);
       miutil::miTime t(day0);
       t.addHour(value*24);
       return t;
