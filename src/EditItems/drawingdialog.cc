@@ -574,7 +574,7 @@ void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
   //QItemSelectionModel *selectionModel = drawingsList_->selectionModel();
   QModelIndex index = drawingsList_->indexAt(pos);
 
-  if (!index.isValid())
+  if (!index.isValid() || drawingsModel_.hasChildren(index))
     return;
 
   QMenu menu;
