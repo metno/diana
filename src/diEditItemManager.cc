@@ -218,6 +218,16 @@ bool EditItemManager::parseSetup()
       QStringList values = items.value("show-tooltips-editing").split(",");
       tooltipEditingProperties = values.toSet();
     }
+    if (items.contains("tooltips-merge-identical")) {
+      QStringList values = items.value("tooltips-merge-identical").split(",");
+      foreach (const QString &value, values) {
+        QStringList pieces = value.split("|");
+        if (pieces.size() > 2) {
+          QString replacement = pieces.takeLast();
+          tooltipMergeRules[replacement] = pieces;
+        }
+      }
+    }
   }
 
   // Let the base class parse the section of the setup file.
@@ -1832,13 +1842,47 @@ void EditItemManager::showItemInformation(const QList<DrawingItemBase *> &items)
       continue;
 
     QStringList lines;
+    QVariantMap properties = item->properties();
 
-    QVariantMap properties = item->propertiesRef();
+    // Merge properties with identical values, if a rule exists for them.
+    QHash<QString, QStringList>::const_iterator it;
+
+    for (it = tooltipMergeRules.begin(); it != tooltipMergeRules.end(); ++it) {
+      QString replacement = it.key();
+      QStringList names = it.value();
+
+      // Check if all the named properties have the same value.
+      QVariant value = properties.value(names.first());
+
+      if (value.isValid()) {
+        bool allEqual = true;
+
+        for (int i = 1; i < names.size(); ++i) {
+          if (properties.value(names.at(i)) != value) {
+            allEqual = false;
+            break;
+          }
+        }
+        if (allEqual) {
+          // Remove the properties from the map and replace them with a single
+          // property.
+          foreach (const QString &name, names)
+            properties.remove(name);
+
+          properties[replacement] = value;
+        }
+      }
+    }
+
     foreach (const QString &key, properties.keys()) {
       foreach (const QString &section, allowed) {
         if (key.startsWith(section)) {
-          QString keyEnd = key.mid(section.size());
-          lines.append(QString("%1: %2").arg(keyEnd).arg(properties.value(key).toString()));
+          // Allowed properties with no section are included verbatim; otherwise
+          // the part of the property name after the section is shown.
+          if (key.endsWith(":"))
+            lines.append(QString("%1: %2").arg(key.mid(section.size())).arg(properties.value(key).toString()));
+          else
+            lines.append(QString("%1: %2").arg(key).arg(properties.value(key).toString()));
         }
       }
     }

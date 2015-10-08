@@ -189,6 +189,7 @@ private:
     } tooltip_; // hold the current tooltip and its role
   QSet<QString> tooltipDrawingProperties;
   QSet<QString> tooltipEditingProperties;
+  QHash<QString, QStringList> tooltipMergeRules;
 
   QAction* selectAllAction_;
   QAction* copyAction_;
