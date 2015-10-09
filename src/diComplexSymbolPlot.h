@@ -134,7 +134,7 @@ private:
   void drawBox(DiGLPainter* gl, int index,float x, float y, bool fill=true);
   void drawCircle(DiGLPainter* gl, int index,float x, float y, bool circle=false);
   void drawDiamond(DiGLPainter* gl, int index,float x, float y);
-  void drawFlag(DiGLPainter* gl, int index,float x, float y, bool fill=false);
+  void drawFlag(DiGLPainter* gl, int index,float x, float y);
   void drawNuclear(DiGLPainter* gl, float x,float y);
   void drawPrecipitation(DiGLPainter* gl, float x,float y);
   void getComplexSize(DiGLPainter* gl, int index, float& sw, float & sh);

@@ -38,6 +38,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QPolygonF>
+
 #define MILOGGER_CATEGORY "diana.ComplexSymbolPlot"
 #include <miLogger/miLogging.h>
 
@@ -873,8 +875,7 @@ void ComplexSymbolPlot::drawSig29(DiGLPainter* gl, float x, float y)
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink/2);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
-  drawFlag(gl, 1000,x,y,true); //fill;
-  drawFlag(gl, 1000,x,y,false); //border
+  drawFlag(gl, 1000, x, y);
   drawSigString(gl, x,y,false);
   nstringsvisible=1;
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink*2);
@@ -985,74 +986,50 @@ void ComplexSymbolPlot::drawBox(DiGLPainter* gl, int index,float x, float y,
   gl->Color4fv(currentColor);
 }
 
-void ComplexSymbolPlot::drawFlag(DiGLPainter* gl, int index, float x, float y, bool fill)
+void ComplexSymbolPlot::drawFlag(DiGLPainter* gl, int index, float x, float y)
 {
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   float sw,sh;
   std::string s = "10";
   gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   gl->getTextSize(s,sw,sh);
-  sw=1.1*sw; sh=1.2*sh;
-  sh = sh*1.5;
-  sw = sw*1.5;
+  sw *= 1.1*1.5;
+  sh *= 1.2*1.5;
+  const int NSTEP = 10;
+  const float radius = sw/2, y2 = y+0.5*sh, y3 = y-0.5*sh, tiltEnd = sh/3, tiltStep = tiltEnd / NSTEP;
 
-  DiGLPainter::GLfloat radius = sw/2;
-
-  DiGLPainter::GLfloat y2 = y+0.5*sh;
-  DiGLPainter::GLfloat y3 = y-0.5*sh;
-  DiGLPainter::GLfloat x1;
-  DiGLPainter::GLfloat y1;
-  DiGLPainter::GLfloat offset=sh/3;
-
-  gl->LineWidth(1);
-  if(fill) {
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Begin(DiGLPainter::gl_POLYGON);
-    gl->Color4f(1.0,1.0,1.0,1.0);
-  } else {
-    gl->Begin(DiGLPainter::gl_LINE_LOOP);
-    gl->setColour(borderColour);
+  float rcos[NSTEP+1], rsin2[NSTEP+1];
+  for (int i=0; i<=NSTEP; ++i) {
+    rcos[i]  = cos(i*M_PI/NSTEP) * radius;
+    rsin2[i] = sin(i*M_PI/NSTEP) * radius * 0.5;
   }
 
-  gl->Vertex2f(x-sw,y-0.5*sh+offset);
-  gl->Vertex2f(x-sw,y+0.5*sh+offset);
-  for(int i=0;i<11;++i){
-    x1 = x -radius*cos(i*M_PI/10.0)-sw/2;
-    y1 = y2 - 0.5*radius*sin(i*M_PI/10.0);
-    gl->Vertex2f(x1,y1+offset);
-    offset-=sh/30;
-  }
-  offset+=sh/30;
+  QPolygonF polygon;
+  polygon << QPointF(x-sw, y3 + tiltEnd)
+          << QPointF(x-sw, y2 + tiltEnd);
 
-  for(int i=0;i<10;++i){
-      x1 = x + sw/2 - radius*cos(i*M_PI/10.0);
-      y1 = y2+0.5*radius*sin(i*M_PI/10.0);
-      gl->Vertex2f(x1,y1+offset);
-      offset-=sh/30;
-  }
+  for (int i=0; i<=NSTEP; ++i)
+    polygon << QPointF(x - radius - rcos[i], y2 - rsin2[i] + (NSTEP-i)*tiltStep);
+  for (int i=0; i<NSTEP; ++i)
+    polygon << QPointF(x + radius - rcos[i], y2 + rsin2[i] - i*tiltStep);
 
-  gl->Vertex2f(x+sw,y+0.5*sh+offset);
-  gl->Vertex2f(x+sw,y-0.5*sh+offset);
-  //  offset+=sh/50;
+  polygon << QPointF(x+sw, y2 - tiltEnd)
+          << QPointF(x+sw, y3 - tiltEnd);
 
-  for(int i=0;i<11;++i){
-      x1 = x + sw/2 +radius*cos(i*M_PI/10.0);
-      y1 = y3+0.5*radius*sin(i*M_PI/10.0);
-      gl->Vertex2f(x1,y1+offset);
-      offset+=sh/30;
-  }
-  offset-=sh/30;
+  for (int i=0; i<=NSTEP; ++i)
+    polygon << QPointF(x + radius + rcos[i], y3 + rsin2[i] - (NSTEP-i)*tiltStep);
+  for(int i=0; i<=NSTEP; ++i)
+    polygon << QPointF(x - radius + rcos[i], y3 - rsin2[i] + i*tiltStep);
 
-  for(int i=0;i<10;++i){
-    x1 = x +radius*cos(i*M_PI/10.0)-sw/2;
-    y1 = y3 - 0.5*radius*sin(i*M_PI/10.0);
-    gl->Vertex2f(x1,y1+offset);
-    offset+=sh/30;
-  }
+  DiGLPainter::GLfloat currentColor[4];
+  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
 
-  gl->End();
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+  gl->setColour(Colour::fromF(1, 1, 1, 1));
+  gl->drawPolygon(polygon);
+
+  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE_LOOP);
+  gl->setLineStyle(borderColour, 1);
+  gl->drawPolyline(polygon);
 
   gl->Color4fv(currentColor);
 }
