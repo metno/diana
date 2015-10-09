@@ -453,6 +453,19 @@ void QtPlot::viewStandard()
     const float range = (yMax - yMin) * 0.01;
     yMin += range * mOptions->minVerticalArea;
     yMax -= range * (100-mOptions->maxVerticalArea);
+  } else {
+    const float STD_MAX_HEIGHT_VALUE = 16000 /* m */, STD_MIN_P_VALUE = 100 /* hPa */;
+    if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE
+        && yMin <= 0.75*STD_MAX_HEIGHT_VALUE
+        && yMax > STD_MAX_HEIGHT_VALUE)
+    {
+      yMax = STD_MAX_HEIGHT_VALUE;
+    } else if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE
+        && yMax < STD_MIN_P_VALUE
+        && yMin >= 3 * STD_MIN_P_VALUE)
+    {
+      yMax = STD_MIN_P_VALUE;
+    }
   }
   mAxisY->setValueRange(yMin, yMax);
 
