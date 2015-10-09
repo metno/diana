@@ -934,7 +934,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
     wmd->hide();
     addDialog(wmd);
 
-    connect(WebMapManager::instance(), SIGNAL(webMapsReady()), w, SLOT(updateGL()));
+    connect(WebMapManager::instance(), SIGNAL(webMapsReady()),
+        this, SLOT(requestBackgroundBufferUpdate()));
   }
 
   editDrawingToolBar = EditItems::ToolBar::instance();
@@ -1215,13 +1216,6 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
   w->setGlwFocus();
 }
 
-void DianaMainWindow::requestBackgroundBufferUpdate()
-{
-  METLIBS_LOG_SCOPE();
-  w->Glw()->requestBackgroundBufferUpdate();
-  w->updateGL();
-}
-
 void DianaMainWindow::quickMenuApply(const vector<string>& s)
 {
   METLIBS_LOG_SCOPE();
@@ -1240,7 +1234,7 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
   miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
   contr->updatePlots();
-  w->updateGL();
+  requestBackgroundBufferUpdate();
   timeChanged();
 
   dialogChanged=false;
@@ -1466,7 +1460,7 @@ void DianaMainWindow::MenuOK()
   contr->updatePlots();
   METLIBS_LOG_INFO(contr->getMapArea());
 
-  w->updateGL();
+  requestBackgroundBufferUpdate();
   timeChanged();
   dialogChanged = false;
 
@@ -1670,7 +1664,7 @@ void DianaMainWindow::uffMenu()
     uffm->show();
     contr->stationCommand("show","uffda");
   }
-  w->updateGL();
+  requestBackgroundBufferUpdate();
   showUffdaDialogAction->setChecked( !b );
 }
 
@@ -1857,7 +1851,7 @@ void DianaMainWindow::stationChangedSlot(const vector<std::string>& station)
 {
   METLIBS_LOG_SCOPE();
   contr->stationCommand("setSelectedStations",station,"vprof");
-  w->updateGL();
+  requestBackgroundBufferUpdate();
 }
 
 
@@ -1917,7 +1911,7 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot to " << name.toStdString());
   std::string s= name.toStdString();
   contr->setSelectedLocation(LOCATIONS_VCROSS, s);
-  w->updateGL();
+  requestBackgroundBufferUpdate();
 }
 
 
@@ -1945,7 +1939,7 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"spectrum");
   //  contr->setSelectedStation(s, "spectrum");
-  w->updateGL();
+  requestBackgroundBufferUpdate();
 }
 
 
@@ -2306,7 +2300,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   }
 
   else if (letter.command == qmstrings::redraw ){
-    w->updateGL();
+    requestBackgroundBufferUpdate();
   }
 
   else if (letter.command == qmstrings::settime ){
@@ -2422,8 +2416,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
 
   // repaint window
   if(autoredraw[letter.from])
-    w->updateGL();
-
+    requestBackgroundBufferUpdate();
 }
 
 void DianaMainWindow::sendPrintClicked(int id)
@@ -2452,7 +2445,7 @@ void DianaMainWindow::updateObs()
   METLIBS_LOG_DEBUG("DianaMainWindow::obsUpdate()");
   diutil::OverrideCursor waitCursor;
   contr->updateObs();
-  w->updateGL();
+  requestBackgroundBufferUpdate();
 }
 
 void DianaMainWindow::autoUpdate()
@@ -2462,10 +2455,17 @@ void DianaMainWindow::autoUpdate()
   autoUpdateAction->setChecked(doAutoUpdate);
 }
 
+void DianaMainWindow::requestBackgroundBufferUpdate()
+{
+  w->Glw()->requestBackgroundBufferUpdate();
+  w->updateGL();
+}
+
 void DianaMainWindow::updateGLSlot()
 {
-  w->updateGL();
-  if (showelem) updatePlotElements();
+  requestBackgroundBufferUpdate();
+  if (showelem)
+    updatePlotElements();
 }
 
 
@@ -2633,7 +2633,7 @@ void DianaMainWindow::setPlotTime(miutil::miTime& t)
   diutil::OverrideCursor waitCursor;
   if (contr->setPlotTime(t)) {
     contr->updatePlots();
-    w->updateGL();
+    requestBackgroundBufferUpdate();
   }
   timeChanged();
 }
@@ -3002,12 +3002,12 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 
   if(markTrajPos){
     trajm->mapPos(lat,lon);
-    w->updateGL(); // repaint window
+    requestBackgroundBufferUpdate();
   }
 
   if(markMeasurementsPos) {
     measurementsm->mapPos(lat,lon);
-    w->updateGL(); // repaint window
+    requestBackgroundBufferUpdate();
   }
 
   if( !optAutoElementAction->isChecked() ){
@@ -3132,7 +3132,7 @@ void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
 
   //check if inside annotationPlot to edit
   if (contr->markAnnotationPlot(x,y))
-    w->updateGL();
+    requestBackgroundBufferUpdate();
 
   if (quick) return;
 
@@ -3258,7 +3258,8 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     }
   }
 
-  if (needupdate) w->updateGL();
+  if (needupdate)
+    requestBackgroundBufferUpdate();
 }
 
 void DianaMainWindow::sendSelectedStations(const std::string& command)
@@ -3746,7 +3747,7 @@ void DianaMainWindow::toggleElement(PlotElement pe)
 
   vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
-  w->updateGL();
+  requestBackgroundBufferUpdate();
 }
 
 void DianaMainWindow::showElements()
@@ -3821,7 +3822,7 @@ void DianaMainWindow::zoomTo(Rectangle r) {
 void DianaMainWindow::zoomOut()
 {
   contr->zoomOut();
-  w->updateGL();
+  requestBackgroundBufferUpdate();
 }
 
 void DianaMainWindow::showUffda()
@@ -3841,7 +3842,7 @@ void DianaMainWindow::showUffda()
       uffMenu();
     xlast=xclick;
     ylast=yclick;
-    w->updateGL();
+    requestBackgroundBufferUpdate();
   }
 }
 
@@ -3913,12 +3914,12 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
-  connect(dialog, SIGNAL(updated()), w, SLOT(updateGL()));
+  connect(dialog, SIGNAL(updated()), this, SLOT(requestBackgroundBufferUpdate()));
 
   if (QAction *action = dialog->action()) {
     dialogs[action] = dialog;
     connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
-    connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(requestBackgroundBufferUpdate()));
     showmenu->addAction(action);
     mainToolbar->addAction(action);
   }
