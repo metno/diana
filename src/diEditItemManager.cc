@@ -1384,11 +1384,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   }
 
   event->ignore();
-  res.savebackground = false;   // Don't save the background after painting.
-  res.background = true;        // Paint the background.
-  res.repaint= false;
-  //res.newcursor= edit_cursor;
-  res.newcursor= keep_it;
+  res.do_nothing();
+  res.enable_background_buffer = true;
 
   // Translate the mouse event by the current displacement of the viewport.
   getViewportDisplacement(w, h, dx, dy);
@@ -1673,7 +1670,7 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
   event->ignore();
 
   res.repaint = true;
-  res.background = true;
+  res.update_background_buffer = true;
 
   if (selectingOnly_) {
     // Only allow cycling the hit order.

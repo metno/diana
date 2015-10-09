@@ -526,9 +526,9 @@ mapMode EditManager::getMapMode()
 
 void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
-  //  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent");
-  res.savebackground= true;
-  res.background= false;
+  //  METLIBS_LOG_SCOPE();
+  res.enable_background_buffer = true;
+  res.update_background_buffer = false;
   res.repaint= false;
   res.newcursor= edit_cursor;
 
@@ -708,9 +708,9 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
 void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
-//  METLIBS_LOG_DEBUG("EditManager::sendKeyboardEvent");
-  res.savebackground= true;
-  res.background= false;
+//  METLIBS_LOG_SCOPE();
+  res.enable_background_buffer = true;
+  res.update_background_buffer = false;
   res.repaint= false;
 
   // numregs==0 if not combine (and then edit)
@@ -736,7 +736,7 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         hiddenObjects= true;
       }
       hiddenCombineObjects= false;
-      res.background= (mapmode==fedit_mode);
+      res.update_background_buffer = (mapmode==fedit_mode);
       setEditMessage("");
     }
     else if (ke->key() == Qt::Key_L) {
@@ -746,7 +746,7 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       else
         objm->editHideCombining();
       hiddenCombining= !hiddenCombining;
-      res.background= true;
+      res.update_background_buffer = true;
     }
     else if (ke->key() >= keyRegMin && ke->key() <= keyRegMax){
       // show objects and fields from one region (during and after combine)
@@ -758,7 +758,7 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       } else {
         showRegion= -1;
       }
-      res.background= true;
+      res.update_background_buffer = true;
       setEditMessage(msg);
     }
     res.repaint= true;

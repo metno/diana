@@ -1944,8 +1944,8 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
     if (me->button() == Qt::LeftButton) {
       dorubberband = true;
-      res.savebackground = true;
-      res.background = true;
+      res.enable_background_buffer = true;
+      res.update_background_buffer = false;
       res.repaint = true;
       startx = me->x();
       starty = me->y();
@@ -1971,7 +1971,8 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
     if (dorubberband) {
       res.action = quick_browsing;
-      res.background = false;
+      res.enable_background_buffer = true;
+      res.update_background_buffer = false;
       res.repaint = true;
       return;
 
@@ -1982,7 +1983,8 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       oldy = me->y();
 
       res.action = quick_browsing;
-      res.background = true;
+      res.enable_background_buffer = true;
+      res.update_background_buffer = true;
       res.repaint = true;
       res.newcursor = paint_move_cursor;
       return;
@@ -1994,7 +1996,8 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
     bool plotnew = false;
 
-    res.savebackground = false;
+    res.enable_background_buffer = false;
+    res.update_background_buffer = false;
 
     float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
     // minimum rubberband size for zooming (in pixels)
@@ -2032,8 +2035,9 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
     } else if (me->button() == Qt::MidButton) {
       staticPlot_->panPlot(false);
+      res.enable_background_buffer = false;
+      res.update_background_buffer = false;
       res.repaint = true;
-      res.background = true;
       return;
     }
     if (plotnew) {
@@ -2041,8 +2045,9 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       areaInsert(true);
       setMapAreaFromPhys(Rectangle(x1, y1, x2, y2));
 
+      res.enable_background_buffer = false;
+      res.update_background_buffer = false;
       res.repaint = true;
-      res.background = true;
     }
 
     return;
@@ -2096,8 +2101,8 @@ void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventRes
     setMapAreaFromPhys(r);
   }
 
+  res.enable_background_buffer = false;
   res.repaint = true;
-  res.background = true;
 }
 
 vector<std::string> PlotModule::getFieldModels()

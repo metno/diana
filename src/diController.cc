@@ -494,13 +494,9 @@ void Controller::archiveMode(bool on){
 void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
 #ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("Controller::sendMouseEvent................................");
+  METLIBS_LOG_SCOPE();
 #endif
-  res.repaint= false;        // whether event is followed by a repaint
-  res.background= false;     // ...and should the background be drawn too
-  res.savebackground= false; // if background should be saved after paint
-  res.newcursor= keep_it;    // leave the cursor be for now
-  res.action= no_action;     // trigger GUI-action
+  res.do_nothing();
 
   me->setAccepted(false);
 
@@ -522,9 +518,8 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     if (inEdit){
       editm->sendMouseEvent(me,res);
 #ifdef DEBUGREDRAW
-      METLIBS_LOG_DEBUG("Controller::sendMouseEvent editm res.repaint,bg,savebg,action: "
-          <<res.repaint<<" "<<res.background<<" "<<res.savebackground<<" "
-          <<res.action);
+      METLIBS_LOG_DEBUG(LOGVAL(res.repaint) << LOGVAL(res.enable_background_buffer)
+          << LOGVAL(res.savebackground) << LOGVAL(res.action));
 #endif
     }
   } else {
@@ -558,9 +553,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   }
 
   if (inEdit) // always use underlay when in edit-mode
-    res.savebackground= true;
-
-  return;
+    res.enable_background_buffer = true;
 }
 
 //------------------------------------------------------------
@@ -575,11 +568,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
   bool keyoverride = false;
-  res.repaint= false;        // whether event is followed by a repaint
-  res.background= true;      // ...and should the background be drawn too
-  res.savebackground= false; // if background should be saved after paint
-  res.newcursor= keep_it;    // leave the cursor be for now
-  res.action= no_action;     // trigger GUI-action
+  res.do_nothing();
 
   if (ke->key() == Qt::Key_unknown) return;
 
@@ -610,9 +599,9 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       const bool forward = ke->key() == Qt::Key_PageDown;
       plotm->nextObs(forward);  // browse through observations
       res.repaint= true;
-      res.background= true;
+      res.update_background_buffer = true;
       if (inEdit)
-        res.savebackground= true;
+        res.enable_background_buffer = true;
       return;
     } else if (!(ke->modifiers() & Qt::AltModifier) &&
         (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||
@@ -642,9 +631,9 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         return;
       plotm->changeArea(caco);
       res.repaint= true;
-      res.background= true;
+      res.update_background_buffer = true;
       if (inEdit)
-        res.savebackground= true;
+        res.enable_background_buffer = true;
       return;
     } else if (ke->key() == Qt::Key_F9){
       //    METLIBS_LOG_WARN("F9 - not defined");
@@ -685,9 +674,9 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
         plotm->areaNavigation(anav, res);
         res.repaint= true;
-        res.background= true;
+        res.update_background_buffer = true;
         if (inEdit)
-          res.savebackground= true;
+          res.enable_background_buffer = true;
       }
       return;
     } else if (ke->key() == Qt::Key_R) {
@@ -710,7 +699,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   }
 
   if (inEdit) // always use underlay when in edit-mode
-    res.savebackground= true;
+    res.enable_background_buffer = true;
 
   return;
 }

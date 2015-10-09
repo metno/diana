@@ -976,7 +976,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(measurementsm, SIGNAL(markMeasurementsPos(bool)), SLOT(measurementsPositions(bool)));
   connect(measurementsm, SIGNAL(updateMeasurements()),SLOT(updateGLSlot()));
 
-  connect(em, SIGNAL(editUpdate()), SLOT(editUpdate()));
+  connect(em, SIGNAL(editUpdate()), SLOT(requestBackgroundBufferUpdate()));
   connect(em, SIGNAL(editMode(bool)), SLOT(inEdit(bool)));
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
@@ -1203,7 +1203,6 @@ void DianaMainWindow::start()
   w->setGlwFocus();
 }
 
-// -- destructor
 DianaMainWindow::~DianaMainWindow()
 {
   contr->setCanvas(0);
@@ -1216,10 +1215,10 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
   w->setGlwFocus();
 }
 
-void DianaMainWindow::editUpdate(bool enabled)
+void DianaMainWindow::requestBackgroundBufferUpdate()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::editUpdate");
-  w->Glw()->forceUnderlay(enabled);
+  METLIBS_LOG_SCOPE();
+  w->Glw()->requestBackgroundBufferUpdate();
   w->updateGL();
 }
 

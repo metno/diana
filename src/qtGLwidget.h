@@ -30,6 +30,7 @@
 #define _qtGLwidget_h
 
 #include "diPaintable.h"
+#include "diGLPainter.h"
 #include "diMapMode.h"
 #include "diPrintOptions.h"
 
@@ -43,7 +44,6 @@
 #include <map>
 
 class Controller;
-class DiGLPainter;
 
 /**
    \brief the map OpenGL widget
@@ -60,9 +60,8 @@ public:
   GLwidget(Controller*);
   ~GLwidget();
 
-  /// toggles use of underlay
-  void forceUnderlay(bool b)
-    {savebackground= b;}
+  void requestBackgroundBufferUpdate()
+    { update_background_buffer = true; }
 
 Q_SIGNALS:
   /// single click signal
@@ -73,9 +72,9 @@ Q_SIGNALS:
   void mouseMovePos(QMouseEvent* me, bool quick);
   void objectsChanged();
   void fieldsChanged();
-  /// key press
+
   void keyPress(QKeyEvent* ke);
-  /// mouse double click
+
   void mouseDoubleClick(QMouseEvent* me);
 
   void changeCursor(cursortype);
@@ -93,14 +92,17 @@ private:
   void drawUnderlay(DiGLPainter* gl);
   void drawOverlay(DiGLPainter* gl);
 
+  void setFlagsFromEventResult(const EventResult& res);
+  void dropBackgroundBuffer();
+
 private:
   Controller* contr;       // gate to main system
   int plotw, ploth;        // size of widget (pixels)
 
-  bool savebackground;     // use fake overlay
-  bool useSavedUnderlay;
-  typedef unsigned int    GLuint;     /* 4-byte unsigned */
-  GLuint *fbuffer;         // fake overlay buffer
+  bool enable_background_buffer;
+  bool update_background_buffer;
+  DiGLPainter::GLuint *buffer_data;
+
   std::map<int,KeyType> keymap; // keymap's for keyboardevents
 };
 

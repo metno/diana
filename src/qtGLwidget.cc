@@ -44,22 +44,27 @@
 
 GLwidget::GLwidget(Controller* c)
   : contr(c)
-  , savebackground(false)
-  , useSavedUnderlay(false)
-  , fbuffer(0)
+  , enable_background_buffer(false)
+  , update_background_buffer(false)
+  , buffer_data(0)
 {
 }
 
 GLwidget::~GLwidget()
 {
-  delete[] fbuffer;
+  delete[] buffer_data;
 }
 
 void GLwidget::setCanvas(DiCanvas* canvas)
 {
   contr->setCanvas(canvas);
-  delete fbuffer;
-  fbuffer = 0;
+  dropBackgroundBuffer();
+}
+
+void GLwidget::dropBackgroundBuffer()
+{
+  delete buffer_data;
+  buffer_data = 0;
 }
 
 void GLwidget::paint(DiPainter* painter)
@@ -72,7 +77,10 @@ void GLwidget::paint(DiPainter* painter)
 
 void GLwidget::drawUnderlay(DiGLPainter* gl)
 {
-  if (useSavedUnderlay && fbuffer) {
+  METLIBS_LOG_SCOPE(LOGVAL(enable_background_buffer) << LOGVAL((buffer_data != 0))
+      << LOGVAL(update_background_buffer) << LOGVAL(gl->supportsReadPixels()));
+
+  if (enable_background_buffer && buffer_data && !update_background_buffer) {
     float glx1, gly1, glx2, gly2, delta;
     contr->getPlotSize(glx1, gly1, glx2, gly2);
     delta = (fabs(glx1 - glx2) * 0.1 / plotw);
@@ -84,17 +92,21 @@ void GLwidget::drawUnderlay(DiGLPainter* gl)
     gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
     gl->RasterPos2f(glx1 + delta, gly1 + delta);
 
-    gl->DrawPixels(plotw, ploth, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, fbuffer);
+    gl->DrawPixels(plotw, ploth, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
     gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
     return;
-  }
+  } else if (!enable_background_buffer)
+    dropBackgroundBuffer();
 
   if (contr)
     contr->plot(gl, true, false); // draw underlay
 
-  if (gl->supportsReadPixels() && ((useSavedUnderlay && !fbuffer) || savebackground)) {
-    if (!fbuffer)
-      fbuffer = new DiGLPainter::GLuint[4 * plotw * ploth];
+  if (gl->supportsReadPixels()
+      && enable_background_buffer
+      && (!buffer_data || update_background_buffer))
+  {
+    if (!buffer_data)
+      buffer_data = new DiGLPainter::GLuint[4 * plotw * ploth];
 
     gl->PixelZoom(1, 1);
     gl->PixelStorei(DiGLPainter::gl_PACK_SKIP_ROWS, 0);
@@ -102,8 +114,9 @@ void GLwidget::drawUnderlay(DiGLPainter* gl)
     gl->PixelStorei(DiGLPainter::gl_PACK_ROW_LENGTH, plotw);
     gl->PixelStorei(DiGLPainter::gl_PACK_ALIGNMENT, 4);
 
-    gl->ReadPixels(0, 0, plotw, ploth, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, fbuffer);
+    gl->ReadPixels(0, 0, plotw, ploth, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
     gl->PixelStorei(DiGLPainter::gl_PACK_ROW_LENGTH, 0);
+    update_background_buffer = false;
   }
 }
 
@@ -122,8 +135,14 @@ void GLwidget::resize(int w, int h)
   plotw = w;
   ploth = h;
 
-  delete[] fbuffer;
-  fbuffer = 0;
+  dropBackgroundBuffer();
+}
+
+void GLwidget::setFlagsFromEventResult(const EventResult& res)
+{
+  changeCursor(res.newcursor);
+  enable_background_buffer = res.enable_background_buffer;
+  update_background_buffer = (res.repaint && res.update_background_buffer);
 }
 
 // Sends all QMouseEvents off to controller. Return values are checked,
@@ -138,10 +157,7 @@ bool GLwidget::handleMouseEvents(QMouseEvent* me)
                   me->button(), me->buttons(), me->modifiers());
   // send event to controller
   contr->sendMouseEvent(&me2, res);
-
-  // check return values, and take appropriate action
-  changeCursor(res.newcursor);
-  savebackground = res.savebackground;
+  setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
   if (res.action != no_action) {
@@ -174,9 +190,6 @@ bool GLwidget::handleMouseEvents(QMouseEvent* me)
     }
   }
 
-  // check if repaint requested
-  if (res.repaint)
-    useSavedUnderlay = !res.background;
   return res.repaint;
 }
 
@@ -185,13 +198,8 @@ bool GLwidget::handleMouseEvents(QMouseEvent* me)
 bool GLwidget::handleKeyEvents(QKeyEvent* ke)
 {
   EventResult res;
-
-  // send event to controller
   contr->sendKeyboardEvent(ke, res);
-
-  // check return values, and take appropriate action
-  changeCursor(res.newcursor);
-  savebackground = res.savebackground;
+  setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
   if (res.action != no_action) {
@@ -207,9 +215,6 @@ bool GLwidget::handleKeyEvents(QKeyEvent* ke)
     }
   }
 
-  // check if repaint requested
-  if (res.repaint)
-    useSavedUnderlay = !res.background;
   return res.repaint;
 }
 
@@ -217,10 +222,9 @@ bool GLwidget::handleKeyEvents(QKeyEvent* ke)
 
 bool GLwidget::handleWheelEvents(QWheelEvent *we)
 {
-  int numDegrees = we->delta() / 8;
-  int numSteps = numDegrees / 15;
-
   if (contr->useScrollwheelZoom() && we->orientation() == Qt::Vertical) {
+    int numDegrees = we->delta() / 8;
+    int numSteps = numDegrees / 15;
     if (numSteps > 0) {
       float x1, y1, x2, y2;
       float xmap, ymap;
@@ -237,7 +241,7 @@ bool GLwidget::handleWheelEvents(QWheelEvent *we)
     } else {
       contr->zoomOut();
     }
-    useSavedUnderlay = false;
+    update_background_buffer = true;
     return true;
   }
   return false;

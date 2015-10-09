@@ -85,16 +85,16 @@ enum actiontype {
 
 /// returned to GUI after sent keyboard/mouse-events
 struct EventResult{
-  bool repaint;          // do a repaint
-  bool background;       // paint background as well
-  bool savebackground;   // start saving background to pixelbuffer
+  bool repaint;          //! do a repaint
+  bool enable_background_buffer;
+  bool update_background_buffer; //! update background buffer during repaint
   cursortype newcursor;  // set to new cursor or 'keep_it'
   actiontype action;     // should the event trigger a GUI-action
-  EventResult() :
-    repaint(false), background(false), savebackground(false),
-        newcursor(keep_it), action(no_action)
-  {
-  }
+
+  EventResult() { do_nothing(); }
+
+  void do_nothing()
+    { repaint = enable_background_buffer = update_background_buffer = false; newcursor = keep_it; action = no_action; }
 };
 
 #endif
