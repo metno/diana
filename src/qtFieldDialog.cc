@@ -226,7 +226,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey(PlotOptions::key_overlay, "", 0, CommandParser::cmdInt);
 
   cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_dimension, "", 1, CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_dimension, "", 0, CommandParser::cmdInt);
 
   //----------------------------------------------------------------
 
@@ -3591,7 +3591,7 @@ std::string FieldDialog::checkFieldOptions(const std::string& str)
         }
       }
 
-      //loop through new options, add new option if it is not a part og current options
+      //loop through new options, add new option if it is not a part of current options
       for (int i = 2; i < nlog; i++) {
         if (vplog[i].key != "level" && vplog[i].key != "idnum") {
           int j = 0;

@@ -1,3 +1,14 @@
+diana (3.39.0~rc7-1) unstable; urgency=low
+
+  * FieldDialog: do not add dim=1 in putOkString
+  * ComplexSymbolPlot::drawFlag - bugfix + simplification
+  * Bugfix: plotOver/plotUnder
+  * vcross: standard upper z limit 16km / 100hPa if no stdVerticalArea in options
+  * drawing: some fixes
+  * README: updated 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Oct 2015 10:26:55 +0200
+
 diana (3.39.0~rc6-1) unstable; urgency=low
 
   * FieldEdit - Bugfix drawCircle
