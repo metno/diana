@@ -946,7 +946,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect(editm, SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(editm, SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
   connect(editm, SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
-  connect(drawingDialog, SIGNAL(editingMode(bool)), editDrawingToolBar, SLOT(setVisible(bool)));
+  connect(drawingDialog, SIGNAL(editingMode(bool)), SLOT(setEditDrawingMode(bool)));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -1314,9 +1314,10 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 void DianaMainWindow::toggleEditDrawingMode()
 {
   if (editDrawingToolBar->isVisible())
-    editDrawingToolBar->hide();
+    setEditDrawingMode(false);
   else
-    editDrawingToolBar->show();
+    setEditDrawingMode(true);
+
   METLIBS_LOG_DEBUG("DianaMainWindow::toggleEditDrawingMode enabled " << editDrawingToolBar->isVisible());
 }
 
@@ -1326,6 +1327,8 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
     editDrawingToolBar->show();
   else
     editDrawingToolBar->hide();
+
+  EditItemManager::instance()->setEditing(enabled);
 }
 
 void DianaMainWindow::winResize(int w, int h)
