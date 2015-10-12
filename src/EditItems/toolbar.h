@@ -66,12 +66,6 @@ private:
   QComboBox *textCombo_;
   QAction *compositeAction_;
   QComboBox *compositeCombo_;
-
-  void showEvent(QShowEvent *);
-  void hideEvent(QHideEvent *);
-
-signals:
-  void visible(bool);
 };
 
 } // namespace

@@ -942,7 +942,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   editDrawingToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
-  connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
   EditItemManager *editm = EditItemManager::instance();
   connect(editm, SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(editm, SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
@@ -1327,12 +1326,6 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
     editDrawingToolBar->show();
   else
     editDrawingToolBar->hide();
-}
-
-void DianaMainWindow::editDrawingToolBarVisible(bool visible)
-{
-  // Inform the editing manager that editing is in progress.
-  EditItemManager::instance()->setEditing(visible);
 }
 
 void DianaMainWindow::winResize(int w, int h)
