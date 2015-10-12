@@ -1996,6 +1996,11 @@ bool ModifyItemsCommand::mergeWith(const QUndoCommand *command)
     QList<QVariant> oldPoints = oldProps.value("latLonPoints").toList();
     QList<QVariant> newPoints = newProps.value("latLonPoints").toList();
 
+    // Don't merge if the number of points have changed.
+    if (oldPoints.size() != newPoints.size())
+      return false;
+
+    // Don't merge if the points are the same.
     if (oldPoints == newPoints)
       return false;
 
