@@ -2046,7 +2046,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       setMapAreaFromPhys(Rectangle(x1, y1, x2, y2));
 
       res.enable_background_buffer = false;
-      res.update_background_buffer = false;
+      res.update_background_buffer = true;
       res.repaint = true;
     }
 
