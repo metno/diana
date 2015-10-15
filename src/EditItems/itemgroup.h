@@ -74,6 +74,8 @@ public:
   void setItems(QList<DrawingItemBase *> items);
   void addItem(DrawingItemBase *item);
   void removeItem(DrawingItemBase *item);
+  void lowerItems(const QList<DrawingItemBase *> &items);
+  void raiseItems(const QList<DrawingItemBase *> &items);
   void replaceStates(const QHash<int, QVariantMap> &states);
 
 private:

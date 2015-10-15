@@ -61,15 +61,6 @@ class DrawingManager : public Manager
   Q_OBJECT
 
 public:
-  class itemCompare
-  {
-  public:
-      inline bool operator()(const DrawingItemBase *t1, const DrawingItemBase *t2) const
-      {
-          return (t1 < t2);
-      }
-  };
-
   DrawingManager();
   ~DrawingManager();
 

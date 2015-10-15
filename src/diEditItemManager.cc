@@ -104,6 +104,10 @@ EditItemManager::EditItemManager()
   cutAction_->setShortcut(tr("Ctrl+X"));
   pasteAction_ = new QAction(tr("Paste"), this);
   pasteAction_->setShortcut(QKeySequence::Paste);
+  lowerAction_ = new QAction(tr("Lower"), this);
+  lowerAction_->setShortcut(tr("Ctrl+PgDown"));
+  raiseAction_ = new QAction(tr("Raise"), this);
+  raiseAction_->setShortcut(tr("Ctrl+PgUp"));
   joinAction_ = new QAction(tr("Join"), this);
   joinAction_->setShortcut(QString("J"));
   unjoinAction_ = new QAction(tr("Unjoin"), this);
@@ -141,6 +145,8 @@ EditItemManager::EditItemManager()
   connect(copyAction_, SIGNAL(triggered()), SLOT(copySelectedItems()));
   connect(cutAction_, SIGNAL(triggered()), SLOT(cutSelectedItems()));
   connect(pasteAction_, SIGNAL(triggered()), SLOT(pasteItems()));
+  connect(lowerAction_, SIGNAL(triggered()), SLOT(lowerSelectedItems()));
+  connect(raiseAction_, SIGNAL(triggered()), SLOT(raiseSelectedItems()));
   connect(joinAction_, SIGNAL(triggered()), SLOT(joinSelectedItems()));
   connect(unjoinAction_, SIGNAL(triggered()), SLOT(unjoinSelectedItems()));
   connect(toggleReversedAction_, SIGNAL(triggered()), SLOT(toggleReversedForSelectedItems()));
@@ -695,7 +701,6 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
   const QSet<DrawingItemBase *> selItems = selectedItems().toSet();
 
   QList<DrawingItemBase *> items = allItems();
-  qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
   foreach (DrawingItemBase *item, items) {
     EditItemBase::DrawModes modes = EditItemBase::Normal;
@@ -945,13 +950,15 @@ void EditItemManager::setStyleType()
 
 void EditItemManager::updateActions()
 {
-  const QSet<DrawingItemBase *> selItems = selectedItems().toSet();
+  const QList<DrawingItemBase *> selItems = selectedItems();
   selectAllAction_->setEnabled(allItems().size() > 0);
-  cutAction_->setEnabled(selItems.size() > 0);
-  copyAction_->setEnabled(selItems.size() > 0);
+  cutAction_->setEnabled(!selItems.isEmpty());
+  copyAction_->setEnabled(!selItems.isEmpty());
   pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+  lowerAction_->setEnabled(!selItems.isEmpty());
+  raiseAction_->setEnabled(!selItems.isEmpty());
   editPropertiesAction_->setEnabled(selItems.size() == 1);
-  editStyleAction_->setEnabled(selItems.size() > 0);
+  editStyleAction_->setEnabled(!selItems.isEmpty());
 }
 
 void EditItemManager::updateTimes()
@@ -1296,11 +1303,17 @@ void EditItemManager::toggleReversedForSelectedItems()
   }
 }
 
-//static void clearCursorStack()
-//{
-//    while (qApp->overrideCursor())
-//        qApp->restoreOverrideCursor();
-//}
+void EditItemManager::lowerSelectedItems()
+{
+  EditItems::ItemGroup *group = itemGroups_.value("scratch");
+  group->lowerItems(selectedItems());
+}
+
+void EditItemManager::raiseSelectedItems()
+{
+  EditItems::ItemGroup *group = itemGroups_.value("scratch");
+  group->raiseItems(selectedItems());
+}
 
 void EditItemManager::setSelectMode()
 {
@@ -1452,6 +1465,10 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       contextMenu.addAction(cutAction_);
       contextMenu.addAction(pasteAction_);
       pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+
+      contextMenu.addSeparator();
+      contextMenu.addAction(raiseAction_);
+      contextMenu.addAction(lowerAction_);
 
       contextMenu.addSeparator();
       contextMenu.addAction(joinAction_);
@@ -1700,6 +1717,10 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       copySelectedItems();
     } else if (pasteAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       pasteItems();
+    } else if (lowerAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      lowerSelectedItems();
+    } else if (raiseAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      raiseSelectedItems();
     } else if (joinAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       joinSelectedItems();
     } else if (unjoinAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
