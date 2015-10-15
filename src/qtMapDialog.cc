@@ -1182,7 +1182,7 @@ void MapDialog::putOKString(const vector<string>& vstr)
         if (miutil::to_upper(stokens[0]) == "NAME")
           area = stokens[1];
       }
-      } else if (miutil::to_upper(tokens[0]) == "MAP" )
+    } else if (miutil::to_upper(tokens[0]) == "MAP" )
       for (int j = 0; j < m; j++) {
         stokens = miutil::split(tokens[j], 0, "=");
         if (stokens.size() == 2) {
@@ -1207,6 +1207,9 @@ void MapDialog::putOKString(const vector<string>& vstr)
       // update options
       if (idx >= 0) {
         m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
+      }
+      if ( miutil::contains(str,"lon")){
+        mi = m_MapDI.maps[idx];
       }
     } else {
       m_ctrl->MapInfoParser(str, mi, false, false);

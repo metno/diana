@@ -1,3 +1,16 @@
+diana (3.39.0~rc8-1) unstable; urgency=low
+
+  * MapDialog: accept old lat/lon syntax
+  * Edit: Bugfix - repaint after zooming
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 14 Oct 2015 20:13:29 +0200
+
+diana (3.39.0~rc7-2) unstable; urgency=low
+
+  * EditMode: Manage editing mode using the edit manager's editing state
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Oct 2015 15:06:12 +0200
+
 diana (3.39.0~rc7-1) unstable; urgency=low
 
   * FieldDialog: do not add dim=1 in putOkString
