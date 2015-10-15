@@ -762,6 +762,11 @@ bool EditItemManager::canRedo() const
   return undoStack_.canRedo();
 }
 
+/**
+ * Returns a list of all drawing items from all item groups. The items from
+ * each group will be returned in the order in which they are stored.
+ * The overall order is determined by the name of each item group.
+ */
 QList<DrawingItemBase *> EditItemManager::allItems() const
 {
   QList<DrawingItemBase *> items;
@@ -776,7 +781,11 @@ QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos, QList
 {
   QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes;
 
-  foreach (DrawingItemBase *item, allItems()) {
+  QList<DrawingItemBase *> all = allItems();
+  QList<DrawingItemBase *>::const_iterator it = all.constEnd();
+  while (it != all.constBegin()) {
+    --it;
+    DrawingItemBase *item = *it;
     if ((!itemsVisibilityForced_) && (!item->isVisible()))
       continue;
     DrawingItemBase::HitType type = item->hit(pos, true);
