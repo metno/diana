@@ -642,29 +642,35 @@ void EditItemManager::keyPress(QKeyEvent *event)
     return;
   }
 
-  const QSet<DrawingItemBase *> origSelItems = selectedItems().toSet();
-  QSet<int> origSelIds;
-  foreach (const DrawingItemBase *item, origSelItems)
-    origSelIds.insert(item->id());
+  // Process each of the selected items and any currently hovered item.
+  bool handledHover = false;
+  DrawingItemBase *hoverItem = hitItems_.isEmpty() ? 0 : hitItems_.first();
 
-  // process each of the originally selected items
-  foreach (int origSelId, origSelIds) {
+  foreach (DrawingItemBase *item, selectedItems()) {
 
-    // At this point, the item may or may not exist (it may have been removed
-    // in an earlier iteration). If it still exists, pass the event to it.
-    DrawingItemBase *origSelItem = idToItem(origSelItems, origSelId);
+    bool rpn = false;
+    Editing(item)->keyPress(event, rpn);
 
-    if (origSelItem) {
-      bool rpn = false;
-      Editing(origSelItem)->keyPress(event, rpn);
+    // If the item needs to be repainted, take that as a hint for us to
+    // update its geographic coordinates.
+    if (rpn)
+      item->setLatLonPoints(getLatLonPoints(item));
 
-      // If the item needs to be repainted, take that as a hint for us to
-      // update its geographic coordinates.
-      if (rpn)
-        origSelItem->setLatLonPoints(getLatLonPoints(origSelItem));
+    adjustSelectedJoinPoints();
 
-      adjustSelectedJoinPoints();
-    }
+    if (item == hoverItem)
+      handledHover = true;
+  }
+
+  // Handle the hovered item if it wasn't a selected item.
+  if (hoverItem && !handledHover) {
+    bool rpn = false;
+    Editing(hoverItem)->keyPress(event, rpn);
+
+    if (rpn)
+      hoverItem->setLatLonPoints(getLatLonPoints(hoverItem));
+
+    adjustSelectedJoinPoints();
   }
 }
 
