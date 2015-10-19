@@ -40,6 +40,7 @@
 #include <QScrollArea>
 #include <QDialog>
 
+class QDialogButtonBox;
 class QToolButton;
 class QIcon;
 class QTextEdit;
@@ -54,10 +55,12 @@ public:
   TextEditor(const QString &text, bool = false);
   virtual ~TextEditor();
 
+  virtual bool eventFilter(QObject *watched, QEvent *event);
   QString text() const;
 
 private:
   QTextEdit *textEdit_;
+  QDialogButtonBox *buttonBox;
 };
 
 } // namespace
