@@ -1,3 +1,10 @@
+diana (3.39.0~rc9-1) unstable; urgency=low
+
+  * MapDialog: bugfix - accept old lat/lon syntax
+  * Edit: basic support for raising and lowering objects in the display order
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 Oct 2015 09:28:02 +0200
+
 diana (3.39.0~rc8-1) unstable; urgency=low
 
   * MapDialog: accept old lat/lon syntax
