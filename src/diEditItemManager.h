@@ -122,6 +122,7 @@ public slots:
   void editStyle();
   void setStyleType();
   void keyPress(QKeyEvent *);
+  void lowerSelectedItems();
   void mouseDoubleClick(QMouseEvent *);
   void mouseMove(QMouseEvent *);
   void mousePress(QMouseEvent *);
@@ -130,6 +131,7 @@ public slots:
   void joinSelectedItems();
   void unjoinSelectedItems();
   void toggleReversedForSelectedItems();
+  void raiseSelectedItems();
   void redo();
   void repaint();
   void reset();
@@ -195,6 +197,8 @@ private:
   QAction* copyAction_;
   QAction* cutAction_;
   QAction* pasteAction_;
+  QAction* lowerAction_;
+  QAction* raiseAction_;
   QAction* joinAction_;
   QAction* unjoinAction_;
   QAction* toggleReversedAction_;
