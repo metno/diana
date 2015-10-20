@@ -1207,9 +1207,9 @@ void MapDialog::putOKString(const vector<string>& vstr)
       // update options
       if (idx >= 0) {
         m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
-      }
-      if ( miutil::contains(str,"lon")){
-        mi = m_MapDI.maps[idx];
+        if ( miutil::contains(str,"lon=")){
+          mi = m_MapDI.maps[idx];
+        }
       }
     } else {
       m_ctrl->MapInfoParser(str, mi, false, false);
