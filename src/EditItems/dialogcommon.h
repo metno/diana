@@ -41,9 +41,10 @@
 #include <QDialog>
 
 class QDialogButtonBox;
-class QToolButton;
 class QIcon;
-class QTextEdit;
+class QPlainTextEdit;
+class QSpinBox;
+class QToolButton;
 
 class DrawingItemBase;
 
@@ -51,16 +52,24 @@ namespace EditItems {
 
 class TextEditor : public QDialog
 {
+  Q_OBJECT
+
 public:
-  TextEditor(const QString &text, bool = false);
+  TextEditor(const QString &text, int fontSize, bool readOnly = false);
   virtual ~TextEditor();
 
   virtual bool eventFilter(QObject *watched, QEvent *event);
   QString text() const;
+  int fontSize() const;
+
+public slots:
+  void setFontSize(int size);
 
 private:
-  QTextEdit *textEdit_;
   QDialogButtonBox *buttonBox;
+  QFont textFont;
+  QPlainTextEdit *textEdit_;
+  QSpinBox *sizeBox;
 };
 
 } // namespace

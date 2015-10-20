@@ -172,15 +172,18 @@ void Text::drawIncomplete(DiGLPainter* gl) const
 bool Text::editText()
 {
   const QStringList oldText = text();
+  int size = Drawing(this)->property("style:fontsize", PlotOptions::defaultFontSize()).toInt();
 
-  EditItems::TextEditor textEditor(text().join("\n"));
+  EditItems::TextEditor textEditor(text().join("\n"), size);
   textEditor.setWindowTitle("Edit Text");
   if (textEditor.exec() == QDialog::Accepted) {
     const QString t = textEditor.text().trimmed();
+    int size = textEditor.fontSize();
     if (!t.isEmpty()) {
       const QStringList newText = t.split("\n");
       if (newText != oldText)
         Drawing(this)->setProperty("text", newText);
+      Drawing(this)->setProperty("style:fontsize", size);
       return true;
     } else {
       return false;

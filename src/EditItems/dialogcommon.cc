@@ -41,7 +41,9 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QIcon>
+#include <QPlainTextEdit>
 #include <QRadioButton>
+#include <QSpinBox>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -49,17 +51,24 @@
 
 namespace EditItems {
 
-TextEditor::TextEditor(const QString &text, bool readOnly)
+TextEditor::TextEditor(const QString &text, int fontSize, bool readOnly)
 {
   setWindowTitle("Text Editor");
 
-  QVBoxLayout *layout = new QVBoxLayout;
-  textEdit_ = new QTextEdit;
+  sizeBox = new QSpinBox();
+  sizeBox->setMinimum(1);
+  sizeBox->setMaximum(99);
+  sizeBox->setValue(fontSize);
+
+  textEdit_ = new QPlainTextEdit;
   textEdit_->setPlainText(text);
   textEdit_->setReadOnly(readOnly);
-  layout->addWidget(textEdit_);
-
+  textFont = QFont();
+  textFont.setPointSize(sizeBox->value());
+  textEdit_->setFont(textFont);
   textEdit_->installEventFilter(this);
+
+  connect(sizeBox, SIGNAL(valueChanged(int)), SLOT(setFontSize(int)));
 
   if (readOnly) {
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
@@ -69,7 +78,11 @@ TextEditor::TextEditor(const QString &text, bool readOnly)
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), SLOT(reject()));
     connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), SLOT(accept()));
   }
-  layout->addWidget(buttonBox);
+
+  QFormLayout *layout = new QFormLayout;
+  layout->addRow(textEdit_);
+  layout->addRow(tr("Font size:"), sizeBox);
+  layout->addRow(buttonBox);
 
   setLayout(layout);
 }
@@ -83,7 +96,7 @@ bool TextEditor::eventFilter(QObject *watched, QEvent *event)
 {
   if (event->type() == QEvent::KeyPress) {
     if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_Tab) {
-      buttonBox->buttons().at(0)->setFocus(Qt::TabFocusReason);
+      sizeBox->setFocus(Qt::TabFocusReason);
       return true;
     }
   }
@@ -93,6 +106,17 @@ bool TextEditor::eventFilter(QObject *watched, QEvent *event)
 QString TextEditor::text() const
 {
   return textEdit_->toPlainText();
+}
+
+int TextEditor::fontSize() const
+{
+  return textEdit_->font().pointSize();
+}
+
+void TextEditor::setFontSize(int size)
+{
+  textFont.setPointSize(size);
+  textEdit_->setFont(textFont);
 }
 
 } // namespace
