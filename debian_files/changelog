@@ -1,3 +1,13 @@
+diana (3.39.0~rc10-1) unstable; urgency=low
+
+  * Edit: Added support for changing the font size in text objects
+  * FieldFunctions: vesselIcing
+  * FieldFunctions: probability/mean/stddev functions ignore undefined fields
+  * SpectrumPlot: fixed inconsistent wave direction
+  * Vcross - documentation
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 20 Oct 2015 14:53:29 +0200
+
 diana (3.39.0~rc9-1) unstable; urgency=low
 
   * MapDialog: bugfix - accept old lat/lon syntax
