@@ -431,6 +431,15 @@ private:
   virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
 };
 
+class SPE_fontsize : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_fontsize::name(); }
+private:
+  virtual QString labelText() const { return "font size"; }
+  virtual IndexedEditor *createEditor() { return new IntRangeEditor(1, 99); }
+};
+
 // ... editors for more subtypes
 
 class EditStyleProperty
@@ -580,6 +589,12 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_textalpha; }
 };
 
+class ESP_fontsize : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fontsize; }
+};
+
 StyleEditor::StyleEditor()
 {
   setWindowTitle(tr("Item Style"));
@@ -617,6 +632,7 @@ StyleEditor::StyleEditor()
   properties_.insert(DSP_symbolalpha::name(), new ESP_symbolalpha);
   properties_.insert(DSP_textcolour::name(), new ESP_textcolour);
   properties_.insert(DSP_textalpha::name(), new ESP_textalpha);
+  properties_.insert(DSP_fontsize::name(), new ESP_fontsize);
 }
 
 StyleEditor *StyleEditor::instance()
@@ -749,11 +765,6 @@ void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
         formLabels_.append(QSharedPointer<QLabel>(label));
         gridLayout->addWidget(label, row, 0);
         gridLayout->addWidget(editorWidget, row, 1);
-
-      } else { // property name not recognized at all
-        QLabel *label = new QLabel(QString("%1: UNSUPPORTED").arg(propName));
-        formLabels_.append(QSharedPointer<QLabel>(label));
-        gridLayout->addWidget(label, row, 0, 1, -1);
       }
 
       row++;

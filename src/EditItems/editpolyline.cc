@@ -155,7 +155,7 @@ void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
   if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete) ||
       (event->key() == Qt::Key_Minus)) {
 
-    if (!pressedCtrlPointIndex_.isEmpty()) {
+    if (hoverCtrlPointIndex_ >= 0 || !pressedCtrlPointIndex_.isEmpty()) {
       // Remove selected points
       removePoints();
       repaintNeeded = true;
@@ -319,7 +319,7 @@ void PolyLine::removePoints()
   QList<QPointF> newPoints, newLatLonPoints;
 
   for (int i = 0; i < points_.size(); ++i) {
-    if (!pressedCtrlPointIndex_.contains(i)) {
+    if (hoverCtrlPointIndex_ != i && !pressedCtrlPointIndex_.contains(i)) {
       newPoints.append(points_.at(i));
       newLatLonPoints.append(latLonPoints_.at(i));
     }

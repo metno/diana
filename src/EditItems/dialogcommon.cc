@@ -59,7 +59,8 @@ TextEditor::TextEditor(const QString &text, bool readOnly)
   textEdit_->setReadOnly(readOnly);
   layout->addWidget(textEdit_);
 
-  QDialogButtonBox *buttonBox = 0;
+  textEdit_->installEventFilter(this);
+
   if (readOnly) {
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttonBox->button(QDialogButtonBox::Close), SIGNAL(clicked()), SLOT(reject()));
@@ -76,6 +77,17 @@ TextEditor::TextEditor(const QString &text, bool readOnly)
 TextEditor::~TextEditor()
 {
   delete textEdit_;
+}
+
+bool TextEditor::eventFilter(QObject *watched, QEvent *event)
+{
+  if (event->type() == QEvent::KeyPress) {
+    if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_Tab) {
+      buttonBox->buttons().at(0)->setFocus(Qt::TabFocusReason);
+      return true;
+    }
+  }
+  return false;
 }
 
 QString TextEditor::text() const
