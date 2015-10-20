@@ -294,8 +294,12 @@ public:
     f_momentum_x_coordinate, //!< f_momentum_x_coordinate
     f_momentum_y_coordinate, //!< f_momentum_y_coordinate
     f_jacobian, //!< f_jacobian
-    f_vessel_icing_overland, //!< f_vessel_icing_overland
-    f_vessel_icing_mertins, //!< f_vessel_icing_mertins
+    f_vessel_icing_overland, //!< f_vessel_icing_overland - obsolete
+    f_vessel_icing_mertins, //!< f_vessel_icing_mertins - obsolete
+    f_vessel_icing_overland2, //!< f_vessel_icing_overland
+    f_vessel_icing_mertins2, //!< f_vessel_icing_mertins
+    f_vessel_icing_modstall, //!< f_vessel_icing_modstall
+    f_vessel_icing_testmod, //!< f_vessel_icing_testmod
     f_replace_undefined, //!< f_replace_undefined
     f_replace_defined, //!< f_replace_defined
     f_replace_all, //!< f_replace_all
@@ -605,11 +609,29 @@ public:
   static bool jacobian(int nx, int ny, const float *field1, const float *field2, float *fjacobian,
       const float *xmapr, const float *ymapr, bool& allDefined, float undef);
 
+  //obsolete - will be replaced by vesselIcingOverland2
   static bool vesselIcingOverland(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
       const float *v, float *icing, float freezingpoint, bool& allDefined, float undef);
 
+  //obsolete - will be replaced by vesselIcingMertins2
   static bool vesselIcingMertins(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
       const float *v, float *icing, float freezingpoint, bool& allDefined, float undef);
+
+  static bool vesselIcingOverland2(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
+      const float *v, const float *sal, const float *aice, float *icing, bool& allDefined,
+      float undef);
+
+  static bool vesselIcingMertins2(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
+      const float *v, const float *sal, const float *aice, float *icing, bool& allDefined,
+      float undef);
+
+  static bool vesselIcingModStall(int nx, int ny, const float *sal, const float *wave, const float *x_wind,
+      const float *y_wind, const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
+      const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef);
+
+  static bool vesselIcingTestMod(int nx, int ny, const float *sal, const float *wave, const float *x_wind,
+      const float *y_wind, const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
+      const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef);
 
   static bool values2classes(int nx, int ny, const float *fvalue, float *fclass,
       const std::vector<float>& values, bool& allDefined, float undef);
