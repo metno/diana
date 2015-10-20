@@ -911,11 +911,12 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
                 // double -> miTime
                 time_t t = values[i];
                 miTime tt(t);
-
-                if (timeStepFunc) {
-                  setTime.insert(tt);
-                } else {
-                  tNormal.insert(tt);
+                if( !tt.undef() ) {
+                  if (timeStepFunc) {
+                    setTime.insert(tt);
+                  } else {
+                    tNormal.insert(tt);
+                  }
                 }
               }
             }

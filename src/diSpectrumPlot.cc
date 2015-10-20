@@ -475,8 +475,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
   }
 
   if (spopt->pPeakDirection && ddPeak > -1) {
-    float dx= rwind * cos((270.-ddPeak)*DEG_TO_RAD);
-    float dy= rwind * sin((270.-ddPeak)*DEG_TO_RAD);
+    float dx= rwind * cos((90.-ddPeak)*DEG_TO_RAD);
+    float dy= rwind * sin((90.-ddPeak)*DEG_TO_RAD);
     float xend= xwind + dx;
     float yend= ywind + dy;
 

@@ -267,7 +267,7 @@ SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
     spp->wdir=          tmp[2]*extraScale[2] + 180;
     spp->hmo=           tmp[3]*extraScale[3];
     spp->tPeak=         tmp[4]*extraScale[4];
-    spp->ddPeak=        tmp[5]*extraScale[5];
+    spp->ddPeak=        tmp[5]*extraScale[5] + 180;
 
     int iundef= tmp[numExtra-2];
     int iscale= tmp[numExtra-1];

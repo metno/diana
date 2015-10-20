@@ -388,6 +388,10 @@ FieldFunctions::FieldFunctions()
   functionText[f_jacobian] = "jacobian(fx,fy)";
   functionText[f_vessel_icing_overland] = "vessel.icing.overland(airtemp,seatemp,u10m,v10m,const:freezingPoint)";
   functionText[f_vessel_icing_mertins] = "vessel.icing.mertins(airtemp,seatemp,u10m,v10m,const:freezingPoint)";
+  functionText[f_vessel_icing_overland2] = "vessel.icing.overland2(airtemp,seatemp,u10m,v10m,salinity0m,aice)";
+  functionText[f_vessel_icing_mertins2] = "vessel.icing.mertins2(airtemp,seatemp,u10m,v10m,salinity0m,aice)";
+  functionText[f_vessel_icing_modstall] = "vessel.icing.modstall(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,temperature0m,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)";
+  functionText[f_vessel_icing_testmod]  = "vessel.icing.testmod(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,sst,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)";
   functionText[f_replace_undefined] = "replace.undefined(f,const:value)";
   functionText[f_replace_defined] = "replace.defined(f,const:value)";
   functionText[f_replace_all] = "replace.all(f,const:value)";
@@ -406,10 +410,10 @@ FieldFunctions::FieldFunctions()
   functionText[f_stddev] = "stddev(field)";
   functionText[f_probability_above] = "probability_above(field,const:limit)";
   functionText[f_probability_below] = "probability_below(field,const:limit)";
-  functionText[f_probability_between] = "probability_betwwen(field,const:limit,const:limit)";
+  functionText[f_probability_between] = "probability_between(field,const:limit,const:limit)";
   functionText[f_number_above] = "number_above(field,const:limit)";
   functionText[f_number_below] = "number_below(field,const:limit)";
-  functionText[f_number_between] = "number_betwwen(field,const:limit,const:limit)";
+  functionText[f_number_between] = "number_between(field,const:limit,const:limit)";
   functionText[f_equivalent_to] = "equivalent_to(field)";
   functionText[f_min_value] = "min_value(field,...)";
   functionText[f_max_value] = "max_value(field,...)";
@@ -1814,6 +1818,37 @@ bool FieldFunctions::fieldComputer(Function function,
         constants[0], allDefined, undef);
     break;
 
+
+  case f_vessel_icing_overland2:
+    if (ninp != 6 || nout != 1)
+      break;
+    res = vesselIcingOverland2(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], fout[0],
+        allDefined, undef);
+    break;
+
+  case f_vessel_icing_mertins2:
+    if (ninp != 6 || nout != 1)
+      break;
+    res = vesselIcingMertins2(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], fout[0],
+        allDefined, undef);
+    break;
+
+  case f_vessel_icing_modstall:
+    if (ninp != 11 || nout != 1 || nconst != 4)
+      break;
+    res = vesselIcingModStall(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
+        finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
+        constants[0], constants[1], constants[2], constants[3], allDefined, undef);
+    break;
+
+  case f_vessel_icing_testmod:
+    if (ninp != 11 || nout != 1 || nconst != 4)
+      break;
+    res = vesselIcingTestMod(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
+        finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
+        constants[0], constants[1], constants[2], constants[3], allDefined, undef);
+    break;
+
   case f_replace_undefined:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
@@ -1952,16 +1987,16 @@ bool FieldFunctions::fieldComputer(Function function,
 
   case f_max_value:
     if (compute == 0)
-    compute = 1;
+      compute = 1;
   case f_min_value:
     if (compute == 0)
-    compute = 2;
+      compute = 2;
   case f_max_index:
     if (compute == 0)
-    compute = 3;
+      compute = 3;
   case f_min_index:
     if (compute == 0)
-    compute = 4;
+      compute = 4;
     res = extremeValue(compute, nx, ny, finp, fout[0],
         allDefined, undef);
     break;
@@ -1979,22 +2014,22 @@ bool FieldFunctions::fieldComputer(Function function,
 
   case f_probability_above:
     if (compute == 0)
-    compute = 1;
+      compute = 1;
   case f_probability_below:
     if (compute == 0)
-    compute = 2;
+      compute = 2;
   case f_probability_between:
     if (compute == 0)
-    compute = 3;
+      compute = 3;
   case f_number_above:
     if (compute == 0)
-    compute = 4;
+      compute = 4;
   case f_number_below:
     if (compute == 0)
-    compute = 5;
+      compute = 5;
   case f_number_between:
     if (compute == 0)
-    compute = 6;
+      compute = 6;
     if (nout != 1 || nconst < 1)
       break;
     res = probability(compute, nx, ny, finp, constants,  fout[0],
@@ -2012,7 +2047,7 @@ bool FieldFunctions::fieldComputer(Function function,
         allDefined, undef);
     break;
 
-   case f_snow_cm_from_snow_water_tk_td:
+  case f_snow_cm_from_snow_water_tk_td:
     if (ninp != 3 || nout != 1)
       break;
     res = snow_in_cm(nx, ny, finp[0], finp[1], finp[2], fout[0], allDefined, undef);
@@ -2465,7 +2500,7 @@ bool FieldFunctions::plevelgwind_xcomp(int nx, int ny, const float *z, float *ug
 
   const int fsize = nx * ny;
 
-    // loop extended, reset bad computations at boundaries later
+  // loop extended, reset bad computations at boundaries later
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -2500,7 +2535,7 @@ bool FieldFunctions::plevelgwind_ycomp(int nx, int ny, const float *z, float *vg
 
   const int fsize = nx * ny;
 
-    // loop extended, reset bad computations at boundaries later
+  // loop extended, reset bad computations at boundaries later
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -2774,12 +2809,12 @@ bool FieldFunctions::showalterIndex(int compute, int nx, int ny, const float *t5
         allDefined = false;
       } else {
         const float etd = ewt.value() * rh;
-        
+
         // fuktigadiabat  (tcl: cp * grader kelvin)
         // lift preliminary along dry-adiabat (pot.temp. constant)
         float tcl = dryadiabat * t850[i];
         float qcl = eps * etd / p850;
-        
+
         // adjust humidity and moisture in 'niter' iterations
         for (int n = 0; n < niter; n++) {
           const ewt_calculator ewt2(tcl / cp - t0);
@@ -2794,7 +2829,7 @@ bool FieldFunctions::showalterIndex(int compute, int nx, int ny, const float *t5
           qcl = qcl - dq;
           tcl = tcl + dq * xlh;
         }
-        
+
         const float tx500 = tcl / cp;
         sfield[i] = tk500 - tx500;
       }
@@ -3013,7 +3048,7 @@ bool FieldFunctions::hlevelhum(int compute, int nx, int ny, const float *t,
 #endif
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
-        and ((not need_p) or inAllDefined or ps[i] != undef))
+    and ((not need_p) or inAllDefined or ps[i] != undef))
     {
       const float p = need_p ? calculations::p_hlevel(ps[i], alevel, blevel) : 0;
       if (compute == 1) { // T(Kelvin),q -> RH(%)
@@ -3275,7 +3310,7 @@ bool FieldFunctions::alevelhum(int compute, int nx, int ny, const float *t,
 #endif
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
-        and ((compute != 7 and compute != 11) or inAllDefined or p[i] != undef))
+    and ((compute != 7 and compute != 11) or inAllDefined or p[i] != undef))
     {
       if (compute == 1) { // T(Kelvin),q -> RH(%)
         humout[i] = calculations::tk_q_rh(t[i], huminp[i], p[i], undef, allDefined);
@@ -3927,7 +3962,7 @@ bool FieldFunctions::gradient(int compute, int nx, int ny, const float *field,
     } else {
       for (int i = nx; i < fsize - nx; i++) {
         if (field[i - nx] != undef && field[i - 1] != undef && field[i + 1]
-            != undef && field[i + nx] != undef)
+                                                                     != undef && field[i + nx] != undef)
         {
           dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
           dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
@@ -3949,7 +3984,7 @@ bool FieldFunctions::gradient(int compute, int nx, int ny, const float *field,
     } else {
       for (int i = nx; i < fsize - nx; i++) {
         if (field[i - nx] != undef && field[i - 1] != undef && field[i]
-            != undef && field[i + 1] != undef && field[i + nx] != undef)
+                                                                     != undef && field[i + 1] != undef && field[i + nx] != undef)
         {
           d2fdx = field[i - 1] - 2.0 * field[i] + field[i + 1];
           d2fdy = field[i - nx] - 2.0 * field[i] + field[i + nx];
@@ -4508,7 +4543,7 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
       if (seatemp[i] < freezingPoint) {
         icing[i] = undef;
         local_allDefined = false;
-      } 
+      }
       else {
         float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
         float temperature = airtemp[i];
@@ -4558,7 +4593,7 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
         }
 
       }
-    } 
+    }
     else {
       icing[i] = undef;
     }
@@ -4566,6 +4601,574 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
 
   allDefined = local_allDefined;
 
+  return true;
+
+}
+
+
+// static
+bool FieldFunctions::vesselIcingOverland2(int nx, int ny, const float *airtemp,
+    const float *seatemp, const float *u, const float *v, const float *sal, const float *aice, float *icing,
+    bool& allDefined, float undef)
+{
+  // Based on: Overland (1990)
+  // All temperatures in degrees celsius
+#ifdef ENABLE_FIELDFUNCTIONS_TIMING
+  METLIBS_LOG_TIME();
+#endif
+
+  const int fsize = nx * ny;
+
+  bool local_allDefined = allDefined;
+  const double A=2.73e-2;
+  const double B=2.91e-4;
+  const double C=1.84e-6;
+
+  for (int i = 0; i < fsize; i++) {
+    if (allDefined || (airtemp[i] != undef && seatemp[i] != undef && u[i] != undef && v[i] != undef
+        && sal[i] !=undef && aice[i] !=undef && aice[i] < 0.4)) {
+
+      /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
+      double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * pow(sal[i],2);
+
+      if (seatemp[i] < Tf) {
+        icing[i] = undef;
+        local_allDefined = false;
+      } else {
+        double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        double ppr = ff * (Tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - Tf));
+        icing[i]=A*ppr+B*(ppr*ppr)+C*ppr*ppr*ppr;
+      }
+    } else {
+      icing[i] = undef;
+    }
+
+  }
+
+  allDefined = local_allDefined;
+  return true;
+
+}
+
+
+// static
+bool FieldFunctions::vesselIcingMertins2(int nx, int ny, const float *airtemp,
+    const float *seatemp, const float *u, const float *v, const float *sal, const float *aice, float *icing,
+    bool& allDefined, float undef)
+{
+
+  // Based on: H.O. Mertins : Icing on fishing vessels due to spray, Marine Observer No.221, 1968
+  // All temperatures in degrees celsius
+#ifdef ENABLE_FIELDFUNCTIONS_TIMING
+  METLIBS_LOG_TIME();
+#endif
+
+
+  const int fsize = nx * ny;
+
+
+  double temp1; double temp2; double temp3;
+  bool local_allDefined = allDefined;
+
+  for (int i = 0; i < fsize; i++) {
+    if (allDefined || (airtemp[i] != undef && seatemp[i] != undef && u[i] != undef && v[i] != undef
+        && sal[i] != undef && aice[i] !=undef && aice[i] < 0.4)) {
+      /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
+      double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
+
+      if (seatemp[i] < Tf) {
+        icing[i] = undef;
+        local_allDefined = false;
+      } else {
+        double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        double temperature = airtemp[i];
+        double sst=seatemp[i];
+        if (ff>=10.8){
+          if (ff<17.2) {
+            temp1=-1.15*sst-4.3;
+            temp2=-1.5*sst-10;
+            temp3=-10000;
+          } else if (ff<20.8){
+            temp1=-0.6*sst-3.2;
+            temp2=-1.05*sst-5.6;
+            temp3=-1.75*sst-12.5;
+          } else if (ff<28.5){
+            temp1=-0.3*sst-2.6;
+            temp2=-0.66*sst-3.32;
+            temp3=-1.325*sst-7.651;
+          } else {
+            temp1=-0.14*sst-2.28;
+            temp2=-0.3*sst-2.6;
+            temp3=-1.16*sst-5.22;
+          }
+
+          if (temperature>-2){
+            icing[i]=0;
+          } else if (temperature>temp1){
+            icing[i]=0.8333;
+          } else if (temperature>temp2){
+            icing[i]=2.0833;
+          } else {
+            if (temperature<=temp3 || ff<17.2) {
+              icing[i]=4.375;
+            } else {
+              icing[i]=6.25;
+            }
+          }
+        } else {
+          icing[i]=0;
+        }
+      }
+    } else {
+      icing[i] = undef;
+    }
+
+  }
+
+  allDefined = local_allDefined;
+  return true;
+
+}
+
+
+// static
+bool FieldFunctions::vesselIcingModStall(int nx, int ny,
+    const float *sal, const float *wave, const float *x_wind, const float *y_wind,
+    const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
+    const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef)
+{
+
+  // Modified Stallabrass (described in Henry (1995), Samuelsen et.al. (2015))
+  // All temperatures in degrees celsius
+#ifdef ENABLE_FIELDFUNCTIONS_TIMING
+  METLIBS_LOG_TIME();
+#endif
+
+  const int fsize = nx * ny;
+  bool local_allDefined = allDefined;
+  //METLIBS_LOG_INFO("Start Modified Stallabrass");
+
+  const double num=zmax-zmin;
+  const int number=(num*2+1);
+  double ice[number];
+
+  if (zmax<zmin || fmod(num,1)!=0) {
+    METLIBS_LOG_WARN("Set zmax >= zmin and zmax-zmin to a whole number");
+    return false;
+  }
+
+  if (vs<0 || alpha <0 || zmin < 0 || zmax < 0) {
+    METLIBS_LOG_WARN("Input variables must be positive");
+    return false;
+  }
+
+  for (int i = 0; i < fsize; i++) {
+
+    if (allDefined || (sal[i] != undef && wave[i] != undef && x_wind[i] != undef && y_wind[i] != undef
+        && airtemp[i] != undef && rh[i] != undef && sst[i] != undef && p[i] != undef && aice[i] !=undef && depth[i] !=undef)) {
+
+      /* Program to calculate freezing seaspray. Modified Stallabrass.  */
+      /* From Brown (1991,2011) */
+      /* Equation to be solved. */
+      /* Ri = (Rw*cw*(Ts-Td))/lf + ha*(Ts-Ta)/lf + he/lf * (esat(Ts) - rh*esat(Ta)); */
+      /* n=Ri/Rw; */
+      /* Ts = (1+n)*Tf; n<1. Temperature of freezing brine. */
+
+
+      /*Calculate VR from vs and angle */
+      double c = (9.81/(2*M_PI))*Pw[i];
+
+      //Calculating c in shallow water.
+      if (depth[i]<= c*Pw[i] && c!=0) {
+        //Setting start error and start velocity
+        c=1.0;
+        double err=1.0;
+        double c_new=0;
+        int j=0;
+        while(err>1e-5) {
+          c_new=(9.81*Pw[i]/(2*M_PI))*tanh(2*M_PI*depth[i]/(Pw[i]*c));
+          err=abs(c_new-c);
+          c=c_new;
+          j=j+1;
+          if (j>10000) {
+            c=0.0;
+            break;
+          }
+        }
+      }
+
+      double Vr = c-vs*cos(alpha);
+
+      /* Calculate v from x_wind and y_wind */
+      double v = sqrtf(x_wind[i] * x_wind[i] + y_wind[i] * y_wind[i]);
+
+      /* Freezing point of sea water from Stallabrass (1980) */
+      double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
+
+      /*  eq. 2.15 Henry, 1995, based on 3m cylinder -5 deg. */
+      double ha = 5.17 * pow(v, 0.8);
+
+      /*  eq. 2.16 Henry, 1995, based on 3m cylinder -5 deg.  */
+      double ratio = 89.5 * pow(v, 0.8) / ha;
+
+      /* Find water droplet temperature from eq: */
+      /*  dTd/dt = 0.2 * (t-Td) *(1+0.622*(lv/P*CP)*(ea-etd)/(t-Td)); */
+
+      double tau = 11.25 - v/4.0;
+
+      double k1 = sst[i];
+
+      /* Spray residence time from Zakrewski (1986) p.44 */
+      /* Low tau gives Td=sst */
+      if (tau > 0.0) {
+        double K = 311000.0 / ((p[i] / 10.0) * 1005.0);
+        double M = 0.2 * airtemp[i] + K * rh[i] * (0.6112 * exp(17.67 * airtemp[i] / (airtemp[i] + 243.5)));
+        double h = tau / 50.0;
+
+        double y = sst[i];
+
+        /* Use Runge Kutta method */
+        for (int counter = 0; counter < 50; counter++) {
+
+          k1 = (M - 0.2 * y) - K * (0.6112 * exp(17.67 * y / (y + 243.5)));
+          double y2 = y + 0.5 * h * k1;
+          double k2 = (M - 0.2 * y2) - K * (0.6112 * exp(17.67 * y2 / (y2 + 243.5)));
+          double y3 = y + 0.5 * h * k2;
+          y2 = (M - 0.2 * y3) - K * (0.6112 * exp(17.67 * y3 / (y3 + 243.5)));
+          double y4 = y + h * y2;
+          y += h * ((1.0/6.0) * (((k1 + 2.0 * k2) + 2.0 * y2) + ((M - 0.2 *
+              y4) - K * (0.6112 * exp(17.67 * y4 / (y4 + 243.5))))));
+          k1 = y;
+        }
+      }
+
+      /* section A.1.2 Stallabrass, 1980 */
+      /* section B2 Stallabrass, 1980 */
+      /* Iterative method */
+      /* From Ross Brown (1991,2011) */
+      for (int counter = 0; counter < number; counter++) {
+        /* Liquid water content, from Zakrweski spray cloud (1987) */
+        /*  Spray flux: eq. 2.2 Henry, 1995 */
+        double rw = 6.46E-5 * wave[i] * (Vr * Vr) * exp(-0.55 * (zmin + 0.5 * counter))* v;
+
+        /* Setting N=0 in expression as a start */
+        double N = 0.0;
+        double N1=N;
+
+        /* Setting starterror */
+        double err = 1.0;
+
+        /* Running loop when error>=tolerance */
+        int j=0;
+        double Ts=Tf;
+        double ri=0;
+        while (err >= 1.0E-5 && N>=0) {
+          Ts = (1.0 + N) * Tf;
+          ri = (0.012012012 * rw * (Ts - k1) + (ha / 333000.0) * ((Ts - airtemp[i]) +
+              ratio * (0.6112 * exp(17.67 * Ts / (Ts + 243.5)) - rh[i] * (0.6112 *
+                  exp(17.67 * airtemp[i] / (airtemp[i] + 243.5))))));
+          N1 = (ri/rw);
+          err = fabs(N1 - N);
+          N = N1;
+          j=j+1;
+          if (j>1000) {
+            METLIBS_LOG_DEBUG("ModStall-Algorithm do not converge!");
+            N=0.0;
+            break;
+          }
+        }
+
+        /* set n=0 for negative values */
+        if (N < 0.0) {
+          N = 0.0;
+        } else if(N > 1.0) { /* Dry icing mode */
+          N = 1.0;
+        }
+        /* cm/hr */
+        ice[counter] = N * (rw / 890.0) * 3600.0 * 100.0;
+
+      } /*end calculation over all z*/
+
+      /* calculationg icing from the mean of ice from z=3.5 to 9 m. */
+      double y = ice[0];
+      for (int counter = 0; counter < number-1; counter++) {
+        y += ice[counter + 1];
+      }
+
+      icing[i] = abs(y / number);
+
+
+    } else {
+      icing[i] = undef;
+    }
+
+    if (aice[i]>=0.4) {
+      icing[i] = undef;
+    }
+
+  } /*for loop end*/
+
+  allDefined = local_allDefined;
+  //METLIBS_LOG_INFO("End Modified Stallabrass");
+  return true;
+
+}
+
+
+// static
+bool FieldFunctions::vesselIcingTestMod(int nx, int ny,
+    const float *sal, const float *wave, const float *x_wind, const float *y_wind,
+    const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
+    const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef)
+{
+
+  // TestModel1 (T1) described in Samuelsen et.al. (2015))
+  // All temperatures in degrees celsius
+#ifdef ENABLE_FIELDFUNCTIONS_TIMING
+  METLIBS_LOG_TIME();
+#endif
+
+  const int fsize = nx * ny;
+  bool local_allDefined = allDefined;
+  METLIBS_LOG_DEBUG("Start Test Model 1");
+
+  const double num=zmax-zmin;
+  const int number=(num*2+1);
+  double ice[number];
+
+  if (zmax<zmin || fmod(num,1)!=0) {
+    METLIBS_LOG_WARN("Set zmax >= zmin and zmax-zmin to a whole number");
+    return false;
+  }
+
+  if (vs<0 || alpha <0 || zmin < 0 || zmax < 0) {
+    METLIBS_LOG_WARN("Input variables must be positive");
+    return false;
+  }
+
+
+  for (int i = 0; i < fsize; i++) {
+
+    if (allDefined || (sal[i] !=undef && wave[i] != undef && x_wind[i] != undef && y_wind[i] != undef && airtemp[i] != undef && rh[i] != undef && sst[i] != undef && p[i] != undef && aice[i] !=undef && depth[i] !=undef)) {
+
+      /* Program to calculate freezing seaspray. Test Model 1.  */
+      // Samuelsen et.al (2015)
+      // Equation to be solved.
+      // Qf = Qc + Qe + Qd
+      // Lfs * Ri = h*(Ts-Ta) + hv*(es-ea)+Rw*cw*(Tf-Td)
+      /* n=Ri/Rw; */
+      // Qc
+      // h= Nu * ka/D, Nu = 0.036*Pr^(1/3)*Re^0.8.
+      // Pr = 0.715;
+      // ka = 0.023; % W/mK
+      // ny=12e-6; %m²/s,
+      // Nu = 0.0322 * Re^0.8.   Re = v*D/ny  =>
+      // h = 0.0322 * (ka/ny^(0.8))*v^(0.8)/D^(0.2)
+      // ha = 0.036*Pr^(1/3) * (ka/ny^(0.8)) * (Wr^0.8)/(D^0.2);
+      // This becomes: h = 6.3991 * v^0.8/D^0.2;  %W/m²K  => For D=4m  -> h = 4.85 * v^0.8
+
+      // Qe
+      // hv = h * (Pr/Sc)^0.63 * eps*lv/cp * (1/p)  = h * 1738.6 *(es-ea)/p
+      // cp=1004; %J/kgK. pa=1.3
+      // Sc = 0.595;
+      // eps = 18.016/28.97;
+      // lv = 2.5e6; %J/kg
+      // he = (ha * (Pr/Sc)^0.63 * eps*lv/(cp*p)); %p pressure in hPa if es is in hPa
+
+      // Qd
+      // Rw = E * Wr * lwc * tdur*N
+
+      // [E]=collisionEff(Wr,dr,D,1); %D=dimension of plat. temp=1 -> rectangular body.
+      //  E=1;
+
+
+      /*Calculate VR from vs and angle */
+      double c = (9.81/(2*M_PI))*Pw[i]; //Wave speed
+
+      //Calculating c in shallow water.
+      if (depth[i]<= c*Pw[i] && c!=0) {
+        //Setting start error and start velocity
+        c=1.0;
+        double err=1.0;
+        double c_new=0;
+        int j=0;
+        while(err>1e-5) {
+          c_new=(9.81*Pw[i]/(2*M_PI))*tanh(2*M_PI*depth[i]/(Pw[i]*c));
+          err=abs(c_new-c);
+          c=c_new;
+          j=j+1;
+          if (j>10000) {
+            c=0.0;
+            break;
+          }
+        }
+      }
+
+      double Vr = c - vs*cos(alpha); //Relative speed between waves and boat
+
+      /* Calculate v from x_wind and y_wind */
+      double v = sqrtf(x_wind[i] * x_wind[i] + y_wind[i] * y_wind[i]);
+      //Wr = v;
+      double Wr = sqrtf(pow(v,2)+pow(vs,2)-2*v*vs*cos(alpha));
+
+      /* Freezing point of sea water from Stallabrass (1980) */
+      double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
+
+      // D=4m
+      //ha = 6.3991 * pow(Wr,0.8) / pow(4,0.2);
+      double ha = 4.85 * pow(Wr,0.8);
+      // hv = ha * 1738.6 *(es-ea)/p;
+
+      double t_flight = 20.0/Wr;
+      double tdur_total=0.0;
+      double tdur=0.0;
+
+      //Only valid for wind speed above 10 m/s
+      if (v>=10.0){
+        tdur_total = 10*fabs(Vr)*wave[i]/pow(v,2);
+      } else {
+        tdur_total=10*fabs(Vr)*wave[i]/pow(10,2);
+      }
+
+      if (tdur_total!=0) {
+        tdur = tdur_total-t_flight;
+        if (tdur<t_flight) {
+          tdur=t_flight;
+        }
+      }
+
+      // wave length divided by relative wave speed
+      double tper = c*Pw[i]/fabs(Vr);
+      double N3=0.0;
+
+      if (tper!=0){
+        N3 = (15.78- 18.04*exp(-4.26/tper))/60;
+      }
+
+
+      /* Find water droplet temperature from eq: */
+      /*  dTd/dt = 0.2 * (t-Td) *(1+0.622*(lv/P*CP)*(ea-etd)/(t-Td)); */
+
+      //tau=t_flight;
+      double tau=t_flight+tdur/2;
+      double  K = 0.2 * 0.622 * 2.5E6 / (p[i] * 1005.0);
+      double  M = 0.2 * airtemp[i] + K * rh[i] * (6.112 * exp(17.67 * airtemp[i] / (airtemp[i] + 243.5)));
+      double  h = tau / 50.0;
+
+      double  y = sst[i];
+      double  k1=y;
+
+      /* Use Runge Kutta method */
+      for (int counter = 0; counter < 50; counter++) {
+
+        k1 = (M - 0.2 * y) - K * (6.112 * exp(17.67 * y / (y + 243.5)));
+        double y2 = y + 0.5 * h * k1;
+        double k2 = (M - 0.2 * y2) - K * (6.112 * exp(17.67 * y2 / (y2 + 243.5)));
+        double y3 = y + 0.5 * h * k2;
+        y2 = (M - 0.2 * y3) - K * (6.112 * exp(17.67 * y3 / (y3 + 243.5)));
+        double y4 = y + h * y2;
+        y += h * ((1.0/6.0) * (((k1 + 2.0 * k2) + 2.0 * y2) + ((M - 0.2 *
+            y4) - K * (6.112 * exp(17.67 * y4 / (y4 + 243.5))))));
+        k1 = y;
+      }
+
+
+      for (int counter = 0; counter < number; counter++) {
+        /* Liquid water content, from Zakrweski spray cloud (1987) */
+        /*  Spray flux: eq. 2.2 Henry, 1995 */
+        double rw = 6.36E-5 * wave[i] * pow(Vr,2) * exp(-0.55 * (zmin + 0.5 * counter))* Wr * N3 * tdur;
+
+        /* Setting N=0 in expression as a start */
+        double N = 0.0;
+        double N1=N;
+
+        /* Setting starterror */
+        double err = 1.0;
+
+        // Setting start salinity
+        double Sb=sal[i];
+        double Ts = Tf;
+        const double lf=3.33E5;
+        double lfs=lf;
+        double ea=6.112*exp((17.67*airtemp[i])/(airtemp[i]+243.5));
+        double es=6.112*exp((17.67*Ts)/(Ts+243.5));
+        double he=ha*1738.6/p[i];
+        const double cw=4000;
+        double Ta=airtemp[i];
+        double ri=0.0;
+
+        /* Running loop when error>=tolerance */
+        int j=0;
+        while (err >= 1.0E-5 && N>=0 && rw>0) {
+          ri = (1/lfs)*(ha*(Ts-Ta) + he*(es-rh[i]*ea) + rw*cw*(Ts-k1));
+          N1 = (ri/rw);
+          err = fabs(N1 - N);
+          Sb = sal[i]/(1-N1*(1-0.3));
+          Ts = (-0.002 - 0.0524 * Sb) - 6.0E-5 * pow(Sb,2);
+          es = 6.112*exp((17.67*Ts)/(Ts+243.5));
+          lfs = (1-0.3)*lf;
+          N = N1;
+          j=j+1;
+          if (j>1000) {
+            METLIBS_LOG_DEBUG("T1 not conv: Running Ts=(1+n)Tf!");
+            //Start of Ts=(1+n)Tf algorithm
+            N = 0.0;
+
+            /* Setting starterror */
+            err = 1.0;
+
+            /* Running loop when error>=tolerance */
+            int l=0;
+            while (err >= 1.0E-5 && N>=0) {
+              Ts = (1.0 + N) * Tf;
+              es = 6.112*exp((17.67*Ts)/(Ts+243.5));
+              ri = (1/lfs)*(ha*(Ts-Ta) + he*(es-rh[i]*ea) + rw*cw*(Ts-k1));
+              N1 = (ri/rw);
+              err = fabs(N1 - N);
+              N = N1;
+              l=l+1;
+              //METLIBS_LOG_INFO("values"<< N <<" "<< Ts <<" "<< Tf <<" "<<ri <<" "<<rw <<" "<<err);
+              if (l>1000) {
+                METLIBS_LOG_DEBUG("TsTn do not converge either!");
+                N=0.0;
+                break;
+              } //end if break
+            } //end second while
+          } //end if j>1000
+        }
+
+        /* Setting n=0 for negative values */
+        if (N < 0.0) {
+          N = 0.0;
+          rw = 0.0;
+        } else if(N > 1.0) { /* Dry icing mode */
+          N = 1.0;
+        }
+        /* cm/hr */
+        ice[counter] = N* (rw / 890.0) * 3600.0 * 100.0;
+
+      } /*end calculation over all z*/
+
+      /* calculationg icing from the mean of ice from z=zmin to zmax m. */
+      y = ice[0];
+      for (int counter = 0; counter < (number-1); counter++) {
+        y += ice[counter + 1];
+      }
+
+      icing[i] = fabs(y /number);
+
+
+    } else {
+      icing[i] = undef;
+    }
+
+    if (aice[i]>=0.4) {
+      icing[i] = undef;
+    }
+
+  } /*for loop end*/
+
+  allDefined = local_allDefined;
   return true;
 
 }
@@ -4864,21 +5467,27 @@ bool FieldFunctions::meanValue(int nx, int ny, const vector< float*>& fields,
       fres[i] /= nFields;
     }
   } else {
+    float *nfields_defined = new float[fsize];
+    for (int i = 0; i < fsize; i++) {
+      nfields_defined[i] = 0;
+    }
     size_t j;
     for (j = 0; j <nFields; j++) {
       for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef && fields[j][i] != undef) {
+        if (fields[j][i] != undef) {
+          nfields_defined[i]++;
           fres[i] += fields[j][i];
-        } else {
-          fres[i] = undef;
-        }
-      }
-      for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef) {
-          fres[i] /= nFields;
         }
       }
     }
+    for (int i = 0; i < fsize; i++) {
+      if (nfields_defined[i] > 0) {
+        fres[i] /= nfields_defined[i];
+      } else {
+        fres[i] = undef;
+      }
+    }
+    delete[] nfields_defined;
   }
 
   return true;
@@ -4917,19 +5526,27 @@ bool FieldFunctions::stddevValue(int nx, int ny, const vector<float*>& fields,
       fres[i] = sqrt(fres[i]/nFields);
     }
   } else {
+    float *nfields_defined = new float[fsize];
+    for (int i = 0; i < fsize; i++) {
+      nfields_defined[i] = 0;
+    }
     size_t j;
     for (j = 0; j <nFields; j++) {
       for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef && fields[j][i] != undef) {
+        if (fields[j][i] != undef) {
+          nfields_defined[i]++;
           fres[i] += pow(fields[j][i]-mean[i],2);
         }
       }
     }
     for (int i = 0; i < fsize; i++) {
-      if (fres[i] != undef) {
-        fres[i] = sqrt(fres[i]/nFields);
+      if (nfields_defined[i] > 0 ) {
+        fres[i] = sqrt(fres[i]/nfields_defined[i]);
+      } else {
+        fres[i] = undef;
       }
     }
+    delete[] nfields_defined;
   }
   delete[] mean;
 
@@ -5037,7 +5654,7 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
   //  compute=3 : between - probability
   //  compute=4 : above - number
   //  compute=5 : below - number
-  //  compute=6 : betwwen - number
+  //  compute=6 : between - number
 
   const size_t fsize = nx * ny;
   size_t lsize = limits.size();
@@ -5076,7 +5693,7 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
       }
     }
 
-    if ( compute != 1 && compute != 4 ) {
+    if ( compute == 2 || compute == 5 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -5085,7 +5702,7 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
       }
     }
 
-    if ( compute < 3 ) {
+    if ( compute < 4 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -5095,42 +5712,67 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
     }
 
   } else {
+    float *nfields_defined = new float[fsize];
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-    for (size_t j = 0; j <nFields; j++) {
-      for (size_t i = 0; i < fsize; i++) {
-        if ( fields[j][i] == undef ){
-          fres[i] = undef;
+    for (size_t i = 0; i < fsize; i++) {
+      nfields_defined[i] = 0;
+    }
+
+    if ( lsize == 1 ) {
+#ifdef HAVE_OPENMP
+#pragma omp parallel for
+#endif
+      for (size_t j = 0; j <nFields; j++) {
+        for (size_t i = 0; i < fsize; i++) {
+          if ( fields[j][i] != undef ) {
+            nfields_defined[i]++;
+            if (fields[j][i] > limits[0] ){
+              fres[i] ++;
+            }
+          }
         }
-        if ( fres[i] != undef && fields[j][i] > limits[0] && (lsize == 2 && fields[j][i] < limits[1] )){
-          fres[i] ++;
+      }
+    } else if ( lsize == 2 ) {
+#ifdef HAVE_OPENMP
+#pragma omp parallel for
+#endif
+      for (size_t j = 0; j <nFields; j++) {
+        for (size_t i = 0; i < fsize; i++) {
+          if ( fields[j][i] != undef ) {
+            nfields_defined[i]++;
+            if ( fields[j][i] > limits[0] && fields[j][i] < limits[1] ){
+              fres[i] ++;
+            }
+          }
         }
       }
     }
-
-    if ( compute != 1 && compute != 4 ) {
+    if ( compute == 2 || compute == 5 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
       for (size_t i = 0; i < fsize; i++) {
         if (fres[i] != undef) {
-          fres[i] = nFields - fres[i];
+          fres[i] = nfields_defined[i] - fres[i];
         }
       }
     }
 
-    if ( compute < 3 ) {
+    if ( compute < 4 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
       for (size_t i = 0; i < fsize; i++) {
         if (fres[i] != undef) {
-          fres[i]/=(nFields/100.);
+          fres[i]/=(nfields_defined[i]/100.);
         }
       }
     }
+    delete[] nfields_defined;
   }
+
   return true;
 }
 
