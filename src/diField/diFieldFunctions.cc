@@ -410,10 +410,10 @@ FieldFunctions::FieldFunctions()
   functionText[f_stddev] = "stddev(field)";
   functionText[f_probability_above] = "probability_above(field,const:limit)";
   functionText[f_probability_below] = "probability_below(field,const:limit)";
-  functionText[f_probability_between] = "probability_betwwen(field,const:limit,const:limit)";
+  functionText[f_probability_between] = "probability_between(field,const:limit,const:limit)";
   functionText[f_number_above] = "number_above(field,const:limit)";
   functionText[f_number_below] = "number_below(field,const:limit)";
-  functionText[f_number_between] = "number_betwwen(field,const:limit,const:limit)";
+  functionText[f_number_between] = "number_between(field,const:limit,const:limit)";
   functionText[f_equivalent_to] = "equivalent_to(field)";
   functionText[f_min_value] = "min_value(field,...)";
   functionText[f_max_value] = "max_value(field,...)";
@@ -1837,7 +1837,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 11 || nout != 1 || nconst != 4)
       break;
     res = vesselIcingModStall(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
-          finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
+        finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
         constants[0], constants[1], constants[2], constants[3], allDefined, undef);
     break;
 
@@ -1845,8 +1845,8 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 11 || nout != 1 || nconst != 4)
       break;
     res = vesselIcingTestMod(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
-          finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
-  constants[0], constants[1], constants[2], constants[3], allDefined, undef);
+        finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
+        constants[0], constants[1], constants[2], constants[3], allDefined, undef);
     break;
 
   case f_replace_undefined:
@@ -1987,16 +1987,16 @@ bool FieldFunctions::fieldComputer(Function function,
 
   case f_max_value:
     if (compute == 0)
-    compute = 1;
+      compute = 1;
   case f_min_value:
     if (compute == 0)
-    compute = 2;
+      compute = 2;
   case f_max_index:
     if (compute == 0)
-    compute = 3;
+      compute = 3;
   case f_min_index:
     if (compute == 0)
-    compute = 4;
+      compute = 4;
     res = extremeValue(compute, nx, ny, finp, fout[0],
         allDefined, undef);
     break;
@@ -2014,22 +2014,22 @@ bool FieldFunctions::fieldComputer(Function function,
 
   case f_probability_above:
     if (compute == 0)
-    compute = 1;
+      compute = 1;
   case f_probability_below:
     if (compute == 0)
-    compute = 2;
+      compute = 2;
   case f_probability_between:
     if (compute == 0)
-    compute = 3;
+      compute = 3;
   case f_number_above:
     if (compute == 0)
-    compute = 4;
+      compute = 4;
   case f_number_below:
     if (compute == 0)
-    compute = 5;
+      compute = 5;
   case f_number_between:
     if (compute == 0)
-    compute = 6;
+      compute = 6;
     if (nout != 1 || nconst < 1)
       break;
     res = probability(compute, nx, ny, finp, constants,  fout[0],
@@ -2047,7 +2047,7 @@ bool FieldFunctions::fieldComputer(Function function,
         allDefined, undef);
     break;
 
-   case f_snow_cm_from_snow_water_tk_td:
+  case f_snow_cm_from_snow_water_tk_td:
     if (ninp != 3 || nout != 1)
       break;
     res = snow_in_cm(nx, ny, finp[0], finp[1], finp[2], fout[0], allDefined, undef);
@@ -2500,7 +2500,7 @@ bool FieldFunctions::plevelgwind_xcomp(int nx, int ny, const float *z, float *ug
 
   const int fsize = nx * ny;
 
-    // loop extended, reset bad computations at boundaries later
+  // loop extended, reset bad computations at boundaries later
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -2535,7 +2535,7 @@ bool FieldFunctions::plevelgwind_ycomp(int nx, int ny, const float *z, float *vg
 
   const int fsize = nx * ny;
 
-    // loop extended, reset bad computations at boundaries later
+  // loop extended, reset bad computations at boundaries later
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -2809,12 +2809,12 @@ bool FieldFunctions::showalterIndex(int compute, int nx, int ny, const float *t5
         allDefined = false;
       } else {
         const float etd = ewt.value() * rh;
-        
+
         // fuktigadiabat  (tcl: cp * grader kelvin)
         // lift preliminary along dry-adiabat (pot.temp. constant)
         float tcl = dryadiabat * t850[i];
         float qcl = eps * etd / p850;
-        
+
         // adjust humidity and moisture in 'niter' iterations
         for (int n = 0; n < niter; n++) {
           const ewt_calculator ewt2(tcl / cp - t0);
@@ -2829,7 +2829,7 @@ bool FieldFunctions::showalterIndex(int compute, int nx, int ny, const float *t5
           qcl = qcl - dq;
           tcl = tcl + dq * xlh;
         }
-        
+
         const float tx500 = tcl / cp;
         sfield[i] = tk500 - tx500;
       }
@@ -3048,7 +3048,7 @@ bool FieldFunctions::hlevelhum(int compute, int nx, int ny, const float *t,
 #endif
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
-        and ((not need_p) or inAllDefined or ps[i] != undef))
+    and ((not need_p) or inAllDefined or ps[i] != undef))
     {
       const float p = need_p ? calculations::p_hlevel(ps[i], alevel, blevel) : 0;
       if (compute == 1) { // T(Kelvin),q -> RH(%)
@@ -3310,7 +3310,7 @@ bool FieldFunctions::alevelhum(int compute, int nx, int ny, const float *t,
 #endif
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
-        and ((compute != 7 and compute != 11) or inAllDefined or p[i] != undef))
+    and ((compute != 7 and compute != 11) or inAllDefined or p[i] != undef))
     {
       if (compute == 1) { // T(Kelvin),q -> RH(%)
         humout[i] = calculations::tk_q_rh(t[i], huminp[i], p[i], undef, allDefined);
@@ -3962,7 +3962,7 @@ bool FieldFunctions::gradient(int compute, int nx, int ny, const float *field,
     } else {
       for (int i = nx; i < fsize - nx; i++) {
         if (field[i - nx] != undef && field[i - 1] != undef && field[i + 1]
-            != undef && field[i + nx] != undef)
+                                                                     != undef && field[i + nx] != undef)
         {
           dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
           dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
@@ -3984,7 +3984,7 @@ bool FieldFunctions::gradient(int compute, int nx, int ny, const float *field,
     } else {
       for (int i = nx; i < fsize - nx; i++) {
         if (field[i - nx] != undef && field[i - 1] != undef && field[i]
-            != undef && field[i + 1] != undef && field[i + nx] != undef)
+                                                                     != undef && field[i + 1] != undef && field[i + nx] != undef)
         {
           d2fdx = field[i - 1] - 2.0 * field[i] + field[i + 1];
           d2fdy = field[i - nx] - 2.0 * field[i] + field[i + nx];
@@ -4543,7 +4543,7 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
       if (seatemp[i] < freezingPoint) {
         icing[i] = undef;
         local_allDefined = false;
-      } 
+      }
       else {
         float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
         float temperature = airtemp[i];
@@ -4593,7 +4593,7 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
         }
 
       }
-    } 
+    }
     else {
       icing[i] = undef;
     }
@@ -4819,7 +4819,7 @@ bool FieldFunctions::vesselIcingModStall(int nx, int ny,
       double k1 = sst[i];
 
       /* Spray residence time from Zakrewski (1986) p.44 */
-        /* Low tau gives Td=sst */
+      /* Low tau gives Td=sst */
       if (tau > 0.0) {
         double K = 311000.0 / ((p[i] / 10.0) * 1005.0);
         double M = 0.2 * airtemp[i] + K * rh[i] * (0.6112 * exp(17.67 * airtemp[i] / (airtemp[i] + 243.5)));
@@ -5467,21 +5467,27 @@ bool FieldFunctions::meanValue(int nx, int ny, const vector< float*>& fields,
       fres[i] /= nFields;
     }
   } else {
+    float *nfields_defined = new float[fsize];
+    for (int i = 0; i < fsize; i++) {
+      nfields_defined[i] = 0;
+    }
     size_t j;
     for (j = 0; j <nFields; j++) {
       for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef && fields[j][i] != undef) {
+        if (fields[j][i] != undef) {
+          nfields_defined[i]++;
           fres[i] += fields[j][i];
-        } else {
-          fres[i] = undef;
-        }
-      }
-      for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef) {
-          fres[i] /= nFields;
         }
       }
     }
+    for (int i = 0; i < fsize; i++) {
+      if (nfields_defined[i] > 0) {
+        fres[i] /= nfields_defined[i];
+      } else {
+        fres[i] = undef;
+      }
+    }
+    delete[] nfields_defined;
   }
 
   return true;
@@ -5520,19 +5526,27 @@ bool FieldFunctions::stddevValue(int nx, int ny, const vector<float*>& fields,
       fres[i] = sqrt(fres[i]/nFields);
     }
   } else {
+    float *nfields_defined = new float[fsize];
+    for (int i = 0; i < fsize; i++) {
+      nfields_defined[i] = 0;
+    }
     size_t j;
     for (j = 0; j <nFields; j++) {
       for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef && fields[j][i] != undef) {
+        if (fields[j][i] != undef) {
+          nfields_defined[i]++;
           fres[i] += pow(fields[j][i]-mean[i],2);
         }
       }
     }
     for (int i = 0; i < fsize; i++) {
-      if (fres[i] != undef) {
-        fres[i] = sqrt(fres[i]/nFields);
+      if (nfields_defined[i] > 0 ) {
+        fres[i] = sqrt(fres[i]/nfields_defined[i]);
+      } else {
+        fres[i] = undef;
       }
     }
+    delete[] nfields_defined;
   }
   delete[] mean;
 
@@ -5640,7 +5654,7 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
   //  compute=3 : between - probability
   //  compute=4 : above - number
   //  compute=5 : below - number
-  //  compute=6 : betwwen - number
+  //  compute=6 : between - number
 
   const size_t fsize = nx * ny;
   size_t lsize = limits.size();
@@ -5679,7 +5693,7 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
       }
     }
 
-    if ( compute != 1 && compute != 4 ) {
+    if ( compute == 2 || compute == 5 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -5688,7 +5702,7 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
       }
     }
 
-    if ( compute < 3 ) {
+    if ( compute < 4 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
@@ -5698,42 +5712,67 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
     }
 
   } else {
+    float *nfields_defined = new float[fsize];
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-    for (size_t j = 0; j <nFields; j++) {
-      for (size_t i = 0; i < fsize; i++) {
-        if ( fields[j][i] == undef ){
-          fres[i] = undef;
+    for (size_t i = 0; i < fsize; i++) {
+      nfields_defined[i] = 0;
+    }
+
+    if ( lsize == 1 ) {
+#ifdef HAVE_OPENMP
+#pragma omp parallel for
+#endif
+      for (size_t j = 0; j <nFields; j++) {
+        for (size_t i = 0; i < fsize; i++) {
+          if ( fields[j][i] != undef ) {
+            nfields_defined[i]++;
+            if (fields[j][i] > limits[0] ){
+              fres[i] ++;
+            }
+          }
         }
-        if ( fres[i] != undef && fields[j][i] > limits[0] && (lsize == 2 && fields[j][i] < limits[1] )){
-          fres[i] ++;
+      }
+    } else if ( lsize == 2 ) {
+#ifdef HAVE_OPENMP
+#pragma omp parallel for
+#endif
+      for (size_t j = 0; j <nFields; j++) {
+        for (size_t i = 0; i < fsize; i++) {
+          if ( fields[j][i] != undef ) {
+            nfields_defined[i]++;
+            if ( fields[j][i] > limits[0] && fields[j][i] < limits[1] ){
+              fres[i] ++;
+            }
+          }
         }
       }
     }
-
-    if ( compute != 1 && compute != 4 ) {
+    if ( compute == 2 || compute == 5 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
       for (size_t i = 0; i < fsize; i++) {
         if (fres[i] != undef) {
-          fres[i] = nFields - fres[i];
+          fres[i] = nfields_defined[i] - fres[i];
         }
       }
     }
 
-    if ( compute < 3 ) {
+    if ( compute < 4 ) {
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
       for (size_t i = 0; i < fsize; i++) {
         if (fres[i] != undef) {
-          fres[i]/=(nFields/100.);
+          fres[i]/=(nfields_defined[i]/100.);
         }
       }
     }
+    delete[] nfields_defined;
   }
+
   return true;
 }
 
