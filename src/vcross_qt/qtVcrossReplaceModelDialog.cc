@@ -146,6 +146,7 @@ void VcrossReplaceModelDialog::onReplace()
         vcrossm->removeField(index + 1);
     }
     vcrossm->fieldChangeDone();
+    Q_EMIT replacedModel();
     restart();
   }
 }
