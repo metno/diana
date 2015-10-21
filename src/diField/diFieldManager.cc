@@ -682,7 +682,7 @@ void FieldManager::addComputedParameters(
   std::string fchour;
   BOOST_REVERSE_FOREACH(std::string inputParameterName, fc.input) {
     //levelSpecified true if param:level=value
-    METLIBS_LOG_DEBUG(LOGVAL(inputParameterName));
+    //METLIBS_LOG_DEBUG(LOGVAL(inputParameterName));
     std::string inputLevelName;
     FieldFunctions::FieldSpec fs;
     bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParameterName, fs);
@@ -712,8 +712,7 @@ void FieldManager::addComputedParameters(
           inputOk = false;
           break;
         }
-
-        if (fs.vcoordName.empty()  && !levelSpecified && computeZaxis.empty()) {
+        if (fs.vcoordName.empty()  && !levelSpecified ) {
           computeZaxis = pitr->key.zaxis;
         }
         if (fs.ecoordName.empty() && fs.elevel.empty() && pitr->key.extraaxis!="") {
