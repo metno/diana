@@ -71,6 +71,7 @@ public:
 
   QMap<QString, QString> items() const;
   void setItems(const QMap<QString, QString> &items);
+  void setTitle(const QString &title);
 
   QModelIndex find(const QString &name) const;
   QModelIndex findFile(const QString &fileName) const;
@@ -82,6 +83,7 @@ public slots:
 private:
   QStringList listFiles(const QString &fileName) const;
 
+  QString title_;
   QMap<QString, QString> items_;
   QStringList order_;
   QHash<QString, QStringList> fileCache_;
@@ -115,14 +117,12 @@ public slots:
 private slots:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void clearItems();
-  void editDrawing(const QModelIndex &index);
-  void editDrawings();
+  void editDrawings(const QModelIndex &index = QModelIndex());
   void extend(bool enable);
   void makeProduct();
   void removeActiveDrawings();
   void showActiveContextMenu(const QPoint &pos);
   void showDrawingContextMenu(const QPoint &pos);
-  void updateButtons();
   void updateQuickSaveButton();
   virtual void updateTimes();
 
@@ -131,14 +131,15 @@ private:
   void updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName);
   void saveFile(const QList<DrawingItemBase *> &items, const QString &fileName);
 
-  DrawingModel drawingsModel_;
   DrawingModel activeDrawingsModel_;
+  DrawingModel drawingsModel_;
+  DrawingModel editingModel_;
   DrawingManager *drawm_;
   EditItemManager *editm_;
   FilterDrawingWidget *filterWidget_;
   QTreeView *activeList_;
   QTreeView *drawingsList_;
-  QPushButton *editButton_;
+  QTreeView *editingList_;
   QPushButton *filterButton_;
   QPushButton *quickSaveButton_;
   QString quickSaveName_;

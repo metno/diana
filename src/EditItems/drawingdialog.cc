@@ -70,6 +70,10 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // Populate the dialog with the drawings held by the drawing manager.
   drawingsModel_.setItems(drawm_->getDrawings());
+  drawingsModel_.setTitle(tr("Products"));
+  activeDrawingsModel_.setTitle(tr("Display products"));
+  editingModel_.setTitle(tr("Edit products"));
+
   connect(drawm_, SIGNAL(drawingLoaded(QString)), &drawingsModel_, SLOT(appendDrawing(QString)));
 
   // Create the GUI.
@@ -79,7 +83,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   // Products and selected products
 
   drawingsList_ = new QTreeView();
-  drawingsList_->setHeaderHidden(true);
   drawingsList_->setRootIsDecorated(true);
   drawingsList_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   drawingsList_->setModel(&drawingsModel_);
@@ -88,8 +91,23 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(drawingsList_, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showDrawingContextMenu(const QPoint &)));
 
+  editingList_ = new QTreeView();
+  editingList_->setRootIsDecorated(false);
+  editingList_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  editingList_->setModel(&editingModel_);
+  editingList_->setSelectionMode(QAbstractItemView::MultiSelection);
+  editingList_->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  QPushButton *loadFileButton = new QPushButton(tr("Load new..."));
+  loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
+  connect(loadFileButton, SIGNAL(clicked()), SLOT(loadFile()));
+
+  QPushButton *quickLoadButton = new QPushButton(tr("Reload"));
+  connect(quickLoadButton, SIGNAL(clicked()), SLOT(reload()));
+
+  // Active products
+
   activeList_ = new QTreeView();
-  activeList_->setHeaderHidden(true);
   activeList_->setRootIsDecorated(false);
   activeList_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   activeList_->setModel(&activeDrawingsModel_);
@@ -98,39 +116,27 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(activeList_, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showActiveContextMenu(const QPoint &)));
 
-  QPushButton *loadFileButton = new QPushButton(tr("Load drawing..."));
-  loadFileButton->setIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon));
-  connect(loadFileButton, SIGNAL(clicked()), SLOT(loadFile()));
+  QCheckBox *allTimesCheckBox = new QCheckBox(tr("All time steps"));
+  connect(allTimesCheckBox, SIGNAL(toggled(bool)), drawm_, SLOT(setAllItemsVisible(bool)));
+  connect(allTimesCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
+  connect(allTimesCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
 
-  QHBoxLayout *addLayout = new QHBoxLayout();
-  addLayout->addWidget(TitleLabel(tr("Products"), this));
-  addLayout->addStretch();
-  addLayout->addWidget(loadFileButton);
+  QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
+  connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
+  connect(applyButton, SIGNAL(clicked()), SLOT(updateQuickSaveButton()));
 
   // Editing/Filtering
 
   QFrame *editTopSeparator = new QFrame();
   editTopSeparator->setFrameShape(QFrame::HLine);
-  QFrame *editBottomSeparator = new QFrame();
-  editBottomSeparator->setFrameShape(QFrame::HLine);
 
   QCheckBox *editModeCheckBox = new QCheckBox(tr("Edit mode"));
   connect(editModeCheckBox, SIGNAL(toggled(bool)), SIGNAL(editingMode(bool)));
   connect(editm_, SIGNAL(editing(bool)), editModeCheckBox, SLOT(setChecked(bool)));
 
-  filterButton_ = new QPushButton(tr("Show filters >>>"));
-  filterButton_->setCheckable(true);
-  filterButton_->setChecked(false);
-  filterWidget_ = new FilterDrawingWidget();
-  connect(filterButton_, SIGNAL(toggled(bool)), SLOT(extend(bool)));
-  connect(filterWidget_, SIGNAL(updated()), SIGNAL(updated()));
-
-  QCheckBox *showAllCheckBox = new QCheckBox(tr("Show all items"));
-  connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SLOT(setAllItemsVisible(bool)));
-  connect(showAllCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
-  connect(showAllCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
-  connect(showAllCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(disableFilter(bool)));
-  connect(showAllCheckBox, SIGNAL(toggled(bool)), filterButton_, SLOT(setDisabled(bool)));
+  QPushButton *clearButton = new QPushButton(tr("Clear"));
+  clearButton->setEnabled(true);
+  connect(clearButton, SIGNAL(clicked()), SLOT(clearItems()));
 
   quickSaveButton_ = new QPushButton(tr("Quick save"));
   quickSaveButton_->setEnabled(false);
@@ -150,58 +156,42 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(saveAsMenu->addAction(tr("Save Selected Items...")), SIGNAL(triggered()), SLOT(saveSelectedItems()));
   saveAsButton->setMenu(saveAsMenu);
 
-  editButton_ = new QPushButton(tr("Edit"));
-  editButton_->setEnabled(false);
-  connect(editButton_, SIGNAL(clicked()), SLOT(editDrawings()));
+  QGridLayout *editButtonLayout = new QGridLayout();
+  editButtonLayout->addWidget(editModeCheckBox, 0, 0);
+  editButtonLayout->addWidget(clearButton, 0, 1);
+  editButtonLayout->addWidget(quickSaveButton_, 1, 0);
+  editButtonLayout->addWidget(saveAsButton, 1, 1);
 
-  QPushButton *clearButton = new QPushButton(tr("Clear"));
-  clearButton->setEnabled(true);
-  connect(clearButton, SIGNAL(clicked()), SLOT(clearItems()));
+  // Filter and hide
 
-  QHBoxLayout *saveButtonLayout = new QHBoxLayout();
-  saveButtonLayout->addWidget(quickSaveButton_);
-  saveButtonLayout->addWidget(saveAsButton);
-  saveButtonLayout->addWidget(editButton_);
-  saveButtonLayout->addWidget(clearButton);
-
-  QHBoxLayout *filterButtonLayout = new QHBoxLayout();
-  filterButtonLayout->addWidget(showAllCheckBox);
-  filterButtonLayout->addWidget(filterButton_);
-
-  QVBoxLayout *editLayout = new QVBoxLayout();
-  editLayout->addWidget(editTopSeparator);
-  editLayout->addWidget(TitleLabel(tr("Editing/Filtering"), this));
-  editLayout->addWidget(editModeCheckBox);
-  editLayout->addLayout(filterButtonLayout);
-  editLayout->addLayout(saveButtonLayout);
-  editLayout->addWidget(editBottomSeparator);
-
-  // Apply and hide
+  QFrame *editBottomSeparator = new QFrame();
+  editBottomSeparator->setFrameShape(QFrame::HLine);
 
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
-  QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
-  QPushButton *quickLoadButton = new QPushButton(tr("Reload"));
-
   connect(hideButton, SIGNAL(clicked()), SLOT(close()));
-  connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
-  connect(applyButton, SIGNAL(clicked()), SLOT(updateQuickSaveButton()));
-  connect(quickLoadButton, SIGNAL(clicked()), SLOT(reload()));
 
-  QHBoxLayout *hideApplyLayout = new QHBoxLayout();
-  hideApplyLayout->addWidget(hideButton);
-  hideApplyLayout->addStretch();
-  hideApplyLayout->addWidget(quickLoadButton);
-  hideApplyLayout->addStretch();
-  hideApplyLayout->addWidget(applyButton);
+  filterButton_ = new QPushButton(tr("Show filters >>>"));
+  filterButton_->setCheckable(true);
+  filterButton_->setChecked(false);
+  filterWidget_ = new FilterDrawingWidget();
+  connect(filterButton_, SIGNAL(toggled(bool)), SLOT(extend(bool)));
+  connect(filterWidget_, SIGNAL(updated()), SIGNAL(updated()));
+  connect(allTimesCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(disableFilter(bool)));
+  connect(allTimesCheckBox, SIGNAL(toggled(bool)), filterButton_, SLOT(setDisabled(bool)));
 
-  QVBoxLayout *leftLayout = new QVBoxLayout();
-  leftLayout->addLayout(addLayout);
-  leftLayout->addWidget(drawingsList_);
-  leftLayout->addWidget(TitleLabel(tr("Selected Products"), this));
-  leftLayout->addWidget(activeList_);
-  leftLayout->addLayout(editLayout);
-  leftLayout->addStretch();
-  leftLayout->addLayout(hideApplyLayout);
+  QGridLayout *leftLayout = new QGridLayout();
+  leftLayout->addWidget(drawingsList_, 0, 0, 1, 2);
+  leftLayout->addWidget(loadFileButton, 1, 0);
+  leftLayout->addWidget(quickLoadButton, 1, 1);
+  leftLayout->addWidget(editTopSeparator, 2, 0, 1, 2);
+  leftLayout->addWidget(activeList_, 3, 0);
+  leftLayout->addWidget(editingList_, 3, 1);
+  leftLayout->addWidget(allTimesCheckBox, 4, 0);
+  leftLayout->addLayout(editButtonLayout, 4, 1, 2, 1);
+  leftLayout->addWidget(applyButton, 5, 0);
+  leftLayout->addWidget(editBottomSeparator, 6, 0, 1, 2);
+  leftLayout->addWidget(hideButton, 7, 0);
+  leftLayout->addWidget(filterButton_, 7, 1);
 
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->addLayout(leftLayout);
@@ -209,12 +199,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(drawingsList_->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           SLOT(activateDrawing(const QItemSelection &, const QItemSelection &)));
-  connect(drawingsList_->selectionModel(),
-          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-          SLOT(updateButtons()));
-  connect(activeList_->selectionModel(),
-          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-          SLOT(updateButtons()));
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
   setOrientation(Qt::Horizontal);
@@ -436,11 +420,6 @@ void DrawingDialog::updateFileInfo(const QList<DrawingItemBase *> &items, const 
   quickSaveButton_->setEnabled(false);
 }
 
-void DrawingDialog::updateButtons()
-{
-  editButton_->setEnabled(activeList_->selectionModel()->hasSelection());
-}
-
 /**
  * Clears the editable drawings.
  */
@@ -449,12 +428,16 @@ void DrawingDialog::clearItems()
   editm_->selectAllItems();
   editm_->deleteSelectedItems();
   editm_->pushUndoCommands();
+
+  editingModel_.setItems(QMap<QString, QString>());
 }
 
 /**
- * Copy the drawings highlighted in the active list to the edit manager.
+ * Copy the drawing specified by the given index to the edit manager.
+ * If the index is not valid, copy all the drawings highlighted in the active
+ * list to the edit manager.
  */
-void DrawingDialog::editDrawings()
+void DrawingDialog::editDrawings(const QModelIndex &index)
 {
   if (!editm_->isEmpty()) {
     QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Clear Existing Objects"),
@@ -467,54 +450,43 @@ void DrawingDialog::editDrawings()
   // Obtain lists of names and file names.
   QStringList names;
   QStringList fileNames;
-  foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
+
+  if (index.isValid()) {
+    // Just the specified item.
     names.append(index.data().toString());
     fileNames.append(index.data(DrawingModel::FileNameRole).toString());
+  } else {
+    // All selected items in the products list.
+    foreach (const QModelIndex &index, activeList_->selectionModel()->selectedIndexes()) {
+      names.append(index.data().toString());
+      fileNames.append(index.data(DrawingModel::FileNameRole).toString());
+    }
   }
 
-  // Load the drawings into the edit manager.
+  // Load the drawings into the edit manager and add them to the editing
+  // model if not already present.
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  for (int i = 0; i < names.size(); ++i)
-    editm_->loadDrawing(names.at(i), fileNames.at(i));
+  QMap<QString, QString> editItems = editingModel_.items();
 
-  QApplication::restoreOverrideCursor();
-
-  // Remove the selected active drawings.
-  removeActiveDrawings();
-
-  // Deselecting the drawing from the list does not automatically remove it
-  // from the drawing manager if it was present there, so we need to apply
-  // the change.
-  emit applyData();
-
-  emit editingMode(true);
-}
-
-/**
- * Copy the drawings with the given index in the product list to the edit manager.
- */
-void DrawingDialog::editDrawing(const QModelIndex &index)
-{
-  if (!editm_->isEmpty()) {
-    QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Clear Existing Objects"),
-      tr("You are already editing some objects. Shall I remove them?"),
-      QMessageBox::Yes | QMessageBox::No);
-    if (answer == QMessageBox::Yes)
-      clearItems();
+  for (int i = 0; i < names.size(); ++i) {
+    if (!editingModel_.find(names.at(i)).isValid()) {
+      editItems[names.at(i)] = fileNames.at(i);
+      editm_->loadDrawing(names.at(i), fileNames.at(i));
+    }
   }
 
-  QString name = index.data().toString();
-  QString fileName = index.data(DrawingModel::FileNameRole).toString();
-
-  // Load the drawing into the edit manager.
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  editm_->loadDrawing(name, fileName);
+  editingModel_.setItems(editItems);
   QApplication::restoreOverrideCursor();
 
-  // If the drawing was selected in the product list then deselect it.
-  if (drawingsList_->selectionModel()->selectedIndexes().contains(index))
-    drawingsList_->selectionModel()->select(index, QItemSelectionModel::Toggle);
+  if (index.isValid()) {
+    // If the drawing was selected in the product list then deselect it.
+    if (drawingsList_->selectionModel()->selectedIndexes().contains(index))
+      drawingsList_->selectionModel()->select(index, QItemSelectionModel::Toggle);
+  } else {
+    // Remove the selected active drawings.
+    removeActiveDrawings();
+  }
 
   // Deselecting the drawing from the list does not automatically remove it
   // from the drawing manager if it was present there, so we need to apply
@@ -581,7 +553,7 @@ void DrawingDialog::showDrawingContextMenu(const QPoint &pos)
   QAction *editAction = menu.addAction(tr("Edit product"));
   QAction *result = menu.exec(drawingsList_->viewport()->mapToGlobal(pos));
   if (result == editAction)
-    editDrawing(index);
+    editDrawings(index);
 }
 
 /**
@@ -825,7 +797,7 @@ QVariant DrawingModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 
   if (section == 0)
-    return tr("Name");
+    return title_;
   else if (section == 1)
     return tr("Source");
 
@@ -869,6 +841,11 @@ void DrawingModel::setItems(const QMap<QString, QString> &items)
   order_ = items.keys();
   fileCache_.clear();
   endResetModel();
+}
+
+void DrawingModel::setTitle(const QString &title)
+{
+  title_ = title;
 }
 
 QModelIndex DrawingModel::find(const QString &name) const
