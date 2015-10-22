@@ -7,8 +7,12 @@ dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/vcrossWindow.png \
 	share/doc/diana/vcrossSetup.png \
 	share/doc/diana/vcross.png \
+	share/doc/diana/vcrossChangeModel.png \
+	share/doc/diana/vcrossKill.png \
+	share/doc/diana/vcrossNew.png \
+	share/doc/diana/vcrossStyleDialog.png \
 	share/doc/diana/vcrossDialog.png \
-	share/doc/diana/vcrossDialogAdvanced.png \
+	share/doc/diana/vcrossStyle.png \
 	share/doc/diana/ug_verticalprofiles.html \
 	share/doc/diana/ug_verticalcrosssections.html \
 	share/doc/diana/ug_vcrossfunctions.html \

@@ -310,6 +310,7 @@ void VcrossWindow::onAddField()
   METLIBS_LOG_SCOPE();
   if (!vcAddPlotDialog) {
     vcAddPlotDialog = new VcrossAddPlotDialog(this, vcrossm);
+    connectRestartAddAfterReplace();
     vcAddPlotDialog->move(mPositionAddPlot);
   }
   vcAddPlotDialog->show();
@@ -320,10 +321,17 @@ void VcrossWindow::onReplaceModel()
   METLIBS_LOG_SCOPE();
   if (!vcReplaceModelDialog) {
     vcReplaceModelDialog = new VcrossReplaceModelDialog(this, vcrossm);
+    connectRestartAddAfterReplace();
     vcReplaceModelDialog->move(mPositionReplaceModel);
     vcReplaceModelDialog->restart();
   }
   vcReplaceModelDialog->show();
+}
+
+void VcrossWindow::connectRestartAddAfterReplace()
+{
+  if (vcReplaceModelDialog && vcAddPlotDialog)
+    connect(vcReplaceModelDialog, SIGNAL(replacedModel()), vcAddPlotDialog, SLOT(restart()));
 }
 
 void VcrossWindow::onRemoveAllFields()

@@ -46,6 +46,9 @@ public:
 public Q_SLOTS:
   void restart();
 
+Q_SIGNALS:
+  void replacedModel();
+
 private:
   void setupUi();
 
