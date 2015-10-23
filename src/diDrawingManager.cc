@@ -670,16 +670,19 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
   if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
     // Find a list of items at the point passed in the event.
     QList<DrawingItemBase *> missed;
-    QList<DrawingItemBase *> hit = findHitItems(event->pos(), missed);
+    QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes;
+    QList<DrawingItemBase *> hit = findHitItems(event->pos(), hitItemTypes, missed);
     if (hit.size() > 0)
       emit itemsHovered(hit);
   }
 }
 
-QList<DrawingItemBase *> DrawingManager::findHitItems(
-    const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
+QList<DrawingItemBase *> DrawingManager::findHitItems(const QPointF &pos,
+    QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,
+    QList<DrawingItemBase *> &missedItems) const
 {
   QList<DrawingItemBase *> hitItems;
+  hitItemTypes.clear();
 
   QMap<QString, EditItems::ItemGroup *>::const_iterator it;
   for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {

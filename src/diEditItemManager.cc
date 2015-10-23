@@ -406,7 +406,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
   const QSet<DrawingItemBase *> origSelItems(selItems);
 
   QList<DrawingItemBase *> missedItems;
-  const QList<DrawingItemBase *> hitItems = findHitItems(event->pos(), missedItems);
+  const QList<DrawingItemBase *> hitItems = findHitItems(event->pos(), hitItemTypes_, missedItems);
   if (!hitItems.empty())
     hitItem_ = hitItems.first(); // consider only this item to be hit
   else
@@ -525,7 +525,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
   if (hover) {
     lastHoverPos_ = event->pos();
     QList<DrawingItemBase *> missedItems;
-    const QList<DrawingItemBase *> hitItems = findHitItems(lastHoverPos_, missedItems);
+    const QList<DrawingItemBase *> hitItems = findHitItems(lastHoverPos_, hitItemTypes_, missedItems);
     foreach (DrawingItemBase *hitItem, hitItems)
       Editing(hitItem)->updateHoverPos(lastHoverPos_);
     foreach (DrawingItemBase *missedItem, missedItems)
@@ -593,7 +593,7 @@ void EditItemManager::mouseDoubleClick(QMouseEvent *event)
   }
 
   QList<DrawingItemBase *> missedItems;
-  const QList<DrawingItemBase *> hitItems = findHitItems(event->pos(), missedItems);
+  const QList<DrawingItemBase *> hitItems = findHitItems(event->pos(), hitItemTypes_, missedItems);
   if (!hitItems.empty()) {
     bool rpn = false;
     Editing(hitItems.first())->mouseDoubleClick(event, rpn);
@@ -783,9 +783,11 @@ QList<DrawingItemBase *> EditItemManager::allItems() const
   return items;
 }
 
-QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos, QList<DrawingItemBase *> &missedItems) const
+QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos,
+    QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,
+    QList<DrawingItemBase *> &missedItems) const
 {
-  QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes;
+  hitItemTypes.clear();
 
   QList<DrawingItemBase *> all = allItems();
   QList<DrawingItemBase *>::const_iterator it = all.constEnd();
@@ -1398,7 +1400,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       DrawingManager *drawm = DrawingManager::instance();
 
       QList<DrawingItemBase *> missedItems;
-      const QList<DrawingItemBase *> hitItems = drawm->findHitItems(me2.pos(), missedItems);
+      const QList<DrawingItemBase *> hitItems = drawm->findHitItems(me2.pos(), hitItemTypes_, missedItems);
       if (!hitItems.empty()) {
         DrawingItemBase *hitItem; // consider only this item to be hit
         hitItem = hitItems.first();
@@ -1428,7 +1430,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       if (me2.button() == Qt::LeftButton) {
         deselectAllItems(false);
         QList<DrawingItemBase *> missedItems;
-        const QList<DrawingItemBase *> hitItems = findHitItems(me2.pos(), missedItems);
+        const QList<DrawingItemBase *> hitItems = findHitItems(me2.pos(), hitItemTypes_, missedItems);
         if (!hitItems.empty()) {
           selectItem(hitItems.first(), true, false);
           event->accept();
@@ -1455,7 +1457,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       // get actions contributed by a hit item (if any)
       QList<DrawingItemBase *> missedItems;
-      const QList<DrawingItemBase *> hitItems = findHitItems(me2.pos(), missedItems);
+      const QList<DrawingItemBase *> hitItems = findHitItems(me2.pos(), hitItemTypes_, missedItems);
       DrawingItemBase *hitItem = 0; // consider only this item to be hit
       if (!hitItems.empty())
         hitItem = hitItems.first();

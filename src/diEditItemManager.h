@@ -94,8 +94,9 @@ public:
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
 
-  QList<DrawingItemBase *> findHitItems(
-      const QPointF &pos, QList<DrawingItemBase *> &missedItems) const;
+  QList<DrawingItemBase *> findHitItems(const QPointF &pos,
+    QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,
+    QList<DrawingItemBase *> &missedItems) const;
 
   void replaceItemStates(const QHash<int, QVariantMap> &states,
                          QList<DrawingItemBase *> removeItems,
@@ -173,6 +174,7 @@ signals:
 private:
   DrawingItemBase *hitItem_; // current hit item
   QList<DrawingItemBase *> hitItems_;
+  QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes_;
   DrawingItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   QHash<int, QVariantMap> oldStates_;
   QHash<int, DrawingItemBase *> removedItems_;

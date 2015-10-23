@@ -78,7 +78,9 @@ public:
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res);
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
-  QList<DrawingItemBase *> findHitItems(const QPointF &pos, QList<DrawingItemBase *> &missedItems) const;
+  QList<DrawingItemBase *> findHitItems(const QPointF &pos,
+    QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,
+    QList<DrawingItemBase *> &missedItems) const;
 
   QList<QPointF> getLatLonPoints(const DrawingItemBase *item) const;
   void setFromLatLonPoints(DrawingItemBase *item, const QList<QPointF> &latLonPoints) const;
