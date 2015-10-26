@@ -252,7 +252,6 @@ public:
   virtual ~ModifyItemsCommand();
 
   virtual int id() const;
-  virtual bool mergeWith(const QUndoCommand *command);
 
 private:
   QHash<int, QVariantMap> oldItemStates_;
