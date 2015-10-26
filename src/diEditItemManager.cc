@@ -83,6 +83,7 @@ EditItemManager::EditItemManager()
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
   , itemsVisibilityForced_(false)
+  , incompleteItem_(0)
 {
   // Create a default inactive layer group.
   itemGroups_["scratch"] = new EditItems::ItemGroup("scratch", true, false);
