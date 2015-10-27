@@ -36,6 +36,7 @@ public:
   virtual bool setFontSize(float size) = 0;
   virtual bool getCharSize(char ch, float& w, float& h) = 0;
   virtual bool getTextSize(const std::string& text, float& w, float& h) = 0;
+  virtual bool getTextRect(const std::string& s, float& x, float& y, float& w, float& h) = 0;
 };
 
 class DiPainter {

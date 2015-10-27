@@ -78,6 +78,29 @@ void Text::draw(DiGLPainter* gl)
 }
 
 /**
+ * Get the string bounding rectangle in viewport/screen units.
+ */
+QRectF Text::getStringRect(const QString &text, int index) const
+{
+  if (index == -1)
+    index = text.size();
+
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  styleManager->setFont(this);
+
+  // Obtain the width and height of the text in plot coordinates.
+  float x = 0, y = 0, width = 0, height = 0;
+  if (DiCanvas* canvas = styleManager->canvas()) {
+    canvas->getTextRect(text.left(index).toStdString(), x, y, width, height);
+    if (height == 0)
+      canvas->getTextRect("X", x, y, width, height);
+  }
+
+  const double scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
+  return QRectF(scale * x, scale * y, scale * width, scale * height);
+}
+
+/**
  * Get the string size in viewport/screen units.
  */
 QSizeF Text::getStringSize(const QString &text, int index) const
@@ -89,15 +112,15 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   styleManager->setFont(this);
 
   // Obtain the width and height of the text in plot coordinates.
-  float width = 0, height = 0;
+  float x = 0, y = 0, width = 0, height = 0;
   if (DiCanvas* canvas = styleManager->canvas()) {
-    canvas->getTextSize(text.left(index).toStdString(), width, height);
+    canvas->getTextRect(text.left(index).toStdString(), x, y, width, height);
     if (height == 0)
-      canvas->getTextSize("X", width, height);
+      canvas->getTextRect("X", x, y, width, height);
   }
 
-  const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
-  return QSize(scale * width, scale * height);
+  const double scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
+  return QSizeF(scale * width, scale * height);
 }
 
 float Text::margin() const
@@ -142,7 +165,7 @@ QRectF Text::drawingRect() const
 void Text::updateRect()
 {
   float x = points_.at(0).x();
-  float y = points_.at(0).y();
+  float y = points_.at(0).y() - margin();
   qreal width = 0;
   QStringList lines_ = text();
 
@@ -150,13 +173,10 @@ void Text::updateRect()
     QString text = lines_.at(i);
     QSizeF size = getStringSize(text);
     width = qMax(width, size.width());
-    size.setHeight(qMax(size.height(), qreal(fontSize())));
-    y -= size.height();
-    if (i < lines_.size() - 1)
-      y -= size.height() * spacing();
+    y -= size.height() * (1 + spacing());
   }
 
-  points_[1] = QPointF(x + width + 2 * margin(), y - 2 * margin());
+  points_[1] = QPointF(x + width + (2 * margin()), y - margin());
 }
 
 DrawingItemBase::HitType Text::hit(const QPointF &pos, bool selected) const

@@ -435,6 +435,13 @@ bool FontManager::getStringSize(const char* s, float& w, float& h)
   return current_engine->getStringSize(s, w, h);
 }
 
+bool FontManager::getStringRect(const char* s, float& x, float& y, float& w, float& h)
+{
+  if (!current_engine)
+    return false;
+  return current_engine->getStringRect(s, x, y, w, h);
+}
+
 // return info
 glText::FontScaling FontManager::getFontScaletype()
 {

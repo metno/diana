@@ -110,6 +110,8 @@ public:
   bool getMaxCharSize(float& w, float& h);
   /// get plotting size of a string
   bool getStringSize(const char* s, float& w, float& h);
+  /// get bounding rectangle of a string
+  bool getStringRect(const char* s, float& x, float& y, float& w, float& h);
 
   // return info
   /// return selected font scaling

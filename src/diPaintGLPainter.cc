@@ -279,6 +279,22 @@ bool DiPaintGLCanvas::getTextSize(const std::string& s, float& w, float& h)
   return true;
 }
 
+bool DiPaintGLCanvas::getTextRect(const std::string& s, float& x, float& y, float& w, float& h)
+{
+  QString str = QString::fromStdString(s);
+
+  QFontMetricsF fm(mFont, mDevice);
+  QRectF rect = fm.boundingRect(str);
+  x = rect.x() * mFontScaleX;
+  y = rect.y() * 0.8 * mFontScaleY;
+  w = rect.width() * mFontScaleX;
+  h = rect.height() * 0.8 * mFontScaleY;
+  if (w == 0 || str.trimmed().isEmpty())
+    h = 0;
+
+  return true;
+}
+
 QImage DiPaintGLCanvas::convertToGLFormat(const QImage& i)
 {
   return i.transformed(QTransform().scale(1, -1)).rgbSwapped();

@@ -79,6 +79,7 @@ public:
   bool setFontSize(float size) Q_DECL_OVERRIDE;
   bool getCharSize(char ch, float& w, float& h) Q_DECL_OVERRIDE;
   bool getTextSize(const std::string& text, float& w, float& h) Q_DECL_OVERRIDE;
+  bool getTextRect(const std::string& s, float& x, float& y, float& w, float& h) Q_DECL_OVERRIDE;
 
   QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
 

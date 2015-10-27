@@ -999,8 +999,7 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
 void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_) const
 {
   const DrawingItem_Text::Text *item = dynamic_cast<const DrawingItem_Text::Text *>(item_);
-  if (!item)
-    qFatal("DrawingStyleManager::drawText(): not a text item");
+  if (!item) return;
 
   QVariantMap style = getStyle(item);
 
@@ -1015,17 +1014,19 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
   setFont(item);
   const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
 
-  const float x = item->getPoints().at(0).x() + item->margin();
+  const float x0 = item->getPoints().at(0).x();
+  const float x1 = item->getPoints().at(1).x();
+  const float w = x1 - x0;
   float y = item->getPoints().at(0).y() - item->margin();
 
   foreach (QString text, item->text()) {
-    const QSizeF size = item->getStringSize(text);
+    const QRectF rect = item->getStringRect(text);
     gl->PushMatrix();
-    gl->Translatef(x, y - size.height(), 0);
+    gl->Translatef(x0 + item->margin() - rect.x(), y - rect.height(), 0);
     gl->Scalef(scale, scale, 1.0);
     gl->drawText(text.toStdString(), 0, 0, 0);
     gl->PopMatrix();
-    y -= size.height() * (1.0 + item->spacing());
+    y -= rect.height() * (1.0 + item->spacing());
   }
 }
 

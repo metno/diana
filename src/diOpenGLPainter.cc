@@ -77,6 +77,11 @@ bool DiOpenGLCanvas::getTextSize(const std::string& text, float& w, float& h)
   return fp()->getStringSize(text.c_str(), w, h);
 }
 
+bool DiOpenGLCanvas::getTextRect(const std::string& text, float& x, float& y, float& w, float& h)
+{
+  return fp()->getStringRect(text.c_str(), x, y, w, h);
+}
+
 void DiOpenGLCanvas::DeleteLists(GLuint list, GLsizei range)
 {
   glDeleteLists(list, range);

@@ -20,6 +20,7 @@ public:
   bool setFontSize(float size);
   bool getCharSize(char ch, float& w, float& h);
   bool getTextSize(const std::string& text, float& w, float& h);
+  bool getTextRect(const std::string& text, float& x, float& y, float& w, float& h);
 
   inline FontManager* fp()
     { if (!mFP.get()) initializeFP(); return mFP.get(); }

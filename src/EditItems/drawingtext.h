@@ -59,10 +59,11 @@ public:
   float spacing() const;
   float fontSize() const;
   QSizeF getStringSize(const QString &text, int index = -1) const;
+  QRectF getStringRect(const QString &text, int index = -1) const;
 
 private:
-  static float defaultMargin() { return 4; }
-  static float defaultSpacing() { return 0.5; }
+  static float defaultMargin() { return 8; }
+  static float defaultSpacing() { return 0.2; }
 };
 
 } // namespace
