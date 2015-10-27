@@ -203,6 +203,14 @@ QString DSP_fontsize::name() { return "fontsize"; }
 DrawingStyleManager::StyleCategory DSP_fontsize::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(PlotOptions::defaultFontSize())); }
 
+QString DSP_cornersegments::name() { return "cornersegments"; }
+DrawingStyleManager::StyleCategory DSP_cornersegments::styleCategory() const { return DrawingStyleManager::General; }
+QVariant DSP_cornersegments::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(0)); }
+
+QString DSP_cornerradius::name() { return "cornerradius"; }
+DrawingStyleManager::StyleCategory DSP_cornerradius::styleCategory() const { return DrawingStyleManager::General; }
+QVariant DSP_cornerradius::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(8)); }
+
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 QString DrawingStyleProperty::linePattern(const QHash<QString, QString> &def) { return def.value(DSP_linepattern::name(), "solid"); }
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
@@ -283,6 +291,8 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Text].insert(DSP_fontname::name(), new DSP_fontname);
   properties_[DrawingItemBase::Text].insert(DSP_fontface::name(), new DSP_fontface);
   properties_[DrawingItemBase::Text].insert(DSP_fontsize::name(), new DSP_fontsize);
+  properties_[DrawingItemBase::Text].insert(DSP_cornersegments::name(), new DSP_cornersegments);
+  properties_[DrawingItemBase::Text].insert(DSP_cornerradius::name(), new DSP_cornerradius);
 
   // Define the supported composite style properties.
   properties_[DrawingItemBase::Composite].insert(DSP_objects::name(), new DSP_objects);
@@ -1017,16 +1027,23 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
   const float x0 = item->getPoints().at(0).x();
   const float x1 = item->getPoints().at(1).x();
   const float w = x1 - x0;
-  float y = item->getPoints().at(0).y() - item->margin();
 
-  foreach (QString text, item->text()) {
+  float y = item->getPoints().at(0).y() - item->margin();
+  QStringList lines = item->text();
+
+  for (int i = 0; i < lines.size(); ++i) {
+    QString text = lines.at(i);
     const QRectF rect = item->getStringRect(text);
+    qreal height = item->fontSize();
+    if (i == 0)
+      height = qMax(rect.height(), height);
+
     gl->PushMatrix();
-    gl->Translatef(x0 + item->margin() - rect.x(), y - rect.height(), 0);
+    gl->Translatef(x0 + item->margin() - rect.x(), y - height, 0);
     gl->Scalef(scale, scale, 1.0);
     gl->drawText(text.toStdString(), 0, 0, 0);
     gl->PopMatrix();
-    y -= rect.height() * (1.0 + item->spacing());
+    y -= height * (1.0 + item->spacing());
   }
 }
 

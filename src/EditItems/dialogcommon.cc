@@ -57,7 +57,7 @@ TextEditor::TextEditor(const QString &text, int fontSize, bool readOnly)
 
   sizeBox = new QSpinBox();
   sizeBox->setMinimum(1);
-  sizeBox->setMaximum(99);
+  sizeBox->setMaximum(56);
   sizeBox->setValue(fontSize);
 
   textEdit_ = new QPlainTextEdit;
@@ -79,12 +79,15 @@ TextEditor::TextEditor(const QString &text, int fontSize, bool readOnly)
     connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), SLOT(accept()));
   }
 
-  QFormLayout *layout = new QFormLayout;
-  layout->addRow(textEdit_);
-  layout->addRow(tr("Font size:"), sizeBox);
-  layout->addRow(buttonBox);
+  QHBoxLayout *fontLayout = new QHBoxLayout();
+  fontLayout->addWidget(new QLabel(tr("Font size:")));
+  fontLayout->addWidget(sizeBox);
+  fontLayout->addStretch();
 
-  setLayout(layout);
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  layout->addWidget(textEdit_);
+  layout->addLayout(fontLayout);
+  layout->addWidget(buttonBox);
 }
 
 TextEditor::~TextEditor()

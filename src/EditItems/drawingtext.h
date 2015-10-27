@@ -63,7 +63,7 @@ public:
 
 private:
   static float defaultMargin() { return 8; }
-  static float defaultSpacing() { return 0.2; }
+  static float defaultSpacing() { return 0.4; }
 };
 
 } // namespace

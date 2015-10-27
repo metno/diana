@@ -370,6 +370,24 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
+class DSP_cornersegments : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_cornerradius : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
 class DSP_objects : public DrawingStyleProperty
 {
 public:
