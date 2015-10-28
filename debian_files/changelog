@@ -1,3 +1,9 @@
+diana (3.39.0~rc11-1) unstable; urgency=low
+
+  * Drawing/Edit: New dialog
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 28 Oct 2015 10:09:02 +0100
+
 diana (3.39.0~rc10-1) unstable; urgency=low
 
   * Edit: Added support for changing the font size in text objects
