@@ -44,6 +44,8 @@
 #include <set>
 #include <vector>
 
+class QTextCodec;
+
 /**
  \brief Plot observations
 
@@ -254,6 +256,10 @@ private:
   std::string selectedStation;
   std::string mark_parameter;
 
+  QTextCodec* mTextCodec;
+
+  QString decodeText(const std::string& text) const;
+
   void getObsLonLat(int obsidx, float& x, float& y);
 
   bool readTable(const std::string& type, const std::string& filename);
@@ -299,16 +305,16 @@ private:
       bool align_right = false, const std::string& = "");
 
   // from plotList and plotAscii
-  void printListString(DiGLPainter* gl, const std::string& txt,
+  void printListString(DiGLPainter* gl, const QString& txt,
       float& xpos, float& ypos, bool align_right = false);
 
-  float advanceByStringWidth(DiGLPainter* gl, const std::string& txt, float& xpos);
+  float advanceByStringWidth(DiGLPainter* gl, const QString& txt, float& xpos);
   void advanceByDD(int dd, float& xpos);
   bool checkQuality(const ObsData& dta) const;
   bool checkWMOnumber(const ObsData& dta) const;
 
   // from plotList, plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printString(DiGLPainter* gl, const char *, float, float,
+  void printString(DiGLPainter* gl, const QString&, float, float,
       bool align_right = false, bool = false);
 
   // from plotMetar, ROAD/plotDBMetar (commented)
@@ -401,6 +407,9 @@ public:
   void clearVisibleStations();
   // Returns the allObs boolean
   bool isallObs() {return allObs;};
+
+  void setTextCodec(QTextCodec* codec);
+  void setTextCodec(const char* codecName);
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 

@@ -40,8 +40,7 @@ void DiOpenGLCanvas::initializeFP()
   mFP.reset(new FontManager);
   mFP->parseSetup();
   mFP->setFont("BITMAPFONT");
-  mFP->setFontFace(glText::F_NORMAL);
-  mFP->setScalingType(glText::S_FIXEDSIZE);
+  mFP->setFontFace(FontFamily::F_NORMAL);
 }
 
 void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
@@ -53,13 +52,13 @@ void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
 
 bool DiOpenGLCanvas::setFont(const std::string& font)
 {
-  return fp()->setFont(font.c_str());
+  return fp()->setFont(font);
 }
 
 bool DiOpenGLCanvas::setFont(const std::string& font, float size, FontFace face)
 {
   // assume that DiPainter::FontFace == glText::FontFace
-  return fp()->set(font.c_str(), (glText::FontFace)face, size);
+  return fp()->set(font, (FontFamily::FontFace)face, size);
 }
 
 bool DiOpenGLCanvas::setFontSize(float size)
@@ -67,14 +66,9 @@ bool DiOpenGLCanvas::setFontSize(float size)
   return fp()->setFontSize(size);
 }
 
-bool DiOpenGLCanvas::getCharSize(char ch, float& w, float& h)
+bool DiOpenGLCanvas::getTextSize(const QString& text, float& w, float& h)
 {
-  return fp()->getCharSize(ch, w, h);
-}
-
-bool DiOpenGLCanvas::getTextSize(const std::string& text, float& w, float& h)
-{
-  return fp()->getStringSize(text.c_str(), w, h);
+  return fp()->getStringSize(text.toStdWString(), w, h);
 }
 
 void DiOpenGLCanvas::DeleteLists(GLuint list, GLsizei range)
@@ -332,10 +326,10 @@ void DiOpenGLPainter::TexImage2D(GLenum target, GLint level, GLint internalForma
 
 // ========================================================================
 
-bool DiOpenGLPainter::drawText(const std::string& text, float x, float y, float angle)
+bool DiOpenGLPainter::drawText(const QString& text, float x, float y, float angle)
 {
   DiOpenGLCanvas* c = (DiOpenGLCanvas*) canvas();
-  return c->fp()->drawStr(text.c_str(), x, y, angle);
+  return c->fp()->drawStr(text.toStdWString(), x, y, angle);
 }
 
 void DiOpenGLPainter::drawPolygon(const QPolygonF& points)

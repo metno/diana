@@ -38,6 +38,7 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QString>
 #include <cmath>
 
 #define MILOGGER_CATEGORY "diana.AnnotationPlot"
@@ -646,8 +647,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
         }
       }
       gl->setFont(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize * fontsizeToPlot);
-      std::string astring = annoEl[j].eText;
-      astring += " ";
+      const QString astring = QString::fromStdString(annoEl[j].eText) + " ";
       gl->getTextSize(astring, wid, hei);
       if (annoEl[j].eHalign == align_right && j + 1 == annoEl.size())
         x = bbox.x2 - wid - border;
@@ -661,7 +661,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
         //Hvis* editeringstext,tegn strek for mark�r og for
         //markert tekst
         float w, h;
-        std::string substring = astring.substr(0, annoEl[j].itsCursor);
+        QString substring = astring.left(annoEl[j].itsCursor);
         gl->getTextSize(substring, w, h);
         gl->setColour(Colour::fromF(0, 0, 0, 1));
         gl->drawLine(annoEl[j].x1 + w, annoEl[j].y1, annoEl[j].x1 + w, annoEl[j].y2);
@@ -670,7 +670,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       gl->setFont(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       float tmpwid;
-      const std::string echar(1, annoEl[j].eCharacter);
+      const QString echar(QLatin1Char(annoEl[j].eCharacter));
       gl->getTextSize(echar, tmpwid, hei);
       gl->drawText(echar, x, y, 0.0);
       //set back to normal font and draw one blank
@@ -770,8 +770,7 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
     if (annoEl[j].eType == text || annoEl[j].eType == input) {
       gl->setFont(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
-      std::string astring = annoEl[j].eText;
-      astring += " ";
+      const QString astring = QString::fromStdString(annoEl[j].eText) + " ";
       gl->getTextSize(astring, w, h);
     } else if (annoEl[j].eType == image) {
       const std::string& aimage = annoEl[j].eImage;

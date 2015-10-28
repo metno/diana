@@ -112,6 +112,7 @@ public:
 #endif
     bool useFileTime;
     std::vector<std::string> parameter;
+    std::string textCodec;
   };
 
 private:
@@ -212,7 +213,7 @@ public:
   // Added for automatic updates
   bool timeListChanged;
 
-  std::map<std::string, ProdInfo> getProductsInfo() const;
+  const std::map<std::string, ProdInfo>& getProductsInfo() const;
 };
 
 #endif

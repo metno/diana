@@ -1550,18 +1550,17 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
           }
         }
 
-        ostringstream ostr;
+        QString str;
         if (flightlevelChart) {
           if (value <= 0) {
-            ostr << -value;
+            str = QString::number(-value);
           } else {
-            ostr << "ps" << value;
+            str = "ps" + QString::number(value);
           }
         } else {
-          ostr << value;
+          str = QString::number(value);
         }
 
-        std::string str = ostr.str();
         gl->getTextSize(str, w, h);
 
         mused = nbx * nby;
@@ -1769,9 +1768,7 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
             int value =
                 (fieldData[i] >= 0.0f) ? int(fieldData[i] + 0.5f) :
                     int(fieldData[i] - 0.5f);
-            ostringstream ostr;
-            ostr << value;
-            std::string str = ostr.str();
+            const QString str = QString::number(value);
             gl->getTextSize(str, w, h);
 
             int ipos1 = position[j];
@@ -1788,9 +1785,7 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
 
         // ---
         if (nfields == 4 || nfields == 5) {
-          ostringstream ostr;
-          ostr << "----";
-          std::string str = ostr.str();
+          const QString str("----");
           gl->getTextSize(str, w, h);
 
           x1 = gx + adx[8] + cdx[8] * w;
@@ -2895,24 +2890,16 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
               if (fpos < poptions.maxvalue && fpos > poptions.minvalue) {
                 // mark extreme point
                 if (!extremeString) {
-                  ostringstream ostr;
-                  ostr.setf(ios::fixed);
-                  ostr.precision(poptions.precision);
-                  ostr << fpos;
-                  gl->drawText(ostr.str(), gx - chrx * 0.5,
-                      gy - chry * 0.5, 0.0);
+                  const QString str = QString::number(fpos, 'f', poptions.precision);
+                  gl->drawText(str, gx - chrx * 0.5, gy - chry * 0.5, 0.0);
                 } else {
                   gl->drawText(pmarks[etype], gx - chrx * 0.5,
                       gy - chry * 0.5, 0.0);
                   if (extremeValue != "none") {
                     float fontsize = 18. * poptions.extremeSize;
                     gl->setFont(poptions.fontname, poptions.fontface, fontsize);
-                    ostringstream ostr;
-                    ostr.setf(ios::fixed);
-                    ostr.precision(poptions.precision);
-                    ostr << fpos;
-                    gl->drawText(ostr.str(), gx - chrx * (-0.6),
-                        gy - chry * 0.8, 0.0);
+                    const QString str = QString::number(fpos, 'f', poptions.precision);
+                    gl->drawText(str, gx - chrx * (-0.6), gy - chry * 0.8, 0.0);
                   }
                   float fontsize = 28. * poptions.extremeSize;
                   gl->setFont(poptions.fontname, poptions.fontface, fontsize);
@@ -3140,7 +3127,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
   if (poptions.precision > 0) {
     iprec = poptions.precision;
   }
-  std::string str;
+  QString str;
 
   gl->setLineStyle(poptions.linecolour, 1, false);
 
@@ -3151,9 +3138,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
       gy = y[i];
 
       if (field[i] != fieldUndef) {
-        ostringstream ostr;
-        ostr << setprecision(iprec) << setiosflags(ios::fixed) << field[i];
-        str = ostr.str();
+        str = QString::number(field[i], 'f', iprec);
         gl->getTextSize(str, w, h);
         w *= 0.5;
       } else {

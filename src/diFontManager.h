@@ -29,9 +29,9 @@
 #ifndef _diFontManager_h
 #define _diFontManager_h
 
-#include <qglobal.h>
+#include "diFontFamily.h"
 
-#include <glText/glText.h>
+#include <qglobal.h>
 
 #include <set>
 #include <string>
@@ -46,86 +46,68 @@
  */
 class FontManager {
 private:
-  glText * current_engine;
-
-  std::map<std::string, glText*> fontengines;
-  std::map<std::string, std::set<std::string> > enginefamilies;
-
   static std::string fontpath;
-  static std::string display_name;
-  static std::map<std::string, std::string> defaults;
 
-  glText::FontFace fontFace(const std::string&);
-  bool check_family(const std::string& fam, std::string& family);
+  typedef std::map<std::string, FontFamily*> families_t;
+  families_t families;
+  FontFamily *currentFamily;
+
+  typedef std::map<std::string, std::string> aliases_t;
+  aliases_t familyAliases;
+
+  //! convert font face text to constant
+  static FontFamily::FontFace fontFace(const std::string&);
+
+  //! find font family, return 0 on error
+  FontFamily* findFamily(const std::string& family);
 
 public:
   FontManager();
   ~FontManager();
 
-  /// for use in batch - force different display
-  static void set_display_name(const std::string name)
-  {
-    display_name = name;
-  }
-
   /// for test purposes, sets up a standard set of fonts
-  bool testDefineFonts(std::string path = "fonts");
+  bool testDefineFonts(const std::string& path = "fonts");
+
   /// parse fontsection in setup file
   bool parseSetup();
 
   /// choose fonttype, face and size
-  bool set(const std::string, const glText::FontFace, const float);
+  bool set(const std::string& family, FontFamily::FontFace, float);
+
   /// choose fonttype, face and size
-  bool set(const std::string, const std::string, const float);
+  bool set(const std::string& family, const std::string&, float);
+
   /// choose fonttype
-  bool setFont(const std::string);
+  bool setFont(const std::string& family);
+
   /// choose fontface from type
-  bool setFontFace(const glText::FontFace);
+  bool setFontFace(FontFamily::FontFace);
+
   /// choose fontface from name
-  bool setFontFace(const std::string);
+  bool setFontFace(const std::string&);
+
   /// choose fontsize
-  bool setFontSize(const float);
+  bool setFontSize(float);
 
-  // printing commands
-  /// draw one character
-  bool drawChar(const int c, const float x, const float y, const float a = 0);
-  /// draw a string
-  bool drawStr(const char* s, const float x, const float y, const float a = 0);
-  // Metric commands
-  /// always add this to fontsize
-  void adjustSize(const int sa);
-  /// choose S_FIXEDSIZE or S_VIEWPORTSCALED
-  void setScalingType(const glText::FontScaling fs);
-  /// set viewport size in GL coordinates
-  void setGlSize(const float glw, const float glh);
-  void setGlSize(const float glx1, const float glx2, const float gly1,
-      const float gly2);
-  /// set viewport size in physical coordinates (pixels)
-  void setVpSize(const float vpw, const float vph);
-  /// set size of one pixel in GL coordinates
-  void setPixSize(const float pw, const float ph);
-  /// get plotting size of one character
-  bool getCharSize(const int c, float& w, float& h);
-  /// get maximum plotting size of a character with current settings
-  bool getMaxCharSize(float& w, float& h);
+  bool drawStr(const std::string& s,  const float x, const float y, const float a = 0);
+  bool drawStr(const std::wstring& s, const float x, const float y, const float a = 0);
+
   /// get plotting size of a string
-  bool getStringSize(const char* s, float& w, float& h);
+  bool getStringSize(const std::string& s,  float& w, float& h);
+  bool getStringSize(const std::wstring& s, float& w, float& h);
 
-  // return info
-  /// return selected font scaling
-  glText::FontScaling getFontScaletype();
-  /// return number of defined fonts
-  int getNumFonts();
-  /// return number of defined sizes
-  int getNumSizes();
+  /// set viewport size in GL coordinates
+  void setGlSize(float glw, float glh);
+  void setGlSize(float glx1, float glx2, float gly1, float gly2);
+
+  /// set viewport size in physical coordinates (pixels)
+  void setVpSize(float vpw, float vph);
+
   /// return current font face
-  glText::FontFace getFontFace();
+  FontFamily::FontFace getFontFace();
+
   /// return current font size
   float getFontSize();
-  /// return index of current font size
-  int getFontSizeIndex();
-  /// return name of font from index
-  std::string getFontName(const int index);
 };
 
 #endif

@@ -40,6 +40,7 @@
 #include "diContouring.h"
 
 #include <QPolygonF>
+#include <QString>
 
 #include <diField/diField.h>
 #include <puTools/miStringFunctions.h>
@@ -277,9 +278,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
     chy*=0.75;
     chy2*=0.75;
 
-    std::string str;
-
-    str="F(f,dir) [m2/Hz/rad]";
+    QString str = "F(f,dir) [m2/Hz/rad]";
     gl->getTextSize(str, dx, dy);
     x=(xplot1+xplot2-dx)*0.5;
     y= yplot2-dytext2-dytext1+chy*0.25;
@@ -300,7 +299,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
       const float v = float(ivalue);
       const float y = yefdiag+v*dyefdiag/vyefdiag;
       const float s= (ivalue<10) ? 1.2 : 2.2;
-      gl->drawText(miutil::from_number(ivalue),
+      gl->drawText(QString::number(ivalue),
           xefdiag-dytext1*0.3-chx*s, y-chy*0.5, 0.0);
     }
 
@@ -314,7 +313,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
         const float v = float(i)*0.1;
         x=xefdiag+v*dxefdiag/vxefdiag;
         if (i==0) str="0.0";
-        else      str=miutil::from_number(v);
+        else      str=QString::number(v);
         gl->drawText(str, x-chx2*0.5, yefdiag-dytext1*0.3-chy*1.1, 0.0);
       }
     }
@@ -330,7 +329,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
         const float v = float(i);
         y=yhmo+v*dyhmo/vyhmo;
         const float s= (i<10) ? 1.0f : 2.0f;
-        gl->drawText(miutil::from_number(i),
+        gl->drawText(QString::number(i),
             xhmo-dytext1*0.1-chx*s, y-chy*0.5, 0.0);
       }
     }
@@ -527,13 +526,12 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
   gl->setFont("BITMAPFONT");
   if (spopt->pText) {
 
-    std::string str;
     float cx,cy;
 
     gl->setLineStyle(Colour(spopt->textColour), 1);
 
     gl->setFontSize(fontSize2);
-    str=modelName + " SPECTRUM";
+    QString str = QString::fromStdString(modelName) + " SPECTRUM";
     float dx, dy;
     gl->getTextSize(str, dx, dy);
     if (dx>(xplot2-xplot1-dytext2*0.5)) {
@@ -551,12 +549,11 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
     // the real height (x ok)
     cy*=0.75;
 
-    std::string validtime= validTime.isoTime(true,false);
-
-    ostringstream ostr1,ostr2;
-    ostr1<<"Position: "<<posName<<"   Time: "<<validtime
-         <<" UTC ("<<setiosflags(ios::showpos)<<forecastHour<<")";
-    std::string str1= ostr1.str();
+    const QString str1 = QString("Position: %1   Time: %2 UTC (%3%4)")
+        .arg(QString::fromStdString(posName))
+        .arg(QString::fromStdString(validTime.isoTime(true,false)))
+        .arg(QChar(forecastHour >= 0 ? '+' : '-'))
+        .arg(forecastHour);
     gl->getTextSize(str1, dx, dy);
 
     if (dx>xplot2-xplot1-dytext1*0.5) {
@@ -568,11 +565,10 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
     gl->drawText(str1, x, y, 0.0);
 
     if ( hmo>-1 && tPeak>-1 && ddPeak>-1 ) {
-      ostr2<<"HMO= "<<setw(4)<<setprecision(1)<<setiosflags(ios::fixed)<<hmo
-          <<"m   Tp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<tPeak
-          <<"s   DDp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<ddPeak
-          <<" deg";
-      std::string str2= ostr2.str();
+      const QString str2 = QString("HMO= %1m   Tp= %2s   DDp= %3 deg")
+          .arg(hmo, 4, 'f', 1)
+          .arg(tPeak, 5, 'f', 1)
+          .arg(ddPeak, 5, 'f', 1);
       x=xplot1+dytext1*0.25;
       y=yplot1+dy*0.30;
       gl->drawText(str2, x, y, 0.0);

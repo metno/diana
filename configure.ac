@@ -111,7 +111,7 @@ METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.57])
 METNO_REQUIRE_PKGS([METLIBS], [miLogger puTools puDatatypes])
 
 AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_PKGS([METLIBSUI], [coserver qUtilities glText glu])
+    METNO_REQUIRE_PKGS([METLIBSUI], [coserver qUtilities ftgl glu])
     METNO_REQUIRE_QT4([Core Gui OpenGL Network Svg Xml XmlPatterns])
 ],[
     METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])

@@ -37,6 +37,7 @@
 
 #include "diLinetype.h"
 #include "diPoint.h"
+#include "diUtilities.h"
 
 #include <diField/diMetConstants.h>
 #include <diField/VcrossUtil.h>
@@ -58,26 +59,6 @@
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
-
-void writeLonEWLatNS(std::ostream& out, float lonlat, char EN, char WS)
-{
-  out << std::setw(5) << std::setprecision(1) << std::setiosflags(std::ios::fixed)
-      << std::abs(lonlat);
-  if (lonlat >= 0)
-    out << EN;
-  else
-    out << WS;
-}
-
-inline void writeLonEW(std::ostream& out, float lon)
-{
-  writeLonEWLatNS(out, lon, 'E', 'W');
-}
-
-inline void writeLatNS(std::ostream& out, float lat)
-{
-  writeLonEWLatNS(out, lat, 'N', 'S');
-}
 
 inline float square(float x)
 {
@@ -280,11 +261,8 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
   if (not isTimeGraph()) { // show cross section name
     label = QString::fromStdString(mCrossectionLabel);
   } else {
-    std::ostringstream oposition;
-    writeLonEW(oposition, mTimeCSPoint.lonDeg());
-    oposition << ' ';
-    writeLatNS(oposition, mTimeCSPoint.latDeg());
-    label = QString::fromStdString(oposition.str());
+    label = diutil::formatLongitude(mTimeCSPoint.lonDeg(), 1, 5)
+        + " " + diutil::formatLatitude(mTimeCSPoint.latDeg(), 1, 5);
   }
   const float label_w = painter.fontMetrics().width(label);
   painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
@@ -384,10 +362,7 @@ QString QtPlot::axisPosition(int x, int y)
       if (idx+1 < mCrossectionDistances.size()) {
         const LonLat mouse = mCrossectionPoints.at(idx).stepTo(vx - *itX, mCrossectionPoints.at(idx+1));
         const float lon = mouse.lonDeg(), lat = mouse.latDeg();
-        text += " ";
-        text += QString::number(std::abs(lon), 'f', 1) + QLatin1Char(lon >= 0 ? 'E' : 'W');
-        text += "/";
-        text += QString::number(std::abs(lat), 'f', 1) + QLatin1Char(lat >= 0 ? 'N' : 'S');
+        text += " " + diutil::formatLongitude(lon, 1) + "/" + diutil::formatLatitude(lat, 1);
       }
     }
   } else { // timegraph
@@ -1030,14 +1005,10 @@ void QtPlot::plotXLabels(QPainter& painter)
               lY += lines_1;
             }
 
-            std::ostringstream xostr, yostr;
-            writeLonEW(xostr, mCrossectionPoints.at(i).lonDeg());
-            writeLatNS(yostr, mCrossectionPoints.at(i).latDeg());
-            const std::string xstr = xostr.str(), ystr = yostr.str();
-            const QString x_str = QString::fromStdString(xstr), y_str = QString::fromStdString(ystr);
+            const QString x_str = diutil::formatLongitude(mCrossectionPoints.at(i).lonDeg(), 1, 5);
+            const QString y_str = diutil::formatLatitude (mCrossectionPoints.at(i).latDeg(), 1, 5);
             const float labelWx=painter.fontMetrics().width(x_str),
                 labelWy = painter.fontMetrics().width(y_str);
-
 
             painter.drawText(tickX - labelWx/2, lY, x_str);
             painter.drawText(tickX - labelWy/2, lY + lines_1, y_str);
