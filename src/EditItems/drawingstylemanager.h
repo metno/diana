@@ -107,9 +107,9 @@ public:
   static DrawingStyleManager *instance();
 
 private:
-  void drawDecoration(DiGLPainter* gl, const QVariantMap &style, const QString &decoration, bool closed,
-                      const Side &side, const QList<QPointF> &points, int z,
-                      unsigned int offset = 0) const;
+  void drawDecoration(DiGLPainter* gl, const DrawingItemBase *item, const QVariantMap &style,
+                      const QString &decoration, bool closed, const Side &side,
+                      const QList<QPointF> &points, int z, unsigned int offset = 0) const;
   QVariantMap parse(const DrawingItemBase::Category &category,
                     const QHash<QString, QString> &definition) const;
 

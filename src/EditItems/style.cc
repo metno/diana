@@ -56,6 +56,7 @@ public:
     addItem("arrow", "arrow");
     addItem("SIGWX", "SIGWX");
     addItem("arches,triangles", "arches,triangles");
+    addItem("jetstream", "jetstream");
   }
 };
 

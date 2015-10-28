@@ -649,7 +649,7 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
     unsigned int offset = style.value(DSP_decoration1_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration1::name()).toList()) {
       QString decor = v.toString();
-      drawDecoration(gl, style, decor, closed, reversed ? Outside : Inside, points_, z, offset);
+      drawDecoration(gl, item, style, decor, closed, reversed ? Outside : Inside, points_, z, offset);
       offset += 1;
     }
   }
@@ -663,7 +663,7 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
     unsigned int offset = style.value(DSP_decoration2_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration2::name()).toList()) {
       QString decor = v.toString();
-      drawDecoration(gl, style, decor, closed, reversed ? Inside : Outside, points_, z, offset);
+      drawDecoration(gl, item, style, decor, closed, reversed ? Inside : Outside, points_, z, offset);
       offset += 1;
     }
   }
@@ -680,9 +680,9 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
  *
  * The \a z argument specifies the z coordinate of the decorations.
  */
-void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const QVariantMap &style, const QString &decoration, bool closed,
-                                         const Side &side, const QList<QPointF> &points, int z,
-                                         unsigned int offset) const
+void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase *item,
+     const QVariantMap &style, const QString &decoration, bool closed,
+     const Side &side, const QList<QPointF> &points, int z, unsigned int offset) const
 {
   int di = closed ? 0 : -1;
   int sidef = (side == Inside) ? 1 : -1;
@@ -731,7 +731,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const QVariantMap &sty
 
       QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
       if (line.length() < lineLength*0.75)
-        continue;
+        continue; // We cannot use this line segment. Try the next one.
 
       qreal start_angle = qAtan2(-line.dy(), -line.dx());
       qreal finish_angle = qAtan2(line.dy(), line.dx());
@@ -847,6 +847,79 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const QVariantMap &sty
       }
     }
     gl->End(); // DiGLPainter::gl_LINE_STRIP
+
+  } else if (decoration == "jetstream") {
+
+    // Draw triangles and "feathers" on the line to represent wind speed:
+    // triangle=50 knots, long feather=10 knots, short feather=5 knots.
+    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineLength = lineWidth * 3;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+    qreal size = lineWidth * 6;
+
+    int speed = item->property("met:info:speed", 0).toInt();
+
+    // Determine how many points on the line we need.
+    int n = (speed / 50)*2 + ((speed % 50) / 10) + ((speed % 10) / 5);
+
+    // Place the decoration closer to the start of the line that the end.
+    int i = qMax(0, (points_.size() - n)/4);
+
+    gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
+    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+    gl->Begin(DiGLPainter::gl_TRIANGLES);
+
+    while (i < points_.size() && speed >= 50) {
+
+      QLineF line(points_.at(i), points_.at((i + 2) % points_.size()));
+        if (line.length() < lineLength*0.75) {
+          // We cannot use this line segment. Try the next one.
+          i++;
+          continue;
+        }
+
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      QPointF normal = QPointF(line.normalVector().unitVector().dx(),
+                               line.normalVector().unitVector().dy());
+      QPointF p = midpoint + (sidef * size * normal);
+
+      gl->Vertex3f(p.x(), p.y(), z);
+      gl->Vertex3f(line.p1().x(), line.p1().y(), z);
+      gl->Vertex3f(line.p2().x(), line.p2().y(), z);
+      speed -= 50;
+      i += 2;
+    }
+
+    gl->End(); // DiGLPainter::gl_TRIANGLES
+
+    gl->Begin(DiGLPainter::gl_LINES);
+
+    while (i < points_.size() && speed >= 5) {
+
+      QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      QPointF normal = QPointF(line.normalVector().unitVector().dx(),
+                               line.normalVector().unitVector().dy());
+      QPointF p = (sidef * size * normal);
+      QPointF beginp = line.p2();
+      QPointF endp = line.p1() + p;
+
+      if (speed >= 10) {
+        gl->Vertex3f(beginp.x(), beginp.y(), z);
+        gl->Vertex3f(endp.x(), endp.y(), z);
+        speed -= 10;
+        i += 1;
+
+      } else if (speed >= 5) {
+        gl->Vertex3f(beginp.x(), beginp.y(), z);
+        gl->Vertex3f(0.5*(beginp.x() + endp.x()), 0.5*(beginp.y() + endp.y()), z);
+        speed -= 5;
+        i += 1;
+      }
+    }
+
+    gl->End(); // DiGLPainter::gl_TRIANGLES
+    gl->PopAttrib();
   }
 }
 
