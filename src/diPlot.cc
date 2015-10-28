@@ -364,7 +364,7 @@ bool StaticPlot::ProjToMap(const Projection& srcProj, int n, float* x, float* y)
 bool StaticPlot::ProjToMap(const Area& srcArea, int n,
     const float* x, const float* y, float* u, float* v) const
 {
-  return gc.getVectors(srcArea, getMapArea(), n, x, y, u, v);
+  return gc.getVectors(srcArea, getMapArea().P(), n, x, y, u, v);
 }
 
 bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float* y) const
