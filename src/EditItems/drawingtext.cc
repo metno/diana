@@ -136,11 +136,11 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   styleManager->setFont(this);
 
   // Obtain the width and height of the text in plot coordinates.
-  float x = 0, y = 0, width = 0, height = 0;
+  float width = 0, height = 0;
   if (DiCanvas* canvas = styleManager->canvas()) {
-    canvas->getTextRect(text.left(index).toStdString(), x, y, width, height);
+    canvas->getTextSize(text.left(index), width, height);
     if (height == 0)
-      canvas->getTextRect("X", x, y, width, height);
+      canvas->getTextSize("X", width, height);
   }
 
   const double scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();

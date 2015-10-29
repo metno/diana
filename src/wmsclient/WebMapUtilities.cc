@@ -597,6 +597,10 @@ QStringList expandWmsTimes(const QString& timesSpec)
 QStringList expandWmsValues(const QString& valueSpec)
 {
   const QStringList mmr = valueSpec.split("/");
+  if (mmr.size() != 3) {
+    METLIBS_LOG_ERROR("malformed value spec? " << valueSpec.toStdString());
+    return QStringList();
+  }
 
   double start = mmr.at(0).toDouble();
   double end   = mmr.at(1).toDouble();

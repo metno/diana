@@ -2355,7 +2355,7 @@ static int handleDescribeCommand(int& k)
       }
     }
 
-    map<string,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
+    const std::map<std::string,ObsManager::ProdInfo>& obsProducts = main_controller->getObservationManager()->getProductsInfo();
     set<std::string> obsPatterns;
     set<std::string> obsFiles;
 
@@ -2365,10 +2365,10 @@ static int handleDescribeCommand(int& k)
       for (vector<string>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
         obsFiles.insert(*itf);
 
-        for (map<string,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
-          for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
+        for (std::map<std::string,ObsManager::ProdInfo>::const_iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
+          for (vector<ObsManager::FileInfo>::const_iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
             if (*itf == itof->filename) {
-              for (vector<ObsManager::patternInfo>::iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)
+              for (vector<ObsManager::patternInfo>::const_iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)
                 obsPatterns.insert(itp->pattern);
             }
 

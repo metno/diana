@@ -77,9 +77,8 @@ public:
   bool setFont(const std::string& font) Q_DECL_OVERRIDE;
   bool setFontFace(FontFace face);
   bool setFontSize(float size) Q_DECL_OVERRIDE;
-  bool getCharSize(char ch, float& w, float& h) Q_DECL_OVERRIDE;
-  bool getTextSize(const std::string& text, float& w, float& h) Q_DECL_OVERRIDE;
-  bool getTextRect(const std::string& s, float& x, float& y, float& w, float& h) Q_DECL_OVERRIDE;
+  bool getTextSize(const QString& text, float& w, float& h) Q_DECL_OVERRIDE;
+  bool getTextRect(const QString& str, float& x, float& y, float& w, float& h) Q_DECL_OVERRIDE;
 
   QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
 
@@ -97,8 +96,7 @@ public:
 
 private:
   bool parseFontSetup();
-  bool defineFont(const std::string& font, const std::string& fontfilename,
-      FontFace, int, const std::string& = "", float = 1.0f, float = 1.0f);
+  bool defineFont(const std::string& font, const std::string& fontfilename);
 
 private:
   QPaintDevice* mDevice;
@@ -107,7 +105,6 @@ private:
   float mFontScaleX, mFontScaleY;
   QHash<QString,QString> fontMap;
 
-  std::map<std::string, std::set<std::string> > enginefamilies;
   std::map<std::string, std::string> defaults;
 };
 
@@ -198,7 +195,7 @@ public:
   // end DiGLPainter interface
 
   // begin DiPainter interface
-  bool drawText(const std::string& text, float x, float y, float angle = 0) Q_DECL_OVERRIDE;
+  bool drawText(const QString& text, float x, float y, float angle = 0) Q_DECL_OVERRIDE;
   void drawCircle(float centerx, float centery, float radius) Q_DECL_OVERRIDE;
   void fillCircle(float centerx, float centery, float radius) Q_DECL_OVERRIDE;
   void drawRect(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;

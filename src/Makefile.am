@@ -149,6 +149,7 @@ libdiana_la_QTHEADERS = \
 	diVcrossInterface.h
 
 diana_bin_SOURCES = \
+	diFontFamily.cc \
 	diFontManager.cc \
 	diTesselation.c \
 	diOpenGLPainter.cc \
@@ -272,6 +273,7 @@ noinst_HEADERS = \
 	diFieldPlot.h \
 	diFieldPlotManager.h \
 	diFilledMap.h \
+	diFontFamily.h \
 	diFontManager.h \
 	diFtnVfile.h \
 	diGlUtilities.h \

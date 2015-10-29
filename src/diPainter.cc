@@ -23,6 +23,31 @@ bool DiCanvas::setFont(const std::string& font, const std::string& face, float s
   return setFont(font, size, f);
 }
 
+bool DiCanvas::getTextSize(const std::string& text, float& w, float& h)
+{
+  return getTextSize(QString::fromStdString(text), w, h);
+}
+
+bool DiCanvas::getTextSize(const char* text, float& w, float& h)
+{
+  return getTextSize(QString::fromLatin1(text), w, h);
+}
+
+bool DiCanvas::getTextRect(const std::string& text, float& x, float& y, float& w, float& h)
+{
+  return getTextRect(QString::fromStdString(text), x, y, w, h);
+}
+
+bool DiCanvas::getTextRect(const char* text, float& x, float& y, float& w, float& h)
+{
+  return getTextRect(QString::fromLatin1(text), x, y, w, h);
+}
+
+bool DiCanvas::getCharSize(int c, float& w, float& h)
+{
+  return getTextSize(QString(QChar(c)), w, h);
+}
+
 // ========================================================================
 
 DiPainter::DiPainter(DiCanvas* canvas)
@@ -64,11 +89,18 @@ bool DiPainter::setFontSize(float size)
   return canvas()->setFontSize(size);
 }
 
-bool DiPainter::getCharSize(char ch, float& w, float& h)
+bool DiPainter::getCharSize(int ch, float& w, float& h)
 {
   if (!canvas())
     return false;
   return canvas()->getCharSize(ch, w, h);
+}
+
+bool DiPainter::getTextSize(const char* text, float& w, float& h)
+{
+  if (!canvas())
+    return false;
+  return canvas()->getTextSize(text, w, h);
 }
 
 bool DiPainter::getTextSize(const std::string& text, float& w, float& h)
@@ -78,10 +110,26 @@ bool DiPainter::getTextSize(const std::string& text, float& w, float& h)
   return canvas()->getTextSize(text, w, h);
 }
 
-bool DiPainter::drawChar(char chr, float x, float y, float angle)
+bool DiPainter::getTextSize(const QString& text, float& w, float& h)
 {
-  const char chrs[2] = { chr, 0 };
-  return drawText(chrs, x, y, angle);
+  if (!canvas())
+    return false;
+  return canvas()->getTextSize(text, w, h);
+}
+
+bool DiPainter::drawText(const char* text, float x, float y, float angle)
+{
+  return drawText(QString(text), x, y, angle);
+}
+
+bool DiPainter::drawText(const std::string& text, float x, float y, float angle)
+{
+  return drawText(QString::fromStdString(text), x, y, angle);
+}
+
+bool DiPainter::drawChar(int c, float x, float y, float angle)
+{
+  return drawText(QString(QChar(c)), x, y, angle);
 }
 
 void DiPainter::drawRect(const Rectangle& r)

@@ -60,7 +60,7 @@ Points& Points::operator=(const Points& rhs)
 {
   if (this != &rhs) {
     area = rhs.area;
-    map_area = rhs.map_area;
+    map_proj = rhs.map_proj;
 
     npos = rhs.npos;
     delete[] x;
@@ -123,7 +123,7 @@ void GridConverter::setBufferSizeMapFields(const int s)
   mapfieldsbuffer = new ring<MapFields> (s);
 }
 
-bool GridConverter::doGetGridPoints(const GridArea& area, const Area& map_area,
+bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_proj,
     bool gridboxes, float**x, float**y, int& ipb)
 {
   if (!pointbuffer)
@@ -139,7 +139,7 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Area& map_area,
   const int n = pointbuffer->size();
   for (int i=0; i < n; ++i) {
     const Points& pi = (*pointbuffer)[i];
-    if (pi.area == area && pi.map_area.P() == map_area.P()
+    if (pi.area == area && pi.map_proj == map_proj
         && pi.npos == npos && pi.gridboxes == gridboxes)
     {
       ipb = i;
@@ -156,7 +156,7 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Area& map_area,
   Points& p0 = (*pointbuffer)[0];
 
   p0.area = area;
-  p0.map_area = map_area;
+  p0.map_proj = map_proj;
   p0.gridboxes = gridboxes;
   p0.npos = npos;
   p0.x = new float[npos];
@@ -177,8 +177,7 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Area& map_area,
   }
 
   const Projection& pa = area.P();
-  const Projection& pm = map_area.P();
-  if (pm.convertPoints(pa, npos, p0.x, p0.y) != 0) {
+  if (map_proj.convertPoints(pa, npos, p0.x, p0.y) != 0) {
     pointbuffer->pop();
     return false;
   }
@@ -192,7 +191,7 @@ bool GridConverter::getGridPoints(const GridArea& area, const Area& map_area,
     bool gridboxes, float**x, float**y)
 {
   int ipb;
-  return doGetGridPoints(area, map_area, gridboxes, x, y, ipb);
+  return doGetGridPoints(area, map_area.P(), gridboxes, x, y, ipb);
 }
 
 bool GridConverter::getGridPoints(const GridArea& area, const Area& map_area,
@@ -200,7 +199,7 @@ bool GridConverter::getGridPoints(const GridArea& area, const Area& map_area,
     int& ix1, int& ix2, int& iy1, int& iy2)
 {
   int ipb;
-  if (!doGetGridPoints(area, map_area, gridboxes, x, y, ipb))
+  if (!doGetGridPoints(area, map_area.P(), gridboxes, x, y, ipb))
     return false;
 
   const bool skiplimits = (maprect.width() == 0 || maprect.height() == 0);
@@ -310,24 +309,15 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
 }
 
 // convert set of points
-bool
-GridConverter::getPoints(const Projection& projection, const Projection& map_projection,
+bool GridConverter::getPoints(const Projection& projection, const Projection& map_projection,
     int npos, float* x, float* y) const
 {
   return map_projection.convertPoints(projection, npos, x, y, false) == 0;
 }
 
-// convert set of points - obsolete, use the above method
-bool
-GridConverter::getPoints(const Area& area, const Area& map_area,
-    int npos, float* x, float* y) const
-{
-  return getPoints(area.P(), map_area.P(), npos, x, y);
-}
-
 // get arrays of vector rotation elements
 bool GridConverter::getVectorRotationElements(const Area& data_area,
-    const Area& map_area, int nvec, const float *x, const float *y,
+    const Projection& map_proj, int nvec, const float *x, const float *y,
     float ** cosx, float ** sinx)
 {
   if (!anglebuffer)
@@ -337,7 +327,7 @@ bool GridConverter::getVectorRotationElements(const Area& data_area,
   const int n = anglebuffer->size();
   for (int i=0; i < n; ++i) {
     const Points& pi = (*anglebuffer)[i];
-    if (pi.area == data_area && pi.map_area.P() == map_area.P() && pi.npos == nvec) {
+    if (pi.area == data_area && pi.map_proj == map_proj && pi.npos == nvec) {
       *cosx = pi.x;
       *sinx = pi.y;
       return true;
@@ -348,12 +338,12 @@ bool GridConverter::getVectorRotationElements(const Area& data_area,
   anglebuffer->push(Points()); // push a new points structure on the ring
   Points& p0 = (*anglebuffer)[0];
   p0.area = GridArea(data_area);
-  p0.map_area = map_area;
+  p0.map_proj = map_proj;
   p0.npos = nvec;
   p0.x = new float[nvec];
   p0.y = new float[nvec];
 
-  if (map_area.P().calculateVectorRotationElements(data_area.P(), nvec, x, y, p0.x, p0.y)) {
+  if (map_proj.calculateVectorRotationElements(data_area.P(), nvec, x, y, p0.x, p0.y)) {
     anglebuffer->pop();
     return false;
   }
@@ -363,12 +353,12 @@ bool GridConverter::getVectorRotationElements(const Area& data_area,
 }
 
 // convert u,v vector coordinates for points x,y
-bool GridConverter::getVectors(const Area& data_area, const Area& map_area,
+bool GridConverter::getVectors(const Area& data_area, const Projection& map_proj,
     int nvec, const float *x, const float *y, float* u, float* v)
 {
   float * cosx = 0;
   float * sinx = 0;
-  if (!getVectorRotationElements(data_area, map_area, nvec, x, y, &cosx, &sinx))
+  if (!getVectorRotationElements(data_area, map_proj, nvec, x, y, &cosx, &sinx))
     return false;
 
   for (int i = 0; i < nvec; ++i) {
@@ -411,7 +401,7 @@ bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
     }
   }
 
-  return getVectors(geo_area, map_area, nvec, x, y, u, v);
+  return getVectors(geo_area, map_area.P(), nvec, x, y, u, v);
 }
 
 // convert true north direction and velocity (dd=u,ff=v)
@@ -437,7 +427,7 @@ bool GridConverter::getDirectionVector(const Area& map_area, const bool turn,
     v = ff * cosf(dd);
   }
 
-  return getVectors(geo_area, map_area, 1, &x[index], &y[index], &u, &v);
+  return getVectors(geo_area, map_area.P(), 1, &x[index], &y[index], &u, &v);
 }
 
 bool GridConverter::geo2xy(const Area& area, int npos, float* x, float* y)
@@ -461,10 +451,6 @@ bool GridConverter::xyv2geo(const Area& area, int nx, int ny, float *u, float *v
 {
   int npos = nx * ny;
 
-  // geographic projection - entire planet...
-  Rectangle geor(-180, -90, 180, 90);
-  Area geoarea(Projection::geographic(), geor);
-
   // create entire grid for the model
   float *x = new float[npos];
   float *y = new float[npos];
@@ -481,8 +467,8 @@ bool GridConverter::xyv2geo(const Area& area, int nx, int ny, float *u, float *v
 
   bool ret = false;
 
-  if (getPoints(area, geoarea, npos, x, y))
-    if (getVectors(area, geoarea, npos, x, y, u, v)) // convertVectors
+  if (getPoints(area.P(), Projection::geographic(), npos, x, y))
+    if (getVectors(area, Projection::geographic(), npos, x, y, u, v)) // convertVectors
       ret = true;
 
   delete[] x;

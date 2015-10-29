@@ -32,105 +32,63 @@
 #endif
 
 #include "diFontManager.h"
-
-#ifdef USE_XLIB
-#include <glText/glTextX.h>
-#endif
-#include <glText/glTextTT.h>
-#include <glText/glTextTTBitmap.h>
-#include <glText/glTextTTPixmap.h>
-#include <glText/glTextTTTexture.h>
-#include <glText/glTextQtTexture.h>
-
+#include "diFontFamily.h"
 #include "diLocalSetupParser.h"
+
 #include <puTools/miSetupParser.h>
 
 #define MILOGGER_CATEGORY "diana.FontManager"
 #include <miLogger/miLogging.h>
 
-using namespace miutil;
-using namespace std;
-
 std::string FontManager::fontpath;
-std::string FontManager::display_name;
-map<std::string, std::string> FontManager::defaults;
 
-static const std::string key_bitmap = "bitmap";
-static const std::string key_scaleable = "scaleable";
-static const std::string key_ttbitmap = "tt_bitmap";
-static const std::string key_ttpixmap = "tt_pixmap";
-static const std::string key_tttexture = "tt_texture";
-static const std::string key_texture = "texture";
+static const std::string key_ttbitmap = "tt_bitmap"; // use bitmap FTGL font
 
 static const std::string key_bitmapfont = "bitmapfont";
 static const std::string key_scalefont = "scalefont";
 static const std::string key_metsymbolfont = "metsymbolfont";
 
-FontManager::FontManager() :
-  current_engine(0)
+FontManager::FontManager()
+  : currentFamily(0)
 {
-#ifdef USE_XLIB
-  glTextX * xfonts;
-  if (!display_name.empty()) // do not use environment-var DISPLAY
-  xfonts = new glTextX(display_name);
-  else
-  xfonts = new glTextX();
-  fontengines[key_bitmap] = xfonts;
-#endif
-
-  glTextTT * ttfonts = new glTextTT();
-  fontengines[key_scaleable] = ttfonts;
-
-  glTextTTBitmap * ttbfonts = new glTextTTBitmap();
-  fontengines[key_ttbitmap] = ttbfonts;
-
-  glTextTTPixmap * ttpixfonts = new glTextTTPixmap();
-  fontengines[key_ttpixmap] = ttpixfonts;
-
-  glTextTTTexture * tttexfonts = new glTextTTTexture();
-  fontengines[key_tttexture] = tttexfonts;
-
-  glTextQtTexture * texfonts = new glTextQtTexture();
-  fontengines[key_texture] = texfonts;
 }
 
 FontManager::~FontManager()
 {
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      delete itr->second;
-    }
-  }
+  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
+    delete it->second;
 }
 
 // fill fontpack for testing
-bool FontManager::testDefineFonts(std::string path)
+bool FontManager::testDefineFonts(const std::string& path)
 {
-  bool res = true;
+  FontFamily* arial = new FontFamily(false);
+  arial->defineFont(path + "/Arialn.ttf", FontFamily::F_NORMAL, 16);
+  arial->defineFont(path + "/Arialni.ttf", FontFamily::F_ITALIC, 20);
+  arial->defineFont(path + "/Arialnb.ttf", FontFamily::F_BOLD, 20);
+  families["Arial"] = arial;
 
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->testDefineFonts(path);
-    }
-  }
+  FontFamily* weatherSymbols = new FontFamily(true);
+  weatherSymbols->defineFont(path + "/dnmimet.ttf", FontFamily::F_NORMAL, 20);
+  families["Symbol"] = weatherSymbols;
 
-  return res;
+  currentFamily = arial;
+  return true;
 }
 
-glText::FontFace FontManager::fontFace(const std::string& s)
+// static
+FontFamily::FontFace FontManager::fontFace(const std::string& s)
 {
   std::string suface = miutil::to_upper(s);
   miutil::trim(suface);
-  glText::FontFace face = glText::F_NORMAL;
+  FontFamily::FontFace face = FontFamily::F_NORMAL;
   if (suface != "NORMAL") {
     if (suface == "ITALIC")
-      face = glText::F_ITALIC;
+      face = FontFamily::F_ITALIC;
     else if (suface == "BOLD")
-      face = glText::F_BOLD;
+      face = FontFamily::F_BOLD;
     else if (suface == "BOLD_ITALIC")
-      face = glText::F_BOLD_ITALIC;
+      face = FontFamily::F_BOLD_ITALIC;
   }
 
   return face;
@@ -139,7 +97,6 @@ glText::FontFace FontManager::fontFace(const std::string& s)
 bool FontManager::parseSetup()
 {
   const std::string sf_name = "FONTS";
-  vector<std::string> sect_fonts;
 
   const std::string key_font = "font";
   const std::string key_fonttype = "type";
@@ -150,11 +107,13 @@ bool FontManager::parseSetup()
   const std::string key_psyscale = "ps-scale-y";
   const std::string key_fontpath = "fontpath";
 
-  defaults[key_bitmapfont] = "Helvetica";
-  defaults[key_scalefont] = "Arial";
-  defaults[key_metsymbolfont] = "Symbol";
+  familyAliases.clear();
+  familyAliases[key_bitmapfont] = "Helvetica";
+  familyAliases[key_scalefont] = "Arial";
+  familyAliases[key_metsymbolfont] = "Symbol";
 
-  enginefamilies.clear();
+  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
+    delete it->second;
 
   if (fontpath.empty()) {
     fontpath = LocalSetupParser::basicValue("fontpath");
@@ -162,7 +121,8 @@ bool FontManager::parseSetup()
       fontpath = "fonts/";
   }
 
-  if (!SetupParser::getSection(sf_name, sect_fonts)) {
+  std::vector<std::string> sect_fonts;
+  if (!miutil::SetupParser::getSection(sf_name, sect_fonts)) {
     //METLIBS_LOG_WARN("Missing section " << sf_name << " in setupfile.");
     testDefineFonts(fontpath);
     return false;
@@ -174,15 +134,12 @@ bool FontManager::parseSetup()
     std::string fontname = "";
     std::string fonttype = "";
     std::string fontface = "";
-    std::string postscript = "";
-    float psxscale = 1.0;
-    float psyscale = 1.0;
 
-    vector<std::string> stokens = miutil::split(sect_fonts[i], " ");
+    std::vector<std::string> stokens = miutil::split(sect_fonts[i], " ");
     for (unsigned int j = 0; j < stokens.size(); j++) {
       std::string key;
       std::string val;
-      SetupParser::splitKeyValue(stokens[j], key, val);
+      miutil::SetupParser::splitKeyValue(stokens[j], key, val);
 
       if (key == key_font)
         fontfam = val;
@@ -192,16 +149,12 @@ bool FontManager::parseSetup()
         fontface = val;
       else if (key == key_fontname)
         fontname = val;
-      else if (key == key_postscript)
-        postscript = val;
-      else if (key == key_psxscale)
-        psxscale = atof(val.c_str());
-      else if (key == key_psyscale)
-        psyscale = atof(val.c_str());
+      else if (key == key_postscript || key == key_psxscale || key == key_psyscale)
+        ; // ignore these options
       else if (key == key_fontpath)
         fontpath = val;
       else
-        defaults[key] = val;
+        familyAliases[key] = val;
     }
 
     if (fonttype.empty() || fontfam.empty() || fontname.empty())
@@ -210,284 +163,151 @@ bool FontManager::parseSetup()
     const std::string fonttype_lc = miutil::to_lower(fonttype);
     std::string fontfilename = fontpath + "/" + fontname;
 
-    if (fonttype_lc == key_bitmap) {
-#if defined(USE_XLIB)
-      enginefamilies[key_bitmap].insert(fontfam);
-      if (fontengines[key_bitmap])
-        fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
-#else
-      METLIBS_LOG_WARN("X-FONTS not supported!");
-#endif
-    } else if (fonttype_lc == key_scaleable) {
-      enginefamilies[key_scaleable].insert(fontfam);
-      if (fontengines[key_scaleable]) {
-        fontengines[key_scaleable]
-            ->defineFont(fontfam, fontfilename, fontFace(fontface), 20);
-      }
+    families_t::iterator it = families.find(fontfam);
+    FontFamily* f;
+    if (it == families.end()) {
+      bool use_bitmap = (fonttype_lc == key_ttbitmap);
+      f = new FontFamily(use_bitmap);
 
-    } else if (fonttype_lc == key_ttbitmap) {
-      enginefamilies[key_ttbitmap].insert(fontfam);
-      if (fontengines[key_ttbitmap]) {
-        fontengines[key_ttbitmap]
-            ->defineFont(fontfam, fontfilename, fontFace(fontface), 20,
-                postscript, psxscale, psyscale);
-      }
-
-    } else if (fonttype_lc == key_ttpixmap) {
-      enginefamilies[key_ttpixmap].insert(fontfam);
-      if (fontengines[key_ttpixmap]) {
-        fontengines[key_ttpixmap]->defineFont(
-          fontfam, fontfilename, fontFace(fontface), 20, postscript,
-          psxscale, psyscale);
-      }
-
-    } else if (fonttype_lc == key_tttexture) {
-      enginefamilies[key_tttexture].insert(fontfam);
-      if (fontengines[key_tttexture]) {
-        fontengines[key_tttexture]->defineFont(
-          fontfam, fontfilename, fontFace(fontface), 20, postscript,
-          psxscale, psyscale);
-      }
-
-    } else if (fonttype_lc == key_texture) {
-      enginefamilies[key_texture].insert(fontfam);
-      if (fontengines[key_texture]) {
-        fontengines[key_texture]->defineFont(
-          fontfam, fontname, fontFace(fontface), 20, postscript, psxscale,
-          psyscale);
-      }
+      if (families.empty())
+        currentFamily = f;
+      families.insert(std::make_pair(fontfam, f));
+    } else {
+      f = it->second;
     }
+    f->defineFont(fontfilename, fontFace(fontface), 20);
   }
 
   return true;
 }
 
-bool FontManager::check_family(const std::string& fam, std::string& family)
+FontFamily* FontManager::findFamily(const std::string& family)
 {
-  const std::string fam_lower = miutil::to_lower(fam);
-  if (defaults.count(fam_lower) > 0)
-    family = defaults[fam_lower];
-  else
-    family = fam;
+  const aliases_t::const_iterator itA = familyAliases.find(miutil::to_lower(family));
+  const std::string& fam = (itA != familyAliases.end()) ? itA->second : family;
 
-  std::map<std::string, std::set<std::string> >::iterator itr =
-      enginefamilies.begin();
-  for (; itr != enginefamilies.end(); ++itr) {
-    if (itr->second.find(family) != itr->second.end()) {
-      if (fontengines[itr->first]) {
-        current_engine = fontengines[itr->first];
-        break;
-      }
-    }
+  const families_t::iterator itF = families.find(fam);
+  if (itF != families.end()) {
+    currentFamily = itF->second;
+    return currentFamily;
   }
 
-  if (itr == enginefamilies.end()) {
-    METLIBS_LOG_ERROR("FontManager::check_family ERROR, unknown font family:" << family);
-    return false;
-  }
-
-  return true;
+  METLIBS_LOG_ERROR("unknown font family: '" << family << "'");
+  return 0;
 }
 
 // choose font, size and face
-bool FontManager::set(const std::string fam, const glText::FontFace face,
-    const float size)
+bool FontManager::set(const std::string& fam, FontFamily::FontFace face, float size)
 {
-  std::string family;
-  if (check_family(fam, family)) {
-    return current_engine->set(family, face, size);
-  }
-  return false;
+  FontFamily* family = findFamily(fam);
+  if (!family)
+    return false;
+  return family->set(face, size);
 }
 
 // choose font, size and face
-bool FontManager::set(const std::string fam, const std::string sface,
-    const float size)
+bool FontManager::set(const std::string& fam, const std::string& face, float size)
 {
-  glText::FontFace face = fontFace(sface);
-  return set(fam, face, size);
+  return set(fam, fontFace(face), size);
 }
 
-bool FontManager::setFont(const std::string fam)
+bool FontManager::setFont(const std::string& fam)
 {
-  std::string family;
-  if (check_family(fam, family)) {
-    return current_engine->setFont(family);
-  }
-  return false;
+  FontFamily* family = findFamily(fam);
+  return family != 0;
 }
 
-bool FontManager::setFontFace(const glText::FontFace face)
+bool FontManager::setFontFace(FontFamily::FontFace face)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->setFontFace(face);
+  return currentFamily->setFontFace(face);
 }
 
-bool FontManager::setFontFace(const std::string sface)
+bool FontManager::setFontFace(const std::string& face)
 {
-  glText::FontFace face = fontFace(sface);
-  return setFontFace(face);
+  return setFontFace(fontFace(face));
 }
 
 bool FontManager::setFontSize(const float size)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->setFontSize(size);
+  return currentFamily->setFontSize(size);
 }
 
-// printing commands
-bool FontManager::drawChar(const int c, const float x, const float y,
-    const float a)
+bool FontManager::drawStr(const std::string& s, float x, float y, float a)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->drawChar(c, x, y, a);
+  return currentFamily->drawStr(s, x, y, a);
 }
 
-bool FontManager::drawStr(const char* s, const float x, const float y,
-    const float a)
+bool FontManager::drawStr(const std::wstring& s, float x, float y, float a)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->drawStr(s, x, y, a);
-}
-
-// Metric commands
-void FontManager::adjustSize(const int sa)
-{
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->adjustSize(sa);
-    }
-  }
-}
-
-void FontManager::setScalingType(const glText::FontScaling fs)
-{
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->setScalingType(fs);
-    }
-  }
+  return currentFamily->drawStr(s, x, y, a);
 }
 
 // set viewport size in GL coordinates
-void FontManager::setGlSize(const float glx1, const float glx2,
-    const float gly1, const float gly2)
+void FontManager::setGlSize(float glx1, float glx2, float gly1, float gly2)
 {
   setGlSize(glx2 - glx1, gly2 - gly1);
 }
 
 // set viewport size in GL coordinates
-void FontManager::setGlSize(const float glw, const float glh)
+void FontManager::setGlSize(float glw, float glh)
 {
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->setGlSize(glw, glh);
-    }
-  }
+  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
+    it->second->setGlSize(glw, glh);
 }
 
 // set viewport size in physical coordinates (pixels)
 void FontManager::setVpSize(const float vpw, const float vph)
 {
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->setVpSize(vpw, vph);
-    }
-  }
+  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
+    it->second->setVpSize(vpw, vph);
 }
 
-void FontManager::setPixSize(const float pw, const float ph)
+bool FontManager::getStringSize(const std::string& s, float& w, float& h)
 {
-  std::map<std::string, glText*>::iterator itr = fontengines.begin();
-  for (; itr != fontengines.end(); ++itr) {
-    if (itr->second) {
-      itr->second->setPixSize(pw, ph);
-    }
-  }
-}
-
-bool FontManager::getCharSize(const int c, float& w, float& h)
-{
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->getCharSize(c, w, h);
+  return currentFamily->getStringSize(s, w, h);
 }
 
-bool FontManager::getMaxCharSize(float& w, float& h)
+bool FontManager::getStringSize(const std::wstring& s, float& w, float& h)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->getMaxCharSize(w, h);
+  return currentFamily->getStringSize(s, w, h);
 }
 
-bool FontManager::getStringSize(const char* s, float& w, float& h)
+bool FontManager::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->getStringSize(s, w, h);
+  return currentFamily->getStringRect(s, x, y, w, h);
 }
 
-bool FontManager::getStringRect(const char* s, float& x, float& y, float& w, float& h)
+bool FontManager::getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h)
 {
-  if (!current_engine)
+  if (!currentFamily)
     return false;
-  return current_engine->getStringRect(s, x, y, w, h);
+  return currentFamily->getStringRect(s, x, y, w, h);
 }
 
-// return info
-glText::FontScaling FontManager::getFontScaletype()
+FontFamily::FontFace FontManager::getFontFace()
 {
-  if (!current_engine)
-    return glText::S_FIXEDSIZE;
-  return current_engine->getFontScaletype();
-}
-
-int FontManager::getNumFonts()
-{
-  if (!current_engine)
-    return 0;
-  return current_engine->getNumFonts();
-}
-
-int FontManager::getNumSizes()
-{
-  if (!current_engine)
-    return 0;
-  return current_engine->getNumSizes();
-}
-
-glText::FontFace FontManager::getFontFace()
-{
-  if (!current_engine)
-    return glText::F_NORMAL;
-  return current_engine->getFontFace();
+  if (!currentFamily)
+    return FontFamily::F_NORMAL;
+  return currentFamily->getFontFace();
 }
 
 float FontManager::getFontSize()
 {
-  if (!current_engine)
+  if (!currentFamily)
     return 0;
-  return current_engine->getFontSize();
-}
-
-int FontManager::getFontSizeIndex()
-{
-  if (!current_engine)
-    return 0;
-  return current_engine->getFontSizeIndex();
-}
-
-std::string FontManager::getFontName(const int index)
-{
-  if (!current_engine)
-    return "";
-  return current_engine->getFontName(index);
+  return currentFamily->getFontSize();
 }
