@@ -1881,7 +1881,7 @@ style="Significant weather (TURB/VA/RC) front"  linewidth=2 linesmooth=true deco
 style="Significant weather (ICE/TCU/CB) front"  linewidth=2 linesmooth=true decoration1=SIGWX \
                                                 decoration1.colour=blue closed=false linealpha=0 \
                                                 fillalpha=0
-style="Jet stream"                              linecolour=black linewidth=3 linesmooth=true decoration1=arrow \
+style="Jet stream"                              linecolour=black linewidth=3 linesmooth=true decoration1=arrow,jetstream \
                                                 closed=false fillalpha=0
 style="Cross section"                           linecolour=black linewidth=3 linepattern=solid linesmooth=false \
                                                 fillalpha=0 closed=false
@@ -1947,13 +1947,24 @@ composite="Predefined Text over Predefined Text inside blue curved rectangle" ob
 # Predefined text strings for use in composite objects.
 complextext="BKN/OVC STF,RA,RADZ,SHRA,SN,SHSN,LOC FG,BR,NSC,RASN,SHSNGS,SHRASN,SHRA,BR/FG,DZ,FZRA,SFC VIS,LT 5 KM,ISOL,EMBD CB,SCT/BKN,CB/TCU"
 
-# Property editor rules
+# Property editor and filter rules - comma-separated prefixes that cause
+# properties to be hidden or shown if they start with these values.
 hide-property-sections-drawing="style,met:style"
 show-property-sections-drawing="met:info:"
 hide-property-sections-editing="style,met:style"
-show-property-sections-editing="met:info:,TimeSpan:"
-show-tooltips-drawing="met:info:,TimeSpan:"
-show-tooltips-editing="met:info:,TimeSpan:"
+show-property-sections-editing="met:info:,TimeSpan:,time"
+
+# Tooltip filters - comma-separated prefixes that determine which properties
+# will be shown in tooltips over the objects that contain them. Each prefix
+# will not be shown if it ends with a colon.
+show-tooltips-drawing="met:info:,TimeSpan:,time"
+show-tooltips-editing="met:info:,TimeSpan:,time"
+
+# Tooltip rules - comma-separated collections of properties that will be
+# merged if their values are identical. Each collection is a pipe-separated
+# list of names, the last of which will be used as a replacement name for
+# the others if their values are the same.
+tooltips-merge-identical="TimeSpan:begin|TimeSpan:end|time"
 </DRAWING>
 
 <WEBMAP_SERVICES>
