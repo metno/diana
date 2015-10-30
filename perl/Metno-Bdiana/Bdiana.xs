@@ -12,9 +12,9 @@ MODULE = Metno::Bdiana		PACKAGE = Metno::Bdiana
 void
 init_(OUTLIST int ret)
   PREINIT:
-    char* argv[] =  {"-v", "-libinput", "-use_qimage", "-use_singlebuffer"};
+    char* argv[] =  {"-v", "-L", "/etc/diana/setup/log4cpp.properties"};
   CODE:
-    ret = diana_init(4 , argv);
+    ret = diana_init(3 , argv);
 
 void
 free()
