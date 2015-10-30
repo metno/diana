@@ -244,7 +244,7 @@ bool DiPaintGLCanvas::getTextRect(const QString& str, float& x, float& y, float&
   QFontMetricsF fm(mFont, mDevice);
   QRectF rect = fm.boundingRect(str);
   x = rect.x() * mFontScaleX;
-  y = rect.y() * 0.8 * mFontScaleY;
+  y = rect.y() * mFontScaleY;
   w = rect.width() * mFontScaleX;
   h = rect.height() * 0.8 * mFontScaleY;
   if (w == 0 || str.trimmed().isEmpty())
