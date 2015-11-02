@@ -2659,6 +2659,9 @@ static int handlePlotCellCommand(int& k, const std::string& value)
 static int parseAndProcess(istream &is)
 {
   ensureNewContext();
+  
+  // reset time (before next wms request)
+  fixedtime = miTime();
 
   // unpack loops, make lists, merge lines etc.
   int res = prepareInput(is);
@@ -3036,9 +3039,6 @@ int diana_init(int _argc, char** _argv)
     }
     ac++;
   } // command line parameters
-
-  if (false and batchinput.empty()) // FIXME removing the 'false' kills perl Metno::Bdiana
-    printUsage(false);
 
   // tell fimex to use log4cpp
   MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);

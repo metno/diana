@@ -1,3 +1,11 @@
+diana (3.39.0-1) unstable; urgency=low
+
+  * Fields: Accept reference time in the path, not just in the filename
+  * bdiana: reset time for each wms request
+  * bdiana: added name of loggerfile in perl interface
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Oct 2015 12:33:04 +0100
+
 diana (3.39.0~rc11-1) unstable; urgency=low
 
   * Drawing/Edit: New dialog
