@@ -150,6 +150,10 @@ public:
 
   virtual void paint();
 
+  enum { UNDEFINED = 1, FILL = 2, LINES_LABELS = 4 };
+  void setPaintMode(int mode)
+    { mPaintMode = mode; }
+
 protected:
   typedef std::vector<contouring::point_t> point_v;
   typedef std::vector<point_v> point_vv;
@@ -171,6 +175,7 @@ protected:
   const DianaLevels& mLevels;
 
 private:
+  int mPaintMode;
   level_points_m m_lines;
   level_points_m m_polygons;
 };
@@ -181,6 +186,7 @@ int find_index(bool repeat, int available, int i);
 
 bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
     const float z[], const float xz[], const float yz[],
-    DiGLPainter* gl, const PlotOptions& poptions, float fieldUndef);
+    DiGLPainter* gl, const PlotOptions& poptions, float fieldUndef,
+    int paintMode = (DianaLines::UNDEFINED | DianaLines::FILL | DianaLines::LINES_LABELS));
 
 #endif // diPolyContouring_hh
