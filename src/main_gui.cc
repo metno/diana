@@ -120,7 +120,7 @@ int main(int argc, char **argv)
       ac++;
       if (ac >= argc) {
         printUsage();
-        return 99;
+        return 0;
       }
       setupfile= argv[ac];
 
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
       ac++;
       if (ac >= argc) {
         printUsage();
-        return 99;
+        return 0;
       }
       cl_lang= argv[ac];
 
@@ -136,19 +136,18 @@ int main(int argc, char **argv)
       ac++;
       if (ac >= argc) {
         printUsage();
-        return 99;
+        return 0;
       }
       logfilename= argv[ac];
 
     } else if (sarg=="-v" || sarg=="--version") {
-      //METLIBS_LOG_DEBUG(argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string);
       return 0;
 
     } else if (sarg=="-T" || sarg=="--title") {
       ac++;
       if (ac >= argc) {
         printUsage();
-        return 99;
+        return 0;
       }
       diana_title = argv[ac];
 
@@ -184,14 +183,14 @@ int main(int argc, char **argv)
       QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
         QString("An error occurred while reading setup: %1").arg(QString::fromStdString(setupfile)));
     }
-    return 99;
+    return 0;
   }
   printerManager printman;
   if (!printman.parseSetup()) {
     METLIBS_LOG_ERROR("An error occurred while reading print setup: " << setupfile);
     QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
       QString("An error occurred while reading print setup: %1").arg(QString::fromStdString(setupfile)));
-    return 99;
+    return 0;
   }
 
   Controller contr;
@@ -202,7 +201,7 @@ int main(int argc, char **argv)
     METLIBS_LOG_ERROR("An error occurred while reading setup: " << setupfile);
     QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
       QString("An error occurred while reading setup: %1").arg(QString::fromStdString(setupfile)));
-    return 99;
+    return 0;
   }
 
   // language from setup
