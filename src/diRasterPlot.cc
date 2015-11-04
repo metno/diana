@@ -158,7 +158,8 @@ diutil::Rect_v RasterPlot::checkVisible()
     const int iy1 = std::max((int)floor((mapRect.y1 - satY1)/mas.resolutionY), 0);
     const int iy2 = std::min((int) ceil((mapRect.y2 - satY1)/mas.resolutionY), mas.ny);
     METLIBS_LOG_DEBUG("similar" << LOGVAL(ix1) << LOGVAL(ix2) << LOGVAL(iy1) << LOGVAL(iy2));
-
+    if (ix1 >= ix2 || iy1 >= iy2)
+      return diutil::Rect_v();
     return diutil::Rect_v(1, diutil::Rect(ix1, iy1, ix2, iy2));
   } else {
     // different projections, need to search indices
