@@ -103,7 +103,7 @@ private:
   int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);
 
   // plotting methods
-  bool plotMe(DiGLPainter* gl);
+  bool plotMe(DiGLPainter* gl, PlotOrder zorder);
   bool plotWind(DiGLPainter* gl);
   bool plotWindAndValue(DiGLPainter* gl, bool flightlevelChart=false);
   bool plotValue(DiGLPainter* gl);
@@ -115,7 +115,7 @@ private:
       const float* colourfield, float& arrowlength);
 
   bool plotContour(DiGLPainter* gl);
-  bool plotContour2(DiGLPainter* gl);
+  bool plotContour2(DiGLPainter* gl, PlotOrder zorder);
 
   bool plotRaster(DiGLPainter* gl);
   const Colour* colourForValue(float value) const;
