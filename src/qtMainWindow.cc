@@ -1331,9 +1331,9 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
   EditItemManager::instance()->setEditing(enabled);
 }
 
-void DianaMainWindow::winResize(int w, int h)
+void DianaMainWindow::winResize(int width, int height)
 {
-  this->resize(w,h);
+  this->resize(width, height);
 }
 
 void DianaMainWindow::resetArea()
@@ -2804,7 +2804,8 @@ void DianaMainWindow::paintOnDevice(QPaintDevice* device)
 #endif
 
   glpainter->begin(&painter);
-  w->Glw()->paint(glpainter.get());
+  w->Glw()->paintUnderlay(glpainter.get());
+  w->Glw()->paintOverlay(glpainter.get());
   glpainter->end();
   painter.end();
 
@@ -2895,7 +2896,8 @@ void DianaMainWindow::saveAnimation()
     image.fill(Qt::transparent);
     painter.begin(&image);
     glpainter->begin(&painter);
-    w->Glw()->paint(glpainter.get());
+    w->Glw()->paintUnderlay(glpainter.get());
+    w->Glw()->paintOverlay(glpainter.get());
     glpainter->end();
     painter.end();
     // ==================== <copy ====================

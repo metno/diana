@@ -444,7 +444,7 @@ void SpectrumWindow::paintOnDevice(QPaintDevice* device)
 #endif
 
   glpainter->begin(&painter);
-  spectrumw->paint(glpainter.get());
+  spectrumw->paintOverlay(glpainter.get());
   glpainter->end();
   painter.end();
 
