@@ -4,7 +4,11 @@
 #include "diOpenGLPainter.h"
 #include "diPaintable.h"
 
+#include "diPlotModule.h"
+
 #include <qgl.h>
+
+#include <cmath>
 
 static QGLFormat oglfmt()
 {
@@ -19,9 +23,15 @@ DiOpenGLWidget::DiOpenGLWidget(DiPaintable* p, QWidget* parent)
   , glcanvas(new DiOpenGLCanvas(this))
   , glpainter(new DiOpenGLPainter(glcanvas.get()))
   , paintable(p)
+  , buffer_data(0)
 {
   setFocusPolicy(Qt::StrongFocus);
   p->setCanvas(glcanvas.get());
+}
+
+DiOpenGLWidget::~DiOpenGLWidget()
+{
+  delete[] buffer_data;
 }
 
 void DiOpenGLWidget::initializeGL()
@@ -33,15 +43,69 @@ void DiOpenGLWidget::initializeGL()
 void DiOpenGLWidget::paintGL()
 {
   if (paintable) {
-    paintable->paint(glpainter.get());
+    paintUnderlay();
+    paintOverlay();
     swapBuffers();
   }
+}
+
+void DiOpenGLWidget::paintUnderlay()
+{
+  if (paintable->enable_background_buffer && buffer_data && !paintable->update_background_buffer) {
+    // FIXME this is a bad hack
+    const Rectangle& ps = PlotModule::instance()->getStaticPlot()->getPlotSize();
+    const float delta = (fabs(ps.width()) * 0.1 / width());
+
+    glpainter->PixelZoom(1, 1);
+    glpainter->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, 0);
+    glpainter->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, 0);
+    glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, width());
+    glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
+    glpainter->RasterPos2f(ps.x1 + delta, ps.y1 + delta);
+
+    glpainter->DrawPixels(width(), height(), DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
+    glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
+    return;
+  } else if (!paintable->enable_background_buffer)
+    dropBackgroundBuffer();
+
+  paintable->paintUnderlay(glpainter.get());
+
+  if (glpainter->supportsReadPixels()
+      && paintable->enable_background_buffer
+      && (!buffer_data || paintable->update_background_buffer))
+  {
+    if (!buffer_data)
+      buffer_data = new DiGLPainter::GLuint[4 * width() * height()];
+
+    glpainter->PixelZoom(1, 1);
+    glpainter->PixelStorei(DiGLPainter::gl_PACK_SKIP_ROWS, 0);
+    glpainter->PixelStorei(DiGLPainter::gl_PACK_SKIP_PIXELS, 0);
+    glpainter->PixelStorei(DiGLPainter::gl_PACK_ROW_LENGTH, width());
+    glpainter->PixelStorei(DiGLPainter::gl_PACK_ALIGNMENT, 4);
+
+    glpainter->ReadPixels(0, 0, width(), height(), DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
+    glpainter->PixelStorei(DiGLPainter::gl_PACK_ROW_LENGTH, 0);
+    paintable->update_background_buffer = false;
+  }
+}
+
+void DiOpenGLWidget::paintOverlay()
+{
+  paintable->paintOverlay(glpainter.get());
+}
+
+void DiOpenGLWidget::dropBackgroundBuffer()
+{
+  delete buffer_data;
+  buffer_data = 0;
 }
 
 void DiOpenGLWidget::resizeGL(int w, int h)
 {
   if (paintable)
     paintable->resize(w, h);
+  dropBackgroundBuffer();
   glpainter->Viewport(0, 0, (GLint)w, (GLint)h);
   updateGL();
   setFocus();

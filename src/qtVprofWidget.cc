@@ -55,6 +55,7 @@ VprofWidget::VprofWidget(VprofManager *vpm)
 void VprofWidget::setCanvas(DiCanvas* c)
 {
   vprofm->setCanvas(c);
+  requestBackgroundBufferUpdate();
 }
 
 DiCanvas* VprofWidget::canvas() const
@@ -62,7 +63,11 @@ DiCanvas* VprofWidget::canvas() const
   return vprofm->canvas();
 }
 
-void VprofWidget::paint(DiPainter* painter)
+void VprofWidget::paintUnderlay(DiPainter*)
+{
+}
+
+void VprofWidget::paintOverlay(DiPainter* painter)
 {
   METLIBS_LOG_SCOPE();
 

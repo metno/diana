@@ -25,3 +25,9 @@ QWidget* DiPaintable::createWidget(DiPaintable* p, QWidget* parent)
   else
     return new DiPaintGLWidget(p, parent);
 }
+
+DiPaintable::DiPaintable()
+  : enable_background_buffer(false)
+  , update_background_buffer(false)
+{
+}

@@ -60,8 +60,8 @@ public:
   GLwidget(Controller*);
   ~GLwidget();
 
-  void requestBackgroundBufferUpdate()
-    { update_background_buffer = true; }
+  void paintUnderlay(DiPainter* gl) Q_DECL_OVERRIDE;
+  void paintOverlay(DiPainter* gl) Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
   /// single click signal
@@ -89,19 +89,11 @@ public:
   bool handleWheelEvents(QWheelEvent *we);
 
 private:
-  void drawUnderlay(DiGLPainter* gl);
-  void drawOverlay(DiGLPainter* gl);
-
   void setFlagsFromEventResult(const EventResult& res);
-  void dropBackgroundBuffer();
 
 private:
   Controller* contr;       // gate to main system
   int plotw, ploth;        // size of widget (pixels)
-
-  bool enable_background_buffer;
-  bool update_background_buffer;
-  DiGLPainter::GLuint *buffer_data;
 
   std::map<int,KeyType> keymap; // keymap's for keyboardevents
 };

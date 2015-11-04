@@ -290,6 +290,7 @@ DiPaintGLPainter::DiPaintGLPainter(DiPaintGLCanvas* canvas)
   : DiGLPainter(canvas)
   , painter(0)
 {
+  makeCurrent();
 }
 
 DiPaintGLPainter::~DiPaintGLPainter()
@@ -348,7 +349,6 @@ void DiPaintGLPainter::makeCurrent()
 
 void DiPaintGLPainter::begin(QPainter *painter)
 {
-  makeCurrent();
   // Use the painter supplied.
   this->painter = painter;
 

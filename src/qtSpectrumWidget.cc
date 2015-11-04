@@ -50,7 +50,17 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm)
 {
 }
 
-void SpectrumWidget::paint(DiPainter* p)
+void SpectrumWidget::setCanvas(DiCanvas* c)
+{
+  mCanvas = c;
+  requestBackgroundBufferUpdate();
+}
+
+void SpectrumWidget::paintUnderlay(DiPainter*)
+{
+}
+
+void SpectrumWidget::paintOverlay(DiPainter* p)
 {
   METLIBS_LOG_SCOPE();
 
