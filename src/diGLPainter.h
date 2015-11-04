@@ -312,7 +312,7 @@ public:
   void fillCircle(float centerx, float centery, float radius);
 
   void drawWindArrow(float u, float v, float x, float y,
-      float arrowSize, bool withArrowHead);
+      float arrowSize, bool withArrowHead, int turnBarbs=1);
 };
 
 #endif // DIGLPAINTER_H

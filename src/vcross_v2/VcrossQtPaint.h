@@ -49,7 +49,7 @@ struct PaintWindArrow : public PaintArrow {
 
   static void makeArrowPrimitives(QVector<QLineF>& lines,
       std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
-      float u, float v, float gx, float gy);
+      float u, float v, float gx, float gy, int turnBarbs=1);
 
   bool mWithArrowHead;
   float mSize;

@@ -87,7 +87,7 @@ public:
   virtual void drawArrow(float x1, float y1, float x2, float y2, float headsize = 0);
   virtual void drawArrowHead(float x1, float y1, float x2, float y2, float headsize = 0);
   virtual void drawWindArrow(float u, float v, float x, float y,
-      float arrowSize, bool withArrowHead) = 0;
+      float arrowSize, bool withArrowHead, int turnBarbs=1) = 0;
 
   void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth);
   virtual void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
