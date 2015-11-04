@@ -419,7 +419,7 @@ void VprofWindow::paintOnDevice(QPaintDevice* device)
 #endif
 
   glpainter->begin(&painter);
-  vprofw->paint(glpainter.get());
+  vprofw->paintOverlay(glpainter.get());
   glpainter->end();
   painter.end();
 

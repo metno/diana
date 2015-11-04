@@ -47,11 +47,11 @@ class SpectrumWidget : public QObject, public DiPaintable
 public:
   SpectrumWidget(SpectrumManager *spm);
 
-  void setCanvas(DiCanvas* c)
-    { mCanvas = c; }
+  void setCanvas(DiCanvas* c);
   DiCanvas* canvas() const
     { return mCanvas; }
-  void paint(DiPainter* painter);
+  void paintUnderlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
+  void paintOverlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
   void resize(int width, int height);
 
   bool handleKeyEvents(QKeyEvent*);
