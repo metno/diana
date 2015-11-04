@@ -329,7 +329,7 @@ void DianaLines::paint_polygons()
     } else {
       if ((level_min != DianaLevels::UNDEF_LEVEL and li < level_min)
           or (level_max != DianaLevels::UNDEF_LEVEL and li >= level_max)
-          or (not mPlotOptions.zeroLine and li == 0))
+          or (mPlotOptions.zeroLine<=0 and li == 0))
       {
         continue;
       }
@@ -444,7 +444,7 @@ void DianaGLLines::paint_lines()
 
 void DianaGLLines::setFillColour(const Colour& colour)
 {
-#if 0
+#if 1
   mGL->Color4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
 #else
   mGL->setColour(colour);
