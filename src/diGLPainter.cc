@@ -118,13 +118,13 @@ void DiGLPainter::fillRect(float x1, float y1, float x2, float y2)
 }
 
 void DiGLPainter::drawWindArrow(float u, float v, float x, float y,
-    float arrowSize, bool withArrowHead)
+    float arrowSize, bool withArrowHead, int turnBarbs)
 {
   QVector<QLineF> lines;
   std::vector<QPointF> trianglePoints;
   // beware of y direction!
   vcross::PaintWindArrow::makeArrowPrimitives(lines, trianglePoints,
-      arrowSize, withArrowHead, -1, u, v, x, y);
+      arrowSize, withArrowHead, -1, u, v, x, y, turnBarbs);
 
   for (int i=0; i<lines.size(); ++i) {
     const QLineF& line = lines.at(i);

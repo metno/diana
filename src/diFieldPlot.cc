@@ -1049,10 +1049,10 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
       // If southern hemisphere, turn the feathers
       float xx = x[i], yy = y[i];
       projection.convertToGeographic(1, &xx, &yy);
-      const int sign = (yy < 0) ? -1 : 1;
+      const int turnBarbs = (yy < 0) ? -1 : 1;
       const float KNOT = 3600.0 / 1852.0;
-      const float gu = u[i] * KNOT, gv = v[i] * KNOT * sign;
-      gl->drawWindArrow(gu, gv, x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow);
+      const float gu = u[i] * KNOT, gv = v[i] * KNOT;
+      gl->drawWindArrow(gu, gv, x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow, turnBarbs);
     }
   }
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);

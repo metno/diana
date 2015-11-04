@@ -22,7 +22,7 @@ PaintWindArrow::PaintWindArrow()
 // static
 void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines,
     std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
-    float u, float v, float gx, float gy)
+    float u, float v, float gx, float gy, int turnBarbs)
 {
   // step and size for flags
   const float fStep = size / 10.0, fSize = size * 0.35;
@@ -38,7 +38,7 @@ void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines,
       unitY = -v / ff; // -v because v is up, y coordinate increases down
 
   const float flagDX = fStep * unitX, flagDY = yFactor*(fStep * unitY);
-  const float flagEndDX = fSize * unitY - flagDX, flagEndDY = -yFactor*(fSize * unitX) - flagDY;
+  const float flagEndDX = turnBarbs*fSize * unitY - flagDX, flagEndDY = -yFactor*turnBarbs*(fSize * unitX) - flagDY;
 
   if (withArrowHead) {
     const float a = -1.5, s = a * 0.5;
