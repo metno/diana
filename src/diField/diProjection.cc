@@ -27,15 +27,13 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-//#define DEBUGPRINT
-
-//#define DEBUG_PROJ
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "diProjection.h"
+
+#include "../util/openmp_tools.h"
 
 #include <puDatatypes/miCoordinates.h> // for earth radius
 #include <puTools/miString.h>
@@ -52,6 +50,8 @@
 #include "miLogger/miLogging.h"
 
 using namespace miutil;
+
+static const float efactor = EARTH_RADIUS_M * DEG_TO_RAD;
 
 // static
 boost::shared_ptr<Projection> Projection::sGeographic;
@@ -109,7 +109,6 @@ std::ostream& operator<<(std::ostream& output, const Projection& p)
 int Projection::convertPoints(const Projection& srcProj, int npos, float * x,
     float * y, bool silent) const
 {
-  METLIBS_LOG_SCOPE();
   if (!srcProj.projObject) {
     METLIBS_LOG_ERROR("src projPJ not initialized, definition=" << srcProj);
     return -1;
@@ -124,11 +123,13 @@ int Projection::convertPoints(const Projection& srcProj, int npos, float * x,
   double * yd = new double[npos];
   double * zd = 0;
 
+  DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int i = 0; i < npos; i++) {
     xd[i] = x[i];
     yd[i] = y[i];
   }
   // Transformation
+  // Here we spend most of the time when large matrixes.
   int ret = pj_transform(srcProj.projObject.get(), projObject.get(), npos, 1, xd, yd, zd);
   if (ret != 0 && ret !=-20) {
     //ret=-20 :"tolerance condition error"
@@ -141,6 +142,7 @@ int Projection::convertPoints(const Projection& srcProj, int npos, float * x,
     return -1;
   }
 
+  DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int i = 0; i < npos; i++) {
     x[i] = static_cast<float> (xd[i]);
     y[i] = static_cast<float> (yd[i] );
@@ -206,12 +208,14 @@ float * north(Projection p, int nvec, const float * x, const float * y)
 
   p.convertToGeographic(nvec, north_x, north_y);
 
+  DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; i++){
     north_y[i] = std::min<float>(north_y[i] + 0.1, 90);
   }
   p.convertFromGeographic(nvec, north_x, north_y);
   float * ret = new float[nvec];
 
+  DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; i++){
     ret[i] = uv(north_x[i] - x[i], north_y[i] - y[i]).angle();
   }
@@ -249,6 +253,7 @@ int Projection::convertVectors(const Projection& srcProj, int nvec,
     float * from_north = north(srcProj, nvec, from_x, from_y); // degrees
     float * to_north = north(*this, nvec, to_x, to_y); // degrees
 
+    DIUTIL_OPENMP_PARALLEL(nvec, for)
     for (int i = 0; i < nvec; ++i) {
       if(u[i] != udef && v[i] != udef ) {
         const float length = std::sqrt(u[i]*u[i] + v[i]*v[i]);
@@ -295,16 +300,17 @@ int Projection::calculateVectorRotationElements(const Projection& srcProj,
   float * from_north = north(srcProj, nvec, from_x, from_y); // degrees
   float * to_north = north(*this, nvec, to_x, to_y); // degrees
 
+  DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; ++i) {
     // the difference between angles in the two projections:
     if (from_north[i] == HUGE_VAL || to_north[i] == HUGE_VAL) {
       cosa[i] = HUGE_VAL;
       sina[i] = HUGE_VAL;
     } else {
-      double angle_diff = from_north[i] - to_north[i];
+      double angle_diff_rad = (from_north[i] - to_north[i])*DEG_TO_RAD;
       // return cos() and sin() of this angle
-      cosa[i] = std::cos(angle_diff * DEG_TO_RAD);
-      sina[i] = std::sin(angle_diff * DEG_TO_RAD);
+      cosa[i] = std::cos(angle_diff_rad);
+      sina[i] = std::sin(angle_diff_rad);
     }
   }
   delete[] from_north;
@@ -386,6 +392,8 @@ float Projection::getMapLinesJumpLimit() const
 int Projection::convertToGeographic(int n, float* x, float* y) const
 {
   int ierror = geographic().convertPoints(*this, n, x, y);
+
+  DIUTIL_OPENMP_PARALLEL(n, for)
   for (int i = 0; i < n; i++) {
     if (x[i] != HUGE_VAL)
       x[i] *= RAD_TO_DEG;
@@ -397,6 +405,7 @@ int Projection::convertToGeographic(int n, float* x, float* y) const
 
 int Projection::convertFromGeographic(int npos, float* x, float* y) const
 {
+  DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int i = 0; i < npos; i++) {
     if (x[i] == 0)
       x[i] = 0.01; //todo: Bug:  x[i]=0 converts to x[i]=nx-1 when transforming between geo-projections
@@ -421,23 +430,22 @@ bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
   latmin = FLT_MAX;
   latmax = -FLT_MAX;
 
-  int n, i, j;
-  int nt = 9;
-  float *tx = new float[nt * nt];
-  float *ty = new float[nt * nt];
+  const int nt = 9, ntnt = nt*nt;
+  float *tx = new float[ntnt];
+  float *ty = new float[ntnt];
   float dx = (maprect.x2 - maprect.x1) / float(nt - 1);
   float dy = (maprect.y2 - maprect.y1) / float(nt - 1);
 
-  n = 0;
-  for (j = 0; j < nt; j++) {
-    for (i = 0; i < nt; i++) {
+  DIUTIL_OPENMP_PARALLEL(ntnt, for)
+  for (int j = 0; j < nt; j++) {
+    for (int i = 0; i < nt; i++) {
+      int n = i + j*nt;
       tx[n] = maprect.x1 + dx * i;
       ty[n] = maprect.y1 + dy * j;
-      n++;
     }
   }
 
-  int ierror = convertToGeographic(n, tx, ty);
+  int ierror = convertToGeographic(ntnt, tx, ty);
 
   if (ierror) {
     METLIBS_LOG_ERROR("calculateLatLonBoundingBox: " << ierror);
@@ -446,7 +454,7 @@ bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
     return false;
   }
 
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < ntnt; i++) {
     if (lonmin > tx[i])
       lonmin = tx[i];
     if (lonmax < tx[i])
@@ -487,12 +495,13 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
   const int npos = nx * ny;
   float *x = new float[npos];
   float *y = new float[npos];
-  int i = 0;
+
+  DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < nx; ix++) {
+      int i = ix + iy*nx;
       x[i] = ix*gridResolutionX;
       y[i] = iy*gridResolutionY;
-      i++;
     }
   }
 
@@ -503,37 +512,42 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
 
   //HACK: in geographic projection wrapping the world x[0]=x[nx-1]=180
   //must set x[0]=-180 in order to get map ratios right
+  DIUTIL_OPENMP_PARALLEL(ny, for)
   for (int iy = 0; iy < ny; iy++) {
-    if(x[nx*iy] > 179 && x[nx*iy] < 181) {
-      x[nx*iy] = -180;
+    int index = nx*iy;
+    if(x[index] > 179 && x[index] < 181) {
+      x[index] = -180;
     }
   }
 
   if (coriolis) {
+    const float cfactor = 2.0 * 0.7292e-4;
+    DIUTIL_OPENMP_PARALLEL(npos, for)
     for (int j = 0; j < npos; ++j) {
-      coriolis[j] = 2.0 * 0.7292e-4 * sin(y[j] * DEG_TO_RAD);
+      coriolis[j] = cfactor * sin(y[j] * DEG_TO_RAD);
     }
   }
 
   if (!(xmapr && ymapr))
     return ierror;
 
-  i = 0;
+  DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int iy = 0; iy < ny; iy++) {
-    for (int ix = 0; ix < nx; ix++, i++) {
+    for (int ix = 0; ix < nx; ix++) {
+      int i = ix + iy*nx;
       if (iy == ny - 1) {
         ymapr[i] = ymapr[i - nx];
       } else {
-        float dy = ((y[i + nx] - y[i]) * EARTH_RADIUS_M * DEG_TO_RAD);
-        float dx = ((x[i + nx] - x[i]) * EARTH_RADIUS_M * DEG_TO_RAD) * cos(y[i] * DEG_TO_RAD);
+        float dy = ((y[i + nx] - y[i]) * efactor);
+        float dx = ((x[i + nx] - x[i]) * efactor) * cos(y[i] * DEG_TO_RAD);
         float dd = sqrt(pow(dy, 2) + pow(dx, 2));
         ymapr[i] = 1 / dd;
       }
       if (ix == nx - 1) {
         xmapr[i] = xmapr[i - 1];
       } else {
-        float dy = ((y[i + 1] - y[i]) * EARTH_RADIUS_M * DEG_TO_RAD);
-        float dx = ((x[i + 1] - x[i]) * EARTH_RADIUS_M * DEG_TO_RAD) * cos(y[i] * DEG_TO_RAD);
+        float dy = ((y[i + 1] - y[i]) * efactor);
+        float dx = ((x[i + 1] - x[i]) * efactor) * cos(y[i] * DEG_TO_RAD);
         float dd = sqrt(pow(dy, 2) + pow(dx, 2));
         xmapr[i] = 1 / dd;
       }
@@ -554,7 +568,7 @@ bool Projection::isGeographic() const
 bool Projection::getLatLonIncrement(float lat, float /*lon*/, float& dlat, float& dlon)
 {
   dlat = RAD_TO_DEG / EARTH_RADIUS_M;
-  dlon = RAD_TO_DEG / EARTH_RADIUS_M / cos(lat * DEG_TO_RAD);
+  dlon = dlat / cos(lat * DEG_TO_RAD);
   return true;
 }
 

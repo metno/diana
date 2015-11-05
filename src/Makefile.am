@@ -105,6 +105,7 @@ libdiana_la_SOURCES = \
 	wmsclient/WebMapUtilities.cc \
 	util/debug_timer.cc \
 	util/format_int.cc \
+	util/openmp_tools.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -421,6 +422,7 @@ noinst_HEADERS = \
 	signalhelper.h \
 	util/debug_timer.h \
 	util/format_int.h \
+	util/openmp_tools.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \

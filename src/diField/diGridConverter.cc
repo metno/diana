@@ -33,9 +33,11 @@
 
 #include "diGridConverter.h"
 
+#include "../util/openmp_tools.h"
 #include <VcrossUtil.h> // minimize / maximize
 
 #include <cmath>
+#include <memory.h>
 
 #define MILOGGER_CATEGORY "diField.GridConverter"
 #include "miLogger/miLogging.h"
@@ -68,10 +70,8 @@ Points& Points::operator=(const Points& rhs)
     if (npos) {
       x = new float[npos];
       y = new float[npos];
-      for (int i = 0; i < npos; i++) {
-        x[i] = rhs.x[i];
-        y[i] = rhs.y[i];
-      }
+      memcpy(x, rhs.x, sizeof(float)*npos);
+      memcpy(y, rhs.y, sizeof(float)*npos);
     }
   }
   return *this;
@@ -165,15 +165,18 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_
   p0.ixmin = p0.ixmax = p0.iymin = p0.iymax = 0;
 
   const float gdxy = gridboxes ? 0.5 : 0; // offset by half cell iff using gridboxes
-  for (int iy = 0, i=0; iy < ny; iy++) {
-    for (int ix = 0; ix < (nx-1); ix++, i++) {
+
+  DIUTIL_OPENMP_PARALLEL(npos, for)
+  for (int iy = 0; iy < ny; iy++) {
+    for (int ix = 0; ix < (nx-1); ix++) {
+      int i = ix + iy*nx;
       p0.x[i] = (ix - gdxy)*area.resolutionX;
       p0.y[i] = (iy - gdxy)*area.resolutionY;
     }
+    int i = iy*nx + nx - 1;
     // FIXME x[i]=nx-1 converts to x[i]=0 when transforming between geo-projections
     p0.x[i] = (nx - gdxy - 1.1)*area.resolutionX;
     p0.y[i] = (iy - gdxy)*area.resolutionY;
-    i++;
   }
 
   const Projection& pa = area.P();
@@ -258,6 +261,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   ix2 = -1;
   iy1 = ny;
   iy2 = -1;
+
   for (int iy = 0; iy < ny; iy++) {
     const int idx0 = xy_offset*(iy *nx);
     bool was_inside = maprect.isinside(x[idx0], y[idx0]);
@@ -361,6 +365,7 @@ bool GridConverter::getVectors(const Area& data_area, const Projection& map_proj
   if (!getVectorRotationElements(data_area, map_proj, nvec, x, y, &cosx, &sinx))
     return false;
 
+  DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; ++i) {
     if (u[i] != undef && v[i] != undef) {
       if (cosx[i] == HUGE_VAL || sinx[i] == HUGE_VAL) {
@@ -391,11 +396,11 @@ bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
   float zturn = 1.;
   if (turn) zturn = -1.;
   float zpir = 2. * asinf(1.) / 180.;
-  float dd, ff;
+  DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i=0; i<nvec; ++i) {
     if (u[i]!=undef && v[i]!=undef) {
-      dd   = u[i] * zpir;
-      ff   = v[i] * zturn;
+      float dd   = u[i] * zpir;
+      float ff   = v[i] * zturn;
       u[i] = ff * sinf(dd);
       v[i] = ff * cosf(dd);
     }
@@ -454,11 +459,11 @@ bool GridConverter::xyv2geo(const Area& area, int nx, int ny, float *u, float *v
   // create entire grid for the model
   float *x = new float[npos];
   float *y = new float[npos];
-  int i = 0;
 
+  DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int yy = 0; yy < ny; yy++)
     for (int xx = 0; xx < nx; xx++) {
-      i++;
+      int i = xx + yy*nx;
       x[i] = xx;
       y[i] = yy;
     }
