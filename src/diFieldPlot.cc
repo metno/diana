@@ -2315,6 +2315,12 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
             poptions, fieldUndef, paintMode))
       METLIBS_LOG_ERROR("contour2 error");
   }
+  if (poptions.options_2) {
+    METLIBS_LOG_TIME("contour2 options_2");
+    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, gl,
+            poptions, fieldUndef, paintMode, true))
+      METLIBS_LOG_ERROR("contour2 options_2 error");
+  }
   if (poptions.extremeType != "None" && poptions.extremeType != "Ingen"
       && !poptions.extremeType.empty())
     markExtreme(gl);
