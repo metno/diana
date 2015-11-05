@@ -2,7 +2,7 @@
 # $Id: configure.ac 4440 2014-09-04 12:05:03Z lisbethb $
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.39.0~rc11], [diana@met.no])
+AC_INIT([diana], [3.39.1], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign])
@@ -111,7 +111,7 @@ METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.57])
 METNO_REQUIRE_PKGS([METLIBS], [miLogger puTools puDatatypes])
 
 AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_PKGS([METLIBSUI], [coserver qUtilities ftgl glu])
+    METNO_REQUIRE_PKGS([METLIBSUI], [coserver qUtilities glText glu])
     METNO_REQUIRE_QT4([Core Gui OpenGL Network Svg Xml XmlPatterns])
 ],[
     METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])
