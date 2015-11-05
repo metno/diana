@@ -608,6 +608,33 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
 
 void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
+  if (!isEnabled() || fields.size() < 1)
+    return;
+
+  // possibly smooth all "single" fields
+  for (size_t i = 0; i < fields.size(); i++) {
+    if (fields[i] && fields[i]->data) {
+      if (fields[i]->numSmoothed < poptions.fieldSmooth) {
+        int nsmooth = poptions.fieldSmooth - fields[i]->numSmoothed;
+        fields[i]->smooth(nsmooth);
+      } else if (fields[i]->numSmoothed > poptions.fieldSmooth) {
+        METLIBS_LOG_ERROR(
+            "field smoothed too much !!! numSmoothed = " << fields[i]->numSmoothed << ", fieldSmooth=" << poptions.fieldSmooth);
+      }
+    }
+  }
+
+  // avoid background colour
+  poptions.bordercolour = getStaticPlot()->notBackgroundColour(poptions.bordercolour);
+  poptions.linecolour   = getStaticPlot()->notBackgroundColour(poptions.linecolour);
+  for (unsigned int i = 0; i < poptions.colours.size(); i++)
+    poptions.colours[i] = getStaticPlot()->notBackgroundColour(poptions.colours[i]);
+
+  if (poptions.antialiasing)
+    gl->Enable(DiGLPainter::gl_MULTISAMPLE);
+  else
+    gl->Disable(DiGLPainter::gl_MULTISAMPLE);
+
   if (zorder == SHADE_BACKGROUND) {
     // should be below all real fields
     if (poptions.gridLines > 0)
@@ -631,35 +658,6 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
-
-  int n = fields.size();
-
-  if (!isEnabled() || n < 1)
-    return false;
-
-  // possibly smooth all "single" fields
-  for (int i = 0; i < n; i++) {
-    if (fields[i] && fields[i]->data) {
-      if (fields[i]->numSmoothed < poptions.fieldSmooth) {
-        int nsmooth = poptions.fieldSmooth - fields[i]->numSmoothed;
-        fields[i]->smooth(nsmooth);
-      } else if (fields[i]->numSmoothed > poptions.fieldSmooth) {
-        METLIBS_LOG_ERROR(
-            "field smoothed too much !!! numSmoothed = " << fields[i]->numSmoothed << ", fieldSmooth=" << poptions.fieldSmooth);
-      }
-    }
-  }
-
-  // avoid background colour
-  poptions.bordercolour = getStaticPlot()->notBackgroundColour(poptions.bordercolour);
-  poptions.linecolour   = getStaticPlot()->notBackgroundColour(poptions.linecolour);
-  for (unsigned int i = 0; i < poptions.colours.size(); i++)
-    poptions.colours[i] = getStaticPlot()->notBackgroundColour(poptions.colours[i]);
-
-  if (poptions.antialiasing)
-    gl->Enable(DiGLPainter::gl_MULTISAMPLE);
-  else
-    gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
   if (poptions.use_stencil || poptions.update_stencil) {
     // Enable the stencil test for masking the field to be plotted or
@@ -3011,8 +3009,6 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   if (poptions.undefMasking <= 0)
     return false;
 
-  if (not isEnabled())
-    return false;
   if (not checkFields(1))
     return false;
   if (plottype == fpt_contour2) {
