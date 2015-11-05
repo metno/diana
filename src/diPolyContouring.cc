@@ -335,7 +335,7 @@ void DianaLines::paint_polygons()
       if ((mPaintMode & FILL) == 0
           or (level_min != DianaLevels::UNDEF_LEVEL and li < level_min)
           or (level_max != DianaLevels::UNDEF_LEVEL and li >= level_max)
-          or (mPlotOptions.zeroLine<=0 and li == 0))
+          or (mPlotOptions.zeroLine<=0 and (li == 0 or li == 1)))
       {
         continue;
       }
