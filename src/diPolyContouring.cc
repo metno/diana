@@ -294,6 +294,7 @@ private:
 DianaLines::DianaLines(const PlotOptions& poptions, const DianaLevels& levels)
   : mPlotOptions(poptions), mLevels(levels)
   , mPaintMode(UNDEFINED | FILL | LINES_LABELS)
+  , mUseOptions2(false)
 {
 }
 
@@ -323,7 +324,7 @@ void DianaLines::paint_polygons()
   const int ncolours_cold = mPlotOptions.palettecolours_cold.size();
 
   for (level_points_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
-    contouring::level_t li = it->first;
+    const contouring::level_t li = it->first;
     METLIBS_LOG_TIME(LOGVAL(li));
 
     if (li == DianaLevels::UNDEF_LEVEL) {
@@ -334,7 +335,7 @@ void DianaLines::paint_polygons()
       if ((mPaintMode & FILL) == 0
           or (level_min != DianaLevels::UNDEF_LEVEL and li < level_min)
           or (level_max != DianaLevels::UNDEF_LEVEL and li >= level_max)
-          or (mPlotOptions.zeroLine<=0 and li == 0))
+          or (mPlotOptions.zeroLine<=0 and (li == 0 or li == 1)))
       {
         continue;
       }
@@ -353,18 +354,37 @@ void DianaLines::paint_polygons()
   }
 }
 
+void DianaLines::setLineForLevel(contouring::level_t li)
+{
+  if (li == DianaLevels::UNDEF_LEVEL) {
+    setLine(mPlotOptions.undefColour, mPlotOptions.undefLinetype, mPlotOptions.undefLinewidth);
+  } else if (mUseOptions2) {
+    setLine(mPlotOptions.linecolour_2, mPlotOptions.linetype_2, mPlotOptions.linewidth_2);
+  } else {
+    const Colour* lc;
+    // "three colours" option
+    if (mPlotOptions.colours.size() == 3) {
+      const int cidx = (li < 0) ? 0 : ((li > 0) ? 2 : 1);
+      lc = &mPlotOptions.colours[cidx];
+    } else {
+      lc = &mPlotOptions.linecolour;
+    }
+    setLine(*lc, mPlotOptions.linetype, mPlotOptions.linewidth);
+  }
+}
+
 void DianaLines::paint_lines()
 {
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
-    if (it->first == DianaLevels::UNDEF_LEVEL) {
+    const contouring::level_t li = it->first;
+    if (li == DianaLevels::UNDEF_LEVEL) {
       if (!mPlotOptions.undefMasking || (mPaintMode & UNDEFINED) == 0)
         continue;
-      setLine(mPlotOptions.undefColour, mPlotOptions.undefLinetype, mPlotOptions.undefLinewidth);
     } else {
-      if ((mPaintMode & LINES_LABELS) == 0)
+      if ((mPaintMode & LINES_LABELS) == 0 || (mPlotOptions.zeroLine==0 and li == 0))
         continue;
-      setLine(mPlotOptions.linecolour, mPlotOptions.linetype, mPlotOptions.linewidth);
     }
+    setLineForLevel(li);
     for (point_vv::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
       drawLine(*itP);
   }
@@ -373,10 +393,12 @@ void DianaLines::paint_lines()
 void DianaLines::paint_labels()
 {
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
-    if (it->first != DianaLevels::UNDEF_LEVEL) {
-      for (point_vv::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
-        drawLabels(*itP, it->first);
-    }
+    const contouring::level_t li = it->first;
+    if (li == DianaLevels::UNDEF_LEVEL || (mPlotOptions.zeroLine==0 and li == 0))
+      continue;
+    setLineForLevel(li);
+    for (point_vv::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
+      drawLabels(*itP, li);
   }
 }
 
@@ -568,14 +590,38 @@ boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& popt
   }
 }
 
+//! same as dianaLevelsForPlotOptions except that it uses options with "_2" at the end of the name
+boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions_2(const PlotOptions& poptions, float fieldUndef)
+{
+  if (not poptions.linevalues_2.empty()) {
+    return boost::make_shared<DianaLevelList>(poptions.linevalues_2);
+  } else if (not poptions.loglinevalues_2.empty()) {
+    return boost::make_shared<DianaLevelList10>(poptions.loglinevalues_2, poptions.loglinevalues_2.size());
+  } else {
+    boost::shared_ptr<DianaLevelStep> ls
+        = boost::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
+    if (poptions.minvalue_2 > -fieldUndef or poptions.maxvalue_2 < fieldUndef)
+      ls->set_limits(poptions.minvalue_2, poptions.maxvalue_2);
+    return ls;
+  }
+}
+
 // ########################################################################
 
 // same parameters as diContouring::contour, most of them ignored
 bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
     const float z[], const float xz[], const float yz[],
-    DiGLPainter* gl, const PlotOptions& poptions, float fieldUndef, int paintMode)
+    DiGLPainter* gl, const PlotOptions& poptions, float fieldUndef,
+    int paintMode, bool use_options_2)
 {
-  DianaLevels_p levels = dianaLevelsForPlotOptions(poptions, fieldUndef);
+  DianaLevels_p levels;
+  if (use_options_2) {
+    // no second ("_2") option set for fill colours and undefined areas
+    paintMode &= ~(DianaLines::UNDEFINED|DianaLines::FILL);
+    levels = dianaLevelsForPlotOptions_2(poptions, fieldUndef);
+  } else {
+    levels = dianaLevelsForPlotOptions  (poptions, fieldUndef);
+  }
 
   const DianaArrayIndex index(nx, ny, ix0, iy0, ix1, iy1, poptions.lineSmooth);
   DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
@@ -583,6 +629,7 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
   const DianaField df(index, z, *levels, *positions);
   DianaGLLines dl(gl, poptions, *levels);
   dl.setPaintMode(paintMode);
+  dl.setUseOptions2(use_options_2);
 
   { METLIBS_LOG_TIME("contouring");
     try {
