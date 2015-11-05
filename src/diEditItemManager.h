@@ -54,7 +54,7 @@ class EditItemManager : public DrawingManager
 
 public:
   enum Action {
-    SelectAll, Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
+    SelectAll, Cut, Copy, Paste, EditProperties, Undo, Redo, Select,
     CreatePolyLine, CreateSymbol, CreateText, CreateComposite
   };
 
@@ -120,7 +120,6 @@ public slots:
   void deselectItem(DrawingItemBase *, bool = true);
   void deselectAllItems(bool = true);
   void editProperties();
-  void editStyle();
   void setStyleType();
   void keyPress(QKeyEvent *);
   void lowerSelectedItems();
@@ -205,7 +204,6 @@ private:
   QAction* unjoinAction_;
   QAction* toggleReversedAction_;
   QAction* editPropertiesAction_;
-  QAction* editStyleAction_;
   QAction* undoAction_;
   QAction* redoAction_;
   QAction* selectAction_;

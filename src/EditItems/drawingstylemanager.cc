@@ -255,9 +255,14 @@ QVariantMap DrawingStyleManager::parse(const DrawingItemBase::Category &category
 {
   QVariantMap style;
 
+  // Use the instances of the predefined property classes for each object type
+  // to parse the definitions from the setup file.
   foreach (QString propName, properties_[category].keys())
     style[propName] = properties_[category].value(propName)->parse(definition.value(propName));
 
+  // All definitions can declare general editable properties that objects of
+  // that type can have.
+  style["properties"] = DSP_StringList(",").parse(definition.value("properties"));
   return style;
 }
 

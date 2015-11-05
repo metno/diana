@@ -115,10 +115,8 @@ EditItemManager::EditItemManager()
   unjoinAction_->setShortcut(tr("Ctrl+J"));
   toggleReversedAction_ = new QAction(tr("Toggle Reversed"), this);
   toggleReversedAction_->setShortcut(QString("R"));
-  editPropertiesAction_ = new QAction(tr("Edit P&roperties..."), this);
+  editPropertiesAction_ = new QAction(tr("&Edit..."), this);
   editPropertiesAction_->setShortcut(tr("Ctrl+R"));
-  editStyleAction_ = new QAction(tr("Edit Style..."), this);
-  //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
   undoAction_ = undoStack_.createUndoAction(this);
   undoAction_->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
   redoAction_ = undoStack_.createRedoAction(this);
@@ -152,7 +150,6 @@ EditItemManager::EditItemManager()
   connect(unjoinAction_, SIGNAL(triggered()), SLOT(unjoinSelectedItems()));
   connect(toggleReversedAction_, SIGNAL(triggered()), SLOT(toggleReversedForSelectedItems()));
   connect(editPropertiesAction_, SIGNAL(triggered()), SLOT(editProperties()));
-  connect(editStyleAction_, SIGNAL(triggered()), SLOT(editStyle()));
   connect(selectAction_, SIGNAL(triggered()), SLOT(setSelectMode()));
   connect(createPolyLineAction_, SIGNAL(triggered()), SLOT(setCreatePolyLineMode()));
   connect(createSymbolAction_, SIGNAL(triggered()), SLOT(setCreateSymbolMode()));
@@ -720,7 +717,7 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
     if (itemsVisibilityForced_ || isItemVisible(item)) {
       applyPlotOptions(gl, item);
       setFromLatLonPoints(item, item->getLatLonPoints());
-      Editing(item)->draw(gl, modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
+      Editing(item)->draw(gl, modes, false, Properties::PropertiesEditor::instance()->isVisible());
     }
   }
 
@@ -925,7 +922,6 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
   a[Copy] = copyAction_;
   a[Paste] = pasteAction_;
   a[EditProperties] = editPropertiesAction_;
-  a[EditStyle] = editStyleAction_;
   a[Undo] = undoAction_;
   a[Redo] = redoAction_;
   a[Select] = selectAction_;
@@ -938,19 +934,7 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
 
 void EditItemManager::editProperties()
 {
-  QList<DrawingItemBase *> selItems = selectedItems();
-  if (selItems.isEmpty())
-    return;
-
-  // NOTE: we only support editing properties for one item at a time for now
-  DrawingItemBase *item = selItems.first();
-  if (Properties::PropertiesEditor::instance()->edit(item))
-    repaint();
-}
-
-void EditItemManager::editStyle()
-{
-  EditItemsStyle::StyleEditor::instance()->edit(selectedItems().toSet());
+  Properties::PropertiesEditor::instance()->edit(selectedItems());
 }
 
 // Sets the style type of the currently selected items.
@@ -976,7 +960,6 @@ void EditItemManager::updateActions()
   lowerAction_->setEnabled(!selItems.isEmpty());
   raiseAction_->setEnabled(!selItems.isEmpty());
   editPropertiesAction_->setEnabled(selItems.size() == 1);
-  editStyleAction_->setEnabled(!selItems.isEmpty());
 }
 
 void EditItemManager::updateTimes()
@@ -1403,9 +1386,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       QList<DrawingItemBase *> missedItems;
       const QList<DrawingItemBase *> hitItems = drawm->findHitItems(me2.pos(), hitItemTypes_, missedItems);
       if (!hitItems.empty()) {
-        DrawingItemBase *hitItem; // consider only this item to be hit
-        hitItem = hitItems.first();
-        Properties::PropertiesEditor::instance()->edit(hitItem, true, false);
+        Properties::PropertiesEditor::instance()->edit(hitItems, true, false);
         event->accept();
         return;
       }
@@ -1506,10 +1487,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction_);
-      bool canEditProperties = (selItems.size() == 1) && Properties::PropertiesEditor::instance()->canEditItem(selItems.first());
+      bool canEditProperties = !selItems.isEmpty();
       editPropertiesAction_->setEnabled(canEditProperties);
-      contextMenu.addAction(editStyleAction_);
-      editStyleAction_->setEnabled(!selItems.isEmpty() && !selectedCategories.contains(DrawingItemBase::Composite));
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
@@ -1837,7 +1816,7 @@ QString EditItemManager::loadDrawing(const QString &name, const QString &fileNam
 
   QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
-    METLIBS_LOG_SCOPE("Failed to open file: " << fileName.toStdString());
+    METLIBS_LOG_WARN("Failed to open file: " << fileName.toStdString());
     return error;
   }
 

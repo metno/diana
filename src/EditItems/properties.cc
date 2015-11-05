@@ -27,64 +27,270 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#define MILOGGER_CATEGORY "diana.EditItemManager"
+#define MILOGGER_CATEGORY "diana.EditItems.Properties"
 #include <miLogger/miLogging.h>
 
-#include <EditItems/edititembase.h>
+#include <diEditItemManager.h>
+#include <EditItems/drawingstylemanager.h>
+#include <EditItems/drawingitembase.h>
 #include <EditItems/properties.h>
-#include <EditItems/dialogcommon.h>
+
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QVariantMap>
+#include <QVBoxLayout>
+#include "qtUtility.h"
 
 namespace Properties {
 
-SpecialLineEdit::SpecialLineEdit(const QString &pname, bool readOnly)
-  : propertyName_(pname)
+EditProperty::EditProperty(const QString &labelText)
 {
-  setReadOnly(readOnly);
+  this->labelText = labelText;
 }
 
-QString SpecialLineEdit::propertyName() const { return propertyName_; }
-
-void SpecialLineEdit::contextMenuEvent(QContextMenuEvent *event)
+QWidget *EditProperty::createEditor(const QVariant &value)
 {
-  QMenu *menu = createStandardContextMenu();
-  QAction action(isReadOnly() ? tr("&Show") : tr("&Edit"), 0);
-  connect(&action, SIGNAL(triggered()), this, SLOT(openTextEdit()));
-  menu->addAction(&action);
-  menu->exec(event->globalPos());
-  delete menu;
+  editor = new QLineEdit();
+  editor->setText(value.toString());
+  connect(editor, SIGNAL(textChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
 }
 
-void SpecialLineEdit::mouseDoubleClickEvent(QMouseEvent *)
+bool EditProperty::hasChanged() const
 {
-  openTextEdit();
+  return oldValue != newValue;
 }
 
-void SpecialLineEdit::openTextEdit()
+void EditProperty::reset()
 {
-  EditItems::TextEditor textEditor(text(), isReadOnly());
-  textEditor.setWindowTitle(propertyName());
-  if (textEditor.exec() == QDialog::Accepted)
-    setText(textEditor.text());
+  editor->setText(oldValue.toString());
+  updateValue(oldValue.toString());
+}
+
+void EditProperty::updateValue(const QString &value)
+{
+  newValue = value;
+  emit updated();
+}
+
+EP_Int::EP_Int(const QString &labelText, int min, int max)
+ : EditProperty(labelText)
+{
+  this->min = min;
+  this->max = max;
+}
+
+QWidget *EP_Int::createEditor(const QVariant &value)
+{
+  editor = new QSpinBox();
+  editor->setRange(min, max);
+  editor->setValue(value.toInt());
+  connect(editor, SIGNAL(valueChanged(int)), SLOT(updateValue(int)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+void EP_Int::reset()
+{
+  editor->setValue(oldValue.toInt());
+  updateValue(oldValue.toInt());
+}
+
+void EP_Int::updateValue(int value)
+{
+  newValue = value;
+  emit updated();
+}
+
+EP_Float::EP_Float(const QString &labelText, float min, float max)
+ : EditProperty(labelText)
+{
+  this->min = min;
+  this->max = max;
+}
+
+QWidget *EP_Float::createEditor(const QVariant &value)
+{
+  editor = new QDoubleSpinBox();
+  editor->setRange(min, max);
+  editor->setValue(value.toDouble());
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+void EP_Float::reset()
+{
+  editor->setValue(oldValue.toDouble());
+  updateValue(oldValue.toDouble());
+}
+
+void EP_Float::updateValue(float value)
+{
+  newValue = value;
+  emit updated();
+}
+
+QWidget *EP_Boolean::createEditor(const QVariant &value)
+{
+  editor = new QCheckBox();
+  editor->setChecked(value.toBool());
+  connect(editor, SIGNAL(stateChanged(int)), SLOT(updateValue(int)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+void EP_Boolean::reset()
+{
+  editor->setChecked(oldValue.toBool());
+  updateValue(oldValue.toBool() ? Qt::Checked : Qt::Unchecked);
+}
+
+void EP_Boolean::updateValue(int value)
+{
+  newValue = (value == Qt::Checked);
+  emit updated();
+}
+
+void EP_Choice::reset()
+{
+  editor->setCurrentIndex(editor->findData(oldValue));
+  updateValue(oldValue.toString());
+}
+
+QWidget *EP_Colour::createEditor(const QVariant &value)
+{
+  editor = ColourBox(0, true, 0, "", true);
+  editor->setCurrentIndex(editor->findData(value));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+void EP_Colour::updateValue(const QString &value)
+{
+  // Map the colour name sent by the editor to its value and set that as the
+  // new value.
+  int index = editor->findText(value);
+  QString s;
+
+  if (index != -1)
+    s = editor->itemData(index).value<QColor>().name();
+  else
+    s = "black";
+
+  EP_Choice::updateValue(s);
+}
+
+QWidget *EP_Width::createEditor(const QVariant &value)
+{
+  editor = LinewidthBox(0, true);
+  editor->setCurrentIndex(editor->findData(value));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+QWidget *EP_LinePattern::createEditor(const QVariant &value)
+{
+  editor = LinetypeBox(0, true);
+  editor->setCurrentIndex(editor->findData(value));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+QWidget *EP_Decoration::createEditor(const QVariant &value)
+{
+  editor = new QComboBox();
+  editor->addItem("none", "");
+  editor->addItem("triangles", "triangles");
+  editor->addItem("arches", "arches");
+  editor->addItem("crosses", "crosses");
+  editor->addItem("arrow", "arrow");
+  editor->addItem("SIGWX", "SIGWX");
+  editor->addItem("arches,triangles", "arches,triangles");
+  editor->addItem("jetstream", "arrow,jetstream");
+  int index = editor->findData(value.toString());
+  editor->setCurrentIndex(index);
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+QWidget *EP_FillPattern::createEditor(const QVariant &value)
+{
+  editor = new QComboBox();
+  editor->addItem("solid", "");
+  editor->addItem("diagleft", "diagleft");
+  editor->addItem("zigzag", "zigzag");
+  editor->addItem("paralyse", "paralyse");
+  editor->addItem("ldiagleft2", "ldiagleft2");
+  editor->addItem("vdiagleft", "vdiagleft");
+  editor->addItem("vldiagcross_little", "vldiagcross_little");
+  editor->setCurrentIndex(editor->findData(value.toString()));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
 }
 
 PropertiesEditor::PropertiesEditor()
 {
   setWindowTitle(tr("Item Properties"));
 
-  formWidget_ = new QWidget();
-
-  buttonBox_ = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
-  connect(buttonBox_->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-  connect(buttonBox_->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-
-  readOnlyButtonBox_ = new QDialogButtonBox(QDialogButtonBox::Close);
-  connect(readOnlyButtonBox_->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(reject()));
-
   QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->addWidget(formWidget_);
-  layout->addWidget(buttonBox_);
-  layout->addWidget(readOnlyButtonBox_);
+  formLayout_ = new QFormLayout();
+  layout->addLayout(formLayout_);
+
+  buttonBox = new QDialogButtonBox(QDialogButtonBox::Reset | QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+  connect(buttonBox->button(QDialogButtonBox::Reset), SIGNAL(clicked()), this, SLOT(reset()));
+  connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+  connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
+  layout->addWidget(buttonBox);
+
+  // Define editors for supported properties.
+  registerProperty("met:info:speed", new EP_Int(tr("Wind speed (knots)"), 0, 500));
+
+  // Define editors for supported style properties.
+  registerProperty("style:linecolour", new EP_Colour(tr("Line colour")));
+  registerProperty("style:linealpha", new EP_Int(tr("Line alpha"), 0, 255));
+  registerProperty("style:linewidth", new EP_Width(tr("Line width")));
+  registerProperty("style:linepattern", new EP_LinePattern(tr("Line pattern")));
+  registerProperty("style:linesmooth", new EP_Boolean(tr("Line smooth")));
+  registerProperty("style:fillcolour", new EP_Colour(tr("Fill colour")));
+  registerProperty("style:fillalpha", new EP_Int(tr("Fill alpha"), 0, 255));
+  registerProperty("style:fillpattern", new EP_FillPattern(tr("Fill pattern")));
+  registerProperty("style:closed", new EP_Boolean(tr("Closed")));
+  registerProperty("style:reversed", new EP_Boolean(tr("Reversed")));
+  registerProperty("style:decoration1", new EP_Decoration(tr("Decoration 1")));
+  registerProperty("style:decoration1.colour", new EP_Colour(tr("Decoration 1 colour")));
+  registerProperty("style:decoration1.alpha", new EP_Int(tr("Decoration 1 alpha"), 0, 255));
+  registerProperty("style:decoration1.offset", new EP_Int(tr("Decoration 1 offset"), 0, 3));
+  registerProperty("style:decoration2", new EP_Decoration(tr("Decoration 2")));
+  registerProperty("style:decoration2.colour", new EP_Colour(tr("Decoration 2 colour")));
+  registerProperty("style:decoration2.alpha", new EP_Int(tr("Decoration 2 alpha"), 0, 255));
+  registerProperty("style:decoration2.offset", new EP_Int(tr("Decoration 2 offset"), 0, 3));
+  registerProperty("style:symbolcolour", new EP_Colour(tr("Symbol colour")));
+  registerProperty("style:symbolalpha", new EP_Int(tr("Symbol alpha"), 0, 255));
+  registerProperty("style:textcolour", new EP_Colour(tr("Text colour")));
+  registerProperty("style:textalpha", new EP_Int(tr("Text alpha"), 0, 255));
+  registerProperty("style:cornersegments", new EP_Int(tr("Corner segments"), 0, 8));
+  registerProperty("style:cornerradius", new EP_Float(tr("Corner radius"), 0, 99));
+  registerProperty("style:fontsize", new EP_Float(tr("Font size"), 1, 99));
 }
 
 PropertiesEditor *PropertiesEditor::instance()
@@ -96,115 +302,93 @@ PropertiesEditor *PropertiesEditor::instance()
 
 PropertiesEditor *PropertiesEditor::instance_ = 0;
 
-// Opens a modal dialog to show the properties of \a item.
-// The properties may be modified if \a readOnly is false.
-// Returns true iff the properties were changed.
-bool PropertiesEditor::edit(DrawingItemBase *item, bool readOnly, bool modal)
+void PropertiesEditor::registerProperty(const QString &name, EditProperty *property)
 {
-  const QVariantMap origProps = item->properties();
-  if (origProps.isEmpty()) {
-    QMessageBox::information(0, "info", "No properties to edit!");
-    return false;
-  }
-
-  // clear old content
-  qDeleteAll(formWidget_->children());
-
-  // set new content and initial values
-  QFormLayout *formLayout = new QFormLayout(formWidget_);
-  foreach (const QString key, origProps.keys()) {
-    QWidget *editor = createEditor(key, origProps.value(key), readOnly);
-    if (editor)
-      formLayout->addRow(key, editor);
-  }
-
-  // set button box
-  if (readOnly) {
-    readOnlyButtonBox_->show();
-    buttonBox_->hide();
-  } else {
-    readOnlyButtonBox_->hide();
-    buttonBox_->show();
-  }
-
-  adjustSize();
-
-  // open dialog
-  if (!modal)
-    show();
-  else if ((exec() == QDialog::Accepted) && (!readOnly)) {
-    QVariantMap newProps;
-    for (int i = 0; i < formLayout->rowCount(); ++i) {
-      QLayoutItem *litem = formLayout->itemAt(i, QFormLayout::LabelRole);
-      if (litem) {
-        const QString key = qobject_cast<const QLabel *>(litem->widget())->text();
-        QWidget *editor = formLayout->itemAt(i, QFormLayout::FieldRole)->widget();
-        if (qobject_cast<QLineEdit *>(editor)) {
-          newProps.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
-        } else if (qobject_cast<QDateTimeEdit *>(editor)) {
-          QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
-          newProps.insert(key, ed->dateTime());
-        }
-      }
-    }
-
-    if (newProps != origProps) {
-      item->setProperties(newProps);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVariant &val, bool readOnly)
-{
-  if (!canEditProperty(propertyName))
-    return 0;
-
-  QWidget *editor = 0;
-  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) || (val.type() == QVariant::Bool) ||
-      (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
-    editor = new SpecialLineEdit(propertyName, readOnly);
-    qobject_cast<QLineEdit *>(editor)->setText(val.toString());
-  } else if (val.type() == QVariant::DateTime) {
-    editor = new QDateTimeEdit(val.toDateTime());
-    qobject_cast<QDateTimeEdit *>(editor)->setReadOnly(readOnly);
-  } else {
-    METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
-  }
-  return editor;
-}
-
-bool PropertiesEditor::canEditProperty(const QString &propertyName) const
-{
-  if (rules_.contains("hide")) {
-    // Namespaced properties are visible until explicitly hidden by rules.
-    if (propertyName.contains(":")) {
-      QString section = propertyName.split(":").first();
-      if (rules_.value("hide").contains(section))
-        return false;
-      else
-        return true;
-    }
-    // Non-namespaced properties are hidden.
-    return false;
-  }
-  return true;
+  properties_[name] = property;
+  connect(property, SIGNAL(updated()), SLOT(updateButtons()));
 }
 
 /**
- * Returns whether the given item is editable. By default, items are not
- * editable unless one or more properties are editable. This covers the case
- * where an item has no properties at all.
+ * Returns the common properties of \a items, including those defined as
+ * editable in each item's style.
  */
-bool PropertiesEditor::canEditItem(DrawingItemBase *item) const
+QMap<QString, QVariant> PropertiesEditor::commonProperties(const QList<DrawingItemBase *> &items)
 {
-  foreach (const QString key, item->propertiesRef().keys()) {
-    if (canEditProperty(key))
-      return true;
+  QMap<QString, QVariant> common;
+
+  foreach (DrawingItemBase *item, items) {
+
+    // Each item's style has a list of properties that are relevant.
+    QVariantMap style = DrawingStyleManager::instance()->getStyle(item);
+    QStringList editable = style.value("properties").toString().split(",");
+    // Obtain the keys of the properties defined in the item itself.
+    QStringList keys = item->propertiesRef().keys();
+
+    // Collect the properties from this item and those defined as editable
+    // in its style.
+    QMap<QString, QVariant> props;
+    foreach (const QString &key, keys + editable) {
+      if (!props.contains(key))
+        props[key] = Drawing(item)->property(key);
+    }
+
+    // Keep all the properties for the first item but only common ones for
+    // subsequent items.
+    if (common.isEmpty())
+      common = props;
+    else {
+      foreach (const QString &key, common.keys()) {
+        if (!props.contains(key) || (common.value(key) != props.value(key)))
+          common.remove(key);
+      }
+    }
   }
-  return false;
+
+  return common;
+}
+
+// Opens a modal dialog to show the properties of \a item.
+// The properties may be modified if \a readOnly is false.
+// Returns true iff the properties were changed.
+void PropertiesEditor::edit(const QList<DrawingItemBase *> &items, bool readOnly, bool modal)
+{
+  if (items.isEmpty())
+    return;
+
+  // Record the items so that we can manipulate them in slots.
+  items_ = items;
+
+  DrawingItemBase *item = *(items.begin());
+
+  // Clear old content.
+  while (!formLayout_->isEmpty()) {
+    QLayoutItem *child = formLayout_->takeAt(0);
+    if (child != 0) {
+      delete child->widget();
+      delete child;
+    }
+  }
+
+  // Clear the previous set of editable properties and obtain the properties
+  // that are common to all items being edited.
+  editing_.clear();
+
+  QMap<QString, QVariant> common = commonProperties(items);
+
+  foreach (const QString &name, common.keys()) {
+    // Create an editor for each common style property.
+    if (properties_.contains(name)) {
+      EditProperty *prop = properties_.value(name);
+      editing_.insert(name);
+
+      QWidget *editor = prop->createEditor(common.value(name));
+      formLayout_->addRow(prop->labelText, editor);
+    }
+  }
+
+  // Open the dialog.
+  if (exec() != QDialog::Accepted)
+    reset();
 }
 
 QStringList PropertiesEditor::propertyRules(const QString &name) const
@@ -218,6 +402,45 @@ QStringList PropertiesEditor::propertyRules(const QString &name) const
 void PropertiesEditor::setPropertyRules(const QString &name, const QStringList &values)
 {
   rules_[name] = values;
+}
+
+/**
+ * Restores original values in the dialog.
+ */
+void PropertiesEditor::reset()
+{
+  // Reset the values of all the registered properties for all the items
+  // with those properties.
+  foreach (const QString &name, editing_) {
+    EditProperty *prop = properties_.value(name);
+    prop->reset();
+
+    foreach (DrawingItemBase *item, items_) {
+      item->setProperty(name, prop->oldValue);
+    }
+  }
+
+  buttonBox->button(QDialogButtonBox::Reset)->setEnabled(false);
+  EditItemManager::instance()->repaint();
+}
+
+void PropertiesEditor::updateButtons()
+{
+  // Check the values of all the registered properties.
+  bool changed = false;
+
+  foreach (const QString &name, editing_) {
+    EditProperty *prop = properties_.value(name);
+
+    if (prop->hasChanged())
+      changed = true;
+
+    foreach (DrawingItemBase *item, items_)
+      item->setProperty(name, prop->newValue);
+  }
+
+  buttonBox->button(QDialogButtonBox::Reset)->setEnabled(changed);
+  EditItemManager::instance()->repaint();
 }
 
 } // namespace
