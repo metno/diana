@@ -2609,7 +2609,8 @@ void FieldDialog::colour2ComboBoxToggled(int index)
     updateFieldOptions(PlotOptions::key_colour_2, colour2ComboBox->currentText().toStdString());
     enableType2Options(true); //check if needed
     //turn of 3 colours (not possible to combine threeCols and col_2)
-    threeColourBox[0]->setCurrentIndex(0);
+    for (int i=0; i<3; ++i)
+      threeColourBox[i]->setCurrentIndex(0);
     threeColoursChanged();
   }
 }
@@ -2652,7 +2653,6 @@ void FieldDialog::repeatCheckBoxToggled(bool on)
 
 void FieldDialog::threeColoursChanged()
 {
-
   if (threeColourBox[0]->currentIndex() == 0
       || threeColourBox[1]->currentIndex() == 0
       || threeColourBox[2]->currentIndex() == 0) {
@@ -2665,8 +2665,9 @@ void FieldDialog::threeColoursChanged()
     colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
 
-    std::string str = std::string(threeColourBox[0]->currentText().toStdString()) + ","
-        + threeColourBox[1]->currentText().toStdString() + "," + threeColourBox[2]->currentText().toStdString();
+    std::string str = threeColourBox[0]->currentText().toStdString() + ","
+        + threeColourBox[1]->currentText().toStdString() + ","
+        + threeColourBox[2]->currentText().toStdString();
 
     updateFieldOptions(PlotOptions::key_colours, "remove");
     updateFieldOptions(PlotOptions::key_colours, str);

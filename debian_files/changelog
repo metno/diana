@@ -1,3 +1,21 @@
+diana (3.39.1-1) unstable; urgency=low
+
+  * main_gui: bad use of command line options or bad setupfile -> return 0
+  * FieldPlot: Bugfix: winddirection on southern hemisphere
+  * RasterPlot: bugfix: raster plot boundaries for similar projection
+  * GUI PaintGL supports underlay buffer
+  * FieldPlot: contour2 - several fixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 04 Nov 2015 15:29:04 +0100
+
+diana (3.39.0-1) unstable; urgency=low
+
+  * Fields: Accept reference time in the path, not just in the filename
+  * bdiana: reset time for each wms request
+  * bdiana: added name of loggerfile in perl interface
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Oct 2015 12:33:04 +0100
+
 diana (3.39.0~rc11-1) unstable; urgency=low
 
   * Drawing/Edit: New dialog

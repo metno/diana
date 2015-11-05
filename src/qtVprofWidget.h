@@ -49,7 +49,8 @@ public:
 
   void setCanvas(DiCanvas* c);
   DiCanvas* canvas() const;
-  void paint(DiPainter* painter);
+  void paintUnderlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
+  void paintOverlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
   void resize(int w, int h);
 
   bool handleKeyEvents(QKeyEvent *ke);

@@ -12,6 +12,7 @@ class DiOpenGLWidget : public QGLWidget
 {
 public:
   DiOpenGLWidget(DiPaintable* p, QWidget* parent=0);
+  ~DiOpenGLWidget();
 
   void initializeGL();
   void paintGL();
@@ -25,10 +26,16 @@ public:
   void mouseDoubleClickEvent(QMouseEvent* me);
   void wheelEvent(QWheelEvent *we);
 
+private:;
+  void paintUnderlay();
+  void paintOverlay();
+  void dropBackgroundBuffer();
+
 private:
   std::auto_ptr<DiOpenGLCanvas> glcanvas;
   std::auto_ptr<DiOpenGLPainter> glpainter;
   DiPaintable* paintable;
+  DiGLPainter::GLuint *buffer_data;
 };
 
 #endif // DIOPENGLWIDGET_H

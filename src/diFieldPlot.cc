@@ -608,31 +608,11 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
 
 void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  if (zorder == SHADE_BACKGROUND) {
-    plotUndefined(gl);
-  } else if (zorder == SHADE) {
-    if (getShadePlot())
-      plotMe(gl);
-  } else if (zorder == LINES) {
-    if (!getShadePlot() )
-      plotMe(gl);
-  } else if (zorder == OVERLAY) {
-    plotMe(gl);
-  }
-}
-
-bool FieldPlot::plotMe(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
-
-  int n = fields.size();
-
-  if (!isEnabled() || n < 1)
-    return false;
+  if (!isEnabled() || fields.size() < 1)
+    return;
 
   // possibly smooth all "single" fields
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < fields.size(); i++) {
     if (fields[i] && fields[i]->data) {
       if (fields[i]->numSmoothed < poptions.fieldSmooth) {
         int nsmooth = poptions.fieldSmooth - fields[i]->numSmoothed;
@@ -655,11 +635,29 @@ bool FieldPlot::plotMe(DiGLPainter* gl)
   else
     gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
-  // should be below all real fields
-  if (poptions.gridLines > 0)
-    plotGridLines(gl);
-  if (poptions.gridValue > 0)
-    plotNumbers(gl);
+  if (zorder == SHADE_BACKGROUND) {
+    // should be below all real fields
+    if (poptions.gridLines > 0)
+      plotGridLines(gl);
+    if (poptions.gridValue > 0)
+      plotNumbers(gl);
+
+    plotUndefined(gl);
+  } else if (zorder == SHADE) {
+    if (plottype == fpt_contour2 || getShadePlot())
+      plotMe(gl, zorder);
+  } else if (zorder == LINES) {
+    if (plottype == fpt_contour2 || !getShadePlot())
+      plotMe(gl, zorder);
+  } else if (zorder == OVERLAY) {
+    plotMe(gl, zorder);
+  }
+}
+
+bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
 
   if (poptions.use_stencil || poptions.update_stencil) {
     // Enable the stencil test for masking the field to be plotted or
@@ -679,7 +677,7 @@ bool FieldPlot::plotMe(DiGLPainter* gl)
   if (plottype == fpt_contour)
     ok = plotContour(gl);
   else if (plottype == fpt_contour2)
-    ok = plotContour2(gl);
+    ok = plotContour2(gl, zorder);
   else if (plottype == fpt_wind)
     ok = plotWind(gl);
   else if (plottype == fpt_wind_temp_fl)
@@ -1049,10 +1047,10 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
       // If southern hemisphere, turn the feathers
       float xx = x[i], yy = y[i];
       projection.convertToGeographic(1, &xx, &yy);
-      const int sign = (yy < 0) ? -1 : 1;
+      const int turnBarbs = (yy < 0) ? -1 : 1;
       const float KNOT = 3600.0 / 1852.0;
-      const float gu = u[i] * KNOT, gv = v[i] * KNOT * sign;
-      gl->drawWindArrow(gu, gv, x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow);
+      const float gu = u[i] * KNOT, gv = v[i] * KNOT;
+      gl->drawWindArrow(gu, gv, x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow, turnBarbs);
     }
   }
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
@@ -2257,9 +2255,26 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
 }
 
 //  plot scalar field as contour lines using new contour algorithm
-bool FieldPlot::plotContour2(DiGLPainter* gl)
+bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
+
+  int paintMode;
+  if (zorder == SHADE_BACKGROUND) {
+    if (poptions.undefMasking <= 0)
+      return true;
+    paintMode = DianaLines::UNDEFINED;
+  } else if (zorder == SHADE) {
+    if (!poptions.contourShading)
+      return true;
+    paintMode = DianaLines::FILL;
+  } else if (zorder == LINES) {
+    paintMode = DianaLines::LINES_LABELS;
+  } else if (zorder == OVERLAY) {
+    paintMode = DianaLines::UNDEFINED | DianaLines::FILL | DianaLines::LINES_LABELS;
+  } else {
+    return true;
+  }
 
   if (not checkFields(1)) {
     METLIBS_LOG_ERROR("no fields or no field data");
@@ -2290,8 +2305,14 @@ bool FieldPlot::plotContour2(DiGLPainter* gl)
   {
     METLIBS_LOG_TIME("contour2");
     if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, gl,
-        poptions, fieldUndef))
+            poptions, fieldUndef, paintMode))
       METLIBS_LOG_ERROR("contour2 error");
+  }
+  if (poptions.options_2) {
+    METLIBS_LOG_TIME("contour2 options_2");
+    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, gl,
+            poptions, fieldUndef, paintMode, true))
+      METLIBS_LOG_ERROR("contour2 options_2 error");
   }
   if (poptions.extremeType != "None" && poptions.extremeType != "Ingen"
       && !poptions.extremeType.empty())
@@ -2972,13 +2993,15 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!(poptions.undefMasking > 0 and plottype != fpt_contour2))
+  if (poptions.undefMasking <= 0)
     return false;
 
-  if (not isEnabled())
-    return false;
   if (not checkFields(1))
     return false;
+  if (plottype == fpt_contour2) {
+    plotContour2(gl, SHADE_BACKGROUND);
+    return true;
+  }
 
   const bool center_on_gridpoint = centerOnGridpoint()
       || plottype == fpt_contour; // old contour does some tricks with undefined values

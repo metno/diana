@@ -108,13 +108,8 @@ bool GridCollection::makeGridIOinstances()
 
     // init time filter and replace yyyy etc. with ????
     TimeFilter tf;
-    std::string part1, part2=sourcestr;
-    if(sourcestr.find("/") != sourcestr.npos) {
-      part1 = sourcestr.substr(0,sourcestr.find_last_of("/")+1);
-      part2 = sourcestr.substr(sourcestr.find_last_of("/")+1,sourcestr.size()-1);
-    }
-    tf.initFilter(part2,true);
-    sourcestr = part1 + part2;
+    tf.initFilter(sourcestr,true);
+
     // check for wild cards - expand filenames if necessary
     if (sourcestr.find_first_of("*?") != sourcestr.npos && sourcestr.find("glob:") == sourcestr.npos) {
       sources_with_wildcards.push_back(sourcestr);

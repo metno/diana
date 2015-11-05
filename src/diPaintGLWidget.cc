@@ -5,11 +5,15 @@
 
 #include <QtGui>
 
+#define MILOGGER_CATEGORY "diana.DiPaintGLWidget"
+#include <miLogger/miLogging.h>
+
 DiPaintGLWidget::DiPaintGLWidget(DiPaintable* p, QWidget *parent, bool aa)
   : QWidget(parent)
   , glcanvas(new DiPaintGLCanvas(this))
   , glpainter(new DiPaintGLPainter(glcanvas.get()))
   , paintable(p)
+  , background_buffer(0)
   , antialiasing(aa)
 {
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
@@ -18,20 +22,27 @@ DiPaintGLWidget::DiPaintGLWidget(DiPaintable* p, QWidget *parent, bool aa)
 
 DiPaintGLWidget::~DiPaintGLWidget()
 {
+  delete background_buffer;
+}
+
+void DiPaintGLWidget::dropBackgroundBuffer()
+{
+  delete background_buffer;
+  background_buffer = 0;
 }
 
 void DiPaintGLWidget::paintEvent(QPaintEvent* event)
 {
   QPainter painter;
   painter.begin(this);
-  if (antialiasing)
-    painter.setRenderHint(QPainter::Antialiasing);
-  paint(&painter);
+  if (paintable)
+    paint(painter);
   painter.end();
 }
 
 void DiPaintGLWidget::resizeEvent(QResizeEvent* event)
 {
+  dropBackgroundBuffer();
   int w = event->size().width();
   int h = event->size().height();
   glpainter->Viewport(0, 0, w, h);
@@ -80,10 +91,45 @@ void DiPaintGLWidget::wheelEvent(QWheelEvent *we)
     update();
 }
 
-void DiPaintGLWidget::paint(QPainter *painter)
+void DiPaintGLWidget::paint(QPainter& wpainter)
 {
-  glpainter->begin(painter);
-  paintable->paint(glpainter.get());
+  METLIBS_LOG_SCOPE(LOGVAL(paintable->enable_background_buffer)
+      << LOGVAL((!background_buffer))
+      << LOGVAL(paintable->update_background_buffer));
+
+  glpainter->clear = true;
+  if (paintable->enable_background_buffer) {
+    if (!background_buffer || paintable->update_background_buffer) {
+      if (!background_buffer)
+        background_buffer = new QImage(size(), QImage::Format_ARGB32);
+      // clear+paint into bg image
+      QPainter ipainter(background_buffer);
+      ipainter.setRenderHint(QPainter::Antialiasing, antialiasing);
+      glpainter->begin(&ipainter);
+      METLIBS_LOG_DEBUG("underlay to image");
+      paintable->paintUnderlay(glpainter.get());
+      glpainter->end();
+      ipainter.end();
+      paintable->update_background_buffer = false;
+    }
+
+    // render bg from buffer
+    METLIBS_LOG_DEBUG("underlay from image");
+    wpainter.setRenderHint(QPainter::Antialiasing, false);
+    wpainter.drawImage(QPoint(0,0), *background_buffer);
+    wpainter.setRenderHint(QPainter::Antialiasing, antialiasing);
+    glpainter->clear = false;
+    glpainter->begin(&wpainter);
+  } else {
+    METLIBS_LOG_DEBUG("underlay direct");
+    dropBackgroundBuffer();
+    wpainter.setRenderHint(QPainter::Antialiasing, antialiasing);
+    glpainter->begin(&wpainter);
+    paintable->paintUnderlay(glpainter.get());
+  }
+
+  METLIBS_LOG_DEBUG("overlay");
+  paintable->paintOverlay(glpainter.get());
   glpainter->end();
 }
 

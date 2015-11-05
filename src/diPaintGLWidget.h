@@ -6,6 +6,7 @@
 #include <memory>
 
 class DiPaintable;
+class QImage;
 
 class DiPaintGLWidget : public QWidget
 {
@@ -29,11 +30,16 @@ protected:
   void mouseReleaseEvent(QMouseEvent* me);
   void mouseDoubleClickEvent(QMouseEvent* me);
   void wheelEvent(QWheelEvent *we);
-  void paint(QPainter *painter);
 
+private:
+  void paint(QPainter& painter);
+  void dropBackgroundBuffer();
+
+protected:
   std::auto_ptr<DiPaintGLCanvas> glcanvas;
   std::auto_ptr<DiPaintGLPainter> glpainter;
   DiPaintable* paintable;
+  QImage* background_buffer;
   bool antialiasing;
 };
 

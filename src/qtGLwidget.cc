@@ -44,86 +44,41 @@
 
 GLwidget::GLwidget(Controller* c)
   : contr(c)
-  , enable_background_buffer(false)
-  , update_background_buffer(false)
-  , buffer_data(0)
 {
 }
 
 GLwidget::~GLwidget()
 {
-  delete[] buffer_data;
 }
 
 void GLwidget::setCanvas(DiCanvas* canvas)
 {
   contr->setCanvas(canvas);
-  dropBackgroundBuffer();
+  requestBackgroundBufferUpdate();
 }
 
-void GLwidget::dropBackgroundBuffer()
+void GLwidget::paintUnderlay(DiPainter* painter)
 {
-  delete buffer_data;
-  buffer_data = 0;
-}
-
-void GLwidget::paint(DiPainter* painter)
-{
-  if (DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter)) {
-    drawUnderlay(gl);
-    drawOverlay(gl);
-  }
-}
-
-void GLwidget::drawUnderlay(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(enable_background_buffer) << LOGVAL((buffer_data != 0))
-      << LOGVAL(update_background_buffer) << LOGVAL(gl->supportsReadPixels()));
-
-  if (enable_background_buffer && buffer_data && !update_background_buffer) {
-    float glx1, gly1, glx2, gly2, delta;
-    contr->getPlotSize(glx1, gly1, glx2, gly2);
-    delta = (fabs(glx1 - glx2) * 0.1 / plotw);
-
-    gl->PixelZoom(1, 1);
-    gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, 0);
-    gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, 0);
-    gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, plotw);
-    gl->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
-    gl->RasterPos2f(glx1 + delta, gly1 + delta);
-
-    gl->DrawPixels(plotw, ploth, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
-    gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
+  if (!contr)
     return;
-  } else if (!enable_background_buffer)
-    dropBackgroundBuffer();
 
-  if (contr)
-    contr->plot(gl, true, false); // draw underlay
+  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter);
+  if (!gl)
+    return;
 
-  if (gl->supportsReadPixels()
-      && enable_background_buffer
-      && (!buffer_data || update_background_buffer))
-  {
-    if (!buffer_data)
-      buffer_data = new DiGLPainter::GLuint[4 * plotw * ploth];
-
-    gl->PixelZoom(1, 1);
-    gl->PixelStorei(DiGLPainter::gl_PACK_SKIP_ROWS, 0);
-    gl->PixelStorei(DiGLPainter::gl_PACK_SKIP_PIXELS, 0);
-    gl->PixelStorei(DiGLPainter::gl_PACK_ROW_LENGTH, plotw);
-    gl->PixelStorei(DiGLPainter::gl_PACK_ALIGNMENT, 4);
-
-    gl->ReadPixels(0, 0, plotw, ploth, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
-    gl->PixelStorei(DiGLPainter::gl_PACK_ROW_LENGTH, 0);
-    update_background_buffer = false;
-  }
+  contr->plot(gl, true, false); // draw underlay
 }
 
-void GLwidget::drawOverlay(DiGLPainter* gl)
+void GLwidget::paintOverlay(DiPainter* painter)
 {
-  if (contr)
-    contr->plot(gl, false, true); // draw overlay
+  if (!contr)
+    return;
+
+  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter);
+  if (!gl)
+    return;
+
+  contr->plot(gl, false, true); // draw overlay
 }
 
 //  Set up the OpenGL view port, matrix mode, etc.
@@ -134,8 +89,6 @@ void GLwidget::resize(int w, int h)
 
   plotw = w;
   ploth = h;
-
-  dropBackgroundBuffer();
 }
 
 void GLwidget::setFlagsFromEventResult(const EventResult& res)

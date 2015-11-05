@@ -580,7 +580,9 @@ std::string FimexIO::fallbackGetReferenceTime()
       return boost::posix_time::to_iso_extended_string(refTime);
     }
   } catch (CDMException& ex) {
-    // METLIBS_LOG_DEBUG("exception occurred: " << ex.what() );
+    METLIBS_LOG_DEBUG("exception occurred: " << ex.what() );
+  } catch (std::exception& ex) {
+    METLIBS_LOG_WARN("exception occurred: " << ex.what() );
   }
   return "";
 }

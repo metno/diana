@@ -62,3 +62,14 @@ TEST(TestDianaLevels, List10)
   EXPECT_FLOAT_EQ(10, ll.value_for_level(2));
   EXPECT_FLOAT_EQ(3e4, ll.value_for_level(9));
 }
+
+TEST(TestDianaLevels, List)
+{
+  const float a_linevalues[] = { 8,10.8,13.9,17.2,20.8,24.5,28.5,32.7 };
+  const std::vector<float> v_linevalues(a_linevalues, boost::end(a_linevalues));
+  const DianaLevelList ll(v_linevalues);
+
+  EXPECT_EQ(0, ll.level_for_value(5));
+  EXPECT_EQ(1, ll.level_for_value(9));
+  EXPECT_EQ(2, ll.level_for_value(11));
+}
