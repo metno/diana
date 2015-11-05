@@ -76,14 +76,14 @@ private:
 EditItemManager *EditItemManager::self_ = 0;
 
 EditItemManager::EditItemManager()
-  : selectingOnly_(true)
+  : incompleteItem_(0)
+  , selectingOnly_(true)
   , repaintNeeded_(false)
   , skipRepaint_(false)
   , hitOffset_(0)
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
   , itemsVisibilityForced_(false)
-  , incompleteItem_(0)
 {
   // Create a default inactive layer group.
   itemGroups_["scratch"] = new EditItems::ItemGroup("scratch", true, false);
@@ -1316,7 +1316,7 @@ void EditItemManager::toggleReversedForSelectedItems()
 {
   foreach (DrawingItemBase *item, selectedItems()) {
     const QVariantMap style = DrawingStyleManager::instance()->getStyle(item);
-    const bool reversed = style.value(DSP_reversed::name()).toBool();
+    const bool reversed = style.value("reversed").toBool();
     item->setProperty("style:reversed", !reversed);
   }
 }

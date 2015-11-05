@@ -44,10 +44,22 @@
 // Use the predefined fill patterns already defined for the existing editing and objects modes.
 #include "polyStipMasks.h"
 
-static QColor parseColour(const QString &text)
+DrawingStyleProperty::DrawingStyleProperty()
 {
-  const QColor defaultColour(text);
+}
 
+QVariant DrawingStyleProperty::parse(const QString &text) const
+{
+  return text;
+}
+
+DSP_Colour::DSP_Colour(const QString &text)
+{
+  defaultColour = text;
+}
+
+QVariant DSP_Colour::parse(const QString &text) const
+{
   if (text.startsWith('#')) {
     // assume format #RGBA with hexadecimal components in range [0, 255] (i.e. two-digit) and optional alpha
     bool ok;
@@ -62,6 +74,7 @@ static QColor parseColour(const QString &text)
     if (ok)
       colour.setAlpha(a);
     return colour;
+
   } else if (text.contains(":")) {
     // assume format R:G:B:A with decimal components in range [0, 255] and optional alpha
     const QStringList pieces = text.split(":");
@@ -79,175 +92,73 @@ static QColor parseColour(const QString &text)
     return colour;
   }
 
-  return defaultColour;
+  QColor colour(text);
+
+  if (colour.isValid())
+    return colour;
+  else
+    return QColor(defaultColour);
 }
 
-static ushort parseLinePattern(const QString &s)
+QVariant DSP_Int::parse(const QString &text) const
+{
+  return qMax(0, text.toInt());
+}
+
+DSP_Alpha::DSP_Alpha(int defaultValue)
+{
+  defaultAlpha = defaultValue;
+}
+
+QVariant DSP_Alpha::parse(const QString &text) const
+{
+  bool ok = true;
+  int alpha = text.toInt(&ok);
+  if (!ok)
+    alpha = defaultAlpha;
+  return qBound(0, alpha, 255);
+}
+
+QVariant DSP_Float::parse(const QString &text) const
+{
+  return text.toFloat();
+}
+
+QVariant DSP_Width::parse(const QString &text) const
+{
+  bool ok = true;
+  int width = text.toFloat(&ok);
+  if (!ok)
+    width = 1.0;
+  return width;
+}
+
+QVariant DSP_LinePattern::parse(const QString &text) const
 {
   bool ok = false;
-  const ushort pattern = s.toUShort(&ok);
+  const ushort pattern = text.toUShort(&ok);
   if (ok)
     return pattern;
-  if (s == "dashed")
+  if (text == "dashed")
     return 0x0f0f; // ### for now
   return 0xffff;
 }
 
-QString DSP_linecolour::name() { return "linecolour"; }
-DrawingStyleManager::StyleCategory DSP_linecolour::styleCategory() const { return DrawingStyleManager::Line; }
-DrawingStyleManager::LockCategory DSP_linecolour::lockCategory() const { return DrawingStyleManager::LockColour; }
-QVariant DSP_linecolour::parse(const QHash<QString, QString> &def) const { return parseColour(lineColour(def)); }
-
-QString DSP_linealpha::name() { return "linealpha"; }
-DrawingStyleManager::StyleCategory DSP_linealpha::styleCategory() const { return DrawingStyleManager::Line; }
-DrawingStyleManager::LockCategory DSP_linealpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
-QVariant DSP_linealpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
-
-QString DSP_linewidth::name() { return "linewidth"; }
-DrawingStyleManager::StyleCategory DSP_linewidth::styleCategory() const { return DrawingStyleManager::Line; }
-QVariant DSP_linewidth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "1.0").toFloat(); }
-
-QString DSP_linepattern::name() { return "linepattern"; }
-DrawingStyleManager::StyleCategory DSP_linepattern::styleCategory() const { return DrawingStyleManager::Line; }
-QVariant DSP_linepattern::parse(const QHash<QString, QString> &def) const { return parseLinePattern(linePattern(def)); }
-
-QString DSP_linesmooth::name() { return "linesmooth"; }
-DrawingStyleManager::StyleCategory DSP_linesmooth::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_linesmooth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
-
-QString DSP_fillcolour::name() { return "fillcolour"; }
-DrawingStyleManager::StyleCategory DSP_fillcolour::styleCategory() const { return DrawingStyleManager::Area; }
-DrawingStyleManager::LockCategory DSP_fillcolour::lockCategory() const { return DrawingStyleManager::LockColour; }
-QVariant DSP_fillcolour::parse(const QHash<QString, QString> &def) const { return parseColour(fillColour(def)); }
-
-QString DSP_fillalpha::name() { return "fillalpha"; }
-DrawingStyleManager::StyleCategory DSP_fillalpha::styleCategory() const { return DrawingStyleManager::Area; }
-DrawingStyleManager::LockCategory DSP_fillalpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
-QVariant DSP_fillalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "50").toInt(); }
-
-QString DSP_fillpattern::name() { return "fillpattern"; }
-DrawingStyleManager::StyleCategory DSP_fillpattern::styleCategory() const { return DrawingStyleManager::Area; }
-QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { return def.value(name()); }
-
-QString DSP_closed::name() { return "closed"; }
-DrawingStyleManager::StyleCategory DSP_closed::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_closed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "true") == "true"; }
-
-QString DSP_reversed::name() { return "reversed"; }
-DrawingStyleManager::StyleCategory DSP_reversed::styleCategory() const { return DrawingStyleManager::Decoration; }
-QVariant DSP_reversed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
-
-QString DSP_decoration1::name() { return "decoration1"; }
-DrawingStyleManager::StyleCategory DSP_decoration1::styleCategory() const { return DrawingStyleManager::Decoration; }
-QVariant DSP_decoration1::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(","); }
-
-QString DSP_decoration1_colour::name() { return "decoration1.colour"; }
-DrawingStyleManager::StyleCategory DSP_decoration1_colour::styleCategory() const { return DrawingStyleManager::Decoration; }
-DrawingStyleManager::LockCategory DSP_decoration1_colour::lockCategory() const { return DrawingStyleManager::LockColour; }
-QVariant DSP_decoration1_colour::parse(const QHash<QString, QString> &def) const { return parseColour(def.value(name(), lineColour(def))); }
-
-QString DSP_decoration1_alpha::name() { return "decoration1.alpha"; }
-DrawingStyleManager::StyleCategory DSP_decoration1_alpha::styleCategory() const { return DrawingStyleManager::Decoration; }
-DrawingStyleManager::LockCategory DSP_decoration1_alpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
-QVariant DSP_decoration1_alpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
-
-QString DSP_decoration1_offset::name() { return "decoration1.offset"; }
-DrawingStyleManager::StyleCategory DSP_decoration1_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
-QVariant DSP_decoration1_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
-
-QString DSP_decoration2::name() { return "decoration2"; }
-DrawingStyleManager::StyleCategory DSP_decoration2::styleCategory() const { return DrawingStyleManager::Decoration; }
-QVariant DSP_decoration2::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(","); }
-
-QString DSP_decoration2_colour::name() { return "decoration2.colour"; }
-DrawingStyleManager::StyleCategory DSP_decoration2_colour::styleCategory() const { return DrawingStyleManager::Decoration; }
-DrawingStyleManager::LockCategory DSP_decoration2_colour::lockCategory() const { return DrawingStyleManager::LockColour; }
-QVariant DSP_decoration2_colour::parse(const QHash<QString, QString> &def) const { return parseColour(def.value(name(), lineColour(def))); }
-
-QString DSP_decoration2_alpha::name() { return "decoration2.alpha"; }
-DrawingStyleManager::StyleCategory DSP_decoration2_alpha::styleCategory() const { return DrawingStyleManager::Decoration; }
-DrawingStyleManager::LockCategory DSP_decoration2_alpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
-QVariant DSP_decoration2_alpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
-
-QString DSP_decoration2_offset::name() { return "decoration2.offset"; }
-DrawingStyleManager::StyleCategory DSP_decoration2_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
-QVariant DSP_decoration2_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
-
-QString DSP_symbolcolour::name() { return "symbolcolour"; }
-DrawingStyleManager::StyleCategory DSP_symbolcolour::styleCategory() const { return DrawingStyleManager::Symbol; }
-QVariant DSP_symbolcolour::parse(const QHash<QString, QString> &def) const { return parseColour(symbolColour(def)); }
-
-QString DSP_symbolalpha::name() { return "symbolalpha"; }
-DrawingStyleManager::StyleCategory DSP_symbolalpha::styleCategory() const { return DrawingStyleManager::Symbol; }
-QVariant DSP_symbolalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
-
-QString DSP_textcolour::name() { return "textcolour"; }
-DrawingStyleManager::StyleCategory DSP_textcolour::styleCategory() const { return DrawingStyleManager::General; }
-DrawingStyleManager::LockCategory DSP_textcolour::lockCategory() const { return DrawingStyleManager::LockColour; }
-QVariant DSP_textcolour::parse(const QHash<QString, QString> &def) const { return parseColour(textColour(def)); }
-
-QString DSP_textalpha::name() { return "textalpha"; }
-DrawingStyleManager::StyleCategory DSP_textalpha::styleCategory() const { return DrawingStyleManager::General; }
-DrawingStyleManager::LockCategory DSP_textalpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
-QVariant DSP_textalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
-
-QString DSP_fontname::name() { return "fontname"; }
-DrawingStyleManager::StyleCategory DSP_fontname::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_fontname::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::fromStdString(PlotOptions::defaultFontName())); }
-
-QString DSP_fontface::name() { return "fontface"; }
-DrawingStyleManager::StyleCategory DSP_fontface::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_fontface::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::fromStdString(PlotOptions::defaultFontFace())); }
-
-QString DSP_fontsize::name() { return "fontsize"; }
-DrawingStyleManager::StyleCategory DSP_fontsize::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(PlotOptions::defaultFontSize())); }
-
-QString DSP_cornersegments::name() { return "cornersegments"; }
-DrawingStyleManager::StyleCategory DSP_cornersegments::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_cornersegments::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(0)); }
-
-QString DSP_cornerradius::name() { return "cornerradius"; }
-DrawingStyleManager::StyleCategory DSP_cornerradius::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_cornerradius::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(8)); }
-
-QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
-QString DrawingStyleProperty::linePattern(const QHash<QString, QString> &def) { return def.value(DSP_linepattern::name(), "solid"); }
-QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
-QString DrawingStyleProperty::symbolColour(const QHash<QString, QString> &def) { return def.value(DSP_symbolcolour::name(), "black"); }
-QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_textcolour::name(), "black"); }
-
-QString DSP_objects::name() { return "objects"; }
-DrawingStyleManager::StyleCategory DSP_objects::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_objects::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(":"); }
-
-QString DSP_values::name() { return "values"; }
-DrawingStyleManager::StyleCategory DSP_values::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_values::parse(const QHash<QString, QString> &def) const
+QVariant DSP_Boolean::parse(const QString &text) const
 {
-  return def.value(name()).split(":");
+  return text == "true";
 }
 
-QString DSP_styles::name() { return "styles"; }
-DrawingStyleManager::StyleCategory DSP_styles::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_styles::parse(const QHash<QString, QString> &def) const
+DSP_StringList::DSP_StringList(const QString &text)
 {
-  return def.value(name()).split(":");
+  separator = text;
 }
 
-QString DSP_layout::name() { return "layout"; }
-DrawingStyleManager::StyleCategory DSP_layout::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_layout::parse(const QHash<QString, QString> &def) const
+QVariant DSP_StringList::parse(const QString &text) const
 {
-  return def.value(name(), "horizontal");
+  return text.split(separator);
 }
 
-QString DSP_hide::name() { return "hide"; }
-DrawingStyleManager::StyleCategory DSP_hide::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_hide::parse(const QHash<QString, QString> &def) const
-{
-  return def.value(name(), "false") == "true";
-}
 
 DrawingStyleManager *DrawingStyleManager::self_ = 0;
 
@@ -255,56 +166,76 @@ DrawingStyleManager::DrawingStyleManager()
 {
   self_ = this;
 
+  DrawingStyleProperty *stringProp = new DrawingStyleProperty();
+  DrawingStyleProperty *lineColourProp = new DSP_Colour("black");
+  DrawingStyleProperty *fillColourProp = new DSP_Colour("#808080");
+  DrawingStyleProperty *lineAlphaProp = new DSP_Alpha(255);
+  DrawingStyleProperty *fillAlphaProp = new DSP_Alpha(50);
+  DrawingStyleProperty *widthProp = new DSP_Width();
+  DrawingStyleProperty *linePatternProp = new DSP_LinePattern();
+  DrawingStyleProperty *booleanProp = new DSP_Boolean();
+  DrawingStyleProperty *stringListProp = new DSP_StringList(",");
+  DrawingStyleProperty *objListProp = new DSP_StringList(":");
+  DrawingStyleProperty *intProp = new DSP_Int();
+  DrawingStyleProperty *floatProp = new DSP_Float();
+
   // Define the supported polyline style properties.
-  properties_[DrawingItemBase::PolyLine].insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_linealpha::name(), new DSP_linealpha);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_linewidth::name(), new DSP_linewidth);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_linepattern::name(), new DSP_linepattern);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_linesmooth::name(), new DSP_linesmooth);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_fillalpha::name(), new DSP_fillalpha);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_fillpattern::name(), new DSP_fillpattern);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_closed::name(), new DSP_closed);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_reversed::name(), new DSP_reversed);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1::name(), new DSP_decoration1);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_colour::name(), new DSP_decoration1_colour);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_alpha::name(), new DSP_decoration1_alpha);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_offset::name(), new DSP_decoration1_offset);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2::name(), new DSP_decoration2);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_colour::name(), new DSP_decoration2_colour);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_alpha::name(), new DSP_decoration2_alpha);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_offset::name(), new DSP_decoration2_offset);
+  QHash<QString, DrawingStyleProperty *> polyProps;
+  polyProps.insert("linecolour", lineColourProp);
+  polyProps.insert("linealpha", lineAlphaProp);
+  polyProps.insert("linewidth", widthProp);
+  polyProps.insert("linepattern", linePatternProp);
+  polyProps.insert("linesmooth", booleanProp);
+  polyProps.insert("fillcolour", fillColourProp);
+  polyProps.insert("fillalpha", fillAlphaProp);
+  polyProps.insert("fillpattern", stringProp);
+  polyProps.insert("closed", booleanProp);
+  polyProps.insert("reversed", booleanProp);
+  polyProps.insert("decoration1", stringListProp);
+  polyProps.insert("decoration1.colour", lineColourProp);
+  polyProps.insert("decoration1.alpha", lineAlphaProp);
+  polyProps.insert("decoration1.offset", intProp);
+  polyProps.insert("decoration2", stringListProp);
+  polyProps.insert("decoration2.colour", lineColourProp);
+  polyProps.insert("decoration2.alpha", lineAlphaProp);
+  polyProps.insert("decoration2.offset", intProp);
+  properties_[DrawingItemBase::PolyLine] = polyProps;
 
   // Define the supported symbol style properties.
-  properties_[DrawingItemBase::Symbol].insert(DSP_symbolcolour::name(), new DSP_symbolcolour);
-  properties_[DrawingItemBase::Symbol].insert(DSP_symbolalpha::name(), new DSP_symbolalpha);
+  QHash<QString, DrawingStyleProperty *> symbolProps;
+  symbolProps.insert("symbolcolour", lineColourProp);
+  symbolProps.insert("symbolalpha", lineAlphaProp);
+  properties_[DrawingItemBase::Symbol] = symbolProps;
 
   // Define the supported text style properties.
-  properties_[DrawingItemBase::Text].insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_[DrawingItemBase::Text].insert(DSP_linealpha::name(), new DSP_linealpha);
-  properties_[DrawingItemBase::Text].insert(DSP_linewidth::name(), new DSP_linewidth);
-  properties_[DrawingItemBase::Text].insert(DSP_linepattern::name(), new DSP_linepattern);
-  properties_[DrawingItemBase::Text].insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_[DrawingItemBase::Text].insert(DSP_fillalpha::name(), new DSP_fillalpha);
-  properties_[DrawingItemBase::Text].insert(DSP_textcolour::name(), new DSP_textcolour);
-  properties_[DrawingItemBase::Text].insert(DSP_textalpha::name(), new DSP_textalpha);
-  properties_[DrawingItemBase::Text].insert(DSP_fontname::name(), new DSP_fontname);
-  properties_[DrawingItemBase::Text].insert(DSP_fontface::name(), new DSP_fontface);
-  properties_[DrawingItemBase::Text].insert(DSP_fontsize::name(), new DSP_fontsize);
-  properties_[DrawingItemBase::Text].insert(DSP_cornersegments::name(), new DSP_cornersegments);
-  properties_[DrawingItemBase::Text].insert(DSP_cornerradius::name(), new DSP_cornerradius);
+  QHash<QString, DrawingStyleProperty *> textProps;
+  textProps.insert("linecolour", lineColourProp);
+  textProps.insert("linealpha", lineAlphaProp);
+  textProps.insert("linewidth", widthProp);
+  textProps.insert("linepattern", linePatternProp);
+  textProps.insert("fillcolour", fillColourProp);
+  textProps.insert("fillalpha", fillAlphaProp);
+  textProps.insert("textcolour", lineColourProp);
+  textProps.insert("textalpha", lineAlphaProp);
+  textProps.insert("fontsize", widthProp);
+  textProps.insert("cornersegments", intProp);
+  textProps.insert("cornerradius", floatProp);
+  properties_[DrawingItemBase::Text] = textProps;
 
   // Define the supported composite style properties.
-  properties_[DrawingItemBase::Composite].insert(DSP_objects::name(), new DSP_objects);
-  properties_[DrawingItemBase::Composite].insert(DSP_values::name(), new DSP_values);
-  properties_[DrawingItemBase::Composite].insert(DSP_styles::name(), new DSP_styles);
-  properties_[DrawingItemBase::Composite].insert(DSP_layout::name(), new DSP_layout);
-  properties_[DrawingItemBase::Composite].insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_[DrawingItemBase::Composite].insert(DSP_linealpha::name(), new DSP_linealpha);
-  properties_[DrawingItemBase::Composite].insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_[DrawingItemBase::Composite].insert(DSP_fillalpha::name(), new DSP_fillalpha);
-  properties_[DrawingItemBase::Composite].insert(DSP_hide::name(), new DSP_hide);
-  properties_[DrawingItemBase::Composite].insert(DSP_closed::name(), new DSP_closed);
+  QHash<QString, DrawingStyleProperty *> compProps;
+  compProps.insert("objects", objListProp);
+  compProps.insert("values", objListProp);
+  compProps.insert("styles", objListProp);
+  compProps.insert("layout", stringProp);
+  compProps.insert("linecolour", lineColourProp);
+  compProps.insert("linecolour", lineColourProp);
+  compProps.insert("linealpha", lineAlphaProp);
+  compProps.insert("fillcolour", fillColourProp);
+  compProps.insert("fillalpha", fillAlphaProp);
+  compProps.insert("hide", booleanProp);
+  compProps.insert("closed", booleanProp);
+  properties_[DrawingItemBase::Composite] = compProps;
 }
 
 DrawingStyleManager::~DrawingStyleManager()
@@ -323,8 +254,10 @@ QVariantMap DrawingStyleManager::parse(const DrawingItemBase::Category &category
                                        const QHash<QString, QString> &definition) const
 {
   QVariantMap style;
+
   foreach (QString propName, properties_[category].keys())
-    style[propName] = properties_[category].value(propName)->parse(definition);
+    style[propName] = properties_[category].value(propName)->parse(definition.value(propName));
+
   return style;
 }
 
@@ -386,7 +319,7 @@ void DrawingStyleManager::beginLine(DiGLPainter* gl, DrawingItemBase *item)
 
   const QVariantMap style = getStyle(item);
 
-  const QString lpString = style.value(DSP_linepattern::name()).toString();
+  const QString lpString = style.value("linepattern").toString();
   bool ok = false;
   const ushort linePattern = lpString.toUShort(&ok);
   if (ok) {
@@ -394,15 +327,15 @@ void DrawingStyleManager::beginLine(DiGLPainter* gl, DrawingItemBase *item)
     gl->LineStipple(2, linePattern);
   }
 
-  float lineWidth = style.value(DSP_linewidth::name()).toFloat();
+  float lineWidth = style.value("linewidth").toFloat();
   gl->LineWidth(lineWidth);
 
-  QColor borderColour = style.value(DSP_linecolour::name()).value<QColor>();
+  QColor borderColour = style.value("linecolour").value<QColor>();
   if (!borderColour.isValid())
     borderColour = QColor(Qt::black);
 
   bool alphaOk;
-  const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
+  const int alpha = style.value("linealpha").toInt(&alphaOk);
   if (borderColour.isValid())
     gl->Color4ub(borderColour.red(), borderColour.green(), borderColour.blue(), alphaOk ? alpha : 255);
 }
@@ -420,10 +353,10 @@ void DrawingStyleManager::beginFill(DiGLPainter* gl, DrawingItemBase *item)
 
   QVariantMap style = getStyle(item);
 
-  QColor fillColour = style.value(DSP_fillcolour::name()).value<QColor>();
+  QColor fillColour = style.value("fillcolour").value<QColor>();
 
   bool alphaOk;
-  int alpha = style.value(DSP_fillalpha::name()).toInt(&alphaOk);
+  int alpha = style.value("fillalpha").toInt(&alphaOk);
 
   if (!fillColour.isValid()) {
     fillColour = QColor(Qt::gray);
@@ -435,7 +368,7 @@ void DrawingStyleManager::beginFill(DiGLPainter* gl, DrawingItemBase *item)
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
-  QString fillPattern = style.value(DSP_fillpattern::name()).toString();
+  QString fillPattern = style.value("fillpattern").toString();
 
   if (!fillPattern.isEmpty()) {
     const DiGLPainter::GLubyte *fillPatternData = 0;
@@ -467,13 +400,6 @@ void DrawingStyleManager::endFill(DiGLPainter* gl, DrawingItemBase *item)
   gl->PopAttrib();
 }
 
-DrawingStyleManager::StyleCategory DrawingStyleManager::styleCategory(const DrawingItemBase::Category &itemCategory, const QString &name) const
-{
-  if (properties_.contains(itemCategory) && properties_.value(itemCategory).contains(name))
-    return properties_.value(itemCategory).value(name)->styleCategory();
-  return Invalid;
-}
-
 QString DrawingStyleManager::styleCategoryName(const StyleCategory sc)
 {
   if (sc == Invalid)
@@ -489,13 +415,6 @@ QString DrawingStyleManager::styleCategoryName(const StyleCategory sc)
   else if (sc == Symbol)
     return "Symbol";
   return "Unknown";
-}
-
-DrawingStyleManager::LockCategory DrawingStyleManager::lockCategory(const DrawingItemBase::Category &itemCategory, const QString &name) const
-{
-  if (properties_.contains(itemCategory) && properties_.value(itemCategory).contains(name))
-    return properties_.value(itemCategory).value(name)->lockCategory();
-  return LockNone;
 }
 
 bool DrawingStyleManager::containsStyle(const DrawingItemBase::Category &category, const QString &name) const
@@ -556,7 +475,7 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
   for (QHash<QString, DrawingStyleProperty *>::const_iterator it = cProps.begin(); it != cProps.end(); ++it) {
     QString propName = it.key();
     if (styleProperties.contains(propName))
-      style[propName] = it.value()->parse(styleProperties);
+      style[propName] = it.value()->parse(styleProperties.value(propName));
   }
 
   return style;
@@ -571,13 +490,13 @@ void DrawingStyleManager::highlightPolyLine(DiGLPainter* gl, const DrawingItemBa
     const QList<QPointF> &points, int lineWidth, const QColor &col, bool forceClosed) const
 {
   QVariantMap style = getStyle(item);
-  const bool closed = forceClosed || style.value(DSP_closed::name()).toBool();
+  const bool closed = forceClosed || style.value("closed").toBool();
 
   const int z = 0;
   const qreal lw_2 = lineWidth / 2.0;
 
   QList<QPointF> points_;
-  if (style.value(DSP_linesmooth::name()).toBool())
+  if (style.value("linesmooth").toBool())
     points_ = interpolateToPoints(points, closed);
   else
     points_ = points;
@@ -608,7 +527,7 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
     const QList<QPointF> &points, int z, bool forceClosed) const
 {
   QVariantMap style = getStyle(item);
-  bool closed = forceClosed || style.value(DSP_closed::name()).toBool();
+  bool closed = forceClosed || style.value("closed").toBool();
 
   if (closed)
     gl->Begin(DiGLPainter::gl_LINE_LOOP);
@@ -621,14 +540,14 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
   // for the existing lines. The list of points obtained contains enough
   // points to show a smooth line.
 
-  if (style.value(DSP_linesmooth::name()).toBool())
+  if (style.value("linesmooth").toBool())
     points_ = interpolateToPoints(points, closed);
   else
     points_ = points;
 
   {
     bool alphaOk;
-    const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
+    const int alpha = style.value("linealpha").toInt(&alphaOk);
     if ((!alphaOk) || (alpha >= 0)) {
       foreach (QPointF p, points_)
         gl->Vertex3i(p.x(), p.y(), z);
@@ -637,31 +556,31 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
 
   gl->End(); // DiGLPainter::gl_LINE_LOOP or DiGLPainter::gl_LINE_STRIP
 
-  const bool reversed = !style.value(DSP_reversed::name()).toBool();
+  const bool reversed = !style.value("reversed").toBool();
 
-  if (style.value(DSP_decoration1::name()).isValid()) {
+  if (style.value("decoration1").isValid()) {
 
-    QColor colour = style.value(DSP_decoration1_colour::name()).value<QColor>();
+    QColor colour = style.value("decoration1.colour").value<QColor>();
     bool alphaOk;
-    const int alpha = style.value(DSP_decoration1_alpha::name()).toInt(&alphaOk);
+    const int alpha = style.value("decoration1.alpha").toInt(&alphaOk);
     gl->Color4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
 
-    unsigned int offset = style.value(DSP_decoration1_offset::name()).toInt();
-    foreach (QVariant v, style.value(DSP_decoration1::name()).toList()) {
+    unsigned int offset = style.value("decoration1.offset").toInt();
+    foreach (QVariant v, style.value("decoration1").toList()) {
       QString decor = v.toString();
       drawDecoration(gl, item, style, decor, closed, reversed ? Outside : Inside, points_, z, offset);
       offset += 1;
     }
   }
 
-  if (style.value(DSP_decoration2::name()).isValid()) {
-    QColor colour = style.value(DSP_decoration2_colour::name()).value<QColor>();
+  if (style.value("decoration2").isValid()) {
+    QColor colour = style.value("decoration2.colour").value<QColor>();
     bool alphaOk;
-    const int alpha = style.value(DSP_decoration2_alpha::name()).toInt(&alphaOk);
+    const int alpha = style.value("decoration2.alpha").toInt(&alphaOk);
     gl->Color4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
 
-    unsigned int offset = style.value(DSP_decoration2_offset::name()).toInt();
-    foreach (QVariant v, style.value(DSP_decoration2::name()).toList()) {
+    unsigned int offset = style.value("decoration2.offset").toInt();
+    foreach (QVariant v, style.value("decoration2").toList()) {
       QString decor = v.toString();
       drawDecoration(gl, item, style, decor, closed, reversed ? Inside : Outside, points_, z, offset);
       offset += 1;
@@ -689,7 +608,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
   if (decoration == "triangles") {
 
-    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineWidth = style.value("linewidth").toInt();
     int lineLength = lineWidth * 9;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal size = lineWidth * 5;
@@ -721,7 +640,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
   } else if (decoration == "arches") {
 
-    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineWidth = style.value("linewidth").toInt();
     int lineLength = lineWidth * 9;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal radius = lineWidth * 5;
@@ -760,7 +679,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
   } else if (decoration == "crosses") {
 
-    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineWidth = style.value("linewidth").toInt();
     int lineLength = lineWidth * 9;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal size = lineWidth * 3;
@@ -794,7 +713,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
     // Draw a triangle with the forward point the at the end of the last
     // line segment.
-    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineWidth = style.value("linewidth").toInt();
     int lineLength = lineWidth * 8;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
 
@@ -820,7 +739,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
   } else if (decoration == "SIGWX") {
 
-    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineWidth = style.value("linewidth").toInt();
     int lineLength = lineWidth * 8;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     int npoints = lineWidth * 12;
@@ -852,7 +771,7 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
     // Draw triangles and "feathers" on the line to represent wind speed:
     // triangle=50 knots, long feather=10 knots, short feather=5 knots.
-    int lineWidth = style.value(DSP_linewidth::name()).toInt();
+    int lineWidth = style.value("linewidth").toInt();
     int lineLength = lineWidth * 3;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal size = lineWidth * 6;
@@ -897,7 +816,6 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
     while (i < points_.size() && speed >= 5) {
 
       QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
-      QPointF midpoint = (line.p1() + line.p2())/2;
       QPointF normal = QPointF(line.normalVector().unitVector().dx(),
                                line.normalVector().unitVector().dy());
       QPointF p = (sidef * size * normal);
@@ -926,11 +844,11 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 void DrawingStyleManager::fillLoop(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points) const
 {
   QVariantMap style = getStyle(item);
-  QVariant value = style.value(DSP_closed::name());
+  QVariant value = style.value("closed");
   bool closed = value.isValid() ? value.toBool() : true;
 
   QList<QPointF> points_;
-  if (style.value(DSP_linesmooth::name()).toBool())
+  if (style.value("linesmooth").toBool())
     points_ = interpolateToPoints(points, closed);
   else
     points_ = points;
@@ -1086,9 +1004,9 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
 
   QVariantMap style = getStyle(item);
 
-  const QColor textColour = style.value(DSP_textcolour::name()).value<QColor>();
+  const QColor textColour = style.value("textcolour").value<QColor>();
   bool alphaOk;
-  const int alpha = style.value(DSP_textalpha::name()).toInt(&alphaOk);
+  const int alpha = style.value("textalpha").toInt(&alphaOk);
   if (textColour.isValid())
     gl->Color4ub(textColour.red(), textColour.green(), textColour.blue(), alphaOk ? alpha : 255);
   else
@@ -1099,7 +1017,6 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
 
   const float x0 = item->getPoints().at(0).x();
   const float x1 = item->getPoints().at(1).x();
-  const float w = x1 - x0;
 
   float y = item->getPoints().at(0).y() - item->margin();
   QStringList lines = item->text();
@@ -1126,9 +1043,9 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item) const
 
   // Fill in the default font settings from the plot options object. These
   // will be overridden if equivalent properties are found.
-  const QString fontName = style.value(DSP_fontname::name(), QString::fromStdString(PlotOptions::defaultFontName())).toString();
-  const QString fontFace = style.value(DSP_fontface::name(), QString::fromStdString(PlotOptions::defaultFontFace())).toString();
-  const float fontSize = style.value(DSP_fontsize::name(), PlotOptions::defaultFontSize()).toFloat();
+  const QString fontName = style.value("fontname", QString::fromStdString(PlotOptions::defaultFontName())).toString();
+  const QString fontFace = style.value("fontface", QString::fromStdString(PlotOptions::defaultFontFace())).toString();
+  const float fontSize = style.value("fontsize", PlotOptions::defaultFontSize()).toFloat();
 
   if (mCanvas)
     mCanvas->setFont(fontName.toStdString(), fontFace.toStdString(), fontSize);
@@ -1154,7 +1071,7 @@ void DrawingStyleManager::drawSymbol(DiGLPainter* gl, const DrawingItemBase *ite
 
   gl->PushAttrib(DiGLPainter::gl_PIXEL_MODE_BIT);
 
-  const QColor colour = style.value(DSP_symbolcolour::name()).value<QColor>();
+  const QColor colour = style.value("symbolcolour").value<QColor>();
   if (colour.isValid()) {
     gl->PixelTransferf(DiGLPainter::gl_RED_BIAS, colour.red() / 255.0);
     gl->PixelTransferf(DiGLPainter::gl_GREEN_BIAS, colour.green() / 255.0);
@@ -1162,7 +1079,7 @@ void DrawingStyleManager::drawSymbol(DiGLPainter* gl, const DrawingItemBase *ite
   }
 
   bool alphaOk;
-  const int alpha = style.value(DSP_symbolalpha::name()).toInt(&alphaOk);
+  const int alpha = style.value("symbolalpha").toInt(&alphaOk);
   if (alphaOk)
     gl->PixelTransferf(DiGLPainter::gl_ALPHA_SCALE, alpha / 255.0);
 
@@ -1202,10 +1119,10 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
   }
 
   QVariantMap thisStyle = getStyle(category, name);
-  QStringList objects = thisStyle.value(DSP_objects::name()).toStringList();
-  QStringList values = thisStyle.value(DSP_values::name()).toStringList();
-  QStringList styles = thisStyle.value(DSP_styles::name()).toStringList();
-  QString layout = thisStyle.value(DSP_layout::name()).toString();
+  QStringList objects = thisStyle.value("objects").toStringList();
+  QStringList values = thisStyle.value("values").toStringList();
+  QStringList styles = thisStyle.value("styles").toStringList();
+  QString layout = thisStyle.value("layout").toString();
 
   QList<QImage> images;
   QList<float> positions;

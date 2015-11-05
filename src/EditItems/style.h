@@ -38,125 +38,172 @@
 #include <QMap>
 #include <QVariantMap>
 #include <QLabel>
-//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <QPair>
 #include <QCheckBox>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>
 
-class QWidget;
-class QComboBox;
 class QCheckBox;
+class QComboBox;
+class QDialogButtonBox;
+class QDoubleSpinBox;
+class QFormLayout;
+class QLineEdit;
 class QSpinBox;
+class QWidget;
 
 namespace EditItemsStyle {
 
-class EditStyleProperty;
-
-class IndexedEditor : public QObject
-{
-  Q_OBJECT
-public:
-  virtual QWidget *widget() = 0;
-  virtual int count() const = 0;
-  virtual QVariant itemData(int) const = 0;
-  virtual void setCurrentIndex(int) = 0;
-signals:
-  void currentIndexChanged(int);
-};
-
-class ComboBoxEditor : public IndexedEditor
-{
-public:
-  ComboBoxEditor(QComboBox *);
-  ~ComboBoxEditor();
-private:
-  QComboBox *comboBox_;
-  virtual QWidget *widget();
-  virtual int count() const;
-  virtual QVariant itemData(int i) const;
-  virtual void setCurrentIndex(int i);
-};
-
-class CheckBoxEditor : public IndexedEditor
-{
-  Q_OBJECT
-public:
-  CheckBoxEditor();
-  ~CheckBoxEditor();
-private:
-  QCheckBox *checkBox_;
-  virtual QWidget *widget();
-  virtual int count() const;
-  virtual QVariant itemData(int i) const;
-  virtual void setCurrentIndex(int i);
-private slots:
-  void handleClicked(bool);
-};
-
-class IntRangeEditor : public IndexedEditor
-{
-  Q_OBJECT
-public:
-  IntRangeEditor(int, int);
-  ~IntRangeEditor();
-private:
-  QSpinBox *spinBox_;
-  virtual QWidget *widget();
-  virtual int count() const;
-  virtual QVariant itemData(int i) const;
-  virtual void setCurrentIndex(int i);
-private slots:
-  void handleValueChanged(int);
-};
-
-class StylePropertyEditor : public QObject
-{
-  Q_OBJECT
-public:
-  virtual ~StylePropertyEditor();
-  void init(bool, const QSet<DrawingItemBase *> &, const QVariant &);
-  virtual QString labelText() const = 0;
-  QWidget *widget();
-  void reset();
-  void setCurrentIndex(int);
-  void updateItems(int);
-  virtual DrawingStyleManager::LockCategory lockCategory() const;
-protected:
-  StylePropertyEditor();
-private:
-  virtual IndexedEditor *createEditor() = 0;
-  virtual QString name() const = 0;
-  QSet<DrawingItemBase *> items_;
-  IndexedEditor *editor_;
-  QVariant origInitVal_;
-  bool lockingEnabled_;
-  void setCurrentIndex(const QVariant &);
-private slots:
-  void handleCurrentIndexChanged(int);
-};
+class EditStyleProperty;    // Defined below.
 
 class StyleEditor : public QDialog
 {
   Q_OBJECT
+
 public:
   static StyleEditor *instance();
   void edit(const QSet<DrawingItemBase *> &);
-  QList<QSharedPointer<StylePropertyEditor> > lockedEditors(StylePropertyEditor *);
-private:
-  StyleEditor();
-  static StyleEditor *instance_;
-  QWidget *formWidget_;
-  QSet<DrawingItemBase *> items_;
-  QMap<DrawingItemBase *, QVariantMap> savedProps_;
-  QList<QSharedPointer<StylePropertyEditor> > editors_;
-  QList<QSharedPointer<QLabel> > formLabels_;
-  QMap<QString, QCheckBox *> lockedCheckBoxes_;
-  QHash<QString, EditStyleProperty *> properties_;
-  QHash<DrawingStyleManager::LockCategory, QList<QPair<QSharedPointer<StylePropertyEditor>, QCheckBox *> > > lockedEditors_;
+
 private slots:
   void reset();
+  void updateButtons();
+
+private:
+  StyleEditor();
+  QMap<QString, QVariant> commonStyleProps(const QSet<DrawingItemBase *> &items);
+  void registerProperty(const QString &name, EditStyleProperty *property);
+
+  static StyleEditor *instance_;
+  QFormLayout *formLayout_;
+  QSet<DrawingItemBase *> items_;
+  QHash<QString, EditStyleProperty *> properties_;
+  QSet<QString> editing_;
+  QDialogButtonBox *buttonBox;
+};
+
+class EditStyleProperty : public QObject
+{
+  Q_OBJECT
+
+public:
+  EditStyleProperty(const QString &labelText);
+  virtual QWidget *createEditor(const QVariant &value);
+  bool hasChanged() const;
+  virtual void reset();
+
+  QVariant oldValue;
+  QVariant newValue;
+  QString labelText;
+
+signals:
+  void updated();
+
+protected slots:
+  void updateValue(const QString &value);
+
+private:
+  QLineEdit *editor;
+};
+
+class ESP_Int : public EditStyleProperty
+{
+  Q_OBJECT
+
+public:
+  ESP_Int(const QString &labelText, int min, int max);
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(int value);
+
+private:
+  int min, max;
+  QSpinBox *editor;
+};
+
+class ESP_Float : public EditStyleProperty
+{
+  Q_OBJECT
+
+public:
+  ESP_Float(const QString &labelText, float min, float max);
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(float value);
+
+private:
+  float min, max;
+  QDoubleSpinBox *editor;
+};
+
+class ESP_Boolean : public EditStyleProperty
+{
+  Q_OBJECT
+
+public:
+  ESP_Boolean(const QString &labelText) : EditStyleProperty(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(int value);
+
+private:
+  QCheckBox *editor;
+};
+
+class ESP_Choice : public EditStyleProperty
+{
+public:
+  ESP_Choice(const QString &labelText) : EditStyleProperty(labelText) {}
+  virtual void reset();
+
+protected:
+  QComboBox *editor;
+};
+
+class ESP_Colour : public ESP_Choice
+{
+  Q_OBJECT
+
+public:
+  ESP_Colour(const QString &labelText) : ESP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+
+private slots:
+  void updateValue(const QString &value);
+};
+
+class ESP_Width : public ESP_Choice
+{
+public:
+  ESP_Width(const QString &labelText) : ESP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+};
+
+class ESP_LinePattern : public ESP_Choice
+{
+public:
+  ESP_LinePattern(const QString &labelText) : ESP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+};
+
+class ESP_Decoration : public ESP_Choice
+{
+public:
+  ESP_Decoration(const QString &labelText) : ESP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+};
+
+class ESP_FillPattern : public ESP_Choice
+{
+public:
+  ESP_FillPattern(const QString &labelText) : ESP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
 };
 
 } // namespace

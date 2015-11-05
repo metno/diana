@@ -43,597 +43,253 @@
 
 namespace EditItemsStyle {
 
-class DecorationBox : public QComboBox
+EditStyleProperty::EditStyleProperty(const QString &labelText)
 {
-public:
-  DecorationBox(QWidget *parent = 0)
-    : QComboBox(parent)
-  {
-    addItem("none", "");
-    addItem("triangles", "triangles");
-    addItem("arches", "arches");
-    addItem("crosses", "crosses");
-    addItem("arrow", "arrow");
-    addItem("SIGWX", "SIGWX");
-    addItem("arches,triangles", "arches,triangles");
-    addItem("jetstream", "jetstream");
-  }
-};
-
-class FillPatternBox : public QComboBox
-{
-public:
-  FillPatternBox(QWidget *parent = 0)
-    : QComboBox(parent)
-  {
-    addItem("solid", "");
-    addItem("diagleft", "diagleft");
-    addItem("zigzag", "zigzag");
-    addItem("paralyse", "paralyse");
-    addItem("ldiagleft2", "ldiagleft2");
-    addItem("vdiagleft", "vdiagleft");
-    addItem("vldiagcross_little", "vldiagcross_little");
-  }
-};
-
-ComboBoxEditor::ComboBoxEditor(QComboBox *comboBox) : comboBox_(comboBox)
-{
-  connect(comboBox_, SIGNAL(currentIndexChanged(int)), SIGNAL(currentIndexChanged(int)));
+  this->labelText = labelText;
 }
 
-ComboBoxEditor::~ComboBoxEditor()
+QWidget *EditStyleProperty::createEditor(const QVariant &value)
 {
-  delete comboBox_;
+  editor = new QLineEdit();
+  editor->setText(value.toString());
+  connect(editor, SIGNAL(textChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
 }
 
-QWidget *ComboBoxEditor::widget() { return comboBox_; }
-
-int ComboBoxEditor::count() const { return comboBox_->count(); }
-
-QVariant ComboBoxEditor::itemData(int i) const { return comboBox_->itemData(i); }
-
-void ComboBoxEditor::setCurrentIndex(int i) { comboBox_->setCurrentIndex(i); }
-
-
-CheckBoxEditor::CheckBoxEditor() : checkBox_(new QCheckBox)
+bool EditStyleProperty::hasChanged() const
 {
-  connect(checkBox_, SIGNAL(clicked(bool)), SLOT(handleClicked(bool)));
+  return oldValue != newValue;
 }
 
-CheckBoxEditor::~CheckBoxEditor()
+void EditStyleProperty::reset()
 {
-  delete checkBox_;
+  editor->setText(oldValue.toString());
+  updateValue(oldValue.toString());
 }
 
-QWidget *CheckBoxEditor::CheckBoxEditor::widget() { return checkBox_; }
-
-int CheckBoxEditor::count() const { return 2; }
-
-QVariant CheckBoxEditor::itemData(int i) const { return QVariant(i == 1); }
-
-void CheckBoxEditor::setCurrentIndex(int i) { checkBox_->setChecked(i == 1); }
-
-void CheckBoxEditor::handleClicked(bool checked) { emit currentIndexChanged(checked ? 1 : 0); }
-
-
-IntRangeEditor::IntRangeEditor(int lo, int hi) : spinBox_(new QSpinBox)
+void EditStyleProperty::updateValue(const QString &value)
 {
-  spinBox_->setRange(lo, hi);
-  connect(spinBox_, SIGNAL(valueChanged(int)), SLOT(handleValueChanged(int)));
+  newValue = value;
+  emit updated();
 }
 
-IntRangeEditor::~IntRangeEditor()
+ESP_Int::ESP_Int(const QString &labelText, int min, int max)
+ : EditStyleProperty(labelText)
 {
-  delete spinBox_;
+  this->min = min;
+  this->max = max;
 }
 
-QWidget *IntRangeEditor::IntRangeEditor::widget() { return spinBox_; }
-
-int IntRangeEditor::count() const { return (spinBox_->maximum() - spinBox_->minimum()) + 1; }
-
-QVariant IntRangeEditor::itemData(int i) const { return QVariant(spinBox_->minimum() + i); }
-
-void IntRangeEditor::setCurrentIndex(int i) { spinBox_->setValue(spinBox_->minimum() + i); }
-
-void IntRangeEditor::handleValueChanged(int val) { emit currentIndexChanged(val - spinBox_->minimum()); }
-
-
-StylePropertyEditor::StylePropertyEditor()
-  : editor_(0)
-  , lockingEnabled_(false)
+QWidget *ESP_Int::createEditor(const QVariant &value)
 {
+  editor = new QSpinBox();
+  editor->setRange(min, max);
+  editor->setValue(value.toInt());
+  connect(editor, SIGNAL(valueChanged(int)), SLOT(updateValue(int)));
+  oldValue = value;
+  newValue = value;
+  return editor;
 }
 
-StylePropertyEditor::~StylePropertyEditor()
+void ESP_Int::reset()
 {
-  if (editor_)
-    delete editor_;
+  editor->setValue(oldValue.toInt());
+  updateValue(oldValue.toInt());
 }
 
-QWidget * StylePropertyEditor::widget() { return editor_ ? editor_->widget() : 0; }
-
-void StylePropertyEditor::reset()
+void ESP_Int::updateValue(int value)
 {
-  if (editor_)
-    setCurrentIndex(origInitVal_);
+  newValue = value;
+  emit updated();
 }
 
-void StylePropertyEditor::init(bool applicable, const QSet<DrawingItemBase *> &items, const QVariant &initVal)
+ESP_Float::ESP_Float(const QString &labelText, float min, float max)
+ : EditStyleProperty(labelText)
 {
-  items_ = items;
-  if (applicable) {
-    lockingEnabled_ = false;
-    editor_ = createEditor();
-    connect(editor_, SIGNAL(currentIndexChanged(int)), SLOT(handleCurrentIndexChanged(int)));
-    setCurrentIndex(initVal);
-    origInitVal_ = initVal;
-    lockingEnabled_ = true;
-  }
+  this->min = min;
+  this->max = max;
 }
 
-// Sets the current index of the editor to the one matching valid user data \a val, or to -1 otherwise.
-void StylePropertyEditor::setCurrentIndex(const QVariant &val)
+QWidget *ESP_Float::createEditor(const QVariant &value)
 {
-  Q_ASSERT(editor_);
-  if (val.isValid()) {
-    const QString valS = val.toString();
-    for (int i = 0; i < editor_->count(); ++i) {
-      const QVariant itemData = editor_->itemData(i);
-      if (itemData.toString() == valS) {
-        editor_->setCurrentIndex(i);
-        return;
-      }
-    }
-  }
-  editor_->setCurrentIndex(-1);
+  editor = new QDoubleSpinBox();
+  editor->setRange(min, max);
+  editor->setValue(value.toDouble());
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
 }
 
-void StylePropertyEditor::setCurrentIndex(int index)
+void ESP_Float::reset()
 {
-  editor_->blockSignals(true); // since the following call doesn't need to trigger handleCurrentIndexChanged()
-  editor_->setCurrentIndex(index);
-  editor_->blockSignals(false);
+  editor->setValue(oldValue.toDouble());
+  updateValue(oldValue.toDouble());
 }
 
-// Updates items with a new value for this style property.
-void StylePropertyEditor::updateItems(int index)
+void ESP_Float::updateValue(float value)
 {
-  const QVariant userDataVar = editor_->itemData(index);
-  if (!userDataVar.isValid())
-    return;
-  const QString userData = userDataVar.toString();
-
-  const QString fullName = QString("style:%1").arg(name());
-
-  foreach (DrawingItemBase *item, items_)
-    item->propertiesRef().insert(fullName, userData);
+  newValue = value;
+  emit updated();
 }
 
-void StylePropertyEditor::handleCurrentIndexChanged(int index)
+QWidget *ESP_Boolean::createEditor(const QVariant &value)
 {
-  // update items with this style property
-  updateItems(index);
-
-  if (lockingEnabled_) {
-    // update items with locked style properties
-    QList<QSharedPointer<StylePropertyEditor> > lockedEditors = StyleEditor::instance()->lockedEditors(this);
-    foreach (const QSharedPointer<StylePropertyEditor> &lockedEditor, lockedEditors) {
-      lockedEditor->setCurrentIndex(index);
-      lockedEditor->updateItems(index);
-    }
-  }
-
-  EditItemManager::instance()->repaint();
+  editor = new QCheckBox();
+  editor->setChecked(value.toBool());
+  connect(editor, SIGNAL(stateChanged(int)), SLOT(updateValue(int)));
+  oldValue = value;
+  newValue = value;
+  return editor;
 }
 
-DrawingStyleManager::LockCategory StylePropertyEditor::lockCategory() const
+void ESP_Boolean::reset()
 {
-  DrawingItemBase *item = *(items_.begin());
-  return (!items_.isEmpty())
-      ? DrawingStyleManager::instance()->lockCategory(item->category(), name())
-      : DrawingStyleManager::LockNone;
+  editor->setChecked(oldValue.toBool());
+  updateValue(oldValue.toBool() ? Qt::Checked : Qt::Unchecked);
 }
 
-class SPE_linecolour : public StylePropertyEditor
+void ESP_Boolean::updateValue(int value)
 {
-public:
-  virtual QString name() const { return DSP_linecolour::name(); }
-private:
-  virtual QString labelText() const { return "line colour"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
-};
+  newValue = (value == Qt::Checked);
+  emit updated();
+}
 
-class SPE_linealpha : public StylePropertyEditor
+void ESP_Choice::reset()
 {
-public:
-  virtual QString name() const { return DSP_linealpha::name(); }
-private:
-  virtual QString labelText() const { return "line alpha"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
-};
+  editor->setCurrentIndex(editor->findData(oldValue));
+  updateValue(oldValue.toString());
+}
 
-class SPE_linewidth : public StylePropertyEditor
+QWidget *ESP_Colour::createEditor(const QVariant &value)
 {
-public:
-  virtual QString name() const { return DSP_linewidth::name(); }
-private:
-  virtual QString labelText() const { return "line width"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(LinewidthBox(0, true)); }
-};
+  editor = ColourBox(0, true, 0, "", true);
+  editor->setCurrentIndex(editor->findData(value));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
 
-class SPE_linepattern : public StylePropertyEditor
+void ESP_Colour::updateValue(const QString &value)
 {
-public:
-  virtual QString name() const { return DSP_linepattern::name(); }
-private:
-  virtual QString labelText() const { return "line pattern"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(LinetypeBox(0, true)); }
-};
+  // Map the colour name sent by the editor to its value and set that as the
+  // new value.
+  int index = editor->findText(value);
+  QString s;
 
-class SPE_linesmooth : public StylePropertyEditor
+  if (index != -1)
+    s = editor->itemData(index).value<QColor>().name();
+  else
+    s = "black";
+
+  ESP_Choice::updateValue(s);
+}
+
+QWidget *ESP_Width::createEditor(const QVariant &value)
 {
-public:
-  virtual QString name() const { return DSP_linesmooth::name(); }
-private:
-  virtual QString labelText() const { return "line smooth"; }
-  virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
-};
+  editor = LinewidthBox(0, true);
+  editor->setCurrentIndex(editor->findData(value));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
 
-class SPE_fillcolour : public StylePropertyEditor
+QWidget *ESP_LinePattern::createEditor(const QVariant &value)
 {
-public:
-  virtual QString name() const { return DSP_fillcolour::name(); }
-private:
-  virtual QString labelText() const { return "fill colour"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
-};
+  editor = LinetypeBox(0, true);
+  editor->setCurrentIndex(editor->findData(value));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
 
-class SPE_fillalpha : public StylePropertyEditor
+QWidget *ESP_Decoration::createEditor(const QVariant &value)
 {
-public:
-  virtual QString name() const { return DSP_fillalpha::name(); }
-private:
-  virtual QString labelText() const { return "fill alpha"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
-};
+  editor = new QComboBox();
+  editor->addItem("none", "");
+  editor->addItem("triangles", "triangles");
+  editor->addItem("arches", "arches");
+  editor->addItem("crosses", "crosses");
+  editor->addItem("arrow", "arrow");
+  editor->addItem("SIGWX", "SIGWX");
+  editor->addItem("arches,triangles", "arches,triangles");
+  editor->addItem("jetstream", "jetstream");
+  int index = editor->findData(value.toString());
+  editor->setCurrentIndex(index);
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
 
-class SPE_fillpattern : public StylePropertyEditor
+QWidget *ESP_FillPattern::createEditor(const QVariant &value)
 {
-public:
-  virtual QString name() const { return DSP_fillpattern::name(); }
-private:
-  virtual QString labelText() const { return "fill pattern"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(new FillPatternBox); }
-};
-
-class SPE_closed : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_closed::name(); }
-private:
-  virtual QString labelText() const { return "closed"; }
-  virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
-};
-
-class SPE_reversed : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_reversed::name(); }
-private:
-  virtual QString labelText() const { return "reversed"; }
-  virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
-};
-
-class SPE_decoration1 : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration1::name(); }
-private:
-  virtual QString labelText() const { return "decoration 1"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(new DecorationBox); }
-};
-
-class SPE_decoration1_colour : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration1_colour::name(); }
-private:
-  virtual QString labelText() const { return "decoration 1 colour"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
-};
-
-class SPE_decoration1_alpha : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration1_alpha::name(); }
-private:
-  virtual QString labelText() const { return "decoration 1 alpha"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
-};
-
-class SPE_decoration1_offset : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration1_offset::name(); }
-private:
-  virtual QString labelText() const { return "decoration 1 offset"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 100); }
-};
-
-class SPE_decoration2 : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration2::name(); }
-private:
-  virtual QString labelText() const { return "decoration 2"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(new DecorationBox); }
-};
-
-class SPE_decoration2_colour : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration2_colour::name(); }
-private:
-  virtual QString labelText() const { return "decoration 2 colour"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
-};
-
-class SPE_decoration2_alpha : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration2_alpha::name(); }
-private:
-  virtual QString labelText() const { return "decoration 2 alpha"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
-};
-
-class SPE_decoration2_offset : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_decoration2_offset::name(); }
-private:
-  virtual QString labelText() const { return "decoration 2 offset"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 100); }
-};
-
-class SPE_symbolcolour : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_symbolcolour::name(); }
-private:
-  virtual QString labelText() const { return "symbol colour"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
-};
-
-class SPE_symbolalpha : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_symbolalpha::name(); }
-private:
-  virtual QString labelText() const { return "symbol alpha"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
-};
-
-class SPE_textcolour : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_textcolour::name(); }
-private:
-  virtual QString labelText() const { return "text colour"; }
-  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
-};
-
-class SPE_textalpha : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_textalpha::name(); }
-private:
-  virtual QString labelText() const { return "text alpha"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
-};
-
-class SPE_fontsize : public StylePropertyEditor
-{
-public:
-  virtual QString name() const { return DSP_fontsize::name(); }
-private:
-  virtual QString labelText() const { return "font size"; }
-  virtual IndexedEditor *createEditor() { return new IntRangeEditor(1, 99); }
-};
-
-// ... editors for more subtypes
-
-class EditStyleProperty
-{
-public:
-  StylePropertyEditor *createEditor(const QString &propName, const QSet<DrawingItemBase *> &items, const QVariantMap &sprops)
-  {
-    StylePropertyEditor *editor = createSpecialEditor();
-    if (editor)
-      editor->init(sprops.contains(propName), items, sprops.value(propName));
-    return editor;
-  }
-
-protected:
-  virtual StylePropertyEditor *createSpecialEditor() const = 0;
-};
-
-class ESP_linecolour : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linecolour; }
-};
-
-class ESP_linealpha : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linealpha; }
-};
-
-class ESP_linewidth : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linewidth; }
-};
-
-class ESP_linepattern : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linepattern; }
-};
-
-class ESP_linesmooth : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linesmooth; }
-};
-
-class ESP_fillcolour : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillcolour; }
-};
-
-class ESP_fillalpha : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillalpha; }
-};
-
-class ESP_fillpattern : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillpattern; }
-};
-
-class ESP_closed : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_closed; }
-};
-
-class ESP_reversed : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_reversed; }
-};
-
-class ESP_decoration1 : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1; }
-};
-
-class ESP_decoration1_colour : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1_colour; }
-};
-
-class ESP_decoration1_alpha : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1_alpha; }
-};
-
-class ESP_decoration1_offset : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1_offset; }
-};
-
-class ESP_decoration2 : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2; }
-};
-
-class ESP_decoration2_colour : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2_colour; }
-};
-
-class ESP_decoration2_alpha : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2_alpha; }
-};
-
-class ESP_decoration2_offset : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2_offset; }
-};
-
-class ESP_symbolcolour : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_symbolcolour; }
-};
-
-class ESP_symbolalpha : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_symbolalpha; }
-};
-
-class ESP_textcolour : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_textcolour; }
-};
-
-class ESP_textalpha : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_textalpha; }
-};
-
-class ESP_fontsize : public EditStyleProperty
-{
-private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fontsize; }
-};
+  editor = new QComboBox();
+  editor->addItem("solid", "");
+  editor->addItem("diagleft", "diagleft");
+  editor->addItem("zigzag", "zigzag");
+  editor->addItem("paralyse", "paralyse");
+  editor->addItem("ldiagleft2", "ldiagleft2");
+  editor->addItem("vdiagleft", "vdiagleft");
+  editor->addItem("vldiagcross_little", "vldiagcross_little");
+  editor->setCurrentIndex(editor->findData(value.toString()));
+  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
 
 StyleEditor::StyleEditor()
 {
-  setWindowTitle(tr("Item Style"));
+  setWindowTitle(tr("Edit Style"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
-  formWidget_ = new QWidget;
-  layout->addWidget(formWidget_);
+  formLayout_ = new QFormLayout();
+  layout->addLayout(formLayout_);
 
-  QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Reset | QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+  buttonBox = new QDialogButtonBox(QDialogButtonBox::Reset | QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
   connect(buttonBox->button(QDialogButtonBox::Reset), SIGNAL(clicked()), this, SLOT(reset()));
   connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
   connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
   layout->addWidget(buttonBox);
 
-  // define editors for supported style properties
-  properties_.insert(DSP_linecolour::name(), new ESP_linecolour);
-  properties_.insert(DSP_linealpha::name(), new ESP_linealpha);
-  properties_.insert(DSP_linewidth::name(), new ESP_linewidth);
-  properties_.insert(DSP_linepattern::name(), new ESP_linepattern);
-  properties_.insert(DSP_linesmooth::name(), new ESP_linesmooth);
-  properties_.insert(DSP_fillcolour::name(), new ESP_fillcolour);
-  properties_.insert(DSP_fillalpha::name(), new ESP_fillalpha);
-  properties_.insert(DSP_fillpattern::name(), new ESP_fillpattern);
-  properties_.insert(DSP_closed::name(), new ESP_closed);
-  properties_.insert(DSP_reversed::name(), new ESP_reversed);
-  properties_.insert(DSP_decoration1::name(), new ESP_decoration1);
-  properties_.insert(DSP_decoration1_colour::name(), new ESP_decoration1_colour);
-  properties_.insert(DSP_decoration1_alpha::name(), new ESP_decoration1_alpha);
-  properties_.insert(DSP_decoration1_offset::name(), new ESP_decoration1_offset);
-  properties_.insert(DSP_decoration2::name(), new ESP_decoration2);
-  properties_.insert(DSP_decoration2_colour::name(), new ESP_decoration2_colour);
-  properties_.insert(DSP_decoration2_alpha::name(), new ESP_decoration2_alpha);
-  properties_.insert(DSP_decoration2_offset::name(), new ESP_decoration2_offset);
-  properties_.insert(DSP_symbolcolour::name(), new ESP_symbolcolour);
-  properties_.insert(DSP_symbolalpha::name(), new ESP_symbolalpha);
-  properties_.insert(DSP_textcolour::name(), new ESP_textcolour);
-  properties_.insert(DSP_textalpha::name(), new ESP_textalpha);
-  properties_.insert(DSP_fontsize::name(), new ESP_fontsize);
+  // Define editors for supported style properties.
+  registerProperty("style:linecolour", new ESP_Colour(tr("Line colour")));
+  registerProperty("style:linealpha", new ESP_Int(tr("Line alpha"), 0, 255));
+  registerProperty("style:linewidth", new ESP_Width(tr("Line width")));
+  registerProperty("style:linepattern", new ESP_LinePattern(tr("Line pattern")));
+  registerProperty("style:linesmooth", new ESP_Boolean(tr("Line smooth")));
+  registerProperty("style:fillcolour", new ESP_Colour(tr("Fill colour")));
+  registerProperty("style:fillalpha", new ESP_Int(tr("Fill alpha"), 0, 255));
+  registerProperty("style:fillpattern", new ESP_FillPattern(tr("Fill pattern")));
+  registerProperty("style:closed", new ESP_Boolean(tr("Closed")));
+  registerProperty("style:reversed", new ESP_Boolean(tr("Reversed")));
+  registerProperty("style:decoration1", new ESP_Decoration(tr("Decoration 1")));
+  registerProperty("style:decoration1.colour", new ESP_Colour(tr("Decoration 1 colour")));
+  registerProperty("style:decoration1.alpha", new ESP_Int(tr("Decoration 1 alpha"), 0, 255));
+  registerProperty("style:decoration1.offset", new ESP_Int(tr("Decoration 1 offset"), 0, 3));
+  registerProperty("style:decoration2", new ESP_Decoration(tr("Decoration 2")));
+  registerProperty("style:decoration2.colour", new ESP_Colour(tr("Decoration 2 colour")));
+  registerProperty("style:decoration2.alpha", new ESP_Int(tr("Decoration 2 alpha"), 0, 255));
+  registerProperty("style:decoration2.offset", new ESP_Int(tr("Decoration 2 offset"), 0, 3));
+  registerProperty("style:symbolcolour", new ESP_Colour(tr("Symbol colour")));
+  registerProperty("style:symbolalpha", new ESP_Int(tr("Symbol alpha"), 0, 255));
+  registerProperty("style:textcolour", new ESP_Colour(tr("Text colour")));
+  registerProperty("style:textalpha", new ESP_Int(tr("Text alpha"), 0, 255));
+  registerProperty("style:cornersegments", new ESP_Int(tr("Corner segments"), 0, 8));
+  registerProperty("style:cornerradius", new ESP_Float(tr("Corner radius"), 0, 99));
+  registerProperty("style:fontsize", new ESP_Float(tr("Font size"), 1, 99));
+}
+
+void StyleEditor::registerProperty(const QString &name, EditStyleProperty *property)
+{
+  properties_[name] = property;
+  connect(property, SIGNAL(updated()), SLOT(updateButtons()));
 }
 
 StyleEditor *StyleEditor::instance()
@@ -645,60 +301,36 @@ StyleEditor *StyleEditor::instance()
 
 StyleEditor *StyleEditor::instance_ = 0;
 
-// Returns the union of all style properties of \a items.
-// Style properties that differ in at least two items will be indicated as invalid (i.e. a default QVariant).
-static QVariantMap getStylePropsUnion(const QSet<DrawingItemBase *> &items)
+// Returns the common style properties of \a items.
+QMap<QString, QVariant> StyleEditor::commonStyleProps(const QSet<DrawingItemBase *> &items)
 {
-  QVariantMap sprops;
+  QMap<QString, QVariant> common;
   QRegExp rx("style:(.+)");
 
-  // loop over items
   foreach (DrawingItemBase *item, items) {
-    const QVariantMap &props = item->propertiesRef();
 
-    // loop over style properties
-    foreach (const QString &key, props.keys()) {
-      if (rx.indexIn(key) < 0)
-        continue;
+    // Only examine style properties.
+    QStringList keys = item->propertiesRef().keys();
+    keys = keys.filter(rx);
 
-      const QVariant val = props.value(key);
-      const QString skey = rx.cap(1);
-      Q_ASSERT(val.isValid());
-      if (!sprops.contains(skey)) {
-        sprops.insert(skey, val); // insert first value for key
-      } else {
-        const QVariant existingVal = sprops.value(skey);
-        if (existingVal.isValid() && (existingVal != val))
-          sprops.insert(skey, QVariant()); // invalidate existing value for key
+    // Collect the style properties from this item.
+    QMap<QString, QVariant> props;
+    foreach (const QString &key, keys)
+      props[key] = Drawing(item)->property(key);
+
+    // Keep all the style properties for the first item and keep only
+    // common ones for subsequent items.
+    if (common.isEmpty())
+      common = props;
+    else {
+      foreach (const QString &key, common.keys()) {
+        if (!props.contains(key) || (common.value(key) != props.value(key)))
+          common.remove(key);
       }
     }
   }
 
-  return sprops;
-}
-
-// Returns the style properties of \a items.
-static QMap<DrawingItemBase *, QVariantMap> getStyleProps(const QSet<DrawingItemBase *> &items)
-{
-  QMap<DrawingItemBase *, QVariantMap> spropsMap;
-  QRegExp rx("style:(.+)");
-
-  // loop over items
-  foreach (DrawingItemBase *item, items) {
-    const QVariantMap &props = item->propertiesRef();
-
-    QVariantMap sprops;
-
-    // loop over properties and register only style properties
-    foreach (const QString &key, props.keys()) {
-      if (rx.indexIn(key) >= 0)
-        sprops.insert(key, props.value(key));
-    }
-
-    spropsMap.insert(item, sprops);
-  }
-
-  return spropsMap;
+  return common;
 }
 
 // Opens a modal dialog to edit the style properties of \a items.
@@ -707,125 +339,72 @@ void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
   if (items.isEmpty())
     return;
 
+  // Record the items so that we can manipulate them.
+  items_ = items;
+
   DrawingItemBase *item = *(items.begin());
   DrawingItemBase::Category itemCategory = item->category();
 
-  // get initial values
-  savedProps_ = getStyleProps(items);
-  QVariantMap sprops = getStylePropsUnion(items);
-
-  // clear old content
-  editors_.clear();
-  formLabels_.clear();
-  lockedEditors_.clear();
-  if (formWidget_->layout())
-    delete formWidget_->layout();
-
-  // group style properties into categories
-  QStringList propNames = DrawingStyleManager::instance()->properties(itemCategory);
-  qSort(propNames);
-  QHash<DrawingStyleManager::StyleCategory, QStringList> styleCategories;
-  foreach (const QString propName, propNames)
-    styleCategories[DrawingStyleManager::instance()->styleCategory(itemCategory, propName)].append(propName);
-
-  // set new content and initial values for supported properties
-  QGridLayout *gridLayout = new QGridLayout;
-  formWidget_->setLayout(gridLayout);
-  int row = 0;
-  foreach (const DrawingStyleManager::StyleCategory styleCategory, styleCategories.keys()) {
-
-    {
-      QLabel *label = new QLabel(DrawingStyleManager::instance()->styleCategoryName(styleCategory));
-      label->setStyleSheet("background-color:#ddd; font:bold");
-      formLabels_.append(QSharedPointer<QLabel>(label));
-      gridLayout->addWidget(label, row, 0, 1, -1);
-      row++;
-    }
-
-    foreach (const QString propName, styleCategories.value(styleCategory)) {
-      QSharedPointer<StylePropertyEditor> editor;
-      if (properties_.contains(propName))
-        editor = QSharedPointer<StylePropertyEditor>(properties_.value(propName)->createEditor(propName, items, sprops));
-      if (!editor.isNull()) {
-        editors_.append(editor);
-        QWidget *editorWidget = editor->widget();
-        if (!editorWidget) {
-          editorWidget = new QLabel("n/a"); // i.e. not found in any of the selected items
-          formLabels_.append(QSharedPointer<QLabel>(qobject_cast<QLabel *>(editorWidget)));
-        } else {
-          if (editor->lockCategory() != DrawingStyleManager::LockNone) {
-            if (!lockedCheckBoxes_.contains(propName))
-              lockedCheckBoxes_.insert(propName, new QCheckBox);
-            QCheckBox *cbox = lockedCheckBoxes_.value(propName);
-            gridLayout->addWidget(cbox, row, 2);
-            lockedEditors_[editor->lockCategory()].append(qMakePair(editor, cbox));
-          }
-        }
-
-        QLabel *label = new QLabel(editor->labelText());
-        formLabels_.append(QSharedPointer<QLabel>(label));
-        gridLayout->addWidget(label, row, 0);
-        gridLayout->addWidget(editorWidget, row, 1);
-      }
-
-      row++;
+  // Clear old content.
+  while (!formLayout_->isEmpty()) {
+    QLayoutItem *child = formLayout_->takeAt(0);
+    if (child != 0) {
+      delete child->widget();
+      delete child;
     }
   }
 
-  // save current properties
-  const QList<DrawingItemBase *> itemList = items.toList();
-  const QList<QVariantMap> oldProperties = DrawingItemBase::properties(itemList);
+  QMap<QString, QVariant> commonProps = commonStyleProps(items);
 
-  // open dialog
-  setWindowTitle(QString("%1 (%2 %3)").arg(tr("Item Style")).arg(items.size()).arg(items.size() == 1 ? tr("item") : tr("items")));
-  if (exec() == QDialog::Accepted) {
-    const QList<QVariantMap> newProperties = DrawingItemBase::properties(itemList);
-    if (oldProperties != newProperties) {
-      for (int i = 0; i < itemList.size(); ++i)
-        itemList.at(i)->setProperties(newProperties.at(i));
+  foreach (const QString &name, commonProps.keys()) {
+    // Create an editor for each common style property.
+    if (properties_.contains(name)) {
+      EditStyleProperty *prop = properties_.value(name);
+      editing_.insert(name);
+
+      QWidget *editor = prop->createEditor(commonProps.value(name));
+      formLayout_->addRow(prop->labelText, editor);
     }
-  } else {
+  }
+
+  // Open the dialog.
+  if (exec() != QDialog::Accepted)
     reset();
-  }
 }
-
-// Returns the editors that are currently locked to \a editor (the value of those editors will automatically
-// follow the value of \a editor as the latter is interactively modified).
-QList<QSharedPointer<StylePropertyEditor> > StyleEditor::lockedEditors(StylePropertyEditor *editor)
-{
-  QList<QSharedPointer<StylePropertyEditor> > lockedEds_;
-
-  if (lockedEditors_.contains(editor->lockCategory())) {
-    const QList<QPair<QSharedPointer<StylePropertyEditor>, QCheckBox *> > editorPairs = lockedEditors_.value(editor->lockCategory());
-    for (int i = 0; i < editorPairs.size(); ++i) {
-      const QPair<QSharedPointer<StylePropertyEditor>, QCheckBox *> editorPair = editorPairs.at(i);
-      if (editorPair.second->isChecked())
-        lockedEds_.append(editorPair.first);
-    }
-  }
-
-  return lockedEds_;
-}
-
 
 // Restores original values.
 void StyleEditor::reset()
 {
-  if (isVisible()) {
-    // reset editors
-    foreach (QSharedPointer<StylePropertyEditor> editor, editors_) {
-      if (!editor.isNull())
-        editor->reset();
-    }
+  // Reset the values of all the registered properties for all the items
+  // with those properties.
+  foreach (const QString &name, editing_) {
+    EditStyleProperty *prop = properties_.value(name);
+    prop->reset();
+
+    foreach (DrawingItemBase *item, items_)
+      item->setProperty(name, prop->oldValue);
   }
 
-  // reset items
-  foreach (DrawingItemBase *item, savedProps_.keys()) {
-    const QVariantMap sprops = savedProps_.value(item);
-    foreach (QString name, sprops.keys()) {
-      item->propertiesRef().insert(name, sprops.value(name));
-    }
+  buttonBox->button(QDialogButtonBox::Reset)->setEnabled(false);
+  EditItemManager::instance()->repaint();
+}
+
+void StyleEditor::updateButtons()
+{
+  // Check the values of all the registered properties.
+  bool changed = false;
+
+  foreach (const QString &name, editing_) {
+    EditStyleProperty *prop = properties_.value(name);
+
+    if (prop->hasChanged())
+      changed = true;
+
+    foreach (DrawingItemBase *item, items_)
+      item->setProperty(name, prop->newValue);
   }
+
+  buttonBox->button(QDialogButtonBox::Reset)->setEnabled(changed);
   EditItemManager::instance()->repaint();
 }
 
