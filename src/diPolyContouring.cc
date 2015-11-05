@@ -313,47 +313,6 @@ void DianaLines::paint()
   }
 }
 
-void DianaLines::paint_polygons()
-{
-  METLIBS_LOG_TIME(LOGVAL(mPlotOptions.undefMasking));
-
-  const contouring::level_t level_min = mLevels.level_for_value(mPlotOptions.minvalue),
-      level_max = mLevels.level_for_value(mPlotOptions.maxvalue);
-
-  const int ncolours = mPlotOptions.palettecolours.size();
-  const int ncolours_cold = mPlotOptions.palettecolours_cold.size();
-
-  for (level_points_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
-    const contouring::level_t li = it->first;
-    METLIBS_LOG_TIME(LOGVAL(li));
-
-    if (li == DianaLevels::UNDEF_LEVEL) {
-      if ((mPaintMode & UNDEFINED) == 0 || mPlotOptions.undefMasking != 1)
-        continue;
-      setFillColour(mPlotOptions.undefColour);
-    } else {
-      if ((mPaintMode & FILL) == 0
-          or (level_min != DianaLevels::UNDEF_LEVEL and li < level_min)
-          or (level_max != DianaLevels::UNDEF_LEVEL and li >= level_max)
-          or (mPlotOptions.zeroLine<=0 and (li == 0 or li == 1)))
-      {
-        continue;
-      }
-      if (li <= 0 and ncolours_cold) {
-        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
-        setFillColour(mPlotOptions.palettecolours_cold[idx]);
-      } else {
-        if (li <= 0 and not mPlotOptions.loglinevalues.empty())
-          continue;
-        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours, li - 1);
-        setFillColour(mPlotOptions.palettecolours[idx]);
-      }
-    }
-
-    drawPolygons(it->second);
-  }
-}
-
 void DianaLines::setLineForLevel(contouring::level_t li)
 {
   if (li == DianaLevels::UNDEF_LEVEL) {
@@ -373,15 +332,60 @@ void DianaLines::setLineForLevel(contouring::level_t li)
   }
 }
 
+void DianaLines::paint_polygons()
+{
+  METLIBS_LOG_TIME(LOGVAL(mPlotOptions.undefMasking));
+  const PlotOptions& po = mPlotOptions;
+
+  const int ncolours = po.palettecolours.size();
+  const int ncolours_cold = po.palettecolours_cold.size();
+  const bool no_fill = (mPaintMode & FILL) == 0;
+  const bool skip_level_0 = po.zeroLine<=0 || !po.linevalues.empty() || !po.loglinevalues.empty();
+  const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || po.undefMasking != 1;
+  const contouring::level_t level_min = mLevels.level_for_value(po.minvalue),
+      level_max = mLevels.level_for_value(po.maxvalue);
+  const bool skip_min = level_min != DianaLevels::UNDEF_LEVEL;
+  const bool skip_max = level_max != DianaLevels::UNDEF_LEVEL;
+
+  for (level_points_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
+    const contouring::level_t li = it->first;
+    METLIBS_LOG_TIME(LOGVAL(li));
+
+    if (li == DianaLevels::UNDEF_LEVEL) {
+      if (skip_undef)
+        continue;
+      setFillColour(mPlotOptions.undefColour);
+    } else {
+      if (no_fill || (skip_min && li < level_min) || (skip_max && li >= level_max) || (skip_level_0 &&  li == 0))
+        continue;
+      if (li <= 0 and ncolours_cold) {
+        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
+        setFillColour(mPlotOptions.palettecolours_cold[idx]);
+      } else {
+        if (li <= 0 and not mPlotOptions.loglinevalues.empty())
+          continue;
+        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours, li - 1);
+        setFillColour(mPlotOptions.palettecolours[idx]);
+      }
+    }
+
+    drawPolygons(it->second);
+  }
+}
+
 void DianaLines::paint_lines()
 {
+  const PlotOptions& po = mPlotOptions;
+  const bool no_lines = (mPaintMode & LINES_LABELS) == 0;
+  const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || !po.undefMasking;
+  const bool skip_level_0 = po.zeroLine<=0 || !po.linevalues.empty() || !po.loglinevalues.empty();
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
     const contouring::level_t li = it->first;
     if (li == DianaLevels::UNDEF_LEVEL) {
-      if (!mPlotOptions.undefMasking || (mPaintMode & UNDEFINED) == 0)
+      if (skip_undef)
         continue;
     } else {
-      if ((mPaintMode & LINES_LABELS) == 0 || (mPlotOptions.zeroLine==0 and li == 0))
+      if (no_lines || (skip_level_0 && li == 0))
         continue;
     }
     setLineForLevel(li);
