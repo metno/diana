@@ -2150,8 +2150,8 @@ bool PlotModule::startTrajectoryComputation()
   tg.setIterationCount(vtp[0]->getIterationCount());
   tg.setTimeStep(vtp[0]->getTimeStep());
   const TrajectoryGenerator::LonLat_v& pos = vtp[0]->getStartPositions();
-  for (size_t i=0; i<pos.size(); ++i)
-    tg.addPosition(pos.at(i));
+  for (TrajectoryGenerator::LonLat_v::const_iterator itP = pos.begin(); itP != pos.end(); ++itP)
+    tg.addPosition(*itP);
 
   const TrajectoryData_v trajectories = tg.compute();
   vtp[0]->setTrajectoryData(trajectories);

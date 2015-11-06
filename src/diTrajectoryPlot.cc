@@ -147,18 +147,18 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
   int nvstr = vstr.size();
   for(int k=0; k<nvstr; k++){
 
-    std::string value,orig_value,key;
-    std::string pin = vstr[k];
-    vector<std::string> tokens = miutil::split_protected(pin, '"','"');
-    int n = tokens.size();
+    int numMarker = 1; // number of actual startpositions
+    float markerRadius = 50*1000; // size of multi-startposition rectangle, in m
 
-    for( int i=0; i<n; i++){
-      vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
+    const std::vector<std::string> tokens = miutil::split_protected(vstr[k], '"','"');
+    for (size_t i=0; i<tokens.size(); i++) {
+      const std::vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
       if (METLIBS_LOG_DEBUG_ENABLED()) {
         METLIBS_LOG_DEBUG("stokens:");
         for (size_t j=0; j<stokens.size(); j++)
           METLIBS_LOG_DEBUG("  " << stokens[j]);
       }
+      std::string value, orig_value, key;
       if (stokens.size() == 1) {
         key= miutil::to_lower(stokens[0]);
         if (key == "clear") {
@@ -168,12 +168,12 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
           clearData();
           startPositions.clear();
         }
-      } else if( stokens.size() == 2) {
+      } else if (stokens.size() == 2) {
         key        = miutil::to_lower(stokens[0]);
         orig_value = stokens[1];
         value      = miutil::to_lower(stokens[1]);
-        if (key == "plot" ){
-          if(value == "on")
+        if (key == "plot") {
+          if (value == "on")
             plot_on = true;
           else
             plot_on = false;
@@ -185,7 +185,14 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
           for (int i=0; i<n; i+=2) {
             const float lon = miutil::to_double(lonlat[i+dilon]),
                 lat = miutil::to_double(lonlat[i+dilat]);
-            startPositions.push_back(LonLat::fromDegrees(lon, lat));
+            const LonLat sp = LonLat::fromDegrees(lon, lat);
+            startPositions.push_back(sp);
+
+            const int numExtra = numMarker - 1;
+            if (numExtra > 0 && markerRadius > 0) {
+              for (int j=0; j<numExtra; ++j)
+                startPositions.push_back(sp.stepDirection(markerRadius, j * (2*M_PI/numExtra)));
+            }
           }
         } else if (key == "field" ) {
           if (orig_value[0]=='"')
@@ -198,6 +205,11 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
           lineWidth = atoi(value.c_str());
         else if (key == "linetype" )
           lineType = Linetype(value);
+        else if (key == "radius" )
+          // "radius" is given in km, we want to keep m
+          markerRadius = 1000*miutil::to_float(value);
+        else if (key == "numpos" )
+          numMarker = miutil::to_int(value);
       }
     }
   }

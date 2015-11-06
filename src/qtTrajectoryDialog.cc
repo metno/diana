@@ -92,9 +92,27 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   connect( lineTypeBox, SIGNAL( activated(int) ),
       SLOT( lineTypeSlot(int) ) );
 
-    /*****************************************************************/
+  //Number of positions, radius and kind of marker
+  QLabel* numposLabel = new QLabel(tr("No. of positions"), this);
+  numposSpin = new QSpinBox(this);
+  numposSpin->setMinimum(1);
+  numposSpin->setMaximum(60);
+  numposSpin->setSingleStep(1);
+  connect(numposSpin, SIGNAL(valueChanged(int)), this, SLOT(numposSlot(int)));
 
-    //Positions
+  //radius
+  QLabel* radiusLabel = new QLabel( tr("Radius"), this );
+  radiusSpin = new QSpinBox(this);
+  radiusSpin->setMinimum(10);
+  radiusSpin->setMaximum(500);
+  radiusSpin->setSingleStep(10);
+  radiusSpin->setValue(100);
+  radiusSpin->setSuffix(tr("km"));
+  connect(radiusSpin,SIGNAL(valueChanged(int)),SLOT(radiusSpinChanged(int)));
+
+  /*****************************************************************/
+
+  // Positions
   posButton = new QCheckBox(tr("Select positions on map"),this);
   posButton->setChecked(true);
   connect( posButton, SIGNAL( toggled(bool)), SLOT( posButtonToggled(bool) ) );
@@ -153,6 +171,10 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget( lineTypeLabel,   2, 0 );
   gridlayout->addWidget( lineTypeBox,     2, 1 );
   gridlayout->addWidget( line1,           4, 0, 1, 2 );
+  gridlayout->addWidget( numposLabel,     5, 0 );
+  gridlayout->addWidget( numposSpin,      5, 1 );
+  gridlayout->addWidget( radiusLabel,     6, 0 );
+  gridlayout->addWidget( radiusSpin,      6, 1 );
   gridlayout->addWidget( posButton,       7, 0, 1, 2);
   gridlayout->addWidget( posLabel,        8, 0, 1, 2);
   gridlayout->addWidget( edit,            9, 0, 1, 2);
@@ -175,9 +197,46 @@ void TrajectoryDialog::posButtonToggled(bool b)
 
   //called when "Select positions om map" is clicked
   Q_EMIT markPos(b);
-  vector<string> vstr;
-  vstr.push_back("clear"); //delete all trajectories
-  contr->trajPos(vstr);
+  clearPlottedTrajectories();
+}
+
+/*********************************************/
+
+void TrajectoryDialog::numposSlot(int value)
+{
+  int current = posList->currentRow();
+  if (current < 0)
+    return;
+
+  positionVector[current].numPos = value;
+  sendAllPositions();
+}
+
+/*********************************************/
+
+void TrajectoryDialog::radiusSpinChanged(int i)
+{
+  //this slot is called when the spin box is changed
+
+  if (i == 110) {
+    // qt4 fix: setSteps() is removed from QRangeControl
+    // using alternative method to set linestep(now called singlestep)
+    // pagestep is NOT set at all!
+    // Old line: radiusSpin->setSteps(50,50);
+    radiusSpin->setSingleStep(50);
+
+    radiusSpin->setValue(150);
+  } else if (i == 100) {
+    // Old line: radiusSpin->setSteps(10,10);
+    radiusSpin->setSingleStep(10);
+  }
+
+  int current = posList->currentRow();
+  if (current < 0)
+    return;
+
+  positionVector[current].radius=i;
+  sendAllPositions();
 }
 
 /****************************************************************************/
@@ -188,12 +247,14 @@ void TrajectoryDialog::posListSlot()
   if(current<0)
     return; // empty list
 
-  vector<string> vstr;
-  vstr.push_back("clear");//delete all trajectories
-  vstr.push_back("delete"); //delete all start positions
-  contr->trajPos(vstr);
+  radiusSpin->setValue(positionVector[current].radius);
+  if (positionVector[current].radius > 100)
+    // Old line: radiusSpin->setSteps(50,50);
+    radiusSpin->setSingleStep(50);
+  numposSpin->setValue(positionVector[current].numPos);
+
+  clearPlottedTrajectories();
   sendAllPositions();
-  Q_EMIT updateTrajectories();
 }
 
 /****************************************************************************/
@@ -202,9 +263,7 @@ void TrajectoryDialog::editDone()
 {
   //this slot is called when return is pressed in the line edit
 
-  vector<string> vstr;
-  vstr.push_back("clear"); //delete all trajectories
-  contr->trajPos(vstr);
+  clearPlottedTrajectories();
 
   float lat=0,lon=0;
   if(!edit->getValues(lat,lon))
@@ -231,13 +290,9 @@ void TrajectoryDialog::deleteClicked()
     positionVector.erase(p);
     posList->takeItem(posList->currentRow());
 
-    vector<string> vstr;
-    vstr.push_back("clear");//delete all trajectories
-    vstr.push_back("delete"); //delete all start positions
-    contr->trajPos(vstr);
+    clearPlottedTrajectories();
     sendAllPositions();
 
-    Q_EMIT updateTrajectories();
     posListSlot();
   }
 }
@@ -251,12 +306,8 @@ void TrajectoryDialog::deleteAllClicked()
   posList->clear();
   positionVector.clear();
 
-  vector<string> vstr;
-  vstr.push_back("clear");//delete all trajectories
-  vstr.push_back("delete"); //delete all start positions
-  contr->trajPos(vstr);
-
-  Q_EMIT updateTrajectories();
+  clearPlottedTrajectories();
+  sendAllPositions();
 }
 
 /*********************************************/
@@ -278,13 +329,11 @@ void TrajectoryDialog::startCalcButtonClicked()
     fieldName->setText(tr("No field selected"));
     fName ="No field selected";
   }
+
   //send field name to TrajectoryPlot
-  std::string str = " field=\"";
-  str+= fName;
-  str+= "\"";
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   vstr.push_back("clear");
-  vstr.push_back(str);
+  vstr.push_back("field=\"" + fName + "\"");
   contr->trajPos(vstr);
 
   Q_EMIT updateTrajectories();
@@ -330,12 +379,7 @@ void TrajectoryDialog::applyhideClicked()
 
 void TrajectoryDialog::colourSlot(int i)
 {
-  std::string str;
-  str= "colour=";
-  str+= colourInfo[i].name;
-  vector<string> vstr;
-  vstr.push_back(str);
-  contr->trajPos(vstr);
+  contr->trajPos(std::vector<std::string>(1, "colour=" + colourInfo[i].name));
   Q_EMIT updateTrajectories();
 }
 
@@ -345,10 +389,7 @@ void TrajectoryDialog::lineWidthSlot(int i)
 {
   ostringstream ss;
   ss << "linewidth=" << i + 1;  // 1,2,3,...
-  std::string str=ss.str();
-  vector<string> vstr;
-  vstr.push_back(str);
-  contr->trajPos(vstr);
+  contr->trajPos(std::vector<std::string>(1, ss.str()));
   Q_EMIT updateTrajectories();
 }
 
@@ -356,14 +397,26 @@ void TrajectoryDialog::lineTypeSlot( int i) {
 
   ostringstream ss;
   ss << "linetype=" << linetypes[i];
-  std::string str=ss.str();
-  vector<string> vstr;
-  vstr.push_back(str);
-  contr->trajPos(vstr);
+  contr->trajPos(std::vector<std::string>(1, ss.str()));
   Q_EMIT updateTrajectories();
 }
 
 /*********************************************/
+
+void TrajectoryDialog::clearPlottedTrajectories()
+{
+  contr->trajPos(std::vector<std::string>(1, "clear")); //delete all trajectories
+}
+
+std::string TrajectoryDialog::makePosString(const posStruct& pos) const
+{
+  std::ostringstream ost;
+  ost << "numpos=" << pos.numPos;
+  ost << " radius=" << pos.radius;
+  ost << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
+  ost << " latitudelongitude=" << pos.lat << "," << pos.lon;
+  return ost.str();
+}
 
 void TrajectoryDialog::mapPos(float lat, float lon)
 {
@@ -373,19 +426,17 @@ void TrajectoryDialog::mapPos(float lat, float lon)
   posStruct pos;
   pos.lat=lat;
   pos.lon=lon;
+  pos.radius=radiusSpin->value();
+  pos.numPos=numposSpin->value();
   positionVector.push_back(pos);
 
   //Make string and insert in posList
   update_posList(lat,lon);
 
   //Make string and send to trajectoryPlot
-  ostringstream str;
-  str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
-  str << "latitudelongitude=" << lat << "," << lon;
-  std::string posString = str.str();
   vector<string> vstr;
   vstr.push_back("clear");
-  vstr.push_back(posString);
+  vstr.push_back(makePosString(pos));
   contr->trajPos(vstr);
   Q_EMIT updateTrajectories();
 }
@@ -428,16 +479,9 @@ void TrajectoryDialog::sendAllPositions()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<string> vstr;
-
-  int npos=positionVector.size();
-  for (int i=0; i<npos; i++) {
-    ostringstream str;
-    str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
-    str << "latitudelongitude=";
-    str << positionVector[i].lat << "," << positionVector[i].lon;
-    std::string posString = str.str();
-    vstr.push_back(posString);
+  std::vector<std::string> vstr(1, "delete"); //delete all start positions
+  for (std::vector<posStruct>::const_iterator itP = positionVector.begin(); itP != positionVector.end(); ++itP) {
+    vstr.push_back(makePosString(*itP));
   }
   contr->trajPos(vstr);
   Q_EMIT updateTrajectories();
@@ -457,30 +501,19 @@ void TrajectoryDialog::showplus()
   ss <<" linewidth="<< lineWidthBox->currentIndex() + 1;  // 1,2,3,...
   ss <<" linetype="<< linetypes[lineTypeBox->currentIndex()];  // 1,2,3,...
   ss <<" plot=on";
-
-  std::string str= ss.str();
-
-  vector<string> vstr;
-  vstr.push_back(str);
-  contr->trajPos(vstr);
+  contr->trajPos(std::vector<std::string>(1, ss.str()));
 
   sendAllPositions();
-
-  Q_EMIT updateTrajectories();
 }
 
 /*********************************************/
 
 vector<string> TrajectoryDialog::writeLog()
 {
-  vector<string> vstr;
+  std::vector<std::string> vstr;
 
-  int n=positionVector.size();
-  for(int i=0;i<n; i++){
-    ostringstream ost;
-    ost << "latitudelongitude=";
-    ost << positionVector[i].lat << "," << positionVector[i].lon;
-    vstr.push_back(ost.str());
+  for (std::vector<posStruct>::const_iterator itP = positionVector.begin(); itP != positionVector.end(); ++itP) {
+    vstr.push_back(makePosString(*itP));
   }
 
   std::ostringstream ostr;
@@ -501,6 +534,7 @@ void TrajectoryDialog::readLog(const vector<string>& vstr,
     const string& thisVersion, const string& logVersion)
 {
   int n=0, nvstr= vstr.size();
+  int radius = 0, numPos = 1;
 
   while (n<nvstr && vstr[n].substr(0,4)!="====") {
 
@@ -527,12 +561,16 @@ void TrajectoryDialog::readLog(const vector<string>& vstr,
           while (j<nr_linetypes && value!=linetypes[j]) j++;
           if (j==nr_linetypes) j=0;
           lineTypeBox->setCurrentIndex(j);
+        } else if (key == "radius") {
+          pos.radius = radius = miutil::to_int(value);
+        } else if (key == "numpos") {
+          numPos = pos.numPos = miutil::to_int(value);
         } else if (key == "latitudelongitude") {
-          vector<std::string> latlon = miutil::split(value, 0, ",");
-          int nr=latlon.size();
-          if(nr!=2) continue;
-          pos.lat=atof(latlon[0].c_str());
-          pos.lon=atof(latlon[1].c_str());
+          const vector<std::string> latlon = miutil::split(value, 0, ",");
+          if(latlon.size() != 2)
+            continue;
+          pos.lat = miutil::to_float(latlon[0]);
+          pos.lon = miutil::to_float(latlon[1]);
           position=true;
           update_posList(pos.lat,pos.lon);
         }
@@ -542,6 +580,14 @@ void TrajectoryDialog::readLog(const vector<string>& vstr,
       positionVector.push_back(pos);
     n++;
   }
+
+  radiusSpin->setValue(radius);
+  if (radius > 100)
+    // qt4 fix: insertStrList() -> insertStringList()
+    // (uneffective, have to make QStringList and QString!)
+    // Old line: radiusSpin->setSteps(50,50);
+    radiusSpin->setSingleStep(50);
+  numposSpin->setValue(numPos);
 
   //positions are not sent to TrajectoryPlot yet
 }
