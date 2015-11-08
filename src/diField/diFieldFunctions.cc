@@ -31,6 +31,8 @@
 #include "config.h"
 #endif
 
+#include "../util/openmp_tools.h"
+
 #include "diMetConstants.h"
 #include "diFieldFunctions.h"
 #include "diField.h"
@@ -40,6 +42,8 @@
 #include <cmath>
 #include <iomanip>
 #include <cfloat>
+
+#include <memory.h>
 
 //#define DEBUGPRINT 1
 #define ENABLE_FIELDFUNCTIONS_TIMING 1
@@ -91,9 +95,38 @@ inline bool is_defined(bool allDefined, float in1, float in2, float in3, float i
   return allDefined or (in1 != undef and in2 != undef and in3 != undef and in4 != undef and in5 != undef);
 }
 
-inline bool is_defined(bool allDefined, float in1, float in2, float in3, float in4, float in5, float in6, float undef)
+inline bool is_defined(bool allDefined, float in1, float in2, float in3, float in4,
+    float in5, float in6, float undef)
 {
   return allDefined or (in1 != undef and in2 != undef and in3 != undef and in4 != undef and in5 != undef and in6 != undef);
+}
+
+inline bool is_defined(bool allDefined, float in1, float in2, float in3, float in4,
+    float in5, float in6, float in7, float undef)
+{
+  return allDefined or (in1 != undef and in2 != undef and in3 != undef and in4 != undef and in5 != undef
+      and in6 != undef and in7 != undef);
+}
+
+inline bool is_defined(bool allDefined, float in1, float in2, float in3, float in4,
+    float in5, float in6, float in7, float in8, float undef)
+{
+  return allDefined or (in1 != undef and in2 != undef and in3 != undef and in4 != undef and in5 != undef
+      and in6 != undef and in7 != undef and in8 != undef);
+}
+
+inline bool is_defined(bool allDefined, float in1, float in2, float in3, float in4,
+    float in5, float in6, float in7, float in8, float in9, float undef)
+{
+  return allDefined or (in1 != undef and in2 != undef and in3 != undef and in4 != undef and in5 != undef
+      and in6 != undef and in7 != undef and in8 != undef and in9 != undef);
+}
+
+inline bool is_defined(bool allDefined, float in1, float in2, float in3, float in4,
+    float in5, float in6, float in7, float in8, float in9, float in10, float undef)
+{
+  return allDefined or (in1 != undef and in2 != undef and in3 != undef and in4 != undef and in5 != undef
+      and in6 != undef and in7 != undef and in8 != undef and in9 != undef and in10 != undef);
 }
 
 inline float clamp_rh(float rh)
@@ -221,6 +254,12 @@ inline float pidcp_from_p(float p)
 
 inline float pi_from_p(float p)
 { return cp * pidcp_from_p(p); }
+
+void copy_field(float* fout, const float* fin, size_t fsize)
+{
+  if (fout != fin)
+    memcpy(fout, fin, sizeof(fin[0])*fsize);
+}
 
 } // namespace calculations
 
@@ -794,7 +833,6 @@ bool FieldFunctions::parseVerticalSetup(const std::vector<std::string>& lines,
 // static member
 bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
 {
-
   fs.use_standard_name = false;
   fs.paramName = paramName;
   if (paramName.find(':')==string::npos)
@@ -838,7 +876,8 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
 }
 
 // static
-void FieldFunctions::buildPLevelsToFlightLevelsTable() {
+void FieldFunctions::buildPLevelsToFlightLevelsTable()
+{
   pLevel2flightLevel.clear();
   flightLevel2pLevel.clear();
 
@@ -863,7 +902,7 @@ std::string FieldFunctions::getPressureLevel(const std::string& flightlevel)
   if ( flightLevel2pLevel.count(flightlevel))
     return flightLevel2pLevel[flightlevel];
 
-  METLIBS_LOG_WARN(" Flightlevel: "<<flightlevel<<". No pressure level found." );
+  METLIBS_LOG_WARN(" Flightlevel: "<<flightlevel<<". No pressure level found.");
   return flightlevel;
 }
 
@@ -875,7 +914,7 @@ std::string FieldFunctions::getFlightLevel(const std::string& pressurelevel)
   if ( pLevel2flightLevel.count(pressurelevel))
     return pLevel2flightLevel[pressurelevel];
 
-  METLIBS_LOG_WARN(" pressurelevel: "<<pressurelevel<<". No pressure level found." );
+  METLIBS_LOG_WARN(" pressurelevel: "<<pressurelevel<<". No pressure level found.");
   return pressurelevel;
 }
 
@@ -1547,9 +1586,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_minvalue_fields:
     if (ninp != 2 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], finp[1][i], fieldUndef))
         fout[0][i] = std::min(finp[0][i], finp[1][i]);
@@ -1562,9 +1599,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_maxvalue_fields:
     if (ninp != 2 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], finp[1][i], fieldUndef))
         fout[0][i] = std::max(finp[0][i], finp[1][i]);
@@ -1579,9 +1614,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     constant = constants[0];
     if (constant != fieldUndef) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+      DIUTIL_OPENMP_PARALLEL(fsize, for)
       for (int i = 0; i < fsize; i++) {
         if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
           fout[0][i] = std::min(finp[0][i], constant);
@@ -1590,9 +1623,7 @@ bool FieldFunctions::fieldComputer(Function function,
       }
     } else {
       allDefined = false;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+      DIUTIL_OPENMP_PARALLEL(fsize, for)
       for (int i = 0; i < fsize; i++)
         fout[0][i] = fieldUndef;
     }
@@ -1604,9 +1635,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     constant = constants[0];
     if (constant != fieldUndef) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+      DIUTIL_OPENMP_PARALLEL(fsize, for)
       for (int i = 0; i < fsize; i++) {
         if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
           fout[0][i] = std::max(finp[0][i], constant);
@@ -1615,9 +1644,7 @@ bool FieldFunctions::fieldComputer(Function function,
       }
     } else {
       allDefined = false;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+      DIUTIL_OPENMP_PARALLEL(fsize, for)
       for (int i = 0; i < fsize; i++)
         fout[0][i] = fieldUndef;
     }
@@ -1627,9 +1654,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_abs:
     if (ninp != 1 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
         fout[0][i] = fabs(finp[0][i]);
@@ -1642,9 +1667,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_log10:
     if (ninp != 1 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
         fout[0][i] = log10(finp[0][i]);
@@ -1657,9 +1680,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_pow10:
     if (ninp != 1 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
         fout[0][i] = pow10(finp[0][i]);
@@ -1672,9 +1693,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_log:
     if (ninp != 1 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
         fout[0][i] = log(finp[0][i]);
@@ -1687,9 +1706,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_exp:
     if (ninp != 1 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
         fout[0][i] = exp(finp[0][i]);
@@ -1704,9 +1721,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     constant = constants[0];
     if (constant != fieldUndef) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+      DIUTIL_OPENMP_PARALLEL(fsize, for)
       for (int i = 0; i < fsize; i++) {
         if (calculations::is_defined(allDefined, finp[0][i], fieldUndef))
           fout[0][i] = powf(finp[0][i], constant);
@@ -1715,9 +1730,7 @@ bool FieldFunctions::fieldComputer(Function function,
       }
     } else {
       allDefined = false;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+      DIUTIL_OPENMP_PARALLEL(fsize, for)
       for (int i = 0; i < fsize; i++)
         fout[0][i] = fieldUndef;
     }
@@ -1734,11 +1747,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     nsmooth = int(constants[0] + 0.5);
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (int i = 0; i < fsize; i++)
-      fout[0][i] = finp[0][i];
+    calculations::copy_field(fout[0], finp[0], fsize);
     res = vfres[0]->smooth(nsmooth);
     break;
 
@@ -1853,9 +1862,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     constant = constants[0];
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       if (finp[0][i] != fieldUndef)
         fout[0][i] = finp[0][i];
@@ -1869,9 +1876,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     constant = constants[0];
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       if (finp[0][i] != fieldUndef)
         fout[0][i] = constant;
@@ -1884,9 +1889,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     constant = constants[0];
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       fout[0][i] = constant;
     vfres[0]->allDefined = (constant != fieldUndef);
@@ -1976,12 +1979,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_equivalent_to :
     if (ninp != 1 || nout != 1)
       break;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (int i = 0; i < fsize; i++) {
-      fout[0][i] = finp[0][i];
-    }
+    calculations::copy_field(fout[0], finp[0], fsize);
     res = true;
     break;
 
@@ -2098,9 +2096,7 @@ bool FieldFunctions::pleveltemp(int compute, int nx, int ny, const float *tinp,
   const bool inAllDefined = allDefined;
   const float pidcp = calculations::pidcp_from_p(p), pi = pidcp*cp;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize,for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, tinp[i], undef)) {
       if (compute == 1) { // TH -> T(Celsius)
@@ -2155,9 +2151,7 @@ bool FieldFunctions::plevelthe(int compute, int nx, int ny, const float *t,
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], rh[i], undef))
       // T(Kelvin), RH(%) -> THE  or  TH, RH(%) -> THE
@@ -2217,9 +2211,7 @@ bool FieldFunctions::plevelhum(int compute, int nx, int ny, const float *t,
   const float tconv = (compute % 2 == 0) ? (pi / cp) : 1;
   const float tdconv = (compute >= 9) ? t0 : 0;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)) { // p checked before loop
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> RH(%)  or  TH,q -> RH(%)
@@ -2284,9 +2276,7 @@ bool FieldFunctions::pleveldz2tmean(int compute, int nx, int ny, const float *z1
     return false;
   }
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, z1[i], z2[i], undef))
       tmean[i] = (z1[i] - z2[i]) * convert + tconvert;
@@ -2361,60 +2351,30 @@ bool FieldFunctions::plevelqvector(int compute, int nx, int ny, const float *z,
     return false;
   }
 
-  float dugdx, dugdy, dvgdx, dvgdy, dtdx, dtdy;
-  float c = -r / (p * 100.);
+  const float c = -r / (p * 100.);
 
-  if (allDefined) {
-    // loop extended, reset bad computations at boundaries later
-    if (compute < 3 ) {
-      for (int i = nx; i < fsize - nx; i++) {
-        dugdx = 0.5 * xmapr[i] * (ug[i + 1] - ug[i - 1]);
-        dvgdx = 0.5 * xmapr[i] * (vg[i + 1] - vg[i - 1]);
-        dtdx = 0.5 * xmapr[i] * tscale * (t[i + 1] - t[i - 1]);
-        dtdy = 0.5 * ymapr[i] * tscale * (t[i + nx] - t[i - nx]);
+  // loop extended, reset bad computations at boundaries later
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  for (int i = nx; i < fsize - nx; i++) {
+    if (ug[i - nx] != undef && ug[i - 1] != undef && ug[i + 1] != undef
+        && ug[i + nx] != undef && vg[i - nx] != undef && vg[i - 1] != undef
+        && vg[i + 1] != undef && vg[i + nx] != undef && t[i - nx] != undef
+        && t[i - 1] != undef && t[i + 1] != undef && t[i + nx] != undef) {
+      if (compute < 3 ) {
+        const float dugdx = 0.5 * xmapr[i] * (ug[i + 1] - ug[i - 1]);
+        const float dvgdx = 0.5 * xmapr[i] * (vg[i + 1] - vg[i - 1]);
+        const float dtdx = 0.5 * xmapr[i] * tscale * (t[i + 1] - t[i - 1]);
+        const float dtdy = 0.5 * ymapr[i] * tscale * (t[i + nx] - t[i - nx]);
         qcomp[i] = c * (dugdx * dtdx + dvgdx * dtdy);
-      }
-    } else {
-      for (int i = nx; i < fsize - nx; i++) {
-        dugdy = 0.5 * ymapr[i] * (ug[i + nx] - ug[i - nx]);
-        dvgdy = 0.5 * ymapr[i] * (vg[i + nx] - vg[i - nx]);
-        dtdx = 0.5 * xmapr[i] * tscale * (t[i + 1] - t[i - 1]);
-        dtdy = 0.5 * ymapr[i] * tscale * (t[i + nx] - t[i - nx]);
+      } else {
+        const float dugdy = 0.5 * ymapr[i] * (ug[i + nx] - ug[i - nx]);
+        const float dvgdy = 0.5 * ymapr[i] * (vg[i + nx] - vg[i - nx]);
+        const float dtdx = 0.5 * xmapr[i] * tscale * (t[i + 1] - t[i - 1]);
+        const float dtdy = 0.5 * ymapr[i] * tscale * (t[i + nx] - t[i - nx]);
         qcomp[i] = c * (dugdy * dtdx + dvgdy * dtdy);
       }
-
-    }
-  } else {
-    if (compute < 3 ) {
-      for (int i = nx; i < fsize - nx; i++) {
-        if (ug[i - nx] != undef && ug[i - 1] != undef && ug[i + 1] != undef
-            && ug[i + nx] != undef && vg[i - nx] != undef && vg[i - 1] != undef
-            && vg[i + 1] != undef && vg[i + nx] != undef && t[i - nx] != undef
-            && t[i - 1] != undef && t[i + 1] != undef && t[i + nx] != undef) {
-          dugdx = 0.5 * xmapr[i] * (ug[i + 1] - ug[i - 1]);
-          dvgdx = 0.5 * xmapr[i] * (vg[i + 1] - vg[i - 1]);
-          dtdx = 0.5 * xmapr[i] * tscale * (t[i + 1] - t[i - 1]);
-          dtdy = 0.5 * ymapr[i] * tscale * (t[i + nx] - t[i - nx]);
-          qcomp[i] = c * (dugdx * dtdx + dvgdx * dtdy);
-        } else {
-          qcomp[i] = undef;
-        }
-      }
     } else {
-      for (int i = nx; i < fsize - nx; i++) {
-        if (ug[i - nx] != undef && ug[i - 1] != undef && ug[i + 1] != undef
-            && ug[i + nx] != undef && vg[i - nx] != undef && vg[i - 1] != undef
-            && vg[i + 1] != undef && vg[i + nx] != undef && t[i - nx] != undef
-            && t[i - 1] != undef && t[i + 1] != undef && t[i + nx] != undef) {
-          dugdy = 0.5 * ymapr[i] * (ug[i + nx] - ug[i - nx]);
-          dvgdy = 0.5 * ymapr[i] * (vg[i + nx] - vg[i - nx]);
-          dtdx = 0.5 * xmapr[i] * tscale * (t[i + 1] - t[i - 1]);
-          dtdy = 0.5 * ymapr[i] * tscale * (t[i + nx] - t[i - nx]);
-          qcomp[i] = c * (dugdy * dtdx + dvgdy * dtdy);
-        } else {
-          qcomp[i] = undef;
-        }
-      }
+      qcomp[i] = undef;
     }
   }
 
@@ -2463,9 +2423,7 @@ bool FieldFunctions::plevelducting(int compute, int nx, int ny, const float *t,
   const bool inAllDefined = allDefined;
   const float tconv = (compute % 2 == 0) ? calculations::pidcp_from_p(p) : 1;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], h[i], undef)) {
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> ducting  or  TH,q -> ducting
@@ -2501,9 +2459,7 @@ bool FieldFunctions::plevelgwind_xcomp(int nx, int ny, const float *z, float *ug
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
   for (int i = nx; i < fsize - nx; i++) {
     // check for y component input, too
     if (calculations::is_defined(allDefined, z[i-nx], z[i-1], z[i+1], z[i+nx], undef))
@@ -2536,9 +2492,7 @@ bool FieldFunctions::plevelgwind_ycomp(int nx, int ny, const float *z, float *vg
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
   for (int i = nx; i < fsize - nx; i++) {
     // check for x component input, too
     if (calculations::is_defined(allDefined, z[i-nx], z[i-1], z[i+1], z[i+nx], undef))
@@ -2577,13 +2531,14 @@ bool FieldFunctions::plevelgvort(int nx, int ny, const float *z, float *gvort,
   if (allDefined) {
 
     // loop extended, reset bad computations at boundaries later
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
     for (int i = nx; i < fsize - nx; i++)
       gvort[i] = (0.25 * xmapr[i] * xmapr[i] * (z[i - 1] - 2. * z[i] + z[i + 1])
           + 0.25 * ymapr[i] * ymapr[i] * (z[i - nx] - 2. * z[i] + z[i + nx])) * g4
           / fcoriolis[i];
 
   } else {
-
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
     for (int i = nx; i < fsize - nx; i++) {
       if (z[i - nx] != undef && z[i - 1] != undef && z[i] != undef && z[i + 1]
                                                                         != undef && z[i + nx] != undef)
@@ -2649,9 +2604,7 @@ bool FieldFunctions::kIndex(int compute, int nx, int ny, const float *t500,
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t500[i], t700[i], rh700[i], t850[i], rh850[i], undef)) {
       // 850 hPa: rh,T -> Td ... rh*e(T) = e(Td) => Td = ?
@@ -2713,9 +2666,7 @@ bool FieldFunctions::ductingIndex(int compute, int nx, int ny, const float *t850
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t850[i], rh850[i], undef)) {
       // 850 hPa: rh,T -> Td ... rh*e(T) = e(Td)
@@ -2798,6 +2749,7 @@ bool FieldFunctions::showalterIndex(int compute, int nx, int ny, const float *t5
   const int niter = 7;
   const int fsize = nx * ny;
 
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, t500[i], t850[i],  rh850[i], undef)) {
       const float tk500 = cvt500 * t500[i];
@@ -2872,9 +2824,7 @@ bool FieldFunctions::boydenIndex(int compute, int nx, int ny, const float *t700,
   const float tconv = (compute == 2) ? pi700 / cp : 1;
   const int fsize = nx * ny;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, t700[i], z700[i], z1000[i], undef)) {
       const float tc700 = t700[i] * tconv - t0;
@@ -2924,9 +2874,7 @@ bool FieldFunctions::hleveltemp(int compute, int nx, int ny, const float *tinp,
     return false;
   }
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, tinp[i], ps[i], undef)) {
       const float p = calculations::p_hlevel(ps[i], alevel, blevel);
@@ -2980,9 +2928,7 @@ bool FieldFunctions::hlevelthe(int compute, int nx, int ny, const float *t, cons
     return false;
   }
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, t[i], q[i], ps[i], undef)) {
       const float p = calculations::p_hlevel(ps[i], alevel, blevel);
@@ -3043,9 +2989,7 @@ bool FieldFunctions::hlevelhum(int compute, int nx, int ny, const float *t,
   const float tdconv = (compute >= 9) ? t0 : 0;
   const bool need_p = not (compute == 7 or compute == 11);
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
     and ((not need_p) or inAllDefined or ps[i] != undef))
@@ -3121,9 +3065,7 @@ bool FieldFunctions::hlevelducting(int compute, int nx, int ny, const float *t,
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], h[i], ps[i], undef)) {
       const float p = calculations::p_hlevel(ps[i], alevel, blevel);
@@ -3161,9 +3103,7 @@ bool FieldFunctions::hlevelpressure(int nx, int ny, const float *ps, float *p,
 
   const int fsize = nx * ny;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, ps[i], undef))
       p[i] = calculations::p_hlevel(ps[i], alevel, blevel);
@@ -3204,9 +3144,7 @@ bool FieldFunctions::aleveltemp(int compute, int nx, int ny, const float *tinp,
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, tinp[i], p[i], undef)) {
       if (compute == 1) { // TH -> T(Celsius)
@@ -3252,9 +3190,7 @@ bool FieldFunctions::alevelthe(int compute, int nx, int ny, const float *t, cons
 
   const int fsize = nx * ny;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, t[i], q[i], p[i], undef)) {
       const float pi = calculations::pi_from_p(p[i]);
@@ -3305,9 +3241,7 @@ bool FieldFunctions::alevelhum(int compute, int nx, int ny, const float *t,
   const float tdconv = (compute >= 9) ? t0 : 0;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
     and ((compute != 7 and compute != 11) or inAllDefined or p[i] != undef))
@@ -3373,9 +3307,7 @@ bool FieldFunctions::alevelducting(int compute, int nx, int ny, const float *t,
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], h[i], p[i], undef)) {
       float tk = t[i];
@@ -3416,27 +3348,19 @@ bool FieldFunctions::ilevelgwind(int nx, int ny, const float *mpot, float *ug,
   METLIBS_LOG_TIME();
 #endif
 
-  const int fsize = nx * ny;
-
   if (nx < 3 || ny < 3)
     return false;
+  const int fsize = nx * ny;
 
-  if (allDefined) {
-    // loop extended, reset bad computations at boundaries later
-    for (int i = nx; i < fsize - nx; i++) {
+  // loop extended, reset bad computations at boundaries later
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  for (int i = nx; i < fsize - nx; i++) {
+    if (calculations::is_defined(allDefined, mpot[i-nx], mpot[i-1], mpot[i+1], mpot[i+nx], undef)) {
       ug[i] = -0.5 * ymapr[i] * (mpot[i + nx] - mpot[i - nx]) / fcoriolis[i];
       vg[i] = 0.5 * xmapr[i] * (mpot[i + 1] - mpot[i - 1]) / fcoriolis[i];
-    }
-  } else {
-    for (int i = nx; i < fsize - nx; i++) {
-      if (mpot[i - nx] != undef && mpot[i - 1] != undef && mpot[i + 1] != undef
-          && mpot[i + nx] != undef) {
-        ug[i] = -0.5 * ymapr[i] * (mpot[i + nx] - mpot[i - nx]) / fcoriolis[i];
-        vg[i] = 0.5 * xmapr[i] * (mpot[i + 1] - mpot[i - 1]) / fcoriolis[i];
-      } else {
-        ug[i] = undef;
-        vg[i] = undef;
-      }
+    } else {
+      ug[i] = undef;
+      vg[i] = undef;
     }
   }
 
@@ -3484,9 +3408,7 @@ bool FieldFunctions::seaSoundSpeed(int compute, int nx, int ny, const float *t,
   const double Z = fabsf(z_);
   const double Cz = 0.01635 * Z + 0.000000175 * Z * Z;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, t[i], s[i], undef)) {
       const float T = t[i] - tconv;
@@ -3542,54 +3464,20 @@ bool FieldFunctions::cvtemp(int compute, int nx, int ny, const float *tinp,
 
   if (compute == 3 || compute == 4) {
     float tavg = 0.;
-    if (allDefined) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel
-#endif
-      { // paralell begins, note to part sum ltavg
-        float ltavg = 0.;
-#ifdef HAVE_OPENMP
-#pragma omp for private(ltavg)
-#endif
-        for (int i = 0; i < fsize; i++)
-          ltavg += tinp[i];
-#ifdef HAVE_OPENMP
-#pragma omp atomic
-#endif
-        tavg += ltavg;
-      } // parallel ends here
-      tavg /= float(fsize);
-    } else {
-      int navg = 0;
-#ifdef HAVE_OPENMP
-#pragma omp parallel
-#endif
-      {
-        float ltavg = 0.;
-        int lnavg = 0;
-#ifdef HAVE_OPENMP
-#pragma omp for private(ltavg,lnavg)
-#endif
-        for (int i = 0; i < fsize; i++) {
-          if (tinp[i] != undef) {
-            ltavg += tinp[i];
-            lnavg++;
-          }
-        }
-#ifdef HAVE_OPENMP
-#pragma omp atomic
-#endif
-        tavg += ltavg;
-        navg += lnavg;
-      } // parallel end here
-      if (navg > 0)
-        tavg /= float(navg);
+    int navg = 0;
+    DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+: tavg, navg))
+    for (int i = 0; i < fsize; i++) {
+      if (calculations::is_defined(allDefined, tinp[i], undef)) {
+        tavg += tinp[i];
+        navg += 1;
+      }
     }
+    if (navg > 0)
+      tavg /= float(navg);
+
     if ((compute == 3 && tavg < t0 / 2.) || (compute == 4 && tavg > t0 / 2.)) {
       if (&tout[0] != &tinp[0]) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        DIUTIL_OPENMP_PARALLEL(fsize, for)
         for (int i = 0; i < fsize; i++)
           tout[i] = tinp[i];
       }
@@ -3597,22 +3485,12 @@ bool FieldFunctions::cvtemp(int compute, int nx, int ny, const float *tinp,
     }
   }
 
-  if (allDefined) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (int i = 0; i < fsize; i++)
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  for (int i = 0; i < fsize; i++) {
+    if (calculations::is_defined(allDefined, tinp[i], undef))
       tout[i] = tinp[i] + tconvert;
-  } else {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (int i = 0; i < fsize; i++) {
-      if (tinp[i] != undef)
-        tout[i] = tinp[i] + tconvert;
-      else
-        tout[i] = undef;
-    }
+    else
+      tout[i] = undef;
   }
   return true;
 }
@@ -3640,6 +3518,7 @@ bool FieldFunctions::cvhum(int compute, int nx, int ny, const float *t,
   case 1: // T(Kelvin),RH(%)  -> Td(Kelvin)
   case 2: // T(Kelvin),RH(%)  -> Td(Celsius)
   case 3: // T(Celsius),RH(%) -> Td(Celsius)
+    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)) {
         const ewt_calculator ewt(t[i] - tconv);
@@ -3661,6 +3540,7 @@ bool FieldFunctions::cvhum(int compute, int nx, int ny, const float *t,
 
   case 4: // T(Kelvin),Td(Kelvin)   -> RH(%)
   case 5: // T(Celsius),Td(Celsius) -> RH(%)
+    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)) {
         const ewt_calculator ewt(t[i] - tconv), ewt2(huminp[i] - tconv);
@@ -3697,9 +3577,7 @@ bool FieldFunctions::vectorabs(int nx, int ny, const float *u, const float *v,
 #endif
   const int fsize = nx * ny;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, u[i], v[i], undef))
       ff[i] = sqrtf(u[i] * u[i] + v[i] * v[i]);
@@ -3726,9 +3604,7 @@ bool FieldFunctions::direction(int nx, int ny, float *u, float *v, const Area& a
 
   const int npos = nx * ny;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(npos, for shared(allDefined))
   for (int i = 0; i < npos; i++) {
     if (calculations::is_defined(allDefined, u[i], v[i], undef)) {
       const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
@@ -3764,9 +3640,7 @@ bool FieldFunctions::relvort(int nx, int ny, const float *u, const float *v, flo
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
   for (int i = nx; i < fsize - nx; i++) {
     if (calculations::is_defined(allDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
       rvort[i] = 0.5 * xmapr[i] * (v[i+1] - v[i-1]) - 0.5 * ymapr[i] * (u[i+nx] - u[i-nx]);
@@ -3799,9 +3673,7 @@ bool FieldFunctions::absvort(int nx, int ny, const float *u, const float *v, flo
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
   for (int i = nx; i < fsize - nx; i++) {
     if (calculations::is_defined(allDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
       avort[i] = 0.5 * xmapr[i] * (v[i+1] - v[i-1]) - 0.5 * ymapr[i] * (u[i+nx] - u[i-nx]) + fcoriolis[i];
@@ -3833,9 +3705,7 @@ bool FieldFunctions::divergence(int nx, int ny, const float *u, const float *v,
 
   const int fsize = nx * ny;
   // loop extended, reset bad computations at boundaries later
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
   for (int i = nx; i < fsize - nx; i++) {
     if (calculations::is_defined(allDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
       diverg[i] = 0.5 * xmapr[i] * (u[i+1] - u[i-1]) + 0.5 * ymapr[i] * (v[i+nx] - v[i-nx]);
@@ -3879,9 +3749,7 @@ bool FieldFunctions::advection(int nx, int ny, const float *f, const float *u, c
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
   for (int i = nx; i < fsize - nx; i++) {
     if (calculations::is_defined(allDefined, u[i], v[i], f[i-nx], f[i-1], f[i+1], f[i+nx], undef))
       advec[i] = (u[i] * 0.5 * xmapr[i] * (f[i+1] - f[i-1]) + v[i] * 0.5 * ymapr[i] * (f[i+nx] - f[i-nx])) * scale;
@@ -3916,8 +3784,7 @@ bool FieldFunctions::gradient(int compute, int nx, int ny, const float *field,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float dfdx, dfdy, d2fdx, d2fdy;
+  const int fsize = nx * ny;
 
   if (nx < 3 || ny < 3)
     return false;
@@ -3925,74 +3792,47 @@ bool FieldFunctions::gradient(int compute, int nx, int ny, const float *field,
   switch (compute) {
 
   case 1: // df/dx (loop extended, reset/complete later
-    if (allDefined) {
-      for (int i = 1; i < fsize - 1; i++)
+    DIUTIL_OPENMP_PARALLEL(fsize-2, for)
+    for (int i = 1; i < fsize - 1; i++) {
+      if (calculations::is_defined(allDefined, field[i - 1], field[i + 1], undef))
         fgrad[i] = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
-    } else {
-      for (int i = 1; i < fsize - 1; i++) {
-        if (field[i - 1] != undef && field[i + 1] != undef)
-          fgrad[i] = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
-        else
-          fgrad[i] = undef;
-      }
+      else
+        fgrad[i] = undef;
     }
     break;
 
   case 2: // df/dy (loop extended, reset/complete later
-    if (allDefined) {
-      for (int i = nx; i < fsize - nx; i++)
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+    for (int i = nx; i < fsize - nx; i++) {
+      if (calculations::is_defined(allDefined, field[i - nx], field[i + nx], undef))
         fgrad[i] = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
-    } else {
-      for (int i = nx; i < fsize - nx; i++) {
-        if (field[i - nx] != undef && field[i + nx] != undef)
-          fgrad[i] = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
-        else
-          fgrad[i] = undef;
-      }
+      else
+        fgrad[i] = undef;
     }
     break;
 
   case 3: // abs(del(f))= sqrt((df/dx)**2 + (df/dy)**2)
-    if (allDefined) {
-      for (int i = nx; i < fsize - nx; i++) {
-        dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
-        dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+    for (int i = nx; i < fsize - nx; i++) {
+      if (calculations::is_defined(allDefined, field[i-nx], field[i-1], field[i+1], field[i+nx], undef)) {
+        const float dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
+        const float dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
         fgrad[i] = sqrtf(dfdx * dfdx + dfdy * dfdy);
-      }
-    } else {
-      for (int i = nx; i < fsize - nx; i++) {
-        if (field[i - nx] != undef && field[i - 1] != undef && field[i + 1]
-                                                                     != undef && field[i + nx] != undef)
-        {
-          dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
-          dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
-          fgrad[i] = sqrtf(dfdx * dfdx + dfdy * dfdy);
-        } else
-          fgrad[i] = undef;
-      }
+      } else
+        fgrad[i] = undef;
     }
     break;
 
   case 4: // delsquare(f)= del(del(f))
-    if (allDefined) {
-      for (int i = nx; i < fsize - nx; i++) {
-        d2fdx = field[i - 1] - 2.0 * field[i] + field[i + 1];
-        d2fdy = field[i - nx] - 2.0 * field[i] + field[i + nx];
-        fgrad[i] = 4.0f * (0.25 * xmapr[i] * xmapr[i] * d2fdx
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+    for (int i = nx; i < fsize - nx; i++) {
+      if (calculations::is_defined(allDefined, field[i-nx], field[i-1], field[i], field[i+1], field[i+nx], undef)) {
+        const float d2fdx = field[i - 1] - 2.0 * field[i] + field[i + 1];
+        const float d2fdy = field[i - nx] - 2.0 * field[i] + field[i + nx];
+        fgrad[i] = 4.0 * (0.25 * xmapr[i] * xmapr[i] * d2fdx
             + 0.25 * ymapr[i] * ymapr[i] * d2fdy);
-      }
-    } else {
-      for (int i = nx; i < fsize - nx; i++) {
-        if (field[i - nx] != undef && field[i - 1] != undef && field[i]
-                                                                     != undef && field[i + 1] != undef && field[i + nx] != undef)
-        {
-          d2fdx = field[i - 1] - 2.0 * field[i] + field[i + 1];
-          d2fdy = field[i - nx] - 2.0 * field[i] + field[i + nx];
-          fgrad[i] = 4.0 * (0.25 * xmapr[i] * xmapr[i] * d2fdx
-              + 0.25 * ymapr[i] * ymapr[i] * d2fdy);
-        } else
-          fgrad[i] = undef;
-      }
+      } else
+        fgrad[i] = undef;
     }
     break;
 
@@ -4026,7 +3866,6 @@ bool FieldFunctions::shapiro2_filter(int nx, int ny, float *field,
 #endif
 
   const int fsize = nx * ny;
-  int i1, i2;
   float s;
 
   if (nx < 3 || ny < 3)
@@ -4052,9 +3891,7 @@ bool FieldFunctions::shapiro2_filter(int nx, int ny, float *field,
       for (int i = 1; i < fsize - 1; i++)
         f2[i] = f1[i] + s * (f1[i - 1] + f1[i + 1] - 2. * f1[i]);
 
-      i1 = 0;
-      i2 = nx - 1;
-      for (int j = 0; j < ny; j++, i1 += nx, i2 += nx) {
+      for (int j=0, i1=0, i2=nx-1; j < ny; j++, i1 += nx, i2 += nx) {
         f2[i1] = f1[i1];
         f2[i2] = f1[i2];
       }
@@ -4062,8 +3899,7 @@ bool FieldFunctions::shapiro2_filter(int nx, int ny, float *field,
       for (int i = nx; i < fsize - nx; i++)
         f1[i] = f2[i] + s * (f2[i - nx] + f2[i + nx] - 2. * f2[i]);
 
-      i2 = fsize - nx;
-      for (i1 = 0; i1 < nx; i1++, i2++) {
+      for (int i1=0, i2=fsize-nx; i1 < nx; i1++, i2++) {
         f1[i1] = f2[i1];
         f1[i2] = f2[i2];
       }
@@ -4080,33 +3916,29 @@ bool FieldFunctions::shapiro2_filter(int nx, int ny, float *field,
     float *s2 = new float[fsize];
 
     for (int i = 1; i < fsize - 1; i++)
-      s1[i] = (f1[i - 1] != undef && f1[i] != undef && f1[i + 1] != undef) ? s
-          : 0.;
+      s1[i] = calculations::is_defined(allDefined, f1[i-1], f1[i], f1[i+1], undef)
+          ? s : 0;
 
     for (int i = nx; i < fsize - nx; i++)
-      s2[i]
-         = (f1[i - nx] != undef && f1[i] != undef && f1[i + nx] != undef) ? s
-             : 0.;
+      s2[i] = calculations::is_defined(allDefined, f1[i-nx], f1[i], f1[i+nx], undef)
+          ? s : 0;
 
     // s = 0.25; // ... from here
 
     for (int n = 0; n < 2; n++) {
 
       for (int i = 1; i < fsize - 1; i++)
-        f2[i] = f1[i] + s1[i] * (f1[i - 1] + f1[i + 1] - 2. * f1[i]);
+        f2[i] = f1[i] + s1[i] * (f1[i-1] + f1[i+1] - 2*f1[i]);
 
-      i1 = 0;
-      i2 = nx - 1;
-      for (int j = 0; j < ny; j++, i1 += nx, i2 += nx) {
+      for (int j=0, i1=0, i2=nx-1; j < ny; j++, i1 += nx, i2 += nx) {
         f2[i1] = f1[i1];
         f2[i2] = f1[i2];
       }
 
       for (int i = nx; i < fsize - nx; i++)
-        f1[i] = f2[i] + s2[i] * (f2[i - nx] + f2[i + nx] - 2. * f2[i]);
+        f1[i] = f2[i] + s2[i] * (f2[i-nx] + f2[i+nx] - 2*f2[i]);
 
-      i2 = fsize - nx;
-      for (i1 = 0; i1 < nx; i1++, i2++) {
+      for (int i1=0, i2=fsize-nx; i1 < nx; i1++, i2++) {
         f1[i1] = f2[i1];
         f1[i2] = f2[i2];
       }
@@ -4142,7 +3974,7 @@ bool FieldFunctions::windCooling(int compute, int nx, int ny, const float *t,
 #endif
 
   int fsize = nx * ny;
-  float tconv, tc, ff, ffpow;
+  float tconv;
 
   tconv = 0.;
   if (compute == 1)
@@ -4152,27 +3984,17 @@ bool FieldFunctions::windCooling(int compute, int nx, int ny, const float *t,
 
   case 1: // T(Kelvin)  -> dTcooling
   case 2: // T(Celsius) -> dTcooling
-    if (allDefined) {
-      for (int i = 0; i < fsize; i++) {
-        tc = t[i] - tconv;
-        ff = sqrtf(u[i] * u[i] + v[i] * v[i]) * 3.6; // m/s -> km/h
-        ffpow = powf(ff, 0.16);
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
+    for (int i = 0; i < fsize; i++) {
+      if (calculations::is_defined(allDefined, t[i], u[i], v[i], undef)) {
+        const float tc = t[i] - tconv;
+        const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]) * 3.6; // m/s -> km/h
+        const float ffpow = powf(ff, 0.16);
         dtcool[i] = 13.12 + 0.6215 * tc - 11.37 * ffpow + 0.3965 * tc * ffpow;
         if (dtcool[i] > 0.)
           dtcool[i] = 0.;
-      }
-    } else {
-      for (int i = 0; i < fsize; i++) {
-        if (t[i] != undef && u[i] != undef && v[i] != undef) {
-          tc = t[i] - tconv;
-          ff = sqrtf(u[i] * u[i] + v[i] * v[i]) * 3.6; // m/s -> km/h
-          ffpow = powf(ff, 0.16);
-          dtcool[i] = 13.12 + 0.6215 * tc - 11.37 * ffpow + 0.3965 * tc * ffpow;
-          if (dtcool[i] > 0.)
-            dtcool[i] = 0.;
-        } else
-          dtcool[i] = undef;
-      }
+      } else
+        dtcool[i] = undef;
     }
     break;
 
@@ -4201,28 +4023,18 @@ bool FieldFunctions::underCooledRain(int nx, int ny, const float *precip,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float tkMax = tcMax + t0;
+  const int fsize = nx * ny;
+  const float tkMax = tcMax + t0;
 
-  if (allDefined) {
-    for (int i = 0; i < fsize; i++) {
-      if (precip[i] >= precipMin && tk[i] <= tkMax && snow[i] <= precip[i]
-                                                                        * snowRateMax)
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  for (int i = 0; i < fsize; i++) {
+    if (calculations::is_defined(allDefined, precip[i], snow[i], tk[i], undef)) {
+      if (precip[i] >= precipMin && tk[i] <= tkMax && snow[i] <= precip[i] * snowRateMax)
         undercooled[i] = 1.;
       else
         undercooled[i] = 0.;
-    }
-  } else {
-    for (int i = 0; i < fsize; i++) {
-      if (precip[i] != undef && snow[i] != undef && tk[i] != undef) {
-        if (precip[i] >= precipMin && tk[i] <= tkMax && snow[i] <= precip[i]
-                                                                          * snowRateMax)
-          undercooled[i] = 1.;
-        else
-          undercooled[i] = 0.;
-      } else {
-        undercooled[i] = undef;
-      }
+    } else {
+      undercooled[i] = undef;
     }
   }
   return true;
@@ -4245,8 +4057,7 @@ bool FieldFunctions::thermalFrontParameter(int nx, int ny, const float *tx,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float dabsdeltdx, dabsdeltdy, dtdxa, dtdya;
+  const int fsize = nx * ny;
 
   float *absdelt = new float[fsize];
 
@@ -4256,32 +4067,19 @@ bool FieldFunctions::thermalFrontParameter(int nx, int ny, const float *tx,
   }
 
   // loop extended, reset bad computations at boundaries later
-  if (allDefined) {
-    for (int i = nx; i < fsize - nx; i++) {
-      if (absdelt[i] != 0.0) {
-        dabsdeltdx = 0.5 * xmapr[i] * (absdelt[i + 1] - absdelt[i - 1]);
-        dabsdeltdy = 0.5 * ymapr[i] * (absdelt[i + nx] - absdelt[i - nx]);
-        dtdxa = 0.5 * xmapr[i] * (tx[i + 1] - tx[i - 1]) / absdelt[i];
-        dtdya = 0.5 * ymapr[i] * (tx[i + nx] - tx[i - nx]) / absdelt[i];
-        tfp[i] = -(dabsdeltdx * dtdxa + dabsdeltdy * dtdya);
-      } else {
-        tfp[i] = 0.0;
-      }
-    }
-  } else {
-    for (int i = nx; i < fsize - nx; i++) {
-      if (tx[i - nx] != undef && tx[i - 1] != undef && tx[i + 1] != undef
-          && tx[i + nx] != undef && absdelt[i - nx] != undef && absdelt[i - 1]
-                                                                        != undef && absdelt[i] != undef && absdelt[i] != 0.0
-                                                                        && absdelt[i + 1] != undef && absdelt[i + nx] != undef) {
-        dabsdeltdx = 0.5 * xmapr[i] * (absdelt[i + 1] - absdelt[i - 1]);
-        dabsdeltdy = 0.5 * ymapr[i] * (absdelt[i + nx] - absdelt[i - nx]);
-        dtdxa = 0.5 * xmapr[i] * (tx[i + 1] - tx[i - 1]) / absdelt[i];
-        dtdya = 0.5 * ymapr[i] * (tx[i + nx] - tx[i - nx]) / absdelt[i];
-        tfp[i] = -(dabsdeltdx * dtdxa + dabsdeltdy * dtdya);
-      } else {
-        tfp[i] = undef;
-      }
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  for (int i = nx; i < fsize - nx; i++) {
+    if (calculations::is_defined(allDefined, tx[i-nx], tx[i-1], tx[i+1], tx[i+nx],
+            absdelt[i-nx], absdelt[i-1], absdelt[i], absdelt[i+1], absdelt[i+nx], undef)
+        && absdelt[i] != 0)
+    {
+      const float dabsdeltdx = 0.5 * xmapr[i] * (absdelt[i + 1] - absdelt[i - 1]);
+      const float dabsdeltdy = 0.5 * ymapr[i] * (absdelt[i + nx] - absdelt[i - nx]);
+      const float dtdxa = 0.5 * xmapr[i] * (tx[i + 1] - tx[i - 1]) / absdelt[i];
+      const float dtdya = 0.5 * ymapr[i] * (tx[i + nx] - tx[i - nx]) / absdelt[i];
+      tfp[i] = -(dabsdeltdx * dtdxa + dabsdeltdy * dtdya);
+    } else {
+      tfp[i] = undef;
     }
   }
 
@@ -4311,24 +4109,22 @@ bool FieldFunctions::pressure2FlightLevel(int nx, int ny, const float *pressure,
 #endif
 
   const int nTab = nLevelTable - 1;
+  const int fsize = nx * ny;
 
-  int fsize = nx * ny;
-  int k;
-  float p, ratio;
-
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
   for (int i = 0; i < fsize; i++) {
-    if (allDefined || pressure[i] != undef) {
-      p = pressure[i];
+    if (calculations::is_defined(allDefined, pressure[i], undef)) {
+      // TODO use binary search, set k immediately for p outside pLevelTable
+      float p = pressure[i];
       if (p > pLevelTable[0])
         p = pLevelTable[0];
       if (p < pLevelTable[nTab])
         p = pLevelTable[nTab];
-      k = 1;
+      int k = 1;
       while (k < nTab && pLevelTable[k] > p)
         k++;
-      ratio = (p - pLevelTable[k - 1]) / (pLevelTable[k] - pLevelTable[k - 1]);
-      flightlevel[i] = fLevelTable[k - 1] + (fLevelTable[k]
-                                                         - fLevelTable[k - 1]) * ratio;
+      const float ratio = (p - pLevelTable[k - 1]) / (pLevelTable[k] - pLevelTable[k - 1]);
+      flightlevel[i] = fLevelTable[k - 1] + (fLevelTable[k] - fLevelTable[k - 1]) * ratio;
     } else {
       flightlevel[i] = undef;
     }
@@ -4351,36 +4147,24 @@ bool FieldFunctions::momentumXcoordinate(int nx, int ny, const float *v, float *
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float fcormin, fcormax, fcor;
+  const int fsize = nx * ny;
 
   if (nx < 3 || ny < 3)
     return false;
 
-  fcormin = fabsf(fcoriolisMin);
-  fcormax = -fcormin;
+  const float fcormin = fabsf(fcoriolisMin), fcormax = -fcormin;
 
-  if (allDefined) {
-    for (int i = 0; i < fsize; i++) {
-      fcor = fcoriolis[i];
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  for (int i = 0; i < fsize; i++) {
+    if (calculations::is_defined(allDefined, v[i], undef)) {
+      float fcor = fcoriolis[i];
       if (fcor >= 0. && fcor < fcormin)
         fcor = fcormin;
       else if (fcor <= 0. && fcor > fcormax)
         fcor = fcormax;
       mxy[i] = float(i % nx) + v[i] * xmapr[i] / fcor;
-    }
-  } else {
-    for (int i = 0; i < fsize; i++) {
-      if (v[i] != undef) {
-        fcor = fcoriolis[i];
-        if (fcor >= 0. && fcor < fcormin)
-          fcor = fcormin;
-        else if (fcor <= 0. && fcor > fcormax)
-          fcor = fcormax;
-        mxy[i] = float(i % nx) + v[i] * xmapr[i] / fcor;
-      } else {
-        mxy[i] = undef;
-      }
+    } else {
+      mxy[i] = undef;
     }
   }
   return true;
@@ -4401,36 +4185,23 @@ bool FieldFunctions::momentumYcoordinate(int nx, int ny, const float *u, float *
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float fcormin, fcormax, fcor;
-
   if (nx < 3 || ny < 3)
     return false;
 
-  fcormin = fabsf(fcoriolisMin);
-  fcormax = -fcormin;
+  const int fsize = nx * ny;
+  const float fcormin = fabsf(fcoriolisMin), fcormax = -fcormin;
 
-  if (allDefined) {
-    for (int i = 0; i < fsize; i++) {
-      fcor = fcoriolis[i];
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  for (int i = 0; i < fsize; i++) {
+    if (calculations::is_defined(allDefined, u[i], undef)) {
+      float fcor = fcoriolis[i];
       if (fcor >= 0. && fcor < fcormin)
         fcor = fcormin;
       else if (fcor <= 0. && fcor > fcormax)
         fcor = fcormax;
       nxy[i] = float(i / nx) - u[i] * ymapr[i] / fcor;
-    }
-  } else {
-    for (int i = 0; i < fsize; i++) {
-      if (u[i] != undef) {
-        fcor = fcoriolis[i];
-        if (fcor >= 0. && fcor < fcormin)
-          fcor = fcormin;
-        else if (fcor <= 0. && fcor > fcormax)
-          fcor = fcormax;
-        nxy[i] = float(i / nx) - u[i] * ymapr[i] / fcor;
-      } else {
-        nxy[i] = undef;
-      }
+    } else {
+      nxy[i] = undef;
     }
   }
   return true;
@@ -4450,39 +4221,24 @@ bool FieldFunctions::jacobian(int nx, int ny, const float *field1, const float *
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float df1dx, df1dy, df2dx, df2dy;
-
   if (nx < 3 || ny < 3)
     return false;
 
-  if (allDefined) {
+  const int fsize = nx * ny;
 
-    // loop extended, reset bad computations at boundaries later
-    for (int i = nx; i < fsize - nx; i++) {
-      df1dx = 0.5 * xmapr[i] * (field1[i + 1] - field1[i - 1]);
-      df1dy = 0.5 * ymapr[i] * (field1[i + nx] - field1[i - nx]);
-      df2dx = 0.5 * xmapr[i] * (field2[i + 1] - field2[i - 1]);
-      df2dy = 0.5 * ymapr[i] * (field2[i + nx] - field2[i - nx]);
+  // loop extended, reset bad computations at boundaries later
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  for (int i = nx; i < fsize - nx; i++) {
+    if (calculations::is_defined(allDefined, field1[i-nx], field1[i-1], field1[i+1], field1[i+nx],
+            field2[i-nx], field2[i-1], field2[i+1], field2[i+nx], undef))
+    {
+      const float df1dx = 0.5 * xmapr[i] * (field1[i + 1] - field1[i - 1]);
+      const float df1dy = 0.5 * ymapr[i] * (field1[i + nx] - field1[i - nx]);
+      const float df2dx = 0.5 * xmapr[i] * (field2[i + 1] - field2[i - 1]);
+      const float df2dy = 0.5 * ymapr[i] * (field2[i + nx] - field2[i - nx]);
       fjacobian[i] = df1dx * df2dy - df1dy * df2dx;
-    }
-
-  } else {
-
-    for (int i = nx; i < fsize - nx; i++) {
-      if (field1[i - nx] != undef && field1[i - 1] != undef && field1[i + 1]
-                                                                      != undef && field1[i + nx] != undef && field2[i - nx] != undef
-                                                                      && field2[i - 1] != undef && field2[i + 1] != undef && field2[i + nx]
-                                                                                                                                    != undef) {
-        df1dx = 0.5 * xmapr[i] * (field1[i + 1] - field1[i - 1]);
-        df1dy = 0.5 * ymapr[i] * (field1[i + nx] - field1[i - nx]);
-        df2dx = 0.5 * xmapr[i] * (field2[i + 1] - field2[i - 1]);
-        df2dy = 0.5 * ymapr[i] * (field2[i + nx] - field2[i - nx]);
-        fjacobian[i] = df1dx * df2dy - df1dy * df2dx;
-      } else
-        fjacobian[i] = undef;
-    }
-
+    } else
+      fjacobian[i] = undef;
   }
 
   // fill in edge values not computed (or badly computed) above
@@ -4498,18 +4254,18 @@ bool FieldFunctions::vesselIcingOverland(int nx, int ny, const float *airtemp,
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
-  int fsize = nx * ny;
-  float tf = freezingPoint + t0; //freezing point in kelvin
+  const int fsize = nx * ny;
+  const float tf = freezingPoint + t0; //freezing point in kelvin
   bool local_allDefined = allDefined;
 
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
-    if (allDefined || (airtemp[i] != undef && seatemp[i] != undef && u[i]
-                                                                       != undef && v[i] != undef)) {
+    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], undef)) {
       if (seatemp[i] < tf) {
         icing[i] = undef;
         local_allDefined = false;
       } else {
-        float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
         icing[i] = ff * (tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - tf));
       }
     } else {
@@ -4533,22 +4289,23 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  float temp1; float temp2; float temp3;
+  const int fsize = nx * ny;
   bool local_allDefined = allDefined;
-
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(local_allDefined))
   for (int i = 0; i < fsize; i++) {
-    if (allDefined || (airtemp[i] != undef && seatemp[i] != undef && u[i]
-                                                                       != undef && v[i] != undef)) {
+    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], undef)) {
       if (seatemp[i] < freezingPoint) {
         icing[i] = undef;
         local_allDefined = false;
       }
       else {
-        float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
-        float temperature = airtemp[i];
-        float sst=seatemp[i];
+        const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const float temperature = airtemp[i];
+        const float sst=seatemp[i];
         if (ff>=10.8){
+          float temp1;
+          float temp2;
+          float temp3;
           if (ff<17.2) {
             temp1=-1.15*sst-4.3;
             temp2=-1.5*sst-10;
@@ -4602,7 +4359,6 @@ bool FieldFunctions::vesselIcingMertins(int nx, int ny, const float *airtemp,
   allDefined = local_allDefined;
 
   return true;
-
 }
 
 
@@ -4624,19 +4380,20 @@ bool FieldFunctions::vesselIcingOverland2(int nx, int ny, const float *airtemp,
   const double B=2.91e-4;
   const double C=1.84e-6;
 
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
-    if (allDefined || (airtemp[i] != undef && seatemp[i] != undef && u[i] != undef && v[i] != undef
-        && sal[i] !=undef && aice[i] !=undef && aice[i] < 0.4)) {
-
+    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], sal[i], aice[i], undef)
+        && aice[i] < 0.4)
+    {
       /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
-      double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * pow(sal[i],2);
+      const double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * pow(sal[i],2);
 
       if (seatemp[i] < Tf) {
         icing[i] = undef;
         local_allDefined = false;
       } else {
-        double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
-        double ppr = ff * (Tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - Tf));
+        const double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const double ppr = ff * (Tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - Tf));
         icing[i]=A*ppr+B*(ppr*ppr)+C*ppr*ppr*ppr;
       }
     } else {
@@ -4647,7 +4404,6 @@ bool FieldFunctions::vesselIcingOverland2(int nx, int ny, const float *airtemp,
 
   allDefined = local_allDefined;
   return true;
-
 }
 
 
@@ -4656,34 +4412,32 @@ bool FieldFunctions::vesselIcingMertins2(int nx, int ny, const float *airtemp,
     const float *seatemp, const float *u, const float *v, const float *sal, const float *aice, float *icing,
     bool& allDefined, float undef)
 {
-
   // Based on: H.O. Mertins : Icing on fishing vessels due to spray, Marine Observer No.221, 1968
   // All temperatures in degrees celsius
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
 
-
   const int fsize = nx * ny;
-
-
-  double temp1; double temp2; double temp3;
   bool local_allDefined = allDefined;
 
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
-    if (allDefined || (airtemp[i] != undef && seatemp[i] != undef && u[i] != undef && v[i] != undef
-        && sal[i] != undef && aice[i] !=undef && aice[i] < 0.4)) {
+    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], sal[i], aice[i], undef)
+        && aice[i] < 0.4)
+    {
       /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
-      double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
+      const double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
 
       if (seatemp[i] < Tf) {
         icing[i] = undef;
         local_allDefined = false;
       } else {
-        double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
-        double temperature = airtemp[i];
-        double sst=seatemp[i];
+        const double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const double temperature = airtemp[i];
+        const double sst=seatemp[i];
         if (ff>=10.8){
+          double temp1, temp2, temp3;
           if (ff<17.2) {
             temp1=-1.15*sst-4.3;
             temp2=-1.5*sst-10;
@@ -4727,7 +4481,6 @@ bool FieldFunctions::vesselIcingMertins2(int nx, int ny, const float *airtemp,
 
   allDefined = local_allDefined;
   return true;
-
 }
 
 
@@ -4762,11 +4515,12 @@ bool FieldFunctions::vesselIcingModStall(int nx, int ny,
     return false;
   }
 
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
 
-    if (allDefined || (sal[i] != undef && wave[i] != undef && x_wind[i] != undef && y_wind[i] != undef
-        && airtemp[i] != undef && rh[i] != undef && sst[i] != undef && p[i] != undef && aice[i] !=undef && depth[i] !=undef)) {
-
+    if (calculations::is_defined(allDefined, sal[i], wave[i], x_wind[i], y_wind[i],
+            airtemp[i], rh[i], sst[i], p[i], aice[i], depth[i], undef))
+    {
       /* Program to calculate freezing seaspray. Modified Stallabrass.  */
       /* From Brown (1991,2011) */
       /* Equation to be solved. */
@@ -4909,9 +4663,7 @@ bool FieldFunctions::vesselIcingModStall(int nx, int ny,
   } /*for loop end*/
 
   allDefined = local_allDefined;
-  //METLIBS_LOG_INFO("End Modified Stallabrass");
   return true;
-
 }
 
 
@@ -4921,7 +4673,6 @@ bool FieldFunctions::vesselIcingTestMod(int nx, int ny,
     const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
     const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef)
 {
-
   // TestModel1 (T1) described in Samuelsen et.al. (2015))
   // All temperatures in degrees celsius
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
@@ -4946,11 +4697,12 @@ bool FieldFunctions::vesselIcingTestMod(int nx, int ny,
     return false;
   }
 
-
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(local_allDefined))
   for (int i = 0; i < fsize; i++) {
 
-    if (allDefined || (sal[i] !=undef && wave[i] != undef && x_wind[i] != undef && y_wind[i] != undef && airtemp[i] != undef && rh[i] != undef && sst[i] != undef && p[i] != undef && aice[i] !=undef && depth[i] !=undef)) {
-
+    if (calculations::is_defined(allDefined, sal[i], wave[i], x_wind[i], y_wind[i], airtemp[i],
+            rh[i], sst[i], p[i], aice[i], depth[i], undef))
+    {
       /* Program to calculate freezing seaspray. Test Model 1.  */
       // Samuelsen et.al (2015)
       // Equation to be solved.
@@ -5170,7 +4922,6 @@ bool FieldFunctions::vesselIcingTestMod(int nx, int ny,
 
   allDefined = local_allDefined;
   return true;
-
 }
 
 // static
@@ -5190,16 +4941,17 @@ bool FieldFunctions::values2classes(int nx, int ny, const float *fvalue,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
-  int newundef = 0;
+  const int fsize = nx * ny;
+  bool newundef = false;
 
   if (values.size() < 2)
     return false;
 
-  int nvalues = values.size() - 2;
-  float fmin = values[0];
-  float fmax = values[nvalues + 1];
+  const int nvalues = values.size() - 2;
+  const float fmin = values[0];
+  const float fmax = values[nvalues + 1];
 
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(newundef))
   for (int i = 0; i < fsize; i++) {
     if (fvalue[i] != undef && fvalue[i] >= fmin && fvalue[i] < fmax) {
       int j = 1;
@@ -5208,11 +4960,11 @@ bool FieldFunctions::values2classes(int nx, int ny, const float *fvalue,
       fclass[i] = float(j - 1);
     } else {
       fclass[i] = undef;
-      newundef++;
+      newundef = true;
     }
   }
 
-  allDefined = (newundef == 0);
+  allDefined = (allDefined && !newundef);
 
   return true;
 }
@@ -5237,9 +4989,7 @@ bool FieldFunctions::fieldOPERfield(int compute, int nx, int ny, const float *fi
   const int fsize = nx * ny;
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, field1[i], field2[i], undef)) {
       if (compute == 1)
@@ -5283,9 +5033,7 @@ bool FieldFunctions::fieldOPERconstant(int compute, int nx, int ny,
   const int fsize = nx * ny;
 
   if ((constant == undef) or (compute == 4 and constant == 0.0)) {  // field / constant
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       fres[i] = undef;
     allDefined = false;
@@ -5294,9 +5042,7 @@ bool FieldFunctions::fieldOPERconstant(int compute, int nx, int ny,
 
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, field[i], undef)) {
       if (compute == 1)
@@ -5333,9 +5079,7 @@ bool FieldFunctions::constantOPERfield(int compute, int nx, int ny,
   const int fsize = nx * ny;
 
   if (constant == undef) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       fres[i] = undef;
 
@@ -5345,9 +5089,7 @@ bool FieldFunctions::constantOPERfield(int compute, int nx, int ny,
 
   const bool inAllDefined = allDefined;
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, field[i], undef)) {
       if (compute == 1)
@@ -5381,34 +5123,19 @@ bool FieldFunctions::sumFields(int nx, int ny, const vector<float*>& fields,
 #endif
 
   const int fsize = nx * ny;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-  for (int i = 0; i < fsize; i++) {
-    fres[i]  = 0;
-  }
+  const size_t nFields = fields.size();
+  const bool inAllDefined = allDefined;
 
-  size_t nFields = fields.size();
-  if (allDefined) {
-    size_t j;
-    for (j = 0; j <nFields; j++) {
-      // TODO, check if optimal, j must bee visible to all the threads
-      //LB: 2014-02-14 - This does not work
-      //#pragma omp parallel for private(j)
-      for (int i = 0; i < fsize; i++) {
-        fres[i]  += fields[j][i];
-      }
-    }
-  } else {
-    size_t j;
-    for (j = 0; j <nFields; j++) {
-      //#pragma omp parallel for private(j)
-      for (int i = 0; i < fsize; i++) {
-        if (fres[i] != undef && fields[j][i] != undef) {
-          fres[i] += fields[j][i];
-        } else {
-          fres[i] = undef;
-        }
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  for (int i = 0; i < fsize; i++) {
+    fres[i] = 0;
+    for (size_t j = 0; j <nFields; j++) {
+      if (calculations::is_defined(inAllDefined, fields[j][i], undef)) {
+        fres[i] += fields[j][i];
+      } else {
+        fres[i] = undef;
+        allDefined = false;
+        break;
       }
     }
   }
@@ -5425,16 +5152,12 @@ void FieldFunctions::fillEdges(int nx, int ny, float *field)
   METLIBS_LOG_TIME();
 #endif
 
-  int i1 = nx;
-  int i2 = nx * 2 - 1;
-
-  for (int j = 1; j < ny - 1; j++, i1 += nx, i2 += nx) {
+  for (int j=1, i1=nx, i2 = nx*2-1; j < ny - 1; j++, i1 += nx, i2 += nx) {
     field[i1] = field[i1 + 1];
     field[i2] = field[i2 - 1];
   }
 
-  i2 = nx * ny - nx;
-  for (i1 = 0; i1 < nx; i1++, i2++) {
+  for (int i1=0, i2=nx*ny -nx; i1 < nx; i1++, i2++) {
     field[i1] = field[i1 + nx];
     field[i2] = field[i2 - nx];
   }
@@ -5450,44 +5173,26 @@ bool FieldFunctions::meanValue(int nx, int ny, const vector< float*>& fields,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
+  const int fsize = nx * ny;
+  const size_t nFields = fields.size();
+  const bool inAllDefined = allDefined;
+
+  DIUTIL_OPENMP_PARALLEL(fsize, for)
   for (int i = 0; i < fsize; i++) {
     fres[i] = 0;
-  }
-
-  size_t nFields = fields.size();
-  if (allDefined) {
-    size_t j;
-    for (j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
+    int nfields_defined = 0;
+    for (size_t j = 0; j <nFields; j++) {
+      if (calculations::is_defined(inAllDefined, fields[j][i], undef)) {
+        nfields_defined++;
         fres[i] += fields[j][i];
       }
     }
-    for (int i = 0; i < fsize; i++) {
-      fres[i] /= nFields;
+    if (nfields_defined > 0) {
+      fres[i] /= nfields_defined;
+    } else {
+      fres[i] = undef;
+      allDefined = false;
     }
-  } else {
-    float *nfields_defined = new float[fsize];
-    for (int i = 0; i < fsize; i++) {
-      nfields_defined[i] = 0;
-    }
-    size_t j;
-    for (j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        if (fields[j][i] != undef) {
-          nfields_defined[i]++;
-          fres[i] += fields[j][i];
-        }
-      }
-    }
-    for (int i = 0; i < fsize; i++) {
-      if (nfields_defined[i] > 0) {
-        fres[i] /= nfields_defined[i];
-      } else {
-        fres[i] = undef;
-      }
-    }
-    delete[] nfields_defined;
   }
 
   return true;
@@ -5503,52 +5208,30 @@ bool FieldFunctions::stddevValue(int nx, int ny, const vector<float*>& fields,
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
+  const int fsize = nx * ny;
+  const size_t nFields = fields.size();
+  const bool inAllDefined = allDefined;
 
-  size_t nFields = fields.size();
-
-  float *mean = new float[fsize];
-  meanValue(nx,ny,fields,mean,allDefined,undef);
-
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
-    fres[i] = 0;
+    int n = 0; // count defined fields
+    float m = 0, m2 = 0;
+    for (size_t j = 0; j <nFields; j++) {
+      if (calculations::is_defined(inAllDefined, fields[j][i], undef)) {
+        // see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+        const float x = fields[j][i], delta = x - m;
+        n  += 1;
+        m  += delta / n;
+        m2 += delta * (x - m);
+      }
+    }
+    if (n > 0) {
+      fres[i] = sqrt(m2 / n);
+    } else {
+      fres[i] = undef;
+      allDefined = false;
+    }
   }
-
-
-  if (allDefined) {
-    size_t j;
-    for (j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        fres[i] += pow(fields[j][i]-mean[i],2);
-      }
-    }
-    for (int i = 0; i < fsize; i++) {
-      fres[i] = sqrt(fres[i]/nFields);
-    }
-  } else {
-    float *nfields_defined = new float[fsize];
-    for (int i = 0; i < fsize; i++) {
-      nfields_defined[i] = 0;
-    }
-    size_t j;
-    for (j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        if (fields[j][i] != undef) {
-          nfields_defined[i]++;
-          fres[i] += pow(fields[j][i]-mean[i],2);
-        }
-      }
-    }
-    for (int i = 0; i < fsize; i++) {
-      if (nfields_defined[i] > 0 ) {
-        fres[i] = sqrt(fres[i]/nfields_defined[i]);
-      } else {
-        fres[i] = undef;
-      }
-    }
-    delete[] nfields_defined;
-  }
-  delete[] mean;
 
   return true;
 }
@@ -5563,79 +5246,49 @@ bool FieldFunctions::extremeValue(int compute, int nx, int ny, const vector<floa
 #endif
   METLIBS_LOG_INFO(LOGVAL(compute));
   //  compute=1 : max - value
-  //  compute=2 : min - vale
-  //  compute=3 : max -index
+  //  compute=2 : min - value
+  //  compute=3 : max - index
   //  compute=4 : min - index
 
-  const int fsize = nx * ny;
   const size_t nFields = fields.size();
-  float *tmp = new float[fsize];
+  if (nFields == 0)
+    return false;
+  const int fsize = nx * ny;
+  const bool inAllDefined = allDefined;
 
-  // init fres with undef values
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-  for (int i = 0; i < fsize; i++) {
-    fres[i] = undef;
-    tmp[i] = undef;
-  }
-
-  if ( compute == 1 ) { //max value
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (size_t j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        if (fres[i] == undef || (calculations::is_defined(allDefined, fields[j][i], undef) && fres[i] < fields[j][i])){
+  if (compute == 1 || compute == 2) { // max/min value
+    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+    for (int i = 0; i < fsize; i++) {
+      fres[i] = undef;
+      for (size_t j = 0; j <nFields; j++) {
+        if (fres[i] == undef || (calculations::is_defined(inAllDefined, fields[j][i], undef)
+                &&    ((compute == 1 && fres[i] < fields[j][i])
+                    || (compute == 2 && fres[i] > fields[j][i]))))
+        {
           fres[i] = fields[j][i];
         }
       }
+      if (fres[i] == undef)
+        allDefined = false;
     }
-
-  } else if ( compute == 2 ) { //min value
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (size_t j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        if (fres[i] == undef || (calculations::is_defined(allDefined, fields[j][i], undef) && fres[i] > fields[j][i])) {
-          fres[i] = fields[j][i];
-        }
-      }
-    }
-
   } else if ( compute == 3 ) { // max index
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (size_t j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        if (tmp[i] == undef || (calculations::is_defined(allDefined, fields[j][i], undef) && tmp[i] < fields[j][i])) {
-          tmp[i] = fields[j][i];
+    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+    for (int i = 0; i < fsize; i++) {
+      fres[i] = undef;
+      float tmp = undef;
+      for (size_t j = 0; j <nFields; j++) {
+        if (tmp == undef || (calculations::is_defined(inAllDefined, fields[j][i], undef)
+                && ((   compute == 3 && tmp < fields[j][i])
+                    || (compute == 4 && tmp > fields[j][i]))))
+        {
+          tmp = fields[j][i];
           fres[i] = j;
         }
       }
-    }
-
-  } else if ( compute == 4 ) { // min index
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (size_t j = 0; j <nFields; j++) {
-      for (int i = 0; i < fsize; i++) {
-        if (tmp[i] == undef || (calculations::is_defined(allDefined, fields[j][i], undef) && tmp[i] > fields[j][i])) {
-          tmp[i] = fields[j][i];
-          fres[i] = j;
-        }
-      }
+      if (fres[i] == undef)
+        allDefined = false;
     }
   }
-  // cannot use omp parallel if we want to stop at the first undef value
-  for (int i = 0; allDefined && i < fsize; i++)
-    if (fres[i] == undef)
-      allDefined = false;
-
-  delete[] tmp;
 
   return true;
 }
@@ -5657,120 +5310,37 @@ bool FieldFunctions::probability(int compute, int nx, int ny, const vector<float
   //  compute=6 : between - number
 
   const size_t fsize = nx * ny;
-  size_t lsize = limits.size();
-  size_t nFields = fields.size();
+  const size_t lsize = limits.size(), nFields = fields.size();
 
-  //init fres with undef values
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-  for (size_t i = 0; i < fsize; i++) {
-    fres[i] = 0;
+  if ((lsize != 1 && lsize != 2) || (compute < 1 || compute > 6)) {
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
+    for (size_t i = 0; i < fsize; i++)
+      fres[i] = undef;
+    allDefined = false;
+    return false;
   }
 
-  if( allDefined ) {
-    if ( lsize == 1 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t j = 0; j <nFields; j++) {
-        for (size_t i = 0; i < fsize; i++) {
-          if ( fields[j][i] > limits[0]){
-            fres[i] ++;
-          }
-        }
-      }
-    } else if (lsize == 2 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t j = 0; j <nFields; j++) {
-        for (size_t i = 0; i < fsize; i++) {
-          if ( fields[j][i] > limits[0] && fields[j][i] < limits[1] ){
-            fres[i] ++;
-          }
-        }
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  for (size_t i = 0; i < fsize; i++) {
+    fres[i] = 0;
+    int nfields_defined = 0;
+    for (size_t j = 0; j <nFields; j++) {
+      if (calculations::is_defined(allDefined, fields[j][i], undef)) {
+        nfields_defined += 1;
+        if (fields[j][i] > limits[0] && (lsize == 1 || fields[j][i] < limits[1]))
+          fres[i] += 1;
       }
     }
 
-    if ( compute == 2 || compute == 5 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t i = 0; i < fsize; i++) {
-        fres[i] = nFields - fres[i];
-      }
+    if (nfields_defined == 0) {
+      fres[i] = undef;
+      allDefined = false;
+    } else {
+      if (compute == 2 || compute == 5)
+        fres[i] = nfields_defined - fres[i];
+      if (compute < 4)
+        fres[i] /= (nfields_defined/100.0);
     }
-
-    if ( compute < 4 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t i = 0; i < fsize; i++) {
-        fres[i]/=(nFields/100.);
-      }
-    }
-
-  } else {
-    float *nfields_defined = new float[fsize];
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-    for (size_t i = 0; i < fsize; i++) {
-      nfields_defined[i] = 0;
-    }
-
-    if ( lsize == 1 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t j = 0; j <nFields; j++) {
-        for (size_t i = 0; i < fsize; i++) {
-          if ( fields[j][i] != undef ) {
-            nfields_defined[i]++;
-            if (fields[j][i] > limits[0] ){
-              fres[i] ++;
-            }
-          }
-        }
-      }
-    } else if ( lsize == 2 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t j = 0; j <nFields; j++) {
-        for (size_t i = 0; i < fsize; i++) {
-          if ( fields[j][i] != undef ) {
-            nfields_defined[i]++;
-            if ( fields[j][i] > limits[0] && fields[j][i] < limits[1] ){
-              fres[i] ++;
-            }
-          }
-        }
-      }
-    }
-    if ( compute == 2 || compute == 5 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t i = 0; i < fsize; i++) {
-        if (fres[i] != undef) {
-          fres[i] = nfields_defined[i] - fres[i];
-        }
-      }
-    }
-
-    if ( compute < 4 ) {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
-      for (size_t i = 0; i < fsize; i++) {
-        if (fres[i] != undef) {
-          fres[i]/=(nfields_defined[i]/100.);
-        }
-      }
-    }
-    delete[] nfields_defined;
   }
 
   return true;
@@ -5793,25 +5363,21 @@ bool FieldFunctions::percentile(int nx, int ny, const float* field,
   // percentiles can not be calculated close to the border, set values undef
   allDefined = false;
   for (int l = 0; l < range; l++) {
-    for( int i=0;i<nx;i++ ){
-      int index = i+l*nx;
-      fres[index] = undef;
+    for (int i=0; i<nx; i++) {
+      fres[i+l*nx] = undef;
     }
   }
   for (int l = range; l < ny-range; l++) {
-    for( int i=0;i<range;i++ ){
-      int index = i+l*nx;
-      fres[index] = undef;
+    for (int i=0; i<range; i++) {
+      fres[i+l*nx] = undef;
     }
-    for( int i=nx-range;i<nx;i++ ){
-      int index = i+l*nx;
-      fres[index] = undef;
+    for (int i=nx-range; i<nx; i++) {
+      fres[i+l*nx] = undef;
     }
   }
   for (int l = ny-range; l < ny; l++) {
-    for( int i=0;i<nx;i++ ){
-      int index = i+l*nx;
-      fres[index] = undef;
+    for (int i=0; i<nx; i++) {
+      fres[i+l*nx] = undef;
     }
   }
 
@@ -5821,7 +5387,7 @@ bool FieldFunctions::percentile(int nx, int ny, const float* field,
   //loop through all gridpoints with given step
   vector<float> values;
   for (int l = range; l < ny-range; l+=step) {
-    for( int i=range;i<nx-range;i+=step){
+    for (int i=range; i<nx-range; i+=step) {
 
       //sort values
       values.clear();
@@ -5853,7 +5419,6 @@ bool FieldFunctions::percentile(int nx, int ny, const float* field,
 }
 
 
-
 bool FieldFunctions::snow_in_cm(int nx, int ny, const float *snow_water, const float *tk2m, const float *td2m,
     float *snow_cm, bool& allDefined, float undef)
 {
@@ -5880,16 +5445,13 @@ Reference:
 MESAN Mesoskalig analys, SMHI RMK Nr 75, Mars 1997.
    */
 
-
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
 
-  int fsize = nx * ny;
+  const int fsize = nx * ny;
   bool inAllDefined = allDefined;
-#ifdef HAVE_OPENMP
-#pragma omp parallel for shared(allDefined)
-#endif
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, snow_water[i], tk2m[i], td2m[i], undef)) {
       if (snow_water[i] <= 0.) {

@@ -75,6 +75,8 @@ private:
 
   struct posStruct {
     double lat,lon;
+    int radius; //!< radius in km
+    int numPos;
   };
   std::vector<posStruct> positionVector;
 
@@ -88,17 +90,23 @@ private:
   GeoPosLineEdit* edit;
   QListWidget* posList;
   QCheckBox* posButton;
+  QSpinBox* radiusSpin;
   QPushButton* deleteButton;
   QPushButton* deleteAllButton;
   QPushButton* startCalcButton;
+  QSpinBox* numposSpin;
 
 private:
   void update_posList(float lat, float lon);
+  std::string makePosString(const posStruct& pos) const;
+  void clearPlottedTrajectories();
 
 private Q_SLOTS:
   void colourSlot(int);
   void lineWidthSlot(int);
   void lineTypeSlot(int);
+  void numposSlot(int);
+  void radiusSpinChanged(int);
   void posButtonToggled(bool);
   void posListSlot();
   void deleteClicked();
