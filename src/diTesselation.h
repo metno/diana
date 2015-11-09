@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,29 +26,16 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef _tesselation_h_
-#define _tesselation_h_
+
+#ifndef ditesselation_h_
+#define ditesselation_h_
 
 #include <GL/gl.h>
 
 /**
    \brief Interface to the OpenGL tesselation
-
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void beginTesselation();
-void endTesselation();
 void tesselation(GLdouble *gldata, int ncontours, const int *count);
-#if 0
-void optimized_tesselation(GLdouble *gldata, int ncontours, const int *count, int *to_small);
-#endif
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif // ditesselation_h_
