@@ -369,9 +369,7 @@ void DiOpenGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
     }
   }
 
-  beginTesselation();
   tesselation(gldata, npoly, countpos);
-  endTesselation();
 
   delete[] gldata;
   delete[] countpos;
