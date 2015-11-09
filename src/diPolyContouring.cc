@@ -32,6 +32,7 @@
 #include "diUtilities.h"
 
 #include <QPolygonF>
+#include <QString>
 
 #include <boost/make_shared.hpp>
 
@@ -521,9 +522,7 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
   if (points.size() < 10)
     return;
 
-  std::ostringstream o;
-  o << mLevels.value_for_level(li);
-  const std::string lbl = o.str();
+  const QString lbl = QString::number(mLevels.value_for_level(li));
 
   float lbl_w = 0, lbl_h = 0;
   if (not mGL->getTextSize(lbl, lbl_w, lbl_h))
