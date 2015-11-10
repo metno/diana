@@ -711,14 +711,14 @@ void ObjectPlot::drawJoinPoints(DiGLPainter* gl)
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
     gl->Color4f(0,0,0,0.3);
     //draw all points in grey here (if cursor inside bounding box)
-    drawPoints(gl, xy);
+    drawPoints(gl, xy,true);
     gl->Disable(DiGLPainter::gl_BLEND);
   }
   gl->Color4f(0,1,1,0.5);
   const std::vector<XY> xymark = getXYmarkedJoined();
   gl->Color4f(0,1,1,1.0);
   //draw marked points here
-  drawPoints(gl, xymark);
+  drawPoints(gl, xymark,true);
 }
 
 
@@ -744,17 +744,21 @@ void ObjectPlot::drawNodePoints(DiGLPainter* gl)
 }
 
 
-void ObjectPlot::drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw)
+void ObjectPlot::drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw, bool fill)
 {
   gl->LineWidth(2);
   const float deltaw=window_dw*w*0.5;
   unsigned int msize = xydraw.size();
   for (unsigned int i=0; i<msize; i++){
     if (objectIs(wFront) || objectIs(Border)) {
-      gl->fillRect(xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
-          xydraw[i].x() + deltaw, xydraw[i].y() + deltaw);
+      if (fill)
+        gl->fillRect(xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
+            xydraw[i].x() + deltaw, xydraw[i].y() + deltaw);
+      else
+        gl->drawRect(xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
+            xydraw[i].x() + deltaw, xydraw[i].y() + deltaw);
     } else if (objectIs(wArea)){
-      gl->fillCircle(xydraw[i].x(), xydraw[i].y(), deltaw);
+      gl->drawCircle(xydraw[i].x(), xydraw[i].y(), deltaw);
     } else if (objectIs(wSymbol) || objectIs(RegionName)) {
       gl->Begin(DiGLPainter::gl_POLYGON);
       gl->Vertex2f(xydraw[i].x() - deltaw, xydraw[i].y() - deltaw);
