@@ -32,6 +32,7 @@
 #include "diUtilities.h"
 
 #include <QPolygonF>
+#include <QString>
 
 #include <boost/make_shared.hpp>
 
@@ -340,7 +341,8 @@ void DianaLines::paint_polygons()
   const int ncolours = po.palettecolours.size();
   const int ncolours_cold = po.palettecolours_cold.size();
   const bool no_fill = (mPaintMode & FILL) == 0;
-  const bool skip_level_0 = po.zeroLine<=0 || !po.linevalues.empty() || !po.loglinevalues.empty();
+  const bool skip_level_0 = po.zeroLine==0 || !po.linevalues.empty() || !po.loglinevalues.empty();
+  const bool skip_level_1 = po.zeroLine==0 && po.linevalues.empty() && po.loglinevalues.empty();
   const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || po.undefMasking != 1;
   const contouring::level_t level_min = mLevels.level_for_value(po.minvalue),
       level_max = mLevels.level_for_value(po.maxvalue);
@@ -356,7 +358,8 @@ void DianaLines::paint_polygons()
         continue;
       setFillColour(mPlotOptions.undefColour);
     } else {
-      if (no_fill || (skip_min && li < level_min) || (skip_max && li >= level_max) || (skip_level_0 &&  li == 0))
+      if (no_fill || (skip_min && li < level_min) || (skip_max && li >= level_max)
+          || (skip_level_0 && li == 0) || (skip_level_1 && li == 1))
         continue;
       if (li <= 0 and ncolours_cold) {
         const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
@@ -378,7 +381,7 @@ void DianaLines::paint_lines()
   const PlotOptions& po = mPlotOptions;
   const bool no_lines = (mPaintMode & LINES_LABELS) == 0;
   const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || !po.undefMasking;
-  const bool skip_level_0 = po.zeroLine<=0 || !po.linevalues.empty() || !po.loglinevalues.empty();
+  const bool skip_level_0 = po.zeroLine==0 && !po.linevalues.empty() && !po.loglinevalues.empty();
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
     const contouring::level_t li = it->first;
     if (li == DianaLevels::UNDEF_LEVEL) {
@@ -519,9 +522,7 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
   if (points.size() < 10)
     return;
 
-  std::ostringstream o;
-  o << mLevels.value_for_level(li);
-  const std::string lbl = o.str();
+  const QString lbl = QString::number(mLevels.value_for_level(li));
 
   float lbl_w = 0, lbl_h = 0;
   if (not mGL->getTextSize(lbl, lbl_w, lbl_h))
