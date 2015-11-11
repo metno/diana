@@ -45,7 +45,7 @@ void DiOpenGLCanvas::initializeFP()
 
 void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vpw) << LOGVAL(glw) << LOGVAL(glw));
+  METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vph) << LOGVAL(glw) << LOGVAL(glh));
   fp()->setVpSize(vpw, vph);
   fp()->setGlSize(glw, glh);
 }
