@@ -211,6 +211,7 @@ void QuickEditOptions::updateList()
       keynum= n-1;
     }
     list->item(keynum)->setSelected(true);
+    listClicked(list->item(keynum));
   }
 }
 
