@@ -169,6 +169,8 @@ diutil::Rect_v RasterPlot::checkVisible()
     diutil::Rect& r = rects.back();
     GridConverter::findGridLimits(mAreaScaled, mapRect, center_on_gridpoint,
         mPositionsXY.get(), r.x1, r.x2, r.y1, r.y2);
+    if (r.x1 >= r.x2 || r.y1 >= r.y2)
+      return diutil::Rect_v();
     return rects;
 #else
     // new version selecting a list of rectangles
