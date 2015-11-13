@@ -508,7 +508,7 @@ bool convertFromOldFormat(QByteArray &data, QString &error)
         return false;
       }
 
-      const QSharedPointer<DrawingItemBase> item(createItemFromOldProperties(props, error));
+      DrawingItemBase *item = createItemFromOldProperties(props, error);
       if (!error.isEmpty()) {
         error = QString("failed to create tmp item from properties in old format: %1").arg(error);
         return false;
@@ -516,6 +516,7 @@ bool convertFromOldFormat(QByteArray &data, QString &error)
 
       // append structure of this item:
       itemsFrag.appendChild(item->toKML());
+      delete item;
 
       pos += (pos2 + rx.matchedLength());
     } else {
