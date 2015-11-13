@@ -30,6 +30,7 @@
 #ifndef PROPERTIES_H
 #define PROPERTIES_H
 
+#include <QDateTime>
 #include <QDialog>
 #include <QHash>
 #include <QLineEdit>
@@ -40,6 +41,7 @@
 
 class QCheckBox;
 class QComboBox;
+class QDateTimeEdit;
 class QDialogButtonBox;
 class QDoubleSpinBox;
 class QFormLayout;
@@ -77,7 +79,7 @@ private:
 
   QFormLayout *formLayout_;
   QList<DrawingItemBase *> items_;
-  QHash<QString, EditProperty *> properties_;
+  QHash<QString, EditProperty *> editors_;
   QSet<QString> editing_;
   QDialogButtonBox *buttonBox;
 };
@@ -133,7 +135,7 @@ public:
   virtual void reset();
 
 private slots:
-  void updateValue(float value);
+  void updateValue(double value);
 
 private:
   float min, max;
@@ -154,6 +156,22 @@ private slots:
 
 private:
   QCheckBox *editor;
+};
+
+class EP_Time : public EditProperty
+{
+  Q_OBJECT
+
+public:
+  EP_Time(const QString &labelText) : EditProperty(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(const QDateTime &value);
+
+private:
+  QDateTimeEdit *editor;
 };
 
 class EP_Choice : public EditProperty

@@ -39,7 +39,6 @@
 #include <EditItems/itemgroup.h>
 #include <EditItems/kml.h>
 #include <EditItems/properties.h>
-#include <EditItems/style.h>
 #include <EditItems/toolbar.h>
 #include <qtMainWindow.h>
 
@@ -213,6 +212,10 @@ bool EditItemManager::parseSetup()
     if (items.contains("show-property-sections-editing")) {
       QStringList values = items.value("show-property-sections-editing").split(",");
       Properties::PropertiesEditor::instance()->setPropertyRules("show-editing", values);
+    }
+    if (items.contains("common-properties")) {
+      QStringList values = items.value("common-properties").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("common-properties", values);
     }
     if (items.contains("show-tooltips-drawing")) {
       QStringList values = items.value("show-tooltips-drawing").split(",");

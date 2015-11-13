@@ -351,6 +351,7 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
   QList<DrawingItemBase *> items = KML::createFromFile(name, fileName, error);
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to open file: " << fileName.toStdString());
+    METLIBS_LOG_WARN("Error: " << error.toStdString());
     return error;
   }
 

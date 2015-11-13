@@ -37,6 +37,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDateTimeEdit>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QPushButton>
@@ -121,7 +122,7 @@ QWidget *EP_Float::createEditor(const QVariant &value)
   editor = new QDoubleSpinBox();
   editor->setRange(min, max);
   editor->setValue(value.toDouble());
-  connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
+  connect(editor, SIGNAL(valueChanged(double)), SLOT(updateValue(double)));
   oldValue = value;
   newValue = value;
   return editor;
@@ -133,7 +134,7 @@ void EP_Float::reset()
   updateValue(oldValue.toDouble());
 }
 
-void EP_Float::updateValue(float value)
+void EP_Float::updateValue(double value)
 {
   newValue = value;
   emit updated();
@@ -158,6 +159,30 @@ void EP_Boolean::reset()
 void EP_Boolean::updateValue(int value)
 {
   newValue = (value == Qt::Checked);
+  emit updated();
+}
+
+QWidget *EP_Time::createEditor(const QVariant &value)
+{
+  editor = new QDateTimeEdit();
+  QDateTime dateTime = QDateTime::fromString(value.toString(), "yyyy-MM-ddThh:mm:ssZ");
+  editor->setDateTime(dateTime);
+  connect(editor, SIGNAL(dateTimeChanged(QDateTime)), SLOT(updateValue(QDateTime)));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+void EP_Time::reset()
+{
+  QDateTime dateTime = QDateTime::fromString(oldValue.toString(), "yyyy-MM-ddThh:mm:ssZ");
+  editor->setDateTime(dateTime);
+  updateValue(dateTime);
+}
+
+void EP_Time::updateValue(const QDateTime &value)
+{
+  newValue = value.toString(Qt::ISODate) + "Z";
   emit updated();
 }
 
@@ -255,6 +280,7 @@ PropertiesEditor::PropertiesEditor()
   QVBoxLayout *layout = new QVBoxLayout(this);
   formLayout_ = new QFormLayout();
   layout->addLayout(formLayout_);
+  layout->addStretch();
 
   buttonBox = new QDialogButtonBox(QDialogButtonBox::Reset | QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
   connect(buttonBox->button(QDialogButtonBox::Reset), SIGNAL(clicked()), this, SLOT(reset()));
@@ -264,6 +290,9 @@ PropertiesEditor::PropertiesEditor()
 
   // Define editors for supported properties.
   registerProperty("met:info:speed", new EP_Int(tr("Wind speed (knots)"), 0, 500));
+  registerProperty("TimeSpan:begin", new EP_Time(tr("Beginning")));
+  registerProperty("TimeSpan:end", new EP_Time(tr("Ending")));
+  registerProperty("time", new EP_Time(tr("Time")));
 
   // Define editors for supported style properties.
   registerProperty("style:linecolour", new EP_Colour(tr("Line colour")));
@@ -289,7 +318,7 @@ PropertiesEditor::PropertiesEditor()
   registerProperty("style:textcolour", new EP_Colour(tr("Text colour")));
   registerProperty("style:textalpha", new EP_Int(tr("Text alpha"), 0, 255));
   registerProperty("style:cornersegments", new EP_Int(tr("Corner segments"), 0, 8));
-  registerProperty("style:cornerradius", new EP_Float(tr("Corner radius"), 0, 99));
+  registerProperty("style:cornerradius", new EP_Float(tr("Corner radius"), 0, 20));
   registerProperty("style:fontsize", new EP_Float(tr("Font size"), 1, 99));
 }
 
@@ -304,7 +333,7 @@ PropertiesEditor *PropertiesEditor::instance_ = 0;
 
 void PropertiesEditor::registerProperty(const QString &name, EditProperty *property)
 {
-  properties_[name] = property;
+  editors_[name] = property;
   connect(property, SIGNAL(updated()), SLOT(updateButtons()));
 }
 
@@ -318,18 +347,21 @@ QMap<QString, QVariant> PropertiesEditor::commonProperties(const QList<DrawingIt
 
   foreach (DrawingItemBase *item, items) {
 
-    // Each item's style has a list of properties that are relevant.
+    // Each item's style has a list of properties that are relevant to it.
     QVariantMap style = DrawingStyleManager::instance()->getStyle(item);
-    QStringList editable = style.value("properties").toString().split(",");
-    // Obtain the keys of the properties defined in the item itself.
-    QStringList keys = item->propertiesRef().keys();
+    QStringList editable = style.value("properties").toStringList();
 
-    // Collect the properties from this item and those defined as editable
-    // in its style.
+    // Collect the properties defined as editable in its style, using default
+    // values if not defined for the item.
     QMap<QString, QVariant> props;
-    foreach (const QString &key, keys + editable) {
-      if (!props.contains(key))
-        props[key] = Drawing(item)->property(key);
+    foreach (const QString &key, editable)
+      props[key] = Drawing(item)->property(key);
+
+    // Collect the common properties that all items can have.
+    foreach (const QString &key, rules_.value("common-properties")) {
+      QVariant value = Drawing(item)->property(key);
+      if (value.isValid())
+        props[key] = value;
     }
 
     // Keep all the properties for the first item but only common ones for
@@ -347,18 +379,15 @@ QMap<QString, QVariant> PropertiesEditor::commonProperties(const QList<DrawingIt
   return common;
 }
 
-// Opens a modal dialog to show the properties of \a item.
-// The properties may be modified if \a readOnly is false.
-// Returns true iff the properties were changed.
+/**
+ * Opens a dialog to show the properties of \a item.
+ * The properties may be modified if \a readOnly is false (the default).
+ * The dialog is modal if \a modal is true (the default).
+ */
 void PropertiesEditor::edit(const QList<DrawingItemBase *> &items, bool readOnly, bool modal)
 {
-  if (items.isEmpty())
-    return;
-
   // Record the items so that we can manipulate them in slots.
   items_ = items;
-
-  DrawingItemBase *item = *(items.begin());
 
   // Clear old content.
   while (!formLayout_->isEmpty()) {
@@ -377,13 +406,22 @@ void PropertiesEditor::edit(const QList<DrawingItemBase *> &items, bool readOnly
 
   foreach (const QString &name, common.keys()) {
     // Create an editor for each common style property.
-    if (properties_.contains(name)) {
-      EditProperty *prop = properties_.value(name);
+    if (editors_.contains(name)) {
+      EditProperty *prop = editors_.value(name);
       editing_.insert(name);
 
       QWidget *editor = prop->createEditor(common.value(name));
       formLayout_->addRow(prop->labelText, editor);
     }
+  }
+
+  if (editing_.isEmpty()) {
+    formLayout_->addRow(new QLabel(tr("No editable properties")));
+    buttonBox->button(QDialogButtonBox::Reset)->hide();
+    buttonBox->button(QDialogButtonBox::Ok)->hide();
+  } else {
+    buttonBox->button(QDialogButtonBox::Reset)->show();
+    buttonBox->button(QDialogButtonBox::Ok)->show();
   }
 
   // Open the dialog.
@@ -412,7 +450,7 @@ void PropertiesEditor::reset()
   // Reset the values of all the registered properties for all the items
   // with those properties.
   foreach (const QString &name, editing_) {
-    EditProperty *prop = properties_.value(name);
+    EditProperty *prop = editors_.value(name);
     prop->reset();
 
     foreach (DrawingItemBase *item, items_) {
@@ -430,7 +468,7 @@ void PropertiesEditor::updateButtons()
   bool changed = false;
 
   foreach (const QString &name, editing_) {
-    EditProperty *prop = properties_.value(name);
+    EditProperty *prop = editors_.value(name);
 
     if (prop->hasChanged())
       changed = true;
