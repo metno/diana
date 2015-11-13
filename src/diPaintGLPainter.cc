@@ -288,6 +288,7 @@ QImage DiPaintGLCanvas::convertToGLFormat(const QImage& i)
 
 DiPaintGLPainter::DiPaintGLPainter(DiPaintGLCanvas* canvas)
   : DiGLPainter(canvas)
+  , HIGH_QUALITY_BUT_SLOW(true)
   , painter(0)
 {
   makeCurrent();
@@ -1638,7 +1639,6 @@ inline size_t index(size_t w, size_t x, size_t y)
 void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
     const diutil::Rect& part)
 {
-  const bool HIGH_QUALITY_BUT_SLOW = true;
   if (HIGH_QUALITY_BUT_SLOW) {
     painter->setTransform(QTransform());
     QPolygonF poly;
