@@ -42,6 +42,12 @@
 #define MILOGGER_CATEGORY "diField.GridConverter"
 #include "miLogger/miLogging.h"
 
+#if 0
+#define IFDEBUG(x) x
+#else
+#define IFDEBUG(x) do { } while (false)
+#endif
+
 static const float undef = +1.e+35;
 
 MapFields::MapFields()
@@ -235,8 +241,10 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
     bool gridboxes, const float* x, const float* y, size_t xy_offset,
     int& ix1, int& ix2, int& iy1, int& iy2)
 {
+  IFDEBUG(METLIBS_LOG_SCOPE(LOGVAL(area) << LOGVAL(maprect) << LOGVAL(gridboxes)));
   const int gdxy = gridboxes ? 1 : 0;
   const int nx = area.nx + gdxy, ny = area.ny + gdxy;
+  IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny)));
 
   // find needed (field) area to cover map area
 
@@ -249,6 +257,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
         numinside++;
     }
   }
+  IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(numinside)));
   if (numinside >= 3) {
     ix1 = 0;
     iy1 = 0;
@@ -263,23 +272,28 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   iy2 = -1;
 
   for (int iy = 0; iy < ny; iy++) {
-    const int idx0 = xy_offset*(iy *nx);
-    bool was_inside = maprect.isinside(x[idx0], y[idx0]);
+    int idx = xy_offset*iy*nx;
+    bool was_inside = maprect.isinside(x[idx], y[idx]);
     int left = was_inside ? 0 : -1;
     int right = -1;
     if (was_inside)
       vcross::util::minimaximize(iy1, iy2, iy);
+    IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(iy) << LOGVAL(was_inside)
+            << LOGVAL(left) << LOGVAL(right) << LOGVAL(iy1) << LOGVAL(iy2)));
 
     for (int ix = 1; ix < nx; ix++) {
-      const int idx = xy_offset*(iy * nx + ix);
+      idx += xy_offset;
       const bool inside = maprect.isinside(x[idx], y[idx]);
       if (inside) {
         vcross::util::minimaximize(iy1, iy2, iy);
         if (left == -1)
           left = ix;
+        IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix) << LOGVAL(left) << LOGVAL(iy1) << LOGVAL(iy2)));
       }
-      if (was_inside && !inside)
+      if (was_inside && !inside) {
         right = ix - 1;
+        IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix) << LOGVAL(right)));
+      }
 
       was_inside = inside;
     }
@@ -292,15 +306,21 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
       left = 0;                     // the whole span coincides with the map area
       right = nx - 1;
     }
+    IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(left) << LOGVAL(right)));
 
     // Expand to the left.
-    if (left != -1)
+    if (left != -1) {
       vcross::util::minimize(ix1, left);
+      IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix1)));
+    }
     // Expand to the right.
-    if (right != -1)
+    if (right != -1) {
       vcross::util::maximize(ix2, right);
+      IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix2)));
+    }
   }
 
+  IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix1) << LOGVAL(ix2) << LOGVAL(iy1) << LOGVAL(iy2)));
   ix1-=2;
   ix2+=2;
   iy1-=2;
