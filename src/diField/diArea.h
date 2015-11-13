@@ -103,4 +103,6 @@ public:
   float resolutionY;
 };
 
+std::ostream& operator<<(std::ostream& output, const GridArea& ga);
+
 #endif

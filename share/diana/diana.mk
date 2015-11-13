@@ -227,13 +227,6 @@ dist_patterns_DATA= share/diana/images/patterns/vertical.xpm \
 	share/diana/images/patterns/diagthick_cloud.xpm \
 	share/diana/images/patterns/circles.xpm 
 
-avatarsdir= $(datarootdir)/diana/@PVERSION@/images/avatars
-dist_avatars_DATA= share/diana/images/avatars/avatar_root.png \
-	share/diana/images/avatars/avatar_lisbethb.png \
-	share/diana/images/avatars/avatar_juergens.png \
-	share/diana/images/avatars/avatar_bjornkl.png \
-	share/diana/images/avatars/avatar_audunc.png
-
 divdir= $(datarootdir)/diana/@PVERSION@/
 dist_div_DATA= share/diana/UK_lyn.header \
 	share/diana/UALF_diana.header \
@@ -241,8 +234,6 @@ dist_div_DATA= share/diana/UK_lyn.header \
 	share/diana/synpltab.dat \
 	share/diana/metpltab.dat \
 	share/diana/printer.def \
-	share/diana/priList.txt \
-	share/diana/obsflag.html \
 	share/diana/amdar.stations \
 	share/diana/ogckml22.xsd \
 	share/diana/atom-author-link.xsd \

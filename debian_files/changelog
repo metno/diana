@@ -1,3 +1,15 @@
+diana (3.40.0~a1-1) unstable; urgency=low
+
+   * started next version
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 12 Nov 2015 09:00:09 +0100
+
+diana (3.39.2-1) unstable; urgency=low
+
+   * bugfix + cleanup OpenGL tesselation 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Nov 2015 16:54:24 +0100
+
 diana (3.39.1-1) unstable; urgency=low
 
   * main_gui: bad use of command line options or bad setupfile -> return 0

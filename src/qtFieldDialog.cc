@@ -1230,9 +1230,8 @@ void FieldDialog::fieldGRboxActivated(int index)
 
     lastFieldGroupName = vfgi[indexFGR].groupName;
 
-    int nfield = vfgi[indexFGR].fieldNames.size();
     for (size_t i=0; i<vfgi[indexFGR].fieldNames.size();i++) {
-      fieldbox->addItem(QString(vfgi[indexFGR].fieldNames[i].c_str()));
+      fieldbox->addItem(QString::fromStdString(vfgi[indexFGR].fieldNames[i]));
     }
 
   }
@@ -1475,7 +1474,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     return;
 
   int indexFGR = fieldGRbox->currentIndex();
-  int indexF = fieldbox->row(item);
 
   if (item->isSelected() ) {
 
@@ -2243,7 +2241,7 @@ void FieldDialog::setDefaultFieldOptions()
   shadingcoldSpinBox->setValue(0);
   patternComboBox->setCurrentIndex(0);
   patternColourBox->setCurrentIndex(0);
-  alphaSpinBox->setValue(0);
+  alphaSpinBox->setValue(255);
 
   lineWidthCbox->setCurrentIndex(0);
   labelSizeSpinBox->setValue(0);

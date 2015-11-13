@@ -91,7 +91,7 @@ private:
   //translate norwegian->english in old files
   static std::map<std::string,std::string> editTranslations;
 
-  void drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw);
+  void drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw,bool fill=false);
   bool isInsideBox(float x, float y,float x1,float y1,float x2,float y2);
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
