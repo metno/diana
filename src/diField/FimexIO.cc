@@ -113,21 +113,24 @@ size_t FimexIO::findTimeIndex(const gridinventory::Taxis& taxis, const miutil::m
 size_t FimexIO::findZIndex(const gridinventory::Zaxis& zaxis, const std::string& zlevel)
 {
   size_t zaxis_index = 0;
+
+  // if zaxis has just one value, do not even check
+  if ( zaxis.stringvalues.size() == 1 )
+    return zaxis_index;
+
   // find the index to the correct Z value
-  if (not (zlevel.empty() and zaxis.stringvalues.size() == 1)) {
-    if (!zaxis.positive) {
-      vector<std::string>::const_iterator zitr = zaxis.stringvalues.begin();
-      for (; zitr != zaxis.stringvalues.end(); ++zitr, zaxis_index++) {
-        if (*zitr == zlevel) {
-          break;
-        }
+  if (!zaxis.positive) {
+    vector<std::string>::const_iterator zitr = zaxis.stringvalues.begin();
+    for (; zitr != zaxis.stringvalues.end(); ++zitr, zaxis_index++) {
+      if (*zitr == zlevel) {
+        break;
       }
-    } else {
-      vector<std::string>::const_reverse_iterator zitr = zaxis.stringvalues.rbegin();
-      for (; zitr != zaxis.stringvalues.rend(); ++zitr, zaxis_index++) {
-        if (*zitr == zlevel) {
-          break;
-        }
+    }
+  } else {
+    vector<std::string>::const_reverse_iterator zitr = zaxis.stringvalues.rbegin();
+    for (; zitr != zaxis.stringvalues.rend(); ++zitr, zaxis_index++) {
+      if (*zitr == zlevel) {
+        break;
       }
     }
   }
