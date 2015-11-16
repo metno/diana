@@ -171,6 +171,7 @@ signals:
   void saveRequested();
 
 private:
+  void openContextMenu(const QPoint &pos, const QPoint &globalPos);
   DrawingItemBase *hitItem_; // current hit item
   QList<DrawingItemBase *> hitItems_;
   QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes_;
