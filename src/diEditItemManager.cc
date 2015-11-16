@@ -643,6 +643,13 @@ void EditItemManager::keyPress(QKeyEvent *event)
     return;
   }
 
+  if (event->key() == Qt::Key_Menu) {
+    QPoint globalPos = QCursor::pos();
+    openContextMenu(QPoint(-1, -1), globalPos);
+    event->accept();
+    return;
+  }
+
   // Process each of the selected items and any currently hovered item.
   bool handledHover = false;
   DrawingItemBase *hoverItem = hitItems_.isEmpty() ? 0 : hitItems_.first();
@@ -1438,126 +1445,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     const QSet<DrawingItemBase *> origSelItems = selectedItems().toSet();
 
     if ((me2.button() == Qt::RightButton) && !hasIncompleteItem()) {
-      // open a context menu
-
-      // get actions contributed by a hit item (if any)
-      QList<DrawingItemBase *> missedItems;
-      const QList<DrawingItemBase *> hitItems = findHitItems(me2.pos(), hitItemTypes_, missedItems);
-      DrawingItemBase *hitItem = 0; // consider only this item to be hit
-      if (!hitItems.empty())
-        hitItem = hitItems.first();
-
-      QList<QAction *> hitItemActions;
-      if (hitItem) {
-        selectItem(hitItem);
-        emit repaintNeeded();
-        hitItemActions = Editing(hitItem)->actions(me2.pos());
-      }
-
-      // populate the menu
-      QSet<DrawingItemBase::Category> selectedCategories;
-      QList<DrawingItemBase *> selItems = selectedItems();
-      foreach (const DrawingItemBase *item, selItems)
-        selectedCategories.insert(item->category());
-
-      QMenu contextMenu;
-      contextMenu.addAction(selectAllAction_);
-      contextMenu.addSeparator();
-      contextMenu.addAction(copyAction_);
-      contextMenu.addAction(cutAction_);
-      contextMenu.addAction(pasteAction_);
-      pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
-
-      contextMenu.addSeparator();
-      contextMenu.addAction(raiseAction_);
-      contextMenu.addAction(lowerAction_);
-
-      contextMenu.addSeparator();
-      contextMenu.addAction(joinAction_);
-      joinAction_->setEnabled(selItems.size() >= 2);
-      contextMenu.addAction(unjoinAction_);
-      unjoinAction_->setEnabled(false);
-      foreach (const DrawingItemBase *item, selItems) {
-        if (item->joinId() && (item->joinCount() > 0)) {
-          unjoinAction_->setEnabled(true);
-          break;
-        }
-      }
-
-      contextMenu.addSeparator();
-      contextMenu.addAction(toggleReversedAction_);
-      toggleReversedAction_->setEnabled(selItems.size() >= 1);
-
-      contextMenu.addSeparator();
-      contextMenu.addAction(editPropertiesAction_);
-      bool canEditProperties = !selItems.isEmpty();
-      editPropertiesAction_->setEnabled(canEditProperties);
-
-      QMenu styleTypeMenu;
-      styleTypeMenu.setTitle("Convert");
-      // Disable conversion if only composite items are selected.
-      styleTypeMenu.setEnabled((selectedCategories.size() == 1) && !selectedCategories.contains(DrawingItemBase::Composite));
-
-      if (styleTypeMenu.isEnabled()) {
-
-        // Obtain a list of style names for the first category of the selected items.
-        QStringList styleTypes = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
-
-        // Filter out styles from different sections - this only makes sense
-        // for symbols at the moment.
-        QSet<QString> sections;
-        foreach (DrawingItemBase *item, selItems) {
-          QStringList pieces = item->property("style:type").toString().split("|");
-          if (pieces.size() != 1)
-            sections.insert(pieces.first());
-        }
-        QStringList filteredTypes;
-        foreach (QString styleType, styleTypes) {
-          QStringList pieces = styleType.split("|");
-          if (pieces.size() == 1)
-            filteredTypes.append(styleType);
-          else if (sections.contains(pieces.first()))
-            filteredTypes.append(styleType);
-        }
-
-        qSort(filteredTypes);
-
-        // Add each of the available style types to the menu.
-        foreach (QString styleType, filteredTypes) {
-          QString styleName = styleType.split("|").last();
-          QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
-          QVariantList styleItems;
-          foreach (DrawingItemBase *styleItem, selItems)
-            styleItems.append(QVariant::fromValue(styleItem));
-
-          // Pack the selected items and the style type for this menu entry
-          // into a list to be sent via the triggered signal if this entry
-          // is selected.
-          QVariantList data;
-          data.append(QVariant(styleItems));
-          data.append(styleType);
-          action->setData(data);
-          connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
-          styleTypeMenu.addAction(action);
-        }
-      }
-      contextMenu.addMenu(&styleTypeMenu);
-
-      contextMenu.addSeparator();
-      if (!hitItemActions.isEmpty()) {
-        contextMenu.addSeparator();
-        foreach (QAction *action, hitItemActions)
-          contextMenu.addAction(action);
-      }
-
-      // execute the menu (assuming all its actions are connected to slots)
-      if (!contextMenu.isEmpty())
-        contextMenu.exec(me2.globalPos());
-
-      if (!hasIncompleteItem())
-        emitItemChanged();
-
-      pushUndoCommands();
+      openContextMenu(me2.pos(), me2.globalPos());
 
     } else {
 
@@ -1627,6 +1515,133 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     res.action = canUndo() ? objects_changed : no_action;
   } else
     res.action = browsing; // allow the main window to update the coordinates label
+}
+
+void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos)
+{
+  // Get actions contributed by a hit item (if any) if the position is a
+  // valid one in widget coordinates.
+  QList<DrawingItemBase *> missedItems;
+  QList<DrawingItemBase *> hitItems;
+  DrawingItemBase *hitItem = 0; // consider only this item to be hit
+
+  if (pos.x() >= 0 && pos.y() >= 0) {
+    hitItems = findHitItems(pos, hitItemTypes_, missedItems);
+    if (!hitItems.empty())
+      hitItem = hitItems.first();
+  }
+
+  QList<QAction *> hitItemActions;
+  if (hitItem) {
+    selectItem(hitItem);
+    emit repaintNeeded();
+    hitItemActions = Editing(hitItem)->actions(pos);
+  }
+
+  // populate the menu
+  QSet<DrawingItemBase::Category> selectedCategories;
+  QList<DrawingItemBase *> selItems = selectedItems();
+  foreach (const DrawingItemBase *item, selItems)
+    selectedCategories.insert(item->category());
+
+  QMenu contextMenu;
+  contextMenu.addAction(selectAllAction_);
+  contextMenu.addSeparator();
+  contextMenu.addAction(copyAction_);
+  contextMenu.addAction(cutAction_);
+  contextMenu.addAction(pasteAction_);
+  pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+
+  contextMenu.addSeparator();
+  contextMenu.addAction(raiseAction_);
+  contextMenu.addAction(lowerAction_);
+
+  contextMenu.addSeparator();
+  contextMenu.addAction(joinAction_);
+  joinAction_->setEnabled(selItems.size() >= 2);
+  contextMenu.addAction(unjoinAction_);
+  unjoinAction_->setEnabled(false);
+  foreach (const DrawingItemBase *item, selItems) {
+    if (item->joinId() && (item->joinCount() > 0)) {
+      unjoinAction_->setEnabled(true);
+      break;
+    }
+  }
+
+  contextMenu.addSeparator();
+  contextMenu.addAction(toggleReversedAction_);
+  toggleReversedAction_->setEnabled(selItems.size() >= 1);
+
+  contextMenu.addSeparator();
+  contextMenu.addAction(editPropertiesAction_);
+  bool canEditProperties = !selItems.isEmpty();
+  editPropertiesAction_->setEnabled(canEditProperties);
+
+  QMenu styleTypeMenu;
+  styleTypeMenu.setTitle("Convert");
+  // Disable conversion if only composite items are selected.
+  styleTypeMenu.setEnabled((selectedCategories.size() == 1) && !selectedCategories.contains(DrawingItemBase::Composite));
+
+  if (styleTypeMenu.isEnabled()) {
+
+    // Obtain a list of style names for the first category of the selected items.
+    QStringList styleTypes = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
+
+    // Filter out styles from different sections - this only makes sense
+    // for symbols at the moment.
+    QSet<QString> sections;
+    foreach (DrawingItemBase *item, selItems) {
+      QStringList pieces = item->property("style:type").toString().split("|");
+      if (pieces.size() != 1)
+        sections.insert(pieces.first());
+    }
+    QStringList filteredTypes;
+    foreach (QString styleType, styleTypes) {
+      QStringList pieces = styleType.split("|");
+      if (pieces.size() == 1)
+        filteredTypes.append(styleType);
+      else if (sections.contains(pieces.first()))
+        filteredTypes.append(styleType);
+    }
+
+    qSort(filteredTypes);
+
+    // Add each of the available style types to the menu.
+    foreach (QString styleType, filteredTypes) {
+      QString styleName = styleType.split("|").last();
+      QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
+      QVariantList styleItems;
+      foreach (DrawingItemBase *styleItem, selItems)
+        styleItems.append(QVariant::fromValue(styleItem));
+
+      // Pack the selected items and the style type for this menu entry
+      // into a list to be sent via the triggered signal if this entry
+      // is selected.
+      QVariantList data;
+      data.append(QVariant(styleItems));
+      data.append(styleType);
+      action->setData(data);
+      connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
+      styleTypeMenu.addAction(action);
+    }
+  }
+  contextMenu.addMenu(&styleTypeMenu);
+
+  contextMenu.addSeparator();
+  if (!hitItemActions.isEmpty()) {
+    contextMenu.addSeparator();
+    foreach (QAction *action, hitItemActions)
+      contextMenu.addAction(action);
+  }
+
+  // execute the menu (assuming all its actions are connected to slots)
+  if (!contextMenu.isEmpty())
+    contextMenu.exec(globalPos);
+
+  if (!hasIncompleteItem())
+    emitItemChanged();
+
+  pushUndoCommands();
 }
 
 void EditItemManager::getViewportDisplacement(int &w, int &h, float &dx, float &dy)
