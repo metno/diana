@@ -3778,12 +3778,13 @@ void FieldDialog::changeModel()
             !(vfgi[j].fieldNames[k] == selectedFields[i].fieldName )) {
           k++;
         }
-        if (k < m ) {
+        // Check if parameters have same vcoord, ignore if no. levels == 0,1
+        if (k < m && ( (vfgi[j].fields[vfgi[j].fieldNames[k]].vcoord == selectedFields[i].zaxis )
+            || selectedFields[i].levelOptions.size() < 2) ) {
           gbest = j;
           fbest = k;
           break;
         }
-
       }
       if ( gbest > -1 ) {
         if (indexFGR == gbest) {
