@@ -91,7 +91,6 @@ ComplexPressureText::ComplexPressureText( QWidget* parent,
   }
 
   QPalette *tPalette = new QPalette();
-  std::cerr << "Tool: " << tool << std::endl;
   if (miutil::contains(tool,TOOL_DECREASING)) {
     preText = "F";
     tPalette->setColor(QPalette::Text,Qt::red);

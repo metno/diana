@@ -251,7 +251,6 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
   vector <string> pids =
       m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
-  cerr <<"pids:"<<n<<endl;
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
   if ( n > 0 ) {
     tmp+=pids[n-1];
