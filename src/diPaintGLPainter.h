@@ -223,6 +223,8 @@ public:
   GLuint bindTexture(const QImage &image);
   void drawTexture(const QPointF &pos, GLuint texture);
 
+  bool HIGH_QUALITY_BUT_SLOW;
+
   QPainter *painter;
 
   QStack<GLenum> stack;

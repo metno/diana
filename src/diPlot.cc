@@ -108,6 +108,8 @@ const Colour& StaticPlot::notBackgroundColour(const Colour& c) const
 
 void StaticPlot::setMapArea(const Area& a)
 {
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_INFO(LOGVAL(a));
   if (!a.P().isDefined())
     return;
 
