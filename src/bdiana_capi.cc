@@ -2660,9 +2660,6 @@ static int parseAndProcess(istream &is)
 {
   ensureNewContext();
   
-  // reset time (before next wms request)
-  fixedtime = miTime();
-
   // unpack loops, make lists, merge lines etc.
   int res = prepareInput(is);
   if (res != 0)
@@ -2893,15 +2890,18 @@ static int parseAndProcess(istream &is)
  */
 int diana_parseAndProcessString(const char* string)
 {
-    stringstream ss;
-    ss << string;
-    METLIBS_LOG_INFO("start processing");
-    miTime undef;
-    ptime=undef;
-    int retVal = parseAndProcess(ss);
-    if (retVal == 0) return DIANA_OK;
+  // reset time (before next wms request)
+  fixedtime = miTime();
 
-    return DIANA_ERROR;
+  stringstream ss;
+  ss << string;
+  METLIBS_LOG_INFO("start processing");
+  miTime undef;
+  ptime=undef;
+  int retVal = parseAndProcess(ss);
+  if (retVal == 0) return DIANA_OK;
+
+  return DIANA_ERROR;
 }
 
 
