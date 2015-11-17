@@ -1,3 +1,17 @@
+diana (3.39.3-1) unstable; urgency=low
+
+  * RasterPlot: do not use invalid rects from GridConverter
+  * PaintGL: do not use HIGH_QUALITY_BUT_SLOW in PaintGL widge
+  * contour2: shade plot more similar to contour
+  * INFO for StaticPlot::setMapArea
+  * OpenGL: print INFO for vendor, version, renderer
+  * contour2: try again to fix zeroline logic
+  * Bugfix: field_compute and changeModel
+  * ObsBufr: Bugfix - crashed while reading sattelite identifier
+  * bdiana: bugfix - set time from commandline
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 17 Nov 2015 07:26:34 +0100
+
 diana (3.39.2-1) unstable; urgency=low
 
    * bugfix + cleanup OpenGL tesselation 
