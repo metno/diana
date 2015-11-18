@@ -807,6 +807,17 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           plotInfo.fieldName = vPlotField[j].name;
           if( !vPlotField[j].fieldgroup.empty() )
             plotInfo.groupName = vPlotField[j].fieldgroup;
+        } else {
+          if ( plotInfo.vlevels != ip->second.vlevels ) {
+            // if the input parameters have different vlevels, but no. of levels are 0 or 1, ignore vlevels
+            if ( plotInfo.vlevels.size() < 2 && ip->second.vlevels.size() < 2) {
+                plotInfo.vlevels.clear();
+                plotInfo.default_vlevel.clear();
+                plotInfo.vcoord.clear();
+              } else {
+                break;
+              }
+          }
         }
         ninput++;
       }

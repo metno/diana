@@ -39,6 +39,12 @@
 #define MILOGGER_CATEGORY "diana.DiPaintGLPainter"
 #include <miLogger/miLogging.h>
 
+#if 0
+#define IFDEBUG(x) x
+#else
+#define IFDEBUG(x) do { } while (false)
+#endif
+
 #define TEXTURE_CACHE_SIZE 16
 
 namespace {
@@ -239,6 +245,20 @@ bool DiPaintGLCanvas::getTextSize(const QString& str, float& w, float& h)
   return true;
 }
 
+bool DiPaintGLCanvas::getTextRect(const QString& str, float& x, float& y, float& w, float& h)
+{
+  QFontMetricsF fm(mFont, mDevice);
+  QRectF rect = fm.boundingRect(str);
+  x = rect.x() * mFontScaleX;
+  y = rect.y() * mFontScaleY;
+  w = rect.width() * mFontScaleX;
+  h = rect.height() * 0.8 * mFontScaleY;
+  if (w == 0 || str.trimmed().isEmpty())
+    h = 0;
+
+  return true;
+}
+
 QImage DiPaintGLCanvas::convertToGLFormat(const QImage& i)
 {
   return i.transformed(QTransform().scale(1, -1)).rgbSwapped();
@@ -248,6 +268,7 @@ QImage DiPaintGLCanvas::convertToGLFormat(const QImage& i)
 
 DiPaintGLPainter::DiPaintGLPainter(DiPaintGLCanvas* canvas)
   : DiGLPainter(canvas)
+  , HIGH_QUALITY_BUT_SLOW(true)
   , painter(0)
 {
   makeCurrent();
@@ -1598,7 +1619,11 @@ inline size_t index(size_t w, size_t x, size_t y)
 void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
     const diutil::Rect& part)
 {
-  const bool HIGH_QUALITY_BUT_SLOW = true;
+  IFDEBUG(METLIBS_LOG_SCOPE());
+  if (part.x1 >= part.x2 || part.y1 >= part.y2) {
+    IFDEBUG(METLIBS_LOG_DEBUG("invalid part " << part));
+    return;
+  }
   if (HIGH_QUALITY_BUT_SLOW) {
     painter->setTransform(QTransform());
     QPolygonF poly;
@@ -1641,6 +1666,7 @@ void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolyg
 
   bool paint = false;
   if (w <= SZ_LIMIT && h <= SZ_LIMIT) {
+    IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(w) << LOGVAL(h) << LOGVAL(paint)));
     paint = true;
   } else if (MH_LIMIT > 0) {
     const QPointF &pm0 = mapPositions.at(index(iw+1, xm, y0)),
@@ -1660,6 +1686,7 @@ void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolyg
         && (p0m-i0m).manhattanLength() < MH_LIMIT
         && (p1m-i1m).manhattanLength() < MH_LIMIT
         && (pmm-imm).manhattanLength() < MH_LIMIT);
+    IFDEBUG(METLIBS_LOG_DEBUG("mh " << LOGVAL(paint)));
   }
   if (paint) {
     static Qt::ImageConversionFlags icf = Qt::DiffuseAlphaDither | Qt::NoOpaqueDetection;
@@ -1706,6 +1733,9 @@ void DiPaintGLPainter::drawReprojectedSubImage(const QImage& image, const QPolyg
       }
     }
   }
+  IFDEBUG(METLIBS_LOG_DEBUG("not painted" << LOGVAL(x0) << LOGVAL(xm) << LOGVAL(x1)
+          << LOGVAL(y0) << LOGVAL(ym) << LOGVAL(y1)
+          << LOGVAL(w) << LOGVAL(h)));
   if (w > h) {
     drawReprojectedSubImage(image, mapPositions, diutil::Rect(x0, y0, xm, y1));
     drawReprojectedSubImage(image, mapPositions, diutil::Rect(xm, y0, x1, y1));

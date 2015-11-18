@@ -147,7 +147,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editm_, SIGNAL(saveRequested()), SLOT(quickSave()));
 
   QToolButton *saveAsButton = new QToolButton();
-  saveAsButton->setText(tr("Save as"));
+  saveAsButton->setText(tr("Save"));
   saveAsButton->setPopupMode(QToolButton::InstantPopup);
   QMenu *saveAsMenu = new QMenu(tr("Save as..."), this);
   connect(saveAsMenu->addAction(tr("Save All Items...")), SIGNAL(triggered()), SLOT(saveAllItems()));

@@ -331,3 +331,49 @@ bool FontFamily::getStringSize(const std::wstring& s, float& w, float& h)
   }
   return true;
 }
+
+bool FontFamily::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)
+{
+  x = y = w = h = 0;
+  if (s.length() == 0)
+    return false;
+
+  ttfont *tf = getFont();
+  if (!tf || !tf->pfont)
+    return false;
+
+  float llx, lly, llz, urx, ury, urz;
+  tf->pfont->BBox(s.c_str(), llx, lly, llz, urx, ury, urz);
+  x = llx * scalex * xscale;
+  y = lly * scaley * xscale;
+  w = (urx - llx) * scalex * xscale;
+  h = (ury - lly) * scaley * xscale;
+  if (mUseBitmap) {
+    w *= pixWidth;
+    h *= pixHeight;
+  }
+  return true;
+}
+
+bool FontFamily::getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h)
+{
+  x = y = w = h = 0;
+  if (s.length() == 0)
+    return false;
+
+  ttfont *tf = getFont();
+  if (!(tf && tf->pfont))
+    return false;
+
+  float llx, lly, llz, urx, ury, urz;
+  tf->pfont->BBox(s.c_str(), llx, lly, llz, urx, ury, urz);
+  x = llx * scalex * xscale;
+  y = lly * scaley * xscale;
+  w = (urx - llx) * scalex * xscale;
+  h = (ury - lly) * scaley * xscale;
+  if (mUseBitmap) {
+    w *= pixWidth;
+    h *= pixHeight;
+  }
+  return true;
+}

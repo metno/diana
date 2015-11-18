@@ -433,6 +433,8 @@ void DianaLines::add_contour_polygon(contouring::level_t level, const contouring
   } else {
     if ((mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) || (mPaintMode & FILL) == 0)
       return;
+    if (!(mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) && mPlotOptions.alpha == 0)
+      return;
   }
 
   point_v points(cpoints.begin(), cpoints.end());
@@ -486,11 +488,10 @@ void DianaGLLines::paint_lines()
 
 void DianaGLLines::setFillColour(const Colour& colour)
 {
-#if 1
-  mGL->Color4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
-#else
-  mGL->setColour(colour);
-#endif
+  if (mPlotOptions.alpha < 255)
+    mGL->Color4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
+  else
+    mGL->setColour(colour);
 }
 
 void DianaGLLines::setLine(const Colour& colour, const Linetype& linetype, int linewidth)

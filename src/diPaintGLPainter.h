@@ -78,6 +78,7 @@ public:
   bool setFontFace(FontFace face);
   bool setFontSize(float size) Q_DECL_OVERRIDE;
   bool getTextSize(const QString& text, float& w, float& h) Q_DECL_OVERRIDE;
+  bool getTextRect(const QString& str, float& x, float& y, float& w, float& h) Q_DECL_OVERRIDE;
 
   QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
 
@@ -219,6 +220,8 @@ public:
 
   GLuint bindTexture(const QImage &image);
   void drawTexture(const QPointF &pos, GLuint texture);
+
+  bool HIGH_QUALITY_BUT_SLOW;
 
   QPainter *painter;
 

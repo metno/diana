@@ -45,7 +45,7 @@ void DiOpenGLCanvas::initializeFP()
 
 void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vpw) << LOGVAL(glw) << LOGVAL(glw));
+  METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vph) << LOGVAL(glw) << LOGVAL(glh));
   fp()->setVpSize(vpw, vph);
   fp()->setGlSize(glw, glh);
 }
@@ -69,6 +69,11 @@ bool DiOpenGLCanvas::setFontSize(float size)
 bool DiOpenGLCanvas::getTextSize(const QString& text, float& w, float& h)
 {
   return fp()->getStringSize(text.toStdWString(), w, h);
+}
+
+bool DiOpenGLCanvas::getTextRect(const QString& text, float& x, float& y, float& w, float& h)
+{
+  return fp()->getStringRect(text.toStdWString(), x, y, w, h);
 }
 
 void DiOpenGLCanvas::DeleteLists(GLuint list, GLsizei range)

@@ -30,54 +30,198 @@
 #ifndef PROPERTIES_H
 #define PROPERTIES_H
 
+#include <QDateTime>
 #include <QDialog>
 #include <QHash>
 #include <QLineEdit>
+#include <QSet>
 #include <QString>
 #include <QStringList>
 #include <QVariantMap>
 
-class QContextMenuEvent;
-class DrawingItemBase;
-class QWidget;
+class QCheckBox;
+class QComboBox;
+class QDateTimeEdit;
 class QDialogButtonBox;
+class QDoubleSpinBox;
+class QFormLayout;
+class QLineEdit;
+class QSpinBox;
+class QWidget;
+
+class DrawingItemBase;
 
 namespace Properties {
 
-class SpecialLineEdit : public QLineEdit
-{
-  Q_OBJECT
-public:
-  SpecialLineEdit(const QString &, bool = false);
-private:
-  QString propertyName_;
-  QString propertyName() const;
-  void contextMenuEvent(QContextMenuEvent *);
-  void mouseDoubleClickEvent(QMouseEvent *);
-private slots:
-  void openTextEdit();
-};
+class EditProperty;     // Defined below.
 
 class PropertiesEditor : public QDialog
 {
+  Q_OBJECT
+
 public:
   static PropertiesEditor *instance();
-  bool edit(DrawingItemBase *item, bool readOnly = false, bool modal = true);
+  void edit(const QList<DrawingItemBase *> &, bool readOnly = false, bool modal = true);
   QStringList propertyRules(const QString &rule) const;
   void setPropertyRules(const QString &rule, const QStringList &values);
-  bool canEditProperty(const QString &propertyName) const;
-  bool canEditItem(DrawingItemBase *item) const;
+
+private slots:
+  void reset();
+  void updateButtons();
 
 private:
   PropertiesEditor();
-  QWidget *createEditor(const QString &propertyName, const QVariant &val, bool readOnly = false);
+  QMap<QString, QVariant> commonProperties(const QList<DrawingItemBase *> &items);
+  void registerProperty(const QString &name, EditProperty *property);
 
   static PropertiesEditor *instance_;
-  QWidget *formWidget_;
-  QDialogButtonBox *buttonBox_;
-  QDialogButtonBox *readOnlyButtonBox_;
-
   QHash<QString, QStringList> rules_;
+
+  QFormLayout *formLayout_;
+  QList<DrawingItemBase *> items_;
+  QHash<QString, EditProperty *> editors_;
+  QSet<QString> editing_;
+  QDialogButtonBox *buttonBox;
+};
+
+class EditProperty : public QObject
+{
+  Q_OBJECT
+
+public:
+  EditProperty(const QString &labelText);
+  virtual QWidget *createEditor(const QVariant &value);
+  bool hasChanged() const;
+  virtual void reset();
+
+  QVariant oldValue;
+  QVariant newValue;
+  QString labelText;
+
+signals:
+  void updated();
+
+protected slots:
+  void updateValue(const QString &value);
+
+private:
+  QLineEdit *editor;
+};
+
+class EP_Int : public EditProperty
+{
+  Q_OBJECT
+
+public:
+  EP_Int(const QString &labelText, int min, int max);
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(int value);
+
+private:
+  int min, max;
+  QSpinBox *editor;
+};
+
+class EP_Float : public EditProperty
+{
+  Q_OBJECT
+
+public:
+  EP_Float(const QString &labelText, float min, float max);
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(double value);
+
+private:
+  float min, max;
+  QDoubleSpinBox *editor;
+};
+
+class EP_Boolean : public EditProperty
+{
+  Q_OBJECT
+
+public:
+  EP_Boolean(const QString &labelText) : EditProperty(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(int value);
+
+private:
+  QCheckBox *editor;
+};
+
+class EP_Time : public EditProperty
+{
+  Q_OBJECT
+
+public:
+  EP_Time(const QString &labelText) : EditProperty(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue(const QDateTime &value);
+
+private:
+  QDateTimeEdit *editor;
+};
+
+class EP_Choice : public EditProperty
+{
+public:
+  EP_Choice(const QString &labelText) : EditProperty(labelText) {}
+  virtual void reset();
+
+protected:
+  QComboBox *editor;
+};
+
+class EP_Colour : public EP_Choice
+{
+  Q_OBJECT
+
+public:
+  EP_Colour(const QString &labelText) : EP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+
+private slots:
+  void updateValue(const QString &value);
+};
+
+class EP_Width : public EP_Choice
+{
+public:
+  EP_Width(const QString &labelText) : EP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+};
+
+class EP_LinePattern : public EP_Choice
+{
+public:
+  EP_LinePattern(const QString &labelText) : EP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+};
+
+class EP_Decoration : public EP_Choice
+{
+public:
+  EP_Decoration(const QString &labelText) : EP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+};
+
+class EP_FillPattern : public EP_Choice
+{
+public:
+  EP_FillPattern(const QString &labelText) : EP_Choice(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
 };
 
 } // namespace

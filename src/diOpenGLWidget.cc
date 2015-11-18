@@ -10,13 +10,32 @@
 
 #include <cmath>
 
-static QGLFormat oglfmt()
+#define MILOGGER_CATEGORY "diana.DiOpenGLWidget"
+#include <miLogger/miLogging.h>
+
+namespace /* anonymous*/ {
+
+std::string getGlString(GLenum name)
+{
+  const GLubyte* t = glGetString(name);
+  std::ostringstream ost;
+  if (t) {
+    ost << "'" << ((const char*) t) << "'";
+  } else {
+    ost << "ERR:" << glGetError();
+  }
+  return ost.str();
+}
+
+QGLFormat oglfmt()
 {
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   return fmt;
 }
+
+} // namespace anonymous
 
 DiOpenGLWidget::DiOpenGLWidget(DiPaintable* p, QWidget* parent)
   : QGLWidget(oglfmt(), parent)
@@ -36,6 +55,12 @@ DiOpenGLWidget::~DiOpenGLWidget()
 
 void DiOpenGLWidget::initializeGL()
 {
+  static bool version_info = false;
+  if (!version_info) {
+    METLIBS_LOG_INFO("using OpenGL GL_VERSION=" << getGlString(GL_VERSION)
+        << " GL_VENDOR=" << getGlString(GL_VENDOR) << " RENDERER=" << getGlString(GL_RENDERER));
+    version_info = true;
+  }
   glpainter->ShadeModel(GL_FLAT);
   setAutoBufferSwap(false);
 }

@@ -259,7 +259,7 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
   pshade = (plottype == fpt_alpha_shade || plottype == fpt_alarm_box
       || plottype == fpt_fill_cell);
 
-  if (plottype == fpt_contour && poptions.contourShading > 0)
+  if ((plottype == fpt_contour || plottype == fpt_contour2) && poptions.contourShading > 0)
     pshade = true;
 
   return true;
@@ -644,10 +644,10 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
     plotUndefined(gl);
   } else if (zorder == SHADE) {
-    if (plottype == fpt_contour2 || getShadePlot())
+    if (getShadePlot())
       plotMe(gl, zorder);
   } else if (zorder == LINES) {
-    if (plottype == fpt_contour2 || !getShadePlot())
+    if (!getShadePlot())
       plotMe(gl, zorder);
   } else if (zorder == OVERLAY) {
     plotMe(gl, zorder);
@@ -2265,10 +2265,12 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
       return true;
     paintMode = DianaLines::UNDEFINED;
   } else if (zorder == SHADE) {
-    if (!poptions.contourShading)
+    if (!getShadePlot())
       return true;
-    paintMode = DianaLines::FILL;
+    paintMode = DianaLines::FILL | DianaLines::LINES_LABELS;
   } else if (zorder == LINES) {
+    if (getShadePlot())
+      return true;
     paintMode = DianaLines::LINES_LABELS;
   } else if (zorder == OVERLAY) {
     paintMode = DianaLines::UNDEFINED | DianaLines::FILL | DianaLines::LINES_LABELS;

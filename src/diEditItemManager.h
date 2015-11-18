@@ -54,7 +54,7 @@ class EditItemManager : public DrawingManager
 
 public:
   enum Action {
-    SelectAll, Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
+    SelectAll, Cut, Copy, Paste, EditProperties, Undo, Redo, Select,
     CreatePolyLine, CreateSymbol, CreateText, CreateComposite
   };
 
@@ -94,8 +94,9 @@ public:
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
 
-  QList<DrawingItemBase *> findHitItems(
-      const QPointF &pos, QList<DrawingItemBase *> &missedItems) const;
+  QList<DrawingItemBase *> findHitItems(const QPointF &pos,
+    QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,
+    QList<DrawingItemBase *> &missedItems) const;
 
   void replaceItemStates(const QHash<int, QVariantMap> &states,
                          QList<DrawingItemBase *> removeItems,
@@ -119,7 +120,6 @@ public slots:
   void deselectItem(DrawingItemBase *, bool = true);
   void deselectAllItems(bool = true);
   void editProperties();
-  void editStyle();
   void setStyleType();
   void keyPress(QKeyEvent *);
   void lowerSelectedItems();
@@ -171,8 +171,10 @@ signals:
   void saveRequested();
 
 private:
+  void openContextMenu(const QPoint &pos, const QPoint &globalPos);
   DrawingItemBase *hitItem_; // current hit item
   QList<DrawingItemBase *> hitItems_;
+  QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes_;
   DrawingItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   QHash<int, QVariantMap> oldStates_;
   QHash<int, DrawingItemBase *> removedItems_;
@@ -203,7 +205,6 @@ private:
   QAction* unjoinAction_;
   QAction* toggleReversedAction_;
   QAction* editPropertiesAction_;
-  QAction* editStyleAction_;
   QAction* undoAction_;
   QAction* redoAction_;
   QAction* selectAction_;

@@ -69,6 +69,8 @@ public:
   void setVpSize(float, float);
   bool getStringSize(const std::string& s,  float& w, float& h);
   bool getStringSize(const std::wstring& s, float& w, float& h);
+  bool getStringRect(const std::string& s,  float& x, float&y, float& w, float& h);
+  bool getStringRect(const std::wstring& s, float& x, float&y, float& w, float& h);
 
 private:
   struct ttfont {

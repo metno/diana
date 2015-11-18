@@ -284,6 +284,20 @@ bool FontManager::getStringSize(const std::wstring& s, float& w, float& h)
   return currentFamily->getStringSize(s, w, h);
 }
 
+bool FontManager::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)
+{
+  if (!currentFamily)
+    return false;
+  return currentFamily->getStringRect(s, x, y, w, h);
+}
+
+bool FontManager::getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h)
+{
+  if (!currentFamily)
+    return false;
+  return currentFamily->getStringRect(s, x, y, w, h);
+}
+
 FontFamily::FontFace FontManager::getFontFace()
 {
   if (!currentFamily)

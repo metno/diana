@@ -676,6 +676,7 @@ void FieldManager::addComputedParameters(
 
   bool inputOk = true;
   std::string computeZaxis;// = VerticalName[FieldFunctions::vctype_none]; //default, change if input parameter has different zaxis
+  int computeZaxisValues = -1;
   std::string computeTaxis;
   std::string computeEaxis;
   // loop trough input params with same zaxis
@@ -696,24 +697,39 @@ void FieldManager::addComputedParameters(
       } else {
         pitr_name = pitr->key.name;
       }
-      METLIBS_LOG_DEBUG(LOGVAL(pitr_name));
 
       if (pitr_name ==fs.paramName ) {
+      METLIBS_LOG_DEBUG(LOGVAL(pitr_name));
 
         set<gridinventory::Zaxis>::iterator zitr = inventory.zaxes.find(pitr->zaxis_id);
 
-        //ask for level which do not exists
+        //level do not exists
         if (levelSpecified && !zitr->valueExists(fs.levelName)) {
           inputOk = false;
           break;
         }
+        //ask for zaxis which do not exists
+        if (!levelSpecified ) {
+          // if input parameters have different zaxes, ignore zaxis if number of levels=1
+          if ( !computeZaxis.empty() && pitr->key.zaxis!=computeZaxis) {
+            if ( computeZaxisValues == 1 ) {
+              computeZaxis.clear();
+            } else {
+              inputOk = false;
+              break;
+            }
+          }
+          // Set computeZaxis, but don't overwrite zaxis whith more than one value
+          if ( computeZaxisValues != 1 || zitr->values.size() > 1 ) {
+            computeZaxis = pitr->key.zaxis;
+            computeZaxisValues =  zitr->values.size();
+          }
+        }
+
         //ask for axis which do not exists
         if ( !fs.ecoordName.empty() && pitr->key.extraaxis.empty() ) {
           inputOk = false;
           break;
-        }
-        if (fs.vcoordName.empty()  && !levelSpecified ) {
-          computeZaxis = pitr->key.zaxis;
         }
         if (fs.ecoordName.empty() && fs.elevel.empty() && pitr->key.extraaxis!="") {
           computeEaxis = pitr->key.extraaxis;
@@ -776,13 +792,7 @@ void FieldManager::addComputedParameters(
     METLIBS_LOG_DEBUG(LOGVAL(newparameter.nativekey));
     METLIBS_LOG_DEBUG(LOGVAL(newparameter.zaxis_id));
     METLIBS_LOG_DEBUG(LOGVAL(newparameter.key.extraaxis));
-    //add parameter with derived zaxis (flightlevel)
-    set<gridinventory::Zaxis>::iterator dzitr = inventory.zaxes.find(newparameter.key.zaxis);
-//    if (dzitr != inventory.zaxes.end() && !(*dzitr).nativeName.empty() ) {
-//      gridinventory::GridParameter derivedparameter = newparameter;
-//      newparameter.key.zaxis = (*dzitr).nativeName;
-      inventory.parameters.insert(newparameter);
-//    }
+    inventory.parameters.insert(newparameter);
   } else {
     METLIBS_LOG_DEBUG("not found");
   }

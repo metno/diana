@@ -86,8 +86,10 @@ const std::string substr(const char* cvals, int index, int len)
 }
 void add_substr(std::string& s, const char* cvals, int index, int len)
 {
-  cvals += index * len_cvals;
-  s.append(cvals, len);
+  if ( index > -1) {
+    cvals += index * len_cvals;
+    s.append(cvals, len);
+  }
 }
 
 void put_date_time(ObsData& d, int month, int day, int hour, int minute)

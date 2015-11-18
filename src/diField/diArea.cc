@@ -173,3 +173,11 @@ GridArea GridArea::scaled(int factor) const
   s.ny /= factor;
   return s;
 }
+
+std::ostream& operator<<(std::ostream& output, const GridArea& ga)
+{
+  output << "[GridArea P:" << ga.P() << " R: " << ga.R()
+         << " n:" << ga.nx << "*" << ga.ny
+         << " res:" << ga.resolutionX << "*" << ga.resolutionY << "]";
+  return output;
+}

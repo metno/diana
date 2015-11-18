@@ -169,7 +169,6 @@ diana_bin_QTSOURCES = \
 	EditItems/editsymbol.cc \
 	EditItems/edittext.cc \
 	EditItems/properties.cc \
-	EditItems/style.cc \
 	EditItems/toolbar.cc \
 	qtActionButton.cc \
 	qtAddtoDialog.cc \
@@ -358,7 +357,6 @@ noinst_HEADERS = \
 	EditItems/kml.h \
 	EditItems/itemgroup.h \
 	EditItems/properties.h \
-	EditItems/style.h \
 	EditItems/timefilesextractor.h \
 	EditItems/toolbar.h \
 	poly_contouring.hh \

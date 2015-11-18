@@ -27,6 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <qmath.h>
 #include "diDrawingManager.h"
 #include "EditItems/drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
@@ -46,6 +47,8 @@ Text::Text(int id)
   propertiesRef().insert("style:fontname", QString::fromStdString(PlotOptions::defaultFontName()));
   propertiesRef().insert("style:fontface", QString::fromStdString(PlotOptions::defaultFontFace()));
   propertiesRef().insert("style:fontsize", PlotOptions::defaultFontSize());
+  propertiesRef().insert("style:cornersegments", 0);
+  propertiesRef().insert("style:cornerradius", defaultMargin());
 }
 
 Text::~Text()
@@ -61,7 +64,28 @@ void Text::draw(DiGLPainter* gl)
 
   QRectF bbox = drawingRect();
   QList<QPointF> points;
-  points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
+
+  int cornerSegments = Drawing(this)->property("style:cornersegments", 0).toInt();
+  float cornerRadius = Drawing(this)->property("style:cornerradius", 0.0).toFloat();
+  if (cornerSegments != 0 && cornerRadius != 0.0) {
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.bottomLeft() + cornerRadius*QPointF(1.0 - qCos(angle), -1.0 + qSin(angle));
+    }
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.bottomRight() + cornerRadius*QPointF(-1.0 + qSin(angle), -1.0 + qCos(angle));
+    }
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.topRight() + cornerRadius*QPointF(-1.0 + qCos(angle), 1.0 - qSin(angle));
+    }
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.topLeft() + cornerRadius*QPointF(1.0 - qSin(angle), 1.0 - qCos(angle));
+    }
+  } else
+    points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
   // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(gl, this);
@@ -75,6 +99,29 @@ void Text::draw(DiGLPainter* gl)
 
   // Draw the text itself.
   styleManager->drawText(gl, this);
+}
+
+/**
+ * Get the string bounding rectangle in viewport/screen units.
+ */
+QRectF Text::getStringRect(const QString &text, int index) const
+{
+  if (index == -1)
+    index = text.size();
+
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  styleManager->setFont(this);
+
+  // Obtain the width and height of the text in plot coordinates.
+  float x = 0, y = 0, width = 0, height = 0;
+  if (DiCanvas* canvas = styleManager->canvas()) {
+    canvas->getTextRect(text.left(index).toStdString(), x, y, width, height);
+    if (height == 0)
+      canvas->getTextRect("X", x, y, width, height);
+  }
+
+  const double scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
+  return QRectF(scale * x, scale * y, scale * width, scale * height);
 }
 
 /**
@@ -96,8 +143,8 @@ QSizeF Text::getStringSize(const QString &text, int index) const
       canvas->getTextSize("X", width, height);
   }
 
-  const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
-  return QSize(scale * width, scale * height);
+  const double scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
+  return QSizeF(scale * width, scale * height);
 }
 
 float Text::margin() const
@@ -142,21 +189,26 @@ QRectF Text::drawingRect() const
 void Text::updateRect()
 {
   float x = points_.at(0).x();
-  float y = points_.at(0).y();
+  float y = points_.at(0).y() - margin();
   qreal width = 0;
+  qreal height = fontSize();
+
   QStringList lines_ = text();
 
   for (int i = 0; i < lines_.size(); ++i) {
     QString text = lines_.at(i);
     QSizeF size = getStringSize(text);
     width = qMax(width, size.width());
-    size.setHeight(qMax(size.height(), qreal(fontSize())));
-    y -= size.height();
+    height = fontSize();
+    if (i == 0 || i == lines_.size() - 1)
+      height = qMax(size.height(), height);
+
+    y -= height;
     if (i < lines_.size() - 1)
-      y -= size.height() * spacing();
+      y -= height * spacing();
   }
 
-  points_[1] = QPointF(x + width + 2 * margin(), y - 2 * margin());
+  points_[1] = QPointF(x + width + (2 * margin()), y - margin());
 }
 
 DrawingItemBase::HitType Text::hit(const QPointF &pos, bool selected) const

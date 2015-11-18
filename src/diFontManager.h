@@ -96,6 +96,10 @@ public:
   bool getStringSize(const std::string& s,  float& w, float& h);
   bool getStringSize(const std::wstring& s, float& w, float& h);
 
+  /// get bounding rectangle of a string
+  bool getStringRect(const std::string& s, float& x, float& y, float& w, float& h);
+  bool getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h);
+
   /// set viewport size in GL coordinates
   void setGlSize(float glw, float glh);
   void setGlSize(float glx1, float glx2, float gly1, float gly2);

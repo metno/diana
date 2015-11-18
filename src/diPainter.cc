@@ -33,6 +33,16 @@ bool DiCanvas::getTextSize(const char* text, float& w, float& h)
   return getTextSize(QString::fromLatin1(text), w, h);
 }
 
+bool DiCanvas::getTextRect(const std::string& text, float& x, float& y, float& w, float& h)
+{
+  return getTextRect(QString::fromStdString(text), x, y, w, h);
+}
+
+bool DiCanvas::getTextRect(const char* text, float& x, float& y, float& w, float& h)
+{
+  return getTextRect(QString::fromLatin1(text), x, y, w, h);
+}
+
 bool DiCanvas::getCharSize(int c, float& w, float& h)
 {
   return getTextSize(QString(QChar(c)), w, h);

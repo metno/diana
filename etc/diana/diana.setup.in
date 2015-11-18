@@ -1606,7 +1606,6 @@ product="Sigkart"
   time_start_late=  -04:00
 
   commandfile=$(share_diana_dir)/products/sigkart.txt
-  commandfile=/home/lisbethb/local/src/diana/share/diana/products/sigkart.txt
   standard_symbolsize=20
   complex_symbolsize=5
 #  complex_symbolsize=4
@@ -1881,8 +1880,8 @@ style="Significant weather (TURB/VA/RC) front"  linewidth=2 linesmooth=true deco
 style="Significant weather (ICE/TCU/CB) front"  linewidth=2 linesmooth=true decoration1=SIGWX \
                                                 decoration1.colour=blue closed=false linealpha=0 \
                                                 fillalpha=0
-style="Jet stream"                              linecolour=black linewidth=3 linesmooth=true decoration1=arrow \
-                                                closed=false fillalpha=0
+style="Jet stream"                              linecolour=black linewidth=3 linesmooth=true decoration1=arrow,jetstream \
+                                                closed=false fillalpha=0 properties="met:info:speed"
 style="Cross section"                           linecolour=black linewidth=3 linepattern=solid linesmooth=false \
                                                 fillalpha=0 closed=false
 style="Runway"                                  linecolour=black linewidth=10 linepattern=solid linesmooth=false \
@@ -1893,10 +1892,17 @@ style="Line"                                    linecolour=black linewidth=1 lin
 style="Sigmet"                                  linecolour=black linewidth=1 linesmooth=false closed=true 
 
 # Text styles
-textstyle="Label"           linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=10
-textstyle="Large text"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=20
-textstyle="SIGWX label"     linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=25
-textstyle="Label Gale"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=blue fontsize=11
+textstyle="Label"           linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=10 \
+                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour"
+textstyle="Large text"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=20 \
+                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour"
+textstyle="SIGWX label"     linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=25 \
+                            properties="style:fontsize"
+textstyle="Label Gale"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=blue fontsize=11 \
+                            properties="style:fontsize"
+textstyle="Note"            linecolour=black linealpha=255 fillcolour=white fillalpha=255 textcolour=black fontsize=20 \
+                            cornersegments=5 cornerradius=12 \
+                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour"
 
 # Composite styles
 composite="Text above Text" objects=text:text values="Text:Text" styles="SIGWX label:SIGWX label" layout=vertical linealpha=0 \
@@ -1947,13 +1953,25 @@ composite="Predefined Text over Predefined Text inside blue curved rectangle" ob
 # Predefined text strings for use in composite objects.
 complextext="BKN/OVC STF,RA,RADZ,SHRA,SN,SHSN,LOC FG,BR,NSC,RASN,SHSNGS,SHRASN,SHRA,BR/FG,DZ,FZRA,SFC VIS,LT 5 KM,ISOL,EMBD CB,SCT/BKN,CB/TCU"
 
-# Property editor rules
+# Property editor and filter rules - comma-separated prefixes that cause
+# properties to be hidden or shown if they start with these values.
+common-properties="TimeSpan:begin,TimeSpan:end,time"
 hide-property-sections-drawing="style,met:style"
 show-property-sections-drawing="met:info:"
 hide-property-sections-editing="style,met:style"
-show-property-sections-editing="met:info:,TimeSpan:"
-show-tooltips-drawing="met:info:,TimeSpan:"
-show-tooltips-editing="met:info:,TimeSpan:"
+show-property-sections-editing="met:info:,TimeSpan:,time"
+
+# Tooltip filters - comma-separated prefixes that determine which properties
+# will be shown in tooltips over the objects that contain them. Each prefix
+# will not be shown if it ends with a colon.
+show-tooltips-drawing="met:info:,TimeSpan:,time"
+show-tooltips-editing="met:info:,TimeSpan:,time"
+
+# Tooltip rules - comma-separated collections of properties that will be
+# merged if their values are identical. Each collection is a pipe-separated
+# list of names, the last of which will be used as a replacement name for
+# the others if their values are the same.
+tooltips-merge-identical="TimeSpan:begin|TimeSpan:end|time"
 </DRAWING>
 
 <WEBMAP_SERVICES>

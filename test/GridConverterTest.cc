@@ -111,3 +111,30 @@ TEST(GridConverterTest, FindGridLimits)
     EXPECT_TRUE(ex_rects[i] == actual_rect) << "expected " << ex_rects[i] << " got " << actual_rect;
   }
 }
+
+TEST(GridConverterTest, FindGridLimitsGeos)
+{
+  const GridArea fieldGridArea(Area(Projection("+proj=geos +lon_0=-135.000000 +a=6378169.0 +b=6356583.8 +h=35785831.0"
+              " +units=km +towgs84=0,0,0 +x_0=5641264.640000 +y_0=5641264.640000"),
+          Rectangle(0,0,11282.5,11282.5)), 2816, 2816, 4.00658, 4.00658);
+
+  float *positionsX, *positionsY;
+  const Area dummyMapArea(Projection("+proj=robin +lat_0=0.0 +lon_0=90 +x_0=0 +y_0=0 +ellps=WGS84 +towgs84=0,0,0 +no_defs"),
+      Rectangle(-5.88293e+06,6.56044e+06,-4.25857e+06,7.25093e+06));
+
+  GridConverter gc;
+  gc.getGridPoints(fieldGridArea, dummyMapArea, true, &positionsX, &positionsY);
+
+  const diutil::Rect ex_rects[] = {
+    diutil::Rect(2815,2815,1,1) // invalid
+  };
+  const int N = sizeof(ex_rects)/sizeof(ex_rects[0]);
+  const Rectangle map_rects[N] = {
+    Rectangle(-5.88293e+06,6.56044e+06,-4.25857e+06,7.25093e+06)
+  };
+
+  for (int i=0; i<N; ++i) {
+    const diutil::Rect actual_rect = findGridLimits(fieldGridArea, map_rects[i], true, positionsX, positionsY);
+    EXPECT_TRUE(ex_rects[i] == actual_rect) << "expected " << ex_rects[i] << " got " << actual_rect;
+  }
+}

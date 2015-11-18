@@ -325,20 +325,21 @@ bool GridCollection::dataExists_gridParameter(const gridinventory::Inventory& in
     {
       // found parameter - check specifics
 
-      // Zaxis
-      std::string zaxis = p.key.zaxis;
-      METLIBS_LOG_DEBUG("searching for z axis '" << zaxis << "'");
-      const std::set<Zaxis>::const_iterator zaitr = miutil::find_if(reftimeInv.zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
-      if (zaitr == reftimeInv.zaxes.end()) {
-          continue;
-      }
-      METLIBS_LOG_DEBUG(" => found '" << zaitr->name << "'");
-
-      if ((not zaitr->values.empty()) and /*FIXME*/ (not level.empty())) { // check for correct level if appropriate
-        if (std::find(zaitr->stringvalues.begin(), zaitr->stringvalues.end(), level) == zaitr->stringvalues.end()){
-          continue;
-        }
-      }
+      //Skip checking zaxis - surface parameters have different zaxes - just drop the test now
+//      // Zaxis
+//      std::string zaxis = p.key.zaxis;
+//      METLIBS_LOG_DEBUG("searching for z axis '" << zaxis << "'");
+//      const std::set<Zaxis>::const_iterator zaitr = miutil::find_if(reftimeInv.zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
+//      if (zaitr == reftimeInv.zaxes.end()) {
+//          continue;
+//      }
+//      METLIBS_LOG_DEBUG(" => found '" << zaitr->name << "'");
+//
+//      if ((not zaitr->values.empty()) and /*FIXME*/ (not level.empty())) { // check for correct level if appropriate
+//        if (std::find(zaitr->stringvalues.begin(), zaitr->stringvalues.end(), level) == zaitr->stringvalues.end()){
+//          continue;
+//        }
+//      }
 
       if(!time.undef() && !timeFromFilename) {
         // Taxis

@@ -38,7 +38,6 @@
 #include <QDomNode>
 #include <QString>
 #include <QHash>
-#include <QSharedPointer>
 
 #define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
 #define ConstDrawing(i) dynamic_cast<const DrawingItemBase *>(i)
@@ -163,13 +162,5 @@ private:
 };
 
 Q_DECLARE_METATYPE(DrawingItemBase*)
-
-#if (QT_VERSION < QT_VERSION_CHECK(4, 8, 0))
-//#define QT_SHAREDPOINTER_TRACK_POINTERS
-inline uint qHash(const QSharedPointer<DrawingItemBase> &key)
-{
-  return qHash(key.data());
-}
-#endif
 
 #endif
