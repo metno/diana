@@ -565,10 +565,12 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
     gl->drawText(str1, x, y, 0.0);
 
     if ( hmo>-1 && tPeak>-1 && ddPeak>-1 ) {
+      // turn wave direction, use the meteorological direction
+      float ddpeak = ddPeak > 180 ? ddPeak - 180 : ddPeak + 180;
       const QString str2 = QString("HMO= %1m   Tp= %2s   DDp= %3 deg")
           .arg(hmo, 4, 'f', 1)
           .arg(tPeak, 5, 'f', 1)
-          .arg(ddPeak, 5, 'f', 1);
+          .arg(ddpeak, 5, 'f', 1);
       x=xplot1+dytext1*0.25;
       y=yplot1+dy*0.30;
       gl->drawText(str2, x, y, 0.0);
