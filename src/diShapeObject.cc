@@ -322,10 +322,10 @@ bool ShapeObject::plot(DiGLPainter* gl,
     if (SKIP_SMALL && fabs(s->rect.width()) < visibleW && fabs(s->rect.height()) < visibleH)
       continue;
 
-    QList<QPolygonF> contours;
+    QList<QPolygonF> lines, fills;
     for (int p=0; p < s->nparts(); p++) {
       const QPolygonF& part =s->reduced.at(p);
-      if (part.size() < 3)
+      if (part.size() < 2 || (!cont && land && part.size() < 3))
         continue;
 
       const Rectangle& pr = s->partRects[p];
@@ -343,22 +343,24 @@ bool ShapeObject::plot(DiGLPainter* gl,
         const QPolygonF trimmed = diutil::trimToRectangle(areaX, part);
         METLIBS_LOG_DEBUG(LOGVAL(part.size()) << LOGVAL(trimmed.size()));
         if (trimmed.size() >= 3)
-          contours << trimmed;
+          fills << trimmed;
+        else if (cont && trimmed.size() == 2)
+          lines << trimmed;
       } else {
-        contours << part;
+        fills << part;
       }
     }
-    if (contours.isEmpty())
-      continue;
 
-    if (land && s->type() == SHPT_POLYGON) {
+    if (!fills.isEmpty() && land && s->type() == SHPT_POLYGON) {
       gl->setColour(fcolour);
-      gl->drawPolygons(contours);
+      gl->drawPolygons(fills);
     }
-    if (cont) {
+    if (cont && !(fills.isEmpty() && lines.isEmpty())) {
       gl->setLineStyle(lcolour, linewidth, linetype);
-      for (int i=0; i<contours.size(); ++i)
-        gl->drawPolyline(contours.at(i));
+      for (int i=0; i<fills.size(); ++i)
+        gl->drawPolyline(fills.at(i));
+      for (int i=0; i<lines.size(); ++i)
+        gl->drawPolyline(lines.at(i));
     }
   }
   return true;
