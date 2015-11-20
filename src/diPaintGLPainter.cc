@@ -270,9 +270,9 @@ bool DiPaintGLCanvas::getTextSize(const std::string& s, float& w, float& h)
   QString str = QString::fromStdString(s);
 
   QFontMetricsF fm(mFont, mDevice);
-  QRectF rect = fm.boundingRect(str);
+  QRectF rect = fm.tightBoundingRect(str);
   w = rect.width() * mFontScaleX;
-  h = rect.height() * 0.8 * mFontScaleY;
+  h = rect.height() * mFontScaleY;
   if (w == 0 || str.trimmed().isEmpty())
     h = 0;
 
@@ -1820,7 +1820,7 @@ bool DiPaintGLPainter::drawText(const std::string& s,
   this->painter->scale(c->fontScaleX(), c->fontScaleY());
   // Flip it vertically to take coordinate system differences into account.
   this->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
-  this->painter->drawText(0, -fm.descent()/2, str);
+  this->painter->drawText(0, 0, str);
   this->painter->restore();
   return true;
 }
