@@ -1,3 +1,10 @@
+diana (3.39.4-1) unstable; urgency=low
+
+  * bdiana - wms logger fix
+  * SpectrumPlot - turned wave direction in legend
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 20 Nov 2015 11:46:47 +0100
+
 diana (3.39.3-1) unstable; urgency=low
 
   * RasterPlot: do not use invalid rects from GridConverter

@@ -2890,6 +2890,7 @@ static int parseAndProcess(istream &is)
  */
 int diana_parseAndProcessString(const char* string)
 {
+  milogger::LoggingConfig log4cpp(logfilename);
   // reset time (before next wms request)
   fixedtime = miTime();
 

@@ -568,9 +568,11 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
     gl->drawText(str1, x, y, 0.0);
 
     if ( hmo>-1 && tPeak>-1 && ddPeak>-1 ) {
+       // turn wave direction, use the meteorological direction
+      float ddpeak = ddPeak > 180 ? ddPeak - 180 : ddPeak + 180;
       ostr2<<"HMO= "<<setw(4)<<setprecision(1)<<setiosflags(ios::fixed)<<hmo
           <<"m   Tp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<tPeak
-          <<"s   DDp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<ddPeak
+          <<"s   DDp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<ddpeak
           <<" deg";
       std::string str2= ostr2.str();
       x=xplot1+dytext1*0.25;
