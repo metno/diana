@@ -10,8 +10,7 @@ LDADD =
 
 if HAVE_GTEST
 TESTS += dianaUnitTests diFieldTest
-check_PROGRAMS += dianaUnitTests dianaGuiTests diFieldTest
-
+check_PROGRAMS += dianaUnitTests diFieldTest
 req_libs = $(top_builddir)/src/libdiana.la
 DEPENDENCIES = $(req_libs)
 
@@ -34,10 +33,6 @@ dianaUnitTests_SOURCES = \
     TestUtilities.cc \
     TestWebMap.cc \
     gtestMain.cc
-
-dianaGuiTests_SOURCES = \
-    TestVcrossGui.cc \
-    gtestMainQt.cc
 
 nodist_dianaUnitTests_SOURCES = \
      $(dianaUnitTests_moc_sources)
@@ -74,18 +69,6 @@ LDADD += \
     $(gtest_LIBS) \
     $(QT4_LIBS) \
     $(BOOST_SYSTEM_LIBS)
-
-dianaGuiTests_CPPFLAGS = \
-    $(CPPFLAGS) \
-    $(METLIBSUI_CPPFLAGS)
-
-dianaGuiTests_LDFLAGS = \
-    $(LDFLAGS) \
-    $(METLIBSUI_LDFLAGS)
-
-dianaGuiTests_LDADD = \
-    $(LDADD) \
-    $(METLIBSUI_LIBS)
 
 diFieldTest_SOURCES = \
     FieldFunctionsTest.cc \
@@ -134,6 +117,31 @@ diFieldTest_SOURCES += \
 diFieldTest_CPPFLAGS += \
 	-DFIMEX
 # end fimex options
+
+if WITH_GUI
+check_PROGRAMS += dianaGuiTests
+req_ui_libs = $(top_builddir)/src/libdianaui.a
+DEPENDENCIES += $(req_ui_libs)
+
+dianaGuiTests_SOURCES = \
+    TestVcrossGui.cc \
+    TestGLPainter.cc \
+    gtestMainQt.cc
+
+dianaGuiTests_CPPFLAGS = \
+    $(CPPFLAGS) \
+    $(METLIBSUI_CPPFLAGS)
+
+dianaGuiTests_LDFLAGS = \
+    $(LDFLAGS) \
+    $(METLIBSUI_LDFLAGS)
+
+dianaGuiTests_LDADD = \
+    $(LDADD) \
+    $(req_ui_libs) \
+    $(METLIBSUI_LIBS)
+endif # WITH_GUI
+
 
 endif # HAVE_GTEST
 

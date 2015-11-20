@@ -8,6 +8,7 @@ libexecdiana_LTLIBRARIES = libdiana.la
 bin_PROGRAMS = bdiana
 
 if WITH_GUI
+noinst_LIBRARIES = libdianaui.a
 bin_PROGRAMS += diana.bin
 libexecdianadir= $(pkglibdir)/@PVERSION@
 else
@@ -149,7 +150,7 @@ libdiana_la_QTSOURCES = diManager.cc \
 libdiana_la_QTHEADERS = \
 	diVcrossInterface.h
 
-diana_bin_SOURCES = \
+libdianaui_a_SOURCES = \
 	diFontFamily.cc \
 	diFontManager.cc \
 	diTesselation.cc \
@@ -157,7 +158,7 @@ diana_bin_SOURCES = \
 	diOpenGLWidget.cc \
 	diPaintable.cc
 
-diana_bin_QTSOURCES = \
+libdianaui_a_QTSOURCES = \
 	diEditItemManager.cc \
 	diPaintGLWidget.cc \
 	EditItems/dialogcommon.cc \
@@ -224,7 +225,7 @@ diana_bin_QTSOURCES = \
 	qtVprofWindow.cc \
 	qtWorkArea.cc 
 
-diana_bin_QTSOURCES += \
+libdianaui_a_QTSOURCES += \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossInterface.cc \
 	vcross_qt/qtVcrossLayerBar.cc \
@@ -241,7 +242,7 @@ diana_bin_QTSOURCES += \
 	vcross_qt/VcrossQtWidget.cc \
 	wmsclient/WebMapDialog.cc
 
-diana_bin_QTFORMS = \
+libdianaui_a_QTFORMS = \
 	vcross_qt/vcross_plot_add_dialog.ui \
 	vcross_qt/vcross_modelpage.ui \
 	vcross_qt/vcross_reftimepage.ui \
@@ -469,7 +470,7 @@ include_HEADERS = \
         diLocalSetupParser.h
 
 # xpm files needed to build
-diana_bin_xpm_SOURCES= active_object.xpm \
+libdianaui_a_xpm_SOURCES= active_object.xpm \
 	autoupdate.xpm \
 	back.xpm \
 	bakover.xpm \
@@ -733,16 +734,16 @@ nodist_language_DATA=$(language_sources:.ts=.qm)
 CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
-	$(LUPDATE4) $(diana_bin_QTSOURCES:%=$(srcdir)/%) \
+	$(LUPDATE4) $(libdianaui_a_QTSOURCES:%=$(srcdir)/%) \
 	    $(srcdir)/qtUtility.cc \
-	    $(diana_bin_QTFORMS:%=$(srcdir)/%) \
+	    $(libdianaui_a_QTFORMS:%=$(srcdir)/%) \
 	    -ts $(language_sources)
 .PHONY: lupdate
 
-%.qm: %.ts  $(diana_bin_QTSOURCES)
+%.qm: %.ts  $(libdianaui_a_QTSOURCES)
 	$(LRELEASE4)  $<
 
-diana_uic_headers = $(diana_bin_QTFORMS:.ui=.ui.h)
+diana_uic_headers = $(libdianaui_a_QTFORMS:.ui=.ui.h)
 
 BUILT_SOURCES  += $(diana_uic_headers)
 CLEANFILES     += $(diana_uic_headers)
@@ -752,49 +753,32 @@ noinst_HEADERS += $(diana_uic_headers)
 	@mkdir -p $(shell dirname $@)
 	$(UIC4) -o $@ $<
 
-diana_bin_SOURCES += $(diana_bin_QTSOURCES)
-nodist_diana_bin_SOURCES = $(diana_bin_QTSOURCES:.cc=.moc.cc)
-BUILT_SOURCES += $(nodist_diana_bin_SOURCES)
-CLEANFILES    += $(nodist_diana_bin_SOURCES)
+libdianaui_a_SOURCES += $(libdianaui_a_QTSOURCES)
+nodist_libdianaui_a_SOURCES = $(libdianaui_a_QTSOURCES:.cc=.moc.cc)
+BUILT_SOURCES += $(nodist_libdianaui_a_SOURCES)
+CLEANFILES    += $(nodist_libdianaui_a_SOURCES)
 
 # diana-specific sources (the rest is in libdiana)
-diana_bin_SOURCES += \
-	$(diana_bin_xpm_SOURCES) \
+libdianaui_a_SOURCES += \
+	$(libdianaui_a_xpm_SOURCES) \
 	$(language_sources) \
-	main_gui.cc \
 	qtImageGallery.cc \
 	qtPrintManager.cc \
 	qtUtility.cc
 
-diana_bin_CPPFLAGS = \
+libdianaui_a_CPPFLAGS = \
 	-I $(builddir)/vcross_qt \
 	${FIMEX_CPPFLAGS} \
 	$(METLIBSUI_CPPFLAGS) \
 	$(QT4_CPPFLAGS)
 
-diana_bin_LDFLAGS = \
-	${FIMEX_LDFLAGS} \
-	$(METLIBSUI_LDFLAGS) \
-	$(QT4_LDFLAGS)
-
-diana_bin_LDADD = \
-	${FIMEX_LIBS} \
-	$(METLIBSUI_LIBS) \
-	$(QT4_LIBS) \
-	libdiana.la
-
 if WITH_SMHI
-diana_bin_CPPFLAGS += -DSMHI
+libdianaui_a_CPPFLAGS += -DSMHI
 endif
 
 if WITH_VIDEO_EXPORT
-diana_bin_CPPFLAGS += -DVIDEO_EXPORT
+libdianaui_a_CPPFLAGS += -DVIDEO_EXPORT
 endif
-
-if WITH_XLIB
-diana_bin_CPPFLAGS += -DUSE_XLIB
-diana_bin_LDADD += -lX11
-endif # WITH_XLIB
 
 # generate version info header
 BUILT_SOURCES += diBuild.cc
@@ -828,3 +812,19 @@ diBuild.cc.tmp:
 
 bdiana_SOURCES = bdiana.cc
 bdiana_LDADD = libdiana.la
+
+diana_bin_SOURCES = main_gui.cc
+
+diana_bin_CPPFLAGS = $(libdianaui_a_CPPFLAGS)
+
+diana_bin_LDFLAGS = \
+	${FIMEX_LDFLAGS} \
+	$(METLIBSUI_LDFLAGS) \
+	$(QT4_LDFLAGS)
+
+diana_bin_LDADD = \
+	libdianaui.a \
+	${FIMEX_LIBS} \
+	$(METLIBSUI_LIBS) \
+	$(QT4_LIBS) \
+	libdiana.la
