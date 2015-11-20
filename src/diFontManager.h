@@ -88,10 +88,6 @@ public:
   bool drawStr(const std::string& s,  const float x, const float y, const float a = 0);
   bool drawStr(const std::wstring& s, const float x, const float y, const float a = 0);
 
-  /// get plotting size of a string
-  bool getStringSize(const std::string& s,  float& w, float& h);
-  bool getStringSize(const std::wstring& s, float& w, float& h);
-
   /// get bounding rectangle of a string
   bool getStringRect(const std::string& s, float& x, float& y, float& w, float& h);
   bool getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h);

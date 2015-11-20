@@ -176,20 +176,6 @@ void FontManager::setVpSize(const float vpw, const float vph)
     it->second->setVpSize(vpw, vph);
 }
 
-bool FontManager::getStringSize(const std::string& s, float& w, float& h)
-{
-  if (!currentFamily)
-    return false;
-  return currentFamily->getStringSize(s, w, h);
-}
-
-bool FontManager::getStringSize(const std::wstring& s, float& w, float& h)
-{
-  if (!currentFamily)
-    return false;
-  return currentFamily->getStringSize(s, w, h);
-}
-
 bool FontManager::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)
 {
   if (!currentFamily)

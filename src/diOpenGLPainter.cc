@@ -77,11 +77,6 @@ bool DiOpenGLCanvas::setFontSize(float size)
   return fp()->setFontSize(size);
 }
 
-bool DiOpenGLCanvas::getTextSize(const QString& text, float& w, float& h)
-{
-  return fp()->getStringSize(text.toStdWString(), w, h);
-}
-
 bool DiOpenGLCanvas::getTextRect(const QString& text, float& x, float& y, float& w, float& h)
 {
   return fp()->getStringRect(text.toStdWString(), x, y, w, h);

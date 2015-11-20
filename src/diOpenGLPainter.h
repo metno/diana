@@ -22,7 +22,6 @@ public:
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, FontFace face);
   bool setFontSize(float size);
-  bool getTextSize(const QString& text, float& w, float& h);
   bool getTextRect(const QString& text, float& x, float& y, float& w, float& h);
 
   inline FontManager* fp()

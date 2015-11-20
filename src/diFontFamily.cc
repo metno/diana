@@ -287,94 +287,57 @@ bool FontFamily::drawStr(const std::wstring& s, float x, float y, float angle)
   return true;
 }
 
-bool FontFamily::getStringSize(const std::string& s, float& w, float& h)
-{
-  w = h = 0;
-  if (s.length() == 0)
-    return false;
-
-  ttfont *tf = getFont();
-  if (!tf || !tf->pfont)
-    return false;
-
-  float llx, lly, llz, urx, ury, urz;
-  tf->pfont->BBox(s.c_str(), llx, lly, llz, urx, ury, urz);
-  w = (urx - llx) * scalex * xscale;
-  h = (ury - lly) * scaley * xscale;
-  if (mUseBitmap) {
-    w *= pixWidth;
-    h *= pixHeight;
-  }
-  return true;
-}
-
-bool FontFamily::getStringSize(const std::wstring& s, float& w, float& h)
-{
-  w = h = 0;
-  if (s.length() == 0)
-    return false;
-
-  ttfont *tf = getFont();
-  if (!(tf && tf->pfont))
-    return false;
-
-  float llx, lly, llz, urx, ury, urz;
-  tf->pfont->BBox(s.c_str(), llx, lly, llz, urx, ury, urz);
-  w = (urx - llx) * scalex * xscale;
-  h = (ury - lly) * scaley * xscale;
-  if (mUseBitmap) {
-    w *= pixWidth;
-    h *= pixHeight;
-  }
-  return true;
-}
-
 bool FontFamily::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)
 {
-  x = y = w = h = 0;
-  if (s.length() == 0)
+  ttfont *tf = prepareStringRect(s.length(), x, y, w, h);
+  if (!tf)
     return false;
 
-  ttfont *tf = getFont();
-  if (!tf || !tf->pfont)
-    return false;
+  float llz, urz;
+  tf->pfont->BBox(s.c_str(), x, y, llz, w, h, urz);
 
-  float llx, lly, llz, urx, ury, urz;
-  tf->pfont->BBox(s.c_str(), llx, lly, llz, urx, ury, urz);
-  x = llx * scalex * xscale;
-  y = lly * scaley * xscale;
-  w = (urx - llx) * scalex * xscale;
-  h = (ury - lly) * scaley * xscale;
-  if (mUseBitmap) {
-    x *= pixWidth;
-    y *= pixHeight;
-    w *= pixWidth;
-    h *= pixHeight;
-  }
+  scaleStringRect(x, y, w, h);
   return true;
 }
 
 bool FontFamily::getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h)
 {
-  x = y = w = h = 0;
-  if (s.length() == 0)
+  ttfont *tf = prepareStringRect(s.length(), x, y, w, h);
+  if (!tf)
     return false;
+
+  float llz, urz;
+  tf->pfont->BBox(s.c_str(), x, y, llz, w, h, urz);
+
+  scaleStringRect(x, y, w, h);
+  return true;
+}
+
+FontFamily::ttfont* FontFamily::prepareStringRect(size_t length,  float& x, float&y, float& w, float& h)
+{
+  x = y = w = h = 0;
+  if (length == 0)
+    return 0;
 
   ttfont *tf = getFont();
   if (!(tf && tf->pfont))
-    return false;
+    return 0;
 
-  float llx, lly, llz, urx, ury, urz;
-  tf->pfont->BBox(s.c_str(), llx, lly, llz, urx, ury, urz);
-  x = llx * scalex * xscale;
-  y = lly * scaley * xscale;
-  w = (urx - llx) * scalex * xscale;
-  h = (ury - lly) * scaley * xscale;
+  return tf;
+}
+
+void FontFamily::scaleStringRect(float& x, float&y, float& r_w, float& u_h)
+{
+  r_w -= x; // r_w contains right when calling and width when returning
+  u_h -= y; // u_h contains upper when calling and height when returning
+
+  float fx = scalex * xscale, fy = scaley * xscale;
   if (mUseBitmap) {
-    x *= pixWidth;
-    y *= pixHeight;
-    w *= pixWidth;
-    h *= pixHeight;
+    fx *= pixWidth;
+    fy *= pixHeight;
   }
-  return true;
+  x *= fx;
+  y *= fy;
+  r_w *= fx;
+  u_h *= fy;
 }

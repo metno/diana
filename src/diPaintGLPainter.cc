@@ -146,18 +146,6 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
   }
 }
 
-bool DiPaintGLCanvas::getTextSize(const QString& str, float& w, float& h)
-{
-  QFontMetricsF fm(mFont, mDevice);
-  QRectF rect = fm.boundingRect(str);
-  w = rect.width() * mFontScaleX;
-  h = rect.height() * 0.8 * mFontScaleY;
-  if (w == 0 || str.trimmed().isEmpty())
-    h = 0;
-
-  return true;
-}
-
 bool DiPaintGLCanvas::getTextRect(const QString& str, float& x, float& y, float& w, float& h)
 {
   QFontMetricsF fm(mFont, mDevice);

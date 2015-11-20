@@ -46,7 +46,7 @@ public:
   bool getTextSize(const std::string& text, float& w, float& h);
   bool getTextRect(const char* s, float& x, float& y, float& w, float& h);
   bool getTextRect(const std::string& s, float& x, float& y, float& w, float& h);
-  virtual bool getTextSize(const QString& text, float& w, float& h) = 0;
+  bool getTextSize(const QString& text, float& w, float& h);
   virtual bool getTextRect(const QString& text, float& x, float& y, float& w, float& h) = 0;
 
 protected:

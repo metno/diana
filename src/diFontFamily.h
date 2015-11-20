@@ -67,8 +67,6 @@ public:
   // Metric commands
   void setGlSize(float, float);
   void setVpSize(float, float);
-  bool getStringSize(const std::string& s,  float& w, float& h);
-  bool getStringSize(const std::wstring& s, float& w, float& h);
   bool getStringRect(const std::string& s,  float& x, float&y, float& w, float& h);
   bool getStringRect(const std::wstring& s, float& x, float&y, float& w, float& h);
 
@@ -89,6 +87,9 @@ private:
   bool _calcScaling();
   void prepareDraw(float x, float y, float angle);
   ttfont* getFont();
+
+  ttfont* prepareStringRect(size_t length,  float& x, float&y, float& w, float& h);
+  void scaleStringRect(float& x, float&y, float& r_w, float& u_h);
 
 private:
   bool mUseBitmap;
