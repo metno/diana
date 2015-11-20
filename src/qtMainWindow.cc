@@ -2783,6 +2783,7 @@ void DianaMainWindow::paintOnDevice(QPaintDevice* device)
   DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
 
   std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
+  glcanvas->parseFontSetup();
   std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
   glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
@@ -2876,6 +2877,7 @@ void DianaMainWindow::saveAnimation()
   DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
 
   std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(&image));
+  glcanvas->parseFontSetup();
   std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
   glpainter->printing = false;
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);

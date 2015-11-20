@@ -53,6 +53,7 @@ GLwidget::~GLwidget()
 
 void GLwidget::setCanvas(DiCanvas* canvas)
 {
+  DiPaintable::setCanvas(canvas);
   contr->setCanvas(canvas);
   requestBackgroundBufferUpdate();
 }

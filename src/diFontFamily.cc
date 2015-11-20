@@ -145,24 +145,17 @@ bool FontFamily::_calcScaling()
 
   float xy;
   if (mUseBitmap) {
-    xy = scalex = scaley = 1.0;
+    xy = scalex = 1.0;
   } else {
-    scalex = pixWidth;
-    scaley = pixHeight;
     xy = pixHeight / pixWidth;
-    scalex *= 1.30;
-    scaley *= 1.30;
+    scalex = pixWidth * 1.3;
   }
 
-  float truesize = reqSize * scalex;
-  int size = static_cast<int> (roundf(reqSize));
-  if (size < 1)
-    size = 1;
+  const float truesize = reqSize * scalex;
+  const int size = std::max(static_cast<int> (roundf(reqSize)), 1);
 
-  float qx = truesize / (1.0 * size);
-
-  scalex = qx;
-  scaley = qx * xy;
+  scalex = truesize / size;
+  scaley = scalex * xy;
 
   // find correct sizeindex
   if (!_findSize(size, SizeIndex, true)) {
@@ -226,7 +219,7 @@ bool FontFamily::_checkFont()
       tf->pfont = new FTGLPolygonFont(fontname.c_str());
     FT_Error error = tf->pfont->Error();
     if (error != 0) {
-      METLIBS_LOG_ERROR("could not create font, error=" << error);
+      METLIBS_LOG_ERROR("could not create font from file '" << fontname << "', error=" << error);
       tf->destroy();
       return false;
     }

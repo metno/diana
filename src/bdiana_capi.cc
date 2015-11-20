@@ -1388,11 +1388,13 @@ void createPaintDevice()
     image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::transparent);
     glcanvas = new DiPaintGLCanvas(&image);
+    glcanvas->parseFontSetup();
 
   } else {
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
     glcanvas = new DiPaintGLCanvas(&picture);
+    glcanvas->parseFontSetup();
     if (pdf || (!svg && !json /* i.e. postscript*/))
       printing = true;
   }

@@ -34,13 +34,24 @@ void DiOpenGLCanvas::deleteTexture(GLuint texid)
   mWidget->deleteTexture(texid);
 }
 
+void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
+{
+  fp()->clearFamilies();
+  DiGLCanvas::parseFontSetup(sect_fonts);
+
+  fp()->setFont("BITMAPFONT");
+  fp()->setFontFace(FontFamily::F_NORMAL);
+}
+
+void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,
+    const std::string& face, bool use_bitmap)
+{
+  fp()->defineFont(fontfam, fontfilename, face, use_bitmap);
+}
+
 void DiOpenGLCanvas::initializeFP()
 {
-  METLIBS_LOG_SCOPE();
   mFP.reset(new FontManager);
-  mFP->parseSetup();
-  mFP->setFont("BITMAPFONT");
-  mFP->setFontFace(FontFamily::F_NORMAL);
 }
 
 void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
@@ -52,13 +63,13 @@ void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
 
 bool DiOpenGLCanvas::setFont(const std::string& font)
 {
-  return fp()->setFont(font);
+  return fp()->setFont(lookupFontAlias(font));
 }
 
 bool DiOpenGLCanvas::setFont(const std::string& font, float size, FontFace face)
 {
   // assume that DiPainter::FontFace == glText::FontFace
-  return fp()->set(font, (FontFamily::FontFace)face, size);
+  return fp()->set(lookupFontAlias(font), (FontFamily::FontFace)face, size);
 }
 
 bool DiOpenGLCanvas::setFontSize(float size)

@@ -39,5 +39,11 @@ QWidget* DiPaintable::createWidget(DiPaintable* p, QWidget* parent)
 DiPaintable::DiPaintable()
   : enable_background_buffer(false)
   , update_background_buffer(false)
+  , mCanvas(0)
 {
+}
+
+void DiPaintable::setCanvas(DiCanvas* canvas)
+{
+  mCanvas = canvas;
 }

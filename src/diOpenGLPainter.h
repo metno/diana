@@ -14,6 +14,10 @@ class DiOpenGLCanvas : public DiGLCanvas {
 public:
   DiOpenGLCanvas(QGLWidget* widget);
 
+  void parseFontSetup(const std::vector<std::string>& sect_fonts) Q_DECL_OVERRIDE;
+  void defineFont(const std::string& fontfam, const std::string& fontfilename,
+      const std::string& face, bool use_bitmap) Q_DECL_OVERRIDE;
+
   void setVpGlSize(float vpw, float vph, float glw, float glh);
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, FontFace face);

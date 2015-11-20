@@ -95,8 +95,8 @@ public:
     { return mDevice; }
 
 private:
-  bool parseFontSetup();
-  bool defineFont(const std::string& font, const std::string& fontfilename);
+  void defineFont(const std::string& fontfam, const std::string& fontfilename,
+      const std::string& face, bool use_bitmap) Q_DECL_OVERRIDE;
 
 private:
   QPaintDevice* mDevice;
@@ -104,8 +104,6 @@ private:
 
   float mFontScaleX, mFontScaleY;
   QHash<QString,QString> fontMap;
-
-  std::map<std::string, std::string> defaults;
 };
 
 class DiPaintGLPainter : public DiGLPainter

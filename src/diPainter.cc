@@ -1,7 +1,10 @@
 
 #include "diPainter.h"
 
+#include "diLocalSetupParser.h"
+
 #include <diField/diRectangle.h>
+#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QImage>
@@ -9,6 +12,100 @@
 #include <QPolygonF>
 
 #include <cmath>
+
+void DiCanvas::parseFontSetup()
+{
+  const std::string sf_name = "FONTS";
+  std::vector<std::string> sect_fonts;
+  if (miutil::SetupParser::getSection(sf_name, sect_fonts))
+    parseFontSetup(sect_fonts);
+}
+
+void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
+{
+  const std::string key_font = "font";
+  const std::string key_fonttype = "type";
+  const std::string key_fontface = "face";
+  const std::string key_fontname = "name";
+  const std::string key_postscript = "postscript";
+  const std::string key_psxscale = "ps-scale-x";
+  const std::string key_psyscale = "ps-scale-y";
+  const std::string key_fontpath = "fontpath";
+
+  const std::string key_bitmap = "bitmap";
+  const std::string key_scaleable = "scaleable";
+  const std::string key_ttbitmap = "tt_bitmap"; // use bitmap FTGL font
+  const std::string key_ttpixmap = "tt_pixmap";
+  const std::string key_tttexture = "tt_texture";
+  const std::string key_texture = "texture";
+
+  const std::string key_bitmapfont = "bitmapfont";
+  const std::string key_scalefont = "scalefont";
+  const std::string key_metsymbolfont = "metsymbolfont";
+
+  fontFamilyAliases.clear();
+  fontFamilyAliases[key_bitmapfont] = "Helvetica";
+  fontFamilyAliases[key_scalefont] = "Arial";
+  fontFamilyAliases[key_metsymbolfont] = "Symbol";
+
+  std::string fontpath = LocalSetupParser::basicValue("fontpath");
+  if (fontpath.empty())
+    fontpath = "fonts/";
+
+  for (std::vector<std::string>::const_iterator it = sect_fonts.begin(); it != sect_fonts.end(); ++it) {
+    std::string fontfam = "";
+    std::string fontname = "";
+    std::string fonttype = "";
+    std::string fontface = "NORMAL";
+
+    std::vector<std::string> stokens = miutil::split(*it, " ");
+    for (unsigned int j = 0; j < stokens.size(); j++) {
+      std::string key;
+      std::string val;
+      miutil::SetupParser::splitKeyValue(stokens[j], key, val);
+
+      if (key == key_font)
+        fontfam = val;
+      else if (key == key_fonttype)
+        fonttype = val;
+      else if (key == key_fontface)
+        fontface = val;
+      else if (key == key_fontname)
+        fontname = val;
+      else if (key == key_postscript || key == key_psxscale || key == key_psyscale)
+        ; // ignore these options
+      else if (key == key_fontpath)
+        fontpath = val;
+      else
+        fontFamilyAliases[key] = val;
+    }
+
+    if (fonttype.empty() || fontfam.empty() || fontname.empty())
+      continue;
+
+    const std::string fonttype_lc = miutil::to_lower(fonttype);
+    std::string fontfilename = fontpath + "/" + fontname;
+    const bool use_bitmap = (fonttype_lc == key_ttbitmap);
+
+    if (fonttype_lc == key_bitmap) {
+      // nothing
+    } else if (fonttype_lc == key_scaleable || use_bitmap || fonttype_lc == key_ttpixmap
+        || fonttype_lc == key_tttexture || fonttype_lc == key_texture)
+    {
+      defineFont(fontfam, fontfilename, fontface, use_bitmap);
+    }
+  }
+}
+
+std::string DiCanvas::lookupFontAlias(const std::string& name)
+{
+  std::map<std::string, std::string>::const_iterator it
+      = fontFamilyAliases.find(miutil::to_lower(name));
+  if (it != fontFamilyAliases.end())
+    return it->second;
+  else
+    return name;
+}
 
 bool DiCanvas::setFont(const std::string& font, const std::string& face, float size)
 {

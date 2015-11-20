@@ -33,20 +33,11 @@
 
 #include "diFontManager.h"
 #include "diFontFamily.h"
-#include "diLocalSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.FontManager"
 #include <miLogger/miLogging.h>
-
-std::string FontManager::fontpath;
-
-static const std::string key_ttbitmap = "tt_bitmap"; // use bitmap FTGL font
-
-static const std::string key_bitmapfont = "bitmapfont";
-static const std::string key_scalefont = "scalefont";
-static const std::string key_metsymbolfont = "metsymbolfont";
 
 FontManager::FontManager()
   : currentFamily(0)
@@ -55,25 +46,13 @@ FontManager::FontManager()
 
 FontManager::~FontManager()
 {
-  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
-    delete it->second;
+  clearFamilies();
 }
 
-// fill fontpack for testing
-bool FontManager::testDefineFonts(const std::string& path)
+void FontManager::clearFamilies()
 {
-  FontFamily* arial = new FontFamily(false);
-  arial->defineFont(path + "/Arialn.ttf", FontFamily::F_NORMAL, 16);
-  arial->defineFont(path + "/Arialni.ttf", FontFamily::F_ITALIC, 20);
-  arial->defineFont(path + "/Arialnb.ttf", FontFamily::F_BOLD, 20);
-  families["Arial"] = arial;
-
-  FontFamily* weatherSymbols = new FontFamily(true);
-  weatherSymbols->defineFont(path + "/dnmimet.ttf", FontFamily::F_NORMAL, 20);
-  families["Symbol"] = weatherSymbols;
-
-  currentFamily = arial;
-  return true;
+  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
+    delete it->second;
 }
 
 // static
@@ -94,99 +73,26 @@ FontFamily::FontFace FontManager::fontFace(const std::string& s)
   return face;
 }
 
-bool FontManager::parseSetup()
+void FontManager::defineFont(const std::string& fontfam, const std::string& fontfilename,
+    const std::string& fontface, bool use_bitmap)
 {
-  const std::string sf_name = "FONTS";
+  families_t::iterator it = families.find(fontfam);
+  FontFamily* f;
+  if (it == families.end()) {
+    f = new FontFamily(use_bitmap);
 
-  const std::string key_font = "font";
-  const std::string key_fonttype = "type";
-  const std::string key_fontface = "face";
-  const std::string key_fontname = "name";
-  const std::string key_postscript = "postscript";
-  const std::string key_psxscale = "ps-scale-x";
-  const std::string key_psyscale = "ps-scale-y";
-  const std::string key_fontpath = "fontpath";
-
-  familyAliases.clear();
-  familyAliases[key_bitmapfont] = "Helvetica";
-  familyAliases[key_scalefont] = "Arial";
-  familyAliases[key_metsymbolfont] = "Symbol";
-
-  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
-    delete it->second;
-
-  if (fontpath.empty()) {
-    fontpath = LocalSetupParser::basicValue("fontpath");
-    if (fontpath.empty())
-      fontpath = "fonts/";
+    if (families.empty())
+      currentFamily = f;
+    families.insert(std::make_pair(fontfam, f));
+  } else {
+    f = it->second;
   }
-
-  std::vector<std::string> sect_fonts;
-  if (!miutil::SetupParser::getSection(sf_name, sect_fonts)) {
-    //METLIBS_LOG_WARN("Missing section " << sf_name << " in setupfile.");
-    testDefineFonts(fontpath);
-    return false;
-  }
-
-  int n = sect_fonts.size();
-  for (int i = 0; i < n; i++) {
-    std::string fontfam = "";
-    std::string fontname = "";
-    std::string fonttype = "";
-    std::string fontface = "";
-
-    std::vector<std::string> stokens = miutil::split(sect_fonts[i], " ");
-    for (unsigned int j = 0; j < stokens.size(); j++) {
-      std::string key;
-      std::string val;
-      miutil::SetupParser::splitKeyValue(stokens[j], key, val);
-
-      if (key == key_font)
-        fontfam = val;
-      else if (key == key_fonttype)
-        fonttype = val;
-      else if (key == key_fontface)
-        fontface = val;
-      else if (key == key_fontname)
-        fontname = val;
-      else if (key == key_postscript || key == key_psxscale || key == key_psyscale)
-        ; // ignore these options
-      else if (key == key_fontpath)
-        fontpath = val;
-      else
-        familyAliases[key] = val;
-    }
-
-    if (fonttype.empty() || fontfam.empty() || fontname.empty())
-      continue;
-
-    const std::string fonttype_lc = miutil::to_lower(fonttype);
-    std::string fontfilename = fontpath + "/" + fontname;
-
-    families_t::iterator it = families.find(fontfam);
-    FontFamily* f;
-    if (it == families.end()) {
-      bool use_bitmap = (fonttype_lc == key_ttbitmap);
-      f = new FontFamily(use_bitmap);
-
-      if (families.empty())
-        currentFamily = f;
-      families.insert(std::make_pair(fontfam, f));
-    } else {
-      f = it->second;
-    }
-    f->defineFont(fontfilename, fontFace(fontface), 20);
-  }
-
-  return true;
+  f->defineFont(fontfilename, fontFace(fontface), 20);
 }
 
 FontFamily* FontManager::findFamily(const std::string& family)
 {
-  const aliases_t::const_iterator itA = familyAliases.find(miutil::to_lower(family));
-  const std::string& fam = (itA != familyAliases.end()) ? itA->second : family;
-
-  const families_t::iterator itF = families.find(fam);
+  const families_t::iterator itF = families.find(family);
   if (itF != families.end()) {
     currentFamily = itF->second;
     return currentFamily;

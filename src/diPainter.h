@@ -5,6 +5,7 @@
 #include "diPoint.h"
 
 #include <QList>
+#include <map>
 #include <string>
 
 class Colour;
@@ -28,6 +29,11 @@ public:
     F_NORMAL = 0, F_BOLD = 1, F_ITALIC = 2, F_BOLD_ITALIC = 3
   };
 
+  void parseFontSetup();
+  virtual void parseFontSetup(const std::vector<std::string>& sect_fonts);
+  virtual void defineFont(const std::string& font, const std::string& fontfilename,
+      const std::string& face, bool use_bitmap) = 0;
+
   virtual void setVpGlSize(float vpw, float vph, float glw, float glh) = 0;
   virtual bool setFont(const std::string& font) = 0;
   virtual bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) = 0;
@@ -42,6 +48,12 @@ public:
   bool getTextRect(const std::string& s, float& x, float& y, float& w, float& h);
   virtual bool getTextSize(const QString& text, float& w, float& h) = 0;
   virtual bool getTextRect(const QString& text, float& x, float& y, float& w, float& h) = 0;
+
+protected:
+  std::string lookupFontAlias(const std::string& name);
+
+protected:
+  std::map<std::string, std::string> fontFamilyAliases;
 };
 
 class DiPainter {

@@ -66,18 +66,6 @@ DiCanvas::FontFace fontFace(const std::string& s)
   return face;
 }
 
-  // FIXME these are copied from FontManager.cc
-static const std::string key_bitmap = "bitmap";
-static const std::string key_scaleable = "scaleable";
-static const std::string key_ttbitmap = "tt_bitmap";
-static const std::string key_ttpixmap = "tt_pixmap";
-static const std::string key_tttexture = "tt_texture";
-static const std::string key_texture = "texture";
-
-static const std::string key_bitmapfont = "bitmapfont";
-static const std::string key_scalefont = "scalefont";
-static const std::string key_metsymbolfont = "metsymbolfont";
-
 } // namespace
 
 DiPaintGLCanvas::DiPaintGLCanvas(QPaintDevice* device)
@@ -87,7 +75,6 @@ DiPaintGLCanvas::DiPaintGLCanvas(QPaintDevice* device)
   , mFontScaleY(1)
 {
   METLIBS_LOG_SCOPE();
-  parseFontSetup();
 }
 
 DiPaintGLCanvas::~DiPaintGLCanvas()
@@ -107,14 +94,7 @@ bool DiPaintGLCanvas::setFont(const std::string& name)
 {
   METLIBS_LOG_SCOPE(LOGVAL(name));
 
-  std::string family;
-  std::map<std::string, std::string>::const_iterator it_defaults
-      = defaults.find(miutil::to_lower(name));
-  if (it_defaults != defaults.end())
-    family = it_defaults->second;
-  else
-    family = name;
-
+  const std::string family = lookupFontAlias(name);
   const QString& f = fontMap[QString::fromStdString(family)];
   METLIBS_LOG_DEBUG(LOGVAL(name) << LOGVAL(f.toStdString()));
   mFont.setFamily(f);
@@ -144,93 +124,25 @@ void DiPaintGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
   mFontScaleY = glh / vph;
 }
 
-bool DiPaintGLCanvas::parseFontSetup()
+void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,
+    const std::string& face, bool use_bitmap)
 {
-  // FIXME this is an almost verbatim copy of FontManager::parseSetup
-  const std::string sf_name = "FONTS";
-  std::vector<std::string> sect_fonts;
+  METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename) << LOGVAL(face));
+  if (face != "NORMAL")
+    return;
 
-  const std::string key_font = "font";
-  const std::string key_fonttype = "type";
-  const std::string key_fontface = "face";
-  const std::string key_fontname = "name";
-  const std::string key_postscript = "postscript";
-  const std::string key_psxscale = "ps-scale-x";
-  const std::string key_psyscale = "ps-scale-y";
-  const std::string key_fontpath = "fontpath";
-
-  defaults[key_bitmapfont] = "Helvetica";
-  defaults[key_scalefont] = "Arial";
-  defaults[key_metsymbolfont] = "Symbol";
-
-  std::string fontpath = LocalSetupParser::basicValue("fontpath");
-  if (fontpath.empty())
-    fontpath = "fonts/";
-
-  if (!miutil::SetupParser::getSection(sf_name, sect_fonts)) {
-    //METLIBS_LOG_WARN("Missing section " << sf_name << " in setupfile.");
-    return false;
-  }
-
-  int n = sect_fonts.size();
-  for (int i = 0; i < n; i++) {
-    std::string fontfam, fontname, fonttype;
-
-    std::vector<std::string> stokens = miutil::split(sect_fonts[i], " ");
-    for (unsigned int j = 0; j < stokens.size(); j++) {
-      std::string key;
-      std::string val;
-      miutil::SetupParser::splitKeyValue(stokens[j], key, val);
-
-      if (key == key_font)
-        fontfam = val;
-      else if (key == key_fonttype)
-        fonttype = val;
-      else if (key == key_fontname)
-        fontname = val;
-      else if (key == key_fontface || key == key_postscript || key == key_psxscale || key == key_psyscale)
-        ; // ignore these options
-      else if (key == key_fontpath)
-        fontpath = val;
-      else
-        defaults[key] = val;
-    }
-
-    if (fonttype.empty() || fontfam.empty() || fontname.empty())
-      continue;
-
-    const std::string fonttype_lc = miutil::to_lower(fonttype);
-    std::string fontfilename = fontpath + "/" + fontname;
-
-    if (fonttype_lc == key_bitmap) {
-      // nothing
-    } else if (fonttype_lc == key_scaleable || fonttype_lc == key_ttbitmap || fonttype_lc == key_ttpixmap
-        || fonttype_lc == key_tttexture || fonttype_lc == key_texture)
-    {
-      defineFont(fontfam, fontfilename);
-    }
-  }
-
-  return true;
-}
-
-bool DiPaintGLCanvas::defineFont(const std::string& font, const std::string& fontfilename)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(font) << LOGVAL(fontfilename));
   int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
   if (handle == -1)
-    return false;
+    return;
 
   QStringList families = QFontDatabase::applicationFontFamilies(handle);
   if (families.isEmpty())
-    return false;
+    return;
 
-  const QString qfont = QString::fromStdString(font);
+  const QString qfont = QString::fromStdString(fontfam);
   Q_FOREACH(const QString& family, families) {
     fontMap[qfont] = family;
   }
-
-  return true;
 }
 
 bool DiPaintGLCanvas::getTextSize(const QString& str, float& w, float& h)

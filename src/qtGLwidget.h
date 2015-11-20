@@ -80,7 +80,7 @@ Q_SIGNALS:
   void changeCursor(cursortype);
 
 public:
-  void setCanvas(DiCanvas* canvas);
+  void setCanvas(DiCanvas* canvas) Q_DECL_OVERRIDE;
   void paint(DiPainter* gl);
   void resize(int width, int height);
 

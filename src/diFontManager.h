@@ -52,9 +52,6 @@ private:
   families_t families;
   FontFamily *currentFamily;
 
-  typedef std::map<std::string, std::string> aliases_t;
-  aliases_t familyAliases;
-
   //! convert font face text to constant
   static FontFamily::FontFace fontFace(const std::string&);
 
@@ -65,11 +62,10 @@ public:
   FontManager();
   ~FontManager();
 
-  /// for test purposes, sets up a standard set of fonts
-  bool testDefineFonts(const std::string& path = "fonts");
+  void defineFont(const std::string& fontfam, const std::string& fontfilename,
+      const std::string& face, bool use_bitmap);
 
-  /// parse fontsection in setup file
-  bool parseSetup();
+  void clearFamilies();
 
   /// choose fonttype, face and size
   bool set(const std::string& family, FontFamily::FontFace, float);

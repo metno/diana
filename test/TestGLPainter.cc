@@ -36,23 +36,36 @@
 
 #include <diColour.h>
 
+#include <QCoreApplication>
 #include <QImage>
+#include <QTimer>
 
 #include <gtest/gtest.h>
 
 #define MILOGGER_CATEGORY "diana.test.GLPainter"
 #include "miLogger/miLogging.h"
 
+#define TEST_FONTDIR TEST_SRCDIR "/../share/diana/fonts/"
+
 namespace {
+
+void wait(int ms)
+{
+  QTimer timer;
+  timer.start(ms + 10);
+  QCoreApplication::processEvents(QEventLoop::AllEvents, ms);
+}
 
 class TestPaintable : public DiPaintable {
 public:
   TestPaintable();
 
-  void setCanvas(DiCanvas* c) { canvas = c; }
+  virtual void setCanvas(DiCanvas* c);
   void resize(int w, int h);
   void paintUnderlay(DiPainter* painter);
   void paintOverlay(DiPainter* painter);
+
+  void drawTextInBox(DiGLPainter* gl, const QString& text, float tx, float ty);
 
   DiCanvas* canvas;
   bool text, lines;
@@ -60,8 +73,16 @@ public:
 };
 
 TestPaintable::TestPaintable()
-  : canvas(0), text(false), lines(false), width(0), height(0)
+  : canvas(0), text(true), lines(true), width(0), height(0)
 {
+}
+
+void TestPaintable::setCanvas(DiCanvas* c)
+{
+  DiPaintable::setCanvas(c);
+  c->defineFont("BITMAPFONT",    TEST_FONTDIR "Vera.ttf",       "NORMAL", true);
+  c->defineFont("SCALEFONT" ,    TEST_FONTDIR "Vera.ttf",       "NORMAL", false);
+  c->defineFont("METSYMBOLFONT", TEST_FONTDIR "metsymbols.ttf", "NORMAL", false);
 }
 
 void TestPaintable::resize(int w, int h)
@@ -74,21 +95,43 @@ void TestPaintable::paintUnderlay(DiPainter* painter)
 {
   DiGLPainter* gl = static_cast<DiGLPainter*>(painter);
 
-  const int SIG1SYMBOL = 248, SIG2SYMBOL = 249;
-  //const QLatin1Char SIG1SYMBOL(248), SIG2SYMBOL(249);
+  const QString SIG1SYMBOL(QLatin1Char(248)), SIG2SYMBOL(QLatin1Char(249));
 
-  gl->Ortho(-1, 1, -1, 1, -1, 1);
-  gl->canvas()->setVpGlSize(width, height, 2, 2);
+  const float C = -10;
+  gl->LoadIdentity();
+  gl->Ortho(-C, C, -C, C, -1, 1);
+  gl->canvas()->setVpGlSize(width, height, 2*C, 2*C);
+
+  gl->ClearColor(1, 1, 1, 1);
+  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
 
   if (lines) {
     gl->setLineStyle(Colour(0, 0, 255), 2);
-    gl->drawLine(-0.5, 0.5, 0.5, -0.5);
+    gl->drawLine(-C/2, C/2, C/2, -C/2);
   }
   if (text) {
-    gl->setFont("METSYMBOLFONT", 10);
-    gl->drawChar(SIG1SYMBOL, -0.5, -0.5, 0);
-    gl->drawChar(SIG2SYMBOL,  0.5,  0.5, 0);
+    gl->setFont("METSYMBOLFONT", 200);
+    drawTextInBox(gl, SIG1SYMBOL, -C/2, -C/2);
+    drawTextInBox(gl, SIG2SYMBOL,  C/2,  C/2);
+
+    gl->setFont("BITMAPFONT", 100);
+    drawTextInBox(gl, "Sky?", -C/2,  C/2);
+    drawTextInBox(gl, "air",   C/2, -C/2);
   }
+}
+
+void TestPaintable::drawTextInBox(DiGLPainter* gl, const QString& text, float tx, float ty)
+{
+  float x, y, w, h;
+  gl->canvas()->getTextRect(text, x, y, w, h);
+  x += tx;
+  y += ty;
+  gl->setLineStyle(Colour(0, 255, 0), 1);
+  gl->drawRect(x, y, x+w, y+h);
+  gl->drawText(text, tx, ty, 0);
+
+  gl->setLineStyle(Colour(255, 0, 0), 1);
+  gl->drawCross(tx, ty, 0.2, true);
 }
 
 void TestPaintable::paintOverlay(DiPainter*)
@@ -103,6 +146,7 @@ TEST(TestOpenGL, Text)
   DiOpenGLWidget* w = new DiOpenGLWidget(tp);
   w->resize(1200, 900);
   w->show();
+  wait(200);
   QImage snapshot = w->grabFrameBuffer(true);
   delete w;
   delete tp;
