@@ -115,7 +115,7 @@ QRectF Text::getStringRect(const QString &text, int index) const
   // Obtain the width and height of the text in plot coordinates.
   float x = 0, y = 0, width = 0, height = 0;
   if (DiCanvas* canvas = styleManager->canvas()) {
-    canvas->getTextRect(text.left(index).toStdString(), x, y, width, height);
+    canvas->getTextRect(text.left(index), x, y, width, height);
     if (height == 0)
       canvas->getTextRect("X", x, y, width, height);
   }
