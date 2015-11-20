@@ -142,8 +142,10 @@ public:
   const Rectangle& getPlotSize() const
     { return plotsize; }
 
-  /// set the  full size of the plot in the current projection
-  void setPlotSize(const Rectangle& r);
+  /*! \param mr the size of the data grid
+   * \param pr the full size of the plot in the current projection
+   */
+  void setMapPlotSize(const Rectangle& mr, const Rectangle& pr);
 
   const XY& getPhysToMapScale() const
     { return mPhysToMapScale; }
@@ -157,9 +159,6 @@ public:
   /// this is size of the data grid
   const Rectangle& getMapSize() const
     { return maprect; }
-
-  /// set the size of the data grid
-  void setMapSize(const Rectangle& r);
 
   /// set the physical size of the map in pixels
   void setPhysSize(float w, float h);

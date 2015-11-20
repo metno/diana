@@ -129,23 +129,17 @@ void StaticPlot::updatePhysToMapScale()
       oneIf0(plotsize.height()) / oneIf0(mPhys.y()));
 }
 
-void StaticPlot::setPlotSize(const Rectangle& r)
+void StaticPlot::setMapPlotSize(const Rectangle& mr, const Rectangle& pr)
 {
-  if (plotsize == r)
-    return;
-
-  plotsize = r;
-  updatePhysToMapScale();
-  setDirty(true);
-}
-
-
-void StaticPlot::setMapSize(const Rectangle& r)
-{
-  if (maprect==r)
-    return;
-  maprect= r;
-  setDirty(true);
+  if (plotsize != pr) {
+    plotsize = pr;
+    updatePhysToMapScale();
+    setDirty(true);
+  }
+  if (maprect != mr) {
+    maprect= mr;
+    setDirty(true);
+  }
 }
 
 void StaticPlot::setPhysSize(float w, float h)

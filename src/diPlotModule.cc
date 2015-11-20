@@ -1088,12 +1088,12 @@ void PlotModule::PlotAreaSetup()
 
   const float waspr = staticPlot_->getPhysWidth() / staticPlot_->getPhysHeight();
   const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
-  staticPlot_->setMapSize(mr);
 
   // update full plot area -- add border
   const float border = 0.0;
   const Rectangle fr = diutil::adjustedRectangle(mr, border, border);
-  staticPlot_->setPlotSize(fr);
+
+  staticPlot_->setMapPlotSize(mr, fr);
 }
 
 void PlotModule::setPlotWindow(const int& w, const int& h)
