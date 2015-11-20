@@ -45,9 +45,10 @@
 #define IFDEBUG(x) do { } while (false)
 #endif
 
-#define TEXTURE_CACHE_SIZE 16
-
 namespace {
+
+const int TEXTURE_CACHE_SIZE = 16;
+
 DiCanvas::FontFace fontFace(const std::string& s)
 {
   // FIXME this is an almost verbatim copy of FontManager::fontFace
@@ -160,11 +161,11 @@ bool DiPaintGLCanvas::getTextSize(const QString& str, float& w, float& h)
 bool DiPaintGLCanvas::getTextRect(const QString& str, float& x, float& y, float& w, float& h)
 {
   QFontMetricsF fm(mFont, mDevice);
-  QRectF rect = fm.boundingRect(str);
+  QRectF rect = fm.tightBoundingRect(str);
   x = rect.x() * mFontScaleX;
-  y = rect.y() * mFontScaleY;
+  y = -rect.bottom() * mFontScaleY;
   w = rect.width() * mFontScaleX;
-  h = rect.height() * 0.8 * mFontScaleY;
+  h = rect.height() * mFontScaleY;
   if (w == 0 || str.trimmed().isEmpty())
     h = 0;
 
@@ -1721,7 +1722,7 @@ bool DiPaintGLPainter::drawText(const QString& str,
   this->painter->scale(c->fontScaleX(), c->fontScaleY());
   // Flip it vertically to take coordinate system differences into account.
   this->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
-  this->painter->drawText(0, -fm.descent()/2, str);
+  this->painter->drawText(0, 0, str);
   this->painter->restore();
   return true;
 }

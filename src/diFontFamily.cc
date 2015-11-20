@@ -52,6 +52,10 @@
 #define MILOGGER_CATEGORY "diana.FontFamily"
 #include <miLogger/miLogging.h>
 
+namespace {
+const float FACTOR = 1.35;
+} // namespace
+
 void FontFamily::ttfont::destroy()
 {
   delete pfont;
@@ -120,7 +124,7 @@ bool FontFamily::set(FontFace face, float size)
   Face = face;
   reqSize = size;
   if (mUseBitmap)
-    reqSize *= 1.3;
+    reqSize *= FACTOR;
   return _calcScaling();
 }
 
@@ -134,7 +138,7 @@ bool FontFamily::setFontSize(float size)
 {
   reqSize = size;
   if (mUseBitmap)
-    reqSize *= 1.3;
+    reqSize *= FACTOR;
   return _calcScaling();
 }
 
@@ -148,7 +152,7 @@ bool FontFamily::_calcScaling()
     xy = scalex = 1.0;
   } else {
     xy = pixHeight / pixWidth;
-    scalex = pixWidth * 1.3;
+    scalex = pixWidth * FACTOR;
   }
 
   const float truesize = reqSize * scalex;
@@ -342,6 +346,8 @@ bool FontFamily::getStringRect(const std::string& s, float& x, float& y, float& 
   w = (urx - llx) * scalex * xscale;
   h = (ury - lly) * scaley * xscale;
   if (mUseBitmap) {
+    x *= pixWidth;
+    y *= pixHeight;
     w *= pixWidth;
     h *= pixHeight;
   }
@@ -365,6 +371,8 @@ bool FontFamily::getStringRect(const std::wstring& s, float& x, float& y, float&
   w = (urx - llx) * scalex * xscale;
   h = (ury - lly) * scaley * xscale;
   if (mUseBitmap) {
+    x *= pixWidth;
+    y *= pixHeight;
     w *= pixWidth;
     h *= pixHeight;
   }
