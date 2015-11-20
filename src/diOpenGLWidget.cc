@@ -1,14 +1,15 @@
 
+#define GL_GLEXT_PROTOTYPES // needed for glWindowPos2i, which is OpenGL 1.4
+
 #include "diOpenGLWidget.h"
 
 #include "diOpenGLPainter.h"
 #include "diPaintable.h"
 
-#include "diPlotModule.h"
-
 #include <qgl.h>
 
 #include <cmath>
+#include <cstdlib>
 
 #define MILOGGER_CATEGORY "diana.DiOpenGLWidget"
 #include <miLogger/miLogging.h>
@@ -33,6 +34,31 @@ QGLFormat oglfmt()
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   return fmt;
+}
+
+int gl_major = 0, gl_minor = 0;
+
+void check_gl_version()
+{
+  glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+  if (glGetError() == 0) {
+    glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+  } else {
+    const GLubyte* gl_version = glGetString(GL_VERSION);
+    if (gl_version != 0) {
+      const std::string glversion((const char*)gl_version);
+      const int end_major = glversion.find('.');
+      const int end_minor = glversion.find_first_not_of("0123456789", end_major+1);
+      gl_major = std::atoi(glversion.substr(0, end_major).c_str());
+      gl_minor = std::atoi(glversion.substr(end_major+1, end_minor).c_str());
+    }
+  }
+  METLIBS_LOG_DEBUG("OpenGL version major=" << gl_major << " minor=" << gl_minor);
+}
+
+bool have_opengl(int major, int minor)
+{
+  return gl_major >= major || (gl_major == major && gl_minor >= minor);
 }
 
 } // namespace anonymous
@@ -60,6 +86,8 @@ void DiOpenGLWidget::initializeGL()
     METLIBS_LOG_INFO("using OpenGL GL_VERSION=" << getGlString(GL_VERSION)
         << " GL_VENDOR=" << getGlString(GL_VENDOR) << " RENDERER=" << getGlString(GL_RENDERER));
     version_info = true;
+
+    check_gl_version();
   }
   glpainter->ShadeModel(GL_FLAT);
   setAutoBufferSwap(false);
@@ -77,17 +105,14 @@ void DiOpenGLWidget::paintGL()
 void DiOpenGLWidget::paintUnderlay()
 {
   if (paintable->enable_background_buffer && buffer_data && !paintable->update_background_buffer) {
-    // FIXME this is a bad hack
-    const Rectangle& ps = PlotModule::instance()->getStaticPlot()->getPlotSize();
-    const float delta = (fabs(ps.width()) * 0.1 / width());
+    // glWindowPos requires OpenGL 1.4; we only allocate "buffer_data" if we have this
+    glWindowPos2i(0, 0);
 
     glpainter->PixelZoom(1, 1);
     glpainter->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS, 0);
     glpainter->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS, 0);
     glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, width());
     glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ALIGNMENT, 4);
-    glpainter->RasterPos2f(ps.x1 + delta, ps.y1 + delta);
-
     glpainter->DrawPixels(width(), height(), DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
     glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
     return;
@@ -96,7 +121,7 @@ void DiOpenGLWidget::paintUnderlay()
 
   paintable->paintUnderlay(glpainter.get());
 
-  if (glpainter->supportsReadPixels()
+  if (have_opengl(1, 4) && glpainter->supportsReadPixels()
       && paintable->enable_background_buffer
       && (!buffer_data || paintable->update_background_buffer))
   {
