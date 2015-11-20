@@ -1619,7 +1619,6 @@ static int handlePlotCommand(int& k)
 
     if (multiple_plots)
       subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
-
     if (plot_trajectory && !trajectory_started) {
       vector<string> vstr;
       vstr.push_back("clear");
@@ -2890,6 +2889,7 @@ static int parseAndProcess(istream &is)
  */
 int diana_parseAndProcessString(const char* string)
 {
+  milogger::LoggingConfig log4cpp(logfilename);
   // reset time (before next wms request)
   fixedtime = miTime();
 
