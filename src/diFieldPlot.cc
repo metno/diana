@@ -1079,18 +1079,16 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
 
   // plot symbol
   ImageGallery ig;
-  map<int, std::string> classImages;
+  std::map<int, std::string> classImages;
   if (poptions.plottype == fpt_symbol && poptions.discontinuous == 1
       && (not poptions.classSpecifications.empty())) {
-    vector<int> classValues;
-    vector<std::string> classNames;
-    vector<std::string> classSpec = miutil::split(poptions.classSpecifications,
-        ",");
-    int nc = classSpec.size();
-    for (int i = 0; i < nc; i++) {
-      vector<std::string> vstr = miutil::split(classSpec[i], ":");
+    std::vector<int> classValues;
+    std::vector<std::string> classNames;
+    std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
+    for (size_t i = 0; i < classSpec.size(); i++) {
+      const std::vector<std::string> vstr = miutil::split(classSpec[i], ":");
       if (vstr.size() > 2) {
-        int value = atoi(vstr[0].c_str());
+        const int value = miutil::to_int(vstr[0]);
         classValues.push_back(value);
         classNames.push_back(vstr[1]);
         classImages[value] = vstr[2];
@@ -1098,19 +1096,16 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
     }
   }
 
-  int i, ix, iy;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
-  float* field = fields[0]->data;
+  const float* field = fields[0]->data;
   int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
-  int xstep = step;
 
   const int nx = fields[0]->area.nx;
   const int ny = fields[0]->area.ny;
@@ -1126,15 +1121,8 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
       ++ii;
     }
     smallvalues = (ii == npos);
-
-    if (smallvalues) {
-      xstep *= 2;
-    }
-  } else {
-    xstep *= poptions.precision;
   }
 
-  float gx, gy;
   float flagl = sdist * 0.85;
 
   ix1 -= step;
@@ -1155,23 +1143,20 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
   Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
 
-  float fontsize = 10. * poptions.labelSize;
-  gl->setFont("BITMAPFONT", poptions.fontface, fontsize);
+  gl->setFont("BITMAPFONT", poptions.fontface, 10. * poptions.labelSize);
 
   float chx, chy;
   gl->getCharSize('0', chx, chy);
   chy *= 0.75;
 
-  for (iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (ix = ix1; ix < ix2; ix += xstep) {
-      i = iy * nx + ix;
-      gx = x[i];
-      gy = y[i];
-      if (field[i] != fieldUndef && ms.isnear(gx, gy)
-          && field[i] > poptions.minvalue && field[i] < poptions.maxvalue) {
-        float value = (field[i]);
-
+  for (int iy = iy1; iy < iy2; iy += step) {
+    const int xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
+    for (int ix = ix1; ix < ix2; ix += xstep) {
+      const int i = iy * nx + ix;
+      const float gx = x[i], gy = y[i], value = field[i];
+      if (value != fieldUndef && ms.isnear(gx, gy)
+          && value > poptions.minvalue && value < poptions.maxvalue)
+      {
         if (poptions.colours.size() > 2) {
           if (value < poptions.base) {
             gl->setColour(poptions.colours[0], false);
@@ -1183,27 +1168,22 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
         }
 
         if (!classImages.empty()) { //plot symbol
-          if (classImages.count(int(value))) {
-            ig.plotImage(gl, getStaticPlot(), classImages[int(value)], gx, gy, true,
+          std::map<int, std::string>::const_iterator it = classImages.find(int(value));
+          if (it != classImages.end()) {
+            ig.plotImage(gl, getStaticPlot(), it->second, gx, gy, true,
                 poptions.labelSize * 0.25);
           }
         } else { // plot value
-          ostringstream ostr;
-          if (smallvalues) {
-            ostr.setf(ios::scientific);
-            ostr.precision(1);
-          } else {
-            ostr.setf(ios::fixed);
-            ostr.precision(poptions.precision);
-          }
-          ostr << value;
-          std::string str = ostr.str();
-          gl->drawText(str, gx - chx / 2, gy - chy / 2, 0.0);
+          QString ost;
+          if (smallvalues)
+            ost = QString::number(value, 'g', 1);
+          else
+            ost = QString::number(value, 'f', poptions.precision);
+          gl->drawText(ost, gx - chx / 2, gy - chy / 2, 0.0);
         }
       }
     }
   }
-  gl->End();
 
   if (poptions.update_stencil)
     plotFrameStencil(gl, nx, ny, x, y);

@@ -54,8 +54,6 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
   qw->setMinimumSize( 300, 200 );
   qw->setMouseTracking(true);
 
-  glw->canvas()->parseFontSetup();
-
   EditItemManager *editm = static_cast<EditItemManager *>(co->getManager("EDITDRAWING"));
   if (editm)
     connect(editm, SIGNAL(repaintNeeded()), qw, SLOT(updateGL())); // e.g. during undo/redo

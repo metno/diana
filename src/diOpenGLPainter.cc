@@ -38,9 +38,6 @@ void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
 {
   fp()->clearFamilies();
   DiGLCanvas::parseFontSetup(sect_fonts);
-
-  fp()->setFont("BITMAPFONT");
-  fp()->setFontFace(FontFamily::F_NORMAL);
 }
 
 void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,

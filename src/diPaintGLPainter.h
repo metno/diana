@@ -73,10 +73,12 @@ public:
   ~DiPaintGLCanvas();
 
   void setVpGlSize(float vpw, float vph, float glw, float glh) Q_DECL_OVERRIDE;
+
   bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) Q_DECL_OVERRIDE;
   bool setFont(const std::string& font) Q_DECL_OVERRIDE;
-  bool setFontFace(FontFace face);
+
   bool setFontSize(float size) Q_DECL_OVERRIDE;
+
   bool getTextRect(const QString& str, float& x, float& y, float& w, float& h) Q_DECL_OVERRIDE;
 
   QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
@@ -94,6 +96,8 @@ public:
     { return mDevice; }
 
 private:
+  bool setFontFace(FontFace face);
+
   void defineFont(const std::string& fontfam, const std::string& fontfilename,
       const std::string& face, bool use_bitmap) Q_DECL_OVERRIDE;
 

@@ -49,24 +49,6 @@ namespace {
 
 const int TEXTURE_CACHE_SIZE = 16;
 
-DiCanvas::FontFace fontFace(const std::string& s)
-{
-  // FIXME this is an almost verbatim copy of FontManager::fontFace
-  std::string suface = miutil::to_upper(s);
-  miutil::trim(suface);
-  DiCanvas::FontFace face = DiCanvas::F_NORMAL;
-  if (suface != "NORMAL") {
-    if (suface == "ITALIC")
-      face = DiCanvas::F_ITALIC;
-    else if (suface == "BOLD")
-      face = DiCanvas::F_BOLD;
-    else if (suface == "BOLD_ITALIC")
-      face = DiCanvas::F_BOLD_ITALIC;
-  }
-
-  return face;
-}
-
 } // namespace
 
 DiPaintGLCanvas::DiPaintGLCanvas(QPaintDevice* device)
@@ -96,9 +78,11 @@ bool DiPaintGLCanvas::setFont(const std::string& name)
   METLIBS_LOG_SCOPE(LOGVAL(name));
 
   const std::string family = lookupFontAlias(name);
-  const QString& f = fontMap[QString::fromStdString(family)];
-  METLIBS_LOG_DEBUG(LOGVAL(name) << LOGVAL(f.toStdString()));
-  mFont.setFamily(f);
+  QHash<QString,QString>::const_iterator it = fontMap.constFind(QString::fromStdString(family));
+  if (it == fontMap.constEnd())
+    return false;
+
+  mFont.setFamily(it.value());
   mFont.setStyleStrategy(QFont::NoFontMerging);
   return true;
 }
@@ -129,8 +113,6 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
     const std::string& face, bool use_bitmap)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename) << LOGVAL(face));
-  if (face != "NORMAL")
-    return;
 
   int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
   if (handle == -1)
@@ -148,6 +130,10 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
 
 bool DiPaintGLCanvas::getTextRect(const QString& str, float& x, float& y, float& w, float& h)
 {
+  if (str.length() == 0) {
+    x = y = w = h = 0;
+    return false;
+  }
   QFontMetricsF fm(mFont, mDevice);
   QRectF rect = fm.tightBoundingRect(str);
   x = rect.x() * mFontScaleX;

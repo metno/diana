@@ -35,12 +35,16 @@ public:
       const std::string& face, bool use_bitmap) = 0;
 
   virtual void setVpGlSize(float vpw, float vph, float glw, float glh) = 0;
+
   virtual bool setFont(const std::string& font) = 0;
   virtual bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) = 0;
+
   bool setFont(const std::string& font, FontFace face, float size)
     { return setFont(font, size, face); }
   bool setFont(const std::string& font, const std::string& face, float size);
+
   virtual bool setFontSize(float size) = 0;
+
   bool getCharSize(int ch, float& w, float& h);
   bool getTextSize(const char* text, float& w, float& h);
   bool getTextSize(const std::string& text, float& w, float& h);
@@ -67,12 +71,15 @@ public:
     { return mCanvas; }
 
   void setVpGlSize(float vpw, float vph, float glw, float glh);
+
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, DiCanvas::FontFace face=DiCanvas::F_NORMAL);
   bool setFont(const std::string& font, DiCanvas::FontFace face, float size)
     { return setFont(font, size, face); }
   bool setFont(const std::string& font, const std::string& face, float size);
+
   bool setFontSize(float size);
+
   bool getTextSize(const QString& text, float& w, float& h);
   bool getTextSize(const std::string& text, float& w, float& h);
   bool getTextSize(const char* text, float& w, float& h);
