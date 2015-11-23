@@ -252,6 +252,10 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
   std::vector<std::string> inp;
   inp.insert(inp.begin(), vstr.begin(), vstr.end());
   drawm_->processInput(inp);
+
+  // Update the display products list to reflect the loaded drawings.
+  QMap<QString, QString> loaded = drawm_->getLoaded();
+  activeDrawingsModel_.setItems(loaded);
 }
 
 /**
