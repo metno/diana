@@ -111,13 +111,23 @@ std::string DiCanvas::lookupFontAlias(const std::string& name)
 bool DiCanvas::setFont(const std::string& font, const std::string& face, float size)
 {
   FontFace f = F_NORMAL;
-  const std::string lface = miutil::to_lower(face);
-  if (lface == "bold")
+  if (face == "NORMAL") {
+    // nothing
+  } else if (face == "BOLD") {
     f = F_BOLD;
-  else if (lface == "bold_italic")
+  } else if (face == "BOLD_ITALIC") {
     f = F_BOLD_ITALIC;
-  else if (lface == "italic")
+  } else if (face == "ITALIC") {
     f = F_ITALIC;
+  } else {
+    const std::string lface = miutil::to_lower(face);
+    if (lface == "bold")
+      f = F_BOLD;
+    else if (lface == "bold_italic")
+      f = F_BOLD_ITALIC;
+    else if (lface == "italic")
+      f = F_ITALIC;
+  }
   return setFont(font, size, f);
 }
 
