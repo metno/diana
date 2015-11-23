@@ -1203,7 +1203,6 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
       }
     }
   }
-  gl->End();
 
   if (poptions.update_stencil)
     plotFrameStencil(gl, nx, ny, x, y);
