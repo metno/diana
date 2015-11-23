@@ -1173,6 +1173,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
 
 void DianaMainWindow::start()
 {
+  if (DiCanvas* c = w->Glw()->canvas())
+    c->parseFontSetup();
+
   // read the log file
   readLogFile();
 
@@ -2937,6 +2940,8 @@ void DianaMainWindow::parseSetup()
     if (!sp.parse(filename)){
       METLIBS_LOG_ERROR("An error occured while re-reading setup ");
     }
+    if (DiCanvas* c = w->Glw()->canvas())
+      c->parseFontSetup();
     contr->parseSetup();
     if (vcInterface.get())
       vcInterface->parseSetup();

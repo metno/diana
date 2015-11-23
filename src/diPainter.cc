@@ -19,6 +19,7 @@ void DiCanvas::parseFontSetup()
   std::vector<std::string> sect_fonts;
   if (miutil::SetupParser::getSection(sf_name, sect_fonts))
     parseFontSetup(sect_fonts);
+  setFont("BITMAPFONT", 10, F_NORMAL);
 }
 
 void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
