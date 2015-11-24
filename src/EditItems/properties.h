@@ -37,6 +37,7 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QTextEdit>
 #include <QVariantMap>
 
 class QCheckBox;
@@ -222,6 +223,22 @@ class EP_FillPattern : public EP_Choice
 public:
   EP_FillPattern(const QString &labelText) : EP_Choice(labelText) {}
   virtual QWidget *createEditor(const QVariant &value);
+};
+
+class EP_StringList : public EditProperty
+{
+  Q_OBJECT
+
+public:
+  EP_StringList(const QString &labelText) : EditProperty(labelText) {}
+  virtual QWidget *createEditor(const QVariant &value);
+  virtual void reset();
+
+private slots:
+  void updateValue();
+
+private:
+  QTextEdit *editor;
 };
 
 } // namespace

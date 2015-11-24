@@ -273,6 +273,30 @@ QWidget *EP_FillPattern::createEditor(const QVariant &value)
   return editor;
 }
 
+QWidget *EP_StringList::createEditor(const QVariant &value)
+{
+  editor = new QTextEdit();
+  editor->setPlainText(value.toStringList().join("\n"));
+  connect(editor, SIGNAL(textChanged()), SLOT(updateValue()));
+  oldValue = value;
+  newValue = value;
+  return editor;
+}
+
+void EP_StringList::updateValue()
+{
+  // Split the lines of text.
+  QStringList s = editor->toPlainText().split("\n");
+  newValue = QVariant(s);
+  emit updated();
+}
+
+void EP_StringList::reset()
+{
+  editor->setPlainText(oldValue.toStringList().join("\n"));
+  updateValue();
+}
+
 PropertiesEditor::PropertiesEditor()
 {
   setWindowTitle(tr("Item Properties"));
@@ -293,6 +317,7 @@ PropertiesEditor::PropertiesEditor()
   registerProperty("TimeSpan:begin", new EP_Time(tr("Beginning")));
   registerProperty("TimeSpan:end", new EP_Time(tr("Ending")));
   registerProperty("time", new EP_Time(tr("Time")));
+  registerProperty("text", new EP_StringList(tr("Text")));
 
   // Define editors for supported style properties.
   registerProperty("style:linecolour", new EP_Colour(tr("Line colour")));
@@ -453,9 +478,8 @@ void PropertiesEditor::reset()
     EditProperty *prop = editors_.value(name);
     prop->reset();
 
-    foreach (DrawingItemBase *item, items_) {
+    foreach (DrawingItemBase *item, items_)
       item->setProperty(name, prop->oldValue);
-    }
   }
 
   buttonBox->button(QDialogButtonBox::Reset)->setEnabled(false);
