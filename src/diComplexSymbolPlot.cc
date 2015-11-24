@@ -662,7 +662,7 @@ void ComplexSymbolPlot::drawSig6(DiGLPainter* gl, float x,float y)
   getComplexSize(gl, 1003,cw,ch);
   drawSymbol(gl, SIG3SYMBOL,x-0.3*cw,y+1.05*ch);
   getComplexSize(gl, 1004,cw,ch);
-  drawSymbol(gl, SIG4SYMBOL,x+0.45,y-0.5*ch);
+  drawSymbol(gl, SIG4SYMBOL,x+0.45*cw,y-0.5*ch);
   getComplexSize(gl, 1006,cw,ch);
   gl->Begin(DiGLPainter::gl_LINE_STRIP);
   gl->Vertex2f(x-0.35*cw,y-0.35*ch);
