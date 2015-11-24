@@ -156,24 +156,7 @@ bool DrawingManager::parseSetup()
         QString section = items.value("section", "");
 
         // Symbol definitions
-        QFile f(items["file"]);
-        if (f.open(QFile::ReadOnly)) {
-
-          // Store a combination of the section name and the symbol name in
-          // the common symbol map.
-          QString name = items["symbol"];
-
-          if (!section.isEmpty())
-            name = section + "|" + name;
-
-          items["symbol"] = name;
-          symbols_[name] = f.readAll();
-          f.close();
-
-          // Add the internal symbol name to the relevant section.
-          symbolSections_[section].insert(name);
-          styleManager_->addStyle(DrawingItemBase::Symbol, items);
-        } else
+        if (!loadSymbol(items["file"], items.value("section", ""), items["symbol"]))
           METLIBS_LOG_WARN("Failed to load drawing symbol file: " << items["file"].toStdString());
 
       } else {
@@ -613,6 +596,43 @@ QSize DrawingManager::getSymbolSize(const QString &name) const
 {
   QSvgRenderer renderer(symbols_.value(name));
   return renderer.defaultSize();
+}
+
+bool DrawingManager::loadSymbol(const QString &fileName, const QString &section, const QString &symbol)
+{
+  QString name;
+  QString sectionName;
+
+  if (!section.isEmpty())
+    sectionName = section;
+  else
+    sectionName = tr("Miscellaneous");
+
+  name = symbol;
+
+  QFile f(fileName);
+  if (f.open(QFile::ReadOnly)) {
+
+    // Store a combination of the section name and the symbol name in
+    // the common symbol map.
+    name = sectionName + "|" + symbol;
+
+    symbols_[name] = f.readAll();
+    f.close();
+
+    // Add the internal symbol name to the relevant section.
+    symbolSections_[sectionName].insert(name);
+
+    QHash<QString, QString> items;
+    items["file"] = fileName;
+    items["symbol"] = name;
+    items["section"] = sectionName;
+
+    styleManager_->addStyle(DrawingItemBase::Symbol, items);
+    return true;
+  }
+
+  return false;
 }
 
 void DrawingManager::applyPlotOptions(DiGLPainter *gl, const DrawingItemBase *item) const

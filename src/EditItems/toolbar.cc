@@ -103,26 +103,12 @@ ToolBar::ToolBar(QWidget *parent)
   addWidget(symbolCombo_);
 
   DrawingManager *dm = DrawingManager::instance();
-  QAbstractItemModel *model = symbolCombo_->model();
-  QFont sectionFont = font();
-  sectionFont.setWeight(QFont::Bold);
 
   foreach (QString section, dm->symbolSectionNames()) {
-    symbolCombo_->addItem(section);
-    QModelIndex index = model->index(model->rowCount() - 1, 0);
-    model->setData(index, sectionFont, Qt::FontRole);
-    model->setData(index, palette().brush(QPalette::AlternateBase), Qt::BackgroundRole);
-
-    // Create an entry for each symbol. Use the name as an internal identifier
-    // since we may decide to use tr() on the visible name at some point.
-    // Remove any section information from the name for clarity.
+    // Create an entry for each symbol, noting that each of these names
+    // includes the section in the form of "section|name".
     QStringList names = dm->symbolNames(section);
-    names.sort();
-    foreach (QString name, names) {
-      QString visibleName = name.split("|").last();
-      QIcon icon(QPixmap::fromImage(dm->getSymbolImage(name, 32, 32)));
-      symbolCombo_->addItem(icon, visibleName, name);
-    }
+    addSymbols(section, names);
   }
 
   symbolCombo_->setCurrentIndex(0);
@@ -216,10 +202,11 @@ void ToolBar::setSymbolType(int index)
   // Obtain the style identifier from the style action and store it in the
   // main symbol action for later retrieval by the EditItemManager.
   QVariant data = symbolCombo_->itemData(index);
+  bool isSection = symbolCombo_->itemData(index, Qt::UserRole + 1).toBool();
 
   // If a section heading was selected then select the item following it if
   // possible.
-  if (data.isNull() && index < (symbolCombo_->count() - 1))
+  if (isSection && index < (symbolCombo_->count() - 1))
     symbolCombo_->setCurrentIndex(index + 1);
   else
     symbolAction_->setData(data);
@@ -237,6 +224,74 @@ void ToolBar::setCompositeType(int index)
   // Obtain the style identifier from the style action and store it in the
   // main text action for later retrieval by the EditItemManager.
   compositeAction_->setData(compositeCombo_->itemData(index));
+}
+
+/**
+ * Adds the symbol with the given name to the symbol combo box under the
+ * section specified.
+ */
+void ToolBar::addSymbol(const QString &section, const QString &name)
+{
+  QStringList names;
+  names << QString("%1|%2").arg(section).arg(name);
+  addSymbols(section, names);
+}
+
+/**
+ * Adds the symbols with the given names to the symbol combo box under the
+ * section specified. Note that the names are themselves combinations of
+ * the section and name, taking the form of "section|name".
+ */
+void ToolBar::addSymbols(const QString &section, const QStringList &names)
+{
+  QAbstractItemModel *model = symbolCombo_->model();
+  QFont sectionFont = font();
+  sectionFont.setWeight(QFont::Bold);
+
+  int row = symbolCombo_->findData(QVariant(section));
+
+  if (row == -1) {
+    symbolCombo_->addItem(section, section);
+    row = model->rowCount() - 1;
+
+    QModelIndex index = model->index(row, 0);
+    model->setData(index, sectionFont, Qt::FontRole);
+    model->setData(index, palette().brush(QPalette::AlternateBase), Qt::BackgroundRole);
+    model->setData(index, true, Qt::UserRole + 1);
+
+    // Insert the internal section name into a list to keep track of which
+    // sections are present. At the moment, the internal name is the visible name.
+    sections_.append(section);
+    row++;
+
+  } else {
+    // The section already exists, so find the next section if there is one
+    // and insert new symbols before that.
+    int s = sections_.indexOf(section);
+
+    if (s == sections_.size() - 1) {
+      // This is the last section, so insert new symbols at the end of the
+      // combo box model.
+      row = model->rowCount();
+    } else {
+      // Find the row of the next section heading in the model.
+      row = symbolCombo_->findData(QVariant(sections_.at(s + 1)));
+    }
+  }
+
+  foreach (const QString &name, names) {
+    // Use the name as an internal identifier since we may decide to use tr()
+    // on the visible name at some point.
+    // Remove any section information from the name for clarity.
+    QString visibleName = name.split("|").last();
+    QIcon icon(QPixmap::fromImage(DrawingManager::instance()->getSymbolImage(name, 32, 32)));
+    symbolCombo_->insertItem(row, icon, visibleName, name);
+
+    // Set the section role to false.
+    QModelIndex index = model->index(row, 0);
+    model->setData(index, false, Qt::UserRole + 1);
+    row++;
+  }
 }
 
 } // namespace

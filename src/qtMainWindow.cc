@@ -3962,8 +3962,19 @@ void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
   if (event->mimeData()->hasUrls()) {
     foreach (QUrl url, event->mimeData()->urls()) {
-      if (!(url.scheme() == "file") || QFileInfo(url.toLocalFile()).suffix() != "nc")
+
+      // Return if we encounter a non-file URL.
+      if (!(url.scheme() == "file"))
         return;
+
+      if (QFileInfo(url.toLocalFile()).suffix() == "nc")
+        continue;
+
+      if (QFileInfo(url.toLocalFile()).suffix() == "svg" && EditItemManager::instance()->isEditing())
+        continue;
+
+      // Return if we encounter a file that we can't handle.
+      return;
     }
 
     event->accept();
@@ -3978,6 +3989,7 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
 
   std::vector<std::string> extra_field_lines;
   extra_field_lines.push_back("filegroup=\"" + filegroup.toStdString() + "\"");
+  bool fieldsAdded = false;
 
   if (event->mimeData()->hasUrls()) {
     foreach (QUrl url, event->mimeData()->urls()) {
@@ -3985,6 +3997,14 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
         QFileInfo fi(url.toLocalFile());
         QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
         extra_field_lines.push_back(s.toStdString());
+        fieldsAdded = true;
+
+      } else if (url.scheme() == "file" && QFileInfo(url.toLocalFile()).suffix() == "svg") {
+        QString fileName = url.toLocalFile();
+        QString name = QFileInfo(fileName).fileName();
+        QString section = QFileInfo(fileName).dir().dirName();
+        DrawingManager::instance()->loadSymbol(fileName, section, name);
+        editDrawingToolBar->addSymbol(section, name);
       }
     }
   }
@@ -3997,7 +4017,8 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
   }
 
   fm->updateModels();
-  statusBar()->showMessage(tr("Added model data to \"%1\" field group.").arg(filegroup), 2000);
+  if (fieldsAdded)
+    statusBar()->showMessage(tr("Added model data to \"%1\" field group.").arg(filegroup), 2000);
 }
 
 DianaMainWindow *DianaMainWindow::instance()

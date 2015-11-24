@@ -98,6 +98,7 @@ public:
   QImage getCachedImage(const QString &, int, int) const;
   QImage getSymbolImage(const QString &, int, int) const;
   QSize getSymbolSize(const QString &) const;
+  bool loadSymbol(const QString &fileName, const QString &section, const QString &symbol = QString());
 
   // Dialog-related methods
   QMap<QString, QString> &getDrawings();

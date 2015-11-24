@@ -41,6 +41,7 @@ namespace EditItems {
 class ToolBar : public QToolBar
 {
   Q_OBJECT
+
 public:
   static ToolBar *instance();
 
@@ -52,6 +53,9 @@ public slots:
   void setSymbolType(int index);
   void setTextType(int index);
   void setCompositeType(int index);
+
+  void addSymbol(const QString &section, const QString &name);
+  void addSymbols(const QString &section, const QStringList &names);
 
 private:
   ToolBar(QWidget * = 0);
@@ -66,6 +70,8 @@ private:
   QComboBox *textCombo_;
   QAction *compositeAction_;
   QComboBox *compositeCombo_;
+
+  QStringList sections_;
 };
 
 } // namespace
