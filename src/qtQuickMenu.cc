@@ -1142,10 +1142,16 @@ void QuickMenu::comChanged(){
   // check if any variables to set here
   int m= qm[activemenu].opt.size();
   if (m > maxoptions) m= maxoptions;
+  // sort keys by length - make index-list
+  vector<int> keys = sortKeys();
   for (int i=0; i<m; i++){
-    bool enable= miutil::contains(ts, vprefix+qm[activemenu].opt[i].key);
-    optionmenu[i]->setEnabled(enable);
-    optionlabel[i]->setEnabled(enable);
+    std::string key= vprefix+qm[activemenu].opt[keys[i]].key;
+    bool enable= miutil::contains(ts, key);
+    optionmenu[keys[i]]->setEnabled(enable);
+    optionlabel[keys[i]]->setEnabled(enable);
+    if ( enable ) {
+      miutil::replace(ts, key,"");
+    }
   }
   // enable/disable resetButton
   resetbut->setEnabled(instaticmenu);
@@ -1176,16 +1182,7 @@ void QuickMenu::varExpand(vector<string>& com)
     m= maxoptions;
 
   // sort keys by length - make index-list
-  vector<int> keys;
-  for (int i=0; i<m; i++){
-    std::string key= qm[activemenu].opt[i].key;
-    vector<int>::iterator it= keys.begin();
-    for (; it!=keys.end() &&
-    key.length()<qm[activemenu].opt[*it].key.length();
-    it++)
-      ;
-    keys.insert(it, i);
-  }
+  vector<int> keys = sortKeys();
 
   for (int i=0; i<n; i++){
     for (int j=0; j<m; j++){
@@ -1196,6 +1193,26 @@ void QuickMenu::varExpand(vector<string>& com)
       qm[activemenu].opt[keys[j]].def= val;
     }
   }
+}
+
+vector<int>  QuickMenu::sortKeys()
+{
+  int m= qm[activemenu].opt.size();
+  if (m>maxoptions)
+    m= maxoptions;
+
+  // sort keys by length - make index-list
+  vector<int> keys;
+  for (int i=0; i<m; i++){
+    std::string key= qm[activemenu].opt[i].key;
+    vector<int>::iterator it= keys.begin();
+    for (; it!=keys.end() &&
+    key.length()<qm[activemenu].opt[*it].key.length();
+    it++)
+      ;
+    keys.insert(it, i);
+  }
+  return keys;
 }
 
 void QuickMenu::plotButton()
