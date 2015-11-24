@@ -167,7 +167,7 @@ private:
 
   GridCollectionPtr getGridCollection(const std::string& modelName,
       const std::string& refTime = "", bool rescan = false,
-      bool checkSourceChanges = true);
+      bool checkSourceChanged = true);
 
   void addComputedParameters(gridinventory::ReftimeInventory& inventory);
 
