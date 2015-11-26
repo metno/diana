@@ -2275,7 +2275,7 @@ static int handlePrintDocument(int& k)
 static int handleFieldFilesCommand(int& k)
 {
   bool found_end = false;
-  int kk = k+1;
+  int kk = k;
   const std::vector<std::string> pcom = FIND_END_COMMAND(kk, com_field_files_end, &found_end);
   extra_field_lines.insert(extra_field_lines.end(), pcom.begin(), pcom.end());
 
