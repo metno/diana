@@ -58,7 +58,7 @@ void check_gl_version()
 
 bool have_opengl(int major, int minor)
 {
-  return gl_major >= major || (gl_major == major && gl_minor >= minor);
+  return gl_major > major || (gl_major == major && gl_minor >= minor);
 }
 
 } // namespace anonymous
