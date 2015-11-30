@@ -97,6 +97,7 @@ void MapPlot::setCanvas(DiCanvas* c)
     for (int i=0; i<3; ++i) {
       if (mCanvas->IsList(drawlist[i]))
         mCanvas->DeleteLists(drawlist[i], 1);
+      drawlist[i] = 0;
     }
   }
   mCanvas = dynamic_cast<DiGLCanvas*>(c);
