@@ -1876,10 +1876,10 @@ void DianaMainWindow::onVcrossRequestEditManager(bool on, bool timeGraph)
     else
       EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
 
-    EditItems::ToolBar::instance()->show();
+    setEditDrawingMode(true);
     vcrossEditManagerEnableSignals();
   } else {
-    EditItems::ToolBar::instance()->hide();
+    setEditDrawingMode(false);
   }
 }
 
