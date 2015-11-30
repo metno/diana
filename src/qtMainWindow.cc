@@ -117,11 +117,7 @@
 #include <QUrl>
 #include <QWhatsThis>
 
-#include "qtMainWindow.h"
-#include "qtWorkArea.h"
-#include "qtVprofWindow.h"
 #include "vcross_qt/qtVcrossInterface.h"
-#include "qtSpectrumWindow.h"
 #include "diController.h"
 #include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
@@ -130,24 +126,7 @@
 #include "diLocationData.h"
 #include "diLogFile.h"
 
-#include "qtDataDialog.h"
-#include "qtQuickMenu.h"
-#include "qtObsDialog.h"
-#include "qtSatDialog.h"
-#include "qtStationDialog.h"
-#include "qtMapDialog.h"
-#include "qtFieldDialog.h"
-#include "qtEditDialog.h"
-#include "qtObjectDialog.h"
-#include "qtTrajectoryDialog.h"
-#include "qtMeasurementsDialog.h"
-#include "qUtilities/qtHelpDialog.h"
-#include "qtSetupDialog.h"
-#include "qtPrintManager.h"
-#include "qtBrowserBox.h"
-#include "qtAddtoMenu.h"
-#include "qtUffdaDialog.h"
-#include "qtAnnotationDialog.h"
+#include <qUtilities/qtHelpDialog.h>
 #include <coserver/ClientButton.h>
 #include "qtTextView.h"
 #include <coserver/miMessage.h>
