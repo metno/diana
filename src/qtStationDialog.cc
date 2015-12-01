@@ -92,7 +92,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
 
   showStationNames= new QCheckBox(tr("Show station names"));
   showStationNames->setToolTip(tr("Show station names on the map") );
-  connect( showStationNames, SIGNAL( toggled(bool) ),SLOT( showStationNamesActivated(bool) ) );
+  connect(showStationNames, SIGNAL(toggled(bool)), SLOT(showStationNamesActivated(bool)));
   showStationNames->setChecked(show_names);
  
   QPushButton *helpButton = NormalPushButton(tr("Help"), this);
