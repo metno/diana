@@ -556,6 +556,8 @@ Station* StationPlot::stationAt(int x, int y)
 
     // Find the closest station to the point within a given radius.
     for (unsigned int i = 0; i < found.size(); ++i) {
+      if (found[i]->status == Station::noStatus || !found[i]->isVisible)
+        continue;
       float sx = found[i]->lon, sy = found[i]->lat;
       if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
         float r = square(pos.x() - sx) + square(pos.y() - sy);
