@@ -994,17 +994,28 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
   connect( annom, SIGNAL(AnnotationApply()),  SLOT(MenuOK()));
 
   connect( fm, SIGNAL(FieldHide()),  SLOT(fieldMenu()));
+  connect( fm, SIGNAL(finished(int)),  SLOT(fieldMenu(int)));
   connect( om, SIGNAL(ObsHide()),    SLOT(obsMenu()));
+  connect( om, SIGNAL(finished(int)),  SLOT(obsMenu(int)));
   connect( sm, SIGNAL(SatHide()),    SLOT(satMenu()));
+  connect( sm, SIGNAL(finished(int)),  SLOT(satMenu(int)));
   connect( stm, SIGNAL(StationHide()), SLOT(stationMenu()));
+  connect( stm, SIGNAL(finished(int)),  SLOT(stationMenu(int)));
   connect( mm, SIGNAL(MapHide()),    SLOT(mapMenu()));
+  connect( mm, SIGNAL(finished(int)),  SLOT(mapMenu(int)));
   connect( em, SIGNAL(EditHide()),   SLOT(editMenu()));
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
+  connect( qm, SIGNAL(finished(int)),  SLOT(quickMenu(int)));
   connect( objm, SIGNAL(ObjHide()),  SLOT(objMenu()));
+  connect( objm, SIGNAL(finished(int)),  SLOT(objMenu(int)));
   connect( trajm, SIGNAL(TrajHide()),SLOT(trajMenu()));
+  connect( trajm, SIGNAL(finished(int)),  SLOT(trajMenu(int)));
   connect( annom, SIGNAL(AnnotationHide()),SLOT(AnnotationMenu()));
+  connect( annom, SIGNAL(finished(int)),  SLOT(AnnotationMenu(int)));
   connect( measurementsm, SIGNAL(MeasurementsHide()),SLOT(measurementsMenu()));
-  connect( uffm, SIGNAL(uffdaHide()),SLOT(uffMenu()));
+  connect( measurementsm, SIGNAL(finished(int)),  SLOT(measurementsMenu(int)));
+  connect( uffm, SIGNAL(uffdaHide()), SLOT(uffMenu()));
+  connect( uffm, SIGNAL(finished(int)), SLOT(uffMenu(int)));
 
   // update field dialog when editing field
   connect( em, SIGNAL(emitFieldEditUpdate(std::string)),
@@ -1598,42 +1609,47 @@ void DianaMainWindow::toggleDialogs()
   }
 }
 
-static void toggleDialogVisibility(QDialog* dialog, QAction* dialogAction)
+static void toggleDialogVisibility(QDialog* dialog, QAction* dialogAction, int result = -1)
 {
   bool visible = dialog->isVisible();
-  dialog->setVisible(!visible);
-  dialogAction->setChecked(!visible);
+  if (result == -1) {
+    dialog->setVisible(!visible);
+    dialogAction->setChecked(!visible);
+  } else {
+    dialog->setVisible(false);
+    dialogAction->setChecked(false);
+  }
 }
 
-void DianaMainWindow::quickMenu()
+void DianaMainWindow::quickMenu(int result)
 {
-  toggleDialogVisibility(qm, showQuickmenuAction);
+  toggleDialogVisibility(qm, showQuickmenuAction, result);
 }
 
-void DianaMainWindow::fieldMenu()
+void DianaMainWindow::fieldMenu(int result)
 {
-  toggleDialogVisibility(fm, showFieldDialogAction);
+  toggleDialogVisibility(fm, showFieldDialogAction, result);
 }
 
-void DianaMainWindow::obsMenu()
+void DianaMainWindow::obsMenu(int result)
 {
-  toggleDialogVisibility(om, showObsDialogAction);
+  toggleDialogVisibility(om, showObsDialogAction, result);
 }
 
-void DianaMainWindow::satMenu()
+void DianaMainWindow::satMenu(int result)
 {
-  toggleDialogVisibility(sm, showSatDialogAction);
+  toggleDialogVisibility(sm, showSatDialogAction, result);
 }
 
-
-void DianaMainWindow::stationMenu()
+void DianaMainWindow::stationMenu(int result)
 {
-  toggleDialogVisibility(stm, showStationDialogAction);
+  toggleDialogVisibility(stm, showStationDialogAction, result);
 }
 
-void DianaMainWindow::uffMenu()
+void DianaMainWindow::uffMenu(int result)
 {
-  bool b = uffm->isVisible();
+  // If the dialog returned a non-negative result then it must be open.
+  bool b = uffm->isVisible() | (result != -1);
   if( b ){
     uffm->hide();
     uffm->clearSelection();
@@ -1647,9 +1663,9 @@ void DianaMainWindow::uffMenu()
 }
 
 
-void DianaMainWindow::mapMenu()
+void DianaMainWindow::mapMenu(int result)
 {
-  toggleDialogVisibility(mm, showMapDialogAction);
+  toggleDialogVisibility(mm, showMapDialogAction, result);
 }
 
 void DianaMainWindow::editMenu()
@@ -1675,14 +1691,15 @@ void DianaMainWindow::getFieldPlotOptions(map< std::string, map<std::string,std:
 }
 
 
-void DianaMainWindow::objMenu()
+void DianaMainWindow::objMenu(int result)
 {
-  toggleDialogVisibility(objm, showObjectDialogAction);
+  toggleDialogVisibility(objm, showObjectDialogAction, result);
 }
 
-void DianaMainWindow::trajMenu()
+void DianaMainWindow::trajMenu(int result)
 {
-  bool b = trajm->isVisible();
+  // If the dialog returned a non-negative result then it must be open.
+  bool b = trajm->isVisible() | (result != -1);
   if (b){
     trajm->hide();
   } else {
@@ -1692,14 +1709,15 @@ void DianaMainWindow::trajMenu()
   showTrajecDialogAction->setChecked( !b );
 }
 
-void DianaMainWindow::AnnotationMenu()
+void DianaMainWindow::AnnotationMenu(int result)
 {
-  toggleDialogVisibility(annom, showAnnotationDialogAction);
+  toggleDialogVisibility(annom, showAnnotationDialogAction, result);
 }
 
-void DianaMainWindow::measurementsMenu()
+void DianaMainWindow::measurementsMenu(int result)
 {
-  bool b = measurementsm->isVisible();
+  // If the dialog returned a non-negative result then it must be open.
+  bool b = measurementsm->isVisible() | (result != -1);
   if (b){
     measurementsm->hide();
   } else {
