@@ -366,7 +366,7 @@ void PropertiesEditor::registerProperty(const QString &name, EditProperty *prope
  * Returns the common properties of \a items, including those defined as
  * editable in each item's style.
  */
-QMap<QString, QVariant> PropertiesEditor::commonProperties(const QList<DrawingItemBase *> &items)
+QMap<QString, QVariant> PropertiesEditor::commonProperties(const QList<DrawingItemBase *> &items) const
 {
   QMap<QString, QVariant> common;
 
@@ -452,6 +452,20 @@ void PropertiesEditor::edit(const QList<DrawingItemBase *> &items, bool readOnly
   // Open the dialog.
   if (exec() != QDialog::Accepted)
     reset();
+}
+
+/**
+ * Returns true if any of the items contain properties that can be edited;
+ * otherwise returns false.
+ */
+bool PropertiesEditor::canEdit(const QList<DrawingItemBase *> &items) const
+{
+  QMap<QString, QVariant> common = commonProperties(items);
+  foreach (const QString &name, common.keys()) {
+    if (editors_.contains(name))
+      return true;
+  }
+  return false;
 }
 
 QStringList PropertiesEditor::propertyRules(const QString &name) const

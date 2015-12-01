@@ -1574,7 +1574,7 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
 
   contextMenu.addSeparator();
   contextMenu.addAction(editPropertiesAction_);
-  bool canEditProperties = !selItems.isEmpty();
+  bool canEditProperties = !selItems.isEmpty() && Properties::PropertiesEditor::instance()->canEdit(selItems);
   editPropertiesAction_->setEnabled(canEditProperties);
 
   QMenu styleTypeMenu;

@@ -48,7 +48,7 @@ namespace EditItem_Composite {
 Composite::Composite(int id)
   : DrawingItem_Composite::Composite(id)
 {
-  editAction = new QAction(tr("Edit item"), this);
+  editAction = new QAction(tr("Edit composite"), this);
   connect(editAction, SIGNAL(triggered()), SLOT(editItem()));
 }
 

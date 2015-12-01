@@ -62,6 +62,7 @@ class PropertiesEditor : public QDialog
 
 public:
   static PropertiesEditor *instance();
+  bool canEdit(const QList<DrawingItemBase *> &items) const;
   void edit(const QList<DrawingItemBase *> &, bool readOnly = false, bool modal = true);
   QStringList propertyRules(const QString &rule) const;
   void setPropertyRules(const QString &rule, const QStringList &values);
@@ -72,7 +73,7 @@ private slots:
 
 private:
   PropertiesEditor();
-  QMap<QString, QVariant> commonProperties(const QList<DrawingItemBase *> &items);
+  QMap<QString, QVariant> commonProperties(const QList<DrawingItemBase *> &items) const;
   void registerProperty(const QString &name, EditProperty *property);
 
   static PropertiesEditor *instance_;
