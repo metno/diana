@@ -61,8 +61,11 @@ public:
   virtual HitType hit(const QPointF &pos, bool selected) const;
   virtual HitType hit(const QRectF &bbox) const;
 
+  virtual void setProperties(const QVariantMap &, bool ignorePoints = false);
+
   virtual void arrangeElements();
   virtual void createElements();
+  virtual void deleteElements();
   DrawingItemBase *elementAt(int index) const;
   void readExtraProperties();
   void writeExtraProperties();
@@ -80,9 +83,9 @@ protected:
 
 private:
   /// Serialises the properties of the child elements as a string.
-  void toKMLExtraData(QXmlStreamWriter &stream, const QVariantList &children) const;
+  QString toKMLExtraData() const;
   /// Unpacks serialised property data from a string.
-  QVariantList fromKMLExtraData(QXmlStreamReader &stream);
+  QVariantList fromKMLExtraData(QString &input);
 
   bool created_;
 };

@@ -78,7 +78,7 @@ public:
   QVariantMap &propertiesRef();
   const QVariantMap &propertiesRef() const;
   // Sets the item's properties.
-  void setProperties(const QVariantMap &, bool = false);
+  virtual void setProperties(const QVariantMap &, bool ignorePoints = false);
 
   int joinId() const;
   void setJoinCount(int);

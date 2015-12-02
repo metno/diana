@@ -49,6 +49,7 @@ Composite::Composite(int id)
 
 Composite::~Composite()
 {
+  deleteElements();
 }
 
 void Composite::draw(DiGLPainter* gl)
@@ -118,13 +119,23 @@ DrawingItemBase::HitType Composite::hit(const QRectF &bbox) const
     return None;
 }
 
+void Composite::setProperties(const QVariantMap &properties, bool ignorePoints)
+{
+  DrawingItemBase::setProperties(properties, ignorePoints);
+
+  // Special handling of properties is needed for composite items since they
+  // manage internal items whose properties cannot be updated using the
+  // simple mechanism used for normal items.
+
+  writeExtraProperties();
+  readExtraProperties();
+  arrangeElements();
+}
+
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  QString output;
-  QXmlStreamWriter stream(&output);
-  stream.setAutoFormatting(true);
-  toKMLExtraData(stream, properties_.value("children").toList());
+  QString output = toKMLExtraData();
   extra["children"] = output;
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
@@ -132,11 +143,7 @@ QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 void Composite::fromKML(const QHash<QString, QString> &extraExtData)
 {
   QString input = extraExtData.value("met:children");
-  QXmlStreamReader stream(input);
-  if (stream.readNextStartElement()) {
-    if (stream.name() == "elements")
-      properties_["children"] = fromKMLExtraData(stream);
-  }
+  properties_["children"] = fromKMLExtraData(input);
   writeExtraProperties();
 }
 
@@ -237,13 +244,28 @@ void Composite::createElements()
   created_ = true;
 }
 
+void Composite::deleteElements()
+{
+  foreach (DrawingItemBase *element, elements_) {
+    Composite *ce = dynamic_cast<Composite *>(element);
+    if (ce)
+      ce->deleteElements();
+  }
+
+  qDeleteAll(elements_);
+  elements_.clear();
+}
+
 void Composite::arrangeElements()
 {
   QRectF previousRect;
 
+  // Find the maximum size of the text, symbol and composite items.
   QSizeF maxSize;
   for (int i = 0; i < elements_.size(); ++i) {
     DrawingItemBase *element = elements_.at(i);
+    if (dynamic_cast<DrawingItem_PolyLine::PolyLine *>(element))
+      continue;
     element->updateRect();
     QSizeF size = element->getSize();
     maxSize = maxSize.expandedTo(size);
@@ -360,7 +382,7 @@ void Composite::setPoints(const QList<QPointF> &points)
 
 /**
  * Read the properties of the child elements, storing them in a list in this
- * item's property map.
+ * item's property map so that they can be stored in undo/redo commands.
  */
 void Composite::readExtraProperties()
 {
@@ -382,8 +404,8 @@ void Composite::readExtraProperties()
 }
 
 /**
- * Write the properties of the child elements, storing them in a list in this
- * item's property map.
+ * Write the properties of the child elements, retrieving them from a list in
+ * this item's property map.
  */
 void Composite::writeExtraProperties()
 {
@@ -402,7 +424,14 @@ void Composite::writeExtraProperties()
 
   for (int i = 0; i < childList.size(); ++i) {
     DrawingItemBase *element = elements_.at(i);
-    element->setProperties(childList.at(i).toMap());
+    QVariantMap newProps = childList.at(i).toMap();
+    QVariantMap props = element->properties();
+
+    // Override the properties of the element with those from the map.
+    foreach (const QString &key, newProps.keys())
+      props[key] = newProps.value(key);
+
+    element->setProperties(props);
 
     // Update any child elements that are composite items using their updated
     // properties.
@@ -434,79 +463,29 @@ DrawingItemBase *Composite::newTextItem() const
 
 /**
  * Converts the QVariantMap objects corresponding to elements in a composite
- * item to XML elements for storage in a KML file. Each map is taken from a
- * QVariantList that corresponds to the elements held by a composite item.
- * An example of the format used to describe the contents of a composite item
- * is as follows:
- *
- * <elements>
- *   <element>
- *      <int name="size">48</int>
- *      <string name="style:type">Moderate Aircraft Icing</string>
- *   </element>
- *   <element>
- *     <elements>
- *       <element>
- *         <string name="style:type">SIGWX label</string>
- *         <stringlist name="text">X</stringlist>
- *       </element>
- *       <element>
- *         <string name="style:type">Plain line</string>
- *       </element>
- *       <element>
- *         <string name="style:type">SIGWX label</string>
- *         <stringlist name="text">Y</stringlist>
- *       </element>
- *     </elements>
- *     <string name="style:type">X over X</string>
- *   </element>
- * </elements>
+ * item to strings for storage in a KML file.
  */
-void Composite::toKMLExtraData(QXmlStreamWriter &stream, const QVariantList &children) const
+QString Composite::toKMLExtraData() const
 {
-  stream.writeStartElement("elements");
+  QString output;
 
-  foreach (QVariant child, children) {
-    stream.writeStartElement("element");
-    QMapIterator<QString, QVariant> it(child.toMap());
+  foreach (DrawingItemBase *element, elements_) {
 
-    while (it.hasNext()) {
+    DrawingItem_Text::Text *te = dynamic_cast<DrawingItem_Text::Text *>(element);
+    if (te) {
+      QStringList lines = te->property("text").toStringList();
+      QString text = lines.join("\n");
+      text = text.replace("\\", "\\\\").replace("\n", "\\n");
+      output += text + "\n";
 
-      it.next();
-      QString key = it.key();
-      QVariant value = it.value();
-
-      switch (value.type()) {
-      case QVariant::String:
-        stream.writeStartElement("string");
-        stream.writeAttribute("name", key);
-        stream.writeCharacters(value.toString());
-        stream.writeEndElement();
-        break;
-      case QVariant::Int:
-        stream.writeStartElement("int");
-        stream.writeAttribute("name", key);
-        stream.writeCharacters(QString::number(value.toInt()));
-        stream.writeEndElement();
-        break;
-      case QVariant::StringList:
-        stream.writeStartElement("stringlist");
-        stream.writeAttribute("name", key);
-        stream.writeCharacters(value.toStringList().join("\n"));
-        stream.writeEndElement();
-        break;
-      case QVariant::List:
-        if (key == "children")
-          toKMLExtraData(stream, value.toList());
-        break;
-      default:
-        ;
-      }
+    } else {
+      Composite *ce = dynamic_cast<Composite *>(element);
+      if (ce)
+        output += ce->toKMLExtraData();
     }
-
-    stream.writeEndElement(); // element
   }
-  stream.writeEndElement(); // elements
+
+  return output;
 }
 
 /**
@@ -515,28 +494,34 @@ void Composite::toKMLExtraData(QXmlStreamWriter &stream, const QVariantList &chi
  * each drawing element. Returns the list of maps corresponding to the
  * elements held by a composite item.
  */
-QVariantList Composite::fromKMLExtraData(QXmlStreamReader &stream)
+QVariantList Composite::fromKMLExtraData(QString &input)
 {
   QVariantList childList;
 
-  while (stream.readNextStartElement()) {
-    if (stream.name() == "element") {
+  foreach (DrawingItemBase *element, elements_) {
+
+    DrawingItem_Text::Text *te = dynamic_cast<DrawingItem_Text::Text *>(element);
+    if (te) {
+      // Read a line of text from the met:children element.
+      int end = input.indexOf("\n");
+      if (end == -1) end = input.size();
+      QString text = input.mid(0, end);
+
+      text = text.replace("\\n", "\n").replace("\\\\", "\\");
       QVariantMap childMap;
-      while (stream.readNextStartElement()) {
-        QString key = stream.attributes().value("name").toString();
-        if (stream.name() == "string")
-          childMap[key] = stream.readElementText();
-        else if (stream.name() == "int")
-          childMap[key] = stream.readElementText().toInt();
-        else if (stream.name() == "stringlist")
-          childMap[key] = stream.readElementText().split("\n");
-        else if (stream.name() == "elements")
-          childMap["children"] = fromKMLExtraData(stream);
-      }
+      childMap["text"] = text.split("\n");
       childList.append(childMap);
-    } else
-      break;
+
+      // Remove the handled text from the input string.
+      input.remove(0, end);
+
+    } else {
+      Composite *ce = dynamic_cast<Composite *>(element);
+      if (ce)
+        childList.append(ce->fromKMLExtraData(input));
+    }
   }
+
   return childList;
 }
 
