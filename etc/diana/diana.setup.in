@@ -1839,15 +1839,28 @@ style="Clouds"                                  linecolour=red linewidth=2 lines
                                                 fillpattern=diagleft closed=true
 style="Ice"                                     linecolour=olive linewidth=2 linesmooth=true fillcolour=olive \
                                                 fillpattern=paralyse closed=true
+style="Ash cloud 1 (observed)"                  linecolour=red linewidth=3 closed=true fillalpha=0
+style="Ash cloud 2 (observed)"                  linecolour=green linewidth=3 closed=true fillalpha=0
+style="Ash cloud 3 (observed)"                  linecolour=blue linewidth=3 closed=true fillalpha=0
+style="Ash cloud 1 (forecast)"                  linecolour=red linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud 2 (forecast)"                  linecolour=green linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud 3 (forecast)"                  linecolour=blue linewidth=3 linepattern=dashed closed=true fillalpha=0
 style="Ash cloud (observed)"                    linecolour=black linewidth=3 closed=true fillalpha=0
 style="Ash cloud FL0/200 (observed)"            linecolour=red linewidth=3 closed=true fillalpha=0
+style="Ash cloud SFC/FL200 (observed)"            linecolour=red linewidth=3 closed=true fillalpha=0
 style="Ash cloud FL200/350 (observed)"          linecolour=green linewidth=3 closed=true fillalpha=0
 style="Ash cloud FL350/550 (observed)"          linecolour=blue linewidth=3 closed=true fillalpha=0
 style="Ash cloud (forecast)"                    linecolour=black linewidth=3 linepattern=dashed closed=true fillalpha=0
 style="Ash cloud FL0/200 (forecast)"            linecolour=red linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud SFC/FL200 (forecast)"            linecolour=red linewidth=3 linepattern=dashed closed=true fillalpha=0
 style="Ash cloud FL200/350 (forecast)"          linecolour=green linewidth=3 linepattern=dashed closed=true fillalpha=0
 style="Ash cloud FL350/550 (forecast)"          linecolour=blue linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Gale warning"                            linecolour=blue linewidth=3 closed=true fillalpha=0
+style="Obs warning"                             linecolour=magenta linewidth=3 closed=true fillalpha=0
+style="Extreme forecast"                        linecolour=red linewidth=3 closed=true fillalpha=0
+style="Dangerous weather warning"               linecolour=black linewidth=3 closed=true fillalpha=200
 
+# Polyline styles - fronts
 style="Cold front"                              linecolour=blue linewidth=3 decoration1=triangles \
                                                 decoration1.colour=blue linesmooth=true closed=false \
                                                 fillalpha=0
@@ -1893,16 +1906,16 @@ style="Sigmet"                                  linecolour=black linewidth=1 lin
 
 # Text styles
 textstyle="Label"           linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=10 \
-                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour"
+                            properties="style:fontsize,style:fillcolour,style:linecolour,style:fillalpha,style:linealpha,style:textcolour,text"
 textstyle="Large text"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=20 \
-                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour"
+                            properties="style:fontsize,style:fillcolour,style:linecolour,style:fillalpha,style:linealpha,style:textcolour,text"
 textstyle="SIGWX label"     linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=25 \
-                            properties="style:fontsize"
+                            properties="style:fontsize,text"
 textstyle="Label Gale"      linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=blue fontsize=11 \
-                            properties="style:fontsize"
+                            properties="style:fontsize,text"
 textstyle="Note"            linecolour=black linealpha=255 fillcolour=white fillalpha=255 textcolour=black fontsize=20 \
                             cornersegments=5 cornerradius=12 \
-                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour"
+                            properties="style:fontsize,style:cornerradius,style:fillcolour,style:linecolour,style:fillalpha,style:textcolour,text"
 
 # Composite styles
 composite="Text above Text" objects=text:text values="Text:Text" styles="SIGWX label:SIGWX label" layout=vertical linealpha=0 \
