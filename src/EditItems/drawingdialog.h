@@ -96,6 +96,8 @@ class DrawingDialog : public DataDialog
 public:
   DrawingDialog(QWidget *, Controller *);
 
+  static DrawingDialog *instance();
+
   virtual std::string name() const;
   virtual void updateDialog();
   virtual std::vector<std::string> getOKString();
@@ -107,6 +109,7 @@ signals:
 
 public slots:
   void loadFile();
+  void loadFile(const QString &fileName);
   void quickSave();
   void reload();
   void saveAllItems();
@@ -143,6 +146,8 @@ private:
   QPushButton *filterButton_;
   QPushButton *quickSaveButton_;
   QString quickSaveName_;
+
+  static DrawingDialog *self_;
 };
 
 } // namespace

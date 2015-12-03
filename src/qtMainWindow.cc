@@ -3960,17 +3960,27 @@ void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)
   if (event->mimeData()->hasUrls()) {
     foreach (QUrl url, event->mimeData()->urls()) {
 
-      // Return if we encounter a non-file URL.
+      // Return if we encounter a non-file URL, causing the event to be ignored.
       if (!(url.scheme() == "file"))
         return;
 
+      // Continue if we encounter a NetCDF file, causing the event to be accepted
+      // as long as any other files are acceptable.
       if (QFileInfo(url.toLocalFile()).suffix() == "nc")
         continue;
 
-      if (QFileInfo(url.toLocalFile()).suffix() == "svg" && EditItemManager::instance()->isEditing())
+      // Continue if we encounter a SVG file, causing the event to be accepted as
+      // long as any other files are acceptable.
+      if (QFileInfo(url.toLocalFile()).suffix() == "svg")
         continue;
 
-      // Return if we encounter a file that we can't handle.
+      // Continue if we encounter a KML file, causing the event to be accepted
+      // as long as any other files are acceptable.
+      if (QFileInfo(url.toLocalFile()).suffix() == "kml")
+        continue;
+
+      // Return if we encounter a file that we can't handle, causing the event to
+      // be ignored.
       return;
     }
 
@@ -3986,22 +3996,37 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
 
   std::vector<std::string> extra_field_lines;
   extra_field_lines.push_back("filegroup=\"" + filegroup.toStdString() + "\"");
-  bool fieldsAdded = false;
+  int fieldsAdded = 0;
+  int symbolsAdded = 0;
+  int drawingsAdded = 0;
 
   if (event->mimeData()->hasUrls()) {
-    foreach (QUrl url, event->mimeData()->urls()) {
-      if (url.scheme() == "file" && QFileInfo(url.toLocalFile()).suffix() == "nc") {
-        QFileInfo fi(url.toLocalFile());
-        QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
-        extra_field_lines.push_back(s.toStdString());
-        fieldsAdded = true;
 
-      } else if (url.scheme() == "file" && QFileInfo(url.toLocalFile()).suffix() == "svg") {
-        QString fileName = url.toLocalFile();
-        QString name = QFileInfo(fileName).fileName();
-        QString section = QFileInfo(fileName).dir().dirName();
-        DrawingManager::instance()->loadSymbol(fileName, section, name);
-        editDrawingToolBar->addSymbol(section, name);
+    foreach (QUrl url, event->mimeData()->urls()) {
+
+      if (url.scheme() == "file") {
+        QString suffix = QFileInfo(url.toLocalFile()).suffix();
+
+        if (suffix == "nc") {
+          QFileInfo fi(url.toLocalFile());
+          QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
+          extra_field_lines.push_back(s.toStdString());
+          fieldsAdded++;
+
+        } else if (suffix == "svg") {
+          QString fileName = url.toLocalFile();
+          QString name = QFileInfo(fileName).fileName();
+          QString section = QFileInfo(fileName).dir().dirName();
+          DrawingManager::instance()->loadSymbol(fileName, section, name);
+          editDrawingToolBar->addSymbol(section, name);
+          symbolsAdded++;
+
+        } else if (suffix == "kml") {
+          QString fileName = url.toLocalFile();
+          QString name = QFileInfo(fileName).fileName();
+          EditItems::DrawingDialog::instance()->loadFile(fileName);
+          drawingsAdded++;
+        }
       }
     }
   }
@@ -4013,9 +4038,14 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
       METLIBS_LOG_ERROR(field_errors[kk]);
   }
 
-  fm->updateModels();
-  if (fieldsAdded)
-    statusBar()->showMessage(tr("Added model data to \"%1\" field group.").arg(filegroup), 2000);
+  if (fieldsAdded > 0) {
+    fm->updateModels();
+    statusBar()->showMessage(tr("Imported model data to the \"%1\" field group.").arg(filegroup), 2000);
+  } else if (symbolsAdded > 0) {
+    statusBar()->showMessage(tr("Imported %1 symbol(s).", "", symbolsAdded).arg(symbolsAdded), 2000);
+  } else if (drawingsAdded > 0) {
+    statusBar()->showMessage(tr("Imported %1 drawing(s).", "", drawingsAdded).arg(drawingsAdded), 2000);
+  }
 }
 
 DianaMainWindow *DianaMainWindow::instance()

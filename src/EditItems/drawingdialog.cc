@@ -56,11 +56,14 @@
 
 namespace EditItems {
 
+DrawingDialog *DrawingDialog::self_ = 0;
+
 DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
 {
   drawm_ = DrawingManager::instance();
   editm_ = EditItemManager::instance();
+  DrawingDialog::self_ = this;
 
   // create an action that can be used to open the dialog from within a menu or toolbar
   m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
@@ -205,6 +208,11 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   setExtension(filterWidget_);
 }
 
+DrawingDialog *DrawingDialog::instance()
+{
+  return DrawingDialog::self_;
+}
+
 /**
  * Returns the name of the component. This is used to relate the dialog to the
  * corresponding manager, which also shares the same name.
@@ -316,11 +324,7 @@ void DrawingDialog::loadFile()
   QApplication::restoreOverrideCursor();
 
   if (error.isEmpty()) {
-    // Update the working directory and the list of available drawings.
-    QFileInfo fi(fileName);
-    DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
-    // Append a new row and insert the new drawing as an item there.
-    drawingsModel_.appendDrawing(fileName, fileName);
+    loadFile(fileName);
   } else {
     QMessageBox warning(QMessageBox::Warning, tr("Open File"),
                         tr("Failed to open file: %1").arg(fileName),
@@ -328,6 +332,15 @@ void DrawingDialog::loadFile()
     warning.setInformativeText(error);
     warning.exec();
   }
+}
+
+void DrawingDialog::loadFile(const QString &fileName)
+{
+  // Update the working directory and the list of available drawings.
+  QFileInfo fi(fileName);
+  DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+  // Append a new row and insert the new drawing as an item there.
+  drawingsModel_.appendDrawing(fileName, fileName);
 }
 
 void DrawingDialog::saveAllItems()
