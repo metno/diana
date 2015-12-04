@@ -548,9 +548,9 @@ void DrawingDialog::showActiveContextMenu(const QPoint &pos)
   QMenu menu;
   int products = activeList_->selectionModel()->selectedRows().size();
   QAction *editAction = menu.addAction(
-    qApp->translate("DrawingDialog", "Edit %n product(s)", 0, QCoreApplication::CodecForTr, products));
+    tr("Edit %n product(s)", "", products));
   QAction *removeAction = menu.addAction(
-    qApp->translate("DrawingDialog", "Remove %n product(s)", 0, QCoreApplication::CodecForTr, products));
+    tr("Remove %n product(s)", "", products));
   QAction *result = menu.exec(activeList_->viewport()->mapToGlobal(pos));
   if (result == editAction)
     editDrawings();

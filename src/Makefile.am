@@ -737,7 +737,7 @@ lupdate:
 	$(LUPDATE4) $(libdianaui_a_QTSOURCES:%=$(srcdir)/%) \
 	    $(srcdir)/qtUtility.cc \
 	    $(libdianaui_a_QTFORMS:%=$(srcdir)/%) \
-	    -ts $(language_sources)
+	    -ts $(language_sources) -I$(srcdir)
 .PHONY: lupdate
 
 %.qm: %.ts  $(libdianaui_a_QTSOURCES)
