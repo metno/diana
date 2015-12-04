@@ -62,10 +62,7 @@ void Composite::draw(DiGLPainter* gl)
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  QRectF bbox = boundingRect();
-
-  QList<QPointF> points;
-  points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
+  QList<QPointF> points = styleManager->linesForBbox(this);
 
   // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(gl, this);
@@ -176,7 +173,7 @@ void Composite::createElements()
   QStringList styles = style.value("styles").toStringList();
   QString layout = style.value("layout").toString();
 
-  if (layout == "horizontal")
+  if (layout == "horizontal" || layout.isNull())
     layout_ = Horizontal;
   else if (layout == "vertical")
     layout_ = Vertical;

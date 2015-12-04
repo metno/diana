@@ -1961,7 +1961,8 @@ composite="Predefined Text inside curved scroll" objects=text values="X" styles=
 composite="Volcanic Eruption" objects=composite:text values=":Text" styles="Volcano label:SIGWX label" layout=vertical \
                             fillcolour=white fillalpha=255 linecolour=black closed=true
 composite="Predefined Text over Predefined Text inside blue curved rectangle" objects=text:text values="X:X" \
-                            styles="SIGWX label:SIGWX label" fillcolour=white fillalpha=255 closed=true linecolour=blue
+                            styles="SIGWX label:SIGWX label" fillcolour=white fillalpha=255 closed=true linecolour=blue \
+                            cornersegments=5 cornerradius=12 properties="style:cornersegments,style:cornerradius"
 
 # Predefined text strings for use in composite objects.
 complextext="BKN/OVC STF,RA,RADZ,SHRA,SN,SHSN,LOC FG,BR,NSC,RASN,SHSNGS,SHRASN,SHRA,BR/FG,DZ,FZRA,SFC VIS,LT 5 KM,ISOL,EMBD CB,SCT/BKN,CB/TCU"

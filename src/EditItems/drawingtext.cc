@@ -62,30 +62,7 @@ void Text::draw(DiGLPainter* gl)
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  QRectF bbox = drawingRect();
-  QList<QPointF> points;
-
-  int cornerSegments = Drawing(this)->property("style:cornersegments", 0).toInt();
-  float cornerRadius = Drawing(this)->property("style:cornerradius", 0.0).toFloat();
-  if (cornerSegments != 0 && cornerRadius != 0.0) {
-    for (int i = 0; i < cornerSegments; ++i) {
-      float angle = (i*M_PI/2)/cornerSegments;
-      points << bbox.bottomLeft() + cornerRadius*QPointF(1.0 - qCos(angle), -1.0 + qSin(angle));
-    }
-    for (int i = 0; i < cornerSegments; ++i) {
-      float angle = (i*M_PI/2)/cornerSegments;
-      points << bbox.bottomRight() + cornerRadius*QPointF(-1.0 + qSin(angle), -1.0 + qCos(angle));
-    }
-    for (int i = 0; i < cornerSegments; ++i) {
-      float angle = (i*M_PI/2)/cornerSegments;
-      points << bbox.topRight() + cornerRadius*QPointF(-1.0 + qCos(angle), 1.0 - qSin(angle));
-    }
-    for (int i = 0; i < cornerSegments; ++i) {
-      float angle = (i*M_PI/2)/cornerSegments;
-      points << bbox.topLeft() + cornerRadius*QPointF(1.0 - qSin(angle), 1.0 - qCos(angle));
-    }
-  } else
-    points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
+  QList<QPointF> points = styleManager->linesForBbox(this);
 
   // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(gl, this);

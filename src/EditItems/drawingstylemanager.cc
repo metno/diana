@@ -229,10 +229,12 @@ DrawingStyleManager::DrawingStyleManager()
   compProps.insert("styles", objListProp);
   compProps.insert("layout", stringProp);
   compProps.insert("linecolour", lineColourProp);
-  compProps.insert("linecolour", lineColourProp);
+  compProps.insert("linewidth", widthProp);
   compProps.insert("linealpha", lineAlphaProp);
   compProps.insert("fillcolour", fillColourProp);
   compProps.insert("fillalpha", fillAlphaProp);
+  compProps.insert("cornersegments", intProp);
+  compProps.insert("cornerradius", floatProp);
   compProps.insert("hide", booleanProp);
   compProps.insert("closed", booleanProp);
   properties_[DrawingItemBase::Composite] = compProps;
@@ -526,6 +528,36 @@ void DrawingStyleManager::highlightPolyLine(DiGLPainter* gl, const DrawingItemBa
   }
 
   gl->PopAttrib();
+}
+
+QList<QPointF> DrawingStyleManager::linesForBbox(DrawingItemBase *item) const
+{
+  QRectF bbox = item->boundingRect();
+  QList<QPointF> points;
+
+  int cornerSegments = item->property("style:cornersegments", 0).toInt();
+  float cornerRadius = item->property("style:cornerradius", 0.0).toFloat();
+  if (cornerSegments != 0 && cornerRadius != 0.0) {
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.bottomLeft() + cornerRadius*QPointF(1.0 - qCos(angle), -1.0 + qSin(angle));
+    }
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.bottomRight() + cornerRadius*QPointF(-1.0 + qSin(angle), -1.0 + qCos(angle));
+    }
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.topRight() + cornerRadius*QPointF(-1.0 + qCos(angle), 1.0 - qSin(angle));
+    }
+    for (int i = 0; i < cornerSegments; ++i) {
+      float angle = (i*M_PI/2)/cornerSegments;
+      points << bbox.topLeft() + cornerRadius*QPointF(1.0 - qSin(angle), 1.0 - qCos(angle));
+    }
+  } else
+    points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
+
+  return points;
 }
 
 void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item,
