@@ -119,9 +119,6 @@ ObsPlot::ObsPlot()
   knotParameters.insert("fxfx");
   knotParameters.insert("fmfm");
 
-  // the handle to a gl->List
-  circle = 0;
-
   Parameter p;
   p.name = "pos";
   vparam.push_back(p);
@@ -1703,61 +1700,13 @@ bool ObsPlot::preparePlot()
 
 static float circle_radius = 7;
 
-void ObsPlot::prepareCircle(DiGLPainter* gl)
-{
-  METLIBS_LOG_SCOPE();
-  { float w, h; gl->getTextSize("1234", w, h); METLIBS_LOG_SCOPE(LOGVAL(w) << LOGVAL(h)); }
-
-  DiGLCanvas* canvas = gl->canvas();
-  if (!canvas || !canvas->supportsDrawLists())
-    return;
-
-  finishCircle(gl);
-
-  circle = canvas->GenLists(1);
-  if (circle == 0) {
-    METLIBS_LOG_ERROR("Unable to create new displaylist, gl->GenLists(1) returns 0");
-    return;
-  }
-
-  gl->NewList(circle, DiGLPainter::gl_COMPILE);
-  gl->Begin(DiGLPainter::gl_LINE_LOOP);
-  // I think we should plot roadobs like synop here
-  // OBS!******************************************
-  if (plottype() == "list" || plottype() == "ascii") {
-    float d = circle_radius * 0.25;
-    gl->Vertex2f(-d, -d);
-    gl->Vertex2f(-d, d);
-    gl->Vertex2f(d, d);
-    gl->Vertex2f(d, -d);
-  } else {
-    for (int i = 0; i < 100; i++) {
-      float xc = circle_radius * cos(i * 2 * M_PI / 100.0);
-      float yc = circle_radius * sin(i * 2 * M_PI / 100.0);
-      gl->Vertex2f(xc, yc);
-    }
-  }
-  gl->End();
-  gl->EndList();
-}
-
 void ObsPlot::drawCircle(DiGLPainter* gl)
 {
-  if (circle != 0) {
-    gl->CallList(circle);
-  } else if (plottype() == "list" || plottype() == "ascii") {
+  if (plottype() == "list" || plottype() == "ascii") {
     const float d = circle_radius * 0.25;
     gl->drawRect(-d, -d, d, d);
   } else {
     gl->drawCircle(0, 0, circle_radius);
-  }
-}
-
-void ObsPlot::finishCircle(DiGLPainter* gl)
-{
-  if (circle != 0) {
-    gl->canvas()->DeleteLists(circle, 1);
-    circle = 0;
   }
 }
 
@@ -1808,8 +1757,6 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     ig.plotImages(gl, getStaticPlot(), numObs, image, x, y, true, markerSize);
     return;
   }
-
-  prepareCircle(gl);
 
   int num = numPar;
   // I think we should check for roadobsWind here also
@@ -2111,7 +2058,6 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
 
   //reset
-  finishCircle(gl);
 
   next = false;
   previous = false;
