@@ -213,10 +213,7 @@ private:
 
   float scale;
 
-  DiGLPainter::GLuint circle;
-  void prepareCircle(DiGLPainter* gl);
   void drawCircle(DiGLPainter* gl);
-  void finishCircle(DiGLPainter* gl);
 
   //Metar
   struct metarww {
