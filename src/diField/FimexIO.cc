@@ -1036,8 +1036,8 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
 
   //todo: if time, level, elevel etc not found, return NULL
 
-  Field* field = initializeField(model_name, reftime, param, level, time, elevel, unit);
-  if (not field) {
+  std::auto_ptr<Field> field(initializeField(model_name, reftime, param, level, time, elevel, unit));
+  if (!field.get()) {
     METLIBS_LOG_DEBUG( " initializeField returned NULL");
     return 0;
   }
@@ -1082,7 +1082,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
         if (vtran->getName() == HybridSigmaPressure1::NAME()) {
           boost::shared_ptr<const HybridSigmaPressure1> hyb1 = boost::dynamic_pointer_cast<const HybridSigmaPressure1>(vtran);
           if (hyb1) {
-            setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field);
+            setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field.get());
           }
         }
       }
@@ -1091,7 +1091,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
     //Some data sets have defined the wave direction in the "opposite" direction (ecwam)
     field->turnWaveDirection = turnWaveDirection;
 
-    return field;
+    return field.release();
   } catch (CDMException& cdmex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", CDMException is: " << cdmex.what());
   } catch (std::exception& ex) {
