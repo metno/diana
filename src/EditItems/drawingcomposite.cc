@@ -126,7 +126,6 @@ void Composite::setProperties(const QVariantMap &properties, bool ignorePoints)
 
   writeExtraProperties();
   readExtraProperties();
-  arrangeElements();
 }
 
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
@@ -156,6 +155,8 @@ void Composite::createElements()
 {
   METLIBS_LOG_SCOPE();
 
+  // bdiana creates plots before it is ready to draw them, so defer creation
+  // and layout of them until later.
   if (PlotModule::instance()->getPlotSize().width() == 0)
     return;
 
