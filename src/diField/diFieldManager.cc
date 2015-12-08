@@ -1150,6 +1150,18 @@ bool FieldManager::freeField(Field* field)
   }
 }
 
+bool FieldManager::freeFields(std::vector<Field*>& fields)
+{
+  METLIBS_LOG_SCOPE();
+  bool all_ok = true;
+
+  for (std::vector<Field*>::iterator it = fields.begin(); it != fields.end(); ++it) {
+    all_ok &= freeField(*it); // FIXME what to do with those that cannot be deleted?
+  }
+  fields.clear();
+  return all_ok;
+}
+
 /*
  YE: It seems that the ptime is not used to determine which fields to be used when computing, why?
  */
@@ -1228,17 +1240,10 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
       fv1[0]->analysisTime = fv2[0]->analysisTime;       // or maybe not ???
 
   } else {
-    for (unsigned int i = 0; i < fv1.size(); i++) {
-      fieldcache->freeField(fv1[i]);
-      fv1[i] = NULL;
-    }
-    fv1.clear();
+    freeFields(fv1);
   }
 
-  for (unsigned int i = 0; i < fv2.size(); i++) {
-    fieldcache->freeField(fv2[i]);
-    fv2[i] = NULL;
-  }
+  freeFields(fv2);
 
   return res;
 }
@@ -1318,7 +1323,6 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : "
       << fieldrequest.zaxis << " : " << fieldrequest.plevel);
 
-  Field* field = 0;
   // if fieldrequest.paramName is a standard_name, find key.name
   if (fieldrequest.standard_name) {
     set<gridinventory::GridParameter>::iterator pitr;
@@ -1379,7 +1383,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   //If not computed parameter, read field from GridCollection and return
   if (pitr->nativekey.find("function:") == std::string::npos) {
 
-    field = gridCollection->getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis,
+    Field* field = gridCollection->getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis,
         param.key.extraaxis, param.key.version, fieldrequest.plevel,
         fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit,
         fieldrequest.time_tolerance);
@@ -1429,18 +1433,21 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
       int fch=atoi(fs.fcHour.c_str());
       if ( !getAllFields_timeInterval(gridCollection, inventory, vfield, fieldrequest_new,
           fch, (fs.option == "accumulate_flux"), cacheOptions)){
-        return NULL;
+        freeFields(vfield);
+
+        return 0;
       }
     } else {
       if ( !getAllFields(gridCollection, inventory, vfield, fieldrequest_new,
           FieldFunctions::vFieldCompute[functionIndex].constants, cacheOptions)){
-        return NULL;
+        freeFields(vfield);
+
+        return 0;
       }
     }
 
     //make output field
-    Field* ff = NULL;
-    ff = new Field();
+    Field* ff = new Field();
     ff->shallowMemberCopy(*vfield[0]);
     ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
     ff->validFieldTime = fieldrequest.ptime;
@@ -1492,7 +1499,9 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
         if (f == NULL) {
           METLIBS_LOG_DEBUG(
               "FieldManager::getField: unable to read: " << inputParamName);
-          return field;
+          freeFields(vfield);
+
+          return 0;
         } else {
           vfield.push_back(f);
         }
@@ -1510,7 +1519,9 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
         }
         fieldrequest.paramName = fs.paramName;
         if ( values.size() ==  0 ) {
-          return NULL;
+          freeFields(vfield);
+
+          return 0;
         }
         for (size_t i = 0; i < values.size(); i++) {
           if ( !fs.ecoordName.empty() ){
@@ -1518,11 +1529,10 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
           } else if ( !fs.vcoordName.empty() ){
             fieldrequest.plevel = values[i];
           }
-          Field * f = getField(gridCollection, inventory, fieldrequest,
-              cacheOptions);
-
-          if (f == NULL) {
-            return NULL;
+          Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
+          if (!f) {
+            freeFields(vfield);
+            return 0;
           } else {
             vfield.push_back(f);
           }
@@ -1537,8 +1547,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
     }
 
     for (int j = 0; j < nOutputParameters; j++) {
-      Field* ff = NULL;
-      ff = new Field();
+      Field* ff = new Field();
       ff->shallowMemberCopy(*vfield[0]);
       ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
       ff->unit = fieldrequest.unit;
@@ -1557,18 +1566,19 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   }
 
   //delete input fields
-  for (size_t i = 0; i < vfield.size(); ++i) {
-    fieldcache->freeField(vfield[i]);
-  }
+  freeFields(vfield);
 
   //return output field
+  Field* fresult = 0;
   if (fieldOK) {
-    return vfresults[0];
-  } else {
-    return NULL;
+    fresult = vfresults[0];
+    vfresults.erase(vfresults.begin());
+  }
+  if (!vfresults.empty()) {
+    freeFields(vfresults);
   }
 
-  return NULL;
+  return fresult;
 }
 
 bool FieldManager::paramExist(gridinventory::ReftimeInventory& inventory,

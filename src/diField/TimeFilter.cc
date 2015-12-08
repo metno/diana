@@ -218,15 +218,15 @@ bool TimeFilter::getClock(std::string name, miClock &clock) {
 
 bool TimeFilter::getTime(std::string name, miTime &time)
 {
+  if (!OK)
+    return false;
+
   if( name.empty() )
     return false;
   if(noSlash){
     if(name.find("/") != name.npos)
       name = name.substr(name.find_last_of("/")+1,name.size()-1);
   }
-
-  if(!OK)
-    return false;
 
   miClock clock;
   if(!getClock(name,clock))
