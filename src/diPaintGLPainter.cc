@@ -290,6 +290,7 @@ DiPaintGLPainter::DiPaintGLPainter(DiPaintGLCanvas* canvas)
   : DiGLPainter(canvas)
   , HIGH_QUALITY_BUT_SLOW(true)
   , painter(0)
+  , clear(true)
 {
   makeCurrent();
 }
