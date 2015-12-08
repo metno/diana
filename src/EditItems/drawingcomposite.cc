@@ -118,6 +118,9 @@ DrawingItemBase::HitType Composite::hit(const QRectF &bbox) const
 
 void Composite::setProperties(const QVariantMap &properties, bool ignorePoints)
 {
+  if (properties == properties_)
+    return;
+
   DrawingItemBase::setProperties(properties, ignorePoints);
 
   // Special handling of properties is needed for composite items since they
@@ -126,6 +129,7 @@ void Composite::setProperties(const QVariantMap &properties, bool ignorePoints)
 
   writeExtraProperties();
   readExtraProperties();
+  arrangeElements();
 }
 
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
