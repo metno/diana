@@ -71,8 +71,10 @@ using namespace std;
  * The controller is used by the dialog to obtain new data from the application-wide
  * StationManager object.
  */
-StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
-    QDialog(parent), m_ctrl(llctrl)
+StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
+  : QDialog(parent)
+  , show_names(false)
+  , m_ctrl(llctrl)
 {
   model = new StationDialog::Model(dialogInfo, this);
 
@@ -94,7 +96,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
   showStationNames->setToolTip(tr("Show station names on the map") );
   connect( showStationNames, SIGNAL( toggled(bool) ),SLOT( showStationNamesActivated(bool) ) );
   showStationNames->setChecked(show_names);
- 
+
   QPushButton *helpButton = NormalPushButton(tr("Help"), this);
 
   fieldHide = NormalPushButton(tr("Hide"), this);
@@ -192,10 +194,7 @@ void StationDialog::chooseSet()
  */
 void StationDialog::showStationNamesActivated(bool on)
 {
-  if (showStationNames->isChecked()) 
-      show_names = true;
-  else 
-      show_names = false;
+  show_names = showStationNames->isChecked();
 }
 
 /**
