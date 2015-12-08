@@ -63,6 +63,8 @@ DiPaintGLCanvas::DiPaintGLCanvas(QPaintDevice* device)
 
 DiPaintGLCanvas::~DiPaintGLCanvas()
 {
+  for (int i=0; i<fontHandles.count(); ++i)
+    QFontDatabase::removeApplicationFont(fontHandles.at(i));
 }
 
 bool DiPaintGLCanvas::setFont(const std::string& name, const float size,
@@ -110,6 +112,16 @@ void DiPaintGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
   mFontScaleY = glh / vph;
 }
 
+void DiPaintGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
+{
+  for (int i=0; i<fontHandles.count(); ++i)
+    QFontDatabase::removeApplicationFont(fontHandles.at(i));
+  fontHandles.clear();
+  fontMap.clear();
+
+  DiGLCanvas::parseFontSetup(sect_fonts);
+}
+
 void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,
     const std::string& face, bool use_bitmap)
 {
@@ -118,6 +130,8 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
   int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
   if (handle == -1)
     return;
+
+  fontHandles << handle;
 
   QStringList families = QFontDatabase::applicationFontFamilies(handle);
   if (families.isEmpty())

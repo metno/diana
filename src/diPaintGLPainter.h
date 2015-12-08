@@ -98,11 +98,14 @@ public:
   void setPrinting(bool printing=true)
     { mPrinting = printing; }
 
-private:
-  bool setFontFace(FontFace face);
+  using DiGLCanvas::parseFontSetup;
+  void parseFontSetup(const std::vector<std::string>& sect_fonts) Q_DECL_OVERRIDE;
 
   void defineFont(const std::string& fontfam, const std::string& fontfilename,
       const std::string& face, bool use_bitmap) override;
+
+private:
+  bool setFontFace(FontFace face);
 
 private:
   QPaintDevice* mDevice;
@@ -110,6 +113,7 @@ private:
 
   float mFontScaleX, mFontScaleY;
   QHash<QString,QString> fontMap;
+  QList<int> fontHandles;
 };
 
 class DiPaintGLPainter : public DiGLPainter
