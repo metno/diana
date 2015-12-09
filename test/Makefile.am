@@ -49,7 +49,7 @@ CPPFLAGS += \
     $(METLIBS_CPPFLAGS) \
     $(FIMEX_CPPFLAGS) \
     $(SHP_CPPFLAGS) \
-    $(gtest_CFLAGS) \
+    $(gtest_CPPFLAGS) \
     $(PNG_CPPFLAGS) \
     $(QT4_CPPFLAGS)
 
