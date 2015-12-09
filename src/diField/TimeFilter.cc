@@ -125,38 +125,24 @@ if(dd!=filter.npos && mm!=filter.npos &&
 
 }
 
+static void replace_first_if(std::string& s, const char* thys, int size, const char* that)
+{
+  const std::string::size_type idx = s.find(thys);
+  if (idx != std::string::npos)
+    s.replace(idx, size, that, size);
+}
+
 void TimeFilter::replaceKey(std::string& str)
 {
-  std::string s = "????";
-  try{
-  str.replace(str.find("yyyy"),4,s);
-  } catch (...){
-  }
-  s="??";
-  try{
-  str.replace(str.find("yy"),2,s);
-  } catch (...){
-  }
-  try{
-  str.replace(str.find("mm"),2,s);
-  } catch (...){
-  }
-  try{
-  str.replace(str.find("dd"),2,s);
-  } catch (...){
-  }
-  try{
-  str.replace(str.find("HH"),2,s);
-  } catch (...){
-  }
-  try{
-  str.replace(str.find("MM"),2,s);
-  } catch (...){
-  }
-  try{
-  str.replace(str.find("SS"),2,s);
-  } catch (...){
-  }
+  const char q4[] = "????", q2[] = "??";
+  const int s4 = sizeof(q4)-1, s2 = sizeof(q2)-1;
+  replace_first_if(str, "yyyy", s4, q4);
+  replace_first_if(str, "yy", s2, q2);
+  replace_first_if(str, "mm", s2, q2);
+  replace_first_if(str, "dd", s2, q2);
+  replace_first_if(str, "HH", s2, q2);
+  replace_first_if(str, "MM", s2, q2);
+  replace_first_if(str, "SS", s2, q2);
 }
 
 std::string::size_type TimeFilter::findPos( const std::string& filter, const std::string& s)
