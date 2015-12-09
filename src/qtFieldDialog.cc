@@ -4111,18 +4111,16 @@ void FieldDialog::fieldEditUpdate(std::string str)
     vector<std::string> vstr = miutil::split(str, " ");
 
     if (vstr.size() == 1) {
-      // In original edit, str=fieldName if the field is not already read
+      // str=fieldName if the field is not already read
       sf.fieldName = vstr[0];
-    } else {
-      std::string modelName;
-      std::string fieldName;
-      bool allTimeSteps;
-      decodeString(str, sf, allTimeSteps);
+    } else if (vstr.size() > 1)    {
+      // str="modelname fieldName level" if field from dialog is selected
+      sf.modelName = vstr[0];
+      sf.fieldName = vstr[1];
       for (i = 0; i < n; i++) {
         if (!selectedFields[i].inEdit) {
           if (selectedFields[i].modelName == sf.modelName
-              && selectedFields[i].fieldName == sf.fieldName
-              && selectedFields[i].refTime == sf.refTime)
+              && selectedFields[i].fieldName == sf.fieldName)
             break;
         }
       }
@@ -4131,7 +4129,6 @@ void FieldDialog::fieldEditUpdate(std::string str)
         indrm = i;
       }
     }
-
 
     map<std::string, std::string>::const_iterator pfo;
     if ((pfo = editFieldOptions.find(sf.fieldName))
@@ -4144,6 +4141,7 @@ void FieldDialog::fieldEditUpdate(std::string str)
         != setupFieldOptions.end()) {
       sf.fieldOpts = pfo->second;
     }
+    METLIBS_LOG_DEBUG(LOGVAL(sf.fieldOpts));
 
     sf.inEdit = true;
     sf.external = false;
