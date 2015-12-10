@@ -181,6 +181,7 @@ libdianaui_a_QTSOURCES = \
 	qtComplexPressureText.cc \
 	qtComplexText.cc \
 	qtDataDialog.cc \
+	qtDianaApplication.cc \
 	qtEditComment.cc \
 	qtEditDefineField.cc \
 	qtEditDialog.cc \

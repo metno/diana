@@ -34,7 +34,7 @@
 #include "config.h"
 #endif
 
-#include <QApplication>
+#include "qtDianaApplication.h"
 #include <QTranslator>
 #include <QMessageBox>
 
@@ -88,14 +88,10 @@ int main(int argc, char **argv)
 #if defined(Q_WS_QWS)
   QApplication a(argc, argv, QApplication::GuiServer);
 #else
-  #if defined(USE_PAINTGL) // either QPA or X11 without OpenGL
-    QApplication a(argc, argv);
-  #else
-  #if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
-    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-  #endif
-    QApplication a( argc, argv );
-  #endif
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
+  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+#endif
+  DianaApplication a( argc, argv );
 #endif
 
   string logfilename;

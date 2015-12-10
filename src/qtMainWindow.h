@@ -209,6 +209,7 @@ private Q_SLOTS:
   void toggleDialogs();
   void toggleStatusBar();
   void filequit();
+  void writeLogFile();
 
   void info_activated(QAction *);
   void hideVprofWindow();
@@ -462,7 +463,6 @@ private:
   void levelChange(int increment);
   void idnumChange(int increment);
 
-  void writeLogFile();
   void readLogFile();
   std::string saveDocState();
   void restoreDocState(std::string logstr);
