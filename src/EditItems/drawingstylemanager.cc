@@ -1139,15 +1139,19 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     QFontMetrics fm(QApplication::font());
     QString v = value;
     if (v.isEmpty()) v = "Text";
-    QImage image(fm.size(Qt::TextSingleLine, v), QImage::Format_ARGB32);
-    image.fill(qRgba(255,255,255,255));
+    QImage image(fm.width(v), fm.height(), QImage::Format_ARGB32);
+    image.fill(qRgba(0, 0, 0, 0));
     QPainter painter(&image);
-    painter.drawText(QRect(QPoint(0, 0), image.size()), Qt::AlignCenter, "Text");
+    painter.setFont(QApplication::font());
+    painter.drawText(QRect(QPoint(0, 0), image.size()), Qt::AlignCenter, v);
     painter.end();
     return image;
   }
   case DrawingItemBase::Symbol:
-    return dm->getSymbolImage(name, DEFAULT_SYMBOL_SIZE, DEFAULT_SYMBOL_SIZE);;
+  {
+    QSize size = dm->getSymbolSize(name);
+    return dm->getSymbolImage(name, size.width(), size.height());
+  }
   case DrawingItemBase::PolyLine:
     return QImage();
   case DrawingItemBase::Composite:
@@ -1191,12 +1195,16 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     // A null image is a placeholder for a line.
     if (image.isNull())
       pos += 2;
-    else if (layout == "horizontal") {
-      pos += image.width();
-      maxSize = maxSize.expandedTo(QSize(pos, image.height()));
-    } else {
+    else if (layout == "diagonal") {
+      pos += qMax(image.width(), image.height());
+      maxSize = maxSize.expandedTo(QSize(pos, pos));
+    } else if (layout == "vertical") {
       pos += image.height();
       maxSize = maxSize.expandedTo(QSize(image.width(), pos));
+    } else {
+      // Horizontal by default
+      pos += image.width();
+      maxSize = maxSize.expandedTo(QSize(pos, image.height()));
     }
   }
 
@@ -1206,24 +1214,35 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     return QImage();
 
   QImage thisImage(maxSize.toSize(), QImage::Format_ARGB32);
-  thisImage.fill(qRgba(255,255,255,255));
+  thisImage.fill(qRgba(0, 0, 0, 0));
   QPainter painter;
   painter.begin(&thisImage);
 
   for (int i = 0; i < images.size(); ++i) {
     QImage image = images.at(i);
-    if (layout == "horizontal") {
-      if (image.isNull()) {
-        image = QImage(1, maxSize.toSize().height(), QImage::Format_ARGB32);
-        image.fill(qRgba(0,0,0,255));
-      }
-      painter.drawImage(positions.at(i), (maxSize.height() - image.height())/2, image);
-    } else {
+    if (layout == "vertical") {
       if (image.isNull()) {
         image = QImage(maxSize.toSize().width(), 1, QImage::Format_ARGB32);
         image.fill(qRgba(0,0,0,255));
       }
       painter.drawImage((maxSize.width() - image.width())/2, positions.at(i), image);
+    } else if (layout == "diagonal") {
+      if (image.isNull() || i > 0) {
+        image = QImage(maxSize.toSize().width(), maxSize.toSize().height(), QImage::Format_ARGB32);
+        image.fill(qRgba(0,0,0,0));
+        QImage previous = images.at(i - 1);
+        QPainter p;
+        p.begin(&image);
+        p.drawLine(0.5 * previous.width(), 1.5 * previous.height(), 1.5 * previous.width(), 0.5 * previous.height());
+        p.end();
+      }
+      painter.drawImage((maxSize.width() - image.width())/2, (maxSize.height() - image.height())/2, image);
+    } else {
+      if (image.isNull()) {
+        image = QImage(1, maxSize.toSize().height(), QImage::Format_ARGB32);
+        image.fill(qRgba(0,0,0,255));
+      }
+      painter.drawImage(positions.at(i), (maxSize.height() - image.height())/2, image);
     }
   }
 
