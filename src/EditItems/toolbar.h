@@ -30,13 +30,11 @@
 #ifndef EDITITEMSTOOLBAR_H
 #define EDITITEMSTOOLBAR_H
 
-#include <QItemSelection>
-#include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QToolBar>
 
 class QComboBox;
-class QTableView;
+class QListWidgetItem;
 class QToolButton;
 
 namespace EditItems {
@@ -65,7 +63,7 @@ public slots:
   void setCreateSymbolAction(const QString &type);
   void setSymbolType(int index);
   void setTextType(int index);
-  void setCompositeType(const QItemSelection &selection);
+  void setCompositeType(QListWidgetItem *item);
 
   void addSymbol(const QString &section, const QString &name);
   void addSymbols(const QString &section, const QStringList &names);
@@ -86,9 +84,7 @@ private:
   QComboBox *textCombo_;
 
   QAction *compositeAction_;
-  QComboBox *compositeCombo_;
   QToolButton *compositeButton_;
-  QStandardItemModel *compositeModel_;
   CompositeDelegate *compositeDelegate_;
   QDialog *compositeDialog_;
 

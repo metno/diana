@@ -34,9 +34,11 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QComboBox>
-#include <QStandardItemModel>
-#include <QTableView>
+#include <QListWidget>
 #include <QToolButton>
+
+#define COMPOSITE_WIDTH 112
+#define COMPOSITE_HEIGHT 96
 
 namespace EditItems {
 
@@ -59,12 +61,13 @@ void CompositeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     background = QBrush(Qt::white);
 
   painter->fillRect(option.rect, background);
+  painter->fillRect(option.rect.adjusted(4, 4, -4, -4), Qt::white);
   painter->drawImage(option.rect.center() - QPoint(image.width()/2, image.height()/2), image);
 }
 
 QSize CompositeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-  return QSize(96, 96);
+  return QSize(COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
 }
 
 ToolBar *ToolBar::instance()
@@ -175,52 +178,38 @@ ToolBar::ToolBar(QWidget *parent)
   styles = dsm->styles(DrawingItemBase::Composite);
   styles.sort();
 
-  compositeModel_ = new QStandardItemModel(this);
   compositeDelegate_ = new CompositeDelegate(this);
+
+  compositeDialog_ = new QDialog(this);
+  compositeDialog_->setWindowFlags(Qt::Popup);
+
+  QListWidget *compositeView = new QListWidget();
 
   // Fill the model with items for the composite objects.
   int i = 0;
 
   foreach (QString name, styles) {
     if (dsm->getStyle(DrawingItemBase::Composite, name).value("hide").toBool() == false) {
-      QStandardItem *item = new QStandardItem(name);
-      item->setData(name, Qt::UserRole);
+      QListWidgetItem *item = new QListWidgetItem(name);
+      item->setData(Qt::UserRole, name);
       item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-      item->setSizeHint(QSize(96, 96));
-      compositeModel_->setItem(i / 3, i % 3, item);
+      item->setSizeHint(QSize(COMPOSITE_WIDTH, COMPOSITE_HEIGHT));
+      compositeView->addItem(item);
       i++;
     }
   }
 
-  // Fill the rest of any newly started row with invalid items.
-  while ((i % 3) != 0) {
-    QStandardItem *item = new QStandardItem();
-    item->setSizeHint(QSize(96, 96));
-    item->setFlags(Qt::NoItemFlags);
-    i++;
-  }
-
-  compositeDialog_ = new QDialog(this);
-  compositeDialog_->setWindowFlags(Qt::Popup);
-
-  QTableView *compositeView = new QTableView();
-  compositeView->horizontalHeader()->hide();
-  compositeView->verticalHeader()->hide();
-  compositeView->setModel(compositeModel_);
   compositeView->setSelectionMode(QAbstractItemView::SingleSelection);
-  compositeView->resizeColumnsToContents();
-  compositeView->resizeRowsToContents();
   compositeView->setItemDelegate(compositeDelegate_);
 
-  connect(compositeView, SIGNAL(activated(const QModelIndex &)), compositeDialog_, SLOT(accept()));
-  connect(compositeView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-                                           SLOT(setCompositeType(const QItemSelection &)));
+  connect(compositeView, SIGNAL(itemActivated(QListWidgetItem *)), compositeDialog_, SLOT(accept()));
+  connect(compositeView, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), SLOT(setCompositeType(QListWidgetItem *)));
 
   QVBoxLayout *layout = new QVBoxLayout(compositeDialog_);
   layout->setMargin(0);
   layout->addWidget(compositeView);
 
-  compositeView->selectionModel()->select(compositeModel_->index(0, 0), QItemSelectionModel::Select);
+  compositeView->setCurrentItem(compositeView->item(0));
 
   // Select the select action by default.
   selectAction_->trigger();
@@ -346,22 +335,17 @@ void ToolBar::setTextType(int index)
   textAction_->setData(textCombo_->itemData(index));
 }
 
-void ToolBar::setCompositeType(const QItemSelection &selection)
+void ToolBar::setCompositeType(QListWidgetItem *item)
 {
   // Obtain the style identifier from the index in the selection and store
   // it in the main text action for later retrieval by the EditItemManager.
-  QModelIndexList indexes = selection.indexes();
-  if (indexes.size() > 0) {
-    QModelIndex index = indexes.at(0);
-    if (index.data(Qt::UserRole).isValid())
-      compositeAction_->setData(compositeModel_->data(index));
-  }
+  compositeAction_->setData(item->data(Qt::UserRole));
 }
 
 void ToolBar::showComposites()
 {
-  compositeDialog_->move(mapToGlobal(compositeButton_->pos()));
-  compositeDialog_->resize((3.25 * 96), 96 + 32);
+  compositeDialog_->move(mapToGlobal(compositeButton_->pos() - QPoint(0, COMPOSITE_HEIGHT * 3)));
+  compositeDialog_->resize(COMPOSITE_WIDTH * 1.5, COMPOSITE_HEIGHT * 3);
   compositeDialog_->exec();
 }
 
