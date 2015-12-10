@@ -1686,7 +1686,7 @@ bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
       }
     }
   }
-  return true;
+  return vfield.size();
 
 }
 

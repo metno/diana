@@ -88,8 +88,7 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
   }
   file.opened = true;
 
-  std::string ch=ginfo.channel;
-  file.channel=miutil::split(ch, " ");
+  file.channel=miutil::split(ginfo.channel, " ");
 
   return true;
 }
@@ -153,6 +152,18 @@ bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
   return true;
 }
 
+static std::string fi_channel(const SatFileInfo& fi, int idxPlus1)
+{
+  const int idx = idxPlus1 - 1;
+  if (idx < 0 || idx >= (int)fi.channel.size()) {
+    METLIBS_LOG_ERROR("SatFileInfo name='" << fi.name << "' channel idx+1="
+        << idxPlus1 << " out of range 0.." << fi.channel.size());
+    return std::string();
+  } else {
+    return fi.channel.at(idx);
+  }
+}
+
 bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels)
 {
   int aa = satimg::day_night(fInfo.name);
@@ -181,11 +192,11 @@ bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels)
     }
   } else {
     if (aa == 0){       //twilight
-      channels = fInfo.channel.at(4-1); //"4"
+      channels = fi_channel(fInfo, 4); //"4"
     } else if (aa == 2) { //day
-      channels = fInfo.channel.at(1-1) + "+" + fInfo.channel.at(2-1) + "+" + fInfo.channel.at(4-1); //"1+2+4";
+      channels = fi_channel(fInfo, 1) + "+" + fi_channel(fInfo, 2) + "+" + fi_channel(fInfo, 4); //"1+2+4";
     } else if (aa == 1) { //night
-      channels = fInfo.channel.at(3-1) + "+" + fInfo.channel.at(4-1) + "+" + fInfo.channel.at(5-1); //"3+4+5";
+      channels = fi_channel(fInfo, 3) + "+" + fi_channel(fInfo, 4) + "+" + fi_channel(fInfo, 5); //"3+4+5";
     }
   }
 
