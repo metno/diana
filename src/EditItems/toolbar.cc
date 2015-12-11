@@ -160,8 +160,10 @@ ToolBar::ToolBar(QWidget *parent)
   // since we may decide to use tr() on the visible name at some point.
   styles = dsm->styles(DrawingItemBase::Text);
   styles.sort();
-  foreach (QString name, styles)
-    textCombo_->addItem(name, name);
+  foreach (QString name, styles) {
+    if (dsm->getStyle(DrawingItemBase::Text, name).value("hide").toBool() == false)
+      textCombo_->addItem(name, name);
+  }
 
   textCombo_->setCurrentIndex(0);
   setTextType(0);

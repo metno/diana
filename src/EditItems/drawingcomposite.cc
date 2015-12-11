@@ -62,21 +62,21 @@ void Composite::draw(DiGLPainter* gl)
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  QList<QPointF> points = styleManager->linesForBbox(this);
+  QList<QPointF> points = styleManager->linesForBBox(this);
 
   // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(gl, this);
   styleManager->fillLoop(gl, this, points);
   styleManager->endFill(gl, this);
 
-  foreach (DrawingItemBase *element, elements_)
-    element->draw(gl);
-
   // Draw the outline using the border colour and line pattern defined in
   // the style.
   styleManager->beginLine(gl, this);
   styleManager->drawLines(gl, this, points);
   styleManager->endLine(gl, this);
+
+  foreach (DrawingItemBase *element, elements_)
+    element->draw(gl);
 }
 
 QRectF Composite::boundingRect() const
