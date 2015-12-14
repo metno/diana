@@ -1157,6 +1157,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
 
   setAcceptDrops(true);
 
+  connect(qApp, SIGNAL(aboutToQuit()),
+      SLOT(writeLogFile()));
+
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
 }
 
@@ -3345,7 +3348,7 @@ void DianaMainWindow::toggleStatusBar()
 void DianaMainWindow::filequit()
 {
   if (em->cleanupForExit() && uffm->okToExit()){
-    writeLogFile();
+    // quit sends aboutToQuit SIGNAL, which is connected to slot writeLogFile
     qApp->quit();
   }
 }
