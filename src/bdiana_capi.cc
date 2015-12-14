@@ -129,7 +129,11 @@ const std::string com_plotend = "plot.end";
 
 const std::string com_print_document = "print_document";
 
+const std::string com_wait_for_commands = "wait_for_commands";
+const std::string com_wait_end = "wait.end";
+
 const std::string com_setupfile = "setupfile";
+const std::string com_command_path = "command_path";
 const std::string com_buffersize = "buffersize";
 
 const std::string com_papersize = "papersize";
@@ -1073,6 +1077,20 @@ static void printUsage(bool showexample)
     "#  You can not mix map plots, cross sections or soundings in one file",
     "#",
     "#- Use of alpha-channel blending is not supported in postscript",
+    "#--------------------------------------------------------------   \n"
+    "#* Interactive batch-plotting *                  \n"
+    "#  To make plots on-demand, you will find this feature useful.  \n"
+    "#  Put this in the input-file:  \n"
+    "#    command_path=<some_path> \n"
+    "#    wait_for_commands \n"
+    "#  and bdiana will wait at the \'wait_for_commands\' line, periodically\n"
+    "#  checking \'<some_path>\' for a matching filename. When found, the \n"
+    "#  file(s) are read and the instructions within executed. If the line:\n"
+    "#    wait.end \n"
+    "#  is encountered, bdiana will stop waiting for commands. \n"
+    "#  The \'command_path\' must specify a complete filename - optionally \n"
+    "#  with wildcards. Example: \'/tmp/*.txt\' \n"
+    "#  NB: all files found are deleted immediately after reading.  \n"
     "#--------------------------------------------------------------",
     "#* Get Capabilities *",
     "#  Developed for use in WMS",
@@ -2272,6 +2290,82 @@ static int handlePrintDocument(int& k)
   return res;
 }
 
+static int handleWaitForCommands(int& k, int& linenum)
+{
+  if (command_path.empty()) {
+    METLIBS_LOG_ERROR("ERROR, wait_for_commands found, but command_path not set");
+    return 1;
+  }
+  static int prev_iclock = -1;
+  int iclock;
+  float diff = 0;
+  miTime nowtime = miTime::nowTime();
+
+  // using clock-cycle-command
+  iclock = clock();
+  if (prev_iclock > 0)
+    diff = float(iclock - prev_iclock) / float(CLOCKS_PER_SEC);
+
+  METLIBS_LOG_INFO("================ WAIT FOR COMMANDS, TIME is:" << nowtime
+        << ", seconds spent on previous command(s):" << diff);
+
+  std::string pattern = command_path;
+  vector<std::string> newlines;
+  std::string waitline = com_wait_for_commands;
+
+  diutil::string_v matches;
+  while ((matches = diutil::glob(pattern)).empty())
+    pu_sleep(1);
+
+  nowtime = miTime::nowTime();
+  prev_iclock = clock();
+  METLIBS_LOG_INFO("================ FOUND COMMAND-FILE(S), TIME is:" << nowtime);
+
+  vector<std::string> filenames;
+
+  //loop over files
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    const std::string& filename = *it;
+    METLIBS_LOG_INFO("==== Reading file: '" << filename << "'");
+    filenames.push_back(filename);
+    ifstream file(filename.c_str());
+    while (file) {
+      std::string str;
+      if (getline(file, str)) {
+        miutil::trim(str);
+        if (str.length() > 0 && str[0] != '#') {
+          if (miutil::contains(miutil::to_lower(str), com_wait_end))
+            waitline = ""; // blank out waitline
+          else
+            newlines.push_back(str);
+        }
+      }
+    }
+  }
+  // remove processed files
+  for (unsigned int ik = 0; ik < filenames.size(); ik++) {
+    ostringstream ost;
+    ost << "rm -f " << filenames[ik];
+    std::string command = ost.str();
+
+    METLIBS_LOG_INFO("==== Cleaning up with: '" << command << "'");
+    int res = system(command.c_str());
+
+    if (res != 0){
+      METLIBS_LOG_WARN("Command:" << command << " failed");
+    }
+  }
+  // add new wait-command
+  if (waitline.size() > 0)
+    newlines.push_back(waitline);
+  // insert commandlines into the command-queue
+  lines.erase(lines.begin() + k, lines.begin() + k + 1);
+  lines.insert(lines.begin() + k, newlines.begin(), newlines.end());
+  linenum = lines.size();
+  k--;
+  return 0;
+}
+
 static int handleFieldFilesCommand(int& k)
 {
   bool found_end = false;
@@ -2666,7 +2760,7 @@ static int parseAndProcess(istream &is)
   if (res != 0)
     return res;
 
-  const int linenum = lines.size();
+  int linenum = lines.size();
 
   // parse input - and perform plots
   for (int k = 0; k < linenum; k++) {// input-line loop
@@ -2712,6 +2806,11 @@ static int parseAndProcess(istream &is)
 
     } else if (command == com_print_document) {
       if (handlePrintDocument(k) != 0)
+        return 99;
+      continue;
+
+    } else if (command == com_wait_for_commands) {
+      if (handleWaitForCommands(k, linenum) != 0)
         return 99;
       continue;
 
@@ -2764,6 +2863,9 @@ static int parseAndProcess(istream &is)
         if (!ensureSetup())
           return 99;
       }
+
+    } else if (key == com_command_path) {
+      command_path = value;
 
     } else if (key == com_buffersize) {
       if (handleBuffersize(k, value))
