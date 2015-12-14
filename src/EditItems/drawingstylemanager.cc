@@ -557,10 +557,12 @@ QList<QPointF> DrawingStyleManager::linesForBBox(const QRectF &bbox, int cornerS
       float angle = i*(2*M_PI)/32;
       points << QPointF(bbox.left() + i*bbox.width()/32.0, bbox.top() - bbox.height()*qSin(angle)/8);
     }
+    points << bbox.topRight();
     for (int i = 0; i < 32; ++i) {
       float angle = i*(2*M_PI)/32;
       points << QPointF(bbox.right() - i*bbox.width()/32.0, bbox.bottom() + bbox.height()*qSin(angle)/8);
     }
+    points << bbox.bottomLeft();
   } else if (cornerSegments != 0 && cornerRadius != 0.0) {
     for (int i = 0; i < cornerSegments; ++i) {
       float angle = (i*M_PI/2)/cornerSegments;

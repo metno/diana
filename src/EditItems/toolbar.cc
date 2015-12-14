@@ -55,13 +55,14 @@ void CompositeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 {
   QImage image = DrawingStyleManager::instance()->toImage(DrawingItemBase::Composite, index.data(Qt::UserRole).toString());
   QBrush background;
-  if (option.state & QStyle::State_Selected)
-    background = QBrush(qApp->palette().color(QPalette::Highlight));
-  else
-    background = QBrush(Qt::white);
+  if (option.state & QStyle::State_Selected) {
+    painter->fillRect(option.rect, qApp->palette().color(QPalette::Highlight));
+    painter->fillRect(option.rect.adjusted(4, 4, -4, -4), Qt::white);
+  } else {
+    painter->fillRect(option.rect, Qt::gray);
+    painter->fillRect(option.rect.adjusted(1, 1, -1, -1), Qt::white);
+  }
 
-  painter->fillRect(option.rect, background);
-  painter->fillRect(option.rect.adjusted(4, 4, -4, -4), Qt::white);
   painter->drawImage(option.rect.center() - QPoint(image.width()/2, image.height()/2), image);
 }
 
@@ -342,6 +343,7 @@ void ToolBar::setCompositeType(QListWidgetItem *item)
   // Obtain the style identifier from the index in the selection and store
   // it in the main text action for later retrieval by the EditItemManager.
   compositeAction_->setData(item->data(Qt::UserRole));
+  compositeButton_->setToolTip(item->text());
 }
 
 void ToolBar::showComposites()
