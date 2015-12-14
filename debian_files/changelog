@@ -1,3 +1,15 @@
+diana (3.39.7-1) unstable; urgency=low
+
+  * Bugfix: use current fieldOptions in editMode
+  * TimeFilter: no time if not OK
+  * bugfix: memory leak in FieldManager
+  * PaintGL: initialize "clear"
+  * bugfix: memory leak in FimexIO
+  * do not use drawlist in ObsPlot
+  * bugfix: check out_of_range for sat channels
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 14 Dec 2015 09:39:52 +0100
+
 diana (3.39.6-1) unstable; urgency=low
 
   * Edit/vcross : Fixed editing mode handling for vertical cross-sections
