@@ -1,8 +1,9 @@
 # DIANA
 
-Diana is the core visualisation tool from MET Norway (Norwegian Meteorological
-Institute) and is distributed under the GPL license. See gpl.txt for details
-concerning the GPL license.
+Diana is the core visualisation tool from StormGeo and is based on latest 
+release of DIANA from MET Norway (Norwegian Meteorological Institute) and is 
+distributed under the GPL license. See gpl.txt for details concerning the 
+GPL license.
 
 Diana is a graphical viewer and editor developed for use with meteorological
 and oceanographic data. It uses OpenGL and/or Qt for the graphics and Qt for
@@ -66,9 +67,9 @@ http://creativecommons.org/licenses/by/3.0/ page for the license terms.
 
 ## Contact
 
-Norwegian Meteorological Institute (met.no)
-Box 43 Blindern
-0313 OSLO
+StormGeo Group HQ
+Nordre Nøstekaien 1
+5011 Bergen
 NORWAY
 
-email:diana@met.no
+email:info@stormgeo.com
