@@ -51,6 +51,7 @@
 #include "paint_create_polyline.xpm"
 #include "paint_create_symbol.xpm"
 #include "paint_create_text.xpm"
+#include "paint_create_composite.xpm"
 
 #define PLOTM PlotModule::instance()
 
@@ -136,7 +137,7 @@ EditItemManager::EditItemManager()
   createTextAction_ = new QAction(QPixmap(paint_create_text_xpm), tr("Text"), this);
   createTextAction_->setCheckable(true);
 
-  createCompositeAction_ = new QAction(tr("Composite"), this);
+  createCompositeAction_ = new QAction(QPixmap(paint_create_composite_xpm), tr("SIGWX"), this);
   createCompositeAction_->setCheckable(true);
 
   connect(selectAllAction_, SIGNAL(triggered()), SLOT(selectAllItems()));

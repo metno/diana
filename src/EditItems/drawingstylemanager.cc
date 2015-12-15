@@ -220,6 +220,7 @@ DrawingStyleManager::DrawingStyleManager()
   textProps.insert("fontsize", widthProp);
   textProps.insert("cornersegments", intProp);
   textProps.insert("cornerradius", floatProp);
+  textProps.insert("hide", booleanProp);
   properties_[DrawingItemBase::Text] = textProps;
 
   // Define the supported composite style properties.
@@ -237,6 +238,7 @@ DrawingStyleManager::DrawingStyleManager()
   compProps.insert("cornerradius", floatProp);
   compProps.insert("hide", booleanProp);
   compProps.insert("closed", booleanProp);
+  compProps.insert("border", stringProp);
   properties_[DrawingItemBase::Composite] = compProps;
 }
 
@@ -530,14 +532,38 @@ void DrawingStyleManager::highlightPolyLine(DiGLPainter* gl, const DrawingItemBa
   gl->PopAttrib();
 }
 
-QList<QPointF> DrawingStyleManager::linesForBbox(DrawingItemBase *item) const
+QList<QPointF> DrawingStyleManager::linesForBBox(DrawingItemBase *item) const
 {
-  QRectF bbox = item->boundingRect();
+  return linesForBBox(item->boundingRect(), item->property("style:cornersegments", 0).toInt(),
+                                            item->property("style:cornerradius", 0.0).toFloat(),
+                                            item->property("style:border").toString());
+}
+
+QList<QPointF> DrawingStyleManager::linesForBBox(const QRectF &bbox, int cornerSegments,
+                                                 float cornerRadius, const QString &border) const
+{
   QList<QPointF> points;
 
-  int cornerSegments = item->property("style:cornersegments", 0).toInt();
-  float cornerRadius = item->property("style:cornerradius", 0.0).toFloat();
-  if (cornerSegments != 0 && cornerRadius != 0.0) {
+  if (border == "circle") {
+    for (int i = 0; i < 32; ++i) {
+      float angle = i*(2*M_PI)/32;
+      points << bbox.center() + 0.5 * qMax(bbox.width(), bbox.height()) * QPointF(qCos(angle), qSin(angle));
+    }
+  } else if (border == "diamond") {
+    QPointF c = bbox.center();
+    points << QPointF(c.x(), bbox.top()) << QPointF(bbox.right(), c.y()) << QPointF(c.x(), bbox.bottom()) << QPointF(bbox.left(), c.y());
+  } else if (border == "scroll") {
+    for (int i = 0; i < 32; ++i) {
+      float angle = i*(2*M_PI)/32;
+      points << QPointF(bbox.left() + i*bbox.width()/32.0, bbox.top() - bbox.height()*qSin(angle)/8);
+    }
+    points << bbox.topRight();
+    for (int i = 0; i < 32; ++i) {
+      float angle = i*(2*M_PI)/32;
+      points << QPointF(bbox.right() - i*bbox.width()/32.0, bbox.bottom() + bbox.height()*qSin(angle)/8);
+    }
+    points << bbox.bottomLeft();
+  } else if (cornerSegments != 0 && cornerRadius != 0.0) {
     for (int i = 0; i < cornerSegments; ++i) {
       float angle = (i*M_PI/2)/cornerSegments;
       points << bbox.bottomLeft() + cornerRadius*QPointF(1.0 - qCos(angle), -1.0 + qSin(angle));
@@ -1053,7 +1079,6 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
   const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
 
   const float x0 = item->getPoints().at(0).x();
-  const float x1 = item->getPoints().at(1).x();
 
   float y = item->getPoints().at(0).y() - item->margin();
   QStringList lines = item->text();
@@ -1129,8 +1154,12 @@ void DrawingStyleManager::drawSymbol(DiGLPainter* gl, const DrawingItemBase *ite
   gl->PopAttrib();
 }
 
+/**
+ * Returns an image containing a preview of the item with the given \a category, \a name and \a value.
+ */
 QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, const QString &name, const QString &value) const
 {
+  // Ideally, this would get the items to draw themselves.
   DrawingManager *dm = DrawingManager::instance();
 
   switch (category) {
@@ -1139,15 +1168,20 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     QFontMetrics fm(QApplication::font());
     QString v = value;
     if (v.isEmpty()) v = "Text";
-    QImage image(fm.size(Qt::TextSingleLine, v), QImage::Format_ARGB32);
-    image.fill(qRgba(255,255,255,255));
+    QImage image(fm.width(v) + (2 * DrawingItem_Text::Text::defaultMargin()),
+                 fm.height() + (2 * DrawingItem_Text::Text::defaultMargin()), QImage::Format_ARGB32);
+    image.fill(qRgba(0, 0, 0, 0));
     QPainter painter(&image);
-    painter.drawText(QRect(QPoint(0, 0), image.size()), Qt::AlignCenter, "Text");
+    painter.setFont(QApplication::font());
+    painter.drawText(QRect(QPoint(0, 0), image.size()), Qt::AlignCenter, v);
     painter.end();
     return image;
   }
   case DrawingItemBase::Symbol:
-    return dm->getSymbolImage(name, DEFAULT_SYMBOL_SIZE, DEFAULT_SYMBOL_SIZE);;
+  {
+    QSize size = dm->getSymbolSize(name);
+    return dm->getSymbolImage(name, size.width(), size.height());
+  }
   case DrawingItemBase::PolyLine:
     return QImage();
   case DrawingItemBase::Composite:
@@ -1162,8 +1196,8 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
   QString layout = thisStyle.value("layout").toString();
 
   QList<QImage> images;
-  QList<float> positions;
-  float pos = 0.0;
+  QList<QPointF> positions;
+  QPointF pos(0, 0);
   QSizeF maxSize;
 
   for (int i = 0; i < objects.size(); ++i) {
@@ -1185,18 +1219,35 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     } else
       continue;
 
-    positions.append(pos);
+    positions.append(QPointF(pos));
 
     // Record the positions of elements and keep track of the maximum size.
     // A null image is a placeholder for a line.
-    if (image.isNull())
-      pos += 2;
-    else if (layout == "horizontal") {
-      pos += image.width();
-      maxSize = maxSize.expandedTo(QSize(pos, image.height()));
+    if (layout == "diagonal") {
+      if (image.isNull()) {
+        pos += QPointF(2, 2);
+        maxSize += QSizeF(2, 2);
+      } else {
+        pos += QPointF(image.width(), image.height());
+        maxSize += image.size();
+      }
+    } else if (layout == "vertical") {
+      if (image.isNull()) {
+        pos += QPointF(0, 2);
+        maxSize += QSizeF(0, 2);
+      } else {
+        pos += QPointF(0, image.height());
+        maxSize = maxSize.expandedTo(QSizeF(image.width(), pos.y()));
+      }
     } else {
-      pos += image.height();
-      maxSize = maxSize.expandedTo(QSize(image.width(), pos));
+      // Horizontal by default
+      if (image.isNull()) {
+        pos += QPointF(2, 0);
+        maxSize += QSizeF(2, 0);
+      } else {
+        pos += QPointF(image.width(), 0);
+        maxSize = maxSize.expandedTo(QSizeF(pos.x(), image.height()));
+      }
     }
   }
 
@@ -1205,27 +1256,60 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
   if (maxSize.isEmpty())
     return QImage();
 
-  QImage thisImage(maxSize.toSize(), QImage::Format_ARGB32);
-  thisImage.fill(qRgba(255,255,255,255));
+  // Obtain a polygon for the border decoration and use its bounding rectangle
+  // to determine the size of the image.
+  QRectF rect = QRectF(QPointF(0, 0), maxSize);
+  QPolygonF poly = QPolygonF::fromList(linesForBBox(rect, thisStyle.value("cornersegments").toInt(),
+                                                          thisStyle.value("cornerradius").toFloat(),
+                                                          thisStyle.value("border").toString()));
+
+  QImage thisImage(poly.boundingRect().size().toSize(), QImage::Format_ARGB32);
+  thisImage.fill(qRgba(0, 0, 0, 0));
   QPainter painter;
   painter.begin(&thisImage);
+  painter.setRenderHint(QPainter::Antialiasing);
+  // Displace the contents to ensure that everything lies within the image.
+  painter.translate(-poly.boundingRect().topLeft());
 
   for (int i = 0; i < images.size(); ++i) {
     QImage image = images.at(i);
-    if (layout == "horizontal") {
+    if (layout == "vertical") {
       if (image.isNull()) {
-        image = QImage(1, maxSize.toSize().height(), QImage::Format_ARGB32);
-        image.fill(qRgba(0,0,0,255));
-      }
-      painter.drawImage(positions.at(i), (maxSize.height() - image.height())/2, image);
+        pos = positions.at(i);
+        painter.drawLine(pos, pos + QPointF(maxSize.toSize().width(), 0));
+      } else
+        painter.drawImage(positions.at(i) + QPointF((maxSize.width() - image.width())/2, 0), image);
+
+    } else if (layout == "diagonal") {
+      if (image.isNull()) {
+        QImage previous;
+        if (i > 0)
+          previous = images.at(i - 1);
+
+        pos = positions.at(i);
+        painter.drawLine(pos + QPointF(-previous.width()/2 - 1, previous.height()/2 - 1),
+                         pos + QPointF(previous.width()/2 - 1, -previous.height()/2 - 1));
+      } else
+        painter.drawImage(positions.at(i), image);
+
     } else {
       if (image.isNull()) {
-        image = QImage(maxSize.toSize().width(), 1, QImage::Format_ARGB32);
-        image.fill(qRgba(0,0,0,255));
-      }
-      painter.drawImage((maxSize.width() - image.width())/2, positions.at(i), image);
+        pos = positions.at(i);
+        painter.drawLine(pos, pos + QPointF(0, maxSize.toSize().height()));
+      } else
+        painter.drawImage(positions.at(i) + QPointF(0, (maxSize.height() - image.height())/2), image);
     }
   }
+
+  QColor lineColour = thisStyle.value("linecolour").value<QColor>();
+  lineColour.setAlpha(thisStyle.value("linealpha").toInt());
+  painter.setPen(lineColour);
+
+  // The polygon itself is defined in a vertically inverted coordinate system.
+  painter.translate(0, poly.boundingRect().top());
+  painter.scale(1, -1);
+  painter.translate(0, -poly.boundingRect().top() - thisImage.height());
+  painter.drawPolygon(poly);
 
   painter.end();
 

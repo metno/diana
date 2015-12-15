@@ -77,7 +77,8 @@ public:
   void drawText(DiGLPainter* gl, const DrawingItemBase *) const;
 
   void highlightPolyLine(DiGLPainter* gl, const DrawingItemBase *, const QList<QPointF> &, int, const QColor &, bool = false) const;
-  QList<QPointF> linesForBbox(DrawingItemBase *item) const;
+  QList<QPointF> linesForBBox(DrawingItemBase *item) const;
+  QList<QPointF> linesForBBox(const QRectF &bbox, int cornerSegments, float cornerRadius, const QString &border) const;
 
   void drawLines(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points, int z = 0, bool = false) const;
   void fillLoop(DiGLPainter* gl, const DrawingItemBase *item, const QList<QPointF> &points) const;

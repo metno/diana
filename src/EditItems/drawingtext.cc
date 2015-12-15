@@ -62,7 +62,7 @@ void Text::draw(DiGLPainter* gl)
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  QList<QPointF> points = styleManager->linesForBbox(this);
+  QList<QPointF> points = styleManager->linesForBBox(this);
 
   // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(gl, this);

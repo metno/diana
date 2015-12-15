@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -36,8 +34,42 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QComboBox>
+#include <QListWidget>
+#include <QToolButton>
+
+#define COMPOSITE_WIDTH 112
+#define COMPOSITE_HEIGHT 96
 
 namespace EditItems {
+
+CompositeDelegate::CompositeDelegate(QObject *parent)
+ : QStyledItemDelegate(parent)
+{
+}
+
+CompositeDelegate::~CompositeDelegate()
+{
+}
+
+void CompositeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+  QImage image = DrawingStyleManager::instance()->toImage(DrawingItemBase::Composite, index.data(Qt::UserRole).toString());
+  QBrush background;
+  if (option.state & QStyle::State_Selected) {
+    painter->fillRect(option.rect, qApp->palette().color(QPalette::Highlight));
+    painter->fillRect(option.rect.adjusted(4, 4, -4, -4), Qt::white);
+  } else {
+    painter->fillRect(option.rect, Qt::gray);
+    painter->fillRect(option.rect.adjusted(1, 1, -1, -1), Qt::white);
+  }
+
+  painter->drawImage(option.rect.center() - QPoint(image.width()/2, image.height()/2), image);
+}
+
+QSize CompositeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+  return QSize(COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
+}
 
 ToolBar *ToolBar::instance()
 {
@@ -129,39 +161,58 @@ ToolBar::ToolBar(QWidget *parent)
   // since we may decide to use tr() on the visible name at some point.
   styles = dsm->styles(DrawingItemBase::Text);
   styles.sort();
-  foreach (QString name, styles)
-    textCombo_->addItem(name, name);
+  foreach (QString name, styles) {
+    if (dsm->getStyle(DrawingItemBase::Text, name).value("hide").toBool() == false)
+      textCombo_->addItem(name, name);
+  }
 
   textCombo_->setCurrentIndex(0);
   setTextType(0);
 
   // *** create composite ***
   compositeAction_ = actions[EditItemManager::CreateComposite];
-  addAction(compositeAction_);
-  actionGroup->addAction(compositeAction_);
-
-  // Create a combo box containing specific composite types.
-  compositeCombo_ = new QComboBox();
-  compositeCombo_->view()->setTextElideMode(Qt::ElideRight);
-  connect(compositeCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCompositeType(int)));
-  connect(compositeCombo_, SIGNAL(currentIndexChanged(int)), compositeAction_, SLOT(trigger()));
-  addWidget(compositeCombo_);
+  compositeButton_ = new QToolButton();
+  compositeButton_->setDefaultAction(compositeAction_);
+  connect(compositeButton_, SIGNAL(clicked()), SLOT(showComposites()));
+  addWidget(compositeButton_);
 
   // Create an entry for each style. Use the name as an internal identifier
   // since we may decide to use tr() on the visible name at some point.
   styles = dsm->styles(DrawingItemBase::Composite);
   styles.sort();
 
+  compositeDelegate_ = new CompositeDelegate(this);
+
+  compositeDialog_ = new QDialog(this);
+  compositeDialog_->setWindowFlags(Qt::Popup);
+
+  QListWidget *compositeView = new QListWidget();
+
+  // Fill the model with items for the composite objects.
+  int i = 0;
+
   foreach (QString name, styles) {
     if (dsm->getStyle(DrawingItemBase::Composite, name).value("hide").toBool() == false) {
-      QImage image = dsm->toImage(DrawingItemBase::Composite, name);
-      QIcon icon(QPixmap::fromImage(image));
-      compositeCombo_->addItem(icon, name, name);
+      QListWidgetItem *item = new QListWidgetItem(name);
+      item->setData(Qt::UserRole, name);
+      item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+      item->setSizeHint(QSize(COMPOSITE_WIDTH, COMPOSITE_HEIGHT));
+      compositeView->addItem(item);
+      i++;
     }
   }
 
-  compositeCombo_->setCurrentIndex(0);
-  setCompositeType(0);
+  compositeView->setSelectionMode(QAbstractItemView::SingleSelection);
+  compositeView->setItemDelegate(compositeDelegate_);
+
+  connect(compositeView, SIGNAL(itemActivated(QListWidgetItem *)), compositeDialog_, SLOT(accept()));
+  connect(compositeView, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), SLOT(setCompositeType(QListWidgetItem *)));
+
+  QVBoxLayout *layout = new QVBoxLayout(compositeDialog_);
+  layout->setMargin(0);
+  layout->addWidget(compositeView);
+
+  compositeView->setCurrentItem(compositeView->item(0));
 
   // Select the select action by default.
   selectAction_->trigger();
@@ -210,20 +261,6 @@ void ToolBar::setSymbolType(int index)
     symbolCombo_->setCurrentIndex(index + 1);
   else
     symbolAction_->setData(data);
-}
-
-void ToolBar::setTextType(int index)
-{
-  // Obtain the style identifier from the style action and store it in the
-  // main text action for later retrieval by the EditItemManager.
-  textAction_->setData(textCombo_->itemData(index));
-}
-
-void ToolBar::setCompositeType(int index)
-{
-  // Obtain the style identifier from the style action and store it in the
-  // main text action for later retrieval by the EditItemManager.
-  compositeAction_->setData(compositeCombo_->itemData(index));
 }
 
 /**
@@ -292,6 +329,28 @@ void ToolBar::addSymbols(const QString &section, const QStringList &names)
     model->setData(index, false, Qt::UserRole + 1);
     row++;
   }
+}
+
+void ToolBar::setTextType(int index)
+{
+  // Obtain the style identifier from the style action and store it in the
+  // main text action for later retrieval by the EditItemManager.
+  textAction_->setData(textCombo_->itemData(index));
+}
+
+void ToolBar::setCompositeType(QListWidgetItem *item)
+{
+  // Obtain the style identifier from the index in the selection and store
+  // it in the main text action for later retrieval by the EditItemManager.
+  compositeAction_->setData(item->data(Qt::UserRole));
+  compositeButton_->setToolTip(item->text());
+}
+
+void ToolBar::showComposites()
+{
+  compositeDialog_->move(mapToGlobal(compositeButton_->pos() - QPoint(0, COMPOSITE_HEIGHT * 3)));
+  compositeDialog_->resize(COMPOSITE_WIDTH * 1.5, COMPOSITE_HEIGHT * 3);
+  compositeDialog_->exec();
 }
 
 } // namespace

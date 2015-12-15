@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2013 met.no
 
   Contact information:
@@ -32,11 +30,24 @@
 #ifndef EDITITEMSTOOLBAR_H
 #define EDITITEMSTOOLBAR_H
 
+#include <QStyledItemDelegate>
 #include <QToolBar>
 
 class QComboBox;
+class QListWidgetItem;
+class QToolButton;
 
 namespace EditItems {
+
+class CompositeDelegate : public QStyledItemDelegate
+{
+public:
+  CompositeDelegate(QObject *parent = 0);
+  ~CompositeDelegate();
+
+  virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+};
 
 class ToolBar : public QToolBar
 {
@@ -52,10 +63,13 @@ public slots:
   void setCreateSymbolAction(const QString &type);
   void setSymbolType(int index);
   void setTextType(int index);
-  void setCompositeType(int index);
+  void setCompositeType(QListWidgetItem *item);
 
   void addSymbol(const QString &section, const QString &name);
   void addSymbols(const QString &section, const QStringList &names);
+
+private slots:
+  void showComposites();
 
 private:
   ToolBar(QWidget * = 0);
@@ -68,8 +82,11 @@ private:
   QComboBox *symbolCombo_;
   QAction *textAction_;
   QComboBox *textCombo_;
+
   QAction *compositeAction_;
-  QComboBox *compositeCombo_;
+  QToolButton *compositeButton_;
+  CompositeDelegate *compositeDelegate_;
+  QDialog *compositeDialog_;
 
   QStringList sections_;
 };
