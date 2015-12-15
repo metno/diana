@@ -1476,7 +1476,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 5;
     if (ninp != 2 || nout != 1)
       break;
-    res = cvhum(compute, nx, ny, finp[0], finp[1], fout[0], allDefined, undef);
+    res = cvhum(compute, nx, ny, finp[0], finp[1], fout[0], allDefined, undef, unit);
     break;
 
   case f_vector_abs:
@@ -3619,7 +3619,7 @@ bool FieldFunctions::cvtemp(int compute, int nx, int ny, const float *tinp,
 
 // static
 bool FieldFunctions::cvhum(int compute, int nx, int ny, const float *t,
-    const float *huminp, float *humout, bool& allDefined, float undef)
+    const float *huminp, float *humout, bool& allDefined, float undef, const std::string& unit)
 {
   //     compute=1 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Kelvin)
   //     compute=2 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Celsius)
@@ -3629,6 +3629,9 @@ bool FieldFunctions::cvhum(int compute, int nx, int ny, const float *t,
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
+
+  if ( compute == 1 && unit == "celsius" )
+    compute = 2;
 
   const int fsize = nx * ny;
   const float tconv =  (compute == 1 || compute == 2 || compute == 4) ? t0 : 0;
