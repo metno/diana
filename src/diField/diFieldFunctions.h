@@ -561,7 +561,7 @@ public:
       bool& allDefined, float undef);
 
   static bool cvhum(int compute, int nx, int ny, const float *t, const float *huminp,
-      float *humout, bool& allDefined, float undef);
+      float *humout, bool& allDefined, float undef, const std::string& unit);
 
   static bool vectorabs(int nx, int ny, const float *u, const float *v, float *ff,
       bool& allDefined, float undef);
