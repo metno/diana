@@ -1,6 +1,6 @@
 # DIANA
 
-Diana is the core visualisation tool from StormGeo and is based on latest 
+Diana is the core visualisation tool for StormGeo and is based on latest 
 release of DIANA from MET Norway (Norwegian Meteorological Institute) and is 
 distributed under the GPL license. See gpl.txt for details concerning the 
 GPL license.
