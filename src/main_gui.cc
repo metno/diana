@@ -49,6 +49,11 @@
 
 #include "qtMainWindow.h"
 
+#include <QDir>
+#include <QInputDialog>
+#include <QStringList>
+#include <QString>
+
 #include <puTools/miSetupParser.h>
 #include <iostream>
 
@@ -97,7 +102,8 @@ int main(int argc, char **argv)
 
   string logfilename;
   string cl_lang;
-  string diana_title="diana";
+  bool have_diana_title = false;
+  QString diana_instancename;
   string setupfile;
   string lang;
   map<std::string, std::string> user_variables;
@@ -146,7 +152,15 @@ int main(int argc, char **argv)
         printUsage();
         return 0;
       }
-      diana_title = argv[ac];
+      have_diana_title = true;
+
+    } else if (sarg=="-I" || sarg=="--instancename") {
+      ac++;
+      if (ac >= argc) {
+        printUsage();
+        return 0;
+      }
+      diana_instancename = argv[ac];
 
     } else {
       vector<string> ks= miutil::split(sarg, "=");
@@ -169,6 +183,10 @@ int main(int argc, char **argv)
   MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
   milogger::LoggingConfig log4cpp(logfilename);
 
+  if (have_diana_title) {
+    METLIBS_LOG_INFO("the -T/--title option is ignored");
+  }
+
   SetupParser::setUserVariables(user_variables);
   if (!LocalSetupParser::parse(setupfile)){
     if (setupfile.empty()) {
@@ -182,6 +200,36 @@ int main(int argc, char **argv)
     }
     return 0;
   }
+
+  if (diana_instancename == "?") {
+    QDir logdir(QString::fromStdString(DianaMainWindow::getLogFileDir()));
+    const QString ext = QString::fromStdString(DianaMainWindow::getLogFileExt());
+    logdir.setNameFilters(QStringList("*" + ext));
+    logdir.setFilter(QDir::Files | QDir::Readable);
+    logdir.setSorting(QDir::Time);
+    const QStringList logfilenames = logdir.entryList();
+    QStringList instancenames;
+    for (int i=0; i<logfilenames.count(); ++i) {
+      const QString& lfn = logfilenames.at(i);
+      const QString inn = lfn.left(lfn.size() - ext.size());
+      if (DianaMainWindow::allowedInstanceName(inn)) {
+        instancenames << inn;
+        METLIBS_LOG_INFO("allowed" << LOGVAL(inn.toStdString()));
+      } else {
+        METLIBS_LOG_INFO("forbidden" << LOGVAL(inn.toStdString()));
+      }
+    }
+    if (!instancenames.empty()) {
+      bool ok;
+      const QString item = QInputDialog::getItem(0,
+          QCoreApplication::translate("DianaMainWindow", "Select name"),
+          QCoreApplication::translate("DianaMainWindow", "Select coserver name:"),
+          instancenames, 0, false, &ok);
+      if (ok && !item.isEmpty())
+        diana_instancename = item;
+    }
+  }
+
   printerManager printman;
   if (!printman.parseSetup()) {
     METLIBS_LOG_ERROR("An error occurred while reading print setup: " << setupfile);
@@ -243,7 +291,7 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
 
-  DianaMainWindow * mw = new DianaMainWindow(&contr, diana_title);
+  DianaMainWindow * mw = new DianaMainWindow(&contr, diana_instancename);
   mw->start();
 
 //  a.setMainWidget(mw);

@@ -82,7 +82,7 @@
 
 #include <qUtilities/qtHelpDialog.h>
 
-#include <coserver/ClientButton.h>
+#include <coserver/ClientSelection.h>
 #include <coserver/miMessage.h>
 #include <coserver/QLetterCommands.h>
 
@@ -176,21 +176,24 @@
 
 using namespace std;
 
+const QRegExp DianaMainWindow::instanceNamePattern("diana(-[\\w\\d+-]+)?");
+
 DianaMainWindow *DianaMainWindow::self = 0;
 
-DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
+DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   : QMainWindow(),
     push_command(true),browsing(false),
     markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
   , vcInterface(0)
   , vcrossEditManagerConnected(false)
-  , spWindow(0), contr(co)
+  , spWindow(0), pluginB(0), contr(co)
   , timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
+  , mInstanceName("diana")
 {
   METLIBS_LOG_SCOPE();
 
   setWindowIcon(QIcon(QPixmap(diana_icon_xpm)));
-  setWindowTitle(tr(dianaTitle.c_str()));
+  setInstanceName(instancename);
 
   self = this;
 
@@ -775,14 +778,22 @@ DianaMainWindow::DianaMainWindow(Controller *co, const std::string& dianaTitle)
 
   hqcTo = -1;
   qsocket = false;
-  const std::string server = LocalSetupParser::basicValue("qserver");
-  pluginB = new ClientButton(tr("Diana"), QString::fromStdString(server),statusBar());
-  //   pluginB->setMinimumWidth( hpixbutton );
-  //   pluginB->setMaximumWidth( hpixbutton );
+  pluginB = new ClientSelection("Diana", this);
+  pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
+  pluginB->setName(mInstanceName);
+  pluginB->setNamePattern(instanceNamePattern);
   connect(pluginB, SIGNAL(receivedMessage(const miMessage&)),
       SLOT(processLetter(const miMessage&)));
-  connect(pluginB, SIGNAL(connectionClosed()),SLOT(connectionClosed()));
-  statusBar()->addPermanentWidget(pluginB);
+  connect(pluginB, SIGNAL(disconnected()),
+      SLOT(connectionClosed()));
+  connect(pluginB, SIGNAL(renamed(const QString&)),
+      SLOT(setInstanceName(const QString&)));
+
+  QToolButton* clientbutton = new QToolButton(statusBar());
+  clientbutton->setDefaultAction(pluginB->getToolButtonAction());
+  statusBar()->addPermanentWidget(clientbutton);
+  optmenu->addSeparator();
+  optmenu->addAction(pluginB->getMenuBarAction());
 
   QtImageGallery ig;
   QImage f_img(felt_xpm);
@@ -2220,7 +2231,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
       vector<string> token;
       boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
       if(token.size() == 2){
-        std::string name = pluginB->getClientName(letter.from);
+        std::string name = pluginB->getClientName(letter.from).toStdString();
         textview->setText(textview_id,name,token[1]);
         textview->show();
       }
@@ -2410,15 +2421,11 @@ void DianaMainWindow::sendPrintClicked(int id)
 
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
-  pluginB->sendMessage(letter);
-  METLIBS_LOG_DEBUG("SENDING>>>>" << std::endl);
-  METLIBS_LOG_DEBUG("Command: "<<letter.command);
-  METLIBS_LOG_DEBUG("Description: "<<letter.description);
-  METLIBS_LOG_DEBUG("commonDesc: "<<letter.commondesc);
-  METLIBS_LOG_DEBUG("Common: "<<letter.common);
-  for(size_t i=0;i<letter.data.size();i++)
-    METLIBS_LOG_DEBUG("data:"<<letter.data[i]);
-  METLIBS_LOG_DEBUG("To: "<<letter.to);
+  METLIBS_LOG_SCOPE(pluginB->getSelectedClientNames());
+  miQMessage qmsg;
+  int from, to;
+  convert(letter, from, to, qmsg);
+  pluginB->sendMessage(qmsg, to);
 }
 
 void DianaMainWindow::updateObs()
@@ -3361,11 +3368,52 @@ void DianaMainWindow::timecontrolslot()
   timeControlAction->setChecked(!b);
 }
 
+// static
+bool DianaMainWindow::allowedInstanceName(const QString& text)
+{
+  return instanceNamePattern.exactMatch(text);
+}
+
+void DianaMainWindow::setInstanceName(QString name)
+{
+  name = name.trimmed();
+  if (name == mInstanceName)
+    return;
+
+  if (!name.isEmpty() && allowedInstanceName(name))
+    mInstanceName = name;
+  if (mInstanceName.isEmpty())
+    mInstanceName = "diana";
+
+  const QString title = QString("diana " PVERSION " (%1)").arg(mInstanceName);
+  setWindowTitle(title);
+
+  if (pluginB)
+    pluginB->setName(mInstanceName);
+}
+
+// static
+std::string DianaMainWindow::getLogFileDir()
+{
+  return LocalSetupParser::basicValue("homedir") + "/";
+}
+
+// static
+std::string DianaMainWindow::getLogFileExt()
+{
+  return ".log";
+}
+
+std::string DianaMainWindow::getLogFileName() const
+{
+  return getLogFileDir() + mInstanceName.toStdString() + getLogFileExt();
+}
+
 void DianaMainWindow::writeLogFile()
 {
   // write the system log file to $HOME/.diana.log
 
-  const std::string logfilepath = LocalSetupParser::basicValue("homedir") + "/diana.log";
+  const std::string logfilepath = getLogFileName();
   std::ofstream file(logfilepath.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << logfilepath);
@@ -3403,11 +3451,9 @@ void DianaMainWindow::writeLogFile()
 
 void DianaMainWindow::readLogFile()
 {
-  // read the system log file
-
   getDisplaySize();
 
-  std::string logfilepath = LocalSetupParser::basicValue("homedir") + "/diana.log";
+  const std::string logfilepath = getLogFileName();
   std::string logVersion;
 
   std::ifstream file(logfilepath.c_str());
@@ -3508,6 +3554,14 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
 
   str="DocState " + saveDocState();
   vstr.push_back(str);
+  {
+    std::ostringstream p;
+    p << "coserver_peers";
+    const QStringList peers = pluginB->getSelectedClientNames();
+    for (int i=0; i<peers.count(); ++i)
+      p << ' ' << peers.at(i).toStdString();
+    vstr.push_back(p.str());
+  }
   vstr.push_back("================");
 
   // printer name & options...
@@ -3579,6 +3633,12 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
     if (vstr[ivstr].substr(0,4)=="====") break;
     tokens= miutil::split(vstr[ivstr], 0, " ");
     if (tokens[0]=="DocState") restoreDocState(vstr[ivstr]);
+    else if (tokens[0]=="coserver_peers") {
+      QStringList peers;
+      for (size_t i=1; i<tokens.size(); ++i)
+        peers << QString::fromStdString(tokens[i]);
+      pluginB->setSelectedClientNames(peers);
+    }
 
     if (tokens.size()==3) {
       x= atoi(tokens[1].c_str());
