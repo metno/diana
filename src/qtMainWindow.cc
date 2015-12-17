@@ -117,23 +117,6 @@
 #include <QUrl>
 #include <QWhatsThis>
 
-#include "vcross_qt/qtVcrossInterface.h"
-#include "diController.h"
-#include "diPrintOptions.h"
-#include "diLocalSetupParser.h"
-#include "diStationManager.h"
-#include "diStationPlot.h"
-#include "diLocationData.h"
-#include "diLogFile.h"
-
-#include <qUtilities/qtHelpDialog.h>
-#include <coserver/ClientButton.h>
-#include "qtTextView.h"
-#include <coserver/miMessage.h>
-#include <coserver/QLetterCommands.h>
-#include <puDatatypes/miCoordinates.h>
-#include <QErrorMessage>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -150,7 +133,7 @@
 #include "EditItems/toolbar.h"
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
-#include <miLogger/miLogging.h>
+#include <qUtilities/miLoggingQt.h>
 
 #include <diana_icon.xpm>
 #include <pick.xpm>
@@ -1982,16 +1965,17 @@ void DianaMainWindow::connectionClosed()
 
 void DianaMainWindow::processLetter(const miMessage &letter)
 {
+  METLIBS_LOG_SCOPE();
   std::string from = miutil::from_number(letter.from);
-    METLIBS_LOG_DEBUG("Command: "<<letter.command<<"  ");
-     METLIBS_LOG_DEBUG(" Description: "<<letter.description<<"  ");
-     METLIBS_LOG_DEBUG(" commonDesc: "<<letter.commondesc<<"  ");
-     METLIBS_LOG_DEBUG(" Common: "<<letter.common<<"  ");
-     for( size_t i=0;i<letter.data.size();i++)
-      if(letter.data[i].length()<80)
-         METLIBS_LOG_DEBUG(" data["<<i<<"]:"<<letter.data[i]);;
-      METLIBS_LOG_DEBUG(" From: "<<from);
-     METLIBS_LOG_DEBUG("To: "<<letter.to);
+  METLIBS_LOG_DEBUG("Command: "<<letter.command<<"  ");
+  METLIBS_LOG_DEBUG(" Description: "<<letter.description<<"  ");
+  METLIBS_LOG_DEBUG(" commonDesc: "<<letter.commondesc<<"  ");
+  METLIBS_LOG_DEBUG(" Common: "<<letter.common<<"  ");
+  for( size_t i=0;i<letter.data.size();i++)
+    if(letter.data[i].length()<80)
+      METLIBS_LOG_DEBUG(" data["<<i<<"]:"<<letter.data[i]);;
+  METLIBS_LOG_DEBUG(" From: "<<from);
+  METLIBS_LOG_DEBUG("To: "<<letter.to);
 
   if( letter.command == "menuok"){
     MenuOK();
@@ -2329,9 +2313,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::currentplotcommand;
-    for (size_t i = 0; i< v1.size(); ++i ) {
-      l.data.push_back(v1[i]);
-    }
+    l.data = v1;
     sendLetter(l);
     return; // no need to repaint
   }

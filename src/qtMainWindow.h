@@ -50,15 +50,18 @@
 #include <vector>
 #include <deque>
 
-class QMenuBar;
-class QToolBar;
-class QToolButton;
-class QMenu;
-class QLabel;
 class QAction;
-class QShortcut;
+class QButton;
+class QErrorMessage;
+class QMenu;
+class QMenuBar;
+class QLabel;
 class QPrinter;
 class QPushButton;
+class QShortcut;
+class QToolBar;
+class QToolButton;
+
 class WorkArea;
 class QuickMenu;
 class FieldDialog;
@@ -82,7 +85,6 @@ class TimeStepSpinbox;
 class TimeControl;
 class StatusGeopos;
 class HelpDialog;
-class QButton;
 class ShowSatValues;
 class VprofWindow;
 class VcrossInterface;
@@ -93,8 +95,6 @@ class ClientButton;
 class miMessage;
 class StationPlot;
 class TextView;
-class QShortCut;
-class QErrorMessage;
 
 /**
 

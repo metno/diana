@@ -60,22 +60,23 @@ using namespace miutil;
 
 void printUsage()
 {
-  cout << "----------------------------------------------------------" << endl
-       << "Diana - a 2D presentation system for meteorological data, " <<endl
-       << "including fields, observations, satellite- and radarimages, "<<endl
-       << "vertical profiles and cross sections. Diana has tools for  " <<endl
-       << "on-screen fieldediting and drawing of objects (fronts, areas, "<<endl
-       << "symbols etc."<<endl
-      << " Copyright (C) 2006 met.no" << endl
-      << "----------------------------------------------------------" << endl
-      << "Command line arguments:                                 "  << endl
-      << "  -h            :  Show help  "                            <<  endl
-      << "  -v            :  Version "                                << endl
-      << "  -s <filename> :  name of setupfile (def. diana.setup)   " << endl
-      << "  -l <language> :  language used in dialogs                               " << endl
-      << "  -L <logger>   :  loggerFile for debugging               " << endl
-      << "  -T <title>    :  Change Main window title "               << endl
-       << "----------------------------------------------------------"<<endl;
+  cout << "----------------------------------------------------------"    << endl
+       << "Diana - a 2D presentation system for meteorological data,"     << endl
+       << "including fields, observations, satellite- and radarimages,"   << endl
+       << "vertical profiles and cross sections. Diana has tools for"     << endl
+       << "on-screen fieldediting and drawing of objects (fronts, areas," << endl
+       << "symbols etc." << endl
+       << "Copyright (C) 2006-2015 met.no" << endl
+       << "----------------------------------------------------------" << endl
+       << "Command line arguments:"                                    << endl
+       << "  -h            :  Show help"                               << endl
+       << "  -v            :  Version"                                 << endl
+       << "  -s <filename> :  name of setupfile (def. diana.setup)"    << endl
+       << "  -l <language> :  language used in dialogs"                << endl
+       << "  -L <logger>   :  loggerFile for debugging"                << endl
+       << "  -I <name>     :  change name of instance for coserver"    << endl
+       << "                   (use ? to choose at startup)"            << endl
+       << "----------------------------------------------------------" << endl;
 }
 
 int main(int argc, char **argv)
