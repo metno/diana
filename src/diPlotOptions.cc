@@ -899,6 +899,14 @@ vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
     }
 
     // try to add a whole interval (10,20,...50)
+    //-----------------------------------
+    // Check here for 2 dots   
+    //-----------------------------------
+    if (!values.size() and strcmp(t.c_str(),"..")==0) {
+        values.push_back(-fieldUndef);
+        continue;
+    }
+    //-----------------------------------
 
     if (values.size() < 2) {
       METLIBS_LOG_DEBUG("need 2 values yet to define step size");
