@@ -50,15 +50,18 @@
 #include <vector>
 #include <deque>
 
-class QMenuBar;
-class QToolBar;
-class QToolButton;
-class QMenu;
-class QLabel;
 class QAction;
-class QShortcut;
+class QButton;
+class QErrorMessage;
+class QMenu;
+class QMenuBar;
+class QLabel;
 class QPrinter;
 class QPushButton;
+class QShortcut;
+class QToolBar;
+class QToolButton;
+
 class WorkArea;
 class QuickMenu;
 class FieldDialog;
@@ -82,19 +85,16 @@ class TimeStepSpinbox;
 class TimeControl;
 class StatusGeopos;
 class HelpDialog;
-class QButton;
 class ShowSatValues;
 class VprofWindow;
 class VcrossInterface;
 class SpectrumWindow;
 class StatusPlotButtons;
 class BrowserBox;
-class ClientButton;
+class ClientSelection;
 class miMessage;
 class StationPlot;
 class TextView;
-class QShortCut;
-class QErrorMessage;
 
 /**
 
@@ -110,7 +110,7 @@ class DianaMainWindow: public QMainWindow
 {
   Q_OBJECT
 public:
-  DianaMainWindow(Controller*, const std::string& dianaTitle="Diana");
+  DianaMainWindow(Controller*, const QString& instancename="Diana");
   ~DianaMainWindow();
 
   /// check if news file has changed since last startup
@@ -122,6 +122,12 @@ public:
 
   /// Returns the application's main window instance.
   static DianaMainWindow *instance();
+
+  static std::string getLogFileDir();
+  static std::string getLogFileExt();
+  static bool allowedInstanceName(const QString& text);
+
+  static const QRegExp instanceNamePattern;
 
 protected:
   void timerEvent(QTimerEvent*);
@@ -273,6 +279,8 @@ private Q_SLOTS:
 
   void updatePlotElements();
 
+  void setInstanceName(QString instancename);
+
 private:
   void vcrossEditManagerEnableSignals();
 
@@ -423,7 +431,7 @@ private:
   ShowSatValues     * showsatval;
   QPushButton       * obsUpdateB;
   QLabel            * archiveL;
-  ClientButton      * pluginB;
+  ClientSelection   * pluginB;
   bool                dialogChanged;
 
   QButton* mwhelp;
@@ -463,6 +471,7 @@ private:
   void levelChange(int increment);
   void idnumChange(int increment);
 
+  std::string getLogFileName() const;
   void readLogFile();
   std::string saveDocState();
   void restoreDocState(std::string logstr);
@@ -483,6 +492,7 @@ private:
   std::map<std::string, DataDialog*> dialogNames;
 
   std::vector<PlotElement> getPlotElements() const;
+  QString mInstanceName;
 
   static DianaMainWindow *self;   // singleton instance pointer
 };
