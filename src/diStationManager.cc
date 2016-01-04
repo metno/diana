@@ -510,11 +510,12 @@ vector <StationPlot*> StationManager::plots()
 QString StationManager::getStationsText(int x, int y)
 {
   QString stationsText;
-
-  Station *station = findStation(x, y);
+  vector<Station*> allStations = findStations(x, y);
   vector<Station*> stations;
-  if (station)
-    stations.push_back(station);
+  for (unsigned int i = 0; i < allStations.size(); ++i) {
+    if (allStations[i]->status != Station::noStatus)
+      stations.push_back(allStations[i]);
+  }
 
   if (stations.size() > 0) {
 
