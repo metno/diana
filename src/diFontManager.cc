@@ -53,6 +53,8 @@ void FontManager::clearFamilies()
 {
   for (families_t::iterator it = families.begin(); it != families.end(); ++it)
     delete it->second;
+  families.clear();
+  currentFamily = 0;
 }
 
 // static
