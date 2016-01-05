@@ -794,7 +794,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
       } else {
        origStr += " " + key + "=" + value;
       }
-    } else {
+    } else if (l>0) {
       origStr += " " + etokens[0];
     }
 
