@@ -681,7 +681,9 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
 {
 
   METLIBS_LOG_DEBUG("spectrumWindow::startUp called with time " << t);
-
+  if (DiCanvas* c = spectrumw->canvas()) {
+    c->parseFontSetup();
+  }
   active = true;
   spToolbar->show();
   tsToolbar->show();
@@ -693,6 +695,9 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
 
 void SpectrumWindow::parseSetup()
 {
+  if (DiCanvas* c = spectrumw->canvas()) {
+    c->parseFontSetup();
+  }
   spectrumm->parseSetup();
   spModelDialog->updateModelfileList();
 }

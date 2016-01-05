@@ -663,6 +663,10 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t)
 void VprofWindow::startUp(const miutil::miTime& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(t));
+
+  if (DiCanvas* c = vprofw->canvas()) {
+    c->parseFontSetup();
+  }
   active = true;
   vpToolbar->show();
   tsToolbar->show();
@@ -677,6 +681,9 @@ void VprofWindow::startUp(const miutil::miTime& t)
 
 void VprofWindow::parseSetup()
 {
+  if (DiCanvas* c = vprofw->canvas()) {
+    c->parseFontSetup();
+  }
   vprofm->parseSetup();
   vpModelDialog->updateModelfileList();
 }
