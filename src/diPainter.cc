@@ -13,6 +13,9 @@
 
 #include <cmath>
 
+#define MILOGGER_CATEGORY "diana.DiPainter"
+#include <miLogger/miLogging.h>
+
 void DiCanvas::parseFontSetup()
 {
   const std::string sf_name = "FONTS";
@@ -24,6 +27,7 @@ void DiCanvas::parseFontSetup()
 
 void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
 {
+  METLIBS_LOG_SCOPE();
   const std::string key_font = "font";
   const std::string key_fonttype = "type";
   const std::string key_fontface = "face";

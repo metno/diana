@@ -2919,7 +2919,7 @@ void DianaMainWindow::saveAnimation()
 
 void DianaMainWindow::parseSetup()
 {
-  METLIBS_LOG_DEBUG(" DianaMainWindow::parseSetup()");
+  METLIBS_LOG_SCOPE();
   SetupDialog *setupDialog = new SetupDialog(this);
 
   if( setupDialog->exec() ) {
@@ -2987,7 +2987,6 @@ void DianaMainWindow::measurementsPositions(bool b)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 {
-
   int x = mev->x();
   int y = mev->y();
 
@@ -3036,14 +3035,13 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   if ( !obsPopupData.isEmpty() ) {
          QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), obsPopupData, w);
   }
-  
 }
 
 
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 {
-  METLIBS_LOG_DEBUG("void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)");
+  METLIBS_LOG_SCOPE();
 
   int x = mev->x();
   int y = mev->y();
@@ -3073,15 +3071,13 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
   } else {
     zoomOut();
   }
-
-  return;
 }
 
 
 // picks up mousemovements (without buttonclicks)
 void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
 {
-//  METLIBS_LOG_DEBUG("DianaMainWindow::catchMouseMovePos x,y: "<<mev->x()<<" "<<mev->y());
+  // METLIBS_LOG_SCOPE(LOGVAL(mev->x()) << LOGVAL(mev->y()));
   int x = mev->x();
   int y = mev->y();
 
@@ -3128,9 +3124,10 @@ void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
   if (contr->markAnnotationPlot(x,y))
     requestBackgroundBufferUpdate();
 
-  if (quick) return;
+  if (quick)
+    return;
 
-  if( optAutoElementAction->isChecked() ){
+  if (optAutoElementAction->isChecked()) {
     catchElement(mev);
   }
 }
@@ -3143,7 +3140,7 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 
 void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
-  METLIBS_LOG_SCOPE("x,y: "<<mev->x()<<" "<<mev->y());
+  METLIBS_LOG_SCOPE(LOGVAL(mev->x()) << LOGVAL(mev->y()));
 
   int x = mev->x();
   int y = mev->y();
@@ -3280,7 +3277,6 @@ void DianaMainWindow::sendSelectedStations(const std::string& command)
     sendLetter(letter);
   }
 }
-
 
 
 void DianaMainWindow::catchKeyPress(QKeyEvent* ke)
@@ -3851,8 +3847,8 @@ void DianaMainWindow::toggleScrollwheelZoom()
 void DianaMainWindow::chooseFont()
 {
   bool ok;
-  QFont font = QFontDialog::getFont( &ok,qApp->font(),this );
-  if ( ok ) {
+  QFont font = QFontDialog::getFont(&ok,qApp->font(), this);
+  if (ok) {
     // font is set to the font the user selected
     qApp->setFont(font);
   } else {
@@ -3861,8 +3857,9 @@ void DianaMainWindow::chooseFont()
   }
 }
 
-void DianaMainWindow::zoomTo(Rectangle r) {
-  if(contr)
+void DianaMainWindow::zoomTo(Rectangle r)
+{
+  if (contr)
     contr->zoomTo(r);
 }
 
@@ -3874,9 +3871,8 @@ void DianaMainWindow::zoomOut()
 
 void DianaMainWindow::showUffda()
 {
-  if (uffda && contr->getSatnames().size()){
-
-    if (xclick==xlast && yclick==ylast){
+  if (uffda && contr->getSatnames().size()) {
+    if (xclick==xlast && yclick==ylast) {
       uffMenu();
       xlast=xclick;
       ylast=yclick;
@@ -3896,7 +3892,6 @@ void DianaMainWindow::showUffda()
 //this is called after an area selected from rightclickmenu
 void DianaMainWindow::selectedAreas()
 {
-
   QAction *action = qobject_cast<QAction *>(sender());
   if (!action){
     return;
