@@ -66,9 +66,8 @@
 using namespace std;
 
 SpectrumWindow::SpectrumWindow()
-: QMainWindow( 0)
+  : QMainWindow(0)
 {
-
   spectrumm = new SpectrumManager();
 
   setWindowTitle( tr("Diana Wavespectrum") );
@@ -243,7 +242,7 @@ bool SpectrumWindow::timeChangedSlot(int diff)
   //called if signal timeChanged is emitted from graphics
   //window (qtSpectrumWidget)
 
-  METLIBS_LOG_DEBUG("timeChangedSlot(int) is called ");
+  METLIBS_LOG_SCOPE();
 
   int index=timeBox->currentIndex();
   while(diff<0){
@@ -279,12 +278,12 @@ bool SpectrumWindow::timeChangedSlot(int diff)
   }
   if (tbs!=tstring){
     METLIBS_LOG_WARN("WARNING! timeChangedSlot  time from spectrumm ="
-    << t    <<" not equal to timeBox text = " << tbs);
+        << t    <<" not equal to timeBox text = " << tbs);
     METLIBS_LOG_WARN("You should search through timelist!");
     return false;
   }
 
-  emit setTime("spectrum",t);
+  Q_EMIT setTime("spectrum",t);
 
   return true;
 }
@@ -292,8 +291,7 @@ bool SpectrumWindow::timeChangedSlot(int diff)
 
 bool SpectrumWindow::stationChangedSlot(int diff)
 {
-
-  METLIBS_LOG_DEBUG("stationChangedSlot(int) is called ");
+  METLIBS_LOG_SCOPE();
 
   int index=stationBox->currentIndex();
   while(diff<0){
@@ -328,9 +326,9 @@ bool SpectrumWindow::stationChangedSlot(int diff)
       }
     }
   }
-  QString sq = s.c_str();
+  QString sq = QString::fromStdString(s);
   if (sbs==s) {
-    emit spectrumChanged(sq); //name of current station (to mainWindow)
+    Q_EMIT spectrumChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
     stationBox->insertItem(0,sq);
@@ -455,18 +453,12 @@ void SpectrumWindow::paintOnDevice(QPaintDevice* device)
 
 void SpectrumWindow::setupClicked(bool on)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(on));
   //called when the setup button is clicked
   if( on ){
-
-    METLIBS_LOG_DEBUG("Setup button clicked on");
-
     spSetupDialog->start();
     spSetupDialog->show();
-
   } else {
-
-    METLIBS_LOG_DEBUG("Setup button clicked off");
-
     spSetupDialog->hide();
   }
 }
@@ -474,7 +466,7 @@ void SpectrumWindow::setupClicked(bool on)
 
 void SpectrumWindow::quitClicked()
 {
-  METLIBS_LOG_DEBUG("quit clicked");
+  METLIBS_LOG_SCOPE();
 
   //for now, only hide window, not really quit !
   spToolbar->hide();
@@ -483,15 +475,15 @@ void SpectrumWindow::quitClicked()
   setupButton->setChecked(false);
 
   active = false;
-  emit SpectrumHide();
+  Q_EMIT SpectrumHide();
   vector<miutil::miTime> t;
-  emit emitTimes("spectrum",t);
+  Q_EMIT emitTimes("spectrum",t);
 }
 
 
 void SpectrumWindow::updateClicked()
 {
-  METLIBS_LOG_DEBUG("update clicked");
+  METLIBS_LOG_SCOPE();
 
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
   mainWindowTimeChanged(t);
@@ -500,8 +492,8 @@ void SpectrumWindow::updateClicked()
 
 void SpectrumWindow::helpClicked()
 {
-  METLIBS_LOG_DEBUG("help clicked");
-  emit showsource("ug_spectrum.html");
+  METLIBS_LOG_SCOPE();
+  Q_EMIT showsource("ug_spectrum.html");
 }
 
 
@@ -515,13 +507,12 @@ void SpectrumWindow::changeModel()
 {
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::changeModel()");
+  METLIBS_LOG_SCOPE();
 
   spectrumm->setModel();
 
   //emit to main Window (updates stationPlot)
-  emit spectrumSetChanged();
+  Q_EMIT spectrumSetChanged();
   //update combobox lists of stations and time
   updateStationBox();
   updateTimeBox();
@@ -535,8 +526,7 @@ void SpectrumWindow::changeModel()
 void SpectrumWindow::changeSetup()
 {
   //called when the apply from setup dialog is clicked
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::changeSetup()");
+  METLIBS_LOG_SCOPE();
 
   spectrumqw->update();
 }
@@ -545,8 +535,7 @@ void SpectrumWindow::changeSetup()
 void SpectrumWindow::hideModel()
 {
   //called when the hide button (from model dialog) is clicked
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::hideModel()");
+  METLIBS_LOG_SCOPE();
 
   spModelDialog->hide();
   modelButton->setChecked(false);
@@ -556,8 +545,7 @@ void SpectrumWindow::hideModel()
 void SpectrumWindow::hideSetup()
 {
   //called when the hide button (from setup dialog) is clicked
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::hideSetup()");
+  METLIBS_LOG_SCOPE();
 
   spSetupDialog->hide();
   setupButton->setChecked(false);
@@ -566,7 +554,6 @@ void SpectrumWindow::hideSetup()
 
 StationPlot* SpectrumWindow::getStations()
 {
-
   METLIBS_LOG_DEBUG("SpectrumWindow::getStations()");
 
   const vector <std::string> stations = spectrumm->getStationList();
@@ -586,9 +573,7 @@ StationPlot* SpectrumWindow::getStations()
 void SpectrumWindow::updateStationBox()
 {
   //update list of stations in stationBox
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::updateStationBox");
-
+  METLIBS_LOG_SCOPE();
 
   stationBox->clear();
   vector<std::string> stations= spectrumm->getStationList();
@@ -596,8 +581,8 @@ void SpectrumWindow::updateStationBox()
   stations.push_back("                        ");
 
   int n =stations.size();
-  for (int i=0; i<n; i++){
-    stationBox->addItem(QString(stations[i].c_str()));
+  for (int i=0; i<n; i++) {
+    stationBox->addItem(QString::fromStdString(stations[i]));
   }
 }
 
@@ -605,19 +590,17 @@ void SpectrumWindow::updateStationBox()
 void SpectrumWindow::updateTimeBox()
 {
   //update list of times
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::updateTimeBox");
-
+  METLIBS_LOG_SCOPE();
 
   timeBox->clear();
   vector<miutil::miTime> times= spectrumm->getTimeList();
 
   int n =times.size();
   for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
+    timeBox->addItem(QString::fromStdString(times[i].isoTime(false,false)));
   }
 
-  emit emitTimes("spectrum",times);
+  Q_EMIT emitTimes("spectrum",times);
 }
 
 
@@ -628,8 +611,8 @@ void SpectrumWindow::stationBoxActivated(int index)
   //if (index>=0 && index<stations.size()) {
   spectrumm->setStation(sbs);
   spectrumqw->update();
-  QString sq = sbs.c_str();
-  emit spectrumChanged(sq); //name of current station (to mainWindow)
+  QString sq = QString::fromStdString(sbs);
+  Q_EMIT spectrumChanged(sq); //name of current station (to mainWindow)
   //}
 }
 
@@ -648,16 +631,12 @@ void SpectrumWindow::timeBoxActivated(int index)
 
 bool SpectrumWindow::changeStation(const std::string& station)
 {
-
-  METLIBS_LOG_DEBUG("SpectrumWindow::changeStation");
+  METLIBS_LOG_SCOPE();
 
   spectrumm->setStation(station);
   spectrumqw->update();
   raise();
-  if (stationChangedSlot(0))
-    return true;
-  else
-    return false;
+  return stationChangedSlot(0);
 }
 
 void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
@@ -665,9 +644,10 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
   // keep time for next "update" (in case not found now)
   mainWindowTime= t;
 
-  if (!active) return;
+  if (!active)
+    return;
 
-  METLIBS_LOG_DEBUG("spectrumWindow::mainWindowTimeChanged called with time " << t);
+  METLIBS_LOG_SCOPE(LOGVAL(t));
 
   spectrumm->mainWindowTimeChanged(t);
   //get correct selection in comboboxes
@@ -679,9 +659,11 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 
 void SpectrumWindow::startUp(const miutil::miTime& t)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(t));
 
-  METLIBS_LOG_DEBUG("spectrumWindow::startUp called with time " << t);
-
+  if (DiCanvas* c = spectrumw->canvas()) {
+    c->parseFontSetup();
+  }
   active = true;
   spToolbar->show();
   tsToolbar->show();
@@ -693,6 +675,9 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
 
 void SpectrumWindow::parseSetup()
 {
+  if (DiCanvas* c = spectrumw->canvas()) {
+    c->parseFontSetup();
+  }
   spectrumm->parseSetup();
   spModelDialog->updateModelfileList();
 }
@@ -738,7 +723,6 @@ void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& v
     const string& thisVersion, const string& logVersion,
     int displayWidth, int displayHeight)
 {
-
   if (logpart=="window") {
 
     vector<string> tokens;

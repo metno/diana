@@ -36,6 +36,7 @@ void DiOpenGLCanvas::deleteTexture(GLuint texid)
 
 void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
 {
+  METLIBS_LOG_SCOPE();
   fp()->clearFamilies();
   DiGLCanvas::parseFontSetup(sect_fonts);
 }
@@ -43,11 +44,13 @@ void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
 void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,
     const std::string& face, bool use_bitmap)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename));
   fp()->defineFont(fontfam, fontfilename, face, use_bitmap);
 }
 
 void DiOpenGLCanvas::initializeFP()
 {
+  METLIBS_LOG_SCOPE();
   mFP.reset(new FontManager);
 }
 
