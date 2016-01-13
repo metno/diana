@@ -1646,26 +1646,37 @@ bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
   vector<miTime> fieldTimes = getFieldTime(fieldrequests,false);
   miTime endTime = fieldrequest.ptime;
   miTime startTime = fieldrequest.ptime;
-  startTime.addHour(fch);
+  if(fch <0)
+    startTime.addHour(fch);
+  else
+    endTime.addHour(fch);
   set<miTime> actualfieldTimes;
   for (size_t i = 0; i < fieldTimes.size(); i++) {
     if (fieldTimes[i] >= startTime && fieldTimes[i] <= endTime)
-    {
       actualfieldTimes.insert(fieldTimes[i]);
-    }
   }
 
-  if ( !actualfieldTimes.count(startTime))
+  if ( !actualfieldTimes.size() ){
     return false;
+  }
 
   if ( accumulate_flux ) {
+    if ( fch > 0 ) {
+      METLIBS_LOG_WARN("accumulte_flux with fchour> 0 is not implemented");
+      return false;
+    }
+    if ( !actualfieldTimes.count(startTime) ) {
+      METLIBS_LOG_DEBUG(fieldrequest.paramName << " not available for "<< startTime);
+      return false;
+    }
+    actualfieldTimes.erase(startTime);
     set<miTime>::iterator ip = actualfieldTimes.begin();
-    miTime lastTime = *ip;
-    ++ip;
+    miTime lastTime = startTime;
     for (; ip != actualfieldTimes.end(); ip++) {
       fieldrequest.ptime = *ip;
       Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
       if (f == NULL) {
+        METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
         return false;
       } else {
         float sec_diff = miTime::secDiff(*ip, lastTime);
@@ -1676,10 +1687,16 @@ bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
       }
     }
   } else {
+    if ( fch < 0 ) {
+      actualfieldTimes.erase(startTime);
+    } else {
+      actualfieldTimes.erase(endTime);
+    }
     BOOST_FOREACH(miTime t,  actualfieldTimes) {
       fieldrequest.ptime = t;
       Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
       if (f == NULL) {
+        METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
         return false;
       } else {
         vfield.push_back(f);
