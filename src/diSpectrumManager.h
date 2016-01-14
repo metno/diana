@@ -115,6 +115,7 @@ public:
   void setStation(const std::string& station);
   void setTime(const miutil::miTime& time);
   std::string setStation(int step);
+  miutil::miTime setTime(int step, int dir);
   miutil::miTime setTime(int step);
 
   const miutil::miTime& getTime(){return plotTime;}

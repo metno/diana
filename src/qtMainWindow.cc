@@ -1791,8 +1791,6 @@ void DianaMainWindow::spectrumStartup()
 {
   if (!spWindow)
     return;
-  if (spWindow->firstTime)
-    MenuOK();
   miutil::miTime t;
   contr->getPlotTime(t);
   spWindow->startUp(t);

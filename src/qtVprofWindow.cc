@@ -117,50 +117,39 @@ VprofWindow::VprofWindow()
   QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-
   const QSizePolicy sp_fix_ex(QSizePolicy::Fixed,   QSizePolicy::MinimumExpanding);
   const QSizePolicy sp_min_ex(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
   //combobox to select station
-  leftStationButton= new QPushButton(QPixmap(bakover_xpm),"",this);
-  leftStationButton->setEnabled(false);
-  leftStationButton->setSizePolicy(sp_fix_ex);
+  QPushButton *leftStationButton= new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftStationButton, SIGNAL(clicked()), SLOT(leftStationClicked()) );
   leftStationButton->setAutoRepeat(true);
 
   stationBox = new QComboBox(this);
-  stationBox->setEnabled(false);
   stationBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   stationBox->setSizePolicy(sp_min_ex);
   connect( stationBox, SIGNAL( activated(int) ), SLOT( stationBoxActivated(int) ) );
 
-  rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
-  rightStationButton->setEnabled(false);
-  rightStationButton->setSizePolicy(sp_fix_ex);
+  QPushButton *rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
   connect(rightStationButton, SIGNAL(clicked()), SLOT(rightStationClicked()) );
   rightStationButton->setAutoRepeat(true);
 
-  leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
-  leftTimeButton->setEnabled(false);
-  leftTimeButton->setSizePolicy(sp_fix_ex);
+  //combobox to select time
+  QPushButton *leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftTimeButton, SIGNAL(clicked()), SLOT(leftTimeClicked()) );
   leftTimeButton->setAutoRepeat(true);
 
   timeBox = new QComboBox(this);
-  timeBox->setEnabled(false);
   timeBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   timeBox->setSizePolicy(sp_min_ex);
   connect( timeBox, SIGNAL( activated(int) ), SLOT( timeBoxActivated(int) ) );
 
-  rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
-  rightTimeButton->setEnabled(false);
-  rightTimeButton->setSizePolicy(sp_fix_ex);
+  QPushButton *rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
   connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
   timeSpinBox = new QSpinBox( this );
   timeSpinBox->setValue(0);
-  timeBox->setSizePolicy(sp_min_ex);
 
   vpToolbar->addWidget(modelButton);
   vpToolbar->addWidget(setupButton);
@@ -459,12 +448,6 @@ void VprofWindow::quitClicked()
 
 /***************************************************************************/
 
-void VprofWindow::hideClicked()
-{
-}
-
-/***************************************************************************/
-
 void VprofWindow::updateClicked()
 {
   METLIBS_LOG_SCOPE();
@@ -542,7 +525,7 @@ StationPlot* VprofWindow::getStations()
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
   std::string ann = vprofm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
-  stationPlot->setPlotName(ann); // ADC set plotname (for StatusPlotButtons)
+  stationPlot->setPlotName(ann);
   return stationPlot;
 }
 
@@ -559,9 +542,6 @@ void VprofWindow::updateStationBox()
   for (size_t i=0; i<stations.size(); i++)
     stationBox->addItem(QString::fromStdString(stations[i]));
 
-  stationBox        ->setEnabled(!stations.empty());
-  leftStationButton ->setEnabled(!stations.empty());
-  rightStationButton->setEnabled(!stations.empty());
 }
 
 /***************************************************************************/
@@ -574,10 +554,6 @@ void VprofWindow::updateTimeBox()
   const std::vector<miutil::miTime>& times = vprofm->getTimeList();
   for (size_t i=0; i<times.size(); i++)
     timeBox->addItem(QString::fromStdString(times[i].isoTime(false,false)));
-
-  timeBox        ->setEnabled(!times.empty());
-  leftTimeButton ->setEnabled(!times.empty());
-  rightTimeButton->setEnabled(!times.empty());
 
   Q_EMIT emitTimes("vprof", times);
 }

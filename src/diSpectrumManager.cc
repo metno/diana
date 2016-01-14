@@ -216,6 +216,52 @@ void SpectrumManager::setTime(const miTime& time)
   dataChange= true;
 }
 
+miTime SpectrumManager::setTime(int step, int dir)
+{
+  METLIBS_LOG_DEBUG(LOGVAL(step) << LOGVAL(dir));
+
+  if (timeList.size()==0)
+    return miTime::nowTime();
+
+  int n= timeList.size();
+  int i = 0;
+  if ( step == 0 ){
+    while (i<n && timeList[i] != plotTime) {
+      i++;
+    }
+    i += dir;
+
+
+  } else {
+
+    miTime newTime(plotTime);
+    newTime.addHour(step * dir);
+
+    if( dir > 0 ) {
+      i = 0;
+      while (i<n && timeList[i] < newTime) {
+        i++;
+      }
+    } else {
+      i = n-1;
+      while (i>=0 && timeList[i] > newTime) {
+        i--;
+      }
+    }
+  }
+
+  if (i==n) {
+    i = n-1;
+  }
+  if (i<0) {
+    i = 0;
+  }
+
+  plotTime= timeList[i];
+  dataChange= true;
+
+  return plotTime;
+}
 
 std::string SpectrumManager::setStation(int step)
 {

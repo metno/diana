@@ -37,7 +37,6 @@
 #include <vector>
 
 class QComboBox;
-class QPushButton;
 class QSpinBox;
 class QToolBar;
 
@@ -93,11 +92,7 @@ private:
   ToggleButton *modelButton;
   ToggleButton * setupButton;
   QComboBox * stationBox;
-  QPushButton *leftStationButton;
-  QPushButton *rightStationButton;
   QComboBox * timeBox;
-  QPushButton *leftTimeButton;
-  QPushButton *rightTimeButton;
   QSpinBox * timeSpinBox;
 
   void updateStationBox();
@@ -124,7 +119,6 @@ private Q_SLOTS:
   void setupClicked(bool on);
   void quitClicked();
   void updateClicked();
-  void hideClicked();
   void helpClicked();
   void changeModel();
   void changeSetup();
