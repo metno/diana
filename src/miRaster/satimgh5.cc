@@ -70,8 +70,6 @@
 #include <dirent.h>
 #include <errno.h>
 
-// #define M_TIME 1
-
 #include <puCtools/stat.h>
 
 #include <miLogger/logger.h>
@@ -82,7 +80,7 @@ using namespace milogger;
 using namespace satimg;
 using namespace std;
 
-//#define DEBUGPRINT
+// #define DEBUGPRINT
 
 map<string, string> metno::satimgh5::hdf5map;
 map<float, int> metno::satimgh5::paletteMap;
@@ -92,6 +90,9 @@ vector<int> metno::satimgh5::GPalette;
 vector<int> metno::satimgh5::BPalette;
 map <string,string> metno::satimgh5::metadataMap;
 map<int, string> metno::satimgh5::paletteStringMap;
+
+#define MILOGGER_CATEGORY "metno.satimgh5"
+#include "miLogger/miLogging.h"
 
 
 /*!
@@ -115,9 +116,7 @@ bool metno::satimgh5::validateChannelString(string& inputStr)
 herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
 {
 
-#ifdef DEBUGPRINT
-  cerr << "getChannel::inputStr: " << inputStr << endl;
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(inputStr));
 
   vector<string> channels, channelParts;
 
@@ -129,9 +128,7 @@ herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
     }
 
     for (unsigned int i = 0; i < channels.size(); i++) {
-#ifdef DEBUGPRINT
-      cerr << "getChannel::channel: " << channels[i] << endl;
-#endif
+      METLIBS_LOG_DEBUG(channels[i]);
       if (channels[i].find("-") != string::npos) {
         channelParts = split_protected(channels[i],'(', ')', "-", true);
         if (channelParts.size() == 3) {
@@ -319,9 +316,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
     unsigned char *image[], float *orgimage[], int nchan, int chan[],
     dihead &ginfo)
 {
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::HDF5_read_diana" << endl;
-#endif
+  METLIBS_LOG_TIME();
 
   int pal = 0;
   string chpath = "";
@@ -341,11 +336,6 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
   herr_t status = 0;
   float **float_data;
   float **float_data_sub;
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
 
   // If no channels, return
   if (nchan == 0) {
@@ -430,7 +420,6 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
   }
 #endif
 
-#if 1
   // If cacheFilePath is set, look for a cached copy of the image
   if (tmpFilePath != "") {
     /* Remove cached files older than a certain time
@@ -498,13 +487,9 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
     ifstream in(tmpFilePath.c_str(), ios::in | ios::binary);
 
     if (!in) {
-#ifdef DEBUGPRINT
-      cerr << "Cannot open input file: " << tmpFilePath << endl;
-#endif
+      METLIBS_LOG_WARN("Cannot open input file: " << tmpFilePath);
     } else {
-#ifdef DEBUGPRINT
-      cerr << "File: " << tmpFilePath << endl;
-#endif
+      METLIBS_LOG_DEBUG("File: " << tmpFilePath);
       try
       {
         double num;
@@ -513,9 +498,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
         in.seekg(0,ios::end);
         length = in.tellg();
         in.seekg(0, ios::beg);
-#ifdef DEBUGPRINT
-        cerr << "length of data in file: " << length << endl;
-#endif
+        METLIBS_LOG_DEBUG("length of data in file: " << length);
         for(int i=0;i<nchan;i++)
           in.read((char*)image[i], length/nchan);
       }
@@ -524,13 +507,6 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
         cerr << "exception caught: " << e.what() << endl;
       }
       in.close();
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.HDF5_read_diana");
-  COMMON_LOG::getInstance("common").infoStream() << "Cached image read in: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
       haveCachedImage = true;
 
       /* Return if the file is a radar file or if we
@@ -541,7 +517,6 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
     }
   }
 
-#endif
 
   file = H5Fopen(infile.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
@@ -551,23 +526,21 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
         chinvert, subtract, subchpath, subchname, subchinvert, ch4co2corr,
         subch4co2corr);
 
-#ifdef DEBUGPRINT
-    cerr << "metno::satimgh5::HDF5_read_diana: ginfo.channelinfo: " << ginfo.channelinfo << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: chan[q]: " << chan[q] << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: chpath: " << chpath << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: chname: " << chname << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: chinvert: " << chinvert << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: subtract: " << subtract << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: subchpath: " << subchpath << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: subchname: " << subchname << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: subchinvert: " << subchinvert << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: ginfo.xsize : " << ginfo.xsize << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: ginfo.ysize : " << ginfo.ysize << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: ch4co2corr : " << ch4co2corr << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: subch4co2corr : " << subch4co2corr << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: chpath.c_str()" << chpath << endl;
-    cerr << "metno::satimgh5::HDF5_read_diana: chname.c_str()" << chname << endl;
-#endif
+    METLIBS_LOG_DEBUG("ginfo.channelinfo: " << ginfo.channelinfo);
+    METLIBS_LOG_DEBUG("chan[q]: " << chan[q]);
+    METLIBS_LOG_DEBUG("chpath: " << chpath);
+    METLIBS_LOG_DEBUG("chname: " << chname);
+    METLIBS_LOG_DEBUG("chinvert: " << chinvert);
+    METLIBS_LOG_DEBUG("subtract: " << subtract);
+    METLIBS_LOG_DEBUG("subchpath: " << subchpath);
+    METLIBS_LOG_DEBUG("subchname: " << subchname);
+    METLIBS_LOG_DEBUG("subchinvert: " << subchinvert);
+    METLIBS_LOG_DEBUG("ginfo.xsize : " << ginfo.xsize);
+    METLIBS_LOG_DEBUG("ginfo.ysize : " << ginfo.ysize);
+    METLIBS_LOG_DEBUG("ch4co2corr : " << ch4co2corr);
+    METLIBS_LOG_DEBUG("subch4co2corr : " << subch4co2corr);
+    METLIBS_LOG_DEBUG("chpath.c_str()" << chpath);
+    METLIBS_LOG_DEBUG("chname.c_str()" << chname);
 
     // first, we must check if channel path contains ":"
 	vector<string> chpathSplit;
@@ -587,9 +560,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 	}
 
     if (statbuf.type == H5G_GROUP) {
-#ifdef DEBUGPRINT
-      cerr << "READ FOUND GROUP" << endl;
-#endif
+      METLIBS_LOG_DEBUG("READ FOUND GROUP");
       group = H5Gopen2(file, chpathSplit[0].c_str(),H5P_DEFAULT);
 
       if (group >= 0) {
@@ -601,9 +572,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 			  while ((statbuf.type == H5G_GROUP) && (j < chpathSplit.size()))
 			  {
 				chpath = chpathSplit[j];
-#ifdef DEBUGPRINT
-				cerr << "chpath: " << chpath << endl;
-#endif
+				METLIBS_LOG_DEBUG("chpath: " << chpath);
 				H5Gget_objinfo(group, chpath.c_str(), FALSE, &statbuf);
 				if (statbuf.type == H5G_GROUP)
 				{
@@ -617,9 +586,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 			  }
 			  // Here we should have a data set
 			  H5Gget_objinfo(group, chname.c_str(), FALSE, &statbuf);
-#ifdef DEBUGPRINT
-				cerr << "READ FOUND DATASET INSIDE SUBGROUP" << endl;
-#endif
+				METLIBS_LOG_DEBUG("READ FOUND DATASET INSIDE SUBGROUP");
 		  }
 		  else
 		  {
@@ -627,14 +594,10 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 		  }
 
         if (statbuf.type == H5G_DATASET) {
-#ifdef DEBUGPRINT
-          cerr << "READ FOUND DATASET INSIDE GROUP" << endl;
-#endif
+          METLIBS_LOG_DEBUG("READ FOUND DATASET INSIDE GROUP");
           if (checkType(group, chname) == H5T_INTEGER) {
-#ifdef DEBUGPRINT
-            cerr << "H5T_INTEGER FOUND" << endl;
-            cerr << "READ FOUND DATASET INSIDE GROUP OF TYPE INTEGER" << endl;
-#endif
+            METLIBS_LOG_DEBUG("H5T_INTEGER FOUND");
+            METLIBS_LOG_DEBUG("READ FOUND DATASET INSIDE GROUP OF TYPE INTEGER");
             // Initialize array for data retrieval
             float_data = new float*[ginfo.xsize];
             float_data[0] = new float[ginfo.xsize * ginfo.ysize];
@@ -654,12 +617,12 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
              * 10-9 - will subtract 9 from 10.
              */
             if (subtract) {
-			  int firstmin = 0;
-			  if (hdf5map.count(string("min_") + from_number(q)))
-				firstmin = to_int(hdf5map[string("min_") + from_number(q)]);
-			  int firstmax = 0;
-			  if (hdf5map.count(string("max_") + from_number(q)))
-				firstmax = to_int(hdf5map[string("max_") + from_number(q)]);
+              int firstmin = 0;
+              if (hdf5map.count(string("min_") + from_number(q)))
+                firstmin = to_int(hdf5map[string("min_") + from_number(q)]);
+              int firstmax = 0;
+              if (hdf5map.count(string("max_") + from_number(q)))
+                firstmax = to_int(hdf5map[string("max_") + from_number(q)]);
 
               /* Save the channel path as chan_q
                * chan_q is used to extract channel specific settings from
@@ -686,12 +649,12 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
                 readDataFromDataset(ginfo, group, subchpath, subchname,
                     subchinvert, float_data_sub, q, orgimage,
                     cloudTopTemperature, haveCachedImage);
-			  int secondmin = 0;
-			  if (hdf5map.count(string("min_") + from_number(q)))
-				secondmin = to_int(hdf5map[string("min_") + from_number(q)]);
-			  int secondmax = 0;
-			  if (hdf5map.count(string("max_") + from_number(q)))
-				secondmax = to_int(hdf5map[string("max_") + from_number(q)]);
+              int secondmin = 0;
+              if (hdf5map.count(string("min_") + from_number(q)))
+                secondmin = to_int(hdf5map[string("min_") + from_number(q)]);
+              int secondmax = 0;
+              if (hdf5map.count(string("max_") + from_number(q)))
+                secondmax = to_int(hdf5map[string("max_") + from_number(q)]);
 
               // Compute min/max for the subtracted picture
               hdf5map[string("min_") + from_number(q)] = from_number(firstmin - secondmax);
@@ -713,27 +676,19 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 
             // Return the already cached image
             if (haveCachedImage) {
-#ifdef DEBUGPRINT
-              cerr << "Image is already cached" << endl;
-#endif
+              METLIBS_LOG_DEBUG("Image is already cached");
             } else if (ginfo.hdf5type == radar) {
-#ifdef DEBUGPRINT
-              cerr << "RADAR IMAGE" << endl;
-#endif
+              METLIBS_LOG_DEBUG("RADAR IMAGE");
               makeImage(image, float_data);
             } else {
-#ifdef DEBUGPRINT
-              cerr << "SATELLITE IMAGE" << endl;
-#endif
+              METLIBS_LOG_DEBUG("SATELLITE IMAGE");
               makeImage(image, float_data, q);
             }
             delete[] float_data[0];
             delete[] float_data;
 
           } else if (checkType(group, chname) == H5T_FLOAT) {
-#ifdef DEBUGPRINT
-            cerr << "READ FOUND DATASET INSIDE GROUP OF TYPE FLOAT" << endl;
-#endif
+            METLIBS_LOG_DEBUG("READ FOUND DATASET INSIDE GROUP OF TYPE FLOAT");
             // Initialize array
             float_data = new float*[ginfo.xsize];
             float_data[0] = new float[ginfo.xsize * ginfo.ysize];
@@ -751,18 +706,14 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
             delete[] float_data;
 
           } else {
-#ifdef DEBUGPRINT
-            cerr << "int metno::satimgh5::HDF5_read_diana UNKNOWN dataset class" << endl;
-#endif
+            METLIBS_LOG_WARN("UNKNOWN dataset class");
           }
 
         }
       }
       status = H5Gclose(group);
     } else if (statbuf.type == H5G_DATASET) {
-#ifdef DEBUGPRINT
-      cerr << "READ FOUND DATASET" << endl;
-#endif
+      METLIBS_LOG_DEBUG("READ FOUND DATASET");
       float_data = new float*[ginfo.xsize];
       float_data[0] = new float[ginfo.xsize * ginfo.ysize];
 
@@ -789,7 +740,6 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
     //cerr << "Faile to put in cache" << endl;
   }
   //  mImageCache.putInCache(file, (uint8_t*)image[0], ginfo.xsize*ginfo.ysize*nchan);
-#if 1
 if (tmpFilePath != "") {
     // Set everything created to 0666
     umask (0);
@@ -801,24 +751,22 @@ if (tmpFilePath != "") {
       for(unsigned int j=0;j<filePathParts.size();j++) {
         realFilePath += "/" + filePathParts[j];
         if(pu_stat(realFilePath.c_str(),&st) != 0) {
-          cerr << "Creating directory: " << realFilePath;
+          METLIBS_LOG_INFO("Creating directory: " << realFilePath);
 #ifdef __MINGW32__
           if(mkdir(realFilePath.c_str()) != 0)
 #else
           if(mkdir(realFilePath.c_str(), 0777) != 0)
 #endif
-            cerr << " ERROR" << endl;
+            METLIBS_LOG_WARN(" ERROR");
           else
-            cerr << " SUCCESS" << endl;
+            METLIBS_LOG_INFO(" SUCCESS");
         }
       }
     }
     ofstream out(tmpFilePath.c_str(), ios::out | ios::binary);
 
     if (!out) {
-#ifdef DEBUGPRINT
-      cerr << "Cannot open file.\n";
-#endif
+      METLIBS_LOG_WARN("Cannot open file.");
     } else {
       for (int i=0; i<nchan; i++)
         for (unsigned int j=0; j<ginfo.xsize*ginfo.ysize; j++)
@@ -826,15 +774,6 @@ if (tmpFilePath != "") {
       out.close();
     }
   }
-#endif
-
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.HDF5_read_diana");
-  COMMON_LOG::getInstance("common").infoStream() << "Image read in: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
   return pal;
 }
 
@@ -890,9 +829,6 @@ int metno::satimgh5::getPaletteStep(float value)
     if (value < p->first) {
       break;
     }
-#ifdef DEBUGPRINT
-//  cerr <<  " step: " << step << endl;
-#endif
     step++;
   }
   return step;
@@ -903,11 +839,8 @@ int metno::satimgh5::getPaletteStep(float value)
  */
 int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[])
 {
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
+  METLIBS_LOG_TIME();
+
   int k = 0;
   //  int intToChar = 65535/255;
   int xsize = 0;
@@ -937,13 +870,13 @@ int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[])
   int borderColour=255;
   if (hdf5map.count("border"))
 	borderColour=to_int(hdf5map["border"],255);
-#ifdef DEBUGPRINT
+
   if(isBorder)
-    cerr << "border with colour " << borderColour << endl;
+    METLIBS_LOG_DEBUG("border with colour " << borderColour);
   if(isPalette)
-    cerr << "palette" << endl;
-  cerr << "making radar image: ";
-#endif
+    METLIBS_LOG_DEBUG("palette");
+  METLIBS_LOG_DEBUG("making radar image: ");
+
   for (int i=0; i < xsize; i++) {
     for (int j=0; j < ysize; j++) {
       if (float_data[i][j] == nodata) {
@@ -962,16 +895,7 @@ int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[])
       k++;
     }
   }
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.makeImage");
-  COMMON_LOG::getInstance("common").infoStream() << "Make image took: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
-#ifdef DEBUGPRINT
-  cerr << " done!" << endl;
-#endif
+  METLIBS_LOG_DEBUG(" done!");
   return 0;
 }
 
@@ -1078,11 +1002,8 @@ int metno::satimgh5::co2corr_bt39(dihead& ginfo, hid_t source, float* ch4r[],
 int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[],
     int chan, string name)
 {
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
+  METLIBS_LOG_TIME();
+
   int k = 0;
   int xsize = 0;
   if (hdf5map.count("xsize"))
@@ -1110,13 +1031,11 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[],
   if (metadataMap.count("cloudTopUnit"))
 	cloudTopUnit = metadataMap["cloudTopUnit"];
 
-#ifdef DEBUGPRINT
-  cerr << "making org image: " << name << endl;
-  cerr << "haveCalibrationTable: " << haveCalibrationTable << endl;
-  cerr << "offset: " << offset << " gain: " << gain << endl;
-  cerr << "description: " << description << endl;
-  cerr << "cloudTopUnit: " << cloudTopUnit << endl;
-#endif
+  METLIBS_LOG_DEBUG("making org image: " << name);
+  METLIBS_LOG_DEBUG("haveCalibrationTable: " << haveCalibrationTable);
+  METLIBS_LOG_DEBUG("offset: " << offset << " gain: " << gain);
+  METLIBS_LOG_DEBUG("description: " << description);
+  METLIBS_LOG_DEBUG("cloudTopUnit: " << cloudTopUnit);
 
   float add=0.0;
   float mul=1.0;
@@ -1152,16 +1071,7 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[],
       k++;
     }
   }
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.makeOrgImage");
-  COMMON_LOG::getInstance("common").infoStream() << "Make original image took: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
-#ifdef DEBUGPRINT
-  cerr << " done!" << endl;
-#endif
+  METLIBS_LOG_DEBUG(" done!");
 
   return 0;
 }
@@ -1172,11 +1082,8 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[],
 int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[],
     int chan)
 {
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
+  METLIBS_LOG_TIME();
+
   int k = 0;
   int xsize = 0;
   if (hdf5map.count("xsize"))
@@ -1264,15 +1171,13 @@ int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[],
   // stretch is used to stretch the range to 255
   float stretch=255.0/(rangeMax-rangeMin);
 
-#ifdef DEBUGPRINT
-  cerr << "Making channel: " << channelName << endl;
-  cerr << "minPercent: " << minPercent << " maxPercent: " << maxPercent << endl;
-  cerr << "chanMin: " << chanMin << " chanMax: " << chanMax << endl;
-  cerr << "rangeMin: " << rangeMin << " rangeMax: " << rangeMax << endl;
-  cerr << "nodata: " << nodata << endl;
-  cerr << "gamma: " << gammaValue << endl;
-  cerr << "stretch: " << stretch << endl;
-#endif
+  METLIBS_LOG_DEBUG("Making channel: " << channelName);
+  METLIBS_LOG_DEBUG("minPercent: " << minPercent << " maxPercent: " << maxPercent);
+  METLIBS_LOG_DEBUG("chanMin: " << chanMin << " chanMax: " << chanMax);
+  METLIBS_LOG_DEBUG("rangeMin: " << rangeMin << " rangeMax: " << rangeMax);
+  METLIBS_LOG_DEBUG("nodata: " << nodata);
+  METLIBS_LOG_DEBUG("gamma: " << gammaValue);
+  METLIBS_LOG_DEBUG("stretch: " << stretch);
 
   // Upper/lower bound in array
   float arrmin=32000.0;
@@ -1306,9 +1211,7 @@ int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[],
       }
     }
   }
-#ifdef DEBUGPRINT
-  cerr << "Arrmin: " << arrmin << " Arrmax: " << arrmax << endl;
-#endif
+  METLIBS_LOG_DEBUG("Arrmin: " << arrmin << " Arrmax: " << arrmax);
   /*
    * Loop through the array once more
    * if pixel == nodata || arrmax-arrmin<=0.0001
@@ -1349,16 +1252,7 @@ int metno::satimgh5::makeImage(unsigned char *image[], float* float_data[],
       }
     }
   }
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.makeImage");
-  COMMON_LOG::getInstance("common").infoStream() << "Make image took: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
-#ifdef DEBUGPRINT
-  cerr << " done!" << endl;
-#endif
+  METLIBS_LOG_DEBUG(" done!");
   return 0;
 }
 
@@ -1371,9 +1265,8 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
     string path, string name, bool invert, float **float_data, int chan,
     float *orgImage[], bool cloudTopTemperature, bool haveCachedImage)
 {
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::readDataFromDataset" << endl;
-#endif
+  METLIBS_LOG_TIME();
+
   int k = 0;
   float min = -32768.0;
   float max = 32768.0;
@@ -1470,34 +1363,23 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
 			  max = to_int(hdf5map[string("statmax_") + pathname]);
   }
 
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::readDataFromDataset INTEGER" << endl;
-  cerr << "metno::satimgh5::readDataFromDataset ginfo.xsize: " << ginfo.xsize
-  << endl;
-  cerr << "metno::satimgh5::readDataFromDataset ginfo.ysize: " << ginfo.ysize
-  << endl;
-  cerr << "metno::satimgh5::readDataFromDataset map xsize: "
-  << to_int(hdf5map["xsize"],0) << endl;
-  cerr << "metno::satimgh5::readDataFromDataset map ysize: "
-  << to_int(hdf5map["ysize"],0) << endl;
-  cerr << "metno::satimgh5::readDataFromDataset daynight: " << daynight << endl;
-  cerr << "metno::satimgh5::readDataFromDataset skip: " << skip << endl;
-  cerr << "metno::satimgh5::readDataFromDataset name: " << name << endl;
-  cerr << "metno::satimgh5::readDataFromDataset cloudTopTemperature: "
-  << cloudTopTemperature << endl;
-  cerr << "metno::satimgh5::readDataFromDataset pathname: " << pathname << endl;
-  cerr << "metno::satimgh5::readDataFromDataset haveColorRange: "
-  << haveColorRange << endl;
-  cerr << "metno::satimgh5::readDataFromDataset haveCalibrationTable: "
-  << haveCalibrationTable << endl;
-  cerr << "metno::satimgh5::readDataFromDataset havePalette: "
-  << havePalette << endl;
-  cerr << "metno::satimgh5::readDataFromDataset haveCachedImage: "
-  << haveCachedImage << endl;
-  cerr << "max: " << max << endl;
-  cerr << "min: " << min << endl;
-  cerr << "reading array: ";
-#endif
+  METLIBS_LOG_DEBUG("INTEGER");
+  METLIBS_LOG_DEBUG("ginfo.xsize: " << ginfo.xsize);
+  METLIBS_LOG_DEBUG("ginfo.ysize: " << ginfo.ysize);
+  METLIBS_LOG_DEBUG("map xsize: " << to_int(hdf5map["xsize"],0));
+  METLIBS_LOG_DEBUG("map ysize: " << to_int(hdf5map["ysize"],0));
+  METLIBS_LOG_DEBUG("daynight: " << daynight);
+  METLIBS_LOG_DEBUG("skip: " << skip);
+  METLIBS_LOG_DEBUG("name: " << name);
+  METLIBS_LOG_DEBUG("cloudTopTemperature: " << cloudTopTemperature);
+  METLIBS_LOG_DEBUG("pathname: " << pathname);
+  METLIBS_LOG_DEBUG("haveColorRange: " << haveColorRange);
+  METLIBS_LOG_DEBUG("haveCalibrationTable: " << haveCalibrationTable);
+  METLIBS_LOG_DEBUG("havePalette: " << havePalette);
+  METLIBS_LOG_DEBUG("haveCachedImage: " << haveCachedImage);
+  METLIBS_LOG_DEBUG("max: " << max);
+  METLIBS_LOG_DEBUG("min: " << min);
+  METLIBS_LOG_DEBUG("reading array: ");
 
   // Open the dataset
   dset = H5Dopen2(source, name.c_str(),H5P_DEFAULT);
@@ -1508,21 +1390,9 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
   for (int i=1; i<ginfo.xsize; i++)
     int_data[i] = int_data[0] + i * ginfo.ysize;
 
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
   // Extract the data from the HDF5 file
   status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
       int_data[0]);
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno::satimgh5::readDataFromDataset");
-  COMMON_LOG::getInstance("common").infoStream() << "H5Dread took: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
 
   // Move the data to a float array for precision
   for (int i=0; i<ginfo.xsize; i++) {
@@ -1544,12 +1414,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
     return 0;
   }
 
-#ifdef DEBUGPRINT
-  cerr << "computing: ";
-#endif
-#ifdef M_TIME
-  gettimeofday(&pre, NULL);
-#endif
+  METLIBS_LOG_DEBUG("computing: ");
 
   /*
    * Fill the holes in the color range to have a complete
@@ -1626,10 +1491,10 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
       min = msgMin;
       max = msgMax;
     }
-#ifdef DEBUGPRINT
-    cerr << "msgMax: " << msgMax << endl;
-    cerr << "msgMin: " << msgMin << endl;
-#endif
+
+    METLIBS_LOG_DEBUG("msgMax: " << msgMax);
+    METLIBS_LOG_DEBUG("msgMin: " << msgMin);
+
   } else if (haveColorRange || havePalette || ginfo.hdf5type == saf) {
     min = 0.0;
     max = 255.0;
@@ -1640,13 +1505,6 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
   hdf5map[string("max_") + from_number(chan)] = from_number(max);
   hdf5map[string("min_") + from_number(chan)] = from_number(min);
 
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno::satimgh5::readDataFromDataset");
-  COMMON_LOG::getInstance("common").infoStream() << "channel converted in: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
   status = H5Dclose(dset);
   return 0;
 }
@@ -1657,23 +1515,18 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
 int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
     string path, string name, bool invert, float **float_data, int chan)
 {
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::readDataFromDataset(): " << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+
   hid_t dset;
   herr_t status;
 
   dset = H5Dopen2(source, name.c_str(),H5P_DEFAULT);
-#ifdef DEBUGPRINT
-  cerr << "reading float array: ";
-#endif
+  METLIBS_LOG_DEBUG("reading float array: ");
 
   status = H5Dread(dset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
       float_data[chan]);
 
-#ifdef DEBUGPRINT
-  cerr << "status: " << status << endl;
-#endif
+  METLIBS_LOG_DEBUG("status: " << status);
 
   status = H5Dclose(dset);
   return 0;
@@ -1686,9 +1539,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
     string path)
 {
 
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::getAttributeFromGroup path:" << path << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   hid_t native_type,memb_id,space;
   hsize_t dims[1],adims[2];
@@ -1701,7 +1552,8 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   int ndims,i,j,nmembs;
   hid_t attr, atype, aspace;
   char memb[1024];
-  hsize_t buf = 1024;
+  // NOTE: sizeof(memb) -1)
+  hsize_t buf = sizeof(memb) - 1;
   herr_t status = 0;
   float* float_array;
   int* int_array;
@@ -1710,7 +1562,8 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   herr_t ret = 0;
   string value = "";
   H5T_class_t dclass;
-  char string_value[1024];
+  // NOTE: Must be large, H5Aread used and no control of overflow!
+  char string_value[10240];
   char* tmpdataset;
   vector<string> splitString;
 
@@ -1718,6 +1571,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   atype = H5Aget_type(attr);
   aspace = H5Aget_space(attr);
   status = H5Aget_name(attr, buf, memb);
+	METLIBS_LOG_DEBUG("status: " << status);
   dclass = H5Tget_class(atype);
   npoints = H5Sget_simple_extent_npoints(aspace);
 
@@ -1735,9 +1589,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 				  value += from_number(int_array[i]);
 			  }
 		  } else {
-#ifdef DEBUGPRINT
-			  cerr << "metno::satimgh5::getAttributeFromGroup ret: " << ret << endl;
-#endif
+			  METLIBS_LOG_DEBUG("ret: " << ret);
 		  }
 		  delete[] int_array;
 		  break;
@@ -1765,25 +1617,20 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 				  value = from_number(float_array[0]);
 			  }
 		  } else {
-#ifdef DEBUGPRINT
-			  cerr << "metno::satimgh5::getAttributeFromGroup ret: " << ret << endl;
-#endif
+			  METLIBS_LOG_DEBUG("ret: " << ret);
 		  }
 
 		  delete[] float_array;
 		  break;
 
 	  case H5T_ARRAY:
-#ifdef DEBUGPRINT
-		  cerr << "ARRAY FOUND IN GROUP" << endl;
-#endif
+		  METLIBS_LOG_DEBUG("ARRAY FOUND IN GROUP");
 		  break;
 
 	  case H5T_COMPOUND:
-#ifdef DEBUGPRINT
-		  cerr << "COMPOUND FOUND IN GROUP" << endl;
-#endif
+		  METLIBS_LOG_DEBUG("COMPOUND FOUND IN GROUP");
 		  status = H5Aget_name(attr, buf, memb);
+			METLIBS_LOG_DEBUG("status: " << status);
 		  native_type=H5Tget_native_type(atype, H5T_DIR_DEFAULT);
 		  nmembs = H5Tget_nmembers(native_type);
 		  // Memory leak...
@@ -1849,16 +1696,12 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 						  splitString = split(string(palette[i].str),":",true);
 						  if(splitString.size()==2) {
 							  paletteStringMap[to_int(splitString[0],0)] = splitString[1];
-#ifdef DEBUGPRINT
-							  cerr << "splitString.size()==2 " << "i =  "<< i<< " " << splitString[0] << " " << splitString[1] << endl;
-#endif
+							  METLIBS_LOG_DEBUG("splitString.size()==2 " << "i =  "<< i<< " " << splitString[0] << " " << splitString[1]);
 						  } else if(splitString.size()==3){
 							  trim(splitString[1]);
 							  if (paletteStringMap.count(to_int(splitString[1],0)) == 0)
 								  paletteStringMap[to_int(splitString[1],0)] = splitString[2];
-#ifdef DEBUGPRINT
-							  cerr << "splitString.size()==3. " << "i =  "<< i<< " " << splitString[1] << " " << splitString[2] << endl;
-#endif
+							  METLIBS_LOG_DEBUG("splitString.size()==3. " << "i =  "<< i<< " " << splitString[1] << " " << splitString[2]);
 						  }
 					  }
 				  }
@@ -1872,10 +1715,8 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 		  break;
 
 	  default:
-#ifdef DEBUGPRINT
-		  cerr << "metno::satimgh5::getAttributeFromGroup UNKNOWN found. " << endl;
-		  cerr << "dclass: " << dclass << endl;
-#endif
+		  METLIBS_LOG_DEBUG("metno::satimgh5::getAttributeFromGroup UNKNOWN found. ");
+		  METLIBS_LOG_DEBUG("dclass: " << dclass);
 		  break;
   }
 
@@ -1893,9 +1734,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
     string metadata)
 {
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::openDataset dataset: " << dataset << " path: " << path << endl;
-#endif
+  METLIBS_LOG_SCOPE("dataset: " << dataset << " path: " << path);
   hid_t dset;
   hid_t dtype;
   H5T_class_t dclass;
@@ -1930,9 +1769,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
 
   switch (dclass) {
   case H5T_COMPOUND:
-#ifdef DEBUGPRINT
-    cerr << "dataset: " << dataset << " is H5T_COMPOUND" << endl;
-#endif
+    METLIBS_LOG_DEBUG("dataset: " << dataset << " is H5T_COMPOUND");
     if (path != "")
       path += ":";
     nmembs = H5Tget_nmembers(native_type);
@@ -1944,16 +1781,11 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
       switch (memb_cls) {
       case H5T_ARRAY:
         memb_super_id = H5Tget_super(memb_id);
-
-#ifdef DEBUGPRINT
-        cerr << "ARRAY FOUND" << endl;
-#endif
+        METLIBS_LOG_DEBUG("ARRAY FOUND");
 
         if ((H5Tequal(memb_super_id, H5T_IEEE_F64LE) > 0) || (H5Tequal(
             memb_super_id, H5T_IEEE_F32LE) > 0)) {
-#ifdef DEBUGPRINT
-          cerr << "FLOAT ARRAY FOUND" << endl;
-#endif
+          METLIBS_LOG_DEBUG("FLOAT ARRAY FOUND");
           //if (H5Tequal(memb_super_id, H5T_FLOAT) > 0) {
           floattype = H5Tcreate(H5T_COMPOUND, sizeof(arrFloat));
           status = H5Tinsert(floattype, memb, HOFFSET(arrFloat, f), memb_id);
@@ -1977,9 +1809,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
         break;
 
       case H5T_INTEGER:
-#ifdef DEBUGPRINT
-        cerr << "array is H5T_INTEGER" << endl;
-#endif
+        METLIBS_LOG_DEBUG("array is H5T_INTEGER");
         comp = H5Tcreate(H5T_COMPOUND, sizeof(int));
         status = H5Tinsert(comp, memb, 0, H5T_NATIVE_INT);
         status = H5Dread(dset, comp, H5S_ALL, H5S_ALL, H5P_DEFAULT, iary);
@@ -2129,9 +1959,9 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
 int metno::satimgh5::openGroup(hid_t group, string groupname, string path,
     string metadata)
 {
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::openGroup group: " << group << " groupname: " << groupname << " path: " << path << " metadata: " << metadata << endl;
-#endif
+
+  METLIBS_LOG_SCOPE("group: " << group << " groupname: " << groupname << " path: " << path << " metadata: " << metadata);
+
   char tmpdataset[80];
   hsize_t nrObj = 0;
   int nrAttrs = 0;
@@ -2141,15 +1971,11 @@ int metno::satimgh5::openGroup(hid_t group, string groupname, string path,
 
   H5Gget_objinfo(group, groupname.c_str(), FALSE, &statbuf);
   if (statbuf.type == H5G_GROUP) {
-#ifdef DEBUGPRINT
-    cerr << "group: " << groupname << " is H5G_GROUP" << endl;
-#endif
+    METLIBS_LOG_DEBUG("group: " << groupname << " is H5G_GROUP");
     hid_t root = H5Gopen2(group, groupname.c_str(),H5P_DEFAULT);
     H5Gget_num_objs(root, &nrObj);
     nrAttrs = H5Aget_num_attrs(root);
-#ifdef DEBUGPRINT
-    cerr << "group: " << groupname << " nrObj " << nrObj << " nrAttrs " << nrAttrs << endl;
-#endif
+    METLIBS_LOG_DEBUG("group: " << groupname << " nrObj " << nrObj << " nrAttrs " << nrAttrs);
       for (int k = 0; k < nrAttrs; k++) {
         getAttributeFromGroup(root, k, path);
       }
@@ -2176,10 +2002,8 @@ int metno::satimgh5::openGroup(hid_t group, string groupname, string path,
     }
     H5Gclose(root);
   } else if (statbuf.type == H5G_DATASET) {
-#ifdef DEBUGPRINT
-    cerr << "group: " << groupname << " is H5G_DATASET" << endl;
-#endif
-      openDataset(group, groupname, path, metadata);
+    METLIBS_LOG_DEBUG("group: " << groupname << " is H5G_DATASET");
+    openDataset(group, groupname, path, metadata);
   }
   return 0;
 }
@@ -2189,9 +2013,7 @@ int metno::satimgh5::openGroup(hid_t group, string groupname, string path,
  */
 int metno::satimgh5::insertIntoValueMap(string fullpath, string value)
 {
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::insertIntoValueMap fullpath: " << fullpath << " value: " << value << endl;
-#endif
+  METLIBS_LOG_SCOPE("fullpath: " << fullpath << " value: " << value);
   // Special case for product
   if (fullpath.find("product") != string::npos)
 	  replace(value, " ", "_");
@@ -2270,6 +2092,8 @@ bool metno::satimgh5::checkMetadata(string filename, string metadata)
  */
 herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
 {
+  METLIBS_LOG_SCOPE("inputStr:" << inputStr << " chan: " << chan);
+  
   /*
    From configfile:
    diana_xscale-compound:region:xscale,diana_yscale-compound:region:yscale,diana_xsize-compound:region:xsize,diana_ysize-compound:region:ysize
@@ -2292,9 +2116,6 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
   bool timeSet = false;
   int ret = 0;
   */
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::fill_head_diana: " << inputStr << endl;
-#endif
 
   // Break metadata into pieces and insert it into hdf5map
   replace(inputStr, " ", "");
@@ -2317,9 +2138,7 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
   } else if (hdf5map["filename"].length() > 0) {
     //hdf5map["dateTime"] = miTime(hdf5map["filename"].split("_",true)[1]).isoTime();
   }
-#ifdef DEBUGPRINT
-  cerr << __LINE__ << " Datetime: " << hdf5map["dateTime"] << endl;
-#endif
+  METLIBS_LOG_DEBUG(" Datetime: " << hdf5map["dateTime"]);
 
   // extract proj
   if (hdf5map["projdef"].length() > 0) {
@@ -2393,37 +2212,25 @@ string metno::satimgh5::convertAlphaDate(string date)
  */
 int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 {
+  METLIBS_LOG_TIME();
   hid_t file;
   //  char string_value[80];
   //  int npoints = 0;
   bool havePalette=false;
   herr_t ret;
   string channelName;
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
   // TODO: Fix this
   int chan = 1;
 
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::HDF5_head_diana channel: " << ginfo.channel << endl;
-  cerr << "metno::satimgh5::HDF5_head_diana satellite: " << ginfo.satellite << endl;
-#endif
+  METLIBS_LOG_DEBUG("infile: " << infile);
+  METLIBS_LOG_DEBUG("channel: " << ginfo.channel);
+  METLIBS_LOG_DEBUG("satellite: " << ginfo.satellite);
 
   if (checkMetadata(infile, ginfo.metadata) == false) {
     file=H5Fopen(infile.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
     openGroup(file, "/", "", ginfo.metadata);
     if (H5Fclose(file)<0)
 	{
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.HDF5_head_diana");
-  COMMON_LOG::getInstance("common").infoStream() << "error closing file: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
 		return -1;
 	}
   }
@@ -2450,17 +2257,12 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   // Is not read from HDF5 file
   ret = getDataForChannel(ginfo.channelinfo, channelName);
 
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::HDF5_head_diana channelinfo: " << ginfo.channelinfo << endl;
-  cerr << "metno::satimgh5::HDF5_head_diana channelName: " << channelName << endl;
+  METLIBS_LOG_DEBUG("channelinfo: " << ginfo.channelinfo);
+  METLIBS_LOG_DEBUG("channelName: " << channelName);
   if (hdf5map.count("product"))
   {
-	cerr << "hdf5map[product]: " << hdf5map["product"] << endl;
-  }
-#endif
-  if (hdf5map.count("product"))
-  {
-	  if (hdf5map["product"].length() > 0) {
+	  METLIBS_LOG_DEBUG("hdf5map[product]: " << hdf5map["product"]);
+    if (hdf5map["product"].length() > 0) {
 		  ginfo.channel = hdf5map["product"];
 		  ginfo.name = hdf5map["product"];
 	  } else {
@@ -2481,11 +2283,8 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   {
 	ginfo.nodata = 0.0;
   }
-
-#ifdef DEBUGPRINT
-  cerr << "ginfo.channel: " << ginfo.channel << endl;
-#endif
-
+  
+  METLIBS_LOG_DEBUG("ginfo.channel: " << ginfo.channel);
 
   projUV data;
   int i;
@@ -2517,9 +2316,8 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 	  }
   }
 
-#ifdef DEBUGPRINT
-  cerr << "ginfo.paletteinfo: " << ginfo.paletteinfo << endl;
-#endif
+  METLIBS_LOG_DEBUG("ginfo.paletteinfo: " << ginfo.paletteinfo);
+  
   paletteMap.clear();
   vector<string> paletteInfo = split(ginfo.paletteinfo, ",", true);
   vector<string> paletteSteps;            //values in palette 
@@ -2541,18 +2339,12 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   }
 
 #ifdef DEBUGPRINT
-     cerr << "Checkpoint 5" << endl;
  for (unsigned int i = 0; i < paletteSteps.size(); i++ ) {
-   cerr << "paletteSteps["<<i<< "] = " << paletteSteps[i] << endl;
+   METLIBS_LOG_DEBUG("paletteSteps["<<i<< "] = " << paletteSteps[i]);
  }
-     cerr << "Checkpoint 6" << endl;
-
  for(unsigned int i = 0; i < paletteColorVector.size(); i++ ) {
-     cerr << "paletteColorVector["<<i<< "] = " << paletteColorVector[i];
+   METLIBS_LOG_DEBUG("paletteColorVector["<<i<< "] = " << paletteColorVector[i]);
  }
-
-
-
 #endif
   ginfo.noofcl = 255;
   hdf5map["palette"] = "false";
@@ -2562,9 +2354,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     if(paletteSteps.size())
       unit = paletteSteps[0];
     if ((unit == "border") && (paletteSteps.size() == 2)) {
-#ifdef DEBUGPRINT
-      cerr << "Drawing a border with colour: " << paletteSteps[1] << endl;
-#endif
+      METLIBS_LOG_DEBUG("Drawing a border with colour: " << paletteSteps[1]);
       hdf5map["isBorder"] = "true";
       hdf5map["border"] = paletteSteps[1];
     } else {
@@ -2572,14 +2362,10 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
         ginfo.noofcl=paletteStringMap.size() - 1;
         for (i=1; i<paletteStringMap.size(); i++) {
           paletteMap[i] = i;
-#ifdef DEBUGPRINT
-      cerr << "Getting paletteMap1: " << i << "," << paletteMap[i] << endl;
-#endif
+          METLIBS_LOG_DEBUG("Getting paletteMap1: " << i << "," << paletteMap[i]);
         }
       } else {
-#ifdef DEBUGPRINT
-      cerr << "Getting paletteMap2: "  << endl;
-#endif
+        METLIBS_LOG_DEBUG("Getting paletteMap2: ");
         ginfo.noofcl=paletteSteps.size()-1;
         for (i=1; i<paletteSteps.size()-1; i++) {
           paletteMap[to_float(paletteSteps[i])] = i-1;
@@ -2587,15 +2373,13 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
       }
 
       hdf5map["palette"] = "true";
-#ifdef DEBUGPRINT
-      cerr << "palette will be made" << endl;
-      cerr << "unit: " << unit << endl;
-      cerr << "ginfo.noofcl: " << ginfo.noofcl << endl;
-#endif
+      METLIBS_LOG_DEBUG("palette will be made");
+      METLIBS_LOG_DEBUG("unit: " << unit);
+      METLIBS_LOG_DEBUG("ginfo.noofcl: " << ginfo.noofcl);
       hdf5map["noofcl"] = from_number(ginfo.noofcl);
 #ifdef DEBUGPRINT
       for (map<float,int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++)
-        cerr << "paletteMap[" << p->first << "]: "<< p->second << endl;
+        METLIBS_LOG_DEBUG("paletteMap[" << p->first << "]: "<< p->second);
 #endif
       int backcolour = 0;
       if(paletteSteps.size())
@@ -2604,11 +2388,9 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     }
   }
 
-#ifdef DEBUGPRINT
-  cerr << "metno::satimgh5::HDFS_head_diana ginfo.noofcl: " << ginfo.noofcl << endl;
+  METLIBS_LOG_DEBUG("ginfo.noofcl: " << ginfo.noofcl);
   if (hdf5map.count("projdef"))
-	cerr << "metno::satimgh5::hdf5map[\"projdef\"]: " << hdf5map["projdef"] << endl;
-#endif
+    METLIBS_LOG_DEBUG("hdf5map[\"projdef\"]: " << hdf5map["projdef"]);
 
   float denominator = 1.0;
   if (hdf5map.count("pixelscale"))
@@ -2655,13 +2437,10 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   else
 	ginfo.ysize = 0;
 
-#ifdef DEBUGPRINT
-  if (hdf5map.count("dateTime"))
-	cerr << "Datetime" << hdf5map["dateTime"] << endl;
-#endif
   if (hdf5map.count("dateTime"))
   {
-	  if (hdf5map["dateTime"].size() > 0) {
+	  METLIBS_LOG_DEBUG("Datetime" << hdf5map["dateTime"]);
+    if (hdf5map["dateTime"].size() > 0) {
 		  ginfo.time = miTime(miTime(hdf5map["dateTime"]).format("%Y%m%d%H%M00"));
 	  }
   }
@@ -2675,12 +2454,11 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 	ginfo.trueLat = to_float(hdf5map["lat_ts"]);
   else
 	ginfo.trueLat = 60.0;
-#ifdef DEBUGPRINT
-  if (hdf5map.count("projdef"))
-	cerr << "projdef: " <<  hdf5map["projdef"] << endl;
-#endif
-  if (hdf5map.count("projdef"))
-	ginfo.projection = hdf5map["projdef"];
+
+  if (hdf5map.count("projdef")) {
+    METLIBS_LOG_DEBUG("projdef: " <<  hdf5map["projdef"]);
+    ginfo.projection = hdf5map["projdef"];
+  }
   else
 	ginfo.projection = "";
 
@@ -2690,14 +2468,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     PJ *ref;
 
     if ( ! (ref = pj_init_plus(ginfo.projection.c_str()))) {
-    	cerr << "Bad proj string: " << ginfo.projection << endl;
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.HDF5_head_diana");
-  COMMON_LOG::getInstance("common").infoStream() << "error in projdef: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
+    	METLIBS_LOG_ERROR("Bad proj string: " << ginfo.projection);
       return -1;
     }
 
@@ -2722,22 +2493,13 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     pj_free(ref);
 
   } else if (ginfo.hdf5type == msg) {
-#ifdef DEBUGPRINT
 	if (hdf5map.count("projdef"))
-		cerr << "projdef:" << hdf5map["projdef"] << endl;
-#endif
+		METLIBS_LOG_DEBUG("projdef:" << hdf5map["projdef"]);
     PJ *ref;
 	// Projection must be defined..
 	if (!hdf5map.count("projdef"))
 	  return -1;
     if ( ! (ref = pj_init_plus(hdf5map["projdef"].c_str()))) {
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.HDF5_head_diana");
-  COMMON_LOG::getInstance("common").infoStream() << "error in projdef: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
       return -1;
     }
 	if (hdf5map.count("center_lon"))
@@ -2753,7 +2515,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     data = pj_fwd(data, ref);
 
     if (data.u == HUGE_VAL) {
-      cerr << "data conversion error" << endl;
+      METLIBS_LOG_ERROR("data conversion error");
     }
     ginfo.Bx = data.u-(ginfo.Ax*ginfo.xsize/2.0);
     ginfo.By = data.v-(ginfo.Ay*ginfo.ysize/2.0) + ginfo.ysize * ginfo.Ay;
@@ -2790,26 +2552,14 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 	  ginfo.proj_string=tmp_proj_string.str();
   }
  
+  METLIBS_LOG_DEBUG("ginfo.Ax: " << ginfo.Ax);
+  METLIBS_LOG_DEBUG("ginfo.Ay: " << ginfo.Ay);
+  METLIBS_LOG_DEBUG("ginfo.Bx: " << ginfo.Bx);
+  METLIBS_LOG_DEBUG("ginfo.By: " << ginfo.By);
+  METLIBS_LOG_DEBUG("ginfo.trueLat: " << ginfo.trueLat);
+  METLIBS_LOG_DEBUG("ginfo.gridRot: " << ginfo.gridRot);
+  METLIBS_LOG_DEBUG("ginfo.proj_string: " << ginfo.proj_string);
 
-#ifdef DEBUGPRINT
-  cerr << "++ metno::satimgh5::HDF5_head_diana ++ ginfo.Ax: " << ginfo.Ax << endl;
-  cerr << "++ metno::satimgh5::HDF5_head_diana ++ ginfo.Ay: " << ginfo.Ay << endl;
-  cerr << "++ metno::satimgh5::HDF5_head_diana ++ ginfo.Bx: " << ginfo.Bx << endl;
-  cerr << "++ metno::satimgh5::HDF5_head_diana ++ ginfo.By: " << ginfo.By << endl;
-  cerr << "++ metno::satimgh5::HDF5_head_diana ++ ginfo.trueLat: " << ginfo.trueLat
-  << endl;
-  cerr << "++ metno::satimgh5::HDF5_head_diana++ ginfo.gridRot: " << ginfo.gridRot
-  << endl;
-  cerr << "++ metno::satimgh5::HDF5_head_diana++ ginfo.proj_string: " << ginfo.proj_string
-  << endl;
-#endif
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("metno.satimgh5.HDF5_head_diana");
-  COMMON_LOG::getInstance("common").infoStream() << "HDF5_head_diana took: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
   if (havePalette) // Return color palette
     return 2;
   else
@@ -2842,11 +2592,9 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
     pal_name[ginfo.noofcl-1] = "No Value";
   }
 
-#ifdef DEBUGPRINT
   for (int i=0; i<ginfo.noofcl-1; i++) {
-    cerr << "pal_name[" <<i<<"]" << pal_name[i] << endl;
+    METLIBS_LOG_DEBUG("pal_name[" <<i<<"]" << pal_name[i]);
   }
-#endif
 
   for (int i=0; i<ginfo.noofcl; i++) {
     ginfo.clname.push_back(pal_name[i]);
@@ -2916,17 +2664,14 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
       if (manualcolors) {
 	if (colorvector[i].find("0x") != string::npos) {
 	  unsigned int rgb = strtoul(colorvector[i].c_str(), NULL, 16);
-#ifdef DEBUGPRINT
-	  cerr << "RGB: " << rgb <<
-	    endl;
-#endif
+	  METLIBS_LOG_DEBUG("RGB: " << rgb);
 	  ginfo.cmap[0][i] = (rgb >> 16) & 0xFF;
 	  ginfo.cmap[1][i] = (rgb >> 8) & 0xFF;
 	  ginfo.cmap[2][i] = (rgb >> 0) & 0xFF;
 	}
 	else {
 	  if (!is_number(colorvector[i])) {
-	    cerr << "Error: " << colorvector[i] << " is not a number" << endl;
+	    METLIBS_LOG_ERROR("Error: " << colorvector[i] << " is not a number");
 	  }
 	  else {
 	    k= to_int(colorvector[i]);
@@ -2941,11 +2686,8 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
          ginfo.cmap[1][i] = green[i*(255/ginfo.noofcl)];
          ginfo.cmap[2][i] = blue[i*(255/ginfo.noofcl)];
       }
-
-#ifdef DEBUGPRINT
-    cerr << "-----nice values for radar pallete" << endl;
-    cerr << "i ="<< i << "   k =  "<<k << "   red = " <<  ginfo.cmap[0][i]<< "   green = "<<ginfo.cmap[1][i]<<"    blue = " << ginfo.cmap[2][i]  << endl;
-#endif
+    METLIBS_LOG_DEBUG("-----nice values for radar pallete");
+    METLIBS_LOG_DEBUG("i ="<< i << "   k =  "<<k << "   red = " <<  ginfo.cmap[0][i]<< "   green = "<<ginfo.cmap[1][i]<<"    blue = " << ginfo.cmap[2][i]);
 
     }
   }
