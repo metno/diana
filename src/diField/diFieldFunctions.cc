@@ -5274,7 +5274,7 @@ bool FieldFunctions::extremeValue(int compute, int nx, int ny, const vector<floa
       if (fres[i] == undef)
         allDefined = false;
     }
-  } else if ( compute == 3 ) { // max index
+  } else if ( compute == 3 || compute == 4) { // max/min index
     DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
     for (int i = 0; i < fsize; i++) {
       fres[i] = undef;

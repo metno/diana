@@ -142,19 +142,22 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
 
   std::vector<Field*> fv0, fv1;
   fpm->makeFields(pinfo.back(), times[i0], fv0);
+  while (fv0.size() < 2 && i0 >= 0 && i0-di >= 0 && i0 < nTimes && i0-di < nTimes) {
+    freeFields(fpm, fv0);
+    i0 += di;
+  }
 
-  for (int i = i0+di; i >= 0 && i-di >= 0 && i < nTimes && i-di < nTimes; i += di) {
-    METLIBS_LOG_DEBUG(LOGVAL(i));
-    const miutil::miTime& t1 = times[i-di];
-    const miutil::miTime& t2 = times[i];
-    METLIBS_LOG_DEBUG(LOGVAL(t1) << LOGVAL(t2));
-
-    fpm->makeFields(pinfo.back(), t2, fv1);
-
-    computeSingleStep(t1, t2, fv0, fv1, trajectories);
-
-    std::swap(fv0, fv1);
-    freeFields(fpm, fv1);
+  for (int i1 = i0+di; i1 >= 0 && i1-di >= 0 && i1 < nTimes && i1-di < nTimes; i1 += di) {
+    METLIBS_LOG_DEBUG(LOGVAL(i1));
+    const miutil::miTime& t1 = times[i1];
+    fpm->makeFields(pinfo.back(), t1, fv1);
+    if (fv1.size() >= 2) {
+      const miutil::miTime& t0 = times[i0];
+      computeSingleStep(t0, t1, fv0, fv1, trajectories);
+      std::swap(fv0, fv1);
+      freeFields(fpm, fv1);
+      i0 = i1;
+    }
   }
   freeFields(fpm, fv0);
 }
@@ -240,8 +243,18 @@ void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miut
   const int nstep = std::max(int(fabsf(seconds)/timeStep + 0.5), 1);
   const float nstepi =  1.0/nstep, tStep = seconds*nstepi, dt = tStep * 0.5;
 
+  if (fields1.size() < 2 || fields2.size() < 2) {
+    METLIBS_LOG_DEBUG("fields1/2 too short");
+    return;
+  }
+
   const Field *fu1 = fields1[0], *fv1 = fields1[1];
   const Field *fu2 = fields2[0], *fv2 = fields2[1];
+
+  if (!(fu1 && fv1 && fu2 && fv2)) {
+    METLIBS_LOG_DEBUG("missing one of fu1 / fv1 / fu2 / fv2");
+    return;
+  }
 
   // stop trajectories if it is more than one grid point outside the field
   for (int i=0; i<npos; i++) {
