@@ -30,7 +30,6 @@
 #define _qt_spectrummainwindow_
 
 #include "diCommonTypes.h"
-#include "diStationPlot.h"
 
 #include <QMainWindow>
 #include <QString>
@@ -38,12 +37,14 @@
 #include <vector>
 
 class QComboBox;
+class QSpinBox;
 class QToolBar;
 class ToggleButton;
 class SpectrumWidget;
 class SpectrumManager;
 class SpectrumModelDialog;
 class SpectrumSetupDialog;
+class StationPlot;
 
 
 /**
@@ -60,7 +61,7 @@ public:
   ~SpectrumWindow(){}
 
   StationPlot* getStations();
-  bool changeStation(const std::string& station); //change plotstation
+  void changeStation(const std::string& station); //change plotstation
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
 
@@ -70,7 +71,6 @@ public:
       const std::string& thisVersion, const std::string& logVersion,
       int displayWidth, int displayHeight);
 
-  bool firstTime;
   bool active;
 
 protected:
@@ -92,12 +92,12 @@ private:
   ToggleButton * setupButton;
   QComboBox * stationBox;
   QComboBox * timeBox;
+  QSpinBox * timeSpinBox;
 
   void updateStationBox();
   void updateTimeBox();
-
-  // printerdefinitions
-  printOptions priop;
+  void stationChanged();
+  void timeChanged();
 
   miutil::miTime mainWindowTime;
 
@@ -108,23 +108,22 @@ private Q_SLOTS:
   void modelClicked(bool on);
   void leftStationClicked();
   void rightStationClicked();
+  void stationClicked( int i);
   void leftTimeClicked();
   void rightTimeClicked();
+  void timeClicked(int i);
   void printClicked();
   void saveClicked();
   void setupClicked(bool on);
   void quitClicked();
   void updateClicked();
   void helpClicked();
-  void MenuOK();
   void changeModel();
   void changeSetup();
   void hideModel();
   void hideSetup();
   void stationBoxActivated(int index);
   void timeBoxActivated(int index);
-  bool timeChangedSlot(int);
-  bool stationChangedSlot(int);
 
 Q_SIGNALS:
   void SpectrumHide();
