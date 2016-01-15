@@ -35,13 +35,13 @@
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "qtSpectrumWindow.h"
-#include "diStationPlot.h"
 #include "qtSpectrumWidget.h"
 #include "qtSpectrumModelDialog.h"
 #include "qtSpectrumSetupDialog.h"
 #include "diSpectrumManager.h"
 #include "qtPrintManager.h"
 #include "diPaintGLPainter.h"
+#include "diStationPlot.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -55,6 +55,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
+#include <QSpinBox>
 #include <QSvgGenerator>
 
 #define MILOGGER_CATEGORY "diana.SpectrumWindow"
@@ -116,35 +117,39 @@ SpectrumWindow::SpectrumWindow()
   QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-  QPushButton * leftStationButton = new QPushButton(QPixmap(bakover_xpm),"",this);
+  const QSizePolicy sp_fix_ex(QSizePolicy::Fixed,   QSizePolicy::MinimumExpanding);
+  const QSizePolicy sp_min_ex(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
+  //combobox to select station
+  QPushButton *leftStationButton = new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftStationButton, SIGNAL(clicked()), SLOT(leftStationClicked()) );
   leftStationButton->setAutoRepeat(true);
 
-  //combobox to select station
-  vector<std::string> stations;
-  stations.push_back("                        ");
-  stationBox = ComboBox( this, stations, true, 0);
-  connect( stationBox, SIGNAL( activated(int) ),
-      SLOT( stationBoxActivated(int) ) );
+  stationBox = new QComboBox( this);
+  stationBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  stationBox->setSizePolicy(sp_min_ex);
+  connect( stationBox, SIGNAL( activated(int) ), SLOT( stationBoxActivated(int) ) );
 
   QPushButton *rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
   connect(rightStationButton, SIGNAL(clicked()), SLOT(rightStationClicked()) );
   rightStationButton->setAutoRepeat(true);
 
+  //combobox to select time
   QPushButton *leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftTimeButton, SIGNAL(clicked()), SLOT(leftTimeClicked()) );
   leftTimeButton->setAutoRepeat(true);
 
-  //combobox to select time
-  vector<std::string> times;
-  times.push_back("2002-01-01 00");
-  timeBox = ComboBox( this, times, true, 0);
-  connect( timeBox, SIGNAL( activated(int) ),
-      SLOT( timeBoxActivated(int) ) );
+  timeBox = new QComboBox( this);
+  timeBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  timeBox->setSizePolicy(sp_min_ex);
+  connect( timeBox, SIGNAL( activated(int) ), SLOT( timeBoxActivated(int) ) );
 
   QPushButton *rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
   connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
+
+  timeSpinBox = new QSpinBox( this );
+  timeSpinBox->setValue(0);
 
   spToolbar->addWidget(modelButton);
   spToolbar->addWidget(setupButton);
@@ -162,6 +167,7 @@ SpectrumWindow::SpectrumWindow()
   tsToolbar->addWidget(leftTimeButton);
   tsToolbar->addWidget(timeBox);
   tsToolbar->addWidget(rightTimeButton);
+  tsToolbar->addWidget(timeSpinBox);
 
   //connected dialogboxes
 
@@ -179,164 +185,93 @@ SpectrumWindow::SpectrumWindow()
       SIGNAL(showsource(const std::string, const std::string)));
 
   //initialize everything in startUp
-  firstTime = true;
   active = false;
 }
 
 
 void SpectrumWindow::modelClicked( bool on )
 {
-  //called when the model button is clicked
-  if( on ){
-
-    METLIBS_LOG_DEBUG("Model button clicked on");
-
-    spModelDialog->show();
-  } else {
-
-    METLIBS_LOG_DEBUG("Model button clicked off");
-
-    spModelDialog->hide();
-  }
+  spModelDialog->setVisible(on);
 }
 
 
 void SpectrumWindow::leftStationClicked()
 {
-  //called when the left Station button is clicked
-  std::string s= spectrumm->setStation(-1);
-  stationChangedSlot(-1);
-  spectrumqw->update();
+  stationClicked(-1);
 }
-
 
 void SpectrumWindow::rightStationClicked()
 {
-  //called when the right Station button is clicked
-  std::string s= spectrumm->setStation(+1);
-  stationChangedSlot(+1);
-  spectrumqw->update();
+  stationClicked(1);
 }
 
+void SpectrumWindow::stationClicked(int i)
+{
+  int index = stationBox->currentIndex() - i;
+  if (index < 0)
+    index=stationBox->count()-1;
+  else if (index > stationBox->count()-1)
+    index = 0;
 
+  stationBox->setCurrentIndex(index);
+  const QString qs = stationBox->currentText();
+  const std::string s = qs.toStdString();
+  spectrumm->setStation(qs.toStdString());
+
+  Q_EMIT spectrumChanged(qs); //name of current stations (to mainWindow)
+
+  spectrumqw->update();
+}
 void SpectrumWindow::leftTimeClicked()
 {
-  //called when the left time button is clicked
-  spectrumm->setTime(-1);
-  timeChangedSlot(-1);
-  spectrumqw->update();
+  timeClicked(-1);
 }
-
 
 void SpectrumWindow::rightTimeClicked()
 {
-  //called when the right Station button is clicked
-  spectrumm->setTime(+1);
-  timeChangedSlot(+1);
+  timeClicked(1);
+}
+
+void SpectrumWindow::timeClicked(int i)
+{
+  spectrumm->setTime(timeSpinBox->value(), i);
+  timeChanged();
   spectrumqw->update();
 }
 
-
-bool SpectrumWindow::timeChangedSlot(int diff)
+void SpectrumWindow::timeChanged()
 {
-  //called if signal timeChanged is emitted from graphics
-  //window (qtSpectrumWidget)
-
   METLIBS_LOG_SCOPE();
 
-  int index=timeBox->currentIndex();
-  while(diff<0){
-    if(--index < 0) {
-      //set index to the last in the box !
-      index=timeBox->count()-1;
+  if (!timeBox->count())
+    return;
+
+  const miutil::miTime& t = spectrumm->getTime();
+
+  const QString qt = QString::fromStdString(t.isoTime(false,false));
+  for (int i = 0; i<timeBox->count(); i++) {
+    if (qt == timeBox->itemText(i)) {
+      timeBox->setCurrentIndex(i);
+      break;
     }
-    timeBox->setCurrentIndex(index);
-    diff++;
-  }
-  while(diff>0){
-    if(++index > timeBox->count()-1) {
-      //set index to the first in the box !
-      index=0;
-    }
-    timeBox->setCurrentIndex(index);
-    diff--;
-  }
-  miutil::miTime t = spectrumm->getTime();
-  std::string tstring=t.isoTime(false,false);
-  if (!timeBox->count()) return false;
-  std::string tbs=timeBox->currentText().toStdString();
-  if (tbs!=tstring){
-    //search timeList
-    int n = timeBox->count();
-    for (int i = 0; i<n;i++){
-      if(tstring ==timeBox->itemText(i).toStdString()){
-        timeBox->setCurrentIndex(i);
-        tbs=timeBox->currentText().toStdString();
-        break;
-      }
-    }
-  }
-  if (tbs!=tstring){
-    METLIBS_LOG_WARN("WARNING! timeChangedSlot  time from spectrumm ="
-        << t    <<" not equal to timeBox text = " << tbs);
-    METLIBS_LOG_WARN("You should search through timelist!");
-    return false;
   }
 
-  Q_EMIT setTime("spectrum",t);
-
-  return true;
+  Q_EMIT setTime("spectrum", t);
 }
 
 
-bool SpectrumWindow::stationChangedSlot(int diff)
+
+void SpectrumWindow::stationChanged()
 {
   METLIBS_LOG_SCOPE();
+  spectrumqw->update();
+  raise();
 
-  int index=stationBox->currentIndex();
-  while(diff<0){
-    if(--index < 0) {
-      //set index to the last in the box !
-      index=stationBox->count()-1;
-    }
-    stationBox->setCurrentIndex(index);
-    diff++;
-  }
-  while(diff>0){
-    if(++index > stationBox->count()-1) {
-      //set index to the first in the box !
-      index=0;
-    }
-    stationBox->setCurrentIndex(index);
-    diff--;
-  }
   //get current station
-  std::string s = spectrumm->getStation();
-  //if (!stationBox->count()) return false;
-  //if no current station, use last station plotted
-  if (s.empty()) s = spectrumm->getLastStation();
-  std::string sbs=stationBox->currentText().toStdString();
-  if (sbs!=s){
-    int n = stationBox->count();
-    for(int i = 0;i<n;i++){
-      if (s==stationBox->itemText(i).toStdString()){
-        stationBox->setCurrentIndex(i);
-        sbs=std::string(stationBox->currentText().toStdString());
-        break;
-      }
-    }
-  }
-  QString sq = QString::fromStdString(s);
-  if (sbs==s) {
-    Q_EMIT spectrumChanged(sq); //name of current station (to mainWindow)
-    return true;
-  } else {
-    stationBox->insertItem(0,sq);
-    stationBox->setCurrentIndex(0);
-    return false;
-  }
-}
+  const QString qs = spectrumm->getLastStation().c_str();
 
+  Q_EMIT spectrumChanged(qs); //name of current stations (to mainWindow)
+}
 
 void SpectrumWindow::printClicked()
 {
@@ -485,8 +420,7 @@ void SpectrumWindow::updateClicked()
 {
   METLIBS_LOG_SCOPE();
 
-  miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
-  mainWindowTimeChanged(t);
+  mainWindowTimeChanged(mainWindowTime); // use the main time (fields etc.)
 }
 
 
@@ -497,19 +431,15 @@ void SpectrumWindow::helpClicked()
 }
 
 
-void SpectrumWindow::MenuOK()
-{
-  //obsolete - nothing happens here
-}
-
-
 void SpectrumWindow::changeModel()
 {
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
   METLIBS_LOG_SCOPE();
 
-  spectrumm->setModel();
+  { diutil::OverrideCursor waitCursor;
+    spectrumm->setModel();
+  }
 
   //emit to main Window (updates stationPlot)
   Q_EMIT spectrumSetChanged();
@@ -517,8 +447,8 @@ void SpectrumWindow::changeModel()
   updateStationBox();
   updateTimeBox();
   //get correct selection in comboboxes
-  stationChangedSlot(0);
-  timeChangedSlot(0);
+  stationChanged();
+  timeChanged();
   spectrumqw->update();
 }
 
@@ -563,7 +493,6 @@ StationPlot* SpectrumWindow::getStations()
   std::string ann = spectrumm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
 
-  // ADC set plotname (for StatusPlotButtons)
   stationPlot->setPlotName(ann);
 
   return stationPlot;
@@ -577,8 +506,6 @@ void SpectrumWindow::updateStationBox()
 
   stationBox->clear();
   vector<std::string> stations= spectrumm->getStationList();
-  //add dummy to make stationBox wide enough
-  stations.push_back("                        ");
 
   int n =stations.size();
   for (int i=0; i<n; i++) {
@@ -606,14 +533,12 @@ void SpectrumWindow::updateTimeBox()
 
 void SpectrumWindow::stationBoxActivated(int index)
 {
-  //vector<std::string> stations= spectrumm->getStationList();
   std::string sbs=stationBox->currentText().toStdString();
-  //if (index>=0 && index<stations.size()) {
   spectrumm->setStation(sbs);
   spectrumqw->update();
   QString sq = QString::fromStdString(sbs);
   Q_EMIT spectrumChanged(sq); //name of current station (to mainWindow)
-  //}
+
 }
 
 
@@ -629,14 +554,12 @@ void SpectrumWindow::timeBoxActivated(int index)
 }
 
 
-bool SpectrumWindow::changeStation(const std::string& station)
+void SpectrumWindow::changeStation(const std::string& station)
 {
   METLIBS_LOG_SCOPE();
 
   spectrumm->setStation(station);
-  spectrumqw->update();
-  raise();
-  return stationChangedSlot(0);
+  stationChanged();
 }
 
 void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
@@ -651,8 +574,8 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 
   spectrumm->mainWindowTimeChanged(t);
   //get correct selection in comboboxes
-  stationChangedSlot(0);
-  timeChangedSlot(0);
+  stationChanged();
+  timeChanged();
   spectrumqw->update();
 }
 
@@ -698,6 +621,7 @@ vector<string> SpectrumWindow::writeLog(const string& logpart)
     str= "SpectrumSetupDialog.pos " + miutil::from_number(spSetupDialog->x()) + " " + miutil::from_number(spSetupDialog->y());
     vstr.push_back(str);
 
+#if 0
     // printer name & options...
     if (not priop.printer.empty()){
       str= "PRINTER " + priop.printer;
@@ -708,6 +632,7 @@ vector<string> SpectrumWindow::writeLog(const string& logpart)
         str= "PRINTORIENTATION landscape";
       vstr.push_back(str);
     }
+#endif
 
   } else if (logpart=="setup") {
 
@@ -746,6 +671,7 @@ void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& v
 
       } else if (tokens.size()==2) {
 
+#if 0
         if (tokens[0]=="PRINTER") {
           priop.printer=tokens[1];
         } else if (tokens[0]=="PRINTORIENTATION") {
@@ -754,7 +680,7 @@ void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& v
           else
             priop.orientation=d_print::ori_landscape;
         }
-
+#endif
       }
     }
 
