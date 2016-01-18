@@ -1,3 +1,9 @@
+diana (3.39.8-1) unstable; urgency=low
+
+  * using libfimex-0.61-0
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 18 Jan 2016 14:20:11 +0100
+
 diana (3.39.7-1) unstable; urgency=low
 
   * Bugfix: use current fieldOptions in editMode
