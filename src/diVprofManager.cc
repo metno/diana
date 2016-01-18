@@ -536,17 +536,20 @@ void VprofManager::updateSelectedStations()
   }
 }
 
-void VprofManager::plotVpData(DiGLPainter* gl)
+bool VprofManager::plotVpData(DiGLPainter* gl)
 {
+  METLIBS_LOG_SCOPE();
+  bool dataok = false;
   for (size_t i=0; i<vpdata.size(); i++) {
     for (size_t j=0; j<plotStations.size(); ++j) {
       std::auto_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime));
       if (vp.get()) {
-        vp->plot(gl, vpopt, i);
+        dataok = vp->plot(gl, vpopt, i);
         break;
       }
     }
   }
+  return dataok;
 }
 
 bool VprofManager::plot(DiGLPainter* gl)
@@ -565,8 +568,10 @@ bool VprofManager::plot(DiGLPainter* gl)
 
   vpdiag->plot();
 
+  bool dataok = false; // true when data are found
+
   if (!plotStations.empty()) {
-    plotVpData(gl);
+    dataok = plotVpData(gl);
 
     if (showObs) {
       // obsList corresponds to the obsList.size() first entries of nameList
@@ -637,7 +642,7 @@ bool VprofManager::plot(DiGLPainter* gl)
           nn++;
         }
         if (vp) {
-          vp->plot(gl, vpopt, vpdata.size());
+          dataok = vp->plot(gl, vpopt, vpdata.size());
           delete vp;
         }
       }
@@ -646,7 +651,7 @@ bool VprofManager::plot(DiGLPainter* gl)
     vpdiag->plotText();
   }
 
-  return true;
+  return dataok;
 }
 
 /***************************************************************************/
