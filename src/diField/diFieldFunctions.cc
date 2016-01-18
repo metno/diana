@@ -4619,7 +4619,7 @@ bool FieldFunctions::vesselIcingModStall(int nx, int ny,
         int j=0;
         double Ts=Tf;
         double ri=0;
-        while (err >= 1.0E-5 && N>=0) {
+        while (err >= 1.0E-5 && N>=0 && N<=1) {
           Ts = (1.0 + N) * Tf;
           ri = (0.012012012 * rw * (Ts - k1) + (ha / 333000.0) * ((Ts - airtemp[i]) +
               ratio * (0.6112 * exp(17.67 * Ts / (Ts + 243.5)) - rh[i] * (0.6112 *
@@ -4854,7 +4854,7 @@ bool FieldFunctions::vesselIcingTestMod(int nx, int ny,
 
         /* Running loop when error>=tolerance */
         int j=0;
-        while (err >= 1.0E-5 && N>=0 && rw>0) {
+        while (err >= 1.0E-5 && N>=0 && N<=1 && rw>0) {
           ri = (1/lfs)*(ha*(Ts-Ta) + he*(es-rh[i]*ea) + rw*cw*(Ts-k1));
           N1 = (ri/rw);
           err = fabs(N1 - N);
@@ -4874,7 +4874,7 @@ bool FieldFunctions::vesselIcingTestMod(int nx, int ny,
 
             /* Running loop when error>=tolerance */
             int l=0;
-            while (err >= 1.0E-5 && N>=0) {
+            while (err >= 1.0E-5 && N>=0 && N<=1) {
               Ts = (1.0 + N) * Tf;
               es = 6.112*exp((17.67*Ts)/(Ts+243.5));
               ri = (1/lfs)*(ha*(Ts-Ta) + he*(es-rh[i]*ea) + rw*cw*(Ts-k1));
