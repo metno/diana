@@ -1813,7 +1813,12 @@ static int handlePlotCommand(int& k)
 
     if (raster && antialias)
       glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
-    vprofmanager->plot(glpainter);
+
+    if (!vprofmanager->plot(glpainter) && failOnMissingData) {
+      METLIBS_LOG_WARN("Failed to plot vprofdata.");
+      ensureNewContext();
+      return 99;
+    }
 
     // --------------------------------------------------------
   } else if (plottype == plot_spectrum) {
