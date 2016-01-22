@@ -376,11 +376,13 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
    */
   string tmpFilePath = "";
   if (metadataMap.count("cacheFilePath"))
-	tmpFilePath = metadataMap["cacheFilePath"];
-  string filePath = tmpFilePath;
-  // TODO, check if correct!!!
-  string cacheFileName = from_number(nchan) + "_" + from_number(ginfo.hdf5type) +
-    ginfo.channel + infile.substr(infile.rfind("/") + 1,infile.length() - (infile.rfind("/") + 1));
+    tmpFilePath = metadataMap["cacheFilePath"];
+  else {
+    if (getenv("DIANA_TMP") != NULL) {
+      tmpFilePath = getenv("DIANA_TMP");
+    }
+  }
+  
   bool haveCachedImage = false;
 
   /* Check if metadata contains
@@ -392,131 +394,19 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
   if (metadataMap.count("cloudTopTemperature"))
 	cloudTopTemperature = (metadataMap["cloudTopTemperature"] == "true");
 
-  tmpFilePath += string("/") + from_number(ginfo.hdf5type) + ginfo.channel
-  + ginfo.time.isoTime();
-  for (int j=0; j<nchan; j++)
-    tmpFilePath += from_number(chan[j]);
 
-  remove(tmpFilePath,' ');
-  remove(tmpFilePath,':');
-  remove(tmpFilePath,'-');
-
-
+  std::string file_name = infile.substr(infile.rfind("/") + 1);
   ImageCache* mImageCache = ImageCache::getInstance();
-
-#if 0
-  if (!mImageCache->getFromCache(cacheFileName, (uint8_t*)image)) {
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  cerr << "metno::satimgh5::HDF5_read_diana, Cached image read in: " << s << endl;
-#endif
+  /* TBD: Don't cache if orgimage, problem writing/reading float array to/from diask */
+  if (ginfo.hdf5type == radar || (!cloudTopTemperature)) {
+    if (mImageCache->getFromCache(file_name, (uint8_t*)image[0])) {
       haveCachedImage = true;
       /* Return if the file is a radar file or if we
        * don't need the cloud top temperature
        */
-      if (ginfo.hdf5type == radar || (!cloudTopTemperature))
-        return pal;
-  }
-#endif
-
-  // If cacheFilePath is set, look for a cached copy of the image
-  if (tmpFilePath != "") {
-    /* Remove cached files older than a certain time
-     * specified in metadataMap["cacheFileKeepTime"]
-     */
-    pu_struct_stat st;
-
-    unsigned char isFile =0x8;
-    DIR *dp;
-    struct dirent *dirp;
-    if((dp  = opendir(filePath.c_str())) == NULL) {
-        //cerr << "Cannot open: " << filePath << endl;
-    } else {
-      string fullPath;
-      // Get keeptime, if not found set it to 1 day
-      int keepTime = to_int(metadataMap["cacheFileKeepTime"],3600*24);
-      while ((dirp = readdir(dp)) != NULL) {
-        //cerr << dirp->d_name << endl;
-        if (1) {
-          fullPath = filePath + string("/") + string(dirp->d_name);
-          if (pu_stat(fullPath.c_str(), &st) == 0) {
-            //cerr << fullPath << " atim: " << st.st_atime << " mtime: " << st.st_mtime <<" ctime: " << st.st_ctime<< endl;
-            if(time(NULL) - st.st_atime > keepTime) {
-              cerr << "file: " << fullPath << " is older than "
-              << keepTime << " seconds, removing" << endl;
-              if( remove(fullPath.c_str()) != 0 )
-                cerr << "Error deleting file" << endl;
-            }
-          } else
-            if(errno == EACCES)
-              cerr <<"EACCES"<< endl;
-            else if (errno == EBADF)
-              cerr <<"EBADF"<< endl;
-            else if (errno == EFAULT)
-              cerr <<"EFAULT"<< endl;
-            else if (errno == ENOENT)
-              cerr <<"ENOENT"<< endl;
-            else if (errno == ENOTDIR)
-              cerr <<"ENOTDIR"<< endl;
-            else
-              cerr <<"Unknown"<< endl;
-        }
-      }
-      closedir(dp);
-    }
-
-    /* Add the tmpFileName to the tmpFilePath
-     * Example file name:
-     * /tmp/2329i20090225113009012
-     * Broken down filename:
-     * 2 - hdf5type
-     * 329i - channels in product
-     * 20090225113009 - date
-     * 012 - channels in file
-     */
-    tmpFilePath += string("/") + from_number(ginfo.hdf5type) + string(ginfo.channel)
-    + ginfo.time.isoTime();
-    for (int j=0; j<nchan; j++)
-      tmpFilePath += from_number(chan[j]);
-
-    remove(tmpFilePath,' ');
-    remove(tmpFilePath,':');
-    remove(tmpFilePath,'-');
-
-    ifstream in(tmpFilePath.c_str(), ios::in | ios::binary);
-
-    if (!in) {
-      METLIBS_LOG_WARN("Cannot open input file: " << tmpFilePath);
-    } else {
-      METLIBS_LOG_DEBUG("File: " << tmpFilePath);
-      try
-      {
-        double num;
-        int length;
-
-        in.seekg(0,ios::end);
-        length = in.tellg();
-        in.seekg(0, ios::beg);
-        METLIBS_LOG_DEBUG("length of data in file: " << length);
-        for(int i=0;i<nchan;i++)
-          in.read((char*)image[i], length/nchan);
-      }
-      catch (exception& e)
-      {
-        cerr << "exception caught: " << e.what() << endl;
-      }
-      in.close();
-      haveCachedImage = true;
-
-      /* Return if the file is a radar file or if we
-       * don't need the cloud top temperature
-       */
-      if (ginfo.hdf5type == radar || (!cloudTopTemperature))
-        return pal;
+      return pal;
     }
   }
-
 
   file = H5Fopen(infile.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
@@ -733,47 +623,10 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
   }
 
   status = H5Fclose(file);
-  // If cacheFilePath is set, save a copy of the image
-
-  // << tmpFilePath << endl;
-  if (!mImageCache->getFromCache(cacheFileName, (uint8_t*)image)) {
-    //cerr << "Faile to put in cache" << endl;
-  }
-  //  mImageCache.putInCache(file, (uint8_t*)image[0], ginfo.xsize*ginfo.ysize*nchan);
-if (tmpFilePath != "") {
-    // Set everything created to 0666
-    umask (0);
-    pu_struct_stat st;
-    if(pu_stat(filePath.c_str(),&st) != 0) {
-      // Create the temporary directory if it's not there
-      vector<string> filePathParts = split(filePath,"/",true);
-      string realFilePath;
-      for(unsigned int j=0;j<filePathParts.size();j++) {
-        realFilePath += "/" + filePathParts[j];
-        if(pu_stat(realFilePath.c_str(),&st) != 0) {
-          METLIBS_LOG_INFO("Creating directory: " << realFilePath);
-#ifdef __MINGW32__
-          if(mkdir(realFilePath.c_str()) != 0)
-#else
-          if(mkdir(realFilePath.c_str(), 0777) != 0)
-#endif
-            METLIBS_LOG_WARN(" ERROR");
-          else
-            METLIBS_LOG_INFO(" SUCCESS");
-        }
-      }
-    }
-    ofstream out(tmpFilePath.c_str(), ios::out | ios::binary);
-
-    if (!out) {
-      METLIBS_LOG_WARN("Cannot open file.");
-    } else {
-      for (int i=0; i<nchan; i++)
-        for (unsigned int j=0; j<ginfo.xsize*ginfo.ysize; j++)
-          out.put(image[i][j]);
-      out.close();
-    }
-  }
+  /* TBD: Don't cache if orgimage, problem writing/reading float array to/from diask */
+   if (ginfo.hdf5type == radar || (!cloudTopTemperature)) {
+    mImageCache->putInCache(file_name, (uint8_t*)image[0], ginfo.xsize*ginfo.ysize*nchan);
+   }
   return pal;
 }
 
