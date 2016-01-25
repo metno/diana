@@ -625,7 +625,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         caco = PlotModule::CA_RECALL_F6;
       else if (key == Qt::Key_F7)
         caco = PlotModule::CA_RECALL_F7;
-      else if (key == Qt::Key_F7)
+      else if (key == Qt::Key_F8)
         caco = PlotModule::CA_RECALL_F8;
       else
         return;
