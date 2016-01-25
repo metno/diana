@@ -700,7 +700,7 @@ void VcrossStyleWidget::enableFieldOptions()
     else
       e = 0.0;
     ui->zero1ComboBox->setEnabled(true);
-    base = baseList(ui->zero1ComboBox, vpcopt[nc].floatValue[0], ekv/2.0);
+    base = baseList(ui->zero1ComboBox, e, ekv/2.0);
     if (not base.empty())
       cp->replaceValue(vpcopt[nc],base, 0);
     base.clear();
