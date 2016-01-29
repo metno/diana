@@ -1864,8 +1864,7 @@ void VprofDiagram::plotText()
       }
     }
 
-    int ltime = 16;
-    gl->getTextSize("2222-22-22 23:59", wtime, h);
+    gl->getTextSize("2222-22-22 23:59 UTC", wtime, h);
 
     float xmod = xysize[9][0] + chxtxt * 0.5;
     float xpos = xmod + wmod + wspace;
@@ -1882,7 +1881,7 @@ void VprofDiagram::plotText()
       gl->drawText(vptext[i].posName, xpos, y, 0.0);
       if (vptext[i].prognostic)
         gl->drawText(fctext[i], xfc, y, 0.0);
-      std::string tstr = vptext[i].validTime.isoTime().substr(0, ltime);
+      std::string tstr = vptext[i].validTime.format("$date %H:%M UTC");
       gl->drawText(tstr, xtime, y, 0.0);
       if (vpopt->pgeotext)
         gl->drawText(geotext[i], xgeo, y, 0.0);
