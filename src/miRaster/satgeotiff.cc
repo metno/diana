@@ -172,11 +172,11 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
     cerr << "No TIFFTAG_IMAGELENGTH" << endl;
   }
   if (!TIFFGetField(in, TIFFTAG_TILEWIDTH, &tileWidth)) {
-    cerr << "No TIFFTAG_TILEWIDTH" << endl;
+//    cerr << "No TIFFTAG_TILEWIDTH" << endl;
     tileWidth = 0;
   }
   if (!TIFFGetField(in, TIFFTAG_TILELENGTH, &tileLength)) {
-    cerr << "No TIFFTAG_TILELENGTH" << endl;
+//    cerr << "No TIFFTAG_TILELENGTH" << endl;
     tileLength = 0;
   }
 
