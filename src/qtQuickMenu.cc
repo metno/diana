@@ -598,13 +598,13 @@ void QuickMenu::fillPrivateMenus()
       while ( i<QMENU &&  qtmp.name != qm[i].name ) i++;
       if ( i<QMENU ) continue; //Avoid mix with History
       qm.push_back(qtmp);
+      if (firstcustom<0){
+        firstcustom = lastcustom = QMENU;
+      } else {
+        lastcustom++;
+      }
+      firststatic = lastcustom + 1;
     }
-    if (firstcustom<0){
-      firstcustom = lastcustom = QMENU;
-    } else {
-      lastcustom++;
-    }
-    firststatic = lastcustom + 1;
   }
 }
 
