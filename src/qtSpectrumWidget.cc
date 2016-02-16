@@ -86,10 +86,8 @@ bool SpectrumWidget::handleKeyEvents(QKeyEvent *ke)
     return false;
 
   if (ke->key()==Qt::Key_Left){
-    spectrumm->setTime(-1);
     Q_EMIT timeChanged(-1);
   } else if (ke->key()==Qt::Key_Right) {
-    spectrumm->setTime(+1);
     Q_EMIT timeChanged(+1);
   } else if (ke->key()==Qt::Key_Down) {
     spectrumm->setStation(-1);

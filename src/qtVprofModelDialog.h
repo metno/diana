@@ -72,10 +72,12 @@ private slots:
   void modelfilelistClicked(QListWidgetItem*);
   void reftimeWidgetClicked(QListWidgetItem*);
   void deleteClicked();
-  void deleteAllClicked();
   void helpClicked();
   void applyhideClicked();
   void applyClicked();
+
+public slots:
+  void deleteAllClicked();
 
 signals:
   void ModelHide();
