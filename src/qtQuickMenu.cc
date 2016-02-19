@@ -323,7 +323,8 @@ void QuickMenu::pushPlot(const std::string& name,
 
   const miutil::miDate nowDate = miutil::miTime::nowTime().date();
   for (size_t i=0; i<pstr.size(); i++)
-    diutil::replace_reftime_with_offset(pstr[i], nowDate);
+    while ( miutil::contains(pstr[i],"reftime"))
+      diutil::replace_reftime_with_offset(pstr[i], nowDate);
 
   if (qm.empty())
     return;
