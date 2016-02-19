@@ -77,8 +77,8 @@ SpectrumWindow::SpectrumWindow()
   spectrumqw = DiPaintable::createWidget(spectrumw, this);
 
   setCentralWidget(spectrumqw);
-  connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
-  connect(spectrumw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
+  connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeClicked(int)));
+  connect(spectrumw, SIGNAL(stationChanged(int)),SLOT(stationClicked(int)));
 
   //tool bar and buttons
   spToolbar = new QToolBar(this);
@@ -408,6 +408,8 @@ void SpectrumWindow::quitClicked()
   tsToolbar->hide();
   modelButton->setChecked(false);
   setupButton->setChecked(false);
+
+  spModelDialog->deleteAllClicked();
 
   active = false;
   Q_EMIT SpectrumHide();

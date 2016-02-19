@@ -146,7 +146,6 @@ void SpectrumModelDialog::modelfilelistClicked(QListWidgetItem* item)
 
 void SpectrumModelDialog::reftimeWidgetClicked(QListWidgetItem* item)
 {
-
   if ( selectedModelsWidget->count() && selectedModelsWidget->currentItem()->text().contains(modelfileList->currentItem()->text())) {
     QString qstr = getSelectedModelString();
     QListWidgetItem* ii = selectedModelsWidget->item(selectedModelsWidget->currentRow());
@@ -178,6 +177,7 @@ void SpectrumModelDialog::deleteAllClicked()
 {
   METLIBS_LOG_SCOPE();
   selectedModelsWidget->clear();
+  reftimeWidget->clear();
 }
 
 /*********************************************/

@@ -49,7 +49,6 @@ public:
 
   //the constructor
   SpectrumModelDialog( QWidget* parent, SpectrumManager * vm );
-  void setSelection();
   void updateModelfileList();
 
 protected:
@@ -72,12 +71,14 @@ private slots:
   void reftimeWidgetClicked(QListWidgetItem*);
   void refreshClicked();
   void deleteClicked();
-  void deleteAllClicked();
   void helpClicked();
   void applyhideClicked();
   void applyClicked();
 
-signals:
+public slots:
+  void deleteAllClicked();
+
+  signals:
   void ModelHide();
   void ModelApply();
   void showsource(const std::string, const std::string="");

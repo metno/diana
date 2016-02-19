@@ -440,6 +440,8 @@ void VprofWindow::quitClicked()
   // NOTE: flush the fieldCache...
   vprofm->cleanup();
 
+  vpModelDialog->deleteAllClicked();
+
   active = false;
   Q_EMIT VprofHide();
   vector<miutil::miTime> t;
