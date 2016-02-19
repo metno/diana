@@ -701,10 +701,6 @@ libdiana_la_CPPFLAGS += $(QT4_CPPFLAGS)
 libdiana_la_LDFLAGS  += $(QT4_LDFLAGS)
 libdiana_la_LIBADD   += $(QT4_LIBS)
 
-libdiana_la_CPPFLAGS += $(WIN32_CPPFLAGS)
-libdiana_la_LDFLAGS  += $(WIN32_LDFLAGS)
-libdiana_la_LIBADD   += $(WIN32_LIBS)
-
 libdiana_la_SOURCES += \
 	bdiana_capi.cc \
 	signalhelper.cc
