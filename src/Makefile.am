@@ -795,16 +795,8 @@ diBuild.cc: diBuild.cc.tmp
 	    cat $@ ; \
 	fi
 
-diBuild.cc.tmp:
-	@today=`date +%Y-%m-%d` ; \
-	if git --git-dir="$(top_srcdir)/.git" --work-tree="$(top_srcdir)" status > /dev/null; then \
-	    commit=`git --git-dir="$(top_srcdir)/.git" --work-tree="$(top_srcdir)" describe --abbrev=40 --dirty --always`; \
-	else \
-	    commit="unknown"; \
-	fi; \
-	echo "#include <diBuild.h>" > $@ ; \
-	echo 'const char diana_build_string[] = "'$$today'";'  >> $@ ; \
-	echo 'const char diana_build_commit[] = "'$$commit'";' >> $@
+diBuild.cc.tmp: $(top_srcdir)/gen_dibuild_cc
+	$(top_srcdir)/gen_dibuild_cc $(top_srcdir) $@
 .PHONY: diBuild.cc.tmp
 
 ########################################################################
