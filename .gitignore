@@ -1,4 +1,5 @@
 /.gitignore
+/.git_archival.txt
 /aclocal.m4
 /autom4te.cache
 /bin/diana
