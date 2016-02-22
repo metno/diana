@@ -2423,7 +2423,11 @@ void DianaMainWindow::sendLetter(miMessage& letter)
   miQMessage qmsg;
   int from, to;
   convert(letter, from, to, qmsg);
-  pluginB->sendMessage(qmsg, to);
+  if (to != -1)
+    pluginB->sendMessage(qmsg, to);
+  else
+    // send to all selected clients, -1 is not allowed any more
+    pluginB->sendMessage(qmsg);
 }
 
 void DianaMainWindow::updateObs()
