@@ -1,11 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-METNO_CONFIG = @METNO_CONFIG@
-METNO_SUFFIX = @METNO_SUFFIX@
 DESTDIR = debian/bdiana-@PVERSION_MAJOR_DOT_MINOR@
-
-include /usr/share/metno-devscripts/metno_rules.mk
 
 export DH_VERBOSE=1
 ifndef PERL
@@ -18,9 +14,10 @@ endif
 
 # Ensure that the executable searches for libraries under the /opt/qt4-headless prefix
 # and work around missing linkage to the Boost threading library in metlibs.
-confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread"
+confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib,-rpath=/usr/lib/bdiana/@METNO_VERSION@ -Wl,-lboost_thread"
 
-do-configure:
+.PHONY: override_dh_auto_configure
+override_dh_auto_configure:
 	./autogen.sh
 	./configure $(confflags) \
 	    --disable-silent-rules \
@@ -41,7 +38,22 @@ do-configure:
 	    --disable-gui \
 	    --enable-perl
 
+.PHONY: override_dh_auto_install
 override_dh_auto_install:
-	    mkdir -p $(DESTDIR)/usr/bin
-	    cp src/.libs/bdiana $(DESTDIR)/usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
+	mkdir -p $(DESTDIR)/usr/bin
+	cp src/.libs/bdiana $(DESTDIR)/usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
+	mkdir -p $(DESTDIR)/usr/lib/bdiana/@METNO_VERSION@
+	cp src/.libs/libdiana.so* $(DESTDIR)/usr/lib/bdiana/@METNO_VERSION@
 
+.PHONY: override_dh_auto_test
+override_dh_auto_test:
+	if dh_auto_test; then \
+	  echo "dh_auto_test was successful" ; \
+	else \
+	  make -C test display-testsuite-logs ; \
+	  false ; \
+	fi
+
+.PHONY: override_dh_strip
+override_dh_strip:
+	dh_strip -pbdiana-@METNO_VERSION@ --dbg-package=bdiana-@METNO_VERSION@-dbg
