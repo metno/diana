@@ -20,7 +20,7 @@ else
 fi
 
 cat <<EOF > "$OUTFILE"
-#include <diBuild.h>"
+#include <diBuild.h>
 const char diana_build_string[] = "$today";
 const char diana_build_commit[] = "$commit";
 EOF
