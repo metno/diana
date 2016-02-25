@@ -2,7 +2,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src test bin etc perl
+SUBDIRS = src test etc perl
 
 pixmapsdir= $(datarootdir)/pixmaps
 dist_pixmaps_DATA= share/pixmaps/diana.png

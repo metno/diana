@@ -137,7 +137,7 @@ TEST(FieldFunctionsTest, ALevelTempPerformance)
       EXPECT_TRUE(ff.aleveltemp(3, 1, N, tk, p, th, allDefined, UNDEF, "kelvin"));
     for (int i=0; i<N; ++i) {
       const float ex = tk[i] / powf(p[i] * MetNo::Constants::p0inv, MetNo::Constants::kappa);
-      EXPECT_EQ(ex, th[i]);
+      EXPECT_FLOAT_EQ(ex, th[i]);
     }
     delete[] tk;
     delete[] p;

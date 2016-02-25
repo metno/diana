@@ -705,10 +705,6 @@ libdiana_la_CPPFLAGS += $(QT4_CPPFLAGS)
 libdiana_la_LDFLAGS  += $(QT4_LDFLAGS)
 libdiana_la_LIBADD   += $(QT4_LIBS)
 
-libdiana_la_CPPFLAGS += $(WIN32_CPPFLAGS)
-libdiana_la_LDFLAGS  += $(WIN32_LDFLAGS)
-libdiana_la_LIBADD   += $(WIN32_LIBS)
-
 libdiana_la_SOURCES += \
 	bdiana_capi.cc \
 	signalhelper.cc
@@ -795,16 +791,8 @@ diBuild.cc: diBuild.cc.tmp
 	    cat $@ ; \
 	fi
 
-diBuild.cc.tmp:
-	@today=`date +%Y-%m-%d` ; \
-	if git --git-dir="$(top_srcdir)/.git" --work-tree="$(top_srcdir)" status > /dev/null; then \
-	    commit=`git --git-dir="$(top_srcdir)/.git" --work-tree="$(top_srcdir)" describe --abbrev=40 --dirty --always`; \
-	else \
-	    commit="unknown"; \
-	fi; \
-	echo "#include <diBuild.h>" > $@ ; \
-	echo 'const char diana_build_string[] = "'$$today'";'  >> $@ ; \
-	echo 'const char diana_build_commit[] = "'$$commit'";' >> $@
+diBuild.cc.tmp: $(top_srcdir)/gen_dibuild_cc
+	$(top_srcdir)/gen_dibuild_cc $(top_srcdir) $@
 .PHONY: diBuild.cc.tmp
 
 ########################################################################

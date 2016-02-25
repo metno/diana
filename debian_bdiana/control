@@ -1,48 +1,57 @@
-Source: diana
+Source: bdiana-@METNO_VERSION@
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: debhelper (>= 7.4.15), g++,
- perl, lsb-release, autoconf (>=2.61), automake (>= 1.10),
- libtool (>= 1.5), qt4-qmake-headless, libqt4-headless-dev,
+Build-Depends: debhelper (>= 9),
+ autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2),
+ qt4-qmake-headless, libqt4-headless-dev, perl,
  metlibs-putools-dev (>= 5.0.0), metlibs-milogger-dev (>= 5.0.0),
  metlibs-pudatatypes-dev (>= 5.0.0),
- libfimex-dev (>= 0.57),
+ libfimex-dev (>= 0.61.1),
  libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
  libboost-system-dev, libboost-thread-dev,
- libtiff-dev, libgeotiff-dev, libpng-dev, libudunits2-dev, libproj-dev,
+ libgeotiff-dev, libpng-dev, libudunits2-dev, libproj-dev,
  libavformat-dev, libshp-dev, libemos-dev,
  cmake, libgtest-dev
-Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 
-Package: bdiana-@PVERSION_MAJOR_DOT_MINOR@
+Package: bdiana-@METNO_VERSION@
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, diana-@PVERSION_MAJOR_DOT_MINOR@-common
-Conflicts: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
-Replaces: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
-Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, metno-bufrtables
+Depends: diana-@METNO_VERSION@-common (= ${binary:Version}),
+ ${shlibs:Depends}, ${misc:Depends}
+Conflicts: diana-headless-@METNO_VERSION@
+Replaces: diana-headless-@METNO_VERSION@
+Recommends: dianamaps, dianaconfig-@METNO_VERSION@, metno-bufrtables
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
  license. See gpl.txt for details concerning the GPL license.
  Diana is a graphical viewer and editor developed for use with
  meteorological and oceanographic data.
+ .
  This package provides a version of Diana for batched generation of
  products.
 
-Package: libmetno-bdiana-perl-@PVERSION_MAJOR_DOT_MINOR@
+Package: bdiana-@METNO_VERSION@-dbg
+Architecture: any
+Depends: bdiana-@METNO_VERSION@ (= ${binary:Version}),
+ ${misc:Depends}
+Description: debugging symbols for bdiana-@METNO_VERSION@
+ This package contains the debugging symbols for bdiana-@METNO_VERSION@
+
+Package: libmetno-bdiana-perl-@METNO_VERSION@
 Architecture: any
 Section: perl
-Conflicts: libmetno-bdiana-perl@METNO_SUFFIX@
-Provides:libmetno-bdiana-perl@METNO_SUFFIX@
-Depends: bdiana-@PVERSION_MAJOR_DOT_MINOR@, ${perl:Depends}, ${misc:Depends},
- diana-@PVERSION_MAJOR_DOT_MINOR@-common
+Conflicts: libmetno-bdiana-perl
+Provides:libmetno-bdiana-perl
+Depends: bdiana-@METNO_VERSION@ (= ${binary:Version}),
+ ${perl:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool, perl binding
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL
  license. See gpl.txt for details concerning the GPL license.
  Diana is a graphical viewer and editor developed for use with
  meteorological and oceanographic data.
+ .
  This package provides a version of Diana for batched generation of
  products via perl.
