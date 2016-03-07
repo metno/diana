@@ -170,14 +170,6 @@ private:
   static  short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
 
 /**
- * Calculates the Julian day of the year.
- * @param yy - year
- * @param mm - month
- * @param dd - day
- */
-  static  int JulianDay(usi yy, usi mm, usi dd);
-
-/**
  * Fills the internal structure dihead with metadata from the HDF5 metadata.
  * @param inputStr - metadata= in diana.setup
  */
