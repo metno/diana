@@ -42,6 +42,7 @@
 #include <boost/regex.hpp>
 
 #include <fstream>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.QuickMenues"
 #include <miLogger/miLogging.h>

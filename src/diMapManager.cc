@@ -36,6 +36,8 @@
 #include <diMapManager.h>
 #include <puTools/miSetupParser.h>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.MapManager"
 #include <miLogger/miLogging.h>
 

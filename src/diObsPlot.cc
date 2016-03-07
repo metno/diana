@@ -45,6 +45,7 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ObsPlot"
 #include <miLogger/miLogging.h>

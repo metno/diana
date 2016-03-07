@@ -35,6 +35,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.Sat"
 #include <miLogger/miLogging.h>
 

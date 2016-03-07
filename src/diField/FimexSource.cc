@@ -743,7 +743,7 @@ bool FimexReftimeSource::makeReader()
     int ftype = mifi_get_filetype(mFileType.c_str());
     if (ftype == MIFI_FILETYPE_UNKNOWN) {
       METLIBS_LOG_ERROR("unknown source_type:" << mFileType);
-      return CDMReader_p();
+      return false;
     }
 
     mReader = CDMReader_p(CDMFileReaderFactory::create(ftype, mFileName, mFileConfig));

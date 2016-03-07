@@ -22,7 +22,7 @@ public:
       : Crossection(label, points, requestedPoints) , start_index(si), reader(r) { }
 
     bool dynamic() const
-      { return reader; }
+      { return !!reader; }
 
     size_t start_index;
     CDMReader_p reader;

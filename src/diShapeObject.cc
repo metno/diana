@@ -45,6 +45,7 @@
 #include <QRegExp>
 
 #include <cfloat>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ShapeObject"
 #include <miLogger/miLogging.h>

@@ -46,6 +46,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ObjectManager"
 #include <miLogger/miLogging.h>

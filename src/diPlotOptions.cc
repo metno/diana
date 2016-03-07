@@ -41,6 +41,8 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/foreach.hpp>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.PlotOptions"
 #include <miLogger/miLogging.h>
 
