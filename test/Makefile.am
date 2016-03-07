@@ -30,6 +30,7 @@ dianaUnitTests_SOURCES = \
     TestPlotOptions.cc \
     TestPoint.cc \
     TestQuickMenues.cc \
+    TestSatImg.cc \
     TestUtilities.cc \
     TestWebMap.cc \
     gtestMain.cc
