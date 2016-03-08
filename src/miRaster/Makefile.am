@@ -43,5 +43,4 @@ endif
 noinst_HEADERS = satimgh5.h \
     ImageCache.h \
     satgeotiff.h \
-    satimg.h \
-    satimgh5_sattemp.h
+    satimg.h

@@ -125,6 +125,7 @@
 
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #include <diField/diFieldManager.h>
 

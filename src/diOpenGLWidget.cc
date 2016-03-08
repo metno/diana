@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.DiOpenGLWidget"
 #include <miLogger/miLogging.h>

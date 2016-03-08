@@ -938,36 +938,6 @@ int metno::GeoTiff::day_night(const std::string& infile)
   return 0;
 }
 
-/*
- * FUNCTION:
- * JulianDay
- *
- * PURPOSE:
- * Computes Julian day number (day of the year).
- *
- * RETURN VALUES:
- * Returns the Julian Day.
- */
-
-
-int metno::GeoTiff::JulianDay(usi yy, usi mm, usi dd) {
-  static unsigned short int daytab[2][13]=
-  {{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-      {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
-  unsigned short int i, leap;
-  int dn;
-
-  leap = 0;
-  if ((yy%4 == 0 && yy%100 != 0) || yy%400 == 0) leap=1;
-
-  dn = (int) dd;
-  for (i=1; i<mm; i++)
-  {dn += (int) daytab[leap][i];}
-
-  return(dn);
-}
-
-
 
 /*
  * NAME:
@@ -1010,7 +980,7 @@ short GeoTiff::selalg(const dto& d, const ucs& upos, const float& hmax, const fl
   /*
    * Decode day and time information for use in formulas.
    */
-  daynr = (float) JulianDay((int) d.yy, (int) d.mm, (int) d.dd);
+  daynr = (float) satimg::JulianDay((int) d.yy, (int) d.mm, (int) d.dd);
   gmttime = (float) d.ho+((float) d.mi/60.);
 
   theta0 = (2*Pi*daynr)/365;

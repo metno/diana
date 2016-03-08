@@ -56,6 +56,7 @@
 #include <QVBoxLayout>
 
 #include <iomanip>
+#include <sstream>
 
 #include "up12x12.xpm"
 #include "down12x12.xpm"

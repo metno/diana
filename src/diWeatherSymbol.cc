@@ -38,6 +38,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.WeatherSymbol"
 #include <miLogger/miLogging.h>
 
