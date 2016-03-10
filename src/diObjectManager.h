@@ -94,14 +94,15 @@ private:
   bool autoJoinOn();
 
   bool getFileName(DisplayObjects &wObjects);
-  miutil::miTime timeFilterFileName(std::string fileName, miutil::TimeFilter filter);
-  miutil::miTime timeFromString(std::string timeString);
+  miutil::miTime timeFilterFileName(const std::string& fileName, const miutil::TimeFilter& filter);
+  miutil::miTime timeFromString(const std::string& timeString);
   //get time string yyyymmddhh or yyyymmddhhmm from time
   std::string stringFromTime(const miutil::miTime& t,bool addMinutes);
 
-  bool checkFileName(std::string &fileName);
+  bool checkFileName(const std::string &fileName);
+
   //test to check whether file exist
-  bool _isafile(const std::string name);
+  bool _isafile(const std::string& name);
 
   DisplayObjects objects;             //objects to be displayed
   EditObjects editobjects;       // fronts,symbols,areas
@@ -332,17 +333,20 @@ public:
   //Object dialog methods
   /// get prefix from a file with name  /.../../prefix_*.yyyymmddhh
   std::string prefixFileName(std::string fileName);
+
   /// get time from a file with name *.yyyymmddhh
-  miutil::miTime timeFileName(std::string fileName);
+  miutil::miTime timeFileName(const std::string& fileName);
+
   /// returns list of objectfiles for use in dialog
   std::vector <ObjFileInfo> getObjectFiles(const std::string objectname, bool refresh);
   /// returns list of times
   std::vector<miutil::miTime> getObjectTimes();
   std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
+
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-			   int& timediff,
-			   const std::string& pinfo);
+      int& timediff, const std::string& pinfo);
+
   /// returns plot options for object file with name objectname
   PlotOptions getPlotOptions(std::string objectName);
 };
