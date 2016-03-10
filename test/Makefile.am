@@ -31,6 +31,7 @@ dianaUnitTests_SOURCES = \
     TestPoint.cc \
     TestQuickMenues.cc \
     TestSatImg.cc \
+    TestSetupParser.cc \
     TestUtilities.cc \
     TestWebMap.cc \
     gtestMain.cc
@@ -112,7 +113,6 @@ diFieldTest_SOURCES += \
 	MetConstantsTest.cc \
 	RectangleTest.cc \
 	ShapeTest.cc \
-	TimeFilterTest.cc \
 	VcrossDataTest.cc \
 	VcrossUtilTest.cc
 diFieldTest_CPPFLAGS += \

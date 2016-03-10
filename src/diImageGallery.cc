@@ -34,8 +34,9 @@
 #include "diImageGallery.h"
 #include "diImageIO.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <fstream>
 

@@ -34,9 +34,11 @@
 #include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
 #include <puTools/miTime.h>
+#include <puTools/miStringFunctions.h>
+
 #include <boost/algorithm/string/join.hpp>
 
 #define MILOGGER_CATEGORY "diana.StationManager"

@@ -31,14 +31,15 @@
 
 #include "diPlotOptions.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 #include "VcrossComputer.h"
 #include "VcrossOptions.h"
 #include "VcrossQtPlot.h"
 
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
 
 #include <puTools/mi_boost_compatibility.hh>
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/join.hpp>

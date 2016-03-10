@@ -33,8 +33,10 @@
 
 #include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
+
 #include <fstream>
 
 #define MILOGGER_CATEGORY "diana.PrintOptions"

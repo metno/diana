@@ -27,22 +27,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <diEditItemManager.h>
+#include "diEditItemManager.h"
 #include "diGLPainter.h"
-#include <diPlotModule.h>
-#include <EditItems/drawingstylemanager.h>
-#include <EditItems/editcomposite.h>
-#include <EditItems/edititembase.h>
-#include <EditItems/editpolyline.h>
-#include <EditItems/editsymbol.h>
-#include <EditItems/edittext.h>
-#include <EditItems/itemgroup.h>
-#include <EditItems/kml.h>
-#include <EditItems/properties.h>
-#include <EditItems/toolbar.h>
-#include <qtMainWindow.h>
+#include "diPlotModule.h"
+#include "EditItems/drawingstylemanager.h"
+#include "EditItems/editcomposite.h"
+#include "EditItems/edititembase.h"
+#include "EditItems/editpolyline.h"
+#include "EditItems/editsymbol.h"
+#include "EditItems/edittext.h"
+#include "EditItems/itemgroup.h"
+#include "EditItems/kml.h"
+#include "EditItems/properties.h"
+#include "EditItems/toolbar.h"
+#include "miSetupParser.h"
+#include "qtMainWindow.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.EditItemManager"
 #include <miLogger/miLogging.h>

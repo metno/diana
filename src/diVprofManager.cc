@@ -38,8 +38,9 @@
 #include "diVprofDiagram.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 #include "vcross_v2/VcrossSetup.h"
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
 
 #ifdef BUFROBS
 #include "diObsBufr.h"
@@ -56,7 +57,6 @@
 #endif // ROADOBS
 
 #include <puCtools/stat.h>
-#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
 #include <boost/foreach.hpp>

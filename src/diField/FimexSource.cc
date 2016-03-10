@@ -3,11 +3,11 @@
 
 #include "DataReshape.h"
 #include "FimexIO.h" // for miutil::path_ctime
-#include "TimeFilter.h"
 #include "VcrossUtil.h"
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
+#include <puTools/TimeFilter.h>
 
 #include <puCtools/glob_cache.h>
 #include <puCtools/puCglob.h>
@@ -1119,7 +1119,6 @@ Source::ReftimeUpdate FimexSource::update()
       u.appeared.insert(reftime);
   } else {
     // init time filter and replace yyyy etc. with ????
-    TimeFilter tf;
     std::string before_slash, after_slash;
     const size_t last_slash = mFilePattern.find_last_of("/");
     if (last_slash != std::string::npos) {
@@ -1128,7 +1127,7 @@ Source::ReftimeUpdate FimexSource::update()
     } else {
       after_slash = mFilePattern;
     }
-    tf.initFilter(after_slash, true);
+    const miutil::TimeFilter tf(after_slash, true);
     std::string pattern = before_slash + after_slash;
     METLIBS_LOG_DEBUG(LOGVAL(pattern));
 

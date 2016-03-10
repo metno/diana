@@ -11,12 +11,12 @@
 #include "FimexIO.h"
 #endif
 #include "diFieldFunctions.h"
-#include "TimeFilter.h"
 
 #include <puCtools/puCglob.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
 #include "puTools/mi_boost_compatibility.hh"
+#include <puTools/TimeFilter.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
@@ -107,8 +107,7 @@ bool GridCollection::makeGridIOinstances()
     sources_with_wildcards.clear();
 
     // init time filter and replace yyyy etc. with ????
-    TimeFilter tf;
-    tf.initFilter(sourcestr,true);
+    const miutil::TimeFilter tf(sourcestr, true);
 
     // check for wild cards - expand filenames if necessary
     if (sourcestr.find_first_of("*?") != sourcestr.npos && sourcestr.find("glob:") == sourcestr.npos) {

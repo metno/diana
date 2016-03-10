@@ -3,15 +3,17 @@
 
 #include "diPlotOptions.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <diField/FimexSource.h>
+#include "diField/FimexSource.h"
 
-#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
 
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string/join.hpp>
+
+#include <sstream>
 
 #define MILOGGER_CATEGORY "vcross.Setup"
 #include "miLogger/miLogging.h"

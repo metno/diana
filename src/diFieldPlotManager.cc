@@ -34,14 +34,16 @@
 #include "diFieldPlotManager.h"
 #include "diPlotOptions.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <diField/diFieldFunctions.h>
+#include "diField/diFieldFunctions.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string.hpp>
 
 #include <iomanip>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
 #include <miLogger/miLogging.h>
@@ -552,7 +554,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
 
   std::string progtext;
   if( !fout->analysisTime.undef() && fout->forecastHour != -32767 ) {
-    ostringstream ostr;
+    std::ostringstream ostr;
     ostr.width(2);
     ostr.fill('0');
     ostr << fout->analysisTime.hour()<<" ";

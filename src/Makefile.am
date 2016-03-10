@@ -101,6 +101,7 @@ libdiana_la_SOURCES = \
 	EditItems/drawingtext.cc \
 	EditItems/kml.cc \
 	EditItems/timefilesextractor.cc \
+	miSetupParser.cc \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
@@ -361,6 +362,7 @@ noinst_HEADERS = \
 	EditItems/properties.h \
 	EditItems/timefilesextractor.h \
 	EditItems/toolbar.h \
+	miSetupParser.h \
 	poly_contouring.hh \
 	reversible_list.hh \
 	polyStipMasks.h \

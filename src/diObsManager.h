@@ -35,7 +35,7 @@
 #include "diPlot.h"
 #include "diObsData.h"
 
-#include <diField/TimeFilter.h>
+#include <puTools/TimeFilter.h>
 
 #include <string>
 #include <set>
@@ -79,7 +79,7 @@ private:
 
 public:
   struct patternInfo {
-    TimeFilter filter;
+    miutil::TimeFilter filter;
     std::string pattern;
     bool archive;
     std::string fileType;  //bufr,miobs...

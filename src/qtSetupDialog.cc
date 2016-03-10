@@ -33,7 +33,8 @@
 
 #include "qtSetupDialog.h"
 #include "diLocalSetupParser.h"
-#include <puTools/miSetupParser.h>
+#include "miSetupParser.h"
+
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>

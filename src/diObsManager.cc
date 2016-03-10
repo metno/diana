@@ -39,7 +39,7 @@
 #include "diPlotModule.h"
 #include "diUtilities.h"
 
-#include <puTools/miSetupParser.h>
+#include "miSetupParser.h"
 
 #ifdef ROADOBS
 // includes for road specific implementation
@@ -49,6 +49,8 @@
 #ifdef BUFROBS
 #include <diObsBufr.h>
 #endif
+
+#include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -1648,11 +1650,8 @@ bool ObsManager::parseSetup()
         continue;
       }
       miutil::remove(token[1], '\"');
-      TimeFilter tf;
-      // init time filter and replace yyyy etc. with *
-      tf.initFilter(token[1]);
       patternInfo pf;
-      pf.filter = tf;
+      pf.filter = miutil::TimeFilter(token[1]); // modifies token[1]!
       pf.pattern = token[1];
       // obsolete
       if (key == "ascii" || key == "archive_ascii")

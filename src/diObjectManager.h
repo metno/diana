@@ -39,9 +39,10 @@
 #include "diCommonTypes.h"
 #include "diUndoFront.h"
 
+#include "diField/diArea.h"
+
 #include <puTools/miTime.h>
-#include <diField/diArea.h>
-#include <diField/TimeFilter.h>
+#include <puTools/TimeFilter.h>
 
 #include <vector>
 #include <map>
@@ -57,7 +58,7 @@ struct ObjectList{
   std::vector<ObjFileInfo> files; ///< filename and time
   bool updated;              ///< true if list updated
   bool archive;              ///< true if list should include archive
-  TimeFilter filter;         ///< time filter to apply
+  miutil::TimeFilter filter; ///< time filter to apply
   PlotOptions poptions;      ///< plotoptions to apply
 };
 
@@ -93,7 +94,7 @@ private:
   bool autoJoinOn();
 
   bool getFileName(DisplayObjects &wObjects);
-  miutil::miTime timeFilterFileName(std::string fileName,TimeFilter filter);
+  miutil::miTime timeFilterFileName(std::string fileName, miutil::TimeFilter filter);
   miutil::miTime timeFromString(std::string timeString);
   //get time string yyyymmddhh or yyyymmddhhmm from time
   std::string stringFromTime(const miutil::miTime& t,bool addMinutes);

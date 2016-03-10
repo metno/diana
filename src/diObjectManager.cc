@@ -40,8 +40,9 @@
 #include "diDisplayObjects.h"
 #include "diWeatherSymbol.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <cstdio>
 #include <fstream>
@@ -116,10 +117,7 @@ bool ObjectManager::parseSetup() {
         olist.archive=true;
       }
       else if (key=="file"){
-        TimeFilter tf;
-        // init time filter and replace yyyy etc with *
-        tf.initFilter(value);
-        olist.filter=tf;
+        olist.filter=miutil::TimeFilter(value); // modifies value
         olist.filename= value;
       } else {
         ok= false;
@@ -382,7 +380,7 @@ std::string ObjectManager::prefixFileName(std::string fileName)
   return prefix;
 }
 
-miTime ObjectManager::timeFilterFileName(std::string fileName,TimeFilter filter)
+miTime ObjectManager::timeFilterFileName(std::string fileName, miutil::TimeFilter filter)
 {
   if (filter.ok()){
     miTime t;

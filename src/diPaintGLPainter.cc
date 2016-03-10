@@ -31,8 +31,7 @@
 
 #include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
-
-#include <puTools/miSetupParser.h>
+#include "miSetupParser.h"
 
 #include <QtGui>
 

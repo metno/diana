@@ -30,7 +30,6 @@
 #include <diUtilities.h>
 #include <util/format_int.h>
 #include <diField/diRectangle.h>
-#include <diField/TimeFilter.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
 #include <gtest/gtest.h>
 #include <cstring>
@@ -83,12 +82,7 @@ TEST(TestUtilities, AppendCharsSplitNewline)
 
 TEST(TestUtilities, GlobTimeFilter)
 {
-  TimeFilter tf;
-  const std::string pattern = SRC_TEST + "test_utilities_[yyyymmddHHMM]+???H??M";
-  std::string filtered = pattern;
-  tf.initFilter(filtered, true);
-  EXPECT_EQ(SRC_TEST + "test_utilities_????????????+???H??M", filtered);
-
+  const std::string filtered = SRC_TEST + "test_utilities_????????????+???H??M";
   const diutil::string_v matches = diutil::glob(filtered, GLOB_BRACE);
 
   EXPECT_EQ(1, matches.size());
