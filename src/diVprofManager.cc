@@ -259,11 +259,9 @@ void VprofManager::updateObsFileList()
 
   obsfiles.clear();
   obsTime.clear();
-  int n= filePaths.size();
-  diutil::string_v matches;
-  for (int j=0; j<n; j++) {
+  for (std::vector<ObsFilePath>::const_iterator fit = filePaths.begin(); fit != filePaths.end(); ++fit) {
 #ifdef ROADOBS
-    if (filePaths[j].fileformat == roadobs) {
+    if (fit->fileformat == roadobs) {
       // Due to the fact that we have a database insteda of an archive,
       // we maust fake the behavoir of anarchive
       // Assume that all stations report every hour
@@ -293,54 +291,52 @@ void VprofManager::updateObsFileList()
       miTime time = now;
       /* init done, now loop in time */
       ObsFile of;
-      of.obstype = filePaths[j].obstype;
-      of.fileformat= filePaths[j].fileformat;
-      of.parameterfile= filePaths[j].parameterfile;
-      of.stationfile= filePaths[j].stationfile;
-      of.databasefile= filePaths[j].databasefile;
+      of.obstype = fit->obstype;
+      of.fileformat= fit->fileformat;
+      of.parameterfile= fit->parameterfile;
+      of.stationfile= fit->stationfile;
+      of.databasefile= fit->databasefile;
       of.time = time;
       of.modificationTime= ::time(NULL);
-      if (filePaths[j].obstype == temp)
+      if (fit->obstype == temp)
         of.filename = "ROADOBSTEMP_" + time.isoDate() + "_" + time.isoClock(true, true);
-      else if (filePaths[j].obstype == pilot)
+      else if (fit->obstype == pilot)
         of.filename = "ROADOBSPILOT_" + time.isoDate() + "_" + time.isoClock(true, true);
-      else if (filePaths[j].obstype == amdar)
+      else if (fit->obstype == amdar)
         of.filename = "ROADOBSAMDAR_" + time.isoDate() + "_" + time.isoClock(true, true);
       obsfiles.push_back(of);
       time.addHour(-6);
       while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
-        of.obstype = filePaths[j].obstype;
-        of.fileformat= filePaths[j].fileformat;
-        of.parameterfile= filePaths[j].parameterfile;
-        of.stationfile= filePaths[j].stationfile;
-        of.databasefile= filePaths[j].databasefile;
+        of.obstype = fit->obstype;
+        of.fileformat= fit->fileformat;
+        of.parameterfile= fit->parameterfile;
+        of.stationfile= fit->stationfile;
+        of.databasefile= fit->databasefile;
         of.time = time;
         of.modificationTime= ::time(NULL);
-        if (filePaths[j].obstype == temp)
+        if (fit->obstype == temp)
           of.filename = "ROADOBSTEMP_" + time.isoDate() + "_" + time.isoClock(true, true);
-        else if (filePaths[j].obstype == pilot)
+        else if (fit->obstype == pilot)
           of.filename = "ROADOBSPILOT_" + time.isoDate() + "_" + time.isoClock(true, true);
-        else if (filePaths[j].obstype == amdar)
+        else if (fit->obstype == amdar)
           of.filename = "ROADOBSAMDAR_" + time.isoDate() + "_" + time.isoClock(true, true);
         obsfiles.push_back(of);
         time.addHour(-6);
       }
     } else
 #endif // ROADOBS
-      /* Use glob for ordinary files */
-      matches = diutil::glob(filePaths[j].filepath);
-
-    if (filePaths[j].fileformat == bufr) {
+    if (fit->fileformat == bufr) {
 #ifdef BUFROBS
       ObsFile of;
-      of.obstype    = filePaths[j].obstype;
-      of.fileformat = filePaths[j].fileformat;
+      of.obstype    = fit->obstype;
+      of.fileformat = fit->fileformat;
       of.modificationTime = -1; //no need to check later
+
+      /* Use glob for ordinary files */
+      diutil::string_v matches = diutil::glob(fit->filepath);
       for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
         of.filename = *it;
-        if (!filePaths[j].tf.ok()
-            || !filePaths[j].tf.getTime(of.filename,of.time))
-        {
+        if (!fit->tf.ok() || !fit->tf.getTime(of.filename, of.time)) {
           ObsBufr bufr;
           if (!bufr.ObsTime(of.filename, of.time))
             continue;
@@ -1188,8 +1184,6 @@ void VprofManager::readAmdarStationList()
   }
 
   file.close();
-
-  return;
 }
 
 void VprofManager::printObsFiles(const ObsFile &of)
