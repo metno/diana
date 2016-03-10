@@ -160,7 +160,8 @@ private:
   std::vector<FileInfo> getFileName(const miutil::miTime& , const ProdInfo& pi,
       std::vector<miutil::miTime>& termin,
       miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
-  bool updateTimesfromFile(std::string obsType);
+  bool updateTimesfromFile(const std::string& obsType);
+  bool updateTimesFromRoadFile(ProdInfo& pi);
   bool updateTimes(std::string obsType);
 
 
