@@ -33,8 +33,8 @@
 
 #include "diFieldPlotManager.h"
 #include "diPlotOptions.h"
-#include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/string_util.h"
 
 #include "diField/diFieldFunctions.h"
 

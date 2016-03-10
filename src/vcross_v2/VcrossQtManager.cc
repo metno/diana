@@ -35,6 +35,7 @@
 #include "VcrossComputer.h"
 #include "VcrossOptions.h"
 #include "VcrossQtPlot.h"
+#include "util/string_util.h"
 
 #include "diField/VcrossUtil.h"
 

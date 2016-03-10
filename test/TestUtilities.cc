@@ -29,6 +29,9 @@
 
 #include <diUtilities.h>
 #include <util/format_int.h>
+#include <util/string_util.h>
+#include <util/polygon_util.h>
+
 #include <diField/diRectangle.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
 #include <gtest/gtest.h>

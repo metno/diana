@@ -40,6 +40,8 @@
 #include "diShapeObject.h"
 #include "diUtilities.h"
 
+#include "util/string_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <fstream>

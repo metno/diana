@@ -11,6 +11,7 @@
 #include "FimexIO.h"
 #endif
 #include "diFieldFunctions.h"
+#include "../diUtilities.h"
 
 #include <puCtools/puCglob.h>
 #include <puTools/miTime.h>
@@ -112,15 +113,8 @@ bool GridCollection::makeGridIOinstances()
     // check for wild cards - expand filenames if necessary
     if (sourcestr.find_first_of("*?") != sourcestr.npos && sourcestr.find("glob:") == sourcestr.npos) {
       sources_with_wildcards.push_back(sourcestr);
-      glob_t globBuf;
-      glob(sourcestr.c_str(), GLOB_BRACE, 0, &globBuf);
-      if ( globBuf.gl_pathc == 0 )
-        METLIBS_LOG_WARN("No files matches " << sourcestr);
-      for (size_t k = 0; k < globBuf.gl_pathc; k++) {
-        const std::string path = globBuf.gl_pathv[k];
-        sources.insert(path);
-      }
-      globfree(&globBuf);
+      const diutil::string_v files = diutil::glob(sourcestr, GLOB_BRACE);
+      sources.insert(files.begin(), files.end());
     } else {
       sources.insert(sourcestr);
     }
@@ -525,14 +519,9 @@ void GridCollection::updateSources()
   std::set<std::string> newSources;
   BOOST_FOREACH(const std::string& sourcestr, sources_with_wildcards) {
     // check for wild cards - expand filenames if necessary
-    if (sourcestr.find_first_of("*?") != sourcestr.npos) {
-      glob_t globBuf;
-      glob(sourcestr.c_str(), 0, 0, &globBuf);
-      for (size_t k = 0; k < globBuf.gl_pathc; k++) {
-        const std::string path = globBuf.gl_pathv[k];
-        newSources.insert(path);
-      }
-      globfree(&globBuf);
+    if (sourcestr.find_first_of("*?") != std::string::npos) {
+      const diutil::string_v files = diutil::glob(sourcestr, GLOB_BRACE);
+      newSources.insert(files.begin(), files.end());
     } else {
       newSources.insert(sourcestr);
     }

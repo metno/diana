@@ -108,6 +108,9 @@ libdiana_la_SOURCES = \
 	util/debug_timer.cc \
 	util/format_int.cc \
 	util/openmp_tools.cc \
+	util/polygon_util.cc \
+	util/qstring_util.cc \
+	util/string_util.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -425,6 +428,9 @@ noinst_HEADERS = \
 	util/debug_timer.h \
 	util/format_int.h \
 	util/openmp_tools.h \
+	util/polygon_util.h \
+	util/qstring_util.h \
+	util/string_util.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \

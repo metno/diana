@@ -35,6 +35,7 @@
 #include "diImageGallery.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "util/qstring_util.h"
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
