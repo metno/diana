@@ -36,6 +36,8 @@
 
 #include <QtGui>
 
+#include <cmath>
+
 #define MILOGGER_CATEGORY "diana.DiPaintGLPainter"
 #include <miLogger/miLogging.h>
 
