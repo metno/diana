@@ -43,8 +43,6 @@
 #define MILOGGER_CATEGORY "diana.ImageGallery"
 #include <miLogger/miLogging.h>
 
-#define MILOGGER_CATEGORY "diana.ImageGallery"
-#include <miLogger/miLogging.h>
 using namespace::miutil;
 using namespace std;
 
