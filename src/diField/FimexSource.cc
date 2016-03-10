@@ -1085,7 +1085,7 @@ Source::ReftimeUpdate FimexSource::update()
     const size_t last_slash = mFilePattern.find_last_of("/");
     if (last_slash != std::string::npos) {
       before_slash = mFilePattern.substr(0, last_slash+1);
-      after_slash = mFilePattern.substr(last_slash+1, mFilePattern.size());
+      after_slash = mFilePattern.substr(last_slash+1);
     } else {
       after_slash = mFilePattern;
     }
@@ -1098,10 +1098,9 @@ Source::ReftimeUpdate FimexSource::update()
     for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
       const std::string& path = *it;
       Time reftime;
-      if (tf.ok()) {
-        const std::string reftime_from_filename = tf.getTimeStr(path);
-        METLIBS_LOG_DEBUG(LOGVAL(reftime_from_filename));
-        reftime = vcross::util::from_miTime(miutil::miTime(reftime_from_filename));
+      miutil::miTime rt;
+      if (tf.getTime(path, rt)) {
+        reftime = vcross::util::from_miTime(rt);
       }
       if (addSource(path, reftime))
         u.appeared.insert(reftime);
