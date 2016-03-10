@@ -616,7 +616,7 @@ libdianaui_a_xpm_SOURCES= active_object.xpm \
 	weather_storm.xpm
 
 libdiana_la_CPPFLAGS += \
-	${FIMEX_CPPFLAGS} \
+	$(FIMEX_CPPFLAGS) \
 	$(METLIBS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
@@ -627,7 +627,7 @@ libdiana_la_CPPFLAGS += \
 	$(UDUNITS_CPPFLAGS)
 
 libdiana_la_LDFLAGS = \
-	${FIMEX_LDFLAGS} \
+	$(FIMEX_LDFLAGS) \
 	$(METLIBS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
@@ -640,7 +640,7 @@ libdiana_la_LDFLAGS = \
 libdiana_la_LIBADD += \
 	miRaster/libmiRaster.la \
 	diField/libdiField.la \
-	${FIMEX_LIBS} \
+	$(FIMEX_LIBS) \
 	$(METLIBS_LIBS) \
 	$(EMOS_LIBS) $(FORTRAN_LIBS) \
 	$(SHP_LIBS) \
@@ -808,20 +808,26 @@ diBuild.cc.tmp: $(top_srcdir)/gen_dibuild_cc
 ########################################################################
 
 bdiana_SOURCES = bdiana.cc
-bdiana_LDADD = libdiana.la
+bdiana_LDFLAGS = \
+	$(METLIBS_LDFLAGS)
+bdiana_LDADD = \
+	$(METLIBS_LIBS) \
+	libdiana.la
 
 diana_bin_SOURCES = main_gui.cc
 
 diana_bin_CPPFLAGS = $(libdianaui_a_CPPFLAGS)
 
 diana_bin_LDFLAGS = \
-	${FIMEX_LDFLAGS} \
+	$(FIMEX_LDFLAGS) \
 	$(METLIBSUI_LDFLAGS) \
+	$(METLIBS_LDFLAGS) \
 	$(QT4_LDFLAGS)
 
 diana_bin_LDADD = \
 	libdianaui.a \
-	${FIMEX_LIBS} \
+	$(FIMEX_LIBS) \
 	$(METLIBSUI_LIBS) \
+	$(METLIBS_LIBS) \
 	$(QT4_LIBS) \
 	libdiana.la
