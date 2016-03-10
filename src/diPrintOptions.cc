@@ -41,7 +41,6 @@
 
 #define MILOGGER_CATEGORY "diana.PrintOptions"
 #include <miLogger/miLogging.h>
-#include <iostream>
 
 using namespace d_print;
 using namespace::miutil;
