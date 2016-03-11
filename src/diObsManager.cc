@@ -503,7 +503,7 @@ bool ObsManager::updateTimes(std::string obsType)
   return true;
 }
 
-bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi)
+bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi,vector<FileInfo> & oldfileInfo )
 {
 #ifdef ROADOBS
   // Due to the fact that we have a database instead of an archive, we
@@ -514,7 +514,7 @@ bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi)
   const miutil::miTime now(now_hms.date(), miutil::miClock(now_hms.hour(), 0, 0));
 
   // Check first if now already exists in oldfileInfo
-  for (int i = 0; i < oldfileInfo.size(); i++) {
+  for (size_t i = 0; i < oldfileInfo.size(); i++) {
     if (oldfileInfo[i].time == now)
       return false;
   }
@@ -553,7 +553,7 @@ bool ObsManager::updateTimesfromFile(const std::string& obsType)
 
 #ifdef ROADOBS
   if (pi.obsformat == ofmt_roadobs) {
-    if (!updateTimesFromRoadFile(pi)) {
+    if (!updateTimesFromRoadFile(pi, oldfileInfo)) {
       std::swap(pi.fileInfo, oldfileInfo);
       return false;
     }
@@ -588,7 +588,7 @@ bool ObsManager::updateTimesfromFile(const std::string& obsType)
   if (pi.fileInfo.size() != oldfileInfo.size())
     return true;
 
-  for (int i = 0; i < pi.fileInfo.size(); i++) {
+  for (size_t i = 0; i < pi.fileInfo.size(); i++) {
     if (pi.fileInfo[i].time != oldfileInfo[i].time)
       return true;
   }

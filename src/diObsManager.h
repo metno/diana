@@ -161,7 +161,7 @@ private:
       std::vector<miutil::miTime>& termin,
       miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
   bool updateTimesfromFile(const std::string& obsType);
-  bool updateTimesFromRoadFile(ProdInfo& pi);
+  bool updateTimesFromRoadFile(ProdInfo& pi,std::vector<FileInfo> & oldfileInfo );
   bool updateTimes(std::string obsType);
 
 
