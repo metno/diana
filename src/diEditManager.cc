@@ -47,9 +47,10 @@
 #include "diFieldEdit.h"
 #include "diAnnotationPlot.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
 #include <puTools/miDirtools.h>
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <fstream>
 #include <iomanip>

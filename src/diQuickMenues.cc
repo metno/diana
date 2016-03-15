@@ -33,7 +33,7 @@
 
 #include "diQuickMenues.h"
 #include "diLocalSetupParser.h"
-#include "diUtilities.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 

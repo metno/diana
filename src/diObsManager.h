@@ -35,7 +35,7 @@
 #include "diPlot.h"
 #include "diObsData.h"
 
-#include <diField/TimeFilter.h>
+#include <puTools/TimeFilter.h>
 
 #include <string>
 #include <set>
@@ -79,7 +79,7 @@ private:
 
 public:
   struct patternInfo {
-    TimeFilter filter;
+    miutil::TimeFilter filter;
     std::string pattern;
     bool archive;
     std::string fileType;  //bufr,miobs...
@@ -160,7 +160,8 @@ private:
   std::vector<FileInfo> getFileName(const miutil::miTime& , const ProdInfo& pi,
       std::vector<miutil::miTime>& termin,
       miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
-  bool updateTimesfromFile(std::string obsType);
+  bool updateTimesfromFile(const std::string& obsType);
+  bool updateTimesFromRoadFile(ProdInfo& pi,std::vector<FileInfo> & oldfileInfo );
   bool updateTimes(std::string obsType);
 
 

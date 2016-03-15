@@ -3,14 +3,16 @@
 
 #include "DataReshape.h"
 #include "FimexIO.h" // for miutil::path_ctime
-#include "TimeFilter.h"
 #include "VcrossUtil.h"
+
+#include "../diUtilities.h"
+#include "../util/string_util.h"
+
+#include <puCtools/puCglob.h>
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
-
-#include <puCtools/glob_cache.h>
-#include <puCtools/puCglob.h>
+#include <puTools/TimeFilter.h>
 
 #include <fimex/CDM.h>
 #include <fimex/CDMExtractor.h>
@@ -79,49 +81,9 @@ struct is_near {
     { return std::abs(v-value) < tolerance; }
 };
 
-namespace vcutil {
-typedef std::vector<std::string> string_v;
-string_v glob(const std::string& pattern, int glob_flags, bool& error)
-{
-  glob_t globBuf;
-  error = (glob(pattern.c_str(), glob_flags, 0, &globBuf) != 0);
-
-  string_v matches;
-  if (not error)
-    matches = string_v(globBuf.gl_pathv, globBuf.gl_pathv + globBuf.gl_pathc);
-
-  globfree(&globBuf);
-  return matches;
-}
-inline string_v glob(const std::string& pattern, int glob_flags=0)
-{ bool error; return glob(pattern, glob_flags, error); }
-} // namespace vcutil
-
-// ========== FIXME start copy from diana/src/diUtilities.cc ==========
-static bool startsOrEndsWith(const std::string& txt, const std::string& sub, int startcompare)
-{
-  if (sub.empty())
-    return true;
-  if (txt.size() < sub.size())
-    return false;
-  return txt.compare(startcompare, sub.size(), sub) == 0;
-}
-
-bool startswith(const std::string& txt, const std::string& start)
-{
-  return startsOrEndsWith(txt, start, 0);
-}
-
-bool endswith(const std::string& txt, const std::string& end)
-{
-  return startsOrEndsWith(txt, end,
-      ((int)txt.size()) - ((int)end.size()));
-}
-// ========== FIXME end copy from diana/src/diUtilities.cc ==========
-
 bool isHttpUrl(const std::string& pattern)
 {
-  return startswith(pattern, "http://");
+  return diutil::startswith(pattern, "http://");
 }
 
 int findTimeIndex(vcross::Inventory_p inv, const vcross::Time& time)
@@ -1119,28 +1081,26 @@ Source::ReftimeUpdate FimexSource::update()
       u.appeared.insert(reftime);
   } else {
     // init time filter and replace yyyy etc. with ????
-    TimeFilter tf;
     std::string before_slash, after_slash;
     const size_t last_slash = mFilePattern.find_last_of("/");
     if (last_slash != std::string::npos) {
       before_slash = mFilePattern.substr(0, last_slash+1);
-      after_slash = mFilePattern.substr(last_slash+1, mFilePattern.size());
+      after_slash = mFilePattern.substr(last_slash+1);
     } else {
       after_slash = mFilePattern;
     }
-    tf.initFilter(after_slash, true);
+    const miutil::TimeFilter tf(after_slash, true);
     std::string pattern = before_slash + after_slash;
     METLIBS_LOG_DEBUG(LOGVAL(pattern));
 
     // expand filenames, even if there is no wildcard
-    const vcutil::string_v matches = vcutil::glob(pattern, GLOB_BRACE);
-    for (vcutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    const diutil::string_v matches = diutil::glob(pattern, GLOB_BRACE);
+    for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
       const std::string& path = *it;
       Time reftime;
-      if (tf.ok()) {
-        const std::string reftime_from_filename = tf.getTimeStr(path);
-        METLIBS_LOG_DEBUG(LOGVAL(reftime_from_filename));
-        reftime = vcross::util::from_miTime(miutil::miTime(reftime_from_filename));
+      miutil::miTime rt;
+      if (tf.getTime(path, rt)) {
+        reftime = vcross::util::from_miTime(rt);
       }
       if (addSource(path, reftime))
         u.appeared.insert(reftime);

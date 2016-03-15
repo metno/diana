@@ -32,8 +32,8 @@
 #include "diCommonTypes.h"
 #include "vcross_v2/VcrossSetup.h"
 
-#include <diField/TimeFilter.h>
 #include <puTools/miTime.h>
+#include <puTools/TimeFilter.h>
 
 #include <vector>
 #include <map>
@@ -83,7 +83,7 @@ private:
     std::string   filepath;
     obsType    obstype;
     FileFormat fileformat;
-    TimeFilter tf;
+    miutil::TimeFilter tf;
 #ifdef ROADOBS
     std::string parameterfile;
     std::string stationfile;

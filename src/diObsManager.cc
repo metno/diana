@@ -39,7 +39,7 @@
 #include "diPlotModule.h"
 #include "diUtilities.h"
 
-#include <puTools/miSetupParser.h>
+#include "miSetupParser.h"
 
 #ifdef ROADOBS
 // includes for road specific implementation
@@ -49,6 +49,8 @@
 #ifdef BUFROBS
 #include <diObsBufr.h>
 #endif
+
+#include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -456,40 +458,35 @@ bool ObsManager::updateTimes(std::string obsType)
   else
   {
 #endif
-    int npattern = Prod[obsType].pattern.size();
-    for (int j = 0; j < npattern; j++) {
-      if ((!Prod[obsType].pattern[j].archive && !useArchive)
-          || (Prod[obsType].pattern[j].archive && useArchive)) {
-        bool ok = Prod[obsType].pattern[j].filter.ok();
-
-        const diutil::string_v matches = diutil::glob(
-            Prod[obsType].pattern[j].pattern);
-        for (diutil::string_v::const_iterator it = matches.begin();
-            it != matches.end(); ++it) {
+    ProdInfo& pi = Prod[obsType];
+    for (std::vector<patternInfo>::const_iterator pit = pi.pattern.begin(); pit != pi.pattern.end(); ++pit) {
+      if (pit->archive == useArchive) {
+        bool ok = pit->filter.ok();
+        const diutil::string_v matches = diutil::glob(pit->pattern);
+        for (diutil::string_v::const_iterator mit = matches.begin(); mit != matches.end(); ++mit) {
           FileInfo finfo;
-          finfo.filename = *it;
-          if (ok
-              && Prod[obsType].pattern[j].filter.getTime(finfo.filename,
-                  finfo.time)) {
+          finfo.filename = *mit;
+          finfo.filetype = pit->fileType;
+          if (ok && pit->filter.getTime(finfo.filename, finfo.time)) {
             //time from file name
           } else {
             //time not found from filename, open file
-            if (Prod[obsType].pattern[j].fileType == "bufr") {
+            if (finfo.filetype == "bufr") {
 #ifdef BUFROBS
               //read time from bufr-file
               ObsBufr bufr;
-              if(!bufr.ObsTime(finfo.filename,finfo.time))continue;
+              if (!bufr.ObsTime(finfo.filename, finfo.time))
+                continue;
 #endif
             }
           }
           //add new file to Prod[obsType]
-          finfo.filetype = Prod[obsType].pattern[j].fileType;
-          Prod[obsType].fileInfo.push_back(finfo);
+          pi.fileInfo.push_back(finfo);
         }
       }
     }
 #ifdef ROADOBS
-  } // end�if obstype == roadobs
+  } // endif obstype == roadobs
 #endif
   // Check if timeLists are equal
   if (Prod[obsType].fileInfo.size() == oldfileInfo.size()) {
@@ -506,107 +503,98 @@ bool ObsManager::updateTimes(std::string obsType)
   return true;
 }
 
-bool ObsManager::updateTimesfromFile(std::string obsType)
+bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi,vector<FileInfo> & oldfileInfo )
 {
-  //Making list of file names and times, opening all files
-
-  obsType = miutil::to_lower(obsType);
-
-  if (Prod.find(obsType) == Prod.end())
-    return false;
-  // make a copy of the old fileinfo
-  vector<FileInfo> oldfileInfo = Prod[obsType].fileInfo;
-  Prod[obsType].fileInfo.clear();
 #ifdef ROADOBS
-  if (Prod[obsType].obsformat == ofmt_roadobs)
-  {
-    // Due to the fact that we have a database instead of an archive,
-    // we must fake the behavoir of anarchive
-    // Assume that all stations report every hour
-    // first, get the current time.
-    miTime now = miTime::nowTime();
-    miClock nowClock = now.clock();
-    miDate nowDate = now.date();
-    nowClock.setClock(nowClock.hour(),0,0);
-    now.setTime(nowDate, nowClock);
-    // Check first if now already exists in oldfileInfo
-    int n = oldfileInfo.size();
-    for (int i = 0; i < n; i++)
-    {
-      if (oldfileInfo[i].time == now)
-      {
-        // restore the old fileinfo
-        Prod[obsType].fileInfo = oldfileInfo;
-        return false;
-      }
-    }
-    int daysback = Prod[obsType].daysback;
-    miTime starttime = now;
-    starttime.addDay(-daysback);
-    int npattern = Prod[obsType].pattern.size();
-    int hourdiff;
-    for( int j=0;j<npattern; j++) {
-      FileInfo finfo;
-      miTime time = now;
+  // Due to the fact that we have a database instead of an archive, we
+  // must fake the behavoir of an archive.  Assume that all stations
+  // report every hour first, get the current time.
+
+  const miutil::miTime now_hms = miTime::nowTime();
+  const miutil::miTime now(now_hms.date(), miutil::miClock(now_hms.hour(), 0, 0));
+
+  // Check first if now already exists in oldfileInfo
+  for (size_t i = 0; i < oldfileInfo.size(); i++) {
+    if (oldfileInfo[i].time == now)
+      return false;
+  }
+
+  miutil::miTime starttime = now;
+  starttime.addDay(-pi.daysback);
+  int npattern = pi.pattern.size();
+  int hourdiff;
+  for( int j=0;j<npattern; j++) {
+    miTime time = now;
+    FileInfo finfo;
+    do {
       finfo.time = time;
       finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
-      finfo.filetype = Prod[obsType].pattern[j].fileType;
-      Prod[obsType].fileInfo.push_back(finfo);
+      finfo.filetype = pi.pattern[j].fileType;
+      pi.fileInfo.push_back(finfo);
       time.addHour(-1);
-      while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
-        finfo.time = time;
-        finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
-        finfo.filetype = Prod[obsType].pattern[j].fileType;
-        Prod[obsType].fileInfo.push_back(finfo);
-        time.addHour(-1);
-      }
-    }
+    } while ((hourdiff = miTime::hourDiff(time, starttime)) > 0);
   }
-  else
-  {
 #endif
+  return true;
+}
+
+bool ObsManager::updateTimesfromFile(const std::string& obsType)
+{
+  // making list of file names and times, opening all files
+
+  const string_ProdInfo_m::iterator opit = Prod.find(miutil::to_lower(obsType));
+  if (opit == Prod.end())
+    return false;
+  ProdInfo& pi = opit->second;
+
+  // make a copy of the old fileinfo
+  vector<FileInfo> oldfileInfo;
+  std::swap(pi.fileInfo, oldfileInfo);
+
+#ifdef ROADOBS
+  if (pi.obsformat == ofmt_roadobs) {
+    if (!updateTimesFromRoadFile(pi, oldfileInfo)) {
+      std::swap(pi.fileInfo, oldfileInfo);
+      return false;
+    }
+  } else
+#endif
+  {
     vector<std::string> fname;
-
-    for (unsigned int j = 0; j < Prod[obsType].pattern.size(); j++) {
-      if ((!Prod[obsType].pattern[j].archive && !useArchive)
-          || (Prod[obsType].pattern[j].archive && useArchive)) {
-
-        const diutil::string_v matches = diutil::glob(
-            Prod[obsType].pattern[j].pattern);
-        for (diutil::string_v::const_iterator it = matches.begin();
-            it != matches.end(); ++it) {
+    for (std::vector<patternInfo>::const_iterator pit = pi.pattern.begin(); pit != pi.pattern.end(); ++pit) {
+      if (pit->archive == useArchive) {
+        const diutil::string_v matches = diutil::glob(pit->pattern);
+        for (diutil::string_v::const_iterator mit = matches.begin(); mit != matches.end(); ++mit) {
           FileInfo finfo;
-          finfo.filename = *it;
-          if (Prod[obsType].pattern[j].fileType == "bufr") {
+          finfo.filename = *mit;
+          finfo.filetype = pit->fileType;
+          if (pit->fileType == "bufr") {
 #ifdef BUFROBS
             //read time from bufr-file
             ObsBufr bufr;
-            if(!bufr.ObsTime(finfo.filename,finfo.time)) continue;
+            if (!bufr.ObsTime(finfo.filename, finfo.time))
+              continue;
 #endif
           }
-          if (finfo.time.undef() && Prod[obsType].timeInfo != "notime")
+          if (finfo.time.undef() && pi.timeInfo != "notime")
             continue;
-          finfo.filetype = Prod[obsType].pattern[j].fileType;
-          Prod[obsType].fileInfo.push_back(finfo);
+          pi.fileInfo.push_back(finfo);
         }
       }
     }
-#ifdef ROADOBS
   }
-#endif
-  // Check if timeLists are equal
-  if (Prod[obsType].fileInfo.size() == oldfileInfo.size()) {
-    // Compare the list members
-    int n = Prod[obsType].fileInfo.size();
-    for (int i = 0; i < n; i++) {
-      if (Prod[obsType].fileInfo[i].time != oldfileInfo[i].time) {
-        return true;
-      }
-    }
-    // The lists are equal
-    return false;
+
+  // return true if timeLists are different
+  if (pi.fileInfo.size() != oldfileInfo.size())
+    return true;
+
+  for (size_t i = 0; i < pi.fileInfo.size(); i++) {
+    if (pi.fileInfo[i].time != oldfileInfo[i].time)
+      return true;
   }
-  return true;
+
+  // the lists are equal
+  return false;
 }
 
 //return observation times for list of PlotInfo's
@@ -1230,18 +1218,18 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
     p++;
   }
 
-  map<std::string, ProdInfo>::iterator pr = Prod.find(oname);
+  string_ProdInfo_m::iterator pr = Prod.find(oname);
   if (pr == Prod.end()) {
     METLIBS_LOG_ERROR(oname << " not found in Prod");
     return dialog;
   }
+  ProdInfo& po = pr->second;
+
 #ifdef ROADOBS
   // We must also support the ascii format until the
   // lightning is stored in road
-  if (pr->second.obsformat!=ofmt_roadobs)
-  {
-    if (pr->second.obsformat!=ofmt_ascii)
-    {
+  if (po.obsformat != ofmt_roadobs) {
+    if (po.obsformat!=ofmt_ascii) {
       return dialog;
     }
   }
@@ -1254,9 +1242,9 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   // The road format must have a header file, defined in prod
   // This file, defines the parameters as well as the mapping
   // between diana and road parameter space.
-  std::string headerfile= Prod[oname].headerfile;
-  std::string databasefile = Prod[oname].databasefile;
-  std::string stationfile = Prod[oname].stationfile;
+  std::string headerfile= po.headerfile;
+  std::string databasefile = po.databasefile;
+  std::string stationfile = po.stationfile;
   std::string filename;// just dummy here
   miTime filetime;// just dummy here
   ObsRoad obsRoad = ObsRoad(filename,databasefile,stationfile,headerfile,filetime,roplot,false);
@@ -1264,7 +1252,7 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
 
   if (obsRoad.asciiOK() && obsRoad.parameterType("time")
       && !obsRoad.parameterType("date"))
-    Prod[oname].useFileTime= true;
+    po.useFileTime= true;
   if (obsRoad.parameterType("dd") && obsRoad.parameterType("ff")) {
     dialog.plottype[id].button.push_back(addButton("Wind",""));
     dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
@@ -1276,7 +1264,7 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   }
   delete roplot;
 #endif
-  if (pr->second.obsformat != ofmt_ascii && pr->second.obsformat != ofmt_url)
+  if (po.obsformat != ofmt_ascii && po.obsformat != ofmt_url)
     return dialog;
 
   // open one file and find the available data parameters
@@ -1286,24 +1274,22 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   vector<std::string> columnName;
   vector<std::string> columnTooltip;
 
-  while (j < Prod[oname].pattern.size()) {
-    if (!Prod[oname].pattern[j].archive || useArchive) {
-      std::string headerfile = Prod[oname].headerfile;
-      if (miutil::contains(Prod[oname].pattern[j].pattern, "http")) {
+  while (j < po.pattern.size()) {
+    if (!po.pattern[j].archive || useArchive) {
+      std::string headerfile = po.headerfile;
+      if (miutil::contains(po.pattern[j].pattern, "http")) {
 
-        ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern, headerfile,
-            Prod[oname].headerinfo);
+        ObsAscii obsAscii = ObsAscii(po.pattern[j].pattern, headerfile, po.headerinfo);
         if (obsAscii.asciiOK() && obsAscii.parameterType("time")
             && !obsAscii.parameterType("date"))
-          Prod[oname].useFileTime = true;
+          po.useFileTime = true;
         if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
           dialog.plottype[id].button.push_back(addButton("Wind", ""));
           dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
         }
         for (size_t c = 0; c < obsAscii.columnCount(); c++) {
           dialog.plottype[id].button.push_back(
-              addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100,
-                  100, true));
+              addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100, 100, true));
           dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
         }
 
@@ -1311,17 +1297,14 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
 
         bool found = false;
 
-        const diutil::string_v matches = diutil::glob(
-            Prod[oname].pattern[j].pattern);
-        for (diutil::string_v::const_iterator it = matches.begin();
-            !found && it != matches.end(); ++it) {
+        const diutil::string_v matches = diutil::glob(po.pattern[j].pattern);
+        for (diutil::string_v::const_iterator it = matches.begin(); !found && it != matches.end(); ++it) {
           const std::string& filename = *it;
-          ObsAscii obsAscii = ObsAscii(filename, headerfile,
-              Prod[oname].headerinfo);
+          ObsAscii obsAscii = ObsAscii(filename, headerfile, po.headerinfo);
           found = obsAscii.asciiOK();
           if (obsAscii.asciiOK() && obsAscii.parameterType("time")
               && !obsAscii.parameterType("date"))
-            Prod[oname].useFileTime = true;
+            po.useFileTime = true;
           if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
             dialog.plottype[id].button.push_back(addButton("Wind", ""));
             dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
@@ -1648,11 +1631,8 @@ bool ObsManager::parseSetup()
         continue;
       }
       miutil::remove(token[1], '\"');
-      TimeFilter tf;
-      // init time filter and replace yyyy etc. with *
-      tf.initFilter(token[1]);
       patternInfo pf;
-      pf.filter = tf;
+      pf.filter = miutil::TimeFilter(token[1]); // modifies token[1]!
       pf.pattern = token[1];
       // obsolete
       if (key == "ascii" || key == "archive_ascii")

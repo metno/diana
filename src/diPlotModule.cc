@@ -52,7 +52,9 @@
 #include "diUtilities.h"
 #include "diWeatherArea.h"
 
-#include <diField/diFieldManager.h>
+#include "util/string_util.h"
+
+#include "diField/diFieldManager.h"
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 

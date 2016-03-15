@@ -46,15 +46,17 @@
 #include "diPrintOptions.h"
 #include "diController.h"
 #include "diEditItemManager.h"
+#include "miSetupParser.h"
 
 #include "qtMainWindow.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <QDir>
 #include <QInputDialog>
 #include <QStringList>
 #include <QString>
 
-#include <puTools/miSetupParser.h>
 #include <iostream>
 
 #define MILOGGER_CATEGORY "diana.main_gui"

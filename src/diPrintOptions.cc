@@ -33,13 +33,14 @@
 
 #include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
+
 #include <fstream>
 
 #define MILOGGER_CATEGORY "diana.PrintOptions"
 #include <miLogger/miLogging.h>
-#include <iostream>
 
 using namespace d_print;
 using namespace::miutil;

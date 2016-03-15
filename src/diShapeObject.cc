@@ -36,7 +36,7 @@
 #include "diColourShading.h"
 #include "diGLPainter.h"
 #include "diPoint.h"
-#include "diUtilities.h"
+#include "util/polygon_util.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>

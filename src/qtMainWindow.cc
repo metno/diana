@@ -75,6 +75,7 @@
 #include "diStationPlot.h"
 #include "diLocationData.h"
 #include "diLogFile.h"
+#include "miSetupParser.h"
 
 #include "vcross_qt/qtVcrossInterface.h"
 #include "wmsclient/WebMapDialog.h"
@@ -88,7 +89,7 @@
 
 #include <puDatatypes/miCoordinates.h>
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <QAction>
 #include <QApplication>

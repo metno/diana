@@ -46,14 +46,14 @@
 #include "diImageGallery.h"
 #include "diMapManager.h"
 #include "diLocalSetupParser.h"
+#include "miSetupParser.h"
 #include "wmsclient/WebMapManager.h"
 
-#include <diField/diArea.h>
-#include <diField/diRectangle.h>
-#include <diField/diArea.h>
-#include <diField/diFieldManager.h>
+#include "diField/diArea.h"
+#include "diField/diRectangle.h"
+#include "diField/diFieldManager.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <QKeyEvent>
 #include <QMouseEvent>

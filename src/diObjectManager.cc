@@ -40,8 +40,9 @@
 #include "diDisplayObjects.h"
 #include "diWeatherSymbol.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <cstdio>
 #include <fstream>
@@ -116,10 +117,7 @@ bool ObjectManager::parseSetup() {
         olist.archive=true;
       }
       else if (key=="file"){
-        TimeFilter tf;
-        // init time filter and replace yyyy etc with *
-        tf.initFilter(value);
-        olist.filter=tf;
+        olist.filter=miutil::TimeFilter(value); // modifies value
         olist.filename= value;
       } else {
         ok= false;
@@ -351,7 +349,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
   const diutil::string_v matches = diutil::glob(fileString);
   for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
     const std::string& name = *it;
-    miTime time = timeFilterFileName(name,ol.filter);
+    miTime time = timeFilterFileName(name, ol.filter);
     if(!time.undef() && time!=ztime){
       ObjFileInfo info;
       info.name = name;
@@ -382,7 +380,7 @@ std::string ObjectManager::prefixFileName(std::string fileName)
   return prefix;
 }
 
-miTime ObjectManager::timeFilterFileName(std::string fileName,TimeFilter filter)
+miTime ObjectManager::timeFilterFileName(const std::string& fileName, const miutil::TimeFilter& filter)
 {
   if (filter.ok()){
     miTime t;
@@ -394,7 +392,7 @@ miTime ObjectManager::timeFilterFileName(std::string fileName,TimeFilter filter)
 }
 
 
-miTime ObjectManager::timeFileName(std::string fileName)
+miTime ObjectManager::timeFileName(const std::string& fileName)
 {
   //get time from a file with name *.yyyymmddhh
   vector <std::string> parts= miutil::split(fileName, 0, ".");
@@ -418,7 +416,7 @@ miTime ObjectManager::timeFileName(std::string fileName)
   return timeFromString(parts[nparts-1]);
 }
 
-miTime ObjectManager::timeFromString(std::string timeString)
+miTime ObjectManager::timeFromString(const std::string& timeString)
 {
   //get time from a string with yyyymmddhhmm
   if ( timeString.size() < 10 )
@@ -1279,7 +1277,7 @@ std::string ObjectManager::stringFromTime(const miTime& t,bool addMinutes)
 }
 
 
-bool ObjectManager::_isafile(const std::string name)
+bool ObjectManager::_isafile(const std::string& name)
 {
   FILE *fp;
   if ((fp=fopen(name.c_str(),"r"))){
@@ -1290,14 +1288,14 @@ bool ObjectManager::_isafile(const std::string name)
 }
 
 
-bool ObjectManager::checkFileName(std::string& fileName)
+bool ObjectManager::checkFileName(const std::string& fileName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fileName));
   if (!_isafile(fileName)) {
     miTime time = timeFileName(fileName);
     //old filename style
-    fileName = "ANAdraw."+stringFromTime(time,false);
-    if(!_isafile(fileName))
+    const std::string old = "ANAdraw." + stringFromTime(time, false);
+    if (!_isafile(old))
       return false;
   }
   return true;

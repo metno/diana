@@ -101,12 +101,16 @@ libdiana_la_SOURCES = \
 	EditItems/drawingtext.cc \
 	EditItems/kml.cc \
 	EditItems/timefilesextractor.cc \
+	miSetupParser.cc \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
 	util/debug_timer.cc \
 	util/format_int.cc \
 	util/openmp_tools.cc \
+	util/polygon_util.cc \
+	util/qstring_util.cc \
+	util/string_util.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -361,6 +365,7 @@ noinst_HEADERS = \
 	EditItems/properties.h \
 	EditItems/timefilesextractor.h \
 	EditItems/toolbar.h \
+	miSetupParser.h \
 	poly_contouring.hh \
 	reversible_list.hh \
 	polyStipMasks.h \
@@ -423,6 +428,9 @@ noinst_HEADERS = \
 	util/debug_timer.h \
 	util/format_int.h \
 	util/openmp_tools.h \
+	util/polygon_util.h \
+	util/qstring_util.h \
+	util/string_util.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \
@@ -608,7 +616,7 @@ libdianaui_a_xpm_SOURCES= active_object.xpm \
 	weather_storm.xpm
 
 libdiana_la_CPPFLAGS += \
-	${FIMEX_CPPFLAGS} \
+	$(FIMEX_CPPFLAGS) \
 	$(METLIBS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
@@ -619,7 +627,7 @@ libdiana_la_CPPFLAGS += \
 	$(UDUNITS_CPPFLAGS)
 
 libdiana_la_LDFLAGS = \
-	${FIMEX_LDFLAGS} \
+	$(FIMEX_LDFLAGS) \
 	$(METLIBS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
@@ -632,7 +640,7 @@ libdiana_la_LDFLAGS = \
 libdiana_la_LIBADD += \
 	miRaster/libmiRaster.la \
 	diField/libdiField.la \
-	${FIMEX_LIBS} \
+	$(FIMEX_LIBS) \
 	$(METLIBS_LIBS) \
 	$(EMOS_LIBS) $(FORTRAN_LIBS) \
 	$(SHP_LIBS) \
@@ -800,20 +808,26 @@ diBuild.cc.tmp: $(top_srcdir)/gen_dibuild_cc
 ########################################################################
 
 bdiana_SOURCES = bdiana.cc
-bdiana_LDADD = libdiana.la
+bdiana_LDFLAGS = \
+	$(METLIBS_LDFLAGS)
+bdiana_LDADD = \
+	$(METLIBS_LIBS) \
+	libdiana.la
 
 diana_bin_SOURCES = main_gui.cc
 
 diana_bin_CPPFLAGS = $(libdianaui_a_CPPFLAGS)
 
 diana_bin_LDFLAGS = \
-	${FIMEX_LDFLAGS} \
+	$(FIMEX_LDFLAGS) \
 	$(METLIBSUI_LDFLAGS) \
+	$(METLIBS_LDFLAGS) \
 	$(QT4_LDFLAGS)
 
 diana_bin_LDADD = \
 	libdianaui.a \
-	${FIMEX_LIBS} \
+	$(FIMEX_LIBS) \
 	$(METLIBSUI_LIBS) \
+	$(METLIBS_LIBS) \
 	$(QT4_LIBS) \
 	libdiana.la
