@@ -1632,7 +1632,7 @@ bool ObsManager::parseSetup()
       }
       miutil::remove(token[1], '\"');
       patternInfo pf;
-      pf.filter = miutil::TimeFilter(token[1]); // modifies token[1]!
+      pf.filter = miutil::TimeFilter(token[1],true); // modifies token[1]!
       pf.pattern = token[1];
       // obsolete
       if (key == "ascii" || key == "archive_ascii")
