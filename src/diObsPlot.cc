@@ -35,6 +35,7 @@
 #include "diImageGallery.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "util/qstring_util.h"
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
@@ -45,6 +46,7 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ObsPlot"
 #include <miLogger/miLogging.h>

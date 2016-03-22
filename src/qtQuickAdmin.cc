@@ -37,6 +37,7 @@
 #include "diUtilities.h"
 #include "diLocalSetupParser.h"
 
+#include "util/string_util.h"
 #include <puTools/miStringFunctions.h>
 
 #include <QPushButton>

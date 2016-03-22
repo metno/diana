@@ -38,9 +38,9 @@
 #include "diPlotModule.h"
 #include "diSatPlot.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
 #include <puCtools/stat.h>
-#include <puTools/miSetupParser.h>
 
 #include <diMItiff.h>
 #ifdef HDF5FILE
@@ -1626,9 +1626,8 @@ bool SatManager::parseSetup()
         SetupParser::errorMsg(sat_name, i, errmsg);
         return false;
       }
-      TimeFilter tf;
       // init time filter and replace yyyy etc. with *
-      tf.initFilter(value);
+      const miutil::TimeFilter tf(value,true); // modifies value!
       Prod[prod][subprod].filter.push_back(tf);
       Prod[prod][subprod].pattern.push_back(value);
       Prod[prod][subprod].archive.push_back(key == "archivefile");

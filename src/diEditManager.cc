@@ -34,26 +34,28 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-
-#include <diEditManager.h>
-#include <diPlotModule.h>
-#include <diObjectManager.h>
-#include <diFieldPlotManager.h>
-#include <diWeatherFront.h>
-#include <diWeatherSymbol.h>
-#include <diWeatherArea.h>
-#include <diMapMode.h>
-#include <diFieldPlot.h>
-#include <diUndoFront.h>
-#include <diFieldEdit.h>
-#include <diAnnotationPlot.h>
+#include "diEditManager.h"
+#include "diPlotModule.h"
+#include "diObjectManager.h"
+#include "diFieldPlotManager.h"
+#include "diWeatherFront.h"
+#include "diWeatherSymbol.h"
+#include "diWeatherArea.h"
+#include "diMapMode.h"
+#include "diFieldPlot.h"
+#include "diUndoFront.h"
+#include "diFieldEdit.h"
+#include "diAnnotationPlot.h"
 #include "diUtilities.h"
-#include <puTools/miDirtools.h>
-#include <puTools/miSetupParser.h>
+#include "miSetupParser.h"
 
+#include <puTools/miDirtools.h>
+#include <puTools/miStringFunctions.h>
+
+#include <fstream>
 #include <iomanip>
 #include <set>
+#include <sstream>
 #include <cmath>
 
 #include <QKeyEvent>

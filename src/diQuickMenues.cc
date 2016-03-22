@@ -33,7 +33,7 @@
 
 #include "diQuickMenues.h"
 #include "diLocalSetupParser.h"
-#include "diUtilities.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -42,6 +42,7 @@
 #include <boost/regex.hpp>
 
 #include <fstream>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.QuickMenues"
 #include <miLogger/miLogging.h>

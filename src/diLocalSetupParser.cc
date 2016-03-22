@@ -36,10 +36,11 @@
 #include "diColourShading.h"
 #include "diLinetype.h"
 #include "diPattern.h"
+#include "miSetupParser.h"
 
+#include <puTools/miStringFunctions.h>
 #include <puCtools/mkdir.h>
 #include <puCtools/stat.h>
-#include <puTools/miSetupParser.h>
 
 #include <fstream>
 #include <list>

@@ -36,6 +36,8 @@
 
 #include <QImage>
 
+#include <sys/time.h>
+
 #define MILOGGER_CATEGORY "diana.WebMapPlot"
 #include <miLogger/miLogging.h>
 

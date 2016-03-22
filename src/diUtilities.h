@@ -4,8 +4,6 @@
 
 #include <puTools/miTime.h>
 
-#include <QPolygonF>
-
 #include <map>
 #include <string>
 #include <vector>
@@ -35,20 +33,6 @@ int find_index(bool repeat, int available, int i);
 inline string_v glob(const std::string& pattern, int glob_flags=0)
 { bool error; return glob(pattern, glob_flags, error); }
 
-bool startswith(const std::string& txt, const std::string& start);
-bool endswith(const std::string& txt, const std::string& end);
-
-void appendText(std::string& text, const std::string& append, const std::string& separator=" ");
-std::string appendedText(const std::string& text, const std::string& append, const std::string& separator=" ");
-
-void replace_chars(std::string& txt, const char* replace, const char with);
-inline std::string replaced_chars(const std::string& txt, const char* replace, const char with)
-{ std::string t(txt); replace_chars(t, replace, with); return t; }
-
-namespace detail {
-void append_chars_split_newline(string_v& lines, const char* buffer, size_t nbuffer);
-}
-
 bool getFromFile(const std::string& filename, string_v& lines);
 bool getFromHttp(const std::string &url, string_v& lines);
 
@@ -71,17 +55,6 @@ void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdat
 /*! Make list of numbers around 'number'.
  */
 std::vector<std::string> numberList(float number, const float* enormal);
-
-/*!
- * Remove polygon segments where the points stay in the same "sector"
- * outside of rect.
- *
- * WARNING: this will probably not work for polygons with holes
- */
-QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon);
-
-QString formatLongitude(float lon, int precision, int width=0);
-QString formatLatitude(float lat, int precision, int width=0);
 
 } // namespace diutil
 

@@ -1,10 +1,9 @@
 
 #include "diUtilities.h"
 
-#include <QApplication>
-#include <QComboBox>
+#include "util/string_util.h"
 
-#include <diField/diRectangle.h>
+#include "diField/diRectangle.h"
 
 #include <puCtools/glob_cache.h>
 #include <puCtools/puCglob.h>
@@ -47,54 +46,6 @@ int find_index(bool repeat, int available, int i)
     return i;
   else
     return available-1;
-}
-
-static bool startsOrEndsWith(const std::string& txt, const std::string& sub,
-    int startcompare)
-{
-  if (sub.empty())
-    return true;
-  if (txt.size() < sub.size())
-    return false;
-  return txt.compare(startcompare, sub.size(), sub) == 0;
-}
-
-bool startswith(const std::string& txt, const std::string& start)
-{
-  return startsOrEndsWith(txt, start, 0);
-}
-
-bool endswith(const std::string& txt, const std::string& end)
-{
-  return startsOrEndsWith(txt, end,
-      ((int)txt.size()) - ((int)end.size()));
-}
-
-void appendText(std::string& text, const std::string& append, const std::string& separator)
-{
-  if (append.empty())
-    return;
-  if (!text.empty())
-    text += separator;
-  text += append;
-}
-
-std::string appendedText(const std::string& text, const std::string& append, const std::string& separator)
-{
-  std::string t(text);
-  appendText(t, append, separator);
-  return t;
-}
-
-void replace_chars(std::string& txt, const char* replace_these, const char replace_with)
-{
-  size_t pos = 0;
-  while (pos < txt.size()
-      && (pos = txt.find_first_of(replace_these, pos)) != std::string::npos)
-  {
-    txt[pos] = replace_with;
-    pos += 1;
-  }
 }
 
 bool getFromFile(const std::string& filename, string_v& lines)
@@ -177,10 +128,10 @@ bool getFromHttp(const std::string &url_, string_v& lines)
 
 bool getFromAny(const std::string &uof, string_v& lines)
 {
-  if (startswith(uof, "http://"))
+  if (diutil::startswith(uof, "http://"))
     return getFromHttp(uof, lines);
 
-  if (startswith(uof, "file://"))
+  if (diutil::startswith(uof, "file://"))
     return getFromFile(uof.substr(7), lines);
 
   return diutil::getFromFile(uof, lines);
@@ -244,66 +195,6 @@ std::vector<std::string> numberList(float number, const float* enormal)
     vnumber.push_back(miutil::from_number(enormal[k] * ex));
   }
   return vnumber;
-}
-
-namespace detail {
-
-enum {
-  INSIDE = 0,
-  OUT_X_LEFT  = 2, OUT_X_RIGHT =  3, OUT_X_MASK =  3,
-  OUT_Y_BELOW = 8, OUT_Y_ABOVE = 12, OUT_Y_MASK = 12
-};
-
-int where(const Rectangle& rect, const QPointF& point)
-{
-  int w = INSIDE;
-  if (point.x() < rect.x1)
-    w |= OUT_X_LEFT;
-  else if (point.x() > rect.x2)
-    w |= OUT_X_RIGHT;
-  if (point.y() < rect.y1)
-    w |= OUT_Y_BELOW;
-  else if (point.y() > rect.y2)
-    w |= OUT_Y_ABOVE;
-  return w;
-}
-
-} // namespace detail
-
-QPolygonF trimToRectangle(const Rectangle& rect, const QPolygonF& polygon)
-{
-  QPolygonF trimmed;
-
-  const int last = polygon.size();
-  for (int k0 = 0; k0 < last; k0++) {
-    QPointF pp0 = polygon.at(k0);
-    int w0 = detail::where(rect, pp0);
-    trimmed << pp0;
-    if (w0 == detail::INSIDE)
-      continue;
-
-    int k1 = k0 + 1, w1;
-    while (k1 < last && ((w1 = detail::where(rect, polygon.at(k1))) == w0))
-      k1 += 1;
-
-    if (k1 > k0 + 1)
-      trimmed << polygon.at(k1 - 1);
-    k0 = k1 - 1;
-  }
-
-  return trimmed;
-}
-
-QString formatLongitude(float lon, int precision, int width)
-{
-  return (QString::number(std::abs(lon), 'f', precision) + QLatin1Char(lon >= 0 ? 'E' : 'W'))
-      .rightJustified(width);
-}
-
-QString formatLatitude(float lat, int precision, int width)
-{
-  return (QString::number(std::abs(lat), 'f', 1) + QLatin1Char(lat >= 0 ? 'N' : 'S'))
-      .rightJustified(width);
 }
 
 } // namespace diutil

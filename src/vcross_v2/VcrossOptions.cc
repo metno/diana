@@ -33,7 +33,7 @@
 
 #include "VcrossOptions.h"
 
-#include <puTools/miSetupParser.h>
+#include "miSetupParser.h"
 #include <puTools/miStringFunctions.h>
 #include <puTools/miStringBuilder.h>
 

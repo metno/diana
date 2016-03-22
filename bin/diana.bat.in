@@ -1,6 +1,0 @@
-:: $Id$
-@echo off
-set DIANADIR=@prefix@
-set BUFR_TABLES=@prefix@/lib/bufrtables/
-set PATH=%DIANADIR%/bin;%PATH%
-diana.bin -s %DIANADIR%/etc/diana/diana.setup %*

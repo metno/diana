@@ -75,6 +75,7 @@
 #include "diStationPlot.h"
 #include "diLocationData.h"
 #include "diLogFile.h"
+#include "miSetupParser.h"
 
 #include "vcross_qt/qtVcrossInterface.h"
 #include "wmsclient/WebMapDialog.h"
@@ -88,7 +89,7 @@
 
 #include <puDatatypes/miCoordinates.h>
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <QAction>
 #include <QApplication>
@@ -125,6 +126,7 @@
 
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #include <diField/diFieldManager.h>
 
@@ -2423,7 +2425,11 @@ void DianaMainWindow::sendLetter(miMessage& letter)
   miQMessage qmsg;
   int from, to;
   convert(letter, from, to, qmsg);
-  pluginB->sendMessage(qmsg, to);
+  if (to != -1)
+    pluginB->sendMessage(qmsg, to);
+  else
+    // send to all selected clients, -1 is not allowed any more
+    pluginB->sendMessage(qmsg);
 }
 
 void DianaMainWindow::updateObs()

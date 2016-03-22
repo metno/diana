@@ -36,7 +36,7 @@
 #include "diColourShading.h"
 #include "diGLPainter.h"
 #include "diPoint.h"
-#include "diUtilities.h"
+#include "util/polygon_util.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
@@ -45,6 +45,7 @@
 #include <QRegExp>
 
 #include <cfloat>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ShapeObject"
 #include <miLogger/miLogging.h>

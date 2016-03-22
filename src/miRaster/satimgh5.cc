@@ -895,10 +895,10 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[],
 
   // Convert if necessary
   if(description != "" && cloudTopUnit != "") {
-    if (description.empty() || description.find("eight (m)") != string::npos && cloudTopUnit == "ft") {
+    if (description.empty() || (description.find("eight (m)") != string::npos && cloudTopUnit == "ft")) {
       mul=100/30.52;
     }
-    else if (description.empty() || description.find("eight (m)") != string::npos && cloudTopUnit == "hft") {
+    else if ((description.find("eight (m)") != string::npos && cloudTopUnit == "hft")) {
       mul=100/30.52/100.0;
     }
     else if (cloudTopUnit == "force_ft") {
@@ -907,7 +907,7 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[],
     else if (cloudTopUnit == "force_hft") {
       mul=100/30.52/100.0;
     }
-    else if(description.empty() || description.find("temperature (K)") != string::npos && cloudTopUnit == "C")
+    else if(description.find("temperature (K)") != string::npos && cloudTopUnit == "C")
       add=-275.15;
   }
 
@@ -1120,7 +1120,6 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
 {
   METLIBS_LOG_TIME();
 
-  int k = 0;
   float min = -32768.0;
   float max = 32768.0;
 
@@ -1201,19 +1200,23 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
    */
   if (hdf5map.count(string("statmin_") + pathname))
   {
-	  if (hdf5map[string("statmin_") + pathname].length() > 0)
-		  if (invert)
-			  max = -1*to_int(hdf5map[string("statmin_") + pathname]);
-		  else
-			  min = to_int(hdf5map[string("statmin_") + pathname]);
+    if (hdf5map[string("statmin_") + pathname].length() > 0) {
+      if (invert) {
+        max = -1*to_int(hdf5map[string("statmin_") + pathname]);
+      } else {
+        min = to_int(hdf5map[string("statmin_") + pathname]);
+      }
+    }
   }
   if (hdf5map.count(string("statmax_") + pathname))
   {
-	  if (hdf5map[string("statmax_") + pathname].length() > 0)
-		  if (invert)
-			  min = -1*to_int(hdf5map[string("statmax_") + pathname]);
-		  else
-			  max = to_int(hdf5map[string("statmax_") + pathname]);
+    if (hdf5map[string("statmax_") + pathname].length() > 0) {
+      if (invert) {
+        min = -1*to_int(hdf5map[string("statmax_") + pathname]);
+      } else {
+        max = to_int(hdf5map[string("statmax_") + pathname]);
+      }
+    }
   }
 
   METLIBS_LOG_DEBUG("INTEGER");
@@ -1275,7 +1278,6 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
    * value. This is MEOS MSG specific.
    */
   vector<float> lookupTable;
-  float *colorRange;
   if (haveColorRange) {
     float value = color_range[0];
     float key = 0;
@@ -1395,14 +1397,13 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   METLIBS_LOG_SCOPE();
 
   hid_t native_type,memb_id,space;
-  hsize_t dims[1],adims[2];
+  hsize_t dims[1];
   H5T_class_t memb_cls;
   hid_t memtype;
   size_t size;
-  hid_t stid;
   hid_t palette_type;
   outval_name *palette;
-  int ndims,i,j,nmembs;
+  int ndims,i,nmembs;
   hid_t attr, atype, aspace;
   char memb[1024];
   // NOTE: sizeof(memb) -1)
@@ -1410,7 +1411,6 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   herr_t status = 0;
   float* float_array;
   int* int_array;
-  char** char_array;
   size_t npoints = 0;
   herr_t ret = 0;
   string value = "";
@@ -1431,7 +1431,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   if (path != "")
 	  path += ":";
 
-  if (!status==0)
+  if (status!=0)
 	  switch (dclass) {
 	  case H5T_INTEGER:
 		  int_array = new int[(int)npoints];
@@ -1604,7 +1604,6 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
   hid_t s3_tid;
   myString s3[1024];
   hid_t stype;
-  myString myStr;
   size_t size;
   hid_t stid;
   hsize_t dims[25];
@@ -1883,7 +1882,6 @@ int metno::satimgh5::getAllValuesFromMap()
   for (map<string,string>::iterator p = hdf5map.begin(); p != hdf5map.end(); p++) {
     cerr << "Path: " << p->first << " Value: " << p->second << endl;
   }
-  typedef map<float,float> mapType;
   if (calibrationTable.size() > 0)
   {
 	  for (map<string,vector<float> >::iterator p = calibrationTable.begin(); p
@@ -2009,7 +2007,7 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
     }
   }
 
-  if (!hdf5map["projdef"].find("+") != string::npos) {
+  if (hdf5map["projdef"].find("+") == string::npos) {
     hdf5map["projdef"] = string("+") + hdf5map["projdef"];
     replace(hdf5map["projdef"], " ", " +");
   }
@@ -2570,37 +2568,6 @@ int metno::satimgh5::day_night(dihead sinfo)
 }
 
 /*
- * FUNCTION:
- * JulianDay
- *
- * PURPOSE:
- * Computes Julian day number (day of the year).
- *
- * RETURN VALUES:
- * Returns the Julian Day.
- */
-
-int metno::satimgh5::JulianDay(usi yy, usi mm, usi dd)
-{
-  static unsigned short int daytab[2][13]= { { 0, 31, 28, 31, 30, 31, 30, 31,
-      31, 30, 31, 30, 31 },
-      { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 } };
-  unsigned short int i, leap;
-  int dn;
-
-  leap = 0;
-  if ((yy%4 == 0 && yy%100 != 0) || (yy%400 == 0))
-    leap=1;
-
-  dn = (int) dd;
-  for (i=1; i<mm; i++) {
-    dn += (int) daytab[leap][i];
-  }
-
-  return (dn);
-}
-
-/*
  * NAME:
  * selalg
  *
@@ -2643,7 +2610,7 @@ short metno::satimgh5::selalg(const dto& d, const ucs& upos, const float& hmax,
   /*
    * Decode day and time information for use in formulas.
    */
-  daynr = (float) JulianDay((int) d.yy, (int) d.mm, (int) d.dd);
+  daynr = (float) satimg::JulianDay((int) d.yy, (int) d.mm, (int) d.dd);
   gmttime = (float) d.ho+((float) d.mi/60.);
 
   theta0 = (2*Pi*daynr)/365;
@@ -2684,7 +2651,7 @@ short metno::satimgh5::selalg(const dto& d, const ucs& upos, const float& hmax,
      * Estimates zenith angle in the pixel.
      /read*/
     lat = gmttime+((longitude/radian)*0.0667);
-    hourangle = fabsf(lat-12.)*0.2618;
+    hourangle = std::abs(lat-12.)*0.2618;
 
     coszenith = (cos(latitude)*cos(hourangle)*cos(inclination))
     + (sin(latitude)*sin(inclination));

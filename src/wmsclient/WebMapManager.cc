@@ -31,13 +31,13 @@
 
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 #include "wmsclient/WebMapPlot.h"
 #include "wmsclient/WebMapUtilities.h"
 #include "wmsclient/WebMapSlippyOSM.h"
 #include "wmsclient/WebMapWMS.h"
 #include "wmsclient/WebMapWMTS.h"
 
-#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QNetworkAccessManager>

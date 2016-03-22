@@ -61,26 +61,28 @@
 #include <diSatManager.h>
 #include <diSatPlot.h>
 
-#include <puCtools/sleep.h>
-#include <puTools/miTime.h>
-#include <diLocalSetupParser.h>
-#include <diPrintOptions.h>
+#include "diLocalSetupParser.h"
+#include "diPrintOptions.h"
 #include <diImageIO.h>
 #include "diUtilities.h"
-#include <puTools/miSetupParser.h>
-#include <puTools/mi_boost_compatibility.hh>
+#include "miSetupParser.h"
 
 #include "vcross_v2/VcrossQtManager.h"
 #include "vcross_v2/VcrossQuickmenues.h"
 
-#include <diVprofManager.h>
-#include <diVprofOptions.h>
+#include "diVprofManager.h"
+#include "diVprofOptions.h"
 
-#include <diField/diFieldManager.h>
-#include <diField/diRectangle.h>
+#include "diField/diFieldManager.h"
+#include "diField/diRectangle.h"
 
-#include <diSpectrumManager.h>
-#include <diSpectrumOptions.h>
+#include "diSpectrumManager.h"
+#include "diSpectrumOptions.h"
+
+#include <puCtools/sleep.h>
+#include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miStringFunctions.h>
+#include <puTools/miTime.h>
 
 #include <boost/algorithm/string/join.hpp>
 

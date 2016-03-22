@@ -39,8 +39,10 @@
 #include "diPoint.h"
 #include "diUtilities.h"
 
-#include <diField/diMetConstants.h>
-#include <diField/VcrossUtil.h>
+#include "util/qstring_util.h"
+
+#include "diField/diMetConstants.h"
+#include "diField/VcrossUtil.h"
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>

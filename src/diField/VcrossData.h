@@ -155,7 +155,7 @@ public:
     : InventoryBase(id, unit) { }
 
   bool hasZAxis() const
-    { return mZAxis; }
+    { return !!mZAxis; }
   ZAxisData_cp zaxis() const
     { return mZAxis; }
   void setZAxis(ZAxisData_cp z)
@@ -163,7 +163,7 @@ public:
   virtual std::string dataType() const
     { return DATA_TYPE(); }
   static std::string DATA_TYPE();
-  
+
 private:
   ZAxisData_cp mZAxis;
 };

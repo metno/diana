@@ -53,16 +53,12 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
-using namespace std;
-using namespace satimg;
-
 namespace metno {
 class GeoTiff
 {
 public:
   // Functions
   //  short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
-  static int JulianDay(satimg::usi yy, satimg::usi mm, satimg::usi dd);
   static int day_night(const std::string& infile);
   static int read_diana(const std::string& infile, unsigned char *image[], int nchan,
 			int chan[], satimg::dihead& ginfo);

@@ -111,7 +111,6 @@ float unitConversion(float valueIn, const std::string& unitIn, const std::string
 
 // ########################################################################
 
-bool startsWith(const std::string& text, const std::string& start);
 bool isCommentLine(const std::string& line);
 bool nextline(std::istream& config, std::string& line);
 

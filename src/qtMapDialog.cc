@@ -49,6 +49,8 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.MapDialog"
 #include <miLogger/miLogging.h>
 

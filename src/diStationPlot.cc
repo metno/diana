@@ -38,6 +38,8 @@
 
 #include <QString>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.StationPlot"
 #include <miLogger/miLogging.h>
 

@@ -27,20 +27,22 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <diDrawingManager.h>
-#include <EditItems/drawingcomposite.h>
-#include <EditItems/drawingpolyline.h>
-#include <EditItems/drawingsymbol.h>
-#include <EditItems/drawingtext.h>
-#include <EditItems/itemgroup.h>
-#include <EditItems/kml.h>
-#include <EditItems/drawingstylemanager.h>
-#include "diGLPainter.h"
-#include <diPlotModule.h>
-#include <diLocalSetupParser.h>
+#include "diDrawingManager.h"
 
-#include <puTools/miSetupParser.h>
+#include "EditItems/drawingcomposite.h"
+#include "EditItems/drawingpolyline.h"
+#include "EditItems/drawingsymbol.h"
+#include "EditItems/drawingtext.h"
+#include "EditItems/itemgroup.h"
+#include "EditItems/kml.h"
+#include "EditItems/drawingstylemanager.h"
 #include "diCommonTypes.h"
+#include "diGLPainter.h"
+#include "diPlotModule.h"
+#include "diLocalSetupParser.h"
+#include "miSetupParser.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <set>
 
