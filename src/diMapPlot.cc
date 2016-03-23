@@ -39,6 +39,7 @@
 
 #include <cfloat>
 #include <fstream>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.MapPlot"
 #include <miLogger/miLogging.h>

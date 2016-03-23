@@ -18,7 +18,6 @@ libdiField_la_SOURCES = \
 	GridInventoryTypes.cc \
 	GridIO.cc \
 	GridCollection.cc \
-	TimeFilter.cc \
 	FimexSource.cc \
 	VcrossSource.cc \
 	VcrossData.cc \
@@ -53,7 +52,6 @@ noinst_HEADERS = \
 	GridDataKey.h \
 	GridIO.h \
 	GridCollection.h \
-	TimeFilter.h \
 	FimexSource.h \
 	VcrossSource.h \
 	VcrossData.h \

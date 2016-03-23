@@ -40,6 +40,7 @@
 
 #include <QString>
 #include <cmath>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.AnnotationPlot"
 #include <miLogger/miLogging.h>

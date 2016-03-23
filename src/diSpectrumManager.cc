@@ -40,13 +40,13 @@
 #include "diSpectrumData.h"
 #include "diSpectrumPlot.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 #include "vcross_v2/VcrossSetup.h"
 #include "vcross_v2/VcrossCollector.h"
 
 #include <diField/VcrossUtil.h>
 
 #include <puCtools/stat.h>
-#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
 

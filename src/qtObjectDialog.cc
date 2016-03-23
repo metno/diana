@@ -53,6 +53,7 @@
 #include <QGroupBox>
 
 #include <iomanip>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ObjectDialog"
 #include <miLogger/miLogging.h>

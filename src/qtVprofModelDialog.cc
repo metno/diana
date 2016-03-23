@@ -171,6 +171,7 @@ void VprofModelDialog::deleteAllClicked()
 {
   METLIBS_LOG_SCOPE();
   selectedModelsWidget->clear();
+  reftimeWidget->clear();
 }
 
 /*********************************************/

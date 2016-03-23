@@ -61,6 +61,8 @@
 
 #include <boost/foreach.hpp>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.FieldDialog"
 #include <miLogger/miLogging.h>
 

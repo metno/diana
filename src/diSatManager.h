@@ -34,7 +34,7 @@
 #include "diCommonTypes.h"
 
 #include <puCtools/stat.h>
-#include <diField/TimeFilter.h>
+#include <puTools/TimeFilter.h>
 
 #include <map>
 #include <set>
@@ -57,7 +57,7 @@ public:
   struct subProdInfo {
     std::vector<std::string> pattern;
     std::vector<bool> archive;
-    std::vector<TimeFilter> filter;
+    std::vector<miutil::TimeFilter> filter;
     std::string formattype; //holds mitiff or hdf5
     std::string metadata;
     std::string proj4string;

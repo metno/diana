@@ -40,10 +40,13 @@
 #include "diShapeObject.h"
 #include "diUtilities.h"
 
+#include "util/string_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.WeatherObjects"
 #include <miLogger/miLogging.h>

@@ -1,16 +1,16 @@
-diana (3.40.0~a1-1) unstable; urgency=low
+diana-3.40 (3.40.0~a1-1) unstable; urgency=low
 
    * started next version
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 12 Nov 2015 09:00:09 +0100
 
-diana (3.39.2-1) unstable; urgency=low
+diana-3.39 (3.39.2-1) unstable; urgency=low
 
    * bugfix + cleanup OpenGL tesselation 
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Nov 2015 16:54:24 +0100
 
-diana (3.39.1-1) unstable; urgency=low
+diana-3.39 (3.39.1-1) unstable; urgency=low
 
   * main_gui: bad use of command line options or bad setupfile -> return 0
   * FieldPlot: Bugfix: winddirection on southern hemisphere
@@ -20,7 +20,7 @@ diana (3.39.1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 04 Nov 2015 15:29:04 +0100
 
-diana (3.39.0-1) unstable; urgency=low
+diana-3.39 (3.39.0-1) unstable; urgency=low
 
   * Fields: Accept reference time in the path, not just in the filename
   * bdiana: reset time for each wms request
@@ -28,13 +28,13 @@ diana (3.39.0-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Oct 2015 12:33:04 +0100
 
-diana (3.39.0~rc11-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc11-1) unstable; urgency=low
 
   * Drawing/Edit: New dialog
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 28 Oct 2015 10:09:02 +0100
 
-diana (3.39.0~rc10-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc10-1) unstable; urgency=low
 
   * Edit: Added support for changing the font size in text objects
   * FieldFunctions: vesselIcing
@@ -44,27 +44,27 @@ diana (3.39.0~rc10-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 20 Oct 2015 14:53:29 +0200
 
-diana (3.39.0~rc9-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc9-1) unstable; urgency=low
 
   * MapDialog: bugfix - accept old lat/lon syntax
   * Edit: basic support for raising and lowering objects in the display order
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 Oct 2015 09:28:02 +0200
 
-diana (3.39.0~rc8-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc8-1) unstable; urgency=low
 
   * MapDialog: accept old lat/lon syntax
   * Edit: Bugfix - repaint after zooming
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 14 Oct 2015 20:13:29 +0200
 
-diana (3.39.0~rc7-2) unstable; urgency=low
+diana-3.39 (3.39.0~rc7-2) unstable; urgency=low
 
   * EditMode: Manage editing mode using the edit manager's editing state
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Oct 2015 15:06:12 +0200
 
-diana (3.39.0~rc7-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc7-1) unstable; urgency=low
 
   * FieldDialog: do not add dim=1 in putOkString
   * ComplexSymbolPlot::drawFlag - bugfix + simplification
@@ -75,7 +75,7 @@ diana (3.39.0~rc7-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Oct 2015 10:26:55 +0200
 
-diana (3.39.0~rc6-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc6-1) unstable; urgency=low
 
   * FieldEdit - Bugfix drawCircle
   * bdiana - Fixed uninitialised member variable that broke time handling in bdiana
@@ -83,7 +83,7 @@ diana (3.39.0~rc6-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 05 Oct 2015 13:01:53 +0200
 
-diana (3.39.0~rc5-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc5-1) unstable; urgency=low
 
   * FieldDialog bugfix - ignore vcoord if no of vlevels=1
   * QuickMenu read/write files to homedir ($HOME/.diana)
@@ -91,7 +91,7 @@ diana (3.39.0~rc5-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 29 Sep 2015 12:01:05 +0200
 
-diana (3.39.0~rc4-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc4-1) unstable; urgency=low
 
   * Drawing/Edit Improved selection handeling and tooltips
   * RasterPlot Improved performance
@@ -99,7 +99,7 @@ diana (3.39.0~rc4-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 23 Sep 2015 14:25:05 +0200
 
-diana (3.39.0~rc3-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc3-1) unstable; urgency=low
 
   * Edit Made a first attempt to do minute-accuracy adjustment of points.
   * Edit Added tooltips to show the positions of points in polylines as they are placed.
@@ -110,45 +110,45 @@ diana (3.39.0~rc3-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 08 Sep 2015 15:42:45 +0200
 
-diana (3.39.0~rc2-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc2-1) unstable; urgency=low
 
   * Added infrastructure to allow the vcross manager to start time graph symbol placement.
   * Fields - bugfix FIELD string
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Sep 2015 13:28:13 +0200
 
-diana (3.39.0~rc1-1) unstable; urgency=low
+diana-3.39 (3.39.0~rc1-1) unstable; urgency=low
 
   * fimex - 0.59.1-1
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 01 Sep 2015 09:22:15 +0200
 
-diana (3.39.0~a4-1) unstable; urgency=low
+diana-3.39 (3.39.0~a4-1) unstable; urgency=low
 
   * Edit - shortcuts, multiple selection, etc
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 27 Aug 2015 11:40:04 +0200
 
-diana (3.39.0~a3-1) unstable; urgency=low
+diana-3.39 (3.39.0~a3-1) unstable; urgency=low
 
   * vcross - shortcuts
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 14 Aug 2015 11:57:50 +0200
 
-diana (3.39.0~a2-2) unstable; urgency=low
+diana-3.39 (3.39.0~a2-2) unstable; urgency=low
 
   * Bugfix vcross styling
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 13 Aug 2015 13:02:13 +0200
 
-diana (3.39.0~a2-1) unstable; urgency=low
+diana-3.39 (3.39.0~a2-1) unstable; urgency=low
 
   * diField and miRaster included in the diana code
   * drawing - save/reload improved
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 12 Aug 2015 12:34:22 +0200
 
-diana (3.39.0~a1-1) unstable; urgency=low
+diana-3.39 (3.39.0~a1-1) unstable; urgency=low
 
   * reorganization of painting - introduce DiCanvas, DiPainter and DiGLCanvas, DiGLPainter interfaces
   * drawing-refactoring
@@ -160,20 +160,20 @@ diana (3.39.0~a1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 24 Jun 2015 12:34:53 +0200
 
-diana (3.38.2-1) unstable; urgency=low
+diana-3.38 (3.38.2-1) unstable; urgency=low
 
   * Vprof: bugfix - only use crossections with length 1
   * ObsBufr: check vector size before access
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 18 Jun 2015 10:39:34 +0200
 
-diana (3.38.1-1) unstable; urgency=low
+diana-3.38 (3.38.1-1) unstable; urgency=low
 
   * FieldPlot: Bugfix - setAutoStep
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 08 Jun 2015 14:01:30 +0200
 
-diana (3.38.0-1) unstable; urgency=low
+diana-3.38 (3.38.0-1) unstable; urgency=low
 
   * bugfix: utm projection
   * metlibs-difield-dev 5.7.1
@@ -181,19 +181,19 @@ diana (3.38.0-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 03 Jun 2015 15:56:44 +0200
 
-diana (3.38.0~rc4-1) unstable; urgency=low
+diana-3.38 (3.38.0~rc4-1) unstable; urgency=low
 
   * Edit: Bugfix - Keep timestamp when using modelfields
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 May 2015 13:59:07 +0200
 
-diana (3.38.0~rc3-2) unstable; urgency=low
+diana-3.38 (3.38.0~rc3-2) unstable; urgency=low
 
   * Deleted ANAborders.TEST by mistake
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 27 May 2015 15:46:42 +0200
 
-diana (3.38.0~rc3-1) unstable; urgency=low
+diana-3.38 (3.38.0~rc3-1) unstable; urgency=low
 
   * vcross: border around example arrows and marker labels
   * canvas: init bdiana raster image with transparent fill
@@ -201,13 +201,13 @@ diana (3.38.0~rc3-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 May 2015 13:19:01 +0200
 
-diana (3.38.0~rc2-1) unstable; urgency=low
+diana-3.38 (3.38.0~rc2-1) unstable; urgency=low
 
   * Avoid projection warnings. 
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 20 May 2015 10:06:05 +0200
 
-diana (3.38.0~rc1-1) unstable; urgency=low
+diana-3.38 (3.38.0~rc1-1) unstable; urgency=low
 
   * Drawing: Added support for reading description elements in KML files
   * ObsPlot: possible to turn off annotations from asciiObs
@@ -218,7 +218,7 @@ diana (3.38.0~rc1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 12 May 2015 09:21:25 +0200
 
-diana (3.38.0~a2-1) unstable; urgency=low
+diana-3.38 (3.38.0~a2-1) unstable; urgency=low
 
   * wms client prototype
   * Drawing: Support highlighting of drawing items outside editing mode.
@@ -227,7 +227,7 @@ diana (3.38.0~a2-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 27 Apr 2015 12:24:42 +0200
 
-diana (3.38.0~a1-1) unstable; urgency=low
+diana-3.38 (3.38.0~a1-1) unstable; urgency=low
 
   * FieldFunctions - new functions with several forecasthours
   * ObsPlot - more general plotList
@@ -236,14 +236,14 @@ diana (3.38.0~a1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Mar 2015 08:55:50 +0100
 
-diana (3.37.0~rc9-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc9-1) unstable; urgency=low
 
   * vcross - several fixes
   * vprof - check that source exists before using it, and init stations in bdiana
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 02 Mar 2015 11:53:54 +0100
 
-diana (3.37.0~rc8-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc8-1) unstable; urgency=low
 
   * ObsBufr: bugfix uninitialized variables
   * vcross: reset zoom if changing vertical axis unit
@@ -251,7 +251,7 @@ diana (3.37.0~rc8-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 13 Feb 2015 10:18:11 +0100
 
-diana (3.37.0~rc7-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc7-1) unstable; urgency=low
 
   * vcross: horizontal grid lines
   * vcross: layer buttons show palette / arcs and line colour
@@ -264,7 +264,7 @@ diana (3.37.0~rc7-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 11 Feb 2015 12:04:15 +0100
 
-diana (3.37.0~rc6-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc6-1) unstable; urgency=low
 
   * Vertical crossections referencetime
   * Vertical profiles referencetime
@@ -273,27 +273,27 @@ diana (3.37.0~rc6-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 05 Feb 2015 12:39:39 +0100
 
-diana (3.37.0~rc5-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc5-1) unstable; urgency=low
 
   * metlibs-difield-dev 5.5.1
   * fimex 0.56-0
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 28 Jan 2015 14:37:01 +0100
 
-diana (3.37.0~rc4-2) unstable; urgency=low
+diana-3.37 (3.37.0~rc4-2) unstable; urgency=low
 
   * Bugfix: FieldEdit with files without timeaxis
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 16 Dec 2014 12:28:32 +0100
 
-diana (3.37.0~rc4-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc4-1) unstable; urgency=low
 
   * Results from measurementsdialog written to console/file
   * FieldEdit with files without timeaxis
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 15 Dec 2014 13:22:31 +0100
 
-diana (3.37.0~rc3-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc3-1) unstable; urgency=low
 
   * LogFileIO class, use in DianaMainWindow::readLog and writeLog
   * VcrossInterface, used in DianaMainWindow
@@ -302,7 +302,7 @@ diana (3.37.0~rc3-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 08 Dec 2014 11:08:35 +0100
 
-diana (3.37.0~rc2-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc2-1) unstable; urgency=low
 
   * Vertical crossections: new gui
   * bugfix: vprof and showalterindex
@@ -310,7 +310,7 @@ diana (3.37.0~rc2-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 24 Nov 2014 14:17:16 +0100
 
-diana (3.37.0~rc1-1) unstable; urgency=low
+diana-3.37 (3.37.0~rc1-1) unstable; urgency=low
 
   * several fixes
   * using metlibs-difield-dev=5.3.0
@@ -318,26 +318,26 @@ diana (3.37.0~rc1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 24 Nov 2014 08:47:23 +0100
 
-diana (3.37.0~a7-1) unstable; urgency=low
+diana-3.37 (3.37.0~a7-1) unstable; urgency=low
 
   * Bugfix dewpoint_temperture
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 13 Nov 2014 02:43:37 +0100
 
-diana (3.37.0~a6-1) unstable; urgency=low
+diana-3.37 (3.37.0~a6-1) unstable; urgency=low
 
   * Bugfix - vcorr/vprof pressure levels
   * Bugfix - new drawing tool
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 11 Nov 2014 17:23:08 +0100
 
-diana (3.37.0~a5-1) unstable; urgency=low
+diana-3.37 (3.37.0~a5-1) unstable; urgency=low
 
   * new upstream version
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 04 Nov 2014 13:59:59 +0100
 
-diana (3.37.0~a4-1) unstable; urgency=low
+diana-3.37 (3.37.0~a4-1) unstable; urgency=low
 
   * FieldFunctions - typo
   * Vertical profiles - expanding filenames
@@ -345,26 +345,26 @@ diana (3.37.0~a4-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 28 Oct 2014 16:03:51 +0100
 
-diana (3.37.0~a3-1) unstable; urgency=low
+diana-3.37 (3.37.0~a3-1) unstable; urgency=low
 
   * Vertical profiles - dynamic profiles using station list
   * SpectrumData - more parameters
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 21 Oct 2014 15:26:55 +0200
 
-diana (3.37.0~a2-1) unstable; urgency=low
+diana-3.37 (3.37.0~a2-1) unstable; urgency=low
 
   * Bugfix - FieldFunctions
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 15 Oct 2014 15:16:32 +0200
 
-diana (3.37.0~a1-2) unstable; urgency=low
+diana-3.37 (3.37.0~a1-2) unstable; urgency=low
 
   * SpectrumData - removed cerr
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 14 Oct 2014 13:59:54 +0200
 
-diana (3.37.0~a1-1) unstable; urgency=low
+diana-3.37 (3.37.0~a1-1) unstable; urgency=low
 
   * Vertical crossections-  Several fixes
   * Vertical profiles -  Plots all profiles close to the selected point
@@ -372,62 +372,62 @@ diana (3.37.0~a1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 14 Oct 2014 12:29:53 +0200
 
-diana (3.36.0-2) unstable; urgency=low
+diana-3.36 (3.36.0-2) unstable; urgency=low
 
   * Bugfix utf-8
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 10 Sep 2014 14:42:45 +0200
 
-diana (3.36.0-1) unstable; urgency=low
+diana-3.36 (3.36.0-1) unstable; urgency=low
 
   * Version 3.36.0
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 04 Sep 2014 14:03:56 +0200
 
-diana (3.36.0~rc6-1) unstable; urgency=low
+diana-3.36 (3.36.0~rc6-1) unstable; urgency=low
 
   * FieldEdit Bugfix: problems with continue to edit fields that have been edited before (same
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 02 Sep 2014 12:24:41 +0200
 
-diana (3.36.0~rc5-2) unstable; urgency=low
+diana-3.36 (3.36.0~rc5-2) unstable; urgency=low
 
   * using metlibs-difield-dev=5.2.7-4
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 29 Aug 2014 13:42:50 +0200
 
-diana (3.36.0~rc5-1) unstable; urgency=low
+diana-3.36 (3.36.0~rc5-1) unstable; urgency=low
 
   * FieldFunctions: using % in probability function
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 Aug 2014 17:56:36 +0200
 
-diana (3.36.0~rc4-1) unstable; urgency=low
+diana-3.36 (3.36.0~rc4-1) unstable; urgency=low
 
   * new probability function - probability_between
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 Aug 2014 11:03:54 +0200
 
-diana (3.36.0~rc3-2) unstable; urgency=low
+diana-3.36 (3.36.0~rc3-2) unstable; urgency=low
 
   * reverted diAnnotationPlot
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 21 Aug 2014 09:01:31 +0200
 
-diana (3.36.0~rc3-1) unstable; urgency=low
+diana-3.36 (3.36.0~rc3-1) unstable; urgency=low
 
   * vcross: initial support for EditItemManager draw/edit/remove
   * several bugfixes
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 21 Aug 2014 07:21:00 +0200
 
-diana (3.36.0~rc2-1) unstable; urgency=low
+diana-3.36 (3.36.0~rc2-1) unstable; urgency=low
 
   * Bugfix: ObsAscii
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Aug 2014 11:56:12 +0200
 
-diana (3.36.0~rc1-1) unstable; urgency=low
+diana-3.36 (3.36.0~rc1-1) unstable; urgency=low
 
   * probability functions
   * Vprof: timeStepSpinnBox
@@ -435,45 +435,45 @@ diana (3.36.0~rc1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 11 Aug 2014 10:59:54 +0200
 
-diana (3.35.5-1) unstable; urgency=low
+diana-3.35 (3.35.5-1) unstable; urgency=low
 
   * FieldEdit: autoremove old files
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 19 Jun 2014 22:45:47 +0200
 
-diana (3.35.4-2) unstable; urgency=low
+diana-3.35 (3.35.4-2) unstable; urgency=low
 
   * bdiana: bugfix rotate symbols
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 18 Jun 2014 19:49:39 +0200
 
-diana (3.35.4-1) unstable; urgency=low
+diana-3.35 (3.35.4-1) unstable; urgency=low
 
   * Vertical profiles: bugfix significant wind
   * bdiana: bugfix rotate symbols
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 18 Jun 2014 15:04:14 +0200
 
-diana (3.35.3-1) unstable; urgency=low
+diana-3.35 (3.35.3-1) unstable; urgency=low
 
   * Vertical profiles: bugfix, now accepting point outside the model area
   * FieldEdit: Bugfix write permissions
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 17 Jun 2014 14:41:33 +0200
 
-diana (3.35.2-1) unstable; urgency=low
+diana-3.35 (3.35.2-1) unstable; urgency=low
 
   * Bugfix vcross
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 13 Jun 2014 22:00:46 +0200
 
-diana (3.35.1-2) unstable; urgency=low
+diana-3.35 (3.35.1-2) unstable; urgency=low
 
   * bdiana: Init miTime with default language from setup
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 10 Jun 2014 15:22:26 +0200
 
-diana (3.35.1-1) unstable; urgency=low
+diana-3.35 (3.35.1-1) unstable; urgency=low
 
   * vcross: reduce margin in vcross window
   * vcross: reset horizontal zoom when changing cs
@@ -482,45 +482,45 @@ diana (3.35.1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Sat, 07 Jun 2014 09:43:16 +0200
 
-diana (3.35.0-15) unstable; urgency=low
+diana-3.35 (3.35.0-15) unstable; urgency=low
 
   * Vcross: clipping fixed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 01 Jun 2014 20:53:12 +0200
 
-diana (3.35.0-14) unstable; urgency=low
+diana-3.35 (3.35.0-14) unstable; urgency=low
 
   * Bugfixes
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 27 May 2014 07:05:11 +0200
 
-diana (3.35.0-13) unstable; urgency=low
+diana-3.35 (3.35.0-13) unstable; urgency=low
 
   * FieldEdit: Added filenames in the list of old products in the dialog
   * Removed LoginDialog
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 May 2014 15:20:37 +0200
 
-diana (3.35.0-12) unstable; urgency=low
+diana-3.35 (3.35.0-12) unstable; urgency=low
 
   * Bugfix vcross: locationData and topography
   * Bugfix edit: permissions
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 May 2014 08:27:26 +0200
 
-diana (3.35.0-11) unstable; urgency=low
+diana-3.35 (3.35.0-11) unstable; urgency=low
 
   * new debian revision
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 18 May 2014 20:59:51 +0200
 
-diana (3.35.0-10) unstable; urgency=low
+diana-3.35 (3.35.0-10) unstable; urgency=low
 
   * new debian revision
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 13 May 2014 19:59:48 +0200
 
-diana (3.35.0-9) unstable; urgency=low
+diana-3.35 (3.35.0-9) unstable; urgency=low
 
   * Vcross - several improvements
   * Drawing 
@@ -529,51 +529,51 @@ diana (3.35.0-9) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 13 May 2014 07:24:49 +0200
 
-diana (3.35.0-8) unstable; urgency=low
+diana-3.35 (3.35.0-8) unstable; urgency=low
 
   * Vertical crossections -  New version, do not work with old vcdata-files
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 29 Apr 2014 09:13:10 +0200
 
-diana (3.35.0-7) unstable; urgency=low
+diana-3.35 (3.35.0-7) unstable; urgency=low
 
   * Warnig about no production in EditNewDialog
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 07 Apr 2014 09:18:36 +0200
 
-diana (3.35.0-6) unstable; urgency=low
+diana-3.35 (3.35.0-6) unstable; urgency=low
 
   * drawing
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 01 Apr 2014 14:36:59 +0200
 
-diana (3.35.0-5) unstable; urgency=low
+diana-3.35 (3.35.0-5) unstable; urgency=low
 
   * New vessel_icing method
   * EditDialog - fixed save buttons
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 26 Mar 2014 15:20:40 +0100
 
-diana (3.35.0-4) unstable; urgency=low
+diana-3.35 (3.35.0-4) unstable; urgency=low
 
   * Vprof - using new vcross files
   * Geotiff - support geographic projection
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 20 Mar 2014 12:50:40 +0100
 
-diana (3.35.0-3) unstable; urgency=low
+diana-3.35 (3.35.0-3) unstable; urgency=low
 
   * Bugfix: Editmanager
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 07 Mar 2014 14:32:24 +0100
 
-diana (3.35.0-2) unstable; urgency=low
+diana-3.35 (3.35.0-2) unstable; urgency=low
 
   * Bugfix: typo edit control file
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 05 Mar 2014 10:07:56 +0100
 
-diana (3.35.0-1) unstable; urgency=low
+diana-3.35 (3.35.0-1) unstable; urgency=low
 
   * Vertical_profiles: Reading data from NetCDF
   * Products: Diana no longer use dianadb to save products 
@@ -581,83 +581,83 @@ diana (3.35.0-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 03 Mar 2014 14:56:52 +0100
 
-diana (3.34.8-1) unstable; urgency=low
+diana-3.34 (3.34.8-1) unstable; urgency=low
 
   * Bugfix: FieldFunctions::sumFields (Removed pragma omp parallel)
-	
+
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 14 Feb 2014 15:04:46 +0100
 
-diana (3.34.7-1) unstable; urgency=low
+diana-3.34 (3.34.7-1) unstable; urgency=low
 
   * Bugfix: reference time
   * Error dialog
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 11 Feb 2014 13:22:08 +0100
 
-diana (3.34.6-1) unstable; urgency=low
+diana-3.34 (3.34.6-1) unstable; urgency=low
 
   * Time control -  Bugfix: animation speed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 05 Feb 2014 10:04:08 +0100
 
-diana (3.34.5-1) unstable; urgency=low
+diana-3.34 (3.34.5-1) unstable; urgency=low
 
   * Fields - Bugfix - file changed check
   * Time control - Bugfix: update time label
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 15 Jan 2014 15:31:02 +0100
 
-diana (3.34.4-1) unstable; urgency=low
+diana-3.34 (3.34.4-1) unstable; urgency=low
 
   * Bugfixes: vcross version 1
   * ObjectDialog: timediff increased
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 13 Jan 2014 10:40:16 +0100
 
-diana (3.34.3-1) unstable; urgency=low
+diana-3.34 (3.34.3-1) unstable; urgency=low
 
   * Bugfix: diField - updating ReferenceTimes of sources with wildcards
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 08 Jan 2014 14:23:21 +0100
 
-diana (3.34.2-2) unstable; urgency=low
+diana-3.34 (3.34.2-2) unstable; urgency=low
 
   * news
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Dec 2013 10:10:49 +0100
 
-diana (3.34.2-1) unstable; urgency=low
+diana-3.34 (3.34.2-1) unstable; urgency=low
 
   * Bugfix: qsocket - negative lat/lon values crashed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Dec 2013 09:04:32 +0100
 
-diana (3.34.1-1) unstable; urgency=low
+diana-3.34 (3.34.1-1) unstable; urgency=low
 
   * Bugfixes
   * Using metlibs 4.12.4
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 11 Dec 2013 13:34:06 +0100
 
-diana (3.34.0-4) unstable; urgency=low
+diana-3.34 (3.34.0-4) unstable; urgency=low
 
   * Bugfix: colours of WeatherAreas
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 10 Dec 2013 10:35:29 +0100
 
-diana (3.34.0-3) unstable; urgency=low
+diana-3.34 (3.34.0-3) unstable; urgency=low
 
   * new debian revision
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Dec 2013 11:14:32 +0100
 
-diana (3.34.0-2) unstable; urgency=low
+diana-3.34 (3.34.0-2) unstable; urgency=low
 
   * Bugfix: colours of WeatherAreas
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Dec 2013 11:12:03 +0100
 
-diana (3.34.0-1) unstable; urgency=low
+diana-3.34 (3.34.0-1) unstable; urgency=low
 
   * Logger: default properties file added
   * Merge from SMHI
@@ -665,20 +665,20 @@ diana (3.34.0-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 06 Dec 2013 13:16:11 +0100
 
-diana (3.34.0~rc2-1) unstable; urgency=low
+diana-3.34 (3.34.0~rc2-1) unstable; urgency=low
 
   * Merge from SMHI
   * drawing mode
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 29 Nov 2013 14:16:17 +0100
 
-diana (3.34.0~rc1-2) unstable; urgency=low
+diana-3.34 (3.34.0~rc1-2) unstable; urgency=low
 
   * Remove cerr
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 25 Nov 2013 09:57:32 +0100
 
-diana (3.34.0~rc1-1) unstable; urgency=low
+diana-3.34 (3.34.0~rc1-1) unstable; urgency=low
 
   * New vertical crossections
   * New drawing mode
@@ -686,25 +686,25 @@ diana (3.34.0~rc1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 25 Nov 2013 08:06:40 +0100
 
-diana (3.34.0~a2-3) unstable; urgency=low
+diana-3.34 (3.34.0~a2-3) unstable; urgency=low
 
   * postinst fixed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Nov 2013 12:03:25 +0100
 
-diana (3.34.0~a2-2) unstable; urgency=low
+diana-3.34 (3.34.0~a2-2) unstable; urgency=low
 
   * postinst fixed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Nov 2013 11:02:13 +0100
 
-diana (3.34.0~a2-1) unstable; urgency=low
+diana-3.34 (3.34.0~a2-1) unstable; urgency=low
 
   * QuickMenus: Bugfix
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Nov 2013 07:00:10 +0100
 
-diana (3.34.0~a1-1) unstable; urgency=low
+diana-3.34 (3.34.0~a1-1) unstable; urgency=low
 
   * Vertical crossections: New version TEST
   * Fields Using vertical type, not name of vertical axis, to sort fields
@@ -712,69 +712,69 @@ diana (3.34.0~a1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 07 Nov 2013 13:46:39 +0100
 
-diana (3.33.1-1) unstable; urgency=low
+diana-3.33 (3.33.1-1) unstable; urgency=low
 
   * Bugfix: plotFrame
   * Allow dynamic varibles with empty values
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 22 Oct 2013 07:34:23 +0200
 
-diana (3.33.0-6) unstable; urgency=low
+diana-3.33 (3.33.0-6) unstable; urgency=low
 
   * with postinst :-)
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Oct 2013 18:44:18 +0200
 
-diana (3.33.0-5) unstable; urgency=low
+diana-3.33 (3.33.0-5) unstable; urgency=low
 
   * reverted change in postinst
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Oct 2013 16:25:22 +0200
 
-diana (3.33.0-4) unstable; urgency=low
+diana-3.33 (3.33.0-4) unstable; urgency=low
 
   * postinst changed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 10 Oct 2013 14:34:31 +0200
 
-diana (3.33.0-3) unstable; urgency=low
+diana-3.33 (3.33.0-3) unstable; urgency=low
 
   * fixing news
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 08 Sep 2013 21:40:07 +0200
 
-diana (3.33.0-2) unstable; urgency=low
+diana-3.33 (3.33.0-2) unstable; urgency=low
 
   * no change
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 27 Aug 2013 09:56:42 +0200
 
-diana (3.33.0-1) unstable; urgency=low
+diana-3.33 (3.33.0-1) unstable; urgency=low
 
   * bdiana: support settime=current/nowtime 
   * Bugfix: plottype=wind_colour
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 26 Aug 2013 15:14:29 +0200
 
-diana (3.33.0~rc8-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc8-1) unstable; urgency=low
 
   * New PlotOption: ignore_times - used in bdiana (wms)
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 20 Aug 2013 16:03:39 +0200
 
-diana (3.33.0~rc7-2) unstable; urgency=low
+diana-3.33 (3.33.0~rc7-2) unstable; urgency=low
 
   * Using metlibs 4.11.6-1
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 Aug 2013 12:54:35 +0200
 
-diana (3.33.0~rc7-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc7-1) unstable; urgency=low
 
   * Bugfix: computed parameters 
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 18 Aug 2013 22:14:54 +0200
 
-diana (3.33.0~rc6-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc6-1) unstable; urgency=low
 
   * Bugfix: Computed parameters from eps members
   * Decoding of hybrid parameters (ap,b) from AROME_Norway
@@ -783,7 +783,7 @@ diana (3.33.0~rc6-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 15 Aug 2013 14:28:01 +0200
 
-diana (3.33.0~rc5-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc5-1) unstable; urgency=low
 
   * Using metlibs 4.11.4-1
   * Using fimex 0.47
@@ -793,7 +793,7 @@ diana (3.33.0~rc5-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Aug 2013 21:01:06 +0200
 
-diana (3.33.0~rc4-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc4-1) unstable; urgency=low
 
   * Disabled resampeling of contour plotting
   * New PlotOption: maxDiagonalInMeters
@@ -804,7 +804,7 @@ diana (3.33.0~rc4-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 06 Aug 2013 19:53:12 +0200
 
-diana (3.33.0~rc2-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc2-1) unstable; urgency=low
 
   * Variables with zaxis with one level: ignore zaxis
   * Use qt mouse- and keyboardevents
@@ -813,19 +813,19 @@ diana (3.33.0~rc2-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 25 Jun 2013 12:06:01 +0200
 
-diana (3.33.0~rc1-1) unstable; urgency=low
+diana-3.33 (3.33.0~rc1-1) unstable; urgency=low
 
   * Adjustments necessary in order to use AROME parameter and axis names
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 21 Jun 2013 14:42:54 +0200
 
-diana (3.32.7-2) unstable; urgency=low
+diana-3.32 (3.32.7-2) unstable; urgency=low
 
   * bdiana
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 07 May 2013 07:03:27 +0200
 
-diana (3.32.7-1) unstable; urgency=low
+diana-3.32 (3.32.7-1) unstable; urgency=low
 
   * Bugfix: Significant weather fronts
   * Bugfix: UTM projection 
@@ -835,13 +835,13 @@ diana (3.32.7-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 06 May 2013 14:53:36 +0200
 
-diana (3.32.6-1) unstable; urgency=low
+diana-3.32 (3.32.6-1) unstable; urgency=low
 
   * he wms clients did not accept metadata, temporarily removed until clients are fixed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 29 Apr 2013 20:21:30 +0200
 
-diana (3.32.5-1) unstable; urgency=low
+diana-3.32 (3.32.5-1) unstable; urgency=low
 
   * Bugfix: profet
   * Bugfix: vertical level and old syntax 
@@ -851,7 +851,7 @@ diana (3.32.5-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 23 Apr 2013 15:16:57 +0200
 
-diana (3.32.4-1) unstable; urgency=low
+diana-3.32 (3.32.4-1) unstable; urgency=low
 
   * Bugfix: log.line.values
   * Bugfix: vertical level and old syntax 
@@ -861,7 +861,7 @@ diana (3.32.4-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 21 Apr 2013 20:25:37 +0200
 
-diana (3.32.3-1) unstable; urgency=low
+diana-3.32 (3.32.3-1) unstable; urgency=low
 
   * Bugfix profet
   * Bugfix connection to other applications (QImage)
@@ -870,7 +870,7 @@ diana (3.32.3-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 11 Apr 2013 17:28:17 +0200
 
-diana (3.32.2-1) unstable; urgency=low
+diana-3.32 (3.32.2-1) unstable; urgency=low
 
   * Several wms fixes
   * Using metlibs 4.10.4
@@ -878,7 +878,7 @@ diana (3.32.2-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Apr 2013 12:22:57 +0200
 
-diana (3.32.1-1) unstable; urgency=low
+diana-3.32 (3.32.1-1) unstable; urgency=low
 
   * check if file has changed before reading field
   * Using metlibs 4.10.0
@@ -889,62 +889,62 @@ diana (3.32.1-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 20 Mar 2013 13:13:02 +0100
 
-diana (3.32.0-2) unstable; urgency=low
+diana-3.32 (3.32.0-2) unstable; urgency=low
 
   * new debian revision
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 Feb 2013 12:54:14 +0100
 
-diana (3.32.0-1) unstable; urgency=low
+diana-3.32 (3.32.0-1) unstable; urgency=low
 
   * bdiana fixes
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 Feb 2013 10:16:15 +0100
 
-diana (3.31.3-1) unstable; urgency=low
+diana-3.31 (3.31.3-1) unstable; urgency=low
 
   * Fixed legend plotting and cropping in bdiana.
 
  -- David Boddie <david.boddie@met.no>  Tue, 05 Feb 2013 11:51:00 +0100
 
-diana (3.31.2-1) unstable; urgency=low
+diana-3.31 (3.31.2-1) unstable; urgency=low
 
   * Bugfix: field - changeModel
   * Bugfix: spectrum - changeTime
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 28 Jan 2013 07:47:15 +0100
 
-diana (3.31.1-1) unstable; urgency=low
+diana-3.31 (3.31.1-1) unstable; urgency=low
 
   * Bugfix: eps membersin quickMenus
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 22 Jan 2013 14:59:33 +0100
 
-diana (3.31.0-5) unstable; urgency=low
+diana-3.31 (3.31.0-5) unstable; urgency=low
 
   * -style=cleanlooks
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 16 Jan 2013 12:56:03 +0100
 
-diana (3.31.0-4) unstable; urgency=low
+diana-3.31 (3.31.0-4) unstable; urgency=low
 
   * -style cleanlooks
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 16 Jan 2013 09:50:19 +0100
 
-diana (3.31.0-3) unstable; urgency=low
+diana-3.31 (3.31.0-3) unstable; urgency=low
 
   * -style cleanlooks
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Jan 2013 21:21:37 +0100
 
-diana (3.31.0-2) unstable; urgency=low
+diana-3.31 (3.31.0-2) unstable; urgency=low
 
   * Something is wrong with 3.31.0-1, try once more
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Jan 2013 13:55:51 +0100
 
-diana (3.31.0-1) unstable; urgency=low
+diana-3.31 (3.31.0-1) unstable; urgency=low
 
   * Observations:  Possible to select only stations with wmo-number and/or good quality flag
   * Fields: Calculation of density of wind/vectors/values independent of projection
@@ -953,38 +953,38 @@ diana (3.31.0-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 11 Jan 2013 14:33:17 +0100
 
-diana (3.30.7-2) unstable; urgency=low
+diana-3.30 (3.30.7-2) unstable; urgency=low
 
   *  Multithread problems possibly solved by calling XInitThreads()
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Jan 2013 10:33:05 +0100
 
-diana (3.30.7-1) unstable; urgency=low
+diana-3.30 (3.30.7-1) unstable; urgency=low
 
   * Bugfixing + logfile in core mail
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Jan 2013 09:15:20 +0100
 
-diana (3.30.6-1) unstable; urgency=low
+diana-3.30 (3.30.6-1) unstable; urgency=low
 
   * Bugfix: Quickmenus, PlotOptions, MapDialog (logging)
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 12 Dec 2012 13:09:43 +0100
 
-diana (3.30.5-1) unstable; urgency=low
+diana-3.30 (3.30.5-1) unstable; urgency=low
 
   * Bugfix: statusPlotButtons
   * MySQL/postgres fixed
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 04 Dec 2012 15:51:51 +0100
 
-diana (3.30.4-1) unstable; urgency=low
+diana-3.30 (3.30.4-1) unstable; urgency=low
 
   * Bugfix: sigkart, vertical profiles
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 03 Dec 2012 10:36:29 +0100
 
-diana (3.30.3-1) unstable; urgency=low
+diana-3.30 (3.30.3-1) unstable; urgency=low
 
   * Fixed verticalProfiles 
   * Using metlibs with reverted postgres/mysql change
@@ -993,33 +993,33 @@ diana (3.30.3-1) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Nov 2012 13:29:31 +0100
 
-diana (3.30.2-3) unstable; urgency=low
+diana-3.30 (3.30.2-3) unstable; urgency=low
 
   * new debian revision
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Nov 2012 13:28:58 +0100
 
-diana (3.30.2-2) unstable; urgency=low
+diana-3.30 (3.30.2-2) unstable; urgency=low
 
   * Fixed Postscript and PDF rendering problems with observation plots.
 
  -- David Boddie <david.boddie@met.no>  Wed, 28 Nov 2012 16:05:40 +0100
 
-diana (3.30.1-1) unstable; urgency=low
+diana-3.30 (3.30.1-1) unstable; urgency=low
 
   * Write JSON legends in the same order as the plots that they describe.
   * Bugfix: PlotOption: density=-1. Do not use gridpoints close to border.
 
  -- David Boddie <david.boddie@met.no>  Tue, 20 Nov 2012 13:03:18 +0100
 
-diana (3.30.0-4) unstable; urgency=low
+diana-3.30 (3.30.0-4) unstable; urgency=low
 
   * Ensured that the output format and annotations flag are reset for
     each new plot.
 
  -- David Boddie <david.boddie@met.no>  Fri, 16 Nov 2012 13:13:36 +0100
 
-diana (3.30.0-3) unstable; urgency=low
+diana-3.30 (3.30.0-3) unstable; urgency=low
 
   * Fixed failonmissingdata handling in the case where no object plots
     were defined.
@@ -1028,156 +1028,156 @@ diana (3.30.0-3) unstable; urgency=low
 
  -- David Boddie <david.boddie@met.no>  Thu, 15 Nov 2012 12:18:13 +0100
 
-diana (3.30.0-2) unstable; urgency=low
+diana-3.30 (3.30.0-2) unstable; urgency=low
 
   * Fixed code introduced in 3.30.0~rc2-2 that broke the Diana build.
 
  -- David Boddie <david.boddie@met.no>  Wed, 14 Nov 2012 12:24:38 +0100
 
-diana (3.30.0-1) unstable; urgency=low
+diana-3.30 (3.30.0-1) unstable; urgency=low
 
   * Regenerated package with a new version number.
 
  -- David Boddie <david.boddie@met.no>  Wed, 14 Nov 2012 11:05:43 +0100
 
-diana (3.30.0~rc2-2) unstable; urgency=low
+diana-3.30 (3.30.0~rc2-2) unstable; urgency=low
 
   * diana-metno depends on bdiana, not diana-headless 
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 14:23:44 +0100
 
-diana (3.30.0~rc2-1) unstable; urgency=low
+diana-3.30 (3.30.0~rc2-1) unstable; urgency=low
 
   * using fimex 0.40
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 11:48:42 +0100
 
-diana (3.30.0~rc1-1) unstable; urgency=low
+diana-3.30 (3.30.0~rc1-1) unstable; urgency=low
 
   * merge from smhi
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 09:37:43 +0100
 
-diana (3.29.2-4) unstable; urgency=low
+diana-3.29 (3.29.2-4) unstable; urgency=low
 
   * made diana@METNO_SUFFIX@-common transition to diana-desktop
 
  -- Alexander Bürger <alexander.buerger@met.no>  Thu, 08 Nov 2012 08:49:00 +0200
 
-diana (3.29.2-3) unstable; urgency=low
+diana-3.29 (3.29.2-3) unstable; urgency=low
 
   * removed LANG=en_US from diana script
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 24 Oct 2012 10:55:12 +0200
 
-diana (3.29.2-2) unstable; urgency=low
+diana-3.29 (3.29.2-2) unstable; urgency=low
 
   * fixed conflicts
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 22 Oct 2012 09:28:45 +0200
 
-diana (3.29.2-1) unstable; urgency=low
+diana-3.29 (3.29.2-1) unstable; urgency=low
 
   * Bugfix in metlibs (4.7.0)
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 19 Oct 2012 13:32:30 +0200
 
-diana (3.29.1-1) unstable; urgency=low
+diana-3.29 (3.29.1-1) unstable; urgency=low
 
   * New version number
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 18 Oct 2012 09:57:33 +0200
 
-diana (3.29.0~rc5-2) unstable; urgency=low
+diana-3.29 (3.29.0~rc5-2) unstable; urgency=low
 
   * minor bugfixes
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Oct 2012 08:41:19 +0200
 
-diana (3.29.0~rc5-1) unstable; urgency=low
+diana-3.29 (3.29.0~rc5-1) unstable; urgency=low
 
   * minor bugfixes
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Oct 2012 08:40:30 +0200
 
-diana (3.29.0~rc4-4) unstable; urgency=low
+diana-3.29 (3.29.0~rc4-4) unstable; urgency=low
 
   * dependency fix
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 15:15:53 +0200
 
-diana (3.29.0~rc4-3) unstable; urgency=low
+diana-3.29 (3.29.0~rc4-3) unstable; urgency=low
 
   * diana-metno depends on dianaconfig-@PVERSION_MAJOR_DOT_MINOR@
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 14:49:54 +0200
 
-diana (3.29.0~rc4-2) unstable; urgency=low
+diana-3.29 (3.29.0~rc4-2) unstable; urgency=low
 
   * resampling in satPlot and FieldPlot
   * Call to getGridConversion removed 
   * using libemos-dev=000382+dfsg-metno1
-	
+
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 11:50:29 +0200
 
-diana (3.29.0~rc4-1) unstable; urgency=low
+diana-3.29 (3.29.0~rc4-1) unstable; urgency=low
 
   * bugfix metlibs/diField
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 01 Oct 2012 15:09:02 +0200
 
-diana (3.29.0~rc3-1) unstable; urgency=low
+diana-3.29 (3.29.0~rc3-1) unstable; urgency=low
 
   * new upstream version
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 28 Sep 2012 20:44:16 +0200
 
-diana (3.28.1~a1-8) unstable; urgency=low
+diana-3.28 (3.28.1~a1-8) unstable; urgency=low
 
   * removed some fixed version numbers in .install files
 
  -- Alexander Bürger <alexander.buerger@met.no>  Mon, 17 Sep 2012 15:32:01 +0200
 
-diana (3.28.1~a1-7) unstable; urgency=low
+diana-3.28 (3.28.1~a1-7) unstable; urgency=low
 
   * Added dependency package diana-metno-X.Y pulling in diana programs and
     met.no-specific configuration files to simplify installation at met.no.
 
  -- Alexander Bürger <alexander.buerger@met.no>  Mon, 17 Sep 2012 14:21:00 +0200
 
-diana (3.28.1~a1-6) unstable; urgency=low
+diana-3.28 (3.28.1~a1-6) unstable; urgency=low
 
   * Moved some files in /usr/share/dianab to new package diana-X.Y-common,
     shared with diana-headless-X.Y.
 
  -- Alexander Bürger <alexander.buerger@met.no>  Wed, 05 Sep 2012 16:21:00 +0200
 
-diana (3.28.1~a1-5) unstable; urgency=low
+diana-3.28 (3.28.1~a1-5) unstable; urgency=low
 
   * Moved bdiana from package diana-X.Y to diana-headless-X.Y which is
     built separately.
 
  -- Alexander Bürger <alexander.buerger@met.no>  Tue, 04 Sep 2012 16:51:00 +0200
 
-diana (3.28.1~a1-4) unstable; urgency=low
+diana-3.28 (3.28.1~a1-4) unstable; urgency=low
 
   * Updated version number in order to create a package for Ubuntu 12.04.
 
  -- David Boddie <david.boddie@met.no>  Tue, 10 Jul 2012 12:22:00 +0200
 
-diana (3.28.1~a1-3) unstable; urgency=low
+diana-3.28 (3.28.1~a1-3) unstable; urgency=low
 
   * include /etc/diana/setup*/ in update-alternatives
 
  -- Alexander Bürger <alexander.buerger@met.no>  Fri, 06 Jul 2012 14:49:33 +0200
 
-diana (3.28.1~a1-2) unstable; urgency=low
+diana-3.28 (3.28.1~a1-2) unstable; urgency=low
 
   * added update-alternative slave for diana.bin
 
  -- Alexander BÃ¼rger <alexander.buerger@met.no>  Thu, 05 Jul 2012 13:22:11 +0200
 
-diana (3.28.1~a1-1) unstable; urgency=low
+diana-3.28 (3.28.1~a1-1) unstable; urgency=low
 
   * simultaneous installation of multiple diana versions
   * versioned package names
@@ -1410,7 +1410,7 @@ diana-wms (3.27.1-2) lucid; urgency=low
 
  -- David Boddie <david.boddie@met.no>  Mon, 02 Apr 2012 14:20:00 +0200
 
-diana (3.28.0-ubuntu1) lucid; urgency=low
+diana-3.28 (3.28.0-ubuntu1) lucid; urgency=low
 
   * using fimex 0.37.1
   * using metlibs_trunk
@@ -1500,7 +1500,7 @@ diana-wms (3.27.0-1) lucid; urgency=low
 
  -- David Boddie <david.boddie@met.no>  Wed, 07 Mar 2012 14:06:00 +0100
 
-diana (3.27.4-ubuntu1) lucid; urgency=low
+diana-3.27 (3.27.4-ubuntu1) lucid; urgency=low
 
   * Observations - bugfix criterias
 
@@ -1516,13 +1516,13 @@ diana-test (3.28.0-ubuntu1) lucid; urgency=low
 
   * satellite - possible to reproject images
   * FieldEdit - Reading felt files with fimex, write felt files
-	      with static I/O functions in MetnoFieldFile
+    with static I/O functions in MetnoFieldFile
   * Using metlibs_trunk
   * Using libfimex-0.35.2
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 29 Feb 2012 12:18:56 +0100
 
-diana (3.27.3-ubuntu1) lucid; urgency=low
+diana-3.27 (3.27.3-ubuntu1) lucid; urgency=low
 
   * HQC - bugfix
 
@@ -1544,7 +1544,7 @@ diana-test (3.27.2-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Feb 2012 12:34:59 +0100
 
-diana (3.27.2-ubuntu1) lucid; urgency=low
+diana-3.27 (3.27.2-ubuntu1) lucid; urgency=low
 
   * New EPS parameter - cluster representative
   * Bugfix profet: computed fields (like FF) were not
@@ -1564,7 +1564,7 @@ diana-wms (3.27.0-0) lucid; urgency=low
 
  -- David Boddie <david.boddie@met.no>  Fri, 10 Feb 2012 13:22:00 +0100
 
-diana (3.27.1-ubuntu1) lucid; urgency=low
+diana-3.27 (3.27.1-ubuntu1) lucid; urgency=low
 
   * Minor fixes
 
@@ -1577,7 +1577,7 @@ diana-test (3.27.0-ubuntu5) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 31 Jan 2012 20:12:34 +0100
 
-diana (3.27.0-ubuntu1) lucid; urgency=low
+diana-3.27 (3.27.0-ubuntu1) lucid; urgency=low
 
   * Using metlibs_4.3
   * Using libfimex-0.35
@@ -1603,13 +1603,13 @@ diana-test (3.27.0-ubuntu3) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@.met.no>  Thu, 08 Dec 2011 14:38:58 +0100
 
-diana (3.26.4-ubuntu3) lucid; urgency=low
+diana-3.26 (3.26.4-ubuntu3) lucid; urgency=low
 
   * bdiana: default canvas changed to QGLPixelBuffer
 
  -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Mon, 28 Nov 2011 09:42:43 +0100
 
-diana (3.26.4-ubuntu2) lucid; urgency=low
+diana-3.26 (3.26.4-ubuntu2) lucid; urgency=low
 
   * using +towgs in all proj strings except old mitiff files.
   * Using metlibs_4.2
@@ -1617,14 +1617,14 @@ diana (3.26.4-ubuntu2) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@vpn-116-99.met.no>  Sat, 26 Nov 2011 16:42:14 +0100
 
-diana (3.26.4-ubuntu1) lucid; urgency=low
+diana-3.26 (3.26.4-ubuntu1) lucid; urgency=low
 
   * Bugfix:DifferenceField - plot string was not parsed correctly
   * Using metlibs_trunk (by mistake)
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 22 Nov 2011 13:54:05 +0100
 
-diana (3.26.3-ubuntu1) lucid; urgency=low
+diana-3.26 (3.26.3-ubuntu1) lucid; urgency=low
 
   * Bugfix: Ascii-observations - only observations from one file were used
   * Using metlibs_trunk (by mistake)
@@ -1659,31 +1659,31 @@ diana-wms (3.27.0-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 10 Oct 2011 12:14:43 +0200
 
-diana (3.26.2-ubuntu1) lucid; urgency=low
+diana-3.26 (3.26.2-ubuntu1) lucid; urgency=low
 
   * Bugfix: mark measurements/trajectory positions
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 09 Oct 2011 17:28:50 +0200
 
-diana (3.26.1-ubuntu2) lucid; urgency=low
+diana-3.26 (3.26.1-ubuntu2) lucid; urgency=low
 
   * Bugfix bdiana: vertical levels
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 27 Sep 2011 14:09:07 +0200
 
-diana (3.26.1-ubuntu1) lucid; urgency=low
+diana-3.26 (3.26.1-ubuntu1) lucid; urgency=low
 
   * Bugfix bdiana: translation from plot name to field name
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 27 Sep 2011 12:52:03 +0200
 
-diana (3.26.0-ubuntu2) lucid; urgency=low
+diana-3.26 (3.26.0-ubuntu2) lucid; urgency=low
 
   * Projections: datum fix removed
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 26 Sep 2011 10:39:04 +0200
 
-diana (3.26.0-ubuntu1) lucid; urgency=low
+diana-3.26 (3.26.0-ubuntu1) lucid; urgency=low
 
   * Using metlibs_4.2
   * Using libfimex-0.31-2
@@ -1789,7 +1789,7 @@ diana-wms (3.26.0-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 18 Aug 2011 09:51:15 +0200
 
-diana (3.25.5-ubuntu2) lucid; urgency=low
+diana-3.25 (3.25.5-ubuntu2) lucid; urgency=low
 
   * Bugfix: bdiana did not find fieldTimes
 
@@ -1823,7 +1823,7 @@ diana-wms (3.25.5-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Jun 2011 09:46:48 +0200
 
-diana (3.25.5-ubuntu1) lucid; urgency=low
+diana-3.25 (3.25.5-ubuntu1) lucid; urgency=low
 
   * Bugfix: Labels from ObsAscii files
   * Using metlibs_4.1
@@ -1831,32 +1831,32 @@ diana (3.25.5-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Jun 2011 09:45:07 +0200
 
-diana (3.25.4-ubuntu2) lucid; urgency=low
+diana-3.25 (3.25.4-ubuntu2) lucid; urgency=low
 
   * Bugfix was not included in last version
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 22 Jun 2011 08:52:03 +0200
 
-diana (3.25.4-ubuntu1) lucid; urgency=low
+diana-3.25 (3.25.4-ubuntu1) lucid; urgency=low
 
   * Bugfix: Memory leak in StationPlot
   * PostScript fix: Always set font-specification
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 21 Jun 2011 14:53:45 +0200
 
-diana (3.25.3-ubuntu1) lucid; urgency=low
+diana-3.25 (3.25.3-ubuntu1) lucid; urgency=low
 
   * More bugfix: profet
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 20 Jun 2011 13:30:54 +0200
 
-diana (3.25.2-ubuntu2) lucid; urgency=low
+diana-3.25 (3.25.2-ubuntu2) lucid; urgency=low
 
   * Bugfix case insensitivity
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 17 Jun 2011 14:54:36 +0200
 
-diana (3.25.2-ubuntu1) lucid; urgency=low
+diana-3.25 (3.25.2-ubuntu1) lucid; urgency=low
 
   * Bugfix xylimit
   * Reverted fix: model and field are now case insensitive
@@ -1875,13 +1875,13 @@ diana-wms (3.25.1-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Jun 2011 15:04:52 +0200
 
-diana (3.25.1-ubuntu1) lucid; urgency=low
+diana-3.25 (3.25.1-ubuntu1) lucid; urgency=low
 
   * Field: model and field are now case sensitive
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Jun 2011 11:26:45 +0200
 
-diana (3.25.0-ubuntu4) lucid; urgency=low
+diana-3.25 (3.25.0-ubuntu4) lucid; urgency=low
 
   * Using metlibs_4.1
   * Using libfimex-dev 0.28-2
@@ -1926,14 +1926,14 @@ diana-wms (3.25.0-ubuntu11) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 11 May 2011 10:21:04 +0200
 
-diana (3.25.0-ubuntu3) lucid; urgency=low
+diana-3.25 (3.25.0-ubuntu3) lucid; urgency=low
 
   * Using metlibs_4.1
   * Using libfimex-dev 0.28
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 10 May 2011 08:31:50 +0200
 
-diana (3.25.0-ubuntu2) lucid; urgency=low
+diana-3.25 (3.25.0-ubuntu2) lucid; urgency=low
 
   * Geotiff support enabled
   * Using metlibs_4.1
@@ -2070,7 +2070,7 @@ diana-wms (3.25.0-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 12:49:16 +0100
 
-diana (3.25.0-ubuntu1) lucid; urgency=low
+diana-3.25 (3.25.0-ubuntu1) lucid; urgency=low
 
   * New field reader using fimex
   * Using metlibs_2011-01-28
@@ -2091,7 +2091,7 @@ diana-wms (3.24.0-ubuntu6) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 26 Jan 2011 11:07:42 +0100
 
-diana (3.24.0-ubuntu2) lucid; urgency=low
+diana-3.24 (3.24.0-ubuntu2) lucid; urgency=low
 
   * Bugfix: enable/disable ObjectPlots
   * Using metlibs_2011-01-13
@@ -2112,7 +2112,7 @@ diana-wms (3.24.0-ubuntu5) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 24 Jan 2011 10:04:28 +0100
 
-diana (3.24.0-ubuntu1) lucid; urgency=low
+diana-3.24 (3.24.0-ubuntu1) lucid; urgency=low
 
   * Using metlibs_2011-01-13
   * new version of profet
@@ -2185,7 +2185,7 @@ diana-wms (3.23.3-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@vpn-117-63.met.no>  Mon, 06 Dec 2010 09:04:02 +0100
 
-diana (3.23.3-ubuntu1) lucid; urgency=low
+diana-3.23 (3.23.3-ubuntu1) lucid; urgency=low
 
   * Bugfix parsing logfile
   * Using metlibs_2010-11-15
@@ -2206,7 +2206,7 @@ diana-wms (3.23.2-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 29 Nov 2010 13:23:09 +0100
 
-diana (3.23.2-ubuntu1) lucid; urgency=low
+diana-3.23 (3.23.2-ubuntu1) lucid; urgency=low
 
   * Bugfix obsplot: pressure tendency, temperature precision, metar clouds
   * Bugfix editing: Snow_showers -> Snow showers
@@ -2237,13 +2237,13 @@ diana-wms (3.23.1-ubuntu5) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:04:03 +0100
 
-diana (3.23.1-ubuntu6) lucid; urgency=low
+diana-3.23 (3.23.1-ubuntu6) lucid; urgency=low
 
   * Added export LANG=en_US in diana.in
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:00:45 +0100
 
-diana (3.23.1-ubuntu5) lucid; urgency=low
+diana-3.23 (3.23.1-ubuntu5) lucid; urgency=low
 
   * Fixed version number in configure.ac
 
@@ -2261,7 +2261,7 @@ diana-wms (3.23.1-ubuntu4) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:52:01 +0100
 
-diana (3.23.1-ubuntu4) lucid; urgency=low
+diana-3.23 (3.23.1-ubuntu4) lucid; urgency=low
 
   * Bugfix uninitialised variable contourShape
 
@@ -2279,13 +2279,13 @@ diana-wms (3.23.1-ubuntu3) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 15 Nov 2010 18:38:55 +0100
 
-diana (3.23.1-ubuntu3) lucid; urgency=low
+diana-3.23 (3.23.1-ubuntu3) lucid; urgency=low
 
   * Compiled with metlibs_2010-11-15
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 15 Nov 2010 18:37:33 +0100
 
-diana (3.23.1-ubuntu2) lucid; urgency=low
+diana-3.23 (3.23.1-ubuntu2) lucid; urgency=low
 
   * Satellite: show grid coordinates
 
@@ -2303,7 +2303,7 @@ diana-wms (3.23.1-ubuntu2) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 10 Nov 2010 10:41:16 +0100
 
-diana (3.23.1-ubuntu1) lucid; urgency=low
+diana-3.23 (3.23.1-ubuntu1) lucid; urgency=low
 
   * Bugfix:Observations, pressure tendency
   * Linked with metlibs/trunk
@@ -2322,25 +2322,25 @@ diana-wms (3.23.1-ubuntu1) lucid; urgency=low
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 04 Nov 2010 09:51:52 +0100
 
-diana (3.23.0-ubuntu3) lucid; urgency=low
+diana-3.23 (3.23.0-ubuntu3) lucid; urgency=low
 
   * bufr support
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 18 Oct 2010 12:48:57 +0200
 
-diana (3.23.0-ubuntu2) lucid; urgency=low
+diana-3.23 (3.23.0-ubuntu2) lucid; urgency=low
 
   * testing dependencies
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 12 Oct 2010 13:46:33 +0200
 
-diana (3.23.0-ubuntu1) lucid; urgency=low
+diana-3.23 (3.23.0-ubuntu1) lucid; urgency=low
 
   * fix ubuntu version
 
  -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Oct 2010 12:11:35 +0200
 
-diana (3.23.0) lucid; urgency=low
+diana-3.23 (3.23.0) lucid; urgency=low
 
   * Initial release.
 

@@ -29,10 +29,9 @@
 
 #include "VcrossQuickmenues.h"
 
-#include "diUtilities.h"
+#include "util/string_util.h"
 #include <puTools/miStringFunctions.h>
-//#include <boost/algorithm/string/case_conv.hpp>
-//#include <boost/algorithm/string/join.hpp>
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.VcrossQuickmenues"
 #include <miLogger/miLogging.h>

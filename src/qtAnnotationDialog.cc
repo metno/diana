@@ -32,12 +32,14 @@
 #endif
 
 #include "qtAnnotationDialog.h"
+#include "miSetupParser.h"
+#include "qtUtility.h"
+
 #include <puTools/miStringFunctions.h>
-#include <puTools/miSetupParser.h>
+
 #include <QPushButton>
 #include <QComboBox>
 #include <QTextEdit>
-#include "qtUtility.h"
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QVBoxLayout>

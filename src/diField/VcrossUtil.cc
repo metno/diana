@@ -1,6 +1,8 @@
 
 #include "VcrossUtil.h"
 
+#include "../util/string_util.h"
+
 #include <puTools/mi_boost_compatibility.hh>
 #include "diMetConstants.h"
 #include <udunits2.h>
@@ -181,13 +183,6 @@ float unitConversion(float valueIn, const std::string& unitIn, const std::string
 
 // ------------------------------------------------------------------------
 
-bool startsWith(const std::string& text, const std::string& start)
-{
-  return text.substr(0, start.size()) == start;
-}
-
-// ------------------------------------------------------------------------
-
 bool isCommentLine(const std::string& line)
 {
   return not line.empty() and line[0] == '#';
@@ -239,7 +234,7 @@ miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
   if (unit.empty())
     return miutil::miTime();
 
-  if (startsWith(unit, "days")) {
+  if (diutil::startswith(unit, "days")) {
     if (UnitsConverterPtr uconv = unitConverter(unit, DAYS_SINCE_1900)) {
       value = uconv->convert(value);
       miutil::miTime t(day0);

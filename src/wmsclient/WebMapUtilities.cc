@@ -34,9 +34,11 @@
 #include "diRasterPlot.h"
 #include "diUtilities.h"
 
-#include <diField/diArea.h>
-#include <diField/diProjection.h>
-#include <diField/diRectangle.h>
+#include "util/string_util.h"
+
+#include "diField/diArea.h"
+#include "diField/diProjection.h"
+#include "diField/diRectangle.h"
 
 #include <puTools/miStringFunctions.h>
 

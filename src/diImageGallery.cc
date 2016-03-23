@@ -34,16 +34,15 @@
 #include "diImageGallery.h"
 #include "diImageIO.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 
-#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <fstream>
 
 #define MILOGGER_CATEGORY "diana.ImageGallery"
 #include <miLogger/miLogging.h>
 
-#define MILOGGER_CATEGORY "diana.ImageGallery"
-#include <miLogger/miLogging.h>
 using namespace::miutil;
 using namespace std;
 

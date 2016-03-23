@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2016 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -33,8 +31,12 @@
 #include "config.h"
 #endif
 
-#include <diMapManager.h>
-#include <puTools/miSetupParser.h>
+#include "diMapManager.h"
+#include "miSetupParser.h"
+
+#include <puTools/miStringFunctions.h>
+
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.MapManager"
 #include <miLogger/miLogging.h>

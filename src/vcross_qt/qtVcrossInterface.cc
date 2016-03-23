@@ -33,10 +33,10 @@
 
 #include "qtVcrossInterface.h"
 
+#include "miSetupParser.h"
 #include "qtVcrossWindow.h"
 
 #include <puTools/mi_boost_compatibility.hh>
-#include <puTools/miSetupParser.h>
 
 #define MILOGGER_CATEGORY "diana.VcrossWindowInterface"
 #include <miLogger/miLogging.h>

@@ -375,24 +375,26 @@ int satimg::day_night(const std::string& infile)
  * Returns the Julian Day.
  */
 
+static const unsigned short int days_after_month[12] = {
+  31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
+};
 
-int satimg::JulianDay(usi yy, usi mm, usi dd) {
-  static unsigned short int daytab[2][13]=
-  {{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-      {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
-  unsigned short int i, leap;
-  int dn;
+int satimg::JulianDay(usi yy, usi mm, usi dd)
+{
+  int dn = dd;
+  if (mm >= 2 && mm < 12) {
+    const int index = mm - 1 /* previous month */ - 1 /* 0-based */;
+    dn += days_after_month[index];
 
-  leap = 0;
-  if (yy%4 == 0 && yy%100 != 0 || yy%400 == 0) leap=1;
+    if (mm >= 3) {
+      const bool is_leap = ((yy%4 == 0 && yy%100 != 0) || yy%400 == 0);
+      if (is_leap)
+        dn += 1;
+    }
+  }
 
-  dn = (int) dd;
-  for (i=1; i<mm; i++)
-  {dn += (int) daytab[leap][i];}
-
-  return(dn);
+  return dn;
 }
-
 
 
 /*
@@ -475,7 +477,7 @@ short satimg::selalg(const dto& d, const ucs& upos, const float& hmax, const flo
      * Estimates zenith angle in the pixel.
      */
     lat = gmttime+((longitude/radian)*0.0667);
-    hourangle = fabsf(lat-12.)*0.2618;
+    hourangle = std::abs(lat-12.)*0.2618;
 
     coszenith = (cos(latitude)*cos(hourangle)*cos(inclination)) +
     (sin(latitude)*sin(inclination));

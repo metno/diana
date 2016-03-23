@@ -2,9 +2,9 @@
 #include "diPainter.h"
 
 #include "diLocalSetupParser.h"
+#include "miSetupParser.h"
 
-#include <diField/diRectangle.h>
-#include <puTools/miSetupParser.h>
+#include "diField/diRectangle.h"
 #include <puTools/miStringFunctions.h>
 
 #include <QImage>

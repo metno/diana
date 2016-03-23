@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+
+SRCDIR="$1"
+OUTFILE="$2"
+
+GA="$SRCDIR/.git_archival.txt"
+GD="--git-dir=${SRCDIR}/.git"
+GW="--work-tree=${SRCDIR}"
+
+today=`date +%Y-%m-%d`
+
+if test -f "$GA"; then
+    commit="`cut -d' ' -f1 $GA`"
+    today="`cut -d' ' -f2- $GA`"
+elif git "$GD" "$GW" status > /dev/null; then
+    commit=`git "$GD" "$GW" describe --abbrev=40 --dirty --always`
+else
+    commit="unknown"
+fi
+
+cat <<EOF > "$OUTFILE"
+#include <diBuild.h>
+const char diana_build_string[] = "$today";
+const char diana_build_commit[] = "$commit";
+EOF

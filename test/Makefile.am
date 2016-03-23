@@ -30,6 +30,8 @@ dianaUnitTests_SOURCES = \
     TestPlotOptions.cc \
     TestPoint.cc \
     TestQuickMenues.cc \
+    TestSatImg.cc \
+    TestSetupParser.cc \
     TestUtilities.cc \
     TestWebMap.cc \
     gtestMain.cc
@@ -111,7 +113,6 @@ diFieldTest_SOURCES += \
 	MetConstantsTest.cc \
 	RectangleTest.cc \
 	ShapeTest.cc \
-	TimeFilterTest.cc \
 	VcrossDataTest.cc \
 	VcrossUtilTest.cc
 diFieldTest_CPPFLAGS += \
@@ -150,3 +151,8 @@ EXTRA_DIST = arome_vprof.nc bangladesh_vc.nc bangkok_sonde.nc
 EXTRA_DIST += test_fimexio_rw.nc hirlam_vct1.nc hirlam_vct2.nc arome.nc \
     arome_vc.nc hirlam_vc.nc simra_vc.nc simra_vc_dyn.nc emep_etna_dyn.nc \
     wavespec.nc
+
+# see https://lists.gnu.org/archive/html/automake/2013-06/msg00051.html
+display-testsuite-logs:
+	for f in $(TEST_LOGS); do printf "\n=== $$f ===\n\n"; cat $$f; done
+.PHONY: display-testsuite-logs

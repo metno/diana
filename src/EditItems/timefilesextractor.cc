@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2016 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,59 +27,33 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <EditItems/timefilesextractor.h>
-#include <QRegExp>
-#include <QDir>
-#include <QDirIterator>
+#include "EditItems/timefilesextractor.h"
 
-// Returns a datetime pattern where occurrences of 'MM' are replaced with 'mm' and vice versa.
-static QString convertDateTimePattern(const QString &s)
-{
-  QString r(s);
-  for (int i = 0; i < r.size(); ++i) {
-    if (i > 0) {
-      if ((r[i] == 'M') && (r[i - 1] == 'M'))
-        r[i - 1] = r[i] = 'm';
-      else if ((r[i] == 'm') && (r[i - 1] == 'm'))
-        r[i - 1] = r[i] = 'M';
-    }
-  }
-  return r;
-}
+#include "diUtilities.h"
 
-static bool extractComponents(
-    const QString &filePattern, QString &prefix, QString &dtPattern, QString &suffix, QDir &dir)
-{
-  QRegExp rx("^([^\\[\\]]+)\\[([^\\[\\]]+)\\]([^\\[\\]]*)$");
-  if (rx.indexIn(filePattern) < 0)
-    return false;
-  prefix = rx.cap(1);
-  dtPattern = convertDateTimePattern(rx.cap(2));
-  suffix = rx.cap(3);
-  dir = QFileInfo(filePattern).dir();
-  return true;
-}
+#include <puTools/miTime.h>
+#include <puTools/TimeFilter.h>
 
-static void extractMatchingFiles(
-    QString &prefix, QString &dtPattern, QString &suffix, const QDir &dir,
-    QList<QPair<QFileInfo, QDateTime> > &result)
-{
-  QDirIterator dit(dir);
-  QRegExp rx(QString("^%1(.+)%2$").arg(prefix).arg(suffix));
-  while (dit.hasNext()) {
-    const QString fileName = dit.next();
-    if (rx.indexIn(fileName) >= 0) {
-      const QDateTime dateTime = QDateTime::fromString(rx.cap(1), dtPattern);
-      if (dateTime.isValid())
-        result.append(qMakePair(QFileInfo(fileName), dateTime));
-    }
-  }
-}
+#define MILOGGER_CATEGORY "diana.timefilesextractor"
+#include <miLogger/miLogging.h>
 
-static bool lessThan(const QPair<QFileInfo, QDateTime> &p1, const QPair<QFileInfo, QDateTime> &p2)
+namespace {
+
+typedef QPair<QFileInfo, QDateTime> file_time;
+
+static bool lessThan(const file_time& p1, const file_time& p2)
 {
   return p1.second < p2.second;
 }
+
+static QDateTime fromMiTime(const miutil::miTime& time)
+{
+  return QDateTime(QDate(time.year(), time.month(), time.day()),
+      QTime(time.hour(), time.min(), time.sec()));
+}
+
+} // anonymous namespace
+
 
 // Returns a list of (fileInfo, dateTime) pairs for files matching a file pattern
 // of the form <part1>[<part2>]<part3> where none of <part1-3> contain '[' or ']'
@@ -94,21 +66,27 @@ static bool lessThan(const QPair<QFileInfo, QDateTime> &p1, const QPair<QFileInf
 //     for (int i = 0; i < tfiles.size(); ++i)
 //         qDebug() << tfiles.at(i).first.filePath() << " / " << tfiles.at(i).second;
 //
-QList<QPair<QFileInfo, QDateTime> > TimeFilesExtractor::getFiles(const QString &filePattern)
+QList<file_time> TimeFilesExtractor::getFiles(const QString &filePattern)
 {
-  // extract prefix, converted datetime pattern, suffix, and directory
-  QString prefix;
-  QString dtPattern;
-  QString suffix;
-  QDir dir;
-  if (!extractComponents(filePattern, prefix, dtPattern, suffix, dir)) {
-    qWarning("getDateTimeFiles(): invalid file pattern");
-    return QList<QPair<QFileInfo, QDateTime> >();
-  }
+  // FIXME char encoding when converting between QString and std::string
 
-  // extract matching files
-  QList<QPair<QFileInfo, QDateTime> > result;
-  extractMatchingFiles(prefix, dtPattern, suffix, dir, result);
+  QList<file_time> result;
+
+  std::string pattern = filePattern.toStdString();
+  miutil::TimeFilter tf(pattern, true);
+  if (tf.ok()) {
+    const diutil::string_v matches = diutil::glob(pattern);
+    for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+      miutil::miTime time;
+      if (tf.getTime(*it, time)) {
+        result.append(qMakePair(QFileInfo(QString::fromStdString(*it)), fromMiTime(time)));
+      } else {
+        METLIBS_LOG_WARN("getDateTimeFiles(): cannot extract time from '" << *it << "'");
+      }
+    }
+  } else {
+    METLIBS_LOG_WARN("getDateTimeFiles(): invalid pattern '" << filePattern.toStdString() << "'");
+  }
 
   // sort chronologically so that the oldest dateTime appears first
   qSort(result.begin(), result.end(), lessThan);
