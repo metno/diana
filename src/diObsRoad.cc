@@ -94,8 +94,10 @@ void ObsRoad::readHeader(RoadObsPlot *oplot)
   int n,i;
   vector<std::string> vstr,pstr;
   std::string str;
-	plotTime = oplot->getObsTime();
-  timeDiff= oplot->getTimeDiff();
+  if (oplot) {
+    plotTime = oplot->getObsTime();
+    timeDiff= oplot->getTimeDiff();
+  }
   fileTime = filetime_;
 	// Dont tamper with the plot object...
 	if (true) {
@@ -609,6 +611,110 @@ bool ObsRoad::getColumnValue(const std::string& cn, const diutil::string_v& cv, 
 }
 // FIXME: The automation code ?
 // FIXME: float or string value
+void ObsRoad::cloud_type_string(ObsData& d, double v)
+{
+  int type = int(v) / 10;
+  float value = float(int(v) % 10);
+
+  if (value < 1)
+    return;
+
+  if (type == 1)
+    d.stringdata["Ch"] = miutil::from_number(value);
+  if (type == 2)
+    d.stringdata["Cm"] = miutil::from_number(value);
+  if (type == 3)
+    d.stringdata["Cl"] = miutil::from_number(value);
+
+}
+
+string ObsRoad::height_of_clouds_string(double height)
+{
+  METLIBS_LOG_SCOPE(height);
+  height = (height*3.2808399)/100.0;
+  return miutil::from_number(height);
+}
+
+
+// Some methods from the ObsBufr class
+void ObsRoad::cloud_type(ObsData& d, double v)
+{
+  int type = int(v) / 10;
+  float value = float(int(v) % 10);
+
+  if (value < 1)
+    return;
+
+  if (type == 1)
+    d.fdata["Ch"] = value;
+  if (type == 2)
+    d.fdata["Cm"] = value;
+  if (type == 3)
+    d.fdata["Cl"] = value;
+
+}
+
+float ObsRoad::height_of_clouds(double height)
+{
+  METLIBS_LOG_SCOPE(height);
+  
+  if (height < 50)
+    return 0.0;
+  if (height < 100)
+    return 1.0;
+  if (height < 200)
+    return 2.0;
+  if (height < 300)
+    return 3.0;
+  if (height < 600)
+    return 4.0;
+  if (height < 1000)
+    return 5.0;
+  if (height < 1500)
+    return 6.0;
+  if (height < 2000)
+    return 7.0;
+  if (height < 2500)
+    return 8.0;
+  return 9.0;
+}
+
+float ObsRoad::ms2code4451(float v)
+{
+  METLIBS_LOG_SCOPE(v);
+  if (v < 1852.0 / 3600.0)
+    return 0.0;
+  if (v < 5 * 1852.0 / 3600.0)
+    return 1.0;
+  if (v < 10 * 1852.0 / 3600.0)
+    return 2.0;
+  if (v < 15 * 1852.0 / 3600.0)
+    return 3.0;
+  if (v < 20 * 1852.0 / 3600.0)
+    return 4.0;
+  if (v < 25 * 1852.0 / 3600.0)
+    return 5.0;
+  if (v < 30 * 1852.0 / 3600.0)
+    return 6.0;
+  if (v < 35 * 1852.0 / 3600.0)
+    return 7.0;
+  if (v < 40 * 1852.0 / 3600.0)
+    return 8.0;
+  if (v < 25 * 1852.0 / 3600.0)
+    return 9.0;
+  return 9.0;
+}
+
+float ObsRoad::percent2oktas(float v)
+{
+  METLIBS_LOG_SCOPE(v);
+  if (v == 113) {
+    return 9.0;
+  } else {
+    return v/12.5; //% -> oktas
+  }
+}
+
 void ObsRoad::decodeData()
 {
   METLIBS_LOG_SCOPE();
@@ -663,23 +769,84 @@ void ObsRoad::decodeData()
 		obsData.fdata["isdata"] = (*stationlist)[index].data();
     index ++;
     const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
+    // fill both stringdata and fdata
+    // stringdata
     for (size_t i=0; i<tmp_nColumn; i++) {
-      if (not asciiColumnUndefined.count(pstr[i]))
-        obsData.stringdata[m_columnName[i]] = pstr[i];
+      if (not asciiColumnUndefined.count(pstr[i])) {
+        if (m_columnName[i] == "Cl" || m_columnName[i] == "Cm" ||  m_columnName[i] == "Ch") {
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i])) {
+              // Convert to the symbol dataspace
+              cloud_type_string(obsData, miutil::to_float(pstr[i]));
+            }
+        } else if (m_columnName[i] == "h") {
+            if (pstr[i] != undef_string)
+              if (miutil::is_number(pstr[i]))
+                // Convert to clouds dataspace
+                obsData.stringdata[m_columnName[i]] = height_of_clouds_string(miutil::to_float(pstr[i]));
+        } else if (m_columnName[i] == "N") {
+            if (pstr[i] != undef_string)
+              if (miutil::is_number(pstr[i]))
+                // Convert to clouds dataspace
+                obsData.stringdata[m_columnName[i]] = miutil::from_number(percent2oktas(miutil::to_float(pstr[i])));
+        } else if (m_columnName[i] == "vs") {
+            if (pstr[i] != undef_string)
+              if (miutil::is_number(pstr[i]))
+                // Convert to clouds dataspace
+                obsData.stringdata[m_columnName[i]] = miutil::from_number(ms2code4451(miutil::to_float(pstr[i])));
+        } else {        
+          if (pstr[i] != undef_string)
+            obsData.stringdata[m_columnName[i]] = pstr[i];
+        }
+      }
     }
-
+    // fdata note Cl, Cm, Ch, adjustment
+    for (size_t i=0; i<tmp_nColumn; i++) {
+      if (not asciiColumnUndefined.count(pstr[i])) {
+        if (m_columnName[i] == "Cl" || m_columnName[i] == "Cm" ||  m_columnName[i] == "Ch") {
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i])) {
+              // Convert to the symbol dataspace
+              cloud_type(obsData, miutil::to_float(pstr[i]));
+            }
+        } else if (m_columnName[i] == "h") {
+            if (pstr[i] != undef_string)
+              if (miutil::is_number(pstr[i]))
+                // Convert to clouds dataspace
+                obsData.fdata[m_columnName[i]] = height_of_clouds(miutil::to_float(pstr[i]));
+        } else if (m_columnName[i] == "N") {
+            if (pstr[i] != undef_string)
+              if (miutil::is_number(pstr[i]))
+                // Convert to clouds dataspace
+                obsData.fdata[m_columnName[i]] = percent2oktas(miutil::to_float(pstr[i]));
+        } else if (m_columnName[i] == "vs") {
+            if (pstr[i] != undef_string)
+              if (miutil::is_number(pstr[i]))
+                // Convert to vs dataspace
+                obsData.fdata[m_columnName[i]] = ms2code4451(miutil::to_float(pstr[i]));  
+        } else {        
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i]))
+              obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
+        }
+      }
+    }
     float value;
     std::string text;
     if (getColumnValue("x", pstr, value)||getColumnValue("Lon", pstr, value))
-      obsData.xpos = value;
+      if (value != undef)
+        obsData.xpos = value;
     if (getColumnValue("y", pstr, value)||getColumnValue("Lat", pstr, value))
-      obsData.ypos = value;
+      if (value != undef)
+        obsData.ypos = value;
     if (getColumnValue("Name", pstr, text))
       obsData.id = text;
     if (getColumnValue("ff", pstr, value))
-      obsData.fdata["ff"] = knots ? diutil::knots2ms(value) : value;
+      if (value != undef)  
+        obsData.fdata["ff"] = knots ? diutil::knots2ms(value) : value;
     if (getColumnValue("dd", pstr, value))
-      obsData.fdata["dd"] = value;
+      if (value != undef)
+        obsData.fdata["dd"] = value;
     if (getColumnValue("image", pstr, text))
       obsData.stringdata["image"] = text;
 
@@ -734,12 +901,28 @@ void ObsRoad::decodeData()
       }
       
       METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
-			//cerr << obstime << "," << plotTime << "," << timeDiff << endl;
+		
       if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime))< timeDiff)
         obsData.obsTime = obstime;
       else
         continue;
     }
+#ifdef DEBUGPRINT
+    //Produces a lot of output...
+    std::map<std::string,float>::iterator itf = obsData.fdata.begin();
+    METLIBS_LOG_INFO("fdata");
+    for (; itf != obsData.fdata.end(); itf++)
+    {
+      METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+    }
+
+    std::map<std::string,std::string>::iterator its = obsData.stringdata.begin();
+    METLIBS_LOG_INFO("stringdata");
+    for (; its != obsData.stringdata.end(); its++)
+    {
+      METLIBS_LOG_INFO(its->first << ", " << its->second);
+    }
+#endif
 		//cerr << "obsdata added: " << obsData.obsTime << endl;
     vObsData.push_back(obsData);
     mObsData[obsData.id] = obsData;

@@ -29,7 +29,29 @@
 
 #include "diRoadObsPlot.h"
 
+#include "diImageGallery.h"
+#include "diLocalSetupParser.h"
+#include "diUtilities.h"
+#include "miSetupParser.h"
+#include "util/qstring_util.h"
+
+#include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
+
+#include <QString>
+#include <QTextCodec>
+
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+
+#define MILOGGER_CATEGORY "diana.RoadObsPlot"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
+
+static const float undef = -32767.0; //should be defined elsewhere
 
 RoadObsPlot::RoadObsPlot(const std::string& pin, ObsPlotType plottype)
   : ObsPlot(pin, plottype)
@@ -715,13 +737,11 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   //Total cloud cover - N
   //METLIBS_LOG_DEBUG("Total cloud cover - N: value " << N_value);
   if(N_value != undef) {
-    /* convert to eights */
-    int N_value_plot = (int)(long)(N_value * 8.0)/100.0;
-    checkColourCriteria(gl, "N",N_value_plot);
+    checkColourCriteria(gl, "N",N_value);
     if (automationcode != 0)
-      cloudCover(gl, N_value_plot,radius);
+      cloudCover(gl, N_value,radius);
     else
-      cloudCoverAuto(gl, N_value_plot,radius);
+      cloudCoverAuto(gl, N_value,radius);
   } /*else if( !precip ) {
    gl->setColour(colour);
    cloudCover(gl, undef,radius);
@@ -752,36 +772,24 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   //METLIBS_LOG_DEBUG("High cloud type - Ch, value: " << Ch_value);
   if(Ch_value != undef)
   {
-    Ch_value = Ch_value - 10.0;
-    if (Ch_value> 0)
-    {
-      checkColourCriteria(gl, "Ch",Ch_value);
-      symbol(gl,itab[190+(int)Ch_value], iptab[lpos+4], iptab[lpos+5],0.8);
-    }
+    checkColourCriteria(gl, "Ch",Ch_value);
+    symbol(gl,itab[190+(int)Ch_value], iptab[lpos+4], iptab[lpos+5],0.8);
   }
 
   // Middle cloud type - Cm
   //METLIBS_LOG_DEBUG("Middle cloud type - Cm, value: " << Cm_value);
   if(Cm_value != undef)
   {
-    Cm_value = Cm_value - 20.0;
-    if (Cm_value> 0)
-    {
       checkColourCriteria(gl, "Cm",Cm_value);
       symbol(gl,itab[180+(int)Cm_value], iptab[lpos+2], iptab[lpos+3],0.8);
-    }
   }
 
   // Low cloud type - Cl
   //METLIBS_LOG_DEBUG("Low cloud type - Cl, value: " << Cl_value);
   if(Cl_value != undef)
   {
-    Cl_value = Cl_value - 30.0;
-    if (Cl_value> 0)
-    {
       checkColourCriteria(gl, "Cl",Cl_value);
       symbol(gl,itab[170+(int)Cl_value], iptab[lpos+22], iptab[lpos+23],0.8);
-    }
   }
 
   // Past weather - W1
@@ -797,10 +805,12 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "W2",W2_value);
     pastWeather(gl,(int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
   }
-  // Direction of ship movement - ds
+  // Direction and speed of ship movement - ds/vs
   if (DS_value != undef && VS_value != undef)
   {
     checkColourCriteria(gl, "ds",DS_value);
+    checkColourCriteria(gl, "vs", VS_value);
+    printNumber(gl, VS_value, iptab[lpos + 36], iptab[lpos + 39]);
     arrow(gl,DS_value, iptab[lpos+32], iptab[lpos+33]);
   }
   /* Currently not used
@@ -864,11 +874,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
         float Nh,h;
         Nh = Nh_value;
 
-        /* NOTE, the height should be converted to hektfoot */
-        if (h_value != undef)
-        {
-          h_value = (h_value*3.2808399)/100.0;
-        }
+        /* NOTE, the height is already converted to hektfoot */
         h = h_value;
         if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
         if(h!=undef) checkColourCriteria(gl, "h",h);
@@ -918,11 +924,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
         float Nh,h;
         Nh = Nh_value;
 
-        /* NOTE, the height should be converted to hektfoot */
-        if (h_value != undef)
-        {
-          h_value = (h_value*3.2808399)/100.0;
-        }
+        /* NOTE, the height is already converted to hektofoot */
         h = h_value;
         if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
         if(h!=undef) checkColourCriteria(gl, "h",h);
@@ -1090,7 +1092,7 @@ bool RoadObsPlot::preparePlot()
 
   scale= textSize*getStaticPlot()->getPhysToMapScaleX()*0.7;
 
-  int num = calcNum()
+  int num = calcNum();
 
   float xdist,ydist;
   // I think we should plot roadobs like synop here

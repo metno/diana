@@ -587,7 +587,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
     }
 #ifdef ROADOBS
     // To avoid that roadobs will be set to ascii below
-    else if (valp == "synop_wmo" || valp == "synop_ship" || valp == "metar_icao") {
+    else if (valp == "synop_wmo" || valp == "synop_ship" || valp == "metar_icao" || valp == "roadobs") {
       plottype = OPT_ROADOBS;
     }
 #endif // !ROADOBS

@@ -88,6 +88,7 @@ private:
 
   void readDecodeData();
   void readData(const std::string &filename);
+  
   void decodeData();
   string_size_m::const_iterator getColumn(const std::string& cn, const std::vector<std::string>& cv) const;
   bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, float& value) const;
@@ -110,9 +111,17 @@ public:
 	  const miutil::miTime &filetime, RoadObsPlot *oplot, bool breadData);
   void readData(RoadObsPlot *oplot);
   void initData(RoadObsPlot *oplot);
+  
+  void cloud_type_string(ObsData& d, double v);
+  std::string height_of_clouds_string(double height);
+  // from ObsBufr
+  void cloud_type(ObsData& d, double v);
+  float height_of_clouds(double height);
+  float ms2code4451(float v);
+  float percent2oktas(float v);
 
 	// from ObsAscii
-	void yoyoPlot(const miutil::miTime &filetime, ObsPlot *oplot);
+	void yoyoPlot(const miutil::miTime &filetime, RoadObsPlot *oplot);
   void yoyoMetadata(ObsMetaData *metaData);
 
   bool asciiOK() const
