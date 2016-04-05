@@ -563,15 +563,21 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   std::string dialogname;
   bool flaginfo = false;
   opts_t::const_iterator ptit = find_last(opts, "plot");
-  if (ptit != opts.end()) {
-    vector<std::string> vstr = miutil::split(ptit->value(), ":");
-    std::string valp = vstr[0];
-    dialogname = valp;
-    if (valp == "pressure" || valp == "trykk" //"trykk" is obsolete
-        || valp == "list" || valp == "enkel" //"enkel" is obsolete
+  if (ptit != opts.end() && !ptit->value().empty()) {
+    const std::vector<std::string> vstr = miutil::split(ptit->value(), ":");
+    if (!vstr.empty())
+      dialogname = vstr[0];
+    if (dialogname.empty())
+      METLIBS_LOG_WARN("probably malformed observation plot specification '" << ptit->value() << "'");
+    const std::string valp = miutil::to_lower(dialogname);
+    if (valp == "pressure"|| valp == "list"
         || valp == "tide" || valp == "ocean")
     {
       plottype = OPT_LIST;
+    } else if (valp == "synop") {
+      plottype = OPT_SYNOP;
+    } else if (valp == "metar") {
+      plottype = OPT_METAR;
     } else if (valp == "hqc_synop") {
       plottype = OPT_SYNOP;
       flaginfo = true;
@@ -585,7 +591,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
       plottype = OPT_ROADOBS;
     }
 #endif // !ROADOBS
-    else if (valp != "synop" && valp != "metar") {
+    else {
       plottype = OPT_ASCII;
     }
   }
