@@ -34,9 +34,9 @@
 // if not defined ROADOBS, just an empty include file
 //#define ROADOBS 1
 #ifdef ROADOBS
-#include <diObsPlot.h>
-#include <diObsData.h>
-#include <diObsMetaData.h>
+#include "diRoadObsPlot.h"
+#include "diObsData.h"
+#include "diObsMetaData.h"
 #include <puTools/miTime.h>
 
 #include <map>
@@ -57,9 +57,9 @@ private:
 	// This defines a set of stations, eg synop,metar,ship observations
   std::vector<road::diStation> * stationlist;
   miutil::miTime filetime_;
-  void readHeader(ObsPlot *oplot);
-  void readRoadData(ObsPlot *oplot);
-  void initRoadData(ObsPlot *oplot);
+  void readHeader(RoadObsPlot *oplot);
+  void readRoadData(RoadObsPlot *oplot);
+  void initRoadData(RoadObsPlot *oplot);
 	bool headerRead;
 
 	// from ObsAscii class
@@ -107,9 +107,9 @@ private:
 public:
   ObsRoad(const std::string &filename, const std::string &databasefile,
 	  const std::string &stationfile, const std::string &headerfile,
-	  const miutil::miTime &filetime, ObsPlot *oplot, bool breadData);
-  void readData(ObsPlot *oplot);
-  void initData(ObsPlot *oplot);
+	  const miutil::miTime &filetime, RoadObsPlot *oplot, bool breadData);
+  void readData(RoadObsPlot *oplot);
+  void initData(RoadObsPlot *oplot);
 
 	// from ObsAscii
 	void yoyoPlot(const miutil::miTime &filetime, ObsPlot *oplot);

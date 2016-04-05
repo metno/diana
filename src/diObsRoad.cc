@@ -37,15 +37,9 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.ObsRoad"
-#include <miLogger/miLogging.h>
-
-#include <diObsRoad.h>
-#include <diObsPlot.h>
-#include <diObsMetaData.h>
+#include "diObsRoad.h"
 #include "diUtilities.h"
+
 // from kvroadapi
 #ifdef NEWARK_INC
 #include <newarkAPI/diParam.h>
@@ -57,7 +51,12 @@
 #include <roadAPI/diRoaddata.h>
 #endif
 #include <puTools/miStringFunctions.h>
+
+#include <fstream>
 #include <vector>
+
+#define MILOGGER_CATEGORY "diana.ObsRoad"
+#include <miLogger/miLogging.h>
 
 //#define DEBUGPRINT 1
 
@@ -66,7 +65,7 @@ using namespace miutil;
 using namespace std;
 
 ObsRoad::ObsRoad(const std::string &filename, const std::string &databasefile, const std::string &stationfile, const std::string &headerfile,
-		   const miTime &filetime, ObsPlot *oplot, bool breadData)
+		   const miTime &filetime, RoadObsPlot *oplot, bool breadData)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::ObsRoad() ++");
@@ -87,7 +86,7 @@ ObsRoad::ObsRoad(const std::string &filename, const std::string &databasefile, c
 		readData(oplot);
 }
 
-void ObsRoad::readHeader(ObsPlot *oplot)
+void ObsRoad::readHeader(RoadObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsRoad::readHeader( headerfile: " << headerfile_ << " ) ++");
@@ -161,7 +160,7 @@ void ObsRoad::readHeader(ObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::initData(ObsPlot *oplot)
+void ObsRoad::initData(RoadObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -174,7 +173,7 @@ void ObsRoad::initData(ObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::initRoadData(ObsPlot *oplot)
+void ObsRoad::initRoadData(RoadObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -264,7 +263,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::readData(ObsPlot *oplot)
+void ObsRoad::readData(RoadObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::readData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -277,7 +276,7 @@ void ObsRoad::readData(ObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::readRoadData(ObsPlot *oplot)
+void ObsRoad::readRoadData(RoadObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::readRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -345,7 +344,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 
 // from ObsAscii
 // FIXME: Not used for now...
-void ObsRoad::yoyoPlot(const miTime &filetime, ObsPlot *oplot)
+void ObsRoad::yoyoPlot(const miTime &filetime, RoadObsPlot *oplot)
 {
   METLIBS_LOG_SCOPE();
   oplot->setLabels(labels);

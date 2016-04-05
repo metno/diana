@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2016 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -32,9 +32,12 @@
 #endif
 
 #include "diObsPlot.h"
+#include "diRoadObsPlot.h"
+
 #include "diImageGallery.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 #include "util/qstring_util.h"
 
 #include <puCtools/stat.h>
@@ -43,7 +46,6 @@
 #include <QString>
 #include <QTextCodec>
 
-#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -53,9 +55,6 @@
 
 using namespace std;
 using namespace miutil;
-#ifdef ROADOBS
-using namespace road;
-#endif
 
 //  static members
 vector<float> ObsPlot::xUsed;
@@ -74,14 +73,12 @@ short * ObsPlot::iptabMetar = 0;
 
 static const int undef = -32767; //should be defined elsewhere
 
-static inline bool is_true(const std::string& value)
+ObsPlot::ObsPlot(const std::string& pin, ObsPlotType plottype)
+  : m_plottype(plottype)
+  , mTextCodec(0)
 {
-  return (value == "true");
-}
+  setPlotInfo(pin);
 
-ObsPlot::ObsPlot()
-  : mTextCodec(0)
-{
   METLIBS_LOG_SCOPE();
 
   x = NULL;
@@ -91,7 +88,6 @@ ObsPlot::ObsPlot()
   allObs = false;
   levelAsField = false;
   level = -10;
-  m_plottype = "synop";
   priority = false;
   density = 1;
   numPar = 0;
@@ -330,7 +326,6 @@ ObsPlot::ObsPlot()
   p.name = "quality";
   p.precision =0;
   vparam.push_back(p);
-
 }
 
 ObsPlot::~ObsPlot()
@@ -487,269 +482,260 @@ int ObsPlot::getObsCount() const
   return obsp.size();
 }
 
+long ObsPlot::findModificationTime(const std::string& fname)
+{
+  pu_struct_stat buf;
+  if (pu_stat(fname.c_str(), &buf) == 0) {
+    return buf.st_ctime; // FIXME using ctime here and mtime below
+  } else {
+    return 0;
+  }
+}
+
 void ObsPlot::setModificationTime(const std::string& fname)
 {
   METLIBS_LOG_SCOPE("fname: " << fname);
-#ifdef ROADOBS
-  if (miutil::contains(fname, "ROAD"))
-  {
-    // A database file, no file system
-    long ltime = time(NULL);
-    fileNames.push_back(fname);
-    modificationTime.push_back(ltime);
-    return;
-  }
-#endif
-
-  pu_struct_stat buf;
   fileNames.push_back(fname);
-  const char *path = fname.c_str();
-  if (pu_stat(path, &buf) == 0) {
-    modificationTime.push_back(buf.st_ctime);
-  } else {
-    modificationTime.push_back(0);
-  }
+  modificationTime.push_back(findModificationTime(fname));
+}
+
+bool ObsPlot::isFileUpdated(const std::string& fname, long now, long mod_time)
+{
+  pu_struct_stat buf;
+  if (pu_stat(fname.c_str(), &buf) != 0)
+    return true;
+  if (mod_time != (long) buf.st_mtime) // FIXME using mtime here and ctime above
+    return true;
+  return false;
 }
 
 bool ObsPlot::updateObs()
 {
-  //returns true if update is needed
-  //(one or more files are changed)
   METLIBS_LOG_SCOPE();
 
-#ifdef ROADOBS
-  const long ltime = time(NULL);
-#endif // ROADOBS
+  const long now = time(0);
   for (size_t i = 0; i < fileNames.size(); i++) {
-#ifdef ROADOBS
-    // Dont ask the database too often if allObs, eg ligthning
-    if (miutil::contains(fileNames[i], "ROAD")) {
-      if (allObs)
-      if (ltime - modificationTime[i] > 30 )
-        return true;
-        else
-          continue;
-      else
-        if (ltime != modificationTime[i])
-          return true;
-        else
-      continue;
-    }
-#endif // ROADOBS
-    const char *path = fileNames[i].c_str();
-    pu_struct_stat buf;
-    if (pu_stat(path, &buf) != 0)
-      return true;
-    if (modificationTime[i] != (long) buf.st_mtime)
+    if (isFileUpdated(fileNames[i], now, modificationTime[i]))
       return true;
   }
 
   return false; // no update needed
 }
 
-bool ObsPlot::prepare(const std::string& pin)
+namespace {
+typedef std::vector<miutil::KeyValue> opts_t;
+
+opts_t obsplotoptions(const std::string& infostr)
 {
-  METLIBS_LOG_SCOPE("pin: " << pin);
-
-  if (pin.size() > 0) //if there is an info string, save it.
-    infostr = pin; //if not, use last info string
-  setPlotInfo(pin);
-
-  //clear criteria lists
-  plotcriteria.clear();
-  colourcriteria.clear();
-  totalcolourcriteria.clear();
-  markercriteria.clear();
-  markersizecriteria.clear();
-
-  //Default
-  poptions.fontname = "BITMAPFONT";
-  poptions.fontface = "normal";
-
+  opts_t opts;
   vector<std::string> tokens = miutil::split_protected(infostr, '"', '"');
   int n = tokens.size();
-  vector<std::string> parameter;
-  std::string value, orig_value, key;
-
   for (int i = 0; i < n; i++) {
     vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
     if (stokens.size() > 1) {
-      key = miutil::to_lower(stokens[0]);
-      orig_value = stokens[1];
-      value = miutil::to_lower(stokens[1]);
-      if (key == "plot") {
-        vector<std::string> vstr = miutil::split(value, ":");
-        value = vstr[0];
-        dialogname = value;
-        if (value == "pressure" || value == "trykk" //"trykk" is obsolete
-            || value == "list" || value == "enkel" //"enkel" is obsolete
-            || value == "tide" || value == "ocean")
-        {
-          value = "list";
-        } else if (value == "hqc_synop") {
-          value = "synop";
-          flaginfo = true;
-        } else if (value == "hqc_list") {
-          value = "ascii";
-          flaginfo = true;
-        }
+      const std::string key = miutil::to_lower(stokens[0]);
+      const std::string value = stokens[1];
+      opts.push_back(miutil::KeyValue(key, value));
+    }
+  }
+  return opts;
+}
+
+opts_t::const_iterator find_last(const opts_t& opts, const std::string& key)
+{
+  opts_t::const_iterator found = opts.end();
+  for (opts_t::const_iterator oit = opts.begin(); oit != opts.end(); ++oit) {
+    if (oit->key() == key)
+      found = oit;
+  }
+  return found;
+}
+} // namespace
+
+// static
+ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
+{
+  METLIBS_LOG_SCOPE("pin: '" << pin << "'");
+
+  const opts_t opts = obsplotoptions(pin);
+
+  ObsPlotType plottype = OPT_SYNOP;
+  std::string dialogname;
+  bool flaginfo = false;
+  opts_t::const_iterator ptit = find_last(opts, "plot");
+  if (ptit != opts.end()) {
+    vector<std::string> vstr = miutil::split(ptit->value(), ":");
+    std::string valp = vstr[0];
+    dialogname = valp;
+    if (valp == "pressure" || valp == "trykk" //"trykk" is obsolete
+        || valp == "list" || valp == "enkel" //"enkel" is obsolete
+        || valp == "tide" || valp == "ocean")
+    {
+      plottype = OPT_LIST;
+    } else if (valp == "hqc_synop") {
+      plottype = OPT_SYNOP;
+      flaginfo = true;
+    } else if (valp == "hqc_list") {
+      plottype = OPT_ASCII;
+      flaginfo = true;
+    }
 #ifdef ROADOBS
-        // To avoid that roadobs will be set to ascii below
-        else if( value == "synop_wmo" || value == "synop_ship" || value == "metar_icao") {
-          value = "roadobs";
-        }
-#endif
-        else if (value != "synop" && value != "metar") {
-          value = "ascii";
-        }
-        m_plottype = value;
-      } else if (key == "data") {
-        datatypes = miutil::split(value, ",");
-      } else if (key == "parameter") {
-        parameter = miutil::split(orig_value, 0, ",");
-        numPar = parameter.size();
-      } else if (key == "scale") {
-        textSize = atof(value.c_str());
-        if ( markerSize < 0 )
-          markerSize = atof(value.c_str());
-      } else if (key == "marker.size") {
-        markerSize = atof(value.c_str());
-      } else if (key == "text.size") {
-        textSize = atof(value.c_str());
-      } else if (key == "density") {
-        if (miutil::to_lower(value) == "allobs")
-          allObs = true;
-        else
-          density = atof(value.c_str());
-      } else if (key == "priority") {
-        priorityFile = orig_value;
-        priority = true;
-      } else if (key == "colour") {
-        Colour c(value);
-        origcolour = c;
-      } else if (key == "devfield") {
-        if (is_true(value)) {
-          devfield = true;
-        }
-      } else if (key == "devcolour1") {
-        Colour c(value);
-        mslpColour1 = c;
-      } else if (key == "devcolour2") {
-        Colour c(value);
-        mslpColour2 = c;
-      } else if (key == "tempprecision") {
-        tempPrecision = is_true(value);
-      } else if (key == "unit_ms") {
-        unit_ms = is_true(value);
-      } else if (key == "parametername") {
-        parameterName = is_true(value);
-      } else if (key == "popup") {
-        popupText = is_true(value);
-      } else if (key == "parameter") {
-      } else if (key == "qualityflag") {
-        qualityFlag = is_true(value);
-      } else if (key == "wmoflag") {
-        wmoFlag = is_true(value);
-      } else if (key == "moretimes") {
-        moretimes = is_true(value);
-      } else if (key == "sort") {
-        decodeSort(tokens[i]);
-        //     } else if (key == "allairepslevels") {
-        //        allAirepsLevels = is_true(value);
-      } else if (key == "timediff")
-        if (miutil::to_lower(value) == "alltimes")
-          timeDiff = -1;
-        else
-          timeDiff = atoi(value.c_str());
-      else if (key == "level") {
-        if (value == "asfield") {
-          levelAsField = true;
-          level = -1;
-        } else
-          level = atoi(value.c_str());
-        //      } else if (key == "leveldiff") {
-        //        leveldiff = atoi(value.c_str());
-      } else if (key == "onlypos") {
-        onlypos = true;
-      } else if (key == "showonlyprioritized") {
-        showOnlyPrioritized = true;
-      } else if (key == "image") {
-        image = orig_value;
-      } else if (key == "showpos") {
-        showpos = true;
-      } else if (key == "orientation") {
-        if (value == "horizontal")
-          vertical_orientation = false;
-      } else if (key == "alignment") {
-        if (value == "right")
-          left_alignment = false;
-      } else if (key == "criteria") {
-        decodeCriteria(tokens[i]);
-      } else if (key == "arrowstyle") {
-        if (value == "wind")
-          poptions.arrowstyle = arrow_wind;
-        else if (value == "wind_arrow")
-          poptions.arrowstyle = arrow_wind_arrow;
-      } else if (key == "annotations") {
-        annotations = (miutil::to_lower(value) == "true");
-      } else if (key == "font") {
-        poptions.fontname = orig_value;
-      } else if (key == "face") {
-        poptions.fontface = orig_value;
-      }
+    // To avoid that roadobs will be set to ascii below
+    else if (valp == "synop_wmo" || valp == "synop_ship" || valp == "metar_icao") {
+      plottype = OPT_ROADOBS;
+    }
+#endif // !ROADOBS
+    else if (valp != "synop" && valp != "metar") {
+      plottype = OPT_ASCII;
     }
   }
 
-  if ( markerSize < 0 )
-    markerSize = textSize;
-  std::string all = "all";
-  parameterDecode(all, false);
-  for (int i = 0; i < numPar; i++) {
-    parameterDecode(parameter[i]);
-  }
-  if( devfield )
-    pFlag["pppp_mslp"] = true;
+#ifdef ROADOBS
+  std::auto_ptr<ObsPlot> op(new RoadObsPlot(pin, plottype));
+#else  // !ROADOBS
+  std::auto_ptr<ObsPlot> op(new ObsPlot(pin, plottype));
+#endif // !ROADOBS
 
-  clearPos();
+  op->dialogname = dialogname;
+  op->flaginfo = flaginfo;
+
+  op->poptions.fontname = "BITMAPFONT";
+  op->poptions.fontface = "normal";
+
+  vector<std::string> parameter;
+  for (opts_t::const_iterator oit = opts.begin(); oit != opts.end(); ++oit) {
+    const std::string& key = oit->key();
+    const std::string& orig_value = oit->value();
+    const std::string value = miutil::to_lower(orig_value);
+
+    if (key == "plot") {
+      continue;
+    } else if (key == "data") {
+      op->datatypes = miutil::split(value, ",");
+    } else if (key == "parameter") {
+      parameter = miutil::split(orig_value, 0, ",");
+    } else if (key == "scale") {
+      op->textSize = oit->toDouble();
+    if (op->markerSize < 0)
+        op->markerSize = oit->toDouble();
+    } else if (key == "marker.size") {
+      op->markerSize = oit->toDouble();
+    } else if (key == "text.size") {
+      op->textSize = oit->toDouble();
+    } else if (key == "density") {
+      if (value == "allobs")
+        op->allObs = true;
+      else
+        op->density = oit->toDouble();
+    } else if (key == "priority") {
+      op->priorityFile = orig_value;
+      op->priority = true;
+    } else if (key == "colour") {
+      op->origcolour = Colour(orig_value);
+    } else if (key == "devfield") {
+      if (oit->toBool()) {
+        op->devfield = true;
+      }
+    } else if (key == "devcolour1") {
+      op->mslpColour1 = Colour(orig_value);
+    } else if (key == "devcolour2") {
+      op->mslpColour2 = Colour(orig_value);
+    } else if (key == "tempprecision") {
+      op->tempPrecision = oit->toBool();
+    } else if (key == "unit_ms") {
+      op->unit_ms = oit->toBool();
+    } else if (key == "parametername") {
+      op->parameterName = oit->toBool();
+    } else if (key == "popup") {
+      op->popupText = oit->toBool();
+    } else if (key == "qualityflag") {
+      op->qualityFlag = oit->toBool();
+    } else if (key == "wmoflag") {
+      op->wmoFlag = oit->toBool();
+    } else if (key == "moretimes") {
+      op->moretimes = oit->toBool();
+    } else if (key == "sort") {
+      op->decodeSort(orig_value);
+      //     } else if (key == "allairepslevels") {
+      //        allAirepsLevels = oit->toBool();
+    } else if (key == "timediff")
+      if (value == "alltimes")
+        op->timeDiff = -1;
+      else
+        op->timeDiff = oit->toInt();
+    else if (key == "level") {
+      if (value == "asfield") {
+        op->levelAsField = true;
+        op->level = -1;
+      } else
+        op->level = oit->toInt();
+      //      } else if (key == "leveldiff") {
+      //        leveldiff = oit->toInt();
+    } else if (key == "onlypos") {
+      op->onlypos = true;
+    } else if (key == "showonlyprioritized") {
+      op->showOnlyPrioritized = true;
+    } else if (key == "image") {
+      op->image = orig_value;
+    } else if (key == "showpos") {
+     op->showpos = true;
+    } else if (key == "orientation") {
+      if (value == "horizontal")
+        op->vertical_orientation = false;
+    } else if (key == "alignment") {
+      if (value == "right")
+        op->left_alignment = false;
+    } else if (key == "criteria") {
+      op->decodeCriteria(orig_value);
+    } else if (key == "arrowstyle") {
+      if (value == "wind")
+        op->poptions.arrowstyle = arrow_wind;
+      else if (value == "wind_arrow")
+        op->poptions.arrowstyle = arrow_wind_arrow;
+    } else if (key == "annotations") {
+      op->annotations = oit->toBool();
+    } else if (key == "font") {
+      op->poptions.fontname = orig_value;
+    } else if (key == "face") {
+      op->poptions.fontface = orig_value;
+    }
+  }
+
+  if (op->markerSize < 0)
+    op->markerSize = op->textSize;
+  std::string all = "all";
+  op->parameterDecode(all, false);
+  op->numPar = parameter.size();
+  for (int i = 0; i < op->numPar; i++) {
+    op->parameterDecode(parameter[i]);
+  }
+  if (op->devfield)
+    op->pFlag["pppp_mslp"] = true;
+
+  op->clearPos();
 
   // static tables, read once
 
   std::string path = LocalSetupParser::basicValue("obsplotfilepath");
 
-  bool synop_list =
-#ifdef ROADOBS
-      plottype() == "roadobs" or
-#endif
-      plottype() == "synop" or plottype() == "list";
-
-  if (synop_list) {
+  if (op->isSynopListRoad()) {
     if (!itabSynop || !iptabSynop) {
-      std::string filename = path + "/synpltab.dat";
-      if (!readTable(plottype(), filename))
-        return false;
-      itabSynop = itab;
-      iptabSynop = iptab;
+      if (!readTable(op->plottype(), path + "/synpltab.dat", itabSynop, iptabSynop))
+        return 0;
     }
-    itab = itabSynop;
-    iptab = iptabSynop;
+    op->itab = itabSynop;
+    op->iptab = iptabSynop;
 
-  } else if (plottype() == "metar") {
+  } else if (op->plottype() == OPT_METAR) {
     if (!itabMetar || !iptabMetar) {
-      std::string filename = path + "/metpltab.dat";
-      if (!readTable(plottype(), filename))
-        return false;
-      itabMetar = itab;
-      iptabMetar = iptab;
+      if (!readTable(op->plottype(), path + "/metpltab.dat", itabMetar, iptabMetar))
+        return 0;
     }
-    itab = itabMetar;
-    iptab = iptabMetar;
-
-  } else {
-    itab = 0;
-    iptab = 0;
+    op->itab = itabMetar;
+    op->iptab = iptabMetar;
   }
 
-  return true;
+  return op.release();
 }
 
 static int normalize_angle(float dd)
@@ -848,7 +834,7 @@ bool ObsPlot::setData()
       iter != sortcriteria.end(); ++iter)
     parameter_sort(iter->first, iter->second);
 
-  if (plottype() == "metar" && metarMap.size() == 0)
+  if (plottype() == OPT_METAR && metarMap.size() == 0)
     initMetarMap();
 
   return true;
@@ -1463,269 +1449,38 @@ void ObsPlot::nextObs(bool Next)
     plotnr--;
   }
 }
-// we must keep this for performance reasons
-#ifdef ROADOBS
-/* this metod compute wich stations to plot
- and fills a vector with index to the internal stationlist that should get data
- from road */
 
-bool ObsPlot::preparePlot()
+bool ObsPlot::isSynopListRoad() const
 {
-  METLIBS_LOG_SCOPE();
+  return plottype() == OPT_SYNOP || plottype() == OPT_LIST
+      || plottype() == OPT_ROADOBS;
+}
 
-  if (!isEnabled()) {
-    // make sure plot-densities etc are recalc. next time
-    if (getStaticPlot()->getDirty())
-      beendisabled= true;
-    return false;
-  }
+bool ObsPlot::isSynopMetarRoad() const
+{
+  return plottype() == OPT_SYNOP || plottype() == OPT_METAR
+      || plottype() == OPT_ROADOBS;
+}
 
-  int numObs = numPositions();
-  if (not numObs)
-    return false;
-
-  scale= textSize*getStaticPlot()->getPhysToMapScaleX()*0.7;
-
-  int num=numPar;
+int ObsPlot::calcNum() const
+{
+  int num = numPar;
+  if (pFlag.count("wind"))
+    num--;
   // I think we should check for roadobsWind here also
   // OBS!******************************************
-  if (plottype()=="ascii") {
-    if( pFlag.count("wind") )
-      num--;
-  }
-  else if (plottype()=="roadobs") {
-    if ( pFlag.count("wind"))
-      num--;
-  }
-  else {
-    if( pFlag.count("pos") )
+  if (plottype() != OPT_ASCII && plottype() != OPT_ROADOBS) {
+    if (pFlag.count("pos"))
       num++;
-    if( pFlag.count("wind") )
-      num--;
   }
-
-  float xdist,ydist;
-  // I think we should plot roadobs like synop here
-  // OBS!******************************************
-  if (plottype() == "synop" || plottype() == "metar" || plottype() == "roadobs") {
-
-    xdist = 100*scale/density;
-    ydist = 90*scale/density;
-  } else if (plottype() == "list" || plottype() == "ascii") {
-    if (num>0) {
-      if(vertical_orientation) {
-        xdist = 58*scale/density;
-        ydist = 18*(num+0.2)*scale/density;
-      } else {
-        xdist = 50*num*scale/density;
-        ydist = 10*scale/density;
-      }
-    } else {
-      xdist = 14*scale/density;
-      ydist = 14*scale/density;
-    }
-  }
-
-  //**********************************************************************
-  //Which stations to plot
-
-  bool testpos= true;// positionFree or areaFree must be tested
-  vector<int> ptmp;
-  vector<int>::iterator p,pbegin,pend;
-
-  if (getStaticPlot()->getDirty() || firstplot || beendisabled) {
-    //new area
-    thisObs = false;
-
-    // new area, find stations inside current area
-    all_this_area.clear();
-    int nn=all_stations.size();
-    for (int j=0; j<nn; j++) {
-      int i = all_stations[j];
-      if (getStaticPlot()->getMapSize().isinside(x[i],y[i])) {
-        all_this_area.push_back(i);
-      }
-    }
-
-    //    METLIBS_LOG_DEBUG("all this area:"<<all_this_area.size());
-    // plot the observations from last plot if possible,
-    // then the rest if possible
-
-    if(!firstplot) {
-      vector<int> a,b;
-      int n= list_plotnr.size();
-      if (n==numObs) {
-        int psize= all_this_area.size();
-        for (int j=0; j<psize; j++) {
-          int i=all_this_area[j];
-          if(list_plotnr[i]==plotnr)
-            a.push_back(i);
-          else
-            b.push_back(i);
-        }
-        if (a.size()>0) {
-          all_this_area.clear();
-          all_this_area.insert(all_this_area.end(),a.begin(),a.end());
-          all_this_area.insert(all_this_area.end(),b.begin(),b.end());
-        }
-      }
-    }
-
-    //reset
-    list_plotnr.clear();
-    list_plotnr.insert(list_plotnr.begin(),numObs,-1);
-    maxnr=plotnr=0;
-
-    pbegin= all_this_area.begin();
-    pend = all_this_area.end();
-
-  } else if (thisObs) {
-    //    METLIBS_LOG_DEBUG("thisobs");
-    // plot the station pointed at and those plotted last time if possible,
-    // then the rest if possible.
-    ptmp = nextplot;
-    ptmp.insert(ptmp.end(),notplot.begin(),notplot.end());
-    pbegin = ptmp.begin();
-    pend = ptmp.end();
-
-  } else if (plotnr> maxnr) {
-    //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
-    // plot as many observations as possible which have not been plotted before
-    maxnr++;
-    plotnr= maxnr;
-
-    int psize= all_this_area.size();
-    for (int j=0; j<psize; j++) {
-      int i=all_this_area[j];
-      if (list_plotnr[i]==-1)
-        ptmp.push_back(i);
-    }
-    pbegin = ptmp.begin();
-    pend = ptmp.end();
-
-  } else if (previous && plotnr<0) {
-    //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
-    // should return to the initial priority as often as possible...
-
-    if(!fromFile) { //if priority from last plot has been used so far
-      all_this_area.clear();
-      for (int j=0; j<numObs; j++) {
-        int i = all_from_file[j];
-        if (getStaticPlot()->getMapSize().isinside(x[i],y[i]))
-          all_this_area.push_back(i);
-      }
-      all_stations=all_from_file;
-      fromFile=true;
-    }
-    //clear
-    plotnr= maxnr= 0;
-    list_plotnr.clear();
-    list_plotnr.insert(list_plotnr.begin(),numObs,-1);
-
-    pbegin= all_this_area.begin();
-    pend = all_this_area.end();
-
-  } else if(previous || next) {
-    //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
-    //    plot observations from plotnr
-    int psize= all_this_area.size();
-    notplot.clear();
-    nextplot.clear();
-    for (int j=0; j<psize; j++) {
-      int i=all_this_area[j];
-      if (list_plotnr[i] == plotnr) {
-        nextplot.push_back(i);
-      } else if (list_plotnr[i]> plotnr || list_plotnr[i]==-1) {
-        notplot.push_back(i);
-      }
-    }
-    testpos= false; //no need to test positionFree or areaFree
-
-  } else {
-    //nothing has changed
-    testpos= false;//no need to test positionFree or areaFree
-  }
-  //######################################################
-  //  int ubsize1= usedBox.size();
-  //######################################################
-
-  if (testpos) { //test of positionFree or areaFree
-    notplot.clear();
-    nextplot.clear();
-    // I think we should plot roadobs like synop here
-    // OBS!******************************************
-    if (plottype() == "list" || plottype() == "ascii") {
-      for (p=pbegin; p!=pend; p++) {
-        int i= *p;
-        if (allObs || areaFree(i)) {
-          if( checkPlotCriteria(i) ) {
-            nextplot.push_back(i);
-            list_plotnr[i]= plotnr;
-          } else {
-            list_plotnr[i]= -2;
-            if (usedBox.size())
-              usedBox.pop_back();
-          }
-        } else {
-          notplot.push_back(i);
-        }
-      }
-    } else {
-      for (p=pbegin; p!=pend; p++) {
-        int i= *p;
-        if (allObs || positionFree(x[i],y[i],xdist,ydist)) {
-          if( checkPlotCriteria(i) ) {
-            nextplot.push_back(i);
-            list_plotnr[i]= plotnr;
-          } else {
-            list_plotnr[i]= -2;
-            if(xUsed.size())
-              xUsed.pop_back();
-            if(yUsed.size())
-              yUsed.pop_back();
-          }
-        } else {
-          notplot.push_back(i);
-        }
-      }
-    }
-    if (thisObs) {
-      for (size_t i=0; i<notplot.size(); i++)
-        if (list_plotnr[notplot[i]]==plotnr)
-          list_plotnr[notplot[i]]= -1;
-    }
-  }
-
-  // BEE CAREFULL! This code assumes that the number of entries in
-  // stationlist are the same as in the roadobsp map.
-  // reset stations_to_plot
-  stations_to_plot.clear();
-  // use nextplot info to fill the stations_to_plot.
-  for (size_t i=0; i<nextplot.size(); i++) {
-    stations_to_plot.push_back(nextplot[i]);
-  }
-  //reset
-
-  next = false;
-  previous = false;
-  thisObs = false;
-  if (nextplot.empty())
-    plotnr=-1;
-  //firstplot = false;
-  beendisabled = false;
-
-  //clearPos();
-  //clear();
-
-  return true;
+  return num;
 }
-#endif // ROADOBS
 
 static float circle_radius = 7;
 
 void ObsPlot::drawCircle(DiGLPainter* gl)
 {
-  if (plottype() == "list" || plottype() == "ascii") {
+  if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
     const float d = circle_radius * 0.25;
     gl->drawRect(-d, -d, d, d);
   } else {
@@ -1781,40 +1536,15 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     return;
   }
 
-  int num = numPar;
-  // I think we should check for roadobsWind here also
-  // OBS!******************************************
-  if (plottype() == "ascii") {
-    if (pFlag.count("wind"))
-      num--;
-  }
-#ifdef ROADOBS
-  else if (plottype()=="roadobs") {
-    if (pFlag.count("wind"))
-      num--;
-  }
-#endif
-  else {
-    if (pFlag.count("pos"))
-      num++;
-    if (pFlag.count("wind"))
-      num--;
-  }
-
+  int num = calcNum();
   float xdist = 0, ydist = 0;
   // I think we should plot roadobs like synop here
   // OBS!******************************************
 
-  bool synopPlot = (plottype() == "synop" || plottype() == "metar");
-
-#ifdef ROADOBS
-  synopPlot = (plottype() == "synop" || plottype() == "metar" || plottype() == "roadobs");
-#endif
-
-  if (synopPlot) {
+  if (isSynopMetarRoad()) {
     xdist = 100 * scale / density;
     ydist = 90 * scale / density;
-  } else if (plottype() == "list" || plottype() == "ascii") {
+  } else if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
     if (num > 0) {
       if (vertical_orientation) {
         xdist = 58 * scale / density;
@@ -1841,7 +1571,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     //init of areaFreeSetup
     // I think we should plot roadobs like synop here
     // OBS!******************************************
-    if (plottype() == "list" || plottype() == "ascii") {
+    if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
       float w, h;
       gl->getTextSize("0", w, h);
       float space = w * 0.5;
@@ -1967,7 +1697,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     nextplot.clear();
     // I think we should plot roadobs like synop here
     // OBS!******************************************
-    if (plottype() == "list" || plottype() == "ascii") {
+    if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
       for (p = pbegin; p != pend; p++) {
         int i = *p;
         if (allObs || areaFree(i)) {
@@ -1998,7 +1728,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
         int i = *p;
         if (allObs || positionFree(x[i], y[i], xdist, ydist)) {
           //Select parameter with correct accumulation/max value interval
-          if (plottype() != "roadobs") {
+          if (plottype() != OPT_ROADOBS) {
             if (pFlag.count("911ff")) {
               checkGustTime(obsp[i]);
             }
@@ -2049,36 +1779,10 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     gl->setColour(origcolour);
   }
 
-  int n = nextplot.size();
-
-  if (plottype() == "synop") {
-    for (int i = 0; i < n; i++) {
-      plotSynop(gl, nextplot[i]);
-    }
-
-  } else if (plottype() == "metar") {
-    for (int i = 0; i < n; i++) {
-      plotMetar(gl, nextplot[i]);
-    }
-
-  } else if (plottype() == "list") {
-    for (int i = 0; i < n; i++) {
-      plotList(gl, nextplot[i]);
-    }
-
-  } else if (plottype() == "ascii") {
-    for (int i = 0; i < n; i++) {
-      plotList(gl, nextplot[i]);
-    }
+  const size_t n = nextplot.size();
+  for (int i = 0; i < n; i++) {
+    plotIndex(gl, nextplot[i]);
   }
-#ifdef ROADOBS
-  else if (plottype() == "roadobs") {
-    for (int i=0; i<n; i++) {
-      plotRoadobs(gl, nextplot[i]);
-    }
-  }
-#endif
-
 
   //reset
 
@@ -2090,6 +1794,19 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   origcolour = selectedColour; // reset in case a background contrast colour was used
   firstplot = false;
   beendisabled = false;
+}
+
+void ObsPlot::plotIndex(DiGLPainter* gl, int index)
+{
+  if (plottype() == OPT_SYNOP) {
+    plotSynop(gl, index);
+  } else if (plottype() == OPT_METAR) {
+    plotMetar(gl, index);
+  } else if (plottype() == OPT_LIST) {
+    plotList(gl, index);
+  } else if (plottype() == OPT_ASCII) {
+    plotList(gl, index);
+  }
 }
 
 bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
@@ -2114,9 +1831,7 @@ void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
 
   areaFreeSpace = space;
 
-  bool wind = pFlag.count("wind");
-
-  if (wind)
+  if (pFlag.count("wind"))
     areaFreeWindSize = scale * 47.;
   else
     areaFreeWindSize = 0.0;
@@ -2564,7 +2279,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     ypos += -0.2 * yStep;
   }
 
-  if ( plottype() == "list" ) {
+  if ( plottype() == OPT_LIST ) {
     if (yStep < 0)
       for ( int i = vparam.size()-1; i>-1; --i )
         printListParameter(gl, dta,vparam[i],xpos,ypos,yStep,align_right,xshift);
@@ -2572,7 +2287,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       for ( size_t i = 0; i<vparam.size(); ++i )
         printListParameter(gl, dta,vparam[i],xpos,ypos,yStep,align_right,xshift);
 
-  } else if ( plottype() == "ascii" ) {
+  } else if ( plottype() == OPT_ASCII ) {
 
     int n = columnName.size();
     if (yStep < 0)
@@ -2604,1000 +2319,6 @@ void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& 
     }
   }
 }
-
-#ifdef ROADOBS
-
-void ObsPlot::plotDBMetar(DiGLPainter* gl,int index)
-{
-  METLIBS_LOG_SCOPE("index: " << index);
-
-  // NOTE: We must use the new data structures....
-  ObsData &dta = obsp[index];
-
-  std::string icao_value = "X";
-  std::string station_type = dta.stringdata["data_type"];
-  int automationcode = dta.fdata["auto"];
-  bool isData = dta.fdata["isdata"];
-  // Don't plot stations with no data
-  if (!isData) return;
-
-  float N_value = undef;
-  float ww_value = undef;
-  float GWI_value = undef;
-  float TTT_value = undef;
-  float TdTdTd_value = undef;
-  float PHPHPHPH_value = undef;
-  float ppp_value = undef;
-  float a_value = undef;
-  float Nh_value = undef;
-  float h_value = undef;
-  float Ch_value = undef;
-  float Cm_value = undef;
-  float Cl_value = undef;
-  float W1_value = undef;
-  float W2_value = undef;
-  float TxTx_value = undef;
-  float TnTn_value = undef;
-  float sss_value = undef;
-  float VV_value = undef;
-  float dxdxdx_value = undef;
-  float dndndn_value = undef;
-  float fmfm_value = undef;
-  float fxfx_value = undef;
-  // Cloud layer 1-4 from automat stations
-  float NS_A1_value = undef;
-  float HS_A1_value = undef;
-  float NS_A2_value = undef;
-  float HS_A2_value = undef;
-  float NS_A3_value = undef;
-  float HS_A3_value = undef;
-  float NS_A4_value = undef;
-  float HS_A4_value = undef;
-
-  // Cloud layer 1-4 from manual stations
-  float NS1_value = undef;
-  float HS1_value = undef;
-  float NS2_value = undef;
-  float HS2_value = undef;
-  float NS3_value = undef;
-  float HS3_value = undef;
-  float NS4_value = undef;
-  float HS4_value = undef;
-
-  // Decode the string from database
-
-  if (pFlag.count("name") && dta.stringdata.count("Name"))
-    icao_value = dta.stringdata["Name"];
-  if (pFlag.count("dxdxdx") && dta.stringdata.count("dxdxdx"))
-    dxdxdx_value = atof(dta.stringdata["dxdxdx"].c_str());
-  if (pFlag.count("dndndn") && dta.stringdata.count("dndndn"))
-    dndndn_value = atof(dta.stringdata["dndndn"].c_str());
-  if (pFlag.count("fmfmk") && dta.stringdata.count("fmfmk"))
-    fmfm_value = atof(dta.stringdata["fmfmk"].c_str());
-  if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
-    fxfx_value = atof(dta.stringdata["fxfx"].c_str());
-  if (pFlag.count("sss") && dta.stringdata.count("sss"))
-    sss_value = atof(dta.stringdata["sss"].c_str());
-  if (pFlag.count("vv") && dta.stringdata.count("VV"))
-    VV_value = atof(dta.stringdata["VV"].c_str());
-  if (pFlag.count("n") && dta.stringdata.count("N"))
-    N_value = atof(dta.stringdata["N"].c_str());
-  if (pFlag.count("ww") && dta.stringdata.count("ww"))
-    ww_value = atof(dta.stringdata["ww"].c_str());
-  if (pFlag.count("gwi") && dta.stringdata.count("GWI"))
-    GWI_value = atof(dta.stringdata["GWI"].c_str());
-  if (pFlag.count("a") && dta.stringdata.count("a"))
-    a_value = atof(dta.stringdata["a"].c_str());
-  if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
-    TTT_value = atof(dta.stringdata["TTT"].c_str());
-  if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
-    TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
-  if (pFlag.count("phphphph") && dta.stringdata.count("PHPHPHPH"))
-    PHPHPHPH_value = atof(dta.stringdata["PHPHPHPH"].c_str());
-  if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
-    ppp_value = atof(dta.stringdata["ppp"].c_str());
-  if (pFlag.count("nh") && dta.stringdata.count("Nh"))
-    Nh_value = atof(dta.stringdata["Nh"].c_str());
-  if (pFlag.count("h") && dta.stringdata.count("h"))
-    h_value = atof(dta.stringdata["h"].c_str());
-  if (pFlag.count("ch") && dta.stringdata.count("Ch"))
-    Ch_value = atof(dta.stringdata["Ch"].c_str());
-  if (pFlag.count("cm") && dta.stringdata.count("Cm"))
-    Cm_value = atof(dta.stringdata["Cm"].c_str());
-  if (pFlag.count("cl") && dta.stringdata.count("Cl"))
-    Cl_value = atof(dta.stringdata["Cl"].c_str());
-  if (pFlag.count("w1") && dta.stringdata.count("W1"))
-    W1_value = atof(dta.stringdata["W1"].c_str());
-  if (pFlag.count("w2") && dta.stringdata.count("W2"))
-    W2_value = atof(dta.stringdata["W2"].c_str());
-  // FIXME: Is the 24 and 12 hour values reported at the same time?
-  if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
-    TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
-  // FIXME: Is the 24 and 12 hour values reported at the same time?
-  if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
-    TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
-  // Cload layer 1-4 from automat stations
-  if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
-    NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
-  if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
-    HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
-  if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
-    NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
-  if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
-    HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
-  if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
-    NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
-  if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
-    HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
-  if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
-    NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
-  if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
-    HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
-  // Cload layer 1-4 from manual stations
-  if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
-    NS1_value = atof(dta.stringdata["NS1"].c_str());
-  if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
-    HS1_value = atof(dta.stringdata["HS1"].c_str());
-  if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
-    NS2_value = atof(dta.stringdata["NS2"].c_str());
-  if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
-    HS2_value = atof(dta.stringdata["HS2"].c_str());
-  if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
-    NS3_value = atof(dta.stringdata["NS3"].c_str());
-  if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
-    HS3_value = atof(dta.stringdata["HS3"].c_str());
-  if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
-    NS4_value = atof(dta.stringdata["NS4"].c_str());
-  if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
-    HS4_value = atof(dta.stringdata["HS4"].c_str());
-
-  DiGLPainter::GLfloat radius = 7.0;
-  int lpos = itab[1] + 10;
-  /*const map<std::string, float>::iterator fend = dta.fdata.end();
-   map<std::string, float>::iterator f2_p;
-   map<std::string, float>::iterator f_p;*/
-
-  //reset colour
-  gl->setColour(origcolour);
-  colour = origcolour;
-
-  checkTotalColourCriteria(gl, index);
-
-  gl->PushMatrix();
-  gl->Translatef(x[index], y[index], 0.0);
-
-  //Circle
-  gl->PushMatrix();
-  gl->Scalef(scale, scale, 0.0);
-  drawCircle(gl);
-  gl->PopMatrix();
-  //wind
-  if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
-    checkColourCriteria(gl, "dd", dta.fdata["dd"]);
-    checkColourCriteria(gl, "ff", dta.fdata["ff"]);
-    metarWind(gl,(int) dta.fdata["dd_adjusted"], diutil::ms2knots(dta.fdata["ff"]), radius, lpos);
-  }
-  //limit of variable wind direction
-  int dndx = 16;
-  if (dndndn_value!= undef && dxdxdx_value != undef) {
-    QString cs = QString("%1V%2")
-        .arg(dndndn_value / 10)
-        .arg(dxdxdx_value / 10);
-    printString(gl, cs, iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
-    dndx = 2;
-  }
-  //Wind gust
-  float xid, yid;
-  if (fmfm_value != undef) {
-    checkColourCriteria(gl, "fmfmk", fmfm_value);
-    printNumber(gl,diutil::float2int(fmfm_value), iptab[lpos + 4] + 2, iptab[lpos + 5] + 2
-        - dndx, "left", true);
-    //understrekes
-    xid = iptab[lpos + 4] + 20 + 15;
-    yid = iptab[lpos + 5] - dndx + 8;
-  } else {
-    xid = iptab[lpos + 4] + 2 + 15;
-    yid = iptab[lpos + 5] + 2 - dndx + 8;
-  }
-
-  //Temperature
-  if (TTT_value != undef) {
-    checkColourCriteria(gl, "TTT", TTT_value);
-    //    if( dta.TT>-99.5 && dta.TT<99.5 ) //right align_righted
-    //printNumber(TTT_value, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16, "temp");
-    printNumber(gl,TTT_value, iptab[lpos+10]+2,iptab[lpos+11]+2,"temp");
-  }
-
-  //Dewpoint temperature
-  if (TdTdTd_value != undef) {
-    checkColourCriteria(gl, "TdTdTd", TdTdTd_value);
-    //    if( dta.TdTd>-99.5 && dta.TdTd<99.5 )  //right align_righted and underlined
-    printNumber(gl,TdTdTd_value, iptab[lpos+16]+2,iptab[lpos+17]+2, "temp");
-  }
-
-  float VVxpos = iptab[lpos+14] + 22;
-  //CAVOK, GWI
-  if (GWI_value != undef) {
-    checkColourCriteria(gl, "GWI", 0);
-
-    if (GWI_value == 2) {
-      printString(gl, "OK", iptab[lpos+12] -8,iptab[lpos+13]);
-    } else if (GWI_value == 1) { //Clouds
-      printString(gl, "NSC", iptab[lpos+12] -8,iptab[lpos+13]);
-    } else if (GWI_value == 3) { //Clouds
-      printString(gl, "SKC", iptab[lpos+12] -8,iptab[lpos+13]);
-    } else if (GWI_value == 1) { //Clouds
-      printString(gl, "NSW", iptab[lpos+12] -8,iptab[lpos+13]);
-    }
-    VVxpos = iptab[lpos+12] -28;
-
-  }
-  //int zone = 1;
-  //if( ww_value != undef &&
-  //    ww_value>3) {//1-3 skal ikke plottes
-  //  checkColourCriteria(gl, "ww",ww_value);
-  //  weather((short int)(int)ww_value,TTT_value,zone,
-  //      iptab[lpos+12],iptab[lpos+13]);
-  //  
-
-  gl->PushMatrix();
-  gl->Scalef(scale, scale, 0.0);
-  gl->Scalef(0.8, 0.8, 0.0);
-
-  //Significant weather
-  // Two string parameters ?!
-  //int wwshift = 0; //idxm
-  //if (ww_value != undef) {
-  // checkColourCriteria(gl, "ww", 0);
-  // metarSymbol(ww_value, iptab[lpos + 8], iptab[lpos + 9], wwshift);
-  // //if (dta.ww.size() > 0 && dta.ww[0].exists()) {
-  // // metarSymbol(dta.ww[0], iptab[lpos + 8], iptab[lpos + 9], wwshift);
-  // //}
-  // //if (dta.ww.size() > 1 && dta.ww[1].exists()) {
-  // // metarSymbol(dta.ww[1], iptab[lpos + 10], iptab[lpos + 11], wwshift);
-  // //}
-  //}
-
-  //Recent weather
-  /*if (pFlag.count("reww")) {
-   checkColourCriteria(gl, "REww", 0);
-   if (dta.REww.size() > 0 && dta.REww[0].exists()) {
-   int intREww[5];
-   metarString2int(dta.REww[0], intREww);
-   if (intREww[0] >= 0 && intREww[0] < 100) {
-   symbol(itab[40 + intREww[0]], iptab[lpos + 30], iptab[lpos + 31] + 2);
-   }
-   }
-   if (dta.REww.size() > 1 && dta.REww[1].exists()) {
-   int intREww[5];
-   metarString2int(dta.REww[1], intREww);
-   if (intREww[0] >= 0 && intREww[0] < 100) {
-   symbol(itab[40 + intREww[0]], iptab[lpos + 30] + 15, iptab[lpos + 31]
-   + 2);
-   }
-   }
-   }*/
-
-  gl->PopMatrix();
-  bool ClFlag = false;
-
-  if (NS1_value != undef || HS1_value != undef || NS2_value != undef || HS2_value != undef
-      || NS3_value != undef || HS3_value != undef || NS4_value != undef || HS4_value != undef)
-  {
-    //convert to hfoot
-    if (HS1_value != undef)
-      HS1_value = (HS1_value*3.2808399)/100.0;
-    if (HS2_value != undef)
-      HS2_value = (HS2_value*3.2808399)/100.0;
-    if (HS3_value != undef)
-      HS3_value = (HS3_value*3.2808399)/100.0;
-    if (HS4_value != undef)
-      HS4_value = (HS4_value*3.2808399)/100.0;
-    if( ClFlag ) {
-      amountOfClouds_1_4(gl,
-          (short int)(int)NS1_value, (short int)(int)HS1_value,
-          (short int)(int)NS2_value, (short int)(int)HS2_value,
-          (short int)(int)NS3_value, (short int)(int)HS3_value,
-          (short int)(int)NS4_value, (short int)(int)HS4_value,
-          iptab[lpos+24]+2,iptab[lpos+25]+2,true);
-    } else {
-      amountOfClouds_1_4(gl,
-          (short int)(int)NS1_value, (short int)(int)HS1_value,
-          (short int)(int)NS2_value, (short int)(int)HS2_value,
-          (short int)(int)NS3_value, (short int)(int)HS3_value,
-          (short int)(int)NS4_value, (short int)(int)HS4_value,
-          iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
-    }
-  }
-  else
-  {
-    // Clouds
-    //METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
-    if(Nh_value != undef || h_value != undef) {
-      float Nh,h;
-      Nh = Nh_value;
-
-      /* NOTE, the height should be converted to hektfoot */
-      if (h_value != undef)
-      {
-        h_value = (h_value*3.2808399)/100.0;
-      }
-      h = h_value;
-      if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
-      if(h!=undef) checkColourCriteria(gl, "h",h);
-      if( ClFlag ) {
-        amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2,true);
-      } else {
-        amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
-      }
-    }
-  }
-
-  if( VV_value != undef ) {
-    checkColourCriteria(gl, "VV",VV_value);
-    // dont print in synop code, print in km #515, redmine
-    if (VV_value < 5000.0)
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"float_1");
-    else
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"fill_1");
-
-  }
-
-  //QNH ??
-  // Sort, hPa ?
-  if (PHPHPHPH_value != undef) {
-    checkColourCriteria(gl, "PHPHPHPH", PHPHPHPH_value);
-    int pp = (int) PHPHPHPH_value;
-    pp -= (pp / 100) * 100;
-
-    printNumber(gl,pp, iptab[lpos+44]+2,iptab[lpos+45]+2, "fill_2");
-    printString(gl, "x",iptab[lpos+44]+18,iptab[lpos+45]+2);
-  }
-
-  //Id
-  if (icao_value != "X") {
-    checkColourCriteria(gl, "Name", 0);
-    printString(gl, decodeText(icao_value), iptab[lpos+46]+2,iptab[lpos+47]+2);
-  }
-
-  gl->PopMatrix();
-}
-
-/*
- * We must replace ObsData with the correct data types and structures
- * in order to plot observations from road in synop format.
- * We can either use the ascci data representation or something else?
- * What about the parameter names ?
- *
- */
-
-void ObsPlot::plotRoadobs(DiGLPainter* gl, int index)
-{
-  METLIBS_LOG_SCOPE("index: " << index);
-  // Just to be safe...
-  if (index > obsp.size() - 1) return;
-  if (index < 0) return;
-  ObsData & dta = obsp[index];
-  // Does this work for ship ?!
-  if (dta.stringdata["data_type"] == road::diStation::WMO || dta.stringdata["data_type"] == road::diStation::SHIP)
-    plotDBSynop(gl,index);
-  else if (dta.stringdata["data_type"] == road::diStation::ICAO)
-    plotDBMetar(gl,index);
-  // Unknown type of station...
-  else return;
-}
-
-void ObsPlot::plotDBSynop(DiGLPainter* gl, int index)
-{
-  METLIBS_LOG_SCOPE("index: " << index);
-
-
-  // NOTE: We must use the new data structures....
-
-  ObsData &dta = obsp[index];
-
-  std::string station_type = dta.stringdata["data_type"];
-  std::string call_sign;
-  int automationcode = dta.fdata["auto"];
-  bool isData = dta.fdata["isdata"];
-  // Do not plot stations with no data
-  if (!isData) return;
-
-  // loop all the parameters and then plot them
-  // check for the TTT value etc
-  float wmono_value = undef;
-
-  float N_value = undef;
-  float ww_value = undef;
-  float TTT_value = undef;
-  float TdTdTd_value = undef;
-  float PPPP_value = undef;
-  float ppp_value = undef;
-  float a_value = undef;
-  float Nh_value = undef;
-  float h_value = undef;
-  float Ch_value = undef;
-  float Cm_value = undef;
-  float Cl_value = undef;
-  float W1_value = undef;
-  float W2_value = undef;
-  // Direction and speed of ship
-  float DS_value = undef;
-  float VS_value = undef;
-  float TxTx_value = undef;
-  float TnTn_value = undef;
-  float rrr_24_value = undef;
-  float rrr_12_value = undef;
-  float rrr_6_value = undef;
-  float rrr_3_value = undef;
-  float rrr_1_value = undef;
-  float sss_value = undef;
-  float VV_value = undef;
-  float f911ff_value = undef;
-  float fxfx_value = undef;
-  // Cloud layer 1-4 from automat stations
-  float NS_A1_value = undef;
-  float HS_A1_value = undef;
-  float NS_A2_value = undef;
-  float HS_A2_value = undef;
-  float NS_A3_value = undef;
-  float HS_A3_value = undef;
-  float NS_A4_value = undef;
-  float HS_A4_value = undef;
-
-  // Cloud layer 1-4 from manual stations
-  float NS1_value = undef;
-  float HS1_value = undef;
-  float NS2_value = undef;
-  float HS2_value = undef;
-  float NS3_value = undef;
-  float HS3_value = undef;
-  float NS4_value = undef;
-  float HS4_value = undef;
-
-  // Decode the string from database
-
-  if (pFlag.count("name") && dta.stringdata.count("Name")) {
-    std::string str = dta.stringdata["Name"];
-    if (station_type == road::diStation::WMO)
-      wmono_value = atof(str.c_str());
-    else if (station_type == road::diStation::SHIP)
-      call_sign = str;
-  }
-  if (pFlag.count("911ff") && dta.stringdata.count("911ff"))
-    f911ff_value = atof(dta.stringdata["911ff"].c_str());
-  if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
-    fxfx_value = atof(dta.stringdata["fxfx"].c_str());
-  if (pFlag.count("sss") && dta.stringdata.count("sss"))
-    sss_value = atof(dta.stringdata["sss"].c_str());
-  if (pFlag.count("vv") && dta.stringdata.count("VV"))
-    VV_value = atof(dta.stringdata["VV"].c_str());
-  if (pFlag.count("n") && dta.stringdata.count("N"))
-    N_value = atof(dta.stringdata["N"].c_str());
-  if (pFlag.count("ww") && dta.stringdata.count("ww"))
-    ww_value = atof(dta.stringdata["ww"].c_str());
-  if (pFlag.count("vv") && dta.stringdata.count("VV"))
-    VV_value = atof(dta.stringdata["VV"].c_str());
-  if (pFlag.count("a") && dta.stringdata.count("a"))
-    a_value = atof(dta.stringdata["a"].c_str());
-  if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
-    TTT_value = atof(dta.stringdata["TTT"].c_str());
-  if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
-    TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
-  if (pFlag.count("pppp") && dta.stringdata.count("PPPP"))
-    PPPP_value = atof(dta.stringdata["PPPP"].c_str());
-  if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
-    ppp_value = atof(dta.stringdata["ppp"].c_str());
-  if (pFlag.count("nh") && dta.stringdata.count("Nh"))
-    Nh_value = atof(dta.stringdata["Nh"].c_str());
-  if (pFlag.count("h") && dta.stringdata.count("h"))
-    h_value = atof(dta.stringdata["h"].c_str());
-  if (pFlag.count("ch") && dta.stringdata.count("Ch"))
-    Ch_value = atof(dta.stringdata["Ch"].c_str());
-  if (pFlag.count("cm") && dta.stringdata.count("Cm"))
-    Cm_value = atof(dta.stringdata["Cm"].c_str());
-  if (pFlag.count("cl") && dta.stringdata.count("Cl"))
-    Cl_value = atof(dta.stringdata["Cl"].c_str());
-  if (pFlag.count("w1") && dta.stringdata.count("W1"))
-    W1_value = atof(dta.stringdata["W1"].c_str());
-  if (pFlag.count("w2") && dta.stringdata.count("W2"))
-    W2_value = atof(dta.stringdata["W2"].c_str());
-  if (pFlag.count("vs") && dta.stringdata.count("vs"))
-    VS_value = atof(dta.stringdata["vs"].c_str());
-  if (pFlag.count("ds") && dta.stringdata.count("ds"))
-    DS_value = atof(dta.stringdata["ds"].c_str());
-  // FIXME: Is the 24 and 12 hour values reported at the same time?
-  if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
-    TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
-  // FIXME: Is the 24 and 12 hour values reported at the same time?
-  if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
-    TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
-  // Cload layer 1-4 from automat stations
-  if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
-    NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
-  if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
-    HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
-  if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
-    NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
-  if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
-    HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
-  if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
-    NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
-  if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
-    HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
-  if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
-    NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
-  if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
-    HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
-  // Cload layer 1-4 from manual stations
-  if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
-    NS1_value = atof(dta.stringdata["NS1"].c_str());
-  if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
-    HS1_value = atof(dta.stringdata["HS1"].c_str());
-  if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
-    NS2_value = atof(dta.stringdata["NS2"].c_str());
-  if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
-    HS2_value = atof(dta.stringdata["HS2"].c_str());
-  if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
-    NS3_value = atof(dta.stringdata["NS3"].c_str());
-  if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
-    HS3_value = atof(dta.stringdata["HS3"].c_str());
-  if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
-    NS4_value = atof(dta.stringdata["NS4"].c_str());
-  if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
-    HS4_value = atof(dta.stringdata["HS4"].c_str());
-
-  // another special case, the RRR
-  if (pFlag.count("rrr_24") && dta.stringdata.count("RRR_24"))
-    rrr_24_value = atof(dta.stringdata["RRR_24"].c_str());
-  if (pFlag.count("rrr_12") && dta.stringdata.count("RRR_12"))
-    rrr_12_value = atof(dta.stringdata["RRR_12"].c_str());
-  if (pFlag.count("rrr_6") && dta.stringdata.count("RRR_6"))
-    rrr_6_value = atof(dta.stringdata["RRR_6"].c_str());
-  if (pFlag.count("rrr_3") && dta.stringdata.count("RRR_3"))
-    rrr_3_value = atof(dta.stringdata["RRR_3"].c_str());
-  if (pFlag.count("rrr_1") && dta.stringdata.count("RRR_1"))
-    rrr_1_value = atof(dta.stringdata["RRR_1"].c_str());
-
-  DiGLPainter::GLfloat radius=7.0, x1,x2,x3,y1,y2,y3;
-  int lpos;
-
-  //reset colour
-  gl->setColour(origcolour);
-  colour = origcolour;
-
-  checkTotalColourCriteria(gl, index);
-
-  gl->PushMatrix();
-  gl->Translatef(x[index],y[index],0.0);
-
-  gl->PushMatrix();
-  gl->Scalef(scale,scale,0.0);
-  // No circle if auto obs
-  if (automationcode != 0)
-    if (N_value != undef)
-      drawCircle(gl);
-
-  // manned / automated station - ix
-  // This is not a special parameter in road, it is returned
-  // in every row from RDK.
-  // it should be set on a station level ?
-  /*
-   if( (dta.fdata.count("ix") && dta.fdata["ix"] > 3)
-   || ( dta.fdata.count("auto") && dta.fdata["auto"] == 0)){
-   */
-  /* 0 = automat, 1 = manuell, 2 = hybrid */
-  DiGLPainter::GLfloat tmp_radius = 0.6 * radius;
-  if(automationcode == 0) {
-    if (N_value != undef)
-    {
-      y1 = y2 = -1.1*tmp_radius;
-      x1 = y1*sqrtf(3.0);
-      x2 = -1*x1;
-      x3 = 0;
-      y3 = tmp_radius*2.2;
-      gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
-      gl->Begin(DiGLPainter::gl_POLYGON);
-      gl->Vertex2f(x1,y1);
-      gl->Vertex2f(x2,y2);
-      gl->Vertex2f(x3,y3);
-      gl->End();
-    }
-  }
-
-  //wind - dd,ff
-  if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")
-      && dta.fdata.count("dd_adjusted") && dta.fdata["dd"] != undef) {
-    bool ddvar = false;
-    int dd = (int) dta.fdata["dd"];
-    int dd_adjusted = (int) dta.fdata["dd_adjusted"];
-    if (dd == 990 || dd == 510) {
-      ddvar = true;
-      dd_adjusted = 270;
-    }
-    if (diutil::ms2knots(dta.fdata["ff"]) < 1.)
-      dd = 0;
-    lpos = itab[(dd / 10 + 3) / 2] + 10;
-    checkColourCriteria(gl, "dd", dd);
-    checkColourCriteria(gl, "ff", dta.fdata["ff"]);
-    plotWind(gl,dd_adjusted, dta.fdata["ff"], ddvar, radius);
-  } else
-    lpos = itab[1] + 10;
-
-  int zone = 0;
-  // No snow depth from ship.
-  if (station_type == road::diStation::SHIP)
-    zone = 99;
-  else if(station_type == road::diStation::WMO)
-    zone = wmono_value/1000;
-
-  /*
-   bool ClFlag = (pFlag.count("cl") && dta.fdata.count("Cl") ||
-   (pFlag.count("st.type") && dta.dataType.exists()));
-   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn")!=fend);
-   bool timeFlag = (pFlag.count("time") && dta.zone==99);
-   bool precip   = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
-   */
-  bool TxTnFlag = ((TxTx_value != undef)||(TnTn_value != undef));
-  bool ClFlag = Cl_value != undef;
-  bool precip = automationcode; // Not correct!
-
-  //Total cloud cover - N
-  //METLIBS_LOG_DEBUG("Total cloud cover - N: value " << N_value);
-  if(N_value != undef) {
-    /* convert to eights */
-    int N_value_plot = (int)(long)(N_value * 8.0)/100.0;
-    checkColourCriteria(gl, "N",N_value_plot);
-    if (automationcode != 0)
-      cloudCover(gl, N_value_plot,radius);
-    else
-      cloudCoverAuto(gl, N_value_plot,radius);
-  } /*else if( !precip ) {
-   gl->setColour(colour);
-   cloudCover(gl, undef,radius);
-   }*/
-
-  //Weather - WW
-  //METLIBS_LOG_DEBUG("Weather - WW: value " << ww_value);
-  float VVxpos = iptab[lpos+14] + 22;
-  if( ww_value != undef &&
-      ww_value>3) {  //1-3 skal ikke plottes
-    checkColourCriteria(gl, "ww",ww_value);
-    weather(gl,(short int)(int)ww_value,TTT_value,zone,
-        iptab[lpos+12],iptab[lpos+13]);
-    VVxpos = iptab[lpos+12] -18;
-  }
-
-  //characteristics of pressure tendency - a
-  //METLIBS_LOG_DEBUG("characteristics of pressure tendency - a: value " << a_value);
-  if( a_value != undef ) {
-    checkColourCriteria(gl, "a",a_value);
-    if(ppp_value != undef && ppp_value> 9 )
-      symbol(gl,itab[201+(int)a_value], iptab[lpos+42]+10, iptab[lpos+43],0.8);
-    else
-      symbol(gl,itab[201+(int)a_value], iptab[lpos+42], iptab[lpos+43],0.8);
-  }
-
-  // High cloud type - Ch
-  //METLIBS_LOG_DEBUG("High cloud type - Ch, value: " << Ch_value);
-  if(Ch_value != undef)
-  {
-    Ch_value = Ch_value - 10.0;
-    if (Ch_value> 0)
-    {
-      checkColourCriteria(gl, "Ch",Ch_value);
-      symbol(gl,itab[190+(int)Ch_value], iptab[lpos+4], iptab[lpos+5],0.8);
-    }
-  }
-
-  // Middle cloud type - Cm
-  //METLIBS_LOG_DEBUG("Middle cloud type - Cm, value: " << Cm_value);
-  if(Cm_value != undef)
-  {
-    Cm_value = Cm_value - 20.0;
-    if (Cm_value> 0)
-    {
-      checkColourCriteria(gl, "Cm",Cm_value);
-      symbol(gl,itab[180+(int)Cm_value], iptab[lpos+2], iptab[lpos+3],0.8);
-    }
-  }
-
-  // Low cloud type - Cl
-  //METLIBS_LOG_DEBUG("Low cloud type - Cl, value: " << Cl_value);
-  if(Cl_value != undef)
-  {
-    Cl_value = Cl_value - 30.0;
-    if (Cl_value> 0)
-    {
-      checkColourCriteria(gl, "Cl",Cl_value);
-      symbol(gl,itab[170+(int)Cl_value], iptab[lpos+22], iptab[lpos+23],0.8);
-    }
-  }
-
-  // Past weather - W1
-  //METLIBS_LOG_DEBUG("Past weather - W1: value " << W1_value);
-  if( W1_value != undef) {
-    checkColourCriteria(gl, "W1",W1_value);
-    pastWeather(gl,int(W1_value), iptab[lpos+34], iptab[lpos+35],0.8);
-  }
-
-  // Past weather - W2
-  //METLIBS_LOG_DEBUG("Past weather - W2: value " << W2_value);
-  if( W2_value != undef) {
-    checkColourCriteria(gl, "W2",W2_value);
-    pastWeather(gl,(int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
-  }
-  // Direction of ship movement - ds
-  if (DS_value != undef && VS_value != undef)
-  {
-    checkColourCriteria(gl, "ds",DS_value);
-    arrow(gl,DS_value, iptab[lpos+32], iptab[lpos+33]);
-  }
-  /* Currently not used
-   // Direction of swell waves - dw1dw1
-   if(  pFlag.count("dw1dw1")
-   && (f_p=dta.fdata.find("dw1dw1")) != fend ){
-   checkColourCriteria(gl, "dw1dw1",f_p->second);
-   zigzagArrow(f_p->second, iptab[lpos+30], iptab[lpos+31]);
-   }
-   */
-  // Change of coordinate system
-  gl->PopMatrix();
-
-  //METLIBS_LOG_DEBUG("Pressure - PPPP: value " << PPPP_value);
-  if( PPPP_value != undef ) {
-    checkColourCriteria(gl, "PPPP",PPPP_value);
-    printNumber(gl,PPPP_value,iptab[lpos+44]+2,iptab[lpos+45]+2,"PPPP");
-  }
-
-  // Pressure tendency over 3 hours - ppp
-  //METLIBS_LOG_DEBUG("Pressure tendency over 3 hours - ppp: value " << ppp_value);
-  if( ppp_value != undef ) {
-    checkColourCriteria(gl, "ppp",ppp_value);
-    printNumber(gl,ppp_value,iptab[lpos+40]+2,iptab[lpos+41]+2,"ppp");
-  }
-
-  if(automationcode == 0) {
-    if (NS_A1_value != undef || HS_A1_value != undef || NS_A2_value != undef || HS_A2_value != undef
-        || NS_A3_value != undef || HS_A3_value != undef || NS_A4_value != undef || HS_A4_value != undef)
-    {
-      //convert to hfoot
-      if (HS_A1_value != undef)
-        HS_A1_value = (HS_A1_value*3.2808399)/100.0;
-      if (HS_A2_value != undef)
-        HS_A2_value = (HS_A2_value*3.2808399)/100.0;
-      if (HS_A3_value != undef)
-        HS_A3_value = (HS_A3_value*3.2808399)/100.0;
-      if (HS_A4_value != undef)
-        HS_A4_value = (HS_A4_value*3.2808399)/100.0;
-      if( ClFlag ) {
-        amountOfClouds_1_4(gl,
-            (short int)(int)NS_A1_value, (short int)(int)HS_A1_value,
-            (short int)(int)NS_A2_value, (short int)(int)HS_A2_value,
-            (short int)(int)NS_A3_value, (short int)(int)HS_A3_value,
-            (short int)(int)NS_A4_value, (short int)(int)HS_A4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2);
-      } else {
-        amountOfClouds_1_4(gl,
-            (short int)(int)NS_A1_value, (short int)(int)HS_A1_value,
-            (short int)(int)NS_A2_value, (short int)(int)HS_A2_value,
-            (short int)(int)NS_A3_value, (short int)(int)HS_A3_value,
-            (short int)(int)NS_A4_value, (short int)(int)HS_A4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2+10);
-      }
-    }
-    else
-    {
-      // Clouds
-      //METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
-      if(Nh_value != undef || h_value != undef) {
-        float Nh,h;
-        Nh = Nh_value;
-
-        /* NOTE, the height should be converted to hektfoot */
-        if (h_value != undef)
-        {
-          h_value = (h_value*3.2808399)/100.0;
-        }
-        h = h_value;
-        if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
-        if(h!=undef) checkColourCriteria(gl, "h",h);
-        if( ClFlag ) {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
-        } else {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
-        }
-      }
-    }
-  }
-  else
-  {
-    if (NS1_value != undef || HS1_value != undef || NS2_value != undef || HS2_value != undef
-        || NS3_value != undef || HS3_value != undef || NS4_value != undef || HS4_value != undef)
-    {
-      //convert to hfoot
-      if (HS1_value != undef)
-        HS1_value = (HS1_value*3.2808399)/100.0;
-      if (HS2_value != undef)
-        HS2_value = (HS2_value*3.2808399)/100.0;
-      if (HS3_value != undef)
-        HS3_value = (HS3_value*3.2808399)/100.0;
-      if (HS4_value != undef)
-        HS4_value = (HS4_value*3.2808399)/100.0;
-      if( ClFlag ) {
-        amountOfClouds_1_4(gl,
-            (short int)(int)NS1_value, (short int)(int)HS1_value,
-            (short int)(int)NS2_value, (short int)(int)HS2_value,
-            (short int)(int)NS3_value, (short int)(int)HS3_value,
-            (short int)(int)NS4_value, (short int)(int)HS4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2);
-      } else {
-        amountOfClouds_1_4(gl,
-            (short int)(int)NS1_value, (short int)(int)HS1_value,
-            (short int)(int)NS2_value, (short int)(int)HS2_value,
-            (short int)(int)NS3_value, (short int)(int)HS3_value,
-            (short int)(int)NS4_value, (short int)(int)HS4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2+10);
-      }
-    }
-    else
-    {
-      // Clouds
-      //METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
-      if(Nh_value != undef || h_value != undef) {
-        float Nh,h;
-        Nh = Nh_value;
-
-        /* NOTE, the height should be converted to hektfoot */
-        if (h_value != undef)
-        {
-          h_value = (h_value*3.2808399)/100.0;
-        }
-        h = h_value;
-        if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
-        if(h!=undef) checkColourCriteria(gl, "h",h);
-        if( ClFlag ) {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
-        } else {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
-        }
-      }
-    }
-  }
-
-  //Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.
-  //METLIBS_LOG_DEBUG("Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.");
-  float rrr_plot_value = undef;
-  if( rrr_24_value != undef)
-    rrr_plot_value = rrr_24_value;
-  else if( rrr_12_value != undef)
-    rrr_plot_value = rrr_12_value;
-  else if( rrr_6_value != undef)
-    rrr_plot_value = rrr_6_value;
-  else if( rrr_3_value != undef)
-    rrr_plot_value = rrr_3_value;
-  else if( rrr_1_value != undef)
-    rrr_plot_value = rrr_1_value;
-
-  //METLIBS_LOG_DEBUG("Value to plot: value " << rrr_plot_value);
-  if (rrr_plot_value != undef)
-  {
-    checkColourCriteria(gl, "RRR",rrr_plot_value);
-    if( rrr_plot_value < 0.1) //No precipitation (0.)
-      printString(gl, "0.",iptab[lpos+32]+2,iptab[lpos+33]+2);
-    else if( rrr_plot_value> 989)//Precipitation, but less than 0.1 mm (0.0)
-      printString(gl, "0.0",iptab[lpos+32]+2,iptab[lpos+33]+2);
-    else
-      printNumber(gl,rrr_plot_value,iptab[lpos+32]+2,iptab[lpos+33]+2,"RRR");
-  }
-
-  // Horizontal visibility - VV
-  //METLIBS_LOG_DEBUG("Horizontal visibility - VV: value " << VV_value);
-  if( VV_value != undef ) {
-    checkColourCriteria(gl, "VV",VV_value);
-    // dont print in synop code, print in km #515, redmine
-    //printNumber(visibility(VV_value,zone == 99),VVxpos,iptab[lpos+15],"fill_2");
-    if (VV_value < 5000.0)
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"float_1");
-    else
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"fill_1");
-
-  }
-  // Temperature - TTT
-  //METLIBS_LOG_DEBUG("Temperature - TTT: value " << TTT_value);
-  if( TTT_value != undef ) {
-    checkColourCriteria(gl, "TTT",TTT_value);
-    printNumber(gl,TTT_value,iptab[lpos+10]+2,iptab[lpos+11]+2,"temp");
-  }
-  // Dewpoint temperature - TdTdTd
-  //METLIBS_LOG_DEBUG("Dewpoint temperature - TdTdTd: value " << TdTdTd_value);
-  if( TdTdTd_value != undef ) {
-    checkColourCriteria(gl, "TdTdTd",TdTdTd_value);
-    printNumber(gl,TdTdTd_value,iptab[lpos+16]+2,iptab[lpos+17]+2,"temp");
-  }
-
-  // Max/min temperature - TxTxTx/TnTnTn
-  //METLIBS_LOG_DEBUG("Max/min temperature - TxTxTx/TnTnTn");
-  if( TxTnFlag ) {
-    // The days maximum should be plotted at 18Z
-    // The nights minimum should be plotted at 06Z
-    float TxTn_value = undef;
-    if (Time.hour() == 6)
-    {
-      TxTn_value = TnTn_value;
-    }
-    else if (Time.hour() == 18)
-    {
-      TxTn_value = TxTx_value;
-    }
-    //METLIBS_LOG_DEBUG("TxTn: " << TxTn_value);
-    if (TxTn_value != undef)
-    {
-      checkColourCriteria(gl, "TxTn",TxTn_value);
-      printNumber(gl,TxTn_value,iptab[lpos+8]+2,iptab[lpos+9]+2,"temp");
-    }
-  }
-
-  // Snow depth - sss
-  //METLIBS_LOG_DEBUG("Snow depth - sss: value " << sss_value);
-  if( sss_value != undef && zone!=99 ) {
-    checkColourCriteria(gl, "sss",sss_value);
-    printNumber(gl,sss_value,iptab[lpos+46]+2,iptab[lpos+47]+2);
-  }
-
-  // Maximum wind speed (gusts) - 911ff
-  //METLIBS_LOG_DEBUG("Maximum wind speed (gusts) - 911ff: value " << f911ff_value);
-  if( f911ff_value != undef ) {
-    checkColourCriteria(gl, "911ff",f911ff_value);
-    printNumber(gl,diutil::ms2knots(f911ff_value),
-        iptab[lpos+38]+2,iptab[lpos+39]+2,"fill_2",true);
-  }
-
-  /* Not currently used
-   // State of the sea - s
-   if( pFlag.count("s") && (f_p=dta.fdata.find("s")) != fend ){
-   checkColourCriteria(gl, "s",f_p->second);
-   if(TxTnFlag)
-   printNumber(f_p->second,iptab[lpos+6]+2,iptab[lpos+7]+2);
-   else
-   printNumber(f_p->second,iptab[lpos+6]+2,iptab[lpos+7]-14);
-   }
-
-   */
-
-  // Maximum wind speed
-  //METLIBS_LOG_DEBUG("Maximum wind speed: value " << fxfx_value);
-  if( fxfx_value != undef)
-  {
-    checkColourCriteria(gl, "fxfx",fxfx_value);
-    if(TxTnFlag)
-      printNumber(gl,diutil::ms2knots(fxfx_value),
-          iptab[lpos+6]+12,iptab[lpos+7]+2,"fill_2",true);
-    else
-      printNumber(gl,diutil::ms2knots(fxfx_value),
-          iptab[lpos+6]+12,iptab[lpos+7]-14,"fill_2",true);
-  }
-  // WMO station id
-  //METLIBS_LOG_DEBUG("WMO station id");
-  if (wmono_value != undef || !call_sign.empty())
-  {
-    checkColourCriteria(gl, "Name",0);
-    int wmo = (int)wmono_value;
-    QString buf;
-    if (station_type == road::diStation::WMO)
-      buf.setNum(wmo);
-    else if (station_type == road::diStation::SHIP)
-      buf = decodeText(call_sign);
-
-    if( sss_value != undef) //if snow
-      printString(gl, buf,iptab[lpos+46]+2,iptab[lpos+47]+15);
-    else
-      printString(gl, buf,iptab[lpos+46]+2,iptab[lpos+47]+2);
-  }
-
-  gl->PopMatrix();
-}
-#endif
 
 void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 {
@@ -5004,7 +3725,7 @@ void ObsPlot::checkGustTime(ObsData &dta)
 bool ObsPlot::updateDeltaTimes()
 {
   bool updated = false;
-  if (plottype() == "ascii"
+  if (plottype() == OPT_ASCII
       && std::find(columnName.begin(), columnName.end(), "DeltaTime")
   != columnName.end()) {
     miutil::miTime nowTime = miutil::miTime::nowTime();
@@ -5299,7 +4020,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
     ff = (ff + 2) / 5 * 5;
     x1 = 0;
     y1 = radius;
-    if (plottype() == "list" || plottype() == "ascii" || current > 0)
+    if (plottype() == OPT_LIST || plottype() == OPT_ASCII || current > 0)
       y1 = 0.;
     x2 = 0;
     y2 = 47.0;
@@ -5381,7 +4102,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
 
   //arrow
   if (poptions.arrowstyle == arrow_wind_arrow
-      && (plottype() == "list" || plottype() == "ascii")) {
+      && (plottype() == OPT_LIST || plottype() == OPT_ASCII)) {
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
     gl->Begin(DiGLPainter::gl_POLYGON);
     gl->Vertex2f(0, 0);
@@ -5403,30 +4124,16 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
       79, 79, 79, 0, 0, 0, 81, 80, 81, 82, 85, 86, 86, 0, 0, 0, 17, 17, 95, 96,
       17, 97, 99, 0, 0, 0 };
 
-#ifdef ROADOBS
-  short int wwTmp;
-  if (ww == 508) ww = 0;
-  if(ww>99)
-  {
-    wwTmp = ww - 100;
-    // Check if new BUFR code, not supported yet!
-    if (wwTmp> 99) return;
-    ww= auto2man[wwTmp];
-  }
-#else
-  if (ww > 99) {
+  if (ww > 99)  {
     ww = auto2man[ww - 100];
   }
-#endif
 
   //do not plot ww<3
   if (ww < 3) {
     return;
   }
 
-  int index;
-
-  index = iptab[1247 + ww];
+  int index = iptab[1247 + ww];
   if (ww == 7 && zone == 99)
     index = iptab[1247 + 127];
   if (TTT < 0 && (ww > 92 && ww < 98))
@@ -5492,24 +4199,19 @@ void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float 
   printListString(gl, cs, x, y, align_right);
 }
 
-bool ObsPlot::readTable(const std::string& type, const std::string& filename)
+// static
+bool ObsPlot::readTable(const ObsPlotType type, const std::string& filename, short*& ritab, short*& riptab)
 {
-  //   Initialize itab and iptab from file.
+  //   Initialize ritab and riptab from file.
   METLIBS_LOG_SCOPE("type: " << type << " filename: " << filename);
 
-  const int ITAB = 380;
-  size_t size, psize;
+  size_t psize;
 
-  itab = 0;
-  iptab = 0;
-#ifdef ROADOBS
-  if( type == "synop" || type == "list" || type == "roadobs")
+  ritab = 0;
+  riptab = 0;
+  if (type == OPT_SYNOP || type == OPT_LIST || type == OPT_ROADOBS)
     psize= 11320;
-#else
-  if (type == "synop" || type == "list")
-    psize = 11320;
-#endif
-  else if (type == "metar")
+  else if (type == OPT_METAR)
     psize = 3072;
   else
     return false; // table for unknown plot type;
@@ -5520,13 +4222,13 @@ bool ObsPlot::readTable(const std::string& type, const std::string& filename)
     return false;
   }
 
-  // itab sored in 2 fortran records (each 256 shorts)
-  size = 512 + psize;
+  // ritab sored in 2 fortran records (each 256 shorts)
+  const size_t size = 512 + psize;
 
   short *table = new short[size];
 
   if (fread(table, 2, size, fp) != size) {
-    METLIBS_LOG_ERROR("ObsPlot::readTable: Error reading " << filename);
+    METLIBS_LOG_ERROR("Error reading '" << filename << "'");
     fclose(fp);
     delete[] table;
     return false;
@@ -5536,36 +4238,31 @@ bool ObsPlot::readTable(const std::string& type, const std::string& filename)
 
   // indexing as in fortran code (start from element 1)
 
-  itab = new short[ITAB + 1];
-  iptab = new short[psize + 1];
+  const int ITAB = 380;
+  ritab = new short[ITAB + 1];
+  riptab = new short[psize + 1];
 
   for (int i = 0; i < ITAB; i++) {
-    itab[i + 1] = table[i];
+    ritab[i + 1] = table[i];
   }
 
   for (size_t i = 512; i < size; i++)
-    iptab[i - 511] = table[i];
+    riptab[i - 511] = table[i];
 
-  if (type == "synop")
-    for (int i = itab[232] + 3; i <= itab[267] + 3; i += 16)
-      iptab[i] = 1;
-#ifdef ROADOBS
-  else if( type == "roadobs" )
-    for( int i = itab[232]+3; i <= itab[267]+3; i += 16 )
-      iptab[i]=1;
-#endif
-  else if (type == "metar")
-    for (int i = itab[162] + 3; i <= itab[197] + 3; i += 16)
-      iptab[i] = 1;
+  if (type == OPT_SYNOP || type == OPT_ROADOBS)
+    for (int i = ritab[232] + 3; i <= ritab[267] + 3; i += 16)
+      riptab[i] = 1;
+  else if (type == OPT_METAR)
+    for (int i = ritab[162] + 3; i <= ritab[197] + 3; i += 16)
+      riptab[i] = 1;
 
   delete[] table;
 
   return true;
 }
 
-void ObsPlot::decodeSort(std::string sortStr)
+void ObsPlot::decodeSort(const std::string& sortStr)
 {
-  sortStr = sortStr.substr(sortStr.find_first_of("=") + 1, sortStr.size() - 1);
   vector<std::string> vstr = miutil::split(sortStr, ";");
   int nvstr = vstr.size();
   sortcriteria.clear();
@@ -5580,9 +4277,8 @@ void ObsPlot::decodeSort(std::string sortStr)
   }
 }
 
-void ObsPlot::decodeCriteria(std::string critStr)
+void ObsPlot::decodeCriteria(const std::string& critStr)
 {
-  critStr = critStr.substr(critStr.find_first_of("=") + 1, critStr.size() - 1);
   vector<std::string> vstr = miutil::split(critStr, ";");
   int nvstr = vstr.size();
   for (int i = 0; i < nvstr; i++) {

@@ -86,14 +86,8 @@ ObsManager::ObsManager()
 ObsPlot* ObsManager::createObsPlot(const std::string& pin)
 {
   METLIBS_LOG_SCOPE();
-
   mslp = false;
-
-  std::auto_ptr<ObsPlot> op(new ObsPlot);
-  if (op->prepare(pin))
-    return op.release();
-  else
-    return 0;
+  return ObsPlot::createObsPlot(pin);
 }
 
 bool ObsManager::prepare(ObsPlot * oplot, miTime time)

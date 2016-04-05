@@ -68,6 +68,7 @@ libdiana_la_SOURCES = \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diRasterPlot.cc \
+	diRoadObsPlot.cc \
 	diSat.cc \
 	diSatManager.cc \
 	diSatPlot.cc \
@@ -319,6 +320,7 @@ noinst_HEADERS = \
 	diPrintOptions.h \
 	diQuickMenues.h \
 	diRasterPlot.h \
+	diRoadObsPlot.h \
 	diSat.h \
 	diSatManager.h \
 	diSatPlot.h \
