@@ -4017,7 +4017,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
 
   // calm
   if (ff < 1.) {
-    gl->drawCircle(0, 0, radius);
+    gl->drawCircle(0, 0, radius*1.5);
   } else {
     gl->Rotatef(360 - dd, 0.0, 0.0, 1.0);
 
