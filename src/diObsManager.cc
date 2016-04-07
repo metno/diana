@@ -86,14 +86,8 @@ ObsManager::ObsManager()
 ObsPlot* ObsManager::createObsPlot(const std::string& pin)
 {
   METLIBS_LOG_SCOPE();
-
   mslp = false;
-
-  std::auto_ptr<ObsPlot> op(new ObsPlot);
-  if (op->prepare(pin))
-    return op.release();
-  else
-    return 0;
+  return ObsPlot::createObsPlot(pin);
 }
 
 bool ObsManager::prepare(ObsPlot * oplot, miTime time)
@@ -197,13 +191,13 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
       }
 #ifdef ROADOBS
       else if (filetype =="roadobs") {
-        ObsRoad obsRoad(filename, pi.databasefile, pi.stationfile, pi.headerfile, finfo[j].time, oplot, false);
+        ObsRoad obsRoad(filename, pi.databasefile, pi.stationfile, pi.headerfile, finfo[j].time, dynamic_cast<RoadObsPlot*>(oplot), false);
         // initData inits the internal data structures in oplot, eg the roadobsp and stationlist.
-        obsRoad.initData(oplot);
+        obsRoad.initData(dynamic_cast<RoadObsPlot*>(oplot));
         // readData reads the data from road.
         // it shoukle be complemented by a method on the ObsPlot objects that reads data from a single station from road,
         // after ObsPlt has computed wich stations to plot.
-        obsRoad.readData(oplot);
+        obsRoad.readData(dynamic_cast<RoadObsPlot*>(oplot));
       }
 #endif
     }
@@ -1024,15 +1018,13 @@ ObsDialogInfo ObsManager::initDialog()
       proad.criteriaList = criteriaList["roadobs"];
 
       //proad.name= pr->second.dialogName;
-      //proad.name= pr->second.plotFormat + ": " + pr->second.dialogName;
-      proad.name= pr->second.dialogName;
+      proad.name= pr->second.plotFormat + ":" + pr->second.dialogName;
       proad.button.clear();
 
       type.active.clear();
       type.name= pr->second.dialogName;// same name as the plot type
       //type.name = pr->second.plotFormat + ":" + pr->second.dialogName;
       proad.datatype.push_back(type);
-      proad.criteriaList = criteriaList["roadobs"];
 
       dialog.plottype.push_back(proad);
     }
@@ -1237,8 +1229,6 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   // **************************************
   bool headerfound= false;
 
-  ObsPlot *roplot= new ObsPlot();
-
   // The road format must have a header file, defined in prod
   // This file, defines the parameters as well as the mapping
   // between diana and road parameter space.
@@ -1247,7 +1237,7 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   std::string stationfile = po.stationfile;
   std::string filename;// just dummy here
   miTime filetime;// just dummy here
-  ObsRoad obsRoad = ObsRoad(filename,databasefile,stationfile,headerfile,filetime,roplot,false);
+  ObsRoad obsRoad = ObsRoad(filename,databasefile,stationfile,headerfile,filetime,NULL,false);
   bool found= obsRoad.asciiOK();
 
   if (obsRoad.asciiOK() && obsRoad.parameterType("time")
@@ -1262,7 +1252,6 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
     (addButton(obsRoad.columnName(c), obsRoad.columnTooltip(c), -100,100,true));
     dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
   }
-  delete roplot;
 #endif
   if (po.obsformat != ofmt_ascii && po.obsformat != ofmt_url)
     return dialog;
@@ -1604,16 +1593,7 @@ bool ObsManager::parseSetup()
         Prod[prod].useFileTime = false;
         //Prod[prod].noTime= false;
       }
-#ifdef ROADOBS
-      if (Prod[prod].obsformat == ofmt_roadobs) {
-        Prod[prod].plotFormat= "roadobs";
-      }
-      else {
-        Prod[prod].plotFormat= plotFormat;
-      }
-#else
       Prod[prod].plotFormat = plotFormat;
-#endif
     } else if (key == "file" || key == "archivefile" || key == "url"
         || key == "ascii" || key == "archive_ascii"
 #ifdef BUFROBS

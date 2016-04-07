@@ -33,14 +33,6 @@
 #include "diGLPainter.h"
 #include "diObsData.h"
 
-#ifdef ROADOBS
-#ifdef NEWARK_INC
-#include <newarkAPI/diStation.h>
-#else
-#include <roadAPI/diStation.h>
-#endif
-#endif
-
 #include <set>
 #include <vector>
 
@@ -54,8 +46,12 @@ class QTextCodec;
  - list plot
  */
 class ObsPlot: public Plot {
+public:
+  enum ObsPlotType {
+    OPT_SYNOP, OPT_METAR, OPT_ROADOBS, OPT_ASCII, OPT_LIST
+  };
 
-private:
+protected:
   std::vector<ObsData> obsp;
   //obs positions
   float *x, *y;
@@ -76,7 +72,6 @@ private:
   std::vector<Parameter> vparam;
 
   //from plotInfo
-  std::string infostr;
   float markerSize;
   float textSize;
   bool allObs;     //plot all observations
@@ -96,13 +91,11 @@ private:
   int level;
   bool levelAsField;
   bool annotations;
-  std::string m_plottype;
+  const ObsPlotType m_plottype;
   std::string dialogname;
 
-  const std::string& plottype() const
-  {
-    return m_plottype;
-  }
+  ObsPlotType plottype() const
+    { return m_plottype; }
 
   std::string currentDatatype; // BUFR only
   std::vector<std::string> datatypes;
@@ -259,11 +252,11 @@ private:
 
   void getObsLonLat(int obsidx, float& x, float& y);
 
-  bool readTable(const std::string& type, const std::string& filename);
+  static bool readTable(const ObsPlotType type, const std::string& filename, short*& ritab, short*& ritabp);
   void readPriorityFile(const std::string& filename);
 
-  void decodeCriteria(std::string critStr);
-  void decodeSort(std::string sortStr);
+  void decodeCriteria(const std::string& critStr);
+  void decodeSort(const std::string& sortStr);
 
   bool getValueForCriteria(int index, const std::string& param, float& value);
   void adjustRRR(float& value);
@@ -339,16 +332,14 @@ private:
   void cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radius);
 
   // from plotList, plotAscii, plotSynop, ROAD/plotDBSynop
-  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current =
-      -1);
+  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current=-1);
 
   // used from plotList, plotSynop, ROAD/plotDBSynop, ROAD/plotDBMetar (commented out)
-  void weather(DiGLPainter* gl, short int ww, float TTT, int zone, float x, float y,
+  virtual void weather(DiGLPainter* gl, short int ww, float TTT, int zone, float x, float y,
       float scale = 1, bool align_right = false);
 
   // used only from plotList, plotSynop, and ROAD/plotDBSynop
-  void pastWeather(DiGLPainter* gl, int w, float x, float y, float scale = 1, bool align_right =
-      false);
+  void pastWeather(DiGLPainter* gl, int w, float x, float y, float scale = 1, bool align_right=false);
 
   // used only from plotList and plotSynop
   void wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float x, float y,
@@ -375,14 +366,10 @@ private:
   void checkGustTime(ObsData &dta);
   void checkMaxWindTime(ObsData &dta);
 
+  virtual void plotIndex(DiGLPainter* gl, int index);
   void plotSynop(DiGLPainter* gl, int index);
   void plotList(DiGLPainter* gl, int index);
   void plotMetar(DiGLPainter* gl, int index);
-#ifdef ROADOBS
-  void plotRoadobs(DiGLPainter* gl, int index);
-  void plotDBSynop(DiGLPainter* gl, int index);
-  void plotDBMetar(DiGLPainter* gl, int index);
-#endif
   void parameter_sort(const std::string& parameter, bool minValue);
   void priority_sort();
   void time_sort();
@@ -390,9 +377,13 @@ private:
   int getObsCount() const;
   int numVisiblePositions(); // slow!
 
+protected:
+  ObsPlot(const std::string& pin, ObsPlotType plottype);
+
 public:
-  ObsPlot();
   ~ObsPlot();
+
+  static ObsPlot* createObsPlot(const std::string& pin);
 
   bool operator==(const ObsPlot &rhs) const;
 
@@ -410,7 +401,6 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
-  bool prepare(const std::string&);
   bool setData();
   void clear();
   void getObsAnnotation(std::string &, Colour &);
@@ -423,7 +413,9 @@ public:
 
   const std::vector<std::string> getObsExtraAnnotations() const; // from PlotModule
 
+  // @return true iff update is needed (one or more files are changed)
   bool updateObs(); // from PlotModule::updateObs
+
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
   void readStations(); // from PlotModule::obsTime
 
@@ -444,9 +436,6 @@ public:
 
   // switch to next layer of symbols / text
   void nextObs(bool forward);
-
-  const std::string& getInfoStr() const
-    { return infostr; }
 
   bool mslp() const
     { return devfield; }
@@ -495,7 +484,12 @@ public:
   void setLabels(const std::vector<std::string>& l) // ObsAscii only
     { labels = l; }
 
-private:
+protected:
+  virtual long findModificationTime(const std::string& fname);
+  virtual bool isFileUpdated(const std::string& fname, long now, long mod_time);
+  int calcNum() const;
+  bool isSynopListRoad() const;
+  bool isSynopMetarRoad() const;
   bool updateDeltaTimes();
   bool updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime); // ASCII only
   ObsPlot(const ObsPlot &rhs);
@@ -534,11 +528,6 @@ public:
 
   // Returns the file names containing observation data.
   const std::vector<std::string>& getFileNames() const;
-
-  // observations from road
-#ifdef ROADOBS
-  bool preparePlot(void);
-#endif
 };
 
 #endif
