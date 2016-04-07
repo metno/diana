@@ -34,9 +34,9 @@
 // if not defined ROADOBS, just an empty include file
 //#define ROADOBS 1
 #ifdef ROADOBS
-#include <diObsPlot.h>
-#include <diObsData.h>
-#include <diObsMetaData.h>
+#include "diRoadObsPlot.h"
+#include "diObsData.h"
+#include "diObsMetaData.h"
 #include <puTools/miTime.h>
 
 #include <map>
@@ -57,9 +57,9 @@ private:
 	// This defines a set of stations, eg synop,metar,ship observations
   std::vector<road::diStation> * stationlist;
   miutil::miTime filetime_;
-  void readHeader(ObsPlot *oplot);
-  void readRoadData(ObsPlot *oplot);
-  void initRoadData(ObsPlot *oplot);
+  void readHeader(RoadObsPlot *oplot);
+  void readRoadData(RoadObsPlot *oplot);
+  void initRoadData(RoadObsPlot *oplot);
 	bool headerRead;
 
 	// from ObsAscii class
@@ -88,6 +88,7 @@ private:
 
   void readDecodeData();
   void readData(const std::string &filename);
+  
   void decodeData();
   string_size_m::const_iterator getColumn(const std::string& cn, const std::vector<std::string>& cv) const;
   bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, float& value) const;
@@ -107,12 +108,20 @@ private:
 public:
   ObsRoad(const std::string &filename, const std::string &databasefile,
 	  const std::string &stationfile, const std::string &headerfile,
-	  const miutil::miTime &filetime, ObsPlot *oplot, bool breadData);
-  void readData(ObsPlot *oplot);
-  void initData(ObsPlot *oplot);
+	  const miutil::miTime &filetime, RoadObsPlot *oplot, bool breadData);
+  void readData(RoadObsPlot *oplot);
+  void initData(RoadObsPlot *oplot);
+  
+  void cloud_type_string(ObsData& d, double v);
+  std::string height_of_clouds_string(double height);
+  // from ObsBufr
+  void cloud_type(ObsData& d, double v);
+  float height_of_clouds(double height);
+  float ms2code4451(float v);
+  float percent2oktas(float v);
 
 	// from ObsAscii
-	void yoyoPlot(const miutil::miTime &filetime, ObsPlot *oplot);
+	void yoyoPlot(const miutil::miTime &filetime, RoadObsPlot *oplot);
   void yoyoMetadata(ObsMetaData *metaData);
 
   bool asciiOK() const

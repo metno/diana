@@ -288,59 +288,30 @@ void ItemGroup::removeItem(DrawingItemBase *item)
 
 void ItemGroup::lowerItems(const QList<DrawingItemBase *> &items)
 {
-  // Find the indices of the selected items in the group.
-  QList<int> indices;
-  foreach (DrawingItemBase *item, items)
-    indices.append(items_.indexOf(item));
-
-  qSort(indices.begin(), indices.end());
-
-  // Traverse the sorted list, swapping each item with the one preceding it
-  // in the list of items unless the preceding item was an item that could
-  // not itself be moved, as is the case for the first item in the list.
-  int unmoved = -1;
-  for (QList<int>::const_iterator it = indices.constBegin();
-                                  it != indices.constEnd(); ++it) {
-    int i = *it;
-    // Check for a gap between the current index and the index of the last
-    // unmoved item.
-    if ((i - 1) > unmoved) {
-      DrawingItemBase *before = items_.at(i - 1);
-      items_[i - 1] = items_.at(i);
-      items_[i] = before;
-    } else
-      unmoved = i;  // This item could not be moved.
+  const QSet<DrawingItemBase *> itemsToLower = QSet<DrawingItemBase *>::fromList(items);
+  QList<DrawingItemBase *> itemsLower, itemsHigher;
+  Q_FOREACH (DrawingItemBase *item, items_) {
+    if (itemsToLower.contains(item))
+      itemsLower.append(item);
+    else
+      itemsHigher.append(item);
   }
+  itemsLower.append(itemsHigher);
+  items_.swap(itemsLower);
 }
 
 void ItemGroup::raiseItems(const QList<DrawingItemBase *> &items)
 {
-  // Find the indices of the selected items in the group.
-  QList<int> indices;
-  foreach (DrawingItemBase *item, items)
-    indices.append(items_.indexOf(item));
-
-  qSort(indices.begin(), indices.end());
-
-  // Traverse the sorted list in reverse, swapping each item with the one
-  // following it in the list of items unless the following item was an
-  // item that could not itself be moved, as it the case for the last item
-  // in the list.
-  QList<int>::const_iterator it = indices.constEnd();
-  int unmoved = items_.size();
-  do {
-    it--;
-    int i = *it;
-    // Check for a gap between the current index and the index of the last
-    // unmoved item.
-    if (i < (unmoved - 1)) {
-      DrawingItemBase *after = items_.at(i + 1);
-      items_[i + 1] = items_.at(i);
-      items_[i] = after;
-    } else
-      unmoved = i;  // This item could not be moved.
-
-  } while (it != indices.constBegin());
+  const QSet<DrawingItemBase *> itemsToRaise = QSet<DrawingItemBase *>::fromList(items);
+  QList<DrawingItemBase *> itemsLower, itemsHigher;
+  Q_FOREACH (DrawingItemBase *item, items_) {
+    if (itemsToRaise.contains(item))
+      itemsHigher.append(item);
+    else
+      itemsLower.append(item);
+  }
+  itemsLower.append(itemsHigher);
+  items_.swap(itemsLower);
 }
 
 /**
