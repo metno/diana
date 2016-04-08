@@ -2,7 +2,6 @@
 #include "FimexSource.h"
 
 #include "DataReshape.h"
-#include "FimexIO.h" // for miutil::path_ctime
 #include "VcrossUtil.h"
 
 #include "../diUtilities.h"
@@ -12,6 +11,7 @@
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
+#include <puTools/miDirtools.h>
 #include <puTools/TimeFilter.h>
 
 #include <fimex/CDM.h>
