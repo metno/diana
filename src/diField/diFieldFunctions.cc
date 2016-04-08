@@ -60,8 +60,7 @@ using namespace MetNo::Constants;
 #include "miLogger/miLogging.h"
 
 // static data (setup)
-vector<FieldFunctions::FieldCompute>          FieldFunctions::vFieldCompute;
-map<FieldFunctions::VerticalType,map<std::string,vector<int> > > FieldFunctions::mFieldCompute;
+vector<FieldFunctions::FieldCompute> FieldFunctions::vFieldCompute;
 
 vector<std::string> FieldFunctions::vFieldName;
 map<std::string,int> FieldFunctions::mFieldName;
@@ -523,7 +522,6 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
             for (unsigned int i = 0; i < fcomp.results.size(); i++) {
               fcomp.name = fcomp.results[i];
               fcomp.vctype = vctype;
-              mFieldCompute[vctype][fcomp.name].push_back(vFieldCompute.size());
               vFieldCompute.push_back(fcomp);
             }
           }

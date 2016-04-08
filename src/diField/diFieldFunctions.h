@@ -453,7 +453,6 @@ private:
   static std::map<std::string, int> mFieldName;
 
   static std::vector<FieldCompute> vFieldCompute;
-  static std::map<VerticalType, std::map<std::string, std::vector<int> > > mFieldCompute;
 
   static std::map<std::string, std::string> pLevel2flightLevel;
   static std::map<std::string, std::string> flightLevel2pLevel;
