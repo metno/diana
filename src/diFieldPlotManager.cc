@@ -354,20 +354,13 @@ vector<std::string> FieldPlotManager::getFields()
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
     for (unsigned int j = 0; j < vPlotField[i].input.size(); j++) {
       //remove extra info like ":standard_name"
-      std::string input = vPlotField[i].input[j];
+      const std::string& input = vPlotField[i].input[j];
       vector<std::string> vstr = miutil::split(input,":");
-      paramSet.insert(vstr[0]);
       paramSet.insert(vstr[0]);
     }
   }
 
-  vector<std::string> param;
-  set<std::string>::iterator p = paramSet.begin();
-  for (; p != paramSet.end(); p++) {
-    param.push_back(*p);
-  }
-
-  return param;
+  return vector<std::string>(paramSet.begin(), paramSet.end());
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
@@ -548,12 +541,12 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
   }
   diutil::appendText(fieldtext, fout->idnumtext);
 
-  if( !fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
+  if (!fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
     fout->forecastHour = miutil::miTime::hourDiff(fout->validFieldTime, fout->analysisTime);
   }
 
   std::string progtext;
-  if( !fout->analysisTime.undef() && fout->forecastHour != -32767 ) {
+  if (!fout->analysisTime.undef() && fout->forecastHour != -32767) {
     std::ostringstream ostr;
     ostr.width(2);
     ostr.fill('0');
@@ -788,7 +781,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
 
       size_t ninput = 0; // number of input fields found
       for (size_t k = 0; k < vPlotField[j].input.size(); k++) {
-        std::string fieldName = vPlotField[j].input[k];
+        const std::string& fieldName = vPlotField[j].input[k];
         map<std::string,FieldInfo>::const_iterator ip;
         std::vector<std::string> tokens = miutil::split(fieldName,":");
         if ( tokens.size()==2 && tokens[1]=="standard_name") {
@@ -992,7 +985,7 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   vector<FieldRequest> vfieldrequest;
 
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
-    if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.size()==0 || vPlotField[i].vcoord.count(fieldrequest.zaxis))) {
+    if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.empty() || vPlotField[i].vcoord.count(fieldrequest.zaxis))) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
         std::string inputName = vPlotField[i].input[j];
         vector<std::string> vstr = miutil::split(inputName, ":");

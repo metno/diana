@@ -204,7 +204,7 @@ bool FieldFunctions::registerFunction(functions_t& functions, Function f, const 
     functions[functionName] = fh;
     return true;
   } else {
-    METLIBS_LOG_ERROR("Bad function definition '" << funcText << "'");
+    METLIBS_LOG_ERROR("programming error: bad function definition '" << funcText << "'");
     return false;
   }
 }
@@ -427,8 +427,6 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
     return false;
 
   // parse setup
-  bool ok = true;
-
   map<std::string, int> compute;
   compute["add"] = 0;
   compute["subtract"] = 1;
@@ -436,14 +434,9 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
   compute["divide"] = 3;
   map<std::string, int>::const_iterator pc, pcend = compute.end();
 
-  map<std::string, FunctionHelper>::const_iterator pf, pfend = functions.end();
+  functions_t::const_iterator pf;
 
-  std::string v1, v2;
-  vector<std::string> vpart;
-  bool b0, b1;
-
-  int nlines = lines.size();
-
+  const int nlines = lines.size();
   for (int l = 0; l < nlines; l++) {
     const std::string& oneline = lines[l];
     const vector<std::string> vstr = miutil::split(oneline, 0, " ", true);
@@ -464,25 +457,22 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
           // First check if function is a simple calculation
           if ((pc = compute.find(functionName)) != pcend) {
             fcomp.results.push_back(fcomp.name);
-            vpart = miutil::split(str, 1, ",");
+            const vector<std::string> vpart = miutil::split(str, 1, ",");
             if (vpart.size() == 2) {
-              b0 = miutil::is_number(vpart[0]);
-              b1 = miutil::is_number(vpart[1]);
+              bool b0 = miutil::is_number(vpart[0]);
+              bool b1 = miutil::is_number(vpart[1]);
               if (!b0 && !b1) {
-                fcomp.function = FieldFunctions::Function(
-                    FieldFunctions::f_add_f_f + pc->second);
+                fcomp.function = Function(f_add_f_f + pc->second);
                 fcomp.input.push_back(vpart[0]);
                 fcomp.input.push_back(vpart[1]);
                 err = false;
               } else if (!b0 && b1) {
-                fcomp.function = FieldFunctions::Function(
-                    FieldFunctions::f_add_f_c + pc->second);
+                fcomp.function = Function(f_add_f_c + pc->second);
                 fcomp.input.push_back(vpart[0]);
                 fcomp.constants.push_back(atof(vpart[1].c_str()));
                 err = false;
               } else if (b0 && !b1) {
-                fcomp.function = FieldFunctions::Function(
-                    FieldFunctions::f_add_c_f + pc->second);
+                fcomp.function = Function(f_add_c_f + pc->second);
                 fcomp.input.push_back(vpart[1]);
                 fcomp.constants.push_back(atof(vpart[0].c_str()));
                 err = false;
@@ -490,10 +480,10 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
             }
 
             // then check if function is defined in the FunctionHelper container
-          } else if ((pf = functions.find(miutil::to_lower(functionName))) != pfend) {
+          } else if ((pf = functions.find(miutil::to_lower(functionName))) != functions.end()) {
             fcomp.function = pf->second.func;
             // check function arguments
-            vpart = miutil::split(str, 0, ",", false);
+            vector<std::string> vpart = miutil::split(str, 0, ",", false);
             int npart = vpart.size();
             int numf = pf->second.numfields;
             int numc = pf->second.numconsts;
@@ -503,8 +493,9 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
             unsigned int numr = pf->second.numresult;
             vctype = pf->second.vertcoord;
             // if any fields or constants as input...
-            if ((numc >= 0 && npart == numf + numc) || (numc < 0 && npart
-                >= numf - numc)) {
+            if ((numc >= 0 && npart == numf + numc)
+                || (numc < 0 && npart >= numf - numc))
+            {
               err = false;
               // extract field names
               for (int i = 0; i < numf; i++) {
@@ -539,68 +530,14 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
         }
       }
       if (err) {
-        std::string errm = FIELD_COMPUTE_SECTION() + "|" + miutil::from_number(l)
-        + "|Error in field compute : " + vstr[i];
+        std::string errm = FIELD_COMPUTE_SECTION()
+            + "|" + miutil::from_number(l)
+            + "|Error in field compute : " + vstr[i];
         errors.push_back(errm);
-        ok = true;
+        // show a warning, but do not fail
       }
     }
   }
-
-#ifdef DEBUGPRINT
-  cerr<<endl;
-  cerr<<"-------------- "<<FIELD_COMPUTE_SECTION()<<" (1) ------------------"<<endl;
-  cerr<<endl;
-  map<VerticalType,map<std::string,vector<int> > >::iterator pg= mFieldCompute.begin(),
-      pgend= mFieldCompute.end();
-  map<std::string,vector<int> >::iterator pfc,pfcend;
-  cerr.setf(ios::left);
-  for (; pg!=pgend; pg++) {
-    pfc= pg->second.begin();
-    pfcend= pg->second.end();
-    for (; pfc!=pfcend; pfc++) {
-      for (size_t i=0; i<pfc->second.size(); i++) {
-        int n= pfc->second[i];
-        cerr<<setw(18)<<VerticalName[pg->first]<<" "
-            <<setw(18)<<vFieldCompute[n].name<<" "
-            <<setw(18)<<vFieldCompute[n].functionName<<" input:";
-        for (size_t j=0; j<vFieldCompute[n].input.size(); j++)
-          cerr<<" "<<vFieldCompute[n].input[j];
-        if (vFieldCompute[n].results.size()>1) {
-          cerr<<" res:";
-          for (size_t j=0; j<vFieldCompute[n].results.size(); j++)
-            cerr<<" "<<vFieldCompute[n].results[j];
-        }
-        if (!vFieldCompute[n].constants.empty()) {
-          cerr<<" const:";
-          for (size_t j=0; j<vFieldCompute[n].constants.size(); j++)
-            cerr<<" "<<vFieldCompute[n].constants[j];
-        }
-        cerr<<endl;
-      }
-    }
-  }
-  cerr.unsetf(ios::left);
-  cerr<<endl;
-  cerr<<"-------------- "<< FIELD_COMPUTE_SECTION()<<" (2) ------------------"<<endl;
-  cerr<<endl;
-  for (size_t n=0; n<vFieldCompute.size(); n++) {
-    cerr<<setw(4)<<n<<": "<<setw(16)<<vFieldCompute[n].name
-        <<setw(18)<<vFieldCompute[n].functionName<<"  input:";
-    for (size_t j=0; j<vFieldCompute[n].input.size(); j++)
-      cerr<<"  "<<vFieldCompute[n].input[j];
-    cerr<<endl;
-  }
-
-  cerr<<endl;
-  pg= mFieldCompute.begin();
-  for (; pg!=pgend; pg++) {
-    cerr<<setw(18)<<pg->first<<" size= "<<pg->second.size()<<endl;
-  }
-  cerr<<endl;
-  cerr<<"----------------------------------------------"<<endl;
-  cerr<<endl;
-#endif
 
   for (size_t n = 0; n < vFieldCompute.size(); n++) {
     if (!mFieldName.count(vFieldCompute[n].name)) {
@@ -611,7 +548,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
 
   buildPLevelsToFlightLevelsTable();
 
-  return ok;
+  return true;
 }
 
 bool FieldFunctions::parseVerticalSetup(const std::vector<std::string>& lines,
