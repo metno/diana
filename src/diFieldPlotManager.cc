@@ -540,11 +540,11 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
 {
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
-    if (flightlevel) {
-      fieldtext += " " + FieldFunctions::pLevel2flightLevel[fout->leveltext];
-    } else {
-      fieldtext += " " + fout->leveltext;
-    }
+    diutil::appendText(fieldtext, " ");
+    if (flightlevel)
+      diutil::appendText(fieldtext, FieldFunctions::pLevelToflightLevel(fout->leveltext));
+    else
+      diutil::appendText(fieldtext, fout->leveltext);
   }
   diutil::appendText(fieldtext, fout->idnumtext);
 

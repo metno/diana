@@ -655,7 +655,6 @@ void FieldManager::addComputedParameters(
 
   // loop through all functions
   int i = -1;
-  BOOST_FOREACH(const FieldFunctions::FieldCompute& fc, FieldFunctions::vFieldCompute){
   i += 1;
   const std::string& computeParameterName = fc.name;
   METLIBS_LOG_DEBUG(LOGVAL(fc.name));
@@ -689,6 +688,7 @@ void FieldManager::addComputedParameters(
     bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParameterName, fs);
     fchour = fs.fcHour;
     pitr = inventory.parameters.begin();
+  BOOST_FOREACH(const FieldFunctions::FieldCompute& fc, FieldFunctions::fieldComputes()) {
     // loop through parameters
     for (; pitr != inventory.parameters.end(); ++pitr) {
       std::string pitr_name;
@@ -902,9 +902,10 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
             if (pitr->nativekey.find(':') != std::string::npos) {
               std::string index = pitr->nativekey.substr(
                   pitr->nativekey.find(':') + 1);
+            const FieldFunctions::FieldCompute* fcm = 0;
               functionIndex = atoi(index.c_str());
-              timeStepFunc = ffunc.isTimeStepFunction(
-                  FieldFunctions::vFieldCompute[functionIndex].function);
+              fcm = &FieldFunctions::fieldCompute(functionIndex);
+              timeStepFunc = ffunc.isTimeStepFunction(fcm->function);
             }
 
             set<miTime> setTime;
@@ -931,15 +932,15 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
             }
 
             //Check if all time steps are available
-            if (timeStepFunc && FieldFunctions::vFieldCompute[functionIndex].input.size() ) {
+            if (timeStepFunc && fcm && fcm->input.size()) {
               std::vector<float> constants;
-              std::string inputParamName = FieldFunctions::vFieldCompute[functionIndex].input[0];
+              std::string inputParamName = fcm->input[0];
               FieldFunctions::FieldSpec fs;
               FieldFunctions::splitFieldSpecs(inputParamName,fs);
               if ( !fs.fcHour.empty()) {
                 constants.push_back(atoi(fs.fcHour.c_str()));
               } else {
-                constants = FieldFunctions::vFieldCompute[functionIndex].constants;
+                constants = fcm->constants;
               }
 
               set<miTime>::iterator it = setTime.begin();
@@ -1399,21 +1400,18 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   //Find function, number of input parameters and constants
   std::string index = pitr->nativekey.substr(pitr->nativekey.find(':') + 1);
   int functionIndex = atoi(index.c_str());
-  int nInputParameters =
-      FieldFunctions::vFieldCompute[functionIndex].input.size();
-  int nOutputParameters =
-      FieldFunctions::vFieldCompute[functionIndex].results.size();
+  const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
+  int nOutputParameters = fcm.results.size();
+  int nInputParameters = fcm.input.size();
   vector<Field*> vfield; // Input fields
   vector<Field*> vfresults; //Output fields
   bool fieldOK = false;
 
-//Functions using fields with different forecast time
-  if (ffunc.isTimeStepFunction(
-                    FieldFunctions::vFieldCompute[functionIndex].function)){
+  //Functions using fields with different forecast time
+  if (ffunc.isTimeStepFunction(fcm.function)) {
 
     FieldRequest fieldrequest_new = fieldrequest;
-    std::string inputParamName =
-        FieldFunctions::vFieldCompute[functionIndex].input[0];
+    std::string inputParamName = fcm.input[0];
 
     //levelSpecified true if param:level=value
     FieldFunctions::FieldSpec fs;
@@ -1439,7 +1437,8 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
       }
     } else {
       if ( !getAllFields(gridCollection, inventory, vfield, fieldrequest_new,
-          FieldFunctions::vFieldCompute[functionIndex].constants, cacheOptions)){
+          fcm.constants, cacheOptions))
+      {
         freeFields(vfield);
 
         return 0;
@@ -1454,9 +1453,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
     ff->unit = fieldrequest.unit;
     vfresults.push_back(ff);
 
-    if (!ffunc.fieldComputer(FieldFunctions::functionMap[FieldFunctions::vFieldCompute[functionIndex].function],
-        FieldFunctions::vFieldCompute[functionIndex].constants,
-        vfield, vfresults, gc)) {
+    if (!ffunc.fieldComputer(FieldFunctions::functionMap[fcm.function], fcm.constants, vfield, vfresults, gc)) {
       METLIBS_LOG_WARN("FieldManager::getField: fieldComputer returned false");
       fieldOK = false;
     } else {
@@ -1471,8 +1468,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
     for (int j = 0; j < nInputParameters; j++) {
 
       FieldRequest fieldrequest_new = fieldrequest;
-      std::string inputParamName =
-          FieldFunctions::vFieldCompute[functionIndex].input[j];
+      std::string inputParamName = fcm.input[j];
 
       //levelSpecified true if param:level=value
       FieldFunctions::FieldSpec fs;
@@ -1554,9 +1550,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
       vfresults.push_back(ff);
     }
 
-    if (!ffunc.fieldComputer(FieldFunctions::vFieldCompute[functionIndex].function,
-        FieldFunctions::vFieldCompute[functionIndex].constants, vfield,
-        vfresults, gc)) {
+    if (!ffunc.fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
       METLIBS_LOG_WARN("FieldManager::getField: fieldComputer returned false");
       fieldOK = false;
     } else {

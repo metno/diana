@@ -4,7 +4,7 @@
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
-#include <diField/diFieldFunctions.h>
+#include <diField/diFieldCalculations.h>
 #include <diField/diMetConstants.h>
 
 #include <boost/foreach.hpp>
@@ -271,13 +271,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0) compute = 4;
 
     if (mNumericArgIndex < 0) {
-      if (!FieldFunctions::fieldOPERfield(compute, np, nl, f0, f1, fo, allDefined, ud0))
+      if (!FieldCalculations::fieldOPERfield(compute, np, nl, f0, f1, fo, allDefined, ud0))
         return Values_p();
     } else if (mNumericArgIndex == 0) {
-      if (!FieldFunctions::constantOPERfield(compute, np, nl, mNumericArg, f0, fo, allDefined, ud0))
+      if (!FieldCalculations::constantOPERfield(compute, np, nl, mNumericArg, f0, fo, allDefined, ud0))
         return Values_p();
     } else if (mNumericArgIndex == 1) {
-      if (!FieldFunctions::fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, allDefined, ud0))
+      if (!FieldCalculations::fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, allDefined, ud0))
         return Values_p();
     } else {
       return Values_p();
@@ -336,7 +336,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       return Values_cp();
     }
 
-    if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp.get(), fo, allDefined, ud0, "kelvin"))
+    if (not FieldCalculations::aleveltemp(compute, np, nl, f0, f_pp.get(), fo, allDefined, ud0, "kelvin"))
       return Values_cp();
     break; }
 
@@ -349,7 +349,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (not f_pp)
       return Values_cp();
 
-    if (not FieldFunctions::alevelthe(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0))
+    if (not FieldCalculations::alevelthe(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0))
       return Values_cp();
     break; }
 
@@ -384,13 +384,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       return Values_p();
     }
 
-    if (not FieldFunctions::alevelhum(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0, "kelvin"))
+    if (not FieldCalculations::alevelhum(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0, "kelvin"))
       return Values_p();
     break; }
 
   case vcf_height_above_msl_from_surface_geopotential: {
     compute = 3;
-    if (!FieldFunctions::fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, MetNo::Constants::ginv, fo, allDefined, ud0))
+    if (!FieldCalculations::fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, MetNo::Constants::ginv, fo, allDefined, ud0))
       return Values_p();
     break; }
 
@@ -619,6 +619,7 @@ namespace detail {
 
 NormalTangential::NormalTangential(bool normal, float vb)
 {
+  const float DEG_TO_RAD = M_PI / 180;
   const float b_offset = (90*DEG_TO_RAD * (normal ? 2 : 1));
   const float b = b_offset - vb;
   bsin = std::sin(b);
