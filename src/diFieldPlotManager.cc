@@ -37,6 +37,7 @@
 #include "util/string_util.h"
 
 #include "diField/diFieldFunctions.h"
+#include "diField/diFlightLevel.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -535,7 +536,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
   if (!fout->leveltext.empty()) {
     diutil::appendText(fieldtext, " ");
     if (flightlevel)
-      diutil::appendText(fieldtext, FieldFunctions::pLevelToflightLevel(fout->leveltext));
+      diutil::appendText(fieldtext, FlightLevel::getFlightLevel(fout->leveltext));
     else
       diutil::appendText(fieldtext, fout->leveltext);
   }
@@ -825,7 +826,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           miutil::replace(plotInfo_fl.groupName,"pressure","flightlevel");
           plotInfo_fl.vcoord = "flightlevel";
           for (size_t i=0; i<plotInfo.vlevels.size(); ++i)
-            plotInfo_fl.vlevels[i] = FieldFunctions::getFlightLevel(plotInfo.vlevels[i]);
+            plotInfo_fl.vlevels[i] = FlightLevel::getFlightLevel(plotInfo.vlevels[i]);
           if ( groupNames.count(plotInfo_fl.groupName))
             plotInfo_fl.groupName = groupNames[plotInfo_fl.groupName];
 
@@ -939,7 +940,7 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
     frq.zaxis = "pressure";
     frq.flightlevel=true;
     if ( miutil::contains(frq.plevel,"FL") ) {
-      frq.plevel = FieldFunctions::getPressureLevel(frq.plevel);
+      frq.plevel = FlightLevel::getPressureLevel(frq.plevel);
     }
   }
 }

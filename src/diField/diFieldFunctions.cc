@@ -39,7 +39,7 @@
 #include "diGridConverter.h"
 #include "diField.h"
 #include "diFieldCalculations.h"
-#include "diMetConstants.h"
+#include "diFlightLevel.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -54,7 +54,6 @@
 
 using namespace miutil;
 using namespace std;
-using namespace MetNo::Constants;
 
 #define MILOGGER_CATEGORY "diField.FieldFunctions"
 #include "miLogger/miLogging.h"
@@ -64,9 +63,6 @@ vector<FieldFunctions::FieldCompute> FieldFunctions::vFieldCompute;
 
 vector<std::string> FieldFunctions::vFieldName;
 map<std::string,int> FieldFunctions::mFieldName;
-
-map<std::string,std::string> FieldFunctions::pLevel2flightLevel;
-map<std::string,std::string> FieldFunctions::flightLevel2pLevel;
 
 map< std::string, FieldFunctions::Zaxis_info > FieldFunctions::Zaxis_info_map;
 
@@ -544,8 +540,6 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
     }
   }
 
-  buildPLevelsToFlightLevelsTable();
-
   return true;
 }
 
@@ -642,49 +636,6 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
   }
 
   return levelSpecified;
-}
-
-// static
-void FieldFunctions::buildPLevelsToFlightLevelsTable()
-{
-  pLevel2flightLevel.clear();
-  flightLevel2pLevel.clear();
-
-  // make conversion tables between pressureLevels and flightLevels
-  for (int i=0; i<nLevelTable; i++) {
-    ostringstream pstr, fstr, fstr_old;
-    pstr<<pLevelTable[i];
-    fstr<<setw(3)<<setfill('0')<<fLevelTable[i];
-    fstr_old<<setw(3)<<setfill('0')<<fLevelTable_old[i];
-    pLevel2flightLevel[std::string(pstr.str()+"hPa")]= std::string("FL"+fstr.str());
-    flightLevel2pLevel[std::string("FL"+fstr.str()) ]= std::string(pstr.str()+"hPa");
-    //obsolete table
-    flightLevel2pLevel[std::string("FL"+fstr_old.str()) ]= std::string(pstr.str()+"hPa");
-  }
-}
-
-// static
-std::string FieldFunctions::getPressureLevel(const std::string& flightlevel)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(flightlevel));
-
-  if ( flightLevel2pLevel.count(flightlevel))
-    return flightLevel2pLevel[flightlevel];
-
-  METLIBS_LOG_WARN(" Flightlevel: "<<flightlevel<<". No pressure level found.");
-  return flightlevel;
-}
-
-// static
-std::string FieldFunctions::getFlightLevel(const std::string& pressurelevel)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(pressurelevel));
-
-  if ( pLevel2flightLevel.count(pressurelevel))
-    return pLevel2flightLevel[pressurelevel];
-
-  METLIBS_LOG_WARN(" pressurelevel: "<<pressurelevel<<". No pressure level found.");
-  return pressurelevel;
 }
 
 void FieldFunctions::setFieldNames(const vector<std::string>& vfieldname)

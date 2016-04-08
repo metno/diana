@@ -415,9 +415,6 @@ public:
 
   static const Zaxis_info* findZaxisInfo(const std::string& name);
 
-  static std::string pLevelToflightLevel(const std::string& lt)
-    { return FieldFunctions::pLevel2flightLevel[lt]; }
-
   /// read setup section for field computations
   static bool parseComputeSetup(const std::vector<std::string>& lines,
       std::vector<std::string>& errors);
@@ -425,14 +422,6 @@ public:
       std::vector<std::string>& errors);
 
   static bool splitFieldSpecs(const std::string& paramName, FieldSpec& fs);
-
-
-  /**
-   * builds a conversion table between pressurelevels and flightlevels.
-   */
-  static void buildPLevelsToFlightLevelsTable();
-  static std::string getPressureLevel(const std::string& flightlevel);
-  static std::string getFlightLevel(const std::string& presurelevel);
 
   static void setFieldNames(const std::vector<std::string>& vfieldname);
 
@@ -453,9 +442,6 @@ private:
   static std::map<std::string, int> mFieldName;
 
   static std::vector<FieldCompute> vFieldCompute;
-
-  static std::map<std::string, std::string> pLevel2flightLevel;
-  static std::map<std::string, std::string> flightLevel2pLevel;
 
   static std::map< std::string, Zaxis_info> Zaxis_info_map;
 };

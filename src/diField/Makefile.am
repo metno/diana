@@ -9,6 +9,7 @@ libdiField_la_SOURCES = \
 	diFieldCalculations.cc \
 	diFieldFunctions.cc \
 	diFieldManager.cc \
+	diFlightLevel.cc \
 	diGridConverter.cc \
 	diMetConstants.cc \
 	diProjection.cc \
@@ -43,6 +44,7 @@ noinst_HEADERS = \
 	diFieldCalculations.h \
 	diFieldFunctions.h \
 	diFieldManager.h \
+	diFlightLevel.h \
 	diGridConverter.h \
 	diMetConstants.h \
 	diProjection.h \
