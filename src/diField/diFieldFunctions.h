@@ -387,21 +387,19 @@ public:
   };
 
 private:
-  /// maps a Function enum to a descriptive text
-  std::map<Function, std::string> functionText;
+  struct FunctionHelper {
+    Function func;
+    int numfields;
+    int numconsts;
+    unsigned int numresult;
+    FieldFunctions::VerticalType vertcoord;
+    FunctionHelper() :
+      func(FieldFunctions::f_undefined), numfields(0), numconsts(0),
+      numresult(1), vertcoord(FieldFunctions::vctype_none)
+      { }
+  };
 
-  static std::map<Function, Function> functionMap;
-
-  static std::vector<std::string> vFieldName;
-  static std::map<std::string, int> mFieldName;
-
-  static std::vector<FieldCompute> vFieldCompute;
-  static std::map<VerticalType, std::map<std::string, std::vector<int> > > mFieldCompute;
-
-  static std::map<std::string, std::string> pLevel2flightLevel;
-  static std::map<std::string, std::string> flightLevel2pLevel;
-
-  static std::map< std::string, Zaxis_info> Zaxis_info_map;
+  typedef std::map<std::string, FunctionHelper> functions_t;
 
 public:
   FieldFunctions();
@@ -441,15 +439,6 @@ public:
 
   static void setFieldNames(const std::vector<std::string>& vfieldname);
 
-  /// get function text (name/description) for a given Function
-  const std::string getFunctionText(Function f) const;
-
-  /// get all defined functions with associated texts
-  const std::map<Function, std::string> & getFunctionTexts() const
-  {
-    return functionText;
-  }
-
   /// return true if funcion includes several times steps
   bool isTimeStepFunction(Function f) const
   {
@@ -459,6 +448,24 @@ public:
   /// call function and return results
   bool fieldComputer(Function function, const std::vector<float>& constants,
       const std::vector<Field*>& vfinput, const std::vector<Field*>& vfres, class GridConverter& gc);
+
+private:
+  static bool registerFunctions(functions_t& functions);
+  static bool registerFunction(functions_t& functions, Function f, const std::string& funcText);
+
+private:
+  static std::map<Function, Function> functionMap;
+
+  static std::vector<std::string> vFieldName;
+  static std::map<std::string, int> mFieldName;
+
+  static std::vector<FieldCompute> vFieldCompute;
+  static std::map<VerticalType, std::map<std::string, std::vector<int> > > mFieldCompute;
+
+  static std::map<std::string, std::string> pLevel2flightLevel;
+  static std::map<std::string, std::string> flightLevel2pLevel;
+
+  static std::map< std::string, Zaxis_info> Zaxis_info_map;
 };
 
 #endif // DIFIELD_FIELDFUNCTIONS_H

@@ -112,182 +112,283 @@ bool direction(int nx, int ny, float *u, float *v, const Area& area,
 
 FieldFunctions::FieldFunctions()
 {
-  // initialize function texts
+}
 
-  /*
+// static
+std::string FieldFunctions::FIELD_COMPUTE_SECTION()
+{
+  return "FIELD_COMPUTE";
+}
+
+// static
+std::string FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION()
+{
+  return "FIELD_VERTICAL_COORDINATES";
+}
+
+// static
+const FieldFunctions::Zaxis_info* FieldFunctions::findZaxisInfo(const std::string& name)
+{
+  const std::map< std::string, Zaxis_info>::const_iterator it = Zaxis_info_map.find(name);
+  if (it != Zaxis_info_map.end())
+    return &(it->second);
+  else
+    return 0;
+}
+
+// static member
+bool FieldFunctions::registerFunction(functions_t& functions, Function f, const std::string& funcText)
+{
+  // The function text should contain a variable definition inside a '(' ')' pair
+  const size_t p1 = funcText.find('('), p2 = funcText.find(')');
+  if (p1 == string::npos || p2 == string::npos || p1 == 0 || p1 >= p2)
+    return false;
+
+  // the name of the function (must be matched in setup)
+  std::string functionName = funcText.substr(0, p1);
+  FunctionHelper fh;
+  fh.func = f;
+
+  // parse the arguments
+  const std::string str = funcText.substr(p1 + 1, p2 - p1 - 1);
+  const vector<std::string> vstr = miutil::split(str, 0, ",");
+
+  // set the vertical component type
+  fh.vertcoord = vctype_none;
+  if (miutil::contains(functionName, ".plevel_"))
+    fh.vertcoord = vctype_pressure;
+  else if (miutil::contains(functionName, ".hlevel_"))
+    fh.vertcoord = vctype_hybrid;
+  else if (miutil::contains(functionName, ".alevel_"))
+    fh.vertcoord = vctype_atmospheric;
+  else if (miutil::contains(functionName, ".ilevel_"))
+    fh.vertcoord = vctype_isentropic;
+  else if (miutil::contains(functionName, ".ozlevel_"))
+    fh.vertcoord = vctype_oceandepth;
+
+  fh.numfields = 0;
+  fh.numconsts = 0;
+  fh.numresult = 1;
+
+  bool err = true;
+  unsigned int i = 0;
+  while (i < vstr.size() && (vstr[i].length() < 6 || vstr[i].substr(0, 6) != "const:"))
+    i++;
+  if (i == vstr.size()) {
+    fh.numfields = vstr.size();
+    if (fh.numfields > 0 && vstr[i-1].find_first_not_of('.') == string::npos) {
+      fh.numfields = -1;
+    }
+  } else {
+    fh.numfields = i;
+    if (fh.numfields > 0 && vstr[i-1].find_first_not_of('.') == string::npos) {
+      METLIBS_LOG_ERROR("Error while parsing functions defined in FieldFunctions:"
+          "Functions with both fields and contants cannot have a variable numder of fields: " << funcText);
+      return false;
+    }
+    fh.numconsts = vstr.size() - fh.numfields;
+    i = vstr.size() - 1;
+    if (vstr[i].find_first_not_of('.') == string::npos)
+      fh.numconsts = -(fh.numconsts - 1);
+  }
+  if (p2 + 1 < funcText.length()) {
+    const std::string nr = funcText.substr(p2 + 1);
+    if (miutil::is_int(nr)) {
+      fh.numresult = miutil::to_int(nr);
+      if (fh.numresult > 0)
+        err = false;
+    }
+  } else {
+    err = false;
+  }
+  if (!err) {
+    functions[functionName] = fh;
+    return true;
+  } else {
+    METLIBS_LOG_ERROR("Bad function definition '" << funcText << "'");
+    return false;
+  }
+}
+
+// static member
+bool FieldFunctions::registerFunctions(functions_t& f)
+{
+  bool ok = true;
+
+#ifdef PURELY_EXPERIMENTAL_DO_NOT_ADD
   // simple computations - the functionTexts here are purely experimental - do not add!
-  functionText[f_add_f_f] = "add(f1,f2)"; // field - field
-  functionText[f_subtract_f_f] = "subtract(f1,f2)"; // field - field
-  functionText[f_multiply_f_f] = "multiply(f1,f2)"; // field * field
-  functionText[f_divide_f_f] = "divide(f1,f2)"; // field / field
-  functionText[f_add_f_c] = "add(f,const:value)"; // field + constant
-  functionText[f_subtract_f_c] = "subtract(f,const:value)"; // field - constant
-  functionText[f_multiply_f_c] = "multiply(f,const:value)"; // field * constant
-  functionText[f_divide_f_c] = "divide(f,const:value)"; // field / constant
-  functionText[f_add_c_f] = "add(const:value,f)"; // constant + field
-  functionText[f_subtract_c_f] = "subtract(const:value,f)"; // constant - field
-  functionText[f_multiply_c_f] = "multiply(const:value,f)"; // constant * field
-  functionText[f_divide_c_f] = "divide(const:value,f)"; // constant / field
-   */
+  ok &= registerFunction(f, f_add_f_f, "add(f1,f2)"); // field - field
+  ok &= registerFunction(f, f_subtract_f_f, "subtract(f1,f2)"); // field - field
+  ok &= registerFunction(f, f_multiply_f_f, "multiply(f1,f2)"); // field * field
+  ok &= registerFunction(f, f_divide_f_f, "divide(f1,f2)"); // field / field
+  ok &= registerFunction(f, f_add_f_c, "add(f,const:value)"); // field + constant
+  ok &= registerFunction(f, f_subtract_f_c, "subtract(f,const:value)"); // field - constant
+  ok &= registerFunction(f, f_multiply_f_c, "multiply(f,const:value)"); // field * constant
+  ok &= registerFunction(f, f_divide_f_c, "divide(f,const:value)"); // field / constant
+  ok &= registerFunction(f, f_add_c_f, "add(const:value,f)"); // constant + field
+  ok &= registerFunction(f, f_subtract_c_f, "subtract(const:value,f)"); // constant - field
+  ok &= registerFunction(f, f_multiply_c_f, "multiply(const:value,f)"); // constant * field
+  ok &= registerFunction(f, f_divide_c_f, "divide(const:value,f)"); // constant / field
+#endif
 
-  functionText[f_sum_f] = "sum(field,...)";
+  ok &= registerFunction(f, f_sum_f, "sum(field,...)");
   // pressure level (PLEVEL) functions
-  functionText[f_tc_plevel_th] = "tc.plevel_th(th)";
-  functionText[f_tk_plevel_th] = "tk.plevel_th(th)";
-  functionText[f_th_plevel_tk] = "th.plevel_tk(tk)";
-  functionText[f_thesat_plevel_tk] = "thesat.plevel_tk(tk)";
-  functionText[f_thesat_plevel_th] = "thesat.plevel_th(th)";
-  functionText[f_the_plevel_tk_rh] = "the.plevel_tk_rh(tk,rh)";
-  functionText[f_the_plevel_th_rh] = "the.plevel_th_rh(th,rh)";
-  functionText[f_rh_plevel_tk_q] = "rh.plevel_tk_q(tk,q)";
-  functionText[f_rh_plevel_th_q] = "rh.plevel_th_q(th,q)";
-  functionText[f_q_plevel_tk_rh] = "q.plevel_tk_rh(tk,rh)";
-  functionText[f_q_plevel_th_rh] = "q.plevel_th_rh(th,rh)";
-  functionText[f_tdc_plevel_tk_rh] = "tdc.plevel_tk_rh(tk,rh)";
-  functionText[f_tdc_plevel_th_rh] = "tdc.plevel_th_rh(th,rh)";
-  functionText[f_tdc_plevel_tk_q] = "tdc.plevel_tk_q(tk,q)";
-  functionText[f_tdc_plevel_th_q] = "tdc.plevel_th_q(th,q)";
-  functionText[f_tdk_plevel_tk_rh] = "tdk.plevel_tk_rh(tk,rh)";
-  functionText[f_tdk_plevel_th_rh] = "tdk.plevel_th_rh(th,rh)";
-  functionText[f_tdk_plevel_tk_q] = "tdk.plevel_tk_q(tk,q)";
-  functionText[f_tdk_plevel_th_q] = "tdk.plevel_th_q(th,q)";
-  functionText[f_tcmean_plevel_z1_z2] = "tcmean.plevel_z1_z2(z1,z2)";
-  functionText[f_tkmean_plevel_z1_z2] = "tkmean.plevel_z1_z2(z1,z2)";
-  functionText[f_thmean_plevel_z1_z2] = "thmean.plevel_z1_z2(z1,z2)";
-  functionText[f_ducting_plevel_tk_q] = "ducting.plevel_tk_q(tk,q)";
-  functionText[f_ducting_plevel_th_q] = "ducting.plevel_th_q(th,q)";
-  functionText[f_ducting_plevel_tk_rh] = "ducting.plevel_tk_rh(tk,rh)";
-  functionText[f_ducting_plevel_th_rh] = "ducting.plevel_th_rh(th,rh)";
-  functionText[f_kindex_plevel_tk_rh] = "kindex.plevel_tk_rh(tk500,tk700,rh700,tk850,rh850)";
-  functionText[f_kindex_plevel_th_rh] = "kindex.plevel_th_rh(th500,th700,rh700,th850,rh850)";
-  functionText[f_ductingindex_plevel_tk_rh] = "ductingindex.plevel_tk_rh(tk850,rh850)";
-  functionText[f_ductingindex_plevel_th_rh] = "ductingindex.plevel_th_rh(th850,rh850)";
-  functionText[f_showalterindex_plevel_tk_rh] = "showalterindex.plevel_tk_rh(tk500,tk850,rh850)";
-  functionText[f_showalterindex_plevel_th_rh] = "showalterindex.plevel_th_rh(th500,th850,rh850)";
-  functionText[f_boydenindex_plevel_tk_z] = "boydenindex.plevel_tk_z(tk700,z700,z1000)";
-  functionText[f_boydenindex_plevel_th_z] = "boydenindex.plevel_th_z(th700,z700,z1000)";
+  ok &= registerFunction(f, f_tc_plevel_th, "tc.plevel_th(th)");
+  ok &= registerFunction(f, f_tk_plevel_th, "tk.plevel_th(th)");
+  ok &= registerFunction(f, f_th_plevel_tk, "th.plevel_tk(tk)");
+  ok &= registerFunction(f, f_thesat_plevel_tk, "thesat.plevel_tk(tk)");
+  ok &= registerFunction(f, f_thesat_plevel_th, "thesat.plevel_th(th)");
+  ok &= registerFunction(f, f_the_plevel_tk_rh, "the.plevel_tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_the_plevel_th_rh, "the.plevel_th_rh(th,rh)");
+  ok &= registerFunction(f, f_rh_plevel_tk_q, "rh.plevel_tk_q(tk,q)");
+  ok &= registerFunction(f, f_rh_plevel_th_q, "rh.plevel_th_q(th,q)");
+  ok &= registerFunction(f, f_q_plevel_tk_rh, "q.plevel_tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_q_plevel_th_rh, "q.plevel_th_rh(th,rh)");
+  ok &= registerFunction(f, f_tdc_plevel_tk_rh, "tdc.plevel_tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_tdc_plevel_th_rh, "tdc.plevel_th_rh(th,rh)");
+  ok &= registerFunction(f, f_tdc_plevel_tk_q, "tdc.plevel_tk_q(tk,q)");
+  ok &= registerFunction(f, f_tdc_plevel_th_q, "tdc.plevel_th_q(th,q)");
+  ok &= registerFunction(f, f_tdk_plevel_tk_rh, "tdk.plevel_tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_tdk_plevel_th_rh, "tdk.plevel_th_rh(th,rh)");
+  ok &= registerFunction(f, f_tdk_plevel_tk_q, "tdk.plevel_tk_q(tk,q)");
+  ok &= registerFunction(f, f_tdk_plevel_th_q, "tdk.plevel_th_q(th,q)");
+  ok &= registerFunction(f, f_tcmean_plevel_z1_z2, "tcmean.plevel_z1_z2(z1,z2)");
+  ok &= registerFunction(f, f_tkmean_plevel_z1_z2, "tkmean.plevel_z1_z2(z1,z2)");
+  ok &= registerFunction(f, f_thmean_plevel_z1_z2, "thmean.plevel_z1_z2(z1,z2)");
+  ok &= registerFunction(f, f_ducting_plevel_tk_q, "ducting.plevel_tk_q(tk,q)");
+  ok &= registerFunction(f, f_ducting_plevel_th_q, "ducting.plevel_th_q(th,q)");
+  ok &= registerFunction(f, f_ducting_plevel_tk_rh, "ducting.plevel_tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_ducting_plevel_th_rh, "ducting.plevel_th_rh(th,rh)");
+  ok &= registerFunction(f, f_kindex_plevel_tk_rh, "kindex.plevel_tk_rh(tk500,tk700,rh700,tk850,rh850)");
+  ok &= registerFunction(f, f_kindex_plevel_th_rh, "kindex.plevel_th_rh(th500,th700,rh700,th850,rh850)");
+  ok &= registerFunction(f, f_ductingindex_plevel_tk_rh, "ductingindex.plevel_tk_rh(tk850,rh850)");
+  ok &= registerFunction(f, f_ductingindex_plevel_th_rh, "ductingindex.plevel_th_rh(th850,rh850)");
+  ok &= registerFunction(f, f_showalterindex_plevel_tk_rh, "showalterindex.plevel_tk_rh(tk500,tk850,rh850)");
+  ok &= registerFunction(f, f_showalterindex_plevel_th_rh, "showalterindex.plevel_th_rh(th500,th850,rh850)");
+  ok &= registerFunction(f, f_boydenindex_plevel_tk_z, "boydenindex.plevel_tk_z(tk700,z700,z1000)");
+  ok &= registerFunction(f, f_boydenindex_plevel_th_z, "boydenindex.plevel_th_z(th700,z700,z1000)");
 
   // hybrid model level (HLEVEL) functions
-  functionText[f_tc_hlevel_th_psurf] = "tc.hlevel_th_psurf(th,psurf)";
-  functionText[f_tk_hlevel_th_psurf] = "tk.hlevel_th_psurf(th,psurf)";
-  functionText[f_th_hlevel_tk_psurf] = "th.hlevel_tk_psurf(tk,psurf)";
-  functionText[f_thesat_hlevel_tk_psurf] = "thesat.hlevel_tk_psurf(tk,psurf)";
-  functionText[f_thesat_hlevel_th_psurf] = "thesat.hlevel_th_psurf(th,psurf)";
-  functionText[f_the_hlevel_tk_q_psurf] = "the.hlevel_tk_q_psurf(tk,q,psurf)";
-  functionText[f_the_hlevel_th_q_psurf] = "the.hlevel_th_q_psurf(th,q,psurf)";
-  functionText[f_rh_hlevel_tk_q_psurf] = "rh.hlevel_tk_q_psurf(tk,q,psurf)";
-  functionText[f_rh_hlevel_th_q_psurf] = "rh.hlevel_th_q_psurf(th,q,psurf)";
-  functionText[f_q_hlevel_tk_rh_psurf] = "q.hlevel_tk_rh_psurf(tk,rh,psurf)";
-  functionText[f_q_hlevel_th_rh_psurf] = "q.hlevel_th_rh_psurf(th,rh,psurf)";
-  functionText[f_tdc_hlevel_tk_q_psurf] = "tdc.hlevel_tk_q_psurf(tk,q,psurf)";
-  functionText[f_tdc_hlevel_th_q_psurf] = "tdc.hlevel_th_q_psurf(th,q,psurf)";
-  functionText[f_tdc_hlevel_tk_rh_psurf] = "tdc.hlevel_tk_rh_psurf(tk,rh,psurf)";
-  functionText[f_tdc_hlevel_th_rh_psurf] = "tdc.hlevel_th_rh_psurf(th,rh,psurf)";
-  functionText[f_tdk_hlevel_tk_q_psurf] = "tdk.hlevel_tk_q_psurf(tk,q,psurf)";
-  functionText[f_tdk_hlevel_th_q_psurf] = "tdk.hlevel_th_q_psurf(th,q,psurf)";
-  functionText[f_tdk_hlevel_tk_rh_psurf] = "tdk.hlevel_tk_rh_psurf(tk,rh,psurf)";
-  functionText[f_tdk_hlevel_th_rh_psurf] = "tdk.hlevel_th_rh_psurf(th,rh,psurf)";
-  functionText[f_ducting_hlevel_tk_q_psurf] = "ducting.hlevel_tk_q_psurf(tk,q,psurf)";
-  functionText[f_ducting_hlevel_th_q_psurf] = "ducting.hlevel_th_q_psurf(th,q,psurf)";
-  functionText[f_ducting_hlevel_tk_rh_psurf] = "ducting.hlevel_tk_rh_psurf(tk,rh,psurf)";
-  functionText[f_ducting_hlevel_th_rh_psurf] = "ducting.hlevel_th_rh_psurf(th,rh,psurf)";
-  functionText[f_pressure_hlevel_xx_psurf] = "pressure.hlevel_xx_psurf(xx,psurf)"; // just get eta.a and eta.b from field xx
+  ok &= registerFunction(f, f_tc_hlevel_th_psurf, "tc.hlevel_th_psurf(th,psurf)");
+  ok &= registerFunction(f, f_tk_hlevel_th_psurf, "tk.hlevel_th_psurf(th,psurf)");
+  ok &= registerFunction(f, f_th_hlevel_tk_psurf, "th.hlevel_tk_psurf(tk,psurf)");
+  ok &= registerFunction(f, f_thesat_hlevel_tk_psurf, "thesat.hlevel_tk_psurf(tk,psurf)");
+  ok &= registerFunction(f, f_thesat_hlevel_th_psurf, "thesat.hlevel_th_psurf(th,psurf)");
+  ok &= registerFunction(f, f_the_hlevel_tk_q_psurf, "the.hlevel_tk_q_psurf(tk,q,psurf)");
+  ok &= registerFunction(f, f_the_hlevel_th_q_psurf, "the.hlevel_th_q_psurf(th,q,psurf)");
+  ok &= registerFunction(f, f_rh_hlevel_tk_q_psurf, "rh.hlevel_tk_q_psurf(tk,q,psurf)");
+  ok &= registerFunction(f, f_rh_hlevel_th_q_psurf, "rh.hlevel_th_q_psurf(th,q,psurf)");
+  ok &= registerFunction(f, f_q_hlevel_tk_rh_psurf, "q.hlevel_tk_rh_psurf(tk,rh,psurf)");
+  ok &= registerFunction(f, f_q_hlevel_th_rh_psurf, "q.hlevel_th_rh_psurf(th,rh,psurf)");
+  ok &= registerFunction(f, f_tdc_hlevel_tk_q_psurf, "tdc.hlevel_tk_q_psurf(tk,q,psurf)");
+  ok &= registerFunction(f, f_tdc_hlevel_th_q_psurf, "tdc.hlevel_th_q_psurf(th,q,psurf)");
+  ok &= registerFunction(f, f_tdc_hlevel_tk_rh_psurf, "tdc.hlevel_tk_rh_psurf(tk,rh,psurf)");
+  ok &= registerFunction(f, f_tdc_hlevel_th_rh_psurf, "tdc.hlevel_th_rh_psurf(th,rh,psurf)");
+  ok &= registerFunction(f, f_tdk_hlevel_tk_q_psurf, "tdk.hlevel_tk_q_psurf(tk,q,psurf)");
+  ok &= registerFunction(f, f_tdk_hlevel_th_q_psurf, "tdk.hlevel_th_q_psurf(th,q,psurf)");
+  ok &= registerFunction(f, f_tdk_hlevel_tk_rh_psurf, "tdk.hlevel_tk_rh_psurf(tk,rh,psurf)");
+  ok &= registerFunction(f, f_tdk_hlevel_th_rh_psurf, "tdk.hlevel_th_rh_psurf(th,rh,psurf)");
+  ok &= registerFunction(f, f_ducting_hlevel_tk_q_psurf, "ducting.hlevel_tk_q_psurf(tk,q,psurf)");
+  ok &= registerFunction(f, f_ducting_hlevel_th_q_psurf, "ducting.hlevel_th_q_psurf(th,q,psurf)");
+  ok &= registerFunction(f, f_ducting_hlevel_tk_rh_psurf, "ducting.hlevel_tk_rh_psurf(tk,rh,psurf)");
+  ok &= registerFunction(f, f_ducting_hlevel_th_rh_psurf, "ducting.hlevel_th_rh_psurf(th,rh,psurf)");
+  ok &= registerFunction(f, f_pressure_hlevel_xx_psurf, "pressure.hlevel_xx_psurf(xx,psurf)"); // just get eta.a and eta.b from field xx
 
   // misc atmospheric model level (ALEVEL) functions
-  functionText[f_tc_alevel_th_p] = "tc.alevel_th_p(th,p)";
-  functionText[f_tk_alevel_th_p] = "tk.alevel_th_p(th,p)";
-  functionText[f_th_alevel_tk_p] = "th.alevel_tk_p(tk,p)";
-  functionText[f_thesat_alevel_tk_p] = "thesat.alevel_tk_p(tk,p)";
-  functionText[f_thesat_alevel_th_p] = "thesat.alevel_th_p(th,p)";
-  functionText[f_the_alevel_tk_q_p] = "the.alevel_tk_q_p(tk,q,p)";
-  functionText[f_the_alevel_th_q_p] = "the.alevel_th_q_p(th,q,p)";
-  functionText[f_rh_alevel_tk_q_p] = "rh.alevel_tk_q_p(tk,q,p)";
-  functionText[f_rh_alevel_th_q_p] = "rh.alevel_th_q_p(th,q,p)";
-  functionText[f_q_alevel_tk_rh_p] = "q.alevel_tk_rh_p(tk,rh,p)";
-  functionText[f_q_alevel_th_rh_p] = "q.alevel_th_rh_p(th,rh,p)";
-  functionText[f_tdc_alevel_tk_q_p] = "tdc.alevel_tk_q_p(tk,q,p)";
-  functionText[f_tdc_alevel_th_q_p] = "tdc.alevel_th_q_p(th,q,p)";
-  functionText[f_tdc_alevel_tk_rh_p] = "tdc.alevel_tk_rh_p(tk,rh,p)";
-  functionText[f_tdc_alevel_th_rh_p] = "tdc.alevel_th_rh_p(th,rh,p)";
-  functionText[f_tdk_alevel_tk_q_p] = "tdk.alevel_tk_q_p(tk,q,p)";
-  functionText[f_tdk_alevel_th_q_p] = "tdk.alevel_th_q_p(th,q,p)";
-  functionText[f_tdk_alevel_tk_rh_p] = "tdk.alevel_tk_rh_p(tk,rh,p)";
-  functionText[f_tdk_alevel_th_rh_p] = "tdk.alevel_th_rh_p(th,rh,p)";
-  functionText[f_ducting_alevel_tk_q_p] = "ducting.alevel_tk_q_p(tk,q,p)";
-  functionText[f_ducting_alevel_th_q_p] = "ducting.alevel_th_q_p(th,q,p)";
-  functionText[f_ducting_alevel_tk_rh_p] = "ducting.alevel_tk_rh_p(tk,rh,p)";
-  functionText[f_ducting_alevel_th_rh_p] = "ducting.alevel_th_rh_p(th,rh,p)";
+  ok &= registerFunction(f, f_tc_alevel_th_p, "tc.alevel_th_p(th,p)");
+  ok &= registerFunction(f, f_tk_alevel_th_p, "tk.alevel_th_p(th,p)");
+  ok &= registerFunction(f, f_th_alevel_tk_p, "th.alevel_tk_p(tk,p)");
+  ok &= registerFunction(f, f_thesat_alevel_tk_p, "thesat.alevel_tk_p(tk,p)");
+  ok &= registerFunction(f, f_thesat_alevel_th_p, "thesat.alevel_th_p(th,p)");
+  ok &= registerFunction(f, f_the_alevel_tk_q_p, "the.alevel_tk_q_p(tk,q,p)");
+  ok &= registerFunction(f, f_the_alevel_th_q_p, "the.alevel_th_q_p(th,q,p)");
+  ok &= registerFunction(f, f_rh_alevel_tk_q_p, "rh.alevel_tk_q_p(tk,q,p)");
+  ok &= registerFunction(f, f_rh_alevel_th_q_p, "rh.alevel_th_q_p(th,q,p)");
+  ok &= registerFunction(f, f_q_alevel_tk_rh_p, "q.alevel_tk_rh_p(tk,rh,p)");
+  ok &= registerFunction(f, f_q_alevel_th_rh_p, "q.alevel_th_rh_p(th,rh,p)");
+  ok &= registerFunction(f, f_tdc_alevel_tk_q_p, "tdc.alevel_tk_q_p(tk,q,p)");
+  ok &= registerFunction(f, f_tdc_alevel_th_q_p, "tdc.alevel_th_q_p(th,q,p)");
+  ok &= registerFunction(f, f_tdc_alevel_tk_rh_p, "tdc.alevel_tk_rh_p(tk,rh,p)");
+  ok &= registerFunction(f, f_tdc_alevel_th_rh_p, "tdc.alevel_th_rh_p(th,rh,p)");
+  ok &= registerFunction(f, f_tdk_alevel_tk_q_p, "tdk.alevel_tk_q_p(tk,q,p)");
+  ok &= registerFunction(f, f_tdk_alevel_th_q_p, "tdk.alevel_th_q_p(th,q,p)");
+  ok &= registerFunction(f, f_tdk_alevel_tk_rh_p, "tdk.alevel_tk_rh_p(tk,rh,p)");
+  ok &= registerFunction(f, f_tdk_alevel_th_rh_p, "tdk.alevel_th_rh_p(th,rh,p)");
+  ok &= registerFunction(f, f_ducting_alevel_tk_q_p, "ducting.alevel_tk_q_p(tk,q,p)");
+  ok &= registerFunction(f, f_ducting_alevel_th_q_p, "ducting.alevel_th_q_p(th,q,p)");
+  ok &= registerFunction(f, f_ducting_alevel_tk_rh_p, "ducting.alevel_tk_rh_p(tk,rh,p)");
+  ok &= registerFunction(f, f_ducting_alevel_th_rh_p, "ducting.alevel_th_rh_p(th,rh,p)");
 
   // ocean depth level (OZLEVEL) functions
-  functionText[f_sea_soundspeed_ozlevel_tc_salt] = "sea.soundspeed.ozlevel_tc_salt(seatemp.c,salt)";
-  functionText[f_sea_soundspeed_ozlevel_tk_salt] = "sea.soundspeed.ozlevel_tk_salt(seatemp.k,salt)";
+  ok &= registerFunction(f, f_sea_soundspeed_ozlevel_tc_salt, "sea.soundspeed.ozlevel_tc_salt(seatemp.c,salt)");
+  ok &= registerFunction(f, f_sea_soundspeed_ozlevel_tk_salt, "sea.soundspeed.ozlevel_tk_salt(seatemp.k,salt)");
 
   // level independent functions
-  functionText[f_temp_k2c] = "temp_k2c(tk)";
-  functionText[f_temp_c2k] = "temp_c2k(tc)";
-  functionText[f_temp_k2c_possibly] = "temp_k2c_possibly(tk)";
-  functionText[f_temp_c2k_possibly] = "temp_c2k_possibly(tc)";
-  functionText[f_tdk_tk_rh] = "tdk.tk_rh(tk,rh)";
-  functionText[f_tdc_tk_rh] = "tdc.tk_rh(tk,rh)";
-  functionText[f_tdc_tc_rh] = "tdc.tc_rh(tc,rh)";
-  functionText[f_rh_tk_td] = "rh.tk_tdk(tk,tdk)";
-  functionText[f_rh_tc_td] = "rh.tc_tdc(tc,tdc)";
-  functionText[f_vector_abs] = "vector.abs(u,v)";
-  functionText[f_d_dx] = "d/dx(f)";
-  functionText[f_d_dy] = "d/dy(f)";
-  functionText[f_abs_del] = "abs.del(f)";
-  functionText[f_del_square] = "del.square(f)";
-  functionText[f_minvalue_fields] = "minvalue.fields(f1,f2)";
-  functionText[f_maxvalue_fields] = "maxvalue.fields(f1,f2)";
-  functionText[f_minvalue_field_const] = "minvalue.field.const(f,const:value)";
-  functionText[f_maxvalue_field_const] = "maxvalue.field.const(f,const:value)";
-  functionText[f_abs] = "abs(f)";
-  functionText[f_log10] = "log10(f)";
-  functionText[f_pow10] = "pow10(f)";
-  functionText[f_log] = "log(f)";
-  functionText[f_exp] = "exp(f)";
-  functionText[f_power] = "power(f,const:exponent)";
-  functionText[f_shapiro2_filter] = "shapiro2.filter(f)";
-  functionText[f_smooth] = "smooth(f,const:numsmooth)";
-  functionText[f_windcooling_tk_u_v] = "windcooling_tk_u_v(tk2m,u10m,v10m)";
-  functionText[f_windcooling_tc_u_v] = "windcooling_tc_u_v(tc2m,u10m,v10m)";
-  functionText[f_undercooled_rain] = "undercooled.rain(precip,snow,tk,const:precipMin,const:snowRateMax,const:tcMax)";
-  functionText[f_pressure2flightlevel] = "pressure2flightlevel(p)";
-  functionText[f_vessel_icing_overland] = "vessel.icing.overland(airtemp,seatemp,u10m,v10m,const:freezingPoint)";
-  functionText[f_vessel_icing_mertins] = "vessel.icing.mertins(airtemp,seatemp,u10m,v10m,const:freezingPoint)";
-  functionText[f_vessel_icing_overland2] = "vessel.icing.overland2(airtemp,seatemp,u10m,v10m,salinity0m,aice)";
-  functionText[f_vessel_icing_mertins2] = "vessel.icing.mertins2(airtemp,seatemp,u10m,v10m,salinity0m,aice)";
-  functionText[f_vessel_icing_modstall] = "vessel.icing.modstall(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,temperature0m,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)";
-  functionText[f_vessel_icing_testmod]  = "vessel.icing.testmod(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,sst,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)";
-  functionText[f_replace_undefined] = "replace.undefined(f,const:value)";
-  functionText[f_replace_defined] = "replace.defined(f,const:value)";
-  functionText[f_replace_all] = "replace.all(f,const:value)";
-  functionText[f_values2classes] = "values2classes(f,const:limits_low_to_high,...)";
-  functionText[f_field_diff_forecast_hour] = "field.diff.forecast.hour(field,const:relHourFirst,const:relHourLast)";
-  functionText[f_accum_diff_forecast_hour] = "accum.diff.forecast.hour(accumfield,const:relHourFirst,const:relHourLast)";
-  functionText[f_sum_of_forecast_hours] = "sum_of_forecast_hours(field,const:forecastHours,...)";
-  functionText[f_sum_of_fields] = "sum_of_fields(field)";
-  functionText[f_max_of_fields] = "max_of_fields(field)";
-  functionText[f_min_of_fields] = "min_of_fields(field)";
-  functionText[f_no_of_fields_above] = "no_of_fields_above(field,const:limit)";
-  functionText[f_no_of_fields_below] = "no_of_fields_below(field,const:limit)";
-  functionText[f_index_of_fields_max] = "index_of_fields_max(field)";
-  functionText[f_index_of_fields_min] = "index_of_fields_min(field)";
-  functionText[f_mean_value] = "mean_value(field,...)";
-  functionText[f_stddev] = "stddev(field)";
-  functionText[f_probability_above] = "probability_above(field,const:limit)";
-  functionText[f_probability_below] = "probability_below(field,const:limit)";
-  functionText[f_probability_between] = "probability_between(field,const:limit,const:limit)";
-  functionText[f_number_above] = "number_above(field,const:limit)";
-  functionText[f_number_below] = "number_below(field,const:limit)";
-  functionText[f_number_between] = "number_between(field,const:limit,const:limit)";
-  functionText[f_equivalent_to] = "equivalent_to(field)";
-  functionText[f_min_value] = "min_value(field,...)";
-  functionText[f_max_value] = "max_value(field,...)";
-  functionText[f_min_index] = "min_index(field,...)";
-  functionText[f_max_index] = "max_index(field,...)";
-  functionText[f_percentile] = "percentile(field,const:value,...)";
-  functionText[f_snow_cm_from_snow_water_tk_td] = "snow.cm.from.snow.water(snow,tk,td)";
+  ok &= registerFunction(f, f_temp_k2c, "temp_k2c(tk)");
+  ok &= registerFunction(f, f_temp_c2k, "temp_c2k(tc)");
+  ok &= registerFunction(f, f_temp_k2c_possibly, "temp_k2c_possibly(tk)");
+  ok &= registerFunction(f, f_temp_c2k_possibly, "temp_c2k_possibly(tc)");
+  ok &= registerFunction(f, f_tdk_tk_rh, "tdk.tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_tdc_tk_rh, "tdc.tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_tdc_tc_rh, "tdc.tc_rh(tc,rh)");
+  ok &= registerFunction(f, f_rh_tk_td, "rh.tk_tdk(tk,tdk)");
+  ok &= registerFunction(f, f_rh_tc_td, "rh.tc_tdc(tc,tdc)");
+  ok &= registerFunction(f, f_vector_abs, "vector.abs(u,v)");
+  ok &= registerFunction(f, f_d_dx, "d/dx(f)");
+  ok &= registerFunction(f, f_d_dy, "d/dy(f)");
+  ok &= registerFunction(f, f_abs_del, "abs.del(f)");
+  ok &= registerFunction(f, f_del_square, "del.square(f)");
+  ok &= registerFunction(f, f_minvalue_fields, "minvalue.fields(f1,f2)");
+  ok &= registerFunction(f, f_maxvalue_fields, "maxvalue.fields(f1,f2)");
+  ok &= registerFunction(f, f_minvalue_field_const, "minvalue.field.const(f,const:value)");
+  ok &= registerFunction(f, f_maxvalue_field_const, "maxvalue.field.const(f,const:value)");
+  ok &= registerFunction(f, f_abs, "abs(f)");
+  ok &= registerFunction(f, f_log10, "log10(f)");
+  ok &= registerFunction(f, f_pow10, "pow10(f)");
+  ok &= registerFunction(f, f_log, "log(f)");
+  ok &= registerFunction(f, f_exp, "exp(f)");
+  ok &= registerFunction(f, f_power, "power(f,const:exponent)");
+  ok &= registerFunction(f, f_shapiro2_filter, "shapiro2.filter(f)");
+  ok &= registerFunction(f, f_smooth, "smooth(f,const:numsmooth)");
+  ok &= registerFunction(f, f_windcooling_tk_u_v, "windcooling_tk_u_v(tk2m,u10m,v10m)");
+  ok &= registerFunction(f, f_windcooling_tc_u_v, "windcooling_tc_u_v(tc2m,u10m,v10m)");
+  ok &= registerFunction(f, f_undercooled_rain, "undercooled.rain(precip,snow,tk,const:precipMin,const:snowRateMax,const:tcMax)");
+  ok &= registerFunction(f, f_pressure2flightlevel, "pressure2flightlevel(p)");
+  ok &= registerFunction(f, f_vessel_icing_overland, "vessel.icing.overland(airtemp,seatemp,u10m,v10m,const:freezingPoint)");
+  ok &= registerFunction(f, f_vessel_icing_mertins, "vessel.icing.mertins(airtemp,seatemp,u10m,v10m,const:freezingPoint)");
+  ok &= registerFunction(f, f_vessel_icing_overland2, "vessel.icing.overland2(airtemp,seatemp,u10m,v10m,salinity0m,aice)");
+  ok &= registerFunction(f, f_vessel_icing_mertins2, "vessel.icing.mertins2(airtemp,seatemp,u10m,v10m,salinity0m,aice)");
+  ok &= registerFunction(f, f_vessel_icing_modstall, "vessel.icing.modstall(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,temperature0m,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)");
+  ok &= registerFunction(f, f_vessel_icing_testmod, "vessel.icing.testmod(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,sst,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)");
+  ok &= registerFunction(f, f_replace_undefined, "replace.undefined(f,const:value)");
+  ok &= registerFunction(f, f_replace_defined, "replace.defined(f,const:value)");
+  ok &= registerFunction(f, f_replace_all, "replace.all(f,const:value)");
+  ok &= registerFunction(f, f_values2classes, "values2classes(f,const:limits_low_to_high,...)");
+  ok &= registerFunction(f, f_field_diff_forecast_hour, "field.diff.forecast.hour(field,const:relHourFirst,const:relHourLast)");
+  ok &= registerFunction(f, f_accum_diff_forecast_hour, "accum.diff.forecast.hour(accumfield,const:relHourFirst,const:relHourLast)");
+  ok &= registerFunction(f, f_sum_of_forecast_hours, "sum_of_forecast_hours(field,const:forecastHours,...)");
+  ok &= registerFunction(f, f_sum_of_fields, "sum_of_fields(field)");
+  ok &= registerFunction(f, f_max_of_fields, "max_of_fields(field)");
+  ok &= registerFunction(f, f_min_of_fields, "min_of_fields(field)");
+  ok &= registerFunction(f, f_no_of_fields_above, "no_of_fields_above(field,const:limit)");
+  ok &= registerFunction(f, f_no_of_fields_below, "no_of_fields_below(field,const:limit)");
+  ok &= registerFunction(f, f_index_of_fields_max, "index_of_fields_max(field)");
+  ok &= registerFunction(f, f_index_of_fields_min, "index_of_fields_min(field)");
+  ok &= registerFunction(f, f_mean_value, "mean_value(field,...)");
+  ok &= registerFunction(f, f_stddev, "stddev(field)");
+  ok &= registerFunction(f, f_probability_above, "probability_above(field,const:limit)");
+  ok &= registerFunction(f, f_probability_below, "probability_below(field,const:limit)");
+  ok &= registerFunction(f, f_probability_between, "probability_between(field,const:limit,const:limit)");
+  ok &= registerFunction(f, f_number_above, "number_above(field,const:limit)");
+  ok &= registerFunction(f, f_number_below, "number_below(field,const:limit)");
+  ok &= registerFunction(f, f_number_between, "number_between(field,const:limit,const:limit)");
+  ok &= registerFunction(f, f_equivalent_to, "equivalent_to(field)");
+  ok &= registerFunction(f, f_min_value, "min_value(field,...)");
+  ok &= registerFunction(f, f_max_value, "max_value(field,...)");
+  ok &= registerFunction(f, f_min_index, "min_index(field,...)");
+  ok &= registerFunction(f, f_max_index, "max_index(field,...)");
+  ok &= registerFunction(f, f_percentile, "percentile(field,const:value,...)");
+  ok &= registerFunction(f, f_snow_cm_from_snow_water_tk_td, "snow.cm.from.snow.water(snow,tk,td)");
 
   functionMap[f_field_diff_forecast_hour] = f_subtract_f_f;
   functionMap[f_accum_diff_forecast_hour] = f_subtract_f_f;
@@ -303,158 +404,42 @@ FieldFunctions::FieldFunctions()
   // geographic functions
 
   // initialize function texts
-  functionText[f_qvector_plevel_z_tk_xcomp] = "qvector.plevel_z_tk_xcomp(z,tk)";
-  functionText[f_qvector_plevel_z_th_xcomp] = "qvector.plevel_z_th_xcomp(z,th)";
-  functionText[f_qvector_plevel_z_tk_ycomp] = "qvector.plevel_z_tk_ycomp(z,tk)";
-  functionText[f_qvector_plevel_z_th_ycomp] = "qvector.plevel_z_th_ycomp(z,th)";
-  functionText[f_geostrophic_wind_plevel_z_xcomp] = "geostrophic.wind.plevel_z_xcomp(z)";
-  functionText[f_geostrophic_wind_plevel_z_ycomp] = "geostrophic.wind.plevel_z_ycomp(z)";
-  functionText[f_geostrophic_vorticity_plevel_z] = "geostrophic.vorticity.plevel_z(z)";
+  ok &= registerFunction(f, f_qvector_plevel_z_tk_xcomp, "qvector.plevel_z_tk_xcomp(z,tk)");
+  ok &= registerFunction(f, f_qvector_plevel_z_th_xcomp, "qvector.plevel_z_th_xcomp(z,th)");
+  ok &= registerFunction(f, f_qvector_plevel_z_tk_ycomp, "qvector.plevel_z_tk_ycomp(z,tk)");
+  ok &= registerFunction(f, f_qvector_plevel_z_th_ycomp, "qvector.plevel_z_th_ycomp(z,th)");
+  ok &= registerFunction(f, f_geostrophic_wind_plevel_z_xcomp, "geostrophic.wind.plevel_z_xcomp(z)");
+  ok &= registerFunction(f, f_geostrophic_wind_plevel_z_ycomp, "geostrophic.wind.plevel_z_ycomp(z)");
+  ok &= registerFunction(f, f_geostrophic_vorticity_plevel_z, "geostrophic.vorticity.plevel_z(z)");
 
   // isentropic level (ILEVEL) function NB! functions with two output fields do not work (TODO)
-  functionText[f_geostrophic_wind_ilevel_mpot] = "geostrophic_wind.ilevel_mpot(mpot)2";
+  ok &= registerFunction(f, f_geostrophic_wind_ilevel_mpot, "geostrophic_wind.ilevel_mpot(mpot)2");
 
   // level independent functions
-  functionText[f_direction] = "direction(u,v)";
-  functionText[f_rel_vorticity] = "rel.vorticity(u,v)";
-  functionText[f_abs_vorticity] = "abs.vorticity(u,v)";
-  functionText[f_divergence] = "divergence(u,v)";
-  functionText[f_advection] = "advection(f,u,v,const:hours)";
-  functionText[f_thermal_front_parameter_tx] = "thermal.front.parameter_tx(tx)";
-  functionText[f_momentum_x_coordinate] = "momentum.x.coordinate(v,const:coriolisMin)";
-  functionText[f_momentum_y_coordinate] = "momentum.y.coordinate(u,const:coriolisMin)";
-  functionText[f_jacobian] = "jacobian(fx,fy)";
+  ok &= registerFunction(f, f_direction, "direction(u,v)");
+  ok &= registerFunction(f, f_rel_vorticity, "rel.vorticity(u,v)");
+  ok &= registerFunction(f, f_abs_vorticity, "abs.vorticity(u,v)");
+  ok &= registerFunction(f, f_divergence, "divergence(u,v)");
+  ok &= registerFunction(f, f_advection, "advection(f,u,v,const:hours)");
+  ok &= registerFunction(f, f_thermal_front_parameter_tx, "thermal.front.parameter_tx(tx)");
+  ok &= registerFunction(f, f_momentum_x_coordinate, "momentum.x.coordinate(v,const:coriolisMin)");
+  ok &= registerFunction(f, f_momentum_y_coordinate, "momentum.y.coordinate(u,const:coriolisMin)");
+  ok &= registerFunction(f, f_jacobian, "jacobian(fx,fy)");
+
+  return ok;
 }
-
-std::string FieldFunctions::FIELD_COMPUTE_SECTION() { return "FIELD_COMPUTE"; }
-std::string FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION() { return "FIELD_VERTICAL_COORDINATES"; }
-
-// static
-const FieldFunctions::Zaxis_info* FieldFunctions::findZaxisInfo(const std::string& name)
-{
-  const std::map< std::string, Zaxis_info>::const_iterator it = Zaxis_info_map.find(name);
-  if (it != Zaxis_info_map.end())
-    return &(it->second);
-  else
-    return 0;
-}
-
-struct FunctionHelper {
-  FieldFunctions::Function func;
-  int numfields;
-  int numconsts;
-  unsigned int numresult;
-  FieldFunctions::VerticalType vertcoord;
-  FunctionHelper() :
-    func(FieldFunctions::f_undefined), numfields(0), numconsts(0),
-    numresult(1), vertcoord(FieldFunctions::vctype_none)
-  {
-  }
-};
-
 
 // static member
-bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines,
-    vector<std::string>& errors)
+bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<std::string>& errors)
 {
   METLIBS_LOG_SCOPE();
-  bool ok = true;
 
-  // field functions (not setup input)
-
-  FieldFunctions ffunc;
-  std::map<FieldFunctions::Function, std::string> functionTexts =
-      ffunc.getFunctionTexts();
-  std::map<FieldFunctions::Function, std::string>::iterator fitr;
-  map<std::string, FunctionHelper> functions;
-
-  std::string str, functionText, functionName;
-  vector<std::string> vstr;
-  size_t p1, p2;
-
-  /*
-   * Loop over all functions with defined function texts
-   * Parse text and register functions in a FunctionHelper struct
-   */
-  for (fitr = functionTexts.begin(); fitr != functionTexts.end(); ++fitr) {
-    bool err = true;
-    functionText = fitr->second;
-    functionText = functionText;
-    p1 = functionText.find('(');
-    p2 = functionText.find(')');
-    // The function text should contain a variable definition inside a '(' ')' pair
-    if (p1 != string::npos && p2 != string::npos && p1 > 0 && p1 < p2 - 1) {
-      // the name of the function (must be matched in setup)
-      functionName = functionText.substr(0, p1);
-      // parse the arguments
-      str = functionText.substr(p1 + 1, p2 - p1 - 1);
-      vstr = miutil::split(str, 0, ",");
-      // set the vertical component type
-      VerticalType vctype = vctype_none;
-      if (miutil::contains(functionName, ".plevel_"))
-        vctype = vctype_pressure;
-      else if (miutil::contains(functionName, ".hlevel_"))
-        vctype = vctype_hybrid;
-      else if (miutil::contains(functionName, ".alevel_"))
-        vctype = vctype_atmospheric;
-      else if (miutil::contains(functionName, ".ilevel_"))
-        vctype = vctype_isentropic;
-      else if (miutil::contains(functionName, ".ozlevel_"))
-        vctype = vctype_oceandepth;
-      int nfields = 0;
-      int nconsts = 0;
-      int nresult = 1;
-      unsigned int i = 0;
-      while (i < vstr.size() && (vstr[i].length() < 6 || vstr[i].substr(0, 6)
-          != "const:"))
-        i++;
-      if (i == vstr.size()) {
-        nfields = vstr.size();
-        if (nfields > 0 && vstr[i-1].find_first_not_of('.') == string::npos) {
-          nfields = -1;
-        }
-      } else {
-        nfields = i;
-        if (nfields > 0 && vstr[i-1].find_first_not_of('.') == string::npos) {
-          METLIBS_LOG_ERROR("Error while parsing functions defined in FieldFunctions:"
-              "Functions with both fields and contants cannot have a variable numder of fields: " << functionText);
-          ok = false;
-        }
-        nconsts = vstr.size() - nfields;
-        i = vstr.size() - 1;
-        if (vstr[i].find_first_not_of('.') == string::npos)
-          nconsts = -(nconsts - 1);
-      }
-      if (p2 + 1 < functionText.length()) {
-        str = functionText.substr(p2 + 1);
-        if (miutil::is_int(str)) {
-          nresult = atoi(str.c_str());
-          if (nresult > 0)
-            err = false;
-        }
-      } else {
-        err = false;
-      }
-      if (!err) {
-        FunctionHelper fh;
-        fh.func = fitr->first;
-        fh.numfields = nfields;
-        fh.numconsts = nconsts;
-        fh.numresult = nresult;
-        fh.vertcoord = vctype;
-        functions[functionName] = fh;
-      }
-    }
-    if (err) {
-      METLIBS_LOG_ERROR("Bad FunctionName " << functionText);
-      ok = false;
-    }
-  }
-
-  if (!ok)
+  functions_t functions;
+  if (!registerFunctions(functions))
     return false;
 
   // parse setup
+  bool ok = true;
 
   map<std::string, int> compute;
   compute["add"] = 0;
@@ -465,25 +450,24 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines,
 
   map<std::string, FunctionHelper>::const_iterator pf, pfend = functions.end();
 
-  std::string v1, v2, oneline;
-  vector<std::string> vspec, vpart;
+  std::string v1, v2;
+  vector<std::string> vpart;
   bool b0, b1;
 
   int nlines = lines.size();
 
   for (int l = 0; l < nlines; l++) {
-    oneline = lines[l];
-    vstr = miutil::split(oneline, 0, " ", true);
+    const std::string& oneline = lines[l];
+    const vector<std::string> vstr = miutil::split(oneline, 0, " ", true);
     int n = vstr.size();
     for (int i = 0; i < n; i++) {
       bool err = true;
-      vspec = miutil::split(vstr[i], 1, "=", false);
+      const vector<std::string> vspec = miutil::split(vstr[i], 1, "=", false);
       if (vspec.size() == 2) {
-        p1 = vspec[1].find('(');
-        p2 = vspec[1].find(')');
+        const size_t p1 = vspec[1].find('('), p2 = vspec[1].find(')');
         if (p1 != string::npos && p2 != string::npos && p1 > 0 && p1 < p2 - 1) {
-          functionName = vspec[1].substr(0, p1);
-          str = vspec[1].substr(p1 + 1, p2 - p1 - 1);
+          const std::string functionName = vspec[1].substr(0, p1);
+          const std::string str = vspec[1].substr(p1 + 1, p2 - p1 - 1);
           FieldCompute fcomp;
           fcomp.name = vspec[0];
           fcomp.functionName = miutil::to_upper(functionName);
@@ -788,14 +772,6 @@ void FieldFunctions::setFieldNames(const vector<std::string>& vfieldname)
   }
 }
 
-const std::string FieldFunctions::getFunctionText(Function f) const
-{
-  std::map<Function, std::string>::const_iterator i = functionText.find(f);
-  if (i != functionText.end())
-    return i->second;
-  return std::string();
-}
-
 bool FieldFunctions::fieldComputer(Function function,
     const std::vector<float>& constants, const std::vector<Field*>& vfinput,
     const std::vector<Field*>& vfres, GridConverter& gc)
@@ -809,24 +785,6 @@ bool FieldFunctions::fieldComputer(Function function,
   // Perform field computation according to 'function'.
   // All fields must have the same dimensions (nx and ny).
   // All "horizontal" computations assuming nonstaggered fields (A-grid).
-
-#ifdef DEBUGPRINT
-  cerr << "FieldFunctions::fieldComputer: " << "fieldName " << fieldName;
-  cerr << " FUNCTION  ";
-  std::string ftext = getFunctionText(function);
-  if (ftext != "") {
-    int l = ftext.find('(');
-    cerr << ftext.substr(0, l);
-  } else {
-    cerr << "compute(" << miString(int(function)) << ")";
-  }
-  if (!constants.empty()) {
-    cerr << " const:";
-    for (unsigned int i = 0; i < constants.size(); i++)
-      cerr << " " << constants[i];
-  }
-  cerr << endl;
-#endif
 
   if (vfinput.empty() || vfres.empty()) {
     return false;
