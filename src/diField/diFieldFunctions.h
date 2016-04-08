@@ -410,9 +410,6 @@ public:
   static const FieldCompute& fieldCompute(int idx)
     { return vFieldCompute.at(idx); }
 
-  static Function mapFunction(Function f)
-    { return functionMap[f]; }
-
   static std::string FIELD_COMPUTE_SECTION();
   static std::string FIELD_VERTICAL_COORDINATES_SECTION();
 
@@ -440,10 +437,7 @@ public:
   static void setFieldNames(const std::vector<std::string>& vfieldname);
 
   /// return true if funcion includes several times steps
-  bool isTimeStepFunction(Function f) const
-  {
-    return (f>=f_field_diff_forecast_hour && f<=f_index_of_fields_min);
-  }
+  static bool isTimeStepFunction(Function f);
 
   /// call function and return results
   bool fieldComputer(Function function, const std::vector<float>& constants,
@@ -452,10 +446,9 @@ public:
 private:
   static bool registerFunctions(functions_t& functions);
   static bool registerFunction(functions_t& functions, Function f, const std::string& funcText);
+  static bool mapTimeStepFunction(Function& f);
 
 private:
-  static std::map<Function, Function> functionMap;
-
   static std::vector<std::string> vFieldName;
   static std::map<std::string, int> mFieldName;
 

@@ -63,7 +63,6 @@ using namespace MetNo::Constants;
 vector<FieldFunctions::FieldCompute>          FieldFunctions::vFieldCompute;
 map<FieldFunctions::VerticalType,map<std::string,vector<int> > > FieldFunctions::mFieldCompute;
 
-std::map<FieldFunctions::Function, FieldFunctions::Function> FieldFunctions::functionMap;
 vector<std::string> FieldFunctions::vFieldName;
 map<std::string,int> FieldFunctions::mFieldName;
 
@@ -389,17 +388,6 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_max_index, "max_index(field,...)");
   ok &= registerFunction(f, f_percentile, "percentile(field,const:value,...)");
   ok &= registerFunction(f, f_snow_cm_from_snow_water_tk_td, "snow.cm.from.snow.water(snow,tk,td)");
-
-  functionMap[f_field_diff_forecast_hour] = f_subtract_f_f;
-  functionMap[f_accum_diff_forecast_hour] = f_subtract_f_f;
-  functionMap[f_sum_of_forecast_hours] = f_sum_f;
-  functionMap[f_sum_of_fields] = f_sum_f;
-  functionMap[f_max_of_fields] = f_max_value;
-  functionMap[f_min_of_fields] = f_min_value;
-  functionMap[f_no_of_fields_above] = f_number_above;
-  functionMap[f_no_of_fields_below] = f_number_below;
-  functionMap[f_index_of_fields_max] = f_max_index;
-  functionMap[f_index_of_fields_min] = f_min_index;
 
   // geographic functions
 
@@ -772,6 +760,39 @@ void FieldFunctions::setFieldNames(const vector<std::string>& vfieldname)
   }
 }
 
+// static
+bool FieldFunctions::isTimeStepFunction(Function f)
+{
+  return mapTimeStepFunction(f);
+}
+
+// static
+bool FieldFunctions::mapTimeStepFunction(Function& f)
+{
+  if (f == f_field_diff_forecast_hour || f == f_accum_diff_forecast_hour)
+    f = f_subtract_f_f;
+  else if (f == f_sum_of_forecast_hours)
+    f = f_sum_f;
+  else if (f == f_sum_of_fields)
+    f = f_sum_f;
+  else if (f == f_max_of_fields)
+    f = f_max_value;
+  else if (f == f_min_of_fields)
+    f = f_min_value;
+  else if (f == f_no_of_fields_above)
+    f = f_number_above;
+  else if (f == f_no_of_fields_below)
+    f = f_number_below;
+  else if (f == f_index_of_fields_max)
+    f = f_max_index;
+  else if (f == f_index_of_fields_min)
+    f = f_min_index;
+  else
+    return false;
+
+  return true;
+}
+
 bool FieldFunctions::fieldComputer(Function function,
     const std::vector<float>& constants, const std::vector<Field*>& vfinput,
     const std::vector<Field*>& vfres, GridConverter& gc)
@@ -789,6 +810,8 @@ bool FieldFunctions::fieldComputer(Function function,
   if (vfinput.empty() || vfres.empty()) {
     return false;
   }
+
+  mapTimeStepFunction(function);
 
   int nx = vfinput[0]->area.nx;
   int ny = vfinput[0]->area.ny;
@@ -1578,6 +1601,7 @@ bool FieldFunctions::fieldComputer(Function function,
         allDefined, undef);
     break;
 
+  // time step functions
   case f_field_diff_forecast_hour: // not handled here
   case f_accum_diff_forecast_hour: // not handled here
   case f_sum_of_forecast_hours: // not handled here

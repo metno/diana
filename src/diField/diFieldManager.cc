@@ -1453,8 +1453,8 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
     ff->unit = fieldrequest.unit;
     vfresults.push_back(ff);
 
-    if (!ffunc.fieldComputer(FieldFunctions::functionMap[fcm.function], fcm.constants, vfield, vfresults, gc)) {
-      METLIBS_LOG_WARN("FieldManager::getField: fieldComputer returned false");
+    if (!ffunc.fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
+      METLIBS_LOG_WARN("fieldComputer returned false");
       fieldOK = false;
     } else {
       fieldOK = true;
