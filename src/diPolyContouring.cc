@@ -424,13 +424,12 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
 
 void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
 {
-  if ((mPaintMode & FILL) == 0)
-    return;
-
   if (level == DianaLevels::UNDEF_LEVEL) {
     if (mPlotOptions.undefMasking != 1 || (mPaintMode & UNDEFINED) == 0)
       return;
   } else {
+    if ((mPaintMode & FILL) == 0)
+      return;
     if ((mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) || (mPaintMode & FILL) == 0)
       return;
     if (!(mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) && mPlotOptions.alpha == 0)
