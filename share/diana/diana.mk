@@ -237,7 +237,12 @@ dist_div_DATA= share/diana/UK_lyn.header \
 	share/diana/amdar.stations \
 	share/diana/ogckml22.xsd \
 	share/diana/atom-author-link.xsd \
-	share/diana/xAL.xsd
+	share/diana/xAL.xsd \
+  share/diana/iptab_metar.txt \
+  share/diana/iptab_synop.txt \
+  share/diana/itab_metar.txt \
+  share/diana/itab_synop.txt
+
 
 symbolsdir= $(datarootdir)/diana/@PVERSION@/images/symbols
 dist_symbols_DATA= \

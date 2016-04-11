@@ -424,13 +424,12 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
 
 void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
 {
-  if ((mPaintMode & FILL) == 0)
-    return;
-
   if (level == DianaLevels::UNDEF_LEVEL) {
     if (mPlotOptions.undefMasking != 1 || (mPaintMode & UNDEFINED) == 0)
       return;
   } else {
+    if ((mPaintMode & FILL) == 0)
+      return;
     if ((mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) || (mPaintMode & FILL) == 0)
       return;
     if (!(mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) && mPlotOptions.alpha == 0)
@@ -627,6 +626,34 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
     levels = dianaLevelsForPlotOptions_2(poptions, fieldUndef);
   } else {
     levels = dianaLevelsForPlotOptions  (poptions, fieldUndef);
+  }
+
+  const int blockPaintMode = (paintMode & DianaLines::FILL);
+  if (blockPaintMode) {
+    const int BLOCK = 32*std::max(1, poptions.lineSmooth);
+    METLIBS_LOG_TIME("contour fill blocks " << BLOCK);
+    for (int ixx0 = ix0; ixx0 < ix1; ixx0 += BLOCK) {
+      int ixx1 = std::min(ix1, ixx0 + BLOCK+1);
+      for (int iyy0 = iy0; iyy0 < iy1; iyy0 += BLOCK) {
+        int iyy1 = std::min(iy1, iyy0 + BLOCK+1);
+
+        const DianaArrayIndex index(nx, ny, ixx0, iyy0, ixx1, iyy1, poptions.lineSmooth);
+        DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
+
+        const DianaField df(index, z, *levels, *positions);
+        DianaGLLines dl(gl, poptions, *levels);
+        dl.setPaintMode(blockPaintMode);
+        dl.setUseOptions2(use_options_2);
+
+        try {
+          contouring::run(df, dl);
+          dl.paint();
+        } catch (contouring::too_many_levels& tml) {
+          METLIBS_LOG_WARN(tml.what());
+        }
+      }
+    }
+    paintMode &= ~DianaLines::FILL;
   }
 
   const DianaArrayIndex index(nx, ny, ix0, iy0, ix1, iy1, poptions.lineSmooth);

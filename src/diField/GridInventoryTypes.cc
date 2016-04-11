@@ -115,11 +115,11 @@ void Zaxis::setStringValues()
   std::string levelsuffix;
   std::string name = verticalType;
   bool index = false;
-  if(FieldFunctions::Zaxis_info_map.count(name)) {
-    vc_type = FieldFunctions::Zaxis_info_map[name].vctype;
-    levelprefix = FieldFunctions::Zaxis_info_map[name].levelprefix;
-    levelsuffix = FieldFunctions::Zaxis_info_map[name].levelsuffix;
-    index = FieldFunctions::Zaxis_info_map[name].index;
+  if (const FieldFunctions::Zaxis_info* zi = FieldFunctions::findZaxisInfo(name)) {
+    vc_type = zi->vctype;
+    levelprefix = zi->levelprefix;
+    levelsuffix = zi->levelsuffix;
+    index = zi->index;
   }
 
   if (positive) {

@@ -252,7 +252,7 @@ protected:
 
   void getObsLonLat(int obsidx, float& x, float& y);
 
-  static bool readTable(const ObsPlotType type, const std::string& filename, short*& ritab, short*& ritabp);
+  static bool readTable(const ObsPlotType type, const std::string& itab_filename, const std::string& iptab_filename, short*& ritab, short*& riptab);
   void readPriorityFile(const std::string& filename);
 
   void decodeCriteria(const std::string& critStr);

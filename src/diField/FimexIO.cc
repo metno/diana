@@ -15,6 +15,7 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miDirtools.h>
 #include <miLogger/LogHandler.h>
 
 #include <fimex/CDM.h>
@@ -76,18 +77,6 @@ DataPtr getScaledDataSlice(FimexIO::CDMReaderPtr reader, const CoordinateSystemS
 }
 
 } // anonymous namespace
-
-// #######################################################################
-
-namespace miutil {
-long path_ctime(const std::string& path)
-{
-  pu_struct_stat buf;
-  if (pu_stat(path.c_str(), &buf) != 0)
-    return 0;
-  return buf.st_ctime;
-}
-}
 
 // #######################################################################
 
@@ -279,7 +268,7 @@ bool FimexIO::sourceChanged(bool update)
     return false;
   }
 
-  const long modificationTime_ = path_ctime(source_name);
+  const long modificationTime_ = miutil::path_ctime(source_name);
   if (modificationTime_ != modificationTime) {
     if (update) {
       modificationTime = modificationTime_;

@@ -726,7 +726,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
 
   if (op->isSynopListRoad()) {
     if (!itabSynop || !iptabSynop) {
-      if (!readTable(op->plottype(), path + "/synpltab.dat", itabSynop, iptabSynop))
+      if (!readTable(op->plottype(), path + "/itab_synop.txt", path + "/iptab_synop.txt", itabSynop, iptabSynop))
         return 0;
     }
     op->itab = itabSynop;
@@ -734,7 +734,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
 
   } else if (op->plottype() == OPT_METAR) {
     if (!itabMetar || !iptabMetar) {
-      if (!readTable(op->plottype(), path + "/metpltab.dat", itabMetar, iptabMetar))
+      if (!readTable(op->plottype(), path + "/itab_metar.txt", path + "/iptab_metar.txt", itabMetar, iptabMetar))
         return 0;
     }
     op->itab = itabMetar;
@@ -4017,7 +4017,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
 
   // calm
   if (ff < 1.) {
-    gl->drawCircle(0, 0, radius);
+    gl->drawCircle(0, 0, radius*1.5);
   } else {
     gl->Rotatef(360 - dd, 0.0, 0.0, 1.0);
 
@@ -4206,10 +4206,10 @@ void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float 
 }
 
 // static
-bool ObsPlot::readTable(const ObsPlotType type, const std::string& filename, short*& ritab, short*& riptab)
+bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename, const std::string& iptab_filename, short*& ritab, short*& riptab)
 {
   //   Initialize ritab and riptab from file.
-  METLIBS_LOG_SCOPE("type: " << type << " filename: " << filename);
+  METLIBS_LOG_SCOPE("type: " << type << " filename: " << itab_filename << " filename: " << iptab_filename);
 
   size_t psize;
 
@@ -4222,48 +4222,48 @@ bool ObsPlot::readTable(const ObsPlotType type, const std::string& filename, sho
   else
     return false; // table for unknown plot type;
 
-  FILE *fp = fopen(filename.c_str(), "rb");
-  if (!fp) {
-    METLIBS_LOG_ERROR("ObsPlot::readTable: Couldn't open " << filename);
-    return false;
-  }
-
-  // ritab sored in 2 fortran records (each 256 shorts)
-  const size_t size = 512 + psize;
-
-  short *table = new short[size];
-
-  if (fread(table, 2, size, fp) != size) {
-    METLIBS_LOG_ERROR("Error reading '" << filename << "'");
-    fclose(fp);
-    delete[] table;
-    return false;
-  }
-
-  fclose(fp);
-
   // indexing as in fortran code (start from element 1)
 
   const int ITAB = 380;
   ritab = new short[ITAB + 1];
   riptab = new short[psize + 1];
-
-  for (int i = 0; i < ITAB; i++) {
-    ritab[i + 1] = table[i];
+  
+  string line;
+  int i = 0;
+  ifstream ifs(itab_filename.c_str());
+  if (!ifs.is_open())
+    return false;
+  while (ifs.good()) {
+    getline(ifs,line);
+    if (miutil::contains(line,"#"))
+      continue;
+    else {
+      i++;
+      if (i >= ITAB)
+        break;
+      ritab[i] = miutil::to_int(line);
+    }
+      
   }
-
-  for (size_t i = 512; i < size; i++)
-    riptab[i - 511] = table[i];
-
-  if (type == OPT_SYNOP || type == OPT_ROADOBS)
-    for (int i = ritab[232] + 3; i <= ritab[267] + 3; i += 16)
-      riptab[i] = 1;
-  else if (type == OPT_METAR)
-    for (int i = ritab[162] + 3; i <= ritab[197] + 3; i += 16)
-      riptab[i] = 1;
-
-  delete[] table;
-
+  ifs.close();
+  
+  i = 0;
+  ifstream ifp(iptab_filename.c_str());
+  if (!ifp.is_open())
+    return false;
+  while (ifp.good()) {
+    getline(ifp,line);
+    if (miutil::contains(line,"#"))
+      continue;
+    else {
+      i++;
+      if (i >= psize)
+        break;
+      riptab[i] = miutil::to_int(line);
+    }
+      
+  }
+  ifp.close();
   return true;
 }
 

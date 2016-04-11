@@ -6,8 +6,10 @@ libdiField_la_SOURCES = \
 	DataReshape.cc \
 	diArea.cc \
 	diField.cc \
+	diFieldCalculations.cc \
 	diFieldFunctions.cc \
 	diFieldManager.cc \
+	diFlightLevel.cc \
 	diGridConverter.cc \
 	diMetConstants.cc \
 	diProjection.cc \
@@ -39,8 +41,10 @@ noinst_HEADERS = \
 	diCommonFieldTypes.h \
 	diField.h \
 	diFieldExceptions.h \
+	diFieldCalculations.h \
 	diFieldFunctions.h \
 	diFieldManager.h \
+	diFlightLevel.h \
 	diGridConverter.h \
 	diMetConstants.h \
 	diProjection.h \

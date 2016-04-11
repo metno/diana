@@ -51,10 +51,6 @@ namespace MetNoFimex {
   class CoordinateSystemSliceBuilder;
 }
 
-namespace miutil {
-long path_ctime(const std::string& path);
-}
-
 class FimexIOsetup: public GridIOsetup {
 public:
   FimexIOsetup()
