@@ -190,8 +190,6 @@ private:
       gridinventory::ReftimeInventory& inventory, std::vector<Field*>& vfield,      FieldRequest fieldrequest,
       const std::vector<float>& constants, int cacheOptions);
   bool multiplyFieldByTimeStep(Field* f, float sec_diff);
-  bool paramExist(gridinventory::ReftimeInventory& inventory,
-      const FieldRequest& fieldrequest, gridinventory::GridParameter& param);
 };
 
 #endif

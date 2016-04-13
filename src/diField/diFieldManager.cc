@@ -1263,15 +1263,11 @@ bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
   GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName,
       fieldrequest.refTime, false, fieldrequest.checkSourceChanged);
   if (not pgc) {
-    COMMON_LOG::getInstance("common").warnStream()
-        << "FieldManager::putField: grid collection for model '"
-        << fieldrequest.modelName << "', refTime '" << fieldrequest.refTime
-        << "' not found";
+    METLIBS_LOG_WARN(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.refTime) << "' not found");
     return false;
   }
 
   gridinventory::Inventory inventory = pgc->getExpandedInventory();
-
 
   map<std::string, gridinventory::ReftimeInventory>::iterator ritr =
       inventory.reftimes.find(fieldrequest.refTime);
@@ -1279,20 +1275,31 @@ bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
     if (fieldrequest.refTime.empty() && inventory.reftimes.size()) {
       ritr = inventory.reftimes.begin();
     } else {
-      COMMON_LOG::getInstance("common").warnStream() << "refTime '"
-          << fieldrequest.refTime << "' not found";
+      METLIBS_LOG_WARN(LOGVAL(fieldrequest.refTime) << "' not found");
       return false;
     }
   }
   fieldrequest.refTime = ritr->second.referencetime;
 
   gridinventory::GridParameter param;
-  if (!paramExist(ritr->second, fieldrequest, param)) {
-    METLIBS_LOG_DEBUG(
-        __FUNCTION__ << ": parameter " << fieldrequest.paramName
-            << "  not found in inventory");
+
+
+  if (!pgc->dataExists(fieldrequest.refTime,
+      fieldrequest.paramName, fieldrequest.zaxis, fieldrequest.taxis,
+      fieldrequest.eaxis, fieldrequest.version, fieldrequest.plevel,
+      fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance,
+      param)) {
+    METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.paramName)<< "  not found by dataExists");
     return false;
   }
+
+  set<gridinventory::GridParameter>::iterator pitr;
+  pitr = ritr->second.parameters.find(param);
+  if (pitr == ritr->second.parameters.end()) {
+    METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.paramName)<< "  not found in inventory even if dataExists returned true");
+    return false;
+  }
+
   return pgc->putData(fieldrequest.refTime,
       param.key.name, param.key.zaxis, param.key.taxis, param.key.extraaxis,
       param.key.version, fieldrequest.plevel, fieldrequest.ptime,
@@ -1554,35 +1561,6 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   }
 
   return fresult;
-}
-
-bool FieldManager::paramExist(gridinventory::ReftimeInventory& inventory,
-    const FieldRequest& fieldrequest, gridinventory::GridParameter& param)
-{
-  //METLIBS_LOG_DEBUG(__FUNCTION__);
-
-  // init Gridparameter
-  param.key.name = fieldrequest.paramName;
-  param.key.zaxis = fieldrequest.zaxis;
-  param.key.taxis = fieldrequest.taxis;
-  param.key.extraaxis = fieldrequest.eaxis;
-  param.key.version = fieldrequest.version;
-  METLIBS_LOG_DEBUG("param.key.name: " << param.key.name);
-  METLIBS_LOG_DEBUG("param.key.zaxis: " << param.key.zaxis);
-  METLIBS_LOG_DEBUG("param.key.taxis: " << param.key.taxis);
-  METLIBS_LOG_DEBUG("param.key.extraaxis: " << param.key.extraaxis);
-  METLIBS_LOG_DEBUG("param.grid: " << param.grid);
-
-  set<gridinventory::GridParameter>::iterator pitr = inventory.parameters.find(
-      param);
-
-  //Parameter ok
-  if (pitr != inventory.parameters.end()) {
-    param = *pitr;
-    return true;
-  }
-
-  return false;
 }
 
 void FieldManager::updateSources()
