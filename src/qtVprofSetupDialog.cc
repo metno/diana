@@ -557,7 +557,7 @@ void VprofSetupDialog::initColourtab()
   int nrow = 0;
   int opts= (VcrossSetupUI::useColour | VcrossSetupUI::useLineWidth);
 
-  for (int j=0; j<8; ++j)
+  for (int j=0; j<10; ++j)
     mSetupData.push_back(new VcrossSetupUI(colourtab,tr("Data%1").arg(j+1), glayout, ++nrow, opts));
 }
 
