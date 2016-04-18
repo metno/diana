@@ -717,6 +717,45 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
   EXPECT_FLOAT_EQ(70.039894, vertical_p_values->value(idx));
   EXPECT_FLOAT_EQ(22535.787, vertical_h_values->value(idx));
   EXPECT_FLOAT_EQ(227.47379, airtemp_values->value(idx));
+
+  // --------------------------------------------------
+
+  Crossection_cp csdyn1 = inv->findCrossectionByLabel("smhi");
+  ASSERT_TRUE(csdyn1);
+  const Time& time1 = inv->times.at(1);
+  name2value_t n2v1;
+  fs->getCrossectionValues(csdyn1, time1, request, n2v1);
+
+  vertical_p_values = n2v1[vertical_pressure->id()];
+  ASSERT_TRUE(vertical_p_values);
+  vertical_h_values = n2v1[vertical_altitude->id()];
+  ASSERT_TRUE(vertical_h_values);
+  airtemp_values = n2v1[airtemp->id()];
+  ASSERT_TRUE(airtemp_values);
+
+  const Values::Shape& shape1(vertical_p_values->shape());
+  ASSERT_EQ(2, shape.rank());
+  EXPECT_EQ(Values::GEO_X,    shape1.name(0));
+  EXPECT_LE(positions.size(), shape1.length(0));
+  EXPECT_EQ(Values::GEO_Z,    shape1.name(1));
+  EXPECT_EQ(AROMESMHI_N_Z,    shape1.length(1));
+
+  ASSERT_EQ(shape1.names(),   vertical_h_values->shape().names());
+  ASSERT_EQ(shape1.lengths(), vertical_h_values->shape().lengths());
+
+  ASSERT_EQ(shape1.names(),   airtemp_values->shape().names());
+  ASSERT_EQ(shape1.lengths(), airtemp_values->shape().lengths());
+
+  Values::ShapeIndex idx1(vertical_p_values->shape());
+  idx1.set(Values::GEO_X, positions.size()-1);
+  idx1.set(Values::GEO_Z, 13);
+  EXPECT_FLOAT_EQ(276.90195, vertical_p_values->value(idx1));
+  EXPECT_FLOAT_EQ(10941.716, vertical_h_values->value(idx1));
+  EXPECT_FLOAT_EQ(219.45538, airtemp_values->value(idx1));
+
+  idx1.set(Values::GEO_Z, 3);
+  EXPECT_FLOAT_EQ(70.039642,  vertical_p_values->value(idx1));
+  EXPECT_FLOAT_EQ(22535.818,  vertical_h_values->value(idx1));
 }
 
 TEST(FimexReftimeSourceTest, TestBangladeshVcross)
