@@ -558,7 +558,8 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename)
   fieldrequest.checkSourceChanged = false;
   fieldrequest.modelName = filename;
   fieldrequest.paramName = editfield->paramName;
-//  fieldrequest.ptime = editfield->validFieldTime;
+  fieldrequest.zaxis= vcoord;
+  fieldrequest.plevel = vlevel;
   fieldrequest.unit = editfield->unit;
   if  ( !editfield->validFieldTime.undef() ) {
     fieldrequest.output_time = editfield->validFieldTime.isoTime();

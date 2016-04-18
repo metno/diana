@@ -382,6 +382,10 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_min_index, "min_index(field,...)");
   ok &= registerFunction(f, f_max_index, "max_index(field,...)");
   ok &= registerFunction(f, f_percentile, "percentile(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_percentile, "neighbour_percentile(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_mean, "neighbour_mean(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_probability_above, "neighbour_probability_above(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_probability_below, "neighbour_probability_below(field,const:value,...)");
   ok &= registerFunction(f, f_snow_cm_from_snow_water_tk_td, "snow.cm.from.snow.water(snow,tk,td)");
 
   // geographic functions
@@ -1619,13 +1623,21 @@ bool FieldFunctions::fieldComputer(Function function,
     break;
 
   case f_percentile:
-    if (ninp != 1 || nout != 1 || nconst < 2)
-      break;
-    if ( nconst == 3)
-      compute = int(constants[2]);
-    else
+  case f_neighbour_percentile:
+    if (compute == 0)
+      compute = 4;
+  case f_neighbour_probability_above:
+    if (compute == 0)
+      compute = 2;
+  case f_neighbour_probability_below:
+    if (compute == 0)
       compute = 3;
-    res = percentile(nx, ny, finp[0], constants[0], constants[1],  compute, fout[0],
+  case f_neighbour_mean:
+    if (compute == 0)
+      compute = 1;
+    if (ninp != 1 || nout != 1 || nconst < 1)
+      break;
+    res = neighbourFunctions(nx, ny, finp[0], constants, compute, fout[0],
         allDefined, undef);
     break;
 

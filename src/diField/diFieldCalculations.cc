@@ -3384,20 +3384,42 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields,
   return true;
 }
 
-bool percentile(int nx, int ny, const float* field,
-    float percentile, int range, int step,
+bool neighbourFunctions(int nx, int ny, const float* field,
+    const std::vector<float>& constants, int compute,
     float *fres, bool& allDefined, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
 
+  // compute=1 : calc mean value
+  // compute=2 : calc probability above (constant[0]=limit)
+  // compute=3 : calc probability below (constant[0]=limit)
+  // compute=4 : calc percentile (constant[0]=percentile)
+
   if (not allDefined) {
-    METLIBS_LOG_ERROR("Field contains undefined values -> percentiles can not be calculated");
+    METLIBS_LOG_ERROR("Field contains undefined values -> neighbour functions can not be used");
     return false;
   }
 
-  // percentiles can not be calculated close to the border, set values undef
+  if (constants.size() < 1 || (constants.size() < 2 && compute > 1) ) {
+    METLIBS_LOG_ERROR("Wrong number of constants:"<<constants.size());
+    return false;
+  }
+
+  int range=3, step=3, limit=0;
+  if ( compute == 1 ) {
+    range = constants[0];
+    if ( constants.size() == 2)
+      step = constants[1];
+  } else {
+    limit = constants[0];
+    range = constants[1];
+    if ( constants.size() == 3)
+      step = constants[2];
+  }
+
+  // values can not be calculated close to the border, set values undef
   allDefined = false;
   for (int l = 0; l < range; l++) {
     for (int i=0; i<nx; i++) {
@@ -3418,37 +3440,61 @@ bool percentile(int nx, int ny, const float* field,
     }
   }
 
+  // no. of gridpoints in range
+  float ngridp= pow((2*range+1),2);
   // calc. index corresponding to given percentile and range
-  int ii = pow((2*range+1),2)*percentile/100;
+  int ii = ngridp * limit/100;
+  vector<float> values;
 
   //loop through all gridpoints with given step
-  vector<float> values;
   for (int l = range; l < ny-range; l+=step) {
     for (int i=range; i<nx-range; i+=step) {
 
-      //sort values
-      values.clear();
+      float value=0.0;
       int index = i+l*nx;
-      for(int k=l-range;k<l+range+1;k++){
-        for ( int j = i-range; j<i+range+1;j++) {
-          values.push_back(field[j+k*nx]);
+      if ( compute == 4) {
+      //sort values
+        values.clear();
+        for(int k=l-range;k<l+range+1;k++){
+          for ( int j = i-range; j<i+range+1;j++) {
+            values.push_back(field[j+k*nx]);
+          }
         }
+        std::sort(values.begin(), values.end());
+        value = values[ii];
+      } else if (compute == 1 ){
+        for(int k=l-range;k<l+range+1;k++){
+          for ( int j = i-range; j<i+range+1;j++) {
+            value += field[j+k*nx];
+          }
+        }
+        value /= ngridp;
+      } else if (compute == 2 || compute == 3){
+        for(int k=l-range;k<l+range+1;k++){
+          for ( int j = i-range; j<i+range+1;j++) {
+            if ( field[j+k*nx] > limit )
+              value++;
+          }
+        }
+        if (compute == 3 ){
+          value = ngridp - value;
+        }
+        value /= ngridp;
       }
-      std::sort(values.begin(), values.end());
 
-      //set value corresponding to given percentile
-      fres[index]=values[ii];
+      //set value in output field
+      fres[index]=value;
       if (step > 1) {
-        fres[index+1]=values[ii];
-        fres[index+nx]=values[ii];
+        fres[index+1]=value;
+        fres[index+nx]=value;
       }
       if (step > 2) {
-        fres[index-1]=values[ii];
-        fres[index-nx]=values[ii];
-        fres[index+1+nx]=values[ii];
-        fres[index-1+nx]=values[ii];
-        fres[index-1-nx]=values[ii];
-        fres[index+1-nx]=values[ii];
+        fres[index-1]=value;
+        fres[index-nx]=value;
+        fres[index+1+nx]=value;
+        fres[index-1+nx]=value;
+        fres[index-1-nx]=value;
+        fres[index+1-nx]=value;
       }
     }
   }

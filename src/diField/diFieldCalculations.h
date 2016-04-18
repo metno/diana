@@ -312,8 +312,8 @@ bool probability(int compute, int nx, int ny, const std::vector<float*>& fields,
     const std::vector<float>& limits,
     float *fres, bool& allDefined, float undef);
 
-bool percentile(int nx, int ny, const float* field, float percentile, int range, int step,
-    float *fres, bool& allDefined, float undef);
+bool neighbourFunctions(int nx, int ny, const float* field, const std::vector<float>& constants,
+    int compute, float *fres, bool& allDefined, float undef);
 
 bool snow_in_cm(int nx, int ny, const float *snow_water, const float *tk2m, const float *td2m,
     float *snow_cm, bool& allDefined, float undef);
