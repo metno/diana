@@ -96,6 +96,15 @@ bool Collector::removePlot(int index)
 }
 
 
+bool Collector::hasVisiblePlot() const
+{
+  for (SelectedPlot_pv::const_iterator itSP = mSelectedPlots.begin(); itSP != mSelectedPlots.end(); ++itSP)
+    if ((*itSP)->visible)
+      return true;
+  return false;
+}
+
+
 ModelReftime Collector::getFirstModel() const
 {
   for (SelectedPlot_pv::const_iterator itSP = mSelectedPlots.begin(); itSP != mSelectedPlots.end(); ++itSP)
