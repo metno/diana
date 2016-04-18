@@ -330,6 +330,10 @@ public:
     f_min_index,  //!< f_min_value
     f_max_index,  //!< f_max_value
     f_percentile,  //!< f_percentile
+    f_neighbour_percentile,
+    f_neighbour_mean,
+    f_neighbour_probability_above,
+    f_neighbour_probability_below,
     f_snow_cm_from_snow_water_tk_td //!< f_snow_cm_from_snow_water_tk_td
   };
 
