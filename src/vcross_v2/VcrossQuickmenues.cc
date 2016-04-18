@@ -89,7 +89,8 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
   METLIBS_LOG_SCOPE();
 
   string_v vcross_data, vcross_options;
-  std::string name_cs_tg, lonlat_cs_tg;
+  QString name_cs_tg;
+  std::string lonlat_cs_tg;
   bool is_cs = false, is_tg = false, is_dyn = false;
 
   for (string_v::const_iterator it = qm_lines.begin(); it != qm_lines.end(); ++it) { // copy because it has to be trimmed
@@ -110,8 +111,8 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
         is_tg = true;
       }
       if (up0 == KEY_CROSSECTION || up0 == KEY_TIMEGRAPH) {
-        name_cs_tg = split_eq[1];
-        METLIBS_LOG_DEBUG(LOGVAL(name_cs_tg));
+        name_cs_tg = QString::fromStdString(split_eq[1]);
+        METLIBS_LOG_DEBUG(LOGVAL(name_cs_tg.toStdString()));
         continue;
       }
       if (up0 == KEY_CROSSECTION_LONLAT || up0 == KEY_TIMEGRAPH_LONLAT) {
@@ -137,12 +138,10 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
   METLIBS_LOG_DEBUG(LOGVAL(is_cs) << LOGVAL(is_tg));
   if (is_cs || is_tg) {
     manager->switchTimeGraph(is_tg);
-    if (!is_dyn) {
-      const int idx = manager->findCrossectionIndex(QString::fromStdString(name_cs_tg));
-      manager->setCrossectionIndex(idx);
-    } else {
+    if (is_dyn) {
       // dynamic cs / timegraph
-      const std::string label = name_cs_tg.empty() ? std::string("dyn_qm") : name_cs_tg;
+      if (name_cs_tg.isEmpty())
+        name_cs_tg = "dyn_qm";
       LonLat_v points;
       const std::vector<std::string> split_ll = miutil::split(lonlat_cs_tg, " ");
       points.reserve(split_ll.size());
@@ -156,8 +155,10 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
         }
       }
       if ((is_cs && points.size() >= 2) || (is_tg && points.size() == 1))
-        manager->addDynamicCrossection(QString::fromStdString(label), points);
+        manager->addDynamicCrossection(name_cs_tg, points);
     }
+    const int idx = manager->findCrossectionIndex(name_cs_tg);
+    manager->setCrossectionIndex(idx);
   }
   manager->fieldChangeDone();
   manager->updateOptions();
