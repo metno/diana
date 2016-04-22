@@ -3,7 +3,7 @@
 
 #include <QCoreApplication>
 
-#define DEBUG_MESSAGES
+//#define DEBUG_MESSAGES
 
 #ifdef DEBUG_MESSAGES
 #include <log4cpp/Category.hh>
