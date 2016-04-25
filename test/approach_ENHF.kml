@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+	<ExtendedData>
+	  <Data name="met:layer:0:name">
+		<value>Simra</value>
+	  </Data>
+	  <Data name="met:layer:0:visible">
+		<value>true</value>
+	  </Data>
+	</ExtendedData>
+	<Placemark>
+	  <name>ENHF</name>
+	  <ExtendedData>
+		<Data name="met:objectType">
+		  <value>PolyLine</value>
+		</Data>
+                <Data name="met:style:type">
+		<value>Cross section</value>
+                </Data>
+	  </ExtendedData>
+	  <Polygon>
+		<tessellate>1</tessellate>
+		<outerBoundaryIs>
+		  <LinearRing>
+		   <coordinates>23.4,70.62,0 23.6,70.7,0 23.7,70.7,0 24.0,70.8,0
+			</coordinates>
+		  </LinearRing>
+		</outerBoundaryIs>
+	  </Polygon>
+	</Placemark>
+  </Document>
+</kml>

@@ -208,9 +208,12 @@ float * north(Projection p, int nvec, const float * x, const float * y)
 
   p.convertToGeographic(nvec, north_x, north_y);
 
+  // convert to geographical, go a little north (lat += 0.1 deg), convert back
+  const float deltaLat = 0.1;
+
   DIUTIL_OPENMP_PARALLEL(nvec, for)
-  for (int i = 0; i < nvec; i++){
-    north_y[i] = std::min<float>(north_y[i] + 0.1, 90);
+  for (int i = 0; i < nvec; i++) {
+    north_y[i] = std::min<float>(north_y[i] + deltaLat, 90);
   }
   p.convertFromGeographic(nvec, north_x, north_y);
   float * ret = new float[nvec];

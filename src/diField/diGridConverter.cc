@@ -471,38 +471,6 @@ bool GridConverter::geov2xy(const Area& area, int npos,
   return area.P().convertVectors(Projection::geographic(), npos, x, y, u, v) == 0;
 }
 
-// converting xv directions to geographic area
-bool GridConverter::xyv2geo(const Area& area, int nx, int ny, float *u, float *v)
-{
-  int npos = nx * ny;
-
-  // create entire grid for the model
-  float *x = new float[npos];
-  float *y = new float[npos];
-
-  DIUTIL_OPENMP_PARALLEL(npos, for)
-  for (int yy = 0; yy < ny; yy++)
-    for (int xx = 0; xx < nx; xx++) {
-      int i = xx + yy*nx;
-      x[i] = xx;
-      y[i] = yy;
-    }
-
-  // transform all model points to geographical grid
-
-  bool ret = false;
-
-  if (getPoints(area.P(), Projection::geographic(), npos, x, y))
-    if (getVectors(area, Projection::geographic(), npos, x, y, u, v)) // convertVectors
-      ret = true;
-
-  delete[] x;
-  delete[] y;
-
-  return ret;
-}
-
-
 bool GridConverter::getMapFields(const GridArea& area,
     const float** xmapr, const float**ymapr, const float** coriolis)
 {

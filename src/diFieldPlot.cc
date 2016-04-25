@@ -240,27 +240,10 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
       return false;
   }
 
-#ifdef DEBUGPRINT
-  if (plottype==fpt_contour) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour");
-  else if (plottype==fpt_contour2) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour2");
-  else if (plottype==fpt_wind) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWind");
-  else if (plottype==fpt_wind_temp_fl) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWindAndValue");
-  else if (plottype==fpt_wind_value) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWindAndValue");
-  else if (plottype==fpt_value) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotValue");
-  else if (plottype==fpt_symbol) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotValue");
-  else if (plottype==fpt_vector) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotVector");
-  else if (plottype==fpt_direction) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotDirection");
-  else if (plottype==fpt_alpha_shade) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotAlpha_shade");
-  else if (plottype==fpt_alarm_box) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotAlarmBox");
-  else if (plottype==fpt_fill_cell) METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotFillCell");
-  else METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"ERROR");
-#endif
-
   pshade = (plottype == fpt_alpha_shade || plottype == fpt_alarm_box
-      || plottype == fpt_fill_cell);
-
-  if ((plottype == fpt_contour || plottype == fpt_contour2) && poptions.contourShading > 0)
-    pshade = true;
+      || plottype == fpt_fill_cell)
+      || (poptions.contourShading > 0 && (plottype == fpt_contour
+              || plottype == fpt_contour1 || plottype == fpt_contour2));
 
   return true;
 }
@@ -680,9 +663,9 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
 
   bool ok = false;
 
-  if (plottype == fpt_contour)
+  if (plottype == fpt_contour1)
     ok = plotContour(gl);
-  else if (plottype == fpt_contour2)
+  else if (plottype == fpt_contour || plottype == fpt_contour2)
     ok = plotContour2(gl, zorder);
   else if (plottype == fpt_wind)
     ok = plotWind(gl);
@@ -2986,13 +2969,13 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
 
   if (not checkFields(1))
     return false;
-  if (plottype == fpt_contour2) {
+  if (plottype == fpt_contour || plottype == fpt_contour2) {
     plotContour2(gl, SHADE_BACKGROUND);
     return true;
   }
 
   const bool center_on_gridpoint = centerOnGridpoint()
-      || plottype == fpt_contour; // old contour does some tricks with undefined values
+      || plottype == fpt_contour1; // old contour does some tricks with undefined values
 
   const int nx_fld = fields[0]->area.nx, ny_fld = fields[0]->area.ny;
   const int nx_pts = nx_fld + (center_on_gridpoint ? 1 : 0);

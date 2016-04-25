@@ -152,9 +152,6 @@ public:
   bool xy2geo(const Area&, int, float*, float*);
   /// convert geographical u,v vector coordinates for points x,y
   bool geov2xy(const Area&, int, const float*, const float*, float*, float*);
-  /// convert xy vector coordinates for points x,y to geographical
-  /// for an entire field
-  bool xyv2geo(const Area&, int, int, float*, float*);
 
   /// map ratio and/or coriolis parameter fields
   bool getMapFields(const GridArea& gridarea,

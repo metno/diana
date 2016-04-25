@@ -327,42 +327,44 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
   mHasSupportForDynamicCs = false;
   mHasPredefinedDynamicCs = false;
 
-  const ModelReftime model1 = mCollector->getFirstModel();
-  METLIBS_LOG_DEBUG(LOGVAL(model1));
-
   CS_v newCrossections;
   typedef std::map<std::string, size_t> csindex_m;
   csindex_m newCrossectionIndex;
-  if (!model1.model.empty()) {
-    if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
-      // load predefined cross sections from a file, if given; this
-      // should be done before listing cross sections from the source
-      // in order to keep the order of cross sections from the file
-      if (src->supportsDynamicCrossections(model1.reftime)) {
-        mHasSupportForDynamicCs = true;
-        const std::map<std::string,std::string>& options = mCollector->getSetup()->getModelOptions(model1.model);
-        const std::map<std::string,std::string>::const_iterator it = options.find("predefined_cs");
-        if (it != options.end() && !it->second.empty()) {
-          newCrossections = loadCsFromFile(it->second);
-          for (size_t i=0; i<newCrossections.size(); ++i)
-            newCrossectionIndex[newCrossections[i].label()] = i;
-          mHasPredefinedDynamicCs = !newCrossections.empty();
+
+  if (mCollector->hasVisiblePlot()) {
+    const ModelReftime model1 = mCollector->getFirstModel();
+    METLIBS_LOG_DEBUG(LOGVAL(model1));
+    if (!model1.model.empty()) {
+      if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
+        // load predefined cross sections from a file, if given; this
+        // should be done before listing cross sections from the source
+        // in order to keep the order of cross sections from the file
+        if (src->supportsDynamicCrossections(model1.reftime)) {
+          mHasSupportForDynamicCs = true;
+          const std::map<std::string,std::string>& options = mCollector->getSetup()->getModelOptions(model1.model);
+          const std::map<std::string,std::string>::const_iterator it = options.find("predefined_cs");
+          if (it != options.end() && !it->second.empty()) {
+            newCrossections = loadCsFromFile(it->second);
+            for (size_t i=0; i<newCrossections.size(); ++i)
+              newCrossectionIndex[newCrossections[i].label()] = i;
+            mHasPredefinedDynamicCs = !newCrossections.empty();
+          }
         }
-      }
-      // first list the cross sections known by the source
-      if (Inventory_cp inv = src->getInventory(model1.reftime)) {
-        for (Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS!= inv->crossections.end(); ++itCS) {
-          Crossection_cp scs = *itCS;
-          if (!goodCrossSectionLength(scs->length()))
-            continue;
-          csindex_m::iterator itI = newCrossectionIndex.find(scs->label());
-          if (itI != newCrossectionIndex.end()) {
-            CS& mcs = newCrossections[itI->second];
-            mcs.setSourceCS(scs);
-          } else {
-            const CS mcs(scs);
-            newCrossectionIndex[mcs.label()] = newCrossections.size();
-            newCrossections.push_back(mcs);
+        // first list the cross sections known by the source
+        if (Inventory_cp inv = src->getInventory(model1.reftime)) {
+          for (Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS!= inv->crossections.end(); ++itCS) {
+            Crossection_cp scs = *itCS;
+            if (!goodCrossSectionLength(scs->length()))
+              continue;
+            csindex_m::iterator itI = newCrossectionIndex.find(scs->label());
+            if (itI != newCrossectionIndex.end()) {
+              CS& mcs = newCrossections[itI->second];
+              mcs.setSourceCS(scs);
+            } else {
+              const CS mcs(scs);
+              newCrossectionIndex[mcs.label()] = newCrossections.size();
+              newCrossections.push_back(mcs);
+            }
           }
         }
       }

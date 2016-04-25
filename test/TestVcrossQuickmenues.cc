@@ -131,3 +131,36 @@ TEST(TestVcrossQuickmenues, Script)
   EXPECT_EQ(0, qmslots.qmenues.size());
   qmslots.reset();
 }
+
+TEST(TestVcrossQuickmenues, ChangeTime)
+{
+  string_v sources;
+  sources.push_back("m=AROME f=" TEST_SRCDIR "/arome_smhi.nc t=netcdf"
+      // " predefined_cs=" TEST_SRCDIR "/approach_ENHF.kml" // FIXME reading kml files requires a PlotModule!
+    );
+
+  string_v computations;
+
+  string_v plots;
+  plots.push_back("name=temperature plot=CONTOUR(air_temperature_ml) colour=red  line.interval=1.");
+
+  vcross::QtManager_p manager(new vcross::QtManager);
+  manager->parseSetup(sources, computations, plots);
+
+  vcross::VcrossQuickmenues qm(manager);
+
+  string_v qmlines;
+  qmlines.push_back("VCROSS model=AROME field=temperature colour=blue");
+  qmlines.push_back("CROSSECTION=ENVA");
+  qmlines.push_back("CROSSECTION_LONLAT_DEG=10.7,63.4 10.9,63.5 10.9,63.4 11.1,63.5");
+  qm.parse(qmlines);
+  ASSERT_EQ("ENVA", manager->getCrossectionLabel().toStdString());
+
+  ASSERT_EQ(4, manager->getTimeCount());
+
+  manager->setTimeIndex(0);
+  ASSERT_EQ("ENVA", manager->getCrossectionLabel().toStdString());
+
+  manager->setTimeIndex(1);
+  ASSERT_EQ("ENVA", manager->getCrossectionLabel().toStdString());
+}

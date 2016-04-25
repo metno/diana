@@ -650,7 +650,6 @@ void QtPlot::prepareYAxisRange()
     Values_cp z_values = plot->evaluated->z_values;
     if (not z_values)
       continue;
-    have_z = true;
     const int nl = z_values->shape().length(Values::GEO_Z),
         np = z_values->shape().length(H_COORD);
     METLIBS_LOG_DEBUG("next plot" << LOGVAL(np) << LOGVAL(nl));
@@ -660,7 +659,10 @@ void QtPlot::prepareYAxisRange()
       for (int p=0; p<np; ++p) {
         idx.set(H_COORD, p);
         const float zax_value = z_values->value(idx);
-        vcross::util::minimaximize(yax_min, yax_max, zax_value);
+        if (!isnan(zax_value)) {
+          have_z = true;
+          vcross::util::minimaximize(yax_min, yax_max, zax_value);
+        }
       }
     }
   }

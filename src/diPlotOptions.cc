@@ -67,6 +67,22 @@ const std::string TRUE = "true";
 const std::string FALSE = "false";
 } // namespace
 
+const std::string fpt_contour      = "contour";
+const std::string fpt_contour1     = "contour1";
+const std::string fpt_contour2     = "contour2";
+const std::string fpt_value        = "value";
+const std::string fpt_symbol       = "symbol";
+const std::string fpt_alpha_shade  = "alpha_shade";
+const std::string fpt_alarm_box    = "alarm_box";
+const std::string fpt_fill_cell    = "fill_cell";
+const std::string fpt_wind         = "wind";
+const std::string fpt_wind_temp_fl = "wind_temp_fl";
+const std::string fpt_wind_value   = "wind_value";
+const std::string fpt_vector       = "vector";
+const std::string fpt_frame        = "frame";
+const std::string fpt_direction    = "direction";
+
+
 const std::string PlotOptions::key_options_1 = "options.1";
 const std::string PlotOptions::key_options_2 = "options.2";
 const std::string PlotOptions::key_colour= "colour";
@@ -206,6 +222,7 @@ PlotOptions::PlotOptions():
   //init plottypes
   vector< std::string> plottypes_all;
   plottypes_all.push_back(fpt_contour);
+  plottypes_all.push_back(fpt_contour1);
   plottypes_all.push_back(fpt_contour2);
   plottypes_all.push_back(fpt_value);
   plottypes_all.push_back(fpt_symbol);
@@ -222,29 +239,30 @@ PlotOptions::PlotOptions():
 
   vector< std::string> plottypes_1dim;
   plottypes_1dim.push_back(fpt_contour);
+  plottypes_1dim.push_back(fpt_contour1);
   plottypes_1dim.push_back(fpt_contour2);
   plottypes_1dim.push_back(fpt_value);
   plottypes_1dim.push_back(fpt_symbol);
   plottypes_1dim.push_back(fpt_alpha_shade);
   plottypes_1dim.push_back(fpt_alarm_box);
   plottypes_1dim.push_back(fpt_fill_cell);
-  plottypes_1dim.push_back(fpt_direction       );
+  plottypes_1dim.push_back(fpt_direction);
   plottypes_1dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_1dim);
 
   vector< std::string> plottypes_2dim;
-  plottypes_2dim.push_back(fpt_wind            );
-  plottypes_2dim.push_back(fpt_vector          );
+  plottypes_2dim.push_back(fpt_wind);
+  plottypes_2dim.push_back(fpt_vector);
   plottypes_2dim.push_back(fpt_value);
   plottypes_2dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_2dim);
 
   vector< std::string> plottypes_3dim;
-  plottypes_3dim.push_back(fpt_wind            );
-  plottypes_3dim.push_back(fpt_vector          );
+  plottypes_3dim.push_back(fpt_wind);
+  plottypes_3dim.push_back(fpt_vector);
   plottypes_3dim.push_back(fpt_value);
-  plottypes_3dim.push_back(fpt_wind_temp_fl    );
-  plottypes_3dim.push_back(fpt_wind_value    );
+  plottypes_3dim.push_back(fpt_wind_temp_fl);
+  plottypes_3dim.push_back(fpt_wind_value);
   plottypes_3dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_3dim);
 
@@ -253,7 +271,8 @@ PlotOptions::PlotOptions():
   plottypes_4dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_4dim);
 
-  enabledOptions[fpt_contour] = " extreme line shading contour font";
+  enabledOptions[fpt_contour]  = " extreme line shading contour font";
+  enabledOptions[fpt_contour1] = " extreme line shading contour font";
   enabledOptions[fpt_contour2] = " extreme line shading contour font";
   enabledOptions[fpt_value] = "font density";
   enabledOptions[fpt_symbol] = "font density";
@@ -569,8 +588,9 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
 
       } else if (key==key_plottype){
         value= miutil::to_lower(value);
-        if (value==fpt_contour         || value==fpt_value ||
+        if (value==fpt_contour1        || value==fpt_value ||
             value==fpt_contour2 ||
+            value==fpt_contour  ||
             value==fpt_alpha_shade     || value==fpt_symbol     ||
             value==fpt_alarm_box       || value==fpt_fill_cell  ||
             value==fpt_wind            || value==fpt_vector     ||
@@ -590,7 +610,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
           po.plottype = fpt_wind_value;
         } else  if(value == "number") {
           po.plottype = fpt_value;
-            METLIBS_LOG_DEBUG("po.plottype ="<< value);
+          METLIBS_LOG_DEBUG("po.plottype ="<< value);
         } else {
           result= false;
         }

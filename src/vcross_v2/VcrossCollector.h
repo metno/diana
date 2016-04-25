@@ -80,6 +80,9 @@ public:
   //! returns the first model that has a visible SelectedPlot
   ModelReftime getFirstModel() const;
 
+  //! returns true if any SelectedPlot is visible
+  bool hasVisiblePlot() const;
+
 private:
   void requirePlots();
   void requirePlot(SelectedPlot_p sp);

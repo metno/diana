@@ -34,7 +34,7 @@ dianaUnitTests_SOURCES = \
     TestSetupParser.cc \
     TestUtilities.cc \
     TestWebMap.cc \
-    gtestMain.cc
+    gtestMainQCA.cc
 
 nodist_dianaUnitTests_SOURCES = \
      $(dianaUnitTests_moc_sources)
@@ -127,7 +127,7 @@ DEPENDENCIES += $(req_ui_libs)
 dianaGuiTests_SOURCES = \
     TestVcrossGui.cc \
     TestGLPainter.cc \
-    gtestMainQt.cc
+    gtestMainQA.cc
 
 dianaGuiTests_CPPFLAGS = \
     $(CPPFLAGS) \
@@ -151,6 +151,8 @@ EXTRA_DIST = arome_vprof.nc bangladesh_vc.nc bangkok_sonde.nc
 EXTRA_DIST += test_fimexio_rw.nc hirlam_vct1.nc hirlam_vct2.nc arome.nc \
     arome_vc.nc hirlam_vc.nc simra_vc.nc simra_vc_dyn.nc emep_etna_dyn.nc \
     wavespec.nc
+
+EXTRA_DIST += arome_smhi.nc approach_ENHF.kml
 
 # see https://lists.gnu.org/archive/html/automake/2013-06/msg00051.html
 display-testsuite-logs:

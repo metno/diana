@@ -267,7 +267,6 @@ public:
     f_rh_tk_td, //!< f_rh_tk_td
     f_rh_tc_td, //!< f_rh_tc_td
     f_vector_abs, //!< f_vector_abs
-    f_direction, //!< f_direction; geographic
     f_rel_vorticity, //!< f_rel_vorticity; geographic
     f_abs_vorticity, //!< f_abs_vorticity; geographic
     f_divergence, //!< f_divergence; geographic

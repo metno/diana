@@ -76,20 +76,10 @@ enum Alignment {
 /**
    \brief string constants, field plot types
 */
-const std::string
-  fpt_contour         = "contour",
-  fpt_contour2        = "contour2",
-  fpt_value           = "value",
-  fpt_symbol          = "symbol",
-  fpt_alpha_shade     = "alpha_shade",
-  fpt_alarm_box       = "alarm_box",
-  fpt_fill_cell       = "fill_cell",
-  fpt_wind            = "wind",
-  fpt_wind_temp_fl    = "wind_temp_fl",
-  fpt_wind_value      = "wind_value",
-  fpt_vector          = "vector",
-  fpt_frame           = "frame",
-  fpt_direction       = "direction";
+extern const std::string fpt_contour, fpt_contour1, fpt_contour2,
+  fpt_value, fpt_symbol, fpt_alpha_shade, fpt_alarm_box,
+  fpt_fill_cell, fpt_wind, fpt_wind_temp_fl, fpt_wind_value,
+  fpt_vector, fpt_frame, fpt_direction;
 
 /**
    \brief Options for one data plot

@@ -66,44 +66,6 @@ map<std::string,int> FieldFunctions::mFieldName;
 
 map< std::string, FieldFunctions::Zaxis_info > FieldFunctions::Zaxis_info_map;
 
-namespace FieldCalculations {
-
-bool direction(int nx, int ny, float *u, float *v, const Area& area,
-    float *dd, bool& allDefined, float undef)
-{
-#ifdef ENABLE_FIELDFUNCTIONS_TIMING
-  METLIBS_LOG_TIME();
-#endif
-  // transform u,x to a geographic grid
-  GridConverter gc;
-  gc.xyv2geo(area, nx, ny, u, v);
-
-  //  input:  u[nx*ny],v[nx*ny] : vector/wind components
-  //  output: dd[nx*ny]
-  const float deg = 180. / 3.141592654;
-
-  const int npos = nx * ny;
-
-  DIUTIL_OPENMP_PARALLEL(npos, for shared(allDefined))
-  for (int i = 0; i < npos; i++) {
-    if (calculations::is_defined(allDefined, u[i], v[i], undef)) {
-      const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
-      if (ff > 0.0001) {
-        dd[i] = 270. - deg * atan2(v[i], u[i]);
-        if (dd[i] > 360)
-          dd[i] -= 360;
-        if (dd[i] < 0)
-          dd[i] += 360;
-      } else
-        dd[i] = 0;
-    } else
-      dd[i] = undef;
-  }
-  return true;
-}
-
-} // namespace FieldCalculations
-
 FieldFunctions::FieldFunctions()
 {
 }
@@ -403,7 +365,6 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_geostrophic_wind_ilevel_mpot, "geostrophic_wind.ilevel_mpot(mpot)2");
 
   // level independent functions
-  ok &= registerFunction(f, f_direction, "direction(u,v)");
   ok &= registerFunction(f, f_rel_vorticity, "rel.vorticity(u,v)");
   ok &= registerFunction(f, f_abs_vorticity, "abs.vorticity(u,v)");
   ok &= registerFunction(f, f_divergence, "divergence(u,v)");
@@ -1704,13 +1665,6 @@ bool FieldFunctions::fieldComputer(Function function,
     //---------------------------------------------------
     // level (pressure) independent functions
     //---------------------------------------------------
-
-  case f_direction:
-    if (ninp != 2 || nout != 1)
-      break;
-    res = FieldCalculations::direction(nx, ny, finp[0], finp[1], vfinput[0]->area, fout[0],
-        allDefined, undef);
-    break;
 
   case f_rel_vorticity:
     if (ninp != 2 || nout != 1)
