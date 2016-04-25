@@ -394,8 +394,12 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
   if (metadataMap.count("cloudTopTemperature"))
 	cloudTopTemperature = (metadataMap["cloudTopTemperature"] == "true");
 
-
   std::string file_name = infile.substr(infile.rfind("/") + 1);
+  // A hdf5 image may have more than one channel
+  std::string channelinfo = ginfo.channelinfo;
+  // Replace : with _
+  miutil::replace(channelinfo, ':', '_');
+  file_name += channelinfo;
   ImageCache* mImageCache = ImageCache::getInstance();
   /* TBD: Don't cache if orgimage, problem writing/reading float array to/from diask */
   if (ginfo.hdf5type == radar || (!cloudTopTemperature)) {
