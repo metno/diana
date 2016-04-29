@@ -1,8 +1,6 @@
 #
-# $Id: configure.ac 4440 2014-09-04 12:05:03Z lisbethb $
-#
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.40.0~b1], [diana@met.no])
+AC_INIT([diana], [3.40.0~b2], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 foreign parallel-tests])
@@ -97,7 +95,7 @@ AC_ARG_ENABLE([perl],
 AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
-METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.62])
+METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.62.1])
 METNO_REQUIRE_PKGS([METLIBS], [miLogger >= 5.0.3 puTools >= 5.1.5 puDatatypes >= 5.0.2])
 
 AS_IF([test x$enable_gui = xyes], [

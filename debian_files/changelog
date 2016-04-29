@@ -1,3 +1,10 @@
+diana-3.40 (3.40.0~b2-1) unstable; urgency=low
+
+   * bugfixes
+   * fimex version update
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 29 Apr 2016 09:00:09 +0100
+
 diana-3.40 (3.40.0~b1-1) unstable; urgency=low
 
    * preparing for next release
@@ -12,7 +19,7 @@ diana-3.40 (3.40.0~a1-1) unstable; urgency=low
 
 diana-3.39 (3.39.2-1) unstable; urgency=low
 
-   * bugfix + cleanup OpenGL tesselation 
+   * bugfix + cleanup OpenGL tesselation
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Nov 2015 16:54:24 +0100
 
