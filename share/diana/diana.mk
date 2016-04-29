@@ -231,8 +231,6 @@ divdir= $(datarootdir)/diana/@PVERSION@/
 dist_div_DATA= share/diana/UK_lyn.header \
 	share/diana/UALF_diana.header \
 	share/diana/jason_swh.header \
-	share/diana/synpltab.dat \
-	share/diana/metpltab.dat \
 	share/diana/printer.def \
 	share/diana/amdar.stations \
 	share/diana/ogckml22.xsd \

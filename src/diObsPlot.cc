@@ -4205,6 +4205,33 @@ void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float 
   printListString(gl, cs, x, y, align_right);
 }
 
+namespace {
+
+bool readTableFile(const std::string& filename, short* table, int count)
+{
+  std::ifstream ifs(filename.c_str());
+  if (!ifs.is_open()) {
+    METLIBS_LOG_WARN("unable to open table file '" << filename << "'");
+    return false;
+  }
+  string line;
+  int i = 0;
+  while (ifs.good()) {
+    getline(ifs,line);
+    if (!miutil::contains(line, "#")) {
+      i++;
+      if (i >= count)
+        break;
+      table[i] = miutil::to_int(line);
+    }
+  }
+  METLIBS_LOG_WARN("table file '" << filename << "' has fewer (" << i <<
+      ") data lines than expected (" << count << ")");
+  return true;
+}
+
+} // namespace
+
 // static
 bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename, const std::string& iptab_filename, short*& ritab, short*& riptab)
 {
@@ -4213,57 +4240,29 @@ bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename
 
   size_t psize;
 
-  ritab = 0;
-  riptab = 0;
   if (type == OPT_SYNOP || type == OPT_LIST || type == OPT_ROADOBS)
     psize= 11320;
   else if (type == OPT_METAR)
     psize = 3072;
-  else
-    return false; // table for unknown plot type;
+  else {
+    METLIBS_LOG_WARN("request to read itab/iptab for unknown plot type " << type);
+    ritab = 0;
+    riptab = 0;
+    return false; // table for unknown plot type
+  }
 
   // indexing as in fortran code (start from element 1)
 
   const int ITAB = 380;
   ritab = new short[ITAB + 1];
   riptab = new short[psize + 1];
-  
-  string line;
-  int i = 0;
-  ifstream ifs(itab_filename.c_str());
-  if (!ifs.is_open())
+
+  if (!readTableFile(itab_filename, ritab, ITAB))
     return false;
-  while (ifs.good()) {
-    getline(ifs,line);
-    if (miutil::contains(line,"#"))
-      continue;
-    else {
-      i++;
-      if (i >= ITAB)
-        break;
-      ritab[i] = miutil::to_int(line);
-    }
-      
-  }
-  ifs.close();
-  
-  i = 0;
-  ifstream ifp(iptab_filename.c_str());
-  if (!ifp.is_open())
+
+  if (!readTableFile(iptab_filename, riptab, psize))
     return false;
-  while (ifp.good()) {
-    getline(ifp,line);
-    if (miutil::contains(line,"#"))
-      continue;
-    else {
-      i++;
-      if (i >= psize)
-        break;
-      riptab[i] = miutil::to_int(line);
-    }
-      
-  }
-  ifp.close();
+
   return true;
 }
 

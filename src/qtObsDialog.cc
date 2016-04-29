@@ -58,6 +58,9 @@
 #include <qpushbutton.h>
 #include <math.h>
 
+#define MILOGGER_CATEGORY "diana.ObsDialog"
+#include <miLogger/miLogging.h>
+
 using namespace std;
 
 ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
@@ -173,6 +176,7 @@ void ObsDialog::updateDialog()
   for( int i=0; i < nr_plot; i++){
     stackedWidget->removeWidget(obsWidget[i]);
     obsWidget[i]->close();
+    delete obsWidget[i];
     obsWidget[i] = NULL;
   }
   obsWidget.clear();
@@ -245,7 +249,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
     connect(obsWidget[index],SIGNAL(criteriaOn()),
         SLOT(criteriaOn()));
 
-    if (savelog[index].size()) {
+    if (index < savelog.size() && savelog[index].size()) {
       obsWidget[index]->readLog(savelog[index]);
       savelog[index].clear();
     }
@@ -312,7 +316,6 @@ void ObsDialog::getTimes()
 
 
 void ObsDialog::applyhideClicked(){
-  // cerr<<"applyhideClicked()"<<endl;
   emit ObsHide();
   emit ObsApply();
 }
@@ -346,8 +349,6 @@ void ObsDialog::archiveMode(bool on){
 /*******************************************************/
 vector<string> ObsDialog::getOKString()
 {
-  /* This function is called by the external program */
-  //  cerr <<"QT - getOKString  "<<m_selected<<endl;
 
   vector<string> str;
 
@@ -392,7 +393,7 @@ vector<string> ObsDialog::writeLog()
       if (obsWidget[i]->initialized()) {
         str= obsWidget[i]->getOKString(true);
         vstr.push_back(str);
-      } else if (savelog[i].size()>0) {
+      } else if (i < savelog.size() && savelog[i].size()>0) {
         // ascii obs dialog not activated
         vstr.push_back(savelog[i]);
       }
@@ -503,7 +504,7 @@ int ObsDialog::findPlotnr(const std::string& str)
 
 bool  ObsDialog::setPlottype(const std::string& str, bool on)
 {
-  //  cerr <<"setplottype:"<<str<<endl;
+  METLIBS_LOG_SCOPE();
   int l=0;
   while (l<nr_plot && m_name[l]!=str) l++;
 
@@ -512,12 +513,15 @@ bool  ObsDialog::setPlottype(const std::string& str, bool on)
   if( on ){
     plotbox->setCurrentIndex(l);
     ObsWidget* ow = new ObsWidget( this );
-    std::string str = savelog[l];
+    std::string str;
     if (obsWidget[l]->initialized() ) {
       str = obsWidget[l]->getOKString();
+    } else if ( l < savelog.size() ) {
+      str = savelog[l];
     }
     stackedWidget->removeWidget(obsWidget[l]);
     obsWidget[l]->close();
+    delete obsWidget[l];
     obsWidget[l]=ow;
     stackedWidget->insertWidget(l,obsWidget[l]);
 

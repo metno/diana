@@ -2,14 +2,5 @@ usr/share/diana/@METNO_VERSION@/products
 usr/share/diana/@METNO_VERSION@/images
 usr/share/diana/@METNO_VERSION@/images/symbols
 usr/share/diana/@METNO_VERSION@/fonts
-usr/share/diana/@METNO_VERSION@/UK_lyn.header
-usr/share/diana/@METNO_VERSION@/UALF_diana.header
-usr/share/diana/@METNO_VERSION@/printer.def
-usr/share/diana/@METNO_VERSION@/jason_swh.header
-usr/share/diana/@METNO_VERSION@/metpltab.dat
-usr/share/diana/@METNO_VERSION@/amdar.stations
-usr/share/diana/@METNO_VERSION@/synpltab.dat
-usr/share/diana/@METNO_VERSION@/ogckml22.xsd
-usr/share/diana/@METNO_VERSION@/atom-author-link.xsd
-usr/share/diana/@METNO_VERSION@/xAL.xsd
+usr/share/diana/@METNO_VERSION@/*.*
 etc/diana/@METNO_VERSION@/log4cpp.properties

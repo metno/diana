@@ -229,7 +229,7 @@ void DianaLevelStep::set_limits(float mini, float maxi)
   mMax = maxi;
   mHaveMin = not isUndefined(mMin);
   mHaveMax = not isUndefined(mMax);
-  if (mHaveMin and mHaveMax and mMin >= mMax)
+  if (mHaveMin and mHaveMax and mMin > mMax)
     mHaveMin = mHaveMax = false;
 }
 

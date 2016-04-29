@@ -1666,6 +1666,24 @@ bool FieldFunctions::fieldComputer(Function function,
     // level (pressure) independent functions
     //---------------------------------------------------
 
+  case f_d_dx:
+    if (compute == 0)
+      compute = 1;
+  case f_d_dy:
+    if (compute == 0)
+      compute = 2;
+  case f_abs_del:
+    if (compute == 0)
+      compute = 3;
+  case f_del_square:
+    if (compute == 0)
+      compute = 4;
+    if (ninp != 1 || nout != 1)
+      break;
+    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
+      res = gradient(compute, nx, ny, finp[0], fout[0], xmapr, ymapr, allDefined, undef);
+    break;
+
   case f_rel_vorticity:
     if (ninp != 2 || nout != 1)
       break;
