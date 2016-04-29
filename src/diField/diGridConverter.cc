@@ -413,13 +413,11 @@ bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
   // make vector-components (east/west and north/south) in geographic grid,
   // to be rotated to the map grid
   // u,v is dd,ff coming in
-  float zturn = 1.;
-  if (turn) zturn = -1.;
-  float zpir = 2. * asinf(1.) / 180.;
+  const float zturn = turn ? -1 : 1;
   DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i=0; i<nvec; ++i) {
-    if (u[i]!=undef && v[i]!=undef) {
-      float dd   = u[i] * zpir;
+    if (u[i] != undef && v[i] != undef) {
+      float dd   = u[i] * DEG_TO_RAD;
       float ff   = v[i] * zturn;
       u[i] = ff * sinf(dd);
       v[i] = ff * cosf(dd);
@@ -437,22 +435,7 @@ bool GridConverter::getDirectionVector(const Area& map_area, const bool turn,
 {
   if (index < 0 || index >= nvec)
     return false;
-  Rectangle r;
-  Area geo_area(Projection::geographic(), r);
-
-  // make vector-components (east/west and north/south) in geographic grid,
-  // to be rotated to the map grid
-  // u,v is dd,ff coming in
-  const float zturn = turn ? -1 : 1;
-  const float zpir = 2. * asinf(1.) / 180.;
-  if (u != undef && v != undef) {
-    float dd = u * zpir;
-    float ff = v * zturn;
-    u = ff * sinf(dd);
-    v = ff * cosf(dd);
-  }
-
-  return getVectors(geo_area, map_area.P(), 1, &x[index], &y[index], &u, &v);
+  return getDirectionVectors(map_area, turn, 1, &x[index], &y[index], &u, &v);
 }
 
 bool GridConverter::geo2xy(const Area& area, int npos, float* x, float* y)
