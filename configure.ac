@@ -95,7 +95,7 @@ AC_ARG_ENABLE([perl],
 AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
-METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.62.1])
+METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.61.1])
 METNO_REQUIRE_PKGS([METLIBS], [miLogger >= 5.0.3 puTools >= 5.1.5 puDatatypes >= 5.0.2])
 
 AS_IF([test x$enable_gui = xyes], [
