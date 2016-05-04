@@ -125,6 +125,11 @@ void VCLines::setFillColour(const Colour& colour)
   mPainter.setBrush(QCa(colour));
 }
 
+void VCLines::setFillPattern(const std::string& pattern)
+{
+  // FIXME implement this
+}
+
 void VCLines::drawPolygons(const point_vv& polygons)
 {
   for (point_vv::const_iterator it = polygons.begin(); it != polygons.end(); ++it)

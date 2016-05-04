@@ -110,6 +110,7 @@ libdiana_la_SOURCES = \
 	util/format_int.cc \
 	util/openmp_tools.cc \
 	util/polygon_util.cc \
+	util/plotoptions_util.cc \
 	util/qstring_util.cc \
 	util/string_util.cc \
 	diPainter.cc \

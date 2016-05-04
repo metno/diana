@@ -39,6 +39,7 @@
 #include "diImageGallery.h"
 #include "diPlotOptions.h"
 #include "polyStipMasks.h"
+#include "util/plotoptions_util.h"
 
 #include <diField/diArea.h>
 #include <puTools/miStringFunctions.h>
@@ -4002,7 +4003,6 @@ vector<float> findCrossing(float ycross, int n, float *x, float *y)
   return xcross;
 }
 
-
 void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
     int nx, int ny, float z[],
     int iconv, float *cxy, float *xz, float *yz, int idraw,
@@ -4019,9 +4019,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
   int ncolours_cold= poptions.palettecolours_cold.size();
   colours_cold = poptions.palettecolours_cold;
 
-  vector<std::string> patterns;
   int npatterns= poptions.patterns.size();
-  patterns = poptions.patterns;
 
   // set alpha shading
   if(poptions.alpha<255){
@@ -4043,26 +4041,8 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
   // to be used in other methods, such as writing shape files
   getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
 
-  vector<int>      classValues;
-  vector<std::string> classNames;
-  unsigned int maxlen=0;
-
-  if (poptions.discontinuous == 1 && (not poptions.classSpecifications.empty())) {
-    // discontinuous (classes)
-    vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
-    int nc = classSpec.size();
-    for (int i = 0; i < nc; i++) {
-      vector<std::string> vstr = miutil::split(classSpec[i], ":");
-      if (vstr.size() > 1) {
-        classValues.push_back(atoi(vstr[0].c_str()));
-        classNames.push_back(vstr[1]);
-        if (maxlen < vstr[1].length())
-          maxlen = vstr[1].length();
-      }
-    }
-  }
-  int nclass= classValues.size();
-
+  const vector<int> classValues = diutil::parseClassValues(poptions);
+  const int nclass= classValues.size();
 
   if (iconv==1) {
     for (jc=0; jc<ncl; jc++) {
@@ -4123,7 +4103,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
               if (ii<npatterns) {
                 ImageGallery ig;
                 gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
-                GLubyte* p = ig.getPattern(patterns[ii]);
+                GLubyte* p = ig.getPattern(poptions.patterns[ii]);
                 if(p==0)
                   gl->PolygonStipple(solid);
                 else
@@ -4168,7 +4148,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
               gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
               i= ivalue%npatterns;
               if (i<0) i+=npatterns;
-              GLubyte* p = ig.getPattern(patterns[i]);
+              GLubyte* p = ig.getPattern(poptions.patterns[i]);
               if(p==0)
                 gl->PolygonStipple(solid);
               else
@@ -4235,21 +4215,8 @@ void writeShapefile(vector<ContourLine*>& contourlines,
 
   vector<int>      classValues;
   vector<std::string> classNames;
-  unsigned int maxlen=0;
-  if (poptions.discontinuous==1 && (not poptions.classSpecifications.empty())) {
-    // discontinuous (classes)
-    vector<std::string> classSpec=miutil::split(poptions.classSpecifications, ",");
-    int nc = classSpec.size();
-    for (int i=0; i<nc; i++) {
-      vector<std::string> vstr=miutil::split(classSpec[i], ":");
-      if (vstr.size()>1) {
-    	classValues.push_back(atoi(vstr[0].c_str()));
-		classNames.push_back(vstr[1]);
-		if (maxlen<vstr[1].length())
-			maxlen= vstr[1].length();
-      }
-    }
-  }
+  unsigned int maxlen;
+  diutil::parseClasses(poptions, classValues, classNames, maxlen);
   int nclass= classValues.size();
 
   if (iconv==1) {
