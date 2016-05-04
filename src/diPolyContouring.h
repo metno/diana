@@ -170,6 +170,7 @@ protected:
   void setLineForLevel(contouring::level_t li);
   virtual void setLine(const Colour& colour, const Linetype& linetype, int linewidth) = 0;
   virtual void setFillColour(const Colour& colour) = 0;
+  virtual void setFillPattern(const std::string& pattern) = 0;
   virtual void drawLine(const point_v& lines) = 0;
   virtual void drawPolygons(const point_vv& polygons) = 0;
   virtual void drawLabels(const point_v& points, contouring::level_t li) = 0;
@@ -183,6 +184,7 @@ private:
   bool mUseOptions2;
   level_points_m m_lines;
   level_points_m m_polygons;
+  std::vector<int> mClassValues;
 };
 
 // ########################################################################

@@ -28,8 +28,12 @@
  */
 
 #include "diPolyContouring.h"
+
 #include "diGLPainter.h"
+#include "diImageGallery.h"
 #include "diUtilities.h"
+#include "polyStipMasks.h"
+#include "util/plotoptions_util.h"
 
 #include <QPolygonF>
 #include <QString>
@@ -293,9 +297,11 @@ private:
 // ########################################################################
 
 DianaLines::DianaLines(const PlotOptions& poptions, const DianaLevels& levels)
-  : mPlotOptions(poptions), mLevels(levels)
+  : mPlotOptions(poptions)
+  , mLevels(levels)
   , mPaintMode(UNDEFINED | FILL | LINES_LABELS)
   , mUseOptions2(false)
+  , mClassValues(diutil::parseClassValues(mPlotOptions))
 {
 }
 
@@ -338,8 +344,10 @@ void DianaLines::paint_polygons()
   METLIBS_LOG_TIME(LOGVAL(mPlotOptions.undefMasking));
   const PlotOptions& po = mPlotOptions;
 
+  const int nclasses = mClassValues.size();
   const int ncolours = po.palettecolours.size();
   const int ncolours_cold = po.palettecolours_cold.size();
+  const int npatterns = po.patterns.size();
   const bool no_fill = (mPaintMode & FILL) == 0;
   const bool skip_level_0 = po.zeroLine==0 || !po.linevalues.empty() || !po.loglinevalues.empty();
   const bool skip_level_1 = po.zeroLine==0 && po.linevalues.empty() && po.loglinevalues.empty();
@@ -348,6 +356,7 @@ void DianaLines::paint_polygons()
       level_max = mLevels.level_for_value(po.maxvalue);
   const bool skip_min = level_min != DianaLevels::UNDEF_LEVEL;
   const bool skip_max = level_max != DianaLevels::UNDEF_LEVEL;
+  const std::string NOPATTERN;
 
   for (level_points_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
     const contouring::level_t li = it->first;
@@ -361,14 +370,43 @@ void DianaLines::paint_polygons()
       if (no_fill || (skip_min && li < level_min) || (skip_max && li >= level_max)
           || (skip_level_0 && li == 0) || (skip_level_1 && li == 1))
         continue;
-      if (li <= 0 and ncolours_cold) {
-        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
-        setFillColour(mPlotOptions.palettecolours_cold[idx]);
+      if (mPlotOptions.discontinuous == 1) {
+        int cidx;
+        if (nclasses) {
+          cidx = 0;
+          while (cidx < nclasses && mClassValues[cidx] != li)
+            cidx++;
+          if (cidx == nclasses)
+            continue;
+        } else {
+          cidx = diutil::find_index(true/*always repeat*/, ncolours, li - 1);
+        }
+        if (cidx < ncolours)
+          setFillColour(mPlotOptions.palettecolours[cidx]);
+        else
+          setFillColour(mPlotOptions.fillcolour);
+        if (cidx < npatterns)
+          setFillPattern(mPlotOptions.patterns[cidx]);
+        else
+          setFillPattern(NOPATTERN);
       } else {
-        if (li <= 0 and not mPlotOptions.loglinevalues.empty())
-          continue;
-        const int idx = diutil::find_index(mPlotOptions.repeat, ncolours, li - 1);
-        setFillColour(mPlotOptions.palettecolours[idx]);
+        if (li <= 0 and ncolours_cold) {
+          const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
+          setFillColour(mPlotOptions.palettecolours_cold[idx]);
+        } else if (ncolours) {
+          if (li <= 0 and not mPlotOptions.loglinevalues.empty())
+            continue;
+          const int idx = diutil::find_index(mPlotOptions.repeat, ncolours, li - 1);
+          setFillColour(mPlotOptions.palettecolours[idx]);
+        } else {
+          setFillColour(mPlotOptions.fillcolour);
+        }
+        if (li >= 0 and npatterns) {
+          const int pidx = diutil::find_index(mPlotOptions.repeat, npatterns, li - 1);
+          setFillPattern(mPlotOptions.patterns[pidx]);
+        } else {
+          setFillPattern(NOPATTERN);
+        }
       }
     }
 
@@ -424,15 +462,14 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
 
 void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
 {
+  const PlotOptions& po = mPlotOptions;
   if (level == DianaLevels::UNDEF_LEVEL) {
-    if (mPlotOptions.undefMasking != 1 || (mPaintMode & UNDEFINED) == 0)
+    if (po.undefMasking != 1 || (mPaintMode & UNDEFINED) == 0)
       return;
   } else {
-    if ((mPaintMode & FILL) == 0)
+    if ((mPaintMode & FILL) == 0 || (po.alpha == 0))
       return;
-    if ((mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) || (mPaintMode & FILL) == 0)
-      return;
-    if (!(mPlotOptions.palettecolours.empty() && mPlotOptions.palettecolours_cold.empty()) && mPlotOptions.alpha == 0)
+    if (po.palettecolours.empty() && po.palettecolours_cold.empty() && mClassValues.empty() && po.patterns.empty())
       return;
   }
 
@@ -455,6 +492,7 @@ protected:
 
   void setLine(const Colour& colour, const Linetype& linetype, int linewidth);
   void setFillColour(const Colour& colour);
+  void setFillPattern(const std::string& pattern);
   void drawLine(const point_v& lines);
   void drawPolygons(const point_vv& polygons);
   void drawLabels(const point_v& points, contouring::level_t li);
@@ -491,6 +529,22 @@ void DianaGLLines::setFillColour(const Colour& colour)
     mGL->Color4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
   else
     mGL->setColour(colour);
+}
+
+void DianaGLLines::setFillPattern(const std::string& pattern)
+{
+  if (!pattern.empty()) {
+    ImageGallery ig;
+    const GLubyte* p = ig.getPattern(pattern);
+    if (p) {
+      mGL->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
+      mGL->PolygonStipple(p);
+      return;
+    }
+  }
+  // no fill pattern, or p == 0
+  mGL->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
+  // mGL->PolygonStipple(solid); // "solid" is from polyStipMasks.h
 }
 
 void DianaGLLines::setLine(const Colour& colour, const Linetype& linetype, int linewidth)

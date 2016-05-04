@@ -70,6 +70,7 @@ protected:
 
   void setLine(const Colour& colour, const Linetype& linetype, int linewidth);
   void setFillColour(const Colour& colour);
+  void setFillPattern(const std::string& pattern);
   void drawLine(const point_v& lines);
   void drawPolygons(const point_vv& polygons);
   void drawLabels(const point_v& points, contouring::level_t li);
