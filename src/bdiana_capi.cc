@@ -2350,6 +2350,7 @@ static int handleWaitForCommands(int& k, int& linenum)
     }
   }
   // remove processed files
+  /*
   for (unsigned int ik = 0; ik < filenames.size(); ik++) {
     ostringstream ost;
     ost << "rm -f " << filenames[ik];
@@ -2362,6 +2363,16 @@ static int handleWaitForCommands(int& k, int& linenum)
       METLIBS_LOG_WARN("Command:" << command << " failed");
     }
   }
+  */
+  for (unsigned int ik = 0; ik < filenames.size(); ik++) {
+    ostringstream ost;
+    ost << filenames[ik];
+    std::string command = ost.str();
+    METLIBS_LOG_INFO("==== Cleaning up with: '" << command << "'");
+    if( remove( command.c_str()  ) != 0 )
+       METLIBS_LOG_WARN("Error deleting file: '" << command << "'");
+  }
+
   // add new wait-command
   if (waitline.size() > 0)
     newlines.push_back(waitline);
