@@ -2952,21 +2952,25 @@ void DianaMainWindow::hardcopy()
 {
   METLIBS_LOG_SCOPE();
   QPrinter printer;
+  d_print::fromPrintOption(printer, priop);
   QPrintDialog printerDialog(&printer, this);
   if (printerDialog.exec() != QDialog::Accepted || !printer.isValid())
     return;
 
   diutil::OverrideCursor waitCursor;
   paintOnDevice(&printer);
+  d_print::toPrintOption(printer, priop);
 }
 
 void DianaMainWindow::previewHardcopy()
 {
   QPrinter qprt;
+  d_print::fromPrintOption(qprt, priop);
   QPrintPreviewDialog previewDialog(&qprt, this);
   connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
       this, SLOT(paintOnPrinter(QPrinter*)));
-  previewDialog.exec();
+  if (previewDialog.exec() == QDialog::Accepted)
+    d_print::toPrintOption(qprt, priop);
 }
 
 void DianaMainWindow::paintOnPrinter(QPrinter* printer)

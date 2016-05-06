@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2016 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,113 +34,112 @@
 
 #include "qtPrintManager.h"
 
+#include <QPrinter>
+
+#define MILOGGER_CATEGORY "diana.PrintManager"
+#include <qUtilities/miLoggingQt.h>
+
+namespace {
 
 // conversion from Qt-printing types to diana-types
 d_print::Orientation getOrientation(QPrinter::Orientation ori)
 {
-  d_print::Orientation dori= d_print::ori_automatic;
-
-  if (ori==QPrinter::Landscape)
-    dori= d_print::ori_landscape;
+  if (ori == QPrinter::Landscape)
+    return d_print::ori_landscape;
   else if (ori==QPrinter::Portrait)
-    dori= d_print::ori_portrait;
-
-  return dori;
+    return d_print::ori_portrait;
+  else
+    return d_print::ori_automatic;
 }
 
 d_print::ColourOption getColourMode(QPrinter::ColorMode cm)
 {
-  d_print::ColourOption dcol= d_print::incolour;
-
-  if (cm==QPrinter::Color)
-    dcol= d_print::incolour;
-  else if (cm==QPrinter::GrayScale){
-    dcol= d_print::greyscale;
-  }
-
-  return dcol;
+  if (cm==QPrinter::GrayScale)
+    return d_print::greyscale;
+  else
+    return d_print::incolour;
 }
 
 d_print::PageSize getPageSize(QPrinter::PageSize ps)
 {
-  d_print::PageSize dps= d_print::A4;
-
-  if (ps==QPrinter::A4){
-    dps= d_print::A4;
-  } else if (ps==QPrinter::A3){
-    dps= d_print::A3;
-  } else if (ps==QPrinter::A2){
-    dps= d_print::A2;
-  } else if (ps==QPrinter::A1){
-    dps= d_print::A1;
-  } else if (ps==QPrinter::A0){
-    dps= d_print::A0;
-  }
-
-  return dps;
+  if (ps==QPrinter::A4)
+    return d_print::A4;
+  else if (ps==QPrinter::A3)
+    return d_print::A3;
+  else if (ps==QPrinter::A2)
+    return d_print::A2;
+  else if (ps==QPrinter::A1)
+    return d_print::A1;
+  else if (ps==QPrinter::A0)
+    return d_print::A0;
+  else
+    return d_print::A4;
 }
 
 // conversion from diana-types to Qt-printing types
 QPrinter::Orientation getQPOrientation(d_print::Orientation ori)
 {
-  QPrinter::Orientation dori = QPrinter::Portrait;
-
   if (ori==d_print::ori_landscape)
-    dori= QPrinter::Landscape;
-  else if (ori==d_print::ori_portrait)
-    dori= QPrinter::Portrait;
-
-  return dori;
+    return QPrinter::Landscape;
+  else
+    return QPrinter::Portrait;
 }
 
 QPrinter::ColorMode getQPColourMode(d_print::ColourOption cm)
 {
-
-  QPrinter::ColorMode dcol = QPrinter::Color;
-
-  if (cm==d_print::incolour)
-    dcol= QPrinter::Color;
-  else if (cm==d_print::greyscale){
-    dcol= QPrinter::GrayScale;
-  }
-
-  return dcol;
+  if (cm==d_print::greyscale)
+    return QPrinter::GrayScale;
+  else
+    return QPrinter::Color;
 }
 
 QPrinter::PageSize getQPPageSize(d_print::PageSize ps)
 {
-  QPrinter::PageSize dps= QPrinter::A4;
-
-  if (ps==d_print::A4){
-    dps= QPrinter::A4;
-  } else if (ps==d_print::A3){
-    dps= QPrinter::A3;
-  } else if (ps==d_print::A2){
-    dps= QPrinter::A2;
-  } else if (ps==d_print::A1){
-    dps= QPrinter::A1;
-  } else if (ps==d_print::A0){
-    dps= QPrinter::A0;
-  }
-
-  return dps;
+  if (ps==d_print::A4)
+    return QPrinter::A4;
+  else if (ps==d_print::A3)
+    return QPrinter::A3;
+  else if (ps==d_print::A2)
+    return QPrinter::A2;
+  else if (ps==d_print::A1)
+    return QPrinter::A1;
+  else if (ps==d_print::A0)
+    return QPrinter::A0;
+  else
+    return QPrinter::A4;
 }
 
+std::ostream& operator<<(std::ostream& out, const printOptions& priop)
+{
+  out << "[printOptions printer='" << priop.printer << "'"
+      << ' ' << (priop.colop == d_print::incolour? "color" : "grayscale")
+      << ' ' << (priop.orientation==d_print::ori_portrait ? "portrait" : "landscape")
+      << ']';
+  return out;
+}
+
+} // anonymous namespace
+
+namespace d_print {
 
 // fill printOptions from QPrinter-selections
 void toPrintOption(const QPrinter& qp, printOptions& priop)
 {
-  priop.printer= (qp.outputFileName().isNull()?"":qp.printerName().toStdString());
-  priop.colop= getColourMode(qp.colorMode());
-  if (priop.colop==d_print::greyscale) priop.drawbackground= false;
+  METLIBS_LOG_SCOPE();
+  priop.printer = qp.printerName().toStdString();
+  priop.colop = getColourMode(qp.colorMode());
+  if (priop.colop==greyscale)
+    priop.drawbackground= false;
 
   priop.orientation= getOrientation(qp.orientation());
   priop.pagesize= getPageSize(qp.pageSize());
+  METLIBS_LOG_DEBUG(priop);
 }
 
 // set QPrinter-selections from printOptions
 void fromPrintOption(QPrinter& qp, printOptions& priop)
 {
+  METLIBS_LOG_SCOPE(priop);
   if (not priop.printer.empty())
     qp.setPrinterName(QString::fromStdString(priop.printer));
   qp.setColorMode(getQPColourMode(priop.colop));
@@ -150,3 +147,4 @@ void fromPrintOption(QPrinter& qp, printOptions& priop)
   qp.setPageSize(getQPPageSize(priop.pagesize));
 }
 
+} // namespace d_print
