@@ -555,12 +555,12 @@ void VcrossWindow::printClicked()
   std::string command = pman.printCommand();
 
   QPrinter qprt;
-  fromPrintOption(qprt, priop);
+  d_print::fromPrintOption(qprt, priop);
 
   QPrintDialog printerDialog(&qprt, this);
   if (printerDialog.exec()) {
     // fill printOption from qprinter-selections
-    toPrintOption(qprt, priop);
+    d_print::toPrintOption(qprt, priop);
 
     diutil::OverrideCursor waitCursor;
     ui->vcross->print(qprt);
