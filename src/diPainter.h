@@ -22,6 +22,7 @@ class QString;
 
 class DiCanvas {
 public:
+  DiCanvas();
   virtual ~DiCanvas() { }
 
   enum FontFace {
@@ -53,11 +54,15 @@ public:
   bool getTextSize(const QString& text, float& w, float& h);
   virtual bool getTextRect(const QString& text, float& x, float& y, float& w, float& h) = 0;
 
+  bool isPrinting() const
+    { return mPrinting; }
+
 protected:
   std::string lookupFontAlias(const std::string& name);
 
 protected:
   std::map<std::string, std::string> fontFamilyAliases;
+  bool mPrinting;
 };
 
 class DiPainter {
@@ -69,6 +74,9 @@ public:
 
   DiCanvas* canvas()
     { return mCanvas; }
+
+  bool isPrinting() const
+    { return mCanvas->isPrinting(); }
 
   void setVpGlSize(float vpw, float vph, float glw, float glh);
 

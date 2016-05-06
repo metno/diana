@@ -2780,6 +2780,7 @@ void DianaMainWindow::paintOnDevice(QPaintDevice* device)
 
   std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
   glcanvas->parseFontSetup();
+  glcanvas->setPrinting(true);
   std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
   glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
