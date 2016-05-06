@@ -515,6 +515,7 @@ void DianaGLLines::paint_polygons()
   mGL->Disable(DiGLPainter::gl_BLEND);
   mGL->ShadeModel(DiGLPainter::gl_FLAT);
   mGL->EdgeFlag(DiGLPainter::gl_TRUE);
+  mGL->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
 }
 
 void DianaGLLines::paint_lines()
