@@ -1188,7 +1188,12 @@ void ObsWidget::decodeString(const std::string& str, dialogVariables& var, bool 
     tokens= miutil::split(parts[i], 1, "=", false);
     if (tokens.size()==2) {
       if (tokens[0]=="plot" ){
-        var.plotType = tokens[1];
+        if ( tokens[1] == "Enkel" )
+          var.plotType = "List";
+        else if ( tokens[1] == "Trykk" )
+          var.plotType = "Pressure";
+        else
+          var.plotType = tokens[1];
       } else if (tokens[0]=="data" ){
         var.data = miutil::split(tokens[1], 0, ",");
       } else if (tokens[0]=="parameter" ){
