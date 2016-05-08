@@ -868,13 +868,14 @@ void SatManager::addMosaicfiles(Sat* satdata)
     if (!ok)
       continue;
 
-    int size =sd.area.gridSize();
-    if (sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay || sd.Bx!=satdata->Bx || sd.By
-        !=satdata->By) {
+    if (sd.area.nx!=satdata->area.nx || sd.area.ny!=satdata->area.ny
+        || sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay
+        || sd.Bx!=satdata->Bx || sd.By!=satdata->By) {
       METLIBS_LOG_WARN("File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok");
       continue;
     }
 
+    int size =sd.area.gridSize();
     unsigned char *newcolor[3];
     if (!satdata->palette) {
       // pointers to raw channels
