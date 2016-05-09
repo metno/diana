@@ -95,6 +95,9 @@ public:
   QPaintDevice* device() const
     { return mDevice; }
 
+  void setPrinting(bool printing=true)
+    { mPrinting = printing; }
+
 private:
   bool setFontFace(FontFace face);
 

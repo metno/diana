@@ -213,8 +213,6 @@ void DiPaintGLPainter::makeCurrent()
   attributesStack.clear();
 
   clientState = 0;
-
-  printing = false;
 }
 
 void DiPaintGLPainter::begin(QPainter *painter)
@@ -244,7 +242,7 @@ void DiPaintGLPainter::end()
 void DiPaintGLPainter::setPen()
 {
   qreal width = attributes.width;
-  if (printing)
+  if (isPrinting())
     width /= 3.0;
 
   QPen pen = QPen(QColor::fromRgba(attributes.color), width);
@@ -257,7 +255,7 @@ void DiPaintGLPainter::setPen()
          width. */
       QVector<qreal> dashes;
       if (width == 0) {
-        if (printing)
+        if (isPrinting())
           width = 0.5;
         else
           width = 1;

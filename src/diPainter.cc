@@ -16,6 +16,11 @@
 #define MILOGGER_CATEGORY "diana.DiPainter"
 #include <miLogger/miLogging.h>
 
+DiCanvas::DiCanvas()
+  : mPrinting(false)
+{
+}
+
 void DiCanvas::parseFontSetup()
 {
   const std::string sf_name = "FONTS";

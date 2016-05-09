@@ -1418,6 +1418,7 @@ void createPaintDevice()
     if (pdf || (!svg && !json /* i.e. postscript*/))
       printing = true;
   }
+  glcanvas->setPrinting(printing);
 
   if (main_controller)
     main_controller->setCanvas(glcanvas);

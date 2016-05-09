@@ -515,6 +515,7 @@ void DianaGLLines::paint_polygons()
   mGL->Disable(DiGLPainter::gl_BLEND);
   mGL->ShadeModel(DiGLPainter::gl_FLAT);
   mGL->EdgeFlag(DiGLPainter::gl_TRUE);
+  mGL->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
 }
 
 void DianaGLLines::paint_lines()
@@ -683,7 +684,7 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
   }
 
   const int blockPaintMode = (paintMode & DianaLines::FILL);
-  if (blockPaintMode) {
+  if (!gl->isPrinting() && blockPaintMode) {
     const int BLOCK = 32*std::max(1, poptions.lineSmooth);
     METLIBS_LOG_TIME("contour fill blocks " << BLOCK);
     for (int ixx0 = ix0; ixx0 < ix1; ixx0 += BLOCK) {
