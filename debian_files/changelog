@@ -1,3 +1,9 @@
+diana-3.40 (3.40.0~b3-1) unstable; urgency=low
+
+   * bugfixes sat, printing, contour2 polygon stipple
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 09 May 2016 09:00:09 +0100
+
 diana-3.40 (3.40.0~b2-1) unstable; urgency=low
 
    * bugfixes
