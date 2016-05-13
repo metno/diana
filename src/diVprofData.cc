@@ -101,27 +101,16 @@ void VprofData::readStationNames(const std::string& stationsfilename)
       stationVector = miutil::split(miLine, ";", false);
       if (stationVector.size() == 7) {
         station st;
-        char stid[10];
-        int wmo_block = miutil::to_int(stationVector[0]) * 1000;
-        int wmo_number = miutil::to_int(stationVector[1]);
-        int wmo_id = wmo_block + wmo_number;
-        sprintf(stid, "%05d", wmo_id);
-        st.id = stid;
         st.name = stationVector[2];
         st.lat = miutil::to_double(stationVector[3]);
         st.lon = miutil::to_double(stationVector[4]);
-        st.height = miutil::to_int(stationVector[5], -1);
-        st.barHeight = miutil::to_int(stationVector[6], -1);
         stations.push_back(st);
       } else {
         if (stationVector.size() == 6) {
           station st;
-          st.id = stationVector[0];
           st.name = stationVector[1];
           st.lat = miutil::to_double(stationVector[2]);
           st.lon = miutil::to_double(stationVector[3]);
-          st.height = miutil::to_int(stationVector[4], -1);
-          st.barHeight = miutil::to_int(stationVector[5], -1);
           stations.push_back(st);
         } else {
           METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
@@ -132,12 +121,9 @@ void VprofData::readStationNames(const std::string& stationsfilename)
       stationVector = miutil::split(miLine, ",", false);
       if (stationVector.size() == 7) {
         station st;
-        st.id = stationVector[0];
         st.name = stationVector[1];
         st.lat = miutil::to_double(stationVector[2]);
         st.lon = miutil::to_double(stationVector[3]);
-        st.height = miutil::to_int(stationVector[4], -1);
-        st.barHeight = miutil::to_int(stationVector[5], -1);
         stations.push_back(st);
       } else {
         METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
@@ -146,12 +132,8 @@ void VprofData::readStationNames(const std::string& stationsfilename)
   }
   for (size_t i = 0; i < stations.size(); i++) {
     posName.push_back(stations[i].name);
-    obsName.push_back(stations[i].id);
     posLatitude.push_back(stations[i].lat);
     posLongitude.push_back(stations[i].lon);
-    posDeltaLatitude.push_back(0.0);
-    posDeltaLongitude.push_back(0.0);
-    posTemp.push_back(0);
   }
 }
 
@@ -198,9 +180,6 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
       posName.push_back(cs->label());
       posLatitude.push_back(cs->point(0).latDeg());
       posLongitude.push_back(cs->point(0).lonDeg());
-      posDeltaLatitude.push_back(0.0);
-      posDeltaLongitude.push_back(0.0);
-      posTemp.push_back(0);
     }
   }
 
@@ -211,12 +190,10 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   numPos = posName.size();
   numTime = validTime.size();
   numParam = 6;
-  mainText.push_back(modelName);
 
   const miTime rt = util::to_miTime(mr.reftime);
   for (size_t i = 0; i < validTime.size(); i++) {
     forecastHour.push_back(miTime::hourDiff(validTime[i],rt));
-    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
   }
   readFromFimex = true;
   vProfPlot.reset(0);
@@ -231,6 +208,11 @@ bool VprofData::readFile( const std::string& fileName)
   // reading and storing all information and unpacked data
 
   const int bufferlength = 512;
+  std::vector<int>      posTemp;
+  std::vector<std::string> obsName;
+  std::vector<std::string> mainText;
+
+
 
   std::auto_ptr<FtnVfile> vfile(new FtnVfile(fileName, bufferlength));
 
@@ -353,12 +335,6 @@ bool VprofData::readFile( const std::string& fileName)
             for (int i = 0; i < numPos; i++)
               posTemp.push_back(
                   tmp[n + i * nposid] * 1000 + tmp[n + 1 + i * nposid]);
-          } else if (posid[nn] == -5) {
-            for (int i = 0; i < numPos; i++)
-              posDeltaLatitude.push_back(scale * tmp[n + i * nposid]);
-          } else if (posid[nn] == -6) {
-            for (int i = 0; i < numPos; i++)
-              posDeltaLongitude.push_back(scale * tmp[n + i * nposid]);
           }
         }
         delete[] posid;

@@ -38,7 +38,7 @@
 #include <vector>
 
 /**
-  \brief Vertical Profile (sounding) prognostic data from a met.no file
+  \brief Vertical Profile (sounding) prognostic data
   
    Contains all data and misc information from one file 
 */
@@ -56,7 +56,6 @@ public:
   std::vector<std::string> getNames() { return posName; }
   std::vector <float> getLatitudes() { return posLatitude; }
   std::vector <float> getLongitudes() { return posLongitude; }
-  std::vector<std::string> getObsNames() { return obsName; }
   std::vector<miutil::miTime>   getTimes() { return validTime; }
 
 private:
@@ -71,35 +70,29 @@ private:
   int numLevel;
 
   struct station {
-    std::string id; /**< WMO number */
     std::string name; /**< name */
     float lat; /**< latitude */
     float lon; /**< longitude */
-    int height; /**< station height */
-    int barHeight; /**< barometer height */
   };
 
   std::vector<std::string> posName;
-  std::vector<std::string> obsName;
-  std::vector<int>      posTemp;
   std::vector<float>    posLatitude;
   std::vector<float>    posLongitude;
-  std::vector<float>    posDeltaLatitude;
-  std::vector<float>    posDeltaLongitude;
   std::vector<miutil::miTime>   validTime;
   std::vector<int>      forecastHour;
   std::vector<std::string> progText;
-  std::vector<std::string> mainText;
-  std::vector<int>      paramId;
-  std::vector<float>    paramScale;
   std::auto_ptr<VprofPlot> vProfPlot;
   std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
+
 
   vcross::Collector_p collector;
   vcross::string_v fields;
   vcross::Time reftime;
 
+  //to be removed together with readFile
+    std::vector<int>      paramId;
+    std::vector<float>    paramScale;
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;
 };
