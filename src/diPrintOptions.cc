@@ -37,6 +37,7 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <iostream>
 #include <fstream>
 
 #define MILOGGER_CATEGORY "diana.PrintOptions"
