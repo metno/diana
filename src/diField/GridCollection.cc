@@ -108,7 +108,7 @@ bool GridCollection::makeGridIOinstances()
     sources_with_wildcards.clear();
 
     // init time filter and replace yyyy etc. with ????
-    const miutil::TimeFilter tf(sourcestr, true);
+    const miutil::TimeFilter tf(sourcestr);
 
     // check for wild cards - expand filenames if necessary
     if (sourcestr.find_first_of("*?") != sourcestr.npos && sourcestr.find("glob:") == sourcestr.npos) {

@@ -73,7 +73,7 @@ QList<file_time> TimeFilesExtractor::getFiles(const QString &filePattern)
   QList<file_time> result;
 
   std::string pattern = filePattern.toStdString();
-  miutil::TimeFilter tf(pattern, true);
+  miutil::TimeFilter tf(pattern);
   if (tf.ok()) {
     const diutil::string_v matches = diutil::glob(pattern);
     for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {

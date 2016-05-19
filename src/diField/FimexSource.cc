@@ -1089,7 +1089,7 @@ Source::ReftimeUpdate FimexSource::update()
     } else {
       after_slash = mFilePattern;
     }
-    const miutil::TimeFilter tf(after_slash, true);
+    const miutil::TimeFilter tf(after_slash);
     std::string pattern = before_slash + after_slash;
     METLIBS_LOG_DEBUG(LOGVAL(pattern));
 

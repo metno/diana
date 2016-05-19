@@ -1320,6 +1320,8 @@ void run(const field_t& field, lines_t& lines)
 #ifdef LENGTH_STATS
     clear_join_size();
 #endif
+    if (field.nx() == 0 || field.ny() == 0)
+      return;
     detail::runner r(field, lines);
     r.run();
 #ifdef LENGTH_STATS

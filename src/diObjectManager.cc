@@ -117,7 +117,7 @@ bool ObjectManager::parseSetup() {
         olist.archive=true;
       }
       else if (key=="file"){
-        olist.filter=miutil::TimeFilter(value,true); // modifies value
+        olist.filter=miutil::TimeFilter(value); // modifies value
         olist.filename= value;
       } else {
         ok= false;
