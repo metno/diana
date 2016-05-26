@@ -221,11 +221,13 @@ int main(int argc, char **argv)
         METLIBS_LOG_INFO("forbidden" << LOGVAL(inn.toStdString()));
       }
     }
-    if (!instancenames.empty()) {
+    if (instancenames.size() == 1) {
+      diana_instancename = instancenames.first();
+    } else if (instancenames.size() >= 1) {
       bool ok;
       const QString item = QInputDialog::getItem(0,
           QCoreApplication::translate("DianaMainWindow", "Select name"),
-          QCoreApplication::translate("DianaMainWindow", "Select coserver name:"),
+          QCoreApplication::translate("DianaMainWindow", "Select diana name:"),
           instancenames, 0, false, &ok);
       if (ok && !item.isEmpty())
         diana_instancename = item;
