@@ -127,12 +127,8 @@ public:
   static std::string getLogFileExt();
   static bool allowedInstanceName(const QString& text);
 
-  const QString& instanceName() const
-    { return mInstanceName; }
-
+  QString instanceName() const;
   QString instanceNameSuffix() const;
-
-  static const QRegExp instanceNamePattern;
 
 protected:
   void timerEvent(QTimerEvent*);
@@ -500,7 +496,6 @@ private:
   std::map<std::string, DataDialog*> dialogNames;
 
   std::vector<PlotElement> getPlotElements() const;
-  QString mInstanceName;
 
   static DianaMainWindow *self;   // singleton instance pointer
 };
