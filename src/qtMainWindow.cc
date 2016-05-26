@@ -3379,6 +3379,14 @@ bool DianaMainWindow::allowedInstanceName(const QString& text)
   return instanceNamePattern.exactMatch(text);
 }
 
+QString DianaMainWindow::instanceNameSuffix() const
+{
+  if (instanceName().startsWith("diana-"))
+    return instanceName().mid(6);
+  else
+    return QString();
+}
+
 void DianaMainWindow::setInstanceName(QString name)
 {
   name = name.trimmed();
@@ -3395,6 +3403,8 @@ void DianaMainWindow::setInstanceName(QString name)
 
   if (pluginB)
     pluginB->setName(mInstanceName);
+
+  Q_EMIT instanceNameChanged(mInstanceName);
 }
 
 // static
@@ -3411,7 +3421,8 @@ std::string DianaMainWindow::getLogFileExt()
 
 std::string DianaMainWindow::getLogFileName() const
 {
-  return getLogFileDir() + mInstanceName.toStdString() + getLogFileExt();
+  // FIXME toStdString uses latin1 which might cause encoding problems
+  return getLogFileDir() + instanceName().toStdString() + getLogFileExt();
 }
 
 void DianaMainWindow::writeLogFile()

@@ -127,6 +127,11 @@ public:
   static std::string getLogFileExt();
   static bool allowedInstanceName(const QString& text);
 
+  const QString& instanceName() const
+    { return mInstanceName; }
+
+  QString instanceNameSuffix() const;
+
   static const QRegExp instanceNamePattern;
 
 protected:
@@ -280,6 +285,9 @@ private Q_SLOTS:
   void updatePlotElements();
 
   void setInstanceName(QString instancename);
+
+Q_SIGNALS:
+  void instanceNameChanged(const QString&);
 
 private:
   void vcrossEditManagerEnableSignals();
