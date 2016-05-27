@@ -178,8 +178,6 @@
 
 using namespace std;
 
-const QRegExp DianaMainWindow::instanceNamePattern("diana(-[\\w\\d+-]+)?");
-
 DianaMainWindow *DianaMainWindow::self = 0;
 
 DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
@@ -190,12 +188,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   , vcrossEditManagerConnected(false)
   , spWindow(0), pluginB(0), contr(co)
   , timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
-  , mInstanceName("diana")
 {
   METLIBS_LOG_SCOPE();
 
   setWindowIcon(QIcon(QPixmap(diana_icon_xpm)));
-  setInstanceName(instancename);
 
   self = this;
 
@@ -782,14 +778,13 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   qsocket = false;
   pluginB = new ClientSelection("Diana", this);
   pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
-  pluginB->setName(mInstanceName);
-  pluginB->setNamePattern(instanceNamePattern);
   connect(pluginB, SIGNAL(receivedMessage(const miMessage&)),
       SLOT(processLetter(const miMessage&)));
   connect(pluginB, SIGNAL(disconnected()),
       SLOT(connectionClosed()));
   connect(pluginB, SIGNAL(renamed(const QString&)),
       SLOT(setInstanceName(const QString&)));
+  setInstanceName(instancename);
 
   QToolButton* clientbutton = new QToolButton(statusBar());
   clientbutton->setDefaultAction(pluginB->getToolButtonAction());
@@ -3376,25 +3371,30 @@ void DianaMainWindow::timecontrolslot()
 // static
 bool DianaMainWindow::allowedInstanceName(const QString& text)
 {
-  return instanceNamePattern.exactMatch(text);
+  return ClientSelection::isAllowedClientName("diana", text);
+}
+
+QString DianaMainWindow::instanceName() const
+{
+  return pluginB->getClientName();
+}
+
+QString DianaMainWindow::instanceNameSuffix() const
+{
+  return pluginB->getClientNameSuffix();
 }
 
 void DianaMainWindow::setInstanceName(QString name)
 {
-  name = name.trimmed();
-  if (name == mInstanceName)
-    return;
+  if (!allowedInstanceName(name))
+    name = "diana";
 
-  if (!name.isEmpty() && allowedInstanceName(name))
-    mInstanceName = name;
-  if (mInstanceName.isEmpty())
-    mInstanceName = "diana";
-
-  const QString title = QString("diana " PVERSION " (%1)").arg(mInstanceName);
+  const QString title = QString("diana " PVERSION " (%1)").arg(name);
   setWindowTitle(title);
 
-  if (pluginB)
-    pluginB->setName(mInstanceName);
+  pluginB->setClientName(name);
+
+  Q_EMIT instanceNameChanged(name);
 }
 
 // static
@@ -3411,7 +3411,8 @@ std::string DianaMainWindow::getLogFileExt()
 
 std::string DianaMainWindow::getLogFileName() const
 {
-  return getLogFileDir() + mInstanceName.toStdString() + getLogFileExt();
+  // FIXME toStdString uses latin1 which might cause encoding problems
+  return getLogFileDir() + instanceName().toStdString() + getLogFileExt();
 }
 
 void DianaMainWindow::writeLogFile()

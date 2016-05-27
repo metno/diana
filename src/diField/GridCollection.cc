@@ -339,27 +339,26 @@ bool GridCollection::dataExists_gridParameter(const gridinventory::Inventory& in
         METLIBS_LOG_DEBUG("searching for" << LOGVAL(p.key.taxis));
 
         const std::set<Taxis>::const_iterator taitr = miutil::find_if(reftimeInv.taxes, boost::bind(&Taxis::getId, _1) == p.taxis_id);
+        if (taitr == reftimeInv.taxes.end()) {
+          METLIBS_LOG_DEBUG("time axis '" << p.taxis_id << "' not found" << LOGVAL(reftimeInv.taxes.size()));
+          continue;
+        }
 
         METLIBS_LOG_DEBUG("testing timeaxis:" << taitr->name << " with " << taitr->values.size() << " times");
 
         if (taitr->values.size() > 0) { // check for correct time if appropriate
-          vector<double>::const_iterator titr = taitr->values.begin();
           // find nearest time within time tolerance
-          long int mdiff = 100000000;
-          titr = taitr->values.begin();
-          bool found = false;
-          for (; titr != taitr->values.end(); ++titr) {
-            time_t t = (*titr);
-            miutil::miTime mit( t );
+          long int mdiff = -1;
+          for (vector<double>::const_iterator titr = taitr->values.begin(); titr != taitr->values.end(); ++titr) {
+            const miutil::miTime mit(*titr);
             long int d = labs(miutil::miTime::minDiff(time, mit));
-            if (d < mdiff && d <= time_tolerance) {
+            if ((mdiff < 0 || d < mdiff) && d <= time_tolerance) {
               mdiff = d;
               actualtime = mit;
-              found = true;
               break;
             }
           }
-          if (!found) {
+          if (mdiff < 0) {
             continue;
           }
         }

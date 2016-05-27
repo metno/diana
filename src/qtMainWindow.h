@@ -127,7 +127,8 @@ public:
   static std::string getLogFileExt();
   static bool allowedInstanceName(const QString& text);
 
-  static const QRegExp instanceNamePattern;
+  QString instanceName() const;
+  QString instanceNameSuffix() const;
 
 protected:
   void timerEvent(QTimerEvent*);
@@ -280,6 +281,9 @@ private Q_SLOTS:
   void updatePlotElements();
 
   void setInstanceName(QString instancename);
+
+Q_SIGNALS:
+  void instanceNameChanged(const QString&);
 
 private:
   void vcrossEditManagerEnableSignals();
@@ -492,7 +496,6 @@ private:
   std::map<std::string, DataDialog*> dialogNames;
 
   std::vector<PlotElement> getPlotElements() const;
-  QString mInstanceName;
 
   static DianaMainWindow *self;   // singleton instance pointer
 };
