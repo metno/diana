@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 9),
- autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2),
+ autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2), pkg-config,
  qt4-qmake, libqt4-dev,
 @metno_config_if .*precise.*
 @metno_config_else

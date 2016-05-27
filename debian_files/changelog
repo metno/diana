@@ -1,3 +1,9 @@
+diana-3.40 (3.40.0~b5-2) unstable; urgency=low
+
+   * build-depend on pkg-config in debian_files/control
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 27 May 2016 08:00:00 +0200
+
 diana-3.40 (3.40.0~b5-1) unstable; urgency=low
 
    * bugfix, avoid crash if no timeaxis
