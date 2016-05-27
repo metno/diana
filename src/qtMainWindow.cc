@@ -468,7 +468,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   // --------------------------------------------------------------------
   timeControlAction = new QAction(QIcon( QPixmap( clock_xpm )),tr("Time control"), this );
   timeControlAction->setCheckable(true);
-  timeControlAction->setEnabled(false);
   timeControlAction->setIconVisibleInMenu(true);
   connect( timeControlAction, SIGNAL( triggered() ) ,  SLOT( timecontrolslot() ) );
   // --------------------------------------------------------------------
@@ -682,8 +681,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
       timestep,SLOT(setEnabled(bool)));
   connect(timestep,SIGNAL(valueChanged(int)),
       tslider,SLOT(setInterval(int)));
-  connect(tslider,SIGNAL(enableSpin(bool)),
-      timeControlAction,SLOT(setEnabled(bool)));
 
 
   timelabel= new QLabel("000%0-00-00 00:00:00",this);
