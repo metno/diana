@@ -45,6 +45,8 @@ class QListWidgetItem;
 class QLabel;
 class QTextEdit;
 
+class DianaMainWindow;
+
 /**
    \brief Quick menu
    
@@ -105,6 +107,8 @@ private:
   void replaceDynamicOptions(std::vector<std::string>& oldCommand,
       std::vector<std::string>& newCommand);
 
+  QString instanceNameSuffix() const;
+
 Q_SIGNALS:
   void QuickHide();   // request hide for this dialog
 
@@ -119,7 +123,7 @@ public:
     QMENU
   };
 
-  QuickMenu(QWidget *parent, Controller* c);
+  QuickMenu(DianaMainWindow *main, Controller* c);
 
   void start();
 
@@ -170,6 +174,8 @@ private Q_SLOTS:
   void intervalChanged(int value);  // demo-timer changed
   void comButton(bool on);          // show/hide command-text
   void helpClicked();               // help-button callback
+
+  void onInstanceNameChanged(const QString& name);
 };
 
 #endif

@@ -32,6 +32,8 @@
 #endif
 
 #include "qtQuickMenu.h"
+
+#include "qtMainWindow.h"
 #include "qtQuickAdmin.h"
 #include "qtUtility.h"
 #include "diLocalSetupParser.h"
@@ -63,7 +65,7 @@ using namespace std;
 
 const std::string vprefix= "@";
 
-QuickMenu::QuickMenu( QWidget *parent, Controller* c)
+QuickMenu::QuickMenu(DianaMainWindow* parent, Controller* c)
 : QDialog(parent), contr(c), comset(false),
 activemenu(0), timerinterval(10), timeron(false),
 browsing(false),
@@ -71,8 +73,10 @@ prev_plotindex(0), prev_listindex(0),
 firstcustom(-1), lastcustom(-1),
 firststatic(QMENU),instaticmenu(false)
 {
-
   setWindowTitle(tr("Quickmenu"));
+
+  connect(parent, SIGNAL(instanceNameChanged(QString)),
+      SLOT(onInstanceNameChanged(QString)));
 
   // Create top-level layout manager
   QBoxLayout* tlayout = new QHBoxLayout( this);
@@ -565,21 +569,43 @@ void QuickMenu::adminButton()
   }
 }
 
+QString QuickMenu::instanceNameSuffix() const
+{
+  DianaMainWindow* mw = static_cast<DianaMainWindow*>(parent());
+  QString instanceNameSuffix = mw->instanceNameSuffix();
+  if (!instanceNameSuffix.isEmpty())
+    return "-" + instanceNameSuffix;
+  else
+    return instanceNameSuffix;
+}
+
+void QuickMenu::onInstanceNameChanged(const QString& name)
+{
+  const QString ins = instanceNameSuffix();
+  qm[0].filename= LocalSetupParser::basicValue("homedir") + "/History"
+      + ins.toStdString() + ".quick";
+  qm[1].filename= LocalSetupParser::basicValue("homedir") + "/History-vcross"
+      + ins.toStdString() + ".quick";
+}
+
 void QuickMenu::fillPrivateMenus()
 {
-
   quickMenu qtmp;
+
+  const QString ins = instanceNameSuffix();
 
   //History
   qm.push_back(qtmp);
   qm[0].name= tr("History").toStdString();
-  qm[0].filename= LocalSetupParser::basicValue("homedir") + "/History.quick";
+  qm[0].filename= LocalSetupParser::basicValue("homedir") + "/History"
+      + ins.toStdString() + ".quick";
   qm[0].plotindex= 0;
   readQuickMenu(qm[0]);
 
   qm.push_back(qtmp);
   qm[1].name= tr("History-vcross").toStdString();
-  qm[1].filename= LocalSetupParser::basicValue("homedir") + "/History-vcross.quick";
+  qm[1].filename= LocalSetupParser::basicValue("homedir") + "/History-vcross"
+      + ins.toStdString() + ".quick";
   qm[1].plotindex= 0;
   readQuickMenu(qm[1]);
 
