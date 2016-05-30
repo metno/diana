@@ -32,28 +32,33 @@
 #include "config.h"
 #endif
 
-#include <QComboBox>
-#include <QSlider>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QLabel>
-#include <qpainter.h>
-#include <QPushButton>
-#include <qsplitter.h>
-#include <qspinbox.h>
-#include <qcheckbox.h>
-#include <QRadioButton>
-#include <qtooltip.h>
-#include <QPixmap>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QLineEdit>
-
 #include "qtFieldDialog.h"
+
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diController.h"
+
+#include <qcheckbox.h>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <qpainter.h>
+#include <QPixmap>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QSlider>
+#include <QSortFilterProxyModel>
+#include <qspinbox.h>
+#include <qsplitter.h>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <qtooltip.h>
+#include <QTreeView>
+#include <QVBoxLayout>
 
 #include <diField/diRectangle.h>
 #include <diPlotOptions.h>
@@ -73,6 +78,56 @@
 //#define DEBUGPRINT
 
 using namespace std;
+
+namespace { // anonymous
+
+class ModelFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+  ModelFilterProxyModel(QObject* parent=0)
+    : QSortFilterProxyModel(parent) { }
+
+protected:
+  bool filterAcceptsRow(int row, const QModelIndex &parent) const;
+
+private:
+  bool acceptIndex(const QModelIndex& idx) const;
+};
+
+bool ModelFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+{
+  if (!parent.isValid()) {
+    // accept highest level (model groups) if group name matches
+    const QModelIndex group = sourceModel()->index(row, 0, parent);
+    if (acceptIndex(group))
+      return true;
+
+    // also accept if any child (model name) matches
+    const int modelnames = sourceModel()->rowCount(group);
+    for (int r=0; r<modelnames; ++r) {
+      if (acceptIndex(group.child(r, 0)))
+        return true;
+    }
+  } else {
+    // accept if model group or model name match
+    if (acceptIndex(parent) || acceptIndex(parent.child(row, 0)))
+      return true;
+
+  }
+  return false;
+}
+
+bool ModelFilterProxyModel::acceptIndex(const QModelIndex &idx) const
+{
+  const QString text = sourceModel()->data(idx).toString();
+  return (filterRegExp().indexIn(text) >= 0); // match anywhere
+}
+
+const int ROLE_MODELGROUP = Qt::UserRole + 1;
+
+} // anonymous namespace
+
+// ========================================================================
 
 FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   : ShowMoreDialog(parent)
@@ -232,17 +287,24 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   //----------------------------------------------------------------
 
-  // modelGRbox
-  QLabel *modelGRlabel = TitleLabel(tr("Model group"), this);
-  modelGRbox = new QComboBox(this);
-  connect( modelGRbox, SIGNAL( activated( int ) ),
-      SLOT( modelGRboxActivated( int ) ) );
-
   //modelbox
   QLabel *modellabel = TitleLabel(tr("Models"), this);
-  modelbox = new QListWidget(this);
-  connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-      SLOT( modelboxClicked( QListWidgetItem * ) ) );
+  modelbox = new QTreeView(this);
+  modelbox->setHeaderHidden(true);
+  modelbox->setSelectionMode(QAbstractItemView::SingleSelection);
+  modelbox->setSelectionBehavior(QAbstractItemView::SelectRows);
+  modelItems = new QStandardItemModel(this);
+  modelFilter = new ModelFilterProxyModel(this);
+  modelFilter->setDynamicSortFilter(true);
+  modelFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
+  modelFilter->setSourceModel(modelItems);
+  modelbox->setModel(modelFilter);
+  connect(modelbox, SIGNAL(clicked(const QModelIndex&)),
+      SLOT(modelboxClicked(const QModelIndex&)));
+  modelFilterEdit = new QLineEdit("", this);
+  modelFilterEdit->setPlaceholderText(tr("Type to filter model names"));
+  connect(modelFilterEdit, SIGNAL(textChanged(const QString&)),
+      SLOT(filterModels(const QString&)));
 
   // refTime
   QLabel *refTimelabel = TitleLabel(tr("Reference time"), this);
@@ -454,11 +516,13 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   grouplayout->addWidget(fieldGRbox);
   grouplayout->addWidget(fieldGroupCheckBox);
 
+  QHBoxLayout* modellayout = new QHBoxLayout();
+  modellayout->addWidget(modellabel);
+  modellayout->addWidget(modelFilterEdit);
+
   QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->setSpacing(1);
-  v1layout->addWidget(modelGRlabel);
-  v1layout->addWidget(modelGRbox);
-  v1layout->addWidget(modellabel);
+  v1layout->addLayout(modellayout);
   v1layout->addWidget(modelbox, 2);
   v1layout->addWidget(refTimelabel);
   v1layout->addWidget(refTimeComboBox);
@@ -1094,10 +1158,10 @@ void FieldDialog::updateModelBoxes()
   METLIBS_LOG_SCOPE();
 
   //keep old plots
-  vector<std::string> vstr = getOKString();
+  const std::vector<std::string> vstr = getOKString();
 
-  modelGRbox->clear();
-  indexMGRtable.clear();
+  modelItems->clear();
+  modelFilterEdit->clear();
 
   int nr_m = m_modelgroup.size();
   if (nr_m == 0)
@@ -1106,27 +1170,45 @@ void FieldDialog::updateModelBoxes()
   if (useArchive) {
     for (int i = 0; i < nr_m; i++) {
       if (m_modelgroup[i].groupType == "archivefilegroup") {
-        indexMGRtable.push_back(i);
-        modelGRbox->addItem(QString(m_modelgroup[i].groupName.c_str()));
+        addModelGroup(i);
       }
     }
   }
   for (int i = 0; i < nr_m; i++) {
     if (m_modelgroup[i].groupType == "filegroup") {
-      indexMGRtable.push_back(i);
-      modelGRbox->addItem(QString(m_modelgroup[i].groupName.c_str()));
+        addModelGroup(i);
     }
   }
-  modelGRbox->setCurrentIndex(0);
 
   if (selectedFields.size() > 0)
     deleteAllSelected();
 
-  // show models in the first modelgroup
-  modelGRboxActivated(0);
-
   //replace old plots
   putOKString(vstr);
+}
+
+void FieldDialog::addModelGroup(int modelgroupIndex)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(modelgroupIndex));
+  const FieldDialogInfo& mgr = m_modelgroup[modelgroupIndex];
+  METLIBS_LOG_DEBUG(LOGVAL(mgr.groupName));
+  QStandardItem* group = new QStandardItem(QString::fromStdString(mgr.groupName));
+  group->setData(modelgroupIndex, ROLE_MODELGROUP);
+  group->setFlags(Qt::ItemIsEnabled);
+  for (size_t i = 0; i < mgr.modelNames.size(); i++) {
+    METLIBS_LOG_DEBUG(LOGVAL(mgr.modelNames[i]));
+    QStandardItem* child = new QStandardItem(QString::fromStdString(mgr.modelNames[i]));
+    child->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    group->appendRow(child);
+  }
+  modelItems->appendRow(group);
+}
+
+void FieldDialog::filterModels(const QString& filtertext)
+{
+  if (!filtertext.isEmpty())
+    modelbox->expandAll();
+  modelFilter->setFilterFixedString(filtertext);
 }
 
 void FieldDialog::updateModels()
@@ -1141,41 +1223,31 @@ void FieldDialog::archiveMode(bool on)
   updateModelBoxes();
 }
 
-void FieldDialog::modelGRboxActivated(int index)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (index < 0 || index >= int(indexMGRtable.size()))
-    return;
-
-  int indexMGR = indexMGRtable[index];
-  modelbox->clear();
-  refTimeComboBox->clear();
-  fieldGRbox->clear();
-  fieldbox->clear();
-
-  int nr_model = m_modelgroup[indexMGR].modelNames.size();
-  for (int i = 0; i < nr_model; i++) {
-    modelbox->addItem(QString(m_modelgroup[indexMGR].modelNames[i].c_str()));
-  }
-}
-
-void FieldDialog::modelboxClicked(QListWidgetItem * item)
+void FieldDialog::modelboxClicked(const QModelIndex& filterIndex)
 {
   METLIBS_LOG_SCOPE();
 
   diutil::OverrideCursor waitCursor;
 
+  const QModelIndex index = modelFilter->mapToSource(filterIndex);
+  QStandardItem* clickItem = modelItems->itemFromIndex(index);
+  QStandardItem* parentItem = clickItem->parent();
+  if (!parentItem) {
+    // it is a model group, do nothing
+    return;
+  }
+
   refTimeComboBox->clear();
   fieldGRbox->clear();
   fieldbox->clear();
 
-  int indexM =modelbox->row(item);
-  int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
+  const int indexM = clickItem->row();
+  const int indexMGR = parentItem->data(ROLE_MODELGROUP).toInt();
+  METLIBS_LOG_DEBUG(LOGVAL(indexMGR) << LOGVAL(indexM));
 
   currentModel = m_modelgroup[indexMGR].modelNames[indexM];
 
-  set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(currentModel);
+  const set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(currentModel);
 
   set<std::string>::const_iterator ip=refTimes.begin();
   for (; ip != refTimes.end(); ++ip) {
@@ -3746,14 +3818,9 @@ void FieldDialog::changeModel()
   if (index < 0 || index >= n)
     return;
 
-  if (modelGRbox->count() == 0 || modelbox->count() == 0)
+  const QModelIndexList selected = modelbox->selectionModel()->selectedIndexes();
+  if (selected.count() != 1 || currentModel.empty())
     return;
-
-  int indexMGR = modelGRbox->currentIndex();
-  int indexM = modelbox->currentRow();
-  if (indexMGR < 0 || indexM < 0)
-    return;
-  indexMGR = indexMGRtable[indexMGR];
 
   int indexFGR = fieldGRbox->currentIndex();
   if (indexFGR < 0 || indexFGR >= int(vfgi.size()))

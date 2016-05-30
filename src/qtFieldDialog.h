@@ -43,18 +43,22 @@
 #include <set>
 
 class QPushButton;
+class QCheckBox;
 class QComboBox;
+class QGridLayout;
+class QHBoxLayout;
+class QLabel;
+class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
-class QLabel;
-class QVBoxLayout;
-class QHBoxLayout;
-class QGridLayout;
-class QSlider;
-class QSpinBox;
-class QCheckBox;
+class QModelIndex;
 class QRadioButton;
-class QLineEdit;
+class QSlider;
+class QSortFilterProxyModel;
+class QSpinBox;
+class QStandardItemModel;
+class QTreeView;
+class QVBoxLayout;
 
 class ToggleButton;
 class Controller;
@@ -144,7 +148,7 @@ public:
 protected:
   void closeEvent( QCloseEvent* );
 
-public slots:
+public Q_SLOTS:
   void fieldEditUpdate(std::string str);
   void addField(std::string str);
   void updateModels();
@@ -230,7 +234,6 @@ private:
   std::vector<FieldGroupInfo> vfgi;
 
   std::vector<FieldDialogInfo> m_modelgroup;
-  std::vector<int>             indexMGRtable;
 
   std::string lastLevel;
   std::string lastIdnum;
@@ -239,8 +242,10 @@ private:
 
   QColor* color;
 
-  QComboBox* modelGRbox;
-  QListWidget*  modelbox;
+  QTreeView* modelbox;
+  QSortFilterProxyModel* modelFilter;
+  QStandardItemModel* modelItems;
+  QLineEdit* modelFilterEdit;
   QComboBox* refTimeComboBox;
   QComboBox* fieldGRbox;
   QCheckBox* fieldGroupCheckBox;
@@ -287,17 +292,18 @@ private:
   ToggleButton* allTimeStepButton;
 
   void CreateAdvanced();
+  void addModelGroup(int modelgroupIndex);
 
-signals:
+Q_SIGNALS:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
   void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(std::map<std::string,std::string>&);
 
-private slots:
-  void modelGRboxActivated( int index );
-  void modelboxClicked( QListWidgetItem * item );
+private Q_SLOTS:
+  void modelboxClicked(const QModelIndex& index);
+  void filterModels(const QString& filtertext);
 
   void updateFieldGroups();
   void fieldGRboxActivated( int index );
