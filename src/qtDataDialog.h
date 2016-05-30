@@ -36,7 +36,28 @@
 class Controller;
 class QAction;
 
-class DataDialog : public QDialog
+class ShowMoreDialog : public QDialog
+{
+  Q_OBJECT
+
+public:
+  ShowMoreDialog(QWidget* parent=0);
+
+  virtual bool showsMore();
+
+public Q_SLOTS:
+  virtual void showMore(bool more);
+
+protected:
+  virtual void doShowMore(bool more);
+
+private:
+  Qt::Orientation orientation;
+  QSize sizeLess, sizeMore;
+};
+
+
+class DataDialog : public ShowMoreDialog
 {
   Q_OBJECT
 

@@ -75,7 +75,7 @@
 using namespace std;
 
 FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
-: QDialog(parent)
+  : ShowMoreDialog(parent)
 {
   METLIBS_LOG_SCOPE();
 
@@ -433,7 +433,8 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   // advanced
   advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
-  advanced->setChecked(false);connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
+  advanced->setChecked(false);
+  connect(advanced, SIGNAL(toggled(bool)), SLOT(showMore(bool)));
 
   // hide
   fieldhide = NormalPushButton(tr("Hide"), this);
@@ -555,20 +556,21 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   v6layout->addLayout(h5layout);
   v6layout->addLayout(h6layout);
 
-  // vlayout
-  QVBoxLayout* vlayout = new QVBoxLayout(this);
+  QVBoxLayout* vlayout = new QVBoxLayout();
   vlayout->addLayout(v1layout);
   vlayout->addLayout(h3layout);
   vlayout->addLayout(h4layout);
   vlayout->addLayout(v6layout);
 
-  vlayout->activate();
-
   CreateAdvanced();
 
-  this->setOrientation(Qt::Horizontal);
-  this->setExtension(advFrame);
-  advancedToggled(false);
+  QGridLayout *mainLayout = new QGridLayout;
+  mainLayout->addLayout(vlayout, 0, 0);
+  mainLayout->addWidget(advFrame, 0, 1);
+  mainLayout->setColumnStretch(1, 1);
+  setLayout(mainLayout);
+
+  doShowMore(false);
 
   // tool tips
   toolTips();
@@ -605,11 +607,15 @@ void FieldDialog::toolTips()
   patternColourBox->setToolTip(tr("Colour of pattern"));
 }
 
-void FieldDialog::advancedToggled(bool on)
+void FieldDialog::doShowMore(bool more)
 {
-  METLIBS_LOG_SCOPE("on= " << on);
+  advanced->setChecked(more);
+  advFrame->setVisible(more);
+}
 
-  this->showExtension(on);
+bool FieldDialog::showsMore()
+{
+  return advanced->isChecked();
 }
 
 void FieldDialog::CreateAdvanced()
@@ -1077,8 +1083,8 @@ void FieldDialog::CreateAdvanced()
   advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
   advSep->setLineWidth(5);
 
-  QHBoxLayout *hLayout = new QHBoxLayout( advFrame);
-
+  QHBoxLayout *hLayout = new QHBoxLayout(advFrame);
+  hLayout->setMargin(0);
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
 }

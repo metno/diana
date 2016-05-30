@@ -3414,7 +3414,7 @@ std::string DianaMainWindow::getLogFileName() const
 
 void DianaMainWindow::writeLogFile()
 {
-  // write the system log file to $HOME/.diana.log
+  // write the system log file to $HOME/diana/.diana.log
 
   const std::string logfilepath = getLogFileName();
   std::ofstream file(logfilepath.c_str());
@@ -3494,6 +3494,45 @@ void DianaMainWindow::readLogFile()
   METLIBS_LOG_INFO("Finished reading " << logfilepath);
 }
 
+namespace {
+std::string saveXY(int x, int y)
+{
+  return miutil::from_number(x) + " " + miutil::from_number(y);
+}
+
+void saveDialogSize(std::vector<std::string>& vstr, const std::string& name, ShowMoreDialog* d)
+{
+  vstr.push_back(name + ".size " + saveXY(d->width(), d->height())
+      + " " + (d->showsMore() ? "YES" : "NO"));
+}
+
+void saveDialogSize(std::vector<std::string>& vstr, const std::string& name, QWidget* d)
+{
+  vstr.push_back(name + ".size " + saveXY(d->width(), d->height()));
+}
+
+void saveDialogPos(std::vector<std::string>& vstr, const std::string& name, QWidget* widget)
+{
+  vstr.push_back(name + ".pos " + saveXY(widget->x(), widget->y()));
+}
+
+void restoreDialogSize(ShowMoreDialog* d, bool showmore, int w, int h)
+{
+  d->showMore(showmore);
+  d->resize(w, h);
+}
+
+void restoreDialogSize(QWidget* d, bool /*showmore*/, int w, int h)
+{
+  d->resize(w, h);
+}
+
+void restoreDialogPos(QWidget* d, int x, int y)
+{
+  d->move(x, y);
+}
+
+} // anonymous namespace
 
 vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string& thisBuild)
 {
@@ -3510,49 +3549,26 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
   vstr.push_back("================");
 
   // dialog positions
-  str= "MainWindow.size " + miutil::from_number(this->width()) + " " + miutil::from_number(this->height());
-  vstr.push_back(str);
-  str= "MainWindow.pos "  + miutil::from_number( this->x()) + " " + miutil::from_number( this->y());
-  vstr.push_back(str);
-  str= "QuickMenu.pos "   + miutil::from_number(qm->x()) + " " + miutil::from_number(qm->y());
-  vstr.push_back(str);
-  str= "FieldDialog.pos " + miutil::from_number(fm->x()) + " " + miutil::from_number(fm->y());
-  vstr.push_back(str);
-  fm->show();
-  fm->advancedToggled(false);
-  str= "FieldDialog.size " + miutil::from_number(fm->width()) + " " + miutil::from_number(fm->height());
-  vstr.push_back(str);
-  str= "ObsDialog.pos "   + miutil::from_number(om->x()) + " " + miutil::from_number(om->y());
-  vstr.push_back(str);
-  str= "SatDialog.pos "   + miutil::from_number(sm->x()) + " " + miutil::from_number(sm->y());
-  vstr.push_back(str);
-  str= "StationDialog.pos "   + miutil::from_number(stm->x()) + " " + miutil::from_number(stm->y());
-  vstr.push_back(str);
-  str= "MapDialog.pos "   + miutil::from_number(mm->x()) + " " + miutil::from_number(mm->y());
-  vstr.push_back(str);
-  str= "EditDialog.pos "  + miutil::from_number(em->x()) + " " + miutil::from_number(em->y());
-  vstr.push_back(str);
-  str= "ObjectDialog.pos " + miutil::from_number(objm->x()) + " " + miutil::from_number(objm->y());
-  vstr.push_back(str);
-  str= "TrajectoryDialog.pos " + miutil::from_number(trajm->x()) + " " + miutil::from_number(trajm->y());
-  vstr.push_back(str);
-  str= "Textview.size "   + miutil::from_number(textview->width()) + " " + miutil::from_number(textview->height());
-  vstr.push_back(str);
-  str= "Textview.pos "  + miutil::from_number(textview->x()) + " " + miutil::from_number(textview->y());
-  vstr.push_back(str);
+  saveDialogSize(vstr, "MainWindow", this);
+  saveDialogPos(vstr, "MainWindow", this);
+  saveDialogPos(vstr, "QuickMenu", qm);
+  saveDialogPos(vstr, "FieldDialog", fm);
+  saveDialogSize(vstr, "FieldDialog", fm);
+  saveDialogPos(vstr, "ObsDialog", om);
+  saveDialogPos(vstr, "SatDialog", sm);
+  saveDialogPos(vstr, "StationDialog", stm);
+  saveDialogPos(vstr, "MapDialog", mm);
+  saveDialogPos(vstr, "EditDialog", em);
+  saveDialogPos(vstr, "ObjectDialog", objm);
+  saveDialogPos(vstr, "TrajectoryDialog", trajm);
+  saveDialogSize(vstr, "Textview", textview);
+  saveDialogPos(vstr, "Textview.pos", textview);
 
   map<QAction*, DataDialog*>::iterator it;
   for (it = dialogs.begin(); it != dialogs.end(); ++it) {
-    str = it->second->name() + ".pos " + miutil::from_number(it->second->x()) + " " + miutil::from_number(it->second->y());
-    vstr.push_back(str);
-    if (it->second->extension() && it->second->extension()->isVisible()) {
-      if (it->second->orientation() == Qt::Horizontal)
-        str = it->second->name() + ".size " + miutil::from_number(it->second->width() - it->second->extension()->width()) + " " + miutil::from_number(it->second->height());
-      else
-        str = it->second->name() + ".size " + miutil::from_number(it->second->width()) + " " + miutil::from_number(it->second->height() - it->second->extension()->height());
-    } else
-      str = it->second->name() + ".size " + miutil::from_number(it->second->width()) + " " + miutil::from_number(it->second->height());
-    vstr.push_back(str);
+    DataDialog* d = it->second;
+    saveDialogPos(vstr, d->name(), d);
+    saveDialogSize(vstr, d->name(), d);
   }
 
   str="DocState " + saveDocState();
@@ -3643,34 +3659,35 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
       pluginB->setSelectedClientNames(peers);
     }
 
-    if (tokens.size()==3) {
+    if (tokens.size()==3 || tokens.size() == 4) {
       x= atoi(tokens[1].c_str());
       y= atoi(tokens[2].c_str());
+      const bool showmore = (tokens.size() == 4 && tokens[3] == "YES");
       if (x>20 && y>20 && x<=displayWidth && y<=displayHeight) {
         if (tokens[0]=="MainWindow.size")  this->resize(x,y);
       }
       if (x>=0 && y>=0 && x<displayWidth-20 && y<displayHeight-20) {
-        if      (tokens[0]=="MainWindow.pos")  this->move(x,y);
-        else if (tokens[0]=="QuickMenu.pos")   qm->move(x,y);
-        else if (tokens[0]=="FieldDialog.pos") fm->move(x,y);
-        else if (tokens[0]=="FieldDialog.size")fm->resize(x,y);
-        else if (tokens[0]=="ObsDialog.pos")   om->move(x,y);
-        else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);
-        else if (tokens[0]=="MapDialog.pos")   mm->move(x,y);
-        else if (tokens[0]=="StationDialog.pos")   stm->move(x,y);
-        else if (tokens[0]=="EditDialog.pos")  em->move(x,y);
-        else if (tokens[0]=="ObjectDialog.pos") objm->move(x,y);
-        else if (tokens[0]=="TrajectoryDialog.pos") trajm->move(x,y);
-        else if (tokens[0]=="Textview.size")   textview->resize(x,y);
-        else if (tokens[0]=="Textview.pos")    textview->move(x,y);
+        if      (tokens[0]=="MainWindow.pos")    restoreDialogPos(this, x, y);
+        else if (tokens[0]=="QuickMenu.pos")     restoreDialogPos(qm, x, y);
+        else if (tokens[0]=="FieldDialog.pos")   restoreDialogPos(fm, x, y);
+        else if (tokens[0]=="FieldDialog.size")  restoreDialogSize(fm, showmore, x, y);
+        else if (tokens[0]=="ObsDialog.pos")     restoreDialogPos(om, x, y);
+        else if (tokens[0]=="SatDialog.pos")     restoreDialogPos(sm, x, y);
+        else if (tokens[0]=="MapDialog.pos")     restoreDialogPos(mm, x, y);
+        else if (tokens[0]=="StationDialog.pos") restoreDialogPos(stm, x, y);
+        else if (tokens[0]=="EditDialog.pos")    restoreDialogPos(em, x, y);
+        else if (tokens[0]=="ObjectDialog.pos")  restoreDialogPos(objm, x, y);
+        else if (tokens[0]=="TrajectoryDialog.pos") restoreDialogPos(trajm, x, y);
+        else if (tokens[0]=="Textview.size")     restoreDialogSize(textview, showmore, x, y);
+        else if (tokens[0]=="Textview.pos")      restoreDialogPos(textview, x, y);
         else {
           map<QAction*, DataDialog*>::iterator it;
           for (it = dialogs.begin(); it != dialogs.end(); ++it) {
             if (tokens[0] == it->second->name() + ".pos") {
-              it->second->move(x, y);
+              restoreDialogPos(it->second, x, y);
               break;
             } else if (tokens[0] == it->second->name() + ".size") {
-              it->second->resize(x, y);
+              restoreDialogSize(it->second, showmore, x, y);
               break;
             }
           }

@@ -28,14 +28,59 @@
 */
 
 #include <QAction>
+#include <QApplication>
 #include <QLayout>
 #include <QPushButton>
 
 #include "qtDataDialog.h"
 #include "qtUtility.h"
 
+ShowMoreDialog::ShowMoreDialog(QWidget* parent)
+  : QDialog(parent)
+  , orientation(Qt::Horizontal)
+{
+}
+
+bool ShowMoreDialog::showsMore()
+{
+  return false;
+}
+
+void ShowMoreDialog::showMore(bool more)
+{
+  const QSize before = size();
+  if (more)
+    sizeLess = before;
+  else
+    sizeMore = before;
+
+  doShowMore(more);
+
+  layout()->invalidate();
+  qApp->processEvents();
+
+  QSize s = more ? sizeMore : sizeLess;
+  if (s.width() == 0)
+    s = minimumSize();
+  if (orientation == Qt::Horizontal)
+    s.setHeight(before.height());
+  else
+    s.setWidth(before.width());
+  resize(s);
+}
+
+void ShowMoreDialog::doShowMore(bool more)
+{
+}
+
+// ========================================================================
+
 DataDialog::DataDialog(QWidget *parent, Controller *ctrl)
-  : QDialog(parent), applyhideButton(0), applyButton(0), m_ctrl(ctrl), m_action(0)
+  : ShowMoreDialog(parent)
+  , applyhideButton(0)
+  , applyButton(0)
+  , m_ctrl(ctrl)
+  , m_action(0)
 {
   connect(this, SIGNAL(finished(int)), SLOT(unsetAction()));
 }
