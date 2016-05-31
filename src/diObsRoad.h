@@ -37,6 +37,7 @@
 #include "diRoadObsPlot.h"
 #include "diObsData.h"
 #include "diObsMetaData.h"
+#include "diVprofPlot.h"
 #include <puTools/miTime.h>
 
 #include <map>
@@ -134,6 +135,10 @@ public:
     { return m_columnName.at(idx); }
   std::string columnTooltip(int idx) const
     { return m_columnTooltip.at(idx); }
+    
+  VprofPlot* getVprofPlot(const std::string& modelName,
+	     const std::string& station,
+			 const miutil::miTime& time);
 };
 #endif // ROADOBS
 #endif // diObsRoad_h

@@ -53,8 +53,7 @@ class VprofPlot : public VprofTables
   friend class ObsBufr;
 #endif
 #ifdef ROADOBS
-  friend class VprofRTemp;
-  friend class VprofPilot;
+  friend class ObsRoad;
 #endif
 
 public:

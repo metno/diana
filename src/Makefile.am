@@ -662,8 +662,7 @@ endif
 if WITH_NEWARKOBS
 libdiana_la_CPPFLAGS += -DROADOBS -DNEWARK_INC
 libdiana_la_SOURCES += \
-	diObsRoad.cc \
-	diVprofRTemp.cc
+	diObsRoad.cc 
 libdiana_la_LDFLAGS += \
 	${NEWARKAPI_LDFLAGS}
 libdiana_la_LIBADD += \
