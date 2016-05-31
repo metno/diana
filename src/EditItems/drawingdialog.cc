@@ -177,7 +177,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   filterButton_->setCheckable(true);
   filterButton_->setChecked(false);
   filterWidget_ = new FilterDrawingWidget();
-  connect(filterButton_, SIGNAL(toggled(bool)), SLOT(extend(bool)));
+  connect(filterButton_, SIGNAL(toggled(bool)), SLOT(showMore(bool)));
   connect(filterWidget_, SIGNAL(updated()), SIGNAL(updated()));
   connect(allTimesCheckBox, SIGNAL(toggled(bool)), filterWidget_, SLOT(disableFilter(bool)));
   connect(allTimesCheckBox, SIGNAL(toggled(bool)), filterButton_, SLOT(setDisabled(bool)));
@@ -672,10 +672,16 @@ void DrawingDialog::quickSave()
   saveFile(items, quickSaveName_);
 }
 
-void DrawingDialog::extend(bool enable)
+void DrawingDialog::doShowMore(bool more)
 {
-  showExtension(enable);
-  filterButton_->setText(enable ? tr("Hide filters <<<") : tr("Show filters >>>"));
+  showExtension(more);
+  filterButton_->setChecked(more);
+  filterButton_->setText(more ? tr("Hide filters <<<") : tr("Show filters >>>"));
+}
+
+bool DrawingDialog::showsMore()
+{
+  return filterButton_->isChecked();
 }
 
 // ====================================================================
