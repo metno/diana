@@ -2481,11 +2481,13 @@ const Colour* FieldPlot::colourForValue(float value) const
       return &poptions.palettecolours[0];
     }
   } else {
+    if (npalettecolours == 0)
+      return 0;
     std::vector<float>::const_iterator it
         = std::lower_bound(poptions.linevalues.begin(), poptions.linevalues.end(), value);
     if (it == poptions.linevalues.begin())
       return 0;
-    int index = it - poptions.linevalues.begin() - 1;
+    int index = std::min(int(it - poptions.linevalues.begin()), npalettecolours) - 1;
     return &poptions.palettecolours[index];
   }
   return 0;
