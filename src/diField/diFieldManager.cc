@@ -937,8 +937,8 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
                 for (i = 0; i < constants.size(); ++i) {
                   miTime tmpTime = *it;
                   tmpTime.addHour(constants[i]);
-                  if (!setTime.count(tmpTime)) {
-                    //time step not available
+                  if (!setTime.count(tmpTime)&&((fs.option != "accumulate_flux") ||
+                   (fs.option == "accumulate_flux" && tmpTime != miutil::miTime(refTimeStr)))) { 
                     break;
                   }
                 }
@@ -946,7 +946,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
                   //all time steps ok
                   tNormal.insert(*it);
                 }
-              }
+              }                
             }
             gotfieldtime = true;
           }
@@ -1618,7 +1618,7 @@ bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
       METLIBS_LOG_WARN("accumulte_flux with fchour> 0 is not implemented");
       return false;
     }
-    if ( !actualfieldTimes.count(startTime) ) {
+    if ( !actualfieldTimes.count(startTime) && (startTime != miutil::miTime(fieldrequest.refTime)) ) {
       METLIBS_LOG_DEBUG(fieldrequest.paramName << " not available for "<< startTime);
       return false;
     }
