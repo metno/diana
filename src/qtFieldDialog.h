@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2016 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,6 +29,8 @@
 #ifndef _fielddialog_h
 #define _fielddialog_h
 
+#include "qtDataDialog.h"
+
 #include <diCommandParser.h>
 #include <diColourShading.h>
 #include <diPattern.h>
@@ -38,25 +38,27 @@
 #include <puTools/miTime.h>
 #include <diField/diCommonFieldTypes.h>
 
-#include <QDialog>
-
 #include <vector>
 #include <map>
 #include <set>
 
 class QPushButton;
+class QCheckBox;
 class QComboBox;
+class QGridLayout;
+class QHBoxLayout;
+class QLabel;
+class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
-class QLabel;
-class QVBoxLayout;
-class QHBoxLayout;
-class QGridLayout;
-class QSlider;
-class QSpinBox;
-class QCheckBox;
+class QModelIndex;
 class QRadioButton;
-class QLineEdit;
+class QSlider;
+class QSortFilterProxyModel;
+class QSpinBox;
+class QStandardItemModel;
+class QTreeView;
+class QVBoxLayout;
 
 class ToggleButton;
 class Controller;
@@ -70,7 +72,7 @@ class FieldColourDialog;
   The dialog displays all quckmenu commands for easy adjustment.
   Keeps user settings in the diana log file between sessions.
 */
-class FieldDialog: public QDialog
+class FieldDialog: public ShowMoreDialog
 {
   Q_OBJECT
 
@@ -132,7 +134,7 @@ public:
   std::string getShortname();
   bool levelsExists(bool up, int type=0);
   void putOKString(const std::vector<std::string>& vstr,
-		   bool checkOptions=true, bool external=true);
+      bool checkOptions=true, bool external=true);
   bool decodeString(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
@@ -141,36 +143,39 @@ public:
   std::vector<std::string> writeLog();
   /// digest contents from the diana log file (a previous session)
   void readLog(const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion);
+      const std::string& thisVersion, const std::string& logVersion);
 
 protected:
   void closeEvent( QCloseEvent* );
 
-public slots:
-  void advancedToggled(bool on);
+public Q_SLOTS:
   void fieldEditUpdate(std::string str);
   void addField(std::string str);
   void updateModels();
 
-private:
+public:
+  bool showsMore(); //Q_DECL_OVERRIDE
+protected:
+  void doShowMore(bool more); //Q_DECL_OVERRIDE
 
+private:
   void updateModelBoxes();
   void setDefaultFieldOptions();
   void enableWidgets(std::string plottype);
   void enableFieldOptions();
   void enableType2Options(bool);
   void updateFieldOptions(const std::string& name,
-			  const std::string& value, int valueIndex= 0);
+      const std::string& value, int valueIndex= 0);
   void updateTime();
   void setLevel();
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime,
-		      bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
+      bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
   std::string checkFieldOptions(const std::string& str);
   std::string getFieldOptions(const std::string& fieldName, bool reset, bool edit=false) const;
 
   bool fieldDifference(const std::string& str,
-		       std::string& field1, std::string& field2) const;
+      std::string& field1, std::string& field2) const;
 
   void toolTips();
 
@@ -229,7 +234,6 @@ private:
   std::vector<FieldGroupInfo> vfgi;
 
   std::vector<FieldDialogInfo> m_modelgroup;
-  std::vector<int>             indexMGRtable;
 
   std::string lastLevel;
   std::string lastIdnum;
@@ -238,8 +242,10 @@ private:
 
   QColor* color;
 
-  QComboBox* modelGRbox;
-  QListWidget*  modelbox;
+  QTreeView* modelbox;
+  QSortFilterProxyModel* modelFilter;
+  QStandardItemModel* modelItems;
+  QLineEdit* modelFilterEdit;
   QComboBox* refTimeComboBox;
   QComboBox* fieldGRbox;
   QCheckBox* fieldGroupCheckBox;
@@ -286,17 +292,18 @@ private:
   ToggleButton* allTimeStepButton;
 
   void CreateAdvanced();
+  void addModelGroup(int modelgroupIndex);
 
-signals:
+Q_SIGNALS:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
   void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(std::map<std::string,std::string>&);
 
-private slots:
-  void modelGRboxActivated( int index );
-  void modelboxClicked( QListWidgetItem * item );
+private Q_SLOTS:
+  void modelboxClicked(const QModelIndex& index);
+  void filterModels(const QString& filtertext);
 
   void updateFieldGroups();
   void fieldGRboxActivated( int index );

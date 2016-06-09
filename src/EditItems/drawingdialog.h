@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2016 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -103,11 +103,15 @@ public:
   virtual std::vector<std::string> getOKString();
   virtual void putOKString(const std::vector<std::string> &);
 
-signals:
+  bool showsMore(); //Q_DECL_OVERRIDE
+protected:
+  void doShowMore(bool enable); //Q_DECL_OVERRIDE
+
+Q_SIGNALS:
   void filterToggled(bool);
   void editingMode(bool);
 
-public slots:
+public Q_SLOTS:
   void loadFile();
   void loadFile(const QString &fileName);
   void quickSave();
@@ -117,11 +121,10 @@ public slots:
   void saveSelectedItems();
   void saveVisibleItems();
 
-private slots:
+private Q_SLOTS:
   void activateDrawing(const QItemSelection &selected, const QItemSelection &deselected);
   void clearItems();
   void editDrawings(const QModelIndex &index = QModelIndex());
-  void extend(bool enable);
   void makeProduct();
   void removeActiveDrawings();
   void showActiveContextMenu(const QPoint &pos);

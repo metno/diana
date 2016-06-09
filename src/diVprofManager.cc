@@ -47,13 +47,13 @@
 #endif // BUFROBS
 
 #ifdef ROADOBS
+#include "diObsRoad.h"
 #ifdef NEWARK_INC
 #include <newarkAPI/diStation.h>
 #include <newarkAPI/diRoaddata.h>
 #else
 #include <roadAPI/diStation.h>
 #endif // !NEWARK_INC
-#include "diVprofRTemp.h"
 #endif // ROADOBS
 
 #include <puCtools/stat.h>
@@ -614,26 +614,24 @@ bool VprofManager::plot(DiGLPainter* gl)
 #endif
             }
 #ifdef ROADOBS
-            /* NOTE! If metoobs are used, all data are fetched when constructing, for example, the VprofTemp object. */
-            /* If we fetch data from road, we should fetch data for one station, obsList[i],plotTime, to improve performance */
-            /*   The VprofRTemp class should be implemented, to simplify code */
             else if (obsfiles[nn].fileformat==roadobs) {
               try {
-                if (showObsTemp && obsfiles[nn].obstype==temp && !contains_Pilot) {
-                  //land or ship wmo station with name
-                  VprofRTemp vpobs(obsfiles[nn].parameterfile,false,stationList,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
-                  vp= vpobs.getStation(obsList[i],plotTime);
-                } else if (showObsAmdar && obsfiles[nn].obstype==amdar && !contains_Pilot) {
-                  VprofRTemp vpobs(obsfiles[nn].parameterfile,true,
-                      latitudeList[i],longitudeList[i],0.3f,0.3f,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
-                  vp = vpobs.getStation(obsList[i],plotTime);
-                  if (vp!=0)
-                    vp->setName(nameList[i]);
+                // Dummy filename
+                std::string filename;
+                ObsRoad road = ObsRoad(filename,obsfiles[nn].databasefile,obsfiles[nn].stationfile,obsfiles[nn].parameterfile,plotTime,NULL,false);
+                std::string modelName;
+                if (obsfiles[nn].obstype == amdar) {
+                  modelName="AMDAR";
+                } else if (obsfiles[nn].obstype == temp) {
+                  modelName="TEMP";
+                } else if (obsfiles[nn].obstype == pilot) {
+                  modelName="PILOT";
                 }
-              } catch (...) {
+                vp=road.getVprofPlot(modelName, obsList[i], plotTime);
+                } catch (...) {
                 METLIBS_LOG_ERROR("Exception in: " <<obsfiles[nn].filename);
               }
-            }
+            }            
 #endif // ROADOBS
           }
           nn++;

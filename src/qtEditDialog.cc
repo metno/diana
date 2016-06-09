@@ -1652,6 +1652,8 @@ void EditDialog::EditNewOk(EditProduct& ep,
   METLIBS_LOG_DEBUG("REMOVED EditDialog::EditNewOk emit editUpdate()");
   //emit editUpdate();
 
+  saveEverything(true,false);
+
   METLIBS_LOG_DEBUG("EditDialog::EditNewOk finished....................");
 }
 
