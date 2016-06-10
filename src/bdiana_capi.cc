@@ -1755,7 +1755,7 @@ static int handlePlotCommand(int& k)
     if (vprof_optionschanged)
       vprofmanager->getOptions()->readOptions(vprof_options);
     vprof_optionschanged = false;
-    vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
+    vprofmanager->setSelectedModels(vprof_models);
     vprofmanager->setModel();
 
     if (fixedtime.undef()) {
@@ -2163,7 +2163,7 @@ static int handleTimeVprofCommand(int& k)
     vprofmanager->getOptions()->readOptions(vprof_options);
 
   vprof_optionschanged = false;
-  vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
+  vprofmanager->setSelectedModels(vprof_models);
   vprofmanager->setModel();
 
   vector<miTime> okTimes = vprofmanager->getTimeList();

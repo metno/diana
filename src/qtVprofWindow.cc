@@ -97,10 +97,6 @@ VprofWindow::VprofWindow()
   setupButton = new ToggleButton(this, tr("Settings"));
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
-  //button for update
-  QPushButton * updateButton = NormalPushButton( tr("Refresh"),this);
-  connect( updateButton, SIGNAL(clicked()), SLOT(updateClicked()) );
-
   //button to print - starts print dialog
   QPushButton* printButton = NormalPushButton(tr("Print"),this);
   connect( printButton, SIGNAL(clicked()), SLOT( printClicked() ));
@@ -153,7 +149,6 @@ VprofWindow::VprofWindow()
 
   vpToolbar->addWidget(modelButton);
   vpToolbar->addWidget(setupButton);
-  vpToolbar->addWidget(updateButton);
   vpToolbar->addWidget(printButton);
   vpToolbar->addWidget(saveButton);
   vpToolbar->addWidget(quitButton);
@@ -265,12 +260,10 @@ void VprofWindow::timeChanged()
     }
   }
 
-  if (onlyObs) {
-    //emit to main Window (updates stationPlot)
-    Q_EMIT modelChanged();
-    updateStationBox();
-    stationChanged();
-  }
+  //emit to main Window (updates stationPlot)
+  Q_EMIT modelChanged();
+  updateStationBox();
+  stationChanged();
 
   Q_EMIT setTime("vprof", t);
 }
@@ -450,15 +443,6 @@ void VprofWindow::quitClicked()
 
 /***************************************************************************/
 
-void VprofWindow::updateClicked()
-{
-  METLIBS_LOG_SCOPE();
-
-  vprofm->updateObs();      // check obs.files
-  mainWindowTimeChanged(mainWindowTime); // use the main time (fields etc.)
-}
-
-/***************************************************************************/
 
 void VprofWindow::helpClicked()
 {
@@ -476,8 +460,6 @@ void VprofWindow::changeModel()
   { diutil::OverrideCursor waitCursor;
     vprofm->setModel();
   }
-
-  onlyObs= vprofm->onlyObsState();
 
   //emit to main Window (updates stationPlot)
   Q_EMIT modelChanged();
@@ -581,14 +563,12 @@ void VprofWindow::timeBoxActivated(int index)
   if (index>=0 && index<int(times.size())) {
     vprofm->setTime(times[index]);
 
-    if (onlyObs) {
-      //emit to main Window (updates stationPlot)
-      Q_EMIT modelChanged();
-      //update combobox lists of stations and time
-      updateStationBox();
-      //get correct selection in comboboxes
-      stationChanged();
-    }
+    //emit to main Window (updates stationPlot)
+    Q_EMIT modelChanged();
+    //update combobox lists of stations and time
+    updateStationBox();
+    //get correct selection in comboboxes
+    stationChanged();
 
     vprofqw->update();
   }
@@ -623,12 +603,11 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t)
     return;
 
   vprofm->mainWindowTimeChanged(t);
-  if (onlyObs) {
-    //emit to main Window (updates stationPlot)
-    Q_EMIT modelChanged();
-    updateStationBox();
-    updateTimeBox();
-  }
+  //emit to main Window (updates stationPlot)
+  Q_EMIT modelChanged();
+  updateStationBox();
+  updateTimeBox();
+
   //get correct selection in comboboxes
   stationChanged();
   timeChanged();
