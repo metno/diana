@@ -1,3 +1,9 @@
+diana-3.40 (3.40.0-2) unstable; urgency=low
+
+   * build-depend on pkg-config in debian_bdiana/control
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 13 Jun 2016 09:20:00 +0200
+
 diana-3.40 (3.40.0-1) unstable; urgency=low
 
   * fill_cell with linevalues limited to palette size
