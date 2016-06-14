@@ -130,6 +130,7 @@ bool SetupParser::substitute(std::string& t, bool environment) const
       n = miutil::from_c_str(getenv(s.c_str()));
 
     t.replace(start, stop+1 - start, n);
+    stop = start + n.size(); // this does not allow recursive replacement
   }
   return true;
 }
