@@ -61,6 +61,7 @@ struct SetupSection {
   std::vector<std::string> strlist;
   std::vector<int> linenum;
   std::vector<int> filenum;
+  void clear();
 };
 
 class SetupParser {

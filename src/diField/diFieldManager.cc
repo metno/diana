@@ -540,8 +540,7 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
   using namespace gridinventory;
   Inventory inventory = pgc->getInventory();
   Inventory::reftimes_t& reftimes = inventory.reftimes;
-  for (Inventory::reftimes_t::iterator it_r = reftimes.begin();
-       it_r != reftimes.end(); ++it_r) {
+  for (Inventory::reftimes_t::iterator it_r = reftimes.begin(); it_r != reftimes.end(); ++it_r) {
     ReftimeInventory& rti = it_r->second;
     addComputedParameters(rti);
   }

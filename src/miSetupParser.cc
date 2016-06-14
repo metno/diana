@@ -59,6 +59,15 @@ bool KeyValue::toBool(bool& ok, bool def) const
 
 // ========================================================================
 
+void SetupSection::clear()
+{
+  strlist.clear();
+  linenum.clear();
+  filenum.clear();
+}
+
+// ========================================================================
+
 SetupParser* SetupParser::self = 0;
 
 // static function
@@ -475,16 +484,9 @@ bool SetupParser::parseFile(const std::string& filename, // name of file
         internalErrorMsg(filename, linenum, error);
         continue;
       }
-      if (sectionm.count(sectname) == 0)
-        continue;
-      sectionm[sectname].strlist.clear();
-      sectionm[sectname].linenum.clear();
-      sectionm[sectname].filenum.clear();
-      //       // also add clear command to section
-      //       sectionm[sectname].strlist.push_back(str);
-      //       sectionm[sectname].linenum.push_back(linenum);
-      //       sectionm[sectname].filenum.push_back(activefile);
-
+      std::map<std::string,SetupSection>::iterator its = sectionm.find(sectname);
+      if (its != sectionm.end())
+        its->second.clear();
     } else {
       /*
        Add string to section.
@@ -495,9 +497,8 @@ bool SetupParser::parseFile(const std::string& filename, // name of file
         splitKeyValue(str, key, value);
         if (not value.empty()) {
           // Redefinitions are ignored
-          if (substitutions.count(miutil::to_upper(key)) == 0 ) {
-            substitutions[miutil::to_upper(key)] = value;
-          }
+          const std::string key_up = miutil::to_upper(key);
+          substitutions.insert(std::make_pair(key_up, value)); // map.insert does not overwrite!
         } else {
           METLIBS_LOG_WARN("setupfile line " << linenum << " in file "
               << filename
@@ -546,12 +547,12 @@ bool SetupParser::parseFile(const std::string& mainfilename)
   substitutions.clear();
 
   // add user variables
-  if (user_variables.size() > 0) {
+  if (!user_variables.empty()) {
      METLIBS_LOG_INFO("adding user variables:");
-     string_string_m::iterator itr = user_variables.begin();
-     for (; itr != user_variables.end(); itr++) {
-       METLIBS_LOG_INFO("'" << itr->first << "' = '" << itr->second << "'");
-       substitutions[miutil::to_upper(itr->first)] = itr->second;
+     for (string_string_m::iterator itr = user_variables.begin(); itr != user_variables.end(); itr++) {
+       const std::string key_up = miutil::to_upper(itr->first);
+       METLIBS_LOG_INFO("'" << key_up << "' = '" << itr->second << "'");
+       substitutions[key_up] = itr->second; // overrides user variable "Hei" with "heI"
      }
    }
 
