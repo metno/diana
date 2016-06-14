@@ -1042,7 +1042,7 @@ DiGLPainter::GLboolean DiPaintGLPainter::IsEnabled(GLenum cap)
 void DiPaintGLPainter::LineStipple(GLint factor, GLushort pattern)
 {
   QVector<qreal> dashes;
-  if (pattern = 0xAAAA || pattern == 0x5555) {
+  if (pattern == 0xAAAA || pattern == 0x5555) {
     // alternating bits -- these two patterns seem to produce bad
     // PostScript, we replace them
     pattern = 0x3333;
