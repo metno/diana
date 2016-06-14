@@ -1060,6 +1060,32 @@ QString EditItemManager::plotElementTag() const
   return "EDITDRAWING";
 }
 
+namespace /* anonymous */ {
+
+QPointF getItemJoinPoint(DrawingItemBase *item)
+{
+  if (item->joinId() < 0)
+    return item->getPoints().first();
+  else
+    return item->getPoints().last();
+}
+
+void moveItemPoint(DrawingItemBase *item, const QPointF& joinPoint)
+{
+  if (EditItemBase* ei = Editing(item))
+    ei->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+  else
+    METLIBS_LOG_WARN("item is not derived from EditItemBase");
+}
+
+void moveItemsPoint(const QList<DrawingItemBase*>& items, const QPointF& joinPoint)
+{
+  Q_FOREACH (DrawingItemBase *item, items)
+      moveItemPoint(item, joinPoint);
+}
+
+} // anonymous namespace
+
 // Updates joins by:
 // - updating the join count of joined items, and
 // - ensuring that joined end points coincide (skipped if \a updateJoinCountsOnly is true).
@@ -1092,13 +1118,12 @@ void EditItemManager::updateJoins(bool updateJoinCountsOnly)
       QPointF joinPoint(QPolygonF(points).boundingRect().center()); // use center of bounding rect by default
       foreach (DrawingItemBase *item, join)
         if (Editing(item)->hoverPos() != QPoint(-1, -1)) { // use end point of hovered item instead
-          joinPoint = (item->joinId() < 0) ? item->getPoints().first() : item->getPoints().last();
+          joinPoint = getItemJoinPoint(item);
           break;
         }
 
       // move joined end points to join point
-      foreach (DrawingItemBase *item, join)
-        Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+      moveItemsPoint(join, joinPoint);
     }
   }
 }
@@ -1129,23 +1154,19 @@ void EditItemManager::adjustSelectedJoinPoints()
   const int hitJoinId = !hitItem_ ? 0 : hitItem_->joinId();
 
   // loop over joins involving at least one selected item
-  foreach (int absJoinId, selJoins.keys()) {
+  Q_FOREACH (int absJoinId, selJoins.keys()) {
     if (absJoinId == qAbs(hitJoinId)) { // the hit item is part of this join
       // move the joined end points in this join to the joined end point of the hit item
-      const QPointF joinPoint = (hitJoinId < 0) ? hitItem_->getPoints().first() : hitItem_->getPoints().last();
-      foreach (DrawingItemBase *item, selJoins.value(absJoinId))
-        Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
-      if (unselJoins.contains(absJoinId)) {
-        foreach (DrawingItemBase *item, unselJoins.value(absJoinId))
-          Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
-      }
+      const QPointF joinPoint = getItemJoinPoint(hitItem_);
+      moveItemsPoint(selJoins.value(absJoinId), joinPoint);
+      if (unselJoins.contains(absJoinId))
+        moveItemsPoint(unselJoins.value(absJoinId), joinPoint);
     } else { // the hit item is not part of this join
       // move the joined end points of the unselected items in this join to the joined end point of an arbitrary selected item
-      DrawingItemBase *firstSelItem = selJoins.value(absJoinId).first();
-      const QPointF joinPoint = (firstSelItem->joinId() < 0) ? firstSelItem->getPoints().first() : firstSelItem->getPoints().last();
       if (unselJoins.contains(absJoinId)) {
-        foreach (DrawingItemBase *item, unselJoins.value(absJoinId))
-          Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+        DrawingItemBase *firstSelItem = selJoins.value(absJoinId).first();
+        const QPointF joinPoint = getItemJoinPoint(firstSelItem);
+        moveItemsPoint(unselJoins.value(absJoinId), joinPoint);
       }
     }
   }
