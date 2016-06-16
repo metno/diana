@@ -204,7 +204,7 @@ private Q_SLOTS:
   void paintOnPrinter(QPrinter* printer);
   void saveraster();
   void saveRasterImage(const QString& filename);
-  void paintOnDevice(QPaintDevice* device);
+  void paintOnDevice(QPaintDevice* device, bool printing);
   void emailPicture();
   void saveAnimation();
   void TimeSliderMoved();

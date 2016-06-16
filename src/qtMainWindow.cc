@@ -2724,6 +2724,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
   QPrinter* printer = 0;
   QImage* image = 0;
   std::auto_ptr<QPaintDevice> device;
+  bool printing = false;
   if (filename.endsWith(".pdf")) {
     printer = new QPrinter(QPrinter::ScreenResolution);
     printer->setOutputFormat(QPrinter::PdfFormat);
@@ -2736,6 +2737,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     // play well together. Always use portrait.
     printer->setOrientation(QPrinter::Portrait);
 
+    printing = true;
     device.reset(printer);
   } else if (filename.endsWith(".svg")) {
     QSvgGenerator* generator = new QSvgGenerator();
@@ -2752,6 +2754,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     QPrinter sprinter;
     generator->setResolution(sprinter.resolution());
 
+    printing = true;
     device.reset(generator);
   } else {
     image = new QImage(w->size(), QImage::Format_ARGB32_Premultiplied);
@@ -2759,20 +2762,20 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     device.reset(image);
   }
 
-  paintOnDevice(device.get());
+  paintOnDevice(device.get(), printing);
 
   if (image)
     image->save(filename);
 }
 
-void DianaMainWindow::paintOnDevice(QPaintDevice* device)
+void DianaMainWindow::paintOnDevice(QPaintDevice* device, bool printing)
 {
   METLIBS_LOG_SCOPE();
   DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
 
   std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
   glcanvas->parseFontSetup();
-  glcanvas->setPrinting(true);
+  glcanvas->setPrinting(printing);
   std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
   glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
@@ -2951,7 +2954,7 @@ void DianaMainWindow::hardcopy()
     return;
 
   diutil::OverrideCursor waitCursor;
-  paintOnDevice(&printer);
+  paintOnDevice(&printer, true);
   d_print::toPrintOption(printer, priop);
 }
 
@@ -2968,7 +2971,7 @@ void DianaMainWindow::previewHardcopy()
 
 void DianaMainWindow::paintOnPrinter(QPrinter* printer)
 {
-  paintOnDevice(printer);
+  paintOnDevice(printer, true);
 }
 
 
