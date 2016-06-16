@@ -41,7 +41,7 @@
 #include "vcross_v2/VcrossEvaluate.h"
 #include "vcross_v2/VcrossComputer.h"
 
-#include <cstdio>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <boost/foreach.hpp>
@@ -80,25 +80,22 @@ VprofData::~VprofData()
 void VprofData::readStationNames(const std::string& stationsfilename)
 {
   METLIBS_LOG_SCOPE();
-  FILE *stationfile;
-  char line[1024];
-
-  if ((stationfile = fopen(stationsfilename.c_str(), "rb")) == NULL) {
-    METLIBS_LOG_ERROR("Unable to open file! " << stationsfilename);
+  std::ifstream stationfile(stationsfilename.c_str());
+  if (!stationfile) {
+    METLIBS_LOG_ERROR("Unable to open file '" << stationsfilename << "'");
     return;
   }
 
   vector<std::string> stationVector;
   vector<station> stations;
-  std::string miLine;
-  while (fgets(line, 1024, stationfile) != NULL) {
-    miLine = std::string(line);
+  std::string line;
+  while (std::getline(stationfile, line)) {
     // just skip the first line if present.
-    if (miutil::contains(miLine, "obssource"))
+    if (miutil::contains(line, "obssource"))
       continue;
-    if (miutil::contains(miLine, ";")) {
+    if (miutil::contains(line, ";")) {
       // the new format
-      stationVector = miutil::split(miLine, ";", false);
+      stationVector = miutil::split(line, ";", false);
       if (stationVector.size() == 7) {
         station st;
         st.name = stationVector[2];
@@ -113,12 +110,12 @@ void VprofData::readStationNames(const std::string& stationsfilename)
           st.lon = miutil::to_double(stationVector[3]);
           stations.push_back(st);
         } else {
-          METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
+          METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
         }
       }
     } else {
       // the old format
-      stationVector = miutil::split(miLine, ",", false);
+      stationVector = miutil::split(line, ",", false);
       if (stationVector.size() == 7) {
         station st;
         st.name = stationVector[1];
@@ -126,7 +123,7 @@ void VprofData::readStationNames(const std::string& stationsfilename)
         st.lon = miutil::to_double(stationVector[3]);
         stations.push_back(st);
       } else {
-        METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
+        METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
       }
     }
   }
