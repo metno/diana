@@ -139,7 +139,7 @@ bool ObsBufr::init(const std::string& bufr_file, Format format)
   bool ok = true, next = true;
   while (next) { // get the next BUFR product
     long buf_len = sizeof(ibuff);
-    const long iret = readbufr(file_bufr, (char*)ibuff, &buf_len);
+    const int iret = readbufr(file_bufr, (char*)ibuff, &buf_len);
 
     if (iret != 0) {
       if (iret == -1) {
@@ -151,7 +151,7 @@ bool ObsBufr::init(const std::string& bufr_file, Format format)
         else if (iret == -3)
           METLIBS_LOG_ERROR("array too small");
         else
-          METLIBS_LOG_ERROR("other error");
+          METLIBS_LOG_ERROR("other error: 0x" << std::hex << iret);
       }
       break;
     }
