@@ -1,3 +1,14 @@
+diana-3.40 (3.40.1-1) unstable; urgency=low
+
+  * bugfix: split obsplot options at most once on '='
+  * bugfix: line width > 1 when saving to image
+  * VprofData: replace fopen with ifstream
+  * bugfix emos on xenial
+  * bugfix miSetupParser
+  * bugfix PaintGL line stipple
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 20 Jun 2016 14:56:00 +0200
+
 diana-3.40 (3.40.0-2) unstable; urgency=low
 
    * build-depend on pkg-config in debian_bdiana/control
