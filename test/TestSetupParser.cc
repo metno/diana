@@ -70,3 +70,27 @@ TEST(miSetupParserTest, splitKeyValue1)
   EXPECT_EQ("key", k);
   EXPECT_EQ("true", v);
 }
+
+TEST(miSetupParserTest, substitute)
+{
+  SetupParser::destroy();
+  SetupParser::replaceUserVariables("VERY_LONG_SUBSTITUTION_NAME", "long");
+  SetupParser::replaceUserVariables("BAD", "good");
+  SetupParser::parse("no such file, as expected"); // only way to load user substitutions
+
+  {
+    std::string in_out = "this end is ${BAD}";
+    EXPECT_TRUE(SetupParser::instance()->checkEnvironment(in_out));
+    EXPECT_EQ("this end is good", in_out);
+  }
+  {
+    std::string in_out = "${BAD} start";
+    EXPECT_TRUE(SetupParser::instance()->checkEnvironment(in_out));
+    EXPECT_EQ("good start", in_out);
+  }
+  {
+    std::string in_out = "/${VERY_LONG_SUBSTITUTION_NAME}/is/${BAD}";
+    EXPECT_TRUE(SetupParser::instance()->checkEnvironment(in_out));
+    EXPECT_EQ("/long/is/good", in_out);
+  }
+}

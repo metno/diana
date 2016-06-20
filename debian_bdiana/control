@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 9),
- autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2),
+ autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2), pkg-config,
  qt4-qmake-headless, libqt4-headless-dev, perl,
  metlibs-putools-dev (>= 5.1.5), metlibs-milogger-dev (>= 5.0.3),
  metlibs-pudatatypes-dev (>= 5.0.2),

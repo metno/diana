@@ -531,7 +531,7 @@ opts_t obsplotoptions(const std::string& infostr)
   vector<std::string> tokens = miutil::split_protected(infostr, '"', '"');
   int n = tokens.size();
   for (int i = 0; i < n; i++) {
-    vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
+    vector<std::string> stokens = miutil::split(tokens[i], 1, "=");
     if (stokens.size() > 1) {
       const std::string key = miutil::to_lower(stokens[0]);
       const std::string value = stokens[1];

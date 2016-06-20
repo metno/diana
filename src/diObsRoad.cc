@@ -1037,13 +1037,14 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 	  {
 		  if ((*params)[k].isMapped(raw_data[i]))
 		  {
-			  tmpresult[raw_data[i].altitudefrom] = raw_data[i];
+			  // Data must be keyed with pressure
+        if (raw_data[i].srid - 1000 == 4)
+          tmpresult[raw_data[i].altitudefrom] = raw_data[i];
 		  }
 	  }
-      if (tmpresult.size() != 0)
+    if (tmpresult.size() != 0)
 	  {
-		data_map[(*params)[k].diananame()] = tmpresult;
-		//METLIBS_LOG_DEBUG("Parameter: " << (*params)[k].diananame());
+      data_map[(*params)[k].diananame()] = tmpresult;
 	  }
   }
   /* data is now sorted */
@@ -1059,7 +1060,10 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itdd = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itff = data_map.begin();
   /* Siginifcant wind levels */
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_1 = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_4 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_5 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_6 = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_7 = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_12 = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_13 = data_map.begin();
@@ -1176,12 +1180,14 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 
   /* Significant vind levels */
   /* These may be or may be not in telegram */
+  itsig_1 = data_map.find("sig_1");
   itsig_4 = data_map.find("sig_4");
   itsig_7 = data_map.find("sig_7");
   itsig_12 = data_map.find("sig_12");
   itsig_13 = data_map.find("sig_13");
   itsig_14 = data_map.find("sig_14");
   /* allocate temporary maps */
+  map<float, RDKCOMBINEDROW_2 > sig_1;
   map<float, RDKCOMBINEDROW_2 > sig_4;
   map<float, RDKCOMBINEDROW_2 > sig_7;
   map<float, RDKCOMBINEDROW_2 > sig_12;
@@ -1189,16 +1195,18 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   map<float, RDKCOMBINEDROW_2 > sig_14;
 
   /* fill them with data if data present */
+  if (itsig_1 != data_map.end())
+    sig_1 = itsig_1->second;
   if (itsig_4 != data_map.end())
-	sig_4 = itsig_4->second;
+    sig_4 = itsig_4->second;
   if (itsig_7 != data_map.end())
-	sig_7 = itsig_7->second;
+    sig_7 = itsig_7->second;
   if (itsig_12 != data_map.end())
-	sig_12 = itsig_12->second;
+    sig_12 = itsig_12->second;
   if (itsig_13 != data_map.end())
-	sig_13 = itsig_13->second;
+    sig_13 = itsig_13->second;
   if (itsig_14 != data_map.end())
-	sig_14 = itsig_14->second;
+    sig_14 = itsig_14->second;
 
 
   float p,tt,td,fff,ddd;
@@ -1231,14 +1239,15 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 	  // insert altitudefrom in the set
       keys.insert(ittp->second.altitudefrom);
   }
-  int siglevels = sig_4.size() + sig_7.size() + sig_12.size() + sig_13.size() + sig_14.size();
+  int siglevels = sig_1.size() + sig_4.size() + sig_7.size() + sig_12.size() + sig_13.size() + sig_14.size();
   // Iterate over the sorted set */
   int d = 0;
   std::set<float>::iterator it=keys.begin();
   for (; it != keys.end(); it++)
   {
 	  float key = *it;
-	  p= key * 0.01;
+    p = key *0.01;
+	  //p= ittp->second[key].floatvalue * 0.01;
 	  // check with ground level pressure !
 	  if ((p > PPPPs_value) && (PPPPs_value != -32767.0))
 		  continue;
@@ -1250,8 +1259,12 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 		  }
 		  else
 		  {
-			tt= ittt->second[key].floatvalue;
-			td= ittd->second[key].floatvalue;
+        tt = -30000.;
+        if (ittt->second.count(key))
+          tt= ittt->second[key].floatvalue;
+        td = -30000.;
+        if (ittd->second.count(key))
+          td= ittd->second[key].floatvalue;
 		  }
 		  if (tt>-30000.) {
 			  vp->ptt.push_back(p);
@@ -1271,8 +1284,12 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 		  }
 		  else
 		  {
-			  dd= int(itdd->second[key].floatvalue);
-			  ff= int(itff->second[key].floatvalue);
+			  dd = -1;
+        if (itdd->second.count(key))
+          dd= int(itdd->second[key].floatvalue);
+			  ff = -1;
+        if (itff->second.count(key))
+          ff= int(itff->second[key].floatvalue);
 		  }
 		  /* Wind should always be plotted in knots,
 		  convert from m/s as they are stored in road */
@@ -1281,31 +1298,11 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 			  // Only plot the significant winds
 			  bpart = 0;
 			  // SHOULD it always be 1 ?
-			  if (sig_4.count(key) != 0)
-			  {
-				  bpart = 1;
-			  }
-			  else if (sig_7.count(key) != 0)
-			  {
-				  bpart = 1;
-			  }
-			  else if (sig_12.count(key) != 0)
-			  {
-				  bpart = 1;
-			  }
-			  else if (sig_13.count(key) != 0)
-			  {
-				  bpart = 1;
-			  }
-			  else if (sig_14.count(key) != 0)
-			  {
-				  bpart = 1;
-			  }
-			  // reduce wind plots only if there are some siglevels!
-			  if (siglevels > 5)
-			  {
-				  if (bpart > 0)
-				  {
+        if (sig_1.count(key) || sig_4.count(key) || sig_7.count(key) || sig_12.count(key) || sig_13.count(key) || sig_14.count(key))
+          bpart = 1;
+			  // Plot winds at significant levels and at standard pressure levels.
+				if (bpart > 0 || p == 1000 || p == 925 || p == 850 || p == 800 || p == 700 || p == 500 || p == 400 || p == 300 || p == 200 || p == 100 || p == 50)
+				{
 					  vp->sigwind.push_back(bpart);
 					  vp->puv.push_back(p);
 					  vp->dd.push_back(dd);
@@ -1315,44 +1312,11 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 					  ddd= (float(dd)+90.)*DEG_TO_RAD;
 					  vp->uu.push_back( fff*cosf(ddd));
 					  vp->vv.push_back(-fff*sinf(ddd));
-					  // check B-part flag (significant level)
-					  /*bpart= (contents[n].data.flags1[k] >> 14) & 1;
-					  vp->sigwind.push_back(bpart);
-					  if (ff>ffmax) {
-					  ffmax= ff;
-					  kmax= vp->sigwind.size() - 1;
-					  }*/
 
 					  if (ff>ffmax) {
 						  ffmax= ff;
 						  kmax = vp->sigwind.size() - 1;
 					  }
-				  }
-			  }
-			  else
-			  {
-				  // plot all the winds!
-				  vp->sigwind.push_back(bpart);
-				  vp->puv.push_back(p);
-				  vp->dd.push_back(dd);
-				  vp->ff.push_back(ff);
-				  // convert to east/west and north/south component
-				  fff= float(ff);
-				  ddd= (float(dd)+90.)*DEG_TO_RAD;
-				  vp->uu.push_back( fff*cosf(ddd));
-				  vp->vv.push_back(-fff*sinf(ddd));
-				  // check B-part flag (significant level)
-				  /*bpart= (contents[n].data.flags1[k] >> 14) & 1;
-				  vp->sigwind.push_back(bpart);
-				  if (ff>ffmax) {
-				  ffmax= ff;
-				  kmax= vp->sigwind.size() - 1;
-				  }*/
-
-				  if (ff>ffmax) {
-					  ffmax= ff;
-					  kmax = vp->sigwind.size() - 1;
-				  }
 			  }
 		  }
 	  }

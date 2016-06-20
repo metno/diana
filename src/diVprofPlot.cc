@@ -219,7 +219,7 @@ bool VprofPlot::plot(DiGLPainter* gl, VprofOptions *vpopt, int nplot)
       float ylim2= xysize[4][3]-dchy*0.5;
       int k1= -1;
       int k2= -1;
-      const size_t nlevel = maxLevels;
+      const size_t nlevel = std::min(maxLevels, std::min(dd.size(), ff.size()));;
       for (unsigned int k=0; k<nlevel; k++) {
         if (yy[k]>ylim1 && yy[k]<ylim2) {
           if (k1==-1) k1= k;
