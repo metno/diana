@@ -2953,6 +2953,9 @@ int diana_init(int _argc, char** _argv)
     printUsage(false);
   }
 
+  SetupParser::replaceUserVariables("PVERSION", PVERSION);
+  SetupParser::replaceUserVariables("SYSCONFDIR", SYSCONFDIR);
+
   vector<std::string> ks;
   int ac = 1;
   while (ac < argc) {
