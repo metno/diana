@@ -37,6 +37,10 @@
 #include "diObsBufr.h"
 #endif // BUFROBS
 
+#ifdef ROADOBS
+#include "diObsRoad.h"
+#endif // ROADOBS
+
 #include "diLocalSetupParser.h"
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
@@ -84,6 +88,65 @@ VprofData::~VprofData()
   METLIBS_LOG_SCOPE();
 }
 
+bool VprofData::readRoadObs(const std::string& databasefile, const std::string& parameterfile)
+{
+  METLIBS_LOG_SCOPE();
+#ifdef ROADOBS
+  format = roadobs;
+  db_parameterfile = parameterfile;
+  db_connectfile = databasefile;
+  validTime.clear();
+  // Due to the fact that we have a database insteda of an archive,
+  // we must fake the behavoir of anarchive
+  // Assume that all stations report every hour
+  // first, get the current time.
+  //
+  // We assume that tempograms are made 00Z, 06Z, 12Z and 18Z.
+  miTime now = miTime::nowTime();
+  miClock nowClock = now.clock();
+  miDate nowDate = now.date();
+  nowClock.setClock(nowClock.hour(),0,0);
+  now.setTime(nowDate, nowClock);
+  /* TBD: read from setup file */
+  int daysback = 4;
+  miTime starttime = now;
+  if (now.hour()%6 != 0) {
+    /* Adjust start hour */
+    switch (now.hour()) {
+        case  1: case  7: case 13: case 19: now.addHour(-1); break;
+        case  2: case  8: case 14: case 20: now.addHour(-2); break;
+        case  3: case  9: case 15: case 21: now.addHour(-3); break;
+        case  4: case 10: case 16: case 22: now.addHour(-4); break;
+        case  5: case 11: case 17: case 23: now.addHour(-5); break;
+    }
+  }
+  try {
+    // Dummy filename
+    std::string filename;
+    // read stationlist and init the api.
+    ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,starttime,NULL,false);
+    
+  } catch (...) {
+      METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << starttime);
+      return false;
+  }
+  
+  starttime.addDay(-daysback);
+  int hourdiff;
+  miTime time = now;
+  METLIBS_LOG_DEBUG(LOGVAL(time));
+  validTime.push_back(time);
+  time.addHour(-6);
+  while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
+    METLIBS_LOG_DEBUG(LOGVAL(time));
+    validTime.push_back(time);    
+    time.addHour(-6);
+  }
+      
+#endif // ROADOBS
+  return true;
+}
+
 bool VprofData::readBufr(const std::string& modelname, const std::string& pattern_)
 {
   METLIBS_LOG_SCOPE();
@@ -118,7 +181,7 @@ bool VprofData::readBufr(const std::string& modelname, const std::string& patter
 
 }
 
-bool VprofData:: setBufr(const miutil::miTime& plotTime)
+bool VprofData::setBufr(const miutil::miTime& plotTime)
 {
   currentFiles.clear();
 
@@ -139,6 +202,34 @@ bool VprofData:: setBufr(const miutil::miTime& plotTime)
       break;
     }
   }
+#endif
+
+  return true;
+}
+
+bool VprofData::setRoadObs(const miutil::miTime& plotTime)
+{
+
+#ifdef ROADOBS
+  vector<stationInfo> stations;
+  try {
+    // Dummy filename
+    std::string filename;
+    // read stationlist and init the api.
+    // does nothing if already done
+    ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,plotTime,NULL,false);
+    road.getStationList(stations);
+    
+  } catch (...) {
+      METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << plotTime);
+      return false;
+  }
+  for (size_t i = 0; i < stations.size(); i++) {
+    posName.push_back(stations[i].name);
+    posLatitude.push_back(stations[i].lat);
+    posLongitude.push_back(stations[i].lon);
+  }
+  
 #endif
 
   return true;
@@ -212,6 +303,9 @@ bool VprofData::updateStationList(const miutil::miTime& plotTime)
 {
   if (format == fimex) {
     return std::find(validTime.begin(), validTime.end(), plotTime) != validTime.end();
+  } else if (format == roadobs) {
+    setRoadObs(plotTime);
+    return !posName.empty();
   } else {
     setBufr(plotTime);
     return !posName.empty();
@@ -244,6 +338,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(posName.size()));
 
   if (format == bufr) {
+#ifdef BUFROBS
     std::string name_=name;
     if (stationMap.count(name)) {
       name_ = stationMap[name];
@@ -252,6 +347,28 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     std::string modelName;
     std::auto_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_, time));
     return vp.release();
+#else
+    return 0;
+#endif
+  }
+  
+  if (format == roadobs) {
+#ifdef ROADOBS
+    try {
+      // Dummy filename
+      std::string filename;
+      // read stationlist and init the api.
+      // does nothing if already done
+      ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,time,NULL,false);
+      std::auto_ptr<VprofPlot> vp(road.getVprofPlot(modelName, name, time));
+      return vp.release();
+    } catch (...) {
+      METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << time);
+      return 0;
+    }
+#else
+    return 0;
+#endif
   }
 
   if (format == fimex) {
@@ -397,7 +514,7 @@ void VprofData::readStationNames(const std::string& stationsfilename)
   }
 
   vector<std::string> stationVector;
-  vector<station> stations;
+  vector<stationInfo> stations;
   std::string line;
   while (std::getline(stationfile, line)) {
     // just skip the first line if present.
@@ -407,14 +524,14 @@ void VprofData::readStationNames(const std::string& stationsfilename)
       // the new format
       stationVector = miutil::split(line, ";", false);
       if (stationVector.size() == 7) {
-        station st;
+        stationInfo st;
         st.name = stationVector[2];
         st.lat = miutil::to_double(stationVector[3]);
         st.lon = miutil::to_double(stationVector[4]);
         stations.push_back(st);
       } else {
         if (stationVector.size() == 6) {
-          station st;
+          stationInfo st;
           st.name = stationVector[1];
           st.lat = miutil::to_double(stationVector[2]);
           st.lon = miutil::to_double(stationVector[3]);
@@ -427,7 +544,7 @@ void VprofData::readStationNames(const std::string& stationsfilename)
       // the old format
       stationVector = miutil::split(line, ",", false);
       if (stationVector.size() == 7) {
-        station st;
+        stationInfo st;
         st.name = stationVector[1];
         st.lat = miutil::to_double(stationVector[2]);
         st.lon = miutil::to_double(stationVector[3]);

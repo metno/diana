@@ -38,6 +38,7 @@
 #include "diObsData.h"
 #include "diObsMetaData.h"
 #include "diVprofPlot.h"
+#include "diCommonTypes.h"
 #include <puTools/miTime.h>
 
 #include <map>
@@ -139,6 +140,8 @@ public:
   VprofPlot* getVprofPlot(const std::string& modelName,
 	     const std::string& station,
 			 const miutil::miTime& time);
+       
+  void getStationList(vector<stationInfo> & stations);
 };
 #endif // ROADOBS
 #endif // diObsRoad_h

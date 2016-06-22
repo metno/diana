@@ -33,6 +33,7 @@
 
 #include <puTools/miTime.h>
 #include "vcross_v2/VcrossCollector.h"
+#include "diCommonTypes.h"
 #include <vector>
 
 /**
@@ -47,6 +48,7 @@ public:
   VprofData(const std::string& modelname,
       const std::string& stationsfilename="");
   ~VprofData();
+  bool readRoadObs(const std::string& databasefile, const std::string& parameterfile);
   bool readBufr(const std::string& modelname, const std::string& pattern);
   bool readFimex(vcross::Setup_p setup, const std::string& reftime );
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
@@ -70,6 +72,7 @@ public:
 
 private:
   bool setBufr(const miutil::miTime& plotTime);
+  bool setRoadObs(const miutil::miTime& plotTime);
   void readStationNames(const std::string& stationsfilename);
   void renameStations();
   void readStationList();
@@ -82,18 +85,14 @@ private:
 
   std::string modelName;
   std::string stationsFileName;
+  std::string db_parameterfile;
+  std::string db_connectfile;
   FileFormat format;
 
   int numPos;
   int numTime;
   int numParam;
   int numLevel;
-
-  struct station {
-    std::string name; /**< name */
-    float lat; /**< latitude */
-    float lon; /**< longitude */
-  };
 
   std::vector<std::string> posName;
   std::vector<float>    posLatitude;

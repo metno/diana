@@ -43,17 +43,6 @@
 #include "diField/VcrossUtil.h"
 #include <puTools/TimeFilter.h>
 
-
-#ifdef ROADOBS
-#include "diObsRoad.h"
-#ifdef NEWARK_INC
-#include <newarkAPI/diStation.h>
-#include <newarkAPI/diRoaddata.h>
-#else
-#include <roadAPI/diStation.h>
-#endif // !NEWARK_INC
-#endif // ROADOBS
-
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
@@ -68,13 +57,6 @@
 
 #define MILOGGER_CATEGORY "diana.VprofManager"
 #include <miLogger/miLogging.h>
-
-#ifdef ROADOBS
-using namespace road;
-#define IF_ROADOBS(x) x
-#else
-#define IF_ROADOBS(x)
-#endif
 
 using namespace std;
 using miutil::miTime;
@@ -130,6 +112,8 @@ void VprofManager::parseSetup()
   filenames.clear();
   stationsfilenames.clear();
   filetypes.clear();
+  db_parameters.clear();
+  db_connects.clear();
   dialogModelNames.clear();
   dialogFileNames.clear();
 
@@ -144,7 +128,7 @@ void VprofManager::parseSetup()
   for (size_t i=0; i<vstr.size(); i++) {
   METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
     std::vector<std::string> tokens = miutil::split(vstr[i]);
-    std::string filetype="standard", fileformat, fileconfig, model, filename, stationsfilename;
+    std::string filetype="standard", fileformat, fileconfig, model, filename, stationsfilename, db_parameterfile, db_connectfile;
     miutil::TimeFilter tf;
 
     //obsolete
@@ -173,9 +157,13 @@ void VprofManager::parseSetup()
         stationsfilename = tokens1[1];
       } else if (tokens1_0_lc == "t") {
         filetype = tokens1[1];
+      } else if (tokens1_0_lc == "p") {
+        db_parameterfile = tokens1[1];
+      } else if (tokens1_0_lc == "d") {
+        db_connectfile = tokens1[1];
       }
     }
-    if (filetype == "netcdf"){
+    if (filetype == "netcdf" || filetype == "grbml"){
       METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
       sources.push_back(vstr[i]);
     }
@@ -183,6 +171,8 @@ void VprofManager::parseSetup()
     filenames[model]= filename;
     stationsfilenames[model]= stationsfilename;
     filetypes[model] = filetype;
+    db_parameters[model] = db_parameterfile;
+    db_connects[model] = db_connectfile;
     dialogModelNames.push_back(model);
     dialogFileNames.push_back(filename);
   }
@@ -409,7 +399,7 @@ std::vector <std::string> VprofManager::getReferencetimes(const std::string mode
   METLIBS_LOG_SCOPE(LOGVAL(modelName));
   std::vector <std::string> rf;
 
-  if ( filetypes[modelName] == "netcdf" ) {
+  if ( filetypes[modelName] == "netcdf" || filetypes[modelName] == "grbml") {
 
     vcross::Collector_p collector = miutil::make_shared<vcross::Collector>(setup);
 
@@ -459,6 +449,8 @@ bool VprofManager::initVprofData(const SelectedModel& selectedModel)
   bool ok = false;
   if (filetypes[model_part] == "bufr"){
     ok = vpd->readBufr(selectedModel.model, filenames[selectedModel.model]);
+  } else if (filetypes[model_part] == "roadobs"){
+    ok = vpd->readRoadObs(db_connects[selectedModel.model], db_parameters[selectedModel.model]);
   } else {
     ok = vpd->readFimex(setup,selectedModel.reftime);
   }
