@@ -61,6 +61,15 @@ static inline int rounded_div(float value, float unit)
         return i;
 }
 
+inline bool skip_level_below0(const PlotOptions& po)
+{
+  return po.zeroLine==0 || !po.linevalues.empty() || !po.loglinevalues.empty();
+}
+
+inline bool skip_level_above0(const PlotOptions& po)
+{
+  return po.zeroLine==0 && po.linevalues.empty() && po.loglinevalues.empty();
+}
 
 class DianaArrayIndex {
 public:
@@ -349,8 +358,8 @@ void DianaLines::paint_polygons()
   const int ncolours_cold = po.palettecolours_cold.size();
   const int npatterns = po.patterns.size();
   const bool no_fill = (mPaintMode & FILL) == 0;
-  const bool skip_level_0 = po.zeroLine==0 || !po.linevalues.empty() || !po.loglinevalues.empty();
-  const bool skip_level_1 = po.zeroLine==0 && po.linevalues.empty() && po.loglinevalues.empty();
+  const bool skip_level_0 = skip_level_below0(po);
+  const bool skip_level_1 = skip_level_above0(po);
   const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || po.undefMasking != 1;
   const contouring::level_t level_min = mLevels.level_for_value(po.minvalue),
       level_max = mLevels.level_for_value(po.maxvalue);
@@ -419,7 +428,7 @@ void DianaLines::paint_lines()
   const PlotOptions& po = mPlotOptions;
   const bool no_lines = (mPaintMode & LINES_LABELS) == 0;
   const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || !po.undefMasking;
-  const bool skip_level_0 = po.zeroLine==0 && !po.linevalues.empty() && !po.loglinevalues.empty();
+  const bool skip_level_0 = skip_level_above0(po);
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
     const contouring::level_t li = it->first;
     if (li == DianaLevels::UNDEF_LEVEL) {
@@ -437,9 +446,10 @@ void DianaLines::paint_lines()
 
 void DianaLines::paint_labels()
 {
+  const bool skip_level_0 = skip_level_above0(mPlotOptions);
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
     const contouring::level_t li = it->first;
-    if (li == DianaLevels::UNDEF_LEVEL || (mPlotOptions.zeroLine==0 and li == 0))
+    if (li == DianaLevels::UNDEF_LEVEL || (skip_level_0 && li == 0))
       continue;
     setLineForLevel(li);
     for (point_vv::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
