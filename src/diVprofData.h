@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diVprofData.h 4551 2014-10-21 13:10:06Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2016 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -35,12 +33,13 @@
 
 #include <puTools/miTime.h>
 #include "vcross_v2/VcrossCollector.h"
+#include "diCommonTypes.h"
 #include <vector>
 
 /**
   \brief Vertical Profile (sounding) prognostic data
-  
-   Contains all data and misc information from one file 
+
+   Contains all data and misc information from one file
 */
 class VprofData
 {
@@ -49,31 +48,51 @@ public:
   VprofData(const std::string& modelname,
       const std::string& stationsfilename="");
   ~VprofData();
-  void readStationNames(const std::string& stationsfilename);
-  bool readFile(const std::string& fileName);
+  bool readRoadObs(const std::string& databasefile, const std::string& parameterfile);
+  bool readBufr(const std::string& modelname, const std::string& pattern);
   bool readFimex(vcross::Setup_p setup, const std::string& reftime );
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
-  std::vector<std::string> getNames() { return posName; }
-  std::vector <float> getLatitudes() { return posLatitude; }
-  std::vector <float> getLongitudes() { return posLongitude; }
-  std::vector<miutil::miTime>   getTimes() { return validTime; }
+  bool updateStationList(const miutil::miTime& plotTime);
+
+  const std::vector<std::string>& getNames() const
+    { return posName; }
+  const std::vector<float>& getLatitudes() const
+    { return posLatitude; }
+  const std::vector<float>& getLongitudes() const
+    { return posLongitude; }
+  const std::vector<miutil::miTime>& getTimes() const
+    { return validTime; }
+  const std::string& getModelName() const
+    { return modelName; }
+  const std::vector<std::string>& getFileNames() const
+    { return fileNames; }
+  void readBufrFile(int i, int j, const std::string& model, std::vector<std::string>& namelist,
+      std::vector<float>& latitudelist, std::vector<float>& longitudelist,
+      std::vector<miutil::miTime>& tlist);
 
 private:
+  bool setBufr(const miutil::miTime& plotTime);
+  bool setRoadObs(const miutil::miTime& plotTime);
+  void readStationNames(const std::string& stationsfilename);
+  void renameStations();
+  void readStationList();
+
+  enum FileFormat {
+    fimex,
+    bufr,
+    roadobs
+  };
 
   std::string modelName;
   std::string stationsFileName;
-  bool readFromFimex;
+  std::string db_parameterfile;
+  std::string db_connectfile;
+  FileFormat format;
 
   int numPos;
   int numTime;
   int numParam;
   int numLevel;
-
-  struct station {
-    std::string name; /**< name */
-    float lat; /**< latitude */
-    float lon; /**< longitude */
-  };
 
   std::vector<std::string> posName;
   std::vector<float>    posLatitude;
@@ -84,17 +103,19 @@ private:
   std::auto_ptr<VprofPlot> vProfPlot;
   std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
+  std::vector<std::string> currentFiles;
 
+  std::vector<std::string> fileNames;
 
   vcross::Collector_p collector;
   vcross::string_v fields;
   vcross::Time reftime;
 
-  //to be removed together with readFile
-    std::vector<int>      paramId;
-    std::vector<float>    paramScale;
-  // dataBuffer[numPos][numTime][numParam][numLevel]
-  short int *dataBuffer;
+  bool stationList;
+  std::vector<float>    stationLatitude;
+  std::vector<float>    stationLongitude;
+  std::vector<std::string> stationName;
+  std::map< std::string, std::string > stationMap;
 };
 
 extern const char VP_AIR_TEMPERATURE[];

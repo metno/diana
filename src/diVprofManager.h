@@ -33,7 +33,6 @@
 #include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
-#include <puTools/TimeFilter.h>
 
 #include <vector>
 #include <map>
@@ -54,42 +53,6 @@ class VprofManager{
 
 private:
 
-  enum obsType {
-    temp,
-    amdar,
-    pilot
-  };
-
-  enum FileFormat {
-    metnoobs,
-    bufr,
-    roadobs
-  };
-
-  struct ObsFile {
-    std::string   filename;
-    obsType    obstype;
-    FileFormat fileformat;
-    miutil::miTime     time;
-    long       modificationTime;
-#ifdef ROADOBS
-    std::string parameterfile;
-    std::string stationfile;
-    std::string databasefile;
-#endif
-  };
-
-  struct ObsFilePath {
-    std::string   filepath;
-    obsType    obstype;
-    FileFormat fileformat;
-    miutil::TimeFilter tf;
-#ifdef ROADOBS
-    std::string parameterfile;
-    std::string stationfile;
-    std::string databasefile;
-#endif
-  };
 
   struct SelectedModel{
     std::string model;
@@ -100,78 +63,43 @@ private:
   std::map<std::string,std::string> filenames;
   std::map<std::string,std::string> stationsfilenames;
   std::map<std::string,std::string> filetypes;
+  std::map<std::string,std::string> db_parameters;
+  std::map<std::string,std::string> db_connects;
   std::vector<std::string> computations;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
   std::vector<std::string> dialogFileNames;
-  std::vector<ObsFilePath>   filePaths;
 
   vcross::Setup_p setup;
-
-  std::string amdarStationFile;
-  bool amdarStationList;
-  std::vector<float>    amdarLatitude;
-  std::vector<float>    amdarLongitude;
-  std::vector<std::string> amdarName;
 
   VprofOptions *vpopt;
   VprofDiagram *vpdiag;
   std::vector<VprofData*> vpdata;
-  bool showObs;
-  bool showObsTemp;
-  bool showObsPilot;
-  bool showObsAmdar;
 
   std::vector <std::string> nameList;
   std::vector <float>    latitudeList;
   std::vector <float>    longitudeList;
   std::vector <miutil::miTime>   timeList;
-  std::vector <std::string> obsList;
 
-  std::vector<ObsFile> obsfiles;
-  std::vector<miutil::miTime> obsTime;
-  bool onlyObs;
-
-  std::vector<std::string> fieldModels;
   std::vector<SelectedModel> selectedModels;
-
-  int plotw, ploth;
 
   std::vector<std::string> plotStations;
   std::vector<std::string> selectedStations;
   std::string lastStation;
   miutil::miTime   plotTime;
-  miutil::miTime ztime;
 
   std::map<std::string,std::string> menuConst;
 
+  int plotw, ploth;
   DiCanvas* mCanvas;
 
-  std::string getDefaultModel();
-  void updateObsFileList();
   bool initVprofData(const SelectedModel& selectedModel);
   void initStations();
   void initTimes();
-  void checkObsTime(int hour=-1);
 
-  void renameAmdar(std::vector<std::string>& namelist,
-      std::vector<float>& latitudelist,
-      std::vector<float>& longitudelist,
-      std::vector<std::string>& obslist,
-      std::vector<miutil::miTime>& tlist,
-      std::map<std::string,int>& amdarCount);
-  void readAmdarStationList();
-
-  void readBufrFile(int i, std::vector<std::string>& namelist,
-      std::vector<float>& latitudelist, std::vector<float>& longitudelist,
-      std::vector<miutil::miTime>& tlist);
-  void readRoadFile(int i, std::vector<std::string>& namelist,
-      std::vector<float>& latitudelist, std::vector<float>& longitudelist,
-      std::vector<std::string>& obslist, std::vector<miutil::miTime>& tlist);
 
   void updateSelectedStations();
-  bool plotVpData(DiGLPainter* gl);
 
 public:
   VprofManager();
@@ -215,22 +143,15 @@ public:
   const std::vector<std::string>& getModelFiles()
     { return dialogFileNames; }
   std::vector <std::string> getReferencetimes(const std::string model);
-  void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<std::string>& models, bool obs=false);
+  void setSelectedModels(const std::vector<std::string>& models);
 
   bool plot(DiGLPainter* gl);
-  bool onlyObsState()
-    { return onlyObs; }
   void mainWindowTimeChanged(const miutil::miTime& time);
-  void updateObs();
   std::string getAnnotationString();
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
-  /* Added for debug purposes */
-  void printObsFiles(const ObsFile &of);
-  void printObsFilePath(const ObsFilePath & ofp);
 };
 
 #endif

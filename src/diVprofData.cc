@@ -32,19 +32,34 @@
 #endif
 
 #include "diVprofData.h"
-#include "diFtnVfile.h"
+
+#ifdef BUFROBS
+#include "diObsBufr.h"
+#endif // BUFROBS
+
+#ifdef ROADOBS
+#include "diObsRoad.h"
+#endif // ROADOBS
+
+#include "diLocalSetupParser.h"
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <diField/VcrossData.h>
 #include <diField/VcrossUtil.h>
+#include <puTools/TimeFilter.h>
 
 #include "vcross_v2/VcrossEvaluate.h"
 #include "vcross_v2/VcrossComputer.h"
+#include "diUtilities.h"
+
 
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
+
 #include <boost/foreach.hpp>
+
 
 #define MILOGGER_CATEGORY "diana.VprofData"
 #include <miLogger/miLogging.h>
@@ -60,13 +75,10 @@ const char VP_Y_WIND[]                = "vp_y_wind_ms";
 const char VP_RELATIVE_HUMIDITY[]     = "vp_relative_humidity";
 const char VP_OMEGA[]                 = "vp_omega_pas";
 
-static const float RAD_TO_DEG = 180 / M_PI;
-
 VprofData::VprofData(const std::string& modelname,
     const std::string& stationsfilename) :
         modelName(modelname), stationsFileName(stationsfilename),
-        readFromFimex(false), numPos(0),
-        numTime(0), numParam(0), numLevel(0), dataBuffer(0)
+        numPos(0), numTime(0), numParam(0), numLevel(0), stationList(false)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -74,64 +86,153 @@ VprofData::VprofData(const std::string& modelname,
 VprofData::~VprofData()
 {
   METLIBS_LOG_SCOPE();
-  delete[] dataBuffer;
 }
 
-void VprofData::readStationNames(const std::string& stationsfilename)
+bool VprofData::readRoadObs(const std::string& databasefile, const std::string& parameterfile)
 {
   METLIBS_LOG_SCOPE();
-  std::ifstream stationfile(stationsfilename.c_str());
-  if (!stationfile) {
-    METLIBS_LOG_ERROR("Unable to open file '" << stationsfilename << "'");
-    return;
+#ifdef ROADOBS
+  format = roadobs;
+  db_parameterfile = parameterfile;
+  db_connectfile = databasefile;
+  validTime.clear();
+  // Due to the fact that we have a database insteda of an archive,
+  // we must fake the behavoir of anarchive
+  // Assume that all stations report every hour
+  // first, get the current time.
+  //
+  // We assume that tempograms are made 00Z, 06Z, 12Z and 18Z.
+  miTime now = miTime::nowTime();
+  miClock nowClock = now.clock();
+  miDate nowDate = now.date();
+  nowClock.setClock(nowClock.hour(),0,0);
+  now.setTime(nowDate, nowClock);
+  /* TBD: read from setup file */
+  int daysback = 4;
+  miTime starttime = now;
+  if (now.hour()%6 != 0) {
+    /* Adjust start hour */
+    switch (now.hour()) {
+        case  1: case  7: case 13: case 19: now.addHour(-1); break;
+        case  2: case  8: case 14: case 20: now.addHour(-2); break;
+        case  3: case  9: case 15: case 21: now.addHour(-3); break;
+        case  4: case 10: case 16: case 22: now.addHour(-4); break;
+        case  5: case 11: case 17: case 23: now.addHour(-5); break;
+    }
+  }
+  try {
+    // Dummy filename
+    std::string filename;
+    // read stationlist and init the api.
+    ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,starttime,NULL,false);
+    
+  } catch (...) {
+      METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << starttime);
+      return false;
+  }
+  
+  starttime.addDay(-daysback);
+  int hourdiff;
+  miTime time = now;
+  METLIBS_LOG_DEBUG(LOGVAL(time));
+  validTime.push_back(time);
+  time.addHour(-6);
+  while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
+    METLIBS_LOG_DEBUG(LOGVAL(time));
+    validTime.push_back(time);    
+    time.addHour(-6);
+  }
+      
+#endif // ROADOBS
+  return true;
+}
+
+bool VprofData::readBufr(const std::string& modelname, const std::string& pattern_)
+{
+  METLIBS_LOG_SCOPE();
+#ifdef BUFROBS
+
+  format = bufr;
+  modelName =modelname;
+
+  validTime.clear();
+  fileNames.clear();
+
+  miutil::TimeFilter tf;
+  std::string pattern=pattern_;
+  tf.initFilter(pattern);
+  diutil::string_v matches = diutil::glob(pattern);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    std::string filename = *it;
+    miutil::miTime time;
+    if (!tf.ok() || !tf.getTime(filename, time)) {
+      ObsBufr bufr;
+      METLIBS_LOG_DEBUG("TimeFilter not ok"<<LOGVAL(filename));
+      if (!bufr.ObsTime(filename, time))
+        continue;
+    }
+    METLIBS_LOG_DEBUG(LOGVAL(filename)<<LOGVAL(time));
+    validTime.push_back(time);
+    fileNames.push_back(filename);
   }
 
-  vector<std::string> stationVector;
-  vector<station> stations;
-  std::string line;
-  while (std::getline(stationfile, line)) {
-    // just skip the first line if present.
-    if (miutil::contains(line, "obssource"))
-      continue;
-    if (miutil::contains(line, ";")) {
-      // the new format
-      stationVector = miutil::split(line, ";", false);
-      if (stationVector.size() == 7) {
-        station st;
-        st.name = stationVector[2];
-        st.lat = miutil::to_double(stationVector[3]);
-        st.lon = miutil::to_double(stationVector[4]);
-        stations.push_back(st);
-      } else {
-        if (stationVector.size() == 6) {
-          station st;
-          st.name = stationVector[1];
-          st.lat = miutil::to_double(stationVector[2]);
-          st.lon = miutil::to_double(stationVector[3]);
-          stations.push_back(st);
-        } else {
-          METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
-        }
+#endif
+  return true;
+
+}
+
+bool VprofData::setBufr(const miutil::miTime& plotTime)
+{
+  currentFiles.clear();
+
+#ifdef BUFROBS
+  vector<miTime> tlist;
+
+  int n= validTime.size();
+  for (int j=0; j<n; j++) {
+    if (validTime[j]==plotTime) {
+      ObsBufr bufr;
+      currentFiles.push_back(fileNames[j]);
+      //TODO: include files with time+-timediff, this is just a hack to include files with time = plottime - 1 hour
+      if (j>0 && abs(miTime::minDiff(validTime[j], plotTime)) <= 60) {
+        currentFiles.push_back(fileNames[j-1]);
       }
-    } else {
-      // the old format
-      stationVector = miutil::split(line, ",", false);
-      if (stationVector.size() == 7) {
-        station st;
-        st.name = stationVector[1];
-        st.lat = miutil::to_double(stationVector[2]);
-        st.lon = miutil::to_double(stationVector[3]);
-        stations.push_back(st);
-      } else {
-        METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
-      }
+      bufr.readStationInfo(currentFiles, posName, tlist, posLatitude, posLongitude);
+      renameStations();
+      break;
     }
+  }
+#endif
+
+  return true;
+}
+
+bool VprofData::setRoadObs(const miutil::miTime& plotTime)
+{
+
+#ifdef ROADOBS
+  vector<stationInfo> stations;
+  try {
+    // Dummy filename
+    std::string filename;
+    // read stationlist and init the api.
+    // does nothing if already done
+    ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,plotTime,NULL,false);
+    road.getStationList(stations);
+    
+  } catch (...) {
+      METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << plotTime);
+      return false;
   }
   for (size_t i = 0; i < stations.size(); i++) {
     posName.push_back(stations[i].name);
     posLatitude.push_back(stations[i].lat);
     posLongitude.push_back(stations[i].lon);
   }
+  
+#endif
+
+  return true;
 }
 
 bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
@@ -192,218 +293,23 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   for (size_t i = 0; i < validTime.size(); i++) {
     forecastHour.push_back(miTime::hourDiff(validTime[i],rt));
   }
-  readFromFimex = true;
+  format = fimex;
   vProfPlot.reset(0);
   return true;
 }
 
 
-bool VprofData::readFile( const std::string& fileName)
+bool VprofData::updateStationList(const miutil::miTime& plotTime)
 {
-  METLIBS_LOG_SCOPE("fileName= " << fileName);
-
-  // reading and storing all information and unpacked data
-
-  const int bufferlength = 512;
-  std::vector<int>      posTemp;
-  std::vector<std::string> obsName;
-  std::vector<std::string> mainText;
-
-
-
-  std::auto_ptr<FtnVfile> vfile(new FtnVfile(fileName, bufferlength));
-
-  int length, ctype;
-  int *head = 0, *content = 0, *posid = 0, *tmp = 0;
-
-  numPos = numTime = numParam = numLevel = 0;
-
-  bool success = true;
-
-  try {
-    vfile->init();
-    length = 8;
-    head = vfile->getInt(length);
-    if (head[0] != 201 || head[1] != 2 || head[2] != bufferlength)
-      throw VfileError();
-    length = head[7];
-    if (length != 12)
-      throw VfileError();
-    content = vfile->getInt(length);
-
-    int ncontent = head[7];
-
-    int nlines, nposid;
-
-    bool c1, c2, c3, c4, c5, c6;
-    c1 = c2 = c3 = c4 = c5 = c6 = false;
-
-    for (int ic = 0; ic < ncontent; ic += 2) {
-      ctype = content[ic];
-      length = content[ic + 1];
-
-      switch (ctype) {
-      case 101:
-        if (length < 4)
-          throw VfileError();
-        tmp = vfile->getInt(length);
-        numPos = tmp[0];
-        numTime = tmp[1];
-        numParam = tmp[2];
-        numLevel = tmp[3];
-        if (numPos < 1 || numTime < 1 || numParam < 2 || numLevel < 2)
-          throw VfileError();
-        //if (length>4) prodNum= tmp[4];
-        //if (length>5) gridNum= tmp[5];
-        //if (length>6) vCoord=  tmp[6];
-        //if (length>7) interpol=tmp[7];
-        //if (length>8) isurface=tmp[8];
-        delete[] tmp;
-        tmp = 0;
-        c1 = true;
-        break;
-
-      case 201:
-        if (numTime < 1)
-          throw VfileError();
-        tmp = vfile->getInt(5 * numTime);
-        for (int n = 0; n < 5 * numTime; n += 5) {
-          miTime t = miTime(tmp[n], tmp[n + 1], tmp[n + 2], tmp[n + 3], 0, 0);
-          if (tmp[n + 4] != 0)
-            t.addHour(tmp[n + 4]);
-          validTime.push_back(t);
-          forecastHour.push_back(tmp[n + 4]);
-        }
-        delete[] tmp;
-        tmp = 0;
-        tmp = vfile->getInt(numTime);
-        for (int n = 0; n < numTime; n++) {
-          std::string str = vfile->getString(tmp[n]);
-          progText.push_back(str);
-        }
-        delete[] tmp;
-        tmp = 0;
-        c2 = true;
-        break;
-
-      case 301:
-        nlines = vfile->getInt();
-        tmp = vfile->getInt(2 * nlines);
-        for (int n = 0; n < nlines; n++) {
-          std::string str = vfile->getString(tmp[n * 2]);
-          mainText.push_back(str);
-        }
-        delete[] tmp;
-        tmp = 0;
-        c3 = true;
-        break;
-
-      case 401:
-        if (numPos < 1)
-          throw VfileError();
-        tmp = vfile->getInt(numPos);
-        for (int n = 0; n < numPos; n++) {
-          std::string str = vfile->getString(tmp[n]);
-          // may have one space at the end (n*2 characters stored in file)
-          miutil::trim(str, false, true);
-          posName.push_back(str);
-        }
-        delete[] tmp;
-        tmp = 0;
-        c4 = true;
-        break;
-
-      case 501:
-        if (numPos < 1)
-          throw VfileError();
-        nposid = vfile->getInt();
-        posid = vfile->getInt(2 * nposid);
-        tmp = vfile->getInt(nposid * numPos);
-        for (int n = 0; n < nposid; n++) {
-          int nn = n * 2;
-          float scale = powf(10., posid[nn + 1]);
-          if (posid[nn] == -1) {
-            for (int i = 0; i < numPos; i++)
-              posLatitude.push_back(scale * tmp[n + i * nposid]);
-          } else if (posid[nn] == -2) {
-            for (int i = 0; i < numPos; i++)
-              posLongitude.push_back(scale * tmp[n + i * nposid]);
-          } else if (posid[nn] == -3 && posid[nn + 2] == -4) {
-            for (int i = 0; i < numPos; i++)
-              posTemp.push_back(
-                  tmp[n + i * nposid] * 1000 + tmp[n + 1 + i * nposid]);
-          }
-        }
-        delete[] posid;
-        posid = 0;
-        delete[] tmp;
-        tmp = 0;
-        if (int(posTemp.size()) == numPos) {
-          for (int i = 0; i < numPos; i++) {
-            if (posTemp[i] > 1000 && posTemp[i] < 99000) {
-              std::ostringstream ostr;
-              ostr << setw(5) << setfill('0') << posTemp[i];
-              obsName.push_back(std::string(ostr.str()));
-            } else if (posTemp[i] >= 99000 && posTemp[i] <= 99999) {
-              obsName.push_back("99");
-            } else {
-              obsName.push_back("");
-            }
-          }
-        }
-        c5 = true;
-        break;
-
-      case 601:
-        if (numParam < 1)
-          throw VfileError();
-        tmp = vfile->getInt(numParam);
-        for (int n = 0; n < numParam; n++)
-          paramId.push_back(tmp[n]);
-        delete[] tmp;
-        tmp = 0;
-        tmp = vfile->getInt(numParam);
-        for (int n = 0; n < numParam; n++)
-          paramScale.push_back(powf(10., tmp[n]));
-        delete[] tmp;
-        tmp = 0;
-        c6 = true;
-        break;
-
-      default:
-        throw VfileError();
-      }
-    }
-
-    delete[] head;
-    head = 0;
-    delete[] content;
-    content = 0;
-
-    if (!c1 || !c2 || !c3 || !c4 || !c5 || !c6)
-      throw VfileError();
-
-    // read all data, but keep data in a short int buffer until used
-    length = numPos * numTime * numParam * numLevel;
-
-    // dataBuffer[numPos][numTime][numParam][numLevel]
-    delete dataBuffer;
-    dataBuffer = 0; // in case of exception
-    dataBuffer = vfile->getShortInt(length);
-
-  }  // end of try
-
-  catch (...) {
-    METLIBS_LOG_ERROR("Bad Vprof file: " << fileName);
-    success = false;
+  if (format == fimex) {
+    return std::find(validTime.begin(), validTime.end(), plotTime) != validTime.end();
+  } else if (format == roadobs) {
+    setRoadObs(plotTime);
+    return !posName.empty();
+  } else {
+    setBufr(plotTime);
+    return !posName.empty();
   }
-
-  delete[] head;
-  delete[] content;
-  delete[] posid;
-  delete[] tmp;
-
-  return success;
 }
 
 static void copy_vprof_values(Values_cp values, std::vector<float>& values_out)
@@ -429,40 +335,72 @@ static void copy_vprof_values(const name2value_t& n2v, const std::string& id, st
 VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 {
   METLIBS_LOG_SCOPE(name << "  " << time << "  " << modelName);
+  METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(posName.size()));
 
-  int iPos = 0;
-  while (iPos < numPos && posName[iPos] != name)
-    iPos++;
-
-  int iTime = 0;
-  while (iTime < numTime && validTime[iTime] != time)
-    iTime++;
-
-  if (iPos == numPos || iTime == numTime)
+  if (format == bufr) {
+#ifdef BUFROBS
+    std::string name_=name;
+    if (stationMap.count(name)) {
+      name_ = stationMap[name];
+    }
+    ObsBufr bufr;
+    std::string modelName;
+    std::auto_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_, time));
+    return vp.release();
+#else
     return 0;
-
-  if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
-    METLIBS_LOG_DEBUG("returning cached VProfPlot");
-    return new VprofPlot(*vProfPlot);
+#endif
+  }
+  
+  if (format == roadobs) {
+#ifdef ROADOBS
+    try {
+      // Dummy filename
+      std::string filename;
+      // read stationlist and init the api.
+      // does nothing if already done
+      ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,time,NULL,false);
+      std::auto_ptr<VprofPlot> vp(road.getVprofPlot(modelName, name, time));
+      return vp.release();
+    } catch (...) {
+      METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << time);
+      return 0;
+    }
+#else
+    return 0;
+#endif
   }
 
-  std::auto_ptr<VprofPlot> vp(new VprofPlot());
-  vp->text.index = -1;
-  vp->text.prognostic = true;
-  vp->text.modelName = modelName;
-  vp->text.posName = posName[iPos];
-  vp->text.forecastHour = forecastHour[iTime];
-  vp->text.validTime = validTime[iTime];
-  vp->text.latitude = posLatitude[iPos];
-  vp->text.longitude = posLongitude[iPos];
-  vp->text.kindexFound = false;
+  if (format == fimex) {
+    std::vector<std::string>::iterator itP = std::find(posName.begin(), posName.end(), name);
+    std::vector<miutil::miTime>::iterator itT = std::find(validTime.begin(), validTime.end(), time);
+    if (itP == posName.end() || itT == validTime.end())
+      return 0;
 
-  vp->prognostic = true;
-  vp->maxLevels = numLevel;
-  vp->windInKnots = true;
+    const int iPos = std::distance(posName.begin(), itP);
+    const int iTime = std::distance(validTime.begin(), itT);
 
-  if (readFromFimex) {
+    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
+      METLIBS_LOG_DEBUG("returning cached VProfPlot");
+      return new VprofPlot(*vProfPlot);
+    }
 
+    std::auto_ptr<VprofPlot> vp(new VprofPlot());
+    vp->text.index = -1;
+    vp->text.prognostic = true;
+    vp->text.modelName = modelName;
+    vp->text.posName = *itP;
+    vp->text.forecastHour = forecastHour[iTime];
+    vp->text.validTime = *itT;
+    vp->text.latitude = posLatitude[iPos];
+    vp->text.longitude = posLongitude[iPos];
+    vp->text.kindexFound = false;
+
+    vp->prognostic = true;
+    vp->maxLevels = numLevel;
+    vp->windInKnots = true;
+
+    METLIBS_LOG_DEBUG("readFomFimex"); //<<LOGVAL(reftime));
     const LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
     // This replaces the current dynamic crossection, if present.
@@ -523,71 +461,238 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     numLevel = vp->ptt.size();
     vp->maxLevels= numLevel;
 
+    // dd,ff and significant levels (as in temp observation...)
+    if (int(vp->uu.size()) == numLevel && int(vp->vv.size()) == numLevel) {
+      int kmax = 0;
+      for (size_t k = 0; k < size_t(numLevel); k++) {
+        float uew = vp->uu[k];
+        float vns = vp->vv[k];
+        int ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
+        if (!vp->windInKnots)
+          ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
+        int dd = int(270. - RAD_TO_DEG * atan2f(vns, uew) + 0.5);
+        if (dd > 360)
+          dd -= 360;
+        if (dd <= 0)
+          dd += 360;
+        if (ff == 0)
+          dd = 0;
+        vp->dd.push_back(dd);
+        vp->ff.push_back(ff);
+        vp->sigwind.push_back(0);
+        if (ff > vp->ff[kmax])
+          kmax = k;
+      }
+      for (size_t l = 0; l < (vp->sigwind.size()); l++) {
+        for (size_t k = 1; k < size_t(numLevel) - 1; k++) {
+          if (vp->ff[k] < vp->ff[k - 1] && vp->ff[k] < vp->ff[k + 1])
+            vp->sigwind[k] = 1;
+          if (vp->ff[k] > vp->ff[k - 1] && vp->ff[k] > vp->ff[k + 1])
+            vp->sigwind[k] = 2;
+        }
+      }
+      vp->sigwind[kmax] = 3;
+    }
 
-  } else {
-    for (int n = 0; n < numParam; n++) {
-      const float scale = paramScale[n];
-      int j = iPos * numTime * numParam * numLevel + iTime * numParam * numLevel + n * numLevel;
-      if (paramId[n] == 8) {
-        for (int k = 0; k < numLevel; k++)
-          vp->ptt.push_back(scale * dataBuffer[j++]);
-      } else if (paramId[n] == 4) {
-        for (int k = 0; k < numLevel; k++)
-          vp->tt.push_back(scale * dataBuffer[j++]);
-      } else if (paramId[n] == 5) {
-        for (int k = 0; k < numLevel; k++)
-          vp->td.push_back(scale * dataBuffer[j++]);
-      } else if (paramId[n] == 2) {
-        for (int k = 0; k < numLevel; k++)
-          vp->uu.push_back(scale * dataBuffer[j++]);
-      } else if (paramId[n] == 3) {
-        for (int k = 0; k < numLevel; k++)
-          vp->vv.push_back(scale * dataBuffer[j++]);
-      } else if (paramId[n] == 13) {
-        for (int k = 0; k < numLevel; k++)
-          vp->om.push_back(scale * dataBuffer[j++]);
+    vProfPlotTime = time;
+    vProfPlotName = name;
+    vProfPlot.reset(new VprofPlot(*vp));
+    METLIBS_LOG_DEBUG("returning new VProfPlot");
+    return vp.release();
+  }
+
+  return 0;
+}
+
+void VprofData::readStationNames(const std::string& stationsfilename)
+{
+  METLIBS_LOG_SCOPE();
+  std::ifstream stationfile(stationsfilename.c_str());
+  if (!stationfile) {
+    METLIBS_LOG_ERROR("Unable to open file '" << stationsfilename << "'");
+    return;
+  }
+
+  vector<std::string> stationVector;
+  vector<stationInfo> stations;
+  std::string line;
+  while (std::getline(stationfile, line)) {
+    // just skip the first line if present.
+    if (miutil::contains(line, "obssource"))
+      continue;
+    if (miutil::contains(line, ";")) {
+      // the new format
+      stationVector = miutil::split(line, ";", false);
+      if (stationVector.size() == 7) {
+        stationInfo st;
+        st.name = stationVector[2];
+        st.lat = miutil::to_double(stationVector[3]);
+        st.lon = miutil::to_double(stationVector[4]);
+        stations.push_back(st);
+      } else {
+        if (stationVector.size() == 6) {
+          stationInfo st;
+          st.name = stationVector[1];
+          st.lat = miutil::to_double(stationVector[2]);
+          st.lon = miutil::to_double(stationVector[3]);
+          stations.push_back(st);
+        } else {
+          METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
+        }
+      }
+    } else {
+      // the old format
+      stationVector = miutil::split(line, ",", false);
+      if (stationVector.size() == 7) {
+        stationInfo st;
+        st.name = stationVector[1];
+        st.lat = miutil::to_double(stationVector[2]);
+        st.lon = miutil::to_double(stationVector[3]);
+        stations.push_back(st);
+      } else {
+        METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
+      }
+    }
+  }
+  for (size_t i = 0; i < stations.size(); i++) {
+    posName.push_back(stations[i].name);
+    posLatitude.push_back(stations[i].lat);
+    posLongitude.push_back(stations[i].lon);
+  }
+}
+
+void VprofData::renameStations()
+{
+  if (stationsFileName.empty())
+    return;
+
+  if (!stationList)
+    readStationList();
+
+  const int n = posName.size(), m = stationName.size();
+  std::string newname;
+
+  multimap<std::string,int> sortlist;
+
+  for (int i=0; i<n; i++) {
+    int jmin = -1;
+    float smin = 0.05*0.05 + 0.05*0.05;
+    for (int j=0; j<m; j++) {
+      float dx = posLongitude[i] - stationLongitude[j];
+      float dy = posLatitude[i]  - stationLatitude[j];
+      float s = dx*dx+dy*dy;
+      if (s < smin) {
+        smin = s;
+        jmin = j;
+      }
+    }
+    if (jmin >= 0) {
+      newname= stationName[jmin];
+    } else {
+      std::string slat= miutil::from_number(fabsf(posLatitude[i]));
+      if (posLatitude[i]>=0.) slat += "N";
+      else                     slat += "S";
+      std::string slon= miutil::from_number(fabsf(posLongitude[i]));
+      if (posLongitude[i]>=0.) slon += "E";
+      else                      slon += "W";
+      newname= slat + "," + slon;
+      jmin = m;
+    }
+
+    ostringstream ostr;
+    ostr<<setw(4)<<setfill('0')<<jmin;
+    std::string sortname= ostr.str() + newname + validTime[i].isoTime() + posName[i];
+    sortlist.insert(std::make_pair(sortname, i));
+
+    stationMap[newname] = posName[i];
+    METLIBS_LOG_DEBUG(LOGVAL(newname)<<LOGVAL(posName[i]));
+    posName[i]= newname;
+  }
+
+  // gather amdars from same stations (in station list sequence)
+  vector<std::string> posName2;
+  vector<float>    posLatitude2;
+  vector<float>    posLongitude2;
+  map<std::string,int> stationCount;
+  for (multimap<std::string,int>::iterator pt=sortlist.begin(); pt!=sortlist.end(); pt++) {
+    int i= pt->second;
+
+    newname = posName[i];
+    int c;
+    std::map<std::string, int>::iterator p = stationCount.find(newname);
+    if (p==stationCount.end())
+      stationCount[newname] = c = 1;
+    else
+      c = ++(p->second);
+    newname += " (" + miutil::from_number(c) + ")";
+
+    stationMap[newname] = stationMap[posName[i]];
+
+    posName2.push_back(newname);
+    posLatitude2.push_back(posLatitude[i]);
+    posLongitude2.push_back(posLongitude[i]);
+  }
+
+  posName=      posName2;
+  posLatitude=  posLatitude2;
+  posLongitude= posLongitude2;
+}
+
+
+void VprofData::readStationList()
+{
+  METLIBS_LOG_SCOPE(LOGVAL(stationsFileName));
+  stationList= true;
+
+  if (stationsFileName.empty())
+    return;
+
+  // open filestream
+  ifstream file;
+  file.open(stationsFileName.c_str());
+  if (file.bad()) {
+    METLIBS_LOG_ERROR("Station list '" << stationsFileName << "' not found");
+    return;
+  }
+
+  const float notFound=9999.;
+  vector<std::string> vstr,vstr2;
+  std::string str;
+  unsigned int i;
+
+  while (getline(file,str)) {
+    std::string::size_type n= str.find('#');
+    if (n!=0) {
+      if (n!=string::npos) str= str.substr(0,n);
+      miutil::trim(str);
+      if (not str.empty()) {
+        vstr= miutil::split_protected(str, '"', '"');
+        float latitude=notFound, longitude=notFound;
+        std::string name;
+        n=vstr.size();
+        for (i=0; i<n; i++) {
+          vstr2= miutil::split(vstr[i], "=");
+          if (vstr2.size()==2) {
+            str= miutil::to_lower(vstr2[0]);
+            if (str=="latitude")
+              latitude= atof(vstr2[1].c_str());
+            else if (str=="longitude")
+              longitude= atof(vstr2[1].c_str());
+            else if (str=="name") {
+              name= vstr2[1];
+              if (name[0]=='"')
+                name= name.substr(1,name.length()-2);
+            }
+          }
+        }
+        if (latitude!=notFound && longitude!=notFound && not name.empty()) {
+          stationLatitude.push_back(latitude);
+          stationLongitude.push_back(longitude);
+          stationName.push_back(name);
+        }
       }
     }
   }
 
-
-  // dd,ff and significant levels (as in temp observation...)
-  if (int(vp->uu.size()) == numLevel && int(vp->vv.size()) == numLevel) {
-    int kmax = 0;
-    for (size_t k = 0; k < size_t(numLevel); k++) {
-      float uew = vp->uu[k];
-      float vns = vp->vv[k];
-      int ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
-      if (!vp->windInKnots)
-        ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
-      int dd = int(270. - RAD_TO_DEG * atan2f(vns, uew) + 0.5);
-      if (dd > 360)
-        dd -= 360;
-      if (dd <= 0)
-        dd += 360;
-      if (ff == 0)
-        dd = 0;
-      vp->dd.push_back(dd);
-      vp->ff.push_back(ff);
-      vp->sigwind.push_back(0);
-      if (ff > vp->ff[kmax])
-        kmax = k;
-    }
-    for (size_t l = 0; l < (vp->sigwind.size()); l++) {
-      for (size_t k = 1; k < size_t(numLevel) - 1; k++) {
-        if (vp->ff[k] < vp->ff[k - 1] && vp->ff[k] < vp->ff[k + 1])
-          vp->sigwind[k] = 1;
-        if (vp->ff[k] > vp->ff[k - 1] && vp->ff[k] > vp->ff[k + 1])
-          vp->sigwind[k] = 2;
-      }
-    }
-    vp->sigwind[kmax] = 3;
-  }
-
-  vProfPlotTime = time;
-  vProfPlotName = name;
-  vProfPlot.reset(new VprofPlot(*vp));
-  METLIBS_LOG_DEBUG("returning new VProfPlot");
-  return vp.release();
-  // end !cached VprofPlot
+  file.close();
 }

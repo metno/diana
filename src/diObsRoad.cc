@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diObsRoad.cc 1266 2009-03-24 14:09:34Z yngve.einarsson@smhi.se $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2016 met.no and SMHI
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,6 +50,9 @@
 #endif
 #include <puTools/miStringFunctions.h>
 
+#include <boost/bind/bind.hpp>
+
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
@@ -160,6 +161,38 @@ void ObsRoad::readHeader(RoadObsPlot *oplot)
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsRoad::readHeader()  done ++");
 #endif
+}
+
+void ObsRoad::getStationList(vector<stationInfo> & stations)
+{
+  // This creates the stationlist
+  // We must also init the connect string to mora db
+  Roaddata::initRoaddata(databasefile_);
+  diStation::initStations(stationfile_);
+  // get the pointer to the actual station vector
+  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
+  if (its == diStation::station_map.end()) {
+    METLIBS_LOG_ERROR("Unable to find stationlist: '" <<stationfile_ << "'");
+    return;
+  }
+  const std::vector<diStation>& stationlist = *its->second;
+
+  if (stationlist.empty()) {
+    METLIBS_LOG_WARN("Empty stationlist: '" <<stationfile_ << "'");
+    return;
+  }
+  for (size_t i = 0; i < stationlist.size(); i++) {
+    stationInfo st;
+    if (stationlist[i].station_type() == "WMO")
+      st.name = stationlist[i].name();
+    else if (stationlist[i].station_type() == "ICAO")
+      st.name = stationlist[i].ICAOID();
+    else
+      st.name = stationlist[i].call_sign();
+    st.lat = stationlist[i].lat();
+    st.lon = stationlist[i].lon();
+    stations.push_back(st);
+  }
 }
 
 void ObsRoad::initData(RoadObsPlot *oplot)
@@ -930,49 +963,43 @@ void ObsRoad::decodeData()
 }
 
 VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
-	     const std::string& station,
-			 const miutil::miTime& time)
+    const std::string& station, const miutil::miTime& time)
 {
-  // get the stationlist
-  VprofPlot *vp= NULL;
-  
   if (modelName=="AMDAR" || modelName=="PILOT") {
     METLIBS_LOG_WARN("This model is not implemented yet: " << modelName);
-    return vp;
+    return 0;
   }
   // This creates the stationlist
   // We must also init the connect string to mora db
   Roaddata::initRoaddata(databasefile_);
   diStation::initStations(stationfile_);
   // get the pointer to the actual station vector
-  vector<diStation> * stations = NULL;
-  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.begin();
-  its = diStation::station_map.find(stationfile_);
-  if (its != diStation::station_map.end())
-  {
-	  stations = its->second;
+  vector<diStation> * stations = 0;
+  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
+  if (its == diStation::station_map.end()) {
+    METLIBS_LOG_ERROR("Unable to find stationlist: " <<stationfile_);
+    return 0;
   }
-  if (stations == NULL)
-  {
-	  METLIBS_LOG_ERROR("Unable to find stationlist: " <<stationfile_);
-	  return vp;
+  stations = its->second;
+  if (stations == 0) {
+    METLIBS_LOG_ERROR("Empty stationlist: " <<stationfile_);
+    return 0;
   }
-
   int nStations = stations->size();
   // Return if empty station list
-  if (nStations<1) return vp;
+  if (nStations<1) return 0;
   
   int n= 0;
-  while (n<nStations && (*stations)[n].stationID()!=miutil::to_int(station)) n++;
+  while (n<nStations && (*stations)[n].name()!=station) n++;
   // Return if station not found in station list
   if (n==nStations)
   {
 	  METLIBS_LOG_ERROR("Unable to find station: " << station << " in stationlist!");
-	  return vp;
+	  return 0;
   }
+  const diStation& station_n = (*stations)[n];
 
-
-  vp= new VprofPlot();
+  std::auto_ptr<VprofPlot> vp(new VprofPlot());
 
   vp->text.index= -1;
   vp->text.modelName = modelName;
@@ -982,70 +1009,62 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 //####	contents[n].stationID.substr(2,contents[n].stationID.length()-2);
 //####  else
 //####    vp->text.posName= contents[n].stationID;
-  vp->text.posName= (*stations)[n].name();
-  miutil::trim(vp->text.posName);
+  vp->text.posName= miutil::trimmed(station_n.name());
   vp->text.prognostic= false;
   vp->text.forecastHour= 0;
   vp->text.validTime= time;
-  vp->text.latitude=  (*stations)[n].lat();
-  vp->text.longitude= (*stations)[n].lon();
+  vp->text.latitude=  station_n.lat();
+  vp->text.longitude= station_n.lon();
   vp->text.kindexFound= false;
 
 
   /* HERE we should get the data from road */
 
   Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, time);
-
   road.open();
-  
+
   vector<diStation> stations_to_plot;
   /* only get data for one station */
-  stations_to_plot.push_back((*stations)[n]);
+  stations_to_plot.push_back(station_n);
   /* get the data */
   map<int, vector<RDKCOMBINEDROW_2 > > raw_data_map;
-  
   road.getData(stations_to_plot, raw_data_map);
 
   road.close();
   vector<RDKCOMBINEDROW_2 > raw_data;
-  map<int, vector<RDKCOMBINEDROW_2 > >::iterator itd = raw_data_map.begin();
-  itd = raw_data_map.find((*stations)[n].stationID());
-  if (itd != raw_data_map.end())
-  {
-	  raw_data = itd->second;
+  map<int, vector<RDKCOMBINEDROW_2 > >::iterator itd = raw_data_map.find(station_n.stationID());
+  if (itd != raw_data_map.end()) {
+    raw_data = itd->second;
   }
   /* Sort the data */
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofRTemp::getStation: Lines returned from road.getData(): " << raw_data.size());
 #endif
   // For now, we dont use the surface data!
-  vector <diParam> * params = NULL;
-  map<std::string, vector<diParam> * >::iterator itp = diParam::params_map.begin();
-  itp = diParam::params_map.find(headerfile_);
-  if (itp != diParam::params_map.end())
-  {
-	  params = itp->second;
+  vector <diParam> * params = 0;
+  map<std::string, vector<diParam> * >::iterator itp = diParam::params_map.find(headerfile_);
+  if (itp == diParam::params_map.end()) {
+    // the code below would try to use 'params'
+    return 0;
   }
+  params = itp->second;
+  if (params == 0)
+    return 0;
   /* map the data and sort them */
   map < std::string, map<float, RDKCOMBINEDROW_2 > > data_map;
   int no_of_data_rows = raw_data.size();
-  for (int k = 0; k < params->size(); k++)
-  {
-	  map<float, RDKCOMBINEDROW_2 > tmpresult;
-
-	  for (int i = 0; i < no_of_data_rows; i++)
-	  {
-		  if ((*params)[k].isMapped(raw_data[i]))
-		  {
-			  // Data must be keyed with pressure
+  for (size_t k = 0; k < params->size(); k++) {
+    map<float, RDKCOMBINEDROW_2 > tmpresult;
+    for (int i = 0; i < no_of_data_rows; i++) {
+      if ((*params)[k].isMapped(raw_data[i])) {
+        // Data must be keyed with pressure
         if (raw_data[i].srid - 1000 == 4)
           tmpresult[raw_data[i].altitudefrom] = raw_data[i];
-		  }
-	  }
-    if (tmpresult.size() != 0)
-	  {
+      }
+    }
+    if (tmpresult.size() != 0) {
       data_map[(*params)[k].diananame()] = tmpresult;
-	  }
+    }
   }
   /* data is now sorted */
 
@@ -1078,7 +1097,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itpps = data_map.begin();
 
   map<float, RDKCOMBINEDROW_2 >::iterator ittp;
-  
+
   ittts = data_map.find("TTTs");
   float TTTs_value = -32767.0;
   if (ittts != data_map.end())
@@ -1143,9 +1162,9 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 
   if (ittt == data_map.end())
   {
-	 vp->prognostic= false;
-     vp->maxLevels= 0;
-	 return vp;
+    vp->prognostic= false;
+    vp->maxLevels= 0;
+    return vp.release();
   }
 
   ittd = data_map.find("TdTdTd");
@@ -1153,9 +1172,9 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 
   if (ittd == data_map.end())
   {
-	 vp->prognostic= false;
-     vp->maxLevels= 0;
-	 return vp;
+    vp->prognostic= false;
+    vp->maxLevels= 0;
+    return vp.release();
   }
 
   itdd = data_map.find("dd");
@@ -1163,9 +1182,9 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 
   if (itdd == data_map.end())
   {
-	 vp->prognostic= false;
-     vp->maxLevels= 0;
-	 return vp;
+    vp->prognostic= false;
+    vp->maxLevels= 0;
+    return vp.release();
   }
 
   itff = data_map.find("ff");
@@ -1173,9 +1192,9 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 
   if (itff == data_map.end())
   {
-	 vp->prognostic= false;
-     vp->maxLevels= 0;
-	 return vp;
+    vp->prognostic= false;
+    vp->maxLevels= 0;
+    return vp.release();
   }
 
   /* Significant vind levels */
@@ -1321,13 +1340,11 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
 		  }
 	  }
   } /* End for */
-  if (kmax>=0) vp->sigwind[kmax]= 3;
+  if (kmax>=0)
+    vp->sigwind[kmax]= 3;
   vp->prognostic= false;
-  int l1= vp->ptt.size();
-  int l2= vp->puv.size();
-  vp->maxLevels= (l1>l2) ? l1 : l2;
-  return vp;
+  vp->maxLevels = std::max(vp->ptt.size(), vp->puv.size());
+  return vp.release();
 }
-
 
 //#endif //ROADOBS

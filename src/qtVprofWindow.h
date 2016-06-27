@@ -118,7 +118,6 @@ private Q_SLOTS:
   void saveClicked();
   void setupClicked(bool on);
   void quitClicked();
-  void updateClicked();
   void helpClicked();
   void changeModel();
   void changeSetup();
