@@ -30,13 +30,14 @@
 //#define DEBUGPRINT
 //#define DEBUGFDIFF
 #include "diFieldManager.h"
+
 #include "diMetConstants.h"
 #include "GridCollection.h"
 
+#include "../diUtilities.h"
+
 #include <puTools/miStringFunctions.h>
 #include "puTools/mi_boost_compatibility.hh"
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -67,7 +68,6 @@ using namespace MetNo::Constants;
 // static class members
 GridConverter FieldManager::gc;    // Projection-converter
 
-// Default constructor
 FieldManager::FieldManager() :
     fieldcache(new FieldCache())
 {
@@ -126,8 +126,7 @@ bool FieldManager::parseSetup(const std::vector<std::string>& lines,
   for (gridio_sections_t::iterator sitr = gridio_sections.begin();
       sitr != gridio_sections.end(); ++sitr) {
     if (sitr->second == token) {
-      std::map<std::string, GridIOsetupPtr>::iterator itr = gridio_setups.find(
-          sitr->first);
+      std::map<std::string, GridIOsetupPtr>::iterator itr = gridio_setups.find(sitr->first);
       if (itr != gridio_setups.end()) {
         return itr->second->parseSetup(lines, errors);
       }
@@ -140,13 +139,8 @@ bool FieldManager::parseSetup(const std::vector<std::string>& lines,
   if (token == FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION())
     return FieldFunctions::parseVerticalSetup(lines, errors);
 
-  if (token == FieldCache::section()) {
-    if (lines.empty()) {
-      //      cerr << "Missing section " << FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION()  << " in setupfile." << endl;
-      return true;
-    }
+  if (token == FieldCache::section())
     return fieldcache->parseSetup(lines, errors);
-  }
 
   return true;
 }
@@ -171,8 +165,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
 
   const int nlines = lines.size();
   for (int l = 0; l < nlines; l++) {
-    const std::vector<std::string> tokens = miutil::split_protected(lines[l],
-        '"', '"');
+    const std::vector<std::string> tokens = miutil::split_protected(lines[l], '"', '"');
 
     std::string modelName;
     std::string fieldFileType;
@@ -205,8 +198,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
         continue;
       }
 
-      std::vector<std::string> stokens = miutil::split_protected(tokens[j], '"',
-          '"', "=", true);
+      std::vector<std::string> stokens = miutil::split_protected(tokens[j], '"', '"', "=", true);
       if (stokens.size() < 2) {
         std::string error = section() + "|" + miutil::from_number(l)
             + "|Missing argument to keyword: " + tokens[j];
@@ -226,7 +218,8 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
         if (sstoken.size() == 2)
           defaultConfig[sstoken[0]] = sstoken[1];
       } else if (key == "filegroup" || key == "archivefilegroup"
-          || key == "profetfilegroup") {
+          || key == "profetfilegroup")
+      {
         // group name (only used in dialog)
         groupName = stokens[1];
         groupType = key;
@@ -258,13 +251,13 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
       while (p != fieldDialogInfo.end() and p->groupName != groupName)
         p++;
       if (p != fieldDialogInfo.end()) {
-      if (clearFileGroup) {
-        fieldDialogInfo.erase(p); //remove group and models
-      } else {
-        p->modelNames.clear(); //remove models
+        if (clearFileGroup) {
+          fieldDialogInfo.erase(p); //remove group and models
+        } else {
+          p->modelNames.clear(); //remove models
+        }
       }
     }
-  }
 
     if (!modelName.empty() && (not fileNames.empty())) {
 
@@ -281,22 +274,19 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
           mpart2 = modelName.substr(nstar + 1);
 
         for (size_t j = 0; j < fileNames.size(); j++) {
-          glob_t globBuf;
-          glob_cache(fileNames[j].c_str(), 0, 0, &globBuf);
-          for (size_t k = 0; k < globBuf.gl_pathc; k++) {
-            std::string fname = globBuf.gl_pathv[k];
+          const diutil::string_v matches = diutil::glob(fileNames[j], 0);
+          for (size_t k = 0; k < matches.size(); k++) {
+            const std::string& fname = matches[k];
             size_t pb = fname.rfind('/');
             if (pb == string::npos)
               pb = 0;
             else
               pb++;
             modelName = mpart1 + fname.substr(pb) + mpart2;
-            vector<std::string> vf;
-            vf.push_back(fname);
             vModelNames.push_back(modelName);
+            vector<std::string> vf(1, fname);
             vFileNames.push_back(vf);
           }
-          globfree_cache(&globBuf);
         }
 
       } else {
@@ -315,7 +305,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
         fdi.groupName = groupName;
         fdi.groupType = groupType;
         if (top) {
-          fieldDialogInfo.insert(fieldDialogInfo.begin(), (fdi));
+          fieldDialogInfo.insert(fieldDialogInfo.begin(), fdi);
           groupIndex = 0;
         } else {
           fieldDialogInfo.push_back(fdi);
@@ -323,32 +313,30 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
       }
 
       for (unsigned int n = 0; n < vModelNames.size(); n++) {
-        modelName = vModelNames[n];
+        const std::string& mn = vModelNames[n];
 
         //remove old definition
-        gridSources.erase(modelName);
+        gridSources.erase(mn);
 
         GridIOsetupPtr setup;
         if (gridio_setups.count(gridioType) > 0) {
           setup = gridio_setups[gridioType];
         }
         // make a new GridCollection typically containing one GridIO for each file..
-        GridCollectionPtr gridcollection = GridCollectionPtr(
-            new GridCollection);
-        if (gridcollection->setContents(gridioType, modelName, vFileNames[n],
-            format, config, options, setup.get(), validTimeFromFilename)) {
-          gridSources[modelName] = gridcollection;
-          if (not miutil::contains(miutil::to_lower(guiOptions),
-              "notingui")) {
-            fieldDialogInfo[groupIndex].modelNames.push_back(modelName);
+        GridCollectionPtr gridcollection(new GridCollection);
+        if (gridcollection->setContents(gridioType, mn, vFileNames[n],
+            format, config, options, setup.get(), validTimeFromFilename))
+        {
+          gridSources[mn] = gridcollection;
+          if (!miutil::contains(miutil::to_lower(guiOptions), "notingui")) {
+            fieldDialogInfo[groupIndex].modelNames.push_back(mn);
           }
         } else {
           ostringstream ost;
           ost << section() << "|" << l << "|Bad or no GridIO with type= "
-              << gridioType << "  for model= " << modelName;
+              << gridioType << "  for model='" << mn << "'";
           errors.push_back(ost.str());
         }
-
       }
     }
   }
@@ -359,95 +347,95 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
 {
   std::vector<std::string> lines;
 
-  BOOST_FOREACH(const std::string& ci, configInfo){
+  BOOST_FOREACH(const std::string& ci, configInfo) {
 
-  std::string datasource;
-  std::string sourcetype;
-  std::string dataset;
-  std::string referencetime;
-  std::string model;
-  std::string guiOption;
-  std::string config;
-  std::string gridioType = "fimex";
-  std::vector<std::string> options;
+    std::string datasource;
+    std::string sourcetype;
+    std::string dataset;
+    std::string referencetime;
+    std::string model;
+    std::string guiOption;
+    std::string config;
+    std::string gridioType = "fimex";
+    std::vector<std::string> options;
 
-  std::string file;
+    std::string file;
 
-  const std::vector<std::string> tokens = miutil::split_protected(ci, '"', '"');
-  if (tokens.size() < 3) {
-    lines.push_back(ci);
-    continue;
-  }
-
-  BOOST_FOREACH(const std::string& tok, tokens) {
-    std::vector<std::string> stokens= miutil::split_protected(tok, '"', '"', "=", true);
-    if (stokens.size()<2) {
-      std::cerr << "Missing argument to keyword: '" << tok << "', assuming it is an option" << std::endl;
-      options.push_back(tok);
+    const std::vector<std::string> tokens = miutil::split_protected(ci, '"', '"');
+    if (tokens.size() < 3) {
+      lines.push_back(ci);
       continue;
     }
-    std::string key = miutil::to_lower(stokens[0]);
-    miutil::remove(key, '"');
-    miutil::remove(stokens[1], '"');
-    if (key == "datasource") {
-      datasource = stokens[1];
-      //        file = stokens[1];
-    } else if (key == "sourcetype") {
-      sourcetype = stokens[1];
-    } else if (key == "dataset" ) {
-      dataset = stokens[1];
-    } else if (key == "referencetime" ) {
-      referencetime = stokens[1];
-      miutil::remove(referencetime, ':');
-    } else if (key == "model" ) {
-      model = stokens[1];
-    } else if (key == "o" ) {
-      guiOption = stokens[1];
-    } else if (key == "gridioType" ) {
-      gridioType = miutil::to_lower(stokens[1]);
-    } else if (key == "config" || key == "c" ) {
-      config = stokens[1];
-    } else if (key == "file" ) {
-      file = stokens[1];
-    } else {
-      options.push_back(tok);
+
+    BOOST_FOREACH(const std::string& tok, tokens) {
+      std::vector<std::string> stokens= miutil::split_protected(tok, '"', '"', "=", true);
+      if (stokens.size()<2) {
+        std::cerr << "Missing argument to keyword: '" << tok << "', assuming it is an option" << std::endl;
+        options.push_back(tok);
+        continue;
+      }
+      std::string key = miutil::to_lower(stokens[0]);
+      miutil::remove(key, '"');
+      miutil::remove(stokens[1], '"');
+      if (key == "datasource") {
+        datasource = stokens[1];
+        //        file = stokens[1];
+      } else if (key == "sourcetype") {
+        sourcetype = stokens[1];
+      } else if (key == "dataset" ) {
+        dataset = stokens[1];
+      } else if (key == "referencetime" ) {
+        referencetime = stokens[1];
+        miutil::remove(referencetime, ':');
+      } else if (key == "model" ) {
+        model = stokens[1];
+      } else if (key == "o" ) {
+        guiOption = stokens[1];
+      } else if (key == "gridioType" ) {
+        gridioType = miutil::to_lower(stokens[1]);
+      } else if (key == "config" || key == "c" ) {
+        config = stokens[1];
+      } else if (key == "file" ) {
+        file = stokens[1];
+      } else {
+        options.push_back(tok);
+      }
+
     }
 
-  }
+    if (config.empty() && defaultConfig.count(sourcetype)>0 ) {
+      config = defaultConfig[sourcetype];
+    }
 
-  if (config.empty() && defaultConfig.count(sourcetype)>0 ) {
-    config = defaultConfig[sourcetype];
-  }
+    if (file.empty() && defaultFile.count(sourcetype)>0 ) {
+      file = defaultFile[sourcetype];
+    }
 
-  if (file.empty() && defaultFile.count(sourcetype)>0 ) {
-    file = defaultFile[sourcetype];
-  }
+    //make setup string
+    if (sourcetype == "wdb" ) {
+      ostringstream source;
+      source <<"\"file="<<file<<";dataprovider="<<dataset<<";host="<<datasource<<";referencetime="<<referencetime<<"\"";
+      file = source.str();
+    }
 
-  //make setup string
-  if (sourcetype == "wdb" ) {
-    ostringstream source;
-    source <<"\"file="<<file<<";dataprovider="<<dataset<<";host="<<datasource<<";referencetime="<<referencetime<<"\"";
-    file = source.str();
-  }
+    ostringstream ost;
+    ost <<"m="<<model<<" t=" <<sourcetype<< " f="<<file;
 
-  ostringstream ost;
-  ost <<"m="<<model<<" t=" <<sourcetype<< " f="<<file;
+    if (not config.empty()) {
+      ost <<" config="<<config;
+    }
 
-  if (not config.empty()) {
-    ost <<" config="<<config;
-  }
+    if (not guiOption.empty()) {
+      ost <<" o="<<guiOption;
+    }
 
-  if (not guiOption.empty()) {
-    ost <<" o="<<guiOption;
-  }
-  
-  if (not options.empty()) {
-    ost << ' ';
-    std::copy(options.begin(), options.end(), std::ostream_iterator<std::string>(ost, " "));
-  }
+    if (not options.empty()) {
+      ost << ' ';
+      std::copy(options.begin(), options.end(), std::ostream_iterator<std::string>(ost, " "));
+    }
 
-  lines.push_back(ost.str());
-}
+    lines.push_back(ost.str());
+  }
 
   bool top = true;
   bool clearsources = false;
@@ -457,11 +445,12 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
 
 bool FieldManager::modelOK(const std::string& modelName)
 {
-    GridCollectionPtr pgc = getGridCollection(modelName, "");
-    if (not pgc)
-      return false;
+  GridCollectionPtr pgc = getGridCollection(modelName, "");
+  if (not pgc)
+    return false;
   return true;
 }
+
 void FieldManager::getFieldInfo(const std::string& modelName, const std::string& refTime,
     std::map<std::string,FieldInfo>& fieldInfo)
 {
@@ -473,37 +462,39 @@ void FieldManager::getFieldInfo(const std::string& modelName, const std::string&
   if (not pgc)
     return;
 
-  gridinventory::Inventory inventory = pgc->getExpandedInventory();
+  const gridinventory::Inventory& inventory = pgc->getExpandedInventory();
 
-  std::map<std::string, gridinventory::ReftimeInventory>::iterator ritr =
+  std::map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr =
       inventory.reftimes.find(refTime);
   if (ritr == inventory.reftimes.end()) {
-    if (refTime.empty() && inventory.reftimes.size()) {
+    if (refTime.empty() && !inventory.reftimes.empty()) {
       ritr = inventory.reftimes.begin();
     } else {
-      METLIBS_LOG_INFO( " refTime not found: " << LOGVAL(refTime));
+      METLIBS_LOG_INFO( " refTime not found: " << refTime);
       return;
     }
   }
 
-  BOOST_FOREACH(const gridinventory::GridParameter& gp, ritr->second.parameters){
-    set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(gp.zaxis_id);
-//    std::string extraAxis = gp.key.extraaxis;
+  BOOST_FOREACH(const gridinventory::GridParameter& gp, ritr->second.parameters) {
     FieldInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
-    if ( zitr!=ritr->second.zaxes.end() ) {
+
+    set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(gp.zaxis_id);
+    if (zitr != ritr->second.zaxes.end()) {
       vi.vlevels= zitr->getStringValues();
       vi.vcoord = zitr->verticalType;
       if (zitr->vc_type == FieldFunctions::vctype_oceandepth) {
         vi.default_vlevel = vi.vlevels.front();
       }
     }
+
     set<gridinventory::ExtraAxis>::iterator eitr = ritr->second.extraaxes.find(gp.extraaxis_id);
-    if ( eitr!=ritr->second.extraaxes.end() ) {
+    if (eitr!=ritr->second.extraaxes.end()) {
       vi.ecoord = eitr->name;
       vi.elevels = eitr->getStringValues();
     }
+
     // groupname based on coordinates
     if ( vi.ecoord.empty() && vi.vcoord.empty()) {
       vi.groupName = "Surface";
@@ -517,7 +508,6 @@ void FieldManager::getFieldInfo(const std::string& modelName, const std::string&
 
     fieldInfo[vi.fieldName]=vi;
   }
-
 }
 
 
@@ -527,7 +517,7 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
 {
   METLIBS_LOG_TIME();
 
-  GridSources_t::iterator p = gridSources.find(std::string(modelName));
+  GridSources_t::iterator p = gridSources.find(modelName);
   if (p == gridSources.end()) {
     METLIBS_LOG_WARN("Undefined model '" << modelName << "'");
     return GridCollectionPtr();
@@ -549,12 +539,12 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
 
   using namespace gridinventory;
   Inventory inventory = pgc->getInventory();
-    Inventory::reftimes_t& reftimes = inventory.reftimes;
-    for (Inventory::reftimes_t::iterator it_r = reftimes.begin();
-        it_r != reftimes.end(); ++it_r) {
-      ReftimeInventory& rti = it_r->second;
-      addComputedParameters(rti);
-    }
+  Inventory::reftimes_t& reftimes = inventory.reftimes;
+  for (Inventory::reftimes_t::iterator it_r = reftimes.begin();
+       it_r != reftimes.end(); ++it_r) {
+    ReftimeInventory& rti = it_r->second;
+    addComputedParameters(rti);
+  }
 
   pgc->setExpandedInventory(inventory);
   return pgc;
@@ -624,11 +614,11 @@ std::string FieldManager::mergeTaxisNames(
   const vector<double>& times2 = titr2->getSortedValues();
 
   const bool t1longer = (times2.size() < times1.size());
-  const vector<double> &longer = t1longer ? times1 : times2, &shorter =
-      t1longer ? times2 : times1;
+  const vector<double> &longer = t1longer ? times1 : times2;
+  const vector<double> &shorter = t1longer ? times2 : times1;
   std::vector<double> vtmp;
-  std::set_difference(shorter.begin(), shorter.end(), longer.begin(),
-      longer.end(), std::back_inserter(vtmp));
+  std::set_difference(shorter.begin(), shorter.end(),
+      longer.begin(), longer.end(), std::back_inserter(vtmp));
   if (vtmp.empty()) {
     return t1longer ? taxis2 : taxis1;
   } else {
@@ -680,7 +670,7 @@ void FieldManager::addComputedParameters(gridinventory::ReftimeInventory& invent
     std::string computeEaxis;
     // loop trough input params with same zaxis
     std::string fchour;
-    BOOST_REVERSE_FOREACH(std::string inputParameterName, fc.input) {
+    BOOST_REVERSE_FOREACH(const std::string& inputParameterName, fc.input) {
       //levelSpecified true if param:level=value
       //METLIBS_LOG_DEBUG(LOGVAL(inputParameterName));
       std::string inputLevelName;
@@ -904,12 +894,12 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
                 tNormal= pgc->getTimesFromFilename();
               }
             } else {
-              vector<double> values = titr->values;
+              const vector<double>& values = titr->values;
               for (size_t i = 0; i < values.size(); ++i) {
                 // double -> miTime
                 time_t t = values[i];
                 miTime tt(t);
-                if( !tt.undef() ) {
+                if (!tt.undef()) {
                   if (timeStepFunc) {
                     setTime.insert(tt);
                   } else {
@@ -931,14 +921,16 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
                 constants = fcm->constants;
               }
 
-              set<miTime>::iterator it = setTime.begin();
-              for (; it != setTime.end(); ++it) {
+              const bool is_accumulate_flux = (fs.option == "accumulate_flux");
+              const miutil::miTime rt(refTimeStr);
+              for (set<miTime>::iterator it = setTime.begin(); it != setTime.end(); ++it) {
                 size_t i = 0;
-                for (i = 0; i < constants.size(); ++i) {
+                for (; i < constants.size(); ++i) {
                   miTime tmpTime = *it;
                   tmpTime.addHour(constants[i]);
-                  if (!setTime.count(tmpTime)&&((fs.option != "accumulate_flux") ||
-                   (fs.option == "accumulate_flux" && tmpTime != miutil::miTime(refTimeStr)))) { 
+                  if (!setTime.count(tmpTime)
+                      && (!is_accumulate_flux || (is_accumulate_flux && tmpTime != rt)))
+                  {
                     break;
                   }
                 }
@@ -946,7 +938,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
                   //all time steps ok
                   tNormal.insert(*it);
                 }
-              }                
+              }
             }
             gotfieldtime = true;
           }
@@ -958,22 +950,20 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
     }
 
     if (!gotfieldtime) {
-      METLIBS_LOG_INFO(
-          "getFieldTime: got no times for model '" << frq.modelName << "'");
+      METLIBS_LOG_INFO("got no times for model '" << frq.modelName << "'");
     }
 
     if (gotfieldtime) {
       if (!tNormal.empty() ) {
         if ((frq.hourOffset != 0 || frq.minOffset != 0) ) {
-          set<miTime> twork = tNormal;
-          set<miTime>::iterator pt, ptend;
-          tNormal.clear();
-          for (pt = twork.begin(); pt != twork.end(); pt++) {
+          set<miTime> twork;
+          for (set<miTime>::iterator pt = tNormal.begin(); pt != tNormal.end(); pt++) {
             miTime tt = *pt;
             tt.addHour(-frq.hourOffset);
             tt.addMin(-frq.minOffset);
-            tNormal.insert(tt);
+            twork.insert(tt);
           }
+          std::swap(twork, tNormal);
         }
         if (allTimeSteps) {
           tn.insert(tNormal.begin(), tNormal.end());
@@ -985,7 +975,6 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
             vector<miTime>::iterator pvt2, pvt1 = vt.begin();
             pvt2 = set_intersection(tn.begin(), tn.end(), tNormal.begin(),
                 tNormal.end(), pvt1);
-            tn.clear();
             tn = set<miTime>(pvt1, pvt2);
           }
         }
@@ -997,12 +986,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
     }
   }
 
-  vector<miTime> fieldTime;
-  if (!tn.empty() ) {
-    fieldTime = vector<miTime>(tn.begin(), tn.end());
-  }
-
-  return fieldTime;
+  return vector<miTime>(tn.begin(), tn.end());
 }
 
 std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelName)
@@ -1322,9 +1306,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
         && pitr->standard_name != fieldrequest.paramName)
       pitr++;
     if (pitr == inventory.parameters.end()) {
-      METLIBS_LOG_DEBUG(
-          __FUNCTION__ << ": parameter standard_name: "
-              << fieldrequest.paramName << "  not found in inventory");
+      METLIBS_LOG_DEBUG("parameter standard_name '" << fieldrequest.paramName << "' not found in inventory");
       return NULL;
     } else {
       fieldrequest.paramName = pitr->key.name;
@@ -1357,9 +1339,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
       fieldrequest.eaxis, fieldrequest.version, fieldrequest.plevel,
       fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance,
       param)) {
-    METLIBS_LOG_INFO(
-        __FUNCTION__ << ": parameter " << fieldrequest.paramName
-            << "  not found by dataExists");
+    METLIBS_LOG_INFO("parameter '" << fieldrequest.paramName << "' not found by dataExists");
     return NULL;
   }
 
@@ -1368,7 +1348,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   if (pitr == inventory.parameters.end()) {
     METLIBS_LOG_INFO("parameter " << fieldrequest.paramName
         << "  not found in inventory even if dataExists returned true");
-    return NULL;
+    return 0;
   }
 
   //If not computed parameter, read field from GridCollection and return
@@ -1416,16 +1396,16 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
       fieldrequest_new.elevel = fs.elevel;
     }
 
-    if( !fs.fcHour.empty()) {
+    if (!fs.fcHour.empty()) {
       int fch=atoi(fs.fcHour.c_str());
-      if ( !getAllFields_timeInterval(gridCollection, inventory, vfield, fieldrequest_new,
-          fch, (fs.option == "accumulate_flux"), cacheOptions)){
+      if (!getAllFields_timeInterval(gridCollection, inventory, vfield, fieldrequest_new,
+          fch, (fs.option == "accumulate_flux"), cacheOptions))
+      {
         freeFields(vfield);
-
         return 0;
       }
     } else {
-      if ( !getAllFields(gridCollection, inventory, vfield, fieldrequest_new,
+      if (!getAllFields(gridCollection, inventory, vfield, fieldrequest_new,
           fcm.constants, cacheOptions))
       {
         freeFields(vfield);
@@ -1477,40 +1457,36 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
         fieldrequest_new.elevel = fs.elevel;
       }
 
-      if ( fs.ecoordName.empty() && fs.vcoordName.empty() ){
+      if (fs.ecoordName.empty() && fs.vcoordName.empty()) {
         Field * f = getField(gridCollection, inventory, fieldrequest_new,
             cacheOptions);
-        if (f == NULL) {
-          METLIBS_LOG_DEBUG(
-              "FieldManager::getField: unable to read: " << inputParamName);
+        if (!f) {
+          METLIBS_LOG_DEBUG("unable to read '" << inputParamName << "'");
           freeFields(vfield);
-
           return 0;
         } else {
           vfield.push_back(f);
         }
 
-
       } else {
 
         vector<std::string> values;
-        if (!fs. ecoordName.empty()) {
+        if (!fs.ecoordName.empty()) {
           gridinventory::ExtraAxis eaxs = inventory.getExtraAxis(fs.ecoordName);
           values = eaxs.stringvalues;
-        } else if ( !fs.vcoordName.empty() ){
+        } else if (!fs.vcoordName.empty()) {
           gridinventory::Zaxis zaxs = inventory.getZaxis(fs.vcoordName);
           values = zaxs.stringvalues;
         }
         fieldrequest.paramName = fs.paramName;
-        if ( values.size() ==  0 ) {
+        if (values.empty()) {
           freeFields(vfield);
-
           return 0;
         }
         for (size_t i = 0; i < values.size(); i++) {
           if (!fs.ecoordName.empty()) {
             fieldrequest.elevel = values[i];
-          } else if ( !fs.vcoordName.empty() ){
+          } else if (!fs.vcoordName.empty()) {
             fieldrequest.plevel = values[i];
           }
           Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
@@ -1526,8 +1502,8 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
 
     } //end loop inputParameters
 
-    if (vfield.size() == 0) {
-      return NULL;
+    if (vfield.empty()) {
+      return 0;
     }
 
     for (int j = 0; j < nOutputParameters; j++) {
@@ -1575,14 +1551,13 @@ void FieldManager::updateSource(const std::string& modelName)
   getGridCollection(modelName, "", true);
 }
 
-std::vector<std::string> FieldManager::getFileNames(
-    const std::string& modelName)
+std::vector<std::string> FieldManager::getFileNames(const std::string& modelName)
 {
   METLIBS_LOG_SCOPE();
   std::vector<std::string> filenames;
-    GridCollectionPtr gridCollection = getGridCollection(modelName, "", true);
-    if (gridCollection)
-      filenames = gridCollection->getRawSources();
+  GridCollectionPtr gridCollection = getGridCollection(modelName, "", true);
+  if (gridCollection)
+    filenames = gridCollection->getRawSources();
   return filenames;
 }
 
@@ -1593,90 +1568,75 @@ bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
 {
   METLIBS_LOG_SCOPE(LOGVAL(fieldrequest.paramName));
 
-  // get all available timesteps between start and end.
-  vector<FieldRequest> fieldrequests;
-  fieldrequests.push_back(fieldrequest);
-  vector<miTime> fieldTimes = getFieldTime(fieldrequests,false);
   miTime endTime = fieldrequest.ptime;
   miTime startTime = fieldrequest.ptime;
-  if(fch <0)
+  if (fch < 0) // TODO what about fch == 0?
     startTime.addHour(fch);
   else
     endTime.addHour(fch);
+
+  // get all available timesteps between start and end.
+  const vector<FieldRequest> fieldrequests(1, fieldrequest);
+  const vector<miTime> fieldTimes = getFieldTime(fieldrequests, false);
   set<miTime> actualfieldTimes;
   for (size_t i = 0; i < fieldTimes.size(); i++) {
     if (fieldTimes[i] >= startTime && fieldTimes[i] <= endTime)
       actualfieldTimes.insert(fieldTimes[i]);
   }
-
-  if ( !actualfieldTimes.size() ){
+  if (actualfieldTimes.empty())
     return false;
-  }
 
-  if ( accumulate_flux ) {
-    if ( fch > 0 ) {
-      METLIBS_LOG_WARN("accumulte_flux with fchour> 0 is not implemented");
+  if (accumulate_flux) {
+    if (fch > 0) {
+      METLIBS_LOG_WARN("accumulate_flux with fchour> 0 is not implemented");
       return false;
     }
-    if ( !actualfieldTimes.count(startTime) && (startTime != miutil::miTime(fieldrequest.refTime)) ) {
+    if (!actualfieldTimes.count(startTime) && (startTime != miutil::miTime(fieldrequest.refTime))) {
       METLIBS_LOG_DEBUG(fieldrequest.paramName << " not available for "<< startTime);
       return false;
     }
+  }
+  if (fch < 0) {
     actualfieldTimes.erase(startTime);
-    set<miTime>::iterator ip = actualfieldTimes.begin();
-    miTime lastTime = startTime;
-    for (; ip != actualfieldTimes.end(); ip++) {
-      fieldrequest.ptime = *ip;
-      Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
-      if (f == NULL) {
-        METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
-        return false;
-      } else {
-        float sec_diff = miTime::secDiff(*ip, lastTime);
-        if ( !multiplyFieldByTimeStep(f, sec_diff) )
-          return false;
-        vfield.push_back(f);
-        lastTime = *ip;
-      }
-    }
   } else {
-    if ( fch < 0 ) {
-      actualfieldTimes.erase(startTime);
+    actualfieldTimes.erase(endTime);
+  }
+  miTime lastTime = startTime; // only used iff accumulate_flux
+  BOOST_FOREACH(const miTime& t, actualfieldTimes) {
+    fieldrequest.ptime = t;
+    Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
+    if (!f) {
+      METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
+      return false;
     } else {
-      actualfieldTimes.erase(endTime);
-    }
-    BOOST_FOREACH(miTime t,  actualfieldTimes) {
-      fieldrequest.ptime = t;
-      Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
-      if (f == NULL) {
-        METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
-        return false;
-      } else {
-        vfield.push_back(f);
+      if (accumulate_flux) {
+        const float sec_diff = miTime::secDiff(t, lastTime);
+        if (!multiplyFieldByTimeStep(f, sec_diff))
+          return false;
+        lastTime = t;
       }
+      vfield.push_back(f);
     }
   }
-  return vfield.size();
-
+  return !vfield.empty();
 }
 
 bool FieldManager::getAllFields(GridCollectionPtr gridCollection,
     gridinventory::ReftimeInventory& inventory, std::vector<Field*>& vfield,
     FieldRequest fieldrequest, const std::vector<float>& constants, int cacheOptions)
 {
-  int nConstants = constants.size();
-  miTime startTime= fieldrequest.ptime;
-  if ( nConstants == 0 )
+  const int nConstants = constants.size();
+  if (nConstants == 0)
     return false;
+  const miTime startTime = fieldrequest.ptime;
   for (int i = nConstants - 1; i >= 0; i--) {
     fieldrequest.ptime = startTime;
     fieldrequest.ptime.addHour(constants[i]);
-    Field * f = getField(gridCollection, inventory, fieldrequest,
-        cacheOptions);
-    if (f == NULL) {
-      return false;
-    } else {
+    Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
+    if (f) {
       vfield.push_back(f);
+    } else {
+      return false;
     }
   }
   return true;
@@ -1684,13 +1644,11 @@ bool FieldManager::getAllFields(GridCollectionPtr gridCollection,
 
 bool FieldManager::multiplyFieldByTimeStep(Field* f, float sec_diff)
 {
-  vector<float> constants;
-  constants.push_back(sec_diff);
-  vector<Field *> vfield;
-  vfield.push_back(f);
+  const vector<float> constants(1, sec_diff);
+  const vector<Field*> vfield(1, f);
   if (ffunc.fieldComputer(FieldFunctions::f_multiply_f_c, constants, vfield, vfield, gc)) {
     return true;
   }
-  METLIBS_LOG_WARN("fieldComputer returned false");
+  METLIBS_LOG_WARN("problem in multiplyFieldByTimeStep");
   return false;
 }
