@@ -2148,14 +2148,15 @@ bool EditManager::editCombine()
     for (int j = 0;j<obsize;j++){
       ObjectPlot * pobject = combineobjects[i].objects[j];
       if (pobject->isInRegion(i,matrix_nx, matrix_ny,gridResolutionX,gridResolutionY,combinematrix)){
-        ObjectPlot * newobject;
+        ObjectPlot * newobject = 0;
         if (pobject->objectIs(wFront))
           newobject = new WeatherFront(*((WeatherFront*)(pobject)));
         else if (pobject->objectIs(wSymbol))
           newobject = new WeatherSymbol(*((WeatherSymbol*)(pobject)));
         else if (pobject->objectIs(wArea))
           newobject = new WeatherArea(*((WeatherArea*)(pobject)));
-        objm->getEditObjects().objects.push_back(newobject);
+        if (newobject)
+          objm->getEditObjects().objects.push_back(newobject);
       }
     }
   }
