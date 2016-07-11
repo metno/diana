@@ -1198,6 +1198,7 @@ void FieldDialog::addModelGroup(int modelgroupIndex)
   for (size_t i = 0; i < mgr.modelNames.size(); i++) {
     METLIBS_LOG_DEBUG(LOGVAL(mgr.modelNames[i]));
     QStandardItem* child = new QStandardItem(QString::fromStdString(mgr.modelNames[i]));
+    child->setToolTip(mgr.setupInfo[i].c_str());
     child->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     group->appendRow(child);
   }
@@ -1311,7 +1312,10 @@ void FieldDialog::fieldGRboxActivated(int index)
     lastFieldGroupName = vfgi[indexFGR].groupName;
 
     for (size_t i=0; i<vfgi[indexFGR].fieldNames.size();i++) {
-      fieldbox->addItem(QString::fromStdString(vfgi[indexFGR].fieldNames[i]));
+      std::string fieldName = vfgi[indexFGR].fieldNames[i];
+      QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(fieldName));
+      item->setToolTip(QString::fromStdString(vfgi[indexFGR].fields[fieldName].variableName));
+      fieldbox->addItem(item);
     }
 
   }

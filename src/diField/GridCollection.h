@@ -233,7 +233,7 @@ public:
   /**
    * Updates the information held about the data sources.
    */
-  void updateSources();
+  bool updateSources();
 
 protected:
   std::set<miutil::miTime> timesFromFilename;

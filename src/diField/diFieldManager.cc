@@ -330,6 +330,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
           gridSources[mn] = gridcollection;
           if (!miutil::contains(miutil::to_lower(guiOptions), "notingui")) {
             fieldDialogInfo[groupIndex].modelNames.push_back(mn);
+            fieldDialogInfo[groupIndex].setupInfo.push_back(lines[l]);
           }
         } else {
           ostringstream ost;
@@ -532,8 +533,8 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
     return pgc;
 
   // make new inventory
-  if (rescan)
-    pgc->updateSources();
+  if (rescan && !pgc->updateSources())
+    return pgc;
 
   pgc->makeInventory(refTime);
 

@@ -45,6 +45,7 @@
 */
 struct FieldInfo {
   std::string fieldName;
+  std::string variableName;
   std::string groupName;
   std::string standard_name;
   std::string units;
@@ -73,6 +74,7 @@ struct FieldDialogInfo {
   std::string groupName;
   std::string groupType;
   std::vector<std::string> modelNames;
+  std::vector<std::string> setupInfo;
 };
 
 struct FieldRequest {
