@@ -370,7 +370,7 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
     BOOST_FOREACH(const std::string& tok, tokens) {
       std::vector<std::string> stokens= miutil::split_protected(tok, '"', '"', "=", true);
       if (stokens.size()<2) {
-        std::cerr << "Missing argument to keyword: '" << tok << "', assuming it is an option" << std::endl;
+        METLIBS_LOG_INFO("Missing argument to keyword: '" << tok << "', assuming it is an option");
         options.push_back(tok);
         continue;
       }
