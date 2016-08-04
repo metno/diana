@@ -369,6 +369,7 @@ QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase *item) cons
 }
 
 inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
+inline QPointF toQ(const XY& xy) { return QPointF(xy.x(), xy.y()); }
 
 // Returns geographic coordinates converted from screen coordinates.
 QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
@@ -399,15 +400,16 @@ void DrawingManager::setFromLatLonPoints(DrawingItemBase *item, const QList<QPoi
 // Returns screen coordinates converted from geographic coordinates.
 QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) const
 {
-  QList<QPointF> points;
+  const StaticPlot* sp = PLOTM->getStaticPlot();
+  const XY dxy = sp->MapToPhys(XY(editRect_.x1, editRect_.y1));
+
   int n = latLonPoints.size();
 
+  QList<QPointF> points;
+  points.reserve(n);
   for (int i = 0; i < n; ++i) {
-    float x, y;
-    PLOTM->GeoToPhys(latLonPoints.at(i).x(),
-                     latLonPoints.at(i).y(),
-                     x, y);
-    points.append(QPointF(x, y));
+    const QPointF& latlon = latLonPoints.at(i);
+    points.append(toQ(sp->GeoToPhys(XY(latlon.y(), latlon.x())) - dxy));
   }
 
   return points;
