@@ -44,6 +44,8 @@
 
 GLwidget::GLwidget(Controller* c)
   : contr(c)
+  , plotw(1)
+  , ploth(1)
 {
 }
 
