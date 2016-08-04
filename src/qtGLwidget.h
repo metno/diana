@@ -63,6 +63,12 @@ public:
   void paintUnderlay(DiPainter* gl) Q_DECL_OVERRIDE;
   void paintOverlay(DiPainter* gl) Q_DECL_OVERRIDE;
 
+  int width() const
+    { return plotw; }
+
+  int height() const
+    { return ploth; }
+
 Q_SIGNALS:
   /// single click signal
   void mouseGridPos(QMouseEvent* me);

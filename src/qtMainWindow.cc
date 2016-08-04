@@ -2780,7 +2780,7 @@ void DianaMainWindow::paintOnDevice(QPaintDevice* device, bool printing)
   glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
 
-  const int ww = w->width(), wh = w->height(), dw = device->width(), dh = device->height();
+  const int ww = w->Glw()->width(), wh = w->Glw()->height(), dw = device->width(), dh = device->height();
   METLIBS_LOG_DEBUG(LOGVAL(ww) << LOGVAL(wh) << LOGVAL(dw) << LOGVAL(dh));
 
   QPainter painter;
