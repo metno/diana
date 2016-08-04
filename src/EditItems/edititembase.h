@@ -112,7 +112,7 @@ protected:
     // Draws graphics to indicate the incomplete state of the item (if applicable).
     virtual void drawIncomplete(DiGLPainter* gl) const {}
 
-    virtual void drawHoverHighlightingBG(DiGLPainter* gl, bool, bool) const {};
+    virtual void drawHoverHighlightingBG(DiGLPainter* gl, bool, bool) const {}
     virtual void drawHoverHighlighting(DiGLPainter* gl, bool, bool) const = 0;
 
     void drawControlPoints(DiGLPainter* gl, const QColor & = QColor(0, 0, 0, 255), const QColor & = QColor(0, 200, 200, 255), int = 0) const;
