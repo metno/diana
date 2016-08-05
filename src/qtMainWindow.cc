@@ -827,6 +827,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   w= new WorkArea(contr,this);
   setCentralWidget(w);
+  const int w_margin = 1;
+  centralWidget()->layout()->setContentsMargins(w_margin, w_margin, w_margin, w_margin);
 
   connect(w->Glw(), SIGNAL(mouseGridPos(QMouseEvent*)),
       SLOT(catchMouseGridPos(QMouseEvent*)));
