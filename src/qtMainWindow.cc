@@ -2725,12 +2725,13 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
   QImage* image = 0;
   std::auto_ptr<QPaintDevice> device;
   bool printing = false;
+  const int pw = w->Glw()->width(), ph = w->Glw()->height();
   if (filename.endsWith(".pdf")) {
     printer = new QPrinter(QPrinter::ScreenResolution);
     printer->setOutputFormat(QPrinter::PdfFormat);
     printer->setOutputFileName(filename);
     printer->setFullPage(true);
-    printer->setPaperSize(QSizeF(w->width(), w->height()), QPrinter::DevicePixel);
+    printer->setPaperSize(QSizeF(pw, ph), QPrinter::DevicePixel);
 
     // FIXME copy from bdiana
     // According to QTBUG-23868, orientation and custom paper sizes do not
@@ -2743,7 +2744,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     QSvgGenerator* generator = new QSvgGenerator();
     generator->setFileName(filename);
     generator->setSize(w->size());
-    generator->setViewBox(QRect(0, 0, w->width(), w->height()));
+    generator->setViewBox(QRect(0, 0, pw, ph));
     generator->setTitle(tr("diana image"));
     generator->setDescription(tr("Created by diana %1.").arg(PVERSION));
 
@@ -2757,7 +2758,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     printing = true;
     device.reset(generator);
   } else {
-    image = new QImage(w->size(), QImage::Format_ARGB32_Premultiplied);
+    image = new QImage(pw, ph, QImage::Format_ARGB32_Premultiplied);
     image->fill(Qt::transparent);
     device.reset(image);
   }
@@ -2780,21 +2781,16 @@ void DianaMainWindow::paintOnDevice(QPaintDevice* device, bool printing)
   glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
 
-  const int ww = w->Glw()->width(), wh = w->Glw()->height(), dw = device->width(), dh = device->height();
+  const int ww = w->Glw()->width(), wh = w->Glw()->height();
+  const int dw = device->width(), dh = device->height();
   METLIBS_LOG_DEBUG(LOGVAL(ww) << LOGVAL(wh) << LOGVAL(dw) << LOGVAL(dh));
 
   QPainter painter;
   painter.begin(device);
 
   w->Glw()->setCanvas(glcanvas.get());
-#if 1
   glpainter->Viewport(0, 0, dw, dh);
   w->Glw()->resize(dw, dh);
-#else
-  painter.setWindow(0, 0, ww, wh);
-  glpainter->Viewport(0, 0, ww, wh);
-  w->Glw()->resize(ww, wh);
-#endif
 
   glpainter->begin(&painter);
   w->Glw()->paintUnderlay(glpainter.get());
