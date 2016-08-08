@@ -32,6 +32,7 @@
 #endif
 
 #include "diStationPlot.h"
+#include "diGlUtilities.h"
 #include "diPlotModule.h"
 
 #include <boost/algorithm/string.hpp>
@@ -1122,7 +1123,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
   int ff = stations[ii]->ff;
   float radius = scale * 14 * getStaticPlot()->getPhysToMapScaleX();
 
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(x, y, 0.0);
   gl->Scalef(radius, radius, 0.0);
 
@@ -1133,7 +1134,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     gl->Color3ub(0, 0, 0);
     gl->drawCircle(0, 0, 1);
 
-    gl->PushMatrix();
+    diutil::GlMatrixPushPop pushpop2(gl);
     gl->Rotatef(-1 * stations[ii]->north, 0.0, 0.0, 1.0);
     gl->Begin(DiGLPainter::gl_LINES);
     gl->Vertex2f(0.1, 1);
@@ -1159,8 +1160,6 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
       gl->Vertex2f(0, 1.3);
       gl->End();
     }
-    gl->PopMatrix();
-
   }
 
   if (ff < 1) {
@@ -1254,7 +1253,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     }
   }
 
-  gl->PopMatrix();
+  pushpop.PopMatrix();
 
   if (ff > 0 && !classic) {
     gl->setFont("BITMAPFONT", "normal", 10);

@@ -188,4 +188,18 @@ void xyclip(int npos, const float *x, const float *y, const float xylim[4],
   xyclip(npos, x, y, xylim, map_none, std::string(), dummy, gl);
 }
 
+void GlMatrixPushPop::PushMatrix()
+{
+  if (mGL)
+    mGL->PushMatrix();
+}
+
+void GlMatrixPushPop::PopMatrix()
+{
+  if (mGL) {
+    mGL->PopMatrix();
+    mGL = 0;
+  }
+}
+
 } // namespace diutil

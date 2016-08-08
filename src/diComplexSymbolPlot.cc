@@ -34,6 +34,7 @@
 #include "diComplexSymbolPlot.h"
 
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "diWeatherSymbol.h"
 
 #include <puTools/miStringFunctions.h>
@@ -271,7 +272,7 @@ void ComplexSymbolPlot::draw(DiGLPainter* gl, int drawIndex, float x,float y,int
   symbolSizeToPlot=size;
   xvisible=false;
   nstringsvisible=0;
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(x, y, 0.0);
   gl->Rotatef(rot,0.0,0.0,1.0);
   //scale linewidth to symbolsize
@@ -441,7 +442,6 @@ void ComplexSymbolPlot::draw(DiGLPainter* gl, int drawIndex, float x,float y,int
       drawIndex << " not defined ");
     return;
   }
-  gl->PopMatrix();
 }
 
 void ComplexSymbolPlot::drawSymbol(DiGLPainter* gl, int index,float x,float y)
@@ -512,7 +512,7 @@ void ComplexSymbolPlot::drawTextBox(DiGLPainter* gl, int drawIndex,int size, flo
   METLIBS_LOG_DEBUG(LOGVAL(drawIndex) << LOGVAL(x) << LOGVAL(y));
   symbolSizeToPlot=size;
   xvisible=false;
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(x, y, 0.0);
   gl->Rotatef(rot,0.0,0.0,1.0);
   //scale linewidth to symbolsize
@@ -532,7 +532,6 @@ void ComplexSymbolPlot::drawTextBox(DiGLPainter* gl, int drawIndex,int size, flo
     drawSigTextBoxString(gl, sx,sy,whitebox);
     sy -= 0.5*ch;
   }
-  gl->PopMatrix();
 }
 
 void ComplexSymbolPlot::drawColoredSigText(DiGLPainter* gl, float x,float y, bool whitebox)

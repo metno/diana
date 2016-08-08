@@ -29,6 +29,7 @@
 
 #include "diEditItemManager.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/editcomposite.h"
@@ -709,7 +710,7 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
 
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(editRect_.x1, editRect_.y1, 0.0);
   gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
@@ -738,8 +739,6 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
     Editing(incompleteItem_)->draw(gl,
           ((!hitItems_.isEmpty()) && (incompleteItem_ == hitItems_.first())) ? EditItemBase::Hovered : EditItemBase::Normal, true);
   }
-
-  gl->PopMatrix();
 }
 
 void EditItemManager::undo()

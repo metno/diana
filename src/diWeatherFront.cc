@@ -34,6 +34,7 @@
 #include "diWeatherFront.h"
 
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 
 #include <puTools/miStringFunctions.h>
 #include <sstream>
@@ -217,7 +218,7 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
 
       //draw line
       if (currentState == active || drawIndex != SigweatherFront) {
-        gl->PushMatrix();
+        diutil::GlMatrixPushPop pushpop(gl);
 
         //draw the line, first set colour and linewidth
         gl->setLineStyle(objectColour, scaledlinewidth/2, itsLinetype);
@@ -230,7 +231,7 @@ void WeatherFront::plot(DiGLPainter* gl, PlotOrder zorder)
             gl->Vertex2f(nodePoints[i].x(), nodePoints[i].y());
         }
         gl->End();
-        gl->PopMatrix();
+        pushpop.PopMatrix();
         if (rubber)
           plotRubber(gl);
       }
@@ -895,13 +896,11 @@ void WeatherFront::drawSquallLine(DiGLPainter* gl)
 
     if (ncount%2==0){
 
-      gl->PushMatrix();
+      diutil::GlMatrixPushPop pushpop(gl);
       gl->Translatef(xm, ym, 0.0);
       gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
 
       gl->drawCross(0, 0, r, true);
-
-      gl->PopMatrix();
     }
     ncount++;
 

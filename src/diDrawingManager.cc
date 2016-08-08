@@ -38,6 +38,7 @@
 #include "EditItems/drawingstylemanager.h"
 #include "diCommonTypes.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "diPlotModule.h"
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
@@ -520,7 +521,7 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
 
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(editRect_.x1, editRect_.y1, 0.0);
   gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
@@ -533,7 +534,6 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
       item->draw(gl);
     }
   }
-  gl->PopMatrix();
 }
 
 QMap<QString, QString> &DrawingManager::getDrawings()

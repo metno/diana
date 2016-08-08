@@ -77,6 +77,23 @@ void xyclip(int npos, const float *x, const float *y, const float xylim[4],
 void xyclip(int npos, const float *x, const float *y, const float xylim[4],
     DiGLPainter* gl);
 
+class GlMatrixPushPop {
+public:
+  GlMatrixPushPop(DiGLPainter* gl)
+    : mGL(gl)
+    { PushMatrix(); }
+
+  void PopMatrix();
+
+  ~GlMatrixPushPop()
+    { PopMatrix(); }
+
+private:
+  void PushMatrix();
+
+  DiGLPainter* mGL;
+};
+
 } // namespace diutil
 
 #endif // diGlUtilities_h

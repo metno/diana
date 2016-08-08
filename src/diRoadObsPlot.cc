@@ -29,6 +29,7 @@
 
 #include "diRoadObsPlot.h"
 
+#include "diGlUtilities.h"
 #include "diImageGallery.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
@@ -255,14 +256,15 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
 
   checkTotalColourCriteria(gl, index);
 
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(x[index], y[index], 0.0);
 
   //Circle
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop2(gl);
   gl->Scalef(scale, scale, 0.0);
   drawCircle(gl);
-  gl->PopMatrix();
+  pushpop2.PopMatrix();
+
   //wind
   if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
     checkColourCriteria(gl, "dd", dta.fdata["dd"]);
@@ -330,9 +332,8 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
   //  checkColourCriteria(gl, "ww",ww_value);
   //  weather((short int)(int)ww_value,TTT_value,zone,
   //      iptab[lpos+12],iptab[lpos+13]);
-  //  
 
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop3(gl);
   gl->Scalef(scale, scale, 0.0);
   gl->Scalef(0.8, 0.8, 0.0);
 
@@ -370,7 +371,7 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
    }
    }*/
 
-  gl->PopMatrix();
+  pushpop3.PopMatrix();
   bool ClFlag = false;
 
   if (NS1_value != undef || HS1_value != undef || NS2_value != undef || HS2_value != undef
@@ -451,8 +452,6 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
     checkColourCriteria(gl, "Name", 0);
     printString(gl, decodeText(icao_value), iptab[lpos+46]+2,iptab[lpos+47]+2);
   }
-
-  gl->PopMatrix();
 }
 
 /*
@@ -660,10 +659,10 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
 
   checkTotalColourCriteria(gl, index);
 
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(x[index],y[index],0.0);
 
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop2(gl);
   gl->Scalef(scale,scale,0.0);
   // No circle if auto obs
   if (automationcode != 0)
@@ -822,7 +821,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
    }
    */
   // Change of coordinate system
-  gl->PopMatrix();
+  pushpop2.PopMatrix();
 
   //METLIBS_LOG_DEBUG("Pressure - PPPP: value " << PPPP_value);
   if( PPPP_value != undef ) {
@@ -1066,8 +1065,6 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     else
       printString(gl, buf,iptab[lpos+46]+2,iptab[lpos+47]+2);
   }
-
-  gl->PopMatrix();
 }
 
 // we must keep this for performance reasons

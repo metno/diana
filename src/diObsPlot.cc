@@ -35,6 +35,7 @@
 #include "diRoadObsPlot.h"
 
 #include "diImageGallery.h"
+#include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
@@ -72,6 +73,21 @@ short * ObsPlot::itabMetar = 0;
 short * ObsPlot::iptabMetar = 0;
 
 static const int undef = -32767; //should be defined elsewhere
+
+namespace /*anonymous*/ {
+class PushPopTranslateScale : public diutil::GlMatrixPushPop {
+public:
+  PushPopTranslateScale(DiGLPainter* gl, float scale)
+    : GlMatrixPushPop(gl)
+    { gl->Scalef(scale, scale, 1); }
+  PushPopTranslateScale(DiGLPainter* gl, const QPointF& translate)
+    : GlMatrixPushPop(gl)
+    { gl->Translatef(translate.x(), translate.y(), 0); }
+  PushPopTranslateScale(DiGLPainter* gl, const QPointF& translate, float scale)
+    : GlMatrixPushPop(gl)
+    { gl->Translatef(translate.x(), translate.y(), 0); gl->Scalef(scale, scale, 1); }
+};
+} // namespace /*anonymous*/
 
 ObsPlot::ObsPlot(const std::string& pin, ObsPlotType plottype)
   : m_plottype(plottype)
@@ -2223,8 +2239,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     }
   }
 
-  gl->PushMatrix();
-  gl->Translatef(x[index], y[index], 0.0);
+  PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
 
   if ((not dta.id.empty()) && dta.id == selectedStation) {
      Colour c("red");
@@ -2236,8 +2251,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     int dd_adjusted = int(dta.fdata.find("dd_adjusted")->second);
     float ff = dta.fdata.find("ff")->second;
 
-    gl->PushMatrix();
-    gl->Scalef(scale, scale, 0.0);
+    PushPopTranslateScale pushpop2(gl, scale);
     bool ddvar = false;
     if (dd == 990 || dd == 510) {
       ddvar = true;
@@ -2258,9 +2272,6 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     plotWind(gl, dd_adjusted, ff, ddvar, radius, current);
 
     advanceByDD(dd_adjusted, xpos);
-
-    gl->PopMatrix();
-
   } else  {
     if (vertical_orientation)
       ypos += yShift;
@@ -2303,7 +2314,6 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       for (int i = 0; i < n; ++i)
         plotAscii(gl, dta, columnName[i],xpos,ypos,yStep,align_right);
   }
-  gl->PopMatrix();
 }
 
 void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& param,
@@ -2355,11 +2365,8 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   checkTotalColourCriteria(gl, index);
 
-  gl->PushMatrix();
-  gl->Translatef(x[index], y[index], 0.0);
-
-  gl->PushMatrix();
-  gl->Scalef(scale, scale, 0.0);
+  PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
+  PushPopTranslateScale pushpop2(gl, scale);
 
   drawCircle(gl);
 
@@ -2479,7 +2486,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     zigzagArrow(gl, f_p->second, iptab[lpos + 30], iptab[lpos + 31]);
   }
 
-  gl->PopMatrix();
+  pushpop2.PopMatrix();
 
   // Pressure - PPPP
   if (devfield) {
@@ -2665,7 +2672,6 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   if (!flaginfo) {
-    gl->PopMatrix();
     return;
   }
 
@@ -2685,13 +2691,11 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   //Flag + red/yellow/green
   if (pFlag.count("flag") && not hqcFlag.empty()
       && dta.flagColour.count(hqcFlag)) {
-    gl->PushMatrix();
-    gl->Scalef(scale, scale, 0.0);
+    PushPopTranslateScale pushpop2(gl, scale);
     gl->setColour(dta.flagColour[hqcFlag]);
     drawCircle(gl);
     cloudCover(gl, 8, radius);
     gl->setColour(colour);
-    gl->PopMatrix();
   }
 
   //Type of station (replace Cl)
@@ -2701,11 +2705,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   // Man. precip, marked by dot
   if (precip) {
-    gl->PushMatrix();
-    gl->Scalef(scale * 0.3, scale * 0.3, 0.0);
+    PushPopTranslateScale pushpop2(gl, scale * 0.3);
     drawCircle(gl);
     cloudCover(gl, 8, radius);
-    gl->PopMatrix();
   }
 
   //id
@@ -2723,20 +2725,16 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   //red circle
   if (pFlag.count("id") && dta.id == selectedStation) {
-    gl->PushMatrix();
-    gl->Scalef(scale * 1.3, scale * 1.3, 0.0);
+    PushPopTranslateScale pushpop2(gl, scale * 1.3);
     DiGLPainter::GLfloat lwidth;
     gl->GetFloatv(DiGLPainter::gl_LINE_WIDTH, &lwidth);
     gl->LineWidth(2 * lwidth);
     Colour c("red");
     gl->setColour(c);
     drawCircle(gl);
-    gl->PopMatrix();
     gl->LineWidth(lwidth);
   }
   //----------------- end HQC only ----------------------------------------
-
-  gl->PopMatrix();
 }
 
 void ObsPlot::plotMetar(DiGLPainter* gl, int index)
@@ -2757,14 +2755,12 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
 
   checkTotalColourCriteria(gl, index);
 
-  gl->PushMatrix();
-  gl->Translatef(x[index], y[index], 0.0);
+  PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
 
   //Circle
-  gl->PushMatrix();
-  gl->Scalef(scale, scale, 0.0);
+  PushPopTranslateScale pushpop2(gl, scale);
   drawCircle(gl);
-  gl->PopMatrix();
+  pushpop2.PopMatrix();
 
   //wind
   if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
@@ -2813,9 +2809,8 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     printNumber(gl, f_p->second, iptab[lpos + 14] + 23, iptab[lpos + 15] - 16,
         "temp", true);
   }
-  gl->PushMatrix();
-  gl->Scalef(scale, scale, 0.0);
-  gl->Scalef(0.8, 0.8, 0.0);
+
+  PushPopTranslateScale pushpop3(gl, scale*0.8);
 
   //Significant weather
   int wwshift = 0; //idxm
@@ -2848,8 +2843,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
       }
     }
   }
-
-  gl->PopMatrix();
+  pushpop3.PopMatrix();
 
   //Visibility (worst)
   if (pFlag.count("vvvv/dv")) {
@@ -2912,8 +2906,6 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "Id", 0);
     printString(gl, decodeText(dta.metarId), xid, yid);
   }
-
-  gl->PopMatrix();
 }
 
 void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
@@ -3129,8 +3121,7 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
     box = true;
   }
 
-  gl->PushMatrix();
-  gl->Scalef(scale, scale, 0.0);
+  PushPopTranslateScale pushpop1(gl, scale);
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
 
   // Kryss over sirkelen hvis ikke variabel vindretn (dd=999)
@@ -3143,7 +3134,6 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
     y2 = y1;
     y3 = y4 = y1 + 22;
     gl->drawRect(x1, y1, x3, y3);
-    gl->PopMatrix();
     return;
   }
 
@@ -3151,12 +3141,9 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
 
   // vindstille
   if (dd == 0) {
-    gl->PushMatrix();
-    gl->Scalef(1.5, 1.5, 0.0);
+    PushPopTranslateScale pushpop2(gl, 1.5);
     drawCircle(gl);
     cloudCover(gl, 9, radius); //litt st�rre kryss
-    gl->PopMatrix();
-    gl->PopMatrix();
     return;
   }
 
@@ -3211,8 +3198,6 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
     }
     gl->PopMatrix();
   }
-
-  gl->PopMatrix();
 }
 
 void ObsPlot::initMetarMap()
@@ -3780,9 +3765,7 @@ void ObsPlot::checkMaxWindTime(ObsData &dta)
 
 void ObsPlot::arrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale)
 {
-  gl->PushMatrix();
-  gl->Translatef(xpos, ypos, 0.0);
-  gl->Scalef(scale, scale, 0.0);
+  PushPopTranslateScale pushpop1(gl, QPointF(xpos, ypos), scale);
   gl->Translatef(8, 8, 0.0);
   gl->Rotatef(360 - angle, 0.0, 0.0, 1.0);
 
@@ -3794,15 +3777,11 @@ void ObsPlot::arrow(DiGLPainter* gl, float angle, float xpos, float ypos, float 
   gl->Vertex2f(0, 6);
   gl->Vertex2f(2, 2);
   gl->End();
-
-  gl->PopMatrix();
 }
 
 void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale)
 {
-  gl->PushMatrix();
-  gl->Translatef(xpos, ypos, 0.0);
-  gl->Scalef(scale, scale, 0.0);
+  PushPopTranslateScale pushpop1(gl, QPointF(xpos, ypos), scale);
   gl->Translatef(9, 9, 0.0);
   gl->Rotatef(359 - angle, 0.0, 0.0, 1.0);
 
@@ -3824,8 +3803,6 @@ void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, 
   gl->Vertex2f(0, -10);
   gl->Vertex2f(-4, -6);
   gl->End();
-
-  gl->PopMatrix();
 }
 
 void ObsPlot::symbol(DiGLPainter* gl, int n, float xpos, float ypos, float scale,
@@ -3837,14 +3814,11 @@ void ObsPlot::symbol(DiGLPainter* gl, int n, float xpos, float ypos, float scale
   int npos, nstep, k1, k2, k = 0;
   int ipx, ipy;
 
-  gl->PushMatrix();
-  gl->Translatef(xpos, ypos, 0.0);
-  gl->Scalef(scale, scale, 0.0);
-
   npos = iptab[n + 3];
   nstep = iptab[n + 9];
   k1 = n + 10;
   k2 = k1 + nstep * npos;
+  PushPopTranslateScale pushpop1(gl, QPointF(xpos, ypos), scale);
 
   DiGLPainter::GLfloat x[100];
   DiGLPainter::GLfloat y[100];
@@ -3881,7 +3855,6 @@ void ObsPlot::symbol(DiGLPainter* gl, int n, float xpos, float ypos, float scale
     gl->End();
   }
 
-  gl->PopMatrix();
 }
 
 void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
@@ -4013,7 +3986,8 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
   if (ff > 200)
     ff = 200;
 
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop1(gl);
+
 
   // calm
   if (ff < 1.) {
@@ -4116,8 +4090,6 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
     gl->Vertex2f(-3, 5);
     gl->End();
   }
-
-  gl->PopMatrix();
 }
 
 void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,

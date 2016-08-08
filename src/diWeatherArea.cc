@@ -35,6 +35,7 @@
 
 #include "diWeatherArea.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "polyStipMasks.h"
 
 #include <QPolygonF>
@@ -508,14 +509,13 @@ void WeatherArea::drawSigweather(DiGLPainter* gl)
     }
     float xx1 = xplot[i] + deltax / 2;
     float yy1 = yplot[i] + deltay / 2;
-    gl->PushMatrix();
+    diutil::GlMatrixPushPop pushpop(gl);
     gl->Translatef(xx1, yy1, 0.0);
     gl->Rotatef(atan2(deltay, deltax) * RAD_TO_DEG, 0.0, 0.0, 1.0);
     gl->Begin(DiGLPainter::gl_LINE_STRIP);
     for (int j = 0; j < nflag; j++)
       gl->Vertex2f(xflag[j], yflag[j]);
     gl->End();
-    gl->PopMatrix();
   }
   if (xplot != 0)
     delete[] xplot;
