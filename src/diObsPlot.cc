@@ -44,6 +44,7 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
+#include <QPolygonF>
 #include <QString>
 #include <QTextCodec>
 
@@ -67,10 +68,10 @@ map<int, int> ObsPlot::lwwg2;
 
 std::string ObsPlot::currentPriorityFile = "";
 vector<std::string> ObsPlot::priorityList;
-short * ObsPlot::itabSynop = 0;
-short * ObsPlot::iptabSynop = 0;
-short * ObsPlot::itabMetar = 0;
-short * ObsPlot::iptabMetar = 0;
+vector<short> ObsPlot::itabSynop;
+vector<short> ObsPlot::iptabSynop;
+vector<short> ObsPlot::itabMetar;
+vector<short> ObsPlot::iptabMetar;
 
 static const int undef = -32767; //should be defined elsewhere
 
@@ -741,20 +742,20 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   std::string path = LocalSetupParser::basicValue("obsplotfilepath");
 
   if (op->isSynopListRoad()) {
-    if (!itabSynop || !iptabSynop) {
+    if (itabSynop.empty() || iptabSynop.empty()) {
       if (!readTable(op->plottype(), path + "/itab_synop.txt", path + "/iptab_synop.txt", itabSynop, iptabSynop))
         return 0;
     }
-    op->itab = itabSynop;
-    op->iptab = iptabSynop;
+    op->itab = &itabSynop;
+    op->iptab = &iptabSynop;
 
   } else if (op->plottype() == OPT_METAR) {
-    if (!itabMetar || !iptabMetar) {
+    if (itabMetar.empty() || iptabMetar.empty()) {
       if (!readTable(op->plottype(), path + "/itab_metar.txt", path + "/iptab_metar.txt", itabMetar, iptabMetar))
         return 0;
     }
-    op->itab = itabMetar;
-    op->iptab = iptabMetar;
+    op->itab = &itabMetar;
+    op->iptab = &iptabMetar;
   }
 
   return op.release();
@@ -1802,7 +1803,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   }
 
   const size_t n = nextplot.size();
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     plotIndex(gl, nextplot[i]);
   }
 
@@ -1963,66 +1964,68 @@ void ObsPlot::clearPos()
   usedBox.clear();
 }
 
-void ObsPlot::advanceByDD(int dd, float& xpos)
+void ObsPlot::advanceByDD(int dd, QPointF& xypos)
 {
   if (!vertical_orientation && dd > 20 && dd < 92) {
     const float sindd = sin(dd * M_PI / 180);
+    float dx;
     if (dd < 70) {
-      xpos += 48 * sindd / 2;
+      dx = 48 * sindd / 2;
     } else if (dd < 85) {
-      xpos += 55 * sindd;
+      dx = 55 * sindd;
     } else {
-      xpos += 48 * sindd;
+      dx = 48 * sindd;
     }
+    xypos.rx() += dx;
   }
 }
 
 void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
-    float& xpos, float& ypos, float yStep, bool align_right, float xshift)
+    QPointF& xypos, float yStep, bool align_right, float xshift)
 {
   if (not pFlag.count(miutil::to_lower(param.name)) )
     return;
 
   if( param.name=="pos") {
-    printListPos(gl, dta,xpos, ypos, yStep, align_right);
+    printListPos(gl, dta, xypos, yStep, align_right);
     return;
   }
 
-  ypos -= yStep;
+  xypos.ry() -= yStep;
 
   if( miutil::contains(param.name,"RRR")) {
-    printListRRR(gl, dta,param.name,xpos, ypos, align_right);
+    printListRRR(gl, dta,param.name, xypos, align_right);
     return;
   }
   if ( param.symbol > -1) {
-    printListSymbol(gl, dta,param,xpos,ypos,yStep,align_right,xshift);
+    printListSymbol(gl, dta,param,xypos,yStep,align_right,xshift);
   } else {
     const std::map<string, string>::const_iterator s_p = dta.stringdata.find(param.name);
     if (s_p != dta.stringdata.end()) {
       checkColourCriteria(gl, param.name,undef);
-      printListString(gl, decodeText(s_p->second), xpos, ypos, align_right);
+      printListString(gl, decodeText(s_p->second), xypos, align_right);
     } else {
       const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
       if (f_p != dta.fdata.end()) {
         checkColourCriteria(gl, param.name, f_p->second);
         if (param.name == "VV") {
-          printList(gl, visibility(f_p->second, dta.zone == 99), xpos, ypos, 0, align_right, "fill_2");
+          printList(gl, visibility(f_p->second, dta.zone == 99), xypos, 0, align_right, "fill_2");
         } else if ( param.knotParam && !unit_ms) {
-          printList(gl, diutil::ms2knots(f_p->second), xpos, ypos, param.precision, align_right);
+          printList(gl, diutil::ms2knots(f_p->second), xypos, param.precision, align_right);
         } else if ( param.tempParam && tempPrecision) {
-          printList(gl, f_p->second, xpos, ypos, 0, align_right);
+          printList(gl, f_p->second, xypos, 0, align_right);
         } else {
-          printList(gl, f_p->second, xpos, ypos, param.precision, align_right);
+          printList(gl, f_p->second, xypos, param.precision, align_right);
         }
       } else {
-        printUndef(gl, xpos, ypos, align_right);
+        printUndef(gl, xypos, align_right);
       }
     }
   }
 }
 
 void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
-    float& xpos, float& ypos, float yStep, bool align_right, const float& xshift)
+    QPointF& xypos, float yStep, bool align_right, const float& xshift)
 {
   if (param.name == "PwaHwa" || param.name == "Pw1Hw1") {
     ObsData::fdata_t::const_iterator p, q;
@@ -2035,72 +2038,68 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Paramet
     }
     if (p != dta.fdata.end() && q != dta.fdata.end()) {
       checkColourCriteria(gl, param.name, p->second);
-      wave(gl, q->second, p->second, xpos, ypos, align_right);
+      wave(gl, q->second, p->second, xypos, align_right);
       const QString str = "00/00";
-      advanceByStringWidth(gl, str, xpos);
+      advanceByStringWidth(gl, str, xypos);
     } else {
-      printUndef(gl, xpos, ypos, align_right);
+      printUndef(gl, xypos, align_right);
     }
 
   } else {
     const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
     if (f_p != dta.fdata.end() ) {
       checkColourCriteria(gl, param.name, f_p->second);
+      QPointF spos = xypos*scale - QPointF(xshift, 0);
       if ( param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
-        symbol(gl, itab[param.symbol + (int) f_p->second], xpos * scale - xshift, ypos * scale,
-            0.6 * scale, align_right);
+        symbol(gl, vtab(param.symbol + (int) f_p->second), spos, 0.6 * scale, align_right);
       } else if((param.name == "W1" || param.name == "W2") &&f_p->second > 2) {
-        pastWeather(gl, (int) f_p->second, xpos * scale - xshift, ypos * scale,
-            0.6 * scale, align_right);
+        pastWeather(gl, (int) f_p->second, spos, 0.6 * scale, align_right);
 
       } else if (param.name == "ww") {
 
         const std::map<string, float>::const_iterator ttt_p = dta.fdata.find("TTT");
         if (ttt_p != dta.fdata.end()) {
           weather(gl, (short int) f_p->second, ttt_p->second, dta.zone,
-              xpos * scale - xshift, (ypos - 0.2 * yStep) * scale, scale * 0.6,
-              align_right);
+              spos - QPointF(0, 0.2*yStep*scale), scale * 0.6, align_right);
         } else {
-          printUndef(gl, xpos, ypos, align_right);
+          printUndef(gl, xypos, align_right);
         }
       } else if ( param.name == "ds" ) {
-        arrow(gl, f_p->second, xpos * scale - xshift, ypos * scale,
-            scale * 0.6);
+        arrow(gl, f_p->second, spos, scale * 0.6);
       } else if ( param.name == "dw1dw1" ) {
-        zigzagArrow(gl, f_p->second, xpos * scale - xshift, ypos * scale,
-            scale * 0.6);
+        zigzagArrow(gl, f_p->second, spos, scale * 0.6);
       }
       if (!vertical_orientation)
-        xpos += 20;
+        xypos.rx() += 20;
 
     } else {
-      printUndef(gl, xpos, ypos, align_right);
+      printUndef(gl, xypos, align_right);
     }
   }
 }
 
 void ObsPlot::printListRRR(DiGLPainter* gl, const ObsData& dta, const std::string& param,
-    float& xpos, float& ypos,bool align_right)
+    QPointF& xypos, bool align_right)
 {
   const std::map<string, float>::const_iterator f_p = dta.fdata.find(param);
   if (f_p != dta.fdata.end()) {
     checkColourCriteria(gl, param, f_p->second);
     if (f_p->second < 0.0) { //Precipitation, but less than 0.1 mm (0.0)
-      printListString(gl, "0.0", xpos, ypos, align_right);
+      printListString(gl, "0.0", xypos, align_right);
     } else if (f_p->second < 0.1) { //No precipitation (0.)
-      printListString(gl, "0.", xpos, ypos, align_right);
+      printListString(gl, "0.", xypos, align_right);
     } else {
-      printList(gl, f_p->second, xpos, ypos, 1, align_right);
+      printList(gl, f_p->second, xypos, 1, align_right);
     }
   } else {
-    printUndef(gl, xpos, ypos, align_right);
+    printUndef(gl, xypos, align_right);
   }
 }
 
 void ObsPlot::printListPos(DiGLPainter* gl, const ObsData& dta,
-    float& xpos, float& ypos, float yStep, bool align_right)
+    QPointF& xypos, float yStep, bool align_right)
 {
-  ypos -= yStep;
+  xypos.ry() -= yStep;
   QString str1 = diutil::formatLatitude (dta.ypos, 2, 6);
   QString str2 = diutil::formatLongitude(dta.xpos, 2, 6);;
   if (yStep <= 0)
@@ -2108,20 +2107,20 @@ void ObsPlot::printListPos(DiGLPainter* gl, const ObsData& dta,
 
   checkColourCriteria(gl, "Pos", 0);
 
-  printString(gl, str1, xpos, ypos, align_right);
-  advanceByStringWidth(gl, str1, xpos);
-  ypos -= yStep;
-  printString(gl, str2, xpos, ypos, align_right);
-  advanceByStringWidth(gl, str2, xpos);
+  printString(gl, str1, xypos, align_right);
+  advanceByStringWidth(gl, str1, xypos);
+  xypos.ry() -= yStep;
+  printString(gl, str2, xypos, align_right);
+  advanceByStringWidth(gl, str2, xypos);
 }
 
-void ObsPlot::printUndef(DiGLPainter* gl, float& xpos, float& ypos, bool align_right)
+void ObsPlot::printUndef(DiGLPainter* gl, QPointF& xypos, bool align_right)
 {
   gl->setColour(colour);
-  printListString(gl, "X", xpos, ypos, align_right);
+  printListString(gl, "X", xypos, align_right);
 }
 
-void ObsPlot::printList(DiGLPainter* gl, float f, float& xpos, float& ypos, int precision,
+void ObsPlot::printList(DiGLPainter* gl, float f, QPointF& xypos, int precision,
     bool align_right, std::string opt)
 {
   if (f != undef) {
@@ -2146,30 +2145,28 @@ void ObsPlot::printList(DiGLPainter* gl, float f, float& xpos, float& ypos, int 
     if (do_fill)
       cs = cs.rightJustified(2, '0');
 
-    printListString(gl, cs, xpos, ypos, align_right);
+    printListString(gl, cs, xypos, align_right);
   } else {
-    printListString(gl, "X", xpos, ypos, align_right);
+    printListString(gl, "X", xypos, align_right);
   }
 }
 
-float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const QString& txt, float& xpos)
+float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const QString& txt, QPointF& xypos)
 {
   float w, h;
   gl->getTextSize(txt, w, h);
   if (!vertical_orientation)
-    xpos += w / scale + 5;
+    xypos.rx() += w / scale + 5;
   return w;
 }
 
-void ObsPlot::printListString(DiGLPainter* gl, const QString& txt, float& xpos, float& ypos,
-    bool align_right)
+void ObsPlot::printListString(DiGLPainter* gl, const QString& txt, QPointF& xypos, bool align_right)
 {
-  float x = xpos * scale;
-  const float y = ypos * scale;
-  const float w = advanceByStringWidth(gl, txt, xpos);
+  QPointF xy = xypos * scale;
+  const float w = advanceByStringWidth(gl, txt, xypos);
   if (align_right)
-    x -= w;
-  gl->drawText(txt, x, y, 0.0);
+    xy.rx() -= w;
+  gl->drawText(txt, xy.x(), xy.y(), 0.0);
 }
 
 bool ObsPlot::checkQuality(const ObsData& dta) const
@@ -2199,8 +2196,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   int printPos = -1;
   if (!left_alignment)
     printPos = 0;
-  float xpos = 0;
-  float ypos = 0;
+  QPointF xypos(0, 0);
   float xshift = 0;
   float width, height;
   gl->getTextSize("0", width, height);
@@ -2263,22 +2259,22 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       dd = 0;
       printPos = 1;
       if (vertical_orientation)
-        ypos += yShift;
-      xpos += xShift;
+        xypos.ry() += yShift;
+      xypos.rx() += xShift;
     }
 
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", ff);
     plotWind(gl, dd_adjusted, ff, ddvar, radius, current);
 
-    advanceByDD(dd_adjusted, xpos);
+    advanceByDD(dd_adjusted, xypos);
   } else  {
     if (vertical_orientation)
-      ypos += yShift;
-    xpos += xShift;
+      xypos.ry() += yShift;
+    xypos.rx() += xShift;
     if (pFlag.count("wind")) {
-      float xx = 0, yy = 0;
-      printUndef(gl, xx, yy, "left"); //undef wind, station position
+      QPointF center(0, 0);
+      printUndef(gl, center, "left"); //undef wind, station position
     }
   }
 
@@ -2288,39 +2284,39 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     align_right = (printPos == 0 || printPos == 3);
     if ( printPos < 2 ) {
       yStep *= -1;
-      ypos += yStep;
+      xypos.ry() += yStep;
     }
     if ( printPos == 0 || printPos == 3 )
       xshift = 2 * width;
 
-    ypos += -0.2 * yStep;
+    xypos.ry() += -0.2 * yStep;
   }
 
   if ( plottype() == OPT_LIST ) {
     if (yStep < 0)
       for ( int i = vparam.size()-1; i>-1; --i )
-        printListParameter(gl, dta,vparam[i],xpos,ypos,yStep,align_right,xshift);
+        printListParameter(gl, dta,vparam[i],xypos,yStep,align_right,xshift);
     else
       for ( size_t i = 0; i<vparam.size(); ++i )
-        printListParameter(gl, dta,vparam[i],xpos,ypos,yStep,align_right,xshift);
+        printListParameter(gl, dta,vparam[i],xypos,yStep,align_right,xshift);
 
   } else if ( plottype() == OPT_ASCII ) {
 
     int n = columnName.size();
     if (yStep < 0)
       for (int i = n-1; i > -1; --i)
-        plotAscii(gl, dta, columnName[i],xpos,ypos,yStep,align_right);
+        plotAscii(gl, dta, columnName[i],xypos,yStep,align_right);
     else
       for (int i = 0; i < n; ++i)
-        plotAscii(gl, dta, columnName[i],xpos,ypos,yStep,align_right);
+        plotAscii(gl, dta, columnName[i],xypos,yStep,align_right);
   }
 }
 
 void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& param,
-    float& xpos, float& ypos, const float& yStep, bool align_right)
+    QPointF& xypos, const float& yStep, bool align_right)
 {
   if (pFlag.count(param) ) {
-    ypos -= yStep;
+    xypos.ry() -= yStep;
     ObsData::stringdata_t::const_iterator its = dta.stringdata.find(param);
     if (its != dta.stringdata.end()) {
       std::string str = its->second;
@@ -2329,10 +2325,35 @@ void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& 
       if (parameterName)
         str = param + " " + str;
       checkColourCriteria(gl, param, value);
-      printListString(gl, decodeText(str), xpos, ypos, align_right);
+      printListString(gl, decodeText(str), xypos, align_right);
     } else {
-      printUndef(gl, xpos, ypos, align_right);
+      printUndef(gl, xypos, align_right);
     }
+  }
+}
+
+int ObsPlot::vtab(int idx) const
+{
+  if (idx >= 0 && idx < (int)itab->size())
+    return (*itab)[idx];
+  else {
+    METLIBS_LOG_ERROR("itab idx=" << idx << " out of range 0.." << itab->size());
+    return -1000;
+  }
+}
+
+QPointF ObsPlot::xytab(int idxy) const
+{
+  return xytab(idxy, idxy+1);
+}
+
+QPointF ObsPlot::xytab(int idx, int idy) const
+{
+  if (idx >= 0 && idx < (int)iptab->size() && idy >= 0 && idy < (int)iptab->size())
+    return QPointF((*iptab)[idx], (*iptab)[idy]);
+  else {
+    METLIBS_LOG_ERROR("iptab idx=" << idx << " / " << idy << " out of range 0.." << iptab->size());
+    return QPointF(-100, 100);
   }
 }
 
@@ -2393,12 +2414,12 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     }
     if (diutil::ms2knots(dta.fdata["ff"]) < 1.)
       dd = 0;
-    lpos = itab[(dd / 10 + 3) / 2] + 10;
+    lpos = vtab((dd / 10 + 3) / 2) + 10;
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", dta.fdata["ff"]);
     plotWind(gl, dd_adjusted, dta.fdata["ff"], ddvar, radius);
   } else
-    lpos = itab[1] + 10;
+    lpos = vtab(1) + 10;
 
   //Total cloud cover - N
   if ((f_p = dta.fdata.find("N")) != fend) {
@@ -2410,75 +2431,68 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //Weather - WW
-  float VVxpos = iptab[lpos + 14] + 22;
+  float VVxpos = xytab(lpos + 14).x() + 22;
   if (pFlag.count("ww") && (f_p = dta.fdata.find("ww")) != fend) {
-    checkColourCriteria(gl, "ww", dta.fdata["ww"]);
-    weather(gl, (short int) f_p->second, ttt_p->second, dta.zone, iptab[lpos + 12],
-        iptab[lpos + 13]);
-    VVxpos = iptab[lpos + 12] - 20;
+    checkColourCriteria(gl, "ww", f_p->second);
+    const QPointF wwxy = xytab(lpos + 12);
+    VVxpos = wwxy.x() - 20;
+    weather(gl, (short int) f_p->second, ttt_p->second, dta.zone, wwxy);
   }
 
   //characteristics of pressure tendency - a
   map<string, float>::iterator ppp_p = dta.fdata.find("ppp");
-  ;
   if (pFlag.count("a") && (f_p = dta.fdata.find("a")) != fend
       && f_p->second >= 0 && f_p->second < 9) {
     checkColourCriteria(gl, "a", f_p->second);
     if (ppp_p != fend && ppp_p->second > 9)
-      symbol(gl, itab[201 + (int) f_p->second], iptab[lpos + 42] + 12,
-          iptab[lpos + 43], 0.8);
+      symbol(gl, vtab(201 + (int) f_p->second), xytab(lpos + 42) + QPointF(12, 0), 0.8);
     else
-      symbol(gl, itab[201 + (int) f_p->second], iptab[lpos + 42], iptab[lpos + 43],
-          0.8);
+      symbol(gl, vtab(201 + (int) f_p->second), xytab(lpos + 42), 0.8);
   }
 
   // High cloud type - Ch
   if (pFlag.count("ch") && (f_p = dta.fdata.find("Ch")) != fend) {
     checkColourCriteria(gl, "Ch", f_p->second);
     //METLIBS_LOG_DEBUG("Ch: " << f_p->second);
-    symbol(gl, itab[190 + (int) f_p->second], iptab[lpos + 4], iptab[lpos + 5],
-        0.8);
+    symbol(gl, vtab(190 + (int) f_p->second), xytab(lpos + 4), 0.8);
   }
 
   // Middle cloud type - Cm
   if (pFlag.count("cm") && (f_p = dta.fdata.find("Cm")) != fend) {
     checkColourCriteria(gl, "Cm", f_p->second);
     //METLIBS_LOG_DEBUG("Cm: " << f_p->second);
-    symbol(gl, itab[180 + (int) f_p->second], iptab[lpos + 2], iptab[lpos + 3],
-        0.8);
+    symbol(gl, vtab(180 + (int) f_p->second), xytab(lpos + 2), 0.8);
   }
 
   // Low cloud type - Cl
   if (pFlag.count("cl") && (f_p = dta.fdata.find("Cl")) != fend) {
     checkColourCriteria(gl, "Cl", f_p->second);
     //METLIBS_LOG_DEBUG("Cl: " << f_p->second);
-    symbol(gl, itab[170 + (int) f_p->second], iptab[lpos + 22], iptab[lpos + 23],
-        0.8);
+    symbol(gl, vtab(170 + (int) f_p->second), xytab(lpos + 22), 0.8);
   }
 
   // Past weather - W1
   if (pFlag.count("w1") && (f_p = dta.fdata.find("W1")) != fend) {
     checkColourCriteria(gl, "W1", f_p->second);
-    pastWeather(gl, int(f_p->second), iptab[lpos + 34], iptab[lpos + 35], 0.8);
+    pastWeather(gl, int(f_p->second), xytab(lpos + 34), 0.8);
   }
 
   // Past weather - W2
   if (pFlag.count("w2") && (f_p = dta.fdata.find("W2")) != fend) {
     checkColourCriteria(gl, "W2", f_p->second);
-    pastWeather(gl, (int) f_p->second, iptab[lpos + 36], iptab[lpos + 37], 0.8);
+    pastWeather(gl, (int) f_p->second, xytab(lpos + 36), 0.8);
   }
 
   // Direction of ship movement - ds
-  if (pFlag.count("ds") && dta.fdata.find("vs") != fend && (f_p =
-      dta.fdata.find("ds")) != fend) {
+  if (pFlag.count("ds") && dta.fdata.find("vs") != fend && (f_p = dta.fdata.find("ds")) != fend) {
     checkColourCriteria(gl, "ds", f_p->second);
-    arrow(gl, f_p->second, iptab[lpos + 32], iptab[lpos + 33]);
+    arrow(gl, f_p->second, xytab(lpos + 32));
   }
 
   // Direction of swell waves - dw1dw1
   if (pFlag.count("dw1dw1") && (f_p = dta.fdata.find("dw1dw1")) != fend) {
     checkColourCriteria(gl, "dw1dw1", f_p->second);
-    zigzagArrow(gl, f_p->second, iptab[lpos + 30], iptab[lpos + 31]);
+    zigzagArrow(gl, f_p->second, xytab(lpos + 30));
   }
 
   pushpop2.PopMatrix();
@@ -2487,17 +2501,17 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (devfield) {
     if ((f_p = dta.fdata.find("PPPP_mslp")) != fend) {
       checkColourCriteria(gl, "PPPP_mslp", f_p->second);
-      printNumber(gl, f_p->second, iptab[lpos + 44], iptab[lpos + 45], "PPPP_mslp");
+      printNumber(gl, f_p->second, xytab(lpos + 44), "PPPP_mslp");
     }
   } else if (pFlag.count("pppp") && (f_p = dta.fdata.find("PPPP")) != fend) {
     checkColourCriteria(gl, "PPPP", f_p->second);
-    printNumber(gl, f_p->second, iptab[lpos + 44], iptab[lpos + 45], "PPPP");
+    printNumber(gl, f_p->second, xytab(lpos + 44), "PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
   if (pFlag.count("ppp") && ppp_p != fend) {
     checkColourCriteria(gl, "ppp", ppp_p->second);
-    printNumber(gl, ppp_p->second, iptab[lpos + 40], iptab[lpos + 41], "ppp");
+    printNumber(gl, ppp_p->second, xytab(lpos + 40), "ppp");
   }
   // Clouds
   if (pFlag.count("nh") || pFlag.count("h")) {
@@ -2518,11 +2532,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       if (h != undef)
         checkColourCriteria(gl, "h", h);
       if (ClFlag) {
-        amountOfClouds(gl, (short int) Nh, (short int) h, iptab[lpos + 24],
-            iptab[lpos + 25]);
+        amountOfClouds(gl, (short int) Nh, (short int) h, xytab(lpos + 24));
       } else {
-        amountOfClouds(gl, (short int) Nh, (short int) h, iptab[lpos + 24],
-            iptab[lpos + 25] + 10);
+        amountOfClouds(gl, (short int) Nh, (short int) h, xytab(lpos + 24) + QPointF(0, 10));
       }
     }
   }
@@ -2533,36 +2545,36 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     if ((f_p = dta.fdata.find("RRR")) != fend) {
       checkColourCriteria(gl, "RRR", f_p->second);
       if (f_p->second < 0.0) //Precipitation, but less than 0.1 mm (0.0)
-        printString(gl, "0.0", iptab[lpos + 32] + 2, iptab[lpos + 33]);
+        printString(gl, "0.0", xytab(lpos + 32) + QPointF(2, 0));
       else if (f_p->second < 0.1) //No precipitation (0.)
-        printString(gl, "0.", iptab[lpos + 32] + 2, iptab[lpos + 33]);
+        printString(gl, "0.", xytab(lpos + 32) + QPointF(2, 0));
       else
-        printNumber(gl, f_p->second, iptab[lpos + 32] + 2, iptab[lpos + 33], "RRR");
+        printNumber(gl, f_p->second, xytab(lpos + 32) + QPointF(2, 0), "RRR");
     }
   }
   // Horizontal visibility - VV
   if (pFlag.count("vv") && (f_p = dta.fdata.find("VV")) != fend) {
     checkColourCriteria(gl, "VV", f_p->second);
-    printNumber(gl, visibility(f_p->second, dta.zone == 99), VVxpos,
-        iptab[lpos + 15], "fill_2");
+    const QPointF vvxy(VVxpos, xytab(lpos + 14).y());
+    printNumber(gl, visibility(f_p->second, dta.zone == 99), vvxy, "fill_2");
   }
   // Temperature - TTT
   if (pFlag.count("ttt") && ttt_p != fend) {
     checkColourCriteria(gl, "TTT", ttt_p->second);
-    printNumber(gl, ttt_p->second, iptab[lpos + 10], iptab[lpos + 11], "temp");
+    printNumber(gl, ttt_p->second, xytab(lpos + 10), "temp");
   }
 
   // Dewpoint temperature - TdTdTd
   if (pFlag.count("tdtdtd") && (f_p = dta.fdata.find("TdTdTd")) != fend) {
     checkColourCriteria(gl, "TdTdTd", f_p->second);
-    printNumber(gl, f_p->second, iptab[lpos + 16], iptab[lpos + 17], "temp");
+    printNumber(gl, f_p->second, xytab(lpos + 16), "temp");
   }
 
   // Max/min temperature - TxTxTx/TnTnTn
   if (TxTnFlag) {
     if ((f_p = dta.fdata.find("TxTn")) != fend) {
       checkColourCriteria(gl, "TxTn", f_p->second);
-      printNumber(gl, f_p->second, iptab[lpos + 8], iptab[lpos + 9], "temp");
+      printNumber(gl, f_p->second, xytab(lpos + 8), "temp");
     }
   }
 
@@ -2570,7 +2582,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("sss") && (f_p = dta.fdata.find("sss")) != fend
       && dta.zone != 99) {
     checkColourCriteria(gl, "sss", f_p->second);
-    printNumber(gl, f_p->second, iptab[lpos + 46], iptab[lpos + 47]);
+    printNumber(gl, f_p->second, xytab(lpos + 46));
   }
 
   // Maximum wind speed (gusts) - 911ff
@@ -2578,8 +2590,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     if ((f_p = dta.fdata.find("911ff")) != fend) {
       checkColourCriteria(gl, "911ff", f_p->second);
       float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
-      printNumber(gl, ff, iptab[lpos + 38],
-          iptab[lpos + 39], "fill_2", true);
+      printNumber(gl, ff, xytab(lpos + 38), "fill_2", true);
     }
   }
 
@@ -2587,9 +2598,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("s") && (f_p = dta.fdata.find("s")) != fend) {
     checkColourCriteria(gl, "s", f_p->second);
     if (TxTnFlag)
-      printNumber(gl, f_p->second, iptab[lpos + 6], iptab[lpos + 7]);
+      printNumber(gl, f_p->second, xytab(lpos + 6));
     else
-      printNumber(gl, f_p->second, iptab[lpos + 6], iptab[lpos + 7] - 14);
+      printNumber(gl, f_p->second, xytab(lpos + 6) + QPointF(0, -14));
   }
 
   // Maximum wind speed
@@ -2599,11 +2610,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       checkColourCriteria(gl, "fxfx", f_p->second);
       float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
       if (TxTnFlag)
-        printNumber(gl, ff, iptab[lpos + 6] + 10,
-            iptab[lpos + 7], "fill_2", true);
+        printNumber(gl, ff, xytab(lpos + 6) + QPointF(10, 0), "fill_2", true);
       else
-        printNumber(gl, ff, iptab[lpos + 6] + 10,
-            iptab[lpos + 7] - 14, "fill_2", true);
+        printNumber(gl, ff, xytab(lpos + 6) + QPointF(10, -14), "fill_2", true);
     }
   }
 
@@ -2613,14 +2622,13 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("vs") && dta.fdata.find("ds") != fend && (f_p =
       dta.fdata.find("vs")) != fend) {
     checkColourCriteria(gl, "vs", f_p->second);
-    printNumber(gl, f_p->second, iptab[lpos + 32] + 18, iptab[lpos + 33]);
+    printNumber(gl, f_p->second, xytab(lpos + 32) + QPointF(18, 0));
   }
 
   //Time
   if (timeFlag && !dta.obsTime.undef()) {
     checkColourCriteria(gl, "Time", 0);
-    printTime(gl, dta.obsTime, float(iptab[lpos + 46]), float(iptab[lpos + 47]),
-        "left", "h.m");
+    printTime(gl, dta.obsTime, xytab(lpos + 46), "left", "h.m");
   }
 
   // Ship or buoy identifier
@@ -2628,9 +2636,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "Id", 0);
     QString kjTegn = decodeText(dta.id);
     if (timeFlag)
-      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47] + 15);
+      printString(gl, kjTegn, xytab(lpos + 46) + QPointF(0, 15));
     else
-      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47]);
+      printString(gl, kjTegn, xytab(lpos + 46));
   }
 
   //Wmo block + station number - land stations
@@ -2642,28 +2650,28 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       checkColourCriteria(gl, "St.no(3)", 0);
     }
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
-      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47] + 15);
+      printString(gl, kjTegn, xytab(lpos + 46) + QPointF(0, 15));
     else
-      printString(gl, kjTegn, iptab[lpos + 46], iptab[lpos + 47]);
+      printString(gl, kjTegn, xytab(lpos + 46));
   }
 
   //Sea temperature
   if (pFlag.count("twtwtw") && (f_p = dta.fdata.find("TwTwTw")) != fend) {
     checkColourCriteria(gl, "TwTwTw", f_p->second);
-    printNumber(gl, f_p->second, iptab[lpos + 18], iptab[lpos + 19], "temp", true);
+    printNumber(gl, f_p->second, xytab(lpos + 18), "temp", true);
   }
 
   //Wave
   if (pFlag.count("pwahwa") && (f_p = dta.fdata.find("PwaPwa")) != fend
       && (h_p = dta.fdata.find("HwaHwa")) != fend) {
     checkColourCriteria(gl, "PwaHwa", 0);
-    wave(gl, f_p->second, h_p->second, iptab[lpos + 20], iptab[lpos + 21]);
+    wave(gl, f_p->second, h_p->second, xytab(lpos + 20));
   }
   if (pFlag.count("pw1hw1")
       && ((f_p = dta.fdata.find("Pw1Pw1")) != fend
           && (h_p = dta.fdata.find("Hw1Hw1")) != fend)) {
     checkColourCriteria(gl, "Pw1Hw1", 0);
-    wave(gl, f_p->second, h_p->second, iptab[lpos + 28], iptab[lpos + 29]);
+    wave(gl, f_p->second, h_p->second, xytab(lpos + 28));
   }
 
   if (!flaginfo) {
@@ -2675,12 +2683,12 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   if (pFlag.count("id")) {
     gl->setColour(colour);
-    int ypos = iptab[lpos + 47];
+    int dy = 0;
     if (timeFlag)
-      ypos += 13;
+      dy += 13;
     if ((pFlag.count("sss") && dta.fdata.count("sss")))
-      ypos += 13;
-    printString(gl, decodeText(dta.id), iptab[lpos + 46], ypos);
+      dy += 13;
+    printString(gl, decodeText(dta.id), xytab(lpos + 46) + QPointF(0, dy));
   }
 
   //Flag + red/yellow/green
@@ -2696,7 +2704,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   //Type of station (replace Cl)
   bool typeFlag = (pFlag.count("st.type") && (not dta.dataType.empty()));
   if (typeFlag)
-    printString(gl, decodeText(dta.dataType), iptab[lpos + 22], iptab[lpos + 23]);
+    printString(gl, decodeText(dta.dataType), xytab(lpos + 22));
 
   // Man. precip, marked by dot
   if (precip) {
@@ -2708,14 +2716,14 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   //id
   if (pFlag.count("flag") && not hqcFlag.empty() && dta.flag.count(hqcFlag)) {
     gl->setColour(paramColour["flag"]);
-    int ypos = iptab[lpos + 47];
+    int dy = 0;
     if (pFlag.count("id") || typeFlag)
-      ypos += 15;
+      dy += 15;
     if (timeFlag)
-      ypos += 15;
+      dy += 15;
     if (pFlag.count("sss") && dta.fdata.count("sss"))
-      ypos += 15; //if snow
-    printString(gl, decodeText(dta.flag[hqcFlag]), iptab[lpos + 46], ypos);
+      dy += 15; //if snow
+    printString(gl, decodeText(dta.flag[hqcFlag]), xytab(lpos + 46) + QPointF(0, dy));
   }
 
   //red circle
@@ -2739,7 +2747,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   ObsData &dta = obsp[index];
 
   DiGLPainter::GLfloat radius = 7.0;
-  int lpos = itab[1] + 10;
+  int lpos = vtab(1) + 10;
   const map<string, float>::iterator fend = dta.fdata.end();
   map<string, float>::iterator f2_p;
   map<string, float>::iterator f_p;
@@ -2772,37 +2780,32 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     QString cs = QString("%1V%2")
         .arg(f_p->second / 10)
         .arg(f2_p->second / 10);
-    printString(gl, cs, iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
+    printString(gl, cs, xytab(lpos + 2) + QPointF(2, 2));
     dndx = 2;
   }
   //Wind gust
-  float xid, yid;
+  QPointF xyid = xytab(lpos + 4);
   if (pFlag.count("fmfm") && (f_p = dta.fdata.find("fmfm")) != fend) {
     checkColourCriteria(gl, "fmfm", f_p->second);
-    printNumber(gl, f_p->second, iptab[lpos + 4] + 2,
-        iptab[lpos + 5] + 2 - dndx, "left", true);
+    printNumber(gl, f_p->second, xyid + QPointF(2, 2-dndx), "left", true);
     //understrekes
-    xid = iptab[lpos + 4] + 20 + 15;
-    yid = iptab[lpos + 5] - dndx + 8;
+    xyid += QPointF(20 + 15, -dndx + 8);
   } else {
-    xid = iptab[lpos + 4] + 2 + 15;
-    yid = iptab[lpos + 5] + 2 - dndx + 8;
+    xyid += QPointF(2 + 15, 2 - dndx + 8);
   }
 
   //Temperature
   if (pFlag.count("ttt") && (f_p = dta.fdata.find("TTT")) != fend) {
     checkColourCriteria(gl, "TTT", f_p->second);
     //    if( dta.TT>-99.5 && dta.TT<99.5 ) //right align_righted
-    printNumber(gl, f_p->second, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16,
-        "temp");
+    printNumber(gl, f_p->second, xytab(lpos + 12) + QPointF(23, 16), "temp");
   }
 
   //Dewpoint temperature
   if (pFlag.count("tdtdtd") && (f_p = dta.fdata.find("TdTdTd")) != fend) {
     checkColourCriteria(gl, "TdTdTd", f_p->second);
     //    if( dta.TdTd>-99.5 && dta.TdTd<99.5 )  //right align_righted and underlined
-    printNumber(gl, f_p->second, iptab[lpos + 14] + 23, iptab[lpos + 15] - 16,
-        "temp", true);
+    printNumber(gl, f_p->second, xytab(lpos + 14) + QPointF(23, -16), "temp", true);
   }
 
   PushPopTranslateScale pushpop3(gl, scale*0.8);
@@ -2812,10 +2815,10 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   if (pFlag.count("ww")) {
     checkColourCriteria(gl, "ww", 0);
     if (dta.ww.size() > 0 && not dta.ww[0].empty()) {
-      metarSymbol(gl, dta.ww[0], iptab[lpos + 8], iptab[lpos + 9], wwshift);
+      metarSymbol(gl, dta.ww[0], xytab(lpos + 8), wwshift);
     }
     if (dta.ww.size() > 1 && not dta.ww[1].empty()) {
-      metarSymbol(gl, dta.ww[1], iptab[lpos + 10], iptab[lpos + 11], wwshift);
+      metarSymbol(gl, dta.ww[1], xytab(lpos + 10), wwshift);
     }
   }
 
@@ -2826,15 +2829,14 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
       int intREww[5];
       metarString2int(dta.REww[0], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
-        symbol(gl, itab[40 + intREww[0]], iptab[lpos + 30], iptab[lpos + 31] + 2);
+        symbol(gl, vtab(40 + intREww[0]), xytab(lpos + 30) + QPointF(0, 2));
       }
     }
     if (dta.REww.size() > 1 && not dta.REww[1].empty()) {
       int intREww[5];
       metarString2int(dta.REww[1], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
-        symbol(gl, itab[40 + intREww[0]], iptab[lpos + 30] + 15,
-            iptab[lpos + 31] + 2);
+        symbol(gl, vtab(40 + intREww[0]), xytab(lpos + 30) + QPointF(15, 2));
       }
     }
   }
@@ -2844,14 +2846,12 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   if (pFlag.count("vvvv/dv")) {
     if ((f_p = dta.fdata.find("VVVV")) != fend) {
       checkColourCriteria(gl, "VVVV/Dv", 0);
+      const QPointF xy = xytab(lpos + 12) + QPointF(22 + wwshift, 2);
       if ((f2_p = dta.fdata.find("Dv")) != fend) {
-        printNumber(gl, float(int(f_p->second) / 100),
-            iptab[lpos + 12] + 2 + wwshift, iptab[lpos + 13] + 2);
-        printNumber(gl, vis_direction(f2_p->second),
-            iptab[lpos + 12] + 22 + wwshift, iptab[lpos + 13] + 2);
+        printNumber(gl, float(int(f_p->second) / 100), xy);
+        printNumber(gl, vis_direction(f2_p->second), xy);
       } else {
-        printNumber(gl, float(int(f_p->second) / 100),
-            iptab[lpos + 12] + 22 + wwshift, iptab[lpos + 13] + 2);
+        printNumber(gl, float(int(f_p->second) / 100), xy);
       }
     }
   }
@@ -2860,14 +2860,12 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   if (pFlag.count("vxvxvxvx/dvx")) {
     if ((f_p = dta.fdata.find("VxVxVxVx")) != fend) {
       checkColourCriteria(gl, "VVVV/Dv", 0);
+      const QPointF dxy(22 + wwshift, 0);
       if ((f2_p = dta.fdata.find("Dvx")) != fend) {
-        printNumber(gl, float(int(f_p->second) / 100),
-            iptab[lpos + 12] + 2 + wwshift, iptab[lpos + 15]);
-        printNumber(gl, f2_p->second, iptab[lpos + 12] + 22 + wwshift,
-            iptab[lpos + 13]);
+        printNumber(gl, float(int(f_p->second) / 100), xytab(lpos + 12, lpos + 15) + dxy);
+        printNumber(gl, f2_p->second, xytab(lpos + 12) + dxy);
       } else {
-        printNumber(gl, float(int(f_p->second) / 100),
-            iptab[lpos + 14] + 22 + wwshift, iptab[lpos + 15]);
+        printNumber(gl, float(int(f_p->second) / 100), xytab(lpos + 14) + dxy);
       }
     }
   }
@@ -2877,12 +2875,11 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "Clouds", 0);
 
     if (dta.CAVOK) {
-      printString(gl, "CAVOK", iptab[lpos + 18] + 2, iptab[lpos + 19] + 2);
+      printString(gl, "CAVOK", xytab(lpos + 18) + QPointF(2, 2));
     } else { //Clouds
       int ncl = dta.cloud.size();
       for (int i = 0; i < ncl; i++)
-        printString(gl, decodeText(dta.cloud[i]), iptab[lpos + 18 + i * 4] + 2,
-            iptab[lpos + 19 + i * 4] + 2);
+        printString(gl, decodeText(dta.cloud[i]), xytab(lpos + 18 + i * 4) + QPointF(2, 2));
     }
   }
 
@@ -2892,19 +2889,18 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
       checkColourCriteria(gl, "PHPHPHPH", f_p->second);
       int pp = (int) f_p->second;
       pp -= (pp / 100) * 100;
-      printNumber(gl, pp, iptab[lpos + 32] + 2, iptab[lpos + 33] + 2, "fill_2");
+      printNumber(gl, pp, xytab(lpos + 32) + QPointF(2, 2), "fill_2");
     }
   }
 
   //Id
   if (pFlag.count("id")) {
     checkColourCriteria(gl, "Id", 0);
-    printString(gl, decodeText(dta.metarId), xid, yid);
+    printString(gl, decodeText(dta.metarId), xyid);
   }
 }
 
-void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
-    float xpos, float ypos, int &idxm)
+void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww, QPointF xypos, int &idxm)
 {
   int intww[5];
 
@@ -2916,7 +2912,7 @@ void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
   int lww1, lww2, lww3, lww4;
   int sign;
   int idx = 0;
-  float dx = xpos, dy = ypos;
+  float dx = xypos.x(), dy = xypos.y();
 
   lww1 = intww[0];
   lww2 = intww[1];
@@ -2926,7 +2922,7 @@ void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
 
   if (lww1 == 24) {
     dx += 10;
-    symbol(gl, itab[40 + lww1], dx, dy);
+    symbol(gl, vtab(40 + lww1), QPointF(dx, dy));
     lww3 = undef;
     if (lww2 > 500 && lww2 < 9000) {
       lww3 = lww2 - (lww2 / 100) * 100;
@@ -2935,10 +2931,10 @@ void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
     }
     if (lww2 == 45 || (lww2 > 49 && lww2 < 71) || lww2 == 87 || lww2 == 89) {
       dy -= 6;
-      symbol(gl, itab[40 + lww2], dx, dy);
+      symbol(gl, vtab(40 + lww2), QPointF(dx, dy));
       if (lww3 > 49) {
         dx += 10;
-        symbol(gl, itab[40 + lww3], dx, dy);
+        symbol(gl, vtab(40 + lww3), QPointF(dx, dy));
       }
       dy += 6;
     }
@@ -2953,9 +2949,9 @@ void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
     if (idx < idxm)
       idxm = idx;
   }
-  dx = xpos + idx;
+  dx = xypos.x() + idx;
   if (sign > 0) {
-    symbol(gl, itab[40 + sign], dx + 2, dy);
+    symbol(gl, vtab(40 + sign), QPointF(dx+2, dy));
     dy -= 2;
   }
   dx += 10;
@@ -2967,14 +2963,14 @@ void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww,
   lwwx[3] = lww4;
   for (int i = 0; i < 4 && lwwx[i] > -1; i++) {
     lww1 = lwwx[i];
-    dy = ypos;
+    dy = xypos.y();
     if (lww1 > 5000 && lww1 < 9000) {
       dy += 5;
-      symbol(gl, itab[40 + lww1 / 100], dx, dy);
+      symbol(gl, vtab(40 + lww1 / 100), QPointF(dx, dy));
       dy -= 10;
       lww1 -= (lww1 / 100) * 100;
     }
-    symbol(gl, itab[40 + lww1], dx, dy);
+    symbol(gl, vtab(40 + lww1), QPointF(dx, dy));
     dx += 20;
   }
 }
@@ -3090,28 +3086,27 @@ void ObsPlot::metarString2int(std::string ww, int intww[])
 
 void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lpos)
 {
-  DiGLPainter::GLfloat x1, x2, x3, y1, y2, y3, x4, y4;
-  //METLIBS_LOG_DEBUG("metarWind: " << dd << "," << ff);
-
-  lpos = itab[1] + 10;
+  METLIBS_LOG_SCOPE();
+  DiGLPainter::GLfloat y1;
+  lpos = vtab(1) + 10;
   //dd=999;
   bool box = false;
   bool kryss = true;
 
-  //dd=999 - variable wind direction, ff will be written in the middel of the
+  //dd=999 - variable wind direction, ff will be written in the middle of the
   //         circle. (This never happends, because they write dd=990)
   if (dd == 999 && ff >= 0 && ff < 100) {
-    printNumber(gl, ff, -8, -8, "right");
+    printNumber(gl, ff, QPointF(-8, -8), "right");
     y1 = -12;
     box = true;
     kryss = false;
   } else if (dd < 0 || dd > 360) {
-    lpos = itab[20] + 10;
+    lpos = vtab(20) + 10;
     if (ff >= 0 && ff < 100) //dd undefined - ff written above the circle
-      printNumber(gl, ff, 0, 14, "center");
+      printNumber(gl, ff, QPointF(0, 14), "center");
     else
       //dd and ff undefined - XX written above the circle
-      printString(gl, "XX", -8, 14);
+      printString(gl, "XX", QPointF(-8, 14));
     y1 = 10;
     box = true;
   }
@@ -3139,8 +3134,8 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
   }
 
   //#### if( ff > 0 && ff < 100 ){
-  if (ff > 0 && ff < 200) {
-    lpos = itab[((dd / 10) + 3) / 2] + 10;
+  if (dd>0 && ff > 0 && ff < 200) {
+    lpos = vtab(((dd / 10) + 3) / 2) + 10;
     const float angle = (270-dd)*DEG_TO_RAD, ac = std::cos(angle), as = std::sin(angle);
     const float u = ff*ac, v = ff*as;
     // TODO turn barbs on southern hemisphere
@@ -3218,11 +3213,11 @@ void ObsPlot::initMetarMap()
   lwwg2[31] = 7;
 }
 
-void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std::string& align,
+void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::string& align,
     bool line, bool mark)
 {
-  x *= scale;
-  y *= scale;
+  float x = xy.x() * scale;
+  float y = xy.y() * scale;
 
   ostringstream cs;
 
@@ -3318,11 +3313,10 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std:
     gl->drawLine(x, (y - ch / 6), (x + cw), (y - ch / 6));
 }
 
-void ObsPlot::printString(DiGLPainter* gl, const QString& c,
-    float x, float y, bool align_right, bool line)
+void ObsPlot::printString(DiGLPainter* gl, const QString& c, QPointF xy, bool align_right, bool line)
 {
-  x *= scale;
-  y *= scale;
+  float x = xy.x() * scale;
+  float y = xy.y() * scale;
 
   float w, h;
   if (align_right || line)
@@ -3337,13 +3331,13 @@ void ObsPlot::printString(DiGLPainter* gl, const QString& c,
 }
 
 void ObsPlot::printTime(DiGLPainter* gl, const miTime& time,
-    float x, float y, bool align_right, const std::string& format)
+    QPointF xy, bool align_right, const std::string& format)
 {
   if (time.undef())
     return;
 
-  x *= scale;
-  y *= scale;
+  float x = xy.x() * scale;
+  float y = xy.y() * scale;
 
   std::string s;
   if (format == "h.m") {
@@ -3411,9 +3405,10 @@ int ObsPlot::vis_direction(float dv)
   return int(dv) / 45;
 }
 
-void ObsPlot::amountOfClouds(DiGLPainter* gl, short int Nh, short int h,
-    float x, float y)
+void ObsPlot::amountOfClouds(DiGLPainter* gl, short int Nh, short int h, QPointF xy)
 {
+  float x = xy.x(), y = xy.y();
+
   QString ost;
   if (Nh > -1 && Nh < 10)
     ost.setNum(Nh);
@@ -3436,9 +3431,10 @@ void ObsPlot::amountOfClouds(DiGLPainter* gl, short int Nh, short int h,
   gl->drawText(ost, x * scale, y * scale, 0.0);
 }
 
-void ObsPlot::amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, float x, float y,
-    bool metar)
+void ObsPlot::amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, QPointF xy, bool metar)
 {
+  float x = xy.x(), y = xy.y();
+
   QString ost;
   if (Nh > -1)
     if (metar) {
@@ -3475,9 +3471,10 @@ void ObsPlot::amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, float
 
 void ObsPlot::amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, short int Ns2,
     short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4,
-    float x, float y, bool metar)
+    QPointF xy, bool metar)
 {
-  float x_org = x;
+  float x = xy.x(), y = xy.y();
+  const float x_org = x;
 
   if (Ns4 != undef || hs4 != undef) {
     x = x_org;
@@ -3709,12 +3706,11 @@ void ObsPlot::checkMaxWindTime(ObsData &dta)
 
     dta.fdata["fxfx"] = dta.fdata["fxfx_60"];
   }
-
 }
 
-void ObsPlot::arrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale)
+void ObsPlot::arrow(DiGLPainter* gl, float angle, QPointF xypos, float scale)
 {
-  PushPopTranslateScale pushpop1(gl, QPointF(xpos, ypos), scale);
+  PushPopTranslateScale pushpop1(gl, xypos, scale);
   gl->Translatef(8, 8, 0.0);
   gl->Rotatef(360 - angle, 0.0, 0.0, 1.0);
 
@@ -3723,9 +3719,9 @@ void ObsPlot::arrow(DiGLPainter* gl, float angle, float xpos, float ypos, float 
   gl->drawTriangle(true, QPointF(-2, 2), QPointF(0, 6), QPointF(2, 2));
 }
 
-void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale)
+void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, QPointF xypos, float scale)
 {
-  PushPopTranslateScale pushpop1(gl, QPointF(xpos, ypos), scale);
+  PushPopTranslateScale pushpop1(gl, xypos, scale);
   gl->Translatef(9, 9, 0.0);
   gl->Rotatef(359 - angle, 0.0, 0.0, 1.0);
 
@@ -3744,56 +3740,40 @@ void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, 
   gl->drawLine(0, -10, -4,  -6);
 }
 
-void ObsPlot::symbol(DiGLPainter* gl, int n, float xpos, float ypos, float scale,
-    bool align_right)
+void ObsPlot::symbol(DiGLPainter* gl, int n, QPointF xypos, float scale, bool align_right)
 {
-  METLIBS_LOG_SCOPE(
-      "n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align_right: " << align_right);
+  METLIBS_LOG_SCOPE("n: " << n << " xpos: " << xypos.x()
+      << " ypos: " << xypos.y() << " scale: " << scale << " align_right: " << align_right);
 
-  int npos, nstep, k1, k2, k = 0;
-  int ipx, ipy;
+  PushPopTranslateScale pushpop1(gl, xypos, scale);
 
-  npos = iptab[n + 3];
-  nstep = iptab[n + 9];
-  k1 = n + 10;
-  k2 = k1 + nstep * npos;
-  PushPopTranslateScale pushpop1(gl, QPointF(xpos, ypos), scale);
+  const int npos = iptab->at(n + 3);
+  const int nstep = iptab->at(n + 9);
+  const int k1 = n + 10;
+  const int k2 = k1 + nstep * npos;
 
-  DiGLPainter::GLfloat x[100];
-  DiGLPainter::GLfloat y[100];
-
-  x[0] = iptab[n + 4];
-  y[0] = iptab[n + 5];
+  QPolygonF line;
+  QPointF xy = xytab(n + 4);
+  line << xy;
 
   for (int i = k1; i < k2; i += nstep) {
     if (i < 0)
       break;
-    ipx = iptab[i];
-    ipy = iptab[i + 1];
-    if (ipx > -100 && ipx < 100) {
-      k++;
-      x[k] = x[k - 1] + ipx;
-      y[k] = y[k - 1] + ipy;
+    QPointF dxy = xytab(i);
+    if (std::abs(dxy.x()) < 100) {
+      xy += dxy;
     } else {
-      gl->Begin(DiGLPainter::gl_LINE_STRIP);
-      for (int j = 0; j <= k; j++) {
-        gl->Vertex2f(x[j], y[j]);
-      }
-      gl->End();
-      x[0] = x[k] + (ipx - (ipx / 100) * 100);
-      y[0] = y[k] + ipy;
-      k = 0;
+      gl->drawPolyline(line);
+      line.clear();
+
+      dxy.rx() = std::fmod(dxy.x(), 100);
+      xy += dxy;
     }
+    line << xy;
   }
 
-  if (k > 0) {
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    for (int j = 0; j <= k; j++) {
-      gl->Vertex2f(x[j], y[j]);
-    }
-    gl->End();
-  }
-
+  if (line.count() >= 2)
+    gl->drawPolyline(line);
 }
 
 void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
@@ -3812,6 +3792,7 @@ void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
     x = radius / sqrt((float) 2);
     gl->drawCross(0, 0, x, true);
   } else if (N == 7) {
+    // qpainter.drawChord(radius, -72*16, 144*16);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
     gl->Begin(DiGLPainter::gl_POLYGON);
     for (i = 5; i < 46; i++) {
@@ -3824,6 +3805,7 @@ void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
     y = radius * sin(i * 2 * M_PI / 100.0);
     gl->Vertex2f(y, x);
     gl->End();
+    // qpainter.drawChord(radius, 108*16, 144*16);
     gl->Begin(DiGLPainter::gl_POLYGON);
     for (i = 55; i < 96; i++) {
       x = radius * cos(i * 2 * M_PI / 100.0);
@@ -3841,6 +3823,7 @@ void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
     } else if (N == 5) {
       gl->drawLine(8, 0, -8, 0);
     }
+    // qpainter.drawPie(radius, -90*16, N*45*16);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
     gl->Begin(DiGLPainter::gl_POLYGON);
     gl->Vertex2f(0, 0);
@@ -3894,9 +3877,9 @@ void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radi
   }
 }
 
-void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius,
-    float current)
+void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current)
 {
+  METLIBS_LOG_SCOPE();
   //full feather = current
   if (current > 0)
     ff_ms = ff_ms * 10.0 / current;
@@ -3908,120 +3891,45 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
   else
     ff = int(ff_ms);
 
-  DiGLPainter::GLfloat x1, x2, x3, y1, y2, y3, x4, y4;
-
   // just a guess of the max possible in plotting below
   if (ff > 200)
     ff = 200;
 
   diutil::GlMatrixPushPop pushpop1(gl);
 
+  const bool type_list_ascii = (plottype() == OPT_LIST || plottype() == OPT_ASCII);
+  const bool no_cirle = (type_list_ascii || current > 0);
+  const float r = (no_cirle ? 0 : radius);
 
   // calm
-  if (ff < 1.) {
-  } else {
+  if (ff >= 0 && ff < 1) {
     gl->drawCircle(false, 0, 0, radius*1.5);
+  } else if (ff < 0 || ddvar) {
+    // line with cross
     gl->Rotatef(360 - dd, 0.0, 0.0, 1.0);
 
-    gl->Begin(DiGLPainter::gl_LINES);
+    float yy = 47;
+    gl->drawLine(0, r, 0, yy);
 
-    ff = (ff + 2) / 5 * 5;
-    x1 = 0;
-    y1 = radius;
-    if (plottype() == OPT_LIST || plottype() == OPT_ASCII || current > 0)
-      y1 = 0.;
-    x2 = 0;
-    y2 = 47.0;
-    gl->Vertex2f(x1, y1);
-    gl->Vertex2f(x2, y2);
-
-    //variable wind direction
     if (ddvar) {
-      x1 = x3 = -3;
-      x2 = x4 = 3;
-      y1 = y4 = 24.5;
-      y2 = y3 = 30.5;
-      gl->Vertex2f(x1, y1);
-      gl->Vertex2f(x2, y2);
-      gl->Vertex2f(x3, y3);
-      gl->Vertex2f(x4, y4);
+      // cross it middle; otherwise at end
+      yy /= 2;
     }
+    gl->drawCross(0, yy, 3);
+  } else {
+    // normal wind arrow
 
-    // wind speed not observed
-    if (ff < 0) {
-      x1 = x3 = -3;
-      x2 = x4 = 3;
-      y1 = y4 = 44;
-      y2 = y3 = 50;
-      gl->Vertex2f(x1, y1);
-      gl->Vertex2f(x2, y2);
-      gl->Vertex2f(x3, y3);
-      gl->Vertex2f(x4, y4);
-    }
+    const bool arrow = poptions.arrowstyle == arrow_wind_arrow
+        && (plottype() == OPT_LIST || plottype() == OPT_ASCII);
 
-    // wind
-    x1 = 0;
-    y1 = 47.0;
-    x2 = 13;
-    y2 = y1 + 7;
-    if (ff < 10) {
-      y1 -= 6;
-      y2 -= 6;
-    }
-    if (ff >= 50) {
-      gl->End();
-      gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-      for (; ff >= 50; ff -= 50) {
-        x3 = 0;
-        y3 = y1;
-        y2 -= 15;
-        y1 -= 15;
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        gl->Vertex2f(x1, y1);
-        gl->Vertex2f(x2, y2);
-        gl->Vertex2f(x3, y3);
-        gl->Vertex2f(x1, y1);
-        gl->End();
-      }
-      y1 -= 6;
-      y2 -= 6;
-      gl->Begin(DiGLPainter::gl_LINES);
-    }
-    for (; ff >= 10; ff -= 10) {
-      gl->Vertex2f(x1, y1);
-      gl->Vertex2f(x2, y2);
-      y1 -= 6;
-      y2 -= 6;
-    }
-    if (ff >= 5) {
-      x2 = (x1 + x2) / 2;
-      y2 = (y1 + y2) / 2;
-      gl->Vertex2f(x1, y1);
-      gl->Vertex2f(x2, y2);
-    }
-    if (current > 0) {
-      gl->Vertex2f(-4, 6);
-      gl->Vertex2f(0, 0);
-      gl->Vertex2f(0, 0);
-      gl->Vertex2f(4, 6);
-    }
-    gl->End();
-  }
-
-  //arrow
-  if (poptions.arrowstyle == arrow_wind_arrow
-      && (plottype() == OPT_LIST || plottype() == OPT_ASCII)) {
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Begin(DiGLPainter::gl_POLYGON);
-    gl->Vertex2f(0, 0);
-    gl->Vertex2f(3, 5);
-    gl->Vertex2f(-3, 5);
-    gl->End();
+    const float angle = (270-dd)*DEG_TO_RAD, ac = std::cos(angle), as = std::sin(angle);
+    const float u = ff*ac, v = ff*as;
+    gl->drawWindArrow(u, v, -r*ac, -r*as, 47-r, arrow, 1);
   }
 }
 
 void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
-    float xpos, float ypos, float scale, bool align_right)
+    QPointF xypos, float scale, bool align_right)
 {
   const int auto2man[100] = { 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 10, 76, 13, 0, 0, 0,
       0, 0, 18, 0, 28, 21, 20, 21, 22, 24, 29, 38, 38, 37, 41, 41, 43, 45, 47,
@@ -4039,39 +3947,38 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
     return;
   }
 
-  int index = iptab[1247 + ww];
+  int index = iptab->at(1247 + ww);
   if (ww == 7 && zone == 99)
-    index = iptab[1247 + 127];
+    index = iptab->at(1247 + 127);
   if (TTT < 0 && (ww > 92 && ww < 98))
-    index = iptab[1247 + ww + 10];
+    index = iptab->at(1247 + ww + 10);
   if ((TTT >= 0 && TTT < 3) && (ww == 95 || ww == 97))
-    index = iptab[1247 + ww + 20];
+    index = iptab->at(1247 + ww + 20);
 
   if (index > 3) {
-    float idx = iptab[1211 + index];
-    xpos += (idx + (22 - idx) * 0.2) * scale;
-    ypos -= 4 * scale;
+    float idx = iptab->at(1211 + index);
+    xypos += QPointF(idx + 0.2*(22 - idx), -4) * scale;
   }
   //do not plot ww<4
 
-  int n = itab[40 + ww];
+  int n = vtab(40 + ww);
   if (ww == 7 && zone == 99)
-    n = itab[140];
+    n = vtab(140);
   if (ww > 92 && TTT > -1000 && TTT < 1000) {
     if (TTT < 0 && (ww > 92 && ww < 96))
-      n = itab[48 + ww];
+      n = vtab(48 + ww);
     if (TTT < 0 && (ww == 97))
-      n = itab[144];
+      n = vtab(144);
     if ((TTT >= 0 && TTT < 3) && (ww == 95))
-      n = itab[145];
+      n = vtab(145);
     if ((TTT >= 0 && TTT < 3) && (ww == 97))
-      n = itab[146];
+      n = vtab(146);
   }
 
-  symbol(gl, n, xpos, ypos, 0.8 * scale, align_right);
+  symbol(gl, n, xypos, 0.8 * scale, align_right);
 }
 
-void ObsPlot::pastWeather(DiGLPainter* gl, int w, float xpos, float ypos, float scale,
+void ObsPlot::pastWeather(DiGLPainter* gl, int w, QPointF xypos, float scale,
     bool align_right)
 {
   const int auto2man[10] = { 0, 4, 3, 4, 6, 5, 6, 7, 8, 9 };
@@ -4082,11 +3989,10 @@ void ObsPlot::pastWeather(DiGLPainter* gl, int w, float xpos, float ypos, float 
   if (w < 2)
     return;
 
-  symbol(gl, itab[158 + w], xpos, ypos, scale);
+  symbol(gl, vtab(158 + w), xypos, scale);
 }
 
-void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float x, float y,
-    bool align_right)
+void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, QPointF xypos, bool align_right)
 {
   QString cs;
 
@@ -4102,13 +4008,17 @@ void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, float 
   } else
     cs += "xx";
 
-  printListString(gl, cs, x, y, align_right);
+  printListString(gl, cs, xypos, align_right);
 }
 
 namespace {
 
-bool readTableFile(const std::string& filename, short* table, int count)
+bool readTableFile(const std::string& filename, std::vector<short>& table, int count)
 {
+  table.clear();
+  table.reserve(count + 1);
+  table.push_back(0); // dummy to get fortran indices; also prevents re-reading
+
   std::ifstream ifs(filename.c_str());
   if (!ifs.is_open()) {
     METLIBS_LOG_WARN("unable to open table file '" << filename << "'");
@@ -4122,23 +4032,28 @@ bool readTableFile(const std::string& filename, short* table, int count)
       i++;
       if (i >= count)
         break;
-      table[i] = miutil::to_int(line);
+      table.push_back(miutil::to_int(line));
     }
   }
-  METLIBS_LOG_WARN("table file '" << filename << "' has fewer (" << i <<
-      ") data lines than expected (" << count << ")");
+  if (i < count) {
+    METLIBS_LOG_WARN("table file '" << filename << "' has fewer (" << i <<
+        ") data lines than expected (" << count << ")");
+  }
   return true;
 }
 
 } // namespace
 
 // static
-bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename, const std::string& iptab_filename, short*& ritab, short*& riptab)
+bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename, const std::string& iptab_filename,
+    std::vector<short>& ritab, std::vector<short>& riptab)
 {
   //   Initialize ritab and riptab from file.
   METLIBS_LOG_SCOPE("type: " << type << " filename: " << itab_filename << " filename: " << iptab_filename);
 
   size_t psize;
+  ritab.clear();
+  riptab.clear();
 
   if (type == OPT_SYNOP || type == OPT_LIST || type == OPT_ROADOBS)
     psize= 11320;
@@ -4146,17 +4061,12 @@ bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename
     psize = 3072;
   else {
     METLIBS_LOG_WARN("request to read itab/iptab for unknown plot type " << type);
-    ritab = 0;
-    riptab = 0;
     return false; // table for unknown plot type
   }
 
   // indexing as in fortran code (start from element 1)
 
   const int ITAB = 380;
-  ritab = new short[ITAB + 1];
-  riptab = new short[psize + 1];
-
   if (!readTableFile(itab_filename, ritab, ITAB))
     return false;
 

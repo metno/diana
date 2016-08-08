@@ -76,7 +76,7 @@ bool RoadObsPlot::isFileUpdated(const std::string& fname, long now, long mod_tim
 }
 
 void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
-    float xpos, float ypos, float scale, bool align_right)
+    QPointF xypos, float scale, bool align_right)
 {
 #ifdef ROADOBS
   if (ww == 508)
@@ -85,7 +85,7 @@ void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
   if (ww > 199)
     return;
 #endif
-  return ObsPlot::weather(gl, ww, TTT, zone, xpos, ypos, scale, align_right);
+  return ObsPlot::weather(gl, ww, TTT, zone, xypos, scale, align_right);
 }
 
 void RoadObsPlot::plotIndex(DiGLPainter* gl, int index)
