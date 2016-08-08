@@ -1369,8 +1369,26 @@ void DiPaintGLPainter::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
     this->painter->setClipRect(this->viewport);
 }
 
-void DiPaintGLPainter::paintCircle(float centerx, float centery, float radius)
+void DiPaintGLPainter::setFillMode(bool fill)
 {
+  if (fill) {
+    ShadeModel(gl_FLAT);
+    PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
+  } else {
+    PolygonMode(gl_FRONT_AND_BACK, gl_LINE);
+    painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
+  }
+}
+
+void DiPaintGLPainter::drawCircle(bool fill, float centerx, float centery, float radius)
+{
+  if (transform.isRotating()) {
+    DiGLPainter::drawCircle(fill, centerx, centery, radius);
+    return;
+  }
+
+  setFillMode(fill);
+
   const QPointF center = transform.map(QPointF(centerx, centery));
   const QPointF left   = transform.map(QPointF(centerx + radius, centery));
   const QPointF top    = transform.map(QPointF(centerx, centery + radius));
@@ -1385,30 +1403,15 @@ void DiPaintGLPainter::paintCircle(float centerx, float centery, float radius)
   unsetClipPath();
 }
 
-void DiPaintGLPainter::drawCircle(float centerx, float centery, float radius)
+void DiPaintGLPainter::drawRect(bool fill, float x1, float y1, float x2, float y2)
 {
   if (transform.isRotating()) {
-    DiGLPainter::drawCircle(centerx, centery, radius);
-  } else {
-    PolygonMode(gl_FRONT_AND_BACK, gl_LINE);
-    painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
-    paintCircle(centerx, centery, radius);
+    DiGLPainter::drawRect(fill, x1, y1, x2, y2);
+    return;
   }
-}
 
-void DiPaintGLPainter::fillCircle(float centerx, float centery, float radius)
-{
-  if (transform.isRotating()) {
-    DiGLPainter::fillCircle(centerx, centery, radius);
-  } else {
-    ShadeModel(gl_FLAT);
-    PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
-    paintCircle(centerx, centery, radius);
-  }
-}
+  setFillMode(fill);
 
-void DiPaintGLPainter::paintRect(float x1, float y1, float x2, float y2)
-{
   // assumes that transform is not rotating
   const QPointF p00 = transform.map(QPointF(x1, y1));
   const QPointF p11 = transform.map(QPointF(x2, y2));
@@ -1417,28 +1420,6 @@ void DiPaintGLPainter::paintRect(float x1, float y1, float x2, float y2)
   setClipPath();
   painter->drawRect(QRectF(p00, p11));
   unsetClipPath();
-}
-
-void DiPaintGLPainter::drawRect(float x1, float y1, float x2, float y2)
-{
-  if (transform.isRotating()) {
-    DiGLPainter::drawRect(x1, y1, x2, y2);
-  } else {
-    PolygonMode(gl_FRONT_AND_BACK, gl_LINE);
-    painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
-    paintRect(x1, y1, x2, y2);
-  }
-}
-
-void DiPaintGLPainter::fillRect(float x1, float y1, float x2, float y2)
-{
-  if (transform.isRotating()) {
-    DiGLPainter::fillRect(x1, y1, x2, y2);
-  } else {
-    ShadeModel(gl_FLAT);
-    PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
-    paintRect(x1, y1, x2, y2);
-  }
 }
 
 void DiPaintGLPainter::drawLine(float x1, float y1, float x2, float y2)
@@ -1678,7 +1659,7 @@ void DiPaintGLPainter::drawReprojectedImage(const QImage& image, const float* ma
 // ========================================================================
 
 bool DiPaintGLPainter::drawText(const QString& str,
-    const float x, const float y, const float a)
+    const QPointF& xy, const float a)
 {
   if (!this->colorMask)
     return true;
@@ -1695,7 +1676,7 @@ bool DiPaintGLPainter::drawText(const QString& str,
   // No need to record this transformation.
   this->painter->setTransform(this->transform);
   this->painter->setPen(QPen(this->attributes.color));
-  this->painter->translate(x, y);
+  this->painter->translate(xy.x(), xy.y());
   this->painter->rotate(a);
   // Unscale the text so that it appears at the intended size.
   this->painter->scale(c->fontScaleX(), c->fontScaleY());

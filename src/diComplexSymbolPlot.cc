@@ -645,10 +645,7 @@ void ComplexSymbolPlot::drawSig5(DiGLPainter* gl, float x,float y)
   drawSymbol(gl, SIG2SYMBOL,x+0.4*cw,y-0.5*ch);
 
   getComplexSize(gl, 1005,cw,ch);
-  gl->Begin(DiGLPainter::gl_LINE_STRIP);
-  gl->Vertex2f(x-0.3*cw,y-0.3*ch);
-  gl->Vertex2f(x+0.3*cw,y+0.3*ch);
-  gl->End();
+  gl->drawLine(x-0.3*cw, y-0.3*ch, x+0.3*cw, y+0.3*ch);
 }
 
 
@@ -663,10 +660,7 @@ void ComplexSymbolPlot::drawSig6(DiGLPainter* gl, float x,float y)
   getComplexSize(gl, 1004,cw,ch);
   drawSymbol(gl, SIG4SYMBOL,x+0.45*cw,y-0.5*ch);
   getComplexSize(gl, 1006,cw,ch);
-  gl->Begin(DiGLPainter::gl_LINE_STRIP);
-  gl->Vertex2f(x-0.35*cw,y-0.35*ch);
-  gl->Vertex2f(x+0.35*cw,y+0.35*ch);
-  gl->End();
+  gl->drawLine(x-0.35*cw, y-0.35*ch, x+0.35*cw, y+0.35*ch);
 }
 
 
@@ -686,10 +680,7 @@ void ComplexSymbolPlot::drawSig7(DiGLPainter* gl, float x,float y)
   gl->drawText(xstrings[1],x-cw2/2,y-1.1*ch2,0.0);
   float sw,sh;
   getComplexSize(gl, 1007,sw,sh);
-  gl->Begin(DiGLPainter::gl_LINE_STRIP);
-  gl->Vertex2f(x-sw/2,y);
-  gl->Vertex2f(x+sw/2,y);
-  gl->End();
+  gl->drawLine(x-sw/2, y, x+sw/2, y);
   xvisible=true;
 }
 
@@ -834,7 +825,7 @@ void ComplexSymbolPlot::drawSig17(DiGLPainter* gl, float x,float y)
   nstringsvisible=1;
   float sw,sh;
   getComplexSize(gl, 1000,sw,sh);
-  gl->drawRect(x-0.5*sw, y-0.5*sh, x+0.5*sw, y+0.5*sh);
+  gl->drawRect(false, x-0.5*sw, y-0.5*sh, x+0.5*sw, y+0.5*sh);
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
@@ -962,25 +953,14 @@ void ComplexSymbolPlot::drawBox(DiGLPainter* gl, int index,float x, float y,
 
   if( fill ){
     gl->setColour(Colour::fromF(1,1,1,1));
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Begin(DiGLPainter::gl_POLYGON);
   } else {
     gl->setColour(borderColour);
-    gl->Begin(DiGLPainter::gl_LINE_LOOP);
   }
   if (index == 3001) {
-    gl->Vertex2f(x-25000,y-295000);
-    gl->Vertex2f(x-25000,y+37000);
-    gl->Vertex2f(x+1100000,y+37000);
-    gl->Vertex2f(x+1100000,y-295000);
+    gl->drawRect(fill, x-25000, y-295000, x+1100000, y+37000);
+  } else {
+    gl->drawRect(fill, x-0.5*sw, y-0.5*sh, x+0.6*sw, y+0.5*sh);
   }
-  else {
-    gl->Vertex2f(x-0.5*sw,y-0.5*sh);
-    gl->Vertex2f(x-0.5*sw,y+0.5*sh);
-    gl->Vertex2f(x+0.6*sw,y+0.5*sh);
-    gl->Vertex2f(x+0.6*sw,y-0.5*sh);
-  }
-  gl->End();
 
   gl->Color4fv(currentColor);
 }
@@ -1146,7 +1126,7 @@ void ComplexSymbolPlot::drawNuclear(DiGLPainter* gl, float x, float y)
   DiGLPainter::GLfloat radius = sh/1.5;
 
   gl->setColour(borderColour);
-  gl->drawCircle(0, 0, radius);
+  gl->drawCircle(false, 0, 0, radius);
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   gl->Begin(DiGLPainter::gl_POLYGON);
@@ -1210,7 +1190,7 @@ void ComplexSymbolPlot::drawPrecipitation(DiGLPainter* gl, float x, float y)
 
   if (whiteBox) {
     gl->Color4f(1,1,1,1);
-    gl->fillRect(-sw, -sh, sw, sh);
+    gl->drawRect(true, -sw, -sh, sw, sh);
   }
 
   gl->Color4fv(currentColor);

@@ -304,12 +304,11 @@ public:
   void drawPolyline(const QPolygonF& points);
   /* draw a series of filled quads */
   void fillQuadStrip(const QPolygonF& points);
+
   using DiPainter::drawRect;
-  void drawRect(float x1, float y1, float x2, float y2);
-  using DiPainter::fillRect;
-  void fillRect(float x1, float y1, float x2, float y2);
-  void drawCircle(float centerx, float centery, float radius);
-  void fillCircle(float centerx, float centery, float radius);
+  void drawRect(bool fill, float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
+  void drawCircle(bool fill, float centerx, float centery, float radius) Q_DECL_OVERRIDE;
+  void drawTriangle(bool fill, const QPointF& p1, const QPointF& p2, const QPointF& p3) Q_DECL_OVERRIDE;
 
   void drawWindArrow(float u, float v, float x, float y,
       float arrowSize, bool withArrowHead, int turnBarbs=1);

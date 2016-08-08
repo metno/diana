@@ -1065,7 +1065,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     gl->Color4ub(100, 100, 100, 50);
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-    gl->fillRect(x - r, y - r, x + r, y + r);
+    gl->drawRect(true, x - r, y - r, x + r, y + r);
     gl->Disable(DiGLPainter::gl_BLEND);
     break;
   case Station::failed:
@@ -1107,7 +1107,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     r = linewidth * scale;
     radius = 1.5 * r;
     gl->Color3ub(255, 255, 0);
-    gl->drawCircle(x, y, radius);
+    gl->drawCircle(false, x, y, radius);
   }
 }
 
@@ -1132,7 +1132,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     int linewidth = 1;
     gl->LineWidth(linewidth);
     gl->Color3ub(0, 0, 0);
-    gl->drawCircle(0, 0, 1);
+    gl->drawCircle(false, 0, 0, 1);
 
     diutil::GlMatrixPushPop pushpop2(gl);
     gl->Rotatef(-1 * stations[ii]->north, 0.0, 0.0, 1.0);

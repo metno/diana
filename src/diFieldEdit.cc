@@ -3374,7 +3374,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
   d= 5.0 * getStaticPlot()->getPhysToMapScaleX();
 
   gl->setLineStyle(Colour::fromF(0, 1, 1, 0.5), 3);
-  gl->drawRect(posx-d, posy-d, posx+d, posy+d);
+  gl->drawRect(false, posx-d, posy-d, posx+d, posy+d);
 
   const Colour& col = getStaticPlot()->getBackContrastColour();
   gl->setLineStyle(col, 2, false);
@@ -3382,7 +3382,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
   if (influencetype==0) {
 
     // circle
-    gl->drawCircle(posx, posy, rcirclePlot);
+    gl->drawCircle(false, posx, posy, rcirclePlot);
 
   } else if (influencetype==1 || influencetype==2) {
     // ellipse
@@ -3436,7 +3436,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
   } else if (influencetype==3) {
 
     // square
-    gl->drawRect(posx - rcirclePlot, posy - rcirclePlot, posx + rcirclePlot, posy + rcirclePlot);
+    gl->drawRect(false, posx - rcirclePlot, posy - rcirclePlot, posx + rcirclePlot, posy + rcirclePlot);
   }
 
   if (showArrow) {

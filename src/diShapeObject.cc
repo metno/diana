@@ -304,13 +304,13 @@ bool ShapeObject::plot(DiGLPainter* gl,
         gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
         gl->drawText("SSS", s->shape->padfX[0], s->shape->padfY[0], 0.0);
         gl->setLineStyle(lcolour, 2);
-        gl->fillCircle(p.at(0).x(), p.at(0).y(), symbol_rad);
+        gl->drawCircle(true, p.at(0).x(), p.at(0).y(), symbol_rad);
       } else {
         gl->setColour(lcolour);
         for (int k = 0; k < p.size(); k++) {
           const QPointF& ppk = p.at(k);
           if (areaX.isinside(ppk.x(), ppk.y()))
-            gl->fillCircle(ppk.x(), ppk.y(), linewidth*2);
+            gl->drawCircle(true, ppk.x(), ppk.y(), linewidth*2);
         }
       }
       continue;

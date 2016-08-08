@@ -442,9 +442,9 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
       }
       if ( Images[name].line[k].circle ) {
         if(Images[name].line[k].fill){
-          gl->fillCircle(0,0,Images[name].line[k].radius);
+          gl->drawCircle(true, 0,0,Images[name].line[k].radius);
         } else {
-          gl->drawCircle(0,0,Images[name].line[k].radius);
+          gl->drawCircle(false, 0,0,Images[name].line[k].radius);
         }
       } else {
         int num=Images[name].line[k].x.size();

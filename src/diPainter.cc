@@ -240,29 +240,29 @@ bool DiPainter::getTextSize(const QString& text, float& w, float& h)
   return canvas()->getTextSize(text, w, h);
 }
 
+bool DiPainter::drawText(const QString& text, float x, float y, float angle)
+{
+  return drawText(text, QPointF(x, y), angle);
+}
+
 bool DiPainter::drawText(const char* text, float x, float y, float angle)
 {
-  return drawText(QString(text), x, y, angle);
+  return drawText(QString(text), QPointF(x, y), angle);
 }
 
 bool DiPainter::drawText(const std::string& text, float x, float y, float angle)
 {
-  return drawText(QString::fromStdString(text), x, y, angle);
+  return drawText(QString::fromStdString(text), QPointF(x, y), angle);
 }
 
 bool DiPainter::drawChar(int c, float x, float y, float angle)
 {
-  return drawText(QString(QChar(c)), x, y, angle);
+  return drawText(QString(QChar(c)), QPointF(x, y), angle);
 }
 
-void DiPainter::drawRect(const Rectangle& r)
+void DiPainter::drawRect(bool fill, const Rectangle& r)
 {
-  drawRect(r.x1, r.y1, r.x2, r.y2);
-}
-
-void DiPainter::fillRect(const Rectangle& r)
-{
-  fillRect(r.x1, r.y1, r.x2, r.y2);
+  drawRect(fill, r.x1, r.y1, r.x2, r.y2);
 }
 
 void DiPainter::drawCross(float x, float y, float dxy, bool diagonal)

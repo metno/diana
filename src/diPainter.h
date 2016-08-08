@@ -5,6 +5,7 @@
 #include "diPoint.h"
 
 #include <QList>
+#include <QPointF>
 #include <map>
 #include <string>
 
@@ -93,7 +94,8 @@ public:
   bool getTextSize(const char* text, float& w, float& h);
   bool getCharSize(int ch, float& w, float& h);
 
-  virtual bool drawText(const QString& text, float x, float y, float angle = 0) = 0;
+  virtual bool drawText(const QString& text, const QPointF& xy, float angle = 0) = 0;
+  bool drawText(const QString& text, float x, float y, float angle = 0);
   bool drawText(const std::string& text, float x, float y, float angle = 0);
   bool drawText(const char* text, float x, float y, float angle = 0);
   bool drawChar(int chr, float x, float y, float angle = 0);
@@ -112,13 +114,10 @@ public:
   virtual void fillQuadStrip(const QPolygonF& points) = 0;
   virtual void drawPolygon(const QPolygonF& points) = 0;
   virtual void drawPolygons(const QList<QPolygonF>& polygons) = 0;
-  virtual void drawRect(float x1, float y1, float x2, float y2) = 0;
-  virtual void fillRect(float x1, float y1, float x2, float y2) = 0;
-  virtual void drawCircle(float centerx, float centery, float radius) = 0;
-  virtual void fillCircle(float centerx, float centery, float radius) = 0;
-
-  virtual void drawRect(const Rectangle& r);
-  virtual void fillRect(const Rectangle& r);
+  virtual void drawRect(bool fill, float x1, float y1, float x2, float y2) = 0;
+  virtual void drawRect(bool fill, const Rectangle& r);
+  virtual void drawCircle(bool fill, float centerx, float centery, float radius) = 0;
+  virtual void drawTriangle(bool fill, const QPointF& p1, const QPointF& p2, const QPointF& p3) = 0;
 
   virtual void drawCross(float x, float y, float dxy, bool diagonal = false);
   virtual void drawArrow(float x1, float y1, float x2, float y2, float headsize = 0);

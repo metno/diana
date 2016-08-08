@@ -199,11 +199,9 @@ public:
   // end DiGLPainter interface
 
   // begin DiPainter interface
-  bool drawText(const QString& text, float x, float y, float angle = 0) Q_DECL_OVERRIDE;
-  void drawCircle(float centerx, float centery, float radius) Q_DECL_OVERRIDE;
-  void fillCircle(float centerx, float centery, float radius) Q_DECL_OVERRIDE;
-  void drawRect(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
-  void fillRect(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
+  bool drawText(const QString& text, const QPointF& xy, float angle = 0) Q_DECL_OVERRIDE;
+  void drawCircle(bool fill, float centerx, float centery, float radius) Q_DECL_OVERRIDE;
+  void drawRect(bool fill, float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
   void drawLine(float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
   void drawPolyline(const QPolygonF& points) Q_DECL_OVERRIDE;
   void drawPolygon(const QPolygonF& points) Q_DECL_OVERRIDE;
@@ -276,8 +274,7 @@ private:
   void setPen();
   void setPolygonColor(const QRgb &color);
   void makeCurrent();
-  void paintCircle(float centerx, float centery, float radius);
-  void paintRect(float x1, float y1, float x2, float y2);
+  void setFillMode(bool fill);
 
   void drawReprojectedSubImage(const QImage& image, const QPolygonF& mapPositions,
       const diutil::Rect& imagepart);

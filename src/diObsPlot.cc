@@ -1504,9 +1504,9 @@ void ObsPlot::drawCircle(DiGLPainter* gl)
 {
   if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
     const float d = circle_radius * 0.25;
-    gl->drawRect(-d, -d, d, d);
+    gl->drawRect(false, -d, -d, d, d);
   } else {
-    gl->drawCircle(0, 0, circle_radius);
+    gl->drawCircle(false, 0, 0, circle_radius);
   }
 }
 
@@ -2378,12 +2378,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     x2 = -1 * x1;
     x3 = 0;
     y3 = radius * 2.2;
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
-    gl->Begin(DiGLPainter::gl_POLYGON);
-    gl->Vertex2f(x1, y1);
-    gl->Vertex2f(x2, y2);
-    gl->Vertex2f(x3, y3);
-    gl->End();
+    gl->drawTriangle(false, QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
   }
 
   //wind - dd,ff
@@ -3129,11 +3124,7 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
     cloudCover(gl, undef, radius); //cloud cover not observed
 
   if (box) {
-    x1 = x4 = -12;
-    x2 = x3 = x1 + 22;
-    y2 = y1;
-    y3 = y4 = y1 + 22;
-    gl->drawRect(x1, y1, x3, y3);
+    gl->drawRect(false, -12, y1, 10, y1 + 22);
     return;
   }
 
@@ -3143,60 +3134,18 @@ void ObsPlot::metarWind(DiGLPainter* gl, int dd, int ff, float & radius, int &lp
   if (dd == 0) {
     PushPopTranslateScale pushpop2(gl, 1.5);
     drawCircle(gl);
-    cloudCover(gl, 9, radius); //litt st�rre kryss
+    cloudCover(gl, 9, radius); // slightly larger cross
     return;
   }
 
   //#### if( ff > 0 && ff < 100 ){
   if (ff > 0 && ff < 200) {
     lpos = itab[((dd / 10) + 3) / 2] + 10;
-    gl->PushMatrix();
-    gl->Rotatef(360 - dd, 0.0, 0.0, 1.0);
-
-    ff = (ff + 2) / 5 * 5;
-    x1 = 0;
-    y1 = radius;
-    x2 = 0;
-    y2 = 47.0;
-    gl->drawLine(x1, y1, x2, y2);
-
-    // vindhastighet
-    x1 = 0;
-    y1 = 47.0;
-    x2 = 13;
-    y2 = y1 + 7;
-    if (ff < 10) {
-      y1 -= 6;
-      y2 -= 6;
-    }
-    if (ff >= 50) {
-      for (; ff >= 50; ff -= 50) {
-        x3 = 0;
-        y3 = y1;
-        y2 -= 15;
-        y1 -= 15;
-        gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        gl->Vertex2f(x1, y1);
-        gl->Vertex2f(x2, y2);
-        gl->Vertex2f(x3, y3);
-        gl->Vertex2f(x1, y1);
-        gl->End();
-      }
-      y1 -= 6;
-      y2 -= 6;
-    }
-    for (; ff >= 10; ff -= 10) {
-      gl->drawLine(x1, y1, x2, y2);
-      y1 -= 6;
-      y2 -= 6;
-    }
-    if (ff >= 5) {
-      x2 = (x1 + x2) / 2;
-      y2 = (y1 + y2) / 2;
-      gl->drawLine(x1, y1, x2, y2);
-    }
-    gl->PopMatrix();
+    const float angle = (270-dd)*DEG_TO_RAD, ac = std::cos(angle), as = std::sin(angle);
+    const float u = ff*ac, v = ff*as;
+    // TODO turn barbs on southern hemisphere
+    // FIXME properly draw direction line only until "radius" from (0,0)
+    gl->drawWindArrow(u, v, -radius*ac, -radius*as, 47-radius, false, 1);
   }
 }
 
@@ -3356,10 +3305,10 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, float x, float y, const std:
       gl->setColour(col); //white
     else
       gl->Color3ub(0, 0, 0); //black
-    gl->fillRect(x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
+    gl->drawRect(true, x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
 
     gl->Color3ub(0, 0, 0); //black
-    gl->drawRect(x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
+    gl->drawRect(false, x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
     gl->setColour(colour);
   }
 
@@ -3771,12 +3720,7 @@ void ObsPlot::arrow(DiGLPainter* gl, float angle, float xpos, float ypos, float 
 
   gl->drawLine(0, -6, 0, 6);
 
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Begin(DiGLPainter::gl_POLYGON);
-  gl->Vertex2f(-2, 2);
-  gl->Vertex2f(0, 6);
-  gl->Vertex2f(2, 2);
-  gl->End();
+  gl->drawTriangle(true, QPointF(-2, 2), QPointF(0, 6), QPointF(2, 2));
 }
 
 void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, float scale)
@@ -3785,24 +3729,19 @@ void ObsPlot::zigzagArrow(DiGLPainter* gl, float angle, float xpos, float ypos, 
   gl->Translatef(9, 9, 0.0);
   gl->Rotatef(359 - angle, 0.0, 0.0, 1.0);
 
-  gl->Begin(DiGLPainter::gl_LINE_STRIP);
-  gl->Vertex2f(0, 0);
-  gl->Vertex2f(2, 1);
-  gl->Vertex2f(-2, 3);
-  gl->Vertex2f(2, 5);
-  gl->Vertex2f(-2, 7);
-  gl->Vertex2f(2, 9);
-  gl->Vertex2f(0, 10);
-  gl->End();
+  QPolygonF line;
+  line << QPointF(0, 0)
+       << QPointF(2, 1)
+       << QPointF(-2, 3)
+       << QPointF(2, 5)
+       << QPointF(-2, 7)
+       << QPointF(2, 9)
+       << QPointF(0, 10);
+  gl->drawPolyline(line);
 
-  gl->Begin(DiGLPainter::gl_LINES);
-  gl->Vertex2f(0, 0);
-  gl->Vertex2f(0, -10);
-  gl->Vertex2f(0, -10);
-  gl->Vertex2f(4, -6);
-  gl->Vertex2f(0, -10);
-  gl->Vertex2f(-4, -6);
-  gl->End();
+  gl->drawLine(0,   0,  0, -10);
+  gl->drawLine(0, -10,  4,  -6);
+  gl->drawLine(0, -10, -4,  -6);
 }
 
 void ObsPlot::symbol(DiGLPainter* gl, int n, float xpos, float ypos, float scale,
@@ -3941,12 +3880,7 @@ void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radi
     x2 = -1 * x1;
     x3 = 0;
     y3 = tmp_radius * 2.2;
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Begin(DiGLPainter::gl_POLYGON);
-    gl->Vertex2f(x1, y1);
-    gl->Vertex2f(x2, y2);
-    gl->Vertex2f(x3, y3);
-    gl->End();
+    gl->drawTriangle(true, QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
 
   } else if (N >= 3 && N <= 5) {
     DiGLPainter::GLfloat tmp_radius = 0.6 * radius;
@@ -3956,13 +3890,7 @@ void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radi
     x1 = 0;
     x3 = 0;
     y3 = tmp_radius * 2.2;
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Begin(DiGLPainter::gl_POLYGON);
-    gl->Vertex2f(x1, y1);
-    gl->Vertex2f(x2, y2);
-    gl->Vertex2f(x3, y3);
-    gl->End();
-
+    gl->drawTriangle(true,  QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
   }
 }
 
@@ -3991,8 +3919,8 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
 
   // calm
   if (ff < 1.) {
-    gl->drawCircle(0, 0, radius*1.5);
   } else {
+    gl->drawCircle(false, 0, 0, radius*1.5);
     gl->Rotatef(360 - dd, 0.0, 0.0, 1.0);
 
     gl->Begin(DiGLPainter::gl_LINES);

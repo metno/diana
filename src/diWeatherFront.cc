@@ -45,6 +45,28 @@
 using namespace::miutil;
 using namespace std;
 
+namespace /* anonymous */ {
+void drawHalfCircle(DiGLPainter* gl, bool fill, const QPointF& pos, float angle_deg, float radius)
+{
+  const int nflag= 19;
+  float xflag[nflag], yflag[nflag];
+  float flagstep= M_PI/(nflag-1);
+
+  for (int j=0; j<nflag; j++) {
+    xflag[j]= radius * cos(j*flagstep);
+    yflag[j]= radius * sin(j*flagstep);
+  }
+
+  diutil::GlMatrixPushPop pushpop(gl);
+  gl->Translatef(pos.x(), pos.y(), 0.0);
+  gl->Rotatef(angle_deg,0.0,0.0,1.0);
+  gl->Begin(fill ? DiGLPainter::gl_POLYGON : DiGLPainter::gl_LINE_STRIP);
+  for (int j=0; j<nflag; j++)
+    gl->Vertex2f(xflag[j],yflag[j]);
+  gl->End();
+}
+} // namespace anonymous
+
 vector<editToolInfo> WeatherFront::allFronts; //info about fronts
 map<std::string,int> WeatherFront::frontTypes;   //finds front type number from name
 float WeatherFront::defaultLineWidth=8;
@@ -437,11 +459,7 @@ void WeatherFront::drawColds(DiGLPainter* gl)
     ytop= (ystart+yend)*0.5 + dxs*0.6;
 
     if (ncount%2==0){
-      gl->Begin(DiGLPainter::gl_POLYGON);
-      gl->Vertex2f(xstart,ystart);
-      gl->Vertex2f(xend,yend);
-      gl->Vertex2f(xtop,ytop);
-      gl->End();
+      gl->drawTriangle(true, QPointF(xstart,ystart), QPointF(xend,yend), QPointF(xtop,ytop));
     }
     ncount++;
 
@@ -465,21 +483,12 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
 
   int ncount=0;
 
-  float r= scaledlinewidth*2*getDwidth();
+  const float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
   float xstart,ystart,xend,yend,dxs = 0.0,dys = 0.0,fraction;
   float s,slim,sprev =0.0, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
-
-  const int nwarmflag= 19;
-  float xwarmflag[nwarmflag], ywarmflag[nwarmflag];
-  float flagstep= M_PI/(nwarmflag-1);
-
-  for (j=0; j<nwarmflag; j++) {
-    xwarmflag[j]= r*cos(j*flagstep);
-    ywarmflag[j]= r*sin(j*flagstep);
-  }
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   gl->LineWidth(1);
@@ -549,16 +558,8 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
     xm= (xstart+xend)*0.5;
     ym= (ystart+yend)*0.5;
 
-    if (ncount%2==0){
-      gl->PushMatrix();
-      gl->Translatef(xm, ym, 0.0);
-      gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-      gl->Begin(DiGLPainter::gl_POLYGON);
-      for (j=0; j<nwarmflag; j++)
-        gl->Vertex2f(xwarmflag[j],ywarmflag[j]);
-      gl->End();
-      gl->PopMatrix();
-    }
+    if ((ncount%2) == 0)
+      drawHalfCircle(gl, true, QPointF(xm, ym), atan2(dys,dxs)*RAD_TO_DEG, r);
     ncount++;
 
     dxs= xend - x_s[i-1];
@@ -576,7 +577,7 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
  */
 void WeatherFront::drawOccluded(DiGLPainter* gl)
 {
-  float r= scaledlinewidth*2*getDwidth();
+  const float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
   float xstart,ystart,xend,yend,xtop,ytop,dxs = 0.0,dys = 0.0,fraction;
@@ -585,15 +586,6 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
   int i,istart,j;
   int ndrawflag= 0;
   int ncount=0;
-
-  const int nwarmflag= 19;
-  float xwarmflag[nwarmflag], ywarmflag[nwarmflag];
-  float flagstep= M_PI/(nwarmflag-1);
-
-  for (j=0; j<nwarmflag; j++) {
-    xwarmflag[j]= r*cos(j*flagstep);
-    ywarmflag[j]= r*sin(j*flagstep);
-  }
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   gl->LineWidth(1);
@@ -677,25 +669,14 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
       ym= (ystart1+yend1)*0.5;
 
       if (ncount%2==0){
-        gl->PushMatrix();
-        gl->Translatef(xm, ym, 0.0);
-        gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        for (j=0; j<nwarmflag; j++)
-          gl->Vertex2f(xwarmflag[j],ywarmflag[j]);
-        gl->End();
-        gl->PopMatrix();
+        drawHalfCircle(gl, true, QPointF(xm, ym), atan2(dys,dxs)*RAD_TO_DEG, r);
 
         dxs= xend - xstart;
         dys= yend - ystart;
         xtop= (xstart+xend)*0.5 - dys*0.6;
         ytop= (ystart+yend)*0.5 + dxs*0.6;
 
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        gl->Vertex2f(xstart,ystart);
-        gl->Vertex2f(xend,yend);
-        gl->Vertex2f(xtop,ytop);
-        gl->End();
+        gl->drawTriangle(true, QPointF(xstart,ystart), QPointF(xend,yend), QPointF(xtop,ytop));
       }
       ncount++;
 
@@ -705,7 +686,8 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
     slim= sqrtf(dxs*dxs+dys*dys);
-    if (ndrawflag==0) slim+= r*1.5;
+    if (ndrawflag==0)
+      slim+= r*1.5;
     s= 0.;
 
   }
@@ -721,7 +703,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
   //  METLIBS_LOG_DEBUG("WeatherFront::drawStationary");
   // colds are blue triangles on the front
 
-  float r= scaledlinewidth*2*getDwidth();
+  const float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
   float xstart,ystart,xend,yend,xtop,ytop,dxs = 0.0,dys = 0.0,fraction;
@@ -729,15 +711,6 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
   int i,istart,j;
   int ndrawflag= 0;
   int ncount=0;
-
-  const int nwarmflag= 19;
-  float xwarmflag[nwarmflag], ywarmflag[nwarmflag];
-  float flagstep= M_PI/(nwarmflag-1);
-
-  for (j=0; j<nwarmflag; j++) {
-    xwarmflag[j]= r*cos(j*flagstep);
-    ywarmflag[j]= r*sin(j*flagstep);
-  }
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   gl->LineWidth(1);
@@ -816,14 +789,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
         ym= (ystart+yend)*0.5;
 
         gl->Color3f(1.,0.,0.);
-        gl->PushMatrix();
-        gl->Translatef(xm, ym, 0.0);
-        gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        for (j=0; j<nwarmflag; j++)
-          gl->Vertex2f(xwarmflag[j],ywarmflag[j]);
-        gl->End();
-        gl->PopMatrix();
+        drawHalfCircle(gl, true, QPointF(xm, ym), atan2(dys,dxs)*RAD_TO_DEG, r);
 
       } else {
 
@@ -833,11 +799,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
         ytop= (ystart+yend)*0.5 - dxs*0.6;
 
         gl->Color3f(0.,0.,1.);
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        gl->Vertex2f(xstart,ystart);
-        gl->Vertex2f(xend,yend);
-        gl->Vertex2f(xtop,ytop);
-        gl->End();
+        gl->drawTriangle(true, QPointF(xstart, ystart), QPointF(xend,yend), QPointF(xtop,ytop));
 
         ndrawflag=0;
       }
@@ -899,7 +861,6 @@ void WeatherFront::drawSquallLine(DiGLPainter* gl)
       diutil::GlMatrixPushPop pushpop(gl);
       gl->Translatef(xm, ym, 0.0);
       gl->Rotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
-
       gl->drawCross(0, 0, r, true);
     }
     ncount++;
@@ -972,11 +933,8 @@ void WeatherFront::drawArrowLine(DiGLPainter* gl)
     ytop2= (ystart+yend)*0.5 - dxs*0.6;
 
     if (ncount > 0) {
-      gl->Begin(DiGLPainter::gl_POLYGON);
-      gl->Vertex2f(x_s[s_length-1], y_s[s_length-1]);
-      gl->Vertex2f(xtop1,ytop1);
-      gl->Vertex2f(xtop2,ytop2);
-      gl->End();
+      gl->drawTriangle(true, QPointF(x_s[s_length-1], y_s[s_length-1]),
+          QPointF(xtop1, ytop1), QPointF(xtop2,ytop2));
     }
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
@@ -1072,15 +1030,9 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
 
     if (ncount%2==0){
       if (ncount%4==0) {
-         gl->Begin(DiGLPainter::gl_LINES);
-         gl->Vertex2f(xend,yend);
-         gl->Vertex2f(xtop1,ytop1);
-         gl->End();
+        gl->drawLine(xend, yend, xtop1, ytop1);
       } else {
-         gl->Begin(DiGLPainter::gl_LINES);
-         gl->Vertex2f(xend,yend);
-         gl->Vertex2f(xtop2,ytop2);
-         gl->End();
+        gl->drawLine(xend, yend, xtop2, ytop2);
       }
     }
     ncount++;
@@ -1169,10 +1121,11 @@ void WeatherFront::drawSigweather(DiGLPainter* gl)
   recalculate();
   first=true;
   npoints=0;
-  if (!smooth()) return;
-  if (x_s != 0)  delete[] x_s;
-  if (y_s != 0)  delete[] y_s;
-  x_s= y_s= 0;
+  if (!smooth())
+    return;
+  delete[] x_s;
+  delete[] y_s;
+  x_s = y_s = 0;
   s_length= npoints;
   x_s=new float[s_length];
   y_s=new float[s_length];
@@ -1180,42 +1133,27 @@ void WeatherFront::drawSigweather(DiGLPainter* gl)
     x_s[i]=xplot[i];
     y_s[i]=yplot[i];
   }
-  if (xplot!=0) delete[] xplot;
-  if (yplot!=0) delete[] yplot;
-  xplot=yplot=0;
+  delete[] xplot;
+  delete[] yplot;
+  xplot = yplot = 0;
   //smooth once more for better fit...
   first=false;
-  if (!smooth()) return;
-  if (x_s != 0)  delete[] x_s;
-  if (y_s != 0)  delete[] y_s;
-  x_s= y_s= 0;
+  if (!smooth())
+    return;
+  delete[] x_s;
+  delete[] y_s;
+  x_s = y_s = 0;
   gl->LineWidth(siglinewidth);
   for (int i = 0; i < npoints-1; i++){
-    float deltay,deltax;
-    deltay = yplot[i+1]-yplot[i];
-    deltax = xplot[i+1]-xplot[i];
-    float hyp = sqrtf(deltay*deltay+deltax*deltax);
-    const int nflag= 19;
-    float xflag[nflag], yflag[nflag];
-    float flagstep= M_PI/(nflag-1);
-    for (int j=0; j<nflag; j++) {
-      xflag[j]= hyp/2*cos(j*flagstep);
-      yflag[j]= hyp/2*sin(j*flagstep);
-    }
-    float xx1=xplot[i]+deltax/2;
-    float yy1=yplot[i]+deltay/2;
-    gl->PushMatrix();
-    gl->Translatef(xx1, yy1, 0.0);
-    gl->Rotatef(atan2(deltay,deltax)*RAD_TO_DEG,0.0,0.0,1.0);
-    gl->Begin(DiGLPainter::gl_LINE_STRIP);
-    for (int j=0; j<nflag; j++)
-      gl->Vertex2f(xflag[j],yflag[j]);
-    gl->End();
-    gl->PopMatrix();
+    const float deltay = yplot[i+1]-yplot[i];
+    const float deltax = xplot[i+1]-xplot[i];
+    const float hyp = sqrtf(deltay*deltay+deltax*deltax);
+    const QPointF xxyy(xplot[i]+deltax/2, yplot[i]+deltay/2);
+    drawHalfCircle(gl, false, xxyy, atan2(deltay,deltax)*RAD_TO_DEG, hyp / 2);
   }
-  if (xplot!=0) delete[] xplot;
-  if (yplot!=0) delete[] yplot;
-  xplot=yplot=0;
+  delete[] xplot;
+  delete[] yplot;
+  xplot = yplot = 0;
   recalculate();
 }
 

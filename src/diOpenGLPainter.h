@@ -132,7 +132,7 @@ public:
 
   // ========================================
 
-  bool drawText(const QString& text, float x, float y, float angle);
+  bool drawText(const QString& text, const QPointF& xy, float angle) Q_DECL_OVERRIDE;
   void drawPolygon(const QPolygonF& points);
   void drawPolygons(const QList<QPolygonF>& polygons) Q_DECL_OVERRIDE;
 

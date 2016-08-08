@@ -287,7 +287,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     const Rectangle& reqr = getStaticPlot()->getRequestedarea().R();
     const Colour& c = getStaticPlot()->notBackgroundColour(ffopts.linecolour);
     gl->setLineStyle(c, ffopts.linewidth, ffopts.linetype);
-    gl->drawRect(reqr);
+    gl->drawRect(false, reqr);
   }
 
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
