@@ -2842,7 +2842,7 @@ void DianaMainWindow::saveAnimation()
           " A message will be displayed upon completion."
           " Press OK to begin."));
 
-  const int ww = w->width(), wh = w->height();
+  const int ww = w->Glw()->width(), wh = w->Glw()->height();
   w->setVisible(false); // avoid handling repaint events while the canvas is replaced
 
   // first reset time-slider
