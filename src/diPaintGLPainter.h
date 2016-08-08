@@ -271,8 +271,6 @@ public:
   QRect viewport;
   QRectF window;
 
-  bool printing;
-
 private:
   void plotSubdivided(const QPointF quad[], const QRgb color[], int divisions = 0);
   void setPen();
