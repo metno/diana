@@ -1,3 +1,9 @@
+diana-3.40 (3.40.3-1) unstable; urgency=low
+
+  * bugfix: restore correct width/height after save animation
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 09 Aug 2016 08:00:10 +0200
+
 diana-3.40 (3.40.2-1) unstable; urgency=low
 
   * bugfix: restore correct width/height after save image
