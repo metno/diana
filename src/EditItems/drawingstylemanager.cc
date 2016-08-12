@@ -35,6 +35,7 @@
 #include "EditItems/drawingsymbol.h"
 #include "EditItems/drawingtext.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include <QApplication>
 #include <QComboBox>
 #include <QPainter>
@@ -1090,11 +1091,10 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
     if (i == 0)
       height = qMax(rect.height(), height);
 
-    gl->PushMatrix();
+    diutil::GlMatrixPushPop pushpop(gl);
     gl->Translatef(x0 + item->margin() - rect.x(), y - height, 0);
     gl->Scalef(scale, scale, 1.0);
     gl->drawText(text.toStdString(), 0, 0, 0);
-    gl->PopMatrix();
     y -= height * (1.0 + item->spacing());
   }
 }

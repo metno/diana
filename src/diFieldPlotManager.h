@@ -50,6 +50,7 @@ public:
     //miutil::std::string text;            ///< not used, yet...
     std::string plot; ///< the plot type, for debugging only
     std::vector<std::string> input; ///< the input fields, read or computed
+    std::string inputstr; //same as above, used as tooltip
     std::set< std::string > vcoord;
   };
 

@@ -264,7 +264,7 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
   //draw title background
   if(ntitle>0){
     gl->setColour(poptions.fillcolour, false);
-    gl->fillRect(x1title, y2title, x2title, y1title);
+    gl->drawRect(true, x1title, y2title, x2title, y1title);
 
     //draw title
     gl->setColour(poptions.textcolour);
@@ -295,7 +295,7 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
     gl->Vertex2f(x2table,y1table);
     gl->End();
 #else
-    gl->fillRect(x1table, y1table, x2table, y1title);
+    gl->drawRect(true, x1table, y1table, x2table, y1title);
 #endif
 
     // draw table
@@ -318,7 +318,7 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
         gl->Vertex2f(x2box,y1box);
         gl->End();
 #else
-        gl->fillRect(x1box, y1box, x2box, y2box);
+        gl->drawRect(true, x1box, y1box, x2box, y2box);
 #endif
         if((not colourcodes[i].pattern.empty())){
           DiGLPainter::GLubyte* p=ig.getPattern(colourcodes[i].pattern);
@@ -330,10 +330,10 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
           gl->PolygonStipple(solid);
         }
         gl->setColour(colourcodes[i].colour);
-        gl->fillRect(x1box, y1box, x2box, y2box);
+        gl->drawRect(true, x1box, y1box, x2box, y2box);
 
         // draw border of colour/pattern box
-        gl->drawRect(x1box, y1box, x2box, y2box);
+        gl->drawRect(false, x1box, y1box, x2box, y2box);
       }
       //draw textstring
       gl->setColour(poptions.textcolour);

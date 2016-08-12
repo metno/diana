@@ -35,6 +35,7 @@
 
 #include "diAreaBorder.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 
 #include <sstream>
 
@@ -67,7 +68,7 @@ void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
       delete[] x_s;
       delete[] y_s;
 
-      gl->PushMatrix();
+      diutil::GlMatrixPushPop pushpop(gl);
 
       // spline
       int div= 5;
@@ -102,7 +103,7 @@ void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
 
       drawThickLine(gl);
 
-      gl->PopMatrix();
+      pushpop.PopMatrix();
       drawNodePoints(gl);
     }
   }

@@ -208,7 +208,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
 
   // frame
   if (spopt->pFrame)
-    gl->drawRect(xplot1,yplot1,xplot2,yplot2);
+    gl->drawRect(false, xplot1,yplot1,xplot2,yplot2);
 
   // mark wind position/directions
   if (spopt->pWind || spopt->pPeakDirection)
@@ -250,11 +250,11 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
   }
 
   // hmo
-  gl->drawRect(xhmo, yhmo, xhmo+dxhmo, yhmo+dyhmo);
+  gl->drawRect(false, xhmo, yhmo, xhmo+dxhmo, yhmo+dyhmo);
 
   const float freqStep= 0.05;
   for (float freq= freqStep; freq<freqMax+0.1*freqStep; freq+=freqStep)
-    gl->drawCircle(0, 0, freq);
+    gl->drawCircle(false, 0, 0, freq);
 
   { const int NPOINTS = 120, ISTEP = 10;
     const float STEP = 2 * M_PI / NPOINTS;
@@ -518,7 +518,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
   // wave height (HMO)
   if (hmo > -1) {
     gl->setLineStyle(Colour(spopt->textColour), 1);
-    gl->fillRect(xhmo, yhmo, xhmo+dxhmo, yhmo + dyhmo*hmo/vyhmo);
+    gl->drawRect(true, xhmo, yhmo, xhmo+dxhmo, yhmo + dyhmo*hmo/vyhmo);
   }
 
   //---------------------

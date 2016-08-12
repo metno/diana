@@ -126,6 +126,7 @@ bool ObsBufr::setObsPlot(ObsPlot* op, const std::string& filename)
 bool ObsBufr::init(const std::string& bufr_file, Format format)
 {
   METLIBS_LOG_SCOPE();
+  METLIBS_LOG_INFO("Reading '"<<bufr_file<<"'");
   obsTime = miTime(); //undef
 
   FILE* file_bufr = fopen(bufr_file.c_str(), "r");

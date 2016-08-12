@@ -1031,7 +1031,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->setLineStyle(Colour(0, 0, 0), 1.0);
     const Rectangle mr = diutil::adjustedRectangle(staticPlot_->getMapSize(), -0.0001, -0.0001);
-    gl->drawRect(mr.x1, mr.y1, mr.x2, mr.y2);
+    gl->drawRect(false, mr.x1, mr.y1, mr.x2, mr.y2);
   }
 
   // plot rubberbox
@@ -1044,7 +1044,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
     const XY pnew = staticPlot_->PhysToMap(XY(newx, newy));
 
     gl->setLineStyle(staticPlot_->getBackContrastColour(), 2);
-    gl->drawRect(pold.x(), pold.y(), pnew.x(), pnew.y());
+    gl->drawRect(false, pold.x(), pold.y(), pnew.x(), pnew.y());
   }
 }
 

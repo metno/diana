@@ -752,13 +752,13 @@ void ObjectPlot::drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw, bool
   for (unsigned int i=0; i<msize; i++){
     if (objectIs(wFront) || objectIs(Border)) {
       if (fill)
-        gl->fillRect(xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
+        gl->drawRect(true, xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
             xydraw[i].x() + deltaw, xydraw[i].y() + deltaw);
       else
-        gl->drawRect(xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
+        gl->drawRect(false, xydraw[i].x() - deltaw, xydraw[i].y()- deltaw,
             xydraw[i].x() + deltaw, xydraw[i].y() + deltaw);
     } else if (objectIs(wArea)){
-      gl->drawCircle(xydraw[i].x(), xydraw[i].y(), deltaw);
+      gl->drawCircle(false, xydraw[i].x(), xydraw[i].y(), deltaw);
     } else if (objectIs(wSymbol) || objectIs(RegionName)) {
       gl->Begin(DiGLPainter::gl_POLYGON);
       gl->Vertex2f(xydraw[i].x() - deltaw, xydraw[i].y() - deltaw);

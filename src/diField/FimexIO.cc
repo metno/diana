@@ -16,7 +16,6 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miDirtools.h>
-#include <miLogger/LogHandler.h>
 
 #include <fimex/CDM.h>
 #include <fimex/CDMFileReaderFactory.h>

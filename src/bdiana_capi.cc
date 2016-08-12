@@ -1376,7 +1376,7 @@ static void ensureNewContext()
   if (!glpainter)
     return;
 
-  bool was_printing = glpainter->printing;
+  bool was_printing = glcanvas->isPrinting();
 
   if (!multiple_plots) {
     if (glpainter->isPainting())
@@ -1385,7 +1385,7 @@ static void ensureNewContext()
       painter.end();
   }
 
-  glpainter->printing = was_printing;
+  glcanvas->setPrinting(was_printing);
 }
 
 static void printPage(int ox, int oy)
@@ -1429,7 +1429,6 @@ void createPaintDevice()
 
   painter.begin(glcanvas->device());
   glpainter->begin(&painter);
-  glpainter->printing = printing;
 }
 
 void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int spacing)

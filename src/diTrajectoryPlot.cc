@@ -242,7 +242,7 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     // only draw marker positions, trajectories not yet calculated/set
     const QPolygonF& r = reprojectedXY.at(0);
     for (int i=0; i<r.size(); ++i)
-      gl->fillCircle(r.at(i).x(), r.at(i).y(), d);
+      gl->drawCircle(true, r.at(i).x(), r.at(i).y(), d);
     return;
   } else if (trajectories.size() != reprojectedXY.size()) {
     METLIBS_LOG_ERROR("trajectories.size() != reprojectedXY.size()");
@@ -285,7 +285,7 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       gl->setColour(cP);
     else
       gl->setColour(cF);
-    gl->fillCircle(r.at(t.mStartIndex).x(), r.at(t.mStartIndex).y(), d);
+    gl->drawCircle(true, r.at(t.mStartIndex).x(), r.at(t.mStartIndex).y(), d);
   }
 }
 

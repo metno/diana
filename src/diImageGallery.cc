@@ -32,6 +32,8 @@
 #endif
 
 #include "diImageGallery.h"
+
+#include "diGlUtilities.h"
 #include "diImageIO.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
@@ -426,7 +428,7 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
 
   int nlines=Images[name].line.size();
   if(nlines>0) {
-    gl->PushMatrix();
+    diutil::GlMatrixPushPop pushpop(gl);
     gl->Translatef(x,y,0.0);
     float Scalex= scale*sp->getPhysToMapScaleX()*0.7;
     float Scaley= Scalex;
@@ -440,9 +442,9 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
       }
       if ( Images[name].line[k].circle ) {
         if(Images[name].line[k].fill){
-          gl->fillCircle(0,0,Images[name].line[k].radius);
+          gl->drawCircle(true, 0,0,Images[name].line[k].radius);
         } else {
-          gl->drawCircle(0,0,Images[name].line[k].radius);
+          gl->drawCircle(false, 0,0,Images[name].line[k].radius);
         }
       } else {
         int num=Images[name].line[k].x.size();
@@ -463,8 +465,6 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
         }
       }
     }
-    gl->PopMatrix();
-
   }
   return true;
 }

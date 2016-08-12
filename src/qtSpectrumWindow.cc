@@ -357,8 +357,8 @@ void SpectrumWindow::paintOnDevice(QPaintDevice* device)
 
   std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
   glcanvas->parseFontSetup();
+  glcanvas->setPrinting(dynamic_cast<QPrinter*>(device) != 0);
   std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
-  glpainter->printing = (dynamic_cast<QPrinter*>(device) != 0);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
 
   const int ww = spectrumqw->width(), wh = spectrumqw->height(), dw = device->width(), dh = device->height();

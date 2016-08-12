@@ -337,10 +337,10 @@ void DiOpenGLPainter::TexImage2D(GLenum target, GLint level, GLint internalForma
 
 // ========================================================================
 
-bool DiOpenGLPainter::drawText(const QString& text, float x, float y, float angle)
+bool DiOpenGLPainter::drawText(const QString& text, const QPointF& xy, float angle)
 {
   DiOpenGLCanvas* c = (DiOpenGLCanvas*) canvas();
-  return c->fp()->drawStr(text.toStdWString(), x, y, angle);
+  return c->fp()->drawStr(text.toStdWString(), xy.x(), xy.y(), angle);
 }
 
 void DiOpenGLPainter::drawPolygon(const QPolygonF& points)

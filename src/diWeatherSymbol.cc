@@ -35,6 +35,7 @@
 #include "diColour.h"
 #include "diComplexSymbolPlot.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -302,7 +303,7 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
     if (fSense < 1.0)
       fSense = 1.0; //HK ???
 
-    gl->PushMatrix();
+    diutil::GlMatrixPushPop pushpop(gl);
 
     //enable blending and set colour
     gl->Enable(DiGLPainter::gl_BLEND);
@@ -354,7 +355,7 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
       }
     }
 
-    gl->PopMatrix();
+    pushpop.PopMatrix();
     gl->Disable(DiGLPainter::gl_BLEND);
 
     drawNodePoints(gl);

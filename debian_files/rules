@@ -4,7 +4,7 @@
 %:
 	dh $@ --parallel
 
-.PHONY: override_dh_configure
+.PHONY: override_dh_auto_configure
 override_dh_auto_configure:
 	./autogen.sh
 	./configure $(confflags) \

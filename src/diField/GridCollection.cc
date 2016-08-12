@@ -98,14 +98,14 @@ bool GridCollection::makeGridIOinstances()
   }
 
   bool ok = true;
+  sources.clear();
+  refTimes.clear();
+  sources_with_wildcards.clear();
 
   // unpack each raw source - creating one or more GridIO instances from each
   int index = -1;
   BOOST_FOREACH(std::string sourcestr, rawsources) {
     ++index;
-    sources.clear();
-    refTimes.clear();
-    sources_with_wildcards.clear();
 
     // init time filter and replace yyyy etc. with ????
     const miutil::TimeFilter tf(sourcestr);
@@ -114,10 +114,15 @@ bool GridCollection::makeGridIOinstances()
     if (sourcestr.find_first_of("*?") != sourcestr.npos && sourcestr.find("glob:") == sourcestr.npos) {
       sources_with_wildcards.push_back(sourcestr);
       const diutil::string_v files = diutil::glob(sourcestr, GLOB_BRACE);
+      if( !files.size() ) {
+        METLIBS_LOG_INFO("No source available for "<<sourcestr);
+        continue;
+      }
       sources.insert(files.begin(), files.end());
     } else {
       sources.insert(sourcestr);
     }
+
 
     //if #formats == #rawsources, use corresponding files. If not use first format
     std::string format;
@@ -135,8 +140,8 @@ bool GridCollection::makeGridIOinstances()
       config = configs[0];
     }
 
-    // loop through sources (filenames)
 
+    // loop through sources (filenames)
     BOOST_FOREACH(const std::string& sourcename, sources) {
 
       //Find time from filename if possible
@@ -506,13 +511,12 @@ bool GridCollection::putData(const std::string& reftime, const std::string& para
   return 0;
 }
 
-void GridCollection::updateSources()
+bool GridCollection::updateSources()
 {
   METLIBS_LOG_SCOPE();
   //Filenames without wildcards do not change
   if (sources_with_wildcards.empty()) {
-    makeGridIOinstances();
-    return;
+    return makeGridIOinstances();
   }
 
   std::set<std::string> newSources;
@@ -527,8 +531,10 @@ void GridCollection::updateSources()
   }
 
   if (sources != newSources || sourcesChanged() ) {
-    makeGridIOinstances();
+    return makeGridIOinstances();
   }
+
+  return true;
 }
 
 

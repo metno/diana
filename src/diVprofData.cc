@@ -175,7 +175,7 @@ bool VprofData::readBufr(const std::string& modelname, const std::string& patter
     validTime.push_back(time);
     fileNames.push_back(filename);
   }
-
+  vProfPlot.reset(0);
 #endif
   return true;
 
@@ -183,8 +183,8 @@ bool VprofData::readBufr(const std::string& modelname, const std::string& patter
 
 bool VprofData::setBufr(const miutil::miTime& plotTime)
 {
+  METLIBS_LOG_SCOPE();
   currentFiles.clear();
-
 #ifdef BUFROBS
   vector<miTime> tlist;
 
@@ -219,7 +219,7 @@ bool VprofData::setRoadObs(const miutil::miTime& plotTime)
     // does nothing if already done
     ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,plotTime,NULL,false);
     road.getStationList(stations);
-    
+
   } catch (...) {
       METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << plotTime);
       return false;
@@ -229,7 +229,7 @@ bool VprofData::setRoadObs(const miutil::miTime& plotTime)
     posLatitude.push_back(stations[i].lat);
     posLongitude.push_back(stations[i].lon);
   }
-  
+
 #endif
 
   return true;
@@ -338,6 +338,10 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(posName.size()));
 
   if (format == bufr) {
+    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get()) {
+      METLIBS_LOG_DEBUG("returning cached VProfPlot");
+      return new VprofPlot(*vProfPlot);
+    }
 #ifdef BUFROBS
     std::string name_=name;
     if (stationMap.count(name)) {
@@ -346,12 +350,17 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     ObsBufr bufr;
     std::string modelName;
     std::auto_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_, time));
+    if (!vp.get())
+      return 0;
+    vProfPlotTime = time;
+    vProfPlotName = name;
+    vProfPlot.reset(new VprofPlot(*vp));
     return vp.release();
 #else
     return 0;
 #endif
   }
-  
+
   if (format == roadobs) {
 #ifdef ROADOBS
     try {

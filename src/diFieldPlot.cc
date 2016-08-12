@@ -1144,7 +1144,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
       const int i = iy * nx + ix;
       const float gx = x[i], gy = y[i], value = field[i];
       if (value != fieldUndef && ms.isnear(gx, gy)
-          && value > poptions.minvalue && value < poptions.maxvalue)
+          && value >= poptions.minvalue && value <= poptions.maxvalue)
       {
         if (poptions.colours.size() > 2) {
           if (value < poptions.base) {
@@ -1307,7 +1307,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
       gx = x[i];
       gy = y[i];
       if (u[i] != fieldUndef && v[i] != fieldUndef && ms.isnear(gx, gy)
-          && t[i] > poptions.minvalue && t[i] < poptions.maxvalue) {
+          && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
         ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
         if (ff > 0.00001) {
 
@@ -1485,7 +1485,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
       gx = x[i];
       gy = y[i];
       if (t[i] != fieldUndef && getStaticPlot()->getMapSize().isinside(gx, gy)
-          && t[i] > poptions.minvalue && t[i] < poptions.maxvalue) {
+          && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
 
         if (u[i] != fieldUndef && v[i] != fieldUndef)
           ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
@@ -1726,8 +1726,8 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
       float gx = x[i];
       float gy = y[i];
 
-      if (fields[0]->data[i] > poptions.minvalue
-          && fields[0]->data[i] < poptions.maxvalue) {
+      if (fields[0]->data[i] >= poptions.minvalue
+          && fields[0]->data[i] <= poptions.maxvalue) {
 
         for (size_t j = 0; j < nfields; j++) {
           float * fieldData = fields[j]->data;

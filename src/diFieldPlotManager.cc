@@ -99,7 +99,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   int nlines = lines.size();
 
   vector<std::string> vstr;
-  std::string key, str, str2, option;
+  std::string key, str, option;
   vector<std::string> vpar;
 
   vector<std::string> loopname;
@@ -151,6 +151,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
         std::string name;
         std::string fieldgroup;
         vector<std::string> input;
+        std::string inputstr;
         set<std::string> vcoord;
 
         for (int i = firstLine; i < lastLine; i++) {
@@ -183,9 +184,9 @@ bool FieldPlotManager::parseFieldPlotSetup()
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
-                str2 = vstr[j + 3].substr(1, vstr[j + 3].length()
+                inputstr = vstr[j + 3].substr(1, vstr[j + 3].length()
                     - 2);
-                input = miutil::split(str2, ",", true);
+                input = miutil::split(inputstr, ",", true);
                 if (input.size() < 1 || input.size() > 5) {
                   std::string errm = "Bad specification of plot arguments";
                   SetupParser::errorMsg(sect_name, i, errm);
@@ -237,6 +238,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
             pf.name = name;
             pf.fieldgroup = fieldgroup;
             pf.input = input;
+            pf.inputstr = inputstr;
             pf.vcoord = vcoord;
             vPlotField.push_back(pf);
         }
@@ -801,6 +803,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
         if ( ninput == 0) {
           plotInfo = ip->second;
           plotInfo.fieldName = vPlotField[j].name;
+          plotInfo.variableName = vPlotField[j].inputstr;
           if( !vPlotField[j].fieldgroup.empty() )
             plotInfo.groupName = vPlotField[j].fieldgroup;
         } else {

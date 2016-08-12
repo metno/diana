@@ -47,7 +47,7 @@ public:
 protected:
   void plotIndex(DiGLPainter* gl, int index);
 
-  void weather(DiGLPainter* gl, short int ww, float TTT, int zone, float x, float y,
+  void weather(DiGLPainter* gl, short int ww, float TTT, int zone, QPointF xy,
       float scale = 1, bool align_right = false);
 
   long findModificationTime(const std::string& fname);

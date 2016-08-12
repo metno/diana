@@ -457,6 +457,8 @@ bool ObsManager::updateTimes(std::string obsType)
       if (pit->archive == useArchive) {
         bool ok = pit->filter.ok();
         const diutil::string_v matches = diutil::glob(pit->pattern);
+        if (matches.empty())
+          METLIBS_LOG_INFO("No files matches '" <<pit->pattern <<"'");
         for (diutil::string_v::const_iterator mit = matches.begin(); mit != matches.end(); ++mit) {
           FileInfo finfo;
           finfo.filename = *mit;
@@ -558,6 +560,8 @@ bool ObsManager::updateTimesfromFile(const std::string& obsType)
     for (std::vector<patternInfo>::const_iterator pit = pi.pattern.begin(); pit != pi.pattern.end(); ++pit) {
       if (pit->archive == useArchive) {
         const diutil::string_v matches = diutil::glob(pit->pattern);
+        if (matches.empty())
+          METLIBS_LOG_INFO("No files matches '" <<pit->pattern <<"'");
         for (diutil::string_v::const_iterator mit = matches.begin(); mit != matches.end(); ++mit) {
           FileInfo finfo;
           finfo.filename = *mit;

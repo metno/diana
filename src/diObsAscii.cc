@@ -110,7 +110,9 @@ void ObsAscii::readDecodeData()
 void ObsAscii::readData(const std::string& filename)
 {
   METLIBS_LOG_SCOPE();
-  if (not diutil::getFromAny(filename, lines))
+  if (diutil::getFromAny(filename, lines))
+    METLIBS_LOG_INFO("Reading '" << filename << "'");
+  else
     METLIBS_LOG_WARN("could not read '" << filename << "'");
 }
   

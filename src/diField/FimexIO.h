@@ -5,9 +5,7 @@
  *      Author: audunc
  */
 /*
- $Id:$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2016 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -115,11 +113,6 @@ private:
 
   FimexIOsetup* setup;
 
-  vcross_indices_t mVcrossIndices; //! begin+end indices for vertical cross sections, set in makeInventory
-
-  void findAxisIndices(gridinventory::Taxis taxis, gridinventory::Zaxis zaxis,gridinventory::ExtraAxis extraaxis,
-      const miutil::miTime& time, const std::string& level, const std::string& elevel,
-      size_t& taxis_index, size_t& zaxis_index, size_t& extraaxis_index);
   MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(CDMReaderPtr reader, const CoordinateSystemPtr& varCS,
       const std::string& reftime, const gridinventory::GridParameter& param,
       const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index);

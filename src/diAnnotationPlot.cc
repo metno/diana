@@ -548,7 +548,7 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   }
   if (poptions.polystyle != poly_border && poptions.polystyle != poly_none) {
     gl->setColour(fc);
-    gl->fillRect(bbox);
+    gl->drawRect(true, bbox);
   }
   gl->Disable(DiGLPainter::gl_BLEND);
 
@@ -571,14 +571,14 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   // draw outline
   if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
     gl->setLineStyle(Colour(poptions.bordercolour), clinewidth);
-    gl->drawRect(bbox);
+    gl->drawRect(false, bbox);
   }
 
   //draw borders
   for (int i = 0; i < n; i++) {
     if (annotations[i].polystyle == poly_border || annotations[i].polystyle == poly_both) {
       gl->setColour(annotations[i].bordercolour);
-      gl->fillRect(annotations[i].rect);
+      gl->drawRect(true, annotations[i].rect);
     }
     plotBorders(gl);
   }
@@ -605,7 +605,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
         gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
       }
       gl->setColour(fc);
-      gl->fillRect(x - border, y - border, x + border + annoEl[j].width, y + border + annoEl[j].height);
+      gl->drawRect(true, x - border, y - border, x + border + annoEl[j].width, y + border + annoEl[j].height);
       gl->Disable(DiGLPainter::gl_BLEND);
     }
 
@@ -756,7 +756,7 @@ void AnnotationPlot::plotBorders(DiGLPainter* gl)
 
   int n = borderline.size();
   for (int i = 0; i < n; i++)
-    gl->drawRect(borderline[i].x1, borderline[i].y1, borderline[i].x2, borderline[i].y2);
+    gl->drawRect(false, borderline[i].x1, borderline[i].y1, borderline[i].x2, borderline[i].y2);
 }
 
 void AnnotationPlot::getAnnoSize(DiGLPainter* gl,

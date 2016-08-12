@@ -38,6 +38,7 @@
 #include "EditItems/drawingstylemanager.h"
 #include "diCommonTypes.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "diPlotModule.h"
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
@@ -369,6 +370,7 @@ QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase *item) cons
 }
 
 inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
+inline QPointF toQ(const XY& xy) { return QPointF(xy.x(), xy.y()); }
 
 // Returns geographic coordinates converted from screen coordinates.
 QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
@@ -399,15 +401,16 @@ void DrawingManager::setFromLatLonPoints(DrawingItemBase *item, const QList<QPoi
 // Returns screen coordinates converted from geographic coordinates.
 QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) const
 {
-  QList<QPointF> points;
+  const StaticPlot* sp = PLOTM->getStaticPlot();
+  const XY dxy = sp->MapToPhys(XY(editRect_.x1, editRect_.y1));
+
   int n = latLonPoints.size();
 
+  QList<QPointF> points;
+  points.reserve(n);
   for (int i = 0; i < n; ++i) {
-    float x, y;
-    PLOTM->GeoToPhys(latLonPoints.at(i).x(),
-                     latLonPoints.at(i).y(),
-                     x, y);
-    points.append(QPointF(x, y));
+    const QPointF& latlon = latLonPoints.at(i);
+    points.append(toQ(sp->GeoToPhys(XY(latlon.y(), latlon.x())) - dxy));
   }
 
   return points;
@@ -518,7 +521,7 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
 
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
-  gl->PushMatrix();
+  diutil::GlMatrixPushPop pushpop(gl);
   gl->Translatef(editRect_.x1, editRect_.y1, 0.0);
   gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
@@ -531,7 +534,6 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
       item->draw(gl);
     }
   }
-  gl->PopMatrix();
 }
 
 QMap<QString, QString> &DrawingManager::getDrawings()

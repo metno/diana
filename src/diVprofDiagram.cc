@@ -926,7 +926,7 @@ void VprofDiagram::plotDiagram()
   if (vpopt->pframe) {
     gl->setLineStyle(Colour(vpopt->frameColour), vpopt->frameLinewidth,
         Linetype(vpopt->frameLinetype));
-    gl->drawRect(xmind, ymind, xmaxd, ymaxd);
+    gl->drawRect(false, xmind, ymind, xmaxd, ymaxd);
     gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
   }
 
@@ -1740,7 +1740,7 @@ void VprofDiagram::plotDiagram()
 
   // outer frame
   if (vpopt->pframe) {
-    gl->drawRect(xysize[0][0], xysize[0][2], xysize[0][1], xysize[0][3]);
+    gl->drawRect(false, xysize[0][0], xysize[0][2], xysize[0][1], xysize[0][3]);
   }
 }
 

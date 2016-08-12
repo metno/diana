@@ -330,6 +330,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
           gridSources[mn] = gridcollection;
           if (!miutil::contains(miutil::to_lower(guiOptions), "notingui")) {
             fieldDialogInfo[groupIndex].modelNames.push_back(mn);
+            fieldDialogInfo[groupIndex].setupInfo.push_back(lines[l]);
           }
         } else {
           ostringstream ost;
@@ -370,7 +371,7 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
     BOOST_FOREACH(const std::string& tok, tokens) {
       std::vector<std::string> stokens= miutil::split_protected(tok, '"', '"', "=", true);
       if (stokens.size()<2) {
-        std::cerr << "Missing argument to keyword: '" << tok << "', assuming it is an option" << std::endl;
+        METLIBS_LOG_INFO("Missing argument to keyword: '" << tok << "', assuming it is an option");
         options.push_back(tok);
         continue;
       }
@@ -532,16 +533,15 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
     return pgc;
 
   // make new inventory
-  if (rescan)
-    pgc->updateSources();
+  if (rescan && !pgc->updateSources())
+    return pgc;
 
   pgc->makeInventory(refTime);
 
   using namespace gridinventory;
   Inventory inventory = pgc->getInventory();
   Inventory::reftimes_t& reftimes = inventory.reftimes;
-  for (Inventory::reftimes_t::iterator it_r = reftimes.begin();
-       it_r != reftimes.end(); ++it_r) {
+  for (Inventory::reftimes_t::iterator it_r = reftimes.begin(); it_r != reftimes.end(); ++it_r) {
     ReftimeInventory& rti = it_r->second;
     addComputedParameters(rti);
   }
