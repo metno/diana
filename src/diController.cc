@@ -514,7 +514,6 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   // catch events to editmanager
   //-------------------------------------
   if (inEdit && !editoverride && !editpause){
-
     if (inEdit){
       editm->sendMouseEvent(me,res);
 #ifdef DEBUGREDRAW
@@ -525,7 +524,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   } else {
     // Send the event to the other managers to see if one of them will handle it.
     bool handled = false;
-    if (!(me->modifiers() & Qt::ShiftModifier)) {
+    if (!editoverride) {
       for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
         if (it->second->isEnabled()) {
           it->second->sendMouseEvent(me, res);
@@ -664,8 +663,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
           anav = PlotModule::ANAV_PAN_DOWN;
         else if (ke->key() == Qt::Key_Up)
           anav = PlotModule::ANAV_PAN_UP;
-        else if ((ke->key() == Qt::Key_Z && ke->modifiers() & Qt::ShiftModifier)
-            || (ke->key() == Qt::Key_X))
+        else if (ke->key() == Qt::Key_X)
           anav = PlotModule::ANAV_ZOOM_OUT;
         else if (ke->key() == Qt::Key_Z)
           anav = PlotModule::ANAV_ZOOM_IN;
