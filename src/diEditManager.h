@@ -120,7 +120,7 @@ private:
 
   void findSavedProducts(std::vector<savedProduct>& prods,
 			 const std::string fileString,
-			 dataSource dsource, int element,
+			 bool localSource, int element,
 			 int autoremove=-1);
 
   std::vector<std::string> findAcceptedCombine(int ibegin, int iend,

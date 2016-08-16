@@ -54,7 +54,7 @@ struct savedProduct {
   std::string productName;
   std::string pid;      ///< productid    ("VA")
   miutil::miTime ptime;      ///< product time
-  dataSource source; ///< source
+  bool localSource; ///< source
   int  element;      ///< -1=objects, 0,1,...=field number
   std::string filename; ///< full filename
   std::string selectObjectTypes;   ///< fronts,symbols,areas to read
@@ -78,8 +78,8 @@ struct EditProductField {
   // gui <--> controller
   std::string name;                    ///< field-name
   std::string filename;
-  std::string localFilename;
-  std::string prodFilename;
+  std::vector<std::string> localFilename;
+  std::vector<std::string> prodFilename;
   // gui --> controller
   bool fromfield;                   ///< make from field
   std::string fromfname;               ///< from-field: model,name,..
@@ -104,8 +104,8 @@ struct EditProduct {
   std::vector<EditProductId> pids;       ///< legal product-id's
   std::vector <savedProduct> objectprods;///< products to fetch objects from
   std::vector<EditProductField> fields;  ///< required fields
-  std::string local_savedir;                 ///< directory for saved product
-  std::string prod_savedir;                 ///< directory for saved product
+  std::vector<std::string> local_savedirs;                 ///< directories for saved product
+  std::vector<std::string> prod_savedirs;                 ///< directories for saved product
   std::vector<std::string> inputdirs;       ///< savedir is always the first ???
   std::string inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
   std::string inputFieldConfig;        ///< fimex xml-config

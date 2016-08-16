@@ -117,8 +117,8 @@ mapModeInfo newMapModeInfo(const std::string & newmode,
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
 : plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
-combinematrix(0),numregs(0), hiddenObjects(false),
-hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
+  combinematrix(0),numregs(0), hiddenObjects(false),
+  hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 , apEditmessage(0)
 , inEdit(false)
 , producttimedefined(false)
@@ -200,11 +200,12 @@ bool EditManager::parseSetup()
           ep.areaminimize= true;
         else
           ok= false;
-      } else if (key=="local_save_dir" && nval==1) {
-        ep.local_savedir = values[0];
 
-      } else if (key=="prod_save_dir" && nval==1) {
-        ep.prod_savedir = values[0];
+      } else if (key=="local_save_dir") {
+        ep.local_savedirs.insert(ep.prod_savedirs.end(), values.begin(),values.end());
+
+      } else if (key=="prod_save_dir") {
+        ep.prod_savedirs.insert(ep.prod_savedirs.end(), values.begin(),values.end());
 
       } else if (key=="input_dir") {
         ep.inputdirs.insert(ep.inputdirs.end(),
@@ -344,11 +345,12 @@ bool EditManager::parseSetup()
 
     if (ok) {
       //
-      if (ep.local_savedir.empty()) ep.local_savedir= ".";
+      if (!ep.local_savedirs.size())
+        ep.local_savedirs.push_back(".");
       // insert savedir as the last inputdir and the last combinedir,
       // this sequence is also kept when timesorting
-      ep.inputdirs.push_back(ep.local_savedir);
-      ep.combinedirs.push_back(ep.local_savedir);
+      ep.inputdirs.push_back(ep.local_savedirs[0]);
+      ep.combinedirs.push_back(ep.local_savedirs[0]);
       //HK !!! important ! default drawtools if not specified in setup
       if (ep.drawtools.empty()) {
         ep.drawtools.push_back(OBJECTS_ANALYSIS);
@@ -431,7 +433,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   ep.labels = labcom;
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
   for (size_t ari=0; ari<ep.labels.size(); ari++)
-       METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
+    METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
 
   ep.OKstrings = commands;
@@ -486,7 +488,7 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
   while (mmidx<n && mmode!=mapmodeinfo[mmidx].mapmode) mmidx++;
   if (mmidx==n){
     METLIBS_LOG_ERROR("diEditManager::setEditMode  no info for mapmode:"
-    << mmode);
+        << mmode);
     editmode=edittool=0;
     return;
   }
@@ -704,13 +706,13 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
     }
   }
 
-//  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent return res.repaint= "<<res.repaint);
+  //  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent return res.repaint= "<<res.repaint);
 }
 
 
 void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
-//  METLIBS_LOG_SCOPE();
+  //  METLIBS_LOG_SCOPE();
   res.enable_background_buffer = true;
   res.update_background_buffer = false;
   res.repaint= false;
@@ -996,10 +998,10 @@ std::string EditManager::editFileName(const std::string directory,
 
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << yyyy
-  << setw(2) << setfill('0') << mm
-  << setw(2) << setfill('0') << dd
-  << setw(2) << setfill('0') << hh
-  << setw(2) << setfill('0') << min;
+      << setw(2) << setfill('0') << mm
+      << setw(2) << setfill('0') << dd
+      << setw(2) << setfill('0') << hh
+      << setw(2) << setfill('0') << min;
 
   std::string filename;
 
@@ -1043,7 +1045,21 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     }
 
     if (ci.sendable ) {
-      outputFilename = ep.prod_savedir + "/work/";
+      for (size_t i=0; i<ep.prod_savedirs.size();++i) {
+        outputFilename = ep.prod_savedirs[i] + "/work/";
+        std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
+        outputFilename += filename;
+        QString qs(outputFilename.c_str());
+        QFile qfile(qs);
+        if ( qfile.exists() ) {
+          message = qs + " already exists, do you want to continue?";
+          return false;
+        }
+      }
+    }
+
+    for (size_t i=0; i<ep.local_savedirs.size();++i) {
+      outputFilename = ep.local_savedirs[i] + "/";
       std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
       outputFilename += filename;
       QString qs(outputFilename.c_str());
@@ -1054,22 +1070,24 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
       }
     }
 
-    outputFilename = ep.local_savedir + "/";
-    std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
-    outputFilename += filename;
-    QString qs(outputFilename.c_str());
-    QFile qfile(qs);
-    if ( qfile.exists() ) {
-      message = qs + " already exists, do you want to continue?";
-      return false;
-    }
-
   }
 
 
   if (ci.sendable ) {
-    std::string outputFilename = ep.prod_savedir + "/work/";
-    std::string objectsFilename= editFileName(outputFilename,ci.name,
+    for (size_t i=0; i<ep.prod_savedirs.size();++i) {
+      std::string outputFilename = ep.prod_savedirs[i] + "/work/";
+      std::string objectsFilename= editFileName(outputFilename,ci.name,
+          ep.objectsFilenamePart,time);
+      QString qstr(objectsFilename.c_str());
+      QFile qfile(qstr);
+      if ( qfile.exists() ) {
+        message = qstr + " already exists, do you want to continue?";
+        return false;
+      }
+    }
+  }
+  for (size_t i=0; i<ep.local_savedirs.size();++i) {
+    std::string objectsFilename= editFileName(ep.local_savedirs[i],ci.name,
         ep.objectsFilenamePart,time);
     QString qstr(objectsFilename.c_str());
     QFile qfile(qstr);
@@ -1078,15 +1096,6 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
       return false;
     }
   }
-  std::string objectsFilename= editFileName(ep.local_savedir,ci.name,
-      ep.objectsFilenamePart,time);
-  QString qstr(objectsFilename.c_str());
-  QFile qfile(qstr);
-  if ( qfile.exists() ) {
-    message = qstr + " already exists, do you want to continue?";
-    return false;
-  }
-
   return true;
 }
 
@@ -1102,52 +1111,58 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
   }
   QFile qfile(EdProd.templateFilename.c_str());
 
-  std::string outputFilename;
+  vector<std::string> outputFilenames;
 
   std::string time_string;
   if ( producttimedefined )
     time_string= "_" + producttime.format("%Y%m%dt%H%M%S");
+  EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + time_string + ".nc";
 
   if ( local ) {
-    outputFilename = EdProd.local_savedir + "/";
-  } else {
-    QDir qdir(EdProd.prod_savedir.c_str());
-    if ( !qdir.exists() ) {
-      if ( !qdir.mkpath(EdProd.prod_savedir.c_str())) {
-        METLIBS_LOG_WARN("could not make:" <<EdProd.prod_savedir);
-      }
+    for (size_t i=0; i<EdProd.local_savedirs.size();++i) {
+      outputFilenames.push_back(EdProd.local_savedirs[i] + "/" + EdProd.fields[fnum].filename);
     }
+  } else {
+    for (size_t i=0; i<EdProd.prod_savedirs.size();++i) {
+      METLIBS_LOG_INFO(LOGVAL(EdProd.prod_savedirs[i]));
+      QDir qdir(EdProd.prod_savedirs[i].c_str());
+      if ( !qdir.exists() ) {
+        if ( !qdir.mkpath(EdProd.prod_savedirs[i].c_str())) {
+          METLIBS_LOG_WARN("could not make:" <<EdProd.prod_savedirs[i]);
+        }
+      }
       if ( !qdir.mkpath("work")) {
-        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"work");
+        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedirs[i]<<"work");
       }
       if ( !qdir.mkpath("products")) {
-        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"products");
+        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedirs[i]<<"products");
       }
 
-    outputFilename = EdProd.prod_savedir + "/work/";
+      outputFilenames.push_back(EdProd.prod_savedirs[i] + "/work/" + EdProd.fields[fnum].filename);
+    }
   }
 
-  EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + time_string + ".nc";
-  outputFilename += EdProd.fields[fnum].filename;
-  if ( qfile.exists(outputFilename.c_str()) && !qfile.remove(outputFilename.c_str()) ){
-    message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilename.c_str()) + "  failed. (File exsists, but can't be overwritten.)";
-    return false;
-  }
-  if (!qfile.copy(outputFilename.c_str())){
-    message = "Copy from "  + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilename.c_str()) + "  failed";
-    return false;
-  }
+  //  outputFilename += EdProd.fields[fnum].filename;
+  for (size_t i=0; i<outputFilenames.size();++i) {
+    if ( qfile.exists(outputFilenames[i].c_str()) && !qfile.remove(outputFilenames[i].c_str()) ){
+      message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed. (File exsists, but can't be overwritten.)";
+      return false;
+    }
+    if (!qfile.copy(outputFilenames[i].c_str())){
+      message = "Copy from "  + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed";
+      return false;
+    }
   if ( local ) {
-    EdProd.fields[fnum].localFilename = outputFilename;
+    EdProd.fields[fnum].localFilename = outputFilenames;
   } else {
-    EdProd.fields[fnum].prodFilename = outputFilename;
+    EdProd.fields[fnum].prodFilename = outputFilenames;
   }
 
   std::string fileType = "fimex";
 
-  std::vector<std::string> filenames;
-  std::string modelName = outputFilename;
-  filenames.push_back(outputFilename);
+  //  std::vector<std::string> filenames;
+  //  std::string modelName = outputFilename;
+  //  filenames.push_back(outputFilename);
 
   std::vector<std::string> format;
   format.push_back("netcdf");
@@ -1158,12 +1173,14 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
   std::string opt = "writeable=true";
   option.push_back(opt);
 
-  fieldPlotManager->addGridCollection(fileType, modelName, filenames,
+  fieldPlotManager->addGridCollection(fileType, outputFilenames[i], outputFilenames,
       format,config, option);
 
   vector<FieldGroupInfo> fgi;
-  std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
-  fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
+  std::string reftime = fieldPlotManager->getBestFieldReferenceTime(outputFilenames[i],0,-1 );
+  METLIBS_LOG_INFO(LOGVAL(outputFilenames[i])<<LOGVAL(reftime));
+  fieldPlotManager->getFieldGroups(outputFilenames[i],reftime,true,fgi);
+  }
 
   return true;
 
@@ -1311,68 +1328,77 @@ bool EditManager::writeEditProduct(QString&  message,
     const bool isapproved){
 
   METLIBS_LOG_DEBUG("EditManager::writeEditProduct");
-message.clear();
+  message.clear();
   //
-  QDir qdir(EdProd.local_savedir.c_str());
-  if ( !qdir.exists() ) {
-    if ( !qdir.mkpath(EdProd.local_savedir.c_str())) {
-      METLIBS_LOG_WARN("could not make:" <<EdProd.local_savedir);
+  for (size_t i=0; i<EdProd.local_savedirs.size();++i) {
+  QDir qdir(EdProd.local_savedirs[i].c_str());
+    if ( !qdir.exists() ) {
+      if ( !qdir.mkpath(EdProd.local_savedirs[i].c_str())) {
+        METLIBS_LOG_WARN("could not make:" <<EdProd.local_savedirs[i]);
+      }
     }
   }
   if( EdProdId.sendable && send ) {
-  QDir qdir(EdProd.prod_savedir.c_str());
-  if ( !qdir.exists() ) {
-    if ( !qdir.mkpath(EdProd.prod_savedir.c_str())) {
-      METLIBS_LOG_WARN("could not make:" <<EdProd.prod_savedir);
+    for (size_t i=0; i<EdProd.prod_savedirs.size();++i) {
+      QDir qdir(EdProd.prod_savedirs[i].c_str());
+      if ( !qdir.exists() ) {
+        if ( !qdir.mkpath(EdProd.prod_savedirs[i].c_str())) {
+          METLIBS_LOG_WARN("could not make:" <<EdProd.prod_savedirs[i]);
+        }
+      }
+      if ( !qdir.mkpath("work")) {
+        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedirs[i]<<"/work");
+      }
+      if ( !qdir.mkpath("products")) {
+        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedirs[i]<<"/products");
+      }
     }
   }
-    if ( !qdir.mkpath("work")) {
-      METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"/work");
-    }
-    if ( !qdir.mkpath("products")) {
-      METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"/products");
-    }
-  }
-
   bool res= true;
   miTime t = producttime;
 
   if (wfield) {
     for (unsigned int i=0; i<fedits.size(); i++) {
-      if(fedits[i]->writeEditFieldFile(EdProd.fields[i].localFilename) ) {
-      METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].localFilename);
-      } else {
-        res= false;
-        message += QString("Could not write field to file:") + QString(EdProd.fields[i].localFilename.c_str()) + "\n";
+      for (size_t j=0; j<EdProd.fields[i].localFilename.size();++j) {
+        if(fedits[i]->writeEditFieldFile(EdProd.fields[i].localFilename[j]) ) {
+          METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].localFilename[j]);
+        } else {
+          res= false;
+          message += QString("Could not write field to file:") + QString(EdProd.fields[i].localFilename[j].c_str()) + "\n";
+        }
       }
       if(EdProdId.sendable ) {
-        if ( send ) {
-          if(fedits[i]->writeEditFieldFile(EdProd.fields[i].prodFilename) ) {
-          METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].prodFilename);
-          } else {
-            res= false;
-            message += "Could not write field to file:" + QString(EdProd.fields[i].prodFilename.c_str()) + "\n";
+        for (size_t j=0; j<EdProd.fields[i].prodFilename.size();++j) {
+          if ( send ) {
+            METLIBS_LOG_INFO(LOGVAL(EdProd.fields[i].prodFilename[j]));
+            if(fedits[i]->writeEditFieldFile(EdProd.fields[i].prodFilename[j]) ) {
+              METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].prodFilename[j]);
+            } else {
+              res= false;
+              message += "Could not write field to file:" + QString(EdProd.fields[i].prodFilename[j].c_str()) + "\n";
+            }
           }
-        }
-        if( isapproved ) {
-          QString workFile = EdProd.fields[i].prodFilename.c_str();
-          QFile qfile(workFile);
-          QString prodFile = workFile.replace("work","products");
-          METLIBS_LOG_INFO("Writing field:" << prodFile.toStdString());
-          if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
-            METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
-            res = false;
-            message += "Could not write field to file:" + prodFile + "\n";
-          } else if (!qfile.copy(prodFile) ) {
-            METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
-            makeNewFile(i,false,message);
-            res = false;
-            message += "Could not write field to file:" + prodFile + "\n";
+          if( isapproved ) {
+            QString workFile = EdProd.fields[i].prodFilename[j].c_str();
+            QFile qfile(workFile);
+            QString prodFile = workFile.replace("work","products");
+            METLIBS_LOG_INFO("Writing field:" << prodFile.toStdString());
+            if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+              METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
+              res = false;
+              message += "Could not write field to file:" + prodFile + "\n";
+            } else if (!qfile.copy(prodFile) ) {
+              METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
+              makeNewFile(i,false,message);
+              res = false;
+              message += "Could not write field to file:" + prodFile + "\n";
+            }
           }
         }
       }
     }
   }
+
 
   if (wobjects){
     bool saveok = true;
@@ -1383,72 +1409,67 @@ message.clear();
     if (not editObjectsString.empty()) {
       //first save to local file
       objectsFilenamePart= EdProd.objectsFilenamePart;
-      objectsFilename= editFileName(EdProd.local_savedir,EdProdId.name,
-          objectsFilenamePart,t);
+      for (size_t i=0; i<EdProd.local_savedirs.size();++i) {
+        objectsFilename= editFileName(EdProd.local_savedirs[i],EdProdId.name,
+            objectsFilenamePart,t);
 
-      if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
-        res= false;
-        saveok= false;
-        message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
+        if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
+          res= false;
+          saveok= false;
+          message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
+        }
       }
 
       if (EdProdId.sendable ) {
-        if ( send ) {
-          objectsFilename = editFileName(EdProd.prod_savedir + "/work",EdProdId.name,
-              objectsFilenamePart,t);
+        for (size_t i=0; i<EdProd.prod_savedirs.size();++i) {
+          if ( send ) {
+            objectsFilename = editFileName(EdProd.prod_savedirs[i] + "/work",EdProdId.name,
+                objectsFilenamePart,t);
+            METLIBS_LOG_INFO(LOGVAL(objectsFilename));
+            if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
+              res= false;
+              saveok= false;
+              message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
+            }
+          }
 
-          if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
-            res= false;
-            saveok= false;
-            message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
+
+          if( isapproved ) {
+            QString workFile = objectsFilename.c_str();
+            QFile qfile(workFile);
+            QString prodFile = workFile.replace("work","products");
+            if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+              METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
+              res = false;
+              message += "Could not write objects to file:" + prodFile + "\n";
+            } else if (!qfile.copy(prodFile) ) {
+              METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
+              res = false;
+              message += "Could not write objects to file:" +  prodFile+ "\n";
+            }
           }
         }
-        if( isapproved ) {
-          QString workFile = objectsFilename.c_str();
-          QFile qfile(workFile);
-          QString prodFile = workFile.replace("work","products");
-          if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
-            METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
-            res = false;
-            message += "Could not write objects to file:" + prodFile + "\n";
-          } else if (!qfile.copy(prodFile) ) {
-            METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
-            res = false;
-            message += "Could not write objects to file:" +  prodFile+ "\n";
-          }
-        }
+
       }
+
 
     }
-
     objm->setObjectsSaved(saveok);
     if (saveok) objm->getEditObjects().labelsAreSaved();
-  }
 
-  if ( objm->getEditObjects().hasComments() ) {
-    bool saveok= true;
-    //get comment string from objm to put in database and local files
-    //only do this if comments have changed !
+    if ( objm->getEditObjects().hasComments() ) {
+      bool saveok= true;
+      //get comment string from objm to put in database and local files
+      //only do this if comments have changed !
 
-    std::string commentFilename, commentFilenamePart,editCommentString;
-    editCommentString = objm->getComments();
+      std::string commentFilename, commentFilenamePart,editCommentString;
+      editCommentString = objm->getComments();
 
-    if (not editCommentString.empty()) {
-      //first save to local file
-      commentFilenamePart= EdProd.commentFilenamePart;
-      commentFilename= editFileName(EdProd.local_savedir,EdProdId.name,
-          commentFilenamePart,t);
-
-      if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
-        res= false;
-        saveok= false;
-        message += "Could not write comments to file:" + QString(commentFilename.c_str()) + "\n";
-      }
-
-      if (EdProdId.sendable ) {
-        if ( send ) {
-
-          commentFilename= editFileName(EdProd.prod_savedir + "/work",EdProdId.name,
+      if (not editCommentString.empty()) {
+        //first save to local file
+        commentFilenamePart= EdProd.commentFilenamePart;
+        for (size_t i=0; i<EdProd.local_savedirs.size();++i) {
+          commentFilename= editFileName(EdProd.local_savedirs[i],EdProdId.name,
               commentFilenamePart,t);
 
           if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
@@ -1457,54 +1478,73 @@ message.clear();
             message += "Could not write comments to file:" + QString(commentFilename.c_str()) + "\n";
           }
         }
-        if( isapproved ) {
-          QString workFile = commentFilename.c_str();
-          QFile qfile(workFile);
-          QString prodFile = workFile.replace("work","products");
-          if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
-            METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
-            res = false;
-            message += "Could not write field to file:" + prodFile + "\n";
-          }
+        if (EdProdId.sendable ) {
+          if ( send ) {
+            for (size_t i=0; i<EdProd.prod_savedirs.size();++i) {
 
-          if (!qfile.copy(prodFile) ) {
-            METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
-            res = false;
-            message += "Could not write field to file:" +  prodFile+ "\n";
+              commentFilename= editFileName(EdProd.prod_savedirs[i] + "/work",EdProdId.name,
+                  commentFilenamePart,t);
+
+              if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
+                res= false;
+                saveok= false;
+                message += "Could not write comments to file:" + QString(commentFilename.c_str()) + "\n";
+              }
+            }
           }
-          qfile.copy(prodFile);
+          if( isapproved ) {
+            QString workFile = commentFilename.c_str();
+            QFile qfile(workFile);
+            QString prodFile = workFile.replace("work","products");
+            if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+              METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
+              res = false;
+              message += "Could not write field to file:" + prodFile + "\n";
+            }
+
+            if (!qfile.copy(prodFile) ) {
+              METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
+              res = false;
+              message += "Could not write field to file:" +  prodFile+ "\n";
+            }
+            qfile.copy(prodFile);
+          }
         }
       }
+      if (saveok) objm->getEditObjects().commentsAreSaved();
     }
-    if (saveok) objm->getEditObjects().commentsAreSaved();
-  }
 
 
-  if ( EdProdId.sendable ) {
-    std::string text =t.isoTime("t") + "\n" +miutil::miTime::nowTime().isoTime("t");
-    if( send ) {
-      std::string filename = EdProd.prod_savedir + "/lastsaved." + EdProdId.name;
-      QFile lastsaved(filename.c_str());
-      lastsaved.open(QIODevice::WriteOnly);
-      lastsaved.write(text.c_str());
-      lastsaved.close();
-    }
-    if ( isapproved ) {
-      std::string filename = EdProd.prod_savedir + "/lastfinished." + EdProdId.name;
-      QFile lastfinnished(filename.c_str());
-      lastfinnished.open(QIODevice::WriteOnly);
-      lastfinnished.write(text.c_str());
-      lastfinnished.close();
+    if ( EdProdId.sendable ) {
+      std::string text =t.isoTime("t") + "\n" +miutil::miTime::nowTime().isoTime("t");
+      if( send ) {
+        for (size_t i=0; i<EdProd.prod_savedirs.size();++i) {
+          std::string filename = EdProd.prod_savedirs[i] + "/lastsaved." + EdProdId.name;
+          QFile lastsaved(filename.c_str());
+          lastsaved.open(QIODevice::WriteOnly);
+          lastsaved.write(text.c_str());
+          lastsaved.close();
+        }
+      }
+      if ( isapproved ) {
+        for (size_t i=0; i<EdProd.prod_savedirs.size();++i) {
+          std::string filename = EdProd.prod_savedirs[i] + "/lastfinished." + EdProdId.name;
+          QFile lastfinnished(filename.c_str());
+          lastfinnished.open(QIODevice::WriteOnly);
+          lastfinnished.write(text.c_str());
+          lastfinnished.close();
+        }
+      }
     }
   }
   return res;
 }
 
 
-bool EditManager::findProduct(EditProduct& ep, std::string pname){
+  bool EditManager::findProduct(EditProduct& ep, std::string pname){
 
-  //find product with name = pname
-  int n= editproducts.size();
+    //find product with name = pname
+    int n= editproducts.size();
   int i= 0;
   while (i<n && editproducts[i].name!=pname) i++;
 
@@ -1540,7 +1580,6 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
   vector<savedProduct> prods;
 
   std::string fileString,filenamePart, dir,pid;
-  dataSource dsource;
 
   // element objects or fields
   if (element==-1)
@@ -1559,10 +1598,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     dir= ep.inputdirs[i];
     // filestring to search
     fileString = dir + "/" + pid + "_" + filenamePart+ "*";
-    //datasource info for dialog (inputdirs[n-1]==savedir)
-    if (i==n-1) dsource= data_local;
-    else        dsource= data_server;
-    findSavedProducts(prods,fileString,dsource,element,ep.autoremove);
+    findSavedProducts(prods,fileString,(i==n-1),element,ep.autoremove);
   }
 
   //give correct product name
@@ -1600,17 +1636,25 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   // loop over directories
   for (int i=0; i<ncombdirs; i++) {
     dir = ep.combinedirs[i];
-    dataSource dsource= (dir==ep.local_savedir) ? data_local : data_server;
+    dataSource dsource;//= (dir==ep.local_savedir) ? data_local : data_server;
     METLIBS_LOG_DEBUG("Looking in directory " << dir);
     for (int j=-1; j<numfields; j++) {
       if (j == -1) filenamePart= ep.objectsFilenamePart;
       else         filenamePart= ep.fields[j].filenamePart;
       fileString = dir + "/" + pid + "_" + filenamePart+ "*";
       METLIBS_LOG_DEBUG("    find " << fileString);
-      findSavedProducts(combineprods,fileString,dsource,j,ep.autoremove);
+      findSavedProducts(combineprods,fileString,false,j,ep.autoremove);
     }
   }
-
+  dir = ep.local_savedirs[0];
+  METLIBS_LOG_DEBUG("Looking in directory " << dir);
+  for (int j=-1; j<numfields; j++) {
+    if (j == -1) filenamePart= ep.objectsFilenamePart;
+    else         filenamePart= ep.fields[j].filenamePart;
+    fileString = dir + "/" + pid + "_" + filenamePart+ "*";
+    METLIBS_LOG_DEBUG("    find " << fileString);
+    findSavedProducts(combineprods,fileString,true,j,ep.autoremove);
+  }
   // combineprods are timesorted, newest first
   int ncp= combineprods.size();
 
@@ -1659,7 +1703,7 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
     while (ip<np && combineprods[i].pid!=ei.combineids[ip]) ip++;
     if (ip<np) {
       j= combineprods[i].element + 1;
-    if (j>=0 && j<mf) table[ip*mf+j]= true;
+      if (j>=0 && j<mf) table[ip*mf+j]= true;
     }
   }
 
@@ -1681,7 +1725,7 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
 
 void EditManager::findSavedProducts(vector <savedProduct> & prods,
     const std::string fileString,
-    dataSource dsource, int element, int autoremove){
+    bool localSource, int element, int autoremove){
 
   miTime now = miTime::nowTime();
 
@@ -1699,7 +1743,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
     }
     savedprod.pid= objm->prefixFileName(name);
     savedprod.filename = name;
-    savedprod.source = dsource;
+    savedprod.localSource = localSource;
     savedprod.element= element;
     // sort files with the newest files first !
     if (prods.empty()) {
@@ -1795,7 +1839,7 @@ std::string EditManager::savedProductString(savedProduct sp)
 {
   if (sp.ptime.undef()){
     return sp.pid + " " + sp.productName + " "
-         + " " + sp.selectObjectTypes + " " + sp.filename;
+        + " " + sp.selectObjectTypes + " " + sp.filename;
   } else {
     return sp.pid + " " + sp.productName + " "
         + sp.ptime.isoTime() + " " + sp.selectObjectTypes + " " + sp.filename;
@@ -2031,7 +2075,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   }
 
   objm->getEditObjects().setTime(producttime);
-  
+
   std::string lines;
   objm->putCommentStartLines(EdProd.name,EdProdId.name,lines);
 
@@ -2430,12 +2474,12 @@ bool EditManager::recalcCombineMatrix(){
     }
   }
   //####################################################################
-//  METLIBS_LOG_DEBUG("recalcCombineMatrix  nborders=" << nborders);
-//  for (int nb=0; nb<nborders; nb++) {
-//    METLIBS_LOG_DEBUG("PRE CONV border "<<nb);
-//    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-//      METLIBS_LOG_DEBUG("  x,y:  " << xposis[ip] << "  " << yposis[ip]);
-//  }
+  //  METLIBS_LOG_DEBUG("recalcCombineMatrix  nborders=" << nborders);
+  //  for (int nb=0; nb<nborders; nb++) {
+  //    METLIBS_LOG_DEBUG("PRE CONV border "<<nb);
+  //    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
+  //      METLIBS_LOG_DEBUG("  x,y:  " << xposis[ip] << "  " << yposis[ip]);
+  //  }
   //####################################################################
 
   const Area& oldArea= plotm->getMapArea();
@@ -2445,11 +2489,11 @@ bool EditManager::recalcCombineMatrix(){
     return false;
   }
   //####################################################################
-//  for (int nb=0; nb<nborders; nb++) {
-//    METLIBS_LOG_DEBUG("AFTER CONV border "<<nb);
-//    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-//      METLIBS_LOG_DEBUG("  x,y:  " << xposis[ip] << "  " << yposis[ip]);
-//  }
+  //  for (int nb=0; nb<nborders; nb++) {
+  //    METLIBS_LOG_DEBUG("AFTER CONV border "<<nb);
+  //    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
+  //      METLIBS_LOG_DEBUG("  x,y:  " << xposis[ip] << "  " << yposis[ip]);
+  //  }
   //####################################################################
 
   // Splines as shown (maybe approx due to map conversion...)
@@ -2803,11 +2847,11 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 
   bool plotinfluence= (mapmode==fedit_mode);
 
-//  METLIBS_LOG_DEBUG(" plototherfield="<<plototherfield
-//  <<" plotactivefield="<<plotactivefield
-//  <<" plotobjects="<<plotobjects
-//  <<" plotinfluence="<<plotinfluence
-//  <<" plotregion="<<plotregion);
+  //  METLIBS_LOG_DEBUG(" plototherfield="<<plototherfield
+  //  <<" plotactivefield="<<plotactivefield
+  //  <<" plotobjects="<<plotobjects
+  //  <<" plotinfluence="<<plotinfluence
+  //  <<" plotregion="<<plotregion);
 
   if (plotcombine && under){
     int n= objm->getCombiningObjects().objects.size();
@@ -2929,9 +2973,9 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
 
   //get values
   if (!fedits[0]->editfield->interpolate(obsPositions.numObs,
-          obsPositions.xpos, obsPositions.ypos,
-          obsPositions.values,
-          Field::I_BESSEL))
+      obsPositions.xpos, obsPositions.ypos,
+      obsPositions.values,
+      Field::I_BESSEL))
     return false;
 
   return true;
@@ -2989,7 +3033,7 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
 #endif
 #ifdef SMHI
-    //fronts.push_back(newEditToolInfo("Signifikant vÃ¯Â¿Â½der",SigweatherFront,"green"));
+  //fronts.push_back(newEditToolInfo("Signifikant vÃ¯Â¿Â½der",SigweatherFront,"green"));
   fronts.push_back(newEditToolInfo("Clouds",SigweatherFront,"green4"));
   fronts.push_back(newEditToolInfo("VMC-line",Line,"black","black",-2,true,"dash2"));
   fronts.push_back(newEditToolInfo("CAT-line",Line,"black","black",-2,true,"longlongdash"));
@@ -3178,7 +3222,7 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
 #ifdef SMHI
   //High
-    //High
+  //High
   sigsymbols.push_back(newEditToolInfo("Sig20",243,"black","black",1));
   //Low
   sigsymbols.push_back(newEditToolInfo("Sig19",242,"black","black",1));
@@ -3195,7 +3239,7 @@ void EditManager::initEditTools(){
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green4"));
   //snow
-//ari  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
+  //ari  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
   sigsymbols.push_back(newEditToolInfo("Snow",254,"green4"));
   //snow showers
   //sigsymbols.push_back(newEditToolInfo( "Snow_showers",1043,"green4","green4",4));
