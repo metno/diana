@@ -253,8 +253,6 @@ private:
   int index; //last selected
 
   ImageGallery ig;
-
-  static std::string ddString[16]; // NN�,N�,�N�,�,�S� etc.
- };
+};
 
 #endif

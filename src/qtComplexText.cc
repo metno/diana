@@ -56,7 +56,7 @@ using namespace std;
 QValidator::State ComplexText::complexValidator::validate(QString& input, int& pos) const
 {
   //validator, only used for zero isoterm input !!!
-  if (not input.contains("0\xB0:")) { // was"0°:"
+  if (not input.contains("0\xB0:")) { // was"0<deg>:"
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;
@@ -265,13 +265,13 @@ void ComplexText::textActivated(const QString &textstring)
 void ComplexText::selectText(int i)
 {
   METLIBS_LOG_SCOPE();
-  // Special routine to facilitate editing strings with "0°:"
+  // Special routine to facilitate editing strings with "0<deg>:"
 
   if (startEdit){
     startEdit=false;
     std::string text = vSymbolEdit[i]->currentText().toStdString();
     METLIBS_LOG_DEBUG(LOGVAL(text));
-    if (not miutil::contains(text, "0\xB0:")){ // was "0°:"
+    if (not miutil::contains(text, "0\xB0:")){ // was "0<deg>:"
       vSymbolEdit[i]->lineEdit()->setValidator(0);
       return;
     } else {

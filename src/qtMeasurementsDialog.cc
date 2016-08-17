@@ -95,7 +95,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   latlabel1->setFrameStyle( QFrame::Panel);
   latlabel1->setMinimumSize(latlabel1->sizeHint());
 
-  latbox1= new QLabel("00\xB0""00'N",this); // was "00°00'N"
+  latbox1= new QLabel("00\xB0""00'N",this); // was "00<deg>00'N"
   latbox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   latbox1->setMinimumSize(latbox1->sizeHint());
 

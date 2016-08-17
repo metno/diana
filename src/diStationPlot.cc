@@ -47,8 +47,7 @@
 using namespace::miutil;
 using namespace std;
 
-//  static members
-std::string StationPlot::ddString[16];
+static std::string ddString[16]; // norwegian directions North, NorthNorthEast, NorthEast, EastNorthEast, etc.
 
 StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
 {

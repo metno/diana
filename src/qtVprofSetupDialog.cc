@@ -101,7 +101,7 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
-  //place buttons "utfør", "help" etc. in horizontal layout
+  //place buttons "apply", "help" etc. in horizontal layout
   QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
