@@ -101,6 +101,8 @@ public:
   std::vector<Station*> findStations(float lat, float lon) const;
   Station* findStation(float lat, float lon) const;
   void addStation(Station* station);
+  bool contains(float lat, float lon) const
+    { return lat >= minLat && lat < maxLat && lon >= minLon && lon < maxLon; }
 
 private:
   float minLat;

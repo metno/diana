@@ -1312,9 +1312,9 @@ vector<Station*> StationArea::findStations(float lat, float lon) const
 {
   METLIBS_LOG_SCOPE();
 
-  for (unsigned int i = 0; i < areas.size(); ++i) {
-    if (lat >= areas[i].minLat && lat < areas[i].maxLat && lon >= areas[i].minLon && lon < areas[i].maxLon)
-      return areas[i].findStations(lat, lon);
+  for (std::vector<StationArea>::const_iterator it = areas.begin(); it != areas.end(); ++it) {
+    if (it->contains(lat, lon))
+      return it->findStations(lat, lon);
   }
   return stations;
 }
@@ -1330,39 +1330,31 @@ Station* StationArea::findStation(float lat, float lon) const
 
 void StationArea::addStation(Station* station)
 {
-  if (areas.size() == 0) {
+  if (areas.empty()) {
     stations.push_back(station);
-
-    // ### TODO: Handle the case where there are more than 10 stations at the same location.
 
     if (stations.size() > 10) {
       // If there are more than 10 stations in the area, split up the area and
       // move each of the stations into the appropriate subarea.
-      StationArea topLeft((minLat + maxLat)/2, maxLat, minLon, (minLon + maxLon)/2);
+      const float midLat = (minLat + maxLat)/2, midLon = (minLon + maxLon)/2;
+
+      StationArea topLeft(midLat, maxLat, minLon, midLon);
       areas.push_back(topLeft);
 
-      StationArea topRight((minLat + maxLat)/2, maxLat, (minLon + maxLon)/2, maxLon);
+      StationArea topRight(midLat, maxLat, midLon, maxLon);
       areas.push_back(topRight);
 
-      StationArea bottomLeft(minLat, (minLat + maxLat)/2, minLon, (minLon + maxLon)/2);
+      StationArea bottomLeft(minLat, midLat, minLon, midLon);
       areas.push_back(bottomLeft);
 
-      StationArea bottomRight(minLat, (minLat + maxLat)/2, (minLon + maxLon)/2, maxLon);
+      StationArea bottomRight(minLat, midLat, midLon, maxLon);
       areas.push_back(bottomRight);
 
-      // Move all the stations into the subareas.
-      for (unsigned int i = 0; i < stations.size(); ++i) {
-        for (unsigned int j = 0; j < areas.size(); ++j) {
-          // If the station fits into the subarea, add it to it and ignore the other subareas.
-          if (stations[i]->lat >= areas[j].minLat
-              && stations[i]->lat < areas[j].maxLat
-              && stations[i]->lon >= areas[j].minLon
-              && stations[i]->lon < areas[j].maxLon)
-          {
-            areas[j].stations.push_back(stations[i]);
-            break;
-          }
-        }
+      // Move all the stations into the subareas. May not call "addStation" to avoid infinite recursion if
+      // there are more than 10 stations with identical lon and lat.
+      for (std::vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
+        const size_t a = ((*it)->lat >= midLat ? 0 : 2) + ((*it)->lon >= midLon ? 1 : 0);
+        areas[a].stations.push_back(*it);
       }
 
       // Clear the vector of stations in this area.
@@ -1370,13 +1362,10 @@ void StationArea::addStation(Station* station)
     }
   } else {
     // Find the appropriate subarea to store the station in.
-    for (unsigned int i = 0 ; i < areas.size(); ++i) {
-      if (station->lat >= areas[i].minLat
-          && station->lat < areas[i].maxLat
-          && station->lon >= areas[i].minLon
-          && station->lon < areas[i].maxLon)
-      {
-        areas[i].addStation(station);
+    for (std::vector<StationArea>::iterator it = areas.begin(); it != areas.end(); ++it) {
+      if (it->contains(station->lat, station->lon)) {
+        it->addStation(station);
+        break;
       }
     }
   }
