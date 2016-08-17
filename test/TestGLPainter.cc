@@ -127,7 +127,7 @@ void TestPaintable::drawTextInBox(DiGLPainter* gl, const QString& text, float tx
   x += tx;
   y += ty;
   gl->setLineStyle(Colour(0, 255, 0), 1);
-  gl->drawRect(x, y, x+w, y+h);
+  gl->drawRect(false, x, y, x+w, y+h);
   gl->drawText(text, tx, ty, 0);
 
   gl->setLineStyle(Colour(255, 0, 0), 1);
