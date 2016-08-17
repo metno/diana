@@ -29,7 +29,7 @@
 #ifndef StationPlot_h
 #define StationPlot_h
 
-#include "diCommonTypes.h"
+#include "diStationInfo.h"
 #include "diColour.h"
 #include "diImageGallery.h"
 #include "diPlot.h"
@@ -128,6 +128,7 @@ public:
   /// constructor with station names,longitudes and latitudes
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
       const std::vector <float> & lats);
+  StationPlot(const std::vector <stationInfo> & stations);
   /// constructor with station names,longitudes,latitudes and images
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
         const std::vector <float> & lats, const std::vector <std::string>& images);

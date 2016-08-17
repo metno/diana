@@ -248,13 +248,6 @@ struct ObsPositions {
    \brief GUI data for all stations
 */
 
-struct stationInfo {
-    std::string name;
-    std::string url;
-    float lat;
-    float lon;
-};
-
 struct stationSetInfo {
     std::string name;
     std::string url;

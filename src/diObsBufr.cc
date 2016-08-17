@@ -227,8 +227,7 @@ bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
 }
 
 bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
-    vector<std::string>& namelist, vector<miTime>& timelist, vector<float>& latitudelist,
-    vector<float>& longitudelist)
+    vector<stationInfo>& stations, vector<miTime>& timelist)
 {
   id.clear();
   idmap.clear();
@@ -237,10 +236,11 @@ bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
   for (size_t i=0; i< bufr_file.size(); i++)
     init(bufr_file[i], FORMAT_STATIONINFO);
 
-  namelist = id;
   timelist = id_time;
-  latitudelist = latitude;
-  longitudelist = longitude;
+  stations.clear();
+  stations.reserve(id.size());
+  for (size_t i=0; i<id.size(); ++i)
+    stations.push_back(stationInfo(id[i], longitude[i], latitude[i]));
   return true;
 
 }

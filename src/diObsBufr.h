@@ -32,6 +32,7 @@
 #define _diObsBufr_h
 
 #include <diObsPlot.h>
+#include "diStationInfo.h"
 
 class VprofPlot;
 
@@ -85,10 +86,8 @@ public:
 
   bool ObsTime(const std::string& filename,miutil::miTime& time);
   bool readStationInfo(const std::vector<std::string>& bufr_file,
-      std::vector<std::string>& namelist,
-      std::vector<miutil::miTime>& timelist,
-      std::vector<float>& latitudelist,
-      std::vector<float>& longitudelist);
+      std::vector<stationInfo>& stations,
+      std::vector<miutil::miTime>& timelist);
   VprofPlot* getVprofPlot(const std::vector<std::string>& bufr_file,
       const std::string& modelName,
       const std::string& station,

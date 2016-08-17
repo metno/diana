@@ -29,11 +29,12 @@
 #ifndef diVprofData_h
 #define diVprofData_h
 
-#include <diVprofPlot.h>
+#include "diVprofPlot.h"
+
+#include "diStationInfo.h"
 
 #include <puTools/miTime.h>
 #include "vcross_v2/VcrossCollector.h"
-#include "diCommonTypes.h"
 #include <vector>
 
 /**
@@ -54,12 +55,8 @@ public:
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
   bool updateStationList(const miutil::miTime& plotTime);
 
-  const std::vector<std::string>& getNames() const
-    { return posName; }
-  const std::vector<float>& getLatitudes() const
-    { return posLatitude; }
-  const std::vector<float>& getLongitudes() const
-    { return posLongitude; }
+  const std::vector<stationInfo>& getStations() const
+    { return mStations; }
   const std::vector<miutil::miTime>& getTimes() const
     { return validTime; }
   const std::string& getModelName() const
@@ -94,9 +91,7 @@ private:
   int numParam;
   int numLevel;
 
-  std::vector<std::string> posName;
-  std::vector<float>    posLatitude;
-  std::vector<float>    posLongitude;
+  std::vector<stationInfo> mStations;
   std::vector<miutil::miTime>   validTime;
   std::vector<int>      forecastHour;
   std::vector<std::string> progText;

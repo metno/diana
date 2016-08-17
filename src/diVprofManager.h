@@ -29,7 +29,7 @@
 #ifndef VPROFMANAGER_H
 #define VPROFMANAGER_H
 
-#include "diCommonTypes.h"
+#include "diStationInfo.h"
 #include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
@@ -77,9 +77,7 @@ private:
   VprofDiagram *vpdiag;
   std::vector<VprofData*> vpdata;
 
-  std::vector <std::string> nameList;
-  std::vector <float>    latitudeList;
-  std::vector <float>    longitudeList;
+  std::vector <stationInfo> stationList;
   std::vector <miutil::miTime>   timeList;
 
   std::vector<SelectedModel> selectedModels;
@@ -131,12 +129,8 @@ public:
     { return selectedStations; }
   const std::string& getLastStation()
     { return lastStation; }
-  const std::vector<std::string>& getStationList()
-    { return nameList; }
-  const std::vector<float>& getLatitudes()
-    { return latitudeList; }
-  const std::vector<float>& getLongitudes()
-    { return longitudeList; }
+  const std::vector<stationInfo>& getStationList() const
+    { return stationList; }
   const std::vector<miutil::miTime>& getTimeList()
     { return timeList; }
   std::vector <std::string> getModelNames();

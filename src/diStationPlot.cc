@@ -80,6 +80,19 @@ StationPlot::StationPlot(const vector<std::string> & names,
   defineCoordinates();
 }
 
+StationPlot::StationPlot(const vector<stationInfo> & stations)
+{
+#ifdef DEBUGPRINT
+  METLIBS_LOG_SCOPE();
+#endif
+  init();
+  unsigned int n = stations.size();
+  for (unsigned int i = 0; i < n; i++) {
+    addStation(stations[i].lon, stations[i].lat, stations[i].name);
+  }
+  defineCoordinates();
+}
+
 StationPlot::StationPlot(const vector<std::string> & names,
     const vector<float> & lons, const vector<float> & lats,
     const vector<std::string>& images)
