@@ -57,7 +57,6 @@ public:
   std::vector<std::string> REww;   ///< Recent weather
   std::vector<std::string> ww;     ///< Significant weather
   std::vector<std::string> cloud;  ///< Clouds
-  std::string appendix;       ///< For whatever remains
 
   typedef std::map<std::string,float> fdata_t;
   typedef std::map<std::string,std::string> stringdata_t;
