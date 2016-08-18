@@ -333,13 +333,13 @@ void PolyLine::removePoints()
 
   QSet<int> origHCPIndexes = pressedCtrlPointIndex_;
   pressedCtrlPointIndex_.clear();
-  if (hoverCtrlPointIndex_ >= points_.size())
-    hoverCtrlPointIndex_ = -1;
+  hoverCtrlPointIndex_ = -1;
 
   updateControlPoints();
 
   // unjoin polyline if removing a joined end point
-  if ((origHCPIndexes.contains(0) && (joinId() < 0)) || (origHCPIndexes.contains(points_.size()) && (joinId() > 0))) {
+  const int jid = joinId();
+  if ((origHCPIndexes.contains(0) && (jid < 0)) || (origHCPIndexes.contains(points_.size()) && (jid > 0))) {
     propertiesRef().insert("joinId", 0);
     EditItemManager::instance()->updateJoins();
   }

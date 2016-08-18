@@ -172,7 +172,10 @@ signals:
 
 private:
   void openContextMenu(const QPoint &pos, const QPoint &globalPos);
-  DrawingItemBase *hitItem_; // current hit item
+  DrawingItemBase* hitItem() const
+    { return !hitItems_.empty() ? hitItems_.first() : 0; }
+
+private:
   QList<DrawingItemBase *> hitItems_;
   QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes_;
   DrawingItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
