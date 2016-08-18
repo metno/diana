@@ -407,8 +407,8 @@ void EditItemManager::mousePress(QMouseEvent *event)
   }
 
   QSet<DrawingItemBase *> selItems = selectedItems().toSet();
-  const QSet<DrawingItemBase *> origSelItems(selItems);
 
+  // TODO why not use hitItems_, which is updated in mouseMove?
   QList<DrawingItemBase *> missedItems;
   const QList<DrawingItemBase *> hitItems = findHitItems(event->pos(), hitItemTypes_, missedItems);
   DrawingItemBase * hitItem = !hitItems.empty() ? hitItems.first() : 0; // consider only this item to be hit
@@ -433,7 +433,8 @@ void EditItemManager::mousePress(QMouseEvent *event)
 
     bool rpn = false;
     Editing(hitItem)->mousePress(event, rpn, &multiItemOp);
-    if (rpn) repaintNeeded_ = true;
+    if (rpn)
+      repaintNeeded_ = true;
 
     if (multiItemOp) {
       // send the mouse press to other selected items
@@ -527,37 +528,40 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     lastHoverPos_ = event->pos();
     QList<DrawingItemBase *> missedItems;
     const QList<DrawingItemBase *> hitItems = findHitItems(lastHoverPos_, hitItemTypes_, missedItems);
-    foreach (DrawingItemBase *hitItem, hitItems)
+    Q_FOREACH (DrawingItemBase *hitItem, hitItems)
       Editing(hitItem)->updateHoverPos(lastHoverPos_);
-    foreach (DrawingItemBase *missedItem, missedItems)
+    Q_FOREACH (DrawingItemBase *missedItem, missedItems)
       Editing(missedItem)->updateHoverPos(QPoint(-1, -1));
 
     if (!hitItems.empty()) {
       hitItems_ = hitItems;
 
       // Send a mouse hover event to the first hover item.
-      if (rpn) repaintNeeded_ = true;
-      emit itemsHovered(hitItems_);
       Editing(hitItem())->mouseHover(event, rpn, selectingOnly_);
+      if (rpn)
+        repaintNeeded_ = true;
+      Q_EMIT itemsHovered(hitItems_);
     } else if (!origHitItems.isEmpty()) {
       Editing(origHitItems.first())->mouseHover(event, rpn, selectingOnly_);
-      if (rpn) repaintNeeded_ = true;
+      if (rpn)
+        repaintNeeded_ = true;
     }
   } else {
     // send move event to all selected items
-    foreach (DrawingItemBase *item, selectedItems()) {
+    Q_FOREACH (DrawingItemBase *item, selectedItems()) {
       Editing(item)->mouseMove(event, rpn);
       item->setLatLonPoints(getLatLonPoints(item));
       // Call the item's method to process the event as a hover event in
       // order to allow polyline items to show coordinate tooltips.
       Editing(item)->mouseHover(event, rpn);
-      if (rpn) repaintNeeded_ = true;
+      if (rpn)
+        repaintNeeded_ = true;
     }
 
     adjustSelectedJoinPoints();
   }
 
-  if (hitItems_ != origHitItems)
+  if (!repaintNeeded_ && hitItems_ != origHitItems)
     repaintNeeded_ = true;
 }
 
@@ -573,16 +577,18 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
     bool rpn = false;
     Editing(incompleteItem_)->incompleteMouseHover(event, rpn);
     incompleteItem_->setLatLonPoints(getLatLonPoints(incompleteItem_));
-    if (rpn) repaintNeeded_ = true;
+    if (rpn)
+      repaintNeeded_ = true;
     if (incompleteItem_->hit(event->pos(), false) != DrawingItemBase::None)
       hitItems_ = QList<DrawingItemBase *>() << incompleteItem_;
   } else {
     bool rpn = false;
     Editing(incompleteItem_)->incompleteMouseMove(event, rpn);
-    if (rpn) repaintNeeded_ = true;
+    if (rpn)
+      repaintNeeded_ = true;
   }
 
-  if (hitItems_ != origHitItems)
+  if (!repaintNeeded_ && hitItems_ != origHitItems)
     repaintNeeded_ = true;
 }
 
