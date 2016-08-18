@@ -507,7 +507,7 @@ bool StationPlot::changeProjection()
   }
 
   if (!getStaticPlot()->GeoToMap(npos, xpos, ypos)) {
-    METLIBS_LOG_ERROR("changeProjection: getPoints error");
+    METLIBS_LOG_ERROR("getPoints error");
     delete[] xpos;
     delete[] ypos;
     return false;
@@ -517,36 +517,10 @@ bool StationPlot::changeProjection()
     yplot[i] = ypos[i];
   }
 
-  float *u = new float[npos];
-  float *v = new float[npos];
-
-  for (int i = 0; i < npos; i++) {
-    u[i] = 0;
-    v[i] = 10;
-  }
-
-  for (int i = 0; i < npos; i++) {
-    if (stations[i]->image == "wind") {
-      int angle = (int) (atan2f(u[i], v[i]) * RAD_TO_DEG);
-      int dd = stations[i]->north + angle;
-      if (dd < 1)
-        dd += 360;
-      if (dd > 360)
-        dd -= 360;
-      stations[i]->north = dd;;
-      dd = stations[i]->dd + angle;
-      if (dd < 1)
-        dd += 360;
-      if (dd > 360)
-        dd -= 360;
-      stations[i]->dd = dd;
-    }
-  }
-
   delete[] xpos;
   delete[] ypos;
-  delete[] u;
-  delete[] v;
+
+  // TODO rotate wind
 
   return true;
 }
