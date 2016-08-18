@@ -411,31 +411,28 @@ void EditItemManager::mousePress(QMouseEvent *event)
 
   QList<DrawingItemBase *> missedItems;
   const QList<DrawingItemBase *> hitItems = findHitItems(event->pos(), hitItemTypes_, missedItems);
-  if (!hitItems.empty())
-    hitItem_ = hitItems.first(); // consider only this item to be hit
-  else
-    hitItem_ = 0;
+  DrawingItemBase * hitItem = !hitItems.empty() ? hitItems.first() : 0; // consider only this item to be hit
 
-  const bool hitSelItem = selItems.contains(hitItem_); // whether an already selected item was hit
+  const bool hitSelItem = selItems.contains(hitItem); // whether an already selected item was hit
   const bool selectMulti = event->modifiers() & Qt::ControlModifier;
 
   repaintNeeded_ = false;
 
   // update selection and hit status
-  if (!(hitSelItem || (hitItem_ && selectMulti))) {
+  if (!(hitSelItem || (hitItem && selectMulti))) {
     deselectAllItems();
   } else if (selectMulti && hitSelItem && (selItems.size() > 1)) {
-    deselectItem(hitItem_);
+    deselectItem(hitItem);
   }
 
-  if (hitItem_) { // an item is still considered hit
-    selectItem(hitItem_); // ensure the hit item is selected (it might already be)
+  if (hitItem) { // an item is still considered hit
+    selectItem(hitItem); // ensure the hit item is selected (it might already be)
 
     // send mouse press to the hit item
     bool multiItemOp = false;
 
     bool rpn = false;
-    Editing(hitItem_)->mousePress(event, rpn, &multiItemOp);
+    Editing(hitItem)->mousePress(event, rpn, &multiItemOp);
     if (rpn) repaintNeeded_ = true;
 
     if (multiItemOp) {
@@ -443,7 +440,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
       // (note that these are not allowed to modify item sets, nor requesting items to be copied,
       // nor does it make sense for them to flag the event as the beginning of a potential multi-item operation)
       foreach (DrawingItemBase *item, selItems) {
-        if (item != hitItem_) {
+        if (item != hitItem) {
           rpn = false;
           Editing(item)->mousePress(event, rpn);
           if (rpn)
@@ -539,9 +536,9 @@ void EditItemManager::mouseMove(QMouseEvent *event)
       hitItems_ = hitItems;
 
       // Send a mouse hover event to the first hover item.
-      Editing(hitItems_.first())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
       emit itemsHovered(hitItems_);
+      Editing(hitItem())->mouseHover(event, rpn, selectingOnly_);
     } else if (!origHitItems.isEmpty()) {
       Editing(origHitItems.first())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
@@ -655,7 +652,7 @@ void EditItemManager::keyPress(QKeyEvent *event)
 
   // Process each of the selected items and any currently hovered item.
   bool handledHover = false;
-  DrawingItemBase *hoverItem = hitItems_.isEmpty() ? 0 : hitItems_.first();
+  DrawingItemBase *hoverItem = hitItem();
 
   foreach (DrawingItemBase *item, selectedItems()) {
 
@@ -718,13 +715,14 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
   const QSet<DrawingItemBase *> selItems = selectedItems().toSet();
 
   QList<DrawingItemBase *> items = allItems();
+  DrawingItemBase * hit = hitItem();
 
   foreach (DrawingItemBase *item, items) {
     EditItemBase::DrawModes modes = EditItemBase::Normal;
     if (isEditing()) {
       if (selItems.contains(item))
         modes |= EditItemBase::Selected;
-      if ((!hitItems_.isEmpty()) && (item == hitItems_.first()))
+      if (item == hit)
         modes |= EditItemBase::Hovered;
     }
     if (itemsVisibilityForced_ || isItemVisible(item)) {
@@ -736,8 +734,7 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
 
   if (hasIncompleteItem()) { // note that only complete items may be selected
     setFromLatLonPoints(incompleteItem_, incompleteItem_->getLatLonPoints());
-    Editing(incompleteItem_)->draw(gl,
-          ((!hitItems_.isEmpty()) && (incompleteItem_ == hitItems_.first())) ? EditItemBase::Hovered : EditItemBase::Normal, true);
+    Editing(incompleteItem_)->draw(gl, incompleteItem_ == hit ? EditItemBase::Hovered : EditItemBase::Normal, true);
   }
 }
 
@@ -1150,13 +1147,14 @@ void EditItemManager::adjustSelectedJoinPoints()
     }
   }
 
-  const int hitJoinId = !hitItem_ ? 0 : hitItem_->joinId();
+  DrawingItemBase* hit = hitItem();
+  const int hitJoinId = hit ? hit->joinId() : 0;
 
   // loop over joins involving at least one selected item
   Q_FOREACH (int absJoinId, selJoins.keys()) {
     if (absJoinId == qAbs(hitJoinId)) { // the hit item is part of this join
       // move the joined end points in this join to the joined end point of the hit item
-      const QPointF joinPoint = getItemJoinPoint(hitItem_);
+      const QPointF joinPoint = getItemJoinPoint(hit);
       moveItemsPoint(selJoins.value(absJoinId), joinPoint);
       if (unselJoins.contains(absJoinId))
         moveItemsPoint(unselJoins.value(absJoinId), joinPoint);
