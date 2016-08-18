@@ -329,7 +329,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
   METLIBS_LOG_SCOPE(LOGVAL(i));
 #endif
 
-  float h = 0, w = 0; //height for displaying text
+  float h = 0; //height for displaying text
   float x = xplot[i];
   float y = yplot[i];
   bool plotted = true;
@@ -340,27 +340,24 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       if (stations[i]->image == "wind") {
         h = (stations[i]->isSelected ? 40 : 30)
             * getStaticPlot()->getPhysToMapScaleY();
-        w = 30 * getStaticPlot()->getPhysToMapScaleX();
         plotWind(gl, i, x, y);
       } else {
         h = ig.height_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleY();
-        w = ig.width_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleX();
         if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image, x, y, true, stations[i]->scale,
             stations[i]->alpha))
           plotted = false;
       }
       if (stations[i]->isSelected && stations[i]->image != "wind")
         gl->Color3ub(255, 0, 0); //red
-      glPlot(gl, Station::noStatus, x, y, w, h);
+      glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->image.empty() && !stations[i]->image2.empty()) {
       float h1 = ig.height_(stations[i]->image);
       float h2 = ig.height_(stations[i]->image2);
       h = std::max(h1, h2) * getStaticPlot()->getPhysToMapScaleY();
       float w1 = ig.width_(stations[i]->image);
       float w2 = ig.width_(stations[i]->image2);
-      w = 2 * std::max(w1, w2) * getStaticPlot()->getPhysToMapScaleX();
       gl->Color3ub(128, 128, 128); //grey
-      glPlot(gl, Station::noStatus, x, y, w, h);
+      glPlot(gl, Station::noStatus, x, y);
       if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image, x - w1 / 2, y, true, stations[i]->scale,
           stations[i]->alpha))
         plotted = false;
@@ -369,7 +366,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
         plotted = false;
       if (stations[i]->isSelected)
         gl->Color3ub(255, 0, 0); //red
-        glPlot(gl, Station::noStatus, x, y, w, h);
+        glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
       if (!ig.plotImage(gl, getStaticPlot(), imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
@@ -382,17 +379,17 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     } else {
       //if no image plot crosses and circles for selected/normal stations
       //METLIBS_LOG_DEBUG("useImage=false");
-      glPlot(gl, Station::failed, x, y, w, h, stations[i]->isSelected);
+      glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
     }
 
     //if something went wrong,
     //plot crosses and circles for selected/normal stations
     if (!plotted) {
-      glPlot(gl, Station::failed, x, y, w, h, stations[i]->isSelected);
+      glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
       plotted = true;
     }
   } else if (stations[i]->status != Station::noStatus) {
-    glPlot(gl, stations[i]->status, x, y, w, h, stations[i]->isSelected);
+    glPlot(gl, stations[i]->status, x, y, stations[i]->isSelected);
   }
 
   if (useStationNameNormal && !stations[i]->isSelected) {
@@ -406,7 +403,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     gl->setFont("BITMAPFONT", "normal", 10);
     gl->getTextSize(stations[i]->name, cw, ch);
     gl->Color3ub(255, 255, 255); //white
-    glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1, cw * 0.6, ch * 1.1);
+    glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1);
     gl->Color3ub(0, 0, 0); //black
     gl->drawText(stations[i]->name, x - cw / 2, y + h / 2 + ch * 0.35,
         0.0);
@@ -427,7 +424,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       else if (stations[i]->vsText[it].hAlign == align_bottom) {
         if (stations[i]->isSelected)
           gl->Color3ub(255, 255, 255); //white
-        glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w, ch);
+        glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0);
         gl->setColour(textColour);
         gl->drawText(text, x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
       }
@@ -1038,7 +1035,7 @@ std::string StationPlot::stationRequest(const std::string& command)
   return ost.str();
 }
 
-void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, float w, float h, bool selected)
+void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected)
 {
   //called from StationPlot::plotStation: Add GL things to plot here.
   const float scale = 1.5*getStaticPlot()->getPhysToMapScaleX();
@@ -1059,7 +1056,6 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 4;
     gl->LineWidth(linewidth);
     r = linewidth * scale;
-    h = 1.5 * r;
     //plot crosses
     gl->Color3ub(255, 0, 0); //red
     gl->drawCross(x, y, r, true);
@@ -1068,7 +1064,6 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 4;
     gl->LineWidth(linewidth);
     r = linewidth * scale;
-    h = 1.5 * r;
     //plot crosses
     gl->Color3ub(255, 255, 0); //yellow
     gl->drawCross(x, y, r, true);
@@ -1077,7 +1072,6 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 4;
     gl->LineWidth(linewidth);
     r = linewidth * scale;
-    h = 1.5 * r;
     //plot crosses
     gl->Color3ub(0, 255, 0); //green
     gl->drawCross(x, y, r, true);
@@ -1270,7 +1264,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     float sx = x - 0.45 * sW;
     float sy = y - 2.35 * sH;
     gl->Color3ub(255, 255, 255); //white
-    glPlot(gl, Station::noStatus, x, y - 2.5 * sH, sW * 0.6, sH * 1.1);
+    glPlot(gl, Station::noStatus, x, y - 2.5 * sH);
     gl->Color4f(0.0, 0.0, 0.0, 1.0); //black
     gl->drawText(ddString[dd], sx, sy);
   }
