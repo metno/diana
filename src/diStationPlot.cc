@@ -575,6 +575,7 @@ vector<Station*> StationPlot::stationsAt(int x, int y, float radius, bool useAll
     if ( useAllStations ) {
       found = stations;
     } else {
+      // FIXME this is not correct in the vicinity of StationArea borders
       found = stationAreas[0].findStations(gy, gx);
     }
 
