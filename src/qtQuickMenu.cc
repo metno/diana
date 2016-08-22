@@ -815,22 +815,25 @@ void QuickMenu::resetButton()
 
 bool QuickMenu::itemChanged(int menu, int item)
 {
+  if (menu < firststatic)
+    return false; // not static menu
 
-  if (menu < firststatic) return false; // not static menu
-
-  int oidx= menu - firststatic; // in original list
-  int msize= orig_qm[oidx].menuitems[item].command.size();
-  if (msize != int(qm[menu].menuitems[item].command.size()))
-    return true;
-
-  // check each command-line
-  for (int j=0; j<msize; j++){
-    if (orig_qm[oidx].menuitems[item].command[j] !=
-      qm[menu].menuitems[item].command[j])
-      return true;
+  const int oidx = menu - firststatic; // in original list
+  if (menu < 0 || menu >= (int)qm.size()) {
+      METLIBS_LOG_ERROR("itemChanged menu=" << menu << " out of bounds 0.." << qm.size());
+      return false;
+  }
+  if (oidx < 0 || oidx >= (int)orig_qm.size()) {
+    METLIBS_LOG_ERROR("itemChanged oidx=" << oidx << " out of bounds 0.." << orig_qm.size());
+    return false;
+  }
+  if (item < 0 || item >= (int)orig_qm[oidx].menuitems.size() || item >= (int)qm[oidx].menuitems.size()) {
+    METLIBS_LOG_ERROR("itemChanged item=" << item << " out of bounds 0.."
+                      << orig_qm[oidx].menuitems.size() << '/' << qm[oidx].menuitems.size());
+    return false;
   }
 
-  return false;
+  return (orig_qm[oidx].menuitems[item].command != qm[menu].menuitems[item].command);
 }
 
 
