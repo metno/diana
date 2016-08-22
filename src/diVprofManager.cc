@@ -40,12 +40,14 @@
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "vcross_v2/VcrossSetup.h"
+
 #include "diField/VcrossUtil.h"
-#include <puTools/TimeFilter.h>
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
+#include <puTools/TimeFilter.h>
+
 #include <boost/foreach.hpp>
 
 #include <cmath>
@@ -61,6 +63,7 @@
 using namespace std;
 using miutil::miTime;
 
+namespace /* anonymous */ {
 miutil::miTime nowTime()
 {
   miutil::miTime plottime= miTime::nowTime();
@@ -69,6 +72,7 @@ miutil::miTime nowTime()
   cl.setClock(cl.hour(),0,0);
   return  miutil::miTime(plottime.date(),cl);
 }
+} // anonymous namespace
 
 VprofManager::VprofManager()
 : vpdiag(0),
@@ -245,22 +249,22 @@ void VprofManager::setTime(const miTime& time)
 
 std::string VprofManager::setStation(int step)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(step) << LOGVAL(nameList.size()));
+  METLIBS_LOG_SCOPE(LOGVAL(step) << LOGVAL(stationList.size()));
 
-  if (nameList.empty() || plotStations.empty())
+  if (stationList.empty() || plotStations.empty())
     return "";
 
-  std::vector<std::string>::const_iterator it
-      = std::find(nameList.begin(), nameList.end(), plotStations.front());
+  std::vector<stationInfo>::const_iterator it
+      = std::find_if(stationList.begin(), stationList.end(), diutil::eq_StationName(plotStations.front()));
   int i = 0;
-  if (it != nameList.end()) {
-    i = ((it - nameList.begin()) + step) % nameList.size();
+  if (it != stationList.end()) {
+    i = ((it - stationList.begin()) + step) % stationList.size();
     if (i < 0)
-      i += nameList.size();
+      i += stationList.size();
   }
 
   plotStations.clear();
-  plotStations.push_back(nameList[i]);
+  plotStations.push_back(stationList[i].name);
   updateSelectedStations();
   return plotStations.front();
 }
@@ -339,9 +343,9 @@ void VprofManager::updateSelectedStations()
     }
   }
 
-  for (size_t i=0; i<nameList.size(); i++) {
+  for (size_t i=0; i<stationList.size(); i++) {
     std::vector<std::string>::const_iterator it
-        = std::find(plotStations.begin(), plotStations.end(), nameList[i]);
+        = std::find(plotStations.begin(), plotStations.end(), stationList[i].name);
     if (it != plotStations.end()) {
       selectedStations.push_back(*it);
       break;
@@ -474,42 +478,27 @@ void VprofManager::initStations()
   //merge lists from all models
   int nvpdata = vpdata.size();
 
-  nameList.clear();
-  latitudeList.clear();
-  longitudeList.clear();
+  for (int i = 0; i<nvpdata; i++) {
+    if ( vpdata[i]->updateStationList(plotTime) )  {
+      const vector <stationInfo>& stations = vpdata[i]->getStations();
+      if (!stations.empty()) {
+        // check for duplicates
+        // name should be used as to check
+        // all lists must be equal in size
+        std::set<std::string> names;
+        for (vector <stationInfo>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
+          if (names.count(it->name))
+            continue;
 
-  vector <std::string> namelist;
-  vector <float>    latitudelist;
-  vector <float>    longitudelist;
+          names.insert(it->name);
 
-for (int i = 0; i<nvpdata; i++) {
-  if ( vpdata[i]->updateStationList(plotTime) )  {
-    namelist= vpdata[i]->getNames();
-    latitudelist= vpdata[i]->getLatitudes();
-    longitudelist= vpdata[i]->getLongitudes();
-    unsigned int n=namelist.size();
-    if (n!=latitudelist.size()||n!=longitudelist.size()) {
-      METLIBS_LOG_ERROR("SOMETHING WRONG WITH STATIONLIST!");
-    } else if (n>0) {
-      // check for duplicates
-      // name should be used as to check
-      // all lists must be equal in size
-      std::set<std::string> names;
-      for (size_t index = 0; index < namelist.size(); index++) {
-        if (names.count(namelist[index]))
-          continue;
+          stationList.push_back(*it);
 
-        names.insert(namelist[index]);
-
-        nameList.push_back(namelist[index]);
-        latitudeList.push_back(latitudelist[index]);
-        longitudeList.push_back(longitudelist[index]);
-
-        if (miutil::trimmed(namelist[index]).empty())
-          METLIBS_LOG_WARN("empty vpdata name @ " << LOGVAL(index) << LOGVAL(latitudelist[index]) << LOGVAL(longitudelist[index]));
+          if (miutil::trimmed(it->name).empty())
+            METLIBS_LOG_WARN("empty vpdata name @ " << LOGVAL(it->lat) << LOGVAL(it->lon));
+        }
       }
     }
-  }
   }
 
   // remember station
@@ -519,8 +508,8 @@ for (int i = 0; i<nvpdata; i++) {
   METLIBS_LOG_DEBUG("lastStation = '"  << lastStation << "'");
 
   // if it's the first time, plot the first station
-  if (plotStations.empty() && !nameList.empty())
-    plotStations.push_back(nameList[0]);
+  if (plotStations.empty() && !stationList.empty())
+    plotStations.push_back(stationList[0].name);
 }
 
 

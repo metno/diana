@@ -47,8 +47,7 @@
 using namespace::miutil;
 using namespace std;
 
-//  static members
-std::string StationPlot::ddString[16];
+static std::string ddString[16]; // norwegian directions North, NorthNorthEast, NorthEast, EastNorthEast, etc.
 
 StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
 {
@@ -76,6 +75,19 @@ StationPlot::StationPlot(const vector<std::string> & names,
     n = lats.size();
   for (unsigned int i = 0; i < n; i++) {
     addStation(lons[i], lats[i], names[i]);
+  }
+  defineCoordinates();
+}
+
+StationPlot::StationPlot(const vector<stationInfo> & stations)
+{
+#ifdef DEBUGPRINT
+  METLIBS_LOG_SCOPE();
+#endif
+  init();
+  unsigned int n = stations.size();
+  for (unsigned int i = 0; i < n; i++) {
+    addStation(stations[i].lon, stations[i].lat, stations[i].name);
   }
   defineCoordinates();
 }
@@ -317,7 +329,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
   METLIBS_LOG_SCOPE(LOGVAL(i));
 #endif
 
-  float h = 0, w = 0; //height for displaying text
+  float h = 0; //height for displaying text
   float x = xplot[i];
   float y = yplot[i];
   bool plotted = true;
@@ -328,27 +340,24 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       if (stations[i]->image == "wind") {
         h = (stations[i]->isSelected ? 40 : 30)
             * getStaticPlot()->getPhysToMapScaleY();
-        w = 30 * getStaticPlot()->getPhysToMapScaleX();
         plotWind(gl, i, x, y);
       } else {
         h = ig.height_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleY();
-        w = ig.width_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleX();
         if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image, x, y, true, stations[i]->scale,
             stations[i]->alpha))
           plotted = false;
       }
       if (stations[i]->isSelected && stations[i]->image != "wind")
         gl->Color3ub(255, 0, 0); //red
-      glPlot(gl, Station::noStatus, x, y, w, h);
+      glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->image.empty() && !stations[i]->image2.empty()) {
       float h1 = ig.height_(stations[i]->image);
       float h2 = ig.height_(stations[i]->image2);
       h = std::max(h1, h2) * getStaticPlot()->getPhysToMapScaleY();
       float w1 = ig.width_(stations[i]->image);
       float w2 = ig.width_(stations[i]->image2);
-      w = 2 * std::max(w1, w2) * getStaticPlot()->getPhysToMapScaleX();
       gl->Color3ub(128, 128, 128); //grey
-      glPlot(gl, Station::noStatus, x, y, w, h);
+      glPlot(gl, Station::noStatus, x, y);
       if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image, x - w1 / 2, y, true, stations[i]->scale,
           stations[i]->alpha))
         plotted = false;
@@ -357,7 +366,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
         plotted = false;
       if (stations[i]->isSelected)
         gl->Color3ub(255, 0, 0); //red
-        glPlot(gl, Station::noStatus, x, y, w, h);
+        glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
       if (!ig.plotImage(gl, getStaticPlot(), imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
@@ -370,17 +379,17 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     } else {
       //if no image plot crosses and circles for selected/normal stations
       //METLIBS_LOG_DEBUG("useImage=false");
-      glPlot(gl, Station::failed, x, y, w, h, stations[i]->isSelected);
+      glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
     }
 
     //if something went wrong,
     //plot crosses and circles for selected/normal stations
     if (!plotted) {
-      glPlot(gl, Station::failed, x, y, w, h, stations[i]->isSelected);
+      glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
       plotted = true;
     }
   } else if (stations[i]->status != Station::noStatus) {
-    glPlot(gl, stations[i]->status, x, y, w, h, stations[i]->isSelected);
+    glPlot(gl, stations[i]->status, x, y, stations[i]->isSelected);
   }
 
   if (useStationNameNormal && !stations[i]->isSelected) {
@@ -394,7 +403,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     gl->setFont("BITMAPFONT", "normal", 10);
     gl->getTextSize(stations[i]->name, cw, ch);
     gl->Color3ub(255, 255, 255); //white
-    glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1, cw * 0.6, ch * 1.1);
+    glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1);
     gl->Color3ub(0, 0, 0); //black
     gl->drawText(stations[i]->name, x - cw / 2, y + h / 2 + ch * 0.35,
         0.0);
@@ -415,7 +424,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       else if (stations[i]->vsText[it].hAlign == align_bottom) {
         if (stations[i]->isSelected)
           gl->Color3ub(255, 255, 255); //white
-        glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w, ch);
+        glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0);
         gl->setColour(textColour);
         gl->drawText(text, x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
       }
@@ -495,7 +504,7 @@ bool StationPlot::changeProjection()
   }
 
   if (!getStaticPlot()->GeoToMap(npos, xpos, ypos)) {
-    METLIBS_LOG_ERROR("changeProjection: getPoints error");
+    METLIBS_LOG_ERROR("getPoints error");
     delete[] xpos;
     delete[] ypos;
     return false;
@@ -505,36 +514,10 @@ bool StationPlot::changeProjection()
     yplot[i] = ypos[i];
   }
 
-  float *u = new float[npos];
-  float *v = new float[npos];
-
-  for (int i = 0; i < npos; i++) {
-    u[i] = 0;
-    v[i] = 10;
-  }
-
-  for (int i = 0; i < npos; i++) {
-    if (stations[i]->image == "wind") {
-      int angle = (int) (atan2f(u[i], v[i]) * RAD_TO_DEG);
-      int dd = stations[i]->north + angle;
-      if (dd < 1)
-        dd += 360;
-      if (dd > 360)
-        dd -= 360;
-      stations[i]->north = dd;;
-      dd = stations[i]->dd + angle;
-      if (dd < 1)
-        dd += 360;
-      if (dd > 360)
-        dd -= 360;
-      stations[i]->dd = dd;
-    }
-  }
-
   delete[] xpos;
   delete[] ypos;
-  delete[] u;
-  delete[] v;
+
+  // TODO rotate wind
 
   return true;
 }
@@ -589,6 +572,7 @@ vector<Station*> StationPlot::stationsAt(int x, int y, float radius, bool useAll
     if ( useAllStations ) {
       found = stations;
     } else {
+      // FIXME this is not correct in the vicinity of StationArea borders
       found = stationAreas[0].findStations(gy, gx);
     }
 
@@ -1051,7 +1035,7 @@ std::string StationPlot::stationRequest(const std::string& command)
   return ost.str();
 }
 
-void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, float w, float h, bool selected)
+void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected)
 {
   //called from StationPlot::plotStation: Add GL things to plot here.
   const float scale = 1.5*getStaticPlot()->getPhysToMapScaleX();
@@ -1072,7 +1056,6 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 4;
     gl->LineWidth(linewidth);
     r = linewidth * scale;
-    h = 1.5 * r;
     //plot crosses
     gl->Color3ub(255, 0, 0); //red
     gl->drawCross(x, y, r, true);
@@ -1081,7 +1064,6 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 4;
     gl->LineWidth(linewidth);
     r = linewidth * scale;
-    h = 1.5 * r;
     //plot crosses
     gl->Color3ub(255, 255, 0); //yellow
     gl->drawCross(x, y, r, true);
@@ -1090,7 +1072,6 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 4;
     gl->LineWidth(linewidth);
     r = linewidth * scale;
-    h = 1.5 * r;
     //plot crosses
     gl->Color3ub(0, 255, 0); //green
     gl->drawCross(x, y, r, true);
@@ -1283,7 +1264,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     float sx = x - 0.45 * sW;
     float sy = y - 2.35 * sH;
     gl->Color3ub(255, 255, 255); //white
-    glPlot(gl, Station::noStatus, x, y - 2.5 * sH, sW * 0.6, sH * 1.1);
+    glPlot(gl, Station::noStatus, x, y - 2.5 * sH);
     gl->Color4f(0.0, 0.0, 0.0, 1.0); //black
     gl->drawText(ddString[dd], sx, sy);
   }
@@ -1300,9 +1281,9 @@ vector<Station*> StationArea::findStations(float lat, float lon) const
 {
   METLIBS_LOG_SCOPE();
 
-  for (unsigned int i = 0; i < areas.size(); ++i) {
-    if (lat >= areas[i].minLat && lat < areas[i].maxLat && lon >= areas[i].minLon && lon < areas[i].maxLon)
-      return areas[i].findStations(lat, lon);
+  for (std::vector<StationArea>::const_iterator it = areas.begin(); it != areas.end(); ++it) {
+    if (it->contains(lat, lon))
+      return it->findStations(lat, lon);
   }
   return stations;
 }
@@ -1318,39 +1299,31 @@ Station* StationArea::findStation(float lat, float lon) const
 
 void StationArea::addStation(Station* station)
 {
-  if (areas.size() == 0) {
+  if (areas.empty()) {
     stations.push_back(station);
-
-    // ### TODO: Handle the case where there are more than 10 stations at the same location.
 
     if (stations.size() > 10) {
       // If there are more than 10 stations in the area, split up the area and
       // move each of the stations into the appropriate subarea.
-      StationArea topLeft((minLat + maxLat)/2, maxLat, minLon, (minLon + maxLon)/2);
+      const float midLat = (minLat + maxLat)/2, midLon = (minLon + maxLon)/2;
+
+      StationArea topLeft(midLat, maxLat, minLon, midLon);
       areas.push_back(topLeft);
 
-      StationArea topRight((minLat + maxLat)/2, maxLat, (minLon + maxLon)/2, maxLon);
+      StationArea topRight(midLat, maxLat, midLon, maxLon);
       areas.push_back(topRight);
 
-      StationArea bottomLeft(minLat, (minLat + maxLat)/2, minLon, (minLon + maxLon)/2);
+      StationArea bottomLeft(minLat, midLat, minLon, midLon);
       areas.push_back(bottomLeft);
 
-      StationArea bottomRight(minLat, (minLat + maxLat)/2, (minLon + maxLon)/2, maxLon);
+      StationArea bottomRight(minLat, midLat, midLon, maxLon);
       areas.push_back(bottomRight);
 
-      // Move all the stations into the subareas.
-      for (unsigned int i = 0; i < stations.size(); ++i) {
-        for (unsigned int j = 0; j < areas.size(); ++j) {
-          // If the station fits into the subarea, add it to it and ignore the other subareas.
-          if (stations[i]->lat >= areas[j].minLat
-              && stations[i]->lat < areas[j].maxLat
-              && stations[i]->lon >= areas[j].minLon
-              && stations[i]->lon < areas[j].maxLon)
-          {
-            areas[j].stations.push_back(stations[i]);
-            break;
-          }
-        }
+      // Move all the stations into the subareas. May not call "addStation" to avoid infinite recursion if
+      // there are more than 10 stations with identical lon and lat.
+      for (std::vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
+        const size_t a = ((*it)->lat >= midLat ? 0 : 2) + ((*it)->lon >= midLon ? 1 : 0);
+        areas[a].stations.push_back(*it);
       }
 
       // Clear the vector of stations in this area.
@@ -1358,13 +1331,10 @@ void StationArea::addStation(Station* station)
     }
   } else {
     // Find the appropriate subarea to store the station in.
-    for (unsigned int i = 0 ; i < areas.size(); ++i) {
-      if (station->lat >= areas[i].minLat
-          && station->lat < areas[i].maxLat
-          && station->lon >= areas[i].minLon
-          && station->lon < areas[i].maxLon)
-      {
-        areas[i].addStation(station);
+    for (std::vector<StationArea>::iterator it = areas.begin(); it != areas.end(); ++it) {
+      if (it->contains(station->lat, station->lon)) {
+        it->addStation(station);
+        break;
       }
     }
   }

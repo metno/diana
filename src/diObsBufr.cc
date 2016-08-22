@@ -78,6 +78,13 @@ using namespace miutil;
 
 namespace {
 const double bufrMissing = 1.6e+38;
+
+// constants for changing to met.no units
+const double pa2hpa = 0.01;
+const double t0 = 273.15;
+const double ms2knots = 3600.0 / 1852.0, knots2ms = 1 / ms2knots;
+
+
 const int len_cnames = 64, len_cunits = 24, len_cvals = 80;
 const std::string substr(const char* cvals, int index, int len)
 {
@@ -220,8 +227,7 @@ bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
 }
 
 bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
-    vector<std::string>& namelist, vector<miTime>& timelist, vector<float>& latitudelist,
-    vector<float>& longitudelist)
+    vector<stationInfo>& stations, vector<miTime>& timelist)
 {
   id.clear();
   idmap.clear();
@@ -230,10 +236,11 @@ bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
   for (size_t i=0; i< bufr_file.size(); i++)
     init(bufr_file[i], FORMAT_STATIONINFO);
 
-  namelist = id;
   timelist = id_time;
-  latitudelist = latitude;
-  longitudelist = longitude;
+  stations.clear();
+  stations.reserve(id.size());
+  for (size_t i=0; i<id.size(); ++i)
+    stations.push_back(stationInfo(id[i], longitude[i], latitude[i]));
   return true;
 
 }
@@ -378,10 +385,6 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 {
   d.fdata.clear();
 
-  // constants for changing to met.no units
-  const double pa2hpa = 0.01;
-  const double t0 = 273.15;
-
   int wmoBlock = 0;
   int wmoStation = 0;
   int year = 0;
@@ -391,7 +394,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   int minute = 0;
   bool wmoNumber = false;
   float depth = -1.0;
-  int timePeriodMissing = -9999;
+  const int timePeriodMissing = -9999;
   int timePeriodHour = timePeriodMissing;
   int timePeriodMinute = timePeriodMissing;
   int timeDisplacement = 0;
@@ -1227,10 +1230,6 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   d.id.clear();
   d.zone = 0;
 
-  // constants for changing to met.no units
-  const double pa2hpa = 0.01;
-  const double t0 = 273.15;
-
   int wmoBlock = 0;
   int wmoStation = 0;
   int year = 0;
@@ -1378,28 +1377,18 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
         //   007004  PRESSURE, Pa->hPa
       case 7004:
-        if ( is_amv )
-        {
-          if (values[j] < bufrMissing && not checked_amv_pppp ) {
-            if (int(values[j] * pa2hpa) > levelmin && int(values[j] * pa2hpa) < levelmax) {
-              d.fdata["PPPP"] = values[j] * pa2hpa;
+        if (!is_amv && found) {
+          stop = true;
+        } else {
+          if (values[j] < bufrMissing && (!is_amv || (is_amv && !checked_amv_pppp))) {
+            const float pppp_hPa = values[j] * pa2hpa;
+            if (int(pppp_hPa) > levelmin && int(pppp_hPa) < levelmax) {
+              d.fdata["PPPP"] = pppp_hPa;
               found = true;
             }
+          }
+          if (is_amv)
             checked_amv_pppp = true;
-          }
-        }
-        else
-        {
-          if (found) {
-            stop = true;
-          } else {
-            if (values[j] < bufrMissing) {
-              if (int(values[j] * pa2hpa) > levelmin && int(values[j] * pa2hpa) < levelmax) {
-                found = true;
-                d.fdata["PPPP"] = values[j] * pa2hpa;
-              }
-            }
-          }
         }
         break;
 
@@ -1545,11 +1534,6 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
     const char* cvals, int subset, int kelem, miTime time)
 {
-  // constants for changing to met.no units
-  const double pa2hpa = 0.01;
-  const double t0 = 273.15;
-  const double ms2knots = 3600.0 / 1852.0;
-
   //  int wmoBlock = 0;
   //  int wmoStation = 0;
   std::string station;
@@ -1904,25 +1888,25 @@ void ObsBufr::cloud_type(ObsData& d, double v)
 
 float ObsBufr::ms2code4451(float v)
 {
-  if (v < 1852.0 / 3600.0)
+  if (v < knots2ms)
     return 0.0;
-  if (v < 5 * 1852.0 / 3600.0)
+  if (v < 5 * knots2ms)
     return 1.0;
-  if (v < 10 * 1852.0 / 3600.0)
+  if (v < 10 * knots2ms)
     return 2.0;
-  if (v < 15 * 1852.0 / 3600.0)
+  if (v < 15 * knots2ms)
     return 3.0;
-  if (v < 20 * 1852.0 / 3600.0)
+  if (v < 20 * knots2ms)
     return 4.0;
-  if (v < 25 * 1852.0 / 3600.0)
+  if (v < 25 * knots2ms)
     return 5.0;
-  if (v < 30 * 1852.0 / 3600.0)
+  if (v < 30 * knots2ms)
     return 6.0;
-  if (v < 35 * 1852.0 / 3600.0)
+  if (v < 35 * knots2ms)
     return 7.0;
-  if (v < 40 * 1852.0 / 3600.0)
+  if (v < 40 * knots2ms)
     return 8.0;
-  if (v < 25 * 1852.0 / 3600.0)
+  if (v < 25 * knots2ms)
     return 9.0;
   return 9.0;
 }

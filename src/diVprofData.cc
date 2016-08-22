@@ -197,7 +197,7 @@ bool VprofData::setBufr(const miutil::miTime& plotTime)
       if (j>0 && abs(miTime::minDiff(validTime[j], plotTime)) <= 60) {
         currentFiles.push_back(fileNames[j-1]);
       }
-      bufr.readStationInfo(currentFiles, posName, tlist, posLatitude, posLongitude);
+      bufr.readStationInfo(currentFiles, mStations, tlist);
       renameStations();
       break;
     }
@@ -211,25 +211,19 @@ bool VprofData::setRoadObs(const miutil::miTime& plotTime)
 {
 
 #ifdef ROADOBS
-  vector<stationInfo> stations;
+  mStations.clear();
   try {
     // Dummy filename
     std::string filename;
     // read stationlist and init the api.
     // does nothing if already done
     ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,plotTime,NULL,false);
-    road.getStationList(stations);
+    road.getStationList(mStations);
 
   } catch (...) {
       METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << plotTime);
       return false;
   }
-  for (size_t i = 0; i < stations.size(); i++) {
-    posName.push_back(stations[i].name);
-    posLatitude.push_back(stations[i].lat);
-    posLongitude.push_back(stations[i].lon);
-  }
-
 #endif
 
   return true;
@@ -275,9 +269,7 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
       if (cs->length() != 1)
         continue;
-      posName.push_back(cs->label());
-      posLatitude.push_back(cs->point(0).latDeg());
-      posLongitude.push_back(cs->point(0).lonDeg());
+      mStations.push_back(stationInfo(cs->label(), cs->point(0).lonDeg(), cs->point(0).latDeg()));
     }
   }
 
@@ -285,7 +277,7 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
     validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
   }
 
-  numPos = posName.size();
+  numPos = mStations.size();
   numTime = validTime.size();
   numParam = 6;
 
@@ -305,10 +297,10 @@ bool VprofData::updateStationList(const miutil::miTime& plotTime)
     return std::find(validTime.begin(), validTime.end(), plotTime) != validTime.end();
   } else if (format == roadobs) {
     setRoadObs(plotTime);
-    return !posName.empty();
+    return !mStations.empty();
   } else {
     setBufr(plotTime);
-    return !posName.empty();
+    return !mStations.empty();
   }
 }
 
@@ -335,7 +327,7 @@ static void copy_vprof_values(const name2value_t& n2v, const std::string& id, st
 VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 {
   METLIBS_LOG_SCOPE(name << "  " << time << "  " << modelName);
-  METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(posName.size()));
+  METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(mStations.size()));
 
   if (format == bufr) {
     if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get()) {
@@ -381,12 +373,12 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   }
 
   if (format == fimex) {
-    std::vector<std::string>::iterator itP = std::find(posName.begin(), posName.end(), name);
+    std::vector<stationInfo>::iterator itP = std::find_if(mStations.begin(), mStations.end(), diutil::eq_StationName(name));
     std::vector<miutil::miTime>::iterator itT = std::find(validTime.begin(), validTime.end(), time);
-    if (itP == posName.end() || itT == validTime.end())
+    if (itP == mStations.end() || itT == validTime.end())
       return 0;
 
-    const int iPos = std::distance(posName.begin(), itP);
+    const int iPos = std::distance(mStations.begin(), itP);
     const int iTime = std::distance(validTime.begin(), itT);
 
     if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
@@ -398,11 +390,11 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->text.index = -1;
     vp->text.prognostic = true;
     vp->text.modelName = modelName;
-    vp->text.posName = *itP;
+    vp->text.posName = itP->name;
     vp->text.forecastHour = forecastHour[iTime];
     vp->text.validTime = *itT;
-    vp->text.latitude = posLatitude[iPos];
-    vp->text.longitude = posLongitude[iPos];
+    vp->text.latitude = itP->lat;
+    vp->text.longitude = itP->lon;
     vp->text.kindexFound = false;
 
     vp->prognostic = true;
@@ -410,7 +402,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->windInKnots = true;
 
     METLIBS_LOG_DEBUG("readFomFimex"); //<<LOGVAL(reftime));
-    const LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
+    const LonLat pos = LonLat::fromDegrees(mStations[iPos].lon, mStations[iPos].lat);
     const Time user_time(util::from_miTime(time));
     // This replaces the current dynamic crossection, if present.
     // TODO: Should be tested when more than one time step is available.
@@ -418,7 +410,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       Source_p source = collector->getResolver()->getSource(modelName);
       if (!source)
         return 0;
-      source->addDynamicCrossection(reftime, posName[iPos], LonLat_v(1, pos));
+      source->addDynamicCrossection(reftime, mStations[iPos].name, LonLat_v(1, pos));
     }
 
     const vcross::ModelReftime mr(modelName, reftime);
@@ -492,15 +484,15 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
         if (ff > vp->ff[kmax])
           kmax = k;
       }
-      for (size_t l = 0; l < (vp->sigwind.size()); l++) {
+      for (size_t l = 0; l < vp->sigwind.size(); l++) {
         for (size_t k = 1; k < size_t(numLevel) - 1; k++) {
           if (vp->ff[k] < vp->ff[k - 1] && vp->ff[k] < vp->ff[k + 1])
-            vp->sigwind[k] = 1;
+            vp->sigwind[k] = 1; // local ff minimum
           if (vp->ff[k] > vp->ff[k - 1] && vp->ff[k] > vp->ff[k + 1])
-            vp->sigwind[k] = 2;
+            vp->sigwind[k] = 2; // local ff maximum
         }
       }
-      vp->sigwind[kmax] = 3;
+      vp->sigwind[kmax] = 3; // "global" ff maximum
     }
 
     vProfPlotTime = time;
@@ -522,51 +514,39 @@ void VprofData::readStationNames(const std::string& stationsfilename)
     return;
   }
 
-  vector<std::string> stationVector;
-  vector<stationInfo> stations;
+  mStations.clear();
   std::string line;
   while (std::getline(stationfile, line)) {
     // just skip the first line if present.
     if (miutil::contains(line, "obssource"))
       continue;
+    vector<std::string> stationVector;
+    int baseIdx;
     if (miutil::contains(line, ";")) {
       // the new format
       stationVector = miutil::split(line, ";", false);
       if (stationVector.size() == 7) {
-        stationInfo st;
-        st.name = stationVector[2];
-        st.lat = miutil::to_double(stationVector[3]);
-        st.lon = miutil::to_double(stationVector[4]);
-        stations.push_back(st);
+        baseIdx = 2;
+      } else if (stationVector.size() == 6) {
+        baseIdx = 1;
       } else {
-        if (stationVector.size() == 6) {
-          stationInfo st;
-          st.name = stationVector[1];
-          st.lat = miutil::to_double(stationVector[2]);
-          st.lon = miutil::to_double(stationVector[3]);
-          stations.push_back(st);
-        } else {
-          METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
-        }
+        METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
+        continue;
       }
     } else {
       // the old format
       stationVector = miutil::split(line, ",", false);
       if (stationVector.size() == 7) {
-        stationInfo st;
-        st.name = stationVector[1];
-        st.lat = miutil::to_double(stationVector[2]);
-        st.lon = miutil::to_double(stationVector[3]);
-        stations.push_back(st);
+        baseIdx = 1;
       } else {
         METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
+        continue;
       }
     }
-  }
-  for (size_t i = 0; i < stations.size(); i++) {
-    posName.push_back(stations[i].name);
-    posLatitude.push_back(stations[i].lat);
-    posLongitude.push_back(stations[i].lon);
+    const std::string& name = stationVector[baseIdx];
+    const float lat = miutil::to_double(stationVector[baseIdx + 1]);
+    const float lon = miutil::to_double(stationVector[baseIdx + 2]);
+    mStations.push_back(stationInfo(name, lon, lat));
   }
 }
 
@@ -578,8 +558,7 @@ void VprofData::renameStations()
   if (!stationList)
     readStationList();
 
-  const int n = posName.size(), m = stationName.size();
-  std::string newname;
+  const int n = mStations.size(), m = stationName.size();
 
   multimap<std::string,int> sortlist;
 
@@ -587,22 +566,24 @@ void VprofData::renameStations()
     int jmin = -1;
     float smin = 0.05*0.05 + 0.05*0.05;
     for (int j=0; j<m; j++) {
-      float dx = posLongitude[i] - stationLongitude[j];
-      float dy = posLatitude[i]  - stationLatitude[j];
+      float dx = mStations[i].lon - stationLongitude[j];
+      float dy = mStations[i].lat - stationLatitude[j];
       float s = dx*dx+dy*dy;
       if (s < smin) {
         smin = s;
         jmin = j;
       }
     }
+    std::string newname;
     if (jmin >= 0) {
       newname= stationName[jmin];
     } else {
-      std::string slat= miutil::from_number(fabsf(posLatitude[i]));
-      if (posLatitude[i]>=0.) slat += "N";
+      // TODO use formatLongitude/Latitude from diutil
+      std::string slat= miutil::from_number(fabsf(mStations[i].lat));
+      if (mStations[i].lat>=0.) slat += "N";
       else                     slat += "S";
-      std::string slon= miutil::from_number(fabsf(posLongitude[i]));
-      if (posLongitude[i]>=0.) slon += "E";
+      std::string slon= miutil::from_number(fabsf(mStations[i].lon));
+      if (mStations[i].lon>=0.) slon += "E";
       else                      slon += "W";
       newname= slat + "," + slon;
       jmin = m;
@@ -610,23 +591,21 @@ void VprofData::renameStations()
 
     ostringstream ostr;
     ostr<<setw(4)<<setfill('0')<<jmin;
-    std::string sortname= ostr.str() + newname + validTime[i].isoTime() + posName[i];
+    std::string sortname= ostr.str() + newname + validTime[i].isoTime() + mStations[i].name;
     sortlist.insert(std::make_pair(sortname, i));
 
-    stationMap[newname] = posName[i];
-    METLIBS_LOG_DEBUG(LOGVAL(newname)<<LOGVAL(posName[i]));
-    posName[i]= newname;
+    stationMap[newname] = mStations[i].name;
+    METLIBS_LOG_DEBUG(LOGVAL(newname)<<LOGVAL(mStations[i].name));
+    mStations[i].name = newname;
   }
 
   // gather amdars from same stations (in station list sequence)
-  vector<std::string> posName2;
-  vector<float>    posLatitude2;
-  vector<float>    posLongitude2;
+  vector<stationInfo> stations;
   map<std::string,int> stationCount;
   for (multimap<std::string,int>::iterator pt=sortlist.begin(); pt!=sortlist.end(); pt++) {
     int i= pt->second;
 
-    newname = posName[i];
+    std::string newname = mStations[i].name;
     int c;
     std::map<std::string, int>::iterator p = stationCount.find(newname);
     if (p==stationCount.end())
@@ -635,16 +614,12 @@ void VprofData::renameStations()
       c = ++(p->second);
     newname += " (" + miutil::from_number(c) + ")";
 
-    stationMap[newname] = stationMap[posName[i]];
+    stationMap[newname] = stationMap[mStations[i].name];
 
-    posName2.push_back(newname);
-    posLatitude2.push_back(posLatitude[i]);
-    posLongitude2.push_back(posLongitude[i]);
+    stations.push_back(stationInfo(newname, mStations[i].lon, mStations[i].lat));
   }
 
-  posName=      posName2;
-  posLatitude=  posLatitude2;
-  posLongitude= posLongitude2;
+  std::swap(stations, mStations);
 }
 
 
@@ -665,22 +640,20 @@ void VprofData::readStationList()
   }
 
   const float notFound=9999.;
-  vector<std::string> vstr,vstr2;
   std::string str;
-  unsigned int i;
 
   while (getline(file,str)) {
-    std::string::size_type n= str.find('#');
+    const std::string::size_type n= str.find('#');
     if (n!=0) {
-      if (n!=string::npos) str= str.substr(0,n);
+      if (n!=string::npos)
+        str= str.substr(0,n);
       miutil::trim(str);
       if (not str.empty()) {
-        vstr= miutil::split_protected(str, '"', '"');
+        const vector<std::string> vstr = miutil::split_protected(str, '"', '"');
         float latitude=notFound, longitude=notFound;
         std::string name;
-        n=vstr.size();
-        for (i=0; i<n; i++) {
-          vstr2= miutil::split(vstr[i], "=");
+        for (size_t i=0; i<vstr.size(); i++) {
+          const vector<std::string> vstr2 = miutil::split(vstr[i], "=");
           if (vstr2.size()==2) {
             str= miutil::to_lower(vstr2[0]);
             if (str=="latitude")
@@ -689,7 +662,7 @@ void VprofData::readStationList()
               longitude= atof(vstr2[1].c_str());
             else if (str=="name") {
               name= vstr2[1];
-              if (name[0]=='"')
+              if (name[0]=='"' && name.length()>=3 && name[name.length()-1] == '"')
                 name= name.substr(1,name.length()-2);
             }
           }

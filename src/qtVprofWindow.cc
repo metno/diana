@@ -40,6 +40,7 @@
 #include "qtPrintManager.h"
 
 #include "diPaintGLPainter.h"
+#include "diStationInfo.h"
 #include "diStationPlot.h"
 #include "diUtilities.h"
 #include "diVprofManager.h"
@@ -502,11 +503,9 @@ StationPlot* VprofWindow::getStations()
 {
   METLIBS_LOG_SCOPE();
 
-  const vector <std::string> stations = vprofm->getStationList();
-  const vector <float> latitude = vprofm->getLatitudes();
-  const vector <float> longitude = vprofm->getLongitudes();
+  const vector <stationInfo> stations = vprofm->getStationList();
 
-  StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
+  StationPlot* stationPlot = new StationPlot(stations);
   std::string ann = vprofm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
   stationPlot->setPlotName(ann);
@@ -520,11 +519,11 @@ void VprofWindow::updateStationBox()
   METLIBS_LOG_SCOPE();
 
   stationBox->clear();
-  std::vector<std::string> stations = vprofm->getStationList();
-  std::sort(stations.begin(),stations.end());
+  std::vector<stationInfo> stations = vprofm->getStationList();
+  std::sort(stations.begin(), stations.end(), diutil::lt_StationName());
 
   for (size_t i=0; i<stations.size(); i++)
-    stationBox->addItem(QString::fromStdString(stations[i]));
+    stationBox->addItem(QString::fromStdString(stations[i].name));
 
 }
 

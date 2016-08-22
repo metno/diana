@@ -332,6 +332,7 @@ noinst_HEADERS = \
 	diSpectrumOptions.h \
 	diSpectrumPlot.h \
 	diStationManager.h \
+	diStationInfo.h \
 	diStationPlot.h \
 	diTesselation.h \
 	diTrajectoryGenerator.h \

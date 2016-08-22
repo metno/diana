@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 20016 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -11,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,50 +21,41 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diObsData_h
-#define diObsData_h
+#ifndef DISTATIONINFO_H
+#define DISTATIONINFO_H
 
-#include "diColour.h"
-
-#include <puTools/miTime.h>
 #include <string>
 
-/**
-  \brief Observation data
-*/
-class ObsData
-{
-public:
-  //desc
-  std::string dataType;
-  std::string id;
-  std::string name;
-  float xpos;
-  float ypos;
-  int zone;
-  miutil::miTime obsTime;
-
-  //metar
-  std::string metarId;
-  bool CAVOK;
-  std::vector<std::string> REww;   ///< Recent weather
-  std::vector<std::string> ww;     ///< Significant weather
-  std::vector<std::string> cloud;  ///< Clouds
-
-  typedef std::map<std::string,float> fdata_t;
-  typedef std::map<std::string,std::string> stringdata_t;
-
-  fdata_t fdata;
-  stringdata_t stringdata;
-
-  //Hqc
-  std::map<std::string,std::string> flag;
-  std::map<std::string,Colour> flagColour;
+struct stationInfo {
+    std::string name;
+    std::string url;
+    float lat;
+    float lon;
+    stationInfo(const std::string& n, float lo, float la)
+      : name(n), lat(la), lon(lo) { }
 };
 
-#endif
+namespace diutil {
+
+/** Equality comparator for stationInfo, comparing by name. */
+struct eq_StationName {
+  eq_StationName(const std::string& name) : name_(name) { }
+  bool operator()(const stationInfo& si) const
+    { return si.name == name_; }
+  const std::string& name_;
+};
+
+/** Less-than comparator for stationInfo, comparing by name. */
+struct lt_StationName {
+  bool operator()(const stationInfo& s1, const stationInfo& s2) const
+    { return s1.name < s2.name; }
+};
+
+} // namespace diutil
+
+#endif // DISTATIONINFO_H

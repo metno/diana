@@ -367,9 +367,9 @@ std::string FtnVfile::getString(int length)
   // files handled here often contains some strange norwegian characters
   n= str.length();
   for (i=0; i<n; i++) {
-    if      (str[i]=='#') str[i]='\xC6'; // was 'Æ'
-    else if (str[i]=='@') str[i]='\xD8'; // was 'Ø'
-    else if (str[i]=='$') str[i]='\xC5'; // was 'Å'
+    if      (str[i]=='#') str[i]='\xC6'; // was <ae>
+    else if (str[i]=='@') str[i]='\xD8'; // was <oe>
+    else if (str[i]=='$') str[i]='\xC5'; // was <aa>
   }
 
   return str;

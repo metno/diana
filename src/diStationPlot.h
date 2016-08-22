@@ -29,7 +29,7 @@
 #ifndef StationPlot_h
 #define StationPlot_h
 
-#include "diCommonTypes.h"
+#include "diStationInfo.h"
 #include "diColour.h"
 #include "diImageGallery.h"
 #include "diPlot.h"
@@ -101,6 +101,8 @@ public:
   std::vector<Station*> findStations(float lat, float lon) const;
   Station* findStation(float lat, float lon) const;
   void addStation(Station* station);
+  bool contains(float lat, float lon) const
+    { return lat >= minLat && lat < maxLat && lon >= minLon && lon < maxLon; }
 
 private:
   float minLat;
@@ -128,6 +130,7 @@ public:
   /// constructor with station names,longitudes and latitudes
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
       const std::vector <float> & lats);
+  StationPlot(const std::vector <stationInfo> & stations);
   /// constructor with station names,longitudes,latitudes and images
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
         const std::vector <float> & lats, const std::vector <std::string>& images);
@@ -230,7 +233,7 @@ private:
   void defineCoordinates();
   void init();
   void plotStation(DiGLPainter* gl, int i);
-  void glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, float w, float h, bool selected = false);
+  void glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected = false);
   void plotWind(DiGLPainter* gl, int i, float x, float y, bool classic=false, float scale=1);
 
   std::vector <float> xplot; //x-positions to plot in current projection
@@ -252,8 +255,6 @@ private:
   int index; //last selected
 
   ImageGallery ig;
-
-  static std::string ddString[16]; // NN�,N�,�N�,�,�S� etc.
- };
+};
 
 #endif
