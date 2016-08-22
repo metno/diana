@@ -1206,9 +1206,12 @@ void FieldDialog::addModelGroup(int modelgroupIndex)
 
 void FieldDialog::filterModels(const QString& filtertext)
 {
-  if (!filtertext.isEmpty())
-    modelbox->expandAll();
   modelFilter->setFilterFixedString(filtertext);
+  if (!filtertext.isEmpty()) {
+    modelbox->expandAll();
+    if (modelFilter->rowCount() > 0)
+      modelbox->scrollTo(modelFilter->index(0, 0));
+  }
 }
 
 void FieldDialog::updateModels()
