@@ -102,6 +102,10 @@ int main(int argc, char **argv)
   DianaApplication a( argc, argv );
 #endif
 
+  setlocale(LC_NUMERIC, "C");
+  setlocale(LC_MEASUREMENT, "C");
+  setlocale(LC_TIME, "C");
+
   string logfilename;
   string cl_lang;
   bool have_diana_title = false;
