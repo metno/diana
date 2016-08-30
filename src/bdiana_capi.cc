@@ -3057,6 +3057,11 @@ int diana_init(int _argc, char** _argv)
 #else
   application = new QApplication(_argc, _argv);
 #endif
+
+  setlocale(LC_NUMERIC, "C");
+  setlocale(LC_MEASUREMENT, "C");
+  setlocale(LC_TIME, "C");
+
   QStringList argv = application->arguments();
   int argc = argv.size();
 

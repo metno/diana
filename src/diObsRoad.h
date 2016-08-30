@@ -39,6 +39,8 @@
 #include "diObsMetaData.h"
 #include "diVprofPlot.h"
 #include "diCommonTypes.h"
+#include "diStationInfo.h"
+
 #include <puTools/miTime.h>
 
 #include <map>
