@@ -182,7 +182,7 @@ void ObsRoad::getStationList(vector<stationInfo> & stations)
     return;
   }
   for (size_t i = 0; i < stationlist.size(); i++) {
-    stationInfo st;
+    stationInfo st("",0,0);
     if (stationlist[i].station_type() == "WMO")
       st.name = stationlist[i].name();
     else if (stationlist[i].station_type() == "ICAO")
