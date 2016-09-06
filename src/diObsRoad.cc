@@ -934,8 +934,8 @@ void ObsRoad::decodeData()
       }
       
       METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
-		
-      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime))< timeDiff)
+
+      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime)) < timeDiff || (timeDiff == 0 && abs(miTime::minDiff(obstime, plotTime)) == 0))
         obsData.obsTime = obstime;
       else
         continue;
