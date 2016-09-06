@@ -997,7 +997,6 @@ vector<string> QuickMenu::writeLog()
 
       // menuname
       if (j<firststatic){ //custom menus
-        writeQuickMenu(qm[j]); // save custom menus to file
         str= ">name="+qm[j].name;
       } else {
         str= ">update="+qm[j].name;
