@@ -1,3 +1,10 @@
+diana-3.40 (3.40.6-1) unstable; urgency=low
+
+  * QuickMenu - do not write quick-files at exit (except history)
+  * trajectories crossing date line fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 09 Sep 2016 12:46:09 +0200
+
 diana-3.40 (3.40.5-1) unstable; urgency=low
 
   * force some locale settings to "C"
