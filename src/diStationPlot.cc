@@ -170,8 +170,6 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
     iconName = vcommon[commonmap["icon"]];
   if (commonmap.count("annotation"))
     annotation = vcommon[commonmap["annotation"]];
-  if (commonmap.count("priority"))
-    priority = atoi(vcommon[commonmap["priority"]].c_str());
 
   //decode data
   int ndata = data.size();
@@ -228,7 +226,6 @@ void StationPlot::init()
   textStyle = "bold";
   name = "vprof";
   id = -1;
-  priority = 1;
   index = -1;
 }
 
@@ -722,7 +719,7 @@ void StationPlot::setStationPlotAnnotation(const string &str)
   annotation = str;
 }
 
-void StationPlot::setName(std::string nm)
+void StationPlot::setName(const std::string& nm)
 {
   name = nm;
   if (getPlotName().empty())
@@ -1028,8 +1025,8 @@ std::string StationPlot::stationRequest(const std::string& command)
     int n = stations.size();
     for (int i = 0; i < n; i++)
       if (stations[i]->isSelected)
-        ost << ":" << stations[i]->name.c_str();
-    ost << ":" << name.c_str() << ":" << id;
+        ost << ":" << stations[i]->name;
+    ost << ":" << name << ":" << id;
   }
 
   return ost.str();

@@ -181,14 +181,16 @@ public:
   /// set UseImage
   void setUseImage(bool _useImage) { useImage = _useImage;}
   /// set name/plotname
-  void setName(std::string nm);
+  void setName(const std::string& nm);
   /// return name
-  std::string getName(){return name;}
+  const std::string& getName() const
+    { return name; }
   /// set id to i
-  void setId(int i){id = i;}
+  void setId(int i)
+    { id = i; }
   /// return id
-  int getId(){return id;}
-  int getPriority(){return priority;}
+  int getId() const
+    { return id; }
   /**
    * Get image scale for a station
    * @param i Index of station
@@ -205,8 +207,10 @@ public:
   void clearText();
   /// if normal=true write name on all plotted stations, if selected=true write name on all selected stations
   void setUseStationName(bool normal, bool selected);
-  void setIcon(std::string icon){iconName = icon;}
-  std::string getIcon(){return iconName;}
+  void setIcon(const std::string& icon)
+    { iconName = icon; }
+  const std::string& getIcon() const
+    { return iconName; }
   bool stationCommand(const std::string& Command,
       const std::vector<std::string>& data,
       const std::string& misc="");
@@ -243,7 +247,6 @@ private:
   std::string annotation;
   std::string name; //f.ex. "vprof"
   int id;
-  int priority;
   bool useImage;
   bool useStationNameNormal,useStationNameSelected;
   bool showText;
