@@ -51,6 +51,27 @@ StationManager::StationManager()
 {
 }
 
+
+StationManager::~StationManager()
+{
+  cleanup();
+}
+
+void StationManager::cleanup()
+{
+  diutil::delete_all_and_clear(stationPlots);
+}
+
+StationManager::stationPlots_t::iterator StationManager::findStationPlot(const std::string& name, int id, stationPlots_t::iterator begin)
+{
+  for (; begin != stationPlots.end(); ++begin) {
+    StationPlot* sp = *begin;
+    if (sp->getId() == id && sp->getName() == name)
+      break;
+  }
+  return begin;
+}
+
 /**
  * Updates the vector of \a plots with the data provided in \a inp.
 */
@@ -60,10 +81,11 @@ bool StationManager::init(const vector<string>& inp)
   // show and select/unselect them.
 
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if (it->second->isVisible())
-      it->second->show();
+    StationPlot* sp = *it;
+    if (sp->isVisible())
+      sp->show();
     else
-      it->second->hide();
+      sp->hide();
   }
 
   for (unsigned int i = 0; i < inp.size(); ++i) {
@@ -81,7 +103,7 @@ bool StationManager::init(const vector<string>& inp)
 
     const std::string name = boost::algorithm::join(pieces, " ");
 
-    stationPlots_t::iterator it = stationPlots.find(name);
+    stationPlots_t::iterator it = findStationPlot(name, -1, stationPlots.begin());
     StationPlot* plot = 0;
 
     if (it == stationPlots.end()) {
@@ -97,7 +119,7 @@ bool StationManager::init(const vector<string>& inp)
 
     } else {
       // An existing plot containing a loaded list of stations.
-      plot = it->second;
+      plot = *it;
     }
 
     if (plot) {
@@ -335,7 +357,7 @@ Station* StationManager::parseSMHI(const std::string& miLine, const std::string&
 float StationManager::getStationsScale()
 {
   if (!stationPlots.empty()) {
-    return stationPlots.begin()->second->getImageScale(0);
+    return stationPlots.front()->getImageScale(0);
   } else
     return 0;
 }
@@ -343,7 +365,7 @@ float StationManager::getStationsScale()
 void StationManager::setStationsScale(float new_scale)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    it->second->setImageScale(new_scale);
+    (*it)->setImageScale(new_scale);
 }
 
 //********** plotting and selecting stations on the map***************
@@ -352,16 +374,16 @@ void StationManager::putStations(StationPlot* stationPlot)
 {
   METLIBS_LOG_SCOPE();
 
-  stationPlots_t::iterator p = stationPlots.find(stationPlot->getName());
+  stationPlots_t::iterator p = findStationPlot(stationPlot->getName(), stationPlot->getId(), stationPlots.begin());
   if (p != stationPlots.end()) {
-    StationPlot* old = p->second;
+    StationPlot* old = *p;
     if (!old->isVisible())
       stationPlot->hide();
     stationPlot->setEnabled(old->isEnabled());
     delete old;
-    p->second = stationPlot;
+    *p = stationPlot;
   } else {
-    stationPlots.insert(std::make_pair(stationPlot->getName(), stationPlot));
+    stationPlots.push_back(stationPlot);
   }
 }
 
@@ -369,15 +391,14 @@ void StationManager::makeStationPlot(const std::string& commondesc,
     const std::string& common, const std::string& description, int from,
     const vector<std::string>& data)
 {
-  StationPlot* stationPlot = new StationPlot(commondesc, common, description,
-      from, data);
+  StationPlot* stationPlot = new StationPlot(commondesc, common, description, from, data);
   putStations(stationPlot);
 }
 
 Station* StationManager::findStation(int x, int y)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    Station* station = it->second->stationAt(x, y);
+    Station* station = (*it)->stationAt(x, y);
     if (station)
       return station;
   }
@@ -388,8 +409,8 @@ vector<Station*> StationManager::findStations(int x, int y)
 {
   vector<Station*> stations;
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if (it->second->isVisible()) {
-      vector<Station*> found = it->second->stationsAt(x, y);
+    if ((*it)->isVisible()) {
+      vector<Station*> found = (*it)->stationsAt(x, y);
       stations.insert(stations.end(), found.begin(), found.end());
     }
   }
@@ -399,10 +420,10 @@ vector<Station*> StationManager::findStations(int x, int y)
 string StationManager::findStation(int x, int y, const std::string& name, int id)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((id == -1 || id == it->second->getId())
-        && (name == it->second->getName()))
+    if ((id == -1 || id == (*it)->getId())
+        && (name == (*it)->getName()))
     {
-      vector<std::string> st = it->second->findStation(x, y);
+      vector<std::string> st = (*it)->findStation(x, y);
       if (st.size() > 0)
         return st[0];
     }
@@ -413,8 +434,8 @@ string StationManager::findStation(int x, int y, const std::string& name, int id
 vector<string> StationManager::findStations(int x, int y, const std::string& name, int id)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((id == -1 || id == it->second->getId()) && (name == it->second->getName())) {
-      vector<std::string> st = (*it).second->findStations(x, y);
+    if ((id == -1 || id == (*it)->getId()) && (name == (*it)->getName())) {
+      vector<std::string> st = (*it)->findStations(x, y);
       if (st.size() > 0)
         return st;
     }
@@ -427,10 +448,10 @@ void StationManager::findStations(int x, int y, bool add, std::vector<std::strin
 {
   int ii;
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    vector<std::string> st = it->second->findStation(x, y, add);
-    if ((ii = it->second->getId()) > -1) {
+    vector<std::string> st = (*it)->findStation(x, y, add);
+    if ((ii = (*it)->getId()) > -1) {
       for (unsigned int j = 0; j < st.size(); j++) {
-        name.push_back(it->second->getName());
+        name.push_back((*it)->getName());
         id.push_back(ii);
         station.push_back(st[j]);
       }
@@ -441,17 +462,18 @@ void StationManager::findStations(int x, int y, bool add, std::vector<std::strin
 void StationManager::getStationData(vector<std::string>& data)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    data.push_back(it->second->stationRequest("selected"));
+    data.push_back((*it)->stationRequest("selected"));
 }
 
 void StationManager::stationCommand(const std::string& command,
     const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((id == -1 || id == it->second->getId()) &&
-        (name == it->second->getName() || name.empty()))
+    StationPlot* sp = *it;
+    if ((id == -1 || id == sp->getId()) &&
+        (name == sp->getName() || name.empty()))
     {
-      it->second->stationCommand(command, data, misc);
+      sp->stationCommand(command, data, misc);
       break;
     }
   }
@@ -460,17 +482,15 @@ void StationManager::stationCommand(const std::string& command,
 void StationManager::stationCommand(const std::string& command, const std::string& name, int id)
 {
   if (command == "delete") {
-    map <std::string,StationPlot*>::iterator p = stationPlots.begin();
-
-    while (p != stationPlots.end()) {
-      if ((name == "all" && (*p).second->getId() != -1) ||
-          (id == (*p).second->getId() && (name == (*p).second->getName() || name.empty()))) {
-        delete (*p).second;
-        stationPlots.erase(p);
-        if (name != "all")
-          break;
-        else
-          p++;
+    // name == "all" && id == -1 => coserver disconnect => delete all plots with id >= 0
+    // name == "" && id >= 0 => client disconnect => delete all plots with getId() == id
+    for (stationPlots_t::iterator p = stationPlots.begin(); p != stationPlots.end(); /*nothing*/) {
+      StationPlot* sp = *p;
+      if ((name == "all" && sp->getId() != -1) ||
+          (id == sp->getId() && (name == sp->getName() || name.empty())))
+      {
+        delete *p;
+        p = stationPlots.erase(p);
       } else {
         p++;
       }
@@ -478,20 +498,12 @@ void StationManager::stationCommand(const std::string& command, const std::strin
 
   } else {
     for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      if ((id == -1 || id == it->second->getId()) &&
-          (name == it->second->getName() || name.empty()))
-        it->second->stationCommand(command);
+      StationPlot* sp = *it;
+      if ((id == -1 || id == sp->getId()) &&
+          (name == sp->getName() || name.empty()))
+        sp->stationCommand(command);
     }
   }
-}
-
-vector <StationPlot*> StationManager::plots()
-{
-  vector <StationPlot*> values;
-  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    values.push_back(it->second);
-
-  return values;
 }
 
 QString StationManager::getStationsText(int x, int y)

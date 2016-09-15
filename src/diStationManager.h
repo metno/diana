@@ -37,9 +37,14 @@ struct Station;
 
 class StationManager
 {
+private:
+  typedef std::vector<StationPlot*> stationPlots_t;
+
 public:
   StationManager();
+  ~StationManager();
 
+  void cleanup();
   bool init(const std::vector<std::string>& inp);
   stationDialogInfo initDialog();
   bool parseSetup();
@@ -90,18 +95,18 @@ public:
           const std::string& name="", int id=-1);
 
   ///Returns a std::vector containing the plots held by the manager.
-  std::vector<StationPlot*> plots();
+  const std::vector<StationPlot*>& plots() const
+    { return stationPlots; }
+
   QString getStationsText(int x, int y);
 
 private:
   Station* parseSMHI(const std::string& miLine, const std::string& url);
+  stationPlots_t::iterator findStationPlot(const std::string& name, int id, stationPlots_t::iterator begin);
 
 private:
   stationDialogInfo m_info;
-
-  //stations to be plotted
-  typedef std::map <std::string, StationPlot*> stationPlots_t;
-  stationPlots_t stationPlots;
+  stationPlots_t stationPlots;  //! stations to be plotted
 };
 
 #endif
