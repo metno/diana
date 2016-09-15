@@ -44,7 +44,7 @@ public:
   stationDialogInfo initDialog();
   bool parseSetup();
 
-  StationPlot* importStations(std::string& name, std::string& url);
+  StationPlot* importStations(const std::string& name, const std::string& url);
 
   // Stations
   /**
@@ -94,7 +94,7 @@ public:
   QString getStationsText(int x, int y);
 
 private:
-  Station* parseSMHI(std::string& miLine, std::string& url);
+  Station* parseSMHI(const std::string& miLine, const std::string& url);
 
 private:
   stationDialogInfo m_info;

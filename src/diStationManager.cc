@@ -68,18 +68,18 @@ bool StationManager::init(const vector<string>& inp)
 
   for (unsigned int i = 0; i < inp.size(); ++i) {
 
-    std::string plotStr = inp[i];
+    const std::string& plotStr = inp[i];
 
     vector<std::string> pieces = miutil::split(plotStr, " ");
     pieces.erase(pieces.begin());
 
-    std::string select = pieces.back();
+    const std::string select = pieces.back();
     pieces.pop_back();
 
-    std::string url = pieces.back();
+    const std::string url = pieces.back();
     pieces.pop_back();
 
-    std::string name = boost::algorithm::join(pieces, " ");
+    const std::string name = boost::algorithm::join(pieces, " ");
 
     stationPlots_t::iterator it = stationPlots.find(name);
     StationPlot* plot = 0;
@@ -202,12 +202,12 @@ bool StationManager::parseSetup()
 /**
  * Imports the set of stations from the specified \a url.
  */
-StationPlot* StationManager::importStations(std::string& name, std::string& url)
+StationPlot* StationManager::importStations(const std::string& name, const std::string& url)
 {
   vector<std::string> lines;
   if (not diutil::getFromAny(url, lines)) {
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("*** Failed to open " << url);
+    METLIBS_LOG_DEBUG("*** Failed to open '" << url << "'");
 #endif
     return 0;
   }
@@ -279,7 +279,7 @@ StationPlot* StationManager::importStations(std::string& name, std::string& url)
   return plot;
 }
 
-Station* StationManager::parseSMHI(std::string& miLine, std::string& url)
+Station* StationManager::parseSMHI(const std::string& miLine, const std::string& url)
 {
   Station* st = NULL;
   vector<std::string> stationVector;
@@ -337,7 +337,7 @@ float StationManager::getStationsScale()
   if (!stationPlots.empty()) {
     return stationPlots.begin()->second->getImageScale(0);
   } else
-    return .0;
+    return 0;
 }
 
 void StationManager::setStationsScale(float new_scale)
@@ -352,32 +352,17 @@ void StationManager::putStations(StationPlot* stationPlot)
 {
   METLIBS_LOG_SCOPE();
 
-  std::string name = stationPlot->getName();
-  map <std::string,StationPlot*>::iterator p = stationPlots.begin();
-  map <std::string,StationPlot*>::iterator pend = stationPlots.end();
-
-  //delete old stationPlot
-  while (p != pend && name != (*p).second->getName())
-    p++;
-  if (p != pend) {
-    if (!((*p).second->isVisible()))
+  stationPlots_t::iterator p = stationPlots.find(stationPlot->getName());
+  if (p != stationPlots.end()) {
+    StationPlot* old = p->second;
+    if (!old->isVisible())
       stationPlot->hide();
-    stationPlot->setEnabled((*p).second->isEnabled());
-    delete (*p).second;
-    stationPlots.erase(p);
+    stationPlot->setEnabled(old->isEnabled());
+    delete old;
+    p->second = stationPlot;
+  } else {
+    stationPlots.insert(std::make_pair(stationPlot->getName(), stationPlot));
   }
-
-  //put new stationPlot into vector (sorted by priority and number of stations)
-  p = stationPlots.begin();
-  pend = stationPlots.end();
-
-  int pri = stationPlot->getPriority();
-  while (p != pend && pri > (*p).second->getPriority())
-    p++;
-  if (p != pend && pri == (*p).second->getPriority())
-    while (p != pend && (*stationPlot) < *((*p).second))
-      p++;
-  stationPlots[stationPlot->getName()] = stationPlot;
 }
 
 void StationManager::makeStationPlot(const std::string& commondesc,

@@ -1948,7 +1948,6 @@ void DianaMainWindow::connectionClosed()
   qsocket = false;
 
   contr->stationCommand("delete","all");
-  std::string dummy;
   contr->areaCommand("delete","all","all",-1);
 
   //remove times
@@ -2114,8 +2113,8 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   else if (letter.command == qmstrings::showpositions ){
     //description: dataset
     contr->stationCommand("show",letter.description,letter.from);
-    if (showelem) updatePlotElements();
-
+    if (showelem)
+      updatePlotElements();
   }
 
   else if (letter.command == qmstrings::hidepositions ){
