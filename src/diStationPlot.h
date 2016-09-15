@@ -98,11 +98,26 @@ struct Station {
 class StationArea {
 public:
   StationArea(float minLat, float maxLat, float minLon, float maxLon);
-  std::vector<Station*> findStations(float lat, float lon) const;
-  Station* findStation(float lat, float lon) const;
+
+  std::vector<Station*> findStations(const miCoordinates& pos, float radius) const;
+  std::vector<Station*> findStations(float lat, float lon, float radius) const
+    { return findStations(miCoordinates(lon, lat), radius); }
+
+  Station* findStation(const miCoordinates& pos, float radius) const;
+  Station* findStation(float lat, float lon, float radius) const
+    { return findStation(miCoordinates(lon, lat), radius); }
+
   void addStation(Station* station);
+
+  bool contains(const miCoordinates& pos) const
+    { return contains(pos.dLat(), pos.dLon()); }
   bool contains(float lat, float lon) const
     { return lat >= minLat && lat < maxLat && lon >= minLon && lon < maxLon; }
+
+  /*! Approximate distance from pos to area rectangle in km
+   * The returned value is not correct for large distances.
+   */
+  double distance(const miCoordinates& pos) const;
 
 private:
   float minLat;
@@ -157,15 +172,21 @@ public:
   bool isVisible();
   /// change stationplot projection
   bool changeProjection();
+
   /// Returns the stations in the plot object
   std::vector<Station*> getStations() const;
-  /// Returns the station at position x and y
-  Station* stationAt(int x, int y);
-  /// Returns all stations at position x and y
+
+  /// Returns the station at phys position x and y
+  Station* stationAt(int phys_x, int phys_y);
+
+  /// Returns all stations at phys position x and y
   std::vector<Station*> stationsAt(int x, int y, float radius=100.0, bool useAllStation=false);
+
   /// Returns a std::vector containing the names of the stations at position x and y
   std::vector<std::string> findStation(int x, int y, bool add=false);
+
   std::vector<std::string> findStations(int x, int y);
+
   /// Returns the selected stations in the plot object
   std::vector<Station*> getSelectedStations() const;
   /// set stations with name station to selected<br>
