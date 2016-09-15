@@ -52,7 +52,7 @@ static std::string ddString[16]; // norwegian directions North, NorthNorthEast, 
 //! distance in km
 static double distance(const miCoordinates& pos, const Station* s)
 {
-  return pos.distanceTo(miCoordinates(s->lon, s->lat)) / 1000;
+  return pos.distanceTo(s->pos) / 1000;
 }
 
 StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
@@ -260,8 +260,7 @@ void StationPlot::addStation(float lon, float lat, const std::string& newname,
     miCoordinates coordinates(lon, lat);
     newStation->name = coordinates.str();
   }
-  newStation->lon = lon;
-  newStation->lat = lat;
+  newStation->pos = miCoordinates(lon, lat);
   newStation->alpha = alpha;
   newStation->scale = scale;
   newStation->isSelected = false;
@@ -482,8 +481,9 @@ void StationPlot::defineCoordinates()
   xplot.clear();
   yplot.clear();
   for (int i = 0; i < npos; i++) {
-    xplot.push_back(stations[i]->lon);
-    yplot.push_back(stations[i]->lat);
+    Station* s = stations[i];
+    xplot.push_back(s->lon());
+    yplot.push_back(s->lat());
   }
   changeProjection();
 }
@@ -502,8 +502,9 @@ bool StationPlot::changeProjection()
   float *xpos = new float[npos];
   float *ypos = new float[npos];
   for (int i = 0; i < npos; i++) {
-    xpos[i] = stations[i]->lon;
-    ypos[i] = stations[i]->lat;
+    Station* s = stations[i];
+    xpos[i] = s->lon();
+    ypos[i] = s->lat();
   }
 
   if (!getStaticPlot()->GeoToMap(npos, xpos, ypos)) {
@@ -548,7 +549,7 @@ Station* StationPlot::stationAt(int phys_x, int phys_y)
 
   // Find the closest station to the point within a given radius.
   for (unsigned int i = 0; i < found.size(); ++i) {
-    float sx = found[i]->lon, sy = found[i]->lat;
+    float sx = found[i]->lon(), sy = found[i]->lat();
     if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
       float r = square(pos.x() - sx) + square(pos.y() - sy);
       if (r < min_r) {
@@ -580,7 +581,7 @@ vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, b
 
     for (unsigned int i = 0; i < found.size(); ++i) {
       if (found[i]->isVisible) {
-        float sx = found[i]->lon, sy = found[i]->lat;
+        float sx = found[i]->lon(), sy = found[i]->lat();
         if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
           float r = square(pos.x() - sx) + square(pos.y() - sy);
           if (r < min_r) {
@@ -1379,7 +1380,7 @@ void StationArea::addStation(Station* station)
       // Move all the stations into the subareas. May not call "addStation" to avoid infinite recursion if
       // there are more than 10 stations with identical lon and lat.
       for (std::vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
-        const size_t a = ((*it)->lat >= midLat ? 0 : 2) + ((*it)->lon >= midLon ? 1 : 0);
+        const size_t a = ((*it)->lat() >= midLat ? 0 : 2) + ((*it)->lon() >= midLon ? 1 : 0);
         areas[a].stations.push_back(*it);
       }
 
@@ -1389,7 +1390,7 @@ void StationArea::addStation(Station* station)
   } else {
     // Find the appropriate subarea to store the station in.
     for (std::vector<StationArea>::iterator it = areas.begin(); it != areas.end(); ++it) {
-      if (it->contains(station->lat, station->lon)) {
+      if (it->contains(station->lat(), station->lon())) {
         it->addStation(station);
         break;
       }

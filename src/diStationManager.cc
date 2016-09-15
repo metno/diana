@@ -246,8 +246,8 @@ StationPlot* StationManager::importStations(const std::string& name, const std::
       // of station and update time.
       Station *station = new Station;
       station->name = pieces[2] + " " + pieces[3];
-      station->lat = atof(pieces[0].c_str());
-      station->lon = atof(pieces[1].c_str());
+      const float lat = miutil::to_float(pieces[0]), lon = miutil::to_float(pieces[1]);
+      station->pos = miCoordinates(lon, lat);
       station->url = pieces[5];
       station->isVisible = true;
       switch (atoi(pieces[4].c_str())) {
@@ -319,8 +319,8 @@ Station* StationManager::parseSMHI(const std::string& miLine, const std::string&
     if (stationVector.size() == 6) {
       st = new Station();
       st->name = stationVector[0];
-      st->lat = miutil::to_double(stationVector[1]);
-      st->lon = miutil::to_double(stationVector[2]);
+      const float lat = miutil::to_float(stationVector[1]), lon = miutil::to_float(stationVector[2]);
+      st->pos = miCoordinates(lon, lat);
       st->height = miutil::to_int(stationVector[3], -1);
       st->barHeight = miutil::to_int(stationVector[4], -1);
       st->id = stationVector[5];
@@ -338,8 +338,8 @@ Station* StationManager::parseSMHI(const std::string& miLine, const std::string&
     if (stationVector.size() == 6) {
       st = new Station();
       st->name = stationVector[0];
-      st->lat = miutil::to_double(stationVector[1]);
-      st->lon = miutil::to_double(stationVector[2]);
+      const float lat = miutil::to_float(stationVector[1]), lon = miutil::to_float(stationVector[2]);
+      st->pos = miCoordinates(lon, lat);
       st->height = miutil::to_int(stationVector[3], -1);
       st->barHeight = miutil::to_int(stationVector[4], -1);
       st->id = stationVector[5];
@@ -561,14 +561,15 @@ QString StationManager::getStationsText(int x, int y)
       stationsText += "</td>";
 
       stationsText += "<td>";
-      if (stations[i]->lat >= 0)
-        stationsText += QString("%1&nbsp;N,&nbsp;").arg(stations[i]->lat);
+      const float lat = stations[i]->lat(), lon = stations[i]->lon();
+      if (lat >= 0)
+        stationsText += QString("%1&nbsp;N,&nbsp;").arg(lat);
       else
-        stationsText += QString("%1&nbsp;S,&nbsp;").arg(-stations[i]->lat);
-      if (stations[i]->lon >= 0)
-        stationsText += QString("%1&nbsp;E").arg(stations[i]->lon);
+        stationsText += QString("%1&nbsp;S,&nbsp;").arg(-lat);
+      if (lon >= 0)
+        stationsText += QString("%1&nbsp;E").arg(lon);
       else
-        stationsText += QString("%1&nbsp;W").arg(-stations[i]->lon);
+        stationsText += QString("%1&nbsp;W").arg(-lon);
       stationsText += "</td>";
 
       stationsText += "<td>";

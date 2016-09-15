@@ -71,8 +71,7 @@ struct Station {
   };
 
   std::string name;
-  float lat;
-  float lon;
+  miCoordinates pos;
   std::string image;
   std::string image2;
   bool isVisible;
@@ -93,6 +92,11 @@ struct Station {
   Station() {
     scale = 1; alpha=255;
   }
+
+  float lon() const
+    { return pos.dLon(); }
+  float lat() const
+    { return pos.dLat(); }
 };
 
 class StationArea {
