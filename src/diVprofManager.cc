@@ -475,6 +475,9 @@ void VprofManager::initStations()
 {
   METLIBS_LOG_SCOPE();
 
+  // Clear the stationlist to avoid duplicate stations or stations from previous selections with no data
+  stationList.clear();
+
   //merge lists from all models
   int nvpdata = vpdata.size();
 
