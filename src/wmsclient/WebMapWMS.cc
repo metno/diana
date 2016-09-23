@@ -72,12 +72,25 @@ bool hasAttributeValue(const QDomElement& e, const QString& a, const QStringList
     return values.contains(e.attribute(a));
 }
 
+bool isGeographic(const std::string& crs)
+{
+  return (crs == "EPSG:4326" || crs == "CRS:84");
+}
+
 float toDecimalDegrees(const std::string& crs)
 {
-  if (crs == "EPSG:4326" || crs == "CRS:84")
+  if (isGeographic(crs))
     return RAD_TO_DEG;
   else
     return 1;
+}
+
+void swapWms130LatLon(const std::string& crs, float& x1, float& y1, float& x2, float& y2)
+{
+  if (isGeographic(crs)) {
+    std::swap(x1, y1);
+    std::swap(x2, y2);
+  }
 }
 
 } // anonymous namespace
@@ -337,8 +350,11 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
 
   const Rectangle& r = tile->rect();
   const float f = toDecimalDegrees(crs);
+  float minx = f*r.x1, miny = f*r.y1, maxx = f*r.x2, maxy = f*r.y2;
+  if (mVersion == WMS_130)
+    swapWms130LatLon(crs, minx, miny, maxx, maxy);
   qurl.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4")
-      .arg(f*r.x1).arg(f*r.y1).arg(f*r.x2).arg(f*r.y2).replace("+", "%2B").toUtf8());
+      .arg(minx).arg(miny).arg(maxx).arg(maxy).replace("+", "%2B").toUtf8());
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
   return submitUrl(qurl);
@@ -490,11 +506,13 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     if (sCRS == "EPSG:900913")
       sCRS = "EPSG:3857";
     const float f = 1 / toDecimalDegrees(sCRS);
-    const float minx = f * eBoundingBox.attribute("minx").toFloat();
-    const float miny = f * eBoundingBox.attribute("miny").toFloat();
-    const float maxx = f * eBoundingBox.attribute("maxx").toFloat();
-    const float maxy = f * eBoundingBox.attribute("maxy").toFloat();
-    crs_bboxes[sCRS] = Rectangle(minx, miny, maxx, maxy);
+    float minx = eBoundingBox.attribute("minx").toFloat();
+    float miny = eBoundingBox.attribute("miny").toFloat();
+    float maxx = eBoundingBox.attribute("maxx").toFloat();
+    float maxy = eBoundingBox.attribute("maxy").toFloat();
+    if (mVersion == WMS_130)
+      swapWms130LatLon(sCRS, minx, miny, maxx, maxy);
+    crs_bboxes[sCRS] = Rectangle(minx*f, miny*f, maxx*f, maxy*f);
     METLIBS_LOG_DEBUG(LOGVAL(sCRS) << LOGVAL(minx) << LOGVAL(maxx) << LOGVAL(miny) << LOGVAL(maxy));
   }
 
