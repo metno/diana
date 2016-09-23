@@ -245,7 +245,7 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
     HS4_value = atof(dta.stringdata["HS4"].c_str());
 
   DiGLPainter::GLfloat radius = 7.0;
-  int lpos = itab[1] + 10;
+  int lpos = vtab(1) + 10;
   /*const map<std::string, float>::iterator fend = dta.fdata.end();
    map<std::string, float>::iterator f2_p;
    map<std::string, float>::iterator f_p;*/
@@ -277,21 +277,19 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
     QString cs = QString("%1V%2")
         .arg(dndndn_value / 10)
         .arg(dxdxdx_value / 10);
-    printString(gl, cs, iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
+    printString(gl, cs, xytab(lpos + 2, lpos + 3) + QPointF(2, 2));
     dndx = 2;
   }
+
   //Wind gust
-  float xid, yid;
+  QPointF xyid = xytab(lpos + 4);
   if (fmfm_value != undef) {
     checkColourCriteria(gl, "fmfmk", fmfm_value);
-    printNumber(gl,diutil::float2int(fmfm_value), iptab[lpos + 4] + 2, iptab[lpos + 5] + 2
-        - dndx, "left", true);
+    printNumber(gl, diutil::float2int(fmfm_value), xyid + QPointF(2, 2-dndx), "left", true);
     //understrekes
-    xid = iptab[lpos + 4] + 20 + 15;
-    yid = iptab[lpos + 5] - dndx + 8;
+    xyid += QPointF(20 + 15, -dndx + 8);
   } else {
-    xid = iptab[lpos + 4] + 2 + 15;
-    yid = iptab[lpos + 5] + 2 - dndx + 8;
+    xyid += QPointF(2 + 15, 2 - dndx + 8);
   }
 
   //Temperature
@@ -299,31 +297,31 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
     checkColourCriteria(gl, "TTT", TTT_value);
     //    if( dta.TT>-99.5 && dta.TT<99.5 ) //right align_righted
     //printNumber(TTT_value, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16, "temp");
-    printNumber(gl,TTT_value, iptab[lpos+10]+2,iptab[lpos+11]+2,"temp");
+    printNumber(gl,TTT_value, xytab(lpos+10,lpos+11)+QPointF(2,2),"temp");
   }
 
   //Dewpoint temperature
   if (TdTdTd_value != undef) {
     checkColourCriteria(gl, "TdTdTd", TdTdTd_value);
     //    if( dta.TdTd>-99.5 && dta.TdTd<99.5 )  //right align_righted and underlined
-    printNumber(gl,TdTdTd_value, iptab[lpos+16]+2,iptab[lpos+17]+2, "temp");
+    printNumber(gl,TdTdTd_value, xytab(lpos+16,lpos+17)+QPointF(2,2),"temp");
   }
 
-  float VVxpos = iptab[lpos+14] + 22;
+  QPointF VVxpos = xytab(lpos+14) + QPointF(22,0);
   //CAVOK, GWI
   if (GWI_value != undef) {
     checkColourCriteria(gl, "GWI", 0);
 
     if (GWI_value == 2) {
-      printString(gl, "OK", iptab[lpos+12] -8,iptab[lpos+13]);
+      printString(gl, "OK", xytab(lpos+12,lpos+13) + QPointF(-8,0));
     } else if (GWI_value == 1) { //Clouds
-      printString(gl, "NSC", iptab[lpos+12] -8,iptab[lpos+13]);
+      printString(gl, "NSC", xytab(lpos+12,lpos+13) + QPointF(-8,0));
     } else if (GWI_value == 3) { //Clouds
-      printString(gl, "SKC", iptab[lpos+12] -8,iptab[lpos+13]);
+      printString(gl, "SKC", xytab(lpos+12,lpos+13) + QPointF(-8,0));
     } else if (GWI_value == 1) { //Clouds
-      printString(gl, "NSW", iptab[lpos+12] -8,iptab[lpos+13]);
+      printString(gl, "NSW", xytab(lpos+12,lpos+13) + QPointF(-8,0));
     }
-    VVxpos = iptab[lpos+12] -28;
+    VVxpos = xytab(lpos+12) - QPointF(-28,0);
 
   }
   //int zone = 1;
@@ -392,14 +390,14 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
           (short int)(int)NS2_value, (short int)(int)HS2_value,
           (short int)(int)NS3_value, (short int)(int)HS3_value,
           (short int)(int)NS4_value, (short int)(int)HS4_value,
-          iptab[lpos+24]+2,iptab[lpos+25]+2,true);
+          xytab(lpos+24,lpos+25)+QPointF(2,2),true);
     } else {
       amountOfClouds_1_4(gl,
           (short int)(int)NS1_value, (short int)(int)HS1_value,
           (short int)(int)NS2_value, (short int)(int)HS2_value,
           (short int)(int)NS3_value, (short int)(int)HS3_value,
           (short int)(int)NS4_value, (short int)(int)HS4_value,
-          iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
+          xytab(lpos+24,lpos+25) + QPointF(2,12),true);
     }
   }
   else
@@ -419,9 +417,9 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
       if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
       if(h!=undef) checkColourCriteria(gl, "h",h);
       if( ClFlag ) {
-        amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2,true);
+        amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,xytab(lpos+24,lpos+25)+QPointF(2,2), true);
       } else {
-        amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
+        amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,xytab(lpos+24,lpos+25)+QPointF(2,12),true);
       }
     }
   }
@@ -429,10 +427,11 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
   if( VV_value != undef ) {
     checkColourCriteria(gl, "VV",VV_value);
     // dont print in synop code, print in km #515, redmine
+    QPointF VVxp(VVxpos.x(),xytab(lpos+15).x());
     if (VV_value < 5000.0)
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"float_1");
+      printNumber(gl,VV_value/1000.0,VVxp,"float_1");
     else
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"fill_1");
+      printNumber(gl,VV_value/1000.0,VVxp,"fill_1");
 
   }
 
@@ -443,14 +442,14 @@ void RoadObsPlot::plotDBMetar(DiGLPainter* gl,int index)
     int pp = (int) PHPHPHPH_value;
     pp -= (pp / 100) * 100;
 
-    printNumber(gl,pp, iptab[lpos+44]+2,iptab[lpos+45]+2, "fill_2");
-    printString(gl, "x",iptab[lpos+44]+18,iptab[lpos+45]+2);
+    printNumber(gl,pp, xytab(lpos+44,lpos+45)+QPointF(2,2), "fill_2");
+    printString(gl, "x",xytab(lpos+44,lpos+45) + QPointF(18,2));
   }
 
   //Id
   if (icao_value != "X") {
     checkColourCriteria(gl, "Name", 0);
-    printString(gl, decodeText(icao_value), iptab[lpos+46]+2,iptab[lpos+47]+2);
+    printString(gl, decodeText(icao_value), xytab(lpos+46,lpos+47)+QPointF(2,2));
   }
 }
 
@@ -708,12 +707,12 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     }
     if (diutil::ms2knots(dta.fdata["ff"]) < 1.)
       dd = 0;
-    lpos = itab[(dd / 10 + 3) / 2] + 10;
+    lpos = vtab((dd / 10 + 3) / 2) + 10;
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", dta.fdata["ff"]);
     plotWind(gl,dd_adjusted, dta.fdata["ff"], ddvar, radius);
   } else
-    lpos = itab[1] + 10;
+    lpos = vtab(1) + 10;
 
   int zone = 0;
   // No snow depth from ship.
@@ -748,13 +747,13 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
 
   //Weather - WW
   //METLIBS_LOG_DEBUG("Weather - WW: value " << ww_value);
-  float VVxpos = iptab[lpos+14] + 22;
+  QPointF VVxpos = xytab(lpos+14) + QPointF(22,0);
   if( ww_value != undef &&
       ww_value>3) {  //1-3 skal ikke plottes
     checkColourCriteria(gl, "ww",ww_value);
     weather(gl,(short int)(int)ww_value,TTT_value,zone,
-        iptab[lpos+12],iptab[lpos+13]);
-    VVxpos = iptab[lpos+12] -18;
+        xytab(lpos+12,lpos+13));
+    VVxpos = xytab(lpos+12) - QPointF(18,0);
   }
 
   //characteristics of pressure tendency - a
@@ -762,9 +761,9 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   if( a_value != undef ) {
     checkColourCriteria(gl, "a",a_value);
     if(ppp_value != undef && ppp_value> 9 )
-      symbol(gl,itab[201+(int)a_value], iptab[lpos+42]+10, iptab[lpos+43],0.8);
+      symbol(gl,vtab(201+(int)a_value), xytab(lpos+42, lpos+43) + QPointF(10,0),0.8);
     else
-      symbol(gl,itab[201+(int)a_value], iptab[lpos+42], iptab[lpos+43],0.8);
+      symbol(gl,vtab(201+(int)a_value), xytab(lpos+42, lpos+43),0.8);
   }
 
   // High cloud type - Ch
@@ -772,7 +771,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   if(Ch_value != undef)
   {
     checkColourCriteria(gl, "Ch",Ch_value);
-    symbol(gl,itab[190+(int)Ch_value], iptab[lpos+4], iptab[lpos+5],0.8);
+    symbol(gl,vtab(190+(int)Ch_value), xytab(lpos+4, lpos+5),0.8);
   }
 
   // Middle cloud type - Cm
@@ -780,7 +779,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   if(Cm_value != undef)
   {
       checkColourCriteria(gl, "Cm",Cm_value);
-      symbol(gl,itab[180+(int)Cm_value], iptab[lpos+2], iptab[lpos+3],0.8);
+      symbol(gl,vtab(180+(int)Cm_value), xytab(lpos+2, lpos+3),0.8);
   }
 
   // Low cloud type - Cl
@@ -788,29 +787,29 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   if(Cl_value != undef)
   {
       checkColourCriteria(gl, "Cl",Cl_value);
-      symbol(gl,itab[170+(int)Cl_value], iptab[lpos+22], iptab[lpos+23],0.8);
+      symbol(gl,vtab(170+(int)Cl_value), xytab(lpos+22, lpos+23),0.8);
   }
 
   // Past weather - W1
   //METLIBS_LOG_DEBUG("Past weather - W1: value " << W1_value);
   if( W1_value != undef) {
     checkColourCriteria(gl, "W1",W1_value);
-    pastWeather(gl,int(W1_value), iptab[lpos+34], iptab[lpos+35],0.8);
+    pastWeather(gl,int(W1_value), xytab(lpos+34, lpos+35),0.8);
   }
 
   // Past weather - W2
   //METLIBS_LOG_DEBUG("Past weather - W2: value " << W2_value);
   if( W2_value != undef) {
     checkColourCriteria(gl, "W2",W2_value);
-    pastWeather(gl,(int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
+    pastWeather(gl,(int)W2_value, xytab(lpos+36, lpos+37),0.8);
   }
   // Direction and speed of ship movement - ds/vs
   if (DS_value != undef && VS_value != undef)
   {
     checkColourCriteria(gl, "ds",DS_value);
     checkColourCriteria(gl, "vs", VS_value);
-    printNumber(gl, VS_value, iptab[lpos + 36], iptab[lpos + 39]);
-    arrow(gl,DS_value, iptab[lpos+32], iptab[lpos+33]);
+    printNumber(gl, VS_value, xytab(lpos + 36, lpos + 39));
+    arrow(gl,DS_value, xytab(lpos+32, lpos+33));
   }
   /* Currently not used
    // Direction of swell waves - dw1dw1
@@ -826,14 +825,14 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   //METLIBS_LOG_DEBUG("Pressure - PPPP: value " << PPPP_value);
   if( PPPP_value != undef ) {
     checkColourCriteria(gl, "PPPP",PPPP_value);
-    printNumber(gl,PPPP_value,iptab[lpos+44]+2,iptab[lpos+45]+2,"PPPP");
+    printNumber(gl,PPPP_value,xytab(lpos+44,lpos+45)+QPointF(2,2),"PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
   //METLIBS_LOG_DEBUG("Pressure tendency over 3 hours - ppp: value " << ppp_value);
   if( ppp_value != undef ) {
     checkColourCriteria(gl, "ppp",ppp_value);
-    printNumber(gl,ppp_value,iptab[lpos+40]+2,iptab[lpos+41]+2,"ppp");
+    printNumber(gl,ppp_value,xytab(lpos+40,lpos+41)+QPointF(2,2),"ppp");
   }
 
   if(automationcode == 0) {
@@ -855,14 +854,14 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
             (short int)(int)NS_A2_value, (short int)(int)HS_A2_value,
             (short int)(int)NS_A3_value, (short int)(int)HS_A3_value,
             (short int)(int)NS_A4_value, (short int)(int)HS_A4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2);
+            xytab(lpos+24,lpos+25)+QPointF(2,2));
       } else {
         amountOfClouds_1_4(gl,
             (short int)(int)NS_A1_value, (short int)(int)HS_A1_value,
             (short int)(int)NS_A2_value, (short int)(int)HS_A2_value,
             (short int)(int)NS_A3_value, (short int)(int)HS_A3_value,
             (short int)(int)NS_A4_value, (short int)(int)HS_A4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2+10);
+            xytab(lpos+24,lpos+25)+QPointF(2,12));
       }
     }
     else
@@ -878,9 +877,9 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
         if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
         if(h!=undef) checkColourCriteria(gl, "h",h);
         if( ClFlag ) {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
+          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,xytab(lpos+24,lpos+25)+QPointF(2,2));
         } else {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
+          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,xytab(lpos+24,lpos+25)+QPointF(2,12));
         }
       }
     }
@@ -905,14 +904,14 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
             (short int)(int)NS2_value, (short int)(int)HS2_value,
             (short int)(int)NS3_value, (short int)(int)HS3_value,
             (short int)(int)NS4_value, (short int)(int)HS4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2);
+            xytab(lpos+24,lpos+25)+QPointF(2,2));
       } else {
         amountOfClouds_1_4(gl,
             (short int)(int)NS1_value, (short int)(int)HS1_value,
             (short int)(int)NS2_value, (short int)(int)HS2_value,
             (short int)(int)NS3_value, (short int)(int)HS3_value,
             (short int)(int)NS4_value, (short int)(int)HS4_value,
-            iptab[lpos+24]+2,iptab[lpos+25]+2+10);
+            xytab(lpos+24,lpos+25)+QPointF(2,12));
       }
     }
     else
@@ -928,9 +927,9 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
         if(Nh!=undef) checkColourCriteria(gl, "Nh",Nh);
         if(h!=undef) checkColourCriteria(gl, "h",h);
         if( ClFlag ) {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
+          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,xytab(lpos+24,lpos+25)+QPointF(2,2));
         } else {
-          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
+          amountOfClouds_1(gl, (short int)(int)Nh, (short int)(int)h,xytab(lpos+24,lpos+25)+QPointF(2,12));
         }
       }
     }
@@ -955,11 +954,11 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   {
     checkColourCriteria(gl, "RRR",rrr_plot_value);
     if( rrr_plot_value < 0.1) //No precipitation (0.)
-      printString(gl, "0.",iptab[lpos+32]+2,iptab[lpos+33]+2);
+      printString(gl, "0.",xytab(lpos+32,lpos+33)+QPointF(2,2));
     else if( rrr_plot_value> 989)//Precipitation, but less than 0.1 mm (0.0)
-      printString(gl, "0.0",iptab[lpos+32]+2,iptab[lpos+33]+2);
+      printString(gl, "0.0",xytab(lpos+32,lpos+33)+QPointF(2,2));
     else
-      printNumber(gl,rrr_plot_value,iptab[lpos+32]+2,iptab[lpos+33]+2,"RRR");
+      printNumber(gl,rrr_plot_value,xytab(lpos+32,lpos+33)+QPointF(2,2),"RRR");
   }
 
   // Horizontal visibility - VV
@@ -968,23 +967,24 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "VV",VV_value);
     // dont print in synop code, print in km #515, redmine
     //printNumber(visibility(VV_value,zone == 99),VVxpos,iptab[lpos+15],"fill_2");
+    QPointF VVxp(VVxpos.x(),xytab(lpos+15).x());
     if (VV_value < 5000.0)
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"float_1");
+      printNumber(gl,VV_value/1000.0,VVxp,"float_1");
     else
-      printNumber(gl,VV_value/1000.0,VVxpos,iptab[lpos+15],"fill_1");
+      printNumber(gl,VV_value/1000.0,VVxp,"fill_1");
 
   }
   // Temperature - TTT
   //METLIBS_LOG_DEBUG("Temperature - TTT: value " << TTT_value);
   if( TTT_value != undef ) {
     checkColourCriteria(gl, "TTT",TTT_value);
-    printNumber(gl,TTT_value,iptab[lpos+10]+2,iptab[lpos+11]+2,"temp");
+    printNumber(gl,TTT_value,xytab(lpos+10,lpos+11)+QPointF(2,2),"temp");
   }
   // Dewpoint temperature - TdTdTd
   //METLIBS_LOG_DEBUG("Dewpoint temperature - TdTdTd: value " << TdTdTd_value);
   if( TdTdTd_value != undef ) {
     checkColourCriteria(gl, "TdTdTd",TdTdTd_value);
-    printNumber(gl,TdTdTd_value,iptab[lpos+16]+2,iptab[lpos+17]+2,"temp");
+    printNumber(gl,TdTdTd_value,xytab(lpos+16,lpos+17)+QPointF(2,2),"temp");
   }
 
   // Max/min temperature - TxTxTx/TnTnTn
@@ -1005,7 +1005,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     if (TxTn_value != undef)
     {
       checkColourCriteria(gl, "TxTn",TxTn_value);
-      printNumber(gl,TxTn_value,iptab[lpos+8]+2,iptab[lpos+9]+2,"temp");
+      printNumber(gl,TxTn_value,xytab(lpos+8,lpos+9)+QPointF(2,2),"temp");
     }
   }
 
@@ -1013,7 +1013,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   //METLIBS_LOG_DEBUG("Snow depth - sss: value " << sss_value);
   if( sss_value != undef && zone!=99 ) {
     checkColourCriteria(gl, "sss",sss_value);
-    printNumber(gl,sss_value,iptab[lpos+46]+2,iptab[lpos+47]+2);
+    printNumber(gl,sss_value,xytab(lpos+46,lpos+47)+QPointF(2,2));
   }
 
   // Maximum wind speed (gusts) - 911ff
@@ -1021,7 +1021,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   if( f911ff_value != undef ) {
     checkColourCriteria(gl, "911ff",f911ff_value);
     printNumber(gl,diutil::ms2knots(f911ff_value),
-        iptab[lpos+38]+2,iptab[lpos+39]+2,"fill_2",true);
+        xytab(lpos+38,lpos+39)+QPointF(2,2),"fill_2",true);
   }
 
   /* Not currently used
@@ -1043,10 +1043,10 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "fxfx",fxfx_value);
     if(TxTnFlag)
       printNumber(gl,diutil::ms2knots(fxfx_value),
-          iptab[lpos+6]+12,iptab[lpos+7]+2,"fill_2",true);
+          xytab(lpos+6,lpos+7)+QPointF(12,2),"fill_2",true);
     else
       printNumber(gl,diutil::ms2knots(fxfx_value),
-          iptab[lpos+6]+12,iptab[lpos+7]-14,"fill_2",true);
+          xytab(lpos+6,lpos+7)+QPointF(12,-14),"fill_2",true);
   }
   // WMO station id
   //METLIBS_LOG_DEBUG("WMO station id");
@@ -1061,9 +1061,9 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
       buf = decodeText(call_sign);
 
     if( sss_value != undef) //if snow
-      printString(gl, buf,iptab[lpos+46]+2,iptab[lpos+47]+15);
+      printString(gl, buf,xytab(lpos+46,lpos+47)+QPointF(2,15));
     else
-      printString(gl, buf,iptab[lpos+46]+2,iptab[lpos+47]+2);
+      printString(gl, buf,xytab(lpos+46,lpos+47)+QPointF(2,2));
   }
 }
 

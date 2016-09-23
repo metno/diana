@@ -428,7 +428,7 @@ vector<PlotElement> PlotModule::getPlotElements()
   }
 
   // get stationPlot names; vector is built on each call to stam->plots()
-  const std::vector<StationPlot*> stam_plots(stam->plots());
+  const std::vector<StationPlot*>& stam_plots = stam->plots();
   for (size_t j = 0; j < stam_plots.size(); j++) {
     StationPlot* sp = stam_plots[j];
     if (!sp->isVisible())
@@ -505,7 +505,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       }
     }
   } else if (pe.type == "STATION") {
-    const std::vector<StationPlot*> stam_plots(stam->plots());
+    const std::vector<StationPlot*>& stam_plots = stam->plots();
     for (size_t i = 0; i < stam_plots.size(); i++) {
       StationPlot* sp = stam_plots[i];
       std::string str = sp->getPlotName() + "# " + miutil::from_number(int(i));
@@ -610,7 +610,7 @@ void PlotModule::setAnnotations()
   }
 
   // get stationPlot annotations
-  const std::vector<StationPlot*> stam_plots(stam->plots());
+  const std::vector<StationPlot*>& stam_plots = stam->plots();
   for (size_t j = 0; j < stam_plots.size(); j++) {
     StationPlot* sp = stam_plots[j];
     if (!sp->isEnabled())
@@ -756,7 +756,7 @@ bool PlotModule::updatePlots()
   // this is called in plotUnder:
   // vareaobjects[i].changeProjection(staticPlot_->getMapArea());
 
-  const std::vector<StationPlot*> stam_plots(stam->plots());
+  const std::vector<StationPlot*>& stam_plots = stam->plots();
   for (size_t i = 0; i < stam_plots.size(); i++) {
     stam_plots[i]->changeProjection();
     nodata = false;
@@ -943,7 +943,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   }
 
   // plot station plots
-  const std::vector<StationPlot*> stam_plots(stam->plots());
+  const std::vector<StationPlot*>& stam_plots = stam->plots();
   for (size_t j = 0; j < stam_plots.size(); j++)
     stam_plots[j]->plot(gl, Plot::LINES);
 
@@ -1133,8 +1133,7 @@ void PlotModule::cleanup()
 
   satm->clear();
 
-  std::vector<StationPlot*> stam_plots(stam->plots());
-  diutil::delete_all_and_clear(stam_plots); // FIXME this does not clear anything in StationManager
+  stam->cleanup();
 
   vop.clear();
 

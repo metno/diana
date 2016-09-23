@@ -71,8 +71,7 @@ struct Station {
   };
 
   std::string name;
-  float lat;
-  float lon;
+  miCoordinates pos;
   std::string image;
   std::string image2;
   bool isVisible;
@@ -93,16 +92,36 @@ struct Station {
   Station() {
     scale = 1; alpha=255;
   }
+
+  float lon() const
+    { return pos.dLon(); }
+  float lat() const
+    { return pos.dLat(); }
 };
 
 class StationArea {
 public:
   StationArea(float minLat, float maxLat, float minLon, float maxLon);
-  std::vector<Station*> findStations(float lat, float lon) const;
-  Station* findStation(float lat, float lon) const;
+
+  std::vector<Station*> findStations(const miCoordinates& pos, float radius) const;
+  std::vector<Station*> findStations(float lat, float lon, float radius) const
+    { return findStations(miCoordinates(lon, lat), radius); }
+
+  Station* findStation(const miCoordinates& pos, float radius) const;
+  Station* findStation(float lat, float lon, float radius) const
+    { return findStation(miCoordinates(lon, lat), radius); }
+
   void addStation(Station* station);
+
+  bool contains(const miCoordinates& pos) const
+    { return contains(pos.dLat(), pos.dLon()); }
   bool contains(float lat, float lon) const
     { return lat >= minLat && lat < maxLat && lon >= minLon && lon < maxLon; }
+
+  /*! Approximate distance from pos to area rectangle in km
+   * The returned value is not correct for large distances.
+   */
+  double distance(const miCoordinates& pos) const;
 
 private:
   float minLat;
@@ -157,15 +176,21 @@ public:
   bool isVisible();
   /// change stationplot projection
   bool changeProjection();
+
   /// Returns the stations in the plot object
   std::vector<Station*> getStations() const;
-  /// Returns the station at position x and y
-  Station* stationAt(int x, int y);
-  /// Returns all stations at position x and y
+
+  /// Returns the station at phys position x and y
+  Station* stationAt(int phys_x, int phys_y);
+
+  /// Returns all stations at phys position x and y
   std::vector<Station*> stationsAt(int x, int y, float radius=100.0, bool useAllStation=false);
+
   /// Returns a std::vector containing the names of the stations at position x and y
   std::vector<std::string> findStation(int x, int y, bool add=false);
+
   std::vector<std::string> findStations(int x, int y);
+
   /// Returns the selected stations in the plot object
   std::vector<Station*> getSelectedStations() const;
   /// set stations with name station to selected<br>
@@ -181,14 +206,16 @@ public:
   /// set UseImage
   void setUseImage(bool _useImage) { useImage = _useImage;}
   /// set name/plotname
-  void setName(std::string nm);
+  void setName(const std::string& nm);
   /// return name
-  std::string getName(){return name;}
+  const std::string& getName() const
+    { return name; }
   /// set id to i
-  void setId(int i){id = i;}
+  void setId(int i)
+    { id = i; }
   /// return id
-  int getId(){return id;}
-  int getPriority(){return priority;}
+  int getId() const
+    { return id; }
   /**
    * Get image scale for a station
    * @param i Index of station
@@ -205,8 +232,10 @@ public:
   void clearText();
   /// if normal=true write name on all plotted stations, if selected=true write name on all selected stations
   void setUseStationName(bool normal, bool selected);
-  void setIcon(std::string icon){iconName = icon;}
-  std::string getIcon(){return iconName;}
+  void setIcon(const std::string& icon)
+    { iconName = icon; }
+  const std::string& getIcon() const
+    { return iconName; }
   bool stationCommand(const std::string& Command,
       const std::vector<std::string>& data,
       const std::string& misc="");
@@ -243,7 +272,6 @@ private:
   std::string annotation;
   std::string name; //f.ex. "vprof"
   int id;
-  int priority;
   bool useImage;
   bool useStationNameNormal,useStationNameSelected;
   bool showText;

@@ -67,7 +67,17 @@ private:
   void timeLoop(int i0, int di, const std::vector<miutil::miTime>& times);
   void reprojectStartPositions();
   void initAborted();
+
+  //! returns true iff there are any trajectories that are not aborted
+  bool haveTrajectories() const;
+
   LonLat_v reprojectStepPositions();
+
+  /*! For positions outside the field grid, reproject to lon-lat and back
+   *  so that the position might move back into the field grid (eg at the date line).
+   * */
+  void reprojectRoundTripLonLat();
+
   void calculateMapFields();
   void computeSingleStep(const miutil::miTime& t1, const miutil::miTime& t2,
       const std::vector<Field*>& fields1, const std::vector<Field*>& fields2,

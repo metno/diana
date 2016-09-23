@@ -292,7 +292,7 @@ public:
     { plotname= name; }
 
   /// return name of this plot object
-  std::string getPlotName() const
+  const std::string& getPlotName() const
     { return plotname; }
 
 protected:

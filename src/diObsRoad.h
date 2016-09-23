@@ -34,6 +34,7 @@
 // if not defined ROADOBS, just an empty include file
 //#define ROADOBS 1
 #ifdef ROADOBS
+#include "diStationInfo.h"
 #include "diRoadObsPlot.h"
 #include "diObsData.h"
 #include "diObsMetaData.h"

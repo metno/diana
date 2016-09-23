@@ -139,6 +139,8 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
   const int nTimes = times.size();
   if (i0 < 0 || i0 >= nTimes)
     return;
+  if (!haveTrajectories())
+    return;
 
   std::vector<Field*> fv0, fv1;
   fpm->makeFields(pinfo.back(), times[i0], fv0);
@@ -148,6 +150,8 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
   }
 
   for (int i1 = i0+di; i1 >= 0 && i1-di >= 0 && i1 < nTimes && i1-di < nTimes; i1 += di) {
+    if (!haveTrajectories())
+      break;
     METLIBS_LOG_DEBUG(LOGVAL(i1));
     const miutil::miTime& t1 = times[i1];
     fpm->makeFields(pinfo.back(), t1, fv1);
@@ -232,6 +236,36 @@ void TrajectoryGenerator::calculateMapFields()
   fry = duplicateFieldWidthData(fu1, ymapr);
 }
 
+void TrajectoryGenerator::reprojectRoundTripLonLat()
+{
+  const Field* fu1 = fp->getFields().front();
+  const int npos = mStartPositions.size();
+  for (int i=0; i<npos; i++) {
+    if (mAborted[i])
+      continue;
+    if (xt[i] < 0 || xt[i] >= fu1->area.nx-1 || yt[i] < 0 || yt[i] >= fu1->area.ny-1) {
+      METLIBS_LOG_DEBUG(i << ": before reprojection lon-lat and back: x=" << xt[i] << " y=" << yt[i]);
+      float& x = xt[i], y = yt[i];
+      fu1->convertFromGrid(1, &x, &y);
+      fu1->area.P().convertToGeographic(1, &x, &y);
+      METLIBS_LOG_DEBUG(i << ": during reprojection lon-lat =" << xt[i] << " / " << yt[i]);
+      fu1->area.P().convertFromGeographic(1, &x, &y);
+      fu1->convertToGrid(1, &x, &y);
+      METLIBS_LOG_DEBUG(i << ": after reprojection lon-lat and back: x=" << xt[i] << " y=" << yt[i]);
+    }
+  }
+}
+
+bool TrajectoryGenerator::haveTrajectories() const
+{
+  const int npos = mStartPositions.size();
+  bool haveTrajectories = false;
+  for (int i=0; i<npos && !haveTrajectories; i++) {
+    haveTrajectories |= !mAborted[i];
+  }
+  return haveTrajectories;
+}
+
 void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miutil::miTime& t2,
     const std::vector<Field*>& fields1, const std::vector<Field*>& fields2,
     TrajectoryData_v& tracjectories)
@@ -257,6 +291,7 @@ void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miut
   }
 
   // stop trajectories if it is more than one grid point outside the field
+  reprojectRoundTripLonLat();
   for (int i=0; i<npos; i++) {
     if (mAborted[i])
       continue;
@@ -275,12 +310,12 @@ void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miut
     // iteration no. 0 to get a first guess (then the real iterations)
 
     for (int iter=0; iter<=numIterations; iter++) {
-      fu1->interpolate(npos, xt, yt, u1, Field::I_BESSEL);
-      fv1->interpolate(npos, xt, yt, v1, Field::I_BESSEL);
-      fu2->interpolate(npos, xt, yt, u2, Field::I_BESSEL);
-      fv2->interpolate(npos, xt, yt, v2, Field::I_BESSEL);
-      frx->interpolate(npos, xt, yt, rx, Field::I_BESSEL);
-      fry->interpolate(npos, xt, yt, ry, Field::I_BESSEL);
+      fu1->interpolate(npos, xt, yt, u1, Field::I_BESSEL_EX);
+      fv1->interpolate(npos, xt, yt, v1, Field::I_BESSEL_EX);
+      fu2->interpolate(npos, xt, yt, u2, Field::I_BESSEL_EX);
+      fv2->interpolate(npos, xt, yt, v2, Field::I_BESSEL_EX);
+      frx->interpolate(npos, xt, yt, rx, Field::I_BESSEL_EX);
+      fry->interpolate(npos, xt, yt, ry, Field::I_BESSEL_EX);
 
       for (int i=0; i<npos; i++) {
         if (mAborted[i])
@@ -303,6 +338,7 @@ void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miut
         xt[i] = xa[i] + rx[i] * u * dt;
         yt[i] = ya[i] + ry[i] * v * dt;
       }
+      reprojectRoundTripLonLat();
     }  // end of iteration loop
 
     const LonLat_v ll = reprojectStepPositions();

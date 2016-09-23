@@ -182,7 +182,7 @@ void ObsRoad::getStationList(vector<stationInfo> & stations)
     return;
   }
   for (size_t i = 0; i < stationlist.size(); i++) {
-    stationInfo st;
+    stationInfo st("",0,0);
     if (stationlist[i].station_type() == "WMO")
       st.name = stationlist[i].name();
     else if (stationlist[i].station_type() == "ICAO")
@@ -934,8 +934,8 @@ void ObsRoad::decodeData()
       }
       
       METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
-		
-      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime))< timeDiff)
+
+      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime)) < timeDiff || (timeDiff == 0 && abs(miTime::minDiff(obstime, plotTime)) == 0))
         obsData.obsTime = obstime;
       else
         continue;

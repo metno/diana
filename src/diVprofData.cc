@@ -185,6 +185,7 @@ bool VprofData::setBufr(const miutil::miTime& plotTime)
 {
   METLIBS_LOG_SCOPE();
   currentFiles.clear();
+  mStations.clear();
 #ifdef BUFROBS
   vector<miTime> tlist;
 

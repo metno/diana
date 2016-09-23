@@ -49,6 +49,12 @@ using namespace std;
 
 static std::string ddString[16]; // norwegian directions North, NorthNorthEast, NorthEast, EastNorthEast, etc.
 
+//! distance in km
+static double distance(const miCoordinates& pos, const Station* s)
+{
+  return pos.distanceTo(s->pos) / 1000;
+}
+
 StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
 {
   init();
@@ -170,8 +176,6 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
     iconName = vcommon[commonmap["icon"]];
   if (commonmap.count("annotation"))
     annotation = vcommon[commonmap["annotation"]];
-  if (commonmap.count("priority"))
-    priority = atoi(vcommon[commonmap["priority"]].c_str());
 
   //decode data
   int ndata = data.size();
@@ -228,7 +232,6 @@ void StationPlot::init()
   textStyle = "bold";
   name = "vprof";
   id = -1;
-  priority = 1;
   index = -1;
 }
 
@@ -257,8 +260,7 @@ void StationPlot::addStation(float lon, float lat, const std::string& newname,
     miCoordinates coordinates(lon, lat);
     newStation->name = coordinates.str();
   }
-  newStation->lon = lon;
-  newStation->lat = lat;
+  newStation->pos = miCoordinates(lon, lat);
   newStation->alpha = alpha;
   newStation->scale = scale;
   newStation->isSelected = false;
@@ -479,8 +481,9 @@ void StationPlot::defineCoordinates()
   xplot.clear();
   yplot.clear();
   for (int i = 0; i < npos; i++) {
-    xplot.push_back(stations[i]->lon);
-    yplot.push_back(stations[i]->lat);
+    Station* s = stations[i];
+    xplot.push_back(s->lon());
+    yplot.push_back(s->lat());
   }
   changeProjection();
 }
@@ -499,8 +502,9 @@ bool StationPlot::changeProjection()
   float *xpos = new float[npos];
   float *ypos = new float[npos];
   for (int i = 0; i < npos; i++) {
-    xpos[i] = stations[i]->lon;
-    ypos[i] = stations[i]->lat;
+    Station* s = stations[i];
+    xpos[i] = s->lon();
+    ypos[i] = s->lat();
   }
 
   if (!getStaticPlot()->GeoToMap(npos, xpos, ypos)) {
@@ -530,55 +534,54 @@ vector<Station*> StationPlot::getStations() const
 static inline float square(float x)
 { return x*x; }
 
-Station* StationPlot::stationAt(int x, int y)
+Station* StationPlot::stationAt(int phys_x, int phys_y)
 {
-  vector<Station*> found = stationsAt(x, y);
+  const float radius = 100;
+  vector<Station*> found = stationsAt(phys_x, phys_y, radius);
 
-  if (found.size() > 0) {
-    const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
+  if (found.empty())
+    return 0;
 
-    float min_r = square(100.0f * getStaticPlot()->getPhysToMapScaleX());
-    int min_i = 0;
+  const XY pos = getStaticPlot()->PhysToMap(XY(phys_x, phys_y));
 
-    // Find the closest station to the point within a given radius.
-    for (unsigned int i = 0; i < found.size(); ++i) {
-      float sx = found[i]->lon, sy = found[i]->lat;
-      if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
-        float r = square(pos.x() - sx) + square(pos.y() - sy);
-        if (r < min_r) {
-          min_r = r;
-          min_i = i;
-        }
+  float min_r = square(radius * getStaticPlot()->getPhysToMapScaleX());
+  int min_i = 0;
+
+  // Find the closest station to the point within a given radius.
+  for (unsigned int i = 0; i < found.size(); ++i) {
+    float sx = found[i]->lon(), sy = found[i]->lat();
+    if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
+      float r = square(pos.x() - sx) + square(pos.y() - sy);
+      if (r < min_r) {
+        min_r = r;
+        min_i = i;
       }
     }
-
-    return found[min_i];
   }
 
-  return 0;
+  return found[min_i];
 }
 
-vector<Station*> StationPlot::stationsAt(int x, int y, float radius, bool useAllStations)
+vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, bool useAllStations)
 {
-  const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
+  const XY pos = getStaticPlot()->PhysToMap(XY(phys_x, phys_y));
 
   float min_r = square(radius * getStaticPlot()->getPhysToMapScaleX());
 
   vector<Station*> within;
 
-  float gx = pos.x(), gy = pos.y();
-  if (getStaticPlot()->MapToGeo(1, &gx, &gy)) {
+  float geo_x = pos.x(), geo_y = pos.y();
+  if (getStaticPlot()->MapToGeo(1, &geo_x, &geo_y)) {
     vector<Station*> found;
-    if ( useAllStations ) {
+    if (useAllStations) {
       found = stations;
     } else {
-      // FIXME this is not correct in the vicinity of StationArea borders
-      found = stationAreas[0].findStations(gy, gx);
+      found = stationAreas[0].findStations(geo_y, geo_x, radius);
     }
 
     for (unsigned int i = 0; i < found.size(); ++i) {
       if (found[i]->isVisible) {
-        float sx = found[i]->lon, sy = found[i]->lat;
+        float sx = found[i]->lon(), sy = found[i]->lat();
         if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
           float r = square(pos.x() - sx) + square(pos.y() - sy);
           if (r < min_r) {
@@ -722,7 +725,7 @@ void StationPlot::setStationPlotAnnotation(const string &str)
   annotation = str;
 }
 
-void StationPlot::setName(std::string nm)
+void StationPlot::setName(const std::string& nm)
 {
   name = nm;
   if (getPlotName().empty())
@@ -1028,8 +1031,8 @@ std::string StationPlot::stationRequest(const std::string& command)
     int n = stations.size();
     for (int i = 0; i < n; i++)
       if (stations[i]->isSelected)
-        ost << ":" << stations[i]->name.c_str();
-    ost << ":" << name.c_str() << ":" << id;
+        ost << ":" << stations[i]->name;
+    ost << ":" << name << ":" << id;
   }
 
   return ost.str();
@@ -1277,24 +1280,79 @@ StationArea::StationArea(float minLat, float maxLat, float minLon, float maxLon)
 {
 }
 
-vector<Station*> StationArea::findStations(float lat, float lon) const
+double StationArea::distance(const miCoordinates& pos) const
 {
-  METLIBS_LOG_SCOPE();
+  if (contains(pos))
+    return 0;
 
-  for (std::vector<StationArea>::const_iterator it = areas.begin(); it != areas.end(); ++it) {
-    if (it->contains(lat, lon))
-      return it->findStations(lat, lon);
+  const float lat = pos.dLat(), lon = pos.dLon();
+  double d = 0;
+  if (lat >= minLat && lat < maxLat) {
+    // on the left or right
+    const miCoordinates left(minLon, lat), right(maxLon, lat);
+    d = std::min(pos.distanceTo(left), pos.distanceTo(right));
+  } else if (lon >= minLon && lat < maxLon) {
+    // on the left or right
+    const miCoordinates below(lon, minLat), above(lon, maxLat);
+    d = std::min(pos.distanceTo(below), pos.distanceTo(above));
+  } else if (lon < minLon && lat < minLat) {
+    const miCoordinates corner(minLon, minLat);
+    d = pos.distanceTo(corner);
+  } else if (lon >= maxLon && lat < minLat) {
+    const miCoordinates corner(maxLon, minLat);
+    d = pos.distanceTo(corner);
+  } else if (lon < minLon && lat >= maxLat) {
+    const miCoordinates corner(minLon, maxLat);
+    d = pos.distanceTo(corner);
+  } else if (lon >= maxLon && lat >= maxLat) {
+    const miCoordinates corner(maxLon, maxLat);
+    d = pos.distanceTo(corner);
   }
-  return stations;
+  return d / 1000; // convert from m to km
 }
 
-Station* StationArea::findStation(float lat, float lon) const
+vector<Station*> StationArea::findStations(const miCoordinates& pos, float radius) const
 {
-  vector<Station*> found = findStations(lat, lon);
-  if (found.size() > 0)
-    return *(found.begin());
-  else
+  vector<Station*> all;
+
+  if (!areas.empty()) {
+    for (std::vector<StationArea>::const_iterator it = areas.begin(); it != areas.end(); ++it) {
+      const double d = it->distance(pos);
+      if (d < radius) {
+        const vector<Station*> child = it->findStations(pos, radius);
+        all.insert(all.end(), child.begin(), child.end());
+      }
+    }
+  } else {
+    for (vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
+      Station* s = *it;
+      const double d = ::distance(pos, s);
+      if (d < radius)
+        all.push_back(s);
+    }
+  }
+  return all;
+}
+
+Station* StationArea::findStation(const miCoordinates& pos, float radius) const
+{
+  vector<Station*> found = findStations(pos, radius);
+  if (found.empty())
     return 0;
+
+  Station* min_station = found.front();
+  if (found.size() > 1) {
+    std::vector<Station*>::const_iterator it = found.begin();
+    float min_dist = ::distance(pos, *it);
+    for (++it; it != found.end(); ++it) {
+      const float dist = ::distance(pos, *it);
+      if (dist < min_dist) {
+        min_dist = dist;
+        min_station = *it;
+      }
+    }
+  }
+  return min_station;
 }
 
 void StationArea::addStation(Station* station)
@@ -1322,7 +1380,7 @@ void StationArea::addStation(Station* station)
       // Move all the stations into the subareas. May not call "addStation" to avoid infinite recursion if
       // there are more than 10 stations with identical lon and lat.
       for (std::vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
-        const size_t a = ((*it)->lat >= midLat ? 0 : 2) + ((*it)->lon >= midLon ? 1 : 0);
+        const size_t a = ((*it)->lat() >= midLat ? 0 : 2) + ((*it)->lon() >= midLon ? 1 : 0);
         areas[a].stations.push_back(*it);
       }
 
@@ -1332,7 +1390,7 @@ void StationArea::addStation(Station* station)
   } else {
     // Find the appropriate subarea to store the station in.
     for (std::vector<StationArea>::iterator it = areas.begin(); it != areas.end(); ++it) {
-      if (it->contains(station->lat, station->lon)) {
+      if (it->contains(station->lat(), station->lon())) {
         it->addStation(station);
         break;
       }
