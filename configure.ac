@@ -74,11 +74,6 @@ AC_ARG_ENABLE([obs-bufr],
     [], [enable_obs_bufr=no])
 AM_CONDITIONAL([WITH_OBS_BUFR], [test x$enable_obs_bufr = xyes])
 
-AC_ARG_ENABLE([video-export],
-    [AS_HELP_STRING([--disable-video-export], [disable video export feature])],
-    [], [enable_video_export=yes])
-AM_CONDITIONAL([WITH_VIDEO_EXPORT], [test x$enable_video_export = xyes])
-
 AC_ARG_ENABLE([xlib],
     [AS_HELP_STRING([--enable-xlib], [enable X-lib usage])],
     [], [enable_xlib=no])
@@ -122,9 +117,6 @@ METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
 METNO_REQUIRE_BOOST_FEATURE([thread])
 
-AS_IF([test x$enable_video_export = xyes], [
-    METNO_REQUIRE_PKG([AVFORMAT], [libavformat], [], [])
-])
 AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_PKG([EMOS], [emos], [], [])
 ])

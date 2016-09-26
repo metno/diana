@@ -30,24 +30,12 @@
 #ifndef MOVIEMAKER_H_
 #define MOVIEMAKER_H_
 
+#include <QDir>
 #include <QSize>
+
 #include <string>
 
 class QImage;
-
-struct AVFormatContext;
-struct AVFrame;
-struct AVStream;
-
-struct OutputCtx {
-  const char *fileName;
-  AVFormatContext *outputCtx;
-  AVStream *videoStream;
-  AVFrame *frame;
-
-  short *videoBuffer;
-};
-
 
 class MovieMaker {
 public:
@@ -55,35 +43,37 @@ public:
    * Constructor. Sets filename to save the finished animation to, and
    * which quality it will be saved in.
    */
-  MovieMaker(const std::string &filename, const std::string &format,
+  MovieMaker(const QString &filename, const QString &format,
       float delay, const QSize& frameSize = QSize(1280, 720));
-
   ~MovieMaker();
 
-  std::string outputFile() const;
-  std::string outputFormat() const;
-
-  bool addImage(const QImage &image);
-
+  const QString& outputFile() const
+    { return mOutputFile; }
+  const QString& outputFormat() const
+    { return mOutputFormat; }
   QSize frameSize() const
     { return mFrameSize; }
 
+  bool addImage(const QImage &image);
+  bool finish();
+
 private:
-  float delay;
+  bool isImageFormat() const;
+
+  //! filename for the given frame number (relative to mOutputDir)
+  QString frameFile(int frameNumber) const;
+
+  //! file path for the given frame number
+  QString framePath(int frameNumber) const;
+
+private:
+  QString mOutputFile;
+  QString mOutputFormat;
+  float mDelay;
   QSize mFrameSize;
-  std::string g_strOutputVideoFile;
-  std::string g_strOutputVideoFormat;
-  std::string g_strInputImageFile;
 
-  OutputCtx outputVideo;
-
-  bool makeVideoFrame(const QImage *image);
-  bool addVideoStream(OutputCtx *output);
-  bool openVideoEncoder(OutputCtx *output);
-  bool initOutputStream(OutputCtx *output);
-  void closeVideoEncoder(OutputCtx *output);
-  void endOutputStream(OutputCtx *output);
-  bool writeVideoFrame(OutputCtx *output);
+  QDir mOutputDir;
+  int mFrameCount;
 };
 
 #endif /*MOVIEMAKER_H_*/
