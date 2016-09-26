@@ -81,6 +81,10 @@
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 
+#ifdef VIDEO_EXPORT
+#include <MovieMaker.h>
+#endif
+
 #include <qUtilities/qtHelpDialog.h>
 
 #include <coserver/ClientSelection.h>
