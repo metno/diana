@@ -103,6 +103,7 @@ libdiana_la_SOURCES = \
 	EditItems/kml.cc \
 	EditItems/timefilesextractor.cc \
 	miSetupParser.cc \
+	MovieMaker.cc \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
@@ -699,14 +700,6 @@ libdiana_la_SOURCES += \
 libdiana_la_CPPFLAGS += -DBUFROBS
 endif
 
-# Additional source code for video export feature
-if WITH_VIDEO_EXPORT
-libdiana_la_SOURCES  += MovieMaker.cc
-libdiana_la_CPPFLAGS += -DVIDEO_EXPORT $(AVFORMAT_CPPFLAGS)
-libdiana_la_LDFLAGS  += $(AVFORMAT_LDFLAGS)
-libdiana_la_LIBADD   += $(AVFORMAT_LIBS)
-endif
-
 libdiana_la_SOURCES += $(libdiana_la_QTSOURCES)
 nodist_libdiana_la_SOURCES = $(libdiana_la_QTSOURCES:.cc=.moc.cc) $(libdiana_la_QTHEADERS:.h=.moc.cc)
 BUILT_SOURCES += $(nodist_libdiana_la_SOURCES)
@@ -782,10 +775,6 @@ libdianaui_a_CPPFLAGS = \
 
 if WITH_SMHI
 libdianaui_a_CPPFLAGS += -DSMHI
-endif
-
-if WITH_VIDEO_EXPORT
-libdianaui_a_CPPFLAGS += -DVIDEO_EXPORT
 endif
 
 # generate version info header

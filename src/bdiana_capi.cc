@@ -88,9 +88,7 @@
 
 #include <QApplication>
 
-#ifdef VIDEO_EXPORT
-# include <MovieMaker.h>
-#endif
+#include <MovieMaker.h>
 
 // required to tell fimex to use log4cpp
 #include <fimex/Logger.h>
@@ -289,9 +287,7 @@ std::string trajectory_options;
 std::string time_options;
 std::string time_format = "$time";
 
-#ifdef VIDEO_EXPORT
 MovieMaker *movieMaker = 0;
-#endif
 
 // list of lists..
 vector<stringlist> lists;
@@ -543,11 +539,10 @@ int prepareInput(istream &is)
   return 0;
 }
 
-#ifdef VIDEO_EXPORT
 void startVideo(const printOptions priop)
 {
-  const std::string format = "avi";
-  const std::string output = priop.fname;
+  const QString format = "avi";
+  const QString output = QString::fromStdString(priop.fname);
 
   if (movieMaker &&
       !movieMaker->outputFormat().compare(format) &&
@@ -556,6 +551,7 @@ void startVideo(const printOptions priop)
     return;
   }
 
+  movieMaker->finish();
   delete movieMaker;
   METLIBS_LOG_INFO("opening video stream |-->");
   movieMaker = new MovieMaker(output, format, 0.2f, QSize(xsize, ysize));
@@ -572,10 +568,10 @@ bool addVideoFrame(const QImage &img)
 void endVideo()
 {
   METLIBS_LOG_INFO("-->| video stream closed");
+  movieMaker->finish();
   delete movieMaker;
   movieMaker = 0;
 }
-#endif // VIDEO_EXPORT
 
 void startHardcopy(const plot_type pt, const printOptions priop)
 {
@@ -798,9 +794,7 @@ static void printUsage(bool showexample)
     " - as PostScript (to file and printer)",
     " - as EPS (Encapsulated PostScript)",
     " - as PNG (all available raster formats in Qt)",
-#ifdef VIDEO_EXPORT
     " - as AVI (MS MPEG4-v2 video format)",
-#endif
     "***************************************************",
     "",
     "Usage: bdiana -i <job-filename> [-s <setup-filename>]" // no "," / newline here
@@ -1616,10 +1610,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !shape && !json && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_standard, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1710,10 +1702,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vcross, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1784,10 +1774,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vprof, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1859,10 +1847,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_spectrum, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1951,13 +1937,11 @@ static int handlePlotCommand(int& k)
           METLIBS_LOG_INFO("- Saving PNG-image to: '" << img.filename << "'");
         }
         result = imageIO::write_png(img);
-#ifdef VIDEO_EXPORT
       } else if (raster_type == image_avi) {
         if (verbose) {
           METLIBS_LOG_INFO("- Adding image to: '" << img.filename << "'");
         }
 //            result = addVideoFrame(img);
-#endif
       }
       if (verbose)
         METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
@@ -3144,10 +3128,8 @@ int diana_init(int _argc, char** _argv)
 int diana_dealloc()
 {
   // clean up structures
-#ifdef VIDEO_EXPORT
   if(movieMaker)
     endVideo();
-#endif // VIDEO_EXPORT
 
   delete vprofmanager;
   delete spectrummanager;
