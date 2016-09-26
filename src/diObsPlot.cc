@@ -787,7 +787,7 @@ bool ObsPlot::setData()
   int numObs = numPositions();
 
   if (numObs < 1) {
-    METLIBS_LOG_WARN("no data");
+    METLIBS_LOG_INFO("no data");
     return false;
   }
 
