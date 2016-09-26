@@ -24,7 +24,6 @@ override_dh_auto_configure:
 	    --prefix=/usr \
 	    --libdir=/usr/lib/bdiana/@PVERSION_MAJOR_DOT_MINOR@ \
 	    --enable-obs-bufr \
-	    --enable-video-export \
 	    --with-geotiff \
 	    --with-qt4=/opt/qt4-headless \
 	    --with-qt4-includedir=/opt/qt4-headless/include \
