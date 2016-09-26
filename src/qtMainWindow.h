@@ -43,10 +43,6 @@
 
 #include <QPrintPreviewDialog>
 
-#ifdef VIDEO_EXPORT
-#include <MovieMaker.h>
-#endif
-
 #include <vector>
 #include <deque>
 
