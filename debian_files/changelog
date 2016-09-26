@@ -1,3 +1,9 @@
+diana-3.40 (3.40.8-1) unstable; urgency=low
+
+  * bugfix compilation if QProcess::execute is not available
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 26 Sep 2016 08:00:10 +0200
+
 diana-3.40 (3.40.7-2) unstable; urgency=low
 
   * bugfix bdiana dependencies
