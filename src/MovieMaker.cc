@@ -34,18 +34,70 @@
 #include "MovieMaker.h"
 
 #include <QImage>
-#include <QProcess>
 
 #include <cstdlib>
-#include <sstream>
 
+#define DO_NOT_USE_QPROCESS 1
+#if !defined(DO_NOT_USE_QPROCESS)
+#include <QProcess>
+#endif
+#if defined(DO_NOT_USE_QPROCESS) || defined(QT_NO_PROCESS)
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#endif // DO_NOT_USE_QPROCESS || QT_NO_PROCESS
 
 #define MILOGGER_CATEGORY "diana.MovieMaker"
 #include <miLogger/miLogging.h>
 
 using namespace std;
+
+namespace {
+
+#if defined(DO_NOT_USE_QPROCESS) || defined(QT_NO_PROCESS)
+char* qstrdup(const QString& qs)
+{
+  return strdup(qs.toStdString().c_str());
+}
+
+int execute(const QString& command, const QStringList& args)
+{
+  const int MAX_ARGS = 24;
+  if (args.size() >= MAX_ARGS)
+    return -2;
+
+  const pid_t pid = fork();
+  if (pid == 0) {
+    // child process
+
+    char* cmd = qstrdup(command);
+    char* argv[MAX_ARGS+2] = { 0 };
+    argv[0] = qstrdup(command);
+    for (int i=0; i<args.size(); ++i)
+      argv[i+1] = qstrdup(args.at(i));
+
+    execvp(cmd, argv);
+    exit(1);
+    // not reached
+  } else {
+    // parent process
+    int status = 0;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status)) {
+      return WEXITSTATUS(status);
+    } else {
+      return -1;
+    }
+  }
+}
+#else // !(DO_NOT_USE_QPROCESS || QT_NO_PROCESS)
+int execute(const QString& command, const QStringList& args)
+{
+  return QProcess::execute(command, args);
+}
+#endif // !(DO_NOT_USE_QPROCESS || QT_NO_PROCESS)
+
+} // namespace
 
 MovieMaker::MovieMaker(const QString &filename, const QString &format,
     float delay, const QSize& frameSize)
@@ -77,7 +129,7 @@ MovieMaker::~MovieMaker()
       if (!mOutputDir.remove(frameFile(i)))
         METLIBS_LOG_ERROR("could not remove '"<< frameFile(i).toStdString() << "' in '" << outdir.toStdString() << "'");
     }
-    if (QProcess::execute("rmdir", QStringList() << outdir) != 0)
+    if (execute("rmdir", QStringList() << outdir) != 0)
       METLIBS_LOG_ERROR("could not remove directory '" << outdir.toStdString() << "'");
   }
 }
@@ -149,7 +201,7 @@ bool MovieMaker::finish()
        << "-pix_fmt" << "yuv420p"
        << mOutputFile;
   METLIBS_LOG_INFO("running: '" << converter.toStdString() << "' '" << args.join("' '").toStdString() << "'");
-  const int code = QProcess::execute(converter, args);
+  const int code = execute(converter, args);
   if (code == 0) {
     METLIBS_LOG_INFO("video created in '" << args.back().toStdString() << "'");
   } else {
