@@ -88,9 +88,7 @@
 
 #include <QApplication>
 
-#ifdef VIDEO_EXPORT
-# include <MovieMaker.h>
-#endif
+#include <MovieMaker.h>
 
 // required to tell fimex to use log4cpp
 #include <fimex/Logger.h>
@@ -293,9 +291,8 @@ std::string trajectory_options;
 std::string time_options;
 std::string time_format = "$time";
 
-#ifdef VIDEO_EXPORT
+QString movieFormat = "avi";
 MovieMaker *movieMaker = 0;
-#endif
 
 // list of lists..
 vector<stringlist> lists;
@@ -547,22 +544,21 @@ int prepareInput(istream &is)
   return 0;
 }
 
-#ifdef VIDEO_EXPORT
+void endVideo();
+
 void startVideo(const printOptions priop)
 {
-  const std::string format = "avi";
-  const std::string output = priop.fname;
+  const QString output = QString::fromStdString(priop.fname);
 
-  if (movieMaker &&
-      !movieMaker->outputFormat().compare(format) &&
-      !movieMaker->outputFile().compare(output))
-  {
-    return;
+  if (movieMaker) {
+    if (movieMaker->outputFormat() == movieFormat && movieMaker->outputFile() == output)
+      return;
+
+    endVideo();
   }
 
-  delete movieMaker;
   METLIBS_LOG_INFO("opening video stream |-->");
-  movieMaker = new MovieMaker(output, format, 0.2f, QSize(xsize, ysize));
+  movieMaker = new MovieMaker(output, movieFormat, 0.2f, QSize(xsize, ysize));
 }
 
 bool addVideoFrame(const QImage &img)
@@ -576,10 +572,11 @@ bool addVideoFrame(const QImage &img)
 void endVideo()
 {
   METLIBS_LOG_INFO("-->| video stream closed");
+  if (movieMaker)
+    movieMaker->finish();
   delete movieMaker;
   movieMaker = 0;
 }
-#endif // VIDEO_EXPORT
 
 void startHardcopy(const plot_type pt, const printOptions priop)
 {
@@ -802,9 +799,7 @@ static void printUsage(bool showexample)
     " - as PostScript (to file and printer)",
     " - as EPS (Encapsulated PostScript)",
     " - as PNG (all available raster formats in Qt)",
-#ifdef VIDEO_EXPORT
-    " - as AVI (MS MPEG4-v2 video format)",
-#endif
+    " - as AVI (MS MPEG4-v2 video format), MPG, MP4",
     "***************************************************",
     "",
     "Usage: bdiana -i <job-filename> [-s <setup-filename>]" // no "," / newline here
@@ -841,7 +836,7 @@ static void printUsage(bool showexample)
     "",
     "#- Optional: values for each option below are default-values",
     "setupfile=diana.setup    # use a standard setup-file",
-    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI/SHP",
+    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI/MPG/MP4/SHP",
     "                         #  RASTER: format from filename-suffix",
     "                         #  PDF/SVG/JSON (only with -use_qimage)",
     "                         #  JSON (only for annotations)",
@@ -1633,10 +1628,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !shape && !json && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_standard, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1727,10 +1720,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vcross, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1801,10 +1792,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vprof, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1876,10 +1865,8 @@ static int handlePlotCommand(int& k)
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_spectrum, priop);
       multiple_newpage = false;
-#ifdef VIDEO_EXPORT
     } else if (raster && raster_type == image_avi) {
       startVideo(priop);
-#endif
     }
 
     if (multiple_plots)
@@ -1903,86 +1890,23 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- Preparing for raster output");
     glpainter->Flush();
 
-    // QWS/QPA output
-    if (raster) {
-      ensureNewContext();
+    ensureNewContext();
 
-      int ox = 0, oy = 0;
-      if (plotAnnotationsOnly) {
-        getAnnotationsArea(ox, oy, xsize, ysize);
-        image = image.copy(-ox, -oy, xsize, ysize);
-        plotAnnotationsOnly = false;
-      }
+    int ox = 0, oy = 0;
+    if (plotAnnotationsOnly) {
+      getAnnotationsArea(ox, oy, xsize, ysize);
+      image = image.copy(-ox, -oy, xsize, ysize);
+      plotAnnotationsOnly = false;
+    }
 
-      // Add the input file text as meta-data in the image.
-      for (unsigned int i = 0; i < lines.size(); ++i)
-        image.setText(QString::number(i), QString::fromStdString(lines[i]));
+    // Add the input file text as meta-data in the image.
+    for (unsigned int i = 0; i < lines.size(); ++i)
+      image.setText(QString::number(i), QString::fromStdString(lines[i]));
 
+    if (raster_type != image_avi)
       image.save(QString::fromStdString(priop.fname));
-#if 0
-      //milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
-
-      bool empty = true;
-      for (int py = 0; py < image.height(); ++py) {
-        QRgb *scanLine = (QRgb*)(image.scanLine(py));
-        for (int px = 0; px < image.width(); ++px) {
-          if (qAlpha(scanLine[px]) != 0) {
-            empty = false;
-            break;
-          }
-        }
-        if (!empty)
-          break;
-      }
-
-      if (empty)
-        METLIBS_LOG_INFO("# vvv Empty plot (begin)");
-
-      // Write the input file text to the log.
-      for (unsigned int i = 0; i < lines.size(); ++i)
-        METLIBS_LOG_INFO(lines[i]);
-
-      if (empty)
-        METLIBS_LOG_INFO("# ^^^ Empty plot (end)");
-#endif
-    }
-    else {
-      imageIO::Image_data img;
-      img.width = xsize;
-      img.height = ysize;
-      img.filename = priop.fname;
-      int npixels;
-
-      npixels = img.width * img.height;
-      img.nchannels = 4;
-      img.data = new unsigned char[npixels * img.nchannels];
-
-      glpainter->ReadPixels(0, 0, img.width, img.height, DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE,
-          img.data);
-
-      int result = 0;
-
-      // save as PNG -----------------------------------------------
-      if (raster_type == image_png || raster_type == image_unknown) {
-        if (verbose) {
-          METLIBS_LOG_INFO("- Saving PNG-image to: '" << img.filename << "'");
-        }
-        result = imageIO::write_png(img);
-#ifdef VIDEO_EXPORT
-      } else if (raster_type == image_avi) {
-        if (verbose) {
-          METLIBS_LOG_INFO("- Adding image to: '" << img.filename << "'");
-        }
-//            result = addVideoFrame(img);
-#endif
-      }
-      if (verbose)
-        METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
-      else if (!result)
-        METLIBS_LOG_ERROR(" ERROR, saving PNG-image to: '" << img.filename << "'");
-      // -------------------------------------------------------------
-
-    }
+    else
+      addVideoFrame(image);
 
   } else if (shape) { // Only shape output
 
@@ -2649,6 +2573,17 @@ static int handleOutputCommand(int& k, const std::string& value)
     shape = true;
   } else if (lvalue == "avi") {
     raster = true;
+    movieFormat = "avi";
+    raster_type = image_avi;
+
+  } else if (lvalue == "mpg") {
+    raster = true;
+    movieFormat = "mpg";
+    raster_type = image_avi;
+
+  } else if (lvalue == "mp4") {
+    raster = true;
+    movieFormat = "mp4";
     raster_type = image_avi;
 
   } else if (lvalue == "pdf" || lvalue == "svg" || lvalue == "json") {
@@ -3259,10 +3194,8 @@ int diana_init(int _argc, char** _argv)
 int diana_dealloc()
 {
   // clean up structures
-#ifdef VIDEO_EXPORT
   if(movieMaker)
     endVideo();
-#endif // VIDEO_EXPORT
 
   delete vprofmanager;
   delete spectrummanager;

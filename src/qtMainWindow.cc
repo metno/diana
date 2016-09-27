@@ -81,6 +81,8 @@
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 
+#include <MovieMaker.h>
+
 #include <qUtilities/qtHelpDialog.h>
 
 #include <coserver/ClientSelection.h>
@@ -2807,33 +2809,31 @@ void DianaMainWindow::emailPicture()
   mailm->show();
 }
 
-
-#ifdef VIDEO_EXPORT
 void DianaMainWindow::saveAnimation()
 {
   static QString fname = "./"; // keep users preferred animation-path for later
 
   QString s = QFileDialog::getSaveFileName(this,
-      tr("Save animation from current fields, satellite images, etc. (*.mpg or *.avi)"),
+      tr("Save animation from current fields, satellite images, etc."),
       fname,
-      tr("Movies (*.mpg *.avi);;All (*.*)"));
+      tr("Movies (*.mp4 *.mpg *.avi);;All (*.*)"));
 
   if (s.isNull())
     return;
 
-  const QString suffix = QFileInfo(s).suffix();
-  std::string format = "mpg";
-  if (!suffix.compare(QLatin1String("avi"), Qt::CaseInsensitive)) {
+  const QString suffix = QFileInfo(s).suffix().toLower();
+  QString format = "mpg";
+  if (suffix == "avi") {
     format = "avi";
-  } else if (suffix.compare(QLatin1String("mpg"), Qt::CaseInsensitive)) {
+  } else if (suffix == "mp4") {
+    format = "mp4";
+  } else if (suffix != "mpg") {
     s += ".mpg";
   }
   fname = s;
 
-  std::string filename = s.toStdString();
-
   float delay = timeout_ms * 0.001;
-  MovieMaker moviemaker(filename, format, delay);
+  MovieMaker moviemaker(s, format, delay);
 
   QMessageBox::information(this, tr("Making animation"),
       tr("This may take some time, depending on the number of timesteps and selected delay."
@@ -2877,8 +2877,9 @@ void DianaMainWindow::saveAnimation()
   QPainter painter;
   // ==================== <copy ====================
 
-  /// save frames as images
-  for (int step = 0; tslider->current() < nrOfTimesteps-1; ++step, stepforward()) {
+  // save frames as images
+  bool ok = true;
+  for (int step = 0; ok && tslider->current() < nrOfTimesteps-1; ++step, stepforward()) {
     if (!progress.isHidden())
       progress.setValue(step);
 
@@ -2892,8 +2893,10 @@ void DianaMainWindow::saveAnimation()
     painter.end();
     // ==================== <copy ====================
 
-    moviemaker.addImage(image);
+    ok = moviemaker.addImage(image);
   }
+  if (ok)
+    ok = moviemaker.finish();
   if (!progress.isHidden())
     progress.setValue(nrOfTimesteps);
 
@@ -2903,15 +2906,11 @@ void DianaMainWindow::saveAnimation()
   // ==================== <copy ====================
   w->setVisible(true);
 
-  QMessageBox::information(this, tr("Done"), tr("Animation completed."));
+  if (ok)
+    QMessageBox::information(this, tr("Done"), tr("Animation completed."));
+  else
+    QMessageBox::warning(this, tr("Error"), tr("Problem with creating animation."));
 }
-#else
-void DianaMainWindow::saveAnimation()
-{
-  QMessageBox::information(this, tr("Compiled without video export"),
-      tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
-}
-#endif
 
 void DianaMainWindow::parseSetup()
 {
