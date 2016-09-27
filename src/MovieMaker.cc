@@ -177,6 +177,10 @@ bool MovieMaker::addImage(const QImage &image)
 
 bool MovieMaker::finish()
 {
+  if (mFrameCount == 0) {
+    METLIBS_LOG_WARN("no video frames in '" << mOutputFile.toStdString() << "'");
+    return false;
+  }
   if (isImageFormat())
     return true;
   if (!mOutputDir.exists())
