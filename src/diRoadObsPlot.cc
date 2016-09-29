@@ -78,6 +78,7 @@ bool RoadObsPlot::isFileUpdated(const std::string& fname, long now, long mod_tim
 void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
     QPointF xypos, float scale, bool align_right)
 {
+  
 #ifdef ROADOBS
   if (ww == 508)
     ww = 0;
@@ -85,6 +86,7 @@ void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
   if (ww > 199)
     return;
 #endif
+  METLIBS_LOG_DEBUG("WW: " << ww);
   return ObsPlot::weather(gl, ww, TTT, zone, xypos, scale, align_right);
 }
 
@@ -733,7 +735,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   bool precip = automationcode; // Not correct!
 
   //Total cloud cover - N
-  //METLIBS_LOG_DEBUG("Total cloud cover - N: value " << N_value);
+  METLIBS_LOG_DEBUG("Total cloud cover - N: value " << N_value);
   if(N_value != undef) {
     checkColourCriteria(gl, "N",N_value);
     if (automationcode != 0)
@@ -746,7 +748,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
    }*/
 
   //Weather - WW
-  //METLIBS_LOG_DEBUG("Weather - WW: value " << ww_value);
+  METLIBS_LOG_DEBUG("Weather - WW: value " << ww_value);
   QPointF VVxpos = xytab(lpos+14) + QPointF(22,0);
   if( ww_value != undef &&
       ww_value>3) {  //1-3 skal ikke plottes
@@ -757,7 +759,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   //characteristics of pressure tendency - a
-  //METLIBS_LOG_DEBUG("characteristics of pressure tendency - a: value " << a_value);
+  METLIBS_LOG_DEBUG("characteristics of pressure tendency - a: value " << a_value);
   if( a_value != undef ) {
     checkColourCriteria(gl, "a",a_value);
     if(ppp_value != undef && ppp_value> 9 )
@@ -767,7 +769,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // High cloud type - Ch
-  //METLIBS_LOG_DEBUG("High cloud type - Ch, value: " << Ch_value);
+  METLIBS_LOG_DEBUG("High cloud type - Ch, value: " << Ch_value);
   if(Ch_value != undef)
   {
     checkColourCriteria(gl, "Ch",Ch_value);
@@ -775,7 +777,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // Middle cloud type - Cm
-  //METLIBS_LOG_DEBUG("Middle cloud type - Cm, value: " << Cm_value);
+  METLIBS_LOG_DEBUG("Middle cloud type - Cm, value: " << Cm_value);
   if(Cm_value != undef)
   {
       checkColourCriteria(gl, "Cm",Cm_value);
@@ -783,7 +785,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // Low cloud type - Cl
-  //METLIBS_LOG_DEBUG("Low cloud type - Cl, value: " << Cl_value);
+  METLIBS_LOG_DEBUG("Low cloud type - Cl, value: " << Cl_value);
   if(Cl_value != undef)
   {
       checkColourCriteria(gl, "Cl",Cl_value);
@@ -791,14 +793,14 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // Past weather - W1
-  //METLIBS_LOG_DEBUG("Past weather - W1: value " << W1_value);
+  METLIBS_LOG_DEBUG("Past weather - W1: value " << W1_value);
   if( W1_value != undef) {
     checkColourCriteria(gl, "W1",W1_value);
     pastWeather(gl,int(W1_value), xytab(lpos+34, lpos+35),0.8);
   }
 
   // Past weather - W2
-  //METLIBS_LOG_DEBUG("Past weather - W2: value " << W2_value);
+  METLIBS_LOG_DEBUG("Past weather - W2: value " << W2_value);
   if( W2_value != undef) {
     checkColourCriteria(gl, "W2",W2_value);
     pastWeather(gl,(int)W2_value, xytab(lpos+36, lpos+37),0.8);
@@ -822,14 +824,14 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   // Change of coordinate system
   pushpop2.PopMatrix();
 
-  //METLIBS_LOG_DEBUG("Pressure - PPPP: value " << PPPP_value);
+  METLIBS_LOG_DEBUG("Pressure - PPPP: value " << PPPP_value);
   if( PPPP_value != undef ) {
     checkColourCriteria(gl, "PPPP",PPPP_value);
     printNumber(gl,PPPP_value,xytab(lpos+44,lpos+45)+QPointF(2,2),"PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
-  //METLIBS_LOG_DEBUG("Pressure tendency over 3 hours - ppp: value " << ppp_value);
+  METLIBS_LOG_DEBUG("Pressure tendency over 3 hours - ppp: value " << ppp_value);
   if( ppp_value != undef ) {
     checkColourCriteria(gl, "ppp",ppp_value);
     printNumber(gl,ppp_value,xytab(lpos+40,lpos+41)+QPointF(2,2),"ppp");
@@ -867,7 +869,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     else
     {
       // Clouds
-      //METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
+      METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
       if(Nh_value != undef || h_value != undef) {
         float Nh,h;
         Nh = Nh_value;
@@ -917,7 +919,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     else
     {
       // Clouds
-      //METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
+      METLIBS_LOG_DEBUG("Clouds: Nh = " << Nh_value << " h = " << h_value);
       if(Nh_value != undef || h_value != undef) {
         float Nh,h;
         Nh = Nh_value;
@@ -936,7 +938,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   //Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.
-  //METLIBS_LOG_DEBUG("Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.");
+  METLIBS_LOG_DEBUG("Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.");
   float rrr_plot_value = undef;
   if( rrr_24_value != undef)
     rrr_plot_value = rrr_24_value;
@@ -949,7 +951,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   else if( rrr_1_value != undef)
     rrr_plot_value = rrr_1_value;
 
-  //METLIBS_LOG_DEBUG("Value to plot: value " << rrr_plot_value);
+  METLIBS_LOG_DEBUG("Value to plot: value " << rrr_plot_value);
   if (rrr_plot_value != undef)
   {
     checkColourCriteria(gl, "RRR",rrr_plot_value);
@@ -962,7 +964,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // Horizontal visibility - VV
-  //METLIBS_LOG_DEBUG("Horizontal visibility - VV: value " << VV_value);
+  METLIBS_LOG_DEBUG("Horizontal visibility - VV: value " << VV_value);
   if( VV_value != undef ) {
     checkColourCriteria(gl, "VV",VV_value);
     // dont print in synop code, print in km #515, redmine
@@ -988,7 +990,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // Max/min temperature - TxTxTx/TnTnTn
-  //METLIBS_LOG_DEBUG("Max/min temperature - TxTxTx/TnTnTn");
+  METLIBS_LOG_DEBUG("Max/min temperature - TxTxTx/TnTnTn");
   if( TxTnFlag ) {
     // The days maximum should be plotted at 18Z
     // The nights minimum should be plotted at 06Z
@@ -1001,7 +1003,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
     {
       TxTn_value = TxTx_value;
     }
-    //METLIBS_LOG_DEBUG("TxTn: " << TxTn_value);
+    METLIBS_LOG_DEBUG("TxTn: " << TxTn_value);
     if (TxTn_value != undef)
     {
       checkColourCriteria(gl, "TxTn",TxTn_value);
@@ -1010,14 +1012,14 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
   }
 
   // Snow depth - sss
-  //METLIBS_LOG_DEBUG("Snow depth - sss: value " << sss_value);
+  METLIBS_LOG_DEBUG("Snow depth - sss: value " << sss_value);
   if( sss_value != undef && zone!=99 ) {
     checkColourCriteria(gl, "sss",sss_value);
     printNumber(gl,sss_value,xytab(lpos+46,lpos+47)+QPointF(2,2));
   }
 
   // Maximum wind speed (gusts) - 911ff
-  //METLIBS_LOG_DEBUG("Maximum wind speed (gusts) - 911ff: value " << f911ff_value);
+  METLIBS_LOG_DEBUG("Maximum wind speed (gusts) - 911ff: value " << f911ff_value);
   if( f911ff_value != undef ) {
     checkColourCriteria(gl, "911ff",f911ff_value);
     printNumber(gl,diutil::ms2knots(f911ff_value),
@@ -1037,7 +1039,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
    */
 
   // Maximum wind speed
-  //METLIBS_LOG_DEBUG("Maximum wind speed: value " << fxfx_value);
+  METLIBS_LOG_DEBUG("Maximum wind speed: value " << fxfx_value);
   if( fxfx_value != undef)
   {
     checkColourCriteria(gl, "fxfx",fxfx_value);
@@ -1049,7 +1051,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
           xytab(lpos+6,lpos+7)+QPointF(12,-14),"fill_2",true);
   }
   // WMO station id
-  //METLIBS_LOG_DEBUG("WMO station id");
+  
   if (wmono_value != undef || !call_sign.empty())
   {
     checkColourCriteria(gl, "Name",0);
@@ -1059,7 +1061,7 @@ void RoadObsPlot::plotDBSynop(DiGLPainter* gl, int index)
       buf.setNum(wmo);
     else if (station_type == road::diStation::SHIP)
       buf = decodeText(call_sign);
-
+    METLIBS_LOG_DEBUG("WMO station id or callsign: " << buf.toStdString());
     if( sss_value != undef) //if snow
       printString(gl, buf,xytab(lpos+46,lpos+47)+QPointF(2,15));
     else
