@@ -249,6 +249,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optScrollwheelZoomAction->setCheckable(true);
   connect( optScrollwheelZoomAction, SIGNAL( triggered() ), SLOT( toggleScrollwheelZoom() ) );
   // --------------------------------------------------------------------
+  optPictureRatioAction = new QAction( tr("Picture ratio 4:3"), this );
+  optPictureRatioAction->setCheckable(true);
+  // --------------------------------------------------------------------
   optFontAction = new QAction( tr("Select &Font..."), this );
   connect( optFontAction, SIGNAL( triggered() ) ,  SLOT( chooseFont() ) );
 
@@ -586,6 +589,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optmenu->addAction( optAutoElementAction );
   optmenu->addAction( optAnnotationAction );
   optmenu->addAction( optScrollwheelZoomAction );
+  optmenu->addAction( optPictureRatioAction );
   optmenu->addAction( readSetupAction );
   optmenu->addSeparator();
   optmenu->addAction( optFontAction );
@@ -2728,7 +2732,12 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
   QImage* image = 0;
   std::auto_ptr<QPaintDevice> device;
   bool printing = false;
-  const int pw = w->Glw()->width(), ph = w->Glw()->height();
+  const int pw= w->Glw()->width();
+  int ph;
+  if (optPictureRatioAction->isChecked())
+    ph = int(pw*3.0/4.0);
+  else
+    ph = w->Glw()->height();
   if (filename.endsWith(".pdf")) {
     printer = new QPrinter(QPrinter::ScreenResolution);
     printer->setOutputFormat(QPrinter::PdfFormat);
