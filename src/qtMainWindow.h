@@ -308,6 +308,7 @@ private:
   QAction * optAutoElementAction;
   QAction * optAnnotationAction;
   QAction * optScrollwheelZoomAction;
+  QAction * optPictureRatioAction;
   QAction * optFontAction;
 
   QAction * showResetAreaAction;
