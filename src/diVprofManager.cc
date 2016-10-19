@@ -167,7 +167,7 @@ void VprofManager::parseSetup()
         db_connectfile = tokens1[1];
       }
     }
-    if (filetype == "netcdf" || filetype == "grbml"){
+    if (filetype == "netcdf" || filetype == "felt" || filetype == "grbml"){
       METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
       sources.push_back(vstr[i]);
     }

@@ -787,7 +787,7 @@ bool ObsPlot::setData()
   int numObs = numPositions();
 
   if (numObs < 1) {
-    METLIBS_LOG_WARN("no data");
+    METLIBS_LOG_INFO("no data");
     return false;
   }
 
@@ -1547,6 +1547,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   gl->setFont(poptions.fontname, poptions.fontface, 8 * textSize);
   scale = textSize * getStaticPlot()->getPhysToMapScaleX() * 0.7;
 
+    METLIBS_LOG_INFO(LOGVAL(poptions.antialiasing));
   if (poptions.antialiasing)
     gl->Enable(DiGLPainter::gl_MULTISAMPLE);
   else
