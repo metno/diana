@@ -45,6 +45,7 @@ Description: Meteorological visualisation tool
  editor and a drawing tool for fronts, symbols and area types.
 
 Package: diana-@METNO_VERSION@-dbg
+Section: debug
 Architecture: any
 Depends: diana-@METNO_VERSION@ (= ${binary:Version}),
  ${misc:Depends}

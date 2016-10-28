@@ -7,12 +7,13 @@ libexecdiana_LTLIBRARIES = libdiana.la
 
 bin_PROGRAMS = bdiana
 
+# libexecdianadir must be the same in perl/Makefile.am
 if WITH_GUI
 noinst_LIBRARIES = libdianaui.a
 bin_PROGRAMS += diana.bin
 libexecdianadir= $(pkglibdir)/@PVERSION@
 else
-libexecdianadir= $(libdir)
+libexecdianadir= $(libdir)/bdiana/@PVERSION@
 endif # WITH_GUI
 
 # convenience for developers using a non-standard $(prefix)

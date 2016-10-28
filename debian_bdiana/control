@@ -34,6 +34,7 @@ Description: Meteorological visualisation tool
  products.
 
 Package: bdiana-@METNO_VERSION@-dbg
+Section: debug
 Architecture: any
 Depends: bdiana-@METNO_VERSION@ (= ${binary:Version}),
  ${misc:Depends}
@@ -46,7 +47,7 @@ Section: perl
 Conflicts: libmetno-bdiana-perl
 Provides:libmetno-bdiana-perl
 Depends: bdiana-@METNO_VERSION@ (= ${binary:Version}),
- ${perl:Depends}, ${misc:Depends}
+ ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool, perl binding
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL

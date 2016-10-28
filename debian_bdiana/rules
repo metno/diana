@@ -1,28 +1,18 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-DESTDIR = debian/bdiana-@PVERSION_MAJOR_DOT_MINOR@
-
-export DH_VERBOSE=1
-ifndef PERL
-PERL = /usr/bin/perl
-endif
-
-# Support parallel building.
 %:
 	dh $@ --parallel
 
-# Ensure that the executable searches for libraries under the /opt/qt4-headless prefix
-# and work around missing linkage to the Boost threading library in metlibs.
-confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib,-rpath=/usr/lib/bdiana/@METNO_VERSION@ -Wl,-lboost_thread"
+# ensure that the executable searches for libraries under the /opt/qt4-headless prefix
+confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib"
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
 	./autogen.sh
 	./configure $(confflags) \
 	    --disable-silent-rules \
-	    --prefix=/usr \
-	    --libdir=/usr/lib/bdiana/@PVERSION_MAJOR_DOT_MINOR@ \
+	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --enable-obs-bufr \
 	    --with-geotiff \
 	    --with-qt4=/opt/qt4-headless \
@@ -37,13 +27,6 @@ override_dh_auto_configure:
 	    --disable-gui \
 	    --enable-perl
 
-.PHONY: override_dh_auto_install
-override_dh_auto_install:
-	mkdir -p $(DESTDIR)/usr/bin
-	cp src/.libs/bdiana $(DESTDIR)/usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
-	mkdir -p $(DESTDIR)/usr/lib/bdiana/@METNO_VERSION@
-	cp src/.libs/libdiana.so* $(DESTDIR)/usr/lib/bdiana/@METNO_VERSION@
-
 .PHONY: override_dh_auto_test
 override_dh_auto_test:
 	if dh_auto_test; then \
@@ -55,4 +38,4 @@ override_dh_auto_test:
 
 .PHONY: override_dh_strip
 override_dh_strip:
-	dh_strip -pbdiana-@METNO_VERSION@ --dbg-package=bdiana-@METNO_VERSION@-dbg
+	dh_strip --dbg-package=bdiana-@METNO_VERSION@-dbg
