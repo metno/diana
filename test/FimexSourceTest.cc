@@ -961,34 +961,34 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
 
 TEST(FimexSourceTest, TestAromeReftimes)
 {
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc");
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_18.nc");
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_00.nc");
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_06.nc");
-  rmdir(TEST_BUILDDIR "test_arome_reftimes");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_12.nc");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_18.nc");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_00.nc");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc");
+  rmdir(TEST_BUILDDIR "/test_arome_reftimes");
 
-  ASSERT_EQ(0, mkdir(TEST_BUILDDIR "test_arome_reftimes", 0700));
+  ASSERT_EQ(0, mkdir(TEST_BUILDDIR "/test_arome_reftimes", 0700));
 
-  FimexSource s(TEST_BUILDDIR "test_arome_reftimes/arome_vc_[yyyymmdd_HH].nc", "netcdf", "");
+  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_[yyyymmdd_HH].nc", "netcdf", "");
   EXPECT_FALSE(s.update());
 
-  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_06.nc"));
+  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc"));
     const Source::ReftimeUpdate u = s.update();
     EXPECT_EQ(0, u.gone.size());
     EXPECT_EQ(0, u.changed.size());
     EXPECT_EQ(1, u.appeared.size());
   }
 
-  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_12.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc"));
-    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_18.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_18.nc"));
-    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_00.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_00.nc"));
+  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_12.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_12.nc"));
+    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_18.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_18.nc"));
+    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_00.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_00.nc"));
     const Source::ReftimeUpdate u = s.update();
     EXPECT_EQ(0, u.gone.size());
     EXPECT_EQ(0, u.changed.size());
     EXPECT_EQ(3, u.appeared.size());
   }
 
-  { unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc");
+  { unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_12.nc");
     const Source::ReftimeUpdate u = s.update();
     EXPECT_EQ(1, u.gone.size());
     EXPECT_EQ(0, u.changed.size());
@@ -998,18 +998,18 @@ TEST(FimexSourceTest, TestAromeReftimes)
 
 TEST(FimexSourceTest, TestAromeReftimesStar)
 {
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc");
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_18.nc");
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_00.nc");
-  unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_06.nc");
-  rmdir(TEST_BUILDDIR "test_arome_reftimes");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_12.nc");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_18.nc");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_00.nc");
+  unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc");
+  rmdir(TEST_BUILDDIR "/test_arome_reftimes");
 
-  ASSERT_EQ(0, mkdir(TEST_BUILDDIR "test_arome_reftimes", 0700));
+  ASSERT_EQ(0, mkdir(TEST_BUILDDIR "/test_arome_reftimes", 0700));
 
-  FimexSource s(TEST_BUILDDIR "test_arome_reftimes/arome_vc_*.nc", "netcdf", "");
+  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_*.nc", "netcdf", "");
   EXPECT_FALSE(s.update());
 
-  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_06.nc"));
+  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc"));
     const Source::ReftimeUpdate u = s.update();
     EXPECT_EQ(0, u.gone.size());
     EXPECT_EQ(0, u.changed.size());
@@ -1017,9 +1017,9 @@ TEST(FimexSourceTest, TestAromeReftimesStar)
     EXPECT_TRUE(u.appeared.count(Time(S1970, 1422252000)));
   }
 
-  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_12.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc"));
-    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_18.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_18.nc"));
-    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_00.nc", TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150126_00.nc"));
+  { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_12.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_12.nc"));
+    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150125_18.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_18.nc"));
+    ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_00.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_00.nc"));
     const Source::ReftimeUpdate u = s.update();
     EXPECT_EQ(0, u.gone.size());
     EXPECT_EQ(0, u.changed.size());
@@ -1029,7 +1029,7 @@ TEST(FimexSourceTest, TestAromeReftimesStar)
     EXPECT_TRUE(u.appeared.count(Time(S1970, 1422230400)));
   }
 
-  { unlink(TEST_BUILDDIR "test_arome_reftimes/arome_vc_20150125_12.nc");
+  { unlink(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150125_12.nc");
     const Source::ReftimeUpdate u = s.update();
     ASSERT_EQ(1, u.gone.size());
     EXPECT_TRUE(u.gone.count(Time(S1970, 1422187200)));
