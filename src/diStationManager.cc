@@ -410,7 +410,7 @@ vector<Station*> StationManager::findStations(int x, int y)
   vector<Station*> stations;
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((*it)->isVisible()) {
-      vector<Station*> found = (*it)->stationsAt(x, y);
+      vector<Station*> found = (*it)->stationsAt(x, y, 5);
       stations.insert(stations.end(), found.begin(), found.end());
     }
   }
