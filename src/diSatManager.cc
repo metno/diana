@@ -62,8 +62,6 @@ static const std::vector<SatFileInfo> emptyfile;
 
 SatManager::SatManager()
 {
-  //Max time between filelist updates in seconds
-  updateFreq = 300;
   //new satellite files read
   fileListChanged = false;
   //zero time = 00:00:00 UTC Jan 1 1970
@@ -787,9 +785,7 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
 {
   METLIBS_LOG_SCOPE(time);
 
-  int fileno=-1;
   int diff= satdata->maxDiff+1;
-  int d;
 
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
@@ -797,21 +793,16 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
   METLIBS_LOG_DEBUG(LOGVAL(satdata->satellite) << LOGVAL(satdata->filetype));
 #endif
 
-  miTime now = miTime::nowTime();
-  //time between now and last update ?
-  int updiff= miTime::secDiff(now, ztime)-subp.updateTime;
-
-  if (subp.file.size() == 0 || subp.updated ==false || (!subp.archiveFiles
-      && updiff > updateFreq)) {
+  if (subp.file.empty() || !subp.updated || !subp.archiveFiles) {
     listFiles(subp);
     subp.updated = true;
   } else
     fileListChanged = false;
 
-  std::vector<SatFileInfo> &ft=subp.file;
-  int n=ft.size();
-  for (int i=0; i<n; i++) {
-    d = abs(miTime::minDiff(ft[i].time, time));
+  const std::vector<SatFileInfo> &ft=subp.file;
+  int fileno=-1;
+  for (size_t i=0; i<ft.size(); i++) {
+    const int d = abs(miTime::minDiff(ft[i].time, time));
     if (d<diff) {
       diff=d;
       fileno=i;
@@ -1047,6 +1038,9 @@ const std::vector<std::string>& SatManager::getChannels(const std::string &satel
 void SatManager::listFiles(subProdInfo &subp)
 {
   METLIBS_LOG_SCOPE();
+  if (subp.pattern.size()) {
+    METLIBS_LOG_DEBUG(LOGVAL(subp.pattern[0]));
+  }
 
   miTime now = miTime::nowTime();
   fileListChanged = false;
@@ -1275,16 +1269,7 @@ const std::vector<SatFileInfo> &SatManager::getFiles(const std::string &satellit
   // reset flag only if update
   if (update) fileListChanged = false;
   if (update) {
-    int updiff;
-    //don't update whith updateFreq in archive mode
-    if (useArchive) {
-      updiff = updateFreq -1;
-    } else {
-      miTime now = miTime::nowTime();
-      //time between now and last update
-      updiff = miTime::secDiff(now, ztime)-subp.updateTime;
-    }
-    if (subp.file.size()==0 || subp.updated ==false || updiff > updateFreq) {
+    if (subp.file.size()==0 || subp.updated ==false || !useArchive) {
       //update filelist
       listFiles(subp);
       subp.updated = true;
