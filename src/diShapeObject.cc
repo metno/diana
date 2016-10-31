@@ -380,10 +380,11 @@ bool ShapeObject::plot(DiGLPainter* gl,
   reduceForScale();
 
   //also scale according to windowheight and width (standard is 500)
-  float scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
-      +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
-  int fontSizeToPlot = int(2*7000000/gcd * scalefactor);
-  int symbol_rad = symbol;
+  const float scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
+      +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth());
+  const int fontSizeToPlot = int(2*7000000/gcd * scalefactor/500);
+  const float symbol_rad = symbol/scalefactor;
+  const float point_rad = linewidth*2/scalefactor;
 
   const Rectangle areaX = diutil::adjustedRectangle(area.R(),
       AREA_EXTRA*area.R().width()  + 2*linewidth * getStaticPlot()->getPhysToMapScaleX(),
@@ -393,6 +394,8 @@ bool ShapeObject::plot(DiGLPainter* gl,
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
+  size_t item_count = 0;
+  const size_t item_limit = 0;
   for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
     if (s->contours.isEmpty())
       continue;
@@ -400,20 +403,26 @@ bool ShapeObject::plot(DiGLPainter* gl,
     if (!areaX.intersects(s->rect))
       continue;
 
+    if (item_limit > 0 && ++item_count >= item_limit) {
+      METLIBS_LOG_WARN("stop plotting after " << item_limit << " items");
+      break;
+    }
+
     if (s->type() == SHPT_POINT) {
-      gl->setColour(lcolour);
       const QPolygonF& p = s->contours.at(0);
       if (s->nparts() == 0 && special==true && s->nvertices()==1) {
+        // METLIBS_LOG_DEBUG("plotting a special SHPT_POINT");
         gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
         gl->drawText("SSS", s->shape->padfX[0], s->shape->padfY[0], 0.0);
         gl->setLineStyle(lcolour, 2);
         gl->drawCircle(true, p.at(0).x(), p.at(0).y(), symbol_rad);
       } else {
+        // METLIBS_LOG_DEBUG("plotting SHPT_POINT(s)");
         gl->setColour(lcolour);
         for (int k = 0; k < p.size(); k++) {
           const QPointF& ppk = p.at(k);
           if (areaX.isinside(ppk.x(), ppk.y()))
-            gl->drawCircle(true, ppk.x(), ppk.y(), linewidth*2);
+            gl->drawCircle(true, ppk.x(), ppk.y(), point_rad);
         }
       }
       continue;
