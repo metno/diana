@@ -22,7 +22,7 @@ Depends: diana-@METNO_VERSION@-common (= ${binary:Version}),
 Conflicts: diana-headless-@METNO_VERSION@
 Replaces: diana-headless-@METNO_VERSION@
 Recommends: dianamaps, dianaconfig-@METNO_VERSION@, metno-bufrtables,
- libav-tools
+ libav-tools, gdal-bin
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 

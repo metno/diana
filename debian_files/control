@@ -25,7 +25,7 @@ Package: diana-@METNO_VERSION@
 Architecture: any
 Depends: diana-@METNO_VERSION@-common (= ${binary:Version}),
  ${shlibs:Depends}, ${misc:Depends}
-Recommends: libav-tools
+Recommends: libav-tools, gdal-bin
 Conflicts: diana-3.33 (<< 3.33.1), diana-3.32, diana-3.31, diana-3.30
 Provides: diana
 Description: Meteorological visualisation tool
