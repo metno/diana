@@ -104,7 +104,7 @@ public:
   virtual void parseSetup() = 0;
 
   //! request to change currently selected crossection
-  virtual void changeCrossection(const std::string& csName) = 0;
+  virtual void changeCrossection(const QString& csName) = 0;
 
   //! request to show timegraph for the given position
   virtual void showTimegraph(const LonLat& position) = 0;

@@ -781,8 +781,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   qsocket = false;
   pluginB = new ClientSelection("Diana", this);
   pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
-  connect(pluginB, SIGNAL(receivedMessage(const miMessage&)),
-      SLOT(processLetter(const miMessage&)));
+  connect(pluginB, SIGNAL(receivedMessage(int, const miQMessage&)),
+      SLOT(processLetter(int, const miQMessage&)));
   connect(pluginB, SIGNAL(disconnected()),
       SLOT(connectionClosed()));
   connect(pluginB, SIGNAL(renamed(const QString&)),
@@ -1973,26 +1973,21 @@ void DianaMainWindow::connectionClosed()
 }
 
 
-void DianaMainWindow::processLetter(const miMessage &letter)
+void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 {
   METLIBS_LOG_SCOPE();
-  std::string from = miutil::from_number(letter.from);
-  METLIBS_LOG_DEBUG("Command: "<<letter.command<<"  ");
-  METLIBS_LOG_DEBUG(" Description: "<<letter.description<<"  ");
-  METLIBS_LOG_DEBUG(" commonDesc: "<<letter.commondesc<<"  ");
-  METLIBS_LOG_DEBUG(" Common: "<<letter.common<<"  ");
-  for( size_t i=0;i<letter.data.size();i++)
-    if(letter.data[i].length()<80)
-      METLIBS_LOG_DEBUG(" data["<<i<<"]:"<<letter.data[i]);;
-  METLIBS_LOG_DEBUG(" From: "<<from);
-  METLIBS_LOG_DEBUG("To: "<<letter.to);
+  METLIBS_LOG_DEBUG("message from " << fromId << ": " << qletter);
 
-  if( letter.command == "menuok"){
+  miMessage letter;
+  convert(fromId, 0 /*my id, unused*/, qletter, letter);
+
+  const QString& command = qletter.command();
+  if (command == "menuok") {
     MenuOK();
   }
 
-  else if( letter.command == qmstrings::init_HQC_params){
-    if( contr->initHqcdata(letter.from,
+  else if (command == qmstrings::init_HQC_params) {
+    if( contr->initHqcdata(fromId,
         letter.commondesc,
         letter.common,
         letter.description,
@@ -2001,37 +1996,39 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         om->setPlottype("Hqc_synop",true);
       else
         om->setPlottype("Hqc_list",true);
-      hqcTo = letter.from;
+      hqcTo = fromId;
     }
   }
 
-  else if( letter.command == qmstrings::update_HQC_params){
+  else if (command == qmstrings::update_HQC_params){
     contr->updateHqcdata(letter.commondesc,letter.common,
         letter.description,letter.data);
     MenuOK();
   }
 
-  else if( letter.command == qmstrings::select_HQC_param){
+  else if (command == qmstrings::select_HQC_param) {
     contr->processHqcCommand("flag",letter.common);
     contr->updatePlots();
   }
 
-  else   if( letter.command == qmstrings::station){
+  else if (command == qmstrings::station){
     contr->processHqcCommand("station",letter.common);
     contr->updatePlots();
   }
 
-  else   if( letter.command == qmstrings::apply_quickmenu){
+  else if (command == qmstrings::apply_quickmenu) {
     //data[0]=menu, data[1]=item
-    if(letter.data.size()==2) {
-      qm->applyItem(letter.data[0],letter.data[1]);
+    if (qletter.countDataRows()==2 && qletter.countDataColumns()>0) {
+      const std::string menu = qletter.getDataValue(0, 0).toStdString();
+      const std::string item = qletter.getDataValue(1, 0).toStdString();
+      qm->applyItem(menu, item);
       qm->applyPlot();
     } else {
       MenuOK();
     }
   }
 
-  else if( letter.command == qmstrings::vprof){
+  else if (command == qmstrings::vprof) {
     //description: lat:lon
     vprofMenu();
     if(letter.data.size()){
@@ -2056,259 +2053,246 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     }
   }
 
-  else if (letter.command == qmstrings::vcross) {
+  else if (command == qmstrings::vcross) {
     //description: name
     vcrossMenu();
-    if (letter.data.size()) {
+    if (qletter.countDataRows() > 0) {
         //tell vcInterface to plot this crossection
-        if (vcInterface.get())
-          vcInterface->changeCrossection(letter.data[0]);
+        if (vcInterface.get()) {
+          const QString& cs = qletter.getDataValue(0, 0);
+          vcInterface->changeCrossection(cs);
+        }
     }
   }
 
-  else if (letter.command == qmstrings::addimage){
+  else if (command == qmstrings::addimage) {
     // description: name:image
 
     QtImageGallery ig;
-    int n = letter.data.size();
-    for(int i=0; i<n; i++){
-      // separate name and data
-      vector<string> vs;
-      boost::algorithm::split(vs, letter.data[i], boost::algorithm::is_any_of(":"));
-      if (vs.size()<2) continue;
-      ig.addImageToGallery(vs[0], vs[1]);
+    const int n = qletter.countDataRows();
+    for (int i=0; i<n; i++) {
+      const QStringList& row = qletter.getDataValues(i);
+      if (row.size() < 2)
+        continue;
+      const std::string imageName = row.at(0).toStdString();
+      const std::string imageStr = row.at(1).toStdString();
+      ig.addImageToGallery(imageName, imageStr);
     }
-
   }
 
-  else if (letter.command == qmstrings::positions ){
+  else if (command == qmstrings::positions) {
     //commondesc: dataSet:image:normal:selected:icon:annotation
     //description: stationname:lat:lon:image:alpha
 
     //positions from diana, nothing to do
-    if(letter.common == "diana") return;
+    if (letter.common == "diana")
+      return;
 
     //obsolete -> new syntax
     string commondesc = letter.commondesc;
     string common = letter.common;
     string description = letter.description;
 
-    if(letter.description.find(";") != letter.description.npos){
+    if (letter.description.find(";") != letter.description.npos) {
       vector<string> desc;
       boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
-      if( desc.size() < 2 ) return;
+      if (desc.size() < 2)
+        return;
       std::string dataSet = desc[0];
       description=desc[1];
       commondesc = "dataset:" + letter.commondesc;
       common = dataSet + ":" + letter.common;
     }
 
-    contr->makeStationPlot(commondesc,common,
-        description,
-        letter.from,letter.data);
+    contr->makeStationPlot(commondesc, common,
+        description, fromId, letter.data);
 
     //    sendSelectedStations(qmstrings::selectposition);
     return;
   }
 
-  else if (letter.command == qmstrings::annotation ){
+  else if (command == qmstrings::annotation) {
     //     commondesc = dataset;
     //     description = annotation;
-    contr->stationCommand("annotation",
-        letter.data,letter.common,letter.from);
+    contr->stationCommand("annotation", letter.data, letter.common, fromId);
   }
 
-  else if (letter.command == qmstrings::showpositions ){
+  else if (command == qmstrings::showpositions || command == qmstrings::hidepositions) {
     //description: dataset
-    contr->stationCommand("show",letter.description,letter.from);
+    const std::string cmd = (command == qmstrings::showpositions) ? "show" : "hide";
+    contr->stationCommand(cmd, letter.description, fromId);
     if (showelem)
       updatePlotElements();
   }
 
-  else if (letter.command == qmstrings::hidepositions ){
-    //description: dataset
-    contr->stationCommand("hide",letter.description,letter.from);
-    if (showelem) updatePlotElements();
-
-  }
-
-  else if (letter.command == qmstrings::changeimageandtext ){
+  else if (command == qmstrings::changeimageandtext) {
     //METLIBS_LOG_DEBUG("Change text and image\n");
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
     vector<string> desc;
     boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
-    if( desc.size() == 2 ) { //obsolete syntax
+    if (desc.size() == 2) { //obsolete syntax
       contr->stationCommand("changeImageandText",
-          letter.data,desc[0],letter.from,desc[1]);
+          letter.data,desc[0],fromId,desc[1]);
     } else { //new syntax
       //commondesc: name of dataset
       //description: stationname:image:image2:text
       //             :alignment:rotation (0-7):alpha
 
       contr->stationCommand("changeImageandText",
-          letter.data,letter.common,letter.from,
-          letter.description);
+          letter.data, letter.common, fromId, letter.description);
     }
   }
 
-  else if (letter.command == qmstrings::selectposition ){
+  else if (command == qmstrings::selectposition) {
     //commondesc: dataset
     //description: stationName
-    contr->stationCommand("selectPosition",
-        letter.data,letter.common,letter.from);
+    contr->stationCommand("selectPosition", letter.data, letter.common, fromId);
   }
 
-  else if (letter.command == qmstrings::showpositionname ){
+  else if (command == qmstrings::showpositionname) {
     //description: normal:selected
-    contr->stationCommand("showPositionName",
-        letter.data,letter.common,letter.from);
+    contr->stationCommand("showPositionName", letter.data, letter.common, fromId);
   }
 
-  else if (letter.command == qmstrings::showpositiontext ){
+  else if (command == qmstrings::showpositiontext) {
     //description: showtext:colour:size
-    contr->stationCommand("showPositionText",letter.data,
-        letter.common,letter.from,letter.description);
+    contr->stationCommand("showPositionText", letter.data,
+        letter.common, fromId, letter.description);
   }
 
-  else if (letter.command == qmstrings::areas ){
+  else if (command == qmstrings::areas) {
     if(letter.data.size()>0)
-      contr->makeAreas(letter.common,letter.data[0],letter.from);
-    if (showelem) updatePlotElements();
+      contr->makeAreas(letter.common, letter.data[0], fromId);
+    if (showelem)
+      updatePlotElements();
   }
 
-  else if (letter.command == qmstrings::areacommand ){
+  else if (command == qmstrings::areacommand) {
     //commondesc command:dataSet
-    vector<string> token;
-    boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
-    if(token.size()>1){
-      int n = letter.data.size();
-      if(n==0)
-        contr->areaCommand(token[0],token[1],std::string(),letter.from);
-      for( int i=0;i<n;i++ )
-        contr->areaCommand(token[0],token[1],letter.data[i],letter.from);
+    const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findDataDesc("dataset");
+    if (c_cmd >= 0 && c_ds >= 0) {
+      const std::string cmd = qletter.getCommonValue(c_cmd).toStdString();
+      const std::string ds = qletter.getCommonValue(c_ds).toStdString();
+      const int n = qletter.countDataRows();
+      if (n == 0)
+        contr->areaCommand(cmd, ds, std::string(), fromId);
+      else for (int i=0; i<n; i++)
+        contr->areaCommand(cmd, ds, qletter.getDataValues(i).join(":").toStdString(), fromId);
     }
   }
 
-  else if (letter.command == qmstrings::selectarea ){
+  else if (command == qmstrings::selectarea) {
     //commondesc dataSet
     //description name,on/off
     int n = letter.data.size();
-    for( int i=0;i<n;i++ ){
-      contr->areaCommand("select",letter.common,letter.data[i],letter.from);
+    for (int i=0;i<n;i++) {
+      contr->areaCommand("select", letter.common, letter.data[i], fromId);
     }
   }
 
-  else if (letter.command == qmstrings::showarea ){
+  else if (command == qmstrings::showarea) {
     //commondesc dataSet
     //description name,on/off
     int n = letter.data.size();
-    for( int i=0;i<n;i++ ){
-      contr->areaCommand("show",letter.common,letter.data[i],letter.from);
+    for (int i=0;i<n;i++) {
+      contr->areaCommand("show", letter.common, letter.data[i], fromId);
     }
   }
 
-  else if (letter.command == qmstrings::changearea ){
+  else if (command == qmstrings::changearea) {
     //commondesc dataSet
     //description name,colour
     int n = letter.data.size();
-    for( int i=0;i<n;i++ ){
-      contr->areaCommand("setcolour",letter.common,letter.data[i],letter.from);
+    for (int i=0;i<n;i++) {
+      contr->areaCommand("setcolour", letter.common, letter.data[i], fromId);
     }
   }
 
-  else if (letter.command == qmstrings::deletearea ){
+  else if (command == qmstrings::deletearea) {
     //commondesc dataSet
-    contr->areaCommand("delete",letter.common,"all",letter.from);
-    if (showelem) updatePlotElements();
+    contr->areaCommand("delete", letter.common, "all", fromId);
+    if (showelem)
+      updatePlotElements();
   }
 
-  else if (letter.command == qmstrings::showtext ){
+  else if (command == qmstrings::showtext) {
     //description: station:text
-    if(letter.data.size()){
-      textview_id = letter.from;
-      vector<string> token;
-      boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
-      if(token.size() == 2){
-        std::string name = pluginB->getClientName(letter.from).toStdString();
-        textview->setText(textview_id,name,token[1]);
-        textview->show();
-      }
+    if (qletter.countDataRows() && qletter.countDataColumns() >= 2) {
+      const std::string name = pluginB->getClientName(fromId).toStdString();
+      textview->setText(fromId, name, qletter.getDataValue(0, 1).toStdString());
+      textview->show();
     }
   }
 
-  else if (letter.command == qmstrings::enableshowtext ){
+  else if (command == qmstrings::enableshowtext) {
     //description: dataset:on/off
-    if(letter.data.size()){
-      vector<string> token;
-      boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
-      if(token.size() < 2) return;
-      if(token[1] == "on"){
+    if (qletter.countDataRows() && qletter.countDataColumns() >= 2) {
+      if (qletter.getDataValue(0, 1) == "on") {
         textview->show();
       } else {
-        textview->deleteTab(letter.from);
+        textview->deleteTab(fromId);
       }
     }
   }
 
-  else if (letter.command == qmstrings::removeclient ){
+  else if (command == qmstrings::removeclient) {
     // commondesc = id:dataset
-    vector<string> token;
-    boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
-    if(token.size()<2) return;
-    int id =atoi(token[0].c_str());
+    if (qletter.countCommon() < 2)
+      return;
+    const int id = qletter.getCommonValue(0).toInt();
     //remove stationPlots from this client
-    contr->stationCommand("delete","",id);
+    contr->stationCommand("delete", "", id);
     //remove areas from this client
-    contr->areaCommand("delete","all","all",id);
+    contr->areaCommand("delete", "all", "all", id);
     //remove times
     vector<std::string> type = timecontrol->deleteType(id);
-    for(unsigned int i=0;i<type.size();i++)
+    for(unsigned int i=0; i<type.size(); i++)
       tslider->deleteType(type[i]);
     //hide textview
     textview->deleteTab(id);
     //     if(textview && id == textview_id )
     //       textview->hide();
     //remove observations from hqc
-    string value = boost::algorithm::to_lower_copy(token[1]);
-    if( value =="hqc"){
+    if (qletter.getCommonValue(0).toLower() == "hqc") {
       contr->processHqcCommand("remove");
       om->setPlottype("Hqc_synop",false);
       om->setPlottype("Hqc_list",false);
       MenuOK();
     }
-    if (showelem) updatePlotElements();
-
+    if (showelem)
+      updatePlotElements();
   }
 
-  else if (letter.command == qmstrings::newclient ){
+  else if (command == qmstrings::newclient) {
     qsocket = true;
-    autoredraw[atoi(letter.common.c_str())] = true;
+    autoredraw[qletter.getCommonValue(0).toInt()] = true;
     autoredraw[0] = true; //from server
   }
 
-  else if (letter.command == qmstrings::autoredraw ){
+  else if (command == qmstrings::autoredraw) {
     if(letter.common == "false")
-      autoredraw[letter.from] = false;
+      autoredraw[fromId] = false;
   }
 
-  else if (letter.command == qmstrings::redraw ){
+  else if (command == qmstrings::redraw) {
     requestBackgroundBufferUpdate();
   }
 
-  else if (letter.command == qmstrings::settime ){
-    int n = letter.data.size();
-    if(letter.commondesc == "datatype"){
-      timecontrol->useData(letter.common,letter.from);
+  else if (command == qmstrings::settime) {
+    const int n = qletter.countDataRows();
+    const std::string l_common = qletter.getCommonValue(0).toStdString();
+    if (qletter.findCommonDesc("datatype") == 0) {
+      timecontrol->useData(l_common, fromId);
       vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
-        times.push_back(miutil::miTime(letter.data[i]));
-      tslider->insert(letter.common,times);
-      contr->initHqcdata(letter.from,letter.commondesc,
-          letter.common,letter.description,letter.data);
+        times.push_back(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
+      tslider->insert(l_common, times);
+      contr->initHqcdata(fromId, letter.commondesc,
+          l_common, letter.description, letter.data);
 
-    } else if (letter.commondesc == "time"){
-      miutil::miTime t(letter.common);
+    } else if (qletter.findCommonDesc("time") == 0) {
+      miutil::miTime t(l_common);
       tslider->setTime(t);
       contr->setPlotTime(t);
       timeChanged();
@@ -2316,42 +2300,37 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     }
   }
 
-  else if (letter.command == qmstrings::getcurrentplotcommand) {
+  else if (command == qmstrings::getcurrentplotcommand) {
     vector<string> v1, v2;
     getPlotStrings(v1, v2);
 
-    miMessage l;
-    l.to = letter.from;
-    l.command = qmstrings::currentplotcommand;
-    l.data = v1;
-    sendLetter(l);
+    miQMessage l(qmstrings::currentplotcommand);
+    l.addDataDesc(""); // FIXME
+    for (vector<string>::const_iterator it = v1.begin(); it != v1.end(); ++it)
+      l.addDataValues(QStringList() << QString::fromStdString(*it));
+    sendLetter(l, fromId);
     return; // no need to repaint
   }
 
-  else if (letter.command == qmstrings::getproj4maparea) {
-    miMessage l;
-    l.to = letter.from;
-    l.command = qmstrings::proj4maparea;
-    l.data.push_back(contr->getMapArea().getAreaString());
-    sendLetter(l);
+  else if (command == qmstrings::getproj4maparea) {
+    miQMessage l(qmstrings::proj4maparea);
+    l.addDataDesc(""); // FIXME
+    l.addDataValues(QStringList() << QString::fromStdString(contr->getMapArea().getAreaString()));
+    sendLetter(l, fromId);
     return; // no need to repaint
   }
 
-  else if (letter.command == qmstrings::getmaparea) { //obsolete
-    miMessage l;
-    l.to = letter.from;
-    l.command = qmstrings::maparea;
-    std::string message = "Obsolet command: use getproj4maparea";
-    l.data.push_back(message);
-    sendLetter(l);
+  else if (command == qmstrings::getmaparea) { //obsolete
+    miQMessage l(qmstrings::maparea);
+    l.addDataDesc(""); // FIXME
+    l.addDataValues(QStringList() << "Obsolet command: use getproj4maparea");
+    sendLetter(l, fromId);
     return; // no need to repaint
   }
 
   // If autoupdate is active, reread sat/radarfiles and
   // show the latest timestep
-  else if (letter.command == qmstrings::directory_changed) {
-    METLIBS_LOG_DEBUG(letter.command <<" received");
-
+  else if (command == qmstrings::directory_changed) {
     if (doAutoUpdate) {
       // running animation
       if (timeron != 0) {
@@ -2393,8 +2372,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
 
   // If autoupdate is active, do the same thing as
   // when the user presses the updateObs button.
-  else if (letter.command == qmstrings::file_changed) {
-    METLIBS_LOG_DEBUG(letter.command <<" received");
+  else if (command == qmstrings::file_changed) {
     if (doAutoUpdate) {
       // Just a call to update obs will work fine
       updateObs();
@@ -2406,34 +2384,34 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   }
 
   // repaint window
-  if(autoredraw[letter.from])
+  if (autoredraw[fromId])
     requestBackgroundBufferUpdate();
 }
 
 void DianaMainWindow::sendPrintClicked(int id)
 {
-  miMessage l;
-  l.command = qmstrings::printclicked;
+  miQMessage l(qmstrings::printclicked);
   sendLetter(l);
 }
 
-
-void DianaMainWindow::sendLetter(miMessage& letter)
+void DianaMainWindow::sendLetter(const miQMessage& qmsg, int to)
 {
-  METLIBS_LOG_SCOPE(pluginB->getSelectedClientNames());
-  miQMessage qmsg;
-  int from, to;
-  convert(letter, from, to, qmsg);
-  if (to != -1)
+  METLIBS_LOG_SCOPE(LOGVAL(qmsg) << LOGVAL(to));
+  if (to != qmstrings::all)
     pluginB->sendMessage(qmsg, to);
   else
-    // send to all selected clients, -1 is not allowed any more
     pluginB->sendMessage(qmsg);
+}
+
+void DianaMainWindow::sendLetter(const miQMessage& qmsg)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(qmsg));
+  pluginB->sendMessage(qmsg);
 }
 
 void DianaMainWindow::updateObs()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::obsUpdate()");
+  METLIBS_LOG_SCOPE();
   diutil::OverrideCursor waitCursor;
   contr->updateObs();
   requestBackgroundBufferUpdate();
@@ -2441,8 +2419,9 @@ void DianaMainWindow::updateObs()
 
 void DianaMainWindow::autoUpdate()
 {
+  METLIBS_LOG_SCOPE();
   doAutoUpdate = !doAutoUpdate;
-  METLIBS_LOG_DEBUG("DianaMainWindow::autoUpdate(): " << doAutoUpdate);
+  METLIBS_LOG_DEBUG(LOGVAL(doAutoUpdate));
   autoUpdateAction->setChecked(doAutoUpdate);
 }
 
@@ -2646,11 +2625,8 @@ void DianaMainWindow::timeChanged(){
   showsatval->SetChannels(channels);
 
   if(qsocket){
-    miMessage letter;
-    letter.command= qmstrings::timechanged;
-    letter.commondesc= "time";
-    letter.common = t.isoTime();
-    letter.to = qmstrings::all;
+    miQMessage letter(qmstrings::timechanged);
+    letter.addCommon("time", QString::fromStdString(t.isoTime()));
     sendLetter(letter);
   }
 
@@ -3022,15 +2998,10 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   }
   //send position to all clients
   if(qsocket){
-    std::string latstr = miutil::from_number(lat,6);
-    std::string lonstr = miutil::from_number(lon,6);
-    miMessage letter;
-    letter.command     = qmstrings::positions;
-    letter.commondesc  =  "dataset";
-    letter.common      =  "diana";
-    letter.description =  "lat:lon";
-    letter.to = qmstrings::all;
-    letter.data.push_back(std::string(latstr + ":" + lonstr));
+    miQMessage letter(qmstrings::positions);
+    letter.addCommon("dataset", "diana");
+    letter.addDataDesc("lat").addDataDesc("lon");
+    letter.addDataValues(QStringList() << QString::number(lat) << QString::number(lon));
     sendLetter(letter);
   }
 
@@ -3182,7 +3153,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   // locationPlots (vcross,...)
   std::string crossection= contr->findLocation(x, y, LOCATIONS_VCROSS);
   if (vcInterface.get() && !crossection.empty()) {
-    vcInterface->changeCrossection(crossection);
+    vcInterface->changeCrossection(QString::fromStdString(crossection));
     //  needupdate= true;
   }
 
@@ -3196,63 +3167,65 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     bool add = false;
     //    if(mev->modifiers() & Qt::ShiftModifier) add = true; //todo: shift already used (skip editmode)
     contr->findStations(x,y,add,name,id,station);
-    int n = name.size();
+    const int n = name.size();
 
-    miMessage old_letter;
-    old_letter.command = qmstrings::textrequest;
-    miMessage letter;
-    letter.command    = qmstrings::selectposition;
-    letter.commondesc =  "name";
-    letter.description =  "station";
-    for(int i=0; i<n;i++){
-      if(i>0 && id[i-1]!=id[i]){
-        //send and clear letters
-        sendLetter(old_letter);
-        sendLetter(letter);
-        old_letter.data.clear();
-        letter.data.clear();
+    QList<QStringList> station_rows;
+    const QStringList l_datadesc = QStringList() << "station";
+    for(int i=0; i<n; i++) {
+      if (i>0 && id[i-1] != id[i] && !station_rows.isEmpty()) {
+        // different id, send letters
+        QString name_i = QString::fromStdString(name[i-1]);
+        miQMessage old_letter(qmstrings::textrequest);
+        old_letter.setData(QStringList() << (name_i +";name"), station_rows);
+        sendLetter(old_letter, id[i-1]);
+
+        miQMessage letter(qmstrings::selectposition);
+        letter.addCommon("name", name_i);
+        letter.setData(l_datadesc, station_rows);
+        sendLetter(letter, id[i-1]);
+
+        needupdate=true;
+
+        station_rows.clear();
       }
-      //Obsolete command and syntax
-      old_letter.to = id[i];
-      old_letter.description =  name[i]+";name";
-      old_letter.data.push_back(station[i]);
-      //New command and syntax
-      letter.to         = id[i];
-      letter.common     =  name[i];
-      letter.data.push_back(station[i]);
+
+      station_rows << (QStringList() << QString::fromStdString(station[i]));
     }
-    if(letter.data.size()>0) {
-      sendLetter(old_letter);
-      sendLetter(letter);
+    if (!station_rows.isEmpty()) {
+      QString name_n = QString::fromStdString(name[n-1]);
+      miQMessage old_letter(qmstrings::textrequest);
+      old_letter.setData(QStringList() << (name_n +";name"), station_rows);
+      sendLetter(old_letter, id[n-1]);
+
+      miQMessage letter(qmstrings::selectposition);
+      letter.addCommon("name", name_n);
+      letter.setData(l_datadesc, station_rows);
+      sendLetter(letter, id[n-1]);
+
       needupdate=true;
     }
-    //send area to pliugin connected
 
+    //send area to plugin connected
     vector <selectArea> areas=contr->findAreas(x,y,true);
     int nareas = areas.size();
-    if(nareas){
-      miMessage letter;
-      letter.command = qmstrings::selectarea;
-      letter.description = "name:on/off";
+    if (nareas) {
+      miQMessage letter(qmstrings::selectarea);
+      const QStringList dataColumns = QStringList() << "name" << "on/off";
       for(int i=0;i<nareas;i++){
-        letter.to = areas[i].id;
-        std::string datastr = areas[i].name + ":on";
-        letter.data.push_back(datastr);
-        sendLetter(letter);
+        const QStringList dataRow = QStringList() << QString::fromStdString(areas[i].name) << "on";
+        letter.setData(dataColumns, QList<QStringList>() << dataRow);
+        sendLetter(letter, areas[i].id);
       }
     }
 
-    if(hqcTo>0){
+    if (hqcTo > 0) {
       std::string name;
-      if(contr->getObsName(x,y,name)){
-        miMessage letter;
-        letter.to = hqcTo;
-        letter.command = qmstrings::station;
-        letter.commondesc = "name,time";
+      if (contr->getObsName(x,y,name)) {
+        miQMessage letter(qmstrings::station);
         miutil::miTime t;
         contr->getPlotTime(t);
-        letter.common = name + "," + t.isoTime();;
-        sendLetter(letter);
+        letter.addCommon("name,time", QString::fromStdString(name + "," + t.isoTime()));
+        sendLetter(letter, hqcTo);
       }
     }
   }
@@ -3263,26 +3236,30 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
 
 void DianaMainWindow::sendSelectedStations(const std::string& command)
 {
-  vector<std::string> data;
+  vector< vector<std::string> > data;
   contr->getStationData(data);
-  int n=data.size();
-  for(int i=0;i<n;i++){
-    vector<string> token;
-    boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
-    int m = token.size();
-    if(token.size()<2) continue;
-    int id=atoi(token[m-1].c_str());
-    std::string dataset = token[m-2];
-    token.pop_back(); //remove id
-    token.pop_back(); //remove dataset
-    miMessage letter;
-    letter.command    = command;
-    letter.commondesc =  "dataset";
-    letter.common=dataset;
-    letter.description =  "name";
-    letter.data = token;
-    letter.to = id;
-    sendLetter(letter);
+  // data contains name, name, ..., name, dataset, id (as string) where "name" are selected station names
+
+  const int n=data.size();
+  for (int i=0;i<n;i++) {
+    const vector<string>& token = data[i];
+    const int m = token.size();
+    if (m < 2)
+      continue;
+
+    const int id = miutil::to_int(token[m-1]);
+    const std::string& dataset = token[m-2];
+
+    QStringList desc, values;
+    for (int j=0; j<m-2; ++j) { // skip dataset and id
+      desc << "name";
+      values << QString::fromStdString(token[j]);
+    }
+
+    miQMessage letter(QString::fromStdString(command));
+    letter.addCommon("dataset", QString::fromStdString(dataset));
+    letter.setData(desc, QList<QStringList>() << values);
+    sendLetter(letter, id);
   }
 }
 
@@ -3928,35 +3905,21 @@ void DianaMainWindow::selectedAreas()
     return;
   }
 
-  int ia = action->data().toInt();
+  const int ia = action->data().toInt();
+  const selectArea& a = vselectAreas[ia];
 
-  std::string areaName=vselectAreas[ia].name;
-  bool selected=vselectAreas[ia].selected;
-  int id=vselectAreas[ia].id;
-  std::string misc=(selected) ? "off" : "on";
-  std::string datastr = areaName + ":" + misc;
-  miMessage letter;
-  letter.command = qmstrings::selectarea;
-  letter.description = "name:on/off";
-  letter.data.push_back(datastr);
-  letter.to = id;
-  sendLetter(letter);
+  miQMessage letter(qmstrings::selectarea);
+  letter.addDataDesc("name").addDataDesc("on/off");
+  letter.addDataValues(QStringList() << QString::fromStdString(a.name) << (a.selected ? "off" : "on"));
+  sendLetter(letter, a.id);
 }
 
 
 void DianaMainWindow::inEdit(bool inedit)
 {
-  if(qsocket){
-    std::string str;
-    if(inedit)
-      str = "on";
-    else
-      str = "off";
-    miMessage letter;
-    letter.command    = qmstrings::editmode;
-    letter.commondesc = "on/off";
-    letter.common     = str;
-    letter.to         = qmstrings::all;
+  if (qsocket) {
+    miQMessage letter(qmstrings::editmode);
+    letter.addCommon("on/off", inedit ? "on" : "off");
     sendLetter(letter);
   }
 }

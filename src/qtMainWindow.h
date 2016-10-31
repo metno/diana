@@ -89,6 +89,7 @@ class StatusPlotButtons;
 class BrowserBox;
 class ClientSelection;
 class miMessage;
+class miQMessage;
 class StationPlot;
 class TextView;
 
@@ -233,8 +234,9 @@ private Q_SLOTS:
   void spectrumSetChangedSlot();
 
   void connectionClosed();
-  void processLetter(const miMessage&);
-  void sendLetter(miMessage&);
+  void processLetter(int fromId, const miQMessage&);
+  void sendLetter(const miQMessage& qmsg, int to);
+  void sendLetter(const miQMessage& qmsg);
 
   void updateObs();
   void autoUpdate();
@@ -462,7 +464,6 @@ private:
   std::vector <selectArea> vselectAreas; //selected areas for rightclickmenu
 
   //QSocket
-  int textview_id;
   TextView *textview;
   int hqcTo;
   bool qsocket;

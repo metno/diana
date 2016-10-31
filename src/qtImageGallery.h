@@ -49,7 +49,7 @@ public:
   /// add a new QImage with name to gallery
   bool addImageToGallery(const std::string& name, const QImage& image);
 
-  bool addImageToGallery(const std::string& name, std::string& imageStr);
+  bool addImageToGallery(const std::string& name, const std::string& imageStr);
 
   void addImagesInDirectory(const std::string& dir);
 

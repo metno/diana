@@ -968,7 +968,7 @@ void Controller::findStations(int x, int y, bool add,
   stam->findStations(x,y,add,name,id,station);
 }
 
-void Controller::getStationData(vector<std::string>& data)
+void Controller::getStationData(vector< vector<std::string> >& data)
 {
   stam->getStationData(data);
 }

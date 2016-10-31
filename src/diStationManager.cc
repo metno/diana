@@ -446,12 +446,13 @@ vector<string> StationManager::findStations(int x, int y, const std::string& nam
 void StationManager::findStations(int x, int y, bool add, std::vector<std::string>& name,
     std::vector<int>& id, std::vector<std::string>& station)
 {
-  int ii;
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    vector<std::string> st = (*it)->findStation(x, y, add);
-    if ((ii = (*it)->getId()) > -1) {
-      for (unsigned int j = 0; j < st.size(); j++) {
-        name.push_back((*it)->getName());
+    StationPlot* sp = *it;
+    const int ii = sp->getId();
+    if (ii > -1) {
+      const vector<std::string> st = sp->findStation(x, y, add);
+      for (size_t j = 0; j < st.size(); j++) {
+        name.push_back(sp->getName());
         id.push_back(ii);
         station.push_back(st[j]);
       }
@@ -459,7 +460,7 @@ void StationManager::findStations(int x, int y, bool add, std::vector<std::strin
   }
 }
 
-void StationManager::getStationData(vector<std::string>& data)
+void StationManager::getStationData(vector< vector<std::string> >& data)
 {
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
     data.push_back((*it)->stationRequest("selected"));

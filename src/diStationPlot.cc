@@ -35,6 +35,8 @@
 #include "diGlUtilities.h"
 #include "diPlotModule.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <boost/algorithm/string.hpp>
 
 #include <QString>
@@ -603,7 +605,7 @@ vector<std::string> StationPlot::findStation(int x, int y, bool add)
     return stationstring;
 
   Station* found = stationAt(x, y);
-  if (found && found != stations[index]) {
+  if (found && (index < 0 || found != stations[index])) {
 
     add = found->isSelected || add;
     setSelectedStation(found->name, add);
@@ -705,6 +707,8 @@ int StationPlot::setSelectedStation(int i, bool add)
     index = i;
 
     return i;
+  } else {
+    index = -1;
   }
   return -1;
 }
@@ -1023,19 +1027,19 @@ bool StationPlot::stationCommand(const string& command)
   return true;
 }
 
-std::string StationPlot::stationRequest(const std::string& command)
+vector<std::string> StationPlot::stationRequest(const std::string& command)
 {
-  std::ostringstream ost;
-
+  vector<std::string> ost;
   if (command == "selected") {
     int n = stations.size();
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++) {
       if (stations[i]->isSelected)
-        ost << ":" << stations[i]->name;
-    ost << ":" << name << ":" << id;
+        ost.push_back(stations[i]->name);
+    }
+    ost.push_back(name);
+    ost.push_back(miutil::from_number(id));
   }
-
-  return ost.str();
+  return ost;
 }
 
 void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected)

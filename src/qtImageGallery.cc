@@ -94,7 +94,7 @@ bool QtImageGallery::addImageToGallery(const std::string& name, const QImage& im
   return true;
 }
 
-bool QtImageGallery::addImageToGallery(const std::string& name, std::string& imageStr)
+bool QtImageGallery::addImageToGallery(const std::string& name, const std::string& imageStr)
 {
   vector<string> vs = miutil::split(imageStr," ");
   int n=vs.size();
