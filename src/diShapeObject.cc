@@ -106,8 +106,6 @@ bool ShapeObject::changeProj()
 
   bool success = true;
   for (ShpData_v::iterator s = shapes.begin(); s != shapes.end(); ++s) {
-    const SHPObject_p shp = s->shape;
-
     if (npoints < s->nvertices()) {
       npoints = s->nvertices();
       delete[] tx;
@@ -137,11 +135,11 @@ bool ShapeObject::changeProj()
     s->rect = Rectangle(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX);
     s->partRects.clear();
 
-    int np = s->nparts();
-    if (np == 0 && s->type() == SHPT_POINT && s->nvertices() == 1)
-      np = 1;
-    for (int p=0; p<np; ++p) {
-      const int pb = s->pbegin(p), pe = s->pend(p);
+    const int np = s->nparts();
+    const bool single_point = (np == 0 && s->type() == SHPT_POINT && s->nvertices() == 1);
+    for (int p=0; (single_point && p==0) || p<np; ++p) {
+      const int pb = single_point ? 0 : s->pbegin(p);
+      const int pe = single_point ? 0 : s->pend(p);
 
       QPolygonF polygon;
       polygon << QPointF(tx[pb], ty[pb]);
