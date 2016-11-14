@@ -341,7 +341,7 @@ protected:
   void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current=-1);
 
   // used from plotList, plotSynop, ROAD/plotDBSynop, ROAD/plotDBMetar (commented out)
-  virtual void weather(DiGLPainter* gl, short int ww, float TTT, int zone, QPointF xy,
+  virtual void weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_id, QPointF xy,
       float scale = 1, bool align_right = false);
 
   // used only from plotList, plotSynop, and ROAD/plotDBSynop
