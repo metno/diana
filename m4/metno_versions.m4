@@ -64,9 +64,6 @@ AC_SUBST([PVERSION_MAJOR_DOT_MINOR], [${pversion_major}.${pversion_minor}])
 AC_SUBST([PVERSION],                 [${pversion_major}.${pversion_minor}${psuffix}])
 AC_SUBST([PVERSION_AM_MAJOR_MINOR],  [${pversion_major}_${pversion_minor}])
 AC_SUBST([PSUFFIX],                  [${psuffix}])
-
-AC_DEFINE_UNQUOTED([PREFIX], ["$prefix"], [package prefix])
-AC_DEFINE_UNQUOTED([SYSCONFDIR], ["$sysconfdir"], [package config dir (usually /etc or /usr/local/etc)])
 ])
 
 dnl

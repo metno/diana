@@ -17,7 +17,7 @@ libexecdianadir= $(libdir)/bdiana/@PVERSION@
 endif # WITH_GUI
 
 # convenience for developers using a non-standard $(prefix)
-CPPFLAGS += -I$(prefix)/include
+CPPFLAGS += -I$(prefix)/include -DSYSCONFDIR='"$(sysconfdir)"'
 LDFLAGS  += -L$(prefix)/lib
 
 BUILT_SOURCES =
