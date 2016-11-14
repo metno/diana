@@ -180,7 +180,7 @@ int main(int argc, char **argv)
   DianaApplication a( argc, argv );
 #endif
 
-  string logfilename;
+  string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
   QString lang;
   bool have_diana_title = false;
   QString diana_instancename;
@@ -252,11 +252,6 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
-  if ( logfilename.empty() ){
-    logfilename = "/etc/diana/";
-    logfilename += PVERSION;
-    logfilename += "/log4cpp.properties";
-  }
 
   // tell fimex to use log4cpp
   MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
