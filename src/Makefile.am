@@ -115,6 +115,7 @@ libdiana_la_SOURCES = \
 	util/plotoptions_util.cc \
 	util/qstring_util.cc \
 	util/string_util.cc \
+	util/subprocess.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -437,6 +438,7 @@ noinst_HEADERS = \
 	util/polygon_util.h \
 	util/qstring_util.h \
 	util/string_util.h \
+	util/subprocess.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \

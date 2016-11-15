@@ -37,12 +37,12 @@
 #include "diGLPainter.h"
 #include "diPoint.h"
 #include "util/polygon_util.h"
+#include "util/subprocess.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
 
 #include <QFile>
-#include <QProcess>
 #include <QRegExp>
 
 #include <cfloat>
@@ -104,13 +104,11 @@ bool setProjectionViaGdalSRSInfo(Projection& p, QString wkt)
     METLIBS_LOG_INFO("trying to fix wkt for gdalsrsinfo, new wkt='" << wkt.toStdString() << "'");
   }
 
-  QProcess gdalsrsinfo;
-  gdalsrsinfo.start("gdalsrsinfo", QStringList() << "-o" << "proj4" << wkt);
-  gdalsrsinfo.waitForFinished(500);
-  if (gdalsrsinfo.exitCode() != 0)
+  QByteArray gdalStdOut;
+  if (diutil::execute("gdalsrsinfo", QStringList() << "-o" << "proj4" << wkt, &gdalStdOut) != 0)
     return false;
 
-  QString proj4(gdalsrsinfo.readAllStandardOutput());
+  QString proj4(gdalStdOut);
 
   // gdalsrsinfo puts its proj4 output in quotes and adds some whitespace
   proj4 = proj4.trimmed();
