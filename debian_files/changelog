@@ -1,3 +1,9 @@
+diana-3.41 (3.41.0~rc2-1) unstable; urgency=low
+
+  * avoid QProcess
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 15 Nov 2016 08:00:08 +0100
+
 diana-3.41 (3.41.0~rc1-1) unstable; urgency=low
 
   * release candidate for 3.41
