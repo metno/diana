@@ -152,12 +152,6 @@ void setupLanguage(QCoreApplication* app, QString lang)
   x.setDefaultLanguage(lang.toStdString().c_str());
 
   setupQtLanguage(app, lang);
-
-  // setlocale must be called after installing Qt translators
-  // if this is not "C" or something with '.' as decimal
-  // separator, udunits will not be able to read unit specifications, which
-  // leads to errors when reading netcdf files with fimex
-  setlocale(LC_NUMERIC, "C");
 }
 
 } // namespace
@@ -171,6 +165,15 @@ int main(int argc, char **argv)
        << "  commit: " << diana_build_commit
        << endl;
 
+  // if LC_NUMERIC this is not "C" or something with '.' as decimal
+  // separator, udunits will not be able to read unit specifications, which
+  // leads to errors when reading netcdf files with fimex
+
+  // this seems to be necessary to prevent kde image plugins / libkdecore
+  // from resetting LC_NUMERIC from the environment; image plugins might,
+  // e.g., be loaded when the clipboard is accessed
+  setenv("LC_NUMERIC", "C", 1);
+
 #if defined(Q_WS_QWS)
   QApplication a(argc, argv, QApplication::GuiServer);
 #else
@@ -179,6 +182,11 @@ int main(int argc, char **argv)
 #endif
   DianaApplication a( argc, argv );
 #endif
+
+  // setlocale must be called after initializing QApplication,
+  // see http://doc.qt.io/qt-4.8/qcoreapplication.html#locale-settings
+  setlocale(LC_NUMERIC, "C");
+  setenv("LC_NUMERIC", "C", 1);
 
   string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
   QString lang;
