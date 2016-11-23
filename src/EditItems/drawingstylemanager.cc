@@ -328,11 +328,11 @@ void DrawingStyleManager::beginLine(DiGLPainter* gl, DrawingItemBase *item)
   gl->PushAttrib(DiGLPainter::gl_LINE_BIT);
 
   const QVariantMap style = getStyle(item);
+  const QString style_linepattern = style.value("linepattern").toString();
+  DrawingStyleProperty* propedit_linepattern = properties_[DrawingItemBase::PolyLine].value("linepattern");
 
-  const QString lpString = style.value("linepattern").toString();
-  bool ok = false;
-  const ushort linePattern = lpString.toUShort(&ok);
-  if (ok) {
+  const ushort linePattern = propedit_linepattern->parse(style_linepattern).toUInt();
+  if (linePattern != 0xFFFF) {
     gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
     gl->LineStipple(2, linePattern);
   }

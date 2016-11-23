@@ -40,7 +40,7 @@ void VcrossStyleDialog::setManager(vcross::QtManager_p vsm)
   }
   vcrossm = vsm;
   if (vcrossm) {
-    for (int i=0; i<vcrossm->getFieldCount(); ++i)
+    for (size_t i=0; i<vcrossm->getFieldCount(); ++i)
       onFieldAdded(i);
 
     connect(vcrossm.get(), SIGNAL(fieldAdded(int)),

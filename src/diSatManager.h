@@ -91,7 +91,6 @@ private:
 
 /************************************************************************/
 
-  int updateFreq;   //Max time between filelist updates in seconds
   miutil::miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
 
   void getMosaicfiles(Sat* satdata);

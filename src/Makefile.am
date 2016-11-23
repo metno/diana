@@ -7,16 +7,17 @@ libexecdiana_LTLIBRARIES = libdiana.la
 
 bin_PROGRAMS = bdiana
 
+# libexecdianadir must be the same in perl/Makefile.am
 if WITH_GUI
 noinst_LIBRARIES = libdianaui.a
 bin_PROGRAMS += diana.bin
 libexecdianadir= $(pkglibdir)/@PVERSION@
 else
-libexecdianadir= $(libdir)
+libexecdianadir= $(libdir)/bdiana/@PVERSION@
 endif # WITH_GUI
 
 # convenience for developers using a non-standard $(prefix)
-CPPFLAGS += -I$(prefix)/include
+CPPFLAGS += -I$(prefix)/include -DSYSCONFDIR='"$(sysconfdir)"'
 LDFLAGS  += -L$(prefix)/lib
 
 BUILT_SOURCES =
@@ -114,6 +115,7 @@ libdiana_la_SOURCES = \
 	util/plotoptions_util.cc \
 	util/qstring_util.cc \
 	util/string_util.cc \
+	util/subprocess.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -436,6 +438,7 @@ noinst_HEADERS = \
 	util/polygon_util.h \
 	util/qstring_util.h \
 	util/string_util.h \
+	util/subprocess.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \

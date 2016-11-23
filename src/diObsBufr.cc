@@ -111,12 +111,21 @@ void put_date_time(ObsData& d, int month, int day, int hour, int minute)
   diutil::format_int(minute, out, 3, 2);
   d.stringdata["Time"] = out;
 }
-void format_wmo(std::string& out, int wmoBlock, int wmoStation)
+
+  void format_wmo(std::string& out, int wmoBlock, int wmoSubarea, int wmoStation)
 {
-  out.resize(5, '0');
-  diutil::format_int(wmoBlock,   out, 0, 2);
-  diutil::format_int(wmoStation, out, 2, 3);
+  if ( wmoSubarea > 0 ) {
+    out.resize(7, '0');
+    diutil::format_int(wmoBlock,     out, 0, 1);
+    diutil::format_int(wmoSubarea,   out, 1, 1);
+    diutil::format_int(wmoStation,   out, 3, 4);
+  } else {
+    out.resize(5, '0');
+    diutil::format_int(wmoBlock,   out, 0, 2);
+    diutil::format_int(wmoStation, out, 2, 3);
+  }
 }
+
 } // namespace
 
 ObsBufr::ObsBufr()
@@ -386,6 +395,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   d.fdata.clear();
 
   int wmoBlock = 0;
+  int wmoSubarea = 0;
   int wmoStation = 0;
   int year = 0;
   int month = 0;
@@ -411,6 +421,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   d.CAVOK = false;
   d.xpos = -32767;
   d.ypos = -32767;
+  d.show_time_id = 0;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
     //METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
@@ -425,7 +436,20 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 1001:
       if (values[j] < bufrMissing) {
         wmoBlock = int(values[j]);
-        d.zone = wmoBlock;
+      }
+      break;
+
+    case 1003:
+      if (values[j] < bufrMissing) {
+        wmoBlock = int(values[j]);
+	d.show_time_id = true;
+      }
+      break;
+
+      //   1020 WMO REGION SUB-AREA 
+    case 1020:
+      if (values[j] < bufrMissing) {
+        wmoSubarea = int(values[j]);
       }
       break;
 
@@ -441,8 +465,14 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   1005 BUOY/PLATFORM IDENTIFIER
     case 1005:
       if (values[j] < bufrMissing) {
-        d.id = miutil::from_number(values[j]);
-        d.zone= 99;
+	if ( wmoBlock > 0 ) {
+          wmoStation = int(values[j]);
+          d.fdata["wmonumber"] = float(wmoStation);
+          wmoNumber = true;
+	} else {
+	  d.id = miutil::from_number(values[j]);
+	}
+        d.show_time_id = true;
       }
       break;
 
@@ -462,7 +492,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
         add_substr(d.id, cvals, index, 7);
-        d.zone= 99;
+        d.show_time_id= true;
       }
     }
     break;
@@ -488,6 +518,14 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     {
       int index = int(values[j]) / 1000 - 1;
       add_substr(d.metarId, cvals, index, 4);
+    }
+    break;
+
+    //001087 WMO MARINE OBSERVING PLATFORM EXTENDED IDENTIFIER
+    case 1087:
+    {
+        d.id = miutil::from_number(int(values[j]));
+        d.show_time_id= true;
     }
     break;
 
@@ -1049,6 +1087,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   22042  SEA/WATER TEMPERATURE, K->Celsius
     case 22042:
+    case 22049:
       if (values[j] < bufrMissing)
         d.fdata["TwTwTw"] = values[j] - t0;
       break;
@@ -1080,7 +1119,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
 
   if (wmoNumber) {
-    format_wmo(d.id, wmoBlock, wmoStation);
+    format_wmo(d.id, wmoBlock, wmoSubarea, wmoStation);
   }
 
   //Metar cloud
@@ -1124,6 +1163,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 {
   METLIBS_LOG_SCOPE();
   int wmoBlock = 0;
+  int wmoSubarea = 0;
   int wmoStation = 0;
   int year = 0;
   int month = 0;
@@ -1205,7 +1245,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   }
 
   if (wmoNumber) {
-    format_wmo(station, wmoBlock, wmoStation);
+    format_wmo(station, wmoBlock, wmoSubarea, wmoStation);
   }
 
   idmap_t::iterator itS = idmap.find(station);
@@ -1228,9 +1268,10 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   //    METLIBS_LOG_DEBUG("get_diana_data");
   d.fdata.clear();
   d.id.clear();
-  d.zone = 0;
+  d.show_time_id = 0;
 
   int wmoBlock = 0;
+  int wmoSubarea = 0;
   int wmoStation = 0;
   int year = 0;
   int month = 0;
@@ -1268,7 +1309,6 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       case 1001:
         if (values[j] < bufrMissing) {
           wmoBlock = int(values[j]);
-          d.zone = wmoBlock;
         }
         break;
 
@@ -1284,7 +1324,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       case 1005:
         if (values[j] < bufrMissing) {
           d.id = miutil::from_number(int(values[j]));
-          d.zone = 99;
+          d.show_time_id = true;
         }
         break;
 
@@ -1304,7 +1344,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
           add_substr(d.id, cvals, index, 4);
-          d.zone = 99;
+          d.show_time_id = true;
         }
       }
       break;
@@ -1517,7 +1557,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
     return false;
   }
   if (wmoNumber) {
-    format_wmo(d.id, wmoBlock, wmoStation);
+    format_wmo(d.id, wmoBlock, wmoSubarea, wmoStation);
   }
 
   if ( !d.id.empty())

@@ -37,6 +37,7 @@
 #include "diGLPainter.h"
 #include "diPoint.h"
 #include "util/polygon_util.h"
+#include "util/subprocess.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
@@ -79,6 +80,108 @@ const float AREA_VISIBLE = 0.005;
 
 const bool SKIP_SMALL = false;
 
+
+bool extractParameterFromWKT(const QString& wkt, const QString& key, float& value)
+{
+  QRegExp r_parameter("PARAMETER\\[\""+key+"\", *([0-9.Ee+-]+)\\]");
+  if (r_parameter.indexIn(wkt) >= 0) {
+    value = r_parameter.cap(1).toFloat();
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool setProjectionViaGdalSRSInfo(Projection& p, QString wkt)
+{
+  const QString PROJECTION_LCC     = "PROJECTION[\"Lambert_Conformal_Conic\"]";
+  const QString PROJECTION_LCC_2SP = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
+  if (wkt.contains(PROJECTION_LCC)
+      && wkt.contains("PARAMETER[\"standard_parallel_1\",")
+      && wkt.contains("PARAMETER[\"standard_parallel_2\","))
+  {
+    wkt.replace(PROJECTION_LCC, PROJECTION_LCC_2SP);
+    METLIBS_LOG_INFO("trying to fix wkt for gdalsrsinfo, new wkt='" << wkt.toStdString() << "'");
+  }
+
+  QByteArray gdalStdOut;
+  if (diutil::execute("gdalsrsinfo", QStringList() << "-o" << "proj4" << wkt, &gdalStdOut) != 0)
+    return false;
+
+  QString proj4(gdalStdOut);
+
+  // gdalsrsinfo puts its proj4 output in quotes and adds some whitespace
+  proj4 = proj4.trimmed();
+  if (proj4.startsWith("'"))
+    proj4 = proj4.mid(1);
+  if (proj4.endsWith("'"))
+    proj4 = proj4.mid(0, proj4.length()-1);
+  proj4 = proj4.trimmed();
+
+  if (proj4.isEmpty())
+    return false;
+  METLIBS_LOG_DEBUG("gdalsrsinfo wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
+  return p.set_proj_definition(proj4.toStdString());
+}
+
+bool guessProjectionFromWKT(Projection& p, const QString& wkt)
+{
+  if (!wkt.startsWith("PROJCS[\""))
+    return false;
+
+  const QRegExp r_utm("\"WGS_1984_UTM_Zone_(\\d+).\"");
+  if (r_utm.indexIn(wkt, 0) != -1) {
+    const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
+        + " +ellps=WGS84 +datum=WGS84 +units=m";
+    METLIBS_LOG_INFO("guessing utm from wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
+    p.set_proj_definition(proj4.toStdString());
+    return true;
+  }
+
+  if (wkt.contains("PROJECTION[\"Lambert_Conformal_Conic\"]")) {
+    QString proj4 = QString("+proj=lcc");
+    float lat_1, lat_2, lon_0=0, lat_0, x_0, y_0;
+    if (extractParameterFromWKT(wkt, "standard_parallel_1", lat_1)
+        && extractParameterFromWKT(wkt, "standard_parallel_2", lat_2))
+    {
+      proj4 += QString(" +lat_1=%1 +lat_2=%2").arg(lat_1).arg(lat_2);
+    }
+    if (extractParameterFromWKT(wkt, "central_meridian", lon_0) && lon_0 != 0) {
+      proj4 += QString(" +lon_0=%1").arg(lon_0);
+    }
+    if (extractParameterFromWKT(wkt, "latitude_of_origin", lat_0)) {
+      proj4 += QString(" +lat_0=%1").arg(lat_0);
+    }
+    if (extractParameterFromWKT(wkt, "false_easting", x_0) && x_0 != 0) {
+      proj4 += QString(" +lat_0=%1").arg(x_0);
+    }
+    if (extractParameterFromWKT(wkt, "false_northing", y_0) && y_0 != 0) {
+      proj4 += QString(" +y_0=%1").arg(y_0);
+    }
+    if (wkt.contains("GEOGCS[\"GCS_WGS_1984\"")) {
+      proj4 += " +ellps=WGS84";
+    } else {
+      return false;
+    }
+    if (wkt.contains("UNIT[\"Meter\",1]")) {
+      proj4 += " +units=m";
+    } else {
+      return false;
+    }
+    METLIBS_LOG_DEBUG("guessing lcc from wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
+    p.set_proj_definition(proj4.toStdString());
+    return true;
+  }
+
+  if (wkt.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
+    METLIBS_LOG_INFO("wild guessing geographic from wkt '" << wkt.toStdString() << "'");
+    p = Projection::geographic();
+    return true;
+  }
+
+  return false;
+}
+
 } // anonymous namespace
 
 ShapeObject::ShapeObject()
@@ -106,8 +209,6 @@ bool ShapeObject::changeProj()
 
   bool success = true;
   for (ShpData_v::iterator s = shapes.begin(); s != shapes.end(); ++s) {
-    const SHPObject_p shp = s->shape;
-
     if (npoints < s->nvertices()) {
       npoints = s->nvertices();
       delete[] tx;
@@ -137,11 +238,11 @@ bool ShapeObject::changeProj()
     s->rect = Rectangle(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX);
     s->partRects.clear();
 
-    int np = s->nparts();
-    if (np == 0 && s->type() == SHPT_POINT && s->nvertices() == 1)
-      np = 1;
-    for (int p=0; p<np; ++p) {
-      const int pb = s->pbegin(p), pe = s->pend(p);
+    const int np = s->nparts();
+    const bool single_point = (np == 0 && s->type() == SHPT_POINT && s->nvertices() == 1);
+    for (int p=0; (single_point && p==0) || p<np; ++p) {
+      const int pb = single_point ? 0 : s->pbegin(p);
+      const int pe = single_point ? 0 : s->pend(p);
 
       QPolygonF polygon;
       polygon << QPointF(tx[pb], ty[pb]);
@@ -277,10 +378,11 @@ bool ShapeObject::plot(DiGLPainter* gl,
   reduceForScale();
 
   //also scale according to windowheight and width (standard is 500)
-  float scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
-      +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
-  int fontSizeToPlot = int(2*7000000/gcd * scalefactor);
-  int symbol_rad = symbol;
+  const float scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
+      +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth());
+  const int fontSizeToPlot = int(2*7000000/gcd * scalefactor/500);
+  const float symbol_rad = symbol/scalefactor;
+  const float point_rad = linewidth*2/scalefactor;
 
   const Rectangle areaX = diutil::adjustedRectangle(area.R(),
       AREA_EXTRA*area.R().width()  + 2*linewidth * getStaticPlot()->getPhysToMapScaleX(),
@@ -290,6 +392,8 @@ bool ShapeObject::plot(DiGLPainter* gl,
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
+  size_t item_count = 0;
+  const size_t item_limit = 0;
   for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
     if (s->contours.isEmpty())
       continue;
@@ -297,20 +401,26 @@ bool ShapeObject::plot(DiGLPainter* gl,
     if (!areaX.intersects(s->rect))
       continue;
 
+    if (item_limit > 0 && ++item_count >= item_limit) {
+      METLIBS_LOG_WARN("stop plotting after " << item_limit << " items");
+      break;
+    }
+
     if (s->type() == SHPT_POINT) {
-      gl->setColour(lcolour);
       const QPolygonF& p = s->contours.at(0);
       if (s->nparts() == 0 && special==true && s->nvertices()==1) {
+        // METLIBS_LOG_DEBUG("plotting a special SHPT_POINT");
         gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
         gl->drawText("SSS", s->shape->padfX[0], s->shape->padfY[0], 0.0);
         gl->setLineStyle(lcolour, 2);
         gl->drawCircle(true, p.at(0).x(), p.at(0).y(), symbol_rad);
       } else {
+        // METLIBS_LOG_DEBUG("plotting SHPT_POINT(s)");
         gl->setColour(lcolour);
         for (int k = 0; k < p.size(); k++) {
           const QPointF& ppk = p.at(k);
           if (areaX.isinside(ppk.x(), ppk.y()))
-            gl->drawCircle(true, ppk.x(), ppk.y(), linewidth*2);
+            gl->drawCircle(true, ppk.x(), ppk.y(), point_rad);
         }
       }
       continue;
@@ -631,20 +741,12 @@ bool ShapeObject::readProjection(const std::string& shpfilename)
   if (prj.isEmpty())
     return false;
 
-  if (prj.startsWith("PROJCS[\"")) {
-    const QRegExp r_utm("\"WGS_1984_UTM_Zone_(\\d+).\"");
-    if (r_utm.indexIn(prj, 0) != -1) {
-      const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
-          + " +ellps=WGS84 +datum=WGS84 +units=m";
-      METLIBS_LOG_DEBUG(LOGVAL(proj4.toStdString()));
-      projection.set_proj_definition(proj4.toStdString());
-    }
-  } else if (prj.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
-    projection = Projection::geographic();
-  } else {
-    METLIBS_LOG_WARN("shapefile prj not understood: " << prj.toStdString());
-    return false;
-  }
+  if (setProjectionViaGdalSRSInfo(projection, prj))
+    return true;
 
-  return true;
+  if (guessProjectionFromWKT(projection, prj))
+    return true;
+
+  METLIBS_LOG_WARN("shapefile prj not understood: " << prj.toStdString());
+  return false;
 }

@@ -119,9 +119,9 @@ void VcrossWindowInterface::parseSetup()
 }
 
 
-void VcrossWindowInterface::changeCrossection(const std::string& csName)
+void VcrossWindowInterface::changeCrossection(const QString& csName)
 {
-  vcrossm->setCrossectionIndex(vcrossm->findCrossectionIndex(QString::fromStdString(csName)));
+  vcrossm->setCrossectionIndex(vcrossm->findCrossectionIndex(csName));
 }
 
 

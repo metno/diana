@@ -240,7 +240,7 @@ public:
       const std::vector<std::string>& data,
       const std::string& misc="");
   bool stationCommand(const std::string& Command);
-  std::string stationRequest(const std::string& Command);
+  std::vector<std::string> stationRequest(const std::string& Command);
 
   friend bool operator==(const StationPlot& lhs, const StationPlot& rhs)
     { return (lhs.stations.size()==rhs.stations.size()) ; }

@@ -1,3 +1,13 @@
+diana-3.41 (3.41.0~rc1-1) unstable; urgency=low
+
+  * release candidate for 3.41
+  * many bugfixes
+  * contour2: changed zeroline logic
+  * support for updated in dribu format
+  * save edit products in multiple directories
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 15 Nov 2016 08:00:08 +0100
+
 diana-3.41 (3.41.0~b1-1) unstable; urgency=low
 
   * New version 3.41

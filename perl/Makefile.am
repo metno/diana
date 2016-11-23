@@ -1,4 +1,11 @@
 
+# libexecdianadir must be the same in src/Makefile.am
+if WITH_GUI
+libexecdianadir= $(pkglibdir)/@PVERSION@
+else
+libexecdianadir= $(libdir)/bdiana/@PVERSION@
+endif # WITH_GUI
+
 if WITH_PERL
 PERL          = perl
 PERLMAKEFILE  = Metno-Bdiana/Makefile
@@ -7,7 +14,7 @@ PERLCONFIG    = PREFIX="$(prefix)" \
                 INSTALLDIRS=vendor \
                 INC="-Wall -I. -I$(abs_top_srcdir)/src" \
                 LIBS="-lboost_thread" \
-                MYEXTLIB="../../src/.libs/libdiana.so -Wl,-rpath=$(libdir)"
+                MYEXTLIB="../../src/.libs/libdiana.so -Wl,-rpath=$(libexecdianadir)"
 
 #if DEBUG
 #PERLCONFIG    += OPTIMIZE=-g
@@ -27,6 +34,12 @@ clean-local: $(PERLMAKEFILE)
 
 if WITH_GUI
 check-local: $(PERLMAKEFILE)
+	@if test -n "$$DISPLAY"; then \
+	    $(MAKE) -C Metno-Bdiana $(AM_MAKEFLAGS) test ; \
+	else \
+	    echo "empty env DISPLAY, not running perl tests" ; \
+	fi
+else # !WITH_GUI
 	$(MAKE) -C Metno-Bdiana $(AM_MAKEFLAGS) test
 endif
 
@@ -41,6 +54,8 @@ uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/.packlist
 	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
 	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
+
+.PHONY: all-local clean-local check-local install-exec-local uninstall-local
 
 endif # WITH_PERL
 

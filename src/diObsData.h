@@ -48,7 +48,7 @@ public:
   std::string name;
   float xpos;
   float ypos;
-  int zone;
+  bool show_time_id;
   miutil::miTime obsTime;
 
   //metar

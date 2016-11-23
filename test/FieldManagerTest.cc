@@ -15,7 +15,7 @@
 
 TEST(FieldManagerTest, TestRW)
 {
-    const std::string fileName(TEST_BUILDDIR "testrun_fimexio_rw.nc");
+    const std::string fileName(TEST_BUILDDIR "/testrun_fimexio_rw.nc");
     {
         const std::string origFileName(TEST_SRCDIR "/test_fimexio_rw.nc");
         std::ifstream orig(origFileName.c_str());

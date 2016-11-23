@@ -65,6 +65,8 @@
 using namespace std;
 using namespace miutil;
 
+namespace {
+
 void printUsage()
 {
   cout << "----------------------------------------------------------"    << endl
@@ -86,12 +88,91 @@ void printUsage()
        << "----------------------------------------------------------" << endl;
 }
 
+class LanguageInstaller {
+public:
+  LanguageInstaller(QCoreApplication* a, const QString& f);
+  ~LanguageInstaller();
+  void load(const QString& path);
+
+private:
+  QCoreApplication* app;
+  QTranslator* translator;
+  QString filename;
+  bool loaded;
+};
+
+LanguageInstaller::LanguageInstaller(QCoreApplication* a, const QString& f)
+  : app(a)
+  , translator(new QTranslator(app))
+  , filename(f)
+  , loaded(false)
+{
+}
+
+LanguageInstaller::~LanguageInstaller()
+{
+  if (loaded)
+    app->installTranslator(translator);
+  else
+    delete translator;
+
+}
+
+void LanguageInstaller::load(const QString& dir)
+{
+  if (!loaded)
+    loaded = translator->load(filename, dir);
+}
+
+void setupQtLanguage(QCoreApplication* app, const QString& lang)
+{
+  if (lang.isEmpty())
+    return;
+
+  METLIBS_LOG_INFO("SYSTEM LANGUAGE: " << lang.toStdString());
+  LanguageInstaller liQt(app, "qt_"+lang), liDiana(app, "diana_"+lang), liQUtilities(app, "qUtilities_"+lang);
+
+  // translation files for application strings
+  const vector<string> langpaths = LocalSetupParser::languagePaths();
+  for (vector<string>::const_iterator it = langpaths.begin(); it != langpaths.end(); ++it) {
+    const QString dir = QString::fromStdString(*it);
+    liQt.load(dir);
+    liDiana.load(dir);
+    liQUtilities.load(dir);
+  }
+}
+
+void setupLanguage(QCoreApplication* app, QString lang)
+{
+  if (lang.isEmpty())
+    // language from setup
+    lang = QString::fromStdString(LocalSetupParser::basicValue("language"));
+
+  miTime x;
+  x.setDefaultLanguage(lang.toStdString().c_str());
+
+  setupQtLanguage(app, lang);
+}
+
+} // namespace
+
+// ========================================================================
+
 int main(int argc, char **argv)
 {
   cout << argv[0] << " : DIANA version: " << VERSION
        << "  build: " << diana_build_string
        << "  commit: " << diana_build_commit
        << endl;
+
+  // if LC_NUMERIC this is not "C" or something with '.' as decimal
+  // separator, udunits will not be able to read unit specifications, which
+  // leads to errors when reading netcdf files with fimex
+
+  // this seems to be necessary to prevent kde image plugins / libkdecore
+  // from resetting LC_NUMERIC from the environment; image plugins might,
+  // e.g., be loaded when the clipboard is accessed
+  setenv("LC_NUMERIC", "C", 1);
 
 #if defined(Q_WS_QWS)
   QApplication a(argc, argv, QApplication::GuiServer);
@@ -102,16 +183,16 @@ int main(int argc, char **argv)
   DianaApplication a( argc, argv );
 #endif
 
+  // setlocale must be called after initializing QApplication,
+  // see http://doc.qt.io/qt-4.8/qcoreapplication.html#locale-settings
   setlocale(LC_NUMERIC, "C");
-  setlocale(LC_MEASUREMENT, "C");
-  setlocale(LC_TIME, "C");
+  setenv("LC_NUMERIC", "C", 1);
 
-  string logfilename;
-  string cl_lang;
+  string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
+  QString lang;
   bool have_diana_title = false;
   QString diana_instancename;
   string setupfile;
-  string lang;
   map<std::string, std::string> user_variables;
 
   user_variables["PVERSION"]= PVERSION;
@@ -139,7 +220,7 @@ int main(int argc, char **argv)
         printUsage();
         return 0;
       }
-      cl_lang= argv[ac];
+      lang = argv[ac];
 
     } else if (sarg=="-L" || sarg=="--logger") {
       ac++;
@@ -179,11 +260,6 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
-  if ( logfilename.empty() ){
-    logfilename = "/etc/diana/";
-    logfilename += PVERSION;
-    logfilename += "/log4cpp.properties";
-  }
 
   // tell fimex to use log4cpp
   MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
@@ -206,6 +282,8 @@ int main(int argc, char **argv)
     }
     return 0;
   }
+
+  setupLanguage(&a, lang);
 
   if (diana_instancename == "?") {
     QDir logdir(QString::fromStdString(DianaMainWindow::getLogFileDir()));
@@ -255,48 +333,6 @@ int main(int argc, char **argv)
     QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
       QString("An error occurred while reading setup: %1").arg(QString::fromStdString(setupfile)));
     return 0;
-  }
-
-  // language from setup
-  if (not LocalSetupParser::basicValue("language").empty())
-    lang = LocalSetupParser::basicValue("language");
-
-  // language from command line
-  if (not cl_lang.empty())
-    lang = cl_lang;
-
-  { miTime x; x.setDefaultLanguage(lang.c_str()); }
-
-  QTranslator qutil( 0 );
-  QTranslator myapp( 0 );
-  QTranslator qt( 0 );
-
-  if (not lang.empty()) {
-
-    METLIBS_LOG_INFO("SYSTEM LANGUAGE: " << lang);
-
-    string qtlang   = "qt_" +lang;
-    string dilang   = "diana_"+lang;
-    string qulang   = "qUtilities_"+lang;
-
-    // translation files for application strings
-    vector<string> langpaths = LocalSetupParser::languagePaths();
-
-    for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( qt.load(    qtlang.c_str(),langpaths[i].c_str()))
-	break;
-
-    for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( myapp.load( dilang.c_str(),langpaths[i].c_str()))
-	break;
-
-    for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( qutil.load( qulang.c_str(),langpaths[i].c_str()))
-	break;
-
-    a.installTranslator( &qt    );
-    a.installTranslator( &myapp );
-    a.installTranslator( &qutil );
   }
 
   DianaMainWindow * mw = new DianaMainWindow(&contr, diana_instancename);
