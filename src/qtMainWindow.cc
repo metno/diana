@@ -2170,16 +2170,30 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::areacommand) {
     //commondesc command:dataSet
-    const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findDataDesc("dataset");
-    if (c_cmd >= 0 && c_ds >= 0) {
-      const std::string cmd = qletter.getCommonValue(c_cmd).toStdString();
-      const std::string ds = qletter.getCommonValue(c_ds).toStdString();
-      const int n = qletter.countDataRows();
-      if (n == 0)
-        contr->areaCommand(cmd, ds, std::string(), fromId);
-      else for (int i=0; i<n; i++)
-        contr->areaCommand(cmd, ds, qletter.getDataValues(i).join(":").toStdString(), fromId);
+    std::string cmd, ds;
+    if (qletter.countCommon() >= 2) {
+      const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findDataDesc("dataset");
+      if (c_cmd >= 0 && c_ds >= 0) {
+        cmd = qletter.getCommonValue(c_cmd).toStdString();
+        ds = qletter.getCommonValue(c_ds).toStdString();
+      }
+    } else if (qletter.countCommon() == 1) {
+      METLIBS_LOG_WARN("obsolete areacommand, commondesc should be [\"command\",\"dataset\"]");
+      // miMessage converter will not split common if commondesc is empty
+      const QStringList c = qletter.getCommonValue(0).split(":");
+      if (c.count() >= 2) {
+        cmd = c[0].toStdString();
+        ds = c[1].toStdString();
+      }
+    } else {
+      METLIBS_LOG_WARN("incomprehensible areacommand, commondesc should be [\"command\",\"dataset\"]");
+      return;
     }
+    const int n = qletter.countDataRows();
+    if (n == 0)
+      contr->areaCommand(cmd, ds, std::string(), fromId);
+    else for (int i=0; i<n; i++)
+      contr->areaCommand(cmd, ds, qletter.getDataValues(i).join(":").toStdString(), fromId);
   }
 
   else if (command == qmstrings::selectarea) {
