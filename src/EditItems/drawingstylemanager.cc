@@ -463,21 +463,25 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
   QVariantMap style = styles_[item->category()].value(styleName);
 
   // Collect any style properties in the item itself.
-  QVariantMap props = item->propertiesRef();
+  const QVariantMap& props = item->propertiesRef();
   QHash<QString, QString> styleProperties;
 
   QHash<QString, DrawingStyleProperty *> cProps = properties_[item->category()];
 
-  foreach (QString key, props.keys()) {
+  foreach (const QString& key, props.keys()) {
     // If the property is a style property with a corresponding default
     // then let it override the default value.
-    if (key.startsWith("style:") && cProps.contains(key.mid(6))) {
-      QVariant value = props.value(key);
-      if (value.type() != QVariant::StringList) {
-        QString s = value.toString();
-        if (s != style.value(key.mid(6)).toString())
-          styleProperties[key.mid(6)] = s;
-      }
+    if (!key.startsWith("style:"))
+      continue;
+    const QString skey = key.mid(6);
+    if (!cProps.contains(skey))
+      continue;
+
+    const QVariant& value = props.value(key);
+    if (value.type() != QVariant::StringList) {
+      QString s = value.toString();
+      if (s != style.value(skey).toString())
+        styleProperties[skey] = s;
     }
   }
 
