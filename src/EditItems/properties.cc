@@ -27,9 +27,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#define MILOGGER_CATEGORY "diana.EditItems.Properties"
-#include <miLogger/miLogging.h>
-
 #include <diEditItemManager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>
@@ -46,7 +43,12 @@
 #include <QVBoxLayout>
 #include "qtUtility.h"
 
+#define MILOGGER_CATEGORY "diana.EditItems.Properties"
+#include <miLogger/miLogging.h>
+
 namespace Properties {
+
+static const QString PROPERTIES("properties");
 
 EditProperty::EditProperty(const QString &labelText)
 {
@@ -374,7 +376,14 @@ QMap<QString, QVariant> PropertiesEditor::commonProperties(const QList<DrawingIt
 
     // Each item's style has a list of properties that are relevant to it.
     QVariantMap style = DrawingStyleManager::instance()->getStyle(item);
-    QStringList editable = style.value("properties").toStringList();
+    QStringList editable = style.value(PROPERTIES).toStringList();
+
+    // this makes all style properties editable
+    foreach (const QString &key, style.keys()) {
+      if (!key.isEmpty() && key != PROPERTIES)
+        editable << ("style:" + key);
+    }
+    editable.removeAll("");
 
     // Collect the properties defined as editable in its style, using default
     // values if not defined for the item.
