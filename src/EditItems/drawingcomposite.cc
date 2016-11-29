@@ -285,8 +285,6 @@ void Composite::arrangeElements()
   case Diagonal:
     previousRect = QRectF(start, QSizeF(maxSize.width(), maxSize.height()));
     break;
-  default:
-    ;
   }
 
   for (int i = 0; i < elements_.size(); ++i) {
@@ -319,8 +317,6 @@ void Composite::arrangeElements()
                           previousRect.bottom() - previousRect.height()/2);
         previousRect.translate(2, -2);
         break;
-      default:
-        ;
       }
     } else {
       switch (layout_) {
@@ -336,8 +332,6 @@ void Composite::arrangeElements()
         point = QPointF(previousRect.right(), previousRect.top());
         previousRect.translate(size.width(), -size.height());
         break;
-      default:
-        ;
       }
 
       // Determine the change in position of the element.
