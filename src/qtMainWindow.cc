@@ -2031,12 +2031,11 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   else if (command == qmstrings::vprof) {
     //description: lat:lon
     vprofMenu();
-    if(letter.data.size()){
-      vector<string> tmp;
-      boost::algorithm::split(tmp, letter.data[0], boost::algorithm::is_any_of(":"));
-      if(tmp.size()==2){
-        float lat= atof(tmp[0].c_str());
-        float lon= atof(tmp[1].c_str());
+    if (qletter.countDataRows()>0 && qletter.countDataColumns() == 2) {
+      bool lat_ok = false, lon_ok = false;
+      const float lat = qletter.getDataValue(0, 0).toFloat(&lat_ok);
+      const float lon = qletter.getDataValue(0, 1).toFloat(&lon_ok);
+      if (lon_ok && lat_ok) {
         float x=0, y=0;
         contr->GeoToPhys(lat,lon,x,y);
         int ix= int(x);
@@ -2170,16 +2169,30 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::areacommand) {
     //commondesc command:dataSet
-    const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findDataDesc("dataset");
-    if (c_cmd >= 0 && c_ds >= 0) {
-      const std::string cmd = qletter.getCommonValue(c_cmd).toStdString();
-      const std::string ds = qletter.getCommonValue(c_ds).toStdString();
-      const int n = qletter.countDataRows();
-      if (n == 0)
-        contr->areaCommand(cmd, ds, std::string(), fromId);
-      else for (int i=0; i<n; i++)
-        contr->areaCommand(cmd, ds, qletter.getDataValues(i).join(":").toStdString(), fromId);
+    std::string cmd, ds;
+    if (qletter.countCommon() >= 2) {
+      const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findDataDesc("dataset");
+      if (c_cmd >= 0 && c_ds >= 0) {
+        cmd = qletter.getCommonValue(c_cmd).toStdString();
+        ds = qletter.getCommonValue(c_ds).toStdString();
+      }
+    } else if (qletter.countCommon() == 1) {
+      METLIBS_LOG_WARN("obsolete areacommand, commondesc should be [\"command\",\"dataset\"]");
+      // miMessage converter will not split common if commondesc is empty
+      const QStringList c = qletter.getCommonValue(0).split(":");
+      if (c.count() >= 2) {
+        cmd = c[0].toStdString();
+        ds = c[1].toStdString();
+      }
+    } else {
+      METLIBS_LOG_WARN("incomprehensible areacommand, commondesc should be [\"command\",\"dataset\"]");
+      return;
     }
+    const int n = qletter.countDataRows();
+    if (n == 0)
+      contr->areaCommand(cmd, ds, std::string(), fromId);
+    else for (int i=0; i<n; i++)
+      contr->areaCommand(cmd, ds, qletter.getDataValues(i).join(":").toStdString(), fromId);
   }
 
   else if (command == qmstrings::selectarea) {
@@ -3221,10 +3234,15 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     if (hqcTo > 0) {
       std::string name;
       if (contr->getObsName(x,y,name)) {
-        miQMessage letter(qmstrings::station);
         miutil::miTime t;
         contr->getPlotTime(t);
-        letter.addCommon("name,time", QString::fromStdString(name + "," + t.isoTime()));
+
+        QStringList cd = QStringList() << "name" << "time";
+        QStringList cv = QStringList() << QString::fromStdString(name) << QString::fromStdString(t.isoTime());
+
+        miQMessage letter(qmstrings::station);
+        letter.setCommon(QStringList() << cd.join(","), QStringList() << cv.join(","));
+        // new version, to be enabled later: letter.setCommon(cd, cv);
         sendLetter(letter, hqcTo);
       }
     }
