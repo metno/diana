@@ -2031,12 +2031,11 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   else if (command == qmstrings::vprof) {
     //description: lat:lon
     vprofMenu();
-    if(letter.data.size()){
-      vector<string> tmp;
-      boost::algorithm::split(tmp, letter.data[0], boost::algorithm::is_any_of(":"));
-      if(tmp.size()==2){
-        float lat= atof(tmp[0].c_str());
-        float lon= atof(tmp[1].c_str());
+    if (qletter.countDataRows()>0 && qletter.countDataColumns() == 2) {
+      bool lat_ok = false, lon_ok = false;
+      const float lat = qletter.getDataValue(0, 0).toFloat(&lat_ok);
+      const float lon = qletter.getDataValue(0, 1).toFloat(&lon_ok);
+      if (lon_ok && lat_ok) {
         float x=0, y=0;
         contr->GeoToPhys(lat,lon,x,y);
         int ix= int(x);
