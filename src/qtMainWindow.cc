@@ -3235,10 +3235,15 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     if (hqcTo > 0) {
       std::string name;
       if (contr->getObsName(x,y,name)) {
-        miQMessage letter(qmstrings::station);
         miutil::miTime t;
         contr->getPlotTime(t);
-        letter.addCommon("name,time", QString::fromStdString(name + "," + t.isoTime()));
+
+        QStringList cd = QStringList() << "name" << "time";
+        QStringList cv = QStringList() << QString::fromStdString(name) << QString::fromStdString(t.isoTime());
+
+        miQMessage letter(qmstrings::station);
+        letter.setCommon(QStringList() << cd.join(","), QStringList() << cv.join(","));
+        // new version, to be enabled later: letter.setCommon(cd, cv);
         sendLetter(letter, hqcTo);
       }
     }
