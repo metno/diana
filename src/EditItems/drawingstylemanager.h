@@ -124,6 +124,7 @@ class DrawingStyleProperty
 {
 public:
   DrawingStyleProperty();
+  virtual ~DrawingStyleProperty() { }
   virtual QVariant parse(const QString &text) const;
   QString name;
 
