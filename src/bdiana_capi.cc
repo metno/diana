@@ -296,7 +296,7 @@ MovieMaker *movieMaker = 0;
 // list of lists..
 vector<stringlist> lists;
 
-printerManager * printman;
+printerManager * printman = 0;
 printOptions priop;
 
 std::string logfilename;
@@ -800,6 +800,7 @@ int diana_readSetupFile(const char* setupFilename) {
     using namespace std;
     using namespace miutil;
 
+    delete printman;
     printman = new printerManager();
     std::string setupfile(setupFilename);
     setupread = readSetup(setupfile, *printman);
@@ -3015,6 +3016,7 @@ int diana_init(int _argc, char** _argv)
   hardcopy_started[plot_vprof] = false;
   hardcopy_started[plot_spectrum] = false;
 
+  delete printman;
   printman = new printerManager;
 
   /*
