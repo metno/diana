@@ -804,12 +804,6 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
         axis = (*varSysIt)->getGeoZAxis();
         if ( axis.get() != 0 ) {
-          DataPtr data = feltReader->getScaledData(axis->getName());
-          std::string verticalType;
-          if ((*varSysIt)->hasVerticalTransformation()) {
-            boost::shared_ptr<const VerticalTransformation> vtran = (*varSysIt)->getVerticalTransformation();
-            verticalType = vtran->getName();
-          }
           zaxisname = axis->getName();
         }
 
