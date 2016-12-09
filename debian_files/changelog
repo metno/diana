@@ -1,3 +1,9 @@
+diana-3.41 (3.41.0-1) unstable; urgency=low
+
+  * new upstream version
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 09 Dec 2016 13:28:15 +0100
+
 diana-3.41 (3.41.0~rc4-1) unstable; urgency=low
 
   * workaround for obsolete areacommand without commondesc
