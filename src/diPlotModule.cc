@@ -1572,7 +1572,7 @@ void PlotModule::makeAreas(std::string name, std::string areastring, int id)
 }
 
 void PlotModule::areaCommand(const std::string& command, const std::string& dataSet,
-    const std::string& data, int id)
+    const std::vector<std::string>& data, int id)
 {
   //   METLIBS_LOG_DEBUG("PlotModule::areaCommand");
   //   METLIBS_LOG_DEBUG("id=" << id);
@@ -1583,7 +1583,7 @@ void PlotModule::areaCommand(const std::string& command, const std::string& data
   for (int i = 0; i < n && i > -1; i++) {
     if ((id == -1 || id == vareaobjects[i].getId()) && (dataSet == "all"
         || dataSet == vareaobjects[i].getName())) {
-      if (command == "delete" && (data == "all" || data.empty())) {
+      if (command == "delete" && (data.empty() || (data.size() == 1 && data.front() == "all"))) {
         vareaobjects.erase(vareaobjects.begin() + i);
         i--;
         n = vareaobjects.size();
@@ -1591,9 +1591,8 @@ void PlotModule::areaCommand(const std::string& command, const std::string& data
         vareaobjects[i].areaCommand(command, data);
         //zoom to selected area
         if (command == "select" && vareaobjects[i].autoZoom()) {
-          vector<std::string> token = miutil::split(data, ":");
-          if (token.size() == 2 && token[1] == "on") {
-            setMapAreaFromMap(vareaobjects[i].getBoundBox(token[0]));
+          if (data.size() == 2 && data[1] == "on") {
+            setMapAreaFromMap(vareaobjects[i].getBoundBox(data[0]));
           }
         }
       }

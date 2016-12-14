@@ -51,7 +51,7 @@ public:
   void makeAreas(const std::string& name, const std::string& icon, 
 		 const std::string& areastring, int id, const Area& );
   /// apply a command
-  bool areaCommand(const std::string& command,const std::string& data);
+  bool areaCommand(const std::string& command, const std::vector<std::string>& data);
   /// returns a vector of selectArea which x and y are inside
   std::vector<selectArea> findAreas(float x, float y, bool newArea=false);
 

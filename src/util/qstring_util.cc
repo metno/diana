@@ -17,4 +17,13 @@ QString formatLatitude(float lat, int precision, int width)
       .rightJustified(width);
 }
 
+std::vector<std::string> toVector(const QStringList& sl)
+{
+  std::vector<std::string> v;
+  v.reserve(sl.size());
+  for (QStringList::const_iterator it = sl.begin(); it != sl.end(); ++it)
+    v.push_back(it->toStdString());
+  return v;
+}
+
 } // namespace diutil

@@ -80,6 +80,7 @@
 #include "vcross_qt/qtVcrossInterface.h"
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
+#include "util/qstring_util.h"
 
 #include <MovieMaker.h>
 
@@ -1956,7 +1957,7 @@ void DianaMainWindow::connectionClosed()
   qsocket = false;
 
   contr->stationCommand("delete","all");
-  contr->areaCommand("delete","all","all",-1);
+  contr->areaCommand("delete","all", std::vector<std::string>(1, "all"),-1);
 
   //remove times
   vector<std::string> type = timecontrol->deleteType(-1);
@@ -2189,42 +2190,44 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
       return;
     }
     const int n = qletter.countDataRows();
-    if (n == 0)
-      contr->areaCommand(cmd, ds, std::string(), fromId);
-    else for (int i=0; i<n; i++)
-      contr->areaCommand(cmd, ds, qletter.getDataValues(i).join(":").toStdString(), fromId);
+    if (n == 0) {
+      contr->areaCommand(cmd, ds, std::vector<std::string>(), fromId);
+    } else {
+      for (int i=0; i<n; i++)
+        contr->areaCommand(cmd, ds, diutil::toVector(qletter.getDataValues(i)), fromId);
+    }
   }
 
   else if (command == qmstrings::selectarea) {
     //commondesc dataSet
     //description name,on/off
-    int n = letter.data.size();
+    int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("select", letter.common, letter.data[i], fromId);
+      contr->areaCommand("select", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
   else if (command == qmstrings::showarea) {
     //commondesc dataSet
     //description name,on/off
-    int n = letter.data.size();
+    int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("show", letter.common, letter.data[i], fromId);
+      contr->areaCommand("show", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
   else if (command == qmstrings::changearea) {
     //commondesc dataSet
     //description name,colour
-    int n = letter.data.size();
+    int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("setcolour", letter.common, letter.data[i], fromId);
+      contr->areaCommand("setcolour", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
   else if (command == qmstrings::deletearea) {
     //commondesc dataSet
-    contr->areaCommand("delete", letter.common, "all", fromId);
+    contr->areaCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
     if (showelem)
       updatePlotElements();
   }
@@ -2257,7 +2260,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //remove stationPlots from this client
     contr->stationCommand("delete", "", id);
     //remove areas from this client
-    contr->areaCommand("delete", "all", "all", id);
+    contr->areaCommand("delete", "all", std::vector<std::string>(1, "all"), id);
     //remove times
     vector<std::string> type = timecontrol->deleteType(id);
     for(unsigned int i=0; i<type.size(); i++)
