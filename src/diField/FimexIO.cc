@@ -917,7 +917,6 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReaderPtr reader, co
         }
       }
     }
-    DataPtr times = feltReader->getDataSlice(tAxis->getName(), sb.getTimeVariableSliceBuilder());
     sb.setTimeStartAndSize(taxis_index, 1);
   }
   // select the vertical layer
