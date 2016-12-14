@@ -2172,7 +2172,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //commondesc command:dataSet
     std::string cmd, ds;
     if (qletter.countCommon() >= 2) {
-      const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findDataDesc("dataset");
+      const int c_cmd = qletter.findCommonDesc("command"), c_ds = qletter.findCommonDesc("dataset");
       if (c_cmd >= 0 && c_ds >= 0) {
         cmd = qletter.getCommonValue(c_cmd).toStdString();
         ds = qletter.getCommonValue(c_ds).toStdString();
