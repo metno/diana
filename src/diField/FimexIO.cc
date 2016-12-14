@@ -75,6 +75,13 @@ DataPtr getScaledDataSlice(FimexIO::CDMReaderPtr reader, const CoordinateSystemS
     return reader->getScaledDataSliceInUnit(varName, unit, sb);
 }
 
+//! copy the axis' name if the axis is not null
+void copyAxisName(CoordinateSystem::ConstAxisPtr axis, std::string& nameVar)
+{
+  if (axis)
+    nameVar = axis->getName();
+}
+
 } // anonymous namespace
 
 // #######################################################################
@@ -793,28 +800,13 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
       std::string xaxisname, yaxisname, taxisname, zaxisname, projectionname;
       if (varSysIt != coordSys.end()) {
-        CoordinateSystem::ConstAxisPtr axis = (*varSysIt)->getTimeAxis();
-        taxisname = (axis.get() == 0) ? "" : axis->getName();
+        copyAxisName((*varSysIt)->getTimeAxis(), taxisname);
+        copyAxisName((*varSysIt)->getGeoXAxis(), xaxisname);
+        copyAxisName((*varSysIt)->getGeoYAxis(), yaxisname);
+        copyAxisName((*varSysIt)->getGeoZAxis(), zaxisname);
 
-        axis = (*varSysIt)->getGeoXAxis();
-        xaxisname = (axis.get() == 0) ? "" : axis->getName();
-
-        axis = (*varSysIt)->getGeoYAxis();
-        yaxisname = (axis.get() == 0) ? "" : axis->getName();
-
-        axis = (*varSysIt)->getGeoZAxis();
-        if ( axis.get() != 0 ) {
-          DataPtr data = feltReader->getScaledData(axis->getName());
-          std::string verticalType;
-          if ((*varSysIt)->hasVerticalTransformation()) {
-            boost::shared_ptr<const VerticalTransformation> vtran = (*varSysIt)->getVerticalTransformation();
-            verticalType = vtran->getName();
-          }
-          zaxisname = axis->getName();
-        }
-
-        boost::shared_ptr<const MetNoFimex::Projection> projection = (*varSysIt)->getProjection();
-        projectionname = (projection.get() == 0) ? "" : projection->getName();
+        if (boost::shared_ptr<const MetNoFimex::Projection> projection = (*varSysIt)->getProjection())
+          projectionname = projection->getName();
       }
 
       std::string gridname = xaxisname + yaxisname + "_" + projectionname;
