@@ -64,7 +64,7 @@ public:
   ///Number of times currently in the slider
   int numTimes() const {return times.size();}
   ///Next/previous time
-  bool nextTime(const int dir, miutil::miTime& time, bool restricted =false);
+  bool nextTime(const int dir, miutil::miTime& time);
   void setLoop(const bool b);
   std::vector<miutil::miTime> getTimes(){return times;}
   void startAnimation(){startani= true;}

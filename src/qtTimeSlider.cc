@@ -124,9 +124,8 @@ void TimeSlider::setLoop(const bool b){
   loop= b;
 }
 
-bool TimeSlider::nextTime(const int dir, miutil::miTime& time, bool restricted){
-
-  miutil::miTime t, current;
+bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
+{
   int v= value();
   int n= times.size();
   if (n==0 || v>=n) return false;
@@ -134,14 +133,13 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time, bool restricted){
   // start-stop indices
   int i1= 0, i2= n-1;
 
-  current= times[v];
-
   if (!loop && !startani){
     if (dir>0 && v==i2) return false;
     if (dir<0 && v==i1) return false;
   }
 
-  t= current;
+  const miutil::miTime& current = times[v];
+  miutil::miTime t = current;
   t.addMin(int(dir*interval*60));
 
   if (dir>0){

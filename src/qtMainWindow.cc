@@ -2495,7 +2495,7 @@ void DianaMainWindow::timerEvent(QTimerEvent *e)
 {
   if (e->timerId()==animationTimer){
     miutil::miTime t;
-    if (!tslider->nextTime(timeron, t, true)){
+    if (!tslider->nextTime(timeron, t)){
       stopAnimation();
       return;
     }
