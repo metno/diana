@@ -1,3 +1,11 @@
+diana-3.41 (3.41.1-1) unstable; urgency=low
+
+  * bugfix processLetter for areacommand
+  * bugfix filled contour with max value
+  * bugfix vesselIcingTestMod
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 15 Dec 2016 08:00:08 +0100
+
 diana-3.41 (3.41.0-1) unstable; urgency=low
 
   * new upstream version
