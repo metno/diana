@@ -1009,7 +1009,8 @@ void Controller::makeAreas(const std::string& name, std::string areastring, int 
 }
 
 void Controller::areaCommand(const std::string& command,const std::string& dataSet,
-    const std::string& data, int id ){
+    const std::vector<std::string>& data, int id)
+{
   //METLIBS_LOG_DEBUG("Controller::areaCommand");
   plotm->areaCommand(command,dataSet,data,id);
 }

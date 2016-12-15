@@ -96,43 +96,47 @@ void AreaObjects::makeAreas(const std::string& name, const std::string& icon,
 }
 
 
-bool AreaObjects::areaCommand(const std::string& command, const std::string& data)
+bool AreaObjects::areaCommand(const std::string& command, const std::vector<std::string>& data)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("command=" << command);
-  METLIBS_LOG_DEBUG("data=" << data);
+  METLIBS_LOG_DEBUG("#data=" << data.size());
 #endif
 
-  std::vector<std::string> token = miutil::split(data, 1,":",true);
+  bool on = false;
+  if ((data.size() == 2 || data.size() == 1) && data.back() == "on")
+    on = true;
 
-  bool on=false;
-  if((token.size()==2 && token[1]=="on") || data=="on")
-    on=true;
-
-  if (command=="clickselect"){
+  if (command == "clickselect") {
     clickSelect = on;
     return true;
   }
-  if (command=="autozoom"){
+  if (command == "autozoom") {
     autozoom = on;
     return true;
   }
 
+  if (data.empty())
+    return false;
   std::vector<ObjectPlot*>::iterator p = objects.begin();
-  while (p!= objects.end() && (*p)->getName()!=token[0]) p++;
-  if( p== objects.end() ) return false;
+  while (p!= objects.end() && (*p)->getName()!=data[0])
+    p++;
+  if (p == objects.end())
+    return false;
   ObjectPlot * pobject = *p;
   //    METLIBS_LOG_DEBUG("pobject->getName():"<<pobject->getName());
   if (command=="show"){
     pobject->setVisible(on);
   }else if (command=="select"){
     pobject->setSelected(on);
-    if(on) currentArea = pobject;
-    else if(currentArea == pobject)currentArea=NULL;
-  }else if (command=="setcolour" && token.size()==2){
-    pobject->setObjectRGBColor(token[1]);
-  }else if (command=="delete"){
+    if (on)
+      currentArea = pobject;
+    else if (currentArea == pobject)
+      currentArea = 0;
+  } else if (command=="setcolour" && data.size()==2) {
+    pobject->setObjectRGBColor(data[1]);
+  } else if (command=="delete") {
     objects.erase(p);
   }
 

@@ -2745,8 +2745,8 @@ bool vesselIcingTestMod(int nx, int ny,
   }
 
   DIUTIL_OPENMP_PARALLEL(fsize, for shared(local_allDefined))
-  for (int i = 0; i < fsize; i++) {
 
+  for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, sal[i], wave[i], x_wind[i], y_wind[i], airtemp[i],
             rh[i], sst[i], p[i], aice[i], depth[i], undef))
     {
@@ -2897,7 +2897,7 @@ bool vesselIcingTestMod(int nx, int ny,
         double ri=0.0;
 
         /* Running loop when error>=tolerance */
-        int j=0;
+        int j=0, m=0;
         while (err >= 1.0E-5 && N>=0 && N<=1 && rw>0) {
           ri = (1/lfs)*(ha*(Ts-Ta) + he*(es-rh[i]*ea) + rw*cw*(Ts-k1));
           N1 = (ri/rw);
@@ -2908,38 +2908,27 @@ bool vesselIcingTestMod(int nx, int ny,
           lfs = (1-0.3)*lf;
           N = N1;
           j=j+1;
-          if (j>1000) {
-            METLIBS_LOG_DEBUG("T1 not conv: Running Ts=(1+n)Tf!");
-            //Start of Ts=(1+n)Tf algorithm
-            N = 0.0;
-
-            /* Setting starterror */
-            err = 1.0;
-
-            /* Running loop when error>=tolerance */
-            int l=0;
-            while (err >= 1.0E-5 && N>=0 && N<=1) {
-              Ts = (1.0 + N) * Tf;
-              es = 6.112*exp((17.67*Ts)/(Ts+243.5));
-              ri = (1/lfs)*(ha*(Ts-Ta) + he*(es-rh[i]*ea) + rw*cw*(Ts-k1));
-              N1 = (ri/rw);
-              err = fabs(N1 - N);
-              N = N1;
-              l=l+1;
-              //METLIBS_LOG_INFO("values"<< N <<" "<< Ts <<" "<< Tf <<" "<<ri <<" "<<rw <<" "<<err);
-              if (l>1000) {
-                METLIBS_LOG_DEBUG("TsTn do not converge either!");
-                N=0.0;
-                break;
-              } //end if break
-            } //end second while
-          } //end if j>1000
+	      //METLIBS_LOG_DEBUG("values"<< N <<" "<< Ts <<" "<< Tf <<" "<<ri <<" "<<rw <<" "<<err);
+          if (j>100 && m==0) {
+		    METLIBS_LOG_INFO("Model not conv: Testing N=1.1");
+		    N = 1.1;
+		    /* Setting starterror */
+		    err = 1.0;
+		    j   = 0;
+		    m   = 1;
+          }
+          if (j>100 && m==1) {
+	        /* Running loop when error>=tolerance */
+			METLIBS_LOG_DEBUG("Model not conv second time: Setting N=0");
+			N = 0.0;
+			break;
+          } //end if j>100
         }
 
         /* Setting n=0 for negative values */
-        if (N < 0.0) {
-          N = 0.0;
-          rw = 0.0;
+  		if (N < 0.0 || rw < 0) {
+  		  N = 0.0;
+  		  rw = 0.0;
         } else if(N > 1.0) { /* Dry icing mode */
           N = 1.0;
         }

@@ -350,7 +350,7 @@ public:
   void makeAreas(const std::string& name, std::string areaString, int id=-1);
   ///send command to right area object
   void areaCommand(const std::string& command, const std::string& dataSet,
-      const std::string& data, int id );
+      const std::vector<std::string>& data, int id);
   ///find areas in position x,y
   std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
 

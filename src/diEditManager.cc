@@ -1050,8 +1050,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
         std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
         outputFilename += filename;
         QString qs(outputFilename.c_str());
-        QFile qfile(qs);
-        if ( qfile.exists() ) {
+	if ( QFile::exists(qs) ) {
           message = qs + " already exists, do you want to continue?";
           return false;
         }
@@ -1063,8 +1062,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
       std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
       outputFilename += filename;
       QString qs(outputFilename.c_str());
-      QFile qfile(qs);
-      if ( qfile.exists() ) {
+      if ( QFile::exists(qs) ) {
         message = qs + " already exists, do you want to continue?";
         return false;
       }
@@ -1079,8 +1077,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
       std::string objectsFilename= editFileName(outputFilename,ci.name,
           ep.objectsFilenamePart,time);
       QString qstr(objectsFilename.c_str());
-      QFile qfile(qstr);
-      if ( qfile.exists() ) {
+      if ( QFile::exists(qstr) ) {
         message = qstr + " already exists, do you want to continue?";
         return false;
       }
@@ -1090,8 +1087,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     std::string objectsFilename= editFileName(ep.local_savedirs[i],ci.name,
         ep.objectsFilenamePart,time);
     QString qstr(objectsFilename.c_str());
-    QFile qfile(qstr);
-    if ( qfile.exists() ) {
+    if ( QFile::exists(qstr) ) {
       message = qstr + " already exists, do you want to continue?";
       return false;
     }
@@ -1142,46 +1138,46 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
     }
   }
 
-  //  outputFilename += EdProd.fields[fnum].filename;
-  for (size_t i=0; i<outputFilenames.size();++i) {
-    if ( qfile.exists(outputFilenames[i].c_str()) && !qfile.remove(outputFilenames[i].c_str()) ){
-      message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed. (File exsists, but can't be overwritten.)";
-      return false;
-    }
-    if (!qfile.copy(outputFilenames[i].c_str())){
-      message = "Copy from "  + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed";
-      return false;
-    }
   if ( local ) {
     EdProd.fields[fnum].localFilename = outputFilenames;
   } else {
     EdProd.fields[fnum].prodFilename = outputFilenames;
   }
 
-  std::string fileType = "fimex";
+  //  outputFilename += EdProd.fields[fnum].filename;
+  for (size_t i=0; i<outputFilenames.size();++i) {
+	if ( QFile::exists(outputFilenames[i].c_str()) && !QFile::remove(outputFilenames[i].c_str()) ){
+	  message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed. (File exsists, but can't be overwritten.)";
+	  return false;
+	}
+	if (!qfile.copy(outputFilenames[i].c_str())){
+      message = "Copy from "  + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed";
+      return false;
+	}
 
-  //  std::vector<std::string> filenames;
-  //  std::string modelName = outputFilename;
-  //  filenames.push_back(outputFilename);
+	std::string fileType = "fimex";
 
-  std::vector<std::string> format;
-  format.push_back("netcdf");
+	std::vector<std::string> filenames;
+	std::string modelName = outputFilenames[i];
+	filenames.push_back(outputFilenames[i]);
 
-  std::vector<std::string> config;
+	std::vector<std::string> format;
+	format.push_back("netcdf");
 
-  std::vector<std::string> option;
-  std::string opt = "writeable=true";
-  option.push_back(opt);
+	std::vector<std::string> config;
 
-  fieldPlotManager->addGridCollection(fileType, outputFilenames[i], outputFilenames,
-      format,config, option);
+	std::vector<std::string> option;
+	std::string opt = "writeable=true";
+	option.push_back(opt);
 
-  vector<FieldGroupInfo> fgi;
-  std::string reftime = fieldPlotManager->getBestFieldReferenceTime(outputFilenames[i],0,-1 );
-  METLIBS_LOG_INFO(LOGVAL(outputFilenames[i])<<LOGVAL(reftime));
-  fieldPlotManager->getFieldGroups(outputFilenames[i],reftime,true,fgi);
+	fieldPlotManager->addGridCollection(fileType, modelName, filenames,
+			format,config, option);
+
+	vector<FieldGroupInfo> fgi;
+	std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
+	METLIBS_LOG_INFO(LOGVAL(modelName)<<LOGVAL(reftime));
+	fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
   }
-
   return true;
 
 }
@@ -1370,7 +1366,6 @@ bool EditManager::writeEditProduct(QString&  message,
       if(EdProdId.sendable ) {
         for (size_t j=0; j<EdProd.fields[i].prodFilename.size();++j) {
           if ( send ) {
-            METLIBS_LOG_INFO(LOGVAL(EdProd.fields[i].prodFilename[j]));
             if(fedits[i]->writeEditFieldFile(EdProd.fields[i].prodFilename[j]) ) {
               METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].prodFilename[j]);
             } else {
@@ -1383,7 +1378,7 @@ bool EditManager::writeEditProduct(QString&  message,
             QFile qfile(workFile);
             QString prodFile = workFile.replace("work","products");
             METLIBS_LOG_INFO("Writing field:" << prodFile.toStdString());
-            if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+            if ( QFile::exists(prodFile) && !QFile::remove(prodFile) ) {
               METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
               res = false;
               message += "Could not write field to file:" + prodFile + "\n";
@@ -1412,7 +1407,8 @@ bool EditManager::writeEditProduct(QString&  message,
       for (size_t i=0; i<EdProd.local_savedirs.size();++i) {
         objectsFilename= editFileName(EdProd.local_savedirs[i],EdProdId.name,
             objectsFilenamePart,t);
-
+ 	if( QFile::exists(QString(objectsFilename.c_str())) && !QFile::remove(QString(objectsFilename.c_str())))
+	      METLIBS_LOG_WARN("Could not save file: "<<objectsFilename<<" (File already exists and could not be removed)");
         if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
           res= false;
           saveok= false;
@@ -1425,8 +1421,9 @@ bool EditManager::writeEditProduct(QString&  message,
           if ( send ) {
             objectsFilename = editFileName(EdProd.prod_savedirs[i] + "/work",EdProdId.name,
                 objectsFilenamePart,t);
-            METLIBS_LOG_INFO(LOGVAL(objectsFilename));
-            if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
+	    if( QFile::exists(QString(objectsFilename.c_str())) && !QFile::remove(QString(objectsFilename.c_str())))
+	      METLIBS_LOG_WARN("Could not save file: "<<objectsFilename<<" (File already exists and could not be removed)");
+	    if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
               res= false;
               saveok= false;
               message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
@@ -1438,7 +1435,7 @@ bool EditManager::writeEditProduct(QString&  message,
             QString workFile = objectsFilename.c_str();
             QFile qfile(workFile);
             QString prodFile = workFile.replace("work","products");
-            if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+	    if ( QFile::exists(prodFile) && !QFile::remove(prodFile) ) {
               METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
               res = false;
               message += "Could not write objects to file:" + prodFile + "\n";
@@ -1496,7 +1493,7 @@ bool EditManager::writeEditProduct(QString&  message,
             QString workFile = commentFilename.c_str();
             QFile qfile(workFile);
             QString prodFile = workFile.replace("work","products");
-            if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+	    if ( QFile::exists(prodFile) && !QFile::remove(prodFile) ) {
               METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
               res = false;
               message += "Could not write field to file:" + prodFile + "\n";
@@ -1507,7 +1504,6 @@ bool EditManager::writeEditProduct(QString&  message,
               res = false;
               message += "Could not write field to file:" +  prodFile+ "\n";
             }
-            qfile.copy(prodFile);
           }
         }
       }
@@ -1636,7 +1632,6 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   // loop over directories
   for (int i=0; i<ncombdirs; i++) {
     dir = ep.combinedirs[i];
-    dataSource dsource;//= (dir==ep.local_savedir) ? data_local : data_server;
     METLIBS_LOG_DEBUG("Looking in directory " << dir);
     for (int j=-1; j<numfields; j++) {
       if (j == -1) filenamePart= ep.objectsFilenamePart;
