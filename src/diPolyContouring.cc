@@ -376,7 +376,7 @@ void DianaLines::paint_polygons()
         continue;
       setFillColour(mPlotOptions.undefColour);
     } else {
-      if (no_fill || (skip_min && li < level_min) || (skip_max && li > level_max)
+      if (no_fill || (skip_min && li < level_min) || (skip_max && li >= level_max)
           || (skip_level_0 && li == 0) || (skip_level_1 && li == 1))
         continue;
       if (mPlotOptions.discontinuous == 1) {
