@@ -138,14 +138,11 @@ METNO_IF_WITH([geotiff], [
     METNO_REQUIRE_C_LIBRARY([JPEG], [jpeg], [jpeglib.h], [jpeg_read_header])
     METNO_REQUIRE_C_LIBRARY([TIFF], [tiff], [tiff.h], [TIFFOpen], [${ZLIB_LIBS} ${JPEG_LIBS}])
   ])
-  AC_CHECK_HEADER([libgeotiff/geotiff.h], [break])
-  if test x"$ac_cv_header_libgeotiff_geotiff_h" == xyes
-  then
-    METNO_REQUIRE_C_LIBRARY([GEOTIFF], [geotiff], [libgeotiff/geotiff.h], [main], [${ZLIB_LIBS} ${TIFF_LIBS}])
-    GEOTIFF_CPPFLAGS="${GEOTIFF_CPPFLAGS} -DLIBGEOTIFF"
-  else
-    METNO_REQUIRE_C_LIBRARY([GEOTIFF], [geotiff], [geotiff/geotiff.h], [main], [${ZLIB_LIBS} ${TIFF_LIBS}])
-  fi
+  AC_CHECK_HEADERS(
+    [libgeotiff/geotiff.h geotiff/geotiff.h geotiff.h], [
+      METNO_REQUIRE_C_LIBRARY([GEOTIFF], [geotiff], [], [main], [${ZLIB_LIBS} ${TIFF_LIBS}])
+      break
+    ])
 ], [])
 METNO_WITH_CONDITIONAL([GEOTIFF], [geotiff])
 
