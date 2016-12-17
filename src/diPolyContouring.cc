@@ -114,7 +114,7 @@ class DianaPositionsList : public DianaPositions {
 public:
   DianaPositionsList(const DianaArrayIndex& index, const float* xpos, const float* ypos)
     : mIndex(index), mXpos(xpos), mYpos(ypos) { }
-  
+
   contouring::point_t position(size_t ix, size_t iy) const
     { const size_t i = mIndex(ix, iy); return contouring::point_t(mXpos[i], mYpos[i]); }
 
@@ -127,7 +127,7 @@ class DianaPositionsFormula : public DianaPositions {
 public:
   DianaPositionsFormula(const float* coeff)
     : cxy(coeff) { }
-  
+
   contouring::point_t position(size_t ix, size_t iy) const
     { const float x = cxy[0]+cxy[1]*ix+cxy[2]*iy;
       const float y = cxy[3]+cxy[4]*ix+cxy[5]*iy;
@@ -194,7 +194,7 @@ DianaLevelLog::DianaLevelLog(const std::vector<float>& levels)
   for (size_t i=0; i<levels.size(); ++i) {
      float l = levels[i];
     if (l > BASE or (l>0 and l<1)) {
-      const float logBl = log(l) / log(BASE), flogBl = logBl - floor(logBl);
+      const float logBl = log(l) / log(double(BASE)), flogBl = logBl - floor(logBl);
       l = pow(BASE, flogBl);
     }
     if (l >= 1 and l < BASE and (mLevels.empty() or l > mLevels.back()))
@@ -210,7 +210,7 @@ contouring::level_t DianaLevelLog::level_for_value(float value) const
     return UNDEF_LEVEL;
   if (value == 0)
     return UNDEF_LEVEL;
-  const double logBv = log(value)/log(BASE), ilogBv = floor(logBv);
+  const double logBv = log(value)/log(double(BASE)), ilogBv = floor(logBv);
   const double v_0_B = std::pow(BASE, logBv - ilogBv);
   const contouring::level_t l = DianaLevelList::level_for_value(v_0_B);
   return ilogBv*nlevels() + l;
@@ -287,10 +287,10 @@ public:
     : DianaFieldBase(levels, positions)
     , mIndex(index), mData(data)
     { }
-  
+
   virtual size_t nx() const
     { return mIndex.size_x(); }
-  
+
   virtual size_t ny() const
     { return mIndex.size_y(); }
 
