@@ -29,7 +29,7 @@ void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines,
   const float KN5_SCALE = 0.6;
 
   const float ff = sqrtf(u*u + v*v);
-  if (ff <= 0.00001 or isnan(ff))
+  if (ff <= 0.00001 or std::isnan(ff))
     return;
 
   const util::WindArrowFeathers waf = util::countFeathers(ff);
@@ -145,7 +145,7 @@ void PaintVector::paintArrow(QPainter& painter, float px, float py, float ex, fl
 void PaintVector::paint(QPainter& painter, float u, float v, float px, float py) const
 {
   const float ff = sqrtf(u*u + v*v);
-  if (ff <= 0.00001 or isnan(ff))
+  if (ff <= 0.00001 or std::isnan(ff))
     return;
 
   QPen pen = painter.pen();

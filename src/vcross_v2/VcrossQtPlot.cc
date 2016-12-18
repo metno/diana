@@ -659,7 +659,7 @@ void QtPlot::prepareYAxisRange()
       for (int p=0; p<np; ++p) {
         idx.set(H_COORD, p);
         const float zax_value = z_values->value(idx);
-        if (!isnan(zax_value)) {
+        if (!std::isnan(zax_value)) {
           have_z = true;
           vcross::util::minimaximize(yax_min, yax_max, zax_value);
         }
@@ -1507,7 +1507,7 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
           and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= autofactor*pa.size()));
       if (paintThisY) {
         const float wx = av0->value(idx_av0), wy = av1->value(idx_av1);
-        if (not (isnan(wx) or isnan(wy))) {
+        if (not (std::isnan(wx) or std::isnan(wy))) {
           pa.paint(painter, wx, wy, px, py);
           lastY = py;
           paintedY = true;
@@ -1595,7 +1595,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
         continue;
 
       const float v = absValue(plot, ix, iy, isTimeGraph());
-      if (isnan(v))
+      if (std::isnan(v))
         continue;
 
       if ((not have_max) or v > max_v) {
@@ -1621,7 +1621,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
     const QColor color(vcross::util::QC(plot->poptions.linecolour));
     painter.setPen(QPen(color, plot->poptions.linewidth));
     painter.setBrush(Qt::NoBrush);
-    
+
     const float R = 9*plot->poptions.extremeSize, D = R*sqrt(2)/2;
     if (have_min) {
       painter.drawEllipse(QPointF(min_px, min_py), R, R);

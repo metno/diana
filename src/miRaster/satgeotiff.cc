@@ -67,14 +67,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#ifdef LIBGEOTIFF
+#ifdef HAVE_GEOTIFF_GEOTIFF_H
+#include <geotiff/geotiff.h>
+#include <geotiff/geotiffio.h>
+#include <geotiff/geo_tiffp.h>
+#elif HAVE_LIBGEOTIFF_H
 #include <libgeotiff/geotiff.h>
 #include <libgeotiff/geotiffio.h>
 #include <libgeotiff/geo_tiffp.h>
 #else
-#include <geotiff/geotiff.h>
-#include <geotiff/geotiffio.h>
-#include <geotiff/geo_tiffp.h>
+#include <geotiff.h>
+#include <geotiffio.h>
+#include <geo_tiffp.h>
 #endif
 
 #include <tiffio.h>
@@ -118,7 +122,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
   ginfo.zsize =1;
   // read header
   pal = head_diana(infile,ginfo);
-  
+
   METLIBS_LOG_DEBUG("Palette: " << pal);
 
   if(pal == -1)
@@ -137,9 +141,9 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
 
   unsigned int tileWidth, tileLength;
   int tilesAcross=1, tilesDown=1;
-  
+
   short planar_config;   //Planar_Configuration 284 short (1 or 2)
-  
+
   tsample_t samplesperpixel, bitspersample;
   // Read image data into matrix.
 
@@ -231,7 +235,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
       imageWidth  = ginfo.xsize;
       imageLength = ginfo.ysize;
       int tileSize = TIFFTileSize(in);
- 
+
       buf = _TIFFmalloc(tileSize);
 
       for (y = 0; y < imageLength; y += tileLength) {
@@ -309,7 +313,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
         //ORIENTATION_TOPLEFT,
         0))
     {
-      METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize); 
+      METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize);
     }
     mImageCache->putInCache(file, (uint8_t*)image[0], size*4);
   }
@@ -320,7 +324,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
 
 int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 {
- 
+
   METLIBS_LOG_TIME();
 
   int status;
@@ -352,14 +356,14 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   //    pmi= 3 : color palette
 
   status = TIFFGetField(in, TIFFTAG_PHOTOMETRIC, &pmi);
-  
-  METLIBS_LOG_DEBUG("TIFFGetField (TIFFTAG_PHOTOMETRIC) status: " << status << " pmi: " << pmi); 
-  
+
+  METLIBS_LOG_DEBUG("TIFFGetField (TIFFTAG_PHOTOMETRIC) status: " << status << " pmi: " << pmi);
+
   ginfo.pmi = pmi;
   if(pmi==3){
     status = TIFFGetField(in, TIFFTAG_COLORMAP, &red, &green, &blue);
-    
-    METLIBS_LOG_DEBUG("TIFFGetField (TIFFTAG_COLORMAP) status: " << status); 
+
+    METLIBS_LOG_DEBUG("TIFFGetField (TIFFTAG_COLORMAP) status: " << status);
 
     if (status != 1) {
       TIFFClose(in);
@@ -395,7 +399,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   METLIBS_LOG_DEBUG("TIFFGetField (TIFFTAG_DATETIME) status: " << status);
   if ((status == 1)&&(datetime != 0)) {
     METLIBS_LOG_DEBUG("datetime: " << datetime);
-    
+
     int hour,minute,day,month,year,sec;
     //Format hour:min day/month-year
     // Format 2009:11:09 10:30:00
@@ -918,4 +922,3 @@ short GeoTiff::selalg(const dto& d, const ucs& upos, const float& hmax, const fl
 
 
 #endif // end if 0
-
