@@ -71,7 +71,7 @@
 #include <geotiff/geotiff.h>
 #include <geotiff/geotiffio.h>
 #include <geotiff/geo_tiffp.h>
-#elif HAVE_LIBGEOTIFF_H
+#elif HAVE_LIBGEOTIFF_GEOTIFF_H
 #include <libgeotiff/geotiff.h>
 #include <libgeotiff/geotiffio.h>
 #include <libgeotiff/geo_tiffp.h>
