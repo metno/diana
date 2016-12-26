@@ -255,7 +255,7 @@ bool AnnotationPlot::prepare(const std::string& pin)
   return true;
 }
 
-bool AnnotationPlot::setData(const vector<Annotation>& a,
+void AnnotationPlot::setData(const vector<Annotation>& a,
     const vector<miTime>& fieldAnalysisTime)
 {
   if (atype != anno_text)
@@ -264,8 +264,6 @@ bool AnnotationPlot::setData(const vector<Annotation>& a,
     fieldAnaTime = fieldAnalysisTime;
   splitAnnotations();
   putElements();
-
-  return true;
 }
 
 void AnnotationPlot::splitAnnotations()
@@ -1320,24 +1318,18 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
   return vvstr;
 }
 
-bool AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
+void AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vvstr.size()));
   if (vvstr.empty())
-    return false;
+    return;
 
   const size_t m = annotations.size();
-
   if (vvstr.size() != m)
-    return false;
+    return;
 
-  bool keep = false;
   for (size_t i = 0; i < vvstr.size(); i++) {
-    if (vvstr[i].size())
-      keep = true;
     annotations[i].vstr = vvstr[i];
   }
   putElements();
-
-  return keep;
 }

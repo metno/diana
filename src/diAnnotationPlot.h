@@ -176,7 +176,7 @@ public:
   ///decode plot info strings
   bool prepare(const std::string&);
   ///set data annotations
-  bool setData(const std::vector<Annotation>& a,
+  void setData(const std::vector<Annotation>& a,
       const std::vector<miutil::miTime>& fieldAnalysisTime);
   void setfillcolour(const Colour& c);
   /// mark editable annotationPlot if x,y inside plot
@@ -209,7 +209,7 @@ public:
   //get annotations, change them somewhere else, and put them back
   std::vector<std::vector<std::string> > getAnnotationStrings();
   ///replace annotations
-  bool setAnnotationStrings(std::vector<std::vector<std::string> >& vstr);
+  void setAnnotationStrings(std::vector<std::vector<std::string> >& vstr);
 
   Rectangle getBoundingBox() const {return bbox;}
 };
