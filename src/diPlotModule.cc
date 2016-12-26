@@ -315,7 +315,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
   // for now -- erase all fieldplots
   for (unsigned int i = 0; i < vfp.size(); i++) {
     FieldPlot* fp = vfp[i];
-    plotenabled.save(fp, fp->getPlotInfo("model,plot,parameter,reftime"));
+    plotenabled.save(fp, fp->getModelPlotParameterReftime());
     // free old fields
     freeFields(fp);
     delete fp;
@@ -340,7 +340,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
     if (!fp->prepare(plotName, inp[i])) {
       delete fp;
     } else {
-      plotenabled.restore(fp, fp->getPlotInfo("model,plot,parameter,reftime"));
+      plotenabled.restore(fp, fp->getModelPlotParameterReftime());
       vfp.push_back(fp);
       fp->setCanvas(mCanvas);
     }

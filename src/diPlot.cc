@@ -245,32 +245,6 @@ std::string Plot::getPlotInfo(int n) const
   }
   return str;
 }
-std::string Plot::getPlotInfo(const std::string& return_tokens) const
-{
-  //return n elements of current plot info string
-  vector<std::string> return_token = miutil::split(return_tokens, 0, ",");
-  vector<std::string> token = miutil::split(pinfo, 0, " ");
-  std::string str;
-
-  for(unsigned int i=0;i<token.size();i++){
-    vector<std::string> stoken = miutil::split(token[i], 0, "=");
-    if( stoken.size() == 2 ) {
-      size_t j=0;
-      while ( j<return_token.size() && return_token[j] != stoken[0] )
-        ++j;
-      if ( j < return_token.size() ) {
-        str += token[i] + " ";
-      }
-    }
-  }
-
-  //probably old FIELD string syntax
-  if ( str.empty() ) {
-    return getPlotInfo(3);
-  }
-
-  return str;
-}
 
 // panning in progress
 void StaticPlot::panPlot(bool b)

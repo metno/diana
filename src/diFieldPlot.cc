@@ -174,6 +174,36 @@ void FieldPlot::clearFields()
   fields.clear();
 }
 
+std::string FieldPlot::getModelPlotParameterReftime() const
+{
+  //return n elements of current plot info string
+  vector<std::string> return_token;
+  return_token.push_back("model");
+  return_token.push_back("parameter");
+  return_token.push_back("plot");
+  return_token.push_back("reftime");
+
+  vector<std::string> token = miutil::split(pinfo, 0, " ");
+  std::string str;
+
+  for(unsigned int i=0;i<token.size();i++){
+    vector<std::string> stoken = miutil::split(token[i], 0, "=");
+    if (stoken.size() == 2) {
+      vector<std::string>::const_iterator it = std::find(return_token.begin(), return_token.end(), stoken[0]);
+      if (it != return_token.end()) {
+        str += token[i] + " ";
+      }
+    }
+  }
+
+  //probably old FIELD string syntax
+  if ( str.empty() ) {
+    return getPlotInfo(3);
+  }
+
+  return str;
+}
+
 const Area& FieldPlot::getFieldArea() const
 {
   if (fields.size() && fields[0])

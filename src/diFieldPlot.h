@@ -77,6 +77,8 @@ public:
   bool fieldsOK();
   void clearFields();
 
+  std::string getModelPlotParameterReftime() const;
+
 private:
   std::vector<Field*> fields; // fields, stored elsewhere
   std::vector<Field*> tmpfields; // tmp fields, stored here

@@ -267,9 +267,6 @@ public:
   /// return n elements of the current plot info string
   std::string getPlotInfo(int n=0) const;
 
-  /// return the elements given
-  std::string getPlotInfo(const std::string& str) const;
-
   /// return true if right plot string
   bool plotInfoOK(const std::string& pin) const
     { return (pinfo == pin); }
