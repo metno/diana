@@ -1374,8 +1374,8 @@ const miutil::miTime& PlotModule::getPlotTime() const
 
 miutil::miTime PlotModule::getFieldReferenceTime()
 {
-  if (vfp.size() ){
-    std::string pinfo = vfp[0]->getPlotInfo();
+  if (vfp.size()) {
+    const std::string& pinfo = vfp[0]->getPlotInfo();
     return fieldplotm->getFieldReferenceTime(pinfo);
   } else {
     return miutil::miTime();
