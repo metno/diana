@@ -134,7 +134,7 @@ bool Area::setAreaFromString(const std::string& areaString)
     return true;
   }
 
-  if (proj.set_proj_definition(projStr) && rect.setRectangle(rectangleStr,false)) {
+  if (proj.set_proj_definition(projStr) && rect.setRectangle(rectangleStr)) {
     return true;
   }
 

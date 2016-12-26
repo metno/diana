@@ -96,8 +96,7 @@ void Rectangle::putinside(float x, float y)
   y2 = y1 + ydiff;
 }
 
-// set rectangle from string (x1:y1:x2:y2)
-bool Rectangle::setRectangle(const std::string& rectangleString, bool fortranStyle)
+bool Rectangle::setRectangle(const std::string& rectangleString)
 {
   //If no string, set default rectangle
   if (rectangleString.empty()) {
@@ -110,38 +109,25 @@ bool Rectangle::setRectangle(const std::string& rectangleString, bool fortranSty
 
   const std::vector<std::string> token = miutil::split(rectangleString, ":");
 
-  if (token.size() != 2 && token.size() != 4)
-    return false;
-
   if (token.size() == 2) {
-    if (fortranStyle) {
-      x1 = 1.;
-      y1 = 1.;
-    } else {
-      x1 = 0.;
-      y1 = 0.;
-    }
+    x1 = 0.;
+    y1 = 0.;
     x2 = miutil::to_double(token[0]);
     y2 = miutil::to_double(token[1]);
-  } else {
+    return true;
+  } else if (token.size() == 4) {
     x1 = miutil::to_double(token[0]);
     x2 = miutil::to_double(token[1]);
     y1 = miutil::to_double(token[2]);
     y2 = miutil::to_double(token[3]);
+    return true;
+  } else {
+    return false;
   }
-
-  if (fortranStyle) {
-    x1 -= 1.;
-    x2 -= 1.;
-    y1 -= 1.;
-    y2 -= 1.;
-  }
-
-  return true;
 }
 
 // get string (x1:x2:y1:y2)
-std::string Rectangle::toString(bool fortranStyle) const
+std::string Rectangle::toString() const
 {
   return  miutil::from_number(x1, 5)
       + ":" + miutil::from_number(x2, 5)

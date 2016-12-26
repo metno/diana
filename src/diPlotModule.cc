@@ -248,7 +248,7 @@ void PlotModule::prepareArea(const vector<string>& inp)
           METLIBS_LOG_WARN("Unknown proj definition: "<< stokens[1]);
         }
       } else if (key==key_rectangle){
-        if ( rect.setRectangle(stokens[1],false) ) {
+        if (rect.setRectangle(stokens[1])) {
           requestedarea.setR(rect);
         } else {
           METLIBS_LOG_WARN("Unknown rectangle definition: "<< stokens[1]);
