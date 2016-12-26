@@ -34,6 +34,7 @@
 #include "diMapMode.h"
 #include "diDisplayObjects.h"
 #include "diAreaObjects.h"
+#include "diPrintOptions.h"
 
 #include <puTools/miTime.h>
 

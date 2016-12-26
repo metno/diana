@@ -32,7 +32,6 @@
 #include "diColour.h"
 #include "diPoint.h"
 #include "diPlotOptions.h"
-#include "diPrintOptions.h"
 
 #include <diField/diArea.h>
 #include <diField/diGridConverter.h>
@@ -66,7 +65,6 @@ private:
   Colour backContrastColour; // suitable contrast colour
   float gcd;          // great circle distance
   bool panning;       // panning in progress
-  printerManager printman;   // printer manager
 
 public:
   static GridConverter gc;   // gridconverter class
