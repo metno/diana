@@ -279,7 +279,7 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 }
 
 //  set list of field-pointers, update datatime
-bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
+void FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
 
@@ -310,9 +310,7 @@ bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
       poptions.palettecolours = palette;
     }
   }
-  return true;
 }
-
 
 struct aTable {
   std::string colour;

@@ -62,7 +62,7 @@ public:
 
   bool updateNeeded(std::string&) const;
   bool prepare(const std::string& fname, const std::string&);
-  bool setData(const std::vector<Field*>&, const miutil::miTime&);
+  void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
