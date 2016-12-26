@@ -1180,8 +1180,6 @@ void DianaMainWindow::start()
 
   //statusBar()->message( tr("Ready"), 2000 );
 
-  dialogChanged = false;
-
   if (showelem){
     updatePlotElements();
     statusbuttons->show();
@@ -1228,8 +1226,6 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
   contr->updatePlots();
   requestBackgroundBufferUpdate();
   timeChanged();
-
-  dialogChanged=false;
 }
 
 void DianaMainWindow::resetAll()
@@ -1451,7 +1447,6 @@ void DianaMainWindow::MenuOK()
 
   requestBackgroundBufferUpdate();
   timeChanged();
-  dialogChanged = false;
 
   // push command on history-stack
   if (push_command){ // only when proper menuok
@@ -2502,9 +2497,7 @@ void DianaMainWindow::TimeSelected()
 {
   //Timeslider released
   miutil::miTime t= tslider->Value();
-  if (!dialogChanged){
-    setPlotTime(t);
-  }
+  setPlotTime(t);
 }
 
 void DianaMainWindow::SliderSet()

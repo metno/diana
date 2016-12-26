@@ -435,7 +435,6 @@ private:
   QPushButton       * obsUpdateB;
   QLabel            * archiveL;
   ClientSelection   * pluginB;
-  bool                dialogChanged;
 
   QButton* mwhelp;
   Controller* contr;
