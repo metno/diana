@@ -200,8 +200,6 @@ public:
   bool startTrajectoryComputation();
   // print trajectory positions to file
   bool printTrajectoryPositions(const std::string& filename);
-  /// get field models used (for Vprof etc.)
-  std::vector<std::string> getFieldModels();
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
   /// show pixel values in status bar

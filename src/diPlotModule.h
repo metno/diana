@@ -294,8 +294,6 @@ public:
       const std::string& elementname);
   std::string findLocation(int x, int y, const std::string& name);
 
-  std::vector<std::string> getFieldModels();
-
   // Trajectories
   /// handles trajectory plot info strings
   void trajPos(const std::vector<std::string>&);

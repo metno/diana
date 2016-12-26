@@ -395,12 +395,6 @@ bool Controller::printTrajectoryPositions(const std::string& filename ){
   return plotm->printTrajectoryPositions( filename );
 }
 
-// get field models used (for Vprof etc.)
-vector<string> Controller::getFieldModels()
-{
-  return plotm->getFieldModels();
-}
-
 // get name++ of current channels (with calibration)
 vector<string> Controller::getCalibChannels()
 {

@@ -2100,17 +2100,6 @@ void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventRes
   res.repaint = true;
 }
 
-vector<std::string> PlotModule::getFieldModels()
-{
-  std::set<std::string> unique;
-  for (size_t i = 0; i < vfp.size(); i++) {
-    const std::string& fname = vfp[i]->getModelName();
-    if (not fname.empty())
-      unique.insert(fname);
-  }
-  return std::vector<std::string>(unique.begin(), unique.end());
-}
-
 vector<std::string> PlotModule::getTrajectoryFields()
 {
   vector<std::string> vstr;
