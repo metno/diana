@@ -933,11 +933,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   em->hide();
   mainToolbar->addAction( showEditDialogAction );
 
-  //used for testing qickMenus without dialogs
-  //connect(qm, SIGNAL(Apply(const vector<std::string>&,bool)),
-  //  	  SLOT(quickMenuApply(const vector<std::string>&)));
-
-
   connect(qm, SIGNAL(Apply(const std::vector<std::string>&,bool)),
       SLOT(recallPlot(const std::vector<std::string>&,bool)));
   connect(em, SIGNAL(Apply(const std::vector<std::string>&,bool)),
@@ -1204,28 +1199,6 @@ DianaMainWindow::~DianaMainWindow()
 void DianaMainWindow::focusInEvent( QFocusEvent * )
 {
   w->setGlwFocus();
-}
-
-void DianaMainWindow::quickMenuApply(const vector<string>& s)
-{
-  METLIBS_LOG_SCOPE();
-  diutil::OverrideCursor waitCursor;
-  contr->plotCommands(s);
-
-  map<string,vector<miutil::miTime> > times;
-  contr->getPlotTimes(times);
-
-  map<string,vector<miutil::miTime> >::iterator it = times.begin();
-  while (it != times.end()) {
-    tslider->insert(it->first, it->second);
-    ++it;
-  }
-
-  miutil::miTime t= tslider->Value();
-  contr->setPlotTime(t);
-  contr->updatePlots();
-  requestBackgroundBufferUpdate();
-  timeChanged();
 }
 
 void DianaMainWindow::resetAll()

@@ -177,7 +177,6 @@ private Q_SLOTS:
   void showUrl();
 
   void about();
-  void quickMenuApply(const std::vector<std::string>&);
   void recallPlot(const std::vector<std::string>&, bool);
   void resetArea();
   void resetAll();
