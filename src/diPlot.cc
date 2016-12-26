@@ -225,7 +225,7 @@ void Plot::setPlotInfo(const std::string& pin)
 {
   pinfo= pin;
   // fill poptions with values from pinfo
-  poptions.parsePlotOption(pinfo,poptions);
+  PlotOptions::parsePlotOption(pinfo, poptions, false);
 
   enabled= poptions.enabled;
 }
