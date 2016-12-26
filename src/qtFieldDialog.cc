@@ -1382,7 +1382,7 @@ void FieldDialog::levelChanged(int index)
     updateLevel();
 }
 
-vector<string> FieldDialog::changeLevel(int increment, int type)
+void FieldDialog::changeLevel(int increment, int type)
 {
   METLIBS_LOG_SCOPE("increment="<<increment);
 
@@ -1459,8 +1459,6 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
       }
     }
   }
-
-  return getOKString(false);
 }
 
 void FieldDialog::updateLevel()
