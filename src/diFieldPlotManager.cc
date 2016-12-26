@@ -463,7 +463,6 @@ vector<miTime> FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request
 {
   METLIBS_LOG_SCOPE();
 
-  vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
     if (request[i].plotDefinition) {
       std::vector<FieldRequest> fr = getParamNames(request[i].paramName, request[i]);
