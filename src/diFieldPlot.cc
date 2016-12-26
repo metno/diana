@@ -259,8 +259,6 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
   FieldPlotManager::getFieldPlotOptions(fname, poptions);
   setPlotInfo(pin, true);
 
-  plottype = poptions.plottype;
-
   rasterClear();
 
   if (poptions.maxDiagonalInMeters > -1) {
@@ -270,10 +268,10 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
       return false;
   }
 
-  pshade = (plottype == fpt_alpha_shade || plottype == fpt_alarm_box
-      || plottype == fpt_fill_cell)
-      || (poptions.contourShading > 0 && (plottype == fpt_contour
-              || plottype == fpt_contour1 || plottype == fpt_contour2));
+  pshade = (plottype() == fpt_alpha_shade || plottype() == fpt_alarm_box
+      || plottype() == fpt_fill_cell)
+      || (poptions.contourShading > 0 && (plottype() == fpt_contour
+              || plottype() == fpt_contour1 || plottype() == fpt_contour2));
 
   return true;
 }
@@ -685,27 +683,27 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
 
   bool ok = false;
 
-  if (plottype == fpt_contour1)
+  if (plottype() == fpt_contour1)
     ok = plotContour(gl);
-  else if (plottype == fpt_contour || plottype == fpt_contour2)
+  else if (plottype() == fpt_contour || plottype() == fpt_contour2)
     ok = plotContour2(gl, zorder);
-  else if (plottype == fpt_wind)
+  else if (plottype() == fpt_wind)
     ok = plotWind(gl);
-  else if (plottype == fpt_wind_temp_fl)
+  else if (plottype() == fpt_wind_temp_fl)
     ok = plotWindAndValue(gl, true);
-  else if (plottype == fpt_wind_value)
+  else if (plottype() == fpt_wind_value)
     ok = plotWindAndValue(gl, false);
-  else if (plottype == fpt_value)
+  else if (plottype() == fpt_value)
     ok = plotValue(gl);
-  else if (plottype == fpt_symbol)
+  else if (plottype() == fpt_symbol)
     ok = plotValue(gl);
-  else if (plottype == fpt_vector)
+  else if (plottype() == fpt_vector)
     ok = plotVector(gl);
-  else if (plottype == fpt_direction)
+  else if (plottype() == fpt_direction)
     ok = plotDirection(gl);
-  else if (plottype == fpt_alpha_shade || plottype == fpt_alarm_box || plottype == fpt_fill_cell)
+  else if (plottype() == fpt_alpha_shade || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell)
     ok = plotRaster(gl);
-  else if (plottype == fpt_frame)
+  else if (plottype() == fpt_frame)
     ok = plotFrameOnly(gl);
 
   if (poptions.use_stencil || poptions.update_stencil)
@@ -1091,7 +1089,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
   // plot symbol
   ImageGallery ig;
   std::map<int, std::string> classImages;
-  if (poptions.plottype == fpt_symbol && poptions.discontinuous == 1
+  if (plottype() == fpt_symbol && poptions.discontinuous == 1
       && (not poptions.classSpecifications.empty())) {
     std::vector<int> classValues;
     std::vector<std::string> classNames;
@@ -2316,9 +2314,9 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
 
 bool FieldPlot::centerOnGridpoint() const
 {
-  return plottype == fpt_alpha_shade
-      || plottype == fpt_alarm_box
-      || plottype == fpt_fill_cell;
+  return plottype() == fpt_alpha_shade
+      || plottype() == fpt_alarm_box
+      || plottype() == fpt_fill_cell;
 }
 
 bool FieldPlot::plotRaster(DiGLPainter* gl)
@@ -2367,7 +2365,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
   const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
   QImage image(bbx.width(), bbx.height(), QImage::Format_ARGB32);
 
-  if (plottype == fpt_alpha_shade) {
+  if (plottype() == fpt_alpha_shade) {
     float cmin, cmax;
     if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
       cmin = poptions.minvalue;
@@ -2399,7 +2397,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
         rgb[ix - bbx.x1] = qRgba(red, green, blue, alpha);
       }
     }
-  } else if (plottype == fpt_fill_cell) {
+  } else if (plottype() == fpt_fill_cell) {
     if (poptions.palettecolours.empty())
       poptions.palettecolours = ColourShading::getColourShading("standard");
 
@@ -2420,7 +2418,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
           rgb[ix - bbx.x1] = 0;
       }
     }
-  } else if (plottype == fpt_alarm_box) {
+  } else if (plottype() == fpt_alarm_box) {
     // analyse unscaled data!
 
     float vmin = -fieldUndef, vmax = fieldUndef;
@@ -2471,7 +2469,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
       }
     }
   } else {
-    METLIBS_LOG_ERROR("programming error, plotRaster with plottype == " << plottype);
+    METLIBS_LOG_ERROR("programming error, plotRaster with plottype == " << plottype());
     return QImage();
   }
   return image;
@@ -2985,13 +2983,13 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
 
   if (not checkFields(1))
     return false;
-  if (plottype == fpt_contour || plottype == fpt_contour2) {
+  if (plottype() == fpt_contour || plottype() == fpt_contour2) {
     plotContour2(gl, SHADE_BACKGROUND);
     return true;
   }
 
   const bool center_on_gridpoint = centerOnGridpoint()
-      || plottype == fpt_contour1; // old contour does some tricks with undefined values
+      || plottype() == fpt_contour1; // old contour does some tricks with undefined values
 
   const int nx_fld = fields[0]->area.nx, ny_fld = fields[0]->area.ny;
   const int nx_pts = nx_fld + (center_on_gridpoint ? 1 : 0);
@@ -3200,9 +3198,9 @@ std::string FieldPlot::getTrajectoryFieldName()
 {
   std::string str;
   unsigned int nf = 0;
-  if (plottype == fpt_wind)
+  if (plottype() == fpt_wind)
     nf = 2;
-  if (plottype == fpt_vector)
+  if (plottype() == fpt_vector)
     nf = 2;
 
   if (nf >= 2 && fields.size() >= nf) {

@@ -86,7 +86,6 @@ private:
   miutil::miTime analysisTime;   // time of model analysis
 
   // plotting parameters
-  std::string plottype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
 
   // from plotting routines to annotations
@@ -140,6 +139,8 @@ private:
   bool getPoints(int n, float* x, float* y) const;
 
   bool centerOnGridpoint() const;
+  const std::string& plottype() const
+    { return getPlotOptions().plottype; }
 
 protected:
   StaticPlot* rasterStaticPlot() Q_DECL_OVERRIDE
