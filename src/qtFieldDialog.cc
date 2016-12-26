@@ -3438,7 +3438,10 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
   return false;
 }
 
-
+inline std::string sub(const std::string& s, std::string::size_type begin, std::string::size_type end)
+{
+  return s.substr(begin, end - begin);
+}
 
 bool FieldDialog::fieldDifference(const std::string& str,
     std::string& field1, std::string& field2) const
@@ -3451,19 +3454,20 @@ bool FieldDialog::fieldDifference(const std::string& str,
       if (endOper != string::npos) {
         size_t end = str.size();
         if (beginOper > 1 && endOper < end - 2) {
-          field1 = str.substr(0, beginOper) + str.substr(beginOper + 2, oper
-              - beginOper - 2) + str.substr(endOper + 2, end - endOper - 1);
-          field2 = str.substr(0, beginOper - 1) + str.substr(oper + 2, endOper
-              - oper - 2);
+          field1 = str.substr(0, beginOper)
+              + sub(str, beginOper + 2, oper)
+              + sub(str, endOper + 2, end);
+          field2 = str.substr(0, beginOper - 1)
+              + sub(str, oper + 2, endOper);
         } else if (endOper < end - 2) {
-          field1 = str.substr(beginOper + 2, oper - beginOper - 2)
-                              + str.substr(endOper + 2, end - endOper - 1);
-          field2 = str.substr(oper + 3, endOper - oper - 3);
+          field1 = sub(str, beginOper + 2, oper)
+              + sub(str, endOper + 2, end);
+          field2 = sub(str, oper + 3, endOper);
         } else {
-          field1 = str.substr(0, beginOper) + str.substr(beginOper + 2, oper
-              - beginOper - 2);
-          field2 = str.substr(0, beginOper) + str.substr(oper + 3, endOper
-              - oper - 3);
+          field1 = str.substr(0, beginOper)
+              + sub(str, beginOper + 2, oper);
+          field2 = str.substr(0, beginOper)
+              + sub(str, oper + 3, endOper);
         }
         return true;
       }
