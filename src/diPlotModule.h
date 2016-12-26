@@ -262,8 +262,8 @@ public:
       const std::vector<std::string>& pinfos, bool allTimes = true,
       bool updateSources = false);
 
-  /// set plottime
-  bool setPlotTime(miutil::miTime&);
+  /// set plottime (forwarded to staticPlot_)
+  void setPlotTime(miutil::miTime&);
 
   // Observation
   /// Update ObsPlots if data files have changed

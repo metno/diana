@@ -1479,10 +1479,9 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::str
 }
 
 // set plottime
-bool PlotModule::setPlotTime(miTime& t)
+void PlotModule::setPlotTime(miTime& t)
 {
   staticPlot_->setTime(t);
-  return true;
 }
 
 void PlotModule::updateObs()

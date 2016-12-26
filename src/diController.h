@@ -164,7 +164,7 @@ public:
   std::string getProductName();
 
   /// set plottime
-  bool setPlotTime(miutil::miTime&);
+  void setPlotTime(miutil::miTime&);
   /// update plots
   bool updatePlots();
   /// toggle area conservatism

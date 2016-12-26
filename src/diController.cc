@@ -304,9 +304,9 @@ std::string Controller::getProductName()
 // }
 
 // set plottime
-bool Controller::setPlotTime(miTime& t){
-
-  return plotm->setPlotTime(t);
+void Controller::setPlotTime(miTime& t)
+{
+  plotm->setPlotTime(t);
 }
 
 // toggle area conservatism

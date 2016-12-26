@@ -2617,10 +2617,9 @@ void DianaMainWindow::setPlotTime(miutil::miTime& t)
 {
   METLIBS_LOG_TIME();
   diutil::OverrideCursor waitCursor;
-  if (contr->setPlotTime(t)) {
-    contr->updatePlots();
-    requestBackgroundBufferUpdate();
-  }
+  contr->setPlotTime(t);
+  contr->updatePlots();
+  requestBackgroundBufferUpdate();
   timeChanged();
 }
 
