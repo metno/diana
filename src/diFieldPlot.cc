@@ -1962,7 +1962,7 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
   if (ix1 >= rnx || ix2 < 0 || iy1 >= rny || iy2 < 0)
     return false;
 
-  if (getColourMode() && poptions.frame)
+  if (poptions.frame)
     plotFrame(gl, rnx, rny, x, y);
 
   ipart[0] = ix1;
@@ -2120,26 +2120,21 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
 
   if (idraw > 0 || idraw2 > 0) {
 
-    if (getColourMode()) {
-      if (poptions.colours.size() > 1) {
-        if (idraw > 0 && idraw2 > 0) {
-          icol[0] = 0;
-          icol2[0] = 1;
-        } else {
-          ncol = poptions.colours.size();
-          if (ncol > mmmUsed)
-            ncol = mmmUsed;
-          for (int i = 0; i < ncol; ++i)
-            icol[i] = i;
-        }
-      } else if (idraw > 0) {
-        gl->setColour(poptions.linecolour, false);
+    if (poptions.colours.size() > 1) {
+      if (idraw > 0 && idraw2 > 0) {
+        icol[0] = 0;
+        icol2[0] = 1;
       } else {
-        gl->setColour(poptions.linecolour_2, false);
+        ncol = poptions.colours.size();
+        if (ncol > mmmUsed)
+          ncol = mmmUsed;
+        for (int i = 0; i < ncol; ++i)
+          icol[i] = i;
       }
-    } else if (!getColourMode()) {
-      // drawing in overlay ... NOT USED !!!!!!!!!!!!!!
-      gl->Indexi(poptions.linecolour.Index());
+    } else if (idraw > 0) {
+      gl->setColour(poptions.linecolour, false);
+    } else {
+      gl->setColour(poptions.linecolour_2, false);
     }
 
     if (poptions.minvalue_2 > -fieldUndef || poptions.maxvalue_2 < fieldUndef) {
@@ -2261,7 +2256,7 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
   if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
     return false;
 
-  if (getColourMode() && poptions.frame)
+  if (poptions.frame)
     plotFrame(gl, nx, ny, x, y);
 
   if (poptions.valueLabel)
@@ -2555,9 +2550,6 @@ QPolygonF FieldPlot::makeFramePolygon(int nx, int ny, const float *x, const floa
 void FieldPlot::plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const float *y)
 {
   METLIBS_LOG_SCOPE(LOGVAL(nx) << LOGVAL(ny));
-
-  if (!getColourMode())
-    return;
 
   if (fields.empty() || !fields[0])
     return;

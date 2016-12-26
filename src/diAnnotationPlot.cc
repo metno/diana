@@ -542,7 +542,7 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   // draw filled area
   Colour fc = poptions.fillcolour;
-  if (fc.A() < Colour::maxv && getColourMode()) {
+  if (fc.A() < Colour::maxv) {
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
   }
@@ -600,7 +600,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
     if (annoEl[j].polystyle == poly_fill || annoEl[j].polystyle == poly_both) {
 
       const Colour& fc = poptions.fillcolour;
-      if (fc.A() < Colour::maxv && getColourMode()) {
+      if (fc.A() < Colour::maxv ) {
         gl->Enable(DiGLPainter::gl_BLEND);
         gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
       }

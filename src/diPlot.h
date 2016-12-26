@@ -278,13 +278,6 @@ public:
   const PlotOptions& getPlotOptions() const
     { return poptions; }
 
-  /// set colour mode (rgb or color-index)
-  void setColourMode(bool isrgb=true);
-
-  /// return current colourmode
-  bool getColourMode() const
-    { return rgbmode; }
-
   /// set name of this plot object
   void setPlotName(const std::string& name)
     { plotname= name; }
@@ -299,7 +292,6 @@ protected:
 
 private:
   bool enabled;               // plot enabled
-  bool rgbmode;               // rgb or colour-index mode
   std::string plotname;       // name of plot
 };
 

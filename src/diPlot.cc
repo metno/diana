@@ -69,7 +69,6 @@ StaticPlot::~StaticPlot()
 
 Plot::Plot()
   : enabled(true)
-  , rgbmode(true)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -220,12 +219,6 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
   float distWindowSq = width * width + height * height;
   float ratio = sqrtf(distWindowSq / distGeoSq);
   gcd = ngcd * ratio;
-}
-
-void Plot::setColourMode(bool isrgb){
-  rgbmode= isrgb;
-//   if (rgbmode) fp= std_fp;
-//   else fp= ovr_fp;
 }
 
 void Plot::setPlotInfo(const std::string& pin)

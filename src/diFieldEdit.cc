@@ -109,7 +109,6 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   // fieldPlot
   editfieldplot= new FieldPlot();
   editfieldplot->setData(vf, tprod);
-  editfieldplot->setColourMode(true);
 
   // all the other members...
   showNumbers=rhs.showNumbers;
@@ -306,7 +305,6 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
   if (editfieldplot) delete editfieldplot;
   editfieldplot= new FieldPlot();
   editfieldplot->setData(vf, tprod);
-  editfieldplot->setColourMode(true);
 
   return true;
 }
