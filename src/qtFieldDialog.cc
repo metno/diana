@@ -3938,65 +3938,65 @@ void FieldDialog::downField()
   if (n == 0)
     return;
 
-    int index = selectedFieldbox->currentRow();
-    if (index < 0 || index >= n - 1)
-      return;
+  int index = selectedFieldbox->currentRow();
+  if (index < 0 || index >= n - 1)
+    return;
 
-    SelectedField sf = selectedFields[index];
-    selectedFields[index] = selectedFields[index + 1];
-    selectedFields[index + 1] = sf;
+  SelectedField sf = selectedFields[index];
+  selectedFields[index] = selectedFields[index + 1];
+  selectedFields[index + 1] = sf;
 
-    QString qstr1 = selectedFieldbox->item(index)->text();
-    QString qstr2 = selectedFieldbox->item(index + 1)->text();
-    selectedFieldbox->item(index)->setText(qstr2);
-    selectedFieldbox->item(index + 1)->setText(qstr1);
+  QString qstr1 = selectedFieldbox->item(index)->text();
+  QString qstr2 = selectedFieldbox->item(index + 1)->text();
+  selectedFieldbox->item(index)->setText(qstr2);
+  selectedFieldbox->item(index + 1)->setText(qstr1);
 
-    //some fields can't be minus
-    for (int i = 0; i < n; i++) {
-      selectedFieldbox->setCurrentRow(i);
-      if (selectedFields[i].minus && (i == 0 || selectedFields[i - 1].minus))
-        minusButton->setChecked(false);
-    }
-
-    index++;
-    selectedFieldbox->setCurrentRow(index);
-    upFieldButton->setEnabled((index > numEditFields));
-    downFieldButton->setEnabled((index < (n-1)));
+  //some fields can't be minus
+  for (int i = 0; i < n; i++) {
+    selectedFieldbox->setCurrentRow(i);
+    if (selectedFields[i].minus && (i == 0 || selectedFields[i - 1].minus))
+      minusButton->setChecked(false);
   }
 
-  void FieldDialog::resetOptions()
-  {
-    if (selectedFieldbox->count() == 0)
-      return;
-    int n = selectedFields.size();
-    if (n == 0)
-      return;
+  index++;
+  selectedFieldbox->setCurrentRow(index);
+  upFieldButton->setEnabled((index > numEditFields));
+  downFieldButton->setEnabled((index < (n-1)));
+}
 
-    int index = selectedFieldbox->currentRow();
-    if (index < 0 || index >= n)
-      return;
+void FieldDialog::resetOptions()
+{
+  if (selectedFieldbox->count() == 0)
+    return;
+  int n = selectedFields.size();
+  if (n == 0)
+    return;
 
-    std::string fopts = getFieldOptions(selectedFields[index].fieldName,
-        true);
-    if (fopts.empty())
-      return;
+  int index = selectedFieldbox->currentRow();
+  if (index < 0 || index >= n)
+    return;
 
-    selectedFields[index].fieldOpts = fopts;
-    selectedFields[index].hourOffset = 0;
-    selectedFields[index].hourDiff = 0;
-    enableWidgets("none");
-    currentFieldOpts.clear();
-    enableFieldOptions();
-  }
+  std::string fopts = getFieldOptions(selectedFields[index].fieldName,
+                                      true);
+  if (fopts.empty())
+    return;
 
-  std::string FieldDialog::getFieldOptions(
-      const std::string& fieldName, bool reset, bool edit) const
-  {
-    std::string fieldname = fieldName;
+  selectedFields[index].fieldOpts = fopts;
+  selectedFields[index].hourOffset = 0;
+  selectedFields[index].hourDiff = 0;
+  enableWidgets("none");
+  currentFieldOpts.clear();
+  enableFieldOptions();
+}
 
-    map<std::string, std::string>::const_iterator pfopt;
+std::string FieldDialog::getFieldOptions(
+    const std::string& fieldName, bool reset, bool edit) const
+{
+  std::string fieldname = fieldName;
 
-    if (!reset) {
+  map<std::string, std::string>::const_iterator pfopt;
+
+  if (!reset) {
 
     // try private options used
     pfopt = fieldOptions.find(fieldname);
