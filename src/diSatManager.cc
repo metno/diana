@@ -108,14 +108,18 @@ bool SatManager::init(const std::vector<std::string>& pinfo)
       for (size_t j=0; j<vsp.size(); j++) {
         if (!inuse[j] && vsp[j]!=0) { // not already taken
           Sat *sdp = vsp[j]->satdata;
-          if (sdp->satellite != satdata->satellite || sdp->filetype
-              != satdata->filetype || sdp->formatType != satdata->formatType
-              || sdp->metadata != satdata->metadata || sdp->proj_string != satdata->proj_string || sdp->channelInfo
-              != satdata->channelInfo || sdp->paletteinfo
-              != satdata->paletteinfo || sdp->hdf5type != satdata->hdf5type
-              || sdp->plotChannels != satdata->plotChannels || sdp->mosaic
-              !=satdata->mosaic || sdp->maxDiff!=satdata->maxDiff
-              || sdp->filename !=satdata->filename)
+          if (sdp->satellite != satdata->satellite
+              || sdp->filetype != satdata->filetype
+              || sdp->formatType != satdata->formatType
+              || sdp->metadata != satdata->metadata
+              || sdp->proj_string != satdata->proj_string
+              || sdp->channelInfo != satdata->channelInfo
+              || sdp->paletteinfo != satdata->paletteinfo
+              || sdp->hdf5type != satdata->hdf5type
+              || sdp->plotChannels != satdata->plotChannels
+              || sdp->mosaic != satdata->mosaic
+              || sdp->maxDiff != satdata->maxDiff
+              || sdp->filename != satdata->filename)
             continue;
           // this satplot equal enough
           // reset parameter change-flags
