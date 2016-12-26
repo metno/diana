@@ -99,7 +99,6 @@ PlotModule::PlotModule()
   : showanno(true)
   , staticPlot_(new StaticPlot())
   , mCanvas(0)
-  , hardcopy(false)
   , dorubberband(false)
   , keepcurrentarea(true)
 {
@@ -1023,7 +1022,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
     vmp[i]->plot(gl, Plot::OVERLAY);
 
   // frame (not needed if maprect==fullrect)
-  if (hardcopy || staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
+  if (staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->setLineStyle(Colour(0, 0, 0), 1.0);
     const Rectangle mr = diutil::adjustedRectangle(staticPlot_->getMapSize(), -0.0001, -0.0001);

@@ -34,7 +34,6 @@
 #include "diMapMode.h"
 #include "diDisplayObjects.h"
 #include "diAreaObjects.h"
-#include "diPrintOptions.h"
 
 #include <puTools/miTime.h>
 
@@ -124,10 +123,6 @@ private:
   std::auto_ptr<StaticPlot> staticPlot_;
 
   DiCanvas* mCanvas;
-
-  // postscript production members
-  printOptions printoptions;
-  bool hardcopy;
 
   std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 

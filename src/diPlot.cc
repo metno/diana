@@ -44,7 +44,6 @@
 
 using namespace ::miutil;
 using namespace ::std;
-using namespace d_print;
 
 static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 {
