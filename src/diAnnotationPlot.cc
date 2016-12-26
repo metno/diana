@@ -174,16 +174,13 @@ void AnnotationPlot::setfillcolour(const Colour& c)
 
 bool AnnotationPlot::prepare(const std::string& pin)
 {
-  pinfo = pin;
   poptions.fontname = "BITMAPFONT"; //default
   poptions.textcolour = Colour("black");
-  PlotOptions::parsePlotOption(pinfo, poptions);
+  setPlotInfo(pin);
 
-  useAnaTime = miutil::contains(pinfo, "@") || miutil::contains(pinfo, "&");
+  useAnaTime = miutil::contains(getPlotInfo(), "@") || miutil::contains(getPlotInfo(), "&");
 
-  const vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
-  vector<std::string> stokens;
-  std::string key, value;
+  const vector<std::string> tokens = miutil::split_protected(getPlotInfo(), '"', '"');
   int i, n = tokens.size();
   if (n < 2)
     return false;
@@ -197,8 +194,10 @@ bool AnnotationPlot::prepare(const std::string& pin)
   cyratio = 0.0;
 
   for (i = 1; i < n; i++) {
-    std::string labeltype = tokens[i], LABELTYPE = miutil::to_upper(labeltype);
-    stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
+    const std::string& labeltype = tokens[i];
+    const std::string LABELTYPE = miutil::to_upper(labeltype);
+    const vector<std::string> stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
+    std::string key, value;
     if (stokens.size() > 1) {
       key = miutil::to_lower(stokens[0]);
       value = stokens[1];

@@ -183,7 +183,6 @@ const std::string PlotOptions::key_vector_example_y = "vector.example.y";
 const std::string PlotOptions::key_vector_example_unit_x = "vector.example.unit.x";
 const std::string PlotOptions::key_vector_example_unit_y = "vector.example.unit.y";
 
-map<std::string,PlotOptions> PlotOptions::fieldPlotOptions;
 vector< vector <std::string> > PlotOptions::plottypes;
 map< std::string, std::string > PlotOptions::enabledOptions;
 
@@ -845,34 +844,6 @@ bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po)
   return parsePlotOption(optstring, po, false);
 }
 
-
-// update static fieldplotoptions
-bool PlotOptions::updateFieldPlotOptions(const std::string& name,
-    const std::string& optstr)
-{
-  std::string tmpOpt = optstr;
-  return parsePlotOption(tmpOpt, fieldPlotOptions[name]);
-}
-
-// fill a fieldplotoption from static map, and substitute values
-// from a string containing plotoptions
-bool PlotOptions::fillFieldPlotOptions(std::string name,
-    std::string& optstr,
-    PlotOptions& po)
-{
-  map<std::string,PlotOptions>::iterator p;
-  // if field-spec not found, simply add a new (for default CONTOUR plot)
-  if ((p=fieldPlotOptions.find(name))
-      != fieldPlotOptions.end())
-    po= p->second;
-  else
-    fieldPlotOptions[name]= po;
-
-  parsePlotOption(optstr,po,true);
-
-  return true;
-}
-
 // fill in values in an int vector
 vector<int> PlotOptions::intVector(const std::string& str) const {
   vector<int> v;
@@ -947,28 +918,6 @@ vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
   }
 
   return values;
-}
-
-void PlotOptions::getAllFieldOptions(vector<std::string> fieldNames,
-    map<std::string,std::string>& fieldoptions)
-{
-
-  // The selected PlotOptions elements are used to activate elements
-  // in the FieldDialog (any remaining will be used unchanged from setup)
-  // Also return any field prefixes and suffixes used.
-
-  fieldoptions.clear();
-
-  PlotOptions po;
-
-
-  int n= fieldNames.size();
-
-  for (int i=0; i<n; i++) {
-    getFieldPlotOptions(fieldNames[i], po);
-    fieldoptions[fieldNames[i]]= po.toString();
-  }
-
 }
 
 static void addOption(std::ostream& ostr, const std::string& key, bool value)
@@ -1141,18 +1090,4 @@ std::string PlotOptions::toString()
     addOption(ostr, key_enabled, enabled);
 
   return ostr.str();
-}
-
-
-bool PlotOptions::getFieldPlotOptions(const std::string& name, PlotOptions& po)
-{
-  map<std::string,PlotOptions>::iterator p;
-  if ((p=fieldPlotOptions.find(name))
-      != fieldPlotOptions.end()){
-    po= p->second;
-
-  } else {
-    fieldPlotOptions[name]= po;
-  }
-  return true;
 }

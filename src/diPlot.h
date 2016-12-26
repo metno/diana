@@ -262,10 +262,14 @@ public:
     { return enabled; }
 
   /// set the plot info string
-  void setPlotInfo(const std::string& pin);
+  void setPlotInfo(const std::string& pin, bool mergeOptionString = false);
+
+  /// return current plot info string
+  const std::string& getPlotInfo() const
+    { return pinfo; }
 
   /// return n elements of the current plot info string
-  std::string getPlotInfo(int n=0) const;
+  std::string getPlotInfo(int n) const;
 
   /// return true if right plot string
   bool plotInfoOK(const std::string& pin) const
@@ -273,6 +277,10 @@ public:
 
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const
+    { return poptions; }
+
+  /// return the current PlotOptions
+  PlotOptions& getPlotOptions()
     { return poptions; }
 
   /// set name of this plot object
@@ -284,10 +292,10 @@ public:
     { return plotname; }
 
 protected:
-  std::string pinfo;            // plotinfo
   PlotOptions poptions;
 
 private:
+  std::string pinfo;          // plotinfo
   bool enabled;               // plot enabled
   std::string plotname;       // name of plot
 };

@@ -221,19 +221,17 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
   gcd = ngcd * ratio;
 }
 
-void Plot::setPlotInfo(const std::string& pin)
+void Plot::setPlotInfo(const std::string& pin, bool mergeOptionString)
 {
   pinfo= pin;
   // fill poptions with values from pinfo
-  PlotOptions::parsePlotOption(pinfo, poptions, false);
+  PlotOptions::parsePlotOption(pinfo, poptions, mergeOptionString);
 
   enabled= poptions.enabled;
 }
 
 std::string Plot::getPlotInfo(int n) const
 {
-  //return current plot info string
-  if(n==0) return pinfo;
   //return n elements of current plot info string
   vector<std::string> token = miutil::split(pinfo, n, " ", true);
   token.pop_back(); //remove last part

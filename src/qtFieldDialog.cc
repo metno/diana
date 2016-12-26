@@ -62,6 +62,7 @@
 
 #include <diField/diRectangle.h>
 #include <diPlotOptions.h>
+#include "diFieldPlotManager.h"
 #include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
@@ -153,9 +154,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // get all field plot options from setup file
   vector<std::string> fieldNames;
   m_ctrl->getAllFieldNames(fieldNames);
-  { std::map<std::string, std::string> sfu;
-  PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
-  setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
+  FieldPlotManager::getAllFieldOptions(fieldNames, setupFieldOptions);
 
   //#################################################################
   //  map<std::string,std::string>::iterator pfopt, pfend= setupFieldOptions.end();

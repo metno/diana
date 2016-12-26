@@ -37,6 +37,7 @@
 
 #include "diContouring.h"
 #include "diColour.h"
+#include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
@@ -183,7 +184,7 @@ std::string FieldPlot::getModelPlotParameterReftime() const
   return_token.push_back("plot");
   return_token.push_back("reftime");
 
-  vector<std::string> token = miutil::split(pinfo, 0, " ");
+  vector<std::string> token = miutil::split(getPlotInfo(), 0, " ");
   std::string str;
 
   for(unsigned int i=0;i<token.size();i++){
@@ -197,7 +198,7 @@ std::string FieldPlot::getModelPlotParameterReftime() const
   }
 
   //probably old FIELD string syntax
-  if ( str.empty() ) {
+  if (str.empty()) {
     return getPlotInfo(3);
   }
 
@@ -232,10 +233,10 @@ int FieldPlot::getLevel() const
 bool FieldPlot::updateNeeded(string& pin) const
 {
   if (ftime.undef()
-      || (ftime != getStaticPlot()->getTime() && !miutil::contains(pinfo, " time="))
+      || (ftime != getStaticPlot()->getTime() && !miutil::contains(getPlotInfo(), " time="))
       || fields.size() == 0)
   {
-    pin = pinfo;
+    pin = getPlotInfo();
     return true;
   }
   return false;
@@ -254,12 +255,11 @@ void FieldPlot::getFieldAnnotation(string& s, Colour& c) const
 // Extract plotting-parameters from PlotInfo.
 bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 {
-  //merge current plotOptions (from pin) with plotOptions form setup
-  pinfo = pin;
-  PlotOptions::fillFieldPlotOptions(fname, pinfo, poptions);
+  // merge current plotOptions (from pin) with plotOptions form setup
+  FieldPlotManager::getFieldPlotOptions(fname, poptions);
+  setPlotInfo(pin, true);
+
   plottype = poptions.plottype;
-  if (poptions.enabled == false)
-    setEnabled(false);
 
   rasterClear();
 
