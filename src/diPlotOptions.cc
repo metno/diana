@@ -184,7 +184,6 @@ const std::string PlotOptions::key_vector_example_unit_x = "vector.example.unit.
 const std::string PlotOptions::key_vector_example_unit_y = "vector.example.unit.y";
 
 map<std::string,PlotOptions> PlotOptions::fieldPlotOptions;
-vector<std::string> PlotOptions::suffix;
 vector< vector <std::string> > PlotOptions::plottypes;
 map< std::string, std::string > PlotOptions::enabledOptions;
 
@@ -861,8 +860,6 @@ bool PlotOptions::fillFieldPlotOptions(std::string name,
     std::string& optstr,
     PlotOptions& po)
 {
-  removeSuffix(name);
-
   map<std::string,PlotOptions>::iterator p;
   // if field-spec not found, simply add a new (for default CONTOUR plot)
   if ((p=fieldPlotOptions.find(name))
@@ -951,16 +948,6 @@ vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
 
   return values;
 }
-
-void PlotOptions::removeSuffix(std::string& name)
-{
-
-  int n = suffix.size();
-  for(int i=0; i<n; i++)
-    miutil::replace(name, suffix[i],"");
-
-}
-
 
 void PlotOptions::getAllFieldOptions(vector<std::string> fieldNames,
     map<std::string,std::string>& fieldoptions)

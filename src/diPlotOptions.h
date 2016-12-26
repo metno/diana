@@ -356,7 +356,6 @@ public:
   std::vector<std::string> fdescr;
   int       overlay; //plot in ovelay buffer
   static std::map<std::string,PlotOptions> fieldPlotOptions;
-  static std::vector<std::string> suffix;
   static std::vector< std::vector<std::string> > plottypes;
   static std::map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
   bool      contourShape;
@@ -389,7 +388,6 @@ public:
       from a string containing plotoptions */
   static bool fillFieldPlotOptions(std::string, std::string&,
       PlotOptions&);
-  static void setSuffix(const std::vector<std::string>& suff) { suffix = suff; }
   static void getAllFieldOptions(std::vector<std::string>,
       std::map<std::string,std::string>& fieldoptions);
   static bool getFieldPlotOptions(const std::string& name, PlotOptions& po);
@@ -409,7 +407,6 @@ private:
   std::vector<int> intVector(const std::string&) const;
   // fill in values in a float vector (error if size==0)
   std::vector<float> floatVector(const std::string&) const;
-  static void removeSuffix(std::string& name);
 };
 
 #endif
