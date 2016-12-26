@@ -2999,16 +2999,14 @@ METLIBS_LOG_SCOPE(LOGVAL(modelName));
 
 }
 
-vector<string> FieldDialog::getOKString(bool resetLevelMove)
+vector<string> FieldDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
-  if ( resetLevelMove) {
-    int n = selectedFields.size();
-    for (int i = 0; i < n; i++) {
-      selectedFields[i].levelmove = true;
-      selectedFields[i].idnummove = true;
-    }
+  const int n = selectedFields.size();
+  for (int i = 0; i < n; i++) {
+    selectedFields[i].levelmove = true;
+    selectedFields[i].idnummove = true;
   }
 
   vector<string> vstr;
@@ -3017,19 +3015,18 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
 
   bool allTimeSteps = allTimeStepButton->isChecked();
 
-  int n = selectedFields.size();
-
   for (int i = 0; i < n; i++) {
-
-    //Skip edit strings when the strings are used to change level
-    if (!resetLevelMove && selectedFields[i].inEdit) {
-      continue;
-    }
-
-    ostringstream ostr;
 
     if (selectedFields[i].minus)
       continue;
+
+    ostringstream ostr;
+    if (selectedFields[i].inEdit) {
+      ostr << "EDITFIELD";
+    } else {
+      ostr << "FIELD";
+    }
+
     bool minus = false;
     if (i + 1 < n && selectedFields[i + 1].minus) {
       minus = true;
@@ -3052,14 +3049,8 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
       ostr << " time=" << selectedFields[i].time;
     }
 
-    std::string str;
-    if (selectedFields[i].inEdit) {
-      str = "EDITFIELD" + ostr.str();
-    } else {
-      str = "FIELD" + ostr.str();
-    }
-
     // the OK string
+    const std::string str = ostr.str();
     vstr.push_back(str);
 
     METLIBS_LOG_DEBUG("OK: " << str);
