@@ -370,7 +370,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
         plotted = false;
       if (stations[i]->isSelected)
         gl->Color3ub(255, 0, 0); //red
-        glPlot(gl, Station::noStatus, x, y);
+      glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
       if (!ig.plotImage(gl, getStaticPlot(), imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
