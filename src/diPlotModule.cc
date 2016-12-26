@@ -110,11 +110,6 @@ PlotModule::PlotModule()
   mapDefinedByView = false;
 
   // used to detect map area changes
-  Projection p;
-  Rectangle r(0., 0., 0., 0.);
-  previousrequestedarea = Area(p, r);
-  requestedarea = Area(p, r);
-  staticPlot_->setRequestedarea(requestedarea);
   areaIndex = -1;
   areaSaved = false;
 }
@@ -227,6 +222,7 @@ void PlotModule::prepareArea(const vector<string>& inp)
   const std::string key_proj=  "proj4string";
   const std::string key_rectangle=  "rectangle";
 
+  Area requestedarea = staticPlot_->getRequestedarea();
   Projection proj;
   Rectangle rect;
 
@@ -792,15 +788,15 @@ void PlotModule::defineMapArea()
   if (mapDefinedByUser) {     // area != "modell/sat-omr."
 
     if (!keepcurrentarea) { // show def. area
-      newMapArea = requestedarea;
-    } else if( getMapArea().P() != requestedarea.P() // or user just selected new area
-        || previousrequestedarea.R() != requestedarea.R())
+      newMapArea = staticPlot_->getRequestedarea();
+    } else if( getMapArea().P() != staticPlot_->getRequestedarea().P() // or user just selected new area
+        || previousrequestedarea.R() != staticPlot_->getRequestedarea().R())
     {
-      newMapArea = staticPlot_->findBestMatch(requestedarea);
+      newMapArea = staticPlot_->findBestMatch(staticPlot_->getRequestedarea());
     }
     mapdefined = true;
 
-  } else if (keepcurrentarea && previousrequestedarea != requestedarea) {
+  } else if (keepcurrentarea && previousrequestedarea != staticPlot_->getRequestedarea()) {
     // change from specified area to model/sat area
     mapDefinedByData = false;
   }
@@ -847,7 +843,7 @@ void PlotModule::defineMapArea()
 
   staticPlot_->setMapArea(newMapArea);
 
-  previousrequestedarea = requestedarea;
+  previousrequestedarea = staticPlot_->getRequestedarea();
 }
 
 // -------------------------------------------------------------------------

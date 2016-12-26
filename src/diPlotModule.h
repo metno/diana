@@ -117,7 +117,6 @@ private:
   bool mapDefinedByData; // for initial maps with fields or sat.
   bool mapDefinedByView; // for initial maps without any data
 
-  Area requestedarea;
   Area previousrequestedarea;
 
   bool showanno;        // show standard annotations
