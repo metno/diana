@@ -1367,16 +1367,9 @@ Manager *PlotModule::getManager(const std::string &name)
 }
 
 // return current plottime
-void PlotModule::getPlotTime(std::string& s)
+const miutil::miTime& PlotModule::getPlotTime() const
 {
-  const miTime& t = staticPlot_->getTime();
-
-  s = t.isoTime();
-}
-
-void PlotModule::getPlotTime(miTime& t)
-{
-  t = staticPlot_->getTime();
+  return staticPlot_->getTime();
 }
 
 miutil::miTime PlotModule::getFieldReferenceTime()

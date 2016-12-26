@@ -1745,8 +1745,7 @@ void DianaMainWindow::vcrossMenu()
   if (!vcInterface.get())
     return;
 
-  miutil::miTime t;
-  contr->getPlotTime(t);
+  const miutil::miTime& t = contr->getPlotTime();
   vcInterface->mainWindowTimeChanged(t);
   vcInterface->makeVisible(true);
 }
@@ -1782,8 +1781,7 @@ void DianaMainWindow::vprofStartup()
 {
   if (!vpWindow)
     return;
-  miutil::miTime t;
-  contr->getPlotTime(t);
+  const miutil::miTime& t = contr->getPlotTime();
   vpWindow->startUp(t);
   vpWindow->show();
   contr->stationCommand("show","vprof");
@@ -1794,8 +1792,7 @@ void DianaMainWindow::spectrumStartup()
 {
   if (!spWindow)
     return;
-  miutil::miTime t;
-  contr->getPlotTime(t);
+  const miutil::miTime& t = contr->getPlotTime();
   spWindow->startUp(t);
   spWindow->show();
   contr->stationCommand("show","spectrum");
@@ -2519,8 +2516,7 @@ void DianaMainWindow::SliderSet()
 
 void DianaMainWindow::setTimeLabel()
 {
-  miutil::miTime t;
-  contr->getPlotTime(t);
+  const miutil::miTime& t = contr->getPlotTime();
   tslider->setTime(t);
   TimeSliderMoved();
 }
@@ -2628,8 +2624,7 @@ void DianaMainWindow::timeChanged(){
   setTimeLabel();
   objm->commentUpdate();
   satFileListUpdate();
-  miutil::miTime t;
-  contr->getPlotTime(t);
+  const miutil::miTime& t = contr->getPlotTime();
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
   if (vcInterface.get()) vcInterface->mainWindowTimeChanged(t);
@@ -3236,8 +3231,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     if (hqcTo > 0) {
       std::string name;
       if (contr->getObsName(x,y,name)) {
-        miutil::miTime t;
-        contr->getPlotTime(t);
+        const miutil::miTime& t = contr->getPlotTime();
 
         QStringList cd = QStringList() << "name" << "time";
         QStringList cv = QStringList() << QString::fromStdString(name) << QString::fromStdString(t.isoTime());

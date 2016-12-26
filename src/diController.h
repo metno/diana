@@ -148,9 +148,8 @@ public:
   double getWindowArea();
 
   /// return current plottime
-  void getPlotTime(std::string&);
-  /// return current plottime
-  void getPlotTime(miutil::miTime&);
+  const miutil::miTime& getPlotTime();
+
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos

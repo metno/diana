@@ -393,11 +393,11 @@ bool EditNewDialog::load(){
     prodbox->setCurrentIndex(0);
     prodBox(0);
 
-    m_ctrl->getPlotTime(prodtime);
+    miutil::miTime t = m_ctrl->getPlotTime();
     //set to closest hour
-    miutil::miTime t= prodtime;
-    int nhour=t.hour(); int nmin=t.min();
-    if (nmin>29) nhour++;
+    int nhour=t.hour(), nmin=t.min();
+    if (nmin>29)
+      nhour++;
     t.setTime(t.year(),t.month(),t.day(),nhour);
     prodtime=t;
     timespin->setTime(prodtime);

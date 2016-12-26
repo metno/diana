@@ -274,14 +274,9 @@ double Controller::getWindowArea()
   return plotm->getWindowArea();
 }
 
-// return current plottime
-void Controller::getPlotTime(std::string& s)
+const miutil::miTime& Controller::getPlotTime()
 {
-  plotm->getPlotTime(s);
-}
-
-void Controller::getPlotTime(miTime& t){
-  plotm->getPlotTime(t);
+  return plotm->getPlotTime();
 }
 
 void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)

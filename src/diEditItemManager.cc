@@ -982,8 +982,7 @@ void EditItemManager::updateTimes()
   emit timesUpdated();
 
   // Update the visibility of items based on the current plot time.
-  miutil::miTime time;
-  PLOTM->getPlotTime(time);
+  const miutil::miTime& time = PLOTM->getPlotTime();
   prepare(time);
 }
 

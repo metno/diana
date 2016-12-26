@@ -249,9 +249,8 @@ public:
   Manager *getManager(const std::string &name);
 
   /// return current plottime
-  void getPlotTime(std::string&);
-  /// return current plottime
-  void getPlotTime(miutil::miTime&);
+  const miutil::miTime& getPlotTime() const;
+
   /// return referencetime of first FieldPlot
   miutil::miTime getFieldReferenceTime();
   /// return data times (fields,images, observations, objects and editproducts)

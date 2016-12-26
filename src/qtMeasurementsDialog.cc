@@ -366,10 +366,7 @@ void MeasurementsDialog::mapPos(float lat, float lon)
   posStruct pos;
   pos.lat=lat;
   pos.lon=lon;
-
-  miutil::miTime t;
-  contr->getPlotTime(t);
-  pos.time = t;
+  pos.time = contr->getPlotTime();
 
   if (positionVector.size() < 3) {
     positionVector.push_back(pos);
@@ -377,7 +374,7 @@ void MeasurementsDialog::mapPos(float lat, float lon)
 
   //Make string and insert in posList
   if ((positionVector.size() == 1) || (positionVector.size() == 2)) {
-    update_posList(lat,lon,t, positionVector.size());
+    update_posList(lat, lon, pos.time, positionVector.size());
   } else {
     return;
   }
@@ -396,7 +393,7 @@ void MeasurementsDialog::mapPos(float lat, float lon)
 }
 
 
-void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, int index)
+void MeasurementsDialog::update_posList(float lat, float lon, const miutil::miTime& t, int index)
 {
   METLIBS_LOG_SCOPE();
 
