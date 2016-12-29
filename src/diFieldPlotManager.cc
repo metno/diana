@@ -489,14 +489,14 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
 }
 
 
-bool FieldPlotManager::makeFields(const std::string& pin_const,
+bool FieldPlotManager::makeFields(const std::string& pin,
     const miTime& const_ptime, vector<Field*>& vfout)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(pin_const));
+  METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   // if difference
   std::string fspec1,fspec2;
-  if (splitDifferenceCommandString(pin_const,fspec1,fspec2)) {
+  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
     return makeDifferenceField(fspec1, fspec2, const_ptime, vfout);
   }
 
@@ -504,7 +504,6 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
 
   vector<FieldRequest> vfieldrequest;
   std::string plotName;
-  std::string pin = pin_const;
   parsePin(pin, vfieldrequest, plotName);
 
   for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
@@ -944,14 +943,23 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
   }
 }
 
-bool FieldPlotManager::parsePin(std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
+std::string FieldPlotManager::extractPlotName(const std::string& pin)
+{
+  std::string plotName;
+  vector<FieldRequest> vfieldrequest;
+  parsePin(pin, vfieldrequest, plotName);
+  return plotName;
+}
+
+void FieldPlotManager::parsePin(const std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   // if difference
   std::string fspec1,fspec2;
   if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
-    return parsePin(fspec1, vfieldrequest, plotName);
+    parsePin(fspec1, vfieldrequest, plotName);
+    return;
   }
 
   FieldRequest fieldrequest;
@@ -967,8 +975,6 @@ bool FieldPlotManager::parsePin(std::string& pin, vector<FieldRequest>& vfieldre
       vfieldrequest.push_back(fieldrequest);
     }
   }
-
-  return true;
 }
 
 bool FieldPlotManager::writeField(FieldRequest fieldrequest, const Field* field)

@@ -2739,9 +2739,14 @@ bool EditManager::recalcCombineMatrix(){
  -----------------------------------------------------------------------*/
 
 
-void EditManager::prepareEditFields(const std::string& plotName, const vector<std::string>& inp)
+void EditManager::prepareEditFields(const vector<std::string>& inp)
 {
   METLIBS_LOG_SCOPE();
+
+  if (!isInEdit() || inp.empty())
+    return;
+
+  const std::string plotName = fieldPlotManager->extractPlotName(inp[0]);
 
   // setting plot options
 

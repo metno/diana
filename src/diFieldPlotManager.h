@@ -110,7 +110,10 @@ public:
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
 
   /// Parse plotInfo string into FieldReqests and plotName
-  bool parsePin(std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
+  void parsePin(const std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
+
+  /// helper function to extract plot name using parsePin
+  std::string extractPlotName(const std::string& pin);
 
   /// Write field to file
   bool writeField(FieldRequest fieldrequest, const Field* field);

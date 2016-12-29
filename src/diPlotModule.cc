@@ -136,11 +136,21 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   mapDefinedByUser = false;
 
   // split up input into separate products
-  vector<string> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
-  labelpi, editfieldpi;
+  std::set<std::string> ordered;
+  ordered.insert("FIELD");
+  ordered.insert("OBS");
+  ordered.insert("MAP");
+  ordered.insert("AREA");
+  ordered.insert("SAT");
+  ordered.insert("STATION");
+  ordered.insert("OBJECTS");
+  ordered.insert("TRAJECTORY");
+  ordered.insert("LABEL");
+  ordered.insert("EDITFIELD");
 
   typedef std::map<std::string, std::vector<std::string> > manager_pi_t;
   manager_pi_t manager_pi;
+  manager_pi_t ordered_pi;
 
   // merge PlotInfo's for same type
   for (size_t i = 0; i < vpi.size(); i++) {
@@ -148,26 +158,8 @@ void PlotModule::preparePlots(const vector<string>& vpi)
     if (!tokens.empty()) {
       std::string type = miutil::to_upper(tokens[0]);
       METLIBS_LOG_INFO(vpi[i]);
-      if (type == "FIELD")
-        fieldpi.push_back(vpi[i]);
-      else if (type == "OBS")
-        obspi.push_back(vpi[i]);
-      else if (type == "MAP")
-        mappi.push_back(vpi[i]);
-      else if (type == "AREA")
-        areapi.push_back(vpi[i]);
-      else if (type == "SAT")
-        satpi.push_back(vpi[i]);
-      else if (type == "STATION")
-        statpi.push_back(vpi[i]);
-      else if (type == "OBJECTS")
-        objectpi.push_back(vpi[i]);
-      else if (type == "TRAJECTORY")
-        trajectorypi.push_back(vpi[i]);
-      else if (type == "LABEL")
-        labelpi.push_back(vpi[i]);
-      else if (type == "EDITFIELD")
-        editfieldpi.push_back(vpi[i]);
+      if (ordered.find(type) != ordered.end())
+        ordered_pi[type].push_back(vpi[i]);
       else if (managers.find(type) != managers.end())
         manager_pi[type].push_back(vpi[i]);
       else
@@ -176,22 +168,16 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   }
 
   // call prepare methods
-  prepareArea(areapi);
-  prepareMap(mappi);
-  prepareFields(fieldpi);
-  prepareObs(obspi);
-  satm->prepareSat(satpi);
-  prepareStations(statpi);
-  objm->prepareObjects(objectpi);
-  prepareTrajectory(trajectorypi);
-  prepareAnnotation(labelpi);
-
-  if (editm->isInEdit() and not editfieldpi.empty()) {
-    std::string plotName;
-    vector<FieldRequest> vfieldrequest;
-    fieldplotm->parsePin(editfieldpi[0],vfieldrequest,plotName);
-    editm->prepareEditFields(plotName,editfieldpi);
-  }
+  prepareArea(ordered_pi["AREA"]);
+  prepareMap(ordered_pi["MAP"]);
+  prepareFields(ordered_pi["FIELD"]);
+  prepareObs(ordered_pi["OBS"]);
+  satm->prepareSat(ordered_pi["SAT"]);
+  prepareStations(ordered_pi["STATION"]);
+  objm->prepareObjects(ordered_pi["OBJECTS"]);
+  prepareTrajectory(ordered_pi["TRAJECTORY"]);
+  prepareAnnotation(ordered_pi["LABEL"]);
+  editm->prepareEditFields(ordered_pi["EDITFIELD"]);
 
   // Send the commands to the other managers.
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
@@ -297,8 +283,8 @@ void PlotModule::prepareMap(const vector<string>& inp)
     if (!inuse[i])
       delete vmp[i];
   }
-  vmp = new_vmp;
 
+  std::swap(vmp, new_vmp);
 }
 
 void PlotModule::prepareFields(const vector<string>& inp)
@@ -326,12 +312,8 @@ void PlotModule::prepareFields(const vector<string>& inp)
   }
 
   for (size_t i=0; i < inp.size(); i++) {
+    const std::string plotName = fieldplotm->extractPlotName(inp[0]);
     FieldPlot *fp = new FieldPlot();
-
-    std::string plotName;
-    vector<FieldRequest> vfieldrequest;
-    std::string inpstr = inp[i];
-    fieldplotm->parsePin(inpstr,vfieldrequest,plotName);
     if (!fp->prepare(plotName, inp[i])) {
       delete fp;
     } else {
