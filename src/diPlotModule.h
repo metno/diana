@@ -262,7 +262,7 @@ public:
       bool updateSources = false);
 
   /// set plottime (forwarded to staticPlot_)
-  void setPlotTime(miutil::miTime&);
+  void setPlotTime(const miutil::miTime&);
 
   // Observation
   /// Update ObsPlots if data files have changed

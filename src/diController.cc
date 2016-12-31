@@ -299,7 +299,7 @@ std::string Controller::getProductName()
 // }
 
 // set plottime
-void Controller::setPlotTime(miTime& t)
+void Controller::setPlotTime(const miTime& t)
 {
   plotm->setPlotTime(t);
 }

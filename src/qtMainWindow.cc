@@ -2575,7 +2575,7 @@ void DianaMainWindow::increaseTimeStep()
   timestep->setValue(v);
 }
 
-void DianaMainWindow::setPlotTime(miutil::miTime& t)
+void DianaMainWindow::setPlotTime(const miutil::miTime& t)
 {
   METLIBS_LOG_TIME();
   diutil::OverrideCursor waitCursor;

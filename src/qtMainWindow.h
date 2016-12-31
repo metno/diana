@@ -205,7 +205,7 @@ private Q_SLOTS:
   void saveAnimation();
   void TimeSliderMoved();
   void TimeSelected();
-  void setPlotTime(miutil::miTime& t);
+  void setPlotTime(const miutil::miTime& t);
   void SliderSet();
   void requestBackgroundBufferUpdate();
 

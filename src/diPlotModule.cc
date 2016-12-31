@@ -1454,7 +1454,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::str
 }
 
 // set plottime
-void PlotModule::setPlotTime(miTime& t)
+void PlotModule::setPlotTime(const miTime& t)
 {
   staticPlot_->setTime(t);
 }
