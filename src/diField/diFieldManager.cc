@@ -1452,7 +1452,9 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
         fieldrequest_new.zaxis = fs.vcoordName;
         fieldrequest_new.plevel = fs.levelName;
       }
-      fieldrequest_new.unit = fs.unit;
+      if (!fs.unit.empty()) {
+        fieldrequest_new.unit = fs.unit;
+      }
       if (!fs.elevel.empty()) {
         fieldrequest_new.elevel = fs.elevel;
       }
@@ -1478,18 +1480,17 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
           gridinventory::Zaxis zaxs = inventory.getZaxis(fs.vcoordName);
           values = zaxs.stringvalues;
         }
-        fieldrequest.paramName = fs.paramName;
         if (values.empty()) {
           freeFields(vfield);
           return 0;
         }
         for (size_t i = 0; i < values.size(); i++) {
           if (!fs.ecoordName.empty()) {
-            fieldrequest.elevel = values[i];
+            fieldrequest_new.elevel = values[i];
           } else if (!fs.vcoordName.empty()) {
-            fieldrequest.plevel = values[i];
+            fieldrequest_new.plevel = values[i];
           }
-          Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
+          Field * f = getField(gridCollection, inventory, fieldrequest_new, cacheOptions);
           if (!f) {
             freeFields(vfield);
             return 0;
