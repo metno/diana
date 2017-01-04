@@ -236,7 +236,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optAutoElementAction = new QAction( tr("&Automatic element choice"), this );
   optAutoElementAction->setShortcut(Qt::Key_Space);
   optAutoElementAction->setCheckable(true);
-  connect( optAutoElementAction, SIGNAL( triggered() ), SLOT( autoElement() ) );
   // --------------------------------------------------------------------
   optAnnotationAction = new QAction( tr("A&nnotations"), this );
   optAnnotationAction->setCheckable(true);
@@ -3688,13 +3687,6 @@ void DianaMainWindow::archiveMode()
     archiveL->hide();
   }
 }
-
-void DianaMainWindow::autoElement()
-{
-  //   bool on = optAutoElementAction->isChecked();
-  //   optAutoElementAction->setChecked( on );
-}
-
 
 void DianaMainWindow::showAnnotations()
 {

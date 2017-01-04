@@ -246,7 +246,6 @@ private Q_SLOTS:
   void updateGLSlot();
   void showElements();
   void archiveMode();
-  void autoElement();
   void showAnnotations();
   void toggleScrollwheelZoom();
   void chooseFont();
