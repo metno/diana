@@ -3607,25 +3607,23 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
     foreach (QUrl url, event->mimeData()->urls()) {
 
       if (url.scheme() == "file") {
-        QString suffix = QFileInfo(url.toLocalFile()).suffix();
+        const QString fileName = url.toLocalFile();
+        const QFileInfo fi(fileName);
+        const QString suffix = fi.suffix();
 
         if (suffix == "nc") {
-          QFileInfo fi(url.toLocalFile());
-          QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
+          QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(fileName);
           extra_field_lines.push_back(s.toStdString());
           fieldsAdded++;
 
         } else if (suffix == "svg") {
-          QString fileName = url.toLocalFile();
-          QString name = QFileInfo(fileName).fileName();
-          QString section = QFileInfo(fileName).dir().dirName();
+          QString name = fi.fileName();
+          QString section = fi.dir().dirName();
           DrawingManager::instance()->loadSymbol(fileName, section, name);
           editDrawingToolBar->addSymbol(section, name);
           symbolsAdded++;
 
         } else if (suffix == "kml") {
-          QString fileName = url.toLocalFile();
-          QString name = QFileInfo(fileName).fileName();
           EditItems::DrawingDialog::instance()->loadFile(fileName);
           drawingsAdded++;
         }
