@@ -676,13 +676,14 @@ bool PlotModule::updatePlots()
   // prepare data for field plots
   bool haveFieldData = false;
   for (size_t i = 0; i < vfp.size(); i++) {
+    FieldPlot* fp = vfp[i];
     std::string pin;
-    if (vfp[i]->updateNeeded(pin)) {
+    if (fp->updateNeeded(pin)) {
       std::vector<Field*> fv;
       if (fieldplotm->makeFields(pin, t, fv))
         haveFieldData = true;
-      freeFields(vfp[i]);
-      vfp[i]->setData(fv, t);
+      freeFields(fp);
+      fp->setData(fv, t);
     }
   }
   if (haveFieldData) {

@@ -69,7 +69,10 @@ public:
   void getFieldAnnotation(std::string&, Colour&) const;
   const std::vector<Field*>& getFields() const {return fields; }
   const miutil::miTime& getTime() const {return ftime;}
-  const miutil::miTime& getAnalysisTime() const {return analysisTime;}
+
+  //! time of model analysis
+  const miutil::miTime& getAnalysisTime() const;
+
   bool plotUndefined(DiGLPainter* gl);
   bool plotNumbers(DiGLPainter* gl);
   std::string getModelName();
@@ -83,7 +86,6 @@ private:
   std::vector<Field*> fields; // fields, stored elsewhere
   std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time
-  miutil::miTime analysisTime;   // time of model analysis
 
   // plotting parameters
   bool pshade;          // shaded (true) or line drawing (false)
