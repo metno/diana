@@ -312,7 +312,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
   }
 
   for (size_t i=0; i < inp.size(); i++) {
-    const std::string plotName = fieldplotm->extractPlotName(inp[0]);
+    const std::string plotName = fieldplotm->extractPlotName(inp[i]);
     FieldPlot *fp = new FieldPlot();
     if (!fp->prepare(plotName, inp[i])) {
       delete fp;
