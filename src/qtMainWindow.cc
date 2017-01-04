@@ -63,7 +63,6 @@
 #include "qtUffdaDialog.h"
 #include "qtAnnotationDialog.h"
 #include "qtTextView.h"
-#include "qtMailDialog.h"
 
 #include "diBuild.h"
 #include "diController.h"
@@ -82,7 +81,9 @@
 #include "wmsclient/WebMapManager.h"
 #include "util/qstring_util.h"
 
-#include <MovieMaker.h>
+#include "export/MovieMaker.h"
+#include "export/qtExportImageDialog.h"
+#include "export/qtDianaDevicePainter.h"
 
 #include <qUtilities/qtHelpDialog.h>
 
@@ -105,6 +106,7 @@
 #include <QFrame>
 #include <QIcon>
 #include <QLabel>
+#include <QLayout>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -202,14 +204,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   // file ========================
   // --------------------------------------------------------------------
-  fileSavePictAction = new QAction( tr("&Save picture..."),this );
+  fileSavePictAction = new QAction( tr("&Export image/movie..."),this );
   connect( fileSavePictAction, SIGNAL( triggered() ) , SLOT( saveraster() ) );
-  // --------------------------------------------------------------------
-  emailPictureAction = new QAction( tr("&Email picture..."),this );
-  connect( emailPictureAction, SIGNAL( triggered() ) , SLOT( emailPicture() ) );
-  // --------------------------------------------------------------------
-  saveAnimationAction = new QAction( tr("Save &animation..."),this );
-  connect( saveAnimationAction, SIGNAL( triggered() ) , SLOT( saveAnimation() ) );
   // --------------------------------------------------------------------
   filePrintAction = new QAction( tr("&Print..."),this );
   filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
@@ -249,9 +245,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optScrollwheelZoomAction = new QAction( tr("Scrollw&heel zooming"), this );
   optScrollwheelZoomAction->setCheckable(true);
   connect( optScrollwheelZoomAction, SIGNAL( triggered() ), SLOT( toggleScrollwheelZoom() ) );
-  // --------------------------------------------------------------------
-  optPictureRatioAction = new QAction( tr("Picture ratio 4:3"), this );
-  optPictureRatioAction->setCheckable(true);
   // --------------------------------------------------------------------
   optFontAction = new QAction( tr("Select &Font..."), this );
   connect( optFontAction, SIGNAL( triggered() ) ,  SLOT( chooseFont() ) );
@@ -576,8 +569,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   //-------File menu
   filemenu = menuBar()->addMenu(tr("File"));
   filemenu->addAction( fileSavePictAction );
-  filemenu->addAction( emailPictureAction );
-  filemenu->addAction( saveAnimationAction );
   filemenu->addAction( filePrintAction );
   filemenu->addAction( filePrintPreviewAction );
   filemenu->addSeparator();
@@ -590,7 +581,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optmenu->addAction( optAutoElementAction );
   optmenu->addAction( optAnnotationAction );
   optmenu->addAction( optScrollwheelZoomAction );
-  optmenu->addAction( optPictureRatioAction );
   optmenu->addAction( readSetupAction );
   optmenu->addSeparator();
   optmenu->addAction( optFontAction );
@@ -899,9 +889,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
 
-  mailm = new MailDialog(this,contr);
-  mailm->hide();
-
   EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
   drawingDialog->hide();
   addDialog(drawingDialog);
@@ -952,7 +939,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
-  connect(mailm, SIGNAL(saveImage(QString)), SLOT(saveRasterImage(QString)));
   // Documentation and Help
 
   HelpDialog::Info info;
@@ -2660,42 +2646,26 @@ void DianaMainWindow::saveraster()
 {
   METLIBS_LOG_SCOPE();
 
-#if 1
-  static QString fname = "./"; // keep users preferred image-path for later
-  const QString s = QFileDialog::getSaveFileName(this,
-      tr("Save plot as image"),
-      fname,
-      tr("Images (*.png *.jpeg *.jpg *.xpm *.bmp *.svg);;PDF Files (*.pdf);;All (*.*)"));
-  if (s.isNull())
-    return;
-  fname = s;
-  saveRasterImage(fname);
-#else
-  saveRasterImage("/tmp/map.png");
-  saveRasterImage("/tmp/map.svg");
-  saveRasterImage("/tmp/map.pdf");
-#endif
+  ExportImageDialog eid(this);
+  connect(w->Glw(), SIGNAL(resized(int,int)), &eid, SLOT(onDianaResized(int,int)));
+  eid.onDianaResized(w->Glw()->width(), w->Glw()->height());
+  eid.exec();
 }
 
-void DianaMainWindow::saveRasterImage(const QString& filename)
+void DianaMainWindow::saveRasterImage(const QString& filename, const QSize& size)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
   QPrinter* printer = 0;
   QImage* image = 0;
   std::auto_ptr<QPaintDevice> device;
   bool printing = false;
-  const int pw= w->Glw()->width();
-  int ph;
-  if (optPictureRatioAction->isChecked())
-    ph = int(pw*3.0/4.0);
-  else
-    ph = w->Glw()->height();
+
   if (filename.endsWith(".pdf")) {
     printer = new QPrinter(QPrinter::ScreenResolution);
     printer->setOutputFormat(QPrinter::PdfFormat);
     printer->setOutputFileName(filename);
     printer->setFullPage(true);
-    printer->setPaperSize(QSizeF(pw, ph), QPrinter::DevicePixel);
+    printer->setPaperSize(size, QPrinter::DevicePixel);
 
     // FIXME copy from bdiana
     // According to QTBUG-23868, orientation and custom paper sizes do not
@@ -2708,7 +2678,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     QSvgGenerator* generator = new QSvgGenerator();
     generator->setFileName(filename);
     generator->setSize(w->size());
-    generator->setViewBox(QRect(0, 0, pw, ph));
+    generator->setViewBox(QRect(QPoint(0,0), size));
     generator->setTitle(tr("diana image"));
     generator->setDescription(tr("Created by diana %1.").arg(PVERSION));
 
@@ -2722,7 +2692,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
     printing = true;
     device.reset(generator);
   } else {
-    image = new QImage(pw, ph, QImage::Format_ARGB32_Premultiplied);
+    image = new QImage(size, QImage::Format_ARGB32_Premultiplied);
     image->fill(Qt::transparent);
     device.reset(image);
   }
@@ -2736,73 +2706,18 @@ void DianaMainWindow::saveRasterImage(const QString& filename)
 void DianaMainWindow::paintOnDevice(QPaintDevice* device, bool printing)
 {
   METLIBS_LOG_SCOPE();
-  DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
-
-  std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
-  glcanvas->parseFontSetup();
-  glcanvas->setPrinting(printing);
-  std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
-  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
-
-  const int ww = w->Glw()->width(), wh = w->Glw()->height();
-  const int dw = device->width(), dh = device->height();
-  METLIBS_LOG_DEBUG(LOGVAL(ww) << LOGVAL(wh) << LOGVAL(dw) << LOGVAL(dh));
-
-  QPainter painter;
-  painter.begin(device);
-
-  w->Glw()->setCanvas(glcanvas.get());
-  glpainter->Viewport(0, 0, dw, dh);
-  w->Glw()->resize(dw, dh);
-
-  glpainter->begin(&painter);
-  w->Glw()->paintUnderlay(glpainter.get());
-  w->Glw()->paintOverlay(glpainter.get());
-  glpainter->end();
-  painter.end();
-
-  w->Glw()->setCanvas(oldCanvas);
-  w->Glw()->resize(ww, wh);
+  DianaImageExporter ex(w->Glw(), device, printing);
+  ex.paintOnDevice();
 }
 
-void DianaMainWindow::emailPicture()
+void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
 {
-  mailm->show();
-}
-
-void DianaMainWindow::saveAnimation()
-{
-  static QString fname = "./"; // keep users preferred animation-path for later
-
-  QString s = QFileDialog::getSaveFileName(this,
-      tr("Save animation from current fields, satellite images, etc."),
-      fname,
-      tr("Movies (*.mp4 *.mpg *.avi);;All (*.*)"));
-
-  if (s.isNull())
-    return;
-
-  const QString suffix = QFileInfo(s).suffix().toLower();
-  QString format = "mpg";
-  if (suffix == "avi") {
-    format = "avi";
-  } else if (suffix == "mp4") {
-    format = "mp4";
-  } else if (suffix != "mpg") {
-    s += ".mpg";
-  }
-  fname = s;
-
-  float delay = timeout_ms * 0.001;
-  MovieMaker moviemaker(s, format, delay);
-
   QMessageBox::information(this, tr("Making animation"),
       tr("This may take some time, depending on the number of timesteps and selected delay."
           " Diana cannot be used until this process is completed."
           " A message will be displayed upon completion."
           " Press OK to begin."));
 
-  const int ww = w->Glw()->width(), wh = w->Glw()->height();
   w->setVisible(false); // avoid handling repaint events while the canvas is replaced
 
   // first reset time-slider
@@ -2818,53 +2733,28 @@ void DianaMainWindow::saveAnimation()
   progress.setWindowModality(Qt::WindowModal);
   progress.show();
 
-  QImage image(moviemaker.frameSize(), QImage::Format_ARGB32_Premultiplied);
-
-  // ==================== copy> ====================
-  // FIXME this is a partial copy of paintOnDevice (but does not
-  // create a new DiPaintGLCanvas for each time step)
-  DiCanvas* oldCanvas = contr->canvas(); // TODO obtain from w->Glw() or so
-
-  std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(&image));
-  glcanvas->parseFontSetup();
-  glcanvas->setPrinting(false);
-  std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
-  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
-
-  w->Glw()->setCanvas(glcanvas.get());
-  glpainter->Viewport(0, 0, image.width(), image.height());
-  w->Glw()->resize(image.width(), image.height());
-
-  QPainter painter;
-  // ==================== <copy ====================
-
-  // save frames as images
   bool ok = true;
-  for (int step = 0; ok && tslider->current() < nrOfTimesteps-1; ++step, stepforward()) {
+
+  QImage image(moviemaker.frameSize(), QImage::Format_ARGB32_Premultiplied);
+  { // scope for DianaImageExporter
+    DianaImageExporter ex(w->Glw(), &image, false);
+
+    // save frames as images
+    for (int step = 0; ok && tslider->current() < nrOfTimesteps-1; ++step, stepforward()) {
+      if (!progress.isHidden())
+        progress.setValue(step);
+
+      image.fill(Qt::transparent);
+      ex.paintOnDevice();
+
+      ok = moviemaker.addImage(image);
+    }
+    if (ok)
+      ok = moviemaker.finish();
     if (!progress.isHidden())
-      progress.setValue(step);
+      progress.setValue(nrOfTimesteps);
+  } // destroy DianaImageExporter, resets canvas
 
-    // ==================== <copy ====================
-    image.fill(Qt::transparent);
-    painter.begin(&image);
-    glpainter->begin(&painter);
-    w->Glw()->paintUnderlay(glpainter.get());
-    w->Glw()->paintOverlay(glpainter.get());
-    glpainter->end();
-    painter.end();
-    // ==================== <copy ====================
-
-    ok = moviemaker.addImage(image);
-  }
-  if (ok)
-    ok = moviemaker.finish();
-  if (!progress.isHidden())
-    progress.setValue(nrOfTimesteps);
-
-  // ==================== <copy ====================
-  w->Glw()->setCanvas(oldCanvas);
-  w->Glw()->resize(ww, wh);
-  // ==================== <copy ====================
   w->setVisible(true);
 
   if (ok)

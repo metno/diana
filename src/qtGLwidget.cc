@@ -92,6 +92,8 @@ void GLwidget::resize(int w, int h)
 
   plotw = w;
   ploth = h;
+
+  Q_EMIT resized(w, h);
 }
 
 void GLwidget::setFlagsFromEventResult(const EventResult& res)

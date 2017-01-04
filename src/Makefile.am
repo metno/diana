@@ -104,7 +104,6 @@ libdiana_la_SOURCES = \
 	EditItems/kml.cc \
 	EditItems/timefilesextractor.cc \
 	miSetupParser.cc \
-	MovieMaker.cc \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
@@ -119,6 +118,10 @@ libdiana_la_SOURCES = \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
+
+libdiana_la_SOURCES += \
+	export/qtTempDir.cc \
+	export/MovieMaker.cc
 
 libdiana_la_SOURCES += \
 	vcross_v2/VcrossSetup.cc \
@@ -199,7 +202,6 @@ libdianaui_a_QTSOURCES = \
 	qtFieldDialog.cc \
 	qtGLwidget.cc \
 	qtGeoPosLineEdit.cc \
-	qtMailDialog.cc \
 	qtMainWindow.cc \
 	qtMapDialog.cc \
 	qtMeasurementsDialog.cc \
@@ -236,6 +238,8 @@ libdianaui_a_QTSOURCES = \
 	qtWorkArea.cc 
 
 libdianaui_a_QTSOURCES += \
+	export/qtExportImageDialog.cc \
+	export/qtDianaDevicePainter.cc \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossInterface.cc \
 	vcross_qt/qtVcrossLayerBar.cc \
@@ -253,6 +257,7 @@ libdianaui_a_QTSOURCES += \
 	wmsclient/WebMapDialog.cc
 
 libdianaui_a_QTFORMS = \
+	export/export_image_dialog.ui \
 	vcross_qt/vcross_plot_add_dialog.ui \
 	vcross_qt/vcross_modelpage.ui \
 	vcross_qt/vcross_reftimepage.ui \
@@ -263,7 +268,10 @@ libdianaui_a_QTFORMS = \
 	wmsclient/webmap_dialog.ui
 
 noinst_HEADERS = \
-	MovieMaker.h \
+	export/MovieMaker.h \
+	export/qtExportImageDialog.h \
+	export/qtDianaDevicePainter.h \
+	export/qtTempDir.h \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
@@ -394,7 +402,6 @@ noinst_HEADERS = \
 	qtGLwidget.h \
 	qtGeoPosLineEdit.h \
 	qtImageGallery.h \
-	qtMailDialog.h \
 	qtMainWindow.h \
 	qtMapDialog.h \
 	qtMeasurementsDialog.h \
@@ -457,11 +464,11 @@ noinst_HEADERS += \
 	vcross_v2/VcrossQtAxis.h \
 	vcross_qt/qtVcrossInterface.h \
 	vcross_qt/qtVcrossLayerBar.h \
-	vcross_qt/qtVcrossLayerButton.h
-	src/vcross_qt/qtVcrossLayerList.h \
+	vcross_qt/qtVcrossLayerButton.h \
+	vcross_qt/qtVcrossLayerList.h \
 	vcross_qt/qtVcrossModelPage.h \
 	vcross_qt/qtVcrossReftimePage.h \
-	src/vcross_qt/qtVcrossReplaceModelDialog.h \
+	vcross_qt/qtVcrossReplaceModelDialog.h \
 	vcross_qt/qtVcrossSetup.h \
 	vcross_qt/qtVcrossSetupDialog.h \
 	vcross_qt/qtVcrossStyleDialog.h \
