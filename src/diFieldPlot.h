@@ -42,6 +42,7 @@
 #include <vector>
 
 class DiGLPainter;
+class FieldPlotManager;
 
 /**
   \brief Plots one field
@@ -52,7 +53,7 @@ class DiGLPainter;
 class FieldPlot : public Plot, protected RasterPlot {
 
 public:
-  FieldPlot();
+  FieldPlot(FieldPlotManager* fieldplotm=0);
   ~FieldPlot();
 
   bool getDataAnnotations(std::vector<std::string>& anno);
@@ -60,7 +61,7 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
-  bool updateNeeded(std::string&) const;
+  bool updateIfNeeded();
   bool prepare(const std::string& fname, const std::string&);
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
@@ -83,6 +84,7 @@ public:
   std::string getModelPlotParameterReftime() const;
 
 private:
+  FieldPlotManager* fieldplotm_;
   std::vector<Field*> fields; // fields, stored elsewhere
   std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time

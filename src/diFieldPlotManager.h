@@ -39,6 +39,8 @@
 #include <string>
 #include <vector>
 
+class FieldPlot;
+
 /**
  \brief FieldPlotManager
  */
@@ -56,6 +58,8 @@ public:
   };
 
   FieldPlotManager(FieldManager* fm);
+
+  FieldPlot* createPlot(const std::string& cmd);
 
   void getAllFieldNames(std::vector<std::string>& fieldNames);
 

@@ -60,6 +60,8 @@
 
 #include <QMouseEvent>
 
+#include <memory>
+
 //#define DEBUGPRINT
 //#define DEBUGREDRAW
 #define MILOGGER_CATEGORY "diana.PlotModule"
@@ -312,14 +314,11 @@ void PlotModule::prepareFields(const vector<string>& inp)
   }
 
   for (size_t i=0; i < inp.size(); i++) {
-    const std::string plotName = fieldplotm->extractPlotName(inp[i]);
-    FieldPlot *fp = new FieldPlot();
-    if (!fp->prepare(plotName, inp[i])) {
-      delete fp;
-    } else {
-      plotenabled.restore(fp, fp->getModelPlotParameterReftime());
-      vfp.push_back(fp);
-      fp->setCanvas(mCanvas);
+    std::auto_ptr<FieldPlot> fp(fieldplotm->createPlot(inp[i]));
+    if (fp.get()) {
+      plotenabled.restore(fp.get(), fp->getModelPlotParameterReftime());
+      fp.get()->setCanvas(mCanvas);
+      vfp.push_back(fp.release());
     }
   }
 }
@@ -677,14 +676,7 @@ bool PlotModule::updatePlots()
   bool haveFieldData = false;
   for (size_t i = 0; i < vfp.size(); i++) {
     FieldPlot* fp = vfp[i];
-    std::string pin;
-    if (fp->updateNeeded(pin)) {
-      std::vector<Field*> fv;
-      if (fieldplotm->makeFields(pin, t, fv))
-        haveFieldData = true;
-      freeFields(fp);
-      fp->setData(fv, t);
-    }
+    haveFieldData |= fp->updateIfNeeded();
   }
   if (haveFieldData) {
     nodata = false;

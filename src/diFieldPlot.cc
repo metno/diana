@@ -156,8 +156,9 @@ void ColourLimits::setColour(DiPainter* gl, float c) const
 
 // ========================================================================
 
-FieldPlot::FieldPlot()
-  : pshade(false)
+FieldPlot::FieldPlot(FieldPlotManager* fieldplotm)
+  : fieldplotm_(fieldplotm)
+  , pshade(false)
   , vectorAnnotationSize(0)
 {
   METLIBS_LOG_SCOPE();
@@ -230,17 +231,27 @@ int FieldPlot::getLevel() const
   return fields[0]->level;
 }
 
-// check if current data from plottime
-bool FieldPlot::updateNeeded(string& pin) const
+bool FieldPlot::updateIfNeeded()
 {
+  const miTime& t = getStaticPlot()->getTime();
+  bool update, data = false;
   if (ftime.undef()
-      || (ftime != getStaticPlot()->getTime() && !miutil::contains(getPlotInfo(), " time="))
+      || (ftime != t && !miutil::contains(getPlotInfo(), " time="))
       || fields.size() == 0)
   {
-    pin = getPlotInfo();
-    return true;
+    update = true;
+  } else {
+    update = false;
   }
-  return false;
+  if (update && fieldplotm_ != 0) {
+    std::vector<Field*> fv;
+    data = fieldplotm_->makeFields(getPlotInfo(), t, fv);
+    fieldplotm_->freeFields(fields);
+    setData(fv, t);
+  } else {
+    data = !fields.empty();
+  }
+  return data;
 }
 
 void FieldPlot::getFieldAnnotation(string& s, Colour& c) const

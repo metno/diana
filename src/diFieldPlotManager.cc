@@ -32,6 +32,7 @@
 #endif
 
 #include "diFieldPlotManager.h"
+#include "diFieldPlot.h"
 #include "diPlotOptions.h"
 #include "miSetupParser.h"
 #include "util/string_util.h"
@@ -44,6 +45,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <iomanip>
+#include <memory>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
@@ -55,6 +57,16 @@ using namespace miutil;
 FieldPlotManager::FieldPlotManager(FieldManager* fm) :
       fieldManager(fm)
 {
+}
+
+FieldPlot* FieldPlotManager::createPlot(const std::string& cmd)
+{
+  const std::string plotName = extractPlotName(cmd);
+  std::auto_ptr<FieldPlot> fp(new FieldPlot(this));
+  if (fp->prepare(plotName, cmd))
+    return fp.release();
+  else
+    return 0;
 }
 
 void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
