@@ -2599,46 +2599,33 @@ void DianaMainWindow::timeChanged(){
 void DianaMainWindow::levelUp()
 {
   if (toolLevelUpAction->isEnabled())
-    levelChange(1);
+    levelChange(1, 0);
 }
-
 
 void DianaMainWindow::levelDown()
 {
   if (toolLevelDownAction->isEnabled())
-    levelChange(-1);
+    levelChange(-1, 0);
 }
 
-
-void DianaMainWindow::levelChange(int increment)
+void DianaMainWindow::levelChange(int increment, int axis)
 {
   diutil::OverrideCursor waitCursor;
   // update field dialog
-  fm->changeLevel(increment,0);
+  fm->changeLevel(increment, axis);
   MenuOK();
 }
-
 
 void DianaMainWindow::idnumUp()
 {
   if (toolIdnumUpAction->isEnabled())
-    idnumChange(1);
+    levelChange(1, 1);
 }
-
 
 void DianaMainWindow::idnumDown()
 {
   if (toolIdnumDownAction->isEnabled())
-    idnumChange(-1);
-}
-
-
-void DianaMainWindow::idnumChange(int increment)
-{
-  diutil::OverrideCursor waitCursor;
-  // update field dialog
-  fm->changeLevel(increment, 1);
-  MenuOK();
+    levelChange(-1, 1);
 }
 
 

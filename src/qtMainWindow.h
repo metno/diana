@@ -468,8 +468,7 @@ private:
   std::map<int,bool> autoredraw;
   StationPlot *stationPlot;
 
-  void levelChange(int increment);
-  void idnumChange(int increment);
+  void levelChange(int increment, int axis);
 
   std::string getLogFileName() const;
   void readLogFile();
