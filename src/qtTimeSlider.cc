@@ -79,28 +79,24 @@ miutil::miTime TimeSlider::Value()
 }
 
 
-void TimeSlider::clear(){
-  init();
-  //  merge();
+void TimeSlider::setLastTimeStep()
+{
+  if (setSliderValue(times.size()-1)) {
+    Q_EMIT sliderSet();
+  }
 }
 
-void TimeSlider::setLastTimeStep() {
-  setSliderValue(times.size()-1);
-  emit sliderSet();
-}
-
-void TimeSlider::setInterval(int in){
+void TimeSlider::setInterval(int in)
+{
   interval= in;
 }
 
 void TimeSlider::setMinMax(const miutil::miTime& t1, const miutil::miTime& t2)
 {
-
-  int n= orig_times.size()-1;
-  if (t1>=orig_times[0] && t1<=orig_times[n] &&
-      t2>=t1 && t2<=orig_times[n]){
-    start= t1;
-    stop= t2;
+  const miutil::miTime& last = orig_times.back();
+  if (t1>=orig_times[0] && t1<=last && t2>=t1 && t2<=last) {
+    start = t1;
+    stop = t2;
     useminmax= true;
     // change colours..
 //     QColorGroup cg= pal.active();
@@ -111,7 +107,6 @@ void TimeSlider::setMinMax(const miutil::miTime& t1, const miutil::miTime& t2)
   }
 
   updateList();
-
 }
 
 void TimeSlider::clearMinMax()
@@ -122,7 +117,8 @@ void TimeSlider::clearMinMax()
   updateList();
 }
 
-void TimeSlider::setLoop(const bool b){
+void TimeSlider::setLoop(bool b)
+{
   loop= b;
 }
 
@@ -130,14 +126,17 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
 {
   int v= value();
   int n= times.size();
-  if (n==0 || v>=n) return false;
+  if (n==0 || v>=n)
+    return false;
 
   // start-stop indices
   int i1= 0, i2= n-1;
 
-  if (!loop && !startani){
-    if (dir>0 && v==i2) return false;
-    if (dir<0 && v==i1) return false;
+  if (!loop && !startani) {
+    if (dir>0 && v==i2)
+      return false;
+    if (dir<0 && v==i1)
+      return false;
   }
 
   const miutil::miTime& current = times[v];
@@ -148,17 +147,19 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
     // if interval==0: pick next time
     if (t==current) {
       if (v<i2)
-	time= times[v+1];
+        time= times[v+1];
       else if (loop || startani)
-	time= times[i1];
+        time= times[i1];
       else return false;
       // interval!=0
     } else {
       while (t>times[v] && v<i2)
-	v++;
+        v++;
       if (t>times[v]) {
-	if (loop || startani) v= i1;
-	else v= i2;
+        if (loop || startani)
+          v = i1;
+        else
+          v = i2;
       }
       time= times[v];
     }
@@ -175,14 +176,17 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
       // interval!=0
     } else {
       while (t<times[v] && v>i1)
-	v--;
+        v--;
       if (t<times[v]) {
-	if (loop || startani) v=i2;
-	else v= i1;
+        if (loop || startani)
+          v = i2;
+        else
+          v = i1;
       }
       time= times[v];
     }
-  } else time= current;
+  } else
+    time= current;
 
   startani= false;
   return time != current;
@@ -261,32 +265,29 @@ void TimeSlider::updateList()
 
   orig_times = times; // orig_times = all times
 
-  if(useminmax){
+  if (useminmax) {
     vector<miutil::miTime>::iterator q;
     for (q=times.begin(); q!=times.end() && *q<start; q++)
-	;
-    times.erase(times.begin(),q);
+      ;
+    times.erase(times.begin(), q);
 
     for (q=times.begin(); q!=times.end() && *q<stop; q++)
       ;
-    if( q!=times.end() )
+    if (q!=times.end())
       q++;
-    times.erase(q,times.end());
-
+    times.erase(q, times.end());
   }
 
 
-
   // make sure productimes are included
-  vector<miutil::miTime> vpt= tlist["product"];
-  int pn= vpt.size();
-  if (pn>0){
-    for (int i=0; i<pn; i++){
+  const vector<miutil::miTime>& vpt = tlist["product"];
+  if (!vpt.empty()){
+    for (size_t i=0; i<vpt.size(); i++) {
       vector<miutil::miTime>::iterator q;
       for (q=times.begin(); q!=times.end() && *q<vpt[i]; q++)
-	;
+        ;
       if ((q==times.end()) || (vpt[i]!=*q))
-	times.insert(q, vpt[i]);
+        times.insert(q, vpt[i]);
     }
   }
 
@@ -297,17 +298,23 @@ void TimeSlider::updateList()
     int iv, miniv=INT_MAX, maxiv=0;
     for (i=1; i<n; i++){
       iv= miutil::miTime::minDiff(times[i],times[i-1]);
-      if (iv<miniv) miniv= iv;
-      if (iv>maxiv) maxiv= iv;
+      if (iv<miniv)
+        miniv= iv;
+      if (iv>maxiv)
+        maxiv= iv;
     }
-    if (miniv<1) miniv= 1;
-     int meaniv = (miniv+maxiv)/2;
-     //HK added next line in order to avoid division by zero
-    if (meaniv<1) meaniv= 1;
+    if (miniv<1)
+      miniv= 1;
+    int meaniv = (miniv+maxiv)/2;
+    //HK added next line in order to avoid division by zero
+    if (meaniv<1)
+      meaniv= 1;
     // calculate reasonable tickmarks
     iv= 180/meaniv;
-    if (iv==0) iv= 1;
-    while (n/iv>maxticks) iv*= 2;
+    if (iv==0)
+      iv= 1;
+    while (n/iv>maxticks)
+      iv*= 2;
 
     // qt4 fix: Edited the line below (old line commented out)
     setTickPosition(TicksBelow); //setTickmarks(TickSetting(Below));
@@ -320,7 +327,7 @@ void TimeSlider::updateList()
     // and steps for interval-spinbox
     if(hourinterval<1) {
       if (hourinterval>interval)
-	emit minInterval(0);
+        emit minInterval(0);
       emit timeSteps(1,2);
     } else {
       emit timeSteps(int(hourinterval),int(2*hourinterval));
@@ -363,10 +370,11 @@ bool TimeSlider::setTime(const std::string& datatype, const miutil::miTime& t)
 // changes in the total timeseries. Try to keep current
 // time close to previous selected time - if that is impossible,
 // choose time nearest nowtime - and last resort: first time
-void TimeSlider::setFirstTime(const miutil::miTime& t){
+void TimeSlider::setFirstTime(const miutil::miTime& t)
+{
   miutil::miTime ptime;
   miutil::miTime now = miutil::miTime::nowTime();
-  if (t.undef()){ // only very first time we enter setFirstTime
+  if (t.undef()) { // only very first time we enter setFirstTime
     ptime= now;  // try to choose nowtime
   } else
     ptime= t;
@@ -376,31 +384,33 @@ void TimeSlider::setFirstTime(const miutil::miTime& t){
 
   for (i=0; i<n && times[i]<ptime; i++)
     ;
-  if (i==n) i= n-1;
+  if (i==n)
+    i= n-1;
 
-  if(times[i]==ptime){ // exact time
+  if (times[i] == ptime) { // exact time
     setSliderValue(i);
-  } else if (i>=n-1 || i==0){ // previous time outside interval
+  } else if (i>=n-1 || i==0) { // previous time outside interval
     // check if nowtime inside interval
-    if (now>=times[0] && now<=times[n-1]){
+    if (now>=times[0] && now<=times[n-1]) {
       for (i=0; i<n && times[i]<now; i++)
-	;
-      if (i==n) i= n-1;
+        ;
+      if (i==n)
+        i= n-1;
       setSliderValue(i);
 
     } else {
       // use time closest to nowtime
       if (now < times[0]) {
-	setSliderValue(0);
-      } else if (tlist["field"].size()==0) {
-	setSliderValue(n-1);
+        setSliderValue(0);
+      } else if (tlist["field"].size() == 0) {
+        setSliderValue(n-1);
       } else {
-	miutil::miTime tmax= times[n-1];
-	tmax.addHour(24);
-	if (now<tmax)
-	  setSliderValue(n-1);
-	else
-	  setSliderValue(0);
+        miutil::miTime tmax= times[n-1];
+        tmax.addHour(24);
+        if (now<tmax)
+          setSliderValue(n-1);
+        else
+          setSliderValue(0);
       }
     }
 
@@ -410,7 +420,8 @@ void TimeSlider::setFirstTime(const miutil::miTime& t){
     int psec= miutil::miTime::secDiff(ptime,times[i-1]);
     if (nsec < psec)
       setSliderValue(i);
-    else setSliderValue(i-1);
+    else
+      setSliderValue(i-1);
   }
 
   emit sliderSet();
@@ -419,7 +430,7 @@ void TimeSlider::setFirstTime(const miutil::miTime& t){
 
 // Set slider to value v (if legal value)
 // Remember corresponding miutil::miTime as prevtime.
-bool TimeSlider::setSliderValue(const int v)
+bool TimeSlider::setSliderValue(int v)
 {
   int n= times.size();
   if (v>=0 && v<n) {
@@ -446,21 +457,16 @@ void TimeSlider::set(const miutil::miTime& t)
   setSliderValue(v);
 }
 
-void TimeSlider::useData(std::string datatype)
+void TimeSlider::useData(const std::string& datatype)
 {
   dataType = datatype;
   updateList();
   emit newTimes(orig_times);
-
 }
 
 void TimeSlider::deleteType(const std::string& type)
 {
-  map< std::string, vector<miutil::miTime> >::iterator p    = tlist.begin();
-  map< std::string, vector<miutil::miTime> >::iterator pend = tlist.end();
-
-  while( p!=pend && type!=p->first ) p++;
-  if(p!=pend)
+  map< std::string, vector<miutil::miTime> >::iterator p = tlist.find(type);
+  if (p != tlist.end())
     tlist.erase(p);
-
 }
