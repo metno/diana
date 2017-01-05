@@ -69,6 +69,12 @@ public:
   int height() const
     { return ploth; }
 
+  bool useScrollwheelZoom() const
+    { return scrollwheelZoom; }
+
+  void setUseScrollwheelZoom(bool use)
+    { scrollwheelZoom = use; }
+
 Q_SIGNALS:
   /// single click signal
   void mouseGridPos(QMouseEvent* me);
@@ -103,6 +109,7 @@ private:
   int plotw, ploth;        // size of widget (pixels)
 
   std::map<int,KeyType> keymap; // keymap's for keyboardevents
+  bool scrollwheelZoom;
 };
 
 #endif

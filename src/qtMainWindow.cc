@@ -3417,7 +3417,7 @@ void DianaMainWindow::showAnnotations()
 void DianaMainWindow::toggleScrollwheelZoom()
 {
   bool on = optScrollwheelZoomAction->isChecked();
-  contr->toggleScrollwheelZoom(on);
+  w->Glw()->setUseScrollwheelZoom(on);
 }
 
 void DianaMainWindow::chooseFont()

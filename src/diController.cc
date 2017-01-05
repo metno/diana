@@ -81,7 +81,6 @@ Controller::Controller()
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
-  scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
 
   addManager("DRAWING", DrawingManager::instance());
@@ -415,55 +414,59 @@ vector<string> Controller::getSatnames()
   return satm->getSatnames();
 }
 
-void Controller::showAnnotations(bool on){
+void Controller::showAnnotations(bool on)
+{
   plotm->showAnnotations(on);
 }
 
-void Controller::toggleScrollwheelZoom(bool on){
-  scrollwheelZoom = !scrollwheelZoom;
-}
-
-bool Controller::markAnnotationPlot(int x, int y){
+bool Controller::markAnnotationPlot(int x, int y)
+{
   return plotm->markAnnotationPlot(x,y);
 }
 
-std::string Controller::getMarkedAnnotation(){
+std::string Controller::getMarkedAnnotation()
+{
   return plotm->getMarkedAnnotation();
 }
 
 void Controller::changeMarkedAnnotation(std::string text,int cursor,
-    int sel1, int sel2){
+    int sel1, int sel2)
+{
   plotm->changeMarkedAnnotation(text,cursor,sel1,sel2);
 }
-
 
 void Controller::DeleteMarkedAnnotation()
 {
   plotm->DeleteMarkedAnnotation();
 }
 
-void Controller::startEditAnnotation(){
+void Controller::startEditAnnotation()
+{
   plotm->startEditAnnotation();
 }
 
-void Controller::stopEditAnnotation(std::string prodname){
+void Controller::stopEditAnnotation(std::string prodname)
+{
   vector <string> labels  = plotm->writeAnnotations(prodname);
   editm->saveProductLabels(labels);
   plotm->stopEditAnnotation();
 }
 
-void Controller::editNextAnnoElement(){
+void Controller::editNextAnnoElement()
+{
   plotm->editNextAnnoElement();
 }
 
 
-void Controller::editLastAnnoElement(){
+void Controller::editLastAnnoElement()
+{
   plotm->editLastAnnoElement();
 }
 
 
 //Archive mode
-void Controller::archiveMode(bool on){
+void Controller::archiveMode(bool on)
+{
   obsm->archiveMode(on);
   satm->archiveMode(on);
 }
@@ -693,7 +696,8 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
 // ----- edit and drawing methods ----------
 
-mapMode Controller::getMapMode(){
+mapMode Controller::getMapMode()
+{
   return editm->getMapMode();
 }
 
@@ -710,7 +714,8 @@ set<string> Controller::getComplexList()
 // return satfileinfo
 const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
     const std::string& file,
-    bool update){
+    bool update)
+{
   return satm->getFiles(satellite,file,update);
 }
 
@@ -724,7 +729,8 @@ void Controller::getCapabilitiesTime(set<miTime>& okTimes,
 }
 
 const vector<Colour>& Controller::getSatColours(const std::string& satellite,
-    const std::string& file){
+    const std::string& file)
+{
   return satm->getColours(satellite,file);
 }
 
@@ -735,7 +741,8 @@ const vector<std::string>& Controller::getSatChannels(const std::string& satelli
   return satm->getChannels(satellite,file,index);
 }
 
-bool Controller::isMosaic(const std::string & satellite, const std::string & file){
+bool Controller::isMosaic(const std::string & satellite, const std::string & file)
+{
   return satm->isMosaic(satellite,file);
 }
 
@@ -748,25 +755,29 @@ void Controller::SatRefresh(const std::string& satellite, const std::string& fil
 
 
 
-bool Controller::satFileListChanged(){
+bool Controller::satFileListChanged()
+{
   // returns information about whether list of satellite files have changed
   //hence dialog and timeSlider times should change as well
   return satm->isFileListChanged();
 }
 
-void Controller::satFileListUpdated(){
+void Controller::satFileListUpdated()
+{
   //called when the dialog and timeSlider updated with info from satellite
   //file list
   satm->setFileListChanged(false);
 }
 
-bool Controller::obsTimeListChanged(){
+bool Controller::obsTimeListChanged()
+{
   // returns information about whether list of observation files have changed
   //hence dialog and timeSlider times should change as well
   return obsm->timeListChanged;
 }
 
-void Controller::obsTimeListUpdated(){
+void Controller::obsTimeListUpdated()
+{
   //called when the dialog and timeSlider updated with info from observation
   //file list
   obsm->timeListChanged = false;
@@ -781,43 +792,52 @@ void Controller::setSatAuto(bool autoFile,const std::string& satellite,
 
 
 void Controller::getUffdaClasses(vector <std::string> & vUffdaClass,
-    vector <std::string> &vUffdaClassTip){
+    vector <std::string> &vUffdaClassTip)
+{
   vUffdaClass=satm->vUffdaClass;
   vUffdaClassTip=satm->vUffdaClassTip;
 }
 
-bool Controller::getUffdaEnabled(){
+bool Controller::getUffdaEnabled()
+{
   return satm->uffdaEnabled;
 }
 
-std::string Controller::getUffdaMailAddress(){
+std::string Controller::getUffdaMailAddress()
+{
   return satm->uffdaMailAddress;
 }
 
 // return button names for ObsDialog
-ObsDialogInfo Controller::initObsDialog(){
+ObsDialogInfo Controller::initObsDialog()
+{
   return obsm->initDialog();
 }
 
 // return button names for ObsDialog ... ascii files (when activated)
-ObsDialogInfo Controller::updateObsDialog(const std::string& name){
+ObsDialogInfo Controller::updateObsDialog(const std::string& name)
+{
   return obsm->updateDialog(name);
 }
 
 // return button names for SatDialog
-SatDialogInfo Controller::initSatDialog(){
+SatDialogInfo Controller::initSatDialog()
+{
   return satm->initDialog();
 }
 
-stationDialogInfo Controller::initStationDialog(){
+stationDialogInfo Controller::initStationDialog()
+{
   return stam->initDialog();
 }
 
-EditDialogInfo Controller::initEditDialog(){
+EditDialogInfo Controller::initEditDialog()
+{
   return editm->getEditDialogInfo();
 }
 
-vector<FieldDialogInfo> Controller::initFieldDialog(){
+vector<FieldDialogInfo> Controller::initFieldDialog()
+{
   return fieldm->getFieldDialogInfo();
 }
 
@@ -851,9 +871,7 @@ void Controller::getFieldGroups(const std::string& modelName,
     bool plotGroups,
     vector<FieldGroupInfo>& vfgi)
 {
-
   fieldplotm->getFieldGroups(modelName, refTime, plotGroups, vfgi);
-
 }
 
 vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
@@ -866,7 +884,8 @@ void Controller::updateFieldSource(const std::string & modelName)
   fieldm->updateSource(modelName);
 }
 
-MapDialogInfo Controller::initMapDialog(){
+MapDialogInfo Controller::initMapDialog()
+{
   MapManager mapm;
   return mapm.getMapDialogInfo();
 }
@@ -875,7 +894,7 @@ bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool m
 {
   MapManager mapm;
   if (tostr){
-    if( map)
+    if (map)
       str= mapm.MapInfo2str(mi);
     else
       str= mapm.MapExtra2str(mi);
@@ -888,11 +907,13 @@ bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool m
 
 //object dialog
 
-vector<std::string> Controller::getObjectNames(bool useArchive){
+vector<std::string> Controller::getObjectNames(bool useArchive)
+{
   return objm->getObjectNames(useArchive);
 }
 
-void Controller::setObjAuto(bool autoFile){
+void Controller::setObjAuto(bool autoFile)
+{
   plotm->setObjAuto(autoFile);
 }
 
@@ -901,13 +922,13 @@ vector<ObjFileInfo> Controller::getObjectFiles(std::string objectname,
   return objm->getObjectFiles(objectname,refresh);
 }
 
-
-
-map<std::string,bool> Controller::decodeTypeString( std::string token){
+map<std::string,bool> Controller::decodeTypeString( std::string token)
+{
   return objm->decodeTypeString(token);
 }
 
-vector< vector<Colour::ColourInfo> > Controller::getMultiColourInfo(int multiNum){
+vector< vector<Colour::ColourInfo> > Controller::getMultiColourInfo(int multiNum)
+{
   return LocalSetupParser::getMultiColourInfo(multiNum);
 }
 
@@ -992,7 +1013,8 @@ void Controller::setStationsScale(float new_scale)
 }
 
 //areas
-void Controller::makeAreas(const std::string& name, std::string areastring, int id){
+void Controller::makeAreas(const std::string& name, std::string areastring, int id)
+{
   //METLIBS_LOG_DEBUG("Controller::makeAreas ");
   plotm->makeAreas(name,areastring,id);
 }
@@ -1072,11 +1094,6 @@ void Controller::readLog(const vector<string>& vstr,
     const string& logVersion)
 {
   plotm->readLog(vstr,thisVersion,logVersion);
-}
-
-bool Controller::useScrollwheelZoom()
-{
-  return scrollwheelZoom;
 }
 
 // Miscellaneous get methods

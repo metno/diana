@@ -90,7 +90,6 @@ private:
   DrawingManager   *drawm;
 
   bool editoverride; // do not route mouse/key-events to editmanager
-  bool scrollwheelZoom;
 
 public:
   Controller();
@@ -207,8 +206,6 @@ public:
   std::vector<std::string> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool);
-  /// toggle scrollwheelzoom
-  void toggleScrollwheelZoom(bool);
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
@@ -370,8 +367,6 @@ public:
       const std::string& thisVersion, const std::string& logVersion);
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);
-
-  bool useScrollwheelZoom();
 
   // Miscellaneous get methods
   const std::vector<SatPlot*>& getSatellitePlots() const;   // Returns a vector of defined satellite plots.
