@@ -4045,34 +4045,33 @@ void FieldDialog::minusField(bool on)
 void FieldDialog::updateTime()
 {
   vector<miutil::miTime> fieldtime;
-  int m;
+  size_t m = selectedFields.size();
 
-  if ((m = selectedFields.size()) > 0) {
+  if (m > 0) {
 
     vector<FieldRequest> request;
     FieldRequest ftr;
 
-    int nr = 0;
-
-    for (int i = 0; i < m; i++) {
-      if (!selectedFields[i].inEdit) {
+    for (size_t i = 0; i < m; i++) {
+      const SelectedField& sf = selectedFields[i];
+      if (!sf.inEdit) {
         request.push_back(ftr);
-        request[nr].modelName = selectedFields[i].modelName;
-        request[nr].paramName = selectedFields[i].fieldName;
-        request[nr].plevel = selectedFields[i].level;
-        request[nr].elevel = selectedFields[i].idnum;
-        request[nr].hourOffset = selectedFields[i].hourOffset;
-        request[nr].refTime = selectedFields[i].refTime;
-        request[nr].zaxis = selectedFields[i].zaxis;
-        request[nr].eaxis = selectedFields[i].extraaxis;
-        request[nr].grid = selectedFields[i].grid;
-        request[nr].plotDefinition = selectedFields[i].plotDefinition;
-        request[nr].allTimeSteps = allTimeStepButton->isChecked();
-        nr++;
+        FieldRequest& fr = request.back();
+        fr.modelName = sf.modelName;
+        fr.paramName = sf.fieldName;
+        fr.plevel = sf.level;
+        fr.elevel = sf.idnum;
+        fr.hourOffset = sf.hourOffset;
+        fr.refTime = sf.refTime;
+        fr.zaxis = sf.zaxis;
+        fr.eaxis = sf.extraaxis;
+        fr.grid = sf.grid;
+        fr.plotDefinition = sf.plotDefinition;
+        fr.allTimeSteps = allTimeStepButton->isChecked();
       }
     }
 
-    if (nr > 0) {
+    if (!request.empty()) {
       fieldtime = m_ctrl->getFieldTime(request);
     }
   }
