@@ -993,16 +993,10 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
     if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.empty() || vPlotField[i].vcoord.count(fieldrequest.zaxis))) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
-        std::string inputName = vPlotField[i].input[j];
-        vector<std::string> vstr = miutil::split(inputName, ":");
-        inputName = vstr[0];
-        if (vstr.size() == 2 && vstr[1] == "standard_name" ){
-          fieldrequest.standard_name = true;
-        } else {
-          fieldrequest.standard_name = false;
-        }
-        fieldrequest.paramName = inputName;
-
+        const std::string& inputIJ = vPlotField[i].input[j];
+        const vector<std::string> vstr = miutil::split(inputIJ, ":");
+        fieldrequest.paramName = vstr[0];
+        fieldrequest.standard_name = (vstr.size() == 2 && vstr[1] == "standard_name");
         vfieldrequest.push_back(fieldrequest);
       }
 
