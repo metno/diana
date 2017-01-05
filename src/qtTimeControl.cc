@@ -52,8 +52,8 @@
 using namespace std;
 
 TimeControl::TimeControl(QWidget* parent)
-  : QDialog( parent) {
-
+  : QDialog( parent)
+{
   //m_font= QFont( IQ.fontName.c_str(), IQ.fontSize, IQ.fontWeight );
   m_font= QFont( "Helvetica", 12, 75 );
 
@@ -142,14 +142,12 @@ TimeControl::TimeControl(QWidget* parent)
   */
 
   QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this);
-
   timeoutBox= new QComboBox(this);
-  for(float f=0.2; f<2.1; f+=0.1){
-	std::string text = miutil::from_number(f,2);
-    timeoutBox->addItem(text.c_str());
+  for (int f10=2; f10<21; ++f10) {
+    timeoutBox->addItem(QString::number(0.1*f10, ' ', 1));
   }
 
-  connect(timeoutBox, SIGNAL( highlighted(int)), SLOT(timeoutSlot(int)));
+  connect(timeoutBox, SIGNAL(highlighted(int)), SLOT(timeoutSlot(int)));
 
   //init dataname
   dataname.resize(8);
@@ -176,7 +174,7 @@ TimeControl::TimeControl(QWidget* parent)
   connect(dataBox, SIGNAL( activated(int)),SLOT(dataSlot(int)));
 
   QPushButton* hideButton = new QPushButton(tr("Hide"),this);
-  connect(hideButton,SIGNAL(clicked()),SIGNAL(timecontrolHide()));
+  connect(hideButton, SIGNAL(clicked()), SIGNAL(timecontrolHide()));
 
   // Create a horizontal frame line
 //   QFrame *line = new QFrame( this );
@@ -199,28 +197,30 @@ TimeControl::TimeControl(QWidget* parent)
   setTimes( t );
 }
 
-void TimeControl::timeoffsetCheckBoxClicked() {
+void TimeControl::timeoffsetCheckBoxClicked()
+{
   timerangeCheckBox->setChecked(false);
 }
 
-void TimeControl::timerangeCheckBoxClicked() {
+void TimeControl::timerangeCheckBoxClicked()
+{
   timeoffsetCheckBox->setChecked(false);
 }
 
-void TimeControl::setTimes( vector<miutil::miTime>& times ) {
-
+void TimeControl::setTimes(vector<miutil::miTime>& times)
+{
   int n= times.size();
   int m= m_times.size();
   //try to remeber old limits
   bool resetSlider=false;
   miutil::miTime start,stop,offset;
-  if (m>0 && n>0 &&
-      (startSlider->value()>0 || stopSlider->value() <m-1 || offsetSlider->value()>0) ){
+  if (m>0 && n>0
+      && (startSlider->value()>0 || stopSlider->value() <m-1 || offsetSlider->value()>0))
+  {
     resetSlider=true;
     start= m_times[startSlider->value()];
     stop= m_times[stopSlider->value()];
     offset= m_times[offsetSlider->value()];
-
   }
 
   //reset times
@@ -228,8 +228,7 @@ void TimeControl::setTimes( vector<miutil::miTime>& times ) {
     m_times= times;
   } else {
     m_times.clear();
-    miutil::miTime t= miutil::miTime::nowTime();
-    m_times.push_back( t );
+    m_times.push_back(miutil::miTime::nowTime());
   }
 
   //reset sliders
@@ -239,16 +238,18 @@ void TimeControl::setTimes( vector<miutil::miTime>& times ) {
   offsetSlider->setRange(0,n);
   if (resetSlider) {
     int i = n;
-    while(i>0 && times[i]>start) i--;
+    while(i>0 && times[i]>start)
+      i--;
     StartValue(i);
     i=0;
-    while(i<n && times[i]<stop) i++;
+    while(i<n && times[i]<stop)
+      i++;
     StopValue(i);
     // no need to reset offset
     if (offsetSlider->value() > 0) {
       minmaxSlot();
     }
-  } else{
+  } else {
     StartValue(0);
     StopValue(n);
     OffsetValue(0);
@@ -256,53 +257,49 @@ void TimeControl::setTimes( vector<miutil::miTime>& times ) {
 }
 
 
-void TimeControl::StartValue( int v ){
-  startSlider->setValue( v );
-  if ( v > stopSlider->value() )
+void TimeControl::StartValue(int v)
+{
+  startSlider->setValue(v);
+  if (v > stopSlider->value())
     StopValue(v);
-  startTimeLabel->setText(m_times[v].isoTime().c_str());
-
-  return;
+  startTimeLabel->setText(QString::fromStdString(m_times[v].isoTime()));
 }
 
-void TimeControl::StopValue( int v ){
-  stopSlider->setValue( v );
-  if ( v < startSlider->value())
+void TimeControl::StopValue(int v)
+{
+  stopSlider->setValue(v);
+  if (v < startSlider->value())
     StartValue(v);
-  stopTimeLabel->setText(m_times[v].isoTime().c_str());
-  return;
+  stopTimeLabel->setText(QString::fromStdString(m_times[v].isoTime()));
 }
 
-void TimeControl::OffsetValue( int v ){
-  offsetSlider->setValue( v );
+void TimeControl::OffsetValue(int v)
+{
+  offsetSlider->setValue(v);
   int hour = miutil::miTime::hourDiff(m_times[v], m_times[0]);
   offsetTimeLabel->setText(QString::number(hour));
-  return;
 }
 
-
-void TimeControl::timeoutSlot(int i){
-
+void TimeControl::timeoutSlot(int i)
+{
   float val= i/10.+0.2;
   emit timeoutChanged(val);
-
 }
-void TimeControl::dataSlot(int i){
 
+void TimeControl::dataSlot(int i)
+{
   emit data(dataname[i]);
-
 }
 
-void TimeControl::minmaxSlot(){
-
+void TimeControl::minmaxSlot()
+{
   int n = m_times.size();
-  if(n==0) return;
+  if(n==0)
+    return;
 
-  if (timerangeCheckBox->isChecked()){
-
-    int istart, istop;
-    istart= startSlider->value();
-    istop=  stopSlider->value();
+  if (timerangeCheckBox->isChecked()) {
+    int istart = startSlider->value();
+    int istop = stopSlider->value();
 
     if (istart <= 0 && istop >= n-1) {
       emit clearMinMax();
@@ -311,10 +308,8 @@ void TimeControl::minmaxSlot(){
       miutil::miTime stop= m_times[istop];
       emit minmaxValue(start, stop);
     }
-  }
-  else if (timeoffsetCheckBox->isChecked()){
-    int ioffset;
-    ioffset= offsetSlider->value();
+  } else if (timeoffsetCheckBox->isChecked()) {
+    int ioffset = offsetSlider->value();
     // Offset is enabled
     miutil::miTime start= m_times[n - ioffset - 1];
     miutil::miTime stop= m_times[n - 1];
@@ -326,11 +321,11 @@ void TimeControl::minmaxSlot(){
 }
 
 
-void TimeControl::useData(const std::string& type, int id){
-
+void TimeControl::useData(const std::string& type, int id)
+{
   int n= dataname.size();
   for(int i=0;i<n;i++){
-    if(dataname[i]==type){
+    if (dataname[i]==type) {
       dataBox->setCurrentIndex(i);
       emit data(type);
       return;
@@ -342,7 +337,6 @@ void TimeControl::useData(const std::string& type, int id){
   dataBox->addItem(type.c_str());
   dataBox->setCurrentIndex(dataBox->count()-1);
   emit data(type);
-
 }
 
 
@@ -360,29 +354,30 @@ vector<std::string> TimeControl::deleteType(int id)
     currentDataname = dataname[dataBox->currentIndex()];
   }
 
-  for(;q!=qend;q++){
-    if(id>-1 && q->first!=id) continue;
+  for (;q!=qend;q++) {
+    if (id>-1 && q->first!=id)
+      continue;
     int i=0;
     vector<std::string>::iterator pend = dataname.end();
-    while( p!=pend && q->second != *p) {
+    while (p!=pend && q->second != *p) {
       p++;
       i++;
     }
-    if(p!=pend){
+    if (p!=pend) {
       type.push_back(*p);
       dataname.erase(p);
       dataBox->removeItem(i);
       if (*p == currentDataname) {
         currentDataname = "";
       }
-      if(id>-1){  //remove id from external_id
+      if (id>-1) {  //remove id from external_id
         external_id.erase(q);
         break;
       }
     }
   }
 
-  if( id==-1 )
+  if (id==-1)
     external_id.clear();
 
   if (currentDataname != "")
@@ -391,6 +386,4 @@ vector<std::string> TimeControl::deleteType(int id)
     useData("field");
 
   return type;
-
 }
-
