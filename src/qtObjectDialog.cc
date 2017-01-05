@@ -61,14 +61,13 @@
 using namespace std;
 
 /***************************************************************************/
-ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
-  : QDialog(parent), m_ctrl(llctrl)
+ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
+  : QDialog(parent)
+  , m_ctrl(llctrl)
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::ObjectDialog called");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  m_objm= m_ctrl->getObjectManager();
+  m_objm = m_ctrl->getObjectManager();
 
   //caption to appear on top of dialog
   setWindowTitle(tr("Weather Objects"));
@@ -86,7 +85,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   }
 
   connect( namebox, SIGNAL(itemClicked(  QListWidgetItem * ) ),
-	   SLOT( nameListClicked(  QListWidgetItem * ) ) );
+           SLOT( nameListClicked(  QListWidgetItem * ) ) );
 
   //**** the three buttons "auto", "tid", "fil" *************
 
@@ -105,14 +104,14 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   autoButton->setChecked(true);
   //timefileClicked is called when auto,tid,fil buttons clicked
   connect( timefileBut, SIGNAL( buttonClicked(int) ),
-	   SLOT( timefileClicked(int) ) );
+           SLOT( timefileClicked(int) ) );
 
   //********** the list of files/times to choose from **************
 
   timefileList = new QListWidget( this );
 
   connect( timefileList, SIGNAL( itemClicked( QListWidgetItem * ) ),
-	   SLOT( timefileListSlot( QListWidgetItem * ) ) );
+           SLOT( timefileListSlot( QListWidgetItem * ) ) );
 
 
   //the box (with label) showing which files have been choosen
@@ -153,7 +152,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   QLabel* diffLabel = new QLabel( tr("    Time diff."), this );
   diffLcdnum= LCDNumber( difflength, this);
   diffSlider= Slider( timediff_minValue, timediff_maxValue, 1,
-		      timediff_value, Qt::Horizontal, this );
+                      timediff_value, Qt::Horizontal, this );
 
   connect(diffSlider,SIGNAL( valueChanged(int)),SLOT(doubleDisplayDiff(int)));
 
@@ -257,36 +256,27 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   selectedFileList->clear();
   // initialisation and default of timediff
   doubleDisplayDiff(timediff_value);
-
-  //end of constructor
 }
-
-
 
 /*********************************************/
 void ObjectDialog::nameListClicked(  QListWidgetItem * item)
 {
-/* DESCRIPTION: This function is called when a value in namebox is
- selected (region names or file prefixes), and is returned without doing
-anything if the new value  selected is equal to the old one.
- (HK ?? not yet) */
+  /* DESCRIPTION: This function is called when a value in namebox is
+     selected (region names or file prefixes), and is returned without doing
+     anything if the new value  selected is equal to the old one.
+     (HK ?? not yet) */
 
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::nameListClicked called");
-#endif
+  METLIBS_LOG_SCOPE();
 
   //update the time/file list
   timefileClicked(timefileBut->checkedId());
-
 }
 
 /*********************************************/
-void ObjectDialog::timefileClicked(int tt){
-/* This function is called when timefileBut (auto/time/file)is selected*/
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::timefileClicked called,tt =" << tt);
-#endif
-
+void ObjectDialog::timefileClicked(int tt)
+{
+  /* This function is called when timefileBut (auto/time/file)is selected*/
+  METLIBS_LOG_SCOPE(LOGVAL(tt));
 
   //update list of files
   updateTimefileList(false);
@@ -295,166 +285,143 @@ void ObjectDialog::timefileClicked(int tt){
   updateSelectedFileList();
 
   m_ctrl->setObjAuto(tt==0);
-
 }
-
 
 /*********************************************/
-void ObjectDialog::timefileListSlot( QListWidgetItem * item  ){
-/* DESCRIPTION: This function is called when the signal highlighted() is
-sent from the list of time/file and a new list item is highlighted
-*/
-#ifdef dObjectDlg
-   METLIBS_LOG_DEBUG("SatDialog::timefileListSlot called");
-#endif
+void ObjectDialog::timefileListSlot(QListWidgetItem* item)
+{
+  /* DESCRIPTION: This function is called when the signal highlighted() is
+     sent from the list of time/file and a new list item is highlighted
+  */
+  METLIBS_LOG_SCOPE();
 
+  //update file time or name in selectedFileList box
+  updateSelectedFileList();
 
-   //update file time or name in selectedFileList box
-   updateSelectedFileList();
-
-   //
-   times.clear();
-   int index = timefileList->currentRow();
-   if(index>0){
-     times.push_back(files[index].time);
-     emit emitTimes( "obj",times,false );
-   }
+  times.clear();
+  int index = timefileList->currentRow();
+  if (index>0) {
+    times.push_back(files[index].time);
+    emit emitTimes("obj", times, false);
+  }
 }
-
 
 /***************************************************************************/
 
-void ObjectDialog::DeleteClicked(){
+void ObjectDialog::DeleteClicked()
+{
   //unselects  everything
-#ifdef dObjectDlg
-    METLIBS_LOG_DEBUG("ObjectDialog::DeleteClicked called");
-#endif
+  METLIBS_LOG_SCOPE();
 
-    if(namebox->currentItem())
-      namebox->currentItem()->setSelected(false);
+  if (namebox->currentItem())
+    namebox->currentItem()->setSelected(false);
 
-    timefileList->clear();
+  timefileList->clear();
 
-    selectedFileList->clear();
+  selectedFileList->clear();
 
-    //Emit empty time list
-    times.clear();
-    emit emitTimes("obj",times,false );
-
-#ifdef dObjectDlg
-    METLIBS_LOG_DEBUG("ObjectDialog::DeleteClicked returned");
-#endif
-  return;
+  //Emit empty time list
+  times.clear();
+  emit emitTimes("obj",times,false );
 }
-
 
 /*********************************************/
 
-void ObjectDialog::Refresh(){
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::Refresh() called); Filene blir hentet nytt fra disken";
-#endif
+void ObjectDialog::Refresh()
+{
+  METLIBS_LOG_SCOPE();
 
   //update the timefileList
   updateTimefileList(true);
 
   //update the selectedFileList box
   updateSelectedFileList();
-
 }
 
-
 /********************************************/
-void ObjectDialog::applyhideClicked(){
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("applyhideClicked()");
-#endif
+void ObjectDialog::applyhideClicked()
+{
+  METLIBS_LOG_SCOPE();
   emit ObjHide();
   emit ObjApply();
 }
 
 /********************************************/
-void ObjectDialog::helpClicked(){
+void ObjectDialog::helpClicked()
+{
   emit showsource("ug_objectdialogue.html");
 }
 
 /*********************************************/
-void ObjectDialog::doubleDisplayDiff( int number ){
+void ObjectDialog::doubleDisplayDiff(int number)
+{
 /* This function is called when diffSlider sends a signal valueChanged(int)
    and changes the numerical value in the lcd display diffLcdnum */
-    m_totalminutes=int(number*m_scalediff);
-    int hours = m_totalminutes/60;
-    int minutes=m_totalminutes-hours*60;
-    ostringstream ostr;
-    ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-    std::string str= ostr.str();
-    diffLcdnum->display( str.c_str() );
-}
-
-
-/*********************************************/
-void ObjectDialog::greyAlpha( bool on ){
-    if( on ){
-      salpha->setEnabled( true );
-      alphalcd->setEnabled( true );
-      alphalcd->display( m_alphanr );
-    }
-    else{
-      salpha->setEnabled( false );
-      alphalcd->setEnabled( false );
-      alphalcd->display("OFF");
-    }
+  m_totalminutes=int(number*m_scalediff);
+  int hours = m_totalminutes/60;
+  int minutes=m_totalminutes-hours*60;
+  ostringstream ostr;
+  ostr << hours << ":" << setw(2) << setfill('0') << minutes;
+  std::string str= ostr.str();
+  diffLcdnum->display( str.c_str() );
 }
 
 /*********************************************/
-void ObjectDialog::alphaDisplay( int number ){
+void ObjectDialog::greyAlpha(bool on)
+{
+  salpha->setEnabled(on);
+  alphalcd->setEnabled(on);
+  if (on)
+    alphalcd->display( m_alphanr );
+  else
+    alphalcd->display("OFF");
+}
+
+/*********************************************/
+void ObjectDialog::alphaDisplay(int number)
+{
    m_alphanr= ((double)number)*m_alphascale;
    alphalcd->display( m_alphanr );
 }
 
-
 /*********************************************/
 
-void  ObjectDialog::commentUpdate(){
-      objcomment->readComment();
+void  ObjectDialog::commentUpdate()
+{
+  objcomment->readComment();
 }
-
 
 /**********************************************/
 
-void  ObjectDialog::commentClicked(bool on ){
-  if (on){
-    objcomment->show();
+void  ObjectDialog::commentClicked(bool on)
+{
+  objcomment->setVisible(on);
+  if (on) {
     //start Comment
     objcomment->readComment();
   }
-  else{
-    objcomment->hide();
-  }
 }
 
 /*********************************************/
 
-void ObjectDialog::showAll(){
+void ObjectDialog::showAll()
+{
   this->show();
-  if(commentbutton ->isChecked() )
+  if (commentbutton ->isChecked())
     objcomment->show();
 }
 
-
-void ObjectDialog::hideAll(){
+void ObjectDialog::hideAll()
+{
   this->hide();
-  if( commentbutton->isChecked() )
+  if (commentbutton->isChecked())
     objcomment->hide();
 }
 
-
 /**********************************************/
-void ObjectDialog::updateTimefileList(bool refresh){
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::updateTimefileList called");
-  if (refresh) METLIBS_LOG_DEBUG("refresh file list from disk");
-#endif
+void ObjectDialog::updateTimefileList(bool refresh)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(refresh));
 
   //clear box with list of files
   timefileList->clear();
@@ -499,21 +466,16 @@ void ObjectDialog::updateTimefileList(bool refresh){
   }
 
   //set current
-  if(timefileList->count()){
+  if (timefileList->count()) {
     timefileList->setCurrentRow(0);
   }
-
 }
-
 
 /*************************************************************************/
 
 void ObjectDialog::updateSelectedFileList()
 {
-
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("updateSelectedFileList");
-#endif
+  METLIBS_LOG_SCOPE();
 
   //clear box with names of files
   selectedFileList->clear();
@@ -521,7 +483,8 @@ void ObjectDialog::updateSelectedFileList()
   std::string namestr;
 
   int index= namebox->currentRow();
-  if(index<0) return;
+  if (index < 0)
+    return;
 
   int timefileListIndex = timefileList->currentRow();
 
@@ -538,82 +501,68 @@ void ObjectDialog::updateSelectedFileList()
     selectedFileList->addItem(QString(namestr.c_str()));
     selectedFileList->item( selectedFileList->count() - 1 )->setSelected(true);
   }
-
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("...namestr=" <<namestr);
-#endif
-
 }
 
 /*************************************************************************/
 
 vector<string> ObjectDialog::getOKString()
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::getOKstring");
-#endif
+  METLIBS_LOG_SCOPE();
 
   vector<string> vstr;
 
-  if (selectedFileList->count()){
-    std::string str;
-    str = "OBJECTS";
+  if (selectedFileList->count()) {
+    ostringstream ostr;
+    ostr << "OBJECTS";
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
     if (index>-1 && index<int(objectnames.size())){
       //item has been selected in dialog
-      str+=(" NAME=\"" + objectnames[index] + "\"");
+      ostr << " NAME=\"" << objectnames[index] << "\"";
 
-      if ( timefileListIndex>-1 && timefileListIndex<int(files.size())) {
-
-	ObjFileInfo file=files[timefileListIndex];
-
-	if (timeButton->isChecked()){
-	  miutil::miTime time=file.time;
-	  if (!time.undef())
-	    str+=(" TIME=" + stringFromTime(time));
-	}
-	else if (fileButton->isChecked()){
-	  if (not file.name.empty())
-	    str+=(" FILE=" + file.name);
-	}
+      if (timefileListIndex>-1 && timefileListIndex<int(files.size())) {
+        const ObjFileInfo& file = files[timefileListIndex];
+        if (timeButton->isChecked()){
+          const miutil::miTime& time=file.time;
+          if (!time.undef())
+            ostr << " TIME=" << stringFromTime(time);
+        } else if (fileButton->isChecked()) {
+          if (!file.name.empty())
+            ostr << " FILE=" << file.name;
+        }
       }
-
     }
 
-    str+=" types=";
+    ostr << " types=";
 
-    if (cbs0->isChecked()) str+="front,";
-    if (cbs1->isChecked()) str+="symbol,";
-    if (cbs2->isChecked()) str+="area,";
-    if (cbs3->isChecked()) str+="anno";
+    if (cbs0->isChecked())
+      ostr << "front,";
+    if (cbs1->isChecked())
+      ostr << "symbol,";
+    if (cbs2->isChecked())
+      ostr << "area,";
+    if (cbs3->isChecked())
+      ostr << "anno";
 
-    ostringstream ostr;
-    ostr<<" timediff="<<m_totalminutes;
-    if( alpha->isChecked() )
-	ostr<<" alpha="<<m_alphanr;
-    str += ostr.str();
+    ostr << " timediff=" << m_totalminutes;
+    if (alpha->isChecked())
+      ostr <<" alpha=" << m_alphanr;
 
-    str+=plotVariables.external;
+    ostr << plotVariables.external;
 
-    vstr.push_back(str);
+    vstr.push_back(ostr.str());
 
     // clear external variables
     plotVariables.external.clear();
 
-  } //end if on etc.
+  }
 
   return vstr;
-
-
 }
-
 
 void ObjectDialog::putOKString(const vector<string>& vstr)
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::putOKstring");
-#endif
+  METLIBS_LOG_SCOPE();
 
   //clear plot
   DeleteClicked();
@@ -621,7 +570,8 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
   // check PlotInfo (one for each plot)
   int npi= vstr.size();
 
-  if (npi==0) return;
+  if (npi==0)
+    return;
 
   // loop through all PlotInfo's
   for (int ip=0; ip<npi; ip++){
@@ -646,16 +596,17 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
     }
   }
 
-  if (!found) return;
+  if (!found)
+    return;
   if (!plotVariables.time.empty()) {
     //METLIBS_LOG_DEBUG("time =" << plotVariables.time);
     int nt=files.size();
     for (int j=0;j<nt;j++ ){
       std::string listtime=stringFromTime(files[j].time);
       if (plotVariables.time==listtime){
-	timefileBut->button(1)->setChecked(true);
-	timefileClicked(1);
-	timefileList->item(j)->setSelected(true);
+        timefileBut->button(1)->setChecked(true);
+        timefileClicked(1);
+        timefileList->item(j)->setSelected(true);
       }
     }
   } else if (!plotVariables.file.empty()) {
@@ -664,9 +615,9 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
     for (int j=0;j<nf;j++ ){
       std::string listfile =  files[j].name;
       if (plotVariables.file==listfile){
-	timefileBut->button(2)->setChecked(true);
-	timefileClicked(2);
-	timefileList->item(j)->setSelected(true);
+        timefileBut->button(2)->setChecked(true);
+        timefileClicked(2);
+        timefileList->item(j)->setSelected(true);
       }
     }
   } else {
@@ -674,7 +625,7 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
     timefileClicked(0);
   }
 
-  if (plotVariables.alphanr >=0){
+  if (plotVariables.alphanr >=0) {
     //METLIBS_LOG_DEBUG("alpha =" << plotVariables.alphanr);
     int alphavalue = int(plotVariables.alphanr/m_alphascale + 0.5);
     salpha->setValue(  alphavalue );
@@ -702,55 +653,51 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
     cbs3->setChecked(true);
   else
     cbs3->setChecked(false);
-
 }
 
 
+// static
 ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & tokens)
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::decodeString");
-#endif
+  METLIBS_LOG_SCOPE();
 
   PlotVariables okVar;
   okVar.totalminutes=-1;
   okVar.alphanr=1.0;
 
   int n= tokens.size();
-  std::string token;
 
   //loop over OKstrings
-  for (int i=0; i<n; i++){
+  for (int i=0; i<n; i++) {
     //decode string
-    token= miutil::to_lower(tokens[i]);
+    std::string token = miutil::to_lower(tokens[i]);
     if (miutil::contains(token, "types=")){
-      okVar.useobject = m_ctrl->decodeTypeString(token);
+      okVar.useobject = WeatherObjects::decodeTypeString(token);
     } else {
-      std::string key, value;
       vector<string> stokens= miutil::split(tokens[i], 0, "=");
-      if ( stokens.size()==2) {
-	key = miutil::to_lower(stokens[0]);
-	value = stokens[1];
-	if ( key=="name") {
-	  if (value[0]=='"')
-	    okVar.objectname = value.substr(1,value.length()-2);
-	  else
-	    okVar.objectname = value;
-	}else if ( key=="time") {
-	  okVar.time=value;
-	} else if ( key=="file") {
-	  okVar.file=value;
-	} else if (key == "timediff" ) {
-	  okVar.totalminutes = atoi(value.c_str());
-	} else if ( key=="alpha" || key=="alfa") {
-	  okVar.alphanr = atof(value.c_str());
-	}else{
-	  //anythig unknown, add to external string
-	  okVar.external+=" " + tokens[i];
-	}
-      }else{
-	//anythig unknown, add to external string
-	okVar.external+=" " + tokens[i];
+      if (stokens.size()==2) {
+        const std::string key = miutil::to_lower(stokens[0]);
+        const std::string& value = stokens[1];
+        if (key=="name") {
+          if (value[0]=='"')
+            okVar.objectname = value.substr(1,value.length()-2);
+          else
+            okVar.objectname = value;
+        }else if (key=="time") {
+          okVar.time=value;
+        } else if (key=="file") {
+          okVar.file=value;
+        } else if (key == "timediff") {
+          okVar.totalminutes = atoi(value.c_str());
+        } else if (key=="alpha" || key=="alfa") {
+          okVar.alphanr = atof(value.c_str());
+        } else {
+          //anythig unknown, add to external string
+          okVar.external+=" " + tokens[i];
+        }
+      } else {
+        //anythig unknown, add to external string
+        okVar.external+=" " + tokens[i];
       }
     }
   }
@@ -760,76 +707,63 @@ ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & to
 
 std::string ObjectDialog::getShortname()
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::getShortname");
-#endif
+  METLIBS_LOG_SCOPE();
   std::string name;
 
   int nameboxIndex = namebox->currentRow();
   int timefileListIndex = timefileList->currentRow();
 
-  if ( selectedFileList->count() &&
-     (autoButton->isChecked() || (timefileListIndex>=0 &&
-			     timefileListIndex<int(files.size())))) {
-
-
+  if (selectedFileList->count()
+      && (autoButton->isChecked()
+          || (timefileListIndex>=0 && timefileListIndex<int(files.size()))))
+  {
     if (nameboxIndex > -1)
       name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + std::string(selectedFileList->currentItem()->text().toStdString());
+      name+= (" FILE=") + selectedFileList->currentItem()->text().toStdString();
   }
 
   return name;
 }
 
-
 std::string ObjectDialog::makeOKString(PlotVariables & okVar)
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::makeOKString");
-#endif
+  METLIBS_LOG_SCOPE();
+
+  std::string str;
+  str = "OBJECTS";
+
+  str+=(" NAME=\"" + okVar.objectname + "\"");
 
 
-    std::string str;
-    str = "OBJECTS";
+  if (!okVar.time.empty())
+    str+=" TIME=" + okVar.time;
+  if (!okVar.file.empty())
+    str+=" FILE=" + okVar.file;
 
-    str+=(" NAME=\"" + okVar.objectname + "\"");
+  str+=" types=";
 
+  if (okVar.useobject["front"])
+    str+="front,";
+  if (okVar.useobject["symbol"])
+    str+="symbol,";
+  if (okVar.useobject["area"])
+    str+="area";
 
-    if (!okVar.time.empty())
-      str+=" TIME=" + okVar.time;
-    if (!okVar.file.empty())
-      str+=" FILE=" + okVar.file;
+  ostringstream ostr;
+  if (okVar.totalminutes >=0)
+    ostr<<" timediff="<< okVar.totalminutes;
+  if (okVar.alphanr>=0)
+    ostr<<" alpha="<<okVar.alphanr;
+  str += ostr.str();
 
-    str+=" types=";
-
-    if (okVar.useobject["front"])
-      str+="front,";
-    if (okVar.useobject["symbol"])
-      str+="symbol,";
-    if (okVar.useobject["area"])
-      str+="area";
-
-    ostringstream ostr;
-    if (okVar.totalminutes >=0)
-      ostr<<" timediff="<< okVar.totalminutes;
-    if( okVar.alphanr>=0 )
-      ostr<<" alpha="<<okVar.alphanr;
-    str += ostr.str();
-
-    //METLIBS_LOG_DEBUG("string from ObjectDialog::makeOKstring " << str);
-
-    return str;
-
+  return str;
 }
 
 
-
-void ObjectDialog::archiveMode( bool on )
+void ObjectDialog::archiveMode(bool on)
 {
-#ifdef dObjectDlg
-  METLIBS_LOG_DEBUG("ObjectDialog::archiveMode called");
-#endif
+  METLIBS_LOG_SCOPE();
   useArchive= on;
 
   //get new Objectnames
@@ -842,7 +776,6 @@ void ObjectDialog::archiveMode( bool on )
   //everything is unselected and listboxes refreshed
   DeleteClicked();
 }
-
 
 /*************************************************************************/
 
@@ -858,44 +791,14 @@ std::string ObjectDialog::stringFromTime(const miutil::miTime& t)
 }
 
 
-void ObjectDialog::closeEvent( QCloseEvent* e) {
+void ObjectDialog::closeEvent(QCloseEvent* e)
+{
   emit ObjHide();
 }
 
 
-void ObjectDialog::hideComment(){
+void ObjectDialog::hideComment()
+{
   commentbutton->setChecked(false);
   objcomment->hide();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
