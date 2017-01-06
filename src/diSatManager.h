@@ -109,7 +109,7 @@ private:
   bool parseChannels(Sat* satdata, SatFileInfo &info);
   bool readSatFile(Sat* satdata);
 
-  bool init(const std::vector<std::string>&);
+  void init(const std::vector<std::string>&);
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);
 

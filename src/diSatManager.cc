@@ -40,6 +40,7 @@
 #include "diUtilities.h"
 #include "miSetupParser.h"
 
+#include <puTools/miStringFunctions.h>
 #include <puCtools/stat.h>
 
 #include <diMItiff.h>
@@ -77,20 +78,21 @@ void SatManager::prepareSat(const std::vector<std::string>& inp)
   for (unsigned int i = 0; i < vsp.size(); i++)
     plotenabled.save(vsp[i], vsp[i]->getPlotInfo(4));
 
-  if (!init(inp))
-    METLIBS_LOG_WARN("init returned false");
+  init(inp);
 
   for (unsigned int i = 0; i < vsp.size(); i++)
     plotenabled.restore(vsp[i], vsp[i]->getPlotInfo(4));
 }
 
-bool SatManager::init(const std::vector<std::string>& pinfo)
+void SatManager::init(const std::vector<std::string>& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
   //                - if similar plot already exists, just make a copy of the
   //                  old one (satellite, filetype and channel the same)
   METLIBS_LOG_SCOPE();
+
+  // FIXME this is almost the same as PlotModule::prepareMap
 
   // init inuse array
   std::vector<bool> inuse(vsp.size(), false);
@@ -128,8 +130,10 @@ bool SatManager::init(const std::vector<std::string>& pinfo)
           sdp->alphaoperchanged= false;
           sdp->mosaicchanged=false;
           // check rgb operation parameters
-          if (sdp->cut != satdata->cut || satdata->cut == -0.5
-              || (sdp->commonColourStretch && ip>0)) {
+          if (std::abs(sdp->cut - satdata->cut) < 1e-8f
+              || std::abs(satdata->cut - (-0.5f)) < 1e-8f
+              || (sdp->commonColourStretch && ip>0))
+          {
             sdp->cut= satdata->cut;
             sdp->rgboperchanged= true;
             sdp->commonColourStretch=false;
@@ -137,8 +141,9 @@ bool SatManager::init(const std::vector<std::string>& pinfo)
             reuseCommonColourStretch=true;
           }
           // check alpha operation parameters
-          if ((sdp->alphacut != satdata->alphacut) || (sdp->alpha
-              != satdata->alpha)) {
+          if (sdp->alphacut != satdata->alphacut
+              || sdp->alpha != satdata->alpha)
+          {
             sdp->alphacut= satdata->alphacut;
             sdp->alpha= satdata->alpha;
             sdp->alphaoperchanged= true;
@@ -194,8 +199,6 @@ bool SatManager::init(const std::vector<std::string>& pinfo)
   if (!reuseCommonColourStretch) {
     colourStretchInfo.channels.clear();
   }
-
-  return true;
 }
 
 void SatManager::addPlotElements(std::vector<PlotElement>& pel)
@@ -303,13 +306,12 @@ bool SatManager::setData(SatPlot *satp)
   }
 
   //Read header if not opened
-  if (!Prod[satdata->satellite][satdata->filetype].file[index].opened) {
-    readHeader(Prod[satdata->satellite][satdata->filetype].file[index],
-        Prod[satdata->satellite][satdata->filetype].channel);
-    Prod[satdata->satellite][satdata->filetype].file[index].opened = true;
+  subProdInfo& spi = Prod[satdata->satellite][satdata->filetype];
+  SatFileInfo& fInfo = spi.file[index];
+  if (!fInfo.opened) {
+    readHeader(fInfo, spi.channel);
+    fInfo.opened = true;
   }
-
-  SatFileInfo & fInfo = Prod[satdata->satellite][satdata->filetype].file[index];
 
   //read new file if :
   // 1) satdata contains no images
