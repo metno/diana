@@ -335,7 +335,7 @@ void PlotModule::prepareObs(const vector<string>& inp)
   //first log stations plotted
   for (size_t i = 0; i < vop.size(); i++)
     vop[i]->logStations();
-  vop.clear();
+  diutil::delete_all_and_clear(vop);
 
   for (size_t i = 0; i < inp.size(); i++) {
     ObsPlot *op = obsm->createObsPlot(inp[i]);
@@ -1095,7 +1095,7 @@ void PlotModule::cleanup()
 
   stam->cleanup();
 
-  vop.clear();
+  diutil::delete_all_and_clear(vop);
 
   objm->clearObjects();
 

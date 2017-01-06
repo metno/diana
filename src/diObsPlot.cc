@@ -735,7 +735,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   if (op->devfield)
     op->pFlag["pppp_mslp"] = true;
 
-  op->clearPos();
+  ObsPlot::clearPos();
 
   // static tables, read once
 
@@ -1954,6 +1954,7 @@ bool ObsPlot::areaFree(int idx)
   return result;
 }
 
+// static
 void ObsPlot::clearPos()
 {
   METLIBS_LOG_SCOPE("clearPos " << xUsed.size());
