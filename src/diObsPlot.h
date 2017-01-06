@@ -272,7 +272,7 @@ protected:
   std::string checkMarkerCriteria(int index);
   float checkMarkersizeCriteria(int index);
   void checkColourCriteria(DiGLPainter* gl, const std::string& param, float value);
-  void parameterDecode(std::string, bool = true);
+  void parameterDecode(const std::string&, bool = true);
 
   // used many times from plotList and once from plotAscii
   void printUndef(DiGLPainter* gl, QPointF&, bool align_right = false);

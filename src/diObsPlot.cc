@@ -726,8 +726,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
 
   if (op->markerSize < 0)
     op->markerSize = op->textSize;
-  std::string all = "all";
-  op->parameterDecode(all, false);
+  op->parameterDecode("all", false);
   op->numPar = parameter.size();
   for (int i = 0; i < op->numPar; i++) {
     op->parameterDecode(parameter[i]);
@@ -4352,7 +4351,7 @@ void ObsPlot::changeParamColour(const std::string& param, bool select)
   }
 }
 
-void ObsPlot::parameterDecode(std::string parameter, bool add)
+void ObsPlot::parameterDecode(const std::string& parameter, bool add)
 {
   paramColour[parameter] = colour;
   if (parameter == "txtxtx")
@@ -4364,23 +4363,27 @@ void ObsPlot::parameterDecode(std::string parameter, bool add)
   if (parameter == "hwahwa")
     paramColour["pwapwa"] = colour;
 
+  std::string par;
   if (parameter == "txtxtx" || parameter == "tntntn")
-    parameter = "txtn";
+    par = "txtn";
   else if (parameter == "pwapwa" || parameter == "hwahwa")
-    parameter = "hwahwa";
+    par = "hwahwa";
   else if (parameter == "hw1Pw1" || parameter == "hw1hw1")
-    parameter = "pw1hw1";
+    par = "pw1hw1";
   else if (parameter == "dd_ff" || parameter == "vind")
-    parameter = "vind";
+    par = "vind";
   else if (parameter == "kjtegn")
-    parameter = "id";
+    par = "id";
   else if (parameter == "tid")
-    parameter = "time";
+    par = "time";
   else if (parameter == "dato")
-    parameter = "date";
-
-  pFlag[parameter] = add;
-  pFlag[miutil::to_lower(parameter)] = add;
+    par = "date";
+  if (!par.empty()) {
+    pFlag[par] = add; // these are already lower case
+  } else {
+    pFlag[parameter] = add;
+    pFlag[miutil::to_lower(parameter)] = add;
+  }
 }
 
 const std::vector<std::string>& ObsPlot::getFileNames() const
