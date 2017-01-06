@@ -230,7 +230,7 @@ public:
   /// returns current EditDialogInfo
   EditDialogInfo getEditDialogInfo();
   /// set plotting parameters for EditFields from inp
-  void prepareEditFields(const std::string& plotName, const std::vector<std::string>& inp);
+  void prepareEditFields(const std::vector<std::string>& inp);
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)

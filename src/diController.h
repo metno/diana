@@ -148,9 +148,8 @@ public:
   double getWindowArea();
 
   /// return current plottime
-  void getPlotTime(std::string&);
-  /// return current plottime
-  void getPlotTime(miutil::miTime&);
+  const miutil::miTime& getPlotTime();
+
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
@@ -164,7 +163,7 @@ public:
   std::string getProductName();
 
   /// set plottime
-  bool setPlotTime(miutil::miTime&);
+  void setPlotTime(const miutil::miTime&);
   /// update plots
   bool updatePlots();
   /// toggle area conservatism
@@ -200,8 +199,6 @@ public:
   bool startTrajectoryComputation();
   // print trajectory positions to file
   bool printTrajectoryPositions(const std::string& filename);
-  /// get field models used (for Vprof etc.)
-  std::vector<std::string> getFieldModels();
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
   /// show pixel values in status bar

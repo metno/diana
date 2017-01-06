@@ -107,7 +107,7 @@ private:
 
   //functions
   std::string makeString();
-  void update_posList(float lat, float lon, miutil::miTime t, int index);
+  void update_posList(float lat, float lon, const miutil::miTime& t, int index);
   void calculate();
 
 private slots:

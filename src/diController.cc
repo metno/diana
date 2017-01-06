@@ -274,14 +274,9 @@ double Controller::getWindowArea()
   return plotm->getWindowArea();
 }
 
-// return current plottime
-void Controller::getPlotTime(std::string& s)
+const miutil::miTime& Controller::getPlotTime()
 {
-  plotm->getPlotTime(s);
-}
-
-void Controller::getPlotTime(miTime& t){
-  plotm->getPlotTime(t);
+  return plotm->getPlotTime();
 }
 
 void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
@@ -304,9 +299,9 @@ std::string Controller::getProductName()
 // }
 
 // set plottime
-bool Controller::setPlotTime(miTime& t){
-
-  return plotm->setPlotTime(t);
+void Controller::setPlotTime(const miTime& t)
+{
+  plotm->setPlotTime(t);
 }
 
 // toggle area conservatism
@@ -393,12 +388,6 @@ vector<string> Controller::getTrajectoryFields()
 // write trajectory positions to file
 bool Controller::printTrajectoryPositions(const std::string& filename ){
   return plotm->printTrajectoryPositions( filename );
-}
-
-// get field models used (for Vprof etc.)
-vector<string> Controller::getFieldModels()
-{
-  return plotm->getFieldModels();
 }
 
 // get name++ of current channels (with calibration)

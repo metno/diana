@@ -62,6 +62,7 @@
 
 #include <diField/diRectangle.h>
 #include <diPlotOptions.h>
+#include "diFieldPlotManager.h"
 #include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
@@ -153,9 +154,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // get all field plot options from setup file
   vector<std::string> fieldNames;
   m_ctrl->getAllFieldNames(fieldNames);
-  { std::map<std::string, std::string> sfu;
-  PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
-  setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
+  FieldPlotManager::getAllFieldOptions(fieldNames, setupFieldOptions);
 
   //#################################################################
   //  map<std::string,std::string>::iterator pfopt, pfend= setupFieldOptions.end();
@@ -1383,7 +1382,7 @@ void FieldDialog::levelChanged(int index)
     updateLevel();
 }
 
-vector<string> FieldDialog::changeLevel(int increment, int type)
+void FieldDialog::changeLevel(int increment, int type)
 {
   METLIBS_LOG_SCOPE("increment="<<increment);
 
@@ -1460,8 +1459,6 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
       }
     }
   }
-
-  return getOKString(false);
 }
 
 void FieldDialog::updateLevel()
@@ -3002,16 +2999,14 @@ METLIBS_LOG_SCOPE(LOGVAL(modelName));
 
 }
 
-vector<string> FieldDialog::getOKString(bool resetLevelMove)
+vector<string> FieldDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
-  if ( resetLevelMove) {
-    int n = selectedFields.size();
-    for (int i = 0; i < n; i++) {
-      selectedFields[i].levelmove = true;
-      selectedFields[i].idnummove = true;
-    }
+  const int n = selectedFields.size();
+  for (int i = 0; i < n; i++) {
+    selectedFields[i].levelmove = true;
+    selectedFields[i].idnummove = true;
   }
 
   vector<string> vstr;
@@ -3020,19 +3015,18 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
 
   bool allTimeSteps = allTimeStepButton->isChecked();
 
-  int n = selectedFields.size();
-
   for (int i = 0; i < n; i++) {
-
-    //Skip edit strings when the strings are used to change level
-    if (!resetLevelMove && selectedFields[i].inEdit) {
-      continue;
-    }
-
-    ostringstream ostr;
 
     if (selectedFields[i].minus)
       continue;
+
+    ostringstream ostr;
+    if (selectedFields[i].inEdit) {
+      ostr << "EDITFIELD";
+    } else {
+      ostr << "FIELD";
+    }
+
     bool minus = false;
     if (i + 1 < n && selectedFields[i + 1].minus) {
       minus = true;
@@ -3055,14 +3049,8 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
       ostr << " time=" << selectedFields[i].time;
     }
 
-    std::string str;
-    if (selectedFields[i].inEdit) {
-      str = "EDITFIELD" + ostr.str();
-    } else {
-      str = "FIELD" + ostr.str();
-    }
-
     // the OK string
+    const std::string str = ostr.str();
     vstr.push_back(str);
 
     METLIBS_LOG_DEBUG("OK: " << str);
@@ -3450,7 +3438,10 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
   return false;
 }
 
-
+inline std::string sub(const std::string& s, std::string::size_type begin, std::string::size_type end)
+{
+  return s.substr(begin, end - begin);
+}
 
 bool FieldDialog::fieldDifference(const std::string& str,
     std::string& field1, std::string& field2) const
@@ -3463,19 +3454,20 @@ bool FieldDialog::fieldDifference(const std::string& str,
       if (endOper != string::npos) {
         size_t end = str.size();
         if (beginOper > 1 && endOper < end - 2) {
-          field1 = str.substr(0, beginOper) + str.substr(beginOper + 2, oper
-              - beginOper - 2) + str.substr(endOper + 2, end - endOper - 1);
-          field2 = str.substr(0, beginOper - 1) + str.substr(oper + 2, endOper
-              - oper - 2);
+          field1 = str.substr(0, beginOper)
+              + sub(str, beginOper + 2, oper)
+              + sub(str, endOper + 2, end);
+          field2 = str.substr(0, beginOper - 1)
+              + sub(str, oper + 2, endOper);
         } else if (endOper < end - 2) {
-          field1 = str.substr(beginOper + 2, oper - beginOper - 2)
-                              + str.substr(endOper + 2, end - endOper - 1);
-          field2 = str.substr(oper + 3, endOper - oper - 3);
+          field1 = sub(str, beginOper + 2, oper)
+              + sub(str, endOper + 2, end);
+          field2 = sub(str, oper + 3, endOper);
         } else {
-          field1 = str.substr(0, beginOper) + str.substr(beginOper + 2, oper
-              - beginOper - 2);
-          field2 = str.substr(0, beginOper) + str.substr(oper + 3, endOper
-              - oper - 3);
+          field1 = str.substr(0, beginOper)
+              + sub(str, beginOper + 2, oper);
+          field2 = str.substr(0, beginOper)
+              + sub(str, oper + 3, endOper);
         }
         return true;
       }
@@ -3938,65 +3930,65 @@ void FieldDialog::downField()
   if (n == 0)
     return;
 
-    int index = selectedFieldbox->currentRow();
-    if (index < 0 || index >= n - 1)
-      return;
+  int index = selectedFieldbox->currentRow();
+  if (index < 0 || index >= n - 1)
+    return;
 
-    SelectedField sf = selectedFields[index];
-    selectedFields[index] = selectedFields[index + 1];
-    selectedFields[index + 1] = sf;
+  SelectedField sf = selectedFields[index];
+  selectedFields[index] = selectedFields[index + 1];
+  selectedFields[index + 1] = sf;
 
-    QString qstr1 = selectedFieldbox->item(index)->text();
-    QString qstr2 = selectedFieldbox->item(index + 1)->text();
-    selectedFieldbox->item(index)->setText(qstr2);
-    selectedFieldbox->item(index + 1)->setText(qstr1);
+  QString qstr1 = selectedFieldbox->item(index)->text();
+  QString qstr2 = selectedFieldbox->item(index + 1)->text();
+  selectedFieldbox->item(index)->setText(qstr2);
+  selectedFieldbox->item(index + 1)->setText(qstr1);
 
-    //some fields can't be minus
-    for (int i = 0; i < n; i++) {
-      selectedFieldbox->setCurrentRow(i);
-      if (selectedFields[i].minus && (i == 0 || selectedFields[i - 1].minus))
-        minusButton->setChecked(false);
-    }
-
-    index++;
-    selectedFieldbox->setCurrentRow(index);
-    upFieldButton->setEnabled((index > numEditFields));
-    downFieldButton->setEnabled((index < (n-1)));
+  //some fields can't be minus
+  for (int i = 0; i < n; i++) {
+    selectedFieldbox->setCurrentRow(i);
+    if (selectedFields[i].minus && (i == 0 || selectedFields[i - 1].minus))
+      minusButton->setChecked(false);
   }
 
-  void FieldDialog::resetOptions()
-  {
-    if (selectedFieldbox->count() == 0)
-      return;
-    int n = selectedFields.size();
-    if (n == 0)
-      return;
+  index++;
+  selectedFieldbox->setCurrentRow(index);
+  upFieldButton->setEnabled((index > numEditFields));
+  downFieldButton->setEnabled((index < (n-1)));
+}
 
-    int index = selectedFieldbox->currentRow();
-    if (index < 0 || index >= n)
-      return;
+void FieldDialog::resetOptions()
+{
+  if (selectedFieldbox->count() == 0)
+    return;
+  int n = selectedFields.size();
+  if (n == 0)
+    return;
 
-    std::string fopts = getFieldOptions(selectedFields[index].fieldName,
-        true);
-    if (fopts.empty())
-      return;
+  int index = selectedFieldbox->currentRow();
+  if (index < 0 || index >= n)
+    return;
 
-    selectedFields[index].fieldOpts = fopts;
-    selectedFields[index].hourOffset = 0;
-    selectedFields[index].hourDiff = 0;
-    enableWidgets("none");
-    currentFieldOpts.clear();
-    enableFieldOptions();
-  }
+  std::string fopts = getFieldOptions(selectedFields[index].fieldName,
+                                      true);
+  if (fopts.empty())
+    return;
 
-  std::string FieldDialog::getFieldOptions(
-      const std::string& fieldName, bool reset, bool edit) const
-  {
-    std::string fieldname = fieldName;
+  selectedFields[index].fieldOpts = fopts;
+  selectedFields[index].hourOffset = 0;
+  selectedFields[index].hourDiff = 0;
+  enableWidgets("none");
+  currentFieldOpts.clear();
+  enableFieldOptions();
+}
 
-    map<std::string, std::string>::const_iterator pfopt;
+std::string FieldDialog::getFieldOptions(
+    const std::string& fieldName, bool reset, bool edit) const
+{
+  std::string fieldname = fieldName;
 
-    if (!reset) {
+  map<std::string, std::string>::const_iterator pfopt;
+
+  if (!reset) {
 
     // try private options used
     pfopt = fieldOptions.find(fieldname);

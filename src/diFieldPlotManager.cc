@@ -179,13 +179,12 @@ bool FieldPlotManager::parseFieldPlotSetup()
               key = miutil::to_lower(vstr[j]);
               if (key == key_plot && vstr[j + 1] == "=" && j < nv - 3) {
                 option = key_plottype + "=" + vstr[j + 2];
-                if (!PlotOptions::updateFieldPlotOptions(name, option)) {
+                if (!updateFieldPlotOptions(name, option)) {
                   std::string errm = "|Unknown fieldplottype in plotcommand";
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
-                inputstr = vstr[j + 3].substr(1, vstr[j + 3].length()
-                    - 2);
+                inputstr = vstr[j + 3].substr(1, vstr[j + 3].length() - 2);
                 input = miutil::split(inputstr, ",", true);
                 if (input.size() < 1 || input.size() > 5) {
                   std::string errm = "Bad specification of plot arguments";
@@ -195,15 +194,14 @@ bool FieldPlotManager::parseFieldPlotSetup()
 
                 option = "dim=" + miutil::from_number(int(input.size()));
 
-                if (!PlotOptions::PlotOptions::updateFieldPlotOptions(name, option)){
+                if (!updateFieldPlotOptions(name, option)) {
                   std::string errm = "|Unknown fieldplottype in plotcommand";
-                                    SetupParser::errorMsg(sect_name, i, errm);
-                                    break;
+                  SetupParser::errorMsg(sect_name, i, errm);
+                  break;
                 }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = vstr[j + 2];
-                if (fieldgroup[0] == '"' && fieldgroup[fieldgroup.length() - 1]
-                                                       == '"') {
+                if (fieldgroup[0] == '"' && fieldgroup[fieldgroup.length() - 1] == '"') {
                   fieldgroup = fieldgroup.substr(1, fieldgroup.length() - 2);
                 }
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
@@ -215,15 +213,14 @@ bool FieldPlotManager::parseFieldPlotSetup()
                 // this should be a plot option
                 option = vstr[j] + "=" + vstr[j + 2];
 
-                if (!PlotOptions::updateFieldPlotOptions(name, option)) {
                   std::string errm =
                       "Something wrong in plotoption specifications";
+                if (!updateFieldPlotOptions(name, option)) {
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
               } else {
-                std::string errm = "Unknown keyword in field specifications: "
-                    + vstr[0];
+                std::string errm = "Unknown keyword in field specifications: " + vstr[0];
                 SetupParser::errorMsg(sect_name, i, errm);
                 break;
                 //j-=2;
@@ -466,7 +463,6 @@ vector<miTime> FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request
 {
   METLIBS_LOG_SCOPE();
 
-  vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
     if (request[i].plotDefinition) {
       std::vector<FieldRequest> fr = getParamNames(request[i].paramName, request[i]);
@@ -493,14 +489,14 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
 }
 
 
-bool FieldPlotManager::makeFields(const std::string& pin_const,
+bool FieldPlotManager::makeFields(const std::string& pin,
     const miTime& const_ptime, vector<Field*>& vfout)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(pin_const));
+  METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   // if difference
   std::string fspec1,fspec2;
-  if (splitDifferenceCommandString(pin_const,fspec1,fspec2)) {
+  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
     return makeDifferenceField(fspec1, fspec2, const_ptime, vfout);
   }
 
@@ -508,7 +504,6 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
 
   vector<FieldRequest> vfieldrequest;
   std::string plotName;
-  std::string pin = pin_const;
   parsePin(pin, vfieldrequest, plotName);
 
   for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
@@ -948,14 +943,23 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
   }
 }
 
-bool FieldPlotManager::parsePin(std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
+std::string FieldPlotManager::extractPlotName(const std::string& pin)
+{
+  std::string plotName;
+  vector<FieldRequest> vfieldrequest;
+  parsePin(pin, vfieldrequest, plotName);
+  return plotName;
+}
+
+void FieldPlotManager::parsePin(const std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   // if difference
   std::string fspec1,fspec2;
   if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
-    return parsePin(fspec1, vfieldrequest, plotName);
+    parsePin(fspec1, vfieldrequest, plotName);
+    return;
   }
 
   FieldRequest fieldrequest;
@@ -971,8 +975,6 @@ bool FieldPlotManager::parsePin(std::string& pin, vector<FieldRequest>& vfieldre
       vfieldrequest.push_back(fieldrequest);
     }
   }
-
-  return true;
 }
 
 bool FieldPlotManager::writeField(FieldRequest fieldrequest, const Field* field)
@@ -1033,4 +1035,53 @@ bool FieldPlotManager::splitDifferenceCommandString(const std::string& pin, std:
   fspec1 = common_start + pin.substr(p1 + 2, p2 - p1 - 2) + common_end;
   fspec2 = common_start + pin.substr(p2 + 2, p3 - p2 - 2) + common_end;
   return true;
+}
+
+// ---------------- fieldPlotOptions management --------------------
+
+std::map<std::string, PlotOptions> FieldPlotManager::fieldPlotOptions;
+
+// update static fieldplotoptions
+bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
+    const std::string& optstr)
+{
+  std::string tmpOpt = optstr;
+  return PlotOptions::parsePlotOption(tmpOpt, fieldPlotOptions[name]);
+}
+
+void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
+    map<std::string,std::string>& fieldoptions)
+{
+  // The selected PlotOptions elements are used to activate elements
+  // in the FieldDialog (any remaining will be used unchanged from setup)
+  // Also return any field prefixes and suffixes used.
+
+  fieldoptions.clear();
+
+  const int n= fieldNames.size();
+  for (int i=0; i<n; i++) {
+    PlotOptions po;
+    getFieldPlotOptions(fieldNames[i], po);
+    fieldoptions[fieldNames[i]]= po.toString();
+  }
+}
+
+void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po)
+{
+  map<std::string,PlotOptions>::iterator p = fieldPlotOptions.find(name);
+  if (p != fieldPlotOptions.end()) {
+    po = p->second;
+  } else {
+    fieldPlotOptions[name]= po;
+  }
+}
+
+std::string FieldPlotManager::getFieldClassSpecs(const std::string& fieldplotname)
+{
+  map<std::string,PlotOptions>::iterator p = fieldPlotOptions.find(fieldplotname);
+  if (p != fieldPlotOptions.end()) {
+    return p->second.classSpecifications;;
+  } else {
+    return std::string();
+  }
 }

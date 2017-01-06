@@ -24,7 +24,7 @@ const int PIPE_READ = 0, PIPE_WRITE = 1;
 
 int execute(const QString& command, const QStringList& args, QByteArray* childStdOut)
 {
-  const int MAX_ARGS = 24;
+  const int MAX_ARGS = 250;
   if (args.size() >= MAX_ARGS)
     return -2;
 

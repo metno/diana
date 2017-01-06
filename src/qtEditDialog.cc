@@ -63,6 +63,7 @@
 #include "diLocalSetupParser.h"
 #include "diController.h"
 #include "diEditManager.h"
+#include "diFieldPlotManager.h"
 #include "diObjectManager.h"
 
 #include <edit_open_value.xpm>
@@ -1525,13 +1526,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     numFieldEditTools= n;
 
-    std::string str;
-    map<std::string,PlotOptions>::iterator p;
-    if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
-        != PlotOptions::fieldPlotOptions.end()){
-      str = p->second.classSpecifications;;
-    }
-
+    const std::string str = FieldPlotManager::getFieldClassSpecs(currprod.fields[0].name);
     vector<std::string> vclass= miutil::split(str, 0, ",");
     for (unsigned int i=0; i<vclass.size(); i++) {
       vector<std::string> vs= miutil::split(vclass[i], ":");
@@ -1774,13 +1769,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     numFieldEditTools= n;
 
-    std::string str;
-    map<std::string,PlotOptions>::iterator p;
-    if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
-        != PlotOptions::fieldPlotOptions.end()){
-      str = p->second.classSpecifications;;
-    }
-
+    const std::string str = FieldPlotManager::getFieldClassSpecs(currprod.fields[0].name);
     vector<std::string> vclass= miutil::split(str, 0, ",");
     for (unsigned int i=0; i<vclass.size(); i++) {
       vector<std::string> vs= miutil::split(vclass[i], ":");

@@ -62,7 +62,7 @@ public:
 
   bool updateNeeded(std::string&) const;
   bool prepare(const std::string& fname, const std::string&);
-  bool setData(const std::vector<Field*>&, const miutil::miTime&);
+  void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
@@ -77,6 +77,8 @@ public:
   bool fieldsOK();
   void clearFields();
 
+  std::string getModelPlotParameterReftime() const;
+
 private:
   std::vector<Field*> fields; // fields, stored elsewhere
   std::vector<Field*> tmpfields; // tmp fields, stored here
@@ -84,7 +86,6 @@ private:
   miutil::miTime analysisTime;   // time of model analysis
 
   // plotting parameters
-  std::string plottype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
 
   // from plotting routines to annotations
@@ -138,6 +139,8 @@ private:
   bool getPoints(int n, float* x, float* y) const;
 
   bool centerOnGridpoint() const;
+  const std::string& plottype() const
+    { return getPlotOptions().plottype; }
 
 protected:
   StaticPlot* rasterStaticPlot() Q_DECL_OVERRIDE

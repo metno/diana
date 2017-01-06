@@ -88,7 +88,7 @@
 
 #include <QApplication>
 
-#include <MovieMaker.h>
+#include "export/MovieMaker.h"
 
 // required to tell fimex to use log4cpp
 #include <fimex/Logger.h>

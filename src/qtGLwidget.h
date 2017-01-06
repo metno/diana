@@ -84,6 +84,7 @@ Q_SIGNALS:
   void mouseDoubleClick(QMouseEvent* me);
 
   void changeCursor(cursortype);
+  void resized(int width, int height);
 
 public:
   void setCanvas(DiCanvas* canvas) Q_DECL_OVERRIDE;

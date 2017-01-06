@@ -81,11 +81,11 @@ public:
   inline bool isnear(float x, float y) const
     { return ((x>ex1)&&(x<ex2)&&(y>ey1)&&(y<ey2)); }
 
-  /// set rectangle from string (x1:y1:x2:y2)
-  bool setRectangle(const std::string& rectangleString, bool fortranStyle=true);
+  /// set rectangle from string (x1:x2:y1:y2) or (x2:y2)
+  bool setRectangle(const std::string& rectangleString);
 
-  /// get string (x1:y1:x2:y2)
-  std::string toString(bool fortranStyle=true) const;
+  /// get string (x1:x2:y1:y2)
+  std::string toString() const;
 
   /// comparing floats
   static bool AlmostEqual(float A, float B);

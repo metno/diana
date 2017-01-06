@@ -293,12 +293,15 @@ vector<ParsedCommand> CommandParser::parse(const std::string& str) {
 
   if (commentSearch) {
     i= str.find_first_of('#');
-    if (i<strlen) strlen=i;
-    if (strlen==0) return vpc;
+    if (i<strlen)
+      strlen=i;
+    if (strlen==0)
+      return vpc;
   }
 
   i= str.find_first_not_of(' ');
-  if (i>=strlen) return vpc;
+  if (i>=strlen)
+    return vpc;
 
   map<std::string,keyDescription>::iterator pk, pkend= keyDataBase.end();
 
@@ -324,74 +327,81 @@ vector<ParsedCommand> CommandParser::parse(const std::string& str) {
       // quoted string ("string"), the quotes are not returned
       pos= ++i;
       i= tmp.find_first_of('"',pos);
-      if (i>strlen) i=strlen;
+      if (i>strlen)
+        i=strlen;
       pc.key="unknown";
-      if (i>pos) pc.strValue.push_back(str.substr(pos,i-pos));
+      if (i>pos)
+        pc.strValue.push_back(str.substr(pos,i-pos));
       i++;
     } else {
       // key (possibly unknown)
       pos= i;
       i= tmp.find_first_of(" =",pos+1);
-      if (i>strlen) i=strlen;
+      if (i>strlen)
+        i=strlen;
       key= tmp.substr(pos,i-pos);
       // check if defined in keyDataBase
       pk= keyDataBase.find(key);
       if (pk==pkend) {
-	// key not found in database
-	if (str[i]=='=') {
-	  pc.key= key;
-	  valueType= cmdUnknown;
-	} else {
+        // key not found in database
+        if (str[i]=='=') {
+          pc.key= key;
+          valueType= cmdUnknown;
+        } else {
           pc.key="unknown";
           pc.allValue= key;
           pc.strValue.push_back(key);
-	  valueType= cmdNoValue;
-	}
+          valueType= cmdNoValue;
+        }
       } else {
-	// key found in database
-	valueType= pk->second.valueType;
-	if (valueType==cmdNoValue && tmp[i]=='=') valueType=cmdSkip;
-        if (valueType!=cmdNoValue && tmp[i]!='=') valueType=cmdNoValue;
+        // key found in database
+        valueType= pk->second.valueType;
+        if (valueType==cmdNoValue && tmp[i]=='=')
+          valueType=cmdSkip;
+        if (valueType!=cmdNoValue && tmp[i]!='=')
+          valueType=cmdNoValue;
         if (valueType==cmdNoValue) {
           pc.key= pk->second.name;
           pc.allValue= key;
-	  pc.idNumber= pk->second.idNumber;
-	  pc.strValue.push_back(key);
+          pc.idNumber= pk->second.idNumber;
+          pc.strValue.push_back(key);
         } else {
           pc.key= pk->second.name;
           pc.idNumber= pk->second.idNumber;
-	}
+        }
       }
 
       if (valueType!=cmdNoValue) {
-	pos= i + 1;
-	tmp[i]= ',';
-	while (i<strlen && tmp[i]==',') {
-	  i++;
-	  if (tmp[i]=='"') {
-	    i= tmp.find_first_of('"',i+1);
-            if (i>strlen) i=strlen;
-	    end= ++i;
-	  } else {
-	    end= i= tmp.find_first_of(" ,",i+1);
-	  }
+        pos= i + 1;
+        tmp[i]= ',';
+        while (i<strlen && tmp[i]==',') {
+          i++;
+          if (tmp[i]=='"') {
+            i= tmp.find_first_of('"',i+1);
+            if (i>strlen)
+              i=strlen;
+            end= ++i;
+          } else {
+            end= i= tmp.find_first_of(" ,",i+1);
+          }
         }
-	tmp[pos-1]= '=';
+        tmp[pos-1]= '=';
 
-	pc.allValue= str.substr(pos,end-pos);
+        pc.allValue= str.substr(pos,end-pos);
 
-	pc.strValue= parseString(pc.allValue);
+        pc.strValue= parseString(pc.allValue);
 
         if (valueType!=cmdString)
-	  pc.floatValue= parseFloat(pc.allValue);
+          pc.floatValue= parseFloat(pc.allValue);
 
         if (valueType!=cmdString && valueType!=cmdFloat)
-	  pc.intValue= parseInt(pc.allValue);
+          pc.intValue= parseInt(pc.allValue);
       }
     }
     vpc.push_back(pc);
 
-    if (i<strlen) i= str.find_first_not_of(' ',i);
+    if (i<strlen)
+      i= str.find_first_not_of(' ',i);
   }
 
   return vpc;
@@ -469,22 +479,25 @@ bool CommandParser::replaceValue(ParsedCommand& pc,
     // and contained one ore more commas !!!
     pc.allValue.clear();
     for (unsigned int i=0; i<n; i++) {
-      if (i>0) pc.allValue+= ',';
+      if (i>0)
+        pc.allValue+= ',';
       if (pc.strValue[i].find_first_of(' ') < pc.strValue[i].length())
-	pc.allValue+= ('"' + pc.strValue[i] + '"');
+        pc.allValue+= ('"' + pc.strValue[i] + '"');
       else
-	pc.allValue+= pc.strValue[i];
+        pc.allValue+= pc.strValue[i];
     }
   }
 
   if (pc.floatValue.size()==nstr) {
     pc.floatValue= parseFloat(pc.allValue);
-    if (pc.floatValue.size()!=n && nstr>0) return false;
+    if (pc.floatValue.size()!=n && nstr>0)
+      return false;
   }
 
   if (pc.intValue.size()==nstr) {
     pc.intValue= parseInt(pc.allValue);
-    if (pc.intValue.size()!=n && nstr>0) return false;
+    if (pc.intValue.size()!=n && nstr>0)
+      return false;
   }
 
   return true;

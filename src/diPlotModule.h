@@ -116,7 +116,6 @@ private:
   bool mapDefinedByData; // for initial maps with fields or sat.
   bool mapDefinedByView; // for initial maps without any data
 
-  Area requestedarea;
   Area previousrequestedarea;
 
   bool showanno;        // show standard annotations
@@ -124,10 +123,6 @@ private:
   std::auto_ptr<StaticPlot> staticPlot_;
 
   DiCanvas* mCanvas;
-
-  // postscript production members
-  printOptions printoptions;
-  bool hardcopy;
 
   std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
@@ -254,9 +249,8 @@ public:
   Manager *getManager(const std::string &name);
 
   /// return current plottime
-  void getPlotTime(std::string&);
-  /// return current plottime
-  void getPlotTime(miutil::miTime&);
+  const miutil::miTime& getPlotTime() const;
+
   /// return referencetime of first FieldPlot
   miutil::miTime getFieldReferenceTime();
   /// return data times (fields,images, observations, objects and editproducts)
@@ -267,8 +261,8 @@ public:
       const std::vector<std::string>& pinfos, bool allTimes = true,
       bool updateSources = false);
 
-  /// set plottime
-  bool setPlotTime(miutil::miTime&);
+  /// set plottime (forwarded to staticPlot_)
+  void setPlotTime(const miutil::miTime&);
 
   // Observation
   /// Update ObsPlots if data files have changed
@@ -298,8 +292,6 @@ public:
   void setSelectedLocation(const std::string& name,
       const std::string& elementname);
   std::string findLocation(int x, int y, const std::string& name);
-
-  std::vector<std::string> getFieldModels();
 
   // Trajectories
   /// handles trajectory plot info strings

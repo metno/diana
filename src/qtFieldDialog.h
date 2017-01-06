@@ -125,11 +125,11 @@ public:
   FieldDialog( QWidget* parent, Controller* lctrl);
 
   /// follows levelUp/levelDown in main window toolbar
-  std::vector<std::string> changeLevel(int increment, int type = 0);
+  void changeLevel(int increment, int type = 0);
 
   void archiveMode(bool on);
   /// returns fiels command strings, one for each field
-  std::vector<std::string> getOKString(bool resetLevelMove=true);
+  std::vector<std::string> getOKString();
   /// return a short text for quickmenue
   std::string getShortname();
   bool levelsExists(bool up, int type=0);

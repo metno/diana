@@ -32,7 +32,6 @@
 #include "diColour.h"
 #include "diPoint.h"
 #include "diPlotOptions.h"
-#include "diPrintOptions.h"
 
 #include <diField/diArea.h>
 #include <diField/diGridConverter.h>
@@ -66,7 +65,6 @@ private:
   Colour backContrastColour; // suitable contrast colour
   float gcd;          // great circle distance
   bool panning;       // panning in progress
-  printerManager printman;   // printer manager
 
 public:
   static GridConverter gc;   // gridconverter class
@@ -264,28 +262,22 @@ public:
     { return enabled; }
 
   /// set the plot info string
-  void setPlotInfo(const std::string& pin);
+  void setPlotInfo(const std::string& pin, bool mergeOptionString = false);
+
+  /// return current plot info string
+  const std::string& getPlotInfo() const
+    { return pinfo; }
 
   /// return n elements of the current plot info string
-  std::string getPlotInfo(int n=0) const;
-
-  /// return the elements given
-  std::string getPlotInfo(const std::string& str) const;
-
-  /// return true if right plot string
-  bool plotInfoOK(const std::string& pin) const
-    { return (pinfo == pin); }
+  std::string getPlotInfo(int n) const;
 
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const
     { return poptions; }
 
-  /// set colour mode (rgb or color-index)
-  void setColourMode(bool isrgb=true);
-
-  /// return current colourmode
-  bool getColourMode() const
-    { return rgbmode; }
+  /// return the current PlotOptions
+  PlotOptions& getPlotOptions()
+    { return poptions; }
 
   /// set name of this plot object
   void setPlotName(const std::string& name)
@@ -296,12 +288,11 @@ public:
     { return plotname; }
 
 protected:
-  std::string pinfo;            // plotinfo
   PlotOptions poptions;
 
 private:
+  std::string pinfo;          // plotinfo
   bool enabled;               // plot enabled
-  bool rgbmode;               // rgb or colour-index mode
   std::string plotname;       // name of plot
 };
 

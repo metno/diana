@@ -99,7 +99,6 @@ PlotModule::PlotModule()
   : showanno(true)
   , staticPlot_(new StaticPlot())
   , mCanvas(0)
-  , hardcopy(false)
   , dorubberband(false)
   , keepcurrentarea(true)
 {
@@ -110,11 +109,6 @@ PlotModule::PlotModule()
   mapDefinedByView = false;
 
   // used to detect map area changes
-  Projection p;
-  Rectangle r(0., 0., 0., 0.);
-  previousrequestedarea = Area(p, r);
-  requestedarea = Area(p, r);
-  staticPlot_->setRequestedarea(requestedarea);
   areaIndex = -1;
   areaSaved = false;
 }
@@ -142,11 +136,21 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   mapDefinedByUser = false;
 
   // split up input into separate products
-  vector<string> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
-  labelpi, editfieldpi;
+  std::set<std::string> ordered;
+  ordered.insert("FIELD");
+  ordered.insert("OBS");
+  ordered.insert("MAP");
+  ordered.insert("AREA");
+  ordered.insert("SAT");
+  ordered.insert("STATION");
+  ordered.insert("OBJECTS");
+  ordered.insert("TRAJECTORY");
+  ordered.insert("LABEL");
+  ordered.insert("EDITFIELD");
 
   typedef std::map<std::string, std::vector<std::string> > manager_pi_t;
   manager_pi_t manager_pi;
+  manager_pi_t ordered_pi;
 
   // merge PlotInfo's for same type
   for (size_t i = 0; i < vpi.size(); i++) {
@@ -154,26 +158,8 @@ void PlotModule::preparePlots(const vector<string>& vpi)
     if (!tokens.empty()) {
       std::string type = miutil::to_upper(tokens[0]);
       METLIBS_LOG_INFO(vpi[i]);
-      if (type == "FIELD")
-        fieldpi.push_back(vpi[i]);
-      else if (type == "OBS")
-        obspi.push_back(vpi[i]);
-      else if (type == "MAP")
-        mappi.push_back(vpi[i]);
-      else if (type == "AREA")
-        areapi.push_back(vpi[i]);
-      else if (type == "SAT")
-        satpi.push_back(vpi[i]);
-      else if (type == "STATION")
-        statpi.push_back(vpi[i]);
-      else if (type == "OBJECTS")
-        objectpi.push_back(vpi[i]);
-      else if (type == "TRAJECTORY")
-        trajectorypi.push_back(vpi[i]);
-      else if (type == "LABEL")
-        labelpi.push_back(vpi[i]);
-      else if (type == "EDITFIELD")
-        editfieldpi.push_back(vpi[i]);
+      if (ordered.find(type) != ordered.end())
+        ordered_pi[type].push_back(vpi[i]);
       else if (managers.find(type) != managers.end())
         manager_pi[type].push_back(vpi[i]);
       else
@@ -182,22 +168,16 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   }
 
   // call prepare methods
-  prepareArea(areapi);
-  prepareMap(mappi);
-  prepareFields(fieldpi);
-  prepareObs(obspi);
-  satm->prepareSat(satpi);
-  prepareStations(statpi);
-  objm->prepareObjects(objectpi);
-  prepareTrajectory(trajectorypi);
-  prepareAnnotation(labelpi);
-
-  if (editm->isInEdit() and not editfieldpi.empty()) {
-    std::string plotName;
-    vector<FieldRequest> vfieldrequest;
-    fieldplotm->parsePin(editfieldpi[0],vfieldrequest,plotName);
-    editm->prepareEditFields(plotName,editfieldpi);
-  }
+  prepareArea(ordered_pi["AREA"]);
+  prepareMap(ordered_pi["MAP"]);
+  prepareFields(ordered_pi["FIELD"]);
+  prepareObs(ordered_pi["OBS"]);
+  satm->prepareSat(ordered_pi["SAT"]);
+  prepareStations(ordered_pi["STATION"]);
+  objm->prepareObjects(ordered_pi["OBJECTS"]);
+  prepareTrajectory(ordered_pi["TRAJECTORY"]);
+  prepareAnnotation(ordered_pi["LABEL"]);
+  editm->prepareEditFields(ordered_pi["EDITFIELD"]);
 
   // Send the commands to the other managers.
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
@@ -227,6 +207,7 @@ void PlotModule::prepareArea(const vector<string>& inp)
   const std::string key_proj=  "proj4string";
   const std::string key_rectangle=  "rectangle";
 
+  Area requestedarea = staticPlot_->getRequestedarea();
   Projection proj;
   Rectangle rect;
 
@@ -248,7 +229,7 @@ void PlotModule::prepareArea(const vector<string>& inp)
           METLIBS_LOG_WARN("Unknown proj definition: "<< stokens[1]);
         }
       } else if (key==key_rectangle){
-        if ( rect.setRectangle(stokens[1],false) ) {
+        if (rect.setRectangle(stokens[1])) {
           requestedarea.setR(rect);
         } else {
           METLIBS_LOG_WARN("Unknown rectangle definition: "<< stokens[1]);
@@ -302,8 +283,8 @@ void PlotModule::prepareMap(const vector<string>& inp)
     if (!inuse[i])
       delete vmp[i];
   }
-  vmp = new_vmp;
 
+  std::swap(vmp, new_vmp);
 }
 
 void PlotModule::prepareFields(const vector<string>& inp)
@@ -315,7 +296,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
   // for now -- erase all fieldplots
   for (unsigned int i = 0; i < vfp.size(); i++) {
     FieldPlot* fp = vfp[i];
-    plotenabled.save(fp, fp->getPlotInfo("model,plot,parameter,reftime"));
+    plotenabled.save(fp, fp->getModelPlotParameterReftime());
     // free old fields
     freeFields(fp);
     delete fp;
@@ -331,16 +312,12 @@ void PlotModule::prepareFields(const vector<string>& inp)
   }
 
   for (size_t i=0; i < inp.size(); i++) {
+    const std::string plotName = fieldplotm->extractPlotName(inp[i]);
     FieldPlot *fp = new FieldPlot();
-
-    std::string plotName;
-    vector<FieldRequest> vfieldrequest;
-    std::string inpstr = inp[i];
-    fieldplotm->parsePin(inpstr,vfieldrequest,plotName);
     if (!fp->prepare(plotName, inp[i])) {
       delete fp;
     } else {
-      plotenabled.restore(fp, fp->getPlotInfo("model,plot,parameter,reftime"));
+      plotenabled.restore(fp, fp->getModelPlotParameterReftime());
       vfp.push_back(fp);
       fp->setCanvas(mCanvas);
     }
@@ -792,15 +769,15 @@ void PlotModule::defineMapArea()
   if (mapDefinedByUser) {     // area != "modell/sat-omr."
 
     if (!keepcurrentarea) { // show def. area
-      newMapArea = requestedarea;
-    } else if( getMapArea().P() != requestedarea.P() // or user just selected new area
-        || previousrequestedarea.R() != requestedarea.R())
+      newMapArea = staticPlot_->getRequestedarea();
+    } else if( getMapArea().P() != staticPlot_->getRequestedarea().P() // or user just selected new area
+        || previousrequestedarea.R() != staticPlot_->getRequestedarea().R())
     {
-      newMapArea = staticPlot_->findBestMatch(requestedarea);
+      newMapArea = staticPlot_->findBestMatch(staticPlot_->getRequestedarea());
     }
     mapdefined = true;
 
-  } else if (keepcurrentarea && previousrequestedarea != requestedarea) {
+  } else if (keepcurrentarea && previousrequestedarea != staticPlot_->getRequestedarea()) {
     // change from specified area to model/sat area
     mapDefinedByData = false;
   }
@@ -847,7 +824,7 @@ void PlotModule::defineMapArea()
 
   staticPlot_->setMapArea(newMapArea);
 
-  previousrequestedarea = requestedarea;
+  previousrequestedarea = staticPlot_->getRequestedarea();
 }
 
 // -------------------------------------------------------------------------
@@ -1027,7 +1004,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
     vmp[i]->plot(gl, Plot::OVERLAY);
 
   // frame (not needed if maprect==fullrect)
-  if (hardcopy || staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
+  if (staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->setLineStyle(Colour(0, 0, 0), 1.0);
     const Rectangle mr = diutil::adjustedRectangle(staticPlot_->getMapSize(), -0.0001, -0.0001);
@@ -1372,22 +1349,15 @@ Manager *PlotModule::getManager(const std::string &name)
 }
 
 // return current plottime
-void PlotModule::getPlotTime(std::string& s)
+const miutil::miTime& PlotModule::getPlotTime() const
 {
-  const miTime& t = staticPlot_->getTime();
-
-  s = t.isoTime();
-}
-
-void PlotModule::getPlotTime(miTime& t)
-{
-  t = staticPlot_->getTime();
+  return staticPlot_->getTime();
 }
 
 miutil::miTime PlotModule::getFieldReferenceTime()
 {
-  if (vfp.size() ){
-    std::string pinfo = vfp[0]->getPlotInfo();
+  if (vfp.size()) {
+    const std::string& pinfo = vfp[0]->getPlotInfo();
     return fieldplotm->getFieldReferenceTime(pinfo);
   } else {
     return miutil::miTime();
@@ -1484,10 +1454,9 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::str
 }
 
 // set plottime
-bool PlotModule::setPlotTime(miTime& t)
+void PlotModule::setPlotTime(const miTime& t)
 {
   staticPlot_->setTime(t);
-  return true;
 }
 
 void PlotModule::updateObs()
@@ -2103,17 +2072,6 @@ void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventRes
 
   res.enable_background_buffer = false;
   res.repaint = true;
-}
-
-vector<std::string> PlotModule::getFieldModels()
-{
-  std::set<std::string> unique;
-  for (size_t i = 0; i < vfp.size(); i++) {
-    const std::string& fname = vfp[i]->getModelName();
-    if (not fname.empty())
-      unique.insert(fname);
-  }
-  return std::vector<std::string>(unique.begin(), unique.end());
 }
 
 vector<std::string> PlotModule::getTrajectoryFields()

@@ -44,7 +44,6 @@
 
 using namespace ::miutil;
 using namespace ::std;
-using namespace d_print;
 
 static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 {
@@ -69,7 +68,6 @@ StaticPlot::~StaticPlot()
 
 Plot::Plot()
   : enabled(true)
-  , rgbmode(true)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -222,25 +220,17 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
   gcd = ngcd * ratio;
 }
 
-void Plot::setColourMode(bool isrgb){
-  rgbmode= isrgb;
-//   if (rgbmode) fp= std_fp;
-//   else fp= ovr_fp;
-}
-
-void Plot::setPlotInfo(const std::string& pin)
+void Plot::setPlotInfo(const std::string& pin, bool mergeOptionString)
 {
   pinfo= pin;
   // fill poptions with values from pinfo
-  poptions.parsePlotOption(pinfo,poptions);
+  PlotOptions::parsePlotOption(pinfo, poptions, mergeOptionString);
 
   enabled= poptions.enabled;
 }
 
 std::string Plot::getPlotInfo(int n) const
 {
-  //return current plot info string
-  if(n==0) return pinfo;
   //return n elements of current plot info string
   vector<std::string> token = miutil::split(pinfo, n, " ", true);
   token.pop_back(); //remove last part
@@ -250,32 +240,6 @@ std::string Plot::getPlotInfo(int n) const
     str+=token[i];
     if(i<token.size()-1) str+=" ";
   }
-  return str;
-}
-std::string Plot::getPlotInfo(const std::string& return_tokens) const
-{
-  //return n elements of current plot info string
-  vector<std::string> return_token = miutil::split(return_tokens, 0, ",");
-  vector<std::string> token = miutil::split(pinfo, 0, " ");
-  std::string str;
-
-  for(unsigned int i=0;i<token.size();i++){
-    vector<std::string> stoken = miutil::split(token[i], 0, "=");
-    if( stoken.size() == 2 ) {
-      size_t j=0;
-      while ( j<return_token.size() && return_token[j] != stoken[0] )
-        ++j;
-      if ( j < return_token.size() ) {
-        str += token[i] + " ";
-      }
-    }
-  }
-
-  //probably old FIELD string syntax
-  if ( str.empty() ) {
-    return getPlotInfo(3);
-  }
-
   return str;
 }
 

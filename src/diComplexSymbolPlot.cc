@@ -1494,8 +1494,8 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       break;
     case 1036:
       gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-      if (symbolStrings.size()>0)
-        gl->getTextSize(symbolStrings[0],sw,sh);{
+      if (symbolStrings.size()>0) {
+        gl->getTextSize(symbolStrings[0],sw,sh);
         if (symbolStrings.size()>1 && not symbolStrings[1].empty()){
           gl->getTextSize(symbolStrings[1],cw2,ch2);
           if (cw2>sh)  sw=cw2;

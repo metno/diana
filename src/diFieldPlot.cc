@@ -37,6 +37,7 @@
 
 #include "diContouring.h"
 #include "diColour.h"
+#include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
@@ -174,6 +175,36 @@ void FieldPlot::clearFields()
   fields.clear();
 }
 
+std::string FieldPlot::getModelPlotParameterReftime() const
+{
+  //return n elements of current plot info string
+  vector<std::string> return_token;
+  return_token.push_back("model");
+  return_token.push_back("parameter");
+  return_token.push_back("plot");
+  return_token.push_back("reftime");
+
+  vector<std::string> token = miutil::split(getPlotInfo(), 0, " ");
+  std::string str;
+
+  for(unsigned int i=0;i<token.size();i++){
+    vector<std::string> stoken = miutil::split(token[i], 0, "=");
+    if (stoken.size() == 2) {
+      vector<std::string>::const_iterator it = std::find(return_token.begin(), return_token.end(), stoken[0]);
+      if (it != return_token.end()) {
+        str += token[i] + " ";
+      }
+    }
+  }
+
+  //probably old FIELD string syntax
+  if (str.empty()) {
+    return getPlotInfo(3);
+  }
+
+  return str;
+}
+
 const Area& FieldPlot::getFieldArea() const
 {
   if (fields.size() && fields[0])
@@ -202,10 +233,10 @@ int FieldPlot::getLevel() const
 bool FieldPlot::updateNeeded(string& pin) const
 {
   if (ftime.undef()
-      || (ftime != getStaticPlot()->getTime() && !miutil::contains(pinfo, " time="))
+      || (ftime != getStaticPlot()->getTime() && !miutil::contains(getPlotInfo(), " time="))
       || fields.size() == 0)
   {
-    pin = pinfo;
+    pin = getPlotInfo();
     return true;
   }
   return false;
@@ -224,12 +255,9 @@ void FieldPlot::getFieldAnnotation(string& s, Colour& c) const
 // Extract plotting-parameters from PlotInfo.
 bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 {
-  //merge current plotOptions (from pin) with plotOptions form setup
-  pinfo = pin;
-  PlotOptions::fillFieldPlotOptions(fname, pinfo, poptions);
-  plottype = poptions.plottype;
-  if (poptions.enabled == false)
-    setEnabled(false);
+  // merge current plotOptions (from pin) with plotOptions form setup
+  FieldPlotManager::getFieldPlotOptions(fname, poptions);
+  setPlotInfo(pin, true);
 
   rasterClear();
 
@@ -240,16 +268,16 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
       return false;
   }
 
-  pshade = (plottype == fpt_alpha_shade || plottype == fpt_alarm_box
-      || plottype == fpt_fill_cell)
-      || (poptions.contourShading > 0 && (plottype == fpt_contour
-              || plottype == fpt_contour1 || plottype == fpt_contour2));
+  pshade = (plottype() == fpt_alpha_shade || plottype() == fpt_alarm_box
+      || plottype() == fpt_fill_cell)
+      || (poptions.contourShading > 0 && (plottype() == fpt_contour
+              || plottype() == fpt_contour1 || plottype() == fpt_contour2));
 
   return true;
 }
 
 //  set list of field-pointers, update datatime
-bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
+void FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
 
@@ -280,9 +308,7 @@ bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
       poptions.palettecolours = palette;
     }
   }
-  return true;
 }
-
 
 struct aTable {
   std::string colour;
@@ -663,27 +689,27 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
 
   bool ok = false;
 
-  if (plottype == fpt_contour1)
+  if (plottype() == fpt_contour1)
     ok = plotContour(gl);
-  else if (plottype == fpt_contour || plottype == fpt_contour2)
+  else if (plottype() == fpt_contour || plottype() == fpt_contour2)
     ok = plotContour2(gl, zorder);
-  else if (plottype == fpt_wind)
+  else if (plottype() == fpt_wind)
     ok = plotWind(gl);
-  else if (plottype == fpt_wind_temp_fl)
+  else if (plottype() == fpt_wind_temp_fl)
     ok = plotWindAndValue(gl, true);
-  else if (plottype == fpt_wind_value)
+  else if (plottype() == fpt_wind_value)
     ok = plotWindAndValue(gl, false);
-  else if (plottype == fpt_value)
+  else if (plottype() == fpt_value)
     ok = plotValue(gl);
-  else if (plottype == fpt_symbol)
+  else if (plottype() == fpt_symbol)
     ok = plotValue(gl);
-  else if (plottype == fpt_vector)
+  else if (plottype() == fpt_vector)
     ok = plotVector(gl);
-  else if (plottype == fpt_direction)
+  else if (plottype() == fpt_direction)
     ok = plotDirection(gl);
-  else if (plottype == fpt_alpha_shade || plottype == fpt_alarm_box || plottype == fpt_fill_cell)
+  else if (plottype() == fpt_alpha_shade || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell)
     ok = plotRaster(gl);
-  else if (plottype == fpt_frame)
+  else if (plottype() == fpt_frame)
     ok = plotFrameOnly(gl);
 
   if (poptions.use_stencil || poptions.update_stencil)
@@ -1069,7 +1095,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
   // plot symbol
   ImageGallery ig;
   std::map<int, std::string> classImages;
-  if (poptions.plottype == fpt_symbol && poptions.discontinuous == 1
+  if (plottype() == fpt_symbol && poptions.discontinuous == 1
       && (not poptions.classSpecifications.empty())) {
     std::vector<int> classValues;
     std::vector<std::string> classNames;
@@ -1968,7 +1994,7 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
   if (ix1 >= rnx || ix2 < 0 || iy1 >= rny || iy2 < 0)
     return false;
 
-  if (getColourMode() && poptions.frame)
+  if (poptions.frame)
     plotFrame(gl, rnx, rny, x, y);
 
   ipart[0] = ix1;
@@ -2126,26 +2152,21 @@ bool FieldPlot::plotContour(DiGLPainter* gl)
 
   if (idraw > 0 || idraw2 > 0) {
 
-    if (getColourMode()) {
-      if (poptions.colours.size() > 1) {
-        if (idraw > 0 && idraw2 > 0) {
-          icol[0] = 0;
-          icol2[0] = 1;
-        } else {
-          ncol = poptions.colours.size();
-          if (ncol > mmmUsed)
-            ncol = mmmUsed;
-          for (int i = 0; i < ncol; ++i)
-            icol[i] = i;
-        }
-      } else if (idraw > 0) {
-        gl->setColour(poptions.linecolour, false);
+    if (poptions.colours.size() > 1) {
+      if (idraw > 0 && idraw2 > 0) {
+        icol[0] = 0;
+        icol2[0] = 1;
       } else {
-        gl->setColour(poptions.linecolour_2, false);
+        ncol = poptions.colours.size();
+        if (ncol > mmmUsed)
+          ncol = mmmUsed;
+        for (int i = 0; i < ncol; ++i)
+          icol[i] = i;
       }
-    } else if (!getColourMode()) {
-      // drawing in overlay ... NOT USED !!!!!!!!!!!!!!
-      gl->Indexi(poptions.linecolour.Index());
+    } else if (idraw > 0) {
+      gl->setColour(poptions.linecolour, false);
+    } else {
+      gl->setColour(poptions.linecolour_2, false);
     }
 
     if (poptions.minvalue_2 > -fieldUndef || poptions.maxvalue_2 < fieldUndef) {
@@ -2267,7 +2288,7 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
   if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
     return false;
 
-  if (getColourMode() && poptions.frame)
+  if (poptions.frame)
     plotFrame(gl, nx, ny, x, y);
 
   if (poptions.valueLabel)
@@ -2299,9 +2320,9 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
 
 bool FieldPlot::centerOnGridpoint() const
 {
-  return plottype == fpt_alpha_shade
-      || plottype == fpt_alarm_box
-      || plottype == fpt_fill_cell;
+  return plottype() == fpt_alpha_shade
+      || plottype() == fpt_alarm_box
+      || plottype() == fpt_fill_cell;
 }
 
 bool FieldPlot::plotRaster(DiGLPainter* gl)
@@ -2350,7 +2371,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
   const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
   QImage image(bbx.width(), bbx.height(), QImage::Format_ARGB32);
 
-  if (plottype == fpt_alpha_shade) {
+  if (plottype() == fpt_alpha_shade) {
     float cmin, cmax;
     if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
       cmin = poptions.minvalue;
@@ -2382,7 +2403,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
         rgb[ix - bbx.x1] = qRgba(red, green, blue, alpha);
       }
     }
-  } else if (plottype == fpt_fill_cell) {
+  } else if (plottype() == fpt_fill_cell) {
     if (poptions.palettecolours.empty())
       poptions.palettecolours = ColourShading::getColourShading("standard");
 
@@ -2403,7 +2424,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
           rgb[ix - bbx.x1] = 0;
       }
     }
-  } else if (plottype == fpt_alarm_box) {
+  } else if (plottype() == fpt_alarm_box) {
     // analyse unscaled data!
 
     float vmin = -fieldUndef, vmax = fieldUndef;
@@ -2454,7 +2475,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
       }
     }
   } else {
-    METLIBS_LOG_ERROR("programming error, plotRaster with plottype == " << plottype);
+    METLIBS_LOG_ERROR("programming error, plotRaster with plottype == " << plottype());
     return QImage();
   }
   return image;
@@ -2561,9 +2582,6 @@ QPolygonF FieldPlot::makeFramePolygon(int nx, int ny, const float *x, const floa
 void FieldPlot::plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const float *y)
 {
   METLIBS_LOG_SCOPE(LOGVAL(nx) << LOGVAL(ny));
-
-  if (!getColourMode())
-    return;
 
   if (fields.empty() || !fields[0])
     return;
@@ -2971,13 +2989,13 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
 
   if (not checkFields(1))
     return false;
-  if (plottype == fpt_contour || plottype == fpt_contour2) {
+  if (plottype() == fpt_contour || plottype() == fpt_contour2) {
     plotContour2(gl, SHADE_BACKGROUND);
     return true;
   }
 
   const bool center_on_gridpoint = centerOnGridpoint()
-      || plottype == fpt_contour1; // old contour does some tricks with undefined values
+      || plottype() == fpt_contour1; // old contour does some tricks with undefined values
 
   const int nx_fld = fields[0]->area.nx, ny_fld = fields[0]->area.ny;
   const int nx_pts = nx_fld + (center_on_gridpoint ? 1 : 0);
@@ -3186,9 +3204,9 @@ std::string FieldPlot::getTrajectoryFieldName()
 {
   std::string str;
   unsigned int nf = 0;
-  if (plottype == fpt_wind)
+  if (plottype() == fpt_wind)
     nf = 2;
-  if (plottype == fpt_vector)
+  if (plottype() == fpt_vector)
     nf = 2;
 
   if (nf >= 2 && fields.size() >= nf) {

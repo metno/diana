@@ -174,16 +174,13 @@ void AnnotationPlot::setfillcolour(const Colour& c)
 
 bool AnnotationPlot::prepare(const std::string& pin)
 {
-  pinfo = pin;
   poptions.fontname = "BITMAPFONT"; //default
   poptions.textcolour = Colour("black");
-  PlotOptions::parsePlotOption(pinfo, poptions);
+  setPlotInfo(pin);
 
-  useAnaTime = miutil::contains(pinfo, "@") || miutil::contains(pinfo, "&");
+  useAnaTime = miutil::contains(getPlotInfo(), "@") || miutil::contains(getPlotInfo(), "&");
 
-  const vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
-  vector<std::string> stokens;
-  std::string key, value;
+  const vector<std::string> tokens = miutil::split_protected(getPlotInfo(), '"', '"');
   int i, n = tokens.size();
   if (n < 2)
     return false;
@@ -197,8 +194,10 @@ bool AnnotationPlot::prepare(const std::string& pin)
   cyratio = 0.0;
 
   for (i = 1; i < n; i++) {
-    std::string labeltype = tokens[i], LABELTYPE = miutil::to_upper(labeltype);
-    stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
+    const std::string& labeltype = tokens[i];
+    const std::string LABELTYPE = miutil::to_upper(labeltype);
+    const vector<std::string> stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
+    std::string key, value;
     if (stokens.size() > 1) {
       key = miutil::to_lower(stokens[0]);
       value = stokens[1];
@@ -256,7 +255,7 @@ bool AnnotationPlot::prepare(const std::string& pin)
   return true;
 }
 
-bool AnnotationPlot::setData(const vector<Annotation>& a,
+void AnnotationPlot::setData(const vector<Annotation>& a,
     const vector<miTime>& fieldAnalysisTime)
 {
   if (atype != anno_text)
@@ -265,8 +264,6 @@ bool AnnotationPlot::setData(const vector<Annotation>& a,
     fieldAnaTime = fieldAnalysisTime;
   splitAnnotations();
   putElements();
-
-  return true;
 }
 
 void AnnotationPlot::splitAnnotations()
@@ -542,7 +539,7 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   // draw filled area
   Colour fc = poptions.fillcolour;
-  if (fc.A() < Colour::maxv && getColourMode()) {
+  if (fc.A() < Colour::maxv) {
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
   }
@@ -600,7 +597,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
     if (annoEl[j].polystyle == poly_fill || annoEl[j].polystyle == poly_both) {
 
       const Colour& fc = poptions.fillcolour;
-      if (fc.A() < Colour::maxv && getColourMode()) {
+      if (fc.A() < Colour::maxv ) {
         gl->Enable(DiGLPainter::gl_BLEND);
         gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
       }
@@ -1321,24 +1318,18 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
   return vvstr;
 }
 
-bool AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
+void AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vvstr.size()));
   if (vvstr.empty())
-    return false;
+    return;
 
   const size_t m = annotations.size();
-
   if (vvstr.size() != m)
-    return false;
+    return;
 
-  bool keep = false;
   for (size_t i = 0; i < vvstr.size(); i++) {
-    if (vvstr[i].size())
-      keep = true;
     annotations[i].vstr = vvstr[i];
   }
   putElements();
-
-  return keep;
 }

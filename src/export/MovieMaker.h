@@ -30,8 +30,10 @@
 #ifndef MOVIEMAKER_H_
 #define MOVIEMAKER_H_
 
-#include <QDir>
+#include "qtTempDir.h"
+
 #include <QSize>
+#include <QStringList>
 
 #include <string>
 
@@ -44,7 +46,7 @@ public:
    * which quality it will be saved in.
    */
   MovieMaker(const QString &filename, const QString &format,
-      float delay, const QSize& frameSize = QSize(1280, 720));
+      double framerate, const QSize& frameSize);
   ~MovieMaker();
 
   const QString& outputFile() const
@@ -57,8 +59,11 @@ public:
   bool addImage(const QImage &image);
   bool finish();
 
+  const QStringList& outputFiles() const
+    { return mOutputFiles; }
+
 private:
-  bool isImageFormat() const;
+  bool isImageSeries() const;
 
   //! filename for the given frame number (relative to mOutputDir)
   QString frameFile(int frameNumber) const;
@@ -66,14 +71,18 @@ private:
   //! file path for the given frame number
   QString framePath(int frameNumber) const;
 
+  bool createVideo();
+  bool createAnimatedGif();
+
 private:
   QString mOutputFile;
   QString mOutputFormat;
-  float mDelay;
+  double mFrameRate;
   QSize mFrameSize;
 
-  QDir mOutputDir;
+  TempDir mOutputDir;
   int mFrameCount;
+  QStringList mOutputFiles;
 };
 
 #endif /*MOVIEMAKER_H_*/

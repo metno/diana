@@ -212,264 +212,258 @@
         <translation type="obsolete">Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="204"/>
         <source>&amp;Save picture...</source>
-        <translation>Spara &amp;bild...</translation>
+        <translation type="obsolete">Spara &amp;bild...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="213"/>
+        <location filename="../../../src/qtMainWindow.cc" line="210"/>
         <source>&amp;Print...</source>
         <translation>&amp;Skriv ut...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="223"/>
+        <location filename="../../../src/qtMainWindow.cc" line="220"/>
         <source>&amp;Quit...</source>
         <translation>&amp;Avsluta...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="231"/>
+        <location filename="../../../src/qtMainWindow.cc" line="228"/>
         <source>S&amp;peed buttons</source>
         <translation>Snabb&amp;knappar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="235"/>
+        <location filename="../../../src/qtMainWindow.cc" line="232"/>
         <source>A&amp;rchive mode</source>
         <translation>A&amp;rkiv mode</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="239"/>
+        <location filename="../../../src/qtMainWindow.cc" line="236"/>
         <source>&amp;Automatic element choice</source>
         <translation>&amp;Automatisk elementval</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="244"/>
+        <location filename="../../../src/qtMainWindow.cc" line="241"/>
         <source>A&amp;nnotations</source>
         <translation>&amp;Kommentarer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="252"/>
+        <location filename="../../../src/qtMainWindow.cc" line="249"/>
         <source>Select &amp;Font...</source>
         <translation>Välj &amp;Font...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="258"/>
+        <location filename="../../../src/qtMainWindow.cc" line="255"/>
         <source>Reset area and replot</source>
         <translation>&amp;Återställ område och plotta på nytt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="262"/>
+        <location filename="../../../src/qtMainWindow.cc" line="259"/>
         <source>Reset all</source>
         <translation>Återställ &amp;allt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="266"/>
+        <location filename="../../../src/qtMainWindow.cc" line="263"/>
         <source>&amp;Apply plot</source>
         <translation>Utf&amp;ör plott</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="270"/>
+        <location filename="../../../src/qtMainWindow.cc" line="267"/>
         <source>Add to q&amp;uickmenu</source>
         <translation>A&amp;ddera plott till snabbmeny</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="275"/>
+        <location filename="../../../src/qtMainWindow.cc" line="272"/>
         <source>P&amp;revious plot</source>
         <translation>Fö&amp;egående plott</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="279"/>
+        <location filename="../../../src/qtMainWindow.cc" line="276"/>
         <source>&amp;Next plot</source>
         <translation>&amp;Nästa plott</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="283"/>
+        <location filename="../../../src/qtMainWindow.cc" line="280"/>
         <source>&amp;Hide All</source>
         <translation>Dö&amp;lj alla</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="289"/>
+        <location filename="../../../src/qtMainWindow.cc" line="286"/>
         <source>&amp;Quickmenu</source>
         <translation>&amp;Snabbmeny</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="302"/>
+        <location filename="../../../src/qtMainWindow.cc" line="299"/>
         <source>&amp;Fields</source>
         <translation>&amp;Fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="308"/>
+        <location filename="../../../src/qtMainWindow.cc" line="305"/>
         <source>&amp;Observations</source>
         <translation>&amp;Observationer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="314"/>
+        <location filename="../../../src/qtMainWindow.cc" line="311"/>
         <source>&amp;Satellites and Radar</source>
         <translation>&amp;Satellit och Radar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="326"/>
+        <location filename="../../../src/qtMainWindow.cc" line="323"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Produkteditering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="332"/>
+        <location filename="../../../src/qtMainWindow.cc" line="329"/>
         <source>O&amp;bjects</source>
         <translation>O&amp;bjekt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="338"/>
+        <location filename="../../../src/qtMainWindow.cc" line="335"/>
         <source>&amp;Trajectories</source>
         <translation>&amp;Trajektorier</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="344"/>
+        <location filename="../../../src/qtMainWindow.cc" line="341"/>
         <source>Annotation</source>
         <translation>&amp;Kommentar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="350"/>
+        <location filename="../../../src/qtMainWindow.cc" line="347"/>
         <source>&amp;Vertical Profiles</source>
         <translation>&amp;Vertikalprofiler</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="360"/>
+        <location filename="../../../src/qtMainWindow.cc" line="357"/>
         <source>Vertical &amp;Cross sections</source>
         <translation>Vertik&amp;ala tvärsnitt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="370"/>
+        <location filename="../../../src/qtMainWindow.cc" line="367"/>
         <source>&amp;Wave spectra</source>
         <translation>V&amp;ågspektra</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="385"/>
+        <location filename="../../../src/qtMainWindow.cc" line="382"/>
         <source>&amp;Uffda Service</source>
         <translation>&amp;Uffda tjeneste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="390"/>
+        <location filename="../../../src/qtMainWindow.cc" line="387"/>
         <source>&amp;Measurements</source>
         <translation>&amp;Mätningar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="411"/>
+        <location filename="../../../src/qtMainWindow.cc" line="408"/>
         <source>&amp;Accelerators</source>
         <translation>&amp;Snabbval</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="415"/>
+        <location filename="../../../src/qtMainWindow.cc" line="412"/>
         <source>&amp;News</source>
         <translation>&amp;Nyheter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="419"/>
+        <location filename="../../../src/qtMainWindow.cc" line="416"/>
         <source>Test &amp;results</source>
         <translation>Test &amp;resultat</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="423"/>
+        <location filename="../../../src/qtMainWindow.cc" line="420"/>
         <source>About Diana</source>
         <translation>Om Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="431"/>
+        <location filename="../../../src/qtMainWindow.cc" line="428"/>
         <source>Run Backwards</source>
         <translation>Kör Bakåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="438"/>
+        <location filename="../../../src/qtMainWindow.cc" line="435"/>
         <source>Run Forewards</source>
         <translation>Kör Framåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="445"/>
+        <location filename="../../../src/qtMainWindow.cc" line="442"/>
         <source>Step Backwards</source>
         <translation>Ett steg bakåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="451"/>
+        <location filename="../../../src/qtMainWindow.cc" line="448"/>
         <source>Step Forewards</source>
         <translation>Ett steg framåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="457"/>
+        <location filename="../../../src/qtMainWindow.cc" line="454"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="464"/>
+        <location filename="../../../src/qtMainWindow.cc" line="461"/>
         <source>Run in loop</source>
         <translation>Loopa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="471"/>
+        <location filename="../../../src/qtMainWindow.cc" line="468"/>
         <source>Time control</source>
         <translation>Tidskontroll</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="480"/>
+        <location filename="../../../src/qtMainWindow.cc" line="477"/>
         <source>Level up</source>
         <translation>Nivå opp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="488"/>
+        <location filename="../../../src/qtMainWindow.cc" line="485"/>
         <source>Level down</source>
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2492"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2442"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2493"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2443"/>
         <source>commit: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
-        <source>Images (*.png *.jpeg *.jpg *.xpm *.bmp *.svg);;PDF Files (*.pdf);;All (*.*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2751"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2682"/>
         <source>diana image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2752"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2683"/>
         <source>Created by diana %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2912"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2763"/>
         <source>Error</source>
         <translation>Feil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2912"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2763"/>
         <source>Problem with creating animation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="4057"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3899"/>
         <source>imported files</source>
         <translation>Importerade filer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="4105"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3947"/>
         <source>Imported model data to the &quot;%1&quot; field group.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/qtMainWindow.cc" line="4107"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3949"/>
         <source>Imported %1 symbol(s).</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/qtMainWindow.cc" line="4109"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3951"/>
         <source>Imported %1 drawing(s).</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -480,42 +474,47 @@
         <translation type="obsolete">Adderat model data till &quot;%1&quot; fält grupp.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="583"/>
+        <location filename="../../../src/qtMainWindow.cc" line="578"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Välj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="381"/>
+        <location filename="../../../src/qtMainWindow.cc" line="378"/>
         <source>Zoom out</source>
         <translation>Zooma ut</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="622"/>
+        <location filename="../../../src/qtMainWindow.cc" line="617"/>
         <source>Show</source>
         <translation>Visa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="652"/>
+        <location filename="../../../src/qtMainWindow.cc" line="647"/>
         <source>&amp;Help</source>
         <translation>&amp;Hjälp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="516"/>
+        <location filename="../../../src/qtMainWindow.cc" line="513"/>
         <source>Update observations</source>
         <translation>Uppdatera observationer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="767"/>
+        <location filename="../../../src/qtMainWindow.cc" line="207"/>
+        <source>&amp;Export image/movie...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="762"/>
         <source>ARCHIVE</source>
         <translation>ARKIV</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2491"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2441"/>
         <source>version:</source>
         <translation>version:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2495"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2445"/>
         <source>about Diana</source>
         <translation>om Diana</translation>
     </message>
@@ -524,17 +523,16 @@
         <translation type="obsolete">Bilder (*.png *.xpm *.bmp *.eps);;Alle (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2710"/>
         <source>Save plot as image</source>
-        <translation>Spara plott som bild</translation>
+        <translation type="obsolete">Spara plott som bild</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="497"/>
+        <location filename="../../../src/qtMainWindow.cc" line="494"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS cluster/medlem mm. upp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="506"/>
+        <location filename="../../../src/qtMainWindow.cc" line="503"/>
         <source>EPS cluster/member etc down</source>
         <translation>EPS cluster/medlem mm. ned</translation>
     </message>
@@ -543,22 +541,21 @@
         <translation type="obsolete">Bygge:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="573"/>
+        <location filename="../../../src/qtMainWindow.cc" line="570"/>
         <source>File</source>
         <translation>Fil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="609"/>
+        <location filename="../../../src/qtMainWindow.cc" line="604"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="210"/>
         <source>Save &amp;animation...</source>
-        <translation>Spara &amp;animation...</translation>
+        <translation type="obsolete">Spara &amp;animation...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2487"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2437"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -566,45 +563,44 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Diana - ett program för presentation av fält, observationer och satellitbilder med verktyg för fälteditering och ritning av fronter och symboler.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="405"/>
+        <location filename="../../../src/qtMainWindow.cc" line="402"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="207"/>
         <source>&amp;Email picture...</source>
-        <translation>Sänd bild som &amp;epost...</translation>
+        <translation type="obsolete">Sänd bild som &amp;epost...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="248"/>
+        <location filename="../../../src/qtMainWindow.cc" line="245"/>
         <source>Scrollw&amp;heel zooming</source>
         <translation>&amp;Rullhjul zoomning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="296"/>
+        <location filename="../../../src/qtMainWindow.cc" line="293"/>
         <source>Maps</source>
         <translation>Karta</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2489"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2439"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation>För att rapportera en bugg eller ett förbättringsförslag, vänligen använd https://redmine.smhi.se/ projekt Diana (Endast SMHI användare).</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2838"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2715"/>
         <source>Making animation</source>
         <translation>Skapar animation</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2910"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2761"/>
         <source>Done</source>
         <translation>Klar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2910"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2761"/>
         <source>Animation completed.</source>
-        <translation>Animation klar</translation>
+        <translation>Animation klar.</translation>
     </message>
     <message>
         <source>Compiled without video export</source>
@@ -615,52 +611,50 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Diana måste vara kompilerad med VIDEO EXPORT för att kunna använda detta val.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2819"/>
         <source>Movies (*.mp4 *.mpg *.avi);;All (*.*)</source>
-        <translation>&gt;Filmer (*.mp4 *.mpg *.avi);;Alla (*.*)</translation>
+        <translation type="obsolete">&gt;Filmer (*.mp4 *.mpg *.avi);;Alla (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="217"/>
+        <location filename="../../../src/qtMainWindow.cc" line="214"/>
         <source>Print pre&amp;view...</source>
         <translation>Förhands&amp;granska...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="220"/>
+        <location filename="../../../src/qtMainWindow.cc" line="217"/>
         <source>Read setupfile</source>
         <translation>Läs setupfil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="320"/>
+        <location filename="../../../src/qtMainWindow.cc" line="317"/>
         <source>Toggle Stations</source>
         <translation>Visa stationer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="399"/>
+        <location filename="../../../src/qtMainWindow.cc" line="396"/>
         <source>Edit Drawing Mode</source>
         <translation>Editera/Rita</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2817"/>
         <source>Save animation from current fields, satellite images, etc.</source>
-        <translation>Spara information från fält, bilder, osv. (*.mpg eller *.avi)</translation>
+        <translation type="obsolete">Spara information från fält, bilder, osv. (*.mpg eller *.avi)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2839"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2716"/>
         <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2855"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2731"/>
         <source>Creating animation...</source>
-        <translation>Skapa animation</translation>
+        <translation>Skapa animation…</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2855"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2731"/>
         <source>Hide</source>
         <translation>Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="523"/>
+        <location filename="../../../src/qtMainWindow.cc" line="520"/>
         <source>Automatic updates</source>
         <translation>Automatisk uppdatering</translation>
     </message>
@@ -833,7 +827,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 <context>
     <name>EditDialog</name>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="196"/>
+        <location filename="../../../src/qtEditDialog.cc" line="197"/>
         <source>Editing</source>
         <translation>Editering</translation>
     </message>
@@ -860,58 +854,58 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation type="obsolete">Avbryt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="145"/>
-        <location filename="../../../src/qtEditDialog.cc" line="345"/>
+        <location filename="../../../src/qtEditDialog.cc" line="146"/>
+        <location filename="../../../src/qtEditDialog.cc" line="346"/>
         <source>Circle</source>
         <translation>Cirkel</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="210"/>
+        <location filename="../../../src/qtEditDialog.cc" line="211"/>
         <source>Save (local)</source>
         <translation>Spara (lokalt)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="211"/>
+        <location filename="../../../src/qtEditDialog.cc" line="212"/>
         <source>Save product to local disk</source>
         <translation>Spara produkt till lokal disk</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="214"/>
+        <location filename="../../../src/qtEditDialog.cc" line="215"/>
         <source>Save (common work disk)</source>
         <translation>Spara (gemensam arbetsarea)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="215"/>
+        <location filename="../../../src/qtEditDialog.cc" line="216"/>
         <source>Save product to common work disk, available to other users as input in edit mode</source>
         <translation>Spara produkt till gemensam arbetsarea, tillgänglig för andra användare att använda under editering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="218"/>
+        <location filename="../../../src/qtEditDialog.cc" line="219"/>
         <source>Approve</source>
         <translation>Godkänn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="219"/>
+        <location filename="../../../src/qtEditDialog.cc" line="220"/>
         <source>Approve product (makes the product available for other users and trigger production)</source>
         <translation>Godkänn produkt (Gör produkten tillgänglig för andra användare och startar produktion av slutprodukter)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="346"/>
+        <location filename="../../../src/qtEditDialog.cc" line="347"/>
         <source>Square</source>
         <translation>Fyrkant</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="348"/>
+        <location filename="../../../src/qtEditDialog.cc" line="349"/>
         <source>Ellipse(focus)</source>
         <translation>Ellips(brännpunkt)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="366"/>
+        <location filename="../../../src/qtEditDialog.cc" line="367"/>
         <source>Ellipse shape</source>
         <translation>Ellips form</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1210"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1211"/>
         <source>Problems saving product: </source>
         <translation>Problem med att spara produkt: </translation>
     </message>
@@ -920,451 +914,451 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation type="obsolete">Problem att godkänna produkt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1326"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1327"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Avbryt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1457"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1458"/>
         <source>Error starting edit</source>
         <translation>Fel vid uppstart av editering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1544"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1793"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1539"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1782"/>
         <source>Undefined</source>
         <translation>Odefinierad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1549"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1798"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1544"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1787"/>
         <source>New value:</source>
         <translation>Nytt värde:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1608"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1833"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1603"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1822"/>
         <source>Not saved</source>
         <translation>Ej sparad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="411"/>
+        <location filename="../../../src/qtEditDialog.cc" line="412"/>
         <source>Show extra editing lines</source>
         <translation>Visa editeringslinjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="422"/>
-        <location filename="../../../src/qtEditDialog.cc" line="656"/>
+        <location filename="../../../src/qtEditDialog.cc" line="423"/>
+        <location filename="../../../src/qtEditDialog.cc" line="657"/>
         <source>Undo</source>
         <translation>Ångra</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="423"/>
-        <location filename="../../../src/qtEditDialog.cc" line="657"/>
+        <location filename="../../../src/qtEditDialog.cc" line="424"/>
+        <location filename="../../../src/qtEditDialog.cc" line="658"/>
         <source>Redo</source>
         <translation>Gör om</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="668"/>
+        <location filename="../../../src/qtEditDialog.cc" line="669"/>
         <source>Join fronts</source>
         <translation>Sammanslagning av fronter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1002"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1003"/>
         <source>Change borders</source>
         <translation>Ändra gränser</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1003"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1004"/>
         <source>Set data sources</source>
         <translation>Ange datakälla</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1023"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1024"/>
         <source>Exit merge</source>
         <translation>Avsluta koppling</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1212"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1213"/>
         <source>Save error:</source>
         <translation>Fel vid sparning:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1220"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1221"/>
         <source>Saved</source>
         <translation>Sparad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1228"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1229"/>
         <source>and approved</source>
         <translation>och godkänd</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1230"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1231"/>
         <source>(approved)</source>
         <translation>(godkänd)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1255"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1256"/>
         <source>Warnig - approve product</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1256"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1257"/>
         <source>Do you really want to approve an unchanged product?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1324"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1325"/>
         <source>Exit editing</source>
         <translation>Avsluta editering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1325"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1326"/>
         <source>You have unsaved edits.
  Save before exiting?</source>
         <translation>Du har inte sparat dina ändringar.
 Vil du spara innan du avslutar?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1326"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1327"/>
         <source>&amp;Save</source>
         <translation>&amp;Spara</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1326"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1327"/>
         <source>&amp;Don&apos;t save</source>
         <translation>Spara &amp;inte</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1342"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1343"/>
         <source>Send analysis</source>
         <translation>Skicka analys</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1343"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1344"/>
         <source>Send last saved analysis to the database?</source>
         <translation>Vill du skicka sista sparade analysen till databasen?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1344"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1345"/>
         <source>&amp;Send</source>
         <translation>&amp;Skicka</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1344"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1345"/>
         <source>&amp;Don&apos;t send</source>
         <translation>Skicka &amp;inte</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1221"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1222"/>
         <source>saved</source>
         <translation>sparad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="255"/>
+        <location filename="../../../src/qtEditDialog.cc" line="256"/>
         <source>Exit</source>
         <translation>Avsluta</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="259"/>
+        <location filename="../../../src/qtEditDialog.cc" line="260"/>
         <source>Hide</source>
         <translation>Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="242"/>
+        <location filename="../../../src/qtEditDialog.cc" line="243"/>
         <source>Pause</source>
         <translation>Pausa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="248"/>
+        <location filename="../../../src/qtEditDialog.cc" line="249"/>
         <source>Comments</source>
         <translation>Kommentarer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="262"/>
+        <location filename="../../../src/qtEditDialog.cc" line="263"/>
         <source>Help</source>
         <translation>Hjälp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="347"/>
+        <location filename="../../../src/qtEditDialog.cc" line="348"/>
         <source>Ellipse(centre)</source>
         <translation>Ellipse(senter)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="92"/>
+        <location filename="../../../src/qtEditDialog.cc" line="93"/>
         <source>Field</source>
         <translation>Fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="93"/>
+        <location filename="../../../src/qtEditDialog.cc" line="94"/>
         <source>Objects</source>
         <translation>Objekt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="94"/>
+        <location filename="../../../src/qtEditDialog.cc" line="95"/>
         <source>Merge</source>
         <translation>Koppla</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="111"/>
+        <location filename="../../../src/qtEditDialog.cc" line="112"/>
         <source>Cold front</source>
         <translation>Kallfront</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="112"/>
+        <location filename="../../../src/qtEditDialog.cc" line="113"/>
         <source>Warm front</source>
         <translation>Varmfront</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="113"/>
+        <location filename="../../../src/qtEditDialog.cc" line="114"/>
         <source>Occlusion</source>
         <translation>Ocklusion</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="115"/>
+        <location filename="../../../src/qtEditDialog.cc" line="116"/>
         <source>Warm occlusion</source>
         <translation>Varmfronts ocklusion</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="116"/>
+        <location filename="../../../src/qtEditDialog.cc" line="117"/>
         <source>Stationary front</source>
         <translation>Stationär front</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="117"/>
+        <location filename="../../../src/qtEditDialog.cc" line="118"/>
         <source>Trough</source>
         <translation>Tråg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="118"/>
+        <location filename="../../../src/qtEditDialog.cc" line="119"/>
         <source>Squall line</source>
         <translation>Bylinje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="123"/>
+        <location filename="../../../src/qtEditDialog.cc" line="124"/>
         <source>Low pressure</source>
         <translation>Lågtryck</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="114"/>
+        <location filename="../../../src/qtEditDialog.cc" line="115"/>
         <source>Cold occlusion</source>
         <translation>Kallfronts ocklusion</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="119"/>
-        <location filename="../../../src/qtEditDialog.cc" line="156"/>
+        <location filename="../../../src/qtEditDialog.cc" line="120"/>
+        <location filename="../../../src/qtEditDialog.cc" line="157"/>
         <source>Significant weather</source>
         <translation>Signifikant väder</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="120"/>
+        <location filename="../../../src/qtEditDialog.cc" line="121"/>
         <source>Significant weather TURB/VA/RC</source>
         <translation>Signifikant väder TURB/VA/RC</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="121"/>
+        <location filename="../../../src/qtEditDialog.cc" line="122"/>
         <source>Significant weather ICE/TCU/CB</source>
         <translation>Signifikant väder ICE/TCU/CB</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="124"/>
+        <location filename="../../../src/qtEditDialog.cc" line="125"/>
         <source>High pressure</source>
         <translation>Högtryck</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="125"/>
+        <location filename="../../../src/qtEditDialog.cc" line="126"/>
         <source>Cold</source>
         <translation>Kallt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="126"/>
+        <location filename="../../../src/qtEditDialog.cc" line="127"/>
         <source>Warm</source>
         <translation>Varmt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="127"/>
+        <location filename="../../../src/qtEditDialog.cc" line="128"/>
         <source>Fog</source>
         <translation>Dimma</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="154"/>
+        <location filename="../../../src/qtEditDialog.cc" line="155"/>
         <source>Haze</source>
         <translation>Dis</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="128"/>
+        <location filename="../../../src/qtEditDialog.cc" line="129"/>
         <source>Drizzle </source>
         <translation>Duggregn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="129"/>
+        <location filename="../../../src/qtEditDialog.cc" line="130"/>
         <source>Freezing drizzle</source>
         <translation>Underkylt duggregn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="130"/>
+        <location filename="../../../src/qtEditDialog.cc" line="131"/>
         <source>Freezing rain</source>
         <translation>Underkylt regn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="131"/>
-        <location filename="../../../src/qtEditDialog.cc" line="152"/>
+        <location filename="../../../src/qtEditDialog.cc" line="132"/>
+        <location filename="../../../src/qtEditDialog.cc" line="153"/>
         <source>Showers</source>
         <translation>Skurar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="132"/>
+        <location filename="../../../src/qtEditDialog.cc" line="133"/>
         <source>Rain showers</source>
         <translation>Regnskurar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="133"/>
+        <location filename="../../../src/qtEditDialog.cc" line="134"/>
         <source>Sleet showers</source>
         <translation>Byar av snöblandat regn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="134"/>
+        <location filename="../../../src/qtEditDialog.cc" line="135"/>
         <source>Hail showers</source>
         <translation>Hagelskurar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="136"/>
+        <location filename="../../../src/qtEditDialog.cc" line="137"/>
         <source>Thunderstorm</source>
         <translation>Åska</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="137"/>
+        <location filename="../../../src/qtEditDialog.cc" line="138"/>
         <source>Thunderstorm with hail</source>
         <translation>Åska med hagel</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="138"/>
+        <location filename="../../../src/qtEditDialog.cc" line="139"/>
         <source>Snow</source>
         <translation>Snö</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="142"/>
+        <location filename="../../../src/qtEditDialog.cc" line="143"/>
         <source>Hurricane</source>
         <translation>Tropisk orkan</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="144"/>
+        <location filename="../../../src/qtEditDialog.cc" line="145"/>
         <source>Disk</source>
         <translation>Skiva</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="146"/>
+        <location filename="../../../src/qtEditDialog.cc" line="147"/>
         <source>Cross</source>
         <translation>Kryss</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="147"/>
+        <location filename="../../../src/qtEditDialog.cc" line="148"/>
         <source>Text</source>
         <translation>Text</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="151"/>
+        <location filename="../../../src/qtEditDialog.cc" line="152"/>
         <source>Precipitation</source>
         <translation>Nederbörd</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="153"/>
+        <location filename="../../../src/qtEditDialog.cc" line="154"/>
         <source>Clouds</source>
         <translation>Moln</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="155"/>
+        <location filename="../../../src/qtEditDialog.cc" line="156"/>
         <source>Ice</source>
         <translation>Is</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="135"/>
+        <location filename="../../../src/qtEditDialog.cc" line="136"/>
         <source>Snow showers</source>
         <translation>Snöbyar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="158"/>
+        <location filename="../../../src/qtEditDialog.cc" line="159"/>
         <source>Generic area</source>
         <translation>Allmänt område</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="139"/>
+        <location filename="../../../src/qtEditDialog.cc" line="140"/>
         <source>Rain</source>
         <translation>Regn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="140"/>
+        <location filename="../../../src/qtEditDialog.cc" line="141"/>
         <source>Sleet</source>
         <translation>Snöblandat regn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="157"/>
+        <location filename="../../../src/qtEditDialog.cc" line="158"/>
         <source>Reduced visibility</source>
         <translation>Nedsatt sikt / låga moln</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="99"/>
+        <location filename="../../../src/qtEditDialog.cc" line="100"/>
         <source>Change value</source>
         <translation>Ändra värde</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="100"/>
+        <location filename="../../../src/qtEditDialog.cc" line="101"/>
         <source>Move</source>
         <translation>Flytta</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="101"/>
+        <location filename="../../../src/qtEditDialog.cc" line="102"/>
         <source>Change gradient</source>
         <translation>Ändra gradient</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="102"/>
+        <location filename="../../../src/qtEditDialog.cc" line="103"/>
         <source>Line, without smooth</source>
         <translation>Linje, utan utjämning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="103"/>
+        <location filename="../../../src/qtEditDialog.cc" line="104"/>
         <source>Line, with smooth</source>
         <translation>Linje, med utjämning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="104"/>
+        <location filename="../../../src/qtEditDialog.cc" line="105"/>
         <source>Line, limited, without smooth</source>
         <translation>Linje, begänsad, utan utjämning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="105"/>
+        <location filename="../../../src/qtEditDialog.cc" line="106"/>
         <source>Line, limited, with smooth</source>
         <translation>Linje, begränsad, med utjämning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="106"/>
+        <location filename="../../../src/qtEditDialog.cc" line="107"/>
         <source>Smooth</source>
         <translation>Utjämna</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="107"/>
+        <location filename="../../../src/qtEditDialog.cc" line="108"/>
         <source>Replace undefined values</source>
         <translation>Ersätt odefinierade värden</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="108"/>
+        <location filename="../../../src/qtEditDialog.cc" line="109"/>
         <source>Line</source>
         <translation>Linje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="109"/>
+        <location filename="../../../src/qtEditDialog.cc" line="110"/>
         <source>Copy value</source>
         <translation>Kopiera värde</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="110"/>
+        <location filename="../../../src/qtEditDialog.cc" line="111"/>
         <source>Set udefined</source>
         <translation>Sätt till odefinierat värde</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="148"/>
+        <location filename="../../../src/qtEditDialog.cc" line="149"/>
         <source>EditText</source>
         <translation>Editera text</translation>
     </message>
@@ -1377,42 +1371,42 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Stigande lufttryck</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="163"/>
+        <location filename="../../../src/qtEditDialog.cc" line="164"/>
         <source>Drifting snow</source>
         <translation>Snödrev</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="164"/>
+        <location filename="../../../src/qtEditDialog.cc" line="165"/>
         <source>VMC-line</source>
         <translation>VMC-linje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="165"/>
+        <location filename="../../../src/qtEditDialog.cc" line="166"/>
         <source>CAT-line</source>
         <translation>CAT-linje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="166"/>
+        <location filename="../../../src/qtEditDialog.cc" line="167"/>
         <source>Line of thunderstorms red</source>
         <translation>Åsklinje röd</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="167"/>
+        <location filename="../../../src/qtEditDialog.cc" line="168"/>
         <source>Line of thunderstorms green</source>
         <translation>Åsklinje grön</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="168"/>
+        <location filename="../../../src/qtEditDialog.cc" line="169"/>
         <source>Line of thunderstorms blue</source>
         <translation>Åsklinje blå</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="169"/>
+        <location filename="../../../src/qtEditDialog.cc" line="170"/>
         <source>Graupel</source>
         <translation>Kornsnö</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="170"/>
+        <location filename="../../../src/qtEditDialog.cc" line="171"/>
         <source>Jet stream</source>
         <translation>Jet ström</translation>
     </message>
@@ -1582,7 +1576,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Komposit</translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="1638"/>
+        <location filename="../../../src/diEditItemManager.cc" line="1637"/>
         <source>To</source>
         <translation>Till</translation>
     </message>
@@ -2022,10 +2016,167 @@ Vil du spara innan du avslutar?</translation>
     </message>
 </context>
 <context>
+    <name>ExportCommandsModel</name>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="171"/>
+        <source>File(s)</source>
+        <translation>Fil(er)</translation>
+    </message>
+</context>
+<context>
+    <name>ExportImageDialog</name>
+    <message utf8="true">
+        <location filename="../../../src/export/export_image_dialog.ui" line="6"/>
+        <source>Export image/movie …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="27"/>
+        <source>Save to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="40"/>
+        <source>Frame rate in frames per second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="43"/>
+        <source>fps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="62"/>
+        <source>WxH:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="73"/>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="78"/>
+        <source>Image series</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="96"/>
+        <source>Product:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="109"/>
+        <source>Speed:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="134"/>
+        <source>Close</source>
+        <translation>Stäng</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="141"/>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="212"/>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="227"/>
+        <source>Filename (pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="83"/>
+        <source>Animated Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/export_image_dialog.ui" line="88"/>
+        <source>Movie</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="275"/>
+        <source>Select image filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="277"/>
+        <source>Select image filename pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="278"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="289"/>
+        <source>Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="285"/>
+        <source>PDF Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="288"/>
+        <source>Select animated image filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="292"/>
+        <source>Select movie filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="293"/>
+        <source>Movies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="296"/>
+        <source>All</source>
+        <translation type="unfinished">Alla</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="371"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="371"/>
+        <source>Invalid filename has been changed, please check and press start again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="376"/>
+        <source>Error</source>
+        <translation type="unfinished">Feil</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="376"/>
+        <source>Could not create temporary directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="399"/>
+        <source>Done</source>
+        <translation>Klar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="399"/>
+        <source>Image saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FieldDialog</name>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="141"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="328"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="142"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="327"/>
         <source>Fields</source>
         <translation>Fält</translation>
     </message>
@@ -2034,392 +2185,392 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Modellgrupp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="291"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="290"/>
         <source>Models</source>
         <translation>Modeller</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="310"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="309"/>
         <source>Reference time</source>
         <translation>Referenstid</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="316"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="315"/>
         <source>Field group</source>
         <translation>Fältgrupp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="335"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="334"/>
         <source>Selected fields</source>
         <translation>Valda fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="409"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="408"/>
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="405"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="404"/>
         <source>Copy</source>
         <translation>Kopiera</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="413"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="412"/>
         <source>Delete all</source>
         <translation>Ta bort allt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="417"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="416"/>
         <source>Model</source>
         <translation>Modell</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="442"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="441"/>
         <source>Plot type</source>
         <translation>Plottype</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="456"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="857"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="455"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="856"/>
         <source>Line width</source>
         <translation>Linjebredd</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="462"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="858"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="461"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="857"/>
         <source>Line type</source>
         <translation>Linjetype</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="468"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="850"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="467"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="849"/>
         <source>Line interval</source>
         <translation>Linjeintervall</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="474"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="473"/>
         <source>Density</source>
         <translation>Täthet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="399"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="481"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="398"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="480"/>
         <source>Unit</source>
         <translation>Enhet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="434"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="433"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="438"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="437"/>
         <source>Minus</source>
         <translation>Minus</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="487"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="486"/>
         <source>Help</source>
         <translation>Hjälp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="491"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="490"/>
         <source>All time steps</source>
         <translation>Alla tidssteg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="497"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="496"/>
         <source>&lt;&lt;Less</source>
         <translation>&lt;&lt;Mindre</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="497"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="496"/>
         <source>More&gt;&gt;</source>
         <translation>Mer&gt;&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="502"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="501"/>
         <source>Hide</source>
         <translation>Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="506"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="505"/>
         <source>Apply+Hide</source>
         <translation>Utför+Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="510"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="509"/>
         <source>Apply</source>
         <translation>Utför</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="648"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="647"/>
         <source>Show predefined plots or all parameters from file</source>
         <translation>Visa fördefinierade plottar eller alla parametrar från fil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="649"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="648"/>
         <source>move selected field up</source>
         <translation>flytta valt fält upp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="650"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="649"/>
         <source>move selected field down</source>
         <translation>flytta valt fält ner</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="651"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="650"/>
         <source>delete selected field</source>
         <translation>ta bort valt fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="652"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="651"/>
         <source>delete all selected fields</source>
         <translation>ta bort alla valda fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="653"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="652"/>
         <source>copy field</source>
         <translation>kopiera fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="654"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="653"/>
         <source>reset plot options</source>
         <translation>återställ plotinställningar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="655"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="654"/>
         <source>selected field minus the field above</source>
         <translation>välj fält att minska med fältet över</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="656"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="655"/>
         <source>change model/termin</source>
         <translation>ändra modell/termin</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="1104"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="1103"/>
         <source>Values</source>
         <translation>Värden</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="657"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="656"/>
         <source>all time steps / only common time steps</source>
         <translation>alla tider / gemensamma tider</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="305"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="304"/>
         <source>Type to filter model names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="661"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="660"/>
         <source>numbers on the contour lines</source>
         <translation>Siffror på konturlinjen</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="662"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="661"/>
         <source>Size of numbers on the countour lines and size of values in the plot type &quot;value&quot;</source>
         <translation>Storlek på siffrorna på konturlinjerna och storlek på plottning av &quot;värden&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="663"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="662"/>
         <source>Value precision, used in the plot type &quot;value&quot;</source>
         <translation>Noggranhet, används vid plottyp &quot;värde&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="668"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="670"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="667"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="669"/>
         <source>number of colours in the palette</source>
         <translation>antal färger i paletten</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="669"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="668"/>
         <source>Palette for values below basis</source>
         <translation>Palett för värden under basnivå</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="671"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="670"/>
         <source>Colour of pattern</source>
         <translation>Färg på mönstret</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="692"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="691"/>
         <source>Min,max</source>
         <translation>Min,max</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="704"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="703"/>
         <source>Size</source>
         <translation>Storlek</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="715"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="714"/>
         <source>Radius</source>
         <translation>Radie</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="727"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="726"/>
         <source>Smooth lines</source>
         <translation>Utjämna linjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="732"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="743"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="778"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="874"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="881"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="896"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="912"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="933"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="2469"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="731"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="742"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="777"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="873"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="880"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="895"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="911"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="932"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="2466"/>
         <source>Off</source>
         <translation>Av</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="738"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="737"/>
         <source>Smooth fields</source>
         <translation>Utjämna fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="773"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="772"/>
         <source>Grid lines</source>
         <translation>Gridlinjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="792"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="791"/>
         <source>Time offset</source>
         <translation>Tidsavvikelse</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="797"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="807"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="796"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="806"/>
         <source> hour(s)</source>
         <translation> timma(r)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="802"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="801"/>
         <source>Time diff.</source>
         <translation>Tidsskillnad.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="814"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="813"/>
         <source>Undefined</source>
         <translation>Udefinierad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="815"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="814"/>
         <source>Unmarked</source>
         <translation>Omarkerad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="816"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="815"/>
         <source>Coloured</source>
         <translation>Färgad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="817"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="816"/>
         <source>Lines</source>
         <translation>Linjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="838"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="837"/>
         <source>Numbers</source>
         <translation>Tal på linje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="844"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="843"/>
         <source>Palette</source>
         <translation>Palett</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="845"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="844"/>
         <source>Palette (-)</source>
         <translation>Palett (-)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="846"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="845"/>
         <source>Pattern</source>
         <translation>Mönster</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="847"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="846"/>
         <source>Alpha</source>
         <translation>Alfa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="848"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="847"/>
         <source>Extra contour lines</source>
         <translation>Extra konturlinjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="449"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="849"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="448"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="848"/>
         <source>Line colour</source>
         <translation>Linjefärg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="322"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="321"/>
         <source>Predefined plots</source>
         <translation>Fördefinierade plottningar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="851"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="854"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="850"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="853"/>
         <source>Basis value</source>
         <translation>Basvärde</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="852"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="855"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="851"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="854"/>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="853"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="856"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="852"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="855"/>
         <source>Max</source>
         <translation>Max</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="865"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="864"/>
         <source>Repeat</source>
         <translation>Repetera</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="891"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="906"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="919"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="890"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="905"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="918"/>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="963"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="962"/>
         <source>Log</source>
         <translation>Logga</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="993"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="992"/>
         <source>Zero line</source>
         <translation>Noll-linje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="369"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="368"/>
         <source>Level</source>
         <translation>Nivå</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="861"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="860"/>
         <source>Table</source>
         <translation>Tabell</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="397"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="396"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="148"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="149"/>
         <source>EDIT</source>
         <translation>EDIT</translation>
     </message>
@@ -2480,47 +2631,47 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Yta m.m.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="665"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="664"/>
         <source>Undef colour</source>
         <translation>Odefinerad färg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="666"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="665"/>
         <source>Undef linewidth</source>
         <translation>Odefinerad linjetjocklek</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="667"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="666"/>
         <source>Undef linetype</source>
         <translation>Odefinerad linjetyp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="859"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="858"/>
         <source>Three colours</source>
         <translation>Tre färger</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="664"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="663"/>
         <source>Grid lines, 1=all</source>
         <translation>Gridlinjer, 1=alla</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="767"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="766"/>
         <source>Grid value</source>
         <translation>Gridvärden</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="450"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="449"/>
         <source>off</source>
         <translation>av</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="659"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="658"/>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
         <translation>Gridvärden, men bara när gridpunkterna är synliga </translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="987"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="986"/>
         <source>Frame</source>
         <translation>Ram</translation>
     </message>
@@ -2554,14 +2705,12 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>MailDialog</name>
     <message>
-        <location filename="../../../src/qtMailDialog.cc" line="69"/>
         <source>E-Mail Picture</source>
-        <translation>Skicka bild som epost</translation>
+        <translation type="obsolete">Skicka bild som epost</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMailDialog.cc" line="84"/>
         <source>E-Mail Details</source>
-        <translation>Epostdetaljer</translation>
+        <translation type="obsolete">Epostdetaljer</translation>
     </message>
 </context>
 <context>
@@ -2814,17 +2963,17 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>ModifyItemsCommand</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="1999"/>
+        <location filename="../../../src/diEditItemManager.cc" line="1998"/>
         <source>%1 items removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="2001"/>
+        <location filename="../../../src/diEditItemManager.cc" line="2000"/>
         <source>%1 items added</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="2003"/>
+        <location filename="../../../src/diEditItemManager.cc" line="2002"/>
         <source>%1 items modified</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3315,162 +3464,162 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>Properties::PropertiesEditor</name>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="302"/>
+        <location filename="../../../src/EditItems/properties.cc" line="304"/>
         <source>Item Properties</source>
         <translation type="unfinished">Egenskaper</translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="316"/>
+        <location filename="../../../src/EditItems/properties.cc" line="318"/>
         <source>Wind speed (knots)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="317"/>
+        <location filename="../../../src/EditItems/properties.cc" line="319"/>
         <source>Beginning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="318"/>
+        <location filename="../../../src/EditItems/properties.cc" line="320"/>
         <source>Ending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="319"/>
+        <location filename="../../../src/EditItems/properties.cc" line="321"/>
         <source>Time</source>
         <translation type="unfinished">Tid</translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="320"/>
+        <location filename="../../../src/EditItems/properties.cc" line="322"/>
         <source>Text</source>
         <translation type="unfinished">Text</translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="323"/>
+        <location filename="../../../src/EditItems/properties.cc" line="325"/>
         <source>Line colour</source>
         <translation type="unfinished">Linjefärg</translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="324"/>
+        <location filename="../../../src/EditItems/properties.cc" line="326"/>
         <source>Line alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="325"/>
+        <location filename="../../../src/EditItems/properties.cc" line="327"/>
         <source>Line width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="326"/>
+        <location filename="../../../src/EditItems/properties.cc" line="328"/>
         <source>Line pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="327"/>
+        <location filename="../../../src/EditItems/properties.cc" line="329"/>
         <source>Line smooth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="328"/>
+        <location filename="../../../src/EditItems/properties.cc" line="330"/>
         <source>Fill colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="329"/>
+        <location filename="../../../src/EditItems/properties.cc" line="331"/>
         <source>Fill alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="330"/>
+        <location filename="../../../src/EditItems/properties.cc" line="332"/>
         <source>Fill pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="331"/>
+        <location filename="../../../src/EditItems/properties.cc" line="333"/>
         <source>Closed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="332"/>
+        <location filename="../../../src/EditItems/properties.cc" line="334"/>
         <source>Reversed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="333"/>
+        <location filename="../../../src/EditItems/properties.cc" line="335"/>
         <source>Decoration 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="334"/>
+        <location filename="../../../src/EditItems/properties.cc" line="336"/>
         <source>Decoration 1 colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="335"/>
+        <location filename="../../../src/EditItems/properties.cc" line="337"/>
         <source>Decoration 1 alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="336"/>
+        <location filename="../../../src/EditItems/properties.cc" line="338"/>
         <source>Decoration 1 offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="337"/>
+        <location filename="../../../src/EditItems/properties.cc" line="339"/>
         <source>Decoration 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="338"/>
+        <location filename="../../../src/EditItems/properties.cc" line="340"/>
         <source>Decoration 2 colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="339"/>
+        <location filename="../../../src/EditItems/properties.cc" line="341"/>
         <source>Decoration 2 alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="340"/>
+        <location filename="../../../src/EditItems/properties.cc" line="342"/>
         <source>Decoration 2 offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="341"/>
+        <location filename="../../../src/EditItems/properties.cc" line="343"/>
         <source>Symbol colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="342"/>
+        <location filename="../../../src/EditItems/properties.cc" line="344"/>
         <source>Symbol alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="343"/>
+        <location filename="../../../src/EditItems/properties.cc" line="345"/>
         <source>Text colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="344"/>
+        <location filename="../../../src/EditItems/properties.cc" line="346"/>
         <source>Text alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="345"/>
+        <location filename="../../../src/EditItems/properties.cc" line="347"/>
         <source>Corner segments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="346"/>
+        <location filename="../../../src/EditItems/properties.cc" line="348"/>
         <source>Corner radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="347"/>
+        <location filename="../../../src/EditItems/properties.cc" line="349"/>
         <source>Font size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/EditItems/properties.cc" line="444"/>
+        <location filename="../../../src/EditItems/properties.cc" line="453"/>
         <source>No editable properties</source>
         <translation type="unfinished"></translation>
     </message>

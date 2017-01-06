@@ -71,7 +71,6 @@ class TrajectoryDialog;
 class AnnotationDialog;
 class MeasurementsDialog;
 class UffdaDialog;
-class MailDialog;
 
 class DataDialog;
 class EditDialog;
@@ -92,6 +91,7 @@ class miMessage;
 class miQMessage;
 class StationPlot;
 class TextView;
+class MovieMaker;
 
 /**
 
@@ -127,6 +127,9 @@ public:
   QString instanceName() const;
   QString instanceNameSuffix() const;
 
+  void saveRasterImage(const QString& filename, const QSize& size);
+  void saveAnimation(MovieMaker& moviemaker);
+
 protected:
   void timerEvent(QTimerEvent*);
   void setTimeLabel();
@@ -136,6 +139,10 @@ protected:
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   bool event(QEvent* event);
+
+private:
+  void paintOnPrinter(QPrinter* printer);
+  void paintOnDevice(QPaintDevice* device, bool printing);
 
 public Q_SLOTS:
   void toggleToolBar();
@@ -177,7 +184,6 @@ private Q_SLOTS:
   void showUrl();
 
   void about();
-  void quickMenuApply(const std::vector<std::string>&);
   void recallPlot(const std::vector<std::string>&, bool);
   void resetArea();
   void resetAll();
@@ -196,17 +202,14 @@ private Q_SLOTS:
   void redo();
   void save();
   void parseSetup();
+
   void hardcopy();
   void previewHardcopy();
-  void paintOnPrinter(QPrinter* printer);
   void saveraster();
-  void saveRasterImage(const QString& filename);
-  void paintOnDevice(QPaintDevice* device, bool printing);
-  void emailPicture();
-  void saveAnimation();
+
   void TimeSliderMoved();
   void TimeSelected();
-  void setPlotTime(miutil::miTime& t);
+  void setPlotTime(const miutil::miTime& t);
   void SliderSet();
   void requestBackgroundBufferUpdate();
 
@@ -298,8 +301,6 @@ private:
 
   /// Actions
   QAction * fileSavePictAction;
-  QAction * emailPictureAction;
-  QAction * saveAnimationAction;
   QAction * filePrintAction;
   QAction * filePrintPreviewAction;
   QAction * readSetupAction;
@@ -310,7 +311,6 @@ private:
   QAction * optAutoElementAction;
   QAction * optAnnotationAction;
   QAction * optScrollwheelZoomAction;
-  QAction * optPictureRatioAction;
   QAction * optFontAction;
 
   QAction * showResetAreaAction;
@@ -412,7 +412,6 @@ private:
   AnnotationDialog  * annom;
   MeasurementsDialog   * measurementsm;
   UffdaDialog       * uffm;
-  MailDialog        * mailm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
   EditItems::ToolBar * editDrawingToolBar;
@@ -435,7 +434,6 @@ private:
   QPushButton       * obsUpdateB;
   QLabel            * archiveL;
   ClientSelection   * pluginB;
-  bool                dialogChanged;
 
   QButton* mwhelp;
   Controller* contr;

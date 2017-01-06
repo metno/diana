@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ExportImageDialog</class>
+ <widget class="QDialog" name="ExportImageDialog">
+  <property name="windowTitle">
+   <string>Export image/movie …</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelSaveTo">
+     <property name="text">
+      <string>Save to:</string>
+     </property>
+     <property name="buddy">
+      <cstring>comboSaveTo</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QDoubleSpinBox" name="spinFrameRate">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Frame rate in frames per second</string>
+     </property>
+     <property name="suffix">
+      <string>fps</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>50.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="labelSizeWxH">
+     <property name="text">
+      <string>WxH:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="QComboBox" name="comboSaveTo"/>
+   </item>
+   <item row="0" column="1" colspan="2">
+    <widget class="QComboBox" name="comboProduct">
+     <item>
+      <property name="text">
+       <string>Image</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Image series</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Animated Image</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Movie</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelProduct">
+     <property name="text">
+      <string>Product:</string>
+     </property>
+     <property name="buddy">
+      <cstring>comboProduct</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="QComboBox" name="comboSize"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="labelFrameRate">
+     <property name="text">
+      <string>Speed:</string>
+     </property>
+     <property name="buddy">
+      <cstring>spinFrameRate</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="spacerButtons">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonClose">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonStart">
+       <property name="text">
+        <string>Start</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="6" column="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QSpinBox" name="spinWidth">
+       <property name="minimum">
+        <number>64</number>
+       </property>
+       <property name="maximum">
+        <number>4000</number>
+       </property>
+       <property name="singleStep">
+        <number>32</number>
+       </property>
+       <property name="value">
+        <number>1280</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelSizeX">
+       <property name="text">
+        <string notr="true">x</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinHeight">
+       <property name="minimum">
+        <number>64</number>
+       </property>
+       <property name="maximum">
+        <number>4000</number>
+       </property>
+       <property name="singleStep">
+        <number>32</number>
+       </property>
+       <property name="value">
+        <number>720</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="spacerSize">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="labelSize">
+     <property name="text">
+      <string>Size:</string>
+     </property>
+     <property name="buddy">
+      <cstring>comboSize</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLineEdit" name="editFilename">
+       <property name="placeholderText">
+        <string>Filename (pattern)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="buttonFilename">
+       <property name="text">
+        <string notr="true">...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>comboProduct</tabstop>
+  <tabstop>spinFrameRate</tabstop>
+  <tabstop>comboSaveTo</tabstop>
+  <tabstop>editFilename</tabstop>
+  <tabstop>buttonFilename</tabstop>
+  <tabstop>comboSize</tabstop>
+  <tabstop>spinWidth</tabstop>
+  <tabstop>spinHeight</tabstop>
+  <tabstop>buttonStart</tabstop>
+  <tabstop>buttonClose</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboProduct</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onProductChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>86</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>29</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboSaveTo</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onSaveToChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>93</x>
+     <y>68</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>18</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboSize</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onSizeComboChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>70</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>17</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinWidth</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onSizeWidthChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>146</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>42</x>
+     <y>170</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinHeight</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onSizeHeightChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>148</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>66</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonStart</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onStart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>234</x>
+     <y>174</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>247</x>
+     <y>144</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>174</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>51</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonFilename</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onFileChooser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>44</x>
+     <y>98</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editFilename</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onFilenameChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>31</x>
+     <y>75</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onProductChanged(int)</slot>
+  <slot>onSaveToChanged(int)</slot>
+  <slot>onSizeComboChanged(int)</slot>
+  <slot>onSizeWidthChanged(int)</slot>
+  <slot>onSizeHeightChanged(int)</slot>
+  <slot>onStart()</slot>
+  <slot>onFileChooser()</slot>
+  <slot>onFilenameChanged(QString)</slot>
+ </slots>
+</ui>

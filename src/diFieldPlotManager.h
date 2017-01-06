@@ -33,6 +33,7 @@
 
 #include <diField/diCommonFieldTypes.h>
 #include <diField/diFieldManager.h>
+#include "diPlotOptions.h"
 
 #include <set>
 #include <string>
@@ -109,12 +110,25 @@ public:
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
 
   /// Parse plotInfo string into FieldReqests and plotName
-  bool parsePin(std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
+  void parsePin(const std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
+
+  /// helper function to extract plot name using parsePin
+  std::string extractPlotName(const std::string& pin);
 
   /// Write field to file
   bool writeField(FieldRequest fieldrequest, const Field* field);
 
   void freeFields(const std::vector<Field*>& fields);
+
+  /// update static fieldplotoptions
+  static bool updateFieldPlotOptions(const std::string& name, const std::string& optstr);
+  static void getAllFieldOptions(const std::vector<std::string>&,
+      std::map<std::string,std::string>& fieldoptions);
+  /** fill a field's PlotOptions from static map, and substitute values
+      from a string containing plotoptions */
+  static void getFieldPlotOptions(const std::string& name, PlotOptions& po);
+  static std::string getFieldClassSpecs(const std::string& fieldplotname);
+
 
 private:
   std::vector<PlotField> vPlotField;
@@ -131,6 +145,7 @@ private:
 
   std::map<std::string, std::string> groupNames;
 
+  static std::map<std::string, PlotOptions> fieldPlotOptions;
 
   FieldManager* fieldManager;
 };
