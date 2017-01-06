@@ -2750,24 +2750,20 @@ void EditManager::prepareEditFields(const vector<std::string>& inp)
 
   // setting plot options
 
-  if (fedits.size()==0) return;
+  if (fedits.size()==0)
+    return;
 
-  vector<std::string> vip= inp;
-  unsigned int npi= vip.size();
-  if (npi>fedits.size()) npi= fedits.size();
-
-  for (unsigned int i=0; i<npi; i++) {
-    fedits[i]->editfieldplot->prepare(plotName, vip[i]);
+  const size_t npif = std::min(inp.size(), fedits.size());
+  for (size_t i=0; i<npif; i++) {
+    fedits[i]->editfieldplot->prepare(plotName, inp[i]);
   }
 
   // for showing single region during and after combine
-  npi= vip.size();
-  if (npi>combinefields.size()) npi= combinefields.size();
-
-  for (unsigned int i=0; i<npi; i++) {
-    int nreg=combinefields[i].size();
-    for (int r=0; r<nreg; r++) {
-      combinefields[i][r]->editfieldplot->prepare(plotName, vip[i]);
+  const size_t npic = std::min(inp.size(), combinefields.size());
+  for (size_t i=0; i<npic; i++) {
+    size_t nreg = combinefields[i].size();
+    for (size_t r=0; r<nreg; r++) {
+      combinefields[i][r]->editfieldplot->prepare(plotName, inp[i]);
     }
   }
 }
