@@ -425,8 +425,6 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   //TODO: find const time
 
   METLIBS_LOG_INFO(" getCapabilitiesTime: "<<pinfo);
-  vector<string> pinfos;
-  pinfos.push_back(pinfo);
 
   //finding timediff
   timediff = 0;
@@ -443,7 +441,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 
   //getting times
-  normalTimes = getFieldTime(pinfos, updateSources);
+  normalTimes = getFieldTime(vector<string>(1, pinfo), updateSources);
 
   METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
