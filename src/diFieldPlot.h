@@ -69,7 +69,6 @@ public:
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
   void getFieldAnnotation(std::string&, Colour&) const;
   const std::vector<Field*>& getFields() const {return fields; }
-  const miutil::miTime& getTime() const {return ftime;}
 
   //! time of model analysis
   const miutil::miTime& getAnalysisTime() const;
@@ -78,8 +77,6 @@ public:
   bool plotNumbers(DiGLPainter* gl);
   std::string getModelName();
   std::string getTrajectoryFieldName();
-  bool fieldsOK();
-  void clearFields();
 
   std::string getModelPlotParameterReftime() const;
 
@@ -96,6 +93,7 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
+  void clearFields();
   bool getTableAnnotations(std::vector<std::string>& anno);
 
   typedef std::vector<float*> (FieldPlot::*prepare_vectors_t)(float* x, float* y);

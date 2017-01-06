@@ -174,6 +174,8 @@ void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
   diutil::delete_all_and_clear(tmpfields);
+  if (fieldplotm_)
+    fieldplotm_->freeFields(fields);
   fields.clear();
 }
 
@@ -246,7 +248,6 @@ bool FieldPlot::updateIfNeeded()
   if (update && fieldplotm_ != 0) {
     std::vector<Field*> fv;
     data = fieldplotm_->makeFields(getPlotInfo(), t, fv);
-    fieldplotm_->freeFields(fields);
     setData(fv, t);
   } else {
     data = !fields.empty();
@@ -3251,11 +3252,6 @@ bool FieldPlot::checkFields(size_t count) const
       return false;
   }
   return true;
-}
-
-bool FieldPlot::fieldsOK()
-{
-  return checkFields(0);
 }
 
 int FieldPlot::resamplingFactor(int nx, int ny) const

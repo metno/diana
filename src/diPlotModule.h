@@ -142,9 +142,6 @@ private:
   void plotUnder(DiGLPainter* gl);
   void plotOver(DiGLPainter* gl);
 
-  //Free fields in FieldPlot
-  void freeFields(FieldPlot *);
-
   const FieldPlot* findTrajectoryPlot(const std::string& fieldname);
 
   static PlotModule *self;

@@ -299,8 +299,6 @@ void PlotModule::prepareFields(const vector<string>& inp)
   for (unsigned int i = 0; i < vfp.size(); i++) {
     FieldPlot* fp = vfp[i];
     plotenabled.save(fp, fp->getModelPlotParameterReftime());
-    // free old fields
-    freeFields(fp);
     delete fp;
   }
   vfp.clear();
@@ -1079,12 +1077,6 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
   PlotAreaSetup();
 }
 
-void PlotModule::freeFields(FieldPlot* fp)
-{
-  fieldplotm->freeFields(fp->getFields());
-  fp->clearFields();
-}
-
 void PlotModule::cleanup()
 {
 #ifdef DEBUGPRINT
@@ -1095,11 +1087,7 @@ void PlotModule::cleanup()
   // Field deletion at the end is done in the cache. The cache destructor is called by
   // FieldPlotManagers destructor, which comes before this destructor. Basically we try to
   // destroy something in a dead pointer here....
-  for (size_t i = 0; i < vfp.size(); i++) {
-    freeFields(vfp[i]);
-    delete vfp[i];
-  }
-  vfp.clear();
+  diutil::delete_all_and_clear(vfp);
 
   satm->clear();
 
