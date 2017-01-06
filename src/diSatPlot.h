@@ -45,6 +45,8 @@ public:
   Sat *satdata;
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
+  std::string getEnabledStateKey() const
+    { return getPlotInfo(4); }
   void setData(Sat *);
   void clearData();
   Area& getSatArea()

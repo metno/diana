@@ -70,8 +70,8 @@ class was_enabled {
   typedef std::map<std::string, bool> key_enabled_t;
   key_enabled_t key_enabled;
 public:
-  void save(const Plot* plot, const std::string& key);
-  void restore(Plot* plot, const std::string& key) const;
+  void save(const Plot* plot);
+  void restore(Plot* plot) const;
 };
 
 } // namespace diutil

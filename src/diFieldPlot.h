@@ -61,6 +61,9 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
+  std::string getEnabledStateKey() const
+    { return getModelPlotParameterReftime(); }
+
   bool updateIfNeeded();
   bool prepare(const std::string& fname, const std::string&);
   void setData(const std::vector<Field*>&, const miutil::miTime&);
@@ -78,8 +81,6 @@ public:
   std::string getModelName();
   std::string getTrajectoryFieldName();
 
-  std::string getModelPlotParameterReftime() const;
-
 private:
   FieldPlotManager* fieldplotm_;
   std::vector<Field*> fields; // fields, stored elsewhere
@@ -93,6 +94,7 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
+  std::string getModelPlotParameterReftime() const;
   void clearFields();
   bool getTableAnnotations(std::vector<std::string>& anno);
 

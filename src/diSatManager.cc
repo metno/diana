@@ -76,12 +76,12 @@ void SatManager::prepareSat(const std::vector<std::string>& inp)
 
   diutil::was_enabled plotenabled;
   for (unsigned int i = 0; i < vsp.size(); i++)
-    plotenabled.save(vsp[i], vsp[i]->getPlotInfo(4));
+    plotenabled.save(vsp[i]);
 
   init(inp);
 
   for (unsigned int i = 0; i < vsp.size(); i++)
-    plotenabled.restore(vsp[i], vsp[i]->getPlotInfo(4));
+    plotenabled.restore(vsp[i]);
 }
 
 void SatManager::init(const std::vector<std::string>& pinfo)

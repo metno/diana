@@ -72,13 +72,15 @@ using namespace std;
 
 namespace diutil {
 
-void was_enabled::save(const Plot* plot, const std::string& key)
+void was_enabled::save(const Plot* plot)
 {
+  const std::string key = plot->getEnabledStateKey();
   key_enabled[key] = plot->isEnabled();
 }
 
-void was_enabled::restore(Plot* plot, const std::string& key) const
+void was_enabled::restore(Plot* plot) const
 {
+  const std::string key = plot->getEnabledStateKey();
   key_enabled_t::const_iterator it = key_enabled.find(key);
   if (it != key_enabled.end())
     plot->setEnabled(it->second);
@@ -298,7 +300,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
   // for now -- erase all fieldplots
   for (unsigned int i = 0; i < vfp.size(); i++) {
     FieldPlot* fp = vfp[i];
-    plotenabled.save(fp, fp->getModelPlotParameterReftime());
+    plotenabled.save(fp);
     delete fp;
   }
   vfp.clear();
@@ -314,7 +316,7 @@ void PlotModule::prepareFields(const vector<string>& inp)
   for (size_t i=0; i < inp.size(); i++) {
     std::auto_ptr<FieldPlot> fp(fieldplotm->createPlot(inp[i]));
     if (fp.get()) {
-      plotenabled.restore(fp.get(), fp->getModelPlotParameterReftime());
+      plotenabled.restore(fp.get());
       fp.get()->setCanvas(mCanvas);
       vfp.push_back(fp.release());
     }
@@ -327,7 +329,7 @@ void PlotModule::prepareObs(const vector<string>& inp)
 
   diutil::was_enabled plotenabled;
   for (unsigned int i = 0; i < vop.size(); i++)
-    plotenabled.save(vop[i], vop[i]->getPlotInfo(3));
+    plotenabled.save(vop[i]);
 
   // for now -- erase all obsplots etc..
   //first log stations plotted
@@ -338,7 +340,7 @@ void PlotModule::prepareObs(const vector<string>& inp)
   for (size_t i = 0; i < inp.size(); i++) {
     ObsPlot *op = obsm->createObsPlot(inp[i]);
     if (op) {
-      plotenabled.restore(op, op->getPlotInfo(3));
+      plotenabled.restore(op);
       op->setCanvas(mCanvas);
       vop.push_back(op);
     }
