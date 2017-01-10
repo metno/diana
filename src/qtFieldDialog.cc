@@ -4084,38 +4084,6 @@ void FieldDialog::updateTime()
   //  allTimeStepButton->setChecked(false);
 }
 
-void FieldDialog::addField(std::string str)
-{
-  //  METLIBS_LOG_DEBUG("void FieldDialog::addField(std::string str) ");
-  bool remove = false;
-  vector<std::string> token = miutil::split(str,1, " ", true);
-  if (token.size() == 2 && token[0] == "REMOVE") {
-    str = token[1];
-    remove = true;
-  }
-
-  vector<std::string> vstr = getOKString();
-
-  //remove option overlay=1 from all strings
-  //(should be a more general setOption()
-  for (unsigned int i = 0; i < vstr.size(); i++) {
-    miutil::replace(vstr[i],"overlay=1", "");
-  }
-
-  vector<std::string>::iterator p = vstr.begin();
-  for (; p != vstr.end(); p++) {
-    if (miutil::contains((*p),str)) {
-      p = vstr.erase(p);
-      if (p == vstr.end())
-        break;
-    }
-  }
-  if (!remove) {
-    vstr.push_back(str);
-  }
-  putOKString(vstr);
-}
-
 void FieldDialog::fieldEditUpdate(std::string str)
 {
   METLIBS_LOG_SCOPE();
