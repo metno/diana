@@ -79,14 +79,11 @@ std::vector<std::string> split_on_comma(const std::string& txt, const char* comm
 ObsManager::ObsManager()
 {
   useArchive = false;
-  mslp = false;
   timeListChanged = false;
 }
 
 ObsPlot* ObsManager::createObsPlot(const std::string& pin)
 {
-  METLIBS_LOG_SCOPE();
-  mslp = false;
   return ObsPlot::createObsPlot(pin);
 }
 
@@ -95,7 +92,6 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
   METLIBS_LOG_SCOPE();
 
   oplot->clear();
-  mslp = mslp || oplot->mslp();
 
   if (oplot->flagInfo()) {
     METLIBS_LOG_INFO("ObsManager::prepare HQC");

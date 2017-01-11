@@ -61,6 +61,7 @@ libdiana_la_SOURCES = \
 	diObsManager.cc \
 	diObsMetaData.cc \
 	diObsPlot.cc \
+	diObsPlotCluster.cc \
 	diObsPositions.cc \
 	diPattern.cc \
 	diPlot.cc \
@@ -324,6 +325,7 @@ noinst_HEADERS = \
 	diObsManager.h \
 	diObsMetaData.h \
 	diObsPlot.h \
+	diObsPlotCluster.h \
 	diObsPositions.h \
 	diOrderBook.h \
 	diOrderClient.h \

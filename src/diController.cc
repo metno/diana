@@ -38,6 +38,7 @@
 #include "diPlotModule.h"
 #include "diFieldPlotManager.h"
 #include "diObsManager.h"
+#include "diObsPlotCluster.h"
 #include "diSatManager.h"
 #include "diObjectManager.h"
 #include "diDrawingManager.h"
@@ -321,22 +322,25 @@ void Controller::updateObs(){
 }
 
 // find obs in grid position x,y
-bool Controller::findObs(int x, int y){
-  return plotm->findObs(x,y);
+bool Controller::findObs(int x, int y)
+{
+  return plotm->obsplots()->findObs(x,y);
 }
 
-bool Controller::getObsName(int x, int y, std::string& name){
-  return plotm->getObsName(x,y,name);
+bool Controller::getObsName(int x, int y, std::string& name)
+{
+  return plotm->obsplots()->getObsName(x,y,name);
 }
 
 std::string Controller::getObsPopupText(int x, int y)
 {
-  return plotm->getObsPopupText(x,y);
+  return plotm->obsplots()->getObsPopupText(x,y);
 }
 
 // plot other observations
-void Controller::nextObs(bool next){
-  plotm->nextObs(next);
+void Controller::nextObs(bool next)
+{
+  plotm->obsplots()->nextObs(next);
 }
 
 //init hqcData from QSocket
@@ -589,7 +593,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   if (ke->type() == QEvent::KeyPress){
     if (ke->key() == Qt::Key_PageUp or ke->key() == Qt::Key_PageDown) {
       const bool forward = ke->key() == Qt::Key_PageDown;
-      plotm->nextObs(forward);  // browse through observations
+      plotm->obsplots()->nextObs(forward);  // browse through observations
       res.repaint= true;
       res.update_background_buffer = true;
       if (inEdit)
@@ -1109,7 +1113,7 @@ const std::vector<FieldPlot*>& Controller::getFieldPlots() const
 
 const std::vector<ObsPlot*>& Controller::getObsPlots() const
 {
-  return plotm->getObsPlots();
+  return plotm->obsplots()->getObsPlots();
 }
 
 void Controller::addManager(const std::string &name, Manager *man)

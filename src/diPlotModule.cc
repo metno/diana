@@ -35,7 +35,7 @@
 
 #include "diAreaObjectsCluster.h"
 #include "diObsManager.h"
-#include "diObsPlot.h"
+#include "diObsPlotCluster.h"
 #include "diSatManager.h"
 #include "diStationManager.h"
 #include "diObjectManager.h"
@@ -130,6 +130,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   mCanvas = canvas;
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->setCanvas(canvas);
+  obsplots_->setCanvas(mCanvas);
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
     it->second->setCanvas(canvas);
 }
@@ -143,7 +144,7 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   // split up input into separate products
   std::set<std::string> ordered;
   ordered.insert("FIELD");
-  ordered.insert("OBS");
+  ordered.insert(obsplots()->plotCommandKey());
   ordered.insert("MAP");
   ordered.insert("AREA");
   ordered.insert("SAT");
@@ -176,7 +177,7 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   prepareArea(ordered_pi["AREA"]);
   prepareMap(ordered_pi["MAP"]);
   prepareFields(ordered_pi["FIELD"]);
-  prepareObs(ordered_pi["OBS"]);
+  obsplots_->prepare(ordered_pi[obsplots()->plotCommandKey()]);
   satm->prepareSat(ordered_pi["SAT"]);
   prepareStations(ordered_pi["STATION"]);
   objm->prepareObjects(ordered_pi["OBJECTS"]);
@@ -322,30 +323,6 @@ void PlotModule::prepareFields(const vector<string>& inp)
   }
 }
 
-void PlotModule::prepareObs(const vector<string>& inp)
-{
-  METLIBS_LOG_SCOPE();
-
-  diutil::was_enabled plotenabled;
-  for (unsigned int i = 0; i < vop.size(); i++)
-    plotenabled.save(vop[i]);
-
-  // for now -- erase all obsplots etc..
-  //first log stations plotted
-  for (size_t i = 0; i < vop.size(); i++)
-    vop[i]->logStations();
-  diutil::delete_all_and_clear(vop);
-
-  for (size_t i = 0; i < inp.size(); i++) {
-    ObsPlot *op = obsm->createObsPlot(inp[i]);
-    if (op) {
-      plotenabled.restore(op);
-      op->setCanvas(mCanvas);
-      vop.push_back(op);
-    }
-  }
-}
-
 void PlotModule::prepareStations(const vector<string>& inp)
 {
   METLIBS_LOG_SCOPE();
@@ -382,13 +359,7 @@ vector<PlotElement> PlotModule::getPlotElements()
     pel.push_back(PlotElement("FIELD", str, "FIELD", enabled));
   }
 
-  // get obs names
-  for (size_t j = 0; j < vop.size(); j++) {
-    std::string str = vop[j]->getPlotName() + "# " + miutil::from_number(int(j));
-    bool enabled = vop[j]->isEnabled();
-    pel.push_back(PlotElement("OBS", str, "OBS", enabled));
-  }
-
+  obsplots_->addPlotElements(pel);
   satm->addPlotElements(pel);
   objm->addPlotElements(pel);
 
@@ -452,14 +423,6 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
         break;
       }
     }
-  } else if (pe.type == "OBS") {
-    for (unsigned int i = 0; i < vop.size(); i++) {
-      std::string str = vop[i]->getPlotName() + "# " + miutil::from_number(int(i));
-      if (str == pe.str) {
-        plot = vop[i];
-        break;
-      }
-    }
   } else if (pe.type == "TRAJECTORY") {
     for (unsigned int i = 0; i < vtp.size(); i++) {
       std::string str = vtp[i]->getPlotName() + "# " + miutil::from_number(int(i));
@@ -494,6 +457,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       plot->setEnabled(pe.enabled);
       change = true;
     }
+  } else if (pe.type == "OBS") {
+    change = obsplots_->enablePlotElement(pe);
   } else if (pe.type == "RASTER") {
     change = satm->enablePlotElement(pe);
   } else if (pe.type == "OBJECTS") {
@@ -559,15 +524,8 @@ void PlotModule::setAnnotations()
     if (not ann.str.empty())
       annotations.push_back(ann);
   }
-  // get obs annotations
-  for (size_t j = 0; j < vop.size(); j++) {
-    if (!vop[j]->isEnabled())
-      continue;
-    vop[j]->getObsAnnotation(str, col);
-    ann.str = str;
-    ann.col = col;
-    annotations.push_back(ann);
-  }
+
+  obsplots_->getAnnotations(annotations);
 
   // get trajectory annotations
   for (size_t j = 0; j < vtp.size(); j++) {
@@ -632,9 +590,7 @@ void PlotModule::setAnnotations()
       for (size_t j = 0; j < vfp.size(); j++) {
         vfp[j]->getDataAnnotations(vvstr[k]);
       }
-      for (size_t j = 0; j < vop.size(); j++) {
-        vop[j]->getDataAnnotations(vvstr[k]);
-      }
+      obsplots_->getDataAnnotations(vvstr[k]);
       satm->getSatAnnotations(vvstr[k]);
       editm->getAnnotations(vvstr[k]);
       objm->getObjectsAnnotations(vvstr[k]);
@@ -643,15 +599,7 @@ void PlotModule::setAnnotations()
   }
 
   //get obs annotations
-  for (size_t i = 0; i < vop.size(); i++) {
-    if (!vop[i]->isEnabled())
-      continue;
-    vector<std::string> obsinfo = vop[i]->getObsExtraAnnotations();
-    for (size_t j = 0; j < obsinfo.size(); j++) {
-      AnnotationPlot* ap = new AnnotationPlot(obsinfo[j]);
-      vap.push_back(ap);
-    }
-  }
+  obsplots_->getExtraAnnotations(vap);
 
   //objects
   vector<std::string> objLabelstring = objm->getObjectLabels();
@@ -691,20 +639,8 @@ bool PlotModule::updatePlots()
 
   defineMapArea();
 
-  // prepare data for observation plots
-  for (size_t i = 0; i < vop.size(); i++) {
-    vop[i]->logStations();
-  }
-  for (size_t i = 0; i < vop.size(); i++) {
-    if (!obsm->prepare(vop[i], t)) {
-      METLIBS_LOG_DEBUG("ObsManager returned false from prepare");
-    } else {
-      nodata = false;
-    }
-    //update list of positions ( used in "PPPP-mslp")
-    // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields
-    vop[i]->updateObsPositions();
-  }
+  if (obsplots_->update(false, t))
+    nodata = false;
 
   // prepare met-objects
   if (objm->prepareObjects(t, staticPlot_->getMapArea()))
@@ -923,12 +859,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
     }
   }
 
-  // plot observations (if in fieldEditMode  and the option obs_mslp is true, plot observations in overlay)
-  if (!(obsm->hasAnyDevField() && editm->isObsEdit())) {
-    ObsPlot::clearPos();
-    for (size_t i = 0; i < vop.size(); i++)
-      vop[i]->plot(gl, Plot::LINES);
-  }
+  obsplots_->plot(gl, Plot::LINES);
 
   //plot trajectories
   for (size_t i = 0; i < vtp.size(); i++)
@@ -954,17 +885,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
   // plot active draw- and editobjects here
   editm->plot(gl, Plot::OVERLAY);
 
-  // if PPPP-mslp, calc. values and plot observations,
-  // in overlay while changing the field
-  if (obsm->hasAnyDevField() && editm->isObsEdit()) {
-    ObsPlot::clearPos();
-    for (size_t i = 0; i < vop.size(); i++) {
-      ObsPlot* op = vop[i];
-      if (editm->interpolateEditField(op->getObsPositions()))
-        op->updateFromEditField();
-      op->plot(gl, Plot::OVERLAY);
-    }
-  }
+  obsplots_->plot(gl, Plot::OVERLAY);
 
   if (editm->isInEdit()) {
     // Annotations
@@ -1087,7 +1008,7 @@ void PlotModule::cleanup()
 
   stam->cleanup();
 
-  diutil::delete_all_and_clear(vop);
+  obsplots_->cleanup();
 
   objm->clearObjects();
 
@@ -1312,6 +1233,8 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR objectmanager==0");
   if (!editm)
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
+
+  obsplots_.reset(new ObsPlotCluster(obsm, editm));
 }
 
 Manager *PlotModule::getManager(const std::string &name)
@@ -1364,11 +1287,9 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
     times["satellites"] = sattimes;
   }
 
-  pinfos.clear();
-  for (size_t i = 0; i < vop.size(); i++)
-    pinfos.push_back(vop[i]->getPlotInfo());
-  if (pinfos.size() > 0) {
-    times["observations"] = obsm->getObsTimes(pinfos);
+  { std::vector<miTime> obstimes = obsplots_->getTimes();
+    if (!obstimes.empty())
+      times.insert(std::make_pair("observations", obstimes));
   }
 
   times["objects"] = objm->getObjectTimes();
@@ -1437,50 +1358,10 @@ void PlotModule::setPlotTime(const miTime& t)
 void PlotModule::updateObs()
 {
   // Update ObsPlots if data files have changed
-
-  // if time of current vop[0] != splot.getTime() or  files have changed,
-  // read files from disk
-  for (size_t i = 0; i < vop.size(); i++) {
-    if (vop[i]->updateObs()) {
-      if (!obsm->prepare(vop[i], staticPlot_->getTime()))
-        METLIBS_LOG_WARN("ObsManager returned false from prepare");
-    }
-    vop[i]->updateObsPositions();
-  }
+  obsplots_->update(true, staticPlot_->getTime());
 
   // get annotations from all plots
   setAnnotations();
-}
-
-bool PlotModule::findObs(int x, int y)
-{
-  bool found = false;
-
-  for (size_t i = 0; i < vop.size(); i++)
-    if (vop[i]->showpos_findObs(x, y))
-      found = true;
-
-  return found;
-}
-
-bool PlotModule::getObsName(int x, int y, std::string& name)
-{
-  for (size_t i = 0; i < vop.size(); i++)
-    if (vop[i]->getObsName(x, y, name))
-      return true;
-
-  return false;
-}
-std::string PlotModule::getObsPopupText(int x, int y)
-{
-  size_t n = vop.size();
-  std::string obsText = "";
- 
-  for (size_t i = 0; i < n; i++)
-    if (vop[i]->getObsPopupText(x, y, obsText))
-      return obsText;
-
-  return obsText;
 }
 
 AreaObjectsCluster* PlotModule::areaobjects()
@@ -1568,13 +1449,6 @@ std::string PlotModule::findLocation(int x, int y, const std::string& name)
 }
 
 //****************************************************
-
-void PlotModule::nextObs(bool next)
-{
-  for (size_t i = 0; i < vop.size(); i++)
-    vop[i]->nextObs(next);
-}
-
 
 void PlotModule::trajPos(const vector<std::string>& vstr)
 {
@@ -2082,11 +1956,6 @@ void PlotModule::readLog(const vector<std::string>& vstr,
 const vector<FieldPlot*>& PlotModule::getFieldPlots() const
 {
   return vfp;
-}
-
-const vector<ObsPlot*>& PlotModule::getObsPlots() const
-{
-  return vop;
 }
 
 void PlotModule::getPlotWindow(int &width, int &height)

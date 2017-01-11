@@ -131,7 +131,6 @@ private:
   std::vector<std::string> popupSpec;  // Parameter data from setupfil
 
   bool useArchive; //read archive files too.
-  bool mslp;
 
   //HQC - perhaps its own class?
   std::vector<ObsData> hqcdata;
@@ -190,11 +189,6 @@ public:
 
   //! return observation times for list of obsTypes
   std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& obsTypes);
-
-
-  //! return true if there is any ObsPlot with mslp() == true
-  bool hasAnyDevField() const
-    { return mslp; }
 
   void archiveMode(bool on)
     { useArchive=on; }

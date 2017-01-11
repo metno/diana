@@ -52,6 +52,7 @@ struct LocationData;
 class LocationPlot;
 class Manager;
 class ObsManager;
+class ObsPlotCluster;
 class SatManager;
 class StationManager;
 class ObjectManager;
@@ -98,7 +99,7 @@ private:
   FieldManager *fieldm;   // field manager
   FieldPlotManager *fieldplotm;   // field plot manager
 
-  std::vector<ObsPlot*> vop;   // vector of observation plots
+  std::auto_ptr<ObsPlotCluster> obsplots_;   // observation plots
   std::vector<FieldPlot*> vfp; // vector of field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
@@ -148,8 +149,6 @@ private:
 
   /// handles fields plot info strings
   void prepareFields(const std::vector<std::string>&);
-  /// handles observations plot info strings
-  void prepareObs(const std::vector<std::string>&);
   /// handles area info strings
   void prepareArea(const std::vector<std::string>&);
   /// handles map plot info strings
@@ -258,17 +257,11 @@ public:
   /// set plottime (forwarded to staticPlot_)
   void setPlotTime(const miutil::miTime&);
 
-  // Observation
+  ObsPlotCluster* obsplots() const
+    { return obsplots_.get(); }
+
   /// Update ObsPlots if data files have changed
   void updateObs();
-  ///find obs in pos x,y
-  bool findObs(int x, int y);
-  ///get id of obsevation in pos x,y
-  bool getObsName(int x, int y, std::string& name);
-  ///get popup text of obsevation in pos x,y
-  std::string getObsPopupText(int x, int y);
-   ///plot next/prev set of observations(PageUp/PageDown)
-  void nextObs(bool next);
 
   AreaObjectsCluster* areaobjects();
 
@@ -378,7 +371,6 @@ public:
 
   // Miscellaneous get methods
   const std::vector<FieldPlot*>& getFieldPlots() const; // Returns a vector of defined field plots.
-  const std::vector<ObsPlot*>& getObsPlots() const; // Returns a vector of defined observation plots.
 
   typedef std::map<std::string, Manager*> managers_t;
   managers_t managers;
