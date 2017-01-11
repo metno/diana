@@ -1212,20 +1212,25 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
 
 //***********************************************************************
 
-void ObsPlot::obs_mslp(DiGLPainter* gl, PlotOrder porder, float *values)
+void ObsPlot::obs_mslp(const float *interpolatedEditField)
 {
   METLIBS_LOG_SCOPE();
 
   //PPPP-mslp
   if (devfield) {
+    // TODO this has to be done after ObsManager::updateObsPositions, ie after changeProjection and any field edit
+    // startxy is set above, in getPositions; values is interpolated editfield from EditManager::obs_mslp
     int numObs = obsp.size();
     for (int i = 0; i < numObs; i++) {
-      if (obsp[i].fdata.count("PPPP") && values[i + startxy] < 0.9e+35) {
-        obsp[i].fdata["PPPP_mslp"] = obsp[i].fdata["PPPP"] - values[i + startxy];
+      ObsData::fdata_t& fdatai = obsp[i].fdata;
+      ObsData::fdata_t::const_iterator itPPPP = fdatai.find("PPPP");
+      if (itPPPP != fdatai.end()) {
+        const float ief = interpolatedEditField[i + startxy];
+        if (ief < 0.9e+35)
+          fdatai["PPPP_mslp"] = itPPPP->second - ief;
       }
     }
   }
-  plot(gl, porder);
 }
 
 //***********************************************************************

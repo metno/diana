@@ -513,12 +513,6 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
   objm->setEditMode(mapmode, editmode, etool);
 }
 
-
-mapMode EditManager::getMapMode()
-{
-  return mapmode;
-}
-
 /*----------------------------------------------------------------------
 ----------------------------  end of edit Dialog methods ----------------
  -----------------------------------------------------------------------*/
@@ -2810,6 +2804,9 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
   const bool under = (zorder == Plot::LINES);
   const bool over = (zorder == Plot::OVERLAY);
 
+  if (!isInEdit() || !(under || over))
+    return;
+
   if (apEditmessage)
     apEditmessage->plot(gl, zorder);
 
@@ -2948,33 +2945,35 @@ void EditManager::plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder)
 }
 
 
-bool EditManager::obs_mslp(ObsPositions& obsPositions) {
+bool EditManager::interpolateEditField(ObsPositions& obsPositions)
+{
+  // TODO this is one step in changeProjection of all ObsPlot's with mslp() == true
+  // TODO does something when staticplot area changes or fedits[0]->editfield->area changes
 
-  if (fedits.size()==0) return false;
+  if (fedits.empty())
+    return false;
 
-  if (!fedits[0]->editfield) return false;
+  const Field* ef = fedits[0]->editfield;
+  if (!ef)
+    return false;
 
-  //change projection if needed
-  if ( obsPositions.obsArea.P() != fedits[0]->editfield->area.P() ){
-    gc.getPoints(obsPositions.obsArea.P(), fedits[0]->editfield->area.P(),
+  // TODO this does not properly detect if only ef->area is changed
+
+  // change projection if needed
+  if (obsPositions.obsArea.P() != ef->area.P()) {
+    gc.getPoints(obsPositions.obsArea.P(), ef->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
-    obsPositions.obsArea= fedits[0]->editfield->area;
+    obsPositions.obsArea= ef->area;
   }
 
-  if ( obsPositions.convertToGrid ) {
-    fedits[0]->editfield->convertToGrid(obsPositions.numObs,
-        obsPositions.xpos, obsPositions.ypos);
+  if (obsPositions.convertToGrid) {
+    ef->convertToGrid(obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.convertToGrid = false;
   }
 
-  //get values
-  if (!fedits[0]->editfield->interpolate(obsPositions.numObs,
-      obsPositions.xpos, obsPositions.ypos,
-      obsPositions.values,
-      Field::I_BESSEL))
-    return false;
-
-  return true;
+  // interpolate values
+  return ef->interpolate(obsPositions.numObs, obsPositions.xpos, obsPositions.ypos,
+      obsPositions.interpolatedEditField, Field::I_BESSEL);
 }
 
 /*----------------------------------------------------------------------

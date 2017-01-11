@@ -704,6 +704,7 @@ bool PlotModule::updatePlots()
   }
 
   //update list of positions ( used in "PPPP-mslp")
+  // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields
   obsm->updateObsPositions(vop);
 
   // prepare met-objects
@@ -913,9 +914,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
     stam_plots[j]->plot(gl, Plot::LINES);
 
   // plot inactive edit fields/objects under observations
-  if (editm->isInEdit()) {
-    editm->plot(gl, Plot::LINES);
-  }
+  editm->plot(gl, Plot::LINES);
 
   // plot other objects, including drawing items
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
@@ -926,11 +925,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   }
 
   // plot observations (if in fieldEditMode  and the option obs_mslp is true, plot observations in overlay)
-  if (! (editm->isInEdit()
-          && (editm->getMapMode() == fedit_mode
-              || editm->getMapMode() == combine_mode)
-          && obsm->obs_mslp()))
-  {
+  if (!(obsm->hasAnyDevField() && editm->isObsEdit())) {
     ObsPlot::clearPos();
     for (size_t i = 0; i < vop.size(); i++)
       vop[i]->plot(gl, Plot::LINES);
@@ -958,18 +953,21 @@ void PlotModule::plotOver(DiGLPainter* gl)
 #endif
 
   // plot active draw- and editobjects here
-  if (editm->isInEdit()) {
+  editm->plot(gl, Plot::OVERLAY);
 
-    editm->plot(gl, Plot::OVERLAY);
-
-    // if PPPP-mslp, calc. values and plot observations,
-    // in overlay while changing the field
-    if (obsm->obs_mslp() && (editm->getMapMode() == fedit_mode || editm->getMapMode() == combine_mode)) {
-      if (editm->obs_mslp(obsm->getObsPositions())) {
-        obsm->calc_obs_mslp(gl, Plot::OVERLAY, vop);
-      }
+  // if PPPP-mslp, calc. values and plot observations,
+  // in overlay while changing the field
+  if (obsm->hasAnyDevField() && editm->isObsEdit()) {
+    ObsPlot::clearPos();
+    if (editm->interpolateEditField(obsm->getObsPositions())) {
+      for (size_t i = 0; i < vop.size(); i++)
+        obsm->updateFromEditField(vop[i]);
     }
+    for (size_t i = 0; i < vop.size(); i++)
+      vop[i]->plot(gl, Plot::OVERLAY);
+  }
 
+  if (editm->isInEdit()) {
     // Annotations
     if (showanno) {
       for (size_t i = 0; i < vap.size(); i++)

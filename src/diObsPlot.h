@@ -55,7 +55,8 @@ public:
 
 protected:
   std::vector<ObsData> obsp;
-  //obs positions
+
+  // obs positions in getStaticPlot()->getMapArea().P() coordinates; updated in setData
   float *x, *y;
 
   struct Parameter {
@@ -428,7 +429,7 @@ public:
     { labels.push_back(pin); }
 
   bool getPositions(std::vector<float>&, std::vector<float>&);
-  void obs_mslp(DiGLPainter* gl, PlotOrder porder, float *);
+  void obs_mslp(const float* values);
 
   bool getObsPopupText(int xx,int yy, std::string& obstext );
 

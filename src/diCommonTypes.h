@@ -235,9 +235,9 @@ struct ObsPositions {
   int numObs;
   float* xpos;
   float* ypos;
-  float* values;
+  float* interpolatedEditField;
   bool convertToGrid;
-  ObsPositions():numObs(0),xpos(0),ypos(0),values(0), convertToGrid(true){}
+  ObsPositions():numObs(0),xpos(0),ypos(0),interpolatedEditField(0), convertToGrid(true){}
 };
 
 //--------------------------------------------------

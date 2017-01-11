@@ -90,7 +90,7 @@ ObsPlot* ObsManager::createObsPlot(const std::string& pin)
   return ObsPlot::createObsPlot(pin);
 }
 
-bool ObsManager::prepare(ObsPlot * oplot, miTime time)
+bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
 
@@ -129,8 +129,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
     const ProdInfo& pi = itP->second;
 
     // only a little hack to avoid copying ...
-    const bool finfo_fromproduct = (not pi.timeInfo.empty()
-        || pi.obsformat == ofmt_url);
+    const bool finfo_fromproduct = (!pi.timeInfo.empty() || pi.obsformat == ofmt_url);
     std::vector<FileInfo> finfo_fromfile;
     if (not finfo_fromproduct)
       finfo_fromfile = getFileName(time, pi, termin, timeRangeMin, timeRangeMax,
@@ -709,9 +708,6 @@ vector<miTime> ObsManager::getTimes(vector<std::string> obsTypes)
 
 void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
 {
-  if (!mslp)
-    return;
-
   clearObsPositions();
 
   vector<float> xpos;
@@ -723,7 +719,7 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
   obsPositions.numObs = xpos.size();
   obsPositions.xpos = new float[obsPositions.numObs];
   obsPositions.ypos = new float[obsPositions.numObs];
-  obsPositions.values = new float[obsPositions.numObs];
+  obsPositions.interpolatedEditField = new float[obsPositions.numObs];
   for (int i = 0; i < obsPositions.numObs; i++) {
     obsPositions.xpos[i] = xpos[i];
     obsPositions.ypos[i] = ypos[i];
@@ -744,19 +740,13 @@ void ObsManager::clearObsPositions()
   obsPositions.xpos = 0;
   delete[] obsPositions.ypos;
   obsPositions.ypos = 0;
-  delete[] obsPositions.values;
-  obsPositions.values = 0;
+  delete[] obsPositions.interpolatedEditField;
+  obsPositions.interpolatedEditField = 0;
 }
 
-void ObsManager::calc_obs_mslp(DiGLPainter* gl, Plot::PlotOrder porder,
-    const vector<ObsPlot*>& oplot)
+void ObsManager::updateFromEditField(ObsPlot* oplot)
 {
-  if (!mslp)
-    return;
-
-  ObsPlot::clearPos();
-  for (size_t i = 0; i < oplot.size(); i++)
-    oplot[i]->obs_mslp(gl, porder, obsPositions.values); // this is actually plotting data
+  oplot->obs_mslp(obsPositions.interpolatedEditField);
 }
 
 ObsDialogInfo ObsManager::initDialog()

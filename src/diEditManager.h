@@ -150,6 +150,8 @@ public:
 
   bool isInEdit() const
     { return inEdit; }
+  bool isObsEdit() const
+    { return isInEdit() && (getMapMode() == fedit_mode || getMapMode() == combine_mode); }
 
   /// parse EDIT section of setup file. (defines Edit products)
   bool parseSetup();
@@ -214,7 +216,9 @@ public:
 		   const std::string etool); // edittool
 
   /// get mapmode
-  mapMode getMapMode();
+  mapMode getMapMode() const
+    { return mapmode; }
+
   /// returns true if pause in editing
   bool getEditPause(){return editpause;}
   /// sets pause in editing on or off
@@ -236,7 +240,7 @@ public:
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
   void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
   /// show difference between observed mslp and edited mslp
-  bool obs_mslp(ObsPositions& obsPositions);
+  bool interpolateEditField(ObsPositions& obsPositions);
   /// shows all hidden edit objects
   bool showAllObjects();
   /// returns EditProducts defined in setup file
