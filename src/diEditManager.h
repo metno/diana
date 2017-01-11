@@ -48,6 +48,7 @@ class AnnotationPlot;
 class DiGLPainter;
 class PlotModule;
 class ObjectManager;
+class ObsPositions;
 class FieldPlotManager;
 class Field;
 
@@ -240,7 +241,7 @@ public:
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
   void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
   /// show difference between observed mslp and edited mslp
-  bool interpolateEditField(ObsPositions& obsPositions);
+  bool interpolateEditField(ObsPositions* obsPositions);
   /// shows all hidden edit objects
   bool showAllObjects();
   /// returns EditProducts defined in setup file

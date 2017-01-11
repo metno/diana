@@ -34,6 +34,7 @@
 #include "diObsPlot.h"
 #include "diRoadObsPlot.h"
 
+#include "diObsPositions.h"
 #include "diImageGallery.h"
 #include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
@@ -113,7 +114,7 @@ ObsPlot::ObsPlot(const std::string& pin, ObsPlotType plottype)
   vertical_orientation = true;
   left_alignment = true;
   showpos = false;
-  devfield = false;
+  devfield.reset(0);
   moretimes = false;
   next = false;
   previous = false;
@@ -657,7 +658,9 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
       op->origcolour = Colour(orig_value);
     } else if (key == "devfield") {
       if (oit->toBool()) {
-        op->devfield = true;
+        op->devfield.reset(new ObsPositions);
+      } else {
+        op->devfield.reset(0);
       }
     } else if (key == "devcolour1") {
       op->mslpColour1 = Colour(orig_value);
@@ -731,7 +734,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   for (int i = 0; i < op->numPar; i++) {
     op->parameterDecode(parameter[i]);
   }
-  if (op->devfield)
+  if (op->mslp())
     op->pFlag["pppp_mslp"] = true;
 
   ObsPlot::clearPos();
@@ -769,6 +772,21 @@ static int normalize_angle(float dd)
   return dd;
 }
 
+void ObsPlot::updateObsPositions()
+{
+  if (!mslp())
+    return;
+
+  const int numObs = numPositions();
+  devfield->resize(numObs);
+  for (int i = 0; i < numObs; i++) {
+    devfield->xpos[i] = x[i];
+    devfield->ypos[i] = y[i];
+  }
+  devfield->convertToGrid = true;
+  devfield->obsArea = getStaticPlot()->getMapArea();
+}
+
 bool ObsPlot::setData()
 {
   METLIBS_LOG_SCOPE();
@@ -798,6 +816,8 @@ bool ObsPlot::setData()
 
   // convert points to correct projection
   getStaticPlot()->GeoToMap(numObs, x, y);
+
+  updateObsPositions();
 
   // find direction of north for each observation
   float *u = new float[numObs];
@@ -1192,32 +1212,12 @@ void ObsPlot::readPriorityFile(const std::string& filename)
 
 //***********************************************************************
 
-bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
-{
-  METLIBS_LOG_SCOPE();
-  if (!devfield)
-    return false;
-
-  startxy = xpos.size();
-
-  int numObs = numPositions();
-
-  for (int i = 0; i < numObs; i++) {
-    xpos.push_back(x[i]);
-    ypos.push_back(y[i]);
-  }
-
-  return true;
-}
-
-//***********************************************************************
-
-void ObsPlot::obs_mslp(const float *interpolatedEditField)
+void ObsPlot::updateFromEditField()
 {
   METLIBS_LOG_SCOPE();
 
   //PPPP-mslp
-  if (devfield) {
+  if (mslp()) {
     // TODO this has to be done after ObsManager::updateObsPositions, ie after changeProjection and any field edit
     // startxy is set above, in getPositions; values is interpolated editfield from EditManager::obs_mslp
     int numObs = obsp.size();
@@ -1225,7 +1225,7 @@ void ObsPlot::obs_mslp(const float *interpolatedEditField)
       ObsData::fdata_t& fdatai = obsp[i].fdata;
       ObsData::fdata_t::const_iterator itPPPP = fdatai.find("PPPP");
       if (itPPPP != fdatai.end()) {
-        const float ief = interpolatedEditField[i + startxy];
+        const float ief = devfield->interpolatedEditField[i];
         if (ief < 0.9e+35)
           fdatai["PPPP_mslp"] = itPPPP->second - ief;
       }
@@ -2503,7 +2503,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   pushpop2.PopMatrix();
 
   // Pressure - PPPP
-  if (devfield) {
+  if (mslp()) {
     if ((f_p = dta.fdata.find("PPPP_mslp")) != fend) {
       checkColourCriteria(gl, "PPPP_mslp", f_p->second);
       printNumber(gl, f_p->second, xytab(lpos + 44), "PPPP_mslp");
@@ -4179,7 +4179,7 @@ void ObsPlot::decodeCriteria(const std::string& critStr)
 void ObsPlot::checkColourCriteria(DiGLPainter* gl, const std::string& param, float value)
 {
   //Special case : plotting the difference between the mslp-field and the observed PPPP
-  if (devfield && param == "PPPP_mslp") {
+  if (mslp() && param == "PPPP_mslp") {
     if (value > 0) {
       gl->setColour(mslpColour2);
     } else if (value < 0) {

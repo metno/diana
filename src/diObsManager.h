@@ -132,7 +132,6 @@ private:
 
   bool useArchive; //read archive files too.
   bool mslp;
-  ObsPositions obsPositions;
 
   //HQC - perhaps its own class?
   std::vector<ObsData> hqcdata;
@@ -196,13 +195,6 @@ public:
   //! return true if there is any ObsPlot with mslp() == true
   bool hasAnyDevField() const
     { return mslp; }
-
-  void updateObsPositions(const std::vector<ObsPlot*> oplot);
-  ObsPositions& getObsPositions()
-    { return obsPositions; }
-  void clearObsPositions();
-  void updateFromEditField(ObsPlot* oplot);
-
 
   void archiveMode(bool on)
     { useArchive=on; }

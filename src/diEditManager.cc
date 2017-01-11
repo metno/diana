@@ -37,6 +37,7 @@
 #include "diEditManager.h"
 #include "diPlotModule.h"
 #include "diObjectManager.h"
+#include "diObsPositions.h"
 #include "diFieldPlotManager.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
@@ -2945,12 +2946,12 @@ void EditManager::plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder)
 }
 
 
-bool EditManager::interpolateEditField(ObsPositions& obsPositions)
+bool EditManager::interpolateEditField(ObsPositions* obsPositions)
 {
   // TODO this is one step in changeProjection of all ObsPlot's with mslp() == true
   // TODO does something when staticplot area changes or fedits[0]->editfield->area changes
 
-  if (fedits.empty())
+  if (fedits.empty() || !obsPositions)
     return false;
 
   const Field* ef = fedits[0]->editfield;
@@ -2960,20 +2961,20 @@ bool EditManager::interpolateEditField(ObsPositions& obsPositions)
   // TODO this does not properly detect if only ef->area is changed
 
   // change projection if needed
-  if (obsPositions.obsArea.P() != ef->area.P()) {
-    gc.getPoints(obsPositions.obsArea.P(), ef->area.P(),
-        obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
-    obsPositions.obsArea= ef->area;
+  if (obsPositions->obsArea.P() != ef->area.P()) {
+    gc.getPoints(obsPositions->obsArea.P(), ef->area.P(),
+        obsPositions->numObs, obsPositions->xpos, obsPositions->ypos);
+    obsPositions->obsArea= ef->area;
   }
 
-  if (obsPositions.convertToGrid) {
-    ef->convertToGrid(obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
-    obsPositions.convertToGrid = false;
+  if (obsPositions->convertToGrid) {
+    ef->convertToGrid(obsPositions->numObs, obsPositions->xpos, obsPositions->ypos);
+    obsPositions->convertToGrid = false;
   }
 
   // interpolate values
-  return ef->interpolate(obsPositions.numObs, obsPositions.xpos, obsPositions.ypos,
-      obsPositions.interpolatedEditField, Field::I_BESSEL);
+  return ef->interpolate(obsPositions->numObs, obsPositions->xpos, obsPositions->ypos,
+      obsPositions->interpolatedEditField, Field::I_BESSEL);
 }
 
 /*----------------------------------------------------------------------

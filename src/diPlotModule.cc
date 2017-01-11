@@ -701,11 +701,10 @@ bool PlotModule::updatePlots()
     } else {
       nodata = false;
     }
+    //update list of positions ( used in "PPPP-mslp")
+    // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields
+    vop[i]->updateObsPositions();
   }
-
-  //update list of positions ( used in "PPPP-mslp")
-  // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields
-  obsm->updateObsPositions(vop);
 
   // prepare met-objects
   if (objm->prepareObjects(t, staticPlot_->getMapArea()))
@@ -959,12 +958,12 @@ void PlotModule::plotOver(DiGLPainter* gl)
   // in overlay while changing the field
   if (obsm->hasAnyDevField() && editm->isObsEdit()) {
     ObsPlot::clearPos();
-    if (editm->interpolateEditField(obsm->getObsPositions())) {
-      for (size_t i = 0; i < vop.size(); i++)
-        obsm->updateFromEditField(vop[i]);
+    for (size_t i = 0; i < vop.size(); i++) {
+      ObsPlot* op = vop[i];
+      if (editm->interpolateEditField(op->getObsPositions()))
+        op->updateFromEditField();
+      op->plot(gl, Plot::OVERLAY);
     }
-    for (size_t i = 0; i < vop.size(); i++)
-      vop[i]->plot(gl, Plot::OVERLAY);
   }
 
   if (editm->isInEdit()) {
@@ -1446,10 +1445,8 @@ void PlotModule::updateObs()
       if (!obsm->prepare(vop[i], staticPlot_->getTime()))
         METLIBS_LOG_WARN("ObsManager returned false from prepare");
     }
+    vop[i]->updateObsPositions();
   }
-
-  //update list of positions ( used in "PPPP-mslp")
-  obsm->updateObsPositions(vop);
 
   // get annotations from all plots
   setAnnotations();

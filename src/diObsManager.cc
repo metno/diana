@@ -706,49 +706,6 @@ vector<miTime> ObsManager::getTimes(vector<std::string> obsTypes)
   return vector<miTime>(timeset.begin(), timeset.end());
 }
 
-void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
-{
-  clearObsPositions();
-
-  vector<float> xpos;
-  vector<float> ypos;
-  for (unsigned int i = 0; i < oplot.size(); i++) {
-    oplot[i]->getPositions(xpos, ypos);
-  }
-
-  obsPositions.numObs = xpos.size();
-  obsPositions.xpos = new float[obsPositions.numObs];
-  obsPositions.ypos = new float[obsPositions.numObs];
-  obsPositions.interpolatedEditField = new float[obsPositions.numObs];
-  for (int i = 0; i < obsPositions.numObs; i++) {
-    obsPositions.xpos[i] = xpos[i];
-    obsPositions.ypos[i] = ypos[i];
-  }
-
-  if (oplot.size()) {
-    obsPositions.obsArea = PlotModule::instance()->getStaticPlot()->getMapArea();
-  }
-
-  //new conversion  needed
-  obsPositions.convertToGrid = true;
-}
-
-void ObsManager::clearObsPositions()
-{
-  obsPositions.numObs = 0;
-  delete[] obsPositions.xpos;
-  obsPositions.xpos = 0;
-  delete[] obsPositions.ypos;
-  obsPositions.ypos = 0;
-  delete[] obsPositions.interpolatedEditField;
-  obsPositions.interpolatedEditField = 0;
-}
-
-void ObsManager::updateFromEditField(ObsPlot* oplot)
-{
-  oplot->obs_mslp(obsPositions.interpolatedEditField);
-}
-
 ObsDialogInfo ObsManager::initDialog()
 {
   const int levels[] = { 10, 30, 50, 70, 100, 150, 200, 250, 300, 400, 500, 700,

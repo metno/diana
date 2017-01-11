@@ -38,6 +38,7 @@
 #include <set>
 #include <vector>
 
+class ObsPositions;
 class QTextCodec;
 
 /**
@@ -87,7 +88,7 @@ protected:
   bool vertical_orientation;
   bool left_alignment;
   bool showpos;
-  bool devfield;
+  std::auto_ptr<ObsPositions> devfield;
   bool onlypos;
   bool showOnlyPrioritized;
   std::string image;
@@ -126,8 +127,6 @@ protected:
   float current; //cuurent, not wind
   bool firstplot;
   bool beendisabled; // obsplot was disabled while area changed
-
-  int startxy; //used in getposition/obs_mslp
 
   std::set<std::string> knotParameters;
   //Name and last modification time of files used
@@ -428,8 +427,10 @@ public:
   void setLabel(const std::string& pin) // from PlotModule and ObsRoad
     { labels.push_back(pin); }
 
-  bool getPositions(std::vector<float>&, std::vector<float>&);
-  void obs_mslp(const float* values);
+  void updateObsPositions();
+  ObsPositions* getObsPositions()
+    { return devfield.get(); }
+  void updateFromEditField();
 
   bool getObsPopupText(int xx,int yy, std::string& obstext );
 
@@ -444,7 +445,7 @@ public:
   void nextObs(bool forward);
 
   bool mslp() const
-    { return devfield; }
+    { return devfield.get() != 0; }
 
   bool moreTimes()
     { return moretimes; }
