@@ -443,31 +443,28 @@ vector<PlotElement> PlotModule::getPlotElements()
 
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
+  Plot* plot = 0;
   if (pe.type == "FIELD") {
     for (unsigned int i = 0; i < vfp.size(); i++) {
       std::string str = vfp[i]->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
-        vfp[i]->setEnabled(pe.enabled);
+        plot = vfp[i];
         break;
       }
     }
-  } else if (pe.type == "RASTER") {
-    satm->enablePlotElement(pe);
   } else if (pe.type == "OBS") {
     for (unsigned int i = 0; i < vop.size(); i++) {
       std::string str = vop[i]->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
-        vop[i]->setEnabled(pe.enabled);
+        plot = vop[i];
         break;
       }
     }
-  } else if (pe.type == "OBJECTS") {
-    objm->enablePlotElement(pe);
   } else if (pe.type == "TRAJECTORY") {
     for (unsigned int i = 0; i < vtp.size(); i++) {
       std::string str = vtp[i]->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
-        vtp[i]->setEnabled(pe.enabled);
+        plot = vtp[i];
         break;
       }
     }
@@ -477,28 +474,41 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       StationPlot* sp = stam_plots[i];
       std::string str = sp->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
-        sp->setEnabled(pe.enabled);
+        plot = sp;
         break;
       }
     }
-  } else if (pe.type == "AREAOBJECTS") {
-    if (areaobjects_.get())
-      areaobjects_->enablePlotElement(pe);
   } else if (pe.type == "LOCATION") {
     for (unsigned int i = 0; i < locationPlots.size(); i++) {
       std::string str = locationPlots[i]->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
-        locationPlots[i]->setEnabled(pe.enabled);
+        plot = locationPlots[i];
         break;
       }
     }
-  } else {
-    // unknown
-    return;
+  }
+
+  bool change = false;
+  if (plot) {
+    if (plot->isEnabled() != pe.enabled) {
+      plot->setEnabled(pe.enabled);
+      change = true;
+    }
+  } else if (pe.type == "RASTER") {
+    satm->enablePlotElement(pe);
+    change = true; // TODO we do not really know
+  } else if (pe.type == "OBJECTS") {
+    objm->enablePlotElement(pe);
+    change = true; // TODO we do not really know
+  } else if (pe.type == "AREAOBJECTS") {
+    if (areaobjects_.get())
+      areaobjects_->enablePlotElement(pe);
+    change = true; // TODO we do not really know
   }
 
   // get annotations from all plots
-  setAnnotations();
+  if (change)
+    setAnnotations();
 }
 
 void PlotModule::setAnnotations()
