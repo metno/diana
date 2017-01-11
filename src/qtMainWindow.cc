@@ -1246,15 +1246,10 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &short
   }
 }
 
-std::vector<PlotElement> DianaMainWindow::getPlotElements() const
-{
-  std::vector<PlotElement> pe = contr->getPlotElements();
-  return pe;
-}
-
 void DianaMainWindow::updatePlotElements()
 {
-  statusbuttons->setPlotElements(getPlotElements());
+  if (showelem)
+    statusbuttons->setPlotElements(contr->getPlotElements());
 }
 
 void DianaMainWindow::MenuOK()
@@ -1795,8 +1790,7 @@ void DianaMainWindow::connectionClosed()
   om->setPlottype("Hqc_synop",false);
   om->setPlottype("Hqc_list",false);
   MenuOK();
-  if (showelem)
-    updatePlotElements();
+  updatePlotElements();
 }
 
 
@@ -1947,8 +1941,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description: dataset
     const std::string cmd = (command == qmstrings::showpositions) ? "show" : "hide";
     contr->stationCommand(cmd, letter.description, fromId);
-    if (showelem)
-      updatePlotElements();
+    updatePlotElements();
   }
 
   else if (command == qmstrings::changeimageandtext) {
@@ -1988,10 +1981,10 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   }
 
   else if (command == qmstrings::areas) {
-    if(letter.data.size()>0)
+    if(letter.data.size()>0) {
       contr->makeAreaObjects(letter.common, letter.data[0], fromId);
-    if (showelem)
       updatePlotElements();
+    }
   }
 
   else if (command == qmstrings::areacommand) {
@@ -2054,8 +2047,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   else if (command == qmstrings::deletearea) {
     //commondesc dataSet
     contr->areaObjectsCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
-    if (showelem)
-      updatePlotElements();
+    updatePlotElements();
   }
 
   else if (command == qmstrings::showtext) {
@@ -2099,8 +2091,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
       om->setPlottype("Hqc_list",false);
       MenuOK();
     }
-    if (showelem)
-      updatePlotElements();
+    updatePlotElements();
   }
 
   else if (command == qmstrings::newclient) {
@@ -2270,8 +2261,7 @@ void DianaMainWindow::requestBackgroundBufferUpdate()
 void DianaMainWindow::updateGLSlot()
 {
   requestBackgroundBufferUpdate();
-  if (showelem)
-    updatePlotElements();
+  updatePlotElements();
 }
 
 
@@ -2328,7 +2318,7 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
   if (vcInterface.get()) vcInterface->mainWindowTimeChanged(t);
-  if (showelem) updatePlotElements();
+  updatePlotElements();
 
   //update sat channels in statusbar
   vector<string> channels = contr->getCalibChannels();
@@ -3384,10 +3374,10 @@ void DianaMainWindow::showElements()
     optOnOffAction->setChecked( false );
     showelem= false;
   } else {
-    updatePlotElements();
     statusbuttons->show();
     optOnOffAction->setChecked( true );
     showelem= true;
+    updatePlotElements();
   }
 }
 

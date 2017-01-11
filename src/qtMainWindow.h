@@ -445,8 +445,6 @@ private:
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;
 
-  std::vector<PlotElement> getPlotElements() const;
-
   static DianaMainWindow *self;   // singleton instance pointer
 };
 
