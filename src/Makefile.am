@@ -27,6 +27,7 @@ libdiana_la_SOURCES = \
 	diAnnotationPlot.cc \
 	diAreaBorder.cc \
 	diAreaObjects.cc \
+	diAreaObjectsCluster.cc \
 	diColour.cc \
 	diColourShading.cc \
 	diCommandParser.cc \
@@ -276,6 +277,7 @@ noinst_HEADERS = \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
+	diAreaObjectsCluster.h \
 	diColour.h \
 	diColourShading.h \
 	diCommandParser.h \

@@ -33,7 +33,6 @@
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
 #include "diDisplayObjects.h"
-#include "diAreaObjects.h"
 
 #include <puTools/miTime.h>
 
@@ -45,6 +44,7 @@
 class ObsPlot;
 class MapPlot;
 class AnnotationPlot;
+class AreaObjectsCluster;
 class FieldManager;
 class FieldPlotManager;
 class FieldPlot;
@@ -107,8 +107,7 @@ private:
   std::vector<AnnotationPlot*> obsVap; //display obs annotation
   std::vector<AnnotationPlot*> objectVap; //display object label
   std::vector<AnnotationPlot*> editVap;   //edit object labels
-  typedef std::vector<AreaObjects> areaobjects_v;
-  areaobjects_v vareaobjects;  //QED areas
+  std::auto_ptr<AreaObjectsCluster> areaobjects_;
 
   std::vector<std::string> annotationStrings;  //orig. strings from setup
 
@@ -271,14 +270,7 @@ public:
    ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
 
-  //Area
-  ///put area into list of area objects
-  void makeAreas(std::string name, std::string areastring, int id);
-  ///send command to right area object
-  void areaCommand(const std::string& command, const std::string& dataSet,
-      const std::vector<std::string>& data, int id);
-  ///find areas in position x,y
-  std::vector<selectArea> findAreas(int x, int y, bool newArea = false);
+  AreaObjectsCluster* areaobjects();
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);

@@ -1786,7 +1786,7 @@ void DianaMainWindow::connectionClosed()
   qsocket = false;
 
   contr->stationCommand("delete","all");
-  contr->areaCommand("delete","all", std::vector<std::string>(1, "all"),-1);
+  contr->areaObjectsCommand("delete","all", std::vector<std::string>(1, "all"),-1);
 
   timeNavigator->removeTimes(-1);
 
@@ -1989,7 +1989,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::areas) {
     if(letter.data.size()>0)
-      contr->makeAreas(letter.common, letter.data[0], fromId);
+      contr->makeAreaObjects(letter.common, letter.data[0], fromId);
     if (showelem)
       updatePlotElements();
   }
@@ -2017,10 +2017,10 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     }
     const int n = qletter.countDataRows();
     if (n == 0) {
-      contr->areaCommand(cmd, ds, std::vector<std::string>(), fromId);
+      contr->areaObjectsCommand(cmd, ds, std::vector<std::string>(), fromId);
     } else {
       for (int i=0; i<n; i++)
-        contr->areaCommand(cmd, ds, diutil::toVector(qletter.getDataValues(i)), fromId);
+        contr->areaObjectsCommand(cmd, ds, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
@@ -2029,7 +2029,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description name,on/off
     int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("select", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
+      contr->areaObjectsCommand("select", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
@@ -2038,7 +2038,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description name,on/off
     int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("show", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
+      contr->areaObjectsCommand("show", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
@@ -2047,13 +2047,13 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description name,colour
     int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("setcolour", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
+      contr->areaObjectsCommand("setcolour", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
   else if (command == qmstrings::deletearea) {
     //commondesc dataSet
-    contr->areaCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
+    contr->areaObjectsCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
     if (showelem)
       updatePlotElements();
   }
@@ -2086,7 +2086,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //remove stationPlots from this client
     contr->stationCommand("delete", "", id);
     //remove areas from this client
-    contr->areaCommand("delete", "all", std::vector<std::string>(1, "all"), id);
+    contr->areaObjectsCommand("delete", "all", std::vector<std::string>(1, "all"), id);
     timeNavigator->removeTimes(id);
     //hide textview
     textview->deleteTab(id);
@@ -2633,7 +2633,7 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
     selectAreaAction[i]->setVisible(false);
   }
 
-  vselectAreas=contr->findAreas(xclick,yclick);
+  vselectAreas=contr->findAreaObjects(xclick,yclick);
   int nAreas=vselectAreas.size();
   if ( nAreas>0 ) {
     zoomOutAction->setVisible(true);
@@ -2802,7 +2802,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     }
 
     //send area to plugin connected
-    vector <selectArea> areas=contr->findAreas(x,y,true);
+    vector <selectArea> areas=contr->findAreaObjects(x,y,true);
     int nareas = areas.size();
     if (nareas) {
       miQMessage letter(qmstrings::selectarea);

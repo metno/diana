@@ -341,12 +341,12 @@ public:
 
   //areas
   ///put area into list of area objects
-  void makeAreas(const std::string& name, std::string areaString, int id=-1);
+  void makeAreaObjects(const std::string& name, std::string areaString, int id=-1);
   ///send command to right area object
-  void areaCommand(const std::string& command, const std::string& dataSet,
+  void areaObjectsCommand(const std::string& command, const std::string& dataSet,
       const std::vector<std::string>& data, int id);
   ///find areas in position x,y
-  std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
+  std::vector <selectArea> findAreaObjects(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);

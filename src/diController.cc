@@ -33,6 +33,7 @@
 
 #include <diController.h>
 
+#include "diAreaObjectsCluster.h"
 #include "diManager.h"
 #include "diPlotModule.h"
 #include "diFieldPlotManager.h"
@@ -1012,25 +1013,24 @@ void Controller::setStationsScale(float new_scale)
   stam->setStationsScale(new_scale);
 }
 
-//areas
-void Controller::makeAreas(const std::string& name, std::string areastring, int id)
+// area objects
+void Controller::makeAreaObjects(const std::string& name, std::string areastring, int id)
 {
   //METLIBS_LOG_DEBUG("Controller::makeAreas ");
-  plotm->makeAreas(name,areastring,id);
+  plotm->areaobjects()->makeAreaObjects(name,areastring,id);
 }
 
-void Controller::areaCommand(const std::string& command,const std::string& dataSet,
+void Controller::areaObjectsCommand(const std::string& command,const std::string& dataSet,
     const std::vector<std::string>& data, int id)
 {
   //METLIBS_LOG_DEBUG("Controller::areaCommand");
-  plotm->areaCommand(command,dataSet,data,id);
+  plotm->areaobjects()->areaObjectsCommand(command,dataSet,data,id);
 }
 
-
-vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
-  return plotm->findAreas(x,y,newArea);
+vector <selectArea> Controller::findAreaObjects(int x, int y, bool newArea)
+{
+  return plotm->areaobjects()->findAreaObjects(x,y,newArea);
 }
-
 
 //********** plotting and selecting locationPlots on the map **************
 void Controller::putLocation(const LocationData& locationdata)

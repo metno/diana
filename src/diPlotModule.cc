@@ -33,6 +33,7 @@
 
 #include "diPlotModule.h"
 
+#include "diAreaObjectsCluster.h"
 #include "diObsManager.h"
 #include "diObsPlot.h"
 #include "diSatManager.h"
@@ -419,16 +420,8 @@ vector<PlotElement> PlotModule::getPlotElements()
     }
   }
 
-  // get area objects names
-  for (size_t j = 0; j < vareaobjects.size(); j++) {
-    std::string str = vareaobjects[j].getName();
-    if (not str.empty()) {
-      str += "# " + miutil::from_number(int(j));
-      bool enabled = vareaobjects[j].isEnabled();
-      std::string icon = vareaobjects[j].getIcon();
-      pel.push_back(PlotElement("AREAOBJECTS", str, icon, enabled));
-    }
-  }
+  if (areaobjects_.get())
+    areaobjects_->addPlotElements(pel);
 
   // get locationPlot annotations
   for (size_t j = 0; j < locationPlots.size(); j++) {
@@ -489,16 +482,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       }
     }
   } else if (pe.type == "AREAOBJECTS") {
-    for (size_t i = 0; i < vareaobjects.size(); i++) {
-      std::string str = vareaobjects[i].getName();
-      if (not str.empty()) {
-        str += "# " + miutil::from_number(int(i));
-        if (str == pe.str) {
-          vareaobjects[i].enable(pe.enabled);
-          break;
-        }
-      }
-    }
+    if (areaobjects_.get())
+      areaobjects_->enablePlotElement(pe);
   } else if (pe.type == "LOCATION") {
     for (unsigned int i = 0; i < locationPlots.size(); i++) {
       std::string str = locationPlots[i]->getPlotName() + "# " + miutil::from_number(int(i));
@@ -903,10 +888,8 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   // next line also calls objects.changeProjection
   objm->plotObjects(gl, Plot::LINES);
 
-  for (size_t i = 0; i < vareaobjects.size(); i++) {
-    vareaobjects[i].changeProjection(staticPlot_->getMapArea());
-    vareaobjects[i].plot(gl, Plot::LINES);
-  }
+  if (areaobjects_.get())
+    areaobjects_->plot(gl, Plot::LINES);
 
   // plot station plots
   const std::vector<StationPlot*>& stam_plots = stam->plots();
@@ -1489,81 +1472,14 @@ std::string PlotModule::getObsPopupText(int x, int y)
   return obsText;
 }
 
-
-//areas
-void PlotModule::makeAreas(std::string name, std::string areastring, int id)
+AreaObjectsCluster* PlotModule::areaobjects()
 {
-  //   METLIBS_LOG_DEBUG("makeAreas:"<<n);
-  //   METLIBS_LOG_DEBUG("name:"<<name);
-  //   METLIBS_LOG_DEBUG("areastring:"<<areastring);
-  //name can be name:icon
-  vector<std::string> tokens = miutil::split(name, ":");
-  std::string icon;
-  if (tokens.size() > 1) {
-    icon = tokens[1];
-    name = tokens[0];
+  if (!areaobjects_.get()) {
+    areaobjects_.reset(new AreaObjectsCluster(this));
   }
-
-  //check if dataset with this id/name already exist
-  areaobjects_v::iterator it = vareaobjects.begin();
-  while (it != vareaobjects.end() && (id != it->getId() || name != it->getName()))
-    ++it;
-  if (it != vareaobjects.end()) { //add new areas and replace old areas
-    it->makeAreas(name, icon, areastring, id, staticPlot_->getMapArea());
-    return;
-  }
-
-  //make new dataset
-  AreaObjects new_areaobjects;
-  new_areaobjects.makeAreas(name, icon, areastring, id, staticPlot_->getMapArea());
-  vareaobjects.push_back(new_areaobjects);
+  return areaobjects_.get();
 }
 
-void PlotModule::areaCommand(const std::string& command, const std::string& dataSet,
-    const std::vector<std::string>& data, int id)
-{
-  //   METLIBS_LOG_DEBUG("PlotModule::areaCommand");
-  //   METLIBS_LOG_DEBUG("id=" << id);
-  //   METLIBS_LOG_DEBUG("command=" << command);
-  //   METLIBS_LOG_DEBUG("data="<<data);
-
-  int n = vareaobjects.size();
-  for (int i = 0; i < n && i > -1; i++) {
-    if ((id == -1 || id == vareaobjects[i].getId()) && (dataSet == "all"
-        || dataSet == vareaobjects[i].getName())) {
-      if (command == "delete" && (data.empty() || (data.size() == 1 && data.front() == "all"))) {
-        vareaobjects.erase(vareaobjects.begin() + i);
-        i--;
-        n = vareaobjects.size();
-      } else {
-        vareaobjects[i].areaCommand(command, data);
-        //zoom to selected area
-        if (command == "select" && vareaobjects[i].autoZoom()) {
-          if (data.size() == 2 && data[1] == "on") {
-            setMapAreaFromMap(vareaobjects[i].getBoundBox(data[0]));
-          }
-        }
-      }
-    }
-  }
-}
-
-vector<selectArea> PlotModule::findAreas(int x, int y, bool newArea)
-{
-  //METLIBS_LOG_DEBUG("PlotModule::findAreas"  << x << " " << y);
-  float xm = 0, ym = 0;
-  PhysToMap(x, y, xm, ym);
-  vector<selectArea> vsA;
-  int n = vareaobjects.size();
-  for (int i = 0; i < n; i++) {
-    if (!vareaobjects[i].isEnabled())
-      continue;
-    vector<selectArea> sub_vsA;
-    sub_vsA = vareaobjects[i].findAreas(xm, ym, newArea);
-    vsA.insert(vsA.end(), sub_vsA.begin(), sub_vsA.end());
-  }
-  return vsA;
-}
 
 //********** plotting and selecting locationPlots on the map *************
 
