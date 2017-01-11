@@ -504,6 +504,15 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     if (areaobjects_.get())
       areaobjects_->enablePlotElement(pe);
     change = true; // TODO we do not really know
+  } else {
+    const QString qtype = QString::fromStdString(pe.type);
+    for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
+      Manager* m = it->second;
+      if (qtype == m->plotElementTag()) {
+        change = m->enablePlotElement(pe);
+        break;
+      }
+    }
   }
 
   // get annotations from all plots

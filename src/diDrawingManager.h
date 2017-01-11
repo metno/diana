@@ -110,8 +110,8 @@ public:
   void setEditRect(Rectangle r);
 
   virtual std::vector<PlotElement> getPlotElements();
+  virtual bool enablePlotElement(const PlotElement &);
   virtual QString plotElementTag() const;
-  void enablePlotElement(const PlotElement &);
 
   int nextJoinId(bool = true);
   void separateJoinIds(const QList<DrawingItemBase *> &);

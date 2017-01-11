@@ -677,14 +677,19 @@ QString DrawingManager::plotElementTag() const
   return "DRAWING";
 }
 
-void DrawingManager::enablePlotElement(const PlotElement &pe)
+bool DrawingManager::enablePlotElement(const PlotElement &pe)
 {
   QString str = QString::fromStdString(pe.str);
   if (!plotElements_.contains(str))
-    return;
+    return false;
 
   EditItems::ItemGroup *group = plotElements_.value(str);
-  group->setActive(pe.enabled);
+  if (group->isActive() != pe.enabled) {
+    group->setActive(pe.enabled);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**

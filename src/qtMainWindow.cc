@@ -3354,13 +3354,7 @@ void DianaMainWindow::satFileListUpdate()
 
 void DianaMainWindow::toggleElement(PlotElement pe)
 {
-  if (QString::fromStdString(pe.type) == DrawingManager::instance()->plotElementTag())
-    DrawingManager::instance()->enablePlotElement(pe);
-  else if (QString::fromStdString(pe.type) == EditItemManager::instance()->plotElementTag())
-    EditItemManager::instance()->enablePlotElement(pe);
-  else
-    contr->enablePlotElement(pe);
-
+  contr->enablePlotElement(pe);
   vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
   requestBackgroundBufferUpdate();
