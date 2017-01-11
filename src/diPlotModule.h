@@ -137,8 +137,6 @@ private:
   bool dorubberband;
   bool keepcurrentarea;
 
-  std::vector<PlotElement> plotelements;
-
   void plotUnder(DiGLPainter* gl);
   void plotOver(DiGLPainter* gl);
 
