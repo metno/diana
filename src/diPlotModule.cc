@@ -495,15 +495,12 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       change = true;
     }
   } else if (pe.type == "RASTER") {
-    satm->enablePlotElement(pe);
-    change = true; // TODO we do not really know
+    change = satm->enablePlotElement(pe);
   } else if (pe.type == "OBJECTS") {
-    objm->enablePlotElement(pe);
-    change = true; // TODO we do not really know
+    change = objm->enablePlotElement(pe);
   } else if (pe.type == "AREAOBJECTS") {
     if (areaobjects_.get())
-      areaobjects_->enablePlotElement(pe);
-    change = true; // TODO we do not really know
+      change = areaobjects_->enablePlotElement(pe);
   } else {
     const QString qtype = QString::fromStdString(pe.type);
     for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {

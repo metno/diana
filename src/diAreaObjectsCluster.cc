@@ -24,31 +24,36 @@ void AreaObjectsCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 void AreaObjectsCluster::addPlotElements(std::vector<PlotElement>& pel)
 {
   for (size_t j = 0; j < vareaobjects.size(); j++) {
-    std::string str = vareaobjects[j].getName();
-    if (not str.empty()) {
-      str += "# " + miutil::from_number(int(j));
-      bool enabled = vareaobjects[j].isEnabled();
-      std::string icon = vareaobjects[j].getIcon();
-      pel.push_back(PlotElement("AREAOBJECTS", str, icon, enabled));
+    AreaObjects& ao = vareaobjects[j];
+    const std::string& nm = ao.getName();
+    if (!nm.empty()) {
+      std::string str = nm + "# " + miutil::from_number(int(j));
+      pel.push_back(PlotElement("AREAOBJECTS", str, ao.getIcon(), ao.isEnabled()));
     }
   }
 }
 
-void AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
+bool AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
 {
   if (pe.type != "AREAOBJECTS")
-    return;
+    return false;
 
   for (size_t i = 0; i < vareaobjects.size(); i++) {
-    std::string str = vareaobjects[i].getName();
-    if (not str.empty()) {
-      str += "# " + miutil::from_number(int(i));
+    AreaObjects& ao = vareaobjects[i];
+    const std::string& nm = ao.getName();
+    if (!nm.empty()) {
+      std::string str = nm + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
-        vareaobjects[i].enable(pe.enabled);
-        break;
+        if (ao.isEnabled() != pe.enabled) {
+          ao.enable(pe.enabled);
+          return true;
+        } else {
+          break;
+        }
       }
     }
   }
+  return false;
 }
 
 void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastring, int id)

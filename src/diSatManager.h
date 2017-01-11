@@ -138,7 +138,7 @@ public:
   void prepareSat(const std::vector<std::string>& inp);
 
   void addPlotElements(std::vector<PlotElement>& pel);
-  void enablePlotElement(const PlotElement& pe);
+  bool enablePlotElement(const PlotElement& pe);
   void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
   void getSatAnnotations(std::vector<std::string>& anno);
   void plot(DiGLPainter* gl, Plot::PlotOrder porder);

@@ -487,13 +487,17 @@ void ObjectManager::addPlotElements(std::vector<PlotElement>& pel)
   }
 }
 
-void ObjectManager::enablePlotElement(const PlotElement& pe)
+bool ObjectManager::enablePlotElement(const PlotElement& pe)
 {
   if (pe.type != "OBJECTS")
-    return;
+    return false;
   std::string str = objects.getName() += "# 0" ;
-  if (str == pe.str)
-    objects.enable(pe.enabled);
+  if (str != pe.str)
+    return false;
+  if (objects.isEnabled() == pe.enabled)
+    return false;
+  objects.enable(pe.enabled);
+  return true;
 }
 
 void ObjectManager::getObjAnnotation(std::string &str, Colour &col)

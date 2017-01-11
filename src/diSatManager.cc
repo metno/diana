@@ -210,17 +210,22 @@ void SatManager::addPlotElements(std::vector<PlotElement>& pel)
   }
 }
 
-void SatManager::enablePlotElement(const PlotElement& pe)
+bool SatManager::enablePlotElement(const PlotElement& pe)
 {
   if (pe.type != "RASTER")
-    return;
+    return false;
   for (unsigned int i = 0; i < vsp.size(); i++) {
     std::string str = vsp[i]->getPlotName() + "# " + miutil::from_number(int(i));
     if (str == pe.str) {
-      vsp[i]->setEnabled(pe.enabled);
-      break;
+      if (vsp[i]->isEnabled() != pe.enabled) {
+        vsp[i]->setEnabled(pe.enabled);
+        return true;
+      } else {
+        break;
+      }
     }
   }
+  return false;
 }
 
 void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)

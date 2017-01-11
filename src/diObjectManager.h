@@ -194,7 +194,7 @@ public:
   void prepareObjects(const std::vector<std::string>& inp);
 
   void addPlotElements(std::vector<PlotElement>& pel);
-  void enablePlotElement(const PlotElement& pe);
+  bool enablePlotElement(const PlotElement& pe);
   void getObjAnnotation(std::string &str, Colour &col);
   void getObjectsAnnotations(std::vector<std::string>& anno)
     { objects.getAnnotations(anno); }

@@ -17,7 +17,7 @@ public:
 
   void addPlotElements(std::vector<PlotElement>& pel);
 
-  void enablePlotElement(const PlotElement& pe);
+  bool enablePlotElement(const PlotElement& pe);
 
   ///put area into list of area objects
   void makeAreaObjects(std::string name, std::string areastring, int id);
