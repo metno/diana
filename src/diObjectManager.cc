@@ -164,29 +164,11 @@ vector<std::string> ObjectManager::getObjectNames(bool archive)
 vector<miTime> ObjectManager::getTimes()
 {
   METLIBS_LOG_SCOPE();
-
-  const std::vector<std::string> pinfos(1, objects.getPlotInfo());
-  set<miTime> timeset;
-
-  int nn= pinfos.size();
-  for (int i=0; i<nn; i++){
-    vector<miTime> tv = getObjectTimes(pinfos[i]);
-    for (unsigned int j=0; j<tv.size(); j++){
-      timeset.insert(tv[j]);
-    }
-  }
-
-  vector<miTime> timevec;
-  if (timeset.size()>0) {
-    set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++) timevec.push_back(*p);
-  }
-
-  return timevec;
+  return getObjectTimes(objects.getPlotInfo());
 }
 
-vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 //  * PURPOSE:   return times for list of PlotInfo's
+vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 {
   vector<miTime> timevec;
 
