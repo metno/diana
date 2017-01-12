@@ -39,6 +39,7 @@ libdiana_la_SOURCES = \
 	diEditObjects.cc \
 	diFieldEdit.cc \
 	diFieldPlot.cc \
+	diFieldPlotCluster.cc \
 	diFieldPlotManager.cc \
 	diFilledMap.cc \
 	diFtnVfile.cc \
@@ -65,6 +66,7 @@ libdiana_la_SOURCES = \
 	diObsPositions.cc \
 	diPattern.cc \
 	diPlot.cc \
+	diPlotCluster.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
 	diPoint.cc \
@@ -118,6 +120,7 @@ libdiana_la_SOURCES = \
 	util/qstring_util.cc \
 	util/string_util.cc \
 	util/subprocess.cc \
+	util/was_enabled.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -295,6 +298,7 @@ noinst_HEADERS = \
 	diEditSpec.h \
 	diFieldEdit.h \
 	diFieldPlot.h \
+	diFieldPlotCluster.h \
 	diFieldPlotManager.h \
 	diFilledMap.h \
 	diFontFamily.h \
@@ -333,6 +337,7 @@ noinst_HEADERS = \
 	diOrderQueue.h \
 	diPattern.h \
 	diPlot.h \
+	diPlotCluster.h \
 	diPlotModule.h \
 	diPlotOptions.h \
 	diPoint.h \
@@ -454,6 +459,7 @@ noinst_HEADERS = \
 	util/qstring_util.h \
 	util/string_util.h \
 	util/subprocess.h \
+	util/was_enabled.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \

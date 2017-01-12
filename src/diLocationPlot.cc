@@ -326,7 +326,7 @@ void LocationPlot::drawLineOrPoint(DiGLPainter* gl, int l)
 }
 
 
-void LocationPlot::getAnnotation(std::string &str, Colour &col)
+void LocationPlot::getAnnotation(std::string &str, Colour &col) const
 {
   if (visible) {
     str = locdata.annotation;

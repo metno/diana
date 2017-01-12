@@ -55,7 +55,7 @@ public:
     { return satdata->area.resolutionX; }
   double getGridResolutionY() const
     { return satdata->area.resolutionY; }
-  void getSatAnnotation(std::string &, Colour &);
+  void getAnnotation(std::string &, Colour &) const;
   void getSatName(std::string &);
   void getCalibChannels(std::vector<std::string>& channels );
   ///get pixel value

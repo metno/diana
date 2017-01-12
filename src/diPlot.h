@@ -291,6 +291,8 @@ public:
   const std::string& getPlotName() const
     { return plotname; }
 
+  virtual void getAnnotation(std::string &str, Colour &col) const;
+
 protected:
   PlotOptions poptions;
 

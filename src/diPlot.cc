@@ -243,6 +243,12 @@ std::string Plot::getPlotInfo(int n) const
   return str;
 }
 
+void Plot::getAnnotation(string& s, Colour& c) const
+{
+  c = Colour("black");
+  s = getPlotName();
+}
+
 // panning in progress
 void StaticPlot::panPlot(bool b)
 {

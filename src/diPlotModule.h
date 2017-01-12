@@ -47,7 +47,7 @@ class AnnotationPlot;
 class AreaObjectsCluster;
 class FieldManager;
 class FieldPlotManager;
-class FieldPlot;
+class FieldPlotCluster;
 struct LocationData;
 class LocationPlot;
 class Manager;
@@ -64,18 +64,6 @@ class MeasurementsPlot;
 class StationPlot;
 
 class QMouseEvent;
-
-namespace diutil {
-
-class was_enabled {
-  typedef std::map<std::string, bool> key_enabled_t;
-  key_enabled_t key_enabled;
-public:
-  void save(const Plot* plot);
-  void restore(Plot* plot) const;
-};
-
-} // namespace diutil
 
 /**
 
@@ -96,11 +84,10 @@ private:
   StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
-  FieldManager *fieldm;   // field manager
   FieldPlotManager *fieldplotm;   // field plot manager
 
   std::auto_ptr<ObsPlotCluster> obsplots_;   // observation plots
-  std::vector<FieldPlot*> vfp; // vector of field plots
+  std::auto_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
@@ -139,8 +126,6 @@ private:
 
   void plotUnder(DiGLPainter* gl);
   void plotOver(DiGLPainter* gl);
-
-  const FieldPlot* findTrajectoryPlot(const std::string& fieldname);
 
   static PlotModule *self;
 
@@ -244,8 +229,6 @@ public:
   /// return current plottime
   const miutil::miTime& getPlotTime() const;
 
-  /// return referencetime of first FieldPlot
-  miutil::miTime getFieldReferenceTime();
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times,
       bool updateSources = false);
@@ -276,7 +259,7 @@ public:
   // Trajectories
   /// handles trajectory plot info strings
   void trajPos(const std::vector<std::string>&);
-  std::vector<std::string> getTrajectoryFields();
+
   bool startTrajectoryComputation();
   void stopTrajectoryComputation();
   // print trajectory positions to file
@@ -370,7 +353,8 @@ public:
       const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
-  const std::vector<FieldPlot*>& getFieldPlots() const; // Returns a vector of defined field plots.
+  FieldPlotCluster* fieldplots()
+    { return fieldplots_.get(); }
 
   typedef std::map<std::string, Manager*> managers_t;
   managers_t managers;

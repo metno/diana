@@ -40,7 +40,7 @@
 #include "diStationManager.h"
 #include "diObjectManager.h"
 #include "diEditManager.h"
-#include "diFieldPlot.h"
+#include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diLocationPlot.h"
 #include "diManager.h"
@@ -54,6 +54,7 @@
 #include "diWeatherArea.h"
 
 #include "util/string_util.h"
+#include "util/was_enabled.h"
 
 #include "diField/diFieldManager.h"
 #include <puDatatypes/miCoordinates.h>
@@ -70,24 +71,6 @@
 
 using namespace miutil;
 using namespace std;
-
-namespace diutil {
-
-void was_enabled::save(const Plot* plot)
-{
-  const std::string key = plot->getEnabledStateKey();
-  key_enabled[key] = plot->isEnabled();
-}
-
-void was_enabled::restore(Plot* plot) const
-{
-  const std::string key = plot->getEnabledStateKey();
-  key_enabled_t::const_iterator it = key_enabled.find(key);
-  if (it != key_enabled.end())
-    plot->setEnabled(it->second);
-};
-
-} // namespace diutil
 
 namespace {
 
@@ -143,7 +126,7 @@ void PlotModule::preparePlots(const vector<string>& vpi)
 
   // split up input into separate products
   std::set<std::string> ordered;
-  ordered.insert("FIELD");
+  ordered.insert(fieldplots()->plotCommandKey());
   ordered.insert(obsplots()->plotCommandKey());
   ordered.insert("MAP");
   ordered.insert("AREA");
@@ -176,7 +159,7 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   // call prepare methods
   prepareArea(ordered_pi["AREA"]);
   prepareMap(ordered_pi["MAP"]);
-  prepareFields(ordered_pi["FIELD"]);
+  fieldplots_->prepare(ordered_pi[fieldplots()->plotCommandKey()]);
   obsplots_->prepare(ordered_pi[obsplots()->plotCommandKey()]);
   satm->prepareSat(ordered_pi["SAT"]);
   prepareStations(ordered_pi["STATION"]);
@@ -291,38 +274,6 @@ void PlotModule::prepareMap(const vector<string>& inp)
   std::swap(vmp, new_vmp);
 }
 
-void PlotModule::prepareFields(const vector<string>& inp)
-{
-  METLIBS_LOG_SCOPE();
-
-  diutil::was_enabled plotenabled;
-
-  // for now -- erase all fieldplots
-  for (unsigned int i = 0; i < vfp.size(); i++) {
-    FieldPlot* fp = vfp[i];
-    plotenabled.save(fp);
-    delete fp;
-  }
-  vfp.clear();
-
-  // NOTE: If we use the fieldCache, we must clear it here
-  // to avoid memory consumption!
-  if (inp.empty()) {
-    // No fields will be used any more...
-    fieldm->flushCache();
-    return;
-  }
-
-  for (size_t i=0; i < inp.size(); i++) {
-    std::auto_ptr<FieldPlot> fp(fieldplotm->createPlot(inp[i]));
-    if (fp.get()) {
-      plotenabled.restore(fp.get());
-      fp.get()->setCanvas(mCanvas);
-      vfp.push_back(fp.release());
-    }
-  }
-}
-
 void PlotModule::prepareStations(const vector<string>& inp)
 {
   METLIBS_LOG_SCOPE();
@@ -352,13 +303,7 @@ vector<PlotElement> PlotModule::getPlotElements()
   //  METLIBS_LOG_SCOPE();
   std::vector<PlotElement> pel;
 
-  // get field names
-  for (size_t j = 0; j < vfp.size(); j++) {
-    std::string str = vfp[j]->getPlotName() + "# " + miutil::from_number(int(j));
-    bool enabled = vfp[j]->isEnabled();
-    pel.push_back(PlotElement("FIELD", str, "FIELD", enabled));
-  }
-
+  fieldplots_->addPlotElements(pel);
   obsplots_->addPlotElements(pel);
   satm->addPlotElements(pel);
   objm->addPlotElements(pel);
@@ -415,15 +360,7 @@ vector<PlotElement> PlotModule::getPlotElements()
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
   Plot* plot = 0;
-  if (pe.type == "FIELD") {
-    for (unsigned int i = 0; i < vfp.size(); i++) {
-      std::string str = vfp[i]->getPlotName() + "# " + miutil::from_number(int(i));
-      if (str == pe.str) {
-        plot = vfp[i];
-        break;
-      }
-    }
-  } else if (pe.type == "TRAJECTORY") {
+  if (pe.type == "TRAJECTORY") {
     for (unsigned int i = 0; i < vtp.size(); i++) {
       std::string str = vtp[i]->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
@@ -457,7 +394,9 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       plot->setEnabled(pe.enabled);
       change = true;
     }
-  } else if (pe.type == "OBS") {
+  } else if (pe.type == fieldplots_->keyPlotElement()) {
+    change = fieldplots_->enablePlotElement(pe);
+  } else if (pe.type == obsplots_->keyPlotElement()) {
     change = obsplots_->enablePlotElement(pe);
   } else if (pe.type == "RASTER") {
     change = satm->enablePlotElement(pe);
@@ -503,19 +442,9 @@ void PlotModule::setAnnotations()
   vector<AnnotationPlot::Annotation> annotations;
   AnnotationPlot::Annotation ann;
 
-  vector<miTime> fieldAnalysisTime;
+  const std::vector<miutil::miTime> fieldAnalysisTime = fieldplots_->fieldAnalysisTimes();
 
-  // get field annotations
-  for (size_t j = 0; j < vfp.size(); j++) {
-    fieldAnalysisTime.push_back(vfp[j]->getAnalysisTime());
-
-    if (!vfp[j]->isEnabled())
-      continue;
-    vfp[j]->getFieldAnnotation(str, col);
-    ann.str = str;
-    ann.col = col;
-    annotations.push_back(ann);
-  }
+  fieldplots_->addAnnotations(annotations);
 
   satm->addSatAnnotations(annotations);
 
@@ -525,13 +454,13 @@ void PlotModule::setAnnotations()
       annotations.push_back(ann);
   }
 
-  obsplots_->getAnnotations(annotations);
+  obsplots_->addAnnotations(annotations);
 
   // get trajectory annotations
   for (size_t j = 0; j < vtp.size(); j++) {
     if (!vtp[j]->isEnabled())
       continue;
-    vtp[j]->getTrajectoryAnnotation(str, col);
+    vtp[j]->getAnnotation(str, col);
     // empty string if data plot is off
     if (not str.empty()) {
       ann.str = str;
@@ -546,7 +475,7 @@ void PlotModule::setAnnotations()
     StationPlot* sp = stam_plots[j];
     if (!sp->isEnabled())
       continue;
-    sp->getStationPlotAnnotation(str, col);
+    sp->getAnnotation(str, col);
     ann.str = str;
     ann.col = col;
     annotations.push_back(ann);
@@ -587,13 +516,11 @@ void PlotModule::setAnnotations()
   for (size_t i = 0; i < vap.size(); i++) {
     vector<vector<string> > vvstr = vap[i]->getAnnotationStrings();
     for (size_t k = 0; k < vvstr.size(); k++) {
-      for (size_t j = 0; j < vfp.size(); j++) {
-        vfp[j]->getDataAnnotations(vvstr[k]);
-      }
+      fieldplots_->getDataAnnotations(vvstr[k]);
       obsplots_->getDataAnnotations(vvstr[k]);
-      satm->getSatAnnotations(vvstr[k]);
-      editm->getAnnotations(vvstr[k]);
-      objm->getObjectsAnnotations(vvstr[k]);
+      satm->getDataAnnotations(vvstr[k]);
+      editm->getDataAnnotations(vvstr[k]);
+      objm->getDataAnnotations(vvstr[k]);
     }
     vap[i]->setAnnotationStrings(vvstr);
   }
@@ -617,16 +544,11 @@ bool PlotModule::updatePlots()
 
   bool nodata = vmp.empty(); // false when data are found
 
-  // prepare data for field plots
-  bool haveFieldData = false;
-  for (size_t i = 0; i < vfp.size(); i++) {
-    FieldPlot* fp = vfp[i];
-    haveFieldData |= fp->updateIfNeeded();
-  }
-  if (haveFieldData) {
+
+  if (fieldplots_->update()) {
     nodata = false;
     // level for vertical level observations "as field"
-    staticPlot_->setVerticalLevel(vfp.back()->getLevel());
+    staticPlot_->setVerticalLevel(fieldplots_->getVerticalLevel());
   }
 
   // prepare data for satellite plots
@@ -727,13 +649,8 @@ void PlotModule::defineMapArea()
     }
   }
 
-  if (!mapdefined && vfp.size() > 0) {
-    // set area equal to first EXISTING field-area ("all timesteps"...)
-    const int n = vfp.size();
-    int i = 0;
-    while (i < n && !vfp[i]->getRealFieldArea(newMapArea))
-      i++;
-    if (i < n) {
+  if (!mapdefined) {
+    if (fieldplots_->getRealFieldArea(newMapArea)) {
       if (keepcurrentarea)
         newMapArea = staticPlot_->findBestMatch(newMapArea);
       mapdefined = mapDefinedByData = true;
@@ -817,12 +734,10 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   satm->plot(gl, Plot::SHADE_BACKGROUND);
 
   // mark undefined areas/values in field (before map)
-  for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(gl, Plot::SHADE_BACKGROUND);
+  fieldplots_->plot(gl, Plot::SHADE_BACKGROUND);
 
   // plot fields (shaded fields etc. before map)
-  for (size_t i = 0; i < vfp.size(); i++)
-    vfp[i]->plot(gl, Plot::SHADE);
+  fieldplots_->plot(gl, Plot::SHADE);
 
   // plot map-elements for auto zorder
   for (size_t i = 0; i < vmp.size(); i++)
@@ -833,9 +748,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
     locationPlots[i]->plot(gl, Plot::LINES);
 
   // plot fields (isolines, vectors etc. after map)
-  for (size_t i = 0; i < vfp.size(); i++) {
-    vfp[i]->plot(gl, Plot::LINES);
-  }
+  fieldplots_->plot(gl, Plot::LINES);
 
   // next line also calls objects.changeProjection
   objm->plotObjects(gl, Plot::LINES);
@@ -999,10 +912,7 @@ void PlotModule::cleanup()
 #endif
   diutil::delete_all_and_clear(vmp);
 
-  // Field deletion at the end is done in the cache. The cache destructor is called by
-  // FieldPlotManagers destructor, which comes before this destructor. Basically we try to
-  // destroy something in a dead pointer here....
-  diutil::delete_all_and_clear(vfp);
+  fieldplots_->cleanup();
 
   satm->clear();
 
@@ -1098,16 +1008,8 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
     }
   }
 
-  if (vfp.size()>0) {
-    if (staticPlot_->getMapArea().P() == vfp[0]->getFieldArea().P()) {
-      vector<Field*> ff = vfp[0]->getFields();
-      if (ff.size()>0) {
-        gridx = xmap/ff[0]->area.resolutionX;
-        gridy = ymap/ff[0]->area.resolutionY;
-        return true;
-      }
-    }
-  }
+  if (fieldplots_->MapToGrid(staticPlot_->getMapArea().P(), xmap, ymap, gridx, gridy))
+    return true;
 
   return false;
 }
@@ -1208,10 +1110,10 @@ double PlotModule::getArea(const float& flat1,
 
 
 // set managers
-void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
+void PlotModule::setManagers(FieldManager* fieldm, FieldPlotManager* fpm,
     ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm)
 {
-  fieldm = fm;
+  METLIBS_LOG_SCOPE();
   fieldplotm = fpm;
   obsm = om;
   satm = sm;
@@ -1220,21 +1122,22 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
   editm = edm;
 
   if (!fieldm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR fieldmanager==0");
+    METLIBS_LOG_ERROR("fieldmanager==0");
   if (!fieldplotm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR fieldplotmanager==0");
+    METLIBS_LOG_ERROR("fieldplotmanager==0");
   if (!obsm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR obsmanager==0");
+    METLIBS_LOG_ERROR("obsmanager==0");
   if (!satm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR satmanager==0");
+    METLIBS_LOG_ERROR("satmanager==0");
   if (!stam)
-    METLIBS_LOG_ERROR("PlotModule::ERROR stationmanager==0");
+    METLIBS_LOG_ERROR("stationmanager==0");
   if (!objm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR objectmanager==0");
+    METLIBS_LOG_ERROR("objectmanager==0");
   if (!editm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
+    METLIBS_LOG_ERROR("editmanager==0");
 
   obsplots_.reset(new ObsPlotCluster(obsm, editm));
+  fieldplots_.reset(new FieldPlotCluster(fieldm, fieldplotm));
 }
 
 Manager *PlotModule::getManager(const std::string &name)
@@ -1252,18 +1155,7 @@ const miutil::miTime& PlotModule::getPlotTime() const
   return staticPlot_->getTime();
 }
 
-miutil::miTime PlotModule::getFieldReferenceTime()
-{
-  if (vfp.size()) {
-    const std::string& pinfo = vfp[0]->getPlotInfo();
-    return fieldplotm->getFieldReferenceTime(pinfo);
-  } else {
-    return miutil::miTime();
-  }
-}
-
-void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
-    bool updateSources)
+void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
 {
   times.clear();
 
@@ -1273,23 +1165,19 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
       times["products"].push_back(pt);
   }
 
-  vector<std::string> pinfos;
-  for (size_t i = 0; i < vfp.size(); i++) {
-    pinfos.push_back(vfp[i]->getPlotInfo());
-    METLIBS_LOG_DEBUG("Field plotinfo:" << vfp[i]->getPlotInfo());
-  }
-  if (pinfos.size() > 0) {
-    times["fields"] = fieldplotm->getFieldTime(pinfos, updateSources);
+  { std::vector<miTime> fieldtimes = fieldplots_->getTimes(updateSources);
+    if (!fieldtimes.empty())
+      std::swap(times["fields"], fieldtimes);
   }
 
   { std::vector<miTime> sattimes = satm->getSatTimes();
-  if (not sattimes.empty())
-    times["satellites"] = sattimes;
+    if (!sattimes.empty())
+      std::swap(times["satellites"], sattimes);
   }
 
   { std::vector<miTime> obstimes = obsplots_->getTimes();
     if (!obstimes.empty())
-      times.insert(std::make_pair("observations", obstimes));
+      std::swap(times["observations"], obstimes);
   }
 
   times["objects"] = objm->getObjectTimes();
@@ -1580,10 +1468,8 @@ void PlotModule::updateEditLabels(const vector<std::string>& productLabelstrings
     ap->setProductName(productName);
 
     vector<vector<string> > vvstr = ap->getAnnotationStrings();
-    for (size_t k = 0; k < vvstr.size(); k++) {
-      for (size_t j = 0; j < vfp.size(); j++)
-        vfp[j]->getDataAnnotations(vvstr[k]);
-    }
+    for (size_t k = 0; k < vvstr.size(); k++)
+      fieldplots_->getDataAnnotations(vvstr[k]);
     ap->setAnnotationStrings(vvstr);
 
     // here we compare the labels, take input from oldVap
@@ -1854,33 +1740,13 @@ void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventRes
   res.repaint = true;
 }
 
-vector<std::string> PlotModule::getTrajectoryFields()
-{
-  vector<std::string> vstr;
-  for (size_t i = 0; i < vfp.size(); i++) {
-    std::string fname = vfp[i]->getTrajectoryFieldName();
-    if (not fname.empty())
-      vstr.push_back(fname);
-  }
-  return vstr;
-}
-
-const FieldPlot* PlotModule::findTrajectoryPlot(const std::string& fieldname)
-{
-  for (size_t i = 0; i < vfp.size(); ++i) {
-    if (miutil::to_lower(vfp[i]->getTrajectoryFieldName()) == fieldname)
-      return vfp[i];
-  }
-  return 0;
-}
-
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();
   if (vtp.size() < 1)
     return false;
 
-  const FieldPlot* fp = findTrajectoryPlot(miutil::to_lower(vtp[0]->getFieldName()));
+  const FieldPlot* fp = fieldplots()->findTrajectoryPlot(miutil::to_lower(vtp[0]->getFieldName()));
   if (!fp)
     return false;
 
@@ -1950,12 +1816,6 @@ void PlotModule::readLog(const vector<std::string>& vstr,
   }
 
   areaIndex = areaQ.size() - 1;
-}
-
-// Miscellaneous get methods
-const vector<FieldPlot*>& PlotModule::getFieldPlots() const
-{
-  return vfp;
 }
 
 void PlotModule::getPlotWindow(int &width, int &height)

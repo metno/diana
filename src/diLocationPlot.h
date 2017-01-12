@@ -62,7 +62,7 @@ public:
   bool changeProjection();
   std::string getName() { return locdata.name; }
   std::string find(int x, int y);
-  void getAnnotation(std::string &str, Colour &col);
+  void getAnnotation(std::string &str, Colour &col) const;
 
 private:
   void drawLineOrPoint(DiGLPainter* gl, int l);

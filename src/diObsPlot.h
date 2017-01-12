@@ -391,7 +391,7 @@ protected:
   void time_sort();
 
   int getObsCount() const;
-  int numVisiblePositions(); // slow!
+  int numVisiblePositions() const; // slow!
 
 protected:
   ObsPlot(const std::string& pin, ObsPlotType plottype);
@@ -420,7 +420,7 @@ public:
 
   bool setData();
   void clear();
-  void getObsAnnotation(std::string &, Colour &);
+  void getAnnotation(std::string &, Colour &) const;
   bool getDataAnnotations(std::vector<std::string>& anno);
 
   void setObsAnnotation(const std::string &anno) // from ObsManager::prepare and ObsManager::sendHqcdata

@@ -200,7 +200,7 @@ public:
   /// set station number i to selected<br> if add is false, unselect all stations first
   int setSelectedStation(int i, bool add=false);
   /// get annotation
-  void getStationPlotAnnotation(std::string &str,Colour &col);
+  void getAnnotation(std::string &str,Colour &col) const;
   /// set annotation
   void setStationPlotAnnotation(const std::string &str);
   /// set UseImage

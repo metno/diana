@@ -196,7 +196,7 @@ public:
   void addPlotElements(std::vector<PlotElement>& pel);
   bool enablePlotElement(const PlotElement& pe);
   void getObjAnnotation(std::string &str, Colour &col);
-  void getObjectsAnnotations(std::vector<std::string>& anno)
+  void getDataAnnotations(std::vector<std::string>& anno)
     { objects.getAnnotations(anno); }
   std::vector<std::string> getObjectLabels()
     { return objects.getObjectLabels(); }

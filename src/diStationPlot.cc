@@ -713,12 +713,11 @@ int StationPlot::setSelectedStation(int i, bool add)
   return -1;
 }
 
-void StationPlot::getStationPlotAnnotation(string &str, Colour &col)
+void StationPlot::getAnnotation(string &str, Colour &col) const
 {
   if (visible) {
     str = annotation;
-    Colour c("red");
-    col = c;
+    col = Colour("red");
   } else {
     str.erase();
   }

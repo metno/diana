@@ -66,7 +66,7 @@ public:
 
   void setTrajectoryData(const TrajectoryData_v& t);
 
-  void getTrajectoryAnnotation(std::string& s, Colour& c);
+  void getAnnotation(std::string& s, Colour& c) const;
 
   bool printTrajectoryPositions(const std::string& filename);
 

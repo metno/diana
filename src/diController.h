@@ -369,9 +369,9 @@ public:
   void setPaintModeEnabled(bool);
 
   // Miscellaneous get methods
-  const std::vector<SatPlot*>& getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  const std::vector<FieldPlot*>& getFieldPlots() const;     // Returns a vector of defined field plots.
-  const std::vector<ObsPlot*>& getObsPlots() const;         // Returns a vector of defined observation plots.
+  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  std::vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
+  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
 #endif

@@ -3,8 +3,8 @@
 #include "diEditManager.h"
 #include "diObsManager.h"
 #include "diObsPlot.h"
-#include "diPlotModule.h" // for was_enabled
 #include "diUtilities.h"
+#include "util/was_enabled.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -20,18 +20,11 @@ ObsPlotCluster::ObsPlotCluster(ObsManager* obsm, EditManager* editm)
   , collider_(new ObsPlotCollider)
   , obsm_(obsm)
   , editm_(editm)
-  , canvas_(0)
 {
 }
 
 ObsPlotCluster::~ObsPlotCluster()
 {
-  cleanup();
-}
-
-void ObsPlotCluster::cleanup()
-{
-  diutil::delete_all_and_clear(plots_);
 }
 
 const std::string& ObsPlotCluster::plotCommandKey() const
@@ -48,8 +41,8 @@ void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
   // for now -- erase all obsplots etc..
   //first log stations plotted
   for (size_t i = 0; i < plots_.size(); i++)
-    plots_[i]->logStations();
-  diutil::delete_all_and_clear(plots_);
+    at(i)->logStations();
+  cleanup();
   hasDevField_ = false;
 
   for (size_t i = 0; i < inp.size(); i++) {
@@ -65,34 +58,24 @@ void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
   collider_->clear();
 }
 
-void ObsPlotCluster::setCanvas(DiCanvas* canvas)
-{
-  if (canvas == canvas_)
-    return;
-  canvas_ = canvas;
-  for (size_t i = 0; i < plots_.size(); i++) {
-    ObsPlot* op = plots_[i];
-    op->setCanvas(canvas_);
-  }
-}
-
 bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
 {
   bool havedata = false;
 
   if (!ifNeeded) {
     for (size_t i = 0; i < plots_.size(); i++)
-      plots_[i]->logStations();
+      at(i)->logStations();
   }
   for (size_t i = 0; i < plots_.size(); i++) {
-    if (!ifNeeded || plots_[i]->updateObs()) {
-      if (obsm_->prepare(plots_[i], t)) {
+    ObsPlot* op = at(i);
+    if (!ifNeeded || op->updateObs()) {
+      if (obsm_->prepare(op, t)) {
         havedata = true;
       }
     }
     //update list of positions ( used in "PPPP-mslp")
     // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields
-    plots_[i]->updateObsPositions();
+    op->updateObsPositions();
   }
   return havedata;
 }
@@ -109,35 +92,20 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
   const bool obsedit = (hasDevField_ && editm_->isObsEdit());
   const bool plotoverlay = (zorder == Plot::OVERLAY && obsedit);
 
-  for (size_t i = 0; i < plots_.size(); i++) {
-    ObsPlot* op = plots_[i];
-    if (plotoverlay) {
+  if (plotoverlay) {
+    for (size_t i = 0; i < plots_.size(); i++) {
+      ObsPlot* op = at(i);
       if (editm_->interpolateEditField(op->getObsPositions()))
         op->updateFromEditField();
     }
-    op->plot(gl, zorder);
   }
+  PlotCluster::plot(gl, zorder);
 }
 
-void ObsPlotCluster::getAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)
+void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
-  Colour col;
-  std::string str;
-  AnnotationPlot::Annotation ann;
-  for (size_t j = 0; j < plots_.size(); j++) {
-    if (!plots_[j]->isEnabled())
-      continue;
-    plots_[j]->getObsAnnotation(str, col);
-    ann.str = str;
-    ann.col = col;
-    annotations.push_back(ann);
-  }
-}
-
-void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
-{
-  for (size_t j = 0; j < plots_.size(); j++) {
-    plots_[j]->getDataAnnotations(anno);
+  for (size_t i = 0; i < plots_.size(); i++) {
+    at(i)->getDataAnnotations(anno);
   }
 }
 
@@ -145,9 +113,9 @@ void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 {
   //get obs annotations
   for (size_t i = 0; i < plots_.size(); i++) {
-    if (!plots_[i]->isEnabled())
+    if (!at(i)->isEnabled())
       continue;
-    std::vector<std::string> obsinfo = plots_[i]->getObsExtraAnnotations();
+    std::vector<std::string> obsinfo = at(i)->getObsExtraAnnotations();
     for (size_t j = 0; j < obsinfo.size(); j++) {
       AnnotationPlot* ap = new AnnotationPlot(obsinfo[j]);
       vap.push_back(ap);
@@ -167,32 +135,9 @@ std::vector<miutil::miTime> ObsPlotCluster::getTimes()
   }
 }
 
-void ObsPlotCluster::addPlotElements(std::vector<PlotElement>& pel)
+const std::string& ObsPlotCluster::keyPlotElement() const
 {
-  for (size_t j = 0; j < plots_.size(); j++) {
-    std::string str = plots_[j]->getPlotName() + "# " + miutil::from_number(int(j));
-    bool enabled = plots_[j]->isEnabled();
-    pel.push_back(PlotElement(OBS, str, OBS, enabled));
-  }
-}
-
-bool ObsPlotCluster::enablePlotElement(const PlotElement& pe)
-{
-  if (pe.type != OBS)
-    return false;
-  for (unsigned int i = 0; i < plots_.size(); i++) {
-    std::string str = plots_[i]->getPlotName() + "# " + miutil::from_number(int(i));
-    if (str == pe.str) {
-      Plot* op = plots_[i];
-      if (op->isEnabled() != pe.enabled) {
-        op->setEnabled(pe.enabled);
-        return true;
-      } else {
-        break;
-      }
-    }
-  }
-  return false;
+  return OBS;
 }
 
 bool ObsPlotCluster::findObs(int x, int y)
@@ -200,7 +145,7 @@ bool ObsPlotCluster::findObs(int x, int y)
   bool found = false;
 
   for (size_t i = 0; i < plots_.size(); i++)
-    if (plots_[i]->showpos_findObs(x, y))
+    if (at(i)->showpos_findObs(x, y))
       found = true;
 
   return found;
@@ -209,7 +154,7 @@ bool ObsPlotCluster::findObs(int x, int y)
 bool ObsPlotCluster::getObsName(int x, int y, std::string& name)
 {
   for (size_t i = 0; i < plots_.size(); i++)
-    if (plots_[i]->getObsName(x, y, name))
+    if (at(i)->getObsName(x, y, name))
       return true;
 
   return false;
@@ -221,7 +166,7 @@ std::string ObsPlotCluster::getObsPopupText(int x, int y)
   std::string obsText = "";
 
   for (size_t i = 0; i < n; i++)
-    if (plots_[i]->getObsPopupText(x, y, obsText))
+    if (at(i)->getObsPopupText(x, y, obsText))
       return obsText;
 
   return obsText;
@@ -230,5 +175,19 @@ std::string ObsPlotCluster::getObsPopupText(int x, int y)
 void ObsPlotCluster::nextObs(bool next)
 {
   for (size_t i = 0; i < plots_.size(); i++)
-    plots_[i]->nextObs(next);
+    at(i)->nextObs(next);
+}
+
+std::vector<ObsPlot*> ObsPlotCluster::getObsPlots() const
+{
+  std::vector<ObsPlot*> obsplots;
+  obsplots.reserve(plots_.size());
+  for (std::vector<Plot*>::const_iterator it = plots_.begin(); it != plots_.end(); ++it)
+    obsplots.push_back(static_cast<ObsPlot*>(*it));
+  return obsplots;
+}
+
+ObsPlot* ObsPlotCluster::at(size_t i) const
+{
+  return static_cast<ObsPlot*>(plots_[i]);
 }

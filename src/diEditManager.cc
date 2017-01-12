@@ -38,6 +38,7 @@
 #include "diPlotModule.h"
 #include "diObjectManager.h"
 #include "diObsPositions.h"
+#include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
@@ -1221,7 +1222,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
       // edit field from existing field, find correct fieldplot
 
-      const std::vector<FieldPlot*>& vfp = plotm->getFieldPlots();
+      const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
       vector<Field*> vf;
       size_t i=0;
       for (; i<vfp.size(); i++){
@@ -1770,7 +1771,7 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
   vector<std::string> vstr;
   std::string fname= miutil::to_lower(ep.fields[element].name);
 
-  const std::vector<FieldPlot*>& vfp = plotm->getFieldPlots();
+  const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
   for (size_t i=0; i<vfp.size(); i++){
     vector<Field*> vf = vfp[i]->getFields();
     // for now, only accept scalar fields
@@ -3351,7 +3352,7 @@ void EditManager::setMapmodeinfo(){
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 }
 
-bool EditManager::getAnnotations(vector<string>& anno)
+bool EditManager::getDataAnnotations(vector<string>& anno)
 {
   for (size_t i=0; i<fedits.size(); i++)
     fedits[i]->getAnnotations(anno);

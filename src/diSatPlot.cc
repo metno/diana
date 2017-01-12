@@ -53,7 +53,7 @@ SatPlot::~SatPlot()
   delete satdata;
 }
 
-void SatPlot::getSatAnnotation(std::string &str, Colour &col)
+void SatPlot::getAnnotation(std::string &str, Colour &col) const
 {
   if (satdata->approved){
     str = satdata->annotation;

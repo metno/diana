@@ -36,6 +36,7 @@
 #include "diAreaObjectsCluster.h"
 #include "diManager.h"
 #include "diPlotModule.h"
+#include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diObsManager.h"
 #include "diObsPlotCluster.h"
@@ -386,7 +387,7 @@ bool Controller::startTrajectoryComputation(){
 // get trajectory fields
 vector<string> Controller::getTrajectoryFields()
 {
-  return plotm->getTrajectoryFields();
+  return plotm->fieldplots()->getTrajectoryFields();
 }
 
 // write trajectory positions to file
@@ -868,7 +869,7 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
 
 miutil::miTime Controller::getFieldReferenceTime()
 {
-  return plotm->getFieldReferenceTime();
+  return plotm->fieldplots()->getFieldReferenceTime();
 }
 
 void Controller::getFieldGroups(const std::string& modelName,
@@ -1101,17 +1102,17 @@ void Controller::readLog(const vector<string>& vstr,
 }
 
 // Miscellaneous get methods
-const vector<SatPlot*>& Controller::getSatellitePlots() const
+vector<SatPlot*> Controller::getSatellitePlots() const
 {
   return satm->getSatellitePlots();
 }
 
-const std::vector<FieldPlot*>& Controller::getFieldPlots() const
+std::vector<FieldPlot*> Controller::getFieldPlots() const
 {
-  return plotm->getFieldPlots();
+  return plotm->fieldplots()->getFieldPlots();
 }
 
-const std::vector<ObsPlot*>& Controller::getObsPlots() const
+std::vector<ObsPlot*> Controller::getObsPlots() const
 {
   return plotm->obsplots()->getObsPlots();
 }

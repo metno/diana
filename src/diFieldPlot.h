@@ -70,7 +70,7 @@ public:
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
-  void getFieldAnnotation(std::string&, Colour&) const;
+  void getAnnotation(std::string&, Colour&) const;
   const std::vector<Field*>& getFields() const {return fields; }
 
   //! time of model analysis

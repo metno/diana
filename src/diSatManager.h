@@ -93,7 +93,7 @@ private:
 
   miutil::miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
 
-  void getMosaicfiles(Sat* satdata);
+  void getMosaicfiles(Sat* satdata, const miutil::miTime& t);
   void addMosaicfiles(Sat* satdata);
   std::vector<SatFileInfo> mosaicfiles;
 
@@ -107,7 +107,7 @@ private:
   unsigned long _modtime(const std::string fname);
   int _filestat(const std::string fname, pu_struct_stat& filestat);
   bool parseChannels(Sat* satdata, SatFileInfo &info);
-  bool readSatFile(Sat* satdata);
+  bool readSatFile(Sat* satdata, const miutil::miTime& t);
 
   void init(const std::vector<std::string>&);
   void init_rgbindex(Sat& sd);
@@ -140,7 +140,7 @@ public:
   void addPlotElements(std::vector<PlotElement>& pel);
   bool enablePlotElement(const PlotElement& pe);
   void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
-  void getSatAnnotations(std::vector<std::string>& anno);
+  void getDataAnnotations(std::vector<std::string>& anno);
   void plot(DiGLPainter* gl, Plot::PlotOrder porder);
   void clear();
   bool getGridResolution(float& rx, float& ry);

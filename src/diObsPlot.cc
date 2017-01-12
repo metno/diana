@@ -437,7 +437,7 @@ void ObsPlot::setTextCodec(const char* codecName)
   setTextCodec(QTextCodec::codecForName(codecName));
 }
 
-void ObsPlot::getObsAnnotation(string &str, Colour &col)
+void ObsPlot::getAnnotation(string &str, Colour &col) const
 {
   //Append to number of plots to the annotation string
   if (not annotation.empty()) {
@@ -548,7 +548,7 @@ void ObsPlot::updateLevel(const std::string& dataType)
   }
 }
 
-int ObsPlot::numVisiblePositions()
+int ObsPlot::numVisiblePositions() const
 {
   METLIBS_LOG_SCOPE();
 

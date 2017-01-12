@@ -35,10 +35,10 @@
 
 #include "diSatManager.h"
 
-#include "diPlotModule.h"
 #include "diSatPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/was_enabled.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puCtools/stat.h>
@@ -234,12 +234,12 @@ void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& anno
   for (size_t j = 0; j < vsp.size(); j++) {
     if (!vsp[j]->isEnabled())
       continue;
-    vsp[j]->getSatAnnotation(ann.str, ann.col);
+    vsp[j]->getAnnotation(ann.str, ann.col);
     annotations.push_back(ann);
   }
 }
 
-void SatManager::getSatAnnotations(std::vector<std::string>& anno)
+void SatManager::getDataAnnotations(std::vector<std::string>& anno)
 {
   for (size_t j = 0; j < vsp.size(); j++)
     vsp[j]->getAnnotations(anno);
@@ -290,6 +290,7 @@ bool SatManager::setData(SatPlot *satp)
   METLIBS_LOG_SCOPE();
 
   Sat* satdata = satp->satdata;
+  const miutil::miTime& satptime = satp->getStaticPlot()->getTime();
 
   //not yet approved for plotting
   satdata->approved= false;
@@ -303,7 +304,7 @@ bool SatManager::setData(SatPlot *satp)
       index=getFileName(satdata, satdata->actualfile);
     else
       //find filename from time
-      index=getFileName(satdata, PlotModule::instance()->getStaticPlot()->getTime());
+      index=getFileName(satdata, satptime);
   }
 
   if (index <0) {
@@ -343,7 +344,7 @@ bool SatManager::setData(SatPlot *satp)
       return false;
     }
     satdata->cleanup();
-    if (!readSatFile(satdata)) {
+    if (!readSatFile(satdata, satptime)) {
       METLIBS_LOG_ERROR("Failed readSatFile");
       return false;
     }
@@ -435,7 +436,7 @@ bool SatManager::parseChannels(Sat* satdata, SatFileInfo &fInfo)
 
 /***********************************************************************/
 
-bool SatManager::readSatFile(Sat* satdata)
+bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 {
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
@@ -480,7 +481,7 @@ bool SatManager::readSatFile(Sat* satdata)
   }
 
   if (satdata->mosaic) {
-    getMosaicfiles(satdata);
+    getMosaicfiles(satdata, t);
     addMosaicfiles(satdata);
   }
 
@@ -921,16 +922,12 @@ void SatManager::addMosaicfiles(Sat* satdata)
 
 }
 
-void SatManager::getMosaicfiles(Sat* satdata)
+void SatManager::getMosaicfiles(Sat* satdata, const miutil::miTime& t)
 {
   METLIBS_LOG_SCOPE();
 
   int satdiff, plotdiff, diff= satdata->maxDiff+1;
-  miTime plottime, sattime=satdata->time;
-  if (satdata->autoFile)
-    plottime=PlotModule::instance()->getStaticPlot()->getTime();
-  else
-    plottime=sattime;
+  const miutil::miTime& plottime = (satdata->autoFile) ? t : satdata->time;
 
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
@@ -939,7 +936,7 @@ void SatManager::getMosaicfiles(Sat* satdata)
 
   std::vector<SatFileInfo>::iterator p = subp.file.begin();
   while (p!=subp.file.end()) {
-    satdiff = abs(miTime::minDiff(p->time, sattime)); //diff from current sat time
+    satdiff = abs(miTime::minDiff(p->time, satdata->time)); //diff from current sat time
     plotdiff = abs(miTime::minDiff(p->time, plottime)); //diff from current plottime
     if (plotdiff<diff && satdiff<diff && satdiff!=0) {
       std::vector<SatFileInfo>::iterator q = mosaicfiles.begin();
@@ -953,7 +950,6 @@ void SatManager::getMosaicfiles(Sat* satdata)
     }
     p++;
   }
-
 }
 
 bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel)

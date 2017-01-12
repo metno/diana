@@ -255,7 +255,7 @@ bool FieldPlot::updateIfNeeded()
   return data;
 }
 
-void FieldPlot::getFieldAnnotation(string& s, Colour& c) const
+void FieldPlot::getAnnotation(string& s, Colour& c) const
 {
   if (poptions.options_1)
     c = poptions.linecolour;
