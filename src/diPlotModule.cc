@@ -1155,35 +1155,28 @@ const miutil::miTime& PlotModule::getPlotTime() const
   return staticPlot_->getTime();
 }
 
+namespace {
+typedef std::vector<miutil::miTime> plottimes_t;
+typedef std::map<std::string, plottimes_t> times_t;
+void insertTimes(times_t& times, const std::string& plotkey, const plottimes_t& plottimes)
+{
+  if (!plottimes.empty())
+    times.insert(std::make_pair(plotkey, plottimes));
+}
+} // namespace
+
 void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
 {
   times.clear();
 
-  { // edit product proper time
-    miutil::miTime pt;;
-    if (editm->getProductTime(pt))
-      times["products"].push_back(pt);
+  insertTimes(times, "products", editm->getTimes());
+  insertTimes(times, "fields", fieldplots_->getTimes(updateSources)); // TODO this one has an extra "updateSources" parameter
+  insertTimes(times, "satellites", satm->getSatTimes());
+  insertTimes(times, "observations", obsplots_->getTimes());
+  insertTimes(times, "objects", objm->getTimes());
+  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
+    insertTimes(times, it->first, it->second->getTimes());
   }
-
-  { std::vector<miTime> fieldtimes = fieldplots_->getTimes(updateSources);
-    if (!fieldtimes.empty())
-      std::swap(times["fields"], fieldtimes);
-  }
-
-  { std::vector<miTime> sattimes = satm->getSatTimes();
-    if (!sattimes.empty())
-      std::swap(times["satellites"], sattimes);
-  }
-
-  { std::vector<miTime> obstimes = obsplots_->getTimes();
-    if (!obstimes.empty())
-      std::swap(times["observations"], obstimes);
-  }
-
-  times["objects"] = objm->getObjectTimes();
-
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
-    times[it->first] = it->second->getTimes();
 }
 
 //returns union or intersection of plot times from all pinfos

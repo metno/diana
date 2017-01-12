@@ -339,7 +339,7 @@ public:
   /// returns list of objectfiles for use in dialog
   std::vector <ObjFileInfo> getObjectFiles(const std::string& objectname, bool refresh);
   /// returns list of times
-  std::vector<miutil::miTime> getObjectTimes();
+  std::vector<miutil::miTime> getTimes();
   std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
 
   ///returns union or intersection of plot times from all pinfos

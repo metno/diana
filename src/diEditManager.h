@@ -187,7 +187,9 @@ public:
                         const bool send = false,
 			const bool isapproved = false);
   /// returns the current product time
-  bool getProductTime(miutil::miTime& t);
+  bool getProductTime(miutil::miTime& t) const;
+  //! same as getProductTime, but result is wrapped in a vector
+  std::vector<miutil::miTime> getTimes() const;
   /// returns the current product name
   std::string getProductName();
   /// save edited annotations in EditObjects

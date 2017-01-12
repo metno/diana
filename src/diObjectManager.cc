@@ -161,7 +161,7 @@ vector<std::string> ObjectManager::getObjectNames(bool archive)
 }
 
 //  * PURPOSE:   return times for list of PlotInfo's
-vector<miTime> ObjectManager::getObjectTimes()
+vector<miTime> ObjectManager::getTimes()
 {
   METLIBS_LOG_SCOPE();
 

@@ -953,18 +953,23 @@ bool EditManager::unsentEditChanges(){
 }
 
 
-
-
-bool EditManager::getProductTime(miTime& t){
-  //METLIBS_LOG_DEBUG("EditManager::getProductTime");
-  //returns the current product time
-  if (producttimedefined){
+bool EditManager::getProductTime(miTime& t) const
+{
+  //METLIBS_LOG_SCOPE();
+  if (producttimedefined) {
     t = producttime;
     return true;
   } else
     return false;
 }
 
+std::vector<miutil::miTime> EditManager::getTimes() const
+{
+  std::vector<miutil::miTime> times(1);
+  if (!getProductTime(times.back()))
+    times.clear();
+  return times;
+}
 
 std::string EditManager::getProductName(){
   //METLIBS_LOG_DEBUG("EditManager::getProductName");

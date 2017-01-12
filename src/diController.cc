@@ -286,7 +286,8 @@ void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool u
   plotm->getPlotTimes(times, updateSources);
 }
 
-bool Controller::getProductTime(miTime& t){
+bool Controller::getProductTime(miTime& t)
+{
   return editm->getProductTime(t);
 }
 
