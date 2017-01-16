@@ -69,11 +69,13 @@ void TimeSlider::init()
   startani= false;
 }
 
-miutil::miTime TimeSlider::Value(){
-  unsigned int v= value();
-  if (v < times.size())
-    return times[v];
-  else return miutil::miTime::nowTime();
+miutil::miTime TimeSlider::Value()
+{
+  int v = value();
+  if (v>= 0 && v < int(times.size()))
+    return times[size_t(v)];
+  else
+    return miutil::miTime::nowTime();
 }
 
 
@@ -343,14 +345,17 @@ void TimeSlider::updateList()
   //  if (useminmax) setMinMax(start,stop);
 }
 
-void TimeSlider::setTime(const miutil::miTime& t){
+void TimeSlider::setTime(const miutil::miTime& t)
+{
   set(t);
 }
 
-void TimeSlider::setTime(const std::string& datatype, const miutil::miTime& t)
+bool TimeSlider::setTime(const std::string& datatype, const miutil::miTime& t)
 {
-  if (datatype == dataTypeUsed)
-    set(t);
+  if (datatype != dataTypeUsed)
+    return false;
+  set(t);
+  return true;
 }
 
 
@@ -417,27 +422,32 @@ void TimeSlider::setFirstTime(const miutil::miTime& t){
 bool TimeSlider::setSliderValue(const int v)
 {
   int n= times.size();
-  if (v>=0 && v<n){
+  if (v>=0 && v<n) {
     setValue(v);
-    prevtime= times[v];
-  } else return false;
-  return true;
+    prevtime = times[v];
+    return true;
+  } else {
+    return false;
+  }
 }
 
 
 // set slider to value corresponding to a miutil::miTime
 // For illegal values: do nothing
-void TimeSlider::set(const miutil::miTime& t){
+void TimeSlider::set(const miutil::miTime& t)
+{
   int n= times.size();
   int v=-1, i;
-  for (i=0; i<n && times[i]<t; i++)
-    ;
-  if ((i<n) && (t==times[i])) v=i;
+  for (i=0; i<n && times[i]<t; i++) {
+  }
+  if ((i<n) && (t==times[i]))
+    v=i;
 
   setSliderValue(v);
 }
 
-void TimeSlider::useData(std::string datatype){
+void TimeSlider::useData(std::string datatype)
+{
   dataType = datatype;
   updateList();
   emit newTimes(orig_times);

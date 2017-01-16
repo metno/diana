@@ -326,7 +326,7 @@ void TimeControl::minmaxSlot(){
 }
 
 
-void TimeControl::useData(std::string type, int id){
+void TimeControl::useData(const std::string& type, int id){
 
   int n= dataname.size();
   for(int i=0;i<n;i++){

@@ -225,6 +225,7 @@ libdianaui_a_QTSOURCES = \
 	qtTextDialog.cc \
 	qtTextView.cc \
 	qtTimeControl.cc \
+	qtTimeNavigator.cc \
 	qtTimeSlider.cc \
 	qtTimeSpinbox.cc \
 	qtTimeStepSpinbox.cc \
@@ -426,6 +427,7 @@ noinst_HEADERS = \
 	qtTextDialog.h \
 	qtTextView.h \
 	qtTimeControl.h \
+	qtTimeNavigator.h \
 	qtTimeSlider.h \
 	qtTimeSpinbox.h \
 	qtTimeStepSpinbox.h \

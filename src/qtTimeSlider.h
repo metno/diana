@@ -73,15 +73,15 @@ public:
   
   void set(const miutil::miTime&);
 
- public Q_SLOTS:
+public Q_SLOTS:
   void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);
   void clearMinMax();
   ///add new times for datatype
   void insert(const std::string& datatype, const std::vector<miutil::miTime>&,bool =true);
- /// force new value
+  /// force new value
   void setTime(const miutil::miTime&);
- /// force new value if datatype match
-  void setTime( const std::string& datatype, const miutil::miTime&);
+  /// force new value if datatype match
+  bool setTime(const std::string& datatype, const miutil::miTime&);
   /// time-interval changed
   void setInterval(int);
   ///use times from datatype(field, sat, obs ..)
