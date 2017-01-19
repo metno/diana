@@ -17,6 +17,7 @@ const std::string OBS = "OBS";
 
 ObsPlotCluster::ObsPlotCluster(ObsManager* obsm, EditManager* editm)
   : hasDevField_(false)
+  , collider_(new ObsPlotCollider)
   , obsm_(obsm)
   , editm_(editm)
   , canvas_(0)
@@ -56,10 +57,12 @@ void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
     if (op) {
       plotenabled.restore(op);
       op->setCanvas(canvas_);
+      op->setCollider(collider_.get());
       plots_.push_back(op);
       hasDevField_ |= op->mslp();
     }
   }
+  collider_->clear();
 }
 
 void ObsPlotCluster::setCanvas(DiCanvas* canvas)
@@ -99,7 +102,7 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
   if (zorder != Plot::LINES && zorder != Plot::OVERLAY)
     return;
 
-  ObsPlot::clearPos();
+  collider_->clear();
 
   // plot observations (if in fieldEditMode  and the option obs_mslp is true, plot observations in overlay)
 

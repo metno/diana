@@ -10,6 +10,7 @@
 class EditManager;
 class ObsManager;
 class ObsPlot;
+class ObsPlotCollider;
 
 class ObsPlotCluster
 {
@@ -56,6 +57,7 @@ public:
 private:
   std::vector<ObsPlot*> plots_; // vector of observation plots
   bool hasDevField_;
+  std::auto_ptr<ObsPlotCollider> collider_;
 
   ObsManager* obsm_;
   EditManager* editm_;

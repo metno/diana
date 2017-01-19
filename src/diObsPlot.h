@@ -41,6 +41,27 @@
 class ObsPositions;
 class QTextCodec;
 
+struct ObsPlotCollider {
+  struct Box {
+    float x1, x2, y1, y2;
+    int index;
+  };
+
+  std::vector<Box> usedBox;
+  std::vector<float> xUsed;
+  std::vector<float> yUsed;
+
+  void clear();
+
+  bool positionFree(float, float, float, float);
+  void positionPop();
+
+  bool areaFree(const Box* b1, const Box* b2=0);
+  void areaPop();
+
+  bool collision(const Box& box) const;
+};
+
 /**
  \brief Plot observations
 
@@ -177,19 +198,9 @@ protected:
   //which parameters to plot
   std::map<std::string, bool> pFlag;
 
-  // ------------------------------------------------------------------------
-  //Positions of plotted observations
-  struct UsedBox {
-    float x1, x2, y1, y2;
-  };
-  //  static
-  static std::vector<float> xUsed;
-  static std::vector<float> yUsed;
-  static std::vector<UsedBox> usedBox;
+  ObsPlotCollider* collider_;
 
-  bool positionFree(float, float, float, float);
-  void areaFreeSetup(float scale, float space, int num, float xdist,
-      float ydist);
+  void areaFreeSetup(float scale, float space, int num, float xdist, float ydist);
   bool areaFree(int idx);
   // ------------------------------------------------------------------------
 
@@ -392,8 +403,9 @@ public:
 
   bool operator==(const ObsPlot &rhs) const;
 
-  // clear info about text/symbol layers
-  static void clearPos();
+  void setCollider(ObsPlotCollider* collider)
+    { collider_ = collider; }
+
   // return the computed index in stationlist, ROADOBS only
   std::vector<int> & getStationsToPlot();
   // clear VisibleStations map from current plottype

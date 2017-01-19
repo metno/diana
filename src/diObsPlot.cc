@@ -59,10 +59,6 @@
 using namespace std;
 using namespace miutil;
 
-//  static members
-vector<float> ObsPlot::xUsed;
-vector<float> ObsPlot::yUsed;
-vector<ObsPlot::UsedBox> ObsPlot::usedBox;
 map<std::string, vector<std::string> > ObsPlot::visibleStations;
 map<std::string, ObsPlot::metarww> ObsPlot::metarMap;
 map<int, int> ObsPlot::lwwg2;
@@ -90,6 +86,76 @@ public:
     { gl->Translatef(translate.x(), translate.y(), 0); gl->Scalef(scale, scale, 1); }
 };
 } // namespace /*anonymous*/
+
+void ObsPlotCollider::clear()
+{
+  METLIBS_LOG_SCOPE(LOGVAL(xUsed.size()));
+
+  xUsed.clear();
+  yUsed.clear();
+  usedBox.clear();
+}
+
+bool ObsPlotCollider::positionFree(float x, float y, float xdist, float ydist)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y) << LOGVAL(xdist) << LOGVAL(ydist));
+
+  for (size_t i = 0; i < xUsed.size(); i++) {
+    if (fabsf(x - xUsed[i]) < xdist && fabsf(y - yUsed[i]) < ydist)
+      return false;
+  }
+  xUsed.push_back(x);
+  yUsed.push_back(y);
+  return true;
+}
+
+void ObsPlotCollider::positionPop()
+{
+  if (xUsed.size()) {
+    xUsed.pop_back();
+    yUsed.pop_back();
+  }
+}
+
+bool ObsPlotCollider::areaFree(const Box* b1, const Box* b2)
+{
+  bool c = collision(*b1);
+  if (!c && b2)
+    c = collision(*b2);
+  if (c)
+    return false;
+  usedBox.push_back(*b1);
+  usedBox.back().index = 0;
+  if (b2) {
+    usedBox.push_back(*b2);
+    usedBox.back().index = 1;
+  }
+  return true;
+}
+
+void ObsPlotCollider::areaPop()
+{
+  while (usedBox.size()) {
+    bool last = usedBox.back().index == 0;
+    usedBox.pop_back();
+    if (last)
+      break;
+  }
+}
+
+bool ObsPlotCollider::collision(const Box& box) const
+{
+  int n = usedBox.size();
+  int i = 0;
+  for (; i < n; ++i) {
+    const Box& ub = usedBox[i];
+    if (!(box.x1 > ub.x2 || box.x2 < ub.x1 || box.y1 > ub.y2 || box.y2 < ub.y1))
+      break;
+  }
+  return (i != n);
+}
+
+// ========================================================================
 
 ObsPlot::ObsPlot(const std::string& pin, ObsPlotType plottype)
   : m_plottype(plottype)
@@ -736,8 +802,6 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   }
   if (op->mslp())
     op->pFlag["pppp_mslp"] = true;
-
-  ObsPlot::clearPos();
 
   // static tables, read once
 
@@ -1743,8 +1807,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
             list_plotnr[i] = plotnr;
           } else {
             list_plotnr[i] = -2;
-            if (usedBox.size())
-              usedBox.pop_back();
+            collider_->areaPop();
           }
         } else {
           notplot.push_back(i);
@@ -1753,7 +1816,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     } else {
       for (p = pbegin; p != pend; p++) {
         int i = *p;
-        if (allObs || positionFree(x[i], y[i], xdist, ydist)) {
+        if (allObs || collider_->positionFree(x[i], y[i], xdist, ydist)) {
           //Select parameter with correct accumulation/max value interval
           if (plottype() != OPT_ROADOBS) {
             if (pFlag.count("911ff")) {
@@ -1771,10 +1834,8 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
             list_plotnr[i] = plotnr;
           } else {
             list_plotnr[i] = -2;
-            if (xUsed.size())
-              xUsed.pop_back();
-            if (yUsed.size())
-              yUsed.pop_back();
+            if (!allObs)
+              collider_->positionPop();
           }
         } else {
           notplot.push_back(i);
@@ -1836,25 +1897,9 @@ void ObsPlot::plotIndex(DiGLPainter* gl, int index)
   }
 }
 
-bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
+void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist, float ydist)
 {
-  METLIBS_LOG_SCOPE(
-      "x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist);
-
-  for (size_t i = 0; i < xUsed.size(); i++) {
-    if (fabsf(x - xUsed[i]) < xdist && fabsf(y - yUsed[i]) < ydist)
-      return false;
-  }
-  xUsed.push_back(x);
-  yUsed.push_back(y);
-  return true;
-}
-
-void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
-    float ydist)
-{
-  METLIBS_LOG_SCOPE(
-      "scale: " << scale << " space: " << space << " num: " << num << " xdist: " << xdist << " ydist: " << ydist);
+  METLIBS_LOG_SCOPE(LOGVAL(scale) << LOGVAL(space) << LOGVAL(num) << LOGVAL(xdist) << LOGVAL(ydist));
 
   areaFreeSpace = space;
 
@@ -1888,7 +1933,7 @@ bool ObsPlot::areaFree(int idx)
   float xc = x[idx];
   float yc = y[idx];
 
-  UsedBox ub[2];
+  ObsPlotCollider::Box ub[2];
   int idd = 0, nb = 0;
 
   int pos = 1;
@@ -1937,36 +1982,7 @@ bool ObsPlot::areaFree(int idx)
     nb++;
   }
 
-  bool result = true;
-  int ib = 0;
-  int n = usedBox.size();
-
-  while (result && ib < nb) {
-    int i = 0;
-    while (i < n
-        && (ub[ib].x1 > usedBox[i].x2 || ub[ib].x2 < usedBox[i].x1
-            || ub[ib].y1 > usedBox[i].y2 || ub[ib].y2 < usedBox[i].y1))
-      i++;
-    result = (i == n);
-    ib++;
-  }
-
-  if (result) {
-    for (ib = 0; ib < nb; ib++)
-      usedBox.push_back(ub[ib]);
-  }
-  return result;
-}
-
-// static
-void ObsPlot::clearPos()
-{
-  METLIBS_LOG_SCOPE("clearPos " << xUsed.size());
-
-  //Reset before new plot
-  xUsed.clear();
-  yUsed.clear();
-  usedBox.clear();
+  return collider_->areaFree(&ub[0], nb == 2 ? &ub[1] : 0);
 }
 
 void ObsPlot::advanceByDD(int dd, QPointF& xypos)
