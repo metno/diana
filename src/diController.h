@@ -154,8 +154,7 @@ public:
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
       const std::vector<std::string>& pinfos,
-      bool allTimes=true,
-      bool updateSources=false);
+      bool allTimes=true);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name

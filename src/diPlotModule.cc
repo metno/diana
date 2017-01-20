@@ -1181,7 +1181,7 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times)
 
 //returns union or intersection of plot times from all pinfos
 void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::string>& pinfos,
-    bool allTimes, bool updateSources)
+    bool allTimes)
 {
   vector<miTime> normalTimes;
   int timediff;
@@ -1192,7 +1192,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::str
     if (!tokens.empty()) {
       std::string type = miutil::to_upper(tokens[0]);
       if (type == "FIELD")
-        fieldplotm->getCapabilitiesTime(normalTimes, timediff, pinfos[i], updateSources);
+        fieldplotm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
       else if (type == "SAT")
         satm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
       else if (type == "OBS")

@@ -728,11 +728,9 @@ const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-    const vector<string>& pinfos,
-    bool allTimes,
-    bool updateSources)
+    const vector<string>& pinfos, bool allTimes)
 {
-  plotm->getCapabilitiesTime(okTimes,pinfos,allTimes,updateSources);
+  plotm->getCapabilitiesTime(okTimes,pinfos,allTimes);
 }
 
 const vector<Colour>& Controller::getSatColours(const std::string& satellite,

@@ -2009,7 +2009,7 @@ static int handleTimeCommand(int& k)
   main_controller->plotCommands(pcom);
 
   set<miTime> okTimes;
-  main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union", true);
+  main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union");
 
   // open filestream
   ofstream file(priop.fname.c_str());

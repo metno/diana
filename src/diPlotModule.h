@@ -233,8 +233,7 @@ public:
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      const std::vector<std::string>& pinfos, bool allTimes = true,
-      bool updateSources = false);
+      const std::vector<std::string>& pinfos, bool allTimes = true);
 
   /// set plottime (forwarded to staticPlot_)
   void setPlotTime(const miutil::miTime&);

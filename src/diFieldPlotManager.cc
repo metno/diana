@@ -419,12 +419,11 @@ miTime FieldPlotManager::getFieldReferenceTime(const string& pinfo)
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo, bool updateSources)
+    int& timediff, const std::string& pinfo)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(pinfo));
   //Finding times from pinfo
   //TODO: find const time
-
-  METLIBS_LOG_INFO(" getCapabilitiesTime: "<<pinfo);
 
   //finding timediff
   timediff = 0;
@@ -441,7 +440,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 
   //getting times
-  normalTimes = getFieldTime(vector<string>(1, pinfo), updateSources);
+  normalTimes = getFieldTime(vector<string>(1, pinfo), true);
 
   METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
