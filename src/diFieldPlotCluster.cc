@@ -75,7 +75,7 @@ void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
   }
 }
 
-std::vector<miutil::miTime> FieldPlotCluster::getTimes(bool updateSources)
+std::vector<miutil::miTime> FieldPlotCluster::getTimes()
 {
   std::vector<std::string> pinfos;
   for (size_t i = 0; i < plots_.size(); i++) {
@@ -83,7 +83,7 @@ std::vector<miutil::miTime> FieldPlotCluster::getTimes(bool updateSources)
     METLIBS_LOG_DEBUG("Field plotinfo:" << plots_[i]->getPlotInfo());
   }
   if (!pinfos.empty())
-    return fieldplotm_->getFieldTime(pinfos, updateSources);
+    return fieldplotm_->getFieldTime(pinfos, false);
   else
     return std::vector<miutil::miTime>();
 }

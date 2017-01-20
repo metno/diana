@@ -1159,7 +1159,7 @@ static void selectTime()
   if (ptime.undef()) {
 
     map<string,vector<miTime> > times;
-    main_controller->getPlotTimes(times, false);
+    main_controller->getPlotTimes(times);
 
     if (use_referencetime) {
       fixedtime = main_controller->getFieldReferenceTime();

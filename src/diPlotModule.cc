@@ -1165,12 +1165,12 @@ void insertTimes(times_t& times, const std::string& plotkey, const plottimes_t& 
 }
 } // namespace
 
-void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
+void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times)
 {
   times.clear();
 
   insertTimes(times, "products", editm->getTimes());
-  insertTimes(times, "fields", fieldplots_->getTimes(updateSources)); // TODO this one has an extra "updateSources" parameter
+  insertTimes(times, "fields", fieldplots_->getTimes());
   insertTimes(times, "satellites", satm->getSatTimes());
   insertTimes(times, "observations", obsplots_->getTimes());
   insertTimes(times, "objects", objm->getTimes());

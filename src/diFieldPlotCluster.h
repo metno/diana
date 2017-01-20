@@ -23,7 +23,7 @@ public:
 
   void getDataAnnotations(std::vector<std::string>& anno) const;
 
-  std::vector<miutil::miTime> getTimes(bool updateSources);
+  std::vector<miutil::miTime> getTimes();
 
   const std::string& keyPlotElement() const;
 

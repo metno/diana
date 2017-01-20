@@ -230,8 +230,7 @@ public:
   const miutil::miTime& getPlotTime() const;
 
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times,
-      bool updateSources = false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
       const std::vector<std::string>& pinfos, bool allTimes = true,

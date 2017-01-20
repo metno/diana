@@ -281,9 +281,9 @@ const miutil::miTime& Controller::getPlotTime()
   return plotm->getPlotTime();
 }
 
-void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
+void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times)
 {
-  plotm->getPlotTimes(times, updateSources);
+  plotm->getPlotTimes(times);
 }
 
 bool Controller::getProductTime(miTime& t)
