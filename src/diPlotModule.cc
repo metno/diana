@@ -114,6 +114,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->setCanvas(canvas);
   obsplots_->setCanvas(mCanvas);
+  fieldplots_->setCanvas(mCanvas);
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
     it->second->setCanvas(canvas);
 }
@@ -1184,7 +1185,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::str
     bool allTimes)
 {
   vector<miTime> normalTimes;
-  int timediff;
+  int timediff = -1;
   bool normalTimesFound = false;
   bool moreTimes = true;
   for (size_t i = 0; i < pinfos.size(); i++) {
