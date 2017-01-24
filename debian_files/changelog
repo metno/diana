@@ -1,3 +1,9 @@
+diana-3.42 (3.42.0~a2-1) unstable; urgency=low
+
+  * added filename hint in export dialog
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 24 Jan 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~a1-2) unstable; urgency=low
 
   * fix debian_files/diana-dev.install
