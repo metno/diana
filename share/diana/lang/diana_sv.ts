@@ -2101,6 +2101,26 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="75"/>
+        <source>E.g. diana.png or diana.pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="76"/>
+        <source>E.g. diana_%1.png or diana_%1.pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="77"/>
+        <source>E.g. diana.gif</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="78"/>
+        <source>E.g. diana.avi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/export/qtExportImageDialog.cc" line="275"/>
         <source>Select image filename</source>
         <translation type="unfinished"></translation>
