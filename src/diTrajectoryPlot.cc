@@ -76,6 +76,7 @@ void TrajectoryPlot::setTrajectoryData(const TrajectoryData_v& t)
 {
   reprojectedXY.clear();
   trajectories = t;
+  setPlotName("Trajektorier" + fieldStr);
   prepare();
 }
 
@@ -294,26 +295,18 @@ void TrajectoryPlot::clearData()
 {
   trajectories.clear();
   reprojectedXY.clear();
+  setPlotName("");
 }
 
-void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
+void TrajectoryPlot::getAnnotation(string& s, Colour& c) const
 {
   if (plot_on && !trajectories.empty()) {
-    //int l= 16;
-    //if (firstTime.min()==0 && lastTime.min()==0)
-    //  l= 13;
-    s= "Trajektorier " + fieldStr
-        /*+ " "   + firstTime.isoTime().substr(0,l)
-          + " - " +  lastTime.isoTime().substr(0,l) + " UTC"*/;
+    s = getPlotName();
     c = getStaticPlot()->notBackgroundColour(colourPast);
   } else {
-    s= "";
+    s.clear();
   }
-
-  // ADC temporary hack
-  setPlotName(s);
 }
-
 
 bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
 {

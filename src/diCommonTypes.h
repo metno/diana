@@ -229,17 +229,6 @@ struct ObsDialogInfo{
   std::string defValues;
 };
 
-
-struct ObsPositions {
-  Area obsArea;
-  int numObs;
-  float* xpos;
-  float* ypos;
-  float* values;
-  bool convertToGrid;
-  ObsPositions():numObs(0),xpos(0),ypos(0),values(0), convertToGrid(true){}
-};
-
 //--------------------------------------------------
 // Station structures
 //--------------------------------------------------

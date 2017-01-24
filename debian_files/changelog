@@ -1,3 +1,17 @@
+diana-3.42 (3.42.0~a1-2) unstable; urgency=low
+
+  * fix debian_files/diana-dev.install
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 20 Jan 2017 12:11:10 +0100
+
+diana-3.42 (3.42.0~a1-1) unstable; urgency=low
+
+  * first alpha version for 3.42
+  * new export dialog
+  * code refactorings
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 20 Jan 2017 12:11:10 +0100
+
 diana-3.41 (3.41.0~rc1-1) unstable; urgency=low
 
   * release candidate for 3.41

@@ -851,14 +851,7 @@ bool Field::changeGrid(const GridArea& anew, const std::string& demands)
   GridConverter gc;
   gc.getGridPoints(anew, area, false, &x, &y);
 
-  int ii = 0;
-  for (int iy = 0; iy < anew.ny; iy++) {
-    for (int ix = 0; ix < anew.nx; ix++) {
-      x[ii] /= area.resolutionX;
-      y[ii] /= area.resolutionY;
-      ii++;
-    }
-  }
+  convertToGrid(anew.gridSize(), x, y);
 
   if (!interpolate(anew.gridSize(), x, y, newdata, interpoltype)) {
     delete[] newdata;

@@ -37,6 +37,8 @@
 #include "diEditManager.h"
 #include "diPlotModule.h"
 #include "diObjectManager.h"
+#include "diObsPositions.h"
+#include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
@@ -513,12 +515,6 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
   objm->setEditMode(mapmode, editmode, etool);
 }
 
-
-mapMode EditManager::getMapMode()
-{
-  return mapmode;
-}
-
 /*----------------------------------------------------------------------
 ----------------------------  end of edit Dialog methods ----------------
  -----------------------------------------------------------------------*/
@@ -957,18 +953,23 @@ bool EditManager::unsentEditChanges(){
 }
 
 
-
-
-bool EditManager::getProductTime(miTime& t){
-  //METLIBS_LOG_DEBUG("EditManager::getProductTime");
-  //returns the current product time
-  if (producttimedefined){
+bool EditManager::getProductTime(miTime& t) const
+{
+  //METLIBS_LOG_SCOPE();
+  if (producttimedefined) {
     t = producttime;
     return true;
   } else
     return false;
 }
 
+std::vector<miutil::miTime> EditManager::getTimes() const
+{
+  std::vector<miutil::miTime> times(1);
+  if (!getProductTime(times.back()))
+    times.clear();
+  return times;
+}
 
 std::string EditManager::getProductName(){
   //METLIBS_LOG_DEBUG("EditManager::getProductName");
@@ -1226,7 +1227,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
       // edit field from existing field, find correct fieldplot
 
-      const std::vector<FieldPlot*>& vfp = plotm->getFieldPlots();
+      const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
       vector<Field*> vf;
       size_t i=0;
       for (; i<vfp.size(); i++){
@@ -1775,7 +1776,7 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
   vector<std::string> vstr;
   std::string fname= miutil::to_lower(ep.fields[element].name);
 
-  const std::vector<FieldPlot*>& vfp = plotm->getFieldPlots();
+  const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
   for (size_t i=0; i<vfp.size(); i++){
     vector<Field*> vf = vfp[i]->getFields();
     // for now, only accept scalar fields
@@ -2750,24 +2751,20 @@ void EditManager::prepareEditFields(const vector<std::string>& inp)
 
   // setting plot options
 
-  if (fedits.size()==0) return;
+  if (fedits.size()==0)
+    return;
 
-  vector<std::string> vip= inp;
-  unsigned int npi= vip.size();
-  if (npi>fedits.size()) npi= fedits.size();
-
-  for (unsigned int i=0; i<npi; i++) {
-    fedits[i]->editfieldplot->prepare(plotName, vip[i]);
+  const size_t npif = std::min(inp.size(), fedits.size());
+  for (size_t i=0; i<npif; i++) {
+    fedits[i]->editfieldplot->prepare(plotName, inp[i]);
   }
 
   // for showing single region during and after combine
-  npi= vip.size();
-  if (npi>combinefields.size()) npi= combinefields.size();
-
-  for (unsigned int i=0; i<npi; i++) {
-    int nreg=combinefields[i].size();
-    for (int r=0; r<nreg; r++) {
-      combinefields[i][r]->editfieldplot->prepare(plotName, vip[i]);
+  const size_t npic = std::min(inp.size(), combinefields.size());
+  for (size_t i=0; i<npic; i++) {
+    size_t nreg = combinefields[i].size();
+    for (size_t r=0; r<nreg; r++) {
+      combinefields[i][r]->editfieldplot->prepare(plotName, inp[i]);
     }
   }
 }
@@ -2813,6 +2810,9 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 {
   const bool under = (zorder == Plot::LINES);
   const bool over = (zorder == Plot::OVERLAY);
+
+  if (!isInEdit() || !(under || over))
+    return;
 
   if (apEditmessage)
     apEditmessage->plot(gl, zorder);
@@ -2952,33 +2952,35 @@ void EditManager::plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder)
 }
 
 
-bool EditManager::obs_mslp(ObsPositions& obsPositions) {
+bool EditManager::interpolateEditField(ObsPositions* obsPositions)
+{
+  // TODO this is one step in changeProjection of all ObsPlot's with mslp() == true
+  // TODO does something when staticplot area changes or fedits[0]->editfield->area changes
 
-  if (fedits.size()==0) return false;
-
-  if (!fedits[0]->editfield) return false;
-
-  //change projection if needed
-  if ( obsPositions.obsArea.P() != fedits[0]->editfield->area.P() ){
-    gc.getPoints(obsPositions.obsArea.P(), fedits[0]->editfield->area.P(),
-        obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
-    obsPositions.obsArea= fedits[0]->editfield->area;
-  }
-
-  if ( obsPositions.convertToGrid ) {
-    fedits[0]->editfield->convertToGrid(obsPositions.numObs,
-        obsPositions.xpos, obsPositions.ypos);
-    obsPositions.convertToGrid = false;
-  }
-
-  //get values
-  if (!fedits[0]->editfield->interpolate(obsPositions.numObs,
-      obsPositions.xpos, obsPositions.ypos,
-      obsPositions.values,
-      Field::I_BESSEL))
+  if (fedits.empty() || !obsPositions)
     return false;
 
-  return true;
+  const Field* ef = fedits[0]->editfield;
+  if (!ef)
+    return false;
+
+  // TODO this does not properly detect if only ef->area is changed
+
+  // change projection if needed
+  if (obsPositions->obsArea.P() != ef->area.P()) {
+    gc.getPoints(obsPositions->obsArea.P(), ef->area.P(),
+        obsPositions->numObs, obsPositions->xpos, obsPositions->ypos);
+    obsPositions->obsArea= ef->area;
+  }
+
+  if (obsPositions->convertToGrid) {
+    ef->convertToGrid(obsPositions->numObs, obsPositions->xpos, obsPositions->ypos);
+    obsPositions->convertToGrid = false;
+  }
+
+  // interpolate values
+  return ef->interpolate(obsPositions->numObs, obsPositions->xpos, obsPositions->ypos,
+      obsPositions->interpolatedEditField, Field::I_BESSEL);
 }
 
 /*----------------------------------------------------------------------
@@ -3355,7 +3357,7 @@ void EditManager::setMapmodeinfo(){
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 }
 
-bool EditManager::getAnnotations(vector<string>& anno)
+bool EditManager::getDataAnnotations(vector<string>& anno)
 {
   for (size_t i=0; i<fedits.size(); i++)
     fedits[i]->getAnnotations(anno);

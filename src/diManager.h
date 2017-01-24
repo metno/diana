@@ -80,6 +80,10 @@ public:
 
   virtual std::vector<std::string> getAnnotations() const = 0;
   virtual std::vector<PlotElement> getPlotElements() = 0;
+  virtual QString plotElementTag() const = 0;
+
+  //! enable a plot element; returns true iff some change happened (plot found and change in enabled state)
+  virtual bool enablePlotElement(const PlotElement &) = 0;
 
   virtual bool isEnabled() const;
   virtual bool isEditing() const;

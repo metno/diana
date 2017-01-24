@@ -33,7 +33,6 @@
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
 #include "diDisplayObjects.h"
-#include "diAreaObjects.h"
 
 #include <puTools/miTime.h>
 
@@ -45,13 +44,15 @@
 class ObsPlot;
 class MapPlot;
 class AnnotationPlot;
+class AreaObjectsCluster;
 class FieldManager;
 class FieldPlotManager;
-class FieldPlot;
+class FieldPlotCluster;
 struct LocationData;
 class LocationPlot;
 class Manager;
 class ObsManager;
+class ObsPlotCluster;
 class SatManager;
 class StationManager;
 class ObjectManager;
@@ -63,18 +64,6 @@ class MeasurementsPlot;
 class StationPlot;
 
 class QMouseEvent;
-
-namespace diutil {
-
-class was_enabled {
-  typedef std::map<std::string, bool> key_enabled_t;
-  key_enabled_t key_enabled;
-public:
-  void save(const Plot* plot, const std::string& key);
-  void restore(Plot* plot, const std::string& key) const;
-};
-
-} // namespace diutil
 
 /**
 
@@ -95,11 +84,10 @@ private:
   StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
-  FieldManager *fieldm;   // field manager
   FieldPlotManager *fieldplotm;   // field plot manager
 
-  std::vector<ObsPlot*> vop;   // vector of observation plots
-  std::vector<FieldPlot*> vfp; // vector of field plots
+  std::auto_ptr<ObsPlotCluster> obsplots_;   // observation plots
+  std::auto_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
@@ -107,8 +95,7 @@ private:
   std::vector<AnnotationPlot*> obsVap; //display obs annotation
   std::vector<AnnotationPlot*> objectVap; //display object label
   std::vector<AnnotationPlot*> editVap;   //edit object labels
-  typedef std::vector<AreaObjects> areaobjects_v;
-  areaobjects_v vareaobjects;  //QED areas
+  std::auto_ptr<AreaObjectsCluster> areaobjects_;
 
   std::vector<std::string> annotationStrings;  //orig. strings from setup
 
@@ -137,15 +124,8 @@ private:
   bool dorubberband;
   bool keepcurrentarea;
 
-  std::vector<PlotElement> plotelements;
-
   void plotUnder(DiGLPainter* gl);
   void plotOver(DiGLPainter* gl);
-
-  //Free fields in FieldPlot
-  void freeFields(FieldPlot *);
-
-  const FieldPlot* findTrajectoryPlot(const std::string& fieldname);
 
   static PlotModule *self;
 
@@ -154,8 +134,6 @@ private:
 
   /// handles fields plot info strings
   void prepareFields(const std::vector<std::string>&);
-  /// handles observations plot info strings
-  void prepareObs(const std::vector<std::string>&);
   /// handles area info strings
   void prepareArea(const std::vector<std::string>&);
   /// handles map plot info strings
@@ -251,39 +229,22 @@ public:
   /// return current plottime
   const miutil::miTime& getPlotTime() const;
 
-  /// return referencetime of first FieldPlot
-  miutil::miTime getFieldReferenceTime();
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times,
-      bool updateSources = false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      const std::vector<std::string>& pinfos, bool allTimes = true,
-      bool updateSources = false);
+      const std::vector<std::string>& pinfos, bool allTimes = true);
 
   /// set plottime (forwarded to staticPlot_)
   void setPlotTime(const miutil::miTime&);
 
-  // Observation
+  ObsPlotCluster* obsplots() const
+    { return obsplots_.get(); }
+
   /// Update ObsPlots if data files have changed
   void updateObs();
-  ///find obs in pos x,y
-  bool findObs(int x, int y);
-  ///get id of obsevation in pos x,y
-  bool getObsName(int x, int y, std::string& name);
-  ///get popup text of obsevation in pos x,y
-  std::string getObsPopupText(int x, int y);
-   ///plot next/prev set of observations(PageUp/PageDown)
-  void nextObs(bool next);
 
-  //Area
-  ///put area into list of area objects
-  void makeAreas(std::string name, std::string areastring, int id);
-  ///send command to right area object
-  void areaCommand(const std::string& command, const std::string& dataSet,
-      const std::vector<std::string>& data, int id);
-  ///find areas in position x,y
-  std::vector<selectArea> findAreas(int x, int y, bool newArea = false);
+  AreaObjectsCluster* areaobjects();
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);
@@ -296,7 +257,7 @@ public:
   // Trajectories
   /// handles trajectory plot info strings
   void trajPos(const std::vector<std::string>&);
-  std::vector<std::string> getTrajectoryFields();
+
   bool startTrajectoryComputation();
   void stopTrajectoryComputation();
   // print trajectory positions to file
@@ -390,8 +351,8 @@ public:
       const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
-  const std::vector<FieldPlot*>& getFieldPlots() const; // Returns a vector of defined field plots.
-  const std::vector<ObsPlot*>& getObsPlots() const; // Returns a vector of defined observation plots.
+  FieldPlotCluster* fieldplots()
+    { return fieldplots_.get(); }
 
   typedef std::map<std::string, Manager*> managers_t;
   managers_t managers;

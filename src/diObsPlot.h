@@ -38,7 +38,29 @@
 #include <set>
 #include <vector>
 
+class ObsPositions;
 class QTextCodec;
+
+struct ObsPlotCollider {
+  struct Box {
+    float x1, x2, y1, y2;
+    int index;
+  };
+
+  std::vector<Box> usedBox;
+  std::vector<float> xUsed;
+  std::vector<float> yUsed;
+
+  void clear();
+
+  bool positionFree(float, float, float, float);
+  void positionPop();
+
+  bool areaFree(const Box* b1, const Box* b2=0);
+  void areaPop();
+
+  bool collision(const Box& box) const;
+};
 
 /**
  \brief Plot observations
@@ -55,7 +77,8 @@ public:
 
 protected:
   std::vector<ObsData> obsp;
-  //obs positions
+
+  // obs positions in getStaticPlot()->getMapArea().P() coordinates; updated in setData
   float *x, *y;
 
   struct Parameter {
@@ -86,7 +109,7 @@ protected:
   bool vertical_orientation;
   bool left_alignment;
   bool showpos;
-  bool devfield;
+  std::auto_ptr<ObsPositions> devfield;
   bool onlypos;
   bool showOnlyPrioritized;
   std::string image;
@@ -125,8 +148,6 @@ protected:
   float current; //cuurent, not wind
   bool firstplot;
   bool beendisabled; // obsplot was disabled while area changed
-
-  int startxy; //used in getposition/obs_mslp
 
   std::set<std::string> knotParameters;
   //Name and last modification time of files used
@@ -177,19 +198,9 @@ protected:
   //which parameters to plot
   std::map<std::string, bool> pFlag;
 
-  // ------------------------------------------------------------------------
-  //Positions of plotted observations
-  struct UsedBox {
-    float x1, x2, y1, y2;
-  };
-  //  static
-  static std::vector<float> xUsed;
-  static std::vector<float> yUsed;
-  static std::vector<UsedBox> usedBox;
+  ObsPlotCollider* collider_;
 
-  bool positionFree(float, float, float, float);
-  void areaFreeSetup(float scale, float space, int num, float xdist,
-      float ydist);
+  void areaFreeSetup(float scale, float space, int num, float xdist, float ydist);
   bool areaFree(int idx);
   // ------------------------------------------------------------------------
 
@@ -272,7 +283,7 @@ protected:
   std::string checkMarkerCriteria(int index);
   float checkMarkersizeCriteria(int index);
   void checkColourCriteria(DiGLPainter* gl, const std::string& param, float value);
-  void parameterDecode(std::string, bool = true);
+  void parameterDecode(const std::string&, bool = true);
 
   // used many times from plotList and once from plotAscii
   void printUndef(DiGLPainter* gl, QPointF&, bool align_right = false);
@@ -380,7 +391,7 @@ protected:
   void time_sort();
 
   int getObsCount() const;
-  int numVisiblePositions(); // slow!
+  int numVisiblePositions() const; // slow!
 
 protected:
   ObsPlot(const std::string& pin, ObsPlotType plottype);
@@ -392,8 +403,9 @@ public:
 
   bool operator==(const ObsPlot &rhs) const;
 
-  // clear info about text/symbol layers
-  static void clearPos();
+  void setCollider(ObsPlotCollider* collider)
+    { collider_ = collider; }
+
   // return the computed index in stationlist, ROADOBS only
   std::vector<int> & getStationsToPlot();
   // clear VisibleStations map from current plottype
@@ -408,7 +420,7 @@ public:
 
   bool setData();
   void clear();
-  void getObsAnnotation(std::string &, Colour &);
+  void getAnnotation(std::string &, Colour &) const;
   bool getDataAnnotations(std::vector<std::string>& anno);
 
   void setObsAnnotation(const std::string &anno) // from ObsManager::prepare and ObsManager::sendHqcdata
@@ -427,8 +439,10 @@ public:
   void setLabel(const std::string& pin) // from PlotModule and ObsRoad
     { labels.push_back(pin); }
 
-  bool getPositions(std::vector<float>&, std::vector<float>&);
-  void obs_mslp(DiGLPainter* gl, PlotOrder porder, float *);
+  void updateObsPositions();
+  ObsPositions* getObsPositions()
+    { return devfield.get(); }
+  void updateFromEditField();
 
   bool getObsPopupText(int xx,int yy, std::string& obstext );
 
@@ -443,7 +457,7 @@ public:
   void nextObs(bool forward);
 
   bool mslp() const
-    { return devfield; }
+    { return devfield.get() != 0; }
 
   bool moreTimes()
     { return moretimes; }

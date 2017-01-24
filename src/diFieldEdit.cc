@@ -273,7 +273,8 @@ void FieldEdit::setSpec( EditProduct& ep, int fnum) {
 bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
     const miTime& tprod){
 
-  if (!editfield) return false;
+  if (!editfield)
+    return false;
 
   editfield->numSmoothed= 0;
 
@@ -299,10 +300,10 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
   editfield->name=     fieldname;
   editfield->text=     text;
   editfield->fulltext= fulltext;
-  vector<Field*> vf;
-  vf.push_back(editfield);
+  vector<Field*> vf(1, editfield);
 
-  if (editfieldplot) delete editfieldplot;
+  if (editfieldplot)
+    delete editfieldplot;
   editfieldplot= new FieldPlot();
   editfieldplot->setData(vf, tprod);
 
@@ -312,7 +313,8 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
 
 void FieldEdit::makeWorkfield()
 {
-  if (workfield && workfield!=editfield) delete workfield;
+  if (workfield && workfield!=editfield)
+    delete workfield;
   workfield= 0;
 
   if (!editfield->allDefined) {

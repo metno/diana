@@ -261,6 +261,10 @@ public:
   bool isEnabled() const
     { return enabled; }
 
+  /// key identifiying plot for remembering enabled/disabled state
+  virtual std::string getEnabledStateKey() const
+    { return getPlotInfo(); }
+
   /// set the plot info string
   void setPlotInfo(const std::string& pin, bool mergeOptionString = false);
 
@@ -286,6 +290,8 @@ public:
   /// return name of this plot object
   const std::string& getPlotName() const
     { return plotname; }
+
+  virtual void getAnnotation(std::string &str, Colour &col) const;
 
 protected:
   PlotOptions poptions;

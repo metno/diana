@@ -53,39 +53,33 @@ public:
   
   TimeSlider(Qt::Orientation, QWidget*);
 
-  void clear();
   void setLastTimeStep();
   ///Current time
   miutil::miTime Value();
-  /// current index
-  int current() { return value(); };
   /// get start time
-  miutil::miTime getStartTime() { return start; };
+  const miutil::miTime& getStartTime() { return start; };
   ///Number of times currently in the slider
   int numTimes() const {return times.size();}
   ///Next/previous time
-  bool nextTime(const int dir, miutil::miTime& time, bool restricted =false);
-  void setLoop(const bool b);
-  std::vector<miutil::miTime> getTimes(){return times;}
+  bool nextTime(const int dir, miutil::miTime& time);
+  void setLoop(bool b);
   void startAnimation(){startani= true;}
   ///Remove times from data type
   void deleteType(const std::string& type);
   
-  void set(const miutil::miTime&);
-
- public Q_SLOTS:
+public Q_SLOTS:
   void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);
   void clearMinMax();
   ///add new times for datatype
   void insert(const std::string& datatype, const std::vector<miutil::miTime>&,bool =true);
- /// force new value
+  /// force new value
   void setTime(const miutil::miTime&);
- /// force new value if datatype match
-  void setTime( const std::string& datatype, const miutil::miTime&);
+  /// force new value if datatype match
+  bool setTime(const std::string& datatype, const miutil::miTime&);
   /// time-interval changed
   void setInterval(int);
   ///use times from datatype(field, sat, obs ..)
-  void useData(std::string datatype);
+  void useData(const std::string& datatype);
 
 Q_SIGNALS:
   /// emits smallest timeinterval (in hours)
@@ -97,6 +91,13 @@ Q_SIGNALS:
   void sliderSet();
   /// emits times
   void newTimes(std::vector<miutil::miTime>&);
+
+private:
+  void set(const miutil::miTime&);
+  void init();
+  void setFirstTime(const miutil::miTime&);
+  void updateList();
+  bool setSliderValue(int v);
 
 private:
   std::map<std::string,std::vector<miutil::miTime> > tlist; // times
@@ -113,11 +114,6 @@ private:
   bool startani;   // animation just started
   std::string  dataType; //dataType has priority   
   std::string  dataTypeUsed; //dataType in use
-
-  void init();
-  void setFirstTime(const miutil::miTime&);
-  void updateList();
-  bool setSliderValue(const int v);
 };
 
 #endif

@@ -156,8 +156,10 @@ void ColourLimits::setColour(DiPainter* gl, float c) const
 
 // ========================================================================
 
-FieldPlot::FieldPlot()
-  : pshade(false), vectorAnnotationSize(0)
+FieldPlot::FieldPlot(FieldPlotManager* fieldplotm)
+  : fieldplotm_(fieldplotm)
+  , pshade(false)
+  , vectorAnnotationSize(0)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -172,6 +174,8 @@ void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
   diutil::delete_all_and_clear(tmpfields);
+  if (fieldplotm_)
+    fieldplotm_->freeFields(fields);
   fields.clear();
 }
 
@@ -229,20 +233,29 @@ int FieldPlot::getLevel() const
   return fields[0]->level;
 }
 
-// check if current data from plottime
-bool FieldPlot::updateNeeded(string& pin) const
+bool FieldPlot::updateIfNeeded()
 {
+  const miTime& t = getStaticPlot()->getTime();
+  bool update, data = false;
   if (ftime.undef()
-      || (ftime != getStaticPlot()->getTime() && !miutil::contains(getPlotInfo(), " time="))
+      || (ftime != t && !miutil::contains(getPlotInfo(), " time="))
       || fields.size() == 0)
   {
-    pin = getPlotInfo();
-    return true;
+    update = true;
+  } else {
+    update = false;
   }
-  return false;
+  if (update && fieldplotm_ != 0) {
+    std::vector<Field*> fv;
+    data = fieldplotm_->makeFields(getPlotInfo(), t, fv);
+    setData(fv, t);
+  } else {
+    data = !fields.empty();
+  }
+  return data;
 }
 
-void FieldPlot::getFieldAnnotation(string& s, Colour& c) const
+void FieldPlot::getAnnotation(string& s, Colour& c) const
 {
   if (poptions.options_1)
     c = poptions.linecolour;
@@ -276,6 +289,15 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
   return true;
 }
 
+const miutil::miTime& FieldPlot::getAnalysisTime() const
+{
+  static const miutil::miTime UNDEF;
+  if (!fields.empty())
+    return fields[0]->analysisTime;
+  else
+    return UNDEF;
+}
+
 //  set list of field-pointers, update datatime
 void FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
 {
@@ -290,22 +312,21 @@ void FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
   if (fields.empty()) {
     setPlotName("");
   } else {
-    setPlotName(fields[0]->fulltext);
-    analysisTime = fields[0]->analysisTime;
-    if ( fields[0]->palette && fields[0]->palette->npoint() > 2) {
-      vector<Colour> palette;
-      bool alpha = (fields[0]->palette->npoint() == 4);
-      for ( size_t i = 0; i<fields[0]->palette->nlevel(); ++i ) {
-        unsigned char r = fields[0]->palette->value(0,i);
-        unsigned char g = fields[0]->palette->value(1,i);
-        unsigned char b = fields[0]->palette->value(2,i);
+    const Field* f0 = fields[0];
+    setPlotName(f0->fulltext);
+    vcross::Values_p p0 = f0->palette;
+    if (p0 && p0->npoint() > 2) {
+      poptions.palettecolours.clear();
+      bool alpha = (p0->npoint() == 4);
+      for (size_t i = 0; i<p0->nlevel(); ++i) {
+        unsigned char r = p0->value(0,i);
+        unsigned char g = p0->value(1,i);
+        unsigned char b = p0->value(2,i);
         unsigned char a = 255;
-        if ( alpha )
-          a = fields[0]->palette->value(3,i);
-        Colour c1= Colour(r,g,b,a);
-        palette.push_back(c1);
+        if (alpha)
+          a = p0->value(3,i);
+        poptions.palettecolours.push_back(Colour(r,g,b,a));
       }
-      poptions.palettecolours = palette;
     }
   }
 }
@@ -575,7 +596,7 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
     }
 
     if (miutil::contains(anno[j], "$referencetime")) {
-      std::string refString = analysisTime.format("%Y%m%d %H");
+      std::string refString = getAnalysisTime().format("%Y%m%d %H");
       miutil::replace(anno[j], "$referencetime", refString);
     }
     if (miutil::contains(anno[j], "$forecasthour")) {
@@ -3237,11 +3258,6 @@ bool FieldPlot::checkFields(size_t count) const
       return false;
   }
   return true;
-}
-
-bool FieldPlot::fieldsOK()
-{
-  return checkFields(0);
 }
 
 int FieldPlot::resamplingFactor(int nx, int ny) const

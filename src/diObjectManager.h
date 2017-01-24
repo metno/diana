@@ -76,7 +76,6 @@ private:
   bool doCombine;
 
   //object dialog stuff
-  miutil::miTime ztime;
 
   // from diana.setup:
   std::vector<std::string> objectNames;
@@ -95,7 +94,7 @@ private:
 
   bool getFileName(DisplayObjects &wObjects);
   miutil::miTime timeFilterFileName(const std::string& fileName, const miutil::TimeFilter& filter);
-  miutil::miTime timeFromString(const std::string& timeString);
+  static miutil::miTime timeFromString(const std::string& timeString);
   //get time string yyyymmddhh or yyyymmddhhmm from time
   std::string stringFromTime(const miutil::miTime& t,bool addMinutes);
 
@@ -195,9 +194,9 @@ public:
   void prepareObjects(const std::vector<std::string>& inp);
 
   void addPlotElements(std::vector<PlotElement>& pel);
-  void enablePlotElement(const PlotElement& pe);
+  bool enablePlotElement(const PlotElement& pe);
   void getObjAnnotation(std::string &str, Colour &col);
-  void getObjectsAnnotations(std::vector<std::string>& anno)
+  void getDataAnnotations(std::vector<std::string>& anno)
     { objects.getAnnotations(anno); }
   std::vector<std::string> getObjectLabels()
     { return objects.getObjectLabels(); }
@@ -332,15 +331,15 @@ public:
 
   //Object dialog methods
   /// get prefix from a file with name  /.../../prefix_*.yyyymmddhh
-  std::string prefixFileName(std::string fileName);
+  static std::string prefixFileName(const std::string& fileName);
 
   /// get time from a file with name *.yyyymmddhh
-  miutil::miTime timeFileName(const std::string& fileName);
+  static miutil::miTime timeFileName(const std::string& fileName);
 
   /// returns list of objectfiles for use in dialog
-  std::vector <ObjFileInfo> getObjectFiles(const std::string objectname, bool refresh);
+  std::vector <ObjFileInfo> getObjectFiles(const std::string& objectname, bool refresh);
   /// returns list of times
-  std::vector<miutil::miTime> getObjectTimes();
+  std::vector<miutil::miTime> getTimes();
   std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
 
   ///returns union or intersection of plot times from all pinfos

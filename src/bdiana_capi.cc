@@ -1177,7 +1177,7 @@ static void selectTime()
   if (ptime.undef()) {
 
     map<string,vector<miTime> > times;
-    main_controller->getPlotTimes(times, false);
+    main_controller->getPlotTimes(times);
 
     if (use_referencetime) {
       fixedtime = main_controller->getFieldReferenceTime();
@@ -2015,7 +2015,6 @@ static int handleTimeCommand(int& k)
     METLIBS_LOG_INFO("- finding times");
 
   //Find ENDTIME
-  const std::string command = miutil::to_lower(lines[k]);
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
 
   // necessary to set time before plotCommands()..?
@@ -2027,7 +2026,7 @@ static int handleTimeCommand(int& k)
   main_controller->plotCommands(pcom);
 
   set<miTime> okTimes;
-  main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union", true);
+  main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union");
 
   // open filestream
   ofstream file(priop.fname.c_str());

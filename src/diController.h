@@ -90,7 +90,6 @@ private:
   DrawingManager   *drawm;
 
   bool editoverride; // do not route mouse/key-events to editmanager
-  bool scrollwheelZoom;
 
 public:
   Controller();
@@ -151,12 +150,11 @@ public:
   const miutil::miTime& getPlotTime();
 
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
       const std::vector<std::string>& pinfos,
-      bool allTimes=true,
-      bool updateSources=false);
+      bool allTimes=true);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
@@ -207,8 +205,6 @@ public:
   std::vector<std::string> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool);
-  /// toggle scrollwheelzoom
-  void toggleScrollwheelZoom(bool);
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
@@ -344,12 +340,12 @@ public:
 
   //areas
   ///put area into list of area objects
-  void makeAreas(const std::string& name, std::string areaString, int id=-1);
+  void makeAreaObjects(const std::string& name, std::string areaString, int id=-1);
   ///send command to right area object
-  void areaCommand(const std::string& command, const std::string& dataSet,
+  void areaObjectsCommand(const std::string& command, const std::string& dataSet,
       const std::vector<std::string>& data, int id);
   ///find areas in position x,y
-  std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
+  std::vector <selectArea> findAreaObjects(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);
@@ -371,12 +367,10 @@ public:
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);
 
-  bool useScrollwheelZoom();
-
   // Miscellaneous get methods
-  const std::vector<SatPlot*>& getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  const std::vector<FieldPlot*>& getFieldPlots() const;     // Returns a vector of defined field plots.
-  const std::vector<ObsPlot*>& getObsPlots() const;         // Returns a vector of defined observation plots.
+  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  std::vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
+  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
 #endif

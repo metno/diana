@@ -150,7 +150,6 @@ protected:
 
 public Q_SLOTS:
   void fieldEditUpdate(std::string str);
-  void addField(std::string str);
   void updateModels();
 
 public:

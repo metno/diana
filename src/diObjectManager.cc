@@ -55,6 +55,11 @@
 using namespace std;
 using namespace::miutil;
 
+namespace {
+//zero time = 00:00:00 UTC Jan 1 1970
+const miutil::miTime ztime = miTime(1970,1,1,0,0,0);
+} // namespace
+
 ObjectManager::ObjectManager(PlotModule* pl)
   : plotm(pl), mapmode(normal_mode)
 {
@@ -65,9 +70,6 @@ ObjectManager::ObjectManager(PlotModule* pl)
   objectsSaved= true;
   objectsChanged = false;
   undoTemp = 0;
-
-  //zero time = 00:00:00 UTC Jan 1 1970
-  ztime = miTime(1970,1,1,0,0,0);
 }
 
 ObjectManager::~ObjectManager()
@@ -159,32 +161,14 @@ vector<std::string> ObjectManager::getObjectNames(bool archive)
 }
 
 //  * PURPOSE:   return times for list of PlotInfo's
-vector<miTime> ObjectManager::getObjectTimes()
+vector<miTime> ObjectManager::getTimes()
 {
   METLIBS_LOG_SCOPE();
-
-  const std::vector<std::string> pinfos(1, objects.getPlotInfo());
-  set<miTime> timeset;
-
-  int nn= pinfos.size();
-  for (int i=0; i<nn; i++){
-    vector<miTime> tv = getObjectTimes(pinfos[i]);
-    for (unsigned int j=0; j<tv.size(); j++){
-      timeset.insert(tv[j]);
-    }
-  }
-
-  vector<miTime> timevec;
-  if (timeset.size()>0) {
-    set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++) timevec.push_back(*p);
-  }
-
-  return timevec;
+  return getObjectTimes(objects.getPlotInfo());
 }
 
-vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 //  * PURPOSE:   return times for list of PlotInfo's
+vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 {
   vector<miTime> timevec;
 
@@ -314,7 +298,7 @@ bool ObjectManager::prepareObjects(const miTime& t, const Area& area)
 }
 
 
-vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string objectname, bool refresh)
+vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string& objectname, bool refresh)
 {
   METLIBS_LOG_SCOPE();
 
@@ -327,7 +311,8 @@ vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string objectname, 
   vector<ObjFileInfo> files;
 
   map<std::string,ObjectList>::iterator po= objectFiles.find(objectname);
-  if (po==objectFiles.end()) return files;
+  if (po==objectFiles.end())
+    return files;
 
   if (!po->second.updated || !po->second.files.size()) {
     po->second.files= listFiles(po->second);
@@ -370,14 +355,14 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
 }
 
 
-std::string ObjectManager::prefixFileName(std::string fileName)
+//static
+std::string ObjectManager::prefixFileName(const std::string& fileName)
 {
   //get prefix from a file with name  /.../../prefix_*.yyyymmddhh
-  vector <std::string> parts= miutil::split(fileName, 0, "/");
-  std::string prefix = parts.back();
-  vector <std::string> sparts= miutil::split(prefix, 0, "_");
-  prefix=sparts[0];
-  return prefix;
+  const vector <std::string> parts = miutil::split(fileName, 0, "/");
+  const std::string& prefix = parts.back();
+  vector <std::string> sparts = miutil::split(prefix, 0, "_");
+  return sparts.front();
 }
 
 miTime ObjectManager::timeFilterFileName(const std::string& fileName, const miutil::TimeFilter& filter)
@@ -392,10 +377,11 @@ miTime ObjectManager::timeFilterFileName(const std::string& fileName, const miut
 }
 
 
+// static
 miTime ObjectManager::timeFileName(const std::string& fileName)
 {
   //get time from a file with name *.yyyymmddhh
-  vector <std::string> parts= miutil::split(fileName, 0, ".");
+  const vector <std::string> parts= miutil::split(fileName, 0, ".");
   int nparts= parts.size();
   //if (parts.size() != 2) {
   //if (parts.size() < 2) {
@@ -416,10 +402,11 @@ miTime ObjectManager::timeFileName(const std::string& fileName)
   return timeFromString(parts[nparts-1]);
 }
 
+// static
 miTime ObjectManager::timeFromString(const std::string& timeString)
 {
   //get time from a string with yyyymmddhhmm
-  if ( timeString.size() < 10 )
+  if (timeString.size() < 10)
     return miTime();
   int year= atoi(timeString.substr(0,4).c_str());
   int mon=  atoi(timeString.substr(4,2).c_str());
@@ -428,7 +415,8 @@ miTime ObjectManager::timeFromString(const std::string& timeString)
   int min= 0;
   if (timeString.length() >= 12)
     min= atoi(timeString.substr(10,2).c_str());
-  if (year<0 || mon <0 || day<0 || hour<0 || min < 0) return ztime;
+  if (year<0 || mon <0 || day<0 || hour<0 || min < 0)
+    return ztime;
   return miTime(year,mon,day,hour,min,0);
 }
 
@@ -481,13 +469,17 @@ void ObjectManager::addPlotElements(std::vector<PlotElement>& pel)
   }
 }
 
-void ObjectManager::enablePlotElement(const PlotElement& pe)
+bool ObjectManager::enablePlotElement(const PlotElement& pe)
 {
   if (pe.type != "OBJECTS")
-    return;
+    return false;
   std::string str = objects.getName() += "# 0" ;
-  if (str == pe.str)
-    objects.enable(pe.enabled);
+  if (str != pe.str)
+    return false;
+  if (objects.isEnabled() == pe.enabled)
+    return false;
+  objects.enable(pe.enabled);
+  return true;
 }
 
 void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
@@ -1272,8 +1264,7 @@ std::string ObjectManager::stringFromTime(const miTime& t,bool addMinutes)
   if (addMinutes)
        ostr << setw(2) << setfill('0') << mn;
 
-  std::string timestring = ostr.str();
-  return timestring;
+  return ostr.str();
 }
 
 

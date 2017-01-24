@@ -79,23 +79,19 @@ std::vector<std::string> split_on_comma(const std::string& txt, const char* comm
 ObsManager::ObsManager()
 {
   useArchive = false;
-  mslp = false;
   timeListChanged = false;
 }
 
 ObsPlot* ObsManager::createObsPlot(const std::string& pin)
 {
-  METLIBS_LOG_SCOPE();
-  mslp = false;
   return ObsPlot::createObsPlot(pin);
 }
 
-bool ObsManager::prepare(ObsPlot * oplot, miTime time)
+bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
 
   oplot->clear();
-  mslp = mslp || oplot->mslp();
 
   if (oplot->flagInfo()) {
     METLIBS_LOG_INFO("ObsManager::prepare HQC");
@@ -129,8 +125,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
     const ProdInfo& pi = itP->second;
 
     // only a little hack to avoid copying ...
-    const bool finfo_fromproduct = (not pi.timeInfo.empty()
-        || pi.obsformat == ofmt_url);
+    const bool finfo_fromproduct = (!pi.timeInfo.empty() || pi.obsformat == ofmt_url);
     std::vector<FileInfo> finfo_fromfile;
     if (not finfo_fromproduct)
       finfo_fromfile = getFileName(time, pi, termin, timeRangeMin, timeRangeMax,
@@ -705,58 +700,6 @@ vector<miTime> ObsManager::getTimes(vector<std::string> obsTypes)
   }
 
   return vector<miTime>(timeset.begin(), timeset.end());
-}
-
-void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
-{
-  if (!mslp)
-    return;
-
-  clearObsPositions();
-
-  vector<float> xpos;
-  vector<float> ypos;
-  for (unsigned int i = 0; i < oplot.size(); i++) {
-    oplot[i]->getPositions(xpos, ypos);
-  }
-
-  obsPositions.numObs = xpos.size();
-  obsPositions.xpos = new float[obsPositions.numObs];
-  obsPositions.ypos = new float[obsPositions.numObs];
-  obsPositions.values = new float[obsPositions.numObs];
-  for (int i = 0; i < obsPositions.numObs; i++) {
-    obsPositions.xpos[i] = xpos[i];
-    obsPositions.ypos[i] = ypos[i];
-  }
-
-  if (oplot.size()) {
-    obsPositions.obsArea = PlotModule::instance()->getStaticPlot()->getMapArea();
-  }
-
-  //new conversion  needed
-  obsPositions.convertToGrid = true;
-}
-
-void ObsManager::clearObsPositions()
-{
-  obsPositions.numObs = 0;
-  delete[] obsPositions.xpos;
-  obsPositions.xpos = 0;
-  delete[] obsPositions.ypos;
-  obsPositions.ypos = 0;
-  delete[] obsPositions.values;
-  obsPositions.values = 0;
-}
-
-void ObsManager::calc_obs_mslp(DiGLPainter* gl, Plot::PlotOrder porder,
-    const vector<ObsPlot*>& oplot)
-{
-  if (!mslp)
-    return;
-
-  ObsPlot::clearPos();
-  for (size_t i = 0; i < oplot.size(); i++)
-    oplot[i]->obs_mslp(gl, porder, obsPositions.values); // this is actually plotting data
 }
 
 ObsDialogInfo ObsManager::initDialog()

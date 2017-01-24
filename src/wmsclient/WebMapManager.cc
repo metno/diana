@@ -262,6 +262,25 @@ std::vector<PlotElement> WebMapManager::getPlotElements()
   return pel;
 }
 
+QString WebMapManager::plotElementTag() const
+{
+  return WEBMAP;
+}
+
+bool WebMapManager::enablePlotElement(const PlotElement& pe)
+{
+  for (size_t i = 0; i < webmaps.size(); i++) {
+    const PlotElement pew(WEBMAP, miutil::from_number((int) i), WEBMAP, webmaps[i]->isEnabled());
+    if (pew.str == pe.str) {
+      if (webmaps[i]->isEnabled() != pe.enabled) {
+        webmaps[i]->setEnabled(pe.enabled);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 std::vector<std::string> WebMapManager::getAnnotations() const Q_DECL_OVERRIDE
 {
   std::vector<std::string> annotations;

@@ -48,6 +48,7 @@ class AnnotationPlot;
 class DiGLPainter;
 class PlotModule;
 class ObjectManager;
+class ObsPositions;
 class FieldPlotManager;
 class Field;
 
@@ -150,6 +151,8 @@ public:
 
   bool isInEdit() const
     { return inEdit; }
+  bool isObsEdit() const
+    { return isInEdit() && (getMapMode() == fedit_mode || getMapMode() == combine_mode); }
 
   /// parse EDIT section of setup file. (defines Edit products)
   bool parseSetup();
@@ -184,7 +187,9 @@ public:
                         const bool send = false,
 			const bool isapproved = false);
   /// returns the current product time
-  bool getProductTime(miutil::miTime& t);
+  bool getProductTime(miutil::miTime& t) const;
+  //! same as getProductTime, but result is wrapped in a vector
+  std::vector<miutil::miTime> getTimes() const;
   /// returns the current product name
   std::string getProductName();
   /// save edited annotations in EditObjects
@@ -214,7 +219,9 @@ public:
 		   const std::string etool); // edittool
 
   /// get mapmode
-  mapMode getMapMode();
+  mapMode getMapMode() const
+    { return mapmode; }
+
   /// returns true if pause in editing
   bool getEditPause(){return editpause;}
   /// sets pause in editing on or off
@@ -236,7 +243,7 @@ public:
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
   void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
   /// show difference between observed mslp and edited mslp
-  bool obs_mslp(ObsPositions& obsPositions);
+  bool interpolateEditField(ObsPositions* obsPositions);
   /// shows all hidden edit objects
   bool showAllObjects();
   /// returns EditProducts defined in setup file
@@ -246,7 +253,7 @@ public:
   /// returns a string with product id, name, time and object types
   std::string savedProductString(savedProduct sp);
   /// get fieldEdit annotations
-  bool getAnnotations(std::vector<std::string>& anno);
+  bool getDataAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
   const std::string insertTime(const std::string&, const miutil::miTime&);
 };

@@ -32,6 +32,7 @@
 #endif
 
 #include "diFieldPlotManager.h"
+#include "diFieldPlot.h"
 #include "diPlotOptions.h"
 #include "miSetupParser.h"
 #include "util/string_util.h"
@@ -44,6 +45,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <iomanip>
+#include <memory>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
@@ -55,6 +57,16 @@ using namespace miutil;
 FieldPlotManager::FieldPlotManager(FieldManager* fm) :
       fieldManager(fm)
 {
+}
+
+FieldPlot* FieldPlotManager::createPlot(const std::string& cmd)
+{
+  const std::string plotName = extractPlotName(cmd);
+  std::auto_ptr<FieldPlot> fp(new FieldPlot(this));
+  if (fp->prepare(plotName, cmd))
+    return fp.release();
+  else
+    return 0;
 }
 
 void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
@@ -407,14 +419,11 @@ miTime FieldPlotManager::getFieldReferenceTime(const string& pinfo)
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo, bool updateSources)
+    int& timediff, const std::string& pinfo)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(pinfo));
   //Finding times from pinfo
   //TODO: find const time
-
-  METLIBS_LOG_INFO(" getCapabilitiesTime: "<<pinfo);
-  vector<string> pinfos;
-  pinfos.push_back(pinfo);
 
   //finding timediff
   timediff = 0;
@@ -431,7 +440,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 
   //getting times
-  normalTimes = getFieldTime(pinfos, updateSources);
+  normalTimes = getFieldTime(vector<string>(1, pinfo), true);
 
   METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
@@ -993,16 +1002,10 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
     if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.empty() || vPlotField[i].vcoord.count(fieldrequest.zaxis))) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
-        std::string inputName = vPlotField[i].input[j];
-        vector<std::string> vstr = miutil::split(inputName, ":");
-        inputName = vstr[0];
-        if (vstr.size() == 2 && vstr[1] == "standard_name" ){
-          fieldrequest.standard_name = true;
-        } else {
-          fieldrequest.standard_name = false;
-        }
-        fieldrequest.paramName = inputName;
-
+        const std::string& inputIJ = vPlotField[i].input[j];
+        const vector<std::string> vstr = miutil::split(inputIJ, ":");
+        fieldrequest.paramName = vstr[0];
+        fieldrequest.standard_name = (vstr.size() == 2 && vstr[1] == "standard_name");
         vfieldrequest.push_back(fieldrequest);
       }
 

@@ -131,8 +131,6 @@ private:
   std::vector<std::string> popupSpec;  // Parameter data from setupfil
 
   bool useArchive; //read archive files too.
-  bool mslp;
-  ObsPositions obsPositions;
 
   //HQC - perhaps its own class?
   std::vector<ObsData> hqcdata;
@@ -179,7 +177,7 @@ public:
   ObsPlot* createObsPlot(const std::string&);
 
   //read data
-  bool prepare(ObsPlot *,miutil::miTime);
+  bool prepare(ObsPlot *, const miutil::miTime&);
   ObsDialogInfo initDialog(void);
   ObsDialogInfo updateDialog(const std::string& name);
   bool parseSetup();
@@ -189,16 +187,9 @@ public:
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
       int& timediff, const std::string& pinfo);
 
-// return observation times for list of obsTypes
+  //! return observation times for list of obsTypes
   std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& obsTypes);
-  bool obs_mslp() const
-    { return mslp; }
-  void updateObsPositions(const std::vector<ObsPlot*> oplot);
-  ObsPositions& getObsPositions()
-    { return obsPositions; }
-  void clearObsPositions();
-  void calc_obs_mslp(DiGLPainter* gl, Plot::PlotOrder porder,
-      const std::vector<ObsPlot*>& oplot);
+
   void archiveMode(bool on)
     { useArchive=on; }
 

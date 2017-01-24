@@ -33,9 +33,6 @@
 
 #include "qtMainWindow.h"
 
-#include "qtTimeSlider.h"
-#include "qtTimeControl.h"
-#include "qtTimeStepSpinbox.h"
 #include "qtStatusGeopos.h"
 #include "qtStatusPlotButtons.h"
 #include "qtShowSatValues.h"
@@ -63,6 +60,7 @@
 #include "qtUffdaDialog.h"
 #include "qtAnnotationDialog.h"
 #include "qtTextView.h"
+#include "qtTimeNavigator.h"
 
 #include "diBuild.h"
 #include "diController.h"
@@ -107,6 +105,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QLayout>
+#include <QList>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -116,18 +115,15 @@
 #include <QProgressDialog>
 #include <QShortcut>
 #include <QStatusBar>
+#include <QStringList>
 #include <QSvgGenerator>
-#include <QTimerEvent>
 #include <QToolBar>
 #include <QToolButton>
 #include <QUrl>
 #include <QWhatsThis>
 
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-
-#include <sys/types.h>
-#include <sys/time.h>
 
 #include <fstream>
 #include <iomanip>
@@ -147,21 +143,14 @@
 #include <earth3.xpm>
 //#include <fileprint.xpm>
 //#include <question.xpm>
-#include <forover.xpm>
-#include <bakover.xpm>
-#include <start.xpm>
-#include <stopp.xpm>
-#include <slutt.xpm>
 #include <thumbs_up.xpm>
 #include <thumbs_down.xpm>
-#include <loop.xpm>
 #include <synop.xpm>
 #include <synop_red.xpm>
 #include <felt.xpm>
 #include <Tool_32_draw.xpm>
 #include <sat.xpm>
 #include <station.xpm>
-#include <clock.xpm>
 #include <levelUp.xpm>
 #include <levelDown.xpm>
 #include <idnumUp.xpm>
@@ -192,7 +181,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   , vcInterface(0)
   , vcrossEditManagerConnected(false)
   , spWindow(0), pluginB(0), contr(co)
-  , timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
+  , showelem(true)
+  , autoselect(false)
 {
   METLIBS_LOG_SCOPE();
 
@@ -236,7 +226,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optAutoElementAction = new QAction( tr("&Automatic element choice"), this );
   optAutoElementAction->setShortcut(Qt::Key_Space);
   optAutoElementAction->setCheckable(true);
-  connect( optAutoElementAction, SIGNAL( triggered() ), SLOT( autoElement() ) );
   // --------------------------------------------------------------------
   optAnnotationAction = new QAction( tr("A&nnotations"), this );
   optAnnotationAction->setCheckable(true);
@@ -423,55 +412,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   // --------------------------------------------------------------------
 
 
-  // timecommands ======================
-  // --------------------------------------------------------------------
-  timeBackwardAction = new QAction(QIcon( QPixmap(start_xpm )),tr("Run Backwards"), this);
-  timeBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeBackwardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Left);
-  timeBackwardAction->setCheckable(true);
-  timeBackwardAction->setIconVisibleInMenu(true);
-  connect( timeBackwardAction, SIGNAL( triggered() ) ,  SLOT( animationBack() ) );
-  // --------------------------------------------------------------------
-  timeForewardAction = new QAction(QIcon( QPixmap(slutt_xpm )),tr("Run Forewards"), this );
-  timeForewardAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeForewardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Right);
-  timeForewardAction->setCheckable(true);
-  timeForewardAction->setIconVisibleInMenu(true);
-  connect( timeForewardAction, SIGNAL( triggered() ) ,  SLOT( animation() ) );
-  // --------------------------------------------------------------------
-  timeStepBackwardAction = new QAction(QIcon( QPixmap(bakover_xpm )),tr("Step Backwards"), this );
-  timeStepBackwardAction->setShortcut(Qt::CTRL+Qt::Key_Left);
-  timeStepBackwardAction->setCheckable(false);
-  timeStepBackwardAction->setIconVisibleInMenu(true);
-  connect( timeStepBackwardAction, SIGNAL( triggered() ) ,  SLOT( stepback() ) );
-  // --------------------------------------------------------------------
-  timeStepForewardAction = new QAction(QIcon( QPixmap(forward_xpm )),tr("Step Forewards"), this );
-  timeStepForewardAction->setShortcut(Qt::CTRL+Qt::Key_Right);
-  timeStepForewardAction->setCheckable(false);
-  timeStepForewardAction->setIconVisibleInMenu(true);
-  connect( timeStepForewardAction, SIGNAL( triggered() ) ,  SLOT( stepforward() ) );
-  // --------------------------------------------------------------------
-  timeStopAction = new QAction(QIcon( QPixmap(stop_xpm )),tr("Stop"), this );
-  timeStopAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeStopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Down);
-  timeStopAction->setCheckable(false);
-  timeStopAction->setIconVisibleInMenu(true);
-  connect( timeStopAction, SIGNAL( triggered() ) ,  SLOT( animationStop() ) );
-  // --------------------------------------------------------------------
-  timeLoopAction = new QAction(QIcon( QPixmap(loop_xpm )),tr("Run in loop"), this );
-  timeLoopAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeLoopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Up);
-  timeLoopAction->setCheckable(true);
-  timeLoopAction->setIconVisibleInMenu(true);
-  connect( timeLoopAction, SIGNAL( triggered() ) ,  SLOT( animationLoop() ) );
-  // --------------------------------------------------------------------
-  timeControlAction = new QAction(QIcon( QPixmap( clock_xpm )),tr("Time control"), this );
-  timeControlAction->setCheckable(true);
-  timeControlAction->setIconVisibleInMenu(true);
-  connect( timeControlAction, SIGNAL( triggered() ) ,  SLOT( timecontrolslot() ) );
-  // --------------------------------------------------------------------
-
-
   // other tools ======================
   // --------------------------------------------------------------------
   toolLevelUpAction = new QAction(QIcon( QPixmap(levelUp_xpm )),tr("Level up"), this );
@@ -555,11 +495,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   downBrowsingAction = new QShortcut( Qt::ALT+Qt::Key_Down,this );
   connect( downBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
 
-  //Time step up/down
-  timeStepUpAction = new QShortcut( Qt::CTRL+Qt::Key_Up,this );
-  connect( timeStepUpAction, SIGNAL( activated() ), SLOT( increaseTimeStep()));
-  timeStepDownAction = new QShortcut( Qt::CTRL+Qt::Key_Down,this );
-  connect( timeStepDownAction, SIGNAL( activated() ), SLOT( decreaseTimeStep()));
   /*
     ----------------------------------------------------------
     Menu Bar
@@ -653,6 +588,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   helpmenu->addSeparator();
   helpmenu->addAction ( helpAboutAction );
 
+  timeNavigator = new TimeNavigator(this);
+  connect(timeNavigator, SIGNAL(timeSelected(const miutil::miTime&)),
+          this, SLOT(setPlotTime(const miutil::miTime&)));
 
   /*
     ----------------------------------------------------------
@@ -660,69 +598,14 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
     ----------------------------------------------------------
    */
 
-  // ----------------Timer widgets -------------------------
-
-  tslider= new TimeSlider(Qt::Horizontal,this);
-  tslider->setMinimumWidth(90);
-  //tslider->setMaximumWidth(90);
-  connect(tslider,SIGNAL(valueChanged(int)),SLOT(TimeSliderMoved()));
-  connect(tslider,SIGNAL(sliderReleased()),SLOT(TimeSelected()));
-  connect(tslider,SIGNAL(sliderSet()),SLOT(SliderSet()));
-
-  timestep= new TimeStepSpinbox(this);
-  connect(tslider,SIGNAL(minInterval(int)),
-      timestep,SLOT(setValue(int)));
-  connect(tslider,SIGNAL(timeSteps(int,int)),
-      timestep,SLOT(setTimeSteps(int,int)));
-  connect(tslider,SIGNAL(enableSpin(bool)),
-      timestep,SLOT(setEnabled(bool)));
-  connect(timestep,SIGNAL(valueChanged(int)),
-      tslider,SLOT(setInterval(int)));
-
-
-  timelabel= new QLabel("000%0-00-00 00:00:00",this);
-  timelabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-  timelabel->setMinimumSize(timelabel->sizeHint());
-
-  timecontrol = new TimeControl(this);
-  connect(timecontrol, SIGNAL(timeoutChanged(float)),
-      SLOT(timeoutChanged(float)));
-  connect(timecontrol, SIGNAL(minmaxValue(const miutil::miTime&, const miutil::miTime&)),
-      tslider, SLOT(setMinMax(const miutil::miTime&, const miutil::miTime&)));
-  connect(timecontrol, SIGNAL(clearMinMax()),
-      tslider, SLOT(clearMinMax()));
-  connect(tslider, SIGNAL(newTimes(std::vector<miutil::miTime>&)),
-      timecontrol, SLOT(setTimes(std::vector<miutil::miTime>&)));
-  connect(timecontrol, SIGNAL(data(std::string)),
-      tslider, SLOT(useData(std::string)));
-  connect(timecontrol, SIGNAL(timecontrolHide()),
-      SLOT(timecontrolslot()));
-
-  timerToolbar= new QToolBar("TimerToolBar",this);
-  timeSliderToolbar= new QToolBar("TimeSliderToolBar",this);
   levelToolbar= new QToolBar("levelToolBar",this);
   mainToolbar = new QToolBar("mainToolBar",this);
-  timerToolbar->setObjectName("TimerToolBar");
-  timeSliderToolbar->setObjectName("TimeSliderToolBar");
   levelToolbar->setObjectName("levelToolBar");
   mainToolbar->setObjectName("mainToolBar");
   addToolBar(Qt::RightToolBarArea,mainToolbar);
   addToolBar(Qt::TopToolBarArea,levelToolbar);
-  insertToolBar(levelToolbar,timeSliderToolbar);
-  insertToolBar(timeSliderToolbar,timerToolbar);
+  insertToolBar(levelToolbar, timeNavigator->toolbar());
 
-  timerToolbar->addAction( timeBackwardAction    );
-  timerToolbar->addAction( timeStepBackwardAction );
-  timerToolbar->addAction( timeStepForewardAction );
-  timerToolbar->addAction( timeForewardAction  );
-  timerToolbar->addAction( timeStopAction      );
-  timerToolbar->addAction( timeLoopAction        );
-
-  timeSliderToolbar->addWidget( tslider );
-
-  levelToolbar->addAction( timeControlAction );
-  levelToolbar->addWidget( timestep );
-  levelToolbar->addWidget( timelabel );
   levelToolbar->addAction( toolLevelUpAction );
   levelToolbar->addAction( toolLevelDownAction );
   levelToolbar->addSeparator();
@@ -1094,40 +977,40 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   browser->hide();
 
   connect(fm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-          tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
   connect(om, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-          tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
   connect(sm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool)),
-          tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
+          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
 
   connect(em, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-          tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
   connect(objm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool)),
-          tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
+          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
 
   if (vpWindow) {
     connect(vpWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-            tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+            timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
     connect(vpWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-            tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
+            timeNavigator, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
   if (vcInterface.get()) {
     connect(vcInterface.get(), SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-        tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+        timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
     
     connect(vcInterface.get(), SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-        tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
+        timeNavigator, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
   if (spWindow) {
     connect(spWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-            tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+            timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
     connect( spWindow ,SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-        tslider,SLOT(setTime(const std::string&, const miutil::miTime&)));
+        timeNavigator,SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
 
   mainToolbar->addSeparator();
@@ -1337,7 +1220,7 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &short
   shortnames.push_back(mm->getShortname());
 
   // annotation
-  bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
+  bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
   diagstr = annom->getOKString();
   for ( size_t i =0; i< diagstr.size(); i++) {
     if(!remove || not miutil::contains(diagstr[i], "$")) { //remove labels with time
@@ -1363,15 +1246,10 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &short
   }
 }
 
-std::vector<PlotElement> DianaMainWindow::getPlotElements() const
-{
-  std::vector<PlotElement> pe = contr->getPlotElements();
-  return pe;
-}
-
 void DianaMainWindow::updatePlotElements()
 {
-  statusbuttons->setPlotElements(getPlotElements());
+  if (showelem)
+    statusbuttons->setPlotElements(contr->getPlotElements());
 }
 
 void DianaMainWindow::MenuOK()
@@ -1398,14 +1276,9 @@ void DianaMainWindow::MenuOK()
     METLIBS_LOG_DEBUG(logstr);
   }
 
-  miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
-  contr->setPlotTime(t);
-  contr->updatePlots();
   METLIBS_LOG_INFO(contr->getMapArea());
-
-  requestBackgroundBufferUpdate();
-  timeChanged();
+  setPlotTime(timeNavigator->selectedTime());
 
   // push command on history-stack
   if (push_command){ // only when proper menuok
@@ -1908,20 +1781,16 @@ void DianaMainWindow::connectionClosed()
   qsocket = false;
 
   contr->stationCommand("delete","all");
-  contr->areaCommand("delete","all", std::vector<std::string>(1, "all"),-1);
+  contr->areaObjectsCommand("delete","all", std::vector<std::string>(1, "all"),-1);
 
-  //remove times
-  vector<std::string> type = timecontrol->deleteType(-1);
-  for(unsigned int i=0;i<type.size();i++)
-    tslider->deleteType(type[i]);
+  timeNavigator->removeTimes(-1);
 
   textview->hide();
   contr->processHqcCommand("remove");
   om->setPlottype("Hqc_synop",false);
   om->setPlottype("Hqc_list",false);
   MenuOK();
-  if (showelem) updatePlotElements();
-
+  updatePlotElements();
 }
 
 
@@ -2072,8 +1941,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description: dataset
     const std::string cmd = (command == qmstrings::showpositions) ? "show" : "hide";
     contr->stationCommand(cmd, letter.description, fromId);
-    if (showelem)
-      updatePlotElements();
+    updatePlotElements();
   }
 
   else if (command == qmstrings::changeimageandtext) {
@@ -2113,10 +1981,10 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   }
 
   else if (command == qmstrings::areas) {
-    if(letter.data.size()>0)
-      contr->makeAreas(letter.common, letter.data[0], fromId);
-    if (showelem)
+    if(letter.data.size()>0) {
+      contr->makeAreaObjects(letter.common, letter.data[0], fromId);
       updatePlotElements();
+    }
   }
 
   else if (command == qmstrings::areacommand) {
@@ -2142,10 +2010,10 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     }
     const int n = qletter.countDataRows();
     if (n == 0) {
-      contr->areaCommand(cmd, ds, std::vector<std::string>(), fromId);
+      contr->areaObjectsCommand(cmd, ds, std::vector<std::string>(), fromId);
     } else {
       for (int i=0; i<n; i++)
-        contr->areaCommand(cmd, ds, diutil::toVector(qletter.getDataValues(i)), fromId);
+        contr->areaObjectsCommand(cmd, ds, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
@@ -2154,7 +2022,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description name,on/off
     int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("select", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
+      contr->areaObjectsCommand("select", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
@@ -2163,7 +2031,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description name,on/off
     int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("show", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
+      contr->areaObjectsCommand("show", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
@@ -2172,15 +2040,14 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //description name,colour
     int n = qletter.countDataRows();
     for (int i=0;i<n;i++) {
-      contr->areaCommand("setcolour", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
+      contr->areaObjectsCommand("setcolour", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
     }
   }
 
   else if (command == qmstrings::deletearea) {
     //commondesc dataSet
-    contr->areaCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
-    if (showelem)
-      updatePlotElements();
+    contr->areaObjectsCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
+    updatePlotElements();
   }
 
   else if (command == qmstrings::showtext) {
@@ -2211,11 +2078,8 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //remove stationPlots from this client
     contr->stationCommand("delete", "", id);
     //remove areas from this client
-    contr->areaCommand("delete", "all", std::vector<std::string>(1, "all"), id);
-    //remove times
-    vector<std::string> type = timecontrol->deleteType(id);
-    for(unsigned int i=0; i<type.size(); i++)
-      tslider->deleteType(type[i]);
+    contr->areaObjectsCommand("delete", "all", std::vector<std::string>(1, "all"), id);
+    timeNavigator->removeTimes(id);
     //hide textview
     textview->deleteTab(id);
     //     if(textview && id == textview_id )
@@ -2227,8 +2091,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
       om->setPlottype("Hqc_list",false);
       MenuOK();
     }
-    if (showelem)
-      updatePlotElements();
+    updatePlotElements();
   }
 
   else if (command == qmstrings::newclient) {
@@ -2250,20 +2113,17 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     const int n = qletter.countDataRows();
     const std::string l_common = qletter.getCommonValue(0).toStdString();
     if (qletter.findCommonDesc("datatype") == 0) {
-      timecontrol->useData(l_common, fromId);
+      timeNavigator->useData(l_common, fromId);
       vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
         times.push_back(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
-      tslider->insert(l_common, times);
+      timeNavigator->insert(l_common, times);
       contr->initHqcdata(fromId, letter.commondesc,
           l_common, letter.description, letter.data);
 
     } else if (qletter.findCommonDesc("time") == 0) {
       miutil::miTime t(l_common);
-      tslider->setTime(t);
-      contr->setPlotTime(t);
-      timeChanged();
-      contr->updatePlots();
+      timeNavigator->setTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
     }
   }
 
@@ -2300,7 +2160,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   else if (command == qmstrings::directory_changed) {
     if (doAutoUpdate) {
       // running animation
-      if (timeron != 0) {
+      if (timeNavigator->isTimerOn() != 0) {
         om->getTimes();
         sm->RefreshList();
         if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
@@ -2317,9 +2177,9 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
         // what to do with om->getTimes() ?
         om->getTimes();
         sm->RefreshList();
-        miutil::miTime tp = tslider->Value();
-        tslider->setLastTimeStep();
-        miutil::miTime t= tslider->Value();
+        miutil::miTime tp = timeNavigator->selectedTime();
+        timeNavigator->setLastTimeStep();
+        miutil::miTime t= timeNavigator->selectedTime();
         // Check if slider was not on latest timestep
         // or new image file arrived.
         // If t > tp force repaint...
@@ -2332,7 +2192,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
           contr->obsTimeListUpdated();
         }
         //METLIBS_LOG_DEBUG("stepforward");
-        stepforward();
+        timeNavigator->stepTimeForward();
       }
     }
   }
@@ -2401,8 +2261,7 @@ void DianaMainWindow::requestBackgroundBufferUpdate()
 void DianaMainWindow::updateGLSlot()
 {
   requestBackgroundBufferUpdate();
-  if (showelem)
-    updatePlotElements();
+  updatePlotElements();
 }
 
 
@@ -2445,122 +2304,6 @@ void DianaMainWindow::about()
   QMessageBox::about( this, tr("about Diana"), str );
 }
 
-
-void DianaMainWindow::TimeSliderMoved()
-{
-  miutil::miTime t= tslider->Value();
-  timelabel->setText(t.isoTime().c_str());
-}
-
-void DianaMainWindow::TimeSelected()
-{
-  //Timeslider released
-  miutil::miTime t= tslider->Value();
-  setPlotTime(t);
-}
-
-void DianaMainWindow::SliderSet()
-{
-  miutil::miTime t= tslider->Value();
-  contr->setPlotTime(t);
-  TimeSliderMoved();
-}
-
-void DianaMainWindow::setTimeLabel()
-{
-  const miutil::miTime& t = contr->getPlotTime();
-  tslider->setTime(t);
-  TimeSliderMoved();
-}
-
-void DianaMainWindow::stopAnimation()
-{
-  timeBackwardAction->setChecked( false );
-  timeForewardAction->setChecked( false );
-
-  killTimer(animationTimer);
-  timeron=0;
-
-}
-
-void DianaMainWindow::animationLoop()
-{
-  timeloop= !timeloop;
-  tslider->setLoop(timeloop);
-
-  timeLoopAction->setChecked( timeloop );
-}
-
-void DianaMainWindow::timerEvent(QTimerEvent *e)
-{
-  if (e->timerId()==animationTimer){
-    miutil::miTime t;
-    if (!tslider->nextTime(timeron, t, true)){
-      stopAnimation();
-      return;
-    }
-    setPlotTime(t);
-  }
-}
-
-void DianaMainWindow::animation()
-{
-  if (timeron!=0)
-    stopAnimation();
-
-  timeForewardAction->setChecked( true );
-
-  tslider->startAnimation();
-  animationTimer= startTimer(timeout_ms);
-  timeron=1;
-}
-
-void DianaMainWindow::animationBack()
-{
-  if (timeron!=0)
-    stopAnimation();
-
-  timeBackwardAction->setChecked( true );
-
-  tslider->startAnimation();
-  animationTimer= startTimer(timeout_ms);
-  timeron=-1;
-}
-
-void DianaMainWindow::animationStop()
-{
-  stopAnimation();
-}
-
-void DianaMainWindow::stepforward()
-{
-  if (timeron) return;
-  miutil::miTime t;
-  if (!tslider->nextTime(1, t)) return;
-  setPlotTime(t);
-}
-
-void DianaMainWindow::stepback()
-{
-  if (timeron) return;
-  miutil::miTime t;
-  if (!tslider->nextTime(-1, t)) return;
-  setPlotTime(t);
-}
-
-void DianaMainWindow::decreaseTimeStep()
-{
-  int v= timestep->value() - timestep->singleStep();
-  if (v<0) v=0;
-  timestep->setValue(v);
-}
-
-void DianaMainWindow::increaseTimeStep()
-{
-  int v= timestep->value() + timestep->singleStep();
-  timestep->setValue(v);
-}
-
 void DianaMainWindow::setPlotTime(const miutil::miTime& t)
 {
   METLIBS_LOG_TIME();
@@ -2568,25 +2311,20 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
   contr->setPlotTime(t);
   contr->updatePlots();
   requestBackgroundBufferUpdate();
-  timeChanged();
-}
 
-void DianaMainWindow::timeChanged(){
   //to be done whenever time changes (step back/forward, MenuOK etc.)
-  setTimeLabel();
   objm->commentUpdate();
   satFileListUpdate();
-  const miutil::miTime& t = contr->getPlotTime();
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
   if (vcInterface.get()) vcInterface->mainWindowTimeChanged(t);
-  if (showelem) updatePlotElements();
+  updatePlotElements();
 
   //update sat channels in statusbar
   vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
 
-  if(qsocket){
+  if (qsocket) {
     miQMessage letter(qmstrings::timechanged);
     letter.addCommon("time", QString::fromStdString(t.isoTime()));
     sendLetter(letter);
@@ -2599,46 +2337,33 @@ void DianaMainWindow::timeChanged(){
 void DianaMainWindow::levelUp()
 {
   if (toolLevelUpAction->isEnabled())
-    levelChange(1);
+    levelChange(1, 0);
 }
-
 
 void DianaMainWindow::levelDown()
 {
   if (toolLevelDownAction->isEnabled())
-    levelChange(-1);
+    levelChange(-1, 0);
 }
 
-
-void DianaMainWindow::levelChange(int increment)
+void DianaMainWindow::levelChange(int increment, int axis)
 {
   diutil::OverrideCursor waitCursor;
   // update field dialog
-  fm->changeLevel(increment,0);
+  fm->changeLevel(increment, axis);
   MenuOK();
 }
-
 
 void DianaMainWindow::idnumUp()
 {
   if (toolIdnumUpAction->isEnabled())
-    idnumChange(1);
+    levelChange(1, 1);
 }
-
 
 void DianaMainWindow::idnumDown()
 {
   if (toolIdnumDownAction->isEnabled())
-    idnumChange(-1);
-}
-
-
-void DianaMainWindow::idnumChange(int increment)
-{
-  diutil::OverrideCursor waitCursor;
-  // update field dialog
-  fm->changeLevel(increment, 1);
-  MenuOK();
+    levelChange(-1, 1);
 }
 
 
@@ -2720,16 +2445,11 @@ void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
 
   w->setVisible(false); // avoid handling repaint events while the canvas is replaced
 
-  // first reset time-slider
-  miutil::miTime startTime = tslider->getStartTime();
-  tslider->set(startTime);
-  setPlotTime(startTime);
+  const miutil::miTime oldTime = timeNavigator->selectedTime();
+  const std::vector<miutil::miTime> times = timeNavigator->animationTimes();
 
-  int nrOfTimesteps = tslider->numTimes();
-
-  int maxProgress = nrOfTimesteps - tslider->current() - 1;
   QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
-      0, maxProgress, this);
+      0, times.size(), this);
   progress.setWindowModality(Qt::WindowModal);
   progress.show();
 
@@ -2740,10 +2460,11 @@ void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
     DianaImageExporter ex(w->Glw(), &image, false);
 
     // save frames as images
-    for (int step = 0; ok && tslider->current() < nrOfTimesteps-1; ++step, stepforward()) {
+    for (size_t step = 0; ok && step < times.size(); ++step) {
       if (!progress.isHidden())
         progress.setValue(step);
 
+      setPlotTime(times[step]);
       image.fill(Qt::transparent);
       ex.paintOnDevice();
 
@@ -2751,9 +2472,8 @@ void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
     }
     if (ok)
       ok = moviemaker.finish();
-    if (!progress.isHidden())
-      progress.setValue(nrOfTimesteps);
   } // destroy DianaImageExporter, resets canvas
+  setPlotTime(oldTime);
 
   w->setVisible(true);
 
@@ -2903,7 +2623,7 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
     selectAreaAction[i]->setVisible(false);
   }
 
-  vselectAreas=contr->findAreas(xclick,yclick);
+  vselectAreas=contr->findAreaObjects(xclick,yclick);
   int nAreas=vselectAreas.size();
   if ( nAreas>0 ) {
     zoomOutAction->setVisible(true);
@@ -3072,7 +2792,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     }
 
     //send area to plugin connected
-    vector <selectArea> areas=contr->findAreas(x,y,true);
+    vector <selectArea> areas=contr->findAreaObjects(x,y,true);
     int nareas = areas.size();
     if (nareas) {
       miQMessage letter(qmstrings::selectarea);
@@ -3193,31 +2913,6 @@ void DianaMainWindow::filequit()
   }
 }
 
-
-void DianaMainWindow::timeoutChanged(float value)
-{
-  int msecvalue= static_cast<int>(value*1000);
-  if (msecvalue != timeout_ms){
-    timeout_ms= msecvalue;
-
-    if (timeron!=0) {
-      killTimer(animationTimer);
-      animationTimer= startTimer(timeout_ms);
-    }
-  }
-}
-
-
-void DianaMainWindow::timecontrolslot()
-{
-  bool b= timecontrol->isVisible();
-  if (b){
-    timecontrol->hide();
-  } else {
-    timecontrol->show();
-  }
-  timeControlAction->setChecked(!b);
-}
 
 // static
 bool DianaMainWindow::allowedInstanceName(const QString& text)
@@ -3659,13 +3354,7 @@ void DianaMainWindow::satFileListUpdate()
 
 void DianaMainWindow::toggleElement(PlotElement pe)
 {
-  if (QString::fromStdString(pe.type) == DrawingManager::instance()->plotElementTag())
-    DrawingManager::instance()->enablePlotElement(pe);
-  else if (QString::fromStdString(pe.type) == EditItemManager::instance()->plotElementTag())
-    EditItemManager::instance()->enablePlotElement(pe);
-  else
-    contr->enablePlotElement(pe);
-
+  contr->enablePlotElement(pe);
   vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
   requestBackgroundBufferUpdate();
@@ -3679,10 +3368,10 @@ void DianaMainWindow::showElements()
     optOnOffAction->setChecked( false );
     showelem= false;
   } else {
-    updatePlotElements();
     statusbuttons->show();
     optOnOffAction->setChecked( true );
     showelem= true;
+    updatePlotElements();
   }
 }
 
@@ -3702,13 +3391,6 @@ void DianaMainWindow::archiveMode()
   }
 }
 
-void DianaMainWindow::autoElement()
-{
-  //   bool on = optAutoElementAction->isChecked();
-  //   optAutoElementAction->setChecked( on );
-}
-
-
 void DianaMainWindow::showAnnotations()
 {
   bool on = optAnnotationAction->isChecked();
@@ -3719,7 +3401,7 @@ void DianaMainWindow::showAnnotations()
 void DianaMainWindow::toggleScrollwheelZoom()
 {
   bool on = optScrollwheelZoomAction->isChecked();
-  contr->toggleScrollwheelZoom(on);
+  w->Glw()->setUseScrollwheelZoom(on);
 }
 
 void DianaMainWindow::chooseFont()
@@ -3817,9 +3499,9 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
   dialogNames[dialog->name()] = dialog;
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &)),
-      tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
+      timeNavigator, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
-      tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
+      timeNavigator, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
   connect(dialog, SIGNAL(updated()), this, SLOT(requestBackgroundBufferUpdate()));
 
   if (QAction *action = dialog->action()) {
@@ -3862,7 +3544,7 @@ void DianaMainWindow::unsetWorkAreaCursor()
 void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
   if (event->mimeData()->hasUrls()) {
-    foreach (QUrl url, event->mimeData()->urls()) {
+    Q_FOREACH(QUrl url, event->mimeData()->urls()) {
 
       // Return if we encounter a non-file URL, causing the event to be ignored.
       if (!(url.scheme() == "file"))
@@ -3909,25 +3591,23 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
     foreach (QUrl url, event->mimeData()->urls()) {
 
       if (url.scheme() == "file") {
-        QString suffix = QFileInfo(url.toLocalFile()).suffix();
+        const QString fileName = url.toLocalFile();
+        const QFileInfo fi(fileName);
+        const QString suffix = fi.suffix();
 
         if (suffix == "nc") {
-          QFileInfo fi(url.toLocalFile());
-          QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
+          QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(fileName);
           extra_field_lines.push_back(s.toStdString());
           fieldsAdded++;
 
         } else if (suffix == "svg") {
-          QString fileName = url.toLocalFile();
-          QString name = QFileInfo(fileName).fileName();
-          QString section = QFileInfo(fileName).dir().dirName();
+          QString name = fi.fileName();
+          QString section = fi.dir().dirName();
           DrawingManager::instance()->loadSymbol(fileName, section, name);
           editDrawingToolBar->addSymbol(section, name);
           symbolsAdded++;
 
         } else if (suffix == "kml") {
-          QString fileName = url.toLocalFile();
-          QString name = QFileInfo(fileName).fileName();
           EditItems::DrawingDialog::instance()->loadFile(fileName);
           drawingsAdded++;
         }

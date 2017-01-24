@@ -35,7 +35,6 @@
 #include <EditItems/toolbar.h>
 
 #include <QMainWindow>
-#include <QTimerEvent>
 #include <QLabel>
 #include <QFocusEvent>
 
@@ -75,9 +74,6 @@ class UffdaDialog;
 class DataDialog;
 class EditDialog;
 class Controller;
-class TimeSlider;
-class TimeStepSpinbox;
-class TimeControl;
 class StatusGeopos;
 class HelpDialog;
 class ShowSatValues;
@@ -91,6 +87,7 @@ class miMessage;
 class miQMessage;
 class StationPlot;
 class TextView;
+class TimeNavigator;
 class MovieMaker;
 
 /**
@@ -131,9 +128,6 @@ public:
   void saveAnimation(MovieMaker& moviemaker);
 
 protected:
-  void timerEvent(QTimerEvent*);
-  void setTimeLabel();
-  void stopAnimation();
   void focusInEvent ( QFocusEvent * );
   void closeEvent( QCloseEvent* );
   void dragEnterEvent(QDragEnterEvent *event);
@@ -149,16 +143,6 @@ public Q_SLOTS:
   void updateDialog();
 
 private Q_SLOTS:
-  void timecontrolslot();
-  void timeoutChanged(float value);
-  void animation();
-  void animationBack();
-  void animationStop();
-  void animationLoop();
-  void stepforward();
-  void stepback();
-  void decreaseTimeStep();
-  void increaseTimeStep();
   void levelUp();
   void levelDown();
   void idnumUp();
@@ -206,11 +190,7 @@ private Q_SLOTS:
   void hardcopy();
   void previewHardcopy();
   void saveraster();
-
-  void TimeSliderMoved();
-  void TimeSelected();
   void setPlotTime(const miutil::miTime& t);
-  void SliderSet();
   void requestBackgroundBufferUpdate();
 
   void toggleDialogs();
@@ -246,7 +226,6 @@ private Q_SLOTS:
   void updateGLSlot();
   void showElements();
   void archiveMode();
-  void autoElement();
   void showAnnotations();
   void toggleScrollwheelZoom();
   void chooseFont();
@@ -346,14 +325,6 @@ private:
   QAction * helpTestAction;
   QAction * helpAboutAction;
 
-  QAction * timeBackwardAction;
-  QAction * timeForewardAction;
-  QAction * timeStepBackwardAction;
-  QAction * timeStepForewardAction;
-  QAction * timeStopAction;
-  QAction * timeLoopAction;
-  QAction * timeControlAction;
-
   QAction * toolLevelUpAction;
   QAction * toolLevelDownAction;
 
@@ -374,9 +345,6 @@ private:
   QShortcut * rightBrowsingAction;
   QShortcut * upBrowsingAction;
   QShortcut * downBrowsingAction;
-  QShortcut * timeStepUpAction;
-  QShortcut * timeStepDownAction;
-
 
   QMenuBar   * mainmenubar;
 
@@ -389,9 +357,9 @@ private:
 
   QToolBar * menuToolbar;
   QToolBar * mainToolbar;
-  QToolBar * timerToolbar;
-  QToolBar * timeSliderToolbar;
   QToolBar * levelToolbar;
+
+  TimeNavigator* timeNavigator;
 
   // printerdefinitions
   printerManager pman;
@@ -439,20 +407,8 @@ private:
   Controller* contr;
   std::string lastString;
 
-  // timer types
-  int timeron;               ///> timer is turned on
-  int animationTimer;        ///> the main timer id
-  int timeout_ms;            ///> animation timeout in millisecs
-  bool timeloop;             ///> animation in loop
-  TimeSlider *tslider;       ///> the time slider
-  TimeStepSpinbox *timestep; ///> the timestep widget
-  TimeControl* timecontrol;  ///> time control dialog
-  QLabel *timelabel;         ///> showing current time
-
-
   bool          showelem;    ///> show on/off buttons
   bool          autoselect;  ///> autoselect element on mousemove
-
 
   // x,y position of right mouse click or move
   int xclick,yclick;
@@ -468,8 +424,7 @@ private:
   std::map<int,bool> autoredraw;
   StationPlot *stationPlot;
 
-  void levelChange(int increment);
-  void idnumChange(int increment);
+  void levelChange(int increment, int axis);
 
   std::string getLogFileName() const;
   void readLogFile();
@@ -481,7 +436,6 @@ private:
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, std::string& logVersion);
   void getDisplaySize();
-  void timeChanged();
   void satFileListUpdate();
   void vprofStartup();
   void spectrumStartup();
@@ -490,8 +444,6 @@ private:
 
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;
-
-  std::vector<PlotElement> getPlotElements() const;
 
   static DianaMainWindow *self;   // singleton instance pointer
 };

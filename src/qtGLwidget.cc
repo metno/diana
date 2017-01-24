@@ -46,6 +46,7 @@ GLwidget::GLwidget(Controller* c)
   : contr(c)
   , plotw(1)
   , ploth(1)
+  , scrollwheelZoom(false)
 {
 }
 
@@ -180,7 +181,7 @@ bool GLwidget::handleKeyEvents(QKeyEvent* ke)
 
 bool GLwidget::handleWheelEvents(QWheelEvent *we)
 {
-  if (contr->useScrollwheelZoom() && we->orientation() == Qt::Vertical) {
+  if (useScrollwheelZoom() && we->orientation() == Qt::Vertical) {
     int numDegrees = we->delta() / 8;
     int numSteps = numDegrees / 15;
     if (numSteps > 0) {

@@ -27,6 +27,7 @@ libdiana_la_SOURCES = \
 	diAnnotationPlot.cc \
 	diAreaBorder.cc \
 	diAreaObjects.cc \
+	diAreaObjectsCluster.cc \
 	diColour.cc \
 	diColourShading.cc \
 	diCommandParser.cc \
@@ -38,6 +39,7 @@ libdiana_la_SOURCES = \
 	diEditObjects.cc \
 	diFieldEdit.cc \
 	diFieldPlot.cc \
+	diFieldPlotCluster.cc \
 	diFieldPlotManager.cc \
 	diFilledMap.cc \
 	diFtnVfile.cc \
@@ -60,8 +62,11 @@ libdiana_la_SOURCES = \
 	diObsManager.cc \
 	diObsMetaData.cc \
 	diObsPlot.cc \
+	diObsPlotCluster.cc \
+	diObsPositions.cc \
 	diPattern.cc \
 	diPlot.cc \
+	diPlotCluster.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
 	diPoint.cc \
@@ -115,6 +120,7 @@ libdiana_la_SOURCES = \
 	util/qstring_util.cc \
 	util/string_util.cc \
 	util/subprocess.cc \
+	util/was_enabled.cc \
 	diPainter.cc \
 	diGLPainter.cc \
 	diPaintGLPainter.cc
@@ -225,6 +231,7 @@ libdianaui_a_QTSOURCES = \
 	qtTextDialog.cc \
 	qtTextView.cc \
 	qtTimeControl.cc \
+	qtTimeNavigator.cc \
 	qtTimeSlider.cc \
 	qtTimeSpinbox.cc \
 	qtTimeStepSpinbox.cc \
@@ -275,6 +282,7 @@ noinst_HEADERS = \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
+	diAreaObjectsCluster.h \
 	diColour.h \
 	diColourShading.h \
 	diCommandParser.h \
@@ -290,6 +298,7 @@ noinst_HEADERS = \
 	diEditSpec.h \
 	diFieldEdit.h \
 	diFieldPlot.h \
+	diFieldPlotCluster.h \
 	diFieldPlotManager.h \
 	diFilledMap.h \
 	diFontFamily.h \
@@ -320,12 +329,15 @@ noinst_HEADERS = \
 	diObsManager.h \
 	diObsMetaData.h \
 	diObsPlot.h \
+	diObsPlotCluster.h \
+	diObsPositions.h \
 	diOrderBook.h \
 	diOrderClient.h \
 	diOrderListener.h \
 	diOrderQueue.h \
 	diPattern.h \
 	diPlot.h \
+	diPlotCluster.h \
 	diPlotModule.h \
 	diPlotOptions.h \
 	diPoint.h \
@@ -426,6 +438,7 @@ noinst_HEADERS = \
 	qtTextDialog.h \
 	qtTextView.h \
 	qtTimeControl.h \
+	qtTimeNavigator.h \
 	qtTimeSlider.h \
 	qtTimeSpinbox.h \
 	qtTimeStepSpinbox.h \
@@ -446,6 +459,7 @@ noinst_HEADERS = \
 	util/qstring_util.h \
 	util/string_util.h \
 	util/subprocess.h \
+	util/was_enabled.h \
 	bdiana_capi.h 
 
 noinst_HEADERS += \

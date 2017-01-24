@@ -33,10 +33,13 @@
 
 #include <diController.h>
 
+#include "diAreaObjectsCluster.h"
 #include "diManager.h"
 #include "diPlotModule.h"
+#include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diObsManager.h"
+#include "diObsPlotCluster.h"
 #include "diSatManager.h"
 #include "diObjectManager.h"
 #include "diDrawingManager.h"
@@ -81,7 +84,6 @@ Controller::Controller()
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
-  scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
 
   addManager("DRAWING", DrawingManager::instance());
@@ -279,12 +281,13 @@ const miutil::miTime& Controller::getPlotTime()
   return plotm->getPlotTime();
 }
 
-void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
+void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times)
 {
-  plotm->getPlotTimes(times, updateSources);
+  plotm->getPlotTimes(times);
 }
 
-bool Controller::getProductTime(miTime& t){
+bool Controller::getProductTime(miTime& t)
+{
   return editm->getProductTime(t);
 }
 
@@ -321,22 +324,25 @@ void Controller::updateObs(){
 }
 
 // find obs in grid position x,y
-bool Controller::findObs(int x, int y){
-  return plotm->findObs(x,y);
+bool Controller::findObs(int x, int y)
+{
+  return plotm->obsplots()->findObs(x,y);
 }
 
-bool Controller::getObsName(int x, int y, std::string& name){
-  return plotm->getObsName(x,y,name);
+bool Controller::getObsName(int x, int y, std::string& name)
+{
+  return plotm->obsplots()->getObsName(x,y,name);
 }
 
 std::string Controller::getObsPopupText(int x, int y)
 {
-  return plotm->getObsPopupText(x,y);
+  return plotm->obsplots()->getObsPopupText(x,y);
 }
 
 // plot other observations
-void Controller::nextObs(bool next){
-  plotm->nextObs(next);
+void Controller::nextObs(bool next)
+{
+  plotm->obsplots()->nextObs(next);
 }
 
 //init hqcData from QSocket
@@ -382,7 +388,7 @@ bool Controller::startTrajectoryComputation(){
 // get trajectory fields
 vector<string> Controller::getTrajectoryFields()
 {
-  return plotm->getTrajectoryFields();
+  return plotm->fieldplots()->getTrajectoryFields();
 }
 
 // write trajectory positions to file
@@ -415,55 +421,59 @@ vector<string> Controller::getSatnames()
   return satm->getSatnames();
 }
 
-void Controller::showAnnotations(bool on){
+void Controller::showAnnotations(bool on)
+{
   plotm->showAnnotations(on);
 }
 
-void Controller::toggleScrollwheelZoom(bool on){
-  scrollwheelZoom = !scrollwheelZoom;
-}
-
-bool Controller::markAnnotationPlot(int x, int y){
+bool Controller::markAnnotationPlot(int x, int y)
+{
   return plotm->markAnnotationPlot(x,y);
 }
 
-std::string Controller::getMarkedAnnotation(){
+std::string Controller::getMarkedAnnotation()
+{
   return plotm->getMarkedAnnotation();
 }
 
 void Controller::changeMarkedAnnotation(std::string text,int cursor,
-    int sel1, int sel2){
+    int sel1, int sel2)
+{
   plotm->changeMarkedAnnotation(text,cursor,sel1,sel2);
 }
-
 
 void Controller::DeleteMarkedAnnotation()
 {
   plotm->DeleteMarkedAnnotation();
 }
 
-void Controller::startEditAnnotation(){
+void Controller::startEditAnnotation()
+{
   plotm->startEditAnnotation();
 }
 
-void Controller::stopEditAnnotation(std::string prodname){
+void Controller::stopEditAnnotation(std::string prodname)
+{
   vector <string> labels  = plotm->writeAnnotations(prodname);
   editm->saveProductLabels(labels);
   plotm->stopEditAnnotation();
 }
 
-void Controller::editNextAnnoElement(){
+void Controller::editNextAnnoElement()
+{
   plotm->editNextAnnoElement();
 }
 
 
-void Controller::editLastAnnoElement(){
+void Controller::editLastAnnoElement()
+{
   plotm->editLastAnnoElement();
 }
 
 
 //Archive mode
-void Controller::archiveMode(bool on){
+void Controller::archiveMode(bool on)
+{
   obsm->archiveMode(on);
   satm->archiveMode(on);
 }
@@ -585,7 +595,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   if (ke->type() == QEvent::KeyPress){
     if (ke->key() == Qt::Key_PageUp or ke->key() == Qt::Key_PageDown) {
       const bool forward = ke->key() == Qt::Key_PageDown;
-      plotm->nextObs(forward);  // browse through observations
+      plotm->obsplots()->nextObs(forward);  // browse through observations
       res.repaint= true;
       res.update_background_buffer = true;
       if (inEdit)
@@ -693,7 +703,8 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
 // ----- edit and drawing methods ----------
 
-mapMode Controller::getMapMode(){
+mapMode Controller::getMapMode()
+{
   return editm->getMapMode();
 }
 
@@ -710,21 +721,21 @@ set<string> Controller::getComplexList()
 // return satfileinfo
 const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
     const std::string& file,
-    bool update){
+    bool update)
+{
   return satm->getFiles(satellite,file,update);
 }
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-    const vector<string>& pinfos,
-    bool allTimes,
-    bool updateSources)
+    const vector<string>& pinfos, bool allTimes)
 {
-  plotm->getCapabilitiesTime(okTimes,pinfos,allTimes,updateSources);
+  plotm->getCapabilitiesTime(okTimes,pinfos,allTimes);
 }
 
 const vector<Colour>& Controller::getSatColours(const std::string& satellite,
-    const std::string& file){
+    const std::string& file)
+{
   return satm->getColours(satellite,file);
 }
 
@@ -735,7 +746,8 @@ const vector<std::string>& Controller::getSatChannels(const std::string& satelli
   return satm->getChannels(satellite,file,index);
 }
 
-bool Controller::isMosaic(const std::string & satellite, const std::string & file){
+bool Controller::isMosaic(const std::string & satellite, const std::string & file)
+{
   return satm->isMosaic(satellite,file);
 }
 
@@ -748,25 +760,29 @@ void Controller::SatRefresh(const std::string& satellite, const std::string& fil
 
 
 
-bool Controller::satFileListChanged(){
+bool Controller::satFileListChanged()
+{
   // returns information about whether list of satellite files have changed
   //hence dialog and timeSlider times should change as well
   return satm->isFileListChanged();
 }
 
-void Controller::satFileListUpdated(){
+void Controller::satFileListUpdated()
+{
   //called when the dialog and timeSlider updated with info from satellite
   //file list
   satm->setFileListChanged(false);
 }
 
-bool Controller::obsTimeListChanged(){
+bool Controller::obsTimeListChanged()
+{
   // returns information about whether list of observation files have changed
   //hence dialog and timeSlider times should change as well
   return obsm->timeListChanged;
 }
 
-void Controller::obsTimeListUpdated(){
+void Controller::obsTimeListUpdated()
+{
   //called when the dialog and timeSlider updated with info from observation
   //file list
   obsm->timeListChanged = false;
@@ -781,43 +797,52 @@ void Controller::setSatAuto(bool autoFile,const std::string& satellite,
 
 
 void Controller::getUffdaClasses(vector <std::string> & vUffdaClass,
-    vector <std::string> &vUffdaClassTip){
+    vector <std::string> &vUffdaClassTip)
+{
   vUffdaClass=satm->vUffdaClass;
   vUffdaClassTip=satm->vUffdaClassTip;
 }
 
-bool Controller::getUffdaEnabled(){
+bool Controller::getUffdaEnabled()
+{
   return satm->uffdaEnabled;
 }
 
-std::string Controller::getUffdaMailAddress(){
+std::string Controller::getUffdaMailAddress()
+{
   return satm->uffdaMailAddress;
 }
 
 // return button names for ObsDialog
-ObsDialogInfo Controller::initObsDialog(){
+ObsDialogInfo Controller::initObsDialog()
+{
   return obsm->initDialog();
 }
 
 // return button names for ObsDialog ... ascii files (when activated)
-ObsDialogInfo Controller::updateObsDialog(const std::string& name){
+ObsDialogInfo Controller::updateObsDialog(const std::string& name)
+{
   return obsm->updateDialog(name);
 }
 
 // return button names for SatDialog
-SatDialogInfo Controller::initSatDialog(){
+SatDialogInfo Controller::initSatDialog()
+{
   return satm->initDialog();
 }
 
-stationDialogInfo Controller::initStationDialog(){
+stationDialogInfo Controller::initStationDialog()
+{
   return stam->initDialog();
 }
 
-EditDialogInfo Controller::initEditDialog(){
+EditDialogInfo Controller::initEditDialog()
+{
   return editm->getEditDialogInfo();
 }
 
-vector<FieldDialogInfo> Controller::initFieldDialog(){
+vector<FieldDialogInfo> Controller::initFieldDialog()
+{
   return fieldm->getFieldDialogInfo();
 }
 
@@ -843,7 +868,7 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
 
 miutil::miTime Controller::getFieldReferenceTime()
 {
-  return plotm->getFieldReferenceTime();
+  return plotm->fieldplots()->getFieldReferenceTime();
 }
 
 void Controller::getFieldGroups(const std::string& modelName,
@@ -851,9 +876,7 @@ void Controller::getFieldGroups(const std::string& modelName,
     bool plotGroups,
     vector<FieldGroupInfo>& vfgi)
 {
-
   fieldplotm->getFieldGroups(modelName, refTime, plotGroups, vfgi);
-
 }
 
 vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
@@ -866,7 +889,8 @@ void Controller::updateFieldSource(const std::string & modelName)
   fieldm->updateSource(modelName);
 }
 
-MapDialogInfo Controller::initMapDialog(){
+MapDialogInfo Controller::initMapDialog()
+{
   MapManager mapm;
   return mapm.getMapDialogInfo();
 }
@@ -875,7 +899,7 @@ bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool m
 {
   MapManager mapm;
   if (tostr){
-    if( map)
+    if (map)
       str= mapm.MapInfo2str(mi);
     else
       str= mapm.MapExtra2str(mi);
@@ -888,11 +912,13 @@ bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool m
 
 //object dialog
 
-vector<std::string> Controller::getObjectNames(bool useArchive){
+vector<std::string> Controller::getObjectNames(bool useArchive)
+{
   return objm->getObjectNames(useArchive);
 }
 
-void Controller::setObjAuto(bool autoFile){
+void Controller::setObjAuto(bool autoFile)
+{
   plotm->setObjAuto(autoFile);
 }
 
@@ -901,13 +927,13 @@ vector<ObjFileInfo> Controller::getObjectFiles(std::string objectname,
   return objm->getObjectFiles(objectname,refresh);
 }
 
-
-
-map<std::string,bool> Controller::decodeTypeString( std::string token){
+map<std::string,bool> Controller::decodeTypeString( std::string token)
+{
   return objm->decodeTypeString(token);
 }
 
-vector< vector<Colour::ColourInfo> > Controller::getMultiColourInfo(int multiNum){
+vector< vector<Colour::ColourInfo> > Controller::getMultiColourInfo(int multiNum)
+{
   return LocalSetupParser::getMultiColourInfo(multiNum);
 }
 
@@ -991,24 +1017,24 @@ void Controller::setStationsScale(float new_scale)
   stam->setStationsScale(new_scale);
 }
 
-//areas
-void Controller::makeAreas(const std::string& name, std::string areastring, int id){
+// area objects
+void Controller::makeAreaObjects(const std::string& name, std::string areastring, int id)
+{
   //METLIBS_LOG_DEBUG("Controller::makeAreas ");
-  plotm->makeAreas(name,areastring,id);
+  plotm->areaobjects()->makeAreaObjects(name,areastring,id);
 }
 
-void Controller::areaCommand(const std::string& command,const std::string& dataSet,
+void Controller::areaObjectsCommand(const std::string& command,const std::string& dataSet,
     const std::vector<std::string>& data, int id)
 {
   //METLIBS_LOG_DEBUG("Controller::areaCommand");
-  plotm->areaCommand(command,dataSet,data,id);
+  plotm->areaobjects()->areaObjectsCommand(command,dataSet,data,id);
 }
 
-
-vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
-  return plotm->findAreas(x,y,newArea);
+vector <selectArea> Controller::findAreaObjects(int x, int y, bool newArea)
+{
+  return plotm->areaobjects()->findAreaObjects(x,y,newArea);
 }
-
 
 //********** plotting and selecting locationPlots on the map **************
 void Controller::putLocation(const LocationData& locationdata)
@@ -1074,25 +1100,20 @@ void Controller::readLog(const vector<string>& vstr,
   plotm->readLog(vstr,thisVersion,logVersion);
 }
 
-bool Controller::useScrollwheelZoom()
-{
-  return scrollwheelZoom;
-}
-
 // Miscellaneous get methods
-const vector<SatPlot*>& Controller::getSatellitePlots() const
+vector<SatPlot*> Controller::getSatellitePlots() const
 {
   return satm->getSatellitePlots();
 }
 
-const std::vector<FieldPlot*>& Controller::getFieldPlots() const
+std::vector<FieldPlot*> Controller::getFieldPlots() const
 {
-  return plotm->getFieldPlots();
+  return plotm->fieldplots()->getFieldPlots();
 }
 
-const std::vector<ObsPlot*>& Controller::getObsPlots() const
+std::vector<ObsPlot*> Controller::getObsPlots() const
 {
-  return plotm->getObsPlots();
+  return plotm->obsplots()->getObsPlots();
 }
 
 void Controller::addManager(const std::string &name, Manager *man)

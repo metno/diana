@@ -68,6 +68,10 @@ public:
 
   std::vector<PlotElement> getPlotElements() Q_DECL_OVERRIDE;
 
+  QString plotElementTag() const Q_DECL_OVERRIDE;;
+
+  bool enablePlotElement(const PlotElement &) Q_DECL_OVERRIDE;
+
   bool processInput(const std::vector<std::string>&) Q_DECL_OVERRIDE;
 
   void sendMouseEvent(QMouseEvent*, EventResult&) Q_DECL_OVERRIDE

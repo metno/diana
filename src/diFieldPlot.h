@@ -42,6 +42,7 @@
 #include <vector>
 
 class DiGLPainter;
+class FieldPlotManager;
 
 /**
   \brief Plots one field
@@ -52,7 +53,7 @@ class DiGLPainter;
 class FieldPlot : public Plot, protected RasterPlot {
 
 public:
-  FieldPlot();
+  FieldPlot(FieldPlotManager* fieldplotm=0);
   ~FieldPlot();
 
   bool getDataAnnotations(std::vector<std::string>& anno);
@@ -60,30 +61,31 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
-  bool updateNeeded(std::string&) const;
+  std::string getEnabledStateKey() const
+    { return getModelPlotParameterReftime(); }
+
+  bool updateIfNeeded();
   bool prepare(const std::string& fname, const std::string&);
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
-  void getFieldAnnotation(std::string&, Colour&) const;
+  void getAnnotation(std::string&, Colour&) const;
   const std::vector<Field*>& getFields() const {return fields; }
-  const miutil::miTime& getTime() const {return ftime;}
-  const miutil::miTime& getAnalysisTime() const {return analysisTime;}
+
+  //! time of model analysis
+  const miutil::miTime& getAnalysisTime() const;
+
   bool plotUndefined(DiGLPainter* gl);
   bool plotNumbers(DiGLPainter* gl);
   std::string getModelName();
   std::string getTrajectoryFieldName();
-  bool fieldsOK();
-  void clearFields();
-
-  std::string getModelPlotParameterReftime() const;
 
 private:
+  FieldPlotManager* fieldplotm_;
   std::vector<Field*> fields; // fields, stored elsewhere
   std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time
-  miutil::miTime analysisTime;   // time of model analysis
 
   // plotting parameters
   bool pshade;          // shaded (true) or line drawing (false)
@@ -92,6 +94,8 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
+  std::string getModelPlotParameterReftime() const;
+  void clearFields();
   bool getTableAnnotations(std::vector<std::string>& anno);
 
   typedef std::vector<float*> (FieldPlot::*prepare_vectors_t)(float* x, float* y);

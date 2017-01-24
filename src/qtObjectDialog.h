@@ -124,7 +124,7 @@ private:
   void updateSelectedFileList();
 
   //decode part of OK string
-  PlotVariables decodeString(const std::vector<std::string> & tokens);
+  static PlotVariables decodeString(const std::vector<std::string> & tokens);
   // make string from plotVariables
   std::string makeOKString(PlotVariables & okVar);
   // get the time string on the form yyyymmddhhmn from time

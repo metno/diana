@@ -60,7 +60,7 @@ public:
 
   TimeControl(QWidget*);
   /// Set data basis for time slider
-  void useData(std::string type, int id=-1);
+  void useData(const std::string& type, int id=-1);
   /// Remove one data type
   std::vector<std::string> deleteType(int id);
 
