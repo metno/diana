@@ -66,6 +66,8 @@ private:
   //! check if the filename is allowed for the product; if yes, return true; if no, fix it and return false
   bool checkFilename(QString& filename);
 
+  void updateFilenameHint();
+
   void enableStartButton();
   void updateComboSize();
   bool isAnimation() const;
