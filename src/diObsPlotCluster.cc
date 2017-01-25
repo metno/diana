@@ -91,6 +91,7 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 
   const bool obsedit = (hasDevField_ && editm_->isObsEdit());
   const bool plotoverlay = (zorder == Plot::OVERLAY && obsedit);
+  const bool plotunderlay = (zorder == Plot::LINES && !obsedit);
 
   if (plotoverlay) {
     for (size_t i = 0; i < plots_.size(); i++) {
@@ -99,7 +100,8 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
         op->updateFromEditField();
     }
   }
-  PlotCluster::plot(gl, zorder);
+  if (plotunderlay || plotoverlay)
+    PlotCluster::plot(gl, zorder);
 }
 
 void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
