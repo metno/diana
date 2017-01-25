@@ -290,7 +290,7 @@ protected:
 
   // used only from plotList
   void printList(DiGLPainter* gl, float f, QPointF& xypos, int precision,
-      bool align_right = false, std::string opt = "");
+      bool align_right = false, bool fill_2 = false);
   void printListParameter(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
       QPointF& xypos, float yStep, bool align_right, float xshift);
   void printListSymbol(DiGLPainter* gl, const ObsData& dta, const Parameter& param,

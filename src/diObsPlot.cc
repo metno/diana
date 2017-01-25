@@ -2030,7 +2030,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const Para
       if (f_p != dta.fdata.end()) {
         checkColourCriteria(gl, param.name, f_p->second);
         if (param.name == "VV") {
-          printList(gl, visibility(f_p->second, dta.show_time_id), xypos, 0, align_right, "fill_2");
+          printList(gl, visibility(f_p->second, dta.show_time_id), xypos, 0, align_right, true);
         } else if ( param.knotParam && !unit_ms) {
           printList(gl, diutil::ms2knots(f_p->second), xypos, param.precision, align_right);
         } else if ( param.tempParam && tempPrecision) {
@@ -2142,20 +2142,10 @@ void ObsPlot::printUndef(DiGLPainter* gl, QPointF& xypos, bool align_right)
 }
 
 void ObsPlot::printList(DiGLPainter* gl, float f, QPointF& xypos, int precision,
-    bool align_right, std::string opt)
+    bool align_right, bool fill_2)
 {
   if (f != undef) {
-    bool do_showplus = false, do_showpoint = false, do_fill = false;
-    const std::vector<std::string> vstr = miutil::split(opt, ",");
-    for (size_t i = 0; i < vstr.size(); i++) {
-      if (vstr[i] == "showplus")
-        do_showplus = true;
-      else if (vstr[i] == "showpoint") {
-        do_showpoint = true;
-      } else if (vstr[i] == "fill_2") {
-        do_fill = true;
-      }
-    }
+    bool do_showplus = false, do_showpoint = false, do_fill = fill_2;
 
     QString cs;
     if (do_showplus)
