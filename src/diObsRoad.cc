@@ -289,7 +289,7 @@ void ObsRoad::initRoadData(RoadObsPlot *oplot)
   // Force setting of dummy data
   oplot->setData();
   // clear plot positions
-  oplot->clearPos();
+  //oplot->clearVisibleStations();
   // make a dummy plot to compute a list of stations to be plotted
   oplot->preparePlot();
 
@@ -338,8 +338,10 @@ void ObsRoad::readRoadData(RoadObsPlot *oplot)
 	// FIXME: I think we must keep stations_to_plot!
   map<int, std::string> lines_map;
   // Members in the global stationlist that is not in the stations_to_plot list are not read from road
-  // This should improve performance
-  road.getData(oplot->getStationsToPlot(), lines_map);
+  // This should improve performancestd::cerr << "Nextplot.size() " << nextplot.size() << std::endl;
+  const std::vector<int> & plot_stations = oplot->getStationsToPlot();
+  METLIBS_LOG_DEBUG("plot_stations.size() " << plot_stations.size());
+  road.getData(plot_stations, lines_map);
 	// FIXME: For now, does nothing...
 	road.close();
 
