@@ -71,6 +71,14 @@ const SizeSpecs imageSizes = SizeSpecs()
     << SizeSpec("16:9 (wide TV)", Size_AspectRatio, QSize(16,9))
     << SizeSpec("Custom", Size_Any, QSize(600,400));
 
+static const char * const dummyFilenameHints[] = {
+  QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana.png or diana.pdf"),
+  QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana_%1.png or diana_%1.pdf"),
+  QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana.gif"),
+  QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana.avi"),
+  0
+};
+
 enum Product {
   PRODUCT_IMAGE,
   PRODUCT_IMAGE_SERIES,
@@ -240,6 +248,7 @@ void ExportImageDialog::setupUi()
 
   ExportCommandsModel* modelExports = new ExportCommandsModel(&p->ecs, this);
   ui->comboSaveTo->setModel(modelExports);
+  updateFilenameHint();
 }
 
 void ExportImageDialog::onProductChanged(int)
@@ -248,6 +257,7 @@ void ExportImageDialog::onProductChanged(int)
   ui->spinFrameRate->setEnabled(animation);
   updateComboSize();
   enableStartButton();
+  updateFilenameHint();
 }
 
 void ExportImageDialog::onSaveToChanged(int current)
@@ -502,6 +512,18 @@ bool ExportImageDialog::checkFilename(QString& filename)
       break; }
   }
   return filename_ok;
+}
+
+void ExportImageDialog::updateFilenameHint()
+{
+  const int saveto = ui->comboSaveTo->currentIndex();
+  const int product = ui->comboProduct->currentIndex();
+  if (saveto == 0 && product >= PRODUCT_IMAGE && product <= PRODUCT_MOVIE) {
+    ui->labelFilenameHint->setText(tr(dummyFilenameHints[product]));
+    ui->labelFilenameHint->show();
+  } else {
+    ui->labelFilenameHint->hide();
+  }
 }
 
 void ExportImageDialog::enableStartButton()

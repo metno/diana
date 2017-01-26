@@ -2284,6 +2284,26 @@ Kan ikke starte produksjon</translation>
         <translation>Film</translation>
     </message>
     <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="75"/>
+        <source>E.g. diana.png or diana.pdf</source>
+        <translation>F.eks. diana.png eller diana.pdf</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="76"/>
+        <source>E.g. diana_%1.png or diana_%1.pdf</source>
+        <translation>F.eks. diana_%1.png eller diana_%1.pdf</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="77"/>
+        <source>E.g. diana.gif</source>
+        <translation>F.eks. diana.gif</translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="78"/>
+        <source>E.g. diana.avi</source>
+        <translation>F.eks. diana.avi</translation>
+    </message>
+    <message>
         <location filename="../../../src/export/qtExportImageDialog.cc" line="275"/>
         <source>Select image filename</source>
         <translation>Velg filnavn for bildet</translation>

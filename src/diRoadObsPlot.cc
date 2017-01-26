@@ -29,8 +29,9 @@
 
 #include "diRoadObsPlot.h"
 
-#include "diGlUtilities.h"
+#include "diObsPositions.h"
 #include "diImageGallery.h"
+#include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
@@ -470,6 +471,7 @@ void RoadObsPlot::plotRoadobs(DiGLPainter* gl, int index)
   if (index > obsp.size() - 1) return;
   if (index < 0) return;
   ObsData & dta = obsp[index];
+ 
   // Does this work for ship ?!
   if (dta.stringdata["data_type"] == road::diStation::WMO || dta.stringdata["data_type"] == road::diStation::SHIP)
     plotDBSynop(gl,index);
@@ -1117,20 +1119,24 @@ bool RoadObsPlot::preparePlot()
   //**********************************************************************
   //Which stations to plot
 
-  bool testpos= true;// positionFree or areaFree must be tested
+  bool testpos = true; // positionFree or areaFree must be tested
   vector<int> ptmp;
-  vector<int>::iterator p,pbegin,pend;
+  vector<int>::iterator p, pbegin, pend;
 
-  if (getStaticPlot()->getDirty() || firstplot || beendisabled) {
-    //new area
+  if (getStaticPlot()->getDirty() || firstplot || beendisabled) { //new area
+
+    //init of areaFreeSetup
+    // I think we should plot roadobs like synop here
+    // OBS!******************************************
+
     thisObs = false;
 
     // new area, find stations inside current area
     all_this_area.clear();
-    int nn=all_stations.size();
-    for (int j=0; j<nn; j++) {
+    int nn = all_stations.size();
+    for (int j = 0; j < nn; j++) {
       int i = all_stations[j];
-      if (getStaticPlot()->getMapSize().isinside(x[i],y[i])) {
+      if (getStaticPlot()->getMapSize().isinside(x[i], y[i])) {
         all_this_area.push_back(i);
       }
     }
@@ -1139,32 +1145,32 @@ bool RoadObsPlot::preparePlot()
     // plot the observations from last plot if possible,
     // then the rest if possible
 
-    if(!firstplot) {
-      vector<int> a,b;
-      int n= list_plotnr.size();
-      if (n==numObs) {
-        int psize= all_this_area.size();
-        for (int j=0; j<psize; j++) {
-          int i=all_this_area[j];
-          if(list_plotnr[i]==plotnr)
+    if (!firstplot) {
+      vector<int> a, b;
+      int n = list_plotnr.size();
+      if (n == numObs) {
+        int psize = all_this_area.size();
+        for (int j = 0; j < psize; j++) {
+          int i = all_this_area[j];
+          if (list_plotnr[i] == plotnr)
             a.push_back(i);
           else
             b.push_back(i);
         }
-        if (a.size()>0) {
+        if (a.size() > 0) {
           all_this_area.clear();
-          all_this_area.insert(all_this_area.end(),a.begin(),a.end());
-          all_this_area.insert(all_this_area.end(),b.begin(),b.end());
+          all_this_area.insert(all_this_area.end(), a.begin(), a.end());
+          all_this_area.insert(all_this_area.end(), b.begin(), b.end());
         }
       }
     }
 
     //reset
     list_plotnr.clear();
-    list_plotnr.insert(list_plotnr.begin(),numObs,-1);
-    maxnr=plotnr=0;
+    list_plotnr.insert(list_plotnr.begin(), numObs, -1);
+    maxnr = plotnr = 0;
 
-    pbegin= all_this_area.begin();
+    pbegin = all_this_area.begin();
     pend = all_this_area.end();
 
   } else if (thisObs) {
@@ -1172,66 +1178,66 @@ bool RoadObsPlot::preparePlot()
     // plot the station pointed at and those plotted last time if possible,
     // then the rest if possible.
     ptmp = nextplot;
-    ptmp.insert(ptmp.end(),notplot.begin(),notplot.end());
+    ptmp.insert(ptmp.end(), notplot.begin(), notplot.end());
     pbegin = ptmp.begin();
     pend = ptmp.end();
 
-  } else if (plotnr> maxnr) {
+  } else if (plotnr > maxnr) {
     //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
     // plot as many observations as possible which have not been plotted before
     maxnr++;
-    plotnr= maxnr;
+    plotnr = maxnr;
 
-    int psize= all_this_area.size();
-    for (int j=0; j<psize; j++) {
-      int i=all_this_area[j];
-      if (list_plotnr[i]==-1)
+    int psize = all_this_area.size();
+    for (int j = 0; j < psize; j++) {
+      int i = all_this_area[j];
+      if (list_plotnr[i] == -1)
         ptmp.push_back(i);
     }
     pbegin = ptmp.begin();
     pend = ptmp.end();
 
-  } else if (previous && plotnr<0) {
+  } else if (previous && plotnr < 0) {
     //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
     // should return to the initial priority as often as possible...
 
-    if(!fromFile) { //if priority from last plot has been used so far
+    if (!fromFile) { //if priority from last plot has been used so far
       all_this_area.clear();
-      for (int j=0; j<numObs; j++) {
+      for (int j = 0; j < numObs; j++) {
         int i = all_from_file[j];
-        if (getStaticPlot()->getMapSize().isinside(x[i],y[i]))
+        if (getStaticPlot()->getMapSize().isinside(x[i], y[i]))
           all_this_area.push_back(i);
       }
-      all_stations=all_from_file;
-      fromFile=true;
+      all_stations = all_from_file;
+      fromFile = true;
     }
     //clear
-    plotnr= maxnr= 0;
+    plotnr = maxnr = 0;
     list_plotnr.clear();
-    list_plotnr.insert(list_plotnr.begin(),numObs,-1);
+    list_plotnr.insert(list_plotnr.begin(), numObs, -1);
 
-    pbegin= all_this_area.begin();
+    pbegin = all_this_area.begin();
     pend = all_this_area.end();
 
-  } else if(previous || next) {
+  } else if (previous || next) {
     //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
     //    plot observations from plotnr
-    int psize= all_this_area.size();
+    int psize = all_this_area.size();
     notplot.clear();
     nextplot.clear();
-    for (int j=0; j<psize; j++) {
-      int i=all_this_area[j];
+    for (int j = 0; j < psize; j++) {
+      int i = all_this_area[j];
       if (list_plotnr[i] == plotnr) {
         nextplot.push_back(i);
-      } else if (list_plotnr[i]> plotnr || list_plotnr[i]==-1) {
+      } else if (list_plotnr[i] > plotnr || list_plotnr[i] == -1) {
         notplot.push_back(i);
       }
     }
-    testpos= false; //no need to test positionFree or areaFree
+    testpos = false; //no need to test positionFree or areaFree
 
   } else {
     //nothing has changed
-    testpos= false;//no need to test positionFree or areaFree
+    testpos = false; //no need to test positionFree or areaFree
   }
   //######################################################
   //  int ubsize1= usedBox.size();
@@ -1243,34 +1249,53 @@ bool RoadObsPlot::preparePlot()
     // I think we should plot roadobs like synop here
     // OBS!******************************************
     if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
-      for (p=pbegin; p!=pend; p++) {
-        int i= *p;
+      for (p = pbegin; p != pend; p++) {
+        int i = *p;
         if (allObs || areaFree(i)) {
-          if( checkPlotCriteria(i) ) {
+          //Select parameter with correct accumulation/max value interval
+          if (pFlag.count("911ff")) {
+            checkGustTime(obsp[i]);
+          }
+          if (pFlag.count("rrr")) {
+            checkAccumulationTime(obsp[i]);
+          }
+          if (pFlag.count("fxfx")) {
+            checkMaxWindTime(obsp[i]);
+          }
+          if (checkPlotCriteria(i)) {
             nextplot.push_back(i);
-            list_plotnr[i]= plotnr;
+            list_plotnr[i] = plotnr;
           } else {
-            list_plotnr[i]= -2;
-            if (usedBox.size())
-              usedBox.pop_back();
+            list_plotnr[i] = -2;
+            collider_->areaPop();
           }
         } else {
           notplot.push_back(i);
         }
       }
     } else {
-      for (p=pbegin; p!=pend; p++) {
-        int i= *p;
-        if (allObs || positionFree(x[i],y[i],xdist,ydist)) {
-          if( checkPlotCriteria(i) ) {
+      for (p = pbegin; p != pend; p++) {
+        int i = *p;
+        if (allObs || collider_->positionFree(x[i], y[i], xdist, ydist)) {
+          //Select parameter with correct accumulation/max value interval
+          if (plottype() != OPT_ROADOBS) {
+            if (pFlag.count("911ff")) {
+              checkGustTime(obsp[i]);
+            }
+            if (pFlag.count("rrr")) {
+              checkAccumulationTime(obsp[i]);
+            }
+            if (pFlag.count("fxfx")) {
+              checkMaxWindTime(obsp[i]);
+            }
+          }
+          if (checkPlotCriteria(i)) {
             nextplot.push_back(i);
-            list_plotnr[i]= plotnr;
+            list_plotnr[i] = plotnr;
           } else {
-            list_plotnr[i]= -2;
-            if(xUsed.size())
-              xUsed.pop_back();
-            if(yUsed.size())
-              yUsed.pop_back();
+            list_plotnr[i] = -2;
+            if (!allObs)
+              collider_->positionPop();
           }
         } else {
           notplot.push_back(i);
@@ -1278,17 +1303,20 @@ bool RoadObsPlot::preparePlot()
       }
     }
     if (thisObs) {
-      for (size_t i=0; i<notplot.size(); i++)
-        if (list_plotnr[notplot[i]]==plotnr)
-          list_plotnr[notplot[i]]= -1;
+      int n = notplot.size();
+      for (int i = 0; i < n; i++)
+        if (list_plotnr[notplot[i]] == plotnr)
+          list_plotnr[notplot[i]] = -1;
     }
   }
+
 
   // BEE CAREFULL! This code assumes that the number of entries in
   // stationlist are the same as in the roadobsp map.
   // reset stations_to_plot
   stations_to_plot.clear();
   // use nextplot info to fill the stations_to_plot.
+  METLIBS_LOG_DEBUG("nextplot.size() " << nextplot.size());
   for (size_t i=0; i<nextplot.size(); i++) {
     stations_to_plot.push_back(nextplot[i]);
   }
