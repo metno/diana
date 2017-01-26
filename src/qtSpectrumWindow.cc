@@ -566,6 +566,9 @@ void SpectrumWindow::changeStation(const std::string& station)
 
 void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 {
+  if (mainWindowTime == t)
+    return;
+
   // keep time for next "update" (in case not found now)
   mainWindowTime= t;
 
