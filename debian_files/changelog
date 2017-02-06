@@ -1,3 +1,15 @@
+diana-3.42 (3.42.0~a4-1) unstable; urgency=low
+
+  * fix time slider reset after mouse release
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 01 Feb 2017 08:00:08 +0100
+
+diana-3.42 (3.42.0~a3-1) unstable; urgency=low
+
+  * fix infinite loop in vprof/spectrum om time change
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 26 Jan 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~a2-1) unstable; urgency=low
 
   * added filename hint in export dialog

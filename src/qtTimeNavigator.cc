@@ -222,9 +222,7 @@ void TimeNavigator::setTime(const std::string& datatype, const miutil::miTime& t
 
 void TimeNavigator::timeSliderReleased()
 {
-  updateTimeLabel();
-  const miutil::miTime t = selectedTime();
-  Q_EMIT timeSelected(t);
+  setTime(selectedTime());
 }
 
 void TimeNavigator::updateTimeLabel()
