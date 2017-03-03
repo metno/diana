@@ -212,7 +212,7 @@ public:
   };
 
   DiGLCanvas* canvas()
-    { return (DiGLCanvas*)DiPainter::canvas(); }
+    { return static_cast<DiGLCanvas*>(DiPainter::canvas()); }
 
   virtual void Begin(GLenum mode) = 0;
   virtual void Color3d(GLdouble red, GLdouble green, GLdouble blue) = 0;

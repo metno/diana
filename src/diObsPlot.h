@@ -38,7 +38,7 @@
 #include <set>
 #include <vector>
 
-class ObsPositions;
+struct ObsPositions;
 class QTextCodec;
 
 struct ObsPlotCollider {

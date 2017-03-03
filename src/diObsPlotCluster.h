@@ -6,7 +6,7 @@
 class EditManager;
 class ObsManager;
 class ObsPlot;
-class ObsPlotCollider;
+struct ObsPlotCollider;
 
 class ObsPlotCluster : public PlotCluster
 {

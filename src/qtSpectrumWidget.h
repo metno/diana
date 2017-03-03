@@ -42,7 +42,7 @@ class SpectrumManager;
 */
 class SpectrumWidget : public QObject, public DiPaintable
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   SpectrumWidget(SpectrumManager *spm);

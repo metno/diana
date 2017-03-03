@@ -16,7 +16,7 @@
 class Ui_VcrossStyleWidget;
 
 class VcrossStyleWidget : public QWidget {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   VcrossStyleWidget(QWidget* parent);
