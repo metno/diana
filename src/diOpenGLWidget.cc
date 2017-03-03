@@ -158,48 +158,48 @@ void DiOpenGLWidget::resizeGL(int w, int h)
     paintable->resize(w, h);
   dropBackgroundBuffer();
   glpainter->Viewport(0, 0, (GLint)w, (GLint)h);
-  updateGL();
+  update();
   setFocus();
 }
 
 void DiOpenGLWidget::keyPressEvent(QKeyEvent *ke)
 {
   if (paintable && paintable->handleKeyEvents(ke))
-    updateGL();
+    update();
 }
 
 void DiOpenGLWidget::keyReleaseEvent(QKeyEvent *ke)
 {
   if (paintable && paintable->handleKeyEvents(ke))
-    updateGL();
+    update();
 }
 
 void DiOpenGLWidget::mousePressEvent(QMouseEvent* me)
 {
   if (paintable && paintable->handleMouseEvents(me))
-    updateGL();
+    update();
 }
 
 void DiOpenGLWidget::mouseMoveEvent(QMouseEvent* me)
 {
   if (paintable && paintable->handleMouseEvents(me))
-    updateGL();
+    update();
 }
 
 void DiOpenGLWidget::mouseReleaseEvent(QMouseEvent* me)
 {
   if (paintable && paintable->handleMouseEvents(me))
-    updateGL();
+    update();
 }
 
 void DiOpenGLWidget::mouseDoubleClickEvent(QMouseEvent* me)
 {
   if (paintable && paintable->handleMouseEvents(me))
-    updateGL();
+    update();
 }
 
 void DiOpenGLWidget::wheelEvent(QWheelEvent *we)
 {
   if (paintable && paintable->handleWheelEvents(we))
-    updateGL();
+    update();
 }
