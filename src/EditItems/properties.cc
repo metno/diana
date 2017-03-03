@@ -250,6 +250,7 @@ QWidget *EP_Decoration::createEditor(const QVariant &value)
   editor->addItem("SIGWX", "SIGWX");
   editor->addItem("arches,triangles", "arches,triangles");
   editor->addItem("jetstream", "arrow,jetstream");
+  editor->addItem("fishbone", "fishbone");
   int index = editor->findData(value.toString());
   editor->setCurrentIndex(index);
   connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));

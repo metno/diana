@@ -778,6 +778,38 @@ void DrawingStyleManager::drawDecoration(DiGLPainter* gl, const DrawingItemBase 
 
     gl->End(); // DiGLPainter::gl_LINES
 
+  } else if (decoration == "fishbone") {
+
+    int lineWidth = style.value("linewidth").toInt();
+    int lineLength = lineWidth * 9;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+    qreal size = lineWidth * 3;
+
+    gl->Begin(DiGLPainter::gl_LINES);
+    int j = 0;
+    for (int i = offset; i < points_.size() + di; i += 2) {
+
+      QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      QPointF tangent = QPointF(line.unitVector().dx(), line.unitVector().dy());
+      QPointF normal = QPointF(line.normalVector().unitVector().dx(),
+                               line.normalVector().unitVector().dy());
+      if (j%2 == 0) {
+        QPointF p = midpoint;
+        gl->Vertex3f(p.x(), p.y(), z);
+        p = midpoint - (size * normal) - (size * tangent);
+        gl->Vertex3f(p.x(), p.y(), z);
+      } else {
+        QPointF p = midpoint;
+        gl->Vertex3f(p.x(), p.y(), z);
+        p = midpoint + (size * normal) - (size * tangent);
+        gl->Vertex3f(p.x(), p.y(), z);
+      }
+      j++;
+    }
+
+    gl->End(); // DiGLPainter::gl_LINES
+
   } else if (decoration == "arrow") {
 
     if (points.size() < 2)
