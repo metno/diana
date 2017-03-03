@@ -31,21 +31,15 @@
  * satellite geometry.
  */
 
-#ifndef _AUSATH5_H
-#define _AUSATH5_H
+#ifndef AUSATH5_H
+#define AUSATH5_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <hdf5.h>
-#include <map>
-#include <puTools/miStringFunctions.h>
 #include "satimg.h"
-#include "ImageCache.h"
 
-using namespace std;
-using namespace satimg;
+#include <hdf5.h>
+
+#include <map>
+#include <vector>
 
 namespace metno {
 /**
@@ -56,9 +50,6 @@ namespace metno {
  */
 
 class satimgh5 {
-  //private:
-  //  static ImageCache* mImageCache;
-
 public:
 
 /**
@@ -98,7 +89,7 @@ struct arrFloat {
  * Used to calculate if the image is taken during the day or night.
  * This information is used to figure out if a visual image should be shown or not.
  */
-static int day_night(dihead sinfo);
+static int day_night(satimg::dihead sinfo);
 
 /**
  * Reads the imagedata of the HDF5 file with the help of metadata read in HDF5_head_diana
@@ -106,14 +97,14 @@ static int day_night(dihead sinfo);
  * @param image - char array to be shown as image in diana
  * @param orgimage - float data array with temperature values to be shown per pixel in diana
  */
-static int HDF5_read_diana(const string& infile, unsigned char *image[], float *orgimage[], int nchan, int chan[], dihead& ginfo);
+static int HDF5_read_diana(const std::string& infile, unsigned char *image[], float *orgimage[], int nchan, int chan[], satimg::dihead& ginfo);
 
 /**
  * Reads the metadata of the HDF5 file and fills the dihead with data
  * @param infile - name of HDF5 file to read from
  * @param ginfo - internal diana structure to store metadata for sat and radar images
  */
-static int HDF5_head_diana(const string& infile, dihead &ginfo);
+static int HDF5_head_diana(const std::string& infile, satimg::dihead &ginfo);
 
 /**
  * Checks if the metadata has been read for the specific file. If filename and metadata are already in the map,
@@ -122,7 +113,7 @@ static int HDF5_head_diana(const string& infile, dihead &ginfo);
  * @param filename - filename of the current HDF5 file
  * @param metadata - metadata form configuration file
  */
-static bool checkMetadata(string filename,string metadata);
+static bool checkMetadata(std::string filename, std::string metadata);
 
 private:
 /**
@@ -131,7 +122,7 @@ private:
  * @param index - internal HDF5 file index of the group (or dataset)
  * @param path - path to the group (or dataset)
  */
-  static  int getAttributeFromGroup(hid_t& dataset, int index, string path);
+  static  int getAttributeFromGroup(hid_t& dataset, int index, std::string path);
 
 /**
  * If a group is found in the current block it is opened by this function that calls itself recursively to traverse subgroups.
@@ -141,7 +132,7 @@ private:
  * @param path - path to the group (or dataset) to process
  * @param metadata - metadata from configuration file
  */
-  static  int openGroup(hid_t group, string groupname, string path, string metadata);
+  static  int openGroup(hid_t group, std::string groupname, std::string path, std::string metadata);
 
 /**
  * If a dataset is found the metadata part of the dataset is read. Support for compound datasets is included.
@@ -150,14 +141,14 @@ private:
  * @param path - path to the dataset in the file
  * @param metadata - metadata from configuration file
  */
-  static  int openDataset(hid_t root, string dataset, string path, string metadata);
+  static  int openDataset(hid_t root, std::string dataset, std::string path, std::string metadata);
 
 /**
  * Simple insert to the internal map structure.
  * @param fullpath - full path to the value in the file.
  * @param value - value of the attribute
  */
-  static  int insertIntoValueMap(string fullpath, string value);
+  static  int insertIntoValueMap(std::string fullpath, std::string value);
 
 /**
  * Dump the values of the internal map structures to console. Used ony in development and debugging.
@@ -167,13 +158,13 @@ private:
 /**
  * Function to calculate how much light the image has. Used to determine whether to show a visual satellite channel.
  */
-  static  short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
+  static  short selalg(const satimg::dto& d, const satimg::ucs& upos, const float& hmax, const float& hmin);
 
 /**
  * Fills the internal structure dihead with metadata from the HDF5 metadata.
  * @param inputStr - metadata= in diana.setup
  */
-  static herr_t fill_head_diana(string inputStr, int chan);
+  static herr_t fill_head_diana(std::string inputStr, int chan);
 
 /**
  * Get the channel name that the channel has in the HDF5 file.
@@ -182,7 +173,7 @@ private:
  * @param data - channelname placed here if successfull
  *
  */
-  static  herr_t getDataForChannel(string& inputStr, string& data);
+  static  herr_t getDataForChannel(std::string& inputStr, std::string& data);
 
 /**
  * Creates a palette based on infomation from the configuration file.
@@ -192,8 +183,8 @@ private:
  * @param colorvector - steps in colormap for selected pallete colors.
  * @param manualcolors - True if paletteinfo in setupfile is specified with value:color.
  */
-  static  bool makePalette(dihead& ginfo, string unit, int backcolour,
-      std::vector<string> colorvector, bool manualcolors);
+  static  bool makePalette(satimg::dihead& ginfo, std::string unit, int backcolour,
+      std::vector<std::string> colorvector, bool manualcolors);
 
 /**
  * Validates the format of the string from configuration file.
@@ -202,7 +193,7 @@ private:
  * TODO: Implement this function.
  *
  */
-  static  bool validateChannelString(string& inputStr);
+  static  bool validateChannelString(std::string& inputStr);
 
 /**
  * Parses the inputStr and places information in the output parameters
@@ -220,8 +211,8 @@ private:
  * @param subch4co2corr - True if subchannel (2) is channel 4 and should be co2 corrected.
  *
  */
-  static herr_t getDataForChannel(string inputStr, int chan, string& chpath, string& chname, bool& chinvert,
-      bool& subtract, string& subchpath, string& subchname, bool& subchinvert, bool& ch4co2corr, bool& subch4co2corr);
+  static herr_t getDataForChannel(std::string inputStr, int chan, std::string& chpath, std::string& chname, bool& chinvert,
+      bool& subtract, std::string& subchpath, std::string& subchname, bool& subchinvert, bool& ch4co2corr, bool& subch4co2corr);
 
 /**
  * Read the data part of the channel in the HDF5 file.
@@ -241,7 +232,7 @@ private:
  * fill orgImage (if cloudTopTemperature is True)
  *
  */
-  static int readDataFromDataset(dihead& ginfo, hid_t source, string path, string name,
+  static int readDataFromDataset(satimg::dihead& ginfo, hid_t source, std::string path, std::string name,
       bool invert, float *float_data[], int chan, float *orgImage[],
       bool cloudTopTemperature, bool haveCachedImage);
 
@@ -256,7 +247,7 @@ private:
  * @param chan - internal channelnumber of the image array
  *
  */
-  static int readDataFromDataset(dihead& ginfo, hid_t source, string path, string name,
+  static int readDataFromDataset(satimg::dihead& ginfo, hid_t source, std::string path, std::string name,
       bool invert, float *float_data[], int chan);
 
 /**
@@ -281,7 +272,7 @@ private:
  * @param float_data - the data array
  * @param chan - channel number (0=R, 1=G, 2=B).
  */
-  static int makeOrgImage(float* orgimage[], float* float_data[], int chan, string name);
+  static int makeOrgImage(float* orgimage[], float* float_data[], int chan, std::string name);
 
 /**
  * Subtracts all the values from int_data with the values from int_data_sub.
@@ -296,7 +287,7 @@ private:
  * @param dataset - dataset (or group) to be checked.
  * @param name - name of the dataset (or group)
  */
-  static hid_t checkType(hid_t dataset, string name);
+  static hid_t checkType(hid_t dataset, std::string name);
 
 /**
  * Returns the palettestep for the specified value.
@@ -310,7 +301,7 @@ private:
  * @param date -date with the format <day>-<month>-<year> where month is a string. The
  * date is converted to <year>-<month>-<day> where month is alphamumeric.
  */
-  static string convertAlphaDate(string date);
+  static std::string convertAlphaDate(std::string date);
 
 /**
  * CO2 correction of the MSG 3.9 um channel:
@@ -325,20 +316,22 @@ private:
  * @param chan - the channel number
  *
  */
-  static int co2corr_bt39(dihead& ginfo, hid_t source, float* ch4r[], bool invert, int chan);
+  static int co2corr_bt39(satimg::dihead& ginfo, hid_t source, float* ch4r[], bool invert, int chan);
 
 
 /**
  * Internal map structures.
  */
-  static std::map<string, string> hdf5map;
+  static std::map<std::string, std::string> hdf5map;
   static std::map<float, int> paletteMap;
-  static std::map<int, string> paletteStringMap;
+  static std::map<int, std::string> paletteStringMap;
   static std::vector<int> RPalette;
   static std::vector<int> GPalette;
   static std::vector<int> BPalette;
-  static std::map <string, std::vector<float> > calibrationTable;
-  static std::map <string, string> metadataMap;
+  static std::map <std::string, std::vector<float> > calibrationTable;
+  static std::map <std::string, std::string> metadataMap;
 };
-}
-#endif /* _AUSATH5_H */
+
+} // namespace metno
+
+#endif /* AUSATH5_H */

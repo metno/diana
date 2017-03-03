@@ -34,24 +34,14 @@
  * satellite geometry. Changed for reading geotiff satellite files. 
  * 
  * AUTHOR:
- * �ystein God�y, met.no/FOU, 14/01/1999
+ * Øystein Godøy, met.no/FOU, 14/01/1999
  * Ariunaa Bertelsen, ariunaa.bertelsen@smhi.se, 10/09/2009
  */
 
-#ifndef _AUSATGEOTIFF_H
-#define _AUSATGEOTIFF_H
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#ifndef AUSATGEOTIFF_H
+#define AUSATGEOTIFF_H
 
 #include "satimg.h"
-#include "ImageCache.h"
-
-#include <puTools/miStringFunctions.h>
-#include <puTools/miTime.h>
 
 namespace metno {
 class GeoTiff
@@ -67,4 +57,4 @@ public:
 };
 }
 
-#endif /* _AUSATGEOTIFF_H */
+#endif /* AUSATGEOTIFF_H */

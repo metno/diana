@@ -708,7 +708,7 @@ endif
 
 # Additional source code for HDF5 support
 if WITH_HDF5
-libdiana_la_CPPFLAGS += -DHDF5FILE
+libdiana_la_CPPFLAGS += -DHDF5FILE ${HDF5_CPPFLAGS}
 libdiana_la_SOURCES += \
 	diHDF5.cc
 noinst_HEADERS += \

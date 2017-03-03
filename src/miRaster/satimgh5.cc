@@ -52,31 +52,34 @@
  * AUTHOR: SMHI, 2008-2009
  */
 
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "satimgh5.h"
+
+#include "ImageCache.h"
+
+#include <puTools/miStringFunctions.h>
+#include <puTools/miTime.h>
+#include <puCtools/stat.h>
+
 #include <tiffio.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <projects.h>
 #include <proj_api.h>
-#include <iostream>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <fstream>
+#include <sstream>
+
 #include <time.h>
 #include <sys/time.h>
 #include <dirent.h>
 #include <errno.h>
 
-#include <puCtools/stat.h>
-
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
-
 using namespace miutil;
-using namespace milogger;
 using namespace satimg;
 using namespace std;
 
@@ -115,7 +118,6 @@ bool metno::satimgh5::validateChannelString(string& inputStr)
 
 herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
 {
-
   METLIBS_LOG_SCOPE(LOGVAL(inputStr));
 
   vector<string> channels, channelParts;
@@ -130,7 +132,7 @@ herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
     for (unsigned int i = 0; i < channels.size(); i++) {
       METLIBS_LOG_DEBUG(channels[i]);
       if (channels[i].find("-") != string::npos) {
-        channelParts = split_protected(channels[i],'(', ')', "-", true);
+        channelParts = miutil::split_protected(channels[i],'(', ')', "-", true);
         if (channelParts.size() == 3) {
           remove(channelParts[1],'(');
           remove(channelParts[1],')');
@@ -258,7 +260,7 @@ herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan,
 		  // We may have more than one level of groups
 		  // The chpath is construted as <group1>:<group2>:...<groupn>
 		  // the last is the chname
-		  for (int i = 0; i < nameSplit.size(); i++)
+                  for (size_t i = 0; i < nameSplit.size(); i++)
 		  {
 			  if (i == nameSplit.size() - 1)
 			  {
@@ -291,20 +293,12 @@ herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan,
  */
 hid_t metno::satimgh5::checkType(hid_t dataset, string name)
 {
-  hid_t dset;
-  hid_t dtype;
-  hid_t dclass;
-  herr_t status;
-  hid_t result;
+  hid_t dset = H5Dopen2(dataset, name.c_str(), H5P_DEFAULT);
+  hid_t dtype = H5Dget_type(dset);
+  hid_t result = H5Tget_class(dtype);
 
-  dset = H5Dopen2(dataset, name.c_str(),H5P_DEFAULT);
-  dtype = H5Dget_type(dset);
-  dclass = H5Tget_class(dtype);
-
-  result = dclass;
-
-  status = H5Tclose(dtype);
-  status = H5Dclose(dset);
+  H5Tclose(dtype);
+  H5Dclose(dset);
 
   return result;
 }
@@ -332,8 +326,6 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
   hid_t group;
   hid_t subgroup;
   hid_t file;
-  herr_t res = 0;
-  herr_t status = 0;
   float **float_data;
   float **float_data_sub;
 
@@ -416,7 +408,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 
   // Loop through all channels
   for (int q = 0; q < nchan; q++) {
-    res = getDataForChannel(ginfo.channelinfo, chan[q], chpath, chname,
+    getDataForChannel(ginfo.channelinfo, chan[q], chpath, chname,
         chinvert, subtract, subchpath, subchname, subchinvert, ch4co2corr,
         subch4co2corr);
 
@@ -462,7 +454,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 		  if (chpathSplit.size() > 1)
 		  {
 			  // This should be a subgroup
-			  int j = 1;
+                          size_t j = 1;
 			  while ((statbuf.type == H5G_GROUP) && (j < chpathSplit.size()))
 			  {
 				chpath = chpathSplit[j];
@@ -472,7 +464,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 				{
 					subgroup = H5Gopen2(group, chpath.c_str(),H5P_DEFAULT);
 					if (subgroup >= 0) {
-						status = H5Gclose(group);
+                                                H5Gclose(group);
 						group = subgroup;
 					}
 					j++;
@@ -527,7 +519,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
                */
               hdf5map[string("chan_") + from_number(q)] = chpath + string("_") + chname + string("_")
               + subchpath + string("_") + subchname;
-              status = H5Gclose(group);
+              H5Gclose(group);
               group = H5Gopen2(file, subchpath.c_str(),H5P_DEFAULT);
               float_data_sub = new float*[ginfo.xsize];
               float_data_sub[0] = new float[ginfo.xsize * ginfo.ysize];
@@ -605,7 +597,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
 
         }
       }
-      status = H5Gclose(group);
+      H5Gclose(group);
     } else if (statbuf.type == H5G_DATASET) {
       METLIBS_LOG_DEBUG("READ FOUND DATASET");
       float_data = new float*[ginfo.xsize];
@@ -626,7 +618,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile,
     }
   }
 
-  status = H5Fclose(file);
+  H5Fclose(file);
   /* TBD: Don't cache if orgimage, problem writing/reading float array to/from diask */
    if (ginfo.hdf5type == radar || (!cloudTopTemperature)) {
     mImageCache->putInCache(file_name, (uint8_t*)image[0], ginfo.xsize*ginfo.ysize*nchan);
@@ -1128,7 +1120,6 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
   float max = 32768.0;
 
   hid_t dset;
-  herr_t status;
   int daynight = day_night(ginfo);
   bool skip = (name.find("1") != string::npos || name.find("2") != string::npos);
   string pathname;
@@ -1247,16 +1238,16 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
   int_data = new int*[ginfo.xsize];
   int_data[0] = new int[ginfo.xsize * ginfo.ysize];
 
-  for (int i=1; i<ginfo.xsize; i++)
+  for (size_t i=1; i<ginfo.xsize; i++)
     int_data[i] = int_data[0] + i * ginfo.ysize;
 
   // Extract the data from the HDF5 file
-  status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+  H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
       int_data[0]);
 
   // Move the data to a float array for precision
-  for (int i=0; i<ginfo.xsize; i++) {
-    for (int j=0; j<ginfo.ysize; j++) {
+  for (size_t i=0; i<ginfo.xsize; i++) {
+    for (size_t j=0; j<ginfo.ysize; j++) {
       float_data[i][j] = int_data[i][j];
     }
   }
@@ -1270,7 +1261,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
 
   // If the image is already cached, return
   if (haveCachedImage) {
-    status = H5Dclose(dset);
+    H5Dclose(dset);
     return 0;
   }
 
@@ -1284,11 +1275,9 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
   vector<float> lookupTable;
   if (haveColorRange) {
     float value = color_range[0];
-    float key = 0;
-    for (int i=0; i<color_range.size(); i++) {
+    for (size_t i=0; i<color_range.size(); i++) {
       if (color_range[i] > 6000)
         break;
-      key=i;
       lookupTable.push_back(color_range[i]);
       for (; value<color_range[i]; value++)
         lookupTable.push_back(color_range[i]);
@@ -1300,8 +1289,8 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
 
   float msgMax = -32000.0;
   float msgMin = 32000.0;
-  for (int i=0; i<ginfo.xsize; i++) {
-    for (int j=0; j<ginfo.ysize; j++) {
+  for (size_t i=0; i<ginfo.xsize; i++) {
+    for (size_t j=0; j<ginfo.ysize; j++) {
       if (max - min < 1.0) {
         float_data[i][j] = -32000.0;
         continue;
@@ -1364,7 +1353,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source,
   hdf5map[string("max_") + from_number(chan)] = from_number(max);
   hdf5map[string("min_") + from_number(chan)] = from_number(min);
 
-  status = H5Dclose(dset);
+  H5Dclose(dset);
   return 0;
 }
 
@@ -1407,7 +1396,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
   size_t size;
   hid_t palette_type;
   outval_name *palette;
-  int ndims,i,nmembs;
+  int nmembs;
   hid_t attr, atype, aspace;
   char memb[1024];
   // NOTE: sizeof(memb) -1)
@@ -1506,7 +1495,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 				  */
 				  size = H5Tget_size(memb_id);
 				  space = H5Aget_space (attr);
-				  ndims = H5Sget_simple_extent_dims (space, dims, NULL);
+                                  /*ndims=*/ H5Sget_simple_extent_dims (space, dims, NULL);
 
 				  size++;                         /* Make room for null terminator */
 
@@ -1549,7 +1538,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t &dataset, int index,
 				 
 				  if (addPalette)
 				  {
-					  for (i=0; i<dims[0]; i++) {
+                                          for (size_t i=0; i<dims[0]; i++) {
 						  splitString = split(string(palette[i].str),":",true);
 						  if(splitString.size()==2) {
 							  paletteStringMap[to_int(splitString[0],0)] = splitString[1];
@@ -1651,8 +1640,8 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
               rdata);
           H5Tget_array_dims2(memb_id, dims);
 
-          for (int j=0; j<dims[0]; j++) {
-            insertIntoValueMap("compound:" + path + "ARRAY[" + from_number(j)
+          for (size_t j=0; j<dims[0]; j++) {
+            insertIntoValueMap("compound:" + path + "ARRAY[" + miutil::from_number(int(j))
                 + "]:" + string(memb), from_number(rdata[0].f[j], 20));
           }
 
@@ -1712,14 +1701,14 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
       if (ndims == 2) {
         float *float_data;
         float_data = new float[dims[0]*dims[1]];
-        for (int j = 0; j < dims[0]*dims[1]; j++) {
+        for (size_t j = 0; j < dims[0]*dims[1]; j++) {
           float_data[j] = 0;
         }
-        for (int i=1; i<dims[0]; i++)
+        for (size_t i=1; i<dims[0]; i++)
           float_data[i] = float_data[0] + i * dims[1];
         status = H5Dread(dset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
             float_data);
-        for (int i=0; i<dims[0]*dims[1]; i=i+2)
+        for (size_t i=0; i<dims[0]*dims[1]; i=i+2)
           calibrationTable[dianaPath].push_back(float_data[i+1]);
         delete[] float_data;
       }
@@ -1738,15 +1727,15 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
       if (ndims == 2) {
         int *int_data;
         int_data = new int[dims[0]*dims[1]];
-        for (int j = 0; j < dims[0]*dims[1]; j++) {
+        for (size_t j = 0; j < dims[0]*dims[1]; j++) {
           int_data[j] = 0;
         }
-        for (int i=1; i<dims[0]; i++)
+        for (size_t i=1; i<dims[0]; i++)
           int_data[i] = int_data[0] + i * dims[1];
         status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
             int_data);
         if(dims[1]==2)
-          for (int i=0; i<dims[0]*dims[1]; i=i+2)
+          for (size_t i=0; i<dims[0]*dims[1]; i=i+2)
             calibrationTable[dianaPath].push_back((float)int_data[i+1]);
 		else if(dims[1]==3) {
 			// Add only to palette if path in metadata
@@ -1771,7 +1760,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
 			if (addPalette)
 			{
 				//cerr << "dims[0]: " << dims[0] << " dims[1]: " << dims[1] << endl;
-				for (int i=0; i<dims[0]*dims[1]; i=i+3) {
+                                for (size_t i=0; i<dims[0]*dims[1]; i=i+3) {
 					// Put the values in the palettemaps
 					//cerr << int_data[i] << "," << int_data[i+1] << "," << int_data[i+2] << endl;
 					RPalette.push_back(int_data[i]);
@@ -1784,12 +1773,12 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path,
       } else if (ndims == 1) {
         int *int_data;
         int_data = new int[dims[0]];
-        for (int j = 0; j < dims[0]; j++) {
+        for (size_t j = 0; j < dims[0]; j++) {
           int_data[j] = j;
         }
         status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
             int_data);
-        for (int i=0; i<dims[0]; i++)
+        for (size_t i=0; i<dims[0]; i++)
           calibrationTable[dianaPath].push_back(int_data[i]);
         delete[] int_data;
       }
@@ -1882,9 +1871,9 @@ int metno::satimgh5::insertIntoValueMap(string fullpath, string value)
  */
 int metno::satimgh5::getAllValuesFromMap()
 {
-  cerr << "metno:satimgh5::getAllValuesFromMap()" << endl;
+  METLIBS_LOG_SCOPE();
   for (map<string,string>::iterator p = hdf5map.begin(); p != hdf5map.end(); p++) {
-    cerr << "Path: " << p->first << " Value: " << p->second << endl;
+    METLIBS_LOG_ERROR("Path: " << p->first << " Value: " << p->second);
   }
   if (calibrationTable.size() > 0)
   {
@@ -1892,24 +1881,23 @@ int metno::satimgh5::getAllValuesFromMap()
 		  != calibrationTable.end(); p++) {
 			  if (!p->first.empty())
 			  {
-				  for (int i=0; i<p->second.size() ; i++) {
-					  cerr << "Path: " << p->first << " Value: " << i << " Value: "
-						  << p->second[i] << endl;
+                                  for (size_t i=0; i<p->second.size() ; i++) {
+                                          METLIBS_LOG_ERROR("Path: " << p->first << " Value: " << i << " Value: " << p->second[i]);
 				  }
 			  }
 	  }
   }
-  for (int i=0;i<RPalette.size();i++) {
+  for (size_t i=0;i<RPalette.size();i++) {
     if(RPalette[i]!=0)
-      cerr << "RPalette["<<i<<"]: " << RPalette[i] << endl;
+      METLIBS_LOG_ERROR("RPalette["<<i<<"]: " << RPalette[i]);
   }
-  for (int i=0;i<GPalette.size();i++) {
+  for (size_t i=0;i<GPalette.size();i++) {
     if(GPalette[i]!=0)
-      cerr << "GPalette["<<i<<"]: " << GPalette[i] << endl;
+      METLIBS_LOG_ERROR("GPalette["<<i<<"]: " << GPalette[i]);
   }
-  for (int i=0;i<BPalette.size();i++) {
+  for (size_t i=0;i<BPalette.size();i++) {
     if(BPalette[i]!=0)
-    cerr << "BPalette["<<i<<"]: " << BPalette[i] << endl;
+    METLIBS_LOG_ERROR("BPalette["<<i<<"]: " << BPalette[i]);
   }
   return 0;
 }
@@ -1930,8 +1918,8 @@ bool metno::satimgh5::checkMetadata(string filename, string metadata)
     metadataMap.clear();
     hdf5map["filename"] = filename;
     hdf5map["metadata"] = metadata;
-    vector<string> metadataVector = split(metadata, ",", true);
-    for (int i=0; i<metadataVector.size(); i++) {
+    const std::vector<std::string> metadataVector = split(metadata, ",", true);
+    for (size_t i=0; i<metadataVector.size(); i++) {
       vector<string> metadataRows = split(metadataVector[i], "-", true);
       if (metadataRows.size() == 2)
         metadataMap[metadataRows[1]] = metadataRows[0];
@@ -1976,7 +1964,7 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
   replace(inputStr, " ", "");
   input = split(inputStr, ",", true);
 
-  for (int i = 0; i < input.size(); i++) {
+  for (size_t i = 0; i < input.size(); i++) {
     inputPart = split(input[i], "-", true);
     if (inputPart.size() > 0) {
       hdf5map[inputPart[0]] = hdf5map[inputPart[1]];
@@ -2072,7 +2060,6 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   //  char string_value[80];
   //  int npoints = 0;
   bool havePalette=false;
-  herr_t ret;
   string channelName;
   // TODO: Fix this
   int chan = 1;
@@ -2090,7 +2077,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 	}
   }
 
-  ret = fill_head_diana(ginfo.metadata, chan);
+  fill_head_diana(ginfo.metadata, chan);
   // Check valid dateTime
   if (hdf5map.count("dateTime"))
   {
@@ -2110,7 +2097,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 
   // Return channel names (ie 1 2 9i) to Diana for display purposes.
   // Is not read from HDF5 file
-  ret = getDataForChannel(ginfo.channelinfo, channelName);
+  getDataForChannel(ginfo.channelinfo, channelName);
 
   METLIBS_LOG_DEBUG("channelinfo: " << ginfo.channelinfo);
   METLIBS_LOG_DEBUG("channelName: " << channelName);
@@ -2142,7 +2129,6 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   METLIBS_LOG_DEBUG("ginfo.channel: " << ginfo.channel);
 
   projUV data;
-  int i;
   // Map from gHead to gInfo.
   if (hdf5map.count("place"))
 	ginfo.satellite = hdf5map["place"];
@@ -2215,14 +2201,14 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     } else {
       if(paletteStringMap.size() > 0) {
         ginfo.noofcl=paletteStringMap.size() - 1;
-        for (i=1; i<paletteStringMap.size(); i++) {
+        for (size_t i=1; i<paletteStringMap.size(); i++) {
           paletteMap[i] = i;
           METLIBS_LOG_DEBUG("Getting paletteMap1: " << i << "," << paletteMap[i]);
         }
       } else {
         METLIBS_LOG_DEBUG("Getting paletteMap2: ");
         ginfo.noofcl=paletteSteps.size()-1;
-        for (i=1; i<paletteSteps.size()-1; i++) {
+        for (size_t i=1; i<paletteSteps.size()-1; i++) {
           paletteMap[to_float(paletteSteps[i])] = i-1;
         }
       }
@@ -2340,7 +2326,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
     data = pj_fwd(data, ref);
 
     if (data.u == HUGE_VAL) {
-      cerr << "data conversion error" << endl;
+      METLIBS_LOG_ERROR("data conversion error");
     }
     ginfo.Bx = data.u / denominator;
     ginfo.By = data.v / denominator + ginfo.ysize * ginfo.Ay;
@@ -2593,7 +2579,6 @@ short metno::satimgh5::selalg(const dto& d, const ucs& upos, const float& hmax,
 
   int i, overcompensated[2];
   unsigned int countx, county;
-  int size;
   float inclination, hourangle, coszenith, sunh, xval, yval;
   float max = 0., min = 0.;
   float northings, eastings, latitude, longitude;
@@ -2609,7 +2594,6 @@ short metno::satimgh5::selalg(const dto& d, const ucs& upos, const float& hmax,
   radian = Pi/180.;
   TrueLatRad = TrueScaleLat*radian;
   DistPolEkv = 6378.*(1.+sin(TrueLatRad));
-  size = upos.iw*upos.ih;
 
   /*
    * Decode day and time information for use in formulas.

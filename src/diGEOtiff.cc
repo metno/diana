@@ -33,10 +33,12 @@
 #include "config.h"
 #endif
 
+#include "diGEOtiff.h"
+
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.GEOtiff"
 #include <miLogger/miLogging.h>
-
-#include <diGEOtiff.h>
 
 GEOtiff::GEOtiff(){
 }
