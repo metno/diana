@@ -9,7 +9,6 @@
 
 #define MILOGGER_CATEGORY "diField.test.FieldManagerTest"
 #include "miLogger/miLogging.h"
-#include <log4cpp/Category.hh>
 
 //#define DEBUG_MESSAGES
 
