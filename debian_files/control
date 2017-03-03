@@ -3,16 +3,20 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 9),
- autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2), pkg-config,
- qt4-qmake, libqt4-dev,
-@metno_config_if .*precise.*
-@metno_config_else
- libqt4-dev-bin,
-@metno_config_endif
- libqt4-opengl-dev, libgl1-mesa-dev, libglu1-mesa-dev, libftgl-dev,
- metlibs-qutilities-dev (>= 5.1.4), metlibs-coserver-dev (>= 2.1.0),
- metlibs-putools-dev (>= 5.1.5), metlibs-milogger-dev (>= 5.0.3),
- metlibs-pudatatypes-dev (>= 5.0.2),
+ autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2),
+ pkg-config,
+ qtbase5-dev,
+ libqt5opengl5-dev,
+ libqt5svg5-dev,
+ libqt5xmlpatterns5-dev,
+ qtbase5-dev-tools,
+ qttools5-dev-tools,
+ libftgl-dev,
+ metlibs-qutilities-qt5-dev (>= 8.0.0),
+ metlibs-coserver-qt5-dev (>= 3.0.0),
+ metlibs-putools-dev (>= 6.0.0),
+ metlibs-milogger-dev (>= 6.0.0),
+ metlibs-pudatatypes-dev (>= 6.0.0),
  libfimex-dev (>= 0.63),
  libboost-dev,
  libboost-date-time-dev,

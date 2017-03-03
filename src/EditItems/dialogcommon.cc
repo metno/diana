@@ -42,6 +42,7 @@
 #include <QFileDialog>
 #include <QIcon>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>
 #include <QToolButton>

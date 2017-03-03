@@ -46,6 +46,13 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QToolTip>
+
 #define MILOGGER_CATEGORY "diana.EditItemManager"
 #include <miLogger/miLogging.h>
 

@@ -48,9 +48,14 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 

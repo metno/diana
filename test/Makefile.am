@@ -127,15 +127,18 @@ dianaGuiTests_SOURCES = \
 
 dianaGuiTests_CPPFLAGS = \
     $(CPPFLAGS) \
+    $(METLIBS_CPPFLAGS) \
     $(METLIBSUI_CPPFLAGS)
 
 dianaGuiTests_LDFLAGS = \
     $(LDFLAGS) \
+    $(METLIBS_LDFLAGS) \
     $(METLIBSUI_LDFLAGS)
 
 dianaGuiTests_LDADD = \
     $(LDADD) \
     $(req_ui_libs) \
+    $(METLIBS_LIBS) \
     $(METLIBSUI_LIBS)
 endif # WITH_GUI
 

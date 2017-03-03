@@ -86,6 +86,7 @@
 #include <boost/algorithm/string/join.hpp>
 
 #include <QApplication>
+#include <QPrinter>
 
 #include "export/MovieMaker.h"
 
@@ -205,6 +206,7 @@ struct stringlist {
   vector<std::string> l;
 };
 
+namespace {
 plot_type plottype = plot_none;// current plot_type
 plot_type prevplottype = plot_none;// previous plottype
 plot_type multiple_plottype = plot_none;//
@@ -296,6 +298,7 @@ printerManager * printman;
 printOptions priop;
 
 std::string logfilename;
+} // namespace
 
 /*
  clean an input-string: remove preceding and trailing blanks,
@@ -580,8 +583,13 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     printer->setOutputFileName(QString::fromStdString(priop.fname));
     if (pdf)
       printer->setOutputFormat(QPrinter::PdfFormat);
-    else
+    else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+      METLIBS_LOG_WARN("PostScript support not available in this bdiana version");
+#else
       printer->setOutputFormat(QPrinter::PostScriptFormat);
+#endif
+    }
 
     if (priop.usecustomsize) {
       printer->setPaperSize(QSizeF(priop.papersize.hsize, priop.papersize.vsize), QPrinter::Millimeter);
@@ -2451,10 +2459,8 @@ static int handleOutputCommand(int& k, const std::string& value)
   if (lvalue == "postscript") {
     postscript = true;
     raster = false;
-    priop.doEPS = false;
   } else if (lvalue == "eps") {
     raster = false;
-    priop.doEPS = true;
   } else if (lvalue == "png" || lvalue == "raster") {
     raster = true;
     if (lvalue == "png")
@@ -3005,7 +3011,6 @@ int diana_init(int _argc, char** _argv)
   // 1.4141
   priop.papersize.hsize = 297;
   priop.papersize.vsize = 420;
-  priop.doEPS = false;
 
   xsize = 1696;
   ysize = 1200;

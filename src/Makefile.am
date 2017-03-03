@@ -794,6 +794,7 @@ libdianaui_a_SOURCES += \
 libdianaui_a_CPPFLAGS = \
 	-I $(builddir)/vcross_qt \
 	${FIMEX_CPPFLAGS} \
+	$(METLIBS_CPPFLAGS) \
 	$(METLIBSUI_CPPFLAGS) \
 	$(QT4_CPPFLAGS)
 
@@ -825,8 +826,10 @@ diBuild.cc.tmp: $(top_srcdir)/gen_dibuild_cc
 
 bdiana_SOURCES = bdiana.cc
 bdiana_LDFLAGS = \
+	${FIMEX_LDFLAGS} \
 	$(METLIBS_LDFLAGS)
 bdiana_LDADD = \
+	${FIMEX_LIBS} \
 	$(METLIBS_LIBS) \
 	libdiana.la
 

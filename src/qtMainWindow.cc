@@ -109,6 +109,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>

@@ -93,14 +93,24 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
 METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.61.1])
-METNO_REQUIRE_PKGS([METLIBS], [miLogger >= 5.0.3 puTools >= 5.1.5 puDatatypes >= 5.0.2])
+METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 6.0.0 metlibs-pudatatypes >= 6.0.0])
 
+
+# for Qt5:
 AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_PKGS([METLIBSUI], [coserver >= 2.1.0 qUtilities >= 5.1.4 ftgl glu])
-    METNO_REQUIRE_QT4([Core Gui OpenGL Network Svg Xml XmlPatterns])
+    METNO_REQUIRE_PKGS([METLIBSUI], [metlibs-coserver-qt5 >= 3.0.0 metlibs-qutilities-qt5 >= 8.0.0 ftgl glu])
+    METNO_REQUIRE_PKGS([QT4], [Qt5Widgets Qt5Gui Qt5PrintSupport Qt5OpenGL Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
 ],[
-    METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])
+    METNO_REQUIRE_PKGS([QT4], [Qt5Core Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
 ])
+METNO_CHECK_QT5_TOOLS()
+
+# for Qt4 (untested):
+# remove "Qt5Widgets" and "Qt5PrintSupport"
+# replace "-qt5" with ""
+# replace "Qt5" with "Qt"
+# replace "METNO_CHECK_QT5_TOOLS" with "METNO_CHECK_QT4_TOOLS"
+
 
 #
 # Other third-party dependencies
