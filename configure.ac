@@ -29,8 +29,8 @@ METNO_PROG_PKG_CONFIG
 #
 AC_LANG_PUSH([C])
 
-CFLAGS="$CFLAGS -O2 -pipe -g -Wall -Wextra -fPIC -fopenmp "
-CXXFLAGS="$CXXFLAGS -msse2 -march=core2 -Wall -fPIC -fopenmp -Wno-deprecated"
+CFLAGS="$CFLAGS -O2 -pipe -g -Wall -Wextra -fPIC"
+CXXFLAGS="$CXXFLAGS -msse2 -march=core2 -Wall -fPIC"
 AC_SYS_LARGEFILE
 
 AC_LANG_POP([C])
