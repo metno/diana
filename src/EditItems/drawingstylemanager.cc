@@ -395,6 +395,10 @@ void DrawingStyleManager::beginFill(DiGLPainter* gl, DrawingItemBase *item)
       fillPatternData = vdiagleft;
     else if (fillPattern == "vldiagcross_little")
       fillPatternData = vldiagcross_little;
+    else if (fillPattern == "snow")
+      fillPatternData = snow;
+    else if (fillPattern == "rain")
+      fillPatternData = rain;
 
     if (fillPatternData) {
       gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);

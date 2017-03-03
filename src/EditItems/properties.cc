@@ -268,6 +268,8 @@ QWidget *EP_FillPattern::createEditor(const QVariant &value)
   editor->addItem("ldiagleft2", "ldiagleft2");
   editor->addItem("vdiagleft", "vdiagleft");
   editor->addItem("vldiagcross_little", "vldiagcross_little");
+  editor->addItem("snow", "snow");
+  editor->addItem("rain", "rain");
   editor->setCurrentIndex(editor->findData(value.toString()));
   connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
   oldValue = value;
