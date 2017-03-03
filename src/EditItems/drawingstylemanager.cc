@@ -1175,15 +1175,15 @@ void DrawingStyleManager::drawSymbol(DiGLPainter* gl, const DrawingItemBase *ite
 
   const QColor colour = style.value("symbolcolour").value<QColor>();
   if (colour.isValid()) {
-    gl->PixelTransferf(DiGLPainter::gl_RED_BIAS, colour.red() / 255.0);
-    gl->PixelTransferf(DiGLPainter::gl_GREEN_BIAS, colour.green() / 255.0);
-    gl->PixelTransferf(DiGLPainter::gl_BLUE_BIAS, colour.blue() / 255.0);
+    gl->PixelTransferf(DiGLPainter::gl_RED_BIAS, colour.redF());
+    gl->PixelTransferf(DiGLPainter::gl_GREEN_BIAS, colour.greenF());
+    gl->PixelTransferf(DiGLPainter::gl_BLUE_BIAS, colour.blueF());
   }
 
   bool alphaOk;
   const int alpha = style.value("symbolalpha").toInt(&alphaOk);
   if (alphaOk)
-    gl->PixelTransferf(DiGLPainter::gl_ALPHA_SCALE, alpha / 255.0);
+    gl->PixelTransferf(DiGLPainter::gl_ALPHA_SCALE, alpha / 255.0f);
 
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->RasterPos2f(

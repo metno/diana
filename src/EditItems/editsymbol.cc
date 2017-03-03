@@ -79,6 +79,8 @@ void Symbol::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItem
 
     if (multiItemOp)
       *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
+
+    EditItemBase::mousePress(event, repaintNeeded, multiItemOp);
   }
 }
 

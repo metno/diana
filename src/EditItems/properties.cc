@@ -215,7 +215,7 @@ void EP_Colour::updateValue(const QString &value)
     s = editor->itemData(index).value<QColor>().name();
   else
     s = "black";
-
+  newValue = s;
   EP_Choice::updateValue(s);
 }
 
