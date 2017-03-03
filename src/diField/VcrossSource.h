@@ -66,7 +66,7 @@ protected:
   Time mReferenceTime;
 };
 
-typedef boost::shared_ptr<ReftimeSource> ReftimeSource_p;
+typedef std::shared_ptr<ReftimeSource> ReftimeSource_p;
 
 // ########################################################################
 
@@ -138,7 +138,7 @@ protected:
   ReftimeSource_pv mReftimeSources;
 };
 
-typedef boost::shared_ptr<Source> Source_p;
+typedef std::shared_ptr<Source> Source_p;
 
 } // namespace vcross
 

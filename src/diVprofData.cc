@@ -42,7 +42,6 @@
 #endif // ROADOBS
 
 #include "diLocalSetupParser.h"
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <diField/VcrossData.h>
 #include <diField/VcrossUtil.h>
@@ -234,7 +233,7 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
 {
   METLIBS_LOG_SCOPE();
 
-  collector = miutil::make_shared<vcross::Collector>(setup);
+  collector = std::make_shared<vcross::Collector>(setup);
   vcross::Source_p source = collector->getResolver()->getSource(modelName);
   if (!source)
     return false;
@@ -267,14 +266,14 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   if (!stationsFileName.empty()) {
     readStationNames(stationsFileName);
   } else {
-    BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
+    for (vcross::Crossection_cp cs : inv->crossections) {
       if (cs->length() != 1)
         continue;
       mStations.push_back(stationInfo(cs->label(), cs->point(0).lonDeg(), cs->point(0).latDeg()));
     }
   }
 
-  BOOST_FOREACH(const vcross::Time::timevalue_t& time, inv->times.values) {
+  for (const vcross::Time::timevalue_t& time : inv->times.values) {
     validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
   }
 
@@ -342,7 +341,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     }
     ObsBufr bufr;
     std::string modelName;
-    std::auto_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_, time));
+    std::unique_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_, time));
     if (!vp.get())
       return 0;
     vProfPlotTime = time;
@@ -362,7 +361,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       // read stationlist and init the api.
       // does nothing if already done
       ObsRoad road = ObsRoad(filename,db_connectfile,stationsFileName,db_parameterfile,time,NULL,false);
-      std::auto_ptr<VprofPlot> vp(road.getVprofPlot(modelName, name, time));
+      std::unique_ptr<VprofPlot> vp(road.getVprofPlot(modelName, name, time));
       return vp.release();
     } catch (...) {
       METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << stationsFileName << "," << db_parameterfile << "," << time);
@@ -387,7 +386,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       return new VprofPlot(*vProfPlot);
     }
 
-    std::auto_ptr<VprofPlot> vp(new VprofPlot());
+    std::unique_ptr<VprofPlot> vp(new VprofPlot());
     vp->text.index = -1;
     vp->text.prognostic = true;
     vp->text.modelName = modelName;
@@ -416,7 +415,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     const vcross::ModelReftime mr(modelName, reftime);
 
-    FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, VP_AIR_TEMPERATURE));
+    FieldData_cp air_temperature = std::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, VP_AIR_TEMPERATURE));
     if (not air_temperature)
       return 0;
     ZAxisData_cp zaxis = air_temperature->zaxis();

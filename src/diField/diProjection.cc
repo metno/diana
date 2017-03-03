@@ -54,7 +54,7 @@ using namespace miutil;
 static const float efactor = EARTH_RADIUS_M * DEG_TO_RAD;
 
 // static
-boost::shared_ptr<Projection> Projection::sGeographic;
+std::shared_ptr<Projection> Projection::sGeographic;
 
 Projection::Projection()
 {
@@ -70,7 +70,7 @@ bool Projection::set_proj_definition(const std::string& projStr)
   projDefinition = projStr;
 
   miutil::replace(projDefinition, "\"", "");
-  projObject = boost::shared_ptr<PJ>(pj_init_plus(projDefinition.c_str()), pj_free);
+  projObject = std::shared_ptr<PJ>(pj_init_plus(projDefinition.c_str()), pj_free);
   if (!projObject)
     METLIBS_LOG_WARN("proj4 init error for '" << projDefinition << "': " << pj_strerrno(pj_errno));
 
@@ -579,6 +579,6 @@ bool Projection::getLatLonIncrement(float lat, float /*lon*/, float& dlat, float
 const Projection& Projection::geographic()
 {
   if (!sGeographic)
-    sGeographic = boost::shared_ptr<Projection>(new Projection("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
+    sGeographic = std::shared_ptr<Projection>(new Projection("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
   return *sGeographic;
 }

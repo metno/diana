@@ -178,7 +178,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   : QMainWindow(),
     push_command(true),browsing(false),
     markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
-  , vcInterface(0)
   , vcrossEditManagerConnected(false)
   , spWindow(0), pluginB(0), contr(co)
   , showelem(true)
@@ -2382,7 +2381,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename, const QSize& size
   METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
   QPrinter* printer = 0;
   QImage* image = 0;
-  std::auto_ptr<QPaintDevice> device;
+  std::unique_ptr<QPaintDevice> device;
   bool printing = false;
 
   if (filename.endsWith(".pdf")) {

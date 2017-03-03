@@ -16,12 +16,11 @@
 #include <puCtools/puCglob.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
-#include "puTools/mi_boost_compatibility.hh"
 #include <puTools/TimeFilter.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 #define MILOGGER_CATEGORY "diField.GridCollection"
 #include "miLogger/miLogging.h"
@@ -104,7 +103,7 @@ bool GridCollection::makeGridIOinstances()
 
   // unpack each raw source - creating one or more GridIO instances from each
   int index = -1;
-  BOOST_FOREACH(std::string sourcestr, rawsources) {
+  for (std::string sourcestr : rawsources) {
     ++index;
 
     // init time filter and replace yyyy etc. with ????
@@ -142,7 +141,7 @@ bool GridCollection::makeGridIOinstances()
 
 
     // loop through sources (filenames)
-    BOOST_FOREACH(const std::string& sourcename, sources) {
+    for (const std::string& sourcename : sources) {
 
       //Find time from filename if possible
       std::string reftime_from_filename;
@@ -315,7 +314,7 @@ bool GridCollection::dataExists_gridParameter(const gridinventory::Inventory& in
 
   METLIBS_LOG_DEBUG("searching for parameter:" << parkey.name << "|" << parkey.extraaxis
       << "|" <<parkey.taxis<< "|" <<parkey.zaxis);
-  BOOST_FOREACH(const gridinventory::GridParameter& p, reftimeInv.parameters) {
+  for (const gridinventory::GridParameter& p : reftimeInv.parameters) {
 //    METLIBS_LOG_DEBUG("checking against:" << p.key.name << "|" << p.key.extraaxis
 //        << "|" <<p.taxis_id<< "|" <<p.key.zaxis);
     if ((p.key == parkey) or
@@ -343,7 +342,7 @@ bool GridCollection::dataExists_gridParameter(const gridinventory::Inventory& in
         // Taxis
         METLIBS_LOG_DEBUG("searching for" << LOGVAL(p.key.taxis));
 
-        const std::set<Taxis>::const_iterator taitr = miutil::find_if(reftimeInv.taxes, boost::bind(&Taxis::getId, _1) == p.taxis_id);
+        const std::set<Taxis>::const_iterator taitr = boost::find_if(reftimeInv.taxes, boost::bind(&Taxis::getId, _1) == p.taxis_id);
         if (taitr == reftimeInv.taxes.end()) {
           METLIBS_LOG_DEBUG("time axis '" << p.taxis_id << "' not found" << LOGVAL(reftimeInv.taxes.size()));
           continue;
@@ -370,7 +369,7 @@ bool GridCollection::dataExists_gridParameter(const gridinventory::Inventory& in
       }
 
       // Extraaxis
-      const std::set<ExtraAxis>::const_iterator xaitr = miutil::find_if(reftimeInv.extraaxes, boost::bind(&ExtraAxis::getName, _1) == p.key.extraaxis);
+      const std::set<ExtraAxis>::const_iterator xaitr = boost::find_if(reftimeInv.extraaxes, boost::bind(&ExtraAxis::getName, _1) == p.key.extraaxis);
       if (xaitr == reftimeInv.extraaxes.end()) {
         METLIBS_LOG_DEBUG("extra axis '" << p.key.extraaxis << "' not found");
         continue;
@@ -406,7 +405,7 @@ bool GridCollection::dataExists_variable(const gridinventory::Inventory& inv,
   const ReftimeInventory& reftimeInv = ritr->second;
 
   METLIBS_LOG_DEBUG("searching for paramname:" << paramname);
-  BOOST_FOREACH(const gridinventory::GridParameter& p, reftimeInv.parameters) {
+  for (const gridinventory::GridParameter& p : reftimeInv.parameters) {
     if ((p.key == paramname) or (p.key.name == paramname))
     {
       METLIBS_LOG_DEBUG("found paramname :-)  "<<p.key.name );
@@ -520,7 +519,7 @@ bool GridCollection::updateSources()
   }
 
   std::set<std::string> newSources;
-  BOOST_FOREACH(const std::string& sourcestr, sources_with_wildcards) {
+  for (const std::string& sourcestr : sources_with_wildcards) {
     // check for wild cards - expand filenames if necessary
     if (sourcestr.find_first_of("*?") != std::string::npos) {
       const diutil::string_v files = diutil::glob(sourcestr, GLOB_BRACE);
@@ -536,6 +535,3 @@ bool GridCollection::updateSources()
 
   return true;
 }
-
-
-

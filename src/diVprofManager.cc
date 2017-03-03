@@ -45,7 +45,6 @@
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/TimeFilter.h>
 
 #include <boost/foreach.hpp>
@@ -184,7 +183,7 @@ void VprofManager::parseSetup()
 
 
   miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
-  setup = miutil::make_shared<vcross::Setup>();
+  setup = std::make_shared<vcross::Setup>();
   setup->configureSources(sources);
   setup->configureComputations(computations);
 }
@@ -331,7 +330,7 @@ void VprofManager::updateSelectedStations()
 {
   selectedStations.clear();
 
-  std::auto_ptr<VprofPlot> vp;
+  std::unique_ptr<VprofPlot> vp;
   for (size_t i=0; i<vpdata.size(); i++) {
     for (size_t j=0; j<plotStations.size(); ++j) {
       METLIBS_LOG_DEBUG(LOGVAL(plotStations[j]));
@@ -373,7 +372,7 @@ bool VprofManager::plot(DiGLPainter* gl)
 
     for (size_t i=0; i<vpdata.size(); i++) {
       for (size_t j=0; j<plotStations.size(); ++j) {
-        std::auto_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime));
+        std::unique_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime));
         if (vp.get()) {
           dataok = vp->plot(gl, vpopt, i);
           break;
@@ -405,7 +404,7 @@ std::vector <std::string> VprofManager::getReferencetimes(const std::string mode
 
   if ( filetypes[modelName] == "netcdf" || filetypes[modelName] == "grbml") {
 
-    vcross::Collector_p collector = miutil::make_shared<vcross::Collector>(setup);
+    vcross::Collector_p collector = std::make_shared<vcross::Collector>(setup);
 
     collector->getResolver()->getSource(modelName)->update();
     const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
@@ -449,7 +448,7 @@ bool VprofManager::initVprofData(const SelectedModel& selectedModel)
 {
   METLIBS_LOG_SCOPE();
   std::string model_part=selectedModel.model.substr(0,selectedModel.model.find("@"));
-  std::auto_ptr<VprofData> vpd(new VprofData(selectedModel.model, stationsfilenames[selectedModel.model]));
+  std::unique_ptr<VprofData> vpd(new VprofData(selectedModel.model, stationsfilenames[selectedModel.model]));
   bool ok = false;
   if (filetypes[model_part] == "bufr"){
     ok = vpd->readBufr(selectedModel.model, filenames[selectedModel.model]);

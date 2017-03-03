@@ -47,13 +47,13 @@ class VprofWidget : public QObject, public DiPaintable
 public:
   VprofWidget(VprofManager *vpm);
 
-  void setCanvas(DiCanvas* c);
+  void setCanvas(DiCanvas* c) override;
   DiCanvas* canvas() const;
-  void paintUnderlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
-  void paintOverlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
-  void resize(int w, int h);
+  void paintUnderlay(DiPainter* painter) override;
+  void paintOverlay(DiPainter* painter) override;
+  void resize(int w, int h) override;
 
-  bool handleKeyEvents(QKeyEvent *ke);
+  bool handleKeyEvents(QKeyEvent *ke) override;
 
 private:
   VprofManager *vprofm;

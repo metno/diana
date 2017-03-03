@@ -27,6 +27,10 @@ VcrossReftimePage::VcrossReftimePage(QWidget* parent)
       this, SLOT(listActivated()));
 }
 
+VcrossReftimePage::~VcrossReftimePage()
+{
+}
+
 void VcrossReftimePage::setManager(vcross::QtManager_p vm)
 {
   vcrossm = vm;

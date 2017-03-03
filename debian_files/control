@@ -14,11 +14,18 @@ Build-Depends: debhelper (>= 9),
  metlibs-putools-dev (>= 5.1.5), metlibs-milogger-dev (>= 5.0.3),
  metlibs-pudatatypes-dev (>= 5.0.2),
  libfimex-dev (>= 0.63),
- libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
- libboost-system-dev, libboost-thread-dev,
- libgeotiff-dev, libpng-dev, libudunits2-dev, libproj-dev,
- libshp-dev, libemos-dev,
- cmake, libgtest-dev
+ libboost-dev,
+ libboost-date-time-dev,
+ libboost-system-dev,
+ libcurl-dev,
+ libgeotiff-dev,
+ libpng-dev,
+ libudunits2-dev,
+ libproj-dev,
+ libshp-dev,
+ libemos-dev,
+ cmake,
+ libgtest-dev
 Standards-Version: 3.9.2
 
 Package: diana-@METNO_VERSION@

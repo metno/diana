@@ -14,6 +14,8 @@ class VcrossStyleDialog : public QDialog {
 
 public:
   VcrossStyleDialog(QWidget* parent);
+  ~VcrossStyleDialog();
+
   void setManager(vcross::QtManager_p vcrossm);
 
   void showModelField(int idx);
@@ -33,7 +35,7 @@ private Q_SLOTS:
 
 private:
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossStyleDialog> ui;
+  std::unique_ptr<Ui_VcrossStyleDialog> ui;
   QStandardItemModel* mPlots;
 };
 

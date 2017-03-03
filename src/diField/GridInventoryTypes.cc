@@ -8,7 +8,6 @@
 #include "GridInventoryTypes.h"
 #include "diFieldFunctions.h"
 
-#include "puTools/mi_boost_compatibility.hh"
 
 #include <boost/foreach.hpp>
 
@@ -232,7 +231,7 @@ Inventory Inventory::merge(const Inventory& i) const
 
 
       // - zaxis:
-      BOOST_FOREACH(const Zaxis& zax2, r2.zaxes) {
+      for (const Zaxis& zax2 : r2.zaxes) {
         std::set<Zaxis>::const_iterator zaxis1itr = reftime.zaxes.find(zax2);
         if (zaxis1itr == reftime.zaxes.end()) {
           // add new zaxis
@@ -259,7 +258,7 @@ Inventory Inventory::merge(const Inventory& i) const
       }
 
       // - Taxis
-      BOOST_FOREACH(const Taxis& tax2, r2.taxes) {
+      for (const Taxis& tax2 : r2.taxes) {
         std::set<Taxis>::iterator taxis1itr = reftime.taxes.find(tax2);
         if (taxis1itr == reftime.taxes.end()) {
           METLIBS_LOG_DEBUG(" add new taxis");
@@ -281,7 +280,7 @@ Inventory Inventory::merge(const Inventory& i) const
 
 
       // - ExtraAxis
-      BOOST_FOREACH(const ExtraAxis& eax2, r2.extraaxes) {
+      for (const ExtraAxis& eax2 : r2.extraaxes) {
         std::set<ExtraAxis>::iterator eax1it = reftime.extraaxes.find(eax2);
         if (eax1it == reftime.extraaxes.end()) {
           // add new extraaxis
@@ -309,7 +308,7 @@ Inventory Inventory::merge(const Inventory& i) const
 
       // add new parameters
       if ( axisOk ) {
-        BOOST_FOREACH(const GridParameter& p, parameters) {
+        for (const GridParameter& p : parameters) {
           if (reftime.parameters.find(p) == reftime.parameters.end()) {
             reftime.parameters.insert(p);
           }

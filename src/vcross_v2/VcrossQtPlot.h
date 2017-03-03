@@ -48,8 +48,8 @@ namespace vcross {
 
 namespace detail {
 struct Axis;
-typedef boost::shared_ptr<Axis> AxisPtr;
-typedef boost::shared_ptr<const Axis> AxisCPtr;
+typedef std::shared_ptr<Axis> AxisPtr;
+typedef std::shared_ptr<const Axis> AxisCPtr;
 } // namespace detail
 
 //----------------------------------------------------
@@ -77,8 +77,8 @@ private:
     ConfiguredPlot::Type type() const
       { return evaluated->type(); }
   };
-  typedef boost::shared_ptr<OptionPlot> OptionPlot_p;
-  typedef boost::shared_ptr<const OptionPlot> OptionPlot_cp;
+  typedef std::shared_ptr<OptionPlot> OptionPlot_p;
+  typedef std::shared_ptr<const OptionPlot> OptionPlot_cp;
   typedef std::vector<OptionPlot_cp> OptionPlot_cpv;
 
   struct OptionLine {
@@ -243,7 +243,7 @@ private:
   float mReferencePosition; //! fractional index in requested points
 };
 
-typedef boost::shared_ptr<QtPlot> QtPlot_p;
+typedef std::shared_ptr<QtPlot> QtPlot_p;
 
 } // namespace vcross
 

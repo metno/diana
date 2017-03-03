@@ -289,7 +289,7 @@ std::vector<KeyValue> SetupParser::splitManyKeyValue(const std::string& line, bo
 {
   std::vector<KeyValue> kvs;
   const string_v tokens = miutil::split(line);
-  BOOST_FOREACH(const std::string& t, tokens)
+  for (const std::string& t : tokens)
       kvs.push_back(splitKeyValue(t, keepCase));
   return kvs;
 }

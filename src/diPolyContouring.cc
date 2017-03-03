@@ -49,7 +49,7 @@ const float UNDEF_VALUE = 1e30;
 
 inline bool isUndefined(float v)
 {
-  return isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
+  return std::isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
 static inline int rounded_div(float value, float unit)
@@ -639,21 +639,21 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
 
 // ########################################################################
 
-boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& poptions, float fieldUndef)
+std::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& poptions, float fieldUndef)
 {
   if (not poptions.linevalues.empty()) {
-    return boost::make_shared<DianaLevelList>(poptions.linevalues);
+    return std::make_shared<DianaLevelList>(poptions.linevalues);
   } else if (not poptions.loglinevalues.empty()) {
     // selected line values (the first values in rlines)
     // are drawn, the following vales drawn are the
     // previous multiplied by 10 and so on
     // (nlines=2 rlines=0.1,0.3 => 0.1,0.3,1,3,10,30,...)
     // (or the line at value=zoff)
-    return boost::make_shared<DianaLevelList10>(poptions.loglinevalues, poptions.palettecolours.size());
+    return std::make_shared<DianaLevelList10>(poptions.loglinevalues, poptions.palettecolours.size());
   } else {
     // equally spaced lines (value)
-    boost::shared_ptr<DianaLevelStep> ls
-        = boost::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
+    std::shared_ptr<DianaLevelStep> ls
+        = std::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
     if (poptions.minvalue > -fieldUndef or poptions.maxvalue < fieldUndef)
       ls->set_limits(poptions.minvalue, poptions.maxvalue);
     return ls;
@@ -661,15 +661,15 @@ boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& popt
 }
 
 //! same as dianaLevelsForPlotOptions except that it uses options with "_2" at the end of the name
-boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions_2(const PlotOptions& poptions, float fieldUndef)
+std::shared_ptr<DianaLevels> dianaLevelsForPlotOptions_2(const PlotOptions& poptions, float fieldUndef)
 {
   if (not poptions.linevalues_2.empty()) {
-    return boost::make_shared<DianaLevelList>(poptions.linevalues_2);
+    return std::make_shared<DianaLevelList>(poptions.linevalues_2);
   } else if (not poptions.loglinevalues_2.empty()) {
-    return boost::make_shared<DianaLevelList10>(poptions.loglinevalues_2, poptions.loglinevalues_2.size());
+    return std::make_shared<DianaLevelList10>(poptions.loglinevalues_2, poptions.loglinevalues_2.size());
   } else {
-    boost::shared_ptr<DianaLevelStep> ls
-        = boost::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
+    std::shared_ptr<DianaLevelStep> ls
+        = std::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
     if (poptions.minvalue_2 > -fieldUndef or poptions.maxvalue_2 < fieldUndef)
       ls->set_limits(poptions.minvalue_2, poptions.maxvalue_2);
     return ls;
@@ -703,7 +703,7 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
         int iyy1 = std::min(iy1, iyy0 + BLOCK+1);
 
         const DianaArrayIndex index(nx, ny, ixx0, iyy0, ixx1, iyy1, poptions.lineSmooth);
-        DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
+        DianaPositions_p positions = std::make_shared<DianaPositionsList>(index, xz, yz);
 
         const DianaField df(index, z, *levels, *positions);
         DianaGLLines dl(gl, poptions, *levels);
@@ -722,7 +722,7 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
   }
 
   const DianaArrayIndex index(nx, ny, ix0, iy0, ix1, iy1, poptions.lineSmooth);
-  DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
+  DianaPositions_p positions = std::make_shared<DianaPositionsList>(index, xz, yz);
 
   const DianaField df(index, z, *levels, *positions);
   DianaGLLines dl(gl, poptions, *levels);

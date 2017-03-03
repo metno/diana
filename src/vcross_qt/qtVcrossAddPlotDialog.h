@@ -45,6 +45,7 @@ class VcrossAddPlotDialog : public QDialog {
 
 public:
   VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p vsm);
+  ~VcrossAddPlotDialog();
 
 public Q_SLOTS:
   void restart();
@@ -80,7 +81,7 @@ private:
   enum { ModelPage, ReftimePage, PlotPage };
 
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossAddPlotDialog> ui;
+  std::unique_ptr<Ui_VcrossAddPlotDialog> ui;
 
   QStringListModel* plotNames;
   QSortFilterProxyModel* plotSorter;

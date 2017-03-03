@@ -9,7 +9,6 @@
 
 #include <puCtools/puCglob.h>
 
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
 #include <puTools/miDirtools.h>
 #include <puTools/TimeFilter.h>
@@ -22,7 +21,6 @@
 #include <fimex/CoordinateSystemSliceBuilder.h>
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
 
-#include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
 #include <sstream>
@@ -197,7 +195,7 @@ vcross::FimexReftimeSource::CoordinateSystem_p findGeoZTransformed(const vcross:
 {
   METLIBS_LOG_SCOPE(LOGVAL(id));
   const std::string& zid = transformedZAxisName(id);
-  BOOST_FOREACH(vcross::FimexReftimeSource::CoordinateSystem_p cs, coordinateSystems) {
+  for (vcross::FimexReftimeSource::CoordinateSystem_p cs : coordinateSystems) {
     if (not (cs->isSimpleSpatialGridded()))
       continue;
 
@@ -432,7 +430,7 @@ void FimexReftimeSource::prepareGetValues(Crossection_cp cs,
   if (not mInventory and not makeInventory())
     THROW(std::runtime_error, "no inventory");
 
-  fcs = boost::dynamic_pointer_cast<const FimexCrossection>(cs);
+  fcs = std::dynamic_pointer_cast<const FimexCrossection>(cs);
   if (not fcs)
     THROW(std::runtime_error, "no crossection given, or not a fimex crossection");
 
@@ -455,7 +453,7 @@ void FimexReftimeSource::getCrossectionValues(Crossection_cp crossection, const 
 
   const size_t t_start = findTimeIndex(mInventory, time);
 
-  BOOST_FOREACH(InventoryBase_cp b, data) {
+  for (InventoryBase_cp b : data) {
     METLIBS_LOG_DEBUG(LOGVAL(b->id()) << LOGVAL(b->nlevel()));
     try {
       CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
@@ -484,7 +482,7 @@ void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
   prepareGetValues(crossection, fcs, reader, coordinateSystems);
   const CDM& cdm = reader->getCDM();
 
-  BOOST_FOREACH(InventoryBase_cp b, data) {
+  for (InventoryBase_cp b : data) {
     try {
       CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
@@ -515,7 +513,7 @@ void FimexReftimeSource::getPointValues(Crossection_cp crossection,
 
   const size_t t_start = findTimeIndex(mInventory, time);
 
-  BOOST_FOREACH(InventoryBase_cp b, data) {
+  for (InventoryBase_cp b : data) {
     try {
       CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
@@ -545,7 +543,7 @@ void FimexReftimeSource::getWaveSpectrumValues(Crossection_cp crossection, size_
 
   const size_t t_start = findTimeIndex(mInventory, time);
 
-  BOOST_FOREACH(InventoryBase_cp b, data) {
+  for (InventoryBase_cp b : data) {
     try {
       CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(reader->getCDM(), cs, b);
@@ -602,7 +600,7 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   const int pct = findShapeIndex(CoordinateAxis::Time, cs, sliceCdm.shape());
   METLIBS_LOG_DEBUG(LOGVAL(pcx) << LOGVAL(pcy) << LOGVAL(pcz) << LOGVAL(pct));
 
-  Values_p v = miutil::make_shared<Values>(shapeOut);
+  Values_p v = std::make_shared<Values>(shapeOut);
   Values::ShapeIndex idx(v->shape());
 
   const size_t t_begin = sliceCdm.start(pct), t_length = sliceCdm.length(pct);
@@ -673,9 +671,9 @@ Values_p FimexReftimeSource::getSlicedValues(CDMReader_p reader, CoordinateSyste
       THROW(std::runtime_error, "no data for '" << b->id() << "'");
     if (b->dataType() == ZAxisData::DATA_TYPE()) {
       METLIBS_LOG_SCOPE("z levels, using GEO_Z" << LOGVAL(dataCdm->size()) << LOGVAL(b->nlevel()));
-      return boost::make_shared<Values>(Values::Shape(Values::GEO_Z, b->nlevel()), dataCdm->asFloat());
+      return std::make_shared<Values>(Values::Shape(Values::GEO_Z, b->nlevel()), dataCdm->asFloat());
     } else {
-      return boost::make_shared<Values>(shapeOut, dataCdm->asFloat());
+      return std::make_shared<Values>(shapeOut, dataCdm->asFloat());
     }
   }
 
@@ -695,7 +693,7 @@ Values_p FimexReftimeSource::getSlicedValues(CDMReader_p reader, CoordinateSyste
     THROW(std::runtime_error, "no sliced data for '" << b->id() << "'");
 
   boost::shared_array<float> floatsReshaped = reshape(sliceCdm, shapeCdmOut, dataCdm->asFloat());
-  return boost::make_shared<Values>(shapeOut, floatsReshaped);
+  return std::make_shared<Values>(shapeOut, floatsReshaped);
 }
 
 bool FimexReftimeSource::makeReader()
@@ -735,7 +733,7 @@ bool FimexReftimeSource::makeInventory()
     if (not mReader and not makeReader())
       return false;
 
-    mInventory = boost::make_shared<Inventory>();
+    mInventory = std::make_shared<Inventory>();
 
     const CDM& cdm = mReader->getCDM();
 
@@ -747,7 +745,7 @@ bool FimexReftimeSource::makeInventory()
     mCoordinateSystems = MetNoFimex::listCoordinateSystems(mReader);
 
     const std::vector<CDMVariable>& variables = cdm.getVariables();
-    BOOST_FOREACH(const CDMVariable& var, variables) {
+    for (const CDMVariable& var : variables) {
       const std::string& vName = var.getName(), vsName = standardNameOrName(cdm, vName);
       METLIBS_LOG_DEBUG(LOGVAL(vName) << LOGVAL(vsName));
 
@@ -803,7 +801,7 @@ bool FimexReftimeSource::makeInventory()
           const std::pair<std::string,std::string> zName_csId(zName, cs->id());
           const knownZAxes_t::const_iterator it = knownZAxes.find(zName_csId);
           if (it == knownZAxes.end()) {
-            ZAxisData_p znew = boost::make_shared<ZAxisData>(zName, cdm.getUnits(zName));
+            ZAxisData_p znew = std::make_shared<ZAxisData>(zName, cdm.getUnits(zName));
             znew->setZDirection(isPositiveUp(zName, cdm) ? Z_DIRECTION_UP : Z_DIRECTION_DOWN);
             znew->setNlevel(cdm.getDimension(zName).getLength());
             if (VerticalTransformation_cp vt = cs->getVerticalTransformation()) {
@@ -936,7 +934,7 @@ void FimexReftimeSource::makeCrossectionInventory()
       const std::string csname(valuesName.get());
 
       const LonLat_v csPoints = makeCrossectionPoints(vLon, vLat, lola_begin, lola_end);
-      FimexCrossection_p cs = miutil::make_shared<FimexCrossection>
+      FimexCrossection_p cs = std::make_shared<FimexCrossection>
           (csname, csPoints, makePointsRequested(csPoints), lola_begin);
       mInventory->crossections.push_back(cs);
       METLIBS_LOG_DEBUG("added segment crossection '" << cs->label()
@@ -946,7 +944,7 @@ void FimexReftimeSource::makeCrossectionInventory()
     // assuming it is a file with a single readymade cross-section
     mSupportsDynamic = false;
     const LonLat_v csPoints = makeCrossectionPoints(vLon, vLat, 0, dataLon->size());
-    FimexCrossection_p cs = miutil::make_shared<FimexCrossection>
+    FimexCrossection_p cs = std::make_shared<FimexCrossection>
         ("single_cs", csPoints, makePointsRequested(csPoints), 0);
     mInventory->crossections.push_back(cs);
     METLIBS_LOG_DEBUG("added single crossection '" << cs->label()
@@ -986,7 +984,7 @@ Crossection_cp FimexReftimeSource::addDynamicCrossection(std::string label, cons
   for (size_t i=0; i<dataLon->size(); ++i)
     actualPoints.push_back(LonLat::fromDegrees(vLon[i], vLat[i]));
 
-  FimexCrossection_p cs = miutil::make_shared<FimexCrossection>
+  FimexCrossection_p cs = std::make_shared<FimexCrossection>
       (label, actualPoints, positions, 0, interpolator);
 
   // if a cross-section with the same name is known, replace it
@@ -1011,7 +1009,7 @@ void FimexReftimeSource::dropDynamicCrossection(Crossection_cp cs)
 {
   METLIBS_LOG_SCOPE();
 
-  if (FimexCrossection_cp fcs = boost::dynamic_pointer_cast<const FimexCrossection>(cs)) {
+  if (FimexCrossection_cp fcs = std::dynamic_pointer_cast<const FimexCrossection>(cs)) {
     Crossection_cpv& ics =  mInventory->crossections;
     for (Crossection_cpv::iterator it = ics.begin(); it != ics.end(); ++it) {
       if (*it == fcs) {
@@ -1029,7 +1027,7 @@ void FimexReftimeSource::dropDynamicCrossections()
   METLIBS_LOG_SCOPE();
   Crossection_cpv crossections;
   for (Crossection_cpv::iterator it = mInventory->crossections.begin(); it != mInventory->crossections.end(); ) {
-    FimexCrossection_cp fcs = boost::static_pointer_cast<const FimexCrossection>(*it);
+    FimexCrossection_cp fcs = std::static_pointer_cast<const FimexCrossection>(*it);
     if (not fcs->dynamic())
       crossections.push_back(fcs);
   }
@@ -1114,7 +1112,7 @@ bool FimexSource::addSource(const std::string& path, Time& reftime)
 {
   if (reftime.valid() && findSource(reftime))
     return false;
-  ReftimeSource_p s = miutil::make_shared<FimexReftimeSource>(path, mFileType, mFileConfig, reftime);
+  ReftimeSource_p s = std::make_shared<FimexReftimeSource>(path, mFileType, mFileConfig, reftime);
   if (!reftime.valid()) {
     reftime = s->getReferenceTime();
     if (findSource(reftime))

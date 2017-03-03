@@ -44,7 +44,6 @@
 #include "diField/diMetConstants.h"
 #include "diField/VcrossUtil.h"
 
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
 #include <puTools/miStringFunctions.h>
 
@@ -219,7 +218,7 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
   const bool tg = isTimeGraph();
 
   float widthModel = 0, widthReftime = 0, widthField = 0;
-  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+  for (OptionPlot_cp plot : mPlots) {
     vcross::util::updateMaxStringWidth(painter, widthModel, plot->model());
     vcross::util::updateMaxStringWidth(painter, widthField, plot->name());
 
@@ -243,7 +242,7 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
   const float yCSName = yPlot, yStep = mCharSize.height() * LINES_1;
 
   size_t idx_plot = 0;
-  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+  for (OptionPlot_cp plot : mPlots) {
     if (plot->poptions.options_1)
       painter.setPen(util::QC(colourOrContrast(plot->poptions.linecolour)));
     else
@@ -280,7 +279,7 @@ void QtPlot::plotLegend(QPainter& painter)
 {
   const bool tg = isTimeGraph();
   const size_t npoint = ( tg ? mTimeDistances : mCrossectionDistances).size();
-  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+  for (OptionPlot_cp plot : mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
     if (plot->type() == ConfiguredPlot::T_VECTOR) {
       std::string error;
@@ -580,7 +579,7 @@ QtPlot::OptionPlot::OptionPlot(EvaluatedPlot_cp e)
 void QtPlot::addPlot(EvaluatedPlot_cp ep)
 {
   METLIBS_LOG_SCOPE();
-  mPlots.push_back(miutil::make_shared<OptionPlot>(ep));
+  mPlots.push_back(std::make_shared<OptionPlot>(ep));
 }
 
 void QtPlot::addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth)
@@ -646,7 +645,7 @@ void QtPlot::prepareYAxisRange()
   bool have_z = false;
   float yax_min = 1e35, yax_max = -1e35;
   const char* H_COORD = horizontal(isTimeGraph());
-  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+  for (OptionPlot_cp plot : mPlots) {
     Values_cp z_values = plot->evaluated->z_values;
     if (not z_values)
       continue;
@@ -1296,7 +1295,7 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
   const size_t npoint = distances.size();
 
   METLIBS_LOG_DEBUG(LOGVAL(npoint));
-  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+  for (OptionPlot_cp plot : mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
     std::string error;
     if (isPlotOk(ep, npoint, error, tg)) {
@@ -1322,7 +1321,7 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
 
   METLIBS_LOG_DEBUG("adding annotations");
   std::vector<std::string> annotations;
-  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+  for (OptionPlot_cp plot : mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
     std::string annotation, error;
     if (isPlotOk(ep, npoint, error, tg)) {

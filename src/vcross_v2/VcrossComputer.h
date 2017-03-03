@@ -108,8 +108,8 @@ private:
   double mNumericArg;
   InventoryBase_cpv mArguments;
 };
-typedef boost::shared_ptr<FunctionData> FunctionData_p;
-typedef boost::shared_ptr<const FunctionData> FunctionData_cp;
+typedef std::shared_ptr<FunctionData> FunctionData_p;
+typedef std::shared_ptr<const FunctionData> FunctionData_cp;
 
 // ================================================================================
 

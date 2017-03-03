@@ -47,14 +47,14 @@ class SpectrumWidget : public QObject, public DiPaintable
 public:
   SpectrumWidget(SpectrumManager *spm);
 
-  void setCanvas(DiCanvas* c);
+  void setCanvas(DiCanvas* c) override;
   DiCanvas* canvas() const
     { return mCanvas; }
-  void paintUnderlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
-  void paintOverlay(DiPainter* painter) /*Q_DECL_OVERRIDE*/;
-  void resize(int width, int height);
+  void paintUnderlay(DiPainter* painter) override;
+  void paintOverlay(DiPainter* painter) override;
+  void resize(int width, int height) override;
 
-  bool handleKeyEvents(QKeyEvent*);
+  bool handleKeyEvents(QKeyEvent*) override;
 
 Q_SIGNALS:
   void timeChanged(int);

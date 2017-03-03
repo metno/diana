@@ -37,18 +37,19 @@
 #include "../diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
-#include "puTools/mi_boost_compatibility.hh"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/foreach.hpp>
 
 #include <cmath>
+#include <iomanip>
 #include <set>
+#include <sstream>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <iomanip>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -348,7 +349,7 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
 {
   std::vector<std::string> lines;
 
-  BOOST_FOREACH(const std::string& ci, configInfo) {
+  for (const std::string& ci : configInfo) {
 
     std::string datasource;
     std::string sourcetype;
@@ -368,7 +369,7 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
       continue;
     }
 
-    BOOST_FOREACH(const std::string& tok, tokens) {
+    for (const std::string& tok : tokens) {
       std::vector<std::string> stokens= miutil::split_protected(tok, '"', '"', "=", true);
       if (stokens.size()<2) {
         METLIBS_LOG_INFO("Missing argument to keyword: '" << tok << "', assuming it is an option");
@@ -476,7 +477,7 @@ void FieldManager::getFieldInfo(const std::string& modelName, const std::string&
     }
   }
 
-  BOOST_FOREACH(const gridinventory::GridParameter& gp, ritr->second.parameters) {
+  for (const gridinventory::GridParameter& gp : ritr->second.parameters) {
     FieldInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
@@ -644,7 +645,7 @@ void FieldManager::addComputedParameters(gridinventory::ReftimeInventory& invent
 
   // loop through all functions
   int i = -1;
-  BOOST_FOREACH(const FieldFunctions::FieldCompute& fc, FieldFunctions::fieldComputes()) {
+  for (const FieldFunctions::FieldCompute& fc : FieldFunctions::fieldComputes()) {
     i += 1;
     const std::string& computeParameterName = fc.name;
     METLIBS_LOG_DEBUG(LOGVAL(fc.name));
@@ -1603,7 +1604,7 @@ bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
     actualfieldTimes.erase(endTime);
   }
   miTime lastTime = startTime; // only used iff accumulate_flux
-  BOOST_FOREACH(const miTime& t, actualfieldTimes) {
+  for (const miTime& t : actualfieldTimes) {
     fieldrequest.ptime = t;
     Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
     if (!f) {

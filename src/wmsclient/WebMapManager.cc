@@ -179,7 +179,7 @@ WebMapPlot* WebMapManager::createPlot(const std::string& qmstring)
   }
   METLIBS_LOG_DEBUG(LOGVAL(wm_service) << LOGVAL(wm_layer));
 
-  std::auto_ptr<WebMapPlot> plot(new WebMapPlot(service, wm_layer));
+  std::unique_ptr<WebMapPlot> plot(new WebMapPlot(service, wm_layer));
 
   std::map<std::string, std::string> wm_dims; // optional
   std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
@@ -281,7 +281,7 @@ bool WebMapManager::enablePlotElement(const PlotElement& pe)
   return false;
 }
 
-std::vector<std::string> WebMapManager::getAnnotations() const Q_DECL_OVERRIDE
+std::vector<std::string> WebMapManager::getAnnotations() const
 {
   std::vector<std::string> annotations;
   annotations.reserve(webmaps.size());

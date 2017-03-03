@@ -109,7 +109,7 @@ protected:
   bool vertical_orientation;
   bool left_alignment;
   bool showpos;
-  std::auto_ptr<ObsPositions> devfield;
+  std::unique_ptr<ObsPositions> devfield;
   bool onlypos;
   bool showOnlyPrioritized;
   std::string image;

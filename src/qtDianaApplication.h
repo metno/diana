@@ -13,7 +13,7 @@ class DianaApplication : public QApplication {
 public:
   DianaApplication(int& argc, char** argv);
 
-  bool notify(QObject* receiver, QEvent * event) /*Q_DECL_OVERRIDE*/;
+  bool notify(QObject* receiver, QEvent * event) Q_DECL_OVERRIDE;
   int exec();
 
   void startExceptionReminder();

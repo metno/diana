@@ -136,6 +136,6 @@ public:
   friend std::ostream& operator<<(std::ostream& out,const FieldCache& );
 };
 
-typedef boost::shared_ptr<FieldCache> FieldCachePtr;
+typedef std::shared_ptr<FieldCache> FieldCachePtr;
 
 #endif

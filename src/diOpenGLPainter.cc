@@ -24,6 +24,10 @@ DiOpenGLCanvas::DiOpenGLCanvas(QGLWidget* widget)
 {
 }
 
+DiOpenGLCanvas::~DiOpenGLCanvas()
+{
+}
+
 GLuint DiOpenGLCanvas::bindTexture(const QImage& image)
 {
   return mWidget->bindTexture(image);

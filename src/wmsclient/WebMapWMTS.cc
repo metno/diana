@@ -261,7 +261,7 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
       0, matrix->matrixHeight(), matrix->tileMaxY(), -tileSpanY,
       p_tiles, viewRect, viewProj);
 
-  std::auto_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
+  std::unique_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 
@@ -421,7 +421,7 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eTileMatrixSet, eContents, "TileMatrixSet") {
     QDomElement eId = eTileMatrixSet.firstChildElement("ows:Identifier");
     QDomElement eCRS = eTileMatrixSet.firstChildElement("ows:SupportedCRS");
-    std::auto_ptr<WebMapWMTSTileMatrixSet> ms
+    std::unique_ptr<WebMapWMTSTileMatrixSet> ms
         (new WebMapWMTSTileMatrixSet(qs(eId.text()), qs(eCRS.text())));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
       QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
@@ -443,7 +443,7 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eLayer, eContents, "Layer") {
     QDomElement eId = eLayer.firstChildElement("ows:Identifier");
 
-    std::auto_ptr<WebMapWMTSLayer> layer(new WebMapWMTSLayer(qs(eId.text())));
+    std::unique_ptr<WebMapWMTSLayer> layer(new WebMapWMTSLayer(qs(eId.text())));
     METLIBS_LOG_DEBUG(LOGVAL(layer->identifier()));
 
     layer->setTitle(qs(eLayer.firstChildElement("ows:Title").text()));

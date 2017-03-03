@@ -17,7 +17,7 @@ namespace detail {
 extern const float UNDEF_VALUE;
 
 struct Axis;
-typedef boost::shared_ptr<Axis> AxisPtr;
+typedef std::shared_ptr<Axis> AxisPtr;
 
 class VCAxisPositions : public DianaPositions {
 public:

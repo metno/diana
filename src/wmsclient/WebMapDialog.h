@@ -44,14 +44,14 @@ class WebMapService;
 
 class WebMapPlotListModel : public QAbstractListModel
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   WebMapPlotListModel(QObject* parent = 0);
 
-  int rowCount(const QModelIndex& parent = QModelIndex()) const /*Q_DECL_OVERRIDE*/;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const /*Q_DECL_OVERRIDE*/;
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
   void onPlotsRemoved();
@@ -62,7 +62,7 @@ private Q_SLOTS:
 
 class WebMapDialog : public DataDialog
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   WebMapDialog(QWidget *parent, Controller *ctrl);
@@ -108,7 +108,7 @@ private:
 private:
   enum { AddServicePage, AddLayerPage };
 
-  std::auto_ptr<Ui_WebMapDialog> ui;
+  std::unique_ptr<Ui_WebMapDialog> ui;
 
   QStringListModel* mServicesModel;
   QSortFilterProxyModel* mServicesFilter;

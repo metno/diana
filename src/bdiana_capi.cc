@@ -80,7 +80,6 @@
 #include "diSpectrumOptions.h"
 
 #include <puCtools/sleep.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
@@ -1454,7 +1453,7 @@ static void handleVcrossOpt(int& k)
 {
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vcross_opt_end);
   if (!vcrossmanager)
-    vcrossmanager = miutil::make_shared<vcross::QtManager>();
+    vcrossmanager = std::make_shared<vcross::QtManager>();
   vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
 }
 
@@ -1668,7 +1667,7 @@ static int handlePlotCommand(int& k)
 
     // -- vcross plot
     if (!vcrossmanager)
-      vcrossmanager = miutil::make_shared<vcross::QtManager>();
+      vcrossmanager = std::make_shared<vcross::QtManager>();
     else
       vcrossmanager->cleanup(); // needed to clear zoom history
 

@@ -32,8 +32,8 @@ private:;
   void dropBackgroundBuffer();
 
 private:
-  std::auto_ptr<DiOpenGLCanvas> glcanvas;
-  std::auto_ptr<DiOpenGLPainter> glpainter;
+  std::unique_ptr<DiOpenGLCanvas> glcanvas;
+  std::unique_ptr<DiOpenGLPainter> glpainter;
   DiPaintable* paintable;
   DiGLPainter::GLuint *buffer_data;
 };

@@ -46,6 +46,8 @@ class VcrossModelPage : public QWidget {
 
 public:
   VcrossModelPage(QWidget* parent=0);
+  ~VcrossModelPage();
+
   void setManager(vcross::QtManager_p vm);
 
 public:
@@ -64,7 +66,7 @@ private Q_SLOTS:
 
 private:
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossModelPage> ui;
+  std::unique_ptr<Ui_VcrossModelPage> ui;
   QStringListModel* modelNames;
   QSortFilterProxyModel* modelSorter;
 

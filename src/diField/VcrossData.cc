@@ -317,7 +317,7 @@ FieldData_cp Inventory::findFieldById(std::string id) const
 
 Crossection_cp Inventory::findCrossectionByLabel(const std::string& cslabel) const
 {
-  BOOST_FOREACH(Crossection_cp cs, crossections) {
+  for (Crossection_cp cs : crossections) {
     if (cs->label() == cslabel)
       return cs;
   }
@@ -329,7 +329,7 @@ Crossection_cp Inventory::findCrossectionPoint(const LonLat& point, size_t& best
   Crossection_cp best_cs;
   double best_distance = 0;
 
-  BOOST_FOREACH(Crossection_cp cs, crossections) {
+  for (Crossection_cp cs : crossections) {
     for (size_t index = 0; index < cs->length(); ++index) {
       const double distance = point.distanceTo(cs->point(index));
       if (distance >= MAX_DISTANCE_M)
@@ -349,7 +349,7 @@ Crossection_cp Inventory::findCrossectionPoint(const LonLat& point) const
   Crossection_cp best_cs;
   double best_distance = 0;
 
-  BOOST_FOREACH(Crossection_cp cs, crossections) {
+  for (Crossection_cp cs : crossections) {
     if (cs->length() != 1)
       continue;
     const double distance = point.distanceTo(cs->point(0));

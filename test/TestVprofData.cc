@@ -4,7 +4,6 @@
 
 #include <diField/VcrossUtil.h>
 
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miTime.h>
 
 #include <gtest/gtest.h>
@@ -31,8 +30,8 @@ static const char modelName[] = "testmodel";
 
 TEST(VprofDataTest, TestSetup)
 {
-  Setup_p setup = miutil::make_shared<vcross::Setup>();
-  Collector_p collector = miutil::make_shared<Collector>(setup);
+  Setup_p setup = std::make_shared<vcross::Setup>();
+  Collector_p collector = std::make_shared<Collector>(setup);
 
   string_v sources;
   sources.push_back("m=" + std::string(modelName)
@@ -41,7 +40,7 @@ TEST(VprofDataTest, TestSetup)
   EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
 
   Source_p src = setup->findSource(modelName);
-  ASSERT_TRUE(src);
+  ASSERT_TRUE(bool(src));
   EXPECT_EQ(1, src->getReferenceTimes().size());
 
   //parameters and computations should be defined in setup
@@ -55,7 +54,7 @@ TEST(VprofDataTest, TestSetup)
 
   const vcross::Time AROME_RT = util::from_miTime(miutil::miTime(AROME_RTT));
   vcross::Inventory_cp inv = collector->getResolver()->getInventory(ModelReftime(modelName, AROME_RT));
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS, inv->crossections.size());
   Crossection_cp cs = inv->crossections.at(3);
@@ -73,10 +72,10 @@ TEST(VprofDataTest, TestSetup)
     collector->requireField(mr, *it);
   collector->requireVertical(vcross::Z_TYPE_PRESSURE);
 
-  FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, field_ids[0]));
-  ASSERT_TRUE(air_temperature);
+  FieldData_cp air_temperature = std::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, field_ids[0]));
+  ASSERT_TRUE(bool(air_temperature));
   ZAxisData_cp zaxis = air_temperature->zaxis();
-  ASSERT_TRUE(zaxis);
+  ASSERT_TRUE(bool(zaxis));
 
   model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0));
   model_values_m::iterator itM = model_values.find(mr);
@@ -88,36 +87,36 @@ TEST(VprofDataTest, TestSetup)
     zvalues = vc_evaluate_field(zaxis, n2v);
   else if (InventoryBase_cp pfield = zaxis->pressureField())
     zvalues = vc_evaluate_field(pfield, n2v);
-  ASSERT_TRUE(zvalues);
+  ASSERT_TRUE(bool(zvalues));
 
   vc_evaluate_fields(collector, model_values, mr, field_ids);
 
   { name2value_t::const_iterator itN = n2v.find("x_wind_ml");
     ASSERT_TRUE(itN != n2v.end());
     Values_cp xwind_values = itN->second;
-    ASSERT_TRUE(xwind_values);
+    ASSERT_TRUE(bool(xwind_values));
     EXPECT_EQ(1, xwind_values->shape().rank());
   }
 
   { name2value_t::const_iterator itN = n2v.find("air_temperature_celsius_ml");
     ASSERT_TRUE(itN != n2v.end());
     Values_cp t_values = itN->second;
-    ASSERT_TRUE(t_values);
+    ASSERT_TRUE(bool(t_values));
     EXPECT_EQ(1, t_values->shape().rank());
   }
 
   { name2value_t::const_iterator itN = n2v.find("tdk");
     ASSERT_TRUE(itN != n2v.end());
     Values_cp tdk_values = itN->second;
-    ASSERT_TRUE(tdk_values);
+    ASSERT_TRUE(bool(tdk_values));
     EXPECT_EQ(1, tdk_values->shape().rank());
   }
 }
 
 TEST(VprofDataTest, TestBangkok)
 {
-  Setup_p setup = miutil::make_shared<vcross::Setup>();
-  Collector_p collector = miutil::make_shared<Collector>(setup);
+  Setup_p setup = std::make_shared<vcross::Setup>();
+  Collector_p collector = std::make_shared<Collector>(setup);
 
   string_v sources;
   sources.push_back("m=" + std::string(modelName)
@@ -125,7 +124,7 @@ TEST(VprofDataTest, TestBangkok)
       + " t=netcdf");
   EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
   Source_p src = setup->findSource(modelName);
-  ASSERT_TRUE(src);
+  ASSERT_TRUE(bool(src));
   const Time reftime = src->getLatestReferenceTime();
   EXPECT_EQ("2014-11-10 12:00:00", util::to_miTime(reftime).isoTime())
       << reftime.value << " u=" << reftime.unit;
@@ -141,7 +140,7 @@ TEST(VprofDataTest, TestBangkok)
 
   const ModelReftime mr(modelName, reftime);
   vcross::Inventory_cp inv = collector->getResolver()->getInventory(mr);
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(BANGKOK_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGKOK_N_CS, inv->crossections.size());
   Crossection_cp cs = inv->crossections.at(0);
@@ -156,10 +155,10 @@ TEST(VprofDataTest, TestBangkok)
   for (string_v::const_iterator it = field_ids.begin(); it != field_ids.end(); ++it)
     collector->requireField(mr, *it);
 
-  FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, field_ids[0]));
-  ASSERT_TRUE(air_temperature);
+  FieldData_cp air_temperature = std::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, field_ids[0]));
+  ASSERT_TRUE(bool(air_temperature));
   InventoryBase_cp zaxis = air_temperature->zaxis();
-  ASSERT_TRUE(zaxis);
+  ASSERT_TRUE(bool(zaxis));
   EXPECT_EQ("isobaric", zaxis->id());
   collector->requireField(mr, zaxis);
 
@@ -181,14 +180,14 @@ TEST(VprofDataTest, TestBangkok)
   if(0){ name2value_t::const_iterator itN = n2v.find("x_wind_pl");
     ASSERT_TRUE(itN != n2v.end());
     Values_cp xwind_values = itN->second;
-    ASSERT_TRUE(xwind_values);
+    ASSERT_TRUE(bool(xwind_values));
     EXPECT_EQ(1, xwind_values->shape().rank());
   }
 
   { name2value_t::const_iterator itN = n2v.find("air_temperature");
     ASSERT_TRUE(itN != n2v.end());
     Values_cp t_values = itN->second;
-    ASSERT_TRUE(t_values);
+    ASSERT_TRUE(bool(t_values));
     EXPECT_EQ(1, t_values->shape().rank());
     EXPECT_EQ(BANGKOK_N_Z, t_values->shape().length(0));
   }
@@ -196,7 +195,7 @@ TEST(VprofDataTest, TestBangkok)
   { name2value_t::const_iterator itN = n2v.find("dew_point_temperature_celsius");
     ASSERT_TRUE(itN != n2v.end());
     Values_cp v_values = itN->second;
-    ASSERT_TRUE(v_values);
+    ASSERT_TRUE(bool(v_values));
     EXPECT_EQ(1, v_values->shape().rank());
     EXPECT_NEAR(20.6, v_values->values()[BANGKOK_N_Z-1], 0.1);
   }

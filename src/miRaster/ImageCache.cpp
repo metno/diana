@@ -14,9 +14,13 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <memory>
+#include <mutex>
+#include <thread>
+
 using namespace std;
 
-typedef boost::mutex::scoped_lock scoped_lock;
+typedef std::unique_lock<std::mutex> scoped_lock;
 
 bool ImageCache::init = false;
 ImageCache* ImageCache::instance = NULL;
@@ -32,8 +36,7 @@ ImageCache::ImageCache(std::string path) :
   if (getenv("DIANA_TMP_MEM") != NULL) {
     useMem = true;
   }
-  m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ImageCache::cleanCache, this)));
-
+  m_thread = std::make_shared<std::thread>(boost::bind(&ImageCache::cleanCache, this));
 }
 
 ImageCache::~ImageCache()

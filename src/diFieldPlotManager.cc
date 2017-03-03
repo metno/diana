@@ -62,7 +62,7 @@ FieldPlotManager::FieldPlotManager(FieldManager* fm) :
 FieldPlot* FieldPlotManager::createPlot(const std::string& cmd)
 {
   const std::string plotName = extractPlotName(cmd);
-  std::auto_ptr<FieldPlot> fp(new FieldPlot(this));
+  std::unique_ptr<FieldPlot> fp(new FieldPlot(this));
   if (fp->prepare(plotName, cmd))
     return fp.release();
   else

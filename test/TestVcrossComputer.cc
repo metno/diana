@@ -77,19 +77,19 @@ TEST(TestVcrossComputer, BangladeshTH)
   fs->update();
   const vcross::Time BANGLADESH_RT = util::from_miTime(miutil::miTime(BANGLADESH_RTT));
   Inventory_cp inv = fs->getInventory(BANGLADESH_RT);
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(BANGLADESH_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGLADESH_N_CS,   inv->crossections.size());
 
   Crossection_cp cs3 = inv->crossections.at(3);
-  ASSERT_TRUE(cs3);
+  ASSERT_TRUE(bool(cs3));
   EXPECT_EQ(BANGLADESH_CS_LEN[3], cs3->length());
 
   InventoryBase_cps fields(inv->fields.begin(), inv->fields.end());
   vcross::resolve(fields, computations);
 
-  FunctionData_cp th = boost::dynamic_pointer_cast<const FunctionData>(findItemById(fields, "th"));
-  ASSERT_TRUE(th);
+  FunctionData_cp th = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, "th"));
+  ASSERT_TRUE(bool(th));
 
   collectRequired(fields, th);
 
@@ -107,11 +107,11 @@ TEST(TestVcrossComputer, BangladeshTH)
   vc_evaluate_field(th, n2v);
 
   Values_cp th_values = n2v[th->id()];
-  ASSERT_TRUE(th_values);
+  ASSERT_TRUE(bool(th_values));
   Values_cp vertical_values = n2v[vertical->id()];
   if (not vertical_values)
     vertical_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_values);
+  ASSERT_TRUE(bool(vertical_values));
 
   const Values::Shape& shape(th_values->shape());
   ASSERT_EQ(2, shape.rank());

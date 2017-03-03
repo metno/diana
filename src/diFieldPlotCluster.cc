@@ -51,7 +51,7 @@ void FieldPlotCluster::prepare(const std::vector<std::string>& inp)
   }
 
   for (size_t i=0; i < inp.size(); i++) {
-    std::auto_ptr<FieldPlot> fp(fieldplotm_->createPlot(inp[i]));
+    std::unique_ptr<FieldPlot> fp(fieldplotm_->createPlot(inp[i]));
     if (fp.get()) {
       plotenabled.restore(fp.get());
       fp.get()->setCanvas(canvas_);

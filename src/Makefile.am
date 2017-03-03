@@ -145,7 +145,7 @@ libdiana_la_SOURCES += \
 libdiana_la_CPPFLAGS = -Ivcross_v2 -Ivcross_qt
 libdiana_la_LIBADD = \
 	$(BOOST_DATE_TIME_LIBS) \
-	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
+	$(BOOST_SYSTEM_LIBS)
 
 libdiana_la_QTSOURCES = diManager.cc \
 	diDrawingManager.cc \
@@ -702,8 +702,8 @@ libdiana_la_SOURCES += \
 	diGEOtiff.cc
 noinst_HEADERS += \
 	diGEOtiff.h
-libdiana_la_LDFLAGS += ${GEOTIFF_LDFLAGS} ${BOOST_THREAD_LDFLAGS}
-libdiana_la_LIBADD += ${GEOTIFF_LIBS} ${BOOST_THREAD_LIBS}
+libdiana_la_LDFLAGS += ${GEOTIFF_LDFLAGS}
+libdiana_la_LIBADD += ${GEOTIFF_LIBS}
 endif
 
 # Additional source code for HDF5 support

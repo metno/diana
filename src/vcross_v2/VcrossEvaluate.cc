@@ -2,7 +2,6 @@
 #include "VcrossEvaluate.h"
 #include "VcrossComputer.h"
 #include <diField/VcrossUtil.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
@@ -120,7 +119,7 @@ Values_cpv vc_evaluate_fields(name2value_t& n2v, const InventoryBase_cpv& fields
   METLIBS_LOG_SCOPE();
 
   Values_cpv values;
-  BOOST_FOREACH(InventoryBase_cp f, fields)
+  for (InventoryBase_cp f : fields)
       values.push_back(vc_evaluate_field(f, n2v));
   return values;
 }
@@ -153,7 +152,7 @@ Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_value
   METLIBS_LOG_SCOPE();
 
   InventoryBase_cpv fields;
-  BOOST_FOREACH(const std::string& f_id, field_ids)
+  for (const std::string& f_id : field_ids)
       fields.push_back(collector->getResolvedField(model, f_id));
   return vc_evaluate_fields(model_values, model, fields);
 }
@@ -188,7 +187,7 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
   METLIBS_LOG_SCOPE();
   
   EvaluatedPlot_cpv evaluated_plots;
-  BOOST_FOREACH(SelectedPlot_cp sp, collector->getSelectedPlots()) {
+  for (SelectedPlot_cp sp : collector->getSelectedPlots()) {
     if (!sp->visible)
       continue;
     if (sp->resolved->arguments.empty())

@@ -112,6 +112,10 @@ VcrossStyleWidget::VcrossStyleWidget(QWidget* parent)
   cp->addKey(PlotOptions::key_alpha,          "",0,CommandParser::cmdInt);
 }
 
+VcrossStyleWidget::~VcrossStyleWidget()
+{
+}
+
 void VcrossStyleWidget::setOptions(const std::string& fopt, const std::string& defaultopt)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fopt) << LOGVAL(defaultopt));

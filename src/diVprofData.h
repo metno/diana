@@ -95,7 +95,7 @@ private:
   std::vector<miutil::miTime>   validTime;
   std::vector<int>      forecastHour;
   std::vector<std::string> progText;
-  std::auto_ptr<VprofPlot> vProfPlot;
+  std::unique_ptr<VprofPlot> vProfPlot;
   std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
   std::vector<std::string> currentFiles;

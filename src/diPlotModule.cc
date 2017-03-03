@@ -259,7 +259,7 @@ void PlotModule::prepareMap(const vector<string>& inp)
       continue;
 
     // make new mapPlot object and push it on the list
-    std::auto_ptr<MapPlot> mp(new MapPlot());
+    std::unique_ptr<MapPlot> mp(new MapPlot());
     if (mp->prepare(inp[k], false)) {
       mp->setCanvas(mCanvas);
       new_vmp.push_back(mp.release());
@@ -429,7 +429,7 @@ void PlotModule::setAnnotations()
   diutil::delete_all_and_clear(vap);
 
   for (size_t i = 0; i < annotationStrings.size(); i++) {
-    std::auto_ptr<AnnotationPlot> ap(new AnnotationPlot());
+    std::unique_ptr<AnnotationPlot> ap(new AnnotationPlot());
     // Dont add an invalid object to vector
     if (ap->prepare(annotationStrings[i]))
       vap.push_back(ap.release());

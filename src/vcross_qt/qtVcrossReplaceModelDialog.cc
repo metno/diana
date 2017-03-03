@@ -66,6 +66,10 @@ VcrossReplaceModelDialog::VcrossReplaceModelDialog(QWidget* parent, vcross::QtMa
   setupUi();
 }
 
+VcrossReplaceModelDialog::~VcrossReplaceModelDialog()
+{
+}
+
 void VcrossReplaceModelDialog::setupUi()
 {
   ui->setupUi(this);

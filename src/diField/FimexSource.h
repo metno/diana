@@ -27,8 +27,8 @@ public:
     size_t start_index;
     CDMReader_p reader;
   };
-  typedef boost::shared_ptr<FimexCrossection> FimexCrossection_p;
-  typedef boost::shared_ptr<const FimexCrossection> FimexCrossection_cp;
+  typedef std::shared_ptr<FimexCrossection> FimexCrossection_p;
+  typedef std::shared_ptr<const FimexCrossection> FimexCrossection_cp;
 
 public:
   FimexReftimeSource(std::string filename, std::string filetype, std::string config, const Time& reftime);
@@ -110,7 +110,7 @@ private:
 
 // ########################################################################
 
-typedef boost::shared_ptr<FimexSource> FimexSource_p;
+typedef std::shared_ptr<FimexSource> FimexSource_p;
 
 } // namespace vcross
 

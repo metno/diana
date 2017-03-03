@@ -308,7 +308,7 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
       cb.projection, viewRect, viewProj);
   METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
 
-  std::auto_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
+  std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 
@@ -650,7 +650,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
 
   if (hasContent && goodName && unusedName && tileable && hasCRS) {
     METLIBS_LOG_DEBUG("adding layer '" << sLayerName << "'");
-    std::auto_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
+    std::unique_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
     layer->setTitle(qs(eLayer.firstChildElement("Title").text()));
     for (crs_bbox_m::const_iterator it = crs_bboxes.begin(); it != crs_bboxes.end(); ++it)
       layer->addCRS(it->first, it->second);

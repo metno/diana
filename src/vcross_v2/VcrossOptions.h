@@ -161,7 +161,7 @@ public:
   float    vcSelectedOnMapLinewidth;
 };
 
-typedef boost::shared_ptr<VcrossOptions> VcrossOptions_p;
+typedef std::shared_ptr<VcrossOptions> VcrossOptions_p;
 
 } // namespace vcross
 

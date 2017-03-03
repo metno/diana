@@ -76,7 +76,7 @@ class UndoView : public QUndoView
 public:
   UndoView(QUndoStack *undoStack) : QUndoView(undoStack) {}
 private:
-  virtual void keyPressEvent(QKeyEvent *event)
+  void keyPressEvent(QKeyEvent *event) override
   {
     // to avoid crash, support only basic keyboard navigation
     if (event->matches(QKeySequence::MoveToPreviousLine) || event->matches(QKeySequence::MoveToNextLine))

@@ -60,8 +60,8 @@ public:
   GLwidget(Controller*);
   ~GLwidget();
 
-  void paintUnderlay(DiPainter* gl) Q_DECL_OVERRIDE;
-  void paintOverlay(DiPainter* gl) Q_DECL_OVERRIDE;
+  void paintUnderlay(DiPainter* gl) override;
+  void paintOverlay(DiPainter* gl) override;
 
   int width() const
     { return plotw; }
@@ -93,13 +93,13 @@ Q_SIGNALS:
   void resized(int width, int height);
 
 public:
-  void setCanvas(DiCanvas* canvas) Q_DECL_OVERRIDE;
+  void setCanvas(DiCanvas* canvas) override;
   void paint(DiPainter* gl);
-  void resize(int width, int height);
+  void resize(int width, int height) override;
 
-  bool handleKeyEvents(QKeyEvent*);
-  bool handleMouseEvents(QMouseEvent*);
-  bool handleWheelEvents(QWheelEvent *we);
+  bool handleKeyEvents(QKeyEvent*) override;
+  bool handleMouseEvents(QMouseEvent*) override;
+  bool handleWheelEvents(QWheelEvent *we) override;
 
 private:
   void setFlagsFromEventResult(const EventResult& res);

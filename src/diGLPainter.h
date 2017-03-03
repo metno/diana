@@ -295,23 +295,23 @@ public:
 
   virtual bool supportsReadPixels() const = 0;
 
-  void clear(const Colour& colour);
-  void setColour(const Colour& c, bool alpha = true) Q_DECL_OVERRIDE;
-  void setLineStyle(const Colour& c, float lw=1, bool alpha = true) Q_DECL_OVERRIDE;
-  void setLineStyle(const Colour& c, float lw, const Linetype& lt, bool alpha = true) Q_DECL_OVERRIDE;
+  void clear(const Colour& colour) override;
+  void setColour(const Colour& c, bool alpha = true) override;
+  void setLineStyle(const Colour& c, float lw=1, bool alpha = true) override;
+  void setLineStyle(const Colour& c, float lw, const Linetype& lt, bool alpha = true) override;
 
-  void drawLine(float x1, float y1, float x2, float y2);
-  void drawPolyline(const QPolygonF& points);
+  void drawLine(float x1, float y1, float x2, float y2) override;
+  void drawPolyline(const QPolygonF& points) override;
   /* draw a series of filled quads */
-  void fillQuadStrip(const QPolygonF& points);
+  void fillQuadStrip(const QPolygonF& points) override;
 
   using DiPainter::drawRect;
-  void drawRect(bool fill, float x1, float y1, float x2, float y2) Q_DECL_OVERRIDE;
-  void drawCircle(bool fill, float centerx, float centery, float radius) Q_DECL_OVERRIDE;
-  void drawTriangle(bool fill, const QPointF& p1, const QPointF& p2, const QPointF& p3) Q_DECL_OVERRIDE;
+  void drawRect(bool fill, float x1, float y1, float x2, float y2) override;
+  void drawCircle(bool fill, float centerx, float centery, float radius) override;
+  void drawTriangle(bool fill, const QPointF& p1, const QPointF& p2, const QPointF& p3) override;
 
   void drawWindArrow(float u, float v, float x, float y,
-      float arrowSize, bool withArrowHead, int turnBarbs=1);
+      float arrowSize, bool withArrowHead, int turnBarbs=1) override;
 };
 
 #endif // DIGLPAINTER_H

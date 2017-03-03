@@ -681,9 +681,9 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   }
 
 #ifdef ROADOBS
-  std::auto_ptr<ObsPlot> op(new RoadObsPlot(pin, plottype));
+  std::unique_ptr<ObsPlot> op(new RoadObsPlot(pin, plottype));
 #else  // !ROADOBS
-  std::auto_ptr<ObsPlot> op(new ObsPlot(pin, plottype));
+  std::unique_ptr<ObsPlot> op(new ObsPlot(pin, plottype));
 #endif // !ROADOBS
 
   op->dialogname = dialogname;

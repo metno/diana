@@ -34,10 +34,6 @@
 
 #include <vector>
 
-#ifndef Q_DECL_OVERRIDE
-#define Q_DECL_OVERRIDE
-#endif
-
 class QNetworkAccessManager;
 class WebMapLayer;
 class WebMapPlot;

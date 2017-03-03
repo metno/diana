@@ -6,6 +6,8 @@
 
 #include <QList>
 #include <QPointF>
+#include <qglobal.h>
+
 #include <map>
 #include <string>
 
@@ -16,10 +18,6 @@ class Rectangle;
 class QImage;
 class QPolygonF;
 class QString;
-
-#ifndef Q_DECL_OVERRIDE
-#define Q_DECL_OVERRIDE
-#endif
 
 class DiCanvas {
 public:

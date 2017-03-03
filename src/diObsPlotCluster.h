@@ -46,7 +46,7 @@ protected:
 
 private:
   bool hasDevField_;
-  std::auto_ptr<ObsPlotCollider> collider_;
+  std::unique_ptr<ObsPlotCollider> collider_;
 
   ObsManager* obsm_;
   EditManager* editm_;

@@ -67,6 +67,10 @@ VcrossAddPlotDialog::VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p m)
   restart();
 }
 
+VcrossAddPlotDialog::~VcrossAddPlotDialog()
+{
+}
+
 void VcrossAddPlotDialog::setupUi()
 {
   ui->setupUi(this);

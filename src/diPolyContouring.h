@@ -47,7 +47,7 @@ public:
   virtual float value_for_level(contouring::level_t l) const = 0;
   enum { UNDEF_LEVEL = -10000000 };
 };
-typedef boost::shared_ptr<DianaLevels> DianaLevels_p;
+typedef std::shared_ptr<DianaLevels> DianaLevels_p;
 
 DianaLevels_p dianaLevelsForPlotOptions(const PlotOptions& mPoptions, float fieldUndef);
 
@@ -106,7 +106,7 @@ public:
   virtual contouring::point_t position(size_t ix, size_t iy) const = 0;
 };
 
-typedef boost::shared_ptr<DianaPositions> DianaPositions_p;
+typedef std::shared_ptr<DianaPositions> DianaPositions_p;
 
 // ########################################################################
 

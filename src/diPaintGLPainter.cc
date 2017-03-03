@@ -1321,7 +1321,7 @@ void DiPaintGLPainter::Vertex2dv(const GLdouble *v)
 {
   QPointF p = this->transform * QPointF(v[0], v[1]);
   this->points.append(p);
-  this->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
+  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
   this->colors.append(this->attributes.color);
 }
 
@@ -1329,7 +1329,7 @@ void DiPaintGLPainter::Vertex2f(GLfloat x, GLfloat y)
 {
   QPointF p = this->transform * QPointF(x, y);
   this->points.append(p);
-  this->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
+  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
   this->colors.append(this->attributes.color);
 }
 
@@ -1343,7 +1343,7 @@ void DiPaintGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)
   Q_UNUSED(z);
   QPointF p = this->transform * QPointF(x, y);
   this->points.append(p);
-  this->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
+  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
   this->colors.append(this->attributes.color);
 }
 

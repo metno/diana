@@ -59,9 +59,9 @@ public:
   bool getDataAnnotations(std::vector<std::string>& anno);
   int getLevel() const;
 
-  void plot(DiGLPainter* gl, PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
-  std::string getEnabledStateKey() const
+  std::string getEnabledStateKey() const override
     { return getModelPlotParameterReftime(); }
 
   bool updateIfNeeded();
@@ -70,7 +70,7 @@ public:
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
-  void getAnnotation(std::string&, Colour&) const;
+  void getAnnotation(std::string&, Colour&) const override;
   const std::vector<Field*>& getFields() const {return fields; }
 
   //! time of model analysis
@@ -147,14 +147,14 @@ private:
     { return getPlotOptions().plottype; }
 
 protected:
-  StaticPlot* rasterStaticPlot() Q_DECL_OVERRIDE
+  StaticPlot* rasterStaticPlot() override
     { return getStaticPlot(); }
-  const GridArea& rasterArea() Q_DECL_OVERRIDE
+  const GridArea& rasterArea() override
     { return fields[0]->area; }
 
   //! create image for alpha_shade, fill_cell, or alarm_box
   QImage rasterScaledImage(const GridArea&, int scale,
-      const diutil::Rect& bbx, const diutil::Rect_v& cells) Q_DECL_OVERRIDE;
+      const diutil::Rect& bbx, const diutil::Rect_v& cells) override;
 };
 
 #endif

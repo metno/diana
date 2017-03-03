@@ -168,7 +168,7 @@ private:
   QImage mLegendImage;
 };
 
-typedef boost::shared_ptr<WebMapRequest> WebMapRequest_p;
+typedef std::shared_ptr<WebMapRequest> WebMapRequest_p;
 
 // ========================================================================
 

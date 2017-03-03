@@ -36,15 +36,13 @@
 #include "miSetupParser.h"
 #include "qtVcrossWindow.h"
 
-#include <puTools/mi_boost_compatibility.hh>
-
 #define MILOGGER_CATEGORY "diana.VcrossWindowInterface"
 #include <miLogger/miLogging.h>
 
 using namespace vcross;
 
 VcrossWindowInterface::VcrossWindowInterface()
-  : vcrossm(miutil::make_shared<QtManager>())
+  : vcrossm(std::make_shared<QtManager>())
   , quickmenues(new VcrossQuickmenues(vcrossm))
   , window(0)
 {

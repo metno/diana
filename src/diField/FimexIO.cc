@@ -14,7 +14,6 @@
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miDirtools.h>
 
 #include <fimex/CDM.h>
@@ -39,7 +38,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/greg_duration.hpp>
-#include <boost/foreach.hpp>
 #include <boost/shared_array.hpp>
 
 #include <sstream>
@@ -550,7 +548,7 @@ void FimexIO::inventoryExtractExtraAxes(std::set<gridinventory::ExtraAxis>& extr
     const std::vector<std::string>& unsetList, const CoordinateSystem::ConstAxisList axes)
 {
   const std::set<std::string> unset(unsetList.begin(), unsetList.end());
-  BOOST_FOREACH(CoordinateSystem::ConstAxisPtr axis, axes) {
+  for (CoordinateSystem::ConstAxisPtr axis : axes) {
     const std::string& name = axis->getName();
     if (unset.find(name) == unset.end())
       continue;
@@ -654,7 +652,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
     std::string referenceTime = reftime_from_file;
 
     METLIBS_LOG_DEBUG("Coordinate Systems Loop");
-    BOOST_FOREACH(CoordinateSystemPtr cs, coordSys) {
+    for (CoordinateSystemPtr cs : coordSys) {
       METLIBS_LOG_DEBUG("NEW Coordinate System");
       if (not cs->isSimpleSpatialGridded())
         continue;
@@ -779,7 +777,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
     // find all dimension variable names
     set<std::string> dimensionnames;
-    BOOST_FOREACH(const CDMDimension& dim, dimensions) {
+    for (const CDMDimension& dim : dimensions) {
       dimensionnames.insert(dim.getName());
     }
 
@@ -815,8 +813,8 @@ bool FimexIO::makeInventory(const std::string& reftime)
       //Each parameter may only have one extraAxis
       std::string eaxisname;
       const vector<string>& shape = cdm.getVariable(CDMparamName).getShape();
-      BOOST_FOREACH(const std::string& dim, shape) {
-        BOOST_FOREACH(const gridinventory::ExtraAxis& eaxis, extraaxes) {
+      for (const std::string& dim : shape) {
+        for (const gridinventory::ExtraAxis& eaxis : extraaxes) {
           if (eaxis.name == dim) {
             eaxisname = dim;
             break;
@@ -1015,7 +1013,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
 
   //todo: if time, level, elevel etc not found, return NULL
 
-  std::auto_ptr<Field> field(initializeField(model_name, reftime, param, level, time, elevel, unit));
+  std::unique_ptr<Field> field(initializeField(model_name, reftime, param, level, time, elevel, unit));
   if (!field.get()) {
     METLIBS_LOG_DEBUG( " initializeField returned NULL");
     return 0;
@@ -1104,7 +1102,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
 
     const DataPtr data = feltReader->getData(varName);
     boost::shared_array<float> fdata = data->asFloat();
-    vcross::Values_p p_values = boost::make_shared<vcross::Values>(dim1.getLength(),dim2.getLength(),fdata);
+    vcross::Values_p p_values = std::make_shared<vcross::Values>(dim1.getLength(),dim2.getLength(),fdata);
     return p_values;
 
   } catch (CDMException& cdmex) {

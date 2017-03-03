@@ -540,7 +540,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     std::string projstr;
 
     if (!GTIFKeyGet(gtifin, GTModelTypeGeoKey, &modeltype, 0, 1) ) {
-      cerr << "Error getting GTModelType from file" << endl;
+      METLIBS_LOG_ERROR("getting GTModelType from file");
     }
 
     GTIFKeyGet(gtifin, ProjLinearUnitsGeoKey, &ProjLinearUnits , 0, 1);

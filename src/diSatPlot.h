@@ -44,8 +44,8 @@ public:
 
   Sat *satdata;
 
-  void plot(DiGLPainter* gl, PlotOrder zorder);
-  std::string getEnabledStateKey() const
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  std::string getEnabledStateKey() const override
     { return getPlotInfo(4); }
   void setData(Sat *);
   void clearData();
@@ -55,7 +55,7 @@ public:
     { return satdata->area.resolutionX; }
   double getGridResolutionY() const
     { return satdata->area.resolutionY; }
-  void getAnnotation(std::string &, Colour &) const;
+  void getAnnotation(std::string &, Colour &) const override;
   void getSatName(std::string &);
   void getCalibChannels(std::vector<std::string>& channels );
   ///get pixel value
@@ -65,12 +65,12 @@ public:
   void setSatAuto(bool, const std::string&, const std::string&);
 
 protected:
-  StaticPlot* rasterStaticPlot() Q_DECL_OVERRIDE
+  StaticPlot* rasterStaticPlot() override
     { return getStaticPlot(); }
-  const GridArea& rasterArea() Q_DECL_OVERRIDE
+  const GridArea& rasterArea() override
     { return satdata->area; }
   QImage rasterScaledImage(const GridArea&, int scale,
-      const diutil::Rect& bbx, const diutil::Rect_v& cells) Q_DECL_OVERRIDE;
+      const diutil::Rect& bbx, const diutil::Rect_v& cells) override;
 
 private:
   SatPlot(const SatPlot &rhs);  // not implemented

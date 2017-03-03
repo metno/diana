@@ -332,7 +332,7 @@ void VprofWindow::saveRasterImage(const QString& filename)
   METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
   QPrinter* printer = 0;
   QImage* image = 0;
-  std::auto_ptr<QPaintDevice> device;
+  std::unique_ptr<QPaintDevice> device;
   if (filename.endsWith(".pdf")) {
     printer = new QPrinter(QPrinter::ScreenResolution);
     printer->setOutputFormat(QPrinter::PdfFormat);
@@ -380,10 +380,10 @@ void VprofWindow::paintOnDevice(QPaintDevice* device)
   METLIBS_LOG_SCOPE();
   DiCanvas* oldCanvas = vprofw->canvas();
 
-  std::auto_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
+  std::unique_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
   glcanvas->parseFontSetup();
   glcanvas->setPrinting(dynamic_cast<QPrinter*>(device) != 0);
-  std::auto_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
+  std::unique_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
 
   const int ww = vprofqw->width(), wh = vprofqw->height(), dw = device->width(), dh = device->height();

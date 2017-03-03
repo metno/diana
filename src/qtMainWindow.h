@@ -388,7 +388,7 @@ private:
   bool                markMeasurementsPos; //left mouse click -> mark measurement position
 
   VprofWindow       * vpWindow;
-  std::auto_ptr<VcrossInterface> vcInterface;
+  std::unique_ptr<VcrossInterface> vcInterface;
   bool vcrossEditManagerConnected;
 
   SpectrumWindow    * spWindow;

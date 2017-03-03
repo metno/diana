@@ -115,10 +115,10 @@ public:
   MapPlot();
   ~MapPlot();
 
-  void setCanvas(DiCanvas* canvas) /*Q_DECL_OVERRIDE*/;
+  void setCanvas(DiCanvas* canvas) override;
 
   /// plot map/lat/lon/frame in a specific zorder layer
-  void plot(DiGLPainter* gl, PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder) override;
   void plotMap(DiGLPainter* gl, int zorder);
 
   /// parse plotinfo

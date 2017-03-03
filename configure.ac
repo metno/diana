@@ -9,6 +9,8 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 METNO_PVERSION
 METNO_PROGRAM_SUFFIX
 
+AX_CXX_COMPILE_STDCXX_11([noext])
+
 AC_LANG([C])
 AC_LANG([C++])
 
@@ -113,9 +115,7 @@ METNO_IF_ENABLED([gribfile], [
 #
 METNO_REQUIRE_BOOST
 METNO_REQUIRE_BOOST_FEATURE([date_time])
-METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
-METNO_REQUIRE_BOOST_FEATURE([thread])
 
 AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_PKG([EMOS], [emos], [], [])

@@ -8,10 +8,9 @@
 #include "diField/FimexSource.h"
 
 #include <puTools/miStringFunctions.h>
-#include <puTools/mi_boost_compatibility.hh>
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/map.hpp>
 
 #include <sstream>
 
@@ -86,7 +85,7 @@ ConfiguredPlot_cp parsePlotLine(const std::string& line)
   ConfiguredPlot_p pc(new ConfiguredPlot);
 
   const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(line, true);
-  BOOST_FOREACH(const miutil::KeyValue& kv, kvs) {
+  for (const miutil::KeyValue& kv : kvs) {
     METLIBS_LOG_DEBUG(LOGVAL(kv.key()) << LOGVAL(kv.value()));
     if (kv.key() == "name") {
       pc->name = kv.value();
@@ -129,7 +128,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
     const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(lines[l], true);
     std::string name, filename, filetype, fileconfig;
     string_string_m options;
-    BOOST_FOREACH(const miutil::KeyValue& kv, kvs) {
+    for (const miutil::KeyValue& kv : kvs) {
       if (kv.key() == "m")
         name = kv.value();
       else if (kv.key() == "f")
@@ -153,7 +152,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
     } else if (mSources.find(name) != mSources.end()) {
       errors.push_back(SyntaxError(l, "name '" + name + "' already used"));
     } else {
-      Source_p src = miutil::make_shared<FimexSource>(filename, filetype, fileconfig);
+      Source_p src = std::make_shared<FimexSource>(filename, filetype, fileconfig);
       mSources.insert(std::make_pair(name, src));
       mModelOptions[name] = options;
     }
@@ -205,7 +204,7 @@ SyntaxError_v Setup::configurePlots(const string_v& lines)
 
 string_v Setup::getAllModelNames() const
 {
-  return string_v(miutil::adaptors::keys(mSources).begin(), miutil::adaptors::keys(mSources).end());
+  return string_v(boost::adaptors::keys(mSources).begin(), boost::adaptors::keys(mSources).end());
 }
 
 Source_p Setup::findSource(const std::string& name) const
@@ -219,7 +218,7 @@ Source_p Setup::findSource(const std::string& name) const
 
 ConfiguredPlot_cp Setup::findPlot(const std::string& name) const
 {
-  BOOST_FOREACH(ConfiguredPlot_cp cp, mPlots) {
+  for (ConfiguredPlot_cp cp : mPlots) {
     if (cp->name == name)
       return cp;
   }
@@ -326,11 +325,11 @@ bool vc_configure(Setup_p setup, const string_v& sources,
   const SyntaxError_v errS = setup->configureSources(sources),
       errC = setup->configureComputations(computations),
       errP = setup->configurePlots(plots);
-  BOOST_FOREACH(const SyntaxError& e, errS)
+  for (const SyntaxError& e : errS)
       METLIBS_LOG_ERROR("source " << e.line << ":" << e.message);
-  BOOST_FOREACH(const SyntaxError& e, errC)
+  for (const SyntaxError& e : errC)
       METLIBS_LOG_ERROR("config " << e.line << ":" << e.message);
-  BOOST_FOREACH(const SyntaxError& e, errP)
+  for (const SyntaxError& e : errP)
       METLIBS_LOG_ERROR("plot   " << e.line << ":" << e.message);
 
   return errS.empty() and errC.empty() and errP.empty();
