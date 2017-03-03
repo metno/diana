@@ -102,14 +102,6 @@ AS_IF([test x$enable_gui = xyes], [
     METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])
 ])
 
-METNO_ENABLE([GRIBFILE], [gribfile], [support for fields in Grib file], [no])
-METNO_ENABLE_CONDITIONAL([GRIBFILE], [gribfile])
-METNO_IF_ENABLED([gribfile], [
-    METNO_REQUIRE_C_LIBRARY([GRIB_API], [grib_api], [grib_api.h], [grib_index_new], [-lm -lpng])
-    # For now, smhi uses GribAPI...
-    METNO_REQUIRE_C_LIBRARY([GRIBAPI], [GribAPI])
-])
-
 #
 # Other third-party dependencies
 #

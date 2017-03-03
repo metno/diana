@@ -5,11 +5,6 @@
  *      Author: audunc
  */
 
-#define HAVE_FELT
-#define HAVE_NETCDF
-#define HAVE_GRIB
-#define HAVE_WDB
-
 #include "FimexIO.h"
 
 #include <puCtools/stat.h>

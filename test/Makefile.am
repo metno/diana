@@ -101,10 +101,6 @@ diFieldTest_LDADD = \
     $(BOOST_DATE_TIME_LIBS)  \
     $(gtest_LIBS)
 
-if ENABLE_GRIBFILE
-diFieldTest_LDADD += -lgrib_api
-endif
-
 # begin fimex options
 diFieldTest_SOURCES += \
 	DataReshapeTest.cc \
