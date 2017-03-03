@@ -35,6 +35,8 @@
 
 #include "qtStatusGeopos.h"
 
+#include "util/qstring_util.h"
+
 #include <QLabel>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -68,7 +70,7 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
   sxlabel->setMinimumSize(sxlabel->sizeHint());
   thlayout->addWidget(sxlabel, 0);
 
-  latlabel = new QLabel(" 00\xB0""00'N", this);
+  latlabel = new QLabel(tr(" 00°0""00'N"), this);
   latlabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   latlabel->setMinimumSize(latlabel->sizeHint());
   thlayout->addWidget(latlabel, 0);
@@ -79,7 +81,7 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
   sylabel->setMinimumSize(sylabel->sizeHint());
   thlayout->addWidget(sylabel, 0);
 
-  lonlabel = new QLabel("000\xB0""00'W", this);
+  lonlabel = new QLabel(tr("000°0""00'W"), this);
   lonlabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   lonlabel->setMinimumSize(lonlabel->sizeHint());
   thlayout->addWidget(lonlabel, 0);
@@ -112,73 +114,41 @@ bool StatusGeopos::distMode()
 void StatusGeopos::setPosition(float lat, float lon)
 {
 
-  ostringstream slat, slon;
+  QString slat, slon;
 
   if (xybox->currentIndex() < 2) {
-
     sxlabel->setText(tr("Lat:"));
     sylabel->setText(tr("Lon:"));
-
     if (xybox->currentIndex() == 1) {
-
-      slat << setw(6) << setprecision(5) << lat;
-      slon << setw(6) << setprecision(5) << lon;
-
+      slat = QString::number(lat, 'f', 5).rightJustified(6);
+      slon = QString::number(lon, 'f', 5).rightJustified(6);
     } else {
-
-      int deg, min;
-
-      min = int(fabsf(lat) * 60. + 0.5);
-      deg = min / 60;
-      min = min % 60;
-      if (lat >= 0.0)
-        slat << setw(2) << deg << "\xB0" << setw(2) << setfill('0') << min << "'N";
-      else
-        slat << setw(2) << deg << "\xB0" << setw(2) << setfill('0') << min << "'S";
-
-      min = int(fabsf(lon) * 60. + 0.5);
-      deg = min / 60;
-      min = min % 60;
-      if (lon >= 0.0)
-        slon << setw(3) << deg << "\xB0" << setw(2) << setfill('0') << min << "'E";
-      else
-        slon << setw(3) << deg << "\xB0" << setw(2) << setfill('0') << min << "'W";
+      slat = diutil::formatLatitudeDegMin(lat);
+      slon = diutil::formatLongitudeDegMin(lon);
     }
   } else if (xybox->currentIndex() == 4){
-    sxlabel->setText("  Mark:");
-    sylabel->setText("Window:");
-    slat << lat;
-    slon << lon;
+    sxlabel->setText(tr("  Mark:"));
+    sylabel->setText(tr("Window:"));
+    slat = QString::number(lat);
+    slon = QString::number(lon);
   } else if (xybox->currentIndex() == 5){
-    sxlabel->setText("  Vert:");
-    sylabel->setText(" Horiz:");
-    slat << lat;
-    slon << lon;
+    sxlabel->setText(tr("  Vert:"));
+    sylabel->setText(tr(" Horiz:"));
+    slat = QString::number(lat);
+    slon = QString::number(lon);
   } else {
-
     sxlabel->setText("  X:");
     sylabel->setText("  Y:");
-
-    float x = lat;
-    float y = lon;
-    slat << setw(6) << x;
-    slon << setw(6) << y;
-
+    slat = QString::number(lat).rightJustified(6);
+    slon = QString::number(lon).rightJustified(6);
   }
 
-  latlabel->setText(slat.str().c_str());
-  lonlabel->setText(slon.str().c_str());
+  latlabel->setText(slat);
+  lonlabel->setText(slon);
 }
 
 void StatusGeopos::undefPosition()
 {
   latlabel->setText("");
   lonlabel->setText("");
-}
-
-void StatusGeopos::degreesMinutes(float value, int &deg, int &min)
-{
-  min = int(fabsf(value) * 60. + 0.5);
-  deg = min / 60;
-  min = min % 60;
 }

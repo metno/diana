@@ -239,7 +239,7 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex)
     currentSymbolStrings.push_back("");
     break;
   case 1036:
-    currentSymbolStrings.push_back("0\xB0:x"); // was "0�:x";
+    currentSymbolStrings.push_back("0°:x"); // was "0<deg>:x";
     currentSymbolStrings.push_back("");
     break;
  case 1040:

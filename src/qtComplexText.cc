@@ -56,7 +56,7 @@ using namespace std;
 QValidator::State ComplexText::complexValidator::validate(QString& input, int& pos) const
 {
   //validator, only used for zero isoterm input !!!
-  if (not input.contains("0\xB0:")) { // was"0<deg>:"
+  if (!input.contains("0°:")) { // was"0<deg>:"
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;
@@ -268,17 +268,17 @@ void ComplexText::selectText(int i)
   // Special routine to facilitate editing strings with "0<deg>:"
 
   if (startEdit){
+    QComboBox* cb = vSymbolEdit[i];
     startEdit=false;
-    std::string text = vSymbolEdit[i]->currentText().toStdString();
-    METLIBS_LOG_DEBUG(LOGVAL(text));
-    if (not miutil::contains(text, "0\xB0:")){ // was "0<deg>:"
-      vSymbolEdit[i]->lineEdit()->setValidator(0);
+    const QString& text = cb->currentText();
+    if (!text.contains("0°:")) { // was "0<deg>:"
+      cb->lineEdit()->setValidator(0);
       return;
     } else {
-      vSymbolEdit[i]->lineEdit()->setValidator(cv);
-      vSymbolEdit[i]->lineEdit()->setCursorPosition(3);
-      int length=vSymbolEdit[i]->currentText().length()-3;
-      vSymbolEdit[i]->lineEdit()->setSelection(3,length);
+      cb->lineEdit()->setValidator(cv);
+      cb->lineEdit()->setCursorPosition(3);
+      int length = text.length()-3;
+      cb->lineEdit()->setSelection(3,length);
     }
   }
 }

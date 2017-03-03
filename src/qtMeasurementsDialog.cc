@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: qtTrajectoryDialog.cc 1008 2009-01-20 06:59:41Z johan.karlsteen@smhi.se $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +31,11 @@
 #include "config.h"
 #endif
 
+#include "qtMeasurementsDialog.h"
+
+#include "qtUtility.h"
+#include "util/qstring_util.h"
+
 #include <QPushButton>
 #include <QLabel>
 #include <QString>
@@ -43,9 +46,6 @@
 #include <QVBoxLayout>
 
 #include <puDatatypes/miCoordinates.h>
-
-#include "qtUtility.h"
-#include "qtMeasurementsDialog.h"
 
 #include <cmath>
 #include <iomanip>
@@ -86,16 +86,16 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   line3->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
 
-  startlabel1= new QLabel("Start:",this);
+  startlabel1= new QLabel(tr("Start:"),this);
   startlabel1->setFrameStyle( QFrame::Panel);
   startlabel1->setMinimumSize(startlabel1->sizeHint());
 
 
-  latlabel1= new QLabel("Lat:",this);
+  latlabel1= new QLabel(tr("Lat:"),this);
   latlabel1->setFrameStyle( QFrame::Panel);
   latlabel1->setMinimumSize(latlabel1->sizeHint());
 
-  latbox1= new QLabel("00\xB0""00'N",this); // was "00<deg>00'N"
+  latbox1= new QLabel("00°00'" + diutil::latitudeNorth(), this); // was "00<deg>00'N"
   latbox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   latbox1->setMinimumSize(latbox1->sizeHint());
 
@@ -103,12 +103,12 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   lonlabel1->setFrameStyle( QFrame::Panel);
   lonlabel1->setMinimumSize(lonlabel1->sizeHint());
 
-  lonbox1= new QLabel("00\xB0""00'W",this);
+  lonbox1= new QLabel("00°00'" + diutil::longitudeWest(), this);
   lonbox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   lonbox1->setMinimumSize(lonbox1->sizeHint());
 
 
-  datelabel1= new QLabel("Date:",this);
+  datelabel1= new QLabel(tr("Date:"),this);
   datelabel1->setFrameStyle( QFrame::Panel);
   datelabel1->setMinimumSize(datelabel1->sizeHint());
 
@@ -116,7 +116,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   datebox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   datebox1->setMinimumSize(datebox1->sizeHint());
 
-  timelabel1= new QLabel("Time:",this);
+  timelabel1= new QLabel(tr("Time:"),this);
   timelabel1->setFrameStyle( QFrame::Panel);
   timelabel1->setMinimumSize(timelabel1->sizeHint());
 
@@ -124,28 +124,28 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   timebox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   timebox1->setMinimumSize(timebox1->sizeHint());
 
-  endlabel1= new QLabel("End:",this);
+  endlabel1= new QLabel(tr("End:"),this);
   endlabel1->setFrameStyle( QFrame::Panel);
   endlabel1->setMinimumSize(endlabel1->sizeHint());
 
 
-  latlabel2= new QLabel("Lat:",this);
+  latlabel2= new QLabel(tr("Lat:"),this);
   latlabel2->setFrameStyle( QFrame::Panel);
   latlabel2->setMinimumSize(latlabel2->sizeHint());
 
-  latbox2= new QLabel("00\xB0""00'N",this);
+  latbox2= new QLabel(tr("00°00'N"),this);
   latbox2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   latbox2->setMinimumSize(latbox2->sizeHint());
 
-  lonlabel2= new QLabel("Lon:",this);
+  lonlabel2= new QLabel(tr("Lon:"),this);
   lonlabel2->setFrameStyle( QFrame::Panel);
   lonlabel2->setMinimumSize(lonlabel2->sizeHint());
 
-  lonbox2= new QLabel("00\xB0""00'W",this);
+  lonbox2= new QLabel(tr("00°00'W"),this);
   lonbox2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   lonbox2->setMinimumSize(lonbox2->sizeHint());
 
-  datelabel2= new QLabel("Date:",this);
+  datelabel2= new QLabel(tr("Date:"),this);
   datelabel2->setFrameStyle( QFrame::Panel);
   datelabel2->setMinimumSize(datelabel2->sizeHint());
 
@@ -153,7 +153,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   datebox2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   datebox2->setMinimumSize(datebox2->sizeHint());
 
-  timelabel2= new QLabel("Time:",this);
+  timelabel2= new QLabel(tr("Time:"),this);
   timelabel2->setFrameStyle( QFrame::Panel);
   timelabel2->setMinimumSize(timelabel2->sizeHint());
 
@@ -161,15 +161,15 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   timebox2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   timebox2->setMinimumSize(timebox2->sizeHint());
 
-  speedlabel1= new QLabel("Velocity:",this);
+  speedlabel1= new QLabel(tr("Velocity:"),this);
   speedlabel1->setFrameStyle( QFrame::Panel);
   speedlabel1->setMinimumSize(speedlabel1->sizeHint());
 
-  speedlabel2= new QLabel("Velocity:",this);
+  speedlabel2= new QLabel(tr("Velocity:"),this);
   speedlabel2->setFrameStyle( QFrame::Panel);
   speedlabel2->setMinimumSize(speedlabel2->sizeHint());
 
-  speedlabel3= new QLabel("Velocity:",this);
+  speedlabel3= new QLabel(tr("Velocity:"),this);
   speedlabel3->setFrameStyle( QFrame::Panel);
   speedlabel3->setMinimumSize(speedlabel3->sizeHint());
 
@@ -185,7 +185,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   speedbox3->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   speedbox3->setMinimumSize(speedbox3->sizeHint());
 
-  distancelabel= new QLabel("Distance:",this);
+  distancelabel= new QLabel(tr("Distance:"),this);
   distancelabel->setFrameStyle( QFrame::Panel);
   distancelabel->setMinimumSize(distancelabel->sizeHint());
 
@@ -193,7 +193,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   distancebox->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   distancebox->setMinimumSize(distancebox->sizeHint());
 
-  bearinglabel= new QLabel("Bearing:",this);
+  bearinglabel= new QLabel(tr("Bearing:"),this);
   bearinglabel->setFrameStyle( QFrame::Panel);
   bearinglabel->setMinimumSize(bearinglabel->sizeHint());
 
@@ -249,17 +249,17 @@ void MeasurementsDialog::deleteClicked()
 
   positionVector.clear();
 
-  latbox1->setText("00\xB0""00'N");
-  lonbox1->setText("00\xB0""00'W");
-  latbox2->setText("00\xB0""00'N");
-  lonbox2->setText("00\xB0""00'W");
+  latbox1->setText("00°00'" + diutil::latitudeNorth());
+  lonbox1->setText("00°00'" + diutil::longitudeWest());
+  latbox2->setText("00°00'" + diutil::latitudeNorth());
+  lonbox2->setText("00°00'" + diutil::longitudeWest());
   datebox1->setText("0000-00-00");
   datebox2->setText("0000-00-00");
   timebox1->setText("00:00");
   timebox2->setText("00:00");
   speedbox1->setText("0 m/s");
   speedbox2->setText("0 km/h");
-  speedbox3->setText("0 knots");
+  speedbox3->setText(tr("0 knots"));
   distancebox->setText("0 km");
 
   contr->measurementsPos(vector<string>(1, "delete"));
@@ -299,14 +299,12 @@ void MeasurementsDialog::calculate()
     double distance = start_lonlat.distanceTo(stop_lonlat);
     double distance_in_kilometers = distance/1000.0;
     METLIBS_LOG_INFO(LOGVAL(distance_in_kilometers)<< " km");
-    QString distanceresult;
-    distanceresult.sprintf("%.2f km", (float)distance_in_kilometers);
+    QString distanceresult = QString::number(distance_in_kilometers, 'f', 2) + " km";
     distancebox->setText(distanceresult);
 
     double bearing = start_lonlat.bearingTo(stop_lonlat) * RAD_TO_DEG;
     METLIBS_LOG_INFO(LOGVAL(bearing));
-    QString bearingresult;
-    bearingresult.sprintf("%.2f", (float)bearing);
+    QString bearingresult = QString::number(bearing, 'f', 2);
     bearingbox->setText(bearingresult);
 
     if ( start_time != stop_time ) {
@@ -318,11 +316,9 @@ void MeasurementsDialog::calculate()
       METLIBS_LOG_INFO(LOGVAL(speed_in_kmh)<< " km/h");
       METLIBS_LOG_INFO(LOGVAL(speed_in_knots)<< " knots");
 
-      QString speedresult1, speedresult2, speedresult3;
-
-      speedresult1.sprintf("%.2f m/s", (float)speed_in_ms);
-      speedresult2.sprintf("%.2f km/h", (float)speed_in_kmh);
-      speedresult3.sprintf("%.2f knots", (float)speed_in_knots);
+      QString speedresult1 = QString::number(speed_in_ms, 'f', 2) + " m/s";
+      QString speedresult2 = QString::number(speed_in_kmh, 'f', 2) + " km/h";
+      QString speedresult3 = QString::number(speed_in_ms, 'f', 2) + " " + tr("knots");
 
       speedbox1->setText(speedresult1);
       speedbox2->setText(speedresult2);
@@ -396,35 +392,10 @@ void MeasurementsDialog::mapPos(float lat, float lon)
 void MeasurementsDialog::update_posList(float lat, float lon, const miutil::miTime& t, int index)
 {
   METLIBS_LOG_SCOPE();
-
-  int latdeg, latmin, londeg, lonmin;
-  std::string latdir, londir;
-  QString latstr, lonstr, timestr, datestr;
-
-  latmin= int(fabsf(lat)*60.+0.5);
-  latdeg= latmin/60;
-  latmin= latmin%60;
-
-  if (lat>=0.0) {
-    latdir = "N";
-  } else {
-    latdir = "S";
-  }
-
-  lonmin= int(fabsf(lon)*60.+0.5);
-  londeg= lonmin/60;
-  lonmin= lonmin%60;
-
-  if (lon>=0.0) {
-    londir = "E";
-  } else {
-    londir = "W";
-  }
-
-  latstr.sprintf("%d\xB0%d '%s", latdeg, latmin, latdir.c_str());
-  lonstr.sprintf("%d\xB0%d '%s", londeg, lonmin, londir.c_str());
-  datestr.sprintf("%s", t.isoDate().c_str());
-  timestr.sprintf("%s", t.isoClock().c_str());
+  const QString latstr = diutil::formatLatitudeDegMin(lat);
+  const QString lonstr = diutil::formatLongitudeDegMin(lon);
+  const QString datestr = QString::fromStdString(t.isoDate());
+  const QString timestr = QString::fromStdString(t.isoClock());
 
   switch (index) {
   case 1:
@@ -452,10 +423,9 @@ void MeasurementsDialog::sendAllPositions()
 
   vector<string> vstr;
 
-  const int npos=positionVector.size();
-  for (int i=0; i<npos; i++) {
+  for (const posStruct& p : positionVector) {
     ostringstream str;
-    insertlatlon(str, positionVector[i].lat, positionVector[i].lon);
+    insertlatlon(str, p.lat, p.lon);
     vstr.push_back(str.str());
   }
   contr->measurementsPos(vstr);

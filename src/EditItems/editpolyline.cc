@@ -30,7 +30,7 @@
 #include "drawingpolyline.h"
 #include "editpolyline.h"
 #include "diGLPainter.h"
-#include "qtStatusGeopos.h"
+#include "util/qstring_util.h"
 
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
@@ -138,15 +138,10 @@ void PolyLine::mouseMove(QMouseEvent *event, bool &repaintNeeded)
 
 void PolyLine::showTip()
 {
-  QPointF p = latLonPoints_.at(hoverCtrlPointIndex_);
-  int latDeg, latMin, lonDeg, lonMin;
-  StatusGeopos::degreesMinutes(p.x(), latDeg, latMin);
-  StatusGeopos::degreesMinutes(p.y(), lonDeg, lonMin);
-
-  QString text, ns = (p.x() >= 0.0) ? "N" : "S", we = (p.y() >= 0.0) ? "E" : "W";
-  text = QString("%1\xB0 %2'%3").arg(latDeg).arg(latMin).arg(ns);
-  text += QString(" %1\xB0 %2'%3").arg(lonDeg).arg(lonMin).arg(we);
-
+  const QPointF& p = latLonPoints_.at(hoverCtrlPointIndex_);
+  const QString text = diutil::formatLatitudeDegMin(p.x())
+      + " "
+      + diutil::formatLongitudeDegMin(p.y());
   EditItemManager::instance()->showToolTipText(2, text);
 }
 
