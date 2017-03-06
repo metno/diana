@@ -34,11 +34,16 @@ Standards-Version: 3.9.2
 
 Package: diana-@METNO_VERSION@
 Architecture: any
-Depends: diana-@METNO_VERSION@-common (= ${binary:Version}),
- ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends},
+ ${misc:Depends}
 Recommends: libav-tools, gdal-bin, imagemagick
 Conflicts: diana-3.33 (<< 3.33.1), diana-3.32, diana-3.31, diana-3.30
-Provides: diana
+Provides: diana,
+ bdiana-@METNO_VERSION@
+Breaks: diana-3.42-common (<< 3.42.0~a5),
+ bdiana-3.42 (<< 3.42.0~a5)
+Replaces: diana-3.42-common (<< 3.42.0~a5),
+ bdiana-3.42 (<< 3.42.0~a5)
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
@@ -54,6 +59,9 @@ Description: Meteorological visualisation tool
  windows, all from preprocessed data. Preprocessing software is
  however not a part of Diana.  The editor tools consist of a field
  editor and a drawing tool for fronts, symbols and area types.
+ .
+ This package also provides a version of Diana for batched generation
+ of products.
 
 Package: diana-@METNO_VERSION@-dbg
 Section: debug
@@ -62,13 +70,6 @@ Depends: diana-@METNO_VERSION@ (= ${binary:Version}),
  ${misc:Depends}
 Description: debugging symbols for diana-@METNO_VERSION@
  This package contains the debugging symbols for diana-@METNO_VERSION@
-
-Package: diana-@METNO_VERSION@-common
-Architecture: all
-Depends: ${misc:Depends}
-Description: common files for diana and bdiana packages
- This package contains files shared between versioned
- diana-@METNO_VERSION@ and bdiana-@METNO_VERSION@ packages.
 
 Package: diana-dev
 Architecture: any
@@ -86,3 +87,22 @@ Description: Meteorological visualisation tool
  This package provides development files required to build
  additional libraries and tools against a version of Diana for
  batched generation of products.
+
+Package: libmetno-bdiana-perl-@METNO_VERSION@
+Architecture: any
+Section: perl
+Conflicts: libmetno-bdiana-perl
+Provides:libmetno-bdiana-perl
+Depends: diana-@METNO_VERSION@ (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${perl:Depends},
+ ${misc:Depends}
+Description: Meteorological visualisation tool, perl binding
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ .
+ This package provides a perl module for batched generation of
+ products via perl.

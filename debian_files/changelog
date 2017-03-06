@@ -1,3 +1,11 @@
+diana-3.42 (3.42.0~a5-1) unstable; urgency=low
+
+  * Qt5 build
+  * bdiana is no longer built separetely
+  * drop build config for Ubuntu precise and trusty
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 06 Mar 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~a4-1) unstable; urgency=low
 
   * fix time slider reset after mouse release

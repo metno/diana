@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -e
-update-alternatives --remove bdiana /usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
-
-#DEBHELPER#
