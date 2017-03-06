@@ -76,10 +76,9 @@ AC_ARG_ENABLE([obs-bufr],
     [], [enable_obs_bufr=no])
 AM_CONDITIONAL([WITH_OBS_BUFR], [test x$enable_obs_bufr = xyes])
 
-AC_ARG_ENABLE([xlib],
-    [AS_HELP_STRING([--enable-xlib], [enable X-lib usage])],
-    [], [enable_xlib=no])
-AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
+AC_ARG_ENABLE([qt5],
+    [AS_HELP_STRING([--enable-qt5], [use Qt5])],
+    [], [enable_qt5=yes])
 
 AC_ARG_ENABLE([gui],
     [AS_HELP_STRING([--enable-gui], [also compile the gui version of diana])],
@@ -97,20 +96,23 @@ METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 6.0.
 
 
 # for Qt5:
-AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_PKGS([METLIBSUI], [metlibs-coserver-qt5 >= 3.0.0 metlibs-qutilities-qt5 >= 8.0.0 ftgl glu])
-    METNO_REQUIRE_PKGS([QT4], [Qt5Widgets Qt5Gui Qt5PrintSupport Qt5OpenGL Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
+AS_IF([test x$enable_qt5 = xyes], [
+  AS_IF([test x$enable_gui = xyes], [
+      METNO_REQUIRE_PKGS([METLIBSUI], [metlibs-coserver-qt5 >= 3.0.0 metlibs-qutilities-qt5 >= 8.0.0 ftgl glu])
+      METNO_REQUIRE_PKGS([QT4], [Qt5Widgets Qt5Gui Qt5PrintSupport Qt5OpenGL Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
+  ],[
+      METNO_REQUIRE_PKGS([QT4], [Qt5Core Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
+  ])
+  METNO_CHECK_QT5_TOOLS()
 ],[
-    METNO_REQUIRE_PKGS([QT4], [Qt5Core Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
+  AS_IF([test x$enable_gui = xyes], [
+      METNO_REQUIRE_PKGS([METLIBSUI], [metlibs-coserver >= 3.0.0 metlibs-qutilities >= 8.0.0 ftgl glu])
+      METNO_REQUIRE_PKGS([QT4], [QtGui QtOpenGL QtNetwork QtSvg QtXml QtXmlPatterns])
+  ],[
+      METNO_REQUIRE_PKGS([QT4], [QtCore QtNetwork QtSvg QtXml QtXmlPatterns])
+  ])
+  METNO_CHECK_QT4_TOOLS()
 ])
-METNO_CHECK_QT5_TOOLS()
-
-# for Qt4 (untested):
-# remove "Qt5Widgets" and "Qt5PrintSupport"
-# replace "-qt5" with ""
-# replace "Qt5" with "Qt"
-# replace "METNO_CHECK_QT5_TOOLS" with "METNO_CHECK_QT4_TOOLS"
-
 
 #
 # Other third-party dependencies
