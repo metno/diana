@@ -505,7 +505,7 @@ bool imageIO::read_xpm(Image_data& img)
       continue;
     if (buf[0]!='\"')
       continue;
-    int i= buf.find_last_of("\"");
+    size_t i= buf.find_last_of("\"");
     buf= buf.substr(1,i-1);
     vs.push_back(buf);
   }
