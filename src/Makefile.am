@@ -112,6 +112,7 @@ libdiana_la_SOURCES = \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
+	util/charsets.cc \
 	util/debug_timer.cc \
 	util/format_int.cc \
 	util/openmp_tools.cc \
@@ -452,6 +453,7 @@ noinst_HEADERS = \
 	qtVprofWindow.h \
 	qtWorkArea.h \
 	signalhelper.h \
+	util/charsets.h \
 	util/debug_timer.h \
 	util/format_int.h \
 	util/openmp_tools.h \

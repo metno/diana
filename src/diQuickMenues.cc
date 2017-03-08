@@ -33,6 +33,7 @@
 
 #include "diQuickMenues.h"
 #include "diLocalSetupParser.h"
+#include "util/charsets.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -60,6 +61,9 @@ bool writeQuickMenu(const quickMenu& qm)
     return false;
   }
 
+  diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::CHARSET_WRITE());
+
+  menufile << "# -*- coding: " << diutil::CHARSET_WRITE() << " -*-" << endl;
   menufile << "# Name and plot string of Quick-menu" << endl;
   menufile << "# '#' marks comments" << endl;
   menufile << "#------------------------------------------------" << endl;
@@ -75,19 +79,21 @@ bool writeQuickMenu(const quickMenu& qm)
   menufile << endl;
   menufile << "# quickmenu name" << endl;
 
-  menufile << "\"" << qm.name << "\"" << endl;
+  menufile << "\"" << converter->convert(qm.name) << "\"" << endl;
   menufile << endl;
 
   menufile << "# variables" << endl;
 
   // write options
-  int m,n= qm.opt.size();
-  for (int i=0; i<n; i++){
-    menufile << "[" << qm.opt[i].key << "=";
-    m= qm.opt[i].options.size();
-    for (int j=0; j<m; j++){
-      menufile << qm.opt[i].options[j];
-      if (j<m-1) menufile << ",";
+  for (const quickMenuOption& mo : qm.opt) {
+    menufile << "[" << converter->convert(mo.key) << "=";
+    bool first = true;
+    for (const std::string& o : mo.options) {
+      if (!first)
+        menufile << ",";
+      first = false;
+
+      menufile << converter->convert(o);
     }
     menufile << endl;
   }
@@ -95,13 +101,11 @@ bool writeQuickMenu(const quickMenu& qm)
   menufile << endl;
 
   // the plots
-  n= qm.menuitems.size();
-  for (int i=0; i<n; i++){
+  for (const quickMenuItem& mi : qm.menuitems) {
     menufile << "#" << endl;
-    menufile << ">" << qm.menuitems[i].name << endl;
-    m= qm.menuitems[i].command.size();
-    for (int j=0; j<m; j++){
-      menufile << qm.menuitems[i].command[j] << endl;
+    menufile << ">" << converter->convert(mi.name) << endl;
+    for (const std::string& c : mi.command) {
+      menufile << converter->convert(c) << endl;
     }
   }
 
@@ -114,7 +118,6 @@ bool readQuickMenu(quickMenu& qm)
   quickMenuItem mi;
   quickMenuOption op;
   std::string value;
-  vector<std::string> tokens, stokens;
   bool updates = false;
 
   std::string filename= qm.filename;
@@ -129,11 +132,13 @@ bool readQuickMenu(quickMenu& qm)
     return false;
   }
 
+  diutil::GetLineConverter convertline("#");
   std::string line;
-  while (std::getline(menufile, line)){
+  while (convertline(menufile, line)) {
     miutil::trim(line);
     if (line.length()==0)
       continue;
+
     if (line[0]=='#')
       continue;
 
@@ -150,7 +155,7 @@ bool readQuickMenu(quickMenu& qm)
         line = line.substr(1,line.length()-2);
       else
         line = line.substr(1,line.length()-1);
-      tokens= miutil::split(line, "=");
+      vector<std::string> tokens = miutil::split(line, "=");
       if (tokens.size()>1){
         op.key= tokens[0];
         value= tokens[1];

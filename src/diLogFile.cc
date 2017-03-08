@@ -29,6 +29,8 @@
 
 #include "diLogFile.h"
 
+#include "util/charsets.h"
+
 #include <puTools/miStringFunctions.h>
 #include <istream>
 
@@ -49,16 +51,16 @@ void LogFileIO::Section::addLines(const std::vector<std::string>& lines)
 
 bool LogFileIO::read(std::istream& input)
 {
+  diutil::GetLineConverter convertline("#");
   std::string begin;
-  while (std::getline(input, begin)) {
+  while (convertline(input, begin)) {
     if (begin.empty() || begin[0]=='#')
       continue;
 
     miutil::trim(begin);
-    const int bl = begin.length();
+    const size_t bl = begin.length();
     if (bl<3 || begin[0]!='[' || begin[bl-1]!=']') {
-      return false; //METLIBS_LOG_ERROR("Bad keyword found in logfile " << logfile << " : " << begin);
-      break;
+      return false;
     }
 
     std::string end = begin;
@@ -80,11 +82,15 @@ bool LogFileIO::read(std::istream& input)
 
 void LogFileIO::write(std::ostream& out)
 {
+  diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::CHARSET_WRITE());
+  out << "# -*- coding: " << diutil::CHARSET_WRITE() << " -*-" << std::endl;
+
   for (Section_v::iterator it = mSections.begin(); it != mSections.end(); ++it) {
-    out << '[' << it->title() << ']' << std::endl;
+    const std::string title = converter->convert(it->title());
+    out << '[' << title << ']' << std::endl;
     for (size_t i=0; i<it->size(); ++i)
-      out << it->at(i) << std::endl;
-    out << "[/" << it->title() << ']' << std::endl;
+      out << converter->convert(it->at(i)) << std::endl;
+    out << "[/" << title << ']' << std::endl;
   }
 }
 
