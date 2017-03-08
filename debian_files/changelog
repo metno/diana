@@ -1,3 +1,9 @@
+diana-3.41 (3.41.2-1) unstable; urgency=low
+
+  * support for text file encoding specification, e.g. for utf-8 files
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 08 Mar 2017 08:00:08 +0100
+
 diana-3.41 (3.41.1-1) unstable; urgency=low
 
   * bugfix processLetter for areacommand
