@@ -4,6 +4,8 @@
 
 #include "miSetupParser.h"
 
+#include "util/charsets.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <curl/curl.h>
@@ -397,7 +399,8 @@ bool SetupParser::parseFile(const std::string& filename, // name of file
   int tmpln=0;
   bool merge = false, newmerge;
 
-  while (getline(file, str)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(file, str)) {
     ln++;
     miutil::trim(str);
     n = str.length();

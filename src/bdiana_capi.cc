@@ -79,6 +79,8 @@
 #include "diSpectrumManager.h"
 #include "diSpectrumOptions.h"
 
+#include "util/charsets.h"
+
 #include <puCtools/sleep.h>
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
@@ -506,7 +508,8 @@ int prepareInput(istream &is)
    - merge lines (ending with \)
    */
 
-  while (getline(is, s)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(is, s)) {
     linenum++;
     cleanstr(s);
     n = s.length();

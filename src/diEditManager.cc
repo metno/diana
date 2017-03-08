@@ -48,6 +48,7 @@
 #include "diAnnotationPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/charsets.h"
 
 #include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
@@ -399,7 +400,9 @@ void EditManager::readCommandFile(EditProduct & ep)
     METLIBS_LOG_ERROR("ERROR OPEN (READ) " << ep.commandFilename);
     return;
   }
-  while (getline(file,s)){
+
+  diutil::GetLineConverter convertline("#");
+  while (convertline(file,s)){
     linenum++;
     n= s.length();
     if (n>0) {

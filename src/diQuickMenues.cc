@@ -33,6 +33,7 @@
 
 #include "diQuickMenues.h"
 #include "diLocalSetupParser.h"
+#include "util/charsets.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -60,6 +61,9 @@ bool writeQuickMenu(const quickMenu& qm)
     return false;
   }
 
+  diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::CHARSET_WRITE());
+
+  menufile << "# -*- coding: " << diutil::CHARSET_WRITE() << " -*-" << endl;
   menufile << "# Name and plot string of Quick-menu" << endl;
   menufile << "# '#' marks comments" << endl;
   menufile << "#------------------------------------------------" << endl;
@@ -75,7 +79,7 @@ bool writeQuickMenu(const quickMenu& qm)
   menufile << endl;
   menufile << "# quickmenu name" << endl;
 
-  menufile << "\"" << qm.name << "\"" << endl;
+  menufile << "\"" << converter->convert(qm.name) << "\"" << endl;
   menufile << endl;
 
   menufile << "# variables" << endl;
@@ -83,10 +87,10 @@ bool writeQuickMenu(const quickMenu& qm)
   // write options
   int m,n= qm.opt.size();
   for (int i=0; i<n; i++){
-    menufile << "[" << qm.opt[i].key << "=";
+    menufile << "[" << converter->convert(qm.opt[i].key) << "=";
     m= qm.opt[i].options.size();
     for (int j=0; j<m; j++){
-      menufile << qm.opt[i].options[j];
+      menufile << converter->convert(qm.opt[i].options[j]);
       if (j<m-1) menufile << ",";
     }
     menufile << endl;
@@ -98,10 +102,10 @@ bool writeQuickMenu(const quickMenu& qm)
   n= qm.menuitems.size();
   for (int i=0; i<n; i++){
     menufile << "#" << endl;
-    menufile << ">" << qm.menuitems[i].name << endl;
+    menufile << ">" << converter->convert(qm.menuitems[i].name) << endl;
     m= qm.menuitems[i].command.size();
     for (int j=0; j<m; j++){
-      menufile << qm.menuitems[i].command[j] << endl;
+      menufile << converter->convert(qm.menuitems[i].command[j]) << endl;
     }
   }
 
@@ -129,8 +133,9 @@ bool readQuickMenu(quickMenu& qm)
     return false;
   }
 
+  diutil::GetLineConverter convertline("#");
   std::string line;
-  while (std::getline(menufile, line)){
+  while (convertline(menufile, line)) {
     miutil::trim(line);
     if (line.length()==0)
       continue;
