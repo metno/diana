@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 LABEL \
 anno=<image=Met_RGB_Horisontal,size=0.1><horalign=center> \
 anno=<text="Issued by ENVN",face=bold,size=0.5> \

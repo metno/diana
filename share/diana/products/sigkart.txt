@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 LABEL \
 anno=<text=" ",size=0.5><horalign=center> \
 anno=<image=Met_RGB_Horisontal,size=0.1><horalign=center> \

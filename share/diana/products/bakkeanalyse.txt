@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 LABEL text="Bakkeanalyse for %Y-%m-%d %H UTC" \
 tcolour=red bcolour=black fcolour=white:200 polystyle=both \
 halign=left valign=top font=BITMAPFONT fontsize=10
