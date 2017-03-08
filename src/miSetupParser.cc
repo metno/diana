@@ -6,10 +6,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include <curl/curl.h>
-
-#include <boost/foreach.hpp>
-
 #include <cstdlib>
 #include <fstream>
 #include <list>
@@ -306,55 +302,6 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
   return (size_t) (size * nmemb);
 }
 } // namespace anonymous
-
-// static function
-std::vector<std::string> SetupParser::getFromHttp(const std::string& url)
-{
-  std::ostringstream ost;
-
-  CURL *curl = curl_easy_init();
-  if (curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ost);
-    CURLcode res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-  }
-
-  std::string data = ost.str();
-
-  //must contain diana.setup tags
-  if (data.find("<diana.setup>") == data.npos || data.find("</diana.setup>") == data.npos) {
-    METLIBS_LOG_WARN("SetupParser::getFromHttp: " << url
-        << ": <diana.setup> or </diana.setup> tags are missing");
-    return string_v();
-  }
-
-  data = data.substr(data.find("<diana.setup>") + 13);
-  data = data.substr(0,data.find("</diana.setup>"));
-
-  return miutil::split(data, "\n");
-}
-
-// static function
-std::vector<std::string> SetupParser::getFromFile(const std::string& filename)
-{
-  string_v result;
-
-  // open filestream
-  std::ifstream file(filename.c_str());
-  if (!file) {
-    METLIBS_LOG_WARN("SetupParser::readSetup. cannot open setupfile " << filename);
-    return result;
-  }
-
-  std::string str;
-  while (getline(file, str))
-    result.push_back(str);
-
-  file.close();
-  return result;
-}
 
 bool SetupParser::parseFile(const std::string& filename, // name of file
     const std::string& section, // inherited section

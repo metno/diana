@@ -90,9 +90,6 @@ private:
   bool substitute(std::string& t, bool environment) const;
   void substituteAll(std::string& s) const;
 
-  static std::vector<std::string> getFromHttp(const std::string& url);
-  static std::vector<std::string> getFromFile(const std::string& filename);
-
   bool parseFile(const std::string& mainfilename);
   bool parseFile(const std::string& filename,
       const std::string& section, int level);
