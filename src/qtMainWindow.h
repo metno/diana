@@ -135,7 +135,6 @@ protected:
   bool event(QEvent* event);
 
 private:
-  void paintOnPrinter(QPrinter* printer);
   void paintOnDevice(QPaintDevice* device, bool printing);
 
 public Q_SLOTS:
@@ -261,6 +260,8 @@ private Q_SLOTS:
   void updatePlotElements();
 
   void setInstanceName(QString instancename);
+
+  void paintOnPrinter(QPrinter* printer);
 
 Q_SIGNALS:
   void instanceNameChanged(const QString&);
