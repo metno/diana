@@ -181,6 +181,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
     markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
   , vcrossEditManagerConnected(false)
   , spWindow(0), pluginB(0), contr(co)
+  , exportImageDialog_(0)
   , showelem(true)
   , autoselect(false)
 {
@@ -2371,10 +2372,12 @@ void DianaMainWindow::saveraster()
 {
   METLIBS_LOG_SCOPE();
 
-  ExportImageDialog eid(this);
-  connect(w->Glw(), SIGNAL(resized(int,int)), &eid, SLOT(onDianaResized(int,int)));
-  eid.onDianaResized(w->Glw()->width(), w->Glw()->height());
-  eid.exec();
+  if (!exportImageDialog_) {
+    exportImageDialog_ = new ExportImageDialog(this);
+    connect(w->Glw(), SIGNAL(resized(int,int)), exportImageDialog_, SLOT(onDianaResized(int,int)));
+    exportImageDialog_->onDianaResized(w->Glw()->width(), w->Glw()->height());
+  }
+  exportImageDialog_->show();
 }
 
 void DianaMainWindow::saveRasterImage(const QString& filename, const QSize& size)

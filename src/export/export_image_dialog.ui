@@ -360,7 +360,7 @@
    <sender>buttonClose</sender>
    <signal>clicked()</signal>
    <receiver>ExportImageDialog</receiver>
-   <slot>reject()</slot>
+   <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>191</x>

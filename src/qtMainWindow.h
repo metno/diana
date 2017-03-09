@@ -73,6 +73,7 @@ class UffdaDialog;
 
 class DataDialog;
 class EditDialog;
+class ExportImageDialog;
 class Controller;
 class StatusGeopos;
 class HelpDialog;
@@ -394,6 +395,8 @@ private:
 
   SpectrumWindow    * spWindow;
   std::map<std::string,InfoFile> infoFiles;
+
+  ExportImageDialog* exportImageDialog_;
 
   // statusbar widgets
   QLabel            * smsg;
