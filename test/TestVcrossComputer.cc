@@ -60,7 +60,8 @@ Source_p openFimexSource(const std::string& file)
   if (not inputfile)
     return FimexSource_p();
 
-  return FimexSource_p(new FimexSource(fileName, "netcdf"));
+  diutil::CharsetConverter_p csc = diutil::findConverter(diutil::CHARSET_READ(), diutil::CHARSET_INTERNAL());
+  return FimexSource_p(new FimexSource(fileName, "netcdf", "", csc));
 }
 
 } /* anonymous namespace */

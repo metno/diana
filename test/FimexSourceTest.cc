@@ -50,6 +50,11 @@ static const char WAVE_FILE[] = "wavespec.nc";
 
 static const char S1970[] = "seconds since 1970-01-01 00:00:00";
 
+static diutil::CharsetConverter_p csc()
+{
+  return diutil::findConverter(diutil::CHARSET_READ(), diutil::CHARSET_INTERNAL());
+}
+
 static ReftimeSource_p openFimexFile(const std::string& file)
 {
   const std::string fileName = (TEST_SRCDIR "/") + file;
@@ -57,7 +62,7 @@ static ReftimeSource_p openFimexFile(const std::string& file)
   if (not inputfile)
     return ReftimeSource_p();
 
-  return ReftimeSource_p(new FimexReftimeSource(fileName, "netcdf", "", Time()));
+  return ReftimeSource_p(new FimexReftimeSource(fileName, "netcdf", "", csc(), Time()));
 }
 
 TEST(FimexReftimeSourceTest, TestSimraVcross0)
@@ -969,7 +974,7 @@ TEST(FimexSourceTest, TestAromeReftimes)
 
   ASSERT_EQ(0, mkdir(TEST_BUILDDIR "/test_arome_reftimes", 0700));
 
-  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_[yyyymmdd_HH].nc", "netcdf", "");
+  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_[yyyymmdd_HH].nc", "netcdf", "", csc());
   EXPECT_FALSE(s.update());
 
   { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc"));
@@ -1006,7 +1011,7 @@ TEST(FimexSourceTest, TestAromeReftimesStar)
 
   ASSERT_EQ(0, mkdir(TEST_BUILDDIR "/test_arome_reftimes", 0700));
 
-  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_*.nc", "netcdf", "");
+  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_*.nc", "netcdf", "", csc());
   EXPECT_FALSE(s.update());
 
   { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc"));
