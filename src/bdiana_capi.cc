@@ -300,6 +300,32 @@ printerManager * printman;
 printOptions priop;
 
 std::string logfilename;
+
+/*!
+ * Write one miTime per line to an output stream. At present, this producses utf-8.
+ */
+template<class C>
+void writeTimes(std::ostream& out, const C& times)
+{
+  for (const miutil::miTime& t : times) {
+    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+    out << diutil::convertLatin1ToUtf8(t.format(time_format)) << std::endl;
+  }
+}
+
+/*!
+ * Expand % using miTime. At present, this inserts utf-8.
+ */
+void expandTime(std::string& text, const miutil::miTime& time)
+{
+  if (miutil::contains(text, "%"))
+    return;
+
+  text = time.format(text);
+  // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+  text = diutil::convertLatin1ToUtf8(text);
+}
+
 } // namespace
 
 /*
@@ -1603,10 +1629,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     main_controller->setPlotTime(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
@@ -1704,10 +1727,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     vcrossmanager->setTimeToBestMatch(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vcross, priop);
@@ -1771,10 +1791,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     vprofmanager->setTime(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (verbose)
       METLIBS_LOG_INFO("- setting station:" << vprof_stations.size());
@@ -1844,10 +1861,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     spectrummanager->setTime(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (verbose)
       METLIBS_LOG_INFO("- setting station:" << spectrum_station);
@@ -2020,18 +2034,13 @@ static int handleTimeCommand(int& k)
   set<miTime> okTimes;
   main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union");
 
-  // open filestream
   ofstream file(priop.fname.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
     return 1;
   }
   file << "PROG" << endl;
-  set<miTime>::iterator p = okTimes.begin();
-  for (; p != okTimes.end(); p++) {
-    file << (*p).format(time_format) << endl;
-  }
-  file.close();
+  writeTimes(file, okTimes);
   return 0;
 }
 
@@ -2081,7 +2090,6 @@ static int handleTimeVprofCommand(int& k)
     METLIBS_LOG_INFO("- finding times");
 
   //Find ENDTIME
-  const std::string command = miutil::to_lower(lines[k]);
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
 
   if (!vprofmanager) {
@@ -2098,20 +2106,13 @@ static int handleTimeVprofCommand(int& k)
   vprofmanager->setSelectedModels(vprof_models);
   vprofmanager->setModel();
 
-  vector<miTime> okTimes = vprofmanager->getTimeList();
-
-  // open filestream
   ofstream file(priop.fname.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
     return 1;
   }
   file << "PROG" << endl;
-  vector<miTime>::iterator p = okTimes.begin();
-  for (; p != okTimes.end(); p++) {
-    file << (*p).format(time_format) << endl;
-  }
-  file.close();
+  writeTimes(file, vprofmanager->getTimeList());
   return 0;
 }
 
@@ -2161,26 +2162,16 @@ static int handleTimeSpectrumCommand(int& k)
   if (not spectrum_station.empty())
     spectrummanager->setStation(spectrum_station);
 
-  vector<miTime> okTimes = spectrummanager->getTimeList();
-  set<miTime> constTimes;
-
-  // open filestream
   ofstream file(priop.fname.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
     return 1;
   }
   file << "PROG" << endl;
-  vector<miTime>::iterator p = okTimes.begin();
-  for (; p != okTimes.end(); p++) {
-    file << (*p).format(time_format) << endl;
-  }
+  writeTimes(file, spectrummanager->getTimeList());
+
   file << "CONST" << endl;
-/*      p = constTimes.begin();
-      for (; p != constTimes.end(); p++) {
-        file << (*p).format(time_format) << endl;
-      }*/
-  file.close();
+  /* writeTimes(file, constTimes); */
   return 0;
 }
 

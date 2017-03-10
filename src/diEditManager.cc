@@ -3397,6 +3397,8 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
       es= time.format(es,"no");
     else if (english)
       es= time.format(es,"en");
+    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+    es = diutil::convertLatin1ToUtf8(es);
   }
 
   return es;
