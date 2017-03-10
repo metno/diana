@@ -1,4 +1,4 @@
-diana-3.42 (3.42.0~a7-1) unstable; urgency=low
+diana-3.42 (3.42.0~a8-1) unstable; urgency=low
 
   * do not destroy export image dialog
   * bugfix print preview
