@@ -126,7 +126,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
 
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
     const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(lines[l], true);
-    std::string name, filename, filetype, fileconfig;
+    std::string name, filename, filetype, fileconfig, cs_name_charset = diutil::CHARSET_READ();
     string_string_m options;
     for (const miutil::KeyValue& kv : kvs) {
       if (kv.key() == "m")
@@ -142,6 +142,8 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
         filetype = kv.value();
       else if (kv.key() == "c" or kv.key() == "config")
         fileconfig = kv.value();
+      else if (kv.key() == "cs_name_charset")
+        fileconfig = kv.value();
       else  {
         METLIBS_LOG_DEBUG(LOGVAL(kv.key()) << LOGVAL(kv.value()));
         options[kv.key()] = kv.value();
@@ -152,7 +154,8 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
     } else if (mSources.find(name) != mSources.end()) {
       errors.push_back(SyntaxError(l, "name '" + name + "' already used"));
     } else {
-      Source_p src = std::make_shared<FimexSource>(filename, filetype, fileconfig);
+      diutil::CharsetConverter_p charsetConverter = diutil::findConverter(cs_name_charset, diutil::CHARSET_INTERNAL());
+      Source_p src = std::make_shared<FimexSource>(filename, filetype, fileconfig, charsetConverter);
       mSources.insert(std::make_pair(name, src));
       mModelOptions[name] = options;
     }

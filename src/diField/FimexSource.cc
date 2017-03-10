@@ -6,6 +6,7 @@
 
 #include "../diUtilities.h"
 #include "../util/string_util.h"
+#include "../util/charsets.h"
 
 #include <puCtools/puCglob.h>
 
@@ -351,10 +352,11 @@ vcross::LonLat_v makePointsRequested(const vcross::LonLat_v& points)
 namespace vcross {
 
 FimexReftimeSource::FimexReftimeSource(std::string filename, std::string filetype, std::string fileconfig,
-  const Time& reftime)
+  diutil::CharsetConverter_p csNameCharsetConverter, const Time& reftime)
   : mFileName(filename)
   , mFileType(filetype)
   , mFileConfig(fileconfig)
+  , mCsNameCharsetConverter(csNameCharsetConverter)
   , mModificationTime(0)
   , mSupportsDynamic(false)
 {
@@ -931,7 +933,7 @@ void FimexReftimeSource::makeCrossectionInventory()
         METLIBS_LOG_WARN(vc_name << " values missing");
         continue;
       }
-      const std::string csname(valuesName.get());
+      const std::string csname = mCsNameCharsetConverter->convert(valuesName.get());
 
       const LonLat_v csPoints = makeCrossectionPoints(vLon, vLat, lola_begin, lola_end);
       FimexCrossection_p cs = std::make_shared<FimexCrossection>
@@ -1037,10 +1039,12 @@ void FimexReftimeSource::dropDynamicCrossections()
 // ########################################################################
 
 FimexSource::FimexSource(const std::string& filename_pattern,
-    const std::string& filetype, const std::string& config)
+    const std::string& filetype, const std::string& config,
+    diutil::CharsetConverter_p csNameCharsetConverter)
   : mFilePattern(filename_pattern)
   , mFileType(filetype)
   , mFileConfig(config)
+  , mCsNameCharsetConverter(csNameCharsetConverter)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -1112,7 +1116,7 @@ bool FimexSource::addSource(const std::string& path, Time& reftime)
 {
   if (reftime.valid() && findSource(reftime))
     return false;
-  ReftimeSource_p s = std::make_shared<FimexReftimeSource>(path, mFileType, mFileConfig, reftime);
+  ReftimeSource_p s = std::make_shared<FimexReftimeSource>(path, mFileType, mFileConfig, mCsNameCharsetConverter, reftime);
   if (!reftime.valid()) {
     reftime = s->getReferenceTime();
     if (findSource(reftime))

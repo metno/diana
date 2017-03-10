@@ -4,6 +4,8 @@
 
 #include "VcrossSource.h"
 
+#include "../util/charsets.h"
+
 #include <fimex/CDMReader.h>
 #include <fimex/coordSys/CoordinateSystem.h>
 
@@ -31,7 +33,7 @@ public:
   typedef std::shared_ptr<const FimexCrossection> FimexCrossection_cp;
 
 public:
-  FimexReftimeSource(std::string filename, std::string filetype, std::string config, const Time& reftime);
+  FimexReftimeSource(std::string filename, std::string filetype, std::string config, diutil::CharsetConverter_p csNameCharsetConverter, const Time& reftime);
   ~FimexReftimeSource();
 
   Update_t update();
@@ -81,6 +83,7 @@ private:
 
 private:
   std::string mFileName, mFileType, mFileConfig;
+  diutil::CharsetConverter_p mCsNameCharsetConverter;
   long mModificationTime;
   Time mReftime;
   CDMReader_p mReader;
@@ -94,7 +97,7 @@ private:
 class FimexSource : public Source {
 public:
   FimexSource(const std::string& filename_pattern, const std::string& filetype,
-      const std::string& config = std::string());
+      const std::string& config, diutil::CharsetConverter_p csNameCharsetConverter);
   ~FimexSource();
 
   ReftimeUpdate update();
@@ -106,6 +109,7 @@ private:
   std::string mFilePattern;
   std::string mFileType;
   std::string mFileConfig;
+  diutil::CharsetConverter_p mCsNameCharsetConverter;
 };
 
 // ########################################################################
