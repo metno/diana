@@ -250,8 +250,9 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
 
   // check field corners
   int numinside = 0;
-  for (int iy = 0; iy < ny; iy += ny - 1) {
-    for (int ix = 0; ix < nx; ix += nx - 1) {
+  const int dix = std::max(nx - 1, 1), diy = std::max(ny - 1, 1);
+  for (int iy = 0; iy < ny; iy += diy) {
+    for (int ix = 0; ix < nx; ix += dix) {
       const int idx = xy_offset*(iy * nx + ix);
       if (maprect.isinside(x[idx], y[idx]))
         numinside++;
