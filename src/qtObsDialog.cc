@@ -293,9 +293,7 @@ void ObsDialog::getTimes()
     for (int i=0; i<nr_plot; i++) {
       if (obsWidget[i]->initialized()) {
         vector<std::string> name=obsWidget[i]->getDataTypes();
-        vector<std::string>::iterator p = name.begin();
-        for(;p!=name.end();p++)
-          nameset.insert(*p);
+        nameset.insert(name.begin(), name.end());
       }
     }
     if(nameset.size()>0){
