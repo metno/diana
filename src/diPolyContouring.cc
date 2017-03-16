@@ -71,6 +71,14 @@ inline bool skip_level_above0(const PlotOptions& po)
   return po.zeroLine==0 && po.linevalues.empty() && po.loglinevalues.empty();
 }
 
+// ########################################################################
+
+DianaLevels::~DianaLevels()
+{
+}
+
+// ########################################################################
+
 class DianaArrayIndex {
 public:
   DianaArrayIndex(size_t nx, size_t ny, size_t x0, size_t y0, size_t x1, size_t y1, size_t step=1);
@@ -265,6 +273,12 @@ float DianaLevelStep::value_for_level(contouring::level_t l) const
 
 // ########################################################################
 
+DianaPositions::~DianaPositions()
+{
+}
+
+// ########################################################################
+
 contouring::point_t DianaFieldBase::line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const
 {
     const float v0 = value(x0, y0);
@@ -288,20 +302,26 @@ public:
     , mIndex(index), mData(data)
     { }
 
-  virtual size_t nx() const
+  ~DianaField();
+
+  size_t nx() const override
     { return mIndex.size_x(); }
 
-  virtual size_t ny() const
+  size_t ny() const override
     { return mIndex.size_y(); }
 
 protected:
-  virtual float value(size_t ix, size_t iy) const
+  float value(size_t ix, size_t iy) const override
     { return mData[mIndex(ix, iy)]; }
 
 private:
   const DianaArrayIndex& mIndex;
   const float *mData;
 };
+
+DianaField::~DianaField()
+{
+}
 
 // ########################################################################
 

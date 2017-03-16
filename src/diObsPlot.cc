@@ -705,18 +705,18 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
     } else if (key == "parameter") {
       parameter = miutil::split(orig_value, 0, ",");
     } else if (key == "scale") {
-      op->textSize = oit->toDouble();
+      op->textSize = oit->toFloat();
     if (op->markerSize < 0)
-        op->markerSize = oit->toDouble();
+        op->markerSize = oit->toFloat();
     } else if (key == "marker.size") {
-      op->markerSize = oit->toDouble();
+      op->markerSize = oit->toFloat();
     } else if (key == "text.size") {
-      op->textSize = oit->toDouble();
+      op->textSize = oit->toFloat();
     } else if (key == "density") {
       if (value == "allobs")
         op->allObs = true;
       else
-        op->density = oit->toDouble();
+        op->density = oit->toFloat();
     } else if (key == "priority") {
       op->priorityFile = orig_value;
       op->priority = true;

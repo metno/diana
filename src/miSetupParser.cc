@@ -36,6 +36,15 @@ double KeyValue::toDouble(bool& ok, double def) const
     return def;
 }
 
+float KeyValue::toFloat(bool& ok, float def) const
+{
+  ok = miutil::is_number(mValue);
+  if (ok)
+    return miutil::to_float(mValue);
+  else
+    return def;
+}
+
 bool KeyValue::toBool(bool& ok, bool def) const
 {
   ok = true;

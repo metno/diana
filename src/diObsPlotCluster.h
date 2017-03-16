@@ -14,14 +14,14 @@ public:
   ObsPlotCluster(ObsManager* obsm, EditManager* editm);
   ~ObsPlotCluster();
 
-  const std::string& plotCommandKey() const;
+  const std::string& plotCommandKey() const override;
 
-  void prepare(const std::vector<std::string>& cmds);
+  void prepare(const std::vector<std::string>& cmds) override;
 
   //! returns true iff there are any obs plots with data
   bool update(bool ifNeeded, const miutil::miTime& t);
 
-  void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
+  void plot(DiGLPainter* gl, Plot::PlotOrder zorder) override;
 
   void getDataAnnotations(std::vector<std::string>& anno) const;
 
@@ -29,7 +29,7 @@ public:
 
   std::vector<miutil::miTime> getTimes();
 
-  const std::string& keyPlotElement() const;
+  const std::string& keyPlotElement() const override;
 
   bool findObs(int x, int y);
 

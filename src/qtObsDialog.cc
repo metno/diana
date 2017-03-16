@@ -464,7 +464,6 @@ void ObsDialog::putOKString(const vector<string>& vstr)
   vector<miutil::miTime> noTimes;
   emit emitTimes( "obs",noTimes );
 
-  std::string key,value;
   int n=vstr.size();
   if(n>1) {
     multiplot=true;

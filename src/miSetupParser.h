@@ -49,6 +49,10 @@ public:
   double toDouble(double def=0) const
     { bool ok; return toDouble(ok, def); }
 
+  float toFloat(bool& ok, float def=0) const;
+  float toFloat(float def=0) const
+    { bool ok; return toFloat(ok, def); }
+
   bool toBool(bool& ok, bool def=false) const;
   bool toBool(bool def=false) const
     { bool ok; return toBool(ok, def); }
