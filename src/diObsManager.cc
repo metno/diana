@@ -661,8 +661,7 @@ vector<miTime> ObsManager::getTimes(vector<std::string> obsTypes)
       Prod[obsType].fileInfo.push_back(finfo);
 
       vector<std::string> tokens = miutil::split(Prod[obsType].timeInfo, ";");
-      miTime from = miTime::nowTime();
-      miTime to = miTime::nowTime();
+      miTime from = miTime::nowTime(), to = from;
       int interval = 3;
       for (size_t j = 0; j < tokens.size(); ++j) {
         vector<std::string> stokens = miutil::split(tokens[j], "=");
