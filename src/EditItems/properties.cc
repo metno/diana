@@ -215,7 +215,7 @@ void EP_Colour::updateValue(const QString &value)
     s = editor->itemData(index).value<QColor>().name();
   else
     s = "black";
-
+  newValue = s;
   EP_Choice::updateValue(s);
 }
 
@@ -250,6 +250,7 @@ QWidget *EP_Decoration::createEditor(const QVariant &value)
   editor->addItem("SIGWX", "SIGWX");
   editor->addItem("arches,triangles", "arches,triangles");
   editor->addItem("jetstream", "arrow,jetstream");
+  editor->addItem("fishbone", "fishbone");
   int index = editor->findData(value.toString());
   editor->setCurrentIndex(index);
   connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
@@ -268,6 +269,8 @@ QWidget *EP_FillPattern::createEditor(const QVariant &value)
   editor->addItem("ldiagleft2", "ldiagleft2");
   editor->addItem("vdiagleft", "vdiagleft");
   editor->addItem("vldiagcross_little", "vldiagcross_little");
+  editor->addItem("snow", "snow");
+  editor->addItem("rain", "rain");
   editor->setCurrentIndex(editor->findData(value.toString()));
   connect(editor, SIGNAL(currentIndexChanged(QString)), SLOT(updateValue(QString)));
   oldValue = value;

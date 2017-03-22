@@ -421,7 +421,7 @@ void installLinetypes(QComboBox* box)
     std::string pattern = "- - - - - - - - ";
     if (k2-k1-1 >= 16)
       pattern = slinetypes[i].substr(k1+1,16);
-    std::auto_ptr<QPixmap> pmapLinetype(linePixmap(pattern, 3));
+    std::unique_ptr<QPixmap> pmapLinetype(linePixmap(pattern, 3));
     box->addItem(*pmapLinetype, "", lineStipplePattern(QString::fromStdString(pattern)));
   }
 }
@@ -438,7 +438,7 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
 void installLinewidths(QComboBox* box, int nr_linewidths)
 {
   for (int i=0; i < nr_linewidths; i++) {
-    std::auto_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
+    std::unique_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
     box->addItem(*pmapLinewidth, QString("  %1").arg(i+1), i + 1);
   }
 }
@@ -456,7 +456,7 @@ void ExpandLinewidthBox(QComboBox* box, int new_nr_linewidths)
 {
   const int current_nr_linewidths = box->count();
   for (int i=current_nr_linewidths; i < new_nr_linewidths; i++) {
-    std::auto_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
+    std::unique_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
     QString label = QString("  %1").arg(i+1);
     box->addItem(*pmapLinewidth, label, i + 1);
   }

@@ -79,14 +79,16 @@
 #include "diSpectrumManager.h"
 #include "diSpectrumOptions.h"
 
+#include "util/charsets.h"
+
 #include <puCtools/sleep.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
 #include <boost/algorithm/string/join.hpp>
 
 #include <QApplication>
+#include <QPrinter>
 
 #include "export/MovieMaker.h"
 
@@ -210,6 +212,7 @@ struct stringlist {
   vector<std::string> l;
 };
 
+namespace {
 plot_type plottype = plot_none;// current plot_type
 plot_type prevplottype = plot_none;// previous plottype
 plot_type multiple_plottype = plot_none;//
@@ -297,10 +300,37 @@ MovieMaker *movieMaker = 0;
 // list of lists..
 vector<stringlist> lists;
 
-printerManager * printman;
+printerManager * printman = 0;
 printOptions priop;
 
 std::string logfilename;
+
+/*!
+ * Write one miTime per line to an output stream. At present, this producses utf-8.
+ */
+template<class C>
+void writeTimes(std::ostream& out, const C& times)
+{
+  for (const miutil::miTime& t : times) {
+    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+    out << diutil::convertLatin1ToUtf8(t.format(time_format)) << std::endl;
+  }
+}
+
+/*!
+ * Expand % using miTime. At present, this inserts utf-8.
+ */
+void expandTime(std::string& text, const miutil::miTime& time)
+{
+  if (miutil::contains(text, "%"))
+    return;
+
+  text = time.format(text);
+  // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+  text = diutil::convertLatin1ToUtf8(text);
+}
+
+} // namespace
 
 /*
  clean an input-string: remove preceding and trailing blanks,
@@ -510,7 +540,8 @@ int prepareInput(istream &is)
    - merge lines (ending with \)
    */
 
-  while (getline(is, s)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(is, s)) {
     linenum++;
     cleanstr(s);
     n = s.length();
@@ -585,8 +616,13 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     printer->setOutputFileName(QString::fromStdString(priop.fname));
     if (pdf)
       printer->setOutputFormat(QPrinter::PdfFormat);
-    else
+    else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+      METLIBS_LOG_WARN("PostScript support not available in this bdiana version");
+#else
       printer->setOutputFormat(QPrinter::PostScriptFormat);
+#endif
+    }
 
     if (priop.usecustomsize) {
       printer->setPaperSize(QSizeF(priop.papersize.hsize, priop.papersize.vsize), QPrinter::Millimeter);
@@ -768,6 +804,7 @@ int diana_readSetupFile(const char* setupFilename) {
     using namespace std;
     using namespace miutil;
 
+    delete printman;
     printman = new printerManager();
     std::string setupfile(setupFilename);
     setupread = readSetup(setupfile, *printman);
@@ -1472,7 +1509,7 @@ static void handleVcrossOpt(int& k)
 {
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vcross_opt_end);
   if (!vcrossmanager)
-    vcrossmanager = miutil::make_shared<vcross::QtManager>();
+    vcrossmanager = std::make_shared<vcross::QtManager>();
   vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
 }
 
@@ -1611,10 +1648,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     main_controller->setPlotTime(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
@@ -1686,7 +1720,7 @@ static int handlePlotCommand(int& k)
 
     // -- vcross plot
     if (!vcrossmanager)
-      vcrossmanager = miutil::make_shared<vcross::QtManager>();
+      vcrossmanager = std::make_shared<vcross::QtManager>();
     else
       vcrossmanager->cleanup(); // needed to clear zoom history
 
@@ -1712,10 +1746,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     vcrossmanager->setTimeToBestMatch(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (!raster && !svg && (!multiple_plots || multiple_newpage)) {
       startHardcopy(plot_vcross, priop);
@@ -1779,10 +1810,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     vprofmanager->setTime(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (verbose)
       METLIBS_LOG_INFO("- setting station:" << vprof_stations.size());
@@ -1852,10 +1880,7 @@ static int handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plotting for time:" << ptime);
     spectrummanager->setTime(ptime);
 
-    //expand filename
-    if (miutil::contains(priop.fname, "%")) {
-      priop.fname = ptime.format(priop.fname);
-    }
+    expandTime(priop.fname, ptime); //expand filename
 
     if (verbose)
       METLIBS_LOG_INFO("- setting station:" << spectrum_station);
@@ -2028,18 +2053,13 @@ static int handleTimeCommand(int& k)
   set<miTime> okTimes;
   main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union");
 
-  // open filestream
   ofstream file(priop.fname.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
     return 1;
   }
   file << "PROG" << endl;
-  set<miTime>::iterator p = okTimes.begin();
-  for (; p != okTimes.end(); p++) {
-    file << (*p).format(time_format) << endl;
-  }
-  file.close();
+  writeTimes(file, okTimes);
   return 0;
 }
 
@@ -2089,7 +2109,6 @@ static int handleTimeVprofCommand(int& k)
     METLIBS_LOG_INFO("- finding times");
 
   //Find ENDTIME
-  const std::string command = miutil::to_lower(lines[k]);
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
 
   if (!vprofmanager) {
@@ -2106,20 +2125,13 @@ static int handleTimeVprofCommand(int& k)
   vprofmanager->setSelectedModels(vprof_models);
   vprofmanager->setModel();
 
-  vector<miTime> okTimes = vprofmanager->getTimeList();
-
-  // open filestream
   ofstream file(priop.fname.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
     return 1;
   }
   file << "PROG" << endl;
-  vector<miTime>::iterator p = okTimes.begin();
-  for (; p != okTimes.end(); p++) {
-    file << (*p).format(time_format) << endl;
-  }
-  file.close();
+  writeTimes(file, vprofmanager->getTimeList());
   return 0;
 }
 
@@ -2169,26 +2181,16 @@ static int handleTimeSpectrumCommand(int& k)
   if (not spectrum_station.empty())
     spectrummanager->setStation(spectrum_station);
 
-  vector<miTime> okTimes = spectrummanager->getTimeList();
-  set<miTime> constTimes;
-
-  // open filestream
   ofstream file(priop.fname.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << priop.fname << "'");
     return 1;
   }
   file << "PROG" << endl;
-  vector<miTime>::iterator p = okTimes.begin();
-  for (; p != okTimes.end(); p++) {
-    file << (*p).format(time_format) << endl;
-  }
+  writeTimes(file, spectrummanager->getTimeList());
+
   file << "CONST" << endl;
-/*      p = constTimes.begin();
-      for (; p != constTimes.end(); p++) {
-        file << (*p).format(time_format) << endl;
-      }*/
-  file.close();
+  /* writeTimes(file, constTimes); */
   return 0;
 }
 
@@ -2557,10 +2559,8 @@ static int handleOutputCommand(int& k, const std::string& value)
   if (lvalue == "postscript") {
     postscript = true;
     raster = false;
-    priop.doEPS = false;
   } else if (lvalue == "eps") {
     raster = false;
-    priop.doEPS = true;
   } else if (lvalue == "png" || lvalue == "raster") {
     raster = true;
     if (lvalue == "png")
@@ -3119,7 +3119,6 @@ int diana_init(int _argc, char** _argv)
   // 1.4141
   priop.papersize.hsize = 297;
   priop.papersize.vsize = 420;
-  priop.doEPS = false;
 
   xsize = 1696;
   ysize = 1200;
@@ -3130,6 +3129,7 @@ int diana_init(int _argc, char** _argv)
   hardcopy_started[plot_vprof] = false;
   hardcopy_started[plot_spectrum] = false;
 
+  delete printman;
   printman = new printerManager;
 
   /*

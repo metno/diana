@@ -70,8 +70,6 @@ DrawingItemBase::HitType Symbol::hit(const QPointF &pos, bool selected) const
 // ### similar to PolyLine::mousePress - move common code to base class?
 void Symbol::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
-  Q_ASSERT(undoCommands);
-
   if (event->button() == Qt::LeftButton) {
     mousePressControlPoints(event, repaintNeeded);
     resizing_ = !pressedCtrlPointIndex_.isEmpty();
@@ -81,6 +79,8 @@ void Symbol::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItem
 
     if (multiItemOp)
       *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
+
+    EditItemBase::mousePress(event, repaintNeeded, multiItemOp);
   }
 }
 

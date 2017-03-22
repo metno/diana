@@ -33,22 +33,23 @@
 #include "config.h"
 #endif
 
+#include "diHDF5.h"
+#include "miRaster/satimgh5.h"
+
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.HDF5"
 #include <miLogger/miLogging.h>
-
-#include "diHDF5.h"
 
 using namespace::miutil;
 
 HDF5::HDF5()
 {
-
 }
 
 
-bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
+bool HDF5::readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col)
 {
-
   satimg::dihead ginfo;
 
   ginfo.metadata = file.metadata;
@@ -90,12 +91,8 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
 
 bool HDF5::readHDF5Header(SatFileInfo& file)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("HDF5::readHDF5Header");
-  METLIBS_LOG_DEBUG("HDF5::readHDF5Header file.name: " << file.name);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5Header hdf5type: " << file.hdf5type);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5Header time: " <<file.time);
-
+#if 1 // def DEBUGPRINT
+  METLIBS_LOG_SCOPE("file.name: " << file.name << " hdf5type: " << file.hdf5type << " time: " <<file.time);
 #endif
 
   satimg::dihead ginfo;

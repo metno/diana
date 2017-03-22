@@ -6,6 +6,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <cmath>
+
 #define MILOGGER_CATEGORY "diana.GlUtilities"
 #include <miLogger/miLogging.h>
 
@@ -34,7 +36,7 @@ MapValuePosition mapValuePositionFromText(const std::string& p)
 bool is_undefined(float v)
 {
   const float LIMIT = 1e20;
-  return v == HUGE_VAL || isnan(v) || fabsf(v) >= LIMIT || isinf(v);
+  return v == HUGE_VAL || std::isnan(v) || std::abs(v) >= LIMIT || std::isinf(v);
 }
 
 PolylinePainter& PolylinePainter::addValid(float vx, float vy)

@@ -2,7 +2,6 @@
 #include "VcrossResolver.h"
 #include "VcrossComputer.h"
 #include <diField/VcrossUtil.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
@@ -84,7 +83,7 @@ const ResolvedPlot_cpv& Resolver::getAllResolvedPlots(const ModelReftime& model)
 ResolvedPlot_cp Resolver::getResolvedPlot(const ModelReftime& model, const std::string& plot)
 {
   const ResolvedPlot_cpv& rpv = getAllResolvedPlots(model);
-  BOOST_FOREACH(ResolvedPlot_cp rp, rpv) {
+  for (ResolvedPlot_cp rp : rpv) {
     if (rp->name() == plot)
       return rp;
   }
@@ -136,12 +135,12 @@ void Resolver::resolveAllPlots(model_data& md)
 {
   if (not md.inventory)
     return;
-  BOOST_FOREACH(ConfiguredPlot_cp cp, mSetup->getPlots()) {
+  for (ConfiguredPlot_cp cp : mSetup->getPlots()) {
     bool argumentsOk = true;
-    ResolvedPlot_p rp = miutil::make_shared<ResolvedPlot>(cp);
-    BOOST_FOREACH(const std::string& arg, cp->arguments) {
+    ResolvedPlot_p rp = std::make_shared<ResolvedPlot>(cp);
+    for (const std::string& arg : cp->arguments) {
       InventoryBase_cp p = findItemById(md.resolved_fields, arg);
-      FieldData_cp fp = boost::dynamic_pointer_cast<const FieldData>(p);
+      FieldData_cp fp = std::dynamic_pointer_cast<const FieldData>(p);
       if (not fp) {
         METLIBS_LOG_DEBUG("plot '" << cp->name << "' argument '" << arg << "' unknown or not a field");
         argumentsOk = false;

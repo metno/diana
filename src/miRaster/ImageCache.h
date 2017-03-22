@@ -33,16 +33,17 @@
  * Header file for ImageCache.
  *
  * AUTHOR:
- * Stefan Fagerstr�m, stefan.fagerstrom@smhi.se, 10/09/2009
+ * Stefan Fagerstrøm, stefan.fagerstrom@smhi.se, 10/09/2009
  */
 
 #ifndef _IMAGECACHE_H
 #define	_IMAGECACHE_H
 
+#include <condition_variable>
 #include <map>
-#include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/condition.hpp>
+#include <memory>
+#include <mutex>
+#include <thread>
 
 class ImageCache
 {
@@ -57,9 +58,9 @@ private:
   std::string cacheFilePath;
   std::map<std::string, Item> mCache;
   bool useMem;
-  boost::shared_ptr<boost::thread> m_thread;
-  boost::mutex m_mutex;
-  boost::condition cond;
+  std::shared_ptr<std::thread> m_thread;
+  std::mutex m_mutex;
+  std::condition_variable cond;
   static bool init;
   static ImageCache* instance;
 

@@ -1,7 +1,9 @@
 etc/diana/@METNO_VERSION@/diana.setup
 usr/bin/diana*
+usr/bin/bdiana-*
 usr/lib/diana/@METNO_VERSION@/libdiana.so*
 usr/share/applications/metno-diana-@METNO_VERSION@.desktop
 usr/share/doc/diana-@METNO_VERSION@
 usr/share/pixmaps/diana-@METNO_VERSION@.png
-usr/share/diana/@METNO_VERSION@/lang
+usr/share/diana/@METNO_VERSION@
+etc/diana/@METNO_VERSION@/log4cpp.properties

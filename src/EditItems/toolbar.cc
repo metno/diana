@@ -31,11 +31,13 @@
 #include "EditItems/editcomposite.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/toolbar.h"
+
 #include <QActionGroup>
 #include <QApplication>
 #include <QComboBox>
 #include <QListWidget>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 #define COMPOSITE_WIDTH 112
 #define COMPOSITE_HEIGHT 96

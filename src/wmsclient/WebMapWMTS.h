@@ -231,7 +231,7 @@ private:
   size_t mUnfinished;
 };
 
-typedef boost::shared_ptr<WebMapRequest> WebMapRequest_p;
+typedef std::shared_ptr<WebMapRequest> WebMapRequest_p;
 
 // ========================================================================
 

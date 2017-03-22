@@ -38,7 +38,8 @@
 
 using namespace std;
 
-static const char log_1[] = "[MAIN.LOG]\n"
+static const char log_1[] = "# -*- coding: utf-8 -*-\n"
+    "[MAIN.LOG]\n"
     "hello world\n"
     "[/MAIN.LOG]\n"
     "[SUB.LOG]\n"

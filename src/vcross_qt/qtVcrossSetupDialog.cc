@@ -47,7 +47,6 @@
 #include "qtVcrossSetup.h"
 #include "qtVcrossSetupDialog.h"
 #include <boost/make_shared.hpp>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.VcrossSetupDialog"

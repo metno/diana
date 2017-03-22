@@ -45,13 +45,13 @@ public:
   RoadObsPlot(const std::string& pin, ObsPlotType plottype);
 
 protected:
-  void plotIndex(DiGLPainter* gl, int index);
+  void plotIndex(DiGLPainter* gl, int index) override;
 
-  void weather(DiGLPainter* gl, short int ww, float TTT, int zone, QPointF xy,
-      float scale = 1, bool align_right = false);
+  void weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_id, QPointF xy,
+      float scale = 1, bool align_right = false) override;
 
-  long findModificationTime(const std::string& fname);
-  bool isFileUpdated(const std::string& fname, long now, long mod_time);
+  long findModificationTime(const std::string& fname) override;
+  bool isFileUpdated(const std::string& fname, long now, long mod_time) override;
 
 private:
   void plotRoadobs(DiGLPainter* gl, int index);

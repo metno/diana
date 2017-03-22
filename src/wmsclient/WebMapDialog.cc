@@ -75,7 +75,8 @@ QVariant WebMapPlotListModel::data(const QModelIndex& index, int role) const
 
 void WebMapPlotListModel::onPlotsRemoved()
 {
-  reset();
+  beginResetModel();
+  endResetModel();
 }
 
 void WebMapPlotListModel::onPlotAdded(int idx)

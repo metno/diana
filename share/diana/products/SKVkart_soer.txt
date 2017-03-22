@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 LABEL \
 anno=<image=Met_RGB_Horisontal,size=0.2><horalign=center> \
-anno=<text="SKV-brief Sør"><horalign=center> \
+anno=<text="SKV-brief SÃ¸r"><horalign=center> \
 anno=<text="SFC-FL150"><horalign=center> \
 anno=<text=" ______________"><horalign=center> \
 anno=<text="VALID 06 Z "><horalign=center> \

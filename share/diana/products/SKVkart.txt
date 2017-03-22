@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 AREA name=SKVbrief
 
 MAP map=Gshhs-Auto \

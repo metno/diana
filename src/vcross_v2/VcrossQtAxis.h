@@ -87,8 +87,8 @@ private:
   float mScale;
 };
 
-typedef boost::shared_ptr<Axis> AxisPtr;
-typedef boost::shared_ptr<const Axis> AxisCPtr;
+typedef std::shared_ptr<Axis> AxisPtr;
+typedef std::shared_ptr<const Axis> AxisCPtr;
 
 } // namespace detail
 } // namespace vcross

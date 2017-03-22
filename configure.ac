@@ -1,6 +1,6 @@
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.42.0~a4], [diana@met.no])
+AC_INIT([diana], [3.42.0~a9], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 foreign parallel-tests])
@@ -8,6 +8,8 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 METNO_PVERSION
 METNO_PROGRAM_SUFFIX
+
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 AC_LANG([C])
 AC_LANG([C++])
@@ -27,8 +29,8 @@ METNO_PROG_PKG_CONFIG
 #
 AC_LANG_PUSH([C])
 
-CFLAGS="$CFLAGS -O2 -pipe -g -Wall -Wextra -fPIC -fopenmp "
-CXXFLAGS="$CXXFLAGS -msse2 -march=core2 -Wall -fPIC -fopenmp -Wno-deprecated"
+CFLAGS="$CFLAGS -O2 -pipe -g -Wall -Wextra -fPIC"
+CXXFLAGS="$CXXFLAGS -msse2 -march=core2 -Wall -fPIC"
 AC_SYS_LARGEFILE
 
 AC_LANG_POP([C])
@@ -74,10 +76,9 @@ AC_ARG_ENABLE([obs-bufr],
     [], [enable_obs_bufr=no])
 AM_CONDITIONAL([WITH_OBS_BUFR], [test x$enable_obs_bufr = xyes])
 
-AC_ARG_ENABLE([xlib],
-    [AS_HELP_STRING([--enable-xlib], [enable X-lib usage])],
-    [], [enable_xlib=no])
-AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
+AC_ARG_ENABLE([qt5],
+    [AS_HELP_STRING([--enable-qt5], [use Qt5])],
+    [], [enable_qt5=yes])
 
 AC_ARG_ENABLE([gui],
     [AS_HELP_STRING([--enable-gui], [also compile the gui version of diana])],
@@ -91,21 +92,26 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
 METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.61.1])
-METNO_REQUIRE_PKGS([METLIBS], [miLogger >= 5.0.3 puTools >= 5.1.5 puDatatypes >= 5.0.2])
+METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 6.0.0 metlibs-pudatatypes >= 6.0.0])
 
-AS_IF([test x$enable_gui = xyes], [
-    METNO_REQUIRE_PKGS([METLIBSUI], [coserver >= 2.1.0 qUtilities >= 5.1.4 ftgl glu])
-    METNO_REQUIRE_QT4([Core Gui OpenGL Network Svg Xml XmlPatterns])
+
+# for Qt5:
+AS_IF([test x$enable_qt5 = xyes], [
+  AS_IF([test x$enable_gui = xyes], [
+      METNO_REQUIRE_PKGS([METLIBSUI], [metlibs-coserver-qt5 >= 3.0.0 metlibs-qutilities-qt5 >= 8.0.0 ftgl glu])
+      METNO_REQUIRE_PKGS([QT4], [Qt5Widgets Qt5Gui Qt5PrintSupport Qt5OpenGL Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
+  ],[
+      METNO_REQUIRE_PKGS([QT4], [Qt5Core Qt5Network Qt5Svg Qt5Xml Qt5XmlPatterns])
+  ])
+  METNO_CHECK_QT5_TOOLS()
 ],[
-    METNO_REQUIRE_QT4([Core Gui        Network Svg Xml XmlPatterns])
-])
-
-METNO_ENABLE([GRIBFILE], [gribfile], [support for fields in Grib file], [no])
-METNO_ENABLE_CONDITIONAL([GRIBFILE], [gribfile])
-METNO_IF_ENABLED([gribfile], [
-    METNO_REQUIRE_C_LIBRARY([GRIB_API], [grib_api], [grib_api.h], [grib_index_new], [-lm -lpng])
-    # For now, smhi uses GribAPI...
-    METNO_REQUIRE_C_LIBRARY([GRIBAPI], [GribAPI])
+  AS_IF([test x$enable_gui = xyes], [
+      METNO_REQUIRE_PKGS([METLIBSUI], [metlibs-coserver >= 3.0.0 metlibs-qutilities >= 8.0.0 ftgl glu])
+      METNO_REQUIRE_PKGS([QT4], [QtGui QtOpenGL QtNetwork QtSvg QtXml QtXmlPatterns])
+  ],[
+      METNO_REQUIRE_PKGS([QT4], [QtCore QtNetwork QtSvg QtXml QtXmlPatterns])
+  ])
+  METNO_CHECK_QT4_TOOLS()
 ])
 
 #
@@ -113,9 +119,7 @@ METNO_IF_ENABLED([gribfile], [
 #
 METNO_REQUIRE_BOOST
 METNO_REQUIRE_BOOST_FEATURE([date_time])
-METNO_REQUIRE_BOOST_FEATURE([regex])
 METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
-METNO_REQUIRE_BOOST_FEATURE([thread])
 
 AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_PKG([EMOS], [emos], [], [])

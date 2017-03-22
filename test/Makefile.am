@@ -101,10 +101,6 @@ diFieldTest_LDADD = \
     $(BOOST_DATE_TIME_LIBS)  \
     $(gtest_LIBS)
 
-if ENABLE_GRIBFILE
-diFieldTest_LDADD += -lgrib_api
-endif
-
 # begin fimex options
 diFieldTest_SOURCES += \
 	DataReshapeTest.cc \
@@ -131,15 +127,18 @@ dianaGuiTests_SOURCES = \
 
 dianaGuiTests_CPPFLAGS = \
     $(CPPFLAGS) \
+    $(METLIBS_CPPFLAGS) \
     $(METLIBSUI_CPPFLAGS)
 
 dianaGuiTests_LDFLAGS = \
     $(LDFLAGS) \
+    $(METLIBS_LDFLAGS) \
     $(METLIBSUI_LDFLAGS)
 
 dianaGuiTests_LDADD = \
     $(LDADD) \
     $(req_ui_libs) \
+    $(METLIBS_LIBS) \
     $(METLIBSUI_LIBS)
 endif # WITH_GUI
 

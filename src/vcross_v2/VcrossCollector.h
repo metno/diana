@@ -23,8 +23,8 @@ struct SelectedPlot {
   SelectedPlot(const ModelReftime& mr)
     : model(mr), visible(true) { }
 };
-typedef boost::shared_ptr<SelectedPlot> SelectedPlot_p;
-typedef boost::shared_ptr<const SelectedPlot> SelectedPlot_cp;
+typedef std::shared_ptr<SelectedPlot> SelectedPlot_p;
+typedef std::shared_ptr<const SelectedPlot> SelectedPlot_cp;
 typedef std::vector<SelectedPlot_p> SelectedPlot_pv;
 typedef std::vector<SelectedPlot> SelectedPlot_v;
 
@@ -93,7 +93,7 @@ private:
   model_required_m mModelRequired;
 };
 
-typedef boost::shared_ptr<Collector> Collector_p;
+typedef std::shared_ptr<Collector> Collector_p;
 
 // ########################################################################
 

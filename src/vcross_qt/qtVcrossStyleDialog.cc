@@ -22,6 +22,10 @@ VcrossStyleDialog::VcrossStyleDialog(QWidget* parent)
   setupUi();
 }
 
+VcrossStyleDialog::~VcrossStyleDialog()
+{
+}
+
 void VcrossStyleDialog::setManager(vcross::QtManager_p vsm)
 {
   if (vcrossm == vsm)

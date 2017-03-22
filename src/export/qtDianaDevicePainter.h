@@ -25,8 +25,8 @@ private:
   DiCanvas* oldCanvas;
   int oldWidth, oldHeight;
 
-  std::auto_ptr<DiPaintGLCanvas> glcanvas;
-  std::auto_ptr<DiPaintGLPainter> glpainter;
+  std::unique_ptr<DiPaintGLCanvas> glcanvas;
+  std::unique_ptr<DiPaintGLPainter> glpainter;
   QPainter painter;
 };
 

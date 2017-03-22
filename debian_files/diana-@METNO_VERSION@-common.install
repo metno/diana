@@ -1,6 +1,0 @@
-usr/share/diana/@METNO_VERSION@/products
-usr/share/diana/@METNO_VERSION@/images
-usr/share/diana/@METNO_VERSION@/images/symbols
-usr/share/diana/@METNO_VERSION@/fonts
-usr/share/diana/@METNO_VERSION@/*.*
-etc/diana/@METNO_VERSION@/log4cpp.properties

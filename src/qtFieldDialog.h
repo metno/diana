@@ -146,16 +146,17 @@ public:
       const std::string& thisVersion, const std::string& logVersion);
 
 protected:
-  void closeEvent( QCloseEvent* );
+  void closeEvent(QCloseEvent*) override;
 
 public Q_SLOTS:
   void fieldEditUpdate(std::string str);
   void updateModels();
 
 public:
-  bool showsMore(); //Q_DECL_OVERRIDE
+  bool showsMore() override;
+
 protected:
-  void doShowMore(bool more); //Q_DECL_OVERRIDE
+  void doShowMore(bool more) override;
 
 private:
   void updateModelBoxes();

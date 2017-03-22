@@ -14,9 +14,9 @@ public:
   FieldPlotCluster(FieldManager* fieldm, FieldPlotManager* fieldplotm);
   ~FieldPlotCluster();
 
-  const std::string& plotCommandKey() const;
+  const std::string& plotCommandKey() const override;
 
-  void prepare(const std::vector<std::string>& cmds);
+  void prepare(const std::vector<std::string>& cmds) override;
 
   //! returns true iff there are fields with data
   bool update();
@@ -25,7 +25,7 @@ public:
 
   std::vector<miutil::miTime> getTimes();
 
-  const std::string& keyPlotElement() const;
+  const std::string& keyPlotElement() const override;
 
   std::vector<miutil::miTime> fieldAnalysisTimes() const;
 

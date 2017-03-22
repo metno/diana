@@ -49,6 +49,10 @@ public:
   double toDouble(double def=0) const
     { bool ok; return toDouble(ok, def); }
 
+  float toFloat(bool& ok, float def=0) const;
+  float toFloat(float def=0) const
+    { bool ok; return toFloat(ok, def); }
+
   bool toBool(bool& ok, bool def=false) const;
   bool toBool(bool def=false) const
     { bool ok; return toBool(ok, def); }
@@ -89,9 +93,6 @@ private:
 
   bool substitute(std::string& t, bool environment) const;
   void substituteAll(std::string& s) const;
-
-  static std::vector<std::string> getFromHttp(const std::string& url);
-  static std::vector<std::string> getFromFile(const std::string& filename);
 
   bool parseFile(const std::string& mainfilename);
   bool parseFile(const std::string& filename,

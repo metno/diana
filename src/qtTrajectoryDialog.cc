@@ -37,6 +37,7 @@
 #include "qtGeoPosLineEdit.h"
 #include "diLinetype.h"
 #include "diUtilities.h"
+#include "util/qstring_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -446,31 +447,10 @@ void TrajectoryDialog::mapPos(float lat, float lon)
 void TrajectoryDialog::update_posList(float lat, float lon)
 {
   METLIBS_LOG_SCOPE();
-
-  //Make string and insert in posList
-
-  std::ostringstream ost;
-
-  int min= int(fabsf(lat)*60.+0.5);
-  int deg= min/60;
-  min = min%60;
-  ost << setw(2) << deg << "\xB0" << setw(2) << setfill('0') << min;
-  if (lat>=0.0)
-    ost << "'N   ";
-  else
-    ost << "'S   ";
-
-  min= int(fabsf(lon)*60.+0.5);
-  deg= min/60;
-  min= min%60;
-  ost << setfill(' ')<< setw(3) << deg << "\xB0"
-      << setw(2) << setfill('0') << min;
-  if (lon>=0.0)
-    ost << "'E";
-  else
-    ost << "'W";
-
-  posList->addItem(QString::fromStdString(ost.str()));
+  const QString pos = diutil::formatLatitudeDegMin(lat)
+      + " "
+      + diutil::formatLongitudeDegMin(lon);
+  posList->addItem(pos);
 }
 
 /*********************************************/

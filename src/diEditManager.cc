@@ -50,6 +50,7 @@
 #include "diAnnotationPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/charsets.h"
 
 #include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
@@ -401,7 +402,9 @@ void EditManager::readCommandFile(EditProduct & ep)
     METLIBS_LOG_ERROR("ERROR OPEN (READ) " << ep.commandFilename);
     return;
   }
-  while (getline(file,s)){
+
+  diutil::GetLineConverter convertline("#");
+  while (convertline(file,s)){
     linenum++;
     n= s.length();
     if (n>0) {
@@ -3394,6 +3397,8 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
       es= time.format(es,"no");
     else if (english)
       es= time.format(es,"en");
+    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+    es = diutil::convertLatin1ToUtf8(es);
   }
 
   return es;

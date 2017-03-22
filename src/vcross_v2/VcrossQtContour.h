@@ -17,7 +17,7 @@ namespace detail {
 extern const float UNDEF_VALUE;
 
 struct Axis;
-typedef boost::shared_ptr<Axis> AxisPtr;
+typedef std::shared_ptr<Axis> AxisPtr;
 
 class VCAxisPositions : public DianaPositions {
 public:
@@ -25,7 +25,7 @@ public:
       const std::vector<float>& xvalues, Values_cp zvalues,
       bool timegraph);
 
-  virtual contouring::point_t position(size_t ix, size_t iy) const;
+  contouring::point_t position(size_t ix, size_t iy) const override;
 
 private:
   AxisPtr mXpos, mYpos;
@@ -42,14 +42,14 @@ public:
   VCContourField(Values_cp data, const DianaLevels& levels,
       const VCAxisPositions& positions, bool timegraph);
 
-  size_t nx() const
+  size_t nx() const override
     { return mData->shape().length(mShapePositionXT); }
 
-  size_t ny() const
+  size_t ny() const override
     { return mData->shape().length(mShapePositionZ); }
 
 protected:
-  virtual float value(size_t ix, size_t iy) const;
+  virtual float value(size_t ix, size_t iy) const override;
 
 private:
   Values_cp mData;
@@ -64,16 +64,16 @@ public:
   VCLines(const PlotOptions& poptions, const DianaLevels& levels, QPainter& painter, const QRect& area);
 
 protected:
-  void paint_polygons();
-  void paint_lines();
-  void paint_labels();
+  void paint_polygons() override;
+  void paint_lines() override;
+  void paint_labels() override;
 
-  void setLine(const Colour& colour, const Linetype& linetype, int linewidth);
-  void setFillColour(const Colour& colour);
-  void setFillPattern(const std::string& pattern);
-  void drawLine(const point_v& lines);
-  void drawPolygons(const point_vv& polygons);
-  void drawLabels(const point_v& points, contouring::level_t li);
+  void setLine(const Colour& colour, const Linetype& linetype, int linewidth) override;
+  void setFillColour(const Colour& colour) override;
+  void setFillPattern(const std::string& pattern) override;
+  void drawLine(const point_v& lines) override;
+  void drawPolygons(const point_vv& polygons) override;
+  void drawLabels(const point_v& points, contouring::level_t li) override;
 
 private:
   void clip();

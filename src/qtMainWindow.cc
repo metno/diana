@@ -109,6 +109,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>
@@ -178,9 +179,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   : QMainWindow(),
     push_command(true),browsing(false),
     markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
-  , vcInterface(0)
   , vcrossEditManagerConnected(false)
   , spWindow(0), pluginB(0), contr(co)
+  , exportImageDialog_(0)
   , showelem(true)
   , autoselect(false)
 {
@@ -2371,10 +2372,12 @@ void DianaMainWindow::saveraster()
 {
   METLIBS_LOG_SCOPE();
 
-  ExportImageDialog eid(this);
-  connect(w->Glw(), SIGNAL(resized(int,int)), &eid, SLOT(onDianaResized(int,int)));
-  eid.onDianaResized(w->Glw()->width(), w->Glw()->height());
-  eid.exec();
+  if (!exportImageDialog_) {
+    exportImageDialog_ = new ExportImageDialog(this);
+    connect(w->Glw(), SIGNAL(resized(int,int)), exportImageDialog_, SLOT(onDianaResized(int,int)));
+    exportImageDialog_->onDianaResized(w->Glw()->width(), w->Glw()->height());
+  }
+  exportImageDialog_->show();
 }
 
 void DianaMainWindow::saveRasterImage(const QString& filename, const QSize& size)
@@ -2382,7 +2385,7 @@ void DianaMainWindow::saveRasterImage(const QString& filename, const QSize& size
   METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
   QPrinter* printer = 0;
   QImage* image = 0;
-  std::auto_ptr<QPaintDevice> device;
+  std::unique_ptr<QPaintDevice> device;
   bool printing = false;
 
   if (filename.endsWith(".pdf")) {

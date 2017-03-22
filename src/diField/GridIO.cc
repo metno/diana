@@ -7,11 +7,10 @@
 
 #include "GridIO.h"
 
-#include "puTools/mi_boost_compatibility.hh"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 #define MILOGGER_CATEGORY "diField.GridIO"
 #include "miLogger/miLogging.h"
@@ -71,7 +70,7 @@ const gridinventory::Grid& GridIO::getGrid(const std::string & reftime, const st
 {
   const gridinventory::ReftimeInventory* rti = findModelAndReftime(reftime);
   if (rti) {
-    const std::set<gridinventory::Grid>::const_iterator gitr = miutil::find_if(rti->grids, boost::bind(&gridinventory::Grid::getName, _1) == grid);
+    const std::set<gridinventory::Grid>::const_iterator gitr = boost::find_if(rti->grids, boost::bind(&gridinventory::Grid::getName, _1) == grid);
     if (gitr != rti->grids.end()) {
       return *gitr;
     }
@@ -88,7 +87,7 @@ const gridinventory::Zaxis& GridIO::getZaxis(const std::string & reftime, const 
   using namespace gridinventory;
   const ReftimeInventory* rti = findModelAndReftime(reftime);
   if (rti) {
-    const std::set<Zaxis>::const_iterator zaitr = miutil::find_if(rti->zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
+    const std::set<Zaxis>::const_iterator zaitr = boost::find_if(rti->zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
     if (zaitr != rti->zaxes.end())
       return *zaitr;
   }
@@ -104,7 +103,7 @@ const gridinventory::Taxis& GridIO::getTaxis(const std::string & reftime, const 
   using namespace gridinventory;
   const ReftimeInventory* rti = findModelAndReftime(reftime);
   if (rti) {
-    const std::set<Taxis>::const_iterator taitr = miutil::find_if(rti->taxes, boost::bind(&Taxis::getName, _1) == taxis);
+    const std::set<Taxis>::const_iterator taitr = boost::find_if(rti->taxes, boost::bind(&Taxis::getName, _1) == taxis);
     if (taitr != rti->taxes.end())
       return *taitr;
   }
@@ -120,7 +119,7 @@ const gridinventory::ExtraAxis& GridIO::getExtraAxis(const std::string & reftime
   using namespace gridinventory;
   const ReftimeInventory* rti = findModelAndReftime(reftime);
   if (rti) {
-    const std::set<ExtraAxis>::const_iterator xit = miutil::find_if(rti->extraaxes, boost::bind(&ExtraAxis::getName, _1) == extraaxis);
+    const std::set<ExtraAxis>::const_iterator xit = boost::find_if(rti->extraaxes, boost::bind(&ExtraAxis::getName, _1) == extraaxis);
     if (xit != rti->extraaxes.end())
       return *xit;
   }

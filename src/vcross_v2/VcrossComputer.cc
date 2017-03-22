@@ -2,7 +2,6 @@
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
 
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <diField/diFieldCalculations.h>
 #include <diField/diMetConstants.h>
@@ -116,7 +115,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
   METLIBS_LOG_SCOPE();
   bool badArgs = false;
   int arg_idx = -1;
-  BOOST_FOREACH(const std::string& a, arguments) {
+  for (const std::string& a : arguments) {
     arg_idx += 1;
     if (arg_idx == 1 and (function() == vcf_convert_unit or function() == vcf_impose_unit)) {
       if (badArgs or nargument() == 0) {
@@ -176,7 +175,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
       else
         setUnit(argument(0)->unit());
     }
-    FieldData_cp fa0 = boost::dynamic_pointer_cast<const FieldData>(argument(0));
+    FieldData_cp fa0 = std::dynamic_pointer_cast<const FieldData>(argument(0));
     if (fa0)
       setZAxis(fa0->zaxis());
   }
@@ -197,7 +196,7 @@ static Values::ValueArray getPressureFloats(FieldData_cp arg0, const name2value_
   std::string pressureId;
   if (util::unitsConvertible(zfield->unit(), "hPa"))
     pressureId = zfield->id();
-  else if (FieldData_cp pfield = boost::static_pointer_cast<const FieldData>(zfield->pressureField()))
+  else if (FieldData_cp pfield = std::static_pointer_cast<const FieldData>(zfield->pressureField()))
     pressureId = pfield->id();
   else
     return Values::ValueArray();
@@ -219,7 +218,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   METLIBS_LOG_SCOPE(LOGVAL(id()) << LOGVAL(mFunction->name));
   Values_cpv argument_values;
   int arg_idx = -1;
-  BOOST_FOREACH(const InventoryBase_cp& a, arguments()) {
+  for (const InventoryBase_cp& a : arguments()) {
     arg_idx += 1;
     if (arg_idx == mNumericArgIndex
         or (function() == vcf_convert_unit and arg_idx == 1))
@@ -245,7 +244,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     argument_values.push_back(ita->second);
   }
 
-  const FieldData_cp a0 = boost::dynamic_pointer_cast<const FieldData>(argument(0));
+  const FieldData_cp a0 = std::dynamic_pointer_cast<const FieldData>(argument(0));
 
   const Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : Values_cp());
   const float ud0 = av0->undefValue(), ud1 = (av1 ? av1->undefValue() : ud0);
@@ -421,7 +420,7 @@ void FunctionData::collectRequired(InventoryBase_cps& required) const
   case vcf_tdk_from_tk_rh:
   case vcf_tdk_from_th_rh: {
     // these functions require a pressure field
-    if (FieldData_cp fa0 = boost::dynamic_pointer_cast<const FieldData>(argument(0))) {
+    if (FieldData_cp fa0 = std::dynamic_pointer_cast<const FieldData>(argument(0))) {
       if (ZAxisData_cp zaxis = fa0->zaxis()) {
         if (util::unitsConvertible(zaxis->unit(), "hPa"))
           required.insert(zaxis);
@@ -440,7 +439,7 @@ void FunctionData::collectRequired(InventoryBase_cps& required) const
 void resolve(InventoryBase_cps& content, const NameItem_v& nameItems)
 {
   METLIBS_LOG_SCOPE();
-  BOOST_FOREACH(const NameItem& ni, nameItems) {
+  for (const NameItem& ni : nameItems) {
     if (findItemById(content, ni.name)) {
       METLIBS_LOG_DEBUG("name '" << ni.name << "' already defined");
       continue;
@@ -558,7 +557,7 @@ void collectRequired(InventoryBase_cps& required, InventoryBase_cp item)
     //METLIBS_LOG_DEBUG("field, inserting '" << item->id() << "'");
     required.insert(item);
   } else if (type == FunctionData::DATA_TYPE()) {
-    FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
+    FunctionData_cp f = std::static_pointer_cast<const FunctionData>(item);
     f->collectRequired(required);
   }
 }
@@ -567,7 +566,7 @@ void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item,
 {
   if (item->dataType() != FieldData::DATA_TYPE())
     return;
-  FieldData_cp field = boost::static_pointer_cast<const FieldData>(item);
+  FieldData_cp field = std::static_pointer_cast<const FieldData>(item);
 
   if (zType == Z_TYPE_PRESSURE) {
     if (ZAxisData_cp zaxis = field->zaxis()) {
@@ -608,7 +607,7 @@ Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
     return Values_cp();
   }
 
-  FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
+  FunctionData_cp f = std::static_pointer_cast<const FunctionData>(item);
   out = f->evaluate(n2v);
   return out;
 }

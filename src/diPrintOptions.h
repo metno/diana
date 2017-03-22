@@ -87,7 +87,6 @@ public:
   bool usecustomsize;               ///< use papersize instead of pagesize
   bool fittopage;                   ///< fit output to page
   bool drawbackground;              ///< fill with background colour
-  bool doEPS;                       ///< make encapsulated postscript
   int viewport_x0;                  ///< OpenGL viewport coordinates llcx
   int viewport_y0;                  ///< OpenGL viewport coordinates llcy
   int viewport_width;               ///< OpenGL viewport coordinates width
@@ -101,7 +100,6 @@ public:
     usecustomsize(false),
     fittopage(true),
     drawbackground(true),
-    doEPS(false),
     viewport_x0(0),viewport_y0(0),
     viewport_width(0),viewport_height(0)
   {}

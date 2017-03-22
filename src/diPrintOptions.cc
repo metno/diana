@@ -105,7 +105,6 @@ void printOptions::printPrintOptions()
   cerr << usecustomsize << " use papersize instead of pagesize" << endl;
   cerr << fittopage << " fit output to page" << endl;
   cerr << drawbackground <<  " fill with background colour" << endl;
-  cerr << doEPS << " make encapsulated postscript" << endl;
   cerr << viewport_x0 << " OpenGL viewport coordinates llcx" << endl;
   cerr << viewport_y0 << " OpenGL viewport coordinates llcy" << endl;
   cerr << viewport_width << " OpenGL viewport coordinates width" << endl;

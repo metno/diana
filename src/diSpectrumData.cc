@@ -34,7 +34,6 @@
 #include "diSpectrumData.h"
 #include "diSpectrumPlot.h"
 
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 #include <diField/VcrossUtil.h>
 
@@ -67,7 +66,7 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
 {
   METLIBS_LOG_SCOPE();
 
-  collector = miutil::make_shared<vcross::Collector>(setup);
+  collector = std::make_shared<vcross::Collector>(setup);
 
   if ( reftimestr.empty() ) {
     reftime = collector->getResolver()->getSource(modelName)->getLatestReferenceTime();
@@ -111,7 +110,7 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
     }
   }
 
-  BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
+  for (vcross::Time::timevalue_t time : inv->times.values) {
     validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
     METLIBS_LOG_DEBUG(LOGVAL(vcross::util::to_miTime(inv->times.unit, time)));
   }
@@ -222,7 +221,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   name2value_t n2v;
   fs->getWaveSpectrumValues(mr.reftime,cs, index, user_time, request, n2v);
 
-  std::auto_ptr<SpectrumPlot> spp(new SpectrumPlot);
+  std::unique_ptr<SpectrumPlot> spp(new SpectrumPlot);
   spp->prognostic = true;
   spp->modelName = modelName;
   spp->posName = posName[iPos];

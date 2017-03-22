@@ -2,5 +2,6 @@
 
 set -e
 update-alternatives --install /usr/bin/diana.bin diana.bin /usr/bin/diana.bin-@METNO_VERSION@ @PVERSION_NUMBER_MAJOR_MINOR@
+update-alternatives --install /usr/bin/bdiana bdiana /usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@ @PVERSION_NUMBER_MAJOR_MINOR@
 
 #DEBHELPER#

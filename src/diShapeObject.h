@@ -68,7 +68,7 @@ private:
   Projection projection;
   XY mReductionScale;
 
-  typedef boost::shared_ptr<SHPObject> SHPObject_p;
+  typedef std::shared_ptr<SHPObject> SHPObject_p;
   struct ShpData {
     SHPObject_p shape;
     int type() const

@@ -73,8 +73,8 @@ private:
   bool isAnimation() const;
 
 private:
-  std::auto_ptr<Ui_ExportImageDialog> ui;
-  std::auto_ptr<P_ExportImageDialog> p;
+  std::unique_ptr<Ui_ExportImageDialog> ui;
+  std::unique_ptr<P_ExportImageDialog> p;
   DianaMainWindow* mw;
 };
 

@@ -59,38 +59,44 @@
  *
  * AUTHOR: Oystein Godoy, DNMI, 05/05/1995, changed by LB, changed by SMHI/AB in 09/09/2009
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <satgeotiff.h>
+#include "satgeotiff.h"
+
+#include "ImageCache.h"
+
+#include <puTools/miStringFunctions.h>
+#include <puTools/miTime.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#ifdef HAVE_GEOTIFF_GEOTIFF_H
+#if defined(HAVE_GEOTIFF_GEOTIFF_H)
 #include <geotiff/geotiff.h>
 #include <geotiff/geotiffio.h>
 #include <geotiff/geo_tiffp.h>
-#elif HAVE_LIBGEOTIFF_GEOTIFF_H
+#elif defined(HAVE_LIBGEOTIFF_GEOTIFF_H)
 #include <libgeotiff/geotiff.h>
 #include <libgeotiff/geotiffio.h>
 #include <libgeotiff/geo_tiffp.h>
-#else
+#elif defined(HAVE_GEOTIFF_H)
 #include <geotiff.h>
 #include <geotiffio.h>
 #include <geo_tiffp.h>
+#else
+#error "no location for geotiff.h"
 #endif
 
 #include <tiffio.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <sstream>
+#include <cstdlib>
+#include <cmath>
 
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
-
-using namespace milogger;
 using namespace miutil;
 using namespace satimg;
 using namespace std;
@@ -111,7 +117,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
 
 
   //  int i,status,size,tilesize, x,y, counter, l,w, k, red,green, blue,alpha;
-  int status,size,tilesize;
+  int status,size;
   int pal;
   int compression = 0;
 
@@ -172,8 +178,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
   TIFFGetField(in, TIFFTAG_BITSPERSAMPLE, &bitspersample);
 
   if (tileWidth != 0 && tileLength != 0) {
-    tilesize = tileWidth * tileLength;
-
     tilesAcross = (ginfo.xsize + (tileWidth -1)) / tileWidth;
     tilesDown = (ginfo.ysize + (tileLength -1)) / tileLength;
     if (tilesAcross * tileWidth >  ginfo.xsize)
@@ -447,7 +451,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 
     // Is tiepoints in correct unit, lets guess..
     // latitude
-    double x_0, y_0, x_scale, y_scale, latrad;
+    double x_0, y_0, x_scale, y_scale;
     //double one_long = 60.0 * 1852.0;
     //double one_lat = 60.0 * 1852.0;
 
@@ -456,7 +460,6 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     if (abs(tiepoints[3]) <= 90.0)
     {
       // Compute from degree to meter
-      latrad = tiepoints[3] *3.14/180.0;
       x_0 = tiepoints[3]*one_lat;
     }
     else
@@ -537,7 +540,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     std::string projstr;
 
     if (!GTIFKeyGet(gtifin, GTModelTypeGeoKey, &modeltype, 0, 1) ) {
-      cerr << "Error getting GTModelType from file" << endl;
+      METLIBS_LOG_ERROR("getting GTModelType from file");
     }
 
     GTIFKeyGet(gtifin, ProjLinearUnitsGeoKey, &ProjLinearUnits , 0, 1);
@@ -716,7 +719,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
         else if (GeogInvFlattening < 1e20 )
           tmp_proj_string << " +rf=" << GeogInvFlattening;
         else {
-          cerr << "Could not determine GeogSemiMinorAxis or GeogInvFlattening" << endl;
+          METLIBS_LOG_ERROR("Could not determine GeogSemiMinorAxis or GeogInvFlattening");
           tmp_proj_string << " +rf=298.257";
           //return(-1);
         }
@@ -741,7 +744,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
         else if (GeogInvFlattening < 1e20 )
           tmp_proj_string << " +rf=" << GeogInvFlattening;
         else {
-          cerr << "Could not determine GeogSemiMinorAxis or GeogInvFlattening" << endl;
+          METLIBS_LOG_ERROR("Could not determine GeogSemiMinorAxis or GeogInvFlattening");
           tmp_proj_string << " +rf=298.257";
           //return(-1);
         }
@@ -774,29 +777,12 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 
 int metno::GeoTiff::day_night(const std::string& infile)
 {
-
   dihead sinfo;
 
   if (head_diana(infile, sinfo)!= 0){
     METLIBS_LOG_ERROR("Error reading met.no/TIFF file:" << infile);
     return -1;
   }
-
-  struct ucs upos;
-  struct dto d;
-  upos.Ax = sinfo.Ax;
-  upos.Ay = sinfo.Ay;
-  upos.Bx = sinfo.Bx;
-  upos.By = sinfo.By;
-  upos.iw = sinfo.xsize;
-  upos.ih = sinfo.ysize;
-  d.ho = sinfo.time.hour();
-  d.mi = sinfo.time.min();
-  d.dd = sinfo.time.day();
-  d.mm = sinfo.time.month();
-  d.yy = sinfo.time.year();
-
-  //  int aa = selalg(d, upos, 5., -2.); //Why 5 and -2? From satsplit.c
 
   return 0;
 }
@@ -919,6 +905,5 @@ short GeoTiff::selalg(const dto& d, const ucs& upos, const float& hmax, const fl
   }
   return(0);
 }
-
 
 #endif // end if 0

@@ -86,8 +86,8 @@ private:
   EditManager *editm;     // editing/drawing manager
   FieldPlotManager *fieldplotm;   // field plot manager
 
-  std::auto_ptr<ObsPlotCluster> obsplots_;   // observation plots
-  std::auto_ptr<FieldPlotCluster> fieldplots_; // field plots
+  std::unique_ptr<ObsPlotCluster> obsplots_;   // observation plots
+  std::unique_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
@@ -95,7 +95,7 @@ private:
   std::vector<AnnotationPlot*> obsVap; //display obs annotation
   std::vector<AnnotationPlot*> objectVap; //display object label
   std::vector<AnnotationPlot*> editVap;   //edit object labels
-  std::auto_ptr<AreaObjectsCluster> areaobjects_;
+  std::unique_ptr<AreaObjectsCluster> areaobjects_;
 
   std::vector<std::string> annotationStrings;  //orig. strings from setup
 
@@ -107,7 +107,7 @@ private:
 
   bool showanno;        // show standard annotations
 
-  std::auto_ptr<StaticPlot> staticPlot_;
+  std::unique_ptr<StaticPlot> staticPlot_;
 
   DiCanvas* mCanvas;
 

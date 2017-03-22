@@ -46,6 +46,13 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QToolTip>
+
 #define MILOGGER_CATEGORY "diana.EditItemManager"
 #include <miLogger/miLogging.h>
 
@@ -60,12 +67,23 @@
 using namespace std;
 using namespace miutil;
 
+namespace {
+EditItems::ItemGroup* scratchGroup(const QMap<QString, EditItems::ItemGroup *>& groups)
+{
+  const QMap<QString, EditItems::ItemGroup *>::const_iterator itS = groups.find("scratch");
+  if (itS != groups.end())
+    return itS.value();
+  else
+    return 0;
+}
+} // namespace
+
 class UndoView : public QUndoView
 {
 public:
   UndoView(QUndoStack *undoStack) : QUndoView(undoStack) {}
 private:
-  virtual void keyPressEvent(QKeyEvent *event)
+  void keyPressEvent(QKeyEvent *event) override
   {
     // to avoid crash, support only basic keyboard navigation
     if (event->matches(QKeySequence::MoveToPreviousLine) || event->matches(QKeySequence::MoveToNextLine))
@@ -249,7 +267,7 @@ void EditItemManager::setEditing(bool enable)
   Manager::setEditing(enable);
 
   // Enable the scratch layer if editing is enabled; otherwise disable it.
-  itemGroups_.value("scratch")->setActive(enable);
+  scratchGroup(itemGroups_)->setActive(enable);
 
   selectingOnly_ = !enable;
 
@@ -312,7 +330,7 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipR
     if (!item->getLatLonPoints().isEmpty())
       setFromLatLonPoints(item, item->getLatLonPoints()); // obtain screen coords from geo coords
 
-    itemGroups_.value("scratch")->addItem(item);
+    scratchGroup(itemGroups_)->addItem(item);
     emit itemAdded(item);
   }
 
@@ -368,7 +386,8 @@ void EditItemManager::removeItem(DrawingItemBase *item)
   // an undo command.
   item->setLatLonPoints(getLatLonPoints(item));
 
-  itemGroups_.value("scratch")->removeItem(item);
+  scratchGroup(itemGroups_)->removeItem(item);
+
   hitItems_.removeOne(item);
   deselectItem(item);
 
@@ -623,15 +642,6 @@ void EditItemManager::incompleteMouseDoubleClick(QMouseEvent *event)
     if (rpn)
       repaintNeeded_ = true;
   }
-}
-
-static DrawingItemBase *idToItem(const QSet<DrawingItemBase *> &items, int id)
-{
-  foreach (DrawingItemBase *item, items) {
-    if (id == item->id())
-      return item;
-  }
-  return 0;
 }
 
 void EditItemManager::keyPress(QKeyEvent *event)
@@ -1341,14 +1351,12 @@ void EditItemManager::toggleReversedForSelectedItems()
 
 void EditItemManager::lowerSelectedItems()
 {
-  EditItems::ItemGroup *group = itemGroups_.value("scratch");
-  group->lowerItems(selectedItems());
+  scratchGroup(itemGroups_)->lowerItems(selectedItems());
 }
 
 void EditItemManager::raiseSelectedItems()
 {
-  EditItems::ItemGroup *group = itemGroups_.value("scratch");
-  group->raiseItems(selectedItems());
+  scratchGroup(itemGroups_)->raiseItems(selectedItems());
 }
 
 void EditItemManager::setSelectMode()
@@ -1698,30 +1706,6 @@ bool EditItemManager::cycleHitOrder(QKeyEvent *event)
   return false;
 }
 
-static void addDiffsToDescr(QString &descr, const QString &format, int nDiffs)
-{
-  if (nDiffs > 0)
-    descr += format.arg(descr.isEmpty() ? "" : ", ").arg(nDiffs).arg((nDiffs == 1) ? "" : "s");
-}
-
-static bool fuzzyEqual(const qreal v1, const qreal v2)
-{
-  const qreal tolerance = 0.0001; // ### may need to be tuned
-  return qAbs(v1 - v2) < tolerance;
-}
-
-static bool fuzzyEqual(const QList<QPointF> &p1, const QList<QPointF> &p2)
-{
-  if (p1.size() != p2.size())
-    return false;
-
-  for (int i = 0; i < p1.size(); ++i)
-    if ((!fuzzyEqual(p1.at(i).x(), p2.at(i).x())) || (!fuzzyEqual(p1.at(i).y(), p2.at(i).y())))
-      return false;
-
-  return true;
-}
-
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
   event->ignore();
@@ -1791,7 +1775,7 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
 void EditItemManager::pushUndoCommands()
 {
-  EditItems::ItemGroup *group = itemGroups_.value("scratch");
+  EditItems::ItemGroup *group = scratchGroup(itemGroups_);
   QHash<int, QVariantMap> newStates = getStates(group->items());
 
   // Return immediately if nothing has changed.
@@ -1837,7 +1821,7 @@ QHash<int, QVariantMap> EditItemManager::getStates(const QList<DrawingItemBase *
 void EditItemManager::replaceItemStates(const QHash<int, QVariantMap> &states,
     QList<DrawingItemBase *> removeItems, QList<DrawingItemBase *> addItems)
 {
-  EditItems::ItemGroup *group = itemGroups_.value("scratch");
+  EditItems::ItemGroup *group = scratchGroup(itemGroups_);
 
   foreach(DrawingItemBase *item, removeItems)
     group->removeItem(item);

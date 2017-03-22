@@ -46,6 +46,8 @@ class VcrossReftimePage : public QWidget {
 
 public:
   VcrossReftimePage(QWidget* parent=0);
+  ~VcrossReftimePage();
+
   void setManager(vcross::QtManager_p vm);
 
 public:
@@ -63,7 +65,7 @@ private Q_SLOTS:
 
 private:
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossReftimePage> ui;
+  std::unique_ptr<Ui_VcrossReftimePage> ui;
   QStringListModel* referenceTimes;
 };
 

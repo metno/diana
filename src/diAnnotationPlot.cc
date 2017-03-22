@@ -35,6 +35,7 @@
 #include "diImageGallery.h"
 #include "diGLPainter.h"
 #include "diLegendPlot.h"
+#include "util/charsets.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -135,6 +136,8 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
     if (!norwegian)
       es += " $lg=eng ";
     es = time.format(es);
+    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+    es = diutil::convertLatin1ToUtf8(es);
   }
   return es;
 }

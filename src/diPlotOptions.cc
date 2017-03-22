@@ -297,7 +297,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
   bool result=true;
 
   const vector<string> tokens= miutil::split_protected(optstr, '"', '"');
-  BOOST_FOREACH(const string& token, tokens) {
+  for (const string& token : tokens) {
     const vector<string> etokens = miutil::split(token, "=");
     const size_t l = etokens.size();
     if (l > 1) {
@@ -353,7 +353,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         // } else {
         po.options_1= true;
         const vector<string> stokens= miutil::split(value, 0, ",");
-        BOOST_FOREACH(const string& c, stokens) {
+        for (const string& c : stokens) {
           po.colours.push_back(Colour(c));
         }
 
@@ -366,7 +366,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         const vector<string> stokens = miutil::split(value, ",");
         const size_t m= stokens.size();
         if(m>2){
-          BOOST_FOREACH(const string& c, stokens) {
+          for (const string& c : stokens) {
             po.palettecolours.push_back(Colour(c));
           }
         } else {
@@ -404,7 +404,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
 
       } else if (key==key_linetypes){
         const vector<string> stokens = miutil::split(value, 0, ",");
-        BOOST_FOREACH(const string& l, stokens) {
+        for (const string& l : stokens) {
           po.linetypes.push_back(Linetype(l));
         }
 
@@ -866,7 +866,7 @@ vector<float> PlotOptions::floatVector(const std::string& str) const
 {
   vector<float> values;
   const vector<std::string> tokens= miutil::split(str, ",");
-  BOOST_FOREACH(const string& t, tokens) {
+  for (const string& t : tokens) {
     if (miutil::is_number(t))
       values.push_back(miutil::to_double(t));
     else
@@ -881,7 +881,7 @@ vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
   vector<float> values;
 
   const vector<std::string> stokens = miutil::split(str, ",");
-  BOOST_FOREACH(const string& t, stokens) {
+  for (const string& t : stokens) {
     if (miutil::is_number(t)) {
       const double v = miutil::to_double(t);
       values.push_back(v);

@@ -28,6 +28,7 @@
 */
 
 #include <diUtilities.h>
+#include <util/charsets.h>
 #include <util/format_int.h>
 #include <util/string_util.h>
 #include <util/polygon_util.h>
@@ -218,4 +219,21 @@ TEST(TestUtilities, trimToRectangle)
     const QPolygonF actual5 = diutil::trimToRectangle(rect, polyin5);
     EXPECT_EQ(expect5, actual5);
   }
+}
+
+TEST(TestUtilities, Latin1ToUtf8)
+{
+  EXPECT_EQ("blåbær", diutil::convertLatin1ToUtf8("bl\xE5" "b\xE6" "r"));
+  EXPECT_EQ("Årø", diutil::convertLatin1ToUtf8("\xC5r\xF8"));
+
+  ASSERT_TRUE(bool(diutil::findConverter(diutil::ISO_8859_1, diutil::UTF_8)));
+}
+
+TEST(TestUtilities, Utf8ToLatin1)
+{
+  diutil::CharsetConverter_p c = diutil::findConverter(diutil::UTF_8, diutil::ISO_8859_1);
+  ASSERT_TRUE(bool(c));
+
+  EXPECT_EQ("bl\xE5" "b\xE6" "r", c->convert("blåbær"));
+  EXPECT_EQ("\xC5r\xF8", c->convert("Årø"));
 }

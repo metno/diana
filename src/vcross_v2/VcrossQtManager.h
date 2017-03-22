@@ -351,7 +351,7 @@ private:
   float mReferencePosition;
 };
 
-typedef boost::shared_ptr<QtManager> QtManager_p;
+typedef std::shared_ptr<QtManager> QtManager_p;
 
 } // namespace vcross
 

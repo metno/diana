@@ -48,7 +48,7 @@ class AnnotationPlot;
 class DiGLPainter;
 class PlotModule;
 class ObjectManager;
-class ObsPositions;
+struct ObsPositions;
 class FieldPlotManager;
 class Field;
 

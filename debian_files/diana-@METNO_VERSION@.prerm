@@ -2,5 +2,6 @@
 
 set -e
 update-alternatives --remove diana.bin /usr/bin/diana.bin-@METNO_VERSION@
+update-alternatives --remove bdiana /usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
 
 #DEBHELPER#

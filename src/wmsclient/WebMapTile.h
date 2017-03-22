@@ -95,7 +95,7 @@ public:
   void dummyImage(int tw, int th);
 
 protected /*Q_SLOTS*/:
-  void replyFinished() /* Q_DECL_OVERRIDE */;
+  void replyFinished() Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
   void finished(WebMapTile* self);

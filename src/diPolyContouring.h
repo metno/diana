@@ -33,6 +33,7 @@
 #include "diPlotOptions.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,12 +43,12 @@ class DiGLPainter;
 
 class DianaLevels {
 public:
-  virtual ~DianaLevels() { }
+  virtual ~DianaLevels();
   virtual contouring::level_t level_for_value(float value) const = 0;
   virtual float value_for_level(contouring::level_t l) const = 0;
   enum { UNDEF_LEVEL = -10000000 };
 };
-typedef boost::shared_ptr<DianaLevels> DianaLevels_p;
+typedef std::shared_ptr<DianaLevels> DianaLevels_p;
 
 DianaLevels_p dianaLevelsForPlotOptions(const PlotOptions& mPoptions, float fieldUndef);
 
@@ -57,8 +58,8 @@ class DianaLevelList : public DianaLevels {
 public:
   DianaLevelList(const std::vector<float>& levels);
   DianaLevelList(float lstart, float lstop, float lstep);
-  virtual contouring::level_t level_for_value(float value) const;
-  virtual float value_for_level(contouring::level_t l) const;
+  virtual contouring::level_t level_for_value(float value) const override;
+  virtual float value_for_level(contouring::level_t l) const override;
   size_t nlevels() const
     { return mLevels.size(); }
 protected:
@@ -80,8 +81,8 @@ public:
 class DianaLevelLog : public DianaLevelList {
 public:
   DianaLevelLog(const std::vector<float>& levels);
-  virtual contouring::level_t level_for_value(float value) const;
-  virtual float value_for_level(contouring::level_t l) const;
+  virtual contouring::level_t level_for_value(float value) const override;
+  virtual float value_for_level(contouring::level_t l) const override;
   enum { BASE = 10 };
 };
 
@@ -91,8 +92,8 @@ class DianaLevelStep : public DianaLevels {
 public:
   DianaLevelStep(float step, float off);
   void set_limits(float mini, float maxi);
-  virtual contouring::level_t level_for_value(float value) const;
-  virtual float value_for_level(contouring::level_t l) const;
+  virtual contouring::level_t level_for_value(float value) const override;
+  virtual float value_for_level(contouring::level_t l) const override;
 protected:
   float mStep, mOff, mMin, mMax;
   bool mHaveMin, mHaveMax;
@@ -102,11 +103,11 @@ protected:
 
 class DianaPositions {
 public:
-  virtual ~DianaPositions() { }
+  virtual ~DianaPositions();
   virtual contouring::point_t position(size_t ix, size_t iy) const = 0;
 };
 
-typedef boost::shared_ptr<DianaPositions> DianaPositions_p;
+typedef std::shared_ptr<DianaPositions> DianaPositions_p;
 
 // ########################################################################
 
@@ -115,13 +116,13 @@ public:
   DianaFieldBase(const DianaLevels& levels, const DianaPositions& positions)
     : mLevels(levels), mPositions(positions) { }
   
-  virtual contouring::level_t grid_level(size_t ix, size_t iy) const
+  virtual contouring::level_t grid_level(size_t ix, size_t iy) const override
     { return mLevels.level_for_value(value(ix, iy)); }
-  virtual contouring::point_t line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const;
-  virtual contouring::point_t grid_point(size_t x, size_t y) const
+  virtual contouring::point_t line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const override;
+  virtual contouring::point_t grid_point(size_t x, size_t y) const override
     { return position(x, y); }
 
-  contouring::level_t undefined_level() const
+  contouring::level_t undefined_level() const override
     { return DianaLevels::UNDEF_LEVEL; }
   
 protected:
@@ -145,8 +146,8 @@ public:
   DianaLines(const PlotOptions& poptions, const DianaLevels& levels);
   virtual ~DianaLines();
 
-  void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
-  void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
+  void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed) override;
+  void add_contour_polygon(contouring::level_t level, const contouring::points_t& points) override;
 
   virtual void paint();
 

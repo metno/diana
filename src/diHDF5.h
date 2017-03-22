@@ -32,23 +32,17 @@
 #define diHDF5_h
 
 #include <diSat.h>
-#include <miRaster/satimgh5.h>
-
+#include <vector>
 
 /**
-
   \brief Reading hdf5 files
 
   - read header
   - read data into class Sat
   - calc. solar heigt
-
 */
 
-
 class HDF5 {
-
-
 public:
   HDF5();
 
@@ -57,16 +51,8 @@ public:
   ///read header info (time, channels)
   static bool readHDF5Header(SatFileInfo& file);
   ///read palette info
-  static bool readHDF5Palette(SatFileInfo& file, vector<Colour>& col);
+  static bool readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col);
   ///set channels depending on solar heigt
-  //static bool day_night(const std::string& filename, std::string& channels);
-
-private:
-  //static satimgh5 hdf5api;
 };
 
 #endif
-
-
-
-

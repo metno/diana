@@ -3,7 +3,6 @@
 
 #include "../util/string_util.h"
 
-#include <puTools/mi_boost_compatibility.hh>
 #include "diMetConstants.h"
 #include <udunits2.h>
 #include <boost/foreach.hpp>
@@ -156,7 +155,7 @@ Values_cp unitConversion(Values_cp valuesIn, const std::string& unitIn, const st
   if (not uconv)
     return Values_cp();
   const float udI = valuesIn->undefValue();
-  Values_p valuesOut = miutil::make_shared<Values>(valuesIn->shape(), false);
+  Values_p valuesOut = std::make_shared<Values>(valuesIn->shape(), false);
 
   const size_t volume = valuesOut->shape().volume();
   const Values::ValueArray vIn = valuesIn->values();
@@ -204,7 +203,7 @@ bool nextline(std::istream& config, std::string& line)
 int vc_select_cs(const std::string& ucs, Inventory_cp inv)
 {
   int csidx = -1;
-  BOOST_FOREACH(Crossection_cp cs, inv->crossections) {
+  for (Crossection_cp cs : inv->crossections) {
     csidx += 1;
     if (cs->label() == ucs)
       return csidx;

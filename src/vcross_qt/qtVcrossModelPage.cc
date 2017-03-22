@@ -32,6 +32,10 @@ VcrossModelPage::VcrossModelPage(QWidget* parent)
       this, SLOT(listActivated()));
 }
 
+VcrossModelPage::~VcrossModelPage()
+{
+}
+
 void VcrossModelPage::setManager(vcross::QtManager_p vm)
 {
   vcrossm = vm;

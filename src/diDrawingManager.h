@@ -65,18 +65,18 @@ public:
   ~DrawingManager();
 
   // parse DRAWING section of setup file (defines Drawing products)
-  virtual bool parseSetup();
+  virtual bool parseSetup() override;
 
-  virtual bool changeProjection(const Area& newArea);
+  virtual bool changeProjection(const Area& newArea) override;
   virtual QString loadDrawing(const QString &name, const QString &fileName);
-  virtual bool prepare(const miutil::miTime &time);
-  virtual void setCanvas(DiCanvas* canvas) /* Q_DECL_OVERRIDE*/;
-  virtual void plot(DiGLPainter* gl, bool under, bool over);
-  virtual bool processInput(const std::vector<std::string>& inp);
-  virtual std::vector<std::string> getAnnotations() const;
+  virtual bool prepare(const miutil::miTime &time) override;
+  virtual void setCanvas(DiCanvas* canvas) override;
+  virtual void plot(DiGLPainter* gl, bool under, bool over) override;
+  virtual bool processInput(const std::vector<std::string>& inp) override;
+  std::vector<std::string> getAnnotations() const override;
 
-  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res);
-  virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
+  void sendMouseEvent(QMouseEvent* event, EventResult& res) override;
+  void sendKeyboardEvent(QKeyEvent* /*event*/, EventResult& /*res*/) override {}
 
   QList<DrawingItemBase *> findHitItems(const QPointF &pos,
     QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,
@@ -109,9 +109,9 @@ public:
 
   void setEditRect(Rectangle r);
 
-  virtual std::vector<PlotElement> getPlotElements();
-  virtual bool enablePlotElement(const PlotElement &);
-  virtual QString plotElementTag() const;
+  virtual std::vector<PlotElement> getPlotElements() override;
+  virtual bool enablePlotElement(const PlotElement &) override;
+  virtual QString plotElementTag() const override;
 
   int nextJoinId(bool = true);
   void separateJoinIds(const QList<DrawingItemBase *> &);
@@ -127,7 +127,7 @@ public:
   void removeItemGroup(const QString &name);
 
 public slots:
-  std::vector<miutil::miTime> getTimes() const;
+  std::vector<miutil::miTime> getTimes() const override;
   void setAllItemsVisible(bool enable);
 
 signals:

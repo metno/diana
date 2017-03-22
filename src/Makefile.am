@@ -112,6 +112,7 @@ libdiana_la_SOURCES = \
 	poly_contouring.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapUtilities.cc \
+	util/charsets.cc \
 	util/debug_timer.cc \
 	util/format_int.cc \
 	util/openmp_tools.cc \
@@ -145,7 +146,7 @@ libdiana_la_SOURCES += \
 libdiana_la_CPPFLAGS = -Ivcross_v2 -Ivcross_qt
 libdiana_la_LIBADD = \
 	$(BOOST_DATE_TIME_LIBS) \
-	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
+	$(BOOST_SYSTEM_LIBS)
 
 libdiana_la_QTSOURCES = diManager.cc \
 	diDrawingManager.cc \
@@ -452,6 +453,7 @@ noinst_HEADERS = \
 	qtVprofWindow.h \
 	qtWorkArea.h \
 	signalhelper.h \
+	util/charsets.h \
 	util/debug_timer.h \
 	util/format_int.h \
 	util/openmp_tools.h \
@@ -702,13 +704,13 @@ libdiana_la_SOURCES += \
 	diGEOtiff.cc
 noinst_HEADERS += \
 	diGEOtiff.h
-libdiana_la_LDFLAGS += ${GEOTIFF_LDFLAGS} ${BOOST_THREAD_LDFLAGS}
-libdiana_la_LIBADD += ${GEOTIFF_LIBS} ${BOOST_THREAD_LIBS}
+libdiana_la_LDFLAGS += ${GEOTIFF_LDFLAGS}
+libdiana_la_LIBADD += ${GEOTIFF_LIBS}
 endif
 
 # Additional source code for HDF5 support
 if WITH_HDF5
-libdiana_la_CPPFLAGS += -DHDF5FILE
+libdiana_la_CPPFLAGS += -DHDF5FILE ${HDF5_CPPFLAGS}
 libdiana_la_SOURCES += \
 	diHDF5.cc
 noinst_HEADERS += \
@@ -794,6 +796,7 @@ libdianaui_a_SOURCES += \
 libdianaui_a_CPPFLAGS = \
 	-I $(builddir)/vcross_qt \
 	${FIMEX_CPPFLAGS} \
+	$(METLIBS_CPPFLAGS) \
 	$(METLIBSUI_CPPFLAGS) \
 	$(QT4_CPPFLAGS)
 
@@ -825,8 +828,10 @@ diBuild.cc.tmp: $(top_srcdir)/gen_dibuild_cc
 
 bdiana_SOURCES = bdiana.cc
 bdiana_LDFLAGS = \
+	${FIMEX_LDFLAGS} \
 	$(METLIBS_LDFLAGS)
 bdiana_LDADD = \
+	${FIMEX_LIBS} \
 	$(METLIBS_LIBS) \
 	libdiana.la
 

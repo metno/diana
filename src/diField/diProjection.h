@@ -136,9 +136,9 @@ private:
 #if !defined(PROJECTS_H)
   typedef void PJ;
 #endif
-  boost::shared_ptr<PJ> projObject;
+  std::shared_ptr<PJ> projObject;
 
-  static boost::shared_ptr<Projection> sGeographic;
+  static std::shared_ptr<Projection> sGeographic;
 };
 
 #endif

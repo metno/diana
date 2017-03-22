@@ -146,8 +146,8 @@ protected:
   static GridConverter gc;   // gridconverter class
 
 private:
-  typedef boost::shared_ptr<GridCollection> GridCollectionPtr;
-  typedef boost::shared_ptr<GridIOsetup> GridIOsetupPtr;
+  typedef std::shared_ptr<GridCollection> GridCollectionPtr;
+  typedef std::shared_ptr<GridIOsetup> GridIOsetupPtr;
 
   typedef std::map<std::string, GridCollectionPtr> GridSources_t;
 

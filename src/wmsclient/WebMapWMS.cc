@@ -42,6 +42,9 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QStringList>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 
 #include <sys/time.h>
 
@@ -308,7 +311,7 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
       cb.projection, viewRect, viewProj);
   METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
 
-  std::auto_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
+  std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 
@@ -320,13 +323,18 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
     const std::string& crs, WebMapTile* tile)
 {
   QUrl qurl = mServiceURL;
-  qurl.addQueryItem("SERVICE", "WMS");
-  qurl.addQueryItem("REQUEST", "GetMap");
-  qurl.addQueryItem("VERSION", (mVersion == WMS_130) ? "1.3.0" : "1.1.1");
-  qurl.addQueryItem("TRANSPARENT", "TRUE");
-  qurl.addQueryItem("LAYERS", diutil::sq(layer->identifier()));
-  qurl.addQueryItem("STYLES", diutil::sq(layer->defaultStyle()));
-  qurl.addQueryItem("FORMAT", diutil::sq(tileFormat()));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QUrlQuery urlq;
+#else
+    QUrl& urlq = qurl;
+#endif
+  urlq.addQueryItem("SERVICE", "WMS");
+  urlq.addQueryItem("REQUEST", "GetMap");
+  urlq.addQueryItem("VERSION", (mVersion == WMS_130) ? "1.3.0" : "1.1.1");
+  urlq.addQueryItem("TRANSPARENT", "TRUE");
+  urlq.addQueryItem("LAYERS", diutil::sq(layer->identifier()));
+  urlq.addQueryItem("STYLES", diutil::sq(layer->defaultStyle()));
+  urlq.addQueryItem("FORMAT", diutil::sq(tileFormat()));
 
   for (size_t d = 0; d<layer->countDimensions(); ++d) {
     const WebMapDimension& dim = layer->dimension(d);
@@ -340,21 +348,27 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
       if (std::find(dim.values().begin(), dim.values().end(), itD->second) != dim.values().end())
         dimValue = diutil::sq(itD->second);
     }
-    qurl.addQueryItem(diutil::sq(dimKey), dimValue);
+    urlq.addQueryItem(diutil::sq(dimKey), dimValue);
   }
-  qurl.addQueryItem("WIDTH", QString::number(TILESIZE));
-  qurl.addQueryItem("HEIGHT", QString::number(TILESIZE));
+  urlq.addQueryItem("WIDTH", QString::number(TILESIZE));
+  urlq.addQueryItem("HEIGHT", QString::number(TILESIZE));
 
   const QString aCRS = ((mVersion == WMS_111) ? "SRS" : "CRS");
-  qurl.addQueryItem(aCRS, QString::fromStdString(crs));
+  urlq.addQueryItem(aCRS, QString::fromStdString(crs));
 
   const Rectangle& r = tile->rect();
   const float f = toDecimalDegrees(crs);
   float minx = f*r.x1, miny = f*r.y1, maxx = f*r.x2, maxy = f*r.y2;
   if (mVersion == WMS_130)
     swapWms130LatLon(crs, minx, miny, maxx, maxy);
-  qurl.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4")
-      .arg(minx).arg(miny).arg(maxx).arg(maxy).replace("+", "%2B").toUtf8());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    urlq.addQueryItem("BBOX", QString("%1,%2,%3,%4")
+        .arg(minx).arg(miny).arg(maxx).arg(maxy).replace("+", "%2B").toUtf8());
+    qurl.setQuery(urlq);
+#else // Qt < 5.0
+    urlq.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4")
+        .arg(minx).arg(miny).arg(maxx).arg(maxy).replace("+", "%2B").toUtf8());
+#endif
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
   return submitUrl(qurl);
@@ -650,7 +664,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
 
   if (hasContent && goodName && unusedName && tileable && hasCRS) {
     METLIBS_LOG_DEBUG("adding layer '" << sLayerName << "'");
-    std::auto_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
+    std::unique_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
     layer->setTitle(qs(eLayer.firstChildElement("Title").text()));
     for (crs_bbox_m::const_iterator it = crs_bboxes.begin(); it != crs_bboxes.end(); ++it)
       layer->addCRS(it->first, it->second);

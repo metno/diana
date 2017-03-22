@@ -24,8 +24,8 @@ struct EvaluatedPlot {
   Values_cp values(size_t idx) const
     { return argument_values.at(idx); }
 };
-typedef boost::shared_ptr<EvaluatedPlot> EvaluatedPlot_p;
-typedef boost::shared_ptr<const EvaluatedPlot> EvaluatedPlot_cp;
+typedef std::shared_ptr<EvaluatedPlot> EvaluatedPlot_p;
+typedef std::shared_ptr<const EvaluatedPlot> EvaluatedPlot_cp;
 typedef std::vector<EvaluatedPlot_p> EvaluatedPlot_pv;
 typedef std::vector<EvaluatedPlot_cp> EvaluatedPlot_cpv;
 typedef std::vector<EvaluatedPlot> EvaluatedPlot_v;

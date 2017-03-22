@@ -39,7 +39,6 @@
 
 #include "diField/VcrossUtil.h"
 
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -141,7 +140,7 @@ bool QtManager::CS::operator==(const CS& other) const
 // ########################################################################
 
 QtManager::QtManager()
-  : mCollector(new Collector(miutil::make_shared<Setup>()))
+  : mCollector(new Collector(std::make_shared<Setup>()))
   , mOptions(new VcrossOptions())
   , mPlot(new QtPlot(mOptions))
   , dataChange(0)

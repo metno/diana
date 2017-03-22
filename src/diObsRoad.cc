@@ -1001,7 +1001,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   }
   const diStation& station_n = (*stations)[n];
 
-  std::auto_ptr<VprofPlot> vp(new VprofPlot());
+  std::unique_ptr<VprofPlot> vp(new VprofPlot());
 
   vp->text.index= -1;
   vp->text.modelName = modelName;

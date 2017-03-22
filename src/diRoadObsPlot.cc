@@ -53,7 +53,9 @@
 using namespace std;
 using namespace miutil;
 
+#ifdef ROADOBS
 static const float undef = -32767.0; //should be defined elsewhere
+#endif
 
 RoadObsPlot::RoadObsPlot(const std::string& pin, ObsPlotType plottype)
   : ObsPlot(pin, plottype)
@@ -76,7 +78,7 @@ bool RoadObsPlot::isFileUpdated(const std::string& fname, long now, long mod_tim
   return ObsPlot::isFileUpdated(fname, now, mod_time);
 }
 
-void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
+void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_id,
     QPointF xypos, float scale, bool align_right)
 {
   
@@ -88,7 +90,7 @@ void RoadObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, int zone,
     return;
 #endif
   METLIBS_LOG_DEBUG("WW: " << ww);
-  return ObsPlot::weather(gl, ww, TTT, zone, xypos, scale, align_right);
+  return ObsPlot::weather(gl, ww, TTT, show_time_id, xypos, scale, align_right);
 }
 
 void RoadObsPlot::plotIndex(DiGLPainter* gl, int index)

@@ -48,7 +48,6 @@
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
-#include <puTools/mi_boost_compatibility.hh>
 
 #define MILOGGER_CATEGORY "diana.SpectrumManager"
 #include <miLogger/miLogging.h>
@@ -135,7 +134,7 @@ void SpectrumManager::parseSetup()
       }
     }
 
-    setup = miutil::make_shared<vcross::Setup>();
+    setup = std::make_shared<vcross::Setup>();
     setup->configureSources(sources);
   }
 }
@@ -386,7 +385,7 @@ std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& 
   if ( filetypes[modelName] == "standard" )
     return rf;
 
-  vcross::Collector_p collector = miutil::make_shared<vcross::Collector>(setup);
+  vcross::Collector_p collector = std::make_shared<vcross::Collector>(setup);
 
   collector->getResolver()->getSource(modelName)->update();
   const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();

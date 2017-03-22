@@ -55,10 +55,11 @@ bool calculateGeogridParameters(const Projection& p, const Rectangle& maprect, f
   if (!p.adjustedLatLonBoundingBox(maprect, lonmin, lonmax, latmin, latmax))
     return false;
 
-  if (latmin < -89.95 && !p.isLegal(0.0, -90.0))
-    latmin = -89.95;
-  if (latmax > 89.95 && !p.isLegal(0.0, 90.0))
-    latmax = 89.95;
+  const float LIMIT = 89.95f;
+  if (latmin < -LIMIT && !p.isLegal(0.0, -90.0))
+    latmin = -LIMIT;
+  if (latmax > LIMIT && !p.isLegal(0.0, 90.0))
+    latmax = LIMIT;
 
   return true;
 }
@@ -295,7 +296,6 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 
 void MapPlot::plotMap(DiGLPainter* gl, int zorder)
 {
-
   bool makenew= false;
   bool makelist= false;
 
@@ -335,15 +335,15 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
     float physdiag= sqrt(getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth()
         +getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight());
     // map resolution i km/pixel
-    float mapres= (physdiag > 0.0 ? getStaticPlot()->getGcd()/(physdiag*1000) : 0.0);
+    float mapres= (physdiag > 0 ? getStaticPlot()->getGcd()/(physdiag*1000) : 0);
 
     // find correct mapfile
-    int n= mapinfo.mapfiles.size();
+    size_t n= mapinfo.mapfiles.size();
     if (n==1) {
       mapfile= mapinfo.mapfiles[0].fname;
     } else if (n>1) {
-      int fnum= 0;
-      for (fnum=0; fnum<n; fnum++) {
+      size_t fnum= 0;
+      for (; fnum<n; fnum++) {
         if (mapres > mapinfo.mapfiles[fnum].sizelimit)
           break;
       }

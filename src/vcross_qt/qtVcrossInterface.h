@@ -40,14 +40,10 @@
 
 class VcrossWindow;
 
-#ifndef Q_DECL_OVERRIDE
-#define Q_DECL_OVERRIDE /* empty */
-#endif
-
 class VcrossWindowInterface : public VcrossInterface
 {
-  Q_OBJECT;
-  Q_INTERFACES(VcrossInterface);
+  Q_OBJECT
+  Q_INTERFACES(VcrossInterface)
 
 public:
   VcrossWindowInterface();
@@ -80,7 +76,7 @@ private:
 
 private:
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<vcross::VcrossQuickmenues> quickmenues;
+  std::unique_ptr<vcross::VcrossQuickmenues> quickmenues;
 
   VcrossWindow* window;
 };

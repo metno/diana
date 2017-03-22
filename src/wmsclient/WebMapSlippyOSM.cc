@@ -205,7 +205,7 @@ WebMapRequest_x WebMapSlippyOSM::createRequest(const std::string& layerIdentifie
   diutil::select_tiles(tiles, 0, nxy, x0, dx, 0, nxy, y0, dy,
       mProjection, viewRect, viewProj);
 
-  std::auto_ptr<WebMapSlippyOSMRequest> request(new WebMapSlippyOSMRequest(this, layer, zoom));
+  std::unique_ptr<WebMapSlippyOSMRequest> request(new WebMapSlippyOSMRequest(this, layer, zoom));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 
@@ -300,7 +300,7 @@ bool WebMapSlippyOSM::parseReply()
     const std::string sTitle = qs(eService.firstChildElement("title").text());
     const std::string sAttribution = qs(eService.firstChildElement("attribution").text());
 
-    std::auto_ptr<WebMapSlippyOSMLayer> layer(new WebMapSlippyOSMLayer(sId));
+    std::unique_ptr<WebMapSlippyOSMLayer> layer(new WebMapSlippyOSMLayer(sId));
     layer->setTitle(sTitle);
     layer->setAttribution(sAttribution);
     layer->setURLTemplate(sTemplate);

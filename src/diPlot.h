@@ -42,10 +42,6 @@
 class DiCanvas;
 class DiGLPainter;
 
-#ifndef Q_DECL_OVERRIDE
-#define Q_DECL_OVERRIDE /* override in c++ 11 */
-#endif
-
 /**
    StaticPlot keeps all previously static data shared by the various plotting classes.
    - postscript generation initiated here

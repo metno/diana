@@ -59,8 +59,8 @@ struct ConfiguredPlot {
   operator bool() const
     { return valid(); }
 };
-typedef boost::shared_ptr<ConfiguredPlot> ConfiguredPlot_p;
-typedef boost::shared_ptr<const ConfiguredPlot> ConfiguredPlot_cp;
+typedef std::shared_ptr<ConfiguredPlot> ConfiguredPlot_p;
+typedef std::shared_ptr<const ConfiguredPlot> ConfiguredPlot_cp;
 typedef std::vector<ConfiguredPlot_p> ConfiguredPlot_pv;
 typedef std::vector<ConfiguredPlot_cp> ConfiguredPlot_cpv;
 typedef std::vector<ConfiguredPlot> ConfiguredPlot_v;
@@ -115,7 +115,7 @@ private:
   ConfiguredPlot_cpv mPlots;
 };
 
-typedef boost::shared_ptr<Setup> Setup_p;
+typedef std::shared_ptr<Setup> Setup_p;
 
 // ########################################################################
 

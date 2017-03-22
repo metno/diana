@@ -73,6 +73,7 @@ class UffdaDialog;
 
 class DataDialog;
 class EditDialog;
+class ExportImageDialog;
 class Controller;
 class StatusGeopos;
 class HelpDialog;
@@ -135,7 +136,6 @@ protected:
   bool event(QEvent* event);
 
 private:
-  void paintOnPrinter(QPrinter* printer);
   void paintOnDevice(QPaintDevice* device, bool printing);
 
 public Q_SLOTS:
@@ -261,6 +261,8 @@ private Q_SLOTS:
   void updatePlotElements();
 
   void setInstanceName(QString instancename);
+
+  void paintOnPrinter(QPrinter* printer);
 
 Q_SIGNALS:
   void instanceNameChanged(const QString&);
@@ -388,11 +390,13 @@ private:
   bool                markMeasurementsPos; //left mouse click -> mark measurement position
 
   VprofWindow       * vpWindow;
-  std::auto_ptr<VcrossInterface> vcInterface;
+  std::unique_ptr<VcrossInterface> vcInterface;
   bool vcrossEditManagerConnected;
 
   SpectrumWindow    * spWindow;
   std::map<std::string,InfoFile> infoFiles;
+
+  ExportImageDialog* exportImageDialog_;
 
   // statusbar widgets
   QLabel            * smsg;

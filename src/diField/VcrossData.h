@@ -82,8 +82,8 @@ private:
   Unit_t mUnit;
   size_t mNLevel;
 };
-typedef boost::shared_ptr<InventoryBase> InventoryBase_p;
-typedef boost::shared_ptr<const InventoryBase> InventoryBase_cp;
+typedef std::shared_ptr<InventoryBase> InventoryBase_p;
+typedef std::shared_ptr<const InventoryBase> InventoryBase_cp;
 typedef std::vector<InventoryBase_p> InventoryBase_pv;
 typedef std::vector<InventoryBase_cp> InventoryBase_cpv;
 
@@ -142,8 +142,8 @@ private:
   InventoryBase_cp mPressureField, mAltitudeField;
 };
 
-typedef boost::shared_ptr<ZAxisData>       ZAxisData_p;
-typedef boost::shared_ptr<const ZAxisData> ZAxisData_cp;
+typedef std::shared_ptr<ZAxisData>       ZAxisData_p;
+typedef std::shared_ptr<const ZAxisData> ZAxisData_cp;
 
 // ================================================================================
 
@@ -167,8 +167,8 @@ public:
 private:
   ZAxisData_cp mZAxis;
 };
-typedef boost::shared_ptr<FieldData> FieldData_p;
-typedef boost::shared_ptr<const FieldData> FieldData_cp;
+typedef std::shared_ptr<FieldData> FieldData_p;
+typedef std::shared_ptr<const FieldData> FieldData_cp;
 typedef std::vector<FieldData_cp> FieldData_cpv;
 
 // ================================================================================
@@ -311,10 +311,10 @@ private:
   ValueArray mValues;
   float mUndefValue;
 };
-typedef boost::shared_ptr<Values> Values_p;
+typedef std::shared_ptr<Values> Values_p;
 typedef std::vector<Values_p> Values_pv;
 
-typedef boost::shared_ptr<const Values> Values_cp;
+typedef std::shared_ptr<const Values> Values_cp;
 typedef std::vector<Values_cp> Values_cpv;
 
 typedef std::map<std::string, Values_cp> name2value_t;
@@ -362,8 +362,8 @@ private:
   LonLat_v mPoints;
   LonLat_v mPointsRequested;
 };
-typedef boost::shared_ptr<Crossection> Crossection_p;
-typedef boost::shared_ptr<const Crossection> Crossection_cp;
+typedef std::shared_ptr<Crossection> Crossection_p;
+typedef std::shared_ptr<const Crossection> Crossection_cp;
 typedef std::vector<Crossection_cp> Crossection_cpv;
 
 // ================================================================================
@@ -422,8 +422,8 @@ struct Inventory
   Crossection_cp findCrossectionPoint(const LonLat& point, size_t& best_index) const;
   Crossection_cp findCrossectionPoint(const LonLat& point) const;
 };
-typedef boost::shared_ptr<Inventory> Inventory_p;
-typedef boost::shared_ptr<const Inventory> Inventory_cp;
+typedef std::shared_ptr<Inventory> Inventory_p;
+typedef std::shared_ptr<const Inventory> Inventory_cp;
 
 } // namespace vcross
 

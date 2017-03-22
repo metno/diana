@@ -42,6 +42,7 @@ class VcrossReplaceModelDialog : public QDialog {
 
 public:
   VcrossReplaceModelDialog(QWidget* parent, vcross::QtManager_p vsm);
+  ~VcrossReplaceModelDialog();
 
 public Q_SLOTS:
   void restart();
@@ -78,7 +79,7 @@ private:
   enum { PlotsPage, ModelPage, ReftimePage };
 
   vcross::QtManager_p vcrossm;
-  std::auto_ptr<Ui_VcrossReplaceModelDialog> ui;
+  std::unique_ptr<Ui_VcrossReplaceModelDialog> ui;
 };
 
 #endif // QTVCROSSREPLACEMODELDIALOG_H

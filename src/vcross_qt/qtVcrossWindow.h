@@ -63,10 +63,6 @@ class QString;
 class QSpinBox;
 class QStatusBar;
 
-#ifndef Q_DECL_OVERRIDE
-#define Q_DECL_OVERRIDE /* empty */
-#endif
-
 /**
   \brief Window for Vertical Crossections
 
@@ -170,7 +166,7 @@ private Q_SLOTS:
   void changeSetup();
 
 private:
-  std::auto_ptr<Ui_VcrossWindow> ui;
+  std::unique_ptr<Ui_VcrossWindow> ui;
   QStatusBar* mStatusBar;
 
   vcross::QtManager_p vcrossm;

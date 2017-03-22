@@ -45,6 +45,7 @@
 #include "diPolyContouring.h"
 #include "diColourShading.h"
 #include "diUtilities.h"
+#include "util/charsets.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
@@ -606,8 +607,11 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
     }
     miutil::replace(anno[j], "$currenttime", fields[0]->timetext);
     if (miutil::contains(anno[j], "$validtime")) {
-      miutil::replace(anno[j], "$validtime",
-          fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg));
+      std::string vtime = fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg);
+      // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
+      vtime = diutil::convertLatin1ToUtf8(vtime);
+
+      miutil::replace(anno[j], "$validtime", vtime);
     }
     miutil::replace(anno[j], "$model", fields[0]->modelName);
     miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);

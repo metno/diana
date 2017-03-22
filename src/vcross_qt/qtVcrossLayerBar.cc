@@ -4,8 +4,10 @@
 #include "qtUtility.h"
 #include "qtVcrossLayerButton.h"
 
+#include <QDrag>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QMimeData>
 #include <QVBoxLayout>
 
 #define MILOGGER_CATEGORY "diana.VcrossLayerBar"

@@ -2,7 +2,6 @@
 #include "VcrossCollector.h"
 #include "VcrossComputer.h"
 #include <diField/VcrossUtil.h>
-#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/join.hpp>
@@ -21,7 +20,7 @@ std::string SelectedPlot::optionString() const
 // ########################################################################
 
 Collector::Collector(Setup_p setup)
-  : mResolver(miutil::make_shared<Resolver>(setup))
+  : mResolver(std::make_shared<Resolver>(setup))
 {
 }
 

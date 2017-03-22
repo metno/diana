@@ -661,8 +661,7 @@ vector<miTime> ObsManager::getTimes(vector<std::string> obsTypes)
       Prod[obsType].fileInfo.push_back(finfo);
 
       vector<std::string> tokens = miutil::split(Prod[obsType].timeInfo, ";");
-      miTime from = miTime::nowTime();
-      miTime to = miTime::nowTime();
+      miTime from = miTime::nowTime(), to = from;
       int interval = 3;
       for (size_t j = 0; j < tokens.size(); ++j) {
         vector<std::string> stokens = miutil::split(tokens[j], "=");
@@ -1283,7 +1282,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const std::string& plotType)
   dialog.plottype[id].datatype[0].active.clear();
   if (plotType == "Hqc_synop") {
     int wind = 0;
-    BOOST_FOREACH(const std::string& p, hqc_synop_parameter){
+    for (const std::string& p : hqc_synop_parameter){
       if (p=="dd" || p=="ff") {
         wind++;
         continue;
@@ -1303,7 +1302,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const std::string& plotType)
     }
   } else if (plotType == "Hqc_list") {
     int wind = 0;
-    BOOST_FOREACH(const std::string& p, hqc_synop_parameter){
+    for (const std::string& p : hqc_synop_parameter){
       if (p == "auto")
         continue;
       if (p == "DD" or p == "FF") {
@@ -1784,7 +1783,7 @@ bool ObsManager::initHqcdata(int from, const string& commondesc,
   hqcdata.clear();
   hqc_synop_parameter = split_on_comma(desc);
   METLIBS_LOG_DEBUG(LOGVAL(desc) << LOGVAL(hqc_synop_parameter.size()));
-  BOOST_FOREACH(const std::string& d, data){
+  for (const std::string& d : data){
     const std::vector<std::string> tokens = split_on_comma(d);
 
     ObsData obsd;
@@ -1859,7 +1858,7 @@ bool ObsManager::updateHqcdata(const string& commondesc, const string& common,
   if (param.size() < 2)
     return false;
 
-  BOOST_FOREACH(const std::string& d, data){
+  for (const std::string& d : data){
     METLIBS_LOG_DEBUG(LOGVAL(d));
 
     const std::vector<std::string> datastr = split_on_comma(d);

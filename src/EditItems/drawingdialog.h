@@ -98,14 +98,15 @@ public:
 
   static DrawingDialog *instance();
 
-  virtual std::string name() const;
-  virtual void updateDialog();
-  virtual std::vector<std::string> getOKString();
-  virtual void putOKString(const std::vector<std::string> &);
+  std::string name() const override;
+  void updateDialog() override;
+  std::vector<std::string> getOKString() override;
+  void putOKString(const std::vector<std::string> &) override;
 
-  bool showsMore(); //Q_DECL_OVERRIDE
+  bool showsMore() override;
+
 protected:
-  void doShowMore(bool enable); //Q_DECL_OVERRIDE
+  void doShowMore(bool enable) override;
 
 Q_SIGNALS:
   void filterToggled(bool);
@@ -130,7 +131,7 @@ private Q_SLOTS:
   void showActiveContextMenu(const QPoint &pos);
   void showDrawingContextMenu(const QPoint &pos);
   void updateQuickSaveButton();
-  virtual void updateTimes();
+  void updateTimes() override;
 
 private:
   QSet<QPair<QString, QString> > itemProducts(const QList<DrawingItemBase *> &items);

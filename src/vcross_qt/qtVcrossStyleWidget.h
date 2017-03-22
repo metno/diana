@@ -16,10 +16,11 @@
 class Ui_VcrossStyleWidget;
 
 class VcrossStyleWidget : public QWidget {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   VcrossStyleWidget(QWidget* parent);
+  ~VcrossStyleWidget();
 
   void setOptions(const std::string& fopt, const std::string& defaultopt);
   const std::string& options() const;
@@ -73,7 +74,7 @@ private Q_SLOTS:
   void updatePaletteString();
 
 private:
-  std::auto_ptr<Ui_VcrossStyleWidget> ui;
+  std::unique_ptr<Ui_VcrossStyleWidget> ui;
 
   std::string currentFieldOpts;
   std::string defaultOptions;
@@ -88,7 +89,7 @@ private:
   std::vector<std::string> vectorunit;
   QStringList extremeLimits;
 
-  std::auto_ptr<CommandParser> cp;
+  std::unique_ptr<CommandParser> cp;
   std::vector<ParsedCommand> vpcopt;
 
   std::vector<std::string> undefMasking;

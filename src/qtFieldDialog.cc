@@ -885,7 +885,7 @@ void FieldDialog::CreateAdvanced()
 
   shadingSpinBox= new QSpinBox( advFrame );
   shadingSpinBox->setMinimum(0);
-  shadingSpinBox->setMaximum(99);
+  shadingSpinBox->setMaximum(255);
   shadingSpinBox->setSingleStep(1);
   shadingSpinBox->setSpecialValueText(tr("Auto"));
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
@@ -900,7 +900,7 @@ void FieldDialog::CreateAdvanced()
 
   shadingcoldSpinBox= new QSpinBox( advFrame );
   shadingcoldSpinBox->setMinimum(0);
-  shadingcoldSpinBox->setMaximum(99);
+  shadingcoldSpinBox->setMaximum(255);
   shadingcoldSpinBox->setSingleStep(1);
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),

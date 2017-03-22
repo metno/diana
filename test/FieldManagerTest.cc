@@ -9,7 +9,6 @@
 
 #define MILOGGER_CATEGORY "diField.test.FieldManagerTest"
 #include "miLogger/miLogging.h"
-#include <log4cpp/Category.hh>
 
 //#define DEBUG_MESSAGES
 
@@ -19,10 +18,10 @@ TEST(FieldManagerTest, TestRW)
     {
         const std::string origFileName(TEST_SRCDIR "/test_fimexio_rw.nc");
         std::ifstream orig(origFileName.c_str());
-        ASSERT_TRUE(orig) << "no file '" << origFileName << "'";
+        ASSERT_TRUE(bool(orig)) << "no file '" << origFileName << "'";
         std::ofstream copy(fileName.c_str());
         copy << orig.rdbuf();
-        ASSERT_TRUE(orig);
+        ASSERT_TRUE(bool(orig));
     }
 
     const int NEWDATA = 17;

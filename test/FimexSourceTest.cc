@@ -50,6 +50,11 @@ static const char WAVE_FILE[] = "wavespec.nc";
 
 static const char S1970[] = "seconds since 1970-01-01 00:00:00";
 
+static diutil::CharsetConverter_p csc()
+{
+  return diutil::findConverter(diutil::CHARSET_READ(), diutil::CHARSET_INTERNAL());
+}
+
 static ReftimeSource_p openFimexFile(const std::string& file)
 {
   const std::string fileName = (TEST_SRCDIR "/") + file;
@@ -57,7 +62,7 @@ static ReftimeSource_p openFimexFile(const std::string& file)
   if (not inputfile)
     return ReftimeSource_p();
 
-  return ReftimeSource_p(new FimexReftimeSource(fileName, "netcdf", "", Time()));
+  return ReftimeSource_p(new FimexReftimeSource(fileName, "netcdf", "", csc(), Time()));
 }
 
 TEST(FimexReftimeSourceTest, TestSimraVcross0)
@@ -67,16 +72,16 @@ TEST(FimexReftimeSourceTest, TestSimraVcross0)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(SIMRA_N_TIME, inv->times.npoint());
   ASSERT_EQ(SIMRA_N_CS,   inv->crossections.size());
 
   Crossection_cp cs0 = inv->crossections.at(0);
-  ASSERT_TRUE(cs0);
+  ASSERT_TRUE(bool(cs0));
   EXPECT_EQ(SIMRA_CS_LEN[0], cs0->length());
 
   FieldData_cp turbulence = inv->findFieldById("turbulence");
-  ASSERT_TRUE(turbulence);
+  ASSERT_TRUE(bool(turbulence));
   EXPECT_EQ("FIELD", turbulence->dataType());
   EXPECT_EQ(SIMRA_N_Z,      turbulence->nlevel());
 
@@ -88,7 +93,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcross0)
   fs->getCrossectionValues(cs0, time, request, n2v);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
-  ASSERT_TRUE(turbulence_values);
+  ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -116,16 +121,16 @@ TEST(FimexReftimeSourceTest, TestSimraVcross1)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(SIMRA_N_TIME, inv->times.npoint());
   ASSERT_EQ(SIMRA_N_CS, inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
   EXPECT_EQ(SIMRA_CS_LEN[1], cs1->length());
 
   FieldData_cp turbulence = inv->findFieldById("turbulence");
-  ASSERT_TRUE(turbulence);
+  ASSERT_TRUE(bool(turbulence));
 
   const Time& time = inv->times.at(1);
 
@@ -135,7 +140,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcross1)
   fs->getCrossectionValues(cs1, time, request, n2v);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
-  ASSERT_TRUE(turbulence_values);
+  ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
 
@@ -164,22 +169,22 @@ TEST(FimexReftimeSourceTest, TestSimraVcrossVertical)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(SIMRA_N_TIME, inv->times.npoint());
   ASSERT_EQ(SIMRA_N_CS,   inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
   EXPECT_EQ(SIMRA_CS_LEN[1], cs1->length());
 
   FieldData_cp turbulence = inv->findFieldById("turbulence");
-  ASSERT_TRUE(turbulence);
+  ASSERT_TRUE(bool(turbulence));
   ZAxisData_cp vertical = turbulence->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = turbulence->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
   InventoryBase_cp vertical_altitude = turbulence->zaxis()->altitudeField();
-  ASSERT_TRUE(vertical_altitude);
+  ASSERT_TRUE(bool(vertical_altitude));
 
   const Time& time = inv->times.at(1);
 
@@ -191,9 +196,9 @@ TEST(FimexReftimeSourceTest, TestSimraVcrossVertical)
   fs->getCrossectionValues(cs1, time, request, n2v);
   
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp vertical_h_values = n2v[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -227,16 +232,16 @@ TEST(FimexReftimeSourceTest, TestSimraTimegraph)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(SIMRA_N_TIME, inv->times.npoint());
   ASSERT_EQ(SIMRA_N_CS,   inv->crossections.size());
 
   Crossection_cp cs0 = inv->crossections.at(0);
-  ASSERT_TRUE(cs0);
+  ASSERT_TRUE(bool(cs0));
   EXPECT_EQ(SIMRA_CS_LEN[0], cs0->length());
 
   FieldData_cp turbulence = inv->findFieldById("turbulence");
-  ASSERT_TRUE(turbulence);
+  ASSERT_TRUE(bool(turbulence));
 
   InventoryBase_cps request;
   request.insert(turbulence);
@@ -244,7 +249,7 @@ TEST(FimexReftimeSourceTest, TestSimraTimegraph)
   fs->getTimegraphValues(cs0, 5, request, n2v);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
-  ASSERT_TRUE(turbulence_values);
+  ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -267,15 +272,15 @@ TEST(FimexReftimeSourceTest, TestSimraVprofile)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(SIMRA_N_TIME, inv->times.npoint());
   ASSERT_EQ(SIMRA_N_CS,   inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
 
   FieldData_cp turbulence = inv->findFieldById("turbulence");
-  ASSERT_TRUE(turbulence);
+  ASSERT_TRUE(bool(turbulence));
 
   const Time& time = inv->times.at(1);
   InventoryBase_cps request;
@@ -284,7 +289,7 @@ TEST(FimexReftimeSourceTest, TestSimraVprofile)
   fs->getPointValues(cs1, 17, time, request, n2v);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
-  ASSERT_TRUE(turbulence_values);
+  ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
   ASSERT_EQ(1, shape.rank());
@@ -306,16 +311,16 @@ TEST(FimexReftimeSourceTest, TestAromeVcross1)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS, inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
   EXPECT_EQ(AROME_CS_LEN[1], cs1->length());
 
   FieldData_cp temperature = inv->findFieldById("air_temperature_ml");
-  ASSERT_TRUE(temperature);
+  ASSERT_TRUE(bool(temperature));
 
   const Time& time = inv->times.at(1);
 
@@ -325,7 +330,7 @@ TEST(FimexReftimeSourceTest, TestAromeVcross1)
   fs->getCrossectionValues(cs1, time, request, n2v);
 
   Values_cp temperature_values = n2v[temperature->id()];
-  ASSERT_TRUE(temperature_values);
+  ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(temperature_values->shape());
 
@@ -354,22 +359,22 @@ TEST(FimexReftimeSourceTest, TestAromeVcrossVertical)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS,   inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
   EXPECT_EQ(AROME_CS_LEN[1], cs1->length());
 
   FieldData_cp temperature = inv->findFieldById("air_temperature_ml");
-  ASSERT_TRUE(temperature);
+  ASSERT_TRUE(bool(temperature));
   ZAxisData_cp vertical = temperature->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = temperature->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
   InventoryBase_cp vertical_altitude = temperature->zaxis()->altitudeField();
-  ASSERT_TRUE(vertical_altitude);
+  ASSERT_TRUE(bool(vertical_altitude));
 
   const Time& time = inv->times.at(1);
 
@@ -381,9 +386,9 @@ TEST(FimexReftimeSourceTest, TestAromeVcrossVertical)
   fs->getCrossectionValues(cs1, time, request, n2v);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp vertical_h_values = n2v[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -417,20 +422,20 @@ TEST(FimexReftimeSourceTest, TestAromeTimegraph)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS,   inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
   EXPECT_EQ(AROME_CS_LEN[1], cs1->length());
 
   FieldData_cp temperature = inv->findFieldById("air_temperature_ml");
-  ASSERT_TRUE(temperature);
+  ASSERT_TRUE(bool(temperature));
   ZAxisData_cp vertical = temperature->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = temperature->zaxis()->pressureField();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
 
   InventoryBase_cps request;
   request.insert(temperature);
@@ -439,9 +444,9 @@ TEST(FimexReftimeSourceTest, TestAromeTimegraph)
   fs->getTimegraphValues(cs1, 43, request, n2v);
 
   Values_cp temperature_values = n2v[temperature->id()];
-  ASSERT_TRUE(temperature_values);
+  ASSERT_TRUE(bool(temperature_values));
   Values_cp vertical_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_values);
+  ASSERT_TRUE(bool(vertical_values));
 
   const Values::Shape& shape(vertical_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -479,22 +484,22 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(HIRLAM_N_TIME, inv->times.npoint());
   ASSERT_EQ(HIRLAM_N_CS,   inv->crossections.size());
 
   Crossection_cp cs1 = inv->crossections.at(1);
-  ASSERT_TRUE(cs1);
+  ASSERT_TRUE(bool(cs1));
   EXPECT_EQ(HIRLAM_CS_LEN[1], cs1->length());
 
   FieldData_cp air_pt = inv->findFieldById("air_potential_temperature_ml");
-  ASSERT_TRUE(air_pt);
+  ASSERT_TRUE(bool(air_pt));
   ZAxisData_cp vertical = air_pt->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = air_pt->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
   InventoryBase_cp vertical_altitude = air_pt->zaxis()->altitudeField();
-  ASSERT_TRUE(vertical_altitude);
+  ASSERT_TRUE(bool(vertical_altitude));
 
   const Time& time = inv->times.at(0);
 
@@ -506,11 +511,11 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
   fs->getCrossectionValues(cs1, time, request, n2v);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp vertical_h_values = n2v[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
   Values_cp air_pt_values = n2v[air_pt->id()];
-  ASSERT_TRUE(air_pt_values);
+  ASSERT_TRUE(bool(air_pt_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -551,36 +556,36 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
     return;
 
   { Inventory_cp inv = fs->getInventory();
-    ASSERT_TRUE(inv);
+    ASSERT_TRUE(bool(inv));
     ASSERT_EQ(EMEP_ETNA_N_TIME, inv->times.npoint());
     ASSERT_EQ(0, inv->crossections.size());
   }
 
-  ASSERT_TRUE(fs->supportsDynamicCrossections());
+  ASSERT_TRUE(bool(fs->supportsDynamicCrossections()));
   LonLat_v positions;
   positions.push_back(LonLat::fromDegrees(14.995, 37.755));
   positions.push_back(LonLat::fromDegrees(16, 39));
   positions.push_back(LonLat::fromDegrees(13, 39));
   positions.push_back(LonLat::fromDegrees(13, 36));
   positions.push_back(LonLat::fromDegrees(16, 36));
-  ASSERT_TRUE(fs->addDynamicCrossection("etna", positions));
+  ASSERT_TRUE(bool(fs->addDynamicCrossection("etna", positions)));
 
   Inventory_cp inv = fs->getInventory();
   Crossection_cp csdyn = inv->findCrossectionByLabel("etna");
-  ASSERT_TRUE(csdyn);
+  ASSERT_TRUE(bool(csdyn));
   ASSERT_LE(positions.size(), csdyn->length());
   ASSERT_EQ(positions.size(), csdyn->lengthRequested());
   for (size_t i=0; i<positions.size(); ++i)
     ASSERT_LE(positions.at(i).distanceTo(csdyn->pointRequested(i)), 10) << "i=" << i;
 
   FieldData_cp ash_c = inv->findFieldById("ash_concentration");
-  ASSERT_TRUE(ash_c);
+  ASSERT_TRUE(bool(ash_c));
   ZAxisData_cp vertical = ash_c->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = ash_c->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
   InventoryBase_cp vertical_altitude = ash_c->zaxis()->altitudeField();
-  ASSERT_TRUE(vertical_altitude);
+  ASSERT_TRUE(bool(vertical_altitude));
 
   const Time& time = inv->times.at(0);
 
@@ -592,11 +597,11 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   fs->getCrossectionValues(csdyn, time, request, n2v);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp vertical_h_values = n2v[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
   Values_cp ash_c_values = n2v[ash_c->id()];
-  ASSERT_TRUE(ash_c_values);
+  ASSERT_TRUE(bool(ash_c_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -645,32 +650,32 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
     return;
 
   { Inventory_cp inv = fs->getInventory();
-    ASSERT_TRUE(inv);
+    ASSERT_TRUE(bool(inv));
     ASSERT_EQ(AROMESMHI_N_TIME, inv->times.npoint());
     ASSERT_EQ(0, inv->crossections.size());
   }
 
-  ASSERT_TRUE(fs->supportsDynamicCrossections());
+  ASSERT_TRUE(bool(fs->supportsDynamicCrossections()));
   LonLat_v positions;
   positions.push_back(LonLat::fromDegrees(16.4, 59.3));
   positions.push_back(LonLat::fromDegrees(16.4, 59.4));
   positions.push_back(LonLat::fromDegrees(16.3, 59.4));
-  ASSERT_TRUE(fs->addDynamicCrossection("smhi", positions));
+  ASSERT_TRUE(bool(fs->addDynamicCrossection("smhi", positions)));
 
   Inventory_cp inv = fs->getInventory();
   Crossection_cp csdyn = inv->findCrossectionByLabel("smhi");
-  ASSERT_TRUE(csdyn);
+  ASSERT_TRUE(bool(csdyn));
   ASSERT_LE(positions.size(), csdyn->length());
   ASSERT_EQ(positions.size(), csdyn->lengthRequested());
 
   FieldData_cp airtemp = inv->findFieldById("air_temperature_ml");
-  ASSERT_TRUE(airtemp);
+  ASSERT_TRUE(bool(airtemp));
   ZAxisData_cp vertical = airtemp->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = airtemp->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
   InventoryBase_cp vertical_altitude = airtemp->zaxis()->altitudeField();
-  ASSERT_TRUE(vertical_altitude);
+  ASSERT_TRUE(bool(vertical_altitude));
 
   const Time& time = inv->times.at(0);
 
@@ -682,11 +687,11 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
   fs->getCrossectionValues(csdyn, time, request, n2v);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp vertical_h_values = n2v[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
   Values_cp airtemp_values = n2v[airtemp->id()];
-  ASSERT_TRUE(airtemp_values);
+  ASSERT_TRUE(bool(airtemp_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -721,17 +726,17 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
   // --------------------------------------------------
 
   Crossection_cp csdyn1 = inv->findCrossectionByLabel("smhi");
-  ASSERT_TRUE(csdyn1);
+  ASSERT_TRUE(bool(csdyn1));
   const Time& time1 = inv->times.at(1);
   name2value_t n2v1;
   fs->getCrossectionValues(csdyn1, time1, request, n2v1);
 
   vertical_p_values = n2v1[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   vertical_h_values = n2v1[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
   airtemp_values = n2v1[airtemp->id()];
-  ASSERT_TRUE(airtemp_values);
+  ASSERT_TRUE(bool(airtemp_values));
 
   const Values::Shape& shape1(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -765,22 +770,22 @@ TEST(FimexReftimeSourceTest, TestBangladeshVcross)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(BANGLADESH_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGLADESH_N_CS,   inv->crossections.size());
 
   Crossection_cp cs3 = inv->crossections.at(3);
-  ASSERT_TRUE(cs3);
+  ASSERT_TRUE(bool(cs3));
   EXPECT_EQ(BANGLADESH_CS_LEN[3], cs3->length());
 
   FieldData_cp temperature = inv->findFieldById("air_temperature_pl");
-  ASSERT_TRUE(temperature);
+  ASSERT_TRUE(bool(temperature));
   ZAxisData_cp vertical = temperature->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = temperature->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
   InventoryBase_cp vertical_altitude = temperature->zaxis()->altitudeField();
-  ASSERT_TRUE(vertical_altitude);
+  ASSERT_TRUE(bool(vertical_altitude));
 
   const Time& time = inv->times.at(1);
 
@@ -793,13 +798,13 @@ TEST(FimexReftimeSourceTest, TestBangladeshVcross)
   fs->getCrossectionValues(cs3, time, request, n2v);
 
   Values_cp vertical_values = n2v[vertical->id()];
-  ASSERT_TRUE(vertical_values);
+  ASSERT_TRUE(bool(vertical_values));
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp vertical_h_values = n2v[vertical_altitude->id()];
-  ASSERT_TRUE(vertical_h_values);
+  ASSERT_TRUE(bool(vertical_h_values));
   Values_cp temperature_values = n2v[temperature->id()];
-  ASSERT_TRUE(temperature_values);
+  ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(2, shape.rank());
@@ -849,20 +854,20 @@ TEST(FimexReftimeSourceTest, TestBangladeshVprof)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(BANGLADESH_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGLADESH_N_CS,   inv->crossections.size());
 
   Crossection_cp cs0 = inv->crossections.at(0);
-  ASSERT_TRUE(cs0);
+  ASSERT_TRUE(bool(cs0));
   EXPECT_EQ(BANGLADESH_CS_LEN[0], cs0->length());
 
   FieldData_cp temperature = inv->findFieldById("air_temperature_pl");
-  ASSERT_TRUE(temperature);
+  ASSERT_TRUE(bool(temperature));
   ZAxisData_cp vertical = temperature->zaxis();
-  ASSERT_TRUE(vertical);
+  ASSERT_TRUE(bool(vertical));
   InventoryBase_cp vertical_pressure = temperature->zaxis()->pressureField();
-  ASSERT_TRUE(vertical_pressure);
+  ASSERT_TRUE(bool(vertical_pressure));
 
   const Time& time = inv->times.at(1);
 
@@ -874,11 +879,11 @@ TEST(FimexReftimeSourceTest, TestBangladeshVprof)
   fs->getPointValues(cs0, 0, time, request, n2v);
 
   Values_cp vertical_values = n2v[vertical->id()];
-  ASSERT_TRUE(vertical_values);
+  ASSERT_TRUE(bool(vertical_values));
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
-  ASSERT_TRUE(vertical_p_values);
+  ASSERT_TRUE(bool(vertical_p_values));
   Values_cp temperature_values = n2v[temperature->id()];
-  ASSERT_TRUE(temperature_values);
+  ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
   ASSERT_EQ(1, shape.rank());
@@ -907,18 +912,18 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
     return;
 
   Inventory_cp inv = fs->getInventory();
-  ASSERT_TRUE(inv);
+  ASSERT_TRUE(bool(inv));
   ASSERT_EQ(1, inv->times.npoint());
   ASSERT_EQ(1, inv->crossections.size());
 
   Crossection_cp cs0 = inv->crossections.at(0);
-  ASSERT_TRUE(cs0);
+  ASSERT_TRUE(bool(cs0));
   EXPECT_EQ(5, cs0->length());
 
   FieldData_cp spec = inv->findFieldById("SPEC");
   FieldData_cp freq = inv->findFieldById("freq");
-  ASSERT_TRUE(spec);
-  ASSERT_TRUE(freq);
+  ASSERT_TRUE(bool(spec));
+  ASSERT_TRUE(bool(freq));
   EXPECT_FALSE(spec->hasZAxis());
 
   InventoryBase_cps request;
@@ -928,7 +933,7 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
   fs->getWaveSpectrumValues(cs0, 2, inv->times.at(0), request, n2v);
 
   { Values_cp spec_values = n2v[spec->id()];
-    ASSERT_TRUE(spec_values);
+    ASSERT_TRUE(bool(spec_values));
 
     const Values::Shape& shape(spec_values->shape());
 
@@ -946,7 +951,7 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
     EXPECT_FLOAT_EQ(0.0008872001, spec_values->value(idx));
   }
   { Values_cp freq_values = n2v[freq->id()];
-    ASSERT_TRUE(freq_values);
+    ASSERT_TRUE(bool(freq_values));
     const Values::Shape& shape(freq_values->shape());
 
     ASSERT_EQ(1, shape.rank());
@@ -969,7 +974,7 @@ TEST(FimexSourceTest, TestAromeReftimes)
 
   ASSERT_EQ(0, mkdir(TEST_BUILDDIR "/test_arome_reftimes", 0700));
 
-  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_[yyyymmdd_HH].nc", "netcdf", "");
+  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_[yyyymmdd_HH].nc", "netcdf", "", csc());
   EXPECT_FALSE(s.update());
 
   { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc"));
@@ -1006,7 +1011,7 @@ TEST(FimexSourceTest, TestAromeReftimesStar)
 
   ASSERT_EQ(0, mkdir(TEST_BUILDDIR "/test_arome_reftimes", 0700));
 
-  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_*.nc", "netcdf", "");
+  FimexSource s(TEST_BUILDDIR "/test_arome_reftimes/arome_vc_*.nc", "netcdf", "", csc());
   EXPECT_FALSE(s.update());
 
   { ASSERT_EQ(0, symlink(TEST_SRCDIR "/arome_vc_20150126_06.nc", TEST_BUILDDIR "/test_arome_reftimes/arome_vc_20150126_06.nc"));

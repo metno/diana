@@ -338,9 +338,9 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
 {
   METLIBS_LOG_SCOPE();
 
-  BOOST_FOREACH(const std::string& line, vstr) {
+  for (const std::string& line : vstr) {
     const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(line, true);
-    BOOST_FOREACH(const miutil::KeyValue& kv, kvs) {
+    for (const miutil::KeyValue& kv : kvs) {
       const std::string& key = kv.key(), value = kv.value();
       if (value.empty())
         continue;

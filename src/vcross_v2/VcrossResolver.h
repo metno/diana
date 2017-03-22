@@ -41,8 +41,8 @@ struct ResolvedPlot {
     { return configured->name; }
 };
 
-typedef boost::shared_ptr<ResolvedPlot> ResolvedPlot_p;
-typedef boost::shared_ptr<const ResolvedPlot> ResolvedPlot_cp;
+typedef std::shared_ptr<ResolvedPlot> ResolvedPlot_p;
+typedef std::shared_ptr<const ResolvedPlot> ResolvedPlot_cp;
 typedef std::vector<ResolvedPlot_p> ResolvedPlot_pv;
 typedef std::vector<ResolvedPlot_cp> ResolvedPlot_cpv;
 typedef std::vector<ResolvedPlot> ResolvedPlot_v;
@@ -84,7 +84,7 @@ private:
   model_data_m mModelData;
 };
 
-typedef boost::shared_ptr<Resolver> Resolver_p;
+typedef std::shared_ptr<Resolver> Resolver_p;
 
 // ########################################################################
 

@@ -42,6 +42,9 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QStringList>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 
 #include <sys/time.h>
 
@@ -261,7 +264,7 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
       0, matrix->matrixHeight(), matrix->tileMaxY(), -tileSpanY,
       p_tiles, viewRect, viewProj);
 
-  std::auto_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
+  std::unique_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 
@@ -297,12 +300,17 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
   } else {
     // KVP-GET
     qurl = mGetTileKvpUrl;
-    qurl.addQueryItem("Service", "WMTS");
-    qurl.addQueryItem("Request", "GetTile");
-    qurl.addQueryItem("Version", "1.0.0");
-    qurl.addQueryItem("Layer", diutil::sq(layer->identifier()));
-    qurl.addQueryItem("Style", diutil::sq(layer->defaultStyle()));
-    qurl.addQueryItem("Format", diutil::sq(layer->tileFormat()));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QUrlQuery urlq;
+#else
+    QUrl& urlq = qurl;
+#endif
+    urlq.addQueryItem("Service", "WMTS");
+    urlq.addQueryItem("Request", "GetTile");
+    urlq.addQueryItem("Version", "1.0.0");
+    urlq.addQueryItem("Layer", diutil::sq(layer->identifier()));
+    urlq.addQueryItem("Style", diutil::sq(layer->defaultStyle()));
+    urlq.addQueryItem("Format", diutil::sq(layer->tileFormat()));
 
     // the WMTS standard is not very clear about how to specify sample dimensions
     for (size_t d = 0; d<layer->countDimensions(); ++d) {
@@ -317,13 +325,16 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
         dimValue = diutil::sq(it->second);
       else
         dimValue = diutil::sq(dim.defaultValue());
-      qurl.addQueryItem(diutil::sq(dimKey), dimValue);
+      urlq.addQueryItem(diutil::sq(dimKey), dimValue);
     }
 
-    qurl.addQueryItem("TileMatrixSet", diutil::sq(matrixSet->identifier()));
-    qurl.addQueryItem("TileMatrix", diutil::sq(matrix->identifier()));
-    qurl.addQueryItem("TileCol", QString::number(tileX));
-    qurl.addQueryItem("TileRow", QString::number(tileY));
+    urlq.addQueryItem("TileMatrixSet", diutil::sq(matrixSet->identifier()));
+    urlq.addQueryItem("TileMatrix", diutil::sq(matrix->identifier()));
+    urlq.addQueryItem("TileCol", QString::number(tileX));
+    urlq.addQueryItem("TileRow", QString::number(tileY));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    qurl.setQuery(urlq);
+#endif
   }
   METLIBS_LOG_DEBUG("url='" << qurl.toString().toStdString() << "'");
 
@@ -421,7 +432,7 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eTileMatrixSet, eContents, "TileMatrixSet") {
     QDomElement eId = eTileMatrixSet.firstChildElement("ows:Identifier");
     QDomElement eCRS = eTileMatrixSet.firstChildElement("ows:SupportedCRS");
-    std::auto_ptr<WebMapWMTSTileMatrixSet> ms
+    std::unique_ptr<WebMapWMTSTileMatrixSet> ms
         (new WebMapWMTSTileMatrixSet(qs(eId.text()), qs(eCRS.text())));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
       QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
@@ -443,7 +454,7 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eLayer, eContents, "Layer") {
     QDomElement eId = eLayer.firstChildElement("ows:Identifier");
 
-    std::auto_ptr<WebMapWMTSLayer> layer(new WebMapWMTSLayer(qs(eId.text())));
+    std::unique_ptr<WebMapWMTSLayer> layer(new WebMapWMTSLayer(qs(eId.text())));
     METLIBS_LOG_DEBUG(LOGVAL(layer->identifier()));
 
     layer->setTitle(qs(eLayer.firstChildElement("ows:Title").text()));
