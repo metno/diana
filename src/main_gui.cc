@@ -38,15 +38,13 @@
 #include <QTranslator>
 #include <QMessageBox>
 
-// required to tell fimex to use log4cpp
-#include <fimex/Logger.h>
-
 #include "diBuild.h"
 #include "diLocalSetupParser.h"
 #include "diPrintOptions.h"
 #include "diController.h"
 #include "diEditItemManager.h"
 #include "miSetupParser.h"
+#include "util/fimex_logging.h"
 
 #include "qtMainWindow.h"
 
@@ -61,6 +59,7 @@
 
 #define MILOGGER_CATEGORY "diana.main_gui"
 #include <miLogger/miLogging.h>
+
 
 using namespace std;
 using namespace miutil;
@@ -260,9 +259,7 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
-
-  // tell fimex to use log4cpp
-  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
+  init_fimex_logging();
   milogger::LoggingConfig log4cpp(logfilename);
 
   if (have_diana_title) {
@@ -350,5 +347,7 @@ int main(int argc, char **argv)
   // news ?
   mw->checkNews();
 
-  return a.exec();
+  const int r = a.exec();
+  finish_fimex_logging();
+  return r;
 }
