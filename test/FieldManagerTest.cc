@@ -31,7 +31,7 @@ TEST(FieldManagerTest, TestRW)
     fieldrequest.ptime = miutil::miTime("2013-02-27 00:00:00");
     fieldrequest.refTime = "2013-02-27T00:00:00";
 
-    std::auto_ptr<FieldManager> fmanager(new FieldManager());
+    std::unique_ptr<FieldManager> fmanager(new FieldManager());
     {
         const std::string model_w = "fmtest_write";
         std::vector<std::string> modelConfigInfo;
