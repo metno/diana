@@ -364,10 +364,7 @@ private:
   TimeNavigator* timeNavigator;
 
   // printerdefinitions
-  printerManager pman;
   printOptions priop;
-
-  QToolButton * infoB;
 
   WorkArea          * w;
   QuickMenu         * qm;
