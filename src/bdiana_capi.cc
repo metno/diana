@@ -888,7 +888,6 @@ static void printUsage(bool showexample)
     "                         # (see PRINT_DOCUMENT command below)",
     "papersize=297x420,A4     # size of paper in mm,   (postscript)",
     "                         # papertype (A4 etc) or both.",
-    "drawbackground=NO        # plot background colour (postscript)",
     "orientation=LANDSCAPE    # PORTRAIT/LANDSCAPE     (postscript)",
     "                         # (default here is really 'automatic'",
     "                         # which sets orientation according to",
@@ -2192,8 +2191,6 @@ static int handlePrintDocument(int& k)
   multiple_newpage = true;
 
   std::string command = printman->printCommand();
-  priop.numcopies = 1;
-
   printman->expandCommand(command, priop);
 
   if (verbose)
@@ -2410,12 +2407,6 @@ static int handleBuffersize(int& k, const std::string& value)
 
   // first stop ongoing postscript sessions
   endHardcopy(plot_none);
-
-  // for multiple plots
-  priop.viewport_x0 = 0;
-  priop.viewport_y0 = 0;
-  priop.viewport_width = xsize;
-  priop.viewport_height = ysize;
 
   buffermade = true;
   return 0;
@@ -2739,8 +2730,7 @@ static int parseAndProcess(istream &is)
         priop.colop = d_print::incolour;
 
     } else if (key == com_drawbackground) {
-      priop.drawbackground = (miutil::to_lower(value) == "yes");
-
+      METLIBS_LOG_WARN("the bdiana command '" << com_drawbackground << "' has no effect any more");
     } else if (key == com_orientation) {
       value = miutil::to_lower(value);
       if (value == "landscape")
@@ -3000,7 +2990,6 @@ int diana_init(int _argc, char** _argv)
 
   priop.fname = "tmp_diana.ps";
   priop.colop = d_print::greyscale;
-  priop.drawbackground = false;
   priop.orientation = d_print::ori_automatic;
   priop.pagesize = d_print::A4;
   // 1.4141
