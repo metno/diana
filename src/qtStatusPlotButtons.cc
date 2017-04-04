@@ -114,6 +114,7 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent)
   hl->setMargin(1);
   for (int i=0; i<MAXBUTTONS; i++){
     buttons[i] = new PlotButton(this, pe);
+    buttons[i]->hide();
     connect(buttons[i], SIGNAL(enabled(PlotElement)),
         this, SLOT(enabled(PlotElement)));
     hl->addWidget(buttons[i]);
