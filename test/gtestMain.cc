@@ -1,26 +1,18 @@
 
 #include <gtest/gtest.h>
 
-//#define DEBUG_MESSAGES
-
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-// required to tell fimex to use log4cpp
-#include <fimex/Logger.h>
-#endif // DEBUG_MESSAGES
-
-#define MILOGGER_CATEGORY "diana.test.main"
-#include <miLogger/miLogging.h>
+#include "util/fimex_logging.h"
+#include <miLogger/miLoggingSimple.h>
 
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
 
-  milogger::LoggingConfig log4cpp("-.!!=-:");
-#ifdef DEBUG_MESSAGES
-  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG);
-#endif
+  FimexLoggingAdapter fla;
+  milogger::simple::SimpleSystemPtr sp = std::make_shared<milogger::simple::SimpleSystem>();
+  // sp->setThreshold(milogger::DEBUG);
+  sp->configure("");
+  milogger::system::selectSystem(sp);
 
   setlocale(LC_NUMERIC, "C");
 
