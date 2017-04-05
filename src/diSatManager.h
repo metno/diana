@@ -97,8 +97,8 @@ private:
   void addMosaicfiles(Sat* satdata);
   std::vector<SatFileInfo> mosaicfiles;
 
-  void cutImage(Sat* satdata, unsigned char*, float, int&, int&);
   void setRGB(Sat* satdata);
+  void calcRGBstrech(unsigned char *image, const int& size, const float& cut);
   void setPalette(Sat* satdata, SatFileInfo &);
   void listFiles(subProdInfo &subp);
   bool readHeader(SatFileInfo &, std::vector<std::string> &);
@@ -114,12 +114,7 @@ private:
   void init_rgbindex_Meteosat(Sat& sd);
 
   //cut index from first picture,can be reused in other pictures
-  struct ColourStretchInfo{
-    std::string channels;
-    int index1[3];
-    int index2[3];
-  };
-  ColourStretchInfo colourStretchInfo;
+  int colourStretchInfo[6];
 
   typedef std::vector<SatPlot*> SatPlot_xv;
   SatPlot_xv vsp;   // vector of satellite plots
@@ -127,7 +122,6 @@ private:
   bool fileListChanged;
 
   bool setData(SatPlot *satp);
-  void cutImageRGBA(Sat* satdata, unsigned char *image, float cut, int *index);
   int getFileName(Sat* satdata, std::string &);
   int getFileName(Sat* satdata, const miutil::miTime&);
 
