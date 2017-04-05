@@ -21,6 +21,7 @@
 #include <fimex/CDMReaderUtils.h>
 #include <fimex/CDMconstants.h>
 #include <fimex/CDMInterpolator.h>
+#include <fimex/CDMExtractor.h>
 #include <fimex/vertical_coordinate_transformations.h>
 #include <fimex/coordSys/verticalTransform/HybridSigmaPressure1.h>
 #include <fimex/coordSys/verticalTransform/Pressure.h>
@@ -58,6 +59,7 @@ const char METER[] = "m";
 const char SECONDS_SINCE_1970[] = "seconds since 1970-01-01 00:00:00";
 
 const char REPROJECTION[] = "reprojection";
+const char EXTRACT[] = "extract";
 
 DataPtr getScaledDataSlice(FimexIO::CDMReaderPtr reader, const CoordinateSystemSliceBuilder& sb,
     const std::string& varName, const std::string& unit)
@@ -357,6 +359,11 @@ FimexIO::CDMReaderPtr FimexIO::createReader()
           interpolator->changeProjection(method, reproj_data["projString"], reproj_data["xAxisValues"], reproj_data["yAxisValues"],
               reproj_data["xAxisUnit"], reproj_data["yAxisUnit"]);
           return boost::shared_ptr<CDMReader>(interpolator);
+        } else if (reproj_data["type"] == EXTRACT) {
+            boost::shared_ptr<CDMExtractor> extractor( new CDMExtractor(feltReader) );
+            extractor->reduceLatLonBoundingBox(atof(reproj_data["south"].c_str()),atof(reproj_data["north"].c_str()),
+            atof(reproj_data["west"].c_str()),atof(reproj_data["east"].c_str()));
+            return boost::shared_ptr<CDMReader>(extractor);
         } else {
           METLIBS_LOG_WARN("Invalid option type in FimexIO::createReader: " << reproj_data["type"]);
         }
