@@ -291,8 +291,18 @@ bool ShapeObject::read(const std::string& filename)
   for (int i = 0; i < nEntities; i++) {
     SHPObject_p shp(SHPReadObject(hSHP, i), SHPDestroyObject);
     const int type = shp->nSHPType;
-    if (type == SHPT_POLYGON || type == SHPT_ARC || type == SHPT_POINT)
+    const bool xytype =
+        (  type == SHPT_POLYGON  || type == SHPT_ARC  || type == SHPT_POINT);
+    const bool xyzmtype =
+        (  type == SHPT_POLYGONZ || type == SHPT_ARCZ || type == SHPT_POINTZ
+        || type == SHPT_POLYGONM || type == SHPT_ARCM || type == SHPT_POINTM);
+    if (xyzmtype)
+      METLIBS_LOG_INFO("SHPObject[" << i << "]: z and m data will be ignored");
+    if (xytype || xyzmtype) {
       shapes.push_back(ShpData(shp));
+    } else {
+      METLIBS_LOG_INFO("SHPObject[" << i << "]: unsupported  type " << type);
+    }
   }
 
   SHPClose(hSHP);
