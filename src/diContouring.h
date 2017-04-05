@@ -127,7 +127,7 @@ void posConvert(int npos, float *x, float *y,
 		int nx, int ny, float *xz, float *yz);
 /// joins contour parts (also along undefined areas) to closed contours
 void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
-		  bool drawBorders, int iconv, int valuecut);
+		  bool drawBorders, int iconv);
 /// find points where a horizontal line crosses a closed contour
 std::vector<float> findCrossing(float ycross, int n, float *x, float *y);
 
