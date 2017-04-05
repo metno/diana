@@ -45,6 +45,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <QtCore>
 #include <QtGui>
@@ -80,6 +81,7 @@
 #include "diSpectrumOptions.h"
 
 #include "util/charsets.h"
+#include "util/fimex_logging.h"
 
 #include <puCtools/sleep.h>
 #include <puTools/miStringFunctions.h>
@@ -91,9 +93,6 @@
 #include <QPrinter>
 
 #include "export/MovieMaker.h"
-
-// required to tell fimex to use log4cpp
-#include <fimex/Logger.h>
 
 #define MILOGGER_CATEGORY "diana.bdiana"
 #include <miLogger/miLogging.h>
@@ -2982,8 +2981,7 @@ int diana_init(int _argc, char** _argv)
     ac++;
   } // command line parameters
 
-  // tell fimex to use log4cpp
-  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
+  FimexLoggingAdapter fla;
   milogger::LoggingConfig log4cpp(logfilename);
 
   METLIBS_LOG_INFO(argv[0].toStdString() << " : DIANA batch version " << VERSION);
@@ -3046,7 +3044,7 @@ int diana_init(int _argc, char** _argv)
     while (!quit) {
       QPointer<diWorkOrder> order = orderbook->getNextOrder();
       if (order) {
-        istringstream is(order->getText());
+        std::istringstream is(order->getText());
         METLIBS_LOG_INFO("processing order...");
         parseAndProcess(is);
         METLIBS_LOG_INFO("done");
