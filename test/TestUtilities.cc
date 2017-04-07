@@ -237,3 +237,19 @@ TEST(TestUtilities, Utf8ToLatin1)
   EXPECT_EQ("bl\xE5" "b\xE6" "r", c->convert("blåbær"));
   EXPECT_EQ("\xC5r\xF8", c->convert("Årø"));
 }
+
+TEST(TestUtilities, GetLineConverter)
+{
+  std::istringstream stream(
+        "# -*- coding: utf-8 -*-\n"
+        "blueberry = blåbær\n"
+        );
+  diutil::GetLineConverter convertline("#");
+  std::string l, found;
+  while (convertline(stream, l)) {
+    if (l.empty() || l[0]=='#')
+      continue;
+    found = l;
+  }
+  EXPECT_EQ("blueberry = bl\xE5" "b\xE6" "r", found);
+}
