@@ -38,12 +38,14 @@
 
 using namespace std;
 
+#define HEI_UTF8 "hei blåbær"
+
 static const char log_1[] = "# -*- coding: utf-8 -*-\n"
     "[MAIN.LOG]\n"
     "hello world\n"
     "[/MAIN.LOG]\n"
     "[SUB.LOG]\n"
-    "hello moon\n"
+    HEI_UTF8 "\n"
     "[/SUB.LOG]\n";
 
 TEST(TestLogFileIO, Read)
@@ -65,7 +67,7 @@ TEST(TestLogFileIO, Write)
   LogFileIO::Section& main_log = logfile.getSection("MAIN.LOG");
   main_log.addLine("hello world");
   LogFileIO::Section& sub_log = logfile.getSection("SUB.LOG");
-  sub_log.addLine("hello moon");
+  sub_log.addLine(HEI_UTF8);
 
   std::ostringstream output;
   logfile.write(output);
@@ -82,7 +84,7 @@ TEST(TestLogFileIO, ReadVector)
   const LogFileIO& logfile = logfile_r;
 
   ASSERT_EQ(1, logfile.getSection("SUB.LOG").lines().size());
-  EXPECT_EQ("hello moon", logfile.getSection("SUB.LOG").lines().at(0));
+  EXPECT_EQ(HEI_UTF8, logfile.getSection("SUB.LOG").lines().at(0));
 
   ASSERT_EQ(1, logfile.getSection("MAIN.LOG").lines().size());
   EXPECT_EQ("hello world", logfile.getSection("MAIN.LOG").lines().at(0));
@@ -98,7 +100,7 @@ TEST(TestLogFileIO, WriteVector)
   }
 
   { std::vector<std::string> lines;
-    lines.push_back("hello moon");
+    lines.push_back(HEI_UTF8);
     logfile.getSection("SUB.LOG").addLines(lines);
   }
 
