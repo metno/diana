@@ -1,3 +1,12 @@
+diana-3.42 (3.42.0~a11-1) unstable; urgency=low
+
+  * SHP objects with m and/or z
+  * FimexIO extract option
+  * RGB-plot in FieldPlot and SatManager
+  * bugfix charset conversion while reading diana.log
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 07 Apr 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~a10-1) unstable; urgency=low
 
   * new fimex version
