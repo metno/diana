@@ -1,4 +1,4 @@
-diana-3.42 (3.42.0~a11-1) unstable; urgency=low
+diana-3.42 (3.42.0~a12-1) unstable; urgency=low
 
   * SHP objects with m and/or z
   * FimexIO extract option
