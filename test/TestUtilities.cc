@@ -251,5 +251,5 @@ TEST(TestUtilities, GetLineConverter)
       continue;
     found = l;
   }
-  EXPECT_EQ("blueberry = bl\xE5" "b\xE6" "r", found);
+  EXPECT_EQ("blueberry = blåbær", found);
 }
