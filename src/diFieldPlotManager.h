@@ -55,6 +55,7 @@ public:
     std::vector<std::string> input; ///< the input fields, read or computed
     std::string inputstr; //same as above, used as tooltip
     std::set< std::string > vcoord;
+    FieldFunctions::VerticalType vctype;
   };
 
   FieldPlotManager(FieldManager* fm);

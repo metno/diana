@@ -92,6 +92,28 @@ const FieldFunctions::Zaxis_info* FieldFunctions::findZaxisInfo(const std::strin
     return 0;
 }
 
+// static
+const FieldFunctions::VerticalType FieldFunctions::getVerticalType(const std::string& vctype)
+{
+  if ( vctype == "none" )
+    return FieldFunctions::vctype_none;
+  if ( vctype == "pressure")
+    return FieldFunctions::vctype_pressure;
+  if ( vctype == "hybrid")
+    return FieldFunctions::vctype_hybrid;
+  if ( vctype == "atmospheric")
+    return FieldFunctions::vctype_atmospheric;
+  if ( vctype == "isentropic")
+    return FieldFunctions::vctype_isentropic;
+  if ( vctype == "oceandepth")
+    return FieldFunctions::vctype_oceandepth;
+  if ( vctype == "other")
+    return FieldFunctions::vctype_other;
+
+  return FieldFunctions::vctype_none;
+
+}
+
 // static member
 bool FieldFunctions::registerFunction(functions_t& functions, Function f, const std::string& funcText)
 {
@@ -528,21 +550,7 @@ bool FieldFunctions::parseVerticalSetup(const std::vector<std::string>& lines,
         if( stokens[0] == key_name ) {
           zaxis_info.name = stokens[1];
         } else  if( stokens[0] == key_vc_type ) {
-          if ( stokens[1] == "none" ) {
-            zaxis_info.vctype = FieldFunctions::vctype_none;
-          } else if ( stokens[1] == "pressure") {
-            zaxis_info.vctype = FieldFunctions::vctype_pressure;
-          } else if ( stokens[1] == "hybrid") {
-            zaxis_info.vctype = FieldFunctions::vctype_hybrid;
-          } else if ( stokens[1] == "atmospheric") {
-            zaxis_info.vctype = FieldFunctions::vctype_atmospheric;
-          } else if ( stokens[1] == "isentropic") {
-            zaxis_info.vctype = FieldFunctions::vctype_isentropic;
-          } else if ( stokens[1] == "oceandepth") {
-            zaxis_info.vctype = FieldFunctions::vctype_oceandepth;
-          } else if ( stokens[1] == "other") {
-            zaxis_info.vctype = FieldFunctions::vctype_other;
-          }
+          zaxis_info.vctype= getVerticalType(stokens[1]);
         } else  if( stokens[0] == key_levelprefix ) {
           zaxis_info.levelprefix = stokens[1];
         } else  if( stokens[0] == key_levelsuffix ) {

@@ -389,6 +389,8 @@ public:
     bop_none, bop_read, bop_function, bop_result, bop_delete
   };
 
+  static std::map< std::string, Zaxis_info> Zaxis_info_map;
+
 private:
   struct FunctionHelper {
     Function func;
@@ -418,6 +420,8 @@ public:
 
   static const Zaxis_info* findZaxisInfo(const std::string& name);
 
+  static const FieldFunctions::VerticalType getVerticalType(const std::string& vctype);
+
   /// read setup section for field computations
   static bool parseComputeSetup(const std::vector<std::string>& lines,
       std::vector<std::string>& errors);
@@ -446,7 +450,6 @@ private:
 
   static std::vector<FieldCompute> vFieldCompute;
 
-  static std::map< std::string, Zaxis_info> Zaxis_info_map;
 };
 
 #endif // DIFIELD_FIELDFUNCTIONS_H
