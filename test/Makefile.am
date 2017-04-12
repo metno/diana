@@ -153,6 +153,8 @@ EXTRA_DIST += test_fimexio_rw.nc hirlam_vct1.nc hirlam_vct2.nc arome.nc \
 
 EXTRA_DIST += arome_smhi.nc approach_ENHF.kml
 
+all-local: $(check_PROGRAMS)
+
 # see https://lists.gnu.org/archive/html/automake/2013-06/msg00051.html
 display-testsuite-logs:
 	for f in $(TEST_LOGS); do printf "\n=== $$f ===\n\n"; cat $$f; done
