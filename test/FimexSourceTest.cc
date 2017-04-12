@@ -36,6 +36,9 @@ static const char EMEP_ETNA_FILE[] = "emep_etna_dyn.nc";
 static const int EMEP_ETNA_N_TIME = 4;
 static const int EMEP_ETNA_N_Z = 19;
 
+static const char HIRLAM_DYN_FILE[] = "hirlam_dyn.nc";
+static const int HIRLAM_DYN_N_TIME = 6;
+
 static const char AROMESMHI_FILE[] = "arome_smhi.nc";
 static const int AROMESMHI_N_TIME = 4;
 static const int AROMESMHI_N_Z = 65;
@@ -642,6 +645,77 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   EXPECT_FLOAT_EQ(121.61005, ash_c_values->value(idx));
 }
 #endif // disabled due to a problem with fimex
+
+TEST(FimexReftimeSourceTest, TestHirlamVcrossDyn)
+{
+  ReftimeSource_p fs = openFimexFile(HIRLAM_DYN_FILE);
+  if (not fs)
+    return;
+
+  Inventory_cp inv = fs->getInventory();
+  ASSERT_TRUE(bool(inv));
+  ASSERT_EQ(HIRLAM_DYN_N_TIME, inv->times.npoint());
+  ASSERT_EQ(0, inv->crossections.size());
+
+  ASSERT_TRUE(fs->supportsDynamicCrossections());
+  LonLat_v positions;
+  positions.push_back(LonLat::fromDegrees(15.46,78.25));
+  Crossection_cp cs0 = fs->addDynamicCrossection("LONGYEARBYEN", positions);
+  ASSERT_TRUE(bool(cs0));
+
+  FieldData_cp air_pt = inv->findFieldById("air_potential_temperature_ml");
+  ASSERT_TRUE(bool(air_pt));
+  ZAxisData_cp vertical = air_pt->zaxis();
+  ASSERT_TRUE(bool(vertical));
+  InventoryBase_cp vertical_pressure = air_pt->zaxis()->pressureField();
+  ASSERT_TRUE(bool(vertical_pressure));
+  InventoryBase_cp vertical_altitude = air_pt->zaxis()->altitudeField();
+  ASSERT_TRUE(bool(vertical_altitude));
+
+  InventoryBase_cps request;
+  request.insert(air_pt);
+  request.insert(vertical_pressure);
+  request.insert(vertical_altitude);
+  name2value_t n2v;
+  fs->getTimegraphValues(cs0, 0, request, n2v);
+
+  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  ASSERT_TRUE(bool(vertical_p_values));
+  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  ASSERT_TRUE(bool(vertical_h_values));
+  Values_cp air_pt_values = n2v[air_pt->id()];
+  ASSERT_TRUE(bool(air_pt_values));
+
+  const Values::Shape& shape(vertical_p_values->shape());
+  ASSERT_EQ(2, shape.rank());
+  EXPECT_EQ(Values::TIME,      shape.name(0));
+  EXPECT_EQ(HIRLAM_DYN_N_TIME, shape.length(0));
+  EXPECT_EQ(Values::GEO_Z,     shape.name(1));
+  EXPECT_EQ(HIRLAM_N_Z,        shape.length(1));
+
+  ASSERT_EQ(shape.names(),   vertical_h_values->shape().names());
+  ASSERT_EQ(shape.lengths(), vertical_h_values->shape().lengths());
+
+  ASSERT_EQ(shape.names(),   air_pt_values->shape().names());
+  ASSERT_EQ(shape.lengths(), air_pt_values->shape().lengths());
+
+  Values::ShapeIndex idx(vertical_p_values->shape());
+  idx.set(Values::TIME, 0);
+  idx.set(Values::GEO_Z, 39);
+  EXPECT_FLOAT_EQ(747.15155, vertical_p_values->value(idx));
+  EXPECT_FLOAT_EQ(2405,      vertical_h_values->value(idx));
+  EXPECT_FLOAT_EQ(293,       air_pt_values->value(idx));
+
+  idx.set(Values::GEO_Z, 3);
+  EXPECT_FLOAT_EQ(71.458359, vertical_p_values->value(idx));
+  EXPECT_FLOAT_EQ(18212,     vertical_h_values->value(idx));
+  EXPECT_FLOAT_EQ(451.5,     air_pt_values->value(idx));
+
+  idx.set(Values::TIME, 3);
+  EXPECT_FLOAT_EQ(71.487221, vertical_p_values->value(idx));
+  EXPECT_FLOAT_EQ(18205,     vertical_h_values->value(idx));
+  EXPECT_FLOAT_EQ(449.39999, air_pt_values->value(idx));
+}
 
 TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
 {
