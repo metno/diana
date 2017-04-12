@@ -374,10 +374,13 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   lon_showvalue= new QCheckBox(tr("Show value"), lon_frame);
   lon_showvalue->setToolTip(tr("Show longitude-values") );
   connect( lon_showvalue, SIGNAL( toggled(bool) ),SLOT( lon_showValueActivated(bool) ) );
-  lon_showvalue->setChecked(lonshowvalue);
   // value pos
   lon_valuepos= ComboBox( lon_frame, positions_tr, true, 1 );
+
   showlon->setChecked(lonb);
+  lon_checkboxActivated(lonb);
+  lon_showvalue->setChecked(lonshowvalue);
+  lon_showValueActivated(lonshowvalue);
 
   // Show latitude lines
 
@@ -420,11 +423,13 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   lat_showvalue= new QCheckBox(tr("Show value"), lat_frame);
   lat_showvalue->setToolTip(tr("Show latitude-values") );
   connect( lat_showvalue, SIGNAL( toggled(bool) ),SLOT( lat_showValueActivated(bool) ) );
-  lat_showvalue->setChecked(latshowvalue);
   // value pos
   lat_valuepos= ComboBox( lat_frame, positions_tr, true, 0);
 
   showlat->setChecked(latb);
+  lat_checkboxActivated(latb);
+  lat_showvalue->setChecked(latshowvalue);
+  lat_showValueActivated(latshowvalue);
 
   // frame on map...
   QFrame* ff_frame= new QFrame(this);
@@ -457,6 +462,9 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   ff_zorder= ComboBox( ff_frame, zorders, true, ff_z );
   connect( ff_zorder, SIGNAL( activated(int) ),
       SLOT( ff_zordercboxActivated(int) ) );
+
+  showframe->setChecked(false);
+  showframe_checkboxActivated(false);
 
   // Background colour
   backcolorlabel= TitleLabel( tr("Background colour"), this);
@@ -679,17 +687,10 @@ void MapDialog::showframe_checkboxActivated(bool on)
 {
   frameb = on;
 
-  if (on) {
-    ff_linecbox->setEnabled(true);
-    ff_linetypebox->setEnabled(true);
-    ff_colorcbox->setEnabled(true);
-    ff_zorder->setEnabled(true);
-  } else {
-    ff_linecbox->setEnabled(false);
-    ff_linetypebox->setEnabled(false);
-    ff_colorcbox->setEnabled(false);
-    ff_zorder->setEnabled(false);
-  }
+  ff_linecbox->setEnabled(on);
+  ff_linetypebox->setEnabled(on);
+  ff_colorcbox->setEnabled(on);
+  ff_zorder->setEnabled(on);
 }
 
 void MapDialog::ff_linecboxActivated(int index)
@@ -763,6 +764,8 @@ void MapDialog::mapboxChanged()
 
   if (numselected == 0) {// none is selected
     selectedMapbox->setEnabled(false);
+    mapdelete->setEnabled(false);
+    mapalldelete->setEnabled(false);
     contours->setEnabled(false);
     cont_colorcbox->setEnabled(false);
     cont_linecbox->setEnabled(false);
@@ -775,6 +778,8 @@ void MapDialog::mapboxChanged()
     // select the active map
     selectedMapbox->setCurrentRow(activeidx);
     selectedMapbox->setEnabled(true);
+    mapdelete->setEnabled(true);
+    mapalldelete->setEnabled(true);
     selectedMapboxClicked(selectedMapbox->currentItem());
   }
 }
@@ -952,7 +957,7 @@ void MapDialog::lon_checkboxActivated(bool on)
   lon_density->setEnabled(on);
   lon_zorder->setEnabled(on);
   lon_showvalue->setEnabled(on);
-  lon_valuepos->setEnabled(on);
+  lon_valuepos->setEnabled(on && lon_showvalue->isChecked());
 }
 
 void MapDialog::lon_linecboxActivated(int index)
@@ -978,6 +983,7 @@ void MapDialog::lon_zordercboxActivated(int index)
 void MapDialog::lon_showValueActivated(bool on)
 {
   lonshowvalue = on;
+  lon_valuepos->setEnabled(on);
 }
 
 void MapDialog::lat_checkboxActivated(bool on)
@@ -990,7 +996,7 @@ void MapDialog::lat_checkboxActivated(bool on)
   lat_density->setEnabled(on);
   lat_zorder->setEnabled(on);
   lat_showvalue->setEnabled(on);
-  lat_valuepos->setEnabled(on);
+  lat_valuepos->setEnabled(on && lat_showvalue->isChecked());
 }
 
 void MapDialog::lat_linecboxActivated(int index)
@@ -1016,6 +1022,7 @@ void MapDialog::lat_zordercboxActivated(int index)
 void MapDialog::lat_showValueActivated(bool on)
 {
   latshowvalue = on;
+  lat_valuepos->setEnabled(on);
 }
 
 
