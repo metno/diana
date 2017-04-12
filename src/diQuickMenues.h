@@ -29,7 +29,6 @@
 #ifndef _diQuickMenues_h
 #define _diQuickMenues_h
 
-
 #include <string>
 #include <vector>
 #include <deque>
@@ -51,9 +50,19 @@ struct quickMenuItem{
 struct quickMenu{
   std::string filename; ///< file containing menu definitions
   std::string name;     ///< name of menuitem
-  int plotindex;        ///<
+  int plotindex;        ///< index of the "current" item for this quickMenu
   std::vector<quickMenuOption> opt;   /// any quickMenuOption
   std::deque<quickMenuItem> menuitems;/// all items in this menu
+
+  bool step_plotindex(int delta);
+
+  bool valid_plotindex(int pi) const
+    { return pi >= 0 && pi < (int)menuitems.size(); }
+
+  bool valid_plotindex() const
+    { return valid_plotindex(plotindex); }
+
+  const std::vector<std::string>& command() const;
 };
 
 /// write a quick-menu to file

@@ -136,8 +136,10 @@ public:
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
+  bool stepQPlot(int delta);
   bool prevHPlot(int index=0); ///< previous History plot
   bool nextHPlot(int index=0); ///< next History plot
+  bool stepHPlot(int menu, int delta); ///< previous/next History plot
   bool prevList();  ///< previous Menu
   bool nextList();  ///< next Menu
 
