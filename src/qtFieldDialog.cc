@@ -2386,7 +2386,6 @@ void FieldDialog::enableWidgets(std::string plottype)
   for (int i = 0; i < 3; i++) {
     threeColourBox[i]->setEnabled(enable);
   }
-
   enable= enableMap[plottype].contourWidgets;
   lineTypeCbox->setEnabled(enable);
   lineSmoothSpinBox->setEnabled(enable);
@@ -2416,6 +2415,10 @@ void FieldDialog::enableWidgets(std::string plottype)
   patternComboBox->setEnabled(enable);
   patternColourBox->setEnabled(enable);
   alphaSpinBox->setEnabled(enable);
+
+  enable = enable && lineintervalCbox->currentIndex() == 0;
+  linevaluesField->setEnabled(enable);
+  linevaluesLogCheckBox->setEnabled(enable);
 
   enable = enableMap[plottype].lineWidgets;
   lineWidthCbox->setEnabled(enable);
