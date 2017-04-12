@@ -202,6 +202,9 @@ protected:
 public:
   virtual ~WebMapService();
 
+  void setBasicAuth(const std::string& basicauth)
+    { mBasicAuth = basicauth; }
+
   const std::string& identifier() const
     { return mIdentifier; }
 
@@ -244,6 +247,7 @@ protected:
 protected:
   std::string mIdentifier;
   std::string mTitle;
+  std::string mBasicAuth;
   std::vector<WebMapLayer_cx> mLayers;
 };
 
