@@ -851,7 +851,7 @@ std::string SatDialog::makeOKString(state & okVar)
 void SatDialog::putOKString(const vector<string>& vstr)
 {
   /* Called from MainWindow to put vstr values into dialog  */
-  METLIBS_LOG_DEBUG("SatDialog::putOKstring");
+  METLIBS_LOG_SCOPE();
 
   //update dialog
   DeleteAllClicked();
@@ -978,7 +978,7 @@ SatDialog::state SatDialog::decodeString(const vector<string> & tokens)
   /* This function is called by putOKstring.
    It decodes tokens, and puts plot variables into struct state */
 
-  METLIBS_LOG_DEBUG("ObjectDialog::decodeString");
+  METLIBS_LOG_SCOPE();
 
   state okVar;
   okVar.name = "";
@@ -1019,7 +1019,6 @@ SatDialog::state SatDialog::decodeString(const vector<string> & tokens)
   }
 
   return okVar;
-
 }
 
 /*********************************************/

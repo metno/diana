@@ -172,7 +172,7 @@ private:
   void getFieldGroups(const std::string& model, const std::string& refTime,
       bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
   std::string checkFieldOptions(const std::string& str);
-  std::string getFieldOptions(const std::string& fieldName, bool reset, bool edit=false) const;
+  std::string getFieldOptions(const std::string& fieldName, bool reset) const;
 
   bool fieldDifference(const std::string& str,
       std::string& field1, std::string& field2) const;

@@ -126,6 +126,13 @@ void put_date_time(ObsData& d, int month, int day, int hour, int minute)
   }
 }
 
+//! HACK if year has only two digits, files from year 1971 to 2070 is assumed
+int fix_year(int year)
+{
+  if (year < 1000)
+    year = (year > 70) ? year + 1900 : year + 2000;
+  return year;
+}
 } // namespace
 
 ObsBufr::ObsBufr()
@@ -220,11 +227,7 @@ bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
     int ibuf_len = buf_len;
     bus012_(&ibuf_len, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
 
-    //HACK if year has only two digits, files from year 1971 to 2070 is assumed
-    int year = ksec1[8];
-    if (year < 1000) {
-      year = (year > 70) ? year + 1900 : year + 2000;
-    }
+    int year = fix_year(ksec1[8]);
     time = miutil::miTime(year, ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
     if (time.undef())
       ok = false;
@@ -340,12 +343,10 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, Format format)
   //    return true;
   //  }
 
-  //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   if (obsTime.undef()) {
     int year = ksec1[8];
     if (year < 1000) {
-      year = (year > 70) ? year + 1900 : year + 2000;
-      obsTime = miTime(year, ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
+      obsTime = miTime(fix_year(year), ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
     }
   }
 
@@ -1845,9 +1846,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
     vplot->sigwind[kmax] = 3;
 
   vplot->prognostic = false;
-  int l1 = vplot->ptt.size();
-  int l2 = vplot->puv.size();
-  vplot->maxLevels = (l1 > l2) ? l1 : l2;
+  vplot->maxLevels = std::max(vplot->ptt.size(), vplot->puv.size());
 
   return true;
 }

@@ -557,7 +557,6 @@ void SatManager::setRGB(Sat* satdata)
     return;
   }
 
-	unsigned char* tmpImage;
 	if (satdata->formatType == "geotiff")
 	  satdata->image = satdata->rawimage[0];
 	else {

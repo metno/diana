@@ -1604,7 +1604,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     sf.hourOffset = 0;
     sf.hourDiff = 0;
 
-    sf.fieldOpts = getFieldOptions(sf.fieldName, false, sf.inEdit);
+    sf.fieldOpts = getFieldOptions(sf.fieldName, false);
 
     selectedFields.push_back(sf);
 
@@ -3984,8 +3984,7 @@ void FieldDialog::resetOptions()
   enableFieldOptions();
 }
 
-std::string FieldDialog::getFieldOptions(
-    const std::string& fieldName, bool reset, bool edit) const
+std::string FieldDialog::getFieldOptions(const std::string& fieldName, bool reset) const
 {
   std::string fieldname = fieldName;
 

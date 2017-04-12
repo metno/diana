@@ -64,8 +64,8 @@ public:
 
   std::vector<std::string> getOKString(bool forLog=false);
 
- public slots:
- void setRightClicked(std::string name,bool on);
+public Q_SLOTS:
+  void setRightClicked(std::string name,bool on);
   void ALLClicked();
   void NONEClicked();
   void DEFAULTClicked();

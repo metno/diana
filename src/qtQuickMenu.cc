@@ -68,7 +68,6 @@ const std::string vprefix= "@";
 QuickMenu::QuickMenu(DianaMainWindow* parent, Controller* c)
 : QDialog(parent), contr(c), comset(false),
 activemenu(0), timerinterval(10), timeron(false),
-browsing(false),
 prev_plotindex(0), prev_listindex(0),
 firstcustom(-1), lastcustom(-1),
 firststatic(QMENU),instaticmenu(false)
@@ -233,12 +232,6 @@ void QuickMenu::start()
 {
   fillMenuList();
   setCurrentMenu(0);
-}
-
-
-void QuickMenu::startBrowsing()
-{
-  browsing= true;
 }
 
 
@@ -1254,7 +1247,6 @@ void QuickMenu::plotButton()
     emit Apply(com, true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
-    browsing= false;
   }
   saveChanges(-1,-1);
 }

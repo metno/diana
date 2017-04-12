@@ -64,27 +64,27 @@ public:
   virtual ~EditItemManager();
 
   QHash<Action, QAction*> actions();
-  virtual bool parseSetup();
-  void plot(DiGLPainter* gl, bool under, bool over);
-  bool processInput(const std::vector<std::string>& inp);
+  bool parseSetup() override;
+  void plot(DiGLPainter* gl, bool under, bool over) override;
+  bool processInput(const std::vector<std::string>& inp) override;
 
-  void sendMouseEvent(QMouseEvent* event, EventResult& res);
-  void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
+  void sendMouseEvent(QMouseEvent* event, EventResult& res) override;
+  void sendKeyboardEvent(QKeyEvent* event, EventResult& res) override;
   void getViewportDisplacement(int &w, int &h, float &dx, float &dy);
 
-  virtual void setEditing(bool enable);
+  void setEditing(bool enable) override;
 
   void addItem(DrawingItemBase *, bool = false, bool = false);
   void editItem(DrawingItemBase *item);
   virtual void removeItem(DrawingItemBase *item);
   void updateItem(DrawingItemBase *item, const QVariantMap &props);
 
-  virtual QList<DrawingItemBase *> allItems() const;
+  QList<DrawingItemBase *> allItems() const override;
   QList<DrawingItemBase *> selectedItems() const;
 
-  virtual DrawingItemBase *createItem(const QString &type);
-  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString &error);
-  virtual QString loadDrawing(const QString &name, const QString &fileName);
+  DrawingItemBase *createItem(const QString &type) override;
+  DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString &error) override;
+  QString loadDrawing(const QString &name, const QString &fileName) override;
 
   QUndoStack *undoStack();
   QUndoView *getUndoView();
@@ -107,7 +107,7 @@ public:
 
   void setItemsVisibilityForced(bool);
 
-  virtual QString plotElementTag() const;
+  QString plotElementTag() const override;
 
   void updateJoins(bool = false);
 

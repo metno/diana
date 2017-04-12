@@ -77,6 +77,10 @@ WeatherObjects::WeatherObjects()
   enabled=true;
 }
 
+WeatherObjects::~WeatherObjects()
+{
+}
+
 /*********************************************/
 
 void WeatherObjects::clear()

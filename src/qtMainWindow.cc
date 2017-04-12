@@ -1365,7 +1365,6 @@ void DianaMainWindow::startBrowsing()
 {
   if (!updateBrowser()) return;
   browsing= true;
-  qm->startBrowsing();
   browser->show();
   browser->grabKeyboard();
 }

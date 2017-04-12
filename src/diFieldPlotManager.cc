@@ -886,8 +886,7 @@ void FieldPlotManager::parseString( const std::string& pin,
   //NB! what about ""
   boost::algorithm::split(tokens, pin, boost::algorithm::is_space());
   size_t n = tokens.size();
-  std::string str, key;
-
+  std::string key;
 
   for (size_t k = 1; k < n; k++) {
     std::vector<std::string> vtoken;
@@ -1058,8 +1057,7 @@ std::map<std::string, PlotOptions> FieldPlotManager::fieldPlotOptions;
 bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
     const std::string& optstr)
 {
-  std::string tmpOpt = optstr;
-  return PlotOptions::parsePlotOption(tmpOpt, fieldPlotOptions[name]);
+  return PlotOptions::parsePlotOption(optstr, fieldPlotOptions[name]);
 }
 
 void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,

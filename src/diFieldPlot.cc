@@ -217,11 +217,11 @@ void FieldPlot::clearFields()
 std::string FieldPlot::getModelPlotParameterReftime() const
 {
   //return n elements of current plot info string
-  vector<std::string> return_token;
-  return_token.push_back("model");
-  return_token.push_back("parameter");
-  return_token.push_back("plot");
-  return_token.push_back("reftime");
+  std::set<std::string> return_token;
+  return_token.insert("model");
+  return_token.insert("parameter");
+  return_token.insert("plot");
+  return_token.insert("reftime");
 
   vector<std::string> token = miutil::split(getPlotInfo(), 0, " ");
   std::string str;
@@ -229,8 +229,7 @@ std::string FieldPlot::getModelPlotParameterReftime() const
   for(unsigned int i=0;i<token.size();i++){
     vector<std::string> stoken = miutil::split(token[i], 0, "=");
     if (stoken.size() == 2) {
-      vector<std::string>::const_iterator it = std::find(return_token.begin(), return_token.end(), stoken[0]);
-      if (it != return_token.end()) {
+      if (return_token.find(stoken[0]) != return_token.end()) {
         str += token[i] + " ";
       }
     }

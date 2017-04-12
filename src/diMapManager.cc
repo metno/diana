@@ -484,16 +484,13 @@ std::string MapManager::MapExtra2str(const MapInfo& mi)
 
 MapDialogInfo MapManager::getMapDialogInfo()
 {
-  vector<string> areas = getMapAreaNames();
-  vector<MapInfo> maps = getMapInfo();
-
   MapDialogInfo MapDI;
+  MapDI.areas = getMapAreaNames();
+  MapDI.maps = getMapInfo();
 
-  MapDI.areas = areas;
-  MapDI.default_area = (areas.size() > 0 ? areas[0] : "");
-  MapDI.maps = maps;
-  if (maps.size() > 0)
-    MapDI.default_maps.push_back(maps[0].name);
+  MapDI.default_area = (MapDI.areas.size() > 0 ? MapDI.areas[0] : "");
+  if (MapDI.maps.size() > 0)
+    MapDI.default_maps.push_back(MapDI.maps[0].name);
 
   MapDI.backcolour = "white";
 
