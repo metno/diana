@@ -1,3 +1,9 @@
+diana-3.42 (3.42.0~rc1-1) unstable; urgency=low
+
+ * possible to specify vc_type
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Apr 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~a12-1) unstable; urgency=low
 
   * SHP objects with m and/or z
