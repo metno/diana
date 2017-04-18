@@ -1,6 +1,12 @@
+diana-3.42 (3.42.0~rc1-2) unstable; urgency=low
+
+  * fix perl package install path for i386
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Apr 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~rc1-1) unstable; urgency=low
 
- * possible to specify vc_type
+  * possible to specify vc_type
 
  -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Apr 2017 08:00:08 +0100
 

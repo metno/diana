@@ -1,5 +1,5 @@
 @metno_config_if .*xenial.*
-usr/lib/x86_64-linux-gnu/perl5/
+usr/lib/*-linux-gnu/perl5/
 @metno_config_else
 usr/lib/perl5/
 @metno_config_endif
