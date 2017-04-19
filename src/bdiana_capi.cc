@@ -317,7 +317,7 @@ void writeTimes(std::ostream& out, const C& times)
  */
 void expandTime(std::string& text, const miutil::miTime& time)
 {
-  if (miutil::contains(text, "%"))
+  if (!miutil::contains(text, "%"))
     return;
 
   text = time.format(text);
