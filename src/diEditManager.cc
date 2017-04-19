@@ -1991,7 +1991,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
       while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
           combineprods[ipc].element!=j)) ipc++;
       if (ipc<ipcend) {
-        FieldEdit *fed= new FieldEdit( fieldPlotManager );
+        std::unique_ptr<FieldEdit> fed(new FieldEdit(fieldPlotManager));
         // spec. used when reading field
         if (!makeNewFile(j, true, message)){
           return false;
@@ -2015,8 +2015,8 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
         } else {
           ok= false;
         }
-        if (ok) combinefields[j].push_back(fed);
-        else    delete fed;
+        if (ok)
+          combinefields[j].push_back(fed.release());
       } else {
         ok= false;
       }
@@ -2444,8 +2444,8 @@ bool EditManager::recalcCombineMatrix(){
 
   int npos= 0;
   int n = 0;
-  int *numv= new int[cosize];
-  int *startv= new int[cosize];
+  std::unique_ptr<int[]> numv(new int[cosize]);
+  std::unique_ptr<int[]> startv(new int[cosize]);
   for (int i=0; i<cosize; i++){
     //check if objects are borders
     if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
@@ -2456,8 +2456,8 @@ bool EditManager::recalcCombineMatrix(){
     }
   }
 
-  float *xposis= new float[npos];
-  float *yposis= new float[npos];
+  std::unique_ptr<float[]> xposis(new float[npos]);
+  std::unique_ptr<float[]> yposis(new float[npos]);
 
   int nborders = 0;
   int nposition=0;
@@ -2483,7 +2483,7 @@ bool EditManager::recalcCombineMatrix(){
 
   const Area& oldArea= plotm->getMapArea();
   const Area& newArea= fedits[0]->editfield->area;
-  if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis,yposis)) {
+  if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis.get(),yposis.get())) {
     METLIBS_LOG_ERROR("changeProjection: getPoints error");
     return false;
   }
@@ -2498,8 +2498,8 @@ bool EditManager::recalcCombineMatrix(){
   // Splines as shown (maybe approx due to map conversion...)
   int ndivs= 5;
   int m= npos*(ndivs+1) - nborders*ndivs;
-  float *xpos= new float[m];
-  float *ypos= new float[m];
+  std::unique_ptr<float[]> xpos(new float[m]);
+  std::unique_ptr<float[]> ypos(new float[m]);
   npos= 0;
   for (int i=0; i<nborders; i++){
     int is= startv[i];
@@ -2512,9 +2512,6 @@ bool EditManager::recalcCombineMatrix(){
     numv[i]= ns;
     npos+=ns;
   }
-
-  delete[] xposis;
-  delete[] yposis;
 
   // find crossing with fieldarea
   vector<int> crossp, quadr; // 0=Down, 1=Left, 2=Up, 3=Right
@@ -2673,7 +2670,7 @@ bool EditManager::recalcCombineMatrix(){
   for (i=0; i<fsize; ++i)
     combinematrix[i]= -1;
 
-  int *mark= new int[fsize];
+  std::unique_ptr<int[]> mark(new int[fsize]);
 
   float x1,x2,y1,y2;
   int j1,j2;
@@ -2719,13 +2716,6 @@ bool EditManager::recalcCombineMatrix(){
     }
 
   }
-
-  delete[] mark;
-
-  delete[] xpos;
-  delete[] ypos;
-  delete[] numv;
-  delete[] startv;
 
   return true;
 }
