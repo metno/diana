@@ -44,6 +44,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <stdexcept>
 
 #define MILOGGER_CATEGORY "diField.Projection"
@@ -119,8 +120,7 @@ int Projection::convertPoints(const Projection& srcProj, int npos, float * x,
     return -1;
   }
 
-  double * xd = new double[npos];
-  double * yd = new double[npos];
+  std::unique_ptr<double[]> xd(new double[npos]), yd(new double[npos]);
   double * zd = 0;
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
@@ -130,27 +130,21 @@ int Projection::convertPoints(const Projection& srcProj, int npos, float * x,
   }
   // Transformation
   // Here we spend most of the time when large matrixes.
-  int ret = pj_transform(srcProj.projObject.get(), projObject.get(), npos, 1, xd, yd, zd);
+  int ret = pj_transform(srcProj.projObject.get(), projObject.get(), npos, 1, xd.get(), yd.get(), zd);
   if (ret != 0 && ret !=-20) {
     //ret=-20 :"tolerance condition error"
     //ret=-14 : "latitude or longitude exceeded limits"
     if (!silent && ret != -14) {
       METLIBS_LOG_ERROR("error in pj_transform = " << pj_strerrno(ret) << "  " << ret);
     }
-    delete[] xd;
-    delete[] yd;
     return -1;
   }
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int i = 0; i < npos; i++) {
-    x[i] = static_cast<float> (xd[i]);
-    y[i] = static_cast<float> (yd[i] );
+    x[i] = static_cast<float>(xd[i]);
+    y[i] = static_cast<float>(yd[i]);
   }
-
-  // End convertPoints - clean up
-  delete[] xd;
-  delete[] yd;
 
   return 0;
 }
@@ -201,30 +195,27 @@ struct uv {
 /// Get the direction to north from point x, y
 float * north(Projection p, int nvec, const float * x, const float * y)
 {
-  float* north_x = new float[nvec];
-  float* north_y = new float[nvec];
-  std::copy(x, x + nvec, north_x);
-  std::copy(y, y + nvec, north_y);
+  std::unique_ptr<float[]> north_x(new float[nvec]), north_y(new float[nvec]);
+  std::copy(x, x + nvec, north_x.get());
+  std::copy(y, y + nvec, north_y.get());
 
-  p.convertToGeographic(nvec, north_x, north_y);
+  p.convertToGeographic(nvec, north_x.get(), north_y.get());
 
   // convert to geographical, go a little north (lat += 0.1 deg), convert back
-  const float deltaLat = 0.1;
+  const float deltaLat = 0.1f;
 
   DIUTIL_OPENMP_PARALLEL(nvec, for)
-  for (int i = 0; i < nvec; i++) {
+  for (size_t i = 0; i < nvec; i++) {
     north_y[i] = std::min<float>(north_y[i] + deltaLat, 90);
   }
-  p.convertFromGeographic(nvec, north_x, north_y);
-  float * ret = new float[nvec];
+  p.convertFromGeographic(nvec, north_x.get(), north_y.get());
 
+  std::unique_ptr<float[]> ret(new float[nvec]);
   DIUTIL_OPENMP_PARALLEL(nvec, for)
-  for (int i = 0; i < nvec; i++){
+  for (size_t i = 0; i < nvec; i++){
     ret[i] = uv(north_x[i] - x[i], north_y[i] - y[i]).angle();
   }
-  delete[] north_x;
-  delete[] north_y;
-  return ret;
+  return ret.release();
 }
 
 float turn(float angle_a, float angle_b)
@@ -240,25 +231,19 @@ float turn(float angle_a, float angle_b)
 } // namespace
 
 int Projection::convertVectors(const Projection& srcProj, int nvec,
-    const float * to_x,  const float * to_y, float * u, float * v) const
+    const float * from_x, const float * from_y,
+    const float * to_x, const float * to_y,
+    float * u, float * v) const
 {
-  int ierror = 0;
-  float udef= +1.e+35;
-
-  float * from_x = new float[nvec];
-  float * from_y = new float[nvec];
-
-  std::copy(to_x, to_x + nvec, from_x);
-  std::copy(to_y, to_y + nvec, from_y);
+  const float udef = +1.e+35f;
 
   try {
-    srcProj.convertPoints(*this, nvec, from_x, from_y); // convert back to old projection
-    float * from_north = north(srcProj, nvec, from_x, from_y); // degrees
-    float * to_north = north(*this, nvec, to_x, to_y); // degrees
+    std::unique_ptr<float[]> from_north(north(srcProj, nvec, from_x, from_y)); // degrees
+    std::unique_ptr<float[]> to_north(north(*this, nvec, to_x, to_y)); // degrees
 
     DIUTIL_OPENMP_PARALLEL(nvec, for)
-    for (int i = 0; i < nvec; ++i) {
-      if(u[i] != udef && v[i] != udef ) {
+    for (size_t i = 0; i < nvec; ++i) {
+      if(u[i] != udef && v[i] != udef) {
         const float length = std::sqrt(u[i]*u[i] + v[i]*v[i]);
 
         // the difference between angles in the two projections:
@@ -271,37 +256,20 @@ int Projection::convertVectors(const Projection& srcProj, int nvec,
         v[i] = convert.v * length;
       }
     }
-    delete[] from_north;
-    delete[] to_north;
+    return 0;
   } catch (std::exception & e) {
     METLIBS_LOG_ERROR("exception in convertVectors:" << e.what());
-    ierror = 1;
+    return 1;
   }
-
-  delete[] from_x;
-  delete[] from_y;
-
-  return ierror;
 }
 
-int Projection::calculateVectorRotationElements(const Projection& srcProj,
-    int nvec, const float * to_x, const float * to_y, float * cosa,
-    float * sina) const
+void Projection::calculateVectorRotationElements(const Projection& srcProj, int nvec,
+    const float * from_x, const float * from_y,
+    const float * to_x, const float * to_y,
+    float * cosa, float * sina) const
 {
-  int err = 0;
-
-  float * from_x = new float[nvec];
-  float * from_y = new float[nvec];
-
-  std::copy(to_x, to_x + nvec, from_x);
-  std::copy(to_y, to_y + nvec, from_y);
-
-  err = srcProj.convertPoints(*this, nvec, from_x, from_y); // convert back to old projection
-  if(err!=0){
-    return err;
-  }
-  float * from_north = north(srcProj, nvec, from_x, from_y); // degrees
-  float * to_north = north(*this, nvec, to_x, to_y); // degrees
+  std::unique_ptr<float[]> from_north(north(srcProj, nvec, from_x, from_y)); // degrees
+  std::unique_ptr<float[]> to_north  (north(*this,   nvec, to_x,   to_y)); // degrees
 
   DIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; ++i) {
@@ -316,11 +284,32 @@ int Projection::calculateVectorRotationElements(const Projection& srcProj,
       sina[i] = std::sin(angle_diff_rad);
     }
   }
-  delete[] from_north;
-  delete[] to_north;
-  delete[] from_x;
-  delete[] from_y;
+}
 
+int Projection::convertVectors(const Projection& srcProj, int nvec,
+    const float * to_x,  const float * to_y, float * u, float * v) const
+{
+  std::unique_ptr<float[]> from_x(new float[nvec]), from_y(new float[nvec]);
+  std::copy(to_x, to_x + nvec, from_x.get());
+  std::copy(to_y, to_y + nvec, from_y.get());
+  srcProj.convertPoints(*this, nvec, from_x.get(), from_y.get()); // convert back to old projection
+
+  return convertVectors(srcProj, nvec, from_x.get(), from_y.get(), to_x, to_y, u, v);
+}
+
+int Projection::calculateVectorRotationElements(const Projection& srcProj, int nvec,
+    const float * to_x, const float * to_y,
+    float * cosa, float * sina) const
+{
+  std::unique_ptr<float[]> from_x(new float[nvec]), from_y(new float[nvec]);
+  std::copy(to_x, to_x + nvec, from_x.get());
+  std::copy(to_y, to_y + nvec, from_y.get());
+
+  int err = srcProj.convertPoints(*this, nvec, from_x.get(), from_y.get()); // convert back to old projection
+  if (err == 0) {
+    calculateVectorRotationElements(srcProj, nvec,
+        from_x.get(), from_y.get(), to_x, to_y, cosa, sina);
+  }
   return err;
 }
 
@@ -411,7 +400,7 @@ int Projection::convertFromGeographic(int npos, float* x, float* y) const
   DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int i = 0; i < npos; i++) {
     if (x[i] == 0)
-      x[i] = 0.01; //todo: Bug:  x[i]=0 converts to x[i]=nx-1 when transforming between geo-projections
+      x[i] = 0.01f; //todo: Bug:  x[i]=0 converts to x[i]=nx-1 when transforming between geo-projections
     x[i] *=  DEG_TO_RAD;
     y[i] *=  DEG_TO_RAD;
   }
@@ -433,31 +422,28 @@ bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
   latmin = FLT_MAX;
   latmax = -FLT_MAX;
 
-  const int nt = 9, ntnt = nt*nt;
-  float *tx = new float[ntnt];
-  float *ty = new float[ntnt];
+  const size_t nt = 9, ntnt = nt*nt;
+  std::unique_ptr<float[]> tx(new float[ntnt]), ty(new float[ntnt]);
   float dx = (maprect.x2 - maprect.x1) / float(nt - 1);
   float dy = (maprect.y2 - maprect.y1) / float(nt - 1);
 
   DIUTIL_OPENMP_PARALLEL(ntnt, for)
-  for (int j = 0; j < nt; j++) {
-    for (int i = 0; i < nt; i++) {
-      int n = i + j*nt;
+  for (size_t j = 0; j < nt; j++) {
+    for (size_t i = 0; i < nt; i++) {
+      size_t n = i + j*nt;
       tx[n] = maprect.x1 + dx * i;
       ty[n] = maprect.y1 + dy * j;
     }
   }
 
-  int ierror = convertToGeographic(ntnt, tx, ty);
+  int ierror = convertToGeographic(ntnt, tx.get(), ty.get());
 
   if (ierror) {
     METLIBS_LOG_ERROR("calculateLatLonBoundingBox: " << ierror);
-    delete[] tx;
-    delete[] ty;
     return false;
   }
 
-  for (int i = 0; i < ntnt; i++) {
+  for (size_t i = 0; i < ntnt; i++) {
     if (lonmin > tx[i])
       lonmin = tx[i];
     if (lonmax < tx[i])
@@ -468,8 +454,6 @@ bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
       latmax = ty[i];
   }
 
-  delete[] tx;
-  delete[] ty;
   return true;
 }
 
@@ -496,19 +480,18 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
     float* xmapr, float* ymapr, float* coriolis) const
 {
   const int npos = nx * ny;
-  float *x = new float[npos];
-  float *y = new float[npos];
+  std::unique_ptr<float[]> x(new float[npos]), y(new float[npos]);
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < nx; ix++) {
-      int i = ix + iy*nx;
+      size_t i = ix + iy*nx;
       x[i] = ix*gridResolutionX;
       y[i] = iy*gridResolutionY;
     }
   }
 
-  int ierror = convertToGeographic(npos, x, y);
+  int ierror = convertToGeographic(npos, x.get(), y.get());
   if (ierror < 0) {
     return ierror;
   }
@@ -517,14 +500,14 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
   //must set x[0]=-180 in order to get map ratios right
   DIUTIL_OPENMP_PARALLEL(ny, for)
   for (int iy = 0; iy < ny; iy++) {
-    int index = nx*iy;
+    size_t index = nx*iy;
     if(x[index] > 179 && x[index] < 181) {
       x[index] = -180;
     }
   }
 
   if (coriolis) {
-    const float cfactor = 2.0 * 0.7292e-4;
+    const float cfactor = 2.0f * 0.7292e-4f;
     DIUTIL_OPENMP_PARALLEL(npos, for)
     for (int j = 0; j < npos; ++j) {
       coriolis[j] = cfactor * sin(y[j] * DEG_TO_RAD);

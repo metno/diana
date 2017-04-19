@@ -78,9 +78,19 @@ public:
   int convertPoints(const Projection& srcProj, int npos, float * x, float * y,
       bool silent = false) const;
 
+  int convertVectors(const Projection& srcProj, int nvec,
+      const float * from_x, const float * from_y,
+      const float * to_x, const float * to_y,
+      float * u, float * v) const;
+
   /// Convert Vectors to this projection
   int convertVectors(const Projection& srcProj, int nvec, const float * to_x,
       const float * to_y, float * from_u, float * from_v) const;
+
+  void calculateVectorRotationElements(const Projection& srcProj, int nvec,
+      const float * from_x, const float * from_y,
+      const float * to_x, const float * to_y,
+      float * cosa, float * sina) const;
 
   int calculateVectorRotationElements(const Projection& srcProj, int nvec,
       const float * to_x, const float * to_y, float * from_u, float * from_v) const;
