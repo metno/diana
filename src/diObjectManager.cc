@@ -42,6 +42,8 @@
 #include "diUtilities.h"
 #include "miSetupParser.h"
 
+#include "util/charsets.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <cstdio>
@@ -613,7 +615,8 @@ bool ObjectManager::writeEditDrawFile(const std::string filename,
     return false;
   }
 
-  file << outputString;
+  diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::ISO_8859_1);
+  file << converter->convert(outputString);
 
   file.close();
 
