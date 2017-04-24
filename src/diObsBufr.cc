@@ -314,7 +314,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, Format format)
     return true;
   }
 
-  const int kelem = 60000; //length of subsection
+  const int kelem = 80000; //length of subsection
   const int kvals = 440000;
 
   boost::shared_array<char> cnames(new char[kelem * len_cnames]);
