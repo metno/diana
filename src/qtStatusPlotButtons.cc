@@ -200,6 +200,14 @@ void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )
     if (activebutton>=0 && activebutton < numbuttons){
       buttons[activebutton]->toggle();
     }
+  } else if (e->key() == Qt::Key_PageUp){
+    for (int i=0; i<numbuttons; ++i){
+      buttons[i]->setChecked(true);
+    }
+  } else if (e->key() == Qt::Key_PageDown){
+    for (int i=0; i<numbuttons; ++i){
+      buttons[i]->setChecked(false);
+    }
   } else {
     releasefocus();
     e->ignore();
