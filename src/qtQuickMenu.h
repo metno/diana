@@ -85,7 +85,6 @@ private:
   std::vector<quickMenu> orig_qm;   // original copies of static menus
   std::vector<quickMenu> chng_qm;   // changed static menus
 
-  bool browsing;       // user is browsing
   int prev_plotindex;  // last plotted command
   int prev_listindex;  // -- " --
 
@@ -137,8 +136,10 @@ public:
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
+  bool stepQPlot(int delta);
   bool prevHPlot(int index=0); ///< previous History plot
   bool nextHPlot(int index=0); ///< next History plot
+  bool stepHPlot(int menu, int delta); ///< previous/next History plot
   bool prevList();  ///< previous Menu
   bool nextList();  ///< next Menu
 
@@ -149,7 +150,6 @@ public:
   void getDetails(int& plotidx,
 		  std::string& listname,
 		  std::string& plotname);
-  void startBrowsing();
 
   // quick-quick menu methods
   std::vector<std::string> getCustomMenus();

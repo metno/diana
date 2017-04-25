@@ -93,6 +93,40 @@ bool mini_maxi(const float* data, size_t n, float UNDEF, float& mini, float& max
   return is_set;
 }
 
+void mincut_maxcut(const float* image, size_t size, float UNDEF, const float& cut, float& mincut, float& maxcut)
+{
+
+  float cdiv = 255 / (maxcut - mincut);
+
+  int nindex[256];
+
+  for (int i=0; i<256; i++)
+    nindex[i]=0;
+
+  for (size_t i=0; i<size; i++) {
+    nindex[(int)((image[i]-mincut)*cdiv)]++;
+  }
+
+  float npixel=size-nindex[0]; //number of pixels, drop index=0
+  int ncut=(int) (npixel*cut); //number of pixels to cut   +1?
+  int mini=1;
+  int maxi=255;
+  int nsum=0; //number of pixels dropped
+
+  while (nsum<ncut && mini<maxi) {
+    if (nindex[mini] < nindex[maxi]) {
+      nsum += nindex[mini];
+      mini++;
+    } else {
+      nsum += nindex[maxi];
+      maxi--;
+    }
+  }
+  mincut = float(mini);
+  maxcut = float(maxi);
+}
+
+
 class ColourLimits {
 public:
   ColourLimits()
@@ -183,11 +217,11 @@ void FieldPlot::clearFields()
 std::string FieldPlot::getModelPlotParameterReftime() const
 {
   //return n elements of current plot info string
-  vector<std::string> return_token;
-  return_token.push_back("model");
-  return_token.push_back("parameter");
-  return_token.push_back("plot");
-  return_token.push_back("reftime");
+  std::set<std::string> return_token;
+  return_token.insert("model");
+  return_token.insert("parameter");
+  return_token.insert("plot");
+  return_token.insert("reftime");
 
   vector<std::string> token = miutil::split(getPlotInfo(), 0, " ");
   std::string str;
@@ -195,8 +229,7 @@ std::string FieldPlot::getModelPlotParameterReftime() const
   for(unsigned int i=0;i<token.size();i++){
     vector<std::string> stoken = miutil::split(token[i], 0, "=");
     if (stoken.size() == 2) {
-      vector<std::string>::const_iterator it = std::find(return_token.begin(), return_token.end(), stoken[0]);
-      if (it != return_token.end()) {
+      if (return_token.find(stoken[0]) != return_token.end()) {
         str += token[i] + " ";
       }
     }
@@ -282,7 +315,7 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
       return false;
   }
 
-  pshade = (plottype() == fpt_alpha_shade || plottype() == fpt_alarm_box
+  pshade = (plottype() == fpt_alpha_shade || plottype() == fpt_rgb || plottype() == fpt_alarm_box
       || plottype() == fpt_fill_cell)
       || (poptions.contourShading > 0 && (plottype() == fpt_contour
               || plottype() == fpt_contour1 || plottype() == fpt_contour2));
@@ -732,7 +765,7 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
     ok = plotVector(gl);
   else if (plottype() == fpt_direction)
     ok = plotDirection(gl);
-  else if (plottype() == fpt_alpha_shade || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell)
+  else if (plottype() == fpt_alpha_shade || plottype() == fpt_rgb || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell)
     ok = plotRaster(gl);
   else if (plottype() == fpt_frame)
     ok = plotFrameOnly(gl);
@@ -2346,6 +2379,7 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
 bool FieldPlot::centerOnGridpoint() const
 {
   return plottype() == fpt_alpha_shade
+      || plottype() == fpt_rgb
       || plottype() == fpt_alarm_box
       || plottype() == fpt_fill_cell;
 }
@@ -2396,19 +2430,53 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
   const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
   QImage image(bbx.width(), bbx.height(), QImage::Format_ARGB32);
 
-  if (plottype() == fpt_alpha_shade) {
+  if (plottype() == fpt_rgb) {
+    if (not checkFields(3))
+      return QImage();
+
+    float cdiv[3], idiv[3],cmin[3],cmin2[3];
+    for (int k=0; k<3; k++) {
+      float cmax;
+      if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
+        cmin[k] = poptions.minvalue;
+        cmax = poptions.maxvalue;
+      } else {
+        mini_maxi(fields[k]->data,nx*ny,fieldUndef,cmin[k],cmax);
+      }
+      cdiv[k] = 1 / (cmax - cmin[k]);
+      cmin2[k]=cmin[k];
+      mincut_maxcut(fields[k]->data,nx*ny,fieldUndef,poptions.colourcut,cmin2[k],cmax);
+      idiv[k] = 1 / float(cmax - cmin2[k]);
+    }
+
+    for (int iy=bbx.y1; iy<bbx.y2; ++iy) {
+      QRgb* rgb = reinterpret_cast<QRgb*>(image.scanLine(iy - bbx.y1));
+      for (int ix=bbx.x1; ix<bbx.x2; ++ix) {
+        unsigned char ch[3];
+        for (int k=0;k<3;k++) {
+          const float v0 = fields[k]->data[scale*(ix + iy*nx)];
+          int v1 = (255 * (v0 - cmin[k]) * cdiv[k]);
+          int v2 = int( (v1 - cmin2[k])*255 * idiv[k]+0.5);
+          if (v2<0)
+            v2=0;
+          else if (v2>255)
+            v2=255;
+          if (v0 != fieldUndef)
+            ch[k] = (unsigned char)v2;
+          else
+            ch[k]=0;
+        }
+        rgb[ix - bbx.x1] = qRgb(ch[0], ch[1], ch[2]);
+      }
+    }
+  } else if (plottype() == fpt_alpha_shade) {
+
     float cmin, cmax;
     if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
       cmin = poptions.minvalue;
       cmax = poptions.maxvalue;
     } else {
-      //##### not nice in timeseries... !!!!!!!!!!!!!!!!!!!!!
-      cmin = fieldUndef;
-      cmax = -fieldUndef;
-      for (int i = 0; i < nx * ny; ++i) {
-        if (fields[0]->data[i] != fieldUndef)
-          vcross::util::minimaximize(cmin, cmax, fields[0]->data[i]);
-      }
+      mini_maxi(fields[0]->data,nx*ny,fieldUndef,cmin,cmax);
     }
     const float cdiv = 1 / (cmax - cmin);
     const unsigned char red = poptions.linecolour.R(), green = poptions.linecolour.G(),
@@ -2423,7 +2491,7 @@ QImage FieldPlot::rasterScaledImage(const GridArea& scar, int scale,
 #ifdef DEBUG_UNDEF
             && !fake_undefined(ix, iy)
 #endif
-          )
+        )
           alpha = (unsigned char)(255 * (v0 - cmin) * cdiv);
         rgb[ix - bbx.x1] = qRgba(red, green, blue, alpha);
       }

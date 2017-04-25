@@ -68,7 +68,6 @@ const std::string vprefix= "@";
 QuickMenu::QuickMenu(DianaMainWindow* parent, Controller* c)
 : QDialog(parent), contr(c), comset(false),
 activemenu(0), timerinterval(10), timeron(false),
-browsing(false),
 prev_plotindex(0), prev_listindex(0),
 firstcustom(-1), lastcustom(-1),
 firststatic(QMENU),instaticmenu(false)
@@ -236,12 +235,6 @@ void QuickMenu::start()
 }
 
 
-void QuickMenu::startBrowsing()
-{
-  browsing= true;
-}
-
-
 // quick-quick menu methods
 vector<std::string> QuickMenu::getCustomMenus()
 {
@@ -295,10 +288,10 @@ bool QuickMenu::addToMenu(const int idx)
   if (firstcustom >=0 && lastcustom>=0 &&
       firstcustom+idx < int(qm.size()) &&
       prev_listindex>=0 && prev_plotindex>=0 &&
-      prev_listindex<int(qm.size())){
+      prev_listindex<int(qm.size()))
+  {
     int qidx= idx+firstcustom;
-    qm[qidx].menuitems.
-    push_back(qm[prev_listindex].menuitems[prev_plotindex]);
+    qm[qidx].menuitems.push_back(qm[prev_listindex].menuitems[prev_plotindex]);
 
     fillMenuList();
 
@@ -312,9 +305,10 @@ bool QuickMenu::addToMenu(const int idx)
 
 std::string QuickMenu::getCurrentName()
 {
-  if (prev_listindex>=0 && prev_plotindex>=0 &&
-      prev_listindex<int(qm.size())){
-    return qm[prev_listindex].menuitems[prev_plotindex].name;
+  if (prev_listindex>=0 && prev_listindex < (int)qm.size()) {
+    const quickMenu& qml = qm[prev_listindex];
+    if (prev_plotindex>=0 && prev_plotindex < (int)qml.menuitems.size())
+      return qml.menuitems[prev_plotindex].name;
   }
   return std::string();
 }
@@ -323,149 +317,104 @@ std::string QuickMenu::getCurrentName()
 void QuickMenu::pushPlot(const std::string& name,
     const vector<std::string>& pstr_c, int index)
 {
-  std::vector<string> pstr(pstr_c.begin(), pstr_c.end()); // make copy so that refhour etc can be replaced
+  if (qm.empty() || index >= (int)qm.size())
+    return;
+
+  std::vector<string> pstr(pstr_c); // make copy so that refhour etc can be replaced
 
   const miutil::miDate nowDate = miutil::miTime::nowTime().date();
   for (size_t i=0; i<pstr.size(); i++)
-    while ( miutil::contains(pstr[i],"reftime"))
+    while (miutil::contains(pstr[i], "reftime"))
       diutil::replace_reftime_with_offset(pstr[i], nowDate);
 
-  if (qm.empty())
-    return;
-  bool goon= true;
-  int m= qm[index].menuitems.size();
-  if (m > 0){ // check for duplicate
-    if (qm[index].menuitems[0].command.size()==pstr.size()){
-      goon= false;
-      for (unsigned int i=0; i<pstr.size(); i++){
-        if (pstr[i] != qm[index].menuitems[0].command[i]){
-          goon= true;
-          break;
-        }
-      }
-    }
-  }
-  if (goon) {
+  quickMenu& qmi = qm[index];
+  std::deque<quickMenuItem>& qmim = qmi.menuitems;
+
+  // check for duplicate
+  bool no_duplicate = qmim.empty() || (pstr != qmim[0].command);
+  if (no_duplicate) {
     // keep stack within bounds
-    int ms= qm[index].menuitems.size();
-    if (ms >= maxplotsinstack)
-      qm[index].menuitems.pop_back();
+    if (qmim.size() >= maxplotsinstack)
+      qmim.pop_back();
     // update pointer
-    qm[index].plotindex=0;
+    qmi.plotindex=0;
     // push plot on stack
-    std::string plotname= name;
-    miutil::trim(plotname);
-    quickMenuItem dummy;
-    qm[index].menuitems.push_front(dummy);
-    qm[index].menuitems[0].command= pstr;
-    qm[index].menuitems[0].name= plotname;
+    qmim.push_front(quickMenuItem());
+    qmim[0].name= miutil::trimmed(name);
+    qmim[0].command= pstr;
+
     // switch to history-menu
-    if (activemenu==index) setCurrentMenu(index);
+    if (activemenu==index)
+      setCurrentMenu(index);
 
     prev_plotindex= 0;
     prev_listindex= index;
   }
 }
 
-//bool QuickMenu::replacereferencetime( vector<std::string>& pstr ){
-//
-//  for (size_t i=0; i<pstr.size(); i++){
-//  std::string str = pstr[i];
-//  if ( str.find_first_of("referencetime=") != str.npos ) {
-//    std::string timestr = str.substr(str.find_first_of("referencetime=")+14,17);
-//    METLIBS_LOG_DEBUG(timestr);
-//  }
-////  vector<std::string> tokens = miutil::split_protected(pstr[i], ('"', '"');
-////  for ( size_t j=0; j<tokens.size(); j++ ) {
-////    vector<std::string> stokens = miutil::split(tokens[j], "=");
-////    if ( stokens.size() && stokens[0]="referencetime" ) {
-////
-////    }
-////  }
-//
-//}
+// called from quick-quick menu (Browsing)
+bool QuickMenu::prevQPlot()
+{
+  return stepQPlot(+1);
+}
 
 // called from quick-quick menu (Browsing)
-bool QuickMenu::prevQPlot(){
-  int menu= activemenu;
-  if (qm.size()==0 || int(qm.size())<menu+1)
-    return false;
-  int n= qm[menu].menuitems.size();
-  if (n==0 || qm[menu].plotindex >= n-1 || qm[menu].plotindex<0)
+bool QuickMenu::nextQPlot()
+{
+  return stepQPlot(-1);
+}
+
+// called from quick-quick menu (Browsing)
+bool QuickMenu::stepQPlot(int delta)
+{
+  if (qm.empty() || activemenu < 0 || activemenu >= int(qm.size()))
     return false;
 
-  qm[menu].plotindex++;
-  list->setCurrentRow(qm[menu].plotindex);
-  listClicked(list->currentItem());
-  return true;
+  quickMenu& am = qm[activemenu];
+  if (am.step_plotindex(delta)) {
+    list->setCurrentRow(am.plotindex);
+    listClicked(list->currentItem());
+    return true;
+  } else {
+    return false;
+  }
 }
 
 // Go to previous History-plot
-bool QuickMenu::prevHPlot(int index)
+bool QuickMenu::prevHPlot(int menu)
 {
-  int menu= index;
-  if (qm.size()==0 || int(qm.size())<menu+1)
-    return false;
-  int n= qm[menu].menuitems.size();
-
-  // if in History-menu or last plot from History:
-  // Change plotindex and plot
-  if (activemenu==menu || prev_listindex==menu){
-    if (n==0 || qm[menu].plotindex >= n-1 || qm[menu].plotindex<0)
-      return false;
-    qm[menu].plotindex++;
-    if (activemenu==menu) list->setCurrentRow(qm[menu].plotindex);
-  } else {
-    // Jumping back to History (plotindex intact)
-    if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<0)
-      return false;
-  }
-  // apply plot
-  /*emit*/ Apply(qm[menu].menuitems[qm[menu].plotindex].command, true);
-  prev_plotindex= qm[menu].plotindex;
-  prev_listindex= menu;
-
-  return true;
-}
-
-// called from quick-quick menu (Browsing)
-bool QuickMenu::nextQPlot(){
-  int menu= activemenu;
-  if (qm.size()==0 || int(qm.size())<menu+1)
-    return false;
-  int n= qm[menu].menuitems.size();
-  if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<=0)
-    return false;
-
-  qm[menu].plotindex--;
-  list->setCurrentRow(qm[menu].plotindex);
-  listClicked(list->currentItem());
-  return true;
+  return stepHPlot(menu, +1);
 }
 
 // Go to next History-plot
-bool QuickMenu::nextHPlot(int index){
-  int menu= index;
-  if (qm.size()==0 || int(qm.size())<menu+1)
-    return false;
-  int n= qm[menu].menuitems.size();
+bool QuickMenu::nextHPlot(int menu)
+{
+  return stepHPlot(menu, -1);
+}
 
+// Go to next History-plot
+bool QuickMenu::stepHPlot(int menu, int delta)
+{
+  if (qm.empty() || menu < 0 || menu >= int(qm.size()))
+    return false;
+
+  quickMenu& qmm = qm[menu];
   // if in History-menu or last plot from History:
   // Change plotindex and plot
-  if (activemenu==menu || prev_listindex==menu){
-    if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<=0)
+  if (activemenu==menu || prev_listindex==menu) {
+    if (!qmm.step_plotindex(delta))
       return false;
-    qm[menu].plotindex--;
-    if (activemenu==menu) list->setCurrentRow(qm[menu].plotindex);
+    if (activemenu==menu)
+      list->setCurrentRow(qmm.plotindex);
   } else {
     // Jumping back to History (plotindex intact)
-    if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<0)
+    if (!qmm.valid_plotindex())
       return false;
   }
   // apply plot
 
-  /*emit*/ Apply(qm[menu].menuitems[qm[menu].plotindex].command, true);
-  prev_plotindex= qm[menu].plotindex;
+  Q_EMIT Apply(qmm.command(), true);
+  prev_plotindex= qmm.plotindex;
   prev_listindex= menu;
 
   return true;
@@ -473,8 +422,9 @@ bool QuickMenu::nextHPlot(int index){
 
 
 // For browsing: go to previous quick-menu
-bool QuickMenu::prevList(){
-  if (qm.size()==0 || activemenu<1 || activemenu>int(qm.size())-1)
+bool QuickMenu::prevList()
+{
+  if (qm.size()==0 || activemenu<1 || activemenu>((int)qm.size())-1)
     return false;
   setCurrentMenu(activemenu-1);
   return true;
@@ -482,8 +432,9 @@ bool QuickMenu::prevList(){
 
 
 // For browsing: go to next quick-menu
-bool QuickMenu::nextList(){
-  if (qm.size()==0 || activemenu<0 || activemenu>=int(qm.size())-1)
+bool QuickMenu::nextList()
+{
+  if (qm.size()==0 || activemenu<0 || activemenu>=((int)qm.size())-1)
     return false;
   setCurrentMenu(activemenu+1);
   return true;
@@ -838,11 +789,12 @@ bool QuickMenu::itemChanged(int menu, int item)
 
 
 void QuickMenu::readLog(const vector<string>& vstr,
-    const string& thisVersion, const string& logVersion) {
+    const string& thisVersion, const string& logVersion)
+{
   // check version
   //   if (logVersion
 
-  std::string line, str;
+  std::string str;
   vector<std::string> vs,vvs;
   int n= vstr.size();
   bool skipmenu=true;
@@ -855,8 +807,7 @@ void QuickMenu::readLog(const vector<string>& vstr,
   bool itemlog= false, firstitemline= false;
 
   for (int i=0; i<n; i++){
-    line = vstr[i];
-    miutil::trim(line);
+    const std::string line = miutil::trimmed(vstr[i]);
     if (line.empty() or line[0]=='#')
       continue;
 
@@ -1052,17 +1003,15 @@ void QuickMenu::fillMenuList()
 {
   menulist->clear();
   int n= qm.size();
-  if (n == 0) return;
+  if (n == 0)
+    return;
 
-  vector<QString> qnames;
-  for (int i=0; i<n; i++){
-    qnames.push_back(qm[i].name.c_str());
-  }
-
-  for (int i=0; i<n; i++) menulist->addItem(qnames[i]);
+  for (int i=0; i<n; i++)
+    menulist->addItem(QString::fromStdString(qm[i].name));
 
   // set active menu
-  if (activemenu >= int(qm.size())) activemenu= qm.size()-1;
+  if (activemenu >= int(qm.size()))
+    activemenu= qm.size()-1;
   setCurrentMenu(activemenu);
 }
 
@@ -1070,25 +1019,27 @@ void QuickMenu::fillMenuList()
 void QuickMenu::menulistActivate(int idx)
 {
   //  METLIBS_LOG_DEBUG("Menulistactivate called:" << idx);
-  if (qm.size() == 0) return;
-  if (idx >= int(qm.size())) idx= qm.size()-1;
+  if (qm.empty())
+    return;
+  if (idx >= int(qm.size()))
+    idx= qm.size()-1;
 
-  activemenu= idx;
+  activemenu = idx;
   list->clear();
-  int numitems= qm[idx].menuitems.size();
-  if (numitems>0){
+  quickMenu& am = qm[idx];
+  if (!am.menuitems.empty()){
     QStringList itemlist;
-    for(int i=0; i<numitems; i++){
+    for(size_t i=0; i<am.menuitems.size(); i++){
       // remove richtext tags
-      QString qstr= qm[idx].menuitems[i].name.c_str();
-      qstr.replace(QRegExp("</*font[^>]*>"), "" );
-      itemlist+= qstr;
+      QString qstr = QString::fromStdString(am.menuitems[i].name);
+      qstr.replace(QRegExp("</*font[^>]*>"), "");
+      itemlist += qstr;
     }
     list->addItems(itemlist);
-    if (qm[idx].plotindex >= int(qm[idx].menuitems.size()))
-      qm[idx].plotindex= 0;
-    list->item(qm[idx].plotindex)->setSelected(true);
-    listClicked(list->item(qm[idx].plotindex));
+    if (!am.valid_plotindex())
+      am.plotindex = 0;
+    list->item(am.plotindex)->setSelected(true);
+    listClicked(list->item(am.plotindex));
   }
 
   // hide old options
@@ -1100,21 +1051,21 @@ void QuickMenu::menulistActivate(int idx)
   }
   // add options
   optionsexist= false;
-  int n= qm[idx].opt.size();
-  if (n > maxoptions) n= maxoptions;
+  int n= std::min(am.opt.size(), (size_t)maxoptions);
   if (n>0){
     for (int i=0; i<n; i++){
-      optionlabel[i]->setText(qm[idx].opt[i].key.c_str());
+      optionlabel[i]->setText(QString::fromStdString(am.opt[i].key));
 
-      int nopts= qm[idx].opt[i].options.size();
+      int nopts= am.opt[i].options.size();
       int defidx= -1;
       if (nopts > 0){
         for(int j=0; j<nopts; j++){
-          optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].c_str()));
-          if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
+          optionmenu[i]->addItem(QString(am.opt[i].options[j].c_str()));
+          if (am.opt[i].options[j] == am.opt[i].def)
             defidx= j;
         }
-        if (defidx>=0) optionmenu[i]->setCurrentIndex(defidx);
+        if (defidx>=0)
+          optionmenu[i]->setCurrentIndex(defidx);
       }
       optionmenu[i]->adjustSize();
       optionlabel[i]->show();
@@ -1127,50 +1078,56 @@ void QuickMenu::menulistActivate(int idx)
   instaticmenu= ((lastcustom>0 && activemenu>lastcustom) ||
       (lastcustom==-1 && activemenu > 0));
   // enable updateButton
-  updatebut->setEnabled(true);//instaticmenu);
+  updatebut->setEnabled(true);
 }
 
 
-void QuickMenu::saveChanges(int midx, int lidx){
+void QuickMenu::saveChanges(int midx, int lidx)
+{
   static int oldindex= -1;
   static int oldmenu=  -1;
-  if (oldindex!=-1 && (oldindex!=lidx || oldmenu!= midx) &&
-      oldmenu<int(qm.size()) && oldindex<int(qm[oldmenu].menuitems.size()) &&
-      comset){
-    vector<string> s;
-    getCommand(s);
-    qm[oldmenu].menuitems[oldindex].command= s;
+  if (oldindex!=-1 && (oldindex!=lidx || oldmenu!= midx)
+      && oldmenu >= 0 && oldmenu<int(qm.size())
+      && oldindex<int(qm[oldmenu].menuitems.size())
+      && comset)
+  {
+    getCommand(qm[oldmenu].menuitems[oldindex].command);
   }
   oldindex= lidx;
   oldmenu=  midx;
 }
 
-void QuickMenu::listClicked( QListWidgetItem * item)
+void QuickMenu::listClicked(QListWidgetItem * item)
 {
-  int idx = list->row(item);
-
+  const int idx = list->row(item);
   saveChanges(activemenu, idx);
-  std::string ts;
-  int n= qm[activemenu].menuitems[idx].command.size();
-  for (int i=0; i<n; i++){
-    ts += qm[activemenu].menuitems[idx].command[i];
-    //     if (i<n-1) ts+= std::string("\n");
-    ts+= std::string("\n");
-  }
+
+  if (activemenu < 0 || activemenu >= (int)qm.size())
+    return;
+
+  quickMenu& am = qm[activemenu];
+  if (idx < 0 || idx >= (int)am.menuitems.size())
+    return;
+
+  const std::vector<std::string>& amc = am.menuitems[idx].command;
+  QString ts;
+  for (size_t i=0; i<amc.size(); i++)
+    ts += QString::fromStdString(amc[i]) + "\n";
+
   // set command into command-edit
-  comedit->setText(QString(ts.c_str()));
-  comset= true;
-  qm[activemenu].plotindex= idx;
+  comedit->setText(ts);
+  comset = true;
+  am.plotindex = idx;
   // enable/disable resetButton
   resetbut->setEnabled(instaticmenu && itemChanged(activemenu, idx));
 }
 
-void QuickMenu::comChanged(){
+void QuickMenu::comChanged()
+{
   //   METLIBS_LOG_DEBUG("Command text changed");
-  std::string ts= comedit->toPlainText().toStdString();
+  std::string ts = comedit->toPlainText().toStdString();
   // check if any variables to set here
-  int m= qm[activemenu].opt.size();
-  if (m > maxoptions) m= maxoptions;
+  const int m = std::min(qm[activemenu].opt.size(), (size_t)maxoptions);
   // sort keys by length - make index-list
   vector<int> keys = sortKeys();
   for (int i=0; i<m; i++){
@@ -1179,21 +1136,20 @@ void QuickMenu::comChanged(){
     optionmenu[keys[i]]->setEnabled(enable);
     optionlabel[keys[i]]->setEnabled(enable);
     if ( enable ) {
-      miutil::replace(ts, key,"");
+      miutil::replace(ts, key, "");
     }
   }
   // enable/disable resetButton
   resetbut->setEnabled(instaticmenu);
 }
 
-
-void QuickMenu::listDoubleClicked( QListWidgetItem * item)
+void QuickMenu::listDoubleClicked(QListWidgetItem * item)
 {
   plotButton();
 }
 
-void QuickMenu::getCommand(vector<string>& s){
-
+void QuickMenu::getCommand(vector<string>& s)
+{
   std::string text = comedit->toPlainText().toStdString();
   s = miutil::split(text, 0, "\n");
   int ni = s.size();
@@ -1206,38 +1162,32 @@ void QuickMenu::getCommand(vector<string>& s){
 void QuickMenu::varExpand(vector<string>& com)
 {
   int n= com.size();
-  int m= qm[activemenu].opt.size();
-  if (m>maxoptions)
-    m= maxoptions;
+  int m = std::min(qm[activemenu].opt.size(), (size_t)maxoptions);
 
   // sort keys by length - make index-list
   vector<int> keys = sortKeys();
 
-  for (int i=0; i<n; i++){
-    for (int j=0; j<m; j++){
-      std::string key= vprefix+qm[activemenu].opt[keys[j]].key;
-      std::string val= optionmenu[keys[j]]->currentText().toStdString();
+  for (int j=0; j<m; j++){
+    std::string key= vprefix+qm[activemenu].opt[keys[j]].key;
+    std::string val= optionmenu[keys[j]]->currentText().toStdString();
+    for (int i=0; i<n; i++)
       miutil::replace(com[i], key, val);
-      // keep for later default
-      qm[activemenu].opt[keys[j]].def= val;
-    }
+    // keep for later default
+    qm[activemenu].opt[keys[j]].def= val;
   }
 }
 
-vector<int>  QuickMenu::sortKeys()
+vector<int> QuickMenu::sortKeys()
 {
-  int m= qm[activemenu].opt.size();
-  if (m>maxoptions)
-    m= maxoptions;
+  const quickMenu& am = qm[activemenu];
+  int m = std::min(am.opt.size(), (size_t)maxoptions);
 
   // sort keys by length - make index-list
   vector<int> keys;
   for (int i=0; i<m; i++){
-    std::string key= qm[activemenu].opt[i].key;
+    const size_t key_length = am.opt[i].key.length();
     vector<int>::iterator it= keys.begin();
-    for (; it!=keys.end() &&
-    key.length()<qm[activemenu].opt[*it].key.length();
-    it++)
+    for (; it!=keys.end() && key_length < am.opt[*it].key.length(); it++)
       ;
     keys.insert(it, i);
   }
@@ -1249,12 +1199,12 @@ void QuickMenu::plotButton()
   vector<string> com;
   getCommand(com);
 
-  if (com.size()>0){
-    if (optionsexist) varExpand(com);
+  if (!com.empty()) {
+    if (optionsexist)
+      varExpand(com);
     emit Apply(com, true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
-    browsing= false;
   }
   saveChanges(-1,-1);
 }
@@ -1297,7 +1247,7 @@ void QuickMenu::demoButton(bool on)
 
 void QuickMenu::timerEvent(QTimerEvent *e)
 {
-  if (e->timerId()==demoTimer){
+  if (e->timerId()==demoTimer) {
     qm[activemenu].plotindex++;//activeplot++;
     if (qm[activemenu].plotindex>=int(qm[activemenu].menuitems.size()))
       qm[activemenu].plotindex=0;
@@ -1310,18 +1260,20 @@ void QuickMenu::timerEvent(QTimerEvent *e)
 void QuickMenu::intervalChanged(int value)
 {
   timerinterval= value;
-  if (timeron){
+  if (timeron) {
     killTimer(demoTimer);
     demoTimer= startTimer(timerinterval*1000);
   }
 }
 
 
-void QuickMenu::helpClicked(){
+void QuickMenu::helpClicked()
+{
   emit showsource("ug_quickmenu.html");
 }
 
 
-void QuickMenu::closeEvent( QCloseEvent* e) {
+void QuickMenu::closeEvent( QCloseEvent* e)
+{
   emit QuickHide();
 }

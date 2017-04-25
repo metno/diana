@@ -192,16 +192,20 @@ vcross::Values::Shape shapeFromCDM(const CDM& cdm, vcross::FimexReftimeSource::C
 }
 
 vcross::FimexReftimeSource::CoordinateSystem_p findGeoZTransformed(const vcross::FimexReftimeSource::CoordinateSystem_pv& coordinateSystems,
-    const std::string& id)
+    const std::string& ztid, const std::string& csid)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(id));
-  const std::string& zid = transformedZAxisName(id);
+  METLIBS_LOG_SCOPE(LOGVAL(ztid) << LOGVAL(csid));
   for (vcross::FimexReftimeSource::CoordinateSystem_p cs : coordinateSystems) {
     if (not (cs->isSimpleSpatialGridded()))
       continue;
+    if (cs->id() == csid) {
+      return cs;
+    }
 
     CoordinateSystem::ConstAxisPtr zAxis = cs->getGeoZAxis();
-    if (not zAxis or zAxis->getName() != zid)
+    if (not zAxis or zAxis->getName() != ztid)
+      continue;
+    if (!cs->getGeoXAxis() || !cs->getTimeAxis())
       continue;
 
     if (VerticalTransformation_cp vt = cs->getVerticalTransformation())
@@ -219,7 +223,7 @@ vcross::FimexReftimeSource::CoordinateSystem_p findCsForVariable(const CDM& cdm,
           MetNoFimex::CompleteCoordinateSystemForComparator(vName));
   if (it == coordinateSystems.end()) {
     if (cdm.hasDimension(vName)) {
-      METLIBS_LOG_SCOPE("has dimension '" << vName << "'");
+      METLIBS_LOG_DEBUG("has dimension '" << vName << "'");
       return vcross::FimexReftimeSource::CoordinateSystem_p();
     }
     THROW(std::runtime_error, "no cs found for '" << vName << "'");
@@ -228,18 +232,6 @@ vcross::FimexReftimeSource::CoordinateSystem_p findCsForVariable(const CDM& cdm,
     THROW(std::runtime_error, "cs for '" << vName << "' does not exist or is not a simple spatial grid");
 
   return *it;
-}
-
-vcross::FimexReftimeSource::CoordinateSystem_p findCsForVariable(const CDM& cdm,
-    const vcross::FimexReftimeSource::CoordinateSystem_pv& coordinateSystems, vcross::InventoryBase_cp v)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(v->id()) << LOGVAL(v->dataType()));
-  vcross::FimexReftimeSource::CoordinateSystem_p cs;
-  if (verticalTypeFromId(v->id()) >= 0)
-    cs = findGeoZTransformed(coordinateSystems, v->id());
-  if (not cs)
-    cs = findCsForVariable(cdm, coordinateSystems, v->id());
-  return cs;
 }
 
 CoordinateSystem::ConstAxisPtr findAxisOfType(vcross::FimexReftimeSource::CoordinateSystem_p cs, CoordinateAxis::AxisType axisType)
@@ -424,6 +416,25 @@ Inventory_cp FimexReftimeSource::getInventory()
     makeInventory();
   return mInventory;
 }
+
+FimexReftimeSource::CoordinateSystem_p FimexReftimeSource::findCsForVariable(const CDM& cdm,
+    const vcross::FimexReftimeSource::CoordinateSystem_pv& coordinateSystems, vcross::InventoryBase_cp v)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(v->id()) << LOGVAL(v->dataType()));
+  vcross::FimexReftimeSource::CoordinateSystem_p cs;
+  const int vtype = verticalTypeFromId(v->id());
+  if (vtype >= 0) {
+    const std::string& ztid = transformedZAxisName(v->id());
+    zaxis_cs_m::const_iterator itCsId = zaxis_cs.find(ztid);
+    if (itCsId != zaxis_cs.end()) {
+      cs = findGeoZTransformed(coordinateSystems, ztid, itCsId->second);
+    }
+  }
+  if (not cs)
+    cs = ::findCsForVariable(cdm, coordinateSystems, v->id());
+  return cs;
+}
+
 
 void FimexReftimeSource::prepareGetValues(Crossection_cp cs,
     FimexCrossection_cp& fcs, CDMReader_p& reader, CoordinateSystem_pv& coordinateSystems)
@@ -624,9 +635,14 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   if (cs->getGeoZAxis())
     extractor->reduceDimension(cs->getGeoZAxis()->getName(), z_begin, z_length);
 
+  const std::string& ztid = transformedZAxisName(converted->id());
+  zaxis_cs_m::const_iterator itCsId = zaxis_cs.find(ztid);
+  if (itCsId == zaxis_cs.end())
+    return Values_p();
+
+  // this is almost the same as cs, except that it may be for a different CDMReader
   CoordinateSystem_p ex_cs = findGeoZTransformed
-      (MetNoFimex::listCoordinateSystems(extractor),
-          transformedZAxisName(converted->id()));
+      (MetNoFimex::listCoordinateSystems(extractor), ztid, itCsId->second);
   if (!ex_cs)
     return Values_p();
 
@@ -736,6 +752,7 @@ bool FimexReftimeSource::makeInventory()
       return false;
 
     mInventory = std::make_shared<Inventory>();
+    zaxis_cs.clear();
 
     const CDM& cdm = mReader->getCDM();
 
@@ -832,6 +849,7 @@ bool FimexReftimeSource::makeInventory()
 
             zlevels = znew;
             knownZAxes.insert(std::make_pair(zName_csId, zlevels));
+            zaxis_cs.insert(zName_csId);
             METLIBS_LOG_DEBUG("z axis '" << zName << "' has " << zlevels->nlevel()
                 << " levels, unit '" << zlevels->unit()
                 << "' and is " << (zlevels->zdirection() == Z_DIRECTION_UP ? "up" : "down"));

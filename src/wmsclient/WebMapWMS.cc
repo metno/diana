@@ -379,6 +379,14 @@ QNetworkReply* WebMapWMS::submitUrl(const QUrl& url)
 #if 1
   QNetworkRequest nr(url);
   nr.setRawHeader("User-Agent", "diana " PVERSION);
+
+  if (!mBasicAuth.empty()) {
+    QString concatenated = QString::fromStdString(mBasicAuth);
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
+    nr.setRawHeader("Authorization", headerData.toLocal8Bit());
+  }
+
   return mNetworkAccess->get(nr);
 #else
   return 0;

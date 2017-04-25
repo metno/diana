@@ -101,14 +101,7 @@ void printOptions::printPrintOptions()
   cerr << colop << " use of colour" << endl;
   cerr << pagesize << " pagesize in standard notation" << endl;
   cerr << papersize.hsize << ", " << papersize.vsize << " size of paper in mm" << endl;
-  cerr << numcopies << " number of copies" << endl;
   cerr << usecustomsize << " use papersize instead of pagesize" << endl;
-  cerr << fittopage << " fit output to page" << endl;
-  cerr << drawbackground <<  " fill with background colour" << endl;
-  cerr << viewport_x0 << " OpenGL viewport coordinates llcx" << endl;
-  cerr << viewport_y0 << " OpenGL viewport coordinates llcy" << endl;
-  cerr << viewport_width << " OpenGL viewport coordinates width" << endl;
-  cerr << viewport_height << " OpenGL viewport coordinates height" << endl;
 }
 
 printerManager::printerManager()
@@ -190,11 +183,14 @@ void printerManager::initialize()
 // expand variables in pcommand
 bool printerManager::expandCommand(std::string& com, const printOptions& po)
 {
+  if (com.find("{numcopies}") != std::string::npos)
+    METLIBS_LOG_WARN("print command with {numcopies}, which is always 1: '" << com << "'");
+
   miutil::replace(com, "{printer}", po.printer);
   miutil::replace(com, "{filename}", po.fname);
 
   miutil::replace(com, "{hash}", "#"); // setupParser is not fond of #'s
-  miutil::replace(com, "{numcopies}", miutil::from_number(po.numcopies));
+  miutil::replace(com, "{numcopies}", "1");
 
   return true;
 }

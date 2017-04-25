@@ -83,25 +83,13 @@ public:
   d_print::ColourOption colop;      ///< use of colour
   d_print::PageSize pagesize;       ///< pagesize in standard notation
   d_print::PaperSize papersize;     ///< size of paper in mm
-  int numcopies;                    ///< number of copies
   bool usecustomsize;               ///< use papersize instead of pagesize
-  bool fittopage;                   ///< fit output to page
-  bool drawbackground;              ///< fill with background colour
-  int viewport_x0;                  ///< OpenGL viewport coordinates llcx
-  int viewport_y0;                  ///< OpenGL viewport coordinates llcy
-  int viewport_width;               ///< OpenGL viewport coordinates width
-  int viewport_height;              ///< OpenGL viewport coordinates height
-    
+
   printOptions() :
     orientation(d_print::ori_automatic),
     colop(d_print::incolour),
     pagesize(d_print::A4),
-    numcopies(1),
-    usecustomsize(false),
-    fittopage(true),
-    drawbackground(true),
-    viewport_x0(0),viewport_y0(0),
-    viewport_width(0),viewport_height(0)
+    usecustomsize(false)
   {}
 
   void printPrintOptions();

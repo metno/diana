@@ -110,7 +110,7 @@ bool WebMapManager::parseSetup()
   // service.id=... service.type=wmts/slippy service.url=...
   for (size_t l=0; l<lines.size(); l++) {
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
-    std::string service_id, service_type, service_url;
+    std::string service_id, service_type, service_url, service_basicauth;
 
     const std::vector<std::string> kvpairs = miutil::split(lines[l]);
     for (size_t i=0; i<kvpairs.size(); i++) {
@@ -125,16 +125,23 @@ bool WebMapManager::parseSetup()
         service_type = value;
       else if (key == "service.url")
         service_url = value;
+      else if (key == "service.basicauth")
+        service_basicauth = value;
     }
     METLIBS_LOG_DEBUG(LOGVAL(service_id) << LOGVAL(service_type) << LOGVAL(service_url));
 
     if (!service_id.empty() && !service_type.empty() && !service_url.empty()) {
+      WebMapService* s = 0;
       if (service_type == "wmts")
-        webmapservices.push_back(new WebMapWMTS(service_id, QUrl(diutil::sq(service_url)), network));
+        s = new WebMapWMTS(service_id, QUrl(diutil::sq(service_url)), network);
       else if (service_type == "wms")
-        webmapservices.push_back(new WebMapWMS(service_id, QUrl(diutil::sq(service_url)), network));
+        s = new WebMapWMS(service_id, QUrl(diutil::sq(service_url)), network);
       else if (service_type == "slippy")
-        webmapservices.push_back(new WebMapSlippyOSM(service_id, QUrl(diutil::sq(service_url)), network));
+        s = new WebMapSlippyOSM(service_id, QUrl(diutil::sq(service_url)), network);
+      if (s && !service_basicauth.empty())
+        s->setBasicAuth(service_basicauth);
+      if (s)
+        webmapservices.push_back(s);
     }
   }
   METLIBS_LOG_DEBUG(LOGVAL(webmapservices.size()));

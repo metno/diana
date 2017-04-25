@@ -564,7 +564,6 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
 {
   METLIBS_LOG_SCOPE();
 
-  //clear plot
   DeleteClicked();
 
   // check PlotInfo (one for each plot)

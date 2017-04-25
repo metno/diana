@@ -259,7 +259,7 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
-  init_fimex_logging();
+  FimexLoggingAdapter fla;
   milogger::LoggingConfig log4cpp(logfilename);
 
   if (have_diana_title) {
@@ -347,7 +347,5 @@ int main(int argc, char **argv)
   // news ?
   mw->checkNews();
 
-  const int r = a.exec();
-  finish_fimex_logging();
-  return r;
+  return a.exec();
 }

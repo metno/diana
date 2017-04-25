@@ -45,6 +45,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <QtCore>
 #include <QtGui>
@@ -80,6 +81,7 @@
 #include "diSpectrumOptions.h"
 
 #include "util/charsets.h"
+#include "util/fimex_logging.h"
 
 #include <puCtools/sleep.h>
 #include <puTools/miStringFunctions.h>
@@ -91,9 +93,6 @@
 #include <QPrinter>
 
 #include "export/MovieMaker.h"
-
-// required to tell fimex to use log4cpp
-#include <fimex/Logger.h>
 
 #define MILOGGER_CATEGORY "diana.bdiana"
 #include <miLogger/miLogging.h>
@@ -322,7 +321,7 @@ void writeTimes(std::ostream& out, const C& times)
  */
 void expandTime(std::string& text, const miutil::miTime& time)
 {
-  if (miutil::contains(text, "%"))
+  if (!miutil::contains(text, "%"))
     return;
 
   text = time.format(text);
@@ -892,7 +891,6 @@ static void printUsage(bool showexample)
     "                         # (see PRINT_DOCUMENT command below)",
     "papersize=297x420,A4     # size of paper in mm,   (postscript)",
     "                         # papertype (A4 etc) or both.",
-    "drawbackground=NO        # plot background colour (postscript)",
     "orientation=LANDSCAPE    # PORTRAIT/LANDSCAPE     (postscript)",
     "                         # (default here is really 'automatic'",
     "                         # which sets orientation according to",
@@ -2210,8 +2208,6 @@ static int handlePrintDocument(int& k)
   multiple_newpage = true;
 
   std::string command = printman->printCommand();
-  priop.numcopies = 1;
-
   printman->expandCommand(command, priop);
 
   if (verbose)
@@ -2515,12 +2511,6 @@ static int handleBuffersize(int& k, const std::string& value)
 
   // first stop ongoing postscript sessions
   endHardcopy(plot_none);
-
-  // for multiple plots
-  priop.viewport_x0 = 0;
-  priop.viewport_y0 = 0;
-  priop.viewport_width = xsize;
-  priop.viewport_height = ysize;
 
   buffermade = true;
   return 0;
@@ -2852,8 +2842,7 @@ static int parseAndProcess(istream &is)
         priop.colop = d_print::incolour;
 
     } else if (key == com_drawbackground) {
-      priop.drawbackground = (miutil::to_lower(value) == "yes");
-
+      METLIBS_LOG_WARN("the bdiana command '" << com_drawbackground << "' has no effect any more");
     } else if (key == com_orientation) {
       value = miutil::to_lower(value);
       if (value == "landscape")
@@ -3105,15 +3094,13 @@ int diana_init(int _argc, char** _argv)
     ac++;
   } // command line parameters
 
-  // tell fimex to use log4cpp
-  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
+  FimexLoggingAdapter fla;
   milogger::LoggingConfig log4cpp(logfilename);
 
   METLIBS_LOG_INFO(argv[0].toStdString() << " : DIANA batch version " << VERSION);
 
   priop.fname = "tmp_diana.ps";
   priop.colop = d_print::greyscale;
-  priop.drawbackground = false;
   priop.orientation = d_print::ori_automatic;
   priop.pagesize = d_print::A4;
   // 1.4141
@@ -3170,7 +3157,7 @@ int diana_init(int _argc, char** _argv)
     while (!quit) {
       QPointer<diWorkOrder> order = orderbook->getNextOrder();
       if (order) {
-        istringstream is(order->getText());
+        std::istringstream is(order->getText());
         METLIBS_LOG_INFO("processing order...");
         parseAndProcess(is);
         METLIBS_LOG_INFO("done");

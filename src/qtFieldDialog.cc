@@ -1604,7 +1604,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     sf.hourOffset = 0;
     sf.hourDiff = 0;
 
-    sf.fieldOpts = getFieldOptions(sf.fieldName, false, sf.inEdit);
+    sf.fieldOpts = getFieldOptions(sf.fieldName, false);
 
     selectedFields.push_back(sf);
 
@@ -2386,7 +2386,6 @@ void FieldDialog::enableWidgets(std::string plottype)
   for (int i = 0; i < 3; i++) {
     threeColourBox[i]->setEnabled(enable);
   }
-
   enable= enableMap[plottype].contourWidgets;
   lineTypeCbox->setEnabled(enable);
   lineSmoothSpinBox->setEnabled(enable);
@@ -2416,6 +2415,10 @@ void FieldDialog::enableWidgets(std::string plottype)
   patternComboBox->setEnabled(enable);
   patternColourBox->setEnabled(enable);
   alphaSpinBox->setEnabled(enable);
+
+  enable = enable && lineintervalCbox->currentIndex() == 0;
+  linevaluesField->setEnabled(enable);
+  linevaluesLogCheckBox->setEnabled(enable);
 
   enable = enableMap[plottype].lineWidgets;
   lineWidthCbox->setEnabled(enable);
@@ -3981,8 +3984,7 @@ void FieldDialog::resetOptions()
   enableFieldOptions();
 }
 
-std::string FieldDialog::getFieldOptions(
-    const std::string& fieldName, bool reset, bool edit) const
+std::string FieldDialog::getFieldOptions(const std::string& fieldName, bool reset) const
 {
   std::string fieldname = fieldName;
 

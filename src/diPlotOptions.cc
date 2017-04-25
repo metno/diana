@@ -73,6 +73,7 @@ const std::string fpt_contour2     = "contour2";
 const std::string fpt_value        = "value";
 const std::string fpt_symbol       = "symbol";
 const std::string fpt_alpha_shade  = "alpha_shade";
+const std::string fpt_rgb          = "rgb";
 const std::string fpt_alarm_box    = "alarm_box";
 const std::string fpt_fill_cell    = "fill_cell";
 const std::string fpt_wind         = "wind";
@@ -190,7 +191,7 @@ PlotOptions::PlotOptions():
   options_1(true),options_2(false),
   textcolour(BlackC), linecolour(BlackC), linecolour_2(BlackC),
   fillcolour(BlackC), bordercolour(BlackC), table(1),alpha(255), repeat(0),
-  linewidth(1), linewidth_2(1), colourcut(1), lineinterval(10.0), lineinterval_2(10.0),
+  linewidth(1), linewidth_2(1), colourcut(0.02), lineinterval(10.0), lineinterval_2(10.0),
   base(0.0), base_2(0.0), minvalue(-fieldUndef), minvalue_2(-fieldUndef),
   maxvalue(fieldUndef), maxvalue_2(fieldUndef), density(0), densityFactor(1.0),
   vectorunit(1.0), vectorunitname("m/s"), vectorscale_x(1), vectorscale_y(1), vectorthickness(0.1),
@@ -225,6 +226,7 @@ PlotOptions::PlotOptions():
   plottypes_all.push_back(fpt_value);
   plottypes_all.push_back(fpt_symbol);
   plottypes_all.push_back(fpt_alpha_shade);
+  plottypes_all.push_back(fpt_rgb);
   plottypes_all.push_back(fpt_alarm_box);
   plottypes_all.push_back(fpt_fill_cell);
   plottypes_all.push_back(fpt_direction);
@@ -259,6 +261,7 @@ PlotOptions::PlotOptions():
   plottypes_3dim.push_back(fpt_wind);
   plottypes_3dim.push_back(fpt_vector);
   plottypes_3dim.push_back(fpt_value);
+  plottypes_3dim.push_back(fpt_rgb);
   plottypes_3dim.push_back(fpt_wind_temp_fl);
   plottypes_3dim.push_back(fpt_wind_value);
   plottypes_3dim.push_back(fpt_frame);
@@ -275,6 +278,7 @@ PlotOptions::PlotOptions():
   enabledOptions[fpt_value] = "font density";
   enabledOptions[fpt_symbol] = "font density";
   enabledOptions[fpt_alpha_shade] = " extreme";
+  enabledOptions[fpt_rgb] = " extreme";
   enabledOptions[fpt_fill_cell] = "line_interval shading density";
   enabledOptions[fpt_wind] = "density line unit";
   enabledOptions[fpt_vector] = "density line unit";
@@ -479,7 +483,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
 
       } else if (key==key_colourcut){
         if (miutil::is_number(value))
-          po.colourcut = atoi(value.c_str());
+          po.colourcut = atof(value.c_str());
 
       } else if (key==key_linevalues){
         po.linevalues = autoExpandFloatVector(value);
@@ -588,7 +592,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         value= miutil::to_lower(value);
         if (value==fpt_contour1        || value==fpt_value ||
             value==fpt_contour2 ||
-            value==fpt_contour  ||
+            value==fpt_contour         ||value==fpt_rgb         ||
             value==fpt_alpha_shade     || value==fpt_symbol     ||
             value==fpt_alarm_box       || value==fpt_fill_cell  ||
             value==fpt_wind            || value==fpt_vector     ||

@@ -42,7 +42,7 @@
 class WeatherObjects {
 public:
   WeatherObjects();
-  virtual ~WeatherObjects(){}
+  virtual ~WeatherObjects();
 
   /// the weather objects to plot
   std::vector<ObjectPlot*> objects;

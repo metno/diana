@@ -51,6 +51,26 @@
 using namespace::miutil;
 using namespace std;
 
+bool quickMenu::step_plotindex(int delta)
+{
+  int pi = plotindex + delta;
+  if (valid_plotindex() && valid_plotindex(pi)) {
+    plotindex = pi;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const std::vector<std::string>& quickMenu::command() const
+{
+  static const std::vector<std::string> EMPTY;
+  if (valid_plotindex())
+    return menuitems[plotindex].command;
+  else
+    return EMPTY;
+}
+
 bool writeQuickMenu(const quickMenu& qm)
 {
   METLIBS_LOG_SCOPE();

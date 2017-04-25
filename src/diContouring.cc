@@ -3018,7 +3018,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
     int nclfirst= contourlines.size();
 
-    joinContours(contourlines,idraw,drawBorders,iconv,poptions.colourcut);
+    joinContours(contourlines,idraw,drawBorders,iconv);
 
     // pointreduction.................................................
     if (drawBorders && iconv<2) {
@@ -3068,7 +3068,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   if (shape && contourlines.size()>0) {
 
 	  if (poptions.shapefilename.size())
-		  joinContours(contourlines,idraw,drawBorders,iconv,poptions.colourcut);
+		  joinContours(contourlines,idraw,drawBorders,iconv);
 
 	  writeShapefile(contourlines, nx, ny, iconv, cxy, xz, yz,
 			  idraw, poptions, drawBorders, fieldArea, zrange,
@@ -3532,7 +3532,7 @@ void posConvert(int npos, float *x, float *y, int nx, int ny, float *xz, float *
 
 
 void joinContours(vector<ContourLine*>& contourlines, int idraw,
-    bool drawBorders, int iconv, int colourcut)
+    bool drawBorders, int iconv)
 {
   int ncl= contourlines.size();
 
@@ -3960,7 +3960,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
       //changed by LB 2007-03-05
       //PROBLEM: both zmin and zmax between rline[n] and rline[n+1]
       //-> no colour shading. This seems to solve the problem.
-      if (ivalue<0 && (idraw==3 || idraw==4) && colourcut)
+      if (ivalue<0 && (idraw==3 || idraw==4))
         cl->outer= false;
 
       if (idraw==2) {

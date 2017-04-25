@@ -40,6 +40,7 @@
 #include "diShapeObject.h"
 #include "diUtilities.h"
 
+#include "util/charsets.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -75,6 +76,10 @@ WeatherObjects::WeatherObjects()
   for (int i=0; i<numObjectTypes; i++)
     useobject[ObjectTypeNames[i]]= true;
   enabled=true;
+}
+
+WeatherObjects::~WeatherObjects()
+{
 }
 
 /*********************************************/
@@ -234,6 +239,8 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
     return true;
   }
 
+  diutil::CharsetConverter_p converter = diutil::findConverter( diutil::CHARSET_READ(), diutil::CHARSET_INTERNAL());
+
   // open filestream
   ifstream file(fn.c_str());
   if (!file){
@@ -248,6 +255,7 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
   // read the first line check if it contains "date"
   std::string str;
   getline(file, str);
+  str = converter->convert(str);
   //METLIBS_LOG_DEBUG("The first line read is " << str);
   const std::vector<std::string> stokens = miutil::split(str, 0, "=");
   std::string value,key;
@@ -267,6 +275,7 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
   while (getline(file,str) && !file.eof()){
     if (str.empty() || str[0]=='#')
       continue;
+    str = converter->convert(str);
 
     // The font Helvetica is not supported if X-fonts are not enabled, use BITMAPFONT defined in setup
     if (miutil::contains(str, "Helvetica")) {
@@ -403,7 +412,7 @@ bool WeatherObjects::readEditCommentFile(const std::string fn)
 
   file.close();
 
-  itsOldComments += fileString;
+  itsOldComments += diutil::convertLatin1ToUtf8(fileString);
 
   METLIBS_LOG_DEBUG("itsOldComments" << itsOldComments);
 
@@ -460,7 +469,7 @@ bool WeatherObjects::readAreaBorders(const std::string fn, const Area& newArea)
 
   file.close();
 
-  return readEditDrawString(fileString,newArea);
+  return readEditDrawString(diutil::convertLatin1ToUtf8(fileString),newArea);
 }
 
 
@@ -479,10 +488,12 @@ bool WeatherObjects::writeAreaBorders(const std::string& fn)
   const Area oldarea = itsArea;
   changeProjection(geoArea);
 
+  diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::ISO_8859_1);
+
   for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p) {
     ObjectPlot* pobject = *p;
     if (pobject->objectIs(Border))
-      file << pobject->writeObjectString();
+      file << converter->convert(pobject->writeObjectString());
   }
 
   file.close();

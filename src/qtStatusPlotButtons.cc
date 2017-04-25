@@ -114,6 +114,7 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent)
   hl->setMargin(1);
   for (int i=0; i<MAXBUTTONS; i++){
     buttons[i] = new PlotButton(this, pe);
+    buttons[i]->hide();
     connect(buttons[i], SIGNAL(enabled(PlotElement)),
         this, SLOT(enabled(PlotElement)));
     hl->addWidget(buttons[i]);
@@ -198,6 +199,14 @@ void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )
   } else if (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down){
     if (activebutton>=0 && activebutton < numbuttons){
       buttons[activebutton]->toggle();
+    }
+  } else if (e->key() == Qt::Key_PageUp){
+    for (int i=0; i<numbuttons; ++i){
+      buttons[i]->setChecked(true);
+    }
+  } else if (e->key() == Qt::Key_PageDown){
+    for (int i=0; i<numbuttons; ++i){
+      buttons[i]->setChecked(false);
     }
   } else {
     releasefocus();

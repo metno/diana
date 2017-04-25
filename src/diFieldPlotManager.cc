@@ -105,6 +105,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   const std::string key_plot = "plot";
   const std::string key_plottype = "plottype";
   const std::string key_vcoord = "vcoord";
+  const std::string key_vc_type = "vc_type";
 
   // parse setup
 
@@ -165,6 +166,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
         vector<std::string> input;
         std::string inputstr;
         set<std::string> vcoord;
+        FieldFunctions::VerticalType vctype = FieldFunctions::vctype_none;
 
         for (int i = firstLine; i < lastLine; i++) {
           str = lines[i];
@@ -221,6 +223,8 @@ bool FieldPlotManager::parseFieldPlotSetup()
                 for( size_t ii=0; ii<vcoordTokens.size(); ++ii ) {
                   vcoord.insert(vcoordTokens[ii]);
                 }
+              } else if (key == key_vc_type && vstr[j + 1] == "=") {
+                vctype = FieldFunctions::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
                 option = vstr[j] + "=" + vstr[j + 2];
@@ -249,6 +253,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
             pf.input = input;
             pf.inputstr = inputstr;
             pf.vcoord = vcoord;
+            pf.vctype = vctype;
             vPlotField.push_back(pf);
         }
       }
@@ -881,8 +886,7 @@ void FieldPlotManager::parseString( const std::string& pin,
   //NB! what about ""
   boost::algorithm::split(tokens, pin, boost::algorithm::is_space());
   size_t n = tokens.size();
-  std::string str, key;
-
+  std::string key;
 
   for (size_t k = 1; k < n; k++) {
     std::vector<std::string> vtoken;
@@ -1000,7 +1004,11 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   vector<FieldRequest> vfieldrequest;
 
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
-    if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.empty() || vPlotField[i].vcoord.count(fieldrequest.zaxis))) {
+    if ( vPlotField[i].name == plotName ) {
+      if ( (vPlotField[i].name == plotName) &&
+          ((vPlotField[i].vcoord.empty() && vPlotField[i].vctype == FieldFunctions::vctype_none)
+              || vPlotField[i].vcoord.count(fieldrequest.zaxis)
+              || vPlotField[i].vctype==FieldFunctions::Zaxis_info_map[fieldrequest.zaxis].vctype)) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
         const std::string& inputIJ = vPlotField[i].input[j];
         const vector<std::string> vstr = miutil::split(inputIJ, ":");
@@ -1010,6 +1018,7 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
       }
 
       return vfieldrequest;
+    }
     }
   }
 
@@ -1048,8 +1057,7 @@ std::map<std::string, PlotOptions> FieldPlotManager::fieldPlotOptions;
 bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
     const std::string& optstr)
 {
-  std::string tmpOpt = optstr;
-  return PlotOptions::parsePlotOption(tmpOpt, fieldPlotOptions[name]);
+  return PlotOptions::parsePlotOption(optstr, fieldPlotOptions[name]);
 }
 
 void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,

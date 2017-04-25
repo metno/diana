@@ -48,7 +48,7 @@ static bool equal_vectors(const vector<float>& a, const vector<float>& b)
   if (a.size() != b.size())
     return false;
   for (size_t i=0; i<a.size(); ++i)
-    if (fabs(a[i] - b[i]) > 1e-6)
+    if (std::abs(a[i] - b[i]) > 1e-6)
       return false;
   return true;
 }
@@ -67,19 +67,19 @@ static bool test_autoExpandFloatVector(const string& text, const vector<float>& 
 
 TEST(TestPlotOptions, AutoExpand)
 {
-  const float expected1_f[] = { 0.1, 0.2, 0.5, 1, 2, 4, 6, 10, 15, 20, 25, 30, 35, 40 };
+  const float expected1_f[] = { 0.1f, 0.2f, 0.5f, 1, 2, 4, 6, 10, 15, 20, 25, 30, 35, 40 };
   ASSERT_TRUE(test_autoExpandFloatVector("0.1,0.2,0.5,1,2,4,6,10,15,...40",
           vector<float>(expected1_f, boost::end(expected1_f))));
 
-  const float expected2_f[] = { 0.01, 0.02, 0.04, 0.06, 0.10, 0.15, 0.20, 0.25, 0.3, 0.4, 0.5, 1, 2, 5 };
+  const float expected2_f[] = { 0.01f, 0.02f, 0.04f, 0.06f, 0.10f, 0.15f, 0.20f, 0.25f, 0.3f, 0.4f, 0.5f, 1, 2, 5 };
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.02,0.04,0.06,0.10,0.15,0.20,0.25,0.3,0.4,0.5,1.,2.,5.",
           vector<float>(expected2_f, boost::end(expected2_f))));
 
-  const float expected3_f[] = { 0.01, 0.03 };
+  const float expected3_f[] = { 0.01f, 0.03f };
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03",
           vector<float>(expected3_f, boost::end(expected3_f))));
 
-  const float expected4_f[] = { 0.01, 0.03, 0.05, 0.07 };
+  const float expected4_f[] = { 0.01f, 0.03f, 0.05f, 0.07f };
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03,...0.07",
           vector<float>(expected4_f, boost::end(expected4_f))));
 }

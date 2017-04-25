@@ -69,7 +69,7 @@ bool LogFileIO::read(std::istream& input)
     std::string title = begin.substr(1, bl-2);
     Section& section = getSection(title);
     std::string line;
-    while (getline(input, line)) {
+    while (convertline(input, line)) {
       if (line == end)
         break;
       section.addLine(line);

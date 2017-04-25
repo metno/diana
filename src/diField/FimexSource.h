@@ -80,6 +80,8 @@ private:
       const Values::ShapeSlice& sliceCdm, const Values::Shape& shapeOut, InventoryBase_cp b);
   Values_p getSlicedValuesGeoZTransformed(CDMReader_p csReader, CoordinateSystem_p cs,
       const Values::ShapeSlice& slice, const Values::Shape& shapeOut, InventoryBase_cp b);
+  CoordinateSystem_p findCsForVariable(const MetNoFimex::CDM& cdm,
+      const CoordinateSystem_pv& coordinateSystems, InventoryBase_cp v);
 
 private:
   std::string mFileName, mFileType, mFileConfig;
@@ -88,6 +90,8 @@ private:
   Time mReftime;
   CDMReader_p mReader;
   Inventory_p mInventory;
+  typedef std::map<std::string, std::string> zaxis_cs_m;
+  zaxis_cs_m zaxis_cs;
   CoordinateSystem_pv mCoordinateSystems;
   bool mSupportsDynamic;
 };

@@ -128,8 +128,6 @@ void toPrintOption(const QPrinter& qp, printOptions& priop)
   METLIBS_LOG_SCOPE();
   priop.printer = qp.printerName().toStdString();
   priop.colop = getColourMode(qp.colorMode());
-  if (priop.colop==greyscale)
-    priop.drawbackground= false;
 
   priop.orientation= getOrientation(qp.orientation());
   priop.pagesize= getPageSize(qp.pageSize());

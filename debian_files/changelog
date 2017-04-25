@@ -1,3 +1,34 @@
+diana-3.42 (3.42.0~rc2-1) unstable; urgency=low
+
+  * WeatherObjects read/write in latin1
+  * StatusButtons key to show/hide all
+  * increase BUFR element capacity
+  * fix some potential memory leaks
+  * fix bdiana filename time expansion
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 24 Apr 2017 08:00:08 +0100
+
+diana-3.42 (3.42.0~rc1-2) unstable; urgency=low
+
+  * fix perl package install path for i386
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Apr 2017 08:00:08 +0100
+
+diana-3.42 (3.42.0~rc1-1) unstable; urgency=low
+
+  * possible to specify vc_type
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Apr 2017 08:00:08 +0100
+
+diana-3.42 (3.42.0~a12-1) unstable; urgency=low
+
+  * SHP objects with m and/or z
+  * FimexIO extract option
+  * RGB-plot in FieldPlot and SatManager
+  * bugfix charset conversion while reading diana.log
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 07 Apr 2017 08:00:08 +0100
+
 diana-3.42 (3.42.0~a10-1) unstable; urgency=low
 
   * new fimex version

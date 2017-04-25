@@ -180,8 +180,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
     push_command(true),browsing(false),
     markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
   , vcrossEditManagerConnected(false)
-  , spWindow(0), pluginB(0), contr(co)
+  , spWindow(0)
   , exportImageDialog_(0)
+  , pluginB(0)
+  , contr(co)
   , showelem(true)
   , autoselect(false)
 {
@@ -1363,7 +1365,6 @@ void DianaMainWindow::startBrowsing()
 {
   if (!updateBrowser()) return;
   browsing= true;
-  qm->startBrowsing();
   browser->show();
   browser->grabKeyboard();
 }
