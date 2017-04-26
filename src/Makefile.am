@@ -684,8 +684,9 @@ libdiana_la_LIBADD += \
 	$(UDUNITS_LIBS)
 
 # Additional source code for SMHI support
+# -Dlinux for libpng
 if WITH_SMHI
-libdiana_la_CPPFLAGS += -DSMHI
+libdiana_la_CPPFLAGS += -DSMHI -Dlinux
 endif
 
 # Additional source code for mora support
