@@ -92,7 +92,7 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
 METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.61.1])
-METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 6.0.0 metlibs-pudatatypes >= 6.0.0])
+METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 7.0.0 metlibs-pudatatypes >= 6.0.0])
 
 
 # for Qt5:

@@ -135,9 +135,7 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
   if ((miutil::contains(es, "%") || miutil::contains(es, "$")) && !time.undef()) {
     if (!norwegian)
       es += " $lg=eng ";
-    es = time.format(es);
-    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
-    es = diutil::convertLatin1ToUtf8(es);
+    es = time.format(es, "", true);
   }
   return es;
 }

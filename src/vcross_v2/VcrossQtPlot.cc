@@ -885,7 +885,7 @@ void QtPlot::plotTitle(QPainter& painter)
       mx -= painter.fontMetrics().width(q_str) / 2;
     } else if (m.x != -1 || m.y != -1) {
       if (m.text.find_first_of("$%") != std::string::npos)
-        q_str = QString::fromStdString(mCrossectionTime.format(m.text, "en"));
+        q_str = QString::fromStdString(mCrossectionTime.format(m.text, "en", true));
       mx = relative2screenx(m.x);
       my = relative2screeny(m.y);
       const float w = painter.fontMetrics().width(q_str), border = 2;

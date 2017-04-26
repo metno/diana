@@ -307,8 +307,7 @@ template<class C>
 void writeTimes(std::ostream& out, const C& times)
 {
   for (const miutil::miTime& t : times) {
-    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
-    out << diutil::convertLatin1ToUtf8(t.format(time_format)) << std::endl;
+    out << t.format(time_format, "", true) << std::endl;
   }
 }
 
@@ -320,9 +319,7 @@ void expandTime(std::string& text, const miutil::miTime& time)
   if (!miutil::contains(text, "%"))
     return;
 
-  text = time.format(text);
-  // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
-  text = diutil::convertLatin1ToUtf8(text);
+  text = time.format(text, "", true);
 }
 
 } // namespace

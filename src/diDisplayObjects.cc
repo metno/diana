@@ -173,7 +173,7 @@ bool DisplayObjects::prepareObjects()
 void DisplayObjects::getObjAnnotation(string &str, Colour &col)
 {
   if (approved) {
-    str = objectname + " " + itsTime.format("%D %H:%M");
+    str = objectname + " " + itsTime.format("%D %H:%M", "", true);
     col = Colour("black");
   } else {
     str.erase();
