@@ -248,6 +248,7 @@ libdianaui_a_QTSOURCES = \
 
 libdianaui_a_QTSOURCES += \
 	export/qtExportImageDialog.cc \
+	export/qtExportImagePreview.cc \
 	export/qtDianaDevicePainter.cc \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossInterface.cc \
@@ -267,6 +268,7 @@ libdianaui_a_QTSOURCES += \
 
 libdianaui_a_QTFORMS = \
 	export/export_image_dialog.ui \
+	export/export_image_preview.ui \
 	vcross_qt/vcross_plot_add_dialog.ui \
 	vcross_qt/vcross_modelpage.ui \
 	vcross_qt/vcross_reftimepage.ui \
@@ -279,6 +281,7 @@ libdianaui_a_QTFORMS = \
 noinst_HEADERS = \
 	export/MovieMaker.h \
 	export/qtExportImageDialog.h \
+	export/qtExportImagePreview.h \
 	export/qtDianaDevicePainter.h \
 	export/qtTempDir.h \
 	diAnnotationPlot.h \

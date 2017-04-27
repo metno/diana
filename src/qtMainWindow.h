@@ -127,6 +127,7 @@ public:
 
   void saveRasterImage(const QString& filename, const QSize& size);
   void saveAnimation(MovieMaker& moviemaker);
+  void paintOnDevice(QPaintDevice* device, bool printing);
 
 protected:
   void focusInEvent ( QFocusEvent * );
@@ -134,9 +135,6 @@ protected:
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   bool event(QEvent* event);
-
-private:
-  void paintOnDevice(QPaintDevice* device, bool printing);
 
 public Q_SLOTS:
   void toggleToolBar();
