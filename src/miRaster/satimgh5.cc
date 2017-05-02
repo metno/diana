@@ -2282,7 +2282,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   {
 	  METLIBS_LOG_DEBUG("Datetime" << hdf5map["dateTime"]);
     if (hdf5map["dateTime"].size() > 0) {
-		  ginfo.time = miTime(miTime(hdf5map["dateTime"]).format("%Y%m%d%H%M00"), "", true);
+		  ginfo.time = miTime(miTime(hdf5map["dateTime"]).format("%Y%m%d%H%M00", "", true));
 	  }
   }
   ginfo.zsize = 0;
