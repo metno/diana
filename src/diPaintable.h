@@ -27,9 +27,9 @@ public:
   void requestBackgroundBufferUpdate()
     { update_background_buffer = true; }
 
-  virtual bool handleKeyEvents(QKeyEvent*) { return false; };
-  virtual bool handleMouseEvents(QMouseEvent*) { return false; };
-  virtual bool handleWheelEvents(QWheelEvent*) { return false; };
+  virtual bool handleKeyEvents(QKeyEvent*) { return false; }
+  virtual bool handleMouseEvents(QMouseEvent*) { return false; }
+  virtual bool handleWheelEvents(QWheelEvent*) { return false; }
 
 public:
   bool enable_background_buffer;
