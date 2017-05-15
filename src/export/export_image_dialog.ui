@@ -204,6 +204,13 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QToolButton" name="buttonPreview">
+       <property name="text">
+        <string>Preview</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="6" column="0">
@@ -255,6 +262,7 @@
   <tabstop>comboSize</tabstop>
   <tabstop>spinWidth</tabstop>
   <tabstop>spinHeight</tabstop>
+  <tabstop>buttonPreview</tabstop>
   <tabstop>buttonStart</tabstop>
   <tabstop>buttonClose</tabstop>
  </tabstops>
@@ -404,6 +412,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonPreview</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportImageDialog</receiver>
+   <slot>onPreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>258</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onProductChanged(int)</slot>
@@ -414,5 +438,6 @@
   <slot>onStart()</slot>
   <slot>onFileChooser()</slot>
   <slot>onFilenameChanged(QString)</slot>
+  <slot>onPreview()</slot>
  </slots>
 </ui>

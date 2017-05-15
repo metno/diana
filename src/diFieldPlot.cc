@@ -630,7 +630,7 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
     }
 
     if (miutil::contains(anno[j], "$referencetime")) {
-      std::string refString = getAnalysisTime().format("%Y%m%d %H");
+      std::string refString = getAnalysisTime().format("%Y%m%d %H", "", true);
       miutil::replace(anno[j], "$referencetime", refString);
     }
     if (miutil::contains(anno[j], "$forecasthour")) {
@@ -640,10 +640,7 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
     }
     miutil::replace(anno[j], "$currenttime", fields[0]->timetext);
     if (miutil::contains(anno[j], "$validtime")) {
-      std::string vtime = fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg);
-      // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
-      vtime = diutil::convertLatin1ToUtf8(vtime);
-
+      const std::string vtime = fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg, "", true);
       miutil::replace(anno[j], "$validtime", vtime);
     }
     miutil::replace(anno[j], "$model", fields[0]->modelName);

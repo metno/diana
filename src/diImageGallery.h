@@ -32,6 +32,8 @@
 #include "diPlot.h"
 #include "diGLPainter.h"
 
+#include <QPolygonF>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -57,10 +59,13 @@ public:
     int width;
     bool fill;
     bool circle;
-    std::vector<float>x;
-    std::vector<float>y;
+    QPolygonF points;
     float radius;
     std::string colour;
+
+    Line();
+    void invalidate();
+    bool valid() const;
   };
 
   /// Image data (binary)
@@ -107,7 +112,7 @@ private:
 
   void addImageName(const std::string& filename, int type);
 
-  bool readFile(const std::string name, const std::string filename);
+  bool readFile(const std::string &name, const std::string &filename);
 
   bool addImage(const image& im);    // add image
 

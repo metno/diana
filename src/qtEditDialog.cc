@@ -1408,7 +1408,7 @@ void EditDialog::updateLabels()
         std::string("<font color=\"blue\"> ") +
         currid.name + std::string("</font>");
     if ( !prodtime.undef() ) {
-      s += std::string(" ") + prodtime.format("%D %H:%M");
+      s += " " + prodtime.format("%D %H:%M", "", true);
     }
   } else {
     s= "";

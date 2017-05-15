@@ -131,7 +131,7 @@ void ShowSatValues::ShowValues(const std::vector<SatValues> &satval)
         || miutil::contains(satval[i].channel, "IR_CAL")
         || miutil::contains(satval[i].channel, "TEMP"))
       svalue << std::setprecision(1) << std::setiosflags(std::ios::fixed)
-             << satval[i].value <<"\260C"; // latin1 degree sign
+             << satval[i].value <<"°C";
     else
       svalue << std::setprecision(2) << std::setiosflags(std::ios::fixed)
              << satval[i].value;

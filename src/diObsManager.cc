@@ -252,11 +252,11 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
             if (timeRangeMax < maxTime || oplot->getTimeDiff() < 0)
               maxTime = timeRangeMax;
           }
-          timeInterval = " (" + minTime.format("%H:%M") + " - "
-              + maxTime.format("%H:%M") + " ) ";
+          timeInterval = " (" + minTime.format("%H:%M", "", true) + " - "
+              + maxTime.format("%H:%M", "", true) + " ) ";
         }
 
-        anno_str += bestTermin.format("%D %H:%M") + timeInterval;
+        anno_str += bestTermin.format("%D %H:%M", "", true) + timeInterval;
       }
     }
 
@@ -296,7 +296,7 @@ bool ObsManager::addStationsAndTimeFromMetaData(const std::string& metaData,
   itM->second->addStationsToUrl(url);
 
   //add time
-  std::string timeString = time.format("fd=%d.%m.%Y&td=%d.%m.%Y&h=%H");
+  std::string timeString = time.format("fd=%d.%m.%Y&td=%d.%m.%Y&h=%H", "", true);
   miutil::replace(url, "TIME", timeString);
   int mm = time.month() - 1;
   timeString = "m=" + miutil::from_number(mm);
@@ -1805,7 +1805,7 @@ bool ObsManager::sendHqcdata(ObsPlot* oplot)
   oplot->changeParamColour(hqcFlag_old, false);
   oplot->changeParamColour(hqcFlag, true);
   if (oplot->setData()) {
-    std::string time = hqcTime.format("%D %H%M");
+    std::string time = hqcTime.format("%D %H%M", "", true);
     std::string anno = "Hqc " + time;
     oplot->setObsAnnotation(anno);
     oplot->setPlotName(anno);

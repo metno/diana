@@ -1881,7 +1881,7 @@ void VprofDiagram::plotText()
       gl->drawText(vptext[i].posName, xpos, y, 0.0);
       if (vptext[i].prognostic)
         gl->drawText(fctext[i], xfc, y, 0.0);
-      std::string tstr = vptext[i].validTime.format("$date %H:%M UTC");
+      std::string tstr = vptext[i].validTime.format("$date %H:%M UTC", "", true);
       gl->drawText(tstr, xtime, y, 0.0);
       if (vpopt->pgeotext)
         gl->drawText(geotext[i], xgeo, y, 0.0);

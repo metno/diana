@@ -3352,9 +3352,9 @@ void ObsPlot::printTime(DiGLPainter* gl, const miTime& time,
 
   std::string s;
   if (format == "h.m") {
-    s = time.format("%H.%M");
+    s = time.format("%H.%M", "", true);
   } else if (format == "dato") {
-    s = time.format("%m-%d");
+    s = time.format("%m-%d", "", true);
   } else {
     s = time.isoTime();
   }

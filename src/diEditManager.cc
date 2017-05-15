@@ -1045,7 +1045,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
 
     std::string time_string;
     if ( !time.undef() ) {
-      time_string = "_" + time.format("%Y%m%dt%H%M%S");
+      time_string = "_" + time.format("%Y%m%dt%H%M%S", "", true);
     }
 
     if (ci.sendable ) {
@@ -1115,7 +1115,7 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
   std::string time_string;
   if ( producttimedefined )
-    time_string= "_" + producttime.format("%Y%m%dt%H%M%S");
+    time_string= "_" + producttime.format("%Y%m%dt%H%M%S", "", true);
   EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + time_string + ".nc";
 
   if ( local ) {
@@ -3384,11 +3384,9 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
 
   if ((miutil::contains(es, "%") || miutil::contains(es, "$"))  && !time.undef()) {
     if (norwegian)
-      es= time.format(es,"no");
+      es= time.format(es, "no", true);
     else if (english)
-      es= time.format(es,"en");
-    // miDate::weekday returns iso-8859-1 charset in metlibs-putools 6.0.0
-    es = diutil::convertLatin1ToUtf8(es);
+      es= time.format(es, "en", true);
   }
 
   return es;

@@ -1,3 +1,22 @@
+diana-3.42 (3.42.2-1) unstable; urgency=low
+
+  * bugfix background buffer update
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 02 May 2017 08:00:08 +0200
+
+diana-3.42 (3.42.1-1) unstable; urgency=low
+
+  * bugfix ImageGallery
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 01 May 2017 08:00:08 +0200
+
+diana-3.42 (3.42.0-1) unstable; urgency=low
+
+  * fix latin1 problems in weekday names
+  * add preview in export dialog
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 27 Apr 2017 08:00:08 +0200
+
 diana-3.42 (3.42.0~rc2-1) unstable; urgency=low
 
   * WeatherObjects read/write in latin1

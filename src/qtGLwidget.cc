@@ -101,7 +101,8 @@ void GLwidget::setFlagsFromEventResult(const EventResult& res)
 {
   changeCursor(res.newcursor);
   enable_background_buffer = res.enable_background_buffer;
-  update_background_buffer = (res.repaint && res.update_background_buffer);
+  if (res.repaint && res.update_background_buffer)
+    update_background_buffer = true;
 }
 
 // Sends all QMouseEvents off to controller. Return values are checked,

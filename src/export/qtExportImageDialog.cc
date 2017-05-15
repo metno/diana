@@ -32,6 +32,7 @@
 #include "miSetupParser.h"
 #include "qtMainWindow.h"
 #include "export/MovieMaker.h"
+#include "export/qtExportImagePreview.h"
 #include "export/qtTempDir.h"
 #include "util/subprocess.h"
 
@@ -362,6 +363,16 @@ void ExportImageDialog::onSizeHeightChanged(int)
   }
 }
 
+void ExportImageDialog::onPreview()
+{
+  QImage image(exportSize(), QImage::Format_ARGB32_Premultiplied);
+  image.fill(Qt::transparent);
+  mw->paintOnDevice(&image, false);
+
+  ExportImagePreview preview(image, this);
+  preview.exec();
+}
+
 void ExportImageDialog::onStart()
 {
   const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
@@ -369,7 +380,7 @@ void ExportImageDialog::onStart()
   if (saveTo < 0)
     return;
   bool saveToFile = (saveTo == 0);
-  const QSize size(ui->spinWidth->value(), ui->spinHeight->value());
+  const QSize size = exportSize();
 
   TempDir tmp;
   QString filename;
@@ -591,6 +602,11 @@ bool ExportImageDialog::isAnimation() const
 {
   const int product = ui->comboProduct->currentIndex();
   return (product == PRODUCT_IMAGE_ANIMATION || product == PRODUCT_MOVIE);
+}
+
+QSize ExportImageDialog::exportSize() const
+{
+  return QSize(ui->spinWidth->value(), ui->spinHeight->value());
 }
 
 void ExportImageDialog::onDianaResized(int w, int h)

@@ -57,6 +57,7 @@ private Q_SLOTS:
   void onSizeComboChanged(int);
   void onSizeWidthChanged(int);
   void onSizeHeightChanged(int);
+  void onPreview();
 
   void onStart();
 
@@ -71,6 +72,8 @@ private:
   void enableStartButton();
   void updateComboSize();
   bool isAnimation() const;
+
+  QSize exportSize() const;
 
 private:
   std::unique_ptr<Ui_ExportImageDialog> ui;

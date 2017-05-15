@@ -464,12 +464,12 @@ void Sat::setAnnotation()
   annotation += " ";
   annotation += plotChannels;
   annotation += " ";
-  annotation += time.format("%D %H:%M");
+  annotation += time.format("%D %H:%M", "", true);
   if (mosaic) {
     //add info about first/last mosaic-file
     std::string temp = " (";
-    temp += firstMosaicFileTime.format("%H:%M");
-    temp +=" - " + lastMosaicFileTime.format("%H:%M");
+    temp += firstMosaicFileTime.format("%H:%M", "", true);
+    temp +=" - " + lastMosaicFileTime.format("%H:%M", "", true);
     temp+= ")";
     annotation+=temp;
   }

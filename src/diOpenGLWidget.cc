@@ -148,7 +148,7 @@ void DiOpenGLWidget::paintOverlay()
 
 void DiOpenGLWidget::dropBackgroundBuffer()
 {
-  delete buffer_data;
+  delete[] buffer_data;
   buffer_data = 0;
 }
 
