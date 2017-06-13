@@ -2122,7 +2122,7 @@ void FieldDialog::enableFieldOptions()
   // undefined masking colour
   if ((nc = miutil::find(vpcopt, PlotOptions::key_undefColour)) != npos) {
     SetCurrentItemColourBox(undefColourCbox, vpcopt[nc].value());
-    updateFieldOptions("undef.colour", vpcopt[nc].value());
+    updateFieldOptions(PlotOptions::key_undefColour, vpcopt[nc].value());
   }
 
   // undefined masking linewidth
@@ -2444,7 +2444,7 @@ void FieldDialog::unitEditingFinished()
 
 void FieldDialog::plottypeComboBoxActivated(int index)
 {
-  updateFieldOptions("plottype", plottypes[index]);
+  updateFieldOptions(PlotOptions::key_plottype, plottypes[index]);
   enableWidgets(plottypes[index]);
 }
 
