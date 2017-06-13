@@ -866,7 +866,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
       refTime = miTime(t);
       gridinventory::GridParameter param;
       if (pgc->dataExists(refTimeStr, paramName, frq.zaxis,
-          frq.taxis, frq.eaxis, frq.version, frq.plevel, frq.ptime,
+          frq.taxis, frq.eaxis, frq.plevel, frq.ptime,
           frq.elevel, frq.time_tolerance, param))
       {
         set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(param);
@@ -1271,7 +1271,7 @@ bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
 
   if (!pgc->dataExists(fieldrequest.refTime,
       fieldrequest.paramName, fieldrequest.zaxis, fieldrequest.taxis,
-      fieldrequest.eaxis, fieldrequest.version, fieldrequest.plevel,
+      fieldrequest.eaxis, fieldrequest.plevel,
       fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance,
       param)) {
     METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.paramName)<< "  not found by dataExists");
@@ -1287,7 +1287,7 @@ bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
 
   return pgc->putData(fieldrequest.refTime,
       param.key.name, param.key.zaxis, param.key.taxis, param.key.extraaxis,
-      param.key.version, fieldrequest.plevel, fieldrequest.ptime,
+      fieldrequest.plevel, fieldrequest.ptime,
       fieldrequest.elevel, fieldrequest.unit, fieldrequest.output_time,
       fieldrequest.time_tolerance, field);
 }
@@ -1337,7 +1337,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
 
   if (!gridCollection->dataExists(fieldrequest.refTime,
       fieldrequest.paramName, fieldrequest.zaxis, fieldrequest.taxis,
-      fieldrequest.eaxis, fieldrequest.version, fieldrequest.plevel,
+      fieldrequest.eaxis, fieldrequest.plevel,
       fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance,
       param)) {
     METLIBS_LOG_INFO("parameter '" << fieldrequest.paramName << "' not found by dataExists");
@@ -1356,7 +1356,7 @@ Field* FieldManager::getField(GridCollectionPtr gridCollection,
   if (pitr->nativekey.find("function:") == std::string::npos) {
 
     Field* field = gridCollection->getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis,
-        param.key.extraaxis, param.key.version, fieldrequest.plevel,
+        param.key.extraaxis, fieldrequest.plevel,
         fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit,
         fieldrequest.time_tolerance);
     if ((cacheOptions & (WRITE_ALL | WRITE_RESULT)) != 0) {

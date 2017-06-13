@@ -85,7 +85,6 @@ struct FieldRequest {
   std::string taxis;
   std::string plevel;
   std::string elevel;
-  std::string version;
   std::string refTime;
   miutil::miTime ptime;
   std::string unit;

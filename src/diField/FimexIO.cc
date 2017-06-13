@@ -826,7 +826,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
       const std::string& paramname = CDMparamName;
       gridinventory::GridParameterKey paramkey(paramname, zaxisname,
-          taxisname, eaxisname, "");
+          taxisname, eaxisname);
       gridinventory::GridParameter param(paramkey);
       param.nativename = CDMparamName;
       param.grid = gridname;
@@ -953,9 +953,9 @@ void FimexIO::setHybridParametersIfPresent(const std::string& reftime, const gri
   gridinventory::GridParameter pp;
   miutil::miTime actualtime;
   gridinventory::GridParameter param_ap(gridinventory::GridParameterKey(ap_name, param.key.zaxis,
-      param.key.taxis, param.key.extraaxis, param.key.version));
+      param.key.taxis, param.key.extraaxis));
   gridinventory::GridParameter param_b(gridinventory::GridParameterKey(b_name, param.key.zaxis,
-      param.key.taxis, param.key.extraaxis, param.key.version));
+      param.key.taxis, param.key.extraaxis));
   if ( paramExists(reftime,param_ap) && paramExists(reftime,param_b) ) {
     DataPtr ap = feltReader->getScaledDataInUnit(ap_name, "hPa");
     DataPtr b  = feltReader->getScaledData(b_name);

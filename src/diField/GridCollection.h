@@ -181,7 +181,7 @@ public:
    */
  bool dataExists(const std::string& reftime, const std::string& paramname,
       const std::string& zaxis, const std::string& taxis,
-      const std::string& extraaxis, const std::string& version,
+      const std::string& extraaxis,
       const std::string& level, const miutil::miTime& time,
       const std::string& elevel, const int & time_tolerance,
       gridinventory::GridParameter & param);
@@ -206,7 +206,7 @@ public:
   Field * getData(const std::string& reftime,
       const std::string& paramname,
       const std::string& zaxis, const std::string& taxis,
-      const std::string& extraaxis, const std::string& version,
+      const std::string& extraaxis,
       const std::string& level, const miutil::miTime& time,
       const std::string& elevel, const std::string& unit,
       const int & time_tolerance);
@@ -216,7 +216,7 @@ public:
   bool putData(const std::string& reftime,
       const std::string& paramname,
       const std::string& zaxis, const std::string& taxis,
-      const std::string& runaxis, const std::string& version,
+      const std::string& runaxis,
       const std::string& level, const miutil::miTime& time,
       const std::string& run, const std::string& unit,
       const std::string& output_time,

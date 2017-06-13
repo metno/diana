@@ -385,7 +385,6 @@ std::string Inventory::toString() const
         }
         out << endl;
 
-        out << "        Version:" << pitr->key.version << endl;
         out << "        Unit:" << pitr->unit << endl;
         out << "        Standard name:" << pitr->standard_name << endl;
         out << "        Native name:" << pitr->nativename << endl;

@@ -183,7 +183,7 @@ public:
   virtual Field * getData(const std::string& reftime, const std::string& paramname,
       const std::string& grid, const std::string& zaxis,
       const std::string& taxis, const std::string& extraaxis,
-      const std::string& version, const std::string& level,
+      const std::string& level,
       const miutil::miTime& time, const std::string& elevel,
       const std::string& unit);
 
