@@ -1069,11 +1069,10 @@ void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
 
   fieldoptions.clear();
 
-  const int n= fieldNames.size();
-  for (int i=0; i<n; i++) {
+  for (const std::string& fn : fieldNames) {
     PlotOptions po;
-    getFieldPlotOptions(fieldNames[i], po);
-    fieldoptions[fieldNames[i]]= po.toString();
+    getFieldPlotOptions(fn, po);
+    fieldoptions[fn] = po.toString();
   }
 }
 
