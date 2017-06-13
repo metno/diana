@@ -460,48 +460,43 @@ bool LocalSetupParser::parseFillPatterns(const std::string& sectname){
 
 
 // parse section containing linetype definitions
-bool LocalSetupParser::parseLineTypes(const std::string& sectname){
-
+bool LocalSetupParser::parseLineTypes(const std::string& sectname)
+{
   // linetype bits and bitmask
-  const unsigned int numbits= 16;
-  const unsigned short int bmask[numbits]=
-  {32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8,4,2,1};
-
-  vector<std::string> list,tokens,stokens;
-  std::string key,value,value2;
-  int i,n;
-  unsigned short int bm;
-  int factor;
 
   // first define default types/values
   Linetype::init();
 
+  vector<std::string> list;
   if (!miutil::SetupParser::getSection(sectname,list))
     return true;
 
-  n= list.size();
-  for (i=0; i<n; i++){
-    miutil::SetupParser::splitKeyValue(list[i], key, value);
+  const unsigned int numbits= 16;
+  vector<std::string> stokens;
+  std::string key,value;
+
+  for (const std::string& line : list) {
+    miutil::SetupParser::splitKeyValue(line, key, value);
     if (value.empty())
       continue;
-    bm= 0;
-    factor= 1;
+    unsigned short int bm = 0;
+    int factor= 1;
     stokens= miutil::split(value, ":");
     if (stokens.size()>1){
       value = stokens[0];
-      value2= stokens[1];
+      const std::string& value2 = stokens[1];
       if (miutil::is_int(value2))
         factor= atoi(value2.c_str());
     }
     if (value.length()==numbits){
-      for (unsigned int j=0; j<numbits; j++){
-        if (value[j]=='1') bm |= bmask[j];
+      for (unsigned int j=0, m=(1<<(numbits-1)); j<numbits; j++, m >>= 1) {
+        if (value[j]=='1')
+          bm |= m;
       }
-      Linetype::define(key,bm,factor);
     } else { //0x00FF
       bm = strtol(value.c_str(),NULL,0);
-      Linetype::define(key,bm,factor);
     }
+    Linetype::define(key,bm,factor);
   }
 
   return true;
