@@ -33,9 +33,11 @@
 #include <QStyledItemDelegate>
 #include <QToolBar>
 
-class QComboBox;
+class QListBox;
+class QListWidget;
 class QListWidgetItem;
 class QToolButton;
+class QDockWidget;
 
 namespace EditItems {
 
@@ -54,15 +56,15 @@ class ToolBar : public QToolBar
   Q_OBJECT
 
 public:
-  static ToolBar *instance();
+  static ToolBar *instance(QWidget * parent);
 
 public slots:
   void setSelectAction();
   void setCreatePolyLineAction(const QString &);
-  void setPolyLineType(int index);
+  void setPolyLineType(QListWidgetItem *item);
   void setCreateSymbolAction(const QString &type);
-  void setSymbolType(int index);
-  void setTextType(int index);
+  void setSymbolType(QListWidgetItem *item);
+  void setTextType(QListWidgetItem *item);
   void setCompositeType(QListWidgetItem *item);
 
   void addSymbol(const QString &section, const QString &name);
@@ -70,23 +72,31 @@ public slots:
 
 private slots:
   void showComposites();
+  void showPolyLines();
+  void showSymbols();
+  void showTexts();
 
 private:
   ToolBar(QWidget * = 0);
   static ToolBar *self_; // singleton instance pointer
-
+  QWidget * parent_;
   QAction *selectAction_;
   QAction *polyLineAction_;
-  QComboBox *polyLineCombo_;
+  QDockWidget * polyLineWidget;
+  QListWidget *polyLineList_;
+  
   QAction *symbolAction_;
-  QComboBox *symbolCombo_;
+  QDockWidget * symbolWidget;
+  QListWidget *symbolList_;
+  
   QAction *textAction_;
-  QComboBox *textCombo_;
+  QDockWidget * textWidget;
+  QListWidget *textList_;
 
   QAction *compositeAction_;
-  QToolButton *compositeButton_;
   CompositeDelegate *compositeDelegate_;
-  QDialog *compositeDialog_;
+  QDockWidget *compositeWidget_;
+  QListWidget *compositeView;
 
   QStringList sections_;
 };

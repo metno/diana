@@ -789,7 +789,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
         this, SLOT(requestBackgroundBufferUpdate()));
   }
 
-  editDrawingToolBar = EditItems::ToolBar::instance();
+  editDrawingToolBar = EditItems::ToolBar::instance(this);
   editDrawingToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
@@ -1715,9 +1715,9 @@ void DianaMainWindow::onVcrossRequestEditManager(bool on, bool timeGraph)
 {
   if (on) {
     if (timeGraph)
-      EditItems::ToolBar::instance()->setCreateSymbolAction(TIME_GRAPH_TYPE);
+      EditItems::ToolBar::instance(this)->setCreateSymbolAction(TIME_GRAPH_TYPE);
     else
-      EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
+      EditItems::ToolBar::instance(this)->setCreatePolyLineAction(CROSS_SECTION_TYPE);
 
     setEditDrawingMode(true);
     vcrossEditManagerEnableSignals();
