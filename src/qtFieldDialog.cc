@@ -869,11 +869,11 @@ void FieldDialog::CreateAdvanced()
   //3 colours
   //  threeColoursCheckBox = new QCheckBox(tr("Three colours"), advFrame);
 
-  for (int i = 0; i < 3; i++) {
+  for (size_t i = 0; i < 3; i++) {
     threeColourBox.push_back(ColourBox(advFrame, true, 0,
         tr("Off").toStdString(),true));
-    connect  ( threeColourBox[i], SIGNAL( activated(int) ),
-        SLOT( threeColoursChanged() ) );
+    connect (threeColourBox[i], SIGNAL(activated(int)),
+        SLOT(threeColoursChanged()));
   }
 
   //shading
@@ -3988,21 +3988,19 @@ void FieldDialog::resetOptions()
 
 std::string FieldDialog::getFieldOptions(const std::string& fieldName, bool reset) const
 {
-  std::string fieldname = fieldName;
-
   map<std::string, std::string>::const_iterator pfopt;
 
   if (!reset) {
 
     // try private options used
-    pfopt = fieldOptions.find(fieldname);
+    pfopt = fieldOptions.find(fieldName);
     if (pfopt != fieldOptions.end())
       return pfopt->second;
   }
 
   // following only searches for original options from the setup file
 
-  pfopt = setupFieldOptions.find(fieldname);
+  pfopt = setupFieldOptions.find(fieldName);
   if (pfopt != setupFieldOptions.end())
     return pfopt->second;
 
@@ -4174,14 +4172,11 @@ void FieldDialog::fieldEditUpdate(std::string str)
     }
 
     map<std::string, std::string>::const_iterator pfo;
-    if ((pfo = editFieldOptions.find(sf.fieldName))
-        != editFieldOptions.end()) {
+    if ((pfo = editFieldOptions.find(sf.fieldName)) != editFieldOptions.end()) {
       sf.fieldOpts = pfo->second;
-    } else if ((pfo = fieldOptions.find(sf.fieldName))
-        != fieldOptions.end()) {
+    } else if ((pfo = fieldOptions.find(sf.fieldName)) != fieldOptions.end()) {
       sf.fieldOpts = pfo->second;
-    } else if ((pfo = setupFieldOptions.find(sf.fieldName))
-        != setupFieldOptions.end()) {
+    } else if ((pfo = setupFieldOptions.find(sf.fieldName)) != setupFieldOptions.end()) {
       sf.fieldOpts = pfo->second;
     }
     METLIBS_LOG_DEBUG(LOGVAL(sf.fieldOpts));
