@@ -359,7 +359,6 @@ public:
   static std::map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
   bool      contourShape;
   std::string  shapefilename;
-  std::string unit;        // used to get data in right unit
   std::string legendunits; //used in legends
   std::string legendtitle; //used in legends
   bool      tableHeader; // whether each table is drawn with a header

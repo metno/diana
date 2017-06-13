@@ -790,8 +790,6 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         po.contourShape = (value == TRUE);
       } else if (key==key_shapefilename){
         po.shapefilename=value.c_str();
-      } else if (key==key_unit || key==key_units){
-        po.unit=value.c_str();
       } else if (key==key_legendunits){
         po.legendunits=value.c_str();
       } else if (key==key_legendtitle){
@@ -1064,10 +1062,6 @@ std::string PlotOptions::toString()
   }
 
   addOption(ostr, key_dimension, dimension);
-
-  if(!unit.empty()) {
-    addOption(ostr, key_unit, unit);
-  }
 
   if(!legendunits.empty()) {
     addOption(ostr, key_legendunits, legendunits);
