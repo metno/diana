@@ -2,6 +2,7 @@
 
 #include "diKVListPlotCommand.h"
 #include "diStringPlotCommand.h"
+#include "diStationPlotCommand.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -47,6 +48,9 @@ PlotCommand_cp makeCommand(const std::string& text)
     return c;
   if (PlotCommand_cp c = identifyKeyValue("DRAWING", text))
     return c;
+
+  if (identify("STATION", text))
+    return StationPlotCommand::parseLine(text);
 
   return std::make_shared<StringPlotCommand>(text);
 }

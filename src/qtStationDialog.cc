@@ -30,7 +30,7 @@
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <qtStationDialog.h>
-#include "diStringPlotCommand.h"
+#include "diStationPlotCommand.h"
 #include "qtUtility.h"
 
 #include <QFileInfo>
@@ -44,7 +44,8 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 
-#include <sstream>
+#define MILOGGER_CATEGORY "diana.StationDialog"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 
@@ -252,23 +253,20 @@ PlotCommand_cpv StationDialog::getOKString()
       }
     }
 
-    ostringstream s;
-
-    // Serialized station plots start with the STATION token.
-    s << "STATION " << ssi.name << " " << ssi.url;
-    if (!dialogInfo.chosen[ssi.url])
-      s << " hidden";
-    else
-      s << " unselected";
-
-    strings.push_back(std::make_shared<StringPlotCommand>("STATION", s.str()));
+    StationPlotCommand_p cmd = std::make_shared<StationPlotCommand>();
+    cmd->name = ssi.name;
+    cmd->url = ssi.url;
+    cmd->select = (!dialogInfo.chosen[ssi.url]) ? "hidden" : "unselected";
+    strings.push_back(cmd);
   }
   return strings;
 }
 
 void StationDialog::putOKString(const PlotCommand_cpv& vstr)
 {
-  return;
+  METLIBS_LOG_SCOPE();
+  if (!vstr.empty())
+    METLIBS_LOG_ERROR("not implemented, sorry");
 }
 
 std::string StationDialog::getShortname()
