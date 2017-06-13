@@ -214,7 +214,7 @@ void FieldPlot::clearFields()
   fields.clear();
 }
 
-std::string FieldPlot::getModelPlotParameterReftime() const
+std::string FieldPlot::getEnabledStateKey() const
 {
   //return n elements of current plot info string
   std::set<std::string> return_token;

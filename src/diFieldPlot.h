@@ -61,8 +61,7 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
-  std::string getEnabledStateKey() const override
-    { return getModelPlotParameterReftime(); }
+  std::string getEnabledStateKey() const override;
 
   bool updateIfNeeded();
   bool prepare(const std::string& fname, const std::string&);
@@ -94,7 +93,6 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
-  std::string getModelPlotParameterReftime() const;
   void clearFields();
   bool getTableAnnotations(std::vector<std::string>& anno);
 
