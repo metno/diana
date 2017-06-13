@@ -27,6 +27,7 @@ dianaUnitTests_SOURCES = \
     TestVprofData.cc \
     TestCommandParser.cc \
     TestLogFileIO.cc \
+    TestPlotCommands.cc \
     TestPlotOptions.cc \
     TestPoint.cc \
     TestQuickMenues.cc \

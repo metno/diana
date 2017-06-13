@@ -26,40 +26,12 @@
 #ifndef MISETUPPARSER_H
 #define MISETUPPARSER_H
 
+#include "util/diKeyValue.h"
 #include <map>
 #include <string>
 #include <vector>
 
 namespace miutil {
-
-class KeyValue {
-public:
-  KeyValue() { }
-  KeyValue(const std::string& k, const std::string& v) : mKey(k), mValue(v) { }
-  const std::string& key() const
-    { return mKey; }
-  const std::string& value() const
-    { return mValue; }
-
-  int toInt(bool& ok, int def=0) const;
-  int toInt(int def=0) const
-    { bool ok; return toInt(ok, def); }
-
-  double toDouble(bool& ok, double def=0) const;
-  double toDouble(double def=0) const
-    { bool ok; return toDouble(ok, def); }
-
-  float toFloat(bool& ok, float def=0) const;
-  float toFloat(float def=0) const
-    { bool ok; return toFloat(ok, def); }
-
-  bool toBool(bool& ok, bool def=false) const;
-  bool toBool(bool def=false) const
-    { bool ok; return toBool(ok, def); }
-
-private:
-  std::string mKey, mValue;
-};
 
 struct SetupSection {
   std::vector<std::string> strlist;
@@ -142,8 +114,7 @@ public:
 
   static KeyValue splitKeyValue(const std::string& s, bool keepCase = false);
 
-  static std::vector<KeyValue> splitManyKeyValue(const std::string& line,
-      bool keepCase = false);
+  static KeyValue_v splitManyKeyValue(const std::string& line, bool keepCase = false);
 
   /// finds key=v1,v2,v3,... in string
   static void splitKeyValue(const std::string& s, std::string& key,

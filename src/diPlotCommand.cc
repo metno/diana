@@ -1,5 +1,6 @@
 #include "diPlotCommand.h"
 
+#include "diKVListPlotCommand.h"
 #include "diStringPlotCommand.h"
 #include "util/string_util.h"
 
@@ -13,6 +14,25 @@ PlotCommand::~PlotCommand()
 {
 }
 
+namespace {
+size_t identify(const std::string& commandKey, const std::string& text)
+{
+  if (text == commandKey)
+    return commandKey.size()+1;
+  else if (diutil::startswith(text, commandKey + " "))
+    return commandKey.size()+1;
+  else
+    return 0;
+}
+
+PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)
+{
+  if (size_t start = identify(commandKey, text))
+      return std::make_shared<const KVListPlotCommand>(commandKey, text.substr(start));
+  else
+    return PlotCommand_cp();
+}
+} // namespace
 
 PlotCommand_cp makeCommandVcross(const std::string& text)
 {
@@ -21,6 +41,11 @@ PlotCommand_cp makeCommandVcross(const std::string& text)
 
 PlotCommand_cp makeCommand(const std::string& text)
 {
+  if (PlotCommand_cp c = identifyKeyValue("MAP", text))
+    return c;
+  if (PlotCommand_cp c = identifyKeyValue("AREA", text))
+    return c;
+
   return std::make_shared<StringPlotCommand>(text);
 }
 

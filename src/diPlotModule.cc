@@ -42,6 +42,7 @@
 #include "diEditManager.h"
 #include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
+#include "diKVListPlotCommand.h"
 #include "diLocationPlot.h"
 #include "diManager.h"
 #include "diMapManager.h"
@@ -146,7 +147,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   // merge PlotInfo's for same type
   for (PlotCommand_cp pc : vpi) {
     const std::string& type = pc->commandKey();
-    METLIBS_LOG_INFO(type);
+    METLIBS_LOG_INFO(pc->toString());
     if (ordered.find(type) != ordered.end())
       ordered_pi[type].push_back(pc);
     else if (managers.find(type) != managers.end())
@@ -199,32 +200,28 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
   Projection proj;
   Rectangle rect;
 
-  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[0]);
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(inp[0]);
   if (!cmd)
     return;
 
-  const vector<std::string> tokens= miutil::split_protected(cmd->command(), '"','"'," ",true);
-  for (size_t i=0; i<tokens.size(); i++){
-    const vector<std::string> stokens= miutil::split(tokens[i], 1, "=");
-    if (stokens.size() > 1) {
-      const std::string key= miutil::to_lower(stokens[0]);
-
-      if (key==key_name) {
-        if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
-          METLIBS_LOG_WARN("Unknown AREA definition: "<< inp[0]);
+  for (const miutil::KeyValue& kv : cmd->all()) {
+    if (!kv.value().empty()) {
+      if (kv.key() == key_name) {
+        if (!mapm.getMapAreaByName(kv.value(), requestedarea)) {
+          METLIBS_LOG_WARN("Unknown AREA definition '"<< kv.value() << "'");
         }
 
-      } else if (key==key_proj){
-        if ( proj.set_proj_definition(stokens[1]) ) {
+      } else if (kv.key() == key_proj) {
+        if (proj.set_proj_definition(kv.value())) {
           requestedarea.setP(proj);
         } else {
-          METLIBS_LOG_WARN("Unknown proj definition: "<< stokens[1]);
+          METLIBS_LOG_WARN("Unknown proj definition '" << kv.value());
         }
-      } else if (key==key_rectangle){
-        if (rect.setRectangle(stokens[1])) {
+      } else if (kv.key() == key_rectangle) {
+        if (rect.setRectangle(kv.value())) {
           requestedarea.setR(rect);
         } else {
-          METLIBS_LOG_WARN("Unknown rectangle definition: "<< stokens[1]);
+          METLIBS_LOG_WARN("Unknown rectangle definition '"<< kv.value() << "'");
         }
       }
     }

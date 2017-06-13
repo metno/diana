@@ -339,7 +339,7 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
   METLIBS_LOG_SCOPE();
 
   for (const std::string& line : vstr) {
-    const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(line, true);
+    const miutil::KeyValue_v kvs = miutil::SetupParser::splitManyKeyValue(line, true);
     for (const miutil::KeyValue& kv : kvs) {
       const std::string& key = kv.key(), value = kv.value();
       if (value.empty())

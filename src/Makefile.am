@@ -46,6 +46,7 @@ libdiana_la_SOURCES = \
 	diGlUtilities.cc \
 	diImageGallery.cc \
 	diImageIO.cc \
+	diKVListPlotCommand.cc \
 	diLegendPlot.cc \
 	diLinetype.cc \
 	diLocalSetupParser.cc \
@@ -118,6 +119,7 @@ libdiana_la_SOURCES = \
 	util/debug_timer.cc \
 	util/fimex_logging.cc \
 	util/format_int.cc \
+	util/diKeyValue.cc \
 	util/openmp_tools.cc \
 	util/polygon_util.cc \
 	util/plotoptions_util.cc \
@@ -316,6 +318,7 @@ noinst_HEADERS = \
 	diImageGallery.h \
 	diImageIO.h \
 	diKeys.h \
+	diKVListPlotCommand.h \
 	diLegendPlot.h \
 	diLinetype.h \
 	diLocationData.h \
@@ -465,6 +468,7 @@ noinst_HEADERS = \
 	util/debug_timer.h \
 	util/fimex_logging.h \
 	util/format_int.h \
+	util/diKeyValue.h \
 	util/openmp_tools.h \
 	util/polygon_util.h \
 	util/qstring_util.h \

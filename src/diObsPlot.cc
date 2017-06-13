@@ -608,7 +608,7 @@ bool ObsPlot::updateObs()
 }
 
 namespace {
-typedef std::vector<miutil::KeyValue> opts_t;
+typedef miutil::KeyValue_v opts_t;
 
 opts_t obsplotoptions(const std::string& infostr)
 {

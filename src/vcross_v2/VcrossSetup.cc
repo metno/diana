@@ -84,7 +84,7 @@ ConfiguredPlot_cp parsePlotLine(const std::string& line)
   METLIBS_LOG_SCOPE();
   ConfiguredPlot_p pc(new ConfiguredPlot);
 
-  const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(line, true);
+  const miutil::KeyValue_v kvs = miutil::SetupParser::splitManyKeyValue(line, true);
   for (const miutil::KeyValue& kv : kvs) {
     METLIBS_LOG_DEBUG(LOGVAL(kv.key()) << LOGVAL(kv.value()));
     if (kv.key() == "name") {
@@ -125,7 +125,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
       continue;
 
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
-    const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(lines[l], true);
+    const miutil::KeyValue_v kvs = miutil::SetupParser::splitManyKeyValue(lines[l], true);
     std::string name, filename, filetype, fileconfig, cs_name_charset = diutil::CHARSET_READ();
     string_string_m options;
     for (const miutil::KeyValue& kv : kvs) {
