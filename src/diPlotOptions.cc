@@ -167,7 +167,6 @@ const std::string PlotOptions::key_fontsize= "fontsize";
 const std::string PlotOptions::key_precision= "precision";
 const std::string PlotOptions::key_dimension= "dim";
 const std::string PlotOptions::key_enabled= "enabled";
-const std::string PlotOptions::key_fdescr= "fdesc";
 const std::string PlotOptions::key_fname= "fname";
 const std::string PlotOptions::key_overlay="overlay";
 const std::string PlotOptions::key_contourShape="contourShape";
@@ -697,8 +696,6 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
 
       } else if (key==key_enabled){
         po.enabled= (value == TRUE);
-      } else if (key==key_fdescr){
-        po.fdescr=miutil::split(value, ":");
       } else if (key==key_fname){
         po.fname=value;
       } else if (key==key_overlay){

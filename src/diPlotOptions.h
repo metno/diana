@@ -238,8 +238,6 @@ public:
   static const std::string key_dimension;
   // plot enabled
   static const std::string key_enabled;
-  //field description used for plotting
-  static const std::string key_fdescr;
   //field names used for plotting
   static const std::string key_fname;
   //plot in overlay buffer
@@ -347,7 +345,6 @@ public:
   int       dimension;
   bool      enabled;
   std::string  fname;
-  std::vector<std::string> fdescr;
   int       overlay; //plot in ovelay buffer
   static std::vector< std::vector<std::string> > plottypes;
   static std::map<std::string, unsigned int> enabledOptions; //enabledoptions[plotmethod]="OR of EnabledOptions values"
