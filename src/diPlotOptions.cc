@@ -168,7 +168,6 @@ const std::string PlotOptions::key_precision= "precision";
 const std::string PlotOptions::key_dimension= "dim";
 const std::string PlotOptions::key_enabled= "enabled";
 const std::string PlotOptions::key_fname= "fname";
-const std::string PlotOptions::key_overlay="overlay";
 const std::string PlotOptions::key_contourShape="contourShape";
 const std::string PlotOptions::key_shapefilename="shapefilename";
 const std::string PlotOptions::key_legendunits="legendunits";
@@ -205,7 +204,7 @@ PlotOptions::PlotOptions():
   polystyle(poly_fill), arrowstyle(arrow_wind), h_align(align_left), v_align(align_bottom),
   alignX(0), alignY(0),
   fontname(defaultFontName()), fontface(defaultFontFace()), fontsize(defaultFontSize()), precision(0),
-  dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
+  dimension(1), enabled(true), contourShape(0), tableHeader(true),
   antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
     , vector_example_x(-1), vector_example_y(-1)
 {
@@ -698,8 +697,6 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
         po.enabled= (value == TRUE);
       } else if (key==key_fname){
         po.fname=value;
-      } else if (key==key_overlay){
-        po.overlay=atoi(value.c_str());
       } else if (key==key_contourShape){
         po.contourShape = (value == TRUE);
       } else if (key==key_shapefilename){

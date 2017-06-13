@@ -281,7 +281,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey(PlotOptions::key_pcolour, "", 0, CommandParser::cmdString);
   cp->addKey(PlotOptions::key_repeat, "", 0, CommandParser::cmdInt);
   cp->addKey(PlotOptions::key_alpha, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_overlay, "", 0, CommandParser::cmdInt);
 
   cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
   cp->addKey(PlotOptions::key_dimension, "", 0, CommandParser::cmdInt);

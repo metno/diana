@@ -240,8 +240,6 @@ public:
   static const std::string key_enabled;
   //field names used for plotting
   static const std::string key_fname;
-  //plot in overlay buffer
-  static const std::string key_overlay;
   //contour shape
   static const std::string key_contourShape;
   //Shape filename for output
@@ -345,7 +343,6 @@ public:
   int       dimension;
   bool      enabled;
   std::string  fname;
-  int       overlay; //plot in ovelay buffer
   static std::vector< std::vector<std::string> > plottypes;
   static std::map<std::string, unsigned int> enabledOptions; //enabledoptions[plotmethod]="OR of EnabledOptions values"
   bool      contourShape;
