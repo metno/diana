@@ -395,7 +395,7 @@ protected:
   int numVisiblePositions() const; // slow!
 
 protected:
-  ObsPlot(const std::string& pin, ObsPlotType plottype);
+  ObsPlot(const miutil::KeyValue_v &pin, ObsPlotType plottype);
 
 public:
   ~ObsPlot();

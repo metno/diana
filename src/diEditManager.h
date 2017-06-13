@@ -255,7 +255,7 @@ public:
   /// get fieldEdit annotations
   bool getDataAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
-  void insertTime(PlotCommand_cp&, const miutil::miTime&);
+  PlotCommand_cp insertTime(PlotCommand_cp pc, const miutil::miTime&);
 };
 
 #endif

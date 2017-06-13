@@ -1166,26 +1166,22 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times)
 }
 
 //returns union or intersection of plot times from all pinfos
-void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::string>& pinfos,
-    bool allTimes)
+void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const PlotCommand_cpv& pinfos, bool allTimes)
 {
   vector<miTime> normalTimes;
   int timediff = -1;
   bool normalTimesFound = false;
   bool moreTimes = true;
-  for (size_t i = 0; i < pinfos.size(); i++) {
-    vector<std::string> tokens = miutil::split(pinfos[i], 1);
-    if (!tokens.empty()) {
-      std::string type = miutil::to_upper(tokens[0]);
-      if (type == "FIELD")
-        fieldplotm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
-      else if (type == "SAT")
-        satm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
-      else if (type == "OBS")
-        obsm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
-      else if (type == "OBJECTS")
-        objm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
-    }
+  for (PlotCommand_cp pc : pinfos) {
+    const std::string& type = pc->commandKey();
+    if (type == "FIELD")
+      fieldplotm->getCapabilitiesTime(normalTimes, timediff, pc);
+    else if (type == "SAT")
+      satm->getCapabilitiesTime(normalTimes, timediff, pc);
+    else if (type == "OBS")
+      obsm->getCapabilitiesTime(normalTimes, timediff, pc);
+    else if (type == "OBJECTS")
+      objm->getCapabilitiesTime(normalTimes, timediff, pc);
 
     if (moreTimes) { //insert okTimes
 

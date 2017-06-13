@@ -32,9 +32,10 @@
 #endif
 
 #include "qtAnnotationDialog.h"
-#include "diStringPlotCommand.h"
+#include "diLabelPlotCommand.h"
 #include "miSetupParser.h"
 #include "qtUtility.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -205,8 +206,11 @@ PlotCommand_cpv AnnotationDialog::getOKString()
   const vector<string> str = miutil::split(text, 0, "\n");
   PlotCommand_cpv cmd;
   cmd.reserve(str.size());
-  for (const std::string& s : str) {
-    cmd.push_back(std::make_shared<StringPlotCommand>(miutil::trimmed(s)));
+  for (std::string s : str) {
+    miutil::trim(s);
+    // we only want to create LABEL commands
+    if (diutil::startswith(s, "LABEL "))
+      cmd.push_back(std::make_shared<LabelPlotCommand>(s.substr(6))); // split after "LABEL "
   }
   return cmd;
 }
@@ -235,8 +239,8 @@ void AnnotationDialog::putOKString(const PlotCommand_cpv& vstr)
 
   std::string str;
   for (PlotCommand_cp cmd : vstr) {
-    if (StringPlotCommand_cp s = std::dynamic_pointer_cast<const StringPlotCommand>(cmd))
-      str += s->command() + "\n";
+    if (LabelPlotCommand_cp s = std::dynamic_pointer_cast<const LabelPlotCommand>(cmd))
+      str += s->toString() + "\n";
   }
   textedit->setText(QString(str.c_str()));
 }

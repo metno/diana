@@ -87,20 +87,26 @@ TEST(TestPlotOptions, AutoExpand)
 TEST(TestPlotOptions, testParsePlotOptionColour)
 {
   Colour::define("red",255,0,0,0);
-  const std::string colstr="colour=red";
-  std::string unused;
+  const miutil::KeyValue_v cols(1, miutil::KeyValue("colour", "red"));
+  miutil::KeyValue_v unused;
   PlotOptions poptions;
-  PlotOptions::parsePlotOption(colstr,poptions,unused);
+  PlotOptions::parsePlotOption(cols,poptions,unused);
   EXPECT_EQ("red",poptions.textcolour.Name());
   EXPECT_TRUE(unused.empty());
 }
 
 TEST(TestPlotOptions, testParsePlotOptionUnused)
 {
-  const std::string un = "nosuchoption=true thisoptiondoesnotexist";
-  const std::string lw = "linewidth=5";
-  const std::string postr = lw + " " + un;
-  std::string unused;
+  miutil::KeyValue_v un;
+  miutil::add(un, "nosuchoption", "true");
+  un.push_back(miutil::KeyValue("thisoptiondoesnotexist"));
+
+  const miutil::KeyValue_v lw(1, miutil::KeyValue("linewidth", "5"));
+
+  miutil::KeyValue_v postr = un;
+  postr.insert(postr.end(), lw.begin(), lw.end());
+
+  miutil::KeyValue_v unused;
   PlotOptions poptions;
   PlotOptions::parsePlotOption(postr, poptions, unused);
   EXPECT_EQ(5, poptions.linewidth);
@@ -112,12 +118,31 @@ TEST(TestPlotOptions, testParsePlotOptionUnused)
 
 TEST(TestPlotOptions, testParseFieldPlotOption)
 {
-  const std::string in_field = "( model=AROME-MetCoOp refhour=6 plot=T.2M vlevel=2m - model=AROME-MetCoOp refhour=0 plot=T.2M vlevel=2m )";
-  const std::string in_options = "linetype=solid linewidth=5 plottype=fill_cell";
-  std::string out_field;
+  const miutil::KeyValue_v in_field = miutil::splitKeyValue("( model=AROME-MetCoOp refhour=6 plot=T.2M vlevel=2m - model=AROME-MetCoOp refhour=0 plot=T.2M vlevel=2m )");
+  const miutil::KeyValue_v in_options = miutil::splitKeyValue("linetype=solid linewidth=5 plottype=fill_cell");
+  miutil::KeyValue_v out_field;
+  miutil::KeyValue_v input = in_field;
+  input.insert(input.end(), in_options.begin(), in_options.end());
   PlotOptions poptions;
-  PlotOptions::parsePlotOption(in_field + " " + in_options, poptions, out_field);
+  PlotOptions::parsePlotOption(input, poptions, out_field);
   EXPECT_EQ(5, poptions.linewidth);
   EXPECT_EQ("solid", poptions.linetype.name);
   EXPECT_EQ(in_field, out_field);
+}
+
+TEST(TestPlotOptions, SplitKeyValueKeepQuotes)
+{
+  // quote only at start => quotes not stripped
+  const std::string vQS = "\"this text\",is=simple";
+  // quotes at start and end => quotes stripped
+  const std::string vQSE = "\"this text\",is,a=\"bit complicated\"";
+  const std::string in = "LABEL text1=" + vQS + " text2=" + vQSE + " tcolour=blue";
+  miutil::KeyValue_v annokv = miutil::splitKeyValue(in, true);
+  ASSERT_EQ(4, annokv.size());
+  EXPECT_EQ("LABEL", annokv[0].key());
+  EXPECT_EQ(vQS, annokv[1].value());
+  EXPECT_EQ(vQSE, annokv[2].value());
+  EXPECT_EQ("blue", annokv[3].value());
+
+  EXPECT_EQ(in, miutil::mergeKeyValue(annokv));
 }

@@ -161,8 +161,8 @@ public:
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& progTimes,
-			   int& timediff,
-			   const std::string& pinfo);
+                           int& timediff,
+                           const PlotCommand_cp &pinfo);
 
   const std::vector<SatFileInfo> & getFiles(const std::string &,
 				       const std::string &,

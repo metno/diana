@@ -282,44 +282,34 @@ void SatDialogAdvanced::colourcutClicked(bool on){
       emit getSatColours();
   }
 }
+
 /*********************************************/
-std::string SatDialogAdvanced::getOKString()
+miutil::KeyValue_v SatDialogAdvanced::getOKString()
 {
-  std::string str;
-  ostringstream ostr;
+  miutil::KeyValue_v str;
 
   if(!palette){
     if( cutCheckBox->isChecked() )
-      ostr<<" cut=-0.5";
-    else if( cut->isChecked() )
-      ostr<<" cut="<<m_cutnr;
+      miutil::add(str, "cut", "-0.5");
+    else if (cut->isChecked())
+      miutil::add(str, "cut", m_cutnr);
     else
-      ostr<<" cut=-1";
+      miutil::add(str, "cut", "-1");
 
-    if( alphacut->isChecked() )
-      ostr<<" alphacut="<<m_alphacutnr;
-    else
-      ostr<<" alphacut=0";
+    miutil::add(str, "alphacut", alphacut->isChecked() ? m_alphacutnr : 0);
   }
 
-  if( alpha->isChecked() )
-    ostr<<" alpha="<<m_alphanr;
-  else
-    ostr<<" alpha=1";
+  miutil::add(str, "alpha", alpha->isChecked() ? m_alphanr : 1);
 
   if (palette){
-    if( legendButton->isChecked())
-      ostr<<" Table=1";
-    else
-      ostr<<" Table=0";
+    miutil::add(str, "table", legendButton->isChecked());
 
     //colours to hide
     if(colourcut->isChecked()){
-      ostr << " hide=";
+      std::ostringstream ostr;
       int n =colourList->count();
       for (int i=0;i<n;i++){
-        if (colourList->item(i)!=0 &&
-            colourList->item(i)->isSelected()){
+        if (colourList->item(i)!=0 && colourList->item(i)->isSelected()){
           ostr << i;
           if ( !colourList->item(i)->text().isEmpty() ) {
             ostr <<":"<<colourList->item(i)->text().toStdString();
@@ -327,14 +317,11 @@ std::string SatDialogAdvanced::getOKString()
           ostr <<",";
         }
       }
+      miutil::add(str, "hide", ostr.str());
     }
   }
 
-
-  str = ostr.str();
-
   return str;
-
 }
 
 
@@ -404,24 +391,20 @@ void SatDialogAdvanced::setColours(vector <Colour> &colours){
 }
 
 /*********************************************/
-std::string SatDialogAdvanced::putOKString(std::string str)
+miutil::KeyValue_v SatDialogAdvanced::putOKString(const miutil::KeyValue_v& str)
 {
   //  cerr << "SatDialogAdvanced::putOKString: " << str<<endl;
   setStandard();
   blockSignals(true);
 
-  std::string external;
-  vector<std::string> tokens= miutil::split_protected(str, '"','"');
-  int n= tokens.size();
+  miutil::KeyValue_v external;
 
-  std::string key, value;
-  for (int i=0; i<n; i++){    // search through plotinfo
-    vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
-    if ( stokens.size()==2) {
-      key = miutil::to_lower(stokens[0]);
-      value = stokens[1];
+  for (const miutil::KeyValue& kv : str){ // search through plotinfo
+    if (kv.hasValue()) {
+      const std::string& key = kv.key();
+      const std::string& value = kv.value();
       if ( key=="cut" && ! palette){
-        m_cutnr = atof(value.c_str());
+        m_cutnr = kv.toFloat();
         if (m_cutnr<0){
           if (m_cutnr==-0.5){
             cutCheckBox->setChecked(true);
@@ -439,7 +422,7 @@ std::string SatDialogAdvanced::putOKString(std::string str)
       }
       else if ( (key=="alphacut" || key=="alfacut") && !palette){
         if (value!="0"){
-          m_alphacutnr = atof(value.c_str());
+          m_alphacutnr = kv.toFloat();
           int m_alphacutvalue = int(m_alphacutnr/m_alphacutscale+m_alphacutscale/2);
           salphacut->setValue(  m_alphacutvalue );
           alphacut->setChecked(true); greyAlphaCut( true );
@@ -449,7 +432,7 @@ std::string SatDialogAdvanced::putOKString(std::string str)
       }
       else if ( key=="alpha" || key=="alfa"){
         if (value!="1"){
-          m_alphanr = atof(value.c_str());
+          m_alphanr = kv.toFloat();
           int m_alphavalue = int(m_alphanr/m_alphascale+m_alphascale/2);
           salpha->setValue(  m_alphavalue );
           alpha->setChecked(true); greyAlpha( true );
@@ -476,15 +459,15 @@ std::string SatDialogAdvanced::putOKString(std::string str)
           }
         }
       }else{
-        //anythig unknown, add to external string
-        external+=" " + tokens[i];
+        //anything unknown, add to external string
+        external.push_back(kv);
       }
-    } else if (stokens.size() ==1 && miutil::to_lower(stokens[0])=="hide"){
+    } else if (!kv.hasValue() && kv.key() == "hide") {
       //colourList should be visible
       colourcut->setChecked(true);
-    }else{
-      //anythig unknown, add to external string
-      external+=" " + tokens[i];
+    } else {
+      //anything unknown, add to external string
+      external.push_back(kv);
     }
   }
   blockSignals(false);

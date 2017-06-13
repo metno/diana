@@ -9,15 +9,19 @@ namespace miutil {
 
 class KeyValue {
 public:
-  KeyValue() { }
-  explicit KeyValue(const std::string& k, const std::string& v) : mKey(k), mValue(v), mHasValue(true) { }
-  explicit KeyValue(const std::string& k) : mKey(k), mHasValue(false) { }
+  KeyValue();
+  explicit KeyValue(const std::string& k);
+  explicit KeyValue(const std::string& k, const std::string& v, bool keptQuotes=false);
+
   const std::string& key() const
     { return mKey; }
   const std::string& value() const
     { return mValue; }
+
   bool hasValue() const
     { return mHasValue; }
+  bool keptQuotes() const
+    { return mKeptQuotes; }
 
   int toInt(bool& ok, int def=0) const;
   int toInt(int def=0) const
@@ -40,7 +44,7 @@ public:
 
 private:
   std::string mKey, mValue;
-  bool mHasValue;
+  bool mHasValue, mKeptQuotes;
 };
 
 typedef std::vector<KeyValue> KeyValue_v;
@@ -58,7 +62,7 @@ size_t rfind(const KeyValue_v& kvs, const std::string& key);
 size_t rfind(const KeyValue_v& kvs, const std::string& key, size_t start);
 
 std::string mergeKeyValue(const miutil::KeyValue_v& kvs);
-KeyValue_v splitKeyValue(const std::string& kvtext);
+KeyValue_v splitKeyValue(const std::string& kvtext, bool keepQuotes=false);
 
 std::ostream& operator<<(std::ostream& out, const miutil::KeyValue& kv);
 std::ostream& operator<<(std::ostream& out, const miutil::KeyValue_v& kvs);

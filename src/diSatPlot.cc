@@ -34,6 +34,7 @@
 #include "diSatPlot.h"
 
 #include "diGLPainter.h"
+#include "diKVListPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -51,6 +52,11 @@ SatPlot::SatPlot()
 SatPlot::~SatPlot()
 {
   delete satdata;
+}
+
+std::string SatPlot::getEnabledStateKey() const
+{
+  return miutil::mergeKeyValue(getPlotInfo(4));
 }
 
 void SatPlot::getAnnotation(std::string &str, Colour &col) const

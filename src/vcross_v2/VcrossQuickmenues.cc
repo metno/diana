@@ -30,6 +30,7 @@
 #include "VcrossQuickmenues.h"
 
 #include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h" // toString
 #include "util/string_util.h"
 #include <puTools/miStringFunctions.h>
 #include <sstream>
@@ -189,7 +190,7 @@ PlotCommand_cpv VcrossQuickmenues::get() const
       field << "VCROSS model=" << mManager->getModelAt(i)
             << " reftime=" << mManager->getReftimeAt(i).isoTime("T")
             << " field=" << mManager->getFieldAt(i)
-            << " " << mManager->getOptionsAt(i);
+            << " " << miutil::mergeKeyValue(mManager->getOptionsAt(i));
       qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", field.str()));
     }
 

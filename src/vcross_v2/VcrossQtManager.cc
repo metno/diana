@@ -29,6 +29,7 @@
 
 #include "VcrossQtManager.h"
 
+#include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
@@ -50,6 +51,7 @@
 namespace /* anonymous */ {
 
 const std::string EMPTY_STRING;
+const miutil::KeyValue_v EMPTY_OPTIONS;
 
 struct lt_LocationElement : public std::binary_function<bool, LocationElement, LocationElement>
 {
@@ -810,10 +812,10 @@ string_v QtManager::getFieldNames(const std::string& model, const vctime_t& reft
   return plot_names;
 }
 
-std::string QtManager::getPlotOptions(const std::string& field, bool fromSetup) const
+miutil::KeyValue_v QtManager::getPlotOptions(const std::string& field, bool fromSetup) const
 {
   if (!fromSetup) {
-    const string_string_m::const_iterator itU = userFieldOptions.find(field);
+    const string_kv_m::const_iterator itU = userFieldOptions.find(field);
     if (itU != userFieldOptions.end())
       return itU->second;
   }
@@ -881,12 +883,12 @@ QtManager::vctime_t QtManager::getReftimeAt(int position) const
 }
 
 
-std::string QtManager::getOptionsAt(int position) const
+const miutil::KeyValue_v& QtManager::getOptionsAt(int position) const
 {
   if (vcross::SelectedPlot_p sp = getSelectedPlot(position))
-    return sp->optionString();
+    return sp->options;
   else
-    return EMPTY_STRING;
+    return EMPTY_OPTIONS;
 }
 
 
@@ -930,10 +932,10 @@ void QtManager::updateCrossectionsTimes()
 }
 
 
-int QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts,
+int QtManager::addField(const PlotSpec& ps, const miutil::KeyValue_v& fieldOpts,
     int idx, bool updateUserFieldOptions)
 {
-  idx = insertField(ps.modelReftime(), ps.field(), miutil::split(fieldOpts), idx);
+  idx = insertField(ps.modelReftime(), ps.field(), fieldOpts, idx);
   if (idx >= 0 && updateUserFieldOptions)
     userFieldOptions[ps.field()] = fieldOpts;
   return idx;
@@ -941,7 +943,7 @@ int QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts,
 
 
 int QtManager::insertField(const ModelReftime& model, const std::string& plot,
-    const string_v& options, int idx)
+    const miutil::KeyValue_v& options, int idx)
 {
   idx = mCollector->insertPlot(model, plot, options, idx);
   if (idx >= 0) {
@@ -959,7 +961,7 @@ int QtManager::insertField(const ModelReftime& model, const std::string& plot,
 }
 
 
-void QtManager::updateField(int idx, const std::string& fieldOpts)
+void QtManager::updateField(int idx, const miutil::KeyValue_v& fieldOpts)
 {
   METLIBS_LOG_SCOPE(LOGVAL(idx));
   if (idx < 0 || idx >= (int)mCollector->getSelectedPlots().size())
@@ -969,11 +971,9 @@ void QtManager::updateField(int idx, const std::string& fieldOpts)
   if (not sp)
     return;
 
-  const string_v nfo = miutil::split(fieldOpts);
   userFieldOptions[sp->name()] = fieldOpts;
-  if (sp->options != nfo) {
-    METLIBS_LOG_DEBUG(LOGVAL(fieldOpts));
-    sp->options = nfo;
+  if (sp->options != fieldOpts) {
+    sp->options = fieldOpts;
 
     dataChange |= CHANGED_SEL;
 
@@ -1067,9 +1067,9 @@ void QtManager::selectFields(const string_v& to_plot)
       continue;
     METLIBS_LOG_DEBUG(LOGVAL(line));
 
-    string_v m_p_o = miutil::split_protected(line, '"', '"');
+    miutil::KeyValue_v m_p_o = miutil::splitKeyValue(line);
 
-    std::string poptions;
+    miutil::KeyValue_v poptions;
     std::string model, field;
     vctime_t reftime;
     int refhour = -1, refoffset = 0;
@@ -1079,46 +1079,39 @@ void QtManager::selectFields(const string_v& to_plot)
     std::string markerText, markerColour = "black";
     float markerPosition = -1, markerX = -1, markerY = -1;
 
-    for (string_v::const_iterator itT = m_p_o.begin(); itT != m_p_o.end(); ++itT) {
-      const std::string& token = *itT;
-      string_v //stoken = miutil::split(token,"=");
-      stoken = miutil::split_protected(token, '\"', '\"', "=", true);
-      if (stoken.size() != 2)
+    for (const miutil::KeyValue& kv : m_p_o) {
+      if (!kv.hasValue())
         continue;
-      std::string key = boost::algorithm::to_lower_copy(stoken[0]);
+      const std::string& key = kv.key();
       if (isMarkerLine) {
         if (key == "text") {
-          markerText = stoken[1];
-          if (markerText.size() >= 2 && markerText[0] == '"')
-            markerText = markerText.substr(1, markerText.size() - 2);
+          markerText = kv.value();
         } else if (key == "colour") {
-          markerColour = stoken[1];
+          markerColour = kv.value();
         } else if (key == "position") {
-          markerPosition = miutil::to_float(stoken[1]);
+          markerPosition = kv.toFloat();
         } else if (key == "position.x") {
-          markerX = miutil::to_float(stoken[1]);
+          markerX = kv.toFloat();
         } else if (key == "position.y") {
-          markerY = miutil::to_float(stoken[1]);
+          markerY = kv.toFloat();
         }
       } else if (isReferenceLine) {
         if (key == "position") {
-          mReferencePosition = miutil::to_float(stoken[1]);
+          mReferencePosition = kv.toFloat();
         }
       } else {
         if (key == "model") {
-          model = stoken[1];
+          model = kv.value();
         } else if (key == "field") {
-          field = stoken[1];
+          field = kv.value();
         } else if (key == "reftime") {
-          reftime = vctime_t(stoken[1]);
+          reftime = vctime_t(kv.value());
         } else if (key == "refhour") {
-          refhour = miutil::to_int(stoken[1]);
+          refhour = kv.toInt();
         } else if (key == "refoffset") {
-          refoffset = miutil::to_int(stoken[1]);
+          refoffset = kv.toInt();
         } else {
-          if (!poptions.empty())
-            poptions += " ";
-          poptions += token;
+          poptions.push_back(kv);
         }
       }
     }
@@ -1237,8 +1230,8 @@ std::vector<std::string> QtManager::writePlotOptions()
 
   // write used field options
 
-  for (string_string_m::const_iterator itO = userFieldOptions.begin(); itO != userFieldOptions.end(); ++itO)
-    loglines.push_back(itO->first + " " + itO->second);
+  for (string_kv_m::const_iterator itO = userFieldOptions.begin(); itO != userFieldOptions.end(); ++itO)
+    loglines.push_back(itO->first + " " + miutil::mergeKeyValue(itO->second));
   loglines.push_back("================");
 
   return loglines;
@@ -1265,7 +1258,7 @@ void QtManager::readPlotOptions(const string_v& loglines,
       continue;
 
     const std::string fieldname = itL->substr(0, firstspace);
-    const std::string options = itL->substr(firstspace+1);
+    const miutil::KeyValue_v options = miutil::splitKeyValue(itL->substr(firstspace+1));
 
     userFieldOptions[fieldname] = options;
   }

@@ -45,8 +45,7 @@ public:
   Sat *satdata;
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  std::string getEnabledStateKey() const override
-    { return getPlotInfo(4); }
+  std::string getEnabledStateKey() const override;
   void setData(Sat *);
   void clearData();
   Area& getSatArea()

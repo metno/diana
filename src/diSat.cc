@@ -33,6 +33,8 @@
 
 #include "diSat.h"
 
+#include "diKVListPlotCommand.h" // for operator<<
+
 #include <puTools/miStringFunctions.h>
 
 #include <sstream>
@@ -71,7 +73,7 @@ Sat::Sat(const Sat &rhs)
   memberCopy(rhs);
 }
 
-Sat::Sat (const std::string &pin) :
+Sat::Sat (const miutil::KeyValue_v& pin) :
   approved(false),  autoFile(true),
   cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
   maxDiff(defaultTimediff), classtable(defaultClasstable),
@@ -87,43 +89,38 @@ Sat::Sat (const std::string &pin) :
   for (int i=0; i<3; i++)
     origimage[i] = 0;
 
-  std::vector<std::string> tokens= miutil::split(pin);
-  int n= tokens.size();
-  if (n < 4) {
+  if (pin.size() < 3) {
     METLIBS_LOG_WARN("Wrong syntax: "<<pin);
   }
 
-  satellite = tokens[1];
-  filetype = tokens[2];
-  plotChannels = tokens[3];
+  satellite = pin[0].key();
+  filetype = pin[1].key();
+  plotChannels = pin[2].key();
 
-  std::string key, value;
-
-  for (int i=4; i<n; i++) { // search through plotinfo
-    std::vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
-    if (stokens.size()==2) {
-      key = miutil::to_lower(stokens[0]);
-      value = stokens[1];
+  for (size_t i=4; i<pin.size(); i++) { // search through plotinfo
+    const miutil::KeyValue& kv = pin[i];
+    if (kv.hasValue()) {
+      const std::string& key = kv.key();
+      const std::string& value = kv.value();
       if (key=="file") {
         filename = value;
         autoFile = false;
       } else if (key=="mosaic")
-        mosaic = (atoi(value.c_str())!=0);
+        mosaic = kv.toBool();
       else if (key=="cut")
-        cut = atof(value.c_str());
+        cut = kv.toFloat();
       else if (key == "timediff")
-        maxDiff = atoi(value.c_str());
+        maxDiff = kv.toInt();
       else if (key=="alphacut" || key=="alfacut")
-        alphacut = (int) (atof(value.c_str())*255);
+        alphacut = int(kv.toFloat()*255);
       else if (key=="alpha" || key=="alpha")
-        alpha = (int) (atof(value.c_str())*255);
+        alpha = (int) (kv.toFloat()*255);
       else if (key=="table")
-        classtable = (atoi(value.c_str())!=0);
+        classtable = kv.toBool();
       else if (key=="hide") {
-        std::vector<std::string> stokens = miutil::split(value, 0, ",");
-        int m= stokens.size();
-        for (int j=0; j<m; j++) {
-          std::vector <std::string> sstokens=miutil::split(stokens[j], 0, ":");
+        const std::vector<std::string> stokens = miutil::split(value, 0, ",");
+        for (const std::string& tok : stokens) {
+          std::vector <std::string> sstokens=miutil::split(tok, 0, ":");
           if(sstokens.size()==1) {
             hideColour[atoi(sstokens[0].c_str())] = 0;
           } else {

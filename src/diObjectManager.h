@@ -341,14 +341,14 @@ public:
   std::vector <ObjFileInfo> getObjectFiles(const std::string& objectname, bool refresh);
   /// returns list of times
   std::vector<miutil::miTime> getTimes();
-  std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
+  std::vector<miutil::miTime> getObjectTimes(const miutil::KeyValue_v &pinfo);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const std::string& pinfo);
+      int& timediff, const PlotCommand_cp& pinfo);
 
   /// returns plot options for object file with name objectname
-  PlotOptions getPlotOptions(std::string objectName);
+  const PlotOptions &getPlotOptions(std::string objectName);
 };
 
 #endif

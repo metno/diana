@@ -1,8 +1,10 @@
 
 #include "diTrajectoryGenerator.h"
 
+
 #include "diFieldPlotManager.h"
 #include "diFieldPlot.h"
+#include "diKVListPlotCommand.h"
 
 #include <diField/diField.h>
 
@@ -74,10 +76,10 @@ TrajectoryData_v TrajectoryGenerator::compute()
     return trajectories;
 
   // 1. get field times
-  pinfo = std::vector<std::string>(1, fp->getPlotInfo());
-  METLIBS_LOG_DEBUG(LOGVAL(pinfo.back()));
+  pinfo = fp->getPlotInfo();
+  METLIBS_LOG_DEBUG(LOGVAL(pinfo));
 
-  const std::vector<miutil::miTime> times = fpm->getFieldTime(pinfo, false);
+  const std::vector<miutil::miTime> times = fpm->getFieldTime(std::vector<miutil::KeyValue_v>(1, pinfo), false);
   const int nTimes = times.size();
   METLIBS_LOG_DEBUG(LOGVAL(nTimes));
   if (nTimes == 0)
@@ -143,7 +145,7 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
     return;
 
   std::vector<Field*> fv0, fv1;
-  fpm->makeFields(pinfo.back(), times[i0], fv0);
+  fpm->makeFields(pinfo, times[i0], fv0);
   while (fv0.size() < 2 && i0 >= 0 && i0-di >= 0 && i0 < nTimes && i0-di < nTimes) {
     freeFields(fpm, fv0);
     i0 += di;
@@ -154,7 +156,7 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
       break;
     METLIBS_LOG_DEBUG(LOGVAL(i1));
     const miutil::miTime& t1 = times[i1];
-    fpm->makeFields(pinfo.back(), t1, fv1);
+    fpm->makeFields(pinfo, t1, fv1);
     if (fv1.size() >= 2) {
       const miutil::miTime& t0 = times[i0];
       computeSingleStep(t0, t1, fv0, fv1, trajectories);

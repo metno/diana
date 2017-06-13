@@ -31,6 +31,7 @@
 #ifndef _satdialog_h
 #define _satdialog_h
 
+#include "diKVListPlotCommand.h"
 #include <diController.h>
 #include <QDialog>
 
@@ -60,7 +61,7 @@ public:
   \brief struct state describing selected picture
 */  
   struct state{
-    std::string OKString;
+    miutil::KeyValue_v OKString;
     int iname;
     int iarea;
     int ifiletime;
@@ -71,8 +72,8 @@ public:
     miutil::miTime filetime; ///<time
     std::string channel; ///<selected channel
     std::string filename; ///<filename
-    std::string advanced; ///<plotting options
-    std::string external; ///<nothing to do whith the dialog
+    miutil::KeyValue_v advanced; ///<plotting options
+    miutil::KeyValue_v external; ///<nothing to do whith the dialog
     bool mosaic; ///<plot mosaic of pictures       
     int totalminutes;///<timediff
   };
@@ -99,7 +100,9 @@ protected:
 
 private:
 
-  std::map< std::string, std::map< std::string,std::string > > satoptions;
+  typedef std::map< std::string, miutil::KeyValue_v> areaoptions_t;
+  typedef std::map< std::string, areaoptions_t> satoptions_t;
+  satoptions_t satoptions;
   std::vector<state> m_state; //pictures to plot
   std::vector<miutil::miTime> times;    //emitted to TimeSlider 
   static miutil::miTime ztime;
@@ -112,9 +115,9 @@ private:
   void emitSatTimes(bool update=false);
   int addSelectedPicture();
   //decode part of OK string
-  state decodeString(const std::vector<std::string> & tokens);
+  state decodeString(const miutil::KeyValue_v &tokens);
   // make string from state
-  std::string makeOKString(state & okVar);
+  miutil::KeyValue_v makeOKString(state & okVar);
   void putOptions(const state okVar);
 
   std::string pictureString(state,bool);  

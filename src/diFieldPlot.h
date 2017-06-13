@@ -32,6 +32,7 @@
 #include "diPlot.h"
 
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 #include "diRasterPlot.h"
 
 #include <diField/diField.h>
@@ -64,7 +65,7 @@ public:
   std::string getEnabledStateKey() const override;
 
   bool updateIfNeeded();
-  bool prepare(const std::string& fname, const std::string&);
+  bool prepare(const std::string& fname, const PlotCommand_cp&);
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;

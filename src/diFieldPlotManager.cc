@@ -34,7 +34,7 @@
 #include "diFieldPlotManager.h"
 #include "diFieldPlot.h"
 #include "diPlotOptions.h"
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "miSetupParser.h"
 #include "util/string_util.h"
 
@@ -62,12 +62,12 @@ FieldPlotManager::FieldPlotManager(FieldManager* fm) :
 
 FieldPlot* FieldPlotManager::createPlot(const PlotCommand_cp& pc)
 {
-  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
   if (!cmd)
     return 0;
-  const std::string plotName = extractPlotName(cmd->command());
+  const std::string plotName = extractPlotName(cmd->all());
   std::unique_ptr<FieldPlot> fp(new FieldPlot(this));
-  if (fp->prepare(plotName, cmd->command()))
+  if (fp->prepare(plotName, cmd))
     return fp.release();
   else
     return 0;
@@ -116,7 +116,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   int nlines = lines.size();
 
   vector<std::string> vstr;
-  std::string key, str, option;
+  std::string key, str;
   vector<std::string> vpar;
 
   vector<std::string> loopname;
@@ -196,8 +196,8 @@ bool FieldPlotManager::parseFieldPlotSetup()
             while (j < nv - 2) {
               key = miutil::to_lower(vstr[j]);
               if (key == key_plot && vstr[j + 1] == "=" && j < nv - 3) {
-                option = key_plottype + "=" + vstr[j + 2];
-                if (!updateFieldPlotOptions(name, option)) {
+                const miutil::KeyValue_v option1(1, miutil::KeyValue(key_plottype, vstr[j + 2]));
+                if (!updateFieldPlotOptions(name, option1)) {
                   std::string errm = "|Unknown fieldplottype in plotcommand";
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
@@ -210,9 +210,8 @@ bool FieldPlotManager::parseFieldPlotSetup()
                   break;
                 }
 
-                option = "dim=" + miutil::from_number(int(input.size()));
-
-                if (!updateFieldPlotOptions(name, option)) {
+                const miutil::KeyValue_v option2(1, miutil::KeyValue("dim", miutil::from_number(int(input.size()))));
+                if (!updateFieldPlotOptions(name, option2)) {
                   std::string errm = "|Unknown fieldplottype in plotcommand";
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
@@ -231,12 +230,9 @@ bool FieldPlotManager::parseFieldPlotSetup()
                 vctype = FieldFunctions::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
-                option = vstr[j] + "=" + vstr[j + 2];
-
-                  std::string errm =
-                      "Something wrong in plotoption specifications";
-                if (!updateFieldPlotOptions(name, option)) {
-                  SetupParser::errorMsg(sect_name, i, errm);
+                const miutil::KeyValue_v option1(1, miutil::KeyValue(vstr[j], vstr[j + 2]));
+                if (!updateFieldPlotOptions(name, option1)) {
+                  SetupParser::errorMsg(sect_name, i, "Something wrong in plotoption specifications");
                   break;
                 }
               } else {
@@ -384,14 +380,14 @@ vector<std::string> FieldPlotManager::getFields()
   return vector<std::string>(paramSet.begin(), paramSet.end());
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
+vector<miTime> FieldPlotManager::getFieldTime(const vector<miutil::KeyValue_v>& pinfos,
     bool updateSources)
 {
   METLIBS_LOG_SCOPE();
 
   std::vector<FieldRequest> request;
   for (size_t i = 0; i < pinfos.size(); i++) {
-    std::string fspec1,fspec2;
+    miutil::KeyValue_v fspec1,fspec2;
     if (!splitDifferenceCommandString(pinfos[i],fspec1,fspec2))
       // if difference, use first field
       fspec1 = pinfos[i];
@@ -402,17 +398,17 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     request.insert(request.begin(),fieldrequest.begin(),fieldrequest.end());
   }
 
-  if (request.size() == 0)
+  if (request.empty())
     return std::vector<miutil::miTime>();
 
   return getFieldTime(request, updateSources);
 }
 
-miTime FieldPlotManager::getFieldReferenceTime(const string& pinfo)
+miTime FieldPlotManager::getFieldReferenceTime(const miutil::KeyValue_v& pinfo)
 {
   METLIBS_LOG_SCOPE();
 
-  std::string fspec1,fspec2;
+  miutil::KeyValue_v fspec1,fspec2;
 
   // if difference, use first field
   if (!splitDifferenceCommandString(pinfo,fspec1,fspec2))
@@ -428,38 +424,39 @@ miTime FieldPlotManager::getFieldReferenceTime(const string& pinfo)
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo)
+    int& timediff, const PlotCommand_cp& pc)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(pinfo));
+  METLIBS_LOG_SCOPE(LOGVAL(pc->toString()));
   //Finding times from pinfo
   //TODO: find const time
 
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  if (!cmd)
+    return;
+
   //finding timediff
   timediff = 0;
-  vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
-  for (unsigned int j = 0; j < tokens.size(); j++) {
-    vector<std::string> stokens = miutil::split(tokens[j], "=");
-    if (stokens.size() == 2 && miutil::to_lower(stokens[0]) == "ignore_times" && miutil::to_lower(stokens[1]) == "true") {
+  for (const KeyValue& kv : cmd->all()) {
+    if (kv.key() == "ignore_times" && kv.toBool() == true) {
       normalTimes.clear();
       return;
     }
-    if (stokens.size() == 2 && miutil::to_lower(stokens[0]) == "timediff") {
-      timediff = miutil::to_int(stokens[1]);
+    if (kv.key() == "timediff") {
+      timediff = kv.toInt();
     }
   }
 
   //getting times
-  normalTimes = getFieldTime(vector<string>(1, pinfo), true);
+  normalTimes = getFieldTime(std::vector<miutil::KeyValue_v>(1, cmd->all()), true);
 
-  METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
+  METLIBS_LOG_DEBUG("no. of times"<<normalTimes.size());
 }
 
-vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
+vector<std::string> FieldPlotManager::getFieldLevels(const miutil::KeyValue_v& pin)
 {
   vector<std::string> levels;
   vector<FieldRequest> vfieldrequest;
   std::string plotName;
-  std::string pin = pinfo;
   parsePin(pin, vfieldrequest,plotName);
 
   if ( !vfieldrequest.size() )
@@ -507,14 +504,14 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
 }
 
 
-bool FieldPlotManager::makeFields(const std::string& pin,
+bool FieldPlotManager::makeFields(const miutil::KeyValue_v& kvs,
     const miTime& const_ptime, vector<Field*>& vfout)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(pin));
+  METLIBS_LOG_SCOPE();
 
   // if difference
-  std::string fspec1,fspec2;
-  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
+  miutil::KeyValue_v fspec1,fspec2;
+  if (splitDifferenceCommandString(kvs,fspec1,fspec2)) {
     return makeDifferenceField(fspec1, fspec2, const_ptime, vfout);
   }
 
@@ -522,7 +519,7 @@ bool FieldPlotManager::makeFields(const std::string& pin,
 
   vector<FieldRequest> vfieldrequest;
   std::string plotName;
-  parsePin(pin, vfieldrequest, plotName);
+  parsePin(kvs, vfieldrequest, plotName);
 
   for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
 
@@ -600,8 +597,8 @@ void FieldPlotManager::freeFields(const std::vector<Field*>& fv)
     fieldManager->freeField(fv[i]);
 }
 
-bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
-    const std::string& fspec2, const miTime& const_ptime, vector<Field*>& fv)
+bool FieldPlotManager::makeDifferenceField(const miutil::KeyValue_v& fspec1,
+    const miutil::KeyValue_v& fspec2, const miTime& const_ptime, vector<Field*>& fv)
 {
   fv.clear();
   vector<Field*> fv1;
@@ -879,68 +876,58 @@ gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
   return fieldManager->getGrid(model);
 }
 
-void FieldPlotManager::parseString( const std::string& pin,
+void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
     FieldRequest& fieldrequest,
     vector<std::string>& paramNames,
-    std::string& plotName )
+    std::string& plotName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pin));
 
-  std::vector<std::string> tokens;
-  //NB! what about ""
-  boost::algorithm::split(tokens, pin, boost::algorithm::is_space());
-  size_t n = tokens.size();
-  std::string key;
-
-  for (size_t k = 1; k < n; k++) {
-    std::vector<std::string> vtoken;
-    boost::algorithm::split(vtoken, tokens[k], boost::algorithm::is_any_of(std::string("=")));
-    if (vtoken.size() >= 2) {
-      key = boost::algorithm::to_lower_copy(vtoken[0]);
+  for (const miutil::KeyValue& kv : pin) {
+    if (!kv.value().empty()) {
+      const std::string& key = kv.key();
       if (key == "model") {
-        fieldrequest.modelName = vtoken[1];
+        fieldrequest.modelName = kv.value();
       }else if (key == "parameter") {
-        paramNames.push_back(vtoken[1]);
+        paramNames.push_back(kv.value());
         fieldrequest.plotDefinition=false;
       }else if (key == "plot") {
-        plotName = vtoken[1];
+        plotName = kv.value();
         fieldrequest.plotDefinition=true;
       } else if (key == "vcoord") {
-        fieldrequest.zaxis = vtoken[1];
+        fieldrequest.zaxis = kv.value();
       } else if (key == "tcoor") {
-        fieldrequest.taxis = vtoken[1];
+        fieldrequest.taxis = kv.value();
       } else if (key == "ecoord") {
-        fieldrequest.eaxis = vtoken[1];
+        fieldrequest.eaxis = kv.value();
       } else if (key == "vlevel") {
-        fieldrequest.plevel = vtoken[1];
+        fieldrequest.plevel = kv.value();
       } else if (key == "elevel") {
-        fieldrequest.elevel = vtoken[1];
+        fieldrequest.elevel = kv.value();
       } else if (key == "grid") {
-        fieldrequest.grid = vtoken[1];
+        fieldrequest.grid = kv.value();
       } else if (key == "unit") {
-        fieldrequest.unit = vtoken[1];
-      } else if (key == "vunit" && vtoken[1] == "FL") {
+        fieldrequest.unit = kv.value();
+      } else if (key == "vunit" && kv.value() == "FL") {
         fieldrequest.flightlevel=true;
       } else if (key == "time") {
-        fieldrequest.ptime = miTime(vtoken[1]);
+        fieldrequest.ptime = miTime(kv.value());
       } else if (key == "reftime") {
-        fieldrequest.refTime = vtoken[1];
+        fieldrequest.refTime = kv.value();
       } else if (key == "refhour") {
-        fieldrequest.refhour = atoi(vtoken[1].c_str());
+        fieldrequest.refhour = kv.toInt();
       } else if (key == "refoffset") {
-        fieldrequest.refoffset = atoi(vtoken[1].c_str());
+        fieldrequest.refoffset = kv.toInt();
       } else if (key == "hour.offset") {
-        fieldrequest.hourOffset = atoi(vtoken[1].c_str());
+        fieldrequest.hourOffset = kv.toInt();
       } else if (key == "min.offset") {
-        fieldrequest.minOffset = atoi(vtoken[1].c_str());
+        fieldrequest.minOffset = kv.toInt();
       } else if (key == "hour.diff") {
-        fieldrequest.time_tolerance = atoi(vtoken[1].c_str()) * 60; //time_tolerance in minutes, hour.diff in hours
+        fieldrequest.time_tolerance = kv.toInt() * 60; //time_tolerance in minutes, hour.diff in hours
       } else if (key == "alltimesteps") {
-        if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true") {
-          fieldrequest.allTimeSteps = true;
-        }
+        fieldrequest.allTimeSteps = kv.toBool();
       } else if (key == "file.palette") {
-        fieldrequest.palette = vtoken[1];
+        fieldrequest.palette = kv.value();
       }
     }
   }
@@ -960,7 +947,7 @@ void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
   }
 }
 
-std::string FieldPlotManager::extractPlotName(const std::string& pin)
+std::string FieldPlotManager::extractPlotName(const miutil::KeyValue_v& pin)
 {
   std::string plotName;
   vector<FieldRequest> vfieldrequest;
@@ -968,12 +955,12 @@ std::string FieldPlotManager::extractPlotName(const std::string& pin)
   return plotName;
 }
 
-void FieldPlotManager::parsePin(const std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
+void FieldPlotManager::parsePin(const miutil::KeyValue_v& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pin));
 
   // if difference
-  std::string fspec1,fspec2;
+  miutil::KeyValue_v fspec1,fspec2;
   if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
     parsePin(fspec1, vfieldrequest, plotName);
     return;
@@ -1032,24 +1019,32 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   return vfieldrequest;
 }
 
-bool FieldPlotManager::splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2)
+bool FieldPlotManager::splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2)
 {
-  const size_t p1 = pin.find(" ( ", 0);
-  if (p1 == string::npos)
+  const size_t npos = size_t(-1);
+  const size_t p1 = find(pin, "(");
+  if (p1 == npos)
     return false;
 
-  const size_t p2 = pin.find(" - ", p1 + 3);
-  if (p2 == string::npos)
+  const size_t p2 = find(pin, "-", p1+1);
+  if (p2 == npos)
     return false;
 
-  const size_t p3 = pin.find(" ) ", p2 + 3);
-  if (p3 == string::npos)
+  const size_t p3 = find(pin, ")", p2+1);
+  if (p3 == npos)
     return false;
 
-  const std::string common_start = pin.substr(0, p1),
-      common_end = pin.substr(p3+2);
-  fspec1 = common_start + pin.substr(p1 + 2, p2 - p1 - 2) + common_end;
-  fspec2 = common_start + pin.substr(p2 + 2, p3 - p2 - 2) + common_end;
+  const miutil::KeyValue_v common_start(pin.begin(), pin.begin()+p1);
+  const miutil::KeyValue_v common_end(pin.begin()+p3+1, pin.end());
+
+  fspec1 = common_start;
+  fspec1.insert(fspec1.end(), pin.begin()+p1+1, pin.begin()+p2);
+  fspec1.insert(fspec1.end(), common_end.begin(), common_end.end());
+
+  fspec2 = common_start;
+  fspec2.insert(fspec2.end(), pin.begin()+p2+1, pin.begin()+p3);
+  fspec2.insert(fspec2.end(), common_end.begin(), common_end.end());
+
   return true;
 }
 
@@ -1059,13 +1054,13 @@ std::map<std::string, PlotOptions> FieldPlotManager::fieldPlotOptions;
 
 // update static fieldplotoptions
 bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
-    const std::string& optstr)
+    const miutil::KeyValue_v& opts)
 {
-  return PlotOptions::parsePlotOption(optstr, fieldPlotOptions[name]);
+  return PlotOptions::parsePlotOption(opts, fieldPlotOptions[name]);
 }
 
 void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
-    map<std::string,std::string>& fieldoptions)
+    map<std::string, miutil::KeyValue_v>& fieldoptions)
 {
   // The selected PlotOptions elements are used to activate elements
   // in the FieldDialog (any remaining will be used unchanged from setup)
@@ -1076,7 +1071,7 @@ void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
   for (const std::string& fn : fieldNames) {
     PlotOptions po;
     getFieldPlotOptions(fn, po);
-    fieldoptions[fn] = po.toString();
+    fieldoptions[fn] = po.toKeyValueList();
   }
 }
 

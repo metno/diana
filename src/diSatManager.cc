@@ -37,6 +37,7 @@
 
 #include "diSatPlot.h"
 #include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/was_enabled.h"
@@ -103,12 +104,12 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
   // loop through all PlotInfo's
   bool first = true;
   for (PlotCommand_cp pc : pinfo) {
-    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
     if (!cmd)
       continue;
 
     // make a new SatPlot with a new Sat
-    Sat* satdata = new Sat(cmd->command());
+    Sat* satdata = new Sat(cmd->all());
 
     bool isok= false;
     if (not vsp.empty()) { // if satplots exists
@@ -176,7 +177,7 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
           // rgb and alpha cuts must be redone
           isok= true;
           inuse[j]= true;
-          vsp[j]->setPlotInfo(cmd->command());
+          vsp[j]->setPlotInfo(cmd->all());
           new_vsp.push_back(vsp[j]);
           break;
         }
@@ -185,7 +186,7 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
     if (!isok) { // make new satplot
       SatPlot *sp = new SatPlot;
       sp->setData(satdata); //new sat, with no images
-      sp->setPlotInfo(cmd->command());
+      sp->setPlotInfo(cmd->all());
       new_vsp.push_back(sp);
     }
     first = false;
@@ -1189,22 +1190,14 @@ std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
   //  * PURPOSE:   return times for list of PlotInfo's
   METLIBS_LOG_SCOPE();
 
-  std::vector<std::string> pinfos;
-  for (size_t i = 0; i < vsp.size(); i++)
-    pinfos.push_back(vsp[i]->getPlotInfo());
-
   std::set<miTime> timeset;
-  std::vector< miTime> timevec;
-  int m, nn= pinfos.size();
-  std::string satellite, file;
-
-  for(int i=0; i<nn; i++) {
-    const std::vector<std::string> tokens = miutil::split_protected(pinfos[i], '"', '"');
-    m= tokens.size();
-    if (m<3)
+  for (size_t i = 0; i < vsp.size(); i++) {
+    const miutil::KeyValue_v& pinfo = vsp[i]->getPlotInfo();
+    if (pinfo.size() < 2)
       continue;
-    satellite= tokens[1];
-    file = tokens[2];
+
+    const std::string& satellite= pinfo[0].key(); // FIXME is it 0 or 1?
+    const std::string& file = pinfo[1].key(); // FIXME
 
     if (Prod.find(satellite)==Prod.end()) {
       METLIBS_LOG_ERROR("Product doesn't exist:"<<satellite);
@@ -1237,49 +1230,38 @@ std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
     for (int j=0; j<nf; j++) {
       timeset.insert(subp.file[j].time);
     }
-
   }
 
-  m= timeset.size();
-  if (m>0) {
-    std::set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++)
-      timevec.push_back(*p);
-  }
-  //METLIBS_LOG_DEBUG(fileListChanged);
-  return timevec;
+  return std::vector<miTime>(timeset.begin(), timeset.end());
 }
 
 void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo)
+    int& timediff, const PlotCommand_cp& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
 
   timediff=0;
 
-  std::vector<std::string> tokens= miutil::split_protected(pinfo, '"', '"');
-  int m= tokens.size();
-  if (m<3)
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo);
+  if (!cmd || cmd->size() < 2)
     return;
 
-  std::string satellite= tokens[1];
-  std::string file = tokens[2];
   std::string filename;
-
-  for (unsigned int j=0; j<tokens.size(); j++) {
-    std::vector<std::string> stokens= miutil::split(tokens[j], "=");
-    if (stokens.size()==2 && miutil::to_lower(stokens[0])=="file") {
-      filename = stokens[1];
-    }
-    if (stokens.size()==2 && miutil::to_lower(stokens[0])=="timediff") {
-      timediff=miutil::to_int(stokens[1]);
+  for (const KeyValue& kv : cmd->all()) {
+    if (kv.key() == "file") {
+      filename = kv.value();
+    } else if (kv.key() == "timediff") {
+      timediff = kv.toInt();
     }
   }
 
   //Product with prog times
   if (filename.empty()) {
-    std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
+    const std::string& satellite= cmd->get(0).key(); // FIXME is it 0 or 1?
+    const std::string& file = cmd->get(1).key(); // FIXME
+
+    const std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
     int nfinfo=finfo.size();
     for (int k=0; k<nfinfo; k++) {
       normalTimes.push_back(finfo[k].time);

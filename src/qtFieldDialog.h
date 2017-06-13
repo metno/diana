@@ -34,6 +34,7 @@
 #include <diCommandParser.h>
 #include <diColourShading.h>
 #include <diPattern.h>
+#include "util/diKeyValue.h"
 
 #include <puTools/miTime.h>
 #include <diField/diCommonFieldTypes.h>
@@ -88,7 +89,7 @@ private:
     std::string idnum;
     int  hourOffset;
     int  hourDiff;
-    std::string fieldOpts;
+    miutil::KeyValue_v fieldOpts;
     std::vector<std::string> levelOptions;
     std::vector<std::string> idnumOptions;
     bool minus;
@@ -172,7 +173,7 @@ private:
   void getFieldGroups(const std::string& model, const std::string& refTime,
       bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
   std::string checkFieldOptions(const std::string& str);
-  std::string getFieldOptions(const std::string& fieldName, bool reset) const;
+  miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
 
   bool fieldDifference(const std::string& str,
       std::string& field1, std::string& field2) const;
@@ -183,7 +184,7 @@ private:
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
 
-  std::string getParamString(int i);
+  miutil::KeyValue_v getParamString(int i);
 
   Controller* m_ctrl;
 
@@ -200,9 +201,9 @@ private:
   std::string editName;  // replacing the modelName during editing
 
   // map<fieldName,fieldOptions>
-  std::map<std::string,std::string> setupFieldOptions;
-  std::map<std::string,std::string> fieldOptions;
-  std::map<std::string,std::string> editFieldOptions;
+  std::map<std::string,miutil::KeyValue_v> setupFieldOptions;
+  std::map<std::string,miutil::KeyValue_v> fieldOptions;
+  std::map<std::string,miutil::KeyValue_v> editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
   std::set<std::string> fieldPrefixes;
@@ -225,7 +226,7 @@ private:
   QStringList      densityStringList;
   std::vector<std::string> vectorunit;
   std::vector<std::string> extremeType;
-  std::string currentFieldOpts;
+  miutil::KeyValue_v currentFieldOpts;
   bool     currentFieldOptsInEdit;
 
   // info about selected model, fields, levels, idnums and plot options

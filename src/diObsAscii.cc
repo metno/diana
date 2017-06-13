@@ -37,7 +37,7 @@
 #include <diObsAscii.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
-#include "diStringPlotCommand.h"
+#include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
@@ -181,7 +181,7 @@ void ObsAscii::parseHeaderBrackets(const std::string& str)
   } else if (pstr[0] == "SKIP_DATA_LINES" && pstr.size()>1) {
     asciiSkipDataLines = miutil::to_int(pstr[1]);
   } else if (pstr[0] == "LABEL") {
-    labels.push_back(std::make_shared<StringPlotCommand>("LABEL", str));
+    labels.push_back(std::make_shared<LabelPlotCommand>(str.substr(5)));
   } else if (pstr[0] == "SEPARATOR") {
     separator = pstr[1];
   }

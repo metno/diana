@@ -1,6 +1,7 @@
 #include "diPlotCommand.h"
 
 #include "diKVListPlotCommand.h"
+#include "diLabelPlotCommand.h"
 #include "diStringPlotCommand.h"
 #include "diStationPlotCommand.h"
 #include "util/string_util.h"
@@ -26,10 +27,22 @@ size_t identify(const std::string& commandKey, const std::string& text)
     return 0;
 }
 
+const std::vector<std::string> commandKeysKV = {
+  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBS"
+};
+
 PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)
 {
   if (size_t start = identify(commandKey, text))
       return std::make_shared<const KVListPlotCommand>(commandKey, text.substr(start));
+  else
+    return PlotCommand_cp();
+}
+
+PlotCommand_cp identifyLabel(const std::string& text)
+{
+  if (size_t start = identify("LABEL", text))
+      return std::make_shared<LabelPlotCommand>(text.substr(start));
   else
     return PlotCommand_cp();
 }
@@ -42,16 +55,20 @@ PlotCommand_cp makeCommandVcross(const std::string& text)
 
 PlotCommand_cp makeCommand(const std::string& text)
 {
-  if (PlotCommand_cp c = identifyKeyValue("MAP", text))
+  for (const std::string& ck : commandKeysKV) {
+    if (PlotCommand_cp c = identifyKeyValue(ck, text))
+      return c;
+  }
+  if (PlotCommand_cp c = identifyLabel(text))
     return c;
-  if (PlotCommand_cp c = identifyKeyValue("AREA", text))
-    return c;
-  if (PlotCommand_cp c = identifyKeyValue("DRAWING", text))
+
+  if (PlotCommand_cp c = identifyLabel(text))
     return c;
 
   if (identify("STATION", text))
     return StationPlotCommand::parseLine(text);
 
+  // OBJECTS, WEBMAP
   return std::make_shared<StringPlotCommand>(text);
 }
 

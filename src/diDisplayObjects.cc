@@ -33,7 +33,7 @@
 
 #include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
 #include "diWeatherArea.h"
@@ -73,26 +73,20 @@ bool DisplayObjects::define(const PlotCommand_cp& pc)
 {
   METLIBS_LOG_SCOPE();
 
-  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
   if (!cmd)
     return 0;
-  const std::string& pi = cmd->command();
 
   init();
-  pin=pi;
-  const vector<std::string> tokens = miutil::split_protected(pi, '"','"');
-  const int n= tokens.size();
-  if (n<2)
-    return false;
+  pin = cmd->all();
 
-  for (int i=0; i<n; i++){
-    std::string token = miutil::to_lower(tokens[i]);
-    if (miutil::contains(token, "types=")){
-      setSelectedObjectTypes(token);
+  for (const miutil::KeyValue& kv : cmd->all()){
+    if (kv.key() == "types") {
+      setSelectedObjectTypes(kv.value());
     } else {
-      const vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
-      if (stokens.size()==2) {
-        const std::string key = miutil::to_lower(stokens[0]), value = stokens[1];
+      {
+        const std::string& key = kv.key();
+        const std::string& value = kv.value();
         METLIBS_LOG_DEBUG("key,value" << key << " " << value);
         if (key=="file") {
           int l= value.length();
@@ -101,22 +95,18 @@ bool DisplayObjects::define(const PlotCommand_cp& pc)
           itsTime= timeFromString(tstr);
           autoFile= false;
         } else if (key=="name") {
-          if (value[0]=='"'){
-            objectname = value.substr(1,value.length()-2);
-          } else {
             objectname = value;
-          }
         } else if (key=="time") {
           itsTime = timeFromString(value);
           autoFile= false;
         } else if (key == "timediff") {
-          timeDiff = atoi(value.c_str());
+          timeDiff = kv.toInt();
         } else if (key=="alpha" || key=="alfa") {
-          alpha = (int) (atof(value.c_str())*255);
+          alpha = int(kv.toDouble()*255);
         } else if (key=="frontlinewidth") {
-          newfrontlinewidth = atoi(value.c_str());
+          newfrontlinewidth = kv.toInt();
         } else if (key=="fixedsymbolsize") {
-          fixedsymbolsize= atoi(value.c_str());
+          fixedsymbolsize= kv.toInt();
         } else if (key=="symbolfilter") {
           const std::vector<std::string> vals = miutil::split(value, ",");
           symbolfilter.insert(symbolfilter.end(), vals.begin(), vals.end());

@@ -96,14 +96,14 @@ static std::string findOption(CommandParser& cp,
   return c;
 }
 
-QPixmap createPixmapForStyle(const std::string& options)
+QPixmap createPixmapForStyle(const miutil::KeyValue_v& options)
 {
   QPixmap pixmap;
 
   CommandParser cp;
   cp.addKey(PlotOptions::key_colour,         "",0,CommandParser::cmdString);
   cp.addKey(PlotOptions::key_palettecolours, "",0,CommandParser::cmdString);
-  std::vector<ParsedCommand> vpcopt = cp.parse(options);
+  std::vector<ParsedCommand> vpcopt = cp.fromKeyValueList(options);
 
   { const std::string c = findOption(cp, vpcopt, PlotOptions::key_palettecolours);
     if (!c.empty())

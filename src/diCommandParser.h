@@ -31,6 +31,7 @@
 #ifndef diCommandParser_h
 #define diCommandParser_h
 
+#include "util/diKeyValue.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -141,6 +142,9 @@ public:
 		    const std::string value, int valueIndex=0) const;
 
   std::string unParse(const std::vector<ParsedCommand>& vpc) const;
+
+  miutil::KeyValue_v toKeyValueList(const std::vector<ParsedCommand>& vpc) const;
+  std::vector<ParsedCommand> fromKeyValueList(const miutil::KeyValue_v& kvs) const;
 };
 
 #endif

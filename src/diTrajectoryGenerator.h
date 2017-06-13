@@ -2,6 +2,7 @@
 #ifndef DITRAJECTORYGENRATOR_H
 #define DITRAJECTORYGENRATOR_H 1
 
+#include <util/diKeyValue.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
 #include <string>
@@ -93,7 +94,7 @@ private:
 
   // data used during compute()
 
-  std::vector<std::string> pinfo;
+  miutil::KeyValue_v pinfo;
   TrajectoryData_v trajectories;
   std::vector<bool> mAborted;
   float *xt, *yt, *u1, *v1, *u2, *v2, *rx, *ry;

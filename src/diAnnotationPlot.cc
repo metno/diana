@@ -35,7 +35,7 @@
 #include "diImageGallery.h"
 #include "diGLPainter.h"
 #include "diLegendPlot.h"
-#include "diStringPlotCommand.h"
+#include "diLabelPlotCommand.h"
 #include "util/charsets.h"
 
 #include <puTools/miStringFunctions.h>
@@ -51,10 +51,22 @@
 using namespace std;
 using namespace miutil;
 
-inline std::vector<std::string> anno_split(const std::string& text, const char* separators)
+namespace {
+const char QUOTE = '"';
+
+std::string unquote(const std::string& value)
 {
-  return miutil::split_protected(text, '\"', '\"', separators, true);
+  if (value.size() >= 2 && value.front() == QUOTE && value.back() == QUOTE)
+    return std::string(++value.begin(), --value.end());
+  else
+    return value;
 }
+
+std::vector<std::string> anno_split(const std::string& text, const char* separators)
+{
+  return miutil::split_protected(text, QUOTE, QUOTE, separators, true);
+}
+} // namespace
 
 AnnotationPlot::AnnotationPlot()
 {
@@ -81,7 +93,7 @@ void AnnotationPlot::init()
 {
   plotRequested = false;
   isMarked = false;
-  labelstrings = std::string();
+  labelstrings.clear();
   productname = std::string();
   editable = false;
   useAnaTime = false;
@@ -178,18 +190,14 @@ void AnnotationPlot::setfillcolour(const Colour& c)
 
 bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
 {
-  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  LabelPlotCommand_cp cmd = std::dynamic_pointer_cast<const LabelPlotCommand>(pc);
   if (!cmd)
     return false;
 
   poptions.fontname = "BITMAPFONT"; //default
   poptions.textcolour = Colour("black");
-  setPlotInfo(cmd->command());
-
-  useAnaTime = miutil::contains(getPlotInfo(), "@") || miutil::contains(getPlotInfo(), "&");
-
-  const vector<std::string> tokens = miutil::split_protected(getPlotInfo(), '"', '"');
-  if (tokens.size() < 2)
+  setPlotInfo(cmd->all());
+  if (cmd->size() < 2)
     return false;
 
   cmargin = 0.007f;
@@ -199,61 +207,49 @@ bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
   clinewidth = 1;
   cxratio = 0;
   cyratio = 0;
+  useAnaTime = false;
 
-  for (size_t i = 1; i < tokens.size(); i++) { // start from 1!
-    const std::string& labeltype = tokens[i];
-    const std::string LABELTYPE = miutil::to_upper(labeltype);
-    const vector<std::string> stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
-    std::string key, value;
-    if (stokens.size() > 1) {
-      key = miutil::to_lower(stokens[0]);
-      value = stokens[1];
-    }
-    if (LABELTYPE == "DATA") {
+  for (const miutil::KeyValue& kv : ooptions) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
+    if (value.find_first_of("@&") != std::string::npos)
+      useAnaTime = true;
+    if (!kv.hasValue() && key == "data") {
       atype = anno_data;
-    } else if (miutil::contains(LABELTYPE, "ANNO=")) {
+    } else if (key == "anno" && kv.hasValue()) {
       //complex annotation with <><>
       atype = anno_text;
       Annotation a;
-      a.str = labeltype.substr(5, labeltype.length() - 5);
-      if (a.str[0] == '"')
-        a.str = a.str.substr(1, a.str.length() - 2);
+      a.str = unquote(value);
       a.col = poptions.textcolour;
       a.spaceLine = false;
       annotations.push_back(a);
-    } else if (miutil::contains(LABELTYPE, "TEXT=")) {
+    } else if (key == "text" && kv.hasValue()) {
       atype = anno_text;
-      if (stokens.size() > 1) {
-        Annotation a;
-        a.str = stokens[1];
-        if (a.str[0] == '"')
-          a.str = a.str.substr(1, a.str.length() - 2);
-        a.col = poptions.textcolour;
-        std::string s = a.str;
-        miutil::trim(s);
-        a.spaceLine = s.length() == 0;
-        annotations.push_back(a);
-      }
+      Annotation a;
+      a.str = unquote(value);
+      a.col = poptions.textcolour;
+      a.spaceLine = miutil::trimmed(a.str).empty();
+      annotations.push_back(a);
     } else if (key == "productname") {
       productname = value;
     } else {
-      labelstrings += " " + tokens[i];
+      labelstrings.push_back(kv);
       if (key == "margin") {
-        cmargin = atof(value.c_str());
+        cmargin = kv.toFloat();
       } else if (key == "xoffset") {
-        cxoffset = atof(value.c_str());
+        cxoffset = kv.toFloat();
       } else if (key == "yoffset") {
-        cyoffset = atof(value.c_str());
+        cyoffset = kv.toFloat();
       } else if (key == "xratio") {
-        cxratio = atof(value.c_str());
+        cxratio = kv.toFloat();
       } else if (key == "yratio") {
-        cyratio = atof(value.c_str());
+        cyratio = kv.toFloat();
       } else if (key == "clinewidth") {
-        clinewidth = atoi(value.c_str());
+        clinewidth = kv.toInt();
       } else if (key == "plotrequested") {
-        plotRequested = (value == "true");
+        plotRequested = kv.toBool();
       }
-
     }
   }
   splitAnnotations();
@@ -1196,9 +1192,10 @@ PlotCommand_cp AnnotationPlot::writeAnnotation(const std::string& prodname)
 {
   if (prodname != productname)
     return PlotCommand_cp();
-  std::string str = "LABEL";
+
+  LabelPlotCommand_p cmd = std::make_shared<LabelPlotCommand>();
   for (const Annotation& a: annotations) {
-    str += " anno=";
+    std::string str;
     for (const element& annoEl : a.annoElements) {
       //write annoelement here !
       str += writeElement(annoEl);
@@ -1207,10 +1204,11 @@ PlotCommand_cp AnnotationPlot::writeAnnotation(const std::string& prodname)
       str += "<horalign=right>";
     else if (a.hAlign == align_center)
       str += "<horalign=center>";
+    cmd->add("anno", str);
   }
-  str += labelstrings;
+  cmd->add(labelstrings);
 
-  return std::make_shared<StringPlotCommand>("LABEL", str);
+  return cmd;
 }
 
 void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno, bool newProduct)

@@ -12,13 +12,11 @@ struct SelectedPlot {
   ResolvedPlot_cp resolved;
 
   ModelReftime model;
-  string_v options;
+  miutil::KeyValue_v options;
   bool visible;
 
   const std::string& name() const
     { return resolved->name(); }
-
-  std::string optionString() const;
 
   SelectedPlot(const ModelReftime& mr)
     : model(mr), visible(true) { }
@@ -73,8 +71,8 @@ public:
     { requireField(model, getResolvedField(model, field_id)); }
   void requireField(const ModelReftime& model, InventoryBase_cp field);
 
-  int selectPlot(const ModelReftime& model, const std::string& plot, const string_v& options);
-  int insertPlot(const ModelReftime& model, const std::string& plot, const string_v& options, int index);
+  int selectPlot(const ModelReftime& model, const std::string& plot, const miutil::KeyValue_v &options);
+  int insertPlot(const ModelReftime& model, const std::string& plot, const miutil::KeyValue_v &options, int index);
   bool removePlot(int index);
 
   //! returns the first model that has a visible SelectedPlot

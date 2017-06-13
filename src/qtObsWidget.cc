@@ -33,7 +33,7 @@
 
 #include "qtObsWidget.h"
 
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "qtButtonLayout.h"
 #include "qtUtility.h"
@@ -733,7 +733,7 @@ std::string ObsWidget::makeString()
   return str;
 }
 
-PlotCommand_cp ObsWidget::getOKString(bool forLog)
+KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
 {
   shortname.clear();
 
@@ -742,7 +742,7 @@ PlotCommand_cp ObsWidget::getOKString(bool forLog)
   dVariables.data = datatypeButtons->getOKString();
 
   if(!dVariables.data.size() && !forLog)
-    return PlotCommand_cp();
+    return KVListPlotCommand_cp();
 
   if(parameterButtons)
     dVariables.parameter = parameterButtons->getOKString(forLog);
@@ -834,7 +834,7 @@ PlotCommand_cp ObsWidget::getOKString(bool forLog)
 
   //Criteria
   if (str.empty())
-    return PlotCommand_cp();
+    return KVListPlotCommand_cp();
 
   bool addsort = true;
   if(forLog){
@@ -880,7 +880,7 @@ PlotCommand_cp ObsWidget::getOKString(bool forLog)
     str+=",";
     str+= descsortButton->isChecked() ? "desc" : "asc";
   }
-  return std::make_shared<StringPlotCommand>(str);
+  return std::make_shared<KVListPlotCommand>("OBS", str);
 }
 
 std::string ObsWidget::getShortname()
@@ -892,18 +892,18 @@ void ObsWidget::putOKString(const PlotCommand_cp& str)
 {
   dVariables.misc.clear();
 
-  if (StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(str))
-    decodeString(cmd->command(), dVariables, false);
+  if (KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(str))
+    decodeString(cmd->all(), dVariables, false);
   updateDialog(true);
 
   Q_EMIT getTimes();
 }
 
-void ObsWidget::readLog(const std::string& str)
+void ObsWidget::readLog(const miutil::KeyValue_v& kvs)
 {
   setFalse();
   dVariables.misc.clear();
-  decodeString(str,dVariables,true);
+  decodeString(kvs, dVariables,true);
   updateDialog(false);
 }
 
@@ -1186,34 +1186,29 @@ void ObsWidget::updateDialog(bool setChecked)
   }
 }
 
-void ObsWidget::decodeString(const std::string& str, dialogVariables& var, bool fromLog)
+void ObsWidget::decodeString(const miutil::KeyValue_v& kvs, dialogVariables& var, bool fromLog)
 {
-  vector<std::string> parts= miutil::split(str, " ", true);
-  vector<std::string> tokens;
-  int nparts= parts.size();
-
-  for (int i=0; i<nparts; i++) {
-    tokens= miutil::split(parts[i], 1, "=", false);
-    if (tokens.size()==2) {
-      if (tokens[0]=="plot" ){
-        if ( tokens[1] == "Enkel" )
+  for (const miutil::KeyValue& kv : kvs) {
+    if (kv.hasValue()) {
+      if (kv.key() == "plot" ){
+        if (kv.value() == "Enkel" )
           var.plotType = "List";
-        else if ( tokens[1] == "Trykk" )
+        else if (kv.value() == "Trykk" )
           var.plotType = "Pressure";
         else
-          var.plotType = tokens[1];
-      } else if (tokens[0]=="data" ){
-        var.data = miutil::split(tokens[1], 0, ",");
-      } else if (tokens[0]=="parameter" ){
-        var.parameter = miutil::split(tokens[1], 0, ",");
-      } else if (tokens[0]=="criteria" ){
+          var.plotType = kv.value();
+      } else if (kv.key() == "data" ){
+        var.data = miutil::split(kv.value(), 0, ",");
+      } else if (kv.key() == "parameter" ){
+        var.parameter = miutil::split(kv.value(), 0, ",");
+      } else if (kv.key() == "criteria" ){
         if(!fromLog){
-          var.misc[tokens[0]]="true";
-          std::string ss = tokens[1];
+          var.misc[kv.key()]="true";
+          std::string ss = kv.value();
           miutil::replace(ss, ',', ' ');
           saveCriteria(miutil::split(ss, 0, ";"),"");
         } else {
-          std::string ss = tokens[1];
+          std::string ss = kv.value();
           miutil::replace(ss, ',', ' ');
           vector<std::string> vstr = miutil::split(ss, 0, ";");
           if(vstr.size()>1){
@@ -1221,11 +1216,11 @@ void ObsWidget::decodeString(const std::string& str, dialogVariables& var, bool 
             vstr.erase(vstr.begin());
             saveCriteria(vstr,name);
           } else {
-            saveCriteria(miutil::split(tokens[1], ","));
+            saveCriteria(miutil::split(kv.value(), ","));
           }
         }
       } else {
-        var.misc[miutil::to_lower(tokens[0])]=tokens[1];
+        var.misc[kv.key()] = kv.value();
       }
     }
   }

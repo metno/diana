@@ -4,7 +4,27 @@
 
 #include <sstream>
 
+static const char QUOTE = '"';
+
 namespace miutil {
+
+KeyValue::KeyValue()
+  : mHasValue(false)
+  , mKeptQuotes(false)
+{ }
+
+KeyValue::KeyValue(const std::string& k, const std::string& v, bool keptQuotes)
+  : mKey(k)
+  , mValue(v)
+  , mHasValue(true)
+  , mKeptQuotes(keptQuotes)
+{ }
+
+KeyValue::KeyValue(const std::string& k)
+  : mKey(k)
+  , mHasValue(false)
+  , mKeptQuotes(false)
+{ }
 
 int KeyValue::toInt(bool& ok, int def) const
 {
@@ -174,22 +194,22 @@ void parsingFromDrawingManager()
 }
 #endif
 
-KeyValue_v splitKeyValue(const std::string& infostr)
+KeyValue_v splitKeyValue(const std::string& infostr, bool keepQuotes)
 {
   KeyValue_v opts;
-  const char QUOTE = '"';
   for (const std::string& s : miutil::split_protected(infostr, QUOTE, QUOTE)) {
-    const size_t ieq = s.find("=");
+    const size_t ieq = s.find("="); // FIXME how should this handle quoted keys?
     if (ieq == std::string::npos) {
       opts.push_back(miutil::KeyValue(s)); // hasValue() == false
     } else {
       size_t vbegin = ieq+1, vend = s.size();
-      if (ieq+2 < s.size() && s[ieq+1] == QUOTE && s.back() == QUOTE) {
+      const bool unquote = (!keepQuotes && ieq+2 < s.size() && s[ieq+1] == QUOTE && s.back() == QUOTE);
+      if (unquote) {
         vbegin += 1;
         vend -= 1;
       }
       opts.push_back(miutil::KeyValue(miutil::to_lower(s.substr(0, ieq)),
-                                      s.substr(vbegin, vend-vbegin)));
+                                      s.substr(vbegin, vend-vbegin), keepQuotes));
     }
   }
   return opts;
@@ -201,11 +221,11 @@ std::ostream& operator<<(std::ostream& out, const miutil::KeyValue& kv)
   if (kv.hasValue()) {
     out << '=';
     // TODO check if this way of enclosing in '"' is correct
-    const bool space = (kv.value().find(" ") != std::string::npos);
-    if (space)
+    const bool quote = !kv.keptQuotes() && (kv.value().find(" ") != std::string::npos);
+    if (quote)
       out << '"';
     out << kv.value(); // FIXME what if this contains '"' ??? => replace(v, '%', "%25") replace(v, '"', "%22") and reverse in decode
-    if (space)
+    if (quote)
       out << '"';
   }
   return out;

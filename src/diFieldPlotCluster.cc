@@ -77,7 +77,7 @@ void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 
 std::vector<miutil::miTime> FieldPlotCluster::getTimes()
 {
-  std::vector<std::string> pinfos;
+  std::vector<miutil::KeyValue_v> pinfos;
   for (size_t i = 0; i < plots_.size(); i++) {
     pinfos.push_back(plots_[i]->getPlotInfo());
     METLIBS_LOG_DEBUG("Field plotinfo:" << plots_[i]->getPlotInfo());
@@ -144,7 +144,7 @@ bool FieldPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float y
 miutil::miTime FieldPlotCluster::getFieldReferenceTime() const
 {
   if (!plots_.empty()) {
-    const std::string& pinfo = at(0)->getPlotInfo();
+    const miutil::KeyValue_v& pinfo = at(0)->getPlotInfo();
     return fieldplotm_->getFieldReferenceTime(pinfo);
   } else {
     return miutil::miTime();

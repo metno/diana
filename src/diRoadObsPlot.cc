@@ -57,7 +57,7 @@ using namespace miutil;
 static const float undef = -32767.0; //should be defined elsewhere
 #endif
 
-RoadObsPlot::RoadObsPlot(const std::string& pin, ObsPlotType plottype)
+RoadObsPlot::RoadObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   : ObsPlot(pin, plottype)
 {
 }

@@ -113,6 +113,7 @@ public:
   typedef std::vector<std::string> string_v;
   typedef std::set<std::string> string_s;
   typedef std::map<std::string, std::string> string_string_m;
+  typedef std::map<std::string, miutil::KeyValue_v> string_kv_m;
   typedef std::set< std::pair<Source_p,Time> > Source_Reftime_ps;
 
   QtManager();
@@ -141,7 +142,7 @@ public:
   vctime_v getModelReferenceTimes(const std::string& modelName);
 
   //! get plot options used previously in this session, or those configured in setup
-  std::string getPlotOptions(const std::string& field, bool fromSetup) const;
+  miutil::KeyValue_v getPlotOptions(const std::string& field, bool fromSetup) const;
 
   /*! get a list of plot names that can be cosen for the given model
    * \param model the model name for which plots shall be listed, from getAllModels
@@ -154,7 +155,7 @@ public:
   std::string getModelAt(int index) const;
   vctime_t getReftimeAt(int index) const;
   std::string getFieldAt(int index) const;
-  std::string getOptionsAt(int index) const;
+  const miutil::KeyValue_v &getOptionsAt(int index) const;
   bool getVisibleAt(int index) const;
 
   void fieldChangeStart(bool script);
@@ -181,8 +182,8 @@ public:
     std::string mField;
   };
 
-  int addField(const PlotSpec& ps, const std::string& fieldOpts, int index, bool updateUserFieldOptions=true);
-  void updateField(int index, const std::string& fieldOpts);
+  int addField(const PlotSpec& ps, const miutil::KeyValue_v &fieldOpts, int index, bool updateUserFieldOptions=true);
+  void updateField(int index, const miutil::KeyValue_v &fieldOpts);
   void removeField(int index);
   void moveField(int indexOld, int indexNew);
   void removeAllFields();
@@ -275,7 +276,7 @@ Q_SIGNALS:
 
 private:
   int insertField(const ModelReftime& model, const std::string& plot,
-      const string_v& options, int idx);
+      const miutil::KeyValue_v &options, int idx);
 
   SelectedPlot_p findSelectedPlot(const PlotSpec& ps);
   int findSelectedPlotIndex(const PlotSpec& ps);
@@ -345,7 +346,7 @@ private:
   cs_zoom_t mCrossectionZooms;
 
   //! Maps fieldname to field options set via the GUI (ie not via quickmenu). These are saved in writePlotOptions().
-  string_string_m userFieldOptions;
+  string_kv_m userFieldOptions;
 
   Marker_v mMarkers;
   float mReferencePosition;

@@ -45,14 +45,6 @@ bool parseFunctionWithArgs(std::string function, NameItem& ni, bool need_parens=
 
 // ========================================================================
 
-std::string kv2string(const miutil::KeyValue& kv)
-{
-  if (kv.value().empty())
-    return kv.key();
-  else
-    return kv.key() + "=" + kv.value();
-}
-
 const vcross::Setup::string_string_m EMPTY_STRING_STRING_MAP;
 
 } // anonymous namespace
@@ -105,7 +97,7 @@ ConfiguredPlot_cp parsePlotLine(const std::string& line)
         return ConfiguredPlot_cp();
       }
     } else {
-      pc->options.push_back(kv2string(kv));
+      pc->options.push_back(kv);
     }
   }
 
@@ -229,86 +221,90 @@ ConfiguredPlot_cp Setup::findPlot(const std::string& name) const
   return ConfiguredPlot_cp();
 }
 
-std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
+miutil::KeyValue_v Setup::getPlotOptions(ConfiguredPlot_cp cp) const
 {
   METLIBS_LOG_SCOPE();
 
   if (!cp)
-    return std::string();
+    return miutil::KeyValue_v();
 
   PlotOptions po;
-  std::string op_c = boost::algorithm::join(cp->options, " ");
-
-  PlotOptions::parsePlotOption(op_c, po);
+  PlotOptions::parsePlotOption(cp->options, po);
   
   if (po.linetype.name.length() == 0)
     po.linetype = Linetype::getDefaultLinetype();
   if (po.undefLinetype.name.length() == 0)
     po.undefLinetype = Linetype::getDefaultLinetype();
 
-  std::ostringstream ostr;
-  
+  miutil::KeyValue_v opts;
+
   if (cp->type == ConfiguredPlot::T_CONTOUR) {
     if (po.colours.size() < 2 || po.colours.size() > 3) {
-      ostr << PlotOptions::key_colour << '=' << po.linecolour.Name();
+      miutil::add(opts, PlotOptions::key_colour, po.linecolour.Name());
     } else {
-      ostr << PlotOptions::key_colours << '=' << po.colours[0].Name();
+      std::ostringstream ostr;
+      ostr << po.colours[0].Name();
       for (unsigned int j = 1; j < po.colours.size(); j++)
         ostr << "," << po.colours[j].Name();
+      miutil::add(opts, PlotOptions::key_colours, ostr.str());
     }
     if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
-      ostr << ' ' << PlotOptions::key_linetype << '=' << po.linetype.name;
+      miutil::add(opts, PlotOptions::key_linetype, po.linetype.name);
     } else {
-      ostr << ' ' << PlotOptions::key_linetypes << '=' << po.linetypes[0].name;
+      std::ostringstream ostr;
+      ostr << po.linetypes[0].name;
       for (unsigned int j = 1; j < po.linetypes.size(); j++)
         ostr << "," << po.linetypes[j].name;
+      ostr << ' ' << PlotOptions::key_linetypes << '=' << po.linetypes[0].name;
     }
     if (po.linewidths.size() < 2 || po.linewidths.size() > 3) {
-      ostr << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth;
+      miutil::add(opts, PlotOptions::key_linewidth, po.linewidth);
     } else {
-      ostr << ' ' << PlotOptions::key_linewidths << '=' << po.linewidths[0];
+      std::ostringstream ostr;
+      ostr << po.linewidths[0];
       for (unsigned int j = 1; j < po.linewidths.size(); j++)
         ostr << "," << po.linewidths[j];
+      miutil::add(opts, PlotOptions::key_linewidths, ostr.str());
     }
     if (po.linevalues.size() == 0 && po.loglinevalues.size() == 0) {
-      ostr << ' ' << PlotOptions::key_lineinterval << '=' << po.lineinterval;
+      miutil::add(opts, PlotOptions::key_lineinterval, po.lineinterval);
       if (po.zeroLine >= 0)
-        ostr << ' ' << PlotOptions::key_zeroLine << '=' << po.zeroLine;
+        miutil::add(opts, PlotOptions::key_zeroLine, po.zeroLine);
     }
-    ostr << ' ' << PlotOptions::key_lineSmooth << '=' << po.lineSmooth
-         << ' ' << PlotOptions::key_valueLabel << '=' << po.valueLabel
-         << ' ' << PlotOptions::key_labelSize << '=' << po.labelSize;
-    ostr << ' ' << PlotOptions::key_basevalue << '=' << po.base;
+    miutil::add(opts, PlotOptions::key_lineSmooth, po.lineSmooth);
+    miutil::add(opts, PlotOptions::key_valueLabel, po.valueLabel);
+    miutil::add(opts, PlotOptions::key_labelSize, po.labelSize);
+    miutil::add(opts, PlotOptions::key_basevalue, po.base);
     if (po.minvalue > -1.e+35)
-      ostr << ' ' << PlotOptions::key_minvalue << '=' << po.minvalue;
+      miutil::add(opts, PlotOptions::key_minvalue, po.minvalue);
     else
-      ostr << ' ' << PlotOptions::key_minvalue << "=off";
+      miutil::add(opts, PlotOptions::key_minvalue, "off");
     if (po.maxvalue < 1.e+35)
-      ostr << ' ' << PlotOptions::key_maxvalue << '=' << po.maxvalue;
+      miutil::add(opts, PlotOptions::key_maxvalue, po.maxvalue);
     else
-      ostr << ' ' << PlotOptions::key_maxvalue << "=off";
+      miutil::add(opts, PlotOptions::key_maxvalue, "off");
 
-    ostr << ' ' << PlotOptions::key_palettecolours << '=' << po.palettename;
-    ostr << ' ' << PlotOptions::key_table << '=' << po.table;
-    ostr << ' ' << PlotOptions::key_repeat << '=' << po.repeat;
+    miutil::add(opts, PlotOptions::key_palettecolours, po.palettename);
+    miutil::add(opts, PlotOptions::key_table, po.table);
+    miutil::add(opts, PlotOptions::key_repeat, po.repeat);
 
   } else if (cp->type == ConfiguredPlot::T_WIND) {
-    ostr << PlotOptions::key_colour << '=' << po.linecolour.Name()
-         << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth
-         << ' ' << PlotOptions::key_density << '=' << po.density;
+    miutil::add(opts, PlotOptions::key_colour, po.linecolour.Name());
+    miutil::add(opts, PlotOptions::key_linewidth, po.linewidth);
+    miutil::add(opts, PlotOptions::key_density, po.density);
   } else if (cp->type == ConfiguredPlot::T_VECTOR) {
-    ostr << PlotOptions::key_colour << '=' << po.linecolour.Name()
-         << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth
-         << ' ' << PlotOptions::key_density << '=' << po.density
-         << ' ' << PlotOptions::key_vectorunit << '=' << po.vectorunit
-         << ' ' << PlotOptions::key_vectorscale_x << '=' << po.vectorscale_x
-         << ' ' << PlotOptions::key_vectorscale_y << '=' << po.vectorscale_y
-         << ' ' << PlotOptions::key_vectorthickness << '=' << po.vectorthickness;
+    miutil::add(opts, PlotOptions::key_colour, po.linecolour.Name());
+    miutil::add(opts, PlotOptions::key_linewidth, po.linewidth);
+    miutil::add(opts, PlotOptions::key_density, po.density);
+    miutil::add(opts, PlotOptions::key_vectorunit, po.vectorunit);
+    miutil::add(opts, PlotOptions::key_vectorscale_x, po.vectorscale_x);
+    miutil::add(opts, PlotOptions::key_vectorscale_y, po.vectorscale_y);
+    miutil::add(opts, PlotOptions::key_vectorthickness, po.vectorthickness);
   } else {
-    ostr << PlotOptions::key_colour << '=' << po.linecolour.Name();
+    miutil::add(opts, PlotOptions::key_colour, po.linecolour.Name());
   }
 
-  return ostr.str();
+  return opts;
 }
 
 const Setup::string_string_m& Setup::getModelOptions(const std::string& name) const

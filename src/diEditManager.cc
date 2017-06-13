@@ -48,7 +48,7 @@
 #include "diUndoFront.h"
 #include "diFieldEdit.h"
 #include "diAnnotationPlot.h"
-#include "diStringPlotCommand.h"
+#include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/charsets.h"
@@ -422,24 +422,22 @@ void EditManager::readCommandFile(EditProduct & ep)
     }
   }
   //split up in LABEL and OTHER info...
-  PlotCommand_cpv labcom,commands;
+  ep.labels.clear();
+  ep.OKstrings.clear();
   for (std::string s : tmplines) {
     miutil::trim(s);
     if (s.empty())
       continue;
-    StringPlotCommand_cp cmd = std::make_shared<StringPlotCommand>(s);
+    PlotCommand_cp cmd = makeCommand(s);
     if (cmd->commandKey()=="LABEL")
-      labcom.push_back(cmd);
+      ep.labels.push_back(cmd);
     else
-      commands.push_back(cmd);
+      ep.OKstrings.push_back(cmd);
   }
-  ep.labels = labcom;
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
   for (size_t ari=0; ari<ep.labels.size(); ari++)
     METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
-
-  ep.OKstrings = commands;
 }
 
 /*----------------------------------------------------------------------
@@ -1304,8 +1302,8 @@ bool EditManager::startEdit(const EditProduct& ep,
   objm->putCommentStartLines(EdProd.name,EdProdId.name, commentstring);
 
   // set correct time for labels
-  for (PlotCommand_cpv::iterator it = EdProd.labels.begin(); it != EdProd.labels.end(); ++it)
-    insertTime(*it, valid);
+  for (PlotCommand_cp& lc : EdProd.labels)
+    lc = insertTime(lc, valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,newProduct);
   //save merged labels in editobjects
@@ -2089,8 +2087,8 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
 
   // set correct time for labels
-  for (PlotCommand_cpv::iterator p=EdProd.labels.begin();p!=EdProd.labels.end();p++)
-    insertTime(*p,valid);
+  for (PlotCommand_cp& lc : EdProd.labels)
+    lc = insertTime(lc, valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
   //save merged labels in editobjects
@@ -2738,11 +2736,11 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
   if (!isInEdit() || inp.empty())
     return;
 
-  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[0]);
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(inp[0]);
   if (!cmd)
     return;
 
-  const std::string plotName = fieldPlotManager->extractPlotName(cmd->command());
+  const std::string plotName = fieldPlotManager->extractPlotName(cmd->all());
 
   // setting plot options
 
@@ -2751,8 +2749,7 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 
   const size_t npif = std::min(inp.size(), fedits.size());
   for (size_t i=0; i<npif; i++) {
-    if (StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[i]))
-      fedits[i]->editfieldplot->prepare(plotName, cmd->command());
+    fedits[i]->editfieldplot->prepare(plotName, inp[i]);
   }
 
   // for showing single region during and after combine
@@ -2760,8 +2757,7 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
   for (size_t i=0; i<npic; i++) {
     size_t nreg = combinefields[i].size();
     for (size_t r=0; r<nreg; r++) {
-      if (StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[i]))
-        combinefields[i][r]->editfieldplot->prepare(plotName, cmd->command());
+      combinefields[i][r]->editfieldplot->prepare(plotName, inp[i]);
     }
   }
 }
@@ -2788,14 +2784,20 @@ void EditManager::setEditMessage(const string& str)
     apEditmessage = 0;
   }
 
-  if (not str.empty()) {
-    string labelstr;
-    labelstr = "LABEL text=\"" + str + "\"";
-    labelstr += " tcolour=blue bcolour=red fcolour=red:128";
-    labelstr += " polystyle=both halign=left valign=top";
-    labelstr += " xoffset=0.01 yoffset=0.1 fontsize=30";
+  if (!str.empty()) {
+    LabelPlotCommand_p cmd = std::make_shared<LabelPlotCommand>();
+    cmd->add(miutil::KeyValue("text", "\"" + str + "\"", true));
+    cmd->add("tcolour", "blue");
+    cmd->add("bcolour", "red");
+    cmd->add("fcolour", "red:128");
+    cmd->add("polystyle", "both");
+    cmd->add("halign", "left");
+    cmd->add("valign", "top");
+    cmd->add("xoffset", "0.01");
+    cmd->add("yoffset", "0.1");
+    cmd->add("fontsize", "30");
     apEditmessage = new AnnotationPlot();
-    if (!apEditmessage->prepare(std::make_shared<StringPlotCommand>("LABEL", labelstr))) {
+    if (!apEditmessage->prepare(cmd)) {
       delete apEditmessage;
       apEditmessage = 0;
     }
@@ -3354,15 +3356,8 @@ bool EditManager::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-void EditManager::insertTime(PlotCommand_cp& pc, const miTime& time)
+static void insertTime(std::string& es, const miTime& time, bool& english, bool& norwegian)
 {
-  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
-  if (!cmd)
-    return;
-
-  bool english  = false;
-  bool norwegian= false;
-  std::string es= cmd->command();
   if (miutil::contains(es, "$")) {
     if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); english= true; }
     if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
@@ -3389,6 +3384,23 @@ void EditManager::insertTime(PlotCommand_cp& pc, const miTime& time)
     else if (english)
       es= time.format(es, "en", true);
   }
+}
 
-  pc = std::make_shared<StringPlotCommand>(es);
+PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
+{
+  LabelPlotCommand_cp pc = std::dynamic_pointer_cast<const LabelPlotCommand>(lc);
+  if (!pc)
+    return lc;
+
+  bool english  = false;
+  bool norwegian= false;
+
+  LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>(pc->commandKey());
+  for (const KeyValue& kv : pc->all()) {
+    std::string es = kv.value();
+    ::insertTime(es, time, english, norwegian);
+    tpc->add(kv.key(), es);
+  }
+
+  return tpc;
 }

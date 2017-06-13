@@ -34,6 +34,7 @@
 #include "diCommonTypes.h"
 #include "diColourShading.h"
 #include "diPattern.h"
+#include "util/diKeyValue.h"
 
 #include <QCursor>
 #include <QLabel>
@@ -60,7 +61,7 @@ int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
 int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& def_str);
 
 // create a QPixmap showing palettecolours and colour from options
-QPixmap createPixmapForStyle(const std::string& options);
+QPixmap createPixmapForStyle(const miutil::KeyValue_v &options);
 
 // Labels
 

@@ -41,11 +41,13 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
+#include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
 #include "diColourShading.h"
 #include "diUtilities.h"
 #include "util/charsets.h"
+#include "util/string_util.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
@@ -216,31 +218,31 @@ void FieldPlot::clearFields()
 
 std::string FieldPlot::getEnabledStateKey() const
 {
-  //return n elements of current plot info string
-  std::set<std::string> return_token;
-  return_token.insert("model");
-  return_token.insert("parameter");
-  return_token.insert("plot");
-  return_token.insert("reftime");
+  miutil::KeyValue_v mppr;
 
-  vector<std::string> token = miutil::split(getPlotInfo(), 0, " ");
-  std::string str;
+  const size_t npos = size_t(-1);
 
-  for(unsigned int i=0;i<token.size();i++){
-    vector<std::string> stoken = miutil::split(token[i], 0, "=");
-    if (stoken.size() == 2) {
-      if (return_token.find(stoken[0]) != return_token.end()) {
-        str += token[i] + " ";
-      }
-    }
-  }
+  size_t i = find(getPlotInfo(), "model");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
+
+  i = find(getPlotInfo(), "parameter");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
+
+  i = find(getPlotInfo(), "plot");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
+
+  i = find(getPlotInfo(), "reftime");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
 
   //probably old FIELD string syntax
-  if (str.empty()) {
-    return getPlotInfo(3);
-  }
+  if (mppr.empty())
+    mppr = getPlotInfo(3);
 
-  return str;
+  return miutil::mergeKeyValue(mppr);
 }
 
 const Area& FieldPlot::getFieldArea() const
@@ -272,7 +274,7 @@ bool FieldPlot::updateIfNeeded()
   const miTime& t = getStaticPlot()->getTime();
   bool update, data = false;
   if (ftime.undef()
-      || (ftime != t && !miutil::contains(getPlotInfo(), " time="))
+      || (ftime != t && find(getPlotInfo(), "time") == KVListPlotCommand::npos)
       || fields.size() == 0)
   {
     update = true;
@@ -300,11 +302,15 @@ void FieldPlot::getAnnotation(string& s, Colour& c) const
 }
 
 // Extract plotting-parameters from PlotInfo.
-bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
+bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
 {
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  if (!cmd)
+    return false;
+
   // merge current plotOptions (from pin) with plotOptions form setup
   FieldPlotManager::getFieldPlotOptions(fname, poptions);
-  setPlotInfo(pin, true);
+  setPlotInfo(cmd->all());
 
   rasterClear();
 

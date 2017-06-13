@@ -142,7 +142,7 @@ void VcrossReplaceModelDialog::onReplace()
     for (int i=0; i<selected.size(); ++i) {
       const int index = selected.at(i);
       const std::string fld = vcrossm->getFieldAt(index);
-      const std::string opt = vcrossm->getOptionsAt(index);
+      const miutil::KeyValue_v& opt = vcrossm->getOptionsAt(index);
       const vcross::QtManager::PlotSpec ps(model, reftime, fld);
       // first add, then remove to avoid empty list
       const int added = vcrossm->addField(ps, opt, index);

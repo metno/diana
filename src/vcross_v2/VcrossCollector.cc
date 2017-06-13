@@ -12,13 +12,6 @@
 
 namespace vcross {
 
-std::string SelectedPlot::optionString() const
-{
-  return boost::algorithm::join(options, " ");
-}
-
-// ########################################################################
-
 Collector::Collector(Setup_p setup)
   : mResolver(std::make_shared<Resolver>(setup))
 {
@@ -54,13 +47,13 @@ bool Collector::clear()
 
 // ------------------------------------------------------------------------
 
-int Collector::selectPlot(const ModelReftime& model, const std::string& plot, const string_v& options)
+int Collector::selectPlot(const ModelReftime& model, const std::string& plot, const miutil::KeyValue_v& options)
 {
   return insertPlot(model, plot, options, -1);
 }
 
 
-int Collector::insertPlot(const ModelReftime& model, const std::string& plot, const string_v& options, int index)
+int Collector::insertPlot(const ModelReftime& model, const std::string& plot, const miutil::KeyValue_v& options, int index)
 {
   METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(plot));
   ResolvedPlot_cp rp = mResolver->getResolvedPlot(model, plot);

@@ -37,7 +37,8 @@
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diController.h"
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
+#include "util/string_util.h"
 
 #include <qcheckbox.h>
 #include <QComboBox>
@@ -65,8 +66,6 @@
 #include <diPlotOptions.h>
 #include "diFieldPlotManager.h"
 #include <puTools/miStringFunctions.h>
-
-#include <boost/foreach.hpp>
 
 #include <sstream>
 
@@ -1735,7 +1734,7 @@ void FieldDialog::enableFieldOptions()
   if (selectedFields[index].minus)
     return;
 
-  vpcopt = cp->parse(selectedFields[index].fieldOpts);
+  vpcopt = cp->fromKeyValueList(selectedFields[index].fieldOpts);
 
   //   METLIBS_LOG_DEBUG("FieldOpt string: "<<selectedFields[index].fieldOpts);
   /*******************************************************
@@ -2986,7 +2985,7 @@ void FieldDialog::updateFieldOptions(const std::string& name,
   else
     cp->replaceValue(vpcopt, name, value, valueIndex);
 
-  currentFieldOpts = cp->unParse(vpcopt);
+  currentFieldOpts = cp->toKeyValueList(vpcopt);
   selectedFields[n].fieldOpts = currentFieldOpts;
 
   // not update private settings if external/QuickMenu command...
@@ -3032,76 +3031,73 @@ PlotCommand_cpv FieldDialog::getOKString()
     } else {
       commandKey = "FIELD";
     }
-    ostringstream ostr;
-    ostr << commandKey;
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>(commandKey);
 
     bool minus = false;
     if (i + 1 < n && selectedFields[i + 1].minus) {
       minus = true;
-      ostr << " ( ";
+      cmd->add(miutil::KeyValue("("));
     }
 
-    ostr << getParamString(i);
+    cmd->add(getParamString(i));
     if (minus) {
-      ostr << " - ";
-      ostr << getParamString(i+1);
-      ostr << " )";
+      cmd->add(miutil::KeyValue("-"));
+      cmd->add(getParamString(i+1));
+      cmd->add(miutil::KeyValue(")"));
     }
 
-    ostr << " " << selectedFields[i].fieldOpts;
+    cmd->add(selectedFields[i].fieldOpts);
 
     if (allTimeSteps)
-      ostr << " allTimeSteps=on";
+      cmd->add("allTimeSteps", "on");
 
     if (!selectedFields[i].time.empty()) {
-      ostr << " time=" << selectedFields[i].time;
+      cmd->add("time" , selectedFields[i].time);
     }
 
-    // the OK string
-    const std::string str = ostr.str();
-    vstr.push_back(std::make_shared<StringPlotCommand>(commandKey, str));
+    vstr.push_back(cmd);
 
-    METLIBS_LOG_DEBUG("OK: " << str);
+    METLIBS_LOG_DEBUG("OK: " << cmd->toString());
   }
 
   return vstr;
 }
 
-std::string FieldDialog::getParamString(int i)
+miutil::KeyValue_v FieldDialog::getParamString(int i)
 {
-  ostringstream ostr;
+  miutil::KeyValue_v ostr;
 
   if (selectedFields[i].inEdit)
-    ostr << " model="<< editName;
+    miutil::add(ostr, "model", editName);
   else
-    ostr <<" model="<< selectedFields[i].modelName;
+    miutil::add(ostr, "model", selectedFields[i].modelName);
 
   if ( !selectedFields[i].refTime.empty() ) {
-    ostr <<" reftime="<<selectedFields[i].refTime;
+    miutil::add(ostr, "reftime", selectedFields[i].refTime);
   }
 
   if (selectedFields[i].plotDefinition) {
-    ostr << " plot=" << selectedFields[i].fieldName;
+    miutil::add(ostr, "plot", selectedFields[i].fieldName);
   } else {
-    ostr << " parameter=" << selectedFields[i].fieldName;
+    miutil::add(ostr, "parameter", selectedFields[i].fieldName);
   }
 
   if (!selectedFields[i].level.empty() ) {
     if ( !selectedFields[i].zaxis.empty() ) {
-      ostr << " vcoord=" << selectedFields[i].zaxis;
+      miutil::add(ostr, "vcoord", selectedFields[i].zaxis);
     }
-    ostr << " vlevel=" << selectedFields[i].level;
+    miutil::add(ostr, "vlevel", selectedFields[i].level);
   }
   if (!selectedFields[i].idnum.empty()) {
-    ostr << " elevel=" << selectedFields[i].idnum;
+    miutil::add(ostr, "elevel", selectedFields[i].idnum);
   }
   if (selectedFields[i].hourOffset != 0)
-    ostr << " hour.offset=" << selectedFields[i].hourOffset;
+    miutil::add(ostr, "hour.offset", selectedFields[i].hourOffset);
 
   if (selectedFields[i].hourDiff != 0)
-    ostr << " hour.diff=" << selectedFields[i].hourDiff;
+    miutil::add(ostr, "hour.diff", selectedFields[i].hourDiff);
 
-  return ostr.str();
+  return ostr;
 }
 
 std::string FieldDialog::getShortname()
@@ -3272,8 +3268,8 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr,
 
   for (int ic = 0; ic < nc; ic++) {
     if (str.empty()) {
-      if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(vstr[ic]))
-        str = c->command();
+      if (KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(vstr[ic]))
+        str = c->toString(); // FIXME
       else
         continue;
     }
@@ -3401,9 +3397,7 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
     } else if (vpc[j].key == "allTimeSteps" && vpc[j].allValue == "on") {
       allTimeSteps = true;
     } else if (vpc[j].key != "unknown") {
-      if (!sf.fieldOpts.empty())
-        sf.fieldOpts += " ";
-      sf.fieldOpts += (vpc[j].key + "=" + vpc[j].allValue);
+      miutil::add(sf.fieldOpts, vpc[j].key, vpc[j].allValue);
     }
   }
 
@@ -3494,7 +3488,7 @@ void FieldDialog::getEditPlotOptions(map<std::string, map<
   map<std::string, map<std::string, std::string> >::iterator p = po.begin();
   //loop through parameters
   for (; p != po.end(); p++) {
-    std::string options;
+    miutil::KeyValue_v options;
     std::string parameter = p->first;
     if (editFieldOptions.count(parameter)) {
       options = editFieldOptions[parameter];
@@ -3506,7 +3500,7 @@ void FieldDialog::getEditPlotOptions(map<std::string, map<
       continue; //parameter not found
     }
 
-    vector<ParsedCommand> parsedComm = cp->parse(options);
+    vector<ParsedCommand> parsedComm = cp->fromKeyValueList(options);
     map<std::string, std::string>::iterator q = p->second.begin();
     //loop through options
     for (; q != p->second.end(); q++) {
@@ -3528,14 +3522,13 @@ vector<std::string> FieldDialog::writeLog()
 
   // write used field options
 
-  map<std::string, std::string>::iterator pfopt, pfend =
-      fieldOptions.end();
+  map<std::string, miutil::KeyValue_v>::iterator pfopt, pfend = fieldOptions.end();
 
   for (pfopt = fieldOptions.begin(); pfopt != pfend; pfopt++) {
-    std::string sopts = getFieldOptions(pfopt->first, true);
+    miutil::KeyValue_v sopts = getFieldOptions(pfopt->first, true);
     // only logging options if different from setup
     if (sopts != pfopt->second)
-      vstr.push_back(pfopt->first + " " + pfopt->second);
+      vstr.push_back(pfopt->first + " " + miutil::mergeKeyValue(pfopt->second));
   }
 
   //write edit field options
@@ -3543,10 +3536,10 @@ vector<std::string> FieldDialog::writeLog()
     vstr.push_back("--- EDIT ---");
     pfend = editFieldOptions.end();
     for (pfopt = editFieldOptions.begin(); pfopt != pfend; pfopt++) {
-      std::string sopts = getFieldOptions(pfopt->first, true);
+      miutil::KeyValue_v sopts = getFieldOptions(pfopt->first, true);
       // only logging options if different from setup
       if (sopts != pfopt->second) {
-        vstr.push_back(pfopt->first + " " + pfopt->second);
+        vstr.push_back(pfopt->first + " " + miutil::mergeKeyValue(pfopt->second));
       }
     }
   }
@@ -3559,7 +3552,7 @@ vector<std::string> FieldDialog::writeLog()
 void FieldDialog::readLog(const std::vector<std::string>& vstr,
     const std::string& thisVersion, const std::string& logVersion)
 {
-  std::string str, fieldname, fopts, sopts;
+  std::string str, fieldname, fopts;
   size_t pos, end;
 
   int nopt, nlog;
@@ -3587,11 +3580,11 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
       fopts = str.substr(pos);
 
       // get options from setup
-      sopts = getFieldOptions(fieldname, true);
+      const miutil::KeyValue_v sopts = getFieldOptions(fieldname, true);
 
       if (!sopts.empty()) {
         // update options from setup, if necessary
-        vector<ParsedCommand> vpopt = cp->parse(sopts);
+        vector<ParsedCommand> vpopt = cp->fromKeyValueList(sopts);
         vector<ParsedCommand> vplog = cp->parse(fopts);
         nopt = vpopt.size();
         nlog = vplog.size();
@@ -3618,12 +3611,11 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
         }
         if (changed) {
           if (editOptions) {
-            editFieldOptions[fieldname] = cp->unParse(vpopt);
+            editFieldOptions[fieldname] = cp->toKeyValueList(vpopt);
           } else {
-            fieldOptions[fieldname] = cp->unParse(vpopt);
+            fieldOptions[fieldname] = cp->toKeyValueList(vpopt);
           }
         }
-
       }
     }
   }
@@ -3652,10 +3644,10 @@ std::string FieldDialog::checkFieldOptions(const std::string& str)
   }
 
   if ( !fieldname.empty() ) {
-    std::string fopts = getFieldOptions(fieldname, true);
+    const miutil::KeyValue_v fopts = getFieldOptions(fieldname, true);
 
     if (!fopts.empty()) {
-      vector<ParsedCommand> vpopt = cp->parse(fopts);
+      vector<ParsedCommand> vpopt = cp->fromKeyValueList(fopts);
       int nopt = vpopt.size();
       //##################################################################
       //      METLIBS_LOG_DEBUG("    nopt= " << nopt << "  nlog= " << nlog);
@@ -3980,8 +3972,7 @@ void FieldDialog::resetOptions()
   if (index < 0 || index >= n)
     return;
 
-  std::string fopts = getFieldOptions(selectedFields[index].fieldName,
-                                      true);
+  const miutil::KeyValue_v fopts = getFieldOptions(selectedFields[index].fieldName, true);
   if (fopts.empty())
     return;
 
@@ -3993,9 +3984,9 @@ void FieldDialog::resetOptions()
   enableFieldOptions();
 }
 
-std::string FieldDialog::getFieldOptions(const std::string& fieldName, bool reset) const
+miutil::KeyValue_v FieldDialog::getFieldOptions(const std::string& fieldName, bool reset) const
 {
-  map<std::string, std::string>::const_iterator pfopt;
+  map<std::string, miutil::KeyValue_v>::const_iterator pfopt;
 
   if (!reset) {
 
@@ -4013,7 +4004,7 @@ std::string FieldDialog::getFieldOptions(const std::string& fieldName, bool rese
 
   //default
   PlotOptions po;
-  return po.toString();
+  return po.toKeyValueList();
 }
 
 void FieldDialog::minusField(bool on)
@@ -4178,7 +4169,7 @@ void FieldDialog::fieldEditUpdate(std::string str)
       }
     }
 
-    map<std::string, std::string>::const_iterator pfo;
+    map<std::string, miutil::KeyValue_v>::const_iterator pfo;
     if ((pfo = editFieldOptions.find(sf.fieldName)) != editFieldOptions.end()) {
       sf.fieldOpts = pfo->second;
     } else if ((pfo = fieldOptions.find(sf.fieldName)) != fieldOptions.end()) {
@@ -4207,9 +4198,9 @@ void FieldDialog::fieldEditUpdate(std::string str)
       selectedField2edit_exists.push_back(false);
     }
 
-    vector<ParsedCommand> vpopt = cp->parse(sf.fieldOpts);
+    vector<ParsedCommand> vpopt = cp->fromKeyValueList(sf.fieldOpts);
     cp->replaceValue(vpopt, "field.smooth", "0", 0);
-    sf.fieldOpts = cp->unParse(vpopt);
+    sf.fieldOpts = cp->toKeyValueList(vpopt);
 
     n = selectedFields.size();
     SelectedField sfdummy;

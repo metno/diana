@@ -36,6 +36,7 @@
 #include "diAreaObjectsCluster.h"
 #include "diManager.h"
 #include "diPlotModule.h"
+#include "diKVListPlotCommand.h"
 #include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diObsManager.h"
@@ -728,7 +729,7 @@ const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-    const vector<string>& pinfos, bool allTimes)
+    const PlotCommand_cpv& pinfos, bool allTimes)
 {
   plotm->getCapabilitiesTime(okTimes,pinfos,allTimes);
 }
@@ -851,9 +852,12 @@ void Controller::getAllFieldNames(vector<std::string> & fieldNames)
   fieldplotm->getAllFieldNames(fieldNames);
 }
 
-vector<std::string> Controller::getFieldLevels(const std::string& pinfo)
+vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
 {
-  return fieldplotm->getFieldLevels(pinfo);
+  if (KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo))
+    return fieldplotm->getFieldLevels(cmd->all());
+  else
+    return std::vector<std::string>();
 }
 
 set<std::string> Controller::getFieldReferenceTimes(const std::string model)

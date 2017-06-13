@@ -158,7 +158,7 @@ public:
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      const std::vector<std::string>& pinfos,
+      const PlotCommand_cpv &pinfos,
       bool allTimes=true);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
@@ -292,7 +292,7 @@ public:
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(std::vector<std::string>& fieldNames);
   ///return levels
-  std::vector<std::string> getFieldLevels(const std::string& pinfo);
+  std::vector<std::string> getFieldLevels(const PlotCommand_cp& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.

@@ -292,19 +292,16 @@ PlotOptions::PlotOptions():
 
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
-bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po, std::string& unusedOptions)
+bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& po, miutil::KeyValue_v& unusedOptions)
 {
   // very frequent METLIBS_LOG_SCOPE();
 
   bool result=true;
 
-  const vector<string> tokens= miutil::split_protected(optstr, '"', '"');
-  for (const string& token : tokens) {
-    const vector<string> etokens = miutil::split(token, "=");
-    const size_t l = etokens.size();
-    if (l > 1) {
-      const string& key = etokens[0];
-      string value = etokens[1];
+  for (miutil::KeyValue kv : opts) {
+    if (!kv.value().empty()) {
+      const string& key = kv.key();
+      string value = kv.value();
       if (value[0]=='\'' && value[value.length()-1]=='\'')
         value= value.substr(1,value.length()-2);
 
@@ -812,10 +809,10 @@ bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po, st
         po.vector_example_unit_y = value;
 
       } else {
-        diutil::appendText(unusedOptions, key + "=" + value);
+        unusedOptions.push_back(kv);
       }
-    } else if (l>0) {
-      diutil::appendText(unusedOptions, etokens[0]);
+    } else {
+      unusedOptions.push_back(kv);
     }
   }
 
@@ -829,10 +826,10 @@ bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po, st
   return result;
 }
 
-bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po)
+bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& po)
 {
-  std::string unusedOptions;
-  return parsePlotOption(optstr, po, unusedOptions);
+  miutil::KeyValue_v unusedOptions;
+  return parsePlotOption(opts, po, unusedOptions);
 }
 
 // fill in values in an int vector
@@ -911,28 +908,32 @@ vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
   return values;
 }
 
-static void addOption(std::ostream& ostr, const std::string& key, bool value)
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, bool value)
 {
-  ostr << ' ' << key << '=' << (value ? TRUE : FALSE);
+  ostr.push_back(miutil::KeyValue(key, value ? TRUE : FALSE));
 }
 
-static void addOption(std::ostream& ostr, const std::string& key, int value)
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, int value)
 {
-  ostr << ' ' << key << '=' << value;
+  ostr.push_back(miutil::KeyValue(key, miutil::from_number(value)));
 }
 
-static void addOption(std::ostream& ostr, const std::string& key, float value)
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, float value)
 {
-  ostr << ' ' << key << '=' << value;
+  ostr.push_back(miutil::KeyValue(key, miutil::from_number(value)));
 }
 
-static void addOption(std::ostream& ostr, const std::string& key, const std::string& value)
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::string& value)
 {
-  ostr << ' ' << key << '=' << value;
+  ostr.push_back(miutil::KeyValue(key, value));
 }
 
-static void addOption(std::ostream& ostr, const std::string& key,
-    const std::vector<float>& values)
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, const char* value)
+{
+  ostr.push_back(miutil::KeyValue(key, value));
+}
+
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::vector<float>& values)
 {
   std::ostringstream ov;
   std::vector<float>::const_iterator it = values.begin();
@@ -942,139 +943,153 @@ static void addOption(std::ostream& ostr, const std::string& key,
   addOption(ostr, key, ov.str());
 }
 
-std::string PlotOptions::toString()
+void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::vector<std::string>& values)
 {
-  Linetype defaultLinetype= Linetype::getDefaultLinetype();
-  if (linetype.name.empty())      linetype= defaultLinetype;
-  if (undefLinetype.name.empty()) undefLinetype= defaultLinetype;
+  std::ostringstream ov;
+  std::vector<std::string>::const_iterator it = values.begin();
+  ov << *it++;
+  for (; it != values.end(); ++it)
+    ov << ',' << *it;
+  addOption(ostr, key, ov.str());
+}
 
-  ostringstream ostr;
+miutil::KeyValue_v PlotOptions::toKeyValueList()
+{
+  Linetype defaultLinetype = Linetype::getDefaultLinetype();
 
-  addOption(ostr, key_colour, options_1 ? linecolour.Name() : OFF);
+  // FIXME method is not const becaus it changes linetype and undefLinetype
+  if (linetype.name.empty())
+    linetype = defaultLinetype;
+  if (undefLinetype.name.empty())
+    undefLinetype = defaultLinetype;
 
-  addOption(ostr, key_plottype, plottype);
-  addOption(ostr, key_linetype, linetype.name);
-  addOption(ostr, key_linewidth, linewidth);
-  addOption(ostr, key_basevalue, base);
+  miutil::KeyValue_v ostr;
+
+  miutil::add(ostr, key_colour, options_1 ? linecolour.Name() : OFF);
+
+  miutil::add(ostr, key_plottype, plottype);
+  miutil::add(ostr, key_linetype, linetype.name);
+  miutil::add(ostr, key_linewidth, linewidth);
+  miutil::add(ostr, key_basevalue, base);
 
   if(minvalue>-fieldUndef) {
-    addOption(ostr, key_minvalue, minvalue);
+    miutil::add(ostr, key_minvalue, minvalue);
   }
   if(maxvalue < fieldUndef) {
-    addOption(ostr, key_maxvalue, maxvalue);
+    miutil::add(ostr, key_maxvalue, maxvalue);
   }
 
   if (frame>=0)
-    addOption(ostr, key_frame, frame);
+    miutil::add(ostr, key_frame, frame);
   if (zeroLine>=0)
-    addOption(ostr, key_zeroLine, zeroLine);
+    miutil::add(ostr, key_zeroLine, zeroLine);
 
   if (colours.size() > 2) {
     std::ostringstream ov;
     ov << colours.front().Name();
     for (size_t i=1; i<colours.size(); ++i)
       ov << ',' << colours.at(i).Name();
-    addOption(ostr, key_colours, ov.str());
+    miutil::add(ostr, key_colours, ov.str());
   }
 
   if(dimension == 1){
 
     if (linevalues.empty() && loglinevalues.empty()) {
-      addOption(ostr,  key_lineinterval, lineinterval);
+      miutil::add(ostr,  key_lineinterval, lineinterval);
     } else if (not linevalues.empty()) {
-      addOption(ostr, key_linevalues, linevalues);
+      miutil::add(ostr, key_linevalues, linevalues);
     } else if (not loglinevalues.empty()) {
-      addOption(ostr, key_loglinevalues, loglinevalues);
+      miutil::add(ostr, key_loglinevalues, loglinevalues);
     }
 
-    addOption(ostr, key_extremeType, extremeType);
-    addOption(ostr, key_extremeSize, extremeSize);
-    addOption(ostr, key_extremeRadius, extremeRadius);
-    addOption(ostr, key_palettecolours, !palettecolours.empty() ? palettename : OFF);
+    miutil::add(ostr, key_extremeType, extremeType);
+    miutil::add(ostr, key_extremeSize, extremeSize);
+    miutil::add(ostr, key_extremeRadius, extremeRadius);
+    miutil::add(ostr, key_palettecolours, !palettecolours.empty() ? palettename : OFF);
     if ( alpha < 255)
-      addOption(ostr, key_alpha, alpha);
+      miutil::add(ostr, key_alpha, alpha);
 
     if( !filePalette.empty() ) {
-      addOption(ostr, key_filepalette, filePalette);
+      miutil::add(ostr, key_filepalette, filePalette);
     }
 
-    addOption(ostr, key_patterns, !patterns.empty() ? patternname : OFF);
+    miutil::add(ostr, key_patterns, !patterns.empty() ? patternname : OFF);
 
-    addOption(ostr, key_table, table);
-    addOption(ostr, key_repeat, repeat);
-    addOption(ostr, key_valueLabel, valueLabel);
+    miutil::add(ostr, key_table, table);
+    miutil::add(ostr, key_repeat, repeat);
+    miutil::add(ostr, key_valueLabel, valueLabel);
   }
 
   if(plottype == fpt_vector || plottype == fpt_direction || plottype == fpt_wind
       || plottype == fpt_wind_temp_fl || plottype == fpt_wind_value ) {
-    addOption(ostr, key_vectorunit, vectorunit);
+    miutil::add(ostr, key_vectorunit, vectorunit);
   }
 
   if (discontinuous==0) {
-    addOption(ostr, key_lineSmooth, lineSmooth);
-    addOption(ostr, key_fieldSmooth, fieldSmooth);
+    miutil::add(ostr, key_lineSmooth, lineSmooth);
+    miutil::add(ostr, key_fieldSmooth, fieldSmooth);
   }
 
-  addOption(ostr, key_labelSize, labelSize);
-  addOption(ostr, key_gridLines, gridLines);
-  addOption(ostr, key_gridLinesMax, gridLinesMax);
-  addOption(ostr, key_undefMasking, undefMasking);
-  addOption(ostr, key_undefColour, undefColour.Name());
-  addOption(ostr, key_undefLinewidth, undefLinewidth);
-  addOption(ostr, key_undefLinetype, undefLinetype.name);
+  miutil::add(ostr, key_labelSize, labelSize);
+  miutil::add(ostr, key_gridLines, gridLines);
+  miutil::add(ostr, key_gridLinesMax, gridLinesMax);
+  miutil::add(ostr, key_undefMasking, undefMasking);
+  miutil::add(ostr, key_undefColour, undefColour.Name());
+  miutil::add(ostr, key_undefLinewidth, undefLinewidth);
+  miutil::add(ostr, key_undefLinetype, undefLinetype.name);
 
   if (gridValue>=0)
-    addOption(ostr, key_gridValue, gridValue);
+    miutil::add(ostr, key_gridValue, gridValue);
 
   if(!options_2){
-    addOption(ostr, key_colour_2, OFF);
+    miutil::add(ostr, key_colour_2, OFF);
   } else{
-    addOption(ostr, key_colour_2, linecolour_2.Name());
-    // addOption(ostr, key_lineinterval_2, lineinterval_2);
-    addOption(ostr, key_linewidth_2, linewidth_2);
-    addOption(ostr, key_basevalue_2, base_2);
+    miutil::add(ostr, key_colour_2, linecolour_2.Name());
+    // miutil::add(ostr, key_lineinterval_2, lineinterval_2);
+    miutil::add(ostr, key_linewidth_2, linewidth_2);
+    miutil::add(ostr, key_basevalue_2, base_2);
 
     if (linevalues_2.empty() && loglinevalues_2.empty()) {
-      addOption(ostr, key_lineinterval_2, lineinterval_2);
+      miutil::add(ostr, key_lineinterval_2, lineinterval_2);
     } else if (!linevalues_2.empty()) {
-      addOption(ostr, key_linevalues_2, linevalues_2);
+      miutil::add(ostr, key_linevalues_2, linevalues_2);
     } else if (loglinevalues_2.size() != 0 ) {
-      addOption(ostr, key_loglinevalues_2, loglinevalues_2);
+      miutil::add(ostr, key_loglinevalues_2, loglinevalues_2);
     }
 
     if(minvalue_2>-fieldUndef) {
-      addOption(ostr, key_minvalue_2, minvalue_2);
+      miutil::add(ostr, key_minvalue_2, minvalue_2);
     }
     if(maxvalue_2 < fieldUndef) {
-      addOption(ostr, key_maxvalue_2, maxvalue_2);
+      miutil::add(ostr, key_maxvalue_2, maxvalue_2);
     }
   }
 
-  addOption(ostr, key_dimension, dimension);
+  miutil::add(ostr, key_dimension, dimension);
 
   if(!legendunits.empty()) {
-    addOption(ostr, key_legendunits, legendunits);
+    miutil::add(ostr, key_legendunits, legendunits);
   }
 
   if(!legendtitle.empty()) {
-    addOption(ostr, key_legendtitle, legendtitle);
+    miutil::add(ostr, key_legendtitle, legendtitle);
   }
 
   if( precision > 0 ) {
-    addOption(ostr, key_precision, precision);
+    miutil::add(ostr, key_precision, precision);
   }
 
   if (antialiasing)
-    addOption(ostr, key_antialiasing, antialiasing);
+    miutil::add(ostr, key_antialiasing, antialiasing);
 
   if (use_stencil)
-    addOption(ostr, key_use_stencil, use_stencil);
+    miutil::add(ostr, key_use_stencil, use_stencil);
 
   if (update_stencil)
-    addOption(ostr, key_update_stencil, update_stencil);
+    miutil::add(ostr, key_update_stencil, update_stencil);
 
   if (!enabled)
-    addOption(ostr, key_enabled, enabled);
+    miutil::add(ostr, key_enabled, enabled);
 
-  return ostr.str();
+  return ostr;
 }

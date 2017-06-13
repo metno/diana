@@ -33,7 +33,6 @@
 
 #include "qtSatDialog.h"
 
-#include "diStringPlotCommand.h"
 #include "diUtilities.h"
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
@@ -313,9 +312,8 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
   std::string name = namebox->currentText().toStdString();
   std::string area = item->text().toStdString();
   if (not satoptions[name][area].empty()) {
-    vector<string> tokens = miutil::split(satoptions[name][area], 0, " ");
-    state okVar = decodeString(tokens);
-    putOptions(okVar);
+    putOptions(decodeString(satoptions[name][area]));
+
     bool restore = multiPicture->isChecked();
     multiPicture->setChecked(false);
     timefileBut->button(index)->setChecked(true);
@@ -542,18 +540,15 @@ std::string SatDialog::pictureString(state i_state, bool timefile)
 }
 
 /*********************************************/
-void SatDialog::picturesSlot(QListWidgetItem * item)
+void SatDialog::picturesSlot(QListWidgetItem*)
 {
-  METLIBS_LOG_DEBUG("SatDialog::picturesSlot");
+  METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("m_state.size:"<<m_state.size());
 
-  std::string str, advanced;
   vector<Colour> colours;
   int index = pictures->currentRow();
 
   if (index > -1) {
-    vector<std::string> vstr;
-    vstr.push_back(m_state[index].OKString);
     namebox->setCurrentIndex(m_state[index].iname);
     nameActivated(m_state[index].iname); // update fileListWidget
     fileListWidget->setCurrentItem(fileListWidget->item(m_state[index].iarea));
@@ -578,10 +573,8 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
     channelbox->setCurrentRow(m_state[index].ichannel);
     m_channelstr = m_state[index].channel;
     updateColours();
-    str = pictureString(m_state[index], false);
-    sda->setPictures(str);
-    advanced = m_state[index].advanced;
-    sda->putOKString(advanced);
+    sda->setPictures(pictureString(m_state[index], false));
+    sda->putOKString(m_state[index].advanced);
     sda->greyOptions();
     int number = int(m_state[index].totalminutes / m_scalediff);
     diffSlider->setValue(number);
@@ -690,9 +683,8 @@ void SatDialog::mosaicToggled(bool on)
 void SatDialog::advancedChanged()
 {
   int index = pictures->currentRow();
-  std::string advancedstring = sda->getOKString();
   if (index > -1)
-    m_state[index].advanced = advancedstring;
+    m_state[index].advanced = sda->getOKString();
 }
 
 /**********************************************/
@@ -795,14 +787,15 @@ void SatDialog::DeleteClicked()
 /*********************************************/
 PlotCommand_cpv SatDialog::getOKString()
 {
-  METLIBS_LOG_DEBUG("SatDialog::getOKString() called");
+  METLIBS_LOG_SCOPE();
 
   PlotCommand_cpv vstr;
   if (pictures->count()) {
     for (unsigned int i = 0; i < m_state.size(); i++) {
-      std::string str = makeOKString(m_state[i]);
-      satoptions[m_state[i].name][m_state[i].area] = str;
-      vstr.push_back(std::make_shared<StringPlotCommand>(str));
+      KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("SAT");
+      cmd->add(makeOKString(m_state[i]));
+      satoptions[m_state[i].name][m_state[i].area] = cmd->all();
+      vstr.push_back(cmd);
     }
   }
   return vstr;
@@ -810,40 +803,35 @@ PlotCommand_cpv SatDialog::getOKString()
 
 /********************************************/
 
-std::string SatDialog::makeOKString(state & okVar)
+miutil::KeyValue_v SatDialog::makeOKString(state & okVar)
 {
   /* This function is called by getOKString,
    makes the part of OK string corresponding to state okVar  */
-  METLIBS_LOG_DEBUG("SatDialog::makeOKString");
+  METLIBS_LOG_SCOPE("SatDialog::makeOKString");
 
-  std::string str = "SAT ";
-  str += okVar.name;
-  str += " ";
-  str += okVar.area;
-  str += " ";
-  str += okVar.channel;
-  if (!okVar.filename.empty()) {
-    str += " file=";
-    str += okVar.filename;
-  }
-  ostringstream ostr;
-  ostr << " timediff=" << okVar.totalminutes;
-  str += ostr.str();
+  miutil::KeyValue_v cmd;
 
-  if (okVar.mosaic)
-    str += " mosaic=1";
-  else
-    str += " mosaic=0";
+  cmd.push_back(miutil::KeyValue(okVar.name));
+  cmd.push_back(miutil::KeyValue(okVar.area));
+  cmd.push_back(miutil::KeyValue(okVar.channel));
 
-  str += okVar.advanced;
+  if (!okVar.filename.empty())
+    cmd.push_back(miutil::KeyValue("file", okVar.filename));
 
-  str += " font=BITMAPFONT face=normal";
+  cmd.push_back(miutil::KeyValue("timediff", miutil::from_number(okVar.totalminutes)));
 
-  str += okVar.external;
+  cmd.push_back(miutil::KeyValue("mosaic", okVar.mosaic ? "1" : "0"));
 
+  cmd.insert(cmd.end(), okVar.advanced.begin(), okVar.advanced.end());
+
+  cmd.push_back(miutil::KeyValue("font", "BITMAPFONT"));
+  cmd.push_back(miutil::KeyValue("face", "normal"));
+
+  cmd.insert(cmd.end(), okVar.external.begin(), okVar.external.end());
   //should only be cleared if something has changed at this picture
   okVar.external.clear();
-  return str;
+
+  return cmd;
 }
 
 /*********************************************
@@ -867,12 +855,11 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
   m_state.clear();
   // loop through all PlotInfo's
   for (PlotCommand_cp pc : vstr) {
-    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
     if (!cmd)
       continue;
-    //decode string
-    vector<string> tokens = miutil::split_protected(cmd->command(), '"', '"');
-    state okVar = decodeString(tokens);
+
+    state okVar = decodeString(cmd->all());
 
     if (okVar.name.empty() || okVar.area.empty() || okVar.channel.empty())
       break;
@@ -977,7 +964,7 @@ void SatDialog::putOptions(const state okVar)
 }
 /*********************************************/
 
-SatDialog::state SatDialog::decodeString(const vector<string> & tokens)
+SatDialog::state SatDialog::decodeString(const miutil::KeyValue_v& tokens)
 {
   /* This function is called by putOKstring.
    It decodes tokens, and puts plot variables into struct state */
@@ -987,38 +974,30 @@ SatDialog::state SatDialog::decodeString(const vector<string> & tokens)
   state okVar;
   okVar.name = "";
 
-  int n = tokens.size();
-  if (n < 4)
+  if (tokens.size() < 3)
     return okVar;
 
-  okVar.name = tokens[1];
-  okVar.area = tokens[2];
-  okVar.channel = tokens[3];
+  okVar.name = tokens[0].key();
+  okVar.area = tokens[1].key();
+  okVar.channel = tokens[2].key();
   okVar.totalminutes = -1;
   okVar.mosaic = false;
 
-  //loop
-  std::string token;
-  for (int i = 4; i < n; i++) {
-    token = miutil::to_lower(tokens[i]);
-    std::string key, value;
-    vector<string> stokens = miutil::split(tokens[i], 0, "=");
-    if (stokens.size() == 2) {
-      key = miutil::to_lower(stokens[0]);
-      value = stokens[1];
-    }
+  for (const miutil::KeyValue& kv : tokens) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
     if (key == "time") {
       okVar.filetime = timeFromString(value);
     } else if (key == "file") {
       okVar.filename = value;
     } else if (key == "timediff") {
-      okVar.totalminutes = atoi(value.c_str());
+      okVar.totalminutes = kv.toInt();
     } else if (key == "mosaic") {
-      okVar.mosaic = (atoi(value.c_str()) != 0);
+      okVar.mosaic = kv.toBool();
       //ignore keys "font" and "face"
     } else if (key != "font" && key != "face") {
       //add to advanced string
-      okVar.advanced += " " + token;
+      okVar.advanced.push_back(kv);
     }
   }
 
@@ -1238,8 +1217,7 @@ void SatDialog::updatePictures(int index, bool updateAbove)
     updateColours();
     std::string str = pictureString(m_state[index], false);
     sda->setPictures(str);
-    std::string advanced = m_state[index].advanced;
-    sda->putOKString(advanced);
+    sda->putOKString(m_state[index].advanced);
     sda->greyOptions();
     int number = int(m_state[index].totalminutes / m_scalediff);
     diffSlider->setValue(number);
@@ -1344,33 +1322,21 @@ miutil::miTime SatDialog::timeFromString(const std::string &timeString)
 vector<string> SatDialog::writeLog()
 {
   vector<string> vstr;
-  map<std::string, map<std::string, std::string> >::iterator p = satoptions.begin();
-  map<std::string, map<std::string, std::string> >::iterator pend = satoptions.end();
-
-  while (p != pend) {
-    map<std::string, std::string>::iterator q = p->second.begin();
-    map<std::string, std::string>::iterator qend = p->second.end();
-    while (q != qend) {
-      vstr.push_back(satoptions[p->first][q->first]);
-      q++;
-    }
-    p++;
+  for (const satoptions_t::value_type& so : satoptions) {
+    for (const areaoptions_t::value_type& ao : so.second)
+      vstr.push_back(miutil::mergeKeyValue(ao.second));
   }
-
   return vstr;
 }
 
 void SatDialog::readLog(const vector<string>& vstr,
     const string& thisVersion, const string& logVersion)
 {
-  int n = vstr.size();
-  for (int i = 0; i < n; i++) {
-    vector<string> tokens = miutil::split(vstr[i], 0, " ");
-    if (tokens.size() < 4)
-      continue;
-    satoptions[tokens[1]][tokens[2]] = vstr[i];
+  for (const std::string& s : vstr) {
+    const miutil::KeyValue_v kvs = miutil::splitKeyValue(s);
+    if (kvs.size() >= 4)
+      satoptions[kvs[1].key()][kvs[2].key()] = kvs;
   }
-
 }
 
 void SatDialog::closeEvent(QCloseEvent* e)

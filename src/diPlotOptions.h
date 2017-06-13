@@ -33,6 +33,7 @@
 
 #include "diColour.h"
 #include "diLinetype.h"
+#include "miSetupParser.h"
 
 #include <vector>
 
@@ -375,11 +376,12 @@ public:
 
   PlotOptions();
 
-  std::string toString();
+  miutil::KeyValue_v toKeyValueList();
+
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
-  static bool parsePlotOption(const std::string&, PlotOptions&);
-  static bool parsePlotOption(const std::string&, PlotOptions&, std::string& unusedOptions);
+  static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&, miutil::KeyValue_v& unusedOptions);
+  static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&);
 
   static const std::vector< std::vector<std::string> >& getPlotTypes()
     { return plottypes; }

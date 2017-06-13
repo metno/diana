@@ -153,7 +153,7 @@ void VcrossAddPlotDialog::onAdd()
     vcrossm->fieldChangeStart(false);
     for (int i=0; i<plots.size(); ++i) {
       const std::string fld = plots.at(i).toStdString();
-      const std::string opt = vcrossm->getPlotOptions(fld, false);
+      const miutil::KeyValue_v& opt = vcrossm->getPlotOptions(fld, false);
       ps.setField(fld);
       vcrossm->addField(ps, opt, -1);
     }

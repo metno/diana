@@ -31,6 +31,7 @@
 #define diSat_h
 
 #include "diCommonTypes.h"
+#include "util/diKeyValue.h"
 
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
@@ -155,7 +156,7 @@ public:
   // Constructors
   Sat();
   Sat(const Sat &rhs);
-  Sat(const std::string & pin);
+  Sat(const miutil::KeyValue_v &pin);
   // Destructor
   ~Sat();
 

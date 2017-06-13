@@ -127,7 +127,7 @@ void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 
 std::vector<miutil::miTime> ObsPlotCluster::getTimes()
 {
-  std::vector<std::string> pinfos;
+  std::vector<miutil::KeyValue_v> pinfos;
   for (Plot* p : plots_)
     pinfos.push_back(p->getPlotInfo());
   if (!pinfos.empty()) {

@@ -47,6 +47,7 @@ libdiana_la_SOURCES = \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diKVListPlotCommand.cc \
+	diLabelPlotCommand.cc \
 	diLegendPlot.cc \
 	diLinetype.cc \
 	diLocalSetupParser.cc \
@@ -320,6 +321,7 @@ noinst_HEADERS = \
 	diImageIO.h \
 	diKeys.h \
 	diKVListPlotCommand.h \
+	diLabelPlotCommand.h \
 	diLegendPlot.h \
 	diLinetype.h \
 	diLocationData.h \

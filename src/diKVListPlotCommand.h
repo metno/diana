@@ -18,14 +18,11 @@ public:
 
   const std::string toString() const override;
 
-  KVListPlotCommand& add(const std::string& key, const std::string& value)
-    { return add(miutil::KeyValue(key, value)); }
+  virtual KVListPlotCommand& add(const std::string& key, const std::string& value);
 
-  KVListPlotCommand& add(const miutil::KeyValue& kv)
-    { keyValueList_.push_back(kv); return *this; }
+  virtual KVListPlotCommand& add(const miutil::KeyValue& kv);
 
-  KVListPlotCommand& add(const miutil::KeyValue_v& kvs)
-    { keyValueList_.insert(keyValueList_.end(), kvs.begin(), kvs.end()); return *this; }
+  virtual KVListPlotCommand& add(const miutil::KeyValue_v& kvs);
 
   size_t size() const
     { return keyValueList_.size(); }

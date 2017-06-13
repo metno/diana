@@ -127,7 +127,7 @@ private:
   bool plotRequested;//annotations aligned rel. to frame (not window)
   bool nothingToDo;
   //
-  std::string labelstrings; //fixed part of okstrings
+  miutil::KeyValue_v labelstrings; //fixed part of okstrings
   std::string productname;
   bool editable;
 
