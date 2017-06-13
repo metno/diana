@@ -213,7 +213,6 @@ private:
   std::vector<SelectedField> selectedField2edit;
   std::vector<bool>          selectedField2edit_exists;
 
-  std::vector< std::vector<std::string> > plottypes_dim;
   std::vector<std::string> plottypes;
 
   std::map<std::string, EnableWidget> enableMap;

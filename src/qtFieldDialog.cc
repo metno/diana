@@ -166,14 +166,15 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // Colours
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
-  map<std::string, std::string> enabledOptions = PlotOptions::getEnabledOptions();
-  plottypes_dim = PlotOptions::getPlotTypes();
+  const map<std::string, std::string>& enabledOptions = PlotOptions::getEnabledOptions();
+  const std::vector< std::vector<std::string> >& plottypes_dim = PlotOptions::getPlotTypes();
   if (plottypes_dim.size() > 1) {
     plottypes = plottypes_dim[1];
     for (size_t i = 0; i < plottypes_dim[0].size(); i++) {
       const std::string& ptd0i = plottypes_dim[0][i];
-      if (enabledOptions.count(ptd0i)) {
-        const std::string& op = enabledOptions[plottypes_dim[0][i]];
+      const map<std::string, std::string>::const_iterator iptd0i = enabledOptions.find(ptd0i);
+      if (iptd0i != enabledOptions.end()) {
+        const std::string& op = iptd0i->second;
         enableMap[ptd0i].contourWidgets = miutil::contains(op, "contour");
         enableMap[ptd0i].extremeWidgets = miutil::contains(op, "extreme");
         enableMap[ptd0i].shadingWidgets = miutil::contains(op, "shading");
@@ -1773,6 +1774,7 @@ void FieldDialog::enableFieldOptions()
   }
 
   //dimension (1dim = contour,..., 2dim=wind,...)
+  const std::vector< std::vector<std::string> >& plottypes_dim = PlotOptions::getPlotTypes();
   if ((nc = cp->findKey(vpcopt, PlotOptions::key_dimension)) >= 0) {
     if (!vpcopt[nc].intValue.empty() && vpcopt[nc].intValue[0] < int(plottypes_dim.size())) {
       plottypes = plottypes_dim[vpcopt[nc].intValue[0]];

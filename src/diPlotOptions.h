@@ -382,8 +382,10 @@ public:
   static bool parsePlotOption(std::string&, PlotOptions&, bool returnMergedOptionString=false);
   static bool parsePlotOption(const std::string&, PlotOptions&);
 
-  static std::vector< std::vector<std::string> >& getPlotTypes(){return plottypes;}
-  static std::map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
+  static const std::vector< std::vector<std::string> >& getPlotTypes()
+    { return plottypes; }
+  static const std::map< std::string, std::string >& getEnabledOptions()
+    { return enabledOptions; }
 
   static std::string defaultFontName() { return "SCALEFONT"; }
   static std::string defaultFontFace() { return "NORMAL"; }
