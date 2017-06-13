@@ -438,12 +438,10 @@ void PlotModule::setAnnotations()
   //Annotations from setup, qmenu, etc.
 
   // set annotation-data
-  Colour col;
-  std::string str;
   vector<AnnotationPlot::Annotation> annotations;
   AnnotationPlot::Annotation ann;
 
-  const std::vector<miutil::miTime> fieldAnalysisTime = fieldplots_->fieldAnalysisTimes();
+  const std::vector<miutil::miTime> fieldAnalysisTimes = fieldplots_->fieldAnalysisTimes();
 
   fieldplots_->addAnnotations(annotations);
 
@@ -451,79 +449,68 @@ void PlotModule::setAnnotations()
 
   { // get obj annotations
     objm->getObjAnnotation(ann.str, ann.col);
-    if (not ann.str.empty())
+    if (!ann.str.empty())
       annotations.push_back(ann);
   }
 
   obsplots_->addAnnotations(annotations);
 
   // get trajectory annotations
-  for (size_t j = 0; j < vtp.size(); j++) {
-    if (!vtp[j]->isEnabled())
+  for (TrajectoryPlot* tp : vtp) {
+    if (!tp->isEnabled())
       continue;
-    vtp[j]->getAnnotation(str, col);
+    tp->getAnnotation(ann.str, ann.col);
     // empty string if data plot is off
-    if (not str.empty()) {
-      ann.str = str;
-      ann.col = col;
+    if (!ann.str.empty())
       annotations.push_back(ann);
-    }
   }
 
   // get stationPlot annotations
-  const std::vector<StationPlot*>& stam_plots = stam->plots();
-  for (size_t j = 0; j < stam_plots.size(); j++) {
-    StationPlot* sp = stam_plots[j];
+  for (StationPlot* sp : stam->plots()) {
     if (!sp->isEnabled())
       continue;
-    sp->getAnnotation(str, col);
-    ann.str = str;
-    ann.col = col;
+    sp->getAnnotation(ann.str, ann.col);
     annotations.push_back(ann);
   }
 
   // get locationPlot annotations
-  for (size_t j = 0; j < locationPlots.size(); j++) {
-    if (!locationPlots[j]->isEnabled())
+  for (LocationPlot* lp : locationPlots) {
+    if (!lp->isEnabled())
       continue;
-    locationPlots[j]->getAnnotation(str, col);
-    ann.str = str;
-    ann.col = col;
+    lp->getAnnotation(ann.str, ann.col);
     annotations.push_back(ann);
   }
 
   // Miscellaneous managers
+  ann.col = Colour(0, 0, 0);
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     // Obtain the annotations for enabled managers.
     if (it->second->isEnabled()) {
-      vector<string> plotAnnotations = it->second->getAnnotations();
-      vector<string>::const_iterator iti;
-      for (iti = plotAnnotations.begin(); iti != plotAnnotations.end(); ++iti) {
-        ann.str = *iti;
-        ann.col = Colour(0, 0, 0);
+      for (const std::string& a : it->second->getAnnotations()) {
+        ann.str = a;
         annotations.push_back(ann);
       }
     }
   }
 
-  for (size_t i = 0; i < vap.size(); i++) {
-    vap[i]->setData(annotations, fieldAnalysisTime);
-    vap[i]->setfillcolour(staticPlot_->getBackgroundColour());
+  for (AnnotationPlot* ap : vap) {
+    ap->setData(annotations, fieldAnalysisTimes);
+    ap->setfillcolour(staticPlot_->getBackgroundColour());
   }
 
   //annotations from data
 
   //get field and sat annotations
-  for (size_t i = 0; i < vap.size(); i++) {
-    vector<vector<string> > vvstr = vap[i]->getAnnotationStrings();
-    for (size_t k = 0; k < vvstr.size(); k++) {
-      fieldplots_->getDataAnnotations(vvstr[k]);
-      obsplots_->getDataAnnotations(vvstr[k]);
-      satm->getDataAnnotations(vvstr[k]);
-      editm->getDataAnnotations(vvstr[k]);
-      objm->getDataAnnotations(vvstr[k]);
+  for (AnnotationPlot* ap : vap) {
+    vector<vector<string> > vvstr = ap->getAnnotationStrings();
+    for (vector<string>& as : vvstr) {
+      fieldplots_->getDataAnnotations(as);
+      obsplots_->getDataAnnotations(as);
+      satm->getDataAnnotations(as);
+      editm->getDataAnnotations(as);
+      objm->getDataAnnotations(as);
     }
-    vap[i]->setAnnotationStrings(vvstr);
+    ap->setAnnotationStrings(vvstr);
   }
 
   //get obs annotations
