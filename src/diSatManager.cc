@@ -224,10 +224,10 @@ bool SatManager::enablePlotElement(const PlotElement& pe)
 void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)
 {
   AnnotationPlot::Annotation ann;
-  for (size_t j = 0; j < vsp.size(); j++) {
-    if (!vsp[j]->isEnabled())
+  for (SatPlot* sp : vsp) {
+    if (!sp->isEnabled())
       continue;
-    vsp[j]->getAnnotation(ann.str, ann.col);
+    sp->getAnnotation(ann.str, ann.col);
     annotations.push_back(ann);
   }
 }
