@@ -45,6 +45,8 @@ PlotCommand_cp makeCommand(const std::string& text)
     return c;
   if (PlotCommand_cp c = identifyKeyValue("AREA", text))
     return c;
+  if (PlotCommand_cp c = identifyKeyValue("DRAWING", text))
+    return c;
 
   return std::make_shared<StringPlotCommand>(text);
 }

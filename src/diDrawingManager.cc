@@ -40,7 +40,7 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diPlotModule.h"
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
 
@@ -214,29 +214,15 @@ bool DrawingManager::processInput(const PlotCommand_cpv& inp)
   QStringList toLoad;
 
   for (PlotCommand_cp pc : inp) {
-    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
     if (!cmd)
       continue;
 
-    // Split each input line into a collection of "words".
-    vector<string> pieces = miutil::split_protected(cmd->command(), '"', '"');
-    // Skip the first piece ("DRAWING").
-    pieces.erase(pieces.begin());
-
-    QVariantMap properties;
-    QVariantList points;
-    vector<string>::const_iterator it;
-
-    for (it = pieces.begin(); it != pieces.end(); ++it) {
-
-      QString key, value;
-      if (!parseKeyValue(*it, key, value))
-        continue;
-
+    for (const miutil::KeyValue& kv : cmd->all()) {
       // Read the specified file, skipping to the next line if successful,
       // but returning false to indicate an error if unsuccessful.
-      if (key == "file" || key == "name")
-        toLoad.append(value);
+      if (kv.key() == "file" || kv.key() == "name")
+        toLoad.append(QString::fromStdString(kv.value()));
     }
   }
 

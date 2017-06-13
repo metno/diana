@@ -75,20 +75,3 @@ void Manager::setFocus(bool enable)
 {
   focus = enable;
 }
-
-bool Manager::parseKeyValue(const std::string &str, QString &key, QString &value)
-{
-  // Split each word into a key=value pair.
-  std::vector<std::string> wordPieces = miutil::split_protected(str, '"', '"', "=");
-  if (wordPieces.size() == 0 || wordPieces.size() > 2)
-    return false;
-  else if (wordPieces.size() == 1)
-    wordPieces.push_back("");
-
-  key = QString::fromStdString(wordPieces[0]);
-  value = QString::fromStdString(wordPieces[1]);
-  if (value.startsWith('"') && value.endsWith('"') && value.size() >= 2)
-    value = value.mid(1, value.size() - 2);
-
-  return true;
-}

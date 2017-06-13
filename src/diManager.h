@@ -98,9 +98,6 @@ public slots:
 signals:
   void timesUpdated();
 
-protected:
-  virtual bool parseKeyValue(const std::string &string, QString &key, QString &value);
-
 private:
   // Whether the manager has a finished product to show.
   bool enabled;

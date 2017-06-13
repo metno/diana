@@ -30,7 +30,7 @@
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 
 #include "EditItems/drawingdialog.h"
 #include "EditItems/filterdrawingdialog.h"
@@ -248,13 +248,13 @@ PlotCommand_cpv DrawingDialog::getOKString()
 
   QMap<QString, QString> loaded = drawm_->getLoaded();
   foreach (QString name, loaded.keys()) {
-    QString line;
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
     QString fileName = loaded[name];
     if (fileName == name)
-      line = "DRAWING file=\"" + fileName + "\"";
+      cmd->add("file", fileName.toStdString());
     else
-      line = "DRAWING name=\"" + name + "\"";
-    lines.push_back(std::make_shared<StringPlotCommand>("DRAWING", line.toStdString()));
+      cmd->add("name", name.toStdString());
+    lines.push_back(cmd);
   }
 
   return lines;
@@ -263,9 +263,7 @@ PlotCommand_cpv DrawingDialog::getOKString()
 void DrawingDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   // Submit the lines as new input.
-  PlotCommand_cpv inp;
-  inp.insert(inp.begin(), vstr.begin(), vstr.end());
-  drawm_->processInput(inp);
+  drawm_->processInput(vstr);
 
   // Update the display products list to reflect the loaded drawings.
   QMap<QString, QString> loaded = drawm_->getLoaded();
@@ -308,8 +306,11 @@ void DrawingDialog::makeProduct()
   QMap<QString, QString>::const_iterator it;
 
   PlotCommand_cpv inp;
-  for (it = items.constBegin(); it != items.constEnd(); ++it)
-    inp.push_back(std::make_shared<StringPlotCommand>("DRAWING", "DRAWING name=\"" + it.key().toStdString() + "\""));
+  for (it = items.constBegin(); it != items.constEnd(); ++it) {
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
+    cmd->add("name", it.key().toStdString());
+    inp.push_back(cmd);
+  }
 
   putOKString(inp);
 
