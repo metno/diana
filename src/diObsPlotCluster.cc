@@ -106,20 +106,20 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 
 void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
-  for (size_t i = 0; i < plots_.size(); i++) {
-    at(i)->getDataAnnotations(anno);
-  }
+  for (Plot* p : plots_)
+    static_cast<ObsPlot*>(p)->getDataAnnotations(anno);
 }
 
 void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 {
   //get obs annotations
-  for (size_t i = 0; i < plots_.size(); i++) {
-    if (!at(i)->isEnabled())
+  for (Plot* p : plots_) {
+    ObsPlot* op = static_cast<ObsPlot*>(p);
+    if (!op->isEnabled())
       continue;
-    std::vector<std::string> obsinfo = at(i)->getObsExtraAnnotations();
-    for (size_t j = 0; j < obsinfo.size(); j++) {
-      AnnotationPlot* ap = new AnnotationPlot(obsinfo[j]);
+    const std::vector<std::string>& obsinfo = op->getObsExtraAnnotations();
+    for (const std::string& pc : obsinfo) {
+      AnnotationPlot* ap = new AnnotationPlot(pc);
       vap.push_back(ap);
     }
   }
@@ -128,9 +128,9 @@ void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 std::vector<miutil::miTime> ObsPlotCluster::getTimes()
 {
   std::vector<std::string> pinfos;
-  for (size_t i = 0; i < plots_.size(); i++)
-    pinfos.push_back(plots_[i]->getPlotInfo());
-  if (pinfos.size() > 0) {
+  for (Plot* p : plots_)
+    pinfos.push_back(p->getPlotInfo());
+  if (!pinfos.empty()) {
     return obsm_->getObsTimes(pinfos);
   } else {
     return std::vector<miutil::miTime>();
