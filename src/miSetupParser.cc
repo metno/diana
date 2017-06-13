@@ -305,14 +305,6 @@ std::vector<KeyValue> SetupParser::splitManyKeyValue(const std::string& line, bo
  * parse one setupfile
  *
  */
-namespace /*anonymous*/ {
-size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
-{
-  (*(std::ostringstream*) userp) << (char *) buffer;
-
-  return (size_t) (size * nmemb);
-}
-} // namespace anonymous
 
 bool SetupParser::parseFile(const std::string& filename, // name of file
     const std::string& section, // inherited section
