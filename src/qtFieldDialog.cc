@@ -2903,7 +2903,6 @@ void FieldDialog::enableType2Options(bool on)
     updateFieldOptions(PlotOptions::key_colour_2, "off");
     updateFieldOptions(PlotOptions::key_lineinterval_2, REMOVE);
     updateFieldOptions(PlotOptions::key_basevalue_2, REMOVE);
-    updateFieldOptions("value.range_2", "remove");
     updateFieldOptions(PlotOptions::key_linewidth_2, REMOVE);
     updateFieldOptions(PlotOptions::key_linetype_2, REMOVE);
   }
