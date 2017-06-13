@@ -371,16 +371,15 @@ struct aTable {
   std::string text;
 };
 
-bool FieldPlot::getTableAnnotations(vector<string>& anno)
+bool FieldPlot::getTableAnnotations(vector<string>& annos)
 {
   METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
     return false;
 
-  int nanno = anno.size();
-  for (int j = 0; j < nanno; j++) {
-    if (miutil::contains(anno[j], "table")) {
+  for (std::string& anno : annos) {
+    if (miutil::contains(anno, "table")) {
       if (!isEnabled() || poptions.table == 0
           || (poptions.palettecolours.size() == 0
               && poptions.patterns.size() == 0))
@@ -390,16 +389,16 @@ bool FieldPlot::getTableAnnotations(vector<string>& anno)
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno[j], ",")) {
-        size_t nn = anno[j].find_first_of(",");
-        endString = anno[j].substr(nn);
-        startString = anno[j].substr(0, nn);
+      if (miutil::contains(anno, ",")) {
+        size_t nn = anno.find_first_of(",");
+        endString = anno.substr(nn);
+        startString = anno.substr(0, nn);
       } else {
-        startString = anno[j];
+        startString = anno;
       }
 
       //if asking for spesific field
-      if (miutil::contains(anno[j], "table=")) {
+      if (miutil::contains(anno, "table=")) {
         std::string name = startString.substr(
             startString.find_first_of("=") + 1);
         if (name[0] == '"')
@@ -600,72 +599,72 @@ bool FieldPlot::getTableAnnotations(vector<string>& anno)
       str += "\"";
       str += endString;
 
-      anno.push_back(str);
+      annos.push_back(str);
 
     }
   }
   return true;
 }
 
-bool FieldPlot::getDataAnnotations(vector<string>& anno)
+bool FieldPlot::getDataAnnotations(vector<string>& annos)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(anno.size()));
+  METLIBS_LOG_SCOPE(LOGVAL(annos.size()));
 
   if (not checkFields(1))
     return false;
 
-  int nanno = anno.size();
-  for (int j = 0; j < nanno; j++) {
+  for (std::string& anno : annos) {
 
     std::string lg;
-    size_t k = anno[j].find("$lg=");
+    size_t k = anno.find("$lg=");
     if (k != string::npos) {
-      lg = anno[j].substr(k, 7) + " ";
+      lg = anno.substr(k, 7) + " ";
     }
 
-    if (miutil::contains(anno[j], "$referencetime")) {
+    if (miutil::contains(anno, "$referencetime")) {
       std::string refString = getAnalysisTime().format("%Y%m%d %H", "", true);
-      miutil::replace(anno[j], "$referencetime", refString);
+      miutil::replace(anno, "$referencetime", refString);
     }
-    if (miutil::contains(anno[j], "$forecasthour")) {
+    if (miutil::contains(anno, "$forecasthour")) {
       ostringstream ost;
       ost << fields[0]->forecastHour;
-      miutil::replace(anno[j], "$forecasthour", ost.str());
+      miutil::replace(anno, "$forecasthour", ost.str());
     }
-    miutil::replace(anno[j], "$currenttime", fields[0]->timetext);
-    if (miutil::contains(anno[j], "$validtime")) {
+    miutil::replace(anno, "$currenttime", fields[0]->timetext);
+    if (miutil::contains(anno, "$validtime")) {
       const std::string vtime = fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg, "", true);
-      miutil::replace(anno[j], "$validtime", vtime);
+      miutil::replace(anno, "$validtime", vtime);
     }
-    miutil::replace(anno[j], "$model", fields[0]->modelName);
-    miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);
-    miutil::replace(anno[j], "$level", fields[0]->leveltext);
+    miutil::replace(anno, "$model", fields[0]->modelName);
+    miutil::replace(anno, "$idnum", fields[0]->idnumtext);
+    miutil::replace(anno, "$level", fields[0]->leveltext);
 
-    if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize > 0.
-        && not vectorAnnotationText.empty()) {
-      if (miutil::contains(anno[j], "arrow="))
+    if (miutil::contains(anno, "arrow") && vectorAnnotationSize > 0
+        && not vectorAnnotationText.empty())
+    {
+      if (miutil::contains(anno, "arrow="))
         continue;
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno[j], ",")) {
-        size_t nn = anno[j].find_first_of(",");
-        endString = anno[j].substr(nn);
-        startString = anno[j].substr(0, nn);
+      if (miutil::contains(anno, ",")) {
+        size_t nn = anno.find_first_of(",");
+        endString = anno.substr(nn);
+        startString = anno.substr(0, nn);
       } else {
-        startString = anno[j];
+        startString = anno;
       }
 
       std::string str = "arrow=" + miutil::from_number(vectorAnnotationSize)
           + ",tcolour=" + poptions.linecolour.Name() + endString;
-      anno.push_back(str);
+      annos.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\"" + ",tcolour="
           + poptions.linecolour.Name() + endString;
-      anno.push_back(str);
+      annos.push_back(str);
     }
   }
 
-  getTableAnnotations(anno);
+  getTableAnnotations(annos);
 
   return true;
 }
