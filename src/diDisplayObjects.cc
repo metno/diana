@@ -143,8 +143,7 @@ bool DisplayObjects::prepareObjects()
   //loop over all objects
   //set alpha value for objects as requested in objectdialog
   //and set state to passive
-  for (vector <ObjectPlot*>::iterator p = objects.begin(); p!= objects.end(); ++p) {
-    ObjectPlot * pobject = *p;
+  for (ObjectPlot* pobject : objects) {
     pobject->setPlotInfo(pin);
     pobject->setColorAlpha(alpha);
     pobject->setState(ObjectPlot::passive);
@@ -184,17 +183,17 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
 {
   if (!isEnabled() or objects.empty())
     return false;
-  for (size_t i=0; i<anno.size(); i++) {
-    if (!miutil::contains(anno[i], "table") || miutil::contains(anno[i], "table="))
+  for (string& a : anno) {
+    if (!miutil::contains(a, "table") || miutil::contains(a, "table="))
       continue;
     std::string endString;
-    if (miutil::contains(anno[i], ",")) {
-      size_t nn = anno[i].find_first_of(",");
-      endString = anno[i].substr(nn);
+    if (miutil::contains(a, ",")) {
+      size_t nn = a.find_first_of(",");
+      endString = a.substr(nn);
     }
     std::string str;
-    for (size_t j=0; j<objects.size(); j++) {
-      if (objects[j]->getAnnoTable(str)){
+    for (ObjectPlot* op : objects) {
+      if (op->getAnnoTable(str)) {
         str += endString;
         anno.push_back(str);
       }
