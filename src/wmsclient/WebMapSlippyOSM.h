@@ -170,7 +170,6 @@ private Q_SLOTS:
 
 private:
   QUrl mServiceURL;
-  QNetworkAccessManager* mNetworkAccess;
   long mNextRefresh;
   QNetworkReply* mRefeshReply;
   Projection mProjection;

@@ -51,10 +51,6 @@
 #define MILOGGER_CATEGORY "diana.WebMapWMS"
 #include <miLogger/miLogging.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h" // for PVERSION
-#endif
-
 namespace /* anonymous */ {
 
 const int TILESIZE = 512;
@@ -255,9 +251,8 @@ const QImage& WebMapWMSRequest::tileImage(size_t idx) const
 // ========================================================================
 
 WebMapWMS::WebMapWMS(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
-  : WebMapService(identifier)
+  : WebMapService(identifier, network)
   , mServiceURL(url)
-  , mNetworkAccess(network)
   , mNextRefresh(0)
   , mRefeshReply(0)
 {
@@ -324,9 +319,9 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
 {
   QUrl qurl = mServiceURL;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    QUrlQuery urlq;
+  QUrlQuery urlq;
 #else
-    QUrl& urlq = qurl;
+  QUrl& urlq = qurl;
 #endif
   urlq.addQueryItem("SERVICE", "WMS");
   urlq.addQueryItem("REQUEST", "GetMap");
@@ -374,25 +369,6 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
   return submitUrl(qurl);
 }
 
-QNetworkReply* WebMapWMS::submitUrl(const QUrl& url)
-{
-#if 1
-  QNetworkRequest nr(url);
-  nr.setRawHeader("User-Agent", "diana " PVERSION);
-
-  if (!mBasicAuth.empty()) {
-    QString concatenated = QString::fromStdString(mBasicAuth);
-    QByteArray data = concatenated.toLocal8Bit().toBase64();
-    QString headerData = "Basic " + data;
-    nr.setRawHeader("Authorization", headerData.toLocal8Bit());
-  }
-
-  return mNetworkAccess->get(nr);
-#else
-  return 0;
-#endif
-}
-
 void WebMapWMS::refresh()
 {
   METLIBS_LOG_SCOPE(LOGVAL(mNextRefresh));
@@ -408,7 +384,7 @@ void WebMapWMS::refresh()
   mNextRefresh = now.tv_sec + refreshInterval();
   Q_EMIT refreshStarting();
 
-  mRefeshReply = mNetworkAccess->get(QNetworkRequest(mServiceURL));
+  mRefeshReply = submitUrl(mServiceURL);
   connect(mRefeshReply, SIGNAL(finished()), this, SLOT(refreshReplyFinished()));
 }
 

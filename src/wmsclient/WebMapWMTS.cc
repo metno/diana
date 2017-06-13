@@ -51,10 +51,6 @@
 #define MILOGGER_CATEGORY "diana.WebMapWMTS"
 #include <miLogger/miLogging.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h" // for PVERSION
-#endif
-
 namespace /* anonymous */ {
 
 double pixelSpan(WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix)
@@ -203,9 +199,8 @@ void WebMapWMTSRequest::tileFinished(WebMapTile* tile)
 // ========================================================================
 
 WebMapWMTS::WebMapWMTS(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
-  : WebMapService(identifier)
+  : WebMapService(identifier, network)
   , mServiceURL(url)
-  , mNetworkAccess(network)
   , mNextRefresh(0)
   , mRefeshReply(0)
 {
@@ -338,13 +333,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
   }
   METLIBS_LOG_DEBUG("url='" << qurl.toString().toStdString() << "'");
 
-#if 1
-  QNetworkRequest nr(qurl);
-  nr.setRawHeader("User-Agent", "diana " PVERSION);
-  return mNetworkAccess->get(nr);
-#else
-  return 0;
-#endif
+  return submitUrl(qurl);
 }
 
 void WebMapWMTS::refresh()
@@ -361,7 +350,7 @@ void WebMapWMTS::refresh()
   mNextRefresh = now.tv_sec + refreshInterval();
   Q_EMIT refreshStarting();
 
-  mRefeshReply = mNetworkAccess->get(QNetworkRequest(mServiceURL));
+  mRefeshReply = submitUrl(mServiceURL);
   connect(mRefeshReply, SIGNAL(finished()), this, SLOT(refreshReplyFinished()));
 }
 

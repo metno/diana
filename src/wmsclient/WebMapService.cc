@@ -30,10 +30,20 @@
 #include "WebMapService.h"
 
 #include "diUtilities.h"
+#include "WebMapUtilities.h"
 
 #include <puTools/miStringFunctions.h>
 
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QImage>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
+
+#ifdef HAVE_CONFIG_H
+#include "config.h" // for PVERSION
+#endif
 
 WebMapDimension::WebMapDimension(const std::string& identifier)
   : mIdentifier(identifier)
@@ -105,6 +115,12 @@ QImage WebMapRequest::legendImage() const
 
 // ========================================================================
 
+WebMapService::WebMapService(const std::string& identifier, QNetworkAccessManager* network)
+  : mIdentifier(identifier)
+  , mNetworkAccess(network)
+{
+}
+
 WebMapService::~WebMapService()
 {
   destroyLayers();
@@ -113,6 +129,28 @@ WebMapService::~WebMapService()
 void WebMapService::destroyLayers()
 {
   diutil::delete_all_and_clear(mLayers);
+}
+
+QNetworkReply* WebMapService::submitUrl(QUrl url)
+{
+  if (!mExtraQueryItems.empty()) {
+    QUrlQuery urlq(url.query());
+    for (auto&& kv : mExtraQueryItems)
+      urlq.addQueryItem(diutil::sq(kv.first), diutil::sq(kv.second));
+    url.setQuery(urlq);
+  }
+
+  QNetworkRequest nr(url);
+  nr.setRawHeader("User-Agent", "diana " PVERSION);
+
+  if (!mBasicAuth.empty()) {
+    QString concatenated = QString::fromStdString(mBasicAuth);
+    QByteArray data = concatenated.toUtf8().toBase64();
+    QString headerData = "Basic " + data;
+    nr.setRawHeader("Authorization", headerData.toLocal8Bit());
+  }
+
+  return mNetworkAccess->get(nr);
 }
 
 int WebMapService::refreshInterval() const
