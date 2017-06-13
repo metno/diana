@@ -69,9 +69,12 @@ public:
   /// get predefined area from accelerator
   bool getMapAreaByFkey(const std::string&, Area&);
   /// get list of defined maps
-  std::vector<MapInfo> getMapInfo();
+  const std::vector<MapInfo>& getMapInfo();
   /// get information on one specific map
   bool getMapInfoByName(const std::string&, MapInfo&);
+
+  bool fillMapInfo(const std::string&, MapInfo&);
+
   /// extract plot information from string
   bool fillMapInfo(const std::string&, MapInfo&, PlotOptions& contopts,
       PlotOptions& landopts, PlotOptions& lonopts, PlotOptions& latopts,

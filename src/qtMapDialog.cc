@@ -35,6 +35,8 @@
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diLinetype.h"
+#include "diMapManager.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -68,30 +70,12 @@ MapDialog::MapDialog(QWidget* parent, Controller* llctrl) :
   METLIBS_LOG_SCOPE();
 #endif
   m_ctrl = llctrl;
-  ConstructorCernel(llctrl->initMapDialog());
-}
-
-/*********************************************/
-MapDialog::MapDialog(QWidget* parent, const MapDialogInfo& mdi)
-  : QDialog(parent)
-{
-#ifdef dMapDlg
-  METLIBS_LOG_SCOPE();
-#endif
-  ConstructorCernel(mdi);
-}
-
-/*********************************************/
-void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
-{
-#ifdef dMapDlg
-  METLIBS_LOG_SCOPE();
-#endif
 
   setWindowTitle(tr("Map and Area"));
 
   // all defined maps etc.
-  m_MapDI = mdi;
+  MapManager mapm;
+  m_MapDI = mapm.getMapDialogInfo();
 
   numMaps = m_MapDI.maps.size();
   activemap = -1;
@@ -1081,6 +1065,7 @@ vector<string> MapDialog::getOKString()
   METLIBS_LOG_DEBUG("MapDialog::getOKString called");
 #endif
   vector<string> vstr;
+  MapManager mapm;
 
   //Area string
   if (areabox->currentRow() > -1) {
@@ -1105,13 +1090,9 @@ vector<string> MapDialog::getOKString()
     // check if ok to log
     if (m_MapDI.maps[lindex].logok)
       lmaps.push_back(lindex);
+
     ostringstream ostr;
-    ostr << "MAP";
-
-    std::string mstr;
-    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[lindex], true,true);
-    ostr << " " << mstr;
-
+    ostr << "MAP " << mapm.MapInfo2str(m_MapDI.maps[lindex]);
     vstr.push_back(ostr.str());
   }
   if (lmaps.size() > 0)
@@ -1153,10 +1134,7 @@ vector<string> MapDialog::getOKString()
   mi.frame.linetype = framelt;
   mi.frame.zorder = framez;
 
-  std::string mstr;
-  m_ctrl->MapInfoParser(mstr, mi, true, false);
-  ostr << mstr;
-
+  ostr << mapm.MapExtra2str(mi);
   vstr.push_back(ostr.str());
 
   return vstr;
@@ -1168,6 +1146,7 @@ vector<string> MapDialog::getOKString()
 
 void MapDialog::putOKString(const vector<string>& vstr)
 {
+  MapManager mapm;
   int n = vstr.size();
   vector<int> themaps;
   vector<std::string> tokens, stokens;
@@ -1215,13 +1194,13 @@ void MapDialog::putOKString(const vector<string>& vstr)
         }
       // update options
       if (idx >= 0) {
-        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
+        mapm.fillMapInfo(str, m_MapDI.maps[idx]);
         if ( miutil::contains(str,"lon=")){
           mi = m_MapDI.maps[idx];
         }
       }
     } else {
-      m_ctrl->MapInfoParser(str, mi, false, false);
+      mapm.fillMapInfo(str, mi);
     }
   }
 
@@ -1363,14 +1342,13 @@ std::string MapDialog::getShortname()
 vector<string> MapDialog::writeLog()
 {
   vector<string> vstr;
+  MapManager mapm;
 
   // first: write all map-specifications
   int n = m_MapDI.maps.size();
   for (int i = 0; i < n; i++) {
     ostringstream ostr;
-    std::string mstr;
-    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[i], true, true);
-    ostr << mstr;
+    ostr << mapm.MapInfo2str(m_MapDI.maps[i]);
     vstr.push_back(ostr.str());
   }
 
@@ -1408,9 +1386,7 @@ vector<string> MapDialog::writeLog()
   //write backcolour/lat/lon/frame
   ostringstream ostr;
   ostr << "backcolour=" << backcolorcbox->currentText().toStdString() << " ";
-  std::string mstr;
-  m_ctrl->MapInfoParser(mstr, mi, true, false);
-  ostr << mstr;
+  ostr << mapm.MapExtra2str(mi);
   vstr.push_back(ostr.str());
 
   // end of complete map-list
@@ -1448,6 +1424,7 @@ void MapDialog::readLog(const vector<string>& vstr,
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");
+  MapManager mapm;
 
   int n = vstr.size();
   vector<int> themaps;
@@ -1486,9 +1463,9 @@ void MapDialog::readLog(const vector<string>& vstr,
         }
       // update options
       if (idx >= 0)
-        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
+        mapm.fillMapInfo(str, m_MapDI.maps[idx]);
     } else {
-      m_ctrl->MapInfoParser(str, mi, false, false);
+      mapm.fillMapInfo(str, mi);
     }
   }
 

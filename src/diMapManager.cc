@@ -126,8 +126,6 @@ bool MapManager::parseMapTypes()
 
   MapInfo mapinfo;
 
-  PlotOptions a, b, c, d, e;
-
   mapfiles.clear();
 
   vector<std::string> strlist;
@@ -193,7 +191,7 @@ bool MapManager::parseMapTypes()
       mapinfo.frame.zorder = 2;
     }
     // parse string and fill mapinfo-struct
-    fillMapInfo(strlist[i], mapinfo, a, b, c, d, e);
+    fillMapInfo(strlist[i], mapinfo);
   }
 
   // add final map to list
@@ -249,7 +247,7 @@ bool MapManager::getMapAreaByFkey(const std::string& name, Area& a)
   return false;
 }
 
-vector<MapInfo> MapManager::getMapInfo()
+const vector<MapInfo>& MapManager::getMapInfo()
 {
   return mapfiles;
 }
@@ -266,11 +264,16 @@ bool MapManager::getMapInfoByName(const std::string& name, MapInfo& mapinfo)
   return false;
 }
 
+bool MapManager::fillMapInfo(const std::string& str, MapInfo&mi)
+{
+  PlotOptions a,b,c,d,e;
+  return fillMapInfo(str,mi,a,b,c,d,e);
+}
+
 bool MapManager::fillMapInfo(const std::string& str, MapInfo& mi,
     PlotOptions& contopts, PlotOptions& landopts, PlotOptions& lonopts,
     PlotOptions& latopts, PlotOptions& ffopts)
 {
-
   const std::string key_name = "map";
   const std::string key_type = "type";
   const std::string key_file = "file";

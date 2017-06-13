@@ -295,10 +295,6 @@ public:
   ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);
 
-  // Map-dialog methods
-  MapDialogInfo initMapDialog();
-  bool MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool map);
-
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui
   EditDialogInfo initEditDialog();

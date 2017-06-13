@@ -889,27 +889,6 @@ void Controller::updateFieldSource(const std::string & modelName)
   fieldm->updateSource(modelName);
 }
 
-MapDialogInfo Controller::initMapDialog()
-{
-  MapManager mapm;
-  return mapm.getMapDialogInfo();
-}
-
-bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool map)
-{
-  MapManager mapm;
-  if (tostr){
-    if (map)
-      str= mapm.MapInfo2str(mi);
-    else
-      str= mapm.MapExtra2str(mi);
-    return true;
-  } else {
-    PlotOptions a,b,c,d,e;
-    return mapm.fillMapInfo(str,mi,a,b,c,d,e);
-  }
-}
-
 //object dialog
 
 vector<std::string> Controller::getObjectNames(bool useArchive)

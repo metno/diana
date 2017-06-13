@@ -50,7 +50,6 @@ class MapDialog : public QDialog {
 Q_OBJECT
 public:
 
-  MapDialog(QWidget* parent, const MapDialogInfo& mdi);
   MapDialog(QWidget* parent, Controller* llctrl);
 
   /// the plot info strings
@@ -69,10 +68,6 @@ public:
 
 protected:
   void closeEvent(QCloseEvent*);
-
-private:
-
-  void ConstructorCernel(const MapDialogInfo mdi);
 
 private slots:
   //  void areaboxSelected( QListWidgetItem* item );
