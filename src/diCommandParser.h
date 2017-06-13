@@ -87,23 +87,6 @@ private:
   // map<key,keyDescription>
   std::map<std::string,keyDescription> keyDataBase;
 
-  cmdCaseType caseType; // default cmdCaseUndefined, may set this only once,
-                        // and before first addKey !
-
-  bool commentSearch; // #comment rest of the input string
-
-public:
-  // Constructors
-  CommandParser();
-  // Copy constructor
-  CommandParser(const CommandParser &rhs);
-  // Destructor
-  ~CommandParser();
-  // Assignment operator
-  CommandParser& operator=(const CommandParser &rhs);
-  // Equality operator
-  bool operator==(const CommandParser &rhs) const;
-
   static bool isInt(const std::string& s);
 
   static bool isFloat(const std::string& s);
@@ -114,22 +97,26 @@ public:
 
   static std::vector<int> parseInt(const std::string& str);
 
-  // case (conversion) type for keywords (not values), before first addKey !!!
-  bool setCaseType(cmdCaseType casetype);
+  int findKey(std::vector<ParsedCommand>& vpc,
+              const std::string& key, bool addkey) const;
 
-  // set comment (#) search
-  void setCommentSearch(bool on= true);
+public:
+  CommandParser();
+  CommandParser(const CommandParser &rhs);
+  ~CommandParser();
+
+  CommandParser& operator=(const CommandParser &rhs);
+  bool operator==(const CommandParser &rhs) const;
 
   // add key (name not used if cmdValueType==cmdNoValue)
   bool addKey(const std::string& name, const std::string& key,
-	      int idNumber, cmdValueType valuetype,
-	      bool printError= true );
+              int idNumber, cmdValueType valuetype);
 
   std::vector<ParsedCommand> parse(const std::string& str);
 
   int findKey(std::vector<ParsedCommand>& vpc,
-	      const std::string& key, bool addkey=false) const;
-
+              const std::string& key) const
+    { return findKey(vpc, key, false); }
 
   bool removeValue(std::vector<ParsedCommand>& vpc,
 		   const std::string& key);
