@@ -670,8 +670,10 @@ void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& v
         }
         if (x>=0 && y>=0 && x<displayWidth-20 && y<displayHeight-20) {
           if      (tokens[0]=="SpectrumWindow.pos")      this->move(x,y);
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
           else if (tokens[0]=="SpectrumModelDialog.pos") spModelDialog->move(x,y);
           else if (tokens[0]=="SpectrumSetupDialog.pos") spSetupDialog->move(x,y);
+#endif
         }
 
       } else if (tokens.size()==2) {

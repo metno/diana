@@ -3089,7 +3089,9 @@ void restoreDialogSize(QWidget* d, bool /*showmore*/, int w, int h)
 
 void restoreDialogPos(QWidget* d, int x, int y)
 {
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
   d->move(x, y);
+#endif
 }
 
 } // anonymous namespace
@@ -3227,7 +3229,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
         if (tokens[0]=="MainWindow.size")  this->resize(x,y);
       }
       if (x>=0 && y>=0 && x<displayWidth-20 && y<displayHeight-20) {
-        if      (tokens[0]=="MainWindow.pos")    restoreDialogPos(this, x, y);
+        if      (tokens[0]=="MainWindow.pos")    this->move(x, y);
         else if (tokens[0]=="QuickMenu.pos")     restoreDialogPos(qm, x, y);
         else if (tokens[0]=="FieldDialog.pos")   restoreDialogPos(fm, x, y);
         else if (tokens[0]=="FieldDialog.size")  restoreDialogSize(fm, showmore, x, y);
