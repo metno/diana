@@ -37,9 +37,6 @@
 
 #include <vector>
 
-const Colour WhiteC(255,255,255);
-const Colour BlackC(0,0,0);
-
 /**
    \brief ways of drawing polygons
 */

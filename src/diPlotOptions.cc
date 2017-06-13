@@ -187,6 +187,9 @@ const std::string PlotOptions::key_vector_example_unit_y = "vector.example.unit.
 vector< vector <std::string> > PlotOptions::plottypes;
 std::map< std::string, unsigned int> PlotOptions::enabledOptions;
 
+static const Colour WhiteC(255,255,255);
+static const Colour BlackC(0,0,0);
+
 PlotOptions::PlotOptions():
   options_1(true),options_2(false),
   textcolour(BlackC), linecolour(BlackC), linecolour_2(BlackC),
