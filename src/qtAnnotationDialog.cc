@@ -129,8 +129,8 @@ void AnnotationDialog::parseSetup(){
 
   if (miutil::SetupParser::getSection(anno_section,vstr)){
     int nv=0, nvstr=vstr.size();
-    std::string key,error;
-    vector<std::string> values, vsub;
+    std::string key;
+    vector<std::string> values;
     bool ok= true;
 
     while (ok && nv<nvstr) {
