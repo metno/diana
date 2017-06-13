@@ -154,7 +154,7 @@ private:
   void splitAnnotations();
   bool putElements();
   void addElement2Vector(std::vector<element>& v_e, const element& e, int index);
-  bool decodeElement(std::string elementstring, element& el);
+  bool decodeElement(const std::string &elementstring, element& el);
   //get size of annotation line
   void getAnnoSize(DiGLPainter* gl, std::vector<element>& annoEl, float& wid, float& hei,
       bool horizontal = true);
@@ -164,7 +164,7 @@ private:
   float plotArrow(DiGLPainter* gl, float x, float y, float l, bool feather = false);
   void plotBorders(DiGLPainter* gl);
   std::vector<std::string> split(const std::string, const char, const char);
-  std::string writeElement(element& annoEl);
+  std::string writeElement(const element& annoEl);
 
 public:
   AnnotationPlot();
@@ -199,7 +199,7 @@ public:
   /// put info from saved edit labels into new annotation
   void updateInputLabels(const AnnotationPlot * oldAnno, bool newProduct);
   /// return std::vector std::strings with edited annotation for product prodname
-  std::string writeAnnotation(std::string prodname);
+  std::string writeAnnotation(const std::string &prodname);
   void setProductName(std::string prodname)
   {
     productname = prodname;
