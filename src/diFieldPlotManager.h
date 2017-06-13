@@ -131,7 +131,7 @@ public:
       std::map<std::string, miutil::KeyValue_v> &fieldoptions);
   /** fill a field's PlotOptions from static map, and substitute values
       from a string containing plotoptions */
-  static void getFieldPlotOptions(const std::string& name, PlotOptions& po);
+  static void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v &fdo);
   static std::string getFieldClassSpecs(const std::string& fieldplotname);
 
 
@@ -151,6 +151,7 @@ private:
   std::map<std::string, std::string> groupNames;
 
   static std::map<std::string, PlotOptions> fieldPlotOptions;
+  static std::map<std::string, miutil::KeyValue_v> fieldDataOptions;
 
   FieldManager* fieldManager;
 };

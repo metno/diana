@@ -251,10 +251,6 @@ public:
   static const std::string key_contourShape;
   //Shape filename for output
   static const std::string key_shapefilename;
-  //unit obsolete, use units
-  static const std::string key_unit;
-  //units
-  static const std::string key_units;
   //legend units
   static const std::string key_legendunits;
   //legend title

@@ -309,8 +309,12 @@ bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
     return false;
 
   // merge current plotOptions (from pin) with plotOptions form setup
-  FieldPlotManager::getFieldPlotOptions(fname, poptions);
-  setPlotInfo(cmd->all());
+  miutil::KeyValue_v opts;
+  FieldPlotManager::getFieldPlotOptions(fname, poptions, opts);
+  const miutil::KeyValue_v cmd_all = cmd->all();
+  opts.insert(opts.end(), cmd_all.begin(), cmd_all.end());
+
+  setPlotInfo(opts);
 
   rasterClear();
 

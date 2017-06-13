@@ -126,6 +126,8 @@ bool ModelFilterProxyModel::acceptIndex(const QModelIndex &idx) const
 
 const int ROLE_MODELGROUP = Qt::UserRole + 1;
 
+const std::string units = "units";
+
 } // anonymous namespace
 
 // ========================================================================
@@ -224,7 +226,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey("vcoord", "", 1, CommandParser::cmdString);
   cp->addKey("ecoord", "", 1, CommandParser::cmdString);
   cp->addKey("grid", "", 1, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_unit, "", 1, CommandParser::cmdString);
+  cp->addKey(units, "", 1, CommandParser::cmdString);
   cp->addKey("reftime", "", 1, CommandParser::cmdString);
   cp->addKey("refhour", "", 1, CommandParser::cmdInt);
   cp->addKey("refoffset", "", 1, CommandParser::cmdInt);
@@ -1765,11 +1767,14 @@ void FieldDialog::enableFieldOptions()
   enableWidgets("contour");
 
   //unit
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_unit)) >= 0) {
-    updateFieldOptions(PlotOptions::key_unit, vpcopt[nc].allValue, -1);
+  nc = cp->findKey(vpcopt, units);
+  if (nc < 0)
+    nc = cp->findKey(vpcopt, "unit");
+  if (nc >= 0) {
+    updateFieldOptions(units, vpcopt[nc].allValue, -1);
     unitLineEdit->setText(vpcopt[nc].allValue.c_str());
   } else {
-    updateFieldOptions(PlotOptions::key_unit, "remove");
+    updateFieldOptions(units, "remove");
     unitLineEdit->clear();
   }
 
@@ -2500,7 +2505,7 @@ void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
 
 void FieldDialog::unitEditingFinished()
 {
-  updateFieldOptions("unit", unitLineEdit->text().toStdString());
+  updateFieldOptions(units, unitLineEdit->text().toStdString());
 }
 
 void FieldDialog::plottypeComboBoxActivated(int index)

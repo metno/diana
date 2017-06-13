@@ -906,7 +906,7 @@ void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
         fieldrequest.elevel = kv.value();
       } else if (key == "grid") {
         fieldrequest.grid = kv.value();
-      } else if (key == "unit") {
+      } else if (key == "unit" || key == "units") {
         fieldrequest.unit = kv.value();
       } else if (key == "vunit" && kv.value() == "FL") {
         fieldrequest.flightlevel=true;
@@ -1051,12 +1051,13 @@ bool FieldPlotManager::splitDifferenceCommandString(const miutil::KeyValue_v& pi
 // ---------------- fieldPlotOptions management --------------------
 
 std::map<std::string, PlotOptions> FieldPlotManager::fieldPlotOptions;
+std::map<std::string, miutil::KeyValue_v> FieldPlotManager::fieldDataOptions;
 
 // update static fieldplotoptions
 bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
     const miutil::KeyValue_v& opts)
 {
-  return PlotOptions::parsePlotOption(opts, fieldPlotOptions[name]);
+  return PlotOptions::parsePlotOption(opts, fieldPlotOptions[name], fieldDataOptions[name]);
 }
 
 void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
@@ -1069,19 +1070,29 @@ void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
   fieldoptions.clear();
 
   for (const std::string& fn : fieldNames) {
+    miutil::KeyValue_v fdo;
     PlotOptions po;
-    getFieldPlotOptions(fn, po);
-    fieldoptions[fn] = po.toKeyValueList();
+    getFieldPlotOptions(fn, po, fdo);
+
+    miutil::KeyValue_v& fpo = fieldoptions[fn];
+    fpo = po.toKeyValueList();
+    fpo.insert(fpo.end(), fdo.begin(), fdo.end());
   }
 }
 
-void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po)
+void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo)
 {
   map<std::string,PlotOptions>::iterator p = fieldPlotOptions.find(name);
   if (p != fieldPlotOptions.end()) {
     po = p->second;
   } else {
     fieldPlotOptions[name]= po;
+  }
+  map<std::string,miutil::KeyValue_v>::iterator ido = fieldDataOptions.find(name);
+  if (ido != fieldDataOptions.end()) {
+    fdo = ido->second;
+  } else {
+    fieldDataOptions[name]= fdo;
   }
 }
 
