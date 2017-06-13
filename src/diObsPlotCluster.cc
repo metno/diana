@@ -32,7 +32,7 @@ const std::string& ObsPlotCluster::plotCommandKey() const
   return OBS;
 }
 
-void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
+void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
 {
   diutil::was_enabled plotenabled;
   for (unsigned int i = 0; i < plots_.size(); i++)
@@ -45,8 +45,8 @@ void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
   cleanup();
   hasDevField_ = false;
 
-  for (size_t i = 0; i < inp.size(); i++) {
-    ObsPlot *op = obsm_->createObsPlot(inp[i]);
+  for (PlotCommand_cp pc : inp) {
+    ObsPlot *op = obsm_->createObsPlot(pc);
     if (op) {
       plotenabled.restore(op);
       op->setCanvas(canvas_);
@@ -117,8 +117,8 @@ void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
     ObsPlot* op = static_cast<ObsPlot*>(p);
     if (!op->isEnabled())
       continue;
-    const std::vector<std::string>& obsinfo = op->getObsExtraAnnotations();
-    for (const std::string& pc : obsinfo) {
+    PlotCommand_cpv obsinfo = op->getObsExtraAnnotations();
+    for (PlotCommand_cp pc : obsinfo) {
       AnnotationPlot* ap = new AnnotationPlot(pc);
       vap.push_back(ap);
     }

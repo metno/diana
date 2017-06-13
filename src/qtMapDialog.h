@@ -53,9 +53,9 @@ public:
   MapDialog(QWidget* parent, Controller* llctrl);
 
   /// the plot info strings
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const std::vector<std::string>& vstr);
+  void putOKString(const PlotCommand_cpv& vstr);
   /// creates a short name for the current settings (used in quick menues)
   std::string getShortname();
   /// returns all settings in logfile format
@@ -117,7 +117,7 @@ private slots:
 
 private:
   MapDialogInfo m_MapDI; // all maps and areas
-  std::vector<std::string> favorite; // favorite options
+  PlotCommand_cpv favorite; // favorite options
   int numMaps; // number of maps
   std::vector<int> selectedmaps; // maps selected
   int activemap; // active selected map

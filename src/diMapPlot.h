@@ -34,6 +34,7 @@
 #include "diFilledMap.h"
 #include "diGlUtilities.h"
 #include "diPlot.h"
+#include "diPlotCommand.h"
 #include "diShapeObject.h"
 #include "diUtilities.h"
 
@@ -122,7 +123,7 @@ public:
   void plotMap(DiGLPainter* gl, int zorder);
 
   /// parse plotinfo
-  bool prepare(const std::string&, bool ifequal =true);
+  bool prepare(const PlotCommand_cp&, bool ifequal =true);
 
 private:
   static void referenceFilledMaps(const MapInfo& mi);

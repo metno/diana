@@ -33,6 +33,7 @@
 #include "diCommonTypes.h"
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
+#include "diPlotCommand.h"
 
 #include <puTools/miTime.h>
 
@@ -118,7 +119,7 @@ public:
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
-  void plotCommands(const std::vector<std::string>&);
+  void plotCommands(const PlotCommand_cpv&);
   /// call PlotModule.plot()
   void plot(DiGLPainter* gl, bool over =true, bool under =true);
   /// get annotations

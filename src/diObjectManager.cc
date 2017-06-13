@@ -254,7 +254,7 @@ bool ObjectManager::insertObjectName(const std::string & name,
 -----------  methods for finding and showing objectfiles ----------------
  -----------------------------------------------------------------------*/
 
-void ObjectManager::prepareObjects(const vector<string>& inp)
+void ObjectManager::prepareObjects(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -263,8 +263,8 @@ void ObjectManager::prepareObjects(const vector<string>& inp)
 
   objects.init();
 
-  for (size_t i = 0; i < inp.size(); i++)
-    objects.define(inp[i]);
+  for (PlotCommand_cp pc : inp)
+    objects.define(pc);
 
   const std::string new_plotinfo = objects.getPlotInfo();
   objects.enable((new_plotinfo != old_plotinfo) or old_enabled);

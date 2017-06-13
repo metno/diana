@@ -29,6 +29,7 @@
 #ifndef _diEditSpec_h
 #define _diEditSpec_h
 
+#include "diPlotCommand.h"
 #include <puTools/miTime.h>
 #include <diField/diArea.h>
 #include <vector>
@@ -113,8 +114,8 @@ struct EditProduct {
   std::string combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
   std::string objectsFilenamePart;     ///< "ANAdraw"
   std::string commentFilenamePart;     ///< "ANAcomm"
-  std::vector <std::string> labels;         ///< annotations
-  std::vector <std::string> OKstrings;      ///< define map background and area and other OKStrings
+  PlotCommand_cpv labels;         ///< annotations
+  PlotCommand_cpv OKstrings;      ///< define map background and area and other OKStrings
   std::string commandFilename;         ///< file to read okstrings...
   bool  areaminimize;               ///< minimize area due to undef. values
   int standardSymbolSize;           ///< default symbol size for this product

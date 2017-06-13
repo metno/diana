@@ -100,8 +100,8 @@ public:
 
   std::string name() const override;
   void updateDialog() override;
-  std::vector<std::string> getOKString() override;
-  void putOKString(const std::vector<std::string> &) override;
+  PlotCommand_cpv getOKString() override;
+  void putOKString(const PlotCommand_cpv&) override;
 
   bool showsMore() override;
 

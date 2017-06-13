@@ -31,8 +31,10 @@
 #include "config.h"
 #endif
 
-#include "diUtilities.h"
 #include "qtSatDialog.h"
+
+#include "diStringPlotCommand.h"
+#include "diUtilities.h"
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
@@ -791,16 +793,16 @@ void SatDialog::DeleteClicked()
 
 }
 /*********************************************/
-vector<string> SatDialog::getOKString()
+PlotCommand_cpv SatDialog::getOKString()
 {
   METLIBS_LOG_DEBUG("SatDialog::getOKString() called");
 
-  vector<string> vstr;
+  PlotCommand_cpv vstr;
   if (pictures->count()) {
     for (unsigned int i = 0; i < m_state.size(); i++) {
       std::string str = makeOKString(m_state[i]);
       satoptions[m_state[i].name][m_state[i].area] = str;
-      vstr.push_back(str);
+      vstr.push_back(std::make_shared<StringPlotCommand>(str));
     }
   }
   return vstr;
@@ -848,16 +850,15 @@ std::string SatDialog::makeOKString(state & okVar)
  ***********quickMenu functions***************
  **********************************************/
 
-void SatDialog::putOKString(const vector<string>& vstr)
+void SatDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   /* Called from MainWindow to put vstr values into dialog  */
   METLIBS_LOG_SCOPE();
 
   //update dialog
   DeleteAllClicked();
-  int npi = vstr.size();
 
-  if (npi == 0)
+  if (vstr.empty())
     return;
 
   bool restore = multiPicture->isChecked();
@@ -865,9 +866,12 @@ void SatDialog::putOKString(const vector<string>& vstr)
 
   m_state.clear();
   // loop through all PlotInfo's
-  for (int ip = 0; ip < npi; ip++) {
+  for (PlotCommand_cp pc : vstr) {
+    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    if (!cmd)
+      continue;
     //decode string
-    vector<string> tokens = miutil::split_protected(vstr[ip], '"', '"');
+    vector<string> tokens = miutil::split_protected(cmd->command(), '"', '"');
     state okVar = decodeString(tokens);
 
     if (okVar.name.empty() || okVar.area.empty() || okVar.channel.empty())

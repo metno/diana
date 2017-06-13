@@ -80,9 +80,9 @@ public:
 
   SatDialog( QWidget* parent, Controller* llctrl );
   ///return command strings
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   ///insert command strings
-  void putOKString(const std::vector<std::string>& vstr);
+  void putOKString(const PlotCommand_cpv& vstr);
   ///return short name of current commonad
   std::string getShortname();
   /// refresh list of files in timefilelist

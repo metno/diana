@@ -32,6 +32,7 @@
 #endif
 
 #include "diStationManager.h"
+#include "diStringPlotCommand.h"
 #include "diStationPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
@@ -75,7 +76,7 @@ StationManager::stationPlots_t::iterator StationManager::findStationPlot(const s
 /**
  * Updates the vector of \a plots with the data provided in \a inp.
 */
-bool StationManager::init(const vector<string>& inp)
+bool StationManager::init(const PlotCommand_cpv& inp)
 {
   // Hide all the station plots to begin with so that we can later
   // show and select/unselect them.
@@ -88,11 +89,12 @@ bool StationManager::init(const vector<string>& inp)
       sp->hide();
   }
 
-  for (unsigned int i = 0; i < inp.size(); ++i) {
+  for (PlotCommand_cp pc : inp) {
+    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    if (!cmd)
+      continue;
 
-    const std::string& plotStr = inp[i];
-
-    vector<std::string> pieces = miutil::split(plotStr, " ");
+    vector<std::string> pieces = miutil::split(cmd->command(), " ");
     pieces.erase(pieces.begin());
 
     const std::string select = pieces.back();

@@ -47,6 +47,7 @@
 #include "diMapManager.h"
 #include "diMapPlot.h"
 #include "diMeasurementsPlot.h"
+#include "diStringPlotCommand.h"
 #include "diStationPlot.h"
 #include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
@@ -119,7 +120,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
     it->second->setCanvas(canvas);
 }
 
-void PlotModule::preparePlots(const vector<string>& vpi)
+void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
 {
   METLIBS_LOG_SCOPE();
   // reset flags
@@ -138,23 +139,20 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   ordered.insert("LABEL");
   ordered.insert("EDITFIELD");
 
-  typedef std::map<std::string, std::vector<std::string> > manager_pi_t;
+  typedef std::map<std::string, PlotCommand_cpv> manager_pi_t;
   manager_pi_t manager_pi;
   manager_pi_t ordered_pi;
 
   // merge PlotInfo's for same type
-  for (size_t i = 0; i < vpi.size(); i++) {
-    vector<string> tokens = miutil::split(vpi[i], 1);
-    if (!tokens.empty()) {
-      std::string type = miutil::to_upper(tokens[0]);
-      METLIBS_LOG_INFO(vpi[i]);
-      if (ordered.find(type) != ordered.end())
-        ordered_pi[type].push_back(vpi[i]);
-      else if (managers.find(type) != managers.end())
-        manager_pi[type].push_back(vpi[i]);
-      else
-        METLIBS_LOG_WARN("unknown type '" << type << "'");
-    }
+  for (PlotCommand_cp pc : vpi) {
+    const std::string& type = pc->commandKey();
+    METLIBS_LOG_INFO(type);
+    if (ordered.find(type) != ordered.end())
+      ordered_pi[type].push_back(pc);
+    else if (managers.find(type) != managers.end())
+      manager_pi[type].push_back(pc);
+    else
+      METLIBS_LOG_WARN("unknown type '" << type << "'");
   }
 
   // call prepare methods
@@ -178,11 +176,11 @@ void PlotModule::preparePlots(const vector<string>& vpi)
     if (itp != manager_pi.end())
       manager->processInput(itp->second);
     else
-      manager->processInput(vector<std::string>());
+      manager->processInput(PlotCommand_cpv());
   }
 }
 
-void PlotModule::prepareArea(const vector<string>& inp)
+void PlotModule::prepareArea(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -191,7 +189,7 @@ void PlotModule::prepareArea(const vector<string>& inp)
   if (!inp.size())
     return;
   if (inp.size() > 1)
-    METLIBS_LOG_DEBUG("More AREA definitions, using: " <<inp[0]);
+    METLIBS_LOG_DEBUG("More AREA definitions, using: " <<inp[0]->toString());
 
   const std::string key_name=  "name";
   const std::string key_proj=  "proj4string";
@@ -201,7 +199,11 @@ void PlotModule::prepareArea(const vector<string>& inp)
   Projection proj;
   Rectangle rect;
 
-  const vector<std::string> tokens= miutil::split_protected(inp[0], '"','"'," ",true);
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[0]);
+  if (!cmd)
+    return;
+
+  const vector<std::string> tokens= miutil::split_protected(cmd->command(), '"','"'," ",true);
   for (size_t i=0; i<tokens.size(); i++){
     const vector<std::string> stokens= miutil::split(tokens[i], 1, "=");
     if (stokens.size() > 1) {
@@ -232,7 +234,7 @@ void PlotModule::prepareArea(const vector<string>& inp)
   staticPlot_->setRequestedarea(requestedarea);
 }
 
-void PlotModule::prepareMap(const vector<string>& inp)
+void PlotModule::prepareMap(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -240,14 +242,13 @@ void PlotModule::prepareMap(const vector<string>& inp)
   const size_t nm = vmp.size();
   vector<bool> inuse(nm, false);
 
-
   std::vector<MapPlot*> new_vmp; // new vector of map plots
 
-  for (size_t k = 0; k < inp.size(); k++) { // loop through all plotinfo's
+  for (PlotCommand_cp pc : inp) { // loop through all plotinfo's
     bool isok = false;
     for (size_t j = 0; j < nm; j++) {
       if (!inuse[j]) { // not already taken
-        if (vmp[j]->prepare(inp[k], true)) {
+        if (vmp[j]->prepare(pc, true)) {
           inuse[j] = true;
           isok = true;
           new_vmp.push_back(vmp[j]);
@@ -260,7 +261,7 @@ void PlotModule::prepareMap(const vector<string>& inp)
 
     // make new mapPlot object and push it on the list
     std::unique_ptr<MapPlot> mp(new MapPlot());
-    if (mp->prepare(inp[k], false)) {
+    if (mp->prepare(pc, false)) {
       mp->setCanvas(mCanvas);
       new_vmp.push_back(mp.release());
     }
@@ -275,7 +276,7 @@ void PlotModule::prepareMap(const vector<string>& inp)
   std::swap(vmp, new_vmp);
 }
 
-void PlotModule::prepareStations(const vector<string>& inp)
+void PlotModule::prepareStations(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -284,16 +285,16 @@ void PlotModule::prepareStations(const vector<string>& inp)
   }
 }
 
-void PlotModule::prepareAnnotation(const vector<string>& inp)
+void PlotModule::prepareAnnotation(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
   // for now -- erase all annotationplots
   diutil::delete_all_and_clear(vap);
-  annotationStrings = inp;
+  annotationCommands = inp;
 }
 
-void PlotModule::prepareTrajectory(const vector<string>& inp)
+void PlotModule::prepareTrajectory(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
   // vtp.push_back(new TrajectoryPlot());
@@ -428,10 +429,10 @@ void PlotModule::setAnnotations()
 
   diutil::delete_all_and_clear(vap);
 
-  for (size_t i = 0; i < annotationStrings.size(); i++) {
+  for (PlotCommand_cp pc : annotationCommands) {
     std::unique_ptr<AnnotationPlot> ap(new AnnotationPlot());
     // Dont add an invalid object to vector
-    if (ap->prepare(annotationStrings[i]))
+    if (ap->prepare(pc))
       vap.push_back(ap.release());
   }
 
@@ -517,9 +518,9 @@ void PlotModule::setAnnotations()
   obsplots_->getExtraAnnotations(vap);
 
   //objects
-  vector<std::string> objLabelstring = objm->getObjectLabels();
-  for (size_t i = 0; i < objLabelstring.size(); i++) {
-    AnnotationPlot* ap = new AnnotationPlot(objLabelstring[i]);
+  PlotCommand_cpv objLabels = objm->getObjectLabels();
+  for (PlotCommand_cp pc : objLabels) {
+    AnnotationPlot* ap = new AnnotationPlot(pc);
     vap.push_back(ap);
   }
 }
@@ -914,7 +915,7 @@ void PlotModule::cleanup()
 
   diutil::delete_all_and_clear(vMeasurementsPlot);
 
-  annotationStrings.clear();
+  annotationCommands.clear();
 
   diutil::delete_all_and_clear(vap);
 }
@@ -1420,37 +1421,34 @@ void PlotModule::editLastAnnoElement()
     editVap[j]->editLastAnnoElement();
 }
 
-vector<string> PlotModule::writeAnnotations(const string& prodname)
+PlotCommand_cpv PlotModule::writeAnnotations(const string& prodname)
 {
-  vector<std::string> annostrings;
+  PlotCommand_cpv annoCommands;
   for (size_t j = 0; j < editVap.size(); j++) {
-    string str = editVap[j]->writeAnnotation(prodname);
-    if (not str.empty())
-      annostrings.push_back(str);
+    if (PlotCommand_cp pc = editVap[j]->writeAnnotation(prodname))
+      annoCommands.push_back(pc);
   }
-  return annostrings;
+  return annoCommands;
 }
 
-void PlotModule::updateEditLabels(const vector<std::string>& productLabelstrings,
+void PlotModule::updateEditLabels(const PlotCommand_cpv& productLabelCommands,
     const std::string& productName, bool newProduct)
 {
   METLIBS_LOG_SCOPE();
   vector<AnnotationPlot*> oldVap; //display object labels
   //read the old labels...
 
-  vector<std::string> objLabelstrings = objm->getEditObjects().getObjectLabels();
-  for (size_t i = 0; i < objLabelstrings.size(); i++) {
-    AnnotationPlot* ap = new AnnotationPlot(objLabelstrings[i]);
-    oldVap.push_back(ap);
-  }
+  const PlotCommand_cpv& objLabels = objm->getEditObjects().getObjectLabels();
+  for (PlotCommand_cp pc : objLabels)
+    oldVap.push_back(new AnnotationPlot(pc));
 
-  for (size_t j = 0; j < productLabelstrings.size(); j++) {
-    AnnotationPlot* ap = new AnnotationPlot(productLabelstrings[j]);
+  for (PlotCommand_cp pc : productLabelCommands) {
+    AnnotationPlot* ap = new AnnotationPlot(pc);
     ap->setProductName(productName);
 
-    vector<vector<string> > vvstr = ap->getAnnotationStrings();
-    for (size_t k = 0; k < vvstr.size(); k++)
-      fieldplots_->getDataAnnotations(vvstr[k]);
+    std::vector< std::vector<std::string> > vvstr = ap->getAnnotationStrings();
+    for (std::vector<std::string>& vstr : vvstr)
+      fieldplots_->getDataAnnotations(vstr);
     ap->setAnnotationStrings(vvstr);
 
     // here we compare the labels, take input from oldVap

@@ -71,9 +71,9 @@ public:
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings
-  std::string getOKString(bool forLog= false);
+  PlotCommand_cp getOKString(bool forLog= false);
   ///insert command strings
-  void putOKString(const std::string& str);
+  void putOKString(const PlotCommand_cp& str);
   ///return short name of current commonad
   std::string getShortname();
   void readLog(const std::string& str);

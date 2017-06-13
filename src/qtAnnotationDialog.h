@@ -29,8 +29,10 @@
 #ifndef _annotationdialog_h
 #define _annotationdialog_h
 
-#include <diController.h>
 #include <QDialog>
+
+#include "diController.h"
+#include "diPlotCommand.h"
 
 class QPushButton;
 class QComboBox;
@@ -48,9 +50,9 @@ public:
   AnnotationDialog( QWidget* parent, Controller* llctrl );
   void parseSetup();
   ///return command strings
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   ///insert command strings
-  void putOKString(const std::vector<std::string>& vstr);
+  void putOKString(const PlotCommand_cpv& vstr);
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,

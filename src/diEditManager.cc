@@ -48,6 +48,7 @@
 #include "diUndoFront.h"
 #include "diFieldEdit.h"
 #include "diAnnotationPlot.h"
+#include "diStringPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/charsets.h"
@@ -421,17 +422,16 @@ void EditManager::readCommandFile(EditProduct & ep)
     }
   }
   //split up in LABEL and OTHER info...
-  vector <std::string> labcom,commands;
+  PlotCommand_cpv labcom,commands;
   for (std::string s : tmplines) {
     miutil::trim(s);
     if (s.empty())
       continue;
-    vector<std::string> vs= miutil::split(s, " ");
-    std::string pre= miutil::to_upper(vs[0]);
-    if (pre=="LABEL")
-      labcom.push_back(s);
+    StringPlotCommand_cp cmd = std::make_shared<StringPlotCommand>(s);
+    if (cmd->commandKey()=="LABEL")
+      labcom.push_back(cmd);
     else
-      commands.push_back(s);
+      commands.push_back(cmd);
   }
   ep.labels = labcom;
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
@@ -979,7 +979,7 @@ std::string EditManager::getProductName(){
 }
 
 
-void EditManager::saveProductLabels(vector <std::string> labels)
+void EditManager::saveProductLabels(const PlotCommand_cpv& labels)
 {
   objm->getEditObjects().saveEditLabels(labels);
 }
@@ -1304,12 +1304,12 @@ bool EditManager::startEdit(const EditProduct& ep,
   objm->putCommentStartLines(EdProd.name,EdProdId.name, commentstring);
 
   // set correct time for labels
-  for (vector<std::string>::iterator p=EdProd.labels.begin(); p!=EdProd.labels.end(); p++)
-    *p=insertTime(*p,valid);
+  for (PlotCommand_cpv::iterator it = EdProd.labels.begin(); it != EdProd.labels.end(); ++it)
+    insertTime(*it, valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,newProduct);
   //save merged labels in editobjects
-  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
+  PlotCommand_cpv labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
@@ -2089,13 +2089,12 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
 
   // set correct time for labels
-  for (vector<string>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
-  end();p++)
-    *p=insertTime(*p,valid);
+  for (PlotCommand_cpv::iterator p=EdProd.labels.begin();p!=EdProd.labels.end();p++)
+    insertTime(*p,valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
   //save merged labels in editobjects
-  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
+  PlotCommand_cpv labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
@@ -2245,7 +2244,7 @@ void EditManager::stopCombine()
   objm->setDoCombine(false);
   objm->editNewObjectsAdded(0);
 
-  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
+  PlotCommand_cpv labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
@@ -2732,14 +2731,18 @@ bool EditManager::recalcCombineMatrix(){
  -----------------------------------------------------------------------*/
 
 
-void EditManager::prepareEditFields(const vector<std::string>& inp)
+void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
   if (!isInEdit() || inp.empty())
     return;
 
-  const std::string plotName = fieldPlotManager->extractPlotName(inp[0]);
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[0]);
+  if (!cmd)
+    return;
+
+  const std::string plotName = fieldPlotManager->extractPlotName(cmd->command());
 
   // setting plot options
 
@@ -2748,7 +2751,8 @@ void EditManager::prepareEditFields(const vector<std::string>& inp)
 
   const size_t npif = std::min(inp.size(), fedits.size());
   for (size_t i=0; i<npif; i++) {
-    fedits[i]->editfieldplot->prepare(plotName, inp[i]);
+    if (StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[i]))
+      fedits[i]->editfieldplot->prepare(plotName, cmd->command());
   }
 
   // for showing single region during and after combine
@@ -2756,7 +2760,8 @@ void EditManager::prepareEditFields(const vector<std::string>& inp)
   for (size_t i=0; i<npic; i++) {
     size_t nreg = combinefields[i].size();
     for (size_t r=0; r<nreg; r++) {
-      combinefields[i][r]->editfieldplot->prepare(plotName, inp[i]);
+      if (StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(inp[i]))
+        combinefields[i][r]->editfieldplot->prepare(plotName, cmd->command());
     }
   }
 }
@@ -2790,7 +2795,7 @@ void EditManager::setEditMessage(const string& str)
     labelstr += " polystyle=both halign=left valign=top";
     labelstr += " xoffset=0.01 yoffset=0.1 fontsize=30";
     apEditmessage = new AnnotationPlot();
-    if (!apEditmessage->prepare(labelstr)) {
+    if (!apEditmessage->prepare(std::make_shared<StringPlotCommand>("LABEL", labelstr))) {
       delete apEditmessage;
       apEditmessage = 0;
     }
@@ -3349,11 +3354,15 @@ bool EditManager::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-const std::string EditManager::insertTime(const std::string& s, const miTime& time) {
+void EditManager::insertTime(PlotCommand_cp& pc, const miTime& time)
+{
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  if (!cmd)
+    return;
 
   bool english  = false;
   bool norwegian= false;
-  std::string es= s;
+  std::string es= cmd->command();
   if (miutil::contains(es, "$")) {
     if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); english= true; }
     if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
@@ -3381,5 +3390,5 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
       es= time.format(es, "en", true);
   }
 
-  return es;
+  pc = std::make_shared<StringPlotCommand>(es);
 }

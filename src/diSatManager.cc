@@ -36,6 +36,7 @@
 #include "diSatManager.h"
 
 #include "diSatPlot.h"
+#include "diStringPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/was_enabled.h"
@@ -70,7 +71,7 @@ SatManager::SatManager()
   useArchive=false;
 }
 
-void SatManager::prepareSat(const std::vector<std::string>& inp)
+void SatManager::prepareSat(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -84,7 +85,7 @@ void SatManager::prepareSat(const std::vector<std::string>& inp)
     plotenabled.restore(vsp[i]);
 }
 
-void SatManager::init(const std::vector<std::string>& pinfo)
+void SatManager::init(const PlotCommand_cpv& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
@@ -100,9 +101,14 @@ void SatManager::init(const std::vector<std::string>& pinfo)
 
 
   // loop through all PlotInfo's
-  for (size_t ip=0; ip<pinfo.size(); ip++) {
+  bool first = true;
+  for (PlotCommand_cp pc : pinfo) {
+    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    if (!cmd)
+      continue;
+
     // make a new SatPlot with a new Sat
-    Sat* satdata = new Sat(pinfo[ip]);
+    Sat* satdata = new Sat(cmd->command());
 
     bool isok= false;
     if (not vsp.empty()) { // if satplots exists
@@ -131,7 +137,7 @@ void SatManager::init(const std::vector<std::string>& pinfo)
           // check rgb operation parameters
           if (std::abs(sdp->cut - satdata->cut) < 1e-8f
               || std::abs(satdata->cut - (-0.5f)) < 1e-8f
-              || (sdp->commonColourStretch && ip>0))
+              || (sdp->commonColourStretch && !first))
           {
             sdp->cut= satdata->cut;
             sdp->rgboperchanged= true;
@@ -170,7 +176,7 @@ void SatManager::init(const std::vector<std::string>& pinfo)
           // rgb and alpha cuts must be redone
           isok= true;
           inuse[j]= true;
-          vsp[j]->setPlotInfo(pinfo[ip]);
+          vsp[j]->setPlotInfo(cmd->command());
           new_vsp.push_back(vsp[j]);
           break;
         }
@@ -179,9 +185,10 @@ void SatManager::init(const std::vector<std::string>& pinfo)
     if (!isok) { // make new satplot
       SatPlot *sp = new SatPlot;
       sp->setData(satdata); //new sat, with no images
-      sp->setPlotInfo(pinfo[ip]);
+      sp->setPlotInfo(cmd->command());
       new_vsp.push_back(sp);
     }
+    first = false;
   } // end loop PlotInfo's
 
   // delete unwanted satplots  (all plots not in use)

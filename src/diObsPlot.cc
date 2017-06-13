@@ -38,6 +38,7 @@
 #include "diImageGallery.h"
 #include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
+#include "diStringPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/qstring_util.h"
@@ -485,13 +486,12 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-const std::vector<std::string>& ObsPlot::getObsExtraAnnotations() const
+const PlotCommand_cpv ObsPlot::getObsExtraAnnotations() const
 {
   if ( isEnabled() && annotations ) {
     return labels;
   }
-  static const std::vector<std::string> NONE;
-  return NONE;
+  return PlotCommand_cpv();
 }
 
 ObsData& ObsPlot::getNextObs()
@@ -638,9 +638,16 @@ opts_t::const_iterator find_last(const opts_t& opts, const std::string& key)
 } // namespace
 
 // static
-ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
+ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
 {
-  METLIBS_LOG_SCOPE("pin: '" << pin << "'");
+  METLIBS_LOG_SCOPE();
+
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  if (!cmd)
+    return 0;
+  const std::string& pin = cmd->command();
+
+  METLIBS_LOG_DEBUG(LOGVAL(pin));
 
   const opts_t opts = obsplotoptions(pin);
 

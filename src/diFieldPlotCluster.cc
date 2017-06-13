@@ -33,7 +33,7 @@ const std::string& FieldPlotCluster::plotCommandKey() const
   return FIELD;
 }
 
-void FieldPlotCluster::prepare(const std::vector<std::string>& inp)
+void FieldPlotCluster::prepare(const PlotCommand_cpv& inp)
 {
   diutil::was_enabled plotenabled;
 

@@ -33,6 +33,7 @@
 
 #include "diCommonTypes.h"
 #include "diPlot.h"
+#include "diPlotCommand.h"
 #include "diObsData.h"
 
 #include <puTools/TimeFilter.h>
@@ -174,7 +175,7 @@ public:
   ObsManager();
 
   //parse PlotInfo
-  ObsPlot* createObsPlot(const std::string&);
+  ObsPlot* createObsPlot(const PlotCommand_cp&);
 
   //read data
   bool prepare(ObsPlot *, const miutil::miTime&);

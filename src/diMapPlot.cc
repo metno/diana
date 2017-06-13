@@ -34,6 +34,7 @@
 #include "diMapPlot.h"
 
 #include "diMapManager.h"
+#include "diStringPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -108,11 +109,16 @@ void MapPlot::setCanvas(DiCanvas* c)
 /*
  Extract plotting-parameters from PlotInfo.
  */
-bool MapPlot::prepare(const std::string& pinfo, bool ifequal)
+bool MapPlot::prepare(const PlotCommand_cp& pc, bool ifequal)
 {
-  METLIBS_LOG_SCOPE(pinfo);
+  METLIBS_LOG_SCOPE();
 
   MapManager mapm;
+
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  if (!cmd)
+    return false;
+  const std::string& pinfo = cmd->command();
 
   // split on blank, preserve ""
   vector<std::string> tokens= miutil::split_protected(pinfo, '"','"'," ",true);

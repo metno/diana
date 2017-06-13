@@ -50,13 +50,13 @@ public:
 
   void selectFields(const string_v& fields);
 
-  static void parse(QtManager_p manager, const string_v& vstr);
+  static void parse(QtManager_p manager, const PlotCommand_cpv& vstr);
 
-  void parse(const string_v& vstr);
-  string_v get() const;
+  void parse(const PlotCommand_cpv& vstr);
+  PlotCommand_cpv get() const;
 
 Q_SIGNALS:
-  void quickmenuUpdate(const std::string& title, const std::vector<std::string>& qm);
+  void quickmenuUpdate(const std::string& title, const PlotCommand_cpv& qm);
 
 private Q_SLOTS:
   void onFieldChangeBegin(bool fromScript);

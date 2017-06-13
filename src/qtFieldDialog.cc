@@ -37,6 +37,7 @@
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diController.h"
+#include "diStringPlotCommand.h"
 
 #include <qcheckbox.h>
 #include <QComboBox>
@@ -1158,7 +1159,7 @@ void FieldDialog::updateModelBoxes()
   METLIBS_LOG_SCOPE();
 
   //keep old plots
-  const std::vector<std::string> vstr = getOKString();
+  const PlotCommand_cpv vstr = getOKString();
 
   modelItems->clear();
   modelFilterEdit->clear();
@@ -3004,7 +3005,7 @@ METLIBS_LOG_SCOPE(LOGVAL(modelName));
 
 }
 
-vector<string> FieldDialog::getOKString()
+PlotCommand_cpv FieldDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
@@ -3014,7 +3015,7 @@ vector<string> FieldDialog::getOKString()
     selectedFields[i].idnummove = true;
   }
 
-  vector<string> vstr;
+  PlotCommand_cpv vstr;
   if (selectedFields.size() == 0)
     return vstr;
 
@@ -3025,12 +3026,14 @@ vector<string> FieldDialog::getOKString()
     if (selectedFields[i].minus)
       continue;
 
-    ostringstream ostr;
+    std::string commandKey;
     if (selectedFields[i].inEdit) {
-      ostr << "EDITFIELD";
+      commandKey = "EDITFIELD";
     } else {
-      ostr << "FIELD";
+      commandKey = "FIELD";
     }
+    ostringstream ostr;
+    ostr << commandKey;
 
     bool minus = false;
     if (i + 1 < n && selectedFields[i + 1].minus) {
@@ -3056,7 +3059,7 @@ vector<string> FieldDialog::getOKString()
 
     // the OK string
     const std::string str = ostr.str();
-    vstr.push_back(str);
+    vstr.push_back(std::make_shared<StringPlotCommand>(commandKey, str));
 
     METLIBS_LOG_DEBUG("OK: " << str);
   }
@@ -3247,7 +3250,7 @@ bool FieldDialog::levelsExists(bool up, int type)
   return false;
 }
 
-void FieldDialog::putOKString(const vector<std::string>& vstr,
+void FieldDialog::putOKString(const PlotCommand_cpv& vstr,
     bool checkOptions, bool external)
 {
   METLIBS_LOG_SCOPE();
@@ -3268,8 +3271,12 @@ void FieldDialog::putOKString(const vector<std::string>& vstr,
   std::string str;
 
   for (int ic = 0; ic < nc; ic++) {
-    if (str.empty())
-      str = vstr[ic];
+    if (str.empty()) {
+      if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(vstr[ic]))
+        str = c->command();
+      else
+        continue;
+    }
     //######################################################################
                 METLIBS_LOG_DEBUG("P.OK>> " << vstr[ic]);
     //######################################################################

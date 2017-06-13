@@ -29,6 +29,7 @@
 
 #include "VcrossQuickmenues.h"
 
+#include "diStringPlotCommand.h"
 #include "util/string_util.h"
 #include <puTools/miStringFunctions.h>
 #include <sstream>
@@ -78,13 +79,13 @@ VcrossQuickmenues::~VcrossQuickmenues()
 }
 
 
-void VcrossQuickmenues::parse(const std::vector<std::string>& qm_lines)
+void VcrossQuickmenues::parse(const PlotCommand_cpv& qm_lines)
 {
   parse(mManager, qm_lines);
 }
 
 // static
-void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string>& qm_lines)
+void VcrossQuickmenues::parse(QtManager_p manager, const PlotCommand_cpv& qm_lines)
 {
   METLIBS_LOG_SCOPE();
 
@@ -93,8 +94,11 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
   std::string lonlat_cs_tg;
   bool is_cs = false, is_tg = false, is_dyn = false;
 
-  for (string_v::const_iterator it = qm_lines.begin(); it != qm_lines.end(); ++it) { // copy because it has to be trimmed
-    const std::string line = miutil::trimmed(*it);
+  for (PlotCommand_cp pc : qm_lines) {
+    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    if (!cmd)
+      continue;
+    const std::string line = miutil::trimmed(cmd->command());
     if (line.empty())
       continue;
 
@@ -165,18 +169,20 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
 }
 
 
-std::vector<std::string> VcrossQuickmenues::get() const
+PlotCommand_cpv VcrossQuickmenues::get() const
 {
   METLIBS_LOG_SCOPE();
 
-  string_v qm;
+  PlotCommand_cpv qm;
 
   const int n = mManager->getFieldCount();
   if (n > 0) {
-    qm.push_back("VCROSS");
+    qm.push_back(std::make_shared<StringPlotCommand>("VCROSS"));
 
     const string_v options = mManager->getOptions()->writeOptions();
-    qm.insert(qm.end(), options.begin(), options.end());
+    for (const std::string& o : options)
+      // FIXME this is not the standard command format, line does *NOT* start with "VCROSS_OPTION"
+      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS_OPTION", o));
 
     for (int i=0; i<n; ++i) {
       std::ostringstream field;
@@ -184,14 +190,15 @@ std::vector<std::string> VcrossQuickmenues::get() const
             << " reftime=" << mManager->getReftimeAt(i).isoTime("T")
             << " field=" << mManager->getFieldAt(i)
             << " " << mManager->getOptionsAt(i);
-      qm.push_back(field.str());
+      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", field.str()));
     }
 
     const QString cs_label = mManager->getCrossectionLabel();
     if (!cs_label.isEmpty()) {
       const std::string cs_tg = mManager->isTimeGraph()
           ? KEY_TIMEGRAPH : KEY_CROSSECTION;
-      qm.push_back(cs_tg + std::string("=") + cs_label.toStdString());
+      // FIXME this is not the standard command format, line does *NOT* start with "VCROSS" but with "CROSSECTION=..." or so
+      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", cs_tg + std::string("=") + cs_label.toStdString()));
 
       const LonLat_v points = mManager->getDynamicCrossectionPoints(cs_label);
       if (!points.empty()) {
@@ -200,7 +207,8 @@ std::vector<std::string> VcrossQuickmenues::get() const
              << '=';
         for (LonLat_v::const_iterator it = points.begin(); it != points.end(); ++it)
           pstr << it->lonDeg() << ',' << it->latDeg() << ' ';
-        qm.push_back(pstr.str());
+        // FIXME this is not the standard command format, line does *NOT* start with "VCROSS" but with "CROSSECTION_LONLAT_DEG=..." or so
+        qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", pstr.str()));
       }
     }
 
@@ -209,7 +217,7 @@ std::vector<std::string> VcrossQuickmenues::get() const
       marker << "VCROSS MARKER text=" << mManager->getMarkerText(i)
              << " position=" << mManager->getMarkerPosition(i)
              << " colour=" << mManager->getMarkerColour(i);
-      qm.push_back(marker.str());
+      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", marker.str()));
     }
   }
 
@@ -305,7 +313,7 @@ void VcrossQuickmenues::emitQmIfNotInGroup()
 
 void VcrossQuickmenues::emitQm()
 {
-  const string_v qm = get();
+  const PlotCommand_cpv qm = get();
   if (!qm.empty())
     Q_EMIT quickmenuUpdate(getQuickMenuTitle(), qm);
 }

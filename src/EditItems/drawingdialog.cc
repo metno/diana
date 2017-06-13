@@ -30,6 +30,7 @@
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
+#include "diStringPlotCommand.h"
 
 #include "EditItems/drawingdialog.h"
 #include "EditItems/filterdrawingdialog.h"
@@ -238,9 +239,9 @@ void DrawingDialog::updateDialog()
 {
 }
 
-std::vector<std::string> DrawingDialog::getOKString()
+PlotCommand_cpv DrawingDialog::getOKString()
 {
-  std::vector<std::string> lines;
+  PlotCommand_cpv lines;
 
   if (!drawm_->isEnabled())
     return lines;
@@ -253,16 +254,16 @@ std::vector<std::string> DrawingDialog::getOKString()
       line = "DRAWING file=\"" + fileName + "\"";
     else
       line = "DRAWING name=\"" + name + "\"";
-    lines.push_back(line.toStdString());
+    lines.push_back(std::make_shared<StringPlotCommand>("DRAWING", line.toStdString()));
   }
 
   return lines;
 }
 
-void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
+void DrawingDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   // Submit the lines as new input.
-  std::vector<std::string> inp;
+  PlotCommand_cpv inp;
   inp.insert(inp.begin(), vstr.begin(), vstr.end());
   drawm_->processInput(inp);
 
@@ -306,9 +307,9 @@ void DrawingDialog::makeProduct()
   QMap<QString, QString> items = activeDrawingsModel_.items();
   QMap<QString, QString>::const_iterator it;
 
-  std::vector<std::string> inp;
+  PlotCommand_cpv inp;
   for (it = items.constBegin(); it != items.constEnd(); ++it)
-    inp.push_back("DRAWING name=\"" + it.key().toStdString() + "\"");
+    inp.push_back(std::make_shared<StringPlotCommand>("DRAWING", "DRAWING name=\"" + it.key().toStdString() + "\""));
 
   putOKString(inp);
 

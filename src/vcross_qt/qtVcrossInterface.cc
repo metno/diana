@@ -46,8 +46,8 @@ VcrossWindowInterface::VcrossWindowInterface()
   , quickmenues(new VcrossQuickmenues(vcrossm))
   , window(0)
 {
-  connect(quickmenues.get(), SIGNAL(quickmenuUpdate(const std::string&, const std::vector<std::string>&)),
-      this, SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)));
+  connect(quickmenues.get(), &VcrossQuickmenues::quickmenuUpdate,
+      this, &VcrossWindowInterface::quickMenuStrings);
 
   { vcross::QtManager* m = vcrossm.get();
     connect(m, SIGNAL(crossectionListChanged()),
@@ -135,7 +135,7 @@ void VcrossWindowInterface::mainWindowTimeChanged(const miutil::miTime& t)
   vcrossm->setTimeToBestMatch(t);
 }
 
-void VcrossWindowInterface::parseQuickMenuStrings(const std::vector<std::string>& qm_strings)
+void VcrossWindowInterface::parseQuickMenuStrings(const PlotCommand_cpv& qm_strings)
 {
   quickmenues->parse(qm_strings);
 }

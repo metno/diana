@@ -1441,7 +1441,7 @@ void EditObjects::putComments(const std::string & comments)
 /************************************************************
  *  Methods for reading and writing labels                *
  ************************************************************/
-void EditObjects::saveEditLabels(const vector<string>& labels)
+void EditObjects::saveEditLabels(const PlotCommand_cpv& labels)
 {
   itsLabels = labels;
   labelsSaved=false;

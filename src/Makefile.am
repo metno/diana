@@ -66,6 +66,7 @@ libdiana_la_SOURCES = \
 	diObsPositions.cc \
 	diPattern.cc \
 	diPlot.cc \
+	diPlotCommand.cc \
 	diPlotCluster.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
@@ -79,6 +80,7 @@ libdiana_la_SOURCES = \
 	diSatManager.cc \
 	diSatPlot.cc \
 	diShapeObject.cc \
+	diStringPlotCommand.cc \
 	diSpectrumData.cc \
 	diSpectrumFile.cc \
 	diSpectrumManager.cc \
@@ -342,6 +344,7 @@ noinst_HEADERS = \
 	diOrderQueue.h \
 	diPattern.h \
 	diPlot.h \
+	diPlotCommand.h \
 	diPlotCluster.h \
 	diPlotModule.h \
 	diPlotOptions.h \
@@ -354,6 +357,7 @@ noinst_HEADERS = \
 	diSatManager.h \
 	diSatPlot.h \
 	diShapeObject.h \
+	diStringPlotCommand.h \
 	diSpectrumData.h \
 	diSpectrumFile.h \
 	diSpectrumManager.h \

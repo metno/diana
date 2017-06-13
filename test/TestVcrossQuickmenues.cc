@@ -41,8 +41,7 @@ namespace test {
 
 QuickmenuSlots::QuickmenuSlots(VcrossQuickmenues* qm)
 {
-  connect(qm, SIGNAL(quickmenuUpdate(const std::string&, const std::vector<std::string>&)),
-      this, SLOT(onQuickmenuesUpdate(const std::string&, const std::vector<std::string>&)));
+  connect(qm, &VcrossQuickmenues::quickmenuUpdate, this, &QuickmenuSlots::onQuickmenuesUpdate);
 }
 
 void QuickmenuSlots::reset()
@@ -51,7 +50,7 @@ void QuickmenuSlots::reset()
   qmenues.clear();
 }
 
-void QuickmenuSlots::onQuickmenuesUpdate(const std::string& t, const std::vector<std::string>& qm)
+void QuickmenuSlots::onQuickmenuesUpdate(const std::string& t, const PlotCommand_cpv& qm)
 {
   titles.push_back(t);
   qmenues.push_back(qm);
@@ -63,7 +62,7 @@ void QuickmenuSlots::onQuickmenuesUpdate(const std::string& t, const std::vector
 namespace {
 typedef std::vector<std::string> string_v;
 static const char AROME_FILE[] = "arome_vprof.nc";
-}
+} // namespace
 
 TEST(TestVcrossQuickmenues, Script)
 {
@@ -92,7 +91,7 @@ TEST(TestVcrossQuickmenues, Script)
   string_v qmlines;
   qmlines.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
   qmlines.push_back("CROSSECTION=Nesbyen 6");
-  qm.parse(qmlines);
+  qm.parse(makeCommands(qmlines));
 
   // no update here, we ran a script
   EXPECT_EQ(0, qmslots.titles.size());
@@ -153,7 +152,7 @@ TEST(TestVcrossQuickmenues, ChangeTime)
   qmlines.push_back("VCROSS model=AROME field=temperature colour=blue");
   qmlines.push_back("CROSSECTION=ENVA");
   qmlines.push_back("CROSSECTION_LONLAT_DEG=10.7,63.4 10.9,63.5 10.9,63.4 11.1,63.5");
-  qm.parse(qmlines);
+  qm.parse(makeCommands(qmlines));
   ASSERT_EQ("ENVA", manager->getCrossectionLabel().toStdString());
 
   ASSERT_EQ(4, manager->getTimeCount());
@@ -163,4 +162,20 @@ TEST(TestVcrossQuickmenues, ChangeTime)
 
   manager->setTimeIndex(1);
   ASSERT_EQ("ENVA", manager->getCrossectionLabel().toStdString());
+}
+
+TEST(TestVcrossQuickmenues, MakeCommandsVcross)
+{
+  std::vector<std::string> lines;
+  lines.push_back("VCROSS");
+  lines.push_back("text=on textColour=black PositionNames=on positionNamesColour=red");
+  lines.push_back("LevelNumbers=on");
+  lines.push_back("VCROSS model=EC_bfs refhour=0 field=Temp(K) colour=green linewidth=1 line.interval=1");
+  lines.push_back("CROSSECTION=(58N;0E)-(58N;20E)");
+
+  const PlotCommand_cpv pcs = makeCommands(lines);
+  EXPECT_EQ(5, pcs.size());
+  for (PlotCommand_cp pc : pcs) {
+    EXPECT_EQ("VCROSS", pc->commandKey());
+  }
 }

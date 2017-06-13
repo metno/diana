@@ -132,7 +132,7 @@ public:
 
   /// add command to history
   void pushPlot(const std::string& name,
-      const std::vector<std::string>& pstr, int index=0);
+      const PlotCommand_cpv& pstr, int index=0);
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
@@ -158,7 +158,7 @@ public:
   std::string getCurrentName();
 
 Q_SIGNALS:
-  void Apply(const std::vector<std::string>& s, bool); ///< send plot-commands
+  void Apply(const PlotCommand_cpv&, bool); ///< send plot-commands
   void showsource(const std::string, const std::string=""); ///< activate help
 
 private Q_SLOTS:

@@ -55,9 +55,9 @@ public:
 
   void updateDialog();
   ///return command strings
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   ///insert command strings
-  void putOKString(const std::vector<std::string>& vstr);
+  void putOKString(const PlotCommand_cpv& vstr);
   ///return short name of current command
   std::string getShortname();
   bool show_names;

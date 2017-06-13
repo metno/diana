@@ -31,6 +31,7 @@
 #define diObsAscii_h
 
 #include "diObsData.h"
+#include "diPlotCommand.h"
 
 #include <puTools/miTime.h>
 
@@ -66,7 +67,7 @@ private:
   typedef std::map<std::string, size_t> string_size_m;
   string_size_m asciiColumn; //column index(time, x,y,dd,ff etc)
   int  asciiSkipDataLines;
-  std::vector<std::string> labels;
+  PlotCommand_cpv labels;
 
   std::vector<std::string> m_columnType;
   std::vector<std::string> m_columnName;

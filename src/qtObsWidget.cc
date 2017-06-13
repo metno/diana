@@ -33,6 +33,7 @@
 
 #include "qtObsWidget.h"
 
+#include "diStringPlotCommand.h"
 #include "diUtilities.h"
 #include "qtButtonLayout.h"
 #include "qtUtility.h"
@@ -732,18 +733,17 @@ std::string ObsWidget::makeString()
   return str;
 }
 
-std::string ObsWidget::getOKString(bool forLog)
+PlotCommand_cp ObsWidget::getOKString(bool forLog)
 {
   shortname.clear();
-
-  std::string str;
 
   dVariables.plotType = plotType;
 
   dVariables.data = datatypeButtons->getOKString();
 
   if(!dVariables.data.size() && !forLog)
-    return str;
+    return PlotCommand_cp();
+
   if(parameterButtons)
     dVariables.parameter = parameterButtons->getOKString(forLog);
 
@@ -824,9 +824,8 @@ std::string ObsWidget::getOKString(bool forLog)
 
   dVariables.misc["colour"] = cInfo[colourBox->currentIndex()].name;
 
-  if (forLog)
-    str.clear();
-  else
+  std::string str;
+  if (!forLog)
     str = "OBS";
   diutil::appendText(str, makeString());
 
@@ -835,8 +834,9 @@ std::string ObsWidget::getOKString(bool forLog)
 
   //Criteria
   if (str.empty())
-    return str;
+    return PlotCommand_cp();
 
+  bool addsort = true;
   if(forLog){
     int n = criteriaList.size();
     for(int i=1; i<n; i++){
@@ -857,26 +857,30 @@ std::string ObsWidget::getOKString(bool forLog)
     }
   } else if(criteriaCheckBox->isChecked()) {
     int m = savedCriteria.criteria.size();
-    if( m==0 ) return str;
-    str+= " criteria=";
-    for( int j=0; j<m; j++){
-      vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
-      int size=sub.size();
-      for(int k=0;k<size;k++){
-        str += sub[k];
-        if(k<size-1) str += ",";
+    if( m==0 )
+      addsort = false;
+    else {
+      str+= " criteria=";
+      for( int j=0; j<m; j++){
+        vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
+        int size=sub.size();
+        for(int k=0;k<size;k++){
+          str += sub[k];
+          if(k<size-1) str += ",";
+        }
+        if(j<m-1)
+          str += ";";
       }
-      if(j<m-1) str += ";";
     }
   }
 
-  if(sortBox->currentIndex() > 0 && !sortBox->currentText().isEmpty()) {
+  if (addsort && sortBox->currentIndex() > 0 && !sortBox->currentText().isEmpty()) {
     str+= " sort=";
     str+= sortBox->currentText().toStdString();
     str+=",";
     str+= descsortButton->isChecked() ? "desc" : "asc";
   }
-  return str;
+  return std::make_shared<StringPlotCommand>(str);
 }
 
 std::string ObsWidget::getShortname()
@@ -884,11 +888,12 @@ std::string ObsWidget::getShortname()
   return shortname;
 }
 
-void ObsWidget::putOKString(const std::string& str)
+void ObsWidget::putOKString(const PlotCommand_cp& str)
 {
   dVariables.misc.clear();
 
-  decodeString(str,dVariables,false);
+  if (StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(str))
+    decodeString(cmd->command(), dVariables, false);
   updateDialog(true);
 
   Q_EMIT getTimes();

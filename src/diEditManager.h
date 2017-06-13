@@ -193,7 +193,7 @@ public:
   /// returns the current product name
   std::string getProductName();
   /// save edited annotations in EditObjects
-  void saveProductLabels(std::vector <std::string> labels);
+  void saveProductLabels(const PlotCommand_cpv& labels);
   bool fileExists(const EditProduct& ep, const EditProductId& ci, const miutil::miTime& time, QString& message);
   bool makeNewFile(int fnum, bool local, QString& message);
   /// start editing product
@@ -237,7 +237,7 @@ public:
   /// returns current EditDialogInfo
   EditDialogInfo getEditDialogInfo();
   /// set plotting parameters for EditFields from inp
-  void prepareEditFields(const std::vector<std::string>& inp);
+  void prepareEditFields(const PlotCommand_cpv& inp);
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
@@ -255,7 +255,7 @@ public:
   /// get fieldEdit annotations
   bool getDataAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
-  const std::string insertTime(const std::string&, const miutil::miTime&);
+  void insertTime(PlotCommand_cp&, const miutil::miTime&);
 };
 
 #endif

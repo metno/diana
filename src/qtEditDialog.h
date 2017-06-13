@@ -157,7 +157,7 @@ Q_SIGNALS:
   /// apply edit commands
   void editApply();
  /// send plot-commands
-  void Apply(const std::vector<std::string>& s, bool);
+  void Apply(const PlotCommand_cpv& s, bool);
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times

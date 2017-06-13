@@ -16,7 +16,7 @@ public:
 
   const std::string& plotCommandKey() const override;
 
-  void prepare(const std::vector<std::string>& cmds) override;
+  void prepare(const PlotCommand_cpv& cmds) override;
 
   //! returns true iff there are any obs plots with data
   bool update(bool ifNeeded, const miutil::miTime& t);

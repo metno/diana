@@ -82,7 +82,7 @@ ObsManager::ObsManager()
   timeListChanged = false;
 }
 
-ObsPlot* ObsManager::createObsPlot(const std::string& pin)
+ObsPlot* ObsManager::createObsPlot(const PlotCommand_cp& pin)
 {
   return ObsPlot::createObsPlot(pin);
 }

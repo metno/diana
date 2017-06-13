@@ -32,6 +32,7 @@
 #endif
 
 #include "qtAnnotationDialog.h"
+#include "diStringPlotCommand.h"
 #include "miSetupParser.h"
 #include "qtUtility.h"
 
@@ -194,18 +195,20 @@ void AnnotationDialog::parseSetup(){
 
 
 /*******************************************************/
-vector<string> AnnotationDialog::getOKString()
+PlotCommand_cpv AnnotationDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
   current_annoStrings[annoBox->currentText()] = textedit->toPlainText();
   std::string text = textedit->toPlainText().toStdString();
   METLIBS_LOG_DEBUG(LOGVAL(text));
-  vector<string> str = miutil::split(text, 0, "\n");
-  for ( size_t i=0; i<str.size(); i++ ) {
-    miutil::trim( str[i] );
+  const vector<string> str = miutil::split(text, 0, "\n");
+  PlotCommand_cpv cmd;
+  cmd.reserve(str.size());
+  for (const std::string& s : str) {
+    cmd.push_back(std::make_shared<StringPlotCommand>(miutil::trimmed(s)));
   }
-  return str;
+  return cmd;
 }
 
 
@@ -221,7 +224,7 @@ void AnnotationDialog::readLog(const vector<string>&, const string&, const strin
   METLIBS_LOG_SCOPE();
 }
 
-void AnnotationDialog::putOKString(const vector<string>& vstr)
+void AnnotationDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE(vstr.size());
   if ( vstr.size() == 0 ) {
@@ -231,9 +234,9 @@ void AnnotationDialog::putOKString(const vector<string>& vstr)
   }
 
   std::string str;
-  for (size_t i=0; i<vstr.size(); i++){
-    str += vstr[i];
-    str+= std::string("\n");
+  for (PlotCommand_cp cmd : vstr) {
+    if (StringPlotCommand_cp s = std::dynamic_pointer_cast<const StringPlotCommand>(cmd))
+      str += s->command() + "\n";
   }
   textedit->setText(QString(str.c_str()));
 }

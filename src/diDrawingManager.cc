@@ -40,6 +40,7 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diPlotModule.h"
+#include "diStringPlotCommand.h"
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
 
@@ -205,17 +206,20 @@ bool DrawingManager::parseSetup()
  * Processes the plot commands passed as a vector of strings, creating items
  * as required.
  */
-bool DrawingManager::processInput(const std::vector<std::string>& inp)
+bool DrawingManager::processInput(const PlotCommand_cpv& inp)
 {
   loaded_.clear();
 
   // Compile a list of files to load.
   QStringList toLoad;
 
-  vector<string>::const_iterator it;
-  for (it = inp.begin(); it != inp.end(); ++it) {
+  for (PlotCommand_cp pc : inp) {
+    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    if (!cmd)
+      continue;
+
     // Split each input line into a collection of "words".
-    vector<string> pieces = miutil::split_protected(*it, '"', '"');
+    vector<string> pieces = miutil::split_protected(cmd->command(), '"', '"');
     // Skip the first piece ("DRAWING").
     pieces.erase(pieces.begin());
 

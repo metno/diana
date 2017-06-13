@@ -148,15 +148,16 @@ bool WebMapManager::parseSetup()
   return true;
 }
 
-WebMapPlot* WebMapManager::createPlot(const std::string& qmstring)
+WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(qmstring));
+  METLIBS_LOG_SCOPE(LOGVAL(qmstring->command()));
+
   // webmap.service=<service.id> webmap.layer=... webmap.dim=name=value webmap.crs=<string>
   //   webmap.time_tolerance=<int[seconds]>  webmap.time_offset=<int[seconds]>
   //   style.alpha_scale=<float> style.alpha_offset=<float> style.grey=<bool>
 
   std::string wm_service, wm_layer; // mandatory
-  const std::vector<std::string> kvpairs = miutil::split(qmstring);
+  const std::vector<std::string> kvpairs = miutil::split(qmstring->command());
   for (size_t i=0; i<kvpairs.size(); i++) {
     const std::vector<std::string> kv = miutil::split(kvpairs[i], 1, "=");
     if (kv.size() != 2)
@@ -224,12 +225,14 @@ WebMapPlot* WebMapManager::createPlot(const std::string& qmstring)
   return plot.release();
 }
 
-bool WebMapManager::processInput(const std::vector<std::string>& input)
+bool WebMapManager::processInput(const PlotCommand_cpv& input)
 {
   METLIBS_LOG_SCOPE(LOGVAL(input.size()));
   clearMaps();
-  for (size_t i=0; i<input.size(); ++i)
-    addMap(createPlot(input[i]));
+  for (size_t i=0; i<input.size(); ++i) {
+    if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(input[i]))
+      addMap(createPlot(c));
+  }
   return true;
 }
 

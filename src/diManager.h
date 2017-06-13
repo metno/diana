@@ -35,6 +35,7 @@
 #include "diCommonTypes.h"
 #include "diMapMode.h"
 #include "diPlot.h"
+#include "diPlotCommand.h"
 
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
@@ -73,7 +74,7 @@ public:
   virtual void plot(DiGLPainter* gl, Plot::PlotOrder zorder)
     { plot(gl, zorder == Plot::LINES, zorder == Plot::OVERLAY); }
 
-  virtual bool processInput(const std::vector<std::string>& inp) = 0;
+  virtual bool processInput(const PlotCommand_cpv& inp) = 0;
 
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;

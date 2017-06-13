@@ -1487,7 +1487,7 @@ static void handleVcrossOpt(int& k)
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vcross_opt_end);
   if (!vcrossmanager)
     vcrossmanager = std::make_shared<vcross::QtManager>();
-  vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+  vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom));
 }
 
 static void handleSpectrumOpt(int& k)
@@ -1617,7 +1617,7 @@ static int handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- sending plotCommands");
-    main_controller->plotCommands(pcom);
+    main_controller->plotCommands(makeCommands(pcom));
 
     selectTime();
 
@@ -1709,7 +1709,7 @@ static int handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- sending vcross plot commands");
-    vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+    vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom));
 
     if (fixedtime.undef()) {
       fixedtime = vcrossmanager->getTimeValue();
@@ -2025,7 +2025,7 @@ static int handleTimeCommand(int& k)
 
   if (verbose)
     METLIBS_LOG_INFO("- sending plotCommands");
-  main_controller->plotCommands(pcom);
+  main_controller->plotCommands(makeCommands(pcom));
 
   set<miTime> okTimes;
   main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union");
@@ -2225,7 +2225,7 @@ static int handleDescribeCommand(int& k)
 
   if (verbose)
     METLIBS_LOG_INFO("- sending plotCommands");
-  main_controller->plotCommands(pcom);
+  main_controller->plotCommands(makeCommands(pcom));
 
   selectTime();
 

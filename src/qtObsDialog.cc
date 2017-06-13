@@ -32,6 +32,7 @@
 #endif
 
 #include "qtObsDialog.h"
+#include "diStringPlotCommand.h"
 #include "qtObsWidget.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
@@ -170,7 +171,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 void ObsDialog::updateDialog()
 {
   //save selections
-  vector<string> vstr = getOKString();
+  PlotCommand_cpv vstr = getOKString();
 
   //remove old widgets
   for( int i=0; i < nr_plot; i++){
@@ -292,15 +293,11 @@ void ObsDialog::getTimes()
     set<std::string> nameset;
     for (int i=0; i<nr_plot; i++) {
       if (obsWidget[i]->initialized()) {
-        vector<std::string> name=obsWidget[i]->getDataTypes();
+        std::vector<std::string> name=obsWidget[i]->getDataTypes();
         nameset.insert(name.begin(), name.end());
       }
     }
-    if(nameset.size()>0){
-      set<std::string>::iterator p = nameset.begin();
-      for(;p!=nameset.end();p++)
-        dataName.push_back(*p);
-    }
+    dataName = std::vector<std::string>(nameset.begin(), nameset.end());
 
   } else {
 
@@ -345,10 +342,9 @@ void ObsDialog::archiveMode(bool on){
 
 
 /*******************************************************/
-vector<string> ObsDialog::getOKString()
+PlotCommand_cpv ObsDialog::getOKString()
 {
-
-  vector<string> str;
+  PlotCommand_cpv str;
 
   if (nr_plot == 0)
     return str;
@@ -356,17 +352,13 @@ vector<string> ObsDialog::getOKString()
   if(multiplot) {
     for (int i=nr_plot-1; i>-1; i--) {
       if (obsWidget[i]->initialized()) {
-        std::string  tmpstr = obsWidget[i]->getOKString();
-        if (not tmpstr.empty()) {
-          //          tmpstr += getCriteriaOKString();
-          str.push_back(tmpstr);
-        }
+        if (PlotCommand_cp cmd = obsWidget[i]->getOKString())
+          str.push_back(cmd);
       }
     }
   } else {
-    std::string  tmpstr = obsWidget[m_selected]->getOKString();
-    //    if(tmpstr.exists()) tmpstr += getCriteriaOKString();
-    str.push_back(tmpstr);
+    if (PlotCommand_cp cmd = obsWidget[m_selected]->getOKString())
+      str.push_back(cmd);
   }
 
   return str;
@@ -382,15 +374,15 @@ vector<string> ObsDialog::writeLog()
   std::string str;
 
   //first write the plot type selected now
-  str = obsWidget[m_selected]->getOKString(true);
-  vstr.push_back(str);
+  if (PlotCommand_cp cmd = obsWidget[m_selected]->getOKString(true))
+    vstr.push_back(cmd->toString());
 
   //then the others
   for (int i=0; i<nr_plot; i++) {
     if (i != m_selected) {
       if (obsWidget[i]->initialized()) {
-        str= obsWidget[i]->getOKString(true);
-        vstr.push_back(str);
+        if (PlotCommand_cp cmd = obsWidget[i]->getOKString(true))
+          vstr.push_back(cmd->toString());
       } else if (i < savelog.size() && savelog[i].size()>0) {
         // ascii obs dialog not activated
         vstr.push_back(savelog[i]);
@@ -447,7 +439,7 @@ std::string ObsDialog::getShortname()
 }
 
 
-void ObsDialog::putOKString(const vector<string>& vstr)
+void ObsDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   //unselect everything
   for (int i=0; i<nr_plot; i++) {
@@ -462,17 +454,20 @@ void ObsDialog::putOKString(const vector<string>& vstr)
   vector<miutil::miTime> noTimes;
   emit emitTimes( "obs",noTimes );
 
-  int n=vstr.size();
-  if(n>1) {
+  if (vstr.size() > 1) {
     multiplot=true;
     multiplotButton->setChecked(true);
   }
-  for(int i=0; i<n; i++){
-    int l = findPlotnr(vstr[i]);
+  for (PlotCommand_cp cmd : vstr) {
+    StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(cmd);
+    if (!c)
+      continue;
+
+    int l = findPlotnr(c->command());
     if (l<nr_plot) {
       plotbox->setCurrentIndex(l);
       plotSelected(l);
-      obsWidget[l]->putOKString(vstr[i]);
+      obsWidget[l]->putOKString(cmd);
     }
   }
 }
@@ -480,7 +475,6 @@ void ObsDialog::putOKString(const vector<string>& vstr)
 
 int ObsDialog::findPlotnr(const std::string& str)
 {
-
   vector<std::string> tokens = miutil::split(str, " ");
   int m=tokens.size();
   for(int j=0; j<m; j++){
@@ -496,25 +490,25 @@ int ObsDialog::findPlotnr(const std::string& str)
   }
 
   return nr_plot; //not found
-
 }
 
-bool  ObsDialog::setPlottype(const std::string& str, bool on)
+bool  ObsDialog::setPlottype(const std::string& name, bool on)
 {
   METLIBS_LOG_SCOPE();
   int l=0;
-  while (l<nr_plot && m_name[l]!=str) l++;
-
-  if( l == nr_plot) return false;
+  while (l<nr_plot && m_name[l]!=name)
+    l++;
+  if( l == nr_plot)
+    return false;
 
   if( on ){
     plotbox->setCurrentIndex(l);
     ObsWidget* ow = new ObsWidget( this );
-    std::string str;
-    if (obsWidget[l]->initialized() ) {
+    PlotCommand_cp str;
+    if (obsWidget[l]->initialized()) {
       str = obsWidget[l]->getOKString();
-    } else if ( l < savelog.size() ) {
-      str = savelog[l];
+    } else if (l < savelog.size() && !savelog[l].empty()) {
+      str = std::make_shared<StringPlotCommand>(savelog[l]);
     }
     stackedWidget->removeWidget(obsWidget[l]);
     obsWidget[l]->close();
@@ -523,18 +517,15 @@ bool  ObsDialog::setPlottype(const std::string& str, bool on)
     stackedWidget->insertWidget(l,obsWidget[l]);
 
     plotSelected(l,false);
-    if (not str.empty()) {
+    if (str)
       obsWidget[l]->putOKString(str);
-    }
 
   } else if( obsWidget[l]->initialized() ){
     obsWidget[l]->setFalse();
     getTimes();
   }
 
-
   return true;
-
 }
 
 //called when the dialog is closed by the window manager

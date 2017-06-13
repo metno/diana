@@ -36,6 +36,7 @@
 #include "qtToggleButton.h"
 #include "diLinetype.h"
 #include "diMapManager.h"
+#include "diStringPlotCommand.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -1059,20 +1060,18 @@ void MapDialog::closeEvent(QCloseEvent* e)
  GetOKString
  */
 
-vector<string> MapDialog::getOKString()
+PlotCommand_cpv MapDialog::getOKString()
 {
-#ifdef dMapDlg
-  METLIBS_LOG_DEBUG("MapDialog::getOKString called");
-#endif
-  vector<string> vstr;
+  METLIBS_LOG_SCOPE();
   MapManager mapm;
+  PlotCommand_cpv vstr;
 
   //Area string
   if (areabox->currentRow() > -1) {
     ostringstream areastr;
     areastr << "AREA";
     areastr << " name=" << areabox->currentItem()->text().toStdString();
-    vstr.push_back(areastr.str());
+    vstr.push_back(std::make_shared<StringPlotCommand>("AREA", areastr.str()));
   }
 
   //Map strings
@@ -1093,7 +1092,7 @@ vector<string> MapDialog::getOKString()
 
     ostringstream ostr;
     ostr << "MAP " << mapm.MapInfo2str(m_MapDI.maps[lindex]);
-    vstr.push_back(ostr.str());
+    vstr.push_back(std::make_shared<StringPlotCommand>("MAP", ostr.str()));
   }
   if (lmaps.size() > 0)
     logmaps = lmaps;
@@ -1135,7 +1134,7 @@ vector<string> MapDialog::getOKString()
   mi.frame.zorder = framez;
 
   ostr << mapm.MapExtra2str(mi);
-  vstr.push_back(ostr.str());
+  vstr.push_back(std::make_shared<StringPlotCommand>("MAP", ostr.str()));
 
   return vstr;
 }
@@ -1144,35 +1143,36 @@ vector<string> MapDialog::getOKString()
  PutOKString
  */
 
-void MapDialog::putOKString(const vector<string>& vstr)
+void MapDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   MapManager mapm;
   int n = vstr.size();
   vector<int> themaps;
-  vector<std::string> tokens, stokens;
   std::string bgcolour, area;
   MapInfo mi;
 
   int iline;
   for (iline = 0; iline < n; iline++) {
-    std::string str = vstr[iline];
-    miutil::trim(str);
+    StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(vstr[iline]);
+    if (!c)
+      continue;
+    std::string str = miutil::trimmed(c->command());
     if (str.empty())
       continue;
     if (str[0] == '#')
       continue;
     std::string themap = "";
-    tokens = miutil::split(str, " ");
+    const vector<std::string> tokens = miutil::split(str, " ");
     int m = tokens.size();
-    if (miutil::to_upper(tokens[0]) == "AREA"){
+    if (c->commandKey() == "AREA"){
       for (int j = 0; j < m; j++) {
-        stokens = miutil::split(tokens[j], 0, "=");
+        const vector<std::string> stokens = miutil::split(tokens[j], 0, "=");
         if (miutil::to_upper(stokens[0]) == "NAME")
           area = stokens[1];
       }
-    } else if (miutil::to_upper(tokens[0]) == "MAP" )
+    } else if (c->commandKey() == "MAP" ) {
       for (int j = 0; j < m; j++) {
-        stokens = miutil::split(tokens[j], 0, "=");
+        const vector<std::string> stokens = miutil::split(tokens[j], 0, "=");
         if (stokens.size() == 2) {
           if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
             bgcolour = stokens[1];
@@ -1182,6 +1182,7 @@ void MapDialog::putOKString(const vector<string>& vstr)
             area = stokens[1];
         }
       }
+    }
 
     // find the logged map in full list
     if (not themap.empty()) {
@@ -1411,7 +1412,7 @@ vector<string> MapDialog::writeLog()
   vstr.push_back("=================== Favorites ============");
   // write favorite options
   for (unsigned int i = 0; i < favorite.size(); i++) {
-    vstr.push_back(favorite[i]);
+    vstr.push_back(favorite[i]->toString());
   }
 
   vstr.push_back("===========================================");
@@ -1513,7 +1514,7 @@ void MapDialog::readLog(const vector<string>& vstr,
         continue;
       if (str[0] == '=')
         break;
-      favorite.push_back(str);
+      favorite.push_back(std::make_shared<StringPlotCommand>(str));
     }
   }
   usefavorite->setEnabled(favorite.size() > 0);

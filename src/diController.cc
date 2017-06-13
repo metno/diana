@@ -179,7 +179,7 @@ bool Controller::parseSetup()
   return true;
 }
 
-void Controller::plotCommands(const vector<string>& inp)
+void Controller::plotCommands(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
   if (METLIBS_LOG_DEBUG_ENABLED()) {
@@ -454,7 +454,7 @@ void Controller::startEditAnnotation()
 
 void Controller::stopEditAnnotation(std::string prodname)
 {
-  vector <string> labels  = plotm->writeAnnotations(prodname);
+  const PlotCommand_cpv labels  = plotm->writeAnnotations(prodname);
   editm->saveProductLabels(labels);
   plotm->stopEditAnnotation();
 }

@@ -35,6 +35,7 @@
 #include "diImageGallery.h"
 #include "diGLPainter.h"
 #include "diLegendPlot.h"
+#include "diStringPlotCommand.h"
 #include "util/charsets.h"
 
 #include <puTools/miStringFunctions.h>
@@ -61,9 +62,9 @@ AnnotationPlot::AnnotationPlot()
   init();
 }
 
-AnnotationPlot::AnnotationPlot(const std::string& po)
+AnnotationPlot::AnnotationPlot(const PlotCommand_cp& po)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(po));
+  METLIBS_LOG_SCOPE();
   init();
   prepare(po);
 }
@@ -175,11 +176,15 @@ void AnnotationPlot::setfillcolour(const Colour& c)
     poptions.fillcolour = c;
 }
 
-bool AnnotationPlot::prepare(const std::string& pin)
+bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
 {
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  if (!cmd)
+    return false;
+
   poptions.fontname = "BITMAPFONT"; //default
   poptions.textcolour = Colour("black");
-  setPlotInfo(pin);
+  setPlotInfo(cmd->command());
 
   useAnaTime = miutil::contains(getPlotInfo(), "@") || miutil::contains(getPlotInfo(), "&");
 
@@ -1187,12 +1192,11 @@ std::string AnnotationPlot::writeElement(const element& annoEl)
   return str;
 }
 
-std::string AnnotationPlot::writeAnnotation(const std::string& prodname)
+PlotCommand_cp AnnotationPlot::writeAnnotation(const std::string& prodname)
 {
-  std::string str;
   if (prodname != productname)
-    return str;
-  str = "LABEL";
+    return PlotCommand_cp();
+  std::string str = "LABEL";
   for (const Annotation& a: annotations) {
     str += " anno=";
     for (const element& annoEl : a.annoElements) {
@@ -1206,7 +1210,7 @@ std::string AnnotationPlot::writeAnnotation(const std::string& prodname)
   }
   str += labelstrings;
 
-  return str;
+  return std::make_shared<StringPlotCommand>("LABEL", str);
 }
 
 void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno, bool newProduct)

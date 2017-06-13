@@ -72,7 +72,7 @@ public:
   virtual bool prepare(const miutil::miTime &time) override;
   virtual void setCanvas(DiCanvas* canvas) override;
   virtual void plot(DiGLPainter* gl, bool under, bool over) override;
-  virtual bool processInput(const std::vector<std::string>& inp) override;
+  virtual bool processInput(const PlotCommand_cpv& inp) override;
   std::vector<std::string> getAnnotations() const override;
 
   void sendMouseEvent(QMouseEvent* event, EventResult& res) override;

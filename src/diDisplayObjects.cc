@@ -33,6 +33,7 @@
 
 #include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
+#include "diStringPlotCommand.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
 #include "diWeatherArea.h"
@@ -68,9 +69,14 @@ void DisplayObjects::init()
 
 /*********************************************/
 
-bool DisplayObjects::define(const std::string& pi)
+bool DisplayObjects::define(const PlotCommand_cp& pc)
 {
   METLIBS_LOG_SCOPE();
+
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  if (!cmd)
+    return 0;
+  const std::string& pi = cmd->command();
 
   init();
   pin=pi;

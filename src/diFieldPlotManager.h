@@ -33,6 +33,7 @@
 
 #include <diField/diCommonFieldTypes.h>
 #include <diField/diFieldManager.h>
+#include "diPlotCommand.h"
 #include "diPlotOptions.h"
 
 #include <set>
@@ -60,7 +61,7 @@ public:
 
   FieldPlotManager(FieldManager* fm);
 
-  FieldPlot* createPlot(const std::string& cmd);
+  FieldPlot* createPlot(const PlotCommand_cp& cmd);
 
   void getAllFieldNames(std::vector<std::string>& fieldNames);
 

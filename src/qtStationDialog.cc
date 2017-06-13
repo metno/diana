@@ -30,6 +30,7 @@
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <qtStationDialog.h>
+#include "diStringPlotCommand.h"
 #include "qtUtility.h"
 
 #include <QFileInfo>
@@ -228,10 +229,10 @@ void StationDialog::reloadSets()
  * Returns a vector of strings describing each set of stations and the
  * stations themselves.
  */
-vector<string> StationDialog::getOKString()
+PlotCommand_cpv StationDialog::getOKString()
 {
   // Clear the set of chosen sets and add the new chosen sets to it.
-  vector<string> strings;
+  PlotCommand_cpv strings;
 
   for (const stationSetInfo& ssi : dialogInfo.sets) {
 
@@ -260,12 +261,12 @@ vector<string> StationDialog::getOKString()
     else
       s << " unselected";
 
-    strings.push_back(s.str());
+    strings.push_back(std::make_shared<StringPlotCommand>("STATION", s.str()));
   }
   return strings;
 }
 
-void StationDialog::putOKString(const vector<string>& vstr)
+void StationDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   return;
 }

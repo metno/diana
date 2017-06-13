@@ -34,6 +34,7 @@
 #include "diFieldPlotManager.h"
 #include "diFieldPlot.h"
 #include "diPlotOptions.h"
+#include "diStringPlotCommand.h"
 #include "miSetupParser.h"
 #include "util/string_util.h"
 
@@ -59,11 +60,14 @@ FieldPlotManager::FieldPlotManager(FieldManager* fm) :
 {
 }
 
-FieldPlot* FieldPlotManager::createPlot(const std::string& cmd)
+FieldPlot* FieldPlotManager::createPlot(const PlotCommand_cp& pc)
 {
-  const std::string plotName = extractPlotName(cmd);
+  StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+  if (!cmd)
+    return 0;
+  const std::string plotName = extractPlotName(cmd->command());
   std::unique_ptr<FieldPlot> fp(new FieldPlot(this));
-  if (fp->prepare(plotName, cmd))
+  if (fp->prepare(plotName, cmd->command()))
     return fp.release();
   else
     return 0;

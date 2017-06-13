@@ -31,6 +31,8 @@
 
 #include "diAreaBorder.h"
 
+#include "diPlotCommand.h"
+
 #include <diField/diArea.h>
 #include <diField/diGridConverter.h>
 
@@ -101,10 +103,10 @@ public:
   std::string readComments();
 
   ///return oldLabels from object file
-  std::vector<std::string> getObjectLabels();
+  const PlotCommand_cpv& getObjectLabels();
 
   /// return new edited labels
-  std::vector<std::string> getEditLabels();
+  const PlotCommand_cpv& getEditLabels();
 
   /// read file with weather objects and change projection to newArea
   bool readEditDrawFile(const std::string& filename,const Area& newArea);
@@ -157,8 +159,8 @@ protected:
 
   miutil::miTime itsTime;                //plot time
   std::string itsOldComments;       // the comment string to edit
-  std::vector<std::string> itsLabels;            //edited labels
-  std::vector<std::string> itsOldLabels;         //labels read in from object file
+  PlotCommand_cpv itsLabels;            //edited labels
+  PlotCommand_cpv itsOldLabels;         //labels read in from object file
 
   //static members
   static miutil::miTime timeFromString(const std::string& timeString);

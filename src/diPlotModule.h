@@ -30,6 +30,7 @@
 #define diPlotModule_h
 
 #include "diPlot.h"
+#include "diPlotCommand.h"
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
 #include "diDisplayObjects.h"
@@ -97,7 +98,7 @@ private:
   std::vector<AnnotationPlot*> editVap;   //edit object labels
   std::unique_ptr<AreaObjectsCluster> areaobjects_;
 
-  std::vector<std::string> annotationStrings;  //orig. strings from setup
+  PlotCommand_cpv annotationCommands;  //orig. strings from setup
 
   bool mapDefinedByUser; // map area set by user
   bool mapDefinedByData; // for initial maps with fields or sat.
@@ -133,17 +134,17 @@ private:
   void cleanup();
 
   /// handles fields plot info strings
-  void prepareFields(const std::vector<std::string>&);
+  void prepareFields(const PlotCommand_cpv&);
   /// handles area info strings
-  void prepareArea(const std::vector<std::string>&);
+  void prepareArea(const PlotCommand_cpv&);
   /// handles map plot info strings
-  void prepareMap(const std::vector<std::string>&);
+  void prepareMap(const PlotCommand_cpv&);
   /// handles stations plot info strings
-  void prepareStations(const std::vector<std::string>&);
+  void prepareStations(const PlotCommand_cpv&);
   /// handles trajectory plot info strings
-  void prepareTrajectory(const std::vector<std::string>&);
+  void prepareTrajectory(const PlotCommand_cpv&);
   /// handles annotation plot info strings
-  void prepareAnnotation(const std::vector<std::string>&);
+  void prepareAnnotation(const PlotCommand_cpv&);
 
   /// receive rectangle in pixels
   void setMapAreaFromPhys(const Rectangle& phys);
@@ -175,7 +176,7 @@ public:
   void plot(DiGLPainter* gl, bool under = true, bool over = true);
 
   /// split plot info strings and reroute them to appropriate handlers
-  void preparePlots(const std::vector<std::string>&);
+  void preparePlots(const PlotCommand_cpv&);
 
   /// get annotations
   const std::vector<AnnotationPlot*>& getAnnotations();
@@ -289,9 +290,9 @@ public:
   /// go to last element in annotation being edited
   void editLastAnnoElement();
   /// return vector std::strings with edited annotation for product prodname
-  std::vector<std::string> writeAnnotations(const std::string& prodname);
+  PlotCommand_cpv writeAnnotations(const std::string& prodname);
   /// put info from saved edit labels into new annotation
-  void updateEditLabels(const std::vector<std::string>& productLabelstrings,
+  void updateEditLabels(const PlotCommand_cpv& productLabelCommands,
       const std::string& productName, bool newProduct);
 
   void deleteAllEditAnnotations();

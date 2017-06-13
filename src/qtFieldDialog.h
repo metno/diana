@@ -129,11 +129,11 @@ public:
 
   void archiveMode(bool on);
   /// returns fiels command strings, one for each field
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   /// return a short text for quickmenue
   std::string getShortname();
   bool levelsExists(bool up, int type=0);
-  void putOKString(const std::vector<std::string>& vstr,
+  void putOKString(const PlotCommand_cpv& vstr,
       bool checkOptions=true, bool external=true);
   bool decodeString(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
 
