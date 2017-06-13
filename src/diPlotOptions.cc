@@ -185,7 +185,7 @@ const std::string PlotOptions::key_vector_example_unit_x = "vector.example.unit.
 const std::string PlotOptions::key_vector_example_unit_y = "vector.example.unit.y";
 
 vector< vector <std::string> > PlotOptions::plottypes;
-map< std::string, std::string > PlotOptions::enabledOptions;
+std::map< std::string, unsigned int> PlotOptions::enabledOptions;
 
 PlotOptions::PlotOptions():
   options_1(true),options_2(false),
@@ -207,85 +207,6 @@ PlotOptions::PlotOptions():
   antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
     , vector_example_x(-1), vector_example_y(-1)
 {
-  limits.clear();
-  values.clear();
-  linevalues.clear();
-  loglinevalues.clear();
-  linevalues_2.clear();
-  loglinevalues_2.clear();
-  forecastLength.clear();
-  forecastValueMin.clear();
-  forecastValueMax.clear();
-  extremeLimits.clear();
-
-  //init plottypes
-  vector< std::string> plottypes_all;
-  plottypes_all.push_back(fpt_contour);
-  plottypes_all.push_back(fpt_contour1);
-  plottypes_all.push_back(fpt_contour2);
-  plottypes_all.push_back(fpt_value);
-  plottypes_all.push_back(fpt_symbol);
-  plottypes_all.push_back(fpt_alpha_shade);
-  plottypes_all.push_back(fpt_rgb);
-  plottypes_all.push_back(fpt_alarm_box);
-  plottypes_all.push_back(fpt_fill_cell);
-  plottypes_all.push_back(fpt_direction);
-  plottypes_all.push_back(fpt_wind);
-  plottypes_all.push_back(fpt_vector);
-  plottypes_all.push_back(fpt_wind_temp_fl);
-  plottypes_all.push_back(fpt_wind_value);
-  plottypes_all.push_back(fpt_frame);
-  plottypes.push_back(plottypes_all);
-
-  vector< std::string> plottypes_1dim;
-  plottypes_1dim.push_back(fpt_contour);
-  plottypes_1dim.push_back(fpt_contour1);
-  plottypes_1dim.push_back(fpt_contour2);
-  plottypes_1dim.push_back(fpt_value);
-  plottypes_1dim.push_back(fpt_symbol);
-  plottypes_1dim.push_back(fpt_alpha_shade);
-  plottypes_1dim.push_back(fpt_alarm_box);
-  plottypes_1dim.push_back(fpt_fill_cell);
-  plottypes_1dim.push_back(fpt_direction);
-  plottypes_1dim.push_back(fpt_frame);
-  plottypes.push_back(plottypes_1dim);
-
-  vector< std::string> plottypes_2dim;
-  plottypes_2dim.push_back(fpt_wind);
-  plottypes_2dim.push_back(fpt_vector);
-  plottypes_2dim.push_back(fpt_value);
-  plottypes_2dim.push_back(fpt_frame);
-  plottypes.push_back(plottypes_2dim);
-
-  vector< std::string> plottypes_3dim;
-  plottypes_3dim.push_back(fpt_wind);
-  plottypes_3dim.push_back(fpt_vector);
-  plottypes_3dim.push_back(fpt_value);
-  plottypes_3dim.push_back(fpt_rgb);
-  plottypes_3dim.push_back(fpt_wind_temp_fl);
-  plottypes_3dim.push_back(fpt_wind_value);
-  plottypes_3dim.push_back(fpt_frame);
-  plottypes.push_back(plottypes_3dim);
-
-  vector< std::string> plottypes_4dim;
-  plottypes_4dim.push_back(fpt_value);
-  plottypes_4dim.push_back(fpt_frame);
-  plottypes.push_back(plottypes_4dim);
-
-  enabledOptions[fpt_contour]  = " extreme line shading contour font";
-  enabledOptions[fpt_contour1] = " extreme line shading contour font";
-  enabledOptions[fpt_contour2] = " extreme line shading contour font";
-  enabledOptions[fpt_value] = "font density";
-  enabledOptions[fpt_symbol] = "font density";
-  enabledOptions[fpt_alpha_shade] = " extreme";
-  enabledOptions[fpt_rgb] = " extreme";
-  enabledOptions[fpt_fill_cell] = "line_interval shading density";
-  enabledOptions[fpt_wind] = "density line unit";
-  enabledOptions[fpt_vector] = "density line unit";
-  enabledOptions[fpt_direction] = "density line unit";
-  enabledOptions[fpt_wind_temp_fl] = "density line unit font";
-  enabledOptions[fpt_wind_value] = "density line unit font";
-
 }
 
 // parse a string (possibly) containing plotting options,
@@ -1090,4 +1011,86 @@ miutil::KeyValue_v PlotOptions::toKeyValueList()
     miutil::add(ostr, key_enabled, enabled);
 
   return ostr;
+}
+
+// static
+const std::vector< std::vector<std::string> >& PlotOptions::getPlotTypes()
+{
+  if (plottypes.empty()) {
+    //init plottypes
+    vector< std::string> plottypes_all;
+    plottypes_all.push_back(fpt_contour);
+    plottypes_all.push_back(fpt_contour1);
+    plottypes_all.push_back(fpt_contour2);
+    plottypes_all.push_back(fpt_value);
+    plottypes_all.push_back(fpt_symbol);
+    plottypes_all.push_back(fpt_alpha_shade);
+    plottypes_all.push_back(fpt_rgb);
+    plottypes_all.push_back(fpt_alarm_box);
+    plottypes_all.push_back(fpt_fill_cell);
+    plottypes_all.push_back(fpt_direction);
+    plottypes_all.push_back(fpt_wind);
+    plottypes_all.push_back(fpt_vector);
+    plottypes_all.push_back(fpt_wind_temp_fl);
+    plottypes_all.push_back(fpt_wind_value);
+    plottypes_all.push_back(fpt_frame);
+    plottypes.push_back(plottypes_all);
+
+    vector< std::string> plottypes_1dim;
+    plottypes_1dim.push_back(fpt_contour);
+    plottypes_1dim.push_back(fpt_contour1);
+    plottypes_1dim.push_back(fpt_contour2);
+    plottypes_1dim.push_back(fpt_value);
+    plottypes_1dim.push_back(fpt_symbol);
+    plottypes_1dim.push_back(fpt_alpha_shade);
+    plottypes_1dim.push_back(fpt_alarm_box);
+    plottypes_1dim.push_back(fpt_fill_cell);
+    plottypes_1dim.push_back(fpt_direction);
+    plottypes_1dim.push_back(fpt_frame);
+    plottypes.push_back(plottypes_1dim);
+
+    vector< std::string> plottypes_2dim;
+    plottypes_2dim.push_back(fpt_wind);
+    plottypes_2dim.push_back(fpt_vector);
+    plottypes_2dim.push_back(fpt_value);
+    plottypes_2dim.push_back(fpt_frame);
+    plottypes.push_back(plottypes_2dim);
+
+    vector< std::string> plottypes_3dim;
+    plottypes_3dim.push_back(fpt_wind);
+    plottypes_3dim.push_back(fpt_vector);
+    plottypes_3dim.push_back(fpt_value);
+    plottypes_3dim.push_back(fpt_rgb);
+    plottypes_3dim.push_back(fpt_wind_temp_fl);
+    plottypes_3dim.push_back(fpt_wind_value);
+    plottypes_3dim.push_back(fpt_frame);
+    plottypes.push_back(plottypes_3dim);
+
+    vector< std::string> plottypes_4dim;
+    plottypes_4dim.push_back(fpt_value);
+    plottypes_4dim.push_back(fpt_frame);
+    plottypes.push_back(plottypes_4dim);
+  }
+  return plottypes;
+}
+
+// static
+const std::map< std::string, unsigned int>& PlotOptions::getEnabledOptions()
+{
+  if (enabledOptions.empty()) {
+    enabledOptions[fpt_contour]  = POE_EXTREME | POE_LINE | POE_SHADING | POE_CONTOUR | POE_FONT;
+    enabledOptions[fpt_contour1] = enabledOptions[fpt_contour];
+    enabledOptions[fpt_contour2] = enabledOptions[fpt_contour];
+    enabledOptions[fpt_value] = POE_FONT | POE_DENSITY;
+    enabledOptions[fpt_symbol] = POE_FONT | POE_DENSITY;
+    enabledOptions[fpt_alpha_shade] = POE_EXTREME;
+    enabledOptions[fpt_rgb] = POE_EXTREME;
+    enabledOptions[fpt_fill_cell] = POE_LINE | POE_SHADING | POE_DENSITY; // originally line_interval, but this was never used
+    enabledOptions[fpt_wind] = POE_DENSITY | POE_LINE | POE_UNIT;
+    enabledOptions[fpt_vector] = POE_DENSITY | POE_LINE | POE_UNIT;
+    enabledOptions[fpt_direction] = POE_DENSITY | POE_LINE | POE_UNIT;
+    enabledOptions[fpt_wind_temp_fl] = POE_DENSITY | POE_LINE | POE_UNIT | POE_FONT;
+    enabledOptions[fpt_wind_value] = POE_DENSITY | POE_LINE | POE_UNIT | POE_FONT;
+  }
+  return enabledOptions;
 }

@@ -353,7 +353,7 @@ public:
   std::vector<std::string> fdescr;
   int       overlay; //plot in ovelay buffer
   static std::vector< std::vector<std::string> > plottypes;
-  static std::map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
+  static std::map<std::string, unsigned int> enabledOptions; //enabledoptions[plotmethod]="OR of EnabledOptions values"
   bool      contourShape;
   std::string  shapefilename;
   std::string legendunits; //used in legends
@@ -379,10 +379,17 @@ public:
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&, miutil::KeyValue_v& unusedOptions);
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&);
 
-  static const std::vector< std::vector<std::string> >& getPlotTypes()
-    { return plottypes; }
-  static const std::map< std::string, std::string >& getEnabledOptions()
-    { return enabledOptions; }
+  static const std::vector< std::vector<std::string> >& getPlotTypes();
+  enum EnabledOptions {
+    POE_CONTOUR = 1<<0,
+    POE_EXTREME = 1<<1,
+    POE_SHADING = 1<<2,
+    POE_LINE    = 1<<3,
+    POE_FONT    = 1<<4,
+    POE_DENSITY = 1<<5,
+    POE_UNIT    = 1<<6
+  };
+  static const std::map<std::string, unsigned int>& getEnabledOptions();
 
   static std::string defaultFontName() { return "SCALEFONT"; }
   static std::string defaultFontFace() { return "NORMAL"; }

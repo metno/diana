@@ -168,22 +168,22 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // Colours
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
-  const map<std::string, std::string>& enabledOptions = PlotOptions::getEnabledOptions();
+  const map<std::string, unsigned int>& enabledOptions = PlotOptions::getEnabledOptions();
   const std::vector< std::vector<std::string> >& plottypes_dim = PlotOptions::getPlotTypes();
   if (plottypes_dim.size() > 1) {
     plottypes = plottypes_dim[1];
     for (size_t i = 0; i < plottypes_dim[0].size(); i++) {
       const std::string& ptd0i = plottypes_dim[0][i];
-      const map<std::string, std::string>::const_iterator iptd0i = enabledOptions.find(ptd0i);
+      const map<std::string, unsigned int>::const_iterator iptd0i = enabledOptions.find(ptd0i);
       if (iptd0i != enabledOptions.end()) {
-        const std::string& op = iptd0i->second;
-        enableMap[ptd0i].contourWidgets = miutil::contains(op, "contour");
-        enableMap[ptd0i].extremeWidgets = miutil::contains(op, "extreme");
-        enableMap[ptd0i].shadingWidgets = miutil::contains(op, "shading");
-        enableMap[ptd0i].lineWidgets = miutil::contains(op, "line");
-        enableMap[ptd0i].fontWidgets = miutil::contains(op, "font");
-        enableMap[ptd0i].densityWidgets = miutil::contains(op, "density");
-        enableMap[ptd0i].unitWidgets = miutil::contains(op, "unit");
+        const unsigned int op = iptd0i->second;
+        enableMap[ptd0i].contourWidgets = op & PlotOptions::POE_CONTOUR;
+        enableMap[ptd0i].extremeWidgets = op & PlotOptions::POE_EXTREME;
+        enableMap[ptd0i].shadingWidgets = op & PlotOptions::POE_SHADING;
+        enableMap[ptd0i].lineWidgets = op & PlotOptions::POE_LINE;
+        enableMap[ptd0i].fontWidgets = op & PlotOptions::POE_FONT;
+        enableMap[ptd0i].densityWidgets = op & PlotOptions::POE_DENSITY;
+        enableMap[ptd0i].unitWidgets = op & PlotOptions::POE_UNIT;
       }
     }
   }
