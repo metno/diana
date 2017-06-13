@@ -231,22 +231,20 @@ void StationDialog::reloadSets()
 vector<string> StationDialog::getOKString()
 {
   // Clear the set of chosen sets and add the new chosen sets to it.
-  vector<stationSetInfo>::iterator it;
   vector<string> strings;
 
-  for (it = dialogInfo.sets.begin(); it != dialogInfo.sets.end(); ++it) {
+  for (const stationSetInfo& ssi : dialogInfo.sets) {
 
-    dialogInfo.chosen[it->url] = false;
+    dialogInfo.chosen[ssi.url] = false;
 
-    vector<stationSetInfo>::iterator itC;
-    for (itC = chosenInfo.sets.begin(); itC != chosenInfo.sets.end(); ++itC) {
-      if (itC->url == it->url) {
+    for (const stationSetInfo& cis : chosenInfo.sets) {
+      if (cis.url == ssi.url) {
 
         // Load the list of stations from the URL.
-        StationPlot* plot = m_ctrl->getStationManager()->importStations(it->name, it->url);
+        StationPlot* plot = m_ctrl->getStationManager()->importStations(ssi.name, ssi.url);
         if (plot) {
           m_ctrl->putStations(plot);
-          dialogInfo.chosen[it->url] = true;
+          dialogInfo.chosen[ssi.url] = true;
         }
 
         break;
@@ -256,8 +254,8 @@ vector<string> StationDialog::getOKString()
     ostringstream s;
 
     // Serialized station plots start with the STATION token.
-    s << "STATION " << it->name << " " << it->url;
-    if (!dialogInfo.chosen[it->url])
+    s << "STATION " << ssi.name << " " << ssi.url;
+    if (!dialogInfo.chosen[ssi.url])
       s << " hidden";
     else
       s << " unselected";
