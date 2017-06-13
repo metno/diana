@@ -34,7 +34,6 @@
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
 
-#include <diField/diCommonFieldTypes.h>
 #include <puTools/miTime.h>
 
 #include <map>
@@ -61,6 +60,11 @@ class MapManager;
 class FieldPlot;
 class ObsPlot;
 class SatPlot;
+
+// from diCommonFieldTypes.h
+struct FieldRequest;
+struct FieldDialogInfo;
+struct FieldGroupInfo;
 
 class QKeyEvent;
 class QMouseEvent;
