@@ -109,8 +109,6 @@ public:
   static const std::string key_colours;
   // colours:    list of colours in palette
   static const std::string key_palettecolours;
-  // colours:    list of colours in palette
-  static const std::string key_filepalette;
   // linetype:   linetype
   static const std::string key_linetype;
   // linetype:   linetype
@@ -270,7 +268,6 @@ public:
   std::vector<Colour> colours;
   std::vector<Colour> palettecolours;
   std::vector<Colour> palettecolours_cold;
-  std::string filePalette;
   std::string palettename;
   std::string patternname;
   int table;

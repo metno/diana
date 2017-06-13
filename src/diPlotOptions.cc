@@ -98,7 +98,6 @@ const std::string PlotOptions::key_pcolour= "patterncolour";
 const std::string PlotOptions::key_bcolour= "bcolour";
 const std::string PlotOptions::key_colours= "colours";
 const std::string PlotOptions::key_palettecolours= "palettecolours";
-const std::string PlotOptions::key_filepalette= "file.palette";
 const std::string PlotOptions::key_linetype= "linetype";
 const std::string PlotOptions::key_linetype_2= "linetype_2";
 const std::string PlotOptions::key_linetypes= "linetypes";
@@ -308,9 +307,6 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
               po.palettecolours_cold = cs.getColourShading();
           }
         }
-
-      } else if (key==key_filepalette){
-        po.filePalette = value;
 
       } else if (key==key_linetype){
         po.linetype = Linetype(value);
@@ -924,10 +920,6 @@ miutil::KeyValue_v PlotOptions::toKeyValueList()
     miutil::add(ostr, key_palettecolours, !palettecolours.empty() ? palettename : OFF);
     if ( alpha < 255)
       miutil::add(ostr, key_alpha, alpha);
-
-    if( !filePalette.empty() ) {
-      miutil::add(ostr, key_filepalette, filePalette);
-    }
 
     miutil::add(ostr, key_patterns, !patterns.empty() ? patternname : OFF);
 
