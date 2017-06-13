@@ -31,10 +31,12 @@
 #include "config.h"
 #endif
 
+#include "qtObsWidget.h"
+
 #include "diUtilities.h"
 #include "qtButtonLayout.h"
-#include "qtObsWidget.h"
 #include "qtUtility.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -700,14 +702,11 @@ vector<std::string> ObsWidget::getDataTypes()
 }
 
 /****************************************************************/
-std::string ObsWidget::makeString(bool forLog)
+std::string ObsWidget::makeString()
 {
   std::string str, datastr;
 
-  if(forLog)
-    str = "plot=" + plotType + " ";
-  else
-    str = "OBS plot=" + plotType + " ";
+  str = "plot=" + plotType + " ";
 
   if (dVariables.data.size()) {
     str+= "data=";
@@ -825,7 +824,11 @@ std::string ObsWidget::getOKString(bool forLog)
 
   dVariables.misc["colour"] = cInfo[colourBox->currentIndex()].name;
 
-  str = makeString(forLog);
+  if (forLog)
+    str.clear();
+  else
+    str = "OBS";
+  diutil::appendText(str, makeString());
 
   //clear old settings
   dVariables.misc.clear();

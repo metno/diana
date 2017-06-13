@@ -192,7 +192,7 @@ private:
 
   void decodeString(const std::string&, dialogVariables&,bool fromLog=false);
   void updateDialog(bool setOn);
-  std::string makeString(bool forLog=false);
+  std::string makeString();
 
   bool pressureLevels;
   std::map<std::string,int> levelMap;
