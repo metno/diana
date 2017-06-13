@@ -456,41 +456,42 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
   if (!isEnabled() || !annotations || numPositions() == 0 || current < 0)
     return false;
 
-  float vectorAnnotationSize = 21 * getStaticPlot()->getPhysToMapScaleX();
-  std::string vectorAnnotationText = miutil::from_number(2.5 * current, 2) + "m/s";
-  int nanno = anno.size();
-  for (int j = 0; j < nanno; j++) {
-    if (miutil::contains(anno[j], "arrow")) {
-      if (miutil::contains(anno[j], "arrow="))
+  const std::string vectorAnnotationSize = miutil::from_number(21 * getStaticPlot()->getPhysToMapScaleX());
+  const std::string vectorAnnotationText = miutil::from_number(2.5f * current, 2) + "m/s";
+  for (const string& a : anno) {
+    if (miutil::contains(a, "arrow")) {
+      if (miutil::contains(a, "arrow="))
         continue;
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno[j], ",")) {
-        size_t nn = anno[j].find_first_of(",");
-        endString = anno[j].substr(nn);
-        startString = anno[j].substr(0, nn);
+      if (miutil::contains(a, ",")) {
+        size_t nn = a.find_first_of(",");
+        endString = a.substr(nn);
+        startString = a.substr(0, nn);
       } else {
-        startString = anno[j];
+        startString = a;
       }
 
-      std::string str = "arrow=" + miutil::from_number(vectorAnnotationSize)
-      + ",feather=true,tcolour=" + colour.Name() + endString;
+      std::string str = "arrow=" + vectorAnnotationSize
+          + ",feather=true,tcolour=" + colour.Name() + endString;
       anno.push_back(str);
-      str = "text=\" " + vectorAnnotationText + "\"" + ",tcolour="
-          + colour.Name() + endString;
+
+      str = "text=\"" + vectorAnnotationText + "\"" /* no spaces, but maybe ',' from the float ? */
+          + ",tcolour=" + colour.Name() + endString;
       anno.push_back(str);
     }
   }
   return true;
 }
 
-const std::vector<std::string> ObsPlot::getObsExtraAnnotations() const
+const std::vector<std::string>& ObsPlot::getObsExtraAnnotations() const
 {
   if ( isEnabled() && annotations ) {
     return labels;
   }
-  return std::vector<std::string>();
+  static const std::vector<std::string> NONE;
+  return NONE;
 }
 
 ObsData& ObsPlot::getNextObs()

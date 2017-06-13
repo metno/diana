@@ -428,7 +428,7 @@ public:
 
   void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare
 
-  const std::vector<std::string> getObsExtraAnnotations() const; // from PlotModule
+  const std::vector<std::string>& getObsExtraAnnotations() const; // from PlotModule
 
   // @return true iff update is needed (one or more files are changed)
   bool updateObs(); // from PlotModule::updateObs
