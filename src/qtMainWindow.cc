@@ -1501,14 +1501,6 @@ void DianaMainWindow::editMenu()
 }
 
 
-void DianaMainWindow::getFieldPlotOptions(map< std::string, map<std::string,std::string> >& options)
-{
-  if (fm){
-    fm->getEditPlotOptions(options);
-  }
-}
-
-
 void DianaMainWindow::objMenu(int result)
 {
   toggleDialogVisibility(objm, showObjectDialogAction, result);

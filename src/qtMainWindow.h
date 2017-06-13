@@ -252,7 +252,6 @@ private Q_SLOTS:
   void sendPrintClicked(int);
   void toggleEditDrawingMode();
   void setEditDrawingMode(bool);
-  void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
