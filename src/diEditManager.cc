@@ -154,7 +154,8 @@ bool EditManager::parseSetup()
     return true;
   }
 
-  int i,n,nval, nv=0, nvstr=vstr.size();
+  size_t nv=0;
+  const size_t nvstr=vstr.size();
   std::string key,error;
   vector<std::string> values, vsub;
   bool ok= true;
@@ -162,7 +163,6 @@ bool EditManager::parseSetup()
   while (ok && nv<nvstr) {
 
     SetupParser::splitKeyValue(vstr[nv],key,values);
-    nval= values.size();
 
     // yet only products in this setup section...
     EditProduct ep;
@@ -180,7 +180,7 @@ bool EditManager::parseSetup()
     ep.winY=  0;
     ep.autoremove= -1;
 
-    if (key=="product" && nval==1) {
+    if (key=="product" && values.size()==1) {
       ep.name= values[0];
       nv++;
     } else {
@@ -190,12 +190,12 @@ bool EditManager::parseSetup()
     while (ok && nv<nvstr) {
 
       SetupParser::splitKeyValue(vstr[nv],key,values);
-      nval= values.size();
+      const size_t nval= values.size();
       if (key=="end.product") {
         nv++;
         break;
       } else if (key=="drawtools"){
-        for (int j=0; j<nval; j++)
+        for (size_t j=0; j<nval; j++)
           ep.drawtools.push_back(values[j]);
       } else if (nval==0) {
         // keywords without any values
@@ -233,7 +233,7 @@ bool EditManager::parseSetup()
         epf.minValue= fieldUndef;
         epf.maxValue= fieldUndef;
         epf.editTools.push_back("standard");
-        for (int j=0; j<nval; j++) {
+        for (size_t j=0; j<nval; j++) {
           vsub= miutil::split(values[j], 0, ":");
           if (vsub.size()==2) {
             if (vsub[0]=="filenamepart") {
@@ -265,7 +265,7 @@ bool EditManager::parseSetup()
         ep.commentFilenamePart= values[0];
 
       } else if (key=="local_idents") {
-        for (i=0; i<nval; i++) {
+        for (size_t i=0; i<nval; i++) {
           EditProductId pid;
           pid.name= values[i];
           pid.sendable= false;
@@ -274,7 +274,7 @@ bool EditManager::parseSetup()
         }
 
       } else if (key=="prod_idents") {
-        for (i=0; i<nval; i++) {
+        for (size_t i=0; i<nval; i++) {
           EditProductId pid;
           pid.name= values[i];
           pid.sendable= true;
@@ -283,13 +283,13 @@ bool EditManager::parseSetup()
         }
 
       } else if (key=="combine_ident" && nval>=3) {
-        n= ep.pids.size();
-        i= 0;
+        const size_t n= ep.pids.size();
+        size_t i= 0;
         while (i<n && ep.pids[i].name!=values[0]) i++;
         if (i<n) {
           ep.pids[i].combinable= true;
           ep.pids[i].combineids.clear();
-          for (int j=1; j<nval; j++)
+          for (size_t j=1; j<nval; j++)
             ep.pids[i].combineids.push_back(values[j]);
         } else {
           ok= false;
@@ -393,7 +393,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   // and the OKstrings stored for each product
   std::string s;
   bool merge= false, newmerge;
-  int n,linenum=0;
+  int linenum=0;
   vector<std::string> tmplines;
 
   // open filestream
@@ -406,7 +406,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   diutil::GetLineConverter convertline("#");
   while (convertline(file,s)){
     linenum++;
-    n= s.length();
+    const size_t n = s.length();
     if (n>0) {
       newmerge= false;
       if (s[n-1] == '\\'){
@@ -422,9 +422,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   }
   //split up in LABEL and OTHER info...
   vector <std::string> labcom,commands;
-  n=tmplines.size();
-  for (int i=0; i<n; i++){
-    std::string s= tmplines[i];
+  for (std::string s : tmplines) {
     miutil::trim(s);
     if (s.empty())
       continue;
@@ -1315,7 +1313,8 @@ bool EditManager::startEdit(const EditProduct& ep,
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
-  if (fedits.size()>0) fedits[0]->activate();
+  if (!fedits.empty())
+    fedits[0]->activate();
 
   return true;
 }
@@ -2266,7 +2265,7 @@ void EditManager::stopCombine()
   }
 
   // always matching dialog ???????????
-  if (fedits.size() > 0)
+  if (!fedits.empty())
     fedits[0]->activate();
 }
 
@@ -3296,9 +3295,8 @@ void EditManager::setMapmodeinfo(){
   vector<editModeInfo> dMode;
   int emidx=0;
   map <int,object_modes> objectModes;
-  int m=EdProd.drawtools.size();
-  for (int i=0;i<m;i++){
-    if (EdProd.drawtools[i]==OBJECTS_ANALYSIS){
+  for (const std::string& edt : EdProd.drawtools) {
+    if (edt == OBJECTS_ANALYSIS){
       dMode.push_back(newEditModeInfo("Fronts",fronts));
       objectModes[emidx++]=front_drawing;
       dMode.push_back(newEditModeInfo("Symbols",symbols));
@@ -3306,7 +3304,7 @@ void EditManager::setMapmodeinfo(){
       dMode.push_back(newEditModeInfo("Areas",areas));
       objectModes[emidx++]=area_drawing;
     }
-    if (EdProd.drawtools[i]==OBJECTS_SIGMAPS){
+    if (edt == OBJECTS_SIGMAPS) {
       dMode.push_back(newEditModeInfo("Symbols(SIGWX)",sigsymbols));
       objectModes[emidx++]=symbol_drawing;
     }
@@ -3316,17 +3314,11 @@ void EditManager::setMapmodeinfo(){
   // combine_mode types
   vector<editToolInfo> regionlines;
   regionlines.push_back(newEditToolInfo("regioner",0));
+
   vector<editToolInfo> regions;
-  int n= regnames.size();
-  for (int i=0; i<n; i++) {
-    int j=i%3;
-    std::string colour;
-    if      (j==0) colour= "blue";
-    else if (j==1) colour= "red";
-    else           colour= "darkGreen";
-    //all texts have index 0
-    regions.push_back(newEditToolInfo( regnames[i],0,colour));
-  }
+  const char* colours[3] = { "blue", "red", "darkGreen" };
+  for (size_t i=0; i<regnames.size(); i++)
+    regions.push_back(newEditToolInfo(regnames[i], 0, colours[i%3]));
 
 
   vector<editModeInfo> cMode;
@@ -3352,8 +3344,8 @@ void EditManager::setMapmodeinfo(){
 
 bool EditManager::getDataAnnotations(vector<string>& anno)
 {
-  for (size_t i=0; i<fedits.size(); i++)
-    fedits[i]->getAnnotations(anno);
+  for (FieldEdit* fe : fedits)
+    fe->getAnnotations(anno);
   return true;
 }
 
