@@ -134,6 +134,7 @@ public:
   static void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v &fdo);
   static std::string getFieldClassSpecs(const std::string& fieldplotname);
 
+  static bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2);
 
 private:
   std::vector<PlotField> vPlotField;
@@ -141,8 +142,6 @@ private:
   std::vector<std::string> splitComStr(const std::string& s, bool splitall);
 
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
-
-  bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2);
 
   void parseString(const miutil::KeyValue_v &pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
 

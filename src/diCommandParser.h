@@ -87,16 +87,6 @@ private:
   // map<key,keyDescription>
   std::map<std::string,keyDescription> keyDataBase;
 
-  static bool isInt(const std::string& s);
-
-  static bool isFloat(const std::string& s);
-
-  static std::vector<std::string> parseString(const std::string& str);
-
-  static std::vector<float> parseFloat(const std::string& str);
-
-  static std::vector<int> parseInt(const std::string& str);
-
   int findKey(std::vector<ParsedCommand>& vpc,
               const std::string& key, bool addkey) const;
 
@@ -132,6 +122,19 @@ public:
 
   miutil::KeyValue_v toKeyValueList(const std::vector<ParsedCommand>& vpc) const;
   std::vector<ParsedCommand> fromKeyValueList(const miutil::KeyValue_v& kvs) const;
+
+  // static string parsing functions
+
+  static bool isInt(const std::string& s);
+
+  static bool isFloat(const std::string& s);
+
+  static std::vector<std::string> parseString(const std::string& str);
+
+  static std::vector<float> parseFloat(const std::string& str);
+
+  static std::vector<int> parseInt(const std::string& str);
+
 };
 
 #endif

@@ -126,7 +126,40 @@ bool ModelFilterProxyModel::acceptIndex(const QModelIndex &idx) const
 
 const int ROLE_MODELGROUP = Qt::UserRole + 1;
 
-const std::string units = "units";
+const std::string REMOVE = "remove";
+const std::string UNITS = "units";
+const std::string UNIT = "unit";
+
+const size_t npos = size_t(-1);
+
+void cleanupFieldOptions(miutil::KeyValue_v& vpopt)
+{
+  size_t ncus = miutil::rfind(vpopt, UNITS);
+  size_t ncu = miutil::rfind(vpopt, UNIT);
+  if (ncu != npos && ncus != npos) {
+    const std::string value = vpopt[std::max(ncus, ncu)].value();
+    while (ncus != npos) {
+      vpopt.erase(vpopt.begin() + ncus);
+      ncus = miutil::rfind(vpopt, UNITS, ncus-1);
+    }
+    if (!vpopt.empty()) {
+      ncu = miutil::rfind(vpopt, UNIT);
+      while (ncu != npos) {
+        vpopt.erase(vpopt.begin() + ncu);
+        ncu = miutil::rfind(vpopt, UNIT, ncu-1);
+      }
+    }
+    vpopt.push_back(miutil::KeyValue(UNIT, value));
+  }
+}
+
+// these had idNumber == 1 with CommandParser
+// these are put into FieldRequest by FieldPlotManager::parseString
+const std::set<std::string> cp__idnum1 = {
+  "model", "plot", "parameter", "vlevel", "elevel",
+  "vcoord", "ecoord", UNITS, "reftime", "refhour",
+  "refoffset", "hour.offset", "hour.diff", "MINUS"
+};
 
 } // anonymous namespace
 
@@ -213,77 +246,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   densityStringList <<  "auto(3)";
   densityStringList <<  "auto(4)";
   densityStringList <<  "-1";
-
-  //----------------------------------------------------------------
-  cp = new CommandParser();
-
-  // add level options to the cp's keyDataBase
-  cp->addKey("model", "", 1, CommandParser::cmdString);
-  cp->addKey("plot", "", 1, CommandParser::cmdString);
-  cp->addKey("parameter", "", 1, CommandParser::cmdString);
-  cp->addKey("vlevel", "", 1, CommandParser::cmdString);
-  cp->addKey("elevel", "", 1, CommandParser::cmdString);
-  cp->addKey("vcoord", "", 1, CommandParser::cmdString);
-  cp->addKey("ecoord", "", 1, CommandParser::cmdString);
-  cp->addKey(units, "", 1, CommandParser::cmdString);
-  cp->addKey("reftime", "", 1, CommandParser::cmdString);
-  cp->addKey("refhour", "", 1, CommandParser::cmdInt);
-  cp->addKey("refoffset", "", 1, CommandParser::cmdInt);
-
-  cp->addKey("hour.offset", "", 1, CommandParser::cmdInt);
-  cp->addKey("hour.diff", "", 1, CommandParser::cmdInt);
-
-  cp->addKey("MINUS", "", 1, CommandParser::cmdNoValue);
-
-  // add more plot options to the cp's keyDataBase
-  cp->addKey(PlotOptions::key_plottype, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_colour, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_colours, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_linewidth, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_linetype, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_lineinterval, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_linevalues, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_loglinevalues, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_density, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_vectorunit, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_extremeType, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_extremeSize, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_extremeRadius, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_lineSmooth, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_fieldSmooth, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_frame, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_zeroLine, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_valueLabel, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_labelSize, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_gridValue, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_gridLines, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_gridLinesMax, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_basevalue, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_basevalue_2, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_undefMasking, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_undefColour, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_undefLinewidth, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_undefLinetype, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_discontinuous, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_palettecolours, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_options_1, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_options_2, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_minvalue, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_maxvalue, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_minvalue_2, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_maxvalue_2, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_colour_2, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_linewidth_2, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_linetype_2, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_lineinterval_2, "", 0, CommandParser::cmdFloat);
-  cp->addKey(PlotOptions::key_table, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_patterns, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_pcolour, "", 0, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_repeat, "", 0, CommandParser::cmdInt);
-  cp->addKey(PlotOptions::key_alpha, "", 0, CommandParser::cmdInt);
-
-  cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
-  cp->addKey(PlotOptions::key_dimension, "", 0, CommandParser::cmdInt);
 
   //----------------------------------------------------------------
 
@@ -398,7 +360,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   QLabel* unitlabel = new QLabel(tr("Unit"), this);
   unitLineEdit = new QLineEdit(this);
-  connect( unitLineEdit, SIGNAL( returnPressed() ),
+  connect( unitLineEdit, SIGNAL(editingFinished()),
       SLOT( unitEditingFinished() ) );
 
   // copyField
@@ -1567,12 +1529,14 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     sf.external = false;
     sf.modelName = currentModel;
     sf.fieldName = fieldbox->currentItem()->text().toStdString();
-    sf.levelOptions = vfgi[indexFGR].fields[sf.fieldName].vlevels;
-    sf.idnumOptions = vfgi[indexFGR].fields[sf.fieldName].elevels;
     sf.refTime = refTimeComboBox->currentText().toStdString();
-    sf.zaxis = vfgi[indexFGR].fields[sf.fieldName].vcoord;
-    sf.extraaxis = vfgi[indexFGR].fields[sf.fieldName].ecoord;;
-    sf.unit = vfgi[indexFGR].fields[sf.fieldName].units;
+    const FieldInfo& fi = vfgi[indexFGR].fields[sf.fieldName];
+    sf.levelOptions = fi.vlevels;
+    sf.idnumOptions = fi.elevels;
+    sf.zaxis = fi.vcoord;
+    sf.extraaxis = fi.ecoord;;
+    sf.unit = fi.units;
+
     sf.plotDefinition = fieldGroupCheckBox->isChecked();
     sf.minus = false;
 
@@ -1583,21 +1547,21 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     if (i < n) {
       sf.level = lastLevel;
     } else {
-      if (!vfgi[indexFGR].fields[sf.fieldName].default_vlevel.empty()) {
-        sf.level = vfgi[indexFGR].fields[sf.fieldName].default_vlevel;
+      if (!fi.default_vlevel.empty()) {
+        sf.level = fi.default_vlevel;
       } else if (sf.levelOptions.size() ) {
         sf.level = sf.levelOptions[sf.levelOptions.size()-1];
       }
     }
-    n = vfgi[indexFGR].fields[sf.fieldName].elevels.size();
+    n = fi.elevels.size();
     i = 0;
-    while (i < n && vfgi[indexFGR].fields[sf.fieldName].elevels[i] != lastIdnum)
+    while (i < n && fi.elevels[i] != lastIdnum)
       i++;
     if (i < n) {
       sf.idnum = lastIdnum;
     } else {
-      if (!vfgi[indexFGR].fields[sf.fieldName].default_elevel.empty()) {
-        sf.idnum = vfgi[indexFGR].fields[sf.fieldName].default_elevel;
+      if (!fi.default_elevel.empty()) {
+        sf.idnum = fi.default_elevel;
       } else if (sf.idnumOptions.size() ) {
         sf.idnum = sf.idnumOptions[0];
       }
@@ -1611,7 +1575,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 
     std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
     int newCurrent = selectedFieldbox->count();
-    selectedFieldbox->addItem(QString(text.c_str()));
+    selectedFieldbox->addItem(QString::fromStdString(text));
     selectedFieldbox->setCurrentRow(newCurrent);
     selectedFieldbox->item(newCurrent)->setSelected(true);
     enableFieldOptions();
@@ -1660,7 +1624,8 @@ void FieldDialog::enableFieldOptions()
 
   setDefaultFieldOptions();
 
-  int nc, i, n;
+  size_t nc;
+  int i, n;
 
   int index = selectedFieldbox->currentRow();
   int lastindex = selectedFields.size() - 1;
@@ -1673,7 +1638,8 @@ void FieldDialog::enableFieldOptions()
     return;
   }
 
-  if (selectedFields[index].inEdit) {
+  SelectedField& sf = selectedFields[index];
+  if (sf.inEdit) {
     changeModelButton->setEnabled(false);
     deleteButton->setEnabled(false);
     copyField->setEnabled(false);
@@ -1691,24 +1657,17 @@ void FieldDialog::enableFieldOptions()
   deleteAll->setEnabled(true);
   resetOptionsButton->setEnabled(true);
 
-  if (selectedFields[index].fieldOpts == currentFieldOpts
-      && selectedFields[index].inEdit == currentFieldOptsInEdit
-      && !selectedFields[index].minus)
+  if (sf.fieldOpts == currentFieldOpts
+      && sf.inEdit == currentFieldOptsInEdit
+      && !sf.minus)
     return;
 
-  currentFieldOpts = selectedFields[index].fieldOpts;
-  currentFieldOptsInEdit = selectedFields[index].inEdit;
+  currentFieldOpts = sf.fieldOpts;
+  currentFieldOptsInEdit = sf.inEdit;
 
-  //###############################################################################
-  //    METLIBS_LOG_DEBUG("FieldDialog::enableFieldOptions: "
-  //         << selectedFields[index].fieldName);
-  //    METLIBS_LOG_DEBUG("             " << selectedFields[index].fieldOpts);
-  //###############################################################################
-
-
-  if (selectedFields[index].minus && !minusButton->isChecked())
+  if (sf.minus && !minusButton->isChecked())
     minusButton->setChecked(true);
-  else if (!selectedFields[index].minus && minusButton->isChecked())
+  else if (!sf.minus && minusButton->isChecked())
     minusButton->setChecked(false);
 
   //hourOffset
@@ -1716,7 +1675,7 @@ void FieldDialog::enableFieldOptions()
     hourOffsetSpinBox->setValue(0);
     hourOffsetSpinBox->setEnabled(false);
   } else {
-    i = selectedFields[index].hourOffset;
+    i = sf.hourOffset;
     hourOffsetSpinBox->setValue(i);
     hourOffsetSpinBox->setEnabled(true);
   }
@@ -1726,119 +1685,94 @@ void FieldDialog::enableFieldOptions()
     hourDiffSpinBox->setValue(0);
     hourDiffSpinBox->setEnabled(false);
   } else {
-    i = selectedFields[index].hourDiff;
+    i = sf.hourDiff;
     hourDiffSpinBox->setValue(i);
     hourDiffSpinBox->setEnabled(true);
   }
 
-  if (selectedFields[index].minus)
+  if (sf.minus)
     return;
 
-  vpcopt = cp->fromKeyValueList(selectedFields[index].fieldOpts);
-
-  //   METLIBS_LOG_DEBUG("FieldOpt string: "<<selectedFields[index].fieldOpts);
-  /*******************************************************
-   n=vpcopt.size();
-   bool err=false;
-   bool listall= true;
-   for (j=0; j<n; j++)
-   if (vpcopt[j].key=="unknown") err=true;
-   if (err || listall) {
-   METLIBS_LOG_DEBUG("FieldDialog::enableFieldOptions: "
-   << selectedFields[index].fieldName);
-   METLIBS_LOG_DEBUG("             " << selectedFields[index].fieldOpts);
-   for (j=0; j<n; j++) {
-   METLIBS_LOG_DEBUG("  parse " << j << " : key= " << vpcopt[j].key
-   << "  idNumber= " << vpcopt[j].idNumber);
-   METLIBS_LOG_DEBUG("            allValue: " << vpcopt[j].allValue);
-   for (k=0; k<vpcopt[j].strValue.size(); k++)
-   METLIBS_LOG_DEBUG("               " << k << "    strValue: " << vpcopt[j].strValue[k]);
-   for (k=0; k<vpcopt[j].floatValue.size(); k++)
-   METLIBS_LOG_DEBUG("               " << k << "  floatValue: " << vpcopt[j].floatValue[k]);
-   for (k=0; k<vpcopt[j].intValue.size(); k++)
-   METLIBS_LOG_DEBUG("               " << k << "    intValue: " << vpcopt[j].intValue[k]);
-   }
-   }
-   *******************************************************/
+  vpcopt = sf.fieldOpts;
 
   int nr_linetypes = linetypes.size();
   enableWidgets("contour");
 
   //unit
-  nc = cp->findKey(vpcopt, units);
-  if (nc < 0)
-    nc = cp->findKey(vpcopt, "unit");
-  if (nc >= 0) {
-    updateFieldOptions(units, vpcopt[nc].allValue, -1);
-    unitLineEdit->setText(vpcopt[nc].allValue.c_str());
+  nc = miutil::find(vpcopt, UNITS);
+  if (nc == npos)
+    nc = miutil::find(vpcopt, UNIT);
+  if (nc != npos) {
+    updateFieldOptions(UNITS, vpcopt[nc].value());
+    updateFieldOptions(UNIT, REMOVE);
+    unitLineEdit->setText(QString::fromStdString(vpcopt[nc].value()));
   } else {
-    updateFieldOptions(units, "remove");
+    updateFieldOptions(UNITS, REMOVE);
+    updateFieldOptions(UNIT, REMOVE);
     unitLineEdit->clear();
   }
 
   //dimension (1dim = contour,..., 2dim=wind,...)
   const std::vector< std::vector<std::string> >& plottypes_dim = PlotOptions::getPlotTypes();
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_dimension)) >= 0) {
-    if (!vpcopt[nc].intValue.empty() && vpcopt[nc].intValue[0] < int(plottypes_dim.size())) {
-      plottypes = plottypes_dim[vpcopt[nc].intValue[0]];
-    } else if( plottypes_dim.size() > 0 ){
-      plottypes = plottypes_dim[0];
+  size_t idx = 0;
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_dimension)) != npos) {
+    if (CommandParser::isInt(vpcopt[nc].value())) {
+      size_t vi = size_t(vpcopt[nc].toInt());
+      if (vi < plottypes_dim.size())
+        idx = vi;
     }
-  } else if( plottypes_dim.size() > 0 ){
-    plottypes = plottypes_dim[0];
   }
+  if (idx < plottypes_dim.size())
+    plottypes = plottypes_dim[idx];
   plottypeComboBox->clear();
-  int nr_plottypes = plottypes.size();
-  for( int i=0; i<nr_plottypes; i++ ){
-    plottypeComboBox->addItem(QString(plottypes[i].c_str()));
-  }
+  for (const std::string& pt : plottypes)
+    plottypeComboBox->addItem(QString::fromStdString(pt));
 
   //plottype
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_plottype)) >= 0) {
-    std::string value = vpcopt[nc].allValue;
-    i = 0;
-    while (i < nr_plottypes && value != plottypes[i])
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_plottype)) != npos) {
+    const std::string& value = vpcopt[nc].value();
+    size_t i = 0;
+    while (i < plottypes.size() && value != plottypes[i])
       i++;
-    if (i == nr_plottypes) {
+    if (i == plottypes.size())
       i=0;
-    }
     plottypeComboBox->setCurrentIndex(i);
-    updateFieldOptions(PlotOptions::key_plottype, value, -1);
+    updateFieldOptions(PlotOptions::key_plottype, value);
     enableWidgets(plottypes[i]);
   } else {
-    updateFieldOptions(PlotOptions::key_plottype, plottypes[0], -1);
+    updateFieldOptions(PlotOptions::key_plottype, plottypes[0]);
     plottypeComboBox->setCurrentIndex(0);
     enableWidgets(plottypes[0]);
   }
 
 
   // colour(s)
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_colour_2)) >= 0) {
-    if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_colour_2)) != npos) {
+    if (miutil::to_lower(vpcopt[nc].value()) == "off" ) {
       updateFieldOptions(PlotOptions::key_colour_2, "off");
       colour2ComboBox->setCurrentIndex(0);
     } else {
-      SetCurrentItemColourBox(colour2ComboBox,vpcopt[nc].allValue);
-      updateFieldOptions(PlotOptions::key_colour_2, vpcopt[nc].allValue);
+      SetCurrentItemColourBox(colour2ComboBox,vpcopt[nc].value());
+      updateFieldOptions(PlotOptions::key_colour_2, vpcopt[nc].value());
     }
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_colour)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_colour)) != npos) {
   //  int nr_colours = colorCbox->count();
-    if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
+    if (miutil::to_lower(vpcopt[nc].value()) == "off" ) {
       updateFieldOptions(PlotOptions::key_colour, "off");
       colorCbox->setCurrentIndex(0);
     } else {
-    SetCurrentItemColourBox(colorCbox,vpcopt[nc].allValue);
-    updateFieldOptions(PlotOptions::key_colour, vpcopt[nc].allValue);
+      SetCurrentItemColourBox(colorCbox,vpcopt[nc].value());
+      updateFieldOptions(PlotOptions::key_colour, vpcopt[nc].value());
     }
   }
 
   // 3 colours
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_colours)) >= 0) {
-    vector<std::string> colours = miutil::split(vpcopt[nc].allValue,",");
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_colours)) != npos) {
+    vector<std::string> colours = miutil::split(vpcopt[nc].value(),",");
     if (colours.size() == 3) {
-      for (int j = 0; j < 3; j++) {
+      for (size_t j = 0; j < 3; j++) {
         SetCurrentItemColourBox(threeColourBox[j],colours[j]);
       }
       threeColoursChanged();
@@ -1846,38 +1780,36 @@ void FieldDialog::enableFieldOptions()
   }
 
   //contour shading updating FieldOptions
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_palettecolours)) >= 0) {
-    if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_palettecolours)) != npos) {
+    if (miutil::to_lower(vpcopt[nc].value()) == "off" ) {
       updateFieldOptions(PlotOptions::key_palettecolours, "off");
       shadingComboBox->setCurrentIndex(0);
       shadingcoldComboBox->setCurrentIndex(0);
     } else {
-      //vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,","); //MC
-      //vector<std::string> stokens = miutil::split(tokens[0],";");
-      vector<std::string> stokens = miutil::split(vpcopt[nc].strValue[0],";");
+      const vector<std::string> strValue = CommandParser::parseString(vpcopt[nc].value());
+      vector<std::string> stokens = miutil::split(strValue[0],";");
 
-      int nr_cs = csInfo.size();
+      size_t nr_cs = csInfo.size();
       std::string str;
-      i = 0;
 
-      int j = 0;
       bool updateClodshading = false;
       vector<std::string> coldStokens;
 
+      size_t i = 0, j = 0;
       while (i < nr_cs && stokens[0] != csInfo[i].name) {
         i++;
       }
 
       if (i == nr_cs) {
-        ColourShading::defineColourShadingFromString(vpcopt[nc].allValue);
-        ExpandPaletteBox(shadingComboBox,ColourShading(vpcopt[nc].allValue));
-        ExpandPaletteBox(shadingcoldComboBox,ColourShading(vpcopt[nc].allValue)); //MC
+        ColourShading::defineColourShadingFromString(vpcopt[nc].value());
+        ExpandPaletteBox(shadingComboBox,ColourShading(vpcopt[nc].value()));
+        ExpandPaletteBox(shadingcoldComboBox,ColourShading(vpcopt[nc].value())); //MC
         ColourShading::ColourShadingInfo info;
-        info.name=vpcopt[nc].allValue;
-        info.colour=ColourShading::getColourShading(vpcopt[nc].allValue);
+        info.name=vpcopt[nc].value();
+        info.colour=ColourShading::getColourShading(vpcopt[nc].value());
         csInfo.push_back(info);
-      } else if(vpcopt[nc].strValue.size() == 2) {
-        coldStokens = miutil::split(vpcopt[nc].strValue[1],";");
+      } else if(strValue.size() == 2) {
+        coldStokens = miutil::split(strValue[1],";");
 
         while (j < nr_cs && coldStokens[0] != csInfo[j].name) {
           j++;
@@ -1887,11 +1819,11 @@ void FieldDialog::enableFieldOptions()
           updateClodshading = true;
       }
 
-      str = vpcopt[nc].allValue;//tokens[0];
+      str = vpcopt[nc].value();//tokens[0];
       shadingComboBox->setCurrentIndex(i + 1);
-      updateFieldOptions(PlotOptions::key_palettecolours, str, -1);
+      updateFieldOptions(PlotOptions::key_palettecolours, str);
       // Need to set this here otherwise the signal is changing
-      // the vpcopt[nc].allValue variable to off
+      // the vpcopt[nc].value() variable to off
       if (stokens.size() == 2)
         shadingSpinBox->setValue(::atoi(stokens[1].c_str()));
       else
@@ -1908,11 +1840,10 @@ void FieldDialog::enableFieldOptions()
     }
   }
   //pattern
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_patterns)) >= 0) {
-    std::string value = vpcopt[nc].allValue;
-    int nr_p = patternInfo.size();
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_patterns)) != npos) {
+    std::string value = vpcopt[nc].value();
+    size_t nr_p = patternInfo.size(), i = 0;
     std::string str;
-    i = 0;
     while (i < nr_p && value != patternInfo[i].name)
       i++;
     if (i == nr_p) {
@@ -1922,38 +1853,38 @@ void FieldDialog::enableFieldOptions()
       str = patternInfo[i].name;
       patternComboBox->setCurrentIndex(i + 1);
     }
-    updateFieldOptions(PlotOptions::key_patterns, str, -1);
+    updateFieldOptions(PlotOptions::key_patterns, str);
   } else {
-    updateFieldOptions(PlotOptions::key_patterns, "off", -1);
+    updateFieldOptions(PlotOptions::key_patterns, "off");
     patternComboBox->setCurrentIndex(0);
   }
 
   //pattern colour
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_pcolour)) >= 0) {
-    SetCurrentItemColourBox(patternColourBox, vpcopt[nc].allValue);
-    updateFieldOptions(PlotOptions::key_pcolour, vpcopt[nc].allValue);
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_pcolour)) != npos) {
+    SetCurrentItemColourBox(patternColourBox, vpcopt[nc].value());
+    updateFieldOptions(PlotOptions::key_pcolour, vpcopt[nc].value());
   }
 
   //table
-  nc = cp->findKey(vpcopt, PlotOptions::key_table);
-  if (nc >= 0) {
-    bool on = vpcopt[nc].allValue == "1";
+  nc = miutil::find(vpcopt, PlotOptions::key_table);
+  if (nc != npos) {
+    bool on = vpcopt[nc].value() == "1";
     tableCheckBox->setChecked(on);
     tableCheckBoxToggled(on);
   }
 
   //repeat
-  nc = cp->findKey(vpcopt, PlotOptions::key_repeat);
-  if (nc >= 0) {
-    bool on = vpcopt[nc].allValue == "1";
+  nc = miutil::find(vpcopt, PlotOptions::key_repeat);
+  if (nc != npos) {
+    bool on = vpcopt[nc].value() == "1";
     repeatCheckBox->setChecked(on);
     repeatCheckBoxToggled(on);
   }
 
   //alpha shading
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_alpha)) >= 0) {
-    if (!vpcopt[nc].intValue.empty())
-      i = vpcopt[nc].intValue[0];
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_alpha)) != npos) {
+    if (CommandParser::isInt(vpcopt[nc].value()))
+      i = vpcopt[nc].toInt();
     else
       i = 255;
     alphaSpinBox->setValue(i);
@@ -1961,17 +1892,17 @@ void FieldDialog::enableFieldOptions()
   }
 
   // linetype
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_linetype)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_linetype)) != npos) {
     i = 0;
-    while (i < nr_linetypes && vpcopt[nc].allValue != linetypes[i])
+    while (i < nr_linetypes && vpcopt[nc].value() != linetypes[i])
       i++;
     if (i == nr_linetypes)
       i = 0;
     updateFieldOptions(PlotOptions::key_linetype, linetypes[i]);
     lineTypeCbox->setCurrentIndex(i);
-    if ((nc = cp->findKey(vpcopt, PlotOptions::key_linetype_2)) >= 0) {
+    if ((nc = miutil::find(vpcopt, PlotOptions::key_linetype_2)) != npos) {
       i = 0;
-      while (i < nr_linetypes && vpcopt[nc].allValue != linetypes[i])
+      while (i < nr_linetypes && vpcopt[nc].value() != linetypes[i])
         i++;
       if (i == nr_linetypes)
         i = 0;
@@ -1983,8 +1914,8 @@ void FieldDialog::enableFieldOptions()
   }
 
   // linewidth
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_linewidth)) >= 0  && !vpcopt[nc].intValue.empty()) {
-    i = vpcopt[nc].intValue[0];
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_linewidth)) != npos  && CommandParser::isInt(vpcopt[nc].value())) {
+    i = vpcopt[nc].toInt();;
     int nr_linewidths = lineWidthCbox->count();
     if (  i  > nr_linewidths )  {
       ExpandLinewidthBox(lineWidthCbox, i);
@@ -1993,9 +1924,9 @@ void FieldDialog::enableFieldOptions()
     lineWidthCbox->setCurrentIndex(i-1);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_linewidth_2)) >= 0  && !vpcopt[nc].intValue.empty()) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_linewidth_2)) != npos  && CommandParser::isInt(vpcopt[nc].value())) {
     int nr_linewidths = linewidth2ComboBox->count();
-    i = vpcopt[nc].intValue[0];
+    i = vpcopt[nc].toInt();;
     if ( i  > nr_linewidths )  {
       ExpandLinewidthBox(linewidth2ComboBox, i);
     }
@@ -2005,37 +1936,37 @@ void FieldDialog::enableFieldOptions()
 
 
   // line interval (isoline contouring)
-  { const int nci = cp->findKey(vpcopt, PlotOptions::key_lineinterval),
-        ncv = cp->findKey(vpcopt, PlotOptions::key_linevalues),
-        nclv = cp->findKey(vpcopt, PlotOptions::key_loglinevalues);
-    if (nci  >= 0 or ncv >= 0 or nclv >= 0) {
-      if (nci >= 0 && (!vpcopt[nci].floatValue.empty())) {
-        float ekv = vpcopt[nci].floatValue[0];
+  { const size_t nci = miutil::find(vpcopt, PlotOptions::key_lineinterval),
+        ncv = miutil::find(vpcopt, PlotOptions::key_linevalues),
+        nclv = miutil::find(vpcopt, PlotOptions::key_loglinevalues);
+    if (nci  != npos or ncv != npos or nclv != npos) {
+      if (nci != npos && CommandParser::isFloat(vpcopt[nci].value())) {
+        float ekv = vpcopt[nci].toFloat();
         lineintervals = numberList(lineintervalCbox, ekv,true);
         lineintervals2 = numberList(interval2ComboBox, ekv,true);
       }
-      if (ncv >= 0) {
-        linevaluesField->setText(QString::fromStdString(vpcopt[ncv].allValue));
+      if (ncv != npos) {
+        linevaluesField->setText(QString::fromStdString(vpcopt[ncv].value()));
         linevaluesLogCheckBox->setChecked(false);
-      } else if (nclv >= 0) {
-        linevaluesField->setText(QString::fromStdString(vpcopt[nclv].allValue));
+      } else if (nclv != npos) {
+        linevaluesField->setText(QString::fromStdString(vpcopt[nclv].value()));
         linevaluesLogCheckBox->setChecked(true);
       }
-      linevaluesField->setEnabled(nci<0);
-      linevaluesLogCheckBox->setEnabled(nci<0);
+      linevaluesField->setEnabled(nci != npos);
+      linevaluesLogCheckBox->setEnabled(nci != npos);
     }
-    if ((nc = cp->findKey(vpcopt, PlotOptions::key_lineinterval_2)) >= 0
-        && (!vpcopt[nc].floatValue.empty())) {
-      float ekv = vpcopt[nc].floatValue[0];
+    if ((nc = miutil::find(vpcopt, PlotOptions::key_lineinterval_2)) != npos
+        && (CommandParser::isFloat(vpcopt[nc].value()))) {
+      float ekv = vpcopt[nc].toFloat();;
       lineintervals2 = numberList(interval2ComboBox, ekv, true);
     }
   }
 
   // wind/vector density
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_density)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_density)) != npos) {
     std::string s;
-    if (!vpcopt[nc].strValue.empty()) {
-      s = vpcopt[nc].strValue[0];
+    if (!vpcopt[nc].value().empty()) {
+      s = vpcopt[nc].value();
     } else {
       s = "0";
       updateFieldOptions(PlotOptions::key_density, s);
@@ -2043,10 +1974,11 @@ void FieldDialog::enableFieldOptions()
     if (s == "0") {
       i = 0;
     } else {
-      i = densityStringList.indexOf(QString(s.c_str()));
+      const QString qs = QString::fromStdString(s);
+      i = densityStringList.indexOf(qs);
       if (i == -1) {
-        densityStringList << QString(s.c_str());
-        densityCbox->addItem(QString(s.c_str()));
+        densityStringList << qs;
+        densityCbox->addItem(qs);
         i = densityCbox->count() - 1;
       }
     }
@@ -2054,20 +1986,20 @@ void FieldDialog::enableFieldOptions()
   }
 
   // vectorunit (vector length unit)
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_vectorunit)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_vectorunit)) != npos) {
     float e;
-    if (!vpcopt[nc].floatValue.empty())
-      e = vpcopt[nc].floatValue[0];
+    if (CommandParser::isFloat(vpcopt[nc].value()))
+      e = vpcopt[nc].toFloat();
     else
       e = 5;
     vectorunit = numberList(vectorunitCbox, e, false);
   }
 
   // extreme.type (L+H, C+W or none)
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_extremeType)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_extremeType)) != npos) {
     i = 0;
     n= extremeType.size();
-    while (i < n && vpcopt[nc].allValue != extremeType[i]) {
+    while (i < n && vpcopt[nc].value() != extremeType[i]) {
       i++;
     }
     if (i == n) {
@@ -2077,10 +2009,10 @@ void FieldDialog::enableFieldOptions()
     extremeTypeCbox->setCurrentIndex(i);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_extremeSize)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_extremeSize)) != npos) {
     float e;
-    if (!vpcopt[nc].floatValue.empty()) {
-      e = vpcopt[nc].floatValue[0];
+    if (CommandParser::isFloat(vpcopt[nc].value())) {
+      e = vpcopt[nc].toFloat();;
     } else {
       e = 1.0;
     }
@@ -2088,10 +2020,10 @@ void FieldDialog::enableFieldOptions()
     extremeSizeSpinBox->setValue(i);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_extremeRadius)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_extremeRadius)) != npos) {
     float e;
-    if (!vpcopt[nc].floatValue.empty()) {
-      e = vpcopt[nc].floatValue[0];
+    if (CommandParser::isFloat(vpcopt[nc].value())) {
+      e = vpcopt[nc].toFloat();;
     } else {
       e = 1.0;
     }
@@ -2099,8 +2031,8 @@ void FieldDialog::enableFieldOptions()
     extremeRadiusSpinBox->setValue(i);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_lineSmooth)) >= 0 && !vpcopt[nc].intValue.empty()) {
-    i = vpcopt[nc].intValue[0];
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_lineSmooth)) != npos && CommandParser::isInt(vpcopt[nc].value())) {
+    i = vpcopt[nc].toInt();;
     lineSmoothSpinBox->setValue(i);
   } else {
     lineSmoothSpinBox->setValue(0);
@@ -2109,9 +2041,9 @@ void FieldDialog::enableFieldOptions()
   if (currentFieldOptsInEdit) {
     fieldSmoothSpinBox->setValue(0);
     fieldSmoothSpinBox->setEnabled(false);
-  } else if ((nc = cp->findKey(vpcopt, PlotOptions::key_fieldSmooth)) >= 0) {
-    if (!vpcopt[nc].intValue.empty())
-      i = vpcopt[nc].intValue[0];
+  } else if ((nc = miutil::find(vpcopt, PlotOptions::key_fieldSmooth)) != npos) {
+    if (CommandParser::isInt(vpcopt[nc].value()))
+      i = vpcopt[nc].toInt();
     else
       i = 0;
     fieldSmoothSpinBox->setValue(i);
@@ -2119,10 +2051,10 @@ void FieldDialog::enableFieldOptions()
     fieldSmoothSpinBox->setValue(0);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_labelSize)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_labelSize)) != npos) {
     float e;
-    if (!vpcopt[nc].floatValue.empty())
-      e = vpcopt[nc].floatValue[0];
+    if (CommandParser::isFloat(vpcopt[nc].value()))
+      e = vpcopt[nc].toFloat();
     else
       e = 1.0;
     i = (int(e * 100. + 0.5)) / 5 * 5;
@@ -2132,20 +2064,20 @@ void FieldDialog::enableFieldOptions()
     labelSizeSpinBox->setEnabled(false);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_precision)) >= 0) {
-    if (!vpcopt[nc].floatValue.empty() && vpcopt[nc].floatValue[0] < valuePrecisionBox->count() ) {
-      valuePrecisionBox->setCurrentIndex(vpcopt[nc].floatValue[0]);
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_precision)) != npos) {
+    if (CommandParser::isInt(vpcopt[nc].value()) && vpcopt[nc].toInt() < valuePrecisionBox->count() ) {
+      valuePrecisionBox->setCurrentIndex(vpcopt[nc].toInt());
     } else {
       valuePrecisionBox->setCurrentIndex(0);
     }
   }
 
-  nc = cp->findKey(vpcopt, PlotOptions::key_gridValue);
-  if (nc >= 0) {
-    if (vpcopt[nc].allValue == "-1") {
+  nc = miutil::find(vpcopt, PlotOptions::key_gridValue);
+  if (nc != npos) {
+    if (vpcopt[nc].value() == "-1") {
       nc = -1;
     } else {
-      bool on = vpcopt[nc].allValue == "1";
+      bool on = vpcopt[nc].value() == "1";
       gridValueCheckBox->setChecked(on);
       gridValueCheckBox->setEnabled(true);
     }
@@ -2155,16 +2087,16 @@ void FieldDialog::enableFieldOptions()
     gridValueCheckBox->setEnabled(false);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_gridLines)) >= 0) {
-    if (!vpcopt[nc].intValue.empty())
-      i = vpcopt[nc].intValue[0];
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_gridLines)) != npos) {
+    if (CommandParser::isInt(vpcopt[nc].value()))
+      i = vpcopt[nc].toInt();
     else
       i = 0;
     gridLinesSpinBox->setValue(i);
   }
 
-  //   if ((nc=cp->findKey(vpcopt,"grid.lines.max"))>=0) {
-  //     if (!vpcopt[nc].intValue.empty()) i=vpcopt[nc].intValue[0];
+  //   if ((nc=miutil::find(vpcopt,"grid.lines.max"))>=0) {
+  //     if (CommandParser::isInt(vpcopt[nc].value())) i=vpcopt[nc].toInt();;
   //     else i=0;
   //     gridLinesMaxSpinBox->setValue(i);
   //     gridLinesMaxSpinBox->setEnabled(true);
@@ -2175,9 +2107,9 @@ void FieldDialog::enableFieldOptions()
 
   // undefined masking
   int iumask = 0;
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_undefMasking)) >= 0) {
-    if (vpcopt[nc].intValue.size() == 1) {
-      iumask = vpcopt[nc].intValue[0];
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefMasking)) != npos) {
+    if (CommandParser::isInt(vpcopt[nc].value())) {
+      iumask = vpcopt[nc].toInt();;
       if (iumask < 0 || iumask >= int(undefMasking.size()))
         iumask = 0;
     } else {
@@ -2188,15 +2120,15 @@ void FieldDialog::enableFieldOptions()
   }
 
   // undefined masking colour
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_undefColour)) >= 0) {
-    SetCurrentItemColourBox(undefColourCbox, vpcopt[nc].allValue);
-    updateFieldOptions("undef.colour", vpcopt[nc].allValue);
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefColour)) != npos) {
+    SetCurrentItemColourBox(undefColourCbox, vpcopt[nc].value());
+    updateFieldOptions("undef.colour", vpcopt[nc].value());
   }
 
   // undefined masking linewidth
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_undefLinewidth)) >= 0&& !vpcopt[nc].intValue.empty()) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefLinewidth)) != npos&& CommandParser::isInt(vpcopt[nc].value())) {
     int nr_linewidths = undefLinewidthCbox->count();
-    i = vpcopt[nc].intValue[0];
+    i = vpcopt[nc].toInt();;
     if ( i  > nr_linewidths )  {
       ExpandLinewidthBox(undefLinewidthCbox, i);
     }
@@ -2205,9 +2137,9 @@ void FieldDialog::enableFieldOptions()
   }
 
   // undefined masking linetype
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_undefLinetype)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefLinetype)) != npos) {
     i = 0;
-    while (i < nr_linetypes && vpcopt[nc].allValue != linetypes[i])
+    while (i < nr_linetypes && vpcopt[nc].value() != linetypes[i])
       i++;
     if (i == nr_linetypes) {
       i = 0;
@@ -2216,59 +2148,59 @@ void FieldDialog::enableFieldOptions()
     undefLinetypeCbox->setCurrentIndex(i);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_frame)) >= 0 ) {
-    frameCheckBox->setChecked(vpcopt[nc].allValue != "0");
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_frame)) != npos ) {
+    frameCheckBox->setChecked(vpcopt[nc].value() != "0");
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_zeroLine)) >= 0) {
-    bool on = vpcopt[nc].allValue == "1";
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_zeroLine)) != npos) {
+    bool on = vpcopt[nc].value() == "1";
     zeroLineCheckBox->setChecked(on);
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_valueLabel)) >= 0) {
-    bool on = vpcopt[nc].allValue == "1";
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_valueLabel)) != npos) {
+    bool on = vpcopt[nc].value() == "1";
     valueLabelCheckBox->setChecked(on);
   }
 
   // base
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_basevalue)) >= 0) {
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_basevalue)) != npos) {
     float e;
-    if (!vpcopt[nc].floatValue.empty()){
-      e = vpcopt[nc].floatValue[0];
+    if (CommandParser::isFloat(vpcopt[nc].value())){
+      e = vpcopt[nc].toFloat();;
       baseList(zero1ComboBox, e);
     }
-    if ((nc = cp->findKey(vpcopt, PlotOptions::key_basevalue_2)) >= 0) {
-      if (!vpcopt[nc].floatValue.empty()) {
-        e = vpcopt[nc].floatValue[0];
+    if ((nc = miutil::find(vpcopt, PlotOptions::key_basevalue_2)) != npos) {
+      if (CommandParser::isFloat(vpcopt[nc].value())) {
+        e = vpcopt[nc].toFloat();;
         baseList(zero2ComboBox, e);
       }
     }
   }
 
-  if (( nc = cp->findKey(vpcopt, PlotOptions::key_minvalue)) >= 0 ) {
-    if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.c_str());
+  if (( nc = miutil::find(vpcopt, PlotOptions::key_minvalue)) != npos ) {
+    if (vpcopt[nc].value() != "off") {
+      float value = vpcopt[nc].toFloat();
       baseList(min1ComboBox, value, true);
     }
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_minvalue)) >= 0) {
-    if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.c_str());
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_minvalue)) != npos) {
+    if (vpcopt[nc].value() != "off") {
+      float value = vpcopt[nc].toFloat();
       baseList(min2ComboBox, value, true);
     }
   }
 
-  if (( nc = cp->findKey(vpcopt, PlotOptions::key_maxvalue)) >= 0 ) {
-    if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.c_str());
+  if (( nc = miutil::find(vpcopt, PlotOptions::key_maxvalue)) != npos ) {
+    if (vpcopt[nc].value() != "off") {
+      float value = vpcopt[nc].toFloat();
       baseList(max1ComboBox, value, true);
     }
   }
 
-  if ((nc = cp->findKey(vpcopt, PlotOptions::key_maxvalue_2)) >= 0) {
-    if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.c_str());
+  if ((nc = miutil::find(vpcopt, PlotOptions::key_maxvalue_2)) != npos) {
+    if (vpcopt[nc].value() != "off") {
+      float value = vpcopt[nc].toFloat();
       baseList(max2ComboBox, value, true);
     }
   }
@@ -2391,7 +2323,11 @@ void FieldDialog::enableWidgets(std::string plottype)
   for (int i = 0; i < 3; i++) {
     threeColourBox[i]->setEnabled(enable);
   }
-  enable= enableMap[plottype].contourWidgets;
+
+  const std::map<std::string, EnableWidget>::const_iterator itEM = enableMap.find(plottype);
+  const bool knownPlotType = (itEM != enableMap.end());
+
+  enable = knownPlotType && itEM->second.contourWidgets;
   lineTypeCbox->setEnabled(enable);
   lineSmoothSpinBox->setEnabled(enable);
   zeroLineCheckBox->setEnabled(enable);
@@ -2404,12 +2340,12 @@ void FieldDialog::enableWidgets(std::string plottype)
   linetype2ComboBox->setEnabled(enable);
   valueLabelCheckBox->setEnabled(enable);
 
-  enable =  enableMap[plottype].extremeWidgets;
+  enable = knownPlotType && itEM->second.extremeWidgets;
   extremeTypeCbox->setEnabled(enable);
   extremeSizeSpinBox->setEnabled(enable);
   extremeRadiusSpinBox->setEnabled(enable);
 
-  enable =  enableMap[plottype].shadingWidgets;
+  enable = knownPlotType && itEM->second.shadingWidgets;
   lineintervalCbox->setEnabled(enable);
   tableCheckBox->setEnabled(enable);
   repeatCheckBox->setEnabled(enable);
@@ -2425,17 +2361,17 @@ void FieldDialog::enableWidgets(std::string plottype)
   linevaluesField->setEnabled(enable);
   linevaluesLogCheckBox->setEnabled(enable);
 
-  enable = enableMap[plottype].lineWidgets;
+  enable = knownPlotType && itEM->second.lineWidgets;
   lineWidthCbox->setEnabled(enable);
 
-  enable = enableMap[plottype].fontWidgets;
+  enable = knownPlotType && itEM->second.fontWidgets;
   labelSizeSpinBox->setEnabled(enable);
   valuePrecisionBox->setEnabled(enable);
 
-  enable = enableMap[plottype].densityWidgets;
+  enable = knownPlotType && itEM->second.densityWidgets;
   densityCbox->setEnabled(enable);
 
-  enable = enableMap[plottype].unitWidgets;
+  enable = knownPlotType && itEM->second.unitWidgets;
   vectorunitCbox->setEnabled(enable);
 }
 
@@ -2450,7 +2386,6 @@ vector<std::string> FieldDialog::numberList(QComboBox* cBox, float number, bool 
 
 void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
 {
-
   float ekv=10;
   if (lineintervalCbox->currentIndex() >0 && !lineintervalCbox->currentText().isNull()) {
     ekv = atof(lineintervalCbox->currentText().toLatin1());
@@ -2503,7 +2438,8 @@ void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
 
 void FieldDialog::unitEditingFinished()
 {
-  updateFieldOptions(units, unitLineEdit->text().toStdString());
+  updateFieldOptions(UNIT, REMOVE);
+  updateFieldOptions(UNITS, unitLineEdit->text().toStdString());
 }
 
 void FieldDialog::plottypeComboBoxActivated(int index)
@@ -2533,7 +2469,7 @@ void FieldDialog::lineTypeCboxActivated(int index)
 void FieldDialog::lineintervalCboxActivated(int index)
 {
   if (index == 0) {
-    updateFieldOptions(PlotOptions::key_lineinterval, "remove");
+    updateFieldOptions(PlotOptions::key_lineinterval, REMOVE);
     linevaluesField->setEnabled(true);
     linevaluesLogCheckBox->setEnabled(true);
     linevaluesFieldEdited();
@@ -2544,8 +2480,8 @@ void FieldDialog::lineintervalCboxActivated(int index)
     lineintervals = numberList(lineintervalCbox, a, true);
     linevaluesField->setEnabled(false);
     linevaluesLogCheckBox->setEnabled(false);
-    updateFieldOptions(PlotOptions::key_linevalues, "remove");
-    updateFieldOptions(PlotOptions::key_loglinevalues, "remove");
+    updateFieldOptions(PlotOptions::key_linevalues, REMOVE);
+    updateFieldOptions(PlotOptions::key_loglinevalues, REMOVE);
   }
 }
 
@@ -2726,7 +2662,7 @@ void FieldDialog::patternComboBoxToggled(int index)
 void FieldDialog::patternColourBoxToggled(int index)
 {
   if (index == 0) {
-    updateFieldOptions(PlotOptions::key_pcolour, "remove");
+    updateFieldOptions(PlotOptions::key_pcolour, REMOVE);
   } else {
     updateFieldOptions(PlotOptions::key_pcolour, patternColourBox->currentText().toStdString());
   }
@@ -2747,7 +2683,7 @@ void FieldDialog::threeColoursChanged()
       || threeColourBox[1]->currentIndex() == 0
       || threeColourBox[2]->currentIndex() == 0) {
 
-    updateFieldOptions(PlotOptions::key_colours, "remove");
+    updateFieldOptions(PlotOptions::key_colours, REMOVE);
 
   } else {
 
@@ -2759,7 +2695,7 @@ void FieldDialog::threeColoursChanged()
         + threeColourBox[1]->currentText().toStdString() + ","
         + threeColourBox[2]->currentText().toStdString();
 
-    updateFieldOptions(PlotOptions::key_colours, "remove");
+    updateFieldOptions(PlotOptions::key_colours, REMOVE);
     updateFieldOptions(PlotOptions::key_colours, str);
   }
 }
@@ -2773,7 +2709,7 @@ void FieldDialog::updatePaletteString()
 {
   if (patternComboBox->currentIndex() > 0 && patternColourBox->currentIndex()
       > 0) {
-    updateFieldOptions(PlotOptions::key_palettecolours, "off", -1);
+    updateFieldOptions(PlotOptions::key_palettecolours, "off");
     return;
   }
 
@@ -2783,7 +2719,7 @@ void FieldDialog::updatePaletteString()
   int value2 = shadingcoldSpinBox->value();
 
   if (index1 == 0 && index2 == 0) {
-    updateFieldOptions(PlotOptions::key_palettecolours, "off", -1);
+    updateFieldOptions(PlotOptions::key_palettecolours, "off");
     return;
   }
 
@@ -2800,7 +2736,7 @@ void FieldDialog::updatePaletteString()
     if (value2 > 0)
       str += ";" + miutil::from_number(value2);
   }
-  updateFieldOptions(PlotOptions::key_palettecolours, str, -1);
+  updateFieldOptions(PlotOptions::key_palettecolours, str);
 }
 
 void FieldDialog::alphaChanged(int index)
@@ -2811,7 +2747,7 @@ void FieldDialog::alphaChanged(int index)
 void FieldDialog::interval2ComboBoxToggled(int index)
 {
   if (index == 0) {
-    updateFieldOptions(PlotOptions::key_lineinterval_2, "remove");
+    updateFieldOptions(PlotOptions::key_lineinterval_2, REMOVE);
   } else {
     updateFieldOptions(PlotOptions::key_lineinterval_2, lineintervals2[index]);
     // update the list (with selected value in the middle)
@@ -2870,7 +2806,7 @@ void FieldDialog::min2ComboBoxToggled(int index)
 {
 
   if (index == 0)
-    updateFieldOptions(PlotOptions::key_minvalue_2, "remove");
+    updateFieldOptions(PlotOptions::key_minvalue_2, REMOVE);
   else if (!min2ComboBox->currentText().isNull()) {
     std::string str = min2ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
@@ -2882,7 +2818,7 @@ void FieldDialog::min2ComboBoxToggled(int index)
 void FieldDialog::max2ComboBoxToggled(int index)
 {
   if (index == 0)
-    updateFieldOptions(PlotOptions::key_maxvalue_2, "remove");
+    updateFieldOptions(PlotOptions::key_maxvalue_2, REMOVE);
   else if (!max2ComboBox->currentText().isNull()) {
     std::string str = max2ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
@@ -2895,11 +2831,11 @@ void FieldDialog::linevaluesFieldEdited()
 {
   const std::string line_values = linevaluesField->text().toStdString();
   if (linevaluesLogCheckBox->isChecked()) {
-    updateFieldOptions(PlotOptions::key_linevalues, "remove");
-    updateFieldOptions(PlotOptions::key_loglinevalues, line_values, -1);
+    updateFieldOptions(PlotOptions::key_linevalues, REMOVE);
+    updateFieldOptions(PlotOptions::key_loglinevalues, line_values);
   } else {
-    updateFieldOptions(PlotOptions::key_loglinevalues, "remove");
-    updateFieldOptions(PlotOptions::key_linevalues, line_values, -1);
+    updateFieldOptions(PlotOptions::key_loglinevalues, REMOVE);
+    updateFieldOptions(PlotOptions::key_linevalues, line_values);
   }
 }
 
@@ -2965,30 +2901,36 @@ void FieldDialog::enableType2Options(bool on)
   } else {
     colour2ComboBox->setCurrentIndex(0);
     updateFieldOptions(PlotOptions::key_colour_2, "off");
-    updateFieldOptions(PlotOptions::key_lineinterval_2, "remove");
-    updateFieldOptions(PlotOptions::key_basevalue_2, "remove");
+    updateFieldOptions(PlotOptions::key_lineinterval_2, REMOVE);
+    updateFieldOptions(PlotOptions::key_basevalue_2, REMOVE);
     updateFieldOptions("value.range_2", "remove");
-    updateFieldOptions(PlotOptions::key_linewidth_2, "remove");
-    updateFieldOptions(PlotOptions::key_linetype_2, "remove");
+    updateFieldOptions(PlotOptions::key_linewidth_2, REMOVE);
+    updateFieldOptions(PlotOptions::key_linetype_2, REMOVE);
   }
 }
 
-void FieldDialog::updateFieldOptions(const std::string& name,
-    const std::string& value, int valueIndex)
+void FieldDialog::updateFieldOptions(const std::string& name, const std::string& value)
 {
-  METLIBS_LOG_SCOPE("name='" << name << "' value='" << value << "'");
+  METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(value));
 
   if (currentFieldOpts.empty())
     return;
 
   int n = selectedFieldbox->currentRow();
 
-  if (value == "remove")
-    cp->removeValue(vpcopt, name);
-  else
-    cp->replaceValue(vpcopt, name, value, valueIndex);
+  const size_t pos = miutil::find(vpcopt, name);
+  if (value == REMOVE) {
+    if (pos != npos)
+      vpcopt.erase(vpcopt.begin() + pos);
+  } else {
+    const miutil::KeyValue kv(name, value);
+    if (pos != npos)
+      vpcopt[pos] = kv;
+    else
+      vpcopt.push_back(kv);
+  }
 
-  currentFieldOpts = cp->toKeyValueList(vpcopt);
+  currentFieldOpts = vpcopt;
   selectedFields[n].fieldOpts = currentFieldOpts;
 
   // not update private settings if external/QuickMenu command...
@@ -3070,35 +3012,36 @@ miutil::KeyValue_v FieldDialog::getParamString(int i)
 {
   miutil::KeyValue_v ostr;
 
-  if (selectedFields[i].inEdit)
+  const SelectedField& sf = selectedFields[i];
+  if (sf.inEdit)
     miutil::add(ostr, "model", editName);
   else
-    miutil::add(ostr, "model", selectedFields[i].modelName);
+    miutil::add(ostr, "model", sf.modelName);
 
-  if ( !selectedFields[i].refTime.empty() ) {
-    miutil::add(ostr, "reftime", selectedFields[i].refTime);
+  if (!sf.refTime.empty()) {
+    miutil::add(ostr, "reftime", sf.refTime);
   }
 
-  if (selectedFields[i].plotDefinition) {
-    miutil::add(ostr, "plot", selectedFields[i].fieldName);
+  if (sf.plotDefinition) {
+    miutil::add(ostr, "plot", sf.fieldName);
   } else {
-    miutil::add(ostr, "parameter", selectedFields[i].fieldName);
+    miutil::add(ostr, "parameter", sf.fieldName);
   }
 
-  if (!selectedFields[i].level.empty() ) {
-    if ( !selectedFields[i].zaxis.empty() ) {
-      miutil::add(ostr, "vcoord", selectedFields[i].zaxis);
+  if (!sf.level.empty()) {
+    if (!sf.zaxis.empty()) {
+      miutil::add(ostr, "vcoord", sf.zaxis);
     }
-    miutil::add(ostr, "vlevel", selectedFields[i].level);
+    miutil::add(ostr, "vlevel", sf.level);
   }
-  if (!selectedFields[i].idnum.empty()) {
-    miutil::add(ostr, "elevel", selectedFields[i].idnum);
+  if (!sf.idnum.empty()) {
+    miutil::add(ostr, "elevel", sf.idnum);
   }
-  if (selectedFields[i].hourOffset != 0)
-    miutil::add(ostr, "hour.offset", selectedFields[i].hourOffset);
+  if (sf.hourOffset != 0)
+    miutil::add(ostr, "hour.offset", sf.hourOffset);
 
-  if (selectedFields[i].hourDiff != 0)
-    miutil::add(ostr, "hour.diff", selectedFields[i].hourDiff);
+  if (sf.hourDiff != 0)
+    miutil::add(ostr, "hour.diff", sf.hourDiff);
 
   return ostr;
 }
@@ -3265,14 +3208,13 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr,
     return;
   }
 
-  std::string vfg2_model, model, field, level, idnum, fOpts;
   bool minus = false;
-  std::string str;
+  miutil::KeyValue_v str;
 
   for (int ic = 0; ic < nc; ic++) {
     if (str.empty()) {
       if (KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(vstr[ic]))
-        str = c->toString(); // FIXME
+        str = c->all();
       else
         continue;
     }
@@ -3280,33 +3222,26 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr,
                 METLIBS_LOG_DEBUG("P.OK>> " << vstr[ic]);
     //######################################################################
 
-    //if prefix, remove it
-    if (str.length() > 6 && str.substr(0, 6) == "FIELD ")
-      str = str.substr(6, str.size() - 6);
-
     //if (field1 - field2)
-    std::string field1, field2;
-    if (fieldDifference(str, field1, field2))
+    miutil::KeyValue_v field1, field2;
+    if (FieldPlotManager::splitDifferenceCommandString(str, field1, field2))
       str = field1;
 
     SelectedField sf;
     sf.external = external; // from QuickMenu
-    bool decodeOK = false;
 
     if (checkOptions) {
-      str = checkFieldOptions(str);
+      checkFieldOptions(str);
       if (str.empty())
         continue;
     }
 
-    decodeOK = decodeString(str, sf, allTimeSteps);
-
-    if ( decodeOK ) {
+    if (decodeString(str, sf, allTimeSteps)) {
 
       selectedFields.push_back(sf);
 
       std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
-      selectedFieldbox->addItem(QString(text.c_str()));
+      selectedFieldbox->addItem(QString::fromStdString(text));
 
       selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
       selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
@@ -3347,58 +3282,47 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr,
   }
 }
 
-bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
+bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf, bool& allTimeSteps )
 {
-  vector<ParsedCommand> vpc;
-
-  vpc = cp->parse(fieldString);
-
-  //######################################################################
-      for (size_t j = 0; j < vpc.size(); j++) {
-        METLIBS_LOG_DEBUG("   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-            << "   " << vpc[j].allValue);
-      }
-  //######################################################################
-
   sf.inEdit = false;
 
   int refOffset = 0;
   int refHour = -1;
 
-  for (size_t j = 0; j < vpc.size(); j++) {
-    if (vpc[j].key == "model") {
-      sf.modelName = vpc[j].allValue;
-    } else if (vpc[j].key == "reftime") {
-      sf.refTime = vpc[j].allValue;
-    } else if (vpc[j].key == "refoffset" && !vpc[j].intValue.empty())  {
-      refOffset = vpc[j].intValue[0];
-    } else if (vpc[j].key == "refhour" && !vpc[j].intValue.empty())  {
-      refHour = vpc[j].intValue[0];
-    } else if (vpc[j].key == "plot") {
-      sf.fieldName = vpc[j].allValue;
-    } else if (vpc[j].key == "parameter") {
-      sf.fieldName = vpc[j].allValue;
+  for (const miutil::KeyValue& kv : kvs) {
+    if (kv.key() == "model") {
+      sf.modelName = kv.value();
+    } else if (kv.key() == "reftime") {
+      sf.refTime = kv.value();
+    } else if (kv.key() == "refoffset" && CommandParser::isInt(kv.value()))  {
+      refOffset = kv.toInt();
+    } else if (kv.key() == "refhour" && CommandParser::isInt(kv.value()))  {
+      refHour = kv.toInt();
+    } else if (kv.key() == "plot") {
+      sf.fieldName = kv.value();
+    } else if (kv.key() == "parameter") {
+      sf.fieldName = kv.value();
       sf.plotDefinition = false;
-    } else if (vpc[j].key == "level") {
-      sf.level = vpc[j].allValue;
-    } else if (vpc[j].key == "vlevel") {
-      sf.level = vpc[j].allValue;
-    } else if (vpc[j].key == "elevel") {
-      sf.idnum = vpc[j].allValue;
-    } else if (vpc[j].key == "vcoord") {
-      sf.zaxis = vpc[j].allValue;
-    } else if (vpc[j].key == "ecoord") {
-      sf.extraaxis = vpc[j].allValue;
-    } else if (vpc[j].key == "vccor") {
-      sf. zaxis = vpc[j].allValue;
-    } else if (vpc[j].key == "hour.offset" && !vpc[j].intValue.empty()) {
-      sf. hourOffset = vpc[j].intValue[0];
-    } else if (vpc[j].key == "hour.diff" && !vpc[j].intValue.empty()) {
-      sf. hourDiff = vpc[j].intValue[0];
-    } else if (vpc[j].key == "allTimeSteps" && vpc[j].allValue == "on") {
-      allTimeSteps = true;
-    } else if (vpc[j].key != "unknown") {
-      miutil::add(sf.fieldOpts, vpc[j].key, vpc[j].allValue);
+    } else if (kv.key() == "level") {
+      sf.level = kv.value();
+    } else if (kv.key() == "vlevel") {
+      sf.level = kv.value();
+    } else if (kv.key() == "elevel") {
+      sf.idnum = kv.value();
+    } else if (kv.key() == "vcoord" || kv.key() == "vccor") {
+      sf.zaxis = kv.value();
+    } else if (kv.key() == UNITS || kv.key() == "unit") {
+      sf.unit = kv.value();
+    } else if (kv.key() == "ecoord") {
+      sf.extraaxis = kv.value();
+    } else if (kv.key() == "hour.offset" && CommandParser::isInt(kv.value())) {
+      sf.hourOffset = kv.toInt();
+    } else if (kv.key() == "hour.diff" && CommandParser::isInt(kv.value())) {
+      sf.hourDiff = kv.toInt();
+    } else if (kv.key() == "allTimeSteps") {
+      allTimeSteps = kv.toBool();
+    } else if (kv.key() != "unknown") {
+      miutil::add(sf.fieldOpts, kv.key(), kv.value());
     }
   }
 
@@ -3422,10 +3346,12 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
   int nvfg = vfg.size();
   int indexFGR = 0;
   while (indexFGR < nvfg) {
-    if ( vfg[indexFGR].fields.find(sf.fieldName) != vfg[indexFGR].fields.end()
-        && (sf.zaxis == vfg[indexFGR].fields[sf.fieldName].vcoord
-            || (sf.zaxis.empty() && vfg[indexFGR].fields[sf.fieldName].vlevels.size() == 1))
-        && (sf.idnum.empty() == (vfg[indexFGR].fields[sf.fieldName].elevels.size()==0) )) {
+    std::map<std::string,FieldInfo>::const_iterator it_fi = vfg[indexFGR].fields.find(sf.fieldName);
+    if (it_fi != vfg[indexFGR].fields.end()
+        && (sf.zaxis == it_fi->second.vcoord
+            || (sf.zaxis.empty() && it_fi->second.vlevels.size() == 1))
+        && (sf.idnum.empty() == (it_fi->second.elevels.size()==0) ))
+    {
       fieldFound = true;
       break;
     }
@@ -3434,12 +3360,13 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
   }
 
   if (fieldFound) {
-    sf.levelOptions = vfg[indexFGR].fields[sf.fieldName].vlevels;
-    sf.idnumOptions = vfg[indexFGR].fields[sf.fieldName].elevels;
+    const FieldInfo& fi = vfg[indexFGR].fields[sf.fieldName];
+    sf.levelOptions = fi.vlevels;
+    sf.idnumOptions = fi.elevels;
     sf.minus = false;
     return true;
   } else {
-    METLIBS_LOG_DEBUG("  Field not found: "<<LOGVAL(fieldString));
+    METLIBS_LOG_DEBUG("  Field not found: "<<LOGVAL(kvs));
   }
 
   return false;
@@ -3448,39 +3375,6 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
 inline std::string sub(const std::string& s, std::string::size_type begin, std::string::size_type end)
 {
   return s.substr(begin, end - begin);
-}
-
-bool FieldDialog::fieldDifference(const std::string& str,
-    std::string& field1, std::string& field2) const
-{
-  size_t beginOper = str.find("( ");
-  if (beginOper != string::npos) {
-    size_t oper = str.find(" - ", beginOper + 3);
-    if (oper != string::npos) {
-      size_t endOper = str.find(" )", oper + 4);
-      if (endOper != string::npos) {
-        size_t end = str.size();
-        if (beginOper > 1 && endOper < end - 2) {
-          field1 = str.substr(0, beginOper)
-              + sub(str, beginOper + 2, oper)
-              + sub(str, endOper + 2, end);
-          field2 = str.substr(0, beginOper - 1)
-              + sub(str, oper + 2, endOper);
-        } else if (endOper < end - 2) {
-          field1 = sub(str, beginOper + 2, oper)
-              + sub(str, endOper + 2, end);
-          field2 = sub(str, oper + 3, endOper);
-        } else {
-          field1 = str.substr(0, beginOper)
-              + sub(str, beginOper + 2, oper);
-          field2 = str.substr(0, beginOper)
-              + sub(str, oper + 3, endOper);
-        }
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 void FieldDialog::getEditPlotOptions(map<std::string, map<
@@ -3501,17 +3395,13 @@ void FieldDialog::getEditPlotOptions(map<std::string, map<
       continue; //parameter not found
     }
 
-    vector<ParsedCommand> parsedComm = cp->fromKeyValueList(options);
     map<std::string, std::string>::iterator q = p->second.begin();
     //loop through options
     for (; q != p->second.end(); q++) {
-      std::string opt = miutil::to_lower(q->first);
-      unsigned int i = 0;
-      while (i < parsedComm.size() && parsedComm[i].key != opt)
-        i++;
-      //option found and value inserted
-      if (i < parsedComm.size()) {
-        q->second = parsedComm[i].allValue;
+      const std::string opt = miutil::to_lower(q->first);
+      const size_t pcpos = miutil::find(options, opt);
+      if (pcpos != npos) {
+        q->second = options[pcpos].value();
       }
     }
   }
@@ -3585,36 +3475,37 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
 
       if (!sopts.empty()) {
         // update options from setup, if necessary
-        vector<ParsedCommand> vpopt = cp->fromKeyValueList(sopts);
-        vector<ParsedCommand> vplog = cp->parse(fopts);
+        miutil::KeyValue_v vpopt = sopts;
+        const miutil::KeyValue_v vplog = miutil::splitKeyValue(fopts);
         nopt = vpopt.size();
         nlog = vplog.size();
         changed = false;
         for (int i = 0; i < nopt; i++) {
           int j = 0;
-          while (j < nlog && vplog[j].key != vpopt[i].key)
+          while (j < nlog && vplog[j].key() != vpopt[i].key())
             j++;
           if (j < nlog) {
-            if (vplog[j].allValue != vpopt[i].allValue) {
-              cp->replaceValue(vpopt[i], vplog[j].allValue, -1);
+            if (vplog[j].value() != vpopt[i].value()) {
+              vpopt[i] = vplog[j];
               changed = true;
             }
           }
         }
         for (int i = 0; i < nlog; i++) {
           int j = 0;
-          while (j < nopt && vpopt[j].key != vplog[i].key)
+          while (j < nopt && vpopt[j].key() != vplog[i].key())
             j++;
           if (j == nopt) {
-            cp->replaceValue(vpopt, vplog[i].key, vplog[i].allValue);
+            vpopt.push_back(vplog[i]);
             changed = true;
           }
         }
         if (changed) {
+          cleanupFieldOptions(vpopt);
           if (editOptions) {
-            editFieldOptions[fieldname] = cp->toKeyValueList(vpopt);
+            editFieldOptions[fieldname] = vpopt;
           } else {
-            fieldOptions[fieldname] = cp->toKeyValueList(vpopt);
+            fieldOptions[fieldname] = vpopt;
           }
         }
       }
@@ -3623,32 +3514,29 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
   ivstr++;
 }
 
-std::string FieldDialog::checkFieldOptions(const std::string& str)
+void FieldDialog::checkFieldOptions(miutil::KeyValue_v& vplog)
 {
-  METLIBS_LOG_SCOPE("str="<<str);
+  METLIBS_LOG_SCOPE(LOGVAL(vplog));
 
   //merging fieldOptions from str whith current fieldOptions from same field
 
-  std::string newstr;
-
   std::string fieldname;
 
-  vector<ParsedCommand> vplog = cp->parse(str);
+  miutil::KeyValue_v newstr;
   int nlog = vplog.size();
 
   // find fieldname
   for (unsigned int j = 0; j < vplog.size(); j++) {
-    if (vplog[j].key == "plot" || vplog[j].key == "parameter" ) {
-      fieldname = vplog[j].allValue;
+    if (vplog[j].key() == "plot" || vplog[j].key() == "parameter") {
+      fieldname = vplog[j].value();
       break;
     }
   }
 
   if ( !fieldname.empty() ) {
-    const miutil::KeyValue_v fopts = getFieldOptions(fieldname, true);
+    miutil::KeyValue_v vpopt = getFieldOptions(fieldname, true);
 
-    if (!fopts.empty()) {
-      vector<ParsedCommand> vpopt = cp->fromKeyValueList(fopts);
+    if (!vpopt.empty()) {
       int nopt = vpopt.size();
       //##################################################################
       //      METLIBS_LOG_DEBUG("    nopt= " << nopt << "  nlog= " << nlog);
@@ -3657,41 +3545,39 @@ std::string FieldDialog::checkFieldOptions(const std::string& str)
       //        << "  " << vplog[j].key << " = " << vplog[j].allValue);
       //##################################################################
 
-      for (int i = 0; i < nlog; i++) {
-        if (vplog[i].idNumber == 1)
-          newstr += (" " + vplog[i].key + "=" + vplog[i].allValue);
+      for (const miutil::KeyValue& kv : vplog) {
+        if (cp__idnum1.count(kv.key()))
+          newstr.push_back(kv);
       }
 
       //loop through current options, replace the value if the new string has same option with different value
       for (int j = 0; j < nopt; j++) {
         int i = 0;
-        while (i < nlog && vplog[i].key != vpopt[j].key)
+        while (i < nlog && vplog[i].key() != vpopt[j].key())
           i++;
         if (i < nlog) {
           // there is no option with variable no. of values, YET !!!!!
-          if (vplog[i].allValue != vpopt[j].allValue)
-            cp->replaceValue(vpopt[j], vplog[i].allValue, -1);
+          if (vplog[i].value() != vpopt[j].value())
+            vpopt[j] = vplog[i];
         }
       }
 
       //loop through new options, add new option if it is not a part of current options
       for (int i = 2; i < nlog; i++) {
-        if (vplog[i].key != "level" && vplog[i].key != "idnum") {
+        if (vplog[i].key() != "level" && vplog[i].key() != "idnum") {
           int j = 0;
-          while (j < nopt && vpopt[j].key != vplog[i].key)
+          while (j < nopt && vpopt[j].key() != vplog[i].key())
             j++;
           if (j == nopt) {
-            cp->replaceValue(vpopt, vplog[i].key, vplog[i].allValue);
+            vpopt.push_back(vplog[i]);
           }
         }
       }
 
-      newstr += " ";
-      newstr += cp->unParse(vpopt);
+      newstr.insert(newstr.end(), vpopt.begin(), vpopt.end());
     }
   }
-
-  return newstr;
+  std::swap(newstr, vplog);
 }
 
 void FieldDialog::deleteSelected()
@@ -4198,9 +4084,9 @@ void FieldDialog::fieldEditUpdate(std::string str)
       selectedField2edit_exists.push_back(false);
     }
 
-    vector<ParsedCommand> vpopt = cp->fromKeyValueList(sf.fieldOpts);
-    cp->replaceValue(vpopt, "field.smooth", "0", 0);
-    sf.fieldOpts = cp->toKeyValueList(vpopt);
+    const size_t idx_field_smooth = miutil::find(sf.fieldOpts, "field.smooth");
+    if (idx_field_smooth != npos)
+      sf.fieldOpts[idx_field_smooth] = miutil::KeyValue("field.smooth", "0");
 
     n = selectedFields.size();
     SelectedField sfdummy;

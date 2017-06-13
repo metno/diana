@@ -135,7 +135,7 @@ public:
   bool levelsExists(bool up, int type=0);
   void putOKString(const PlotCommand_cpv& vstr,
       bool checkOptions=true, bool external=true);
-  bool decodeString(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
+  bool decodeString(const miutil::KeyValue_v &kvs, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
   void getEditPlotOptions(std::map< std::string, std::map<std::string,std::string> >& po);
@@ -164,18 +164,14 @@ private:
   void enableWidgets(std::string plottype);
   void enableFieldOptions();
   void enableType2Options(bool);
-  void updateFieldOptions(const std::string& name,
-      const std::string& value, int valueIndex= 0);
+  void updateFieldOptions(const std::string& key, const std::string& value);
   void updateTime();
   void setLevel();
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime,
       bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
-  std::string checkFieldOptions(const std::string& str);
+  void checkFieldOptions(miutil::KeyValue_v &str);
   miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
-
-  bool fieldDifference(const std::string& str,
-      std::string& field1, std::string& field2) const;
 
   void toolTips();
 
@@ -194,8 +190,7 @@ private:
 
   std::string lastFieldGroupName;
 
-  CommandParser *cp;
-  std::vector<ParsedCommand> vpcopt;
+  miutil::KeyValue_v vpcopt;
 
   std::string editName;  // replacing the modelName during editing
 
