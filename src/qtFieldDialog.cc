@@ -225,7 +225,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey("elevel", "", 1, CommandParser::cmdString);
   cp->addKey("vcoord", "", 1, CommandParser::cmdString);
   cp->addKey("ecoord", "", 1, CommandParser::cmdString);
-  cp->addKey("grid", "", 1, CommandParser::cmdString);
   cp->addKey(units, "", 1, CommandParser::cmdString);
   cp->addKey("reftime", "", 1, CommandParser::cmdString);
   cp->addKey("refhour", "", 1, CommandParser::cmdInt);
@@ -3391,8 +3390,6 @@ bool FieldDialog::decodeString( const std::string& fieldString, SelectedField& s
       sf.zaxis = vpc[j].allValue;
     } else if (vpc[j].key == "ecoord") {
       sf.extraaxis = vpc[j].allValue;
-    } else if (vpc[j].key == "grid") {
-      sf. grid = vpc[j].allValue;
     } else if (vpc[j].key == "vccor") {
       sf. zaxis = vpc[j].allValue;
     } else if (vpc[j].key == "hour.offset" && !vpc[j].intValue.empty()) {
@@ -4070,7 +4067,6 @@ void FieldDialog::updateTime()
         fr.refTime = sf.refTime;
         fr.zaxis = sf.zaxis;
         fr.eaxis = sf.extraaxis;
-        fr.grid = sf.grid;
         fr.plotDefinition = sf.plotDefinition;
         fr.allTimeSteps = allTimeStepButton->isChecked();
       }

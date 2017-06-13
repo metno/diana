@@ -99,7 +99,6 @@ private:
     std::string zaxis;
     std::string extraaxis;
     std::string taxis;
-    std::string grid;
     std::string unit;
     bool plotDefinition;
     bool levelmove;

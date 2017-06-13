@@ -904,8 +904,6 @@ void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
         fieldrequest.plevel = kv.value();
       } else if (key == "elevel") {
         fieldrequest.elevel = kv.value();
-      } else if (key == "grid") {
-        fieldrequest.grid = kv.value();
       } else if (key == "unit" || key == "units") {
         fieldrequest.unit = kv.value();
       } else if (key == "vunit" && kv.value() == "FL") {
