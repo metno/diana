@@ -35,6 +35,7 @@
 
 #include "diGLPainter.h"
 #include "diPlotModule.h"
+#include "util/string_util.h"
 
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
@@ -224,7 +225,10 @@ void Plot::setPlotInfo(const std::string& pin, bool mergeOptionString)
 {
   pinfo= pin;
   // fill poptions with values from pinfo
-  PlotOptions::parsePlotOption(pinfo, poptions, mergeOptionString);
+  std::string unusedOptions;
+  PlotOptions::parsePlotOption(pinfo, poptions, unusedOptions);
+  if (mergeOptionString)
+    pinfo = diutil::appendedText(unusedOptions, poptions.toString());
 
   enabled= poptions.enabled;
 }

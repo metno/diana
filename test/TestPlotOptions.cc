@@ -87,9 +87,37 @@ TEST(TestPlotOptions, AutoExpand)
 TEST(TestPlotOptions, testParsePlotOptionColour)
 {
   Colour::define("red",255,0,0,0);
-  std::string colstr="colour=red";
+  const std::string colstr="colour=red";
+  std::string unused;
   PlotOptions poptions;
-  PlotOptions::parsePlotOption(colstr,poptions,true);
+  PlotOptions::parsePlotOption(colstr,poptions,unused);
   EXPECT_EQ("red",poptions.textcolour.Name());
-  EXPECT_EQ(colstr,poptions.toString());
+  EXPECT_TRUE(unused.empty());
+}
+
+TEST(TestPlotOptions, testParsePlotOptionUnused)
+{
+  const std::string un = "nosuchoption=true thisoptiondoesnotexist";
+  const std::string lw = "linewidth=5";
+  const std::string postr = lw + " " + un;
+  std::string unused;
+  PlotOptions poptions;
+  PlotOptions::parsePlotOption(postr, poptions, unused);
+  EXPECT_EQ(5, poptions.linewidth);
+  EXPECT_EQ(un, unused);
+}
+
+// example FIELD command:
+// FIELD (  model=AROME-MetCoOp refhour=6 plot=T.2M vcoord=height vlevel=2m -  model=AROME-MetCoOp refhour=0 plot=T.2M vcoord=height vlevel=2m ) colour=red plottype=fill_cell linetype=solid linewidth=1 base=0 frame=0 line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 palettecolours=lightred,lightblue patterns=off table=1 repeat=0 value.label=1 line.smooth=0 field.smooth=0 label.size=1 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=255:255:255:255 undef.linewidth=1 undef.linetype=solid grid.value=0 colour_2=off dim=1 unit=celsius
+
+TEST(TestPlotOptions, testParseFieldPlotOption)
+{
+  const std::string in_field = "( model=AROME-MetCoOp refhour=6 plot=T.2M vlevel=2m - model=AROME-MetCoOp refhour=0 plot=T.2M vlevel=2m )";
+  const std::string in_options = "linetype=solid linewidth=5 plottype=fill_cell";
+  std::string out_field;
+  PlotOptions poptions;
+  PlotOptions::parsePlotOption(in_field + " " + in_options, poptions, out_field);
+  EXPECT_EQ(5, poptions.linewidth);
+  EXPECT_EQ("solid", poptions.linetype.name);
+  EXPECT_EQ(in_field, out_field);
 }

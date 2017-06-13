@@ -378,8 +378,8 @@ public:
   std::string toString();
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
-  static bool parsePlotOption(std::string&, PlotOptions&, bool returnMergedOptionString=false);
   static bool parsePlotOption(const std::string&, PlotOptions&);
+  static bool parsePlotOption(const std::string&, PlotOptions&, std::string& unusedOptions);
 
   static const std::vector< std::vector<std::string> >& getPlotTypes()
     { return plottypes; }

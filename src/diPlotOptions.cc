@@ -36,6 +36,8 @@
 #include "diPattern.h"
 
 #include <diField/diField.h>
+#include "util/string_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/join.hpp>
@@ -290,13 +292,9 @@ PlotOptions::PlotOptions():
 
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
-bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool returnMergedOptionString)
+bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po, std::string& unusedOptions)
 {
   // very frequent METLIBS_LOG_SCOPE();
-
-  Linetype linetype;
-
-  std::string origStr;
 
   bool result=true;
 
@@ -814,12 +812,11 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         po.vector_example_unit_y = value;
 
       } else {
-       origStr += " " + key + "=" + value;
+        diutil::appendText(unusedOptions, key + "=" + value);
       }
     } else if (l>0) {
-      origStr += " " + etokens[0];
+      diutil::appendText(unusedOptions, etokens[0]);
     }
-
   }
 
   if (po.linetypes.size() == 0 ) {
@@ -829,21 +826,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
     po.linewidths.push_back(po.linewidth);
   }
 
-  if (returnMergedOptionString) {
-    if ( origStr.empty() ) {
-      optstr = po.toString();
-    } else {
-      optstr = origStr + " " + po.toString();
-    }
-  }
-
   return result;
 }
 
 bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po)
 {
-  std::string optstring(optstr);
-  return parsePlotOption(optstring, po, false);
+  std::string unusedOptions;
+  return parsePlotOption(optstr, po, unusedOptions);
 }
 
 // fill in values in an int vector
