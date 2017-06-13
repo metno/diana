@@ -93,6 +93,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <puCtools/stat.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QDateTime>
@@ -3016,6 +3018,11 @@ void DianaMainWindow::readLogFile()
   if (!file) {
     //    METLIBS_LOG_DEBUG("Can't open " << logfilepath);
     return;
+  }
+  pu_struct_stat statbuf;
+  if (pu_stat(logfilepath.c_str(), &statbuf) == 0) {
+    if (statbuf.st_size < 128)
+      return;
   }
 
   LogFileIO logfile;
