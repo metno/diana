@@ -80,9 +80,9 @@ struct FieldDialogInfo {
 struct FieldRequest {
   std::string modelName;
   std::string paramName;
-  std::string zaxis;;
-  std::string eaxis;;
-  std::string taxis;;
+  std::string zaxis;
+  std::string eaxis;
+  std::string taxis;
   std::string plevel;
   std::string elevel;
   std::string grid;
