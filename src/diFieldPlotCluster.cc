@@ -70,8 +70,8 @@ bool FieldPlotCluster::update()
 
 void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
-  for (size_t i = 0; i < plots_.size(); i++) {
-    at(i)->getDataAnnotations(anno);
+  for (Plot* pp : plots_) {
+    static_cast<FieldPlot*>(pp)->getDataAnnotations(anno);
   }
 }
 
