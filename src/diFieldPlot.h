@@ -95,7 +95,7 @@ private:
   std::string vectorAnnotationText;
 
   void clearFields();
-  bool getTableAnnotations(std::vector<std::string>& anno);
+  void getTableAnnotations(std::vector<std::string>& anno);
 
   typedef std::vector<float*> (FieldPlot::*prepare_vectors_t)(float* x, float* y);
 

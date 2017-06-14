@@ -375,26 +375,33 @@ void FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
   }
 }
 
+namespace {
 struct aTable {
   std::string colour;
   std::string pattern;
   std::string text;
 };
+} // namespace
 
-bool FieldPlot::getTableAnnotations(vector<string>& annos)
+void FieldPlot::getTableAnnotations(vector<string>& annos)
 {
   METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
-    return false;
+    return;
+
+  if (!isEnabled())
+    return;
+
+  if (!(plottype() == fpt_fill_cell || plottype() == fpt_contour
+        || plottype() == fpt_contour1 || plottype() == fpt_contour2))
+    return;
+
+  if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()))
+    return;
 
   for (std::string& anno : annos) {
     if (miutil::contains(anno, "table")) {
-      if (!isEnabled() || poptions.table == 0
-          || (poptions.palettecolours.size() == 0
-              && poptions.patterns.size() == 0))
-        continue;;
-
       std::string unit = " " + poptions.legendunits;
 
       std::string endString;
@@ -610,10 +617,8 @@ bool FieldPlot::getTableAnnotations(vector<string>& annos)
       str += endString;
 
       annos.push_back(str);
-
     }
   }
-  return true;
 }
 
 bool FieldPlot::getDataAnnotations(vector<string>& annos)
