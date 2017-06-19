@@ -34,7 +34,9 @@
 #include "diPlot.h"
 
 #include "diGLPainter.h"
+#include "diKVListPlotCommand.h"
 #include "diPlotModule.h"
+#include "util/string_util.h"
 
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
@@ -220,27 +222,25 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
   gcd = ngcd * ratio;
 }
 
-void Plot::setPlotInfo(const std::string& pin, bool mergeOptionString)
+std::string Plot::getEnabledStateKey() const
 {
-  pinfo= pin;
+  return miutil::mergeKeyValue(getPlotInfo());
+}
+
+void Plot::setPlotInfo(const miutil::KeyValue_v& kvs)
+{
   // fill poptions with values from pinfo
-  PlotOptions::parsePlotOption(pinfo, poptions, mergeOptionString);
+  ooptions.clear();
+  PlotOptions::parsePlotOption(kvs, poptions, ooptions);
 
   enabled= poptions.enabled;
 }
 
-std::string Plot::getPlotInfo(int n) const
+miutil::KeyValue_v Plot::getPlotInfo(int n) const
 {
-  //return n elements of current plot info string
-  vector<std::string> token = miutil::split(pinfo, n, " ", true);
-  token.pop_back(); //remove last part
-  std::string str;
-  //  str.join(token," ");
-  for(unsigned int i=0;i<token.size();i++){
-    str+=token[i];
-    if(i<token.size()-1) str+=" ";
-  }
-  return str;
+  miutil::KeyValue_v::const_iterator itB = ooptions.begin(), itE = itB;
+  std::advance(itE, std::min(size_t(n), ooptions.size()));
+  return miutil::KeyValue_v(itB, itE);
 }
 
 void Plot::getAnnotation(string& s, Colour& c) const

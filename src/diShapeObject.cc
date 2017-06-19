@@ -72,20 +72,20 @@ inline bool encloses(const Rectangle& outer, const Rectangle& inner)
 const int MIN_PIXELS = 1;
 
 // factor by which to extend the map area
-const float AREA_EXTRA = 0.02;
+const float AREA_EXTRA = 0.02f;
 
 // parts/polygons smaller than this fraction of the map are regarded
 // as invisible
-const float AREA_VISIBLE = 0.005;
+const float AREA_VISIBLE = 0.005f;
 
 const bool SKIP_SMALL = false;
 
 
-bool extractParameterFromWKT(const QString& wkt, const QString& key, float& value)
+bool extractParameterFromWKT(const QString& wkt, const QString& key, double& value)
 {
   QRegExp r_parameter("PARAMETER\\[\""+key+"\", *([0-9.Ee+-]+)\\]");
   if (r_parameter.indexIn(wkt) >= 0) {
-    value = r_parameter.cap(1).toFloat();
+    value = r_parameter.cap(1).toDouble();
     return true;
   } else {
     return false;
@@ -140,7 +140,7 @@ bool guessProjectionFromWKT(Projection& p, const QString& wkt)
 
   if (wkt.contains("PROJECTION[\"Lambert_Conformal_Conic\"]")) {
     QString proj4 = QString("+proj=lcc");
-    float lat_1, lat_2, lon_0=0, lat_0, x_0, y_0;
+    double lat_1, lat_2, lon_0=0, lat_0, x_0, y_0;
     if (extractParameterFromWKT(wkt, "standard_parallel_1", lat_1)
         && extractParameterFromWKT(wkt, "standard_parallel_2", lat_2))
     {
@@ -223,7 +223,7 @@ bool ShapeObject::changeProj()
 
       if (projection.isGeographic()) {
         // an ugly fix to avoid problem with -180.0, 180.0
-        const float DEG_LIM = 179.9;
+        const float DEG_LIM = 179.9f;
         if (tx[j] < -DEG_LIM)
           tx[j] = -DEG_LIM;
         else if (tx[j] > DEG_LIM)
@@ -361,12 +361,12 @@ void ShapeObject::plot(DiGLPainter* gl, PlotOrder porder)
   METLIBS_LOG_TIME(LOGVAL(shapes.size()));
   makeColourmap();
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  for (ShpData_v::const_iterator s = shapes.begin(); s != shapes.end(); ++s) {
-    if (s->type() != SHPT_POLYGON)
+  for (ShpData& s : shapes) {
+    if (s.type() != SHPT_POLYGON)
       continue;
 
-    gl->setLineStyle(s->colour, 2);
-    gl->drawPolygons(s->contours); // TODO optimize like in the other plot(...) function
+    gl->setLineStyle(s.colour, 2);
+    gl->drawPolygons(s.contours); // TODO optimize like in the other plot(...) function
   }
 }
 
@@ -489,8 +489,8 @@ bool ShapeObject::plot(DiGLPainter* gl,
 
 static void writeColour(std::ostream& rs, const Colour& col)
 {
-  rs << ";" << (int) col.R() << ":" << (int) col.G() << ":"
-     << (int) col.B() <<";;";
+  rs << ";" << int(col.R()) << ":" << int(col.G()) << ":"
+     << int(col.B()) <<";;";
 }
 
 bool ShapeObject::getAnnoTable(std::string& str)
@@ -499,22 +499,19 @@ bool ShapeObject::getAnnoTable(std::string& str)
   std::ostringstream rs;
   rs << "table=\"" << fname;
   if (stringcolourmapMade) {
-    map <std::string,Colour>::iterator q=stringcolourmap.begin();
-    for (; q!=stringcolourmap.end(); q++) {
-      writeColour(rs, q->second);
-      rs << q->first;
+    for (auto&& q : stringcolourmap) {
+      writeColour(rs, q.second);
+      rs << q.first;
     }
   } else if (intcolourmapMade) {
-    map <int,Colour>::iterator q=intcolourmap.begin();
-    for (; q!=intcolourmap.end(); q++) {
-      writeColour(rs, q->second);
-      rs << q->first;
+    for (auto&& q : intcolourmap) {
+      writeColour(rs, q.second);
+      rs << q.first;
     }
   } else if (doublecolourmapMade) {
-    map <double,Colour>::iterator q=doublecolourmap.begin();
-    for (; q!=doublecolourmap.end(); q++) {
-      writeColour(rs, q->second);
-      rs << q->first;
+    for (auto&& q : doublecolourmap) {
+      writeColour(rs, q.second);
+      rs << q.first;
     }
   }
   str = rs.str();
@@ -539,7 +536,7 @@ void ShapeObject::makeColourmap()
   else if (dbfIntName.size())
     fname=dbfIntName[0];
 
-  const int ncolours = colours.size();
+  const size_t ncolours = colours.size();
 
   // strings, first find which vector of strings to use, dbfStringDescr
   for (size_t idsn=0; idsn < dbfStringName.size(); idsn++) {

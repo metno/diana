@@ -40,6 +40,7 @@
 #include "diPlotModule.h"
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
+#include "util/diKeyValue.h"
 
 #include <cmath>
 
@@ -469,18 +470,18 @@ bool FieldEdit::readEditfield(const std::string& filename)
   vector<FieldGroupInfo> fgi;
   fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
   vector<Field*> vfout;
-  std::string pin = "FIELD model=" + modelName + " plot=" + plotName;
-  if ( !vcoord.empty() ) {
-    pin +=  (" vcoord=" + vcoord);
-  }
-  if ( !vlevel.empty() ) {
-    pin +=  (" vlevel=" + vlevel);
-  }
-  if ( !fieldUnit.empty() ) {
-    pin +=  (" unit=" + fieldUnit);
-  }
-  std::vector<std::string> vpin;
-  vpin.push_back(pin);
+
+  miutil::KeyValue_v pin;
+  pin.push_back(KeyValue("model", modelName));
+  pin.push_back(KeyValue("plot", plotName));
+  if (!vcoord.empty())
+    pin.push_back(KeyValue("vcoord", vcoord));
+  if (!vlevel.empty())
+      pin.push_back(KeyValue("vlevel", vlevel));
+  if (!fieldUnit.empty())
+    pin.push_back(KeyValue("unit", fieldUnit));
+  std::vector<miutil::KeyValue_v> vpin(1, pin);
+
   bool dummy = false;
   vector<miTime> times = fieldPlotManager->getFieldTime(vpin,dummy);
   miTime time;
@@ -491,15 +492,14 @@ bool FieldEdit::readEditfield(const std::string& filename)
     editfield = vfout[0];
     return true;
   }
-
   return false;
-
 }
 
 void FieldEdit::setData(const vector<Field*>& vf,
     const std::string& fieldname,
-    const miTime& tprod) {
-METLIBS_LOG_SCOPE();
+    const miTime& tprod)
+{
+  METLIBS_LOG_SCOPE();
   cleanup();
 
   if (vf.size()==0) return;

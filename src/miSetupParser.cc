@@ -18,54 +18,6 @@
 
 namespace miutil {
 
-int KeyValue::toInt(bool& ok, int def) const
-{
-  ok = miutil::is_int(mValue);
-  if (ok)
-    return miutil::to_int(mValue);
-  else
-    return def;
-}
-
-double KeyValue::toDouble(bool& ok, double def) const
-{
-  ok = miutil::is_number(mValue);
-  if (ok)
-    return miutil::to_double(mValue);
-  else
-    return def;
-}
-
-float KeyValue::toFloat(bool& ok, float def) const
-{
-  ok = miutil::is_number(mValue);
-  if (ok)
-    return miutil::to_float(mValue);
-  else
-    return def;
-}
-
-bool KeyValue::toBool(bool& ok, bool def) const
-{
-  ok = true;
-  if (mValue == "0")
-    return false;
-  else if (mValue == "1")
-    return true;
-  else if (not mValue.empty()) {
-    const std::string lvalue = miutil::to_lower(mValue);
-    if (lvalue == "yes" or lvalue == "true" or lvalue == "on")
-      return true;
-    else if (lvalue == "no" or lvalue == "false" or lvalue == "off")
-      return false;
-  }
-
-  ok = false;
-  return def;
-}
-
-// ========================================================================
-
 void SetupSection::clear()
 {
   strlist.clear();
@@ -305,14 +257,6 @@ std::vector<KeyValue> SetupParser::splitManyKeyValue(const std::string& line, bo
  * parse one setupfile
  *
  */
-namespace /*anonymous*/ {
-size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
-{
-  (*(std::ostringstream*) userp) << (char *) buffer;
-
-  return (size_t) (size * nmemb);
-}
-} // namespace anonymous
 
 bool SetupParser::parseFile(const std::string& filename, // name of file
     const std::string& section, // inherited section

@@ -2,6 +2,7 @@
 #include "qtVcrossStyleWidget.h"
 
 #include "diLinetype.h"
+#include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "qtUtility.h"
 
@@ -116,7 +117,7 @@ VcrossStyleWidget::~VcrossStyleWidget()
 {
 }
 
-void VcrossStyleWidget::setOptions(const std::string& fopt, const std::string& defaultopt)
+void VcrossStyleWidget::setOptions(const miutil::KeyValue_v& fopt, const miutil::KeyValue_v& defaultopt)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fopt) << LOGVAL(defaultopt));
   disableFieldOptions();
@@ -125,7 +126,7 @@ void VcrossStyleWidget::setOptions(const std::string& fopt, const std::string& d
   enableFieldOptions();
 }
 
-const std::string& VcrossStyleWidget::options() const
+const miutil::KeyValue_v &VcrossStyleWidget::options() const
 {
   if (not currentFieldOpts.empty())
     return currentFieldOpts;
@@ -350,7 +351,7 @@ void VcrossStyleWidget::enableFieldOptions()
 
   Q_EMIT canResetOptions(true);
 
-  vpcopt = cp->parse(currentFieldOpts);
+  vpcopt = cp->fromKeyValueList(currentFieldOpts);
 
   int nc, i;
   float e;
@@ -1224,7 +1225,7 @@ void VcrossStyleWidget::updateFieldOptions(const std::string& name,
   else
     cp->replaceValue(vpcopt,name,value,valueIndex);
 
-  currentFieldOpts = cp->unParse(vpcopt);
+  currentFieldOpts = cp->toKeyValueList(vpcopt);
 }
 
 void VcrossStyleWidget::resetOptions()

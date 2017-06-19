@@ -30,6 +30,7 @@
 #define diStationManager_h
 
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 #include <QString>
 
 class StationPlot;
@@ -45,7 +46,7 @@ public:
   ~StationManager();
 
   void cleanup();
-  bool init(const std::vector<std::string>& inp);
+  bool init(const PlotCommand_cpv& inp);
   stationDialogInfo initDialog();
   bool parseSetup();
 

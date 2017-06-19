@@ -232,19 +232,18 @@ public:
   std::string zaxis; ///< Z-axis identifier
   std::string taxis; ///< time-axis identifier
   std::string extraaxis; ///< run-axis identifier
-  std::string version; ///< data-version
 
   GridParameterKey()
   {
   }
   GridParameterKey(const std::string& na, const std::string& za, const std::string& ta,
-      const std::string& ea, const std::string& ve) :
-    InventoryBase(na,na), zaxis(za), taxis(ta), extraaxis(ea), version(ve)
+      const std::string& ea) :
+    InventoryBase(na,na), zaxis(za), taxis(ta), extraaxis(ea)
   {
   }
   std::string sortkey() const
   {
-    return (name + zaxis + extraaxis + version);
+    return (name + zaxis + extraaxis);
   }
 };
 

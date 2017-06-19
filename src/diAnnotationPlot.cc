@@ -35,11 +35,13 @@
 #include "diImageGallery.h"
 #include "diGLPainter.h"
 #include "diLegendPlot.h"
+#include "diLabelPlotCommand.h"
 #include "util/charsets.h"
 
 #include <puTools/miStringFunctions.h>
 
 #include <QString>
+#include <boost/range/adaptor/reversed.hpp>
 #include <cmath>
 #include <sstream>
 
@@ -49,26 +51,41 @@
 using namespace std;
 using namespace miutil;
 
+namespace {
+const char QUOTE = '"';
+
+std::string unquote(const std::string& value)
+{
+  if (value.size() >= 2 && value.front() == QUOTE && value.back() == QUOTE)
+    return std::string(++value.begin(), --value.end());
+  else
+    return value;
+}
+
+std::vector<std::string> anno_split(const std::string& text, const char* separators)
+{
+  return miutil::split_protected(text, QUOTE, QUOTE, separators, true);
+}
+} // namespace
+
 AnnotationPlot::AnnotationPlot()
 {
   METLIBS_LOG_SCOPE();
   init();
 }
 
-AnnotationPlot::AnnotationPlot(const std::string& po)
+AnnotationPlot::AnnotationPlot(const PlotCommand_cp& po)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(po));
+  METLIBS_LOG_SCOPE();
   init();
   prepare(po);
 }
 
 AnnotationPlot::~AnnotationPlot()
 {
-  for (Annotation_v::iterator ita = annotations.begin(); ita != annotations.end(); ++ita) {
-    for (element_v::iterator ite = ita->annoElements.begin(); ite != ita->annoElements.end(); ++ite) {
-      delete ite->classplot;
-      ite->classplot = 0;
-    }
+  for (Annotation& a : annotations) {
+    for (element& e : a.annoElements)
+      delete e.classplot;
   }
 }
 
@@ -76,12 +93,13 @@ void AnnotationPlot::init()
 {
   plotRequested = false;
   isMarked = false;
-  labelstrings = std::string();
+  labelstrings.clear();
   productname = std::string();
   editable = false;
   useAnaTime = false;
 }
 
+// FIXME this is 99% identical to to EditManager.cc insertTime
 const std::string AnnotationPlot::insertTime(const std::string& s, const miTime& time)
 {
   bool norwegian = true;
@@ -143,18 +161,15 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
 const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs)
 {
   vector<std::string> evs;
-  for (size_t j = 0; j < vs.size(); j++) {
-    std::string es = insertTime(vs[j], getStaticPlot()->getTime());
+  for (const std::string& s : vs) {
+    std::string es = insertTime(s, getStaticPlot()->getTime());
 
     if (useAnaTime) {
       // only using the latest analysis time (yet...)
-      miTime anaTime = miTime();
-      int n = fieldAnaTime.size();
-      for (int i = 0; i < n; i++) {
-        if (!fieldAnaTime[i].undef()) {
-          if (anaTime.undef() || anaTime < fieldAnaTime[i])
-            anaTime = fieldAnaTime[i];
-        }
+      miTime anaTime;
+      for (const miTime& fat : fieldAnaTime) {
+        if (!fat.undef() && (anaTime.undef() || anaTime < fat))
+          anaTime = fat;
       }
       miutil::replace(es, "@", "$");
       miutil::replace(es, "&", "%");
@@ -173,81 +188,68 @@ void AnnotationPlot::setfillcolour(const Colour& c)
     poptions.fillcolour = c;
 }
 
-bool AnnotationPlot::prepare(const std::string& pin)
+bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
 {
-  poptions.fontname = "BITMAPFONT"; //default
-  poptions.textcolour = Colour("black");
-  setPlotInfo(pin);
-
-  useAnaTime = miutil::contains(getPlotInfo(), "@") || miutil::contains(getPlotInfo(), "&");
-
-  const vector<std::string> tokens = miutil::split_protected(getPlotInfo(), '"', '"');
-  int i, n = tokens.size();
-  if (n < 2)
+  LabelPlotCommand_cp cmd = std::dynamic_pointer_cast<const LabelPlotCommand>(pc);
+  if (!cmd)
     return false;
 
-  cmargin = 0.007;
-  cxoffset = 0.01;
-  cyoffset = 0.01;
-  cspacing = 0.2;
-  clinewidth = 1;
-  cxratio = 0.0;
-  cyratio = 0.0;
+  poptions.fontname = "BITMAPFONT"; //default
+  poptions.textcolour = Colour("black");
+  setPlotInfo(cmd->all());
+  if (cmd->size() < 2)
+    return false;
 
-  for (i = 1; i < n; i++) {
-    const std::string& labeltype = tokens[i];
-    const std::string LABELTYPE = miutil::to_upper(labeltype);
-    const vector<std::string> stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
-    std::string key, value;
-    if (stokens.size() > 1) {
-      key = miutil::to_lower(stokens[0]);
-      value = stokens[1];
-    }
-    if (LABELTYPE == "DATA") {
+  cmargin = 0.007f;
+  cxoffset = 0.01f;
+  cyoffset = 0.01f;
+  cspacing = 0.2f;
+  clinewidth = 1;
+  cxratio = 0;
+  cyratio = 0;
+  useAnaTime = false;
+
+  for (const miutil::KeyValue& kv : ooptions) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
+    if (value.find_first_of("@&") != std::string::npos)
+      useAnaTime = true;
+    if (!kv.hasValue() && key == "data") {
       atype = anno_data;
-    } else if (miutil::contains(LABELTYPE, "ANNO=")) {
+    } else if (key == "anno" && kv.hasValue()) {
       //complex annotation with <><>
       atype = anno_text;
       Annotation a;
-      a.str = labeltype.substr(5, labeltype.length() - 5);
-      if (a.str[0] == '"')
-        a.str = a.str.substr(1, a.str.length() - 2);
+      a.str = unquote(value);
       a.col = poptions.textcolour;
       a.spaceLine = false;
       annotations.push_back(a);
-    } else if (miutil::contains(LABELTYPE, "TEXT=")) {
+    } else if (key == "text" && kv.hasValue()) {
       atype = anno_text;
-      if (stokens.size() > 1) {
-        Annotation a;
-        a.str = stokens[1];
-        if (a.str[0] == '"')
-          a.str = a.str.substr(1, a.str.length() - 2);
-        a.col = poptions.textcolour;
-        std::string s = a.str;
-        miutil::trim(s);
-        a.spaceLine = s.length() == 0;
-        annotations.push_back(a);
-      }
+      Annotation a;
+      a.str = unquote(value);
+      a.col = poptions.textcolour;
+      a.spaceLine = miutil::trimmed(a.str).empty();
+      annotations.push_back(a);
     } else if (key == "productname") {
       productname = value;
     } else {
-      labelstrings += " " + tokens[i];
+      labelstrings.push_back(kv);
       if (key == "margin") {
-        cmargin = atof(value.c_str());
+        cmargin = kv.toFloat();
       } else if (key == "xoffset") {
-        cxoffset = atof(value.c_str());
+        cxoffset = kv.toFloat();
       } else if (key == "yoffset") {
-        cyoffset = atof(value.c_str());
+        cyoffset = kv.toFloat();
       } else if (key == "xratio") {
-        cxratio = atof(value.c_str());
+        cxratio = kv.toFloat();
       } else if (key == "yratio") {
-        cyratio = atof(value.c_str());
+        cyratio = kv.toFloat();
       } else if (key == "clinewidth") {
-        clinewidth = atoi(value.c_str());
+        clinewidth = kv.toInt();
       } else if (key == "plotrequested") {
-        plotRequested = (value == "true");
+        plotRequested = kv.toBool();
       }
-
     }
   }
   splitAnnotations();
@@ -269,13 +271,13 @@ void AnnotationPlot::setData(const vector<Annotation>& a,
 
 void AnnotationPlot::splitAnnotations()
 {
-  for (Annotation_v::iterator ita = annotations.begin(); ita != annotations.end(); ++ita) {
-    ita->oldFormat = false;
-    ita->vstr = split(ita->str, '<', '>');
+  for (Annotation& a : annotations) {
+    a.oldFormat = false;
+    a.vstr = split(a.str, '<', '>');
     //use the whole string if no <> delimiters found - old text format
-    if (ita->vstr.empty()) {
-      ita->vstr.push_back(ita->str);
-      ita->oldFormat = true;
+    if (a.vstr.empty()) {
+      a.vstr.push_back(a.str);
+      a.oldFormat = true;
     }
   }
   orig_annotations = annotations;
@@ -285,65 +287,64 @@ bool AnnotationPlot::putElements()
 {
   METLIBS_LOG_SCOPE();
   //decode strings, put into elements...
-  vector<std::string> tokens, elementstrings;
   vector<Annotation> anew;
   nothingToDo = true;
 
-  for (Annotation_v::iterator ita = annotations.begin(); ita != annotations.end(); ++ita) {
-    for (element_v::iterator ite = ita->annoElements.begin(); ite != ita->annoElements.end(); ++ite)
-      delete ite->classplot;
-    ita->annoElements.clear();
-    ita->hAlign = align_left;//default
-    ita->polystyle = poly_none;//default
-    ita->spaceLine = false;
-    ita->wid = 0;
-    ita->hei = 0;
-    if (ita->str.empty())
+  for (Annotation& a : annotations) {
+    for (element& e : a.annoElements) {
+      delete e.classplot;
+      e.classplot = 0;
+    }
+    a.annoElements.clear();
+
+    a.hAlign = align_left;//default
+    a.polystyle = poly_none;//default
+    a.spaceLine = false;
+    a.wid = 0;
+    a.hei = 0;
+    if (a.str.empty())
       continue;
     int subel = 0;
-    const vector<std::string> elementstrings = expanded(ita->vstr);
-    for (size_t l = 0; l < elementstrings.size(); l++) {
-      //      METLIBS_LOG_DEBUG("  elementstrings[l]:"<<elementstrings[l]);
-      if (miutil::contains(elementstrings[l], "horalign=")) {
+    for (const std::string& es : expanded(a.vstr)) {
+      //      METLIBS_LOG_DEBUG("  es:"<<es);
+      if (miutil::contains(es, "horalign=")) {
         //sets alignment for the whole annotation !
-        const vector<std::string> stokens = miutil::split_protected(elementstrings[l], '\"', '\"', ",", true);
-        for (size_t k = 0; k < stokens.size(); k++) {
-          const vector<std::string> subtokens = miutil::split(stokens[k], 0, "=");
+        for (const std::string& tok : anno_split(es, ",")) {
+          const vector<std::string> subtokens = miutil::split(tok, 0, "=");
           if (subtokens.size() != 2)
             continue;
           if (subtokens[0] == "horalign") {
             if (subtokens[1] == "center")
-              ita->hAlign = align_center;
+              a.hAlign = align_center;
             if (subtokens[1] == "right")
-              ita->hAlign = align_right;
+              a.hAlign = align_right;
             if (subtokens[1] == "left")
-              ita->hAlign = align_left;
+              a.hAlign = align_left;
           }
         }
-      } else if (miutil::contains(elementstrings[l], "bcolour=")) {
-        vector<std::string> stokens = miutil::split(elementstrings[l], 0, "=");
+      } else if (miutil::contains(es, "bcolour=")) {
+        vector<std::string> stokens = miutil::split(es, 0, "=");
         if (stokens.size() != 2)
           continue;
-        Colour c = Colour(stokens[1]);
-        ita->bordercolour = c;
-      } else if (miutil::contains(elementstrings[l], "polystyle=")) {
-        vector<std::string> stokens = miutil::split(elementstrings[l], 0, "=");
+        a.bordercolour = Colour(stokens[1]);
+      } else if (miutil::contains(es, "polystyle=")) {
+        vector<std::string> stokens = miutil::split(es, 0, "=");
         if (stokens.size() != 2)
           continue;
         if (stokens[1] == "fill")
-          ita->polystyle = poly_fill;
+          a.polystyle = poly_fill;
         else if (stokens[1] == "border")
-          ita->polystyle = poly_border;
+          a.polystyle = poly_border;
         else if (stokens[1] == "both")
-          ita->polystyle = poly_both;
+          a.polystyle = poly_both;
         else if (stokens[1] == "none")
-          ita->polystyle = poly_none;
+          a.polystyle = poly_none;
 
-      } else if (elementstrings[l] == "\\box") {
+      } else if (es == "\\box") {
         subel--;
       } else {
         element e;
-        if (ita->oldFormat) {
+        if (a.oldFormat) {
           e.eSize = 1.0;
           e.eFace = poptions.fontface;
           e.eHalign = align_left;
@@ -353,46 +354,40 @@ bool AnnotationPlot::putElements()
           e.itsCursor = 0;
           e.eAlpha = 255;
           e.eType = text;
-          e.eText = elementstrings[l];
+          e.eText = es;
           e.eFace = poptions.fontface;
           e.horizontal = true;
           e.polystyle = poly_none;
           e.arrowFeather = false;
           //	  e.textcolour="black";
           nothingToDo = false;
-          ita->annoElements.push_back(e);
+          a.annoElements.push_back(e);
         } else {
-          if (decodeElement(elementstrings[l], e)) {
+          if (decodeElement(es, e)) {
             nothingToDo = false;
-            addElement2Vector(ita->annoElements, e, subel);
+            addElement2Vector(a.annoElements, e, subel);
           }
-          if (elementstrings[l].compare(0, 3, "box") == 0)
+          if (es.compare(0, 3, "box") == 0)
             subel++;
         }
       }
     }
-    anew.push_back(*ita);
+    anew.push_back(a);
   }
   annotations = anew;
 
   return true;
 }
 
-void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
-    int index)
+void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e, int index)
 {
-  if (index > 0) {
-    index--;
-    int n = v_e.size();
-    if (n > 0)
-      addElement2Vector(v_e[n - 1].subelement, e, index);
-    return;
-  }
-
-  v_e.push_back(e);
+  if (index > 0 && !v_e.empty())
+    addElement2Vector(v_e.back().subelement, e, index-1);
+  else
+    v_e.push_back(e);
 }
 
-bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
+bool AnnotationPlot::decodeElement(const std::string& elementstring, element& e)
 {
   METLIBS_LOG_SCOPE(LOGVAL(elementstring));
 
@@ -421,7 +416,7 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
     editable = true;
   } else if (miutil::contains(elementstring, "table=") && miutil::contains(elementstring, ";")) {
     e.eType = table;
-    vector<std::string> stokens = miutil::split_protected(elementstring, '\"', '\"', ",", true);
+    vector<std::string> stokens = anno_split(elementstring, ",");
     e.classplot = new LegendPlot(stokens[0]);
     e.classplot->setPlotOptions(poptions);
     e.classplot->setStaticPlot(getStaticPlot());
@@ -432,13 +427,11 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
   }
 
   //element options
-  vector<std::string> stokens = miutil::split_protected(elementstring, '\"', '\"', ",", true);
-  int mtokens = stokens.size();
-  for (int k = 0; k < mtokens; k++) {
-    if (stokens[k] == "vertical") {
+  for (const std::string& tok : anno_split(elementstring, ",")) {
+    if (tok == "vertical") {
       e.horizontal = false;
     } else {
-      vector<std::string> subtokens = miutil::split_protected(stokens[k], '\"', '\"', "=", true);
+      vector<std::string> subtokens = anno_split(tok, "=");
       if (subtokens.size() != 2)
         continue;
       if (subtokens[0] == "text" || subtokens[0] == "input") {
@@ -448,7 +441,6 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
           e.eText = e.eText.substr(1, e.eText.length() - 2);
       }
       if (subtokens[0] == "title" && e.eType == table) {
-        std::string title = subtokens[1];
         if (subtokens[1][0] == '"')
           subtokens[1] = subtokens[1].substr(1, subtokens[1].length() - 2);
         e.classplot->setTitle(subtokens[1]);
@@ -536,8 +528,6 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   //check if annotations should be scaled, get new dimensions
   getXYBox(gl);
 
-  int n = annotations.size();
-
   // draw filled area
   Colour fc = poptions.fillcolour;
   if (fc.A() < Colour::maxv) {
@@ -556,14 +546,12 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     return;
 
   // draw the annotations
-  for (int i = 0; i < n; i++) {
-    Annotation & anno = annotations[i];
+  for (Annotation & anno : annotations) {
     //draw one annotation - one line
     const Colour& c = getStaticPlot()->notBackgroundColour(anno.col);
     currentColour = c;
     gl->setColour(c);
-    plotElements(gl, annotations[i].annoElements,
-                 anno.rect.x1, anno.rect.y1, annotations[i].hei);
+    plotElements(gl, anno.annoElements, anno.rect.x1, anno.rect.y1, anno.hei);
   }
 
   // draw outline
@@ -573,10 +561,10 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   }
 
   //draw borders
-  for (int i = 0; i < n; i++) {
-    if (annotations[i].polystyle == poly_border || annotations[i].polystyle == poly_both) {
-      gl->setColour(annotations[i].bordercolour);
-      gl->drawRect(true, annotations[i].rect);
+  for (Annotation & anno : annotations) {
+    if (anno.polystyle == poly_border || anno.polystyle == poly_both) {
+      gl->setColour(anno.bordercolour);
+      gl->drawRect(true, anno.rect);
     }
     plotBorders(gl);
   }
@@ -589,13 +577,14 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
   float wid, hei;
-  for (size_t j = 0; j < annoEl.size(); j++) {
+  for (size_t j=0; j<annoEl.size(); ++j) {
+    element& e = annoEl[j];
     if (!horizontal && j != 0)
-      y -= annoEl[j].height;
+      y -= e.height;
 
     gl->setColour(currentColour);
 
-    if (annoEl[j].polystyle == poly_fill || annoEl[j].polystyle == poly_both) {
+    if (e.polystyle == poly_fill || e.polystyle == poly_both) {
 
       const Colour& fc = poptions.fillcolour;
       if (fc.A() < Colour::maxv ) {
@@ -603,41 +592,40 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
         gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
       }
       gl->setColour(fc);
-      gl->drawRect(true, x - border, y - border, x + border + annoEl[j].width, y + border + annoEl[j].height);
+      gl->drawRect(true, x - border, y - border, x + border + e.width, y + border + e.height);
       gl->Disable(DiGLPainter::gl_BLEND);
     }
 
     // get coordinates of border, draw later
-    if (annoEl[j].polystyle == poly_border || annoEl[j].polystyle == poly_both) {
+    if (e.polystyle == poly_border || e.polystyle == poly_both) {
       Border bl;
       bl.x1 = x - border;
       bl.y1 = y - border;
-      bl.x2 = x + border + annoEl[j].width;
-      bl.y2 = y + border + annoEl[j].height;
+      bl.x2 = x + border + e.width;
+      bl.y2 = y + border + e.height;
       borderline.push_back(bl);
     }
 
-    if (not annoEl[j].textcolour.empty())
-      gl->setColour(Colour(annoEl[j].textcolour));
+    if (not e.textcolour.empty())
+      gl->setColour(Colour(e.textcolour));
 
-    if (annoEl[j].eType == box) {
+    if (e.eType == box) {
       wid = hei = 0.0;
       //keeping coor. of the bottom left corner
       float tmpx = x, tmpy = y;
-      if (horizontal && !annoEl[j].horizontal)
-        y += annoEl[j].height - annoEl[j].subelement[0].height;
-      plotElements(gl, annoEl[j].subelement, x, y, annoEl[j].height,
-          annoEl[j].horizontal);
+      if (horizontal && !e.horizontal)
+        y += e.height - e.subelement[0].height;
+      plotElements(gl, e.subelement, x, y, e.height, e.horizontal);
       if (horizontal)
         y = tmpy;
       else
         x = tmpx;
-      wid = annoEl[j].width;
-      hei = annoEl[j].height;
-    } else if (annoEl[j].eType == text || annoEl[j].eType == input) {
+      wid = e.width;
+      hei = e.height;
+    } else if (e.eType == text || e.eType == input) {
       //change text colour if editable
-      if (annoEl[j].eType == input && isMarked) {
-        if (annoEl[j].isInside) {
+      if (e.eType == input && isMarked) {
+        if (e.isInside) {
           //red - ctrl-e works
           gl->Color4f(1, 0, 0, 1.0);
         } else if (isMarked) {
@@ -645,56 +633,55 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
           gl->Color4f(0, 0, 1, 1.0);
         }
       }
-      gl->setFont(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize * fontsizeToPlot);
-      const QString astring = QString::fromStdString(annoEl[j].eText) + " ";
+      gl->setFont(poptions.fontname, e.eFace, e.eSize * fontsizeToPlot);
+      const QString astring = QString::fromStdString(e.eText) + " ";
       gl->getTextSize(astring, wid, hei);
-      if (annoEl[j].eHalign == align_right && j + 1 == annoEl.size())
+      if (e.eHalign == align_right && j + 1 == annoEl.size())
         x = bbox.x2 - wid - border;
       gl->drawText(astring, x, y, 0.0);
       //remember corners of box around text for marking and editing
-      annoEl[j].x1 = x;
-      annoEl[j].y1 = y;
-      annoEl[j].x2 = x + wid;
-      annoEl[j].y2 = y + hei;
-      if (annoEl[j].inEdit) {
+      e.x1 = x;
+      e.y1 = y;
+      e.x2 = x + wid;
+      e.y2 = y + hei;
+      if (e.inEdit) {
         //Hvis* editeringstext,tegn strek for mark�r og for
         //markert tekst
         float w, h;
-        QString substring = astring.left(annoEl[j].itsCursor);
+        QString substring = astring.left(e.itsCursor);
         gl->getTextSize(substring, w, h);
         gl->setColour(Colour::fromF(0, 0, 0, 1));
-        gl->drawLine(annoEl[j].x1 + w, annoEl[j].y1, annoEl[j].x1 + w, annoEl[j].y2);
+        gl->drawLine(e.x1 + w, e.y1, e.x1 + w, e.y2);
       }
-    } else if (annoEl[j].eType == symbol) {
-      gl->setFont(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
-          * fontsizeToPlot);
+    } else if (e.eType == symbol) {
+      gl->setFont(e.eFont, e.eFace, e.eSize * fontsizeToPlot);
       float tmpwid;
-      const QString echar(QLatin1Char(annoEl[j].eCharacter));
+      const QString echar(QLatin1Char(e.eCharacter));
       gl->getTextSize(echar, tmpwid, hei);
       gl->drawText(echar, x, y, 0.0);
       //set back to normal font and draw one blank
-      gl->setFont(poptions.fontname, poptions.fontface, annoEl[j].eSize * fontsizeToPlot);
+      gl->setFont(poptions.fontname, poptions.fontface, e.eSize * fontsizeToPlot);
       gl->drawText(" ", x, y, 0.0);
       gl->getTextSize(" ", wid, hei);
       wid += tmpwid;
-    } else if (annoEl[j].eType == image) {
+    } else if (e.eType == image) {
       ImageGallery ig;
-      float scale = annoEl[j].eSize * scaleFactor;
-      hei = ig.height_(annoEl[j].eImage) * getStaticPlot()->getPhysToMapScaleY() * scale;
-      wid = ig.width_(annoEl[j].eImage) * getStaticPlot()->getPhysToMapScaleX() * scale;
-      ig.plotImage(gl, getStaticPlot(), annoEl[j].eImage, x + wid / 2, y + hei / 2, true, scale,
-          annoEl[j].eAlpha);
-    } else if (annoEl[j].eType == table) {
-      hei = annoEl[j].classplot->height(gl);
+      float scale = e.eSize * scaleFactor;
+      hei = ig.height_(e.eImage) * getStaticPlot()->getPhysToMapScaleY() * scale;
+      wid = ig.width_(e.eImage) * getStaticPlot()->getPhysToMapScaleX() * scale;
+      ig.plotImage(gl, getStaticPlot(), e.eImage, x + wid / 2, y + hei / 2, true, scale,
+          e.eAlpha);
+    } else if (e.eType == table) {
+      hei = e.classplot->height(gl);
       if (poptions.v_align == align_top)
-        annoEl[j].classplot->plotLegend(gl, x, y + annoHeight);
+        e.classplot->plotLegend(gl, x, y + annoHeight);
       else if (poptions.v_align == align_center)
-        annoEl[j].classplot->plotLegend(gl, x, y + (annoHeight + hei) / 2.);
+        e.classplot->plotLegend(gl, x, y + (annoHeight + hei) / 2.);
       else
-        annoEl[j].classplot->plotLegend(gl, x, y + hei);
-      wid = annoEl[j].classplot->width(gl);
-    } else if (annoEl[j].eType == arrow) {
-      wid = plotArrow(gl, x, y, annoEl[j].arrowLength, annoEl[j].arrowFeather);
+        e.classplot->plotLegend(gl, x, y + hei);
+      wid = e.classplot->width(gl);
+    } else if (e.eType == arrow) {
+      wid = plotArrow(gl, x, y, e.arrowLength, e.arrowFeather);
     }
     if (horizontal)
       x += wid;
@@ -705,11 +692,11 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
 float AnnotationPlot::plotArrow(DiGLPainter* gl, float x, float y, float l, bool feather)
 {
   if (feather) {
-    x += 0.1 * l;
+    x += 0.1f * l;
   }
 
-  float dx = 0.333333 * l;
-  float dy = dx * 0.5;
+  float dx = 0.333333f * l;
+  float dy = dx * 0.5f;
 
   //  gl->LineWidth(2.0);
   gl->Begin(DiGLPainter::gl_LINES);
@@ -724,18 +711,18 @@ float AnnotationPlot::plotArrow(DiGLPainter* gl, float x, float y, float l, bool
   if (feather) {
     float x1 = x;
     float y1 = y + dy;
-    float x2 = x1 - 0.13 * l;
-    float y2 = y1 + 0.28 * l;
+    float x2 = x1 - 0.13f * l;
+    float y2 = y1 + 0.28f * l;
 
     gl->Begin(DiGLPainter::gl_LINES);
     gl->Vertex2f(x1, y1);
     gl->Vertex2f(x2, y2);
-    x1 += 0.13 * l;
-    x2 += 0.13 * l;
+    x1 += 0.13f * l;
+    x2 += 0.13f * l;
     gl->Vertex2f(x1, y1);
     gl->Vertex2f(x2, y2);
-    x1 += 0.13 * l;
-    x2 += 0.13 * l;
+    x1 += 0.13f * l;
+    x2 += 0.13f * l;
     x2 = (x1 + x2) / 2;
     y2 = (y1 + y2) / 2;
     gl->Vertex2f(x1, y1);
@@ -752,9 +739,8 @@ void AnnotationPlot::plotBorders(DiGLPainter* gl)
 {
   gl->setLineStyle(poptions.bordercolour, clinewidth);
 
-  int n = borderline.size();
-  for (int i = 0; i < n; i++)
-    gl->drawRect(false, borderline[i].x1, borderline[i].y1, borderline[i].x2, borderline[i].y2);
+  for (const Border& b : borderline)
+    gl->drawRect(false, b.x1, b.y1, b.x2, b.y2);
 }
 
 void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
@@ -764,35 +750,36 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
   float width = 0, height = 0;
-  for (size_t j = 0; j < annoEl.size(); j++) {
+  for (size_t j=0; j<annoEl.size(); ++j) {
+    element& e = annoEl[j];
     float w = 0.0, h = 0.0;
-    if (annoEl[j].eType == text || annoEl[j].eType == input) {
-      gl->setFont(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
+    if (e.eType == text || e.eType == input) {
+      gl->setFont(poptions.fontname, e.eFace, e.eSize
           * fontsizeToPlot);
-      const QString astring = QString::fromStdString(annoEl[j].eText) + " ";
+      const QString astring = QString::fromStdString(e.eText) + " ";
       gl->getTextSize(astring, w, h);
-    } else if (annoEl[j].eType == image) {
-      const std::string& aimage = annoEl[j].eImage;
+    } else if (e.eType == image) {
+      const std::string& aimage = e.eImage;
       ImageGallery ig;
-      float scale = annoEl[j].eSize * scaleFactor;
+      float scale = e.eSize * scaleFactor;
       h = ig.height_(aimage) * getStaticPlot()->getPhysToMapScaleY() * scale;
       w = ig.width_(aimage) * getStaticPlot()->getPhysToMapScaleX() * scale;
-    } else if (annoEl[j].eType == table) {
-      h = annoEl[j].classplot->height(gl);
-      w = annoEl[j].classplot->width(gl);
-    } else if (annoEl[j].eType == arrow) {
-      h = annoEl[j].arrowLength / 2.;
-      w = annoEl[j].arrowLength;
-    } else if (annoEl[j].eType == symbol) {
-      gl->setFont(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
+    } else if (e.eType == table) {
+      h = e.classplot->height(gl);
+      w = e.classplot->width(gl);
+    } else if (e.eType == arrow) {
+      h = e.arrowLength / 2;
+      w = e.arrowLength;
+    } else if (e.eType == symbol) {
+      gl->setFont(e.eFont, poptions.fontface, e.eSize
           * fontsizeToPlot);
-      gl->getCharSize(annoEl[j].eCharacter, w, h);
-      gl->setFont(poptions.fontname, poptions.fontface, annoEl[j].eSize
+      gl->getCharSize(e.eCharacter, w, h);
+      gl->setFont(poptions.fontname, poptions.fontface, e.eSize
           * fontsizeToPlot);
       gl->getTextSize(" ", w, h);
       w *= 2;
-    } else if (annoEl[j].eType == box) {
-      getAnnoSize(gl, annoEl[j].subelement, w, h, annoEl[j].horizontal);
+    } else if (e.eType == box) {
+      getAnnoSize(gl, e.subelement, w, h, e.horizontal);
     }
 
     if (horizontal) {
@@ -804,8 +791,8 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
       if (w > width)
         width = w;
     }
-    annoEl[j].width = w;
-    annoEl[j].height = h;
+    e.width = w;
+    e.height = h;
 
   }
   wid = width;
@@ -833,21 +820,19 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
   spacing = 0;
 
   // Find width and height of each annotation, and total width and height.
-  int n = annotations.size();
+  for (Annotation& a : annotations) {
+    getAnnoSize(gl, a.annoElements, wid, hei);
 
-  for (int i = 0; i < n; i++) {
-    getAnnoSize(gl, annotations[i].annoElements, wid, hei);
-
-    annotations[i].wid = wid;
-    annotations[i].hei = hei;
+    a.wid = wid;
+    a.hei = hei;
 
     if (wid > maxwid)
       maxwid = wid;
     if (hei > maxhei)
       maxhei = hei;
     totalhei += hei;
-    if (annotations[i].spaceLine)
-      totalhei -= (hei + spacing) * 0.5;
+    if (a.spaceLine)
+      totalhei -= (hei + spacing) / 2;
   }
   spacing = cspacing * maxhei;
 
@@ -865,22 +850,22 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
     fontsizeToPlot = fontsizeToPlot * scaleFactor;
 
     float scaledHeight = totalhei * scaleFactor;
-    float scaledSpacing = (height - scaledHeight - (2 * border))/(n - 1);
+    float scaledSpacing = (height - scaledHeight - (2 * border))/(annotations.size() - 1);
     spacing = min(scaledSpacing, spacing);
 
     // Scale the width and height of each annotation.
-    for (int i = 0; i < n; i++) {
-      annotations[i].wid *= scaleFactor;
-      annotations[i].hei *= scaleFactor;
+    for (Annotation& a : annotations) {
+      a.wid *= scaleFactor;
+      a.hei *= scaleFactor;
     }
 
     // Shrink the annotation vertically if there is free space (if the
     // spacing used was less than that available).
     if (spacing < scaledSpacing)
-        height -= (n - 1)*(scaledSpacing - spacing);
+        height -= (annotations.size() - 1)*(scaledSpacing - spacing);
   } else {
     width = maxwid + 2 * border;
-    height = totalhei + (n - 1) * spacing + 2 * border;
+    height = totalhei + (annotations.size() - 1) * spacing + 2 * border;
   }
 
   // Set the x coordinates for the annotation's bounding box.
@@ -889,7 +874,7 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
   } else if (poptions.h_align == align_right) {
     bbox.x1 = bbox.x2 - width - xoffset;
   } else if (poptions.h_align == align_center) {
-    bbox.x1 = (bbox.x1 + bbox.x2) / 2.0 - width / 2.0;
+    bbox.x1 = (bbox.x1 + bbox.x2 - width) / 2;
   }
   bbox.x2 = bbox.x1 + width;
 
@@ -899,7 +884,7 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
   } else if (poptions.v_align == align_top) {
     bbox.y1 = bbox.y2 - height - yoffset;
   } else if (poptions.v_align == align_center) {
-    bbox.y1 = (bbox.y1 + bbox.y2) / 2.0 - (height + yoffset) / 2.0;
+    bbox.y1 = ((bbox.y1 + bbox.y2) - (height + yoffset)) / 2;
   }
   bbox.y2 = bbox.y1 + height;
 
@@ -911,22 +896,22 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
   else if (poptions.v_align == align_top)
     y2 = bbox.y2 - border;
   else // if (poptions.v_align == align_center)
-    y2 = (bbox.y1 + bbox.y2) / 2.0 + height / 2.0;
+    y2 = (bbox.y1 + bbox.y2 + height) / 2;
 
-  for (int i = 0; i < n; i++) {
-    if (annotations[i].hAlign == align_left) {
+  for (Annotation& a : annotations) {
+    if (a.hAlign == align_left) {
       x1 = bbox.x1 + border;
-      x2 = x1 + annotations[i].wid + border;
-    } else if (annotations[i].hAlign == align_right) {
+      x2 = x1 + a.wid + border;
+    } else if (a.hAlign == align_right) {
       x2 = bbox.x2 - border;
-      x1 = x2 - annotations[i].wid - border;
-    } else { // if (annotations[i].hAlign == align_center)
-      x1 = (bbox.x2 + bbox.x1) / 2 - annotations[i].wid / 2;
-      x2 = (bbox.x2 + bbox.x1) / 2 + annotations[i].wid / 2;
+      x1 = x2 - a.wid - border;
+    } else { // if (a.hAlign == align_center)
+      x1 = (bbox.x2 + bbox.x1) / 2 - a.wid / 2;
+      x2 = (bbox.x2 + bbox.x1) / 2 + a.wid / 2;
     }
-    y1 = y2 - annotations[i].hei;
-    annotations[i].rect = Rectangle(x1, y1, x2, y2);
-    y2 -= annotations[i].hei + spacing;
+    y1 = y2 - a.hei;
+    a.rect = Rectangle(x1, y1, x2, y2);
+    y2 -= a.hei + spacing;
   }
 }
 
@@ -942,12 +927,8 @@ bool AnnotationPlot::markAnnotationPlot(int x, int y)
   if (bbox.isinside(pos.x(), pos.y())) {
     isMarked = true;
     //loop over elements
-    int n = annotations.size();
-    for (int i = 0; i < n; i++) {
-      Annotation & anno = annotations[i];
-      int nel = anno.annoElements.size();
-      for (int j = 0; j < nel; j++) {
-        element & annoEl = anno.annoElements[j];
+    for (Annotation& anno : annotations) {
+      for (element& annoEl : anno.annoElements) {
         annoEl.isInside = false;
         if (annoEl.eType == input) {
           if (pos.x() > annoEl.x1 && pos.x() < annoEl.x2
@@ -968,14 +949,10 @@ std::string AnnotationPlot::getMarkedAnnotation()
 {
   std::string text;
   if (isMarked) {
-    int n = annotations.size();
-    for (int i = 0; i < n; i++) {
-      int nel = annotations[i].annoElements.size();
-      for (int j = 0; j < nel; j++) {
-        element annoEl = annotations[i].annoElements[j];
+    for (Annotation& a : annotations) {
+      for(element& annoEl : a.annoElements) {
         if (annoEl.isInside == true) {
           text = annoEl.eText;
-          //miutil::trim(text);
         }
       }
     }
@@ -983,15 +960,11 @@ std::string AnnotationPlot::getMarkedAnnotation()
   return text;
 }
 
-void AnnotationPlot::changeMarkedAnnotation(std::string text, int cursor,
-    int sel1, int sel2)
+void AnnotationPlot::changeMarkedAnnotation(std::string text, int cursor, int sel1, int sel2)
 {
   if (isMarked) {
-    int n = annotations.size();
-    for (int i = 0; i < n; i++) {
-      int nel = annotations[i].annoElements.size();
-      for (int j = 0; j < nel; j++) {
-        element & annoEl = annotations[i].annoElements[j];
+    for (Annotation& a : annotations) {
+      for(element& annoEl : a.annoElements) {
         if (annoEl.isInside == true) {
           annoEl.eText = text;
           annoEl.itsCursor = cursor;
@@ -1008,12 +981,11 @@ void AnnotationPlot::DeleteMarkedAnnotation()
   if (!editable)
     return;
   if (isMarked) {
-    int n = annotations.size();
-    for (int i = 0; i < n; i++) {
-      vector<element>::iterator p = annotations[i].annoElements.begin();
-      while (p != annotations[i].annoElements.end()) {
-        if (p->isInside == true) {
-          p = annotations[i].annoElements.erase(p);
+    for (Annotation& a : annotations) {
+      vector<element>::iterator p = a.annoElements.begin();
+      while (p != a.annoElements.end()) {
+        if (p->isInside) {
+          p = a.annoElements.erase(p);
         } else
           p++;
       }
@@ -1023,41 +995,30 @@ void AnnotationPlot::DeleteMarkedAnnotation()
 
 void AnnotationPlot::startEditAnnotation()
 {
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    int nel = annotations[i].annoElements.size();
-    for (int j = 0; j < nel; j++) {
-      element & annoEl = annotations[i].annoElements[j];
-      if (annoEl.isInside == true) {
+  for (Annotation& a : annotations) {
+    for(element& annoEl : a.annoElements) {
+      if (annoEl.isInside)
         annoEl.inEdit = true;
-      }
     }
   }
 }
 
 void AnnotationPlot::stopEditAnnotation()
 {
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    int nel = annotations[i].annoElements.size();
-    for (int j = 0; j < nel; j++) {
-      element & annoEl = annotations[i].annoElements[j];
-      if (annoEl.isInside == true) {
+  for (Annotation& a : annotations) {
+    for(element& annoEl : a.annoElements) {
+      if (annoEl.isInside)
         annoEl.inEdit = false;
-      }
     }
   }
 }
 
 void AnnotationPlot::editNextAnnoElement()
 {
-  int n = annotations.size();
   bool next = false;
   //find next input element after the one that is edited and mark
-  for (int i = 0; i < n; i++) {
-    int nel = annotations[i].annoElements.size();
-    for (int j = 0; j < nel; j++) {
-      element & annoEl = annotations[i].annoElements[j];
+  for (Annotation& a : annotations) {
+    for(element& annoEl : a.annoElements) {
       if (next && annoEl.eType == input) {
         annoEl.isInside = true;
         annoEl.inEdit = true;
@@ -1072,10 +1033,8 @@ void AnnotationPlot::editNextAnnoElement()
   }
   //if we come to the end, find first input element and mark
   if (next) {
-    for (int i = 0; i < n; i++) {
-      int nel = annotations[i].annoElements.size();
-      for (int j = 0; j < nel; j++) {
-        element & annoEl = annotations[i].annoElements[j];
+    for (Annotation& a : annotations) {
+      for(element& annoEl : a.annoElements) {
         if (annoEl.eType == input) {
           annoEl.isInside = true;
           annoEl.inEdit = true;
@@ -1088,13 +1047,10 @@ void AnnotationPlot::editNextAnnoElement()
 
 void AnnotationPlot::editLastAnnoElement()
 {
-  int n = annotations.size();
   bool last = false;
   //find next element after the one that is edited and mark
-  for (int i = n - 1; i > -1; i--) {
-    int nel = annotations[i].annoElements.size();
-    for (int j = nel - 1; j > -1; j--) {
-      element & annoEl = annotations[i].annoElements[j];
+  for (Annotation& a : boost::adaptors::reverse(annotations)) {
+    for(element& annoEl : boost::adaptors::reverse(a.annoElements)) {
       if (last && annoEl.eType == input) {
         annoEl.isInside = true;
         annoEl.inEdit = true;
@@ -1109,10 +1065,8 @@ void AnnotationPlot::editLastAnnoElement()
   }
   //if we come to the start, find last input element and mark
   if (last) {
-    for (int i = n - 1; i > -1; i--) {
-      int nel = annotations[i].annoElements.size();
-      for (int j = nel - 1; j > -1; j--) {
-        element & annoEl = annotations[i].annoElements[j];
+    for (Annotation& a : boost::adaptors::reverse(annotations)) {
+      for(element& annoEl : boost::adaptors::reverse(a.annoElements)) {
         if (annoEl.eType == input) {
           annoEl.isInside = true;
           annoEl.inEdit = true;
@@ -1164,7 +1118,7 @@ vector<std::string> AnnotationPlot::split(const std::string eString, const char 
   return vec;
 }
 
-std::string AnnotationPlot::writeElement(element& annoEl)
+std::string AnnotationPlot::writeElement(const element& annoEl)
 {
   std::string str = "<";
   switch (annoEl.eType) {
@@ -1208,7 +1162,7 @@ std::string AnnotationPlot::writeElement(element& annoEl)
   default:
     break;
   }
-  if (annoEl.eSize != 1.0) {
+  if (annoEl.eSize != 1) {
     ostringstream ostr;
     ostr << ",size=" << annoEl.eSize;
     str += ostr.str();
@@ -1234,44 +1188,36 @@ std::string AnnotationPlot::writeElement(element& annoEl)
   return str;
 }
 
-std::string AnnotationPlot::writeAnnotation(std::string prodname)
+PlotCommand_cp AnnotationPlot::writeAnnotation(const std::string& prodname)
 {
-  std::string str;
   if (prodname != productname)
-    return str;
-  str = "LABEL";
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    str += " anno=";
-    int nel = annotations[i].annoElements.size();
-    for (int j = 0; j < nel; j++) {
-      element annoEl = annotations[i].annoElements[j];
+    return PlotCommand_cp();
+
+  LabelPlotCommand_p cmd = std::make_shared<LabelPlotCommand>();
+  for (const Annotation& a: annotations) {
+    std::string str;
+    for (const element& annoEl : a.annoElements) {
       //write annoelement here !
       str += writeElement(annoEl);
     }
-    if (annotations[i].hAlign == align_right)
+    if (a.hAlign == align_right)
       str += "<horalign=right>";
-    else if (annotations[i].hAlign == align_center)
+    else if (a.hAlign == align_center)
       str += "<horalign=center>";
-    //else if (annotations[i].hAlign==align_left)
-    //  str+="<horalign=left>";
+    cmd->add("anno", str);
   }
-  str += labelstrings;
+  cmd->add(labelstrings);
 
-  return str;
+  return cmd;
 }
 
-void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno,
-    bool newProduct)
+void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno, bool newProduct)
 {
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    int nel = annotations[i].annoElements.size();
-    for (int j = 0; j < nel; j++) {
-      element & annoEl = annotations[i].annoElements[j];
+  for (Annotation& a: annotations) {
+    for (element& annoEl : a.annoElements) {
       if (annoEl.eType == input && not annoEl.eName.empty()) {
-        map<std::string, std::string> oldInputText = oldAnno->inputText;
-        map<std::string, std::string>::iterator pf = oldInputText.find(annoEl.eName);
+        const map<std::string, std::string>& oldInputText = oldAnno->inputText;
+        const map<std::string, std::string>::const_iterator pf = oldInputText.find(annoEl.eName);
         if (pf != oldInputText.end()) {
           annoEl.eText = pf->second;
           if (annoEl.eName == "number" && newProduct)
@@ -1291,13 +1237,11 @@ const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
 vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
 {
   METLIBS_LOG_SCOPE(LOGVAL(annotations.size()));
-  bool orig = false;
 
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    int m = annotations[i].vstr.size();
-    for (int j = 0; j < m; j++) {
-      if (miutil::contains(annotations[i].vstr[j], "arrow")) {
+  bool orig = false;
+  for (const Annotation& a: annotations) {
+    for (const std::string& s : a.vstr) {
+      if (miutil::contains(s, "arrow")) {
         orig = true;
         break;
       }
@@ -1307,15 +1251,8 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
   }
 
   vector<vector<std::string> > vvstr;
-  if (orig) {
-    int m = orig_annotations.size();
-    for (int i = 0; i < m; i++)
-      vvstr.push_back(orig_annotations[i].vstr);
-  } else {
-    int m = annotations.size();
-    for (int i = 0; i < m; i++)
-      vvstr.push_back(annotations[i].vstr);
-  }
+  for (const Annotation& a : (orig ? orig_annotations : annotations))
+    vvstr.push_back(a.vstr);
   return vvstr;
 }
 
@@ -1329,8 +1266,8 @@ void AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
   if (vvstr.size() != m)
     return;
 
-  for (size_t i = 0; i < vvstr.size(); i++) {
+  for (size_t i = 0; i < vvstr.size(); i++)
     annotations[i].vstr = vvstr[i];
-  }
+
   putElements();
 }

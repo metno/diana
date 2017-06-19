@@ -30,6 +30,7 @@
 #define _obsdialog_h
 
 #include <diController.h>
+#include "util/diKeyValue.h"
 #include <QDialog>
 
 class QComboBox;
@@ -62,9 +63,9 @@ public:
   /// update dialog after re-reading setupfile
   void updateDialog();
   ///return command strings
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   ///insert command strings
-  void putOKString(const std::vector<std::string>& vstr);
+  void putOKString(const PlotCommand_cpv& vstr);
   ///return short name of current command
   std::string getShortname();
   ///change plottype
@@ -113,12 +114,12 @@ private:
   bool newCriteriaString();
   void updateExtension();
   void numberList( QComboBox* cBox, float number );
-  int findPlotnr(const std::string&);
+  int findPlotnr(const miutil::KeyValue_v&);
 
  //ATTRIBUTES
   int nr_plot;
   std::vector<std::string> m_name;
-  std::vector<std::string> savelog;
+  std::vector<miutil::KeyValue_v> savelog;
   int m_selected;
   QColor* colour;
   QComboBox* plotbox;

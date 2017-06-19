@@ -33,7 +33,9 @@
 
 #include "diMapPlot.h"
 
+#include "diKVListPlotCommand.h"
 #include "diMapManager.h"
+#include "diStringPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -108,29 +110,23 @@ void MapPlot::setCanvas(DiCanvas* c)
 /*
  Extract plotting-parameters from PlotInfo.
  */
-bool MapPlot::prepare(const std::string& pinfo, bool ifequal)
+bool MapPlot::prepare(const PlotCommand_cp& pc, bool ifequal)
 {
-  METLIBS_LOG_SCOPE(pinfo);
+  METLIBS_LOG_SCOPE();
 
   MapManager mapm;
 
-  // split on blank, preserve ""
-  vector<std::string> tokens= miutil::split_protected(pinfo, '"','"'," ",true);
-  int n= tokens.size();
-  if (n == 0) {
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  if (!cmd)
     return false;
-  }
 
   std::string bgcolourname;
   MapInfo tmpinfo;
-  for (int i=0; i<n; i++) {
-    vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
-    if (stokens.size()==2) {
-      if (miutil::to_upper(stokens[0])=="MAP") {
-        mapm.getMapInfoByName(stokens[1], tmpinfo);
-      } else if (miutil::to_upper(stokens[0])=="BACKCOLOUR") {
-        bgcolourname= stokens[1];
-      }
+  for (const KeyValue& kv : cmd->all()) {
+    if (kv.key() == "map") {
+      mapm.getMapInfoByName(kv.value(), tmpinfo);
+    } else if (kv.key() == "backcolour") {
+      bgcolourname= kv.value();
     }
   }
 
@@ -145,18 +141,17 @@ bool MapPlot::prepare(const std::string& pinfo, bool ifequal)
 
   mapinfo= tmpinfo;
 
-  //Background colour
-  if ((not bgcolourname.empty())) {
+  if (!bgcolourname.empty()) {
     getStaticPlot()->setBgColour(bgcolourname); // static Plot member
     //just background colour, no map. No reason to make MapPlot object
-    if ( n==2 ) {
+    if (cmd->size() == 1) {
       return false;
     }
   }
 
   // fill in new options for mapinfo and make proper PlotOptions
   // the different map-elements
-  mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, lonopts, latopts, ffopts);
+  mapm.fillMapInfo(cmd->all(), mapinfo, contopts, landopts, lonopts, latopts, ffopts);
 
   // set active zorder layer
   for (int i = 0; i < 3; i++) {

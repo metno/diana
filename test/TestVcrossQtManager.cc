@@ -183,8 +183,10 @@ TEST(TestVcrossQtManager, Script)
   ASSERT_EQ(1, reftimes.size());
   EXPECT_EQ(AROME1_RT, reftimes.front());
 
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK),
-      "colour=red line.interval=0.2", 0);
+  miutil::KeyValue_v opts;
+  miutil::add(opts, "colour", "red");
+  miutil::add(opts, "line.interval", "0.2");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), opts, 0);
   EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(1, ms.cslist);
   EXPECT_EQ(1, ms.csindex);
@@ -211,7 +213,7 @@ TEST(TestVcrossQtManager, Script)
     ms.reset();
   }
 
-  manager.updateField(0, "colour=green");
+  manager.updateField(0, miutil::KeyValue_v(1, miutil::KeyValue("colour", "green")));
   EXPECT_EQ(1, ms.options.size());
   ms.reset();
 }
@@ -226,8 +228,10 @@ TEST(TestVcrossQtManager, Reftime)
   ASSERT_EQ(4, reftimes.size());
 
   const vcross::QtManager::vctime_t AROME2_RT1(AROME2_RTT[1]);
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME2_RT1, TEMPK),
-      "colour=red line.interval=0.2", 0);
+  miutil::KeyValue_v opts0;
+  miutil::add(opts0, "colour", "red");
+  miutil::add(opts0, "line.interval", "0.2");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME2_RT1, TEMPK), opts0, 0);
   EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(1, ms.cslist);
   EXPECT_EQ(1, ms.csindex);
@@ -255,7 +259,7 @@ TEST(TestVcrossQtManager, Reftime)
     ms.reset();
   }
 
-  manager.updateField(0, "colour=green");
+  manager.updateField(0, miutil::KeyValue_v(1, miutil::KeyValue("colour", "green")));
   EXPECT_EQ(1, ms.options.size());
   ms.reset();
 
@@ -270,9 +274,20 @@ TEST(TestVcrossQtManager, MoveFields)
 
   manager.getModelReferenceTimes(MODEL);
 
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=red line.interval=0.2", 0);
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, VIND),  "colour=blue", 1);
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPC), "colour=green line.interval=0.2", 2);
+  miutil::KeyValue_v opts0;
+  miutil::add(opts0, "colour", "red");
+  miutil::add(opts0, "line.interval", "0.2");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), opts0, 0);
+
+  miutil::KeyValue_v opts1;
+  miutil::add(opts1, "colour", "blue");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, VIND),  opts1, 1);
+
+  miutil::KeyValue_v opts2;
+  miutil::add(opts2, "colour", "green");
+  miutil::add(opts2, "line.interval", "0.2");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPC), opts2, 2);
+
   EXPECT_EQ(3, ms.added.size());
   EXPECT_EQ(1, ms.cslist);
   EXPECT_EQ(1, ms.csindex);
@@ -318,10 +333,18 @@ TEST(TestVcrossQtManager, DuplicateFields)
 
   manager.getModelReferenceTimes(MODEL);
 
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=red line.interval=0.2", 0);
+  miutil::KeyValue_v opts0;
+  miutil::add(opts0, "colour", "red");
+  miutil::add(opts0, "line.interval", "0.2");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), opts0, 0);
+
   ms.reset();
 
-  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=blue line.interval=0.2", 1);
+  miutil::KeyValue_v opts1;
+  miutil::add(opts1, "colour", "blue");
+  miutil::add(opts1, "line.interval", "0.2");
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), opts1, 1);
+
   EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(0, ms.cslist);
   EXPECT_EQ(0, ms.csindex);

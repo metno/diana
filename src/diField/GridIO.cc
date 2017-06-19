@@ -183,11 +183,11 @@ Field * GridIO::initializeField(const std::string& modelname,
 Field * GridIO::getData(const std::string& reftime, const std::string& paramname,
     const std::string& grid, const std::string& zaxis,
     const std::string& taxis, const std::string& extraaxis,
-    const std::string& version, const std::string& level,
+    const std::string& level,
     const miutil::miTime& time, const std::string& elevel,
     const std::string& unit)
 {
   gridinventory::GridParameter gparam(gridinventory::GridParameterKey(
-      paramname, zaxis, taxis, extraaxis, version));
+      paramname, zaxis, taxis, extraaxis));
   return getData(reftime, gparam, level, time, elevel, unit);
 }

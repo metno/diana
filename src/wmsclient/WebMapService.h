@@ -42,6 +42,8 @@ class Rectangle;
 class Projection;
 
 class QImage;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class WebMapDimension {
 public:
@@ -196,14 +198,16 @@ class WebMapService : public QObject {
   Q_OBJECT;
 
 protected:
-  WebMapService(const std::string& identifier)
-    : mIdentifier(identifier) { }
+  WebMapService(const std::string& identifier, QNetworkAccessManager* network);
 
 public:
   virtual ~WebMapService();
 
   void setBasicAuth(const std::string& basicauth)
     { mBasicAuth = basicauth; }
+
+  void addExtraQueryItem(const std::string& k, const std::string& v)
+    { mExtraQueryItems.push_back(std::make_pair(k, v)); }
 
   const std::string& identifier() const
     { return mIdentifier; }
@@ -230,6 +234,8 @@ public:
   virtual WebMapRequest_x createRequest(const std::string& layer,
       const Rectangle& viewRect, const Projection& viewProj, double viewScale) = 0;
 
+  QNetworkReply* submitUrl(QUrl url);
+
 public Q_SLOTS:
   /* trigger reload of capabilities */
   virtual void refresh();
@@ -248,7 +254,11 @@ protected:
   std::string mIdentifier;
   std::string mTitle;
   std::string mBasicAuth;
+  std::vector< std::pair< std::string,std::string > > mExtraQueryItems;
   std::vector<WebMapLayer_cx> mLayers;
+
+private:
+  QNetworkAccessManager* mNetworkAccess;
 };
 
 #endif

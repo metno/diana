@@ -33,6 +33,7 @@
 
 #include "diObsManager.h"
 
+#include "diKVListPlotCommand.h"
 #include "diObsAscii.h"
 #include "diObsMetaData.h"
 #include "diObsPlot.h"
@@ -82,7 +83,7 @@ ObsManager::ObsManager()
   timeListChanged = false;
 }
 
-ObsPlot* ObsManager::createObsPlot(const std::string& pin)
+ObsPlot* ObsManager::createObsPlot(const PlotCommand_cp& pin)
 {
   return ObsPlot::createObsPlot(pin);
 }
@@ -591,25 +592,15 @@ bool ObsManager::updateTimesfromFile(const std::string& obsType)
 }
 
 //return observation times for list of PlotInfo's
-vector<miTime> ObsManager::getObsTimes(const vector<string>& pinfos)
+vector<miTime> ObsManager::getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos)
 {
-  int m, nn = pinfos.size();
   vector<std::string> obsTypes;
 
-  for (int i = 0; i < nn; i++) {
-    //     METLIBS_LOG_DEBUG("Processing: " << pinfos[i].infoStr());
-    const vector<string> tokens = miutil::split(pinfos[i]);
-    m = tokens.size();
-    if (m < 2)
-      continue;
-    for (int k = 1; k < m; k++) {
-      vector<string> stokens = miutil::split(tokens[k], 2, "=");
-      if (stokens.size() == 2) {
-        if (miutil::to_lower(stokens[0]) == "data") {
-          vector<string> obsT = miutil::split(stokens[1], 0, ",");
-          obsTypes.insert(obsTypes.end(), obsT.begin(), obsT.end());
-          break;
-        }
+  for (const miutil::KeyValue_v& pinfo : pinfos) {
+    for (const miutil::KeyValue& kv : pinfo) {
+      if (kv.key() == "data") {
+        obsTypes = miutil::split(kv.value(), 0, ",");
+        break;
       }
     }
   }
@@ -618,24 +609,22 @@ vector<miTime> ObsManager::getObsTimes(const vector<string>& pinfos)
 }
 
 void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo)
+    int& timediff, const PlotCommand_cp& pinfo)
 {
   //Finding times from pinfo
 
   timediff = 0;
 
-  vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
-  int m = tokens.size();
-  if (m < 3)
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo);
+  if (!cmd || cmd->size() < 2)
     return;
+
   vector<std::string> obsTypes;
-  for (unsigned int j = 0; j < tokens.size(); j++) {
-    vector<std::string> stokens = miutil::split(tokens[j], "=");
-    if (stokens.size() == 2 && miutil::to_lower(stokens[0]) == "data") {
-      obsTypes = miutil::split(stokens[1], ",");
-    } else if (stokens.size() == 2
-        && miutil::to_lower(stokens[0]) == "timediff") {
-      timediff = miutil::to_int(stokens[1]);
+  for (const miutil::KeyValue& kv : cmd->all()) {
+    if (kv.key() == "data") {
+      obsTypes = miutil::split(kv.value(), ",");
+    } else if (kv.key() == "timediff") {
+      timediff = kv.toInt();
     }
   }
 
@@ -643,14 +632,13 @@ void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 }
 
 // return observation times for list of obsTypes
-vector<miTime> ObsManager::getTimes(vector<std::string> obsTypes)
+vector<miTime> ObsManager::getTimes(const std::vector<std::string>& obsTypes)
 {
   set<miTime> timeset;
 
-  int n = obsTypes.size();
-  for (int i = 0; i < n; i++) {
+  for (const std::string& ot : obsTypes) {
+    std::string obsType = miutil::to_lower(ot);
 
-    std::string obsType = miutil::to_lower(obsTypes[i]);
     if (Prod[obsType].obsformat == ofmt_url) {
       // TODO move some of this to parseSetup
       FileInfo finfo;

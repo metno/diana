@@ -37,6 +37,8 @@
 
 #include "diPlotOptions.h"
 #include "diCommonTypes.h"
+#include "diField/diArea.h"
+#include "util/diKeyValue.h"
 
 /**
  \brief Manager of maps and predefined areas/projections
@@ -69,20 +71,22 @@ public:
   /// get predefined area from accelerator
   bool getMapAreaByFkey(const std::string&, Area&);
   /// get list of defined maps
-  std::vector<MapInfo> getMapInfo();
+  const std::vector<MapInfo>& getMapInfo();
   /// get information on one specific map
   bool getMapInfoByName(const std::string&, MapInfo&);
+
+  bool fillMapInfo(const miutil::KeyValue_v&, MapInfo&);
+
   /// extract plot information from string
-  bool fillMapInfo(const std::string&, MapInfo&, PlotOptions& contopts,
+  bool fillMapInfo(const miutil::KeyValue_v&, MapInfo&, PlotOptions& contopts,
       PlotOptions& landopts, PlotOptions& lonopts, PlotOptions& latopts,
       PlotOptions& ffopts);
   /// make string representation of one MapInfo
-  std::string MapInfo2str(const MapInfo&);
+  miutil::KeyValue_v MapInfo2str(const MapInfo&);
   /// make string representation of lat/lon/frame/background info
-  std::string MapExtra2str(const MapInfo&);
+  miutil::KeyValue_v MapExtra2str(const MapInfo&);
   /// get all defined maps and areas for the GUI
   MapDialogInfo getMapDialogInfo();
-
 };
 
 #endif

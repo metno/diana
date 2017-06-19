@@ -1,6 +1,8 @@
 
 #include "qtVcrossStyleDialog.h"
 
+#include "diKVListPlotCommand.h"
+
 #define MILOGGER_CATEGORY "diana.VcrossStyleDialog"
 #include <miLogger/miLogging.h>
 
@@ -123,8 +125,8 @@ void VcrossStyleDialog::slotSelectedPlotChanged(int index)
     return;
 
   const std::string fld = vcrossm->getFieldAt(index);
-  const std::string opt  = vcrossm->getOptionsAt(index);
-  const std::string dflt = vcrossm->getPlotOptions(fld, true);
+  const miutil::KeyValue_v& opt  = vcrossm->getOptionsAt(index);
+  const miutil::KeyValue_v& dflt = vcrossm->getPlotOptions(fld, true);
   METLIBS_LOG_DEBUG(LOGVAL(index) << LOGVAL(fld) << LOGVAL(opt) << LOGVAL(dflt));
   ui->styleWidget->setOptions(opt, dflt);
 }

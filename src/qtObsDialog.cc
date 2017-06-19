@@ -170,7 +170,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 void ObsDialog::updateDialog()
 {
   //save selections
-  vector<string> vstr = getOKString();
+  PlotCommand_cpv vstr = getOKString();
 
   //remove old widgets
   for( int i=0; i < nr_plot; i++){
@@ -292,15 +292,11 @@ void ObsDialog::getTimes()
     set<std::string> nameset;
     for (int i=0; i<nr_plot; i++) {
       if (obsWidget[i]->initialized()) {
-        vector<std::string> name=obsWidget[i]->getDataTypes();
+        std::vector<std::string> name=obsWidget[i]->getDataTypes();
         nameset.insert(name.begin(), name.end());
       }
     }
-    if(nameset.size()>0){
-      set<std::string>::iterator p = nameset.begin();
-      for(;p!=nameset.end();p++)
-        dataName.push_back(*p);
-    }
+    dataName = std::vector<std::string>(nameset.begin(), nameset.end());
 
   } else {
 
@@ -345,10 +341,9 @@ void ObsDialog::archiveMode(bool on){
 
 
 /*******************************************************/
-vector<string> ObsDialog::getOKString()
+PlotCommand_cpv ObsDialog::getOKString()
 {
-
-  vector<string> str;
+  PlotCommand_cpv str;
 
   if (nr_plot == 0)
     return str;
@@ -356,17 +351,13 @@ vector<string> ObsDialog::getOKString()
   if(multiplot) {
     for (int i=nr_plot-1; i>-1; i--) {
       if (obsWidget[i]->initialized()) {
-        std::string  tmpstr = obsWidget[i]->getOKString();
-        if (not tmpstr.empty()) {
-          //          tmpstr += getCriteriaOKString();
-          str.push_back(tmpstr);
-        }
+        if (PlotCommand_cp cmd = obsWidget[i]->getOKString())
+          str.push_back(cmd);
       }
     }
   } else {
-    std::string  tmpstr = obsWidget[m_selected]->getOKString();
-    //    if(tmpstr.exists()) tmpstr += getCriteriaOKString();
-    str.push_back(tmpstr);
+    if (PlotCommand_cp cmd = obsWidget[m_selected]->getOKString())
+      str.push_back(cmd);
   }
 
   return str;
@@ -382,18 +373,18 @@ vector<string> ObsDialog::writeLog()
   std::string str;
 
   //first write the plot type selected now
-  str = obsWidget[m_selected]->getOKString(true);
-  vstr.push_back(str);
+  if (KVListPlotCommand_cp cmd = obsWidget[m_selected]->getOKString(true))
+    vstr.push_back(miutil::mergeKeyValue(cmd->all()));
 
   //then the others
   for (int i=0; i<nr_plot; i++) {
     if (i != m_selected) {
       if (obsWidget[i]->initialized()) {
-        str= obsWidget[i]->getOKString(true);
-        vstr.push_back(str);
+        if (KVListPlotCommand_cp cmd = obsWidget[i]->getOKString(true))
+          vstr.push_back(miutil::mergeKeyValue(cmd->all()));
       } else if (i < savelog.size() && savelog[i].size()>0) {
         // ascii obs dialog not activated
-        vstr.push_back(savelog[i]);
+        vstr.push_back(miutil::mergeKeyValue(savelog[i]));
       }
     }
   }
@@ -412,7 +403,8 @@ void ObsDialog::readLog(const vector<string>& vstr,
 
   while (n<nvstr && vstr[n].substr(0,4)!="====") {
 
-    int index=findPlotnr(vstr[n]);
+    const miutil::KeyValue_v kvs = miutil::splitKeyValue(vstr[n]);
+    const int index = findPlotnr(kvs);
     if (index<nr_plot) {
       if (obsWidget[index]->initialized() || first) {
         if (first) {  //will be selected
@@ -420,10 +412,10 @@ void ObsDialog::readLog(const vector<string>& vstr,
           plotbox->setCurrentIndex(index);
           plotSelected(index);
         }
-        obsWidget[index]->readLog(vstr[n]);
+        obsWidget[index]->readLog(kvs);
       }
       // save until (ascii/hqc obs) dialog activated, or until writeLog
-      savelog[index]= vstr[n];
+      savelog[index] = kvs;
 
     }
 
@@ -447,7 +439,7 @@ std::string ObsDialog::getShortname()
 }
 
 
-void ObsDialog::putOKString(const vector<string>& vstr)
+void ObsDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   //unselect everything
   for (int i=0; i<nr_plot; i++) {
@@ -462,59 +454,62 @@ void ObsDialog::putOKString(const vector<string>& vstr)
   vector<miutil::miTime> noTimes;
   emit emitTimes( "obs",noTimes );
 
-  int n=vstr.size();
-  if(n>1) {
+  if (vstr.size() > 1) {
     multiplot=true;
     multiplotButton->setChecked(true);
   }
-  for(int i=0; i<n; i++){
-    int l = findPlotnr(vstr[i]);
+  for (PlotCommand_cp cmd : vstr) {
+    KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(cmd);
+    if (!c)
+      continue;
+
+    int l = findPlotnr(c->all());
     if (l<nr_plot) {
       plotbox->setCurrentIndex(l);
       plotSelected(l);
-      obsWidget[l]->putOKString(vstr[i]);
+      obsWidget[l]->putOKString(cmd);
     }
   }
 }
 
 
-int ObsDialog::findPlotnr(const std::string& str)
+int ObsDialog::findPlotnr(const miutil::KeyValue_v& str)
 {
+  const size_t i_plot = miutil::rfind(str, "plot");
+  if (i_plot != size_t(-1)) {
+    std::string value = miutil::to_lower(str.at(i_plot).value());
+    if (value=="enkel")
+      value="list"; //obsolete
+    if (value=="trykk")
+      value="pressure"; //obsolete
 
-  vector<std::string> tokens = miutil::split(str, " ");
-  int m=tokens.size();
-  for(int j=0; j<m; j++){
-    vector<std::string> stokens = miutil::split(tokens[j], "=");
-    if( stokens.size()==2 && stokens[0]=="plot"){
-      std::string value = miutil::to_lower(stokens[1]);
-      if(value=="enkel") value="list"; //obsolete
-      if(value=="trykk") value="pressure"; //obsolete
-      int l=0;
-      while (l<nr_plot && miutil::to_lower(m_name[l])!=value) l++;
-      return l;
-    }
+    int l=0;
+    while (l<nr_plot && miutil::to_lower(m_name[l])!=value)
+      l++;
+    return l;
   }
-
   return nr_plot; //not found
-
 }
 
-bool  ObsDialog::setPlottype(const std::string& str, bool on)
+bool  ObsDialog::setPlottype(const std::string& name, bool on)
 {
   METLIBS_LOG_SCOPE();
   int l=0;
-  while (l<nr_plot && m_name[l]!=str) l++;
-
-  if( l == nr_plot) return false;
+  while (l<nr_plot && m_name[l]!=name)
+    l++;
+  if( l == nr_plot)
+    return false;
 
   if( on ){
     plotbox->setCurrentIndex(l);
     ObsWidget* ow = new ObsWidget( this );
-    std::string str;
-    if (obsWidget[l]->initialized() ) {
+    PlotCommand_cp str;
+    if (obsWidget[l]->initialized()) {
       str = obsWidget[l]->getOKString();
-    } else if ( l < savelog.size() ) {
-      str = savelog[l];
+    } else if (l < savelog.size() && !savelog[l].empty()) {
+      KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("OBS");
+      cmd->add(savelog[l]);
+      str = cmd;
     }
     stackedWidget->removeWidget(obsWidget[l]);
     obsWidget[l]->close();
@@ -523,18 +518,15 @@ bool  ObsDialog::setPlottype(const std::string& str, bool on)
     stackedWidget->insertWidget(l,obsWidget[l]);
 
     plotSelected(l,false);
-    if (not str.empty()) {
+    if (str)
       obsWidget[l]->putOKString(str);
-    }
 
   } else if( obsWidget[l]->initialized() ){
     obsWidget[l]->setFalse();
     getTimes();
   }
 
-
   return true;
-
 }
 
 //called when the dialog is closed by the window manager

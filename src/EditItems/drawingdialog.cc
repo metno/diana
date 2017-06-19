@@ -30,6 +30,7 @@
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
+#include "diKVListPlotCommand.h"
 
 #include "EditItems/drawingdialog.h"
 #include "EditItems/filterdrawingdialog.h"
@@ -238,33 +239,31 @@ void DrawingDialog::updateDialog()
 {
 }
 
-std::vector<std::string> DrawingDialog::getOKString()
+PlotCommand_cpv DrawingDialog::getOKString()
 {
-  std::vector<std::string> lines;
+  PlotCommand_cpv lines;
 
   if (!drawm_->isEnabled())
     return lines;
 
   QMap<QString, QString> loaded = drawm_->getLoaded();
   foreach (QString name, loaded.keys()) {
-    QString line;
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
     QString fileName = loaded[name];
     if (fileName == name)
-      line = "DRAWING file=\"" + fileName + "\"";
+      cmd->add("file", fileName.toStdString());
     else
-      line = "DRAWING name=\"" + name + "\"";
-    lines.push_back(line.toStdString());
+      cmd->add("name", name.toStdString());
+    lines.push_back(cmd);
   }
 
   return lines;
 }
 
-void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
+void DrawingDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   // Submit the lines as new input.
-  std::vector<std::string> inp;
-  inp.insert(inp.begin(), vstr.begin(), vstr.end());
-  drawm_->processInput(inp);
+  drawm_->processInput(vstr);
 
   // Update the display products list to reflect the loaded drawings.
   QMap<QString, QString> loaded = drawm_->getLoaded();
@@ -306,9 +305,12 @@ void DrawingDialog::makeProduct()
   QMap<QString, QString> items = activeDrawingsModel_.items();
   QMap<QString, QString>::const_iterator it;
 
-  std::vector<std::string> inp;
-  for (it = items.constBegin(); it != items.constEnd(); ++it)
-    inp.push_back("DRAWING name=\"" + it.key().toStdString() + "\"");
+  PlotCommand_cpv inp;
+  for (it = items.constBegin(); it != items.constEnd(); ++it) {
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
+    cmd->add("name", it.key().toStdString());
+    inp.push_back(cmd);
+  }
 
   putOKString(inp);
 

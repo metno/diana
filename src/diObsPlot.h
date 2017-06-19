@@ -30,6 +30,7 @@
 #define diObsPlot_h
 
 #include "diPlot.h"
+#include "diPlotCommand.h"
 #include "diGLPainter.h"
 #include "diObsData.h"
 
@@ -143,7 +144,7 @@ protected:
   bool moretimes; //if true, sort stations according to obsTime
   miutil::miTime Time;
   std::string annotation;
-  std::vector<std::string> labels; // labels from ascii-files or PlotModule(edit)
+  PlotCommand_cpv labels; // labels from ascii-files or PlotModule(edit)
   std::map<std::string, std::vector<std::string> > popupSpec;
   float current; //cuurent, not wind
   bool firstplot;
@@ -394,12 +395,12 @@ protected:
   int numVisiblePositions() const; // slow!
 
 protected:
-  ObsPlot(const std::string& pin, ObsPlotType plottype);
+  ObsPlot(const miutil::KeyValue_v &pin, ObsPlotType plottype);
 
 public:
   ~ObsPlot();
 
-  static ObsPlot* createObsPlot(const std::string& pin);
+  static ObsPlot* createObsPlot(const PlotCommand_cp& pin);
 
   bool operator==(const ObsPlot &rhs) const;
 
@@ -428,7 +429,7 @@ public:
 
   void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare
 
-  const std::vector<std::string> getObsExtraAnnotations() const; // from PlotModule
+  const PlotCommand_cpv getObsExtraAnnotations() const; // from PlotModule
 
   // @return true iff update is needed (one or more files are changed)
   bool updateObs(); // from PlotModule::updateObs
@@ -436,7 +437,7 @@ public:
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
   void readStations(); // from PlotModule::obsTime
 
-  void setLabel(const std::string& pin) // from PlotModule and ObsRoad
+  void setLabel(const PlotCommand_cp& pin) // from PlotModule and ObsRoad
     { labels.push_back(pin); }
 
   void updateObsPositions();
@@ -500,7 +501,7 @@ public:
   const miutil::miTime& getObsTime() const // only from ObsRoad and ObsAscii
     { return Time; }
 
-  void setLabels(const std::vector<std::string>& l) // ObsAscii only
+  void setLabels(const PlotCommand_cpv& l) // ObsAscii only
     { labels = l; }
 
 protected:

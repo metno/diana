@@ -1505,7 +1505,7 @@ static void handleVcrossOpt(int& k)
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vcross_opt_end);
   if (!vcrossmanager)
     vcrossmanager = std::make_shared<vcross::QtManager>();
-  vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+  vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom));
 }
 
 static void handleSpectrumOpt(int& k)
@@ -1635,7 +1635,7 @@ static int handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- sending plotCommands");
-    main_controller->plotCommands(pcom);
+    main_controller->plotCommands(makeCommands(pcom));
 
     selectTime();
 
@@ -1727,7 +1727,7 @@ static int handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- sending vcross plot commands");
-    vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+    vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom));
 
     if (fixedtime.undef()) {
       fixedtime = vcrossmanager->getTimeValue();
@@ -2043,10 +2043,11 @@ static int handleTimeCommand(int& k)
 
   if (verbose)
     METLIBS_LOG_INFO("- sending plotCommands");
-  main_controller->plotCommands(pcom);
+  const PlotCommand_cpv pcv = makeCommands(pcom);
+  main_controller->plotCommands(pcv);
 
   set<miTime> okTimes;
-  main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union");
+  main_controller->getCapabilitiesTime(okTimes, pcv, time_options == "union");
 
   ofstream file(priop.fname.c_str());
   if (!file) {
@@ -2086,7 +2087,7 @@ static int handleLevelCommand(int& k)
   }
 
   for (unsigned int i = 0; i < pcom.size(); i++) {
-    levels = main_controller->getFieldLevels(pcom[i]);
+    levels = main_controller->getFieldLevels(makeCommand(pcom[i]));
 
     for (unsigned int j = 0; j < levels.size(); j++) {
       file << levels[j] << endl;
@@ -2330,7 +2331,7 @@ static int handleDescribeCommand(int& k)
 
   if (verbose)
     METLIBS_LOG_INFO("- sending plotCommands");
-  main_controller->plotCommands(pcom);
+  main_controller->plotCommands(makeCommands(pcom));
 
   selectTime();
 

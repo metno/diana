@@ -66,7 +66,7 @@ public:
   QHash<Action, QAction*> actions();
   bool parseSetup() override;
   void plot(DiGLPainter* gl, bool under, bool over) override;
-  bool processInput(const std::vector<std::string>& inp) override;
+  bool processInput(const PlotCommand_cpv& inp) override;
 
   void sendMouseEvent(QMouseEvent* event, EventResult& res) override;
   void sendKeyboardEvent(QKeyEvent* event, EventResult& res) override;

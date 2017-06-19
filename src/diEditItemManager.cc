@@ -300,7 +300,7 @@ void EditItemManager::setEditing(bool enable)
 /**
  * Ignores any plot commands passed as a vector of strings.
  */
-bool EditItemManager::processInput(const std::vector<std::string>& inp)
+bool EditItemManager::processInput(const PlotCommand_cpv&)
 {
   return false;
 }

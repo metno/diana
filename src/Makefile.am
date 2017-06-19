@@ -46,6 +46,8 @@ libdiana_la_SOURCES = \
 	diGlUtilities.cc \
 	diImageGallery.cc \
 	diImageIO.cc \
+	diKVListPlotCommand.cc \
+	diLabelPlotCommand.cc \
 	diLegendPlot.cc \
 	diLinetype.cc \
 	diLocalSetupParser.cc \
@@ -66,6 +68,7 @@ libdiana_la_SOURCES = \
 	diObsPositions.cc \
 	diPattern.cc \
 	diPlot.cc \
+	diPlotCommand.cc \
 	diPlotCluster.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
@@ -79,6 +82,7 @@ libdiana_la_SOURCES = \
 	diSatManager.cc \
 	diSatPlot.cc \
 	diShapeObject.cc \
+	diStringPlotCommand.cc \
 	diSpectrumData.cc \
 	diSpectrumFile.cc \
 	diSpectrumManager.cc \
@@ -86,6 +90,7 @@ libdiana_la_SOURCES = \
 	diSpectrumPlot.cc \
 	diStationManager.cc \
 	diStationPlot.cc \
+	diStationPlotCommand.cc \
 	diTrajectoryGenerator.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
@@ -116,6 +121,7 @@ libdiana_la_SOURCES = \
 	util/debug_timer.cc \
 	util/fimex_logging.cc \
 	util/format_int.cc \
+	util/diKeyValue.cc \
 	util/openmp_tools.cc \
 	util/polygon_util.cc \
 	util/plotoptions_util.cc \
@@ -314,6 +320,8 @@ noinst_HEADERS = \
 	diImageGallery.h \
 	diImageIO.h \
 	diKeys.h \
+	diKVListPlotCommand.h \
+	diLabelPlotCommand.h \
 	diLegendPlot.h \
 	diLinetype.h \
 	diLocationData.h \
@@ -342,6 +350,7 @@ noinst_HEADERS = \
 	diOrderQueue.h \
 	diPattern.h \
 	diPlot.h \
+	diPlotCommand.h \
 	diPlotCluster.h \
 	diPlotModule.h \
 	diPlotOptions.h \
@@ -354,6 +363,7 @@ noinst_HEADERS = \
 	diSatManager.h \
 	diSatPlot.h \
 	diShapeObject.h \
+	diStringPlotCommand.h \
 	diSpectrumData.h \
 	diSpectrumFile.h \
 	diSpectrumManager.h \
@@ -362,6 +372,7 @@ noinst_HEADERS = \
 	diStationManager.h \
 	diStationInfo.h \
 	diStationPlot.h \
+	diStationPlotCommand.h \
 	diTesselation.h \
 	diTrajectoryGenerator.h \
 	diTrajectoryPlot.h \
@@ -461,6 +472,7 @@ noinst_HEADERS = \
 	util/debug_timer.h \
 	util/fimex_logging.h \
 	util/format_int.h \
+	util/diKeyValue.h \
 	util/openmp_tools.h \
 	util/polygon_util.h \
 	util/qstring_util.h \

@@ -32,6 +32,7 @@
 #include "diPlot.h"
 
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 #include "diRasterPlot.h"
 
 #include <diField/diField.h>
@@ -61,11 +62,10 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
-  std::string getEnabledStateKey() const override
-    { return getModelPlotParameterReftime(); }
+  std::string getEnabledStateKey() const override;
 
   bool updateIfNeeded();
-  bool prepare(const std::string& fname, const std::string&);
+  bool prepare(const std::string& fname, const PlotCommand_cp&);
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
@@ -94,9 +94,8 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
-  std::string getModelPlotParameterReftime() const;
   void clearFields();
-  bool getTableAnnotations(std::vector<std::string>& anno);
+  void getTableAnnotations(std::vector<std::string>& anno);
 
   typedef std::vector<float*> (FieldPlot::*prepare_vectors_t)(float* x, float* y);
 

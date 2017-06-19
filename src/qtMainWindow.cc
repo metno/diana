@@ -93,6 +93,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <puCtools/stat.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QDateTime>
@@ -806,11 +808,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   em->hide();
   mainToolbar->addAction( showEditDialogAction );
 
-  connect(qm, SIGNAL(Apply(const std::vector<std::string>&,bool)),
-      SLOT(recallPlot(const std::vector<std::string>&,bool)));
-  connect(em, SIGNAL(Apply(const std::vector<std::string>&,bool)),
-      SLOT(recallPlot(const std::vector<std::string>&,bool)));
-
+  connect(qm, &QuickMenu::Apply, this, &DianaMainWindow::recallPlot);
+  connect(em, &EditDialog::Apply, this, &DianaMainWindow::recallPlot);
 
   // Mark trajectory positions
   connect(trajm, SIGNAL(markPos(bool)), SLOT(trajPositions(bool)));
@@ -945,8 +944,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
         SLOT(crossectionChangedSlot(const QString &)));
     connect(vcInterface.get(), SIGNAL(crossectionSetChanged(const LocationData&)),
         SLOT(crossectionSetChangedSlot(const LocationData&)));
-    connect(vcInterface.get(), SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
-        SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
+    connect(vcInterface.get(), &VcrossInterface::quickMenuStrings,
+        this, &DianaMainWindow::updateVcrossQuickMenuHistory);
     connect (vcInterface.get(), SIGNAL(vcrossHistoryPrevious()),
         SLOT(prevHVcrossPlot()));
     connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
@@ -1076,83 +1075,74 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
 void DianaMainWindow::resetAll()
 {
   mm->useFavorite();
-  vector<string> pstr = mm->getOKString();
+  PlotCommand_cpv pstr = mm->getOKString();
   recallPlot(pstr, true);
   MenuOK();
 }
 
-void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
+void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
 {
   METLIBS_LOG_SCOPE();
   diutil::OverrideCursor waitCursor;
 
-  if (!vstr.empty() && vstr[0] == "VCROSS") {
+  if (!vstr.empty() && vstr.front()->commandKey() == "VCROSS") {
     vcrossMenu();
     if (vcInterface.get())
       vcInterface->parseQuickMenuStrings(vstr);
-  } else {
-
-    // strings for each dialog
-    vector<string> mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
-    map<std::string, vector<std::string> > dialog_com;
-    int n= vstr.size();
-    // sort strings..
-    for (int i=0; i<n; i++){
-      std::string s= vstr[i];
-      miutil::trim(s);
-      if (s.empty())
-        continue;
-      vector<std::string> vs= miutil::split(s, " ");
-      std::string pre= miutil::to_upper(vs[0]);
-      if (pre=="MAP") mapcom.push_back(s);
-      else if (pre=="AREA") mapcom.push_back(s);
-      else if (pre=="FIELD") fldcom.push_back(s);
-      else if (pre=="OBS") obscom.push_back(s);
-      else if (pre=="SAT") satcom.push_back(s);
-      else if (pre=="STATION") statcom.push_back(s);
-      else if (pre=="OBJECTS") objcom.push_back(s);
-      else if (pre=="LABEL") labelcom.push_back(s);
-      else if (dialogNames.find(pre) != dialogNames.end()) {
-        dialog_com[pre].push_back(s);
-      }
-    }
-
-    // feed strings to dialogs
-    if (replace || mapcom.size()) mm->putOKString(mapcom);
-    if (replace || fldcom.size()) fm->putOKString(fldcom);
-    if (replace || obscom.size()) om->putOKString(obscom);
-    if (replace || satcom.size()) sm->putOKString(satcom);
-    if (replace || statcom.size()) stm->putOKString(statcom);
-    if (replace || objcom.size()) objm->putOKString(objcom);
-    if (replace || labelcom.size()) annom->putOKString(labelcom);
-
-    // Other data sources
-
-    // If the strings are being replaced then update each of the
-    // dialogs whether it has a command or not. Otherwise, only
-    // update those with a corresponding string.
-    map<std::string, DataDialog *>::iterator it;
-    for (it = dialogNames.begin(); it != dialogNames.end(); ++it) {
-      DataDialog *dialog = it->second;
-      if (replace || dialog_com.find(it->first) != dialog_com.end())
-        dialog->putOKString(dialog_com[it->first]);
-    }
-
-    // call full plot
-    push_command= false; // do not push this command on stack
-    MenuOK();
-    push_command= true;
+    return;
   }
+
+  // strings for each dialog
+  PlotCommand_cpv mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
+  map<std::string, PlotCommand_cpv> dialog_com;
+  for (PlotCommand_cp c : vstr) {
+    const std::string& pre = c->commandKey();
+    if (pre=="MAP") mapcom.push_back(c);
+    else if (pre=="AREA") mapcom.push_back(c);
+    else if (pre=="FIELD") fldcom.push_back(c);
+    else if (pre=="OBS") obscom.push_back(c);
+    else if (pre=="SAT") satcom.push_back(c);
+    else if (pre=="STATION") statcom.push_back(c);
+    else if (pre=="OBJECTS") objcom.push_back(c);
+    else if (pre=="LABEL") labelcom.push_back(c);
+    else if (dialogNames.find(pre) != dialogNames.end()) {
+      dialog_com[pre].push_back(c);
+    }
+  }
+
+  // feed strings to dialogs
+  if (replace || mapcom.size()) mm->putOKString(mapcom);
+  if (replace || fldcom.size()) fm->putOKString(fldcom);
+  if (replace || obscom.size()) om->putOKString(obscom);
+  if (replace || satcom.size()) sm->putOKString(satcom);
+  if (replace || statcom.size()) stm->putOKString(statcom);
+  if (replace || objcom.size()) objm->putOKString(objcom);
+  if (replace || labelcom.size()) annom->putOKString(labelcom);
+
+  // Other data sources
+
+  // If the strings are being replaced then update each of the
+  // dialogs whether it has a command or not. Otherwise, only
+  // update those with a corresponding string.
+  map<std::string, DataDialog *>::iterator it;
+  for (it = dialogNames.begin(); it != dialogNames.end(); ++it) {
+    DataDialog *dialog = it->second;
+    if (replace || dialog_com.find(it->first) != dialog_com.end())
+      dialog->putOKString(dialog_com[it->first]);
+  }
+
+  // call full plot
+  push_command= false; // do not push this command on stack
+  MenuOK();
+  push_command= true;
 }
 
 void DianaMainWindow::toggleEditDrawingMode()
 {
-  if (editDrawingToolBar->isVisible())
-    setEditDrawingMode(false);
-  else
-    setEditDrawingMode(true);
+  METLIBS_LOG_SCOPE();
+  setEditDrawingMode(!editDrawingToolBar->isVisible());
 
-  METLIBS_LOG_DEBUG("DianaMainWindow::toggleEditDrawingMode enabled " << editDrawingToolBar->isVisible());
+  METLIBS_LOG_DEBUG("enabled " << editDrawingToolBar->isVisible());
 }
 
 void DianaMainWindow::setEditDrawingMode(bool enabled)
@@ -1189,9 +1179,9 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
-void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &shortnames)
+void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shortnames)
 {
-  vector<string> diagstr;
+  PlotCommand_cpv diagstr;
 
   // fields
   pstr = fm->getOKString();
@@ -1223,12 +1213,16 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &short
   shortnames.push_back(mm->getShortname());
 
   // annotation
-  bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
+  const bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
   diagstr = annom->getOKString();
-  for ( size_t i =0; i< diagstr.size(); i++) {
-    if(!remove || not miutil::contains(diagstr[i], "$")) { //remove labels with time
-      pstr.push_back(diagstr[i]);
+  for (PlotCommand_cp cmd : diagstr) {
+    bool keep = !remove;
+    if (!keep) {
+      if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(cmd))
+        keep = !miutil::contains(c->command(), "$"); // do not keep labels with time
     }
+    if (keep) //remove labels with time
+      pstr.push_back(cmd);
   }
 
   // Other data sources
@@ -1240,11 +1234,13 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &short
 
   // remove empty lines
   for (unsigned int i = 0; i < pstr.size(); ++i){
-    miutil::trim(pstr[i]);
-    if (pstr[i].empty()) {
-      pstr.erase(pstr.begin()+i);
-      --i;
-      continue;
+    if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(pstr[i])) {
+      const std::string cs = miutil::trimmed(c->command());
+      if (cs.empty()) {
+        pstr.erase(pstr.begin()+i);
+        --i;
+        continue;
+      }
     }
   }
 }
@@ -1261,7 +1257,7 @@ void DianaMainWindow::MenuOK()
 
   diutil::OverrideCursor waitCursor;
 
-  vector<string> pstr;
+  PlotCommand_cpv pstr;
   vector<string> shortnames;
 
   getPlotStrings(pstr, shortnames);
@@ -1271,13 +1267,6 @@ void DianaMainWindow::MenuOK()
   toolLevelDownAction->setEnabled(fm->levelsExists(false,0));
   toolIdnumUpAction->setEnabled(fm->levelsExists(true,1));
   toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
-
-  if (METLIBS_LOG_DEBUG_ENABLED()) {
-    string logstr = "------- the final string from all dialogs:\n";
-    for (unsigned int i = 0; i < pstr.size(); ++i)
-      logstr += pstr[i] + "\n";
-    METLIBS_LOG_DEBUG(logstr);
-  }
 
   contr->plotCommands(pstr);
   METLIBS_LOG_INFO(contr->getMapArea());
@@ -1297,7 +1286,7 @@ void DianaMainWindow::MenuOK()
   }
 }
 
-void DianaMainWindow::updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>& pstr)
+void DianaMainWindow::updateVcrossQuickMenuHistory(const std::string& plotname, const PlotCommand_cpv& pstr)
 {
   qm->pushPlot(plotname, pstr, QuickMenu::VCROSS);
 }
@@ -1509,14 +1498,6 @@ void DianaMainWindow::editMenu()
 
   b = !b;
   showEditDialogAction->setChecked( b );
-}
-
-
-void DianaMainWindow::getFieldPlotOptions(map< std::string, map<std::string,std::string> >& options)
-{
-  if (fm){
-    fm->getEditPlotOptions(options);
-  }
 }
 
 
@@ -2130,13 +2111,14 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   }
 
   else if (command == qmstrings::getcurrentplotcommand) {
-    vector<string> v1, v2;
+    PlotCommand_cpv v1;
+    vector<string> v2;
     getPlotStrings(v1, v2);
 
     miQMessage l(qmstrings::currentplotcommand);
     l.addDataDesc(""); // FIXME
-    for (vector<string>::const_iterator it = v1.begin(); it != v1.end(); ++it)
-      l.addDataValues(QStringList() << QString::fromStdString(*it));
+    for (PlotCommand_cp cmd : v1)
+      l.addDataValues(QStringList() << QString::fromStdString(cmd->toString()));
     sendLetter(l, fromId);
     return; // no need to repaint
   }
@@ -3017,6 +2999,11 @@ void DianaMainWindow::readLogFile()
     //    METLIBS_LOG_DEBUG("Can't open " << logfilepath);
     return;
   }
+  pu_struct_stat statbuf;
+  if (pu_stat(logfilepath.c_str(), &statbuf) == 0) {
+    if (statbuf.st_size < 128)
+      return;
+  }
 
   LogFileIO logfile;
   logfile.read(file);
@@ -3082,7 +3069,9 @@ void restoreDialogSize(QWidget* d, bool /*showmore*/, int w, int h)
 
 void restoreDialogPos(QWidget* d, int x, int y)
 {
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
   d->move(x, y);
+#endif
 }
 
 } // anonymous namespace
@@ -3220,7 +3209,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
         if (tokens[0]=="MainWindow.size")  this->resize(x,y);
       }
       if (x>=0 && y>=0 && x<displayWidth-20 && y<displayHeight-20) {
-        if      (tokens[0]=="MainWindow.pos")    restoreDialogPos(this, x, y);
+        if      (tokens[0]=="MainWindow.pos")    this->move(x, y);
         else if (tokens[0]=="QuickMenu.pos")     restoreDialogPos(qm, x, y);
         else if (tokens[0]=="FieldDialog.pos")   restoreDialogPos(fm, x, y);
         else if (tokens[0]=="FieldDialog.size")  restoreDialogSize(fm, showmore, x, y);

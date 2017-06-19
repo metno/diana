@@ -32,7 +32,7 @@ const std::string& ObsPlotCluster::plotCommandKey() const
   return OBS;
 }
 
-void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
+void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
 {
   diutil::was_enabled plotenabled;
   for (unsigned int i = 0; i < plots_.size(); i++)
@@ -45,8 +45,8 @@ void ObsPlotCluster::prepare(const std::vector<std::string>& inp)
   cleanup();
   hasDevField_ = false;
 
-  for (size_t i = 0; i < inp.size(); i++) {
-    ObsPlot *op = obsm_->createObsPlot(inp[i]);
+  for (PlotCommand_cp pc : inp) {
+    ObsPlot *op = obsm_->createObsPlot(pc);
     if (op) {
       plotenabled.restore(op);
       op->setCanvas(canvas_);
@@ -106,20 +106,20 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
 
 void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
-  for (size_t i = 0; i < plots_.size(); i++) {
-    at(i)->getDataAnnotations(anno);
-  }
+  for (Plot* p : plots_)
+    static_cast<ObsPlot*>(p)->getDataAnnotations(anno);
 }
 
 void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 {
   //get obs annotations
-  for (size_t i = 0; i < plots_.size(); i++) {
-    if (!at(i)->isEnabled())
+  for (Plot* p : plots_) {
+    ObsPlot* op = static_cast<ObsPlot*>(p);
+    if (!op->isEnabled())
       continue;
-    std::vector<std::string> obsinfo = at(i)->getObsExtraAnnotations();
-    for (size_t j = 0; j < obsinfo.size(); j++) {
-      AnnotationPlot* ap = new AnnotationPlot(obsinfo[j]);
+    PlotCommand_cpv obsinfo = op->getObsExtraAnnotations();
+    for (PlotCommand_cp pc : obsinfo) {
+      AnnotationPlot* ap = new AnnotationPlot(pc);
       vap.push_back(ap);
     }
   }
@@ -127,10 +127,10 @@ void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 
 std::vector<miutil::miTime> ObsPlotCluster::getTimes()
 {
-  std::vector<std::string> pinfos;
-  for (size_t i = 0; i < plots_.size(); i++)
-    pinfos.push_back(plots_[i]->getPlotInfo());
-  if (pinfos.size() > 0) {
+  std::vector<miutil::KeyValue_v> pinfos;
+  for (Plot* p : plots_)
+    pinfos.push_back(p->getPlotInfo());
+  if (!pinfos.empty()) {
     return obsm_->getObsTimes(pinfos);
   } else {
     return std::vector<miutil::miTime>();

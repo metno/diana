@@ -38,6 +38,7 @@
 #include "diWeatherSymbol.h"
 #include "diWeatherArea.h"
 #include "diShapeObject.h"
+#include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 
 #include "util/charsets.h"
@@ -283,8 +284,9 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
     }
     // check if this is a LABEL string
     if (diutil::startswith(str, "LABEL")) {
-      if (useobject["anno"])
-        itsOldLabels.push_back(str);
+      if (useobject["anno"]) {
+        itsOldLabels.push_back(std::make_shared<LabelPlotCommand>(str.substr(5)));
+      }
     } else {
       fileString += str;
     }
@@ -434,14 +436,14 @@ std::string WeatherObjects::readComments()
  *  Methods for reading and writing labels *******
  *************************************************/
 
-vector <string> WeatherObjects::getObjectLabels()
+const PlotCommand_cpv& WeatherObjects::getObjectLabels()
 {
   METLIBS_LOG_SCOPE();
   //oldLabels from object file
   return itsOldLabels;
 }
 
-vector<string> WeatherObjects::getEditLabels()
+const PlotCommand_cpv& WeatherObjects::getEditLabels()
 {
   METLIBS_LOG_SCOPE();
   //new edited labels

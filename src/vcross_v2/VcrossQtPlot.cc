@@ -569,8 +569,8 @@ bool QtPlot::setVerticalAxis()
 QtPlot::OptionPlot::OptionPlot(EvaluatedPlot_cp e)
   : evaluated(e)
 {
-  std::string op_c = boost::algorithm::join(e->selected->resolved->configured->options, " ");
-  std::string op_s = e->selected->optionString();
+  const miutil::KeyValue_v& op_c = e->selected->resolved->configured->options;
+  const miutil::KeyValue_v& op_s = e->selected->options;
 
   PlotOptions::parsePlotOption(op_c, poptions);
   PlotOptions::parsePlotOption(op_s, poptions);

@@ -48,6 +48,7 @@
 #include "diUndoFront.h"
 #include "diFieldEdit.h"
 #include "diAnnotationPlot.h"
+#include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/charsets.h"
@@ -154,7 +155,8 @@ bool EditManager::parseSetup()
     return true;
   }
 
-  int i,n,nval, nv=0, nvstr=vstr.size();
+  size_t nv=0;
+  const size_t nvstr=vstr.size();
   std::string key,error;
   vector<std::string> values, vsub;
   bool ok= true;
@@ -162,7 +164,6 @@ bool EditManager::parseSetup()
   while (ok && nv<nvstr) {
 
     SetupParser::splitKeyValue(vstr[nv],key,values);
-    nval= values.size();
 
     // yet only products in this setup section...
     EditProduct ep;
@@ -180,7 +181,7 @@ bool EditManager::parseSetup()
     ep.winY=  0;
     ep.autoremove= -1;
 
-    if (key=="product" && nval==1) {
+    if (key=="product" && values.size()==1) {
       ep.name= values[0];
       nv++;
     } else {
@@ -190,12 +191,12 @@ bool EditManager::parseSetup()
     while (ok && nv<nvstr) {
 
       SetupParser::splitKeyValue(vstr[nv],key,values);
-      nval= values.size();
+      const size_t nval= values.size();
       if (key=="end.product") {
         nv++;
         break;
       } else if (key=="drawtools"){
-        for (int j=0; j<nval; j++)
+        for (size_t j=0; j<nval; j++)
           ep.drawtools.push_back(values[j]);
       } else if (nval==0) {
         // keywords without any values
@@ -233,7 +234,7 @@ bool EditManager::parseSetup()
         epf.minValue= fieldUndef;
         epf.maxValue= fieldUndef;
         epf.editTools.push_back("standard");
-        for (int j=0; j<nval; j++) {
+        for (size_t j=0; j<nval; j++) {
           vsub= miutil::split(values[j], 0, ":");
           if (vsub.size()==2) {
             if (vsub[0]=="filenamepart") {
@@ -265,7 +266,7 @@ bool EditManager::parseSetup()
         ep.commentFilenamePart= values[0];
 
       } else if (key=="local_idents") {
-        for (i=0; i<nval; i++) {
+        for (size_t i=0; i<nval; i++) {
           EditProductId pid;
           pid.name= values[i];
           pid.sendable= false;
@@ -274,7 +275,7 @@ bool EditManager::parseSetup()
         }
 
       } else if (key=="prod_idents") {
-        for (i=0; i<nval; i++) {
+        for (size_t i=0; i<nval; i++) {
           EditProductId pid;
           pid.name= values[i];
           pid.sendable= true;
@@ -283,13 +284,13 @@ bool EditManager::parseSetup()
         }
 
       } else if (key=="combine_ident" && nval>=3) {
-        n= ep.pids.size();
-        i= 0;
+        const size_t n= ep.pids.size();
+        size_t i= 0;
         while (i<n && ep.pids[i].name!=values[0]) i++;
         if (i<n) {
           ep.pids[i].combinable= true;
           ep.pids[i].combineids.clear();
-          for (int j=1; j<nval; j++)
+          for (size_t j=1; j<nval; j++)
             ep.pids[i].combineids.push_back(values[j]);
         } else {
           ok= false;
@@ -393,7 +394,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   // and the OKstrings stored for each product
   std::string s;
   bool merge= false, newmerge;
-  int n,linenum=0;
+  int linenum=0;
   vector<std::string> tmplines;
 
   // open filestream
@@ -406,7 +407,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   diutil::GetLineConverter convertline("#");
   while (convertline(file,s)){
     linenum++;
-    n= s.length();
+    const size_t n = s.length();
     if (n>0) {
       newmerge= false;
       if (s[n-1] == '\\'){
@@ -421,27 +422,22 @@ void EditManager::readCommandFile(EditProduct & ep)
     }
   }
   //split up in LABEL and OTHER info...
-  vector <std::string> labcom,commands;
-  n=tmplines.size();
-  for (int i=0; i<n; i++){
-    std::string s= tmplines[i];
+  ep.labels.clear();
+  ep.OKstrings.clear();
+  for (std::string s : tmplines) {
     miutil::trim(s);
     if (s.empty())
       continue;
-    vector<std::string> vs= miutil::split(s, " ");
-    std::string pre= miutil::to_upper(vs[0]);
-    if (pre=="LABEL")
-      labcom.push_back(s);
+    PlotCommand_cp cmd = makeCommand(s);
+    if (cmd->commandKey()=="LABEL")
+      ep.labels.push_back(cmd);
     else
-      commands.push_back(s);
+      ep.OKstrings.push_back(cmd);
   }
-  ep.labels = labcom;
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
   for (size_t ari=0; ari<ep.labels.size(); ari++)
     METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
-
-  ep.OKstrings = commands;
 }
 
 /*----------------------------------------------------------------------
@@ -981,7 +977,7 @@ std::string EditManager::getProductName(){
 }
 
 
-void EditManager::saveProductLabels(vector <std::string> labels)
+void EditManager::saveProductLabels(const PlotCommand_cpv& labels)
 {
   objm->getEditObjects().saveEditLabels(labels);
 }
@@ -1306,16 +1302,17 @@ bool EditManager::startEdit(const EditProduct& ep,
   objm->putCommentStartLines(EdProd.name,EdProdId.name, commentstring);
 
   // set correct time for labels
-  for (vector<std::string>::iterator p=EdProd.labels.begin(); p!=EdProd.labels.end(); p++)
-    *p=insertTime(*p,valid);
+  for (PlotCommand_cp& lc : EdProd.labels)
+    lc = insertTime(lc, valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,newProduct);
   //save merged labels in editobjects
-  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
+  PlotCommand_cpv labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
-  if (fedits.size()>0) fedits[0]->activate();
+  if (!fedits.empty())
+    fedits[0]->activate();
 
   return true;
 }
@@ -2090,13 +2087,12 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
 
   // set correct time for labels
-  for (vector<string>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
-  end();p++)
-    *p=insertTime(*p,valid);
+  for (PlotCommand_cp& lc : EdProd.labels)
+    lc = insertTime(lc, valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
   //save merged labels in editobjects
-  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
+  PlotCommand_cpv labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
@@ -2246,7 +2242,7 @@ void EditManager::stopCombine()
   objm->setDoCombine(false);
   objm->editNewObjectsAdded(0);
 
-  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
+  PlotCommand_cpv labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   objm->getEditObjects().labelsAreSaved();
 
@@ -2266,7 +2262,7 @@ void EditManager::stopCombine()
   }
 
   // always matching dialog ???????????
-  if (fedits.size() > 0)
+  if (!fedits.empty())
     fedits[0]->activate();
 }
 
@@ -2733,14 +2729,18 @@ bool EditManager::recalcCombineMatrix(){
  -----------------------------------------------------------------------*/
 
 
-void EditManager::prepareEditFields(const vector<std::string>& inp)
+void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
   if (!isInEdit() || inp.empty())
     return;
 
-  const std::string plotName = fieldPlotManager->extractPlotName(inp[0]);
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(inp[0]);
+  if (!cmd)
+    return;
+
+  const std::string plotName = fieldPlotManager->extractPlotName(cmd->all());
 
   // setting plot options
 
@@ -2784,14 +2784,20 @@ void EditManager::setEditMessage(const string& str)
     apEditmessage = 0;
   }
 
-  if (not str.empty()) {
-    string labelstr;
-    labelstr = "LABEL text=\"" + str + "\"";
-    labelstr += " tcolour=blue bcolour=red fcolour=red:128";
-    labelstr += " polystyle=both halign=left valign=top";
-    labelstr += " xoffset=0.01 yoffset=0.1 fontsize=30";
+  if (!str.empty()) {
+    LabelPlotCommand_p cmd = std::make_shared<LabelPlotCommand>();
+    cmd->add(miutil::KeyValue("text", "\"" + str + "\"", true));
+    cmd->add("tcolour", "blue");
+    cmd->add("bcolour", "red");
+    cmd->add("fcolour", "red:128");
+    cmd->add("polystyle", "both");
+    cmd->add("halign", "left");
+    cmd->add("valign", "top");
+    cmd->add("xoffset", "0.01");
+    cmd->add("yoffset", "0.1");
+    cmd->add("fontsize", "30");
     apEditmessage = new AnnotationPlot();
-    if (!apEditmessage->prepare(labelstr)) {
+    if (!apEditmessage->prepare(cmd)) {
       delete apEditmessage;
       apEditmessage = 0;
     }
@@ -3296,9 +3302,8 @@ void EditManager::setMapmodeinfo(){
   vector<editModeInfo> dMode;
   int emidx=0;
   map <int,object_modes> objectModes;
-  int m=EdProd.drawtools.size();
-  for (int i=0;i<m;i++){
-    if (EdProd.drawtools[i]==OBJECTS_ANALYSIS){
+  for (const std::string& edt : EdProd.drawtools) {
+    if (edt == OBJECTS_ANALYSIS){
       dMode.push_back(newEditModeInfo("Fronts",fronts));
       objectModes[emidx++]=front_drawing;
       dMode.push_back(newEditModeInfo("Symbols",symbols));
@@ -3306,7 +3311,7 @@ void EditManager::setMapmodeinfo(){
       dMode.push_back(newEditModeInfo("Areas",areas));
       objectModes[emidx++]=area_drawing;
     }
-    if (EdProd.drawtools[i]==OBJECTS_SIGMAPS){
+    if (edt == OBJECTS_SIGMAPS) {
       dMode.push_back(newEditModeInfo("Symbols(SIGWX)",sigsymbols));
       objectModes[emidx++]=symbol_drawing;
     }
@@ -3316,17 +3321,11 @@ void EditManager::setMapmodeinfo(){
   // combine_mode types
   vector<editToolInfo> regionlines;
   regionlines.push_back(newEditToolInfo("regioner",0));
+
   vector<editToolInfo> regions;
-  int n= regnames.size();
-  for (int i=0; i<n; i++) {
-    int j=i%3;
-    std::string colour;
-    if      (j==0) colour= "blue";
-    else if (j==1) colour= "red";
-    else           colour= "darkGreen";
-    //all texts have index 0
-    regions.push_back(newEditToolInfo( regnames[i],0,colour));
-  }
+  const char* colours[3] = { "blue", "red", "darkGreen" };
+  for (size_t i=0; i<regnames.size(); i++)
+    regions.push_back(newEditToolInfo(regnames[i], 0, colours[i%3]));
 
 
   vector<editModeInfo> cMode;
@@ -3352,16 +3351,13 @@ void EditManager::setMapmodeinfo(){
 
 bool EditManager::getDataAnnotations(vector<string>& anno)
 {
-  for (size_t i=0; i<fedits.size(); i++)
-    fedits[i]->getAnnotations(anno);
+  for (FieldEdit* fe : fedits)
+    fe->getAnnotations(anno);
   return true;
 }
 
-const std::string EditManager::insertTime(const std::string& s, const miTime& time) {
-
-  bool english  = false;
-  bool norwegian= false;
-  std::string es= s;
+static void insertTime(std::string& es, const miTime& time, bool& english, bool& norwegian)
+{
   if (miutil::contains(es, "$")) {
     if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); english= true; }
     if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
@@ -3388,6 +3384,23 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
     else if (english)
       es= time.format(es, "en", true);
   }
+}
 
-  return es;
+PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
+{
+  LabelPlotCommand_cp pc = std::dynamic_pointer_cast<const LabelPlotCommand>(lc);
+  if (!pc)
+    return lc;
+
+  bool english  = false;
+  bool norwegian= false;
+
+  LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>(pc->commandKey());
+  for (const KeyValue& kv : pc->all()) {
+    std::string es = kv.value();
+    ::insertTime(es, time, english, norwegian);
+    tpc->add(kv.key(), es);
+  }
+
+  return tpc;
 }

@@ -218,20 +218,13 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
 }
 
 
-vector<std::string> ButtonLayout::getOKString(bool forLog) {
-
-  vector<std::string> str;
-  int nr_buttons = buttonList.size();
-
-  if(forLog){
-    for( int k=0; k < nr_buttons; k++ )
-      if( buttonOn[k] )
-        str.push_back(buttonList[k].name);
-  }else {
-    for( int k=0; k < nr_buttons; k++ )
-      if( b[k]->isChecked()  )
-        str.push_back(buttonList[k].name);
-  }
+std::vector<std::string> ButtonLayout::getOKString(bool forLog)
+{
+  std::vector<std::string> str;
+  const size_t nr_buttons = buttonList.size();
+  for (size_t k=0; k < nr_buttons; k++)
+    if ((forLog && buttonOn[k]) || (!forLog && b[k]->isChecked()))
+      str.push_back(buttonList[k].name);
   return str;
 }
 

@@ -38,6 +38,7 @@
 #include "diImageGallery.h"
 #include "diGlUtilities.h"
 #include "diLocalSetupParser.h"
+#include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/qstring_util.h"
@@ -157,7 +158,7 @@ bool ObsPlotCollider::collision(const Box& box) const
 
 // ========================================================================
 
-ObsPlot::ObsPlot(const std::string& pin, ObsPlotType plottype)
+ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   : m_plottype(plottype)
   , mTextCodec(0)
 {
@@ -456,41 +457,41 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
   if (!isEnabled() || !annotations || numPositions() == 0 || current < 0)
     return false;
 
-  float vectorAnnotationSize = 21 * getStaticPlot()->getPhysToMapScaleX();
-  std::string vectorAnnotationText = miutil::from_number(2.5 * current, 2) + "m/s";
-  int nanno = anno.size();
-  for (int j = 0; j < nanno; j++) {
-    if (miutil::contains(anno[j], "arrow")) {
-      if (miutil::contains(anno[j], "arrow="))
+  const std::string vectorAnnotationSize = miutil::from_number(21 * getStaticPlot()->getPhysToMapScaleX());
+  const std::string vectorAnnotationText = miutil::from_number(2.5f * current, 2) + "m/s";
+  for (const string& a : anno) {
+    if (miutil::contains(a, "arrow")) {
+      if (miutil::contains(a, "arrow="))
         continue;
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno[j], ",")) {
-        size_t nn = anno[j].find_first_of(",");
-        endString = anno[j].substr(nn);
-        startString = anno[j].substr(0, nn);
+      if (miutil::contains(a, ",")) {
+        size_t nn = a.find_first_of(",");
+        endString = a.substr(nn);
+        startString = a.substr(0, nn);
       } else {
-        startString = anno[j];
+        startString = a;
       }
 
-      std::string str = "arrow=" + miutil::from_number(vectorAnnotationSize)
-      + ",feather=true,tcolour=" + colour.Name() + endString;
+      std::string str = "arrow=" + vectorAnnotationSize
+          + ",feather=true,tcolour=" + colour.Name() + endString;
       anno.push_back(str);
-      str = "text=\" " + vectorAnnotationText + "\"" + ",tcolour="
-          + colour.Name() + endString;
+
+      str = "text=\"" + vectorAnnotationText + "\"" /* no spaces, but maybe ',' from the float ? */
+          + ",tcolour=" + colour.Name() + endString;
       anno.push_back(str);
     }
   }
   return true;
 }
 
-const std::vector<std::string> ObsPlot::getObsExtraAnnotations() const
+const PlotCommand_cpv ObsPlot::getObsExtraAnnotations() const
 {
   if ( isEnabled() && annotations ) {
     return labels;
   }
-  return std::vector<std::string>();
+  return PlotCommand_cpv();
 }
 
 ObsData& ObsPlot::getNextObs()
@@ -606,53 +607,25 @@ bool ObsPlot::updateObs()
   return false; // no update needed
 }
 
-namespace {
-typedef std::vector<miutil::KeyValue> opts_t;
-
-opts_t obsplotoptions(const std::string& infostr)
-{
-  opts_t opts;
-  vector<std::string> tokens = miutil::split_protected(infostr, '"', '"');
-  int n = tokens.size();
-  for (int i = 0; i < n; i++) {
-    vector<std::string> stokens = miutil::split(tokens[i], 1, "=");
-    if (stokens.size() > 1) {
-      const std::string key = miutil::to_lower(stokens[0]);
-      const std::string value = stokens[1];
-      opts.push_back(miutil::KeyValue(key, value));
-    }
-  }
-  return opts;
-}
-
-opts_t::const_iterator find_last(const opts_t& opts, const std::string& key)
-{
-  opts_t::const_iterator found = opts.end();
-  for (opts_t::const_iterator oit = opts.begin(); oit != opts.end(); ++oit) {
-    if (oit->key() == key)
-      found = oit;
-  }
-  return found;
-}
-} // namespace
-
 // static
-ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
+ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
 {
-  METLIBS_LOG_SCOPE("pin: '" << pin << "'");
+  METLIBS_LOG_SCOPE();
 
-  const opts_t opts = obsplotoptions(pin);
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  if (!cmd)
+    return 0;
 
   ObsPlotType plottype = OPT_SYNOP;
   std::string dialogname;
   bool flaginfo = false;
-  opts_t::const_iterator ptit = find_last(opts, "plot");
-  if (ptit != opts.end() && !ptit->value().empty()) {
-    const std::vector<std::string> vstr = miutil::split(ptit->value(), ":");
+  const size_t i_plot = cmd->rfind("plot");
+  if (i_plot != KVListPlotCommand::npos && !cmd->value(i_plot).empty()) {
+    const std::vector<std::string> vstr = miutil::split(cmd->value(i_plot), ":");
     if (!vstr.empty())
       dialogname = vstr[0];
     if (dialogname.empty())
-      METLIBS_LOG_WARN("probably malformed observation plot specification '" << ptit->value() << "'");
+      METLIBS_LOG_WARN("probably malformed observation plot specification '" << cmd->value(i_plot) << "'");
     const std::string valp = miutil::to_lower(dialogname);
     if (valp == "pressure"|| valp == "list"
         || valp == "tide" || valp == "ocean")
@@ -681,9 +654,9 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   }
 
 #ifdef ROADOBS
-  std::unique_ptr<ObsPlot> op(new RoadObsPlot(pin, plottype));
+  std::unique_ptr<ObsPlot> op(new RoadObsPlot(cmd->all(), plottype));
 #else  // !ROADOBS
-  std::unique_ptr<ObsPlot> op(new ObsPlot(pin, plottype));
+  std::unique_ptr<ObsPlot> op(new ObsPlot(cmd->all(), plottype));
 #endif // !ROADOBS
 
   op->dialogname = dialogname;
@@ -693,9 +666,9 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
   op->poptions.fontface = "normal";
 
   vector<std::string> parameter;
-  for (opts_t::const_iterator oit = opts.begin(); oit != opts.end(); ++oit) {
-    const std::string& key = oit->key();
-    const std::string& orig_value = oit->value();
+  for (const miutil::KeyValue& kv : cmd->all()) {
+    const std::string& key = kv.key();
+    const std::string& orig_value = kv.value();
     const std::string value = miutil::to_lower(orig_value);
 
     if (key == "plot") {
@@ -705,25 +678,25 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
     } else if (key == "parameter") {
       parameter = miutil::split(orig_value, 0, ",");
     } else if (key == "scale") {
-      op->textSize = oit->toFloat();
+      op->textSize = kv.toFloat();
     if (op->markerSize < 0)
-        op->markerSize = oit->toFloat();
+        op->markerSize = kv.toFloat();
     } else if (key == "marker.size") {
-      op->markerSize = oit->toFloat();
+      op->markerSize = kv.toFloat();
     } else if (key == "text.size") {
-      op->textSize = oit->toFloat();
+      op->textSize = kv.toFloat();
     } else if (key == "density") {
       if (value == "allobs")
         op->allObs = true;
       else
-        op->density = oit->toFloat();
+        op->density = kv.toFloat();
     } else if (key == "priority") {
       op->priorityFile = orig_value;
       op->priority = true;
     } else if (key == "colour") {
       op->origcolour = Colour(orig_value);
     } else if (key == "devfield") {
-      if (oit->toBool()) {
+      if (kv.toBool()) {
         op->devfield.reset(new ObsPositions);
       } else {
         op->devfield.reset(0);
@@ -733,36 +706,36 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
     } else if (key == "devcolour2") {
       op->mslpColour2 = Colour(orig_value);
     } else if (key == "tempprecision") {
-      op->tempPrecision = oit->toBool();
+      op->tempPrecision = kv.toBool();
     } else if (key == "unit_ms") {
-      op->unit_ms = oit->toBool();
+      op->unit_ms = kv.toBool();
     } else if (key == "parametername") {
-      op->parameterName = oit->toBool();
+      op->parameterName = kv.toBool();
     } else if (key == "popup") {
-      op->popupText = oit->toBool();
+      op->popupText = kv.toBool();
     } else if (key == "qualityflag") {
-      op->qualityFlag = oit->toBool();
+      op->qualityFlag = kv.toBool();
     } else if (key == "wmoflag") {
-      op->wmoFlag = oit->toBool();
+      op->wmoFlag = kv.toBool();
     } else if (key == "moretimes") {
-      op->moretimes = oit->toBool();
+      op->moretimes = kv.toBool();
     } else if (key == "sort") {
       op->decodeSort(orig_value);
       //     } else if (key == "allairepslevels") {
-      //        allAirepsLevels = oit->toBool();
+      //        allAirepsLevels = kv.toBool();
     } else if (key == "timediff")
       if (value == "alltimes")
         op->timeDiff = -1;
       else
-        op->timeDiff = oit->toInt();
+        op->timeDiff = kv.toInt();
     else if (key == "level") {
       if (value == "asfield") {
         op->levelAsField = true;
         op->level = -1;
       } else
-        op->level = oit->toInt();
+        op->level = kv.toInt();
       //      } else if (key == "leveldiff") {
-      //        leveldiff = oit->toInt();
+      //        leveldiff = kv.toInt();
     } else if (key == "onlypos") {
       op->onlypos = true;
     } else if (key == "showonlyprioritized") {
@@ -785,7 +758,7 @@ ObsPlot* ObsPlot::createObsPlot(const std::string& pin)
       else if (value == "wind_arrow")
         op->poptions.arrowstyle = arrow_wind_arrow;
     } else if (key == "annotations") {
-      op->annotations = oit->toBool();
+      op->annotations = kv.toBool();
     } else if (key == "font") {
       op->poptions.fontname = orig_value;
     } else if (key == "face") {

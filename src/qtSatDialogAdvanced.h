@@ -34,6 +34,7 @@
 #include <diColour.h>
 #include "qtToggleButton.h"
 #include "diController.h"
+#include "util/diKeyValue.h"
 
 #include <qdialog.h>
 #include <qfont.h>
@@ -60,9 +61,9 @@ class SatDialogAdvanced: public QWidget
 public:
    SatDialogAdvanced( QWidget* parent,  SatDialogInfo info);
   /// the plot info strings
-  std::string getOKString();
+  miutil::KeyValue_v getOKString();
   /// set the dialogue elements from a plot info string
-  std::string putOKString(std::string);
+  miutil::KeyValue_v putOKString(const miutil::KeyValue_v &);
   /// set picture string
   void setPictures(std::string);
   /// set colours from palette in colourlist (to hide colours in picture)

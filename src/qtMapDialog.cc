@@ -34,7 +34,10 @@
 #include "qtMapDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
+#include "diKVListPlotCommand.h"
 #include "diLinetype.h"
+#include "diMapManager.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -68,30 +71,12 @@ MapDialog::MapDialog(QWidget* parent, Controller* llctrl) :
   METLIBS_LOG_SCOPE();
 #endif
   m_ctrl = llctrl;
-  ConstructorCernel(llctrl->initMapDialog());
-}
-
-/*********************************************/
-MapDialog::MapDialog(QWidget* parent, const MapDialogInfo& mdi)
-  : QDialog(parent)
-{
-#ifdef dMapDlg
-  METLIBS_LOG_SCOPE();
-#endif
-  ConstructorCernel(mdi);
-}
-
-/*********************************************/
-void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
-{
-#ifdef dMapDlg
-  METLIBS_LOG_SCOPE();
-#endif
 
   setWindowTitle(tr("Map and Area"));
 
   // all defined maps etc.
-  m_MapDI = mdi;
+  MapManager mapm;
+  m_MapDI = mapm.getMapDialogInfo();
 
   numMaps = m_MapDI.maps.size();
   activemap = -1;
@@ -1070,24 +1055,23 @@ void MapDialog::closeEvent(QCloseEvent* e)
 // get and put OK strings
 // -------------------------------------------------------
 
+static const std::string AREA = "AREA", MAP = "MAP";
 
 /*
  GetOKString
  */
 
-vector<string> MapDialog::getOKString()
+PlotCommand_cpv MapDialog::getOKString()
 {
-#ifdef dMapDlg
-  METLIBS_LOG_DEBUG("MapDialog::getOKString called");
-#endif
-  vector<string> vstr;
+  METLIBS_LOG_SCOPE();
+  MapManager mapm;
+  PlotCommand_cpv vstr;
 
   //Area string
   if (areabox->currentRow() > -1) {
-    ostringstream areastr;
-    areastr << "AREA";
-    areastr << " name=" << areabox->currentItem()->text().toStdString();
-    vstr.push_back(areastr.str());
+    KVListPlotCommand_p pc = std::make_shared<KVListPlotCommand>(AREA);
+    pc->add("name", areabox->currentItem()->text().toStdString());
+    vstr.push_back(pc);
   }
 
   //Map strings
@@ -1101,26 +1085,23 @@ vector<string> MapDialog::getOKString()
   vector<int> lmaps; // check for logging
 
   for (int i = 0; i < numselected; i++) {
-    int lindex = selectedmaps[i];
+    const int lindex = selectedmaps[i];
+    const MapInfo& mi = m_MapDI.maps[lindex];
     // check if ok to log
-    if (m_MapDI.maps[lindex].logok)
+    if (mi.logok)
       lmaps.push_back(lindex);
-    ostringstream ostr;
-    ostr << "MAP";
 
-    std::string mstr;
-    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[lindex], true,true);
-    ostr << " " << mstr;
-
-    vstr.push_back(ostr.str());
+    KVListPlotCommand_p pc = std::make_shared<KVListPlotCommand>(MAP);
+    pc->add(mapm.MapInfo2str(mi));
+    vstr.push_back(pc);
   }
   if (lmaps.size() > 0)
     logmaps = lmaps;
 
 
   // background/lat/lon/frame info
-  ostringstream ostr;
-  ostr << "MAP backcolour=" << backcolorcbox->currentText().toStdString();
+  KVListPlotCommand_p pc = std::make_shared<KVListPlotCommand>(MAP);
+  pc->add("backcolour", backcolorcbox->currentText().toStdString());
 
   // set latlon options
   MapInfo mi;
@@ -1153,75 +1134,60 @@ vector<string> MapDialog::getOKString()
   mi.frame.linetype = framelt;
   mi.frame.zorder = framez;
 
-  std::string mstr;
-  m_ctrl->MapInfoParser(mstr, mi, true, false);
-  ostr << mstr;
-
-  vstr.push_back(ostr.str());
+  pc->add(mapm.MapExtra2str(mi));
+  vstr.push_back(pc);
 
   return vstr;
 }
 
-/*
- PutOKString
- */
-
-void MapDialog::putOKString(const vector<string>& vstr)
+static bool get(const KVListPlotCommand_cp& c, const std::string& key, std::string& value_out)
 {
-  int n = vstr.size();
+  size_t i = c->rfind(key);
+  if (i == size_t(-1))
+    return false;
+
+  value_out = c->get(i).value();
+  return true;
+}
+
+void MapDialog::putOKString(const PlotCommand_cpv& vstr)
+{
+  METLIBS_LOG_SCOPE();
+  MapManager mapm;
   vector<int> themaps;
-  vector<std::string> tokens, stokens;
   std::string bgcolour, area;
   MapInfo mi;
 
-  int iline;
-  for (iline = 0; iline < n; iline++) {
-    std::string str = vstr[iline];
-    miutil::trim(str);
-    if (str.empty())
+  for (PlotCommand_cp pc : vstr) {
+    KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+    if (!c)
       continue;
-    if (str[0] == '#')
-      continue;
+    // START very similar to readLog
     std::string themap = "";
-    tokens = miutil::split(str, " ");
-    int m = tokens.size();
-    if (miutil::to_upper(tokens[0]) == "AREA"){
-      for (int j = 0; j < m; j++) {
-        stokens = miutil::split(tokens[j], 0, "=");
-        if (miutil::to_upper(stokens[0]) == "NAME")
-          area = stokens[1];
-      }
-    } else if (miutil::to_upper(tokens[0]) == "MAP" )
-      for (int j = 0; j < m; j++) {
-        stokens = miutil::split(tokens[j], 0, "=");
-        if (stokens.size() == 2) {
-          if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
-            bgcolour = stokens[1];
-          else if (miutil::to_upper(stokens[0]) == "MAP")
-            themap = stokens[1];
-          else if (miutil::to_upper(stokens[0]) == "AREA")
-            area = stokens[1];
-        }
-      }
+    if (c->commandKey() == "AREA") {
+      get(c, "name", area);
+    } else if (c->commandKey() == "MAP" ) {
+      get(c, "backcolour", bgcolour);
+      get(c, "map", themap);
+      get(c, "area", area);
+    }
 
+    const size_t i_lon = c->find("lon");
+    const bool have_lon = (i_lon != size_t(-1));
     // find the logged map in full list
-    if (not themap.empty()) {
-      int idx = -1;
-      for (int k = 0; k < numMaps; k++)
-        if (m_MapDI.maps[k].name == themap) {
-          idx = k;
-          themaps.push_back(k); // keep list of selected maps
+    if (!themap.empty()) {
+      for (int k = 0; k < numMaps; k++) {
+        MapInfo& mik = m_MapDI.maps[k];
+        if (mik.name == themap) {
+          mapm.fillMapInfo(c->all(), mik);
+          if (have_lon)
+            mi = mik;
+          themaps.push_back(k); // keep list of selected maps // DIFF not in readLog
           break;
-        }
-      // update options
-      if (idx >= 0) {
-        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
-        if ( miutil::contains(str,"lon=")){
-          mi = m_MapDI.maps[idx];
         }
       }
     } else {
-      m_ctrl->MapInfoParser(str, mi, false, false);
+      mapm.fillMapInfo(c->all(), mi);
     }
   }
 
@@ -1363,14 +1329,12 @@ std::string MapDialog::getShortname()
 vector<string> MapDialog::writeLog()
 {
   vector<string> vstr;
+  MapManager mapm;
 
   // first: write all map-specifications
-  int n = m_MapDI.maps.size();
-  for (int i = 0; i < n; i++) {
+  for (const MapInfo& mi : m_MapDI.maps) {
     ostringstream ostr;
-    std::string mstr;
-    m_ctrl->MapInfoParser(mstr, m_MapDI.maps[i], true, true);
-    ostr << mstr;
+    ostr << mapm.MapInfo2str(mi);
     vstr.push_back(ostr.str());
   }
 
@@ -1407,10 +1371,8 @@ vector<string> MapDialog::writeLog()
 
   //write backcolour/lat/lon/frame
   ostringstream ostr;
-  ostr << "backcolour=" << backcolorcbox->currentText().toStdString() << " ";
-  std::string mstr;
-  m_ctrl->MapInfoParser(mstr, mi, true, false);
-  ostr << mstr;
+  ostr << "backcolour=" << backcolorcbox->currentText().toStdString();
+  ostr << ' ' << mapm.MapExtra2str(mi);
   vstr.push_back(ostr.str());
 
   // end of complete map-list
@@ -1435,7 +1397,7 @@ vector<string> MapDialog::writeLog()
   vstr.push_back("=================== Favorites ============");
   // write favorite options
   for (unsigned int i = 0; i < favorite.size(); i++) {
-    vstr.push_back(favorite[i]);
+    vstr.push_back(favorite[i]->toString());
   }
 
   vstr.push_back("===========================================");
@@ -1448,10 +1410,10 @@ void MapDialog::readLog(const vector<string>& vstr,
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");
+  MapManager mapm;
 
   int n = vstr.size();
   vector<int> themaps;
-  vector<std::string> tokens, stokens;
   std::string bgcolour, area;
   MapInfo mi;
   int iline;
@@ -1462,18 +1424,18 @@ void MapDialog::readLog(const vector<string>& vstr,
       continue;
     if (not str.empty() && str[0] == '=')
       break;
+
+    // FIXME this is almost identical to putOKString
+    const miutil::KeyValue_v kvs = miutil::splitKeyValue(str);
     std::string themap = "";
-    tokens = miutil::split(str, " ");
-    int m = tokens.size();
-    for (int j = 0; j < m; j++) {
-      stokens = miutil::split(tokens[j], 0, "=");
-      if (stokens.size() == 2) {
-        if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
-          bgcolour = stokens[1];
-        else if (miutil::to_upper(stokens[0]) == "AREA") //obsolete syntax
-          area = stokens[1];
-        else if (miutil::to_upper(stokens[0]) == "MAP")
-          themap = stokens[1];
+    for (const miutil::KeyValue& kv : kvs) {
+      if (!kv.value().empty()) {
+        if (kv.key() == "backcolour")
+          bgcolour = kv.value();
+        else if (kv.key() == "area") //obsolete syntax
+          area = kv.value();
+        else if (kv.key() == "map")
+          themap = kv.value();
       }
     }
     // find the logged map in full list
@@ -1486,9 +1448,9 @@ void MapDialog::readLog(const vector<string>& vstr,
         }
       // update options
       if (idx >= 0)
-        m_ctrl->MapInfoParser(str, m_MapDI.maps[idx], false, true);
+        mapm.fillMapInfo(kvs, m_MapDI.maps[idx]);
     } else {
-      m_ctrl->MapInfoParser(str, mi, false, false);
+      mapm.fillMapInfo(kvs, mi);
     }
   }
 
@@ -1536,7 +1498,13 @@ void MapDialog::readLog(const vector<string>& vstr,
         continue;
       if (str[0] == '=')
         break;
-      favorite.push_back(str);
+      miutil::KeyValue_v fkv = miutil::splitKeyValue(str);
+      if (fkv.empty())
+        continue;
+      KVListPlotCommand_p f = std::make_shared<KVListPlotCommand>(fkv.front().key());
+      fkv.erase(fkv.begin());
+      f->add(fkv);
+      favorite.push_back(f);
     }
   }
   usefavorite->setEnabled(favorite.size() > 0);

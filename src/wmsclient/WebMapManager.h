@@ -31,6 +31,7 @@
 #define WebMapManager_h 1
 
 #include "diManager.h"
+#include "diStringPlotCommand.h"
 
 #include <vector>
 
@@ -68,7 +69,7 @@ public:
 
   bool enablePlotElement(const PlotElement &) Q_DECL_OVERRIDE;
 
-  bool processInput(const std::vector<std::string>&) Q_DECL_OVERRIDE;
+  bool processInput(const PlotCommand_cpv&) Q_DECL_OVERRIDE;
 
   void sendMouseEvent(QMouseEvent*, EventResult&) Q_DECL_OVERRIDE
     { }
@@ -99,7 +100,7 @@ Q_SIGNALS:
   void webMapsRemoved();
 
 private:
-  WebMapPlot* createPlot(const std::string& qmstring);
+  WebMapPlot* createPlot(const StringPlotCommand_cp& qmstring);
   void clearMaps();
   void addMap(WebMapPlot* map);
 

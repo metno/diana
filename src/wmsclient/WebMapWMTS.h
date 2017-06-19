@@ -272,7 +272,6 @@ private Q_SLOTS:
 private:
   QUrl mServiceURL;
   QUrl mGetTileKvpUrl;
-  QNetworkAccessManager* mNetworkAccess;
   long mNextRefresh;
   QNetworkReply* mRefeshReply;
 

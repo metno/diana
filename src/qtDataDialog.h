@@ -31,6 +31,7 @@
 
 #include <puTools/miTime.h>
 #include <QDialog>
+#include "diPlotCommand.h"
 #include <vector>
 
 class Controller;
@@ -71,9 +72,9 @@ public:
   virtual std::string name() const = 0;
 
   /// Returns the vector of command strings in use.
-  virtual std::vector<std::string> getOKString() = 0;
+  virtual PlotCommand_cpv getOKString() = 0;
   /// Set new command strings, representing them in the dialog.
-  virtual void putOKString(const std::vector<std::string>& vstr) = 0;
+  virtual void putOKString(const PlotCommand_cpv& vstr) = 0;
 
 public slots:
   /// Unsets the dialog action in order to make the dialog ready for opening.

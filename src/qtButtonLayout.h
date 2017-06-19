@@ -38,6 +38,7 @@
 #include <qpalette.h>
 
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 #include "qtToggleButton.h"
 
 #include <string>

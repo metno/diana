@@ -33,6 +33,7 @@
 
 #include "diCommonTypes.h"
 #include "diPlot.h"
+#include "diPlotCommand.h"
 #include "diObsData.h"
 
 #include <puTools/TimeFilter.h>
@@ -174,21 +175,23 @@ public:
   ObsManager();
 
   //parse PlotInfo
-  ObsPlot* createObsPlot(const std::string&);
+  ObsPlot* createObsPlot(const PlotCommand_cp&);
 
   //read data
   bool prepare(ObsPlot *, const miutil::miTime&);
   ObsDialogInfo initDialog(void);
   ObsDialogInfo updateDialog(const std::string& name);
   bool parseSetup();
-//return observation times for list of PlotInfo's
-  std::vector<miutil::miTime> getTimes(std::vector<std::string> pinfos);
+
+  // return observation times for list of PlotInfo's
+  std::vector<miutil::miTime> getTimes(const std::vector<std::string>& obsTypes);
+
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const std::string& pinfo);
+      int& timediff, const PlotCommand_cp& pinfo);
 
   //! return observation times for list of obsTypes
-  std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& obsTypes);
+  std::vector<miutil::miTime> getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos);
 
   void archiveMode(bool on)
     { useArchive=on; }

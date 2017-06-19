@@ -39,6 +39,7 @@
 #include "diEditObjects.h"
 #include "diDisplayObjects.h"
 #include "diWeatherSymbol.h"
+#include "diKVListPlotCommand.h" // split_kv
 #include "diUtilities.h"
 #include "miSetupParser.h"
 
@@ -98,25 +99,23 @@ bool ObjectManager::parseSetup() {
   objectNames.clear();
   objectFiles.clear();
 
-  std::string key,value,error;
-  int nvstr=vstr.size();
-
-  for (int nv=0; nv<nvstr; nv++) {
-    const vector<std::string> tokens= miutil::split_protected(vstr[nv], '\"','\"'," ",true);
-    const int n= tokens.size();
+  std::string key, value;
+  int lineno = 0;
+  for (const std::string& line : vstr) {
+    lineno += 1;
     std::string name;
     ObjectList olist;
     olist.updated= false;
     bool ok= true;
 
-    for (int i=0; i<n; i++) {
-      SetupParser::splitKeyValue(tokens[i],key,value);
+    for (const std::string& tok : miutil::split_protected(line, '\"','\"'," ",true)) {
+      SetupParser::splitKeyValue(tok, key, value);
       if (key=="name"){
         name= value;
         olist.archive=false;
       }else if (key=="plotoptions"){
-        PlotOptions::parsePlotOption(value,olist.poptions);
-      } else if (key=="archive_name"){
+        PlotOptions::parsePlotOption(miutil::splitKeyValue(value),olist.poptions);
+      } else if (key=="archive_name") {
         name= value;
         olist.archive=true;
       }
@@ -135,10 +134,8 @@ bool ObjectManager::parseSetup() {
     } else {
       ok= false;
     }
-    if (!ok) {
-      error= "Bad object";
-      SetupParser::errorMsg(section,nv,error);
-    }
+    if (!ok)
+      SetupParser::errorMsg(section, lineno, "Bad object");
   }
 
   return true;
@@ -170,17 +167,13 @@ vector<miTime> ObjectManager::getTimes()
 }
 
 //  * PURPOSE:   return times for list of PlotInfo's
-vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
+vector<miTime> ObjectManager::getObjectTimes(const miutil::KeyValue_v& pinfo)
 {
   vector<miTime> timevec;
 
-  vector<string> tokens= miutil::split_protected(pinfo, '"', '"');
-  int m= tokens.size();
-  for (int j=0; j<m; j++){
-    std::string key,value;
-    SetupParser::splitKeyValue(tokens[j],key,value);
-    if (key=="name"){
-      vector<ObjFileInfo> ofi= getObjectFiles(value,true);
+  for (const miutil::KeyValue& kv : pinfo){
+    if (kv.key() == "name"){
+      vector<ObjFileInfo> ofi= getObjectFiles(kv.value(), true);
       for (unsigned int k=0; k<ofi.size(); k++){
         timevec.push_back(ofi[k].time);
       }
@@ -192,26 +185,26 @@ vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 }
 
 void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo)
+    int& timediff, const PlotCommand_cp& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
+
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo);
+  if (!cmd)
+    return;
 
   std::string fileName;
   std::string objectname;
   timediff=0;
 
-  vector<std::string> tokens= miutil::split_protected(pinfo, '"','"');
-  int m= tokens.size();
-  for (int j=0; j<m; j++){
-    std::string key,value;
-    SetupParser::splitKeyValue(tokens[j],key,value);
-    if (key=="name"){
-      objectname = value;
-    } else if( key=="timediff"){
-      timediff = miutil::to_int(value);
-    } else if( key=="file"){ //Product with no time
-      fileName=value;
+  for (const miutil::KeyValue& kv : cmd->all()) {
+    if (kv.key() == "name"){
+      objectname = kv.value();
+    } else if (kv.key() == "timediff"){
+      timediff = kv.toInt();
+    } else if (kv.key() == "file") { //Product with no time
+      fileName = kv.value();
     }
   }
 
@@ -223,11 +216,11 @@ void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
       normalTimes.push_back(ofi[k].time);
     }
   }
-
 }
 
 
-PlotOptions ObjectManager::getPlotOptions(std::string objectName){
+const PlotOptions& ObjectManager::getPlotOptions(std::string objectName)
+{
   return objectFiles[objectName].poptions;
 }
 
@@ -254,20 +247,20 @@ bool ObjectManager::insertObjectName(const std::string & name,
 -----------  methods for finding and showing objectfiles ----------------
  -----------------------------------------------------------------------*/
 
-void ObjectManager::prepareObjects(const vector<string>& inp)
+void ObjectManager::prepareObjects(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
-  const std::string old_plotinfo = objects.getPlotInfo();
+  const miutil::KeyValue_v old_plotinfo = objects.getPlotInfo(); // make a copy
   const bool old_enabled = objects.isEnabled();
 
   objects.init();
 
-  for (size_t i = 0; i < inp.size(); i++)
-    objects.define(inp[i]);
+  for (PlotCommand_cp pc : inp)
+    objects.define(pc);
 
-  const std::string new_plotinfo = objects.getPlotInfo();
-  objects.enable((new_plotinfo != old_plotinfo) or old_enabled);
+  const miutil::KeyValue_v& new_plotinfo = objects.getPlotInfo();
+  objects.enable(old_enabled || (new_plotinfo != old_plotinfo));
 }
 
 

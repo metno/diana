@@ -30,6 +30,7 @@
 #ifndef TESTVCROSSQUICKMENUS_H
 #define TESTVCROSSQUICKMENUS_H 1
 
+#include "diStringPlotCommand.h"
 #include <QObject>
 #include <string>
 #include <vector>
@@ -40,21 +41,21 @@ class VcrossQuickmenues;
 
 namespace test {
 class QuickmenuSlots : public QObject {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   QuickmenuSlots(VcrossQuickmenues* qm);
   void reset();
 
 private Q_SLOTS:
-  void onQuickmenuesUpdate(const std::string& t, const std::vector<std::string>& qm);
+  void onQuickmenuesUpdate(const std::string& t, const PlotCommand_cpv& qm);
 
 public:
   typedef std::vector<std::string> string_v;
-  typedef std::vector<string_v> string_vv;
+  typedef std::vector<PlotCommand_cpv> PlotCommand_cpvv;
 
   string_v titles;
-  string_vv qmenues;
+  PlotCommand_cpvv qmenues;
 };
 } // namespace test
 } // namespace vcross

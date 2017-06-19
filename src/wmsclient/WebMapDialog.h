@@ -70,8 +70,8 @@ public:
 
   std::string name() const;
   void updateDialog();
-  std::vector<std::string> getOKString();
-  void putOKString(const std::vector<std::string>& vstr);
+  PlotCommand_cpv getOKString();
+  void putOKString(const PlotCommand_cpv& vstr);
 
 public /*Q_SLOTS*/:
   void updateTimes();
@@ -118,7 +118,7 @@ private:
 
   WebMapService* mAddSelectedService;
 
-  std::vector<std::string> mOk;
+  PlotCommand_cpv mOk;
 };
 
 #endif // WebMapDialog_h

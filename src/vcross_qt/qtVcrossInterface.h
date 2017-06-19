@@ -54,7 +54,7 @@ public:
   void changeCrossection(const QString& csName) Q_DECL_OVERRIDE;
   void showTimegraph(const LonLat& position) Q_DECL_OVERRIDE;
   void mainWindowTimeChanged(const miutil::miTime& t) Q_DECL_OVERRIDE;
-  void parseQuickMenuStrings(const std::vector<std::string>& vstr) Q_DECL_OVERRIDE;
+  void parseQuickMenuStrings(const PlotCommand_cpv& vstr) Q_DECL_OVERRIDE;
   void writeLog(LogFileIO& logfile) Q_DECL_OVERRIDE;
   void readLog(const LogFileIO& logfile, const std::string& thisVersion, const std::string& logVersion,
       int displayWidth, int displayHeight) Q_DECL_OVERRIDE;

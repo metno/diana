@@ -165,8 +165,10 @@ std::string posIf(QWidget* widget, const QPoint& pos)
 
 void moveIf(QWidget* widget, const QPoint& pos)
 {
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
   if (widget)
     widget->move(pos);
+#endif
 }
 
 void hideIf(QWidget* widget)
@@ -311,7 +313,9 @@ void VcrossWindow::onAddField()
   if (!vcAddPlotDialog) {
     vcAddPlotDialog = new VcrossAddPlotDialog(this, vcrossm);
     connectRestartAddAfterReplace();
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
     vcAddPlotDialog->move(mPositionAddPlot);
+#endif
   }
   vcAddPlotDialog->show();
 }
@@ -322,7 +326,9 @@ void VcrossWindow::onReplaceModel()
   if (!vcReplaceModelDialog) {
     vcReplaceModelDialog = new VcrossReplaceModelDialog(this, vcrossm);
     connectRestartAddAfterReplace();
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
     vcReplaceModelDialog->move(mPositionReplaceModel);
+#endif
     vcReplaceModelDialog->restart();
   }
   vcReplaceModelDialog->show();
@@ -353,7 +359,9 @@ void VcrossWindow::ensureStyleDialog()
   if (!vcStyleDialog) {
     vcStyleDialog = new VcrossStyleDialog(this);
     vcStyleDialog->setManager(vcrossm);
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
     vcStyleDialog->move(mPositionStyle);
+#endif
   }
 }
 
@@ -784,7 +792,7 @@ void VcrossWindow::readLog(const LogFileIO& logfile,
           if (tokens[0]=="VcrossWindow.size") this->resize(p.x(), p.y());
         }
         if (p.x() >= 0 && p.y() >= 0 && p.x() < displayWidth-20 && p.y() < displayHeight-20) {
-          if      (tokens[0]=="VcrossWindow.pos")      this->move(p);
+          if      (tokens[0]=="VcrossWindow.pos") { this->move(p); }
           else if (tokens[0]=="VcrossDialog.pos")      moveIf(vcAddPlotDialog, mPositionAddPlot = p);
           else if (tokens[0]=="VcrossSetupDialog.pos") moveIf(vcSetupDialog, mPositionSetup = p);
           else if (tokens[0]=="VcrossStyleDialog.pos") moveIf(vcStyleDialog, mPositionStyle = p);

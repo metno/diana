@@ -36,6 +36,7 @@
 #include "diAreaObjectsCluster.h"
 #include "diManager.h"
 #include "diPlotModule.h"
+#include "diKVListPlotCommand.h"
 #include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diObsManager.h"
@@ -179,7 +180,7 @@ bool Controller::parseSetup()
   return true;
 }
 
-void Controller::plotCommands(const vector<string>& inp)
+void Controller::plotCommands(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
   if (METLIBS_LOG_DEBUG_ENABLED()) {
@@ -454,7 +455,7 @@ void Controller::startEditAnnotation()
 
 void Controller::stopEditAnnotation(std::string prodname)
 {
-  vector <string> labels  = plotm->writeAnnotations(prodname);
+  const PlotCommand_cpv labels  = plotm->writeAnnotations(prodname);
   editm->saveProductLabels(labels);
   plotm->stopEditAnnotation();
 }
@@ -728,7 +729,7 @@ const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-    const vector<string>& pinfos, bool allTimes)
+    const PlotCommand_cpv& pinfos, bool allTimes)
 {
   plotm->getCapabilitiesTime(okTimes,pinfos,allTimes);
 }
@@ -851,9 +852,12 @@ void Controller::getAllFieldNames(vector<std::string> & fieldNames)
   fieldplotm->getAllFieldNames(fieldNames);
 }
 
-vector<std::string> Controller::getFieldLevels(const std::string& pinfo)
+vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
 {
-  return fieldplotm->getFieldLevels(pinfo);
+  if (KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo))
+    return fieldplotm->getFieldLevels(cmd->all());
+  else
+    return std::vector<std::string>();
 }
 
 set<std::string> Controller::getFieldReferenceTimes(const std::string model)
@@ -887,27 +891,6 @@ vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
 void Controller::updateFieldSource(const std::string & modelName)
 {
   fieldm->updateSource(modelName);
-}
-
-MapDialogInfo Controller::initMapDialog()
-{
-  MapManager mapm;
-  return mapm.getMapDialogInfo();
-}
-
-bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool map)
-{
-  MapManager mapm;
-  if (tostr){
-    if (map)
-      str= mapm.MapInfo2str(mi);
-    else
-      str= mapm.MapExtra2str(mi);
-    return true;
-  } else {
-    PlotOptions a,b,c,d,e;
-    return mapm.fillMapInfo(str,mi,a,b,c,d,e);
-  }
 }
 
 //object dialog

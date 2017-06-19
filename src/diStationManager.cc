@@ -32,14 +32,13 @@
 #endif
 
 #include "diStationManager.h"
+#include "diStationPlotCommand.h"
 #include "diStationPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 
 #include <puTools/miTime.h>
 #include <puTools/miStringFunctions.h>
-
-#include <boost/algorithm/string/join.hpp>
 
 #define MILOGGER_CATEGORY "diana.StationManager"
 #include <miLogger/miLogging.h>
@@ -75,8 +74,9 @@ StationManager::stationPlots_t::iterator StationManager::findStationPlot(const s
 /**
  * Updates the vector of \a plots with the data provided in \a inp.
 */
-bool StationManager::init(const vector<string>& inp)
+bool StationManager::init(const PlotCommand_cpv& inp)
 {
+  METLIBS_LOG_SCOPE();
   // Hide all the station plots to begin with so that we can later
   // show and select/unselect them.
 
@@ -88,31 +88,21 @@ bool StationManager::init(const vector<string>& inp)
       sp->hide();
   }
 
-  for (unsigned int i = 0; i < inp.size(); ++i) {
+  for (PlotCommand_cp pc : inp) {
+    StationPlotCommand_cp c = std::dynamic_pointer_cast<const StationPlotCommand>(pc);
+    if (!c)
+      continue;
 
-    const std::string& plotStr = inp[i];
-
-    vector<std::string> pieces = miutil::split(plotStr, " ");
-    pieces.erase(pieces.begin());
-
-    const std::string select = pieces.back();
-    pieces.pop_back();
-
-    const std::string url = pieces.back();
-    pieces.pop_back();
-
-    const std::string name = boost::algorithm::join(pieces, " ");
-
-    stationPlots_t::iterator it = findStationPlot(name, -1, stationPlots.begin());
+    stationPlots_t::iterator it = findStationPlot(c->name, -1, stationPlots.begin());
     StationPlot* plot = 0;
 
     if (it == stationPlots.end()) {
       // No existing plot exists. If the select part of the plot command
       // contains the word "hidden" then we ignore this set of stations.
 
-      if (select != "hidden") {
+      if (c->select != "hidden") {
         // Load the stations.
-        plot = importStations(name, url);
+        plot = importStations(c->name, c->url);
         if (plot)
           putStations(plot);
       }
@@ -123,16 +113,16 @@ bool StationManager::init(const vector<string>& inp)
     }
 
     if (plot) {
-      if (select == "hidden") {
+      if (c->select == "hidden") {
         plot->hide();
-        m_info.chosen[url] = false;
+        m_info.chosen[c->url] = false;
       } else {
         plot->show();
-        m_info.chosen[url] = true;
+        m_info.chosen[c->url] = true;
       }
 
-      if (select == "selected") {
-        m_info.selected = name;
+      if (c->select == "selected") {
+        m_info.selected = c->name;
         vector<Station*> stations = plot->getStations();
         for (unsigned int k = 0; k < stations.size(); ++k)
           stations[k]->isSelected = true;

@@ -4,6 +4,7 @@
 #include "diAnnotationPlot.h" // AnnotationPlot::Annotation
 #include "diCommonTypes.h" // PlotElement
 #include "diPlot.h" // Plot, Plot::PlotOrder
+#include "diPlotCommand.h" // PlotCommand
 
 #include <vector>
 
@@ -17,7 +18,7 @@ public:
 
   virtual const std::string& plotCommandKey() const = 0;
 
-  virtual void prepare(const std::vector<std::string>& cmds) = 0;
+  virtual void prepare(const PlotCommand_cpv& cmds) = 0;
 
   virtual void setCanvas(DiCanvas* canvas);
 

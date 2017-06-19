@@ -2,6 +2,8 @@
 #ifndef VcrossSetup_h
 #define VcrossSetup_h 1
 
+#include "util/diKeyValue.h"
+
 #include <diField/VcrossData.h>
 #include <diField/VcrossSource.h>
 
@@ -48,7 +50,7 @@ struct ConfiguredPlot {
   std::string name;
   Type type;
   string_v arguments;
-  string_v options;
+  miutil::KeyValue_v options;
 
   ConfiguredPlot() : type(T_NONE) { }
   ConfiguredPlot(std::string n, Type t) : name(n), type(t) { };
@@ -98,9 +100,9 @@ public:
     { return mPlots; }
 
 
-  std::string getPlotOptions(const std::string& name) const
+  miutil::KeyValue_v getPlotOptions(const std::string& name) const
     { return getPlotOptions(findPlot(name)); }
-  std::string getPlotOptions(ConfiguredPlot_cp cp) const;
+  miutil::KeyValue_v getPlotOptions(ConfiguredPlot_cp cp) const;
 
   const string_string_m& getModelOptions(const std::string& name) const;
 

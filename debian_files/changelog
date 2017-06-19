@@ -1,3 +1,11 @@
+diana-3.43 (3.43.0~a1-1) unstable; urgency=low
+
+  * do not restore dialog positions
+  * add PlotCommand classes
+  * and more ...
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 13 Jun 2017 08:00:08 +0200
+
 diana-3.42 (3.42.2-1) unstable; urgency=low
 
   * bugfix background buffer update

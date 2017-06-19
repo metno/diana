@@ -35,6 +35,7 @@
 #include "qtObjectDialog.h"
 #include "qtEditComment.h"
 #include "diObjectManager.h"
+#include "diStringPlotCommand.h"
 #include "qtUtility.h"
 
 #include <puTools/miStringFunctions.h>
@@ -505,11 +506,11 @@ void ObjectDialog::updateSelectedFileList()
 
 /*************************************************************************/
 
-vector<string> ObjectDialog::getOKString()
+PlotCommand_cpv ObjectDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<string> vstr;
+  PlotCommand_cpv vstr;
 
   if (selectedFileList->count()) {
     ostringstream ostr;
@@ -550,7 +551,7 @@ vector<string> ObjectDialog::getOKString()
 
     ostr << plotVariables.external;
 
-    vstr.push_back(ostr.str());
+    vstr.push_back(std::make_shared<StringPlotCommand>("OBJECTS", ostr.str()));
 
     // clear external variables
     plotVariables.external.clear();
@@ -560,23 +561,22 @@ vector<string> ObjectDialog::getOKString()
   return vstr;
 }
 
-void ObjectDialog::putOKString(const vector<string>& vstr)
+void ObjectDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE();
 
   DeleteClicked();
 
-  // check PlotInfo (one for each plot)
-  int npi= vstr.size();
-
-  if (npi==0)
+  if (vstr.empty())
     return;
 
   // loop through all PlotInfo's
-  for (int ip=0; ip<npi; ip++){
-    //(if there are several plotInfos, only the last one will be
-    //used
-    vector<string> tokens = miutil::split_protected(vstr[ip], '"', '"');
+  for (PlotCommand_cp pc : vstr) {
+    StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    if (!c)
+      continue;
+    //(if there are several plotInfos, only the last one will be used
+    vector<string> tokens = miutil::split_protected(c->command(), '"', '"');
     //get info from OKstring into struct PlotVariables
     plotVariables = decodeString(tokens);
   }

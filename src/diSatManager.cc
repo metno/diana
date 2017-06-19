@@ -36,6 +36,8 @@
 #include "diSatManager.h"
 
 #include "diSatPlot.h"
+#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/was_enabled.h"
@@ -70,7 +72,7 @@ SatManager::SatManager()
   useArchive=false;
 }
 
-void SatManager::prepareSat(const std::vector<std::string>& inp)
+void SatManager::prepareSat(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -84,7 +86,7 @@ void SatManager::prepareSat(const std::vector<std::string>& inp)
     plotenabled.restore(vsp[i]);
 }
 
-void SatManager::init(const std::vector<std::string>& pinfo)
+void SatManager::init(const PlotCommand_cpv& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
@@ -100,9 +102,14 @@ void SatManager::init(const std::vector<std::string>& pinfo)
 
 
   // loop through all PlotInfo's
-  for (size_t ip=0; ip<pinfo.size(); ip++) {
+  bool first = true;
+  for (PlotCommand_cp pc : pinfo) {
+    KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+    if (!cmd)
+      continue;
+
     // make a new SatPlot with a new Sat
-    Sat* satdata = new Sat(pinfo[ip]);
+    Sat* satdata = new Sat(cmd->all());
 
     bool isok= false;
     if (not vsp.empty()) { // if satplots exists
@@ -131,7 +138,7 @@ void SatManager::init(const std::vector<std::string>& pinfo)
           // check rgb operation parameters
           if (std::abs(sdp->cut - satdata->cut) < 1e-8f
               || std::abs(satdata->cut - (-0.5f)) < 1e-8f
-              || (sdp->commonColourStretch && ip>0))
+              || (sdp->commonColourStretch && !first))
           {
             sdp->cut= satdata->cut;
             sdp->rgboperchanged= true;
@@ -170,7 +177,7 @@ void SatManager::init(const std::vector<std::string>& pinfo)
           // rgb and alpha cuts must be redone
           isok= true;
           inuse[j]= true;
-          vsp[j]->setPlotInfo(pinfo[ip]);
+          vsp[j]->setPlotInfo(cmd->all());
           new_vsp.push_back(vsp[j]);
           break;
         }
@@ -179,9 +186,10 @@ void SatManager::init(const std::vector<std::string>& pinfo)
     if (!isok) { // make new satplot
       SatPlot *sp = new SatPlot;
       sp->setData(satdata); //new sat, with no images
-      sp->setPlotInfo(pinfo[ip]);
+      sp->setPlotInfo(cmd->all());
       new_vsp.push_back(sp);
     }
+    first = false;
   } // end loop PlotInfo's
 
   // delete unwanted satplots  (all plots not in use)
@@ -224,10 +232,10 @@ bool SatManager::enablePlotElement(const PlotElement& pe)
 void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)
 {
   AnnotationPlot::Annotation ann;
-  for (size_t j = 0; j < vsp.size(); j++) {
-    if (!vsp[j]->isEnabled())
+  for (SatPlot* sp : vsp) {
+    if (!sp->isEnabled())
       continue;
-    vsp[j]->getAnnotation(ann.str, ann.col);
+    sp->getAnnotation(ann.str, ann.col);
     annotations.push_back(ann);
   }
 }
@@ -1182,22 +1190,14 @@ std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
   //  * PURPOSE:   return times for list of PlotInfo's
   METLIBS_LOG_SCOPE();
 
-  std::vector<std::string> pinfos;
-  for (size_t i = 0; i < vsp.size(); i++)
-    pinfos.push_back(vsp[i]->getPlotInfo());
-
   std::set<miTime> timeset;
-  std::vector< miTime> timevec;
-  int m, nn= pinfos.size();
-  std::string satellite, file;
-
-  for(int i=0; i<nn; i++) {
-    const std::vector<std::string> tokens = miutil::split_protected(pinfos[i], '"', '"');
-    m= tokens.size();
-    if (m<3)
+  for (size_t i = 0; i < vsp.size(); i++) {
+    const miutil::KeyValue_v& pinfo = vsp[i]->getPlotInfo();
+    if (pinfo.size() < 2)
       continue;
-    satellite= tokens[1];
-    file = tokens[2];
+
+    const std::string& satellite= pinfo[0].key(); // FIXME is it 0 or 1?
+    const std::string& file = pinfo[1].key(); // FIXME
 
     if (Prod.find(satellite)==Prod.end()) {
       METLIBS_LOG_ERROR("Product doesn't exist:"<<satellite);
@@ -1230,49 +1230,38 @@ std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
     for (int j=0; j<nf; j++) {
       timeset.insert(subp.file[j].time);
     }
-
   }
 
-  m= timeset.size();
-  if (m>0) {
-    std::set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++)
-      timevec.push_back(*p);
-  }
-  //METLIBS_LOG_DEBUG(fileListChanged);
-  return timevec;
+  return std::vector<miTime>(timeset.begin(), timeset.end());
 }
 
 void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
-    int& timediff, const std::string& pinfo)
+    int& timediff, const PlotCommand_cp& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
 
   timediff=0;
 
-  std::vector<std::string> tokens= miutil::split_protected(pinfo, '"', '"');
-  int m= tokens.size();
-  if (m<3)
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo);
+  if (!cmd || cmd->size() < 2)
     return;
 
-  std::string satellite= tokens[1];
-  std::string file = tokens[2];
   std::string filename;
-
-  for (unsigned int j=0; j<tokens.size(); j++) {
-    std::vector<std::string> stokens= miutil::split(tokens[j], "=");
-    if (stokens.size()==2 && miutil::to_lower(stokens[0])=="file") {
-      filename = stokens[1];
-    }
-    if (stokens.size()==2 && miutil::to_lower(stokens[0])=="timediff") {
-      timediff=miutil::to_int(stokens[1]);
+  for (const KeyValue& kv : cmd->all()) {
+    if (kv.key() == "file") {
+      filename = kv.value();
+    } else if (kv.key() == "timediff") {
+      timediff = kv.toInt();
     }
   }
 
   //Product with prog times
   if (filename.empty()) {
-    std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
+    const std::string& satellite= cmd->get(0).key(); // FIXME is it 0 or 1?
+    const std::string& file = cmd->get(1).key(); // FIXME
+
+    const std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
     int nfinfo=finfo.size();
     for (int k=0; k<nfinfo; k++) {
       normalTimes.push_back(finfo[k].time);

@@ -32,8 +32,10 @@
 #endif
 
 #include "qtAnnotationDialog.h"
+#include "diLabelPlotCommand.h"
 #include "miSetupParser.h"
 #include "qtUtility.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -129,8 +131,8 @@ void AnnotationDialog::parseSetup(){
 
   if (miutil::SetupParser::getSection(anno_section,vstr)){
     int nv=0, nvstr=vstr.size();
-    std::string key,error;
-    vector<std::string> values, vsub;
+    std::string key;
+    vector<std::string> values;
     bool ok= true;
 
     while (ok && nv<nvstr) {
@@ -194,18 +196,23 @@ void AnnotationDialog::parseSetup(){
 
 
 /*******************************************************/
-vector<string> AnnotationDialog::getOKString()
+PlotCommand_cpv AnnotationDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
   current_annoStrings[annoBox->currentText()] = textedit->toPlainText();
   std::string text = textedit->toPlainText().toStdString();
   METLIBS_LOG_DEBUG(LOGVAL(text));
-  vector<string> str = miutil::split(text, 0, "\n");
-  for ( size_t i=0; i<str.size(); i++ ) {
-    miutil::trim( str[i] );
+  const vector<string> str = miutil::split(text, 0, "\n");
+  PlotCommand_cpv cmd;
+  cmd.reserve(str.size());
+  for (std::string s : str) {
+    miutil::trim(s);
+    // we only want to create LABEL commands
+    if (diutil::startswith(s, "LABEL "))
+      cmd.push_back(std::make_shared<LabelPlotCommand>(s.substr(6))); // split after "LABEL "
   }
-  return str;
+  return cmd;
 }
 
 
@@ -221,7 +228,7 @@ void AnnotationDialog::readLog(const vector<string>&, const string&, const strin
   METLIBS_LOG_SCOPE();
 }
 
-void AnnotationDialog::putOKString(const vector<string>& vstr)
+void AnnotationDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE(vstr.size());
   if ( vstr.size() == 0 ) {
@@ -231,9 +238,9 @@ void AnnotationDialog::putOKString(const vector<string>& vstr)
   }
 
   std::string str;
-  for (size_t i=0; i<vstr.size(); i++){
-    str += vstr[i];
-    str+= std::string("\n");
+  for (PlotCommand_cp cmd : vstr) {
+    if (LabelPlotCommand_cp s = std::dynamic_pointer_cast<const LabelPlotCommand>(cmd))
+      str += s->toString() + "\n";
   }
   textedit->setText(QString(str.c_str()));
 }

@@ -43,8 +43,6 @@
 class WebMapTile;
 
 class QDomElement;
-class QNetworkAccessManager;
-class QNetworkReply;
 
 struct WebMapWmsCrsBoundingBox {
   std::string crs;
@@ -195,8 +193,6 @@ public:
       const std::map<std::string, std::string>& dimensionValues,
       const std::string& crs, WebMapTile* tile);
 
-  QNetworkReply* submitUrl(const QUrl& url);
-
   void refresh();
 
   const std::string& tileFormat() const
@@ -219,7 +215,6 @@ private:
   std::string mTileFormat;
   WmsVersion mVersion;
 
-  QNetworkAccessManager* mNetworkAccess;
   long mNextRefresh;
   QNetworkReply* mRefeshReply;
 };

@@ -37,6 +37,7 @@
 #include "diDisplayObjects.h"
 #include "diAreaBorder.h"
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 #include "diUndoFront.h"
 
 #include "diField/diArea.h"
@@ -191,14 +192,14 @@ public:
   std::map <std::string,bool> decodeTypeString(std::string);
 
   /// handles met. objects plot info strings
-  void prepareObjects(const std::vector<std::string>& inp);
+  void prepareObjects(const PlotCommand_cpv& inp);
 
   void addPlotElements(std::vector<PlotElement>& pel);
   bool enablePlotElement(const PlotElement& pe);
   void getObjAnnotation(std::string &str, Colour &col);
   void getDataAnnotations(std::vector<std::string>& anno)
     { objects.getAnnotations(anno); }
-  std::vector<std::string> getObjectLabels()
+  const PlotCommand_cpv& getObjectLabels()
     { return objects.getObjectLabels(); }
   void plotObjects(DiGLPainter* gl, Plot::PlotOrder zorder);
   void clearObjects()
@@ -340,14 +341,14 @@ public:
   std::vector <ObjFileInfo> getObjectFiles(const std::string& objectname, bool refresh);
   /// returns list of times
   std::vector<miutil::miTime> getTimes();
-  std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
+  std::vector<miutil::miTime> getObjectTimes(const miutil::KeyValue_v &pinfo);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const std::string& pinfo);
+      int& timediff, const PlotCommand_cp& pinfo);
 
   /// returns plot options for object file with name objectname
-  PlotOptions getPlotOptions(std::string objectName);
+  const PlotOptions &getPlotOptions(std::string objectName);
 };
 
 #endif

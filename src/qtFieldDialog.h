@@ -34,6 +34,7 @@
 #include <diCommandParser.h>
 #include <diColourShading.h>
 #include <diPattern.h>
+#include "util/diKeyValue.h"
 
 #include <puTools/miTime.h>
 #include <diField/diCommonFieldTypes.h>
@@ -88,7 +89,7 @@ private:
     std::string idnum;
     int  hourOffset;
     int  hourDiff;
-    std::string fieldOpts;
+    miutil::KeyValue_v fieldOpts;
     std::vector<std::string> levelOptions;
     std::vector<std::string> idnumOptions;
     bool minus;
@@ -98,7 +99,6 @@ private:
     std::string zaxis;
     std::string extraaxis;
     std::string taxis;
-    std::string grid;
     std::string unit;
     bool plotDefinition;
     bool levelmove;
@@ -129,13 +129,13 @@ public:
 
   void archiveMode(bool on);
   /// returns fiels command strings, one for each field
-  std::vector<std::string> getOKString();
+  PlotCommand_cpv getOKString();
   /// return a short text for quickmenue
   std::string getShortname();
   bool levelsExists(bool up, int type=0);
-  void putOKString(const std::vector<std::string>& vstr,
+  void putOKString(const PlotCommand_cpv& vstr,
       bool checkOptions=true, bool external=true);
-  bool decodeString(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
+  bool decodeString(const miutil::KeyValue_v &kvs, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
   void getEditPlotOptions(std::map< std::string, std::map<std::string,std::string> >& po);
@@ -164,18 +164,14 @@ private:
   void enableWidgets(std::string plottype);
   void enableFieldOptions();
   void enableType2Options(bool);
-  void updateFieldOptions(const std::string& name,
-      const std::string& value, int valueIndex= 0);
+  void updateFieldOptions(const std::string& key, const std::string& value);
   void updateTime();
   void setLevel();
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime,
       bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
-  std::string checkFieldOptions(const std::string& str);
-  std::string getFieldOptions(const std::string& fieldName, bool reset) const;
-
-  bool fieldDifference(const std::string& str,
-      std::string& field1, std::string& field2) const;
+  void checkFieldOptions(miutil::KeyValue_v &str);
+  miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
 
   void toolTips();
 
@@ -183,7 +179,7 @@ private:
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
 
-  std::string getParamString(int i);
+  miutil::KeyValue_v getParamString(int i);
 
   Controller* m_ctrl;
 
@@ -194,15 +190,14 @@ private:
 
   std::string lastFieldGroupName;
 
-  CommandParser *cp;
-  std::vector<ParsedCommand> vpcopt;
+  miutil::KeyValue_v vpcopt;
 
   std::string editName;  // replacing the modelName during editing
 
   // map<fieldName,fieldOptions>
-  std::map<std::string,std::string> setupFieldOptions;
-  std::map<std::string,std::string> fieldOptions;
-  std::map<std::string,std::string> editFieldOptions;
+  std::map<std::string,miutil::KeyValue_v> setupFieldOptions;
+  std::map<std::string,miutil::KeyValue_v> fieldOptions;
+  std::map<std::string,miutil::KeyValue_v> editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
   std::set<std::string> fieldPrefixes;
@@ -213,7 +208,6 @@ private:
   std::vector<SelectedField> selectedField2edit;
   std::vector<bool>          selectedField2edit_exists;
 
-  std::vector< std::vector<std::string> > plottypes_dim;
   std::vector<std::string> plottypes;
 
   std::map<std::string, EnableWidget> enableMap;
@@ -226,7 +220,7 @@ private:
   QStringList      densityStringList;
   std::vector<std::string> vectorunit;
   std::vector<std::string> extremeType;
-  std::string currentFieldOpts;
+  miutil::KeyValue_v currentFieldOpts;
   bool     currentFieldOptsInEdit;
 
   // info about selected model, fields, levels, idnums and plot options

@@ -35,6 +35,8 @@
 
 #include "diCommandParser.h"
 
+#include "util/string_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.CommandParser"
@@ -43,22 +45,18 @@
 using namespace::miutil;
 using namespace std;
 
-// Default constructor
 CommandParser::CommandParser()
-  :caseType(cmdCaseDependant),commentSearch(false){
+{
 }
 
-// Copy constructor
 CommandParser::CommandParser(const CommandParser &rhs){
   // elementwise copy
   memberCopy(rhs);
 }
 
-// Destructor
 CommandParser::~CommandParser(){
 }
 
-// Assignment operator
 CommandParser& CommandParser::operator=(const CommandParser &rhs){
   if (this == &rhs) return *this;
   // elementwise copy
@@ -67,7 +65,6 @@ CommandParser& CommandParser::operator=(const CommandParser &rhs){
   return *this;
 }
 
-// Equality operator
 bool CommandParser::operator==(const CommandParser &rhs) const{
   return false;
 }
@@ -76,8 +73,6 @@ void CommandParser::memberCopy(const CommandParser& rhs){
   // copy members
 
   keyDataBase=   rhs.keyDataBase;
-  caseType=      rhs.caseType;
-  commentSearch= rhs.commentSearch;
 }
 
 
@@ -209,37 +204,16 @@ vector<int> CommandParser::parseInt(const std::string& str) {
 }
 
 
-bool CommandParser::setCaseType(cmdCaseType casetype) {
-  // Case (conversion) type for keywords (not values),
-  // Cannot be changed unless cmdCaseDependant.
-
-  if (caseType!=casetype) {
-    if (keyDataBase.size()>0) return false;
-    caseType= casetype;
-  }
-
-  return true;
-}
-
-
 bool CommandParser::addKey(const std::string& name, const std::string& key,
-	                   int idNumber, cmdValueType valuetype,
-		           bool printError ) {
-  // add key
-
+                           int idNumber, cmdValueType valuetype)
+{
   std::string newkey;
   if (!key.empty()) {
-    if      (caseType==cmdLowerCase) newkey= miutil::to_lower(key);
-    else if (caseType==cmdUpperCase) newkey= miutil::to_upper(key);
-    else                             newkey= key;
+    newkey= key;
   } else if (!name.empty()) {
     // key==name
-    if      (caseType==cmdLowerCase) newkey= miutil::to_lower(name);
-    else if (caseType==cmdUpperCase) newkey= miutil::to_upper(name);
-    else                             newkey= name;
+    newkey= name;
   } else {
-    if (printError) METLIBS_LOG_ERROR("CommandParser::addKey ERROR: key= "<<key
-                          <<"  name= "<<name);
     return false;
   }
 
@@ -248,8 +222,6 @@ bool CommandParser::addKey(const std::string& name, const std::string& key,
     keyDataBase[newkey].name=      name;
     keyDataBase[newkey].idNumber=  idNumber;
   } else {
-    if (printError) METLIBS_LOG_ERROR("CommandParser::addKey ERROR: key= "<<key
-                          <<"  name= "<<name);
     return false;
   }
   return true;
@@ -291,14 +263,6 @@ vector<ParsedCommand> CommandParser::parse(const std::string& str) {
 
   size_t i,pos,end = 0, strlen= str.length();
 
-  if (commentSearch) {
-    i= str.find_first_of('#');
-    if (i<strlen)
-      strlen=i;
-    if (strlen==0)
-      return vpc;
-  }
-
   i= str.find_first_not_of(' ');
   if (i>=strlen)
     return vpc;
@@ -310,9 +274,6 @@ vector<ParsedCommand> CommandParser::parse(const std::string& str) {
 
   // very nice always having a space at the end of the string...
   tmp= str.substr(0,strlen) + " ";
-
-  if      (caseType==cmdLowerCase) tmp= miutil::to_lower(tmp);
-  else if (caseType==cmdUpperCase) tmp= miutil::to_upper(tmp);
 
   // assuming: always a space at tmp[strlen], added above
   //           find_first_... returns a large value if char(s) not found
@@ -504,16 +465,75 @@ bool CommandParser::replaceValue(ParsedCommand& pc,
 }
 
 
-std::string CommandParser::unParse(const vector<ParsedCommand>& vpc) const {
-
+std::string CommandParser::unParse(const vector<ParsedCommand>& vpc) const
+{
   std::string str;
+  for (const ParsedCommand& pc : vpc)
+    diutil::appendText(str, pc.key + "=" + pc.allValue);
+  return str;
+}
 
-  int n, nvpc= vpc.size();
 
-  for (n=0; n<nvpc; n++) {
-    if (n>0) str+= (" " + vpc[n].key + "=" + vpc[n].allValue);
-    else     str+=       (vpc[n].key + "=" + vpc[n].allValue);
+miutil::KeyValue_v CommandParser::toKeyValueList(const vector<ParsedCommand>& vpc) const
+{
+  miutil::KeyValue_v kvs;
+  for (const ParsedCommand& pc : vpc) {
+    // FIXME this is not correct for unknown keys without value
+    kvs.push_back(miutil::KeyValue(pc.key, pc.allValue));
+  }
+  return kvs;
+}
+
+vector<ParsedCommand> CommandParser::fromKeyValueList(const miutil::KeyValue_v& kvs) const
+{
+  vector<ParsedCommand> vpc;
+
+  typedef std::map<std::string,keyDescription>::const_iterator km_it;
+  const km_it pkend= keyDataBase.end();
+
+  for (const miutil::KeyValue& kv : kvs) {
+    ParsedCommand pc;
+    pc.idNumber= -1;
+    cmdValueType valueType;
+
+    // key (possibly unknown)
+    const km_it pk = keyDataBase.find(kv.key());
+    if (pk == pkend) {
+      // key not found in database
+      if (kv.hasValue()) {
+        pc.key= kv.key();
+        valueType= cmdUnknown;
+      } else {
+        pc.key="unknown";
+        pc.allValue= kv.key();
+        pc.strValue.push_back(kv.key());
+        valueType= cmdNoValue;
+      }
+    } else {
+      // key found in database
+      valueType= pk->second.valueType;
+      if (valueType==cmdNoValue && kv.hasValue())
+        valueType=cmdSkip;
+      if (valueType!=cmdNoValue && !kv.hasValue())
+        valueType=cmdNoValue;
+      pc.key= pk->second.name;
+      pc.idNumber= pk->second.idNumber;
+      if (valueType==cmdNoValue) {
+        pc.allValue= kv.key();
+        pc.strValue.push_back(kv.key());
+      }
+    }
+    if (valueType!=cmdNoValue) {
+      pc.allValue =kv.value();
+      pc.strValue= parseString(pc.allValue);
+      if (valueType!=cmdString)
+        pc.floatValue= parseFloat(pc.allValue);
+      if (valueType!=cmdString && valueType!=cmdFloat)
+        pc.intValue= parseInt(pc.allValue);
+    }
+
+    vpc.push_back(pc);
   }
 
-  return str;
+  return vpc;
 }

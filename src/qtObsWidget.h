@@ -36,6 +36,7 @@
 #include <QLabel>
 #include "diCommonTypes.h"
 #include "diController.h"
+#include "diKVListPlotCommand.h"
 #include "qtToggleButton.h"
 #include <map>
 
@@ -71,12 +72,12 @@ public:
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings
-  std::string getOKString(bool forLog= false);
+  KVListPlotCommand_cp getOKString(bool forLog= false);
   ///insert command strings
-  void putOKString(const std::string& str);
+  void putOKString(const PlotCommand_cp& str);
   ///return short name of current commonad
   std::string getShortname();
-  void readLog(const std::string& str);
+  void readLog(const miutil::KeyValue_v& kvs);
   void setFalse();
   void setDatatype(const std::string&);
   std::vector<std::string> getDataTypes();
@@ -190,9 +191,9 @@ private:
 
   dialogVariables dVariables;
 
-  void decodeString(const std::string&, dialogVariables&,bool fromLog=false);
+  void decodeString(const miutil::KeyValue_v&, dialogVariables&,bool fromLog=false);
   void updateDialog(bool setOn);
-  std::string makeString(bool forLog=false);
+  std::string makeString();
 
   bool pressureLevels;
   std::map<std::string,int> levelMap;

@@ -29,6 +29,7 @@
 
 #include "WebMapDialog.h"
 
+#include "diStringPlotCommand.h"
 #include "WebMapManager.h"
 #include "WebMapPlot.h"
 #include "WebMapService.h"
@@ -45,6 +46,8 @@
 
 #define MILOGGER_CATEGORY "diana.WebMapDialog"
 #include <miLogger/miLogging.h>
+
+static const std::string WEBMAP = "WEBMAP";
 
 WebMapPlotListModel::WebMapPlotListModel(QObject* parent )
   : QAbstractListModel(parent)
@@ -329,10 +332,10 @@ void WebMapDialog::addSelectedLayer()
     return;
 
   std::ostringstream add;
-  add << "WEBMAP webmap.service=" << mAddSelectedService->identifier()
+  add << WEBMAP << " webmap.service=" << mAddSelectedService->identifier()
       << " webmap.layer=" << layer->identifier()
       << " style.alpha_scale=0.75";
-  mOk.push_back(add.str());
+  mOk.push_back(std::make_shared<StringPlotCommand>(WEBMAP, add.str()));
   Q_EMIT applyData();
 }
 
@@ -346,7 +349,6 @@ void WebMapDialog::onModifyLayerSelected()
 
 std::string WebMapDialog::name() const
 {
-  static const std::string WEBMAP = "WEBMAP";
   return WEBMAP;
 }
 
@@ -354,13 +356,13 @@ void WebMapDialog::updateDialog()
 {
 }
 
-std::vector<std::string> WebMapDialog::getOKString()
+PlotCommand_cpv WebMapDialog::getOKString()
 {
   METLIBS_LOG_SCOPE(LOGVAL(mOk.size()));
   return mOk;
 }
 
-void WebMapDialog::putOKString(const std::vector<std::string>& ok)
+void WebMapDialog::putOKString(const PlotCommand_cpv& ok)
 {
   METLIBS_LOG_SCOPE(LOGVAL(ok.size()));
   mOk = ok;

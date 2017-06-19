@@ -47,10 +47,6 @@
 #define MILOGGER_CATEGORY "diana.WebMapSlippyOSM"
 #include <miLogger/miLogging.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h" // for PVERSION
-#endif
-
 namespace /* anonymous */ {
 
 const std::string EPSG_3857 = "EPSG:3857";
@@ -161,9 +157,8 @@ const std::string& WebMapSlippyOSMLayer::CRS(size_t) const
 // ========================================================================
 
 WebMapSlippyOSM::WebMapSlippyOSM(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
-  : WebMapService(identifier)
+  : WebMapService(identifier, network)
   , mServiceURL(url)
-  , mNetworkAccess(network)
   , mNextRefresh(0)
   , mRefeshReply(0)
   , mProjection("+init=epsg:3857")
@@ -222,13 +217,7 @@ QNetworkReply* WebMapSlippyOSM::submitRequest(WebMapSlippyOSMLayer_cx layer,
   miutil::replace(url, "{y}", miutil::from_number(tileY));
   METLIBS_LOG_DEBUG(LOGVAL(url));
 
-#if 1
-  QNetworkRequest nr(QUrl(QString::fromStdString(url)));
-  nr.setRawHeader("User-Agent", "diana " PVERSION);
-  return mNetworkAccess->get(nr);
-#else
-  return 0;
-#endif
+  return submitUrl(QUrl(QString::fromStdString(url)));
 }
 
 void WebMapSlippyOSM::refresh()
@@ -246,7 +235,7 @@ void WebMapSlippyOSM::refresh()
   mNextRefresh = now.tv_sec + refreshInterval();
   Q_EMIT refreshStarting();
 
-  mRefeshReply = mNetworkAccess->get(QNetworkRequest(mServiceURL));
+  mRefeshReply = submitUrl(mServiceURL);
   connect(mRefeshReply, SIGNAL(finished()), this, SLOT(refreshReplyFinished()));
 }
 

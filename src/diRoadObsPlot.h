@@ -42,7 +42,7 @@
 
 class RoadObsPlot : public ObsPlot {
 public:
-  RoadObsPlot(const std::string& pin, ObsPlotType plottype);
+  RoadObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype);
 
 protected:
   void plotIndex(DiGLPainter* gl, int index) override;

@@ -30,6 +30,8 @@
 #ifndef DIVCROSSINTERFACE_H
 #define DIVCROSSINTERFACE_H 1
 
+#include "diPlotCommand.h"
+
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
 
@@ -73,7 +75,7 @@ Q_SIGNALS: // emitted by vcross
   void crossectionChanged(const QString&);
 
   //! sent if quickmenu history needs to be updated, i.e. new plot (new fields, removed fields, ...)
-  void quickMenuStrings(const std::string&, const std::vector<std::string>&);
+  void quickMenuStrings(const std::string&, const PlotCommand_cpv&);
 
   //! request to navigate to previous quickmenu vcross history item
   void vcrossHistoryPrevious();
@@ -112,7 +114,7 @@ public:
   //! request to change currently selected time
   virtual void mainWindowTimeChanged(const miutil::miTime& t) = 0;
 
-  virtual void parseQuickMenuStrings(const std::vector<std::string>& vstr) = 0;
+  virtual void parseQuickMenuStrings(const PlotCommand_cpv& vstr) = 0;
 
   virtual void writeLog(LogFileIO& logfile) = 0;
 

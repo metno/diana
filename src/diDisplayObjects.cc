@@ -33,6 +33,7 @@
 
 #include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
+#include "diKVListPlotCommand.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
 #include "diWeatherArea.h"
@@ -68,25 +69,24 @@ void DisplayObjects::init()
 
 /*********************************************/
 
-bool DisplayObjects::define(const std::string& pi)
+bool DisplayObjects::define(const PlotCommand_cp& pc)
 {
   METLIBS_LOG_SCOPE();
 
-  init();
-  pin=pi;
-  const vector<std::string> tokens = miutil::split_protected(pi, '"','"');
-  const int n= tokens.size();
-  if (n<2)
-    return false;
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  if (!cmd)
+    return 0;
 
-  for (int i=0; i<n; i++){
-    std::string token = miutil::to_lower(tokens[i]);
-    if (miutil::contains(token, "types=")){
-      setSelectedObjectTypes(token);
+  init();
+  pin = cmd->all();
+
+  for (const miutil::KeyValue& kv : cmd->all()){
+    if (kv.key() == "types") {
+      setSelectedObjectTypes(kv.value());
     } else {
-      const vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
-      if (stokens.size()==2) {
-        const std::string key = miutil::to_lower(stokens[0]), value = stokens[1];
+      {
+        const std::string& key = kv.key();
+        const std::string& value = kv.value();
         METLIBS_LOG_DEBUG("key,value" << key << " " << value);
         if (key=="file") {
           int l= value.length();
@@ -95,22 +95,18 @@ bool DisplayObjects::define(const std::string& pi)
           itsTime= timeFromString(tstr);
           autoFile= false;
         } else if (key=="name") {
-          if (value[0]=='"'){
-            objectname = value.substr(1,value.length()-2);
-          } else {
             objectname = value;
-          }
         } else if (key=="time") {
           itsTime = timeFromString(value);
           autoFile= false;
         } else if (key == "timediff") {
-          timeDiff = atoi(value.c_str());
+          timeDiff = kv.toInt();
         } else if (key=="alpha" || key=="alfa") {
-          alpha = (int) (atof(value.c_str())*255);
+          alpha = int(kv.toDouble()*255);
         } else if (key=="frontlinewidth") {
-          newfrontlinewidth = atoi(value.c_str());
+          newfrontlinewidth = kv.toInt();
         } else if (key=="fixedsymbolsize") {
-          fixedsymbolsize= atoi(value.c_str());
+          fixedsymbolsize= kv.toInt();
         } else if (key=="symbolfilter") {
           const std::vector<std::string> vals = miutil::split(value, ",");
           symbolfilter.insert(symbolfilter.end(), vals.begin(), vals.end());
@@ -143,8 +139,7 @@ bool DisplayObjects::prepareObjects()
   //loop over all objects
   //set alpha value for objects as requested in objectdialog
   //and set state to passive
-  for (vector <ObjectPlot*>::iterator p = objects.begin(); p!= objects.end(); ++p) {
-    ObjectPlot * pobject = *p;
+  for (ObjectPlot* pobject : objects) {
     pobject->setPlotInfo(pin);
     pobject->setColorAlpha(alpha);
     pobject->setState(ObjectPlot::passive);
@@ -184,17 +179,17 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
 {
   if (!isEnabled() or objects.empty())
     return false;
-  for (size_t i=0; i<anno.size(); i++) {
-    if (!miutil::contains(anno[i], "table") || miutil::contains(anno[i], "table="))
+  for (string& a : anno) {
+    if (!miutil::contains(a, "table") || miutil::contains(a, "table="))
       continue;
     std::string endString;
-    if (miutil::contains(anno[i], ",")) {
-      size_t nn = anno[i].find_first_of(",");
-      endString = anno[i].substr(nn);
+    if (miutil::contains(a, ",")) {
+      size_t nn = a.find_first_of(",");
+      endString = a.substr(nn);
     }
     std::string str;
-    for (size_t j=0; j<objects.size(); j++) {
-      if (objects[j]->getAnnoTable(str)){
+    for (ObjectPlot* op : objects) {
+      if (op->getAnnoTable(str)) {
         str += endString;
         anno.push_back(str);
       }

@@ -31,6 +31,7 @@
 #ifndef diCommandParser_h
 #define diCommandParser_h
 
+#include "util/diKeyValue.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -86,49 +87,26 @@ private:
   // map<key,keyDescription>
   std::map<std::string,keyDescription> keyDataBase;
 
-  cmdCaseType caseType; // default cmdCaseUndefined, may set this only once,
-                        // and before first addKey !
-
-  bool commentSearch; // #comment rest of the input string
+  int findKey(std::vector<ParsedCommand>& vpc,
+              const std::string& key, bool addkey) const;
 
 public:
-  // Constructors
   CommandParser();
-  // Copy constructor
   CommandParser(const CommandParser &rhs);
-  // Destructor
   ~CommandParser();
-  // Assignment operator
+
   CommandParser& operator=(const CommandParser &rhs);
-  // Equality operator
   bool operator==(const CommandParser &rhs) const;
-
-  static bool isInt(const std::string& s);
-
-  static bool isFloat(const std::string& s);
-
-  static std::vector<std::string> parseString(const std::string& str);
-
-  static std::vector<float> parseFloat(const std::string& str);
-
-  static std::vector<int> parseInt(const std::string& str);
-
-  // case (conversion) type for keywords (not values), before first addKey !!!
-  bool setCaseType(cmdCaseType casetype);
-
-  // set comment (#) search
-  void setCommentSearch(bool on= true);
 
   // add key (name not used if cmdValueType==cmdNoValue)
   bool addKey(const std::string& name, const std::string& key,
-	      int idNumber, cmdValueType valuetype,
-	      bool printError= true );
+              int idNumber, cmdValueType valuetype);
 
   std::vector<ParsedCommand> parse(const std::string& str);
 
   int findKey(std::vector<ParsedCommand>& vpc,
-	      const std::string& key, bool addkey=false) const;
-
+              const std::string& key) const
+    { return findKey(vpc, key, false); }
 
   bool removeValue(std::vector<ParsedCommand>& vpc,
 		   const std::string& key);
@@ -141,6 +119,22 @@ public:
 		    const std::string value, int valueIndex=0) const;
 
   std::string unParse(const std::vector<ParsedCommand>& vpc) const;
+
+  miutil::KeyValue_v toKeyValueList(const std::vector<ParsedCommand>& vpc) const;
+  std::vector<ParsedCommand> fromKeyValueList(const miutil::KeyValue_v& kvs) const;
+
+  // static string parsing functions
+
+  static bool isInt(const std::string& s);
+
+  static bool isFloat(const std::string& s);
+
+  static std::vector<std::string> parseString(const std::string& str);
+
+  static std::vector<float> parseFloat(const std::string& str);
+
+  static std::vector<int> parseInt(const std::string& str);
+
 };
 
 #endif

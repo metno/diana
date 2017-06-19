@@ -706,8 +706,10 @@ void VprofWindow::readLog(const string& logpart, const vector<string>& vstr,
         }
         if (x>=0 && y>=0 && x<displayWidth-20 && y<displayHeight-20) {
           if      (tokens[0]=="VprofWindow.pos")      this->move(x,y);
+#ifdef DIANA_RESTORE_DIALOG_POSITIONS
           else if (tokens[0]=="VprofModelDialog.pos") vpModelDialog->move(x,y);
           else if (tokens[0]=="VprofSetupDialog.pos") vpSetupDialog->move(x,y);
+#endif
         }
 
       } else if (tokens.size()==2) {

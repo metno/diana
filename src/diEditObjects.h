@@ -227,7 +227,7 @@ public:
   /// set comments
   void putComments(const std::string & comments);
   /// save labels
-  void saveEditLabels(const std::vector<std::string>& labels);
+  void saveEditLabels(const PlotCommand_cpv& labels);
 
   /// a new UndoFront is created and becomes undoCurrent
   void newUndoCurrent(UndoFront*);

@@ -258,18 +258,17 @@ public:
     { return enabled; }
 
   /// key identifiying plot for remembering enabled/disabled state
-  virtual std::string getEnabledStateKey() const
-    { return getPlotInfo(); }
+  virtual std::string getEnabledStateKey() const;
 
   /// set the plot info string
-  void setPlotInfo(const std::string& pin, bool mergeOptionString = false);
+  void setPlotInfo(const miutil::KeyValue_v& kvs);
 
   /// return current plot info string
-  const std::string& getPlotInfo() const
-    { return pinfo; }
+  const miutil::KeyValue_v& getPlotInfo() const
+    { return ooptions; }
 
   /// return n elements of the current plot info string
-  std::string getPlotInfo(int n) const;
+  miutil::KeyValue_v getPlotInfo(int n) const;
 
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const
@@ -291,9 +290,9 @@ public:
 
 protected:
   PlotOptions poptions;
+  miutil::KeyValue_v ooptions;
 
 private:
-  std::string pinfo;          // plotinfo
   bool enabled;               // plot enabled
   std::string plotname;       // name of plot
 };

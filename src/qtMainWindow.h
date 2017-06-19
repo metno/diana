@@ -31,6 +31,7 @@
 
 #include "diCommonTypes.h"
 #include "diMapMode.h"
+#include "diPlotCommand.h"
 #include "diPrintOptions.h"
 #include <EditItems/toolbar.h>
 
@@ -166,7 +167,7 @@ private Q_SLOTS:
   void showUrl();
 
   void about();
-  void recallPlot(const std::vector<std::string>&, bool);
+  void recallPlot(const PlotCommand_cpv&, bool);
   void resetArea();
   void resetAll();
   void editApply();
@@ -207,7 +208,7 @@ private Q_SLOTS:
   void hideVcrossWindow();
   void crossectionSetChangedSlot(const LocationData& locations);
   void crossectionChangedSlot(const QString& name);
-  void updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>&);
+  void updateVcrossQuickMenuHistory(const std::string& plotname, const PlotCommand_cpv&);
   void onVcrossRequestLoadCrossectionsFile(const QStringList& filenames);
   void onVcrossRequestEditManager(bool on, bool timeGraph);
 
@@ -251,7 +252,6 @@ private Q_SLOTS:
   void sendPrintClicked(int);
   void toggleEditDrawingMode();
   void setEditDrawingMode(bool);
-  void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
@@ -438,8 +438,7 @@ private:
   void satFileListUpdate();
   void vprofStartup();
   void spectrumStartup();
-  void getPlotStrings(std::vector<std::string> &pstr,
-                      std::vector<std::string> &shortnames);
+  void getPlotStrings(PlotCommand_cpv &pstr, std::vector<std::string> &shortnames);
 
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;

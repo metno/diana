@@ -33,6 +33,7 @@
 
 #include <diField/diCommonFieldTypes.h>
 #include <diField/diFieldManager.h>
+#include "diPlotCommand.h"
 #include "diPlotOptions.h"
 
 #include <set>
@@ -60,7 +61,7 @@ public:
 
   FieldPlotManager(FieldManager* fm);
 
-  FieldPlot* createPlot(const std::string& cmd);
+  FieldPlot* createPlot(const PlotCommand_cp& cmd);
 
   void getAllFieldNames(std::vector<std::string>& fieldNames);
 
@@ -72,11 +73,11 @@ public:
   bool parseFieldPlotSetup();
   bool parseFieldGroupSetup();
 
-  bool makeDifferenceField(const std::string& fspec1,
-      const std::string& fspec2, const miutil::miTime& ptime,
+  bool makeDifferenceField(const miutil::KeyValue_v& fspec1,
+      const miutil::KeyValue_v& fspec2, const miutil::miTime& ptime,
       std::vector<Field*>& fv);
 
-  bool makeFields(const std::string& pin, const miutil::miTime& ptime,
+  bool makeFields(const miutil::KeyValue_v& pin, const miutil::miTime& ptime,
       std::vector<Field*>& vfout);
 
   bool addGridCollection(const std::string fileType,
@@ -101,23 +102,23 @@ public:
   gridinventory::Grid getFieldGrid(const std::string& model);
 
   /// Returns the available times for the selected models and fields.
-  std::vector<miutil::miTime> getFieldTime(const std::vector<std::string>& pinfos,
+  std::vector<miutil::miTime> getFieldTime(const std::vector<miutil::KeyValue_v>& pinfos,
       bool updateSources=false);
 
-  miutil::miTime getFieldReferenceTime(const std::string& pinfo);
+  miutil::miTime getFieldReferenceTime(const miutil::KeyValue_v& pinfo);
 
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const std::string& pinfo);
+      int& timediff, const PlotCommand_cp& pc);
 
   ///return levels
-  std::vector<std::string> getFieldLevels(const std::string& pinfo);
+  std::vector<std::string> getFieldLevels(const miutil::KeyValue_v& pinfo);
 
   /// Parse plotInfo string into FieldReqests and plotName
-  void parsePin(const std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
+  void parsePin(const miutil::KeyValue_v& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
 
   /// helper function to extract plot name using parsePin
-  std::string extractPlotName(const std::string& pin);
+  std::string extractPlotName(const miutil::KeyValue_v& pin);
 
   /// Write field to file
   bool writeField(FieldRequest fieldrequest, const Field* field);
@@ -125,14 +126,15 @@ public:
   void freeFields(const std::vector<Field*>& fields);
 
   /// update static fieldplotoptions
-  static bool updateFieldPlotOptions(const std::string& name, const std::string& optstr);
+  static bool updateFieldPlotOptions(const std::string& name, const miutil::KeyValue_v& optstr);
   static void getAllFieldOptions(const std::vector<std::string>&,
-      std::map<std::string,std::string>& fieldoptions);
+      std::map<std::string, miutil::KeyValue_v> &fieldoptions);
   /** fill a field's PlotOptions from static map, and substitute values
       from a string containing plotoptions */
-  static void getFieldPlotOptions(const std::string& name, PlotOptions& po);
+  static void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v &fdo);
   static std::string getFieldClassSpecs(const std::string& fieldplotname);
 
+  static bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2);
 
 private:
   std::vector<PlotField> vPlotField;
@@ -141,15 +143,14 @@ private:
 
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
-  bool splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2);
-
-  void parseString(const std::string& pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
+  void parseString(const miutil::KeyValue_v &pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
 
   void flightlevel2pressure(FieldRequest& frq);
 
   std::map<std::string, std::string> groupNames;
 
   static std::map<std::string, PlotOptions> fieldPlotOptions;
+  static std::map<std::string, miutil::KeyValue_v> fieldDataOptions;
 
   FieldManager* fieldManager;
 };

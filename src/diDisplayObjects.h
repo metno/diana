@@ -34,6 +34,7 @@
 #include "diAreaBorder.h"
 #include "diUndoFront.h"
 #include "diMapMode.h"
+#include "diPlotCommand.h"
 #include "diColour.h"
 
 #include <diField/diArea.h>
@@ -52,7 +53,7 @@ public:
   /// initialize class variables to false/zero
   void init();
   /// parse std::string pi to define what objects to display
-  bool define(const std::string& pi);
+  bool define(const PlotCommand_cp& pi);
   /// prepares object plots by setting colour and alpha value, apply symbolfilter etc.
   bool prepareObjects();
   /// returns a string with objectname and time
@@ -68,7 +69,7 @@ public:
     { return objectname; }
 
   /// returns plotInfo string
-  const std::string& getPlotInfo() const
+  const miutil::KeyValue_v& getPlotInfo() const
     { return pin; }
 
   bool isDefined() const
@@ -98,7 +99,7 @@ private:
 
   std::map<std::string,bool> useobject;
 
-  std::string pin;
+  miutil::KeyValue_v pin;
   int alpha;
   int newfrontlinewidth;
   int fixedsymbolsize;

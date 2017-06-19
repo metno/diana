@@ -286,12 +286,12 @@ std::set<std::string> GridCollection::getReferenceTimes() const
 bool GridCollection::dataExists(const std::string& reftime, const std::string& paramname,
     const std::string& zaxis,
     const std::string& taxis, const std::string& extraaxis,
-    const std::string& version, const std::string& level,
+    const std::string& level,
     const miutil::miTime& time, const std::string& elevel,
     const int & time_tolerance, gridinventory::GridParameter & param)
 {
-  METLIBS_LOG_SCOPE("searching for: " <<paramname<<" : "<< zaxis<<" : "<< taxis<<" : "<< extraaxis<< " : "<< version);
-  gridinventory::GridParameterKey gp(paramname, zaxis, taxis, extraaxis, version);
+  METLIBS_LOG_SCOPE("searching for: " <<paramname<<" : "<< zaxis<<" : "<< taxis<<" : "<< extraaxis);
+  gridinventory::GridParameterKey gp(paramname, zaxis, taxis, extraaxis);
   miutil::miTime  actualtime;
   return dataExists_gridParameter(expanded_inventory, reftime, gp, level, time, elevel, time_tolerance, param, actualtime);
 }
@@ -422,15 +422,15 @@ bool GridCollection::dataExists_variable(const gridinventory::Inventory& inv,
 Field * GridCollection::getData(const std::string& reftime, const std::string& paramname,
     const std::string& zaxis,
     const std::string& taxis, const std::string& extraaxis,
-    const std::string& version, const std::string& level,
+    const std::string& level,
     const miutil::miTime& time, const std::string& elevel,
     const std::string& unit,
     const int & time_tolerance)
 {
   METLIBS_LOG_SCOPE(reftime << " | " << paramname << " | " << zaxis
-      << " | " << taxis << " | " << extraaxis << " | " << version << " | "
+      << " | " << taxis << " | " << extraaxis << " | "
       << level << " | " << time << " | " << elevel << "|" << time_tolerance);
-  gridinventory::GridParameterKey gp(paramname, zaxis, taxis, extraaxis, version);
+  gridinventory::GridParameterKey gp(paramname, zaxis, taxis, extraaxis);
 
   miutil::miTime  actualtime;
 
@@ -481,13 +481,13 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
 bool GridCollection::putData(const std::string& reftime, const std::string& paramname,
     const std::string& zaxis,
     const std::string& taxis, const std::string& extraaxis,
-    const std::string& version, const std::string& level,
+    const std::string& level,
     const miutil::miTime& time, const std::string& elevel,
     const std::string& unit, const std::string& output_time,
     const int & time_tolerance, const Field* field)
 {
   METLIBS_LOG_SCOPE(reftime << " | " << paramname << " | " << zaxis
-      << " | " << taxis << " | " << extraaxis << " | " << version << " | "
+      << " | " << taxis << " | " << extraaxis << " | "
       << level << " | " << time << " | " << elevel << "|" << time_tolerance);
 
 #ifdef FIMEX
@@ -496,7 +496,7 @@ bool GridCollection::putData(const std::string& reftime, const std::string& para
     FimexIO* fio = dynamic_cast<FimexIO*>(*it_io);
     if (not fio)
       continue;
-    gridinventory::GridParameterKey gp(paramname, zaxis, taxis, extraaxis, version);
+    gridinventory::GridParameterKey gp(paramname, zaxis, taxis, extraaxis);
     miutil::miTime  actualtime;
     if (dataExists_gridParameter(fio->getInventory(), reftime, gp, level, time, elevel, time_tolerance, param, actualtime) )
     {

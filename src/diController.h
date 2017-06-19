@@ -33,8 +33,8 @@
 #include "diCommonTypes.h"
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
+#include "diPlotCommand.h"
 
-#include <diField/diCommonFieldTypes.h>
 #include <puTools/miTime.h>
 
 #include <map>
@@ -61,6 +61,11 @@ class MapManager;
 class FieldPlot;
 class ObsPlot;
 class SatPlot;
+
+// from diCommonFieldTypes.h
+struct FieldRequest;
+struct FieldDialogInfo;
+struct FieldGroupInfo;
 
 class QKeyEvent;
 class QMouseEvent;
@@ -114,7 +119,7 @@ public:
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
-  void plotCommands(const std::vector<std::string>&);
+  void plotCommands(const PlotCommand_cpv&);
   /// call PlotModule.plot()
   void plot(DiGLPainter* gl, bool over =true, bool under =true);
   /// get annotations
@@ -153,7 +158,7 @@ public:
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      const std::vector<std::string>& pinfos,
+      const PlotCommand_cpv &pinfos,
       bool allTimes=true);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
@@ -287,17 +292,13 @@ public:
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(std::vector<std::string>& fieldNames);
   ///return levels
-  std::vector<std::string> getFieldLevels(const std::string& pinfo);
+  std::vector<std::string> getFieldLevels(const PlotCommand_cp& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
   ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);
-
-  // Map-dialog methods
-  MapDialogInfo initMapDialog();
-  bool MapInfoParser(std::string& str, MapInfo& mi, bool tostr, bool map);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui

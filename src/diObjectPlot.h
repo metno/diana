@@ -261,7 +261,7 @@ public:
   std::string getRegion(){return region;}                       ///< get from which region object come
 
 
-  float getFdeltaw(){return fSense*window_dw*w*0.5;}
+  float getFdeltaw(){return fSense*window_dw*w*0.5f;}
 
   ///< returns number of nodepoints
   virtual int getXYZsize() const;
@@ -271,7 +271,7 @@ public:
 
   virtual std::vector<XY> getXY() const;
 
-  virtual bool getAnnoTable(std::string & str){return false;}
+  virtual bool getAnnoTable(std::string&){return false;}
 
   /// returns xy-values for all joined nodepoints
   std::vector<XY> getXYjoined() const;
@@ -290,7 +290,7 @@ public:
   virtual void setSelected(bool s){isSelected=s;}            ///< set if objects is selectd
   virtual bool visible(){return isVisible;}                  ///< returns true if object visible
   virtual bool selected(){return isSelected;}                ///< returns true if object selected
-  virtual bool isInsideArea(float x, float y){return true;}
+  virtual bool isInsideArea(float /*x*/, float /*y*/){return true;}
   std::string getName(){return name;}                           ///< returns object name
   void setName(std::string n){name=n;}                          ///< sets object name
 

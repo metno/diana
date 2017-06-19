@@ -428,7 +428,9 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
 
 //+++ poptions.contourShading= 1;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      std::string optstr ="palettecolours=standard repeat=1";
+      miutil::KeyValue_v optstr;
+      optstr.push_back(miutil::KeyValue("palettecolours", "standard"));
+      optstr.push_back(miutil::KeyValue("repeat", "1"));
       PlotOptions::parsePlotOption(optstr,poptions);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

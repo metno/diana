@@ -33,11 +33,9 @@
 
 #include "diColour.h"
 #include "diLinetype.h"
+#include "miSetupParser.h"
 
 #include <vector>
-
-const Colour WhiteC(255,255,255);
-const Colour BlackC(0,0,0);
 
 /**
    \brief ways of drawing polygons
@@ -111,8 +109,6 @@ public:
   static const std::string key_colours;
   // colours:    list of colours in palette
   static const std::string key_palettecolours;
-  // colours:    list of colours in palette
-  static const std::string key_filepalette;
   // linetype:   linetype
   static const std::string key_linetype;
   // linetype:   linetype
@@ -240,20 +236,12 @@ public:
   static const std::string key_dimension;
   // plot enabled
   static const std::string key_enabled;
-  //field description used for plotting
-  static const std::string key_fdescr;
   //field names used for plotting
   static const std::string key_fname;
-  //plot in overlay buffer
-  static const std::string key_overlay;
   //contour shape
   static const std::string key_contourShape;
   //Shape filename for output
   static const std::string key_shapefilename;
-  //unit obsolete, use units
-  static const std::string key_unit;
-  //units
-  static const std::string key_units;
   //legend units
   static const std::string key_legendunits;
   //legend title
@@ -280,7 +268,6 @@ public:
   std::vector<Colour> colours;
   std::vector<Colour> palettecolours;
   std::vector<Colour> palettecolours_cold;
-  std::string filePalette;
   std::string palettename;
   std::string patternname;
   int table;
@@ -353,13 +340,10 @@ public:
   int       dimension;
   bool      enabled;
   std::string  fname;
-  std::vector<std::string> fdescr;
-  int       overlay; //plot in ovelay buffer
   static std::vector< std::vector<std::string> > plottypes;
-  static std::map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
+  static std::map<std::string, unsigned int> enabledOptions; //enabledoptions[plotmethod]="OR of EnabledOptions values"
   bool      contourShape;
   std::string  shapefilename;
-  std::string unit;        // used to get data in right unit
   std::string legendunits; //used in legends
   std::string legendtitle; //used in legends
   bool      tableHeader; // whether each table is drawn with a header
@@ -376,14 +360,24 @@ public:
 
   PlotOptions();
 
-  std::string toString();
+  miutil::KeyValue_v toKeyValueList();
+
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
-  static bool parsePlotOption(std::string&, PlotOptions&, bool returnMergedOptionString=false);
-  static bool parsePlotOption(const std::string&, PlotOptions&);
+  static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&, miutil::KeyValue_v& unusedOptions);
+  static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&);
 
-  static std::vector< std::vector<std::string> >& getPlotTypes(){return plottypes;}
-  static std::map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
+  static const std::vector< std::vector<std::string> >& getPlotTypes();
+  enum EnabledOptions {
+    POE_CONTOUR = 1<<0,
+    POE_EXTREME = 1<<1,
+    POE_SHADING = 1<<2,
+    POE_LINE    = 1<<3,
+    POE_FONT    = 1<<4,
+    POE_DENSITY = 1<<5,
+    POE_UNIT    = 1<<6
+  };
+  static const std::map<std::string, unsigned int>& getEnabledOptions();
 
   static std::string defaultFontName() { return "SCALEFONT"; }
   static std::string defaultFontFace() { return "NORMAL"; }

@@ -32,6 +32,7 @@
 #include "diAnnotationPlot.h"
 #include "diSat.h"
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 
 #include <puCtools/stat.h>
 #include <puTools/TimeFilter.h>
@@ -109,7 +110,7 @@ private:
   bool parseChannels(Sat* satdata, SatFileInfo &info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
 
-  void init(const std::vector<std::string>&);
+  void init(const PlotCommand_cpv&);
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);
 
@@ -129,7 +130,7 @@ public:
   SatManager();
 
   /// handles images plot info strings
-  void prepareSat(const std::vector<std::string>& inp);
+  void prepareSat(const PlotCommand_cpv& inp);
 
   void addPlotElements(std::vector<PlotElement>& pel);
   bool enablePlotElement(const PlotElement& pe);
@@ -160,8 +161,8 @@ public:
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& progTimes,
-			   int& timediff,
-			   const std::string& pinfo);
+                           int& timediff,
+                           const PlotCommand_cp &pinfo);
 
   const std::vector<SatFileInfo> & getFiles(const std::string &,
 				       const std::string &,

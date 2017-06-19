@@ -22,8 +22,8 @@ public:
   VcrossStyleWidget(QWidget* parent);
   ~VcrossStyleWidget();
 
-  void setOptions(const std::string& fopt, const std::string& defaultopt);
-  const std::string& options() const;
+  void setOptions(const miutil::KeyValue_v &fopt, const miutil::KeyValue_v &defaultopt);
+  const miutil::KeyValue_v& options() const;
   bool valid() const;
 
 public Q_SLOTS:
@@ -76,8 +76,8 @@ private Q_SLOTS:
 private:
   std::unique_ptr<Ui_VcrossStyleWidget> ui;
 
-  std::string currentFieldOpts;
-  std::string defaultOptions;
+  miutil::KeyValue_v currentFieldOpts;
+  miutil::KeyValue_v defaultOptions;
 
   std::vector<Colour::ColourInfo> colourInfo;
   std::vector<ColourShading::ColourShadingInfo> csInfo;

@@ -41,11 +41,13 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
+#include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
 #include "diColourShading.h"
 #include "diUtilities.h"
 #include "util/charsets.h"
+#include "util/string_util.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
@@ -214,33 +216,33 @@ void FieldPlot::clearFields()
   fields.clear();
 }
 
-std::string FieldPlot::getModelPlotParameterReftime() const
+std::string FieldPlot::getEnabledStateKey() const
 {
-  //return n elements of current plot info string
-  std::set<std::string> return_token;
-  return_token.insert("model");
-  return_token.insert("parameter");
-  return_token.insert("plot");
-  return_token.insert("reftime");
+  miutil::KeyValue_v mppr;
 
-  vector<std::string> token = miutil::split(getPlotInfo(), 0, " ");
-  std::string str;
+  const size_t npos = size_t(-1);
 
-  for(unsigned int i=0;i<token.size();i++){
-    vector<std::string> stoken = miutil::split(token[i], 0, "=");
-    if (stoken.size() == 2) {
-      if (return_token.find(stoken[0]) != return_token.end()) {
-        str += token[i] + " ";
-      }
-    }
-  }
+  size_t i = find(getPlotInfo(), "model");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
+
+  i = find(getPlotInfo(), "parameter");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
+
+  i = find(getPlotInfo(), "plot");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
+
+  i = find(getPlotInfo(), "reftime");
+  if (i != npos)
+    mppr.push_back(getPlotInfo().at(i));
 
   //probably old FIELD string syntax
-  if (str.empty()) {
-    return getPlotInfo(3);
-  }
+  if (mppr.empty())
+    mppr = getPlotInfo(3);
 
-  return str;
+  return miutil::mergeKeyValue(mppr);
 }
 
 const Area& FieldPlot::getFieldArea() const
@@ -272,7 +274,7 @@ bool FieldPlot::updateIfNeeded()
   const miTime& t = getStaticPlot()->getTime();
   bool update, data = false;
   if (ftime.undef()
-      || (ftime != t && !miutil::contains(getPlotInfo(), " time="))
+      || (ftime != t && find(getPlotInfo(), "time") == KVListPlotCommand::npos)
       || fields.size() == 0)
   {
     update = true;
@@ -300,11 +302,19 @@ void FieldPlot::getAnnotation(string& s, Colour& c) const
 }
 
 // Extract plotting-parameters from PlotInfo.
-bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
+bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
 {
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  if (!cmd)
+    return false;
+
   // merge current plotOptions (from pin) with plotOptions form setup
-  FieldPlotManager::getFieldPlotOptions(fname, poptions);
-  setPlotInfo(pin, true);
+  miutil::KeyValue_v opts;
+  FieldPlotManager::getFieldPlotOptions(fname, poptions, opts);
+  const miutil::KeyValue_v cmd_all = cmd->all();
+  opts.insert(opts.end(), cmd_all.begin(), cmd_all.end());
+
+  setPlotInfo(opts);
 
   rasterClear();
 
@@ -365,41 +375,47 @@ void FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
   }
 }
 
+namespace {
 struct aTable {
   std::string colour;
   std::string pattern;
   std::string text;
 };
+} // namespace
 
-bool FieldPlot::getTableAnnotations(vector<string>& anno)
+void FieldPlot::getTableAnnotations(vector<string>& annos)
 {
   METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
-    return false;
+    return;
 
-  int nanno = anno.size();
-  for (int j = 0; j < nanno; j++) {
-    if (miutil::contains(anno[j], "table")) {
-      if (!isEnabled() || poptions.table == 0
-          || (poptions.palettecolours.size() == 0
-              && poptions.patterns.size() == 0))
-        continue;;
+  if (!isEnabled())
+    return;
 
+  if (!(plottype() == fpt_fill_cell || plottype() == fpt_contour
+        || plottype() == fpt_contour1 || plottype() == fpt_contour2))
+    return;
+
+  if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()))
+    return;
+
+  for (std::string& anno : annos) {
+    if (miutil::contains(anno, "table")) {
       std::string unit = " " + poptions.legendunits;
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno[j], ",")) {
-        size_t nn = anno[j].find_first_of(",");
-        endString = anno[j].substr(nn);
-        startString = anno[j].substr(0, nn);
+      if (miutil::contains(anno, ",")) {
+        size_t nn = anno.find_first_of(",");
+        endString = anno.substr(nn);
+        startString = anno.substr(0, nn);
       } else {
-        startString = anno[j];
+        startString = anno;
       }
 
       //if asking for spesific field
-      if (miutil::contains(anno[j], "table=")) {
+      if (miutil::contains(anno, "table=")) {
         std::string name = startString.substr(
             startString.find_first_of("=") + 1);
         if (name[0] == '"')
@@ -606,72 +622,70 @@ bool FieldPlot::getTableAnnotations(vector<string>& anno)
       str += "\"";
       str += endString;
 
-      anno.push_back(str);
-
+      annos.push_back(str);
     }
   }
-  return true;
 }
 
-bool FieldPlot::getDataAnnotations(vector<string>& anno)
+bool FieldPlot::getDataAnnotations(vector<string>& annos)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(anno.size()));
+  METLIBS_LOG_SCOPE(LOGVAL(annos.size()));
 
   if (not checkFields(1))
     return false;
 
-  int nanno = anno.size();
-  for (int j = 0; j < nanno; j++) {
+  for (std::string& anno : annos) {
 
     std::string lg;
-    size_t k = anno[j].find("$lg=");
+    size_t k = anno.find("$lg=");
     if (k != string::npos) {
-      lg = anno[j].substr(k, 7) + " ";
+      lg = anno.substr(k, 7) + " ";
     }
 
-    if (miutil::contains(anno[j], "$referencetime")) {
+    if (miutil::contains(anno, "$referencetime")) {
       std::string refString = getAnalysisTime().format("%Y%m%d %H", "", true);
-      miutil::replace(anno[j], "$referencetime", refString);
+      miutil::replace(anno, "$referencetime", refString);
     }
-    if (miutil::contains(anno[j], "$forecasthour")) {
+    if (miutil::contains(anno, "$forecasthour")) {
       ostringstream ost;
       ost << fields[0]->forecastHour;
-      miutil::replace(anno[j], "$forecasthour", ost.str());
+      miutil::replace(anno, "$forecasthour", ost.str());
     }
-    miutil::replace(anno[j], "$currenttime", fields[0]->timetext);
-    if (miutil::contains(anno[j], "$validtime")) {
+    miutil::replace(anno, "$currenttime", fields[0]->timetext);
+    if (miutil::contains(anno, "$validtime")) {
       const std::string vtime = fields[0]->validFieldTime.format("%Y%m%d %A %H" + lg, "", true);
-      miutil::replace(anno[j], "$validtime", vtime);
+      miutil::replace(anno, "$validtime", vtime);
     }
-    miutil::replace(anno[j], "$model", fields[0]->modelName);
-    miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);
-    miutil::replace(anno[j], "$level", fields[0]->leveltext);
+    miutil::replace(anno, "$model", fields[0]->modelName);
+    miutil::replace(anno, "$idnum", fields[0]->idnumtext);
+    miutil::replace(anno, "$level", fields[0]->leveltext);
 
-    if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize > 0.
-        && not vectorAnnotationText.empty()) {
-      if (miutil::contains(anno[j], "arrow="))
+    if (miutil::contains(anno, "arrow") && vectorAnnotationSize > 0
+        && not vectorAnnotationText.empty())
+    {
+      if (miutil::contains(anno, "arrow="))
         continue;
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno[j], ",")) {
-        size_t nn = anno[j].find_first_of(",");
-        endString = anno[j].substr(nn);
-        startString = anno[j].substr(0, nn);
+      if (miutil::contains(anno, ",")) {
+        size_t nn = anno.find_first_of(",");
+        endString = anno.substr(nn);
+        startString = anno.substr(0, nn);
       } else {
-        startString = anno[j];
+        startString = anno;
       }
 
       std::string str = "arrow=" + miutil::from_number(vectorAnnotationSize)
           + ",tcolour=" + poptions.linecolour.Name() + endString;
-      anno.push_back(str);
+      annos.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\"" + ",tcolour="
           + poptions.linecolour.Name() + endString;
-      anno.push_back(str);
+      annos.push_back(str);
     }
   }
 
-  getTableAnnotations(anno);
+  getTableAnnotations(annos);
 
   return true;
 }

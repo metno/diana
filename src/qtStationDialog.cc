@@ -30,6 +30,7 @@
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <qtStationDialog.h>
+#include "diStationPlotCommand.h"
 #include "qtUtility.h"
 
 #include <QFileInfo>
@@ -43,7 +44,8 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 
-#include <sstream>
+#define MILOGGER_CATEGORY "diana.StationDialog"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 
@@ -228,48 +230,43 @@ void StationDialog::reloadSets()
  * Returns a vector of strings describing each set of stations and the
  * stations themselves.
  */
-vector<string> StationDialog::getOKString()
+PlotCommand_cpv StationDialog::getOKString()
 {
   // Clear the set of chosen sets and add the new chosen sets to it.
-  vector<stationSetInfo>::iterator it;
-  vector<string> strings;
+  PlotCommand_cpv strings;
 
-  for (it = dialogInfo.sets.begin(); it != dialogInfo.sets.end(); ++it) {
+  for (const stationSetInfo& ssi : dialogInfo.sets) {
 
-    dialogInfo.chosen[it->url] = false;
+    dialogInfo.chosen[ssi.url] = false;
 
-    vector<stationSetInfo>::iterator itC;
-    for (itC = chosenInfo.sets.begin(); itC != chosenInfo.sets.end(); ++itC) {
-      if (itC->url == it->url) {
+    for (const stationSetInfo& cis : chosenInfo.sets) {
+      if (cis.url == ssi.url) {
 
         // Load the list of stations from the URL.
-        StationPlot* plot = m_ctrl->getStationManager()->importStations(it->name, it->url);
+        StationPlot* plot = m_ctrl->getStationManager()->importStations(ssi.name, ssi.url);
         if (plot) {
           m_ctrl->putStations(plot);
-          dialogInfo.chosen[it->url] = true;
+          dialogInfo.chosen[ssi.url] = true;
         }
 
         break;
       }
     }
 
-    ostringstream s;
-
-    // Serialized station plots start with the STATION token.
-    s << "STATION " << it->name << " " << it->url;
-    if (!dialogInfo.chosen[it->url])
-      s << " hidden";
-    else
-      s << " unselected";
-
-    strings.push_back(s.str());
+    StationPlotCommand_p cmd = std::make_shared<StationPlotCommand>();
+    cmd->name = ssi.name;
+    cmd->url = ssi.url;
+    cmd->select = (!dialogInfo.chosen[ssi.url]) ? "hidden" : "unselected";
+    strings.push_back(cmd);
   }
   return strings;
 }
 
-void StationDialog::putOKString(const vector<string>& vstr)
+void StationDialog::putOKString(const PlotCommand_cpv& vstr)
 {
-  return;
+  METLIBS_LOG_SCOPE();
+  if (!vstr.empty())
+    METLIBS_LOG_ERROR("not implemented, sorry");
 }
 
 std::string StationDialog::getShortname()

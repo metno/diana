@@ -315,12 +315,15 @@ std::string QuickMenu::getCurrentName()
 
 // Push a new command on the history-stack
 void QuickMenu::pushPlot(const std::string& name,
-    const vector<std::string>& pstr_c, int index)
+    const PlotCommand_cpv& pstr_c, int index)
 {
   if (qm.empty() || index >= (int)qm.size())
     return;
 
-  std::vector<string> pstr(pstr_c); // make copy so that refhour etc can be replaced
+  std::vector<string> pstr; // make copy so that refhour etc can be replaced
+  pstr.reserve(pstr_c.size());
+  for (PlotCommand_cp cmd : pstr_c)
+    pstr.push_back(cmd->toString());
 
   const miutil::miDate nowDate = miutil::miTime::nowTime().date();
   for (size_t i=0; i<pstr.size(); i++)
@@ -411,9 +414,8 @@ bool QuickMenu::stepHPlot(int menu, int delta)
     if (!qmm.valid_plotindex())
       return false;
   }
-  // apply plot
 
-  Q_EMIT Apply(qmm.command(), true);
+  Q_EMIT Apply(makeCommands(qmm.command()), true);
   prev_plotindex= qmm.plotindex;
   prev_listindex= menu;
 
@@ -1202,7 +1204,7 @@ void QuickMenu::plotButton()
   if (!com.empty()) {
     if (optionsexist)
       varExpand(com);
-    emit Apply(com, true);
+    Q_EMIT Apply(makeCommands(com), true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
   }
