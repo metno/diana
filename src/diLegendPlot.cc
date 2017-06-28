@@ -281,22 +281,8 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
     //draw table background
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-#if 0
-    gl->Color4ubv(poptions.fillcolour.RGBA());
-#else
     gl->setColour(poptions.fillcolour);
-#endif
-#if 0
-    gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Begin(DiGLPainter::gl_POLYGON);
-    gl->Vertex2f(x1table,y1table);
-    gl->Vertex2f(x1table,y1title);
-    gl->Vertex2f(x2table,y1title);
-    gl->Vertex2f(x2table,y1table);
-    gl->End();
-#else
     gl->drawRect(true, x1table, y1table, x2table, y1title);
-#endif
 
     // draw table
     float x1box = x1table + xborder;
