@@ -1416,9 +1416,13 @@ void DiPaintGLPainter::drawRect(bool fill, float x1, float y1, float x2, float y
   const QPointF p00 = transform.map(QPointF(x1, y1));
   const QPointF p11 = transform.map(QPointF(x2, y2));
 
+  // QRectF needs top-left and size; make sure we do not use bottom-left or so
+  const QPointF ptl(std::min(p00.x(), p11.x()), std::min(p00.y(), p11.y()));
+  const QSizeF siz(std::abs(p11.x() - p00.x()), std::abs(p11.y() - p00.y()));
+
   setPolygonColor(attributes.color);
   setClipPath();
-  painter->drawRect(QRectF(p00, p11));
+  painter->drawRect(QRectF(ptl, siz));
   unsetClipPath();
 }
 
