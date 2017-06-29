@@ -479,6 +479,10 @@ void DianaLines::paint_labels()
 
 void DianaLines::add_contour_line(contouring::level_t li, const contouring::points_t& cpoints, bool closed)
 {
+  // see comment in add_contour_polygon
+  if ((closed && cpoints.size() < 3) || (!closed && cpoints.size() < 2))
+    return;
+
   if (li == DianaLevels::UNDEF_LEVEL && (mPlotOptions.undefMasking != 2 || (mPaintMode & UNDEFINED) == 0))
     return;
   if (li != DianaLevels::UNDEF_LEVEL && (!mPlotOptions.options_1 || (mPaintMode & LINES_LABELS) == 0))
@@ -492,6 +496,11 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
 
 void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
 {
+  // FIXME the contour algorithm produces bad polygons/polylines when handling isolated points surrounded by undefined values;
+  // it is not clear how contour lines should be defined in this case, so we just drop these polygons and polylines
+  if (cpoints.size() < 3)
+    return;
+
   const PlotOptions& po = mPlotOptions;
   if (level == DianaLevels::UNDEF_LEVEL) {
     if (po.undefMasking != 1 || (mPaintMode & UNDEFINED) == 0)
