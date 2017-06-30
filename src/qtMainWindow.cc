@@ -3480,8 +3480,7 @@ bool DianaMainWindow::event(QEvent* event)
   if (event->type() == QEvent::WhatsThisClicked) {
     QWhatsThisClickedEvent* wtcEvent = static_cast<QWhatsThisClickedEvent*>(event);
     QDesktopServices::openUrl(wtcEvent->href());
-    QWhatsThis::hideText();
-    return true;
+    return false;
   }
 
   return QMainWindow::event(event);
