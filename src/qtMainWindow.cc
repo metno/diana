@@ -2543,8 +2543,8 @@ void DianaMainWindow::measurementsPositions(bool b)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 {
-  int x = mev->x();
-  int y = mev->y();
+  const int x = mev->x();
+  const int y = mev->y();
 
   float lat=0,lon=0;
   contr->PhysToGeo(x,y,lat,lon);
@@ -2577,14 +2577,14 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     sendLetter(letter);
   }
 
-  QString stationsText = contr->getStationManager()->getStationsText(mev->x(), mev->y());
-  if ( !stationsText.isEmpty() ) {
-    QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), stationsText, w);
+  QString popupText = contr->getStationManager()->getStationsText(x, y);
+  if (popupText.isEmpty()) {
+    popupText = QString::fromStdString(contr->getObsPopupText(x, y));
   }
-  std::string obsText= contr->getObsPopupText(mev->x(), mev->y());
-  QString obsPopupData = QString::fromStdString(obsText);
-  if ( !obsPopupData.isEmpty() ) {
-         QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), obsPopupData, w);
+  if (!popupText.isEmpty()) {
+    // undo reverted y coordinate from GLwidget::handleMouseEvents
+    QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
+    QWhatsThis::showText(popupPos, popupText, this);
   }
 }
 
