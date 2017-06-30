@@ -61,6 +61,7 @@ libdiana_la_SOURCES = \
 	diObjectPlot.cc \
 	diObjectPoint.cc \
 	diObsAscii.cc \
+	diObsData.cc \
 	diObsManager.cc \
 	diObsMetaData.cc \
 	diObsPlot.cc \
