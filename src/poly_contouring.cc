@@ -431,6 +431,9 @@ private:
 
     line_triplet_x new_line_triplet(line_end_x u, line_end_x c, line_end_x o);
 
+    void add_contour_line(level_t level, const points_t& points, bool closed);
+    void add_contour_polygon(level_t level, const points_t& points);
+
 #ifdef USE_ALLOCATOR
     line_x new_line(const point_t& p, level_t level)
         { return pool_line.construct(p, level); }
@@ -506,7 +509,22 @@ line_triplet_x runner::new_line_triplet(line_end_x u, line_end_x c, line_end_x o
 #else
     return new line_triplet(u, c, o);
 #endif
- }
+}
+
+// the contour algorithm produces bad polygons/polylines when handling isolated points surrounded by undefined values;
+// it is not clear how contour lines should be defined in this case, so we just drop these polygons and polylines
+
+void runner::add_contour_line(level_t level, const points_t& points, bool closed)
+{
+    if ((closed && points.size() >= 3) || (!closed && points.size() >= 2))
+        m_lines.add_contour_line(level, points, closed);
+}
+
+void runner::add_contour_polygon(level_t level, const points_t& points)
+{
+    if (points.size() >= 3)
+        m_lines.add_contour_polygon(level, points);
+}
 
 #ifdef CONTOURING_ENABLE_DEBUG
 size_t line_end::s_end_id = 0;
@@ -535,9 +553,9 @@ bool runner::line_join(line_end_x a, line_end_x b, bool polygon)
         assert(a->other_end() == b);
         assert(b->other_end() == a);
         if (polygon)
-            m_lines.add_contour_polygon(a->get_level(), la->get_points());
+            add_contour_polygon(a->get_level(), la->get_points());
         else
-            m_lines.add_contour_line(a->get_level(), la->get_points(), true);
+            add_contour_line(a->get_level(), la->get_points(), true);
         delete_line_end(a);
         delete_line_end(b);
         return true;
@@ -565,7 +583,7 @@ bool runner::line_join(line_end_x a, line_end_x b, bool polygon)
         assert(not polygon);
         assert(not a->other_end());
         assert(not b->other_end());
-        m_lines.add_contour_line(a->get_level(), la->get_points(), false);
+        add_contour_line(a->get_level(), la->get_points(), false);
     } else {
         // re-connect line ends
         line_end_x other_end_b = b->other_end();
@@ -643,7 +661,7 @@ line_end_x runner::close_right(line_triplet_x bmt, line_end_x le_t)
 
     bmt->ctour()->touch_border();
     if (bmt->ctour()->is_border())
-        m_lines.add_contour_line(bmt->level_ctour(), bmt->ctour()->get_points(), false);
+        add_contour_line(bmt->level_ctour(), bmt->ctour()->get_points(), false);
     delete_line_end(bmt->ctour());
 
     line_end_x le_i = bmt->under();
@@ -663,7 +681,7 @@ line_end_x runner::close_top(line_end_x le_t, line_triplet_x bmt)
 
     bmt->ctour()->touch_border();
     if (bmt->ctour()->is_border())
-        m_lines.add_contour_line(bmt->level_ctour(), bmt->ctour()->get_points(), false);
+        add_contour_line(bmt->level_ctour(), bmt->ctour()->get_points(), false);
     delete_line_end(bmt->ctour());
 
     line_end_x le_u = bmt->under();
