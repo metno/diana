@@ -1,3 +1,9 @@
+diana-3.42 (3.42.3-1) unstable; urgency=low
+
+  * bugfix links in whatsthis popups
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 03 Jul 2017 08:00:08 +0200
+
 diana-3.42 (3.42.2-1) unstable; urgency=low
 
   * bugfix background buffer update
