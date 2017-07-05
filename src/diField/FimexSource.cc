@@ -20,7 +20,17 @@
 #include <fimex/CDMInterpolator.h>
 #include <fimex/Data.h>
 #include <fimex/CoordinateSystemSliceBuilder.h>
+
+#if MIFI_VERSION_CURRENT_INT >= MIFI_VERSION_INT(0, 64, 0)
+#define FIMEX_HAS_VERTICALCONVERTER 1
+#endif
+
+#ifdef FIMEX_HAS_VERTICALCONVERTER
+#include <fimex/coordSys/verticalTransform/VerticalConverter.h>
+#include <fimex/coordSys/verticalTransform/VerticalTransformationUtils.h>
+#else // !FIMEX_HAS_VERTICALCONVERTER
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
+#endif // !FIMEX_HAS_VERTICALCONVERTER
 
 #include <boost/make_shared.hpp>
 
@@ -646,14 +656,28 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   if (!ex_cs)
     return Values_p();
 
-  const bool timeIsUnlimitedDim = isTimeAxisUnlimited(extractor->getCDM(), ex_cs);
-
   VerticalTransformation_cp ex_vt = ex_cs->getVerticalTransformation();
   if (not ex_vt)
     return Values_p();
 
   METLIBS_LOG_DEBUG(LOGVAL(ex_vt->getName()));
 
+#ifdef FIMEX_HAS_VERTICALCONVERTER
+  if (VerticalConverterPtr vc_p = ex_vt->getConverter(extractor, ex_cs, verticalType)) {
+    const SliceBuilder sb = createSliceBuilder(extractor->getCDM(), vc_p);
+    DataPtr dataCdm = vc_p->getDataSlice(sb);
+    boost::shared_array<float> floats = dataCdm->asFloat();
+
+    const Values::Shape shapeVC(vc_p->getShape(), getDimSizes(extractor->getCDM(), vc_p->getShape()));
+    const Values::Shape shapeCdmOut = translateAxisNames(shapeOut, extractor->getCDM(), cs);
+    floats = reshape(shapeVC, shapeCdmOut, floats);
+
+    METLIBS_LOG_DEBUG(LOGVAL(sb) << LOGVAL(shapeVC) << LOGVAL(shapeCdmOut) << LOGVAL(shapeOut));
+
+    v = std::make_shared<Values>(shapeOut, floats);
+  }
+#else // !FIMEX_HAS_VERTICALCONVERTER
+  const bool timeIsUnlimitedDim = isTimeAxisUnlimited(extractor->getCDM(), ex_cs);
   for (size_t t=0; t < t_length; ++t) {
     idx.set(pt, t);
     const size_t t_vlc = timeIsUnlimitedDim ? t : 0 /* FIXME 0 is not necessarily correct */;
@@ -674,6 +698,7 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
       }
     }
   }
+#endif // !FIMEX_HAS_VERTICALCONVERTER
   return v;
 }
 
