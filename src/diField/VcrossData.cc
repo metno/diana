@@ -363,4 +363,13 @@ Crossection_cp Inventory::findCrossectionPoint(const LonLat& point) const
   return best_cs;
 }
 
+std::ostream& operator<<(std::ostream& out, const Values::Shape& shp)
+{
+  out << "[vc shape rank=" << shp.rank();
+  for (size_t i=0; i<shp.rank(); ++i)
+    out << ' ' << shp.name(i) << ':' << shp.length(i);
+  out << ']';
+  return out;
+}
+
 } // namespace vcross

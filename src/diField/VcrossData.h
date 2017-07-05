@@ -425,6 +425,10 @@ struct Inventory
 typedef std::shared_ptr<Inventory> Inventory_p;
 typedef std::shared_ptr<const Inventory> Inventory_cp;
 
+// ================================================================================
+
+std::ostream& operator<<(std::ostream& out, const Values::Shape& shp);
+
 } // namespace vcross
 
 #endif
