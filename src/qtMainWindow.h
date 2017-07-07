@@ -48,6 +48,7 @@
 
 class QAction;
 class QButton;
+class QDockWidget;
 class QErrorMessage;
 class QMenu;
 class QMenuBar;
@@ -147,6 +148,7 @@ private Q_SLOTS:
   void idnumUp();
   void idnumDown();
   void mapMenu(int result = -1);
+  void mapDockVisibilityChanged(bool visible);
   void editMenu();
   void obsMenu(int result = -1);
   void satMenu(int result = -1);
@@ -367,6 +369,7 @@ private:
   WorkArea          * w;
   QuickMenu         * qm;
   MapDialog         * mm;
+  QDockWidget* mmdock;
   EditDialog        * em;
   FieldDialog       * fm;
   ObsDialog         * om;

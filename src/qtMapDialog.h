@@ -31,7 +31,7 @@
 
 #include "diController.h"
 #include "diMapInfo.h"
-#include <QDialog>
+#include <QWidget>
 #include <vector>
 
 class QComboBox;
@@ -49,7 +49,7 @@ class Ui_MapDialog;
    Dialogue for selections of maps, predefined projections/areas and
    various map-settings
 */
-class MapDialog : public QDialog {
+class MapDialog : public QWidget {
   Q_OBJECT
 
 public:

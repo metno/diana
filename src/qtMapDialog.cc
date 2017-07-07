@@ -74,7 +74,7 @@ static void install_density(QComboBox* box, const std::vector<int>& densities, i
 
 /*********************************************/
 MapDialog::MapDialog(QWidget* parent, Controller* llctrl)
-  : QDialog(parent)
+  : QWidget(parent)
 {
   METLIBS_LOG_SCOPE();
   m_ctrl = llctrl;

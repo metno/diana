@@ -102,6 +102,7 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QDockWidget>
 #include <QFileDialog>
 #include <QFocusEvent>
 #include <QFontDialog>
@@ -739,7 +740,11 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   mainToolbar->addAction( showQuickmenuAction         );
 
   mm= new MapDialog(this, contr);
-  mm->hide();
+  mmdock = new QDockWidget(tr("Map and Area"), this);
+  mmdock->setObjectName("dock_map");
+  mmdock->setWidget(mm);
+  addDockWidget(Qt::RightDockWidgetArea, mmdock);
+  mmdock->hide();
   mainToolbar->addAction( showMapDialogAction         );
 
   fm= new FieldDialog(this, contr);
@@ -867,7 +872,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect( stm, SIGNAL(StationHide()), SLOT(stationMenu()));
   connect( stm, SIGNAL(finished(int)),  SLOT(stationMenu(int)));
   connect( mm, SIGNAL(MapHide()),    SLOT(mapMenu()));
-  connect( mm, SIGNAL(finished(int)),  SLOT(mapMenu(int)));
+  connect( mmdock, SIGNAL(visibilityChanged(bool)),  SLOT(mapDockVisibilityChanged(bool)));
   connect( em, SIGNAL(EditHide()),   SLOT(editMenu()));
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( qm, SIGNAL(finished(int)),  SLOT(quickMenu(int)));
@@ -1427,7 +1432,7 @@ void DianaMainWindow::toggleDialogs()
   }
 }
 
-static void toggleDialogVisibility(QDialog* dialog, QAction* dialogAction, int result = -1)
+static void toggleDialogVisibility(QWidget* dialog, QAction* dialogAction, int result = -1)
 {
   bool visible = dialog->isVisible();
   if (result == -1) {
@@ -1483,7 +1488,12 @@ void DianaMainWindow::uffMenu(int result)
 
 void DianaMainWindow::mapMenu(int result)
 {
-  toggleDialogVisibility(mm, showMapDialogAction, result);
+  toggleDialogVisibility(mmdock, showMapDialogAction, result);
+}
+
+void DianaMainWindow::mapDockVisibilityChanged(bool visible)
+{
+  showMapDialogAction->setChecked(visible);
 }
 
 void DianaMainWindow::editMenu()
