@@ -194,8 +194,8 @@ public:
     InventoryBase(id_)
   {
   }
-  Taxis(const std::string& na, const std::vector<double>& va) :
-    InventoryBase(na, na, va)
+  Taxis(const std::string& id_,const std::string& na, const std::vector<double>& va) :
+    InventoryBase(id_, na, va)
   {
   }
 

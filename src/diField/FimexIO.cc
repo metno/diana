@@ -298,11 +298,12 @@ std::string makeId(const std::string& name, size_t size)
 
 typedef std::map<std::string, std::string> name2id_t;
 
-void addTimeAxis(CoordinateSystem::ConstAxisPtr tAxis, const std::vector<double>& values,
-    const std::string& rtime, gridinventory::Inventory& inventory)
+void addTimeAxis(CoordinateSystem::ConstAxisPtr tAxis, name2id_t& name2id,
+    const std::vector<double>& values, const std::string& rtime, gridinventory::Inventory& inventory)
 {
-  const std::string& name = tAxis->getName();
-  gridinventory::Taxis taxis = gridinventory::Taxis(name, values);
+  const std::string id = makeId(tAxis->getName(), values.size());
+  name2id[tAxis->getName()] = id;
+  gridinventory::Taxis taxis = gridinventory::Taxis(id, tAxis->getName(), values);
   gridinventory::ReftimeInventory reftime(rtime);
   reftime.taxes.insert(taxis);
   inventory.reftimes[reftime.referencetime] = reftime;
@@ -705,13 +706,13 @@ bool FimexIO::makeInventory(const std::string& reftime)
             }
             
             if (not singleTimeStep) {
-              addTimeAxis(tAxis, values, referenceTimes[i], inventory);
+              addTimeAxis(tAxis, name2id, values, referenceTimes[i], inventory);
               values.clear();
             }
           }
           
           if (singleTimeStep and not referenceTimes.empty())
-            addTimeAxis(tAxis, values, referenceTimes[0], inventory);
+            addTimeAxis(tAxis, name2id, values, referenceTimes[0], inventory);
           
           sb.setTimeStartAndSize(0,1);
           
@@ -749,10 +750,10 @@ bool FimexIO::makeInventory(const std::string& reftime)
               }
             }
           }
-          const std::string& name = tAxis->getName();
-          gridinventory::Taxis taxis = gridinventory::Taxis(name, values);
-          taxes.insert(taxis);
-          
+          const std::string id = makeId(tAxis->getName(), values.size());
+          taxes.insert(gridinventory::Taxis(id, tAxis->getName(), values));
+          name2id[tAxis->getName()] = id;
+
           // if no reference Time axis, get unique refTime
           if (referenceTime.empty() && values.size() > 1)
             referenceTime = fallbackGetReferenceTime();
@@ -839,7 +840,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       }
       //add axis/grid-id - not a part of key, but used to find times, levels, etc
       param.zaxis_id = name2id[zaxisname];
-      param.taxis_id = taxisname;
+      param.taxis_id = name2id[taxisname];
       param.extraaxis_id = name2id[eaxisname];
       //unit
       param.unit = cdm.getUnits(CDMparamName);

@@ -269,7 +269,7 @@ Inventory Inventory::merge(const Inventory& i) const
             METLIBS_LOG_DEBUG(" same id, different values, merge values");
               vector<double> newvalues = taxis1itr->values;
               newvalues.insert(newvalues.begin(), tax2.values.begin(), tax2.values.end());
-              Taxis newtaxis(taxis1itr->name, newvalues);
+              Taxis newtaxis(taxis1itr->id,taxis1itr->name, newvalues);
               METLIBS_LOG_DEBUG("     must change taxis: old size:" <<taxis1itr->values.size()
                   << " new size: " << newvalues.size());
               reftime.taxes.erase(*taxis1itr); // remove taxis
