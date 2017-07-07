@@ -190,28 +190,29 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent, int deltaWidth
   return b;
 }
 
-
-
-/*********************************************/
-QComboBox* ComboBox( QWidget* parent, const std::vector<std::string>& vstr, bool Enabled, int defItem)
+void installCombo(QComboBox* box, const std::vector<std::string>& vstr, bool Enabled, int defItem)
 {
-  QComboBox* box = new QComboBox( parent );
-
   const int nr_box = vstr.size();
   for(int i=0; i<nr_box; i++)
     box->addItem(QString::fromStdString(vstr[i]));
 
   box->setEnabled( Enabled );
   box->setCurrentIndex(defItem);
+}
 
+
+/*********************************************/
+QComboBox* ComboBox( QWidget* parent, const std::vector<std::string>& vstr, bool Enabled, int defItem)
+{
+  QComboBox* box = new QComboBox( parent );
+  installCombo(box, vstr, Enabled, defItem);
   return box;
 }
 
 
 /*********************************************/
-QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors, bool Enabled, int defItem)
+void installCombo(QComboBox* box, QColor* pixcolor, int nr_colors, bool Enabled, int defItem)
 {
-  QComboBox* box = new QComboBox(parent);
   for(int t=0; t<nr_colors; t++) {
     QPixmap pmap(20, 20);
     pmap.fill(pixcolor[t]);
@@ -220,7 +221,12 @@ QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors, bool Enabl
 
   box->setEnabled( Enabled );
   box->setCurrentIndex(defItem);
+}
 
+QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors, bool Enabled, int defItem)
+{
+  QComboBox* box = new QComboBox(parent);
+  installCombo(box, pixcolor, nr_colors, Enabled, defItem);
   return box;
 }
 
@@ -406,16 +412,11 @@ static ushort lineStipplePattern(const QString &pattern)
 /*********************************************/
 void installLinetypes(QComboBox* box)
 {
-  vector<std::string> slinetypes = Linetype::getLinetypeInfo();
-  const int nr_linetypes= slinetypes.size();
-  for (int i=0; i<nr_linetypes; i++) {
-    size_t k1= slinetypes[i].find_first_of('[',0);
-    size_t k2= slinetypes[i].find_first_of(']',0);
-    std::string pattern = "- - - - - - - - ";
-    if (k2-k1-1 >= 16)
-      pattern = slinetypes[i].substr(k1+1,16);
-    std::unique_ptr<QPixmap> pmapLinetype(linePixmap(pattern, 3));
-    box->addItem(*pmapLinetype, "", lineStipplePattern(QString::fromStdString(pattern)));
+  const std::vector<std::string>& slinetypenames = Linetype::getLinetypeNames();
+  for (const std::string& ltname : slinetypenames) {
+    const Linetype lt(ltname); // this makes a copy after looking up in the list of line types
+    const QPixmap pmapLinetype(linePixmap(lt, 3));
+    box->addItem(pmapLinetype, "", lt.bmap);
   }
 }
 
@@ -431,8 +432,8 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
 void installLinewidths(QComboBox* box, int nr_linewidths)
 {
   for (int i=0; i < nr_linewidths; i++) {
-    std::unique_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
-    box->addItem(*pmapLinewidth, QString("  %1").arg(i+1), i + 1);
+    QPixmap pmapLinewidth(linePixmap(i+1));
+    box->addItem(pmapLinewidth, QString("  %1").arg(i+1), i + 1);
   }
 }
 
@@ -449,9 +450,9 @@ void ExpandLinewidthBox(QComboBox* box, int new_nr_linewidths)
 {
   const int current_nr_linewidths = box->count();
   for (int i=current_nr_linewidths; i < new_nr_linewidths; i++) {
-    std::unique_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
+    QPixmap pmapLinewidth(linePixmap(i+1));
     QString label = QString("  %1").arg(i+1);
-    box->addItem(*pmapLinewidth, label, i + 1);
+    box->addItem(pmapLinewidth, label, i + 1);
   }
 }
 
@@ -581,35 +582,44 @@ void listWidget(QListWidget* listwidget, const std::vector<std::string>& vstr, i
 }
 
 /*********************************************/
-QPixmap* linePixmap(const std::string& pattern, int linewidth)
+QPixmap linePixmap(int linewidth)
+{
+  return linePixmap(Linetype("solid"), linewidth, Colour("black"));
+}
+
+QPixmap linePixmap(const Linetype& pattern, int linewidth)
+{
+  return linePixmap(pattern, linewidth, Colour("black"));
+}
+
+QPixmap linePixmap(const Linetype& lt, int linewidth, const Colour& col)
 {
   // make a 32x20 pixmap of a linepattern of length 16 (where ' ' is empty)
 
+  char xpmcolor[] = ". c 0000000";
+  snprintf(xpmcolor, sizeof(xpmcolor), ". c #%02x%02x%02x", col.R(), col.G(), col.B());
+
   std::string xpmEmpty= "################################";
   std::string xpmLine=  "................................";
-  int i;
-  int lw= linewidth;
-  if (lw<1)  lw=1;
-  if (lw>20) lw=20;
+  const int lw = std::min(std::max(linewidth, 1), 20);
 
-  if (pattern.length()>=16) {
-    for (i=0; i<16; i++)
-      if (pattern[i]==' ') xpmLine[16+i]= xpmLine[i]= '#';
-  }
-
-  int l1= 10 - lw/2;
-  int l2= l1 + lw;
+  for (size_t i=0; i<16; i++)
+    xpmLine[16+i] = xpmLine[i]= lt.bit(15-i) ? ':' : '#';
 
   const char** xpmData= new const char*[3+20];
   xpmData[0]= "32 20 2 1";
-  xpmData[1]= ". c #000000";
+  xpmData[1]= xpmcolor;
   xpmData[2]= "# c None";
 
-  for (i=0;  i<l1; i++) xpmData[3+i]= xpmEmpty.c_str();
-  for (i=l1; i<l2; i++) xpmData[3+i]= xpmLine.c_str();
-  for (i=l2; i<20; i++) xpmData[3+i]= xpmEmpty.c_str();
+  const int l1= 10 - lw/2, l2= l1 + lw;
+  for (int i=0;  i<l1; i++)
+    xpmData[3+i]= xpmEmpty.c_str();
+  for (int i=l1; i<l2; i++)
+    xpmData[3+i]= xpmLine.c_str();
+  for (int i=l2; i<20; i++)
+    xpmData[3+i]= xpmEmpty.c_str();
 
-  QPixmap* pmap= new QPixmap(xpmData);
+  QPixmap pmap(xpmData);
 
   delete[] xpmData;
 

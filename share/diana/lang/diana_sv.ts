@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="sv_SE">
+<TS version="2.1" language="sv_SE">
 <context>
     <name>AddtoDialog</name>
     <message>
@@ -2723,6 +2723,54 @@ Vil du spara innan du avslutar?</translation>
     </message>
 </context>
 <context>
+    <name>LineStyleButton</name>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="146"/>
+        <source>Style for %1 lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="148"/>
+        <source>Line style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="194"/>
+        <source>Color: %1
+Width: %2
+Type: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LineStyleDialog</name>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="47"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="57"/>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="98"/>
+        <source>&amp;Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="124"/>
+        <source>&amp;Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="134"/>
+        <source>&amp;Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MailDialog</name>
     <message>
         <source>E-Mail Picture</source>
@@ -2736,225 +2784,284 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>MapDialog</name>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="91"/>
+        <location filename="../../../src/mapdialog.ui" line="14"/>
         <source>Map and Area</source>
         <translation>Karta och Område</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="108"/>
+        <location filename="../../../src/qtMapDialog.cc" line="83"/>
+        <source>frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="84"/>
+        <source>longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="85"/>
+        <source>latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="86"/>
+        <source>contour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="100"/>
         <source>lowest</source>
         <translation>lägsta</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="109"/>
+        <location filename="../../../src/qtMapDialog.cc" line="101"/>
         <source>auto</source>
         <translation>auto</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="110"/>
+        <location filename="../../../src/qtMapDialog.cc" line="102"/>
         <source>highest</source>
         <translation>högsta</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="144"/>
+        <location filename="../../../src/qtMapDialog.cc" line="120"/>
+        <source>off</source>
+        <translation>av</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="20"/>
         <source>Area/Projection</source>
         <translation>Område/Projektion</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="161"/>
+        <location filename="../../../src/mapdialog.ui" line="36"/>
+        <source>F&amp;rame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="70"/>
+        <source>L&amp;ongitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="107"/>
+        <source>L&amp;atitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="160"/>
         <source>Maps</source>
         <translation>Kartor</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="163"/>
+        <location filename="../../../src/mapdialog.ui" line="205"/>
         <source>Selected maps</source>
         <translation>Valda kartor</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="187"/>
+        <location filename="../../../src/mapdialog.ui" line="191"/>
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="191"/>
+        <location filename="../../../src/mapdialog.ui" line="174"/>
         <source>Delete all</source>
         <translation>Ta bort allt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="207"/>
         <source>Contour lines</source>
-        <translation>Konturlinjer</translation>
+        <translation type="vanished">Konturlinjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="215"/>
-        <location filename="../../../src/qtMapDialog.cc" line="350"/>
-        <location filename="../../../src/qtMapDialog.cc" line="396"/>
-        <location filename="../../../src/qtMapDialog.cc" line="442"/>
         <source>Line thickness</source>
-        <translation>Linjettjocklek</translation>
+        <translation type="vanished">Linjettjocklek</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="225"/>
-        <location filename="../../../src/qtMapDialog.cc" line="248"/>
-        <location filename="../../../src/qtMapDialog.cc" line="361"/>
-        <location filename="../../../src/qtMapDialog.cc" line="407"/>
-        <location filename="../../../src/qtMapDialog.cc" line="453"/>
+        <location filename="../../../src/mapdialog.ui" line="84"/>
+        <location filename="../../../src/mapdialog.ui" line="256"/>
         <source>Colour</source>
         <translation>Färg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="230"/>
-        <location filename="../../../src/qtMapDialog.cc" line="253"/>
-        <location filename="../../../src/qtMapDialog.cc" line="369"/>
-        <location filename="../../../src/qtMapDialog.cc" line="415"/>
-        <location filename="../../../src/qtMapDialog.cc" line="456"/>
+        <location filename="../../../src/mapdialog.ui" line="46"/>
+        <location filename="../../../src/mapdialog.ui" line="91"/>
+        <location filename="../../../src/mapdialog.ui" line="246"/>
         <source>Plot position</source>
         <translation>Plottpositionon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="240"/>
         <source>Filled land</source>
-        <translation>Land ifyllt</translation>
+        <translation type="vanished">Land ifyllt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="364"/>
-        <location filename="../../../src/qtMapDialog.cc" line="410"/>
+        <location filename="../../../src/mapdialog.ui" line="120"/>
         <source>Density</source>
         <translation>Täthet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="435"/>
         <source>Show frame</source>
-        <translation>Visa ram</translation>
+        <translation type="vanished">Visa ram</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="462"/>
+        <location filename="../../../src/mapdialog.ui" line="271"/>
         <source>Background colour</source>
         <translation>Bakgrundsfärg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="470"/>
+        <location filename="../../../src/mapdialog.ui" line="343"/>
         <source>Apply</source>
         <translation>Utför</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="472"/>
+        <location filename="../../../src/mapdialog.ui" line="329"/>
         <source>Hide</source>
         <translation>Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="473"/>
+        <location filename="../../../src/mapdialog.ui" line="239"/>
+        <source>&amp;Filled land</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="277"/>
+        <source>&amp;Colour</source>
+        <translation type="unfinished">&amp;Färg</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="308"/>
         <source>Help</source>
         <translation>Hjälp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="188"/>
+        <location filename="../../../src/mapdialog.ui" line="188"/>
         <source>Remove selected map from the list &quot;Selected maps&quot;</source>
         <translation>Ta bort vald karta från listan &quot;Valda kartor&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="192"/>
+        <source>Frame</source>
+        <translation type="vanished">Ram</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="59"/>
+        <source>Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="127"/>
+        <source>Values</source>
+        <translation type="unfinished">Värden</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="141"/>
+        <source>If and where to show latitude-values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="148"/>
+        <source>If and where to show longitude-values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="171"/>
         <source>Clear list of selected maps</source>
         <translation>Töm listan med valda kartor</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="211"/>
+        <location filename="../../../src/mapdialog.ui" line="198"/>
+        <source>Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="216"/>
         <source>Draw contour lines (mandatory for maps without filled land)</source>
         <translation>Rita konturlinjer (obligatorisk för kartor utan fyllt land)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="244"/>
+        <location filename="../../../src/mapdialog.ui" line="219"/>
+        <source>Con&amp;tour lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="236"/>
         <source>Draw land with separate colour (only available for selected maps)</source>
         <translation>Rita land med separat färg (tillgänglig for valda kartor)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="437"/>
+        <location filename="../../../src/mapdialog.ui" line="33"/>
         <source>Draw boundary of selected area</source>
         <translation>Rita yttre gräns för valt område</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="471"/>
+        <location filename="../../../src/mapdialog.ui" line="336"/>
         <source>Apply+Hide</source>
         <translation>Utför+Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="220"/>
-        <location filename="../../../src/qtMapDialog.cc" line="356"/>
-        <location filename="../../../src/qtMapDialog.cc" line="402"/>
-        <location filename="../../../src/qtMapDialog.cc" line="448"/>
         <source>Line type</source>
-        <translation>Linjetyp</translation>
+        <translation type="vanished">Linjetyp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="128"/>
+        <location filename="../../../src/qtMapDialog.cc" line="121"/>
         <source>left</source>
         <translation>till vänster</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="129"/>
+        <location filename="../../../src/qtMapDialog.cc" line="122"/>
         <source>bottom</source>
         <translation>nederst</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="130"/>
+        <location filename="../../../src/qtMapDialog.cc" line="123"/>
         <source>both</source>
         <translation>båda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="342"/>
         <source>Longitude lines</source>
-        <translation>Longitudlinjer</translation>
+        <translation type="vanished">Longitudlinjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="346"/>
+        <location filename="../../../src/mapdialog.ui" line="67"/>
         <source>Show longitude-lines on the map</source>
         <translation>Visa longitudlinjer på kartan</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="374"/>
-        <location filename="../../../src/qtMapDialog.cc" line="420"/>
         <source>Show value</source>
-        <translation>Visa värde</translation>
+        <translation type="vanished">Visa värde</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="375"/>
         <source>Show longitude-values</source>
-        <translation>Visa longitudvärden</translation>
+        <translation type="vanished">Visa longitudvärden</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="388"/>
         <source>Latitude lines</source>
-        <translation>Latitudlinjer</translation>
+        <translation type="vanished">Latitudlinjer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="392"/>
+        <location filename="../../../src/mapdialog.ui" line="104"/>
         <source>Show latitude-lines on the map</source>
         <translation>Visa latitudlinjer på kartan</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="421"/>
         <source>Show latitude-values</source>
-        <translation>Visa latitudvärden</translation>
+        <translation type="vanished">Visa latitudvärden</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="468"/>
+        <location filename="../../../src/mapdialog.ui" line="315"/>
         <source>Save favorite</source>
         <translation>Spara favorit</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="469"/>
+        <location filename="../../../src/mapdialog.ui" line="322"/>
         <source>Use favorite</source>
         <translation>Använd favorit</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="476"/>
         <source>Save this layout as your favorite</source>
-        <translation>Spara denna layout som din favorit</translation>
+        <translation type="vanished">Spara denna layout som din favorit</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="477"/>
         <source>Use saved favorite layout</source>
-        <translation>Använd sparad favoritlayout</translation>
+        <translation type="vanished">Använd sparad favoritlayout</translation>
     </message>
 </context>
 <context>

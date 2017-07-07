@@ -32,6 +32,7 @@
 #include "diColour.h"
 #include "diCommonTypes.h"
 #include "diDrawingTypes.h"
+#include "diMapInfo.h"
 #include "diMapMode.h"
 #include "diPlotCommand.h"
 

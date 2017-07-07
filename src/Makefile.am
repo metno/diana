@@ -54,6 +54,7 @@ libdiana_la_SOURCES = \
 	diLocationPlot.cc \
 	diLogFile.cc \
 	diMItiff.cc \
+	diMapInfo.cc \
 	diMapManager.cc \
 	diMapPlot.cc \
 	diMeasurementsPlot.cc \
@@ -219,6 +220,7 @@ libdianaui_a_QTSOURCES = \
 	qtGeoPosLineEdit.cc \
 	qtMainWindow.cc \
 	qtMapDialog.cc \
+	qtStyleButtons.cc \
 	qtMeasurementsDialog.cc \
 	qtObjectDialog.cc \
 	qtObsDialog.cc \
@@ -274,6 +276,8 @@ libdianaui_a_QTSOURCES += \
 	wmsclient/WebMapDialog.cc
 
 libdianaui_a_QTFORMS = \
+	linestyledialog.ui \
+	mapdialog.ui \
 	export/export_image_dialog.ui \
 	export/export_image_preview.ui \
 	vcross_qt/vcross_plot_add_dialog.ui \
@@ -330,6 +334,7 @@ noinst_HEADERS = \
 	diLogFile.h \
 	diMItiff.h \
 	diManager.h \
+	diMapInfo.h \
 	diMapManager.h \
 	diMapMode.h \
 	diMapPlot.h \
@@ -433,6 +438,7 @@ noinst_HEADERS = \
 	qtImageGallery.h \
 	qtMainWindow.h \
 	qtMapDialog.h \
+	qtStyleButtons.h \
 	qtMeasurementsDialog.h \
 	qtObjectDialog.h \
 	qtObsDialog.h \

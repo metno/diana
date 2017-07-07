@@ -29,7 +29,8 @@
 #ifndef _mapdialog_h
 #define _mapdialog_h
 
-#include <diController.h>
+#include "diController.h"
+#include "diMapInfo.h"
 #include <QDialog>
 #include <vector>
 
@@ -40,6 +41,8 @@ class QLabel;
 class ToggleButton;
 class QCheckBox;
 
+class Ui_MapDialog;
+
 /**
    \brief Map selection dialogue
 
@@ -47,10 +50,11 @@ class QCheckBox;
    various map-settings
 */
 class MapDialog : public QDialog {
-Q_OBJECT
-public:
+  Q_OBJECT
 
+public:
   MapDialog(QWidget* parent, Controller* llctrl);
+  ~MapDialog();
 
   /// the plot info strings
   PlotCommand_cpv getOKString();
@@ -67,38 +71,20 @@ public:
   void useFavorite();
 
 protected:
-  void closeEvent(QCloseEvent*);
+  void closeEvent(QCloseEvent*) override;
 
-private slots:
-  //  void areaboxSelected( QListWidgetItem* item );
+private Q_SLOTS:
   void mapboxChanged();
   void selectedMapboxClicked(QListWidgetItem* item);
   void mapdeleteClicked();
   void mapalldeleteClicked();
 
   void lon_checkboxActivated(bool);
-  void lon_linecboxActivated(int index);
-  void lon_linetypeboxActivated(int index);
-  void lon_densitycboxActivated(int index);
-  void lon_zordercboxActivated(int index);
-  void lon_showValueActivated(bool);
-
   void lat_checkboxActivated(bool);
-  void lat_linecboxActivated(int index);
-  void lat_linetypeboxActivated(int index);
-  void lat_densitycboxActivated(int index);
-  void lat_zordercboxActivated(int index);
-  void lat_showValueActivated(bool);
-
   void showframe_checkboxActivated(bool);
-  void ff_linecboxActivated(int index);
-  void ff_linetypeboxActivated(int index);
-  void ff_zordercboxActivated(int index);
 
   void cont_checkboxActivated(bool);
-  void cont_linecboxActivated(int index);
-  void cont_linetypeboxActivated(int index);
-  void cont_colorcboxActivated(int index);
+  void cont_linestyleActivated();
   void cont_zordercboxActivated(int index);
 
   void land_checkboxActivated(bool);
@@ -110,10 +96,16 @@ private slots:
   void saveFavoriteClicked();
   void useFavoriteClicked();
 
-  signals:
+Q_SIGNALS:
   void MapApply();
   void MapHide();
   void showsource(const std::string, const std::string = "");
+
+private:
+  void getMapInfoFromUi(MapInfo& mi);
+  void getLonLatValuePos(QComboBox* combo, bool& show, std::string& value_pos);
+  void setMapInfoToUi(const MapInfo& mi);
+  void setLonLatValuePos(QComboBox* combo, bool show, const std::string& value_pos);
 
 private:
   MapDialogInfo m_MapDI; // all maps and areas
@@ -123,119 +115,14 @@ private:
   int activemap; // active selected map
   std::vector<int> logmaps; // selected maps ready for logging
 
-  std::vector<Colour::ColourInfo> cInfo; // all defined colours
-  std::vector<std::string> linetypes; // all defined linetypes
-  std::vector<std::string> zorders; // all defined zorders
-  std::vector<std::string> densities; // latlon densities (degrees)
+  std::vector<int> densities; // latlon densities (degrees, multiplied with 1000)
   std::vector<std::string> positions; // all defined positions
   std::map<std::string,int> positions_map; // all defined positions
   Controller* m_ctrl;
 
-  // areas
-  QLabel* arealabel;
-  QListWidget* areabox;
-
-  // latlon options
-  QLabel* lon_label;
-  QLabel* lon_linelabel;
-  QLabel* lon_linetypelabel;
-  QLabel* lon_colorlabel;
-  QLabel* lon_zorderlabel;
-  QLabel* lon_densitylabel;
-  QCheckBox* showlon;
-  QComboBox* lon_linecbox;
-  QComboBox* lon_linetypebox;
-  QComboBox* lon_colorcbox;
-  QComboBox* lon_zorder;
-  QComboBox* lon_density;
-  QCheckBox* lon_showvalue;
-  QComboBox* lon_valuepos;
-  bool lonb;
-  std::string lonlw;
-  std::string lonlt;
-  int lonz;
-  float lond;
-  bool lonshowvalue;
-
-  QLabel* lat_label;
-  QLabel* lat_linelabel;
-  QLabel* lat_linetypelabel;
-  QLabel* lat_colorlabel;
-  QLabel* lat_zorderlabel;
-  QLabel* lat_densitylabel;
-  QCheckBox* showlat;
-  QComboBox* lat_linecbox;
-  QComboBox* lat_linetypebox;
-  QComboBox* lat_colorcbox;
-  QComboBox* lat_zorder;
-  QComboBox* lat_density;
-  QCheckBox* lat_showvalue;
-  QComboBox* lat_valuepos;
-  bool latb;
-  std::string latlw;
-  std::string latlt;
-  int latz;
-  float latd;
-  bool latshowvalue;
-
-  // backgroundcolour
-  QLabel* backcolorlabel;
-  QComboBox* backcolorcbox;
-
-  // frame
-  QCheckBox* showframe;
-  bool frameb;
-  QLabel* framelabel;
-  QLabel* ff_linelabel;
-  QLabel* ff_linetypelabel;
-  QLabel* ff_colorlabel;
-  QLabel* ff_zorderlabel;
-  QComboBox* ff_linecbox;
-  QComboBox* ff_linetypebox;
-  QComboBox* ff_colorcbox;
-  QComboBox* ff_zorder;
-  std::string framelw;
-  std::string framelt;
-  int framez;
-
-  // maps and selected maps
-  QLabel* maplabel;
-  QListWidget* mapbox;
-  QLabel* selectedMaplabel;
-  QListWidget* selectedMapbox;
-  QPushButton* mapdelete;
-  QPushButton* mapalldelete;
-
-  // contourlines options
-  QLabel* cont_label;
-  QLabel* cont_linelabel;
-  QLabel* cont_linetypelabel;
-  QLabel* cont_colorlabel;
-  QLabel* cont_zorderlabel;
-  QCheckBox* contours;
-  QComboBox* cont_linecbox;
-  QComboBox* cont_linetypebox;
-  QComboBox* cont_colorcbox;
-  QComboBox* cont_zorder;
-
-  // filled land options
-  QLabel* land_label;
-  QLabel* land_colorlabel;
-  QLabel* land_zorderlabel;
-  QCheckBox* filledland;
-  QComboBox* land_colorcbox;
-  QComboBox* land_zorder;
-
-  // buttons
-  QPushButton* savefavorite;
-  QPushButton* usefavorite;
-  QPushButton* mapapply;
-  QPushButton* mapapplyhide;
-  QPushButton* maphide;
-  QPushButton* maphelp;
+  Ui_MapDialog* ui;
 
   QColor* pixcolor;
-
 };
 
 #endif

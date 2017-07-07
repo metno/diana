@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="es_CL">
+<TS version="2.1" language="es_CL">
 <context>
     <name>AddtoDialog</name>
     <message>
@@ -2751,6 +2751,56 @@ como aprovado y listo.</translation>
     </message>
 </context>
 <context>
+    <name>LineStyleButton</name>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="146"/>
+        <source>Style for %1 lines</source>
+        <translation type="unfinished">Stil líneas de %1</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="148"/>
+        <source>Line style</source>
+        <translation type="unfinished">Línea style</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="194"/>
+        <source>Color: %1
+Width: %2
+Type: %3</source>
+        <translation type="unfinished">Color: %1
+Ancho: %2
+Tipo: %3</translation>
+    </message>
+</context>
+<context>
+    <name>LineStyleDialog</name>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="47"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="57"/>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="98"/>
+        <source>&amp;Type</source>
+        <translation type="unfinished">&amp;Tipo</translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="124"/>
+        <source>&amp;Width</source>
+        <translation type="unfinished">&amp;Ancho</translation>
+    </message>
+    <message>
+        <location filename="../../../src/linestyledialog.ui" line="134"/>
+        <source>&amp;Color</source>
+        <translation type="unfinished">&amp;Color</translation>
+    </message>
+</context>
+<context>
     <name>LoginDialog</name>
     <message>
         <source>Diana db login</source>
@@ -2780,223 +2830,240 @@ como aprovado y listo.</translation>
 <context>
     <name>MapDialog</name>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="91"/>
+        <location filename="../../../src/mapdialog.ui" line="14"/>
         <source>Map and Area</source>
         <translation>Mapa y Area</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="108"/>
+        <location filename="../../../src/qtMapDialog.cc" line="83"/>
+        <source>frame</source>
+        <translation type="unfinished">marco</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="84"/>
+        <source>longitude</source>
+        <translation type="unfinished">longitud</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="85"/>
+        <source>latitude</source>
+        <translation type="unfinished">latitud</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="86"/>
+        <source>contour</source>
+        <translation type="unfinished">contorno</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="100"/>
         <source>lowest</source>
         <translation>más bajo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="109"/>
+        <location filename="../../../src/qtMapDialog.cc" line="101"/>
         <source>auto</source>
         <translation>automático</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="110"/>
+        <location filename="../../../src/qtMapDialog.cc" line="102"/>
         <source>highest</source>
         <translation>más alto</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="128"/>
+        <location filename="../../../src/qtMapDialog.cc" line="120"/>
+        <source>off</source>
+        <translation type="unfinished">apagar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="121"/>
         <source>left</source>
         <translation>izquiera</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="129"/>
+        <location filename="../../../src/qtMapDialog.cc" line="122"/>
         <source>bottom</source>
         <translation>fondo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="130"/>
+        <location filename="../../../src/qtMapDialog.cc" line="123"/>
         <source>both</source>
         <translation>ambos</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="144"/>
+        <location filename="../../../src/mapdialog.ui" line="20"/>
         <source>Area/Projection</source>
         <translation>Area/Proyección</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="161"/>
+        <location filename="../../../src/mapdialog.ui" line="36"/>
+        <source>F&amp;rame</source>
+        <translation type="unfinished">Ma&amp;rco</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="70"/>
+        <source>L&amp;ongitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="107"/>
+        <source>L&amp;atitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="160"/>
         <source>Maps</source>
         <translation>Mapas</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="163"/>
+        <location filename="../../../src/mapdialog.ui" line="205"/>
         <source>Selected maps</source>
         <translation>Mapas seleccionados</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="187"/>
+        <location filename="../../../src/mapdialog.ui" line="191"/>
         <source>Delete</source>
         <translation>Borra</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="188"/>
+        <location filename="../../../src/mapdialog.ui" line="188"/>
         <source>Remove selected map from the list &quot;Selected maps&quot;</source>
         <translation>Remover mapa seleccionado de la lista de &quot;Mapas seleccionados&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="191"/>
+        <location filename="../../../src/mapdialog.ui" line="174"/>
         <source>Delete all</source>
         <translation>Borrar todo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="192"/>
+        <location filename="../../../src/mapdialog.ui" line="171"/>
         <source>Clear list of selected maps</source>
         <translation>Borrar lista de mapas seleccionados</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="207"/>
-        <source>Contour lines</source>
-        <translation>Lineas de contorno</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="211"/>
+        <location filename="../../../src/mapdialog.ui" line="216"/>
         <source>Draw contour lines (mandatory for maps without filled land)</source>
         <translation>Dibujar lineas de contorno(obligatorio para mapas sin campo completo)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="215"/>
-        <location filename="../../../src/qtMapDialog.cc" line="350"/>
-        <location filename="../../../src/qtMapDialog.cc" line="396"/>
-        <location filename="../../../src/qtMapDialog.cc" line="442"/>
-        <source>Line thickness</source>
-        <translation>Ancho de línea</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="220"/>
-        <location filename="../../../src/qtMapDialog.cc" line="356"/>
-        <location filename="../../../src/qtMapDialog.cc" line="402"/>
-        <location filename="../../../src/qtMapDialog.cc" line="448"/>
-        <source>Line type</source>
-        <translation>Tipo de línea</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="225"/>
-        <location filename="../../../src/qtMapDialog.cc" line="248"/>
-        <location filename="../../../src/qtMapDialog.cc" line="361"/>
-        <location filename="../../../src/qtMapDialog.cc" line="407"/>
-        <location filename="../../../src/qtMapDialog.cc" line="453"/>
+        <location filename="../../../src/mapdialog.ui" line="84"/>
+        <location filename="../../../src/mapdialog.ui" line="256"/>
         <source>Colour</source>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="230"/>
-        <location filename="../../../src/qtMapDialog.cc" line="253"/>
-        <location filename="../../../src/qtMapDialog.cc" line="369"/>
-        <location filename="../../../src/qtMapDialog.cc" line="415"/>
-        <location filename="../../../src/qtMapDialog.cc" line="456"/>
+        <location filename="../../../src/mapdialog.ui" line="46"/>
+        <location filename="../../../src/mapdialog.ui" line="91"/>
+        <location filename="../../../src/mapdialog.ui" line="246"/>
         <source>Plot position</source>
         <translation>Posición de gráfico</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="240"/>
-        <source>Filled land</source>
-        <translation>Tierra rellenada</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="244"/>
+        <location filename="../../../src/mapdialog.ui" line="236"/>
         <source>Draw land with separate colour (only available for selected maps)</source>
         <translation>Dibujar el terreno con colores separados(solo disponible para seleccionar mapas)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="342"/>
-        <source>Longitude lines</source>
-        <translation>Líneas de Longitud</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="346"/>
+        <location filename="../../../src/mapdialog.ui" line="67"/>
         <source>Show longitude-lines on the map</source>
         <translation>Mostrar líneas de longitud en el mapa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="364"/>
-        <location filename="../../../src/qtMapDialog.cc" line="410"/>
+        <location filename="../../../src/mapdialog.ui" line="120"/>
         <source>Density</source>
         <translation>Densidad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="374"/>
-        <location filename="../../../src/qtMapDialog.cc" line="420"/>
-        <source>Show value</source>
-        <translation>Mostrar valor</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="375"/>
-        <source>Show longitude-values</source>
-        <translation>Mostrar valores de longitud</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="388"/>
-        <source>Latitude lines</source>
-        <translation>Líneas de Latitud</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="392"/>
+        <location filename="../../../src/mapdialog.ui" line="104"/>
         <source>Show latitude-lines on the map</source>
         <translation>Mostrar líneas de latitud en el mapa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="421"/>
-        <source>Show latitude-values</source>
-        <translation>Mostrar valores de latitud</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="435"/>
-        <source>Show frame</source>
-        <translation>Mostrar marco</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMapDialog.cc" line="437"/>
+        <location filename="../../../src/mapdialog.ui" line="33"/>
         <source>Draw boundary of selected area</source>
         <translation>Dibujar límite de área seleccionada</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="462"/>
+        <location filename="../../../src/mapdialog.ui" line="59"/>
+        <source>Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="127"/>
+        <source>Values</source>
+        <translation type="unfinished">Valores</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="141"/>
+        <source>If and where to show latitude-values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="148"/>
+        <source>If and where to show longitude-values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="198"/>
+        <source>Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="219"/>
+        <source>Con&amp;tour lines</source>
+        <translation type="unfinished">Lineas de con&amp;torno</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="239"/>
+        <source>&amp;Filled land</source>
+        <translation type="unfinished">&amp;Tierra rellenada</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="271"/>
         <source>Background colour</source>
         <translation>Color de fondo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="468"/>
+        <location filename="../../../src/mapdialog.ui" line="277"/>
+        <source>&amp;Colour</source>
+        <translation type="unfinished">&amp;Color</translation>
+    </message>
+    <message>
+        <location filename="../../../src/mapdialog.ui" line="315"/>
         <source>Save favorite</source>
         <translation>Guardar favorito</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="469"/>
+        <location filename="../../../src/mapdialog.ui" line="322"/>
         <source>Use favorite</source>
         <translation>Usar favorito</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="470"/>
+        <location filename="../../../src/mapdialog.ui" line="343"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="471"/>
+        <location filename="../../../src/mapdialog.ui" line="336"/>
         <source>Apply+Hide</source>
         <translation>Aplicar+Esconder</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="472"/>
+        <location filename="../../../src/mapdialog.ui" line="329"/>
         <source>Hide</source>
         <translation>Esconder</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="473"/>
+        <location filename="../../../src/mapdialog.ui" line="308"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="476"/>
+        <location filename="../../../src/mapdialog.ui" line="315"/>
         <source>Save this layout as your favorite</source>
         <translation>Guardar este diseño como su favorito</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="477"/>
+        <location filename="../../../src/mapdialog.ui" line="325"/>
         <source>Use saved favorite layout</source>
         <translation>Usar diseño favorito</translation>
     </message>
