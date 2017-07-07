@@ -315,6 +315,7 @@ public:
     f_no_of_fields_below,
     f_index_of_fields_max,
     f_index_of_fields_min,
+    f_sum,
     f_mean_value,  //!< f_mean_value
     f_stddev,  //!< f_stddev_value_of
     f_probability_above,  //!< f_probability_above

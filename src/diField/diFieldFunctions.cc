@@ -352,6 +352,7 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_no_of_fields_below, "no_of_fields_below(field,const:limit)");
   ok &= registerFunction(f, f_index_of_fields_max, "index_of_fields_max(field)");
   ok &= registerFunction(f, f_index_of_fields_min, "index_of_fields_min(field)");
+  ok &= registerFunction(f, f_sum, "sum(field,...)");
   ok &= registerFunction(f, f_mean_value, "mean_value(field,...)");
   ok &= registerFunction(f, f_stddev, "stddev(field)");
   ok &= registerFunction(f, f_probability_above, "probability_above(field,const:limit)");
@@ -1559,6 +1560,11 @@ bool FieldFunctions::fieldComputer(Function function,
 
   case f_mean_value:
     res = meanValue(nx, ny, finp, fout[0],
+        allDefined, undef);
+    break;
+
+  case f_sum:
+    res = sumFields(nx, ny, finp, fout[0],
         allDefined, undef);
     break;
 
