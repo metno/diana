@@ -525,23 +525,19 @@ void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2
   if (not (vdata and vdata->size()))
     return;
 
+  METLIBS_LOG_DEBUG("vertical data.size():" << vdata->size() << " axis name:" << vAxis->getName());
+  boost::shared_array<double> idata = vdata->asDouble();
+  const std::vector<double> levels(idata.get(), idata.get() + vdata->size());
+
   CDMAttribute attr;
   bool positive = true;
   if (feltReader->getCDM().getAttribute(vAxis->getName(), "positive", attr)) {
     positive = (attr.getStringValue() == "up");
   }
-  
-  std::vector<double> levels;
-  boost::shared_array<double> idata = vdata->asDouble();
-  METLIBS_LOG_DEBUG("vertical data.size():" << vdata->size() << "  name:" << vAxis->getName());
 
   if (verticalType.empty())
     verticalType = vAxis->getName();
 
-  for (size_t i = 0; i < vdata->size(); ++i) {
-    levels.push_back(idata[i]);
-  }
-  
   const std::string id = makeId(vAxis->getName(), levels.size());
   zaxes.insert(gridinventory::Zaxis(id, vAxis->getName(), positive, levels,verticalType));
   name2id[vAxis->getName()] = id;
