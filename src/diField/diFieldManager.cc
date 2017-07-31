@@ -674,7 +674,6 @@ void FieldManager::addComputedParameters(gridinventory::ReftimeInventory& invent
     BOOST_REVERSE_FOREACH(const std::string& inputParameterName, fc.input) {
       //levelSpecified true if param:level=value
       //METLIBS_LOG_DEBUG(LOGVAL(inputParameterName));
-      std::string inputLevelName;
       FieldFunctions::FieldSpec fs;
       bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParameterName, fs);
       fchour = fs.fcHour;
