@@ -1242,18 +1242,6 @@ void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shor
     diagstr = it->second->getOKString();
     pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
   }
-
-  // remove empty lines
-  for (unsigned int i = 0; i < pstr.size(); ++i){
-    if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(pstr[i])) {
-      const std::string cs = miutil::trimmed(c->command());
-      if (cs.empty()) {
-        pstr.erase(pstr.begin()+i);
-        --i;
-        continue;
-      }
-    }
-  }
 }
 
 void DianaMainWindow::updatePlotElements()
