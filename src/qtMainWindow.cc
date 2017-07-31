@@ -65,6 +65,7 @@
 #include "diBuild.h"
 #include "diController.h"
 #include "diEditItemManager.h"
+#include "diLabelPlotCommand.h"
 #include "diPaintGLPainter.h"
 #include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
@@ -1179,6 +1180,21 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
+namespace {
+
+bool isLabelCommandWithTime(PlotCommand_cp cmd)
+{
+  if (LabelPlotCommand_cp c = std::dynamic_pointer_cast<const LabelPlotCommand>(cmd)) {
+    for (const miutil::KeyValue& kv : c->all()) {
+      if (miutil::contains(kv.value(), "$"))
+        return true;
+    }
+  }
+  return false;
+}
+
+} // namespace
+
 void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shortnames)
 {
   PlotCommand_cpv diagstr;
@@ -1216,12 +1232,7 @@ void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shor
   const bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
   diagstr = annom->getOKString();
   for (PlotCommand_cp cmd : diagstr) {
-    bool keep = !remove;
-    if (!keep) {
-      if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(cmd))
-        keep = !miutil::contains(c->command(), "$"); // do not keep labels with time
-    }
-    if (keep) //remove labels with time
+    if (!remove || !isLabelCommandWithTime(cmd))
       pstr.push_back(cmd);
   }
 
