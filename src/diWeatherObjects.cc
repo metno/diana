@@ -586,13 +586,13 @@ miTime WeatherObjects::timeFromString(const std::string& timeString)
 /*********************************************/
 
 // static
-map<std::string,bool> WeatherObjects::decodeTypeString(const std::string& token)
+map<std::string,bool> WeatherObjects::decodeTypeString(const std::string& types)
 {
   map<std::string,bool> use;
   for (int i=0; i<numObjectTypes; i++)
     use[ObjectTypeNames[i]]= false;
   //types of objects to plot
-  vector<std::string> stokens = miutil::split(token.substr(6,token.size()-6), 0, ",");
+  vector<std::string> stokens = miutil::split(types, 0, ",");
   int m= stokens.size();
   for (int j=0; j<m; j++){
     if (stokens[j] == "all"){

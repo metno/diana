@@ -84,33 +84,31 @@ bool DisplayObjects::define(const PlotCommand_cp& pc)
     if (kv.key() == "types") {
       setSelectedObjectTypes(kv.value());
     } else {
-      {
-        const std::string& key = kv.key();
-        const std::string& value = kv.value();
-        METLIBS_LOG_DEBUG("key,value" << key << " " << value);
-        if (key=="file") {
-          int l= value.length();
-          int f= value.rfind('.') + 1;
-          std::string tstr= value.substr(f,l-f);
-          itsTime= timeFromString(tstr);
-          autoFile= false;
-        } else if (key=="name") {
-            objectname = value;
-        } else if (key=="time") {
-          itsTime = timeFromString(value);
-          autoFile= false;
-        } else if (key == "timediff") {
-          timeDiff = kv.toInt();
-        } else if (key=="alpha" || key=="alfa") {
-          alpha = int(kv.toDouble()*255);
-        } else if (key=="frontlinewidth") {
-          newfrontlinewidth = kv.toInt();
-        } else if (key=="fixedsymbolsize") {
-          fixedsymbolsize= kv.toInt();
-        } else if (key=="symbolfilter") {
-          const std::vector<std::string> vals = miutil::split(value, ",");
-          symbolfilter.insert(symbolfilter.end(), vals.begin(), vals.end());
-        }
+      const std::string& key = kv.key();
+      const std::string& value = kv.value();
+      METLIBS_LOG_DEBUG(LOGVAL(key) << LOGVAL(value));
+      if (key=="file") {
+        int l= value.length();
+        int f= value.rfind('.') + 1;
+        std::string tstr= value.substr(f,l-f);
+        itsTime= timeFromString(tstr);
+        autoFile= false;
+      } else if (key=="name") {
+        objectname = value;
+      } else if (key=="time") {
+        itsTime = timeFromString(value);
+        autoFile= false;
+      } else if (key == "timediff") {
+        timeDiff = kv.toInt();
+      } else if (key=="alpha" || key=="alfa") {
+        alpha = int(kv.toDouble()*255);
+      } else if (key=="frontlinewidth") {
+        newfrontlinewidth = kv.toInt();
+      } else if (key=="fixedsymbolsize") {
+        fixedsymbolsize= kv.toInt();
+      } else if (key=="symbolfilter") {
+        const std::vector<std::string> vals = miutil::split(value, ",");
+        symbolfilter.insert(symbolfilter.end(), vals.begin(), vals.end());
       }
     }
   }

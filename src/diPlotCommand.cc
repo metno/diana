@@ -28,7 +28,7 @@ size_t identify(const std::string& commandKey, const std::string& text)
 }
 
 const std::vector<std::string> commandKeysKV = {
-  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBS"
+  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBJECTS", "OBS"
 };
 
 PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)

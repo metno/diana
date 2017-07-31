@@ -1831,15 +1831,15 @@ vector<EditProduct> EditManager::getEditProducts(){
 }
 
 
-std::string EditManager::savedProductString(savedProduct sp)
+std::string EditManager::savedProductString(const savedProduct& sp)
 {
-  if (sp.ptime.undef()){
-    return sp.pid + " " + sp.productName + " "
-        + " " + sp.selectObjectTypes + " " + sp.filename;
-  } else {
-    return sp.pid + " " + sp.productName + " "
-        + sp.ptime.isoTime() + " " + sp.selectObjectTypes + " " + sp.filename;
-  }
+  std::string str = sp.pid
+      + " " + sp.productName;
+  if (!sp.ptime.undef())
+    str += " " + sp.ptime.isoTime();
+  str += " types=" + sp.selectObjectTypes
+        + " " + sp.filename;
+  return str;
 }
 
 

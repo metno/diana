@@ -251,7 +251,7 @@ public:
   /// returns name of all EditProducts defined in setup file
   std::vector<std::string> getEditProductNames();
   /// returns a string with product id, name, time and object types
-  std::string savedProductString(savedProduct sp);
+  std::string savedProductString(const savedProduct &sp);
   /// get fieldEdit annotations
   bool getDataAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
