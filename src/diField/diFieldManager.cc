@@ -637,6 +637,16 @@ std::string FieldManager::mergeTaxisNames(
   }
 }
 
+namespace {
+struct compare_name {
+  compare_name(const std::string& c)
+    : compare_to_(c) { }
+  bool operator() (const gridinventory::GridParameter& p) const
+    { return compare_to_ == p.name; }
+
+  const std::string& compare_to_;
+};
+}
 void FieldManager::addComputedParameters(gridinventory::ReftimeInventory& inventory)
 {
   METLIBS_LOG_SCOPE();
@@ -650,13 +660,8 @@ void FieldManager::addComputedParameters(gridinventory::ReftimeInventory& invent
     const std::string& computeParameterName = fc.name;
     METLIBS_LOG_DEBUG(LOGVAL(fc.name));
     //check if parameter exists
-    set<gridinventory::GridParameter>::iterator pitr = inventory.parameters.begin();
-    // loop through parameters
-    for (; pitr != inventory.parameters.end(); ++pitr) {
-      if (pitr->name == computeParameterName) {
-        break; //param already exists
-      }
-    }
+    set<gridinventory::GridParameter>::iterator pitr = std::find_if(inventory.parameters.begin(), inventory.parameters.end(),
+                                                                    compare_name(computeParameterName));
     if (pitr != inventory.parameters.end()) {
       break;
     }
