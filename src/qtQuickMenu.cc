@@ -38,6 +38,7 @@
 #include "qtUtility.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -570,7 +571,7 @@ void QuickMenu::fillPrivateMenus()
     qtmp.filename= *it;
     int i = 0;
     while ( i<QMENU &&  qtmp.filename != qm[i].filename ) i++;
-    if ( i<QMENU ) continue; //History
+    if ( miutil::contains(qtmp.filename,"History") ) continue; //History
     qtmp.plotindex = 0;
     qtmp.menuitems.clear();
     if (readQuickMenu(qtmp)){
