@@ -453,6 +453,30 @@ bool FieldManager::modelOK(const std::string& modelName)
   return true;
 }
 
+std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::string& modelName, const std::string& refTime)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
+
+  GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false);
+  if (not pgc)
+    return std::map<std::string,std::string>();
+
+  const gridinventory::Inventory& inventory = pgc->getInventory();
+
+  std::map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr =
+      inventory.reftimes.find(refTime);
+  if (ritr == inventory.reftimes.end()) {
+    if (refTime.empty() && !inventory.reftimes.empty()) {
+      ritr = inventory.reftimes.begin();
+    } else {
+      METLIBS_LOG_INFO( " refTime not found: " << refTime);
+      return std::map<std::string,std::string>();
+    }
+  }
+  return ritr->second.globalAttributes;
+}
+
+
 void FieldManager::getFieldInfo(const std::string& modelName, const std::string& refTime,
     std::map<std::string,FieldInfo>& fieldInfo)
 {
@@ -510,6 +534,7 @@ void FieldManager::getFieldInfo(const std::string& modelName, const std::string&
 
     fieldInfo[vi.fieldName]=vi;
   }
+
 }
 
 

@@ -161,6 +161,12 @@ const std::set<std::string> cp__idnum1 = {
   "refoffset", "hour.offset", "hour.diff", "MINUS"
 };
 
+const char* const modelGlobalAttributes[][2] = {
+  { "title",   QT_TRANSLATE_NOOP("FieldDialog", "Title") },
+  { "summary", QT_TRANSLATE_NOOP("FieldDialog", "Summary") },
+};
+
+
 } // anonymous namespace
 
 // ========================================================================
@@ -2938,14 +2944,25 @@ void FieldDialog::updateFieldOptions(const std::string& name, const std::string&
   }
 }
 
-void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime, bool plotOptions, vector<FieldGroupInfo>& vfg)
+void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime,
+    bool plotOptions, vector<FieldGroupInfo>& vfg)
 {
-METLIBS_LOG_SCOPE(LOGVAL(modelName));
+  METLIBS_LOG_SCOPE(LOGVAL(modelName));
 
-  {  diutil::OverrideCursor waitCursor;
+  { diutil::OverrideCursor waitCursor;
     m_ctrl->getFieldGroups(modelName, refTime, plotOptions, vfg);
+    QString tooltip;
+    const std::map<std::string,std::string> globalAttributes = m_ctrl->getFieldGlobalAttributes(modelName, refTime);
+    for (const char* const* mga : modelGlobalAttributes) {
+      std::map<std::string,std::string>::const_iterator it = globalAttributes.find(mga[0]);
+      if (it != globalAttributes.end()) {
+        tooltip += QString("<tr><td>%1</td><td>%2</td></tr>").arg(tr(mga[1]), QString::fromStdString(it->second));
+      }
+    }
+    if (!tooltip.isEmpty())
+      tooltip = "<table>" + tooltip + "</table>";
+    refTimeComboBox->setToolTip(tooltip);
   }
-
 }
 
 PlotCommand_cpv FieldDialog::getOKString()

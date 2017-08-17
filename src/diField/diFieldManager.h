@@ -109,6 +109,8 @@ public:
   /// check if model exists
   bool modelOK(const std::string& modelName);
 
+  std::map<std::string,std::string> getGlobalAttributes(const std::string& modelName, const std::string& refTime);
+
   /// return all variables/levels for one model/file (to FieldDialog)
   void getFieldInfo(const std::string& modelName, const std::string& refTime,
       std::map<std::string,FieldInfo>& fieldInfo);

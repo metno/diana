@@ -639,6 +639,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
     // Get the CDM from the reader
     const CDM& cdm = feltReader->getCDM();
+
     // get all coordinate systems from file, usually one, but may be a few (theoretical limit: # of variables)
     coordSys = MetNoFimex::listCoordinateSystems(feltReader);
 
@@ -851,6 +852,13 @@ bool FimexIO::makeInventory(const std::string& reftime)
       rtimes[reftime.referencetime] = reftime;
     }
 
+    //get global attributes
+    std::map<std::string,std::string> globalAttributes;
+    const std::vector<CDMAttribute> attributes = cdm.getAttributes(cdm.globalAttributeNS());
+    for (const CDMAttribute& a : attributes) {
+      globalAttributes[a.getName()] = a.getStringValue();
+    }
+
     //loop throug reftimeinv
     for (gridinventory::Inventory::reftimes_t::iterator it_ri = rtimes.begin(); it_ri != rtimes.end(); ++it_ri) {
       gridinventory::ReftimeInventory& ri = it_ri->second;
@@ -860,6 +868,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       ri.taxes.insert(taxes.begin(), taxes.end());
       ri.extraaxes = extraaxes;
       ri.timestamp = now;
+      ri.globalAttributes = globalAttributes;
     }
 
     //METLIBS_LOG_DEBUG(LOGVAL(inventory));

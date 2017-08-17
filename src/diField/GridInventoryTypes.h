@@ -289,6 +289,7 @@ public:
   std::set<Taxis> taxes;
   std::set<ExtraAxis> extraaxes;
   miutil::miTime timestamp;
+  std::map<std::string,std::string> globalAttributes;
 
   ReftimeInventory()
   {
