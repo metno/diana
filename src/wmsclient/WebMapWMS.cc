@@ -185,30 +185,10 @@ void WebMapWMSRequest::abort()
     mTiles[i]->abort();
 }
 
-bool WebMapWMSRequest::checkRedirect(WebMapImage* image)
-{
-  METLIBS_LOG_SCOPE();
-  if (!image->reply())
-    return false;
-
-  METLIBS_LOG_DEBUG("http status=" << image->reply()->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt());
-
-  const QVariant vRedirect = image->reply()->attribute(QNetworkRequest::RedirectionTargetAttribute);
-  if (vRedirect.isNull())
-    return false;
-
-  QUrl redirect = vRedirect.toUrl();
-  if (redirect.isRelative())
-    redirect = image->reply()->url().resolved(redirect);
-  METLIBS_LOG_DEBUG("redirect to '" << redirect.toString().toStdString() << "'");
-  image->submit(mService->submitUrl(redirect));
-  return true;
-}
-
 void WebMapWMSRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
-  if (checkRedirect(tile))
+  if (diutil::checkRedirect(mService, tile))
     return;
   if (!tile->loadImage(mService->tileFormat()))
     tile->dummyImage(TILESIZE, TILESIZE);
@@ -221,7 +201,7 @@ void WebMapWMSRequest::tileFinished(WebMapTile* tile)
 void WebMapWMSRequest::legendFinished(WebMapImage*)
 {
   METLIBS_LOG_SCOPE();
-  if (checkRedirect(mLegend))
+  if (diutil::checkRedirect(mService, mLegend))
     return;
   mLegend->loadImage("image/png");
   mUnfinished -= 1;

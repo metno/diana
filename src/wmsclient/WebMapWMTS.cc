@@ -189,6 +189,8 @@ const QImage& WebMapWMTSRequest::tileImage(size_t idx) const
 void WebMapWMTSRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
+  if (diutil::checkRedirect(mService, tile))
+    return;
   tile->loadImage(mLayer->tileFormat());
   mUnfinished -= 1;
   METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));

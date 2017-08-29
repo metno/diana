@@ -29,6 +29,9 @@
 
 #include "WebMapUtilities.h"
 
+#include "WebMapService.h"
+#include "WebMapTile.h"
+
 #include "diGlUtilities.h"
 #include "diPoint.h"
 #include "diRasterPlot.h"
@@ -42,7 +45,10 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <QNetworkReply>
 #include <QStringList>
+#include <QVariant>
+#include <QUrl>
 
 #include <boost/shared_array.hpp>
 
@@ -623,5 +629,22 @@ QStringList expandWmsValues(const QString& valueSpec)
   }
   return values;
 }
+
+bool checkRedirect(WebMapService* service, WebMapImage* image)
+{
+  if (!image->reply())
+    return false;
+
+  const QVariant vRedirect = image->reply()->attribute(QNetworkRequest::RedirectionTargetAttribute);
+  if (vRedirect.isNull())
+    return false;
+
+  QUrl redirect = vRedirect.toUrl();
+  if (redirect.isRelative())
+    redirect = image->reply()->url().resolved(redirect);
+  image->submit(service->submitUrl(redirect));
+  return true;
+}
+
 
 } // namespace diutil

@@ -125,9 +125,11 @@ void WebMapSlippyOSMRequest::abort()
 void WebMapSlippyOSMRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
-  tile->loadImage(mLayer->tileFormat());
+  if (diutil::checkRedirect(mService, tile))
+    return;
+  const bool ok = tile->loadImage(mLayer->tileFormat());
   mUnfinished -= 1;
-  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));
+  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished) << LOGVAL(ok));
   if (mUnfinished == 0)
     Q_EMIT completed();
 }

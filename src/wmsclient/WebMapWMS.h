@@ -113,7 +113,7 @@ typedef WebMapWMS* WebMapWMS_x;
 typedef const WebMapWMS* WebMapWMS_cx;
 
 class WebMapWMSRequest : public WebMapRequest {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   WebMapWMSRequest(WebMapWMS_x service, WebMapWMSLayer_cx layer, int crsIndex, int zoom);
@@ -122,31 +122,28 @@ public:
 
   void addTile(int tileX, int tileY);
 
-  void setDimensionValue(const std::string& dimName, const std::string& dimValue);
+  void setDimensionValue(const std::string& dimName, const std::string& dimValue) override;
 
   /*! start fetching data */
-  void submit();
+  void submit() override;
 
   /*! stop fetching data */
-  void abort();
+  void abort() override;
 
   /*! number of tiles */
-  size_t countTiles() const
+  size_t countTiles() const override
     { return mTiles.size(); }
 
   /*! rectangle of one tile, in tileProjection coordinates */
-  const Rectangle& tileRect(size_t idx) const;
+  const Rectangle& tileRect(size_t idx) const override;
 
   /*! image data of one tile; might have isNull() == true */
-  const QImage& tileImage(size_t idx) const;
+  const QImage& tileImage(size_t idx) const override;
 
-  const Projection& tileProjection() const
+  const Projection& tileProjection() const override
     { return mLayer->crsBoundingBox(mCrsIndex).projection; }
 
-  QImage legendImage() const;
-
-private:
-  bool checkRedirect(WebMapImage* image);
+  QImage legendImage() const override;
 
 private Q_SLOTS:
   void tileFinished(WebMapTile*);
@@ -172,7 +169,7 @@ typedef std::shared_ptr<WebMapRequest> WebMapRequest_p;
 
 class WebMapWMS : public WebMapService
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   /* set with URL pointing to GetCapabilities. need to call refresh to
@@ -182,7 +179,7 @@ public:
   ~WebMapWMS();
 
   /*! suitable refresh interval. negative for no refresh */
-  int refreshInterval() const;
+  int refreshInterval() const override;
 
   /*! create a request object for the specified layer. may be null,
    *  e.g. if unknown layer or; ownership is transferred to caller */

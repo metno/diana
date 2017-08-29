@@ -40,6 +40,8 @@
 class Projection;
 class Rectangle;
 
+class WebMapImage;
+class WebMapService;
 
 #define QDOM_FOREACH_CHILD(eChild, eParent, name)                       \
   for (QDomElement eChild = eParent.firstChildElement(name);            \
@@ -99,6 +101,8 @@ WmsInterval parseWmsIso8601Interval(const std::string& text);
 
 QStringList expandWmsTimes(const QString& values);
 QStringList expandWmsValues(const QString& values);
+
+bool checkRedirect(WebMapService* service, WebMapImage* image);
 
 // ========================================================================
 
