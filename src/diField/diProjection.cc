@@ -107,46 +107,134 @@ std::ostream& operator<<(std::ostream& output, const Projection& p)
   return output;
 }
 
-int Projection::convertPoints(const Projection& srcProj, int npos, float * x,
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, float * x,
     float * y, bool silent) const
 {
-  if (!srcProj.projObject) {
-    METLIBS_LOG_ERROR("src projPJ not initialized, definition=" << srcProj);
-    return -1;
-  }
+  if (!areDefined(srcProj, *this))
+    return false;
 
-  if (!projObject) {
-    METLIBS_LOG_ERROR("tgt projPJ not initialized, definition=" << *this);
-    return -1;
+  // use stack when converting a small number of points
+  double *xd, *yd;
+  const int N = 32;
+  double xdN[N], ydN[N];
+  std::unique_ptr<double[]> xdU, ydU;
+  if (npos < N) {
+    xd = xdN;
+    yd = ydN;
+  } else {
+    xdU.reset(new double[npos]);
+    ydU.reset(new double[npos]);
+    xd = xdU.get();
+    yd = ydU.get();
   }
-
-  std::unique_ptr<double[]> xd(new double[npos]), yd(new double[npos]);
-  double * zd = 0;
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
-  for (int i = 0; i < npos; i++) {
+  for (size_t i = 0; i < npos; i++) {
     xd[i] = x[i];
     yd[i] = y[i];
   }
-  // Transformation
-  // Here we spend most of the time when large matrixes.
-  int ret = pj_transform(srcProj.projObject.get(), projObject.get(), npos, 1, xd.get(), yd.get(), zd);
+
+  if (!transformAndCheck(srcProj, npos, 1, xd, yd, silent))
+    return false;
+
+  DIUTIL_OPENMP_PARALLEL(npos, for)
+  for (size_t i = 0; i < npos; i++) {
+    x[i] = static_cast<float>(xd[i]);
+    y[i] = static_cast<float>(yd[i]);
+  }
+
+  return true;
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, double* xd,
+    double* yd, bool silent) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  return transformAndCheck(srcProj, npos, 1, xd, yd, silent);
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy, bool silent) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  // use stack when converting a small number of points
+  double *xd, *yd;
+  const int N = 32;
+  double xdN[N], ydN[N];
+  std::unique_ptr<double[]> xdU, ydU;
+  if (npos < N) {
+    xd = xdN;
+    yd = ydN;
+  } else {
+    xdU.reset(new double[npos]);
+    ydU.reset(new double[npos]);
+    xd = xdU.get();
+    yd = ydU.get();
+  }
+
+  DIUTIL_OPENMP_PARALLEL(npos, for)
+  for (size_t i = 0; i < npos; i++) {
+    xd[i] = xy[i].x();
+    yd[i] = xy[i].y();
+  }
+
+  if (!transformAndCheck(srcProj, npos, 1, xd, yd, silent))
+    return false;
+
+  DIUTIL_OPENMP_PARALLEL(npos, for)
+  for (size_t i = 0; i < npos; i++) {
+    xy[i] = diutil::PointF(xd[i], yd[i]);
+  }
+
+  return true;
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy, bool silent) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  static_assert(sizeof(diutil::PointD) == 2*sizeof(double), "sizeof PointD");
+  double* xd = reinterpret_cast<double*>(xy);
+  double* yd = xd + 1;
+  assert(reinterpret_cast<double*>(&xy[1]) == (xd + 2));
+  assert(yd[0] == xy[0].y());
+  return transformAndCheck(srcProj, npos, 2, xd, yd, silent);
+}
+
+bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y, bool silent) const
+{
+  // actual transformation -- here we spend most of the time when large matrixes.
+  double* z = 0;
+  const int ret = pj_transform(src.projObject.get(), projObject.get(), npos, offset, x, y, z);
   if (ret != 0 && ret !=-20) {
     //ret=-20 :"tolerance condition error"
     //ret=-14 : "latitude or longitude exceeded limits"
     if (!silent && ret != -14) {
       METLIBS_LOG_ERROR("error in pj_transform = " << pj_strerrno(ret) << "  " << ret);
     }
-    return -1;
+    return false;
+  }
+  return true;
+}
+
+// static
+bool Projection::areDefined(const Projection& srcProj, const Projection& tgtProj)
+{
+  if (!srcProj.isDefined()) {
+    METLIBS_LOG_ERROR("src projPJ not initialized, definition=" << srcProj);
+    return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(npos, for)
-  for (int i = 0; i < npos; i++) {
-    x[i] = static_cast<float>(xd[i]);
-    y[i] = static_cast<float>(yd[i]);
+  if (!tgtProj.isDefined()) {
+    METLIBS_LOG_ERROR("tgt projPJ not initialized, definition=" << tgtProj);
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 // Support Functions for convertVector
@@ -193,7 +281,7 @@ struct uv {
 };
 
 /// Get the direction to north from point x, y
-float * north(Projection p, int nvec, const float * x, const float * y)
+float * north(Projection p, size_t nvec, const float * x, const float * y)
 {
   std::unique_ptr<float[]> north_x(new float[nvec]), north_y(new float[nvec]);
   std::copy(x, x + nvec, north_x.get());
@@ -230,7 +318,7 @@ float turn(float angle_a, float angle_b)
 
 } // namespace
 
-int Projection::convertVectors(const Projection& srcProj, int nvec,
+bool Projection::convertVectors(const Projection& srcProj, size_t nvec,
     const float * from_x, const float * from_y,
     const float * to_x, const float * to_y,
     float * u, float * v) const
@@ -256,10 +344,10 @@ int Projection::convertVectors(const Projection& srcProj, int nvec,
         v[i] = convert.v * length;
       }
     }
-    return 0;
+    return true;
   } catch (std::exception & e) {
     METLIBS_LOG_ERROR("exception in convertVectors:" << e.what());
-    return 1;
+    return false;
   }
 }
 
@@ -286,7 +374,7 @@ void Projection::calculateVectorRotationElements(const Projection& srcProj, int 
   }
 }
 
-int Projection::convertVectors(const Projection& srcProj, int nvec,
+bool Projection::convertVectors(const Projection& srcProj, int nvec,
     const float * to_x,  const float * to_y, float * u, float * v) const
 {
   std::unique_ptr<float[]> from_x(new float[nvec]), from_y(new float[nvec]);
@@ -297,7 +385,7 @@ int Projection::convertVectors(const Projection& srcProj, int nvec,
   return convertVectors(srcProj, nvec, from_x.get(), from_y.get(), to_x, to_y, u, v);
 }
 
-int Projection::calculateVectorRotationElements(const Projection& srcProj, int nvec,
+bool Projection::calculateVectorRotationElements(const Projection& srcProj, int nvec,
     const float * to_x, const float * to_y,
     float * cosa, float * sina) const
 {
@@ -305,22 +393,22 @@ int Projection::calculateVectorRotationElements(const Projection& srcProj, int n
   std::copy(to_x, to_x + nvec, from_x.get());
   std::copy(to_y, to_y + nvec, from_y.get());
 
-  int err = srcProj.convertPoints(*this, nvec, from_x.get(), from_y.get()); // convert back to old projection
-  if (err == 0) {
-    calculateVectorRotationElements(srcProj, nvec,
+  if (!srcProj.convertPoints(*this, nvec, from_x.get(), from_y.get())) // convert back to old projection
+    return false;
+
+  calculateVectorRotationElements(srcProj, nvec,
         from_x.get(), from_y.get(), to_x, to_y, cosa, sina);
-  }
-  return err;
+  return true;
 }
 
 bool Projection::isLegal(float lon, float lat) const
 {
   float px = lon;
   float py = lat;
-  int ierror = convertToGeographic(1, &px, &py);
+  const bool ok = convertToGeographic(1, &px, &py);
 
   const float maxval = 1000000;
-  return (ierror == 0 && fabsf(px) < maxval && fabsf(py) < maxval);
+  return (ok && fabsf(px) < maxval && fabsf(py) < maxval);
 }
 
 bool Projection::isAlmostEqual(const Projection& p) const
@@ -369,21 +457,18 @@ float Projection::getMapLinesJumpLimit() const
   // find position of two geographic positions
   float px[2] = { 0.0, 0.0 };
   float py[2] = { 45.0, -45.0 };
-  int ierror = convertFromGeographic(2, px, py);
 
-  if (ierror) {
-    METLIBS_LOG_ERROR("getMapLinesJumpLimit:" << ierror);
-  } else {
-    float dx = px[1] - px[0];
-    float dy = py[1] - py[0];
-    jumplimit = sqrtf(dx * dx + dy * dy) / 4;
-  }
-  return jumplimit;
+  if (!convertFromGeographic(2, px, py))
+    METLIBS_LOG_ERROR("getMapLinesJumpLimit");
+
+  float dx = px[1] - px[0];
+  float dy = py[1] - py[0];
+  return sqrtf(dx * dx + dy * dy) / 4;
 }
 
-int Projection::convertToGeographic(int n, float* x, float* y) const
+bool Projection::convertToGeographic(int n, float* x, float* y) const
 {
-  int ierror = geographic().convertPoints(*this, n, x, y);
+  const bool ok = geographic().convertPoints(*this, n, x, y);
 
   DIUTIL_OPENMP_PARALLEL(n, for)
   for (int i = 0; i < n; i++) {
@@ -392,10 +477,10 @@ int Projection::convertToGeographic(int n, float* x, float* y) const
     if (y[i] != HUGE_VAL)
       y[i] *= RAD_TO_DEG;
   }
-  return ierror;
+  return ok ;
 }
 
-int Projection::convertFromGeographic(int npos, float* x, float* y) const
+bool Projection::convertFromGeographic(int npos, float* x, float* y) const
 {
   DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int i = 0; i < npos; i++) {
@@ -436,10 +521,8 @@ bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
     }
   }
 
-  int ierror = convertToGeographic(ntnt, tx.get(), ty.get());
-
-  if (ierror) {
-    METLIBS_LOG_ERROR("calculateLatLonBoundingBox: " << ierror);
+  if (!convertToGeographic(ntnt, tx.get(), ty.get())) {
+    METLIBS_LOG_ERROR("calculateLatLonBoundingBox");
     return false;
   }
 
@@ -476,7 +559,7 @@ bool Projection::adjustedLatLonBoundingBox(const Rectangle & maprect,
   return true;
 }
 
-int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridResolutionY,
+bool Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridResolutionY,
     float* xmapr, float* ymapr, float* coriolis) const
 {
   const int npos = nx * ny;
@@ -491,10 +574,8 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
     }
   }
 
-  int ierror = convertToGeographic(npos, x.get(), y.get());
-  if (ierror < 0) {
-    return ierror;
-  }
+  if (!convertToGeographic(npos, x.get(), y.get()))
+    return false;
 
   //HACK: in geographic projection wrapping the world x[0]=x[nx-1]=180
   //must set x[0]=-180 in order to get map ratios right
@@ -515,7 +596,7 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
   }
 
   if (!(xmapr && ymapr))
-    return ierror;
+    return false;
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
   for (int iy = 0; iy < ny; iy++) {
@@ -539,7 +620,7 @@ int Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridRe
       }
     }
   }
-  return ierror;
+  return true;
 }
 
 bool Projection::isGeographic() const

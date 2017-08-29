@@ -73,7 +73,6 @@ libdiana_la_SOURCES = \
 	diPlotCluster.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
-	diPoint.cc \
 	diPolyContouring.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \

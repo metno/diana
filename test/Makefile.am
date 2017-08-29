@@ -76,6 +76,7 @@ LDADD += \
 diFieldTest_SOURCES = \
     FieldFunctionsTest.cc \
     GridConverterTest.cc \
+    ProjectionTest.cc \
     gtestMain.cc
 
 diFieldTest_LDFLAGS = \

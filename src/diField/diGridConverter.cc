@@ -186,7 +186,7 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_
   }
 
   const Projection& pa = area.P();
-  if (map_proj.convertPoints(pa, npos, p0.x, p0.y) != 0) {
+  if (!map_proj.convertPoints(pa, npos, p0.x, p0.y)) {
     pointbuffer->pop();
     return false;
   }
@@ -337,7 +337,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
 bool GridConverter::getPoints(const Projection& projection, const Projection& map_projection,
     int npos, float* x, float* y) const
 {
-  return map_projection.convertPoints(projection, npos, x, y, false) == 0;
+  return map_projection.convertPoints(projection, npos, x, y, false);
 }
 
 // get arrays of vector rotation elements
@@ -368,7 +368,7 @@ bool GridConverter::getVectorRotationElements(const Area& data_area,
   p0.x = new float[nvec];
   p0.y = new float[nvec];
 
-  if (map_proj.calculateVectorRotationElements(data_area.P(), nvec, x, y, p0.x, p0.y)) {
+  if (!map_proj.calculateVectorRotationElements(data_area.P(), nvec, x, y, p0.x, p0.y)) {
     anglebuffer->pop();
     return false;
   }
@@ -441,18 +441,18 @@ bool GridConverter::getDirectionVector(const Area& map_area, const bool turn,
 
 bool GridConverter::geo2xy(const Area& area, int npos, float* x, float* y)
 {
-  return area.P().convertFromGeographic(npos, x, y) == 0;
+  return area.P().convertFromGeographic(npos, x, y);
 }
 
 bool GridConverter::xy2geo(const Area& area, int npos, float* x, float* y)
 {
-  return area.P().convertToGeographic(npos, x, y) == 0;
+  return area.P().convertToGeographic(npos, x, y);
 }
 
 bool GridConverter::geov2xy(const Area& area, int npos,
     const float* x, const float* y, float *u, float *v)
 {
-  return area.P().convertVectors(Projection::geographic(), npos, x, y, u, v) == 0;
+  return area.P().convertVectors(Projection::geographic(), npos, x, y, u, v);
 }
 
 bool GridConverter::getMapFields(const GridArea& area,
@@ -491,7 +491,7 @@ bool GridConverter::getMapFields(const GridArea& area,
     mf->xmapr = new float[npos];
     mf->ymapr = new float[npos];
     mf->coriolis = new float[npos];
-    if (area.P().getMapRatios(area.nx, area.ny, area.resolutionX, area.resolutionY,
+    if (!area.P().getMapRatios(area.nx, area.ny, area.resolutionX, area.resolutionY,
             mf->xmapr, mf->ymapr, mf->coriolis))
     {
       METLIBS_LOG_ERROR("getMapRatios problem");
