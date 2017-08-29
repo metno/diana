@@ -386,53 +386,8 @@ FimexIO::CDMReaderPtr FimexIO::createReader()
 void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex::Projection> projection, gridinventory::Grid& grid,
     CoordinateSystem::ConstAxisPtr xAxis, CoordinateSystem::ConstAxisPtr yAxis)
 {
-  std::string projStr = projection->getProj4String();
-
-  // replace +proj=utm ... with +proj=tmerc... (need proj that accepts +x_0/+y_0)
-  std::string utmstr = "+proj=utm +zone=";
-  size_t utmpos = projStr.find(utmstr,0);
-  if (utmpos != std::string::npos) {
-    const vector<std::string> tokens = miutil::split(projStr, 0, " ");
-    for (size_t ii=0; ii<tokens.size(); ++ii) {
-      const vector<std::string> stokens = miutil::split(tokens[ii], 0, "=");
-      if (stokens.size() == 2 && stokens[0] == "+zone") {
-        int lon_0 = (atof(stokens[1].c_str()) - 1)*6 - 180 + 3;
-        utmstr += stokens[1];
-        ostringstream ost;
-        ost <<"+proj=tmerc +lon_0="<<lon_0<<" +lat_0=0 +k=0.9996 +x_0=500000";
-        boost::replace_first(projStr,utmstr,ost.str());
-        break;
-      }
-    }
-  }
-  
-  //replace +proj=longlat and +proj=latlong with +proj=ob_tran +o_proj=longlat (need proj that accepts +x_0/+y_
-  std::string llstr = "+proj=longlat";
-  size_t llpos = projStr.find(llstr,0);
-  if (llpos == std::string::npos) {
-    llstr = "+proj=latlong";
-    llpos = projStr.find(llstr,0);
-  }
-  if (llpos != std::string::npos) {
-    boost::replace_first(projStr,llstr,"+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90");
-  }
-  
-  // Find and remove explicit false easting/northing, add them later
-  const vector<std::string> tokens = miutil::split(projStr, 0, " ");
-  for (size_t ii=0; ii<tokens.size(); ++ii) {
-    const vector<std::string> stokens = miutil::split(tokens[ii], 0, "=");
-    if (stokens.size() == 2 && stokens[0] == "+x_0") {
-      grid.x_0 = -1 *atof(stokens[1].c_str());
-      const size_t spos = projStr.find(tokens[ii], 0);
-      assert(spos != std::string::npos);
-      projStr.erase(spos, tokens[ii].length()+1);
-    } else if (stokens.size() == 2 && stokens[0] == "+y_0") {
-      grid.y_0 = -1 *atof(stokens[1].c_str());
-      const size_t spos = projStr.find(tokens[ii], 0);
-      assert(spos != std::string::npos);
-      projStr.erase(spos, tokens[ii].length()+1);
-    }
-  }
+  grid.x_0 = 0;
+  grid.y_0 = 0;
 
   const float axis_scale = 1.0; // X/Y-axes are scaled by this
   const std::string xyUnit = projection->isDegree() ? "radian" : METER;
@@ -445,7 +400,7 @@ void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex:
       boost::shared_array<float> fdata = xdata->asFloat();
       grid.nx = nx;
       grid.x_resolution = (fdata[1] - fdata[0]) * axis_scale;
-      grid.x_0 += fdata[0] * axis_scale;
+      grid.x_0 = fdata[0] * axis_scale;
       METLIBS_LOG_DEBUG(" x_resolution:" << grid.x_resolution << " x_0:" << grid.x_0);
     }
   }
@@ -457,11 +412,11 @@ void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex:
       grid.ny = ny;
       if( fdata[0] > fdata[1] ) {
         grid.y_resolution = (fdata[ny-1] - fdata[ny-2]) * axis_scale;
-        grid.y_0 += fdata[ny-1] * axis_scale;
+        grid.y_0 = fdata[ny-1] * axis_scale;
         grid.y_direction_up = false;
       } else {
         grid.y_resolution = (fdata[1] - fdata[0]) * axis_scale;
-        grid.y_0 += fdata[0] * axis_scale;
+        grid.y_0 = fdata[0] * axis_scale;
         grid.y_direction_up = true;
       }
       if ( grid.y_resolution < 0 ) {
@@ -471,11 +426,8 @@ void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex:
     }
   }
   
-  // Finalize grid
-  ostringstream ost;
-  ost << projStr << " +x_0=" << -grid.x_0 << " +y_0=" << -grid.y_0;
-  grid.projection += ost.str();
-  
+  grid.projection = projection->getProj4String();
+
   // if defined, use projDefinition from setup
   if (not projDef.empty()) {
     grid.projection = projDef;

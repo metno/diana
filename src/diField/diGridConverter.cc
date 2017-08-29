@@ -176,13 +176,13 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_
   for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < (nx-1); ix++) {
       int i = ix + iy*nx;
-      p0.x[i] = (ix - gdxy)*area.resolutionX;
-      p0.y[i] = (iy - gdxy)*area.resolutionY;
+      p0.x[i] = area.R().x1 + (ix - gdxy)*area.resolutionX;
+      p0.y[i] = area.R().y1 + (iy - gdxy)*area.resolutionY;
     }
     int i = iy*nx + nx - 1;
     // FIXME x[i]=nx-1 converts to x[i]=0 when transforming between geo-projections
-    p0.x[i] = (nx - gdxy - 1.1)*area.resolutionX;
-    p0.y[i] = (iy - gdxy)*area.resolutionY;
+    p0.x[i] = area.R().x1 + (nx - gdxy - 1.1)*area.resolutionX;
+    p0.y[i] = area.R().y1 + (iy - gdxy)*area.resolutionY;
   }
 
   const Projection& pa = area.P();
