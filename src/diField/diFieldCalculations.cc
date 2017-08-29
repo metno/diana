@@ -1181,9 +1181,9 @@ bool hlevelducting(int compute, int nx, int ny, const float *t,
       if (compute % 2 == 0)
         tk *= calculations::pidcp_from_p(p);
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> ducting  or  TH,q -> ducting
-        duct[i] = calculations::tk_q_duct(t[i], h[i], p);
+        duct[i] = calculations::tk_q_duct(tk, h[i], p);
       } else if (compute == 3 or compute == 4) { // T(Kelvin),RH(%) -> ducting  or TH,RH(%) -> ducting
-        duct[i] = calculations::tk_rh_duct(t[i], h[i], p, undef, allDefined);
+        duct[i] = calculations::tk_rh_duct(tk, h[i], p, undef, allDefined);
       }
     } else
       duct[i] = undef;
