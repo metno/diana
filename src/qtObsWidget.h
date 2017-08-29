@@ -35,7 +35,6 @@
 #include <qdialog.h>
 #include <QLabel>
 #include "diCommonTypes.h"
-#include "diController.h"
 #include "diKVListPlotCommand.h"
 #include "qtToggleButton.h"
 #include <map>
@@ -68,7 +67,7 @@ public:
 
   ObsWidget(QWidget* parent );
   ///init dialog
-  void setDialogInfo(Controller* ctrl, ObsDialogInfo,int index);
+  void setDialogInfo(ObsDialogInfo, int index);
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings

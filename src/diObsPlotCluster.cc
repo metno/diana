@@ -46,7 +46,7 @@ void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
   hasDevField_ = false;
 
   for (PlotCommand_cp pc : inp) {
-    ObsPlot *op = obsm_->createObsPlot(pc);
+    ObsPlot *op = ObsPlot::createObsPlot(pc);
     if (op) {
       plotenabled.restore(op);
       op->setCanvas(canvas_);

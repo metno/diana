@@ -83,9 +83,7 @@ ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
 //  Qt::WA_DeleteOnClose;
 }
 
-void ObsWidget::setDialogInfo( Controller* ctrl,
-    ObsDialogInfo dialog,
-    int plottype_nr)
+void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
 {
 #ifdef dObsDlg
   METLIBS_LOG_DEBUG("ObsWidget::setDialogInfo");
