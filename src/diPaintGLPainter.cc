@@ -104,7 +104,7 @@ bool DiPaintGLCanvas::setFontSize(const float size)
   return true;
 }
 
-void DiPaintGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
+void DiPaintGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   mFontScaleX = glw / vpw;
   mFontScaleY = glh / vph;

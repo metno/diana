@@ -869,7 +869,7 @@ void PlotModule::PlotAreaSetup()
   const Area& ma = staticPlot_->getMapArea();
   const Rectangle& mapr = ma.R();
 
-  const float waspr = staticPlot_->getPhysWidth() / staticPlot_->getPhysHeight();
+  const float waspr = staticPlot_->getPhysWidth() / float(staticPlot_->getPhysHeight());
   const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
 
   // update full plot area -- add border
@@ -879,7 +879,7 @@ void PlotModule::PlotAreaSetup()
   staticPlot_->setMapPlotSize(mr, fr);
 }
 
-void PlotModule::setPlotWindow(const int& w, const int& h)
+void PlotModule::setPlotWindow(int w, int h)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE(LOGVAL(w) << LOGVAL(h));
@@ -1679,13 +1679,13 @@ void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventRes
     arrowKeyDirection *= -1;
     return;
   } else if (anav == ANAV_PAN_LEFT)
-    dx = -staticPlot_->getPhysWidth() / 8;
+    dx = -staticPlot_->getPhysWidth() / 8.0f;
   else if (anav == ANAV_PAN_RIGHT)
-    dx = staticPlot_->getPhysWidth() / 8;
+    dx = staticPlot_->getPhysWidth() / 8.0f;
   else if (anav == ANAV_PAN_DOWN)
-    dy = -staticPlot_->getPhysHeight() / 8;
+    dy = -staticPlot_->getPhysHeight() / 8.0f;
   else if (anav == ANAV_PAN_UP)
-    dy = staticPlot_->getPhysHeight() / 8;
+    dy = staticPlot_->getPhysHeight() / 8.0f;
   else if (anav == ANAV_ZOOM_OUT)
     zoom = 1.3;
   else if (anav == ANAV_ZOOM_IN)

@@ -178,7 +178,7 @@ DiPainter::DiPainter(DiCanvas* canvas)
 {
 }
 
-void DiPainter::setVpGlSize(float vpw, float vph, float glw, float glh)
+void DiPainter::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   if (canvas())
     canvas()->setVpGlSize(vpw, vph, glw, glh);

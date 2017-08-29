@@ -52,6 +52,9 @@ static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
   return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
 }
 
+static inline float square(float x)
+{ return x*x; }
+
 GridConverter StaticPlot::gc; // Projection-converter
 
 StaticPlot::StaticPlot()
@@ -142,11 +145,16 @@ void StaticPlot::setMapPlotSize(const Rectangle& mr, const Rectangle& pr)
   }
 }
 
-void StaticPlot::setPhysSize(float w, float h)
+void StaticPlot::setPhysSize(int w, int h)
 {
-  mPhys = XY(w, h);
+  mPhys = diutil::PointI(w, h);
   updatePhysToMapScale();
   setDirty(true);
+}
+
+float StaticPlot::getPhysDiagonal() const
+{
+  return std::sqrt(square(getPhysWidth()) + square(getPhysHeight()));
 }
 
 Area StaticPlot::findBestMatch(const Area& newa){

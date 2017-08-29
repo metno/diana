@@ -58,7 +58,7 @@ void DiOpenGLCanvas::initializeFP()
   mFP.reset(new FontManager);
 }
 
-void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
+void DiOpenGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vph) << LOGVAL(glw) << LOGVAL(glh));
   fp()->setVpSize(vpw, vph);

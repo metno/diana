@@ -326,8 +326,7 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
   if (makenew) {
     std::string mapfile;
     // diagonal in pixels
-    float physdiag= sqrt(getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth()
-        +getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight());
+    const float physdiag= getStaticPlot()->getPhysDiagonal();
     // map resolution i km/pixel
     float mapres= (physdiag > 0 ? getStaticPlot()->getGcd()/(physdiag*1000) : 0);
 

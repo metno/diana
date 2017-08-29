@@ -97,7 +97,7 @@ public:
   void setGlSize(float glx1, float glx2, float gly1, float gly2);
 
   /// set viewport size in physical coordinates (pixels)
-  void setVpSize(float vpw, float vph);
+  void setVpSize(int vpw, int vph);
 
   /// return current font face
   FontFamily::FontFace getFontFace();

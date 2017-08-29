@@ -163,14 +163,13 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
 
   float dx= x2 - x1;
   float dy= y2 - y1;
-  float pw= plotw;
-  float ph= ploth;
-  if (pw/ph>dx/dy) {
-    dx= (dy*pw/ph - dx) * 0.5;
+  const float paspr = plotw/float(ploth);
+  if (paspr > dx/dy) {
+    dx= (dy*paspr - dx) * 0.5;
     x1-=dx;
     x2+=dx;
   } else {
-    dy= (dx*ph/pw - dy) * 0.5;
+    dy= (dx/paspr - dy) * 0.5;
     y1-=dy;
     y2+=dy;
   }
@@ -182,7 +181,7 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
   gl->Ortho(x1,x2,y1,y2,-1.,1.);
 
   if (numplot>0 || !firstPlot) {
-    gl->setVpGlSize(pw, ph, x2-x1, y2-y1);
+    gl->setVpGlSize(plotw, ploth, x2-x1, y2-y1);
 
     float chx,chy,fontsize=8.;
     gl->setFontSize(fontsize);

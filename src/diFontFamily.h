@@ -66,7 +66,7 @@ public:
 
   // Metric commands
   void setGlSize(float, float);
-  void setVpSize(float, float);
+  void setVpSize(int, int);
   bool getStringRect(const std::string& s,  float& x, float&y, float& w, float& h);
   bool getStringRect(const std::wstring& s, float& x, float&y, float& w, float& h);
 
@@ -101,7 +101,7 @@ private:
   int SizeIndex; // current fontsize index
 
   float reqSize; // last requested font size
-  float vpWidth, vpHeight; // viewport size in pixels
+  int vpWidth, vpHeight; // viewport size in pixels
   float glWidth, glHeight; // viewport size in gl-coord.
   float pixWidth, pixHeight; // size of pixel in gl-coord.
   float scalex, scaley; // font scaling

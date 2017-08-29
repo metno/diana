@@ -207,7 +207,7 @@ public:
   /// get the size of the plot window
   void getPlotWindow(int &width, int &height);
   /// new size of plotwindow
-  void setPlotWindow(const int&, const int&);
+  void setPlotWindow(int, int);
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float, const float, float&, float&);
   /// return physical x,y from physical latitude,longitude

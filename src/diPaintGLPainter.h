@@ -72,7 +72,7 @@ public:
   DiPaintGLCanvas(QPaintDevice* device);
   ~DiPaintGLCanvas();
 
-  void setVpGlSize(float vpw, float vph, float glw, float glh) override;
+  void setVpGlSize(int vpw, int vph, float glw, float glh) override;
 
   bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) override;
   bool setFont(const std::string& font) override;

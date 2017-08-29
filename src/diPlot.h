@@ -53,7 +53,7 @@ private:
   Rectangle maprect;  // Size of map plot area
   Rectangle plotsize; // Size of full plot area
   miutil::miTime ctime;       // current time
-  XY mPhys;           // physical size of plotarea
+  diutil::PointI mPhys; // physical size of plotarea
   XY mPhysToMapScale; // ratio of plot size to physical size
   bool dirty;         // plotarea has changed
   int verticalLevel;          // current vertical level
@@ -155,17 +155,19 @@ public:
     { return maprect; }
 
   /// set the physical size of the map in pixels
-  void setPhysSize(float w, float h);
+  void setPhysSize(int w, int h);
 
   /// this is  the physical size of the map in pixels
   bool hasPhysSize() const
     { return mPhys.x() > 0 && mPhys.y() > 0; }
 
-  float getPhysWidth() const
+  int getPhysWidth() const
     { return mPhys.x(); }
 
-  float getPhysHeight() const
+  int getPhysHeight() const
     { return mPhys.y(); }
+
+  float getPhysDiagonal() const;
 
   /// set the current data time
   void setTime(const miutil::miTime& t)
