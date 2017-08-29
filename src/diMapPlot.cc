@@ -35,7 +35,6 @@
 
 #include "diKVListPlotCommand.h"
 #include "diMapManager.h"
-#include "diStringPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 

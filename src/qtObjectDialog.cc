@@ -35,7 +35,6 @@
 #include "qtObjectDialog.h"
 #include "qtEditComment.h"
 #include "diObjectManager.h"
-#include "diStringPlotCommand.h"
 #include "qtUtility.h"
 
 #include "diKVListPlotCommand.h"

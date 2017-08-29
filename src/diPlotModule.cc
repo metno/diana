@@ -48,7 +48,6 @@
 #include "diMapManager.h"
 #include "diMapPlot.h"
 #include "diMeasurementsPlot.h"
-#include "diStringPlotCommand.h"
 #include "diStationPlot.h"
 #include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
