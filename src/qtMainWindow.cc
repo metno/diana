@@ -79,6 +79,7 @@
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 #include "util/qstring_util.h"
+#include "util/string_util.h"
 
 #include "export/MovieMaker.h"
 #include "export/qtExportImageDialog.h"
@@ -1575,11 +1576,14 @@ void DianaMainWindow::spectrumMenu()
 
 void DianaMainWindow::info_activated(QAction *action)
 {
-  if (action && infoFiles.count(action->text().toStdString())){
-    if (miutil::contains(infoFiles[action->text().toStdString()].filename, "http")) {
-      QDesktopServices::openUrl(QUrl(infoFiles[action->text().toStdString()].filename.c_str()));
+  const std::string txt = action->text().toStdString();
+  std::map<std::string,InfoFile>::const_iterator it = infoFiles.find(txt);
+  if (action && it != infoFiles.end()) {
+    const InfoFile& ifi = it->second;
+    if (diutil::startswith(ifi.filename, "http")) {
+      QDesktopServices::openUrl(QUrl(QString::fromStdString(ifi.filename)));
     } else {
-      TextDialog* td= new TextDialog(this, infoFiles[action->text().toStdString()]);
+      TextDialog* td= new TextDialog(this, ifi);
       td->show();
     }
   }

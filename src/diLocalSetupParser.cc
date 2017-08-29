@@ -237,18 +237,15 @@ bool LocalSetupParser::parseTextInfoFiles(const std::string& sectname)
   const std::string def_type= "auto";
   const std::string def_font= "auto";
 
-  vector<std::string> list,tokens,tokens2;
-  std::string key,value;
-  std::string name,filename, type, font;
-
+  vector<std::string> list;
   if (!miutil::SetupParser::getSection(sectname,list))
     return true;
 
-  int n= list.size();
-  for (int i=0; i<n; i++){
-    type= def_type; font= def_font;
-    tokens2= miutil::split(list[i], " ");
+  for (const std::string line : list) {
+    std::string name,filename, type = def_type, font = def_font;
+    const vector<std::string> tokens2 = miutil::split(line, " ");
     for (unsigned int j=0; j<tokens2.size(); j++){
+      std::string key,value;
       miutil::SetupParser::splitKeyValue(tokens2[j], key, value);
       if (key==key_name)
         name= value;
