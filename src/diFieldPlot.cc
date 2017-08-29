@@ -2391,10 +2391,12 @@ bool FieldPlot::centerOnGridpoint() const
 
 bool FieldPlot::plotRaster(DiGLPainter* gl)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   if (not checkFields(1))
     return false;
+
+  METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
 
   float *x = 0, *y = 0;
   int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
