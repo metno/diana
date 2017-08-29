@@ -414,7 +414,7 @@ bool WeatherObjects::readEditCommentFile(const std::string fn)
 
   file.close();
 
-  itsOldComments += diutil::convertLatin1ToUtf8(fileString);
+  itsOldComments += miutil::from_latin1_to_utf8(fileString);
 
   METLIBS_LOG_DEBUG("itsOldComments" << itsOldComments);
 
@@ -471,7 +471,7 @@ bool WeatherObjects::readAreaBorders(const std::string fn, const Area& newArea)
 
   file.close();
 
-  return readEditDrawString(diutil::convertLatin1ToUtf8(fileString),newArea);
+  return readEditDrawString(miutil::from_latin1_to_utf8(fileString),newArea);
 }
 
 

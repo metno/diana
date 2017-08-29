@@ -223,9 +223,6 @@ TEST(TestUtilities, trimToRectangle)
 
 TEST(TestUtilities, Latin1ToUtf8)
 {
-  EXPECT_EQ("blåbær", diutil::convertLatin1ToUtf8("bl\xE5" "b\xE6" "r"));
-  EXPECT_EQ("Årø", diutil::convertLatin1ToUtf8("\xC5r\xF8"));
-
   ASSERT_TRUE(bool(diutil::findConverter(diutil::ISO_8859_1, diutil::UTF_8)));
 }
 

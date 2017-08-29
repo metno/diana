@@ -3,6 +3,8 @@
 
 #include "string_util.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <regex>
 #include <stdexcept>
 
@@ -13,23 +15,6 @@
 #include <miLogger/miLogging.h>
 
 namespace diutil {
-
-std::string convertLatin1ToUtf8(const std::string& latin1)
-{
-  std::string utf8;
-  utf8.reserve(latin1.size());
-  for (char ch : latin1) {
-    unsigned char uch = static_cast<unsigned char>(ch);
-    if ((uch & 0x80) != 0) {
-      unsigned char uch1 = (0xc0 | (uch >> 6)); /* first byte, simplified since our range is only 8-bits */
-      utf8 += static_cast<char>(uch1);
-
-      uch = (0x80 | (uch & 0x3f));
-    }
-    utf8 += static_cast<char>(uch);
-  }
-  return utf8;
-}
 
 const std::string UTF_8 = "utf-8", ISO_8859_1 = "iso-8859-1";
 
@@ -71,7 +56,7 @@ public:
 
 std::string Latin1Utf8Converter::convert(const std::string& in)
 {
-  return diutil::convertLatin1ToUtf8(in);
+  return miutil::from_latin1_to_utf8(in);
 }
 
 
