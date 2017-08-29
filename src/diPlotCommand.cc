@@ -28,7 +28,7 @@ size_t identify(const std::string& commandKey, const std::string& text)
 }
 
 const std::vector<std::string> commandKeysKV = {
-  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBJECTS", "OBS"
+  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBJECTS", "OBS", "WEBMAP"
 };
 
 PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)
@@ -68,7 +68,6 @@ PlotCommand_cp makeCommand(const std::string& text)
   if (identify("STATION", text))
     return StationPlotCommand::parseLine(text);
 
-  // OBJECTS, WEBMAP
   return std::make_shared<StringPlotCommand>(text);
 }
 

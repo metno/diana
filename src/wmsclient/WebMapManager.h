@@ -31,7 +31,7 @@
 #define WebMapManager_h 1
 
 #include "diManager.h"
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 
 #include <vector>
 
@@ -41,7 +41,7 @@ class WebMapPlot;
 class WebMapService;
 
 class WebMapManager : public Manager {
-  Q_OBJECT;
+  Q_OBJECT
 
 private:
   WebMapManager();
@@ -100,7 +100,7 @@ Q_SIGNALS:
   void webMapsRemoved();
 
 private:
-  WebMapPlot* createPlot(const StringPlotCommand_cp& qmstring);
+  WebMapPlot* createPlot(KVListPlotCommand_cp qmstring);
   void clearMaps();
   void addMap(WebMapPlot* map);
 

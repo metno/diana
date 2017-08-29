@@ -29,7 +29,7 @@
 
 #include "WebMapDialog.h"
 
-#include "diStringPlotCommand.h"
+#include "diKVListPlotCommand.h"
 #include "WebMapManager.h"
 #include "WebMapPlot.h"
 #include "WebMapService.h"
@@ -331,11 +331,11 @@ void WebMapDialog::addSelectedLayer()
   if (!isAddLayerComplete() || !mAddSelectedService || !layer)
     return;
 
-  std::ostringstream add;
-  add << WEBMAP << " webmap.service=" << mAddSelectedService->identifier()
-      << " webmap.layer=" << layer->identifier()
-      << " style.alpha_scale=0.75";
-  mOk.push_back(std::make_shared<StringPlotCommand>(WEBMAP, add.str()));
+  KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>(WEBMAP);
+  cmd->add("webmap.service", mAddSelectedService->identifier());
+  cmd->add("webmap.layer", layer->identifier());
+  cmd->add("style.alpha_scale", "0.75");
+  mOk.push_back(cmd);
   Q_EMIT applyData();
 }
 

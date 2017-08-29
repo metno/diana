@@ -156,22 +156,18 @@ bool WebMapManager::parseSetup()
   return true;
 }
 
-WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
+WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(qmstring->command()));
+  METLIBS_LOG_SCOPE(LOGVAL(qmstring->toString()));
 
   // webmap.service=<service.id> webmap.layer=... webmap.dim=name=value webmap.crs=<string>
   //   webmap.time_tolerance=<int[seconds]>  webmap.time_offset=<int[seconds]>
   //   style.alpha_scale=<float> style.alpha_offset=<float> style.grey=<bool>
 
   std::string wm_service, wm_layer; // mandatory
-  const std::vector<std::string> kvpairs = miutil::split(qmstring->command());
-  for (size_t i=0; i<kvpairs.size(); i++) {
-    const std::vector<std::string> kv = miutil::split(kvpairs[i], 1, "=");
-    if (kv.size() != 2)
-      continue;
-    const std::string key = miutil::to_lower(kv[0]);
-    const std::string& value = kv[1];
+  for (const miutil::KeyValue& kv : qmstring->all()) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
     if (key == "webmap.service")
       wm_service = value;
     else if (key == "webmap.layer")
@@ -201,12 +197,9 @@ WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
   std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
   float style_alpha_offset = 0, style_alpha_scale = 1;
   bool style_grey = false;
-  for (size_t i=0; i<kvpairs.size(); i++) {
-    const std::vector<std::string> kv = miutil::split(kvpairs[i], 1, "=");
-    if (kv.size() != 2)
-      continue;
-    const std::string key = miutil::to_lower(kv[0]);
-    const std::string& value = kv[1];
+  for (const miutil::KeyValue& kv : qmstring->all()) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
     if (key == "webmap.dim") {
       const std::vector<std::string> dnv = miutil::split(value, 1, "=");
       if (dnv.size() == 2)
@@ -238,7 +231,7 @@ bool WebMapManager::processInput(const PlotCommand_cpv& input)
   METLIBS_LOG_SCOPE(LOGVAL(input.size()));
   clearMaps();
   for (size_t i=0; i<input.size(); ++i) {
-    if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(input[i]))
+    if (KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(input[i]))
       addMap(createPlot(c));
   }
   return true;
