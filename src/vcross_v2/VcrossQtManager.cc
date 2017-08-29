@@ -1052,7 +1052,7 @@ void QtManager::setFieldVisible(int index, bool visible)
 }
 
 
-void QtManager::selectFields(const string_v& to_plot)
+void QtManager::selectFields(const std::vector<miutil::KeyValue_v>& to_plot)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1061,21 +1061,14 @@ void QtManager::selectFields(const string_v& to_plot)
   fieldChangeStart(true);
   removeAllFields();
 
-  for (string_v::const_iterator itL = to_plot.begin(); itL != to_plot.end(); ++itL) {
-    const std::string& line = *itL;
-    if (util::isCommentLine(line))
-      continue;
-    METLIBS_LOG_DEBUG(LOGVAL(line));
-
-    miutil::KeyValue_v m_p_o = miutil::splitKeyValue(line);
-
+  for (const miutil::KeyValue_v& m_p_o : to_plot) {
     miutil::KeyValue_v poptions;
     std::string model, field;
     vctime_t reftime;
     int refhour = -1, refoffset = 0;
 
-    const bool isMarkerLine = miutil::contains(line, "MARKER");
-    const bool isReferenceLine = miutil::contains(line, "REFERENCE");
+    const bool isMarkerLine = (miutil::find(m_p_o, "MARKER") != size_t(-1));
+    const bool isReferenceLine = (miutil::find(m_p_o, "REFERENCE") != size_t(-1));
     std::string markerText, markerColour = "black";
     float markerPosition = -1, markerX = -1, markerY = -1;
 
@@ -1209,14 +1202,21 @@ void QtManager::setTimeGraph(const LonLat& position)
 
 std::vector<std::string> QtManager::writeVcrossOptions()
 {
-  return mOptions->writeOptions();
+  string_v options;
+  for (const miutil::KeyValue_v& o : mOptions->writeOptions())
+    options.push_back(miutil::mergeKeyValue(o));
+  return options;
 }
 
 
 void QtManager::readVcrossOptions(const std::vector<std::string>& log,
     const std::string& thisVersion, const std::string& logVersion)
 {
-  mOptions->readOptions(log);
+  std::vector<miutil::KeyValue_v> options;
+  for (const std::string& line : log)
+    options.push_back(miutil::SetupParser::splitManyKeyValue(line, true));
+  mOptions->readOptions(options);
+
   updateOptions();
 }
 

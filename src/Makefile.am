@@ -144,6 +144,7 @@ libdiana_la_SOURCES += \
 	vcross_v2/VcrossCollector.cc \
 	vcross_v2/VcrossEvaluate.cc \
 	vcross_v2/VcrossOptions.cc \
+	vcross_v2/VcrossPlotCommand.cc \
 	vcross_v2/VcrossQtAxis.cc \
 	vcross_v2/VcrossQtContour.cc \
 	vcross_v2/VcrossQtPaint.cc \
@@ -490,6 +491,7 @@ noinst_HEADERS += \
 	vcross_v2/VcrossEvaluate.h \
 	vcross_v2/VcrossResolver.h \
 	vcross_v2/VcrossOptions.h \
+	vcross_v2/VcrossPlotCommand.h \
 	vcross_v2/VcrossQtContour.h \
 	vcross_v2/VcrossQtManager.h \
 	vcross_v2/VcrossQtPaint.h \

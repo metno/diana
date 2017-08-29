@@ -193,8 +193,10 @@ TEST(TestVcrossQtManager, Script)
   ms.reset();
 
 
-  string_v select;
-  select.push_back("VCROSS model="+MODEL+" field="+VIND+" colour=blue");
+  std::vector<miutil::KeyValue_v> select(1);
+  select.back().push_back(miutil::KeyValue("model", MODEL));
+  select.back().push_back(miutil::KeyValue("field", VIND));
+  select.back().push_back(miutil::KeyValue("colour", "blue"));
   manager.selectFields(select);
 
   EXPECT_TRUE(ms.beginScript);
@@ -239,8 +241,11 @@ TEST(TestVcrossQtManager, Reftime)
   EXPECT_EQ(AROME2_RTT[1], manager.getReftimeAt(0).isoTime());
 
 
-  string_v select;
-  select.push_back("VCROSS model="+MODEL+" refhour=12 field="+VIND+" colour=blue");
+  std::vector<miutil::KeyValue_v> select(1);
+  select.back().push_back(miutil::KeyValue("model", MODEL));
+  select.back().push_back(miutil::KeyValue("refhour", "12"));
+  select.back().push_back(miutil::KeyValue("field", VIND));
+  select.back().push_back(miutil::KeyValue("colour", "blue"));
   manager.selectFields(select);
 
   EXPECT_TRUE(ms.beginScript);

@@ -49,13 +49,40 @@ private:
 
 typedef std::vector<KeyValue> KeyValue_v;
 
-void add(KeyValue_v& ostr, const std::string& key, bool value);
-void add(KeyValue_v& ostr, const std::string& key, int value);
-void add(KeyValue_v& ostr, const std::string& key, float value);
-void add(KeyValue_v& ostr, const std::string& key, const std::string& value);
-void add(KeyValue_v& ostr, const std::string& key, const char* value);
-void add(KeyValue_v& ostr, const std::string& key, const std::vector<float>& values);
-void add(KeyValue_v& ostr, const std::string& key, const std::vector<std::string>& values);
+KeyValue kv(const std::string& key, bool value);
+KeyValue kv(const std::string& key, int value);
+KeyValue kv(const std::string& key, float value);
+KeyValue kv(const std::string& key, const std::string& value);
+KeyValue kv(const std::string& key, const char* value);
+KeyValue kv(const std::string& key, const std::vector<float>& values);
+KeyValue kv(const std::string& key, const std::vector<std::string>& values);
+
+
+inline KeyValue_v& operator<<(KeyValue_v& ostr, const KeyValue& kv)
+{ ostr.push_back(kv); return ostr; }
+
+
+inline void add(KeyValue_v& ostr, const std::string& key, bool value)
+{ ostr.push_back(kv(key, value)); }
+
+inline void add(KeyValue_v& ostr, const std::string& key, int value)
+{ ostr.push_back(kv(key, value)); }
+
+inline void add(KeyValue_v& ostr, const std::string& key, float value)
+{ ostr.push_back(kv(key, value)); }
+
+inline void add(KeyValue_v& ostr, const std::string& key, const std::string& value)
+{ ostr.push_back(kv(key, value)); }
+
+inline void add(KeyValue_v& ostr, const std::string& key, const char* value)
+{ ostr.push_back(kv(key, value)); }
+
+inline void add(KeyValue_v& ostr, const std::string& key, const std::vector<float>& values)
+{ ostr.push_back(kv(key, values)); }
+
+inline void add(KeyValue_v& ostr, const std::string& key, const std::vector<std::string>& values)
+{ ostr.push_back(kv(key, values)); }
+
 
 size_t find(const KeyValue_v& kvs, const std::string& key, size_t start=0);
 size_t rfind(const KeyValue_v& kvs, const std::string& key);

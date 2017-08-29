@@ -4,6 +4,8 @@
 #include "diLabelPlotCommand.h"
 #include "diStringPlotCommand.h"
 #include "diStationPlotCommand.h"
+#include "vcross_v2/VcrossPlotCommand.h"
+
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -48,11 +50,6 @@ PlotCommand_cp identifyLabel(const std::string& text)
 }
 } // namespace
 
-PlotCommand_cp makeCommandVcross(const std::string& text)
-{
-  return std::make_shared<StringPlotCommand>("VCROSS", text);
-}
-
 PlotCommand_cp makeCommand(const std::string& text)
 {
   for (const std::string& ck : commandKeysKV) {
@@ -87,11 +84,10 @@ PlotCommand_cpv makeCommands(const std::vector<std::string>& text)
     if (t == "VCROSS")
       vcross = true; // remaining commands are vcross, too
 
-    PlotCommand_cp cmd = vcross ? makeCommandVcross(tt) : makeCommand(tt);
-    if (cmd->commandKey() == "VCROSS")
-      vcross = true; // remaining commands are vcross, too
-
-    cmds.push_back(cmd);
+    if (vcross)
+      cmds.push_back(VcrossPlotCommand::fromString(tt));
+    else
+      cmds.push_back(makeCommand(tt));
   }
   return cmds;
 }

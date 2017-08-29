@@ -89,6 +89,7 @@ TEST(TestVcrossQuickmenues, Script)
   vcross::test::QuickmenuSlots qmslots(&qm);
 
   string_v qmlines;
+  qmlines.push_back("VCROSS");
   qmlines.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
   qmlines.push_back("CROSSECTION=Nesbyen 6");
   qm.parse(makeCommands(qmlines));
@@ -149,6 +150,7 @@ TEST(TestVcrossQuickmenues, ChangeTime)
   vcross::VcrossQuickmenues qm(manager);
 
   string_v qmlines;
+  qmlines.push_back("VCROSS");
   qmlines.push_back("VCROSS model=AROME field=temperature colour=blue");
   qmlines.push_back("CROSSECTION=ENVA");
   qmlines.push_back("CROSSECTION_LONLAT_DEG=10.7,63.4 10.9,63.5 10.9,63.4 11.1,63.5");

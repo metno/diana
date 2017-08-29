@@ -30,6 +30,7 @@
 #define VCROSSOPTIONS_HH
 
 #include <diField/VcrossData.h>
+#include "util/diKeyValue.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -50,8 +51,8 @@ public:
   void setDefaults();
 
   // log and setup
-  std::vector<std::string> writeOptions() const;
-  void readOptions(const std::vector<std::string>& vstr);
+  std::vector<miutil::KeyValue_v> writeOptions() const;
+  void readOptions(const std::vector<miutil::KeyValue_v>& vstr);
 
 public:
   bool     pText;

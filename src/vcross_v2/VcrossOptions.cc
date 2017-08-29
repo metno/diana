@@ -37,8 +37,6 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miStringBuilder.h>
 
-#include <boost/foreach.hpp>
-
 #define MILOGGER_CATEGORY "diana.VcrossOptions"
 #include <miLogger/miLogging.h>
 
@@ -195,151 +193,152 @@ static const char* asBool(bool b)
   return (b ? "on" : "off");
 }
 
-std::vector<std::string> VcrossOptions::writeOptions() const
+std::vector<miutil::KeyValue_v> VcrossOptions::writeOptions() const
 {
   METLIBS_LOG_SCOPE();
 
-  using miutil::StringBuilder;
+  using miutil::kv;
+  using miutil::KeyValue_v;
 
-  std::vector<std::string> vstr;
-  vstr.push_back((StringBuilder()
-      << "text=" << asBool(pText)
-      << " textColour=" << textColour));
+  std::vector<KeyValue_v> vkvs;
 
-  vstr.push_back((StringBuilder()
-      << "PositionNames=" << asBool(pPositionNames)
-      << " positionNamesColour=" << positionNamesColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("text", pText) << kv("textColour", textColour);
 
-  vstr.push_back((StringBuilder()
-      << "frame=" << asBool(pFrame)
-      << " frameColour=" << frameColour
-      << " frameLinetype=" << frameLinetype
-      << " frameLinewidth=" << frameLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("PositionNames", pPositionNames)
+              << kv("positionNamesColour", positionNamesColour);
 
-  vstr.push_back((StringBuilder()
-      << "LevelNumbers=" << asBool(pLevelNumbers)));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("frame", pFrame)
+              << kv("frameColour", frameColour)
+              << kv("frameLinetype", frameLinetype)
+              << kv("frameLinewidth", frameLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "UpperLevel=" << asBool(pUpperLevel)
-      << " upperLevelColour=" << upperLevelColour
-      << " upperLevelLinetype=" << upperLevelLinetype
-      << " upperLevelLinewidth=" << upperLevelLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("LevelNumbers", pLevelNumbers);
 
-  vstr.push_back((StringBuilder()
-      << "LowerLevel=" << asBool(pLowerLevel)
-      << " lowerLevelColour=" << lowerLevelColour
-      << " lowerLevelLinetype=" << lowerLevelLinetype
-      << " lowerLevelLinewidth=" << lowerLevelLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("UpperLevel", pUpperLevel)
+      << kv("upperLevelColour", upperLevelColour)
+      << kv("upperLevelLinetype", upperLevelLinetype)
+      << kv("upperLevelLinewidth", upperLevelLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "OtherLevels=" << asBool(pOtherLevels)
-      << " otherLevelsColour=" << otherLevelsColour
-      << " otherLevelsLinetype=" << otherLevelsLinetype
-      << " otherLevelsLinewidth=" << otherLevelsLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("LowerLevel", pLowerLevel)
+              << kv("lowerLevelColour", lowerLevelColour)
+              << kv("lowerLevelLinetype", lowerLevelLinetype)
+              << kv("lowerLevelLinewidth", lowerLevelLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Surface=" << asBool(pSurface)
-      << " surfaceColour=" << surfaceColour
-      << " surfaceLinetype=" << surfaceLinetype
-      << " surfaceLinewidth=" << surfaceLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("OtherLevels", pOtherLevels)
+              << kv(  "otherLevelsColour", otherLevelsColour)
+              << kv("otherLevelsLinetype", otherLevelsLinetype)
+              << kv("otherLevelsLinewidth", otherLevelsLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Inflight=" << asBool(pInflight)
-      << " inflightColour=" << inflightColour
-      << " inflightLinetype=" << inflightLinetype
-      << " inflightLinewidth=" << inflightLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("Surface", pSurface)
+              << kv("surfaceColour", surfaceColour)
+              << kv("surfaceLinetype", surfaceLinetype)
+              << kv("surfaceLinewidth", surfaceLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Distance=" << asBool(pDistance)
-      << " distanceColour=" << distanceColour
-      << " distanceUnit=" << distanceUnit));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("Inflight", pInflight)
+              << kv("inflightColour", inflightColour)
+              << kv("inflightLinetype", inflightLinetype)
+              << kv("inflightLinewidth", inflightLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "XYpos=" << asBool(pXYpos)
-      << " xyposColour=" << xyposColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("Distance", pDistance)
+              << kv("distanceColour", distanceColour)
+              << kv("distanceUnit", distanceUnit);
 
-  vstr.push_back((StringBuilder()
-      << "GeoPos=" << asBool(pGeoPos)
-      << " geoposColour=" << geoposColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("XYpos", pXYpos)
+              << kv("xyposColour", xyposColour);
 
-  vstr.push_back((StringBuilder()
-      << "Compass=" << asBool(pCompass)));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("GeoPos", pGeoPos)
+              << kv("geoposColour", geoposColour);
 
-  vstr.push_back((StringBuilder()
-      << "HorizontalGridLines=" << asBool(pHorizontalGridLines)
-      << " horgridColour=" << horgridColour
-      << " horgridLinetype=" << horgridLinetype
-      << " horgridLinewidth=" << horgridLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("Compass", pCompass);
 
-  vstr.push_back((StringBuilder()
-      << "VerticalGridLines=" << asBool(pVerticalGridLines)
-      << " vergridColour=" << vergridColour
-      << " vergridLinetype=" << vergridLinetype
-      << " vergridLinewidth=" << vergridLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("HorizontalGridLines", pHorizontalGridLines)
+              << kv("horgridColour", horgridColour)
+              << kv("horgridLinetype", horgridLinetype)
+              << kv("horgridLinewidth", horgridLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Markerlines=" << asBool(pMarkerlines)
-      << " markerlinesColour=" << markerlinesColour
-      << " markerlinesLinetype=" << markerlinesLinetype
-      << " markerlinesLinewidth=" << markerlinesLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("VerticalGridLines", pVerticalGridLines)
+              << kv("vergridColour", vergridColour)
+              << kv("vergridLinetype", vergridLinetype)
+              << kv("vergridLinewidth", vergridLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "VerticalMarker=" << asBool(pVerticalMarker)
-      << " verticalMarkerColour=" << verticalMarkerColour
-      << " verticalMarkerLinetype=" << verticalMarkerLinetype
-      << " verticalMarkerLinewidth=" << verticalMarkerLinewidth
-      << " verticalMarkerLimit=" << verticalMarkerLimit));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("Markerlines", pMarkerlines)
+              << kv("markerlinesColour", markerlinesColour)
+              << kv("markerlinesLinetype", markerlinesLinetype)
+              << kv("markerlinesLinewidth", markerlinesLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "extrapolateFixedLevels=" << asBool(extrapolateFixedLevels)));
-  vstr.push_back((StringBuilder()
-      << "extrapolateToBottom=" << asBool(extrapolateToBottom)));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("VerticalMarker", pVerticalMarker)
+              << kv("verticalMarkerColour", verticalMarkerColour)
+              << kv("verticalMarkerLinetype", verticalMarkerLinetype)
+              << kv("verticalMarkerLinewidth", verticalMarkerLinewidth)
+              << kv("verticalMarkerLimit", verticalMarkerLimit);
 
-  vstr.push_back((StringBuilder()
-      << "Vertical=" << verticalType));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("extrapolateFixedLevels", extrapolateFixedLevels);
 
-  vstr.push_back((StringBuilder()
-      << "verticalScale=" << verticalScale
-      << " verticalCoordinate=" << verticalCoordinate
-      << " verticalUnit=" << verticalUnit));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("extrapolateToBottom", extrapolateToBottom);
 
-    vstr.push_back((StringBuilder()
-        << "keepVerHorRatio=" << asBool(keepVerHorRatio)
-        << " verHorRatio=" << verHorRatio));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("Vertical", verticalType);
 
-    vstr.push_back((StringBuilder()
-        << "stdVerticalArea=" << asBool(stdVerticalArea)
-        << " minVerticalArea=" << minVerticalArea
-        << " maxVerticalArea=" << maxVerticalArea));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("verticalScale", verticalScale)
+              << kv("verticalCoordinate", verticalCoordinate)
+              << kv("verticalUnit", verticalUnit);
 
-    vstr.push_back((StringBuilder()
-        << "stdHorizontalArea=" << asBool(stdHorizontalArea)
-        << " minHorizontalArea=" << minHorizontalArea
-        << " maxHorizontalArea=" << maxHorizontalArea));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("keepVerHorRatio", keepVerHorRatio)
+              << kv("verHorRatio", verHorRatio);
 
-    vstr.push_back((StringBuilder()
-        << "backgroundColour=" << backgroundColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("stdVerticalArea", stdVerticalArea)
+              << kv("minVerticalArea", minVerticalArea)
+              << kv("maxVerticalArea", maxVerticalArea);
 
-    vstr.push_back((StringBuilder()
-        << "OnMapColour=" << vcOnMapColour
-        << " OnMapLinetype=" << vcOnMapLinetype
-        << " OnMapLinewidth=" << vcOnMapLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("stdHorizontalArea", stdHorizontalArea)
+              << kv("minHorizontalArea", minHorizontalArea)
+              << kv("maxHorizontalArea", maxHorizontalArea);
 
-    vstr.push_back((StringBuilder()
-        <<  "SelectedOnMapColour=" << vcSelectedOnMapColour
-        << " SelectedOnMapLinetype=" << vcSelectedOnMapLinetype
-        << " SelectedOnMapLinewidth=" << vcSelectedOnMapLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("backgroundColour", backgroundColour);
 
-    return vstr;
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("OnMapColour", vcOnMapColour)
+              << kv("OnMapLinetype", vcOnMapLinetype)
+              << kv("OnMapLinewidth", vcOnMapLinewidth);
+
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv("SelectedOnMapColour", vcSelectedOnMapColour)
+              << kv("SelectedOnMapLinetype", vcSelectedOnMapLinetype)
+              << kv("SelectedOnMapLinewidth", vcSelectedOnMapLinewidth);
+
+  return vkvs;
 }
 
 
-void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
+void VcrossOptions::readOptions(const std::vector<miutil::KeyValue_v>& vkvs)
 {
   METLIBS_LOG_SCOPE();
 
-  for (const std::string& line : vstr) {
-    const miutil::KeyValue_v kvs = miutil::SetupParser::splitManyKeyValue(line, true);
+  for (const miutil::KeyValue_v& kvs : vkvs) {
     for (const miutil::KeyValue& kv : kvs) {
       const std::string& key = kv.key(), value = kv.value();
       if (value.empty())

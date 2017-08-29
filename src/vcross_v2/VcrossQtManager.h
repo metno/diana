@@ -236,7 +236,7 @@ public:
   void setTimeGraph(const LonLat& position);
 
 
-  void selectFields(const string_v& fields);
+  void selectFields(const std::vector<miutil::KeyValue_v> &fields);
 
   void readVcrossOptions(const string_v& settings, const std::string& thisVersion, const std::string& logVersion);
   string_v writeVcrossOptions();
