@@ -33,7 +33,6 @@
 
 #include "qtUtility.h"
 
-#include "diCommandParser.h"
 #include "diUtilities.h"
 
 #include "diImageGallery.h"
@@ -84,13 +83,12 @@ int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& de
   return -1;
 }
 
-static std::string findOption(CommandParser& cp,
-    std::vector<ParsedCommand>& vpcopt, const std::string& what)
+static std::string findOption(const miutil::KeyValue_v& options, const std::string& key)
 {
-  int nc = cp.findKey(vpcopt, what);
-  if (nc < 0)
+  size_t nc = miutil::find(options, key);
+  if (nc == size_t(-1))
     return std::string();
-  const std::string c = miutil::to_lower(vpcopt[nc].allValue);
+  const std::string c = miutil::to_lower(options[nc].value());
   if (c == "off" || c == "av")
     return std::string();
   return c;
@@ -100,16 +98,11 @@ QPixmap createPixmapForStyle(const miutil::KeyValue_v& options)
 {
   QPixmap pixmap;
 
-  CommandParser cp;
-  cp.addKey(PlotOptions::key_colour,         "",0,CommandParser::cmdString);
-  cp.addKey(PlotOptions::key_palettecolours, "",0,CommandParser::cmdString);
-  std::vector<ParsedCommand> vpcopt = cp.fromKeyValueList(options);
-
-  { const std::string c = findOption(cp, vpcopt, PlotOptions::key_palettecolours);
+  { const std::string c = findOption(options, PlotOptions::key_palettecolours);
     if (!c.empty())
       pixmap = pixmapForColourShading(ColourShading::getColourShading(c));
   }
-  { const std::string c = findOption(cp, vpcopt, PlotOptions::key_colour);
+  { const std::string c = findOption(options, PlotOptions::key_colour);
     if (!c.empty()) {
       const int S=20, N=4;
 
