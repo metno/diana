@@ -134,16 +134,8 @@ ImageGallery::ImageGallery()
 
 void ImageGallery::clear()
 {
-  map<std::string,image>::iterator p= Images.begin();
-  for( ; p!=Images.end(); p++){
-    p->second.erase();
-    Images.erase(p->first);
-  }
-  map<std::string,pattern>::iterator q= Patterns.begin();
-  for( ; q!=Patterns.end(); q++){
-    q->second.erase();
-    Patterns.erase(q->first);
-  }
+  Images.clear();
+  Patterns.clear();
 }
 
 
@@ -153,23 +145,29 @@ void ImageGallery::addImageName(const std::string& filename, int type)
   int m = filename.find_last_of(".");
   std::string name = filename.substr(n+1,m-n-1);
 
-  if(type == fillpattern){
-    if(Patterns.count(name)>0)
-      Patterns[name].erase();
+  if (type == fillpattern) {
+    std::map<std::string,pattern>::iterator it = Patterns.find(name);
+    if (it == Patterns.end())
+      it = Patterns.insert(std::make_pair(name, pattern())).first;
+    else
+      it->second.erase();
 
-    Patterns[name].name=name;
-    Patterns[name].filename=filename;
+    it->second.name=name;
+    it->second.filename=filename;
     Type[type].push_back(name);
     return;
   }
 
   // images, markers ..
-  if(Images.count(name)>0)
-    Images[name].erase();
+  std::map<std::string,image>::iterator it = Images.find(name);
+  if (it == Images.end())
+    it = Images.insert(std::make_pair(name, image())).first;
+  else
+    it->second.erase();
 
-  Images[name].name=name;
-  Images[name].filename=filename;
-  Images[name].type=type;
+  it->second.name=name;
+  it->second.filename=filename;
+  it->second.type=type;
   Type[type].push_back(name);
 
   //marker
@@ -191,50 +189,55 @@ void ImageGallery::addImageName(const std::string& filename, int type)
 
 bool ImageGallery::readImage(const std::string& name)
 {
-  if(Images[name].data != 0)
+  return readImage(Images[name]);
+}
+
+bool ImageGallery::readImage(image& im)
+{
+  METLIBS_LOG_SCOPE();
+  if (im.data != 0)
     return true; //Image ok
 
   // if read_error == true, we have tried and failed before
   // Should we try again anyway?
-  if (Images[name].read_error)
+  if (im.read_error)
     return false;
 
   //read image from file
-  imageIO::Image_data img(Images[name].filename);
-  img.pattern = false;
-  if( !imageIO::read_image(img)){
-    if (!Images[name].read_error)
-      METLIBS_LOG_ERROR("ImageGallery::readImage ERROR couldn't read image:"<<name);
-    Images[name].read_error= true;
+  imageIO::Image_data idata(im.filename);
+  idata.pattern = false;
+  if (!imageIO::read_image(idata)) {
+    METLIBS_LOG_ERROR("couldn't read image '" << im.name << "'");
+    im.read_error= true;
     return false;
   }
 
-  return addImage(name,img.width,img.height,
-      img.data,img.nchannels>3);
+  return addImage(im.name,idata.width,idata.height,
+      idata.data,idata.nchannels>3);
 }
 
 bool ImageGallery::readPattern(const std::string& name)
 {
-  if( Patterns[name].pattern_data!=0)
+  METLIBS_LOG_SCOPE();
+  pattern& pat = Patterns[name];
+  if (pat.pattern_data)
     return true; //Pattern ok
 
   // if read_error == true, we have tried and failed before
   // Should we try again anyway?
-  if (Patterns[name].read_error)
+  if (pat.read_error)
     return false;
 
   //read image from file
-  imageIO::Image_data img(Patterns[name].filename);
+  imageIO::Image_data img(pat.filename);
   img.pattern = true;
-  if( !imageIO::read_image(img)){
-    if (!Patterns[name].read_error)
-      METLIBS_LOG_ERROR("ImageGallery::readImage ERROR couldn't read image:"<<name);
-    Patterns[name].read_error= true;
+  if (!imageIO::read_image(img)) {
+    METLIBS_LOG_ERROR("couldn't read pattern '" << name << "'");
+    pat.read_error = true;
     return false;
   }
 
   return addPattern(name,img.data);
-
 }
 
 bool ImageGallery::addImage(const image& im)
@@ -243,42 +246,38 @@ bool ImageGallery::addImage(const image& im)
 }
 
 bool ImageGallery::addImage(const std::string& name,
-    const int w,
-    const int h,
-    const unsigned char* d,
-    const bool a)
+    int w, int h, const unsigned char* d, bool a)
 {
-
-  int size= w*h;
+  METLIBS_LOG_SCOPE();
 
   if (name.empty()) {
-    METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with no name");
+    METLIBS_LOG_ERROR("trying to add image with no name");
     return false;
   }
-  if (size == 0){
-    METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with zero width/height:"
-    << name);
+  int size= w*h;
+  if (size == 0) {
+    METLIBS_LOG_ERROR("trying to add image with zero width/height:" << name);
     return false;
   }
-  if (d==0){
-    METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with no imagedata:"
-    << name);
+  if (!d) {
+    METLIBS_LOG_ERROR("trying to add image with no imagedata:" << name);
     return false;
   }
 
   // add image
-  Images[name].name=   name;
-  Images[name].width=  w;
-  Images[name].height= h;
-  Images[name].alpha=  a;
+  image& im = Images[name];
+  im.name=   name;
+  im.width=  w;
+  im.height= h;
+  im.alpha=  a;
   int fsize = size * (a ? 4 : 3);
-  Images[name].data= new unsigned char [fsize];
+  im.data = new unsigned char [fsize];
   for (int j=0; j<fsize; j++)
-    Images[name].data[j]= d[j];
+    im.data[j]= d[j];
 
-  if(Images[name].type==marker)
-    if(!readFile(name,Images[name].markerFilename))
-      Images[name].type = basic;
+  if(im.type==marker)
+    if(!readFile(name,im.markerFilename))
+      im.type = basic;
 
   return true;
 }
@@ -286,61 +285,63 @@ bool ImageGallery::addImage(const std::string& name,
 bool ImageGallery::addPattern(const std::string& name,
     const unsigned char* d)
 {
+  METLIBS_LOG_SCOPE();
 
-
-  if ((name.empty())){
-    METLIBS_LOG_ERROR("ImageGallery::addPattern ERROR trying to add image with no name");
+  if ((name.empty())) {
+    METLIBS_LOG_ERROR("trying to add pattern with no name");
     return false;
   }
-  if (d==0){
-    METLIBS_LOG_ERROR("ImageGallery::addPattern ERROR trying to add image with no data:"
-    << name);
+  if (!d) {
+    METLIBS_LOG_ERROR("trying to add pattern with no data:" << name);
     return false;
   }
 
   // add pattern
-  Patterns[name].name=   name;
-  Patterns[name].pattern_data= new unsigned char [128];
+  pattern& pat = Patterns[name];
+  pat.name=   name;
+  pat.pattern_data= new unsigned char [128];
   for (int j=0; j<128; j++)
-    Patterns[name].pattern_data[j]= (DiGLPainter::GLubyte)d[j];
+    pat.pattern_data[j]= (DiGLPainter::GLubyte)d[j];
 
   return true;
 }
 
 float ImageGallery::width_(const std::string& name)
 {
-  float w= 0.0;
-  if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ERROR image not found: '" << name << "'");
+  std::map<std::string,image>::iterator it = Images.find(name);
+  if (it == Images.end()) {
+    METLIBS_LOG_ERROR("image not found: '" << name << "'");
+    return 0;
   } else {
-    readImage(name);
-    w= Images[name].width;
+    readImage(it->second);
+    return it->second.width;
   }
-  return w;
 }
 
 float ImageGallery::height_(const std::string& name)
 {
-  float h= 0.0;
-  if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ERROR image not found: '" << name << "'");
+  METLIBS_LOG_SCOPE();
+  std::map<std::string,image>::iterator it = Images.find(name);
+  if (it == Images.end()) {
+    METLIBS_LOG_ERROR("image not found: '" << name << "'");
+    return 0;
   } else {
-    readImage(name);
-    h= Images[name].height;
+    readImage(it->second);
+    return it->second.height;
   }
-  return h;
 }
 
 int ImageGallery::widthp(const std::string& name)
 {
-  std::map<std::string,image>::const_iterator it = Images.find(name);
+  METLIBS_LOG_SCOPE();
+  std::map<std::string,image>::iterator it = Images.find(name);
   if (it == Images.end()) {
     METLIBS_LOG_ERROR("image not found: '" << name << "'");
     return 0;
   }
-  const image& im = it->second;
+  image& im = it->second;
 
-  readImage(name);
+  readImage(im);
   if (im.type == marker) {
     double max=0.0, min=0.0; // always include point (0,0) in calculation
     for (const Line& il : im.line) {
@@ -359,14 +360,15 @@ int ImageGallery::widthp(const std::string& name)
 
 int ImageGallery::heightp(const std::string& name)
 {
-  std::map<std::string,image>::const_iterator it = Images.find(name);
+  METLIBS_LOG_SCOPE();
+  std::map<std::string,image>::iterator it = Images.find(name);
   if (it == Images.end()) {
     METLIBS_LOG_ERROR("image not found: '" << name << "'");
     return 0;
   }
-  const image& im = it->second;
+  image& im = it->second;
 
-  readImage(name);
+  readImage(im);
   if (im.type == marker) {
     double max=0.0, min=0.0; // always include point (0,0) in calculation
     for (const Line& il : im.line) {
@@ -385,33 +387,34 @@ int ImageGallery::heightp(const std::string& name)
 
 bool ImageGallery::delImage(const std::string& name)
 {
-  if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::delImage ERROR image not found:"
-    << name);
+  METLIBS_LOG_SCOPE();
+  std::map<std::string,image>::iterator it = Images.find(name);
+  if (it == Images.end()) {
+    METLIBS_LOG_ERROR("image not found '" << name << "'");
     return false;
   }
-  Images[name].erase();
+  Images.erase(it);
   return true;
 }
 
 bool ImageGallery::delPattern(const std::string& name)
 {
-  if (!Patterns.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::delPattern ERROR pattern not found:"
-    << name);
+  METLIBS_LOG_SCOPE();
+  std::map<std::string,pattern>::iterator it = Patterns.find(name);
+  if (it == Patterns.end()) {
+    METLIBS_LOG_ERROR("pattern not found '" << name << "'");
     return false;
   }
-  Patterns[name].erase();
+  Patterns.erase(it);
   return true;
 }
-
 
 bool ImageGallery::plotImage_(DiGLPainter* gl, StaticPlot* sp,
     const std::string& name, float gx, float gy,
     float scalex, float scaley, int alpha)
 {
-  if (gx < sp->getPlotSize().x1 || gx >= sp->getPlotSize().x2 ||
-      gy < sp->getPlotSize().y1 || gy >= sp->getPlotSize().y2)
+  METLIBS_LOG_SCOPE();
+  if (!sp->getPlotSize().isinside(gx, gy)) // FIXME should care about width + height
     return true;
 
   std::map<std::string,image>::const_iterator it = Images.find(name);
@@ -461,8 +464,7 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
     const std::string& name, float x, float y, float scale)
 {
   METLIBS_LOG_SCOPE(LOGVAL(name));
-  if (x < sp->getPlotSize().x1 || x >= sp->getPlotSize().x2 ||
-      y < sp->getPlotSize().y1 || y >= sp->getPlotSize().y2)
+  if (!sp->getPlotSize().isinside(x, y)) // FIXME should care about width + height
     return true;
 
   std::map<std::string,image>::const_iterator it = Images.find(name);
@@ -475,7 +477,7 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
   if (!im.line.empty()) {
     diutil::GlMatrixPushPop pushpop(gl);
     gl->Translatef(x,y,0.0);
-    float Scalex= scale*sp->getPhysToMapScaleX()*0.7;
+    float Scalex= scale*sp->getPhysToMapScaleX()*0.7f;
     float Scaley= Scalex;
     gl->Scalef(Scalex,Scaley,0.0);
 
@@ -574,29 +576,30 @@ bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string&
   if(!readImage(name))
     return false;
 
-  if (!Images.count(name)){
+  std::map<std::string,image>::const_iterator it = Images.find(name);
+  if (it == Images.end()) {
     METLIBS_LOG_ERROR("image not found: '" << name << "'");
     return false;
   }
+  const image& im = it->second;
 
-  if(Images[name].type == marker)
+  if(im.type == marker)
     return plotMarker_(gl, sp, name, x, y, scale);
 
-  if (Images[name].data==0) {
-    METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
-    << name);
+  if (im.data==0) {
+    METLIBS_LOG_ERROR("no image-data:" << name);
     return false;
   }
 
   float gx= x, gy= y; // raster position
-  int nx= Images[name].width;
-  int ny= Images[name].height;
+  int nx= im.width;
+  int ny= im.height;
   float scalex=scale, scaley=scale;
 
   if (center){
     // center image on x,y: find scale
-    float sx= sp->getPhysToMapScaleX() * 0.5;
-    float sy= sp->getPhysToMapScaleY() * 0.5;
+    float sx= sp->getPhysToMapScaleX() * 0.5f;
+    float sy= sp->getPhysToMapScaleY() * 0.5f;
     gx-= nx*sx*scale;
     gy-= ny*sy*scale;
   }
@@ -627,13 +630,13 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
     const float* x, const float* y,
     bool center, float scale, int alpha)
 {
+  METLIBS_LOG_SCOPE();
   if (n == 0){
-    METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no positions:");
+    METLIBS_LOG_ERROR("no positions");
     return false;
   }
   if (n != int(vn.size())){
-    METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR names and positions do not match:"
-    << n);
+    METLIBS_LOG_ERROR("names and positions do not match:" << n);
     return false;
   }
 
@@ -641,8 +644,8 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
   int ny = 0;
   float scalex=scale, scaley=scale;
   std::string oldname;
-  float sx= scale*0.5*sp->getPhysToMapScaleX();
-  float sy= scale*0.5*sp->getPhysToMapScaleY();
+  float sx= scale*0.5f*sp->getPhysToMapScaleX();
+  float sy= scale*0.5f*sp->getPhysToMapScaleY();
 
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
@@ -652,29 +655,30 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
 
   for (int j=0; j<n; j++){
-    if (!Images.count(vn[j])){
-      METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR image not found:"
-      << vn[j]);
+    std::map<std::string,image>::const_iterator it = Images.find(vn[j]);
+    if (it == Images.end()) {
+      METLIBS_LOG_ERROR("image not found: '" << vn[j] << "'");
       return false;
     }
+    const image& im = it->second;
 
-    if(!readImage(vn[j])) return false;
+    if(!readImage(vn[j]))
+      return false;
 
-    if(Images[vn[j]].type == marker) {
+    if (im.type == marker) {
       plotMarker_(gl, sp, vn[j], x[j], y[j], scale);
       continue;
     }
 
-    if (Images[vn[j]].data==0) {
-      METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no image-data:"
-      << vn[j]);
+    if (im.data==0) {
+      METLIBS_LOG_ERROR("no image-data: " << vn[j]);
       return false;
     }
 
     float gx= x[j], gy= y[j]; // raster position
     if (j == 0 || vn[j] != oldname){
-      nx= Images[vn[j]].width;
-      ny= Images[vn[j]].height;
+      nx= im.width;
+      ny= im.height;
       gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);
     }
 
@@ -703,15 +707,16 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
     const float* x, const float* y,
     bool center, float scale, int alpha)
 {
+  METLIBS_LOG_SCOPE();
   if(!readImage(name))
     return false;
 
   if (n == 0){
-    METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no positions:");
+    METLIBS_LOG_ERROR("no positions");
     return false;
   }
 
-  vector<std::string> vn(n,name);
+  const std::vector<std::string> vn(n, name);
   return plotImages(gl, sp, n, vn, x, y, center, scale, alpha);
 }
 
@@ -720,32 +725,34 @@ bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
     const std::string& name, float x, float y,
     bool center, float scale, int alpha)
 {
+  METLIBS_LOG_SCOPE();
   if(!readImage(name))
     return false;
 
-  if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::plot ERROR image not found:" << name);
+  std::map<std::string,image>::const_iterator it = Images.find(name);
+  if (it == Images.end()) {
+    METLIBS_LOG_ERROR("image not found: '" << name << "'");
     return false;
   }
+  const image& im = it->second;
 
-  if(Images[name].type == marker)
+  if(im.type == marker)
     return plotMarker_(gl, sp, name, x, y, scale);
 
-  if (Images[name].data==0) {
-    METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
-    << name);
+  if (im.data==0) {
+    METLIBS_LOG_ERROR("no image-data:" << name);
     return false;
   }
 
   float gx= x, gy= y; // raster position
-  int nx= Images[name].width;
-  int ny= Images[name].height;
+  int nx= im.width;
+  int ny= im.height;
   float scalex=scale, scaley=scale;
 
   if (center){
     // center image on x,y
-    gx-=  nx*scale/2.0;
-    gy-=  ny*scale/2.0;
+    gx-=  nx*scale/2;
+    gy-=  ny*scale/2;
   }
 
   sp->PhysToMap(XY(gx, gy)).unpack(gx, gy);
@@ -772,10 +779,9 @@ bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
 
 DiGLPainter::GLubyte* ImageGallery::getPattern(std::string name)
 {
-
-  if(!readPattern(name)) return 0;
+  if(!readPattern(name))
+    return 0;
   return Patterns[name].pattern_data;
-
 }
 
 void ImageGallery::printInfo() const
@@ -792,15 +798,7 @@ void ImageGallery::printInfo() const
 void ImageGallery::ImageNames(vector<std::string>& vnames,
     int type) const
 {
-  vnames.clear();
-
-  //   map<std::string,image>::const_iterator p= Images.begin();
-
-  //   for (; p!=Images.end(); p++)
-  //     vnames.push_back(p->first);
-  int n=Type[type].size();
-  for(int i=0; i<n; i++)
-    vnames.push_back(Type[type][i]);
+  vnames = Type[type];
 }
 
 std::string ImageGallery::getFilename(const std::string& name, bool pattern)
@@ -814,7 +812,7 @@ std::string ImageGallery::getFilename(const std::string& name, bool pattern)
 
 bool ImageGallery::parseSetup()
 {
-  //  METLIBS_LOG_DEBUG("ImageGallery: parseSetup");
+  METLIBS_LOG_SCOPE();
   const std::string ig_name = "IMAGE_GALLERY";
   vector<std::string> sect_ig;
 
@@ -823,12 +821,14 @@ bool ImageGallery::parseSetup()
     return false;
   }
 
-  for(unsigned int i=0; i<sect_ig.size(); i++) {
-    vector<std::string> token = miutil::split(sect_ig[i], "=");
+  int lineno = -1;
+  for (const std::string& l : sect_ig) {
+    lineno += 1;
+    const vector<std::string> token = miutil::split(l, "=");
 
-    if(token.size() != 2){
+    if (token.size() != 2) {
       std::string errmsg="Line must contain '='";
-      SetupParser::errorMsg(ig_name,i,errmsg);
+      SetupParser::errorMsg(ig_name,lineno,errmsg);
       return false;
     }
 
@@ -836,7 +836,7 @@ bool ImageGallery::parseSetup()
     std::string value = token[1];
     //      METLIBS_LOG_DEBUG("key: "<<key);
     //      METLIBS_LOG_DEBUG("Value: "<<value);
-    if(miutil::contains(key, "path")){
+    if (miutil::contains(key, "path")) {
       miutil::replace(key, "path","");
       value += "/*";
     }
@@ -849,7 +849,7 @@ bool ImageGallery::parseSetup()
     const diutil::string_v matches = diutil::glob(value);
     for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
       const std::string& fname = *it;
-      if((miutil::contains(fname, ".png") || miutil::contains(fname, ".xpm"))
+      if ((miutil::contains(fname, ".png") || miutil::contains(fname, ".xpm"))
           && not miutil::contains(fname, "~"))
         addImageName(fname,type);
     }

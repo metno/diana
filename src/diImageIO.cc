@@ -487,7 +487,7 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img)
 
 bool imageIO::read_xpm(Image_data& img)
 {
-  METLIBS_LOG_INFO("--------- read_xpm: " << img.filename);
+  METLIBS_LOG_SCOPE(LOGVAL(img.filename));
 
   std::ifstream file(img.filename.c_str());
 

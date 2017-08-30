@@ -107,7 +107,8 @@ private:
   bool plotMarker_(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
       float x, float y, float scale);
 
-  bool readImage(const std::string& name); //read data from file once
+  bool readImage(const std::string& name);
+  bool readImage(image& name); //read data from file once
   bool readPattern(const std::string& name); //read data from file once
 
   void addImageName(const std::string& filename, int type);
@@ -123,10 +124,7 @@ public:
 
   /// add image
   bool addImage(const std::string& name,
-      const int w,
-      const int h,
-      const unsigned char* d,
-      const bool a);
+      int w, int h, const unsigned char* d, bool a);
   /// add pattern
   bool addPattern(const std::string& name,
       const unsigned char* d);
