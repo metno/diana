@@ -192,7 +192,7 @@ private:
 
   void decodeString(const miutil::KeyValue_v&, dialogVariables&,bool fromLog=false);
   void updateDialog(bool setOn);
-  std::string makeString();
+  miutil::KeyValue_v makeString();
 
   bool pressureLevels;
   std::map<std::string,int> levelMap;

@@ -701,34 +701,31 @@ vector<std::string> ObsWidget::getDataTypes()
 }
 
 /****************************************************************/
-std::string ObsWidget::makeString()
+miutil::KeyValue_v ObsWidget::makeString()
 {
-  std::string str, datastr;
+  miutil::KeyValue_v kvs;
+  kvs << miutil::KeyValue("plot", plotType);
 
-  str = "plot=" + plotType + " ";
-
+  std::string datastr;
   if (dVariables.data.size()) {
-    str+= "data=";
-    for (unsigned int i=0; i<dVariables.data.size(); i++)
-      datastr+= dVariables.data[i] + ",";
-    datastr= datastr.substr(0,datastr.length()-1);
-    str+= datastr + ' ';
+    for (const string& d : dVariables.data)
+      diutil::appendText(datastr, d, ",");
+    kvs << miutil::KeyValue("data", datastr);
   }
 
   if (dVariables.parameter.size()) {
-    str+= "parameter=";
-    for (unsigned int i=0; i<dVariables.parameter.size(); i++)
-      str+= dVariables.parameter[i] + ",";
-    str[str.length()-1]=' ';
+    std::string pstr;
+    for (const string& p : dVariables.parameter)
+      diutil::appendText(pstr, p, ",");
+    kvs << miutil::KeyValue("parameter", pstr);
   }
 
-  map<std::string,std::string>::iterator p= dVariables.misc.begin();
-  for (; p!=dVariables.misc.end(); p++)
-    str += p->first + "=" + p->second + " ";
+  for (auto&& m : dVariables.misc)
+    kvs << miutil::KeyValue(m.first, m.second);
 
   shortname = "OBS " + plotType + " " + datastr;
 
-  return str;
+  return kvs;
 }
 
 KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
@@ -822,16 +819,14 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
 
   dVariables.misc["colour"] = cInfo[colourBox->currentIndex()].name;
 
-  std::string str;
-  if (!forLog)
-    str = "OBS";
-  diutil::appendText(str, makeString());
+  KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("OBS");
+  cmd->add(makeString());
 
   //clear old settings
   dVariables.misc.clear();
 
   //Criteria
-  if (str.empty())
+  if (cmd->all().empty())
     return KVListPlotCommand_cp();
 
   bool addsort = true;
@@ -839,46 +834,42 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
     int n = criteriaList.size();
     for(int i=1; i<n; i++){
       int m = criteriaList[i].criteria.size();
-      if( m==0 ) continue;
-      str+= " criteria=";
-      str+= criteriaList[i].name;
-      str += ";";
-      for( int j=0; j<m; j++){
-        vector<std::string> sub = miutil::split(criteriaList[i].criteria[j], " ");
-        int size=sub.size();
-        for(int k=0;k<size;k++){
-          str += sub[k];
-          if(k<size-1) str += ",";
-        }
-        if(j<m-1) str += ";";
+      if (m==0)
+        continue;
+      string criteria = criteriaList[i].name;
+      for (int j=0; j<m; j++) {
+        const vector<std::string> sub = miutil::split(criteriaList[i].criteria[j], " ");
+        string subcriteria;
+        for(const string& subs : sub)
+          diutil::appendText(subcriteria, subs, ",");
+        diutil::appendText(criteria, subcriteria, ";");
       }
+      cmd->add("criteria", criteria);
     }
   } else if(criteriaCheckBox->isChecked()) {
     int m = savedCriteria.criteria.size();
     if( m==0 )
       addsort = false;
     else {
-      str+= " criteria=";
-      for( int j=0; j<m; j++){
-        vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
-        int size=sub.size();
-        for(int k=0;k<size;k++){
-          str += sub[k];
-          if(k<size-1) str += ",";
-        }
-        if(j<m-1)
-          str += ";";
+      string criteria;
+      for (int j=0; j<m; j++) {
+        const vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
+        string subcriteria;
+        for(const string& subs : sub)
+          diutil::appendText(subcriteria, subs, ",");
+        diutil::appendText(criteria, subcriteria, ";");
       }
+      cmd->add("criteria", criteria);
     }
   }
 
   if (addsort && sortBox->currentIndex() > 0 && !sortBox->currentText().isEmpty()) {
-    str+= " sort=";
-    str+= sortBox->currentText().toStdString();
-    str+=",";
-    str+= descsortButton->isChecked() ? "desc" : "asc";
+    string sort = sortBox->currentText().toStdString();
+    sort += ",";
+    sort += descsortButton->isChecked() ? "desc" : "asc";
+    cmd->add("sort", sort);
   }
-  return std::make_shared<KVListPlotCommand>("OBS", str);
+  return cmd;
 }
 
 std::string ObsWidget::getShortname()
