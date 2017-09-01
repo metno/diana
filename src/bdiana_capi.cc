@@ -1741,6 +1741,7 @@ static int handlePlotCommand(int& k)
     if (raster && antialias)
       glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
 
+    painter.setFont(glcanvas->font());
     vcrossmanager->plot(painter);
 
     // --------------------------------------------------------
