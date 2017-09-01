@@ -68,13 +68,12 @@ PlotCommand_cp makeCommand(const std::string& text)
   return std::make_shared<StringPlotCommand>(text);
 }
 
-PlotCommand_cpv makeCommands(const std::vector<std::string>& text)
+PlotCommand_cpv makeCommands(const std::vector<std::string>& text, bool vcross)
 {
   PlotCommand_cpv cmds;
   cmds.reserve(text.size());
 
-  // FIXME handle this properly, or change VCROSS commands
-  bool vcross = false;
+  // FIXME handle vcross properly, or change VCROSS commands
 
   for (const std::string& t : text) {
     const std::string tt = miutil::trimmed(t);
