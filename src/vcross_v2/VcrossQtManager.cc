@@ -1214,7 +1214,7 @@ void QtManager::readVcrossOptions(const std::vector<std::string>& log,
 {
   std::vector<miutil::KeyValue_v> options;
   for (const std::string& line : log)
-    options.push_back(miutil::SetupParser::splitManyKeyValue(line, true));
+    options.push_back(miutil::splitKeyValue(line));
   mOptions->readOptions(options);
 
   updateOptions();
