@@ -588,7 +588,8 @@ bool Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridR
   }
 
   if (coriolis) {
-    const float cfactor = 2.0f * 0.7292e-4f;
+    const float EARTH_OMEGA = 0.7292e-4f; // rad/s, 2*pi / (23*3600 + 56*60 + 4.1), see https://en.wikipedia.org/wiki/Coriolis_frequency
+    const float cfactor = 2.0f * EARTH_OMEGA;
     DIUTIL_OPENMP_PARALLEL(npos, for)
     for (int j = 0; j < npos; ++j) {
       coriolis[j] = cfactor * sin(y[j] * DEG_TO_RAD);
