@@ -345,3 +345,8 @@ bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float*
 {
   return gc.getPoints(getMapArea().P(), targetProj, n, x, y);
 }
+
+bool StaticPlot::MapToProj(const Projection& targetProj, int n, diutil::PointD* xy) const
+{
+  return targetProj.convertPoints(getMapArea().P(), n, xy);
+}

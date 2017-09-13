@@ -206,9 +206,9 @@ public:
   void drawPolyline(const QPolygonF& points) override;
   void drawPolygon(const QPolygonF& points) override;
   void drawPolygons(const QList<QPolygonF>& polygons) override;
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
-      const diutil::Rect_v& imageparts, bool smooth) override;
   // end DiPainter interface
+
+  void drawScreenImage(const QPointF& point, const QImage& image) override;
 
   void begin(QPainter *painter);
   bool isPainting() const;

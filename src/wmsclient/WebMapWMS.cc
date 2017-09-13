@@ -140,6 +140,8 @@ void WebMapWMSRequest::setDimensionValue(const std::string& dimIdentifier,
 void WebMapWMSRequest::addTile(int tileX, int tileY)
 {
   METLIBS_LOG_SCOPE(LOGVAL(tileX) << LOGVAL(tileY));
+  if (mTiles.size() >= 256)
+    return;
   const Rectangle& bb = mLayer->crsBoundingBox(mCrsIndex).boundingbox;
   const int nxy = (1<<mZoom);
   const double x0 = bb.x1,
@@ -251,7 +253,7 @@ int WebMapWMS::refreshInterval() const
 }
 
 WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
-    const Rectangle& viewRect, const Projection& viewProj, double viewScale)
+    const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h)
 {
   METLIBS_LOG_SCOPE(LOGVAL(layerIdentifier));
   WebMapWMSLayer_cx layer = static_cast<WebMapWMSLayer_cx>
@@ -273,20 +275,22 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
   if (zoom < layer->minZoom() || zoom > layer->maxZoom())
     return 0;
 
+  std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   const int nx = (1<<zoom);
-  const float x0 = bb.x1,
-      dx = bb.width() / nx,
-      y0 = bb.y2,
-      dy = -dx;
-  const int ny = (int) std::ceil(bb.height() / dx);
-  METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny) << LOGVAL(x0) << LOGVAL(dx) << LOGVAL(y0) << LOGVAL(dy));
+  request->x0 = bb.x1;
+  request->dx = bb.width() / nx;
+  request->y0 = bb.y2;
+  request->dy = -request->dx;
+  const int ny = (int) std::ceil(bb.height() / request->dx);
+  METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny) << LOGVAL(request->x0) << LOGVAL(request->dx) << LOGVAL(request->y0) << LOGVAL(request->dy));
 
   diutil::tilexy_s tiles;
-  diutil::select_tiles(tiles, 0, nx, x0, dx, 0, ny, y0, dy,
-      cb.projection, viewRect, viewProj);
+  diutil::select_pixel_tiles(tiles, w, h,
+                             nx, request->x0, request->dx,
+                             ny, request->y0, request->dy,
+                             cb.boundingbox, cb.projection, viewRect, viewProj);
   METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
 
-  std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 

@@ -153,7 +153,7 @@ public:
   /*! create a request object for the specified layer. may be null,
    *  e.g. if unknown layer or; ownership is transferred to caller */
   WebMapRequest_x createRequest(const std::string& layer,
-      const Rectangle& viewRect, const Projection& viewProj, double viewScale);
+      const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h) override;
 
   QNetworkReply* submitRequest(WebMapSlippyOSMLayer_cx layer,
       int zoom, int tileX, int tileY);

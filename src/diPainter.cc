@@ -302,9 +302,3 @@ void DiPainter::drawArrowHead(float x1, float y1, float x2, float y2, float head
   points << QPointF(x2 + a*dx - s*dy, y2 + a*dy + s*dx);
   drawPolyline(points);
 }
-
-void DiPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth)
-{
-  const diutil::Rect_v all(1, diutil::Rect(0, 0, image.width()-1, image.height()-1));
-  drawReprojectedImage(image, mapPositionsXY, all, smooth);
-}

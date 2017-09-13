@@ -30,6 +30,8 @@
 #ifndef WebMapService_h
 #define WebMapService_h 1
 
+#include "diField/diRectangle.h"
+
 #include <QObject>
 
 #include <boost/shared_ptr.hpp>
@@ -38,7 +40,6 @@
 #include <vector>
 
 class Area;
-class Rectangle;
 class Projection;
 
 class QImage;
@@ -157,6 +158,7 @@ class WebMapRequest : public QObject {
   Q_OBJECT;
 
 public:
+  WebMapRequest();
   virtual ~WebMapRequest();
 
   /*! set dimension value; ignores non-existent dimensions; dimensions
@@ -179,11 +181,21 @@ public:
   /*! image data of one tile; might have isNull() == true */
   virtual const QImage& tileImage(size_t idx) const = 0;
 
+  /*! tile index of the tile containing one point; might be == -1 if no such tile */
+  virtual size_t tileIndex(float x, float y);
+
   /*! projection of all tiles */
   virtual const Projection& tileProjection() const = 0;
 
   /*! legend image; might have isNull() == true */
   virtual QImage legendImage() const;
+
+public:
+  Rectangle tilebbx;
+  float x0, dx, y0, dy;
+
+private:
+  size_t lastTileIndex; //! cache for "tileIndex"
 
 Q_SIGNALS:
   /*! the request is complete, ready for rendering, or aborted */
@@ -232,7 +244,7 @@ public:
   /*! create a request object for the specified layer. may be null,
    *  e.g. if unknown layer or */
   virtual WebMapRequest_x createRequest(const std::string& layer,
-      const Rectangle& viewRect, const Projection& viewProj, double viewScale) = 0;
+      const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h) = 0;
 
   QNetworkReply* submitUrl(QUrl url);
 

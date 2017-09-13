@@ -115,9 +115,12 @@ struct tilexy {
 
 typedef std::set<tilexy> tilexy_s;
 
-void select_tiles(tilexy_s& tiles,
-    int ix0, int nx, float x0, float dx, int iy0, int ny, float y0, float dy,
-    const Projection& p_tiles, const Rectangle& r_view, const Projection& p_view);
+void select_pixel_tiles(tilexy_s& tiles,
+                        int w, int h, // screen size
+                        int nx, float x0, float dx,
+                        int ny, float y0, float dy,
+                        const Rectangle& r_tiles, const Projection& p_tiles,
+                        const Rectangle& r_view, const Projection& p_view);
 
 } // namespace diutil
 

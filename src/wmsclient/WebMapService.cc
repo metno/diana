@@ -104,6 +104,13 @@ int WebMapLayer::findDimensionByIdentifier(const std::string& dimId) const
 
 // ========================================================================
 
+static const size_t INVALID_IDX = size_t(-1);
+
+WebMapRequest::WebMapRequest()
+  : lastTileIndex(INVALID_IDX)
+{
+}
+
 WebMapRequest::~WebMapRequest()
 {
 }
@@ -111,6 +118,20 @@ WebMapRequest::~WebMapRequest()
 QImage WebMapRequest::legendImage() const
 {
   return QImage();
+}
+
+size_t WebMapRequest::tileIndex(float x, float y)
+{
+  if (lastTileIndex == INVALID_IDX || !tileRect(lastTileIndex).isinside(x, y)) {
+    lastTileIndex = INVALID_IDX;
+    for (size_t i=0; i<countTiles(); ++i) {
+      if (tileRect(i).isinside(x, y)) {
+        lastTileIndex = i;
+        break;
+      }
+    }
+  }
+  return lastTileIndex;
 }
 
 // ========================================================================

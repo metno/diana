@@ -123,9 +123,7 @@ public:
   virtual void drawWindArrow(float u, float v, float x, float y,
       float arrowSize, bool withArrowHead, int turnBarbs=1) = 0;
 
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth);
-  virtual void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
-      const diutil::Rect_v& imageparts, bool smooth) = 0;
+  virtual void drawScreenImage(const QPointF& point, const QImage& image) = 0;
 
 private:
   DiCanvas* mCanvas;

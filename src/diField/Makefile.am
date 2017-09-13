@@ -11,6 +11,7 @@ libdiField_la_SOURCES = \
 	diFieldManager.cc \
 	diFlightLevel.cc \
 	diGridConverter.cc \
+	diGridReprojection.cc \
 	diMetConstants.cc \
 	diPoint.cc \
 	diProjection.cc \
@@ -47,6 +48,7 @@ noinst_HEADERS = \
 	diFieldManager.h \
 	diFlightLevel.h \
 	diGridConverter.h \
+	diGridReprojection.h \
 	diMetConstants.h \
 	diPoint.h \
 	diProjection.h \
