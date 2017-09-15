@@ -112,8 +112,8 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
   //Convert to satellite proj coordiantes
   getStaticPlot()->MapToProj(satdata->area.P(), 1, &x, &y);
   // convert to satellite pixel
-  int xpos = x/satdata->area.resolutionX;
-  int ypos = y/satdata->area.resolutionY;
+  int xpos = satdata->area.toGridX(x);
+  int ypos = satdata->area.toGridY(y);
 
   satdata->values(xpos,ypos,satval);
 }

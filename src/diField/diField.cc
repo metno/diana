@@ -873,20 +873,16 @@ bool Field::changeGrid(const GridArea& anew, bool fine_interpolation)
 void Field::convertToGrid(int npos, float* xpos, float* ypos) const
 {
   for (int i = 0; i < npos; i++) {
-    xpos[i] -= area.R().x1;
-    ypos[i] -= area.R().y1;
-    xpos[i] /= area.resolutionX;
-    ypos[i] /= area.resolutionY;
+    xpos[i] = area.toGridX(xpos[i]);
+    ypos[i] = area.toGridY(ypos[i]);
   }
 }
 
 void Field::convertFromGrid(int npos, float* xpos, float* ypos) const
 {
   for (int i = 0; i < npos; i++) {
-    xpos[i] *= area.resolutionX;
-    ypos[i] *= area.resolutionY;
-    xpos[i] += area.R().x1;
-    ypos[i] += area.R().y1;
+    xpos[i] = area.fromGridX(xpos[i]);
+    ypos[i] = area.fromGridY(ypos[i]);
   }
 }
 

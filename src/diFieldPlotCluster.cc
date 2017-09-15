@@ -133,8 +133,8 @@ bool FieldPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float y
   if (plotproj == fp->getFieldArea().P()) {
     const std::vector<Field*>& ff = fp->getFields();
     if (!ff.empty()) {
-      gridx = xmap/ff[0]->area.resolutionX;
-      gridy = ymap/ff[0]->area.resolutionY;
+      gridx = ff[0]->area.toGridX(xmap);
+      gridy = ff[0]->area.toGridY(ymap);
       return true;
     }
   }
