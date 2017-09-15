@@ -167,7 +167,6 @@ bool EditManager::parseSetup()
 
     // yet only products in this setup section...
     EditProduct ep;
-    ep.areaminimize= false;
     ep.standardSymbolSize=60;
     ep.complexSymbolSize=6;
     ep.frontLineWidth=8;
@@ -200,9 +199,7 @@ bool EditManager::parseSetup()
           ep.drawtools.push_back(values[j]);
       } else if (nval==0) {
         // keywords without any values
-        if (key=="grid.minimize")
-          ep.areaminimize= true;
-        else
+        if (key != "grid.minimize")
           ok= false;
 
       } else if (key=="local_save_dir") {

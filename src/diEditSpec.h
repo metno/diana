@@ -117,7 +117,6 @@ struct EditProduct {
   PlotCommand_cpv labels;         ///< annotations
   PlotCommand_cpv OKstrings;      ///< define map background and area and other OKStrings
   std::string commandFilename;         ///< file to read okstrings...
-  bool  areaminimize;               ///< minimize area due to undef. values
   int standardSymbolSize;           ///< default symbol size for this product
   int complexSymbolSize;            ///< default complex symbol size
   int frontLineWidth;               ///< default front line width

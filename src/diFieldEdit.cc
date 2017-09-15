@@ -117,7 +117,6 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
 
   specset=rhs.specset;
   areaspec=rhs.areaspec;
-  areaminimize=rhs.areaminimize;
   minValue=rhs.minValue;
   maxValue=rhs.maxValue;
 
@@ -257,7 +256,6 @@ void FieldEdit::setSpec( EditProduct& ep, int fnum) {
   Projection p(grid.projection);
   areaspec = GridArea(Area(p,r), grid.nx, grid.ny, grid.x_resolution, grid.y_resolution);
 
-  areaminimize= ep.areaminimize;
   minValue=     ep.fields[fnum].minValue;
   maxValue=     ep.fields[fnum].maxValue;
 
@@ -428,8 +426,6 @@ void FieldEdit::changeGrid()
 {
   METLIBS_LOG_DEBUG(LOGVAL(areaspec));
   std::string demands= "fine.interpolation";
-  if (areaminimize)
-    demands+= " minimize.area";
   if (!editfield->changeGrid(areaspec,demands)) {
     METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
   }
