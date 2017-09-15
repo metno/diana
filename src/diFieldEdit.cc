@@ -41,6 +41,7 @@
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "util/diKeyValue.h"
+#include "util/math_util.h"
 
 #include <cmath>
 
@@ -49,6 +50,10 @@
 
 using namespace miutil;
 using namespace std;
+
+using diutil::absval;
+using diutil::absval2;
+using diutil::square;
 
 // static class members
 editType FieldEdit::editstate= edit_value;
@@ -649,7 +654,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       } else {
         float dx= ee.x/editfield->area.resolutionX - xfirst;
         float dy= ee.y/editfield->area.resolutionY - yfirst;
-        def_rcircle=   sqrtf(dx*dx+dy*dy);
+        def_rcircle=   absval(dx, dy);
         rcirclePlot= def_rcircle*editfield->area.resolutionX;
         def_axellipse = dx;
         def_ayellipse = dy;
@@ -940,7 +945,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         //          Cannot avoid this while showing an image.
         axellipse = (rx[2]-rx[1])/editfield->area.resolutionX;
         ayellipse = (ry[2]-ry[1])/editfield->area.resolutionY;
-        rcircle= sqrtf(axellipse*axellipse+ayellipse*ayellipse);
+        rcircle= absval(axellipse, ayellipse);
       }
 
       // in field coordinates
@@ -988,8 +993,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           rx[i] /= editfield->area.resolutionX;
           ry[i] /= editfield->area.resolutionY;
         }
-        float avg= (sqrtf((rx[0]-rx[1])*(rx[0]-rx[1])+(ry[0]-ry[1])*(ry[0]-ry[1]))
-            +sqrtf((rx[2]-rx[3])*(rx[2]-rx[3])+(ry[2]-ry[3])*(ry[2]-ry[3])))*0.5;
+        float avg= (absval((rx[0]-rx[1]), (ry[0]-ry[1]))
+            +absval((rx[2]-rx[3]), (ry[2]-ry[3])))*0.5;
         int nsmooth= int(200./avg + 0.5);
         if (nsmooth<0) nsmooth= 0;
         if (nsmooth>8) nsmooth= 8; // ??????????????????????????
@@ -1215,7 +1220,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
       float dx= gx - xfirst;
       float dy= gy - yfirst;
-      float ds= sqrtf(dx*dx+dy*dy);
+      float ds= absval(dx, dy);
       int   np= int(ds/lineincrement + 0.5);
       if (np<=1) {
         xline.push_back(gx);
@@ -1370,7 +1375,7 @@ void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
   posx= rx[0];
   posy= ry[0];
   def_influencetype= fi.influencetype;
-  def_rcircle=       sqrtf(dx*dx+dy*dy);
+  def_rcircle=       absval(dx, dy);
   def_axellipse=     dx;
   def_ayellipse=     dy;
   def_ecellipse=     fi.ecellipse;
@@ -1410,7 +1415,7 @@ FieldInfluence FieldEdit::getFieldInfluence(bool geo) {
   fi.posx= rx[0];
   fi.posy= ry[0];
   fi.influencetype= influencetype;
-  fi.rcircle=       sqrtf(dx*dx+dy*dy);
+  fi.rcircle=       absval(dx, dy);
   fi.axellipse=     dx;
   fi.ayellipse=     dy;
   fi.ecellipse=     ecellipse;
@@ -1427,7 +1432,7 @@ void FieldEdit::editValue(float px, float py, float delta) {
   if (influencetype==0) {
     r= rcircle;
   } else {
-    r= sqrtf(axellipse*axellipse + ayellipse*ayellipse);
+    r= absval(axellipse, ayellipse);
   }
 
   i1= int(px-r+1.);  if (i1<0)  i1=0;   i1ed=i1;
@@ -1467,12 +1472,12 @@ void FieldEdit::editMove(float px, float py) {
   if (influencetype==0) {
     r= rcircle;
   } else {
-    r= sqrtf(axellipse*axellipse + ayellipse*ayellipse);
+    r= absval(axellipse, ayellipse);
   }
 
   dxmv = xfirst - px;
   dymv = yfirst - py;
-  dmv  = sqrtf(dxmv*dxmv+dymv*dymv);
+  dmv  = absval(dxmv, dymv);
   rmin = dmv * 2.5;  // ...............hmmmm..........
   if (r<rmin) {
     r=rmin;
@@ -1545,7 +1550,7 @@ void FieldEdit::editGradient(float px, float py, float deltax, float deltay) {
   float r;
 
   if (influencetype==0) r= rcircle;
-  else                  r= sqrtf(axellipse*axellipse+ayellipse*ayellipse);
+  else                  r= absval(axellipse, ayellipse);
 
   i1= int(px-r+1.);  if (i1<0)  i1=0;   i1ed=i1;
   i2= int(px+r+1.);  if (i2>nx) i2=nx;  i2ed=i2;
@@ -1625,7 +1630,7 @@ void FieldEdit::editLine()
   const float wmin= 0.00001;
 
   float d2,d2min;
-  float d2max= (float(nx)*float(nx)+float(ny)*float(ny))*2.;
+  float d2max= absval2(float(nx), float(ny))*2.;
 
   float *weightmax= new float[nx*ny];
   float *dxmax=     new float[nx*ny];
@@ -1643,7 +1648,7 @@ void FieldEdit::editLine()
     for (i=0; i<npline; i++) {
       dx= isoline.x[i] - px;
       dy= isoline.y[i] - py;
-      d2= dx*dx+dy*dy;
+      d2= absval2(dx, dy);
       if (d2<d2min) {
         d2min= d2;
         k= i;
@@ -1651,7 +1656,7 @@ void FieldEdit::editLine()
     }
     dxmv= isoline.x[k] - px;
     dymv= isoline.y[k] - py;
-    dmv= sqrtf(dxmv*dxmv+dymv*dymv);
+    dmv= absval(dxmv, dymv);
     r  = dmv * 2.5;  // ...............hmmmm..........
 
     i1= int(px-r+1.);  if (i1<0)  i1=0;
@@ -1816,7 +1821,7 @@ void FieldEdit::editLimitedLine() {
   const float wmin= 0.00001;
 
   float d2,d2min,pz,w,wf,f;
-  float d2max= (float(nx)*float(nx)+float(ny)*float(ny))*2.;
+  float d2max= absval2(float(nx), float(ny))*2.;
 
   float flow=  isoline.value - lineinterval * 0.95;
   float fhigh= isoline.value + lineinterval * 0.95;
@@ -1837,7 +1842,7 @@ void FieldEdit::editLimitedLine() {
     for (i=0; i<npline; i++) {
       dx= isoline.x[i] - px;
       dy= isoline.y[i] - py;
-      d2= dx*dx+dy*dy;
+      d2= absval2(dx, dy);
       if (d2<d2min) {
         d2min= d2;
         k= i;
@@ -1845,7 +1850,7 @@ void FieldEdit::editLimitedLine() {
     }
     dxmv= isoline.x[k] - px;
     dymv= isoline.y[k] - py;
-    dmv= sqrtf(dxmv*dxmv+dymv*dymv);
+    dmv= absval(dxmv, dymv);
     r  = dmv * 2.5;  // ...............hmmmm..........
 
     i1= int(px-r+1.);  if (i1<0)  i1=0;
@@ -2143,8 +2148,9 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
             (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
             dx= float(i) + dxside[kk] + frac*dxfrac[kk] - xpos;
             dy= float(j) + dyside[kk] + frac*dyfrac[kk] - ypos;
-            if (d2min>dx*dx+dy*dy) {
-              d2min= dx*dx+dy*dy;
+            const float d2= absval2(dx, dy);
+            if (d2min > d2) {
+              d2min= d2;
               kcmin= kk;
             }
           }
@@ -2398,10 +2404,10 @@ int FieldEdit::smoothline(int npos, float x[], float y[],
   {
     xl1 = x[n]-x[n-1];
     yl1 = y[n]-y[n-1];
-    s1  = sqrtf(xl1*xl1+yl1*yl1);
+    s1  = absval(xl1, yl1);
     xl2 = x[n+1]-x[n];
     yl2 = y[n+1]-y[n];
-    s2  = sqrtf(xl2*xl2+yl2*yl2);
+    s2  = absval(xl2, yl2);
     dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
     dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
   }
@@ -2409,7 +2415,7 @@ int FieldEdit::smoothline(int npos, float x[], float y[],
   {
     xl2 = x[n+1]-x[n];
     yl2 = y[n+1]-y[n];
-    s2  = sqrtf(xl2*xl2+yl2*yl2);
+    s2  = absval(xl2, yl2);
     dx2 = xl2/s2;
     dy2 = yl2/s2;
   }
@@ -2429,7 +2435,7 @@ int FieldEdit::smoothline(int npos, float x[], float y[],
     if (n < npos-1) {
       xl2 = x[n+1]-x[n];
       yl2 = y[n+1]-y[n];
-      s2  = sqrtf(xl2*xl2+yl2*yl2);
+      s2  = absval(xl2, yl2);
       dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
       dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
     }
@@ -2488,7 +2494,7 @@ void FieldEdit::editSmooth(float px, float py) {
       workfield->data[j*nx+i]= odata[j*nx+i];
 
   if (influencetype==0) r= rcircle;
-  else                  r= sqrtf(axellipse*axellipse+ayellipse*ayellipse);
+  else                  r= absval(axellipse, ayellipse);
 
   i1= int(px-r+1.);  if (i1<0)  i1=0;   i1ed=i1;
   i2= int(px+r+1.);  if (i2>nx) i2=nx;  i2ed=i2;
@@ -2545,7 +2551,7 @@ void FieldEdit::editBrush(float px, float py)
   if (influencetype==0 || influencetype==3)  // circle or square
     r= rcircle;
   else                                       // ellipse
-    r= sqrtf(axellipse*axellipse+ayellipse*ayellipse);
+    r= absval(axellipse, ayellipse);
 
   int infl= influencetype;
 
@@ -2697,9 +2703,9 @@ void FieldEdit::editBrush(float px, float py)
 
       // ellipse (same border for the two types)
       float e = ecellipse;
-      float a = sqrtf(axellipse*axellipse+ayellipse*ayellipse);
+      float a = absval(axellipse, ayellipse);
       float b = a*sqrtf(1.-e*e);
-      float c = 2.*sqrtf(a*a-b*b);
+      float c = 2.*absval(a, b);
       float ecos= axellipse/a;
       float esin= ayellipse/a;
 
@@ -2810,7 +2816,7 @@ void FieldEdit::editClassLine()
     for (int i=0; i<npline; i++) {
       dx= isoline.x[i] - px;
       dy= isoline.y[i] - py;
-      d2= dx*dx+dy*dy;
+      d2= absval2(dx, dy);
       if (d2<d2min) {
         d2min= d2;
         k= i;
@@ -3068,7 +3074,7 @@ void FieldEdit::editWeight(float px, float py,
 
     // ellipse
     float e = ecellipse;
-    float a = sqrtf(axellipse*axellipse + ayellipse*ayellipse);
+    float a = absval(axellipse, ayellipse);
 
     float b = a*sqrtf(1.-e*e);
     float c = 2.*sqrtf(a*a-b*b);
@@ -3173,10 +3179,10 @@ void FieldEdit::editExpWeight(float px, float py,
 
     // ellipse
     float e = ecellipse;
-    float a = sqrtf(axellipse*axellipse + ayellipse*ayellipse);
+    float a = absval(axellipse, ayellipse);
 
     float b = a*sqrtf(1.-e*e);
-    float c = 2.*sqrtf(a*a-b*b);
+    float c = 2.*absval(a, b);
     float ecos= axellipse/a;
     float esin= ayellipse/a;
     float ex,ey,fx1,fy1,fx2,fy2;
@@ -3385,9 +3391,9 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     float e=  ecellipse;
     float dx= axellipsePlot;
     float dy= ayellipsePlot;
-    float a= sqrtf(dx*dx+dy*dy);
+    float a= absval(dx, dy);
     float b= a*sqrtf(1.-e*e);
-    float c= 2.*sqrtf(a*a-b*b);
+    float c= 2.*absval(a, b);
     float ecos= dx/a;
     float esin= dy/a;
     float ex,ey;
@@ -3397,7 +3403,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->Vertex2f(x,y);
     for (i=1; i<36; ++i) {
       ey= b*float(18-i)/18.;
-      ex= a*sqrtf(1.-(ey*ey)/(b*b));
+      ex= a*sqrtf(1.-diutil::square(ey/b));
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
       gl->Vertex2f(x,y);
@@ -3407,7 +3413,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->Vertex2f(x,y);
     for (i=35; i>0; --i) {
       ey= b*float(18-i)/18.;
-      ex= -a*sqrtf(1.-(ey*ey)/(b*b));
+      ex= -a*sqrtf(1.-diutil::square(ey/b));
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
       gl->Vertex2f(x,y);

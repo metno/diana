@@ -39,6 +39,7 @@
 #include "diPoint.h"
 #include "diUtilities.h"
 
+#include "util/math_util.h"
 #include "util/qstring_util.h"
 
 #include "diField/diMetConstants.h"
@@ -60,11 +61,6 @@
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
-
-inline float square(float x)
-{
-  return x*x;
-}
 
 static const char* horizontal(bool timegraph)
 {
@@ -798,6 +794,7 @@ void QtPlot::calculateContrastColour()
 
 int QtPlot::getNearestPos(int px)
 {
+  using diutil::square;
   METLIBS_LOG_SCOPE();
 
   const float valueX = mAxisX->paint2value(px);
@@ -1539,8 +1536,7 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy, bool timegraph)
     Values::ShapeIndex idx_vi(plot->evaluated->values(i)->shape());
     idx_vi.set(H_COORD, ix);
     idx_vi.set(Values::GEO_Z, iy);
-    const float vi = plot->evaluated->values(i)->value(idx_vi);
-    v += vi*vi;
+    v += diutil::square(plot->evaluated->values(i)->value(idx_vi));
   }
   return sqrt(v);
 }
@@ -1621,7 +1617,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
     painter.setPen(QPen(color, plot->poptions.linewidth));
     painter.setBrush(Qt::NoBrush);
 
-    const float R = 9*plot->poptions.extremeSize, D = R*sqrt(2)/2;
+    const float R = 9*plot->poptions.extremeSize, D = R/sqrt(2);
     if (have_min) {
       painter.drawEllipse(QPointF(min_px, min_py), R, R);
       painter.drawLine(QPointF(min_px+D, min_py+D), QPointF(min_px-D, min_py-D));

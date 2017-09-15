@@ -36,6 +36,7 @@
 #include "diGLPainter.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotModule.h"
+#include "util/math_util.h"
 #include "util/string_util.h"
 
 #include <puDatatypes/miCoordinates.h>
@@ -51,9 +52,6 @@ static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 {
   return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
 }
-
-static inline float square(float x)
-{ return x*x; }
 
 GridConverter StaticPlot::gc; // Projection-converter
 
@@ -154,7 +152,7 @@ void StaticPlot::setPhysSize(int w, int h)
 
 float StaticPlot::getPhysDiagonal() const
 {
-  return std::sqrt(square(getPhysWidth()) + square(getPhysHeight()));
+  return diutil::absval(getPhysWidth(), getPhysHeight());
 }
 
 Area StaticPlot::findBestMatch(const Area& newa){

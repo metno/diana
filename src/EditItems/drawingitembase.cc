@@ -195,8 +195,6 @@ void DrawingItemBase::updateRect()
 {
 }
 
-qreal DrawingItemBase::sqr(qreal x) { return x * x; }
-
 QList<QPointF> DrawingItemBase::getLatLonPoints() const
 {
   return latLonPoints_;

@@ -33,6 +33,7 @@
 
 #include "diFieldCalculations.h"
 
+#include "../util/math_util.h"
 #include "../util/openmp_tools.h"
 #include "diMetConstants.h"
 
@@ -1681,7 +1682,7 @@ bool vectorabs(int nx, int ny, const float *u, const float *v,
   DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(allDefined, u[i], v[i], undef))
-      ff[i] = sqrtf(u[i] * u[i] + v[i] * v[i]);
+      ff[i] = diutil::absval(u[i], v[i]);
     else
       ff[i] = undef;
   }
@@ -1878,7 +1879,7 @@ bool gradient(int compute, int nx, int ny, const float *field,
       if (calculations::is_defined(allDefined, field[i-nx], field[i-1], field[i+1], field[i+nx], undef)) {
         const float dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
         const float dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
-        fgrad[i] = sqrtf(dfdx * dfdx + dfdy * dfdy);
+        fgrad[i] = diutil::absval(dfdx, dfdy);
       } else
         fgrad[i] = undef;
     }
@@ -2047,7 +2048,7 @@ bool windCooling(int compute, int nx, int ny, const float *t,
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(allDefined, t[i], u[i], v[i], undef)) {
         const float tc = t[i] - tconv;
-        const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]) * 3.6; // m/s -> km/h
+        const float ff = diutil::absval(u[i], v[i]) * 3.6; // m/s -> km/h
         const float ffpow = powf(ff, 0.16);
         dtcool[i] = 13.12 + 0.6215 * tc - 11.37 * ffpow + 0.3965 * tc * ffpow;
         if (dtcool[i] > 0.)
@@ -2317,7 +2318,7 @@ bool vesselIcingOverland(int nx, int ny, const float *airtemp,
         icing[i] = undef;
         local_allDefined = false;
       } else {
-        const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const float ff = diutil::absval(u[i] , v[i]);
         icing[i] = ff * (tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - tf));
       }
     } else {
@@ -2350,7 +2351,7 @@ bool vesselIcingMertins(int nx, int ny, const float *airtemp,
         local_allDefined = false;
       }
       else {
-        const float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const float ff = diutil::absval(u[i] , v[i]);
         const float temperature = airtemp[i];
         const float sst=seatemp[i];
         if (ff>=10.8){
@@ -2442,7 +2443,7 @@ bool vesselIcingOverland2(int nx, int ny, const float *airtemp,
         icing[i] = undef;
         local_allDefined = false;
       } else {
-        const double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const double ff = diutil::absval(u[i] , v[i]);
         const double ppr = ff * (Tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - Tf));
         icing[i]=A*ppr+B*(ppr*ppr)+C*ppr*ppr*ppr;
       }
@@ -2482,7 +2483,7 @@ bool vesselIcingMertins2(int nx, int ny, const float *airtemp,
         icing[i] = undef;
         local_allDefined = false;
       } else {
-        const double ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        const double ff = diutil::absval(u[i] , v[i]);
         const double temperature = airtemp[i];
         const double sst=seatemp[i];
         if (ff>=10.8){
@@ -2602,7 +2603,7 @@ bool vesselIcingModStall(int nx, int ny,
       double Vr = c-vs*cos(alpha);
 
       /* Calculate v from x_wind and y_wind */
-      double v = sqrtf(x_wind[i] * x_wind[i] + y_wind[i] * y_wind[i]);
+      double v = diutil::absval(x_wind[i] , y_wind[i]);
 
       /* Freezing point of sea water from Stallabrass (1980) */
       double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
@@ -2806,7 +2807,7 @@ bool vesselIcingTestMod(int nx, int ny,
       double Vr = c - vs*cos(alpha); //Relative speed between waves and boat
 
       /* Calculate v from x_wind and y_wind */
-      double v = sqrtf(x_wind[i] * x_wind[i] + y_wind[i] * y_wind[i]);
+      double v = diutil::absval(x_wind[i] , y_wind[i]);
       //Wr = v;
       double Wr = sqrtf(pow(v,2)+pow(vs,2)-2*v*vs*cos(alpha));
 

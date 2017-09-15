@@ -42,15 +42,16 @@
 #endif // ROADOBS
 
 #include "diLocalSetupParser.h"
-#include <puTools/miStringFunctions.h>
-#include <diField/VcrossData.h>
-#include <diField/VcrossUtil.h>
-#include <puTools/TimeFilter.h>
+#include "diField/VcrossData.h"
+#include "diField/VcrossUtil.h"
 
 #include "vcross_v2/VcrossEvaluate.h"
 #include "vcross_v2/VcrossComputer.h"
 #include "diUtilities.h"
+#include "util/math_util.h"
 
+#include <puTools/miStringFunctions.h>
+#include <puTools/TimeFilter.h>
 
 #include <fstream>
 #include <iomanip>
@@ -468,7 +469,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       for (size_t k = 0; k < size_t(numLevel); k++) {
         float uew = vp->uu[k];
         float vns = vp->vv[k];
-        int ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
+        int ff = int(diutil::absval(uew , vns) + 0.5);
         if (!vp->windInKnots)
           ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
         int dd = int(270. - RAD_TO_DEG * atan2f(vns, uew) + 0.5);
@@ -568,7 +569,7 @@ void VprofData::renameStations()
     for (int j=0; j<m; j++) {
       float dx = mStations[i].lon - stationLongitude[j];
       float dy = mStations[i].lat - stationLatitude[j];
-      float s = dx*dx+dy*dy;
+      float s = diutil::absval2(dx, dy);
       if (s < smin) {
         smin = s;
         jmin = j;

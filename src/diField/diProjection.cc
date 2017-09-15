@@ -33,6 +33,7 @@
 
 #include "diProjection.h"
 
+#include "../util/math_util.h"
 #include "../util/openmp_tools.h"
 
 #include <puDatatypes/miCoordinates.h> // for earth radius
@@ -332,7 +333,7 @@ bool Projection::convertVectors(const Projection& srcProj, size_t nvec,
     DIUTIL_OPENMP_PARALLEL(nvec, for)
     for (size_t i = 0; i < nvec; ++i) {
       if(u[i] != udef && v[i] != udef) {
-        const float length = std::sqrt(u[i]*u[i] + v[i]*v[i]);
+        const float length = diutil::absval(u[i], v[i]);
 
         // the difference between angles in the two projections:
         float angle_diff = to_north[i] - from_north[i];
@@ -463,7 +464,7 @@ float Projection::getMapLinesJumpLimit() const
 
   float dx = px[1] - px[0];
   float dy = py[1] - py[0];
-  return sqrtf(dx * dx + dy * dy) / 4;
+  return diutil::absval(dx , dy) / 4;
 }
 
 bool Projection::convertToGeographic(int n, float* x, float* y) const
@@ -608,7 +609,7 @@ bool Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridR
       } else {
         float dy = ((y[i + nx] - y[i]) * efactor);
         float dx = ((x[i + nx] - x[i]) * efactor) * cos(y[i] * DEG_TO_RAD);
-        float dd = sqrt(pow(dy, 2) + pow(dx, 2));
+        float dd = diutil::absval(dy, dx);
         ymapr[i] = 1 / dd;
       }
       if (ix == nx - 1) {
@@ -616,7 +617,7 @@ bool Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridR
       } else {
         float dy = ((y[i + 1] - y[i]) * efactor);
         float dx = ((x[i + 1] - x[i]) * efactor) * cos(y[i] * DEG_TO_RAD);
-        float dd = sqrt(pow(dy, 2) + pow(dx, 2));
+        float dd = diutil::absval(dy, dx);
         xmapr[i] = 1 / dd;
       }
     }

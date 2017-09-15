@@ -48,6 +48,7 @@
 #include "diColourShading.h"
 #include "diUtilities.h"
 #include "util/charsets.h"
+#include "util/math_util.h"
 #include "util/string_util.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
@@ -1278,10 +1279,10 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
         continue;
       dx = x[i + 1] - x[i];
       dy = y[i + 1] - y[i];
-      adx += sqrtf(dx * dx + dy * dy);
+      adx += diutil::absval(dx , dy);
       dx = x[i + nx] - x[i];
       dy = y[i + nx] - y[i];
-      ady += sqrtf(dx * dx + dy * dy);
+      ady += diutil::absval(dx , dy);
     }
   }
 
@@ -1353,7 +1354,7 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
     }
     const float dx = x[i + 1] - x[i];
     const float dy = y[i + 1] - y[i];
-    adx += sqrtf(dx * dx + dy * dy);
+    adx += diutil::absval(dx , dy);
   }
 
   adx /= float(mx);
@@ -1744,7 +1745,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
       gy = y[i];
       if (u[i] != fieldUndef && v[i] != fieldUndef && ms.isnear(gx, gy)
           && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
-        ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+        ff = diutil::absval(u[i] , v[i]);
         if (ff > 0.00001) {
 
           gu = u[i] / ff;
@@ -1924,7 +1925,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
           && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
 
         if (u[i] != fieldUndef && v[i] != fieldUndef)
-          ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+          ff = diutil::absval(u[i] , v[i]);
         else
           ff = 0.0f;
         if (ff > 0.00001) {
@@ -2938,10 +2939,10 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
       i = iy * nx + ix;
       dx = x[i + 1] - x[i];
       dy = y[i + 1] - y[i];
-      avgdist += sqrtf(dx * dx + dy * dy);
+      avgdist += diutil::absval(dx , dy);
       dx = x[i + nx] - x[i];
       dy = y[i + nx] - y[i];
-      avgdist += sqrtf(dx * dx + dy * dy);
+      avgdist += diutil::absval(dx , dy);
       n += 2;
     }
   }

@@ -2,11 +2,11 @@
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
 
-#include <puTools/miStringFunctions.h>
-#include <diField/diFieldCalculations.h>
-#include <diField/diMetConstants.h>
+#include "util/math_util.h"
+#include "diField/diFieldCalculations.h"
+#include "diField/diMetConstants.h"
 
-#include <boost/foreach.hpp>
+#include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "vcross.Computer"
 #include "miLogger/miLogging.h"
@@ -310,7 +310,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     for (size_t l = 0; l < nl; l++) {
       for (size_t p = 0; p < np; p++) {
         const float v0 = av0->value(p, l), v1 = av1->value(p, l);
-        const float v = (v0 != ud0 and v1 != ud1) ? std::sqrt(v0*v0 + v1*v1) : ud0;
+        const float v = (v0 != ud0 and v1 != ud1) ? diutil::absval(v0, v1) : ud0;
         out->setValue(v, p, l);
       }
     }

@@ -3,9 +3,8 @@
 
 #include "VcrossQtAxis.h"
 #include "VcrossQtUtil.h"
-#include <diField/VcrossUtil.h>
-
-#include <boost/foreach.hpp>
+#include "diField/VcrossUtil.h"
+#include "util/math_util.h"
 
 #include <cmath>
 
@@ -167,7 +166,7 @@ void VCLines::drawLabels(const point_v& points, contouring::level_t li)
     for (idx += 1; idx < points.size(); ++idx) {
       p1 = points.at(idx);
       const float dy = p1.y - p0.y, dx = p1.x - p0.x;
-      if (dx*dx + dy*dy >= lbl_w2)
+      if (diutil::absval2(dx, dy) >= lbl_w2)
         break;
     }
     if (idx >= points.size())

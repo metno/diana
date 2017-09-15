@@ -480,6 +480,7 @@ noinst_HEADERS = \
 	util/fimex_logging.h \
 	util/format_int.h \
 	util/diKeyValue.h \
+	util/math_util.h \
 	util/openmp_tools.h \
 	util/polygon_util.h \
 	util/qstring_util.h \

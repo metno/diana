@@ -141,8 +141,6 @@ protected:
     return 0;
   }
 
-  static qreal sqr(qreal);
-
   mutable QVariantMap properties_;
   QList<QPointF> points_;
   QList<QPointF> latLonPoints_;

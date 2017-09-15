@@ -41,6 +41,7 @@
 #include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/math_util.h"
 #include "util/qstring_util.h"
 
 #include <puCtools/stat.h>
@@ -1272,12 +1273,10 @@ void ObsPlot::updateFromEditField()
 
 //***********************************************************************
 
-static inline float square(float x)
-{ return x*x; }
-
 int ObsPlot::findObs(int xx, int yy, const std::string& type)
 {
   METLIBS_LOG_SCOPE();
+  using diutil::square;
 
   float min_r = square(10 * getStaticPlot()->getPhysToMapScaleX());
   float r;
