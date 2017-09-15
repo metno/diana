@@ -1209,7 +1209,7 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
   if (differentGrid) {
     unsigned int j = 0;
     while (res && j < dim) {
-      res = fv2[j]->changeGrid(area1, "simple.interpolation");
+      res = fv2[j]->changeGrid(area1, false);
       j++;
     }
     if (res && dim == 2) {

@@ -425,9 +425,8 @@ void FieldEdit::makeWorkfield()
 void FieldEdit::changeGrid()
 {
   METLIBS_LOG_DEBUG(LOGVAL(areaspec));
-  std::string demands= "fine.interpolation";
-  if (!editfield->changeGrid(areaspec,demands)) {
-    METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
+  if (!editfield->changeGrid(areaspec, true)) {
+    METLIBS_LOG_WARN("specification/interpolation failure");
   }
 }
 

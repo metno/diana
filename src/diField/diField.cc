@@ -818,14 +818,14 @@ bool Field::interpolate(int npos, const float *xpos, const float *ypos,
 }
 
 
-bool Field::changeGrid(const GridArea& anew, const std::string& demands)
+bool Field::changeGrid(const GridArea& anew, bool fine_interpolation)
 {
   /*
    * PURPOSE:    change the grid by interplation in original field
    * ALGORITHM:
    * ARGUMENTS:
-   *    demands= "fine.interpolation"   : bessel interp. (default)
-   *    demands= "simple.interpolation" : bilinear interp.
+   *    fine_interpolation == true:   bessel interp.
+   *    fine_interpolation == false : bilinear interp.
    */
   METLIBS_LOG_SCOPE();
   if (!data)
@@ -834,10 +834,7 @@ bool Field::changeGrid(const GridArea& anew, const std::string& demands)
   if (area == anew)
     return true;
 
-  size_t l= demands.length();
-  InterpolationType interpoltype = I_BESSEL;
-  if (demands.find("simple.interpolation",0)<l)
-    interpoltype = I_BILINEAR;
+  InterpolationType interpoltype = fine_interpolation ? I_BESSEL : I_BILINEAR;
 
   int nxnew= int(anew.R().width() /anew.resolutionX+0.5)+1;
   int nynew= int(anew.R().height()/anew.resolutionY+0.5)+1;
