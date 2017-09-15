@@ -876,6 +876,8 @@ bool Field::changeGrid(const GridArea& anew, const std::string& demands)
 void Field::convertToGrid(int npos, float* xpos, float* ypos) const
 {
   for (int i = 0; i < npos; i++) {
+    xpos[i] -= area.R().x1;
+    ypos[i] -= area.R().y1;
     xpos[i] /= area.resolutionX;
     ypos[i] /= area.resolutionY;
   }
@@ -886,6 +888,8 @@ void Field::convertFromGrid(int npos, float* xpos, float* ypos) const
   for (int i = 0; i < npos; i++) {
     xpos[i] *= area.resolutionX;
     ypos[i] *= area.resolutionY;
+    xpos[i] += area.R().x1;
+    ypos[i] += area.R().y1;
   }
 }
 
