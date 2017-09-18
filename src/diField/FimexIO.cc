@@ -897,27 +897,23 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(const CoordinateSystemP
 bool FimexIO::paramExists(const std::string& reftime, const gridinventory::GridParameter& param)
 {
   using namespace gridinventory;
-    const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
-    if (ritr == inventory.reftimes.end())
-      return false;
-    const ReftimeInventory& reftimeInv = ritr->second;
-    return ( reftimeInv.parameters.find(param) != reftimeInv.parameters.end() );
+  const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
+  if (ritr == inventory.reftimes.end())
+    return false;
+  const ReftimeInventory& reftimeInv = ritr->second;
+  return (reftimeInv.parameters.find(param) != reftimeInv.parameters.end());
 }
 
 void FimexIO::setHybridParametersIfPresent(const std::string& reftime, const gridinventory::GridParameter& param,
     const std::string& ap_name, const std::string& b_name, size_t zaxis_index, Field* field)
 {
   // check if the zaxis has the hybrid parameters ap and b
-  gridinventory::GridParameter pp;
-  miutil::miTime actualtime;
-  gridinventory::GridParameter param_ap(gridinventory::GridParameterKey(ap_name, param.key.zaxis,
-      param.key.taxis, param.key.extraaxis));
-  gridinventory::GridParameter param_b(gridinventory::GridParameterKey(b_name, param.key.zaxis,
-      param.key.taxis, param.key.extraaxis));
-  if ( paramExists(reftime,param_ap) && paramExists(reftime,param_b) ) {
+  gridinventory::GridParameter param_ap(gridinventory::GridParameterKey(ap_name, param.key.zaxis,"", ""));
+  gridinventory::GridParameter param_b(gridinventory::GridParameterKey(b_name, param.key.zaxis, "", ""));
+  if (paramExists(reftime, param_ap) && paramExists(reftime, param_b)) {
     DataPtr ap = feltReader->getScaledDataInUnit(ap_name, "hPa");
     DataPtr b  = feltReader->getScaledData(b_name);
-    if (zaxis_index < ap->size() && zaxis_index < b->size()) {
+    if (ap && b && zaxis_index < ap->size() && zaxis_index < b->size()) {
       field->aHybrid = ap->getDouble(zaxis_index);
       field->bHybrid = b ->getDouble(zaxis_index);
     }
