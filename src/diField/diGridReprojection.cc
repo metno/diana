@@ -397,12 +397,6 @@ void divide(ReproBuffer& rb)
     } else if (should_subdivide(et)) {
       subdivide_back(ev, rb.reproject);
     } else {
-
-      if (et.sw() <= SMALL || et.sh() <= SMALL)
-        METLIBS_LOG_WARN("render SMALL" << LOGVAL(et.sw()) << LOGVAL(et.sh()));
-      else
-        METLIBS_LOG_INFO("render BIG  " << LOGVAL(et.sw()) << LOGVAL(et.sh()));
-
       if (!(is_undef(et.xyf[f00]) || is_undef(et.xyf[f10]) || is_undef(et.xyf[f01]) || is_undef(et.xyf[f11]))) {
         rb.script->push_back(ReproQuad());
         ReproQuad& q = rb.script->back();
