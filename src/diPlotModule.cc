@@ -63,6 +63,8 @@
 
 #include <QMouseEvent>
 
+#include <boost/range/adaptor/map.hpp>
+
 #include <memory>
 
 //#define DEBUGPRINT
@@ -116,8 +118,8 @@ void PlotModule::setCanvas(DiCanvas* canvas)
     vmp[i]->setCanvas(canvas);
   obsplots_->setCanvas(mCanvas);
   fieldplots_->setCanvas(mCanvas);
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
-    it->second->setCanvas(canvas);
+  for (Manager* m : boost::adaptors::values(managers))
+    m->setCanvas(canvas);
 }
 
 void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
@@ -347,8 +349,8 @@ vector<PlotElement> PlotModule::getPlotElements()
     }
   }
 
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
-    const std::vector<PlotElement> pe = it->second->getPlotElements();
+  for (Manager* m : boost::adaptors::values(managers)) {
+    const std::vector<PlotElement> pe = m->getPlotElements();
     pel.insert(pel.end(), pe.begin(), pe.end());
   }
 
@@ -405,8 +407,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       change = areaobjects_->enablePlotElement(pe);
   } else {
     const QString qtype = QString::fromStdString(pe.type);
-    for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
-      Manager* m = it->second;
+    for (Manager* m : boost::adaptors::values(managers)) {
       if (qtype == m->plotElementTag()) {
         change = m->enablePlotElement(pe);
         break;
@@ -480,10 +481,10 @@ void PlotModule::setAnnotations()
 
   // Miscellaneous managers
   ann.col = Colour(0, 0, 0);
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
+  for (Manager* m : boost::adaptors::values(managers)) {
     // Obtain the annotations for enabled managers.
-    if (it->second->isEnabled()) {
-      for (const std::string& a : it->second->getAnnotations()) {
+    if (m->isEnabled()) {
+      for (const std::string& a : m->getAnnotations()) {
         ann.str = a;
         annotations.push_back(ann);
       }
@@ -554,9 +555,9 @@ bool PlotModule::updatePlots()
     nodata = false;
 
   // prepare item stored in miscellaneous managers
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
+  for (Manager* m : boost::adaptors::values(managers)) {
     // If the preparation fails then return false to indicate an error.
-    if (it->second->isEnabled() && !it->second->prepare(t))
+    if (m->isEnabled() && !m->prepare(t))
       nodata = false;
   }
 
@@ -711,9 +712,20 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
   gl->Disable(DiGLPainter::gl_BLEND);
 
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->changeProjection(staticPlot_->getMapArea());
+  }
+
   // plot map-elements for lowest zorder
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->plot(gl, Plot::BACKGROUND);
+
+  // plot other objects, including drawing items
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->plot(gl, Plot::BACKGROUND);
+  }
 
   // plot satellite images
   satm->plot(gl, Plot::SHADE_BACKGROUND);
@@ -721,12 +733,30 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   // mark undefined areas/values in field (before map)
   fieldplots_->plot(gl, Plot::SHADE_BACKGROUND);
 
+  // plot other objects, including drawing items
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->plot(gl, Plot::SHADE_BACKGROUND);
+  }
+
   // plot fields (shaded fields etc. before map)
   fieldplots_->plot(gl, Plot::SHADE);
+
+  // plot other objects, including drawing items
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->plot(gl, Plot::SHADE);
+  }
 
   // plot map-elements for auto zorder
   for (size_t i = 0; i < vmp.size(); i++)
     vmp[i]->plot(gl, Plot::LINES_BACKGROUND);
+
+  // plot other objects, including drawing items
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->plot(gl, Plot::LINES_BACKGROUND);
+  }
 
   // plot locationPlots (vcross,...)
   for (size_t i = 0; i < locationPlots.size(); i++)
@@ -750,11 +780,9 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   editm->plot(gl, Plot::LINES);
 
   // plot other objects, including drawing items
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
-    if (it->second->isEnabled()) {
-      it->second->changeProjection(staticPlot_->getMapArea());
-      it->second->plot(gl, Plot::LINES);
-    }
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->plot(gl, Plot::LINES);
   }
 
   obsplots_->plot(gl, Plot::LINES);
@@ -796,10 +824,10 @@ void PlotModule::plotOver(DiGLPainter* gl)
 
   } // if editm->isInEdit()
 
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
-    if (it->second->isEnabled()) {
-      it->second->changeProjection(staticPlot_->getMapArea());
-      it->second->plot(gl, Plot::OVERLAY);
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled()) {
+      m->changeProjection(staticPlot_->getMapArea());
+      m->plot(gl, Plot::OVERLAY);
     }
   }
 
@@ -924,8 +952,8 @@ Rectangle PlotModule::getPhysRectangle() const
 
 void PlotModule::callManagersChangeProjection()
 {
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
-    it->second->changeProjection(staticPlot_->getMapArea());
+  for (Manager* m : boost::adaptors::values(managers))
+    m->changeProjection(staticPlot_->getMapArea());
 }
 
 void PlotModule::setMapArea(const Area& area)

@@ -18,13 +18,22 @@
    <property name="spacing">
     <number>2</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
     <number>2</number>
    </property>
    <item>
     <widget class="QTabWidget" name="tabsTop">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabAdd">
       <attribute name="title">
@@ -34,7 +43,16 @@
        <property name="spacing">
         <number>2</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
         <number>2</number>
        </property>
        <item>
@@ -47,7 +65,16 @@
            <property name="spacing">
             <number>2</number>
            </property>
-           <property name="margin">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
             <number>2</number>
            </property>
            <item>
@@ -78,7 +105,16 @@
            <property name="spacing">
             <number>2</number>
            </property>
-           <property name="margin">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
             <number>2</number>
            </property>
            <item>
@@ -175,19 +211,48 @@
       <attribute name="title">
        <string>Modify</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0,0,1,0">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <property name="spacing">
         <number>2</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
         <number>2</number>
        </property>
        <item>
-        <widget class="QComboBox" name="comboStyleLayer">
-         <property name="toolTip">
-          <string>Choose the layer to modify</string>
+        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
+         <property name="spacing">
+          <number>2</number>
          </property>
-        </widget>
+         <item>
+          <widget class="QComboBox" name="comboStyleLayer">
+           <property name="toolTip">
+            <string>Choose the layer to modify</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="buttonLayerRemove">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Remove</string>
+           </property>
+           <property name="text">
+            <string notr="true">-</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="groupStyle">
@@ -201,7 +266,16 @@
           <string>Style</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
            <number>2</number>
           </property>
           <property name="spacing">
@@ -253,6 +327,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="checkGrey">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Transform webmap to greyscale</string>
             </property>
@@ -270,6 +347,9 @@
           </item>
           <item row="2" column="2">
            <widget class="QDoubleSpinBox" name="spinAlphaScale">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Scale layer transparency with this value</string>
             </property>
@@ -289,6 +369,9 @@
           </item>
           <item row="2" column="3">
            <widget class="QDoubleSpinBox" name="spinAlphaOffset">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Add this to layer transparency after scaling</string>
             </property>
@@ -324,7 +407,10 @@
            </widget>
           </item>
           <item row="3" column="2" colspan="3">
-           <widget class="QComboBox" name="comboBox">
+           <widget class="QComboBox" name="comboPlotOrder">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Choose</string>
             </property>
@@ -341,6 +427,11 @@
             <item>
              <property name="text">
               <string>Shade</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Lines Background</string>
              </property>
             </item>
             <item>
@@ -375,7 +466,16 @@
           <string>Time</string>
          </property>
          <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
            <number>2</number>
           </property>
           <property name="spacing">
@@ -462,7 +562,16 @@
           <property name="spacing">
            <number>2</number>
           </property>
-          <property name="margin">
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
            <number>2</number>
           </property>
           <item>
@@ -478,8 +587,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>100</width>
-               <height>30</height>
+               <width>390</width>
+               <height>92</height>
               </rect>
              </property>
             </widget>
@@ -490,6 +599,9 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>2</number>
+         </property>
          <item>
           <widget class="QPushButton" name="pushModifyReset">
            <property name="enabled">
@@ -526,7 +638,6 @@
         </layout>
        </item>
       </layout>
-      <zorder>comboStyleLayer</zorder>
       <zorder>groupTime</zorder>
       <zorder>groupStyle</zorder>
       <zorder>groupStyleOtherDims</zorder>
@@ -557,5 +668,144 @@
   <tabstop>editAddLayerFilter</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkGrey</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyGreyToggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>38</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>128</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboStyleLayer</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyLayerSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>97</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonModifyApply</sender>
+   <signal>clicked()</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyApply()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>444</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>458</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushModifyReset</sender>
+   <signal>clicked()</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyReset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>446</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>91</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinAlphaScale</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyAlphaScaleChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>410</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinAlphaOffset</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyAlphaOffsetChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>167</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>410</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboPlotOrder</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyPlotOrderChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>234</x>
+     <y>192</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>411</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonLayerRemove</sender>
+   <signal>clicked()</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyLayerRemove()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>394</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>412</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onModifyGreyToggled()</slot>
+  <slot>onModifyLayerSelected()</slot>
+  <slot>onModifyApply()</slot>
+  <slot>onModifyReset()</slot>
+  <slot>onModifyAlphaScaleChanged()</slot>
+  <slot>onModifyAlphaOffsetChanged()</slot>
+  <slot>onModifyPlotOrderChanged()</slot>
+  <slot>onModifyLayerRemove()</slot>
+ </slots>
 </ui>

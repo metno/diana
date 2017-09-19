@@ -80,7 +80,6 @@ WebMapManager::~WebMapManager()
 void WebMapManager::clearMaps()
 {
   diutil::delete_all_and_clear(webmaps);
-  Q_EMIT webMapsRemoved();
 }
 
 bool WebMapManager::parseSetup()
@@ -197,6 +196,7 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
   std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
   float style_alpha_offset = 0, style_alpha_scale = 1;
   bool style_grey = false;
+  Plot::PlotOrder plotorder = Plot::LINES;
   for (const miutil::KeyValue& kv : qmstring->all()) {
     const std::string& key = kv.key();
     const std::string& value = kv.value();
@@ -210,6 +210,17 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
       plot->setTimeTolerance(miutil::to_int(value));
     } else if (key == "webmap.time_offset") {
       plot->setTimeOffset(miutil::to_int(value));
+    } else if (key == "webmap.zorder") {
+      if (value == "background")
+        plotorder = Plot::BACKGROUND;
+      else if (value == "shade_background")
+        plotorder = Plot::SHADE_BACKGROUND;
+      else if (value == "shade")
+        plotorder = Plot::SHADE;
+      else if (value == "lines_background")
+        plotorder = Plot::LINES_BACKGROUND;
+      else
+        plotorder = Plot::LINES;
     } else if (key == "style.alpha_scale") {
       style_alpha_scale = miutil::to_float(value);
     } else if (key == "style.alpha_offset") {
@@ -221,6 +232,7 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
   }
   plot->setStyleAlpha(style_alpha_offset, style_alpha_scale);
   plot->setStyleGrey(style_grey);
+  plot->setPlotOrder(plotorder);
 
   service->refresh();
   return plot.release();
@@ -253,7 +265,6 @@ void WebMapManager::addMap(WebMapPlot* plot)
     return;
   connect(plot, SIGNAL(update()), SIGNAL(webMapsReady()));
   webmaps.push_back(plot);
-  Q_EMIT webMapAdded(webmaps.size() - 1);
 }
 
 void WebMapManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)

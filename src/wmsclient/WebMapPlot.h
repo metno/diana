@@ -72,6 +72,8 @@ public:
 
   void setStyleGrey(bool makeGrey);
 
+  void setPlotOrder(PlotOrder po);
+
   void plot(DiGLPainter* gl, PlotOrder porder);
 
   void changeProjection();
@@ -120,6 +122,7 @@ private:
   std::string mCRS;
   float mAlphaOffset, mAlphaScale;
   bool mMakeGrey;
+  PlotOrder mPlotOrder;
 
   std::map<std::string, std::string> mDimensionValues;
 

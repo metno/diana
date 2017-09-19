@@ -60,6 +60,7 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
   , mAlphaOffset(0)
   , mAlphaScale(1)
   , mMakeGrey(false)
+  , mPlotOrder(LINES)
   , mRequest(0)
 {
   if (mService) {
@@ -149,7 +150,7 @@ void PaintTilesCB::pixelLine(const diutil::PointI &s, const diutil::PointD& xyf0
 void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_TIME();
-  if (!isEnabled() || porder != LINES)
+  if (!isEnabled() || porder != mPlotOrder)
     return;
   if (!mLayer)
     return;
@@ -212,6 +213,11 @@ void WebMapPlot::setStyleAlpha(float offset, float scale)
 void WebMapPlot::setStyleGrey(bool makeGrey)
 {
   mMakeGrey = makeGrey;
+}
+
+void WebMapPlot::setPlotOrder(PlotOrder po)
+{
+  mPlotOrder = po;
 }
 
 void WebMapPlot::requestCompleted()

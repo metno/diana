@@ -31,6 +31,7 @@
 #define WebMapDialog_h 1
 
 #include "qtDataDialog.h"
+#include "diKVListPlotCommand.h"
 
 #include <QAbstractListModel>
 #include <memory>
@@ -39,6 +40,7 @@ class QSortFilterProxyModel;
 class QStringListModel;
 class Ui_WebMapDialog;
 
+class WebMapDialog;
 class WebMapLayer;
 class WebMapService;
 
@@ -47,15 +49,20 @@ class WebMapPlotListModel : public QAbstractListModel
   Q_OBJECT
 
 public:
-  WebMapPlotListModel(QObject* parent = 0);
+  WebMapPlotListModel(WebMapDialog* parent = 0);
 
   int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
-private Q_SLOTS:
-  void onPlotsRemoved();
-  void onPlotAdded(int idx);
+public:
+  void onPlotsRemoveBegin();
+  void onPlotsRemoveEnd();
+  void onPlotAddBegin(int idx);
+  void onPlotAddEnd();
+
+private:
+  WebMapDialog* dialog() const;
 };
 
 // ========================================================================
@@ -73,6 +80,11 @@ public:
   PlotCommand_cpv getOKString();
   void putOKString(const PlotCommand_cpv& vstr);
 
+  size_t plotCommandCount() const
+    { return mOk.size(); }
+
+  KVListPlotCommand_cp plotCommand(size_t idx) const;
+
 public /*Q_SLOTS*/:
   void updateTimes();
 
@@ -89,7 +101,15 @@ private Q_SLOTS:
   void onAddRestart();
 
   void onModifyApply();
+  void onModifyReset();
+
   void onModifyLayerSelected();
+  void onModifyLayerRemove();
+
+  void onModifyGreyToggled();
+  void onModifyAlphaScaleChanged();
+  void onModifyAlphaOffsetChanged();
+  void onModifyPlotOrderChanged();
 
 private:
   void setupUi();
@@ -104,6 +124,9 @@ private:
 
   void updateAddLayers();
   void addSelectedLayer();
+
+  void replaceCommandKV(const miutil::KeyValue& kv);
+  void replaceCommandKV(const miutil::KeyValue& kv, size_t idx);
 
 private:
   enum { AddServicePage, AddLayerPage };
