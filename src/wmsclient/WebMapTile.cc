@@ -97,7 +97,7 @@ bool WebMapImage::loadImage(const char* format)
       fmt = "PNG";
     else if (ct == "image/jpeg")
       fmt = "JPEG";
-    else if (ct.startsWith("text/html")) {
+    else if (ct.startsWith("text")) {
       QString text = QString::fromUtf8(mReply->readAll().constData());
       METLIBS_LOG_ERROR(LOGVAL(diutil::qs(text)));
     }
