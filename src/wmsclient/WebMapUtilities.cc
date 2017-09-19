@@ -556,13 +556,16 @@ QStringList expandWmsValues(const QString& valueSpec)
 {
   const QStringList mmr = valueSpec.split("/");
   if (mmr.size() != 3) {
-    METLIBS_LOG_ERROR("malformed value spec? " << valueSpec.toStdString());
-    return QStringList();
+    return QStringList(valueSpec); // may be text containing '/'
   }
 
-  double start = mmr.at(0).toDouble();
-  double end   = mmr.at(1).toDouble();
-  double resolution = std::abs(mmr.at(2).toDouble());
+  bool startOK, endOK, resOK;
+  double start = mmr.at(0).toDouble(&startOK);
+  double end   = mmr.at(1).toDouble(&endOK);
+  double resolution = std::abs(mmr.at(2).toDouble(&resOK));
+  if (!(startOK && endOK && resOK))
+    return QStringList(valueSpec); // may be text containing '/'
+
   if (start > end)
     std::swap(start, end);
 
