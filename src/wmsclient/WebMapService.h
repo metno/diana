@@ -53,6 +53,9 @@ public:
   void setTitle(const std::string& title)
     { mTitle = title; }
 
+  void setUnits(const std::string& units)
+    { mUnits = units; }
+
   void addValue(const std::string& value, bool isDefault);
 
   void clearValues();
@@ -64,6 +67,10 @@ public:
   /*! human-readable title */
   const std::string& title(/*language*/) const
     { return mTitle; }
+
+  /*! units */
+  const std::string& units() const
+    { return mUnits; }
 
   /*! number of values available */
   size_t count() const
@@ -89,6 +96,7 @@ public:
 private:
   std::string mIdentifier;
   std::string mTitle;
+  std::string mUnits;
   std::vector<std::string> mValues;
   size_t mDefaultIndex;
 };

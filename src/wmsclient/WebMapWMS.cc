@@ -587,6 +587,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     if (iDim == dimensions.size())
       dimensions.push_back(WebMapDimension(sName));
     WebMapDimension& dim = dimensions[iDim];
+    dim.setUnits(sUnits);
     if (mVersion == WMS_130) {
       parseDimensionValues(dim, eDim.text(), eDim.attribute("default"));
     } else if (mVersion == WMS_111) {
