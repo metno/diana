@@ -268,6 +268,7 @@ Q_SIGNALS:
   void instanceNameChanged(const QString&);
 
 private:
+  void initCoserverClient();
   void createHelpDialog();
   void vcrossEditManagerEnableSignals();
 

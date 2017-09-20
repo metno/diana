@@ -558,6 +558,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   }
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
 
+  initCoserverClient();
+  setInstanceName(instancename);
+
   //   //-------Show menu
   showmenu = menuBar()->addMenu(tr("Show"));
   showmenu->addAction( showApplyAction              );
@@ -660,18 +663,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   archiveL->setPalette(palette);
   statusBar()->addPermanentWidget(archiveL);
   archiveL->hide();
-
-  hqcTo = -1;
-  qsocket = false;
-  pluginB = new ClientSelection("Diana", this);
-  pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
-  connect(pluginB, SIGNAL(receivedMessage(int, const miQMessage&)),
-      SLOT(processLetter(int, const miQMessage&)));
-  connect(pluginB, SIGNAL(disconnected()),
-      SLOT(connectionClosed()));
-  connect(pluginB, SIGNAL(renamed(const QString&)),
-      SLOT(setInstanceName(const QString&)));
-  setInstanceName(instancename);
 
   QToolButton* clientbutton = new QToolButton(statusBar());
   clientbutton->setDefaultAction(pluginB->getToolButtonAction());
@@ -1010,6 +1001,20 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
       SLOT(writeLogFile()));
 
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
+}
+
+void DianaMainWindow::initCoserverClient()
+{
+  hqcTo = -1;
+  qsocket = false;
+  pluginB = new ClientSelection("Diana", this);
+  pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
+  connect(pluginB, SIGNAL(receivedMessage(int, const miQMessage&)),
+      SLOT(processLetter(int, const miQMessage&)));
+  connect(pluginB, SIGNAL(disconnected()),
+      SLOT(connectionClosed()));
+  connect(pluginB, SIGNAL(renamed(const QString&)),
+      SLOT(setInstanceName(const QString&)));
 }
 
 void DianaMainWindow::createHelpDialog()
