@@ -773,12 +773,9 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
   //fieldManager->getFieldGroups(modelName, refTime, vfgi);
   map<std::string,FieldGroupInfo>mfgi;
 
-  if ( !plotdefinitions ) {
-    map<std::string,FieldInfo>::iterator vi = fieldInfo.begin();
-    for(;vi !=fieldInfo.end(); vi++ ){
-
-      FieldInfo plotInfo;
-      plotInfo = vi->second;
+  if (!plotdefinitions) {
+    for (auto&& vi : fieldInfo) {
+      const FieldInfo& plotInfo = vi.second;
 
       // add plot to FieldGroup
       mfgi[plotInfo.groupName].fieldNames.push_back(plotInfo.fieldName);

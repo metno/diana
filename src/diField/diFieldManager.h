@@ -172,26 +172,8 @@ private:
       const std::string& refTime = "", bool rescan = false,
       bool checkSourceChanged = true);
 
-  void addComputedParameters(gridinventory::ReftimeInventory& inventory);
-
-  std::string mergeTaxisNames(gridinventory::ReftimeInventory& inventory,
-      const std::string& taxsis1, const std::string& taxsis2);
-
   void writeToCache(Field*& fout);
 
-  /// remove parentheses from end of string
-  std::string removeParenthesesFromString(const std::string& origName);
-
-  Field* getField(GridCollectionPtr gridCollection,
-      gridinventory::ReftimeInventory& inventory, FieldRequest fieldrequest,
-      int cacheOptions);
-  bool getAllFields_timeInterval(GridCollectionPtr gridCollection,
-      gridinventory::ReftimeInventory& inventory, std::vector<Field*>& vfield,      FieldRequest fieldrequest,
-      int fch, bool accumulate_flux, int cacheOptions);
-  bool getAllFields(GridCollectionPtr gridCollection,
-      gridinventory::ReftimeInventory& inventory, std::vector<Field*>& vfield,      FieldRequest fieldrequest,
-      const std::vector<float>& constants, int cacheOptions);
-  bool multiplyFieldByTimeStep(Field* f, float sec_diff);
 };
 
 #endif

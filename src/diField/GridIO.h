@@ -102,6 +102,12 @@ public:
   }
 
   /**
+   * Get inventory for given reftime
+   * @return ReftimeInventory
+   */
+  const gridinventory::ReftimeInventory & getReftimeInventory(const std::string reftime) const;
+
+  /**
    * Set reference time limits
    * @param min
    * @param max
@@ -242,7 +248,7 @@ public:
   //virtual Field * getData(const gridinventory::Inventory& inv) = 0;
 
 private:
-  const gridinventory::ReftimeInventory* findModelAndReftime(const std::string& reftime) const;
+  const gridinventory::ReftimeInventory& findModelAndReftime(const std::string& reftime) const;
 };
 
 #endif /* GRIDIO_H_ */
