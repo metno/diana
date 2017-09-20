@@ -3525,24 +3525,6 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
   }
 }
 
-/**
- * Updates the dialog associated with the action or dialog that sent the
- * signal connected to this slot. We toggle the relevant action to hide the
- * dialog.
- */
-void DianaMainWindow::updateDialog()
-{
-  QAction *action = qobject_cast<QAction *>(sender());
-  DataDialog *dialog = qobject_cast<DataDialog *>(sender());
-
-  if (dialog)
-    action = dialog->action();
-  else if (!action)
-    return;
-
-  action->toggle();
-}
-
 void DianaMainWindow::setWorkAreaCursor(const QCursor &cursor)
 {
     w->setGlwCursor(cursor);

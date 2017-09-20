@@ -140,7 +140,6 @@ protected:
 
 public Q_SLOTS:
   void toggleToolBar();
-  void updateDialog();
 
 private Q_SLOTS:
   void levelUp();
