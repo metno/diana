@@ -198,6 +198,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   self = this;
 
+  createHelpDialog();
+
   //-------- The Actions ---------------------------------
 
   // file ========================
@@ -831,29 +833,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
-  // Documentation and Help
-
-  HelpDialog::Info info;
-  HelpDialog::Info::Source helpsource;
-  info.path= LocalSetupParser::basicValue("docpath");
-  helpsource.source= "index.html";
-  helpsource.name= "Help";
-  helpsource.defaultlink= "START";
-  info.src.push_back(helpsource);
-
-  helpsource.source= "ug_shortcutkeys.html";
-  helpsource.name="Accelerators";
-  helpsource.defaultlink= "";
-  info.src.push_back(helpsource);
-
-  helpsource.source= "news.html";
-  helpsource.name="News";
-  helpsource.defaultlink="";
-  info.src.push_back(helpsource);
-
-  help= new HelpDialog(this, info);
-  help->hide();
-
   connect( fm, SIGNAL(FieldApply()), SLOT(MenuOK()));
   connect( om, SIGNAL(ObsApply()),   SLOT(MenuOK()));
   connect( sm, SIGNAL(SatApply()),   SLOT(MenuOK()));
@@ -1033,6 +1012,29 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
 }
 
+void DianaMainWindow::createHelpDialog()
+{
+  HelpDialog::Info info;
+  HelpDialog::Info::Source helpsource;
+  info.path= LocalSetupParser::basicValue("docpath");
+  helpsource.source= "index.html";
+  helpsource.name= "Help";
+  helpsource.defaultlink= "START";
+  info.src.push_back(helpsource);
+
+  helpsource.source= "ug_shortcutkeys.html";
+  helpsource.name="Accelerators";
+  helpsource.defaultlink= "";
+  info.src.push_back(helpsource);
+
+  helpsource.source= "news.html";
+  helpsource.name="News";
+  helpsource.defaultlink="";
+  info.src.push_back(helpsource);
+
+  help= new HelpDialog(this, info);
+  help->hide();
+}
 
 void DianaMainWindow::start()
 {
