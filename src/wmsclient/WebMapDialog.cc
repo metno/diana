@@ -55,6 +55,8 @@ const size_t IDX_INVALID = size_t(-1);
 const std::string WEBMAP_SERVICE = "webmap.service";
 const std::string WEBMAP_LAYER = "webmap.layer";
 const std::string WEBMAP_ZORDER = "webmap.zorder";
+const std::string WEBMAP_TIME_TOLERANCE = "webmap.time_tolerance";
+const std::string WEBMAP_TIME_OFFSET = "webmap.time_offset";
 
 const std::string STYLE_ALPHA_SCALE = "style.alpha_scale";
 const std::string STYLE_ALPHA_OFFSET = "style.alpha_offset";
@@ -406,6 +408,14 @@ void WebMapDialog::onModifyLayerSelected()
       float alpha_offset = (idx_ao != IDX_INVALID) ? pc->get(idx_ao).toFloat() : 0;
       ui->spinAlphaOffset->setValue(alpha_offset);
     }
+    { const size_t idx_tt = pc->find(WEBMAP_TIME_TOLERANCE);
+      int time_tolerance_sec = (idx_tt != IDX_INVALID) ? pc->get(idx_tt).toInt() : -1;
+      ui->spinTimeTolerance->setValue(time_tolerance_sec);
+    }
+    { const size_t idx_to = pc->find(WEBMAP_TIME_OFFSET);
+      int time_offset_sec = (idx_to != IDX_INVALID) ? pc->get(idx_to).toInt() : 0;
+      ui->spinTimeOffset->setValue(time_offset_sec);
+    }
     { const size_t idx_po = pc->find(WEBMAP_ZORDER);
       const std::string& pot = (idx_po != IDX_INVALID) ? pc->get(idx_po).value() : plotorder_lines;
       int po = plotorder_lines_idx;
@@ -426,6 +436,8 @@ void WebMapDialog::onModifyLayerSelected()
   ui->spinAlphaScale->setEnabled(enable);
   ui->spinAlphaOffset->setEnabled(enable);
   ui->comboPlotOrder->setEnabled(enable);
+  ui->spinTimeOffset->setEnabled(enable);
+  ui->spinTimeTolerance->setEnabled(enable);
 }
 
 void WebMapDialog::onModifyLayerRemove()
@@ -461,6 +473,18 @@ void WebMapDialog::onModifyPlotOrderChanged()
 {
   METLIBS_LOG_SCOPE();
   replaceCommandKV(miutil::kv(WEBMAP_ZORDER, plotorders[ui->comboPlotOrder->currentIndex()]));
+}
+
+void WebMapDialog::onModifyTimeToleranceChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(WEBMAP_TIME_TOLERANCE, ui->spinTimeTolerance->value()));
+}
+
+void WebMapDialog::onModifyTimeOffsetChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(WEBMAP_TIME_OFFSET, ui->spinTimeOffset->value()));
 }
 
 void WebMapDialog::replaceCommandKV(const miutil::KeyValue& kv)

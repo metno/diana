@@ -110,6 +110,8 @@ private Q_SLOTS:
   void onModifyAlphaScaleChanged();
   void onModifyAlphaOffsetChanged();
   void onModifyPlotOrderChanged();
+  void onModifyTimeToleranceChanged();
+  void onModifyTimeOffsetChanged();
 
 private:
   void setupUi();

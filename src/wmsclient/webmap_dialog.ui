@@ -459,9 +459,6 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupTime">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="title">
           <string>Time</string>
          </property>
@@ -496,16 +493,28 @@
             <property name="toolTip">
              <string>Time matching tolerance</string>
             </property>
+            <property name="specialValueText">
+             <string>nearest</string>
+            </property>
             <property name="suffix">
-             <string notr="true">min</string>
+             <string notr="true">s</string>
+            </property>
+            <property name="minimum">
+             <number>-1</number>
             </property>
             <property name="maximum">
              <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>-1</number>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="checkTimeFixed">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Check to fix time to a specific value</string>
             </property>
@@ -520,7 +529,7 @@
              <string>Time offset relative to plot time</string>
             </property>
             <property name="suffix">
-             <string notr="true">min</string>
+             <string notr="true">s</string>
             </property>
             <property name="maximum">
              <number>1000000</number>
@@ -797,6 +806,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>spinTimeOffset</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyTimeOffsetChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>207</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>414</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinTimeTolerance</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyTimeToleranceChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>410</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onModifyGreyToggled()</slot>
@@ -807,5 +848,7 @@
   <slot>onModifyAlphaOffsetChanged()</slot>
   <slot>onModifyPlotOrderChanged()</slot>
   <slot>onModifyLayerRemove()</slot>
+  <slot>onModifyTimeToleranceChanged()</slot>
+  <slot>onModifyTimeOffsetChanged()</slot>
  </slots>
 </ui>
