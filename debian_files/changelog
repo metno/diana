@@ -1,3 +1,16 @@
+diana-3.43 (3.43.0~a2-1) unstable; urgency=low
+
+  * bugfixes
+  * improved timeaxis handling for merged nc files
+  * ignore History*.quick files from other instances
+  * new reprojection technique for field grid, satellite, wms
+  * wms improvements
+  * map config ui more compact and in dock widget
+  * using libfimex-0.64
+  * and more ...
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 30 Sep 2017 08:00:08 +0200
+
 diana-3.43 (3.43.0~a1-1) unstable; urgency=low
 
   * do not restore dialog positions
