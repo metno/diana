@@ -56,7 +56,7 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
   , mLayer(0)
   , mTimeIndex(-1)
   , mTimeSelected(-1)
-  , mTimeTolerance(3600)
+  , mTimeTolerance(-1)
   , mTimeOffset(0)
   , mAlphaOffset(0)
   , mAlphaScale(1)
@@ -173,6 +173,10 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (!mLayer)
     return;
 
+  setTimeValue(getStaticPlot()->getTime());
+  if (mTimeIndex >= 0 && mTimeSelected < 0)
+    return; // has time axis, but time not found within tolerance
+
   if (!mRequest) {
     METLIBS_LOG_DEBUG("about to request tiles...");
     const int phys_w = getStaticPlot()->getPhysWidth();
@@ -190,8 +194,8 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
       METLIBS_LOG_DEBUG("no request object");
       return;
     }
-    for (std::map<std::string, std::string>::const_iterator it = mDimensionValues.begin(); it != mDimensionValues.end(); ++it)
-      mRequest->setDimensionValue(it->first, it->second);
+    for (auto& dv : mDimensionValues)
+      mRequest->setDimensionValue(dv.first, dv.second);
     if (mTimeIndex >= 0 && !mFixedTime.empty())
       mRequest->setDimensionValue(mLayer->dimension(mTimeIndex).identifier(), mFixedTime);
     connect(mRequest, SIGNAL(completed()), this, SLOT(requestCompleted()));
@@ -287,8 +291,10 @@ void WebMapPlot::setDimensionValue(const std::string& dimId, const std::string& 
 void WebMapPlot::setTimeValue(const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(time) << LOGVAL(mTimeIndex));
-  if (!mLayer || mTimeIndex < 0)
+  if (!mLayer || mTimeIndex < 0) {
+    METLIBS_LOG_DEBUG("no layer, or no time dimension");
     return;
+  }
 
   int bestIndex = -1, bestDifference = 0;
 
@@ -298,17 +304,21 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
   for (size_t i=0; i<timeDim.count(); ++i) {
     const miutil::miTime dimTime
         = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
+    METLIBS_LOG_DEBUG(LOGVAL(timeDim.value(i)) << LOGVAL(dimTime));
     if (dimTime.undef()) {
       METLIBS_LOG_DEBUG("undef time");
       continue;
     }
     const int diff = abs(miutil::miTime::secDiff(dimTime, actualTime));
-    if (diff < mTimeTolerance && (bestIndex < 0 || diff < bestDifference)) {
+    if ((mTimeTolerance < 0 || diff < mTimeTolerance)
+        && (bestIndex < 0 || diff < bestDifference))
+    {
       bestIndex = i;
       bestDifference = diff;
       METLIBS_LOG_DEBUG(LOGVAL(bestDifference));
     }
   }
+  METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << LOGVAL(mTimeSelected));
   if (bestIndex == mTimeSelected)
     return;
   mTimeSelected = bestIndex;
@@ -317,6 +327,7 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
     METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << "='" << timeDim.value(bestIndex) << "'");
     setDimensionValue(timeId, timeDim.value(bestIndex));
   } else {
+    METLIBS_LOG_DEBUG("time = empty");
     setDimensionValue(timeId, EMPTY_STRING);
   }
   dropRequest();
@@ -346,13 +357,13 @@ void WebMapPlot::serviceRefreshFinished()
   } else {
     // search new time index
     for (size_t i=0; i<mLayer->countDimensions(); ++i) {
+      METLIBS_LOG_DEBUG(LOGVAL(mLayer->dimension(i).identifier()));
       if (mLayer->dimension(i).isTime()) {
         mTimeIndex = i;
+        METLIBS_LOG_DEBUG(LOGVAL(mTimeIndex));
         break;
       }
     }
-    // search plot time
-    setTimeValue(getStaticPlot()->getTime());
   }
   Q_EMIT update();
 }
