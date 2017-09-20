@@ -305,18 +305,13 @@ bool WebMapManager::enablePlotElement(const PlotElement& pe)
 
 std::vector<std::string> WebMapManager::getAnnotations() const
 {
+  std::string anno;
+  Colour ignored;
   std::vector<std::string> annotations;
   annotations.reserve(webmaps.size());
   for (size_t i = 0; i < webmaps.size(); i++) {
-    std::string anno = webmaps[i]->title();
-    const std::string attribution = webmaps[i]->attribution();
-    if (!attribution.empty()) {
-      if (!anno.empty())
-        anno += " ";
-      anno += "(" + attribution + ")";
-    }
-    if (!anno.empty())
-      annotations.push_back(anno);
+    webmaps[i]->getAnnotation(anno, ignored);
+    annotations.push_back(anno);
   }
   return annotations;
 }

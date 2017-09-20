@@ -37,6 +37,7 @@
 #include "diPoint.h"
 
 #include "diField/diGridReprojection.h"
+#include "util/string_util.h"
 
 #include <QImage>
 
@@ -89,6 +90,23 @@ std::string WebMapPlot::attribution() const
     return mLayer->attribution();
   else
     return std::string();
+}
+
+void WebMapPlot::getAnnotation(std::string& text, Colour&) const
+{
+  METLIBS_LOG_SCOPE();
+  text = title();
+  METLIBS_LOG_DEBUG(LOGVAL(text) << LOGVAL(mDimensionValues.size()));
+
+  for (auto&& dv : mDimensionValues) {
+    METLIBS_LOG_DEBUG(LOGVAL(dv.first) << LOGVAL(dv.second));
+    if (!dv.second.empty())
+      diutil::appendText(text, dv.first + "=" + dv.second, " ");
+  }
+
+  const std::string att = attribution();
+  if (!att.empty())
+    diutil::appendText(text, "(" + att + ")");
 }
 
 void WebMapPlot::dropRequest()

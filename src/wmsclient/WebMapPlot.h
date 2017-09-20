@@ -57,6 +57,8 @@ public:
 
   std::string attribution() const;
 
+  void getAnnotation(std::string &str, Colour &col) const override;
+
   /* set time tolerance in seconds */
   void setTimeTolerance(int tolerance)
     { mTimeTolerance = tolerance; }
@@ -74,7 +76,7 @@ public:
 
   void setPlotOrder(PlotOrder po);
 
-  void plot(DiGLPainter* gl, PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder) override;
 
   void changeProjection();
 
