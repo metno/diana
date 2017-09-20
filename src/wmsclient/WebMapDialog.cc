@@ -535,10 +535,16 @@ PlotCommand_cpv WebMapDialog::getOKString()
 void WebMapDialog::putOKString(const PlotCommand_cpv& ok)
 {
   METLIBS_LOG_SCOPE(LOGVAL(ok.size()));
+
+  const int ci = ui->comboStyleLayer->currentIndex();
+
   WebMapPlotListModel* m = static_cast<WebMapPlotListModel*>(ui->comboStyleLayer->model());
   m->onPlotsRemoveBegin();
   mOk = ok;
   m->onPlotsRemoveEnd();
+
+  if (!mOk.empty())
+    ui->comboStyleLayer->setCurrentIndex(std::max(std::min(ci, (int)mOk.size()-1), 0));
 }
 
 KVListPlotCommand_cp WebMapDialog::plotCommand(size_t idx) const
