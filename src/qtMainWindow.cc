@@ -2492,14 +2492,15 @@ void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
 void DianaMainWindow::parseSetup()
 {
   METLIBS_LOG_SCOPE();
-  SetupDialog *setupDialog = new SetupDialog(this);
+  SetupDialog setupDialog(this);
 
-  if( setupDialog->exec() ) {
-
+  if (setupDialog.exec()) {
     LocalSetupParser sp;
     std::string filename;
     if (!sp.parse(filename)){
-      METLIBS_LOG_ERROR("An error occured while re-reading setup ");
+      METLIBS_LOG_ERROR("An error occured while re-reading the setup file '" << filename << "'.");
+      QMessageBox::warning(this, tr("Error"), tr("An error occured while re-reading the setup file '%1'.")
+                           .arg(QString::fromStdString(filename)));
     }
     if (DiCanvas* c = w->Glw()->canvas())
       c->parseFontSetup();

@@ -35,10 +35,14 @@
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
 
-#include <QPushButton>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QHBoxLayout>
+#include <QFileDialog>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include <puTools/miStringFunctions.h>
@@ -55,29 +59,37 @@ SetupDialog::SetupDialog(QWidget* parent)
 
   //setupfile
   QLabel* setupLabel = new QLabel( tr("Setupfile"), this);
-  string setupfile = LocalSetupParser::getSetupFileName();
-  setupLineEdit = new QLineEdit(setupfile.c_str(), this);
+  const string& setupfile = LocalSetupParser::getSetupFileName();
+  setupLineEdit = new QLineEdit(QString::fromStdString(setupfile), this);
+  QToolButton* setupFileSelect = new QToolButton(this);
+  setupFileSelect->setText("...");
+  connect(setupFileSelect, &QToolButton::clicked, this, &SetupDialog::onFilechooserClicked);
   QHBoxLayout* setuplayout= new QHBoxLayout();
   setuplayout->addWidget(setupLabel);
   setuplayout->addWidget(setupLineEdit);
+  setuplayout->addWidget(setupFileSelect);
   v->addLayout(setuplayout);
 
-  //more options
-  const map<std::string, std::string> key_value = miutil::SetupParser::getUserVariables();
-  map<std::string, std::string>::const_iterator it = key_value.begin();
-  for (int i=0 ; it != key_value.end(); ++it,++i  ) {
-    values.push_back( new QLineEdit(it->second.c_str(),this));
-    options.push_back(new QLabel(it->first.c_str(), this));
-    QHBoxLayout* b= new QHBoxLayout();
-    b->addWidget(options[i]);
-    b->addWidget(values[i]);
-    v->addLayout(b);
-  }
+  QScrollArea* scroll = new QScrollArea(this);
+  v->addWidget(scroll);
 
+  QWidget* config = new QWidget(scroll);
+  QGridLayout* grid = new QGridLayout;
+  grid->setColumnStretch(1, 1);
+  config->setLayout(grid);
+  for (auto& kv : miutil::SetupParser::getUserVariables()) {
+    const int row = options.size();
+    options.push_back(new QLabel(QString::fromStdString(kv.first), config));
+    values.push_back(new QLineEdit(QString::fromStdString(kv.second), config));
+    grid->addWidget(options.back(), row, 0);
+    grid->addWidget(values.back(), row, 1);
+  }
+  scroll->setWidget(config);
+  scroll->setWidgetResizable(true);
 
   // last row of buttons
   QPushButton* cancel= new QPushButton( tr("&Cancel"), this );
-  okButton= new QPushButton( tr("&OK"), this );
+  QPushButton* okButton = new QPushButton( tr("&OK"), this );
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
   connect( okButton, SIGNAL(clicked()), SLOT(okClicked()) );
 
@@ -87,18 +99,21 @@ SetupDialog::SetupDialog(QWidget* parent)
 
   v->addLayout(hl2);
   v->activate();
-
 }
 
-
 void SetupDialog::okClicked( )
-  {
-
+{
   //update SetupParser
   LocalSetupParser::setSetupFileName(setupLineEdit->text().toStdString());
   for (size_t i = 0; i<values.size(); ++i ) {
     miutil::SetupParser::replaceUserVariables(options[i]->text().toStdString(),values[i]->text().toStdString());
   }
-    accept();
+  accept();
 }
 
+void SetupDialog::onFilechooserClicked()
+{
+  const QString fn = QFileDialog::getOpenFileName(this, tr("Choose setup file"), setupLineEdit->text());
+  if (!fn.isEmpty())
+    setupLineEdit->setText(fn);
+}
