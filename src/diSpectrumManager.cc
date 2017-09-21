@@ -111,12 +111,13 @@ void SpectrumManager::parseSetup()
       std::string filetype = "standard";
       for ( size_t j=0; j<tokens.size(); ++j) {
         vector<std::string> tokens1= miutil::split(tokens[j], "=");
-        if ( tokens1.size() != 2 ) continue;
-        if ( tokens1[0] == miutil::to_lower("m") ) {
+        if (tokens1.size() != 2)
+          continue;
+        if (tokens1[0] == "m") {
           model = tokens1[1];
-        } else if( tokens1[0] == miutil::to_lower("f") ) {
+        } else if (tokens1[0] == "f") {
           filename = tokens1[1];
-        } else if( tokens1[0] == miutil::to_lower("t") ) {
+        } else if (tokens1[0] == "t") {
           filetype = tokens1[1];
         }
       }
