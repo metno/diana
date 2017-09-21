@@ -130,7 +130,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
           filetype = kv.value();
         else
           METLIBS_LOG_INFO("ignoring filetype t!=fimex, it is not valid for vertical cross-sections");
-      } else if (kv.key() == "t" or kv.key() == "format")
+      } else if (kv.key() == "format")
         filetype = kv.value();
       else if (kv.key() == "c" or kv.key() == "config")
         fileconfig = kv.value();
