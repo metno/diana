@@ -16,6 +16,7 @@ DiPaintGLWidget::DiPaintGLWidget(DiPaintable* p, QWidget *parent, bool aa)
   , background_buffer(0)
   , antialiasing(aa)
 {
+  setFocusPolicy(Qt::StrongFocus);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
   glpainter->HIGH_QUALITY_BUT_SLOW = false;
   p->setCanvas(glcanvas.get());
