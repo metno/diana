@@ -1,3 +1,11 @@
+diana-3.43 (3.43.0~a4-1) unstable; urgency=low
+
+  * encoding in amdar station list
+  * workaround for problem with vprof amdar station names
+  * minor bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 26 Sep 2017 08:00:08 +0200
+
 diana-3.43 (3.43.0~a3-1) unstable; urgency=low
 
   * bugfix keyboard focus
