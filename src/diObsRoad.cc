@@ -36,6 +36,7 @@
 #endif
 
 #include "diObsRoad.h"
+#include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 
 // from kvroadapi
@@ -502,7 +503,7 @@ void ObsRoad::parseHeaderBrackets(const std::string& str)
   } else if (pstr[0] == "SKIP_DATA_LINES" && pstr.size()>1) {
     asciiSkipDataLines = miutil::to_int(pstr[1]);
   } else if (pstr[0] == "LABEL") {
-    labels.push_back(str);
+    labels.push_back(std::make_shared<LabelPlotCommand>(str.substr(5)));
   } else if (pstr[0] == "SEPARATOR") {
     separator = pstr[1];
     }
