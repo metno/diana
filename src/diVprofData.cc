@@ -48,6 +48,7 @@
 #include "vcross_v2/VcrossEvaluate.h"
 #include "vcross_v2/VcrossComputer.h"
 #include "diUtilities.h"
+#include "util/charsets.h"
 #include "util/math_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -517,7 +518,8 @@ void VprofData::readStationNames(const std::string& stationsfilename)
 
   mStations.clear();
   std::string line;
-  while (std::getline(stationfile, line)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(stationfile, line)) {
     // just skip the first line if present.
     if (miutil::contains(line, "obssource"))
       continue;
@@ -632,18 +634,16 @@ void VprofData::readStationList()
   if (stationsFileName.empty())
     return;
 
-  // open filestream
-  ifstream file;
-  file.open(stationsFileName.c_str());
+  ifstream file(stationsFileName.c_str());
   if (file.bad()) {
-    METLIBS_LOG_ERROR("Station list '" << stationsFileName << "' not found");
+    METLIBS_LOG_ERROR("Unable to open station list '" << stationsFileName << "'");
     return;
   }
 
   const float notFound=9999.;
   std::string str;
-
-  while (getline(file,str)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(file,str)) {
     const std::string::size_type n= str.find('#');
     if (n!=0) {
       if (n!=string::npos)
