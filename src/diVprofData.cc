@@ -590,9 +590,11 @@ void VprofData::renameStations()
     }
 
     ostringstream ostr;
-    ostr<<setw(4)<<setfill('0')<<jmin;
-    std::string sortname= ostr.str() + newname + validTime[i].isoTime() + mStations[i].name;
-    sortlist.insert(std::make_pair(sortname, i));
+    ostr << setw(4) << setfill('0') << jmin
+         << newname
+         // << validTime[i].isoTime() // FIXME index i may not be used here
+         << mStations[i].name;
+    sortlist.insert(std::make_pair(ostr.str(), i));
 
     stationMap[newname] = mStations[i].name;
     METLIBS_LOG_DEBUG(LOGVAL(newname)<<LOGVAL(mStations[i].name));
