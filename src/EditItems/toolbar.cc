@@ -133,7 +133,7 @@ ToolBar::ToolBar(QWidget *parent)
   polyLineList_->setSelectionMode(QAbstractItemView::SingleSelection);
   connect(polyLineList_, SIGNAL( itemClicked( QListWidgetItem * )), this, SLOT(setPolyLineType(QListWidgetItem *)));
   connect(polyLineList_, SIGNAL( itemClicked( QListWidgetItem * )), polyLineAction_, SLOT(trigger()));
-  connect(polyLineAction_, SIGNAL(triggerd()), polyLineList_, SLOT(raise()));
+  connect(polyLineAction_, SIGNAL(triggered()), polyLineList_, SLOT(raise()));
   polyLineWidget->setWidget(polyLineList_);
 
   // Create an entry for each style. Use the name as an internal identifier
