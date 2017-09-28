@@ -1248,10 +1248,11 @@ void SatDialog::emitSatTimes(bool update)
 std::string SatDialog::stringFromTime(const miutil::miTime& t)
 {
   ostringstream ostr;
-  ostr << setw(4) << setfill('0') << t.year() << setw(2) << setfill('0')
-      << t.month() << setw(2) << setfill('0') << t.day() << setw(2) << setfill(
-      '0') << t.hour() << setw(2) << setfill('0') << t.min();
-
+  ostr << setw(4) << setfill('0') << t.year()
+       << setw(2) << setfill('0') << t.month()
+       << setw(2) << setfill('0') << t.day()
+       << setw(2) << setfill('0') << t.hour()
+       << setw(2) << setfill('0') << t.min();
   return ostr.str();
 }
 
