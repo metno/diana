@@ -237,7 +237,6 @@ public:
   Field* getField(FieldRequest fieldrequest);
 
 private:
-  FieldFunctions ffunc;
   static GridConverter gc;
 
   std::set<miutil::miTime> timesFromFilename;

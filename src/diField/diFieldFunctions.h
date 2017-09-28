@@ -437,7 +437,7 @@ public:
   static bool isTimeStepFunction(Function f);
 
   /// call function and return results
-  bool fieldComputer(Function function, const std::vector<float>& constants,
+  static bool fieldComputer(Function function, const std::vector<float>& constants,
       const std::vector<Field*>& vfinput, const std::vector<Field*>& vfres, class GridConverter& gc);
 
 private:

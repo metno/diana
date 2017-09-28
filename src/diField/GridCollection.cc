@@ -699,7 +699,7 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
     ff->unit = fieldrequest.unit;
     vfresults.push_back(ff);
 
-    if (!ffunc.fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
+    if (!FieldFunctions::fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
       METLIBS_LOG_WARN("fieldComputer returned false");
       fieldOK = false;
     } else {
@@ -790,7 +790,7 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
       vfresults.push_back(ff);
     }
 
-    if (!ffunc.fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
+    if (!FieldFunctions::fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
       METLIBS_LOG_WARN("fieldComputer returned false");
       fieldOK = false;
     } else {
@@ -1097,7 +1097,7 @@ bool GridCollection::multiplyFieldByTimeStep(Field* f, float sec_diff)
 {
   const vector<float> constants(1, sec_diff);
   const vector<Field*> vfield(1, f);
-  if (ffunc.fieldComputer(FieldFunctions::f_multiply_f_c, constants, vfield, vfield, gc)) {
+  if (FieldFunctions::fieldComputer(FieldFunctions::f_multiply_f_c, constants, vfield, vfield, gc)) {
     return true;
   }
   METLIBS_LOG_WARN("problem in multiplyFieldByTimeStep");
