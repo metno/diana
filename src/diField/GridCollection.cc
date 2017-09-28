@@ -527,7 +527,6 @@ bool GridCollection::standardname2variablename(const std::string& reftime,
 
   variable_name = pitr->key.name;
   return true;
-
 }
 
 
@@ -794,7 +793,6 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
     } else {
       fieldOK = true;
     }
-
   }
 
   //delete input fields
@@ -802,13 +800,9 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
 
   //return output field
   Field* fresult = 0;
-  if (fieldOK) {
-    fresult = vfresults[0];
-    vfresults.erase(vfresults.begin());
-  }
-  if (!vfresults.empty()) {
-    freeFields(vfresults);
-  }
+  if (fieldOK)
+    std::swap(fresult, vfresults[0]);
+  freeFields(vfresults);
 
   return fresult;
 }
