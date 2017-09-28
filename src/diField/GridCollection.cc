@@ -1107,12 +1107,5 @@ bool GridCollection::multiplyFieldByTimeStep(Field* f, float sec_diff)
 void GridCollection::freeFields(std::vector<Field*>& fields)
 {
   METLIBS_LOG_SCOPE();
-
-  for (std::vector<Field*>::iterator it = fields.begin(); it != fields.end(); ++it) {
-    if(!*it || !(*it)->data)
-      continue;
-    delete *it;
-    *it = 0;
-  }
-  fields.clear();
+  diutil::delete_all_and_clear(fields);
 }
