@@ -989,14 +989,13 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
 
   vector<FieldRequest> vfieldrequest;
 
-  for ( size_t i=0; i<vPlotField.size(); ++i ) {
-    if ( vPlotField[i].name == plotName ) {
-      if ( (vPlotField[i].name == plotName) &&
-          ((vPlotField[i].vcoord.empty() && vPlotField[i].vctype == FieldFunctions::vctype_none)
-              || vPlotField[i].vcoord.count(fieldrequest.zaxis)
-              || vPlotField[i].vctype==FieldFunctions::Zaxis_info_map[fieldrequest.zaxis].vctype)) {
-      for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
-        const std::string& inputIJ = vPlotField[i].input[j];
+  for (const PlotField& pf : vPlotField) {
+    if ((pf.name == plotName)
+        && ((pf.vcoord.empty() && pf.vctype == FieldFunctions::vctype_none)
+            || pf.vcoord.count(fieldrequest.zaxis)
+            || pf.vctype==FieldFunctions::Zaxis_info_map[fieldrequest.zaxis].vctype))
+    {
+      for (const std::string& inputIJ : pf.input) {
         const vector<std::string> vstr = miutil::split(inputIJ, ":");
         fieldrequest.paramName = vstr[0];
         fieldrequest.standard_name = (vstr.size() == 2 && vstr[1] == "standard_name");
@@ -1004,7 +1003,6 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
       }
 
       return vfieldrequest;
-    }
     }
   }
 
