@@ -56,8 +56,6 @@ PlotCommand_cp makeCommand(const std::string& text)
     if (PlotCommand_cp c = identifyKeyValue(ck, text))
       return c;
   }
-  if (PlotCommand_cp c = identifyLabel(text))
-    return c;
 
   if (PlotCommand_cp c = identifyLabel(text))
     return c;
