@@ -3355,51 +3355,16 @@ bool EditManager::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-static void insertTime(std::string& es, const miTime& time, bool& english, bool& norwegian)
-{
-  if (miutil::contains(es, "$")) {
-    if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); english= true; }
-    if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
-    miutil::replace(es, "$day", "%A");
-    miutil::replace(es, "$hour","%H");
-    miutil::replace(es, "$min", "%M");
-    miutil::replace(es, "$sec", "%S");
-    miutil::replace(es, "$auto","$miniclock");
-  }
-  if (miutil::contains(es, "%")) {
-    if (miutil::contains(es, "%anor")) { miutil::replace(es, "%anor","%a"); norwegian= true; }
-    if (miutil::contains(es, "%Anor")) { miutil::replace(es, "%Anor","%A"); norwegian= true; }
-    if (miutil::contains(es, "%bnor")) { miutil::replace(es, "%bnor","%b"); norwegian= true; }
-    if (miutil::contains(es, "%Bnor")) { miutil::replace(es, "%Bnor","%B"); norwegian= true; }
-    if (miutil::contains(es, "%aeng")) { miutil::replace(es, "%aeng","%a"); english= true; }
-    if (miutil::contains(es, "%Aeng")) { miutil::replace(es, "%Aeng","%A"); english= true; }
-    if (miutil::contains(es, "%beng")) { miutil::replace(es, "%beng","%b"); english= true; }
-    if (miutil::contains(es, "%Beng")) { miutil::replace(es, "%Beng","%B"); english= true; }
-  }
-
-  if ((miutil::contains(es, "%") || miutil::contains(es, "$"))  && !time.undef()) {
-    if (norwegian)
-      es= time.format(es, "no", true);
-    else if (english)
-      es= time.format(es, "en", true);
-  }
-}
-
 PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
 {
   LabelPlotCommand_cp pc = std::dynamic_pointer_cast<const LabelPlotCommand>(lc);
   if (!pc)
     return lc;
 
-  bool english  = false;
-  bool norwegian= false;
-
+  std::string lang = AnnotationPlot::ENGLISH;
   LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>();
-  for (const KeyValue& kv : pc->all()) {
-    std::string es = kv.value();
-    ::insertTime(es, time, english, norwegian);
-    tpc->add(kv.key(), es);
-  }
+  for (const KeyValue& kv : pc->all())
+    tpc->add(kv.key(), AnnotationPlot::insertTime(kv.value(), time, lang));
 
   return tpc;
 }
