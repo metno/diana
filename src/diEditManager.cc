@@ -3394,7 +3394,7 @@ PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
   bool english  = false;
   bool norwegian= false;
 
-  LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>(pc->commandKey());
+  LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>();
   for (const KeyValue& kv : pc->all()) {
     std::string es = kv.value();
     ::insertTime(es, time, english, norwegian);
