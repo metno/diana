@@ -149,6 +149,8 @@ QtManager::QtManager()
   , inFieldChangeGroup(0)
   , mCrossectionCurrent(-1)
   , mPlotTime(-1)
+  , mRealizationCount(1)
+  , mRealization(0)
   , mTimeGraphMode(false)
   , mHasSupportForDynamicCs(false)
   , mHasPredefinedDynamicCs(false)
@@ -187,6 +189,8 @@ void QtManager::cleanupData()
   mCrossectionTimes.clear();
 
   mPlotTime = -1;
+  mRealizationCount = 1;
+  mRealization = 0;
 
   mMarkers.clear();
   mReferencePosition = -1;
@@ -519,6 +523,12 @@ void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
   handleChangedTime(bestTime);
 }
 
+void QtManager::setRealization(int r)
+{
+  mRealization = std::max(std::min(r, mRealizationCount-1), 0);
+  dataChange |= CHANGED_CS|CHANGED_SEL|CHANGED_TIME;
+  Q_EMIT timeIndexChanged(mPlotTime); // FIXME
+}
 
 int QtManager::getTimeIndex() const
 {
@@ -555,6 +565,7 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
       if (Inventory_cp inv = src->getInventory(model1.reftime)) {
         for (Times::timevalue_v::const_iterator itT = inv->times.values.begin(); itT != inv->times.values.end(); ++itT)
           times.insert(util::to_miTime(inv->times.unit, *itT));
+        util::maximize(mRealizationCount, inv->realizationCount);
       }
     }
   }
@@ -701,12 +712,12 @@ void QtManager::preparePlot()
   if (!isTimeGraph()) {
     const Time user_time = util::from_miTime(getTimeValue(getTimeIndex()));
     METLIBS_LOG_DEBUG(LOGVAL(user_time.unit) << LOGVAL(user_time.value));
-    model_values = vc_fetch_crossection(mCollector, cs, user_time);
+    model_values = vc_fetch_crossection(mCollector, cs, user_time, mRealization);
     mPlot->setHorizontalCross(cs, getTimeValue(), crossectionPoints(),
         crossectionPointsRequested());
   } else {
     const LonLat& ll = crossection().point(0);
-    model_values = vc_fetch_timegraph(mCollector, ll);
+    model_values = vc_fetch_timegraph(mCollector, ll, mRealization);
     mPlot->setHorizontalTime(ll, mCrossectionTimes);
   }
 
@@ -1103,6 +1114,8 @@ void QtManager::selectFields(const std::vector<miutil::KeyValue_v>& to_plot)
           refhour = kv.toInt();
         } else if (key == "refoffset") {
           refoffset = kv.toInt();
+        } else if (key == "elevel") {
+          mRealization = kv.toInt();
         } else {
           poptions.push_back(kv);
         }

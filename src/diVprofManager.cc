@@ -74,8 +74,10 @@ miutil::miTime nowTime()
 } // anonymous namespace
 
 VprofManager::VprofManager()
-: vpdiag(0),
-  plotw(0), ploth(0), mCanvas(0)
+  : vpdiag(0)
+  , realizationCount(1)
+  , realization(0)
+  , plotw(0), ploth(0), mCanvas(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -224,6 +226,10 @@ void VprofManager::setModel()
   }
 }
 
+void VprofManager::setRealization(int r)
+{
+  realization = std::max(std::min(r, realizationCount-1), 0);
+}
 
 void VprofManager::setStation(const std::string& station)
 {
@@ -267,7 +273,6 @@ std::string VprofManager::setStation(int step)
   updateSelectedStations();
   return plotStations.front();
 }
-
 
 miTime VprofManager::setTime(int step, int dir)
 {
@@ -334,7 +339,7 @@ void VprofManager::updateSelectedStations()
   for (size_t i=0; i<vpdata.size(); i++) {
     for (size_t j=0; j<plotStations.size(); ++j) {
       METLIBS_LOG_DEBUG(LOGVAL(plotStations[j]));
-      vp.reset(vpdata[i]->getData(plotStations[j], plotTime));
+      vp.reset(vpdata[i]->getData(plotStations[j], plotTime, realization));
       if (vp.get()) {
         selectedStations.push_back(plotStations[j]);
         break;
@@ -372,7 +377,7 @@ bool VprofManager::plot(DiGLPainter* gl)
 
     for (size_t i=0; i<vpdata.size(); i++) {
       for (size_t j=0; j<plotStations.size(); ++j) {
-        std::unique_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime));
+        std::unique_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime, realization));
         if (vp.get()) {
           dataok = vp->plot(gl, vpopt, i);
           break;
@@ -518,9 +523,12 @@ void VprofManager::initStations()
 void VprofManager::initTimes()
 {
   METLIBS_LOG_SCOPE(plotTime.isoTime());
+  realizationCount = 1;
+
   std::set<miutil::miTime> set_times;
-  for (size_t i=0; i<vpdata.size(); ++i) {
-    const vector<miutil::miTime>& tmp_times = vpdata[i]->getTimes();
+  for (VprofData* vp : vpdata) {
+    vcross::util::maximize(realizationCount, vp->getRealizationCount());
+    const vector<miutil::miTime>& tmp_times = vp->getTimes();
     set_times.insert(tmp_times.begin(), tmp_times.end());
   }
 
@@ -535,6 +543,8 @@ void VprofManager::initTimes()
       plotTime = timeList.back();
     }
   }
+
+  setRealization(realization); // clamp to max
   METLIBS_LOG_DEBUG(plotTime.isoTime());
 }
 

@@ -36,19 +36,19 @@ public:
   FimexReftimeSource(std::string filename, std::string filetype, std::string config, diutil::CharsetConverter_p csNameCharsetConverter, const Time& reftime);
   ~FimexReftimeSource();
 
-  Update_t update();
-  Inventory_cp getInventory();
+  Update_t update() override;
+  Inventory_cp getInventory() override;
 
   void getCrossectionValues(Crossection_cp cs, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) override;
   void getTimegraphValues(Crossection_cp cs, size_t crossection_index,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) override;
   void getPointValues(Crossection_cp crossection, size_t crossection_index, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) override;
   void getWaveSpectrumValues(Crossection_cp crossection, size_t crossection_index, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) override;
 
-  bool supportsDynamicCrossections()
+  bool supportsDynamicCrossections() override
     { return mSupportsDynamic; }
 
   /*! Add a dynamic cross-section, if possible.
@@ -59,9 +59,9 @@ public:
    *
    * @return pointer to a new Crossection object, or a null pointer
    */
-  Crossection_cp addDynamicCrossection(std::string label, const LonLat_v& positions);
-  void dropDynamicCrossection(Crossection_cp cs);
-  void dropDynamicCrossections();
+  Crossection_cp addDynamicCrossection(std::string label, const LonLat_v& positions) override;
+  void dropDynamicCrossection(Crossection_cp cs) override;
+  void dropDynamicCrossections() override;
 
 private:
   bool makeReader();

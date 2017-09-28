@@ -252,9 +252,9 @@ int findShapeIndex(CoordinateAxis::AxisType type, vcross::FimexReftimeSource::Co
 
 vcross::Values::Shape translateAxisNames(const vcross::Values::Shape& shapeReq, const CDM& cdm, vcross::FimexReftimeSource::CoordinateSystem_p cs)
 {
-  const int N_AXES = 4;
-  const CoordinateAxis::AxisType axesCDM[N_AXES] = { CoordinateAxis::GeoX,  CoordinateAxis::GeoY,  CoordinateAxis::GeoZ,  CoordinateAxis::Time };
-  const char* axesV[N_AXES]                      = { vcross::Values::GEO_X, vcross::Values::GEO_Y, vcross::Values::GEO_Z, vcross::Values::TIME };
+  const int N_AXES = 5;
+  const CoordinateAxis::AxisType axesCDM[N_AXES] = { CoordinateAxis::GeoX,  CoordinateAxis::GeoY,  CoordinateAxis::GeoZ,  CoordinateAxis::Time, CoordinateAxis::Realization };
+  const char* axesV[N_AXES]                      = { vcross::Values::GEO_X, vcross::Values::GEO_Y, vcross::Values::GEO_Z, vcross::Values::TIME, vcross::Values::REALIZATION };
 
   vcross::Values::Shape shape;
   for (size_t p = 0; p < shapeReq.rank(); ++p) {
@@ -442,7 +442,7 @@ void FimexReftimeSource::prepareGetValues(Crossection_cp cs,
 }
 
 void FimexReftimeSource::getCrossectionValues(Crossection_cp crossection, const Time& time,
-    const InventoryBase_cps& data, name2value_t& n2v)
+    const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
@@ -460,7 +460,8 @@ void FimexReftimeSource::getCrossectionValues(Crossection_cp crossection, const 
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
       sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index, fcs->length()) // cut on x axis
-          .    cut(findShapeIndex(CoordinateAxis::Time, cs, shapeCdm), t_start, 1);                     // single time
+          .    cut(findShapeIndex(CoordinateAxis::Time, cs, shapeCdm), t_start, 1)                      // single time
+          .    cut(findShapeIndex(CoordinateAxis::Realization, cs, shapeCdm), realization, 1);          // single point on ensemble_member axis
 
       Values::Shape shapeOut(Values::GEO_X, fcs->length(), Values::GEO_Z, b->nlevel());
 
@@ -473,7 +474,7 @@ void FimexReftimeSource::getCrossectionValues(Crossection_cp crossection, const 
 }
 
 void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
-    size_t crossection_index, const InventoryBase_cps& data, name2value_t& n2v)
+    size_t crossection_index, const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
@@ -487,7 +488,8 @@ void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
       CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
-      sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index + crossection_index, 1); // single point on x axis
+      sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index + crossection_index, 1) // single point on x axis
+          .    cut(findShapeIndex(CoordinateAxis::Realization, cs, shapeCdm), realization, 1);                  // single point on ensemble_member axis
 
       Values::Shape shapeOut(Values::TIME, mInventory->times.npoint(), Values::GEO_Z, b->nlevel());
 
@@ -502,7 +504,7 @@ void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
 }
 
 void FimexReftimeSource::getPointValues(Crossection_cp crossection,
-    size_t crossection_index, const Time& time, const InventoryBase_cps& data, name2value_t& n2v)
+    size_t crossection_index, const Time& time, const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
@@ -519,7 +521,8 @@ void FimexReftimeSource::getPointValues(Crossection_cp crossection,
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
       sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index + crossection_index, 1) // single point on x axis
-          .    cut(findShapeIndex(CoordinateAxis::Time, cs, shapeCdm), t_start, 1);                     // single time
+          .    cut(findShapeIndex(CoordinateAxis::Time, cs, shapeCdm), t_start, 1)                              // single time
+          .    cut(findShapeIndex(CoordinateAxis::Realization, cs, shapeCdm), realization, 1);                  // single point on ensemble_member axis
 
       Values::Shape shapeOut(Values::GEO_Z, b->nlevel());
 
@@ -532,7 +535,7 @@ void FimexReftimeSource::getPointValues(Crossection_cp crossection,
 }
 
 void FimexReftimeSource::getWaveSpectrumValues(Crossection_cp crossection, size_t crossection_index,
-    const Time& time, const InventoryBase_cps& data, name2value_t& n2v)
+    const Time& time, const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
@@ -621,6 +624,11 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
     extractor->reduceDimension(cs->getGeoYAxis()->getName(), y_begin, y_length);
   if (cs->getGeoZAxis())
     extractor->reduceDimension(cs->getGeoZAxis()->getName(), z_begin, z_length);
+  if (CoordinateSystem::ConstAxisPtr rAxis = cs->findAxisOfType(CoordinateAxis::Realization)) {
+    const int pcr = findShapeIndex(CoordinateAxis::Realization, cs, sliceCdm.shape());
+    const size_t r_begin = sliceCdm.start(pcr), r_length = sliceCdm.length(pcr);
+    extractor->reduceDimension(rAxis->getName(), r_begin, r_length);
+  }
 
   const std::string& ztid = transformedZAxisName(converted->id());
   zaxis_cs_m::const_iterator itCsId = zaxis_cs.find(ztid);
@@ -812,6 +820,9 @@ bool FimexReftimeSource::makeInventory()
             }
           }
         }
+
+        if (CoordinateSystem::ConstAxisPtr rAxis = cs->findAxisOfType(CoordinateAxis::Realization))
+          util::maximize(mInventory->realizationCount, cdm.getDimension(rAxis->getShape().front()).getLength());
 
         CoordinateSystem::ConstAxisPtr zAxis = cs->getGeoZAxis();
         if (zAxis) {

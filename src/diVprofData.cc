@@ -79,7 +79,9 @@ const char VP_OMEGA[]                 = "vp_omega_pas";
 VprofData::VprofData(const std::string& modelname,
     const std::string& stationsfilename) :
         modelName(modelname), stationsFileName(stationsfilename),
-        numPos(0), numTime(0), numParam(0), numLevel(0), stationList(false)
+        numPos(0), numTime(0), numParam(0), numLevel(0)
+      , numRealizations(1)
+      , stationList(false)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -282,6 +284,7 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   numPos = mStations.size();
   numTime = validTime.size();
   numParam = 6;
+  numRealizations = inv->realizationCount;
 
   const miTime rt = util::to_miTime(mr.reftime);
   for (size_t i = 0; i < validTime.size(); i++) {
@@ -326,7 +329,7 @@ static void copy_vprof_values(const name2value_t& n2v, const std::string& id, st
   copy_vprof_values(itN->second, values_out);
 }
 
-VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
+VprofPlot* VprofData::getData(const std::string& name, const miTime& time, int realization)
 {
   METLIBS_LOG_SCOPE(name << "  " << time << "  " << modelName);
   METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(mStations.size()));
@@ -383,7 +386,11 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     const int iPos = std::distance(mStations.begin(), itP);
     const int iTime = std::distance(validTime.begin(), itT);
 
-    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
+    if (name == vProfPlotName and time == vProfPlotTime
+        and vProfPlot.get()
+        and vProfPlot->text.modelName == modelName
+        and vProfPlot->text.realization == realization)
+    {
       METLIBS_LOG_DEBUG("returning cached VProfPlot");
       return new VprofPlot(*vProfPlot);
     }
@@ -398,6 +405,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->text.latitude = itP->lat;
     vp->text.longitude = itP->lon;
     vp->text.kindexFound = false;
+    vp->text.realization = realization;
 
     vp->prognostic = true;
     vp->maxLevels = numLevel;
@@ -428,7 +436,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     model_values_m model_values;
     try {
-      model_values = vc_fetch_pointValues(collector, pos, user_time);
+      model_values = vc_fetch_pointValues(collector, pos, user_time, realization);
     } catch (std::exception& e) {
       METLIBS_LOG_ERROR("exception: " << e.what());
       return 0;

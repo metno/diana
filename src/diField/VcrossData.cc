@@ -217,6 +217,7 @@ size_t Values::ShapeSlice::volume() const
 const char *Values::GEO_X = "GEO_X";
 const char *Values::GEO_Y = "GEO_Y";
 const char *Values::GEO_Z = "GEO_Z";
+const char *Values::REALIZATION = "REALIZATION";
 const char *Values::TIME = "TIME";
 
 Values::Values(int np, int nl, ValueArray v)
@@ -299,8 +300,14 @@ bool Time::operator<(const Time& other) const
 
 // ================================================================================
 
+Inventory::Inventory()
+  : realizationCount(1)
+{
+}
+
 void Inventory::clear()
 {
+  realizationCount = 1;
   times.values.clear();
   crossections.clear();
   fields.clear();

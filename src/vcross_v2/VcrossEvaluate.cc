@@ -11,7 +11,7 @@
 
 namespace vcross {
 
-model_values_m vc_fetch_crossection(Collector_p collector, const std::string& user_crossection, const Time& user_time)
+model_values_m vc_fetch_crossection(Collector_p collector, const std::string& user_crossection, const Time& user_time, int realization)
 {
   METLIBS_LOG_SCOPE(LOGVAL(user_crossection) << LOGVAL(user_time.unit) << LOGVAL(user_time.value));
   const model_required_m& mr = collector->getRequired();
@@ -32,7 +32,7 @@ model_values_m vc_fetch_crossection(Collector_p collector, const std::string& us
     name2value_t& n2v = model_values[mr];
     vcross::evaluateCrossection(cs, n2v);
     try {
-      src->getCrossectionValues(mr.reftime, cs, user_time, it->second, n2v);
+      src->getCrossectionValues(mr.reftime, cs, user_time, it->second, n2v, realization);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
@@ -40,7 +40,7 @@ model_values_m vc_fetch_crossection(Collector_p collector, const std::string& us
   return model_values;
 }
 
-model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_crossection, const Time& user_time)
+model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_crossection, const Time& user_time, int realization)
 {
   //METLIBS_LOG_SCOPE(LOGVAL(user_crossection) << LOGVAL(user_time.unit) << LOGVAL(user_time.value));
   const model_required_m& mr = collector->getRequired();
@@ -59,7 +59,7 @@ model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_cr
     name2value_t& n2v = model_values[mr];
     vcross::evaluateCrossection(cs, n2v);
     try {
-      src->getPointValues(mr.reftime, cs, 0, user_time, it->second, n2v);
+      src->getPointValues(mr.reftime, cs, 0, user_time, it->second, n2v, realization);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
@@ -69,7 +69,7 @@ model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_cr
 
 // ########################################################################
 
-model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
+model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position, int realization)
 {
   METLIBS_LOG_SCOPE();
   const model_required_m& mr = collector->getRequired();
@@ -91,7 +91,7 @@ model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
 
     vcross::evaluateCrossection4TimeGraph(cs, 0, inv->times.npoint(), n2v);
     try {
-      src->getTimegraphValues(mr.reftime, cs, 0, it->second, n2v);
+      src->getTimegraphValues(mr.reftime, cs, 0, it->second, n2v, realization);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }

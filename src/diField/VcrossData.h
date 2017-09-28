@@ -278,7 +278,7 @@ public:
   Values(const Shape& shape, ValueArray v);
   Values(const Shape& shape, bool fill=true);
 
-  static const char *GEO_X, *GEO_Y, *GEO_Z, *TIME;
+  static const char *GEO_X, *GEO_Y, *GEO_Z, *TIME, *REALIZATION;
 
   METLIBS_DEPRECATED(size_t npoint() const, "use shape().length(...)")
     { return mShape.length(0); }
@@ -413,9 +413,11 @@ struct Inventory
   typedef std::vector<FieldData_cp> fields_t;
 
   Times times;
+  int realizationCount;
   Crossection_cpv crossections;
   fields_t fields;
 
+  Inventory();
   void clear();
   FieldData_cp findFieldById(InventoryBase::Id_t id) const;
   Crossection_cp findCrossectionByLabel(const std::string& cslabel) const;

@@ -57,8 +57,10 @@ public:
     { return posLongitude; }
   const std::vector<miutil::miTime>& getTimes()
     { return validTime; }
+  int getRealizationCount() const
+    { return numRealizations; }
 
-  SpectrumPlot* getData(const std::string& name, const miutil::miTime& time);
+  SpectrumPlot* getData(const std::string& name, const miutil::miTime& time, int realization);
 
 private:
   std::string modelName;
@@ -68,6 +70,7 @@ private:
   int numTime;
   int numDirec;
   int numFreq;
+  int numRealizations;
 
   std::vector<float> directions;
   std::vector<float> frequences;

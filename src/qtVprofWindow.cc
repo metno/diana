@@ -148,6 +148,13 @@ VprofWindow::VprofWindow()
   timeSpinBox = new QSpinBox( this );
   timeSpinBox->setValue(0);
 
+  realizationSpinBox = new QSpinBox(this);
+  realizationSpinBox->setMinimum(0);
+  realizationSpinBox->setValue(0);
+  realizationSpinBox->setToolTip(tr("Select ensemble member"));
+  connect(realizationSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+          this, &VprofWindow::realizationChanged);
+
   vpToolbar->addWidget(modelButton);
   vpToolbar->addWidget(setupButton);
   vpToolbar->addWidget(printButton);
@@ -164,6 +171,7 @@ VprofWindow::VprofWindow()
   tsToolbar->addWidget(timeBox);
   tsToolbar->addWidget(rightTimeButton);
   tsToolbar->addWidget(timeSpinBox);
+  tsToolbar->addWidget(realizationSpinBox);
 
   //connected dialogboxes
 
@@ -239,6 +247,12 @@ void VprofWindow::timeClicked(int i)
 {
   vprofm->setTime(timeSpinBox->value(), i);
   timeChanged();
+  vprofqw->update();
+}
+
+void VprofWindow::realizationChanged(int value)
+{
+  vprofm->setRealization(value);
   vprofqw->update();
 }
 
@@ -467,6 +481,7 @@ void VprofWindow::changeModel()
 
   updateStationBox();
   updateTimeBox();
+  realizationSpinBox->setMaximum(vprofm->getRealizationCount()-1);
   //get correct selection in comboboxes
   stationChanged();
   timeChanged();

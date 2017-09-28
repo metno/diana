@@ -150,6 +150,7 @@ private Q_SLOTS:
   void leftTimeClicked();
   void rightTimeClicked();
   void timeBoxActivated(int index);
+  void onRealizationChanged(int value);
 
   void printClicked();
   void saveClicked();

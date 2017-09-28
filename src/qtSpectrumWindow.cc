@@ -151,6 +151,13 @@ SpectrumWindow::SpectrumWindow()
   timeSpinBox = new QSpinBox( this );
   timeSpinBox->setValue(0);
 
+  realizationSpinBox = new QSpinBox(this);
+  realizationSpinBox->setMinimum(0);
+  realizationSpinBox->setValue(0);
+  realizationSpinBox->setToolTip(tr("Select ensemble member"));
+  connect(realizationSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+          this, &SpectrumWindow::realizationChanged);
+
   spToolbar->addWidget(modelButton);
   spToolbar->addWidget(setupButton);
   spToolbar->addWidget(updateButton);
@@ -259,7 +266,11 @@ void SpectrumWindow::timeChanged()
   Q_EMIT setTime("spectrum", t);
 }
 
-
+void SpectrumWindow::realizationChanged(int value)
+{
+  spectrumm->setRealization(value);
+  spectrumqw->update();
+}
 
 void SpectrumWindow::stationChanged()
 {

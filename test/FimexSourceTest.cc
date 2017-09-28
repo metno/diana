@@ -93,7 +93,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcross0)
   InventoryBase_cps request;
   request.insert(turbulence);
   name2value_t n2v;
-  fs->getCrossectionValues(cs0, time, request, n2v);
+  fs->getCrossectionValues(cs0, time, request, n2v, 0);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
@@ -140,7 +140,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcross1)
   InventoryBase_cps request;
   request.insert(turbulence);
   name2value_t n2v;
-  fs->getCrossectionValues(cs1, time, request, n2v);
+  fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
@@ -196,7 +196,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcrossVertical)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getCrossectionValues(cs1, time, request, n2v);
+  fs->getCrossectionValues(cs1, time, request, n2v, 0);
   
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -249,7 +249,7 @@ TEST(FimexReftimeSourceTest, TestSimraTimegraph)
   InventoryBase_cps request;
   request.insert(turbulence);
   name2value_t n2v;
-  fs->getTimegraphValues(cs0, 5, request, n2v);
+  fs->getTimegraphValues(cs0, 5, request, n2v, 0);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
@@ -289,7 +289,7 @@ TEST(FimexReftimeSourceTest, TestSimraVprofile)
   InventoryBase_cps request;
   request.insert(turbulence);
   name2value_t n2v;
-  fs->getPointValues(cs1, 17, time, request, n2v);
+  fs->getPointValues(cs1, 17, time, request, n2v, 0);
 
   Values_cp turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
@@ -330,7 +330,7 @@ TEST(FimexReftimeSourceTest, TestAromeVcross1)
   InventoryBase_cps request;
   request.insert(temperature);
   name2value_t n2v;
-  fs->getCrossectionValues(cs1, time, request, n2v);
+  fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
   Values_cp temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
@@ -386,7 +386,7 @@ TEST(FimexReftimeSourceTest, TestAromeVcrossVertical)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getCrossectionValues(cs1, time, request, n2v);
+  fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -444,7 +444,7 @@ TEST(FimexReftimeSourceTest, TestAromeTimegraph)
   request.insert(temperature);
   request.insert(vertical_pressure);
   name2value_t n2v;
-  fs->getTimegraphValues(cs1, 43, request, n2v);
+  fs->getTimegraphValues(cs1, 43, request, n2v, 0);
 
   Values_cp temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
@@ -511,7 +511,7 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getCrossectionValues(cs1, time, request, n2v);
+  fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -597,7 +597,7 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getCrossectionValues(csdyn, time, request, n2v);
+  fs->getCrossectionValues(csdyn, time, request, n2v, 0);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -677,7 +677,7 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossDyn)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getTimegraphValues(cs0, 0, request, n2v);
+  fs->getTimegraphValues(cs0, 0, request, n2v, 0);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -758,7 +758,7 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getCrossectionValues(csdyn, time, request, n2v);
+  fs->getCrossectionValues(csdyn, time, request, n2v, 0);
 
   Values_cp vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -803,7 +803,7 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
   ASSERT_TRUE(bool(csdyn1));
   const Time& time1 = inv->times.at(1);
   name2value_t n2v1;
-  fs->getCrossectionValues(csdyn1, time1, request, n2v1);
+  fs->getCrossectionValues(csdyn1, time1, request, n2v1, 0);
 
   vertical_p_values = n2v1[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
@@ -869,7 +869,7 @@ TEST(FimexReftimeSourceTest, TestBangladeshVcross)
   request.insert(vertical_pressure);
   request.insert(vertical_altitude);
   name2value_t n2v;
-  fs->getCrossectionValues(cs3, time, request, n2v);
+  fs->getCrossectionValues(cs3, time, request, n2v, 0);
 
   Values_cp vertical_values = n2v[vertical->id()];
   ASSERT_TRUE(bool(vertical_values));
@@ -950,7 +950,7 @@ TEST(FimexReftimeSourceTest, TestBangladeshVprof)
   request.insert(vertical);
   request.insert(vertical_pressure);
   name2value_t n2v;
-  fs->getPointValues(cs0, 0, time, request, n2v);
+  fs->getPointValues(cs0, 0, time, request, n2v, 0);
 
   Values_cp vertical_values = n2v[vertical->id()];
   ASSERT_TRUE(bool(vertical_values));
@@ -1004,7 +1004,7 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
   request.insert(spec);
   request.insert(freq);
   name2value_t n2v;
-  fs->getWaveSpectrumValues(cs0, 2, inv->times.at(0), request, n2v);
+  fs->getWaveSpectrumValues(cs0, 2, inv->times.at(0), request, n2v, 0);
 
   { Values_cp spec_values = n2v[spec->id()];
     ASSERT_TRUE(bool(spec_values));

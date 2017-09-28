@@ -34,9 +34,9 @@ typedef std::vector<EvaluatedPlot> EvaluatedPlot_v;
 
 typedef std::map<ModelReftime, name2value_t, lt_ModelReftime> model_values_m;
 
-model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user_crossection, const Time& user_time);
-model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_crossection, const Time& user_time);
-model_values_m vc_fetch_timegraph(Collector_p manager, const LonLat& position);
+model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user_crossection, const Time& user_time, int realization);
+model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_crossection, const Time& user_time, int realization);
+model_values_m vc_fetch_timegraph(Collector_p manager, const LonLat& position, int realization);
 
 EvaluatedPlot_cpv vc_evaluate_plots(Collector_p manager, model_values_m& model_values, Z_AXIS_TYPE z_type=Z_TYPE_PRESSURE);
 

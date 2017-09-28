@@ -128,7 +128,7 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
   request.insert(dir);
   name2value_t n2v;
   fs = collector->getResolver()->getSource(modelName);
-  fs->getWaveSpectrumValues(mr.reftime,cs0, 0, inv->times.at(0), request, n2v);
+  fs->getWaveSpectrumValues(mr.reftime,cs0, 0, inv->times.at(0), request, n2v, 0);
   Values_cp freq_values = n2v[freq->id()];
   Values_cp dir_values = n2v[dir->id()];
 
@@ -147,6 +147,7 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
   numTime = validTime.size();
   numDirec = directions.size();
   numFreq = frequences.size();
+  numRealizations = inv->realizationCount;
 
   return true;
 }
@@ -171,7 +172,7 @@ static Values_cp field_values(const name2value_t& n2v, FieldData_cp fld)
   return Values_cp();
 }
 
-SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
+SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time, int realization)
 {
   METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(time));
 
@@ -219,7 +220,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   FieldData_cp field_ddpeak = find_request_field(inv, request, "Pdir");
 
   name2value_t n2v;
-  fs->getWaveSpectrumValues(mr.reftime,cs, index, user_time, request, n2v);
+  fs->getWaveSpectrumValues(mr.reftime,cs, index, user_time, request, n2v, realization);
 
   std::unique_ptr<SpectrumPlot> spp(new SpectrumPlot);
   spp->prognostic = true;
@@ -227,6 +228,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   spp->posName = posName[iPos];
   spp->numDirec = numDirec;
   spp->numFreq = numFreq;
+  spp->realization = realization;
   spp->validTime = validTime[iTime];
   spp->forecastHour = forecastHour[iTime];
   spp->directions = directions;
