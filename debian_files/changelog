@@ -1,3 +1,10 @@
+diana-3.43 (3.43.0~a5-1) unstable; urgency=low
+
+  * minimal support for ensemble axis in vcross/vprof/wavespec
+  * minor bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 28 Sep 2017 08:00:08 +0200
+
 diana-3.43 (3.43.0~a4-1) unstable; urgency=low
 
   * encoding in amdar station list
