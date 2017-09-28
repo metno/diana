@@ -761,12 +761,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   mainToolbar->addAction( showObjectDialogAction      );
 
   trajm = new TrajectoryDialog(this,contr);
-  trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
   mainToolbar->addAction( showTrajecDialogAction      );
 
   annom = new AnnotationDialog(this,contr);
-  annom->setFocusPolicy(Qt::StrongFocus);
   annom->hide();
 
   measurementsm = new MeasurementsDialog(this,contr);
@@ -778,11 +776,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   uffm->hide();
 
   EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
-  drawingDialog->hide();
   addDialog(drawingDialog);
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
-    wmd->hide();
     addDialog(wmd);
 
     connect(WebMapManager::instance(), SIGNAL(webMapsReady()),
@@ -3509,6 +3505,8 @@ bool DianaMainWindow::event(QEvent* event)
 
 void DianaMainWindow::addDialog(DataDialog *dialog)
 {
+  dialog->hide();
+
   dialogNames[dialog->name()] = dialog;
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &)),

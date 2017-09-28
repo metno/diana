@@ -293,11 +293,6 @@ void VcrossOptions::setDefaults()
   vcSelectedOnMapLinewidth= 4.;
 }
 
-static const char* asBool(bool b)
-{
-  return (b ? "on" : "off");
-}
-
 std::vector<miutil::KeyValue_v> VcrossOptions::writeOptions() const
 {
   METLIBS_LOG_SCOPE();

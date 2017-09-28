@@ -63,15 +63,6 @@ const char WAVE_DIRECTION[]  = "direction";
 const char VCROSS_NAME[]   = "vcross_name";
 const char VCROSS_BOUNDS[] = "bounds";
 
-DataPtr getScaledDataSlice(vcross::FimexReftimeSource::CDMReader_p reader, const SliceBuilder& sb,
-    const std::string& varName, const std::string& unit)
-{
-  if (unit.empty())
-    return reader->getScaledDataSlice(varName, sb);
-  else
-    return reader->getScaledDataSliceInUnit(varName, unit, sb);
-}
-
 bool isPositiveUp(std::string zAxisName, const CDM& cdm)
 {
   CDMAttribute attr;
@@ -120,15 +111,6 @@ int findTimeIndex(vcross::Inventory_p inv, const vcross::Time& time)
   const int tIdx = (itT - times.values.begin());
   METLIBS_LOG_DEBUG(LOGVAL(tIdx));
   return tIdx;
-}
-
-static bool isTimeAxisUnlimited(const CDM& cdm, vcross::FimexReftimeSource::CoordinateSystem_p cs)
-{
-  CoordinateSystem::ConstAxisPtr tAxis = cs->getTimeAxis();
-  if (tAxis and tAxis->getShape().size() == 1)
-    return cdm.getDimension(tAxis->getShape().at(0)).isUnlimited();
-  else
-    return true;
 }
 
 int verticalTypeFromId(const std::string& id)
@@ -310,11 +292,6 @@ string_v findVariablesByStandardNameOrName(const CDM& cdm, const std::string& sN
   if (variables.empty() and cdm.hasVariable(sName))
     variables.push_back(sName);
   return variables;
-}
-
-bool hasVariablesByStandardNameOrName(const CDM& cdm, const std::string& sName)
-{
-  return not findVariablesByStandardNameOrName(cdm, sName).empty();
 }
 
 std::string findVariableByStandardNameOrName(const CDM& cdm, const std::string& sName)
