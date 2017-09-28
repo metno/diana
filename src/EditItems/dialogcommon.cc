@@ -48,8 +48,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "empty.xpm"
-
 namespace EditItems {
 
 TextEditor::TextEditor(const QString &text, int fontSize, bool readOnly)
