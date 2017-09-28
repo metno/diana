@@ -76,9 +76,7 @@ GridCollection::~GridCollection()
 // clear the gridsources vector
 void GridCollection::clearGridSources()
 {
-  for(gridsources_t::const_iterator it_io=gridsources.begin(); it_io!=gridsources.end(); ++it_io)
-    delete *it_io;
-  gridsources.clear();
+  diutil::delete_all_and_clear(gridsources);
   gridsourcesTimeMap.clear();
   inventoryOK.clear();
 }
