@@ -560,7 +560,7 @@ bool Projection::adjustedLatLonBoundingBox(const Rectangle & maprect,
   return true;
 }
 
-bool Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridResolutionY,
+bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridResolutionX, float gridResolutionY,
     float* xmapr, float* ymapr, float* coriolis) const
 {
   const int npos = nx * ny;
@@ -570,8 +570,8 @@ bool Projection::getMapRatios(int nx, int ny, float gridResolutionX, float gridR
   for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < nx; ix++) {
       size_t i = ix + iy*nx;
-      x[i] = ix*gridResolutionX;
-      y[i] = iy*gridResolutionY;
+      x[i] = x0 + ix*gridResolutionX;
+      y[i] = y0 + iy*gridResolutionY;
     }
   }
 

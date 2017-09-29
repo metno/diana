@@ -143,7 +143,7 @@ public:
       float & lonmin, float & lonmax, float & latmin, float & latmax) const;
 
   /// Calculate mapratios and coriolis factors
-  bool getMapRatios(int nx, int ny, float gridResolutionX, float gridResolutionY,
+  bool getMapRatios(int nx, int ny, float x0, float y0, float gridResolutionX, float gridResolutionY,
       float* xmapr, float* ymapr, float* coriolis) const;
 
   static bool getLatLonIncrement(float lat, float lon, float& dlat, float& dlon);

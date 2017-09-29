@@ -207,7 +207,7 @@ TEST(FieldFunctionsTest, MapRatios)
 {
   const int nx = 3, ny = 3;
   const GridArea area(Area(Projection("+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"),
-          Rectangle(0, 100000, 10000, 110000)), nx, ny, 1000, 1000);
+          Rectangle(0, 0, 10000, 110000)), nx, ny, 1000, 1000);
   GridConverter gc;
 #if 1
   const float* xmapr = 0, *ymapr = 0, *coriolis = 0;

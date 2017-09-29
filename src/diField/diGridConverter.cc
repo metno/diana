@@ -491,7 +491,7 @@ bool GridConverter::getMapFields(const GridArea& area,
     mf->xmapr = new float[npos];
     mf->ymapr = new float[npos];
     mf->coriolis = new float[npos];
-    if (!area.P().getMapRatios(area.nx, area.ny, area.resolutionX, area.resolutionY,
+    if (!area.P().getMapRatios(area.nx, area.ny, area.R().x1, area.R().y1, area.resolutionX, area.resolutionY,
             mf->xmapr, mf->ymapr, mf->coriolis))
     {
       METLIBS_LOG_ERROR("getMapRatios problem");
