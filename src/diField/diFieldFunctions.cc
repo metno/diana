@@ -245,6 +245,7 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_showalterindex_plevel_th_rh, "showalterindex.plevel_th_rh(th500,th850,rh850)");
   ok &= registerFunction(f, f_boydenindex_plevel_tk_z, "boydenindex.plevel_tk_z(tk700,z700,z1000)");
   ok &= registerFunction(f, f_boydenindex_plevel_th_z, "boydenindex.plevel_th_z(th700,z700,z1000)");
+  ok &= registerFunction(f, f_sweatindex_plevel, "sweatindex.plevel(t850,t500,td850,td500,u850,v850,u500,v500)");
 
   // hybrid model level (HLEVEL) functions
   ok &= registerFunction(f, f_tc_hlevel_th_psurf, "tc.hlevel_th_psurf(th,psurf)");
@@ -900,6 +901,13 @@ bool FieldFunctions::fieldComputer(Function function,
     plevel2 = vfinput[2]->level;
     res = boydenIndex(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
         plevel1, plevel2, fDefined, undef);
+    break;
+
+  case f_sweatindex_plevel:
+    if (ninp != 8 || nout != 1)
+      break;
+    res = sweatIndex(compute, nx, ny, finp[0], finp[1], finp[2], finp[3],
+        finp[4], finp[5], finp[6], finp[7], fout[0], allDefined, undef);
     break;
 
     //---------------------------------------------------

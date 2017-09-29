@@ -197,6 +197,7 @@ public:
     f_showalterindex_plevel_th_rh, //!< f_showalterindex_plevel_th_rh
     f_boydenindex_plevel_tk_z, //!< f_boydenindex_plevel_tk_z
     f_boydenindex_plevel_th_z, //!< f_boydenindex_plevel_th_z
+    f_sweatindex_plevel, //!< Severe Weather Threat Index
 
     // hybrid model level (HLEVEL) functions
     f_tc_hlevel_th_psurf, //!< f_tc_hlevel_th_psurf

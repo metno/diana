@@ -33,6 +33,7 @@
 
 #include "diFieldCalculations.h"
 
+#include "../diUtilities.h"
 #include "../util/math_util.h"
 #include "../util/openmp_tools.h"
 #include "diMetConstants.h"
@@ -978,6 +979,27 @@ bool boydenIndex(int compute, int nx, int ny, const float *t700,
     }
   }
   fDefined = difield::checkDefined(n_undefined, fsize);
+  return true;
+}
+
+bool sweatIndex(int compute, int nx, int ny, const float *t850,const float *t500,
+    const float *td850, const float *td500, const float *u850, const float *v850,
+    const float *u500, const float *v500, float *sindex,
+    bool& allDefined, float undef)
+{
+  // Severe Weather Threat Index
+  // Sweat index:12Td850 + 20(TTI - 49) + 2ff850 + ff500 + 125(sin(d500 -d850)) +0.2
+  // TTI = t850+td850-2*t500
+  const int fsize = nx * ny;
+
+  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  for (int i = 0; i < fsize; i++) {
+    float ff850 = diutil::absval(u850[i],v850[i]);
+    float ff500 = diutil::absval(u500[i],v500[i]);
+    float sind500_d850 = (u500[i]*v850[i] - v500[i]*u850[i])/(ff850*ff500);
+    sindex[i]= 32*td850[i] + 20*t850[i] - 40*t500[i] - 20*49
+        + 2*diutil::ms2knots(ff850) + diutil::ms2knots(ff500) + 125 * (sind500_d850 + 0.2);
+  }
   return true;
 }
 
