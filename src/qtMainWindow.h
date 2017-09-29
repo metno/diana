@@ -432,7 +432,7 @@ private:
   std::string getLogFileName() const;
   void readLogFile();
   std::string saveDocState();
-  void restoreDocState(std::string logstr);
+  void restoreDocState(const std::string& logstr);
 
   std::vector<std::string> writeLog(const std::string& thisVersion,
       const std::string& thisBuild);

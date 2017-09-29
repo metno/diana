@@ -3116,7 +3116,6 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
   saveDialogPos(vstr, "ObsDialog", om);
   saveDialogPos(vstr, "SatDialog", sm);
   saveDialogPos(vstr, "StationDialog", stm);
-  saveDialogPos(vstr, "MapDialog", mm);
   saveDialogPos(vstr, "EditDialog", em);
   saveDialogPos(vstr, "ObjectDialog", objm);
   saveDialogPos(vstr, "TrajectoryDialog", trajm);
@@ -3232,7 +3231,6 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
         else if (tokens[0]=="FieldDialog.size")  restoreDialogSize(fm, showmore, x, y);
         else if (tokens[0]=="ObsDialog.pos")     restoreDialogPos(om, x, y);
         else if (tokens[0]=="SatDialog.pos")     restoreDialogPos(sm, x, y);
-        else if (tokens[0]=="MapDialog.pos")     restoreDialogPos(mm, x, y);
         else if (tokens[0]=="StationDialog.pos") restoreDialogPos(stm, x, y);
         else if (tokens[0]=="EditDialog.pos")    restoreDialogPos(em, x, y);
         else if (tokens[0]=="ObjectDialog.pos")  restoreDialogPos(objm, x, y);
@@ -3294,7 +3292,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
     METLIBS_LOG_INFO("log from version " << logVersion);
 }
 
-void DianaMainWindow::restoreDocState(std::string logstr)
+void DianaMainWindow::restoreDocState(const std::string& logstr)
 {
   vector<std::string> vs= miutil::split(logstr, " ");
   int n=vs.size();
