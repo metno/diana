@@ -11,6 +11,8 @@
 #include <errno.h>
 #include <iconv.h>
 
+#include <cstring>
+
 #define MILOGGER_CATEGORY "diana.charsets"
 #include <miLogger/miLogging.h>
 
@@ -87,7 +89,7 @@ std::string IconvConverter::convert(const std::string& in)
 
   const size_t in_size = in.size();
   char* in_c = new char[in_size], *in_p = in_c;
-  memcpy(in_c, in.c_str(), in_size);
+  std::memcpy(in_c, in.c_str(), in_size);
 
   const size_t out_size = in_size + 4;
   char* out_c = new char[out_size], *out_p = out_c;
