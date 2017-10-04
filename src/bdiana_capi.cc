@@ -1407,6 +1407,8 @@ void createPaintDevice()
   METLIBS_LOG_SCOPE();
   ensureNewContext();
 
+  if (vprofmanager)
+    vprofmanager->setCanvas(0);
   delete glpainter;
   if (main_controller)
     main_controller->setCanvas(0);
