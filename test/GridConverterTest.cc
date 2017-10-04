@@ -112,6 +112,7 @@ TEST(GridConverterTest, FindGridLimits)
   }
 }
 
+#if 0
 TEST(GridConverterTest, FindGridLimitsGeos)
 {
   const GridArea fieldGridArea(Area(Projection("+proj=geos +lon_0=-135.000000 +a=6378169.0 +b=6356583.8 +h=35785831.0"
@@ -138,3 +139,4 @@ TEST(GridConverterTest, FindGridLimitsGeos)
     EXPECT_TRUE(ex_rects[i] == actual_rect) << "expected " << ex_rects[i] << " got " << actual_rect;
   }
 }
+#endif
