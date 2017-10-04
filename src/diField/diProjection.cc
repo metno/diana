@@ -53,8 +53,6 @@
 
 using namespace miutil;
 
-static const float efactor = EARTH_RADIUS_M * DEG_TO_RAD;
-
 // static
 std::shared_ptr<Projection> Projection::sGeographic;
 
@@ -563,6 +561,9 @@ bool Projection::adjustedLatLonBoundingBox(const Rectangle & maprect,
 bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridResolutionX, float gridResolutionY,
     float* xmapr, float* ymapr, float* coriolis) const
 {
+  if (nx < 2 || ny < 2)
+    return false;
+
   const int npos = nx * ny;
   std::unique_ptr<float[]> x(new float[npos]), y(new float[npos]);
 
@@ -600,27 +601,19 @@ bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridReso
   if (!(xmapr && ymapr))
     return false;
 
-  DIUTIL_OPENMP_PARALLEL(npos, for)
+  DIUTIL_OPENMP_PARALLEL(nx, for)
+  for (int ix = 0; ix < nx; ix++) {
+    int i = ix;
+    for (int iy = 0; iy < ny-1; iy++, i += nx)
+      ymapr[i] = 1 / diutil::GreatCircleDistance(y[i + nx], y[i], x[i + nx], x[i]);
+    ymapr[i] = ymapr[i - nx];
+  }
+  DIUTIL_OPENMP_PARALLEL(ny, for)
   for (int iy = 0; iy < ny; iy++) {
-    for (int ix = 0; ix < nx; ix++) {
-      int i = ix + iy*nx;
-      if (iy == ny - 1) {
-        ymapr[i] = ymapr[i - nx];
-      } else {
-        float dy = ((y[i + nx] - y[i]) * efactor);
-        float dx = ((x[i + nx] - x[i]) * efactor) * cos(y[i] * DEG_TO_RAD);
-        float dd = diutil::absval(dy, dx);
-        ymapr[i] = 1 / dd;
-      }
-      if (ix == nx - 1) {
-        xmapr[i] = xmapr[i - 1];
-      } else {
-        float dy = ((y[i + 1] - y[i]) * efactor);
-        float dx = ((x[i + 1] - x[i]) * efactor) * cos(y[i] * DEG_TO_RAD);
-        float dd = diutil::absval(dy, dx);
-        xmapr[i] = 1 / dd;
-      }
-    }
+    int i = iy*nx;
+    for (int ix = 0; ix < nx-1; ix++, i += 1)
+      xmapr[i] = 1 / diutil::GreatCircleDistance(y[i + 1], y[i], x[i + 1], x[i]);
+    xmapr[i] = xmapr[i - 1];
   }
   return true;
 }

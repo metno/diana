@@ -123,6 +123,7 @@ libdiana_la_SOURCES = \
 	util/fimex_logging.cc \
 	util/format_int.cc \
 	util/diKeyValue.cc \
+	util/math_util.cc \
 	util/openmp_tools.cc \
 	util/polygon_util.cc \
 	util/plotoptions_util.cc \

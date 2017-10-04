@@ -30,8 +30,9 @@
 #include <diUtilities.h>
 #include <util/charsets.h>
 #include <util/format_int.h>
-#include <util/string_util.h>
+#include <util/math_util.h>
 #include <util/polygon_util.h>
+#include <util/string_util.h>
 
 #include <diField/diRectangle.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
@@ -250,3 +251,13 @@ TEST(TestUtilities, GetLineConverter)
   }
   EXPECT_EQ("blueberry = blåbær", found);
 }
+
+TEST(TestUtilities, GreatCircleDistance)
+{
+  const float BLINDERN_LON = 10.72005f, BLINDERN_LAT = 59.9423f;
+  const float FANNARAK_LON =  7.9058f,  FANNARAK_LAT = 61.5158f;
+
+  EXPECT_NEAR(232400, diutil::GreatCircleDistance(BLINDERN_LAT, FANNARAK_LAT, BLINDERN_LON, FANNARAK_LON), 100);
+  EXPECT_NEAR(222400, diutil::GreatCircleDistance(89, 89, 10, 190), 100);
+}
+

@@ -24,6 +24,8 @@ template<typename T>
 inline T absval(T x, T y)
 { return std::sqrt(absval2(x, y)); }
 
+float GreatCircleDistance(float lat1_deg, float lat2_deg, float lon1_deg, float lon2_deg);
+
 } // namespace diutil
 
 #endif // DIANA_UTIL_MATH_UTIL_H

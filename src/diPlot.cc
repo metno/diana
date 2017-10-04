@@ -39,7 +39,6 @@
 #include "util/math_util.h"
 #include "util/string_util.h"
 
-#include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.Plot"
@@ -47,11 +46,6 @@
 
 using namespace ::miutil;
 using namespace ::std;
-
-static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
-{
-  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
-}
 
 GridConverter StaticPlot::gc; // Projection-converter
 
@@ -217,7 +211,7 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
       lon2 = lon3 + 10;
 
   //gcd is distance between lower left and upper right corners
-  float ngcd = GreatCircleDistance(lat1, lat2, lon1, lon2);
+  float ngcd = diutil::GreatCircleDistance(lat1, lat2, lon1, lon2);
   float x1, y1, x2, y2;
   GeoToPhys(lat1, lon1, x1, y1);
   GeoToPhys(lat2, lon2, x2, y2);
