@@ -907,7 +907,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 8 || nout != 1)
       break;
     res = sweatIndex(compute, nx, ny, finp[0], finp[1], finp[2], finp[3],
-        finp[4], finp[5], finp[6], finp[7], fout[0], allDefined, undef);
+        finp[4], finp[5], finp[6], finp[7], fout[0], fDefined, undef);
     break;
 
     //---------------------------------------------------

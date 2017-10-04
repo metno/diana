@@ -154,7 +154,8 @@ bool boydenIndex(int compute, int nx, int ny, const float *t700, const float *z7
 
 bool sweatIndex(int compute, int nx, int ny, const float *t850,const float *t500,
     const float *td850, const float *td500, const float *u850, const float *v850,
-    const float *u500, const float *v500, float *sindex, bool& allDefined, float undef);
+    const float *u500, const float *v500, float *sindex,
+    difield::ValuesDefined& fDefined, float undef);
 
 //---------------------------------------------------
 // hybrid model level (HLEVEL) functions

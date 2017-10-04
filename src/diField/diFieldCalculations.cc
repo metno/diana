@@ -985,21 +985,29 @@ bool boydenIndex(int compute, int nx, int ny, const float *t700,
 bool sweatIndex(int compute, int nx, int ny, const float *t850,const float *t500,
     const float *td850, const float *td500, const float *u850, const float *v850,
     const float *u500, const float *v500, float *sindex,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
   // Severe Weather Threat Index
   // Sweat index:12Td850 + 20(TTI - 49) + 2ff850 + ff500 + 125(sin(d500 -d850)) +0.2
   // TTI = t850+td850-2*t500
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    float ff850 = diutil::absval(u850[i],v850[i]);
-    float ff500 = diutil::absval(u500[i],v500[i]);
-    float sind500_d850 = (u500[i]*v850[i] - v500[i]*u850[i])/(ff850*ff500);
-    sindex[i]= 32*td850[i] + 20*t850[i] - 40*t500[i] - 20*49
-        + 2*diutil::ms2knots(ff850) + diutil::ms2knots(ff500) + 125 * (sind500_d850 + 0.2);
+    if (calculations::is_defined(inAllDefined, t850[i], t500[i], td850[i], td500[i], u850[i], v850[i], u500[i], v500[i], undef)) {
+      float ff850 = diutil::absval(u850[i],v850[i]);
+      float ff500 = diutil::absval(u500[i],v500[i]);
+      float sind500_d850 = (u500[i]*v850[i] - v500[i]*u850[i])/(ff850*ff500);
+      sindex[i]= 32*td850[i] + 20*t850[i] - 40*t500[i] - 20*49
+          + 2*diutil::ms2knots(ff850) + diutil::ms2knots(ff500) + 125 * (sind500_d850 + 0.2);
+    } else {
+      sindex[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
