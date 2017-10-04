@@ -986,8 +986,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
     const size_t dataSize = data->size(), fieldSize = field->area.gridSize();
     if (dataSize != fieldSize) {
       METLIBS_LOG_DEBUG("getDataSlice returned " << dataSize << " datapoints, but nx*ny =" << fieldSize );
-      std::fill(field->data, field->data+fieldSize, fieldUndef);
-      field->allDefined = false;
+      field->fill(difield::UNDEF);
     } else {
       boost::shared_array<float> fdata = data->asFloat();
       mifi_nanf2bad(&fdata[0], &fdata[0]+dataSize, fieldUndef);
@@ -995,11 +994,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
       const gridinventory::Grid& grid = getGrid(reftime, param.grid);
       copyFieldSwapY(grid.y_direction_up, field->area.nx, field->area.ny, &fdata[0], field->data);
 
-      // check undef
-      size_t i = 0;
-      while (i<dataSize && field->data[i]<fieldUndef)
-        i++;
-      field->allDefined = (i==dataSize);
+      field->checkDefined();
     }
 
     // get a-hybrid and b-hybrid (used to calculate pressure of hybrid levels)

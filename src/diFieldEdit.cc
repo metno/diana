@@ -322,7 +322,7 @@ void FieldEdit::makeWorkfield()
     delete workfield;
   workfield= 0;
 
-  if (!editfield->allDefined) {
+  if (!editfield->allDefined()) {
     int nx= editfield->area.nx;
     int ny= editfield->area.ny;
     int nundef= 0;
@@ -419,7 +419,7 @@ void FieldEdit::makeWorkfield()
 
       delete[] indx;
 
-      workfield->allDefined= true;
+      workfield->forceDefined(difield::ALL_DEFINED);
     }
   }
 
@@ -519,14 +519,8 @@ void FieldEdit::setData(const vector<Field*>& vf,
 
 void FieldEdit::setConstantValue(float value)
 {
-  if (!editfield)
-    return;
-
-  int fsize= editfield->area.gridSize();
-  for (int i=0; i<fsize; ++i)
-    editfield->data[i]= value;
-
-  editfield->allDefined= (value!=fieldUndef);
+  if (editfield)
+    editfield->fill(value);
 }
 
 

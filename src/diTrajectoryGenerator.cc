@@ -17,10 +17,10 @@ const Field* duplicateFieldWidthData(const Field* f, const float* data)
   METLIBS_LOG_SCOPE();
   Field* frx= new Field();
   frx->area=   f->area;
-  frx->allDefined= true;
   frx->data = new float[frx->area.gridSize()];
   for (int i=0; i<frx->area.gridSize(); ++i)
     frx->data[i] = data[i];
+  frx->checkDefined();
   return frx;
 }
 

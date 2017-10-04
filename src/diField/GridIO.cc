@@ -152,7 +152,6 @@ Field * GridIO::initializeField(const std::string& modelname,
   Field * field = new Field();
   field->data = new float[grid.nx * grid.ny];
   field->area = GridArea(Area(proj, rect), grid.nx, grid.ny, grid.x_resolution, grid.y_resolution);
-  field->allDefined = false;
   field->level = atoi(level.c_str());
   field->idnum = atoi(elevel.c_str());
   field->forecastHour = -32767;

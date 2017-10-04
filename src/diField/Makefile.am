@@ -7,6 +7,7 @@ libdiField_la_SOURCES = \
 	diArea.cc \
 	diField.cc \
 	diFieldCalculations.cc \
+	diFieldDefined.cc \
 	diFieldFunctions.cc \
 	diFieldManager.cc \
 	diFlightLevel.cc \
@@ -44,6 +45,7 @@ noinst_HEADERS = \
 	diField.h \
 	diFieldExceptions.h \
 	diFieldCalculations.h \
+	diFieldDefined.h \
 	diFieldFunctions.h \
 	diFieldManager.h \
 	diFlightLevel.h \

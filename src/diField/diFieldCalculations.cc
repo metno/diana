@@ -66,55 +66,55 @@ inline float clamp_rh(float rh)
     return rh;
 }
 
-inline float t_thesat(float tk, float p, float pi, float undef, bool& allDefined)
+inline float t_thesat(float tk, float p, float pi, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk-t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
   const float qsat = eps * ewt.value() / p;
   return (cp * tk + xlh * qsat) / pi;
 }
 
-inline float th_thesat(float th, float p, float pi, float undef, bool& allDefined)
+inline float th_thesat(float th, float p, float pi, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(th * pi / cp - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
   const float qsat = eps * ewt.value() / p;
   return th + xlh * qsat / pi;
 }
 
-inline float tk_q_rh(float tk, float q, float p, float undef, bool& allDefined)
+inline float tk_q_rh(float tk, float q, float p, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
   const float qsat = eps * ewt.value() / p;
   return 100. * q / qsat;
 }
 
-inline float tk_rh_q(float tk, float rh, float p, float undef, bool& allDefined)
+inline float tk_rh_q(float tk, float rh, float p, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
   const float qsat = eps * ewt.value() / p;
   return 0.01 * rh * qsat;
 }
 
-inline float tk_q_td(float tk, float q, float p, float tdconv, float undef, bool& allDefined)
+inline float tk_q_td(float tk, float q, float p, float tdconv, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
 
@@ -125,11 +125,11 @@ inline float tk_q_td(float tk, float q, float p, float tdconv, float undef, bool
   return ewt.inverse(etd) + tdconv;
 }
 
-inline float tk_rh_td(float tk, float rh100, float tdconv, float undef, bool& allDefined)
+inline float tk_rh_td(float tk, float rh100, float tdconv, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
 
@@ -139,11 +139,11 @@ inline float tk_rh_td(float tk, float rh100, float tdconv, float undef, bool& al
   return ewt.inverse(etd) + tdconv;
 }
 
-inline float tk_rh_the(float tk, float rh, float thconv, float undef, bool& allDefined)
+inline float tk_rh_the(float tk, float rh, float thconv, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
 
@@ -155,11 +155,11 @@ inline float tk_q_duct(float tk, float q, float p)
   return 77.6 * (p / tk) + 373000. * (q * p) / (eps * tk * tk);
 }
 
-inline float tk_rh_duct(float tk, float q, float p, float undef, bool& allDefined)
+inline float tk_rh_duct(float tk, float q, float p, float undef, size_t& n_undefined)
 {
   ewt_calculator ewt(tk - t0);
   if (not ewt.defined()) {
-    allDefined = false;
+    n_undefined += 1;
     return undef;
   }
 
@@ -195,7 +195,7 @@ void copy_field(float* fout, const float* fin, size_t fsize)
 //---------------------------------------------------
 
 bool pleveltemp(int compute, int nx, int ny, const float *tinp,
-    float *tout, float p, bool& allDefined, float undef, const std::string& unit)
+    float *tout, float p, difield::ValuesDefined& fDefined, float undef, const std::string& unit)
 {
   //  Pressure levels:
   //     compute=1 : potensiell temp. -> temp. (grader Celsius)
@@ -218,10 +218,11 @@ bool pleveltemp(int compute, int nx, int ny, const float *tinp,
   if (p <= 0.0)
     return false;
 
-  const bool inAllDefined = allDefined;
   const float pidcp = calculations::pidcp_from_p(p), pi = pidcp*cp;
 
-  DIUTIL_OPENMP_PARALLEL(fsize,for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, tinp[i], undef)) {
       if (compute == 1) { // TH -> T(Celsius)
@@ -231,19 +232,21 @@ bool pleveltemp(int compute, int nx, int ny, const float *tinp,
       } else if (compute == 3) { // T(Kelvin) -> TH
         tout[i] = tinp[i] / pidcp;
       } else if (compute == 4) { // T(Kelvin) -> THESAT
-        tout[i] = calculations::t_thesat(tinp[i], p, pi, undef, allDefined);
+        tout[i] = calculations::t_thesat(tinp[i], p, pi, undef, n_undefined);
       } else if (compute == 5) { // TH -> THESAT
-        tout[i] = calculations::th_thesat(tinp[i], p, pi, undef, allDefined);
+        tout[i] = calculations::th_thesat(tinp[i], p, pi, undef, n_undefined);
       }
     } else {
       tout[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool plevelthe(int compute, int nx, int ny, const float *t,
-    const float *rh, float *the, float p, bool& allDefined, float undef)
+    const float *rh, float *the, float p, difield::ValuesDefined& fDefined, float undef)
 {
   //  Pressure levels:
   //    compute=1 : temp. (Kelvin)  og RH(%)     -> THE, ekvivalent pot.temp (Kelvin)
@@ -273,21 +276,25 @@ bool plevelthe(int compute, int nx, int ny, const float *t,
   const float thconv = (compute == 1) ? (cp / pi) : 1;
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], rh[i], undef))
       // T(Kelvin), RH(%) -> THE  or  TH, RH(%) -> THE
-      the[i] = calculations::tk_rh_the(t[i] * tconv, rh[i] * cvrh, thconv, undef, allDefined);
-    else
+      the[i] = calculations::tk_rh_the(t[i] * tconv, rh[i] * cvrh, thconv, undef, n_undefined);
+    else {
       the[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool plevelhum(int compute, int nx, int ny, const float *t,
-    const float *huminp, float *humout, float p, bool& allDefined, float undef,
+    const float *huminp, float *humout, float p, difield::ValuesDefined& fDefined, float undef,
     const std::string& unit)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
@@ -324,41 +331,44 @@ bool plevelhum(int compute, int nx, int ny, const float *t,
     // compute != 5/6/9/10 depends on p, so if p == undef, the result must also be undef
     for (int i = 0; i < fsize; i++)
       humout[i] = undef;
-    allDefined = false;
+    fDefined = difield::NONE_DEFINED;
     return true;
   }
 
   const float pi = calculations::pi_from_p(p);
-  const bool inAllDefined = allDefined;
 
   const float tconv = (compute % 2 == 0) ? (pi / cp) : 1;
   const float tdconv = (compute >= 9) ? t0 : 0;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)) { // p checked before loop
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> RH(%)  or  TH,q -> RH(%)
-        humout[i] = calculations::tk_q_rh(t[i] * tconv, huminp[i], p, undef, allDefined);
+        humout[i] = calculations::tk_q_rh(t[i] * tconv, huminp[i], p, undef, n_undefined);
       } else if (compute == 3 or compute == 4) { // T(Kelvin),RH(%) -> q  or  TH,RH(%) -> q
-        humout[i] = calculations::tk_rh_q(t[i] * tconv, huminp[i], p, undef, allDefined);
+        humout[i] = calculations::tk_rh_q(t[i] * tconv, huminp[i], p, undef, n_undefined);
       } else  if (compute == 5 or compute == 6 or compute == 9 or compute == 10) {
         // T(Kelvin),RH(%) -> Td(Celsius)     or  TH,RH(%) -> Td(Celsius)
         // or  T(Kelvin),RH(%) -> Td(Kelvin)  or  TH,RH(%) -> Td(Kelvin)
-        humout[i] = calculations::tk_rh_td(t[i] * tconv, huminp[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_rh_td(t[i] * tconv, huminp[i], tdconv, undef, n_undefined);
       } else if (compute == 7 or compute == 8 or compute == 11 or compute == 12) {
         // T(Kelvin),q -> Td(Celsius)     or  TH,q -> Td(Celsius)
         // or  T(Kelvin),q -> Td(Kelvin)  or  TH,q -> Td(Kelvin)
-        humout[i] = calculations::tk_q_td(t[i] * tconv, huminp[i], p, tdconv, undef, allDefined);
+        humout[i] = calculations::tk_q_td(t[i] * tconv, huminp[i], p, tdconv, undef, n_undefined);
       }
     } else {
       humout[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool pleveldz2tmean(int compute, int nx, int ny, const float *z1,
-    const float *z2, float *tmean, float p1, float p2, bool& allDefined, float undef)
+    const float *z2, float *tmean, float p1, float p2, difield::ValuesDefined& fDefined, float undef)
 {
   //  Pressure levels:
   //     compute=1 ; tykkelse -> middel temp. (grader Celsius)
@@ -398,19 +408,24 @@ bool pleveldz2tmean(int compute, int nx, int ny, const float *z1,
     return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = (fDefined == difield::ALL_DEFINED);
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, z1[i], z2[i], undef))
+    if (calculations::is_defined(inAllDefined, z1[i], z2[i], undef))
       tmean[i] = (z1[i] - z2[i]) * convert + tconvert;
-    else
+    else {
       tmean[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool plevelqvector(int compute, int nx, int ny, const float *z,
     const float *t, float *qcomp, const float *xmapr, const float *ymapr,
-    const float *fcoriolis, float p, bool& allDefined, float undef)
+    const float *fcoriolis, float p, difield::ValuesDefined& fDefined, float undef)
 {
   //  Q-vector in pressure levels
   //
@@ -462,20 +477,19 @@ bool plevelqvector(int compute, int nx, int ny, const float *z,
     return false;
   }
 
-  float *ug = new float[fsize];
-  float *vg = new float[fsize];
+  std::unique_ptr<float[]> ug(new float[fsize]);
+  std::unique_ptr<float[]> vg(new float[fsize]);
 
-  if (!plevelgwind_xcomp(nx, ny, z, ug, xmapr, ymapr, fcoriolis, allDefined, undef)
-      || !plevelgwind_ycomp(nx, ny, z, vg, xmapr, ymapr, fcoriolis, allDefined, undef)) {
-    delete[] ug;
-    delete[] vg;
+  if (!plevelgwind_xcomp(nx, ny, z, ug.get(), xmapr, ymapr, fcoriolis, fDefined, undef)
+      || !plevelgwind_ycomp(nx, ny, z, vg.get(), xmapr, ymapr, fcoriolis, fDefined, undef)) {
     return false;
   }
 
   const float c = -r / (p * 100.);
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
     if (ug[i - nx] != undef && ug[i - 1] != undef && ug[i + 1] != undef
         && ug[i + nx] != undef && vg[i - nx] != undef && vg[i - 1] != undef
@@ -496,11 +510,10 @@ bool plevelqvector(int compute, int nx, int ny, const float *z,
       }
     } else {
       qcomp[i] = undef;
+      n_undefined += 1;
     }
   }
-
-  delete[] ug;
-  delete[] vg;
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, qcomp);
@@ -508,7 +521,7 @@ bool plevelqvector(int compute, int nx, int ny, const float *z,
 }
 
 bool plevelducting(int compute, int nx, int ny, const float *t,
-    const float *h, float *duct, float p, bool& allDefined, float undef)
+    const float *h, float *duct, float p, difield::ValuesDefined& fDefined, float undef)
 {
   //  Pressure level:
   //
@@ -540,26 +553,29 @@ bool plevelducting(int compute, int nx, int ny, const float *t,
     return false;
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
   const float tconv = (compute % 2 == 0) ? calculations::pidcp_from_p(p) : 1;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], h[i], undef)) {
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> ducting  or  TH,q -> ducting
         duct[i] = calculations::tk_q_duct(t[i] * tconv, h[i], p);
       } else if (compute == 3 or compute == 4) { // T(Kelvin),RH(%) -> ducting  or TH,RH(%) -> ducting
-        duct[i] = calculations::tk_rh_duct(t[i] * tconv, h[i], p, undef, allDefined);
+        duct[i] = calculations::tk_rh_duct(t[i] * tconv, h[i], p, undef, n_undefined);
       }
     } else {
       duct[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool plevelgwind_xcomp(int nx, int ny, const float *z, float *ug,
-    const float */*xmapr*/, const float *ymapr, const float *fcoriolis, bool& allDefined, float undef)
+    const float */*xmapr*/, const float *ymapr, const float *fcoriolis, difield::ValuesDefined& fDefined, float undef)
 {
   //  Geostophic wind in pressure level
   //  (centered differences)
@@ -578,14 +594,18 @@ bool plevelgwind_xcomp(int nx, int ny, const float *z, float *ug,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
     // check for y component input, too
-    if (calculations::is_defined(allDefined, z[i-nx], z[i-1], z[i+1], z[i+nx], undef))
+    if (calculations::is_defined(inAllDefined, z[i-nx], z[i-1], z[i+1], z[i+nx], undef))
       ug[i] = -0.5 * ymapr[i] * (z[i+nx] - z[i-nx]) * g / fcoriolis[i];
     else
       ug[i] = undef;
+    n_undefined += 1;
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, ug);
@@ -594,7 +614,7 @@ bool plevelgwind_xcomp(int nx, int ny, const float *z, float *ug,
 }
 
 bool plevelgwind_ycomp(int nx, int ny, const float *z, float *vg,
-    const float *xmapr, const float */*ymapr*/, const float *fcoriolis, bool& allDefined, float undef)
+    const float *xmapr, const float */*ymapr*/, const float *fcoriolis, difield::ValuesDefined& fDefined, float undef)
 {
   //  Geostophic wind in pressure level
   //  (centered differences)
@@ -610,14 +630,19 @@ bool plevelgwind_ycomp(int nx, int ny, const float *z, float *vg,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
     // check for x component input, too
-    if (calculations::is_defined(allDefined, z[i-nx], z[i-1], z[i+1], z[i+nx], undef))
+    if (calculations::is_defined(inAllDefined, z[i-nx], z[i-1], z[i+1], z[i+nx], undef))
       vg[i] = 0.5 * xmapr[i] * (z[i + 1] - z[i - 1]) * g / fcoriolis[i];
-    else
+    else {
       vg[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, vg);
@@ -626,7 +651,7 @@ bool plevelgwind_ycomp(int nx, int ny, const float *z, float *vg,
 }
 
 bool plevelgvort(int nx, int ny, const float *z, float *gvort,
-    const float *xmapr, const float *ymapr, const float *fcoriolis, bool& allDefined, float undef)
+    const float *xmapr, const float *ymapr, const float *fcoriolis, difield::ValuesDefined& fDefined, float undef)
 {
   //  Geostophic vorticity in pressure level (centered differences)
   //
@@ -645,28 +670,20 @@ bool plevelgvort(int nx, int ny, const float *z, float *gvort,
   if (nx < 3 || ny < 3)
     return false;
 
-  if (allDefined) {
-
-    // loop extended, reset bad computations at boundaries later
-    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
-    for (int i = nx; i < fsize - nx; i++)
-      gvort[i] = (0.25 * xmapr[i] * xmapr[i] * (z[i - 1] - 2. * z[i] + z[i + 1])
-          + 0.25 * ymapr[i] * ymapr[i] * (z[i - nx] - 2. * z[i] + z[i + nx])) * g4
-          / fcoriolis[i];
-
-  } else {
-    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
-    for (int i = nx; i < fsize - nx; i++) {
-      if (z[i - nx] != undef && z[i - 1] != undef && z[i] != undef && z[i + 1]
-                                                                        != undef && z[i + nx] != undef)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
+  for (int i = nx; i < fsize - nx; i++) {
+    if (calculations::is_defined(inAllDefined, z[i - nx], z[i - 1], z[i], z[i + 1], z[i + nx], undef))
         gvort[i] = (0.25 * xmapr[i] * xmapr[i] * (z[i - 1] - 2. * z[i] + z[i + 1])
             + 0.25 * ymapr[i] * ymapr[i] * (z[i - nx] - 2. * z[i] + z[i + nx])) * g4
             / fcoriolis[i];
-      else
-        gvort[i] = undef;
+    else {
+      gvort[i] = undef;
+      n_undefined += 1;
     }
-
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, gvort);
@@ -676,7 +693,7 @@ bool plevelgvort(int nx, int ny, const float *z, float *gvort,
 
 bool kIndex(int compute, int nx, int ny, const float *t500,
     const float *t700, const float *rh700, const float *t850, const float *rh850, float *kfield,
-    float p500, float p700, float p850, bool& allDefined, float undef)
+    float p500, float p700, float p850, difield::ValuesDefined& fDefined, float undef)
 {
   // K-index: (t+td)850 - (t-td)700 - (t)500
   //
@@ -718,9 +735,9 @@ bool kIndex(int compute, int nx, int ny, const float *t500,
   }
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t500[i], t700[i], rh700[i], t850[i], rh850[i], undef)) {
       // 850 hPa: rh,T -> Td ... rh*e(T) = e(Td) => Td = ?
@@ -730,7 +747,7 @@ bool kIndex(int compute, int nx, int ny, const float *t500,
       const ewt_calculator ewt850(tc850), ewt700(tc700);
       if (not (ewt850.defined() and ewt700.defined())) {
         kfield[i] = undef;
-        allDefined = false;
+        n_undefined += 1;
       } else {
         const float etd850 = ewt850.value() * rh;
         const float tdc850 = ewt850.inverse(etd850);
@@ -741,14 +758,17 @@ bool kIndex(int compute, int nx, int ny, const float *t500,
         const float tc500 = cvt500 * t500[i] - t0;
         kfield[i] = (tc850 + tdc850) - (tc700 - tdc700) - tc500;
       }
-    } else
+    } else {
       kfield[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool ductingIndex(int compute, int nx, int ny, const float *t850,
-    const float *rh850, float *duct, float p850, bool& allDefined, float undef)
+    const float *rh850, float *duct, float p850, difield::ValuesDefined& fDefined, float undef)
 {
   //  Pressure levels:
   //     compute=1 ; temp. (Kelvin) og rel. fukt. (%)  -> ducting
@@ -779,9 +799,10 @@ bool ductingIndex(int compute, int nx, int ny, const float *t850,
   }
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t850[i], rh850[i], undef)) {
       // 850 hPa: rh,T -> Td ... rh*e(T) = e(Td)
@@ -790,22 +811,25 @@ bool ductingIndex(int compute, int nx, int ny, const float *t850,
       const ewt_calculator ewt(tk- t0);
       if (not ewt.defined()) {
         duct[i] = undef;
-        allDefined = false;
+        n_undefined += 1;
       } else {
         const float et = ewt.value();
         const float etd = et * rh;
         const float tdk = ewt.inverse(etd) + t0;
         duct[i] = bduct * (et / (tk * tk) - etd / (tdk * tdk));
       }
-    } else
+    } else {
       duct[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool showalterIndex(int compute, int nx, int ny, const float *t500,
     const float *t850, const float *rh850, float *sfield, float p500, float p850,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -863,16 +887,18 @@ bool showalterIndex(int compute, int nx, int ny, const float *t500,
   const int niter = 7;
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, t500[i], t850[i],  rh850[i], undef)) {
+    if (calculations::is_defined(inAllDefined, t500[i], t850[i],  rh850[i], undef)) {
       const float tk500 = cvt500 * t500[i];
       const float tk850 = cvt850 * t850[i];
       const float rh = calculations::clamp_rh(0.01 * rh850[i]);
       const ewt_calculator ewt(tk850 - t0);
       if (not ewt.defined()) {
         sfield[i] = undef;
-        allDefined = false;
+        n_undefined += 1;
       } else {
         const float etd = ewt.value() * rh;
 
@@ -899,15 +925,17 @@ bool showalterIndex(int compute, int nx, int ny, const float *t500,
         const float tx500 = tcl / cp;
         sfield[i] = tk500 - tx500;
       }
-    } else
-      sfield[i] = undef;
+    } else {
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool boydenIndex(int compute, int nx, int ny, const float *t700,
     const float *z700, const float *z1000, float *bfield, float p700, float p1000,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
   // Boyden index:  (Z700-Z1000)/10 - Tc700 - 200.
   //
@@ -937,15 +965,19 @@ bool boydenIndex(int compute, int nx, int ny, const float *t700,
   const float tconv = (compute == 2) ? pi700 / cp : 1;
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, t700[i], z700[i], z1000[i], undef)) {
+    if (calculations::is_defined(inAllDefined, t700[i], z700[i], z1000[i], undef)) {
       const float tc700 = t700[i] * tconv - t0;
       bfield[i] = (z700[i] - z1000[i]) / 10. - tc700 - 200.;
     } else {
       bfield[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -954,7 +986,7 @@ bool boydenIndex(int compute, int nx, int ny, const float *t700,
 //---------------------------------------------------
 
 bool hleveltemp(int compute, int nx, int ny, const float *tinp,
-    const float *ps, float *tout, float alevel, float blevel, bool& allDefined,
+    const float *ps, float *tout, float alevel, float blevel, difield::ValuesDefined& fDefined,
     float undef, const std::string& unit)
 {
   //  Modell-flater, sigma/eta(hybrid):
@@ -979,14 +1011,15 @@ bool hleveltemp(int compute, int nx, int ny, const float *tinp,
   }
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
 
   if (calculations::bad_hlevel(alevel, blevel)) {
     METLIBS_LOG_ERROR("returning false, aHybrid or bHybrid not ok. aHybrid:"<<alevel<<" bHybrid:"<<blevel);
     return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, tinp[i], ps[i], undef)) {
       const float p = calculations::p_hlevel(ps[i], alevel, blevel);
@@ -998,18 +1031,21 @@ bool hleveltemp(int compute, int nx, int ny, const float *tinp,
       } else if (compute == 3) { // T(Kelvin) -> TH
         tout[i] = tinp[i] / pidcp;
       } else if (compute == 4) { // T(Kelvin) -> THESAT
-        tout[i] = calculations::t_thesat(tinp[i], p, pidcp*cp, undef, allDefined);
+        tout[i] = calculations::t_thesat(tinp[i], p, pidcp*cp, undef, n_undefined);
       } else if (compute == 5) { // TH -> THESAT
-        tout[i] = calculations::th_thesat(tinp[i], p, pidcp*cp, undef, allDefined);
+        tout[i] = calculations::th_thesat(tinp[i], p, pidcp*cp, undef, n_undefined);
       }
-    } else
+    } else {
       tout[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool hlevelthe(int compute, int nx, int ny, const float *t, const float *q,
-    const float *ps, float *the, float alevel, float blevel, bool& allDefined, float undef)
+    const float *ps, float *the, float alevel, float blevel, difield::ValuesDefined& fDefined, float undef)
 {
 
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
@@ -1039,9 +1075,11 @@ bool hlevelthe(int compute, int nx, int ny, const float *t, const float *q,
     return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, t[i], q[i], ps[i], undef)) {
+    if (calculations::is_defined(inAllDefined, t[i], q[i], ps[i], undef)) {
       const float p = calculations::p_hlevel(ps[i], alevel, blevel);
       const float pi = calculations::pi_from_p(p);
       if (compute == 1) // T(Kelvin), q -> THE
@@ -1050,14 +1088,16 @@ bool hlevelthe(int compute, int nx, int ny, const float *t, const float *q,
         the[i] = t[i] + q[i] * xlh / pi;
     } else {
       the[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool hlevelhum(int compute, int nx, int ny, const float *t,
     const float *huminp, const float *ps, float *humout, float alevel, float blevel,
-    bool& allDefined, float undef, const std::string& unit)
+    difield::ValuesDefined& fDefined, float undef, const std::string& unit)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -1095,47 +1135,50 @@ bool hlevelhum(int compute, int nx, int ny, const float *t,
     compute += 4;
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
   const float tdconv = (compute >= 9) ? t0 : 0;
   const bool need_p = not (compute == 7 or compute == 11);
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
     and ((not need_p) or inAllDefined or ps[i] != undef))
     {
       const float p = need_p ? calculations::p_hlevel(ps[i], alevel, blevel) : 0;
       if (compute == 1) { // T(Kelvin),q -> RH(%)
-        humout[i] = calculations::tk_q_rh(t[i], huminp[i], p, undef, allDefined);
+        humout[i] = calculations::tk_q_rh(t[i], huminp[i], p, undef, n_undefined);
       } else if (compute == 2) { // TH,q -> RH(%)
         const float tk = t[i] * calculations::pidcp_from_p(p);
-        humout[i] = calculations::tk_q_rh(tk, huminp[i], p, undef, allDefined);
+        humout[i] = calculations::tk_q_rh(tk, huminp[i], p, undef, n_undefined);
       } else if (compute == 3) { // T(Kelvin),RH(%) -> q
-        humout[i] = calculations::tk_rh_q(t[i], huminp[i], p, undef, allDefined);
+        humout[i] = calculations::tk_rh_q(t[i], huminp[i], p, undef, n_undefined);
       } else if (compute == 4) { // TH,RH(%) -> q
         const float tk = t[i] * calculations::pidcp_from_p(p);
-        humout[i] = calculations::tk_rh_q(tk, huminp[i], p, undef, allDefined);
+        humout[i] = calculations::tk_rh_q(tk, huminp[i], p, undef, n_undefined);
       } else if (compute == 5 or compute == 9) { // T(Kelvin),q -> Td(Celsius) or oT(Kelvin),q -> Td(Kelvin)
-        humout[i] = calculations::tk_q_td(t[i], huminp[i], p, tdconv, undef, allDefined);
+        humout[i] = calculations::tk_q_td(t[i], huminp[i], p, tdconv, undef, n_undefined);
       } else if (compute == 6 or compute == 10) { // TH,q -> Td(Celsius)  or  TH,q -> Td(Kelvin)
         const float tk = t[i] * calculations::pidcp_from_p(p);
-        humout[i] = calculations::tk_q_td(tk, huminp[i], p, tdconv, undef, allDefined);
+        humout[i] = calculations::tk_q_td(tk, huminp[i], p, tdconv, undef, n_undefined);
       } else if (compute == 7 or compute == 11) { // T(Kelvin),RH(%) -> Td(Celsius)  or  T(Kelvin),RH(%) -> Td(Kelvin)
-        humout[i] = calculations::tk_rh_td(t[i], huminp[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_rh_td(t[i], huminp[i], tdconv, undef, n_undefined);
       } else if (compute == 8 or compute == 12) { // TH,RH(%) -> Td(Celsius)  or  TH,RH(%) -> Td(Kelvin)
         const float tk = t[i] * calculations::pidcp_from_p(p);
-        humout[i] = calculations::tk_rh_td(tk, huminp[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_rh_td(tk, huminp[i], tdconv, undef, n_undefined);
       }
     } else {
       humout[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool hlevelducting(int compute, int nx, int ny, const float *t,
     const float *h, const float *ps, float *duct, float alevel, float blevel,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -1172,9 +1215,9 @@ bool hlevelducting(int compute, int nx, int ny, const float *t,
   }
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], h[i], ps[i], undef)) {
       const float p = calculations::p_hlevel(ps[i], alevel, blevel);
@@ -1184,16 +1227,19 @@ bool hlevelducting(int compute, int nx, int ny, const float *t,
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> ducting  or  TH,q -> ducting
         duct[i] = calculations::tk_q_duct(tk, h[i], p);
       } else if (compute == 3 or compute == 4) { // T(Kelvin),RH(%) -> ducting  or TH,RH(%) -> ducting
-        duct[i] = calculations::tk_rh_duct(tk, h[i], p, undef, allDefined);
+        duct[i] = calculations::tk_rh_duct(tk, h[i], p, undef, n_undefined);
       }
-    } else
+    } else {
       duct[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool hlevelpressure(int nx, int ny, const float *ps, float *p,
-    float alevel, float blevel, bool& allDefined, float undef)
+    float alevel, float blevel, difield::ValuesDefined& fDefined, float undef)
 {
   //  Model levels, eta(hybrid) or norlam_sigma:
   //    eta:   alevel,blevel    p = alevel + blevel * ps[]
@@ -1211,13 +1257,18 @@ bool hlevelpressure(int nx, int ny, const float *ps, float *p,
 
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, ps[i], undef))
+    if (calculations::is_defined(inAllDefined, ps[i], undef))
       p[i] = calculations::p_hlevel(ps[i], alevel, blevel);
-    else
+    else {
       p[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -1226,7 +1277,7 @@ bool hlevelpressure(int nx, int ny, const float *ps, float *p,
 //---------------------------------------------------
 
 bool aleveltemp(int compute, int nx, int ny, const float *tinp,
-    const float *p, float *tout, bool& allDefined, float undef, const std::string& unit)
+    const float *p, float *tout, difield::ValuesDefined& fDefined, float undef, const std::string& unit)
 {
   //  Ukjente modell-flater, gitt trykk (p):
   //
@@ -1249,9 +1300,9 @@ bool aleveltemp(int compute, int nx, int ny, const float *tinp,
   }
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, tinp[i], p[i], undef)) {
       if (compute == 1) { // TH -> T(Celsius)
@@ -1261,19 +1312,21 @@ bool aleveltemp(int compute, int nx, int ny, const float *tinp,
       } else if (compute == 3) { // T(Kelvin) -> TH
         tout[i] = tinp[i] / calculations::pidcp_from_p(p[i]);
       } else if (compute == 4) { // T(Kelvin) -> THESAT
-        tout[i] = calculations::t_thesat(tinp[i], p[i], calculations::pi_from_p(p[i]), undef, allDefined);
+        tout[i] = calculations::t_thesat(tinp[i], p[i], calculations::pi_from_p(p[i]), undef, n_undefined);
       } else if (compute == 5) { // TH -> THESAT
-        tout[i] = calculations::th_thesat(tinp[i], p[i], calculations::pi_from_p(p[i]), undef, allDefined);
+        tout[i] = calculations::th_thesat(tinp[i], p[i], calculations::pi_from_p(p[i]), undef, n_undefined);
       }
     } else {
       tout[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool alevelthe(int compute, int nx, int ny, const float *t, const float *q,
-    const float *p, float *the, bool& allDefined, float undef)
+    const float *p, float *the, difield::ValuesDefined& fDefined, float undef)
 {
   //  Ukjente modell-flater, gitt trykk (p):
   //
@@ -1296,9 +1349,11 @@ bool alevelthe(int compute, int nx, int ny, const float *t, const float *q,
 
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, t[i], q[i], p[i], undef)) {
+    if (calculations::is_defined(inAllDefined, t[i], q[i], p[i], undef)) {
       const float pi = calculations::pi_from_p(p[i]);
       if (compute == 1) // T(Kelvin), q -> THE
         the[i] = (t[i] * cp + q[i] * xlh) / pi;
@@ -1306,13 +1361,15 @@ bool alevelthe(int compute, int nx, int ny, const float *t, const float *q,
         the[i] = t[i] + q[i] * xlh / pi;
     } else {
       the[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool alevelhum(int compute, int nx, int ny, const float *t,
-    const float *huminp, const float *p, float *humout, bool& allDefined,
+    const float *huminp, const float *p, float *humout, difield::ValuesDefined& fDefined,
     float undef, const std::string& unit)
 {
   //  Ukjente modell-flater, gitt trykk (p):
@@ -1344,43 +1401,46 @@ bool alevelhum(int compute, int nx, int ny, const float *t,
 
   const int fsize = nx * ny;
   const float tdconv = (compute >= 9) ? t0 : 0;
-  const bool inAllDefined = allDefined;
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)
     and ((compute != 7 and compute != 11) or inAllDefined or p[i] != undef))
     {
       if (compute == 1) { // T(Kelvin),q -> RH(%)
-        humout[i] = calculations::tk_q_rh(t[i], huminp[i], p[i], undef, allDefined);
+        humout[i] = calculations::tk_q_rh(t[i], huminp[i], p[i], undef, n_undefined);
       } else if (compute == 2) { // TH,q -> RH(%)
         const float tk = t[i] * calculations::pidcp_from_p(p[i]);
-        humout[i] = calculations::tk_q_rh(tk, huminp[i], p[i], undef, allDefined);
+        humout[i] = calculations::tk_q_rh(tk, huminp[i], p[i], undef, n_undefined);
       } else if (compute == 3) { // T(Kelvin),RH(%) -> q
-        humout[i] = calculations::tk_rh_q(t[i], huminp[i], p[i], undef, allDefined);
+        humout[i] = calculations::tk_rh_q(t[i], huminp[i], p[i], undef, n_undefined);
       } else if (compute == 4) { // TH,RH(%) -> q
         const float tk = t[i] * calculations::pidcp_from_p(p[i]);
-        humout[i] = calculations::tk_rh_q(tk, huminp[i], p[i], undef, allDefined);
+        humout[i] = calculations::tk_rh_q(tk, huminp[i], p[i], undef, n_undefined);
       } else if (compute == 5 or compute == 9) { // T(Kelvin),q -> Td(Celsius)  or  T(Kelvin),q -> Td(Kelvin)
-        humout[i] = calculations::tk_q_td(t[i], huminp[i], p[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_q_td(t[i], huminp[i], p[i], tdconv, undef, n_undefined);
       } else if (compute == 6 or compute == 10) { // TH,q -> Td(Celsius)  or  TH,q -> Td(Kelvin)
         const float tk = t[i] * calculations::pidcp_from_p(p[i]);
-        humout[i] = calculations::tk_q_td(tk, huminp[i], p[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_q_td(tk, huminp[i], p[i], tdconv, undef, n_undefined);
       } else if (compute == 7 or compute == 11) { // T(Kelvin),RH(%) -> Td(Celsius)  or  T(Kelvin),RH(%) -> Td(Kelvin)
-        humout[i] = calculations::tk_rh_td(t[i], huminp[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_rh_td(t[i], huminp[i], tdconv, undef, n_undefined);
       } else if (compute == 8 or compute == 12) { // TH,RH(%) -> Td(Celsius)  or  TH,RH(%) -> Td(Kelvin)
         const float tk = t[i] * calculations::pidcp_from_p(p[i]);
-        humout[i] = calculations::tk_rh_td(tk, huminp[i], tdconv, undef, allDefined);
+        humout[i] = calculations::tk_rh_td(tk, huminp[i], tdconv, undef, n_undefined);
       }
     } else {
       humout[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool alevelducting(int compute, int nx, int ny, const float *t,
-    const float *h, const float *p, float *duct, bool& allDefined, float undef)
+    const float *h, const float *p, float *duct, difield::ValuesDefined& fDefined, float undef)
 {
   //  Unknown atmospheric level, with input pressure field:
   //
@@ -1409,9 +1469,10 @@ bool alevelducting(int compute, int nx, int ny, const float *t,
 #endif
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], h[i], p[i], undef)) {
       float tk = t[i];
@@ -1420,7 +1481,7 @@ bool alevelducting(int compute, int nx, int ny, const float *t,
       if (compute == 1 or compute == 2) { // T(Kelvin),q -> ducting  or  TH,q -> ducting
         duct[i] = calculations::tk_q_duct(tk, h[i], p[i]);
       } else if (compute == 3 or compute == 4) { // T(Kelvin),RH(%) -> ducting  or TH,RH(%) -> ducting
-        duct[i] = calculations::tk_rh_duct(tk, h[i], p[i], undef, allDefined);
+        duct[i] = calculations::tk_rh_duct(tk, h[i], p[i], undef, n_undefined);
       }
     } else {
       duct[i] = undef;
@@ -1434,7 +1495,7 @@ bool alevelducting(int compute, int nx, int ny, const float *t,
 //---------------------------------------------------
 
 bool ilevelgwind(int nx, int ny, const float *mpot, float *ug,
-    float *vg, const float *xmapr, const float *ymapr, const float *fcoriolis, bool& allDefined,
+    float *vg, const float *xmapr, const float *ymapr, const float *fcoriolis, difield::ValuesDefined& fDefined,
     float undef)
 {
   //  Geostophic wind in isentropic level
@@ -1456,16 +1517,20 @@ bool ilevelgwind(int nx, int ny, const float *mpot, float *ug,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, mpot[i-nx], mpot[i-1], mpot[i+1], mpot[i+nx], undef)) {
+    if (calculations::is_defined(inAllDefined, mpot[i-nx], mpot[i-1], mpot[i+1], mpot[i+nx], undef)) {
       ug[i] = -0.5 * ymapr[i] * (mpot[i + nx] - mpot[i - nx]) / fcoriolis[i];
       vg[i] = 0.5 * xmapr[i] * (mpot[i + 1] - mpot[i - 1]) / fcoriolis[i];
     } else {
       ug[i] = undef;
       vg[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, ug);
@@ -1478,7 +1543,7 @@ bool ilevelgwind(int nx, int ny, const float *mpot, float *ug,
 //---------------------------------------------------
 
 bool seaSoundSpeed(int compute, int nx, int ny, const float *t,
-    const float *s, float *soundspeed, float z_, bool& allDefined, float undef)
+    const float *s, float *soundspeed, float z_, difield::ValuesDefined& fDefined, float undef)
 {
   //-------------------------------------------------------------
   //       D. Ross: "Revised simplified formulae
@@ -1510,9 +1575,11 @@ bool seaSoundSpeed(int compute, int nx, int ny, const float *t,
   const double Z = fabsf(z_);
   const double Cz = 0.01635 * Z + 0.000000175 * Z * Z;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, t[i], s[i], undef)) {
+    if (calculations::is_defined(inAllDefined, t[i], s[i], undef)) {
       const float T = t[i] - tconv;
       const float S = s[i];
       const double Ct = 4.565 * T - 0.0517 * T * T + 0.000221 * T * T * T;
@@ -1521,8 +1588,10 @@ bool seaSoundSpeed(int compute, int nx, int ny, const float *t,
       soundspeed[i] = float(speed);
     } else {
       soundspeed[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -1531,7 +1600,7 @@ bool seaSoundSpeed(int compute, int nx, int ny, const float *t,
 //---------------------------------------------------
 
 bool cvtemp(int compute, int nx, int ny, const float *tinp,
-    float *tout, bool& allDefined, float undef)
+    float *tout, difield::ValuesDefined& fDefined, float undef)
 {
   // compute=1 : Temperature from degrees Kelvin to degrees Celsius
   // compute=2 : Temperature from degrees Celsius to degrees Kelvin
@@ -1563,12 +1632,14 @@ bool cvtemp(int compute, int nx, int ny, const float *tinp,
     return false;
   }
 
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+
   if (compute == 3 || compute == 4) {
     float tavg = 0.;
     int navg = 0;
     DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+: tavg, navg))
     for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(allDefined, tinp[i], undef)) {
+      if (calculations::is_defined(inAllDefined, tinp[i], undef)) {
         tavg += tinp[i];
         navg += 1;
       }
@@ -1586,18 +1657,22 @@ bool cvtemp(int compute, int nx, int ny, const float *tinp,
     }
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, tinp[i], undef))
+    if (calculations::is_defined(inAllDefined, tinp[i], undef))
       tout[i] = tinp[i] + tconvert;
-    else
+    else {
       tout[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool cvhum(int compute, int nx, int ny, const float *t,
-    const float *huminp, float *humout, bool& allDefined, float undef, const std::string& unit)
+    const float *huminp, float *humout, difield::ValuesDefined& fDefined, float undef, const std::string& unit)
 {
   //     compute=1 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Kelvin)
   //     compute=2 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Celsius)
@@ -1614,20 +1689,21 @@ bool cvhum(int compute, int nx, int ny, const float *t,
   const int fsize = nx * ny;
   const float tconv =  (compute == 1 || compute == 2 || compute == 4) ? t0 : 0;
   const float tdconv = (compute == 1) ? t0 : 0;
-  const bool inAllDefined = allDefined;
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
 
   switch (compute) {
 
   case 1: // T(Kelvin),RH(%)  -> Td(Kelvin)
   case 2: // T(Kelvin),RH(%)  -> Td(Celsius)
   case 3: // T(Celsius),RH(%) -> Td(Celsius)
-    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  { size_t n_undefined = 0;
+    DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)) {
         const ewt_calculator ewt(t[i] - tconv);
         if (not ewt.defined()) {
           humout[i] = undef;
-          allDefined = false;
+          n_undefined += 1;
         } else {
           const float et = ewt.value();
           const float rh = calculations::clamp_rh(0.01 * huminp[i]);
@@ -1637,29 +1713,35 @@ bool cvhum(int compute, int nx, int ny, const float *t,
         }
       } else {
         humout[i] = undef;
+        n_undefined += 1;
       }
     }
-    break;
+    fDefined = difield::checkDefined(n_undefined, fsize);
+    break; }
 
   case 4: // T(Kelvin),Td(Kelvin)   -> RH(%)
   case 5: // T(Celsius),Td(Celsius) -> RH(%)
-    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  { size_t n_undefined = 0;
+    DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(inAllDefined, t[i], huminp[i], undef)) {
         const ewt_calculator ewt(t[i] - tconv), ewt2(huminp[i] - tconv);
         if (not (ewt.defined() and ewt2.defined())) {
           humout[i] = undef;
-          allDefined = false;
+          n_undefined = false;
         } else {
           const float et = ewt.value();
           const float etd = ewt2.value();
           const float rh = etd / et;
           humout[i] = rh * 100.;
         }
-      } else
+      } else {
         humout[i] = undef;
+        n_undefined += 1;
+      }
     }
-    break;
+    fDefined = difield::checkDefined(n_undefined, fsize);
+    break; }
 
   default:
     return false;
@@ -1668,7 +1750,7 @@ bool cvhum(int compute, int nx, int ny, const float *t,
 }
 
 bool vectorabs(int nx, int ny, const float *u, const float *v,
-    float *ff, bool& allDefined, float undef)
+    float *ff, difield::ValuesDefined& fDefined, float undef)
 {
   //  ff = sqrt(u*u+v*v)
   //
@@ -1679,18 +1761,23 @@ bool vectorabs(int nx, int ny, const float *u, const float *v,
 #endif
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, u[i], v[i], undef))
+    if (calculations::is_defined(inAllDefined, u[i], v[i], undef))
       ff[i] = diutil::absval(u[i], v[i]);
-    else
+    else {
       ff[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool relvort(int nx, int ny, const float *u, const float *v, float *rvort,
-    const float *xmapr, const float *ymapr, bool& allDefined, float undef)
+    const float *xmapr, const float *ymapr, difield::ValuesDefined& fDefined, float undef)
 {
   //  Relative vorticity from u and v (centered differences)
   //
@@ -1706,13 +1793,18 @@ bool relvort(int nx, int ny, const float *u, const float *v, float *rvort,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
+    if (calculations::is_defined(inAllDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
       rvort[i] = 0.5 * xmapr[i] * (v[i+1] - v[i-1]) - 0.5 * ymapr[i] * (u[i+nx] - u[i-nx]);
-    else
+    else {
       rvort[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, rvort);
@@ -1720,7 +1812,7 @@ bool relvort(int nx, int ny, const float *u, const float *v, float *rvort,
 }
 
 bool absvort(int nx, int ny, const float *u, const float *v, float *avort,
-    const float *xmapr, const float *ymapr, const float *fcoriolis, bool& allDefined, float undef)
+    const float *xmapr, const float *ymapr, const float *fcoriolis, difield::ValuesDefined& fDefined, float undef)
 {
   //  Absolute vorticity from u and v (centered differences)
   //
@@ -1738,13 +1830,18 @@ bool absvort(int nx, int ny, const float *u, const float *v, float *avort,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
+    if (calculations::is_defined(inAllDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
       avort[i] = 0.5 * xmapr[i] * (v[i+1] - v[i-1]) - 0.5 * ymapr[i] * (u[i+nx] - u[i-nx]) + fcoriolis[i];
-    else
+    else {
       avort[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, avort);
@@ -1753,7 +1850,7 @@ bool absvort(int nx, int ny, const float *u, const float *v, float *avort,
 }
 
 bool divergence(int nx, int ny, const float *u, const float *v,
-    float *diverg, const float *xmapr, const float *ymapr, bool& allDefined, float undef)
+    float *diverg, const float *xmapr, const float *ymapr, difield::ValuesDefined& fDefined, float undef)
 {
   //  Divergence from u and v (centered differences)
   //
@@ -1769,13 +1866,18 @@ bool divergence(int nx, int ny, const float *u, const float *v,
 
   const int fsize = nx * ny;
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
+    if (calculations::is_defined(inAllDefined, v[i-1], v[i+1], u[i-nx], u[i+nx], undef))
       diverg[i] = 0.5 * xmapr[i] * (u[i+1] - u[i-1]) + 0.5 * ymapr[i] * (v[i+nx] - v[i-nx]);
-    else
+    else {
       diverg[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, diverg);
@@ -1784,7 +1886,7 @@ bool divergence(int nx, int ny, const float *u, const float *v,
 }
 
 bool advection(int nx, int ny, const float *f, const float *u, const float *v,
-    float *advec, const float *xmapr, const float *ymapr, float hours, bool& allDefined,
+    float *advec, const float *xmapr, const float *ymapr, float hours, difield::ValuesDefined& fDefined,
     float undef)
 {
   // compute advection of a scalar field f (e.g. temperature):
@@ -1812,13 +1914,18 @@ bool advection(int nx, int ny, const float *f, const float *u, const float *v,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, u[i], v[i], f[i-nx], f[i-1], f[i+1], f[i+nx], undef))
+    if (calculations::is_defined(inAllDefined, u[i], v[i], f[i-nx], f[i-1], f[i+1], f[i+nx], undef))
       advec[i] = (u[i] * 0.5 * xmapr[i] * (f[i+1] - f[i-1]) + v[i] * 0.5 * ymapr[i] * (f[i+nx] - f[i-nx])) * scale;
-    else
+    else {
       advec[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, advec);
@@ -1826,7 +1933,7 @@ bool advection(int nx, int ny, const float *f, const float *u, const float *v,
 }
 
 bool gradient(int compute, int nx, int ny, const float *field,
-    float *fgrad, const float *xmapr, const float *ymapr, bool& allDefined, float undef)
+    float *fgrad, const float *xmapr, const float *ymapr, difield::ValuesDefined& fDefined, float undef)
 {
   //  Gradienter beregnet med sentrerte differanser, kartfaktor
   //  og gridavstand i meter.
@@ -1851,56 +1958,69 @@ bool gradient(int compute, int nx, int ny, const float *field,
   if (nx < 3 || ny < 3)
     return false;
 
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+
   switch (compute) {
 
   case 1: // df/dx (loop extended, reset/complete later
-    DIUTIL_OPENMP_PARALLEL(fsize-2, for)
+    DIUTIL_OPENMP_PARALLEL(fsize-2, for reduction(+:n_undefined))
     for (int i = 1; i < fsize - 1; i++) {
-      if (calculations::is_defined(allDefined, field[i - 1], field[i + 1], undef))
+      if (calculations::is_defined(inAllDefined, field[i - 1], field[i + 1], undef))
         fgrad[i] = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
-      else
+      else {
         fgrad[i] = undef;
+        n_undefined += 1;
+      }
     }
     break;
 
   case 2: // df/dy (loop extended, reset/complete later
-    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
     for (int i = nx; i < fsize - nx; i++) {
-      if (calculations::is_defined(allDefined, field[i - nx], field[i + nx], undef))
+      if (calculations::is_defined(inAllDefined, field[i - nx], field[i + nx], undef))
         fgrad[i] = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
-      else
+      else {
         fgrad[i] = undef;
+        n_undefined += 1;
+      }
     }
     break;
 
   case 3: // abs(del(f))= sqrt((df/dx)**2 + (df/dy)**2)
-    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
     for (int i = nx; i < fsize - nx; i++) {
-      if (calculations::is_defined(allDefined, field[i-nx], field[i-1], field[i+1], field[i+nx], undef)) {
+      if (calculations::is_defined(inAllDefined, field[i-nx], field[i-1], field[i+1], field[i+nx], undef)) {
         const float dfdx = 0.5 * xmapr[i] * (field[i + 1] - field[i - 1]);
         const float dfdy = 0.5 * ymapr[i] * (field[i + nx] - field[i - nx]);
         fgrad[i] = diutil::absval(dfdx, dfdy);
-      } else
+      } else {
         fgrad[i] = undef;
+        n_undefined += 1;
+      }
     }
     break;
 
   case 4: // delsquare(f)= del(del(f))
-    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+    DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
     for (int i = nx; i < fsize - nx; i++) {
-      if (calculations::is_defined(allDefined, field[i-nx], field[i-1], field[i], field[i+1], field[i+nx], undef)) {
+      if (calculations::is_defined(inAllDefined, field[i-nx], field[i-1], field[i], field[i+1], field[i+nx], undef)) {
         const float d2fdx = field[i - 1] - 2.0 * field[i] + field[i + 1];
         const float d2fdy = field[i - nx] - 2.0 * field[i] + field[i + nx];
         fgrad[i] = 4.0 * (0.25 * xmapr[i] * xmapr[i] * d2fdx
             + 0.25 * ymapr[i] * ymapr[i] * d2fdy);
-      } else
+      } else {
         fgrad[i] = undef;
+        n_undefined += 1;
+      }
     }
     break;
 
   default:
     return false;
   }
+
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, fgrad);
@@ -1909,7 +2029,7 @@ bool gradient(int compute, int nx, int ny, const float *field,
 }
 
 bool shapiro2_filter(int nx, int ny, float *field,
-    float *fsmooth, bool& allDefined, float undef)
+    float *fsmooth, difield::ValuesDefined& fDefined, float undef)
 {
   //  2nd order Shapiro filter
   //
@@ -1943,7 +2063,8 @@ bool shapiro2_filter(int nx, int ny, float *field,
     f1 = fsmooth;
   }
 
-  if (allDefined) {
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  if (inAllDefined) {
 
     s = 0.25;
 
@@ -1977,11 +2098,11 @@ bool shapiro2_filter(int nx, int ny, float *field,
     float *s2 = new float[fsize];
 
     for (int i = 1; i < fsize - 1; i++)
-      s1[i] = calculations::is_defined(allDefined, f1[i-1], f1[i], f1[i+1], undef)
+      s1[i] = calculations::is_defined(inAllDefined, f1[i-1], f1[i], f1[i+1], undef)
           ? s : 0;
 
     for (int i = nx; i < fsize - nx; i++)
-      s2[i] = calculations::is_defined(allDefined, f1[i-nx], f1[i], f1[i+nx], undef)
+      s2[i] = calculations::is_defined(inAllDefined, f1[i-nx], f1[i], f1[i+nx], undef)
           ? s : 0;
 
     // s = 0.25; // ... from here
@@ -2013,11 +2134,13 @@ bool shapiro2_filter(int nx, int ny, float *field,
 
   delete[] f2;
 
+  fDefined = difield::ALL_DEFINED;
+
   return true;
 }
 
 bool windCooling(int compute, int nx, int ny, const float *t,
-    const float *u, const float *v, float *dtcool, bool& allDefined, float undef)
+    const float *u, const float *v, float *dtcool, difield::ValuesDefined& fDefined, float undef)
 {
   // Compute wind cooling (the difference, not the sensed temperature)
   //
@@ -2044,19 +2167,23 @@ bool windCooling(int compute, int nx, int ny, const float *t,
 
   case 1: // T(Kelvin)  -> dTcooling
   case 2: // T(Celsius) -> dTcooling
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
+  { const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+    size_t n_undefined = 0;
+    DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
     for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(allDefined, t[i], u[i], v[i], undef)) {
+      if (calculations::is_defined(inAllDefined, t[i], u[i], v[i], undef)) {
         const float tc = t[i] - tconv;
         const float ff = diutil::absval(u[i], v[i]) * 3.6; // m/s -> km/h
         const float ffpow = powf(ff, 0.16);
         dtcool[i] = 13.12 + 0.6215 * tc - 11.37 * ffpow + 0.3965 * tc * ffpow;
         if (dtcool[i] > 0.)
           dtcool[i] = 0.;
-      } else
+      } else {
         dtcool[i] = undef;
+        n_undefined += 1;
+      }
     }
-    break;
+    break; }
 
   default:
     return false;
@@ -2066,7 +2193,7 @@ bool windCooling(int compute, int nx, int ny, const float *t,
 
 bool underCooledRain(int nx, int ny, const float *precip,
     const float *snow, const float *tk, float *undercooled, float precipMin,
-    float snowRateMax, float tcMax, bool& allDefined, float undef)
+    float snowRateMax, float tcMax, difield::ValuesDefined& fDefined, float undef)
 {
   // compute possibility/danger for undercooled rain.....
   //
@@ -2085,22 +2212,26 @@ bool underCooledRain(int nx, int ny, const float *precip,
   const int fsize = nx * ny;
   const float tkMax = tcMax + t0;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, precip[i], snow[i], tk[i], undef)) {
+    if (calculations::is_defined(inAllDefined, precip[i], snow[i], tk[i], undef)) {
       if (precip[i] >= precipMin && tk[i] <= tkMax && snow[i] <= precip[i] * snowRateMax)
         undercooled[i] = 1.;
       else
         undercooled[i] = 0.;
     } else {
       undercooled[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool thermalFrontParameter(int nx, int ny, const float *tx,
-    float *tfp, const float *xmapr, const float *ymapr, bool& allDefined, float undef)
+    float *tfp, const float *xmapr, const float *ymapr, difield::ValuesDefined& fDefined, float undef)
 {
   // Thermal Front Parameter
   // TFP = -del(abs(del(T)) . del(t)/abs(del(T))
@@ -2119,15 +2250,17 @@ bool thermalFrontParameter(int nx, int ny, const float *tx,
 
   float *absdelt = new float[fsize];
 
-  if (!gradient(3, nx, ny, tx, absdelt, xmapr, ymapr, allDefined, undef)) {
+  if (!gradient(3, nx, ny, tx, absdelt, xmapr, ymapr, fDefined, undef)) {
     delete[] absdelt;
     return false;
   }
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, tx[i-nx], tx[i-1], tx[i+1], tx[i+nx],
+    if (calculations::is_defined(inAllDefined, tx[i-nx], tx[i-1], tx[i+1], tx[i+nx],
             absdelt[i-nx], absdelt[i-1], absdelt[i], absdelt[i+1], absdelt[i+nx], undef)
         && absdelt[i] != 0)
     {
@@ -2138,8 +2271,10 @@ bool thermalFrontParameter(int nx, int ny, const float *tx,
       tfp[i] = -(dabsdeltdx * dtdxa + dabsdeltdy * dtdya);
     } else {
       tfp[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   delete[] absdelt;
 
@@ -2150,7 +2285,7 @@ bool thermalFrontParameter(int nx, int ny, const float *tx,
 }
 
 bool pressure2FlightLevel(int nx, int ny, const float *pressure,
-    float *flightlevel, bool& allDefined, float undef)
+    float *flightlevel, difield::ValuesDefined& fDefined, float undef)
 {
   // compute standard FlightLevel from pressure,
   // using the same table as used when mapping standard pressure levels
@@ -2168,9 +2303,11 @@ bool pressure2FlightLevel(int nx, int ny, const float *pressure,
   const int nTab = nLevelTable - 1;
   const int fsize = nx * ny;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, pressure[i], undef)) {
+    if (calculations::is_defined(inAllDefined, pressure[i], undef)) {
       // TODO use binary search, set k immediately for p outside pLevelTable
       float p = pressure[i];
       if (p > pLevelTable[0])
@@ -2184,13 +2321,15 @@ bool pressure2FlightLevel(int nx, int ny, const float *pressure,
       flightlevel[i] = fLevelTable[k - 1] + (fLevelTable[k] - fLevelTable[k - 1]) * ratio;
     } else {
       flightlevel[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool momentumXcoordinate(int nx, int ny, const float *v, float *mxy,
-    const float *xmapr, const float *fcoriolis, float fcoriolisMin, bool& allDefined,
+    const float *xmapr, const float *fcoriolis, float fcoriolisMin, difield::ValuesDefined& fDefined,
     float undef)
 {
   // Momentum coordinates, X component
@@ -2210,9 +2349,11 @@ bool momentumXcoordinate(int nx, int ny, const float *v, float *mxy,
 
   const float fcormin = fabsf(fcoriolisMin), fcormax = -fcormin;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, v[i], undef)) {
+    if (calculations::is_defined(inAllDefined, v[i], undef)) {
       float fcor = fcoriolis[i];
       if (fcor >= 0. && fcor < fcormin)
         fcor = fcormin;
@@ -2221,13 +2362,15 @@ bool momentumXcoordinate(int nx, int ny, const float *v, float *mxy,
       mxy[i] = float(i % nx) + v[i] * xmapr[i] / fcor;
     } else {
       mxy[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool momentumYcoordinate(int nx, int ny, const float *u, float *nxy,
-    const float *ymapr, const float *fcoriolis, float fcoriolisMin, bool& allDefined,
+    const float *ymapr, const float *fcoriolis, float fcoriolisMin, difield::ValuesDefined& fDefined,
     float undef)
 {
   // Momentum coordinates, Y component
@@ -2246,9 +2389,11 @@ bool momentumYcoordinate(int nx, int ny, const float *u, float *nxy,
   const int fsize = nx * ny;
   const float fcormin = fabsf(fcoriolisMin), fcormax = -fcormin;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, u[i], undef)) {
+    if (calculations::is_defined(inAllDefined, u[i], undef)) {
       float fcor = fcoriolis[i];
       if (fcor >= 0. && fcor < fcormin)
         fcor = fcormin;
@@ -2257,13 +2402,15 @@ bool momentumYcoordinate(int nx, int ny, const float *u, float *nxy,
       nxy[i] = float(i / nx) - u[i] * ymapr[i] / fcor;
     } else {
       nxy[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool jacobian(int nx, int ny, const float *field1, const float *field2,
-    float *fjacobian, const float *xmapr, const float *ymapr, bool& allDefined, float undef)
+    float *fjacobian, const float *xmapr, const float *ymapr, difield::ValuesDefined& fDefined, float undef)
 {
   //  Beregner den jacobiske av f1 og f2:
   //       Jacobian = df1/dx * df2/dy - df1/dy * df2/dx
@@ -2281,9 +2428,11 @@ bool jacobian(int nx, int ny, const float *field1, const float *field2,
   const int fsize = nx * ny;
 
   // loop extended, reset bad computations at boundaries later
-  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize-2*nx, for reduction(+:n_undefined))
   for (int i = nx; i < fsize - nx; i++) {
-    if (calculations::is_defined(allDefined, field1[i-nx], field1[i-1], field1[i+1], field1[i+nx],
+    if (calculations::is_defined(inAllDefined, field1[i-nx], field1[i-1], field1[i+1], field1[i+nx],
             field2[i-nx], field2[i-1], field2[i+1], field2[i+nx], undef))
     {
       const float df1dx = 0.5 * xmapr[i] * (field1[i + 1] - field1[i - 1]);
@@ -2291,9 +2440,12 @@ bool jacobian(int nx, int ny, const float *field1, const float *field2,
       const float df2dx = 0.5 * xmapr[i] * (field2[i + 1] - field2[i - 1]);
       const float df2dy = 0.5 * ymapr[i] * (field2[i + nx] - field2[i - nx]);
       fjacobian[i] = df1dx * df2dy - df1dy * df2dx;
-    } else
+    } else {
       fjacobian[i] = undef;
+      n_undefined += 1;
+    }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
 
   // fill in edge values not computed (or badly computed) above
   fillEdges(nx, ny, fjacobian);
@@ -2302,38 +2454,38 @@ bool jacobian(int nx, int ny, const float *field1, const float *field2,
 
 bool vesselIcingOverland(int nx, int ny, const float *airtemp,
     const float *seatemp, const float *u, const float *v, float *icing, float freezingPoint,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
   const int fsize = nx * ny;
   const float tf = freezingPoint + t0; //freezing point in kelvin
-  bool local_allDefined = allDefined;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], undef)) {
+    if (calculations::is_defined(inAllDefined, airtemp[i], seatemp[i], u[i], v[i], undef)) {
       if (seatemp[i] < tf) {
         icing[i] = undef;
-        local_allDefined = false;
+        n_undefined += 1;
       } else {
         const float ff = diutil::absval(u[i] , v[i]);
         icing[i] = ff * (tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - tf));
       }
     } else {
       icing[i] = undef;
+      n_undefined += 1;
     }
   }
-
-  allDefined = local_allDefined;
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
-
 }
 
 bool vesselIcingMertins(int nx, int ny, const float *airtemp,
     const float *seatemp, const float *u, const float *v, float *icing,
-    float freezingPoint, bool& allDefined, float undef)
+    float freezingPoint, difield::ValuesDefined& fDefined, float undef)
 {
   // Based on: H.O. Mertins : Icing on fishing vessels due to spray, Marine Observer No.221, 1968
   // All temperatures in degrees celsius
@@ -2342,13 +2494,14 @@ bool vesselIcingMertins(int nx, int ny, const float *airtemp,
 #endif
 
   const int fsize = nx * ny;
-  bool local_allDefined = allDefined;
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(local_allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], undef)) {
+    if (calculations::is_defined(inAllDefined, airtemp[i], seatemp[i], u[i], v[i], undef)) {
       if (seatemp[i] < freezingPoint) {
         icing[i] = undef;
-        local_allDefined = false;
+        n_undefined += 1;
       }
       else {
         const float ff = diutil::absval(u[i] , v[i]);
@@ -2405,18 +2558,17 @@ bool vesselIcingMertins(int nx, int ny, const float *airtemp,
     }
     else {
       icing[i] = undef;
+      n_undefined += 1;
     }
   }
-
-  allDefined = local_allDefined;
-
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 
 bool vesselIcingOverland2(int nx, int ny, const float *airtemp,
     const float *seatemp, const float *u, const float *v, const float *sal, const float *aice, float *icing,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
   // Based on: Overland (1990)
   // All temperatures in degrees celsius
@@ -2426,14 +2578,15 @@ bool vesselIcingOverland2(int nx, int ny, const float *airtemp,
 
   const int fsize = nx * ny;
 
-  bool local_allDefined = allDefined;
   const double A=2.73e-2;
   const double B=2.91e-4;
   const double C=1.84e-6;
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], sal[i], aice[i], undef)
+    if (calculations::is_defined(inAllDefined, airtemp[i], seatemp[i], u[i], v[i], sal[i], aice[i], undef)
         && aice[i] < 0.4)
     {
       /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
@@ -2441,7 +2594,7 @@ bool vesselIcingOverland2(int nx, int ny, const float *airtemp,
 
       if (seatemp[i] < Tf) {
         icing[i] = undef;
-        local_allDefined = false;
+        n_undefined = false;
       } else {
         const double ff = diutil::absval(u[i] , v[i]);
         const double ppr = ff * (Tf - airtemp[i]) / (1 + 0.3 * (seatemp[i] - Tf));
@@ -2449,18 +2602,17 @@ bool vesselIcingOverland2(int nx, int ny, const float *airtemp,
       }
     } else {
       icing[i] = undef;
+      n_undefined += 1;
     }
-
   }
-
-  allDefined = local_allDefined;
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 
 bool vesselIcingMertins2(int nx, int ny, const float *airtemp,
     const float *seatemp, const float *u, const float *v, const float *sal, const float *aice, float *icing,
-    bool& allDefined, float undef)
+    difield::ValuesDefined& fDefined, float undef)
 {
   // Based on: H.O. Mertins : Icing on fishing vessels due to spray, Marine Observer No.221, 1968
   // All temperatures in degrees celsius
@@ -2469,11 +2621,11 @@ bool vesselIcingMertins2(int nx, int ny, const float *airtemp,
 #endif
 
   const int fsize = nx * ny;
-  bool local_allDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, airtemp[i], seatemp[i], u[i], v[i], sal[i], aice[i], undef)
+    if (calculations::is_defined(inAllDefined, airtemp[i], seatemp[i], u[i], v[i], sal[i], aice[i], undef)
         && aice[i] < 0.4)
     {
       /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
@@ -2481,7 +2633,7 @@ bool vesselIcingMertins2(int nx, int ny, const float *airtemp,
 
       if (seatemp[i] < Tf) {
         icing[i] = undef;
-        local_allDefined = false;
+        n_undefined += 1;
       } else {
         const double ff = diutil::absval(u[i] , v[i]);
         const double temperature = airtemp[i];
@@ -2525,11 +2677,10 @@ bool vesselIcingMertins2(int nx, int ny, const float *airtemp,
       }
     } else {
       icing[i] = undef;
+      n_undefined += 1;
     }
-
   }
-
-  allDefined = local_allDefined;
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -2537,7 +2688,7 @@ bool vesselIcingMertins2(int nx, int ny, const float *airtemp,
 bool vesselIcingModStall(int nx, int ny,
     const float *sal, const float *wave, const float *x_wind, const float *y_wind,
     const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
-    const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef)
+    const float vs, const float alpha, const float zmin, const float zmax, difield::ValuesDefined& fDefined, float undef)
 {
 
   // Modified Stallabrass (described in Henry (1995), Samuelsen et.al. (2015))
@@ -2547,7 +2698,6 @@ bool vesselIcingModStall(int nx, int ny,
 #endif
 
   const int fsize = nx * ny;
-  bool local_allDefined = allDefined;
   //METLIBS_LOG_INFO("Start Modified Stallabrass");
 
   const double num=zmax-zmin;
@@ -2564,11 +2714,14 @@ bool vesselIcingModStall(int nx, int ny,
     return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
 
-    if (calculations::is_defined(allDefined, sal[i], wave[i], x_wind[i], y_wind[i],
-            airtemp[i], rh[i], sst[i], p[i], aice[i], depth[i], undef))
+    if (calculations::is_defined(inAllDefined, sal[i], wave[i], x_wind[i], y_wind[i],
+            airtemp[i], rh[i], sst[i], p[i], aice[i], depth[i], undef)
+        && aice[i]<0.4)
     {
       /* Program to calculate freezing seaspray. Modified Stallabrass.  */
       /* From Brown (1991,2011) */
@@ -2703,15 +2856,10 @@ bool vesselIcingModStall(int nx, int ny,
 
     } else {
       icing[i] = undef;
+      n_undefined += 1;
     }
-
-    if (aice[i]>=0.4) {
-      icing[i] = undef;
-    }
-
-  } /*for loop end*/
-
-  allDefined = local_allDefined;
+  }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -2719,7 +2867,7 @@ bool vesselIcingModStall(int nx, int ny,
 bool vesselIcingTestMod(int nx, int ny,
     const float *sal, const float *wave, const float *x_wind, const float *y_wind,
     const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw, const float *aice, const float *depth, float *icing,
-    const float vs, const float alpha, const float zmin, const float zmax, bool& allDefined, float undef)
+    const float vs, const float alpha, const float zmin, const float zmax, difield::ValuesDefined& fDefined, float undef)
 {
   // TestModel1 (T1) described in Samuelsen et.al. (2015))
   // All temperatures in degrees celsius
@@ -2728,7 +2876,6 @@ bool vesselIcingTestMod(int nx, int ny,
 #endif
 
   const int fsize = nx * ny;
-  bool local_allDefined = allDefined;
   METLIBS_LOG_DEBUG("Start Test Model 1");
 
   const double num=zmax-zmin;
@@ -2745,11 +2892,13 @@ bool vesselIcingTestMod(int nx, int ny,
     return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(local_allDefined))
-
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (calculations::is_defined(allDefined, sal[i], wave[i], x_wind[i], y_wind[i], airtemp[i],
-            rh[i], sst[i], p[i], aice[i], depth[i], undef))
+    if (calculations::is_defined(inAllDefined, sal[i], wave[i], x_wind[i], y_wind[i], airtemp[i],
+            rh[i], sst[i], p[i], aice[i], depth[i], undef)
+        && aice[i]<0.4)
     {
       /* Program to calculate freezing seaspray. Test Model 1.  */
       // Samuelsen et.al (2015)
@@ -2949,20 +3098,15 @@ bool vesselIcingTestMod(int nx, int ny,
 
     } else {
       icing[i] = undef;
+      n_undefined += 1;
     }
-
-    if (aice[i]>=0.4) {
-      icing[i] = undef;
-    }
-
-  } /*for loop end*/
-
-  allDefined = local_allDefined;
+  }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool values2classes(int nx, int ny, const float *fvalue,
-    float *fclass, const vector<float>& values, bool& allDefined, float undef)
+    float *fclass, const vector<float>& values, difield::ValuesDefined& fDefined, float undef)
 {
   // From value ranges to classes
   // values not covered for will be set to undefined
@@ -2978,7 +3122,6 @@ bool values2classes(int nx, int ny, const float *fvalue,
 #endif
 
   const int fsize = nx * ny;
-  bool newundef = false;
 
   if (values.size() < 2)
     return false;
@@ -2987,26 +3130,28 @@ bool values2classes(int nx, int ny, const float *fvalue,
   const float fmin = values[0];
   const float fmax = values[nvalues + 1];
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(newundef))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
-    if (fvalue[i] != undef && fvalue[i] >= fmin && fvalue[i] < fmax) {
+    if (calculations::is_defined(inAllDefined, fvalue[i], undef)
+        && fvalue[i] >= fmin && fvalue[i] < fmax)
+    {
       int j = 1;
       while (j < nvalues && values[j] < fvalue[i])
         j++;
       fclass[i] = float(j - 1);
     } else {
       fclass[i] = undef;
-      newundef = true;
+      n_undefined += 1;
     }
   }
-
-  allDefined = (allDefined && !newundef);
-
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool fieldOPERfield(int compute, int nx, int ny, const float *field1,
-    const float *field2, float *fres, bool& allDefined, float undef)
+    const float *field2, float *fres, difield::ValuesDefined& fDefined, float undef)
 {
   // field1 <+-*/> field2
   //
@@ -3022,9 +3167,9 @@ bool fieldOPERfield(int compute, int nx, int ny, const float *field1,
     return false;
 
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, field1[i], field2[i], undef)) {
       if (compute == 1)
@@ -3038,18 +3183,20 @@ bool fieldOPERfield(int compute, int nx, int ny, const float *field1,
           fres[i] = field1[i] / field2[i];
         } else {
           fres[i] = undef;
-          allDefined = false;
+          n_undefined += 1;
         }
       }
     } else {
       fres[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool fieldOPERconstant(int compute, int nx, int ny,
-    const float *field, float constant, float *fres, bool& allDefined, float undef)
+    const float *field, float constant, float *fres, difield::ValuesDefined& fDefined, float undef)
 {
   // field <+-*/> constant
   //
@@ -3070,13 +3217,13 @@ bool fieldOPERconstant(int compute, int nx, int ny,
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       fres[i] = undef;
-    allDefined = false;
+    fDefined = difield::NONE_DEFINED;
     return true;
   }
 
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, field[i], undef)) {
       if (compute == 1)
@@ -3089,13 +3236,15 @@ bool fieldOPERconstant(int compute, int nx, int ny,
         fres[i] = field[i] / constant;
     } else {
       fres[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize-2*nx);
   return true;
 }
 
 bool constantOPERfield(int compute, int nx, int ny,
-    float constant, const float *field, float *fres, bool& allDefined, float undef)
+    float constant, const float *field, float *fres, difield::ValuesDefined& fDefined, float undef)
 {
   // constant <+-*/> field
   //
@@ -3116,14 +3265,13 @@ bool constantOPERfield(int compute, int nx, int ny,
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++)
       fres[i] = undef;
-
-    allDefined = false;
+    fDefined = difield::NONE_DEFINED;
     return true;
   }
 
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, field[i], undef)) {
       if (compute == 1)
@@ -3137,18 +3285,20 @@ bool constantOPERfield(int compute, int nx, int ny,
           fres[i] = constant / field[i];
         } else {
           fres[i] = undef;
-          allDefined = false;
+          n_undefined += 1;
         }
       }
     } else {
       fres[i] = undef;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool sumFields(int nx, int ny, const vector<float*>& fields,
-    float *fres, bool& allDefined, float undef)
+    float *fres, difield::ValuesDefined& fDefined, float undef)
 {
   // field + field + field +
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
@@ -3157,9 +3307,9 @@ bool sumFields(int nx, int ny, const vector<float*>& fields,
 
   const int fsize = nx * ny;
   const size_t nFields = fields.size();
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     fres[i] = 0;
     for (size_t j = 0; j <nFields; j++) {
@@ -3167,11 +3317,12 @@ bool sumFields(int nx, int ny, const vector<float*>& fields,
         fres[i] += fields[j][i];
       } else {
         fres[i] = undef;
-        allDefined = false;
+        n_undefined += 1;
         break;
       }
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -3195,8 +3346,8 @@ void fillEdges(int nx, int ny, float *field)
   }
 }
 
-bool meanValue(int nx, int ny, const vector< float*>& fields,
-    float *fres, bool& allDefined, float undef)
+bool meanValue(int nx, int ny, const vector< float*>& fields, const std::vector<difield::ValuesDefined>& fDefinedIn,
+    float *fres, difield::ValuesDefined& fDefinedOut, float undef)
 {
   // returns mean value in each grid point
   // (field + field + field +) / nFields
@@ -3206,14 +3357,13 @@ bool meanValue(int nx, int ny, const vector< float*>& fields,
 
   const int fsize = nx * ny;
   const size_t nFields = fields.size();
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for)
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     fres[i] = 0;
     int nfields_defined = 0;
     for (size_t j = 0; j <nFields; j++) {
-      if (calculations::is_defined(inAllDefined, fields[j][i], undef)) {
+      if (calculations::is_defined(fDefinedIn[j] == difield::ALL_DEFINED, fields[j][i], undef)) {
         nfields_defined++;
         fres[i] += fields[j][i];
       }
@@ -3222,15 +3372,15 @@ bool meanValue(int nx, int ny, const vector< float*>& fields,
       fres[i] /= nfields_defined;
     } else {
       fres[i] = undef;
-      allDefined = false;
+      n_undefined += 1;
     }
   }
-
+  fDefinedOut = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
-bool stddevValue(int nx, int ny, const vector<float*>& fields,
-    float *fres, bool& allDefined, float undef)
+bool stddevValue(int nx, int ny, const vector<float*>& fields, const std::vector<difield::ValuesDefined> &fDefinedIn,
+    float *fres, difield::ValuesDefined& fDefinedOut, float undef)
 {
   // returns mean value in each grid point
   // (field + field + field +) / nFields
@@ -3240,14 +3390,13 @@ bool stddevValue(int nx, int ny, const vector<float*>& fields,
 
   const int fsize = nx * ny;
   const size_t nFields = fields.size();
-  const bool inAllDefined = allDefined;
-
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     int n = 0; // count defined fields
     float m = 0, m2 = 0;
     for (size_t j = 0; j <nFields; j++) {
-      if (calculations::is_defined(inAllDefined, fields[j][i], undef)) {
+      if (calculations::is_defined(fDefinedIn[j] == difield::ALL_DEFINED, fields[j][i], undef)) {
         // see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
         const float x = fields[j][i], delta = x - m;
         n  += 1;
@@ -3259,15 +3408,15 @@ bool stddevValue(int nx, int ny, const vector<float*>& fields,
       fres[i] = sqrt(m2 / n);
     } else {
       fres[i] = undef;
-      allDefined = false;
+      n_undefined += 1;
     }
   }
-
+  fDefinedOut = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool extremeValue(int compute, int nx, int ny, const vector<float*>& fields,
-    float *fres, bool& allDefined, float undef)
+    float *fres, difield::ValuesDefined& fDefined, float undef)
 {
   // returns min value in each grid point
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
@@ -3283,10 +3432,10 @@ bool extremeValue(int compute, int nx, int ny, const vector<float*>& fields,
   if (nFields == 0)
     return false;
   const int fsize = nx * ny;
-  const bool inAllDefined = allDefined;
-
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
   if (compute == 1 || compute == 2) { // max/min value
-    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+    DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
     for (int i = 0; i < fsize; i++) {
       fres[i] = undef;
       for (size_t j = 0; j <nFields; j++) {
@@ -3298,10 +3447,10 @@ bool extremeValue(int compute, int nx, int ny, const vector<float*>& fields,
         }
       }
       if (fres[i] == undef)
-        allDefined = false;
+        n_undefined += 1;
     }
   } else if ( compute == 3 || compute == 4) { // max/min index
-    DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+    DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
     for (int i = 0; i < fsize; i++) {
       fres[i] = undef;
       float tmp = undef;
@@ -3315,15 +3464,15 @@ bool extremeValue(int compute, int nx, int ny, const vector<float*>& fields,
         }
       }
       if (fres[i] == undef)
-        allDefined = false;
+        n_undefined += 1;
     }
   }
-
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
-bool probability(int compute, int nx, int ny, const vector<float*>& fields,
-    const vector<float>& limits, float *fres, bool& allDefined, float undef)
+bool probability(int compute, int nx, int ny, const vector<float*>& fields, const std::vector<difield::ValuesDefined> &fDefinedIn,
+    const vector<float>& limits, float *fres, difield::ValuesDefined& fDefinedOut, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -3344,25 +3493,29 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields,
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (size_t i = 0; i < fsize; i++)
       fres[i] = undef;
-    allDefined = false;
+    fDefinedOut = difield::NONE_DEFINED;
     return false;
   }
 
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (size_t i = 0; i < fsize; i++) {
     fres[i] = 0;
     int nfields_defined = 0;
     for (size_t j = 0; j <nFields; j++) {
-      if (calculations::is_defined(allDefined, fields[j][i], undef)) {
+      if (fDefinedIn[j] != difield::NONE_DEFINED) {
         nfields_defined += 1;
-        if (fields[j][i] > limits[0] && (lsize == 1 || fields[j][i] < limits[1]))
+        if (difield::is_defined(fields[j][i])
+            && fields[j][i] > limits[0] && (lsize == 1 || fields[j][i] < limits[1]))
+        {
           fres[i] += 1;
+        }
       }
     }
 
     if (nfields_defined == 0) {
       fres[i] = undef;
-      allDefined = false;
+      n_undefined += 1;
     } else {
       if (compute == 2 || compute == 5)
         fres[i] = nfields_defined - fres[i];
@@ -3370,13 +3523,13 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields,
         fres[i] /= (nfields_defined/100.0);
     }
   }
-
+  fDefinedOut = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
 bool neighbourFunctions(int nx, int ny, const float* field,
     const std::vector<float>& constants, int compute,
-    float *fres, bool& allDefined, float undef)
+    float *fres, difield::ValuesDefined& fDefined, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -3387,7 +3540,7 @@ bool neighbourFunctions(int nx, int ny, const float* field,
   // compute=3 : calc probability below (constant[0]=limit)
   // compute=4 : calc percentile (constant[0]=percentile)
 
-  if (not allDefined) {
+  if (fDefined != difield::NONE_DEFINED ) {
     METLIBS_LOG_ERROR("Field contains undefined values -> neighbour functions can not be used");
     return false;
   }
@@ -3410,7 +3563,7 @@ bool neighbourFunctions(int nx, int ny, const float* field,
   }
 
   // values can not be calculated close to the border, set values undef
-  allDefined = false;
+  fDefined = difield::SOME_DEFINED;
   for (int l = 0; l < range; l++) {
     for (int i=0; i<nx; i++) {
       fres[i+l*nx] = undef;
@@ -3492,7 +3645,7 @@ bool neighbourFunctions(int nx, int ny, const float* field,
 }
 
 bool snow_in_cm(int nx, int ny, const float *snow_water, const float *tk2m, const float *td2m,
-    float *snow_cm, bool& allDefined, float undef)
+    float *snow_cm, difield::ValuesDefined& fDefined, float undef)
 {
   /*
 Function: snow_in_cm
@@ -3522,8 +3675,9 @@ MESAN Mesoskalig analys, SMHI RMK Nr 75, Mars 1997.
 #endif
 
   const int fsize = nx * ny;
-  bool inAllDefined = allDefined;
-  DIUTIL_OPENMP_PARALLEL(fsize, for shared(allDefined))
+  bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, snow_water[i], tk2m[i], td2m[i], undef)) {
       if (snow_water[i] <= 0.) {
@@ -3545,9 +3699,10 @@ MESAN Mesoskalig analys, SMHI RMK Nr 75, Mars 1997.
         snow_cm[i]=snow_water[i]*fac;
     } else {
       snow_cm[i] = undef;
-      allDefined = false;
+      n_undefined += 1;
     }
   }
+  fDefined = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 

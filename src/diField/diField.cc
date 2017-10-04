@@ -41,11 +41,19 @@ using namespace std;
 using namespace miutil;
 
 Field::Field()
-  : data(0),
-allDefined(true),level(0), idnum(0),
-forecastHour(0), aHybrid(-1.),bHybrid(-1.), discontinuous(false),
-numSmoothed(0), gridChanged(false), difference(false),
-turnWaveDirection(false), isPartOfCache(false)
+  : data(0)
+  , level(0)
+  , idnum(0)
+  , forecastHour(0)
+  , aHybrid(-1.)
+  , bHybrid(-1.)
+  , discontinuous(false)
+  , numSmoothed(0)
+  , gridChanged(false)
+  , difference(false)
+  , turnWaveDirection(false)
+  , defined_(difield::NONE_DEFINED)
+  , isPartOfCache(false)
 {
   METLIBS_LOG_SCOPE();
   lastAccessed = miTime::nowTime();
@@ -97,7 +105,7 @@ void Field::shallowMemberCopy(const Field& rhs)
   lastAccessed=miTime::nowTime();
 
   area= rhs.area;
-  allDefined= rhs.allDefined;
+  defined_ = rhs.defined_;
   level= rhs.level;
   idnum= rhs.idnum;
   forecastHour= rhs.forecastHour;
@@ -151,7 +159,7 @@ void Field::memberCopy(const Field& rhs)
     data[i] = rhs.data[i];
 
   area=           rhs.area;
-  allDefined=     rhs.allDefined;
+  defined_ =      rhs.defined_;
   level=          rhs.level;
   idnum=          rhs.idnum;
   forecastHour=   rhs.forecastHour;
@@ -182,6 +190,12 @@ void Field::memberCopy(const Field& rhs)
 }
 
 // estimate the size of this particular field in bytes
+
+void Field::checkDefined()
+{
+  defined_ = difield::checkDefined(data, area.gridSize());
+}
+
 
 long Field::bytesize()
 {
@@ -220,8 +234,21 @@ void Field::reserve(int xdim, int ydim)
   area.nx = xdim;
   area.ny = ydim;
 
-  if (area.nx>0 && area.ny>0)
-    data= new float[area.gridSize()];
+  fill(difield::UNDEF);
+}
+
+void Field::fill(float v)
+{
+  defined_ = (v == difield::UNDEF) ? difield::NONE_DEFINED : difield::ALL_DEFINED;
+  if (area.nx>0 && area.ny>0) {
+    if (!data)
+      data = new float[area.gridSize()];
+    std::fill(data, data+area.gridSize(), v);
+  } else {
+    defined_ = difield::NONE_DEFINED;
+    delete[] data;
+    data = 0;
+  }
 }
 
 void Field::cleanup()
@@ -232,7 +259,7 @@ void Field::cleanup()
   delete[] data;
   data= 0;
 
-  allDefined= true;
+  defined_ = difield::NONE_DEFINED;
   numSmoothed= 0;
 }
 
@@ -241,16 +268,26 @@ bool Field::subtract(const Field &rhs)
   if (area != rhs.area)
     return false;
 
-  const int fsize = area.gridSize();
-  const bool ad = (allDefined && rhs.allDefined);
-  for (int i=0; i<fsize; i++) {
-    if (ad || (data[i] != fieldUndef && rhs.data[i] != fieldUndef)) {
+  if (defined_ == difield::NONE_DEFINED)
+    return true; // no change
+
+  const size_t fsize = area.gridSize();
+  if (rhs.defined_ == difield::NONE_DEFINED) {
+    fill(difield::UNDEF);
+    return true;
+  }
+
+  const bool ad = (allDefined() && rhs.allDefined());
+  size_t n_undefined = 0;
+  for (size_t i=0; i<fsize; i++) {
+    if (ad || (data[i] != difield::UNDEF && rhs.data[i] != difield::UNDEF)) {
       data[i] -= rhs.data[i];
     } else {
-      data[i] = fieldUndef;
-      allDefined = false;
+      data[i] = difield::UNDEF;
+      n_undefined += 1;
     }
   }
+  defined_ = difield::checkDefined(n_undefined, fsize);
   return true;
 }
 
@@ -411,7 +448,7 @@ bool Field::smooth(int nsmooth)
   float *worku1 = 0;
   float *worku2 = 0;
 
-  if (!allDefined) {
+  if (!allDefined()) {
     worku1= new float[area.gridSize()];
     worku2= new float[area.gridSize()];
   }
@@ -454,7 +491,7 @@ bool Field::smooth(int nsmooth, float *work,
   if (nsmooth==0)
     return true;
 
-  if (allDefined && nsmooth>0) {
+  if (allDefined() && nsmooth>0) {
 
     for (n=0; n<nsmooth; n++) {
 
@@ -483,7 +520,7 @@ bool Field::smooth(int nsmooth, float *work,
 
   } else {
 
-    if (!allDefined) {
+    if (!allDefined()) {
       // loops extended, no problem
       for (i=1; i<size-1; ++i)
         worku1[i] = (data[i-1]!=fieldUndef && data[i]  !=fieldUndef
@@ -596,7 +633,7 @@ bool Field::interpolate(int npos, const float *xpos, const float *ypos,
       if (j>area.ny-1) j=area.ny-1;
       zpos[n]= data[j*area.nx+i];
     }
-  } else if (allDefined) {
+  } else if (allDefined()) {
     if (interpoltype == I_BILINEAR) {
       for (n=0; n<npos; ++n) {
         x=xpos[n];
@@ -860,10 +897,7 @@ bool Field::changeGrid(const GridArea& anew, bool fine_interpolation)
   data = newdata;
   area = anew;
 
-  int i=0;
-  while (i<area.gridSize() && data[i]!=fieldUndef)
-    i++;
-  allDefined= (i==area.gridSize());
+  checkDefined();
 
   gridChanged= true;
 
