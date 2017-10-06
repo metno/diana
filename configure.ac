@@ -1,6 +1,6 @@
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.42.4], [diana@met.no])
+AC_INIT([diana], [3.42.5], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 foreign parallel-tests])
