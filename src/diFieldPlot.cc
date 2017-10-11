@@ -106,37 +106,43 @@ bool mini_maxi(const float* data, size_t n, float UNDEF, float& mini, float& max
   return is_set;
 }
 
-void mincut_maxcut(const float* image, size_t size, float UNDEF, const float& cut, float& mincut, float& maxcut)
+void mincut_maxcut(const float* image, size_t size, float UNDEF, float cut, float& mincut, float& maxcut)
 {
-
-  float cdiv = 255 / (maxcut - mincut);
-
-  int nindex[256];
-
-  for (int i=0; i<256; i++)
+  const int N = 256;
+  int nindex[N];
+  for (int i=0; i<N; i++)
     nindex[i]=0;
+  int nundef = 0;
+
+  const float cdiv = (N-1) / (maxcut - mincut);
 
   for (size_t i=0; i<size; i++) {
-    nindex[(int)((image[i]-mincut)*cdiv)]++;
+    if (image[i] == UNDEF) {
+      nundef += 1;
+    } else {
+      const int j = (int)((image[i]-mincut)*cdiv);
+      if (j >= 0 && j < N)
+        nindex[j] += 1;
+    }
   }
 
-  float npixel=size-nindex[0]; //number of pixels, drop index=0
-  int ncut=(int) (npixel*cut); //number of pixels to cut   +1?
-  int mini=1;
-  int maxi=255;
-  int nsum=0; //number of pixels dropped
+  const float npixel = size - nundef - nindex[0]; //number of pixels, drop index=0
+  const int ncut = (int) (npixel*cut); //number of pixels to cut   +1?
+  int mini = 1;
+  int maxi = N-1;
+  int ndropped = 0; //number of pixels dropped
 
-  while (nsum<ncut && mini<maxi) {
+  while (ndropped < ncut && mini<maxi) {
     if (nindex[mini] < nindex[maxi]) {
-      nsum += nindex[mini];
+      ndropped += nindex[mini];
       mini++;
     } else {
-      nsum += nindex[maxi];
+      ndropped += nindex[maxi];
       maxi--;
     }
   }
-  mincut = float(mini);
-  maxcut = float(maxi);
+  mincut = mini;
+  maxcut = maxi;
 }
 
 
@@ -262,7 +268,7 @@ public:
 private:
   const std::vector<Field*>& fields;
   const PlotOptions& poptions;
-  float cdiv[3], idiv[3], cmin[3], cmin2[3];
+  float value_div[3], value_min[3];
 };
 
 RasterRGB::RasterRGB(StaticPlot* sp, const std::vector<Field*>& f, const PlotOptions& po)
@@ -272,17 +278,21 @@ RasterRGB::RasterRGB(StaticPlot* sp, const std::vector<Field*>& f, const PlotOpt
 {
   const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
   for (int k=0; k<3; k++) {
-    float cmax;
+    float v_min = 0, v_max = 1;
     if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
-      cmin[k] = poptions.minvalue;
-      cmax = poptions.maxvalue;
+      v_min = poptions.minvalue;
+      v_max = poptions.maxvalue;
     } else {
-      mini_maxi(fields[k]->data,nx*ny,fieldUndef,cmin[k],cmax);
+      mini_maxi(fields[k]->data, nx*ny, fieldUndef, v_min, v_max);
     }
-    cdiv[k] = 1 / (cmax - cmin[k]);
-    cmin2[k]=cmin[k];
-    mincut_maxcut(fields[k]->data,nx*ny,fieldUndef,poptions.colourcut,cmin2[k],cmax);
-    idiv[k] = 1 / float(cmax - cmin2[k]);
+
+    float c_min = v_min, c_max = v_max;
+    mincut_maxcut(fields[k]->data, nx*ny, fieldUndef, poptions.colourcut, c_min, c_max);
+
+    float v_div = 255 / (v_max - v_min);
+    float c_div = 255 / (c_max - c_min);
+    value_min[k] = v_min + c_min/v_div;
+    value_div[k] = c_div * v_div;
   }
 }
 
@@ -290,18 +300,15 @@ void RasterRGB::colorizePixel(QRgb& pixel, const diutil::PointI& i)
 {
   const int nx = fields[0]->area.nx;
   unsigned char ch[3];
-  for (int k=0;k<3;k++) {
+  for (int k=0; k<3; k++) {
     const float v0 = fields[k]->data[i.x() + i.y()*nx];
-    int v1 = (255 * (v0 - cmin[k]) * cdiv[k]);
-    int v2 = int( (v1 - cmin2[k])*255 * idiv[k]+0.5);
-    if (v2<0)
-      v2=0;
-    else if (v2>255)
-      v2=255;
-    if (v0 != fieldUndef)
-      ch[k] = (unsigned char)v2;
-    else
+    if (v0 != fieldUndef) {
+      const long val = std::lround((v0 - value_min[k]) * value_div[k]);
+      const int col = vcross::util::constrain_value(val, 0L, 255L);
+      ch[k] = (unsigned char)col;
+    } else {
       ch[k]=0;
+    }
   }
   pixel = qRgb(ch[0], ch[1], ch[2]);
 }
@@ -323,24 +330,25 @@ RasterAlpha::RasterAlpha(StaticPlot* sp, Field* f, const PlotOptions& po)
   , poptions(po)
 {
   const int nx = field->area.nx, ny = field->area.ny;
-  float cmax;
+  float cmax = 0;
   if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
     cmin = poptions.minvalue;
     cmax = poptions.maxvalue;
   } else {
     mini_maxi(field->data,nx*ny,fieldUndef,cmin,cmax);
   }
-  cdiv = 1 / (cmax - cmin);
+  cdiv = 255 / (cmax - cmin);
 }
 
 void RasterAlpha::colorizePixel(QRgb& pixel, const diutil::PointI &i)
 {
   const int nx = field->area.nx;
-  const unsigned char red = poptions.linecolour.R(), green = poptions.linecolour.G(),
+  const unsigned char red = poptions.linecolour.R(),
+      green = poptions.linecolour.G(),
       blue = poptions.linecolour.B();
   const float value = field->data[i.x() + i.y()*nx];
   if (value != fieldUndef IF_DEBUG_UNDEF(&& !fake_undefined(i.x(), i.y()))) {
-    unsigned char alpha = (unsigned char)(255 * (value - cmin) * cdiv);
+    unsigned char alpha = (unsigned char)((value - cmin) * cdiv);
     pixel = qRgba(red, green, blue, alpha);
   }
 }
