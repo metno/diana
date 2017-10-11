@@ -108,6 +108,8 @@ bool GridCollection::makeGridIOinstances()
   for (std::string sourcestr : rawsources) {
     ++index;
 
+    std::set<std::string> tmpsources;
+
     // init time filter and replace yyyy etc. with ????
     const miutil::TimeFilter tf(sourcestr);
 
@@ -119,11 +121,11 @@ bool GridCollection::makeGridIOinstances()
         METLIBS_LOG_INFO("No source available for "<<sourcestr);
         continue;
       }
-      sources.insert(files.begin(), files.end());
+      tmpsources.insert(files.begin(), files.end());
     } else {
-      sources.insert(sourcestr);
+      tmpsources.insert(sourcestr);
     }
-
+    sources.insert(tmpsources.begin(),tmpsources.end());
 
     //if #formats == #rawsources, use corresponding files. If not use first format
     std::string format;
@@ -143,7 +145,7 @@ bool GridCollection::makeGridIOinstances()
 
 
     // loop through sources (filenames)
-    for (const std::string& sourcename : sources) {
+    for (const std::string& sourcename : tmpsources) {
 
       //Find time from filename if possible
       std::string reftime_from_filename;
