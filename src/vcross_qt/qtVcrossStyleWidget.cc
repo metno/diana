@@ -30,38 +30,37 @@ std::vector<std::string> numberList(QComboBox* cBox, float number)
   return diutil::numberList(cBox, number, enormal, false);
 }
 
-std::string baseList(QComboBox* cBox, float base, float ekv, bool onoff=false)
+float baseList(QComboBox* cBox, float base, float ekv, bool onoff=false)
 {
-  std::string str;
+  const float r = ekv * std::lround(base/ekv);
+  if (std::abs(base - r) > 0.01*ekv)
+    base = r;
 
-  int n;
-  if (base<0.) n= int(base/ekv - 0.5);
-  else         n= int(base/ekv + 0.5);
-  if (fabsf(base-ekv*float(n))>0.01*ekv) {
-    base= ekv*float(n);
-    str = miutil::from_number(base);
-  }
-  n=21;
-  int k=n/2;
-  int j=-k-1;
+  const int n = 21;
+  int k = n/2;
+  int j = -k;
 
   cBox->clear();
 
-  if(onoff)
+  if (onoff) {
     cBox->addItem(qApp->translate("VcrossStyleWidget", "Off"));
+    k += 1;
+  }
 
-  for (int i=0; i<n; ++i) {
-    j++;
+  for (int i=0; i<n; ++i, ++j) {
     const float e = base + ekv*j;
     cBox->addItem(QString::number(e));
   }
 
-  if(onoff)
-    cBox->setCurrentIndex(k+1);
-  else
-    cBox->setCurrentIndex(k);
+  cBox->setCurrentIndex(k);
 
-  return str;
+  return base;
+}
+
+float value_or_base(const miutil::KeyValue& opt, float base, bool& off)
+{
+  off = (opt.value() == "off");
+  return off ? base : opt.toFloat(base);
 }
 
 const size_t NOTFOUND = size_t(-1);
@@ -647,14 +646,15 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // base
-  std::string base;
+  float base = 0;
   if (ekv>0 && findFieldOption(nc, PlotOptions::key_basevalue)) {
     const float e = currentFieldOpts[nc].toFloat(0);
     ui->zero1ComboBox->setEnabled(true);
-    base = baseList(ui->zero1ComboBox, e, ekv/2.0);
-    if (!base.empty())
-      currentFieldOpts[nc] = miutil::KeyValue(PlotOptions::key_basevalue, base);
-    base.clear();
+    float nbase = baseList(ui->zero1ComboBox, e, ekv/2.0);
+    if (base != nbase) {
+      base = nbase;
+      currentFieldOpts[nc] = miutil::kv(PlotOptions::key_basevalue, base);
+    }
   } else if (ui->zero1ComboBox->isEnabled()) {
     ui->zero1ComboBox->clear();
     ui->zero1ComboBox->setEnabled(false);
@@ -775,12 +775,8 @@ void VcrossStyleWidget::enableFieldOptions()
   if (ekv>0 && findFieldOption(nc, PlotOptions::key_minvalue)) {
     const miutil::KeyValue& opt = currentFieldOpts[nc];
     ui->min1ComboBox->setEnabled(true);
-    float value;
-    const bool off = (opt.value() == "off");
-    if (off)
-      value = miutil::to_float(base);
-    else
-      value = opt.toFloat();
+    bool off;
+    float value = value_or_base(opt, base, off);
     baseList(ui->min1ComboBox,value,ekv,true);
     if (off)
       ui->min1ComboBox->setCurrentIndex(0);
@@ -791,12 +787,8 @@ void VcrossStyleWidget::enableFieldOptions()
   if (ekv>0 && findFieldOption(nc, PlotOptions::key_maxvalue)) {
     const miutil::KeyValue& opt = currentFieldOpts[nc];
     ui->max1ComboBox->setEnabled(true);
-    float value;
-    const bool off = (opt.value() == "off");
-    if (off)
-      value = miutil::to_float(base);
-    else
-      value = opt.toFloat();
+    bool off;
+    float value = value_or_base(opt, base, off);
     baseList(ui->max1ComboBox,value,ekv,true);
     if (off)
       ui->max1ComboBox->setCurrentIndex(0);
