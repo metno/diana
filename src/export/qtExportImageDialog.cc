@@ -96,6 +96,7 @@ bool isValidProduct(int p)
 
 struct ExportCommand {
   QString label;
+  QString tooltip;
   QString command;
   Products supportedProducts;
   SizeSpecs sizes;
@@ -155,6 +156,8 @@ ExportCommands parseCommands(QStringList commands)
       const QString value = QString::fromStdString(kv.value());
       if (key == "title")
         ec.label = value;
+      else if (key == "tooltip")
+        ec.tooltip = value;
       else if (key == "command")
         ec.command = value;
       else if (key == "products") {
@@ -199,10 +202,13 @@ private:
 
 QVariant ExportCommandsModel::data(const QModelIndex& index, int role) const
 {
-  if (role == Qt::DisplayRole) {
-    const int i = index.row();
-    if (i >= 0 && i < commands_->size())
-      return commands_->at(i).label;
+  const int i = index.row();
+  if (i >= 0 && i < commands_->size()) {
+    const ExportCommand& ec = commands_->at(i);
+    if (role == Qt::DisplayRole)
+      return ec.label;
+    else if (role == Qt::ToolTipRole)
+      return ec.tooltip;
   }
   return QVariant();
 }
@@ -297,7 +303,14 @@ void ExportImageDialog::onProductChanged(int)
 
 void ExportImageDialog::onSaveToChanged(int current)
 {
-  const bool saveToFile = (current >= 0 && p->ecs[current].command.isEmpty());
+  bool saveToFile = false;
+  if (current >= 0) {
+    const ExportCommand& ec = p->ecs[current];
+    saveToFile = !ec.command.isEmpty();
+    ui->comboSaveTo->setToolTip(ec.tooltip);
+  } else {
+    ui->comboSaveTo->setToolTip(QString());
+  }
   ui->editFilename->setEnabled(saveToFile);
   ui->buttonFilename->setEnabled(saveToFile);
   updateComboSize();
