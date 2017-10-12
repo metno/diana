@@ -89,12 +89,56 @@ enum Product {
 
 typedef QList<Product> Products;
 
+bool isValidProduct(int p)
+{
+  return p >= PRODUCT_IMAGE && p <= PRODUCT_MOVIE;
+}
+
 struct ExportCommand {
   QString label;
   QString command;
   Products supportedProducts;
   SizeSpecs sizes;
+
+  bool addProduct(const std::string& ps);
+  bool addSize(const std::string& sz)
+    { return addSize(QString::fromStdString(sz)); }
+  bool addSize(const QString& sz);
 };
+
+bool ExportCommand::addProduct(const std::string& ps)
+{
+  Product p = PRODUCT_IMAGE;
+  if (ps == "IMAGE_ANIMATION")
+    p = PRODUCT_IMAGE_ANIMATION;
+  else if (ps == "IMAGE_SERIES")
+    p = PRODUCT_IMAGE_SERIES;
+  else if (ps == "MOVIE")
+    p = PRODUCT_MOVIE;
+  else if (ps != "IMAGE")
+    return false;
+  supportedProducts << p;
+  return true;
+};
+
+bool ExportCommand::addSize(const QString& sis)
+{
+  static const QRegExp reFixedAspect("^(\\d+)([x:])(\\d+)");
+
+  if (sis == "DIANA")
+    sizes << imageSizes.front();
+  else if (sis == "ANY")
+    sizes << imageSizes.back();
+  else if (reFixedAspect.indexIn(sis) >= 0) {
+    int w = reFixedAspect.cap(1).toInt();
+    int h = reFixedAspect.cap(3).toInt();
+    bool aspect = (reFixedAspect.cap(2) == ":");
+    sizes << SizeSpec(sis, aspect ? Size_AspectRatio : Size_Fixed, QSize(w, h));
+  } else {
+    return false;
+  }
+  return true;
+}
 
 typedef QList<ExportCommand> ExportCommands;
 
@@ -106,13 +150,9 @@ ExportCommands parseCommands(QStringList commands)
       continue;
     ExportCommand ec;
     QString products, sizes;
-    QStringList kvpairs = c.split(QRegExp("\\s+"));
-    foreach (const QString& kvpair, kvpairs) {
-      int eq = kvpair.indexOf("=");
-      if (eq < 0)
-        continue;
-      QString key = kvpair.left(eq);
-      QString value = kvpair.mid(eq+1);
+    for (const miutil::KeyValue& kv : miutil::splitKeyValue(c.mid(7).toStdString())) {
+      const std::string& key = kv.key();
+      const QString value = QString::fromStdString(kv.value());
       if (key == "title")
         ec.label = value;
       else if (key == "command")
@@ -121,34 +161,19 @@ ExportCommands parseCommands(QStringList commands)
         products = value;
       } else if (key == "sizes") {
         sizes = value;
+      } else if (key == "product") {
+        ec.addProduct(kv.value());
+      } else if (key == "size") {
+        sizes = ec.addSize(kv.value());
       }
     }
     if (!products.isEmpty()) {
-      foreach (const QString& ps, products.split(",")) {
-        Product p = PRODUCT_IMAGE;
-        if (ps == "IMAGE_ANIMATION")
-          p = PRODUCT_IMAGE_ANIMATION;
-        else if (ps == "IMAGE_SERIES")
-          p = PRODUCT_IMAGE_SERIES;
-        else if (ps == "MOVIE")
-          p = PRODUCT_MOVIE;
-        else if (ps != "IMAGE")
-          continue;
-        ec.supportedProducts << p;
-      }
+      for (const QString& ps : products.split(","))
+        ec.addProduct(ps.toStdString());
     }
     if (!sizes.isEmpty()) {
-      QRegExp reFixedAspect("^(\\d+)([x:])(\\d+)$");
-      foreach (const QString& sis, sizes.split(",")) {
-        if (sis == "DIANA")
-          ec.sizes << imageSizes[0];
-        else if (reFixedAspect.indexIn(sis) >= 0) {
-          int w = reFixedAspect.cap(1).toInt();
-          int h = reFixedAspect.cap(3).toInt();
-          bool aspect = (reFixedAspect.cap(2) == ":");
-          ec.sizes << SizeSpec(sis, aspect ? Size_AspectRatio : Size_Fixed, QSize(w, h));
-        }
-      }
+      for (const QString& sis : sizes.split(","))
+        ec.addSize(sis);
     }
     ecs << ec;
   }
@@ -164,7 +189,7 @@ public:
     : QAbstractListModel(parent), commands_(commands) { }
 
   int rowCount(const QModelIndex&) const
-    { return commands_->size() + 1; }
+    { return commands_->size(); }
 
   QVariant data(const QModelIndex& index, int role) const;
 
@@ -175,10 +200,8 @@ private:
 QVariant ExportCommandsModel::data(const QModelIndex& index, int role) const
 {
   if (role == Qt::DisplayRole) {
-    const int i = index.row() - 1;
-    if (i < 0)
-      return tr("File(s)");
-    else if (i < commands_->size())
+    const int i = index.row();
+    if (i >= 0 && i < commands_->size())
       return commands_->at(i).label;
   }
   return QVariant();
@@ -233,6 +256,17 @@ ExportImageDialog::ExportImageDialog(DianaMainWindow *parent)
     }
     p->ecs = parseCommands(cmds);
   }
+  if (p->ecs.isEmpty()) {
+    ExportCommand ec;
+    ec.label = tr("File(s)");
+    ec.sizes = imageSizes;
+    ec.supportedProducts = Products()
+        << PRODUCT_IMAGE
+        << PRODUCT_IMAGE_SERIES
+        << PRODUCT_IMAGE_ANIMATION
+        << PRODUCT_MOVIE;
+    p->ecs << ec;
+  }
 
   setupUi();
 }
@@ -263,7 +297,7 @@ void ExportImageDialog::onProductChanged(int)
 
 void ExportImageDialog::onSaveToChanged(int current)
 {
-  bool saveToFile = (current == 0);
+  const bool saveToFile = (current >= 0 && p->ecs[current].command.isEmpty());
   ui->editFilename->setEnabled(saveToFile);
   ui->buttonFilename->setEnabled(saveToFile);
   updateComboSize();
@@ -379,7 +413,8 @@ void ExportImageDialog::onStart()
   const int saveTo = ui->comboSaveTo->currentIndex();
   if (saveTo < 0)
     return;
-  bool saveToFile = (saveTo == 0);
+  const ExportCommand& ec = p->ecs[saveTo];
+  const bool saveToFile = (ec.command.isEmpty());
   const QSize size = exportSize();
 
   TempDir tmp;
@@ -468,7 +503,6 @@ void ExportImageDialog::onStart()
 
     args << "--" << filenames;
 
-    const ExportCommand& ec = p->ecs[saveTo-1];
     if (diutil::execute(ec.command, args) == 0)
       tmp.nodestroy();
   }
@@ -527,9 +561,11 @@ bool ExportImageDialog::checkFilename(QString& filename)
 
 void ExportImageDialog::updateFilenameHint()
 {
-  const int saveto = ui->comboSaveTo->currentIndex();
+  const int saveTo = ui->comboSaveTo->currentIndex();
+  const ExportCommand& ec = p->ecs[saveTo];
+  const bool saveToFile = ec.command.isEmpty();
   const int product = ui->comboProduct->currentIndex();
-  if (saveto == 0 && product >= PRODUCT_IMAGE && product <= PRODUCT_MOVIE) {
+  if (saveToFile && isValidProduct(product)) {
     ui->labelFilenameHint->setText(tr(dummyFilenameHints[product]));
     ui->labelFilenameHint->show();
   } else {
@@ -539,19 +575,19 @@ void ExportImageDialog::updateFilenameHint()
 
 void ExportImageDialog::enableStartButton()
 {
-  bool enable;
-  const int saveto = ui->comboSaveTo->currentIndex();
-  if (saveto == 0) {
-    // save to file, supports all products
-    QString filename = ui->editFilename->text();
-    enable = checkFilename(filename);
-  } else if (saveto > 0) {
-    const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
-    const ExportCommand& ec = p->ecs[saveto-1];
+  bool enable = false;
+  const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
+  const int saveTo = ui->comboSaveTo->currentIndex();
+  if (product >= 0 && saveTo >= 0) {
+    const ExportCommand& ec = p->ecs[saveTo];
     enable = ec.supportedProducts.isEmpty()
         || ec.supportedProducts.contains(product);
-  } else {
-    enable = false;
+    const bool saveToFile = ec.command.isEmpty();
+    if (saveToFile) {
+      QString filename = ui->editFilename->text();
+      if (!checkFilename(filename))
+        enable = false;
+    }
   }
   ui->buttonStart->setEnabled(enable);
 }
@@ -559,13 +595,11 @@ void ExportImageDialog::enableStartButton()
 void ExportImageDialog::updateComboSize()
 {
   p->sizes.clear();
-  SizeSpecs sizes = (ui->comboProduct->currentIndex() == PRODUCT_MOVIE)
-      ? movieSizes : imageSizes;
-  const int saveto = ui->comboSaveTo->currentIndex();
-  if (saveto == 0) {
-    p->sizes = sizes;
-  } else if (saveto > 0) {
-    const ExportCommand& ec = p->ecs[saveto-1];
+  const int saveTo = ui->comboSaveTo->currentIndex();
+  if (saveTo >= 0) {
+    const SizeSpecs& sizes = (ui->comboProduct->currentIndex() == PRODUCT_MOVIE)
+        ? movieSizes : imageSizes;
+    const ExportCommand& ec = p->ecs[saveTo];
     if (ec.sizes.isEmpty()) {
       p->sizes = sizes;
     } else {
@@ -592,7 +626,8 @@ void ExportImageDialog::updateComboSize()
   }
   SizesModel* modelSizes = new SizesModel(&p->sizes, ui->comboSize);
   ui->comboSize->setModel(modelSizes);
-  ui->comboSize->setCurrentIndex(0);
+  if (!p->sizes.isEmpty())
+    ui->comboSize->setCurrentIndex(0);
 
   ui->spinWidth->setEnabled(false);
   ui->spinHeight->setEnabled(false);
