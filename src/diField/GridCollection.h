@@ -34,6 +34,10 @@
 
 #include "GridInventoryTypes.h"
 #include "GridIO.h"
+#include "diCommonFieldTypes.h"
+#include "diGridConverter.h"
+#include "diFieldFunctions.h"
+
 #include <puTools/miTime.h>
 #include <boost/shared_array.hpp>
 #include <string>
@@ -41,6 +45,7 @@
 
 class GridIOsetup;
 class Field;
+
 
 class GridCollection {
 public:
@@ -96,21 +101,12 @@ public:
   }
 
   /**
-   * Get the combined inventory including calculated parameters
-   * @return the expanded collection inventory
+   * Get the inventory with the calculated parameters
+   * @return the  compute inventory
    */
-  const gridinventory::Inventory & getExpandedInventory() const
+  const gridinventory::ReftimeInventory & getComputedInventory() const
   {
-    return expanded_inventory;
-  }
-
-  /**
-   * Set the combined inventory including calculated parameters
-   * @return the expanded collection inventory
-   */
-  void setExpandedInventory(gridinventory::Inventory exp_inv)
-  {
-    expanded_inventory = exp_inv;
+    return computed_inventory;
   }
 
   /**
@@ -180,10 +176,6 @@ public:
    * @return true/false
    */
  bool dataExists(const std::string& reftime, const std::string& paramname,
-      const std::string& zaxis, const std::string& taxis,
-      const std::string& extraaxis,
-      const std::string& level, const miutil::miTime& time,
-      const std::string& elevel, const int & time_tolerance,
       gridinventory::GridParameter & param);
 
 
@@ -213,14 +205,14 @@ public:
 
   vcross::Values_p  getVariable(const std::string& reftime, const std::string& paramname);
 
+  std::set<miutil::miTime>  getTimes(const std::string& reftime, const std::string& paramname);
+
   bool putData(const std::string& reftime,
       const std::string& paramname,
-      const std::string& zaxis, const std::string& taxis,
-      const std::string& runaxis,
       const std::string& level, const miutil::miTime& time,
       const std::string& run, const std::string& unit,
       const std::string& output_time,
-      const int & time_tolerance, const Field* field);
+      const Field* field);
 
 
   /**
@@ -235,7 +227,18 @@ public:
    */
   bool updateSources();
 
-protected:
+  bool standardname2variablename(const std::string& reftime,
+      const std::string& standard_name, std::string& variable_name);
+
+  std::map<std::string,std::string> getGlobalAttributes(const std::string& refTime);
+
+  void getFieldInfo(const std::string& refTime, std::map<std::string,FieldInfo>& fieldInfo);
+
+  Field* getField(FieldRequest fieldrequest);
+
+private:
+  static GridConverter gc;
+
   std::set<miutil::miTime> timesFromFilename;
   /// name of collection
   std::string collectionname;
@@ -264,7 +267,7 @@ protected:
   /// the combined inventory
   gridinventory::Inventory inventory;
   /// the combined inventory with computed parameters
-  gridinventory::Inventory expanded_inventory;
+  gridinventory::ReftimeInventory computed_inventory;
   /// the actual data-containers - list of GridIO objects
   typedef std::vector<GridIO*> gridsources_t;
   gridsources_t gridsources;
@@ -276,16 +279,15 @@ protected:
   void clearGridSources();
   /// update the gridsources vector
   void updateGridSources();
-/// check if data exists in inventory, using GridParameterKey
-  bool dataExists_gridParameter(const gridinventory::Inventory& inv,
-      const std::string& reftime,
-      const gridinventory::GridParameterKey& parkey, const std::string& level,
-      const miutil::miTime& time, const std::string& elevel,
-      const int & time_tolerance, gridinventory::GridParameter & param,
-      miutil::miTime & actualtime);
-  bool dataExists_variable(const gridinventory::Inventory& inv,
-      const std::string& reftime, const std::string paramname);
-
+  bool getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time,
+      const int & time_tolerance, miutil::miTime& actualtime);
+  bool dataExists_reftime(const gridinventory::ReftimeInventory& reftimInv,
+      const std::string& paramname, gridinventory::GridParameter& gp);
+  void addComputedParameters();
+  bool getAllFields_timeInterval(std::vector<Field*>& vfield, FieldRequest fieldrequest, int fch, bool accumulate_flux);
+  bool getAllFields(std::vector<Field*>& vfield, FieldRequest fieldrequest, const std::vector<float>& constants);
+  bool multiplyFieldByTimeStep(Field* f, float sec_diff);
+  void freeFields(std::vector<Field*>& fields);
 };
 
 #endif /* GRIDCOLLECTION_H_ */

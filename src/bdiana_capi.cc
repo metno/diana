@@ -1425,6 +1425,8 @@ void createPaintDevice()
   METLIBS_LOG_SCOPE();
   ensureNewContext();
 
+  if (vprofmanager)
+    vprofmanager->setCanvas(0);
   delete glpainter;
   if (main_controller)
     main_controller->setCanvas(0);
@@ -1505,7 +1507,7 @@ static void handleVcrossOpt(int& k)
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_vcross_opt_end);
   if (!vcrossmanager)
     vcrossmanager = std::make_shared<vcross::QtManager>();
-  vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom));
+  vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom, true));
 }
 
 static void handleSpectrumOpt(int& k)
@@ -1727,7 +1729,7 @@ static int handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- sending vcross plot commands");
-    vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom));
+    vcross::VcrossQuickmenues::parse(vcrossmanager, makeCommands(pcom, true));
 
     if (fixedtime.undef()) {
       fixedtime = vcrossmanager->getTimeValue();
@@ -1759,6 +1761,7 @@ static int handlePlotCommand(int& k)
     if (raster && antialias)
       glpainter->Enable(DiGLPainter::gl_MULTISAMPLE);
 
+    painter.setFont(glcanvas->font());
     vcrossmanager->plot(painter);
 
     // --------------------------------------------------------

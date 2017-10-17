@@ -278,7 +278,6 @@ void WeatherSymbol::addPoint( float x , float y)
   }
 }
 
-
 void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE(LOGVAL(drawIndex));
@@ -295,8 +294,7 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
     int symbolSizeToPlot = int(symbolSize/scalefactor);
 
     //also scale according to windowheight and width (standard is 500)
-    scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
-        +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
+    scalefactor = getStaticPlot()->getPhysDiagonal()/500;
     symbolSizeToPlot = int(symbolSizeToPlot*scalefactor);
 
     fSense = symbolSizeToPlot/12;  //  sensitivity to mark object

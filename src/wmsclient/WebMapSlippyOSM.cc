@@ -90,6 +90,9 @@ WebMapSlippyOSMRequest::~WebMapSlippyOSMRequest()
 
 void WebMapSlippyOSMRequest::addTile(int tileX, int tileY)
 {
+  METLIBS_LOG_SCOPE();
+  if (mTiles.size() >= 256)
+    return;
   const int nxy = (1<<mZoom);
   const double x0 = -EARTH_CICRUMFERENCE_M/2,
       dx = EARTH_CICRUMFERENCE_M / nxy,
@@ -125,9 +128,11 @@ void WebMapSlippyOSMRequest::abort()
 void WebMapSlippyOSMRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
-  tile->loadImage(mLayer->tileFormat());
+  if (diutil::checkRedirect(mService, tile))
+    return;
+  const bool ok = tile->loadImage(mLayer->tileFormat());
   mUnfinished -= 1;
-  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));
+  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished) << LOGVAL(ok));
   if (mUnfinished == 0)
     Q_EMIT completed();
 }
@@ -178,7 +183,7 @@ int WebMapSlippyOSM::refreshInterval() const
 }
 
 WebMapRequest_x WebMapSlippyOSM::createRequest(const std::string& layerIdentifier,
-    const Rectangle& viewRect, const Projection& viewProj, double viewScale)
+    const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h)
 {
   METLIBS_LOG_SCOPE();
   WebMapSlippyOSMLayer_cx layer = static_cast<WebMapSlippyOSMLayer_cx>
@@ -190,17 +195,21 @@ WebMapRequest_x WebMapSlippyOSM::createRequest(const std::string& layerIdentifie
   if (zoom < layer->minZoom() || zoom > layer->maxZoom())
     return 0;
 
+  std::unique_ptr<WebMapSlippyOSMRequest> request(new WebMapSlippyOSMRequest(this, layer, zoom));
   const int nxy = (1<<zoom);
-  const float x0 = -EARTH_CICRUMFERENCE_M/2,
-      dx = EARTH_CICRUMFERENCE_M / nxy,
-      y0 = -x0,
-      dy = -dx;
+  request->x0 = -EARTH_CICRUMFERENCE_M/2;
+  request->dx = EARTH_CICRUMFERENCE_M / nxy;
+  request->y0 = -request->x0;
+  request->dy = -request->dx;
+  request->tilebbx = Rectangle(request->x0, -request->y0, -request->x0, request->y0);
 
   diutil::tilexy_s tiles;
-  diutil::select_tiles(tiles, 0, nxy, x0, dx, 0, nxy, y0, dy,
-      mProjection, viewRect, viewProj);
+  diutil::select_pixel_tiles(tiles, w, h,
+                             nxy, request->x0, request->dx,
+                             nxy, request->y0, request->dy,
+                             request->tilebbx, mProjection, viewRect, viewProj);
+  METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
 
-  std::unique_ptr<WebMapSlippyOSMRequest> request(new WebMapSlippyOSMRequest(this, layer, zoom));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 

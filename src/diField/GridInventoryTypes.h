@@ -61,7 +61,7 @@ public:
   InventoryBase()
   {
   }
-  InventoryBase(const std::string& id_) :
+  explicit InventoryBase(const std::string& id_) :
     id(id_)
   {
   }
@@ -137,7 +137,7 @@ public:
         y_resolution(0)
   {
   }
-  Grid(const std::string& id_) :
+  explicit Grid(const std::string& id_) :
     InventoryBase(id_), nx(0), ny(0), x_0(0), y_0(0), x_resolution(0),
         y_resolution(0)
   {
@@ -167,7 +167,7 @@ public:
     vc_type(vc_unknown), positive(true)
   {
   }
-  Zaxis(const std::string& id_) :
+  explicit Zaxis(const std::string& id_) :
     InventoryBase(id_), vc_type(vc_unknown), positive(true)
   {
   }
@@ -190,7 +190,7 @@ public:
   Taxis()
   {
   }
-  Taxis(const std::string id_) :
+  explicit Taxis(const std::string id_) :
     InventoryBase(id_)
   {
   }
@@ -211,7 +211,7 @@ public:
   ExtraAxis()
   {
   }
-  ExtraAxis(const std::string& id_) :
+  explicit ExtraAxis(const std::string& id_) :
     InventoryBase(id_)
   {
   }
@@ -267,7 +267,7 @@ public:
   GridParameter()
   {
   }
-  GridParameter(const GridParameterKey& k) :
+  explicit GridParameter(const GridParameterKey& k) :
     key(k)
   {
   }
@@ -289,11 +289,12 @@ public:
   std::set<Taxis> taxes;
   std::set<ExtraAxis> extraaxes;
   miutil::miTime timestamp;
+  std::map<std::string,std::string> globalAttributes;
 
   ReftimeInventory()
   {
   }
-  ReftimeInventory(const std::string& reftime)
+  explicit ReftimeInventory(const std::string& reftime)
   {
     referencetime = reftime;
   }
@@ -320,7 +321,7 @@ public:
   {
   }
 
-  Inventory(const ReftimeInventory& ri)
+  explicit Inventory(const ReftimeInventory& ri)
   {
     reftimes[ri.referencetime] = ri;
   }

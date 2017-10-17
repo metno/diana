@@ -14,7 +14,16 @@
    <string>Vertical Cross Sections</string>
   </property>
   <layout class="QGridLayout" name="layoutMain" rowstretch="0,0,1" columnstretch="0,1">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
     <number>2</number>
    </property>
    <property name="spacing">
@@ -306,6 +315,19 @@
       </widget>
      </item>
      <item>
+      <widget class="QSpinBox" name="spinRealization">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Select ensemble member</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -550,8 +572,8 @@
    <slot>crossectionBoxActivated(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>47</y>
+     <x>139</x>
+     <y>50</y>
     </hint>
     <hint type="destinationlabel">
      <x>84</x>
@@ -662,8 +684,8 @@
    <slot>timeGraphClicked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>556</x>
-     <y>47</y>
+     <x>662</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -678,8 +700,8 @@
    <slot>onShowSetupDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>45</x>
-     <y>16</y>
+     <x>95</x>
+     <y>19</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -799,6 +821,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>spinRealization</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>onRealizationChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>495</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onAddField()</slot>
@@ -817,5 +855,6 @@
   <slot>timeGraphClicked(bool)</slot>
   <slot>quitClicked()</slot>
   <slot>helpClicked()</slot>
+  <slot>onRealizationChanged(int)</slot>
  </slots>
 </ui>

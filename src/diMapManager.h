@@ -36,7 +36,7 @@
  */
 
 #include "diPlotOptions.h"
-#include "diCommonTypes.h"
+#include "diMapInfo.h"
 #include "diField/diArea.h"
 #include "util/diKeyValue.h"
 

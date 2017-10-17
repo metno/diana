@@ -32,6 +32,14 @@ GridIO::~GridIO()
   // TODO Auto-generated destructor stub
 }
 
+const gridinventory::ReftimeInventory & GridIO::getReftimeInventory(const std::string reftime) const
+{
+  const map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
+  if (ritr != inventory.reftimes.end())
+    return ritr->second;
+  static const gridinventory::ReftimeInventory EMPTY_REFTIMEINVENTORY;
+  return EMPTY_REFTIMEINVENTORY;
+}
 
 
 /**
@@ -52,15 +60,17 @@ std::set<std::string> GridIO::getReferenceTimes() const
   return reftimes;
 }
 
-const gridinventory::ReftimeInventory* GridIO::findModelAndReftime(const std::string& reftime) const
+const gridinventory::ReftimeInventory& GridIO::findModelAndReftime(const std::string& reftime) const
 {
   using namespace gridinventory;
 
   const std::map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
-  if (ritr == inventory.reftimes.end())
-    return 0;
+  if (ritr == inventory.reftimes.end()) {
+    static const gridinventory::ReftimeInventory EMPTY_REFTIME;
+    return EMPTY_REFTIME;
+  }
 
-  return &ritr->second;
+  return ritr->second;
 }
 
 /**
@@ -68,12 +78,10 @@ const gridinventory::ReftimeInventory* GridIO::findModelAndReftime(const std::st
  */
 const gridinventory::Grid& GridIO::getGrid(const std::string & reftime, const std::string & grid)
 {
-  const gridinventory::ReftimeInventory* rti = findModelAndReftime(reftime);
-  if (rti) {
-    const std::set<gridinventory::Grid>::const_iterator gitr = boost::find_if(rti->grids, boost::bind(&gridinventory::Grid::getName, _1) == grid);
-    if (gitr != rti->grids.end()) {
-      return *gitr;
-    }
+  const gridinventory::ReftimeInventory& rti = findModelAndReftime(reftime);
+  const std::set<gridinventory::Grid>::const_iterator gitr = boost::find_if(rti.grids, boost::bind(&gridinventory::Grid::getName, _1) == grid);
+  if (gitr != rti.grids.end()) {
+    return *gitr;
   }
   static const gridinventory::Grid EMPTY_GRID;
   return EMPTY_GRID;
@@ -85,12 +93,10 @@ const gridinventory::Grid& GridIO::getGrid(const std::string & reftime, const st
 const gridinventory::Zaxis& GridIO::getZaxis(const std::string & reftime, const std::string & zaxis)
 {
   using namespace gridinventory;
-  const ReftimeInventory* rti = findModelAndReftime(reftime);
-  if (rti) {
-    const std::set<Zaxis>::const_iterator zaitr = boost::find_if(rti->zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
-    if (zaitr != rti->zaxes.end())
-      return *zaitr;
-  }
+  const ReftimeInventory& rti = findModelAndReftime(reftime);
+  const std::set<Zaxis>::const_iterator zaitr = boost::find_if(rti.zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
+  if (zaitr != rti.zaxes.end())
+    return *zaitr;
   static const gridinventory::Zaxis EMPTY_ZAXIS;
   return EMPTY_ZAXIS;
 }
@@ -101,12 +107,10 @@ const gridinventory::Zaxis& GridIO::getZaxis(const std::string & reftime, const 
 const gridinventory::Taxis& GridIO::getTaxis(const std::string & reftime, const std::string & taxis)
 {
   using namespace gridinventory;
-  const ReftimeInventory* rti = findModelAndReftime(reftime);
-  if (rti) {
-    const std::set<Taxis>::const_iterator taitr = boost::find_if(rti->taxes, boost::bind(&Taxis::getName, _1) == taxis);
-    if (taitr != rti->taxes.end())
-      return *taitr;
-  }
+  const ReftimeInventory& rti = findModelAndReftime(reftime);
+  const std::set<Taxis>::const_iterator taitr = boost::find_if(rti.taxes, boost::bind(&Taxis::getName, _1) == taxis);
+  if (taitr != rti.taxes.end())
+    return *taitr;
   static const gridinventory::Taxis EMPTY_TAXIS;
   return EMPTY_TAXIS;
 }
@@ -117,12 +121,10 @@ const gridinventory::Taxis& GridIO::getTaxis(const std::string & reftime, const 
 const gridinventory::ExtraAxis& GridIO::getExtraAxis(const std::string & reftime, const std::string & extraaxis)
 {
   using namespace gridinventory;
-  const ReftimeInventory* rti = findModelAndReftime(reftime);
-  if (rti) {
-    const std::set<ExtraAxis>::const_iterator xit = boost::find_if(rti->extraaxes, boost::bind(&ExtraAxis::getName, _1) == extraaxis);
-    if (xit != rti->extraaxes.end())
-      return *xit;
-  }
+  const ReftimeInventory& rti = findModelAndReftime(reftime);
+  const std::set<ExtraAxis>::const_iterator xit = boost::find_if(rti.extraaxes, boost::bind(&ExtraAxis::getName, _1) == extraaxis);
+  if (xit != rti.extraaxes.end())
+    return *xit;
   static const gridinventory::ExtraAxis EMPTY_EXTRAAXIS;
   return EMPTY_EXTRAAXIS;
 }
@@ -144,14 +146,12 @@ Field * GridIO::initializeField(const std::string& modelname,
 
   // make the projection and area types
   Projection proj(grid.projection);
-  Rectangle rect(0, 0, (grid.nx - 1) * grid.x_resolution, (grid.ny - 1) * grid.y_resolution);
-  // TODO: which one is correct?
-  // Rectangle rect(grid.x_0, grid.y_0, grid.x_0 + (grid.nx -1) * grid.x_resolution, grid.y_0 + (grid.ny - 1) * grid.y_resolution);
+  const float x0 = grid.x_0, y0 = grid.y_0;
+  const Rectangle rect(x0, y0, x0 + (grid.nx -1) * grid.x_resolution, y0 + (grid.ny - 1) * grid.y_resolution);
 
   Field * field = new Field();
   field->data = new float[grid.nx * grid.ny];
   field->area = GridArea(Area(proj, rect), grid.nx, grid.ny, grid.x_resolution, grid.y_resolution);
-  field->allDefined = false;
   field->level = atoi(level.c_str());
   field->idnum = atoi(elevel.c_str());
   field->forecastHour = -32767;

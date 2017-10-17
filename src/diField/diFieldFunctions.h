@@ -197,6 +197,7 @@ public:
     f_showalterindex_plevel_th_rh, //!< f_showalterindex_plevel_th_rh
     f_boydenindex_plevel_tk_z, //!< f_boydenindex_plevel_tk_z
     f_boydenindex_plevel_th_z, //!< f_boydenindex_plevel_th_z
+    f_sweatindex_plevel, //!< Severe Weather Threat Index
 
     // hybrid model level (HLEVEL) functions
     f_tc_hlevel_th_psurf, //!< f_tc_hlevel_th_psurf
@@ -315,6 +316,7 @@ public:
     f_no_of_fields_below,
     f_index_of_fields_max,
     f_index_of_fields_min,
+    f_sum,
     f_mean_value,  //!< f_mean_value
     f_stddev,  //!< f_stddev_value_of
     f_probability_above,  //!< f_probability_above
@@ -436,7 +438,7 @@ public:
   static bool isTimeStepFunction(Function f);
 
   /// call function and return results
-  bool fieldComputer(Function function, const std::vector<float>& constants,
+  static bool fieldComputer(Function function, const std::vector<float>& constants,
       const std::vector<Field*>& vfinput, const std::vector<Field*>& vfres, class GridConverter& gc);
 
 private:

@@ -77,7 +77,7 @@ TEST(VprofDataTest, TestSetup)
   ZAxisData_cp zaxis = air_temperature->zaxis();
   ASSERT_TRUE(bool(zaxis));
 
-  model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0));
+  model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0), 0);
   model_values_m::iterator itM = model_values.find(mr);
   ASSERT_TRUE(itM != model_values.end());
   name2value_t& n2v = itM->second;
@@ -162,7 +162,7 @@ TEST(VprofDataTest, TestBangkok)
   EXPECT_EQ("isobaric", zaxis->id());
   collector->requireField(mr, zaxis);
 
-  model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0));
+  model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0), 0);
   model_values_m::iterator itM = model_values.find(mr);
   ASSERT_TRUE(itM != model_values.end());
   name2value_t& n2v = itM->second;

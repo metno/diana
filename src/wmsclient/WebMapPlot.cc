@@ -33,6 +33,11 @@
 #include "WebMapService.h"
 #include "WebMapUtilities.h"
 #include "diGLPainter.h"
+#include "diPaintGLPainter.h"
+#include "diPoint.h"
+
+#include "diField/diGridReprojection.h"
+#include "util/string_util.h"
 
 #include <QImage>
 
@@ -51,11 +56,12 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
   , mLayer(0)
   , mTimeIndex(-1)
   , mTimeSelected(-1)
-  , mTimeTolerance(3600)
+  , mTimeTolerance(-1)
   , mTimeOffset(0)
   , mAlphaOffset(0)
   , mAlphaScale(1)
   , mMakeGrey(false)
+  , mPlotOrder(LINES)
   , mRequest(0)
 {
   if (mService) {
@@ -86,6 +92,23 @@ std::string WebMapPlot::attribution() const
     return std::string();
 }
 
+void WebMapPlot::getAnnotation(std::string& text, Colour&) const
+{
+  METLIBS_LOG_SCOPE();
+  text = title();
+  METLIBS_LOG_DEBUG(LOGVAL(text) << LOGVAL(mDimensionValues.size()));
+
+  for (auto&& dv : mDimensionValues) {
+    METLIBS_LOG_DEBUG(LOGVAL(dv.first) << LOGVAL(dv.second));
+    if (!dv.second.empty())
+      diutil::appendText(text, dv.first + "=" + dv.second, " ");
+  }
+
+  const std::string att = attribution();
+  if (!att.empty())
+    diutil::appendText(text, "(" + att + ")");
+}
+
 void WebMapPlot::dropRequest()
 {
   if (!mRequest)
@@ -102,36 +125,42 @@ void WebMapPlot::dropRequest()
 
 namespace {
 
-class TimeTaker {
-public:
-  TimeTaker() : mTotal(0) { }
-  void start();
-  void stop();
-  double total() const
-    { return mTotal; }
-private:
-  struct timeval mStarted;
-  double mTotal;
+struct PaintTilesCB : public GridReprojectionCB {
+  PaintTilesCB(QImage& target_, WebMapRequest_x request_,
+               const diutil::PointD& xyt0_, const diutil::PointD& dxyt_)
+    : target(target_)
+    , request(request_)
+    , xyt0(xyt0_)
+    , dxyt(dxyt_)
+  { }
+
+  QImage& target;
+  WebMapRequest_x request;
+
+  diutil::PointD xyt0, dxyt;
+
+  void pixelLine(const diutil::PointI& s, const diutil::PointD& xyf0, const diutil::PointD& dxyf, int n) override;
 };
 
-void TimeTaker::start()
+void PaintTilesCB::pixelLine(const diutil::PointI &s, const diutil::PointD& xyf0, const diutil::PointD& dxyf, int n)
 {
-  gettimeofday(&mStarted, 0);
-}
+  const int x0 = s.x(), y0 = target.size().height() - 1 - s.y();
+  QRgb* rgb = reinterpret_cast<QRgb*>(target.scanLine(y0)) + x0;
 
-void TimeTaker::stop()
-{
-  struct timeval stopped;
-  gettimeofday(&stopped, 0);
-  const double s = (((double)stopped.tv_sec*1000000.0 + (double)stopped.tv_usec)
-      -((double)mStarted.tv_sec*1000000.0 + (double)mStarted.tv_usec))/1000000.0;
-  mTotal += s;
-}
-
-std::ostream& operator<<(std::ostream& out, const TimeTaker& t)
-{
-  out << t.total() << 's';
-  return out;
+  diutil::PointD fxy = xyf0;
+  for (int i=0; i<n; ++i, fxy += dxyf) {
+    const size_t tidx = request->tileIndex(fxy.x(), fxy.y());
+    if (tidx == size_t(-1))
+      continue;
+    const QImage& timg = request->tileImage(tidx);
+    if (timg.isNull())
+      continue;
+    const diutil::PointD ixy = (fxy - xyt0) / dxyt;
+    float dummy = 0;
+    const int ix = int(std::modf(ixy.x(), &dummy) * timg.width());
+    const int iy = int(std::modf(ixy.y(), &dummy) * timg.height());
+    rgb[i] = timg.pixel(ix, iy);
+  }
 }
 
 } // namespace
@@ -139,127 +168,58 @@ std::ostream& operator<<(std::ostream& out, const TimeTaker& t)
 void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_TIME();
-  if (!isEnabled() || porder != LINES)
+  if (!isEnabled() || porder != mPlotOrder)
     return;
   if (!mLayer)
     return;
 
+  setTimeValue(getStaticPlot()->getTime());
+  if (mTimeIndex >= 0 && mTimeSelected < 0)
+    return; // has time axis, but time not found within tolerance
+
   if (!mRequest) {
     METLIBS_LOG_DEBUG("about to request tiles...");
+    const int phys_w = getStaticPlot()->getPhysWidth();
+    const int phys_h = getStaticPlot()->getPhysHeight();
     const double mapw = getStaticPlot()->getPlotSize().width(),
-        m_per_unit = diutil::metersPerUnit(getStaticPlot()->getMapArea().P()),
-        phys_w = getStaticPlot()->getPhysWidth();
+        m_per_unit = diutil::metersPerUnit(getStaticPlot()->getMapArea().P());
     const double viewScale = mapw * m_per_unit / phys_w
         / diutil::WMTS_M_PER_PIXEL;
     METLIBS_LOG_DEBUG("map.w=" << mapw << " m/unit=" << m_per_unit
         << " phys.w=" << phys_w << " scale=" << viewScale);
     mRequestCompleted = false;
     mRequest = mService->createRequest(mLayer->identifier(),
-        getStaticPlot()->getPlotSize(), getStaticPlot()->getMapArea().P(), viewScale);
+        getStaticPlot()->getPlotSize(), getStaticPlot()->getMapArea().P(), viewScale, phys_w, phys_h);
     if (!mRequest) {
       METLIBS_LOG_DEBUG("no request object");
       return;
     }
-    for (std::map<std::string, std::string>::const_iterator it = mDimensionValues.begin(); it != mDimensionValues.end(); ++it)
-      mRequest->setDimensionValue(it->first, it->second);
+    for (auto& dv : mDimensionValues)
+      mRequest->setDimensionValue(dv.first, dv.second);
     if (mTimeIndex >= 0 && !mFixedTime.empty())
       mRequest->setDimensionValue(mLayer->dimension(mTimeIndex).identifier(), mFixedTime);
     connect(mRequest, SIGNAL(completed()), this, SLOT(requestCompleted()));
     mRequest->submit();
   } else if (mRequestCompleted) {
     METLIBS_LOG_DEBUG("about to plot tiles...");
-    const Projection& tp = mRequest->tileProjection();
-    METLIBS_LOG_DEBUG(LOGVAL(tp.getProjDefinitionExpanded()));
+    StaticPlot* sp = getStaticPlot();
+    const diutil::Values2<int> size(sp->getPhysWidth(), sp->getPhysHeight());
+    QImage target(size.x(), size.y(), QImage::Format_ARGB32);
+    target.fill(Qt::transparent);
 
-    TimeTaker timerP, timerR;
-    size_t n_realloc = 0;
+    diutil::PointD xyt0(mRequest->x0, mRequest->y0), dxyt(mRequest->dx, mRequest->dy);
+    METLIBS_LOG_DEBUG(LOGVAL(xyt0) << LOGVAL(dxyt));
+    PaintTilesCB cb(target, mRequest, xyt0, dxyt);
+    GridReprojection::instance()->reproject(size, sp->getPlotSize(), sp->getMapArea().P(), mRequest->tileProjection(), cb);
 
-    size_t vxy_N = 0;
-    float *vx = 0, *vy = 0, *vxy = 0;
+    gl->drawScreenImage(QPointF(0,0), diutil::convertImage(target, mAlphaOffset, mAlphaScale, mMakeGrey));
 
-    for (size_t i=0; i<mRequest->countTiles(); ++i) {
-      const Rectangle& tr = mRequest->tileRect(i);
-      const QImage ti = diutil::convertImage(mRequest->tileImage(i), mAlphaOffset, mAlphaScale, mMakeGrey);
-
-      if (!ti.isNull()) {
-        METLIBS_LOG_DEBUG("tile " << i << " is valid, rectangle=" << tr);
-
-        const size_t width = ti.width(), height = ti.height(), width1 = width+1, height1 = height+1;
-        timerR.start();
-
-        const size_t N = width1*height1;
-        if (N != vxy_N) {
-          n_realloc += 1;
-          delete[] vx;
-          delete[] vy;
-          delete[] vxy;
-          vx = new float[N];
-          vy = new float[N];
-          vxy = new float[2*N];
-          vxy_N = N;
-        }
-        const double dx = tr.width() / width, dy = tr.height() / height;
-        size_t ixy = 0;
-        for (size_t iy=0; iy<=height; ++iy) {
-          for (size_t ix=0; ix<=width; ++ix) {
-            vx[ixy] = tr.x1 + ix*dx;
-            vy[ixy] = tr.y2 - iy*dy;
-            ixy += 1;
-          }
-        }
-        assert(ixy == N);
-        getStaticPlot()->ProjToMap(tp, N, vx, vy);
-        for (size_t jxy = 0; jxy < N; ++jxy) {
-          vxy[2*jxy  ] = vx[jxy];
-          vxy[2*jxy+1] = vy[jxy];
-        }
-        timerR.stop();
-
-        timerP.start();
-        gl->drawReprojectedImage(ti, vxy, true);
-        timerP.stop();
-      }
-      if (DEBUG_TILE_BORDERS || ti.isNull()) {
-        // draw rect
-        float corner_x[4] = { tr.x1, tr.x2, tr.x2, tr.x1 };
-        float corner_y[4] = { tr.y1, tr.y1, tr.y2, tr.y2 };
-        getStaticPlot()->ProjToMap(tp, 4, corner_x, corner_y);
-
-        gl->setLineStyle(Colour::fromF(0, 0, 1, 1), 1);
-        gl->Begin(DiGLPainter::gl_LINE_LOOP);
-        for (int i=0; i<4; ++i)
-          gl->Vertex2f(corner_x[i], corner_y[i]);
-        gl->End();
-      }
-    }
-    delete[] vxy;
-    delete[] vx;
-    delete[] vy;
-    METLIBS_LOG_DEBUG("spent " << timerR << " with reprojecting and " << timerP << " with painting"
-        << LOGVAL(n_realloc));
     const QImage li = mRequest->legendImage();
     if (!li.isNull()) {
       METLIBS_LOG_DEBUG("about to plot legend...");
-      // draw legend using plotFillCell
-
-      const int w = li.width(), h = li.height();
-      const size_t N = (w+1)*(h+1);
-      float* vx = new float[N];
-      float* vy = new float[N];
-      size_t ixy = 0;
-      for (int iy=0; iy<=h; ++iy) {
-        for (int ix=0; ix<=w; ++ix) {
-          const float px = getStaticPlot()->getPhysWidth() - w - 10 + ix,
-              py = 10 + h - iy;
-          getStaticPlot()->PhysToMap(px, py, vx[ixy], vy[ixy]);
-          ixy += 1;
-        }
-      }
-      diutil::QImageData imagepixels(&li, vx, vy);
-      //imagepixels.setColourTransform(mColourTransform);
-      diutil::drawFillCell(gl, imagepixels);
-      delete[] vx;
-      delete[] vy;
+      const QPointF screenpos(getStaticPlot()->getPhysWidth() - 10 - li.width(),
+                              getStaticPlot()->getPhysHeight() - 10 - li.height());
+      gl->drawScreenImage(screenpos, li);
     }
   } else {
     METLIBS_LOG_DEBUG("waiting for tiles...");
@@ -275,6 +235,11 @@ void WebMapPlot::setStyleAlpha(float offset, float scale)
 void WebMapPlot::setStyleGrey(bool makeGrey)
 {
   mMakeGrey = makeGrey;
+}
+
+void WebMapPlot::setPlotOrder(PlotOrder po)
+{
+  mPlotOrder = po;
 }
 
 void WebMapPlot::requestCompleted()
@@ -326,8 +291,10 @@ void WebMapPlot::setDimensionValue(const std::string& dimId, const std::string& 
 void WebMapPlot::setTimeValue(const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(time) << LOGVAL(mTimeIndex));
-  if (!mLayer || mTimeIndex < 0)
+  if (!mLayer || mTimeIndex < 0) {
+    METLIBS_LOG_DEBUG("no layer, or no time dimension");
     return;
+  }
 
   int bestIndex = -1, bestDifference = 0;
 
@@ -337,17 +304,21 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
   for (size_t i=0; i<timeDim.count(); ++i) {
     const miutil::miTime dimTime
         = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
+    METLIBS_LOG_DEBUG(LOGVAL(timeDim.value(i)) << LOGVAL(dimTime));
     if (dimTime.undef()) {
       METLIBS_LOG_DEBUG("undef time");
       continue;
     }
     const int diff = abs(miutil::miTime::secDiff(dimTime, actualTime));
-    if (diff < mTimeTolerance && (bestIndex < 0 || diff < bestDifference)) {
+    if ((mTimeTolerance < 0 || diff < mTimeTolerance)
+        && (bestIndex < 0 || diff < bestDifference))
+    {
       bestIndex = i;
       bestDifference = diff;
       METLIBS_LOG_DEBUG(LOGVAL(bestDifference));
     }
   }
+  METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << LOGVAL(mTimeSelected));
   if (bestIndex == mTimeSelected)
     return;
   mTimeSelected = bestIndex;
@@ -356,6 +327,7 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
     METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << "='" << timeDim.value(bestIndex) << "'");
     setDimensionValue(timeId, timeDim.value(bestIndex));
   } else {
+    METLIBS_LOG_DEBUG("time = empty");
     setDimensionValue(timeId, EMPTY_STRING);
   }
   dropRequest();
@@ -385,13 +357,13 @@ void WebMapPlot::serviceRefreshFinished()
   } else {
     // search new time index
     for (size_t i=0; i<mLayer->countDimensions(); ++i) {
+      METLIBS_LOG_DEBUG(LOGVAL(mLayer->dimension(i).identifier()));
       if (mLayer->dimension(i).isTime()) {
         mTimeIndex = i;
+        METLIBS_LOG_DEBUG(LOGVAL(mTimeIndex));
         break;
       }
     }
-    // search plot time
-    setTimeValue(getStaticPlot()->getTime());
   }
   Q_EMIT update();
 }

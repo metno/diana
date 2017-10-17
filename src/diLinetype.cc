@@ -40,10 +40,9 @@ using namespace std;
 
 map<std::string,Linetype> Linetype::linetypes;
 vector<std::string>       Linetype::linetypeSequence;
-Linetype               Linetype::defaultLinetype;
+Linetype                  Linetype::defaultLinetype;
 
 
-// Default constructor
 Linetype::Linetype()
 {
   name= "solid";
@@ -53,36 +52,33 @@ Linetype::Linetype()
 }
 
 
-// Constructor
 Linetype::Linetype(const std::string& _name)
 {
   std::string ltname= miutil::to_lower(_name);
-  map<std::string,Linetype>::iterator p;
-  if ((p=linetypes.find(ltname))!=linetypes.end())
+  map<std::string,Linetype>::iterator p = linetypes.find(ltname);
+  if (p != linetypes.end())
     memberCopy(p->second);
   else
     memberCopy(defaultLinetype);
 }
 
 
-// Assignment operator
-Linetype& Linetype::operator=(const Linetype &rhs){
+Linetype& Linetype::operator=(const Linetype &rhs)
+{
   if (this != &rhs)
-    // elementwise copy
     memberCopy(rhs);
-
   return *this;
 }
 
 
-// Equality operator
-bool Linetype::operator==(const Linetype &rhs) const{
+bool Linetype::operator==(const Linetype &rhs) const
+{
   return (bmap==rhs.bmap && factor==rhs.factor);
 }
 
 
-void Linetype::memberCopy(const Linetype& rhs){
-  // copy members
+void Linetype::memberCopy(const Linetype& rhs)
+{
   name=    rhs.name;
   stipple= rhs.stipple;
   bmap=    rhs.bmap;
@@ -116,38 +112,4 @@ void Linetype::define(const std::string& _name,
       defaultLinetype= lt;
   }
   linetypes[ltname]= lt;
-}
-
-
-// static
-vector<std::string> Linetype::getLinetypeInfo(){
-  vector<std::string> vs;
-  map<std::string,Linetype>::iterator p, pend= linetypes.end();
-  int n= linetypeSequence.size();
-  for (int i=0; i<n; i++) {
-    if ((p=linetypes.find(linetypeSequence[i]))!=pend) {
-      std::string str16= "                ";
-      for (int k=0; k<16; k++)
-        if ((p->second.bmap & (1 << (15-k)))!=0) str16[k]='-';
-      vs.push_back(p->first + '[' + str16 + ']');
-    }
-  }
-  return vs;
-}
-
-void Linetype::getLinetypeInfo(vector<std::string>& name,
-			       vector<std::string>& pattern)
-{
-  map<std::string,Linetype>::iterator p, pend= linetypes.end();
-  int n= linetypeSequence.size();
-  for (int i=0; i<n; i++) {
-    if ((p=linetypes.find(linetypeSequence[i]))!=pend) {
-      std::string str16= "                ";
-      for (int k=0; k<16; k++)
-        if ((p->second.bmap & (1 << (15-k)))!=0) str16[k]='-';
-      name.push_back( p->first );
-      pattern.push_back( str16 );
-    }
-  }
-  return;
 }

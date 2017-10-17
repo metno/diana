@@ -103,7 +103,6 @@ private:
   bool specset;
   GridArea areaspec;
 
-  bool areaminimize;
   float minValue,maxValue; // used if not fieldUndef
   std::string inputFieldFormat;
   std::string inputFieldConfig;

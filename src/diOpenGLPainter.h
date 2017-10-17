@@ -19,7 +19,7 @@ public:
   void defineFont(const std::string& fontfam, const std::string& fontfilename,
       const std::string& face, bool use_bitmap) Q_DECL_OVERRIDE;
 
-  void setVpGlSize(float vpw, float vph, float glw, float glh) override;
+  void setVpGlSize(int vpw, int vph, float glw, float glh) override;
   bool setFont(const std::string& font) override;
   bool setFont(const std::string& font, float size, FontFace face) override;
   bool setFontSize(float size) override;
@@ -137,8 +137,7 @@ public:
   void drawPolygon(const QPolygonF& points) override;
   void drawPolygons(const QList<QPolygonF>& polygons) override;
 
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
-      const diutil::Rect_v& imageparts, bool smooth) override;
+  void drawScreenImage(const QPointF&, const QImage&) override;
 };
 
 #endif // DIOPENGLPAINTER_H

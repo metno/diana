@@ -34,7 +34,7 @@ public:
   virtual void defineFont(const std::string& font, const std::string& fontfilename,
       const std::string& face, bool use_bitmap) = 0;
 
-  virtual void setVpGlSize(float vpw, float vph, float glw, float glh) = 0;
+  virtual void setVpGlSize(int vpw, int vph, float glw, float glh) = 0;
 
   virtual bool setFont(const std::string& font) = 0;
   virtual bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) = 0;
@@ -77,7 +77,7 @@ public:
   bool isPrinting() const
     { return mCanvas->isPrinting(); }
 
-  void setVpGlSize(float vpw, float vph, float glw, float glh);
+  void setVpGlSize(int vpw, int vph, float glw, float glh);
 
   bool setFont(const std::string& font);
   bool setFont(const std::string& font, float size, DiCanvas::FontFace face=DiCanvas::F_NORMAL);
@@ -123,9 +123,7 @@ public:
   virtual void drawWindArrow(float u, float v, float x, float y,
       float arrowSize, bool withArrowHead, int turnBarbs=1) = 0;
 
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth);
-  virtual void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
-      const diutil::Rect_v& imageparts, bool smooth) = 0;
+  virtual void drawScreenImage(const QPointF& point, const QImage& image) = 0;
 
 private:
   DiCanvas* mCanvas;

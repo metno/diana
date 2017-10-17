@@ -83,11 +83,6 @@ ObsManager::ObsManager()
   timeListChanged = false;
 }
 
-ObsPlot* ObsManager::createObsPlot(const PlotCommand_cp& pin)
-{
-  return ObsPlot::createObsPlot(pin);
-}
-
 bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
@@ -1756,8 +1751,7 @@ bool ObsManager::initHqcdata(int from, const string& commondesc,
   const std::vector<std::string> descstr = split_on_comma(commondesc),
       commonstr = split_on_comma(common);
   if (commonstr.size() != descstr.size()) {
-    METLIBS_LOG_ERROR(
-        "ObsManager::initHqcdata: different size of commondesc and common");
+    METLIBS_LOG_ERROR("different size of commondesc and common");
     return false;
   }
 

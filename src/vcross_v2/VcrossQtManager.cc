@@ -149,6 +149,8 @@ QtManager::QtManager()
   , inFieldChangeGroup(0)
   , mCrossectionCurrent(-1)
   , mPlotTime(-1)
+  , mRealizationCount(1)
+  , mRealization(0)
   , mTimeGraphMode(false)
   , mHasSupportForDynamicCs(false)
   , mHasPredefinedDynamicCs(false)
@@ -187,6 +189,8 @@ void QtManager::cleanupData()
   mCrossectionTimes.clear();
 
   mPlotTime = -1;
+  mRealizationCount = 1;
+  mRealization = 0;
 
   mMarkers.clear();
   mReferencePosition = -1;
@@ -519,6 +523,12 @@ void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
   handleChangedTime(bestTime);
 }
 
+void QtManager::setRealization(int r)
+{
+  mRealization = std::max(std::min(r, mRealizationCount-1), 0);
+  dataChange |= CHANGED_CS|CHANGED_SEL|CHANGED_TIME;
+  Q_EMIT timeIndexChanged(mPlotTime); // FIXME
+}
 
 int QtManager::getTimeIndex() const
 {
@@ -555,6 +565,7 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
       if (Inventory_cp inv = src->getInventory(model1.reftime)) {
         for (Times::timevalue_v::const_iterator itT = inv->times.values.begin(); itT != inv->times.values.end(); ++itT)
           times.insert(util::to_miTime(inv->times.unit, *itT));
+        util::maximize(mRealizationCount, inv->realizationCount);
       }
     }
   }
@@ -701,12 +712,12 @@ void QtManager::preparePlot()
   if (!isTimeGraph()) {
     const Time user_time = util::from_miTime(getTimeValue(getTimeIndex()));
     METLIBS_LOG_DEBUG(LOGVAL(user_time.unit) << LOGVAL(user_time.value));
-    model_values = vc_fetch_crossection(mCollector, cs, user_time);
+    model_values = vc_fetch_crossection(mCollector, cs, user_time, mRealization);
     mPlot->setHorizontalCross(cs, getTimeValue(), crossectionPoints(),
         crossectionPointsRequested());
   } else {
     const LonLat& ll = crossection().point(0);
-    model_values = vc_fetch_timegraph(mCollector, ll);
+    model_values = vc_fetch_timegraph(mCollector, ll, mRealization);
     mPlot->setHorizontalTime(ll, mCrossectionTimes);
   }
 
@@ -1052,7 +1063,7 @@ void QtManager::setFieldVisible(int index, bool visible)
 }
 
 
-void QtManager::selectFields(const string_v& to_plot)
+void QtManager::selectFields(const std::vector<miutil::KeyValue_v>& to_plot)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1061,21 +1072,14 @@ void QtManager::selectFields(const string_v& to_plot)
   fieldChangeStart(true);
   removeAllFields();
 
-  for (string_v::const_iterator itL = to_plot.begin(); itL != to_plot.end(); ++itL) {
-    const std::string& line = *itL;
-    if (util::isCommentLine(line))
-      continue;
-    METLIBS_LOG_DEBUG(LOGVAL(line));
-
-    miutil::KeyValue_v m_p_o = miutil::splitKeyValue(line);
-
+  for (const miutil::KeyValue_v& m_p_o : to_plot) {
     miutil::KeyValue_v poptions;
     std::string model, field;
     vctime_t reftime;
     int refhour = -1, refoffset = 0;
 
-    const bool isMarkerLine = miutil::contains(line, "MARKER");
-    const bool isReferenceLine = miutil::contains(line, "REFERENCE");
+    const bool isMarkerLine = (miutil::find(m_p_o, "MARKER") != size_t(-1));
+    const bool isReferenceLine = (miutil::find(m_p_o, "REFERENCE") != size_t(-1));
     std::string markerText, markerColour = "black";
     float markerPosition = -1, markerX = -1, markerY = -1;
 
@@ -1110,6 +1114,8 @@ void QtManager::selectFields(const string_v& to_plot)
           refhour = kv.toInt();
         } else if (key == "refoffset") {
           refoffset = kv.toInt();
+        } else if (key == "elevel") {
+          mRealization = kv.toInt();
         } else {
           poptions.push_back(kv);
         }
@@ -1209,14 +1215,21 @@ void QtManager::setTimeGraph(const LonLat& position)
 
 std::vector<std::string> QtManager::writeVcrossOptions()
 {
-  return mOptions->writeOptions();
+  string_v options;
+  for (const miutil::KeyValue_v& o : mOptions->writeOptions())
+    options.push_back(miutil::mergeKeyValue(o));
+  return options;
 }
 
 
 void QtManager::readVcrossOptions(const std::vector<std::string>& log,
     const std::string& thisVersion, const std::string& logVersion)
 {
-  mOptions->readOptions(log);
+  std::vector<miutil::KeyValue_v> options;
+  for (const std::string& line : log)
+    options.push_back(miutil::splitKeyValue(line));
+  mOptions->readOptions(options);
+
   updateOptions();
 }
 

@@ -36,7 +36,6 @@
 #include "diSatManager.h"
 
 #include "diSatPlot.h"
-#include "diStringPlotCommand.h"
 #include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"

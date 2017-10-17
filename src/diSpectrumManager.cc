@@ -56,13 +56,13 @@ using namespace::miutil;
 using namespace std;
 
 SpectrumManager::SpectrumManager()
-: plotw(0), ploth(0), dataChange(true)
+  : spopt(new SpectrumOptions)  // defaults are set
+  , plotw(0), ploth(0)
+  , realizationCount(1)
+  , realization(0)
+  , dataChange(true)
 {
   METLIBS_LOG_SCOPE();
-
-  spopt= new SpectrumOptions();  // defaults are set
-
-  //  parseSetup();
 
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970,1,1,0,0,0);
@@ -75,12 +75,8 @@ SpectrumManager::~SpectrumManager()
 {
   METLIBS_LOG_SCOPE();
 
-  delete spopt;
-
-  for (unsigned int i=0; i<spfile.size(); i++)
-    delete spfile[i];
-  for (unsigned int i=0; i<spdata.size(); i++)
-    delete spdata[i];
+  diutil::delete_all_and_clear(spfile);
+  diutil::delete_all_and_clear(spdata);
 }
 
 
@@ -111,12 +107,13 @@ void SpectrumManager::parseSetup()
       std::string filetype = "standard";
       for ( size_t j=0; j<tokens.size(); ++j) {
         vector<std::string> tokens1= miutil::split(tokens[j], "=");
-        if ( tokens1.size() != 2 ) continue;
-        if ( tokens1[0] == miutil::to_lower("m") ) {
+        if (tokens1.size() != 2)
+          continue;
+        if (tokens1[0] == "m") {
           model = tokens1[1];
-        } else if( tokens1[0] == miutil::to_lower("f") ) {
+        } else if (tokens1[0] == "f") {
           filename = tokens1[1];
-        } else if( tokens1[0] == miutil::to_lower("t") ) {
+        } else if (tokens1[0] == "t") {
           filetype = tokens1[1];
         }
       }
@@ -197,6 +194,11 @@ void SpectrumManager::setModel()
   dataChange= true;
 }
 
+
+void SpectrumManager::setRealization(int r)
+{
+  realization = std::max(std::min(r, realizationCount-1), 0);
+}
 
 void SpectrumManager::setStation(const std::string& station)
 {
@@ -325,17 +327,16 @@ bool SpectrumManager::plot(DiGLPainter* gl)
   if (nmod == 0)
     nmod = spdata.size();
 
-  SpectrumPlot::startPlot(nmod,plotw,ploth,spopt, gl);
+  SpectrumPlot::startPlot(nmod, plotw, ploth, spopt.get(), gl);
 
-  if (not plotStation.empty()) {
-    int m= spectrumplots.size();
-    for (int i=0; i<m; i++) {
-      if (spectrumplots[i])
-        spectrumplots[i]->plot(spopt, gl);
+  if (!plotStation.empty()) {
+    for (SpectrumPlot* sp : spectrumplots) {
+      if (sp)
+        sp->plot(spopt.get(), gl);
     }
   }
 
-  SpectrumPlot::plotDiagram(spopt, gl);
+  SpectrumPlot::plotDiagram(spopt.get(), gl);
   return true;
 }
 
@@ -344,23 +345,16 @@ void SpectrumManager::preparePlot()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= spectrumplots.size();
-  for (int i=0; i<n; i++)
-    delete spectrumplots[i];
-  spectrumplots.clear();
+  diutil::delete_all_and_clear(spectrumplots);
 
   if (plotStation.empty())
     return;
 
-  int m= spfile.size();
-
-  for (int i=0; i<m; i++) {
-    SpectrumPlot *spp= spfile[i]->getData(plotStation,plotTime);
-    spectrumplots.push_back(spp);
+  for (SpectrumFile* sf : spfile) {
+    spectrumplots.push_back(sf->getData(plotStation, plotTime));
   }
-  for (size_t i=0; i<spdata.size(); i++) {
-    SpectrumPlot *spp= spdata[i]->getData(plotStation,plotTime);
-    spectrumplots.push_back(spp);
+  for (SpectrumData* sd: spdata) {
+    spectrumplots.push_back(sd->getData(plotStation, plotTime, realization));
   }
 }
 
@@ -556,10 +550,13 @@ void SpectrumManager::initTimes()
   timeList.clear();
 
   //assume common times...
-  if (spdata.size())
+  if (spdata.size()) {
     timeList= spdata[0]->getTimes();
-  else if (spfile.size())
+    realizationCount = spdata[0]->getRealizationCount();
+  } else if (spfile.size()) {
     timeList= spfile[0]->getTimes();
+    realizationCount = 1;
+  }
 
   int n= timeList.size();
   int i= 0;
@@ -568,6 +565,7 @@ void SpectrumManager::initTimes()
   if (i==n && n>0) {
       plotTime= timeList[0];
   }
+  setRealization(realization);
 }
 
 

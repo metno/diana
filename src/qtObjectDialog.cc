@@ -35,8 +35,9 @@
 #include "qtObjectDialog.h"
 #include "qtEditComment.h"
 #include "diObjectManager.h"
-#include "diStringPlotCommand.h"
 #include "qtUtility.h"
+
+#include "diKVListPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -513,49 +514,48 @@ PlotCommand_cpv ObjectDialog::getOKString()
   PlotCommand_cpv vstr;
 
   if (selectedFileList->count()) {
-    ostringstream ostr;
-    ostr << "OBJECTS";
+    miutil::KeyValue_v kvs;
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
     if (index>-1 && index<int(objectnames.size())){
       //item has been selected in dialog
-      ostr << " NAME=\"" << objectnames[index] << "\"";
+      add(kvs, "name", objectnames[index]);
 
       if (timefileListIndex>-1 && timefileListIndex<int(files.size())) {
         const ObjFileInfo& file = files[timefileListIndex];
         if (timeButton->isChecked()){
           const miutil::miTime& time=file.time;
           if (!time.undef())
-            ostr << " TIME=" << stringFromTime(time);
+            add(kvs, "time", stringFromTime(time));
         } else if (fileButton->isChecked()) {
           if (!file.name.empty())
-            ostr << " FILE=" << file.name;
+            add(kvs, "file", file.name);
         }
       }
     }
 
-    ostr << " types=";
-
+    std::vector<std::string> types;
     if (cbs0->isChecked())
-      ostr << "front,";
+      types.push_back("front");
     if (cbs1->isChecked())
-      ostr << "symbol,";
+      types.push_back("symbol");
     if (cbs2->isChecked())
-      ostr << "area,";
+      types.push_back("area");
     if (cbs3->isChecked())
-      ostr << "anno";
+      types.push_back("anno");
+    add(kvs, "types", types);
 
-    ostr << " timediff=" << m_totalminutes;
+    add(kvs, "timediff", m_totalminutes);
     if (alpha->isChecked())
-      ostr <<" alpha=" << m_alphanr;
+      add(kvs, "alpha", m_alphanr);
 
-    ostr << plotVariables.external;
-
-    vstr.push_back(std::make_shared<StringPlotCommand>("OBJECTS", ostr.str()));
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("OBJECTS");
+    cmd->add(kvs);
+    cmd->add(plotVariables.external);
+    vstr.push_back(cmd);
 
     // clear external variables
     plotVariables.external.clear();
-
   }
 
   return vstr;
@@ -572,13 +572,11 @@ void ObjectDialog::putOKString(const PlotCommand_cpv& vstr)
 
   // loop through all PlotInfo's
   for (PlotCommand_cp pc : vstr) {
-    StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
     if (!c)
       continue;
     //(if there are several plotInfos, only the last one will be used
-    vector<string> tokens = miutil::split_protected(c->command(), '"', '"');
-    //get info from OKstring into struct PlotVariables
-    plotVariables = decodeString(tokens);
+    plotVariables = decodeString(c->all());
   }
 
 
@@ -656,7 +654,7 @@ void ObjectDialog::putOKString(const PlotCommand_cpv& vstr)
 
 
 // static
-ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & tokens)
+ObjectDialog::PlotVariables ObjectDialog::decodeString(const miutil::KeyValue_v& tokens)
 {
   METLIBS_LOG_SCOPE();
 
@@ -664,40 +662,33 @@ ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & to
   okVar.totalminutes=-1;
   okVar.alphanr=1.0;
 
-  int n= tokens.size();
-
   //loop over OKstrings
-  for (int i=0; i<n; i++) {
-    //decode string
-    std::string token = miutil::to_lower(tokens[i]);
-    if (miutil::contains(token, "types=")){
-      okVar.useobject = WeatherObjects::decodeTypeString(token);
-    } else {
-      vector<string> stokens= miutil::split(tokens[i], 0, "=");
-      if (stokens.size()==2) {
-        const std::string key = miutil::to_lower(stokens[0]);
-        const std::string& value = stokens[1];
-        if (key=="name") {
-          if (value[0]=='"')
-            okVar.objectname = value.substr(1,value.length()-2);
-          else
-            okVar.objectname = value;
-        }else if (key=="time") {
-          okVar.time=value;
-        } else if (key=="file") {
-          okVar.file=value;
-        } else if (key == "timediff") {
-          okVar.totalminutes = atoi(value.c_str());
-        } else if (key=="alpha" || key=="alfa") {
-          okVar.alphanr = atof(value.c_str());
-        } else {
-          //anythig unknown, add to external string
-          okVar.external+=" " + tokens[i];
-        }
+  for (const miutil::KeyValue& kv : tokens) {
+    if (kv.hasValue()) {
+      const std::string& key = kv.key();
+      const std::string& value = kv.value();
+      if (key == "name") {
+        if (value[0]=='"')
+          okVar.objectname = value.substr(1,value.length()-2);
+        else
+          okVar.objectname = value;
+      } else if (key == "types") {
+        okVar.useobject = WeatherObjects::decodeTypeString(value);
+      } else if (key == "time") {
+        okVar.time=value;
+      } else if (key == "file") {
+        okVar.file=value;
+      } else if (key == "timediff") {
+        okVar.totalminutes = kv.toInt();
+      } else if (key == "alpha" || key == "alfa") {
+        okVar.alphanr = kv.toFloat();
       } else {
-        //anythig unknown, add to external string
-        okVar.external+=" " + tokens[i];
+        // unknown key: add to external string
+        okVar.external.push_back(kv);
       }
+    } else {
+      // no value: add to external string
+      okVar.external.push_back(kv);
     }
   }
   return okVar;

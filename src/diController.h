@@ -32,6 +32,7 @@
 #include "diColour.h"
 #include "diCommonTypes.h"
 #include "diDrawingTypes.h"
+#include "diMapInfo.h"
 #include "diMapMode.h"
 #include "diPlotCommand.h"
 
@@ -295,6 +296,8 @@ public:
   std::vector<std::string> getFieldLevels(const PlotCommand_cp& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+  /// return GlobalAttributes for one model
+  std::map<std::string,std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
   /// Returns available times for the requested fields.
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
   ///update list of fieldsources (field files)

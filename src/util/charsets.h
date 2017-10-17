@@ -7,8 +7,6 @@
 
 namespace diutil {
 
-std::string convertLatin1ToUtf8(const std::string& latin1);
-
 class CharsetConverter {
 public:
   virtual ~CharsetConverter();

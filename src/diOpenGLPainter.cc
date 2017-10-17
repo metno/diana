@@ -58,7 +58,7 @@ void DiOpenGLCanvas::initializeFP()
   mFP.reset(new FontManager);
 }
 
-void DiOpenGLCanvas::setVpGlSize(float vpw, float vph, float glw, float glh)
+void DiOpenGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vph) << LOGVAL(glw) << LOGVAL(glh));
   fp()->setVpSize(vpw, vph);
@@ -384,59 +384,7 @@ void DiOpenGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
   delete[] countpos;
 }
 
-void DiOpenGLPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
-    const diutil::Rect_v& imageparts, bool smooth)
+void DiOpenGLPainter::drawScreenImage(const QPointF&, const QImage&)
 {
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-  const GLuint width = image.width(), height = image.height(),
-      size1 = (width+1) * (height+1);
-
-  glVertexPointer(2, GL_FLOAT, 0, mapPositionsXY);
-  glEnableClientState(GL_VERTEX_ARRAY);
-
-  boost::shared_array<GLubyte> big(new GLubyte[4*size1]);
-  size_t ib = 0;
-  for (size_t iy=0; iy<height; ++iy) {
-    for (size_t ix=0; ix<width; ++ix) {
-      const QRgb p = image.pixel(ix, iy);
-      big[ib++] = qRed(p);
-      big[ib++] = qGreen(p);
-      big[ib++] = qBlue(p);
-      big[ib++] = qAlpha(p);
-    }
-    // transparent pixel at end of line
-    for (size_t i=0; i<4; ++i)
-      big[ib++] = 0;
-  }
-  for (size_t ix=0; ix<=width; ++ix) {
-    for (size_t i=0; i<4; ++i)
-      big[ib++] = 0;
-  }
-  glColorPointer(4, GL_UNSIGNED_BYTE, 0, big.get());
-  glEnableClientState(GL_COLOR_ARRAY);
-
-  QVector<GLuint> indices;
-  for (diutil::Rect_v::const_iterator it = imageparts.begin(); it != imageparts.end(); ++it) {
-    for (int iy=it->y1; iy < it->y2; ++iy) {
-      for (int ix=it->x1; ix < it->x2; ++ix) {
-        const QRgb p = image.pixel(ix, iy);
-        if (qAlpha(p) == 0)
-          continue;
-        const GLuint i00 = (width+1) * iy + ix, i01 = i00 + (width+1), i10 = i00 + 1, i11 = i01 + 1;
-        indices.append(i10);
-        indices.append(i11);
-        indices.append(i01);
-        indices.append(i00);
-      }
-    }
-  }
-
-  glDrawElements(GL_QUADS, indices.size(), GL_UNSIGNED_INT, indices.constData());
-
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_COLOR_ARRAY);
+  // FIXME maybe implement
 }

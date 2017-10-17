@@ -55,6 +55,7 @@ class QCheckBox;
 class QSlider;
 class QColor;
 
+class Linetype;
 
 int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
 int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
@@ -78,8 +79,12 @@ QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 
 // ComboBox
 
+void installCombo(QComboBox* box, const std::vector<std::string>& vstr, bool Enabled=true, int defItem=0);
+
 QComboBox* ComboBox(QWidget* parent, const std::vector<std::string>& vstr,
     bool Enabled=true, int defItem=0);
+
+void installCombo(QComboBox* box, QColor* pixcolor, int nr_colors, bool Enabled=true, int defItem=0);
 
 QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors,
     bool Enabled=true, int defItem=0);
@@ -140,7 +145,9 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 
 void listWidget(QListWidget* box, const std::vector<std::string>& vstr, int defItem=-1);
 
-QPixmap* linePixmap(const std::string& pattern, int linewidth);
+QPixmap linePixmap(int linewidth);
+QPixmap linePixmap(const Linetype& pattern, int linewidth);
+QPixmap linePixmap(const Linetype& pattern, int linewidth, const Colour& col);
 
 namespace diutil {
 

@@ -37,10 +37,113 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miStringBuilder.h>
 
-#include <boost/foreach.hpp>
-
 #define MILOGGER_CATEGORY "diana.VcrossOptions"
 #include <miLogger/miLogging.h>
+
+namespace {
+
+const char key_text[] = "text";
+const char key_textColour[] = "textcolour";
+
+const char key_PositionNames[] = "positionnames";
+const char key_positionNamesColour[] = "positionnamescolour";
+
+const char key_frame[] = "frame";
+const char key_frameColour[] = "framecolour";
+const char key_frameLinetype[] = "framelinetype";
+const char key_frameLinewidth[] = "framelinewidth";
+
+const char key_LevelNumbers[] = "levelnumbers";
+
+const char key_UpperLevel[] = "upperlevel";
+const char key_upperLevelColour[] = "upperlevelcolour";
+const char key_upperLevelLinetype[] = "upperlevellinetype";
+const char key_upperLevelLinewidth[] = "upperlevellinewidth";
+
+const char key_LowerLevel[] = "lowerlevel";
+const char key_lowerLevelColour[] = "lowerlevelcolour";
+const char key_lowerLevelLinetype[] = "lowerlevellinetype";
+const char key_lowerLevelLinewidth[] = "lowerlevellinewidth";
+
+const char key_OtherLevels[] = "otherlevels";
+const char key_otherLevelsColour[] = "otherlevelscolour";
+const char key_otherLevelsLinetype[] = "otherlevelslinetype";
+const char key_otherLevelsLinewidth[] = "otherlevelslinewidth";
+
+const char key_Surface[] = "surface";
+const char key_surfaceColour[] = "surfacecolour";
+const char key_surfaceLinetype[] = "surfacelinetype";
+const char key_surfaceLinewidth[] = "surfacelinewidth";
+
+const char key_Inflight[] = "inflight";
+const char key_inflightColour[] = "inflightcolour";
+const char key_inflightLinetype[] = "inflightlinetype";
+const char key_inflightLinewidth[] = "inflightlinewidth";
+
+const char key_Distance[] = "distance";
+const char key_distanceColour[] = "distancecolour";
+const char key_distanceUnit[] = "distanceunit";
+const char key_distanceStep[] = "distancestep";
+
+const char key_XYpos[] = "xypos";
+const char key_xyposColour[] = "xyposcolour";
+
+const char key_GeoPos[] = "geopos";
+const char key_geoposColour[] = "geoposcolour";
+
+const char key_Compass[] = "compass";
+
+const char key_HorizontalGridLines[] = "horizontalgridlines";
+const char key_horgridColour[] = "horgridcolour";
+const char key_horgridLinetype[] = "horgridlinetype";
+const char key_horgridLinewidth[] = "horgridlinewidth";
+
+const char key_VerticalGridLines[] = "verticalgridlines";
+const char key_vergridColour[] = "vergridcolour";
+const char key_vergridLinetype[] = "vergridlinetype";
+const char key_vergridLinewidth[] = "vergridlinewidth";
+
+const char key_Markerlines[] = "markerlines";
+const char key_markerlinesColour[] = "markerlinescolour";
+const char key_markerlinesLinetype[] = "markerlineslinetype";
+const char key_markerlinesLinewidth[] = "markerlineslinewidth";
+
+const char key_VerticalMarker[] = "verticalmarker";
+const char key_verticalMarkerColour[] = "verticalmarkercolour";
+const char key_verticalMarkerLinetype[] = "verticalmarkerlinetype";
+const char key_verticalMarkerLinewidth[] = "verticalmarkerlinewidth";
+const char key_verticalMarkerLimit[] = "verticalmarkerlimit";
+
+const char key_extrapolateFixedLevels[] = "extrapolatefixedlevels";
+const char key_extrapolateToBottom[] = "extrapolatetobottom";
+
+const char key_Vertical[] = "vertical";
+const char key_verticalScale[] = "verticalscale";
+const char key_verticalCoordinate[] = "verticalcoordinate";
+const char key_verticalUnit[] = "verticalunit";
+
+const char key_keepVerHorRatio[] = "keepverhorratio";
+const char key_verHorRatio[] = "verhorratio";
+
+const char key_stdVerticalArea[] = "stdverticalarea";
+const char key_minVerticalArea[] = "minverticalarea";
+const char key_maxVerticalArea[] = "maxverticalarea";
+
+const char key_stdHorizontalArea[] = "stdhorizontalarea";
+const char key_minHorizontalArea[] = "minhorizontalarea";
+const char key_maxHorizontalArea[] = "maxhorizontalarea";
+
+const char key_backgroundColour[] = "backgroundcolour";
+
+const char key_OnMapColour[] = "onmapcolour";
+const char key_OnMapLinetype[] = "onmaplinetype";
+const char key_OnMapLinewidth[] = "onmaplinewidth";
+
+const char key_SelectedOnMapColour[] = "selectedonmapcolour";
+const char key_SelectedOnMapLinetype[] = "selectedonmaplinetype";
+const char key_SelectedOnMapLinewidth[] = "selectedonmaplinewidth";
+
+} // namespace
 
 namespace vcross {
 
@@ -190,266 +293,268 @@ void VcrossOptions::setDefaults()
   vcSelectedOnMapLinewidth= 4.;
 }
 
-static const char* asBool(bool b)
-{
-  return (b ? "on" : "off");
-}
-
-std::vector<std::string> VcrossOptions::writeOptions() const
+std::vector<miutil::KeyValue_v> VcrossOptions::writeOptions() const
 {
   METLIBS_LOG_SCOPE();
 
-  using miutil::StringBuilder;
+  using miutil::kv;
+  using miutil::KeyValue_v;
 
-  std::vector<std::string> vstr;
-  vstr.push_back((StringBuilder()
-      << "text=" << asBool(pText)
-      << " textColour=" << textColour));
+  std::vector<KeyValue_v> vkvs;
 
-  vstr.push_back((StringBuilder()
-      << "PositionNames=" << asBool(pPositionNames)
-      << " positionNamesColour=" << positionNamesColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_text, pText)
+              << kv(key_textColour, textColour);
 
-  vstr.push_back((StringBuilder()
-      << "frame=" << asBool(pFrame)
-      << " frameColour=" << frameColour
-      << " frameLinetype=" << frameLinetype
-      << " frameLinewidth=" << frameLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_PositionNames, pPositionNames)
+              << kv(key_positionNamesColour, positionNamesColour);
 
-  vstr.push_back((StringBuilder()
-      << "LevelNumbers=" << asBool(pLevelNumbers)));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_frame, pFrame)
+              << kv(key_frameColour, frameColour)
+              << kv(key_frameLinetype, frameLinetype)
+              << kv(key_frameLinewidth, frameLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "UpperLevel=" << asBool(pUpperLevel)
-      << " upperLevelColour=" << upperLevelColour
-      << " upperLevelLinetype=" << upperLevelLinetype
-      << " upperLevelLinewidth=" << upperLevelLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_LevelNumbers, pLevelNumbers);
 
-  vstr.push_back((StringBuilder()
-      << "LowerLevel=" << asBool(pLowerLevel)
-      << " lowerLevelColour=" << lowerLevelColour
-      << " lowerLevelLinetype=" << lowerLevelLinetype
-      << " lowerLevelLinewidth=" << lowerLevelLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_UpperLevel, pUpperLevel)
+      << kv(key_upperLevelColour, upperLevelColour)
+      << kv(key_upperLevelLinetype, upperLevelLinetype)
+      << kv(key_upperLevelLinewidth, upperLevelLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "OtherLevels=" << asBool(pOtherLevels)
-      << " otherLevelsColour=" << otherLevelsColour
-      << " otherLevelsLinetype=" << otherLevelsLinetype
-      << " otherLevelsLinewidth=" << otherLevelsLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_LowerLevel, pLowerLevel)
+              << kv(key_lowerLevelColour, lowerLevelColour)
+              << kv(key_lowerLevelLinetype, lowerLevelLinetype)
+              << kv(key_lowerLevelLinewidth, lowerLevelLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Surface=" << asBool(pSurface)
-      << " surfaceColour=" << surfaceColour
-      << " surfaceLinetype=" << surfaceLinetype
-      << " surfaceLinewidth=" << surfaceLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_OtherLevels, pOtherLevels)
+              << kv(key_otherLevelsColour, otherLevelsColour)
+              << kv(key_otherLevelsLinetype, otherLevelsLinetype)
+              << kv(key_otherLevelsLinewidth, otherLevelsLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Inflight=" << asBool(pInflight)
-      << " inflightColour=" << inflightColour
-      << " inflightLinetype=" << inflightLinetype
-      << " inflightLinewidth=" << inflightLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_Surface, pSurface)
+              << kv(key_surfaceColour, surfaceColour)
+              << kv(key_surfaceLinetype, surfaceLinetype)
+              << kv(key_surfaceLinewidth, surfaceLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Distance=" << asBool(pDistance)
-      << " distanceColour=" << distanceColour
-      << " distanceUnit=" << distanceUnit));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_Inflight, pInflight)
+              << kv(key_inflightColour, inflightColour)
+              << kv(key_inflightLinetype, inflightLinetype)
+              << kv(key_inflightLinewidth, inflightLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "XYpos=" << asBool(pXYpos)
-      << " xyposColour=" << xyposColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_Distance, pDistance)
+              << kv(key_distanceColour, distanceColour)
+              << kv(key_distanceUnit, distanceUnit);
 
-  vstr.push_back((StringBuilder()
-      << "GeoPos=" << asBool(pGeoPos)
-      << " geoposColour=" << geoposColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_XYpos, pXYpos)
+              << kv(key_xyposColour, xyposColour);
 
-  vstr.push_back((StringBuilder()
-      << "Compass=" << asBool(pCompass)));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_GeoPos, pGeoPos)
+              << kv(key_geoposColour, geoposColour);
 
-  vstr.push_back((StringBuilder()
-      << "HorizontalGridLines=" << asBool(pHorizontalGridLines)
-      << " horgridColour=" << horgridColour
-      << " horgridLinetype=" << horgridLinetype
-      << " horgridLinewidth=" << horgridLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_Compass, pCompass);
 
-  vstr.push_back((StringBuilder()
-      << "VerticalGridLines=" << asBool(pVerticalGridLines)
-      << " vergridColour=" << vergridColour
-      << " vergridLinetype=" << vergridLinetype
-      << " vergridLinewidth=" << vergridLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_HorizontalGridLines, pHorizontalGridLines)
+              << kv(key_horgridColour, horgridColour)
+              << kv(key_horgridLinetype, horgridLinetype)
+              << kv(key_horgridLinewidth, horgridLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "Markerlines=" << asBool(pMarkerlines)
-      << " markerlinesColour=" << markerlinesColour
-      << " markerlinesLinetype=" << markerlinesLinetype
-      << " markerlinesLinewidth=" << markerlinesLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_VerticalGridLines, pVerticalGridLines)
+              << kv(key_vergridColour, vergridColour)
+              << kv(key_vergridLinetype, vergridLinetype)
+              << kv(key_vergridLinewidth, vergridLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "VerticalMarker=" << asBool(pVerticalMarker)
-      << " verticalMarkerColour=" << verticalMarkerColour
-      << " verticalMarkerLinetype=" << verticalMarkerLinetype
-      << " verticalMarkerLinewidth=" << verticalMarkerLinewidth
-      << " verticalMarkerLimit=" << verticalMarkerLimit));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_Markerlines, pMarkerlines)
+              << kv(key_markerlinesColour, markerlinesColour)
+              << kv(key_markerlinesLinetype, markerlinesLinetype)
+              << kv(key_markerlinesLinewidth, markerlinesLinewidth);
 
-  vstr.push_back((StringBuilder()
-      << "extrapolateFixedLevels=" << asBool(extrapolateFixedLevels)));
-  vstr.push_back((StringBuilder()
-      << "extrapolateToBottom=" << asBool(extrapolateToBottom)));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_VerticalMarker, pVerticalMarker)
+              << kv(key_verticalMarkerColour, verticalMarkerColour)
+              << kv(key_verticalMarkerLinetype, verticalMarkerLinetype)
+              << kv(key_verticalMarkerLinewidth, verticalMarkerLinewidth)
+              << kv(key_verticalMarkerLimit, verticalMarkerLimit);
 
-  vstr.push_back((StringBuilder()
-      << "Vertical=" << verticalType));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_extrapolateFixedLevels, extrapolateFixedLevels);
 
-  vstr.push_back((StringBuilder()
-      << "verticalScale=" << verticalScale
-      << " verticalCoordinate=" << verticalCoordinate
-      << " verticalUnit=" << verticalUnit));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_extrapolateToBottom, extrapolateToBottom);
 
-    vstr.push_back((StringBuilder()
-        << "keepVerHorRatio=" << asBool(keepVerHorRatio)
-        << " verHorRatio=" << verHorRatio));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_Vertical, verticalType);
 
-    vstr.push_back((StringBuilder()
-        << "stdVerticalArea=" << asBool(stdVerticalArea)
-        << " minVerticalArea=" << minVerticalArea
-        << " maxVerticalArea=" << maxVerticalArea));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_verticalScale, verticalScale)
+              << kv(key_verticalCoordinate, verticalCoordinate)
+              << kv(key_verticalUnit, verticalUnit);
 
-    vstr.push_back((StringBuilder()
-        << "stdHorizontalArea=" << asBool(stdHorizontalArea)
-        << " minHorizontalArea=" << minHorizontalArea
-        << " maxHorizontalArea=" << maxHorizontalArea));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_keepVerHorRatio, keepVerHorRatio)
+              << kv(key_verHorRatio, verHorRatio);
 
-    vstr.push_back((StringBuilder()
-        << "backgroundColour=" << backgroundColour));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_stdVerticalArea, stdVerticalArea)
+              << kv(key_minVerticalArea, minVerticalArea)
+              << kv(key_maxVerticalArea, maxVerticalArea);
 
-    vstr.push_back((StringBuilder()
-        << "OnMapColour=" << vcOnMapColour
-        << " OnMapLinetype=" << vcOnMapLinetype
-        << " OnMapLinewidth=" << vcOnMapLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_stdHorizontalArea, stdHorizontalArea)
+              << kv(key_minHorizontalArea, minHorizontalArea)
+              << kv(key_maxHorizontalArea, maxHorizontalArea);
 
-    vstr.push_back((StringBuilder()
-        <<  "SelectedOnMapColour=" << vcSelectedOnMapColour
-        << " SelectedOnMapLinetype=" << vcSelectedOnMapLinetype
-        << " SelectedOnMapLinewidth=" << vcSelectedOnMapLinewidth));
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_backgroundColour, backgroundColour);
 
-    return vstr;
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_OnMapColour, vcOnMapColour)
+              << kv(key_OnMapLinetype, vcOnMapLinetype)
+              << kv(key_OnMapLinewidth, vcOnMapLinewidth);
+
+  vkvs.push_back(KeyValue_v());
+  vkvs.back() << kv(key_SelectedOnMapColour, vcSelectedOnMapColour)
+              << kv(key_SelectedOnMapLinetype, vcSelectedOnMapLinetype)
+              << kv(key_SelectedOnMapLinewidth, vcSelectedOnMapLinewidth);
+
+  return vkvs;
 }
 
 
-void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
+void VcrossOptions::readOptions(const std::vector<miutil::KeyValue_v>& vkvs)
 {
   METLIBS_LOG_SCOPE();
 
-  for (const std::string& line : vstr) {
-    const miutil::KeyValue_v kvs = miutil::SetupParser::splitManyKeyValue(line, true);
+  for (const miutil::KeyValue_v& kvs : vkvs) {
     for (const miutil::KeyValue& kv : kvs) {
-      const std::string& key = kv.key(), value = kv.value();
+      const std::string& key = kv.key();
+      const std::string& value = kv.value();
       if (value.empty())
         continue;
+      METLIBS_LOG_DEBUG(LOGVAL(kv));
 
-      if      (key=="text")       pText = kv.toBool();
-      else if (key=="textColour") textColour= value;
+      if      (key==key_text)       pText = kv.toBool();
+      else if (key==key_textColour) textColour= value;
 
-      else if (key=="PositionNames")       pPositionNames = kv.toBool();
-      else if (key=="positionNamesColour") positionNamesColour= value;
+      else if (key==key_PositionNames)       pPositionNames = kv.toBool();
+      else if (key==key_positionNamesColour) positionNamesColour= value;
 
-      else if (key=="frame")          pFrame = kv.toBool();
-      else if (key=="frameColour")    frameColour= value;
-      else if (key=="frameLinetype")  frameLinetype= value;
-      else if (key=="frameLinewidth") frameLinewidth = kv.toDouble();
+      else if (key==key_frame)          pFrame = kv.toBool();
+      else if (key==key_frameColour)    frameColour= value;
+      else if (key==key_frameLinetype)  frameLinetype= value;
+      else if (key==key_frameLinewidth) frameLinewidth = kv.toDouble();
 
-      else if (key=="LevelNumbers") pLevelNumbers = kv.toBool();
+      else if (key==key_LevelNumbers) pLevelNumbers = kv.toBool();
 
-      else if (key=="UpperLevel")          pUpperLevel = kv.toBool();
-      else if (key=="upperLevelColour")    upperLevelColour= value;
-      else if (key=="upperLevelLinetype")  upperLevelLinetype= value;
-      else if (key=="upperLevelLinewidth") upperLevelLinewidth = kv.toDouble();
+      else if (key==key_UpperLevel)          pUpperLevel = kv.toBool();
+      else if (key==key_upperLevelColour)    upperLevelColour= value;
+      else if (key==key_upperLevelLinetype)  upperLevelLinetype= value;
+      else if (key==key_upperLevelLinewidth) upperLevelLinewidth = kv.toDouble();
 
-      else if (key=="LowerLevel")          pLowerLevel = kv.toBool();
-      else if (key=="lowerLevelColour")    lowerLevelColour= value;
-      else if (key=="lowerLevelLinetype")  lowerLevelLinetype= value;
-      else if (key=="lowerLevelLinewidth") lowerLevelLinewidth = kv.toDouble();
+      else if (key==key_LowerLevel)          pLowerLevel = kv.toBool();
+      else if (key==key_lowerLevelColour)    lowerLevelColour= value;
+      else if (key==key_lowerLevelLinetype)  lowerLevelLinetype= value;
+      else if (key==key_lowerLevelLinewidth) lowerLevelLinewidth = kv.toDouble();
 
-      else if (key=="OtherLevels")          pOtherLevels = kv.toBool();
-      else if (key=="otherLevelsColour")    otherLevelsColour= value;
-      else if (key=="otherLevelsLinetype")  otherLevelsLinetype= value;
-      else if (key=="otherLevelsLinewidth") otherLevelsLinewidth = kv.toDouble();
+      else if (key==key_OtherLevels)          pOtherLevels = kv.toBool();
+      else if (key==key_otherLevelsColour)    otherLevelsColour= value;
+      else if (key==key_otherLevelsLinetype)  otherLevelsLinetype= value;
+      else if (key==key_otherLevelsLinewidth) otherLevelsLinewidth = kv.toDouble();
 
-      else if (key=="Surface")          pSurface = kv.toBool();
-      else if (key=="surfaceColour")    surfaceColour= value;
-      else if (key=="surfaceLinetype")  surfaceLinetype= value;
-      else if (key=="surfaceLinewidth") surfaceLinewidth= kv.toDouble();
+      else if (key==key_Surface)          pSurface = kv.toBool();
+      else if (key==key_surfaceColour)    surfaceColour= value;
+      else if (key==key_surfaceLinetype)  surfaceLinetype= value;
+      else if (key==key_surfaceLinewidth) surfaceLinewidth= kv.toDouble();
 
-      else if (key=="Inflight")         pInflight = kv.toBool();
-      else if (key=="inflightColour")    inflightColour= value;
-      else if (key=="inflightLinetype")  inflightLinetype= value;
-      else if (key=="inflightLinewidth") inflightLinewidth= kv.toDouble();
+      else if (key==key_Inflight)         pInflight = kv.toBool();
+      else if (key==key_inflightColour)    inflightColour= value;
+      else if (key==key_inflightLinetype)  inflightLinetype= value;
+      else if (key==key_inflightLinewidth) inflightLinewidth= kv.toDouble();
 
-      else if (key=="Distance")       pDistance = kv.toBool();
-      else if (key=="distanceColour") distanceColour= value;
-      else if (key=="distanceUnit")   distanceUnit= value;
-      else if (key=="distanceStep")   distanceStep= value;
+      else if (key==key_Distance)       pDistance = kv.toBool();
+      else if (key==key_distanceColour) distanceColour= value;
+      else if (key==key_distanceUnit)   distanceUnit= value;
+      else if (key==key_distanceStep)   distanceStep= value;
 
-      else if (key=="XYpos")          pXYpos = kv.toBool();
-      else if (key=="xyposColour")    xyposColour= value;
+      else if (key==key_XYpos)          pXYpos = kv.toBool();
+      else if (key==key_xyposColour)    xyposColour= value;
 
-      else if (key=="GeoPos")         pGeoPos = kv.toBool();
-      else if (key=="geoposColour")   geoposColour= value;
+      else if (key==key_GeoPos)         pGeoPos = kv.toBool();
+      else if (key==key_geoposColour)   geoposColour= value;
 
-      else if (key=="Compass")        pCompass = kv.toBool();
+      else if (key==key_Compass)        pCompass = kv.toBool();
 
-      else if (key=="HorizontalGridLines") pHorizontalGridLines = kv.toBool();
-      else if (key=="horgridColour")       horgridColour= value;
-      else if (key=="horgridLinetype")     horgridLinetype= value;
-      else if (key=="horgridLinewidth")    horgridLinewidth= kv.toDouble();
+      else if (key==key_HorizontalGridLines) pHorizontalGridLines = kv.toBool();
+      else if (key==key_horgridColour)       horgridColour= value;
+      else if (key==key_horgridLinetype)     horgridLinetype= value;
+      else if (key==key_horgridLinewidth)    horgridLinewidth= kv.toDouble();
 
-      else if (key=="VerticalGridLines") pVerticalGridLines = kv.toBool();
-      else if (key=="vergridColour")     vergridColour= value;
-      else if (key=="vergridLinetype")   vergridLinetype= value;
-      else if (key=="vergridLinewidth")  vergridLinewidth= kv.toDouble();
+      else if (key==key_VerticalGridLines) pVerticalGridLines = kv.toBool();
+      else if (key==key_vergridColour)     vergridColour= value;
+      else if (key==key_vergridLinetype)   vergridLinetype= value;
+      else if (key==key_vergridLinewidth)  vergridLinewidth= kv.toDouble();
 
-      else if (key=="Markerlines")           pMarkerlines = kv.toBool();
-      else if (key=="markerlinesColour")     markerlinesColour= value;
-      else if (key=="markerlinesLinetype")   markerlinesLinetype= value;
-      else if (key=="markerlinesLinewidth")  markerlinesLinewidth= kv.toDouble();
+      else if (key==key_Markerlines)           pMarkerlines = kv.toBool();
+      else if (key==key_markerlinesColour)     markerlinesColour= value;
+      else if (key==key_markerlinesLinetype)   markerlinesLinetype= value;
+      else if (key==key_markerlinesLinewidth)  markerlinesLinewidth= kv.toDouble();
 
-      else if (key=="VerticalMarker")
+      else if (key==key_VerticalMarker)
         pVerticalMarker = kv.toBool();
-      else if (key=="verticalMarkerColour")
+      else if (key==key_verticalMarkerColour)
         verticalMarkerColour= value;
-      else if (key=="verticalMarkerLinetype")
+      else if (key==key_verticalMarkerLinetype)
         verticalMarkerLinetype= value;
-      else if (key=="verticalMarkerLinewidth")
+      else if (key==key_verticalMarkerLinewidth)
         verticalMarkerLinewidth= kv.toDouble();
-      else if (key=="verticalMarkerLimit")
+      else if (key==key_verticalMarkerLimit)
         verticalMarkerLimit= kv.toDouble();
 
-      else if (key=="extrapolateFixedLevels") extrapolateFixedLevels = kv.toBool();
-      else if (key=="extrapolateToBottom")    extrapolateToBottom = kv.toBool();
+      else if (key==key_extrapolateFixedLevels) extrapolateFixedLevels = kv.toBool();
+      else if (key==key_extrapolateToBottom)    extrapolateToBottom = kv.toBool();
 
-      else if (key=="Vertical")               verticalType= value;
-      else if (key=="verticalScale")               verticalScale= value;
-      else if (key=="verticalCoordinate")               verticalCoordinate= value;
-      else if (key=="verticalUnit")               verticalUnit= value;
+      else if (key==key_Vertical)               verticalType= value;
+      else if (key==key_verticalScale)               verticalScale= value;
+      else if (key==key_verticalCoordinate)               verticalCoordinate= value;
+      else if (key==key_verticalUnit)               verticalUnit= value;
 
-      else if (key=="keepVerHorRatio") keepVerHorRatio = kv.toBool();
-      else if (key=="verHorRatio")     verHorRatio= kv.toDouble();
+      else if (key==key_keepVerHorRatio) keepVerHorRatio = kv.toBool();
+      else if (key==key_verHorRatio)     verHorRatio= kv.toDouble();
 
-      else if (key=="stdVerticalArea") stdVerticalArea = kv.toBool();
-      else if (key=="minVerticalArea") minVerticalArea= kv.toInt();
-      else if (key=="maxVerticalArea") maxVerticalArea= kv.toInt();
+      else if (key==key_stdVerticalArea) stdVerticalArea = kv.toBool();
+      else if (key==key_minVerticalArea) minVerticalArea= kv.toInt();
+      else if (key==key_maxVerticalArea) maxVerticalArea= kv.toInt();
 
-      else if (key=="stdHorizontalArea") stdHorizontalArea = kv.toBool();
-      else if (key=="minHorizontalArea") minHorizontalArea= kv.toInt();
-      else if (key=="maxHorizontalArea") maxHorizontalArea= kv.toInt();
+      else if (key==key_stdHorizontalArea) stdHorizontalArea = kv.toBool();
+      else if (key==key_minHorizontalArea) minHorizontalArea= kv.toInt();
+      else if (key==key_maxHorizontalArea) maxHorizontalArea= kv.toInt();
 
-      else if (key=="backgroundColour") backgroundColour= value;
+      else if (key==key_backgroundColour) backgroundColour= value;
 
-      else if (key=="OnMapColour")    vcOnMapColour= value;
-      else if (key=="OnMapLinetype")  vcOnMapLinetype= value;
-      else if (key=="OnMapLinewidth") vcOnMapLinewidth= kv.toDouble();
+      else if (key==key_OnMapColour)    vcOnMapColour= value;
+      else if (key==key_OnMapLinetype)  vcOnMapLinetype= value;
+      else if (key==key_OnMapLinewidth) vcOnMapLinewidth= kv.toDouble();
 
-      else if (key=="SelectedOnMapColour")    vcSelectedOnMapColour= value;
-      else if (key=="SelectedOnMapLinetype")  vcSelectedOnMapLinetype= value;
-      else if (key=="SelectedOnMapLinewidth") vcSelectedOnMapLinewidth= kv.toDouble();
+      else if (key==key_SelectedOnMapColour)    vcSelectedOnMapColour= value;
+      else if (key==key_SelectedOnMapLinetype)  vcSelectedOnMapLinetype= value;
+      else if (key==key_SelectedOnMapLinewidth) vcSelectedOnMapLinewidth= kv.toDouble();
+      else {
+        METLIBS_LOG_WARN("unknown vcross option " << kv);
+      }
     }
   }
 }

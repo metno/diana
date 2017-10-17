@@ -52,13 +52,15 @@ public:
   bool readRoadObs(const std::string& databasefile, const std::string& parameterfile);
   bool readBufr(const std::string& modelname, const std::string& pattern);
   bool readFimex(vcross::Setup_p setup, const std::string& reftime );
-  VprofPlot* getData(const std::string& name, const miutil::miTime& time);
+  VprofPlot* getData(const std::string& name, const miutil::miTime& time, int realization);
   bool updateStationList(const miutil::miTime& plotTime);
 
   const std::vector<stationInfo>& getStations() const
     { return mStations; }
   const std::vector<miutil::miTime>& getTimes() const
     { return validTime; }
+  int getRealizationCount() const
+    { return numRealizations; }
   const std::string& getModelName() const
     { return modelName; }
   const std::vector<std::string>& getFileNames() const
@@ -90,6 +92,7 @@ private:
   int numTime;
   int numParam;
   int numLevel;
+  int numRealizations;
 
   std::vector<stationInfo> mStations;
   std::vector<miutil::miTime>   validTime;

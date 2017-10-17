@@ -7,11 +7,14 @@ libdiField_la_SOURCES = \
 	diArea.cc \
 	diField.cc \
 	diFieldCalculations.cc \
+	diFieldDefined.cc \
 	diFieldFunctions.cc \
 	diFieldManager.cc \
 	diFlightLevel.cc \
 	diGridConverter.cc \
+	diGridReprojection.cc \
 	diMetConstants.cc \
+	diPoint.cc \
 	diProjection.cc \
 	diRectangle.cc\
 	diFieldCacheKeyset.cc \
@@ -42,11 +45,14 @@ noinst_HEADERS = \
 	diField.h \
 	diFieldExceptions.h \
 	diFieldCalculations.h \
+	diFieldDefined.h \
 	diFieldFunctions.h \
 	diFieldManager.h \
 	diFlightLevel.h \
 	diGridConverter.h \
+	diGridReprojection.h \
 	diMetConstants.h \
+	diPoint.h \
 	diProjection.h \
 	diRectangle.h \
 	diFieldCache.h \

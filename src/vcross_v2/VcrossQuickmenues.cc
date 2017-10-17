@@ -29,8 +29,7 @@
 
 #include "VcrossQuickmenues.h"
 
-#include "diStringPlotCommand.h"
-#include "diKVListPlotCommand.h" // toString
+#include "VcrossPlotCommand.h"
 #include "util/string_util.h"
 #include <puTools/miStringFunctions.h>
 #include <sstream>
@@ -90,49 +89,40 @@ void VcrossQuickmenues::parse(QtManager_p manager, const PlotCommand_cpv& qm_lin
 {
   METLIBS_LOG_SCOPE();
 
-  string_v vcross_data, vcross_options;
+  std::vector<miutil::KeyValue_v> vcross_data, vcross_options;
   QString name_cs_tg;
   std::string lonlat_cs_tg;
   bool is_cs = false, is_tg = false, is_dyn = false;
 
   for (PlotCommand_cp pc : qm_lines) {
-    StringPlotCommand_cp cmd = std::dynamic_pointer_cast<const StringPlotCommand>(pc);
+    VcrossPlotCommand_cp cmd = std::dynamic_pointer_cast<const VcrossPlotCommand>(pc);
     if (!cmd)
       continue;
-    const std::string line = miutil::trimmed(cmd->command());
-    if (line.empty())
-      continue;
 
-    const std::vector<std::string> split_eq = miutil::split(line, 1, "=", false);
-    if (split_eq.size() == 2) {
-      const std::string up0 = miutil::to_upper(split_eq[0]);
-
-      if (up0 == KEY_CROSSECTION || up0 == KEY_CROSSECTION_LONLAT) {
-        is_cs = true;
-        is_tg = false;
-      }
-      if (up0 == KEY_TIMEGRAPH || up0 == KEY_TIMEGRAPH_LONLAT) {
-        is_cs = false;
-        is_tg = true;
-      }
-      if (up0 == KEY_CROSSECTION || up0 == KEY_TIMEGRAPH) {
-        name_cs_tg = QString::fromStdString(split_eq[1]);
-        METLIBS_LOG_DEBUG(LOGVAL(name_cs_tg.toStdString()));
-        continue;
-      }
-      if (up0 == KEY_CROSSECTION_LONLAT || up0 == KEY_TIMEGRAPH_LONLAT) {
-        lonlat_cs_tg = split_eq[1];
-        is_dyn = true;
-        METLIBS_LOG_DEBUG(LOGVAL(lonlat_cs_tg));
-        continue;
-      }
+    if (cmd->type() == VcrossPlotCommand::CROSSECTION || cmd->type() == VcrossPlotCommand::CROSSECTION_LONLAT) {
+      is_cs = true;
+      is_tg = false;
     }
-    const std::string upline = miutil::to_upper(line);
-    if (diutil::startswith(upline, "VCROSS ")) {
-      vcross_data.push_back(line);
+    if (cmd->type() == VcrossPlotCommand::TIMEGRAPH || cmd->type() == VcrossPlotCommand::TIMEGRAPH_LONLAT) {
+      is_cs = false;
+      is_tg = true;
+    }
+    if (cmd->type() == VcrossPlotCommand::CROSSECTION || cmd->type() == VcrossPlotCommand::TIMEGRAPH) {
+      name_cs_tg = QString::fromStdString(cmd->get(0).value());
+      METLIBS_LOG_DEBUG(LOGVAL(name_cs_tg.toStdString()));
+      continue;
+    }
+    if (cmd->type() == VcrossPlotCommand::CROSSECTION_LONLAT || cmd->type() == VcrossPlotCommand::TIMEGRAPH_LONLAT) {
+      lonlat_cs_tg = cmd->get(0).value();
+      is_dyn = true;
+      METLIBS_LOG_DEBUG(LOGVAL(lonlat_cs_tg));
+      continue;
+    }
+    if (cmd->type() == VcrossPlotCommand::FIELD) {
+      vcross_data.push_back(cmd->all());
     } else {
       // assume setup options
-      vcross_options.push_back(line);
+      vcross_options.push_back(cmd->all());
     }
   }
 
@@ -178,47 +168,51 @@ PlotCommand_cpv VcrossQuickmenues::get() const
 
   const int n = mManager->getFieldCount();
   if (n > 0) {
-    qm.push_back(std::make_shared<StringPlotCommand>("VCROSS"));
+    qm.push_back(std::make_shared<VcrossPlotCommand>(VcrossPlotCommand::FIELD));
 
-    const string_v options = mManager->getOptions()->writeOptions();
-    for (const std::string& o : options)
-      // FIXME this is not the standard command format, line does *NOT* start with "VCROSS_OPTION"
-      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS_OPTION", o));
-
-    for (int i=0; i<n; ++i) {
-      std::ostringstream field;
-      field << "VCROSS model=" << mManager->getModelAt(i)
-            << " reftime=" << mManager->getReftimeAt(i).isoTime("T")
-            << " field=" << mManager->getFieldAt(i)
-            << " " << miutil::mergeKeyValue(mManager->getOptionsAt(i));
-      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", field.str()));
+    const std::vector<miutil::KeyValue_v> options = mManager->getOptions()->writeOptions();
+    for (const miutil::KeyValue_v& o : options) {
+      VcrossPlotCommand_p cmd = std::make_shared<VcrossPlotCommand>(VcrossPlotCommand::OPTIONS);
+      cmd->add(o);
+      qm.push_back(cmd);
     }
 
+    for (int i=0; i<n; ++i) {
+      VcrossPlotCommand_p cmd = std::make_shared<VcrossPlotCommand>(VcrossPlotCommand::FIELD);
+      cmd->add("model", mManager->getModelAt(i));
+      cmd->add("reftime", mManager->getReftimeAt(i).isoTime("T"));
+      cmd->add("field", mManager->getFieldAt(i));
+      cmd->add(mManager->getOptionsAt(i));
+      qm.push_back(cmd);
+    }
+
+    const bool is_tg = mManager->isTimeGraph();
     const QString cs_label = mManager->getCrossectionLabel();
     if (!cs_label.isEmpty()) {
-      const std::string cs_tg = mManager->isTimeGraph()
-          ? KEY_TIMEGRAPH : KEY_CROSSECTION;
-      // FIXME this is not the standard command format, line does *NOT* start with "VCROSS" but with "CROSSECTION=..." or so
-      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", cs_tg + std::string("=") + cs_label.toStdString()));
+      VcrossPlotCommand_p cmd = std::make_shared<VcrossPlotCommand>
+          (is_tg ? VcrossPlotCommand::TIMEGRAPH : VcrossPlotCommand::CROSSECTION);
+      cmd->add(is_tg ? KEY_TIMEGRAPH : KEY_CROSSECTION, cs_label.toStdString());
+      qm.push_back(cmd);
 
       const LonLat_v points = mManager->getDynamicCrossectionPoints(cs_label);
       if (!points.empty()) {
+        VcrossPlotCommand_p cmd = std::make_shared<VcrossPlotCommand>
+            (is_tg ? VcrossPlotCommand::TIMEGRAPH_LONLAT : VcrossPlotCommand::CROSSECTION_LONLAT);
         std::ostringstream pstr;
-        pstr << (mManager->isTimeGraph() ? KEY_TIMEGRAPH_LONLAT : KEY_CROSSECTION_LONLAT)
-             << '=';
         for (LonLat_v::const_iterator it = points.begin(); it != points.end(); ++it)
           pstr << it->lonDeg() << ',' << it->latDeg() << ' ';
-        // FIXME this is not the standard command format, line does *NOT* start with "VCROSS" but with "CROSSECTION_LONLAT_DEG=..." or so
-        qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", pstr.str()));
+        cmd->add(is_tg ? KEY_TIMEGRAPH_LONLAT : KEY_CROSSECTION_LONLAT, pstr.str());
+        qm.push_back(cmd);
       }
     }
 
     for (size_t i=0; i<mManager->getMarkerCount(); ++i) {
-      std::ostringstream marker;
-      marker << "VCROSS MARKER text=" << mManager->getMarkerText(i)
-             << " position=" << mManager->getMarkerPosition(i)
-             << " colour=" << mManager->getMarkerColour(i);
-      qm.push_back(std::make_shared<StringPlotCommand>("VCROSS", marker.str()));
+      VcrossPlotCommand_p cmd = std::make_shared<VcrossPlotCommand>(VcrossPlotCommand::FIELD);
+      cmd->add(miutil::KeyValue("MARKER"));
+      cmd->add("text", mManager->getMarkerText(i));
+      cmd->add(miutil::kv("position", mManager->getMarkerPosition(i)));
+      cmd->add("colour", mManager->getMarkerColour(i));
+      qm.push_back(cmd);
     }
   }
 

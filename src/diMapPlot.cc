@@ -35,7 +35,6 @@
 
 #include "diKVListPlotCommand.h"
 #include "diMapManager.h"
-#include "diStringPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -327,8 +326,7 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
   if (makenew) {
     std::string mapfile;
     // diagonal in pixels
-    float physdiag= sqrt(getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth()
-        +getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight());
+    const float physdiag= getStaticPlot()->getPhysDiagonal();
     // map resolution i km/pixel
     float mapres= (physdiag > 0 ? getStaticPlot()->getGcd()/(physdiag*1000) : 0);
 
@@ -648,8 +646,7 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, const f
           x1 = x[np - 1];
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
-          int b = projection.convertFromGeographic(np,x,y);
-          if (b!=0){
+          if (!projection.convertFromGeographic(np,x,y)) {
             METLIBS_LOG_WARN("plotMapLand4(0), getPoints returned false");
           }
 
@@ -712,8 +709,7 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, const f
       }
     }
     nn = n;
-    int b = projection.convertToGeographic(nn,x,y);
-    if (b!=0){
+    if (!projection.convertToGeographic(nn,x,y)) {
       METLIBS_LOG_WARN("plotMapLand4(1), getPoints returned false");
     }
     glonmin = glonmax = x[0];
@@ -860,8 +856,7 @@ bool MapPlot::plotMapLand4(DiGLPainter* gl, const std::string& filename, const f
                   x1 = x[np - 1];
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
-                  int b = projection.convertFromGeographic(np,x,y);
-                  if (b!=0){
+                  if (!projection.convertFromGeographic(np,x,y)) {
                     METLIBS_LOG_WARN("plotMapLand4(2), getPoints returned false");
                   }
                   clipPrimitiveLines(gl, np, x, y, xylim, jumplimit);

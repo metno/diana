@@ -34,62 +34,34 @@
 #include "config.h"
 #endif
 
-#include "diPoint.h"
+#include "diField/diGridReprojection.h"
+#include "diField/diArea.h"
 
-#include <diField/diArea.h>
 #include <QImage>
 #include <boost/shared_array.hpp>
 
 class DiPainter;
 class StaticPlot;
 
-class RasterPlot {
+class RasterPlot : protected GridReprojectionCB {
 protected:
   RasterPlot();
-  ~RasterPlot();
+  virtual ~RasterPlot();
 
-  //! must provide access to the map area
   virtual StaticPlot* rasterStaticPlot() = 0;
-
-  //! must provide access to the raster data grid
   virtual const GridArea& rasterArea() = 0;
+  virtual void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) = 0;
 
-  //! must be implmented to create an image of the raster data matching scaledArea()
-  virtual QImage rasterScaledImage(const GridArea& scar, int scale,
-      const diutil::Rect& bbx, const diutil::Rect_v& cells) = 0;
+public:
+  QImage rasterPaint();
 
-  void rasterClear();
+protected:
+  // implementations for PixelReprojectionCB
+  void pixelLine(const diutil::PointI& s0, const diutil::PointD& xyf0, const diutil::PointD& dxyf, int w) override;
+  QRgb* pixels(const diutil::PointI& s);
 
-  // update image if necessary, then paint
-  void rasterPaint(DiPainter* gl);
-
-private:
-  int calculateScaleFactor();
-  void updateScale();
-  void getGridPoints();
-  diutil::Rect_v checkVisible();
-
-private:
-  Projection mMapProjection;
-  bool mSimilarProjection;
-  GridArea mAreaScaled;
-  QImage mImageScaled;
-  int mScaleFactor;
-
-  size_t mNPositions;
-  boost::shared_array<float> mPositionsXY;
+//private:
+  QImage cached_;
 };
-
-// ========================================================================
-
-namespace diutil {
-
-bool tile_front(const XY& left, const XY& mid, const XY& right);
-
-Rect_v select_tiles(const Rect& rect, const GridArea& grid,
-    boost::shared_array<float> gridPositionsXY,
-    const Rectangle& r_view, bool select_front);
-
-} // namespace diutil
 
 #endif // RASTERPLOT_H

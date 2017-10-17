@@ -48,6 +48,7 @@
 
 class QAction;
 class QButton;
+class QDockWidget;
 class QErrorMessage;
 class QMenu;
 class QMenuBar;
@@ -139,7 +140,6 @@ protected:
 
 public Q_SLOTS:
   void toggleToolBar();
-  void updateDialog();
 
 private Q_SLOTS:
   void levelUp();
@@ -147,6 +147,7 @@ private Q_SLOTS:
   void idnumUp();
   void idnumDown();
   void mapMenu(int result = -1);
+  void mapDockVisibilityChanged(bool visible);
   void editMenu();
   void obsMenu(int result = -1);
   void satMenu(int result = -1);
@@ -266,6 +267,8 @@ Q_SIGNALS:
   void instanceNameChanged(const QString&);
 
 private:
+  void initCoserverClient();
+  void createHelpDialog();
   void vcrossEditManagerEnableSignals();
 
 private:
@@ -367,6 +370,7 @@ private:
   WorkArea          * w;
   QuickMenu         * qm;
   MapDialog         * mm;
+  QDockWidget* mmdock;
   EditDialog        * em;
   FieldDialog       * fm;
   ObsDialog         * om;
@@ -428,7 +432,7 @@ private:
   std::string getLogFileName() const;
   void readLogFile();
   std::string saveDocState();
-  void restoreDocState(std::string logstr);
+  void restoreDocState(const std::string& logstr);
 
   std::vector<std::string> writeLog(const std::string& thisVersion,
       const std::string& thisBuild);

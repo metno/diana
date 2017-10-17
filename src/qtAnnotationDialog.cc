@@ -55,6 +55,7 @@ AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent)
 {
   setWindowTitle(tr("Annotations"));
+  setFocusPolicy(Qt::StrongFocus);
 
   m_ctrl=llctrl;
 
@@ -98,9 +99,6 @@ AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
 
   annoBox->setCurrentIndex(0);
   annoBoxActivated(0);
-
-  this->hide();
-
 }
 
 void AnnotationDialog::annoBoxActivated(int i)

@@ -28,6 +28,7 @@
 */
 
 #include "drawingpolyline.h"
+#include "util/math_util.h"
 #include "EditItems/drawingstylemanager.h"
 
 #include <cmath>
@@ -161,7 +162,7 @@ int PolyLine::hitLine(const QPointF &position) const
 
 qreal PolyLine::dist2(const QPointF &v, const QPointF &w)
 {
-  return sqr(v.x() - w.x()) + sqr(v.y() - w.y());
+  return diutil::absval2(v.x() - w.x(), v.y() - w.y());
 }
 
 // Returns the distance between \a p and the line between \a v and \a w.

@@ -101,7 +101,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
     ObsWidget* ow = new ObsWidget( this );
     obsWidget.push_back(ow);
     if (dialog.plottype[i].button.size()>0) {
-      obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
+      obsWidget[i]->setDialogInfo(dialog, i);
       connect(obsWidget[i],SIGNAL(getTimes()),
           SLOT(getTimes()));
       connect(obsWidget[i],SIGNAL(rightClicked(std::string)),
@@ -207,7 +207,7 @@ void ObsDialog::updateDialog()
     ObsWidget* ow = new ObsWidget( this );
     obsWidget.push_back(ow);
     if (dialog.plottype[i].button.size()>0) {
-      obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
+      obsWidget[i]->setDialogInfo(dialog, i);
       connect(obsWidget[i],SIGNAL(getTimes()),
           SLOT(getTimes()));
       connect(obsWidget[i],SIGNAL(rightClicked(std::string)),
@@ -239,7 +239,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
   if (!obsWidget[index]->initialized()) {
     ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[index]);
 
-    obsWidget[index]->setDialogInfo( m_ctrl, dialog, index);
+    obsWidget[index]->setDialogInfo(dialog, index);
     connect(obsWidget[index],SIGNAL(getTimes()),
         SLOT(getTimes()));
     connect(obsWidget[index],SIGNAL(rightClicked(std::string)),

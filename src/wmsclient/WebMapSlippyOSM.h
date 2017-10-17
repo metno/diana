@@ -99,25 +99,26 @@ public:
 
   void addTile(int tileX, int tileY);
 
-  void setDimensionValue(const std::string&, const std::string&) { }
+  void setDimensionValue(const std::string&, const std::string&) override
+    { }
 
   /*! start fetching data */
-  void submit();
+  void submit() override;
 
   /*! stop fetching data */
-  void abort();
+  void abort() override;
 
   /*! number of tiles */
-  size_t countTiles() const
+  size_t countTiles() const override
     { return mTiles.size(); }
 
   /*! rectangle of one tile, in tileProjection coordinates */
-  const Rectangle& tileRect(size_t idx) const;
+  const Rectangle& tileRect(size_t idx) const override;
 
   /*! image data of one tile; might have isNull() == true */
-  const QImage& tileImage(size_t idx) const;
+  const QImage& tileImage(size_t idx) const override;
 
-  const Projection& tileProjection() const;
+  const Projection& tileProjection() const override;
 
 private Q_SLOTS:
   void tileFinished(WebMapTile*);
@@ -137,7 +138,7 @@ typedef std::shared_ptr<WebMapRequest> WebMapRequest_p;
 
 class WebMapSlippyOSM : public WebMapService
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   /* set with URL pointing to GetCapabilities. need to call refresh to
@@ -147,17 +148,17 @@ public:
   ~WebMapSlippyOSM();
 
   /*! suitable refresh interval. negative for no refresh */
-  int refreshInterval() const;
+  int refreshInterval() const override;
 
   /*! create a request object for the specified layer. may be null,
    *  e.g. if unknown layer or; ownership is transferred to caller */
   WebMapRequest_x createRequest(const std::string& layer,
-      const Rectangle& viewRect, const Projection& viewProj, double viewScale);
+      const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h) override;
 
   QNetworkReply* submitRequest(WebMapSlippyOSMLayer_cx layer,
       int zoom, int tileX, int tileY);
 
-  void refresh();
+  void refresh() override;
 
   const Projection& projection() const
     { return mProjection; }

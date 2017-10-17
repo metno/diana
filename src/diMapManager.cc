@@ -148,48 +148,7 @@ bool MapManager::parseMapTypes()
           mapfiles.push_back(mapinfo);
       }
       // set default values ( mapfiles[m] --> mapinfo )
-      mapinfo.name = "";
-      mapinfo.mapfiles.clear();
-      mapinfo.type = "pland";
-      mapinfo.logok = true;
-      mapinfo.special = false;
-      mapinfo.symbol = 0;
-      mapinfo.dbfcol = "";
-      mapinfo.contour.ison = true;
-      mapinfo.contour.linecolour = "black";
-      mapinfo.contour.linewidth = "1";
-      mapinfo.contour.linetype = "solid";
-      mapinfo.contour.zorder = 1;
-
-      mapinfo.land.ison = false;
-      mapinfo.land.fillcolour = "white";
-      mapinfo.land.zorder = 0;
-
-      mapinfo.lon.ison = false;
-      mapinfo.lon.linecolour = "black";
-      mapinfo.lon.linewidth = "1";
-      mapinfo.lon.linetype = "solid";
-      mapinfo.lon.zorder = 2;
-      mapinfo.lon.density = 10.0;
-      mapinfo.lon.showvalue = false;
-      mapinfo.lon.value_pos = "bottom";
-      mapinfo.lon.fontsize=10;
-
-      mapinfo.lat.ison = false;
-      mapinfo.lat.linecolour = "black";
-      mapinfo.lat.linewidth = "1";
-      mapinfo.lat.linetype = "solid";
-      mapinfo.lat.zorder = 2;
-      mapinfo.lat.density = 10.0;
-      mapinfo.lat.showvalue = false;
-      mapinfo.lat.value_pos = "left";
-      mapinfo.lat.fontsize=10;
-
-      mapinfo.frame.ison = false;
-      mapinfo.frame.linecolour = "black";
-      mapinfo.frame.linewidth = "1";
-      mapinfo.frame.linetype = "solid";
-      mapinfo.frame.zorder = 2;
+      mapinfo.reset();
     }
     // parse string and fill mapinfo-struct
     fillMapInfo(kvs, mapinfo);

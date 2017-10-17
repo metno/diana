@@ -43,17 +43,13 @@ class QPushButton;
 class SetupDialog : public QDialog {
   Q_OBJECT
 private:
-
   QLineEdit* setupLineEdit;
   std::vector<QLabel*> options;
   std::vector<QLineEdit*> values;
-  QPushButton* okButton;
 
-
-private slots:
-void okClicked();
-
-public slots:
+private Q_SLOTS:
+  void okClicked();
+  void onFilechooserClicked();
 
 public:
   SetupDialog(QWidget* parent);

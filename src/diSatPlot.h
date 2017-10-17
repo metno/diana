@@ -68,8 +68,8 @@ protected:
     { return getStaticPlot(); }
   const GridArea& rasterArea() override
     { return satdata->area; }
-  QImage rasterScaledImage(const GridArea&, int scale,
-      const diutil::Rect& bbx, const diutil::Rect_v& cells) override;
+
+  void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) override;
 
 private:
   SatPlot(const SatPlot &rhs);  // not implemented

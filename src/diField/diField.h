@@ -30,13 +30,12 @@
 #ifndef diField_h
 #define diField_h
 
+#include "diFieldDefined.h"
 #include "diArea.h"
 #include "VcrossData.h"
 
 #include <puTools/miTime.h>
 #include <iosfwd>
-
-const float fieldUndef= 1.e+35;
 
 /**
 
@@ -55,7 +54,14 @@ public:
   float *data;
   GridArea area;
 
-  bool allDefined;       // true if none undefined/missing values in the field
+  void checkDefined();
+  void forceDefined(difield::ValuesDefined d)
+    { defined_ = d; }
+  difield::ValuesDefined defined() const
+    { return defined_; }
+  bool allDefined() const // true if none undefined/missing values in the field
+    { return defined_ == difield::ALL_DEFINED; }
+
   int  level;            // vertical level
   int  idnum;            // level2, used for EPS clusters and members
   int  forecastHour;
@@ -99,6 +105,8 @@ private:
   // Copy members
   void memberCopy(const Field& rhs);
 
+  difield::ValuesDefined defined_;
+
   // this member is set by its friends diFieldCache(Entity) and noone else...
   bool isPartOfCache;
   // this member is set by its friends diFieldCache(Entity) and noone else...
@@ -125,6 +133,8 @@ public:
 
   /// Add dataspace for a xdim*ydim field
   void reserve(int xdim, int ydim);
+
+  void fill(float value);
 
   /// Subtract a field
   bool subtract(const Field &rhs);
@@ -165,7 +175,7 @@ public:
       float *fpos, InterpolationType itype) const;
 
   /// interpolate to another grid
-  bool changeGrid(const GridArea& anew, const std::string& demands);
+  bool changeGrid(const GridArea& anew, bool fine_interpolation);
 
   /// Return x,y in proj-coord
   void convertFromGrid(int npos, float* xpos, float* ypos) const;

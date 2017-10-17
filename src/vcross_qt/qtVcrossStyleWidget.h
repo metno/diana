@@ -2,9 +2,9 @@
 #ifndef VcrossStyleWidget_h
 #define VcrossStyleWidget_h 1
 
-#include "diCommandParser.h"
 #include "diColourShading.h"
 #include "diPattern.h"
+#include "util/diKeyValue.h"
 
 #include <QStringList>
 #include <QWidget>
@@ -35,9 +35,10 @@ Q_SIGNALS:
 private:
   void setupUi();
 
+  bool findFieldOption(size_t& nc, const std::string& key) const;
   void disableFieldOptions();
   void enableFieldOptions();
-  void updateFieldOptions(const std::string& name, const std::string& value, int valueIndex=0);
+  void updateFieldOptions(const std::string& name, const std::string& value);
 
 private Q_SLOTS:
   void colorCboxActivated( int index );
@@ -88,9 +89,6 @@ private:
   QStringList      densityStringList;
   std::vector<std::string> vectorunit;
   QStringList extremeLimits;
-
-  std::unique_ptr<CommandParser> cp;
-  std::vector<ParsedCommand> vpcopt;
 
   std::vector<std::string> undefMasking;
 

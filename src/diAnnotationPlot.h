@@ -147,8 +147,6 @@ private:
 
   //called from constructor
   void init();
-  // insert time in text string
-  const std::string insertTime(const std::string&, const miutil::miTime&);
   // expand string-variables
   const std::vector<std::string> expanded(const std::vector<std::string>&);
   // decode string, put into elements
@@ -171,6 +169,13 @@ public:
   AnnotationPlot();
   AnnotationPlot(const PlotCommand_cp&);
   ~AnnotationPlot();
+
+  // insert time in text string
+  static const std::string insertTime(const std::string&, const miutil::miTime&, std::string& lang);
+  static const std::string insertTime(const std::string&, const miutil::miTime&);
+
+  static const std::string NORWEGIAN;
+  static const std::string ENGLISH;
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 

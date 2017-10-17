@@ -106,6 +106,7 @@ private:
 
   int  numDirec;
   int  numFreq;
+  int realization;
 
   std::vector<float> directions;
   std::vector<float> frequences;

@@ -388,8 +388,7 @@ bool ShapeObject::plot(DiGLPainter* gl,
   reduceForScale();
 
   //also scale according to windowheight and width (standard is 500)
-  const float scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()
-      +getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth());
+  const float scalefactor = getStaticPlot()->getPhysDiagonal();
   const int fontSizeToPlot = int(2*7000000/gcd * scalefactor/500);
   const float symbol_rad = symbol/scalefactor;
   const float point_rad = linewidth*2/scalefactor;

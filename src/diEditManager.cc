@@ -52,6 +52,7 @@
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/charsets.h"
+#include "util/math_util.h"
 
 #include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
@@ -167,7 +168,6 @@ bool EditManager::parseSetup()
 
     // yet only products in this setup section...
     EditProduct ep;
-    ep.areaminimize= false;
     ep.standardSymbolSize=60;
     ep.complexSymbolSize=6;
     ep.frontLineWidth=8;
@@ -200,9 +200,7 @@ bool EditManager::parseSetup()
           ep.drawtools.push_back(values[j]);
       } else if (nval==0) {
         // keywords without any values
-        if (key=="grid.minimize")
-          ep.areaminimize= true;
-        else
+        if (key != "grid.minimize")
           ok= false;
 
       } else if (key=="local_save_dir") {
@@ -1831,15 +1829,15 @@ vector<EditProduct> EditManager::getEditProducts(){
 }
 
 
-std::string EditManager::savedProductString(savedProduct sp)
+std::string EditManager::savedProductString(const savedProduct& sp)
 {
-  if (sp.ptime.undef()){
-    return sp.pid + " " + sp.productName + " "
-        + " " + sp.selectObjectTypes + " " + sp.filename;
-  } else {
-    return sp.pid + " " + sp.productName + " "
-        + sp.ptime.isoTime() + " " + sp.selectObjectTypes + " " + sp.filename;
-  }
+  std::string str = sp.pid
+      + " " + sp.productName;
+  if (!sp.ptime.undef())
+    str += " " + sp.ptime.isoTime();
+  str += " types=" + sp.selectObjectTypes
+        + " " + sp.filename;
+  return str;
 }
 
 
@@ -2566,7 +2564,8 @@ bool EditManager::recalcCombineMatrix(){
       float dy1= yc[0] - ypos[p];
       float dx2= xc[1] - xpos[p];
       float dy2= yc[1] - ypos[p];
-      if (dx1*dx1+dy1*dy1<dx2*dx2+dy2*dy2) nc= 1;
+      if (diutil::absval2(dx1, dy1) < diutil::absval2(dx2, dy2))
+        nc = 1;
     }
     nc--;
     crossx[i]= xc[nc];
@@ -2906,7 +2905,7 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];
           float dy= y[j] - y[j+1];
-          s+= sqrtf(dx*dx+dy*dy)/sqrtf(2.0);
+          s+= diutil::absval(dx, dy)/sqrtf(2.0);
         }
         scale= npos*0.5*gridResolutionX/s;
       } else {
@@ -3356,51 +3355,16 @@ bool EditManager::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-static void insertTime(std::string& es, const miTime& time, bool& english, bool& norwegian)
-{
-  if (miutil::contains(es, "$")) {
-    if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); english= true; }
-    if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
-    miutil::replace(es, "$day", "%A");
-    miutil::replace(es, "$hour","%H");
-    miutil::replace(es, "$min", "%M");
-    miutil::replace(es, "$sec", "%S");
-    miutil::replace(es, "$auto","$miniclock");
-  }
-  if (miutil::contains(es, "%")) {
-    if (miutil::contains(es, "%anor")) { miutil::replace(es, "%anor","%a"); norwegian= true; }
-    if (miutil::contains(es, "%Anor")) { miutil::replace(es, "%Anor","%A"); norwegian= true; }
-    if (miutil::contains(es, "%bnor")) { miutil::replace(es, "%bnor","%b"); norwegian= true; }
-    if (miutil::contains(es, "%Bnor")) { miutil::replace(es, "%Bnor","%B"); norwegian= true; }
-    if (miutil::contains(es, "%aeng")) { miutil::replace(es, "%aeng","%a"); english= true; }
-    if (miutil::contains(es, "%Aeng")) { miutil::replace(es, "%Aeng","%A"); english= true; }
-    if (miutil::contains(es, "%beng")) { miutil::replace(es, "%beng","%b"); english= true; }
-    if (miutil::contains(es, "%Beng")) { miutil::replace(es, "%Beng","%B"); english= true; }
-  }
-
-  if ((miutil::contains(es, "%") || miutil::contains(es, "$"))  && !time.undef()) {
-    if (norwegian)
-      es= time.format(es, "no", true);
-    else if (english)
-      es= time.format(es, "en", true);
-  }
-}
-
 PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
 {
   LabelPlotCommand_cp pc = std::dynamic_pointer_cast<const LabelPlotCommand>(lc);
   if (!pc)
     return lc;
 
-  bool english  = false;
-  bool norwegian= false;
-
-  LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>(pc->commandKey());
-  for (const KeyValue& kv : pc->all()) {
-    std::string es = kv.value();
-    ::insertTime(es, time, english, norwegian);
-    tpc->add(kv.key(), es);
-  }
+  std::string lang = AnnotationPlot::ENGLISH;
+  LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>();
+  for (const KeyValue& kv : pc->all())
+    tpc->add(kv.key(), AnnotationPlot::insertTime(kv.value(), time, lang));
 
   return tpc;
 }

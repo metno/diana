@@ -37,7 +37,7 @@
 #include <QPainter>
 #include <QTimer>
 
-#define MILOGGER_CATEGORY "diana.WebMapWMS"
+#define MILOGGER_CATEGORY "diana.WebMapTile"
 #include <miLogger/miLogging.h>
 
 WebMapImage::WebMapImage()
@@ -90,14 +90,14 @@ bool WebMapImage::loadImage(const char* format)
     METLIBS_LOG_DEBUG(LOGVAL(mReply->isFinished()) << LOGVAL(mReply->error()));
 
     const QString ct = mReply->header(QNetworkRequest::ContentTypeHeader).toString();
-    METLIBS_LOG_DEBUG("url='" << mReply->url().toString().toStdString() << "' Content-Type=" << ct.toStdString() << "'");
+    METLIBS_LOG_DEBUG("url='" << mReply->url().toString().toStdString() << "' Content-Type='" << ct.toStdString() << "'");
     bool ok = false;
     const char* fmt = 0;
     if (ct == "image/png")
       fmt = "PNG";
     else if (ct == "image/jpeg")
       fmt = "JPEG";
-    else if (ct == "text/html") {
+    else if (ct.startsWith("text")) {
       QString text = QString::fromUtf8(mReply->readAll().constData());
       METLIBS_LOG_ERROR(LOGVAL(diutil::qs(text)));
     }

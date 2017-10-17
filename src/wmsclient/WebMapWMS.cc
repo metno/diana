@@ -140,6 +140,8 @@ void WebMapWMSRequest::setDimensionValue(const std::string& dimIdentifier,
 void WebMapWMSRequest::addTile(int tileX, int tileY)
 {
   METLIBS_LOG_SCOPE(LOGVAL(tileX) << LOGVAL(tileY));
+  if (mTiles.size() >= 256)
+    return;
   const Rectangle& bb = mLayer->crsBoundingBox(mCrsIndex).boundingbox;
   const int nxy = (1<<mZoom);
   const double x0 = bb.x1,
@@ -185,30 +187,10 @@ void WebMapWMSRequest::abort()
     mTiles[i]->abort();
 }
 
-bool WebMapWMSRequest::checkRedirect(WebMapImage* image)
-{
-  METLIBS_LOG_SCOPE();
-  if (!image->reply())
-    return false;
-
-  METLIBS_LOG_DEBUG("http status=" << image->reply()->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt());
-
-  const QVariant vRedirect = image->reply()->attribute(QNetworkRequest::RedirectionTargetAttribute);
-  if (vRedirect.isNull())
-    return false;
-
-  QUrl redirect = vRedirect.toUrl();
-  if (redirect.isRelative())
-    redirect = image->reply()->url().resolved(redirect);
-  METLIBS_LOG_DEBUG("redirect to '" << redirect.toString().toStdString() << "'");
-  image->submit(mService->submitUrl(redirect));
-  return true;
-}
-
 void WebMapWMSRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
-  if (checkRedirect(tile))
+  if (diutil::checkRedirect(mService, tile))
     return;
   if (!tile->loadImage(mService->tileFormat()))
     tile->dummyImage(TILESIZE, TILESIZE);
@@ -221,7 +203,7 @@ void WebMapWMSRequest::tileFinished(WebMapTile* tile)
 void WebMapWMSRequest::legendFinished(WebMapImage*)
 {
   METLIBS_LOG_SCOPE();
-  if (checkRedirect(mLegend))
+  if (diutil::checkRedirect(mService, mLegend))
     return;
   mLegend->loadImage("image/png");
   mUnfinished -= 1;
@@ -271,7 +253,7 @@ int WebMapWMS::refreshInterval() const
 }
 
 WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
-    const Rectangle& viewRect, const Projection& viewProj, double viewScale)
+    const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h)
 {
   METLIBS_LOG_SCOPE(LOGVAL(layerIdentifier));
   WebMapWMSLayer_cx layer = static_cast<WebMapWMSLayer_cx>
@@ -293,20 +275,22 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
   if (zoom < layer->minZoom() || zoom > layer->maxZoom())
     return 0;
 
+  std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   const int nx = (1<<zoom);
-  const float x0 = bb.x1,
-      dx = bb.width() / nx,
-      y0 = bb.y2,
-      dy = -dx;
-  const int ny = (int) std::ceil(bb.height() / dx);
-  METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny) << LOGVAL(x0) << LOGVAL(dx) << LOGVAL(y0) << LOGVAL(dy));
+  request->x0 = bb.x1;
+  request->dx = bb.width() / nx;
+  request->y0 = bb.y2;
+  request->dy = -request->dx;
+  const int ny = (int) std::ceil(bb.height() / request->dx);
+  METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny) << LOGVAL(request->x0) << LOGVAL(request->dx) << LOGVAL(request->y0) << LOGVAL(request->dy));
 
   diutil::tilexy_s tiles;
-  diutil::select_tiles(tiles, 0, nx, x0, dx, 0, ny, y0, dy,
-      cb.projection, viewRect, viewProj);
+  diutil::select_pixel_tiles(tiles, w, h,
+                             nx, request->x0, request->dx,
+                             ny, request->y0, request->dy,
+                             cb.boundingbox, cb.projection, viewRect, viewProj);
   METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
 
-  std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 
@@ -603,6 +587,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     if (iDim == dimensions.size())
       dimensions.push_back(WebMapDimension(sName));
     WebMapDimension& dim = dimensions[iDim];
+    dim.setUnits(sUnits);
     if (mVersion == WMS_130) {
       parseDimensionValues(dim, eDim.text(), eDim.attribute("default"));
     } else if (mVersion == WMS_111) {

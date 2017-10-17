@@ -66,66 +66,65 @@ TEST(FieldFunctionsTest, XLevelHum)
     const levelhum_params_t& p = levelhum_params[i];
 
     float humout = 2*UNDEF;
-    bool allDefined = true;
-    EXPECT_TRUE(FieldCalculations::alevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, allDefined, UNDEF, "celsius"));
+    difield::ValuesDefined fDefined = difield::ALL_DEFINED;
+    EXPECT_TRUE(FieldCalculations::alevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, fDefined, UNDEF, "celsius"));
     EXPECT_NEAR(p.expect, humout, p.near) << "alevelhum C i=" << i << " compute=" << p.cah;
-    EXPECT_TRUE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
     humout = 2*UNDEF;
-    allDefined = true;
-    EXPECT_TRUE(FieldCalculations::hlevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, alevel, blevel, allDefined, UNDEF, "celsius"));
+    fDefined = difield::ALL_DEFINED;
+    EXPECT_TRUE(FieldCalculations::hlevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, alevel, blevel, fDefined, UNDEF, "celsius"));
     EXPECT_NEAR(p.expect, humout, p.near) << "hlevelhum C i=" << i << " compute=" << p.cah;
-    EXPECT_TRUE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
     humout = 2*UNDEF;
-    allDefined = true;
-    EXPECT_TRUE(FieldCalculations::plevelhum(p.cp, 1, 1, &p.t, &p.humin, &humout, p.p, allDefined, UNDEF, "celsius"));
+    fDefined = difield::ALL_DEFINED;
+    EXPECT_TRUE(FieldCalculations::plevelhum(p.cp, 1, 1, &p.t, &p.humin, &humout, p.p, fDefined, UNDEF, "celsius"));
     EXPECT_NEAR(p.expect, humout, p.near) << "plevelhum C i=" << i << " compute=" << p.cp;
-    EXPECT_TRUE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
     humout = 2*UNDEF;
-    allDefined = false;
-    EXPECT_TRUE(FieldCalculations::alevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, allDefined, UNDEF, "celsius"));
+    fDefined = difield::SOME_DEFINED;
+    EXPECT_TRUE(FieldCalculations::alevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, fDefined, UNDEF, "celsius"));
     EXPECT_NEAR(p.expect, humout, p.near) << "alevelhum C i=" << i << " compute=" << p.cah;
-    EXPECT_FALSE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
     humout = 2*UNDEF;
-    allDefined = false;
-    EXPECT_TRUE(FieldCalculations::hlevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, alevel, blevel, allDefined, UNDEF, "celsius"));
+    fDefined = difield::SOME_DEFINED;
+    EXPECT_TRUE(FieldCalculations::hlevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, alevel, blevel, fDefined, UNDEF, "celsius"));
     EXPECT_NEAR(p.expect, humout, p.near) << "hlevelhum C i=" << i << " compute=" << p.cah;
-    EXPECT_FALSE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
     humout = 2*UNDEF;
-    allDefined = false;
-    EXPECT_TRUE(FieldCalculations::plevelhum(p.cp, 1, 1, &p.t, &p.humin, &humout, p.p, allDefined, UNDEF, "celsius"));
+    fDefined = difield::SOME_DEFINED;
+    EXPECT_TRUE(FieldCalculations::plevelhum(p.cp, 1, 1, &p.t, &p.humin, &humout, p.p, fDefined, UNDEF, "celsius"));
     EXPECT_NEAR(p.expect, humout, p.near) << "plevelhum C i=" << i << " compute=" << p.cp;
-    EXPECT_FALSE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
     if (p.cah < 5)
       continue;
 
-    allDefined = true;
-    EXPECT_TRUE(FieldCalculations::alevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, allDefined, UNDEF, "kelvin"));
+    fDefined = difield::ALL_DEFINED;
+    EXPECT_TRUE(FieldCalculations::alevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, fDefined, UNDEF, "kelvin"));
     EXPECT_NEAR(p.expect+T0, humout, p.near) << "alevelhum K i=" << i << " compute=" << p.cah;
-    EXPECT_TRUE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
-    allDefined = true;
-    EXPECT_TRUE(FieldCalculations::hlevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, alevel, blevel, allDefined, UNDEF, "kelvin"));
+    fDefined = difield::ALL_DEFINED;
+    EXPECT_TRUE(FieldCalculations::hlevelhum(p.cah, 1, 1, &p.t, &p.humin, &p.p, &humout, alevel, blevel, fDefined, UNDEF, "kelvin"));
     EXPECT_NEAR(p.expect+T0, humout, p.near) << "hlevelhum K i=" << i << " compute=" << p.cah;
-    EXPECT_TRUE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
 
-    allDefined = true;
-    EXPECT_TRUE(FieldCalculations::plevelhum(p.cp, 1, 1, &p.t, &p.humin, &humout, p.p, allDefined, UNDEF, "kelvin"));
+    fDefined = difield::ALL_DEFINED;
+    EXPECT_TRUE(FieldCalculations::plevelhum(p.cp, 1, 1, &p.t, &p.humin, &humout, p.p, fDefined, UNDEF, "kelvin"));
     EXPECT_NEAR(p.expect+T0, humout, p.near) << "plevelhum K i=" << i << " compute=" << p.cp;
-    EXPECT_TRUE(allDefined);
+    EXPECT_EQ(difield::ALL_DEFINED, fDefined);
   }
 }
 
 TEST(FieldFunctionsTest, ALevelTempPerformance)
 {
-  FieldFunctions ff;
   const float UNDEF = 1e30, T0 = 273.15;
-  bool allDefined = true;
+  difield::ValuesDefined fDefined = difield::ALL_DEFINED;
 
   { // compute == 3, T(Kelvin) -> TH
     const int N = 719*929; //1000000;
@@ -137,7 +136,7 @@ TEST(FieldFunctionsTest, ALevelTempPerformance)
       th[i] = 2*UNDEF;
     }
     for (int i=0; i<1; ++i)
-      EXPECT_TRUE(FieldCalculations::aleveltemp(3, 1, N, tk, p, th, allDefined, UNDEF, "kelvin"));
+      EXPECT_TRUE(FieldCalculations::aleveltemp(3, 1, N, tk, p, th, fDefined, UNDEF, "kelvin"));
     for (int i=0; i<N; ++i) {
       const float ex = tk[i] / powf(p[i] * MetNo::Constants::p0inv, MetNo::Constants::kappa);
       EXPECT_FLOAT_EQ(ex, th[i]);
@@ -153,52 +152,51 @@ namespace {
 struct oper_params_t {
   int c; // 'compute'
   float a, b; // input
-  bool input_defined;
+  difield::ValuesDefined input_defined;
   float expect; // expected output
-  bool expect_defined;
 };
 
 enum { PLUS = 1, MINUS = 2, MUL = 3, DIV = 4 };
 
 const oper_params_t oper_params[] = {
-  { PLUS, 1, 3, true,   4, true },
-  { PLUS, 1, 3, false,  4, false },
-  { MINUS, 1, 3, true,  -2, true },
-  { MINUS, 1, 3, false, -2, false },
-  { MUL, 1.5, 3, true,  4.5, true },
-  { MUL, 1.5, 3, false, 4.5, false },
-  { DIV, 3, 1.5, true,  2, true },
-  { DIV, 3, 1.5, false, 2, false },
-  { DIV, 3, 0, true,  UNDEF, false },
-  { DIV, 3, 0, false, UNDEF, false },
-  { -1, 0, 0, false, 0, false }
+  { PLUS,  1, 3, difield::ALL_DEFINED,    4 },
+  { PLUS,  1, 3, difield::SOME_DEFINED, 4,},
+  { MINUS, 1, 3, difield::ALL_DEFINED,    -2 },
+  { MINUS, 1, 3, difield::SOME_DEFINED, -2 },
+  { MUL, 1.5, 3, difield::ALL_DEFINED,    4.5 },
+  { MUL, 1.5, 3, difield::SOME_DEFINED, 4.5 },
+  { DIV, 3, 1.5, difield::ALL_DEFINED,    2 },
+  { DIV, 3, 1.5, difield::SOME_DEFINED, 2 },
+  { DIV, 3, 0,   difield::ALL_DEFINED,    UNDEF },
+  { DIV, 3, 0,   difield::SOME_DEFINED, UNDEF },
+  { -1,  0, 0,   difield::SOME_DEFINED, 0 }
 };
 } // namespace
 
 TEST(FieldFunctionsTest, XOperX)
 {
   float out;
-  bool allDefined;
+  difield::ValuesDefined fDefined;
 
   for (int i=0; oper_params[i].c > 0; ++i) {
     const oper_params_t& op = oper_params[i];
 
     out = 2*UNDEF;
-    allDefined = op.input_defined;
-    EXPECT_TRUE(FieldCalculations::fieldOPERfield(op.c, 1, 1, &op.a, &op.b, &out, allDefined, UNDEF));
-    EXPECT_EQ(op.expect_defined, allDefined);
+    fDefined = op.input_defined;
+    EXPECT_TRUE(FieldCalculations::fieldOPERfield(op.c, 1, 1, &op.a, &op.b, &out, fDefined, UNDEF));
+    EXPECT_EQ(op.expect == UNDEF, difield::NONE_DEFINED == fDefined) << "fOPf i=" << i;
     EXPECT_NEAR(op.expect, out, 1e-6) << " fOPf i=" << i << " c=" << op.c << " a=" << op.a << " b=" << op.b;
 
     out = 2*UNDEF;
-    allDefined = op.input_defined;
-    EXPECT_TRUE(FieldCalculations::fieldOPERconstant(op.c, 1, 1, &op.a, op.b, &out, allDefined, UNDEF));
-    EXPECT_EQ(op.expect_defined, allDefined);
+    fDefined = op.input_defined;
+    EXPECT_TRUE(FieldCalculations::fieldOPERconstant(op.c, 1, 1, &op.a, op.b, &out, fDefined, UNDEF));
+    EXPECT_EQ(op.expect == UNDEF, difield::NONE_DEFINED == fDefined) << "fOPc i=" << i;
     EXPECT_NEAR(op.expect, out, 1e-6) << " fOPc i=" << i << " c=" << op.c << " a=" << op.a << " b=" << op.b;
 
     out = 2*UNDEF;
-    allDefined = op.input_defined;
-    EXPECT_TRUE(FieldCalculations::constantOPERfield(op.c, 1, 1, op.a, &op.b, &out, allDefined, UNDEF));
-    EXPECT_EQ(op.expect_defined, allDefined);
+    fDefined = op.input_defined;
+    EXPECT_TRUE(FieldCalculations::constantOPERfield(op.c, 1, 1, op.a, &op.b, &out, fDefined, UNDEF));
+    EXPECT_EQ(op.expect == UNDEF, difield::NONE_DEFINED == fDefined) << "cOPf i=" << i;
     EXPECT_NEAR(op.expect, out, 1e-6) << " cOPf i=" << i << " c=" << op.c << " a=" << op.a << " b=" << op.b;
   }
 }
@@ -207,7 +205,7 @@ TEST(FieldFunctionsTest, MapRatios)
 {
   const int nx = 3, ny = 3;
   const GridArea area(Area(Projection("+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"),
-          Rectangle(0, 100000, 10000, 110000)), nx, ny, 1000, 1000);
+          Rectangle(0, 0, 10000, 110000)), nx, ny, 1000, 1000);
   GridConverter gc;
 #if 1
   const float* xmapr = 0, *ymapr = 0, *coriolis = 0;
@@ -226,8 +224,8 @@ TEST(FieldFunctionsTest, MapRatios)
   const float finp2[nx*ny] = { 3, 3, 3, 2, 2, 2, 1, 1, 1 };
   float fout0[nx*ny], fout1[nx*ny];
 
-  bool allDefined = true;
-  EXPECT_TRUE(FieldCalculations::plevelgwind_xcomp(nx, ny, finp0, fout0, xmapr, ymapr, coriolis, allDefined, UNDEF));
+  difield::ValuesDefined fDefined = difield::ALL_DEFINED;
+  EXPECT_TRUE(FieldCalculations::plevelgwind_xcomp(nx, ny, finp0, fout0, xmapr, ymapr, coriolis, fDefined, UNDEF));
   const float ex_plevelgwind_xcomp[nx*ny] = {
     -425621.28,
     -425621.28,
@@ -242,7 +240,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_plevelgwind_xcomp[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::plevelgwind_ycomp(nx, ny, finp0, fout0, xmapr, ymapr, coriolis, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::plevelgwind_ycomp(nx, ny, finp0, fout0, xmapr, ymapr, coriolis, fDefined, UNDEF));
   const float ex_plevelgwind_ycomp[nx*ny] = {
     0,
     0,
@@ -257,7 +255,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_plevelgwind_ycomp[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::plevelgvort(nx, ny, finp0, fout0, xmapr, ymapr, coriolis, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::plevelgvort(nx, ny, finp0, fout0, xmapr, ymapr, coriolis, fDefined, UNDEF));
   const float ex_plevelgvort[nx*ny] = {
     0,
     0,
@@ -272,7 +270,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_plevelgvort[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::ilevelgwind(nx, ny, finp0, fout0, fout1, xmapr, ymapr, coriolis, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::ilevelgwind(nx, ny, finp0, fout0, fout1, xmapr, ymapr, coriolis, fDefined, UNDEF));
   const float ex_ilevelgwind[nx*ny] = {
     -43430.742,
     -43430.742,
@@ -287,7 +285,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_ilevelgwind[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::relvort(nx, ny, finp0, finp1, fout0, xmapr, ymapr, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::relvort(nx, ny, finp0, finp1, fout0, xmapr, ymapr, fDefined, UNDEF));
   const float ex_relvort[nx*ny] = {
     -0.0014989537,
     -0.0014989537,
@@ -302,7 +300,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_relvort[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::absvort(nx, ny, finp0, finp1, fout0, xmapr, ymapr, coriolis, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::absvort(nx, ny, finp0, finp1, fout0, xmapr, ymapr, coriolis, fDefined, UNDEF));
   const float ex_absvort[nx*ny] = {
     -0.0014989307,
     -0.0014989307,
@@ -317,7 +315,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_absvort[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::divergence(nx, ny, finp0, finp1, fout0, xmapr, ymapr, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::divergence(nx, ny, finp0, finp1, fout0, xmapr, ymapr, fDefined, UNDEF));
   const float ex_divergence[nx*ny] = {
     -0.00049854361,
     -0.00049854361,
@@ -332,7 +330,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_divergence[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::advection(nx, ny, finp0, finp1, finp2, fout0, xmapr, ymapr, 2, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::advection(nx, ny, finp0, finp1, finp2, fout0, xmapr, ymapr, 2, fDefined, UNDEF));
   const float ex_advection[nx*ny] = {
     -14.358056,
     -14.358056,
@@ -347,7 +345,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_advection[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::gradient(1, nx, ny, finp0, fout0, xmapr, ymapr, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::gradient(1, nx, ny, finp0, fout0, xmapr, ymapr, fDefined, UNDEF));
   const float ex_gradient_1[nx*ny] = {
     0,
     0,
@@ -362,7 +360,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_gradient_1[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::gradient(2, nx, ny, finp0, fout0, xmapr, ymapr, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::gradient(2, nx, ny, finp0, fout0, xmapr, ymapr, fDefined, UNDEF));
   const float ex_gradient_2[nx*ny] = {
     0.00099708722,
     0.00099708722,
@@ -377,7 +375,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_gradient_2[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::thermalFrontParameter(nx, ny, finp0, fout0, xmapr, ymapr, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::thermalFrontParameter(nx, ny, finp0, fout0, xmapr, ymapr, fDefined, UNDEF));
   const float ex_thermalFrontParameter[nx*ny] = {
     -0,
     -0,
@@ -392,7 +390,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_thermalFrontParameter[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::momentumXcoordinate(nx, ny, finp0, fout0, xmapr, coriolis, 1e-4, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::momentumXcoordinate(nx, ny, finp0, fout0, xmapr, coriolis, 1e-4, fDefined, UNDEF));
   const float ex_momentumXcoordinate[nx*ny] = {
     10.038398,
     11.03733,
@@ -407,7 +405,7 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_momentumXcoordinate[i], fout0[i]) << "i=" << i;
 
-  EXPECT_TRUE(FieldCalculations::jacobian(nx, ny, finp0, finp1, fout0, xmapr, ymapr, allDefined, UNDEF));
+  EXPECT_TRUE(FieldCalculations::jacobian(nx, ny, finp0, finp1, fout0, xmapr, ymapr, fDefined, UNDEF));
   const float ex_jacobian[nx*ny] = {
     5.0040461e-07,
     5.0040461e-07,

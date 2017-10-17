@@ -144,8 +144,8 @@ bool FontFamily::setFontSize(float size)
 
 bool FontFamily::_calcScaling()
 {
-  pixWidth = glWidth / vpWidth;
-  pixHeight = glHeight / vpHeight;
+  pixWidth = glWidth / float(vpWidth);
+  pixHeight = glHeight / float(vpHeight);
 
   float xy;
   if (mUseBitmap) {
@@ -182,7 +182,7 @@ void FontFamily::setGlSize(const float glw, const float glh)
   _calcScaling();
 }
 
-void FontFamily::setVpSize(const float vpw, const float vph)
+void FontFamily::setVpSize(int vpw, int vph)
 {
   vpWidth = vpw;
   vpHeight = vph;

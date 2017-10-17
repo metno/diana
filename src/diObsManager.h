@@ -174,9 +174,6 @@ private:
 public:
   ObsManager();
 
-  //parse PlotInfo
-  ObsPlot* createObsPlot(const PlotCommand_cp&);
-
   //read data
   bool prepare(ObsPlot *, const miutil::miTime&);
   ObsDialogInfo initDialog(void);

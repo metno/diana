@@ -168,9 +168,9 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
   bool converted;
   if (itsArea.P() == geoArea.P()) {
-    converted = (newArea.P().convertFromGeographic(npos,xpos,ypos) == 0);
+    converted = newArea.P().convertFromGeographic(npos,xpos,ypos);
   } else if (newArea.P() == geoArea.P()) {
-    converted = (itsArea.P().convertToGeographic(npos,xpos,ypos) == 0);
+    converted = itsArea.P().convertToGeographic(npos,xpos,ypos);
   } else {
     converted = gc.getPoints(itsArea.P(),newArea.P(),npos,xpos,ypos);
   }
@@ -414,7 +414,7 @@ bool WeatherObjects::readEditCommentFile(const std::string fn)
 
   file.close();
 
-  itsOldComments += diutil::convertLatin1ToUtf8(fileString);
+  itsOldComments += miutil::from_latin1_to_utf8(fileString);
 
   METLIBS_LOG_DEBUG("itsOldComments" << itsOldComments);
 
@@ -471,7 +471,7 @@ bool WeatherObjects::readAreaBorders(const std::string fn, const Area& newArea)
 
   file.close();
 
-  return readEditDrawString(diutil::convertLatin1ToUtf8(fileString),newArea);
+  return readEditDrawString(miutil::from_latin1_to_utf8(fileString),newArea);
 }
 
 
@@ -586,13 +586,13 @@ miTime WeatherObjects::timeFromString(const std::string& timeString)
 /*********************************************/
 
 // static
-map<std::string,bool> WeatherObjects::decodeTypeString(const std::string& token)
+map<std::string,bool> WeatherObjects::decodeTypeString(const std::string& types)
 {
   map<std::string,bool> use;
   for (int i=0; i<numObjectTypes; i++)
     use[ObjectTypeNames[i]]= false;
   //types of objects to plot
-  vector<std::string> stokens = miutil::split(token.substr(6,token.size()-6), 0, ",");
+  vector<std::string> stokens = miutil::split(types, 0, ",");
   int m= stokens.size();
   for (int j=0; j<m; j++){
     if (stokens[j] == "all"){

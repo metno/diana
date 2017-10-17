@@ -31,7 +31,9 @@
 #ifndef _objectDialog_h
 #define _objectDialog_h
 
-#include <diController.h>
+#include "diController.h"
+#include "util/diKeyValue.h"
+
 #include <QDialog>
 #include <vector>
 
@@ -93,7 +95,7 @@ public:
     int totalminutes;
     float alphanr;
     std::map <std::string,bool> useobject;    
-    std::string external;
+    miutil::KeyValue_v external;
   };
   
 private:
@@ -124,7 +126,7 @@ private:
   void updateSelectedFileList();
 
   //decode part of OK string
-  static PlotVariables decodeString(const std::vector<std::string> & tokens);
+  static PlotVariables decodeString(const miutil::KeyValue_v &tokens);
   // make string from plotVariables
   std::string makeOKString(PlotVariables & okVar);
   // get the time string on the form yyyymmddhhmn from time

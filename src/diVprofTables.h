@@ -72,6 +72,7 @@ struct VprofText {
   float    longitude;
   bool     kindexFound;
   float    kindexValue;
+  int realization;
 };
 
 

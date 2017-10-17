@@ -32,6 +32,7 @@
 #include "drawingsymbol.h"
 #include "editsymbol.h"
 #include "diGLPainter.h"
+#include "util/math_util.h"
 
 #include <EditItems/drawingstylemanager.h>
 
@@ -114,7 +115,7 @@ void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &com
 void Symbol::resize(const QPointF &pos)
 {
   const QPointF delta = pos - points_.at(0);
-  properties_["size"] = sqrt(sqr(delta.x()) + sqr(delta.y()));
+  properties_["size"] = diutil::absval(delta.x(), delta.y());
   updateControlPoints();
 }
 

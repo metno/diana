@@ -42,15 +42,17 @@
 #endif // ROADOBS
 
 #include "diLocalSetupParser.h"
-#include <puTools/miStringFunctions.h>
-#include <diField/VcrossData.h>
-#include <diField/VcrossUtil.h>
-#include <puTools/TimeFilter.h>
+#include "diField/VcrossData.h"
+#include "diField/VcrossUtil.h"
 
 #include "vcross_v2/VcrossEvaluate.h"
 #include "vcross_v2/VcrossComputer.h"
 #include "diUtilities.h"
+#include "util/charsets.h"
+#include "util/math_util.h"
 
+#include <puTools/miStringFunctions.h>
+#include <puTools/TimeFilter.h>
 
 #include <fstream>
 #include <iomanip>
@@ -77,7 +79,9 @@ const char VP_OMEGA[]                 = "vp_omega_pas";
 VprofData::VprofData(const std::string& modelname,
     const std::string& stationsfilename) :
         modelName(modelname), stationsFileName(stationsfilename),
-        numPos(0), numTime(0), numParam(0), numLevel(0), stationList(false)
+        numPos(0), numTime(0), numParam(0), numLevel(0)
+      , numRealizations(1)
+      , stationList(false)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -280,6 +284,7 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   numPos = mStations.size();
   numTime = validTime.size();
   numParam = 6;
+  numRealizations = inv->realizationCount;
 
   const miTime rt = util::to_miTime(mr.reftime);
   for (size_t i = 0; i < validTime.size(); i++) {
@@ -324,7 +329,7 @@ static void copy_vprof_values(const name2value_t& n2v, const std::string& id, st
   copy_vprof_values(itN->second, values_out);
 }
 
-VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
+VprofPlot* VprofData::getData(const std::string& name, const miTime& time, int realization)
 {
   METLIBS_LOG_SCOPE(name << "  " << time << "  " << modelName);
   METLIBS_LOG_DEBUG(LOGVAL(validTime.size()) <<LOGVAL(mStations.size()));
@@ -381,7 +386,11 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     const int iPos = std::distance(mStations.begin(), itP);
     const int iTime = std::distance(validTime.begin(), itT);
 
-    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
+    if (name == vProfPlotName and time == vProfPlotTime
+        and vProfPlot.get()
+        and vProfPlot->text.modelName == modelName
+        and vProfPlot->text.realization == realization)
+    {
       METLIBS_LOG_DEBUG("returning cached VProfPlot");
       return new VprofPlot(*vProfPlot);
     }
@@ -396,6 +405,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->text.latitude = itP->lat;
     vp->text.longitude = itP->lon;
     vp->text.kindexFound = false;
+    vp->text.realization = realization;
 
     vp->prognostic = true;
     vp->maxLevels = numLevel;
@@ -426,7 +436,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     model_values_m model_values;
     try {
-      model_values = vc_fetch_pointValues(collector, pos, user_time);
+      model_values = vc_fetch_pointValues(collector, pos, user_time, realization);
     } catch (std::exception& e) {
       METLIBS_LOG_ERROR("exception: " << e.what());
       return 0;
@@ -468,7 +478,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       for (size_t k = 0; k < size_t(numLevel); k++) {
         float uew = vp->uu[k];
         float vns = vp->vv[k];
-        int ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
+        int ff = int(diutil::absval(uew , vns) + 0.5);
         if (!vp->windInKnots)
           ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
         int dd = int(270. - RAD_TO_DEG * atan2f(vns, uew) + 0.5);
@@ -516,7 +526,8 @@ void VprofData::readStationNames(const std::string& stationsfilename)
 
   mStations.clear();
   std::string line;
-  while (std::getline(stationfile, line)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(stationfile, line)) {
     // just skip the first line if present.
     if (miutil::contains(line, "obssource"))
       continue;
@@ -568,7 +579,7 @@ void VprofData::renameStations()
     for (int j=0; j<m; j++) {
       float dx = mStations[i].lon - stationLongitude[j];
       float dy = mStations[i].lat - stationLatitude[j];
-      float s = dx*dx+dy*dy;
+      float s = diutil::absval2(dx, dy);
       if (s < smin) {
         smin = s;
         jmin = j;
@@ -590,9 +601,11 @@ void VprofData::renameStations()
     }
 
     ostringstream ostr;
-    ostr<<setw(4)<<setfill('0')<<jmin;
-    std::string sortname= ostr.str() + newname + validTime[i].isoTime() + mStations[i].name;
-    sortlist.insert(std::make_pair(sortname, i));
+    ostr << setw(4) << setfill('0') << jmin
+         << newname
+         // << validTime[i].isoTime() // FIXME index i may not be used here
+         << mStations[i].name;
+    sortlist.insert(std::make_pair(ostr.str(), i));
 
     stationMap[newname] = mStations[i].name;
     METLIBS_LOG_DEBUG(LOGVAL(newname)<<LOGVAL(mStations[i].name));
@@ -631,18 +644,16 @@ void VprofData::readStationList()
   if (stationsFileName.empty())
     return;
 
-  // open filestream
-  ifstream file;
-  file.open(stationsFileName.c_str());
+  ifstream file(stationsFileName.c_str());
   if (file.bad()) {
-    METLIBS_LOG_ERROR("Station list '" << stationsFileName << "' not found");
+    METLIBS_LOG_ERROR("Unable to open station list '" << stationsFileName << "'");
     return;
   }
 
   const float notFound=9999.;
   std::string str;
-
-  while (getline(file,str)) {
+  diutil::GetLineConverter convertline("#");
+  while (convertline(file,str)) {
     const std::string::size_type n= str.find('#');
     if (n!=0) {
       if (n!=string::npos)

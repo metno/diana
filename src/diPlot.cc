@@ -36,9 +36,9 @@
 #include "diGLPainter.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotModule.h"
+#include "util/math_util.h"
 #include "util/string_util.h"
 
-#include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.Plot"
@@ -46,11 +46,6 @@
 
 using namespace ::miutil;
 using namespace ::std;
-
-static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
-{
-  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
-}
 
 GridConverter StaticPlot::gc; // Projection-converter
 
@@ -142,11 +137,16 @@ void StaticPlot::setMapPlotSize(const Rectangle& mr, const Rectangle& pr)
   }
 }
 
-void StaticPlot::setPhysSize(float w, float h)
+void StaticPlot::setPhysSize(int w, int h)
 {
-  mPhys = XY(w, h);
+  mPhys = diutil::PointI(w, h);
   updatePhysToMapScale();
   setDirty(true);
+}
+
+float StaticPlot::getPhysDiagonal() const
+{
+  return diutil::absval(getPhysWidth(), getPhysHeight());
 }
 
 Area StaticPlot::findBestMatch(const Area& newa){
@@ -211,7 +211,7 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
       lon2 = lon3 + 10;
 
   //gcd is distance between lower left and upper right corners
-  float ngcd = GreatCircleDistance(lat1, lat2, lon1, lon2);
+  float ngcd = diutil::GreatCircleDistance(lat1, lat2, lon1, lon2);
   float x1, y1, x2, y2;
   GeoToPhys(lat1, lon1, x1, y1);
   GeoToPhys(lat2, lon2, x2, y2);
@@ -336,4 +336,9 @@ bool StaticPlot::ProjToMap(const Area& srcArea, int n,
 bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float* y) const
 {
   return gc.getPoints(getMapArea().P(), targetProj, n, x, y);
+}
+
+bool StaticPlot::MapToProj(const Projection& targetProj, int n, diutil::PointD* xy) const
+{
+  return targetProj.convertPoints(getMapArea().P(), n, xy);
 }

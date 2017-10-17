@@ -66,15 +66,25 @@ bool contains(const Rectangle& outer, const Rectangle& inner)
   return true;
 }
 
-} // namespace diutil
-
-std::ostream& operator<<(std::ostream& out, const XY& xy)
+std::ostream& operator<<(std::ostream& out, const PointI& xy)
 {
   out << '(' << xy.x() << ';' << xy.y() << ')';
   return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const diutil::Rect& r)
+std::ostream& operator<<(std::ostream& out, const PointF& xy)
+{
+  out << '(' << xy.x() << ';' << xy.y() << ')';
+  return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const PointD& xy)
+{
+  out << '(' << xy.x() << ';' << xy.y() << ')';
+  return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const Rect& r)
 {
 #if 1
   out << "[x=" << r.x1 << ':' << r.x2 << ";y=" << r.y1 << ':' << r.y2 << ']';
@@ -83,3 +93,5 @@ std::ostream& operator<<(std::ostream& out, const diutil::Rect& r)
 #endif
   return out;
 }
+
+} // namespace diutil

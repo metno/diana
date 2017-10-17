@@ -57,6 +57,8 @@ public:
 
   std::string attribution() const;
 
+  void getAnnotation(std::string &str, Colour &col) const override;
+
   /* set time tolerance in seconds */
   void setTimeTolerance(int tolerance)
     { mTimeTolerance = tolerance; }
@@ -72,7 +74,9 @@ public:
 
   void setStyleGrey(bool makeGrey);
 
-  void plot(DiGLPainter* gl, PlotOrder porder);
+  void setPlotOrder(PlotOrder po);
+
+  void plot(DiGLPainter* gl, PlotOrder porder) override;
 
   void changeProjection();
 
@@ -120,6 +124,7 @@ private:
   std::string mCRS;
   float mAlphaOffset, mAlphaScale;
   bool mMakeGrey;
+  PlotOrder mPlotOrder;
 
   std::map<std::string, std::string> mDimensionValues;
 

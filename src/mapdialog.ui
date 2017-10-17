@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MapDialog</class>
+ <widget class="QWidget" name="MapDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>322</width>
+    <height>668</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Map and Area</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupArea">
+     <property name="title">
+      <string>Area/Projection</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="2" column="1">
+       <widget class="LineStyleButton" name="ff_linestyle">
+        <property name="text">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="showframe">
+        <property name="toolTip">
+         <string>Draw boundary of selected area</string>
+        </property>
+        <property name="text">
+         <string>F&amp;rame</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QComboBox" name="ff_zorder"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="ff_zorderlabel">
+        <property name="text">
+         <string>Plot position</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="4">
+       <widget class="QComboBox" name="areabox"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupGrid">
+     <property name="title">
+      <string>Grid</string>
+     </property>
+     <layout class="QVBoxLayout" name="layoutBoxGrid">
+      <item>
+       <layout class="QGridLayout" name="layoutGrid">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="showlon">
+          <property name="toolTip">
+           <string>Show longitude-lines on the map</string>
+          </property>
+          <property name="text">
+           <string>L&amp;ongitude</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="LineStyleButton" name="lat_linestyle">
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lonlat_colorlabel">
+          <property name="text">
+           <string>Colour</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lonlat_zorderlabel">
+          <property name="text">
+           <string>Plot position</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="lon_density"/>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="lat_zorder"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QCheckBox" name="showlat">
+          <property name="toolTip">
+           <string>Show latitude-lines on the map</string>
+          </property>
+          <property name="text">
+           <string>L&amp;atitude</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="lon_zorder"/>
+        </item>
+        <item row="3" column="2">
+         <widget class="QComboBox" name="lat_density"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lonlat_densitylabel">
+          <property name="text">
+           <string>Density</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="labelLonLatValues">
+          <property name="text">
+           <string>Values</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="LineStyleButton" name="lon_linestyle">
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QComboBox" name="lat_valuepos">
+          <property name="toolTip">
+           <string>If and where to show latitude-values</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="lon_valuepos">
+          <property name="toolTip">
+           <string>If and where to show longitude-values</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupMaps">
+     <property name="title">
+      <string>Maps</string>
+     </property>
+     <layout class="QVBoxLayout" name="layoutBoxMap" stretch="1,1">
+      <item>
+       <layout class="QGridLayout" name="layoutMapSelect">
+        <item row="1" column="1" colspan="2">
+         <widget class="QListWidget" name="selectedMapbox"/>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="mapalldelete">
+          <property name="toolTip">
+           <string>Clear list of selected maps</string>
+          </property>
+          <property name="text">
+           <string>Delete all</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="2">
+         <widget class="QListWidget" name="mapbox">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::MultiSelection</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="mapdelete">
+          <property name="toolTip">
+           <string>Remove selected map from the list &quot;Selected maps&quot;</string>
+          </property>
+          <property name="text">
+           <string>Delete</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelMapsAvailable">
+          <property name="text">
+           <string>Available</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="QLabel" name="selectedMaplabel">
+          <property name="text">
+           <string>Selected maps</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="layoutMapStyle" rowstretch="0,0,0">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="contours">
+          <property name="toolTip">
+           <string>Draw contour lines (mandatory for maps without filled land)</string>
+          </property>
+          <property name="text">
+           <string>Con&amp;tour lines</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="LineStyleButton" name="cont_linestyle">
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="cont_zorder"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QCheckBox" name="filledland">
+          <property name="toolTip">
+           <string>Draw land with separate colour (only available for selected maps)</string>
+          </property>
+          <property name="text">
+           <string>Filled &amp;land</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="map_zorderlabel">
+          <property name="text">
+           <string>Plot position</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="land_zorder"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="map_colorlabel">
+          <property name="text">
+           <string>Colour</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QComboBox" name="land_colorcbox"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBackground">
+     <property name="title">
+      <string>Background colour</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1">
+      <item row="0" column="0">
+       <widget class="QLabel" name="backcolorlabel">
+        <property name="text">
+         <string>&amp;Colour</string>
+        </property>
+        <property name="buddy">
+         <cstring>backcolorcbox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="backcolorcbox"/>
+      </item>
+      <item row="0" column="2">
+       <spacer name="spacerBackground">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>98</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="layoutButtons">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="maphelp">
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="savefavorite">
+       <property name="toolTip">
+        <string>Save this layout as your favorite</string>
+       </property>
+       <property name="text">
+        <string>Save favorite</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="usefavorite">
+       <property name="toolTip">
+        <string>Use saved favorite layout</string>
+       </property>
+       <property name="text">
+        <string>Use favorite</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="maphide">
+       <property name="text">
+        <string>Hide</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="mapapplyhide">
+       <property name="text">
+        <string>Apply+Hide</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="mapapply">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+  <zorder>groupArea</zorder>
+  <zorder>groupMaps</zorder>
+  <zorder>groupBackground</zorder>
+  <zorder>groupGrid</zorder>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineStyleButton</class>
+   <extends>QPushButton</extends>
+   <header>qtStyleButtons.h</header>
+   <slots>
+    <signal>changed()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>areabox</tabstop>
+  <tabstop>showframe</tabstop>
+  <tabstop>ff_linestyle</tabstop>
+  <tabstop>ff_zorder</tabstop>
+  <tabstop>showlon</tabstop>
+  <tabstop>lon_linestyle</tabstop>
+  <tabstop>lon_zorder</tabstop>
+  <tabstop>lon_density</tabstop>
+  <tabstop>lon_valuepos</tabstop>
+  <tabstop>showlat</tabstop>
+  <tabstop>lat_linestyle</tabstop>
+  <tabstop>lat_zorder</tabstop>
+  <tabstop>lat_density</tabstop>
+  <tabstop>lat_valuepos</tabstop>
+  <tabstop>mapbox</tabstop>
+  <tabstop>selectedMapbox</tabstop>
+  <tabstop>mapdelete</tabstop>
+  <tabstop>mapalldelete</tabstop>
+  <tabstop>contours</tabstop>
+  <tabstop>cont_linestyle</tabstop>
+  <tabstop>cont_zorder</tabstop>
+  <tabstop>filledland</tabstop>
+  <tabstop>land_zorder</tabstop>
+  <tabstop>land_colorcbox</tabstop>
+  <tabstop>backcolorcbox</tabstop>
+  <tabstop>maphelp</tabstop>
+  <tabstop>savefavorite</tabstop>
+  <tabstop>usefavorite</tabstop>
+  <tabstop>maphide</tabstop>
+  <tabstop>mapapplyhide</tabstop>
+  <tabstop>mapapply</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>mapdelete</sender>
+   <signal>clicked()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>mapdeleteClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>213</x>
+     <y>500</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mapalldelete</sender>
+   <signal>clicked()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>mapalldeleteClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>500</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>selectedMapbox</sender>
+   <signal>itemClicked(QListWidgetItem*)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>selectedMapboxClicked(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>230</x>
+     <y>445</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>contours</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>cont_checkboxActivated(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>206</x>
+     <y>528</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cont_zorder</sender>
+   <signal>activated(int)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>cont_zordercboxActivated(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>206</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>filledland</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>land_checkboxActivated(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>528</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>land_colorcbox</sender>
+   <signal>activated(int)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>land_colorcboxActivated(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>556</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>land_zorder</sender>
+   <signal>activated(int)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>land_zordercboxActivated(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showlon</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>lon_checkboxActivated(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>159</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showlat</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>lat_checkboxActivated(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showframe</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MapDialog</receiver>
+   <slot>showframe_checkboxActivated(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>savefavorite</sender>
+   <signal>clicked()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>saveFavoriteClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>208</x>
+     <y>695</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>usefavorite</sender>
+   <signal>clicked()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>useFavoriteClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>311</x>
+     <y>695</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mapapplyhide</sender>
+   <signal>clicked()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>applyhideClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>208</x>
+     <y>723</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maphelp</sender>
+   <signal>clicked()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>helpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>695</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cont_linestyle</sender>
+   <signal>changed()</signal>
+   <receiver>MapDialog</receiver>
+   <slot>cont_linestyleActivated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>110</x>
+     <y>549</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>602</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <signal>MapApply()</signal>
+  <signal>MapHide()</signal>
+  <slot>mapboxChanged()</slot>
+  <slot>selectedMapboxClicked(QListWidgetItem*)</slot>
+  <slot>mapdeleteClicked()</slot>
+  <slot>mapalldeleteClicked()</slot>
+  <slot>lon_checkboxActivated(bool)</slot>
+  <slot>lat_checkboxActivated(bool)</slot>
+  <slot>showframe_checkboxActivated(bool)</slot>
+  <slot>cont_checkboxActivated(bool)</slot>
+  <slot>cont_linestyleActivated()</slot>
+  <slot>cont_zordercboxActivated(int)</slot>
+  <slot>land_checkboxActivated(bool)</slot>
+  <slot>land_colorcboxActivated(int)</slot>
+  <slot>land_zordercboxActivated(int)</slot>
+  <slot>helpClicked()</slot>
+  <slot>applyhideClicked()</slot>
+  <slot>saveFavoriteClicked()</slot>
+  <slot>useFavoriteClicked()</slot>
+ </slots>
+</ui>

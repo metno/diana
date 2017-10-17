@@ -96,6 +96,18 @@ public:
 
   GridArea scaled(int factor) const;
 
+  float toGridX(float xproj) const
+    { return (xproj - R().x1) / resolutionX; }
+
+  float toGridY(float yproj) const
+    { return (yproj - R().y1) / resolutionY; }
+
+  float fromGridX(float xgrid) const
+    { return xgrid*resolutionX + R().x1; }
+
+  float fromGridY(float ygrid) const
+    { return ygrid*resolutionY + R().y1; }
+
 public:
   int nx;
   int ny;

@@ -1,4 +1,4 @@
-#square
+#triangle
 lw 1
 mode fill
 mvto -8,-6

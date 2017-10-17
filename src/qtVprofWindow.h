@@ -94,6 +94,7 @@ private:
   QComboBox * stationBox;
   QComboBox * timeBox;
   QSpinBox * timeSpinBox;
+  QSpinBox * realizationSpinBox;
 
   void updateStationBox();
   void updateTimeBox();
@@ -125,6 +126,7 @@ private Q_SLOTS:
   void hideSetup();
   void stationBoxActivated(int index);
   void timeBoxActivated(int index);
+  void realizationChanged(int value);
 
 Q_SIGNALS:
   void VprofHide();

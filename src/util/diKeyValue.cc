@@ -72,49 +72,49 @@ bool KeyValue::toBool(bool& ok, bool def) const
   return def;
 }
 
-void add(KeyValue_v& ostr, const std::string& key, bool value)
+KeyValue kv(const std::string& key, bool value)
 {
-  ostr.push_back(KeyValue(key, value ? "true" : "false"));
+  return KeyValue(key, value ? "true" : "false");
 }
 
-void add(KeyValue_v& ostr, const std::string& key, int value)
+KeyValue kv(const std::string& key, int value)
 {
-  ostr.push_back(KeyValue(key, miutil::from_number(value)));
+  return KeyValue(key, miutil::from_number(value));
 }
 
-void add(KeyValue_v& ostr, const std::string& key, float value)
+KeyValue kv(const std::string& key, float value)
 {
-  ostr.push_back(KeyValue(key, miutil::from_number(value)));
+  return KeyValue(key, miutil::from_number(value));
 }
 
-void add(KeyValue_v& ostr, const std::string& key, const std::string& value)
+KeyValue kv(const std::string& key, const std::string& value)
 {
-  ostr.push_back(KeyValue(key, value));
+  return KeyValue(key, value);
 }
 
-void add(KeyValue_v& ostr, const std::string& key, const char* value)
+KeyValue kv(const std::string& key, const char* value)
 {
-  ostr.push_back(KeyValue(key, value));
+  return KeyValue(key, value);
 }
 
-void add(KeyValue_v& ostr, const std::string& key, const std::vector<float>& values)
+KeyValue kv(const std::string& key, const std::vector<float>& values)
 {
   std::ostringstream ov;
   std::vector<float>::const_iterator it = values.begin();
   ov << *it++;
   for (; it != values.end(); ++it)
     ov << ',' << *it;
-  add(ostr, key, ov.str());
+  return kv(key, ov.str());
 }
 
-void add(KeyValue_v& ostr, const std::string& key, const std::vector<std::string>& values)
+KeyValue kv(const std::string& key, const std::vector<std::string>& values)
 {
   std::ostringstream ov;
   std::vector<std::string>::const_iterator it = values.begin();
   ov << *it++;
   for (; it != values.end(); ++it)
     ov << ',' << *it;
-  add(ostr, key, ov.str());
+  return kv(key, ov.str());
 }
 
 size_t find(const miutil::KeyValue_v& kvs, const std::string& key, size_t start)

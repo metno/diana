@@ -69,6 +69,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   METLIBS_LOG_SCOPE();
 
   setWindowTitle(tr("Trajectories"));
+  setFocusPolicy(Qt::StrongFocus);
 
   //define colours
   colourInfo = Colour::getColourInfo();

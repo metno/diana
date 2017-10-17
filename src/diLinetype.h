@@ -55,16 +55,16 @@ public:
   static void define(const std::string& _name,
 		     short unsigned int _bmap= 0xFFFF, int _factor= 1);
 
+  bool bit(size_t b) const
+    { return ((bmap & (1 << b)) != 0); }
+
   /// return default line type
-  static Linetype getDefaultLinetype() { return defaultLinetype; }
+  static const Linetype& getDefaultLinetype()
+    { return defaultLinetype; }
 
   /// return names of defined line types
-  static std::vector<std::string> getLinetypeNames() { return linetypeSequence; }
-  /// return all line types in string code
-  static std::vector<std::string> getLinetypeInfo();
-  /// return all line names and types in string code
-  static void getLinetypeInfo(std::vector<std::string>& name,
-			      std::vector<std::string>& pattern);
+  static const std::vector<std::string>& getLinetypeNames()
+    { return linetypeSequence; }
 
   std::string name;        ///< name of line type
   bool stipple;            ///< not solid
@@ -76,7 +76,6 @@ private:
   static std::vector<std::string> linetypeSequence;
   static Linetype defaultLinetype;
 
-  // Copy members
   void memberCopy(const Linetype& rhs);
 };
 

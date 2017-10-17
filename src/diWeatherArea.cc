@@ -37,6 +37,7 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "polyStipMasks.h"
+#include "util/math_util.h"
 
 #include <QPolygonF>
 
@@ -499,7 +500,7 @@ void WeatherArea::drawSigweather(DiGLPainter* gl)
     float deltay, deltax;
     deltay = yplot[i + 1] - yplot[i];
     deltax = xplot[i + 1] - xplot[i];
-    float hyp = sqrtf(deltay * deltay + deltax * deltax);
+    float hyp = diutil::absval(deltay , deltax);
     const int nflag = 19;
     float xflag[nflag], yflag[nflag];
     float flagstep = M_PI / (nflag - 1);
@@ -532,7 +533,7 @@ bool WeatherArea::smooth()
   for (int i = 0; i < s_length - 1; i++) {
     float deltay = y_s[i + 1] - y_s[i];
     float deltax = x_s[i + 1] - x_s[i];
-    float hyp = sqrtf(deltay * deltay + deltax * deltax);
+    float hyp = diutil::absval(deltay , deltax);
     totalLength += hyp;
   }
   int nplot;
@@ -567,7 +568,7 @@ bool WeatherArea::smooth()
       }
       float deltay = y_s[i] - ystart;
       float deltax = x_s[i] - xstart;
-      float hyp = sqrtf(deltay * deltay + deltax * deltax);
+      float hyp = diutil::absval(deltay , deltax);
       dist += hyp;
       //next step
       xstart = x_s[i];
@@ -576,14 +577,14 @@ bool WeatherArea::smooth()
     float deltax, deltay, hyp;
     deltay = ystart - yplot[j - 1];
     deltax = xstart - xplot[j - 1];
-    hyp = sqrtf(deltay * deltay + deltax * deltax);
+    hyp = diutil::absval(deltay , deltax);
     float cosalfa = deltax / hyp;
     float sinalfa = deltay / hyp;
     xplot[j] = xplot[j - 1] + radius * cosalfa;
     yplot[j] = yplot[j - 1] + radius * sinalfa;
     deltay = yplot[j] - yplot[j - 1];
     deltax = xplot[j] - xplot[j - 1];
-    hyp = sqrtf(deltay * deltay + deltax * deltax);
+    hyp = diutil::absval(deltay , deltax);
     totalDist += hyp;
     i_s = i - 1;
   }

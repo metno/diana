@@ -453,6 +453,17 @@ bool FieldManager::modelOK(const std::string& modelName)
   return true;
 }
 
+std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::string& modelName, const std::string& refTime)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
+
+  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false))
+    return pgc->getGlobalAttributes(refTime);
+  else
+    return std::map<std::string,std::string>();
+}
+
+
 void FieldManager::getFieldInfo(const std::string& modelName, const std::string& refTime,
     std::map<std::string,FieldInfo>& fieldInfo)
 {
@@ -460,56 +471,8 @@ void FieldManager::getFieldInfo(const std::string& modelName, const std::string&
 
   fieldInfo.clear();
 
-  GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false);
-  if (not pgc)
-    return;
-
-  const gridinventory::Inventory& inventory = pgc->getExpandedInventory();
-
-  std::map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr =
-      inventory.reftimes.find(refTime);
-  if (ritr == inventory.reftimes.end()) {
-    if (refTime.empty() && !inventory.reftimes.empty()) {
-      ritr = inventory.reftimes.begin();
-    } else {
-      METLIBS_LOG_INFO( " refTime not found: " << refTime);
-      return;
-    }
-  }
-
-  for (const gridinventory::GridParameter& gp : ritr->second.parameters) {
-    FieldInfo vi;
-    vi.fieldName = gp.key.name;
-    vi.standard_name = gp.standard_name;
-
-    set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(gp.zaxis_id);
-    if (zitr != ritr->second.zaxes.end()) {
-      vi.vlevels= zitr->getStringValues();
-      vi.vcoord = zitr->verticalType;
-      if (zitr->vc_type == FieldFunctions::vctype_oceandepth) {
-        vi.default_vlevel = vi.vlevels.front();
-      }
-    }
-
-    set<gridinventory::ExtraAxis>::iterator eitr = ritr->second.extraaxes.find(gp.extraaxis_id);
-    if (eitr!=ritr->second.extraaxes.end()) {
-      vi.ecoord = eitr->name;
-      vi.elevels = eitr->getStringValues();
-    }
-
-    // groupname based on coordinates
-    if ( vi.ecoord.empty() && vi.vcoord.empty()) {
-      vi.groupName = "Surface";
-    } else if ( vi.vcoord.empty() ) {
-      vi.groupName = vi.ecoord;
-    } else if ( vi.ecoord.empty() ) {
-      vi.groupName = vi.vcoord;
-    } else {
-      vi.groupName = vi.vcoord + "_" + vi.ecoord;
-    }
-
-    fieldInfo[vi.fieldName]=vi;
-  }
+  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false))
+    pgc->getFieldInfo(refTime, fieldInfo);
 }
 
 
@@ -539,15 +502,6 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
 
   pgc->makeInventory(refTime);
 
-  using namespace gridinventory;
-  Inventory inventory = pgc->getInventory();
-  Inventory::reftimes_t& reftimes = inventory.reftimes;
-  for (Inventory::reftimes_t::iterator it_r = reftimes.begin(); it_r != reftimes.end(); ++it_r) {
-    ReftimeInventory& rti = it_r->second;
-    addComputedParameters(rti);
-  }
-
-  pgc->setExpandedInventory(inventory);
   return pgc;
 }
 
@@ -583,212 +537,6 @@ bool FieldManager::addGridCollection(const std::string& gridioType,
   }
 }
 
-// ==================================================
-// ==================================================
-
-std::string FieldManager::mergeTaxisNames(
-    gridinventory::ReftimeInventory& inventory, const std::string& taxis1,
-    const std::string& taxis2)
-{
-  // merge time axes
-  // if one axis is a subset of the other, return the other
-  //if not, merge times, and insert new axis in inventory with name taxs1:taxis2
-
-  if (taxis1.empty()) {
-    return taxis2;
-  }
-  if (taxis2.empty() or taxis1 == taxis2) {
-    return taxis1;
-  }
-
-  set<gridinventory::Taxis>::iterator titr1 = inventory.taxes.find(taxis1);
-  if (titr1 == inventory.taxes.end()) {
-    return taxis2;
-  }
-
-  set<gridinventory::Taxis>::iterator titr2 = inventory.taxes.find(taxis2);
-  if (titr2 == inventory.taxes.end()) {
-    return taxis1;
-  }
-
-  const vector<double>& times1 = titr1->getSortedValues();
-  const vector<double>& times2 = titr2->getSortedValues();
-
-  const bool t1longer = (times2.size() < times1.size());
-  const vector<double> &longer = t1longer ? times1 : times2;
-  const vector<double> &shorter = t1longer ? times2 : times1;
-  std::vector<double> vtmp;
-  std::set_difference(shorter.begin(), shorter.end(),
-      longer.begin(), longer.end(), std::back_inserter(vtmp));
-  if (vtmp.empty()) {
-    return t1longer ? taxis2 : taxis1;
-  } else {
-    const std::string taxis = taxis1 + ":" + taxis2;
-    set<gridinventory::Taxis>::iterator titr = inventory.taxes.find(taxis);
-    if (titr == inventory.taxes.end()) {
-      std::set_intersection(times2.begin(), times2.end(), times1.begin(),
-          times1.end(), std::back_inserter(vtmp));
-      gridinventory::Taxis taxisnew;
-      taxisnew.name = taxis;
-      taxisnew.values = vtmp;
-      inventory.taxes.insert(taxisnew);
-    }
-    return taxis;
-  }
-}
-
-void FieldManager::addComputedParameters(gridinventory::ReftimeInventory& inventory)
-{
-  METLIBS_LOG_SCOPE();
-
-  //add computed parameters to inventory
-
-  // loop through all functions
-  int i = -1;
-  for (const FieldFunctions::FieldCompute& fc : FieldFunctions::fieldComputes()) {
-    i += 1;
-    const std::string& computeParameterName = fc.name;
-    METLIBS_LOG_DEBUG(LOGVAL(fc.name));
-    //check if parameter exists
-    set<gridinventory::GridParameter>::iterator pitr = inventory.parameters.begin();
-    // loop through parameters
-    for (; pitr != inventory.parameters.end(); ++pitr) {
-      if (pitr->name == computeParameterName) {
-        break; //param already exists
-      }
-    }
-    if (pitr != inventory.parameters.end()) {
-      break;
-    }
-
-    //Compute parameter?
-    //find input parameters and check
-
-    bool inputOk = true;
-    std::string computeZaxis;// = VerticalName[FieldFunctions::vctype_none]; //default, change if input parameter has different zaxis
-    int computeZaxisValues = -1;
-    std::string computeTaxis;
-    std::string computeEaxis;
-    // loop trough input params with same zaxis
-    std::string fchour;
-    BOOST_REVERSE_FOREACH(const std::string& inputParameterName, fc.input) {
-      //levelSpecified true if param:level=value
-      //METLIBS_LOG_DEBUG(LOGVAL(inputParameterName));
-      std::string inputLevelName;
-      FieldFunctions::FieldSpec fs;
-      bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParameterName, fs);
-      fchour = fs.fcHour;
-      pitr = inventory.parameters.begin();
-      // loop through parameters
-      for (; pitr != inventory.parameters.end(); ++pitr) {
-        std::string pitr_name;
-        if( fs.use_standard_name ) {
-          pitr_name = pitr->standard_name;
-        } else {
-          pitr_name = pitr->key.name;
-        }
-
-        if (pitr_name == fs.paramName) {
-          METLIBS_LOG_DEBUG(LOGVAL(pitr_name));
-
-          set<gridinventory::Zaxis>::iterator zitr = inventory.zaxes.find(pitr->zaxis_id);
-
-          //level do not exists
-          if (levelSpecified && !zitr->valueExists(fs.levelName)) {
-            inputOk = false;
-            break;
-          }
-          //ask for zaxis which do not exists
-          if (!levelSpecified ) {
-            // if input parameters have different zaxes, ignore zaxis if number of levels=1
-            if ( !computeZaxis.empty() && pitr->key.zaxis!=computeZaxis) {
-              if ( computeZaxisValues == 1 ) {
-                computeZaxis.clear();
-              } else {
-                inputOk = false;
-                break;
-              }
-            }
-            // Set computeZaxis, but don't overwrite zaxis whith more than one value
-            if ( computeZaxisValues != 1 || zitr->values.size() > 1 ) {
-              computeZaxis = pitr->key.zaxis;
-              computeZaxisValues =  zitr->values.size();
-            }
-          }
-
-          //ask for axis which do not exists
-          if (!fs.ecoordName.empty() && pitr->key.extraaxis.empty()) {
-            inputOk = false;
-            break;
-          }
-          if (fs.ecoordName.empty() && fs.elevel.empty() && pitr->key.extraaxis!="") {
-            computeEaxis = pitr->key.extraaxis;
-          }
-          computeTaxis = mergeTaxisNames(inventory, computeTaxis, pitr->key.taxis);
-
-          break;
-        }
-      }
-      if (pitr == inventory.parameters.end()) {
-        inputOk = false;
-        break; //can't make this computeParameter
-      }
-    }
-
-    if (inputOk) {
-      METLIBS_LOG_DEBUG("check time");
-      //   check time axis
-      if (ffunc.isTimeStepFunction(fc.function)) {
-        // sort function constants
-        int minConst=0,maxConst=0;
-        if ( !fchour.empty() ) {
-          maxConst = atoi(fchour.c_str());
-        } else if (fc.constants.size()){
-          std::vector<float> sortedconstants = fc.constants;
-          std::sort(sortedconstants.begin(), sortedconstants.end());
-          minConst = int(sortedconstants.front());
-          maxConst = int(sortedconstants.back());
-        }
-        //Find time axis
-        set<gridinventory::Taxis>::iterator titr = inventory.taxes.find(pitr->taxis_id);
-        long minTimeStep = titr->getMinStep()/3600;
-        long forecastLength = titr->getForecastLength()/3600;
-        if (minTimeStep !=0 &&
-            (minConst%minTimeStep!=0 || maxConst%minTimeStep != 0 || maxConst-minConst > forecastLength)) {
-          continue;
-        }
-      }
-
-      //Add computed parameter to inventory
-      //computed parameter inherits taxis, extraaxis and grid from input parameter
-      gridinventory::GridParameter newparameter = *pitr;
-      newparameter.key.name = computeParameterName;
-      newparameter.standard_name = computeParameterName;
-      newparameter.key.zaxis = computeZaxis;
-      if (computeZaxis.empty()) {
-        newparameter.zaxis_id.clear();
-      }
-      newparameter.key.taxis = computeTaxis;
-      newparameter.key.extraaxis = computeEaxis;
-      if ( computeEaxis.empty() ) {
-        newparameter.extraaxis_id.clear();
-      }
-      ostringstream ost;
-      ost <<"function:"<<i<<endl;
-      newparameter.nativekey = ost.str();
-      inventory.parameters.insert(newparameter);
-      METLIBS_LOG_DEBUG("Add new parameter");
-      METLIBS_LOG_DEBUG(LOGVAL(newparameter.key.name) <<LOGVAL(computeTaxis)<<LOGVAL(computeZaxis));
-      METLIBS_LOG_DEBUG(LOGVAL(newparameter.nativekey));
-      METLIBS_LOG_DEBUG(LOGVAL(newparameter.zaxis_id));
-      METLIBS_LOG_DEBUG(LOGVAL(newparameter.key.extraaxis));
-      inventory.parameters.insert(newparameter);
-    } else {
-      METLIBS_LOG_DEBUG("not found");
-    }
-    // } //end parameter loop
-  } //end function loop
-}
 
 gridinventory::Grid FieldManager::getGrid(const std::string& modelName)
 {
@@ -823,167 +571,44 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
     METLIBS_LOG_DEBUG(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName));
     METLIBS_LOG_DEBUG(LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
 
-    bool gotfieldtime = false;
 
     GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSource);
     if (pgc) {
-
-      std::string refTimeStr = frq.refTime;
-      if (refTimeStr.empty()) {
-        refTimeStr = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
-        pgc = getGridCollection(frq.modelName, refTimeStr);
-      }
-
-      // fetch inventory for this model
-      gridinventory::Inventory inventory = pgc->getExpandedInventory();
-
-
-      //search for referenceTime
-      map<std::string, gridinventory::ReftimeInventory>::iterator ritr = inventory.reftimes.find(refTimeStr);
-      if (ritr == inventory.reftimes.end()) {
-        METLIBS_LOG_INFO("refTime '" << refTimeStr << "' not found");
-        break;
-      }
-
-      // if fieldrequest.paramName is a standard_name, find key.name
       std::string paramName = frq.paramName;
+      // if fieldrequest.paramName is a standard_name, find variable_name
       if (frq.standard_name) {
-        set<gridinventory::GridParameter>::iterator pitr;
-        pitr = ritr->second.parameters.begin();
-        while (pitr != ritr->second.parameters.end()
-            && pitr->standard_name != paramName)
-          pitr++;
-        if (pitr == ritr->second.parameters.end()) {
-          METLIBS_LOG_DEBUG("parameter standard_name '" << paramName << "' not found in inventory");
+        if ( !pgc->standardname2variablename(frq.refTime, frq.paramName, paramName) )
           continue;
+      }
+      tNormal = pgc->getTimes(frq.refTime, paramName);
+    }
+    METLIBS_LOG_DEBUG(LOGVAL(tNormal.size()));
+
+    if (!tNormal.empty() ) {
+      if ((frq.hourOffset != 0 || frq.minOffset != 0) ) {
+        set<miTime> twork;
+        for (set<miTime>::iterator pt = tNormal.begin(); pt != tNormal.end(); pt++) {
+          miTime tt = *pt;
+          tt.addHour(-frq.hourOffset);
+          tt.addMin(-frq.minOffset);
+          twork.insert(tt);
+        }
+        std::swap(twork, tNormal);
+      }
+      if (allTimeSteps) {
+        tn.insert(tNormal.begin(), tNormal.end());
+      } else if (!tNormal.empty()) {
+        if (tn.empty()) {
+          tn = tNormal;
         } else {
-          paramName = pitr->key.name;
+          vector<miTime> vt(tn.size());
+          vector<miTime>::iterator pvt2, pvt1 = vt.begin();
+          pvt2 = set_intersection(tn.begin(), tn.end(), tNormal.begin(),
+              tNormal.end(), pvt1);
+          tn = set<miTime>(pvt1, pvt2);
         }
       }
 
-      // string -> miTime
-      time_t t = atof(ritr->second.referencetime.c_str());
-      refTime = miTime(t);
-      gridinventory::GridParameter param;
-      if (pgc->dataExists(refTimeStr, paramName, frq.zaxis,
-          frq.taxis, frq.eaxis, frq.plevel, frq.ptime,
-          frq.elevel, frq.time_tolerance, param))
-      {
-        set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(param);
-        if (pitr != ritr->second.parameters.end()) {
-          set<gridinventory::Taxis>::iterator titr = ritr->second.taxes.find(param.taxis_id);
-
-          tNormal.clear();
-          if (titr != ritr->second.taxes.end()) {
-
-            //Is the parameter made from function with several time steps?
-            bool timeStepFunc = false;
-            int functionIndex = -1;
-            const FieldFunctions::FieldCompute* fcm = 0;
-            if (pitr->nativekey.find(':') != std::string::npos) {
-              std::string index = pitr->nativekey.substr(pitr->nativekey.find(':') + 1);
-              functionIndex = atoi(index.c_str());
-              fcm = &FieldFunctions::fieldCompute(functionIndex);
-              timeStepFunc = ffunc.isTimeStepFunction(fcm->function);
-            }
-
-            set<miTime> setTime;
-            if (pgc->useTimeFromFilename()) {
-              if (timeStepFunc) {
-                setTime = pgc->getTimesFromFilename();
-              } else {
-                tNormal= pgc->getTimesFromFilename();
-              }
-            } else {
-              const vector<double>& values = titr->values;
-              for (size_t i = 0; i < values.size(); ++i) {
-                // double -> miTime
-                time_t t = values[i];
-                miTime tt(t);
-                if (!tt.undef()) {
-                  if (timeStepFunc) {
-                    setTime.insert(tt);
-                  } else {
-                    tNormal.insert(tt);
-                  }
-                }
-              }
-            }
-
-            //Check if all time steps are available
-            if (timeStepFunc && fcm && fcm->input.size()) {
-              std::vector<float> constants;
-              std::string inputParamName = fcm->input[0];
-              FieldFunctions::FieldSpec fs;
-              FieldFunctions::splitFieldSpecs(inputParamName,fs);
-              if (!fs.fcHour.empty()) {
-                constants.push_back(atoi(fs.fcHour.c_str()));
-              } else {
-                constants = fcm->constants;
-              }
-
-              const bool is_accumulate_flux = (fs.option == "accumulate_flux");
-              const miutil::miTime rt(refTimeStr);
-              for (set<miTime>::iterator it = setTime.begin(); it != setTime.end(); ++it) {
-                size_t i = 0;
-                for (; i < constants.size(); ++i) {
-                  miTime tmpTime = *it;
-                  tmpTime.addHour(constants[i]);
-                  if (!setTime.count(tmpTime)
-                      && (!is_accumulate_flux || (is_accumulate_flux && tmpTime != rt)))
-                  {
-                    break;
-                  }
-                }
-                if (i == constants.size()) {
-                  //all time steps ok
-                  tNormal.insert(*it);
-                }
-              }
-            }
-            gotfieldtime = true;
-          }
-        }
-      } else {
-        METLIBS_LOG_INFO("parameter '" << paramName << "' not found");
-        continue;
-      }
-    }
-
-    if (!gotfieldtime) {
-      METLIBS_LOG_INFO("got no times for model '" << frq.modelName << "'");
-    }
-
-    if (gotfieldtime) {
-      if (!tNormal.empty() ) {
-        if ((frq.hourOffset != 0 || frq.minOffset != 0) ) {
-          set<miTime> twork;
-          for (set<miTime>::iterator pt = tNormal.begin(); pt != tNormal.end(); pt++) {
-            miTime tt = *pt;
-            tt.addHour(-frq.hourOffset);
-            tt.addMin(-frq.minOffset);
-            twork.insert(tt);
-          }
-          std::swap(twork, tNormal);
-        }
-        if (allTimeSteps) {
-          tn.insert(tNormal.begin(), tNormal.end());
-        } else if (!tNormal.empty()) {
-          if (tn.empty()) {
-            tn = tNormal;
-          } else {
-            vector<miTime> vt(tn.size());
-            vector<miTime>::iterator pvt2, pvt1 = vt.begin();
-            pvt2 = set_intersection(tn.begin(), tn.end(), tNormal.begin(),
-                tNormal.end(), pvt1);
-            tn = set<miTime>(pvt1, pvt2);
-          }
-        }
-      }
-
-    } else if (!allTimeSteps) {
-      tn.clear();
-      break;
     }
   }
 
@@ -1056,11 +681,28 @@ bool FieldManager::makeField(Field*& fout, FieldRequest fieldrequest,
       << LOGVAL(fieldrequest.ptime) << LOGVAL(fieldrequest.plevel)
       << LOGVAL(fieldrequest.elevel) << LOGVAL(fieldrequest.unit));
 
+
   //Find best reference time
   if (fieldrequest.refTime.empty()) {
     fieldrequest.refTime = getBestReferenceTime(fieldrequest.modelName,
         fieldrequest.refoffset, fieldrequest.refhour);
   }
+
+    // If READ_RESULT, try to read from cache
+    if ((cacheOptions & (READ_RESULT | READ_ALL)) != 0
+        && miTime::isValid(fieldrequest.refTime) && !fieldrequest.ptime.undef()) {
+      FieldCacheKeyset keyset;
+      miTime reftime(fieldrequest.refTime);
+      keyset.setKeys(fieldrequest.modelName, reftime, fieldrequest.paramName,
+          fieldrequest.plevel, fieldrequest.elevel, fieldrequest.ptime);
+
+      METLIBS_LOG_DEBUG("SEARCHING FOR :" << keyset << " in CACHE");
+
+      if (fieldcache->hasField(keyset)) {
+        return fieldcache->get(keyset);
+      }
+
+    }
 
   GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName, fieldrequest.refTime,
       false, fieldrequest.checkSourceChanged);
@@ -1070,23 +712,7 @@ bool FieldManager::makeField(Field*& fout, FieldRequest fieldrequest,
     return false;
   }
 
-  // fetch inventory for this model
-  gridinventory::Inventory inventory = pgc->getExpandedInventory();
-
-  //search for referenceTime
-  map<std::string, gridinventory::ReftimeInventory>::iterator ritr;
-  if (fieldrequest.refTime.empty()) {
-    ritr = inventory.reftimes.begin();
-  } else {
-    ritr = inventory.reftimes.find(fieldrequest.refTime);
-  }
-  if (ritr == inventory.reftimes.end()) {
-    METLIBS_LOG_WARN("refTime not found: " << fieldrequest.refTime);
-    return false;
-  }
-  fieldrequest.refTime = ritr->second.referencetime;
-
-  fout = getField(pgc, ritr->second, fieldrequest, cacheOptions);
+  fout = pgc->getField(fieldrequest);
 
   if (fout == 0) {
     METLIBS_LOG_WARN(
@@ -1104,6 +730,10 @@ bool FieldManager::makeField(Field*& fout, FieldRequest fieldrequest,
 
   if (!fieldrequest.palette.empty()) {
     fout->palette = pgc->getVariable(fieldrequest.refTime, fieldrequest.palette);
+  }
+
+  if ((cacheOptions & (WRITE_ALL | WRITE_RESULT)) != 0) {
+    writeToCache(fout);
   }
 
   return true;
@@ -1180,7 +810,7 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
   if (differentGrid) {
     unsigned int j = 0;
     while (res && j < dim) {
-      res = fv2[j]->changeGrid(area1, "simple.interpolation");
+      res = fv2[j]->changeGrid(area1, false);
       j++;
     }
     if (res && dim == 2) {
@@ -1217,26 +847,6 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
   return res;
 }
 
-// remove parentheses from end of string
-std::string FieldManager::removeParenthesesFromString(const std::string& origName)
-{
-  const char* optionFirst = "([{<";
-  const char* optionLast = ")]}>";
-
-  std::string name = origName;
-
-  std::string::size_type l = name.length() - 1;
-  int i = 0;
-
-  while (i < 4 && name[l] != optionLast[i])
-    i++;
-  if (i < 4) {
-    if (((l = name.find_last_of(optionFirst[i])) != string::npos) && l > 0)
-      name = name.substr(0, l);
-  }
-
-  return name;
-}
 
 bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
 {
@@ -1247,298 +857,16 @@ bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
 
   GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName,
       fieldrequest.refTime, false, fieldrequest.checkSourceChanged);
+
   if (not pgc) {
     METLIBS_LOG_WARN(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.refTime) << "' not found");
     return false;
   }
 
-  gridinventory::Inventory inventory = pgc->getExpandedInventory();
-
-  map<std::string, gridinventory::ReftimeInventory>::iterator ritr =
-      inventory.reftimes.find(fieldrequest.refTime);
-  if (ritr == inventory.reftimes.end()) {
-    if (fieldrequest.refTime.empty() && inventory.reftimes.size()) {
-      ritr = inventory.reftimes.begin();
-    } else {
-      METLIBS_LOG_WARN(LOGVAL(fieldrequest.refTime) << "' not found");
-      return false;
-    }
-  }
-  fieldrequest.refTime = ritr->second.referencetime;
-
-  gridinventory::GridParameter param;
-
-
-  if (!pgc->dataExists(fieldrequest.refTime,
-      fieldrequest.paramName, fieldrequest.zaxis, fieldrequest.taxis,
-      fieldrequest.eaxis, fieldrequest.plevel,
-      fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance,
-      param)) {
-    METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.paramName)<< "  not found by dataExists");
-    return false;
-  }
-
-  set<gridinventory::GridParameter>::iterator pitr;
-  pitr = ritr->second.parameters.find(param);
-  if (pitr == ritr->second.parameters.end()) {
-    METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.paramName)<< "  not found in inventory even if dataExists returned true");
-    return false;
-  }
-
   return pgc->putData(fieldrequest.refTime,
-      param.key.name, param.key.zaxis, param.key.taxis, param.key.extraaxis,
-      fieldrequest.plevel, fieldrequest.ptime,
+      fieldrequest.paramName, fieldrequest.plevel, fieldrequest.ptime,
       fieldrequest.elevel, fieldrequest.unit, fieldrequest.output_time,
-      fieldrequest.time_tolerance, field);
-}
-
-Field* FieldManager::getField(GridCollectionPtr gridCollection,
-    gridinventory::ReftimeInventory& inventory, FieldRequest fieldrequest,
-    int cacheOptions)
-{
-  METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : "
-      << fieldrequest.zaxis << " : " << fieldrequest.plevel);
-
-  // if fieldrequest.paramName is a standard_name, find key.name
-  if (fieldrequest.standard_name) {
-    set<gridinventory::GridParameter>::iterator pitr;
-    pitr = inventory.parameters.begin();
-    while (pitr != inventory.parameters.end()
-        && pitr->standard_name != fieldrequest.paramName)
-      pitr++;
-    if (pitr == inventory.parameters.end()) {
-      METLIBS_LOG_DEBUG("parameter standard_name '" << fieldrequest.paramName << "' not found in inventory");
-      return NULL;
-    } else {
-      fieldrequest.paramName = pitr->key.name;
-    }
-  }
-
-  // If READ_RESULT, try to read from cache
-  if ((cacheOptions & (READ_RESULT | READ_ALL)) != 0
-      && miTime::isValid(fieldrequest.refTime) && !fieldrequest.ptime.undef()) {
-    FieldCacheKeyset keyset;
-    miTime reftime(fieldrequest.refTime);
-    keyset.setKeys(fieldrequest.modelName, reftime, fieldrequest.paramName,
-        fieldrequest.plevel, fieldrequest.elevel, fieldrequest.ptime);
-
-    METLIBS_LOG_DEBUG("SEARCHING FOR :" << keyset << " in CACHE");
-
-    if (fieldcache->hasField(keyset)) {
-      return fieldcache->get(keyset);
-    }
-
-  }
-
-  //check if requested parameter exist, and init param
-  gridinventory::GridParameter param;
-
-  // check if param is in inventory
-
-  if (!gridCollection->dataExists(fieldrequest.refTime,
-      fieldrequest.paramName, fieldrequest.zaxis, fieldrequest.taxis,
-      fieldrequest.eaxis, fieldrequest.plevel,
-      fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance,
-      param)) {
-    METLIBS_LOG_INFO("parameter '" << fieldrequest.paramName << "' not found by dataExists");
-    return NULL;
-  }
-
-  set<gridinventory::GridParameter>::iterator pitr;
-  pitr = inventory.parameters.find(param);
-  if (pitr == inventory.parameters.end()) {
-    METLIBS_LOG_INFO("parameter " << fieldrequest.paramName
-        << "  not found in inventory even if dataExists returned true");
-    return 0;
-  }
-
-  //If not computed parameter, read field from GridCollection and return
-  if (pitr->nativekey.find("function:") == std::string::npos) {
-
-    Field* field = gridCollection->getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis,
-        param.key.extraaxis, fieldrequest.plevel,
-        fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit,
-        fieldrequest.time_tolerance);
-    if ((cacheOptions & (WRITE_ALL | WRITE_RESULT)) != 0) {
-      writeToCache(field);
-    }
-    return field;
-  }
-
-  //parameter must be computed from input parameters using some function
-
-  //Find function, number of input parameters and constants
-  std::string index = pitr->nativekey.substr(pitr->nativekey.find(':') + 1);
-  int functionIndex = atoi(index.c_str());
-  const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
-  int nOutputParameters = fcm.results.size();
-  int nInputParameters = fcm.input.size();
-  vector<Field*> vfield; // Input fields
-  vector<Field*> vfresults; //Output fields
-  bool fieldOK = false;
-
-  //Functions using fields with different forecast time
-  if (ffunc.isTimeStepFunction(fcm.function)) {
-
-    FieldRequest fieldrequest_new = fieldrequest;
-    std::string inputParamName = fcm.input[0];
-
-    //levelSpecified true if param:level=value
-    FieldFunctions::FieldSpec fs;
-    bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParamName,fs);
-    fieldrequest_new.paramName = fs.paramName;
-    fieldrequest_new.standard_name = fs.use_standard_name; //functions use standard_name
-    fieldrequest_new.unit = fs.unit;
-    if (levelSpecified) {
-      fieldrequest_new.zaxis = fs.vcoordName;
-      fieldrequest_new.plevel = fs.levelName;
-    }
-    if (!fs.elevel.empty()) {
-      fieldrequest_new.elevel = fs.elevel;
-    }
-
-    if (!fs.fcHour.empty()) {
-      int fch=atoi(fs.fcHour.c_str());
-      if (!getAllFields_timeInterval(gridCollection, inventory, vfield, fieldrequest_new,
-          fch, (fs.option == "accumulate_flux"), cacheOptions))
-      {
-        freeFields(vfield);
-        return 0;
-      }
-    } else {
-      if (!getAllFields(gridCollection, inventory, vfield, fieldrequest_new,
-          fcm.constants, cacheOptions))
-      {
-        freeFields(vfield);
-        return 0;
-      }
-    }
-
-    //make output field
-    Field* ff = new Field();
-    ff->shallowMemberCopy(*vfield[0]);
-    ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
-    ff->validFieldTime = fieldrequest.ptime;
-    ff->unit = fieldrequest.unit;
-    vfresults.push_back(ff);
-
-    if (!ffunc.fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
-      METLIBS_LOG_WARN("fieldComputer returned false");
-      fieldOK = false;
-    } else {
-      fieldOK = true;
-    }
-
-  } else {
-
-    std::string computeZaxis; // = VerticalName[FieldFunctions::vctype_none]; //default, change if input parameter has different zaxis
-
-    // loop trough input params with same zaxis
-    for (int j = 0; j < nInputParameters; j++) {
-
-      FieldRequest fieldrequest_new = fieldrequest;
-      std::string inputParamName = fcm.input[j];
-
-      //levelSpecified true if param:level=value
-      FieldFunctions::FieldSpec fs;
-      bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParamName, fs);
-      fieldrequest_new.paramName = fs.paramName;
-      fieldrequest_new.standard_name = fs.use_standard_name; //functions use standard_name
-      if (fs.paramName == "surface_air_pressure") { //TODO: psurf - used in hybrid functions, should be defined in setup
-        fieldrequest_new.zaxis.clear();
-        fieldrequest_new.plevel.clear();
-      }
-
-      if (levelSpecified) {
-        fieldrequest_new.zaxis = fs.vcoordName;
-        fieldrequest_new.plevel = fs.levelName;
-      }
-      if (!fs.unit.empty()) {
-        fieldrequest_new.unit = fs.unit;
-      }
-      if (!fs.elevel.empty()) {
-        fieldrequest_new.elevel = fs.elevel;
-      }
-
-      if (fs.ecoordName.empty() && fs.vcoordName.empty()) {
-        Field * f = getField(gridCollection, inventory, fieldrequest_new,
-            cacheOptions);
-        if (!f) {
-          METLIBS_LOG_DEBUG("unable to read '" << inputParamName << "'");
-          freeFields(vfield);
-          return 0;
-        } else {
-          vfield.push_back(f);
-        }
-
-      } else {
-
-        vector<std::string> values;
-        if (!fs.ecoordName.empty()) {
-          gridinventory::ExtraAxis eaxs = inventory.getExtraAxis(fs.ecoordName);
-          values = eaxs.stringvalues;
-        } else if (!fs.vcoordName.empty()) {
-          gridinventory::Zaxis zaxs = inventory.getZaxis(fs.vcoordName);
-          values = zaxs.stringvalues;
-        }
-        if (values.empty()) {
-          freeFields(vfield);
-          return 0;
-        }
-        for (size_t i = 0; i < values.size(); i++) {
-          if (!fs.ecoordName.empty()) {
-            fieldrequest_new.elevel = values[i];
-          } else if (!fs.vcoordName.empty()) {
-            fieldrequest_new.plevel = values[i];
-          }
-          Field * f = getField(gridCollection, inventory, fieldrequest_new, cacheOptions);
-          if (!f) {
-            freeFields(vfield);
-            return 0;
-          } else {
-            vfield.push_back(f);
-          }
-        }
-
-      }
-
-    } //end loop inputParameters
-
-    if (vfield.empty()) {
-      return 0;
-    }
-
-    for (int j = 0; j < nOutputParameters; j++) {
-      Field* ff = new Field();
-      ff->shallowMemberCopy(*vfield[0]);
-      ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
-      ff->unit = fieldrequest.unit;
-      vfresults.push_back(ff);
-    }
-
-    if (!ffunc.fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
-      METLIBS_LOG_WARN("fieldComputer returned false");
-      fieldOK = false;
-    } else {
-      fieldOK = true;
-    }
-
-  }
-
-  //delete input fields
-  freeFields(vfield);
-
-  //return output field
-  Field* fresult = 0;
-  if (fieldOK) {
-    fresult = vfresults[0];
-    vfresults.erase(vfresults.begin());
-  }
-  if (!vfresults.empty()) {
-    freeFields(vfresults);
-  }
-
-  return fresult;
+      field);
 }
 
 void FieldManager::updateSources()
@@ -1561,96 +889,4 @@ std::vector<std::string> FieldManager::getFileNames(const std::string& modelName
   if (gridCollection)
     filenames = gridCollection->getRawSources();
   return filenames;
-}
-
-
-bool FieldManager::getAllFields_timeInterval(GridCollectionPtr gridCollection,
-    gridinventory::ReftimeInventory& inventory, vector<Field*>& vfield,
-    FieldRequest fieldrequest, int fch, bool accumulate_flux, int cacheOptions)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(fieldrequest.paramName));
-
-  miTime endTime = fieldrequest.ptime;
-  miTime startTime = fieldrequest.ptime;
-  if (fch < 0) // TODO what about fch == 0?
-    startTime.addHour(fch);
-  else
-    endTime.addHour(fch);
-
-  // get all available timesteps between start and end.
-  const vector<FieldRequest> fieldrequests(1, fieldrequest);
-  const vector<miTime> fieldTimes = getFieldTime(fieldrequests, false);
-  set<miTime> actualfieldTimes;
-  for (size_t i = 0; i < fieldTimes.size(); i++) {
-    if (fieldTimes[i] >= startTime && fieldTimes[i] <= endTime)
-      actualfieldTimes.insert(fieldTimes[i]);
-  }
-  if (actualfieldTimes.empty())
-    return false;
-
-  if (accumulate_flux) {
-    if (fch > 0) {
-      METLIBS_LOG_WARN("accumulate_flux with fchour> 0 is not implemented");
-      return false;
-    }
-    if (!actualfieldTimes.count(startTime) && (startTime != miutil::miTime(fieldrequest.refTime))) {
-      METLIBS_LOG_DEBUG(fieldrequest.paramName << " not available for "<< startTime);
-      return false;
-    }
-  }
-  if (fch < 0) {
-    actualfieldTimes.erase(startTime);
-  } else {
-    actualfieldTimes.erase(endTime);
-  }
-  miTime lastTime = startTime; // only used iff accumulate_flux
-  for (const miTime& t : actualfieldTimes) {
-    fieldrequest.ptime = t;
-    Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
-    if (!f) {
-      METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
-      return false;
-    } else {
-      if (accumulate_flux) {
-        const float sec_diff = miTime::secDiff(t, lastTime);
-        if (!multiplyFieldByTimeStep(f, sec_diff))
-          return false;
-        lastTime = t;
-      }
-      vfield.push_back(f);
-    }
-  }
-  return !vfield.empty();
-}
-
-bool FieldManager::getAllFields(GridCollectionPtr gridCollection,
-    gridinventory::ReftimeInventory& inventory, std::vector<Field*>& vfield,
-    FieldRequest fieldrequest, const std::vector<float>& constants, int cacheOptions)
-{
-  const int nConstants = constants.size();
-  if (nConstants == 0)
-    return false;
-  const miTime startTime = fieldrequest.ptime;
-  for (int i = nConstants - 1; i >= 0; i--) {
-    fieldrequest.ptime = startTime;
-    fieldrequest.ptime.addHour(constants[i]);
-    Field * f = getField(gridCollection, inventory, fieldrequest, cacheOptions);
-    if (f) {
-      vfield.push_back(f);
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool FieldManager::multiplyFieldByTimeStep(Field* f, float sec_diff)
-{
-  const vector<float> constants(1, sec_diff);
-  const vector<Field*> vfield(1, f);
-  if (ffunc.fieldComputer(FieldFunctions::f_multiply_f_c, constants, vfield, vfield, gc)) {
-    return true;
-  }
-  METLIBS_LOG_WARN("problem in multiplyFieldByTimeStep");
-  return false;
 }

@@ -29,7 +29,6 @@
 
 #include "WebMapDialog.h"
 
-#include "diStringPlotCommand.h"
 #include "WebMapManager.h"
 #include "WebMapPlot.h"
 #include "WebMapService.h"
@@ -47,45 +46,82 @@
 #define MILOGGER_CATEGORY "diana.WebMapDialog"
 #include <miLogger/miLogging.h>
 
-static const std::string WEBMAP = "WEBMAP";
+#include "kill.xpm"
 
-WebMapPlotListModel::WebMapPlotListModel(QObject* parent )
+namespace {
+const std::string WEBMAP = "WEBMAP";
+const size_t IDX_INVALID = size_t(-1);
+
+const std::string WEBMAP_SERVICE = "webmap.service";
+const std::string WEBMAP_LAYER = "webmap.layer";
+const std::string WEBMAP_ZORDER = "webmap.zorder";
+const std::string WEBMAP_TIME_TOLERANCE = "webmap.time_tolerance";
+const std::string WEBMAP_TIME_OFFSET = "webmap.time_offset";
+
+const std::string STYLE_ALPHA_SCALE = "style.alpha_scale";
+const std::string STYLE_ALPHA_OFFSET = "style.alpha_offset";
+const std::string STYLE_GREY = "style.grey";
+
+// this must match ui->comboPlotOrder
+const std::string plotorder_lines = "lines";
+const std::string plotorders[] = {
+  "background",
+  "shade_background",
+  "shade",
+  "lines_background",
+  plotorder_lines
+};
+const int plotorder_lines_idx = 3;
+const size_t N_PLOTORDERS = sizeof(plotorders)/sizeof(plotorders[0]);
+} // namespace
+
+WebMapPlotListModel::WebMapPlotListModel(WebMapDialog *parent )
   : QAbstractListModel(parent)
 {
-  connect(WebMapManager::instance(), SIGNAL(webMapsRemoved()),
-      this, SLOT(onPlotsRemoved()));
-  connect(WebMapManager::instance(), SIGNAL(webMapAdded(int)),
-      this, SLOT(onPlotAdded(int)));
 }
 
-int WebMapPlotListModel::rowCount(const QModelIndex& parent) const
+int WebMapPlotListModel::rowCount(const QModelIndex&) const
 {
-  return WebMapManager::instance()->getPlotCount();
+  return dialog()->plotCommandCount();
 }
 
 QVariant WebMapPlotListModel::data(const QModelIndex& index, int role) const
 {
   if (role == Qt::DisplayRole) {
-    const int i = index.row();
-    WebMapPlot* plot = WebMapManager::instance()->getPlot(i);
-    QString d = QString::fromStdString(plot->service()->title())
-        + " -- "
-        + QString::fromStdString(plot->title());
-    return d;
+    if (KVListPlotCommand_cp pc = std::dynamic_pointer_cast<const KVListPlotCommand>(dialog()->plotCommand(index.row()))) {
+      const size_t idx_ws = pc->find(WEBMAP_SERVICE);
+      const size_t idx_wl = pc->find(WEBMAP_LAYER);
+      QString ws = (idx_ws != IDX_INVALID) ? QString::fromStdString(pc->get(idx_ws).value()) : "?";
+      QString wl = (idx_wl != IDX_INVALID) ? QString::fromStdString(pc->get(idx_wl).value()) : "?";
+      return QString("%1 -- %2").arg(ws).arg(wl);
+    }
   }
   return QVariant();
 }
 
-void WebMapPlotListModel::onPlotsRemoved()
+void WebMapPlotListModel::onPlotsRemoveBegin()
 {
   beginResetModel();
+}
+
+void WebMapPlotListModel::onPlotsRemoveEnd()
+{
   endResetModel();
 }
 
-void WebMapPlotListModel::onPlotAdded(int idx)
+void WebMapPlotListModel::onPlotAddBegin(int idx)
 {
-  Q_EMIT beginInsertRows(QModelIndex(), idx, idx); // FIXME a bit late, plot already added
+  Q_EMIT beginInsertRows(QModelIndex(), idx, idx);
+}
+
+void WebMapPlotListModel::onPlotAddEnd()
+{
   Q_EMIT endInsertRows();
+}
+
+WebMapDialog* WebMapPlotListModel::dialog() const
+{
+  return static_cast<WebMapDialog*>(parent());
 }
 
 // ========================================================================
@@ -148,6 +184,7 @@ void WebMapDialog::setupUi()
       this, SLOT(onAddRestart()));
 
   ui->comboStyleLayer->setModel(new WebMapPlotListModel(this));
+  ui->buttonLayerRemove->setIcon(QPixmap(kill_xpm));
 }
 
 void WebMapDialog::initializeAddServicePage(bool forward)
@@ -331,20 +368,153 @@ void WebMapDialog::addSelectedLayer()
   if (!isAddLayerComplete() || !mAddSelectedService || !layer)
     return;
 
-  std::ostringstream add;
-  add << WEBMAP << " webmap.service=" << mAddSelectedService->identifier()
-      << " webmap.layer=" << layer->identifier()
-      << " style.alpha_scale=0.75";
-  mOk.push_back(std::make_shared<StringPlotCommand>(WEBMAP, add.str()));
+  KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>(WEBMAP);
+  cmd->add(WEBMAP_SERVICE, mAddSelectedService->identifier());
+  cmd->add(WEBMAP_LAYER, layer->identifier());
+  cmd->add(STYLE_ALPHA_SCALE, "0.75");
+
+  WebMapPlotListModel* m = static_cast<WebMapPlotListModel*>(ui->comboStyleLayer->model());
+  m->onPlotAddBegin(mOk.size());
+  mOk.push_back(cmd);
+  m->onPlotAddEnd();
+
   Q_EMIT applyData();
 }
 
 void WebMapDialog::onModifyApply()
 {
+  Q_EMIT applyData();
+}
+
+void WebMapDialog::onModifyReset()
+{
 }
 
 void WebMapDialog::onModifyLayerSelected()
 {
+  bool enable = false;
+  if (KVListPlotCommand_cp pc = plotCommand(ui->comboStyleLayer->currentIndex())) {
+    enable = true;
+
+    { const size_t idx_grey = pc->find(STYLE_GREY);
+      bool grey = (idx_grey != IDX_INVALID) ? pc->get(idx_grey).toBool() : false;
+      ui->checkGrey->setChecked(grey);
+    }
+    { const size_t idx_as = pc->find(STYLE_ALPHA_SCALE);
+      float alpha_scale = (idx_as != IDX_INVALID) ? pc->get(idx_as).toFloat() : 0.75f;
+      ui->spinAlphaScale->setValue(alpha_scale);
+    }
+    { const size_t idx_ao = pc->find(STYLE_ALPHA_OFFSET);
+      float alpha_offset = (idx_ao != IDX_INVALID) ? pc->get(idx_ao).toFloat() : 0;
+      ui->spinAlphaOffset->setValue(alpha_offset);
+    }
+    { const size_t idx_tt = pc->find(WEBMAP_TIME_TOLERANCE);
+      int time_tolerance_sec = (idx_tt != IDX_INVALID) ? pc->get(idx_tt).toInt() : -1;
+      ui->spinTimeTolerance->setValue(time_tolerance_sec);
+    }
+    { const size_t idx_to = pc->find(WEBMAP_TIME_OFFSET);
+      int time_offset_sec = (idx_to != IDX_INVALID) ? pc->get(idx_to).toInt() : 0;
+      ui->spinTimeOffset->setValue(time_offset_sec);
+    }
+    { const size_t idx_po = pc->find(WEBMAP_ZORDER);
+      const std::string& pot = (idx_po != IDX_INVALID) ? pc->get(idx_po).value() : plotorder_lines;
+      int po = plotorder_lines_idx;
+      for (size_t i=0; i < N_PLOTORDERS; ++i) {
+        if (plotorders[i] == pot) {
+          po = i;
+          break;
+        }
+      }
+      ui->comboPlotOrder->setCurrentIndex(po);
+    }
+  }
+
+  ui->buttonModifyApply->setEnabled(enable);
+  ui->buttonLayerRemove->setEnabled(enable);
+
+  ui->checkGrey->setEnabled(enable);
+  ui->spinAlphaScale->setEnabled(enable);
+  ui->spinAlphaOffset->setEnabled(enable);
+  ui->comboPlotOrder->setEnabled(enable);
+  ui->spinTimeOffset->setEnabled(enable);
+  ui->spinTimeTolerance->setEnabled(enable);
+}
+
+void WebMapDialog::onModifyLayerRemove()
+{
+  METLIBS_LOG_SCOPE();
+  WebMapPlotListModel* m = static_cast<WebMapPlotListModel*>(ui->comboStyleLayer->model());
+  m->onPlotsRemoveBegin();
+  mOk.erase(mOk.begin() + ui->comboStyleLayer->currentIndex());
+  m->onPlotsRemoveEnd();
+
+  Q_EMIT applyData();
+}
+
+void WebMapDialog::onModifyGreyToggled()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(STYLE_GREY, ui->checkGrey->isChecked()));
+}
+
+void WebMapDialog::onModifyAlphaScaleChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(STYLE_ALPHA_SCALE, (float)ui->spinAlphaScale->value()));
+}
+
+void WebMapDialog::onModifyAlphaOffsetChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(STYLE_ALPHA_OFFSET, (float)ui->spinAlphaOffset->value()));
+}
+
+void WebMapDialog::onModifyPlotOrderChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(WEBMAP_ZORDER, plotorders[ui->comboPlotOrder->currentIndex()]));
+}
+
+void WebMapDialog::onModifyTimeToleranceChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(WEBMAP_TIME_TOLERANCE, ui->spinTimeTolerance->value()));
+}
+
+void WebMapDialog::onModifyTimeOffsetChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(WEBMAP_TIME_OFFSET, ui->spinTimeOffset->value()));
+}
+
+void WebMapDialog::replaceCommandKV(const miutil::KeyValue& kv)
+{
+  replaceCommandKV(kv, ui->comboStyleLayer->currentIndex());
+}
+
+void WebMapDialog::replaceCommandKV(const miutil::KeyValue& kvnew, size_t idx)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(kvnew));
+  if (KVListPlotCommand_cp pc = plotCommand(idx)) {
+    KVListPlotCommand_p pcm = std::make_shared<KVListPlotCommand>(WEBMAP);
+    bool replaced = false;
+    for (const miutil::KeyValue& kv : pc->all()) {
+      if (kv.key() == kvnew.key()) {
+        if (!replaced)
+          pcm->add(kvnew);
+        replaced = true;
+       } else {
+        pcm->add(kv);
+      }
+    }
+    if (!replaced)
+      pcm->add(kvnew);
+
+    METLIBS_LOG_DEBUG(LOGVAL(pcm->all()));
+
+    // TODO update model
+    mOk[idx] = pcm;
+  }
 }
 
 std::string WebMapDialog::name() const
@@ -365,7 +535,24 @@ PlotCommand_cpv WebMapDialog::getOKString()
 void WebMapDialog::putOKString(const PlotCommand_cpv& ok)
 {
   METLIBS_LOG_SCOPE(LOGVAL(ok.size()));
+
+  const int ci = ui->comboStyleLayer->currentIndex();
+
+  WebMapPlotListModel* m = static_cast<WebMapPlotListModel*>(ui->comboStyleLayer->model());
+  m->onPlotsRemoveBegin();
   mOk = ok;
+  m->onPlotsRemoveEnd();
+
+  if (!mOk.empty())
+    ui->comboStyleLayer->setCurrentIndex(std::max(std::min(ci, (int)mOk.size()-1), 0));
+}
+
+KVListPlotCommand_cp WebMapDialog::plotCommand(size_t idx) const
+{
+  if (idx < mOk.size())
+    return std::dynamic_pointer_cast<const KVListPlotCommand>(mOk[idx]);
+  else
+    return KVListPlotCommand_cp();
 }
 
 void WebMapDialog::updateTimes()

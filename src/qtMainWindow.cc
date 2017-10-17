@@ -65,6 +65,7 @@
 #include "diBuild.h"
 #include "diController.h"
 #include "diEditItemManager.h"
+#include "diLabelPlotCommand.h"
 #include "diPaintGLPainter.h"
 #include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
@@ -78,6 +79,7 @@
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 #include "util/qstring_util.h"
+#include "util/string_util.h"
 
 #include "export/MovieMaker.h"
 #include "export/qtExportImageDialog.h"
@@ -100,6 +102,7 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QDockWidget>
 #include <QFileDialog>
 #include <QFocusEvent>
 #include <QFontDialog>
@@ -194,6 +197,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   setWindowIcon(QIcon(QPixmap(diana_icon_xpm)));
 
   self = this;
+
+  createHelpDialog();
 
   //-------- The Actions ---------------------------------
 
@@ -553,6 +558,9 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   }
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
 
+  initCoserverClient();
+  setInstanceName(instancename);
+
   //   //-------Show menu
   showmenu = menuBar()->addMenu(tr("Show"));
   showmenu->addAction( showApplyAction              );
@@ -656,18 +664,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   statusBar()->addPermanentWidget(archiveL);
   archiveL->hide();
 
-  hqcTo = -1;
-  qsocket = false;
-  pluginB = new ClientSelection("Diana", this);
-  pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
-  connect(pluginB, SIGNAL(receivedMessage(int, const miQMessage&)),
-      SLOT(processLetter(int, const miQMessage&)));
-  connect(pluginB, SIGNAL(disconnected()),
-      SLOT(connectionClosed()));
-  connect(pluginB, SIGNAL(renamed(const QString&)),
-      SLOT(setInstanceName(const QString&)));
-  setInstanceName(instancename);
-
   QToolButton* clientbutton = new QToolButton(statusBar());
   clientbutton->setDefaultAction(pluginB->getToolButtonAction());
   statusBar()->addPermanentWidget(clientbutton);
@@ -737,7 +733,11 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   mainToolbar->addAction( showQuickmenuAction         );
 
   mm= new MapDialog(this, contr);
-  mm->hide();
+  mmdock = new QDockWidget(tr("Map and Area"), this);
+  mmdock->setObjectName("dock_map");
+  mmdock->setWidget(mm);
+  addDockWidget(Qt::RightDockWidgetArea, mmdock);
+  mmdock->hide();
   mainToolbar->addAction( showMapDialogAction         );
 
   fm= new FieldDialog(this, contr);
@@ -761,12 +761,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   mainToolbar->addAction( showObjectDialogAction      );
 
   trajm = new TrajectoryDialog(this,contr);
-  trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
   mainToolbar->addAction( showTrajecDialogAction      );
 
   annom = new AnnotationDialog(this,contr);
-  annom->setFocusPolicy(Qt::StrongFocus);
   annom->hide();
 
   measurementsm = new MeasurementsDialog(this,contr);
@@ -778,18 +776,16 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   uffm->hide();
 
   EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
-  drawingDialog->hide();
   addDialog(drawingDialog);
 
   { WebMapDialog* wmd = new WebMapDialog(this, contr);
-    wmd->hide();
     addDialog(wmd);
 
     connect(WebMapManager::instance(), SIGNAL(webMapsReady()),
         this, SLOT(requestBackgroundBufferUpdate()));
   }
 
-  editDrawingToolBar = EditItems::ToolBar::instance();
+  editDrawingToolBar = EditItems::ToolBar::instance(this);
   editDrawingToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
   editDrawingToolBar->hide();
@@ -824,29 +820,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
-  // Documentation and Help
-
-  HelpDialog::Info info;
-  HelpDialog::Info::Source helpsource;
-  info.path= LocalSetupParser::basicValue("docpath");
-  helpsource.source= "index.html";
-  helpsource.name= "Help";
-  helpsource.defaultlink= "START";
-  info.src.push_back(helpsource);
-
-  helpsource.source= "ug_shortcutkeys.html";
-  helpsource.name="Accelerators";
-  helpsource.defaultlink= "";
-  info.src.push_back(helpsource);
-
-  helpsource.source= "news.html";
-  helpsource.name="News";
-  helpsource.defaultlink="";
-  info.src.push_back(helpsource);
-
-  help= new HelpDialog(this, info);
-  help->hide();
-
   connect( fm, SIGNAL(FieldApply()), SLOT(MenuOK()));
   connect( om, SIGNAL(ObsApply()),   SLOT(MenuOK()));
   connect( sm, SIGNAL(SatApply()),   SLOT(MenuOK()));
@@ -865,7 +838,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect( stm, SIGNAL(StationHide()), SLOT(stationMenu()));
   connect( stm, SIGNAL(finished(int)),  SLOT(stationMenu(int)));
   connect( mm, SIGNAL(MapHide()),    SLOT(mapMenu()));
-  connect( mm, SIGNAL(finished(int)),  SLOT(mapMenu(int)));
+  connect( mmdock, SIGNAL(visibilityChanged(bool)),  SLOT(mapDockVisibilityChanged(bool)));
   connect( em, SIGNAL(EditHide()),   SLOT(editMenu()));
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( qm, SIGNAL(finished(int)),  SLOT(quickMenu(int)));
@@ -1026,6 +999,43 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
 }
 
+void DianaMainWindow::initCoserverClient()
+{
+  hqcTo = -1;
+  qsocket = false;
+  pluginB = new ClientSelection("Diana", this);
+  pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
+  connect(pluginB, SIGNAL(receivedMessage(int, const miQMessage&)),
+      SLOT(processLetter(int, const miQMessage&)));
+  connect(pluginB, SIGNAL(disconnected()),
+      SLOT(connectionClosed()));
+  connect(pluginB, SIGNAL(renamed(const QString&)),
+      SLOT(setInstanceName(const QString&)));
+}
+
+void DianaMainWindow::createHelpDialog()
+{
+  HelpDialog::Info info;
+  HelpDialog::Info::Source helpsource;
+  info.path= LocalSetupParser::basicValue("docpath");
+  helpsource.source= "index.html";
+  helpsource.name= "Help";
+  helpsource.defaultlink= "START";
+  info.src.push_back(helpsource);
+
+  helpsource.source= "ug_shortcutkeys.html";
+  helpsource.name="Accelerators";
+  helpsource.defaultlink= "";
+  info.src.push_back(helpsource);
+
+  helpsource.source= "news.html";
+  helpsource.name="News";
+  helpsource.defaultlink="";
+  info.src.push_back(helpsource);
+
+  help= new HelpDialog(this, info);
+  help->hide();
+}
 
 void DianaMainWindow::start()
 {
@@ -1179,6 +1189,21 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
+namespace {
+
+bool isLabelCommandWithTime(PlotCommand_cp cmd)
+{
+  if (LabelPlotCommand_cp c = std::dynamic_pointer_cast<const LabelPlotCommand>(cmd)) {
+    for (const miutil::KeyValue& kv : c->all()) {
+      if (miutil::contains(kv.value(), "$"))
+        return true;
+    }
+  }
+  return false;
+}
+
+} // namespace
+
 void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shortnames)
 {
   PlotCommand_cpv diagstr;
@@ -1216,12 +1241,7 @@ void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shor
   const bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
   diagstr = annom->getOKString();
   for (PlotCommand_cp cmd : diagstr) {
-    bool keep = !remove;
-    if (!keep) {
-      if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(cmd))
-        keep = !miutil::contains(c->command(), "$"); // do not keep labels with time
-    }
-    if (keep) //remove labels with time
+    if (!remove || !isLabelCommandWithTime(cmd))
       pstr.push_back(cmd);
   }
 
@@ -1230,18 +1250,6 @@ void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shor
   for (it = dialogs.begin(); it != dialogs.end(); ++it) {
     diagstr = it->second->getOKString();
     pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
-  }
-
-  // remove empty lines
-  for (unsigned int i = 0; i < pstr.size(); ++i){
-    if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(pstr[i])) {
-      const std::string cs = miutil::trimmed(c->command());
-      if (cs.empty()) {
-        pstr.erase(pstr.begin()+i);
-        --i;
-        continue;
-      }
-    }
   }
 }
 
@@ -1427,7 +1435,7 @@ void DianaMainWindow::toggleDialogs()
   }
 }
 
-static void toggleDialogVisibility(QDialog* dialog, QAction* dialogAction, int result = -1)
+static void toggleDialogVisibility(QWidget* dialog, QAction* dialogAction, int result = -1)
 {
   bool visible = dialog->isVisible();
   if (result == -1) {
@@ -1483,7 +1491,12 @@ void DianaMainWindow::uffMenu(int result)
 
 void DianaMainWindow::mapMenu(int result)
 {
-  toggleDialogVisibility(mm, showMapDialogAction, result);
+  toggleDialogVisibility(mmdock, showMapDialogAction, result);
+}
+
+void DianaMainWindow::mapDockVisibilityChanged(bool visible)
+{
+  showMapDialogAction->setChecked(visible);
 }
 
 void DianaMainWindow::editMenu()
@@ -1576,11 +1589,14 @@ void DianaMainWindow::spectrumMenu()
 
 void DianaMainWindow::info_activated(QAction *action)
 {
-  if (action && infoFiles.count(action->text().toStdString())){
-    if (miutil::contains(infoFiles[action->text().toStdString()].filename, "http")) {
-      QDesktopServices::openUrl(QUrl(infoFiles[action->text().toStdString()].filename.c_str()));
+  const std::string txt = action->text().toStdString();
+  std::map<std::string,InfoFile>::const_iterator it = infoFiles.find(txt);
+  if (action && it != infoFiles.end()) {
+    const InfoFile& ifi = it->second;
+    if (diutil::startswith(ifi.filename, "http")) {
+      QDesktopServices::openUrl(QUrl(QString::fromStdString(ifi.filename)));
     } else {
-      TextDialog* td= new TextDialog(this, infoFiles[action->text().toStdString()]);
+      TextDialog* td= new TextDialog(this, ifi);
       td->show();
     }
   }
@@ -1695,9 +1711,9 @@ void DianaMainWindow::onVcrossRequestEditManager(bool on, bool timeGraph)
 {
   if (on) {
     if (timeGraph)
-      EditItems::ToolBar::instance()->setCreateSymbolAction(TIME_GRAPH_TYPE);
+      EditItems::ToolBar::instance(this)->setCreateSymbolAction(TIME_GRAPH_TYPE);
     else
-      EditItems::ToolBar::instance()->setCreatePolyLineAction(CROSS_SECTION_TYPE);
+      EditItems::ToolBar::instance(this)->setCreatePolyLineAction(CROSS_SECTION_TYPE);
 
     setEditDrawingMode(true);
     vcrossEditManagerEnableSignals();
@@ -2472,14 +2488,15 @@ void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
 void DianaMainWindow::parseSetup()
 {
   METLIBS_LOG_SCOPE();
-  SetupDialog *setupDialog = new SetupDialog(this);
+  SetupDialog setupDialog(this);
 
-  if( setupDialog->exec() ) {
-
+  if (setupDialog.exec()) {
     LocalSetupParser sp;
     std::string filename;
     if (!sp.parse(filename)){
-      METLIBS_LOG_ERROR("An error occured while re-reading setup ");
+      METLIBS_LOG_ERROR("An error occured while re-reading the setup file '" << filename << "'.");
+      QMessageBox::warning(this, tr("Error"), tr("An error occured while re-reading the setup file '%1'.")
+                           .arg(QString::fromStdString(filename)));
     }
     if (DiCanvas* c = w->Glw()->canvas())
       c->parseFontSetup();
@@ -2543,8 +2560,8 @@ void DianaMainWindow::measurementsPositions(bool b)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 {
-  int x = mev->x();
-  int y = mev->y();
+  const int x = mev->x();
+  const int y = mev->y();
 
   float lat=0,lon=0;
   contr->PhysToGeo(x,y,lat,lon);
@@ -2577,14 +2594,14 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     sendLetter(letter);
   }
 
-  QString stationsText = contr->getStationManager()->getStationsText(mev->x(), mev->y());
-  if ( !stationsText.isEmpty() ) {
-    QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), stationsText, w);
+  QString popupText = contr->getStationManager()->getStationsText(x, y);
+  if (popupText.isEmpty()) {
+    popupText = QString::fromStdString(contr->getObsPopupText(x, y));
   }
-  std::string obsText= contr->getObsPopupText(mev->x(), mev->y());
-  QString obsPopupData = QString::fromStdString(obsText);
-  if ( !obsPopupData.isEmpty() ) {
-         QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), obsPopupData, w);
+  if (!popupText.isEmpty()) {
+    // undo reverted y coordinate from GLwidget::handleMouseEvents
+    QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
+    QWhatsThis::showText(popupPos, popupText, this);
   }
 }
 
@@ -3099,7 +3116,6 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
   saveDialogPos(vstr, "ObsDialog", om);
   saveDialogPos(vstr, "SatDialog", sm);
   saveDialogPos(vstr, "StationDialog", stm);
-  saveDialogPos(vstr, "MapDialog", mm);
   saveDialogPos(vstr, "EditDialog", em);
   saveDialogPos(vstr, "ObjectDialog", objm);
   saveDialogPos(vstr, "TrajectoryDialog", trajm);
@@ -3215,7 +3231,6 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
         else if (tokens[0]=="FieldDialog.size")  restoreDialogSize(fm, showmore, x, y);
         else if (tokens[0]=="ObsDialog.pos")     restoreDialogPos(om, x, y);
         else if (tokens[0]=="SatDialog.pos")     restoreDialogPos(sm, x, y);
-        else if (tokens[0]=="MapDialog.pos")     restoreDialogPos(mm, x, y);
         else if (tokens[0]=="StationDialog.pos") restoreDialogPos(stm, x, y);
         else if (tokens[0]=="EditDialog.pos")    restoreDialogPos(em, x, y);
         else if (tokens[0]=="ObjectDialog.pos")  restoreDialogPos(objm, x, y);
@@ -3277,7 +3292,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
     METLIBS_LOG_INFO("log from version " << logVersion);
 }
 
-void DianaMainWindow::restoreDocState(std::string logstr)
+void DianaMainWindow::restoreDocState(const std::string& logstr)
 {
   vector<std::string> vs= miutil::split(logstr, " ");
   int n=vs.size();
@@ -3480,8 +3495,7 @@ bool DianaMainWindow::event(QEvent* event)
   if (event->type() == QEvent::WhatsThisClicked) {
     QWhatsThisClickedEvent* wtcEvent = static_cast<QWhatsThisClickedEvent*>(event);
     QDesktopServices::openUrl(wtcEvent->href());
-    QWhatsThis::hideText();
-    return true;
+    return false;
   }
 
   return QMainWindow::event(event);
@@ -3489,6 +3503,8 @@ bool DianaMainWindow::event(QEvent* event)
 
 void DianaMainWindow::addDialog(DataDialog *dialog)
 {
+  dialog->hide();
+
   dialogNames[dialog->name()] = dialog;
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &)),
@@ -3504,24 +3520,6 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
     showmenu->addAction(action);
     mainToolbar->addAction(action);
   }
-}
-
-/**
- * Updates the dialog associated with the action or dialog that sent the
- * signal connected to this slot. We toggle the relevant action to hide the
- * dialog.
- */
-void DianaMainWindow::updateDialog()
-{
-  QAction *action = qobject_cast<QAction *>(sender());
-  DataDialog *dialog = qobject_cast<DataDialog *>(sender());
-
-  if (dialog)
-    action = dialog->action();
-  else if (!action)
-    return;
-
-  action->toggle();
 }
 
 void DianaMainWindow::setWorkAreaCursor(const QCursor &cursor)

@@ -6,6 +6,7 @@
 #include "miSetupParser.h"
 
 #include "diField/FimexSource.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -60,7 +61,7 @@ NameItem parseComputationLine(const std::string& line)
 
   NameItem ni;
   ni.name = miutil::trimmed(line.substr(0, pos_eq));
-  if (ni.name.size() >= 2 and ni.name.substr(0, 2) == "__")
+  if (diutil::startswith(ni.name, "__"))
     return NameItem();
 
   if (parseFunctionWithArgs(line.substr(pos_eq+1), ni))
@@ -130,7 +131,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
           filetype = kv.value();
         else
           METLIBS_LOG_INFO("ignoring filetype t!=fimex, it is not valid for vertical cross-sections");
-      } else if (kv.key() == "t" or kv.key() == "format")
+      } else if (kv.key() == "format")
         filetype = kv.value();
       else if (kv.key() == "c" or kv.key() == "config")
         fileconfig = kv.value();

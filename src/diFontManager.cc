@@ -172,7 +172,7 @@ void FontManager::setGlSize(float glw, float glh)
 }
 
 // set viewport size in physical coordinates (pixels)
-void FontManager::setVpSize(const float vpw, const float vph)
+void FontManager::setVpSize(int vpw, int vph)
 {
   for (families_t::iterator it = families.begin(); it != families.end(); ++it)
     it->second->setVpSize(vpw, vph);

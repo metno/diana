@@ -39,7 +39,8 @@
 #include "diGlUtilities.h"
 #include "diUtilities.h"
 
-#include <diField/diMetConstants.h>
+#include "diField/diMetConstants.h"
+#include "util/math_util.h"
 
 #include <cmath>
 #include <iomanip>
@@ -461,7 +462,7 @@ void VprofPlot::ducting(const vector<float>& pp,
       const float etd = ewt.value();
       tk= tt[k] + t0;
       ////duct[k]= 77.6*(pp[k]/tk) + 373000.*etd/(tk*tk);
-      duct[k]= 77.6*(pp[k]/tk) + 373256.*etd/(tk*tk);
+      duct[k]= 77.6*(pp[k]/tk) + 373256.*etd/diutil::square(tk);
     } else {
       duct[k]= 0;
     }

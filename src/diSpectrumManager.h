@@ -71,7 +71,7 @@ private:
   std::vector<std::string> dialogModelNames;
   std::vector<std::string> dialogFileNames;
 
-  SpectrumOptions *spopt;
+  std::unique_ptr<SpectrumOptions> spopt;
   std::vector<SpectrumFile*> spfile;
   std::vector<SpectrumData*> spdata;
 
@@ -89,6 +89,9 @@ private:
   miutil::miTime   plotTime;
   miutil::miTime   ztime;
 
+  int realizationCount;
+  int realization;
+
   bool dataChange;
   std::vector<SpectrumPlot*> spectrumplots;
 
@@ -105,13 +108,14 @@ public:
   ~SpectrumManager();
 
   void parseSetup();
-  SpectrumOptions* getOptions() { return spopt; }
+  SpectrumOptions* getOptions() { return spopt.get(); }
   void setPlotWindow(int w, int h);
 
   //routines from controller
   std::vector<std::string> getLineThickness();
 
   void setModel();
+  void setRealization(int r);
   void setStation(const std::string& station);
   void setTime(const miutil::miTime& time);
   std::string setStation(int step);

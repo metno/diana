@@ -22,6 +22,6 @@ typedef std::vector<PlotCommand_p> PlotCommand_pv;
 typedef std::vector<PlotCommand_cp> PlotCommand_cpv;
 
 extern PlotCommand_cp makeCommand(const std::string& text);
-extern PlotCommand_cpv makeCommands(const std::vector<std::string>& text);
+extern PlotCommand_cpv makeCommands(const std::vector<std::string>& text, bool vcross=false);
 
 #endif // DIPLOTCOMMAND_H

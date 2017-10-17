@@ -72,7 +72,7 @@ public:
   DiPaintGLCanvas(QPaintDevice* device);
   ~DiPaintGLCanvas();
 
-  void setVpGlSize(float vpw, float vph, float glw, float glh) override;
+  void setVpGlSize(int vpw, int vph, float glw, float glh) override;
 
   bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) override;
   bool setFont(const std::string& font) override;
@@ -206,9 +206,9 @@ public:
   void drawPolyline(const QPolygonF& points) override;
   void drawPolygon(const QPolygonF& points) override;
   void drawPolygons(const QList<QPolygonF>& polygons) override;
-  void drawReprojectedImage(const QImage& image, const float* mapPositionsXY,
-      const diutil::Rect_v& imageparts, bool smooth) override;
   // end DiPainter interface
+
+  void drawScreenImage(const QPointF& point, const QImage& image) override;
 
   void begin(QPainter *painter);
   bool isPainting() const;

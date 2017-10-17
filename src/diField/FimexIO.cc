@@ -298,11 +298,10 @@ std::string makeId(const std::string& name, size_t size)
 
 typedef std::map<std::string, std::string> name2id_t;
 
-void addTimeAxis(CoordinateSystem::ConstAxisPtr tAxis, const std::vector<double>& values,
-    const std::string& rtime, gridinventory::Inventory& inventory)
+void addTimeAxis(CoordinateSystem::ConstAxisPtr tAxis,
+    const std::vector<double>& values, const std::string& rtime, gridinventory::Inventory& inventory)
 {
-  const std::string& name = tAxis->getName();
-  gridinventory::Taxis taxis = gridinventory::Taxis(name, values);
+  gridinventory::Taxis taxis = gridinventory::Taxis(tAxis->getName(), values);
   gridinventory::ReftimeInventory reftime(rtime);
   reftime.taxes.insert(taxis);
   inventory.reftimes[reftime.referencetime] = reftime;
@@ -385,53 +384,8 @@ FimexIO::CDMReaderPtr FimexIO::createReader()
 void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex::Projection> projection, gridinventory::Grid& grid,
     CoordinateSystem::ConstAxisPtr xAxis, CoordinateSystem::ConstAxisPtr yAxis)
 {
-  std::string projStr = projection->getProj4String();
-
-  // replace +proj=utm ... with +proj=tmerc... (need proj that accepts +x_0/+y_0)
-  std::string utmstr = "+proj=utm +zone=";
-  size_t utmpos = projStr.find(utmstr,0);
-  if (utmpos != std::string::npos) {
-    const vector<std::string> tokens = miutil::split(projStr, 0, " ");
-    for (size_t ii=0; ii<tokens.size(); ++ii) {
-      const vector<std::string> stokens = miutil::split(tokens[ii], 0, "=");
-      if (stokens.size() == 2 && stokens[0] == "+zone") {
-        int lon_0 = (atof(stokens[1].c_str()) - 1)*6 - 180 + 3;
-        utmstr += stokens[1];
-        ostringstream ost;
-        ost <<"+proj=tmerc +lon_0="<<lon_0<<" +lat_0=0 +k=0.9996 +x_0=500000";
-        boost::replace_first(projStr,utmstr,ost.str());
-        break;
-      }
-    }
-  }
-  
-  //replace +proj=longlat and +proj=latlong with +proj=ob_tran +o_proj=longlat (need proj that accepts +x_0/+y_
-  std::string llstr = "+proj=longlat";
-  size_t llpos = projStr.find(llstr,0);
-  if (llpos == std::string::npos) {
-    llstr = "+proj=latlong";
-    llpos = projStr.find(llstr,0);
-  }
-  if (llpos != std::string::npos) {
-    boost::replace_first(projStr,llstr,"+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90");
-  }
-  
-  // Find and remove explicit false easting/northing, add them later
-  const vector<std::string> tokens = miutil::split(projStr, 0, " ");
-  for (size_t ii=0; ii<tokens.size(); ++ii) {
-    const vector<std::string> stokens = miutil::split(tokens[ii], 0, "=");
-    if (stokens.size() == 2 && stokens[0] == "+x_0") {
-      grid.x_0 = -1 *atof(stokens[1].c_str());
-      const size_t spos = projStr.find(tokens[ii], 0);
-      assert(spos != std::string::npos);
-      projStr.erase(spos, tokens[ii].length()+1);
-    } else if (stokens.size() == 2 && stokens[0] == "+y_0") {
-      grid.y_0 = -1 *atof(stokens[1].c_str());
-      const size_t spos = projStr.find(tokens[ii], 0);
-      assert(spos != std::string::npos);
-      projStr.erase(spos, tokens[ii].length()+1);
-    }
-  }
+  grid.x_0 = 0;
+  grid.y_0 = 0;
 
   const float axis_scale = 1.0; // X/Y-axes are scaled by this
   const std::string xyUnit = projection->isDegree() ? "radian" : METER;
@@ -444,7 +398,7 @@ void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex:
       boost::shared_array<float> fdata = xdata->asFloat();
       grid.nx = nx;
       grid.x_resolution = (fdata[1] - fdata[0]) * axis_scale;
-      grid.x_0 += fdata[0] * axis_scale;
+      grid.x_0 = fdata[0] * axis_scale;
       METLIBS_LOG_DEBUG(" x_resolution:" << grid.x_resolution << " x_0:" << grid.x_0);
     }
   }
@@ -456,11 +410,11 @@ void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex:
       grid.ny = ny;
       if( fdata[0] > fdata[1] ) {
         grid.y_resolution = (fdata[ny-1] - fdata[ny-2]) * axis_scale;
-        grid.y_0 += fdata[ny-1] * axis_scale;
+        grid.y_0 = fdata[ny-1] * axis_scale;
         grid.y_direction_up = false;
       } else {
         grid.y_resolution = (fdata[1] - fdata[0]) * axis_scale;
-        grid.y_0 += fdata[0] * axis_scale;
+        grid.y_0 = fdata[0] * axis_scale;
         grid.y_direction_up = true;
       }
       if ( grid.y_resolution < 0 ) {
@@ -470,11 +424,8 @@ void FimexIO::inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex:
     }
   }
   
-  // Finalize grid
-  ostringstream ost;
-  ost << projStr << " +x_0=" << -grid.x_0 << " +y_0=" << -grid.y_0;
-  grid.projection += ost.str();
-  
+  grid.projection = projection->getProj4String();
+
   // if defined, use projDefinition from setup
   if (not projDef.empty()) {
     grid.projection = projDef;
@@ -524,23 +475,19 @@ void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2
   if (not (vdata and vdata->size()))
     return;
 
+  METLIBS_LOG_DEBUG("vertical data.size():" << vdata->size() << " axis name:" << vAxis->getName());
+  boost::shared_array<double> idata = vdata->asDouble();
+  const std::vector<double> levels(idata.get(), idata.get() + vdata->size());
+
   CDMAttribute attr;
   bool positive = true;
   if (feltReader->getCDM().getAttribute(vAxis->getName(), "positive", attr)) {
     positive = (attr.getStringValue() == "up");
   }
-  
-  std::vector<double> levels;
-  boost::shared_array<double> idata = vdata->asDouble();
-  METLIBS_LOG_DEBUG("vertical data.size():" << vdata->size() << "  name:" << vAxis->getName());
 
   if (verticalType.empty())
     verticalType = vAxis->getName();
 
-  for (size_t i = 0; i < vdata->size(); ++i) {
-    levels.push_back(idata[i]);
-  }
-  
   const std::string id = makeId(vAxis->getName(), levels.size());
   zaxes.insert(gridinventory::Zaxis(id, vAxis->getName(), positive, levels,verticalType));
   name2id[vAxis->getName()] = id;
@@ -642,6 +589,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
     // Get the CDM from the reader
     const CDM& cdm = feltReader->getCDM();
+
     // get all coordinate systems from file, usually one, but may be a few (theoretical limit: # of variables)
     coordSys = MetNoFimex::listCoordinateSystems(feltReader);
 
@@ -749,10 +697,8 @@ bool FimexIO::makeInventory(const std::string& reftime)
               }
             }
           }
-          const std::string& name = tAxis->getName();
-          gridinventory::Taxis taxis = gridinventory::Taxis(name, values);
-          taxes.insert(taxis);
-          
+          taxes.insert(gridinventory::Taxis(tAxis->getName(), values));
+
           // if no reference Time axis, get unique refTime
           if (referenceTime.empty() && values.size() > 1)
             referenceTime = fallbackGetReferenceTime();
@@ -854,6 +800,13 @@ bool FimexIO::makeInventory(const std::string& reftime)
       rtimes[reftime.referencetime] = reftime;
     }
 
+    //get global attributes
+    std::map<std::string,std::string> globalAttributes;
+    const std::vector<CDMAttribute> attributes = cdm.getAttributes(cdm.globalAttributeNS());
+    for (const CDMAttribute& a : attributes) {
+      globalAttributes[a.getName()] = a.getStringValue();
+    }
+
     //loop throug reftimeinv
     for (gridinventory::Inventory::reftimes_t::iterator it_ri = rtimes.begin(); it_ri != rtimes.end(); ++it_ri) {
       gridinventory::ReftimeInventory& ri = it_ri->second;
@@ -863,6 +816,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       ri.taxes.insert(taxes.begin(), taxes.end());
       ri.extraaxes = extraaxes;
       ri.timestamp = now;
+      ri.globalAttributes = globalAttributes;
     }
 
     //METLIBS_LOG_DEBUG(LOGVAL(inventory));
@@ -939,27 +893,23 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(const CoordinateSystemP
 bool FimexIO::paramExists(const std::string& reftime, const gridinventory::GridParameter& param)
 {
   using namespace gridinventory;
-    const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
-    if (ritr == inventory.reftimes.end())
-      return false;
-    const ReftimeInventory& reftimeInv = ritr->second;
-    return ( reftimeInv.parameters.find(param) != reftimeInv.parameters.end() );
+  const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
+  if (ritr == inventory.reftimes.end())
+    return false;
+  const ReftimeInventory& reftimeInv = ritr->second;
+  return (reftimeInv.parameters.find(param) != reftimeInv.parameters.end());
 }
 
 void FimexIO::setHybridParametersIfPresent(const std::string& reftime, const gridinventory::GridParameter& param,
     const std::string& ap_name, const std::string& b_name, size_t zaxis_index, Field* field)
 {
   // check if the zaxis has the hybrid parameters ap and b
-  gridinventory::GridParameter pp;
-  miutil::miTime actualtime;
-  gridinventory::GridParameter param_ap(gridinventory::GridParameterKey(ap_name, param.key.zaxis,
-      param.key.taxis, param.key.extraaxis));
-  gridinventory::GridParameter param_b(gridinventory::GridParameterKey(b_name, param.key.zaxis,
-      param.key.taxis, param.key.extraaxis));
-  if ( paramExists(reftime,param_ap) && paramExists(reftime,param_b) ) {
+  gridinventory::GridParameter param_ap(gridinventory::GridParameterKey(ap_name, param.key.zaxis,"", ""));
+  gridinventory::GridParameter param_b(gridinventory::GridParameterKey(b_name, param.key.zaxis, "", ""));
+  if (paramExists(reftime, param_ap) && paramExists(reftime, param_b)) {
     DataPtr ap = feltReader->getScaledDataInUnit(ap_name, "hPa");
     DataPtr b  = feltReader->getScaledData(b_name);
-    if (zaxis_index < ap->size() && zaxis_index < b->size()) {
+    if (ap && b && zaxis_index < ap->size() && zaxis_index < b->size()) {
       field->aHybrid = ap->getDouble(zaxis_index);
       field->bHybrid = b ->getDouble(zaxis_index);
     }
@@ -1036,8 +986,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
     const size_t dataSize = data->size(), fieldSize = field->area.gridSize();
     if (dataSize != fieldSize) {
       METLIBS_LOG_DEBUG("getDataSlice returned " << dataSize << " datapoints, but nx*ny =" << fieldSize );
-      std::fill(field->data, field->data+fieldSize, fieldUndef);
-      field->allDefined = false;
+      field->fill(difield::UNDEF);
     } else {
       boost::shared_array<float> fdata = data->asFloat();
       mifi_nanf2bad(&fdata[0], &fdata[0]+dataSize, fieldUndef);
@@ -1045,11 +994,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
       const gridinventory::Grid& grid = getGrid(reftime, param.grid);
       copyFieldSwapY(grid.y_direction_up, field->area.nx, field->area.ny, &fdata[0], field->data);
 
-      // check undef
-      size_t i = 0;
-      while (i<dataSize && field->data[i]<fieldUndef)
-        i++;
-      field->allDefined = (i==dataSize);
+      field->checkDefined();
     }
 
     // get a-hybrid and b-hybrid (used to calculate pressure of hybrid levels)
@@ -1125,7 +1070,7 @@ bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParam
     return false;
 
   METLIBS_LOG_TIME();
-  METLIBS_LOG_INFO(" Param: "<<param.key.name<<"  output_time:"<<output_time<<" Source:"<<source_name);
+  METLIBS_LOG_INFO(" Param: "<<param.key.name<<"  time:"<<time<<" Source:"<<source_name);
 
   boost::shared_ptr<CDMReaderWriter> feltWriter = boost::dynamic_pointer_cast<CDMReaderWriter>(feltReader);
   if (not feltWriter) {

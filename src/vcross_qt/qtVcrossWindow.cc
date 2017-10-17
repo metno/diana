@@ -528,6 +528,8 @@ void VcrossWindow::timeListChangedSlot()
   ui->comboTimeStep->setEnabled(enabled);
 
   enableTimeGraphIfSupported();
+
+  ui->spinRealization->setMaximum(vcrossm->getRealizationCount()-1);
 }
 
 
@@ -554,6 +556,10 @@ void VcrossWindow::timeBoxActivated(int index)
   vcrossm->setTimeIndex(index);
 }
 
+void VcrossWindow::onRealizationChanged(int value)
+{
+  vcrossm->setRealization(value);
+}
 
 /***************************************************************************/
 

@@ -883,6 +883,12 @@ void Controller::getFieldGroups(const std::string& modelName,
   fieldplotm->getFieldGroups(modelName, refTime, plotGroups, vfgi);
 }
 
+std::map<std::string,std::string> Controller::getFieldGlobalAttributes(const std::string& modelName,
+    const std::string& refTime)
+{
+  return fieldm->getGlobalAttributes(modelName, refTime);
+}
+
 vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
 {
   return fieldplotm->getFieldTime(request);

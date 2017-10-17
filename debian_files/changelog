@@ -1,3 +1,55 @@
+diana-3.43 (3.43.0~rc2-1) unstable; urgency=low
+
+  * bugfix and optimization RasterRGB
+  * bugfix GridCollection made to many GridIO instances
+  * bugfix vcross value limits min/max
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 11 Oct 2017 08:00:08 +0200
+
+diana-3.43 (3.43.0~rc1-1) unstable; urgency=low
+
+  * bugfix bdiana vprof
+  * SWEAT index
+  * probability ignores fully undef fields
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 10 Oct 2017 08:00:08 +0200
+
+diana-3.43 (3.43.0~a5-1) unstable; urgency=low
+
+  * minimal support for ensemble axis in vcross/vprof/wavespec
+  * minor bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 28 Sep 2017 08:00:08 +0200
+
+diana-3.43 (3.43.0~a4-1) unstable; urgency=low
+
+  * encoding in amdar station list
+  * workaround for problem with vprof amdar station names
+  * minor bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 26 Sep 2017 08:00:08 +0200
+
+diana-3.43 (3.43.0~a3-1) unstable; urgency=low
+
+  * bugfix keyboard focus
+  * scroll widget for setup dialog
+  * dock widgets for drawin tool (patch by Yngve.Einarsson@smhi.se)
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 25 Sep 2017 08:00:08 +0200
+
+diana-3.43 (3.43.0~a2-1) unstable; urgency=low
+
+  * bugfixes
+  * improved timeaxis handling for merged nc files
+  * ignore History*.quick files from other instances
+  * new reprojection technique for field grid, satellite, wms
+  * wms improvements
+  * map config ui more compact and in dock widget
+  * using libfimex-0.64
+  * and more ...
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 20 Sep 2017 08:00:08 +0200
+
 diana-3.43 (3.43.0~a1-1) unstable; urgency=low
 
   * do not restore dialog positions

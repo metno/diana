@@ -1,6 +1,6 @@
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.43.0~a1], [diana@met.no])
+AC_INIT([diana], [3.43.0~rc2], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 foreign parallel-tests])
@@ -91,8 +91,11 @@ AC_ARG_ENABLE([perl],
 AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 
 
-METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.61.1])
-METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 7.0.0 metlibs-pudatatypes >= 6.0.0])
+METNO_CHECK_PKGS([FIMEX], [fimex-0.64 >= 0.64.0])
+AS_IF([test "x$FIMEX_FOUND" = x], [
+    METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.64.0])
+])
+METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 7.1.0 metlibs-pudatatypes >= 6.0.0])
 
 
 # for Qt5:

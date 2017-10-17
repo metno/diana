@@ -104,7 +104,7 @@ TEST(TestVcrossComputer, BangladeshTH)
   collectRequired(request, th);
 
   name2value_t n2v;
-  fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v);
+  fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v, 0);
   vc_evaluate_field(th, n2v);
 
   Values_cp th_values = n2v[th->id()];

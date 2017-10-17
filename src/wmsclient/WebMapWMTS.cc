@@ -140,6 +140,8 @@ WebMapWMTSRequest::~WebMapWMTSRequest()
 
 void WebMapWMTSRequest::addTile(int tileX, int tileY)
 {
+  if (mTiles.size() >= 256)
+    return;
   const double ps = pixelSpan(mMatrixSet, mMatrix),
       tileSpanX = mMatrix->tileWidth()  * ps,
       tileSpanY = mMatrix->tileHeight() * ps;
@@ -189,6 +191,8 @@ const QImage& WebMapWMTSRequest::tileImage(size_t idx) const
 void WebMapWMTSRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
+  if (diutil::checkRedirect(mService, tile))
+    return;
   tile->loadImage(mLayer->tileFormat());
   mUnfinished -= 1;
   METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));
@@ -225,7 +229,7 @@ int WebMapWMTS::refreshInterval() const
 }
 
 WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
-    const Rectangle& viewRect, const Projection& viewProj, double viewScale)
+    const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h)
 {
   METLIBS_LOG_SCOPE(LOGVAL(layerIdentifier) << LOGVAL(viewScale));
   WebMapWMTSLayer_cx layer = static_cast<WebMapWMTSLayer_cx>
@@ -250,16 +254,28 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   }
   METLIBS_LOG_DEBUG(LOGVAL(matrix->identifier()));
 
+  std::unique_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
   const float ps = pixelSpan(matrixSet, matrix),
       tileSpanX = matrix->tileWidth()  * ps,
-      tileSpanY = matrix->tileHeight() * ps;
-  diutil::tilexy_s tiles;
-  diutil::select_tiles(tiles,
-      0, matrix->matrixWidth(),  matrix->tileMinX(), tileSpanX,
-      0, matrix->matrixHeight(), matrix->tileMaxY(), -tileSpanY,
-      p_tiles, viewRect, viewProj);
+      tileSpanY = matrix->tileHeight() * ps,
+      // see OGC WMTS spec pdf page 23f (http://portal.opengeospatial.org/files/?artifact_id=35326)
+      tileMaxX = matrix->tileMinX() + tileSpanX*matrix->matrixWidth(),
+      tileMinY = matrix->tileMaxY() - tileSpanY*matrix->matrixHeight();
 
-  std::unique_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
+  request->x0 = matrix->tileMinX();
+  request->dx = tileSpanX;
+  request->y0 = matrix->tileMaxY();
+  request->dy = -tileSpanY;
+  request->tilebbx = Rectangle(matrix->tileMinX(), tileMinY, tileMaxX, matrix->tileMaxY());
+  METLIBS_LOG_DEBUG(LOGVAL(request->tilebbx));
+
+  diutil::tilexy_s tiles;
+  diutil::select_pixel_tiles(tiles, w, h,
+      matrix->matrixWidth(), request->x0, request->dx,
+      matrix->matrixHeight(), request->y0, request->dy,
+      request->tilebbx, p_tiles, viewRect, viewProj);
+
+  METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
     request->addTile(it->x, it->y);
 

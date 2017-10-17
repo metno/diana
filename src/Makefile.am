@@ -54,6 +54,7 @@ libdiana_la_SOURCES = \
 	diLocationPlot.cc \
 	diLogFile.cc \
 	diMItiff.cc \
+	diMapInfo.cc \
 	diMapManager.cc \
 	diMapPlot.cc \
 	diMeasurementsPlot.cc \
@@ -61,6 +62,7 @@ libdiana_la_SOURCES = \
 	diObjectPlot.cc \
 	diObjectPoint.cc \
 	diObsAscii.cc \
+	diObsData.cc \
 	diObsManager.cc \
 	diObsMetaData.cc \
 	diObsPlot.cc \
@@ -72,7 +74,6 @@ libdiana_la_SOURCES = \
 	diPlotCluster.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
-	diPoint.cc \
 	diPolyContouring.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
@@ -122,6 +123,7 @@ libdiana_la_SOURCES = \
 	util/fimex_logging.cc \
 	util/format_int.cc \
 	util/diKeyValue.cc \
+	util/math_util.cc \
 	util/openmp_tools.cc \
 	util/polygon_util.cc \
 	util/plotoptions_util.cc \
@@ -143,6 +145,7 @@ libdiana_la_SOURCES += \
 	vcross_v2/VcrossCollector.cc \
 	vcross_v2/VcrossEvaluate.cc \
 	vcross_v2/VcrossOptions.cc \
+	vcross_v2/VcrossPlotCommand.cc \
 	vcross_v2/VcrossQtAxis.cc \
 	vcross_v2/VcrossQtContour.cc \
 	vcross_v2/VcrossQtPaint.cc \
@@ -218,6 +221,7 @@ libdianaui_a_QTSOURCES = \
 	qtGeoPosLineEdit.cc \
 	qtMainWindow.cc \
 	qtMapDialog.cc \
+	qtStyleButtons.cc \
 	qtMeasurementsDialog.cc \
 	qtObjectDialog.cc \
 	qtObsDialog.cc \
@@ -273,6 +277,8 @@ libdianaui_a_QTSOURCES += \
 	wmsclient/WebMapDialog.cc
 
 libdianaui_a_QTFORMS = \
+	linestyledialog.ui \
+	mapdialog.ui \
 	export/export_image_dialog.ui \
 	export/export_image_preview.ui \
 	vcross_qt/vcross_plot_add_dialog.ui \
@@ -329,6 +335,7 @@ noinst_HEADERS = \
 	diLogFile.h \
 	diMItiff.h \
 	diManager.h \
+	diMapInfo.h \
 	diMapManager.h \
 	diMapMode.h \
 	diMapPlot.h \
@@ -432,6 +439,7 @@ noinst_HEADERS = \
 	qtImageGallery.h \
 	qtMainWindow.h \
 	qtMapDialog.h \
+	qtStyleButtons.h \
 	qtMeasurementsDialog.h \
 	qtObjectDialog.h \
 	qtObsDialog.h \
@@ -473,6 +481,7 @@ noinst_HEADERS = \
 	util/fimex_logging.h \
 	util/format_int.h \
 	util/diKeyValue.h \
+	util/math_util.h \
 	util/openmp_tools.h \
 	util/polygon_util.h \
 	util/qstring_util.h \
@@ -489,6 +498,7 @@ noinst_HEADERS += \
 	vcross_v2/VcrossEvaluate.h \
 	vcross_v2/VcrossResolver.h \
 	vcross_v2/VcrossOptions.h \
+	vcross_v2/VcrossPlotCommand.h \
 	vcross_v2/VcrossQtContour.h \
 	vcross_v2/VcrossQtManager.h \
 	vcross_v2/VcrossQtPaint.h \

@@ -219,6 +219,9 @@ public:
   bool supportsDynamicCrossections() const
     { return mHasSupportForDynamicCs; }
 
+  int getRealizationCount() const
+    { return mRealizationCount; }
+  void setRealization(int r);
 
   int getTimeIndex() const;
   void setTimeIndex(int index);
@@ -236,7 +239,7 @@ public:
   void setTimeGraph(const LonLat& position);
 
 
-  void selectFields(const string_v& fields);
+  void selectFields(const std::vector<miutil::KeyValue_v> &fields);
 
   void readVcrossOptions(const string_v& settings, const std::string& thisVersion, const std::string& logVersion);
   string_v writeVcrossOptions();
@@ -332,6 +335,9 @@ private:
 
   vctime_v mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time
+
+  int mRealizationCount;
+  int mRealization;
 
   bool mTimeGraphMode; //! true iff in timegraph mode
 

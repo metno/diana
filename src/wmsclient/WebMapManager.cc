@@ -80,7 +80,6 @@ WebMapManager::~WebMapManager()
 void WebMapManager::clearMaps()
 {
   diutil::delete_all_and_clear(webmaps);
-  Q_EMIT webMapsRemoved();
 }
 
 bool WebMapManager::parseSetup()
@@ -156,22 +155,18 @@ bool WebMapManager::parseSetup()
   return true;
 }
 
-WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
+WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(qmstring->command()));
+  METLIBS_LOG_SCOPE(LOGVAL(qmstring->toString()));
 
   // webmap.service=<service.id> webmap.layer=... webmap.dim=name=value webmap.crs=<string>
   //   webmap.time_tolerance=<int[seconds]>  webmap.time_offset=<int[seconds]>
   //   style.alpha_scale=<float> style.alpha_offset=<float> style.grey=<bool>
 
   std::string wm_service, wm_layer; // mandatory
-  const std::vector<std::string> kvpairs = miutil::split(qmstring->command());
-  for (size_t i=0; i<kvpairs.size(); i++) {
-    const std::vector<std::string> kv = miutil::split(kvpairs[i], 1, "=");
-    if (kv.size() != 2)
-      continue;
-    const std::string key = miutil::to_lower(kv[0]);
-    const std::string& value = kv[1];
+  for (const miutil::KeyValue& kv : qmstring->all()) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
     if (key == "webmap.service")
       wm_service = value;
     else if (key == "webmap.layer")
@@ -201,12 +196,10 @@ WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
   std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
   float style_alpha_offset = 0, style_alpha_scale = 1;
   bool style_grey = false;
-  for (size_t i=0; i<kvpairs.size(); i++) {
-    const std::vector<std::string> kv = miutil::split(kvpairs[i], 1, "=");
-    if (kv.size() != 2)
-      continue;
-    const std::string key = miutil::to_lower(kv[0]);
-    const std::string& value = kv[1];
+  Plot::PlotOrder plotorder = Plot::LINES;
+  for (const miutil::KeyValue& kv : qmstring->all()) {
+    const std::string& key = kv.key();
+    const std::string& value = kv.value();
     if (key == "webmap.dim") {
       const std::vector<std::string> dnv = miutil::split(value, 1, "=");
       if (dnv.size() == 2)
@@ -217,6 +210,17 @@ WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
       plot->setTimeTolerance(miutil::to_int(value));
     } else if (key == "webmap.time_offset") {
       plot->setTimeOffset(miutil::to_int(value));
+    } else if (key == "webmap.zorder") {
+      if (value == "background")
+        plotorder = Plot::BACKGROUND;
+      else if (value == "shade_background")
+        plotorder = Plot::SHADE_BACKGROUND;
+      else if (value == "shade")
+        plotorder = Plot::SHADE;
+      else if (value == "lines_background")
+        plotorder = Plot::LINES_BACKGROUND;
+      else
+        plotorder = Plot::LINES;
     } else if (key == "style.alpha_scale") {
       style_alpha_scale = miutil::to_float(value);
     } else if (key == "style.alpha_offset") {
@@ -228,6 +232,7 @@ WebMapPlot* WebMapManager::createPlot(const StringPlotCommand_cp& qmstring)
   }
   plot->setStyleAlpha(style_alpha_offset, style_alpha_scale);
   plot->setStyleGrey(style_grey);
+  plot->setPlotOrder(plotorder);
 
   service->refresh();
   return plot.release();
@@ -238,7 +243,7 @@ bool WebMapManager::processInput(const PlotCommand_cpv& input)
   METLIBS_LOG_SCOPE(LOGVAL(input.size()));
   clearMaps();
   for (size_t i=0; i<input.size(); ++i) {
-    if (StringPlotCommand_cp c = std::dynamic_pointer_cast<const StringPlotCommand>(input[i]))
+    if (KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(input[i]))
       addMap(createPlot(c));
   }
   return true;
@@ -260,7 +265,6 @@ void WebMapManager::addMap(WebMapPlot* plot)
     return;
   connect(plot, SIGNAL(update()), SIGNAL(webMapsReady()));
   webmaps.push_back(plot);
-  Q_EMIT webMapAdded(webmaps.size() - 1);
 }
 
 void WebMapManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
@@ -301,18 +305,13 @@ bool WebMapManager::enablePlotElement(const PlotElement& pe)
 
 std::vector<std::string> WebMapManager::getAnnotations() const
 {
+  std::string anno;
+  Colour ignored;
   std::vector<std::string> annotations;
   annotations.reserve(webmaps.size());
   for (size_t i = 0; i < webmaps.size(); i++) {
-    std::string anno = webmaps[i]->title();
-    const std::string attribution = webmaps[i]->attribution();
-    if (!attribution.empty()) {
-      if (!anno.empty())
-        anno += " ";
-      anno += "(" + attribution + ")";
-    }
-    if (!anno.empty())
-      annotations.push_back(anno);
+    webmaps[i]->getAnnotation(anno, ignored);
+    annotations.push_back(anno);
   }
   return annotations;
 }

@@ -51,7 +51,7 @@ class FieldPlotManager;
   Holds the (scalar) field(s) after reading and any computations.
   Contains all field plotting methodes except contouring.
 */
-class FieldPlot : public Plot, protected RasterPlot {
+class FieldPlot : public Plot {
 
 public:
   FieldPlot(FieldPlotManager* fieldplotm=0);
@@ -122,7 +122,6 @@ private:
   bool plotContour2(DiGLPainter* gl, PlotOrder zorder);
 
   bool plotRaster(DiGLPainter* gl);
-  const Colour* colourForValue(float value) const;
 
   bool plotFrameOnly(DiGLPainter* gl);
   void plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const float *y);
@@ -144,16 +143,6 @@ private:
   bool centerOnGridpoint() const;
   const std::string& plottype() const
     { return getPlotOptions().plottype; }
-
-protected:
-  StaticPlot* rasterStaticPlot() override
-    { return getStaticPlot(); }
-  const GridArea& rasterArea() override
-    { return fields[0]->area; }
-
-  //! create image for alpha_shade, fill_cell, or alarm_box
-  QImage rasterScaledImage(const GridArea&, int scale,
-      const diutil::Rect& bbx, const diutil::Rect_v& cells) override;
 };
 
 #endif

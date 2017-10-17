@@ -5,6 +5,8 @@
 #include "miSetupParser.h"
 
 #include "diField/diRectangle.h"
+#include "util/math_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <QImage>
@@ -178,7 +180,7 @@ DiPainter::DiPainter(DiCanvas* canvas)
 {
 }
 
-void DiPainter::setVpGlSize(float vpw, float vph, float glw, float glh)
+void DiPainter::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   if (canvas())
     canvas()->setVpGlSize(vpw, vph, glw, glh);
@@ -291,7 +293,7 @@ void DiPainter::drawArrowHead(float x1, float y1, float x2, float y2, float head
     return;
 
   if (headsize != 0) {
-    const float scale = headsize/std::sqrt(dx*dx + dy*dy);
+    const float scale = headsize/diutil::absval(dx, dy);
     dx *= scale;
     dy *= scale;
   }
@@ -301,10 +303,4 @@ void DiPainter::drawArrowHead(float x1, float y1, float x2, float y2, float head
   points << QPointF(x2, y2);
   points << QPointF(x2 + a*dx - s*dy, y2 + a*dy + s*dx);
   drawPolyline(points);
-}
-
-void DiPainter::drawReprojectedImage(const QImage& image, const float* mapPositionsXY, bool smooth)
-{
-  const diutil::Rect_v all(1, diutil::Rect(0, 0, image.width()-1, image.height()-1));
-  drawReprojectedImage(image, mapPositionsXY, all, smooth);
 }

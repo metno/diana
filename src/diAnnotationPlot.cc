@@ -99,62 +99,39 @@ void AnnotationPlot::init()
   useAnaTime = false;
 }
 
-// FIXME this is 99% identical to to EditManager.cc insertTime
+const std::string AnnotationPlot::NORWEGIAN = "no";
+const std::string AnnotationPlot::ENGLISH = "en";
+
 const std::string AnnotationPlot::insertTime(const std::string& s, const miTime& time)
 {
-  bool norwegian = true;
+  std::string lang = ENGLISH;
+  return insertTime(s, time, lang);
+}
+
+const std::string AnnotationPlot::insertTime(const std::string& s, const miTime& time, std::string& lang)
+{
   std::string es = s;
   if (miutil::contains(es, "$")) {
-    if (miutil::contains(es, "$dayeng")) {
-      miutil::replace(es, "$dayeng", "%A");
-      norwegian = false;
-    }
-    if (miutil::contains(es, "$daynor")) {
-      miutil::replace(es, "$daynor", "%A");
-    }
-    if (miutil::contains(es, "$day")) {
-      miutil::replace(es, "$day", "%A");
-    }
+    if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng", "%A"); lang = ENGLISH; }
+    if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor", "%A"); lang = NORWEGIAN; }
+    miutil::replace(es, "$day", "%A");
     miutil::replace(es, "$hour", "%H");
     miutil::replace(es, "$min", "%M");
     miutil::replace(es, "$sec", "%S");
     miutil::replace(es, "$auto", "$miniclock");
   }
   if (miutil::contains(es, "%")) {
-    if (miutil::contains(es, "%anor")) {
-      miutil::replace(es, "%anor", "%a");
-    }
-    if (miutil::contains(es, "%Anor")) {
-      miutil::replace(es, "%Anor", "%A");
-    }
-    if (miutil::contains(es, "%bnor")) {
-      miutil::replace(es, "%bnor", "%b");
-    }
-    if (miutil::contains(es, "%Bnor")) {
-      miutil::replace(es, "%Bnor", "%B");
-    }
-    if (miutil::contains(es, "%aeng")) {
-      miutil::replace(es, "%aeng", "%a");
-      norwegian = false;
-    }
-    if (miutil::contains(es, "%Aeng")) {
-      miutil::replace(es, "%Aeng", "%A");
-      norwegian = false;
-    }
-    if (miutil::contains(es, "%beng")) {
-      miutil::replace(es, "%beng", "%b");
-      norwegian = false;
-    }
-    if (miutil::contains(es, "%Beng")) {
-      miutil::replace(es, "%Beng", "%B");
-      norwegian = false;
-    }
+    if (miutil::contains(es, "%anor")) { miutil::replace(es, "%anor", "%a"); lang = NORWEGIAN; }
+    if (miutil::contains(es, "%Anor")) { miutil::replace(es, "%Anor", "%A"); lang = NORWEGIAN; }
+    if (miutil::contains(es, "%bnor")) { miutil::replace(es, "%bnor", "%b"); lang = NORWEGIAN; }
+    if (miutil::contains(es, "%Bnor")) { miutil::replace(es, "%Bnor", "%B"); lang = NORWEGIAN; }
+    if (miutil::contains(es, "%aeng")) { miutil::replace(es, "%aeng", "%a"); lang = ENGLISH; }
+    if (miutil::contains(es, "%Aeng")) { miutil::replace(es, "%Aeng", "%A"); lang = ENGLISH; }
+    if (miutil::contains(es, "%beng")) { miutil::replace(es, "%beng", "%b"); lang = ENGLISH; }
+    if (miutil::contains(es, "%Beng")) { miutil::replace(es, "%Beng", "%B"); lang = ENGLISH; }
   }
-  if ((miutil::contains(es, "%") || miutil::contains(es, "$")) && !time.undef()) {
-    if (!norwegian)
-      es += " $lg=eng ";
-    es = time.format(es, "", true);
-  }
+  if ((miutil::contains(es, "%") || miutil::contains(es, "$")) && !time.undef())
+    es = time.format(es, lang, true);
   return es;
 }
 

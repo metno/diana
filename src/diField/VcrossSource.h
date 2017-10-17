@@ -31,25 +31,25 @@ public:
    * Get values for a cross-section. Output shape: (z-axis, x-axis)
    */
   virtual void getCrossectionValues(Crossection_cp cs, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v) = 0;
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) = 0;
 
   /*!
    * Get values for a time-graph. Output shape: (z-axis, t-axis)
    */
   virtual void getTimegraphValues(Crossection_cp cs, size_t crossection_index,
-      const InventoryBase_cps& data, name2value_t& n2v) = 0;
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) = 0;
 
   /*!
    * Get values for a single point. Output shape: (z-axis)
    */
   virtual void getPointValues(Crossection_cp crossection, size_t crossection_index, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v) = 0;
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) = 0;
 
   /*!
    * Get wave spectrum values for a single point. Output shape: ("direction", "freq")
    */
   virtual void getWaveSpectrumValues(Crossection_cp crossection, size_t crossection_index, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v) = 0;
+      const InventoryBase_cps& data, name2value_t& n2v, int realization) = 0;
 
   // try to release some memory
   virtual void flush();
@@ -96,25 +96,25 @@ public:
    * Get values for a cross-section. Output shape: (z-axis, x-axis)
    */
   virtual void getCrossectionValues(const Time& reftime, Crossection_cp cs, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization);
 
   /*!
    * Get values for a time-graph. Output shape: (z-axis, t-axis)
    */
   virtual void getTimegraphValues(const Time& reftime, Crossection_cp cs, size_t crossection_index,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization);
 
   /*!
    * Get values for a single point. Output shape: (z-axis)
    */
   virtual void getPointValues(const Time& reftime, Crossection_cp crossection, size_t crossection_index, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization);
 
   /*!
    * Get wave spectrum values for a single point. Output shape: ("direction", "freq")
    */
   virtual void getWaveSpectrumValues(const Time& reftime, Crossection_cp crossection, size_t crossection_index, const Time& time,
-      const InventoryBase_cps& data, name2value_t& n2v);
+      const InventoryBase_cps& data, name2value_t& n2v, int realization);
 
   // try to release some memory
   virtual void flush();

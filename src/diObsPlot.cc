@@ -41,6 +41,7 @@
 #include "diKVListPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/math_util.h"
 #include "util/qstring_util.h"
 
 #include <puCtools/stat.h>
@@ -1272,12 +1273,10 @@ void ObsPlot::updateFromEditField()
 
 //***********************************************************************
 
-static inline float square(float x)
-{ return x*x; }
-
 int ObsPlot::findObs(int xx, int yy, const std::string& type)
 {
   METLIBS_LOG_SCOPE();
+  using diutil::square;
 
   float min_r = square(10 * getStaticPlot()->getPhysToMapScaleX());
   float r;
@@ -1376,96 +1375,92 @@ void ObsPlot::setPopupSpec(std::vector<std::string>& txt)
 bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
 {
   METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
-  int min_i = -1;
-  int found = -1;
-  min_i =  findObs(xx,yy);
+  if (!popupText)
+    return false;
+
+  const int min_i = findObs(xx, yy);
   if (min_i < 0)
     return false;
-  ObsData dt = obsp[min_i];
-  if (popupText) {
-    for (size_t i = 0; i < datatypes.size(); i++) {
-      std::map<string, vector<std::string> >::iterator f_p = popupSpec.begin();
-      for (; f_p != popupSpec.end(); f_p++) {
-        if (f_p->first == datatypes[i]) {
-          found = i;
-          vector< std::string> mdata = f_p->second;
-          if ( mdata.size() > 0) {
-            setuptext += "<table>";
-            if (!dt.obsTime.undef()) {
-              setuptext += "<tr>";
-              setuptext += "<td>";
-              setuptext += "<span style=\"background: red; color: red\">X</span>";
-              setuptext += dt.obsTime.isoTime();
-              setuptext += " ";
-            }
-            for (size_t j = 0; j < mdata.size(); j++) {
-              setuptext += "<tr>";
-              setuptext += "<td>";
-              setuptext += "<span style=\"background: red; color: red\">X</span>";
-              vector<std::string> token = miutil::split(mdata[j], ' ');
-              std::string p;
-              for (size_t j = 0; j < token.size(); j++) {
-                if (miutil::contains(token[j], "$")) {
-                  miutil::trim(token[j]);
-                  miutil::remove(token[j], '$');
-                  if (miutil::to_int(dt.stringdata[token[j]]) != undef )
-                    setuptext += dt.stringdata[token[j]];
-                  else
-                    setuptext += "X";
-                  setuptext += " ";
-                } else if (miutil::contains(token[j], ":")) {
-                  vector<std::string> values = miutil::split(token[j], ":");
-                  for (size_t i = 0; i < values.size(); i++) {
-                    if (miutil::contains(values[i], "=")) {
-                      vector<std::string> keys = miutil::split(values[i], "=");
-                      if (keys.size() == 2) {
-                        if (dt.stringdata[token[0]] == keys[0])
-                          setuptext += keys[1];
-                        setuptext += " ";
-                      }
-                    }
-                  }
-                } else {
-                  setuptext += token[j];
-                  setuptext += " ";
-                }
-              }
-            } //end of for mdata
-            setuptext += "</table>";
-          }
-        }
-      }
-    } // end of datatypes
 
-    if (found < 0) {
-      setuptext += "<table>";
-      int size = columnName.size();
-      for (int i = 0; i < size; i++) {
-        const std::string& param = columnName[i];
-        if ( pFlag.count( param ) ) {
-          setuptext += "<tr>";
-          setuptext += "<td>";
-          setuptext += param;
-          setuptext += "</td>";
-          setuptext += "<td>";
-          setuptext += "  ";
-          if (miutil::to_int(dt.stringdata[param]) != undef )
-            setuptext += dt.stringdata[param];
+  bool found = false;
+  const ObsData& dt = obsp[min_i];
+  for (const std::string& datatype : datatypes) {
+    std::map<string, vector<std::string> >::const_iterator f_p = popupSpec.find(datatype);
+    if (f_p == popupSpec.end())
+      continue;
+
+    found = true;
+    const std::vector<std::string>& mdata = f_p->second;
+    if (mdata.empty())
+      continue;
+
+    setuptext += "<table>";
+    if (!dt.obsTime.undef()) {
+      setuptext += "<tr>";
+      setuptext += "<td>";
+      setuptext += "<span style=\"background: red; color: red\">X</span>";
+      setuptext += dt.obsTime.isoTime();
+      setuptext += " ";
+    }
+    for (const std::string& mdat : mdata) {
+      setuptext += "<tr>";
+      setuptext += "<td>";
+      setuptext += "<span style=\"background: red; color: red\">X</span>";
+      vector<std::string> token = miutil::split(mdat, ' ');
+      for (size_t j = 0; j < token.size(); j++) {
+        if (miutil::contains(token[j], "$")) {
+          miutil::trim(token[j]);
+          miutil::remove(token[j], '$');
+          if (miutil::to_int(dt.get_string(token[j])) != undef)
+            setuptext += dt.get_string(token[j]);
           else
             setuptext += "X";
           setuptext += " ";
-          setuptext += "</td>";
-          setuptext += "</tr>";
-          setuptext += "</table>";
+        } else if (miutil::contains(token[j], ":")) {
+          vector<std::string> values = miutil::split(token[j], ":");
+          for (size_t i = 0; i < values.size(); i++) {
+            if (miutil::contains(values[i], "=")) {
+              vector<std::string> keys = miutil::split(values[i], "=");
+              if (keys.size() == 2) {
+                if (dt.get_string(token[0]) == keys[0])
+                  setuptext += keys[1];
+                setuptext += " ";
+              }
+            }
+          }
+        } else {
+          setuptext += token[j];
+          setuptext += " ";
         }
       }
+    } //end of for mdata
+    setuptext += "</table>";
+  } // end of datatypes
+
+  if (!found) {
+    setuptext += "<table>";
+    int size = columnName.size();
+    for (int i = 0; i < size; i++) {
+      const std::string& param = columnName[i];
+      if ( pFlag.count( param ) ) {
+        setuptext += "<tr>";
+        setuptext += "<td>";
+        setuptext += param;
+        setuptext += "</td>";
+        setuptext += "<td>";
+        setuptext += "  ";
+        if (miutil::to_int(dt.get_string(param)) != undef )
+          setuptext += dt.get_string(param);
+        else
+          setuptext += "X";
+        setuptext += " ";
+        setuptext += "</td>";
+        setuptext += "</tr>";
+        setuptext += "</table>";
+      }
     }
-    if (!setuptext.empty() )
-      return true;
-    else
-      return false;
-  } // end of popuptext
-  return false;
+  }
+  return !setuptext.empty();
 }
 
 //***********************************************************************

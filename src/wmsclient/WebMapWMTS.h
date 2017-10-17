@@ -182,7 +182,7 @@ typedef WebMapWMTS* WebMapWMTS_x;
 typedef const WebMapWMTS* WebMapWMTS_cx;
 
 class WebMapWMTSRequest : public WebMapRequest {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   WebMapWMTSRequest(WebMapWMTS_x service, WebMapWMTSLayer_cx layer,
@@ -195,25 +195,25 @@ public:
   /*! set dimension value; ignores non-existent dimensions; dimensions
    *  without explicitly specified value are set to a default value */
   void setDimensionValue(const std::string& dimIdentifier,
-      const std::string& dimValue);
+      const std::string& dimValue) override;
 
   /*! start fetching data */
-  void submit();
+  void submit() override;
 
   /*! stop fetching data */
-  void abort();
+  void abort() override;
 
   /*! number of tiles */
-  size_t countTiles() const
-  { return mTiles.size(); }
+  size_t countTiles() const override
+    { return mTiles.size(); }
 
   /*! rectangle of one tile, in tileProjection coordinates */
-  const Rectangle& tileRect(size_t idx) const;
+  const Rectangle& tileRect(size_t idx) const override;
 
   /*! image data of one tile; might have isNull() == true */
-  const QImage& tileImage(size_t idx) const;
+  const QImage& tileImage(size_t idx) const override;
 
-  const Projection& tileProjection() const
+  const Projection& tileProjection() const override
     { return mMatrixSet->projection(); }
 
 private Q_SLOTS:
@@ -237,7 +237,7 @@ typedef std::shared_ptr<WebMapRequest> WebMapRequest_p;
 
 class WebMapWMTS : public WebMapService
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   /* set with URL pointing to GetCapabilities. need to call refresh to
@@ -248,19 +248,19 @@ public:
   ~WebMapWMTS();
 
   /*! suitable refresh interval. negative for no refresh */
-  int refreshInterval() const;
+  int refreshInterval() const override;
 
   /*! create a request object for the specified layer. may be null,
    *  e.g. if unknown layer or; ownership is transferred to caller */
   WebMapRequest_x createRequest(const std::string& layer,
-      const Rectangle& viewRect, const Projection& viewProj, double viewScale);
+      const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h) override;
 
   QNetworkReply* submitRequest(WebMapWMTSLayer_cx layer,
       const std::map<std::string, std::string>& dimensionValues,
       WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix,
       int tileX, int tileY);
 
-  void refresh();
+  void refresh() override;
 
 private:
   void destroyTileMatrixSets();

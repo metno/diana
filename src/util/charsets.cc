@@ -3,33 +3,20 @@
 
 #include "string_util.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <regex>
 #include <stdexcept>
 
 #include <errno.h>
 #include <iconv.h>
 
+#include <cstring>
+
 #define MILOGGER_CATEGORY "diana.charsets"
 #include <miLogger/miLogging.h>
 
 namespace diutil {
-
-std::string convertLatin1ToUtf8(const std::string& latin1)
-{
-  std::string utf8;
-  utf8.reserve(latin1.size());
-  for (char ch : latin1) {
-    unsigned char uch = static_cast<unsigned char>(ch);
-    if ((uch & 0x80) != 0) {
-      unsigned char uch1 = (0xc0 | (uch >> 6)); /* first byte, simplified since our range is only 8-bits */
-      utf8 += static_cast<char>(uch1);
-
-      uch = (0x80 | (uch & 0x3f));
-    }
-    utf8 += static_cast<char>(uch);
-  }
-  return utf8;
-}
 
 const std::string UTF_8 = "utf-8", ISO_8859_1 = "iso-8859-1";
 
@@ -71,7 +58,7 @@ public:
 
 std::string Latin1Utf8Converter::convert(const std::string& in)
 {
-  return diutil::convertLatin1ToUtf8(in);
+  return miutil::from_latin1_to_utf8(in);
 }
 
 
@@ -102,7 +89,7 @@ std::string IconvConverter::convert(const std::string& in)
 
   const size_t in_size = in.size();
   char* in_c = new char[in_size], *in_p = in_c;
-  memcpy(in_c, in.c_str(), in_size);
+  std::memcpy(in_c, in.c_str(), in_size);
 
   const size_t out_size = in_size + 4;
   char* out_c = new char[out_size], *out_p = out_c;

@@ -9,7 +9,7 @@ TEST(GridConverterTest, GetMapFields)
 {
   const int nx = 3, ny = 3;
   const GridArea area(Area(Projection("+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"),
-          Rectangle(0, 100000, 10000, 110000)), nx, ny, 1000, 1000);
+          Rectangle(0, 0, 10000, 110000)), nx, ny, 1000, 1000);
   GridConverter gc;
 #if 1
   const float* xmapr = 0, *ymapr = 0, *coriolis = 0;
@@ -112,6 +112,7 @@ TEST(GridConverterTest, FindGridLimits)
   }
 }
 
+#if 0
 TEST(GridConverterTest, FindGridLimitsGeos)
 {
   const GridArea fieldGridArea(Area(Projection("+proj=geos +lon_0=-135.000000 +a=6378169.0 +b=6356583.8 +h=35785831.0"
@@ -138,3 +139,4 @@ TEST(GridConverterTest, FindGridLimitsGeos)
     EXPECT_TRUE(ex_rects[i] == actual_rect) << "expected " << ex_rects[i] << " got " << actual_rect;
   }
 }
+#endif

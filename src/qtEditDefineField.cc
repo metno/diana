@@ -438,7 +438,7 @@ std::string EditDefineFieldDialog::selectedObjectTypes()
   if (num>-1)
     return " ";
 
-  std::string str ="types=";
+  std::string str;
   if (cbs0->isChecked()) str+="front,";
   if (cbs1->isChecked()) str+="symbol,";
   if (cbs2->isChecked()) str+="area,";

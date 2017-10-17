@@ -151,7 +151,6 @@ void ExtraAxis::setStringValues()
     ost <<values[i];
     stringvalues.push_back(ost.str());
   }
-
 }
 
 static Taxis emptytaxis;
@@ -167,7 +166,6 @@ const Taxis& ReftimeInventory::getTaxis(const std::string& name) const
 
   // TODO: do we need to return reference to time axis?
   return emptytaxis;
-
 }
 
 static Zaxis emptyzaxis;
@@ -182,7 +180,6 @@ const Zaxis& ReftimeInventory::getZaxis(const std::string& name) const
   }
 
   return emptyzaxis;
-
 }
 
 static ExtraAxis emptyextraaxis;
@@ -197,7 +194,6 @@ const ExtraAxis& ReftimeInventory::getExtraAxis(const std::string& name) const
   }
 
   return emptyextraaxis;
-
 }
 
 Inventory Inventory::merge(const Inventory& i) const
@@ -211,7 +207,7 @@ Inventory Inventory::merge(const Inventory& i) const
     // zaxis, taxis, extraaxis: if axis with same id but different values exist AND the new axis has just one value -> merge new value into the existing axis
 
 
-  for(Inventory::reftimes_t::const_iterator it_r1 = reftimes.begin(); it_r1 != reftimes.end(); ++it_r1) {
+  for (Inventory::reftimes_t::const_iterator it_r1 = reftimes.begin(); it_r1 != reftimes.end(); ++it_r1) {
     const ReftimeInventory& r1 = it_r1->second;
     METLIBS_LOG_DEBUG(" checking reftime:" << r1.referencetime);
 
@@ -345,7 +341,7 @@ std::string Inventory::toString() const
       for (; pitr != ritr->second.parameters.end(); pitr++) {
         out << "        Parameter:" << pitr->key.name << endl;
         out << "        Grid:" << pitr->grid << ":";
-        std::set<Grid>::const_iterator ga = ritr->second.grids.find(pitr->grid);
+        std::set<Grid>::const_iterator ga = ritr->second.grids.find(Grid(pitr->grid));
         if (ga != ritr->second.grids.end()) {
           out << "nx=" << ga->nx << " ny=" << ga->ny << " x_0=" << ga->x_0
               << " y_0=" << ga->y_0 << " x_resolution=" << ga->x_resolution
@@ -355,7 +351,7 @@ std::string Inventory::toString() const
         out << endl;
 
         out << "        Zaxis:" << pitr->key.zaxis << ":";
-        std::set<Zaxis>::const_iterator za = ritr->second.zaxes.find(pitr->key.zaxis);
+        std::set<Zaxis>::const_iterator za = ritr->second.zaxes.find(Zaxis(pitr->key.zaxis));
         if (za != ritr->second.zaxes.end()) {
           out << za->vc_type << ":";
           std::vector<double>::const_iterator litr = za->values.begin();
@@ -366,7 +362,7 @@ std::string Inventory::toString() const
         out << endl;
 
         out << "        Taxis:" << pitr->key.taxis << ":";
-        std::set<Taxis>::const_iterator ta = ritr->second.taxes.find(pitr->key.taxis);
+        std::set<Taxis>::const_iterator ta = ritr->second.taxes.find(Taxis(pitr->key.taxis));
         if (ta != ritr->second.taxes.end()) {
           std::vector<double>::const_iterator titr = ta->values.begin();
           for (; titr != ta->values.end(); titr++) {
@@ -376,7 +372,7 @@ std::string Inventory::toString() const
         out << endl;
 
         out << "        ExtraAxis:" << pitr->key.extraaxis << ":";
-        std::set<ExtraAxis>::const_iterator ra = ritr->second.extraaxes.find(pitr->key.extraaxis);
+        std::set<ExtraAxis>::const_iterator ra = ritr->second.extraaxes.find(ExtraAxis(pitr->key.extraaxis));
         if (ra != ritr->second.extraaxes.end()) {
           std::vector<double>::const_iterator eitr = ra->values.begin();
           for (; eitr != ra->values.end(); eitr++) {
@@ -418,4 +414,3 @@ miutil::miTime Inventory::getTimeStamp(const std::string & reftime) const
   }
   return time;
 }
-

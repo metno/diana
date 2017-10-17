@@ -29,20 +29,26 @@
 
 #include "WebMapUtilities.h"
 
+#include "WebMapService.h"
+#include "WebMapTile.h"
+
 #include "diGlUtilities.h"
 #include "diPoint.h"
-#include "diRasterPlot.h"
 #include "diUtilities.h"
 
 #include "util/string_util.h"
 
 #include "diField/diArea.h"
+#include "diField/diGridReprojection.h"
 #include "diField/diProjection.h"
 #include "diField/diRectangle.h"
 
 #include <puTools/miStringFunctions.h>
 
+#include <QNetworkReply>
 #include <QStringList>
+#include <QVariant>
+#include <QUrl>
 
 #include <boost/shared_array.hpp>
 
@@ -142,107 +148,57 @@ Projection projectionForCRS(const std::string& crs)
 
 // ========================================================================
 
-void select_tiles(tilexy_s& tiles,
-    int ix0, int nx, float x0, float dx, int iy0, int ny, float y0, float dy,
-    const Projection& p_tiles, const Rectangle& r_view, const Projection& p_view)
+namespace {
+
+struct SelectTilesCB : public GridReprojectionCB {
+  SelectTilesCB(tilexy_s& t, const Rectangle& tbbx,
+                int nx_, int ny_, const diutil::PointD& xyt0_, const diutil::PointD& dxyt_)
+    : tiles(t)
+    , r_tiles(tbbx)
+    , nx(nx_)
+    , ny(ny_)
+    , xyt0(xyt0_)
+    , dxyt(dxyt_)
+  { }
+
+  tilexy_s& tiles;
+  const Rectangle& r_tiles;
+  int nx, ny;
+  diutil::PointD xyt0, dxyt;
+
+  void pixelLine(const diutil::PointI& s, const diutil::PointD& xyf0, const diutil::PointD& dxyf, int n) override;
+};
+
+void SelectTilesCB::pixelLine(const PointI & /*s*/, const diutil::PointD& xyf0, const diutil::PointD& dxyf, int n)
 {
-  const bool select_front = true;
-  if (nx <= 0 || ny <= 0)
-    return;
-
-  METLIBS_LOG_SCOPE(LOGVAL(ix0) << LOGVAL(x0) << LOGVAL(nx)
-      << LOGVAL(iy0) << LOGVAL(y0) << LOGVAL(ny));
-
-  const int TILE_LIMIT = 64;
-  int stepx = std::max(1, nx / TILE_LIMIT),
-      stepy = std::max(1, ny / TILE_LIMIT);
-
-  // border in tile projection
-  const int nbx = (nx + stepx - 1)/stepx,
-      nby = (ny + stepy - 1)/stepy,
-      nb = 2*(nbx + nby);
-  const float top = y0, bottom = y0+ny*dy, left = x0, right = x0 + nx*dx;
-  boost::shared_array<float> border_x_t(new float[nb]), border_y_t(new float[nb]);
-  { int ixy = 0;
-    // bottom and top border
-    for (int i=0; i<nx; i += stepx, ixy += 2) {
-      border_x_t[ixy] = border_x_t[ixy+1] = x0+i*dx;
-      border_y_t[ixy] = top;
-      border_y_t[ixy+1] = bottom;
-    }
-    // right and left border
-    ixy -= 1;
-    for (int i=0; i<ny; i += stepy, ixy += 2) {
-      if (i>0) {
-        border_y_t[ixy] = y0+i*dy;
-        border_x_t[ixy] = left;
+  diutil::PointD fxy = xyf0;
+  tilexy txy(-1, -1);
+  for (int i=0; i<n; ++i, fxy += dxyf) {
+    if (!r_tiles.isinside(fxy.x(), fxy.y()))
+      continue;
+    const diutil::PointD ixy = (fxy - xyt0)/ dxyt;
+    const int ix = int(ixy.x()), iy = int(ixy.y());
+    if (ix>=0 && ix<nx && iy>=0 && iy<ny) {
+      if (txy.x != ix || txy.y != iy) {
+        txy.x = ix;
+        txy.y = iy;
+        tiles.insert(txy);
       }
-      border_y_t[ixy+1] = y0+i*dy;
-      border_x_t[ixy+1] = right;
     }
-    border_x_t[ixy] = right;
-    border_y_t[ixy] = bottom;
-    ixy += 1;
-    assert(ixy == nb);
   }
+}
 
-  // border in view projection
-  p_view.convertPoints(p_tiles, nb, border_x_t.get(), border_y_t.get());
-  METLIBS_LOG_DEBUG("tile corners=" << Rectangle(x0, y0, x0+nx*dx, y0+ny*dy));
+} // namespace
 
-  // bounding box in view proj
-  const float min_x_v = *std::min_element(border_x_t.get(), border_x_t.get() + nb);
-  const float max_x_v = *std::max_element(border_x_t.get(), border_x_t.get() + nb);
-  const float min_y_v = *std::min_element(border_y_t.get(), border_y_t.get() + nb);
-  const float max_y_v = *std::max_element(border_y_t.get(), border_y_t.get() + nb);
-  const Rectangle tbbx(min_x_v, min_y_v, max_x_v, max_y_v);
-  METLIBS_LOG_DEBUG(LOGVAL(tbbx) << LOGVAL(r_view)
-      << " intersects=" << tbbx.intersects(r_view));
-
-  if (!tbbx.intersects(r_view))
-    return;
-
-  if (nx == 1 && ny == 1) {
-    assert(nb == 4);
-    const XY left (border_x_t[1], border_y_t[1]);
-    const XY mid  (border_x_t[0], border_y_t[0]);
-    const XY right(border_x_t[2], border_y_t[2]);
-    const bool tile_front = diutil::tile_front(left, mid, right);
-    if (select_front == tile_front) {
-      METLIBS_LOG_DEBUG("adding tile " << LOGVAL(ix0) << LOGVAL(iy0));
-      tiles.insert(tilexy(ix0, iy0));
-    } else {
-      METLIBS_LOG_DEBUG("not adding unwanted face tile " << LOGVAL(ix0) << LOGVAL(iy0));
-    }
-    return;
-  }
-
-  int nxa, ix0b, nxb, nya, iy0b, nyb;
-  float x0b, y0b;
-  if (ny > nx) {
-    nxa  = nx;
-    ix0b = ix0;
-    nxb  = nx;
-    x0b  = x0;
-
-    nya  = ny / 2;
-    iy0b = iy0 + nya;
-    nyb  = ny  - nya;
-    y0b  = y0  + nya*dy;
-  } else {
-    nxa  = nx / 2;
-    ix0b = ix0 + nxa;
-    nxb  = nx  - nxa;
-    x0b  = x0  + nxa*dx;
-
-    nya  = ny;
-    iy0b = iy0;
-    nyb  = ny;
-    y0b  = y0;
-  }
-
-  select_tiles(tiles, ix0,  nxa, x0,  dx, iy0,  nya, y0,  dy, p_tiles, r_view, p_view);
-  select_tiles(tiles, ix0b, nxb, x0b, dx, iy0b, nyb, y0b, dy, p_tiles, r_view, p_view);
+void select_pixel_tiles(tilexy_s& tiles,
+                        int w, int h, // screen size
+                        int nx, float x0, float dx,
+                        int ny, float y0, float dy,
+                        const Rectangle& r_tiles, const Projection& p_tiles,
+                        const Rectangle& r_view, const Projection& p_view)
+{
+  SelectTilesCB cb(tiles, r_tiles, nx, ny, diutil::PointD(x0, y0), diutil::PointD(dx, dy));
+  GridReprojection::instance()->reproject(diutil::Values2<int>(w, h), r_view, p_view, p_tiles, cb);
 }
 
 namespace detail {
@@ -600,13 +556,16 @@ QStringList expandWmsValues(const QString& valueSpec)
 {
   const QStringList mmr = valueSpec.split("/");
   if (mmr.size() != 3) {
-    METLIBS_LOG_ERROR("malformed value spec? " << valueSpec.toStdString());
-    return QStringList();
+    return QStringList(valueSpec); // may be text containing '/'
   }
 
-  double start = mmr.at(0).toDouble();
-  double end   = mmr.at(1).toDouble();
-  double resolution = std::abs(mmr.at(2).toDouble());
+  bool startOK, endOK, resOK;
+  double start = mmr.at(0).toDouble(&startOK);
+  double end   = mmr.at(1).toDouble(&endOK);
+  double resolution = std::abs(mmr.at(2).toDouble(&resOK));
+  if (!(startOK && endOK && resOK))
+    return QStringList(valueSpec); // may be text containing '/'
+
   if (start > end)
     std::swap(start, end);
 
@@ -623,5 +582,22 @@ QStringList expandWmsValues(const QString& valueSpec)
   }
   return values;
 }
+
+bool checkRedirect(WebMapService* service, WebMapImage* image)
+{
+  if (!image->reply())
+    return false;
+
+  const QVariant vRedirect = image->reply()->attribute(QNetworkRequest::RedirectionTargetAttribute);
+  if (vRedirect.isNull())
+    return false;
+
+  QUrl redirect = vRedirect.toUrl();
+  if (redirect.isRelative())
+    redirect = image->reply()->url().resolved(redirect);
+  image->submit(service->submitUrl(redirect));
+  return true;
+}
+
 
 } // namespace diutil

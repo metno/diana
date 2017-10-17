@@ -30,6 +30,7 @@
 #ifndef diProjection_h
 #define diProjection_h
 
+#include "diPoint.h"
 #include "diRectangle.h"
 
 #include <proj_api.h>
@@ -75,16 +76,25 @@ public:
   void setDefault();
 
   /// Convert Points to this projection
-  int convertPoints(const Projection& srcProj, int npos, float * x, float * y,
+  bool convertPoints(const Projection& srcProj, size_t npos, float * x, float * y,
       bool silent = false) const;
 
-  int convertVectors(const Projection& srcProj, int nvec,
+  bool convertPoints(const Projection& srcProj, size_t npos, double* x, double* y,
+      bool silent = false) const;
+
+  bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy,
+      bool silent = false) const;
+
+  bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy,
+      bool silent = false) const;
+
+  bool convertVectors(const Projection& srcProj, size_t nvec,
       const float * from_x, const float * from_y,
       const float * to_x, const float * to_y,
       float * u, float * v) const;
 
   /// Convert Vectors to this projection
-  int convertVectors(const Projection& srcProj, int nvec, const float * to_x,
+  bool convertVectors(const Projection& srcProj, int nvec, const float * to_x,
       const float * to_y, float * from_u, float * from_v) const;
 
   void calculateVectorRotationElements(const Projection& srcProj, int nvec,
@@ -92,7 +102,7 @@ public:
       const float * to_x, const float * to_y,
       float * cosa, float * sina) const;
 
-  int calculateVectorRotationElements(const Projection& srcProj, int nvec,
+  bool calculateVectorRotationElements(const Projection& srcProj, int nvec,
       const float * to_x, const float * to_y, float * from_u, float * from_v) const;
 
   /**
@@ -108,12 +118,12 @@ public:
   /*
    * Convert point data to geographic values
    */
-  int convertToGeographic(int n, float* x, float* y) const;
+  bool convertToGeographic(int n, float* x, float* y) const;
 
   /*
    * Convert geographic points to this projection
    */
-  int convertFromGeographic(int n, float* x, float* y) const;
+  bool convertFromGeographic(int n, float* x, float* y) const;
 
   /**
    * get max legal jump-distance for a line on the map
@@ -133,12 +143,17 @@ public:
       float & lonmin, float & lonmax, float & latmin, float & latmax) const;
 
   /// Calculate mapratios and coriolis factors
-  int getMapRatios(int nx, int ny, float gridResolutionX, float gridResolutionY,
+  bool getMapRatios(int nx, int ny, float x0, float y0, float gridResolutionX, float gridResolutionY,
       float* xmapr, float* ymapr, float* coriolis) const;
 
   static bool getLatLonIncrement(float lat, float lon, float& dlat, float& dlon);
 
   static const Projection& geographic();
+
+private:
+  bool transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y, bool silent) const;
+
+  static bool areDefined(const Projection& srcProj, const Projection& tgtProj);
 
 private:
   std::string projDefinition;

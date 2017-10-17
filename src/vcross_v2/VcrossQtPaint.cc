@@ -1,7 +1,8 @@
 
 #include "VcrossQtPaint.h"
 
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
+#include "util/math_util.h"
 
 #include <QtGui/QPainter>
 
@@ -28,7 +29,7 @@ void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines,
   const float fStep = size / 10.0, fSize = size * 0.35;
   const float KN5_SCALE = 0.6;
 
-  const float ff = sqrtf(u*u + v*v);
+  const float ff = diutil::absval(u, v);
   if (ff <= 0.00001 or std::isnan(ff))
     return;
 
@@ -144,7 +145,7 @@ void PaintVector::paintArrow(QPainter& painter, float px, float py, float ex, fl
 
 void PaintVector::paint(QPainter& painter, float u, float v, float px, float py) const
 {
-  const float ff = sqrtf(u*u + v*v);
+  const float ff = diutil::absval(u, v);
   if (ff <= 0.00001 or std::isnan(ff))
     return;
 

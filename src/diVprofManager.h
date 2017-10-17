@@ -87,6 +87,9 @@ private:
   std::string lastStation;
   miutil::miTime   plotTime;
 
+  int realizationCount;
+  int realization;
+
   std::map<std::string,std::string> menuConst;
 
   int plotw, ploth;
@@ -118,6 +121,7 @@ public:
 
   void parseSetup();
   void setModel();
+  void setRealization(int r);
   void setStation(const std::string& station);
   void setStations(const std::vector<std::string>& station);
   void setTime(const miutil::miTime& time);
@@ -133,6 +137,8 @@ public:
     { return stationList; }
   const std::vector<miutil::miTime>& getTimeList()
     { return timeList; }
+  int getRealizationCount() const
+    { return realizationCount; }
   std::vector <std::string> getModelNames();
   const std::vector<std::string>& getModelFiles()
     { return dialogFileNames; }

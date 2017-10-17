@@ -4,6 +4,8 @@
 #include "diLabelPlotCommand.h"
 #include "diStringPlotCommand.h"
 #include "diStationPlotCommand.h"
+#include "vcross_v2/VcrossPlotCommand.h"
+
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -28,7 +30,7 @@ size_t identify(const std::string& commandKey, const std::string& text)
 }
 
 const std::vector<std::string> commandKeysKV = {
-  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBS"
+  "MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBJECTS", "OBS", "WEBMAP"
 };
 
 PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)
@@ -48,19 +50,12 @@ PlotCommand_cp identifyLabel(const std::string& text)
 }
 } // namespace
 
-PlotCommand_cp makeCommandVcross(const std::string& text)
-{
-  return std::make_shared<StringPlotCommand>("VCROSS", text);
-}
-
 PlotCommand_cp makeCommand(const std::string& text)
 {
   for (const std::string& ck : commandKeysKV) {
     if (PlotCommand_cp c = identifyKeyValue(ck, text))
       return c;
   }
-  if (PlotCommand_cp c = identifyLabel(text))
-    return c;
 
   if (PlotCommand_cp c = identifyLabel(text))
     return c;
@@ -68,17 +63,15 @@ PlotCommand_cp makeCommand(const std::string& text)
   if (identify("STATION", text))
     return StationPlotCommand::parseLine(text);
 
-  // OBJECTS, WEBMAP
   return std::make_shared<StringPlotCommand>(text);
 }
 
-PlotCommand_cpv makeCommands(const std::vector<std::string>& text)
+PlotCommand_cpv makeCommands(const std::vector<std::string>& text, bool vcross)
 {
   PlotCommand_cpv cmds;
   cmds.reserve(text.size());
 
-  // FIXME handle this properly, or change VCROSS commands
-  bool vcross = false;
+  // FIXME handle vcross properly, or change VCROSS commands
 
   for (const std::string& t : text) {
     const std::string tt = miutil::trimmed(t);
@@ -88,11 +81,10 @@ PlotCommand_cpv makeCommands(const std::vector<std::string>& text)
     if (t == "VCROSS")
       vcross = true; // remaining commands are vcross, too
 
-    PlotCommand_cp cmd = vcross ? makeCommandVcross(tt) : makeCommand(tt);
-    if (cmd->commandKey() == "VCROSS")
-      vcross = true; // remaining commands are vcross, too
-
-    cmds.push_back(cmd);
+    if (vcross)
+      cmds.push_back(VcrossPlotCommand::fromString(tt));
+    else
+      cmds.push_back(makeCommand(tt));
   }
   return cmds;
 }

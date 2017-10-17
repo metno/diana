@@ -76,31 +76,31 @@ Time Source::getLatestReferenceTime()
 }
 
 void Source::getCrossectionValues(const Time& reftime, Crossection_cp cs, const Time& time,
-    const InventoryBase_cps& data, name2value_t& n2v)
+    const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   if (ReftimeSource_p rs = findSource(reftime))
-    rs->getCrossectionValues(cs, time, data, n2v);
+    rs->getCrossectionValues(cs, time, data, n2v, realization);
 }
 
 void Source::getTimegraphValues(const Time& reftime, Crossection_cp cs, size_t crossection_index,
-    const InventoryBase_cps& data, name2value_t& n2v)
+    const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   if (ReftimeSource_p rs = findSource(reftime))
-    rs->getTimegraphValues(cs, crossection_index, data, n2v);
+    rs->getTimegraphValues(cs, crossection_index, data, n2v, realization);
 }
 
 void Source::getPointValues(const Time& reftime, Crossection_cp crossection, size_t crossection_index, const Time& time,
-    const InventoryBase_cps& data, name2value_t& n2v)
+    const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   if (ReftimeSource_p rs = findSource(reftime))
-    rs->getPointValues(crossection, crossection_index, time, data, n2v);
+    rs->getPointValues(crossection, crossection_index, time, data, n2v, realization);
 }
 
 void Source::getWaveSpectrumValues(const Time& reftime, Crossection_cp crossection, size_t crossection_index, const Time& time,
-    const InventoryBase_cps& data, name2value_t& n2v)
+    const InventoryBase_cps& data, name2value_t& n2v, int realization)
 {
   if (ReftimeSource_p rs = findSource(reftime))
-    rs->getWaveSpectrumValues(crossection, crossection_index, time, data, n2v);
+    rs->getWaveSpectrumValues(crossection, crossection_index, time, data, n2v, realization);
 }
 
 void Source::flush()

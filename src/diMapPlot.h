@@ -35,6 +35,7 @@
 #include "diGlUtilities.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
+#include "diMapInfo.h"
 #include "diShapeObject.h"
 #include "diUtilities.h"
 

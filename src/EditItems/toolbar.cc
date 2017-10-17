@@ -34,13 +34,25 @@
 
 #include <QActionGroup>
 #include <QApplication>
-#include <QComboBox>
+#include <QDockWidget>
 #include <QListWidget>
-#include <QToolButton>
-#include <QVBoxLayout>
+#include <QMainWindow>
 
 #define COMPOSITE_WIDTH 112
 #define COMPOSITE_HEIGHT 96
+
+namespace {
+
+int findItem(QListWidget* lw, const QString& item)
+{
+  QList<QListWidgetItem *> items = lw->findItems(item, Qt::MatchExactly | Qt::MatchCaseSensitive);
+  if (items.isEmpty())
+    return -1;
+  else
+    return lw->row(items.back());
+}
+
+} // namespace
 
 namespace EditItems {
 
@@ -56,7 +68,6 @@ CompositeDelegate::~CompositeDelegate()
 void CompositeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   QImage image = DrawingStyleManager::instance()->toImage(DrawingItemBase::Composite, index.data(Qt::UserRole).toString());
-  QBrush background;
   if (option.state & QStyle::State_Selected) {
     painter->fillRect(option.rect, qApp->palette().color(QPalette::Highlight));
     painter->fillRect(option.rect.adjusted(4, 4, -4, -4), Qt::white);
@@ -73,10 +84,10 @@ QSize CompositeDelegate::sizeHint(const QStyleOptionViewItem &option, const QMod
   return QSize(COMPOSITE_WIDTH, COMPOSITE_HEIGHT);
 }
 
-ToolBar *ToolBar::instance()
+ToolBar *ToolBar::instance(QWidget * parent)
 {
   if (!ToolBar::self_)
-    ToolBar::self_ = new ToolBar();
+    ToolBar::self_ = new ToolBar(parent);
   return ToolBar::self_;
 }
 
@@ -104,96 +115,137 @@ ToolBar::ToolBar(QWidget *parent)
   actionGroup->addAction(selectAction_);
 
   // *** create polyline ***
+  // *** create composite ***
+  polyLineWidget = new QDockWidget("PolyLines",parent,Qt::WindowStaysOnTopHint);
+
+  polyLineWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  polyLineWidget->setObjectName("PolyLines");
+  QMainWindow * pwin = dynamic_cast<QMainWindow *>(parent);
+  pwin->addDockWidget(Qt::LeftDockWidgetArea, polyLineWidget);
+  polyLineWidget->hide();
+  connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(showPolyLines()));
+
   polyLineAction_ = actions[EditItemManager::CreatePolyLine];
   addAction(polyLineAction_);
   actionGroup->addAction(polyLineAction_);
-
   // Create a combo box containing specific polyline types.
-  polyLineCombo_ = new QComboBox();
-  connect(polyLineCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setPolyLineType(int)));
-  connect(polyLineCombo_, SIGNAL(currentIndexChanged(int)), polyLineAction_, SLOT(trigger()));
-  addWidget(polyLineCombo_);
+  polyLineList_ = new QListWidget(polyLineWidget);
+  polyLineList_->setSelectionMode(QAbstractItemView::SingleSelection);
+  connect(polyLineList_, SIGNAL( itemClicked( QListWidgetItem * )), this, SLOT(setPolyLineType(QListWidgetItem *)));
+  connect(polyLineList_, SIGNAL( itemClicked( QListWidgetItem * )), polyLineAction_, SLOT(trigger()));
+  connect(polyLineAction_, SIGNAL(triggered()), polyLineList_, SLOT(raise()));
+  polyLineWidget->setWidget(polyLineList_);
 
   // Create an entry for each style. Use the name as an internal identifier
   // since we may decide to use tr() on the visible name at some point.
   QStringList styles = dsm->styles(DrawingItemBase::PolyLine);
   styles.sort();
-  foreach (QString name, styles)
-    polyLineCombo_->addItem(name, name);
+  for (const QString& name : styles) {
+    QListWidgetItem * item = new QListWidgetItem(name);
+    item->setData(Qt::UserRole,name);
+    polyLineList_->addItem(item);
+  }
 
-  polyLineCombo_->setCurrentIndex(0);
-  setPolyLineType(0);
+  polyLineList_->setCurrentRow(0);
+  polyLineList_->item(0)->setSelected(true);
+  setPolyLineType(polyLineList_->item(0));
 
   // *** create symbol ***
+  symbolWidget = new QDockWidget("Symbols",parent,Qt::WindowStaysOnTopHint);
+
+  symbolWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  symbolWidget->setObjectName("symbols");
+  pwin = dynamic_cast<QMainWindow *>(parent);
+  pwin->addDockWidget(Qt::RightDockWidgetArea, symbolWidget);
+  symbolWidget->hide();
+  connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(showSymbols()));
   symbolAction_ = actions[EditItemManager::CreateSymbol];
   addAction(symbolAction_);
   actionGroup->addAction(actions[EditItemManager::CreateSymbol]);
 
   // Create a combo box containing specific symbols.
-  symbolCombo_ = new QComboBox();
-  symbolCombo_->view()->setTextElideMode(Qt::ElideRight);
-  connect(symbolCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setSymbolType(int)));
-  connect(symbolCombo_, SIGNAL(currentIndexChanged(int)), symbolAction_, SLOT(trigger()));
-  addWidget(symbolCombo_);
+  symbolList_ = new QListWidget(symbolWidget);
+  symbolList_->setSelectionMode(QAbstractItemView::SingleSelection);
+  connect(symbolList_, SIGNAL( itemClicked( QListWidgetItem * )), this, SLOT(setSymbolType(QListWidgetItem *)));
+  connect(symbolList_, SIGNAL( itemClicked( QListWidgetItem * )), symbolAction_, SLOT(trigger()));
+  symbolWidget->setWidget(symbolList_);
 
   DrawingManager *dm = DrawingManager::instance();
 
-  foreach (QString section, dm->symbolSectionNames()) {
+  for (const QString& section : dm->symbolSectionNames()) {
     // Create an entry for each symbol, noting that each of these names
     // includes the section in the form of "section|name".
     QStringList names = dm->symbolNames(section);
     addSymbols(section, names);
   }
 
-  symbolCombo_->setCurrentIndex(0);
-  setSymbolType(0);
+  symbolList_->setCurrentRow(0);
+  symbolList_->item(0)->setSelected(true);
+  setSymbolType(symbolList_->item(0));
 
   // *** create text ***
+  textWidget = new QDockWidget("Texts",parent,Qt::WindowStaysOnTopHint);
+
+  textWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  textWidget->setObjectName("texts");
+  pwin = dynamic_cast<QMainWindow *>(parent);
+  pwin->addDockWidget(Qt::RightDockWidgetArea, textWidget);
+  textWidget->hide();
+  connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(showTexts()));
   textAction_ = actions[EditItemManager::CreateText];
   addAction(textAction_);
   actionGroup->addAction(textAction_);
 
   // Create a combo box containing specific text types.
-  textCombo_ = new QComboBox();
-  connect(textCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setTextType(int)));
-  connect(textCombo_, SIGNAL(currentIndexChanged(int)), textAction_, SLOT(trigger()));
-  addWidget(textCombo_);
+  textList_ = new QListWidget();
+  textList_->setSelectionMode(QAbstractItemView::SingleSelection);
+  connect(textList_, SIGNAL( itemClicked( QListWidgetItem * )), this, SLOT(setTextType(QListWidgetItem *)));
+  connect(textList_, SIGNAL( itemClicked( QListWidgetItem * )), textAction_, SLOT(trigger()));
+  textWidget->setWidget(textList_);
 
   // Create an entry for each style. Use the name as an internal identifier
   // since we may decide to use tr() on the visible name at some point.
   styles = dsm->styles(DrawingItemBase::Text);
   styles.sort();
-  foreach (QString name, styles) {
-    if (dsm->getStyle(DrawingItemBase::Text, name).value("hide").toBool() == false)
-      textCombo_->addItem(name, name);
+  for (const QString& name : styles) {
+    if (dsm->getStyle(DrawingItemBase::Text, name).value("hide").toBool() == false) {
+      QListWidgetItem * item = new QListWidgetItem(name);
+      item->setData(Qt::UserRole,name);
+      textList_->addItem(item);
+    }
   }
 
-  textCombo_->setCurrentIndex(0);
-  setTextType(0);
+  textList_->setCurrentRow(0);
+  textList_->item(0)->setSelected(true);
+  setTextType(textList_->item(0));
 
-  // *** create composite ***
-  compositeAction_ = actions[EditItemManager::CreateComposite];
-  compositeButton_ = new QToolButton();
-  compositeButton_->setDefaultAction(compositeAction_);
-  connect(compositeButton_, SIGNAL(clicked()), SLOT(showComposites()));
-  addWidget(compositeButton_);
+  // *** create composite **
 
   // Create an entry for each style. Use the name as an internal identifier
   // since we may decide to use tr() on the visible name at some point.
   styles = dsm->styles(DrawingItemBase::Composite);
   styles.sort();
+  
+  compositeWidget_ = new QDockWidget("Composites",parent,Qt::WindowStaysOnTopHint);
+
+  compositeWidget_->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  compositeWidget_->setObjectName("Composites");
+  pwin = dynamic_cast<QMainWindow *>(parent);
+  pwin->addDockWidget(Qt::RightDockWidgetArea, compositeWidget_);
+  compositeWidget_->hide();
+  connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(showComposites()));
+  compositeAction_ = actions[EditItemManager::CreateComposite];
+  addAction(compositeAction_);
+  actionGroup->addAction(compositeAction_);
 
   compositeDelegate_ = new CompositeDelegate(this);
 
-  compositeDialog_ = new QDialog(this);
-  compositeDialog_->setWindowFlags(Qt::Popup);
-
-  QListWidget *compositeView = new QListWidget();
+  compositeView = new QListWidget();
 
   // Fill the model with items for the composite objects.
   int i = 0;
 
-  foreach (QString name, styles) {
+  for (const QString& name : styles) {
     if (dsm->getStyle(DrawingItemBase::Composite, name).value("hide").toBool() == false) {
       QListWidgetItem *item = new QListWidgetItem(name);
       item->setData(Qt::UserRole, name);
@@ -206,13 +258,11 @@ ToolBar::ToolBar(QWidget *parent)
 
   compositeView->setSelectionMode(QAbstractItemView::SingleSelection);
   compositeView->setItemDelegate(compositeDelegate_);
+  
+  connect(compositeView, SIGNAL( itemClicked( QListWidgetItem * )), this, SLOT(setCompositeType(QListWidgetItem *)));
+  connect(compositeView, SIGNAL( itemClicked( QListWidgetItem * )), compositeAction_, SLOT(trigger()));
 
-  connect(compositeView, SIGNAL(itemActivated(QListWidgetItem *)), compositeDialog_, SLOT(accept()));
-  connect(compositeView, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), SLOT(setCompositeType(QListWidgetItem *)));
-
-  QVBoxLayout *layout = new QVBoxLayout(compositeDialog_);
-  layout->setMargin(0);
-  layout->addWidget(compositeView);
+  compositeWidget_->setWidget(compositeView);
 
   compositeView->setCurrentItem(compositeView->item(0));
 
@@ -227,42 +277,50 @@ void ToolBar::setSelectAction()
 
 void ToolBar::setCreatePolyLineAction(const QString &type)
 {
-  const int index = polyLineCombo_->findText(type);
+  const int index = findItem(polyLineList_, type);
   if (index >= 0) {
-    polyLineCombo_->setCurrentIndex(index);
+    polyLineList_->setCurrentRow(index);
+    polyLineList_->item(index)->setSelected(true);
     polyLineAction_->trigger();
   }
 }
 
-void ToolBar::setPolyLineType(int index)
+void ToolBar::setPolyLineType(QListWidgetItem *item)
 {
   // Obtain the style identifier from the style action and store it in the
   // main polyline action for later retrieval by the EditItemManager.
-  polyLineAction_->setData(polyLineCombo_->itemData(index));
+  polyLineAction_->setData(item->data(Qt::UserRole));
+  polyLineAction_->setToolTip(item->text());
 }
 
 void ToolBar::setCreateSymbolAction(const QString &type)
 {
-  const int index = symbolCombo_->findText(type);
+  const int index = findItem(symbolList_, type);
   if (index >= 0) {
-    symbolCombo_->setCurrentIndex(index);
+    symbolList_->setCurrentRow(index);
+    symbolList_->item(index)->setSelected(true);
     symbolAction_->trigger();
   }
 }
 
-void ToolBar::setSymbolType(int index)
+void ToolBar::setSymbolType(QListWidgetItem *item)
 {
   // Obtain the style identifier from the style action and store it in the
   // main symbol action for later retrieval by the EditItemManager.
-  QVariant data = symbolCombo_->itemData(index);
-  bool isSection = symbolCombo_->itemData(index, Qt::UserRole + 1).toBool();
+  QVariant data = item->data(Qt::UserRole);
+  bool isSection = item->data(Qt::UserRole + 1).toBool();
 
   // If a section heading was selected then select the item following it if
   // possible.
-  if (isSection && index < (symbolCombo_->count() - 1))
-    symbolCombo_->setCurrentIndex(index + 1);
-  else
+  int index = symbolList_->row(item);
+  if (isSection && index < (symbolList_->count() - 1)) {
+    symbolList_->setCurrentRow(index + 1);
+    symbolList_->item(index + 1)->setSelected(true);
+  }
+  else {
     symbolAction_->setData(data);
+    symbolAction_->setToolTip(item->text());
+  }
 }
 
 /**
@@ -283,14 +341,13 @@ void ToolBar::addSymbol(const QString &section, const QString &name)
  */
 void ToolBar::addSymbols(const QString &section, const QStringList &names)
 {
-  QAbstractItemModel *model = symbolCombo_->model();
+  QAbstractItemModel *model = symbolList_->model();
   QFont sectionFont = font();
   sectionFont.setWeight(QFont::Bold);
 
-  int row = symbolCombo_->findData(QVariant(section));
-
+  int row = findItem(symbolList_, section);
   if (row == -1) {
-    symbolCombo_->addItem(section, section);
+    symbolList_->addItem(section);
     row = model->rowCount() - 1;
 
     QModelIndex index = model->index(row, 0);
@@ -314,17 +371,21 @@ void ToolBar::addSymbols(const QString &section, const QStringList &names)
       row = model->rowCount();
     } else {
       // Find the row of the next section heading in the model.
-      row = symbolCombo_->findData(QVariant(sections_.at(s + 1)));
+      row = findItem(symbolList_, sections_.at(s + 1));
     }
   }
 
-  foreach (const QString &name, names) {
+  for (const QString &name : names) {
     // Use the name as an internal identifier since we may decide to use tr()
     // on the visible name at some point.
     // Remove any section information from the name for clarity.
     QString visibleName = name.split("|").last();
     QIcon icon(QPixmap::fromImage(DrawingManager::instance()->getSymbolImage(name, 32, 32)));
-    symbolCombo_->insertItem(row, icon, visibleName, name);
+
+    QListWidgetItem * item =  new QListWidgetItem(icon, visibleName);
+    item->setData(Qt::UserRole, name);
+
+    symbolList_->insertItem(row, item);
 
     // Set the section role to false.
     QModelIndex index = model->index(row, 0);
@@ -333,11 +394,12 @@ void ToolBar::addSymbols(const QString &section, const QStringList &names)
   }
 }
 
-void ToolBar::setTextType(int index)
+void ToolBar::setTextType(QListWidgetItem *item)
 {
   // Obtain the style identifier from the style action and store it in the
   // main text action for later retrieval by the EditItemManager.
-  textAction_->setData(textCombo_->itemData(index));
+  textAction_->setData(item->data(Qt::UserRole));
+  textAction_->setToolTip(item->text());
 }
 
 void ToolBar::setCompositeType(QListWidgetItem *item)
@@ -345,14 +407,27 @@ void ToolBar::setCompositeType(QListWidgetItem *item)
   // Obtain the style identifier from the index in the selection and store
   // it in the main text action for later retrieval by the EditItemManager.
   compositeAction_->setData(item->data(Qt::UserRole));
-  compositeButton_->setToolTip(item->text());
+  compositeAction_->setToolTip(item->text());
 }
 
 void ToolBar::showComposites()
 {
-  compositeDialog_->move(mapToGlobal(compositeButton_->pos() - QPoint(0, COMPOSITE_HEIGHT * 3)));
-  compositeDialog_->resize(COMPOSITE_WIDTH * 1.5, COMPOSITE_HEIGHT * 3);
-  compositeDialog_->exec();
+  compositeWidget_->setVisible(this->isVisible());
 }
 
-} // namespace
+void ToolBar::showPolyLines()
+{
+  polyLineWidget->setVisible(this->isVisible());
+}
+
+void ToolBar::showSymbols()
+{
+  symbolWidget->setVisible(this->isVisible());
+}
+
+void ToolBar::showTexts()
+{
+  textWidget->setVisible(this->isVisible());
+}
+
+} // namespace EditItems
