@@ -869,7 +869,13 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
             float min = poptions.linevalues[i];
             float max = poptions.linevalues[i + 1];
             ostringstream ostr;
-            ostr << min << " - " << max << unit;
+            //ostr << min << " - " << max << unit;
+	    // Check for "less than" legend
+	    if (i==0 && min==-fieldUndef) {            
+	        ostr << " < " << max << unit;
+	    } else {
+	        ostr << min << " - " << max << unit;
+	    } 
             vtable[i].text = ostr.str();
           }
           float min = poptions.linevalues[ncodes - 1];
