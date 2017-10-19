@@ -1,4 +1,4 @@
-diana-3.43 (3.43.0~rc2-1) unstable; urgency=low
+diana-3.43 (3.43.0~rc3-1) unstable; urgency=low
 
   * show/hide button for drawing dialogs
   * Bugfix: SAT plot command
