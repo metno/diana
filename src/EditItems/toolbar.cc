@@ -101,9 +101,12 @@ ToolBar::ToolBar(QWidget *parent)
   QActionGroup *actionGroup = new QActionGroup(this);
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
 
-  QAction *hideAction = new QAction("bla",this);;
-  connect( hideAction, SIGNAL( triggered() ) , SLOT( bla() ) );
-addAction(hideAction);
+  QAction *hideAction = new QAction(this);
+  hideAction->setToolTip(tr("Hide or show all drawing dialogs"));
+  hideAction->setIcon(qApp->style()->standardIcon(QStyle::SP_DialogResetButton));
+
+  connect( hideAction, SIGNAL( triggered() ) , SLOT( show_hide_all() ) );
+  addAction(hideAction);
   actionGroup->addAction(hideAction);
 
   QAction *undoAction = actions[EditItemManager::Undo];
@@ -123,7 +126,7 @@ addAction(hideAction);
   // *** create composite ***
   polyLineWidget = new QDockWidget("PolyLines",parent,Qt::WindowStaysOnTopHint);
 
-  polyLineWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  polyLineWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
   polyLineWidget->setObjectName("PolyLines");
   QMainWindow * pwin = dynamic_cast<QMainWindow *>(parent);
   pwin->addDockWidget(Qt::LeftDockWidgetArea, polyLineWidget);
@@ -158,7 +161,7 @@ addAction(hideAction);
   // *** create symbol ***
   symbolWidget = new QDockWidget("Symbols",parent,Qt::WindowStaysOnTopHint);
 
-  symbolWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  symbolWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
   symbolWidget->setObjectName("symbols");
   pwin = dynamic_cast<QMainWindow *>(parent);
   pwin->addDockWidget(Qt::RightDockWidgetArea, symbolWidget);
@@ -191,7 +194,7 @@ addAction(hideAction);
   // *** create text ***
   textWidget = new QDockWidget("Texts",parent,Qt::WindowStaysOnTopHint);
 
-  textWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  textWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
   textWidget->setObjectName("texts");
   pwin = dynamic_cast<QMainWindow *>(parent);
   pwin->addDockWidget(Qt::RightDockWidgetArea, textWidget);
@@ -233,7 +236,7 @@ addAction(hideAction);
   
   compositeWidget_ = new QDockWidget("Composites",parent,Qt::WindowStaysOnTopHint);
 
-  compositeWidget_->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+  compositeWidget_->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
   compositeWidget_->setObjectName("Composites");
   pwin = dynamic_cast<QMainWindow *>(parent);
   pwin->addDockWidget(Qt::RightDockWidgetArea, compositeWidget_);
@@ -436,9 +439,25 @@ void ToolBar::showTexts()
 }
 
 
-void ToolBar::bla()
+void ToolBar::show_hide_all()
 {
-  polyLineWidget->hide();
+  int count_visible = 0;
+
+  if ( polyLineWidget->isVisible() )
+    count_visible++;
+  if ( symbolWidget->isVisible() )
+    count_visible++;
+  if ( textWidget->isVisible() )
+    count_visible++;
+  if ( compositeWidget_->isVisible() )
+    count_visible++;
+
+  bool show = count_visible < 2;
+
+  polyLineWidget->setVisible(show);
+  symbolWidget->setVisible(show);
+  textWidget->setVisible(show);
+  compositeWidget_->setVisible(show);
 
 }
 
