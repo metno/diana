@@ -3570,7 +3570,7 @@ bool neighbourFunctions(int nx, int ny, const float* field,
   // compute=3 : calc probability below (constant[0]=limit)
   // compute=4 : calc percentile (constant[0]=percentile)
 
-  if (fDefined != difield::NONE_DEFINED ) {
+  if (fDefined != difield::ALL_DEFINED ) {
     METLIBS_LOG_ERROR("Field contains undefined values -> neighbour functions can not be used");
     return false;
   }
