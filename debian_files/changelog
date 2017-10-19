@@ -1,5 +1,15 @@
 diana-3.43 (3.43.0~rc2-1) unstable; urgency=low
 
+  * show/hide button for drawing dialogs
+  * Bugfix: SAT plot command
+  * Bugfix: neighbourFunctions NONE_DEFINED -> ALL_DEFINED
+  * export: tooltips for SAVETO
+  * export: configurable save-to-file sizes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 19 Oct 2017 08:00:08 +0200
+
+diana-3.43 (3.43.0~rc2-1) unstable; urgency=low
+
   * bugfix and optimization RasterRGB
   * bugfix GridCollection made to many GridIO instances
   * bugfix vcross value limits min/max
