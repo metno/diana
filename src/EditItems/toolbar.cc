@@ -101,6 +101,11 @@ ToolBar::ToolBar(QWidget *parent)
   QActionGroup *actionGroup = new QActionGroup(this);
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
 
+  QAction *hideAction = new QAction("bla",this);;
+  connect( hideAction, SIGNAL( triggered() ) , SLOT( bla() ) );
+addAction(hideAction);
+  actionGroup->addAction(hideAction);
+
   QAction *undoAction = actions[EditItemManager::Undo];
   addAction(undoAction);
   actionGroup->addAction(undoAction);
@@ -428,6 +433,13 @@ void ToolBar::showSymbols()
 void ToolBar::showTexts()
 {
   textWidget->setVisible(this->isVisible());
+}
+
+
+void ToolBar::bla()
+{
+  polyLineWidget->hide();
+
 }
 
 } // namespace EditItems

@@ -97,7 +97,7 @@ Sat::Sat (const miutil::KeyValue_v& pin) :
   filetype = pin[1].key();
   plotChannels = pin[2].key();
 
-  for (size_t i=4; i<pin.size(); i++) { // search through plotinfo
+  for (size_t i=3; i<pin.size(); i++) { // search through plotinfo
     const miutil::KeyValue& kv = pin[i];
     if (kv.hasValue()) {
       const std::string& key = kv.key();

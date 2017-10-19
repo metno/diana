@@ -75,6 +75,7 @@ private slots:
   void showPolyLines();
   void showSymbols();
   void showTexts();
+  void bla();
 
 private:
   ToolBar(QWidget * = 0);
