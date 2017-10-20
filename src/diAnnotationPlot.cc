@@ -104,7 +104,7 @@ const std::string AnnotationPlot::ENGLISH = "en";
 
 const std::string AnnotationPlot::insertTime(const std::string& s, const miTime& time)
 {
-  std::string lang = ENGLISH;
+  std::string lang;
   return insertTime(s, time, lang);
 }
 

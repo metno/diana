@@ -3361,7 +3361,7 @@ PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
   if (!pc)
     return lc;
 
-  std::string lang = AnnotationPlot::ENGLISH;
+  std::string lang;
   LabelPlotCommand_p tpc = std::make_shared<LabelPlotCommand>();
   for (const KeyValue& kv : pc->all())
     tpc->add(kv.key(), AnnotationPlot::insertTime(kv.value(), time, lang));
