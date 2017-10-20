@@ -10,6 +10,11 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include "config.h"
+
+#define MILOGGER_CATEGORY "diana.PlotCommand"
+#include <miLogger/miLogging.h>
+
 PlotCommand::PlotCommand()
 {
 }
@@ -19,14 +24,34 @@ PlotCommand::~PlotCommand()
 }
 
 namespace {
+//! \return position after "word" (or "word" + 1 whitespace) if text equals to or begins with "word", else 0
+size_t matchFirstWord(const std::string& word, const std::string& text)
+{
+  const size_t len_word = word.size();
+  if (text == word)
+    return len_word;
+  if (text.length() > len_word && std::iswspace(text[len_word]) && diutil::startswith(text, word))
+    return len_word+1;
+  return 0;
+}
+
 size_t identify(const std::string& commandKey, const std::string& text)
 {
-  if (text == commandKey)
-    return commandKey.size()+1;
-  else if (diutil::startswith(text, commandKey + " "))
-    return commandKey.size()+1;
-  else
-    return 0;
+  if (size_t t = matchFirstWord(commandKey, text))
+      return t;
+
+#define NO_UPPER_MAJOR 3
+#define NO_UPPER_MINOR 44
+#if PVERSION_MAJOR == NO_UPPER_MAJOR && PVERSION_MINOR < NO_UPPER_MINOR
+  if (size_t t = matchFirstWord(commandKey, miutil::to_upper(text))) {
+    METLIBS_LOG_WARN("command keys must use upper case starting with diana "
+                     << NO_UPPER_MAJOR << '.' << NO_UPPER_MINOR
+                     << ", please use '" << commandKey << "' in '" << text << "'");
+    return t;
+  }
+#endif
+
+  return 0;
 }
 
 const std::vector<std::string> commandKeysKV = {
