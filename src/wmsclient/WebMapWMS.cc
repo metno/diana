@@ -92,6 +92,11 @@ void swapWms130LatLon(const std::string& crs, float& x1, float& y1, float& x2, f
   }
 }
 
+inline QString toQString(float number)
+{
+  return QString::number(number, 'f', -1);
+}
+
 } // anonymous namespace
 
 // ========================================================================
@@ -340,13 +345,12 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
   float minx = f*r.x1, miny = f*r.y1, maxx = f*r.x2, maxy = f*r.y2;
   if (mVersion == WMS_130)
     swapWms130LatLon(crs, minx, miny, maxx, maxy);
+  QString bbox = toQString(minx) + "," + toQString(miny) + "," + toQString(maxx) + "," + toQString(maxy);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    urlq.addQueryItem("BBOX", QString("%1,%2,%3,%4")
-        .arg(minx).arg(miny).arg(maxx).arg(maxy).replace("+", "%2B").toUtf8());
-    qurl.setQuery(urlq);
+  urlq.addQueryItem("BBOX", bbox /*.replace("+", "%2B")*/ .toUtf8());
+  qurl.setQuery(urlq);
 #else // Qt < 5.0
-    urlq.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4")
-        .arg(minx).arg(miny).arg(maxx).arg(maxy).replace("+", "%2B").toUtf8());
+  urlq.addEncodedQueryItem("BBOX", bbox.replace("+", "%2B").toUtf8());
 #endif
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
