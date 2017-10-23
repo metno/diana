@@ -75,11 +75,12 @@ static const double US_SURVEY_FOOT =  1200.0 / 3937.0;
 
 std::string textAfter(const std::string& haystack, const std::string& key)
 {
-  const size_t pos = haystack.find(key);
+  size_t pos = haystack.find(key);
   if (pos == std::string::npos)
     return std::string();
-  const size_t end = haystack.find(" ", pos+key.size());
-  if (end == std::string::npos)
+  pos += key.size();
+  const size_t end = haystack.find(" ", pos);
+  if (end != std::string::npos)
     return haystack.substr(pos, end-pos);
   else
     return haystack.substr(pos);
