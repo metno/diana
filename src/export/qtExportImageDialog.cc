@@ -306,7 +306,7 @@ void ExportImageDialog::onSaveToChanged(int current)
   bool saveToFile = false;
   if (current >= 0) {
     const ExportCommand& ec = p->ecs[current];
-    saveToFile = !ec.command.isEmpty();
+    saveToFile = ec.command.isEmpty();
     ui->comboSaveTo->setToolTip(ec.tooltip);
   } else {
     ui->comboSaveTo->setToolTip(QString());
