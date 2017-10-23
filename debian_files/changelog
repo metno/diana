@@ -1,3 +1,11 @@
+diana-3.43 (3.43.0-1) unstable; urgency=low
+
+  * WMS: BBOX not in scientific notation
+  * Bugfix: WMS
+  * Bugfix: export dialog filename
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 23 Oct 2017 08:00:08 +0200
+
 diana-3.43 (3.43.0~rc4-1) unstable; urgency=low
 
   * WARN but accept command keys not in upper case
