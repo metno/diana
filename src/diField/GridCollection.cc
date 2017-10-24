@@ -331,7 +331,8 @@ Field * GridCollection::getData(const std::string& reftime, const std::string& p
       if (dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname, param))
       {
         Field* f = ip->second->getData(reftime, param, level, actualtime, elevel, unit);
-        f->validFieldTime = time;
+        if (f!=0)
+          f->validFieldTime = time;
         return f;
       }
     }
