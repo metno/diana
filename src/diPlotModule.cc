@@ -1444,8 +1444,8 @@ void PlotModule::editLastAnnoElement()
 PlotCommand_cpv PlotModule::writeAnnotations(const string& prodname)
 {
   PlotCommand_cpv annoCommands;
-  for (size_t j = 0; j < editVap.size(); j++) {
-    if (PlotCommand_cp pc = editVap[j]->writeAnnotation(prodname))
+  for (AnnotationPlot* ap : editVap) {
+    if (PlotCommand_cp pc = ap->writeAnnotation(prodname))
       annoCommands.push_back(pc);
   }
   return annoCommands;

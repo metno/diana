@@ -388,9 +388,8 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
 
   changeProjection(oldarea);
 
-  const int n = itsLabels.size();
-  for (int i=0; i<n; i++)
-    ostr << itsLabels[i] << "\n";
+  for (PlotCommand_cp pc : itsLabels)
+    ostr << pc->toString() << "\n";
   return ostr.str();
 }
 
