@@ -223,9 +223,12 @@ ToolBar::ToolBar(QWidget *parent)
     }
   }
 
-  textList_->setCurrentRow(0);
-  textList_->item(0)->setSelected(true);
-  setTextType(textList_->item(0));
+  if (textList_->count() > 0) {
+    textList_->setCurrentRow(0);
+    QListWidgetItem* i0 = textList_->item(0);
+    i0->setSelected(true);
+    setTextType(i0);
+  }
 
   // *** create composite **
 
