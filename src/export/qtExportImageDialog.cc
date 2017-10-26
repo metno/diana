@@ -167,7 +167,7 @@ ExportCommands parseCommands(QStringList commands)
       } else if (key == "product") {
         ec.addProduct(kv.value());
       } else if (key == "size") {
-        sizes = ec.addSize(kv.value());
+        ec.addSize(kv.value());
       }
     }
     if (!products.isEmpty()) {
