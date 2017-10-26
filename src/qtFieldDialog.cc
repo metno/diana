@@ -3335,8 +3335,8 @@ bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf,
       sf.hourOffset = kv.toInt();
     } else if (kv.key() == "hour.diff" && CommandParser::isInt(kv.value())) {
       sf.hourDiff = kv.toInt();
-    } else if (kv.key() == "allTimeSteps") {
-      allTimeSteps = kv.toBool();
+    } else if (kv.key() == "alltimesteps") {
+      allTimeSteps |= kv.toBool();
     } else if (kv.key() != "unknown") {
       miutil::add(sf.fieldOpts, kv.key(), kv.value());
     }
