@@ -8,7 +8,7 @@ class LabelPlotCommand : public KVListPlotCommand
 public:
   LabelPlotCommand();
 
-  // !text without "LABEL" prefix
+  //! text without "LABEL" prefix
   LabelPlotCommand(const std::string& text);
 
   virtual LabelPlotCommand& add(const std::string& key, const std::string& value);

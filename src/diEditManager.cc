@@ -433,8 +433,8 @@ void EditManager::readCommandFile(EditProduct & ep)
       ep.OKstrings.push_back(cmd);
   }
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
-  for (size_t ari=0; ari<ep.labels.size(); ari++)
-    METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
+  for (PlotCommand_cp cmd : ep.labels)
+    METLIBS_LOG_DEBUG("   " << cmd->toString());
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
 }
 

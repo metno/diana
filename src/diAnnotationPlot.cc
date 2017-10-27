@@ -1185,6 +1185,9 @@ PlotCommand_cp AnnotationPlot::writeAnnotation(const std::string& prodname)
   }
   cmd->add(labelstrings);
 
+  // we want only plotoptions actually used in AnnotationPlot
+  cmd->add(poptions.toKeyValueListForAnnotation());
+
   return cmd;
 }
 

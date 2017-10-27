@@ -361,6 +361,7 @@ public:
   PlotOptions();
 
   miutil::KeyValue_v toKeyValueList();
+  miutil::KeyValue_v toKeyValueListForAnnotation() const;
 
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */

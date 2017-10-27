@@ -865,6 +865,33 @@ void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::vect
   addOption(ostr, key, ov.str());
 }
 
+miutil::KeyValue_v PlotOptions::toKeyValueListForAnnotation() const
+{
+  miutil::KeyValue_v ostr;
+  miutil::add(ostr, key_tcolour, textcolour.Name());
+  miutil::add(ostr, key_fcolour, fillcolour.Name());
+  miutil::add(ostr, key_pcolour, fillcolour.Name()); // TODO why is this the same as fcolour?
+  miutil::add(ostr, key_bcolour, bordercolour.Name());
+  miutil::add(ostr, key_fontname, fontname);
+  miutil::add(ostr, key_fontface, fontface);
+  miutil::add(ostr, key_fontsize, fontsize);
+
+  if (h_align == align_left)
+    miutil::add(ostr, key_h_alignment, "left");
+  else if (h_align == align_right)
+    miutil::add(ostr, key_h_alignment, "right");
+  else
+    miutil::add(ostr, key_h_alignment, "center");
+
+  if (v_align == align_top)
+    miutil::add(ostr, key_v_alignment, "top");
+  else if (v_align == align_bottom)
+    miutil::add(ostr, key_v_alignment, "bottom");
+  else
+    miutil::add(ostr, key_v_alignment, "center");
+  return ostr;
+}
+
 miutil::KeyValue_v PlotOptions::toKeyValueList()
 {
   Linetype defaultLinetype = Linetype::getDefaultLinetype();
