@@ -3519,7 +3519,13 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields, cons
   const size_t fsize = nx * ny;
   const size_t lsize = limits.size(), nFields = fields.size();
 
-  if ((lsize != 1 && lsize != 2) || (compute < 1 || compute > 6)) {
+  const bool check_between = (lsize >= 2) && (compute == 3 || compute == 6);
+  const bool check_above   = (lsize >= 1) && (compute == 1 || compute == 4 || check_between);
+  const bool check_below   = (lsize >= 1) && (compute == 2 || compute == 5 || check_between);
+  const float value_above = limits[0];
+  const float value_below = check_between ? limits[1] : limits[0];
+
+  if (!(check_above || check_below)) {
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (size_t i = 0; i < fsize; i++)
       fres[i] = undef;
@@ -3535,8 +3541,10 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields, cons
     for (size_t j = 0; j <nFields; j++) {
       if (fDefinedIn[j] != difield::NONE_DEFINED) {
         nfields_defined += 1;
-        if (difield::is_defined(fields[j][i])
-            && fields[j][i] > limits[0] && (lsize == 1 || fields[j][i] < limits[1]))
+        const float value = fields[j][i];
+        if ((value != undef)
+            && (!check_above || value > value_above)
+            && (!check_below || value < value_below))
         {
           fres[i] += 1;
         }
@@ -3547,8 +3555,6 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields, cons
       fres[i] = undef;
       n_undefined += 1;
     } else {
-      if (compute == 2 || compute == 5)
-        fres[i] = nfields_defined - fres[i];
       if (compute < 4)
         fres[i] /= (nfields_defined/100.0);
     }

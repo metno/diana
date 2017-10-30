@@ -420,3 +420,91 @@ TEST(FieldFunctionsTest, MapRatios)
   for (int i=0; i<nx*ny; ++i)
     EXPECT_FLOAT_EQ(ex_jacobian[i], fout0[i]) << "i=" << i;
 }
+
+TEST(FieldCalculationsTest, Probability)
+{
+  const float UNDEF = 123456;
+
+  const int N_ENS = 10;
+  float fields[N_ENS];
+  std::vector<float*> infields;
+  for (size_t i=0; i<N_ENS; ++i)
+    infields.push_back(&fields[i]);
+
+  std::fill(fields, fields+N_ENS, UNDEF);
+  fields[2] = 940;
+  fields[4] = 3500;
+
+  std::vector<difield::ValuesDefined> defined(N_ENS, difield::SOME_DEFINED);
+  defined[0] = difield::NONE_DEFINED;
+  defined[8] = difield::NONE_DEFINED;
+
+  std::vector<float> limits(2, 3000);
+  float field_out = UNDEF;
+  difield::ValuesDefined defined_out = difield::NONE_DEFINED;
+  EXPECT_TRUE(FieldCalculations::probability(/*compute=*/2/*probability_below*/,
+                                             /*nx=*/1, /*ny=*/1, infields, defined,
+                                             limits, &field_out, defined_out, UNDEF));
+  EXPECT_NEAR(100.0*1/8, field_out, 1e-6);
+  EXPECT_EQ(difield::ALL_DEFINED, defined_out);
+
+  field_out = UNDEF;
+  defined_out = difield::NONE_DEFINED;
+  EXPECT_TRUE(FieldCalculations::probability(/*compute=*/1/*probability_above*/,
+                                             /*nx=*/1, /*ny=*/1, infields, defined,
+                                             limits, &field_out, defined_out, UNDEF));
+  EXPECT_NEAR(100.0*1/8, field_out, 1e-6);
+  EXPECT_EQ(difield::ALL_DEFINED, defined_out);
+
+  field_out = UNDEF;
+  defined_out = difield::NONE_DEFINED;
+  limits[0] = 4000;
+  EXPECT_TRUE(FieldCalculations::probability(/*compute=*/2/*probability_below*/,
+                                             /*nx=*/1, /*ny=*/1, infields, defined,
+                                             limits, &field_out, defined_out, UNDEF));
+  EXPECT_NEAR(100.0*2/8, field_out, 1e-6);
+  EXPECT_EQ(difield::ALL_DEFINED, defined_out);
+
+  field_out = UNDEF;
+  defined_out = difield::NONE_DEFINED;
+  limits[0] =  500;
+  limits[1] = 4000;
+  EXPECT_TRUE(FieldCalculations::probability(/*compute=*/3/*probability_between*/,
+                                             /*nx=*/1, /*ny=*/1, infields, defined,
+                                             limits, &field_out, defined_out, UNDEF));
+  EXPECT_NEAR(100.0*2/8, field_out, 1e-6);
+  EXPECT_EQ(difield::ALL_DEFINED, defined_out);
+}
+
+TEST(FieldCalculationsTest, Probability12)
+{
+  const float UNDEF = 123456;
+
+  const int N_ENS = 10;
+  float fields[N_ENS];
+  std::vector<float*> infields;
+  for (size_t i=0; i<N_ENS; ++i)
+    infields.push_back(&fields[i]);
+
+  std::fill(fields, fields+N_ENS, 12);
+  fields[3] = fields[5] = UNDEF;
+
+  std::vector<difield::ValuesDefined> defined(N_ENS, difield::SOME_DEFINED);
+
+  std::vector<float> limits(1, 3000);
+  float field_out = UNDEF;
+  difield::ValuesDefined defined_out = difield::NONE_DEFINED;
+  EXPECT_TRUE(FieldCalculations::probability(/*compute=*/2/*probability_below*/,
+                                             /*nx=*/1, /*ny=*/1, infields, defined,
+                                             limits, &field_out, defined_out, UNDEF));
+  EXPECT_NEAR(80, field_out, 1e-6);
+  EXPECT_EQ(difield::ALL_DEFINED, defined_out);
+
+  field_out = UNDEF;
+  defined_out = difield::NONE_DEFINED;
+  EXPECT_TRUE(FieldCalculations::probability(/*compute=*/1/*probability_above*/,
+                                             /*nx=*/1, /*ny=*/1, infields, defined,
+                                             limits, &field_out, defined_out, UNDEF));
+  EXPECT_NEAR(0, field_out, 1e-6);
+  EXPECT_EQ(difield::ALL_DEFINED, defined_out);
+}

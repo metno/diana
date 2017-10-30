@@ -4,6 +4,9 @@ namespace difield {
 
 const float UNDEF = 1.0e35f;
 
+inline bool is_defined(float f)
+{ return (f < UNDEF); }
+
 ValuesDefined checkDefined(const float* data, size_t n)
 {
   // check undef
