@@ -1,3 +1,12 @@
+diana-3.43 (3.43.2-1) unstable; urgency=low
+
+  * Bugfix: Times for calc. parameters
+  * Bugfix: FieldCalculations::probability
+  * Bugfix: colours for annotations
+  * Bugfix: allTimeSteps handling
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 30 Oct 2017 08:00:08 +0100
+
 diana-3.43 (3.43.1-1) unstable; urgency=low
 
   * Bugfix: write LABEL commands for sigkart
