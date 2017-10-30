@@ -407,6 +407,9 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
         FieldFunctions::FieldSpec fs;
         FieldFunctions::splitFieldSpecs(pn, fs);
         const std::set<miutil::miTime> settime2 = getTimes(reftime, fs.paramName);
+        //Don't use parameters with no time axis
+        if (settime2.size()==0)
+          continue;
         if (firstInput) {
           settime = settime2;
           firstInput = false;
