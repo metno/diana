@@ -34,11 +34,11 @@
 #----------------------------------------------------------------------------------
 
 
-prefix  = ${DIANADIR} || @prefix@
-exec_prefix     = @prefix@
-etc_dir         = @sysconfdir@
-share_dir       = @datarootdir@
-bin_dir         = @bindir@
+prefix  = ${DIANADIR} || @CMAKE_INSTALL_PREFIX@
+exec_prefix     = @CMAKE_INSTALL_PREFIX@
+etc_dir         = ${prefix}/@CMAKE_INSTALL_SYSCONFDIR@
+share_dir       = ${prefix}/@CMAKE_INSTALL_DATAROOTDIR@
+bin_dir         = ${exec_prefix}/@CMAKE_INSTALL_BINDIR@
 share_diana_dir = $(share_dir)/diana/@PVERSION@
 OPDATA    = $(share_diana_dir)/demodata
 MAPDIR    = $(share_dir)/diana/maps

@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diGEOtiff.h 1 2009-09-08 08:06:42Z ariunaa.bertelsen@smhi.se $
-
   Copyright (C) 2006 met.no
 
   Contact information:

@@ -1,0 +1,19 @@
+
+INSTALL (FILES pixmaps/diana.png
+  DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/pixmaps
+  RENAME diana-${PVERSION}.png
+)
+
+SET (DESKTOPFILE applications/metno-diana-${PVERSION}.desktop)
+CONFIGURE_FILE (applications/metno-diana-versioned.desktop.in
+  ${DESKTOPFILE}
+  @ONLY
+)
+
+INSTALL (FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOPFILE}
+  DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/applications
+)
+
+ADD_SUBDIRECTORY(diana)
+ADD_SUBDIRECTORY(doc)

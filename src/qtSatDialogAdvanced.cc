@@ -28,9 +28,7 @@
  */
 //#define dSatDlg
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"

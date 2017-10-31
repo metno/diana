@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: qtAddtoMenu.h 2934 2012-05-21 09:07:40Z davidb $
-
   Copyright (C) 2006 met.no
 
   Contact information:

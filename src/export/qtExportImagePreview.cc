@@ -2,7 +2,7 @@
 
 #include <QEvent>
 
-#include "export/export_image_preview.ui.h"
+#include "ui_export_image_preview.h"
 
 ExportImagePreview::ExportImagePreview(QImage image, QWidget *parent)
   : QDialog(parent)

@@ -1,0 +1,3 @@
+#include <diBuild.h>
+const char diana_build_string[] = "@BUILD_DATE@";
+const char diana_build_commit[] = "@GIT_COMMIT@";

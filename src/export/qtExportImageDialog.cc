@@ -44,7 +44,7 @@
 
 #include <cmath>
 
-#include "export/export_image_dialog.ui.h"
+#include "ui_export_image_dialog.h"
 
 #define MILOGGER_CATEGORY "diana.ExportImageDialog"
 #include <miLogger/miLogging.h>

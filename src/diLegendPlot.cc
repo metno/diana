@@ -31,9 +31,7 @@
   DESCRIPTION:    Plots classification table for classified data
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diLegendPlot.h"
 #include "diImageGallery.h"

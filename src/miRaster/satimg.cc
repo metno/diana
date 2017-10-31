@@ -1,8 +1,6 @@
 /*
   libmiRaster - met.no tiff interface
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -57,9 +55,7 @@
  * AUTHOR: Oystein Godoy, DNMI, 05/05/1995, changed by LB
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "satimg.h"
 #include <tiffio.h>

@@ -6,22 +6,14 @@
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
-	./autogen.sh
-	./configure $(confflags) \
-	    --disable-silent-rules \
-	    --with-geotiff \
-            --enable-obs-bufr \
-            --enable-perl \
-	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+	dh_auto_configure -- \
+	    -DENABLE_GEOTIFF=1 \
+	    -DENABLE_OBS_BUFR=1 \
+	    -DENABLE_PERL=1
 
 .PHONY: override_dh_auto_test
 override_dh_auto_test:
-	if dh_auto_test; then \
-	  echo "dh_auto_test was successful" ; \
-	else \
-	  make -C test display-testsuite-logs ; \
-	  false ; \
-	fi
+	ctest --output-on-failure
 
 .PHONY: override_dh_strip
 override_dh_strip:

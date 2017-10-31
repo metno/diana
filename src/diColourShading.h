@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diColourShading.h 3906 2012-08-02 17:35:03Z lisbethb $
-
   Copyright (C) 2006-2013 met.no
 
   Contact information:

@@ -31,9 +31,7 @@
 //#endif
 //#ifdef ROADOBS
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diObsRoad.h"
 #include "diLabelPlotCommand.h"

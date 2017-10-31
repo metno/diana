@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-#include "poly_contouring.hh"
+#include "poly_contouring.h"
 
 class DiGLPainter;
 

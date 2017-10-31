@@ -4,7 +4,6 @@ Makefile.PL
 MANIFEST
 ppport.h
 README
-HACKS
 control
 t/Metno-Bdiana.t
 lib/Metno/Bdiana.pm

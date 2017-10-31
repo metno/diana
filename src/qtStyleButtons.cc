@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-#include "linestyledialog.ui.h"
+#include "ui_linestyledialog.h"
 
 #define MILOGGER_CATEGORY "diana.StyleButtons"
 #include <miLogger/miLogging.h>

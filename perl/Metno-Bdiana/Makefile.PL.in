@@ -1,0 +1,17 @@
+use 5.008008;
+use ExtUtils::MakeMaker;
+# See lib/ExtUtils/MakeMaker.pm for details of how to influence
+# the contents of the Makefile that is written.
+# Or http://perldoc.perl.org/ExtUtils/MakeMaker.html
+WriteMakefile(
+    NAME              => 'Metno::Bdiana',
+    VERSION_FROM      => 'lib/Metno/Bdiana.pm', # finds $VERSION
+    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    ABSTRACT_FROM     => 'lib/Metno/Bdiana.pm', # retrieve abstract from module
+    AUTHOR            => 'Heiko Klein <heiko.klein@met.no>',
+    INSTALLDIRS       => 'vendor',
+    PREFIX            => '@CMAKE_INSTALL_PREFIX@',
+    DEFINE            => '-Wall',
+    INC               => '-I@CMAKE_SOURCE_DIR@/src',
+    LIBS              => ['-L@CMAKE_BINARY_DIR@/src -ldiana-@PVERSION@ -Wl,-rpath=@CMAKE_BINARY_DIR@/src -Wl,-rpath=@LIBDIANA_DIR@'],
+);

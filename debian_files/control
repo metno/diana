@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 9),
- autoconf (>=2.62), automake (>= 1.11), libtool (>= 2.4.2),
+ cmake,
  pkg-config,
  qtbase5-dev,
  libqt5opengl5-dev,
@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 9),
  metlibs-putools-dev (>= 7.1.0),
  metlibs-milogger-dev (>= 6.0.0),
  metlibs-pudatatypes-dev (>= 6.0.0),
- libfimex-0.64-dev (>= 0.64.0),
+ libfimex-dev (>= 0.65.0),
  libboost-dev,
  libboost-date-time-dev,
  libboost-system-dev,
@@ -28,7 +28,6 @@ Build-Depends: debhelper (>= 9),
  libproj-dev,
  libshp-dev,
  libemos-dev,
- cmake,
  libgtest-dev
 Standards-Version: 3.9.2
 

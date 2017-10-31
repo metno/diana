@@ -43,7 +43,7 @@ class VcrossWindow;
 class VcrossWindowInterface : public VcrossInterface
 {
   Q_OBJECT
-  Q_INTERFACES(VcrossInterface)
+  //Q_INTERFACES(VcrossInterface)
 
 public:
   VcrossWindowInterface();

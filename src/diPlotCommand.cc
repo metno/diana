@@ -10,7 +10,7 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include "config.h"
+#include "diana_config.h"
 
 #define MILOGGER_CATEGORY "diana.PlotCommand"
 #include <miLogger/miLogging.h>

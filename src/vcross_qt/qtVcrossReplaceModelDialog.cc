@@ -29,9 +29,7 @@
 
 //#define DEBUGPRINT
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "vcross_qt/qtVcrossReplaceModelDialog.h"
 #include "vcross_qt/qtVcrossModelPage.h"
@@ -50,7 +48,7 @@
 #define MILOGGER_CATEGORY "diana.VcrossReplaceModelDialog"
 #include <miLogger/miLogging.h>
 
-#include "vcross_replace_model_dialog.ui.h"
+#include "ui_vcross_replace_model_dialog.h"
 
 #include "forover.xpm"
 #include "bakover.xpm"

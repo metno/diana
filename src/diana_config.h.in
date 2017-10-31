@@ -1,0 +1,30 @@
+#ifndef DIANA_CONFIG_H
+#define DIANA_CONFIG_H 1
+
+#cmakedefine BUFROBS 1
+
+#cmakedefine GEOTIFF 1
+#cmakedefine HAVE_LIBGEOTIFF_GEOTIFF_H 1
+#cmakedefine HAVE_GEOTIFF_GEOTIFF_H 1
+#cmakedefine HAVE_GEOTIFF_H 1
+
+#cmakedefine HAVE_OPENMP
+
+#cmakedefine HDF5FILE 1
+#cmakedefine SMHI 1
+#cmakedefine ROADOBS 1
+#cmakedefine NEWARK_INC 1
+
+#define PVERSION "@PVERSION@"
+#define PVERSION_MAJOR_DOT_MINOR "@PVERSION_MAJOR_DOT_MINOR@"
+
+#define PACKAGE_NAME "diana"
+#define PACKAGE_VERSION "@PVERSION_FULL@"
+#define VERSION PACKAGE_VERSION
+
+#define SYSCONFDIR "@CMAKE_INSTALL_FULL_SYSCONFDIR@"
+
+// always defined
+#define FIMEX 1
+
+#endif /* DIANA_CONFIG_H */

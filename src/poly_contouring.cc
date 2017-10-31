@@ -1,5 +1,5 @@
 
-#include "poly_contouring.hh"
+#include "poly_contouring.h"
 
 #include <cassert>
 #include <list>

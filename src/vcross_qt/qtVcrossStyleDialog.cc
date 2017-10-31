@@ -6,7 +6,7 @@
 #define MILOGGER_CATEGORY "diana.VcrossStyleDialog"
 #include <miLogger/miLogging.h>
 
-#include "vcross_style_dialog.ui.h"
+#include "ui_vcross_style_dialog.h"
 #include "felt.xpm"
 
 namespace {

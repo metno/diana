@@ -30,9 +30,7 @@
   Input for adding complex text
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diController.h"
 #include "qtComplexPressureText.h"

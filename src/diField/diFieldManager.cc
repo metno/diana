@@ -29,6 +29,9 @@
 
 //#define DEBUGPRINT
 //#define DEBUGFDIFF
+
+#include "diana_config.h"
+
 #include "diFieldManager.h"
 
 #include "diMetConstants.h"
@@ -51,9 +54,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif  /* HAVE_CONFIG_H */
+#include "diana_config.h"
 
 #ifdef FIMEX
 #include "FimexIO.h"

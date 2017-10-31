@@ -27,9 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "qtVcrossWindow.h"
 
@@ -74,7 +72,7 @@
 #define MILOGGER_CATEGORY "diana.VcrossWindow"
 #include <miLogger/miLogging.h>
 
-#include "vcross_window.ui.h"
+#include "ui_vcross_window.h"
 
 #include "addempty.xpm"
 #include "bakover.xpm"

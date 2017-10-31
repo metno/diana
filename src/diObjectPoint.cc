@@ -29,9 +29,7 @@
 
 /* Created at Thu Jul 18 14:14:53 2002 */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diObjectPoint.h"
 

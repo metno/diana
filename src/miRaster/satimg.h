@@ -1,8 +1,6 @@
 /*
   libmiRaster - met.no tiff interface
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:

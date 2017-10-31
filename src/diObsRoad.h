@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diObsAscii.h 1 2007-09-12 08:06:42Z lisbethb $
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -28,6 +26,7 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef diObsRoad_h
 #define diObsRoad_h
 

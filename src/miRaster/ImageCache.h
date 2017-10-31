@@ -1,8 +1,6 @@
 /*
   ImageCache
 
-  $Id: satimg.h 3 2007-09-13 08:15:31Z juergens $
-
   Copyright (C) 2006 met.no
 
   Contact information:

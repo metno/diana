@@ -129,6 +129,6 @@ struct CrossSection
 };
 typedef std::vector<CrossSection> CrossSection_v;
 
-Q_DECLARE_INTERFACE(VcrossInterface, "metno.diana.VcrossInterface/1.0");
+//Q_DECLARE_INTERFACE(VcrossInterface, "metno.diana.VcrossInterface/1.0");
 
 #endif

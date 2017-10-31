@@ -28,9 +28,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "bdiana_capi.h"
 
@@ -832,7 +830,7 @@ static void printUsage(bool showexample)
     "***************************************************",
     "",
     "Usage: bdiana -i <job-filename> [-s <setup-filename>]" // no "," / newline here
-    " [-v] [-display xhost:display] [-example] [key=value key=value]",
+    " [-v] [-example] [key=value key=value]",
     "",
     "-i                : job-control file. See '-example' below",
     "-s                : setupfile for diana",

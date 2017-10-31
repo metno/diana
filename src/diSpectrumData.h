@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id: diSpectrumFile.h 3822 2013-11-01 19:42:36Z alexanderb $
-
  Copyright (C) 2006 met.no
 
  Contact information:

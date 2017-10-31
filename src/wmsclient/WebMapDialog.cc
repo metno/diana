@@ -40,7 +40,7 @@
 
 #include <sstream>
 
-#include "wmsclient/webmap_dialog.ui.h"
+#include "ui_webmap_dialog.h"
 #include "icon_wms_32.xpm"
 
 #define MILOGGER_CATEGORY "diana.WebMapDialog"

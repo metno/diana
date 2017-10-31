@@ -27,9 +27,7 @@
 
 // glText.cc : Class definition for abstract GL-rendered fonts
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diFontFamily.h"
 

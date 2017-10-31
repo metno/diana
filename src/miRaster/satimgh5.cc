@@ -52,9 +52,7 @@
  * AUTHOR: SMHI, 2008-2009
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "satimgh5.h"
 

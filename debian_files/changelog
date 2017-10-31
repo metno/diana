@@ -1,3 +1,9 @@
+diana-3.44 (3.44.0~a1-1) unstable; urgency=low
+
+  * cmake build
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 17 Oct 2017 08:00:08 +0200
+
 diana-3.43 (3.43.2-1) unstable; urgency=low
 
   * Bugfix: Times for calc. parameters

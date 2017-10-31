@@ -2,8 +2,6 @@
 /*
   libmiRaster - met.no tiff interface
 
-  $Id: satgeotiff.cc 2348 2009-09-07 07:01:38Z ariunaa.bertelsen@smhi.se $
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -60,9 +58,7 @@
  * AUTHOR: Oystein Godoy, DNMI, 05/05/1995, changed by LB, changed by SMHI/AB in 09/09/2009
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "satgeotiff.h"
 

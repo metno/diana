@@ -1,0 +1,28 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.Dd Oct 17, 2017
+.Os
+.Dt BDIANA 1
+.Sh NAME
+.Nm bdiana-@PVERSION@
+.Nd MET Norway meteorological production software
+.Sh SYNOPSIS
+.Nm
+[\fB\-v\fR]
+[\fB\-L\fR \fIlog4cpp.properties\fR]
+[\fB\-s\fR \fIsetupfile\fR]
+[\fB\-i\fR \fIjobfile\fR]
+.Sh DESCRIPTION
+.Nm
+is a meteorological production software developed by MET Norway, SMHI,
+and others.
+
+Please see the Diana wiki for help.
+
+.Sh SEE ALSO
+https://github.com/metno/diana, https://wiki.met.no/diana/start
+
+.Sh AUTHOR
+Diana is written at Met.no, the Norwegian Meteorological Institute,
+and SMHI, the Swedish Meteorological and Hydrological Institute.  This
+manual page was written by Alexander B\(:urger
+<alexander.buerger@met.no> in October 2017.

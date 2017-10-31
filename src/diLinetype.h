@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diLinetype.h 3273 2010-05-18 17:32:21Z dages $
-
   Copyright (C) 2006 met.no
 
   Contact information:

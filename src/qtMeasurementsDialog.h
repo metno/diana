@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: qtTrajectoryDialog.h 1008 2009-01-20 06:59:41Z johan.karlsteen@smhi.se $
-
   Copyright (C) 2006 met.no
 
   Contact information:

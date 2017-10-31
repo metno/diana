@@ -41,9 +41,7 @@
 #include <QUrlQuery>
 #endif
 
-#ifdef HAVE_CONFIG_H
-#include "config.h" // for PVERSION
-#endif
+#include "diana_config.h"
 
 WebMapDimension::WebMapDimension(const std::string& identifier)
   : mIdentifier(identifier)

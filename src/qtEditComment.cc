@@ -34,9 +34,7 @@
  */
 
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "qtEditComment.h"
 #include "qtToggleButton.h"

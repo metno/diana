@@ -5,7 +5,7 @@
 #include "diPolyContouring.h"
 #include "diPlotOptions.h"
 #include <diField/VcrossData.h>
-#include "poly_contouring.hh"
+#include "poly_contouring.h"
 
 #include <QtCore/QPointF>
 #include <QtGui/QPainter>

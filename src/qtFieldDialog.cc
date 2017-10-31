@@ -28,9 +28,7 @@
  */
 //#define DEBUGREDRAW
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "qtFieldDialog.h"
 

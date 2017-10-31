@@ -30,9 +30,7 @@
 #ifndef RASTERPLOT_H
 #define RASTERPLOT_H 1
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diField/diGridReprojection.h"
 #include "diField/diArea.h"

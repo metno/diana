@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diController.cc 3685 2013-09-11 17:19:09Z davidb $
-
   Copyright (C) 2013 met.no
 
   Contact information:

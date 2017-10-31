@@ -14,7 +14,7 @@
 #define MILOGGER_CATEGORY "diana.VcrossStyleWidget"
 #include <miLogger/miLogging.h>
 
-#include "vcross_style_widget.ui.h"
+#include "ui_vcross_style_widget.h"
 
 //#define DISABLE_EXTREMES 1
 #define DISABLE_EXTREME_LIMITS 1

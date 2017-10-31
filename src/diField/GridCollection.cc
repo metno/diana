@@ -5,6 +5,8 @@
  *      Author: audunc
  */
 
+#include "diana_config.h"
+
 #include "GridCollection.h"
 #include "GridIO.h"
 #ifdef FIMEX

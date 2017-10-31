@@ -2,8 +2,6 @@
 #define DIFIELDEXCEPTIONS_H_
 
 /*
-  $Id$
-
   Copyright (C) 2007 met.no
 
   Contact information:

@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QStringListModel>
 
-#include "vcross_modelpage.ui.h"
+#include "ui_vcross_modelpage.h"
 
 #define MILOGGER_CATEGORY "diana.VcrossAddPlotDialog"
 #include <miLogger/miLogging.h>

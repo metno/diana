@@ -1,8 +1,6 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id: diPlotOptions.h 369 2007-11-02 08:55:24Z lisbethb $
-
  Copyright (C) 2006 met.no
 
  Contact information:

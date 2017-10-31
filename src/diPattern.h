@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diPattern.h 3779 2012-01-23 09:44:53Z davidb $
-
   Copyright (C) 2006 met.no
 
   Contact information:

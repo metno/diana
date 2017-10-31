@@ -28,7 +28,7 @@
 */
 
 // Needed for construction of version-specific paths:
-#include "config.h"
+#include "diana_config.h"
 
 #include "kml.h"
 #include "drawingitembase.h"

@@ -1,0 +1,16 @@
+
+FIND_PACKAGE(Doxygen)
+IF (DOXYGEN_FOUND)
+  FIND_PROGRAM (QHG_EXECUTABLE qhelpgenerator HINTS ${QT_BINARY_DIR})
+  IF (QHG_EXECUTABLE)
+    SET (QHG_LOCATION "${QHG_EXECUTABLE}")
+  ELSE ()
+    SET (QHG_LOCATION "")
+  ENDIF ()
+
+  CONFIGURE_FILE("Doxyfile.in" "Doxyfile" @ONLY)
+  ADD_CUSTOM_TARGET(doc
+    ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+    COMMENT "Generating documentation with Doxygen" VERBATIM
+  )
+ENDIF ()
