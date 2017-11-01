@@ -1,3 +1,11 @@
+diana-3.43 (3.43.3-1) unstable; urgency=low
+
+  * Bugfix: workaround for bdiana language problem
+  * Bugfix: getFieldTimes
+  * Bugfix: frame around annotation box
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 01 Nov 2017 08:00:08 +0100
+
 diana-3.43 (3.43.2-1) unstable; urgency=low
 
   * Bugfix: Times for calc. parameters
