@@ -300,6 +300,8 @@ printOptions priop;
 
 std::string logfilename;
 
+static std::string setup_language;
+
 /*!
  * Write one miTime per line to an output stream. At present, this producses utf-8.
  */
@@ -769,9 +771,11 @@ static bool readSetup(const std::string& constSetupfile, printerManager& printma
   }
 
   // language from setup
-  if (not LocalSetupParser::basicValue("language").empty()) {
-    std::string lang = LocalSetupParser::basicValue("language");
-    { miTime x; x.setDefaultLanguage(lang.c_str()); }
+  const std::string language = LocalSetupParser::basicValue("language");
+  if (!language.empty()) {
+    setup_language = language;
+    miTime x;
+    x.setDefaultLanguage(setup_language.c_str());
   }
 
   return true;
