@@ -34,7 +34,7 @@ METNO_FIND_QT(Gui Network OpenGL PrintSupport Svg Xml XmlPatterns)
 
 SET(PKGS
   metlibs-milogger>=6.0.0
-  metlibs-putools>=7.1.0
+  metlibs-putools>=8.0.0
   metlibs-pudatatypes>=6.0.0
 
   libtiff-4

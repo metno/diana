@@ -767,9 +767,9 @@ static bool readSetup(const std::string& constSetupfile, printerManager& printma
   }
 
   // language from setup
-  if (not LocalSetupParser::basicValue("language").empty()) {
-    std::string lang = LocalSetupParser::basicValue("language");
-    { miTime x; x.setDefaultLanguage(lang.c_str()); }
+  const std::string language = LocalSetupParser::basicValue("language");
+  if (!language.empty()) {
+    miTime::setDefaultLanguage(language);
   }
 
   return true;
