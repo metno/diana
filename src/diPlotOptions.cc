@@ -874,6 +874,11 @@ miutil::KeyValue_v PlotOptions::toKeyValueListForAnnotation() const
   miutil::add(ostr, key_fontface, fontface);
   miutil::add(ostr, key_fontsize, fontsize);
 
+  if      (polystyle == poly_fill)   miutil::add(ostr, key_polystyle, "fill");
+  else if (polystyle == poly_border) miutil::add(ostr, key_polystyle, "border");
+  else if (polystyle == poly_both)   miutil::add(ostr, key_polystyle, "both");
+  else if (polystyle == poly_none)   miutil::add(ostr, key_polystyle, "none");
+
   if (h_align == align_left)
     miutil::add(ostr, key_h_alignment, "left");
   else if (h_align == align_right)
