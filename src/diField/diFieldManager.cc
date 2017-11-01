@@ -575,13 +575,20 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
 
     GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSource);
     if (pgc) {
+
+      std::string refTimeStr = frq.refTime;
+       if (refTimeStr.empty()) {
+         refTimeStr = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
+         pgc = getGridCollection(frq.modelName, refTimeStr);
+       }
+
       std::string paramName = frq.paramName;
       // if fieldrequest.paramName is a standard_name, find variable_name
       if (frq.standard_name) {
-        if ( !pgc->standardname2variablename(frq.refTime, frq.paramName, paramName) )
+        if ( !pgc->standardname2variablename(refTimeStr, frq.paramName, paramName) )
           continue;
       }
-      tNormal = pgc->getTimes(frq.refTime, paramName);
+      tNormal = pgc->getTimes(refTimeStr, paramName);
     }
     METLIBS_LOG_DEBUG(LOGVAL(tNormal.size()));
 
