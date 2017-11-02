@@ -19,7 +19,7 @@ bool eq(const char* a, const char* b)
 // static
 QWidget* DiPaintable::createWidget(DiPaintable* p, QWidget* parent)
 {
-  static int widget_type = 1;
+  static int widget_type = -1;
   if (widget_type < 0) {
     const char* USE_PAINTGL = getenv("USE_PAINTGL");
     if (!USE_PAINTGL || eq(USE_PAINTGL, "0") || eq(USE_PAINTGL, "no") || eq(USE_PAINTGL, "false")) {
