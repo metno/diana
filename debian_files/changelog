@@ -1,3 +1,9 @@
+diana-3.43 (3.43.4-1) unstable; urgency=low
+
+  * re-enable OpenGL GUI
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 02 Nov 2017 08:00:08 +0100
+
 diana-3.43 (3.43.3-1) unstable; urgency=low
 
   * Bugfix: workaround for bdiana language problem
