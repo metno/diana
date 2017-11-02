@@ -1,4 +1,5 @@
 
+#define GL_GLEXT_PROTOTYPES // needed for glWindowPos2i, which is OpenGL 1.4
 #include "diOpenGLPainter.h"
 
 #include "diColour.h"
@@ -6,8 +7,7 @@
 #include "diLinetype.h"
 #include "diTesselation.h"
 
-#include <QGLWidget>
-#include <QGLContext>
+#include <QGLWidget> // for QGlWidget::convertToGLFormat
 #include <QImage>
 #include <QPolygonF>
 #include <QVector2D>
@@ -384,7 +384,14 @@ void DiOpenGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
   delete[] countpos;
 }
 
-void DiOpenGLPainter::drawScreenImage(const QPointF&, const QImage&)
+void DiOpenGLPainter::drawScreenImage(const QPointF& point, const QImage& image)
 {
-  // FIXME maybe implement
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glShadeModel(GL_FLAT);
+
+  QImage glimage = QGLWidget::convertToGLFormat(image);
+  glPixelZoom(1, 1);
+  glWindowPos2f(point.x(), point.y()); // this is opengl 1.4
+  glDrawPixels(glimage.width(), glimage.height(), GL_RGBA, gl_UNSIGNED_BYTE, glimage.bits());
 }
