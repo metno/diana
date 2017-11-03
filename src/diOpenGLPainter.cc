@@ -28,16 +28,6 @@ DiOpenGLCanvas::~DiOpenGLCanvas()
 {
 }
 
-GLuint DiOpenGLCanvas::bindTexture(const QImage& image)
-{
-  return mWidget->bindTexture(image);
-}
-
-void DiOpenGLCanvas::deleteTexture(GLuint texid)
-{
-  mWidget->deleteTexture(texid);
-}
-
 void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
 {
   METLIBS_LOG_SCOPE();
@@ -154,17 +144,11 @@ void DiOpenGLPainter::Color4ubv(const GLubyte *v)
 void DiOpenGLPainter::End()
 { glEnd(); }
 
-void DiOpenGLPainter::Indexi(GLint c)
-{ glIndexi(c); }
-
 void DiOpenGLPainter::RasterPos2f(GLfloat x, GLfloat y)
 { glRasterPos2f(x, y); }
 
 void DiOpenGLPainter::Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 { glRectf(x1, y1, x2, y2); }
-
-void DiOpenGLPainter::TexCoord2f(GLfloat s, GLfloat t)
-{ glTexCoord2f(s, t); }
 
 void DiOpenGLPainter::Vertex2dv(const GLdouble *v)
 { glVertex2dv(v); }
@@ -181,12 +165,6 @@ void DiOpenGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)
 void DiOpenGLPainter::Vertex3i(GLint x, GLint y, GLint z)
 { glVertex3i(x, y, z); }
 
-void DiOpenGLPainter::DrawArrays(GLenum mode, GLint first, GLsizei count)
-{ glDrawArrays(mode, first, count); }
-
-void DiOpenGLPainter::VertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
-{ glVertexPointer(size, type, stride, ptr); }
-
 void DiOpenGLPainter::BlendFunc(GLenum sfactor, GLenum dfactor)
 { glBlendFunc(sfactor, dfactor); }
 
@@ -202,29 +180,17 @@ void DiOpenGLPainter::ColorMask(GLboolean red, GLboolean green, GLboolean blue, 
 void DiOpenGLPainter::Disable(GLenum cap)
 { glDisable(cap); }
 
-void DiOpenGLPainter::DisableClientState(GLenum cap)
-{ /* 1.1 */ glDisableClientState(cap); /* 1.1 */ }
-
-void DiOpenGLPainter::DrawBuffer(GLenum mode)
-{ glDrawBuffer(mode); }
-
 void DiOpenGLPainter::EdgeFlag(GLboolean flag)
 { glEdgeFlag(flag); }
 
 void DiOpenGLPainter::Enable(GLenum cap)
 { glEnable(cap); }
 
-void DiOpenGLPainter::EnableClientState(GLenum cap)
-{ /* 1.1 */ glEnableClientState(cap); /* 1.1 */ }
-
 void DiOpenGLPainter::Flush()
 { glFlush(); }
 
 void DiOpenGLPainter::GetFloatv(GLenum pname, GLfloat *params)
 { glGetFloatv(pname, params); }
-
-void DiOpenGLPainter::GetIntegerv(GLenum pname, GLint *params)
-{ glGetIntegerv(pname, params); }
 
 GLboolean DiOpenGLPainter::IsEnabled(GLenum cap)
 { return glIsEnabled(cap); }
@@ -234,9 +200,6 @@ void DiOpenGLPainter::LineStipple(GLint factor, GLushort pattern)
 
 void DiOpenGLPainter::LineWidth(GLfloat width)
 { glLineWidth(width); }
-
-void DiOpenGLPainter::PointSize(GLfloat size)
-{ glPointSize(size); }
 
 void DiOpenGLPainter::PolygonMode(GLenum face, GLenum mode)
 { glPolygonMode(face, mode); }
@@ -318,26 +281,6 @@ void DiOpenGLPainter::StencilFunc(GLenum func, GLint ref, GLuint mask)
 
 void DiOpenGLPainter::StencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 { glStencilOp(fail, zfail, zpass); }
-
-void DiOpenGLPainter::BindTexture(GLenum target, GLuint texture)
-{ glBindTexture(target, texture); }
-
-void DiOpenGLPainter::DeleteTextures(GLsizei n, const GLuint *textures)
-{ glDeleteTextures(n, textures); }
-
-void DiOpenGLPainter::GenTextures(GLsizei n, GLuint *textures)
-{ glGenTextures(n, textures); }
-
-void DiOpenGLPainter::TexEnvf(GLenum target, GLenum pname, GLfloat param)
-{ glTexEnvf(target, pname, param); }
-
-void DiOpenGLPainter::TexParameteri(GLenum target, GLenum pname, GLint param)
-{ glTexParameteri(target, pname, param); }
-
-void DiOpenGLPainter::TexImage2D(GLenum target, GLint level, GLint internalFormat,
-    GLsizei width, GLsizei height, GLint border,
-    GLenum format, GLenum type, const GLvoid *pixels)
-{ glTexImage2D(target, level, internalFormat, width, height, border, format, type, pixels); }
 
 // ========================================================================
 

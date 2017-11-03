@@ -131,34 +131,25 @@ public:
   void Color4fv(const GLfloat *v) override;
   void Color4ubv(const GLubyte *v) override;
   void End() override;
-  void Indexi(GLint c) override;
   void RasterPos2f(GLfloat x, GLfloat y) override;
   void Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) override;
-  void TexCoord2f(GLfloat s, GLfloat t) override;
   void Vertex2dv(const GLdouble *v) override;
   void Vertex2f(GLfloat x, GLfloat y) override;
   void Vertex2i(GLint x, GLint y) override;
   void Vertex3f(GLfloat x, GLfloat y, GLfloat z) override;
   void Vertex3i(GLint x, GLint y, GLint z) override;
-  void DrawArrays(GLenum mode, GLint first, GLsizei count) override;
-  void VertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr) override;
   void BlendFunc(GLenum sfactor, GLenum dfactor) override;
   void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) override;
   void Clear(GLbitfield mask) override;
   void ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) override;
   void Disable(GLenum cap) override;
-  void DisableClientState(GLenum cap) override; /* 1.1 */
-  void DrawBuffer(GLenum mode) override;
   void EdgeFlag(GLboolean flag) override;
   void Enable(GLenum cap) override;
-  void EnableClientState(GLenum cap) override; /* 1.1 */
   void Flush(void) override;
   void GetFloatv(GLenum pname, GLfloat *params) override;
-  void GetIntegerv(GLenum pname, GLint *params) override;
   GLboolean IsEnabled(GLenum cap) override;
   void LineStipple(GLint factor, GLushort pattern) override;
   void LineWidth(GLfloat width) override;
-  void PointSize(GLfloat size) override;
   void PolygonMode(GLenum face, GLenum mode) override;
   void PolygonStipple(const GLubyte *mask) override;
   void PopAttrib(void) override;
@@ -186,14 +177,6 @@ public:
   void ClearStencil(GLint s) override;
   void StencilFunc(GLenum func, GLint ref, GLuint mask) override;
   void StencilOp(GLenum fail, GLenum zfail, GLenum zpass) override;
-  void BindTexture(GLenum target, GLuint texture) override;
-  void DeleteTextures(GLsizei n, const GLuint *textures) override;
-  void GenTextures(GLsizei n, GLuint *textures) override;
-  void TexEnvf(GLenum target, GLenum pname, GLfloat param) override;
-  void TexParameteri(GLenum target, GLenum pname, GLint param) override;
-  void TexImage2D(GLenum target, GLint level, GLint internalFormat,
-      GLsizei width, GLsizei height, GLint border,
-      GLenum format, GLenum type, const GLvoid *pixels) override;
   bool supportsReadPixels() const override
     { return false; }
   // end DiGLPainter interface
@@ -220,9 +203,6 @@ public:
   void setClipPath();
   void unsetClipPath();
 
-  GLuint bindTexture(const QImage &image);
-  void drawTexture(const QPointF &pos, GLuint texture);
-
   bool HIGH_QUALITY_BUT_SLOW;
 
   QPainter *painter;
@@ -236,14 +216,10 @@ public:
   QPainter::CompositionMode blendMode;
   bool smooth;
 
-  bool useTexture;
-  GLuint currentTexture;
-
   QPointF rasterPos;
   QHash<GLenum,GLint> pixelStore;
   QPointF bitmapMove;
 
-  GLfloat pointSize;
   QColor clearColor;
   bool clear;
   bool colorMask;
@@ -255,16 +231,6 @@ public:
   QList<bool> validPoints;
   QList<QRgb> colors;
   QTransform transform;
-
-  QHash<GLuint,QImage> textures;
-  QHash<qint64,GLuint> textureCache;
-
-  GLuint clientState;
-
-  GLint vertexSize;
-  GLenum vertexType;
-  GLsizei vertexStride;
-  const GLvoid *vertexPointer;
 
   QRect viewport;
   QRectF window;

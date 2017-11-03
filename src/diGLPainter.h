@@ -226,34 +226,25 @@ public:
   virtual void Color4fv(const GLfloat *v) = 0;
   virtual void Color4ubv(const GLubyte *v) = 0;
   virtual void End() = 0;
-  virtual void Indexi(GLint c) = 0;
   virtual void RasterPos2f(GLfloat x, GLfloat y) = 0;
   virtual void Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) = 0;
-  virtual void TexCoord2f(GLfloat s, GLfloat t) = 0;
   virtual void Vertex2dv(const GLdouble *v) = 0;
   virtual void Vertex2f(GLfloat x, GLfloat y) = 0;
   virtual void Vertex2i(GLint x, GLint y) = 0;
   virtual void Vertex3f(GLfloat x, GLfloat y, GLfloat z) = 0;
   virtual void Vertex3i(GLint x, GLint y, GLint z) = 0;
-  virtual void DrawArrays(GLenum mode, GLint first, GLsizei count) = 0;
-  virtual void VertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr) = 0;
   virtual void BlendFunc(GLenum sfactor, GLenum dfactor) = 0;
   virtual void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) = 0;
   virtual void Clear(GLbitfield mask) = 0;
   virtual void ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) = 0;
   virtual void Disable(GLenum cap) = 0;
-  virtual void DisableClientState(GLenum cap) = 0; /* 1.1 */
-  virtual void DrawBuffer(GLenum mode) = 0;
   virtual void EdgeFlag(GLboolean flag) = 0;
   virtual void Enable(GLenum cap) = 0;
-  virtual void EnableClientState(GLenum cap) = 0; /* 1.1 */
   virtual void Flush(void) = 0;
   virtual void GetFloatv(GLenum pname, GLfloat *params) = 0;
-  virtual void GetIntegerv(GLenum pname, GLint *params) = 0;
   virtual GLboolean IsEnabled(GLenum cap) = 0;
   virtual void LineStipple(GLint factor, GLushort pattern) = 0;
   virtual void LineWidth(GLfloat width) = 0;
-  virtual void PointSize(GLfloat size) = 0;
   virtual void PolygonMode(GLenum face, GLenum mode) = 0;
   virtual void PolygonStipple(const GLubyte *mask) = 0;
   virtual void PopAttrib(void) = 0;
@@ -284,14 +275,6 @@ public:
   virtual void ClearStencil(GLint s) = 0;
   virtual void StencilFunc(GLenum func, GLint ref, GLuint mask) = 0;
   virtual void StencilOp(GLenum fail, GLenum zfail, GLenum zpass) = 0;
-  virtual void BindTexture(GLenum target, GLuint texture) = 0;
-  virtual void DeleteTextures(GLsizei n, const GLuint *textures) = 0;
-  virtual void GenTextures(GLsizei n, GLuint *textures) = 0;
-  virtual void TexEnvf(GLenum target, GLenum pname, GLfloat param) = 0;
-  virtual void TexParameteri(GLenum target, GLenum pname, GLint param) = 0;
-  virtual void TexImage2D(GLenum target, GLint level, GLint internalFormat,
-      GLsizei width, GLsizei height, GLint border,
-      GLenum format, GLenum type, const GLvoid *pixels) = 0;
 
   virtual bool supportsReadPixels() const = 0;
 
