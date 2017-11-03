@@ -136,7 +136,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
       else if (kv.key() == "c" or kv.key() == "config")
         fileconfig = kv.value();
       else if (kv.key() == "cs_name_charset")
-        fileconfig = kv.value();
+        cs_name_charset = kv.value();
       else  {
         METLIBS_LOG_DEBUG(LOGVAL(kv.key()) << LOGVAL(kv.value()));
         options[kv.key()] = kv.value();
