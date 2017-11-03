@@ -1488,14 +1488,7 @@ void DiPaintGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
 
 void DiPaintGLPainter::drawScreenImage(const QPointF& point, const QImage& image)
 {
-  PolygonMode(gl_FRONT_AND_BACK, gl_FILL);
-  Enable(gl_BLEND);
-  BlendFunc(gl_SRC_ALPHA, gl_ONE_MINUS_SRC_ALPHA);
-  ShadeModel(gl_FLAT);
-  if (blend)
-    painter->setCompositionMode(blendMode);
-  else
-    painter->setCompositionMode(QPainter::CompositionMode_Source);
+  painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
   painter->drawImage(point, image);
 }
 
