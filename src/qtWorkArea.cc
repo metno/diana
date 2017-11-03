@@ -54,7 +54,7 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
 
   EditItemManager *editm = static_cast<EditItemManager *>(co->getManager("EDITDRAWING"));
   if (editm)
-    connect(editm, SIGNAL(repaintNeeded()), qw, SLOT(updateGL())); // e.g. during undo/redo
+    connect(editm, SIGNAL(repaintNeeded()), qw, SLOT(update())); // e.g. during undo/redo
 
   connect(glw, SIGNAL(changeCursor(cursortype)),
       this, SLOT(changeCursor(cursortype)));

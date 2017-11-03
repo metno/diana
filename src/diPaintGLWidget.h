@@ -17,9 +17,6 @@ public:
       bool antialiasing = false);
   ~DiPaintGLWidget();
 
-public Q_SLOTS:
-  void updateGL();
-
 protected:
   void paintEvent(QPaintEvent* event);
   void resizeEvent(QResizeEvent* event);

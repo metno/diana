@@ -134,8 +134,3 @@ void DiPaintGLWidget::paint(QPainter& wpainter)
   paintable->paintOverlay(glpainter.get());
   glpainter->end();
 }
-
-void DiPaintGLWidget::updateGL()
-{
-  update();
-}
