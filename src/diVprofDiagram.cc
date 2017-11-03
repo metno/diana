@@ -31,9 +31,7 @@
  vertical profile diagram/background
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "diana_config.h"
 
 #include "diVprofDiagram.h"
 
