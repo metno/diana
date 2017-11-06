@@ -493,15 +493,6 @@ const PlotCommand_cpv ObsPlot::getObsExtraAnnotations() const
   return PlotCommand_cpv();
 }
 
-ObsData& ObsPlot::getNextObs()
-{
-  // METLIBS_LOG_SCOPE();
-  ObsData d;
-  d.dataType = currentDatatype;
-  obsp.push_back(d);
-  return obsp.back();
-}
-
 void ObsPlot::mergeMetaData(const std::map<std::string, ObsData>& metaData)
 {
   //METLIBS_LOG_DEBUG(__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size());
@@ -519,14 +510,9 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
   obsp.insert(obsp.end(), obs.begin(), obs.end());
 }
 
-void ObsPlot::replaceObsData(std::vector<ObsData>& obs)
+void ObsPlot::replaceObsData(const std::vector<ObsData>& obs)
 {
-  // best performance ?
-  int new_size = obsp.size() - obs.size();
-  if (new_size < 0)
-    new_size = 0;
-  resetObs(new_size);
-  addObsData(obs);
+  obsp = obs;
 }
 
 void ObsPlot::updateLevel(const std::string& dataType)

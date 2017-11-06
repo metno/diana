@@ -123,7 +123,6 @@ protected:
   ObsPlotType plottype() const
     { return m_plottype; }
 
-  std::string currentDatatype; // BUFR only
   std::vector<std::string> datatypes;
   bool priority;
   std::string priorityFile;
@@ -480,24 +479,13 @@ public:
   int getLevel()
     { return level; }
 
-  void removeObs() // BUFR only
-    { obsp.pop_back(); }
-
-  void setDataType(std::string datatype)  // BUFR only
-    { currentDatatype = datatype; }
-
-  ObsData& getNextObs(); // BUFR only
-
-  void resetObs(int num) // BUFR only, called from ObsManager
-    { obsp.resize(num); }
-
-  int numPositions() const //BUFR only, called from ObsManager before resetobs
+  int numPositions() const
     { return getObsCount(); }
 
   // Dialog info: Name, tooltip and type of parameter buttons. ASCII only
   std::vector<std::string> columnName;
   void addObsData(const std::vector<ObsData>& obs); // ASCII only (ObsAscii ctor)
-  void replaceObsData(std::vector<ObsData>& obs); // ROADOBS only, replaces fake data with correct data.)
+  void replaceObsData(const std::vector<ObsData> &obs);
   const miutil::miTime& getObsTime() const // only from ObsRoad and ObsAscii
     { return Time; }
 
@@ -516,9 +504,6 @@ protected:
   ObsPlot& operator=(const ObsPlot &rhs);
 
 public:
-  void addObsVector(const std::vector<ObsData>& vdata)  // HQC only (from ObsManager::sendHqcdata)
-    { obsp = vdata; }
-
   void changeParamColour(const std::string& param, bool select); // HQC only
 
   bool flagInfo() const // HQC only

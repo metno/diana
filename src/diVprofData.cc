@@ -167,9 +167,8 @@ bool VprofData::readBufr(const std::string& modelname, const std::string& patter
     std::string filename = *it;
     miutil::miTime time;
     if (!tf.ok() || !tf.getTime(filename, time)) {
-      ObsBufr bufr;
       METLIBS_LOG_DEBUG("TimeFilter not ok"<<LOGVAL(filename));
-      if (!bufr.ObsTime(filename, time))
+      if (!ObsBufr::ObsTime(filename, time))
         continue;
     }
     METLIBS_LOG_DEBUG(LOGVAL(filename)<<LOGVAL(time));
@@ -193,7 +192,7 @@ bool VprofData::setBufr(const miutil::miTime& plotTime)
   int n= validTime.size();
   for (int j=0; j<n; j++) {
     if (validTime[j]==plotTime) {
-      ObsBufr bufr;
+      StationBufr bufr;
       currentFiles.push_back(fileNames[j]);
       //TODO: include files with time+-timediff, this is just a hack to include files with time = plottime - 1 hour
       if (j>0 && abs(miTime::minDiff(validTime[j], plotTime)) <= 60) {
@@ -342,9 +341,9 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time, int r
     if (stationMap.count(name)) {
       name_ = stationMap[name];
     }
-    ObsBufr bufr;
+    VprofBufr bufr;
     std::string modelName;
-    std::unique_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_, time));
+    std::unique_ptr<VprofPlot> vp(bufr.getVprofPlot(currentFiles, modelName, name_));
     if (!vp.get())
       return 0;
     vProfPlotTime = time;

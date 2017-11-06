@@ -165,12 +165,10 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
 
       if (filetype == "bufr") {
 #ifdef BUFROBS
-        const int num = oplot->numPositions();
-        ObsBufr bufr;
-        oplot->setDataType(dataType);
-        if (!bufr.setObsPlot(oplot, filename)) {
-          //reset oplot
-          oplot->resetObs(num);
+        ObsDataBufr bufr(dataType, oplot->getLevel(), oplot->getObsTime(), oplot->getTimeDiff());
+        std::vector<ObsData> obsp;
+        if (bufr.getObsData(obsp, filename)) {
+          oplot->addObsData(obsp);
         }
 #endif
       } else if (filetype == "ascii" || filetype == "url") {
@@ -459,8 +457,7 @@ bool ObsManager::updateTimes(std::string obsType)
             if (finfo.filetype == "bufr") {
 #ifdef BUFROBS
               //read time from bufr-file
-              ObsBufr bufr;
-              if (!bufr.ObsTime(finfo.filename, finfo.time))
+              if (!ObsBufr::ObsTime(finfo.filename, finfo.time))
                 continue;
 #endif
             }
@@ -558,8 +555,7 @@ bool ObsManager::updateTimesfromFile(const std::string& obsType)
           if (pit->fileType == "bufr") {
 #ifdef BUFROBS
             //read time from bufr-file
-            ObsBufr bufr;
-            if (!bufr.ObsTime(finfo.filename, finfo.time))
+            if (!ObsBufr::ObsTime(finfo.filename, finfo.time))
               continue;
 #endif
           }
@@ -1799,8 +1795,7 @@ bool ObsManager::initHqcdata(int from, const string& commondesc,
 
 bool ObsManager::sendHqcdata(ObsPlot* oplot)
 {
-  //  METLIBS_LOG_DEBUG("sendHqcData");
-  oplot->addObsVector(hqcdata);
+  oplot->replaceObsData(hqcdata);
   oplot->setSelectedStation(selectedStation);
   oplot->setHqcFlag(hqcFlag);
   //  oplot->flaginfo=true;

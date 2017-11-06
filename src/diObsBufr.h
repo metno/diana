@@ -29,7 +29,7 @@
 #ifndef _diObsBufr_h
 #define _diObsBufr_h
 
-#include <diObsPlot.h>
+#include "diObsData.h"
 #include "diStationInfo.h"
 
 class VprofPlot;
@@ -40,58 +40,105 @@ class VprofPlot;
    using the ECMWF emos library (libemos)
 */
 class ObsBufr {
+protected:
+  enum SubsetResult { BUFR_CONTINUE, BUFR_OK, BUFR_ERROR };
+  struct Subset{
+    int ktdexl;
+    const int *ktdexp;
+    const double* values;
+    const char* cvals;
+    int subset;
+    int kelem;
+  };
+
+  ObsBufr();
+  bool init(const std::string& filename);
+  virtual SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                        const char* cvals, int subset, int kelem) = 0;
+
+public:
+  static bool ObsTime(const std::string& filename, miutil::miTime& time);
 
 private:
-  enum Format { FORMAT_STATIONINFO, FORMAT_VPROFPLOT, FORMAT_OBSPLOT };
-  bool BUFRdecode(int* ibuff, int ilen, Format format);
-  bool get_diana_data(int ktdexl, int *ktdexp, double* values,
-      const char* cvals, int subset, int kelem, ObsData &d);
+  bool BUFRdecode(int* ibuff, int ilen);
+};
 
-  bool get_station_info(int ktdexl, int *ktdexp, double* values,
-      const char* cvals, int subset, int kelem);
+// ########################################################################
 
-  bool get_diana_data_level(int ktdexl, int *ktdexp, double* values,
-      const char* cvals, int subset, int kelem, ObsData &d, int level);
+class ObsDataBufr : public ObsBufr {
+public:
+  ObsDataBufr(const std::string& datatype, int level, const miutil::miTime& time, int timeDiff);
+  bool getObsData(std::vector<ObsData>& obsp, const std::string& filename);
 
-  bool get_data_level(int ktdexl, int *ktdexp, double* values,
-      const char* cvals, int subset, int kelem, miutil::miTime time);
+protected:
+  SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                const char* cvals, int subset, int kelem) override;
 
-  bool init(const std::string& filename, Format format);
+private:
+  bool get_diana_data(int ktdexl, const int *ktdexp, const double* values,
+                      const char* cvals, int subset, int kelem, ObsData &d);
 
-  std::string cloudAmount(int i);
-  std::string cloudHeight(int i);
-  std::string cloud_TCU_CB(int i);
-  float height_of_clouds(double height);
-  void cloud_type(ObsData& d, double v);
-  float ms2code4451(float v);
+  bool get_diana_data_level(int ktdexl, const int *ktdexp, const double* values,
+                            const char* cvals, int subset, int kelem, ObsData &d);
 
-  miutil::miTime obsTime;
-  VprofPlot *vplot;
-  ObsPlot   *oplot;
+  bool timeOK(const miutil::miTime& t) const;
+
+private:
+  std::string datatype;
+  std::vector<ObsData> obsdata;
+
+  int level;
+  miutil::miTime time;
+  int timeDiff;
+};
+
+// ########################################################################
+
+class VprofBufr : public ObsBufr {
+public:
+  VprofPlot* getVprofPlot(const std::vector<std::string>& bufr_file,
+                          const std::string& modelName, const std::string& station);
+
+protected:
+  SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                const char* cvals, int subset, int kelem) override;
+
+private:
+  bool get_data_level(int ktdexl, const int *ktdexp, const double* values,
+                      const char* cvals, int subset, int kelem);
+
+private:
+  VprofPlot* vplot;
+
+  int izone;
+  int istation;
+  int index;
+  std::string strStation;
+};
+
+// ########################################################################
+
+class StationBufr : public ObsBufr {
+public:
+  bool readStationInfo(const std::vector<std::string>& bufr_file,
+      std::vector<stationInfo>& stations,
+      std::vector<miutil::miTime>& timelist);
+
+protected:
+  SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                const char* cvals, int subset, int kelem) override;
+
+private:
+  void get_station_info(int ktdexl, const int *ktdexp, const double* values,
+                        const char* cvals, int subset, int kelem);
+
+private:
   typedef std::map<std::string,int> idmap_t;
   idmap_t idmap;
   std::vector<std::string> id;
   std::vector<miutil::miTime> id_time;
   std::vector<float> latitude;
   std::vector<float> longitude;
-  int izone;
-  int istation;
-  int index;
-  std::string strStation;
-
-public:
-  ObsBufr();
-
-  bool ObsTime(const std::string& filename,miutil::miTime& time);
-  bool readStationInfo(const std::vector<std::string>& bufr_file,
-      std::vector<stationInfo>& stations,
-      std::vector<miutil::miTime>& timelist);
-  VprofPlot* getVprofPlot(const std::vector<std::string>& bufr_file,
-      const std::string& modelName,
-      const std::string& station,
-      const miutil::miTime& time);
-
-  bool setObsPlot(ObsPlot* op, const std::string& filename);
 };
 
 #endif

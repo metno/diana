@@ -75,6 +75,8 @@ using namespace std;
 using namespace miutil;
 
 namespace {
+const float DEG_TO_RAD = M_PI / 180;
+
 const double bufrMissing = 1.6e+38;
 
 // constants for changing to met.no units
@@ -131,24 +133,135 @@ int fix_year(int year)
     year = (year > 70) ? year + 1900 : year + 2000;
   return year;
 }
+
+std::string cloudAmount(int i)
+{
+  if (i == 0)
+    return "SKC";
+  if (i == 1)
+    return "NSC";
+  if (i == 8)
+    return "O/";
+  if (i == 11)
+    return "S/";
+  if (i == 12)
+    return "B/";
+  if (i == 13)
+    return "F/";
+  return "";
+}
+
+std::string cloudHeight(int i)
+{
+  i /= 30;
+  std::string cl(3, '0');
+  diutil::format_int(i, cl, 0, 3, '0');
+  return cl;
+}
+
+std::string cloud_TCU_CB(int i)
+{
+  if (i == 3)
+    return " TCU";
+  if (i == 9)
+    return " CB";
+  return "";
+}
+
+float height_of_clouds(double height)
+{
+  if (height < 50)
+    return 0.0;
+  if (height < 100)
+    return 1.0;
+  if (height < 200)
+    return 2.0;
+  if (height < 300)
+    return 3.0;
+  if (height < 600)
+    return 4.0;
+  if (height < 1000)
+    return 5.0;
+  if (height < 1500)
+    return 6.0;
+  if (height < 2000)
+    return 7.0;
+  if (height < 2500)
+    return 8.0;
+  return 9.0;
+}
+
+void cloud_type(ObsData& d, double v)
+{
+  int type = int(v) / 10;
+  float value = float(int(v) % 10);
+
+  if (value < 1)
+    return;
+
+  if (type == 1)
+    d.fdata["Ch"] = value;
+  if (type == 2)
+    d.fdata["Cm"] = value;
+  if (type == 3)
+    d.fdata["Cl"] = value;
+
+}
+
+float ms2code4451(float v)
+{
+  if (v < knots2ms)
+    return 0.0;
+  if (v < 5 * knots2ms)
+    return 1.0;
+  if (v < 10 * knots2ms)
+    return 2.0;
+  if (v < 15 * knots2ms)
+    return 3.0;
+  if (v < 20 * knots2ms)
+    return 4.0;
+  if (v < 25 * knots2ms)
+    return 5.0;
+  if (v < 30 * knots2ms)
+    return 6.0;
+  if (v < 35 * knots2ms)
+    return 7.0;
+  if (v < 40 * knots2ms)
+    return 8.0;
+  if (v < 25 * knots2ms)
+    return 9.0;
+  return 9.0;
+}
 } // namespace
 
 ObsBufr::ObsBufr()
-  : oplot(0)
 {
 }
 
-bool ObsBufr::setObsPlot(ObsPlot* op, const std::string& filename)
+// ########################################################################
+
+ObsDataBufr::ObsDataBufr(const std::string& dt, int l, const miutil::miTime &t, int td)
+  : datatype(dt)
+  , level(l)
+  , time(t)
+  , timeDiff(td)
 {
-  oplot = op;
-  return init(filename, FORMAT_OBSPLOT);
 }
 
-bool ObsBufr::init(const std::string& bufr_file, Format format)
+bool ObsDataBufr::getObsData(std::vector<ObsData>& obsp, const std::string& filename)
+{
+  const bool ok = init(filename);
+  if (ok)
+    std::swap(obsdata, obsp);
+  return ok;
+}
+
+// ########################################################################
+
+bool ObsBufr::init(const std::string& bufr_file)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_INFO("Reading '"<<bufr_file<<"'");
-  obsTime = miTime(); //undef
 
   FILE* file_bufr = fopen(bufr_file.c_str(), "r");
   if (!file_bufr) {
@@ -178,7 +291,7 @@ bool ObsBufr::init(const std::string& bufr_file, Format format)
       break;
     }
 
-    next = BUFRdecode(ibuff, buf_len, format);
+    next = BUFRdecode(ibuff, buf_len);
   }
 
   fclose(file_bufr);
@@ -188,6 +301,7 @@ bool ObsBufr::init(const std::string& bufr_file, Format format)
   return ok && next;
 }
 
+// static
 bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
 {
   METLIBS_LOG_SCOPE();
@@ -236,15 +350,17 @@ bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
   return ok;
 }
 
-bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
-    vector<stationInfo>& stations, vector<miTime>& timelist)
+// ########################################################################
+
+bool StationBufr::readStationInfo(const vector<std::string>& bufr_file,
+                                  vector<stationInfo>& stations, vector<miTime>& timelist)
 {
   id.clear();
   idmap.clear();
   id_time.clear();
 
   for (size_t i=0; i< bufr_file.size(); i++)
-    init(bufr_file[i], FORMAT_STATIONINFO);
+    init(bufr_file[i]);
 
   timelist = id_time;
   stations.clear();
@@ -252,11 +368,10 @@ bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,
   for (size_t i=0; i<id.size(); ++i)
     stations.push_back(stationInfo(id[i], longitude[i], latitude[i]));
   return true;
-
 }
 
-VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
-    const std::string& modelName, const std::string& station, const miTime& time)
+VprofPlot* VprofBufr::getVprofPlot(const vector<std::string>& bufr_file,
+                                   const std::string& modelName, const std::string& station)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
 
@@ -284,7 +399,7 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
 
   for (size_t i=0; i< bufr_file.size(); i++) {
     //init returns true when reaching end of file, returns false when station is found
-    if (!init(bufr_file[i], FORMAT_VPROFPLOT)) {
+    if (!init(bufr_file[i])) {
       return vplot;
     }
   }
@@ -293,10 +408,12 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<std::string>& bufr_file,
   return 0;
 }
 
-bool ObsBufr::BUFRdecode(int* ibuff, int ilen, Format format)
+// ########################################################################
+
+bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
 {
   // Decode BUFR message into fully decoded form
-  METLIBS_LOG_SCOPE(LOGVAL(format));
+  METLIBS_LOG_SCOPE();
 
   int kerr;
 
@@ -341,13 +458,6 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, Format format)
   //    return true;
   //  }
 
-  if (obsTime.undef()) {
-    int year = ksec1[8];
-    if (year < 1000) {
-      obsTime = miTime(fix_year(year), ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
-    }
-  }
-
   // Return list of Data Descriptors from Section 3 of Bufr message, and
   // total/requested list of elements. BUFREX must have been called before BUSEL.
 
@@ -359,37 +469,43 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, Format format)
       continue;
     }
 
-    if (format == FORMAT_OBSPLOT) {
-      ObsData & obs = oplot->getNextObs();
-
-      if (oplot->getLevel() < -1) {
-        if (!get_diana_data(ktdexl, ktdexp.get(), values.get(), cvals.get(), i - 1, kxelem, obs)
-            || !oplot->timeOK(obs.obsTime))
-        {
-          oplot->removeObs();
-        }
-      } else {
-        if (!get_diana_data_level(ktdexl, ktdexp.get(), values.get(), cvals.get(),
-                i - 1, kxelem, obs, oplot->getLevel())
-            || !oplot->timeOK(obs.obsTime))
-        {
-          oplot->removeObs();
-        }
-      }
-    } else if (format == FORMAT_VPROFPLOT) {
-      //will return without reading more subsets, fix later
-      return !get_data_level(ktdexl, ktdexp.get(), values.get(), cvals.get(),
-          i - 1, kxelem, obsTime);
-    } else if (format == FORMAT_STATIONINFO) {
-      get_station_info(ktdexl, ktdexp.get(), values.get(), cvals.get(), i - 1, kelem);
-    }
+    const SubsetResult sr = handleBufrSubset(ktdexl, ktdexp.get(), values.get(), cvals.get(), i - 1, kxelem);
+    if (sr == BUFR_OK)
+      return true;
+    else if (sr == BUFR_ERROR)
+      return false;
   }
 
   return true;
 }
 
-bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
-    const char* cvals, int subset, int kelem, ObsData &d)
+// ########################################################################
+
+ObsBufr::SubsetResult ObsDataBufr::handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                                    const char* cvals, int subset, int kelem)
+{
+  ObsData obs;
+  bool ok;
+  if (level < -1)
+    ok = get_diana_data(ktdexl, ktdexp, values, cvals, subset, kelem, obs);
+  else
+    ok = get_diana_data_level(ktdexl, ktdexp, values, cvals, subset, kelem, obs);
+  if (ok)
+    ok = timeOK(obs.obsTime);
+  if (ok) {
+    obs.dataType = datatype;
+    obsdata.push_back(obs);
+  }
+  return BUFR_CONTINUE;
+}
+
+bool ObsDataBufr::timeOK(const miutil::miTime& t) const
+{
+  return (timeDiff < 0 || abs(miTime::minDiff(t, time)) <= timeDiff);
+}
+
+bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* values,
+                                 const char* cvals, int subset, int kelem, ObsData &d)
 {
   d.fdata.clear();
 
@@ -441,11 +557,11 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 1003:
       if (values[j] < bufrMissing) {
         wmoBlock = int(values[j]);
-	d.show_time_id = true;
+        d.show_time_id = true;
       }
       break;
 
-      //   1020 WMO REGION SUB-AREA 
+      //   1020 WMO REGION SUB-AREA
     case 1020:
       if (values[j] < bufrMissing) {
         wmoSubarea = int(values[j]);
@@ -464,13 +580,13 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   1005 BUOY/PLATFORM IDENTIFIER
     case 1005:
       if (values[j] < bufrMissing) {
-	if ( wmoBlock > 0 ) {
+        if ( wmoBlock > 0 ) {
           wmoStation = int(values[j]);
           d.fdata["wmonumber"] = float(wmoStation);
           wmoNumber = true;
-	} else {
-	  d.id = miutil::from_number(values[j]);
-	}
+        } else {
+          d.id = miutil::from_number(values[j]);
+        }
         d.show_time_id = true;
       }
       break;
@@ -1154,11 +1270,19 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   }
 
   return false;
-
 }
 
-bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
-    const char* cvals, int subset, int kelem)
+// ########################################################################
+
+ObsBufr::SubsetResult StationBufr::handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                                    const char* cvals, int subset, int kelem)
+{
+  get_station_info(ktdexl, ktdexp, values, cvals, subset, kelem);
+  return BUFR_CONTINUE;
+}
+
+void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* values,
+                                   const char* cvals, int subset, int kelem)
 {
   METLIBS_LOG_SCOPE();
   int wmoBlock = 0;
@@ -1258,11 +1382,12 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     idmap.insert(std::make_pair(station, 1));
   }
   id_time.push_back(miutil::miTime(year, month, day, hour, minute, 0));
-  return true;
 }
 
-bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
-    const char* cvals, int subset, int kelem, ObsData &d, int level)
+// ########################################################################
+
+bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const double* values,
+                                       const char* cvals, int subset, int kelem, ObsData &d)
 {
   //    METLIBS_LOG_DEBUG("get_diana_data");
   d.fdata.clear();
@@ -1570,8 +1695,20 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   return true;
 }
 
-bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
-    const char* cvals, int subset, int kelem, miTime time)
+// ########################################################################
+
+ObsBufr::SubsetResult VprofBufr::handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
+                                                  const char* cvals, int subset, int kelem)
+{
+  // will return without reading more subsets, fix later
+  if (!get_data_level(ktdexl, ktdexp, values, cvals, subset, kelem))
+    return BUFR_OK;
+  else
+    return BUFR_ERROR;
+}
+
+bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* values,
+                               const char* cvals, int subset, int kelem)
 {
   //  int wmoBlock = 0;
   //  int wmoStation = 0;
@@ -1847,103 +1984,4 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   vplot->maxLevels = std::max(vplot->ptt.size(), vplot->puv.size());
 
   return true;
-}
-
-std::string ObsBufr::cloudAmount(int i)
-{
-  if (i == 0)
-    return "SKC";
-  if (i == 1)
-    return "NSC";
-  if (i == 8)
-    return "O/";
-  if (i == 11)
-    return "S/";
-  if (i == 12)
-    return "B/";
-  if (i == 13)
-    return "F/";
-  return "";
-}
-
-std::string ObsBufr::cloudHeight(int i)
-{
-  i /= 30;
-  std::string cl(3, '0');
-  diutil::format_int(i, cl, 0, 3, '0');
-  return cl;
-}
-
-std::string ObsBufr::cloud_TCU_CB(int i)
-{
-  if (i == 3)
-    return " TCU";
-  if (i == 9)
-    return " CB";
-  return "";
-}
-
-float ObsBufr::height_of_clouds(double height)
-{
-  if (height < 50)
-    return 0.0;
-  if (height < 100)
-    return 1.0;
-  if (height < 200)
-    return 2.0;
-  if (height < 300)
-    return 3.0;
-  if (height < 600)
-    return 4.0;
-  if (height < 1000)
-    return 5.0;
-  if (height < 1500)
-    return 6.0;
-  if (height < 2000)
-    return 7.0;
-  if (height < 2500)
-    return 8.0;
-  return 9.0;
-}
-
-void ObsBufr::cloud_type(ObsData& d, double v)
-{
-  int type = int(v) / 10;
-  float value = float(int(v) % 10);
-
-  if (value < 1)
-    return;
-
-  if (type == 1)
-    d.fdata["Ch"] = value;
-  if (type == 2)
-    d.fdata["Cm"] = value;
-  if (type == 3)
-    d.fdata["Cl"] = value;
-
-}
-
-float ObsBufr::ms2code4451(float v)
-{
-  if (v < knots2ms)
-    return 0.0;
-  if (v < 5 * knots2ms)
-    return 1.0;
-  if (v < 10 * knots2ms)
-    return 2.0;
-  if (v < 15 * knots2ms)
-    return 3.0;
-  if (v < 20 * knots2ms)
-    return 4.0;
-  if (v < 25 * knots2ms)
-    return 5.0;
-  if (v < 30 * knots2ms)
-    return 6.0;
-  if (v < 35 * knots2ms)
-    return 7.0;
-  if (v < 40 * knots2ms)
-    return 8.0;
-  if (v < 25 * knots2ms)
-    return 9.0;
-  return 9.0;
 }
