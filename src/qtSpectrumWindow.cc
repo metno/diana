@@ -175,6 +175,7 @@ SpectrumWindow::SpectrumWindow()
   tsToolbar->addWidget(timeBox);
   tsToolbar->addWidget(rightTimeButton);
   tsToolbar->addWidget(timeSpinBox);
+  tsToolbar->addWidget(realizationSpinBox);
 
   //connected dialogboxes
 
