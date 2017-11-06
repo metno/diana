@@ -41,3 +41,10 @@ void ObsMetaData::addStationsToUrl(std::string& filename) const
 
   miutil::replace(filename, "STATIONS", txt);
 }
+
+void ObsMetaData::setObsData(const std::vector<ObsData>& obsdata)
+{
+  metaData.clear();
+  for (const ObsData& od : obsdata)
+    metaData[od.id] = od;
+}

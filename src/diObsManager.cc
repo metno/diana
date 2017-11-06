@@ -172,9 +172,10 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
         }
 #endif
       } else if (filetype == "ascii" || filetype == "url") {
-        // FIXME this adds values to oplot
         ObsAscii obsAscii(filename, pi.headerfile, pi.headerinfo);
-        obsAscii.yoyoPlot(finfo[j].time, oplot);
+        oplot->setLabels(obsAscii.getLabels());
+        oplot->columnName = obsAscii.getColumnNames();
+        oplot->addObsData(obsAscii.getObsData(fi.time, oplot->getObsTime(), oplot->getTimeDiff()));
       }
 #ifdef ROADOBS
       else if (filetype =="roadobs") {
@@ -260,28 +261,28 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
   return true;
 }
 
-bool ObsManager::addStationsAndTimeFromMetaData(const std::string& metaData,
+bool ObsManager::addStationsAndTimeFromMetaData(const std::string& dataType,
     std::string& url, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
 
   //read metadata
-  string_ObsMetaData_m::const_iterator itM = metaDataMap.find(metaData);
+  string_ObsMetaData_m::const_iterator itM = metaDataMap.find(dataType);
   if (itM == metaDataMap.end()) {
 
-    const string_ProdInfo_m::const_iterator itP = Prod.find(metaData);
+    const string_ProdInfo_m::const_iterator itP = Prod.find(dataType);
     if (itP == Prod.end() || itP->second.pattern.empty()) {
-      METLIBS_LOG_WARN("metadata '" << metaData << "' not available");
+      METLIBS_LOG_WARN("metadata '" << dataType << "' not available");
       return false;
     }
 
     //read metaData
-    ObsAscii obsAscii(itP->second.pattern[0].pattern, itP->second.headerfile,
-        itP->second.headerinfo);
+    const ProdInfo& pi = itP->second;
+    ObsAscii obsAscii(pi.pattern[0].pattern, pi.headerfile, pi.headerinfo);
 
-    ObsMetaData* pMetaData = new ObsMetaData();
-    obsAscii.yoyoMetadata(pMetaData);
-    itM = metaDataMap.insert(std::make_pair(metaData, pMetaData)).first;
+    std::shared_ptr<ObsMetaData> pMetaData = std::make_shared<ObsMetaData>();
+    pMetaData->setObsData(obsAscii.getObsData(miutil::miTime(), miutil::miTime(), 0));
+    itM = metaDataMap.insert(std::make_pair(dataType, pMetaData)).first;
   }
 
   //add stations
@@ -1139,6 +1140,7 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
     return dialog;
   }
   ProdInfo& po = pr->second;
+  ObsDialogInfo::PlotType& pt = dialog.plottype[id];
 
 #ifdef ROADOBS
   // We must also support the ascii format until the
@@ -1167,13 +1169,13 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
       && !obsRoad.parameterType("date"))
     po.useFileTime= true;
   if (obsRoad.parameterType("dd") && obsRoad.parameterType("ff")) {
-    dialog.plottype[id].button.push_back(addButton("Wind",""));
-    dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
+    pt.button.push_back(addButton("Wind",""));
+    pt.datatype[0].active.push_back(true); // only one datatype, yet!
   }
   for (size_t c=0; c<obsRoad.columnCount(); c++) {
-    dialog.plottype[id].button.push_back
+    pt.button.push_back
     (addButton(obsRoad.columnName(c), obsRoad.columnTooltip(c), -100,100,true));
-    dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
+    pt.datatype[0].active.push_back(true); // only one datatype, yet!
   }
 #endif
   if (po.obsformat != ofmt_ascii && po.obsformat != ofmt_url)
@@ -1182,9 +1184,6 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   // open one file and find the available data parameters
 
   unsigned int j = 0;
-
-  vector<std::string> columnName;
-  vector<std::string> columnTooltip;
 
   while (j < po.pattern.size()) {
     if (!po.pattern[j].archive || useArchive) {
@@ -1196,37 +1195,33 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
             && !obsAscii.parameterType("date"))
           po.useFileTime = true;
         if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
-          dialog.plottype[id].button.push_back(addButton("Wind", ""));
-          dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
+          pt.button.push_back(addButton("Wind", ""));
+          pt.datatype[0].active.push_back(true); // only one datatype, yet!
         }
         for (size_t c = 0; c < obsAscii.columnCount(); c++) {
-          dialog.plottype[id].button.push_back(
-              addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100, 100, true));
-          dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
+          pt.button.push_back(addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100, 100, true));
+          pt.datatype[0].active.push_back(true); // only one datatype, yet!
         }
 
       } else {
 
-        bool found = false;
-
         const diutil::string_v matches = diutil::glob(po.pattern[j].pattern);
-        for (diutil::string_v::const_iterator it = matches.begin(); !found && it != matches.end(); ++it) {
-          const std::string& filename = *it;
+        for (const std::string& filename : matches) {
           ObsAscii obsAscii = ObsAscii(filename, headerfile, po.headerinfo);
-          found = obsAscii.asciiOK();
-          if (obsAscii.asciiOK() && obsAscii.parameterType("time")
+          const bool found = obsAscii.asciiOK();
+          if (found && obsAscii.parameterType("time")
               && !obsAscii.parameterType("date"))
             po.useFileTime = true;
           if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
-            dialog.plottype[id].button.push_back(addButton("Wind", ""));
-            dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
+            pt.button.push_back(addButton("Wind", ""));
+            pt.datatype[0].active.push_back(true); // only one datatype, yet!
           }
           for (size_t c = 0; c < obsAscii.columnCount(); c++) {
-            dialog.plottype[id].button.push_back(
-                addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c),
-                    -100, 100, true));
-            dialog.plottype[id].datatype[0].active.push_back(true); // only one datatype, yet!
+            pt.button.push_back(addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100, 100, true));
+            pt.datatype[0].active.push_back(true); // only one datatype, yet!
           }
+          if (found)
+            break;
         }
       }
     }

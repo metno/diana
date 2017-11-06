@@ -42,8 +42,7 @@ class ObsMetaData
 public:
   typedef std::map<std::string, ObsData > string_ObsData_m;
   
-  void setMetaData(const string_ObsData_m& obs)
-    { metaData = obs; }
+  void setObsData(const std::vector<ObsData>& obsdata);
   const string_ObsData_m& getMetaData() const
     { return metaData; }
 

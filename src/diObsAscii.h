@@ -40,9 +40,6 @@
 #include <string>
 #include <vector>
 
-class ObsPlot;
-class ObsMetaData;
-
 /**
   \brief Reading ascii observation files 
 
@@ -55,7 +52,6 @@ private:
 
   std::vector<std::string> lines;
   std::vector<ObsData> vObsData;
-  std::map< std::string, ObsData > mObsData;
   std::string separator;
   bool fileOK;
   bool knots;
@@ -93,8 +89,12 @@ public:
   ObsAscii(const std::string& filename, const std::string& headerfile,
       const std::vector<std::string>& headerinfo);
 
-  void yoyoPlot(const miutil::miTime &filetime, ObsPlot *oplot);
-  void yoyoMetadata(ObsMetaData *metaData);
+  PlotCommand_cpv getLabels() const
+    { return labels; }
+  const std::vector<std::string>& getColumnNames() const
+    { return m_columnName; }
+
+  const std::vector<ObsData> &getObsData(const miutil::miTime &filetime, const miutil::miTime &time, int timeDiff);
 
   bool asciiOK() const
     { return fileOK; }

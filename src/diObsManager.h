@@ -118,7 +118,7 @@ private:
   typedef std::map<std::string, ProdInfo> string_ProdInfo_m;
   string_ProdInfo_m defProd;
   string_ProdInfo_m Prod;
-  typedef std::map<std::string, ObsMetaData*> string_ObsMetaData_m;
+  typedef std::map<std::string, std::shared_ptr<ObsMetaData> > string_ObsMetaData_m;
   string_ObsMetaData_m metaDataMap;
   ObsDialogInfo dialog;
   std::vector<ObsDialogInfo::PriorityList> priority;

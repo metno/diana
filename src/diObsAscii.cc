@@ -54,26 +54,16 @@ ObsAscii::ObsAscii(const string& filename, const string& headerfile,
   decodeHeader();
 }
 
-void ObsAscii::yoyoPlot(const miTime &filetime, ObsPlot *oplot)
+const std::vector<ObsData>& ObsAscii::getObsData(const miTime &filetime, const miutil::miTime& time, int td)
 {
   METLIBS_LOG_SCOPE();
-  oplot->setLabels(labels);
-  oplot->columnName = m_columnName;
-
-  plotTime = oplot->getObsTime();
-  timeDiff= oplot->getTimeDiff();
+  plotTime = time;
+  timeDiff= td;
   fileTime = filetime;
 
   readDecodeData();
 
-  oplot->addObsData(vObsData);
-}
-
-void ObsAscii::yoyoMetadata(ObsMetaData *metaData)
-{
-  METLIBS_LOG_SCOPE();
-  readDecodeData();
-  metaData->setMetaData(mObsData);
+  return vObsData;
 }
 
 //####################################################################
@@ -188,8 +178,7 @@ void ObsAscii::decodeHeader()
   METLIBS_LOG_SCOPE();
 
   vector<string> vstr;
-  for (size_t i = 0; i < lines.size(); ++i) {
-    std::string& line = lines[i]; // must be reference here, used later in decodeData
+  for (std::string& line : lines) { // must be reference here, used later in decodeData
     erase_comment(line);
     miutil::trim(line);
 
@@ -329,8 +318,6 @@ void ObsAscii::decodeData()
   const bool allTime = useTime && (date_column || date_ymd);
   const bool isoDate = useTime && date_column;
 
-  miTime obstime;
-
   miDate filedate= fileTime.date();
 
   // skip header; this relies on decodeHeader having trimmed the header lines
@@ -430,8 +417,8 @@ void ObsAscii::decodeData()
       } else  {
         date = filedate;
       }
-      obstime = miTime(date,clock);
-      
+
+      miTime obstime(date, clock);
       if (not allTime) {
         int mdiff= miTime::minDiff(obstime,fileTime);
         if      (mdiff<-12*60)
@@ -447,6 +434,5 @@ void ObsAscii::decodeData()
         continue;
     }
     vObsData.push_back(obsData);
-    mObsData[obsData.id] = obsData;
   }
 }
