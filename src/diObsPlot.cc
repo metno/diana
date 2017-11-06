@@ -2251,7 +2251,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     xypos.rx() += xShift;
     if (pFlag.count("wind")) {
       QPointF center(0, 0);
-      printUndef(gl, center, "left"); //undef wind, station position
+      printUndef(gl, center, false); //undef wind, station position
     }
   }
 
