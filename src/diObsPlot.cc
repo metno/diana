@@ -705,8 +705,6 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
       op->moretimes = kv.toBool();
     } else if (key == "sort") {
       op->decodeSort(orig_value);
-      //     } else if (key == "allairepslevels") {
-      //        allAirepsLevels = kv.toBool();
     } else if (key == "timediff")
       if (value == "alltimes")
         op->timeDiff = -1;

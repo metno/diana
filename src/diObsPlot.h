@@ -138,7 +138,6 @@ protected:
 
   bool wmoFlag; // used in plotSynop and plotList to show only stations with wmonumber
 
-  bool allAirepsLevels;
   int timeDiff;
   bool moretimes; //if true, sort stations according to obsTime
   miutil::miTime Time;
@@ -435,9 +434,6 @@ public:
 
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
   void readStations(); // from PlotModule::obsTime
-
-  void setLabel(const PlotCommand_cp& pin) // from PlotModule and ObsRoad
-    { labels.push_back(pin); }
 
   void updateObsPositions();
   ObsPositions* getObsPositions()

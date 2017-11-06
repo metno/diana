@@ -133,7 +133,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
   bool devField=false;
   bool tempPrecision=false;
   bool unit_ms=false;
-  bool allAirepsLevels=false;
   bool orient=false;
   bool parameterName=false;
   bool popupWindow=false;
@@ -156,8 +155,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
         tempPrecision = on;
       else if(stokens[0]=="unit_ms")
         unit_ms = on;
-      else if(stokens[0]=="allAirepsLevels")
-        allAirepsLevels = on;
       else if(stokens[0]=="markerboxVisible")
         markerboxVisible = on;
       else if(stokens[0]=="leveldiff")
@@ -295,8 +292,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
   devLayout->addWidget(devFieldCheckBox);
   devLayout->addWidget(devColourBox1);
   devLayout->addWidget(devColourBox2);
-  allAirepsLevelsCheckBox= new QCheckBox(tr("Aireps in all levels"),this);
-  if( !allAirepsLevels ) allAirepsLevelsCheckBox->hide();
   qualityCheckBox= new QCheckBox(tr("Quality stations"),this);
   if ( !qualityFlag ) qualityCheckBox->hide();
   wmoCheckBox= new QCheckBox(tr("WMO stations"),this);
@@ -345,7 +340,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
 
   tempPrecisionCheckBox->setChecked( true );
   unit_msCheckBox->setChecked( false );
-  allAirepsLevelsCheckBox->setChecked( false );
 
 
   // LCD numbers and sliders
@@ -468,7 +462,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
   vcommonlayout->addWidget( qualityCheckBox );
   vcommonlayout->addWidget( wmoCheckBox );
   vcommonlayout->addLayout( devLayout );
-  vcommonlayout->addWidget( allAirepsLevelsCheckBox );
   vcommonlayout->addWidget( popupWindowCheckBox );
   vcommonlayout->addLayout( onlyposLayout);
   vcommonlayout->addLayout( criteriaLayout );
@@ -785,9 +778,6 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
     dVariables.misc["devcolour2"] = cInfo[devColourBox2->currentIndex()].name;
   }
 
-  if( allAirepsLevelsCheckBox->isChecked() )
-    dVariables.misc["allAirepsLevels"]="true";
-
   if( pressureLevels ){
     if(pressureComboBox->currentIndex()>0 ){
       dVariables.misc["level"] = pressureComboBox->currentText().toStdString();
@@ -991,12 +981,6 @@ void ObsWidget::updateDialog(bool setChecked)
     if (number>=0) {
       devColourBox2->setCurrentIndex(number);
     }
-  }
-
-  //allAirepsLevels
-  if (dVariables.misc.count("allairepslevels") &&
-      dVariables.misc["allairepslevels"] == "true"){
-    allAirepsLevelsCheckBox ->setChecked(true);
   }
 
   //orient
@@ -1234,8 +1218,6 @@ void ObsWidget::setFalse()
   qualityCheckBox->setChecked(false);
 
   wmoCheckBox->setChecked(false);
-
-  allAirepsLevelsCheckBox->setChecked(false);
 
   orientCheckBox->setChecked(false);
 

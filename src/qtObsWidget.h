@@ -137,7 +137,6 @@ private:
   QCheckBox* devFieldCheckBox;
   QComboBox* devColourBox1;
   QComboBox* devColourBox2;
-  QCheckBox* allAirepsLevelsCheckBox;
   QCheckBox* orientCheckBox;
   QCheckBox* alignmentCheckBox;
   QCheckBox* showposCheckBox;

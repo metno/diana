@@ -460,101 +460,6 @@ bool ObsManager::updateTimes(std::string obsType)
 #ifdef ROADOBS
   } // endif obstype == roadobs
 #endif
-  // Check if timeLists are equal
-  if (Prod[obsType].fileInfo.size() == oldfileInfo.size()) {
-    // Compare the list members
-    int n = Prod[obsType].fileInfo.size();
-    for (int i = 0; i < n; i++) {
-      if (Prod[obsType].fileInfo[i].time != oldfileInfo[i].time) {
-        return true;
-      }
-    }
-    // The lists are equal
-    return false;
-  }
-  return true;
-}
-
-bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi,vector<FileInfo> & oldfileInfo)
-{
-#ifdef ROADOBS
-  // Due to the fact that we have a database instead of an archive, we
-  // must fake the behavoir of an archive.  Assume that all stations
-  // report every hour first, get the current time.
-
-  const miutil::miTime now_hms = miTime::nowTime();
-  const miutil::miTime now(now_hms.date(), miutil::miClock(now_hms.hour(), 0, 0));
-
-  // Check first if now already exists in oldfileInfo
-  for (size_t i = 0; i < oldfileInfo.size(); i++) {
-    if (oldfileInfo[i].time == now)
-      return false;
-  }
-
-  miutil::miTime starttime = now;
-  starttime.addDay(-pi.daysback);
-  int npattern = pi.pattern.size();
-  int hourdiff;
-  for( int j=0;j<npattern; j++) {
-    miTime time = now;
-    FileInfo finfo;
-    do {
-      finfo.time = time;
-      finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
-      finfo.filetype = pi.pattern[j].fileType;
-      pi.fileInfo.push_back(finfo);
-      time.addHour(-1);
-    } while ((hourdiff = miTime::hourDiff(time, starttime)) > 0);
-  }
-#endif
-  return true;
-}
-
-bool ObsManager::updateTimesfromFile(const std::string& obsType)
-{
-  // making list of file names and times, opening all files
-
-  const string_ProdInfo_m::iterator opit = Prod.find(miutil::to_lower(obsType));
-  if (opit == Prod.end())
-    return false;
-  ProdInfo& pi = opit->second;
-
-  // make a copy of the old fileinfo
-  vector<FileInfo> oldfileInfo;
-  std::swap(pi.fileInfo, oldfileInfo);
-
-#ifdef ROADOBS
-  if (pi.obsformat == ofmt_roadobs) {
-    if (!updateTimesFromRoadFile(pi, oldfileInfo)) {
-      std::swap(pi.fileInfo, oldfileInfo);
-      return false;
-    }
-  } else
-#endif
-  {
-    for (std::vector<patternInfo>::const_iterator pit = pi.pattern.begin(); pit != pi.pattern.end(); ++pit) {
-      if (pit->archive == useArchive) {
-        const diutil::string_v matches = diutil::glob(pit->pattern);
-        if (matches.empty())
-          METLIBS_LOG_INFO("No files matches '" <<pit->pattern <<"'");
-        for (diutil::string_v::const_iterator mit = matches.begin(); mit != matches.end(); ++mit) {
-          FileInfo finfo;
-          finfo.filename = *mit;
-          finfo.filetype = pit->fileType;
-          if (pit->fileType == "bufr") {
-#ifdef BUFROBS
-            //read time from bufr-file
-            if (!ObsBufr::ObsTime(finfo.filename, finfo.time))
-              continue;
-#endif
-          }
-          if (finfo.time.undef() && pi.timeInfo != "notime")
-            continue;
-          pi.fileInfo.push_back(finfo);
-        }
-      }
-    }
-  }
 
   // return true if timeLists are different
   if (pi.fileInfo.size() != oldfileInfo.size())
@@ -1770,24 +1675,6 @@ bool ObsManager::sendHqcdata(ObsPlot* oplot)
   oplot->setObsAnnotation(anno);
   oplot->setPlotName(anno);
   return true;
-}
-
-Colour ObsManager::flag2colour(const std::string& flag)
-{
-  Colour col;
-
-  if (miutil::contains(flag, "7") || miutil::contains(flag, "8")
-  || miutil::contains(flag, "9")) {
-    col = Colour("red");
-  } else if (miutil::contains(flag, "0") || miutil::contains(flag, "2")
-  || miutil::contains(flag, "3") || miutil::contains(flag, "4")
-  || miutil::contains(flag, "5") || miutil::contains(flag, "6")) {
-    col = Colour("gulbrun");
-  } else {
-    col = Colour("green3");
-  }
-
-  return col;
 }
 
 bool ObsManager::updateHqcdata(const string& commondesc, const string& common,

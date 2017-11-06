@@ -157,15 +157,12 @@ private:
   std::vector<FileInfo> getFileName(const miutil::miTime& , const ProdInfo& pi,
       std::vector<miutil::miTime>& termin,
       miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
-  bool updateTimesfromFile(const std::string& obsType);
-  bool updateTimesFromRoadFile(ProdInfo& pi,std::vector<FileInfo> & oldfileInfo );
   bool updateTimes(std::string obsType);
 
 
 //  HQC
   bool changeHqcdata(ObsData&, const std::vector<std::string>& param,
       const std::vector<std::string>& data);
-  Colour flag2colour(const std::string& flag);
 
   void initProductDefaults();
   bool parseFilesSetup();
