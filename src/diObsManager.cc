@@ -86,14 +86,9 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
   METLIBS_LOG_SCOPE();
 
   oplot->clear();
+  oplot->setObsTime(time);
 
-  if (oplot->flagInfo()) {
-    METLIBS_LOG_INFO("ObsManager::prepare HQC");
-    METLIBS_LOG_INFO("hqcTime:"<<hqcTime);
-    METLIBS_LOG_INFO("Time:"<<time);
-    int d = abs(miTime::minDiff(time, hqcTime));
-    if (oplot->getTimeDiff() > -1 && d > oplot->getTimeDiff())
-      return false;
+  if (oplot->isHqcPlot()) {
     return sendHqcdata(oplot);
   }
 
@@ -133,8 +128,6 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
     // Set modification time
     for (size_t j = 0; j < finfo.size(); j++)
       oplot->setModificationTime(finfo[j].filename);
-
-    oplot->setObsTime(time);
 
     //Annotations
     if (not finfo.empty()) { // if there are any files of this dataType
@@ -1790,20 +1783,22 @@ bool ObsManager::initHqcdata(int from, const string& commondesc,
 
 bool ObsManager::sendHqcdata(ObsPlot* oplot)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(hqcTime));
+  if (!oplot->timeOK(hqcTime))
+    return false;
+
   oplot->replaceObsData(hqcdata);
   oplot->setSelectedStation(selectedStation);
   oplot->setHqcFlag(hqcFlag);
-  //  oplot->flaginfo=true;
   oplot->changeParamColour(hqcFlag_old, false);
   oplot->changeParamColour(hqcFlag, true);
-  if (oplot->setData()) {
-    std::string time = hqcTime.format("%D %H%M", "", true);
-    std::string anno = "Hqc " + time;
-    oplot->setObsAnnotation(anno);
-    oplot->setPlotName(anno);
-    return true;
-  }
-  return false;
+  if (!oplot->setData())
+    return false;
+
+  std::string anno = "Hqc " + hqcTime.format("%D %H%M", "", true);
+  oplot->setObsAnnotation(anno);
+  oplot->setPlotName(anno);
+  return true;
 }
 
 Colour ObsManager::flag2colour(const std::string& flag)

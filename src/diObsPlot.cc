@@ -192,7 +192,7 @@ ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   iptab = 0;
   onlypos = false;
   showOnlyPrioritized = false;
-  flaginfo = false;
+  is_hqc = false;
   parameterName = false;
   popupText = false;
   qualityFlag = false;
@@ -603,7 +603,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
 
   ObsPlotType plottype = OPT_SYNOP;
   std::string dialogname;
-  bool flaginfo = false;
+  bool is_hqc = false;
   const size_t i_plot = cmd->rfind("plot");
   if (i_plot != KVListPlotCommand::npos && !cmd->value(i_plot).empty()) {
     const std::vector<std::string> vstr = miutil::split(cmd->value(i_plot), ":");
@@ -622,10 +622,10 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
       plottype = OPT_METAR;
     } else if (valp == "hqc_synop") {
       plottype = OPT_SYNOP;
-      flaginfo = true;
+      is_hqc = true;
     } else if (valp == "hqc_list") {
       plottype = OPT_ASCII;
-      flaginfo = true;
+      is_hqc = true;
     }
 #ifdef ROADOBS
     // To avoid that roadobs will be set to ascii below
@@ -645,7 +645,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
 #endif // !ROADOBS
 
   op->dialogname = dialogname;
-  op->flaginfo = flaginfo;
+  op->is_hqc = is_hqc;
 
   op->poptions.fontname = "BITMAPFONT";
   op->poptions.fontface = "normal";
@@ -2637,7 +2637,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     wave(gl, f_p->second, h_p->second, xytab(lpos + 28));
   }
 
-  if (!flaginfo) {
+  if (!is_hqc) {
     return;
   }
 

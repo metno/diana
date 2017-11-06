@@ -253,7 +253,7 @@ protected:
 
   //Hqc
   std::string hqcFlag;  //which parameter is flagged
-  bool flaginfo;
+  bool is_hqc;
   Colour flagColour;
   std::map<std::string, Colour> paramColour;
   std::string selectedStation;
@@ -506,8 +506,8 @@ protected:
 public:
   void changeParamColour(const std::string& param, bool select); // HQC only
 
-  bool flagInfo() const // HQC only
-    { return flaginfo; }
+  bool isHqcPlot() const // HQC only
+    { return is_hqc; }
 
   void setHqcFlag(const std::string& flag) // HQC only
     { hqcFlag = flag; }
