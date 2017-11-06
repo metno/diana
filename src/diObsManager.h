@@ -167,6 +167,11 @@ private:
       const std::vector<std::string>& data);
   Colour flag2colour(const std::string& flag);
 
+  void initProductDefaults();
+  bool parseFilesSetup();
+  bool parsePrioritySetup();
+  bool parseCriteriaSetup();
+  bool parsePopupWindowSetup();
   void printProdInfo(const ProdInfo & pinfo);
 
 public:

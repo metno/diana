@@ -1372,17 +1372,6 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
 
 bool ObsManager::parseSetup()
 {
-  METLIBS_LOG_SCOPE();
-  const std::string obs_name = "OBSERVATION_FILES";
-  vector<std::string> sect_obs;
-
-  if (!SetupParser::getSection(obs_name, sect_obs)) {
-    METLIBS_LOG_ERROR(obs_name << " section not found");
-    return true;
-  }
-
-  // ********  Common to all plot types **********************
-  Prod.clear();
   dialog.plottype.clear();
   dialog.priority.clear();
 
@@ -1404,6 +1393,18 @@ bool ObsManager::parseSetup()
   //   dialog.timediff.scale = 15.;
 
   dialog.defValues = "colour=black devcolour1=red devcolour2=blue";
+
+  parseFilesSetup();
+  parsePrioritySetup();
+  parseCriteriaSetup();
+  parsePopupWindowSetup();
+  return true;
+}
+
+void ObsManager::initProductDefaults()
+{
+  if (!defProd.empty())
+    return;
 
   // defaults for all observation types
   std::string parameter;
@@ -1474,10 +1475,25 @@ bool ObsManager::parseSetup()
   defProd["roadobs"].timeRangeMax= 180;
   defProd["roadobs"].synoptic= true;
 #endif
+}
 
-  std::string format, prod, dialogName;
-  std::string file;
-  std::string key, value;
+bool ObsManager::parseFilesSetup()
+{
+  METLIBS_LOG_SCOPE();
+  const std::string obs_name = "OBSERVATION_FILES";
+  vector<std::string> sect_obs;
+
+  if (!SetupParser::getSection(obs_name, sect_obs)) {
+    METLIBS_LOG_ERROR(obs_name << " section not found");
+    return true;
+  }
+
+  // ********  Common to all plot types **********************
+
+  Prod.clear();
+  initProductDefaults();
+
+  std::string format, prod, dialogName, key;
   bool newprod = true;
 
   for (unsigned int i = 0; i < sect_obs.size(); i++) {
@@ -1522,16 +1538,17 @@ bool ObsManager::parseSetup()
       }
       Prod[prod].plotFormat = plotFormat;
     } else if (key == "file" || key == "archivefile" || key == "url"
-        || key == "ascii" || key == "archive_ascii"
+               || key == "ascii" || key == "archive_ascii"
 #ifdef BUFROBS
-            || key == "bufr"
-                || key == "archive_bufr"
+               || key == "bufr"
+               || key == "archive_bufr"
 #endif
 #ifdef ROADOBS
-                    || key == "roadobs"
-                        || key == "archive_roadobs"
+               || key == "roadobs"
+               || key == "archive_roadobs"
 #endif
-    ) {
+               )
+    {
       if (prod.empty()) {
         std::string errmsg = "You must give prod before file";
         SetupParser::errorMsg(obs_name, i, errmsg);
@@ -1555,10 +1572,7 @@ bool ObsManager::parseSetup()
       else if(key == "roadobs" || key == "archive_roadobs")
         pf.fileType="roadobs";
 #endif
-      if (miutil::contains(key, "archive"))
-        pf.archive = true;
-      else
-        pf.archive = false;
+      pf.archive = miutil::contains(key, "archive");
       // Ascii files without timefilter has no time
       if (Prod[prod].obsformat == ofmt_ascii && !pf.filter.ok()) {
         Prod[prod].timeInfo = "notime";
@@ -1603,10 +1617,7 @@ bool ObsManager::parseSetup()
         Prod[prod].timeRangeMax = atoi(time[1].c_str());
       }
     } else if (key == "synoptic" && newprod) {
-      if (token[1] == "true")
-        Prod[prod].synoptic = true;
-      else
-        Prod[prod].synoptic = false;
+      Prod[prod].synoptic = (token[1] == "true");
     } else if (key == "current" && newprod) {
       Prod[prod].current = atof(token[1].c_str());
     } else if (key == "headerinfo" && newprod) {
@@ -1621,6 +1632,11 @@ bool ObsManager::parseSetup()
     }
     //printProdInfo(Prod[prod]);
   }
+  return true;
+}
+
+bool ObsManager::parsePrioritySetup()
+{
   // *******  Priority List ********************
 
   const std::string key_name = "name";
@@ -1639,14 +1655,14 @@ bool ObsManager::parseSetup()
 
     for (unsigned int i = 0; i < sect_pri.size(); i++) {
       name = "";
-      file = "";
+      std::string file = "";
 
       tokens = miutil::split_protected(sect_pri[i], '"', '"', " ", true);
       for (unsigned int j = 0; j < tokens.size(); j++) {
         stokens = miutil::split(tokens[j], 0, "=");
         if (stokens.size() > 1) {
-          key = miutil::to_lower(stokens[0]);
-          value = stokens[1];
+          std::string key = miutil::to_lower(stokens[0]);
+          std::string value = stokens[1];
           miutil::remove(value, '"');
 
           if (key == key_name) {
@@ -1668,9 +1684,11 @@ bool ObsManager::parseSetup()
       }
     }
   }
+  return true;
+}
 
-  // *********  Criteria  **************
-
+bool ObsManager::parseCriteriaSetup()
+{
   const std::string obs_crit_name = "OBSERVATION_CRITERIA";
   vector<std::string> sect_obs_crit;
 
@@ -1701,13 +1719,17 @@ bool ObsManager::parseSetup()
     if (critList.criteria.size())
       criteriaList[plottype].push_back(critList);
   }
+  return true;
+}
+
+bool ObsManager::parsePopupWindowSetup()
+{
   // Handling of popup window specification
   const std::string obs_popup_data = "OBSERVATION_POPUP_SPEC";
   vector<std::string> sect_popup_data;
 
   if (SetupParser::getSection(obs_popup_data,sect_popup_data)){
     popupSpec = sect_popup_data;
-
   }
 
   return true;
