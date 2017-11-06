@@ -426,7 +426,7 @@ public:
   void setObsAnnotation(const std::string &anno) // from ObsManager::prepare and ObsManager::sendHqcdata
     { annotation = anno; }
 
-  void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare
+  void setPopupSpec(const std::vector<std::string> &txt); // from ObsManager::prepare
 
   const PlotCommand_cpv getObsExtraAnnotations() const; // from PlotModule
 
@@ -484,9 +484,9 @@ public:
 
   // Dialog info: Name, tooltip and type of parameter buttons. ASCII only
   std::vector<std::string> columnName;
-  void addObsData(const std::vector<ObsData>& obs); // ASCII only (ObsAscii ctor)
+  void addObsData(const std::vector<ObsData>& obs);
   void replaceObsData(const std::vector<ObsData> &obs);
-  const miutil::miTime& getObsTime() const // only from ObsRoad and ObsAscii
+  const miutil::miTime& getObsTime() const
     { return Time; }
 
   void setLabels(const PlotCommand_cpv& l) // ObsAscii only

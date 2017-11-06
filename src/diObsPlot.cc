@@ -49,6 +49,8 @@
 #include <QString>
 #include <QTextCodec>
 
+#include <boost/range/adaptor/reversed.hpp>
+
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -58,6 +60,7 @@
 
 using namespace std;
 using namespace miutil;
+using boost::adaptors::reverse;
 
 map<std::string, vector<std::string> > ObsPlot::visibleStations;
 map<std::string, ObsPlot::metarww> ObsPlot::metarMap;
@@ -442,7 +445,7 @@ void ObsPlot::getAnnotation(string &str, Colour &col) const
   //Append to number of plots to the annotation string
   if (not annotation.empty()) {
     string anno_str = (" ( " + miutil::from_number(numVisiblePositions())
-    + " / " + miutil::from_number(numPositions()) + " )");
+                       + " / " + miutil::from_number(numPositions()) + " )");
     str = annotation + anno_str;
   } else
     str = annotation;
@@ -464,13 +467,9 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
         continue;
 
       std::string endString;
-      std::string startString;
-      if (miutil::contains(a, ",")) {
-        size_t nn = a.find_first_of(",");
+      size_t nn = a.find_first_of(",");
+      if (nn != std::string::npos) {
         endString = a.substr(nn);
-        startString = a.substr(0, nn);
-      } else {
-        startString = a;
       }
 
       std::string str = "arrow=" + vectorAnnotationSize
@@ -664,7 +663,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
       parameter = miutil::split(orig_value, 0, ",");
     } else if (key == "scale") {
       op->textSize = kv.toFloat();
-    if (op->markerSize < 0)
+      if (op->markerSize < 0)
         op->markerSize = kv.toFloat();
     } else if (key == "marker.size") {
       op->markerSize = kv.toFloat();
@@ -894,9 +893,8 @@ bool ObsPlot::setData()
     time_sort();
 
   // sort according to parameter
-  for (std::map<string, bool>::iterator iter = sortcriteria.begin();
-      iter != sortcriteria.end(); ++iter)
-    parameter_sort(iter->first, iter->second);
+  for (const std::pair<string,bool>& sc : sortcriteria)
+    parameter_sort(sc.first, sc.second);
 
   if (plottype() == OPT_METAR && metarMap.size() == 0)
     initMetarMap();
@@ -1086,11 +1084,11 @@ void ObsPlot::time_sort(void)
   //Sorting ...
   for (int i = 0; i < numObs; i++) {
     index = all_stations[i];
-    sortmap1.insert(pair<int, int>(diff[index], index));
+    sortmap1.insert(std::make_pair(diff[index], index));
   }
   for (int i = 0; i < numObs; i++) {
     index = all_from_file[i];
-    sortmap2.insert(pair<int, int>(diff[index], index));
+    sortmap2.insert(std::make_pair(diff[index], index));
   }
 
   multimap<int, int>::iterator p = sortmap1.begin();
@@ -1328,30 +1326,27 @@ bool ObsPlot::showpos_findObs(int xx, int yy)
   return true;
 }
 
-void ObsPlot::setPopupSpec(std::vector<std::string>& txt)
+void ObsPlot::setPopupSpec(const std::vector<std::string>& txt)
 {
-  std::string datatype="";
-  vector< std::string> data;
+  std::string datatype;
+  vector<std::string> data;
 
-  for (size_t j = 0; j < txt.size(); j++) {
-    if (miutil::contains(txt[j], "datatype")) {
-      if (!datatype.empty() && data.size() > 0) {
+  for (const std::string& t : txt) {
+    if (miutil::contains(t, "datatype")) {
+      if (!datatype.empty() && !data.empty()) {
         popupSpec[datatype] = data;
         data.clear();
       }
-      vector<std::string> token = miutil::split(txt[j], "=");
-      if (token.size() == 2 ){
+      vector<std::string> token = miutil::split(t, "=");
+      if (token.size() == 2) {
         datatype = miutil::to_lower(token[1]);
       }
     } else {
-      data.push_back(txt[j]);
-      if (j==txt.size()-1) {
-        if (!datatype.empty()) {
-          popupSpec[datatype]=data;
-          data.clear();
-        }
-      }
+      data.push_back(t);
     }
+  }
+  if (!datatype.empty()) {
+    popupSpec[datatype] = data;
   }
 }
 
@@ -1423,9 +1418,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
 
   if (!found) {
     setuptext += "<table>";
-    int size = columnName.size();
-    for (int i = 0; i < size; i++) {
-      const std::string& param = columnName[i];
+    for (const std::string& param : columnName) {
       if ( pFlag.count( param ) ) {
         setuptext += "<tr>";
         setuptext += "<td>";
@@ -1625,9 +1618,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
     // new area, find stations inside current area
     all_this_area.clear();
-    int nn = all_stations.size();
-    for (int j = 0; j < nn; j++) {
-      int i = all_stations[j];
+    for (int i : all_stations) {
       if (getStaticPlot()->getMapSize().isinside(x[i], y[i])) {
         all_this_area.push_back(i);
       }
@@ -1641,9 +1632,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       vector<int> a, b;
       int n = list_plotnr.size();
       if (n == numObs) {
-        int psize = all_this_area.size();
-        for (int j = 0; j < psize; j++) {
-          int i = all_this_area[j];
+        for (int i : all_this_area) {
           if (list_plotnr[i] == plotnr)
             a.push_back(i);
           else
@@ -1680,9 +1669,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     maxnr++;
     plotnr = maxnr;
 
-    int psize = all_this_area.size();
-    for (int j = 0; j < psize; j++) {
-      int i = all_this_area[j];
+    for (int i : all_this_area) {
       if (list_plotnr[i] == -1)
         ptmp.push_back(i);
     }
@@ -1714,11 +1701,9 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   } else if (previous || next) {
     //    METLIBS_LOG_DEBUG("plotnr:"<<plotnr);
     //    plot observations from plotnr
-    int psize = all_this_area.size();
     notplot.clear();
     nextplot.clear();
-    for (int j = 0; j < psize; j++) {
-      int i = all_this_area[j];
+    for (int i : all_this_area) {
       if (list_plotnr[i] == plotnr) {
         nextplot.push_back(i);
       } else if (list_plotnr[i] > plotnr || list_plotnr[i] == -1) {
@@ -1795,10 +1780,9 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       }
     }
     if (thisObs) {
-      int n = notplot.size();
-      for (int i = 0; i < n; i++)
-        if (list_plotnr[notplot[i]] == plotnr)
-          list_plotnr[notplot[i]] = -1;
+      for (int n : notplot) {
+        if (list_plotnr[n] == plotnr)
+          list_plotnr[n] = -1;
     }
   }
 
@@ -1810,18 +1794,15 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       col = Colour("blue");
     col = getStaticPlot()->notBackgroundColour(col);
     gl->setColour(col);
-    int m = notplot.size();
     float d = 4.5 * scale;
-    for (int i = 0; i < m; i++) {
-      int j = notplot[i];
+    for (int j : notplot)
       gl->drawCross(x[j], y[j], d, true);
     }
     gl->setColour(origcolour);
   }
 
-  const size_t n = nextplot.size();
-  for (size_t i = 0; i < n; i++) {
-    plotIndex(gl, nextplot[i]);
+  for (size_t n : nextplot) {
+    plotIndex(gl, n);
   }
 
   //reset
@@ -2257,21 +2238,20 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 
   if ( plottype() == OPT_LIST ) {
     if (yStep < 0)
-      for ( int i = vparam.size()-1; i>-1; --i )
-        printListParameter(gl, dta,vparam[i],xypos,yStep,align_right,xshift);
+      for (const auto& p : reverse(vparam))
+        printListParameter(gl, dta,p,xypos,yStep,align_right,xshift);
     else
-      for ( size_t i = 0; i<vparam.size(); ++i )
-        printListParameter(gl, dta,vparam[i],xypos,yStep,align_right,xshift);
+      for (const auto& p : vparam)
+        printListParameter(gl, dta,p,xypos,yStep,align_right,xshift);
 
   } else if ( plottype() == OPT_ASCII ) {
 
-    int n = columnName.size();
     if (yStep < 0)
-      for (int i = n-1; i > -1; --i)
-        plotAscii(gl, dta, columnName[i],xypos,yStep,align_right);
+      for (const auto& c : reverse(columnName))
+        plotAscii(gl, dta, c,xypos,yStep,align_right);
     else
-      for (int i = 0; i < n; ++i)
-        plotAscii(gl, dta, columnName[i],xypos,yStep,align_right);
+      for (const auto& c : columnName)
+        plotAscii(gl, dta, c,xypos,yStep,align_right);
   }
 }
 
@@ -3624,15 +3604,16 @@ void ObsPlot::checkGustTime(ObsData &dta)
 
 bool ObsPlot::updateDeltaTimes()
 {
+  if (plottype() != OPT_ASCII)
+    return false;
+  if (std::find(columnName.begin(), columnName.end(), "DeltaTime") == columnName.end())
+    return false;
+
   bool updated = false;
-  if (plottype() == OPT_ASCII
-      && std::find(columnName.begin(), columnName.end(), "DeltaTime")
-  != columnName.end()) {
-    miutil::miTime nowTime = miutil::miTime::nowTime();
-    for (int i = 0; i < getObsCount(); i++) {
-      if (updateDeltaTime(obsp[i], nowTime))
-        updated = true;
-    }
+  miutil::miTime nowTime = miutil::miTime::nowTime();
+  for (int i = 0; i < getObsCount(); i++) {
+    if (updateDeltaTime(obsp[i], nowTime))
+      updated = true;
   }
   return updated;
 }
@@ -3642,8 +3623,8 @@ bool ObsPlot::updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime)
   if (dta.obsTime.undef())
     return false;
 
-  dta.stringdata["DeltaTime"] = miutil::from_number(
-      miutil::miTime::secDiff(nowTime, dta.obsTime));
+  dta.stringdata["DeltaTime"] =
+      miutil::from_number(miutil::miTime::secDiff(nowTime, dta.obsTime));
   return true;
 }
 
@@ -4307,7 +4288,6 @@ void ObsPlot::changeParamColour(const std::string& param, bool select)
     colourCriteria cc;
     cc.sign = no_sign;
     cc.colour = Colour("red");
-    ;
     colourcriteria[param].push_back(cc);
   } else {
     colourcriteria.erase(param);

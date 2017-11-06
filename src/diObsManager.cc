@@ -100,9 +100,7 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
   miutil::miTime timeRangeMin = time, timeRangeMax = time;
 
   const diutil::string_v &dataTypes = oplot->dataTypes();
-  for (diutil::string_v::const_iterator itD = dataTypes.begin();
-      itD != dataTypes.end(); ++itD) {
-    const std::string& dataType = *itD;
+  for (const std::string& dataType : dataTypes) {
     string_ProdInfo_m::const_iterator itP = Prod.find(dataType);
 #if 0
     if (itP == Prod.end())
@@ -126,8 +124,8 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
     oplot->setCurrent(pi.current);
 
     // Set modification time
-    for (size_t j = 0; j < finfo.size(); j++)
-      oplot->setModificationTime(finfo[j].filename);
+    for (const FileInfo& fi : finfo)
+      oplot->setModificationTime(fi.filename);
 
     //Annotations
     if (not finfo.empty()) { // if there are any files of this dataType
@@ -142,13 +140,11 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
     oplot->updateLevel(dataType);
 
     //set setuptext for ascii
-    if (popupSpec.size() > 0) {
-      oplot->setPopupSpec(popupSpec);
-    }
+    oplot->setPopupSpec(popupSpec);
 
-    for (size_t j = 0; j < finfo.size(); j++) {
-      const std::string& filetype = finfo[j].filetype;
-      std::string filename = finfo[j].filename;
+    for (const FileInfo& fi : finfo) {
+      const std::string& filetype = fi.filetype;
+      std::string filename = fi.filename;
 
       // add stations and time to url
       if (not pi.metaData.empty()) {
@@ -370,13 +366,14 @@ bool ObsManager::updateTimes(std::string obsType)
 
   if (Prod.find(obsType) == Prod.end())
     return false;
+  ProdInfo& pi = Prod[obsType];
   // make a copy of the old fileinfo
-  vector<FileInfo> oldfileInfo = Prod[obsType].fileInfo;
-  Prod[obsType].fileInfo.clear();
+  vector<FileInfo> oldfileInfo = pi.fileInfo;
+  pi.fileInfo.clear();
 #ifdef ROADOBS
   // WMO (synop) reports 1 time per hour. ICAO (metar) reports ever 30 minutes (x.20, x.50)
   // Can we trust in obsType to select the right time intervall and obstime?
-  if (Prod[obsType].obsformat == ofmt_roadobs)
+  if (pi.obsformat == ofmt_roadobs)
   {
     // Due to the fact that we have a database instead of an archive,
     // we maust fake the behavoir of anarchive
@@ -398,22 +395,22 @@ bool ObsManager::updateTimes(std::string obsType)
       if (oldfileInfo[i].time == now)
       {
         // restore the old fileinfo
-        Prod[obsType].fileInfo = oldfileInfo;
+        pi.fileInfo = oldfileInfo;
         return false;
       }
     }
-    int daysback = Prod[obsType].daysback;
+    int daysback = pi.daysback;
     miTime starttime = now;
     starttime.addDay(-daysback);
-    int npattern = Prod[obsType].pattern.size();
+    int npattern = pi.pattern.size();
     int hourdiff;
     for( int j=0;j<npattern; j++) {
       FileInfo finfo;
       miTime time = now;
       finfo.time = time;
       finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
-      finfo.filetype = Prod[obsType].pattern[j].fileType;
-      Prod[obsType].fileInfo.push_back(finfo);
+      finfo.filetype = pi.pattern[j].fileType;
+      pi.fileInfo.push_back(finfo);
       if (miutil::contains(obsType, "wmo") || miutil::contains(obsType, "ship"))
         time.addHour(-1);
       else if (miutil::contains(obsType, "icao"))
@@ -421,8 +418,8 @@ bool ObsManager::updateTimes(std::string obsType)
       while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
         finfo.time = time;
         finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
-        finfo.filetype = Prod[obsType].pattern[j].fileType;
-        Prod[obsType].fileInfo.push_back(finfo);
+        finfo.filetype = pi.pattern[j].fileType;
+        pi.fileInfo.push_back(finfo);
         if (miutil::contains(obsType, "wmo") || miutil::contains(obsType, "ship"))
           time.addHour(-1);
         else if (miutil::contains(obsType, "icao"))
@@ -433,18 +430,17 @@ bool ObsManager::updateTimes(std::string obsType)
   else
   {
 #endif
-    ProdInfo& pi = Prod[obsType];
-    for (std::vector<patternInfo>::const_iterator pit = pi.pattern.begin(); pit != pi.pattern.end(); ++pit) {
-      if (pit->archive == useArchive) {
-        bool ok = pit->filter.ok();
-        const diutil::string_v matches = diutil::glob(pit->pattern);
+    for (const patternInfo& pit : pi.pattern) {
+      if (pit.archive == useArchive) {
+        bool ok = pit.filter.ok();
+        const diutil::string_v matches = diutil::glob(pit.pattern);
         if (matches.empty())
-          METLIBS_LOG_INFO("No files matches '" <<pit->pattern <<"'");
+          METLIBS_LOG_INFO("No files matches '" <<pit.pattern <<"'");
         for (diutil::string_v::const_iterator mit = matches.begin(); mit != matches.end(); ++mit) {
           FileInfo finfo;
           finfo.filename = *mit;
-          finfo.filetype = pit->fileType;
-          if (ok && pit->filter.getTime(finfo.filename, finfo.time)) {
+          finfo.filetype = pit.fileType;
+          if (ok && pit.filter.getTime(finfo.filename, finfo.time)) {
             //time from file name
           } else {
             //time not found from filename, open file
@@ -479,7 +475,7 @@ bool ObsManager::updateTimes(std::string obsType)
   return true;
 }
 
-bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi,vector<FileInfo> & oldfileInfo )
+bool ObsManager::updateTimesFromRoadFile(ProdInfo& pi,vector<FileInfo> & oldfileInfo)
 {
 #ifdef ROADOBS
   // Due to the fact that we have a database instead of an archive, we
@@ -536,7 +532,6 @@ bool ObsManager::updateTimesfromFile(const std::string& obsType)
   } else
 #endif
   {
-    vector<std::string> fname;
     for (std::vector<patternInfo>::const_iterator pit = pi.pattern.begin(); pit != pi.pattern.end(); ++pit) {
       if (pit->archive == useArchive) {
         const diutil::string_v matches = diutil::glob(pit->pattern);
@@ -620,22 +615,22 @@ vector<miTime> ObsManager::getTimes(const std::vector<std::string>& obsTypes)
   set<miTime> timeset;
 
   for (const std::string& ot : obsTypes) {
-    std::string obsType = miutil::to_lower(ot);
-
-    if (Prod[obsType].obsformat == ofmt_url) {
+    const std::string obsType = miutil::to_lower(ot);
+    ProdInfo& po = Prod[obsType];
+    if (po.obsformat == ofmt_url) {
       // TODO move some of this to parseSetup
-      FileInfo finfo;
-      if (!Prod[obsType].pattern.size())
+      if (po.pattern.empty())
         continue;
-      finfo.filename = Prod[obsType].pattern[0].pattern;
-      finfo.filetype = Prod[obsType].pattern[0].fileType;
-      Prod[obsType].fileInfo.push_back(finfo);
+      FileInfo finfo;
+      finfo.filename = po.pattern[0].pattern;
+      finfo.filetype = po.pattern[0].fileType;
+      po.fileInfo.push_back(finfo);
 
-      vector<std::string> tokens = miutil::split(Prod[obsType].timeInfo, ";");
+      const vector<std::string> tokens = miutil::split(po.timeInfo, ";");
       miTime from = miTime::nowTime(), to = from;
       int interval = 3;
-      for (size_t j = 0; j < tokens.size(); ++j) {
-        vector<std::string> stokens = miutil::split(tokens[j], "=");
+      for (const std::string& tok : tokens) {
+        const vector<std::string> stokens = miutil::split(tok, "=");
         if (stokens.size() != 2)
           continue;
         if (stokens[0] == "from") {
@@ -658,13 +653,12 @@ vector<miTime> ObsManager::getTimes(const std::vector<std::string>& obsTypes)
           timeListChanged = true;
         }
 
-        if (Prod[obsType].timeInfo == "notime")
+        if (po.timeInfo == "notime")
           continue;
       }
 
-      vector<FileInfo>::iterator p = Prod[obsType].fileInfo.begin();
-      for (; p != Prod[obsType].fileInfo.end(); p++)
-        timeset.insert((*p).time);
+      for (const FileInfo& fi : po.fileInfo)
+        timeset.insert(fi.time);
     }
 
   }
@@ -686,18 +680,15 @@ ObsDialogInfo ObsManager::initDialog()
 
   ObsDialogInfo::PlotType psynop;
   psynop.name = "Synop";
-  psynop.misc =
-      "dev_field_button=true tempPrecision=true unit_ms more_times qualityflag wmoflag";
+  psynop.misc = "dev_field_button=true tempPrecision=true unit_ms more_times qualityflag wmoflag";
   psynop.criteriaList = criteriaList["synop"];
 
   psynop.button.push_back(addButton("Wind", "Wind (direction and speed)"));
   psynop.button.push_back(addButton("TTT", "Temperature (2m)", -50, 50));
-  psynop.button.push_back(
-      addButton("TdTdTd", "Dew point temperature", -50, 50));
+  psynop.button.push_back(addButton("TdTdTd", "Dew point temperature", -50, 50));
   psynop.button.push_back(addButton("PPPP", "Pressure ", 100, 1050));
   psynop.button.push_back(addButton("ppp", " 3 hour pressure change", -10, 10));
-  psynop.button.push_back(
-      addButton("a", "Characteristic of pressure tendency", 0, 9));
+  psynop.button.push_back(addButton("a", "Characteristic of pressure tendency", 0, 9));
   psynop.button.push_back(addButton("h", "height of base of cloud", 1, 9));
   psynop.button.push_back(addButton("VV", "horizontal visibility", 0, 10000));
   psynop.button.push_back(addButton("N", "total cloud cover", 0, 8));
@@ -709,32 +700,20 @@ ObsDialogInfo ObsManager::initDialog()
   psynop.button.push_back(addButton("Cl", "cloud type, low", 1, 9));
   psynop.button.push_back(addButton("Cm", "cloud type, medium", 1, 9));
   psynop.button.push_back(addButton("Ch", "cloud type, high", 1, 9));
-  psynop.button.push_back(
-      addButton("vs", "speed of motion of moving observing platform", 0, 9));
-  psynop.button.push_back(
-      addButton("ds", "direction of motion of moving observing platform", 1,
-          360));
-  psynop.button.push_back(
-      addButton("TwTwTw", "sea/water temperature", -50, 50));
+  psynop.button.push_back(addButton("vs", "speed of motion of moving observing platform", 0, 9));
+  psynop.button.push_back(addButton("ds", "direction of motion of moving observing platform", 1, 360));
+  psynop.button.push_back(addButton("TwTwTw", "sea/water temperature", -50, 50));
   psynop.button.push_back(addButton("PwaHwa", "period/height of waves", 0, 0));
-  psynop.button.push_back(
-      addButton("dw1dw1", "direction of swell waves", 0, 360));
-  psynop.button.push_back(
-      addButton("Pw1Hw1", "period/height of swell waves", 0, 0));
-  psynop.button.push_back(
-      addButton("TxTn", "max/min temperature at 2m", -50, 50));
+  psynop.button.push_back(addButton("dw1dw1", "direction of swell waves", 0, 360));
+  psynop.button.push_back(addButton("Pw1Hw1", "period/height of swell waves", 0, 0));
+  psynop.button.push_back(addButton("TxTn", "max/min temperature at 2m", -50, 50));
   psynop.button.push_back(addButton("sss", "Snow depth", 0, 100));
-  psynop.button.push_back(
-      addButton("911ff", "maximum wind speed (gusts)", 0, 100));
+  psynop.button.push_back(addButton("911ff", "maximum wind speed (gusts)", 0, 100));
   psynop.button.push_back(addButton("s", "state of the sea", 0, 20));
-  psynop.button.push_back(
-      addButton("fxfx", "maximum wind speed (10 min mean wind)", 0, 100));
-  psynop.button.push_back(
-      addButton("Id", "buoy/platform, ship or mobile land station identifier",
-          0, 0));
+  psynop.button.push_back(addButton("fxfx", "maximum wind speed (10 min mean wind)", 0, 100));
+  psynop.button.push_back(addButton("Id", "buoy/platform, ship or mobile land station identifier", 0, 0));
   psynop.button.push_back(addButton("St.no(3)", "WMO station number", 0, 0));
-  psynop.button.push_back(
-      addButton("St.no(5)", "WMO block and station number", 0, 0));
+  psynop.button.push_back(addButton("St.no(5)", "WMO block and station number", 0, 0));
   psynop.button.push_back(addButton("Time", "hh.mm", 0, 0));
 
   vector<ObsFormat> obsformat;
@@ -756,12 +735,10 @@ ObsDialogInfo ObsManager::initDialog()
   pmetar.criteriaList = criteriaList["metar"];
 
   pmetar.button.push_back(addButton("Wind", "Wind (direction and speed)"));
-  pmetar.button.push_back(
-      addButton("dndx", "limit of variable wind direction"));
+  pmetar.button.push_back(addButton("dndx", "limit of variable wind direction"));
   pmetar.button.push_back(addButton("fmfm", "Wind gust", 0, 36));
   pmetar.button.push_back(addButton("TTT", "Temperature", -50, 50));
-  pmetar.button.push_back(
-      addButton("TdTdTd", "Dew point temperature", -50, 50));
+  pmetar.button.push_back(addButton("TdTdTd", "Dew point temperature", -50, 50));
   pmetar.button.push_back(addButton("ww", "Significant weather", 0, 0));
   pmetar.button.push_back(addButton("REww", "Recent weather", 0, 0));
   pmetar.button.push_back(addButton("VVVV/Dv", "Visibility (worst)", 0, 0));
@@ -783,15 +760,13 @@ ObsDialogInfo ObsManager::initDialog()
   ObsDialogInfo::PlotType plist;
 
   plist.name = "List";
-  plist.misc =
-      "dev_field_button tempPrecision unit_ms markerboxVisible orientation more_times qualityflag wmoflag";
+  plist.misc = "dev_field_button tempPrecision unit_ms markerboxVisible orientation more_times qualityflag wmoflag";
   plist.criteriaList = criteriaList["list"];
 
   plist.button.push_back(addButton("Pos", "Position", 0, 0, true));
   plist.button.push_back(addButton("dd", "wind direction", 0, 360, true));
   plist.button.push_back(addButton("ff", "wind speed)", 0, 100, true));
-  plist.button.insert(plist.button.end(), psynop.button.begin(),
-      psynop.button.end());
+  plist.button.insert(plist.button.end(), psynop.button.begin(), psynop.button.end());
   plist.button.pop_back();
   plist.button.pop_back();
   plist.button.pop_back();
@@ -801,14 +776,10 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.push_back(addButton("Height", "height of station", 0, 5000));
   plist.button.push_back(addButton("Zone", "Zone", 1, 99));
   plist.button.push_back(addButton("Name", "Name of station", 0, 0));
-  plist.button.push_back(
-      addButton("RRR_1", "precipitation past hour", -1, 100));
-  plist.button.push_back(
-      addButton("RRR_6", "precipitation past 6 hours", -1, 100));
-  plist.button.push_back(
-      addButton("RRR_12", "precipitation past 12 hours", -1, 100));
-  plist.button.push_back(
-      addButton("RRR_24", "precipitation past 24 hours", -1, 100));
+  plist.button.push_back(addButton("RRR_1", "precipitation past hour", -1, 100));
+  plist.button.push_back(addButton("RRR_6", "precipitation past 6 hours", -1, 100));
+  plist.button.push_back(addButton("RRR_12", "precipitation past 12 hours", -1, 100));
+  plist.button.push_back(addButton("RRR_24", "precipitation past 24 hours", -1, 100));
   plist.button.push_back(addButton("quality", "quality", -1, 100));
 
   obsformat.clear();
@@ -835,20 +806,15 @@ ObsDialogInfo ObsManager::initDialog()
   ppressure.button.push_back(addButton("dd", "wind direction", 0, 360, true));
   ppressure.button.push_back(addButton("ff", "wind speed)", 0, 100, true));
   ppressure.button.push_back(addButton("TTT", "Temperature", -50, 50));
-  ppressure.button.push_back(
-      addButton("TdTdTd", "Dew point temperature", -50, 50));
+  ppressure.button.push_back(addButton("TdTdTd", "Dew point temperature", -50, 50));
   ppressure.button.push_back(addButton("PPPP", "Pressure", 950, 1050, true));
   ppressure.button.push_back(addButton("Id", "Identification", 0, 0, true));
   ppressure.button.push_back(addButton("Date", "Date(mm-dd)", 0, 0));
   ppressure.button.push_back(addButton("Time", "hh.mm", 0, 0, true));
   ppressure.button.push_back(addButton("HHH", "geopotential", true));
-  ppressure.button.push_back(
-      addButton("QI", "Percent confidence", 0, 100, true));
-  ppressure.button.push_back(
-      addButton("QI_NM", "Percent confidence no model", 0, 100, true));
-  ppressure.button.push_back(
-      addButton("QI_RFF", "Percent confidence recursive filter flag", 0, 100,
-          true));
+  ppressure.button.push_back(addButton("QI", "Percent confidence", 0, 100, true));
+  ppressure.button.push_back(addButton("QI_NM", "Percent confidence no model", 0, 100, true));
+  ppressure.button.push_back(addButton("QI_RFF", "Percent confidence recursive filter flag", 0, 100, true));
 
   obsformat.clear();
   obsformat.push_back(ofmt_temp);
@@ -860,36 +826,33 @@ ObsDialogInfo ObsManager::initDialog()
   //+++++++++Plot type = Synop/List (one datatype)+++++++++++++++
 
   for (pr = prbegin; pr != prend; pr++) {
-
-    if (pr->second.plotFormat == "synop" || pr->second.plotFormat == "list") {
+    ProdInfo& pi = pr->second;
+    if (pi.plotFormat == "synop" || pi.plotFormat == "list") {
 
       ObsDialogInfo::PlotType psingle;
-      if (pr->second.obsformat == ofmt_synop
-          || pr->second.obsformat == ofmt_dribu
-          || pr->second.obsformat == ofmt_metar
-          || pr->second.obsformat == ofmt_satob) {
-        if (pr->second.plotFormat == "synop") {
+      if (pi.obsformat == ofmt_synop
+          || pi.obsformat == ofmt_dribu
+          || pi.obsformat == ofmt_metar
+          || pi.obsformat == ofmt_satob)
+      {
+        if (pi.plotFormat == "synop") {
           psingle.misc = "dev_field_button=true tempPrecision=true unit_ms more_times";
           psingle.criteriaList = criteriaList["synop"];
-          setAllActive(psingle, pr->second.parameter, pr->second.dialogName,
-              psynop.button);
+          setAllActive(psingle, pi.parameter, pi.dialogName, psynop.button);
         } else {
-          psingle.misc =
-              "dev_field_button tempPrecision unit_ms markerboxVisible orientation more_times";
+          psingle.misc = "dev_field_button tempPrecision unit_ms markerboxVisible orientation more_times";
           psingle.criteriaList = criteriaList["list"];
-          setAllActive(psingle, pr->second.parameter, pr->second.dialogName,
-              plist.button);
+          setAllActive(psingle, pi.parameter, pi.dialogName, plist.button);
         }
       } else {
         psingle.misc = "markerboxVisible asFieldButton orientation more_times";
         psingle.criteriaList = criteriaList["pressure"];
 
         psingle.pressureLevels = std::vector<int>(levels, levels + NLEVELS);
-        setAllActive(psingle, pr->second.parameter, pr->second.dialogName,
-            ppressure.button);
+        setAllActive(psingle, pi.parameter, pi.dialogName, ppressure.button);
       }
 
-      psingle.name = pr->second.plotFormat + ": " + pr->second.dialogName;
+      psingle.name = pi.plotFormat + ": " + pi.dialogName;
 
       dialog.plottype.push_back(psingle);
     }
@@ -900,19 +863,20 @@ ObsDialogInfo ObsManager::initDialog()
   // buttons made when plottype activated the first time...
 
   for (pr = prbegin; pr != prend; pr++) {
-    if (pr->second.obsformat == ofmt_ascii
-        || pr->second.obsformat == ofmt_url) {
-
+    ProdInfo& pi = pr->second;
+    if (pi.obsformat == ofmt_ascii
+        || pi.obsformat == ofmt_url)
+    {
       ObsDialogInfo::PlotType pascii;
 
       pascii.misc = "markerboxVisible orientation  parameterName=true popup";
       pascii.criteriaList = criteriaList["ascii"];
 
-      pascii.name = pr->second.dialogName;
+      pascii.name = pi.dialogName;
       pascii.button.clear();
 
       type.active.clear();
-      type.name = pr->second.dialogName; // same name as the plot type
+      type.name = pi.dialogName; // same name as the plot type
       pascii.datatype.push_back(type);
       pascii.criteriaList = criteriaList["ascii"];
 
@@ -925,7 +889,8 @@ ObsDialogInfo ObsManager::initDialog()
   // buttons made when plottype activated the first time...
 #ifdef ROADOBS
   for (pr=prbegin; pr!=prend; pr++) {
-    if (pr->second.obsformat==ofmt_roadobs) {
+    ProdInfo& pi = pr->second;
+    if (pi.obsformat==ofmt_roadobs) {
 
       ObsDialogInfo::PlotType proad;
 
@@ -934,13 +899,13 @@ ObsDialogInfo ObsManager::initDialog()
 
       proad.criteriaList = criteriaList["roadobs"];
 
-      //proad.name= pr->second.dialogName;
-      proad.name= pr->second.plotFormat + ":" + pr->second.dialogName;
+      //proad.name= pi.dialogName;
+      proad.name= pi.plotFormat + ":" + pi.dialogName;
       proad.button.clear();
 
       type.active.clear();
-      type.name= pr->second.dialogName;// same name as the plot type
-      //type.name = pr->second.plotFormat + ":" + pr->second.dialogName;
+      type.name= pi.dialogName;// same name as the plot type
+      //type.name = pi.plotFormat + ":" + pi.dialogName;
       proad.datatype.push_back(type);
 
       dialog.plottype.push_back(proad);
@@ -958,23 +923,22 @@ ObsDialogInfo ObsManager::initDialog()
   const int ocea_levels[] = { 0, 10, 20, 30, 50, 75, 100, 125, 150, 200, 250,
       300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 3000, 4000 };
   const int NOCEALEVELS = sizeof(ocea_levels) / sizeof(ocea_levels[0]);
-  pocea.pressureLevels = std::vector<int>(ocea_levels,
-      ocea_levels + NOCEALEVELS);
+  pocea.pressureLevels = std::vector<int>(ocea_levels, ocea_levels + NOCEALEVELS);
 
   pocea.button.push_back(addButton("Pos", "Position", 0, 0, true));
   pocea.button.push_back(addButton("Id", "Identifcation", 0, 0, true));
   pocea.button.push_back(addButton("Date", "Date(mm-dd)", 0, 0));
   pocea.button.push_back(addButton("Time", "hh.mm  ", 0, 0, true));
   pocea.button.push_back(addButton("depth", "depth", 0, 100, true));
-  pocea.button.push_back(
-      addButton("TTTT", "sea/water temperature", -50, 50, true));
+  pocea.button.push_back(addButton("TTTT", "sea/water temperature", -50, 50, true));
   pocea.button.push_back(addButton("SSSS", "Salt", 0, 50, true));
 
   type.active.resize(pocea.button.size(), true);
 
   for (pr = prbegin; pr != prend; pr++) {
-    if (pr->second.obsformat == ofmt_ocea) {
-      type.name = pr->second.dialogName;
+    ProdInfo& pi = pr->second;
+    if (pi.obsformat == ofmt_ocea) {
+      type.name = pi.dialogName;
       pocea.datatype.push_back(type);
     }
   }
@@ -997,8 +961,9 @@ ObsDialogInfo ObsManager::initDialog()
   type.active.resize(ptide.button.size(), true);
 
   for (pr = prbegin; pr != prend; pr++) {
-    if (pr->second.obsformat == ofmt_tide) {
-      type.name = pr->second.dialogName;
+    ProdInfo& pi = pr->second;
+    if (pi.obsformat == ofmt_tide) {
+      type.name = pi.dialogName;
       ptide.datatype.push_back(type);
     }
   }
@@ -1010,16 +975,17 @@ ObsDialogInfo ObsManager::initDialog()
   //buttons made each time initHqcData() is called
 
   for (pr = prbegin; pr != prend; pr++) {
-    if (pr->second.obsformat == ofmt_hqc) {
+    ProdInfo& pi = pr->second;
+    if (pi.obsformat == ofmt_hqc) {
 
       ObsDialogInfo::PlotType phqc;
 
-      phqc.name = pr->second.dialogName;
+      phqc.name = pi.dialogName;
       phqc.misc = "tempPrecision=true criteria=false";
       phqc.button.clear();
 
       type.active.clear();
-      type.name = pr->second.dialogName; // same name as the plot type
+      type.name = pi.dialogName; // same name as the plot type
       phqc.datatype.push_back(type);
       phqc.criteriaList = criteriaList["hqc"];
 
@@ -1037,10 +1003,9 @@ void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
   map<std::string, ProdInfo>::iterator prend = Prod.end();
   map<std::string, ProdInfo>::iterator pr;
 
-  int n = obsformat.size();
-  for (int i = 0; i < n; i++) {
+  for (const ObsFormat& of : obsformat) {
     for (pr = prbegin; pr != prend; pr++) {
-      if (pr->second.obsformat == obsformat[i]) {
+      if (pr->second.obsformat == of) {
         ObsDialogInfo::DataType type;
         type.active.resize(dialogInfo.button.size(), false);
         setActive(pr->second.parameter, true, type.active, dialogInfo.button);
@@ -1054,14 +1019,13 @@ void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
 void ObsManager::setActive(const vector<std::string>& name, bool on,
     vector<bool>& active, const vector<ObsDialogInfo::Button>& b)
 {
-  int nname = name.size();
   unsigned int nr = b.size();
   if (active.size() != nr)
     return;
 
-  for (int j = 0; j < nname; j++)
+  for (const std::string& n : name)
     for (unsigned int i = 0; i < nr; i++)
-      if (name[j] == b[i].name) {
+      if (n == b[i].name) {
         active[i] = on;
         break;
       }
@@ -1072,10 +1036,9 @@ void ObsManager::setAllActive(ObsDialogInfo::PlotType& dialogInfo,
     const vector<ObsDialogInfo::Button>& b)
 {
   int n = b.size();
-  int m = parameter.size();
-  for (int j = 0; j < m; j++)
+  for (const std::string& p : parameter)
     for (int i = 0; i < n; i++)
-      if (parameter[j] == b[i].name) {
+      if (p == b[i].name) {
         dialogInfo.button.push_back(b[i]);
       }
 
@@ -1237,14 +1200,10 @@ ObsDialogInfo ObsManager::updateHqcDialog(const std::string& plotType)
   if (id == nd)
     return dialog;
 
-  //   std::string oname= miutil::to_lower(name);
+  ObsDialogInfo::PlotType& pt = dialog.plottype[id];
 
-  //   map<std::string,ProdInfo>::iterator pr= Prod.find(oname);
-  //   if (pr==Prod.end()) return dialog;
-
-  //   if (pr->second.obsformat==ofmt_hqc) {
-  dialog.plottype[id].button.clear();
-  dialog.plottype[id].datatype[0].active.clear();
+  pt.button.clear();
+  pt.datatype[0].active.clear();
   if (plotType == "Hqc_synop") {
     int wind = 0;
     for (const std::string& p : hqc_synop_parameter){
@@ -1254,16 +1213,16 @@ ObsDialogInfo ObsManager::updateHqcDialog(const std::string& plotType)
       }
       if (p == "lon" or p == "lat" or p == "auto")
         continue;
-      dialog.plottype[id].button.push_back(addButton(p," ",0,0,true));
-      dialog.plottype[id].datatype[0].active.push_back(true);
+      pt.button.push_back(addButton(p," ",0,0,true));
+      pt.datatype[0].active.push_back(true);
     }
     if (wind == 2) {
-      dialog.plottype[id].button.push_back(addButton("Wind", " ", 0, 0, true));
-      dialog.plottype[id].datatype[0].active.push_back(true);
+      pt.button.push_back(addButton("Wind", " ", 0, 0, true));
+      pt.datatype[0].active.push_back(true);
     }
-    if (dialog.plottype[id].button.size()) {
-      dialog.plottype[id].button.push_back(addButton("Flag", " ", 0, 0, true));
-      dialog.plottype[id].datatype[0].active.push_back(true);
+    if (pt.button.size()) {
+      pt.button.push_back(addButton("Flag", " ", 0, 0, true));
+      pt.datatype[0].active.push_back(true);
     }
   } else if (plotType == "Hqc_list") {
     int wind = 0;
@@ -1273,13 +1232,13 @@ ObsDialogInfo ObsManager::updateHqcDialog(const std::string& plotType)
       if (p == "DD" or p == "FF") {
         wind++;
       } else {
-        dialog.plottype[id].button.push_back(addButton(p," ",0,0,true));
-        dialog.plottype[id].datatype[0].active.push_back(true);
+        pt.button.push_back(addButton(p," ",0,0,true));
+        pt.datatype[0].active.push_back(true);
       }
       if (wind == 2) {
         wind = 0;
-        dialog.plottype[id].button.push_back(addButton("Wind"," ",0,0,true));
-        dialog.plottype[id].datatype[0].active.push_back(true);
+        pt.button.push_back(addButton("Wind"," ",0,0,true));
+        pt.datatype[0].active.push_back(true);
       }
     }
   }
@@ -1396,63 +1355,75 @@ void ObsManager::initProductDefaults()
   defProd["synop"].timeRangeMin = -30;
   defProd["synop"].timeRangeMax = 30;
   defProd["synop"].synoptic = true;
-  parameter =
-      "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24,quality";
+  parameter = "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw"
+              ",PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5)"
+              ",Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24,quality";
   defProd["synop"].parameter = miutil::split(parameter, ",");
+
   defProd["aireps"].obsformat = ofmt_aireps;
   defProd["aireps"].timeRangeMin = -30;
   defProd["aireps"].timeRangeMax = 30;
   defProd["aireps"].synoptic = false;
   parameter = "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["aireps"].parameter = miutil::split(parameter, ",");
+
   defProd["satob"].obsformat = ofmt_satob;
   defProd["satob"].timeRangeMin = -180;
   defProd["satob"].timeRangeMax = 180;
   defProd["satob"].synoptic = false;
   parameter = "Pos,dd,ff,Wind,Id,Date,Time";
   defProd["satob"].parameter = miutil::split(parameter, ",");
+
   defProd["dribu"].obsformat = ofmt_dribu;
   defProd["dribu"].timeRangeMin = -90;
   defProd["dribu"].timeRangeMax = 90;
   defProd["dribu"].synoptic = false;
   parameter = "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,ppp,a,TwTwTw,Id,Date,Time";
   defProd["dribu"].parameter = miutil::split(parameter, ",");
+
   defProd["temp"].obsformat = ofmt_temp;
   defProd["temp"].timeRangeMin = -30;
   defProd["temp"].timeRangeMax = 30;
   defProd["temp"].synoptic = false;
   parameter = "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH,QI,QI_NM,QI_RFF";
   defProd["temp"].parameter = miutil::split(parameter, ",");
+
   defProd["ocea"].obsformat = ofmt_ocea;
   defProd["ocea"].timeRangeMin = -180;
   defProd["ocea"].timeRangeMax = 180;
   defProd["ocea"].synoptic = true;
+
   defProd["tide"].obsformat = ofmt_tide;
   defProd["tide"].timeRangeMin = -180;
   defProd["tide"].timeRangeMax = 180;
   defProd["tide"].synoptic = true;
+
   defProd["pilot"].obsformat = ofmt_pilot;
   defProd["pilot"].timeRangeMin = -30;
   defProd["pilot"].timeRangeMax = 30;
   defProd["pilot"].synoptic = false;
   parameter = "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["pilot"].parameter = miutil::split(parameter, ",");
+
   defProd["metar"].obsformat = ofmt_metar;
   defProd["metar"].timeRangeMin = -15;
   defProd["metar"].timeRangeMax = 15;
   defProd["metar"].synoptic = true;
-  parameter =
-      "Pos,dd,ff,Wind,dndx,fmfm,TTT,TdTdTd,ww,REww,VVVV/Dv,VxVxVxVx/Dvx,Clouds,PHPHPHPH,Id,Date,Time";
+
+  parameter = "Pos,dd,ff,Wind,dndx,fmfm,TTT,TdTdTd,ww,REww,VVVV/Dv,VxVxVxVx/Dvx,Clouds,PHPHPHPH,Id,Date,Time";
   defProd["metar"].parameter = miutil::split(parameter, ",");
   defProd["ascii"].obsformat = ofmt_ascii;
   defProd["ascii"].timeRangeMin = -180;
   defProd["ascii"].timeRangeMax = 180;
   defProd["ascii"].synoptic = false;
+
   defProd["hqc"].obsformat = ofmt_hqc;
   defProd["hqc"].timeRangeMin = -180;
   defProd["hqc"].timeRangeMax = 180;
   defProd["hqc"].synoptic = false;
+
   defProd["url"].obsformat = ofmt_url;
+
 #ifdef ROADOBS
   defProd["roadobs"].obsformat= ofmt_roadobs;
   defProd["roadobs"].timeRangeMin=-180;
@@ -1875,7 +1846,7 @@ bool ObsManager::changeHqcdata(ObsData& odata, const vector<string>& param,
 
   for (unsigned int i = 0; i < param.size(); i++) {
     const std::string& key = param[i];
-    std::string value = miutil::to_lower(data[i]);
+    const std::string value = miutil::to_lower(data[i]);
 
     if (key == "id") {
       odata.id = data[i]; // no lower case!
@@ -1896,8 +1867,7 @@ bool ObsManager::changeHqcdata(ObsData& odata, const vector<string>& param,
       if (vstr.empty())
         continue;
 
-      value = vstr[0];
-      const float fvalue = miutil::to_double(value);
+      const float fvalue = miutil::to_double(vstr[0]);
       if (vstr.size() >= 2) {
         odata.flag[key] = vstr[1];
         if (vstr.size() == 3)
@@ -1907,8 +1877,8 @@ bool ObsManager::changeHqcdata(ObsData& odata, const vector<string>& param,
       const char* simple_keys[] = { "h", "VV", "N", "dd", "ff", "TTT", "TdTdTd",
           "PPPP", "ppp", "RRR", "Rt", "ww", "Nh", "TwTwTw", "PwaPwa", "HwaHwa",
           "Pw1Pw1", "Hw1Hw1", "s", "fxfx", "TxTn", "sss" };
-      if (std::find(simple_keys, boost::end(simple_keys), key)
-      != boost::end(simple_keys)) {
+      if (std::find(simple_keys, boost::end(simple_keys), key) != boost::end(simple_keys))
+      {
         odata.fdata[key] = fvalue;
         continue;
       }
@@ -1939,10 +1909,8 @@ bool ObsManager::changeHqcdata(ObsData& odata, const vector<string>& param,
         // FIXME else { do not keep old value }
       } else if (key == "TxTxTx" or key == "TnTnTn") {
         odata.fdata["TxTn"] = fvalue;
-        ;
       } else if (key == "911ff" or key == "ff_911") {
         odata.fdata["ff_911"] = fvalue;
-        ;
       } else {
         METLIBS_LOG_INFO("unknown key '" << key << '\'');
       }
