@@ -1,3 +1,9 @@
+diana-3.43 (3.43.5-1) unstable; urgency=low
+
+  * Bugfix: wavespec widget placement
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 07 Nov 2017 08:00:08 +0100
+
 diana-3.43 (3.43.4-1) unstable; urgency=low
 
   * re-enable OpenGL GUI
