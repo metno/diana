@@ -1718,6 +1718,8 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   int nbx = int((ms.x2 + flagl * 2.5 - bx) * bres) + 3;
   int nby = int((ms.y2 + flagl * 2.5 - by) * bres) + 3;
   int nbmap = (nbx * nby + nbitwd - 1) / nbitwd;
+  if (nbmap<0 || nbmap > 1000000)
+    return false;
   int *bmap = new int[nbmap];
   for (i = 0; i < nbmap; i++)
     bmap[i] = 0;
