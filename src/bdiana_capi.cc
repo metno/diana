@@ -2845,19 +2845,11 @@ int diana_init(int _argc, char** _argv)
 {
   cerr <<"diana_init"<<endl;
   diOrderBook *orderbook = NULL;
-  std::string xhost = ":0.0"; // default DISPLAY
   std::string sarg;
   int port;
 
-  // get the DISPLAY variable
-  char * ctmp = getenv("DISPLAY");
-  if (ctmp) {
-    xhost = ctmp;
-  }
-
   // get the BDIANA_LOGGER variable
-  ctmp = getenv("BDIANA_LOGGER");
-  if (ctmp) {
+  if (char* ctmp = getenv("BDIANA_LOGGER")) {
     logfilename = ctmp;
   }
 
@@ -2892,7 +2884,7 @@ int diana_init(int _argc, char** _argv)
       ac++;
       if (ac >= argc)
         printUsage(false);
-      xhost = argv[ac].toStdString();
+      cerr << "WARN, -display <..> is ignored and deprecated, please remove from command invocation" << endl;
 
     } else if (sarg == "-input" || sarg == "-i") {
       ac++;
