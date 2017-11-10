@@ -1,1 +1,0 @@
-/home/alexanderb/tools/vcross/hirlam.nc
