@@ -33,6 +33,7 @@
 #include <util/math_util.h>
 #include <util/polygon_util.h>
 #include <util/string_util.h>
+#include <util/subprocess.h>
 
 #include <diField/diRectangle.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
@@ -261,3 +262,15 @@ TEST(TestUtilities, GreatCircleDistance)
   EXPECT_NEAR(222400, diutil::GreatCircleDistance(89, 89, 10, 190), 100);
 }
 
+TEST(TestUtilities, Execute)
+{
+  QByteArray output;
+  EXPECT_EQ(1, diutil::execute("thIs_c0mm&_Is_unlIkely_t0_be_f0und_anywheRe", QStringList(), &output));
+  EXPECT_TRUE(output.isEmpty());
+
+  EXPECT_EQ(0, diutil::execute("true", QStringList(), &output));
+  EXPECT_TRUE(output.isEmpty());
+
+  EXPECT_EQ(1, diutil::execute("false", QStringList(), &output));
+  EXPECT_TRUE(output.isEmpty());
+}
