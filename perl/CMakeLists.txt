@@ -26,7 +26,7 @@ CONFIGURE_FILE(Metno-Bdiana/Makefile.PL.in
 )
 
 SET (PERLMODULE_OUT
-  ${CMAKE_CURRENT_BINARY_DIR}/Bdiana.o # on linux / unix
+  ${CMAKE_CURRENT_BINARY_DIR}/Metno-Bdiana/Bdiana.o # on linux / unix
 )
 ADD_CUSTOM_COMMAND(
   OUTPUT
