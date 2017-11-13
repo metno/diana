@@ -161,24 +161,18 @@ vector<std::string> ObjectManager::getObjectNames(bool archive)
 vector<miTime> ObjectManager::getTimes()
 {
   METLIBS_LOG_SCOPE();
-  return getObjectTimes(objects.getPlotInfo());
-}
-
-//  * PURPOSE:   return times for list of PlotInfo's
-vector<miTime> ObjectManager::getObjectTimes(const miutil::KeyValue_v& pinfo)
-{
   vector<miTime> timevec;
 
-  for (const miutil::KeyValue& kv : pinfo){
-    if (kv.key() == "name"){
-      vector<ObjFileInfo> ofi= getObjectFiles(kv.value(), true);
-      for (unsigned int k=0; k<ofi.size(); k++){
-        timevec.push_back(ofi[k].time);
+  for (const miutil::KeyValue& kv : objects.getPlotInfo()){
+    if (kv.key() == "name") {
+      for (const ObjFileInfo& ofi : getObjectFiles(kv.value(), true)) {
+        timevec.push_back(ofi.time);
       }
       break;
     }
   }
 
+  std::sort(timevec.begin(), timevec.end());
   return timevec;
 }
 
