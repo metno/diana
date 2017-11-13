@@ -181,6 +181,7 @@ vector<miTime> ObjectManager::getObjectTimes(const miutil::KeyValue_v& pinfo)
     }
   }
 
+  std::sort(timevec.begin(), timevec.end());
   return timevec;
 }
 
