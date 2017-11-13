@@ -3562,116 +3562,118 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields, cons
 }
 
 bool neighbourFunctions(int nx, int ny, const float* field,
-    const std::vector<float>& constants, int compute,
-    float *fres, difield::ValuesDefined& fDefined, float undef)
+    const std::vector<float>& constants, int compute, float *fres,
+    difield::ValuesDefined& fDefined, float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
 
   // compute=1 : calc mean value
-  // compute=2 : calc probability above (constant[0]=limit)
-  // compute=3 : calc probability below (constant[0]=limit)
+  // compute=2 : calc max value
+  // compute=3 : calc min value
   // compute=4 : calc percentile (constant[0]=percentile)
+  // compute=5 : calc probability above (constant[0]=limit)
+  // compute=6 : calc probability below (constant[0]=limit)
 
-  if (fDefined != difield::ALL_DEFINED ) {
+
+  if (fDefined != difield::ALL_DEFINED) {
     METLIBS_LOG_ERROR("Field contains undefined values -> neighbour functions can not be used");
     return false;
   }
 
-  if (constants.size() < 1 || (constants.size() < 2 && compute > 1) ) {
-    METLIBS_LOG_ERROR("Wrong number of constants:"<<constants.size());
+  if (constants.size() < 1 || (constants.size() < 2 && compute > 3)) {
+    METLIBS_LOG_ERROR("Wrong number of constants:" << constants.size());
     return false;
   }
 
-  int range=3, step=3, limit=0;
-  if ( compute == 1 ) {
+  int range = 3, step = 3, limit = 0;
+  if (compute < 4) {
     range = constants[0];
-    if ( constants.size() == 2)
+    if (constants.size() == 2)
       step = constants[1];
   } else {
     limit = constants[0];
     range = constants[1];
-    if ( constants.size() == 3)
+    if (constants.size() == 3)
       step = constants[2];
+  }
+
+  if (range > nx || range > ny || range < 1) {
+    METLIBS_LOG_ERROR("Range must be between 1 and nx/ny: " << LOGVAL(range) << LOGVAL(nx) << LOGVAL(ny));
+    return false;
+  }
+
+  if (step < 1) {
+    METLIBS_LOG_ERROR("Step must be greater than 0: " << LOGVAL(step));
+    return false;
   }
 
   // values can not be calculated close to the border, set values undef
   fDefined = difield::SOME_DEFINED;
-  for (int l = 0; l < range; l++) {
-    for (int i=0; i<nx; i++) {
-      fres[i+l*nx] = undef;
+  for (int j = 0; j < range; j++) {
+    for (int i = 0; i < nx; i++) {
+      fres[i + j * nx] = undef;
     }
   }
-  for (int l = range; l < ny-range; l++) {
-    for (int i=0; i<range; i++) {
-      fres[i+l*nx] = undef;
+  for (int j = range; j < ny - range; j++) {
+    for (int i = 0; i < range; i++) {
+      fres[i + j * nx] = undef;
     }
-    for (int i=nx-range; i<nx; i++) {
-      fres[i+l*nx] = undef;
+    for (int i = nx - range; i < nx; i++) {
+      fres[i + j * nx] = undef;
     }
   }
-  for (int l = ny-range; l < ny; l++) {
-    for (int i=0; i<nx; i++) {
-      fres[i+l*nx] = undef;
+  for (int j = ny - range; j < ny; j++) {
+    for (int i = 0; i < nx; i++) {
+      fres[i + j * nx] = undef;
     }
   }
 
   // no. of gridpoints in range
-  float ngridp= pow((2*range+1),2);
+  const float ngridp = diutil::square(2 * range + 1);
   // calc. index corresponding to given percentile and range
-  int ii = ngridp * limit/100;
-  vector<float> values;
+  const int ii = ngridp * limit / 100;
 
   //loop through all gridpoints with given step
-  for (int l = range; l < ny-range; l+=step) {
-    for (int i=range; i<nx-range; i+=step) {
+  for (int j = range; j < ny - range; j += step) {
+    for (int i = range; i < nx - range; i += step) {
 
-      float value=0.0;
-      int index = i+l*nx;
-      if ( compute == 4) {
-      //sort values
-        values.clear();
-        for(int k=l-range;k<l+range+1;k++){
-          for ( int j = i-range; j<i+range+1;j++) {
-            values.push_back(field[j+k*nx]);
+      vector<float> values;
+      float value = 0.0;
+      if (compute == 2 || compute == 3) {
+        value = field[(i - range) + (j - range) * nx];
+      }
+
+      for (int k = j - range; k < j + range + 1; k++) {
+        for (int j = i - range; j < i + range + 1; j++) {
+          const float thisvalue = field[j + k * nx];
+          if (compute == 1) {
+            value += thisvalue;
+          } if ((compute == 2 && thisvalue > value)
+              || (compute == 3 && thisvalue < value)) {
+            value = thisvalue;
+          } else if (compute == 4) {
+            values.push_back(thisvalue);
+          } if ((compute == 5 && thisvalue > limit)
+              || (compute == 6 && thisvalue < limit)) {
+            value++;
           }
         }
+      }
+      if (compute == 4) {
         std::sort(values.begin(), values.end());
         value = values[ii];
-      } else if (compute == 1 ){
-        for(int k=l-range;k<l+range+1;k++){
-          for ( int j = i-range; j<i+range+1;j++) {
-            value += field[j+k*nx];
-          }
-        }
-        value /= ngridp;
-      } else if (compute == 2 || compute == 3){
-        for(int k=l-range;k<l+range+1;k++){
-          for ( int j = i-range; j<i+range+1;j++) {
-            if ( field[j+k*nx] > limit )
-              value++;
-          }
-        }
-        if (compute == 3 ){
-          value = ngridp - value;
-        }
+      }
+      if (compute == 1 || compute > 4) {
         value /= ngridp;
       }
 
       //set value in output field
-      fres[index]=value;
-      if (step > 1) {
-        fres[index+1]=value;
-        fres[index+nx]=value;
-      }
-      if (step > 2) {
-        fres[index-1]=value;
-        fres[index-nx]=value;
-        fres[index+1+nx]=value;
-        fres[index-1+nx]=value;
-        fres[index-1-nx]=value;
-        fres[index+1-nx]=value;
+      for (int l = j - (step - 1) / 2; l < j + step / 2 + 1; l++) {
+        for (int k = i - (step - 1) / 2; k < i + step / 2 + 1; k++) {
+          fres[k + l * nx] = value;
+        }
       }
     }
   }

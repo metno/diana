@@ -335,6 +335,8 @@ public:
     f_neighbour_mean,
     f_neighbour_probability_above,
     f_neighbour_probability_below,
+    f_neighbour_max,
+    f_neighbour_min,
     f_snow_cm_from_snow_water_tk_td //!< f_snow_cm_from_snow_water_tk_td
   };
 

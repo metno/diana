@@ -370,6 +370,8 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_neighbour_mean, "neighbour_mean(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_probability_above, "neighbour_probability_above(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_probability_below, "neighbour_probability_below(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_max, "neighbour_max(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_min, "neighbour_min(field,const:value,...)");
   ok &= registerFunction(f, f_snow_cm_from_snow_water_tk_td, "snow.cm.from.snow.water(snow,tk,td)");
 
   // geographic functions
@@ -1599,16 +1601,22 @@ bool FieldFunctions::fieldComputer(Function function,
         fDefined, undef);
     break;
 
+  case f_neighbour_probability_above:
+    if (compute == 0)
+      compute = 6;
+  case f_neighbour_probability_below:
+    if (compute == 0)
+      compute = 5;
   case f_percentile:
   case f_neighbour_percentile:
     if (compute == 0)
       compute = 4;
-  case f_neighbour_probability_above:
-    if (compute == 0)
-      compute = 2;
-  case f_neighbour_probability_below:
+  case f_neighbour_min:
     if (compute == 0)
       compute = 3;
+  case f_neighbour_max:
+    if (compute == 0)
+      compute = 2;
   case f_neighbour_mean:
     if (compute == 0)
       compute = 1;

@@ -508,3 +508,102 @@ TEST(FieldCalculationsTest, Probability12)
   EXPECT_NEAR(0, field_out, 1e-6);
   EXPECT_EQ(difield::ALL_DEFINED, defined_out);
 }
+
+TEST(FieldCalculationsTest, Neighbour)
+{
+  const float UNDEF = 123456;
+
+  const int NX = 10, NY = 10;
+  float infield[NX * NY], outfield[NX * NY];
+  std::vector<float> constants;
+  difield::ValuesDefined fDefined = difield::ALL_DEFINED;
+
+  constants.push_back(NX+1);
+  EXPECT_FALSE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 2, outfield, fDefined, UNDEF));
+
+  constants.clear();
+  constants.push_back(NX);
+  constants.push_back(0);
+  EXPECT_FALSE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 2, outfield, fDefined, UNDEF));
+
+  std::fill(infield, infield + NX * NY, 0);
+  infield[16] = 6;
+  std::fill(outfield, outfield + NX * NY, UNDEF / 2);
+  constants.clear();
+  constants.push_back(3);
+  constants.push_back(3);
+  EXPECT_TRUE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 2, outfield, fDefined, UNDEF));
+  EXPECT_EQ(difield::SOME_DEFINED, fDefined);
+
+  for (int i = 0; i < NX; i++) {
+    for (int j = 0; j < NY; j++) {
+      float expected;
+      if (i < 2 || i >= NX - 2 || j < 2 || j >= NY - 2)
+        expected = UNDEF;
+      else if (j < 5 )
+        expected = 6;
+      else
+        expected = 0;
+      EXPECT_EQ(expected, outfield[i + j*NX]) << "i="<<i<<" j="<<j;
+    }
+  }
+
+  fDefined = difield::ALL_DEFINED;
+  std::fill(infield, infield + NX * NY, 0);
+  infield[25] = 6;
+  infield[26] = 6;
+  infield[35] = 6;
+  infield[36] = 6;
+  std::fill(outfield, outfield + NX * NY, UNDEF / 2);
+  constants.clear();
+  constants.push_back(90);
+  constants.push_back(2);
+  constants.push_back(1);
+  EXPECT_TRUE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 4, outfield, fDefined, UNDEF));
+  EXPECT_EQ(difield::SOME_DEFINED, fDefined);
+
+  for (int i = 0; i < NX; i++) {
+    for (int j = 0; j < NY; j++) {
+      float expected;
+      if (i < 2 || i >= NX - 2 || j < 2 || j >= NY - 2)
+        expected = UNDEF;
+      else if (i > 3 && i < 8 && j > 1 && j < 5 )
+        expected = 6;
+      else
+        expected = 0;
+      EXPECT_EQ(expected, outfield[i + j*NX]) << "i="<<i<<" j="<<j;
+    }
+  }
+
+  fDefined = difield::ALL_DEFINED;
+  std::fill(infield, infield + NX * NY, 0);
+  infield[25] = 6;
+  infield[26] = 6;
+  infield[35] = 6;
+  infield[36] = 6;
+  std::fill(outfield, outfield + NX * NY, UNDEF / 2);
+  constants.clear();
+  constants.push_back(5);
+  constants.push_back(2);
+  constants.push_back(1);
+  EXPECT_TRUE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 5, outfield, fDefined, UNDEF));
+  EXPECT_EQ(difield::SOME_DEFINED, fDefined);
+
+  for (int i = 0; i < NX; i++) {
+    for (int j = 0; j < NY; j++) {
+      float expected;
+      if (i < 2 || i >= NX - 2 || j < 2 || j >= NY - 2)
+        expected = UNDEF;
+      else if (i > 3  && j < 5 )
+        expected = 0.16;
+      else if (i == 3 && j == 5 )
+        expected = 0.04;
+      else if (i > 2 && j < 6 )
+        expected = 0.08;
+      else
+        expected = 0;
+      EXPECT_EQ(expected, outfield[i + j*NX]) << "i="<<i<<" j="<<j;
+    }
+  }
+
+}
