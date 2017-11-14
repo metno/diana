@@ -2843,7 +2843,6 @@ int diana_parseAndProcessString(const char* string)
  */
 int diana_init(int _argc, char** _argv)
 {
-  cerr <<"diana_init"<<endl;
   diOrderBook *orderbook = NULL;
   std::string sarg;
   int port;
