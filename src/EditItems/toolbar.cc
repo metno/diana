@@ -292,6 +292,7 @@ void ToolBar::setCreatePolyLineAction(const QString &type)
   if (index >= 0) {
     polyLineList_->setCurrentRow(index);
     polyLineList_->item(index)->setSelected(true);
+    setPolyLineType(polyLineList_->item(index));
     polyLineAction_->trigger();
   }
 }
@@ -310,6 +311,7 @@ void ToolBar::setCreateSymbolAction(const QString &type)
   if (index >= 0) {
     symbolList_->setCurrentRow(index);
     symbolList_->item(index)->setSelected(true);
+    setSymbolType(symbolList_->item(index));
     symbolAction_->trigger();
   }
 }
