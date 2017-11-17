@@ -15,7 +15,7 @@ public:
   static QWidget* createWidget(DiPaintable* p, QWidget* parent);
 
   DiPaintable();
-  virtual ~DiPaintable() { }
+  virtual ~DiPaintable();
 
   virtual void setCanvas(DiCanvas* canvas);
   DiCanvas* canvas() const

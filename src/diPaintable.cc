@@ -43,6 +43,10 @@ DiPaintable::DiPaintable()
 {
 }
 
+DiPaintable::~DiPaintable()
+{
+}
+
 void DiPaintable::setCanvas(DiCanvas* canvas)
 {
   mCanvas = canvas;
