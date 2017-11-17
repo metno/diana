@@ -183,7 +183,7 @@ void Controller::plotCommands(const PlotCommand_cpv& inp)
   METLIBS_LOG_SCOPE();
   if (METLIBS_LOG_DEBUG_ENABLED()) {
     for (size_t q = 0; q < inp.size(); q++)
-      METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q] << "'");
+      METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q]->toString() << "'");
   }
 
   plotm->preparePlots(inp);
