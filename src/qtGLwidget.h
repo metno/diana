@@ -46,11 +46,13 @@
 class Controller;
 
 /**
-   \brief the map OpenGL widget
+   \brief the Diana map widget
 
-   the map OpenGL widget supporting
+   the Diana map widget supporting
    - simple underlay
    - keyboard/mouse event translation to Diana types
+
+   The class name is misleading, it does not have much to do with OpenGL any longer.
 */
 class GLwidget : public QObject, public DiPaintable
 {
