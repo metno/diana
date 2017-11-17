@@ -14,17 +14,17 @@ public:
   DiOpenGLWidget(DiPaintable* p, QWidget* parent=0);
   ~DiOpenGLWidget();
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL(int w, int h);
+  void initializeGL() override;
+  void paintGL() override;
+  void resizeGL(int w, int h) override;
 
-  void keyPressEvent(QKeyEvent *ke);
-  void keyReleaseEvent(QKeyEvent *ke);
-  void mousePressEvent(QMouseEvent* me);
-  void mouseMoveEvent(QMouseEvent* me);
-  void mouseReleaseEvent(QMouseEvent* me);
-  void mouseDoubleClickEvent(QMouseEvent* me);
-  void wheelEvent(QWheelEvent *we);
+  void keyPressEvent(QKeyEvent *ke) override;
+  void keyReleaseEvent(QKeyEvent *ke) override;
+  void mousePressEvent(QMouseEvent* me) override;
+  void mouseMoveEvent(QMouseEvent* me) override;
+  void mouseReleaseEvent(QMouseEvent* me) override;
+  void mouseDoubleClickEvent(QMouseEvent* me) override;
+  void wheelEvent(QWheelEvent *we) override;
 
 private:;
   void paintUnderlay();

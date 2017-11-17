@@ -18,15 +18,15 @@ public:
   ~DiPaintGLWidget();
 
 protected:
-  void paintEvent(QPaintEvent* event);
-  void resizeEvent(QResizeEvent* event);
-  void keyPressEvent(QKeyEvent *ke);
-  void keyReleaseEvent(QKeyEvent *ke);
-  void mousePressEvent(QMouseEvent* me);
-  void mouseMoveEvent(QMouseEvent* me);
-  void mouseReleaseEvent(QMouseEvent* me);
-  void mouseDoubleClickEvent(QMouseEvent* me);
-  void wheelEvent(QWheelEvent *we);
+  void paintEvent(QPaintEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
+  void keyPressEvent(QKeyEvent *ke) override;
+  void keyReleaseEvent(QKeyEvent *ke) override;
+  void mousePressEvent(QMouseEvent* me) override;
+  void mouseMoveEvent(QMouseEvent* me) override;
+  void mouseReleaseEvent(QMouseEvent* me) override;
+  void mouseDoubleClickEvent(QMouseEvent* me) override;
+  void wheelEvent(QWheelEvent *we) override;
 
 private:
   void paint(QPainter& painter);
