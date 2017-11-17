@@ -94,7 +94,6 @@ Q_SIGNALS:
 
 public:
   void setCanvas(DiCanvas* canvas) override;
-  void paint(DiPainter* gl);
   void resize(int width, int height) override;
 
   bool handleKeyEvents(QKeyEvent*) override;
