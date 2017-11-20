@@ -132,3 +132,58 @@ TEST(TestVcrossComputer, BangladeshTH)
   idx.set(Values::GEO_X, 2);
   EXPECT_FLOAT_EQ(422.00815, th_values->value(idx));
 }
+
+TEST(TestVcrossComputer, FunctionsWithConstants)
+{
+  const std::string name_twotk = "twice_tk", name_tktwo = "tk_twice", name_tktk = "tktk";
+  NameItem_v computations;
+  computations.push_back(parseComputationLine(name_twotk + " = multiply(const:2,air_temperature_pl)"));
+  computations.push_back(parseComputationLine(name_tktwo + " = multiply(air_temperature_pl,const:2)"));
+  computations.push_back(parseComputationLine(name_tktk  + " = multiply(air_temperature_pl,air_temperature_pl)"));
+
+  Source_p fs = openFimexSource(BANGLADESH_FILE);
+  if (not fs)
+    return;
+
+  fs->update();
+  const vcross::Time BANGLADESH_RT = util::from_miTime(miutil::miTime(BANGLADESH_RTT));
+  Inventory_cp inv = fs->getInventory(BANGLADESH_RT);
+
+  Crossection_cp cs3 = inv->crossections.at(3);
+
+  InventoryBase_cps fields(inv->fields.begin(), inv->fields.end());
+  vcross::resolve(fields, computations);
+
+  FunctionData_cp twotk = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_twotk));
+  FunctionData_cp tktwo = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_tktwo));
+  FunctionData_cp tktk  = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_tktk));
+  ASSERT_TRUE(bool(twotk) && bool(tktwo) && bool(tktk));
+
+  const Time& time = inv->times.at(1);
+
+  InventoryBase_cps request;
+  collectRequired(request, twotk);
+  collectRequired(request, tktwo);
+  collectRequired(request, tktk);
+
+  name2value_t n2v;
+  fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v, 0);
+  vc_evaluate_field(twotk, n2v);
+  vc_evaluate_field(tktwo, n2v);
+  vc_evaluate_field(tktk,  n2v);
+
+  Values_cp twotk_values = n2v[twotk->id()];
+  Values_cp tktwo_values = n2v[tktwo->id()];
+  Values_cp tktk_values  = n2v[tktk->id()];
+  ASSERT_TRUE(bool(twotk_values) && bool(tktwo_values) && bool(tktk_values));
+
+  Values::ShapeIndex idx(tktwo_values->shape());
+  idx.set(Values::GEO_X, 43);
+  idx.set(Values::GEO_Z, 13);
+
+  const float v_twotk = twotk_values->value(idx);
+  const float v_tktwo = tktwo_values->value(idx);
+  const float v_tktk  = tktk_values->value(idx);
+  EXPECT_FLOAT_EQ(v_twotk, v_tktwo);
+  EXPECT_FLOAT_EQ(v_twotk*v_twotk / 4, v_tktk);
+}

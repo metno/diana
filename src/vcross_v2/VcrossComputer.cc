@@ -217,14 +217,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
 {
   METLIBS_LOG_SCOPE(LOGVAL(id()) << LOGVAL(mFunction->name));
   Values_cpv argument_values;
-  int arg_idx = -1;
   for (const InventoryBase_cp& a : arguments()) {
-    arg_idx += 1;
-    if (arg_idx == mNumericArgIndex
-        or (function() == vcf_convert_unit and arg_idx == 1))
-    {
-      continue;
-    }
     name2value_t::const_iterator ita = n2v.find(a->id());
     if (ita == n2v.end()) {
       // argument values missing
@@ -242,6 +235,10 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       return Values_p();
    
     argument_values.push_back(ita->second);
+  }
+  if (argument_values.empty()) {
+    METLIBS_LOG_WARN("no argument values");
+    return Values_p();
   }
 
   const FieldData_cp a0 = std::dynamic_pointer_cast<const FieldData>(argument(0));
