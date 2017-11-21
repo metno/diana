@@ -187,3 +187,109 @@ TEST(TestVcrossComputer, FunctionsWithConstants)
   EXPECT_FLOAT_EQ(v_twotk, v_tktwo);
   EXPECT_FLOAT_EQ(v_twotk*v_twotk / 4, v_tktk);
 }
+
+TEST(TestVcrossComputer, AddMultiplyDivide)
+{
+  const std::string name_xmuly = "x_times_y", name_xdivy = "x_divided_by_y", name_xaddy = "x_plus_y";
+  NameItem_v computations;
+  computations.push_back(parseComputationLine(name_xmuly + " = multiply(x_wind_pl,y_wind_pl)"));
+  computations.push_back(parseComputationLine(name_xdivy + " = divide(x_wind_pl,y_wind_pl)"));
+  computations.push_back(parseComputationLine(name_xaddy  + " = add(x_wind_pl,y_wind_pl)"));
+
+  Source_p fs = openFimexSource(BANGLADESH_FILE);
+  if (not fs)
+    return;
+
+  fs->update();
+  const vcross::Time BANGLADESH_RT = util::from_miTime(miutil::miTime(BANGLADESH_RTT));
+  Inventory_cp inv = fs->getInventory(BANGLADESH_RT);
+
+  Crossection_cp cs3 = inv->crossections.at(0);
+
+  InventoryBase_cps fields(inv->fields.begin(), inv->fields.end());
+  vcross::resolve(fields, computations);
+
+  FunctionData_cp xmy = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_xmuly));
+  FunctionData_cp xdy = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_xdivy));
+  FunctionData_cp xpy = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_xaddy));
+  ASSERT_TRUE(bool(xmy) && bool(xdy) && bool(xpy));
+
+  const Time& time = inv->times.at(0);
+
+  InventoryBase_cps request;
+  collectRequired(request, xmy);
+  collectRequired(request, xdy);
+  collectRequired(request, xpy);
+
+  name2value_t n2v;
+  fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v, 0);
+  vc_evaluate_field(xmy, n2v);
+  vc_evaluate_field(xdy, n2v);
+  vc_evaluate_field(xpy, n2v);
+
+  Values_cp xmy_values = n2v[xmy->id()];
+  Values_cp xdy_values = n2v[xdy->id()];
+  Values_cp xpy_values = n2v[xpy->id()];
+  ASSERT_TRUE(bool(xmy_values) && bool(xdy_values) && bool(xpy_values));
+
+  Values::ShapeIndex idx(xdy_values->shape());
+  idx.set(Values::GEO_X, 0);
+  idx.set(Values::GEO_Z, 0);
+
+  const float x_0 = 5.961807, y_0 = -3.595242;
+
+  const float v_xmy = xmy_values->value(idx);
+  const float v_xdy = xdy_values->value(idx);
+  const float v_xpy = xpy_values->value(idx);
+  EXPECT_FLOAT_EQ(x_0*y_0, v_xmy);
+  EXPECT_FLOAT_EQ(x_0/y_0, v_xdy);
+  EXPECT_FLOAT_EQ(x_0+y_0, v_xpy);
+}
+
+TEST(TestVcrossComputer, Quadratic)
+{
+  const std::string name_xw = "x_wind_pl", name_xwu = "xw_u", name_xw_2l = "xw_2l",
+      name_xw_sq = "xw_sq", name_xw_3sq = "xw_3sq", name_xwq = "xw_quadratic";
+  NameItem_v computations;
+  computations.push_back(parseComputationLine(name_xwu + " = impose_unit(" + name_xw + ",1)"));
+  computations.push_back(parseComputationLine(name_xw_2l + " = multiply(const:1.5," + name_xwu + ")"));
+  computations.push_back(parseComputationLine(name_xw_sq + " = multiply(" + name_xwu + "," + name_xwu + ")"));
+  computations.push_back(parseComputationLine(name_xw_3sq + " = multiply(const:3," + name_xw_sq + ")"));
+  computations.push_back(parseComputationLine(name_xwq + " = add(xw_2l," + name_xw_3sq + ")"));
+
+  Source_p fs = openFimexSource(BANGLADESH_FILE);
+  if (not fs)
+    return;
+
+  fs->update();
+  const vcross::Time BANGLADESH_RT = util::from_miTime(miutil::miTime(BANGLADESH_RTT));
+  Inventory_cp inv = fs->getInventory(BANGLADESH_RT);
+
+  Crossection_cp cs3 = inv->crossections.at(0);
+
+  InventoryBase_cps fields(inv->fields.begin(), inv->fields.end());
+  vcross::resolve(fields, computations);
+
+  FunctionData_cp xwq = std::dynamic_pointer_cast<const FunctionData>(findItemById(fields, name_xwq));
+  ASSERT_TRUE(bool(xwq));
+
+  const Time& time = inv->times.at(0);
+
+  InventoryBase_cps request;
+  collectRequired(request, xwq);
+
+  name2value_t n2v;
+  fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v, 0);
+  vc_evaluate_field(xwq, n2v);
+
+  Values_cp xwq_values = n2v[xwq->id()];
+  ASSERT_TRUE(bool(xwq_values));
+
+  Values::ShapeIndex idx(xwq_values->shape());
+  idx.set(Values::GEO_X, 0);
+  idx.set(Values::GEO_Z, 0);
+
+  const float x_0 = 5.961807;
+  const float v_xwq = xwq_values->value(idx);
+  EXPECT_FLOAT_EQ(x_0*1.5 + 3*x_0*x_0, v_xwq);
+}
