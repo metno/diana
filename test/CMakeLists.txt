@@ -27,7 +27,7 @@ SET (dianaUnitTests_QTSOURCES
 
 METNO_HEADERS(dianaUnitTests_QTHEADERS   "cc" "h" ${dianaUnitTests_QTSOURCES})
 
-QT5_WRAP_CPP(dianaUnitTests_MOC_SRCS ${dianaUnitTests_QTHEADERS})
+#QT5_WRAP_CPP(dianaUnitTests_MOC_SRCS ${dianaUnitTests_QTHEADERS})
 
 SET (dianaUnitTests_SOURCES
   ${dianaUnitTests_QTSOURCES}
