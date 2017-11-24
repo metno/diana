@@ -408,7 +408,6 @@ private:
 
   QButton* mwhelp;
   Controller* contr;
-  std::string lastString;
 
   bool          showelem;    ///> show on/off buttons
   bool          autoselect;  ///> autoselect element on mousemove
