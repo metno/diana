@@ -5,7 +5,7 @@ SET (MIRASTER_SOURCES
   miRaster/satimg.cc
 )
 
-IF (WITH_HDF5)
+IF (ENABLE_HDF5)
   LIST (APPEND MIRASTER_SOURCES
     miRaster/satimgh5.cc
   )

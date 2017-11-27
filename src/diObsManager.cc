@@ -168,7 +168,7 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
       }
 #ifdef ROADOBS
       else if (filetype =="roadobs") {
-        ObsRoad obsRoad(filename, pi.databasefile, pi.stationfile, pi.headerfile, finfo[j].time, dynamic_cast<RoadObsPlot*>(oplot), false);
+        ObsRoad obsRoad(filename, pi.databasefile, pi.stationfile, pi.headerfile, fi.time, dynamic_cast<RoadObsPlot*>(oplot), false);
         // initData inits the internal data structures in oplot, eg the roadobsp and stationlist.
         obsRoad.initData(dynamic_cast<RoadObsPlot*>(oplot));
         // readData reads the data from road.

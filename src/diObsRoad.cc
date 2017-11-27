@@ -399,7 +399,7 @@ void ObsRoad::yoyoMetadata(ObsMetaData *metaData)
 {
   METLIBS_LOG_SCOPE();
   readDecodeData();
-  metaData->setMetaData(mObsData);
+  metaData->setObsData(vObsData);
 }
 
 //####################################################################
