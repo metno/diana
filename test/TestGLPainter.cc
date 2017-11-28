@@ -95,7 +95,7 @@ void TestPaintable::paintUnderlay(DiPainter* painter)
 {
   DiGLPainter* gl = static_cast<DiGLPainter*>(painter);
 
-  const QString SIG1SYMBOL(QLatin1Char(248)), SIG2SYMBOL(QLatin1Char(249));
+  const QString SIG1SYMBOL(QLatin1Char(0xF8)), SIG2SYMBOL(QLatin1Char(0xF9));
 
   const float C = -10;
   gl->LoadIdentity();

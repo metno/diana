@@ -2079,14 +2079,14 @@ void FieldDialog::enableFieldOptions()
   nc = miutil::find(vpcopt, PlotOptions::key_gridValue);
   if (nc != npos) {
     if (vpcopt[nc].value() == "-1") {
-      nc = -1;
+      nc = npos;
     } else {
       bool on = vpcopt[nc].value() == "1";
       gridValueCheckBox->setChecked(on);
       gridValueCheckBox->setEnabled(true);
     }
   }
-  if (nc < 0 && gridValueCheckBox->isEnabled()) {
+  if (nc == npos && gridValueCheckBox->isEnabled()) {
     gridValueCheckBox->setChecked(false);
     gridValueCheckBox->setEnabled(false);
   }
