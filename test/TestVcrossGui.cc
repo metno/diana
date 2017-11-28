@@ -67,7 +67,7 @@ TEST(TestVcrossGui, MicroBdiana)
   qmlines.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
   qmlines.push_back("CROSSECTION=Nesbyen 6");
 
-  vcross::VcrossQuickmenues::parse(manager, makeCommands(qmlines));
+  vcross::VcrossQuickmenues::parse(manager, makeCommands(qmlines, true));
 
   const int width = 600, height = 400;
   manager->setPlotWindow(width, height);
