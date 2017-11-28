@@ -64,7 +64,7 @@ IF (ENABLE_GEOTIFF)
 ENDIF ()
 
 IF (ENABLE_HDF5)
-  METNO_FIND_PACKAGE("hdf5" "hdf5-serial" "hdf5_serial" "hdf5.h")
+  METNO_FIND_PACKAGE("hdf5" "hdf5-serial" "hdf5_serial;hdf5" "hdf5.h")
   LIST(APPEND PKGS ${hdf5_PC})
 ENDIF ()
 
