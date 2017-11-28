@@ -80,6 +80,7 @@ void printUsage()
        << "  -h            :  Show help"                               << endl
        << "  -v            :  Version"                                 << endl
        << "  -s <filename> :  name of setupfile (def. diana.setup)"    << endl
+       << "  -qm <menu> <item> : apply a quickmenu at start"           << endl
        << "  -l <language> :  language used in dialogs"                << endl
        << "  -L <logger>   :  loggerFile for debugging"                << endl
        << "  -I <name>     :  change name of instance for coserver"    << endl
@@ -190,7 +191,7 @@ int main(int argc, char **argv)
   string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
   QString lang;
   bool have_diana_title = false;
-  QString diana_instancename;
+  QString diana_instancename, qm_menu, qm_item;
   string setupfile;
   map<std::string, std::string> user_variables;
 
@@ -247,6 +248,14 @@ int main(int argc, char **argv)
         return 0;
       }
       diana_instancename = argv[ac];
+
+    } else if (sarg=="-qm") {
+      if (ac+2 >= argc) {
+        printUsage();
+        return 0;
+      }
+      qm_menu = argv[++ac];
+      qm_item = argv[++ac];
 
     } else {
       vector<string> ks= miutil::split(sarg, "=");
@@ -346,6 +355,10 @@ int main(int argc, char **argv)
 
   // news ?
   mw->checkNews();
+
+  if (!qm_menu.isEmpty() && !qm_item.isEmpty()) {
+    mw->applyQuickMenu(qm_menu, qm_item);
+  }
 
   return a.exec();
 }

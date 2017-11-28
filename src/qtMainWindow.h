@@ -131,6 +131,8 @@ public:
   void saveAnimation(MovieMaker& moviemaker);
   void paintOnDevice(QPaintDevice* device, bool printing);
 
+  void applyQuickMenu(const QString& qmenu, const QString& qitem);
+
 protected:
   void focusInEvent ( QFocusEvent * );
   void closeEvent( QCloseEvent* );
