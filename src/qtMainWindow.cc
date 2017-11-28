@@ -1771,6 +1771,11 @@ void DianaMainWindow::spectrumSetChangedSlot()
   updateGLSlot();
 }
 
+void DianaMainWindow::applyQuickMenu(const QString& menu, const QString& item)
+{
+  qm->applyItem(menu.toStdString(), item.toStdString());
+  qm->applyPlot();
+}
 
 void DianaMainWindow::connectionClosed()
 {
@@ -1837,10 +1842,9 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   else if (command == qmstrings::apply_quickmenu) {
     //data[0]=menu, data[1]=item
     if (qletter.countDataRows()==2 && qletter.countDataColumns()>0) {
-      const std::string menu = qletter.getDataValue(0, 0).toStdString();
-      const std::string item = qletter.getDataValue(1, 0).toStdString();
-      qm->applyItem(menu, item);
-      qm->applyPlot();
+      const QString& menu = qletter.getDataValue(0, 0);
+      const QString& item = qletter.getDataValue(1, 0);
+      applyQuickMenu(menu, item);
     } else {
       MenuOK();
     }
