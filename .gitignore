@@ -121,3 +121,4 @@ src/wmsclient/.dirstamp
 src/wmsclient/.libs/
 src/wmsclient/*.ui.h
 src/wmsclient/*o
+/.clang-format
