@@ -373,7 +373,7 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
  */
 std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, const std::string& paramname)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(paramname);
 
   std::set<miutil::miTime> settime;
 
@@ -406,6 +406,9 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
       for (const std::string& pn : fcm.input) {
         FieldFunctions::FieldSpec fs;
         FieldFunctions::splitFieldSpecs(pn, fs);
+        if (fs.use_standard_name)
+          if (!standardname2variablename(reftime, fs.paramName, fs.paramName))
+            return std::set<miutil::miTime>();
         const std::set<miutil::miTime> settime2 = getTimes(reftime, fs.paramName);
         //Don't use parameters with no time axis
         if (settime2.size()==0)
