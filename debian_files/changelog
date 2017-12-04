@@ -1,3 +1,14 @@
+diana-3.43 (3.43.6-1) unstable; urgency=low
+
+  * Bugfix: getTimes with functions using standard_name
+  * start with a quickmenu
+  * Bugfix: vcross computer field oper constant
+  * Bugfix: cross section drawing mode
+  * Bugfix: sort object/product times
+  * Bugfix - plotWindAndValue
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 04 Dec 2017 08:00:08 +0100
+
 diana-3.43 (3.43.5-1) unstable; urgency=low
 
   * Bugfix: wavespec widget placement
