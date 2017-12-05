@@ -483,9 +483,9 @@ bool QuickMenu::applyItem(const std::string& mlist, const std::string& item)
   }
 
   //set menu
+  qm[listIndex].plotindex = itemIndex;
   menulist->setCurrentIndex(listIndex);
   menulistActivate(listIndex);
-  qm[listIndex].plotindex=itemIndex;
   list->setCurrentRow(itemIndex);
   return true;
 }
