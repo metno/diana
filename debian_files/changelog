@@ -1,3 +1,10 @@
+diana-3.34 (3.34.7-1) unstable; urgency=low
+
+  * Bugfix: quickmenu apply from coserver/commandline
+  * New symbol - circle
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 05 Dec 2017 08:00:08 +0100
+
 diana-3.43 (3.43.6-1) unstable; urgency=low
 
   * Bugfix: getTimes with functions using standard_name
