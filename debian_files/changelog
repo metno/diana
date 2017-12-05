@@ -1,4 +1,4 @@
-diana-3.34 (3.34.7-1) unstable; urgency=low
+diana-3.43 (3.43.7-1) unstable; urgency=low
 
   * Bugfix: quickmenu apply from coserver/commandline
   * New symbol - circle
