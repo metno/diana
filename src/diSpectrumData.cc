@@ -35,8 +35,6 @@
 #include <puTools/miStringFunctions.h>
 #include <diField/VcrossUtil.h>
 
-#include <boost/foreach.hpp>
-
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.SpectrumData"

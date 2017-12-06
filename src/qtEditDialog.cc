@@ -1420,7 +1420,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-  METLIBS_LOG_DEBUG("EditDialog::EditNewOk called................");
+  METLIBS_LOG_SCOPE();
   emit editMode(true);
 
   // Turn off Undo-buttons
@@ -1448,7 +1448,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   fgroupClicked( 0 );
 
   // update field dialog
-  METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate(empty)");
+  METLIBS_LOG_DEBUG("emit emitFieldEditUpdate(empty)");
   emit emitFieldEditUpdate("");
 
   QString message;
@@ -1646,8 +1646,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
   //emit editUpdate();
 
   saveEverything(true,false);
-
-  METLIBS_LOG_DEBUG("EditDialog::EditNewOk finished....................");
 }
 
 

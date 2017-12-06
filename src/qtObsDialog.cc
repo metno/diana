@@ -34,6 +34,8 @@
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 
+#include "util/misc_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <QComboBox>
@@ -290,8 +292,7 @@ void ObsDialog::getTimes()
     set<std::string> nameset;
     for (int i=0; i<nr_plot; i++) {
       if (obsWidget[i]->initialized()) {
-        std::vector<std::string> name=obsWidget[i]->getDataTypes();
-        nameset.insert(name.begin(), name.end());
+        diutil::insert_all(nameset, obsWidget[i]->getDataTypes());
       }
     }
     dataName = std::vector<std::string>(nameset.begin(), nameset.end());

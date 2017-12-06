@@ -30,10 +30,11 @@
 #include "diana_config.h"
 
 #include "diStationManager.h"
-#include "diStationPlotCommand.h"
 #include "diStationPlot.h"
+#include "diStationPlotCommand.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/misc_util.h"
 
 #include <puTools/miTime.h>
 #include <puTools/miStringFunctions.h>
@@ -398,8 +399,7 @@ vector<Station*> StationManager::findStations(int x, int y)
   vector<Station*> stations;
   for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((*it)->isVisible()) {
-      vector<Station*> found = (*it)->stationsAt(x, y, 5);
-      stations.insert(stations.end(), found.begin(), found.end());
+      diutil::insert_all(stations, (*it)->stationsAt(x, y, 5));
     }
   }
   return stations;
@@ -457,8 +457,7 @@ void StationManager::getStationData(vector< vector<std::string> >& data)
 void StationManager::stationCommand(const std::string& command,
     const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
 {
-  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    StationPlot* sp = *it;
+  for (StationPlot* sp : stationPlots) {
     if ((id == -1 || id == sp->getId()) &&
         (name == sp->getName() || name.empty()))
     {
@@ -486,8 +485,7 @@ void StationManager::stationCommand(const std::string& command, const std::strin
     }
 
   } else {
-    for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      StationPlot* sp = *it;
+    for (StationPlot* sp : stationPlots) {
       if ((id == -1 || id == sp->getId()) &&
           (name == sp->getName() || name.empty()))
         sp->stationCommand(command);

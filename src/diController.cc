@@ -216,15 +216,18 @@ void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2)
 }
 
 // get plot area (incl. projection)
-const Area& Controller::getMapArea(){
+const Area& Controller::getMapArea()
+{
   return plotm->getMapArea();
 }
 
-void Controller::zoomTo(const Rectangle & r) {
+void Controller::zoomTo(const Rectangle& r)
+{
   plotm->setMapAreaFromMap(r);
 }
 
-void Controller::zoomOut(){
+void Controller::zoomOut()
+{
   plotm->zoomOut();
 }
 
@@ -307,7 +310,8 @@ void Controller::setPlotTime(const miTime& t)
 }
 
 // toggle area conservatism
-void Controller::keepCurrentArea(bool b){
+void Controller::keepCurrentArea(bool b)
+{
   plotm->keepCurrentArea(b);
 }
 

@@ -8,8 +8,7 @@
 #include "GridInventoryTypes.h"
 #include "diFieldFunctions.h"
 
-
-#include <boost/foreach.hpp>
+#include "util/misc_util.h"
 
 #include <algorithm>
 #include <cmath>
@@ -239,7 +238,7 @@ Inventory Inventory::merge(const Inventory& i) const
             if(zax2.values.size() == 1){
               //one value, assume merge values
               vector<double> newvalues = zaxis1itr->values;
-              newvalues.insert(newvalues.begin(), zax2.values.begin(), zax2.values.end());
+              diutil::insert_all(newvalues, zax2.values);
               Zaxis newzaxis(zaxis1itr->id, zaxis1itr->name, zaxis1itr->positive, newvalues);
               METLIBS_LOG_DEBUG("     must change zaxis:");
               reftime.zaxes.erase(zaxis1itr); // remove zaxis
@@ -264,7 +263,7 @@ Inventory Inventory::merge(const Inventory& i) const
           if (taxis1itr->values != tax2.values) {
             METLIBS_LOG_DEBUG(" same id, different values, merge values");
               vector<double> newvalues = taxis1itr->values;
-              newvalues.insert(newvalues.begin(), tax2.values.begin(), tax2.values.end());
+              diutil::insert_all(newvalues, tax2.values);
               Taxis newtaxis(taxis1itr->name, newvalues);
               METLIBS_LOG_DEBUG("     must change taxis: old size:" <<taxis1itr->values.size()
                   << " new size: " << newvalues.size());
@@ -288,7 +287,7 @@ Inventory Inventory::merge(const Inventory& i) const
             if ( eax2.values.size() == 1 ) {
               //one value, assume merge values
               vector<double> newvalues = eax1it->values;
-              newvalues.insert(newvalues.begin(),eax2.values.begin(),eax2.values.end());
+              diutil::insert_all(newvalues, eax2.values);
               ExtraAxis newextraaxis(eax1it->id, eax1it->name, newvalues);
               METLIBS_LOG_DEBUG("     must change extraaxis:");
               reftime.extraaxes.erase(*eax1it); // remove old extraaxis

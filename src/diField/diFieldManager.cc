@@ -38,12 +38,12 @@
 #include "GridCollection.h"
 
 #include "../diUtilities.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/foreach.hpp>
 
 #include <cmath>
 #include <iomanip>
@@ -604,7 +604,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
         std::swap(twork, tNormal);
       }
       if (allTimeSteps) {
-        tn.insert(tNormal.begin(), tNormal.end());
+        diutil::insert_all(tn, tNormal);
       } else if (!tNormal.empty()) {
         if (tn.empty()) {
           tn = tNormal;

@@ -32,14 +32,15 @@
 #include "diObsPlot.h"
 #include "diRoadObsPlot.h"
 
-#include "diObsPositions.h"
-#include "diImageGallery.h"
 #include "diGlUtilities.h"
-#include "diLocalSetupParser.h"
+#include "diImageGallery.h"
 #include "diKVListPlotCommand.h"
+#include "diLocalSetupParser.h"
+#include "diObsPositions.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/math_util.h"
+#include "util/misc_util.h"
 #include "util/qstring_util.h"
 
 #include <puCtools/stat.h>
@@ -506,7 +507,7 @@ void ObsPlot::mergeMetaData(const std::map<std::string, ObsData>& metaData)
 
 void ObsPlot::addObsData(const std::vector<ObsData>& obs)
 {
-  obsp.insert(obsp.end(), obs.begin(), obs.end());
+  diutil::insert_all(obsp, obs);
 }
 
 void ObsPlot::replaceObsData(const std::vector<ObsData>& obs)
@@ -1636,10 +1637,9 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
           else
             b.push_back(i);
         }
-        if (a.size() > 0) {
-          all_this_area.clear();
-          all_this_area.insert(all_this_area.end(), a.begin(), a.end());
-          all_this_area.insert(all_this_area.end(), b.begin(), b.end());
+        if (!a.empty()) {
+          all_this_area = a;
+          diutil::insert_all(all_this_area, b);
         }
       }
     }
@@ -1657,7 +1657,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     // plot the station pointed at and those plotted last time if possible,
     // then the rest if possible.
     ptmp = nextplot;
-    ptmp.insert(ptmp.end(), notplot.begin(), notplot.end());
+    diutil::insert_all(ptmp, notplot);
     pbegin = ptmp.begin();
     pend = ptmp.end();
 

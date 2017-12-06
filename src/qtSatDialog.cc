@@ -35,6 +35,7 @@
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
@@ -784,12 +785,12 @@ miutil::KeyValue_v SatDialog::makeOKString(state & okVar)
 
   cmd.push_back(miutil::KeyValue("mosaic", okVar.mosaic ? "1" : "0"));
 
-  cmd.insert(cmd.end(), okVar.advanced.begin(), okVar.advanced.end());
+  diutil::insert_all(cmd, okVar.advanced);
 
   cmd.push_back(miutil::KeyValue("font", "BITMAPFONT"));
   cmd.push_back(miutil::KeyValue("face", "normal"));
 
-  cmd.insert(cmd.end(), okVar.external.begin(), okVar.external.end());
+  diutil::insert_all(cmd, okVar.external);
   //should only be cleared if something has changed at this picture
   okVar.external.clear();
 

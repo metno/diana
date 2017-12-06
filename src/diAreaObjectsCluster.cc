@@ -1,6 +1,7 @@
 #include "diAreaObjectsCluster.h"
 
 #include "diPlotModule.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -70,43 +71,30 @@ void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastrin
   }
 
   //check if dataset with this id/name already exist
-  areaobjects_v::iterator it = vareaobjects.begin();
-  while (it != vareaobjects.end() && (id != it->getId() || name != it->getName()))
-    ++it;
-  if (it != vareaobjects.end()) { //add new areas and replace old areas
-    it->makeAreas(name, icon, areastring, id, plot_->getMapArea());
-    return;
-  }
-
-  //make new dataset
-  AreaObjects new_areaobjects;
-  new_areaobjects.makeAreas(name, icon, areastring, id, plot_->getMapArea());
-  vareaobjects.push_back(new_areaobjects);
+  areaobjects_v::iterator it =
+      std::find_if(vareaobjects.begin(), vareaobjects.end(), [&](const AreaObjects& ao) { return id != ao.getId() || name != ao.getName(); });
+  if (it == vareaobjects.end())
+    // not found, add new at end
+    it = vareaobjects.insert(it, AreaObjects());
+  it->makeAreas(name, icon, areastring, id, plot_->getMapArea());
 }
 
 void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const std::string& dataSet,
     const std::vector<std::string>& data, int id)
 {
-  //   METLIBS_LOG_DEBUG("AreaObjectsCluster::areaCommand");
-  //   METLIBS_LOG_DEBUG("id=" << id);
-  //   METLIBS_LOG_DEBUG("command=" << command);
-  //   METLIBS_LOG_DEBUG("data="<<data);
-
-  int n = vareaobjects.size();
-  for (int i = 0; i < n && i > -1; i++) {
-    if ((id == -1 || id == vareaobjects[i].getId())
-        && (dataSet == "all" || dataSet == vareaobjects[i].getName()))
-    {
-      if (command == "delete" && (data.empty() || (data.size() == 1 && data.front() == "all"))) {
-        vareaobjects.erase(vareaobjects.begin() + i);
-        i--;
-        n = vareaobjects.size();
+  const bool is_delete_command = (command == "delete" && (data.empty() || (data.size() == 1 && data.front() == "all")));
+  for (areaobjects_v::iterator it = vareaobjects.begin(); it != vareaobjects.end(); /*nothing*/) {
+    AreaObjects& ao = *it;
+    if ((id == -1 || id == ao.getId()) && (dataSet == "all" || dataSet == ao.getName())) {
+      if (is_delete_command) {
+        it = vareaobjects.erase(it);
       } else {
-        vareaobjects[i].areaCommand(command, data);
+        ++it;
+        ao.areaCommand(command, data);
         //zoom to selected area
-        if (command == "select" && vareaobjects[i].autoZoom()) {
+        if (command == "select" && ao.autoZoom()) {
           if (data.size() == 2 && data[1] == "on") {
-            plot_->setMapAreaFromMap(vareaobjects[i].getBoundBox(data[0])); // TODO try to move this away from here
+            plot_->setMapAreaFromMap(ao.getBoundBox(data[0])); // TODO try to move this away from here
           }
         }
       }
@@ -116,17 +104,14 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
 
 std::vector<selectArea> AreaObjectsCluster::findAreaObjects(int x, int y, bool newArea)
 {
+  std::vector<selectArea> vsA;
   //METLIBS_LOG_DEBUG("AreaObjectsCluster::findAreas"  << x << " " << y);
   float xm = 0, ym = 0;
   plot_->PhysToMap(x, y, xm, ym);
-  std::vector<selectArea> vsA;
-  int n = vareaobjects.size();
-  for (int i = 0; i < n; i++) {
-    if (!vareaobjects[i].isEnabled())
+  for (AreaObjects& ao : vareaobjects) {
+    if (!ao.isEnabled())
       continue;
-    std::vector<selectArea> sub_vsA;
-    sub_vsA = vareaobjects[i].findAreas(xm, ym, newArea);
-    vsA.insert(vsA.end(), sub_vsA.begin(), sub_vsA.end());
+    diutil::insert_all(vsA, ao.findAreas(xm, ym, newArea));
   }
   return vsA;
 }

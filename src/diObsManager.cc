@@ -39,6 +39,7 @@
 #include "diUtilities.h"
 
 #include "miSetupParser.h"
+#include "util/misc_util.h"
 
 #ifdef ROADOBS
 // includes for road specific implementation
@@ -53,7 +54,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <set>
 
@@ -671,7 +671,7 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.push_back(addButton("Pos", "Position", 0, 0, true));
   plist.button.push_back(addButton("dd", "wind direction", 0, 360, true));
   plist.button.push_back(addButton("ff", "wind speed)", 0, 100, true));
-  plist.button.insert(plist.button.end(), psynop.button.begin(), psynop.button.end());
+  diutil::insert_all(plist.button, psynop.button);
   plist.button.pop_back();
   plist.button.pop_back();
   plist.button.pop_back();

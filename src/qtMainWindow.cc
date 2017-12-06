@@ -73,11 +73,12 @@
 #include "diLogFile.h"
 #include "miSetupParser.h"
 
+#include "util/misc_util.h"
+#include "util/qstring_util.h"
+#include "util/string_util.h"
 #include "vcross_qt/qtVcrossInterface.h"
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
-#include "util/qstring_util.h"
-#include "util/string_util.h"
 
 #include "export/MovieMaker.h"
 #include "export/qtExportImageDialog.h"
@@ -1199,55 +1200,44 @@ bool isLabelCommandWithTime(PlotCommand_cp cmd)
   }
   return false;
 }
-
 } // namespace
 
 void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shortnames)
 {
-  PlotCommand_cpv diagstr;
-
   // fields
   pstr = fm->getOKString();
   shortnames.push_back(fm->getShortname());
 
   // Observations
-  diagstr = om->getOKString();
-  pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  diutil::insert_all(pstr, om->getOKString());
   shortnames.push_back(om->getShortname());
 
   //satellite
-  diagstr = sm->getOKString();
-  pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  diutil::insert_all(pstr, sm->getOKString());
   shortnames.push_back(sm->getShortname());
 
   // Stations
-  diagstr = stm->getOKString();
-  pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  diutil::insert_all(pstr, stm->getOKString());
   shortnames.push_back(stm->getShortname());
 
   // objects
-  diagstr = objm->getOKString();
-  pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  diutil::insert_all(pstr, objm->getOKString());
   shortnames.push_back(objm->getShortname());
 
   // map
-  diagstr = mm->getOKString();
-  pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  diutil::insert_all(pstr, mm->getOKString());
   shortnames.push_back(mm->getShortname());
 
   // annotation
   const bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
-  diagstr = annom->getOKString();
-  for (PlotCommand_cp cmd : diagstr) {
+  for (PlotCommand_cp cmd : annom->getOKString()) {
     if (!remove || !isLabelCommandWithTime(cmd))
       pstr.push_back(cmd);
   }
 
   // Other data sources
-  map<QAction*, DataDialog*>::iterator it;
-  for (it = dialogs.begin(); it != dialogs.end(); ++it) {
-    diagstr = it->second->getOKString();
-    pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  for (auto it : dialogs) {
+    diutil::insert_all(pstr, it.second->getOKString());
   }
 }
 
@@ -1265,10 +1255,9 @@ void DianaMainWindow::MenuOK()
 
   PlotCommand_cpv pstr;
   vector<string> shortnames;
-
   getPlotStrings(pstr, shortnames);
 
-//init level up/down arrows
+  // init level up/down arrows
   toolLevelUpAction->setEnabled(fm->levelsExists(true,0));
   toolLevelDownAction->setEnabled(fm->levelsExists(false,0));
   toolIdnumUpAction->setEnabled(fm->levelsExists(true,1));
@@ -1279,16 +1268,12 @@ void DianaMainWindow::MenuOK()
   setPlotTime(timeNavigator->selectedTime());
 
   // push command on history-stack
-  if (push_command){ // only when proper menuok
+  if (push_command) { // only when proper menuok
     // make shortname
     std::string plotname;
-    int m= shortnames.size();
-    for (int j=0; j<m; j++)
-      if (not shortnames[j].empty()){
-        plotname+= shortnames[j];
-        if (j!=m-1) plotname+= " ";
-      }
-    qm->pushPlot(plotname,pstr,QuickMenu::MAP);
+    for (const std::string& sn : shortnames)
+      diutil::appendText(plotname, sn);
+    qm->pushPlot(plotname, pstr, QuickMenu::MAP);
   }
 }
 
@@ -1395,8 +1380,8 @@ void DianaMainWindow::browserSelect()
 // add current plot to a quick-menu
 void DianaMainWindow::addToMenu()
 {
-  AddtoMenu* am= new AddtoMenu(this, qm);
-  am->exec();
+  AddtoMenu am(this, qm);
+  am.exec();
 }
 
 
@@ -2332,7 +2317,7 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
     sendLetter(letter);
   }
 
-  QCoreApplication::sendPostedEvents ();
+  QCoreApplication::sendPostedEvents();
 }
 
 
@@ -2613,22 +2598,11 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 {
   METLIBS_LOG_SCOPE();
 
-  int x = mev->x();
-  int y = mev->y();
-  int globalX = mev->globalX();
-  int globalY = mev->globalY();
-
-
-  float map_x,map_y;
-  contr->PhysToMap(mev->x(),mev->y(),map_x,map_y);
-
-  xclick=x; yclick=y;
-
   for (int i=0; i<MaxSelectedAreas; i++){
     selectAreaAction[i]->setVisible(false);
   }
 
-  vselectAreas=contr->findAreaObjects(xclick,yclick);
+  vselectAreas = contr->findAreaObjects(mev->x(), mev->y());
   int nAreas=vselectAreas.size();
   if ( nAreas>0 ) {
     zoomOutAction->setVisible(true);
@@ -2637,7 +2611,7 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
       selectAreaAction[i]->setData(i-1);
       selectAreaAction[i]->setVisible(true);
     }
-    rightclickmenu->popup(QPoint(globalX, globalY), 0);
+    rightclickmenu->popup(mev->globalPos(), 0);
   } else {
     zoomOut();
   }
@@ -2694,10 +2668,7 @@ void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
   if (contr->markAnnotationPlot(x,y))
     requestBackgroundBufferUpdate();
 
-  if (quick)
-    return;
-
-  if (optAutoElementAction->isChecked()) {
+  if (!quick && optAutoElementAction->isChecked()) {
     catchElement(mev);
   }
 }
@@ -2962,7 +2933,7 @@ std::string DianaMainWindow::getLogFileExt()
 
 std::string DianaMainWindow::getLogFileName() const
 {
-  // FIXME toStdString uses latin1 which might cause encoding problems
+  // FIXME toStdString uses utf8 which might cause encoding problems
   return getLogFileDir() + instanceName().toStdString() + getLogFileExt();
 }
 
@@ -3427,7 +3398,7 @@ void DianaMainWindow::chooseFont()
   }
 }
 
-void DianaMainWindow::zoomTo(Rectangle r)
+void DianaMainWindow::zoomTo(const Rectangle& r)
 {
   if (contr)
     contr->zoomTo(r);
@@ -3476,7 +3447,6 @@ void DianaMainWindow::selectedAreas()
   sendLetter(letter, a.id);
 }
 
-
 void DianaMainWindow::inEdit(bool inedit)
 {
   if (qsocket) {
@@ -3485,7 +3455,6 @@ void DianaMainWindow::inEdit(bool inedit)
     sendLetter(letter);
   }
 }
-
 
 void DianaMainWindow::closeEvent(QCloseEvent * e)
 {
@@ -3537,7 +3506,7 @@ void DianaMainWindow::unsetWorkAreaCursor()
 void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
   if (event->mimeData()->hasUrls()) {
-    Q_FOREACH(QUrl url, event->mimeData()->urls()) {
+    for (const QUrl& url : event->mimeData()->urls()) {
 
       // Return if we encounter a non-file URL, causing the event to be ignored.
       if (!(url.scheme() == "file"))
@@ -3581,7 +3550,7 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
 
   if (event->mimeData()->hasUrls()) {
 
-    foreach (QUrl url, event->mimeData()->urls()) {
+    for (const QUrl& url : event->mimeData()->urls()) {
 
       if (url.scheme() == "file") {
         const QString fileName = url.toLocalFile();
@@ -3608,11 +3577,12 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
     }
   }
 
+  // FIXME identical to bdiana
   std::vector<std::string> field_errors;
   if (!contr->updateFieldFileSetup(extra_field_lines, field_errors)) {
     METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
-    for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
-      METLIBS_LOG_ERROR(field_errors[kk]);
+    for (const std::string& fe : field_errors)
+      METLIBS_LOG_ERROR(fe);
   }
 
   if (fieldsAdded > 0) {

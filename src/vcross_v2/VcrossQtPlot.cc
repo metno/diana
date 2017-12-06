@@ -51,7 +51,6 @@
 #include <QtGui/QPainter>
 
 #include <boost/algorithm/string/join.hpp>
-#include <boost/foreach.hpp>
 
 #include <cmath>
 #include <iterator>

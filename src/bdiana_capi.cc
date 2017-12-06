@@ -80,6 +80,7 @@
 
 #include "util/charsets.h"
 #include "util/fimex_logging.h"
+#include "util/misc_util.h"
 
 #include <puCtools/sleep.h>
 #include <puTools/miStringFunctions.h>
@@ -2203,8 +2204,7 @@ static int handleFieldFilesCommand(int& k)
 {
   bool found_end = false;
   int kk = k;
-  const std::vector<std::string> pcom = FIND_END_COMMAND(kk, com_field_files_end, &found_end);
-  extra_field_lines.insert(extra_field_lines.end(), pcom.begin(), pcom.end());
+  diutil::insert_all(extra_field_lines, FIND_END_COMMAND(kk, com_field_files_end, &found_end));
 
   if (!found_end) {
     METLIBS_LOG_ERROR("no " << com_field_files_end << " found:" << lines[k] << " Linenumber:" << linenumbers[k]);
@@ -2254,10 +2254,8 @@ static int handleDescribeCommand(int& k)
     std::set<std::string> fieldPatterns;
 
     FieldManager* fieldManager = main_controller->getFieldManager();
-    for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
-      std::string modelName = (*it)->getModelName();
-      std::vector<std::string> fileNames = fieldManager->getFileNames(modelName);
-      fieldPatterns.insert(fileNames.begin(), fileNames.end());
+    for (FieldPlot* fp : fieldPlots) {
+      diutil::insert_all(fieldPatterns, fieldManager->getFileNames(fp->getModelName()));
     }
 
     const SatManager::Prod_t& satProducts = main_controller->getSatelliteManager()->getProductsInfo();

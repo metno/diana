@@ -514,7 +514,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     lCRS.removeAll("EPSG:900913");
     lCRS << "EPSG:3857";
   }
-  Q_FOREACH(const QString& crs, lCRS) {
+  for (const QString& crs : lCRS) {
     float minx, miny, maxx, maxy;
     const std::string sCRS = crs.toStdString();
     METLIBS_LOG_DEBUG("known bbox check" << LOGVAL(sCRS));
@@ -665,14 +665,14 @@ void WebMapWMS::parseDimensionValues(WebMapDimension& dim, const QString& text, 
 
   const bool isTime = dim.isTime();
   const QStringList values = text.trimmed().split(QRegExp(",\\s*"));
-  Q_FOREACH(const QString& v, values) {
+  for (const QString& v : values) {
     if (v.contains("/")) {
       QStringList expanded;
       if (isTime)
         expanded = diutil::expandWmsTimes(v);
       else
         expanded = diutil::expandWmsValues(v);
-      Q_FOREACH(const QString& ev, expanded) {
+      for (const QString& ev : expanded) {
         dim.addValue(qs(ev), ev == defaultValue);
       }
     } else {

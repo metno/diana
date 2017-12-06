@@ -32,9 +32,10 @@
 #include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
 #include "diKVListPlotCommand.h"
+#include "diWeatherArea.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
-#include "diWeatherArea.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -106,7 +107,7 @@ bool DisplayObjects::define(const PlotCommand_cp& pc)
         fixedsymbolsize= kv.toInt();
       } else if (key=="symbolfilter") {
         const std::vector<std::string> vals = miutil::split(value, ",");
-        symbolfilter.insert(symbolfilter.end(), vals.begin(), vals.end());
+        diutil::insert_all(symbolfilter, vals);
       }
     }
   }

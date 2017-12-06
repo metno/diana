@@ -245,7 +245,7 @@ private Q_SLOTS:
   void browserCancel();
   void addToMenu();
 
-  void zoomTo(Rectangle);
+  void zoomTo(const Rectangle&);
   void zoomOut();
   void showUffda();
   void selectedAreas();

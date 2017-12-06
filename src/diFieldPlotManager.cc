@@ -29,11 +29,12 @@
 
 #include "diana_config.h"
 
-#include "diFieldPlotManager.h"
 #include "diFieldPlot.h"
-#include "diPlotOptions.h"
+#include "diFieldPlotManager.h"
 #include "diKVListPlotCommand.h"
+#include "diPlotOptions.h"
 #include "miSetupParser.h"
+#include "util/misc_util.h"
 #include "util/string_util.h"
 
 #include "diField/diFieldFunctions.h"
@@ -393,7 +394,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miutil::KeyValue_v>& 
     std::vector<FieldRequest> fieldrequest;
     std::string plotName;
     parsePin(fspec1, fieldrequest,plotName);
-    request.insert(request.begin(),fieldrequest.begin(),fieldrequest.end());
+    diutil::insert_all(request,fieldrequest);
   }
 
   if (request.empty())
@@ -1030,11 +1031,11 @@ bool FieldPlotManager::splitDifferenceCommandString(const miutil::KeyValue_v& pi
 
   fspec1 = common_start;
   fspec1.insert(fspec1.end(), pin.begin()+p1+1, pin.begin()+p2);
-  fspec1.insert(fspec1.end(), common_end.begin(), common_end.end());
+  diutil::insert_all(fspec1, common_end);
 
   fspec2 = common_start;
   fspec2.insert(fspec2.end(), pin.begin()+p2+1, pin.begin()+p3);
-  fspec2.insert(fspec2.end(), common_end.begin(), common_end.end());
+  diutil::insert_all(fspec2, common_end);
 
   return true;
 }
@@ -1067,7 +1068,7 @@ void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
 
     miutil::KeyValue_v& fpo = fieldoptions[fn];
     fpo = po.toKeyValueList();
-    fpo.insert(fpo.end(), fdo.begin(), fdo.end());
+    diutil::insert_all(fpo, fdo);
   }
 }
 

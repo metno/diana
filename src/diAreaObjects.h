@@ -56,7 +56,7 @@ public:
   std::vector<selectArea> findAreas(float x, float y, bool newArea=false);
 
   /// returns id
-  int getId(){return itsId;}
+  int getId() const { return itsId; }
 
   /// returns name
   const std::string& getName() const

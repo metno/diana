@@ -496,7 +496,7 @@ void SpectrumWindow::hideSetup()
 
 StationPlot* SpectrumWindow::getStations()
 {
-  METLIBS_LOG_DEBUG("SpectrumWindow::getStations()");
+  METLIBS_LOG_SCOPE();
 
   const vector <std::string> stations = spectrumm->getStationList();
   const vector <float> latitude = spectrumm->getLatitudes();

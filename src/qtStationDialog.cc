@@ -179,7 +179,7 @@ void StationDialog::chooseSet()
 {
   stationDialogInfo info;
 
-  foreach (QModelIndex index, stationPlotList->selectionModel()->selection().indexes()) {
+  for (QModelIndex index : stationPlotList->selectionModel()->selection().indexes()) {
     if (index.column() != 0)
       continue;
 
@@ -214,7 +214,7 @@ void StationDialog::selectSet(const QItemSelection& current)
 void StationDialog::reloadSets()
 {
   QItemSelectionModel* selectionModel = selectedStationPlotList->selectionModel();
-  foreach (QModelIndex index, selectionModel->selectedRows(1)) {
+  for (QModelIndex index : selectionModel->selectedRows(1)) {
     std::string url = index.data().toString().toStdString();
     QModelIndex nameIndex = chosenModel->index(index.row(), 0);
     std::string name = nameIndex.data().toString().toStdString();

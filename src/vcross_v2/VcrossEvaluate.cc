@@ -3,8 +3,6 @@
 #include "VcrossComputer.h"
 #include <diField/VcrossUtil.h>
 #include <puTools/miStringFunctions.h>
-#include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
 
 #define MILOGGER_CATEGORY "vcross.Evaluate"
 #include "miLogger/miLogging.h"

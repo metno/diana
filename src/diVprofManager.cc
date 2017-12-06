@@ -45,8 +45,6 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/TimeFilter.h>
 
-#include <boost/foreach.hpp>
-
 #include <cmath>
 #include <iomanip>
 #include <fstream>

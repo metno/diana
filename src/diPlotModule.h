@@ -217,9 +217,10 @@ public:
   /// return field grid x,y from map x,y if field defined and map proj = field proj
   bool MapToGrid(const float, const float, float&, float&);
 
-  double getWindowDistances(const float& x, const float& y,
-      const bool horizontal);
+  double getWindowDistances(float x1, float y1, float x2, float y2, bool horizontal);
+  double getWindowDistances(float x, float y, bool horizontal);
   double getMarkedArea(const float& x, const float& y);
+  double getWindowArea(int x1, int y1, int x2, int y2);
   double getWindowArea();
 
   /// set managers

@@ -29,10 +29,11 @@
 
 #include "diana_config.h"
 
-#include "diStationPlot.h"
 #include "diGlUtilities.h"
 #include "diPlotModule.h"
+#include "diStationPlot.h"
 #include "util/math_util.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -1320,8 +1321,7 @@ vector<Station*> StationArea::findStations(const miCoordinates& pos, float radiu
     for (std::vector<StationArea>::const_iterator it = areas.begin(); it != areas.end(); ++it) {
       const double d = it->distance(pos);
       if (d < radius) {
-        const vector<Station*> child = it->findStations(pos, radius);
-        all.insert(all.end(), child.begin(), child.end());
+        diutil::insert_all(all, it->findStations(pos, radius));
       }
     }
   } else {

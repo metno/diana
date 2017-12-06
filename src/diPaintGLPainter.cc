@@ -124,7 +124,7 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
     return;
 
   const QString qfont = QString::fromStdString(fontfam);
-  Q_FOREACH(const QString& family, families) {
+  for (const QString& family : families) {
     fontMap[qfont] = family;
   }
 }
@@ -1267,7 +1267,7 @@ void DiPaintGLPainter::drawPolygon(const QPolygonF& points)
 void DiPaintGLPainter::drawPolygons(const QList<QPolygonF>& polygons)
 {
   QPainterPath path;
-  Q_FOREACH(const QPolygonF& p, polygons) {
+  for (const QPolygonF& p : polygons) {
     if (p.size() < 3) {
       METLIBS_LOG_ERROR("invalid polygon, size=" << p.size());
       return;

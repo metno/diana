@@ -146,7 +146,7 @@ typedef QList<ExportCommand> ExportCommands;
 ExportCommands parseCommands(QStringList commands)
 {
   ExportCommands ecs;
-  foreach(const QString& c, commands) {
+  for (const QString& c : commands) {
     if (!c.startsWith("SAVETO "))
       continue;
     ExportCommand ec;
@@ -257,7 +257,7 @@ ExportImageDialog::ExportImageDialog(DianaMainWindow *parent)
   std::vector<std::string> lines;
   if (miutil::SetupParser::getSection(SECTION, lines)) {
     QStringList cmds;
-    Q_FOREACH(const std::string& line, lines) {
+    for (const std::string& line : lines) {
       cmds << QString::fromStdString(line);
     }
     p->ecs = parseCommands(cmds);
@@ -616,9 +616,9 @@ void ExportImageDialog::updateComboSize()
     if (ec.sizes.isEmpty()) {
       p->sizes = sizes;
     } else {
-      foreach (const SizeSpec& es, ec.sizes) {
+      for (const SizeSpec& es : ec.sizes) {
         bool accept = false;
-        foreach (const SizeSpec& sis, sizes) {
+        for (const SizeSpec& sis : sizes) {
           if (sis.type == Size_Any)
             accept = true;
           else if (es.type == Size_Fixed && sis.type == Size_Fixed && es.size == sis.size)

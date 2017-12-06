@@ -57,9 +57,6 @@
 #include <sstream>
 #include <fstream>
 
-#include <boost/foreach.hpp>
-
-
 #define MILOGGER_CATEGORY "diana.VprofData"
 #include <miLogger/miLogging.h>
 

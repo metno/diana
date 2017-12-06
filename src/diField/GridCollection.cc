@@ -15,6 +15,8 @@
 #include "diFieldFunctions.h"
 #include "../diUtilities.h"
 
+#include "util/misc_util.h"
+
 #include <puCtools/puCglob.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
@@ -123,11 +125,11 @@ bool GridCollection::makeGridIOinstances()
         METLIBS_LOG_INFO("No source available for "<<sourcestr);
         continue;
       }
-      tmpsources.insert(files.begin(), files.end());
+      diutil::insert_all(tmpsources, files);
     } else {
       tmpsources.insert(sourcestr);
     }
-    sources.insert(tmpsources.begin(),tmpsources.end());
+    diutil::insert_all(sources,tmpsources);
 
     //if #formats == #rawsources, use corresponding files. If not use first format
     std::string format;
@@ -510,8 +512,7 @@ bool GridCollection::updateSources()
   for (const std::string& sourcestr : sources_with_wildcards) {
     // check for wild cards - expand filenames if necessary
     if (sourcestr.find_first_of("*?") != std::string::npos) {
-      const diutil::string_v files = diutil::glob(sourcestr, GLOB_BRACE);
-      newSources.insert(files.begin(), files.end());
+      diutil::insert_all(newSources, diutil::glob(sourcestr, GLOB_BRACE));
     } else {
       newSources.insert(sourcestr);
     }

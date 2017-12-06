@@ -32,10 +32,11 @@
 
 #include "qtFieldDialog.h"
 
-#include "qtUtility.h"
-#include "qtToggleButton.h"
 #include "diController.h"
 #include "diKVListPlotCommand.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+#include "util/misc_util.h"
 #include "util/string_util.h"
 
 #include <qcheckbox.h>
@@ -3588,7 +3589,7 @@ void FieldDialog::checkFieldOptions(miutil::KeyValue_v& vplog)
         }
       }
 
-      newstr.insert(newstr.end(), vpopt.begin(), vpopt.end());
+      diutil::insert_all(newstr, vpopt);
     }
   }
   std::swap(newstr, vplog);

@@ -5,7 +5,6 @@
 #include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/join.hpp>
-#include <boost/make_shared.hpp>
 
 #define MILOGGER_CATEGORY "vcross.Collector"
 #include "miLogger/miLogging.h"

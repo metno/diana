@@ -32,8 +32,6 @@
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
 #endif // !FIMEX_HAS_VERTICALCONVERTER
 
-#include <boost/make_shared.hpp>
-
 #include <sstream>
 
 #define MILOGGER_CATEGORY "vcross.FimexSource"

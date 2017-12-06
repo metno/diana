@@ -5,8 +5,8 @@
 
 #include "diMetConstants.h"
 #include <udunits2.h>
-#include <boost/foreach.hpp>
 #include <cmath>
+#include <istream>
 
 #define MILOGGER_CATEGORY "vcross.Util"
 #include "miLogger/miLogging.h"

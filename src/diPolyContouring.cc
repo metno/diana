@@ -39,8 +39,6 @@
 #include <QPolygonF>
 #include <QString>
 
-#include <boost/make_shared.hpp>
-
 #include <cmath>
 
 #define MILOGGER_CATEGORY "diana.PolyContouring"

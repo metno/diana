@@ -3,7 +3,6 @@
 
 #include <gtest/gtest.h>
 
-#include <boost/foreach.hpp>
 #include <fstream>
 #include <string>
 

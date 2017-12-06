@@ -7,6 +7,8 @@
 
 #include "FimexIO.h"
 
+#include "util/misc_util.h"
+
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/miDirtools.h>
@@ -813,7 +815,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       ri.parameters = parameters;
       ri.grids = grids;
       ri.zaxes = zaxes;
-      ri.taxes.insert(taxes.begin(), taxes.end());
+      diutil::insert_all(ri.taxes, taxes);
       ri.extraaxes = extraaxes;
       ri.timestamp = now;
       ri.globalAttributes = globalAttributes;

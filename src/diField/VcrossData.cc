@@ -3,7 +3,6 @@
 
 #include "VcrossUtil.h"
 
-#include <boost/foreach.hpp>
 #include <cmath>
 #include <numeric> // std::accumulate
 

@@ -33,8 +33,9 @@
 
 #include "diFieldPlot.h"
 
-#include "diContouring.h"
 #include "diColour.h"
+#include "diColourShading.h"
+#include "diContouring.h"
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
@@ -43,10 +44,10 @@
 #include "diPaintGLPainter.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
-#include "diColourShading.h"
 #include "diUtilities.h"
 #include "util/charsets.h"
 #include "util/math_util.h"
+#include "util/misc_util.h"
 #include "util/string_util.h"
 
 #include <diField/VcrossUtil.h> // minimize + maximize
@@ -668,8 +669,7 @@ bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
   // merge current plotOptions (from pin) with plotOptions form setup
   miutil::KeyValue_v opts;
   FieldPlotManager::getFieldPlotOptions(fname, poptions, opts);
-  const miutil::KeyValue_v cmd_all = cmd->all();
-  opts.insert(opts.end(), cmd_all.begin(), cmd_all.end());
+  diutil::insert_all(opts, cmd->all());
 
   setPlotInfo(opts);
 

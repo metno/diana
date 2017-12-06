@@ -30,6 +30,7 @@
 #include "diLogFile.h"
 
 #include "util/charsets.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 #include <istream>
@@ -46,7 +47,7 @@ void LogFileIO::Section::addLine(const std::string& line)
 
 void LogFileIO::Section::addLines(const std::vector<std::string>& lines)
 {
-  mLines.insert(mLines.end(), lines.begin(), lines.end());
+  diutil::insert_all(mLines, lines);
 }
 
 bool LogFileIO::read(std::istream& input)

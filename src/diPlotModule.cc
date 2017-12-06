@@ -52,6 +52,7 @@
 #include "diUtilities.h"
 #include "diWeatherArea.h"
 
+#include "util/misc_util.h"
 #include "util/string_util.h"
 #include "util/was_enabled.h"
 
@@ -112,8 +113,8 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   METLIBS_LOG_SCOPE();
   // TODO set for all existing plots, and for new plots
   mCanvas = canvas;
-  for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->setCanvas(canvas);
+  for (MapPlot* mp : vmp)
+    mp->setCanvas(canvas);
   obsplots_->setCanvas(mCanvas);
   fieldplots_->setCanvas(mCanvas);
   for (Manager* m : boost::adaptors::values(managers))
@@ -348,8 +349,7 @@ vector<PlotElement> PlotModule::getPlotElements()
   }
 
   for (Manager* m : boost::adaptors::values(managers)) {
-    const std::vector<PlotElement> pe = m->getPlotElements();
-    pel.insert(pel.end(), pe.begin(), pe.end());
+    diutil::insert_all(pel, m->getPlotElements());
   }
 
   return pel;
@@ -814,11 +814,11 @@ void PlotModule::plotOver(DiGLPainter* gl)
   if (editm->isInEdit()) {
     // Annotations
     if (showanno) {
-      for (size_t i = 0; i < vap.size(); i++)
-        vap[i]->plot(gl, Plot::OVERLAY);
+      for (AnnotationPlot* ap : vap)
+        ap->plot(gl, Plot::OVERLAY);
     }
-    for (size_t i = 0; i < editVap.size(); i++)
-      editVap[i]->plot(gl, Plot::OVERLAY);
+    for (AnnotationPlot* ap : editVap)
+      ap->plot(gl, Plot::OVERLAY);
 
   } // if editm->isInEdit()
 
@@ -830,8 +830,8 @@ void PlotModule::plotOver(DiGLPainter* gl)
   }
 
   // plot map-elements for highest zorder
-  for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(gl, Plot::OVERLAY);
+  for (MapPlot* mp : vmp)
+    mp->plot(gl, Plot::OVERLAY);
 
   // frame (not needed if maprect==fullrect)
   if (staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
@@ -1025,56 +1025,51 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
   return false;
 }
 
-double PlotModule::getEntireWindowDistances(const bool horizontal){
-  int x1,  y2, x2 = 0, y1 = 0;
-  getPlotWindow(x1, y2);
-
+double PlotModule::getWindowDistances(float x1, float y1, float x2, float y2, bool horizontal)
+{
   float flat1, flat3, flat4, flon1, flon3, flon4;
-  PhysToGeo(x1, y1, flat1, flon1);
   PhysToGeo(x1, y2, flat3, flon3);
-  PhysToGeo(x2, y2, flat4, flon4);
-  double dist;
-  if(horizontal){
-    dist = GreatCircleDistance(flat3,flat4,flon3 ,flon4);
+  if (horizontal) {
+    PhysToGeo(x2, y2, flat4, flon4);
+    return GreatCircleDistance(flat3, flat4, flon3, flon4);
   } else {
-    dist = GreatCircleDistance(flat1,flat3,flon1 ,flon3);
+    PhysToGeo(x1, y1, flat1, flon1);
+    return GreatCircleDistance(flat3, flat1, flon3, flon1);
   }
-  return dist;
 }
 
-double PlotModule::getWindowDistances(const float& x, const float& y, const bool horizontal){
-
-  if ( !dorubberband )
-    return getEntireWindowDistances(horizontal);
-
-  float flat1, flat3, flat4, flon1, flon3, flon4;
-  PhysToGeo(startx, starty, flat1, flon1);
-  PhysToGeo(startx, y, flat3, flon3);
-  PhysToGeo(x, y, flat4, flon4);
-  double dist;
-  if(horizontal){
-    dist = GreatCircleDistance(flat3,flat4,flon3 ,flon4);
-  } else {
-    dist = GreatCircleDistance(flat1,flat3,flon1 ,flon3);
-  }
-  return dist;
-}
-
-double PlotModule::getMarkedArea(const float& x, const float& y){
-
-  if ( !dorubberband) return 0.;
-
-  float flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4;
-  PhysToGeo(startx, starty, flat1, flon1);
-  PhysToGeo(x, starty, flat2, flon2);
-  PhysToGeo(startx, y, flat3, flon3);
-  PhysToGeo(x, y, flat4, flon4);
-  return getArea(flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4);
-}
-
-double PlotModule::getWindowArea(){
-  int x1,  y2, x2 = 0, y1 = 0;
+double PlotModule::getEntireWindowDistances(const bool horizontal)
+{
+  int x1, y2;
   getPlotWindow(x1, y2);
+  return getWindowDistances(x1, 0, 0, y2, horizontal);
+}
+
+double PlotModule::getWindowDistances(float x, float y, bool horizontal)
+{
+  if (!dorubberband)
+    return getEntireWindowDistances(horizontal);
+  else
+    return getWindowDistances(startx, starty, x, y, horizontal);
+}
+
+double PlotModule::getMarkedArea(const float& x, const float& y)
+{
+  if (!dorubberband)
+    return 0;
+  else
+    return getWindowArea(startx, starty, x, y);
+}
+
+double PlotModule::getWindowArea()
+{
+  int x1, y2;
+  getPlotWindow(x1, y2);
+  return getWindowArea(x1, 0, 0, y2);
+}
+
+double PlotModule::getWindowArea(int x1, int y1, int x2, int y2)
+{
   float flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4;
   PhysToGeo(x1, y1, flat1, flon1);
   PhysToGeo(x2, y1, flat2, flon2);
@@ -1083,28 +1078,21 @@ double PlotModule::getWindowArea(){
   return getArea(flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4);
 }
 
-double PlotModule::calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag){
+double PlotModule::calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag)
+{
   /*Calculates the area as two triangles
    * Each triangle is calculated with Herons formula*/
   // Returns the calculated area as m2
-  double calcArea = 0;
   double p1 = ((hLSide + vLSide + diag)/2);
   double p2 = ((hUSide + vRSide + diag)/2);
-  double nonsqrt1, nonsqrt2;
-  nonsqrt1 = p1*(p1 - hLSide)*(p1 - vLSide)*(p1 - diag);
-  nonsqrt2 = p2*(p1 - hUSide)*(p1 - vRSide)*(p1 - diag);
-  calcArea = sqrt(nonsqrt1)+sqrt(nonsqrt2);
-  return calcArea;
+  double nonsqrt1 = p1 * (p1 - hLSide) * (p1 - vLSide) * (p1 - diag);
+  double nonsqrt2 = p2 * (p1 - hUSide) * (p1 - vRSide) * (p1 - diag);
+  return sqrt(nonsqrt1) + sqrt(nonsqrt2);
 }
 
-double PlotModule::getArea(const float& flat1,
-    const float& flat2,
-    const float& flat3,
-    const float& flat4,
-    const float& flon1,
-    const float& flon2,
-    const float& flon3,
-    const float& flon4){
+double PlotModule::getArea(const float& flat1, const float& flat2, const float& flat3, const float& flat4, const float& flon1, const float& flon2,
+                           const float& flon3, const float& flon4)
+{
   //Calculate distance vertical left side with earth radius in mind
   double vLSide = GreatCircleDistance(flat1,flat3,flon1,flon3);
   //Calculate distance horizontal lower side with earth radius in mind
@@ -1269,14 +1257,14 @@ void PlotModule::putLocation(const LocationData& locationdata)
   METLIBS_LOG_SCOPE();
 #endif
   bool found = false;
-  for (size_t i = 0; i < locationPlots.size(); i++) {
-    if (locationdata.name == locationPlots[i]->getName()) {
-      bool visible = locationPlots[i]->isVisible();
-      delete locationPlots[i];
-      locationPlots[i] = new LocationPlot();
-      locationPlots[i]->setData(locationdata);
+  for (LocationPlot*& lp : locationPlots) {
+    if (locationdata.name == lp->getName()) {
+      bool visible = lp->isVisible();
+      delete lp;
+      lp = new LocationPlot();
+      lp->setData(locationdata);
       if (!visible)
-        locationPlots[i]->hide();
+        lp->hide();
       found = true;
     }
   }
@@ -1521,7 +1509,6 @@ void PlotModule::changeArea(ChangeAreaCommand ca)
   }
 
   Area a;
-  MapManager mapm;
 
   if (ca == CA_HISTORY_PREVIOUS || ca == CA_HISTORY_NEXT) {
     areaInsert(false);
@@ -1536,6 +1523,7 @@ void PlotModule::changeArea(ChangeAreaCommand ca)
     }
     a = areaQ[areaIndex];
   } else {
+    MapManager mapm;
     areaInsert(true);
     if (ca == CA_RECALL_MYAREA) {
       a = myArea;

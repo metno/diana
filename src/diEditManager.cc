@@ -30,25 +30,26 @@
 
 #include "diana_config.h"
 
+#include "diAnnotationPlot.h"
 #include "diEditManager.h"
-#include "diPlotModule.h"
-#include "diObjectManager.h"
-#include "diObsPositions.h"
+#include "diFieldEdit.h"
+#include "diFieldPlot.h"
 #include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
+#include "diLabelPlotCommand.h"
+#include "diMapMode.h"
+#include "diObjectManager.h"
+#include "diObsPositions.h"
+#include "diPlotModule.h"
+#include "diUndoFront.h"
+#include "diUtilities.h"
+#include "diWeatherArea.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
-#include "diWeatherArea.h"
-#include "diMapMode.h"
-#include "diFieldPlot.h"
-#include "diUndoFront.h"
-#include "diFieldEdit.h"
-#include "diAnnotationPlot.h"
-#include "diLabelPlotCommand.h"
-#include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/charsets.h"
 #include "util/math_util.h"
+#include "util/misc_util.h"
 
 #include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
@@ -200,10 +201,10 @@ bool EditManager::parseSetup()
           ok= false;
 
       } else if (key=="local_save_dir") {
-        ep.local_savedirs.insert(ep.prod_savedirs.end(), values.begin(),values.end());
+        diutil::insert_all(ep.local_savedirs, values);
 
       } else if (key=="prod_save_dir") {
-        ep.prod_savedirs.insert(ep.prod_savedirs.end(), values.begin(),values.end());
+        diutil::insert_all(ep.prod_savedirs, values);
 
       } else if (key=="input_dir") {
         ep.inputdirs.insert(ep.inputdirs.end(),

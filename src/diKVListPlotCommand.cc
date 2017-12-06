@@ -1,4 +1,5 @@
 #include "diKVListPlotCommand.h"
+#include "util/misc_util.h"
 
 #include <sstream>
 
@@ -38,7 +39,7 @@ KVListPlotCommand& KVListPlotCommand::add(const miutil::KeyValue& kv)
 
 KVListPlotCommand& KVListPlotCommand::add(const miutil::KeyValue_v& kvs)
 {
-  keyValueList_.insert(keyValueList_.end(), kvs.begin(), kvs.end());
+  diutil::insert_all(keyValueList_, kvs);
   return *this;
 }
 

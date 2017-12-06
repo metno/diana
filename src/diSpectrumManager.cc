@@ -588,9 +588,9 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 
 std::string SpectrumManager::getAnnotationString()
 {
-  std::string str = std::string("Wave spectrum ");
-  for (vector <SelectedModel>::iterator p=selectedModels.begin();p!=selectedModels.end();p++)
-    str+=(*p).model+std::string(" ");
+  std::string str = "Wave spectrum";
+  for (const SelectedModel& sm : selectedModels)
+    str += " " + sm.model;
   return str;
 }
 
