@@ -29,8 +29,8 @@
 #ifndef _textdialog_h
 #define _textdialog_h
 
+#include "diCommonTypes.h"
 #include <QDialog>
-#include <diCommonTypes.h>
 #include <string>
 
 class QPushButton;
@@ -42,15 +42,15 @@ class QTextBrowser;
    
    Dialogue for displaying information text from ascii files
 */
-class TextDialog: public QDialog
+class TextDialog : public QDialog
 {
   Q_OBJECT
 public:
-  TextDialog(QWidget* parent, const InfoFile ifile);
-  
-  void setSource(const InfoFile ifile);
+  TextDialog(QWidget* parent, const InfoFile& ifile);
 
-public slots:
+  void setSource(const InfoFile& ifile);
+
+public Q_SLOTS:
   void finish();
   void openwild();
   void fixedfont();

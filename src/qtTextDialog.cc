@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,7 +36,6 @@
 
 #include <QPushButton>
 #include <QTextBrowser>
-#include <QPrinter>
 #include <QFileDialog>
 #include <QCheckBox>
 #include <QPixmap>
@@ -49,12 +48,8 @@
 using namespace std;
 
 /*********************************************/
-TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
-: QDialog(parent)
-
-// 	    Qt::WindowTitleHint |
-// 	    Qt::WindowSystemMenuHint |
-// 	    Qt::WA_DeleteOnClose)
+TextDialog::TextDialog(QWidget* parent, const InfoFile& ifile)
+    : QDialog(parent)
 {
   tb = new QTextBrowser( this );
 
@@ -89,9 +84,8 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   resize(600,400);
 }
 
-
-void TextDialog::setSource(const InfoFile ifile){
-
+void TextDialog::setSource(const InfoFile& ifile)
+{
   const std::string xml_type= "text/xml;charset=UTF-8";
   const std::string txt_type= "text/plain";
   const std::string htm_type= "text/html;charset=iso8859-1";
@@ -141,8 +135,6 @@ void TextDialog::setSource(const InfoFile ifile){
       fixedb->setChecked(false);
     }
   }
-
-
 }
 
 void TextDialog::finish()
@@ -188,29 +180,3 @@ void TextDialog::openwild()
   f.fonttype= infofile.fonttype;
   setSource(f);
 }
-
-// void TextDialog::print()
-// {
-//   QPrinter printer;
-//   if (printer.setup()){
-//     QPainter p;
-//     if( !p.begin( &printer ) )
-//       return; // paint on printer
-
-// //     tb->draw(&p);
-// //     tb->drawFrame(&p);
-// //     tb->drawContents(&p);
-
-//     p.end();  // send job to printer
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
