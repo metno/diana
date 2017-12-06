@@ -1,4 +1,4 @@
-diana-3.34 (3.34.8-1) unstable; urgency=low
+diana-3.43 (3.43.8-1) unstable; urgency=low
 
   * Bugfix: do not add undef times to time axis
 
