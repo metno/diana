@@ -30,8 +30,9 @@
 #define _qtStatusGeopos_h
 
 #include <qwidget.h>
-#include <QComboBox>
 
+class Controller;
+class QComboBox;
 class QLabel;
 
 /**
@@ -41,13 +42,13 @@ class QLabel;
  */
 class StatusGeopos: public QWidget {
   Q_OBJECT
-private:
-  QLabel *sylabel;
-  QLabel *sxlabel;
-  QComboBox *xybox;
 
 public:
-  StatusGeopos(QWidget* parent = 0);
+  StatusGeopos(Controller* controller, QWidget* parent = 0);
+  //! handle mouse position update
+  void handleMousePos(int x, int y);
+
+private:
   bool geographicMode();
   bool gridMode();
   bool areaMode();
@@ -55,7 +56,11 @@ public:
   void setPosition(float, float);
   void undefPosition();
 
-protected:
+private:
+  Controller* controller;
+  QLabel* sylabel;
+  QLabel* sxlabel;
+  QComboBox* xybox;
   QLabel *latlabel;
   QLabel *lonlabel;
 };

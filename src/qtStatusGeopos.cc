@@ -31,11 +31,13 @@
 
 #include "qtStatusGeopos.h"
 
+#include "diController.h"
 #include "util/qstring_util.h"
 
-#include <QLabel>
+#include <QComboBox>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QLabel>
 
 #include <sstream>
 #include <iomanip>
@@ -43,10 +45,10 @@
 
 using namespace std;
 
-StatusGeopos::StatusGeopos(QWidget* parent) :
-  QWidget(parent)
+StatusGeopos::StatusGeopos(Controller* c, QWidget* parent)
+    : QWidget(parent)
+    , controller(c)
 {
-
   // Create horisontal layout manager
   QHBoxLayout* thlayout = new QHBoxLayout(this);
   thlayout->setMargin(1);
@@ -84,6 +86,37 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
 
   // Start the geometry management
   thlayout->activate();
+}
+
+void StatusGeopos::handleMousePos(int x, int y)
+{
+  float xmap = -1., ymap = -1.;
+  controller->PhysToMap(x, y, xmap, ymap);
+  if (geographicMode()) {
+    float lat = 0, lon = 0;
+    if (controller->PhysToGeo(x, y, lat, lon)) {
+      setPosition(lat, lon);
+    } else {
+      undefPosition();
+    }
+  } else if (gridMode()) {
+    float gridx = 0, gridy = 0;
+    if (controller->MapToGrid(xmap, ymap, gridx, gridy)) {
+      setPosition(gridx, gridy);
+    } else {
+      undefPosition();
+    }
+  } else if (areaMode()) { // Show area in km2
+    double markedArea = controller->getMarkedArea(x, y);
+    double windowArea = controller->getWindowArea();
+    setPosition(markedArea / (1000.0 * 1000.0), windowArea / (1000.0 * 1000.0));
+  } else if (distMode()) { // Show distance in km
+    double horizDist = controller->getWindowDistances(x, y, true);
+    double vertDist = controller->getWindowDistances(x, y, false);
+    setPosition(vertDist / 1000.0, horizDist / 1000.0);
+  } else {
+    setPosition(xmap, ymap);
+  }
 }
 
 bool StatusGeopos::geographicMode()
