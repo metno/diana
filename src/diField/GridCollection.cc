@@ -527,18 +527,23 @@ bool GridCollection::updateSources()
 bool GridCollection::standardname2variablename(const std::string& reftime,
     const std::string& standard_name, std::string& variable_name)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(standard_name));
+
   const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
-  set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.begin();
-  while (pitr != ritr->second.parameters.end()
-      && pitr->standard_name != standard_name)
-    pitr++;
-  if (pitr == ritr->second.parameters.end()) {
-    METLIBS_LOG_DEBUG("parameter standard_name '" << standard_name << "' not found in inventory");
+  if (ritr == inventory.reftimes.end()) {
+    METLIBS_LOG_DEBUG("reftime '" << reftime << "' not found in inventory");
     return false;
   }
 
-  variable_name = pitr->key.name;
-  return true;
+  for (const gridinventory::GridParameter& p : ritr->second.parameters) {
+    if (standard_name == p.standard_name) {
+      variable_name = p.key.name;
+      return true;
+    }
+  }
+
+  METLIBS_LOG_DEBUG("parameter standard_name '" << standard_name << "' not found in inventory");
+  return false;
 }
 
 
