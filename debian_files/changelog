@@ -1,3 +1,9 @@
+diana-3.34 (3.34.8-1) unstable; urgency=low
+
+  * Bugfix: do not add undef times to time axis
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 06 Dec 2017 08:00:08 +0100
+
 diana-3.43 (3.43.7-1) unstable; urgency=low
 
   * Bugfix: quickmenu apply from coserver/commandline
