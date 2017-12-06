@@ -822,14 +822,13 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
 bool GridCollection::getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time,
     const int & time_tolerance, miutil::miTime& actualtime)
 {
-  std::set<miutil::miTime> times = GridCollection::getTimes(reftime,paramname);
   // find nearest time within time tolerance
-  long int mdiff = time_tolerance + 1;
-  for (set<miutil::miTime>::const_iterator titr = times.begin(); titr != times.end(); ++titr) {
-    long int d = labs(miutil::miTime::minDiff(time, *titr));
+  int mdiff = time_tolerance + 1;
+  for (const miutil::miTime& t : getTimes(reftime, paramname)) {
+    const int d = std::abs(miutil::miTime::minDiff(time, t));
     if (d < mdiff) {
       mdiff = d;
-      actualtime = *titr;
+      actualtime = t;
     }
   }
 
