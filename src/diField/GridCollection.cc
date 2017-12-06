@@ -388,7 +388,8 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
         // double -> miTime
         time_t t = v;
         miutil::miTime tt(t);
-        settime.insert(tt);
+        if (!tt.undef())
+          settime.insert(tt);
       }
     }
   }
