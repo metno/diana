@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -99,10 +99,10 @@ void VprofDiagram::changeNumber(int ntemp, int nprog)
   }
 }
 
-void VprofDiagram::setPlotWindow(int w, int h)
+void VprofDiagram::setPlotWindow(const QSize& size)
 {
-  plotw = w;
-  ploth = h;
+  plotw = size.width();
+  ploth = size.height();
 }
 
 void VprofDiagram::plot()

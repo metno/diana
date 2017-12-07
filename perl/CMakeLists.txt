@@ -41,7 +41,7 @@ ADD_CUSTOM_COMMAND(
     Metno-Bdiana
 
   DEPENDS
-    libdiana
+    libbdiana
     Metno-Bdiana/Bdiana.xs
     Metno-Bdiana/Changes
     Metno-Bdiana/MANIFEST

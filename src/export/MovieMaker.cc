@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2016 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -47,18 +47,18 @@ const QString framePattern("frame_%1.png");
 const int framePatternWidth = 3;
 const QString framePatternFF = framePattern.arg("%0" + QString::number(framePatternWidth) + "d");
 
-const QString format_series = "png_series";
-const QString format_animated = "animated_gif";
-
 } // namespace
 
-MovieMaker::MovieMaker(const QString &filename, const QString &format,
-    double framerate, const QSize& frameSize)
-  : mOutputFile(filename)
-  , mOutputFormat(format)
-  , mFrameRate(framerate)
-  , mFrameSize(frameSize)
-  , mFrameCount(0)
+const QString MovieMaker::format_series = "png_series";
+const QString MovieMaker::format_animated = "animated_gif";
+
+MovieMaker::MovieMaker(const QString& filename, const QString& format, double framerate, const QSize& frameSize)
+    : mFrameSink(frameSize, QString())
+    , mOutputFile(filename)
+    , mOutputFormat(format)
+    , mFrameRate(framerate)
+    , mFrameSize(frameSize)
+    , mFrameCount(0)
 {
   if (!isImageSeries())
     mOutputDir.create();
@@ -86,25 +86,33 @@ QString MovieMaker::framePath(int frameNumber) const
     return mOutputDir.filePath(frameFile(frameNumber));
 }
 
-bool MovieMaker::addImage(const QImage &image)
+bool MovieMaker::isPrinting()
 {
+  return false;
+}
+
+bool MovieMaker::beginPage()
+{
+  mFrameSink.beginPage();
+  return true;
+}
+
+QPainter& MovieMaker::paintPage()
+{
+  return mFrameSink.paintPage();
+}
+
+bool MovieMaker::endPage()
+{
+  METLIBS_LOG_SCOPE();
+  mFrameSink.endPage();
+
   if (!isImageSeries() && !mOutputDir.exists())
     return false;
 
-  const QImage::Format FORMAT = QImage::Format_RGB32;
-
-  QImage imageScaled;
-  if (image.size() == mFrameSize)
-    imageScaled = image;
-  else
-    imageScaled = image.scaled(mFrameSize);
-
-  if (imageScaled.format() != FORMAT)
-    imageScaled = imageScaled.convertToFormat(FORMAT);
-
   mFrameCount += 1;
   QString imagefilename = framePath(mFrameCount);
-  if (imageScaled.save(imagefilename)) {
+  if (mFrameSink.saveTo(imagefilename)) {
     METLIBS_LOG_DEBUG("saved frame " << mFrameCount << " to '" << imagefilename.toStdString() << "'");
     mOutputFiles << imagefilename;
     return true;
@@ -117,6 +125,7 @@ bool MovieMaker::addImage(const QImage &image)
 bool MovieMaker::finish()
 {
   METLIBS_LOG_SCOPE();
+  mFrameSink.finish();
   if (mFrameCount == 0) {
     METLIBS_LOG_WARN("no video frames in '" << mOutputFile.toStdString() << "'");
     return false;

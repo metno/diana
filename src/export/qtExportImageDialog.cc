@@ -29,16 +29,19 @@
 
 #include "qtExportImageDialog.h"
 
-#include "miSetupParser.h"
-#include "qtMainWindow.h"
 #include "export/MovieMaker.h"
+#include "export/PdfSink.h"
+#include "export/RasterFileSink.h"
+#include "export/SvgFileSink.h"
 #include "export/qtExportImagePreview.h"
 #include "export/qtTempDir.h"
+#include "miSetupParser.h"
 #include "util/subprocess.h"
 
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QStandardItemModel>
 #include <QStringListModel>
 
@@ -242,15 +245,14 @@ QVariant SizesModel::data(const QModelIndex& index, int role) const
 struct P_ExportImageDialog {
   SizeSpecs sizes;
   ExportCommands ecs;
-  int dianaWidth;
-  int dianaHeight;
+  QSize sourceSize;
 };
 
-ExportImageDialog::ExportImageDialog(DianaMainWindow *parent)
-  : QDialog(parent)
-  , ui(new Ui_ExportImageDialog)
-  , p(new P_ExportImageDialog)
-  , mw(parent)
+ExportImageDialog::ExportImageDialog(QWidget* parent)
+    : QDialog(parent)
+    , ui(new Ui_ExportImageDialog)
+    , p(new P_ExportImageDialog)
+    , imageSource(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -290,6 +292,22 @@ void ExportImageDialog::setupUi()
   ExportCommandsModel* modelExports = new ExportCommandsModel(&p->ecs, this);
   ui->comboSaveTo->setModel(modelExports);
   updateFilenameHint();
+}
+
+void ExportImageDialog::setSource(ImageSource* source)
+{
+  if (imageSource) {
+    disconnect(imageSource, &ImageSource::resized, this, &ExportImageDialog::onResized);
+  }
+  imageSource = source;
+  if (imageSource) {
+    connect(imageSource, &ImageSource::resized, this, &ExportImageDialog::onResized);
+    onResized(imageSource->size());
+    // TODO set title from source
+    // TODO disable animations if not supported
+  } else {
+    // TODO disable
+  }
 }
 
 void ExportImageDialog::onProductChanged(int)
@@ -369,8 +387,8 @@ void ExportImageDialog::onSizeComboChanged(int current)
       nw = sw;
       nh = sh;
     } else {
-      nw = p->dianaWidth;
-      nh = p->dianaHeight;
+      nw = p->sourceSize.width();
+      nh = p->sourceSize.height();
     }
   } else if (size.type == Size_AspectRatio) {
     nw = 1280;
@@ -412,23 +430,33 @@ void ExportImageDialog::onSizeHeightChanged(int)
 
 void ExportImageDialog::onPreview()
 {
-  QImage image(exportSize(), QImage::Format_ARGB32_Premultiplied);
-  image.fill(Qt::transparent);
-  mw->paintOnDevice(&image, false);
+  if (!imageSource)
+    return;
 
-  ExportImagePreview preview(image, this);
+  RasterFileSink raster(exportSize());
+
+  imageSource->prepare(raster.isPrinting(), true);
+  raster.beginPage();
+  imageSource->paint(raster.paintPage());
+  raster.endPage();
+  imageSource->finish();
+  raster.finish();
+
+  ExportImagePreview preview(raster.image(), this);
   preview.exec();
 }
 
 void ExportImageDialog::onStart()
 {
+  if (!imageSource)
+    return;
+
   const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
   const int saveTo = ui->comboSaveTo->currentIndex();
   if (saveTo < 0)
     return;
   const ExportCommand& ec = p->ecs[saveTo];
   const bool saveToFile = (ec.command.isEmpty());
-  const QSize size = exportSize();
 
   TempDir tmp;
   QString filename;
@@ -463,10 +491,7 @@ void ExportImageDialog::onStart()
   }
 
   if (product == PRODUCT_IMAGE) {
-    // check or add image/pdf extension
-    mw->saveRasterImage(filename, size);
-    QMessageBox::information(this, tr("Done"), tr("Image saved."));
-    filenames << filename;
+    filenames = saveSingle(filename);
   } else {
     const QFileInfo fi(filename);
     const QString suffix = fi.suffix().toLower();
@@ -481,17 +506,16 @@ void ExportImageDialog::onStart()
       }
       break; }
     case PRODUCT_IMAGE_ANIMATION:
-      format = "animated_gif";
+      format = MovieMaker::format_animated;
       break;
     case PRODUCT_IMAGE_SERIES:
-      format = "png_series";
+      format = MovieMaker::format_series;
       break;
     case PRODUCT_IMAGE:
       break; // handled in "if" before switch statement
     }
-    MovieMaker mm(filename, format, ui->spinFrameRate->value(), size);
-    mw->saveAnimation(mm);
-    filenames = mm.outputFiles();
+
+    filenames = saveMultiple(format, filename);
   }
 
   if (!saveToFile) {
@@ -657,10 +681,9 @@ QSize ExportImageDialog::exportSize() const
   return QSize(ui->spinWidth->value(), ui->spinHeight->value());
 }
 
-void ExportImageDialog::onDianaResized(int w, int h)
+void ExportImageDialog::onResized(const QSize& srcSize)
 {
-  p->dianaWidth = w;
-  p->dianaHeight = h;
+  p->sourceSize = srcSize;
 
   // if (running) return; ?
   const int sizeidx = ui->comboSize->currentIndex();
@@ -669,7 +692,65 @@ void ExportImageDialog::onDianaResized(int w, int h)
 
   const SizeSpec& size = p->sizes.at(sizeidx);
   if (size.type == Size_Fixed && !size.size.isValid()) {
-    ui->spinWidth->setValue(p->dianaWidth);
-    ui->spinHeight->setValue(p->dianaHeight);
+    ui->spinWidth->setValue(p->sourceSize.width());
+    ui->spinHeight->setValue(p->sourceSize.height());
+  }
+}
+
+QStringList ExportImageDialog::saveSingle(const QString& filename)
+{
+  const QSize size = exportSize();
+  std::unique_ptr<ImageSink> sink;
+
+  if (filename.endsWith(".pdf")) {
+    sink.reset(new PdfSink(size, filename));
+  } else if (filename.endsWith(".svg")) {
+    sink.reset(new SvgFileSink(size, filename));
+  } else {
+    sink.reset(new RasterFileSink(size, filename));
+  }
+
+  imageSource->prepare(sink->isPrinting(), true);
+  sink->beginPage();
+  imageSource->paint(sink->paintPage());
+  sink->endPage();
+  imageSource->finish();
+  sink->finish();
+  QMessageBox::information(this, tr("Done"), tr("Image saved."));
+  return QStringList(filename);
+}
+
+QStringList ExportImageDialog::saveMultiple(const QString& format, const QString& filename)
+{
+  QMessageBox::information(this, tr("Making animation"), tr("This may take some time, depending on the number of timesteps and selected delay."
+                                                            " Diana cannot be used until this process is completed."
+                                                            " A message will be displayed upon completion."
+                                                            " Press OK to begin."));
+
+  const float framerate = ui->spinFrameRate->value();
+  MovieMaker moviemaker(filename, format, framerate, exportSize());
+  imageSource->prepare(moviemaker.isPrinting(), false);
+  QProgressDialog progress(tr("Creating animation..."), tr("Hide"), 0, imageSource->count(), this);
+  progress.setWindowModality(Qt::WindowModal);
+  progress.show();
+  bool next = true, ok = true;
+  for (int c = 1; ok && next; ++c) {
+    progress.setValue(c);
+    QCoreApplication::sendPostedEvents();
+
+    ok = moviemaker.beginPage();
+    imageSource->paint(moviemaker.paintPage());
+    next = imageSource->next();
+    ok = moviemaker.endPage();
+  }
+  imageSource->finish();
+  if (!moviemaker.finish())
+    ok = false;
+  if (ok) {
+    QMessageBox::information(this, tr("Done"), tr("Animation completed."));
+    return moviemaker.outputFiles();
+  } else {
+    QMessageBox::warning(this, tr("Error"), tr("Problem with creating animation."));
+    return QStringList();
   }
 }

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,41 +26,45 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef VPROFWIDGET_H
-#define VPROFWIDGET_H
 
-#include "diPaintable.h"
-#include <QObject>
+#include "diana_config.h"
 
-class VprofManager;
+#include "diGLPainter.h"
+#include "diSpectrumManager.h"
+#include "diSpectrumPaintable.h"
 
-/**
-   \brief The OpenGL widget for Vertical Profiles (soundings)
+#define MILOGGER_CATEGORY "diana.SpectrumPaintable"
+#include <miLogger/miLogging.h>
 
-   Handles widget paint/redraw events.
-   Receives mouse and keybord events and initiates actions.
-*/
-class VprofWidget : public QObject, public DiPaintable
+SpectrumPaintable::SpectrumPaintable(SpectrumManager* spm)
+    : spectrumm(spm)
 {
-  Q_OBJECT;
+}
 
-public:
-  VprofWidget(VprofManager *vpm);
+void SpectrumPaintable::setCanvas(DiCanvas* c)
+{
+  Paintable::setCanvas(c);
+  requestBackgroundBufferUpdate();
+}
 
-  void setCanvas(DiCanvas* c) override;
-  DiCanvas* canvas() const;
-  void paintUnderlay(DiPainter* painter) override;
-  void paintOverlay(DiPainter* painter) override;
-  void resize(int w, int h) override;
+void SpectrumPaintable::paintUnderlay(DiPainter*)
+{
+}
 
-  bool handleKeyEvents(QKeyEvent *ke) override;
+void SpectrumPaintable::paintOverlay(DiPainter* p)
+{
+  METLIBS_LOG_SCOPE();
 
-private:
-  VprofManager *vprofm;
+  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(p);
+  if (gl && spectrumm)
+    spectrumm->plot(gl);
+}
 
-Q_SIGNALS:
-  void timeChanged(int);
-  void stationChanged(int);
-};
+void SpectrumPaintable::resize(const QSize& size)
+{
+  METLIBS_LOG_SCOPE();
 
-#endif
+  if (spectrumm)
+    spectrumm->setPlotWindow(size);
+  Paintable::resize(size);
+}

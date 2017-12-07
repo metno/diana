@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,7 +41,8 @@ class QSpinBox;
 class QToolBar;
 
 class ToggleButton;
-class VprofWidget;
+class VprofUiEventHandler;
+class VprofPaintable;
 class VprofManager;
 class VprofModelDialog;
 class VprofSetupDialog;
@@ -53,13 +54,13 @@ class StationPlot;
   Contains a diagram window, toolbars and menues.
   Receives and sends "events" from/to DianaMainWindow.
 */
-class VprofWindow: public QMainWindow
+class VprofWindow : public QMainWindow
 {
   Q_OBJECT
 
 public:
   VprofWindow();
-  ~VprofWindow(){}
+  ~VprofWindow();
 
   StationPlot* getStations();
   void changeStation(const std::string& station);
@@ -80,7 +81,8 @@ protected:
 
 private:
   VprofManager * vprofm;
-  VprofWidget * vprofw;
+  VprofPaintable* vprofw;
+  VprofUiEventHandler* vprofi;
   QWidget * vprofqw;
   VprofModelDialog * vpModelDialog;
   VprofSetupDialog * vpSetupDialog;
@@ -103,9 +105,6 @@ private:
 
   miutil::miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time
-
-  void saveRasterImage(const QString& filename);
-  void paintOnDevice(QPaintDevice* device);
 
 private Q_SLOTS:
   void modelClicked(bool on);

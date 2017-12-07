@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,46 +31,46 @@
 
 #include "qtMainWindow.h"
 
+#include "qtAddtoMenu.h"
+#include "qtAnnotationDialog.h"
+#include "qtBrowserBox.h"
+#include "qtDataDialog.h"
+#include "qtEditDialog.h"
+#include "qtFieldDialog.h"
+#include "qtImageGallery.h"
+#include "qtMainUiEventHandler.h"
+#include "qtMapDialog.h"
+#include "qtMeasurementsDialog.h"
+#include "qtObjectDialog.h"
+#include "qtObsDialog.h"
+#include "qtQuickMenu.h"
+#include "qtSatDialog.h"
+#include "qtSetupDialog.h"
+#include "qtShowSatValues.h"
+#include "qtSpectrumWindow.h"
+#include "qtStationDialog.h"
 #include "qtStatusGeopos.h"
 #include "qtStatusPlotButtons.h"
-#include "qtShowSatValues.h"
 #include "qtTextDialog.h"
-#include "qtImageGallery.h"
-#include "qtUtility.h"
-#include "qtWorkArea.h"
-#include "qtVprofWindow.h"
-#include "qtSpectrumWindow.h"
-#include "qtDataDialog.h"
-#include "qtQuickMenu.h"
-#include "qtObsDialog.h"
-#include "qtSatDialog.h"
-#include "qtStationDialog.h"
-#include "qtMapDialog.h"
-#include "qtFieldDialog.h"
-#include "qtEditDialog.h"
-#include "qtObjectDialog.h"
-#include "qtTrajectoryDialog.h"
-#include "qtMeasurementsDialog.h"
-#include "qtSetupDialog.h"
-#include "qtPrintManager.h"
-#include "qtBrowserBox.h"
-#include "qtAddtoMenu.h"
-#include "qtUffdaDialog.h"
-#include "qtAnnotationDialog.h"
 #include "qtTextView.h"
 #include "qtTimeNavigator.h"
+#include "qtTrajectoryDialog.h"
+#include "qtUffdaDialog.h"
+#include "qtUtility.h"
+#include "qtVprofWindow.h"
+#include "qtWorkArea.h"
 
 #include "diBuild.h"
 #include "diController.h"
 #include "diEditItemManager.h"
 #include "diLabelPlotCommand.h"
-#include "diPaintGLPainter.h"
-#include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
-#include "diStationManager.h"
-#include "diStationPlot.h"
 #include "diLocationData.h"
 #include "diLogFile.h"
+#include "diMainPaintable.h"
+#include "diPaintGLPainter.h"
+#include "diStationManager.h"
+#include "diStationPlot.h"
 #include "miSetupParser.h"
 
 #include "util/misc_util.h"
@@ -80,9 +80,9 @@
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 
-#include "export/MovieMaker.h"
+#include "export/DianaImageSource.h"
+#include "export/PrinterDialog.h"
 #include "export/qtExportImageDialog.h"
-#include "export/qtDianaDevicePainter.h"
 
 #include <qUtilities/qtHelpDialog.h>
 
@@ -115,13 +115,9 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPixmap>
-#include <QPrintDialog>
-#include <QPrinter>
-#include <QProgressDialog>
 #include <QShortcut>
 #include <QStatusBar>
 #include <QStringList>
-#include <QSvgGenerator>
 #include <QToolBar>
 #include <QToolButton>
 #include <QUrl>
@@ -710,20 +706,15 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   const int w_margin = 1;
   centralWidget()->layout()->setContentsMargins(w_margin, w_margin, w_margin, w_margin);
 
-  connect(w->Glw(), SIGNAL(mouseGridPos(QMouseEvent*)),
-      SLOT(catchMouseGridPos(QMouseEvent*)));
+  connect(w->Gli(), SIGNAL(mouseGridPos(QMouseEvent*)), SLOT(catchMouseGridPos(QMouseEvent*)));
 
-  connect(w->Glw(), SIGNAL(mouseRightPos(QMouseEvent*)),
-      SLOT(catchMouseRightPos(QMouseEvent*)));
+  connect(w->Gli(), SIGNAL(mouseRightPos(QMouseEvent*)), SLOT(catchMouseRightPos(QMouseEvent*)));
 
-  connect(w->Glw(), SIGNAL(mouseMovePos(QMouseEvent*,bool)),
-      SLOT(catchMouseMovePos(QMouseEvent*,bool)));
+  connect(w->Gli(), SIGNAL(mouseMovePos(QMouseEvent*, bool)), SLOT(catchMouseMovePos(QMouseEvent*, bool)));
 
-  connect(w->Glw(), SIGNAL(keyPress(QKeyEvent*)),
-      SLOT(catchKeyPress(QKeyEvent*)));
+  connect(w->Gli(), SIGNAL(keyPress(QKeyEvent*)), SLOT(catchKeyPress(QKeyEvent*)));
 
-  connect(w->Glw(), SIGNAL(mouseDoubleClick(QMouseEvent*)),
-      SLOT(catchMouseDoubleClick(QMouseEvent*)));
+  connect(w->Gli(), SIGNAL(mouseDoubleClick(QMouseEvent*)), SLOT(catchMouseDoubleClick(QMouseEvent*)));
 
   // ----------- init dialog-objects -------------------
 
@@ -2353,123 +2344,29 @@ void DianaMainWindow::idnumDown()
     levelChange(-1, 1);
 }
 
-
-void DianaMainWindow::saveraster()
+void DianaMainWindow::showExportDialog(ImageSource* source)
 {
   METLIBS_LOG_SCOPE();
-
-  if (!exportImageDialog_) {
+  if (!exportImageDialog_)
     exportImageDialog_ = new ExportImageDialog(this);
-    connect(w->Glw(), SIGNAL(resized(int,int)), exportImageDialog_, SLOT(onDianaResized(int,int)));
-    exportImageDialog_->onDianaResized(w->Glw()->width(), w->Glw()->height());
-  }
+  exportImageDialog_->setSource(source);
   exportImageDialog_->show();
 }
 
-void DianaMainWindow::saveRasterImage(const QString& filename, const QSize& size)
+DianaImageSource* DianaMainWindow::imageSource()
 {
-  METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
-  QPrinter* printer = 0;
-  QImage* image = 0;
-  std::unique_ptr<QPaintDevice> device;
-  bool printing = false;
-
-  if (filename.endsWith(".pdf")) {
-    printer = new QPrinter(QPrinter::ScreenResolution);
-    printer->setOutputFormat(QPrinter::PdfFormat);
-    printer->setOutputFileName(filename);
-    printer->setFullPage(true);
-    printer->setPaperSize(size, QPrinter::DevicePixel);
-
-    // FIXME copy from bdiana
-    // According to QTBUG-23868, orientation and custom paper sizes do not
-    // play well together. Always use portrait.
-    printer->setOrientation(QPrinter::Portrait);
-
-    printing = true;
-    device.reset(printer);
-  } else if (filename.endsWith(".svg")) {
-    QSvgGenerator* generator = new QSvgGenerator();
-    generator->setFileName(filename);
-    generator->setSize(w->size());
-    generator->setViewBox(QRect(QPoint(0,0), size));
-    generator->setTitle(tr("diana image"));
-    generator->setDescription(tr("Created by diana %1.").arg(PVERSION));
-
-    // FIXME copy from bdiana
-    // For some reason, QPrinter can determine the correct resolution to use, but
-    // QSvgGenerator cannot manage that on its own, so we take the resolution from
-    // a QPrinter instance which we do not otherwise use.
-    QPrinter sprinter;
-    generator->setResolution(sprinter.resolution());
-
-    printing = true;
-    device.reset(generator);
-  } else {
-    image = new QImage(size, QImage::Format_ARGB32_Premultiplied);
-    image->fill(Qt::transparent);
-    device.reset(image);
+  if (!imageSource_) {
+    imageSource_.reset(new DianaImageSource(w->Glw()));
+    connect(imageSource_.get(), &ImageSource::prepared, w, &QWidget::hide);
+    connect(imageSource_.get(), &ImageSource::finished, w, &QWidget::show);
   }
-
-  paintOnDevice(device.get(), printing);
-
-  if (image)
-    image->save(filename);
+  return imageSource_.get();
 }
 
-void DianaMainWindow::paintOnDevice(QPaintDevice* device, bool printing)
+void DianaMainWindow::saveraster()
 {
-  METLIBS_LOG_SCOPE();
-  DianaImageExporter ex(w->Glw(), device, printing);
-  ex.paintOnDevice();
-}
-
-void DianaMainWindow::saveAnimation(MovieMaker& moviemaker)
-{
-  QMessageBox::information(this, tr("Making animation"),
-      tr("This may take some time, depending on the number of timesteps and selected delay."
-          " Diana cannot be used until this process is completed."
-          " A message will be displayed upon completion."
-          " Press OK to begin."));
-
-  w->setVisible(false); // avoid handling repaint events while the canvas is replaced
-
-  const miutil::miTime oldTime = timeNavigator->selectedTime();
-  const std::vector<miutil::miTime> times = timeNavigator->animationTimes();
-
-  QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
-      0, times.size(), this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.show();
-
-  bool ok = true;
-
-  QImage image(moviemaker.frameSize(), QImage::Format_ARGB32_Premultiplied);
-  { // scope for DianaImageExporter
-    DianaImageExporter ex(w->Glw(), &image, false);
-
-    // save frames as images
-    for (size_t step = 0; ok && step < times.size(); ++step) {
-      if (!progress.isHidden())
-        progress.setValue(step);
-
-      setPlotTime(times[step]);
-      image.fill(Qt::transparent);
-      ex.paintOnDevice();
-
-      ok = moviemaker.addImage(image);
-    }
-    if (ok)
-      ok = moviemaker.finish();
-  } // destroy DianaImageExporter, resets canvas
-  setPlotTime(oldTime);
-
-  w->setVisible(true);
-
-  if (ok)
-    QMessageBox::information(this, tr("Done"), tr("Animation completed."));
-  else
-    QMessageBox::warning(this, tr("Error"), tr("Problem with creating animation."));
+  imageSource()->setTimes(timeNavigator->animationTimes());
+  showExportDialog(imageSource());
 }
 
 void DianaMainWindow::parseSetup()
@@ -2502,34 +2399,15 @@ void DianaMainWindow::parseSetup()
 
 void DianaMainWindow::hardcopy()
 {
-  METLIBS_LOG_SCOPE();
-  QPrinter printer;
-  d_print::fromPrintOption(printer, priop);
-  QPrintDialog printerDialog(&printer, this);
-  if (printerDialog.exec() != QDialog::Accepted || !printer.isValid())
-    return;
-
-  diutil::OverrideCursor waitCursor;
-  paintOnDevice(&printer, true);
-  d_print::toPrintOption(printer, priop);
+  PrinterDialog dialog(this, imageSource(), &priop);
+  dialog.print();
 }
 
 void DianaMainWindow::previewHardcopy()
 {
-  QPrinter qprt;
-  d_print::fromPrintOption(qprt, priop);
-  QPrintPreviewDialog previewDialog(&qprt, this);
-  connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
-      this, SLOT(paintOnPrinter(QPrinter*)));
-  if (previewDialog.exec() == QDialog::Accepted)
-    d_print::toPrintOption(qprt, priop);
+  PrinterDialog dialog(this, imageSource(), &priop);
+  dialog.preview();
 }
-
-void DianaMainWindow::paintOnPrinter(QPrinter* printer)
-{
-  paintOnDevice(printer, true);
-}
-
 
 // left mouse click -> mark trajectory position
 void DianaMainWindow::trajPositions(bool b)
@@ -2586,7 +2464,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     popupText = QString::fromStdString(contr->getObsPopupText(x, y));
   }
   if (!popupText.isEmpty()) {
-    // undo reverted y coordinate from GLwidget::handleMouseEvents
+    // undo reverted y coordinate from MainPaintable::handleMouseEvents
     QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
     QWhatsThis::showText(popupPos, popupText, this);
   }
@@ -3358,7 +3236,7 @@ void DianaMainWindow::showAnnotations()
 void DianaMainWindow::toggleScrollwheelZoom()
 {
   bool on = optScrollwheelZoomAction->isChecked();
-  w->Glw()->setUseScrollwheelZoom(on);
+  w->Gli()->setUseScrollwheelZoom(on);
 }
 
 void DianaMainWindow::chooseFont()

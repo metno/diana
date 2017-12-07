@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2015 met.no
+  Copyright (C) 2013-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -113,7 +113,8 @@ public:
   void viewZoomOut();
   void viewPan(int pxmove, int pymove);
   void viewStandard();
-  void viewSetWindow(int w, int h);
+  void viewSetWindow(const QSize& size);
+  const QSize& viewGetWindow() const { return mTotalSize; }
   void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour);
 
   //! return axis position of point (x,y), formatted as text

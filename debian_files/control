@@ -28,14 +28,15 @@ Build-Depends: debhelper (>= 9),
  libproj-dev,
  libshp-dev,
  libemos-dev,
- libgtest-dev
+ libgtest-dev,
+ poppler-utils
 Standards-Version: 3.9.2
 
 Package: diana-@METNO_VERSION@
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends}
-Recommends: libav-tools, gdal-bin, imagemagick
+Recommends: libav-tools, gdal-bin, imagemagick, poppler-utils
 Conflicts: diana-3.33 (<< 3.33.1), diana-3.32, diana-3.31, diana-3.30
 Provides: diana,
  bdiana-@METNO_VERSION@

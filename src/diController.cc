@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -231,9 +231,10 @@ void Controller::zoomOut()
   plotm->zoomOut();
 }
 
-// plotwindow size from GLwidget..
-void Controller::setPlotWindow(const int w, const int h){
-  plotm->setPlotWindow(w,h);
+// plotwindow size from MainPaintable..
+void Controller::setPlotWindow(const QSize& size)
+{
+  plotm->setPlotWindow(size.width(), size.height());
 }
 
 // return latitude,longitude from physical x,y

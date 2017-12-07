@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2016 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -133,7 +133,7 @@ void toPrintOption(const QPrinter& qp, printOptions& priop)
 }
 
 // set QPrinter-selections from printOptions
-void fromPrintOption(QPrinter& qp, printOptions& priop)
+void fromPrintOption(QPrinter& qp, const printOptions& priop)
 {
   METLIBS_LOG_SCOPE(priop);
   if (not priop.printer.empty())

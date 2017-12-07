@@ -30,6 +30,8 @@
 #ifndef ExportImageDialog_h
 #define ExportImageDialog_h 1
 
+#include "export/ImageSink.h"
+#include "export/ImageSource.h"
 #include <QDialog>
 #include <memory>
 
@@ -38,16 +40,20 @@ class DianaMainWindow;
 class Ui_ExportImageDialog;
 struct P_ExportImageDialog;
 
+class ExportableImageProvider;
+
 class ExportImageDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  ExportImageDialog(DianaMainWindow *parent);
+  ExportImageDialog(QWidget* parent = 0);
   ~ExportImageDialog();
 
+  void setSource(ImageSource* source);
+
 public Q_SLOTS:
-  void onDianaResized(int w, int h);
+  void onResized(const QSize& size);
 
 private Q_SLOTS:
   void onProductChanged(int);
@@ -74,11 +80,13 @@ private:
   bool isAnimation() const;
 
   QSize exportSize() const;
+  QStringList saveSingle(const QString& filename);
+  QStringList saveMultiple(const QString& format, const QString& filename);
 
 private:
   std::unique_ptr<Ui_ExportImageDialog> ui;
   std::unique_ptr<P_ExportImageDialog> p;
-  DianaMainWindow* mw;
+  ImageSource* imageSource;
 };
 
 #endif // ExportImageDialog_h

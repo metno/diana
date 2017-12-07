@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,8 +41,6 @@
 
 #include <diField/diRectangle.h>
 
-#include <QPrintPreviewDialog>
-
 #include <vector>
 #include <deque>
 
@@ -53,7 +51,6 @@ class QErrorMessage;
 class QMenu;
 class QMenuBar;
 class QLabel;
-class QPrinter;
 class QPushButton;
 class QShortcut;
 class QToolBar;
@@ -73,16 +70,18 @@ class AnnotationDialog;
 class MeasurementsDialog;
 class UffdaDialog;
 
+class Controller;
 class DataDialog;
+class DianaImageSource;
 class EditDialog;
 class ExportImageDialog;
-class Controller;
-class StatusGeopos;
+class ImageSource;
 class HelpDialog;
 class ShowSatValues;
 class VprofWindow;
 class VcrossInterface;
 class SpectrumWindow;
+class StatusGeopos;
 class StatusPlotButtons;
 class BrowserBox;
 class ClientSelection;
@@ -127,9 +126,7 @@ public:
   QString instanceName() const;
   QString instanceNameSuffix() const;
 
-  void saveRasterImage(const QString& filename, const QSize& size);
-  void saveAnimation(MovieMaker& moviemaker);
-  void paintOnDevice(QPaintDevice* device, bool printing);
+  void showExportDialog(ImageSource* source);
 
   void applyQuickMenu(const QString& qmenu, const QString& qitem);
 
@@ -263,8 +260,6 @@ private Q_SLOTS:
 
   void setInstanceName(QString instancename);
 
-  void paintOnPrinter(QPrinter* printer);
-
 Q_SIGNALS:
   void instanceNameChanged(const QString&);
 
@@ -272,6 +267,7 @@ private:
   void initCoserverClient();
   void createHelpDialog();
   void vcrossEditManagerEnableSignals();
+  DianaImageSource* imageSource();
 
 private:
   bool push_command;   // push current plot on stack
@@ -410,6 +406,8 @@ private:
 
   QButton* mwhelp;
   Controller* contr;
+
+  std::unique_ptr<DianaImageSource> imageSource_;
 
   bool          showelem;    ///> show on/off buttons
   bool          autoselect;  ///> autoselect element on mousemove

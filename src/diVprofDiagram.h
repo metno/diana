@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +33,8 @@
 #include "diVprofOptions.h"
 #include "diGLPainter.h"
 
+#include <QSize>
+
 #include <vector>
 
 class VprofOptions;
@@ -49,7 +51,7 @@ public:
   void changeNumber(int ntemp, int nprog);
   void plot();
   void plotText();
-  void setPlotWindow(int w, int h);
+  void setPlotWindow(const QSize& size);
 
 private:
   void setDefaults();

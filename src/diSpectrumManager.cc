@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,6 +41,8 @@
 #include "vcross_v2/VcrossCollector.h"
 
 #include <diField/VcrossUtil.h>
+
+#include <QSize>
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
@@ -132,13 +134,11 @@ void SpectrumManager::parseSetup()
   }
 }
 
-
-void SpectrumManager::setPlotWindow(int w, int h)
+void SpectrumManager::setPlotWindow(const QSize& size)
 {
-  METLIBS_LOG_SCOPE(w << " " << h);
-
-  plotw= w;
-  ploth= h;
+  METLIBS_LOG_SCOPE();
+  plotw = size.width();
+  ploth = size.height();
 }
 
 

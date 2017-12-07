@@ -1,3 +1,29 @@
+#  Diana - A Free Meteorological Visualisation Tool
+#
+#  Copyright (C) 2017 met.no
+#
+#  Contact information:
+#  Norwegian Meteorological Institute
+#  Box 43 Blindern
+#  0313 OSLO
+#  NORWAY
+#  email: diana@met.no
+#
+#  This file is part of Diana
+#
+#  Diana is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  Diana is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Diana; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #################### miRaster
 
@@ -13,6 +39,7 @@ ENDIF ()
 
 SET (DIFIELD_SOURCES
   diField/DataReshape.cc
+  diField/FimexIO.cc
   diField/FimexSource.cc
   diField/GridCollection.cc
   diField/GridIO.cc
@@ -36,8 +63,6 @@ SET (DIFIELD_SOURCES
   diField/diPoint.cc
   diField/diProjection.cc
   diField/diRectangle.cc
-
-  diField/FimexIO.cc
 )
 
 SET (BUILDINFO_CC "${CMAKE_CURRENT_BINARY_DIR}/diBuild.cc")
@@ -81,6 +106,7 @@ SET (LIBDIANA_SOURCES
   diLocationPlot.cc
   diLogFile.cc
   diMItiff.cc
+  diMainPaintable.cc
   diMapInfo.cc
   diMapManager.cc
   diMapPlot.cc
@@ -96,6 +122,7 @@ SET (LIBDIANA_SOURCES
   diObsPlotCluster.cc
   diObsPositions.cc
   diPaintGLPainter.cc
+  diPaintable.cc
   diPainter.cc
   diPattern.cc
   diPlot.cc
@@ -112,11 +139,6 @@ SET (LIBDIANA_SOURCES
   diSatManager.cc
   diSatPlot.cc
   diShapeObject.cc
-  diSpectrumData.cc
-  diSpectrumFile.cc
-  diSpectrumManager.cc
-  diSpectrumOptions.cc
-  diSpectrumPlot.cc
   diStationManager.cc
   diStationPlot.cc
   diStationPlotCommand.cc
@@ -141,8 +163,17 @@ SET (LIBDIANA_SOURCES
   EditItems/kml.cc
   EditItems/timefilesextractor.cc
 
+  export/ImageSink.cc
   export/MovieMaker.cc
+  export/PaintGLImageSource.cc
+  export/PdfSink.cc
+  export/QPictureSink.cc
   export/qtTempDir.cc
+  export/RasterFileSink.cc
+  export/SvgFileSink.cc
+  export/VcrossImageSource.cc
+  export/PaintableImageSource.cc
+  export/DianaImageSource.cc
 
   util/charsets.cc
   util/debug_timer.cc
@@ -171,24 +202,31 @@ SET (LIBDIANA_SOURCES
   vcross_v2/VcrossResolver.cc
   vcross_v2/VcrossSetup.cc
 
+  diSpectrumData.cc
+  diSpectrumFile.cc
+  diSpectrumManager.cc
+  diSpectrumOptions.cc
+  diSpectrumPaintable.cc
+  diSpectrumPlot.cc
+
   diVprofData.cc
   diVprofDiagram.cc
   diVprofManager.cc
   diVprofOptions.cc
+  diVprofPaintable.cc
   diVprofPlot.cc
   diVprofTables.cc
 
   wmsclient/WebMapPainting.cc
   wmsclient/WebMapUtilities.cc
-
-  bdiana_capi.cc
-  signalhelper.cc
 )
 
 SET(LIBDIANA_QTSOURCES
   diDrawingManager.cc
   diManager.cc
   EditItems/itemgroup.cc
+
+  export/ImageSource.cc
 
   vcross_v2/VcrossQtManager.cc
   vcross_v2/VcrossQuickmenues.cc
@@ -200,6 +238,17 @@ SET(LIBDIANA_QTSOURCES
   wmsclient/WebMapTile.cc
   wmsclient/WebMapWMS.cc
   wmsclient/WebMapWMTS.cc
+)
+
+SET(LIBBDIANA_SOURCES
+  bdiana_capi.cc
+  bdiana_main.cc
+  bdiana_graphics.cc
+  bdiana_source.cc
+  bdiana_spectrum.cc
+  bdiana_vcross.cc
+  bdiana_vprof.cc
+  signalhelper.cc
 
   diOrderBook.cc
   diOrderClient.cc
@@ -213,14 +262,12 @@ SET (LIBDIANAUI_SOURCES
   diFontManager.cc
   diOpenGLPainter.cc
   diOpenGLWidget.cc
-  diPaintable.cc
+  diPaintableWidget.cc
   diTesselation.cc
 
   qtImageGallery.cc
   qtPrintManager.cc
   qtUtility.cc
-
-  export/qtDianaDevicePainter.cc
 )
 
 SET(LIBDIANAUI_QTSOURCES
@@ -244,8 +291,8 @@ SET(LIBDIANAUI_QTSOURCES
   qtEditNewDialog.cc
   qtEditText.cc
   qtFieldDialog.cc
-  qtGLwidget.cc
   qtGeoPosLineEdit.cc
+  qtMainUiEventHandler.cc
   qtMainWindow.cc
   qtMapDialog.cc
   qtMeasurementsDialog.cc
@@ -261,7 +308,7 @@ SET(LIBDIANAUI_QTSOURCES
   qtShowSatValues.cc
   qtSpectrumModelDialog.cc
   qtSpectrumSetupDialog.cc
-  qtSpectrumWidget.cc
+  qtSpectrumUiEventHandler.cc
   qtSpectrumWindow.cc
   qtStationDialog.cc
   qtStatusGeopos.cc
@@ -277,6 +324,7 @@ SET(LIBDIANAUI_QTSOURCES
   qtToggleButton.cc
   qtTrajectoryDialog.cc
   qtUffdaDialog.cc
+  qtUiEventHandler.cc
   qtWorkArea.cc
 
   EditItems/dialogcommon.cc
@@ -292,6 +340,7 @@ SET(LIBDIANAUI_QTSOURCES
 
   export/qtExportImageDialog.cc
   export/qtExportImagePreview.cc
+  export/PrinterDialog.cc
 
   vcross_qt/VcrossQtWidget.cc
   vcross_qt/qtVcrossAddPlotDialog.cc
@@ -310,7 +359,7 @@ SET(LIBDIANAUI_QTSOURCES
 
   qtVprofModelDialog.cc
   qtVprofSetupDialog.cc
-  qtVprofWidget.cc
+  qtVprofUiEventHandler.cc
   qtVprofWindow.cc
 
   wmsclient/WebMapDialog.cc
@@ -340,6 +389,7 @@ METNO_HEADERS(LIBDIANA_HEADERS     "cc" "h" ${LIBDIANA_SOURCES})
 METNO_HEADERS(LIBDIANA_QTHEADERS   "cc" "h" ${LIBDIANA_QTSOURCES})
 METNO_HEADERS(LIBDIANAUI_HEADERS   "cc" "h" ${LIBDIANAUI_SOURCES})
 METNO_HEADERS(LIBDIANAUI_QTHEADERS "cc" "h" ${LIBDIANAUI_QTSOURCES})
+METNO_HEADERS(LIBBDIANA_HEADERS    "cc" "h" ${LIBBDIANA_SOURCES})
 
 LIST (APPEND LIBDIANA_HEADERS
   diBuild.h
@@ -572,6 +622,17 @@ SET_TARGET_PROPERTIES(libdianaui PROPERTIES
   OUTPUT_NAME "dianaui-${PVERSION}"
 )
 
+ADD_LIBRARY(libbdiana SHARED
+  ${LIBBDIANA_SOURCES}
+  ${LIBBDIANA_HEADERS}
+)
+
+SET_TARGET_PROPERTIES(libbdiana PROPERTIES
+  VERSION 0
+  SOVERSION 0
+  OUTPUT_NAME "bdiana-${PVERSION}"
+)
+
 ADD_EXECUTABLE(diana
   main_gui.cc
 
@@ -591,7 +652,7 @@ SET_TARGET_PROPERTIES(bdiana PROPERTIES
 
 ########################################################################
 
-INSTALL (TARGETS libdiana libdianaui
+INSTALL (TARGETS libdiana libdianaui libbdiana
   DESTINATION ${LIBDIANA_DIR}
 )
 INSTALL (TARGETS diana bdiana
@@ -622,8 +683,9 @@ TARGET_LINK_LIBRARIES(libdiana
   ${BOOST_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(libdianaui libdiana ${PCUI_LIBRARIES})
+TARGET_LINK_LIBRARIES(libbdiana libdiana)
 
-TARGET_LINK_LIBRARIES(bdiana libdiana)
+TARGET_LINK_LIBRARIES(bdiana libbdiana)
 TARGET_LINK_LIBRARIES(diana  libdianaui)
 
 IF(ENABLE_SMHI)

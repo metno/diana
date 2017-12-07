@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,17 +29,21 @@
 
 #include "diana_config.h"
 
+#include "diPaintGLPainter.h"
+#include "diPaintableWidget.h"
+#include "diSpectrumManager.h"
+#include "diSpectrumPaintable.h"
+#include "diStationPlot.h"
 #include "diUtilities.h"
-#include "qtToggleButton.h"
-#include "qtUtility.h"
-#include "qtSpectrumWindow.h"
-#include "qtSpectrumWidget.h"
+#include "qtMainWindow.h"
 #include "qtSpectrumModelDialog.h"
 #include "qtSpectrumSetupDialog.h"
-#include "diSpectrumManager.h"
-#include "qtPrintManager.h"
-#include "diPaintGLPainter.h"
-#include "diStationPlot.h"
+#include "qtSpectrumUiEventHandler.h"
+#include "qtSpectrumWindow.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+
+#include "export/PrinterDialog.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -50,11 +54,8 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qfont.h>
-#include <QPrintDialog>
-#include <QPrinter>
 #include <QPixmap>
 #include <QSpinBox>
-#include <QSvgGenerator>
 
 #define MILOGGER_CATEGORY "diana.SpectrumWindow"
 #include <miLogger/miLogging.h>
@@ -65,14 +66,15 @@
 using namespace std;
 
 SpectrumWindow::SpectrumWindow()
-  : QMainWindow(0)
+    : QMainWindow(DianaMainWindow::instance())
 {
   spectrumm = new SpectrumManager();
 
   setWindowTitle( tr("Diana Wavespectrum") );
 
-  spectrumw= new SpectrumWidget(spectrumm);
-  spectrumqw = DiPaintable::createWidget(spectrumw, this);
+  spectrumw = new SpectrumPaintable(spectrumm);
+  spectrumi = new SpectrumUiEventHandler(spectrumw);
+  spectrumqw = diana::createPaintableWidget(spectrumw, spectrumi, this);
 
   setCentralWidget(spectrumqw);
   connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeClicked(int)));
@@ -194,6 +196,9 @@ SpectrumWindow::SpectrumWindow()
   active = false;
 }
 
+SpectrumWindow::~SpectrumWindow()
+{
+}
 
 void SpectrumWindow::modelClicked( bool on )
 {
@@ -285,115 +290,13 @@ void SpectrumWindow::stationChanged()
 
 void SpectrumWindow::printClicked()
 {
-  // FIXME same as MainWindow::hardcopy
-  QPrinter printer;
-  QPrintDialog printerDialog(&printer, this);
-  if (printerDialog.exec() != QDialog::Accepted || !printer.isValid())
-    return;
-
-  diutil::OverrideCursor waitCursor;
-  paintOnDevice(&printer);
+  PrinterDialog dialog(this, spectrumw->imageSource());
+  dialog.print();
 }
 
 void SpectrumWindow::saveClicked()
 {
-  // FIXME this is the same as MainWindow::saveraster
-  static QString fname = "./"; // keep users preferred image-path for later
-  QString s = QFileDialog::getSaveFileName(this,
-      tr("Save plot as image"),
-      fname,
-      tr("Images (*.png *.jpeg *.jpg *.xpm *.bmp *.svg);;PDF Files (*.pdf);;All (*.*)"));
-
-  if (s.isNull())
-    return;
-  fname = s;
-  saveRasterImage(fname);
-}
-
-void SpectrumWindow::saveRasterImage(const QString& filename)
-{
-  // FIXME this is almost the same as MainWindow::saveRasterImage
-
-  METLIBS_LOG_SCOPE(LOGVAL(filename.toStdString()));
-  QPrinter* printer = 0;
-  QImage* image = 0;
-  std::unique_ptr<QPaintDevice> device;
-  if (filename.endsWith(".pdf")) {
-    printer = new QPrinter(QPrinter::ScreenResolution);
-    printer->setOutputFormat(QPrinter::PdfFormat);
-    printer->setOutputFileName(filename);
-    printer->setFullPage(true);
-    printer->setPaperSize(spectrumqw->size(), QPrinter::DevicePixel);
-
-    // FIXME copy from bdiana
-    // According to QTBUG-23868, orientation and custom paper sizes do not
-    // play well together. Always use portrait.
-    printer->setOrientation(QPrinter::Portrait);
-
-    device.reset(printer);
-  } else if (filename.endsWith(".svg")) {
-    QSvgGenerator* generator = new QSvgGenerator();
-    generator->setFileName(filename);
-    generator->setSize(spectrumqw->size());
-    generator->setViewBox(QRect(0, 0, spectrumqw->width(), spectrumqw->height()));
-    generator->setTitle(tr("diana image"));
-    generator->setDescription(tr("Created by diana %1.").arg(PVERSION));
-
-    // FIXME copy from bdiana
-    // For some reason, QPrinter can determine the correct resolution to use, but
-    // QSvgGenerator cannot manage that on its own, so we take the resolution from
-    // a QPrinter instance which we do not otherwise use.
-    QPrinter sprinter;
-    generator->setResolution(sprinter.resolution());
-
-    device.reset(generator);
-  } else {
-    image = new QImage(spectrumqw->size(), QImage::Format_ARGB32_Premultiplied);
-    image->fill(Qt::transparent);
-    device.reset(image);
-  }
-
-  paintOnDevice(device.get());
-
-  if (image)
-    image->save(filename);
-}
-
-void SpectrumWindow::paintOnDevice(QPaintDevice* device)
-{
-  // FIXME this is almost the same as MainWindow::paintOnDevice
-  METLIBS_LOG_SCOPE();
-  DiCanvas* oldCanvas = spectrumw->canvas();
-
-  std::unique_ptr<DiPaintGLCanvas> glcanvas(new DiPaintGLCanvas(device));
-  glcanvas->parseFontSetup();
-  glcanvas->setPrinting(dynamic_cast<QPrinter*>(device) != 0);
-  std::unique_ptr<DiPaintGLPainter> glpainter(new DiPaintGLPainter(glcanvas.get()));
-  glpainter->ShadeModel(DiGLPainter::gl_FLAT);
-
-  const int ww = spectrumqw->width(), wh = spectrumqw->height(), dw = device->width(), dh = device->height();
-  METLIBS_LOG_DEBUG(LOGVAL(ww) << LOGVAL(wh) << LOGVAL(dw) << LOGVAL(dh));
-
-  QPainter painter;
-  painter.begin(device);
-
-  spectrumw->setCanvas(glcanvas.get());
-#if 1
-  glpainter->Viewport(0, 0, dw, dh);
-  spectrumw->resize(dw, dh);
-#else
-  painter.setWindow(0, 0, ww, wh);
-  glpainter->Viewport(0, 0, ww, wh);
-  spectrumw->resize(ww, wh);
-#endif
-
-  glpainter->begin(&painter);
-  spectrumw->paintOverlay(glpainter.get());
-  glpainter->end();
-  painter.end();
-
-  spectrumw->setCanvas(oldCanvas);
-  spectrumw->resize(ww, wh);
+  DianaMainWindow::instance()->showExportDialog(spectrumw->imageSource());
 }
 
 void SpectrumWindow::setupClicked(bool on)
@@ -407,7 +310,6 @@ void SpectrumWindow::setupClicked(bool on)
     spSetupDialog->hide();
   }
 }
-
 
 void SpectrumWindow::quitClicked()
 {
@@ -542,15 +444,13 @@ void SpectrumWindow::updateTimeBox()
   Q_EMIT emitTimes("spectrum",times);
 }
 
-
-void SpectrumWindow::stationBoxActivated(int index)
+void SpectrumWindow::stationBoxActivated(int)
 {
   std::string sbs=stationBox->currentText().toStdString();
   spectrumm->setStation(sbs);
   spectrumqw->update();
   QString sq = QString::fromStdString(sbs);
   Q_EMIT spectrumChanged(sq); //name of current station (to mainWindow)
-
 }
 
 

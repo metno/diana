@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -202,6 +202,7 @@ void TimeSlider::updateList()
 {
   const int maxticks= 20;
 
+  // FIXME this is very similar to bdiana_capi.cc:selectTime / BdianaMain::getTime
   times.clear();
   if( tlist[dataType].size()>0 && usetlist[dataType]){
     times = tlist[dataType];

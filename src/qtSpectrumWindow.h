@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,7 +40,8 @@ class QComboBox;
 class QSpinBox;
 class QToolBar;
 class ToggleButton;
-class SpectrumWidget;
+class SpectrumUiEventHandler;
+class SpectrumPaintable;
 class SpectrumManager;
 class SpectrumModelDialog;
 class SpectrumSetupDialog;
@@ -56,9 +57,10 @@ class StationPlot;
 class SpectrumWindow: public QMainWindow
 {
   Q_OBJECT
+
 public:
   SpectrumWindow();
-  ~SpectrumWindow(){}
+  ~SpectrumWindow();
 
   StationPlot* getStations();
   void changeStation(const std::string& station); //change plotstation
@@ -78,7 +80,8 @@ protected:
 
 private:
   SpectrumManager * spectrumm;
-  SpectrumWidget * spectrumw;
+  SpectrumPaintable* spectrumw;
+  SpectrumUiEventHandler* spectrumi;
   QWidget* spectrumqw;
   SpectrumModelDialog * spModelDialog;
   SpectrumSetupDialog * spSetupDialog;
@@ -101,9 +104,6 @@ private:
   void timeChanged();
 
   miutil::miTime mainWindowTime;
-
-  void saveRasterImage(const QString& filename);
-  void paintOnDevice(QPaintDevice* device);
 
 private Q_SLOTS:
   void modelClicked(bool on);

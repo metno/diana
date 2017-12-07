@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -595,10 +595,14 @@ void QtManager::handleChangedTime(int plotTimeIndex)
   }
 }
 
-
-void QtManager::setPlotWindow(int w, int h)
+void QtManager::setPlotWindow(const QSize& size)
 {
-  mPlot->viewSetWindow(w, h);
+  mPlot->viewSetWindow(size);
+}
+
+const QSize& QtManager::plotWindow()
+{
+  return mPlot->viewGetWindow();
 }
 
 void QtManager::movePart(int pxmove, int pymove)

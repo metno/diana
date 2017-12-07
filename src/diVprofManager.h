@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +33,8 @@
 #include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
+
+#include <QSize>
 
 #include <vector>
 #include <map>
@@ -92,7 +94,7 @@ private:
 
   std::map<std::string,std::string> menuConst;
 
-  int plotw, ploth;
+  QSize plotsize;
   DiCanvas* mCanvas;
 
   bool initVprofData(const SelectedModel& selectedModel);
@@ -117,7 +119,8 @@ public:
 
   VprofOptions* getOptions()
     { return vpopt; }
-  void setPlotWindow(int w, int h);
+  void setPlotWindow(const QSize& size);
+  const QSize& plotWindow() const { return plotsize; }
 
   void parseSetup();
   void setModel();

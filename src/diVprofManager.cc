@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -70,10 +70,10 @@ miutil::miTime nowTime()
 } // anonymous namespace
 
 VprofManager::VprofManager()
-  : vpdiag(0)
-  , realizationCount(1)
-  , realization(0)
-  , plotw(0), ploth(0), mCanvas(0)
+    : vpdiag(0)
+    , realizationCount(1)
+    , realization(0)
+    , mCanvas(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -186,15 +186,13 @@ void VprofManager::parseSetup()
   setup->configureComputations(computations);
 }
 
-
-void VprofManager::setPlotWindow(int w, int h)
+void VprofManager::setPlotWindow(const QSize& size)
 {
-  METLIBS_LOG_SCOPE(w << " " << h);
+  METLIBS_LOG_SCOPE();
 
-  plotw= w;
-  ploth= h;
+  plotsize = size;
   if (vpdiag)
-    vpdiag->setPlotWindow(plotw,ploth);
+    vpdiag->setPlotWindow(plotsize);
 }
 
 //*********************** end routines from controller ***********************
@@ -359,7 +357,7 @@ bool VprofManager::plot(DiGLPainter* gl)
 
   if (!vpdiag) {
     vpdiag= new VprofDiagram(vpopt, gl);
-    vpdiag->setPlotWindow(plotw,ploth);
+    vpdiag->setPlotWindow(plotsize);
     int nobs= 0;
     int nmod= vpdata.size();
     vpdiag->changeNumber(nobs,nmod);

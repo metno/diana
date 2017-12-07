@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -247,8 +247,8 @@ public:
   void readPlotOptions(const string_v& settings, const std::string& thisVersion, const std::string& logVersion);
   string_v writePlotOptions();
 
-
-  void setPlotWindow(int w, int h);
+  void setPlotWindow(const QSize& size);
+  const QSize& plotWindow();
   void movePart(int pxmove, int pymove);
   void decreasePart(int px1, int py1, int px2, int py2);
   void increasePart();

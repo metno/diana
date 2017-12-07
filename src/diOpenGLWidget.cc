@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #define GL_GLEXT_PROTOTYPES // needed for glWindowPos2i, which is OpenGL 1.4
 
@@ -5,6 +33,8 @@
 
 #include "diOpenGLPainter.h"
 #include "diPaintable.h"
+#include "qtUiEventHandler.h"
+#include "qtUtility.h"
 
 #include <qgl.h>
 
@@ -64,12 +94,13 @@ bool have_opengl(int major, int minor)
 
 } // namespace anonymous
 
-DiOpenGLWidget::DiOpenGLWidget(DiPaintable* p, QWidget* parent)
-  : QGLWidget(oglfmt(), parent)
-  , glcanvas(new DiOpenGLCanvas(this))
-  , glpainter(new DiOpenGLPainter(glcanvas.get()))
-  , paintable(p)
-  , buffer_data(0)
+DiOpenGLWidget::DiOpenGLWidget(Paintable* p, UiEventHandler* i, QWidget* parent)
+    : QGLWidget(oglfmt(), parent)
+    , glcanvas(new DiOpenGLCanvas(this))
+    , glpainter(new DiOpenGLPainter(glcanvas.get()))
+    , paintable(p)
+    , interactive(i)
+    , buffer_data(0)
 {
   setFocusPolicy(Qt::StrongFocus);
   p->setCanvas(glcanvas.get());
@@ -97,6 +128,7 @@ void DiOpenGLWidget::initializeGL()
 void DiOpenGLWidget::paintGL()
 {
   if (paintable) {
+    diutil::OverrideCursor waitCursor;
     paintUnderlay();
     paintOverlay();
     swapBuffers();
@@ -155,7 +187,7 @@ void DiOpenGLWidget::dropBackgroundBuffer()
 void DiOpenGLWidget::resizeGL(int w, int h)
 {
   if (paintable)
-    paintable->resize(w, h);
+    paintable->resize(QSize(w, h));
   dropBackgroundBuffer();
   glpainter->Viewport(0, 0, (GLint)w, (GLint)h);
   update();
@@ -164,42 +196,42 @@ void DiOpenGLWidget::resizeGL(int w, int h)
 
 void DiOpenGLWidget::keyPressEvent(QKeyEvent *ke)
 {
-  if (paintable && paintable->handleKeyEvents(ke))
+  if (interactive && interactive->handleKeyEvents(ke))
     update();
 }
 
 void DiOpenGLWidget::keyReleaseEvent(QKeyEvent *ke)
 {
-  if (paintable && paintable->handleKeyEvents(ke))
+  if (interactive && interactive->handleKeyEvents(ke))
     update();
 }
 
 void DiOpenGLWidget::mousePressEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiOpenGLWidget::mouseMoveEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiOpenGLWidget::mouseReleaseEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiOpenGLWidget::mouseDoubleClickEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiOpenGLWidget::wheelEvent(QWheelEvent *we)
 {
-  if (paintable && paintable->handleWheelEvents(we))
+  if (interactive && interactive->handleWheelEvents(we))
     update();
 }

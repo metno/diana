@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,8 +36,8 @@
 #include "diLogFile.h"
 #include "diPrintOptions.h"
 
-#include <QDialog>
 #include <QVariant>
+#include <QWidget>
 
 #include <vector>
 
@@ -49,6 +49,7 @@ class Controller;
 struct LocationData;
 class ToggleButton;
 class VcrossAddPlotDialog;
+class VcrossImageSource;
 class VcrossReplaceModelDialog;
 class VcrossStyleDialog;
 class VcrossSetupDialog;
@@ -58,7 +59,6 @@ class QAction;
 class QCheckBox;
 class QComboBox;
 class QHBoxLayout;
-class QPrinter;
 class QString;
 class QSpinBox;
 class QStatusBar;
@@ -115,6 +115,8 @@ private:
   void repaintPlot();
 
   void ensureStyleDialog();
+
+  VcrossImageSource* imageSource();
 
 private Q_SLOTS:
   // from layer button bar
@@ -186,7 +188,7 @@ private:
 
   // printerdefinitions
   printOptions priop;
-  QString mRasterFilename;
+  std::unique_ptr<VcrossImageSource> imageSource_;
 
   bool firstTime, active;
   bool mInFieldChangeGroup;

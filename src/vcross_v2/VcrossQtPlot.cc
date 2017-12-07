@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -284,11 +284,11 @@ void QtPlot::plotLegend(QPainter& painter)
   }
 }
 
-void QtPlot::viewSetWindow(int w, int h)
+void QtPlot::viewSetWindow(const QSize& size)
 {
   METLIBS_LOG_SCOPE();
 
-  mTotalSize = QSize(w, h);
+  mTotalSize = size;
   mViewChanged = true;
 }
 

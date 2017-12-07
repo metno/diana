@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -70,6 +70,7 @@ struct FieldGroupInfo;
 
 class QKeyEvent;
 class QMouseEvent;
+class QSize;
 
 /**
 
@@ -135,8 +136,8 @@ public:
   void zoomTo(const Rectangle & r);
   /// zoom out map
   void zoomOut();
-  /// set plotwindow size in pixels (from GLwidget..)
-  void setPlotWindow(const int, const int);
+  /// set plotwindow size in pixels (from MainPaintable..)
+  void setPlotWindow(const QSize& size);
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float,const float,float&,float&);
   /// return physical x,y from latitude,longitude

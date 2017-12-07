@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 met.no
+  Copyright (C) 2015-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -70,7 +70,7 @@ TEST(TestVcrossGui, MicroBdiana)
   vcross::VcrossQuickmenues::parse(manager, makeCommands(qmlines, true));
 
   const int width = 600, height = 400;
-  manager->setPlotWindow(width, height);
+  manager->setPlotWindow(QSize(width, height));
   QImage image(width, height, QImage::Format_ARGB32);
   QPainter painter;
   painter.begin(&image);

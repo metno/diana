@@ -1,20 +1,51 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "diPaintGLWidget.h"
 
 #include "diPaintable.h"
+#include "qtUiEventHandler.h"
+#include "qtUtility.h"
 
 #include <QtGui>
 
 #define MILOGGER_CATEGORY "diana.DiPaintGLWidget"
 #include <miLogger/miLogging.h>
 
-DiPaintGLWidget::DiPaintGLWidget(DiPaintable* p, QWidget *parent, bool aa)
-  : QWidget(parent)
-  , glcanvas(new DiPaintGLCanvas(this))
-  , glpainter(new DiPaintGLPainter(glcanvas.get()))
-  , paintable(p)
-  , background_buffer(0)
-  , antialiasing(aa)
+DiPaintGLWidget::DiPaintGLWidget(Paintable* p, UiEventHandler* i, QWidget* parent, bool aa)
+    : QWidget(parent)
+    , glcanvas(new DiPaintGLCanvas(this))
+    , glpainter(new DiPaintGLPainter(glcanvas.get()))
+    , paintable(p)
+    , interactive(i)
+    , background_buffer(0)
+    , antialiasing(aa)
 {
   setFocusPolicy(Qt::StrongFocus);
   glpainter->ShadeModel(DiGLPainter::gl_FLAT);
@@ -33,7 +64,7 @@ void DiPaintGLWidget::dropBackgroundBuffer()
   background_buffer = 0;
 }
 
-void DiPaintGLWidget::paintEvent(QPaintEvent* event)
+void DiPaintGLWidget::paintEvent(QPaintEvent*)
 {
   QPainter painter;
   painter.begin(this);
@@ -45,51 +76,50 @@ void DiPaintGLWidget::paintEvent(QPaintEvent* event)
 void DiPaintGLWidget::resizeEvent(QResizeEvent* event)
 {
   dropBackgroundBuffer();
-  int w = event->size().width();
-  int h = event->size().height();
-  glpainter->Viewport(0, 0, w, h);
-  paintable->resize(w, h);
+  const QSize& size = event->size();
+  glpainter->Viewport(0, 0, size.width(), size.height());
+  paintable->resize(size);
 }
 
 void DiPaintGLWidget::keyPressEvent(QKeyEvent *ke)
 {
-  if (paintable && paintable->handleKeyEvents(ke))
+  if (interactive && interactive->handleKeyEvents(ke))
     update();
 }
 
 void DiPaintGLWidget::keyReleaseEvent(QKeyEvent *ke)
 {
-  if (paintable && paintable->handleKeyEvents(ke))
+  if (interactive && interactive->handleKeyEvents(ke))
     update();
 }
 
 void DiPaintGLWidget::mousePressEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiPaintGLWidget::mouseMoveEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiPaintGLWidget::mouseReleaseEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiPaintGLWidget::mouseDoubleClickEvent(QMouseEvent* me)
 {
-  if (paintable && paintable->handleMouseEvents(me))
+  if (interactive && interactive->handleMouseEvents(me))
     update();
 }
 
 void DiPaintGLWidget::wheelEvent(QWheelEvent *we)
 {
-  if (paintable && paintable->handleWheelEvents(we))
+  if (interactive && interactive->handleWheelEvents(we))
     update();
 }
 
@@ -99,6 +129,7 @@ void DiPaintGLWidget::paint(QPainter& wpainter)
       << LOGVAL((!background_buffer))
       << LOGVAL(paintable->update_background_buffer));
 
+  diutil::OverrideCursor waitCursor;
   glpainter->clear = true;
   if (paintable->enable_background_buffer) {
     if (!background_buffer || paintable->update_background_buffer) {

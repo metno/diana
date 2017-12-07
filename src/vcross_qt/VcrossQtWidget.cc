@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,8 +33,6 @@
 #include "vcross_v2/VcrossQtManager.h"
 
 #include <QPainter>
-#include <QPrinter>
-#include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
 
@@ -98,8 +96,9 @@ void QtWidget::paintEvent(QPaintEvent* event)
 void QtWidget::resizeEvent(QResizeEvent* event)
 {
   if (vcrossm) {
-    const int w = event->size().width(), h = event->size().height();
-    vcrossm->setPlotWindow(w,h);
+    const QSize& size = event->size();
+    vcrossm->setPlotWindow(size);
+    Q_EMIT resized(size);
   }
 }
 
@@ -224,37 +223,6 @@ void QtWidget::mouseReleaseEvent(QMouseEvent* me)
 void QtWidget::switchedTimeGraph(bool)
 {
   update();
-}
-
-void QtWidget::print(QPrinter& printer)
-{
-  if (!vcrossm)
-    return;
-
-  const float scale_w = printer.pageRect().width() / float(width());
-  const float scale_h = printer.pageRect().height() / float(height());
-  const float scale = std::min(scale_w, scale_h);
-
-  QPainter painter;
-  painter.begin(&printer);
-  painter.scale(scale, scale);
-  vcrossm->plot(painter);
-  painter.end();
-}
-
-bool QtWidget::saveRasterImage(const QString& fname)
-{
-  if (!vcrossm)
-    return false;
-
-  QImage image(width(), height(), QImage::Format_ARGB32_Premultiplied);
-
-  QPainter painter;
-  painter.begin(&image);
-  vcrossm->plot(painter);
-  painter.end();
-
-  return image.save(fname);
 }
 
 } // namespace vcross

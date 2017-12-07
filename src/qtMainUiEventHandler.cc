@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -30,91 +30,42 @@
 
 #include "diana_config.h"
 
-#include "qtGLwidget.h"
 #include "diController.h"
 #include "diGLPainter.h"
+#include "diMainPaintable.h"
+#include "qtMainUiEventHandler.h"
 
-#include <QMouseEvent>
 #include <QKeyEvent>
+#include <QMouseEvent>
 
-#define MILOGGER_CATEGORY "diana.GLwidget"
+#define MILOGGER_CATEGORY "diana.MainPaintable"
 #include <miLogger/miLogging.h>
 
-GLwidget::GLwidget(Controller* c)
-  : contr(c)
-  , plotw(1)
-  , ploth(1)
-  , scrollwheelZoom(false)
+MainUiEventHandler::MainUiEventHandler(MainPaintable* g)
+    : p(g)
+    , scrollwheelZoom(false)
 {
 }
 
-GLwidget::~GLwidget()
-{
-}
-
-void GLwidget::setCanvas(DiCanvas* canvas)
-{
-  DiPaintable::setCanvas(canvas);
-  contr->setCanvas(canvas);
-  requestBackgroundBufferUpdate();
-}
-
-void GLwidget::paintUnderlay(DiPainter* painter)
-{
-  if (!contr)
-    return;
-
-  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter);
-  if (!gl)
-    return;
-
-  contr->plot(gl, true, false); // draw underlay
-}
-
-void GLwidget::paintOverlay(DiPainter* painter)
-{
-  if (!contr)
-    return;
-
-  DiGLPainter* gl = dynamic_cast<DiGLPainter*>(painter);
-  if (!gl)
-    return;
-
-  contr->plot(gl, false, true); // draw overlay
-}
-
-//  Set up the OpenGL view port, matrix mode, etc.
-void GLwidget::resize(int w, int h)
-{
-  if (contr)
-    contr->setPlotWindow(w, h);
-
-  plotw = w;
-  ploth = h;
-
-  Q_EMIT resized(w, h);
-}
-
-void GLwidget::setFlagsFromEventResult(const EventResult& res)
+void MainUiEventHandler::setFlagsFromEventResult(const EventResult& res)
 {
   changeCursor(res.newcursor);
-  enable_background_buffer = res.enable_background_buffer;
+  p->enable_background_buffer = res.enable_background_buffer;
   if (res.repaint && res.update_background_buffer)
-    update_background_buffer = true;
+    p->update_background_buffer = true;
 }
 
 // Sends all QMouseEvents off to controller. Return values are checked,
 // and any GUI-action taken
-bool GLwidget::handleMouseEvents(QMouseEvent* me)
+bool MainUiEventHandler::handleMouseEvents(QMouseEvent* me)
 {
   EventResult res;
 
   // Duplicate the event, but transform the position of the cursor into the
   // plot's coordinate system.
-  QMouseEvent me2(me->type(), QPoint(me->x(), ploth - me->y()), me->globalPos(),
-                  me->button(), me->buttons(), me->modifiers());
+  QMouseEvent me2(me->type(), QPoint(me->x(), p->size().height() - me->y()), me->globalPos(), me->button(), me->buttons(), me->modifiers());
   // send event to controller
-  contr->sendMouseEvent(&me2, res);
+  p->controller()->sendMouseEvent(&me2, res);
   setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
@@ -153,10 +104,10 @@ bool GLwidget::handleMouseEvents(QMouseEvent* me)
 
 // Sends all QKeyEvents off to controller. Return values are checked,
 // and any GUI-action taken
-bool GLwidget::handleKeyEvents(QKeyEvent* ke)
+bool MainUiEventHandler::handleKeyEvents(QKeyEvent* ke)
 {
   EventResult res;
-  contr->sendKeyboardEvent(ke, res);
+  p->controller()->sendKeyboardEvent(ke, res);
   setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
@@ -178,7 +129,7 @@ bool GLwidget::handleKeyEvents(QKeyEvent* ke)
 
 // ---------------------- event callbacks -----------------
 
-bool GLwidget::handleWheelEvents(QWheelEvent *we)
+bool MainUiEventHandler::handleWheelEvents(QWheelEvent* we)
 {
   if (useScrollwheelZoom() && we->orientation() == Qt::Vertical) {
     int numDegrees = we->delta() / 8;
@@ -187,19 +138,19 @@ bool GLwidget::handleWheelEvents(QWheelEvent *we)
       float x1, y1, x2, y2;
       float xmap, ymap;
 
-      contr->getPlotSize(x1, y1, x2, y2);
+      p->controller()->getPlotSize(x1, y1, x2, y2);
       /// (why -(y-height())? I have no idea ...)
-      contr->PhysToMap(we->x(), -(we->y() - ploth), xmap, ymap);
+      p->controller()->PhysToMap(we->x(), -(we->y() - p->size().height()), xmap, ymap);
 
-      int wd = static_cast<int> ((x2 - x1) / 3.);
-      int hd = static_cast<int> ((y2 - y1) / 3.);
+      int wd = static_cast<int>((x2 - x1) / 3.);
+      int hd = static_cast<int>((y2 - y1) / 3.);
 
       Rectangle r(xmap - wd, ymap - hd, xmap + wd, ymap + hd);
-      contr->zoomTo(r);
+      p->controller()->zoomTo(r);
     } else {
-      contr->zoomOut();
+      p->controller()->zoomOut();
     }
-    update_background_buffer = true;
+    p->update_background_buffer = true;
     return true;
   }
   return false;

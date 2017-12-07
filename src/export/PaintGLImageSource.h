@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,43 +26,38 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef SPECTRUMWIDGET_H
-#define SPECTRUMWIDGET_H
 
-#include "diPaintable.h"
-#include <QObject>
+#ifndef PAINTGLIMAGESOURCE_H
+#define PAINTGLIMAGESOURCE_H
 
-class SpectrumManager;
+#include "ImageSource.h"
 
-/**
-   \brief The OpenGL widget for Wave Spectrum
+class DiPaintGLCanvas;
+class DiPaintGLPainter;
+class QPaintDevice;
 
-   Handles widget paint/redraw events.
-   Receives keybord events and initiates actions.
-*/
-class SpectrumWidget : public QObject, public DiPaintable
+#include <memory>
+
+class PaintGLImageSource : public ImageSource
 {
-  Q_OBJECT
-
 public:
-  SpectrumWidget(SpectrumManager *spm);
+  PaintGLImageSource();
+  ~PaintGLImageSource();
 
-  void setCanvas(DiCanvas* c) override;
-  DiCanvas* canvas() const
-    { return mCanvas; }
-  void paintUnderlay(DiPainter* painter) override;
-  void paintOverlay(DiPainter* painter) override;
-  void resize(int width, int height) override;
+  void prepare(bool printing, bool single) override;
+  //! length -- total, -1 if unknown
+  void paint(QPainter&) override;
+  void finish() override;
 
-  bool handleKeyEvents(QKeyEvent*) override;
+protected:
+  virtual void switchDevice(QPainter& p);
+  virtual void paintGL(DiPaintGLPainter* gl) = 0;
 
-Q_SIGNALS:
-  void timeChanged(int);
-  void stationChanged(int);
-
-private:
-  SpectrumManager *spectrumm;
-  DiCanvas* mCanvas;
+protected:
+  QPaintDevice* paintdevice_;
+  std::unique_ptr<DiPaintGLCanvas> glcanvas_;
+  std::unique_ptr<DiPaintGLPainter> glpainter_;
+  bool printing_;
 };
 
-#endif
+#endif // PAINTGLIMAGESOURCE_H

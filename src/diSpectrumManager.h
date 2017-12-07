@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -43,6 +43,8 @@ class SpectrumOptions;
 class SpectrumFile;
 class SpectrumData;
 class SpectrumPlot;
+
+class QSize;
 
 /**
    \brief Managing Wave Spectrum data sources and plotting
@@ -109,7 +111,7 @@ public:
 
   void parseSetup();
   SpectrumOptions* getOptions() { return spopt.get(); }
-  void setPlotWindow(int w, int h);
+  void setPlotWindow(const QSize& size);
 
   //routines from controller
   std::vector<std::string> getLineThickness();

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -30,6 +30,9 @@
 #ifndef MOVIEMAKER_H_
 #define MOVIEMAKER_H_
 
+#include "ImageSink.h"
+
+#include "RasterFileSink.h"
 #include "qtTempDir.h"
 
 #include <QSize>
@@ -37,9 +40,8 @@
 
 #include <string>
 
-class QImage;
-
-class MovieMaker {
+class MovieMaker : public ImageSink
+{
 public:
   /**
    * Constructor. Sets filename to save the finished animation to, and
@@ -49,6 +51,12 @@ public:
       double framerate, const QSize& frameSize);
   ~MovieMaker();
 
+  bool isPrinting() override;
+  bool beginPage() override;
+  QPainter& paintPage() override;
+  bool endPage() override;
+  bool finish() override;
+
   const QString& outputFile() const
     { return mOutputFile; }
   const QString& outputFormat() const
@@ -56,11 +64,12 @@ public:
   QSize frameSize() const
     { return mFrameSize; }
 
-  bool addImage(const QImage &image);
-  bool finish();
 
   const QStringList& outputFiles() const
     { return mOutputFiles; }
+
+  static const QString format_series;
+  static const QString format_animated;
 
 private:
   bool isImageSeries() const;
@@ -75,6 +84,8 @@ private:
   bool createAnimatedGif();
 
 private:
+  RasterFileSink mFrameSink;
+
   QString mOutputFile;
   QString mOutputFormat;
   double mFrameRate;

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,7 +36,6 @@
 
 class QKeyEvent;
 class QMouseEvent;
-class QPrinter;
 
 namespace vcross {
 
@@ -56,9 +55,6 @@ public:
 
   void setVcrossManager(QtManager_p vcm);
 
-  void print(QPrinter& printer);
-  bool saveRasterImage(const QString& fname);
-
 protected:
   virtual void paintEvent(QPaintEvent* event);
   virtual void resizeEvent(QResizeEvent* event);
@@ -72,6 +68,7 @@ Q_SIGNALS:
   void stepTime(int direction);
   void stepCrossection(int direction);
   void mouseOverText(const QString& text);
+  void resized(const QSize& size);
 
 private Q_SLOTS:
   void switchedTimeGraph(bool on);

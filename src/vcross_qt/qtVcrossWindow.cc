@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,13 +39,15 @@
 #include "diLogFile.h"
 #include "diUtilities.h"
 
+#include "qtMainWindow.h"
 #include "qtUtility.h"
 #include "qtVcrossSetupDialog.h"
-#include "qtPrintManager.h"
 
 #include "EditItems/kml.h"
 
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
+#include "export/PrinterDialog.h"
+#include "export/VcrossImageSource.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -59,8 +61,6 @@
 #include <QLayout>
 #include <QMessageBox>
 #include <QPixmap>
-#include <QPrintDialog>
-#include <QPrinter>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStatusBar>
@@ -178,17 +178,17 @@ void hideIf(QWidget* widget)
 } // namespace anonymous
 
 VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
-  : QWidget(0)
-  , ui(new Ui_VcrossWindow)
-  , vcrossm(vcm)
-  , vcAddPlotDialog(0)
-  , vcReplaceModelDialog(0)
-  , vcStyleDialog(0)
-  , vcSetupDialog(0)
-  , firstTime(true)
-  , active(false)
-  , mInFieldChangeGroup(false)
-  , mGroupChangedFields(false)
+    : QWidget()
+    , ui(new Ui_VcrossWindow)
+    , vcrossm(vcm)
+    , vcAddPlotDialog(0)
+    , vcReplaceModelDialog(0)
+    , vcStyleDialog(0)
+    , vcSetupDialog(0)
+    , firstTime(true)
+    , active(false)
+    , mInFieldChangeGroup(false)
+    , mGroupChangedFields(false)
 {
   METLIBS_LOG_SCOPE();
   setupUi();
@@ -559,43 +559,31 @@ void VcrossWindow::onRealizationChanged(int value)
   vcrossm->setRealization(value);
 }
 
+VcrossImageSource* VcrossWindow::imageSource()
+{
+  if (!imageSource_) {
+    imageSource_.reset(new VcrossImageSource(vcrossm));
+    connect(ui->vcross, &vcross::QtWidget::resized, imageSource_.get(), &ImageSource::resized);
+    connect(imageSource_.get(), &ImageSource::prepared, ui->vcross, &QWidget::hide);
+    connect(imageSource_.get(), &ImageSource::finished, ui->vcross, &QWidget::show);
+  }
+  return imageSource_.get();
+}
+
 /***************************************************************************/
 
 void VcrossWindow::printClicked()
 {
-  printerManager pman;
-  std::string command = pman.printCommand();
-
-  QPrinter qprt;
-  d_print::fromPrintOption(qprt, priop);
-
-  QPrintDialog printerDialog(&qprt, this);
-  if (printerDialog.exec()) {
-    // fill printOption from qprinter-selections
-    d_print::toPrintOption(qprt, priop);
-
-    diutil::OverrideCursor waitCursor;
-    ui->vcross->print(qprt);
-  }
+  PrinterDialog dialog(this, imageSource(), &priop);
+  dialog.print();
 }
 
 /***************************************************************************/
 
 void VcrossWindow::saveClicked()
 {
-  QString filename = QFileDialog::getSaveFileName(this,
-      tr("Save plot as image"),
-      mRasterFilename,
-      tr("Images (*.png *.xpm *.bmp);;All (*.*)"));
-  
-  if (not filename.isNull()) {// got a filename
-    mRasterFilename = filename;
-    if (not ui->vcross->saveRasterImage(filename))
-      QMessageBox::warning(this, tr("Save image failed"),
-          tr("Saving the vertical cross section plot as '%1' failed. Sorry.").arg(filename));
-  }
+  DianaMainWindow::instance()->showExportDialog(imageSource());
 }
-
 
 /***************************************************************************/
 

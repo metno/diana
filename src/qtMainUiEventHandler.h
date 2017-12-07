@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,56 +26,32 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef _qtGLwidget_h
-#define _qtGLwidget_h
+#ifndef _qtMainPaintableUiEventHandler_h
+#define _qtMainPaintableUiEventHandler_h
 
-#include "diPaintable.h"
-#include "diGLPainter.h"
-#include "diMapMode.h"
-#include "diPrintOptions.h"
+#include "diMapMode.h" // for EventResult, cursortype
+#include "qtUiEventHandler.h"
 
-#include <diField/diArea.h>
-
-#include <QMouseEvent>
-#include <QKeyEvent>
-
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
-class Controller;
+class MainPaintable;
 
-/**
-   \brief the Diana map widget
-
-   the Diana map widget supporting
-   - simple underlay
-   - keyboard/mouse event translation to Diana types
-
-   The class name is misleading, it does not have much to do with OpenGL any longer.
-*/
-class GLwidget : public QObject, public DiPaintable
+class MainUiEventHandler : public UiEventHandler
 {
   Q_OBJECT
 
 public:
-  GLwidget(Controller*);
-  ~GLwidget();
+  MainUiEventHandler(MainPaintable*);
 
-  void paintUnderlay(DiPainter* gl) override;
-  void paintOverlay(DiPainter* gl) override;
+  bool handleKeyEvents(QKeyEvent*) override;
+  bool handleMouseEvents(QMouseEvent*) override;
+  bool handleWheelEvents(QWheelEvent* we) override;
 
-  int width() const
-    { return plotw; }
+  bool useScrollwheelZoom() const { return scrollwheelZoom; }
 
-  int height() const
-    { return ploth; }
-
-  bool useScrollwheelZoom() const
-    { return scrollwheelZoom; }
-
-  void setUseScrollwheelZoom(bool use)
-    { scrollwheelZoom = use; }
+  void setUseScrollwheelZoom(bool use) { scrollwheelZoom = use; }
 
 Q_SIGNALS:
   /// single click signal
@@ -92,24 +68,12 @@ Q_SIGNALS:
   void mouseDoubleClick(QMouseEvent* me);
 
   void changeCursor(cursortype);
-  void resized(int width, int height);
-
-public:
-  void setCanvas(DiCanvas* canvas) override;
-  void resize(int width, int height) override;
-
-  bool handleKeyEvents(QKeyEvent*) override;
-  bool handleMouseEvents(QMouseEvent*) override;
-  bool handleWheelEvents(QWheelEvent *we) override;
 
 private:
   void setFlagsFromEventResult(const EventResult& res);
 
 private:
-  Controller* contr;       // gate to main system
-  int plotw, ploth;        // size of widget (pixels)
-
-  std::map<int,KeyType> keymap; // keymap's for keyboardevents
+  MainPaintable* p;
   bool scrollwheelZoom;
 };
 

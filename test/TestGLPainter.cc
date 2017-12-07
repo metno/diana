@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 met.no
+  Copyright (C) 2015-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -56,14 +56,15 @@ void wait(int ms)
   QCoreApplication::processEvents(QEventLoop::AllEvents, ms);
 }
 
-class TestPaintable : public DiPaintable {
+class TestPaintable : public Paintable
+{
 public:
   TestPaintable();
 
-  virtual void setCanvas(DiCanvas* c);
-  void resize(int w, int h);
-  void paintUnderlay(DiPainter* painter);
-  void paintOverlay(DiPainter* painter);
+  virtual void setCanvas(DiCanvas* c) override;
+  void resize(const QSize& size) override;
+  void paintUnderlay(DiPainter* painter) override;
+  void paintOverlay(DiPainter* painter) override;
 
   void drawTextInBox(DiGLPainter* gl, const QString& text, float tx, float ty);
 
@@ -79,16 +80,16 @@ TestPaintable::TestPaintable()
 
 void TestPaintable::setCanvas(DiCanvas* c)
 {
-  DiPaintable::setCanvas(c);
+  Paintable::setCanvas(c);
   c->defineFont("BITMAPFONT",    TEST_FONTDIR "Vera.ttf",       "NORMAL", true);
   c->defineFont("SCALEFONT" ,    TEST_FONTDIR "Vera.ttf",       "NORMAL", false);
   c->defineFont("METSYMBOLFONT", TEST_FONTDIR "metsymbols.ttf", "NORMAL", false);
 }
 
-void TestPaintable::resize(int w, int h)
+void TestPaintable::resize(const QSize& size)
 {
-  width = w;
-  height = h;
+  width = size.width();
+  height = size.height();
 }
 
 void TestPaintable::paintUnderlay(DiPainter* painter)
@@ -143,7 +144,7 @@ void TestPaintable::paintOverlay(DiPainter*)
 TEST(TestOpenGL, Text)
 {
   TestPaintable* tp = new TestPaintable();
-  DiOpenGLWidget* w = new DiOpenGLWidget(tp);
+  DiOpenGLWidget* w = new DiOpenGLWidget(tp, 0);
   w->resize(1200, 900);
   w->show();
   wait(200);
@@ -157,7 +158,7 @@ TEST(TestOpenGL, Text)
 TEST(TestPaintGL, Text)
 {
   TestPaintable* tp = new TestPaintable();
-  DiPaintGLWidget* w = new DiPaintGLWidget(tp, 0);
+  DiPaintGLWidget* w = new DiPaintGLWidget(tp, 0, 0);
   w->resize(1200, 900);
   w->show();
   QImage snapshot(w->size(), QImage::Format_ARGB32);
