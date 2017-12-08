@@ -111,6 +111,9 @@ bool ObsManager::prepare(ObsPlot * oplot, const miutil::miTime& time)
 #endif
     const ProdInfo& pi = itP->second;
 
+    if (!pi.fileInfo.size())
+      updateTimes(dataType);
+
     // only a little hack to avoid copying ...
     const bool finfo_fromproduct = (!pi.timeInfo.empty() || pi.obsformat == ofmt_url);
     std::vector<FileInfo> finfo_fromfile;
