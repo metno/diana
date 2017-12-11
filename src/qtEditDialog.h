@@ -103,7 +103,6 @@ private slots:
   void FieldEditMethods( QListWidgetItem * );
   void fieldEllipseChanged( int index );
   void fieldEllipseShape();
-  void undoFieldsEnable();
   void undoFieldsDisable();
   void undofield();
   void redofield();
@@ -114,7 +113,6 @@ private slots:
   void FrontTabBox( int index );
   void undofront();
   void redofront();
-  void undoFrontsEnable();
   void undoFrontsDisable();
   void autoJoinToggled(bool on);
   void FrontEditDoubleClicked();
@@ -140,6 +138,9 @@ private slots:
   void EditNewCancel();
 
 public Q_SLOTS:
+  void undoFieldsEnable();
+  void undoFrontsEnable();
+
   ///undo fields or objects depending on mode
   void undoEdit();
   ///redo fields or objects depending on mode

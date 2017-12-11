@@ -874,8 +874,8 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
 
-  connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
-  connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
+  connect(w->Gli(), &MainUiEventHandler::objectsChanged, em, &EditDialog::undoFrontsEnable);
+  connect(w->Gli(), &MainUiEventHandler::fieldsChanged, em, &EditDialog::undoFieldsEnable);
 
   mainToolbar->addSeparator();
 

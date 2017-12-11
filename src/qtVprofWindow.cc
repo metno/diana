@@ -80,8 +80,8 @@ VprofWindow::VprofWindow()
   vprofqw = diana::createPaintableWidget(vprofw, vprofi, this);
   setCentralWidget(vprofqw);
 
-  connect(vprofw, SIGNAL(timeChanged(int)),SLOT(timeClicked(int)));
-  connect(vprofw, SIGNAL(stationChanged(int)),SLOT(stationClicked(int)));
+  connect(vprofi, &VprofUiEventHandler::timeChanged, this, &VprofWindow::timeClicked);
+  connect(vprofi, &VprofUiEventHandler::stationChanged, this, &VprofWindow::stationClicked);
 
   // tool bar and buttons
   vpToolbar = new QToolBar(this);

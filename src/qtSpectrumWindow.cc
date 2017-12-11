@@ -77,8 +77,8 @@ SpectrumWindow::SpectrumWindow()
   spectrumqw = diana::createPaintableWidget(spectrumw, spectrumi, this);
 
   setCentralWidget(spectrumqw);
-  connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeClicked(int)));
-  connect(spectrumw, SIGNAL(stationChanged(int)),SLOT(stationClicked(int)));
+  connect(spectrumi, &SpectrumUiEventHandler::timeChanged, this, &SpectrumWindow::timeClicked);
+  connect(spectrumi, &SpectrumUiEventHandler::stationChanged, this, &SpectrumWindow::stationClicked);
 
   //tool bar and buttons
   spToolbar = new QToolBar(this);
