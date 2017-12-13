@@ -319,6 +319,9 @@ bool probability(int compute, int nx, int ny, const std::vector<float*>& fields,
     const std::vector<float>& limits,
     float *fres, difield::ValuesDefined& fDefinedOut, float undef);
 
+bool neighbourProbFunctions(int nx, int ny, const float* field, const std::vector<float>& constants, int compute, float* fres, difield::ValuesDefined& fDefined,
+                            float undef);
+
 bool neighbourFunctions(int nx, int ny, const float* field, const std::vector<float>& constants,
     int compute, float *fres, difield::ValuesDefined& fDefined, float undef);
 

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2016 met.no
+ Copyright (C) 2016-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -3561,9 +3561,107 @@ bool probability(int compute, int nx, int ny, const vector<float*>& fields, cons
   return true;
 }
 
-bool neighbourFunctions(int nx, int ny, const float* field,
-    const std::vector<float>& constants, int compute, float *fres,
-    difield::ValuesDefined& fDefined, float undef)
+bool neighbourProbFunctions(int nx, int ny, const float* field, const std::vector<float>& constants, int compute, float* fres, difield::ValuesDefined& fDefined,
+                            float undef)
+{
+#ifdef ENABLE_FIELDFUNCTIONS_TIMING
+  METLIBS_LOG_TIME();
+#endif
+
+  // compute=5 : calc probability above (constant[0]=limit)
+  // compute=6 : calc probability below (constant[0]=limit)
+
+  if (fDefined != difield::ALL_DEFINED) {
+    METLIBS_LOG_ERROR("Field contains undefined values -> neighbour functions can not be used");
+    return false;
+  }
+
+  if (constants.size() < 2) {
+    METLIBS_LOG_ERROR("Wrong number of constants:" << constants.size());
+    return false;
+  }
+
+  int fsize = nx * ny;
+  int limit = constants[0];
+  int range = constants[1];
+
+  // Calc. probability in each gridcell
+  if (compute == 5) {
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
+    for (int i = 0; i < fsize; i++) {
+      fres[i] = field[i] > limit ? 1 : 0;
+    }
+  } else if (compute == 6) {
+    DIUTIL_OPENMP_PARALLEL(fsize, for)
+    for (int i = 0; i < fsize; i++) {
+      fres[i] = field[i] < limit ? 1 : 0;
+    }
+  }
+
+  if (range == 0)
+    return true;
+
+  // using neighbour method
+
+  // Calc. the summed area table
+  float* tmp = new float[nx * ny];
+  DIUTIL_OPENMP_PARALLEL(nx, for)
+  for (int i = 0; i < nx; i++) {
+    tmp[i] = fres[i];
+    for (int j = 1; j < ny; j++)
+      tmp[i + j * nx] = fres[i + j * nx] + tmp[i + (j - 1) * nx];
+  }
+  DIUTIL_OPENMP_PARALLEL(ny, for)
+  for (int j = 0; j < ny; j++)
+    for (int i = 1; i < nx; i++)
+      tmp[i + j * nx] += tmp[(i - 1) + j * nx];
+
+  // Calc. the neighbourhood mean for each pixel
+  const int N = (2 * range + 1) * (2 * range + 1);
+  DIUTIL_OPENMP_PARALLEL(nx-2*range, for)
+  for (int i = range; i < nx - range; i++) {
+    int imax = i + range;
+    for (int j = range; j < ny - range; j++) {
+      int jmax = j + range;
+      fres[i + j * nx] = tmp[imax + jmax * nx];
+      if (i > range) {
+        fres[i + j * nx] -= tmp[i - range - 1 + jmax * nx];
+        if (j > range)
+          fres[i + j * nx] += tmp[i - range - 1 + (j - range - 1) * nx] - tmp[imax + (j - range - 1) * nx];
+      } else if (j > range) {
+        fres[i + j * nx] -= tmp[imax + (j - range - 1) * nx];
+      }
+      fres[i + j * nx] /= N;
+    }
+  }
+
+  delete[] tmp;
+
+  // values can not be calculated close to the border, set values undef
+  fDefined = difield::SOME_DEFINED;
+  for (int j = 0; j < range; j++) {
+    for (int i = 0; i < nx; i++) {
+      fres[i + j * nx] = undef;
+    }
+  }
+  for (int j = range; j < ny - range; j++) {
+    for (int i = 0; i < range; i++) {
+      fres[i + j * nx] = undef;
+    }
+    for (int i = nx - range; i < nx; i++) {
+      fres[i + j * nx] = undef;
+    }
+  }
+  for (int j = ny - range; j < ny; j++) {
+    for (int i = 0; i < nx; i++) {
+      fres[i + j * nx] = undef;
+    }
+  }
+  return true;
+}
+
+bool neighbourFunctions(int nx, int ny, const float* field, const std::vector<float>& constants, int compute, float* fres, difield::ValuesDefined& fDefined,
+                        float undef)
 {
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -3575,7 +3673,6 @@ bool neighbourFunctions(int nx, int ny, const float* field,
   // compute=4 : calc percentile (constant[0]=percentile)
   // compute=5 : calc probability above (constant[0]=limit)
   // compute=6 : calc probability below (constant[0]=limit)
-
 
   if (fDefined != difield::ALL_DEFINED) {
     METLIBS_LOG_ERROR("Field contains undefined values -> neighbour functions can not be used");

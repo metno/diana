@@ -141,112 +141,112 @@ public:
     f_undefined = -1, //!< f_undefined
 
     // simple compute functions (do not add function texts for these)
-    f_add_f_f, //!< field + field
+    f_add_f_f,      //!< field + field
     f_subtract_f_f, //!< field - field
     f_multiply_f_f, //!< field * field
-    f_divide_f_f, //!< field / field
-    f_add_f_c, //!< field + constant
+    f_divide_f_f,   //!< field / field
+    f_add_f_c,      //!< field + constant
     f_subtract_f_c, //!< field - constant
     f_multiply_f_c, //!< field * constant
-    f_divide_f_c, //!< field / constant
-    f_add_c_f, //!< constant + field
+    f_divide_f_c,   //!< field / constant
+    f_add_c_f,      //!< constant + field
     f_subtract_c_f, //!< constant - field
     f_multiply_c_f, //!< constant * field
-    f_divide_c_f, //!< constant / field
-    f_sum_f, //!<field+field+field ...
+    f_divide_c_f,   //!< constant / field
+    f_sum_f,        //!<field+field+field ...
 
     // pressure level (PLEVEL) functions
-    f_tc_plevel_th, //!< f_tc_plevel_th
-    f_tk_plevel_th, //!< f_tk_plevel_th
-    f_th_plevel_tk, //!< f_th_plevel_tk
-    f_thesat_plevel_tk, //!< f_thesat_plevel_tk
-    f_thesat_plevel_th, //!< f_thesat_plevel_th
-    f_the_plevel_tk_rh, //!< f_the_plevel_tk_rh
-    f_the_plevel_th_rh, //!< f_the_plevel_th_rh
-    f_rh_plevel_tk_q, //!< f_rh_plevel_tk_q
-    f_rh_plevel_th_q, //!< f_rh_plevel_th_q
-    f_q_plevel_tk_rh, //!< f_q_plevel_tk_rh
-    f_q_plevel_th_rh, //!< f_q_plevel_th_rh
-    f_tdc_plevel_tk_rh, //!< f_tdc_plevel_tk_rh
-    f_tdc_plevel_th_rh, //!< f_tdc_plevel_th_rh
-    f_tdc_plevel_tk_q, //!< f_tdc_plevel_tk_q
-    f_tdc_plevel_th_q, //!< f_tdc_plevel_th_q
-    f_tdk_plevel_tk_rh, //!< f_tdk_plevel_tk_rh
-    f_tdk_plevel_th_rh, //!< f_tdk_plevel_th_rh
-    f_tdk_plevel_tk_q, //!< f_tdk_plevel_tk_q
-    f_tdk_plevel_th_q, //!< f_tdk_plevel_th_q
-    f_tcmean_plevel_z1_z2, //!< f_tcmean_plevel_z1_z2
-    f_tkmean_plevel_z1_z2, //!< f_tkmean_plevel_z1_z2
-    f_thmean_plevel_z1_z2, //!< f_thmean_plevel_z1_z2
-    f_qvector_plevel_z_tk_xcomp, //!< f_qvector_plevel_z_tk_xcomp; geographic
-    f_qvector_plevel_z_th_xcomp, //!< f_qvector_plevel_z_th_xcomp; geographic
-    f_qvector_plevel_z_tk_ycomp, //!< f_qvector_plevel_z_tk_ycomp; geographic
-    f_qvector_plevel_z_th_ycomp, //!< f_qvector_plevel_z_th_ycomp; geographic
-    f_ducting_plevel_tk_q, //!< f_ducting_plevel_tk_q
-    f_ducting_plevel_th_q, //!< f_ducting_plevel_th_q
-    f_ducting_plevel_tk_rh, //!< f_ducting_plevel_tk_rh
-    f_ducting_plevel_th_rh, //!< f_ducting_plevel_th_rh
+    f_tc_plevel_th,                    //!< f_tc_plevel_th
+    f_tk_plevel_th,                    //!< f_tk_plevel_th
+    f_th_plevel_tk,                    //!< f_th_plevel_tk
+    f_thesat_plevel_tk,                //!< f_thesat_plevel_tk
+    f_thesat_plevel_th,                //!< f_thesat_plevel_th
+    f_the_plevel_tk_rh,                //!< f_the_plevel_tk_rh
+    f_the_plevel_th_rh,                //!< f_the_plevel_th_rh
+    f_rh_plevel_tk_q,                  //!< f_rh_plevel_tk_q
+    f_rh_plevel_th_q,                  //!< f_rh_plevel_th_q
+    f_q_plevel_tk_rh,                  //!< f_q_plevel_tk_rh
+    f_q_plevel_th_rh,                  //!< f_q_plevel_th_rh
+    f_tdc_plevel_tk_rh,                //!< f_tdc_plevel_tk_rh
+    f_tdc_plevel_th_rh,                //!< f_tdc_plevel_th_rh
+    f_tdc_plevel_tk_q,                 //!< f_tdc_plevel_tk_q
+    f_tdc_plevel_th_q,                 //!< f_tdc_plevel_th_q
+    f_tdk_plevel_tk_rh,                //!< f_tdk_plevel_tk_rh
+    f_tdk_plevel_th_rh,                //!< f_tdk_plevel_th_rh
+    f_tdk_plevel_tk_q,                 //!< f_tdk_plevel_tk_q
+    f_tdk_plevel_th_q,                 //!< f_tdk_plevel_th_q
+    f_tcmean_plevel_z1_z2,             //!< f_tcmean_plevel_z1_z2
+    f_tkmean_plevel_z1_z2,             //!< f_tkmean_plevel_z1_z2
+    f_thmean_plevel_z1_z2,             //!< f_thmean_plevel_z1_z2
+    f_qvector_plevel_z_tk_xcomp,       //!< f_qvector_plevel_z_tk_xcomp; geographic
+    f_qvector_plevel_z_th_xcomp,       //!< f_qvector_plevel_z_th_xcomp; geographic
+    f_qvector_plevel_z_tk_ycomp,       //!< f_qvector_plevel_z_tk_ycomp; geographic
+    f_qvector_plevel_z_th_ycomp,       //!< f_qvector_plevel_z_th_ycomp; geographic
+    f_ducting_plevel_tk_q,             //!< f_ducting_plevel_tk_q
+    f_ducting_plevel_th_q,             //!< f_ducting_plevel_th_q
+    f_ducting_plevel_tk_rh,            //!< f_ducting_plevel_tk_rh
+    f_ducting_plevel_th_rh,            //!< f_ducting_plevel_th_rh
     f_geostrophic_wind_plevel_z_xcomp, //!< f_geostrophic_wind_plevel_z_xcomp; geographic
     f_geostrophic_wind_plevel_z_ycomp, //!< f_geostrophic_wind_plevel_z_ycomp; geographic
-    f_geostrophic_vorticity_plevel_z,//!< f_geostrophic_vorticity_plevel_z; geographic
-    f_kindex_plevel_tk_rh, //!< f_kindex_plevel_tk_rh
-    f_kindex_plevel_th_rh, //!< f_kindex_plevel_th_rh
-    f_ductingindex_plevel_tk_rh, //!< f_ductingindex_plevel_tk_rh
-    f_ductingindex_plevel_th_rh, //!< f_ductingindex_plevel_th_rh
-    f_showalterindex_plevel_tk_rh, //!< f_showalterindex_plevel_tk_rh
-    f_showalterindex_plevel_th_rh, //!< f_showalterindex_plevel_th_rh
-    f_boydenindex_plevel_tk_z, //!< f_boydenindex_plevel_tk_z
-    f_boydenindex_plevel_th_z, //!< f_boydenindex_plevel_th_z
-    f_sweatindex_plevel, //!< Severe Weather Threat Index
+    f_geostrophic_vorticity_plevel_z,  //!< f_geostrophic_vorticity_plevel_z; geographic
+    f_kindex_plevel_tk_rh,             //!< f_kindex_plevel_tk_rh
+    f_kindex_plevel_th_rh,             //!< f_kindex_plevel_th_rh
+    f_ductingindex_plevel_tk_rh,       //!< f_ductingindex_plevel_tk_rh
+    f_ductingindex_plevel_th_rh,       //!< f_ductingindex_plevel_th_rh
+    f_showalterindex_plevel_tk_rh,     //!< f_showalterindex_plevel_tk_rh
+    f_showalterindex_plevel_th_rh,     //!< f_showalterindex_plevel_th_rh
+    f_boydenindex_plevel_tk_z,         //!< f_boydenindex_plevel_tk_z
+    f_boydenindex_plevel_th_z,         //!< f_boydenindex_plevel_th_z
+    f_sweatindex_plevel,               //!< Severe Weather Threat Index
 
     // hybrid model level (HLEVEL) functions
-    f_tc_hlevel_th_psurf, //!< f_tc_hlevel_th_psurf
-    f_tk_hlevel_th_psurf, //!< f_tk_hlevel_th_psurf
-    f_th_hlevel_tk_psurf, //!< f_th_hlevel_tk_psurf
-    f_thesat_hlevel_tk_psurf, //!< f_thesat_hlevel_tk_psurf
-    f_thesat_hlevel_th_psurf, //!< f_thesat_hlevel_th_psurf
-    f_the_hlevel_tk_q_psurf, //!< f_the_hlevel_tk_q_psurf
-    f_the_hlevel_th_q_psurf, //!< f_the_hlevel_th_q_psurf
-    f_rh_hlevel_tk_q_psurf, //!< f_rh_hlevel_tk_q_psurf
-    f_rh_hlevel_th_q_psurf, //!< f_rh_hlevel_th_q_psurf
-    f_q_hlevel_tk_rh_psurf, //!< f_q_hlevel_tk_rh_psurf
-    f_q_hlevel_th_rh_psurf, //!< f_q_hlevel_th_rh_psurf
-    f_tdc_hlevel_tk_q_psurf, //!< f_tdc_hlevel_tk_q_psurf
-    f_tdc_hlevel_th_q_psurf, //!< f_tdc_hlevel_th_q_psurf
-    f_tdc_hlevel_tk_rh_psurf, //!< f_tdc_hlevel_tk_rh_psurf
-    f_tdc_hlevel_th_rh_psurf, //!< f_tdc_hlevel_th_rh_psurf
-    f_tdk_hlevel_tk_q_psurf, //!< f_tdk_hlevel_tk_q_psurf
-    f_tdk_hlevel_th_q_psurf, //!< f_tdk_hlevel_th_q_psurf
-    f_tdk_hlevel_tk_rh_psurf, //!< f_tdk_hlevel_tk_rh_psurf
-    f_tdk_hlevel_th_rh_psurf, //!< f_tdk_hlevel_th_rh_psurf
-    f_ducting_hlevel_tk_q_psurf, //!< f_ducting_hlevel_tk_q_psurf
-    f_ducting_hlevel_th_q_psurf, //!< f_ducting_hlevel_th_q_psurf
+    f_tc_hlevel_th_psurf,         //!< f_tc_hlevel_th_psurf
+    f_tk_hlevel_th_psurf,         //!< f_tk_hlevel_th_psurf
+    f_th_hlevel_tk_psurf,         //!< f_th_hlevel_tk_psurf
+    f_thesat_hlevel_tk_psurf,     //!< f_thesat_hlevel_tk_psurf
+    f_thesat_hlevel_th_psurf,     //!< f_thesat_hlevel_th_psurf
+    f_the_hlevel_tk_q_psurf,      //!< f_the_hlevel_tk_q_psurf
+    f_the_hlevel_th_q_psurf,      //!< f_the_hlevel_th_q_psurf
+    f_rh_hlevel_tk_q_psurf,       //!< f_rh_hlevel_tk_q_psurf
+    f_rh_hlevel_th_q_psurf,       //!< f_rh_hlevel_th_q_psurf
+    f_q_hlevel_tk_rh_psurf,       //!< f_q_hlevel_tk_rh_psurf
+    f_q_hlevel_th_rh_psurf,       //!< f_q_hlevel_th_rh_psurf
+    f_tdc_hlevel_tk_q_psurf,      //!< f_tdc_hlevel_tk_q_psurf
+    f_tdc_hlevel_th_q_psurf,      //!< f_tdc_hlevel_th_q_psurf
+    f_tdc_hlevel_tk_rh_psurf,     //!< f_tdc_hlevel_tk_rh_psurf
+    f_tdc_hlevel_th_rh_psurf,     //!< f_tdc_hlevel_th_rh_psurf
+    f_tdk_hlevel_tk_q_psurf,      //!< f_tdk_hlevel_tk_q_psurf
+    f_tdk_hlevel_th_q_psurf,      //!< f_tdk_hlevel_th_q_psurf
+    f_tdk_hlevel_tk_rh_psurf,     //!< f_tdk_hlevel_tk_rh_psurf
+    f_tdk_hlevel_th_rh_psurf,     //!< f_tdk_hlevel_th_rh_psurf
+    f_ducting_hlevel_tk_q_psurf,  //!< f_ducting_hlevel_tk_q_psurf
+    f_ducting_hlevel_th_q_psurf,  //!< f_ducting_hlevel_th_q_psurf
     f_ducting_hlevel_tk_rh_psurf, //!< f_ducting_hlevel_tk_rh_psurf
     f_ducting_hlevel_th_rh_psurf, //!< f_ducting_hlevel_th_rh_psurf
-    f_pressure_hlevel_xx_psurf, // just get eta.a and eta.b from field xx
+    f_pressure_hlevel_xx_psurf,   // just get eta.a and eta.b from field xx
 
     // misc atmospheric model level (ALEVEL) functions
-    f_tc_alevel_th_p, //!< f_tc_alevel_th_p
-    f_tk_alevel_th_p, //!< f_tk_alevel_th_p
-    f_th_alevel_tk_p, //!< f_th_alevel_tk_p
-    f_thesat_alevel_tk_p, //!< f_thesat_alevel_tk_p
-    f_thesat_alevel_th_p, //!< f_thesat_alevel_th_p
-    f_the_alevel_tk_q_p, //!< f_the_alevel_tk_q_p
-    f_the_alevel_th_q_p, //!< f_the_alevel_th_q_p
-    f_rh_alevel_tk_q_p, //!< f_rh_alevel_tk_q_p
-    f_rh_alevel_th_q_p, //!< f_rh_alevel_th_q_p
-    f_q_alevel_tk_rh_p, //!< f_q_alevel_tk_rh_p
-    f_q_alevel_th_rh_p, //!< f_q_alevel_th_rh_p
-    f_tdc_alevel_tk_q_p, //!< f_tdc_alevel_tk_q_p
-    f_tdc_alevel_th_q_p, //!< f_tdc_alevel_th_q_p
-    f_tdc_alevel_tk_rh_p, //!< f_tdc_alevel_tk_rh_p
-    f_tdc_alevel_th_rh_p, //!< f_tdc_alevel_th_rh_p
-    f_tdk_alevel_tk_q_p, //!< f_tdk_alevel_tk_q_p
-    f_tdk_alevel_th_q_p, //!< f_tdk_alevel_th_q_p
-    f_tdk_alevel_tk_rh_p, //!< f_tdk_alevel_tk_rh_p
-    f_tdk_alevel_th_rh_p, //!< f_tdk_alevel_th_rh_p
-    f_ducting_alevel_tk_q_p, //!< f_ducting_alevel_tk_q_p
-    f_ducting_alevel_th_q_p, //!< f_ducting_alevel_th_q_p
+    f_tc_alevel_th_p,         //!< f_tc_alevel_th_p
+    f_tk_alevel_th_p,         //!< f_tk_alevel_th_p
+    f_th_alevel_tk_p,         //!< f_th_alevel_tk_p
+    f_thesat_alevel_tk_p,     //!< f_thesat_alevel_tk_p
+    f_thesat_alevel_th_p,     //!< f_thesat_alevel_th_p
+    f_the_alevel_tk_q_p,      //!< f_the_alevel_tk_q_p
+    f_the_alevel_th_q_p,      //!< f_the_alevel_th_q_p
+    f_rh_alevel_tk_q_p,       //!< f_rh_alevel_tk_q_p
+    f_rh_alevel_th_q_p,       //!< f_rh_alevel_th_q_p
+    f_q_alevel_tk_rh_p,       //!< f_q_alevel_tk_rh_p
+    f_q_alevel_th_rh_p,       //!< f_q_alevel_th_rh_p
+    f_tdc_alevel_tk_q_p,      //!< f_tdc_alevel_tk_q_p
+    f_tdc_alevel_th_q_p,      //!< f_tdc_alevel_th_q_p
+    f_tdc_alevel_tk_rh_p,     //!< f_tdc_alevel_tk_rh_p
+    f_tdc_alevel_th_rh_p,     //!< f_tdc_alevel_th_rh_p
+    f_tdk_alevel_tk_q_p,      //!< f_tdk_alevel_tk_q_p
+    f_tdk_alevel_th_q_p,      //!< f_tdk_alevel_th_q_p
+    f_tdk_alevel_tk_rh_p,     //!< f_tdk_alevel_tk_rh_p
+    f_tdk_alevel_th_rh_p,     //!< f_tdk_alevel_th_rh_p
+    f_ducting_alevel_tk_q_p,  //!< f_ducting_alevel_tk_q_p
+    f_ducting_alevel_th_q_p,  //!< f_ducting_alevel_th_q_p
     f_ducting_alevel_tk_rh_p, //!< f_ducting_alevel_tk_rh_p
     f_ducting_alevel_th_rh_p, //!< f_ducting_alevel_th_rh_p
 
@@ -254,61 +254,61 @@ public:
     f_geostrophic_wind_ilevel_mpot, //!< f_geostrophic_wind_ilevel_mpot; geographic
 
     // ocean depth level (OZLEVEL) functions
-    f_sea_soundspeed_ozlevel_tc_salt,//!< f_sea_soundspeed_ozlevel_tc_salt
-    f_sea_soundspeed_ozlevel_tk_salt,//!< f_sea_soundspeed_ozlevel_tk_salt
+    f_sea_soundspeed_ozlevel_tc_salt, //!< f_sea_soundspeed_ozlevel_tc_salt
+    f_sea_soundspeed_ozlevel_tk_salt, //!< f_sea_soundspeed_ozlevel_tk_salt
 
     // level independent functions
-    f_temp_k2c, //!< f_temp_k2c
-    f_temp_c2k, //!< f_temp_c2k
-    f_temp_k2c_possibly, //!< f_temp_k2c_possibly
-    f_temp_c2k_possibly, //!< f_temp_c2k_possibly
-    f_tdk_tk_rh, //!< f_tdk_tk_rh
-    f_tdc_tk_rh, //!< f_tdc_tk_rh
-    f_tdc_tc_rh, //!< f_tdc_tc_rh
-    f_rh_tk_td, //!< f_rh_tk_td
-    f_rh_tc_td, //!< f_rh_tc_td
-    f_vector_abs, //!< f_vector_abs
-    f_rel_vorticity, //!< f_rel_vorticity; geographic
-    f_abs_vorticity, //!< f_abs_vorticity; geographic
-    f_divergence, //!< f_divergence; geographic
-    f_advection, //!< f_advection; geographic
-    f_d_dx, //!< f_d_dx
-    f_d_dy, //!< f_d_dy
-    f_abs_del, //!< f_abs_del
-    f_del_square, //!< f_del_square
-    f_minvalue_fields, //!< f_minvalue_fields
-    f_maxvalue_fields, //!< f_maxvalue_fields
-    f_minvalue_field_const, //!< f_minvalue_field_const
-    f_maxvalue_field_const, //!< f_maxvalue_field_const
-    f_abs, //!< f_abs
-    f_log10, //!< f_log10
-    f_pow10, //!< f_pow10
-    f_log, //!< f_log
-    f_exp, //!< f_exp
-    f_power, //!< f_power
-    f_shapiro2_filter, //!< f_shapiro2_filter
-    f_smooth, //!< f_smooth
-    f_windcooling_tk_u_v, //!< f_windcooling_tk_u_v
-    f_windcooling_tc_u_v, //!< f_windcooling_tc_u_v
-    f_undercooled_rain, //!< f_undercooled_rain
+    f_temp_k2c,                   //!< f_temp_k2c
+    f_temp_c2k,                   //!< f_temp_c2k
+    f_temp_k2c_possibly,          //!< f_temp_k2c_possibly
+    f_temp_c2k_possibly,          //!< f_temp_c2k_possibly
+    f_tdk_tk_rh,                  //!< f_tdk_tk_rh
+    f_tdc_tk_rh,                  //!< f_tdc_tk_rh
+    f_tdc_tc_rh,                  //!< f_tdc_tc_rh
+    f_rh_tk_td,                   //!< f_rh_tk_td
+    f_rh_tc_td,                   //!< f_rh_tc_td
+    f_vector_abs,                 //!< f_vector_abs
+    f_rel_vorticity,              //!< f_rel_vorticity; geographic
+    f_abs_vorticity,              //!< f_abs_vorticity; geographic
+    f_divergence,                 //!< f_divergence; geographic
+    f_advection,                  //!< f_advection; geographic
+    f_d_dx,                       //!< f_d_dx
+    f_d_dy,                       //!< f_d_dy
+    f_abs_del,                    //!< f_abs_del
+    f_del_square,                 //!< f_del_square
+    f_minvalue_fields,            //!< f_minvalue_fields
+    f_maxvalue_fields,            //!< f_maxvalue_fields
+    f_minvalue_field_const,       //!< f_minvalue_field_const
+    f_maxvalue_field_const,       //!< f_maxvalue_field_const
+    f_abs,                        //!< f_abs
+    f_log10,                      //!< f_log10
+    f_pow10,                      //!< f_pow10
+    f_log,                        //!< f_log
+    f_exp,                        //!< f_exp
+    f_power,                      //!< f_power
+    f_shapiro2_filter,            //!< f_shapiro2_filter
+    f_smooth,                     //!< f_smooth
+    f_windcooling_tk_u_v,         //!< f_windcooling_tk_u_v
+    f_windcooling_tc_u_v,         //!< f_windcooling_tc_u_v
+    f_undercooled_rain,           //!< f_undercooled_rain
     f_thermal_front_parameter_tx, //!< f_thermal_front_parameter_tx; geographic
-    f_pressure2flightlevel, //!< f_pressure2flightlevel
-    f_momentum_x_coordinate, //!< f_momentum_x_coordinate; geographic
-    f_momentum_y_coordinate, //!< f_momentum_y_coordinate; geographic
-    f_jacobian, //!< f_jacobian; geographic
-    f_vessel_icing_overland, //!< f_vessel_icing_overland - obsolete
-    f_vessel_icing_mertins, //!< f_vessel_icing_mertins - obsolete
-    f_vessel_icing_overland2, //!< f_vessel_icing_overland
-    f_vessel_icing_mertins2, //!< f_vessel_icing_mertins
-    f_vessel_icing_modstall, //!< f_vessel_icing_modstall
-    f_vessel_icing_testmod, //!< f_vessel_icing_testmod
-    f_replace_undefined, //!< f_replace_undefined
-    f_replace_defined, //!< f_replace_defined
-    f_replace_all, //!< f_replace_all
-    f_values2classes, //!< f_values2classes
-    f_field_diff_forecast_hour, //!< f_field_diff_forecast_hour
-    f_accum_diff_forecast_hour, //!< f_accum_diff_forecast_hour
-    f_sum_of_forecast_hours,  //!< f_sum_of_forecast_hours
+    f_pressure2flightlevel,       //!< f_pressure2flightlevel
+    f_momentum_x_coordinate,      //!< f_momentum_x_coordinate; geographic
+    f_momentum_y_coordinate,      //!< f_momentum_y_coordinate; geographic
+    f_jacobian,                   //!< f_jacobian; geographic
+    f_vessel_icing_overland,      //!< f_vessel_icing_overland - obsolete
+    f_vessel_icing_mertins,       //!< f_vessel_icing_mertins - obsolete
+    f_vessel_icing_overland2,     //!< f_vessel_icing_overland
+    f_vessel_icing_mertins2,      //!< f_vessel_icing_mertins
+    f_vessel_icing_modstall,      //!< f_vessel_icing_modstall
+    f_vessel_icing_testmod,       //!< f_vessel_icing_testmod
+    f_replace_undefined,          //!< f_replace_undefined
+    f_replace_defined,            //!< f_replace_defined
+    f_replace_all,                //!< f_replace_all
+    f_values2classes,             //!< f_values2classes
+    f_field_diff_forecast_hour,   //!< f_field_diff_forecast_hour
+    f_accum_diff_forecast_hour,   //!< f_accum_diff_forecast_hour
+    f_sum_of_forecast_hours,      //!< f_sum_of_forecast_hours
     f_sum_of_fields,
     f_max_of_fields,
     f_min_of_fields,
@@ -317,24 +317,26 @@ public:
     f_index_of_fields_max,
     f_index_of_fields_min,
     f_sum,
-    f_mean_value,  //!< f_mean_value
-    f_stddev,  //!< f_stddev_value_of
-    f_probability_above,  //!< f_probability_above
-    f_probability_below,  //!< f_probability_below
-    f_probability_between,  //!< f_probability_between
+    f_mean_value,          //!< f_mean_value
+    f_stddev,              //!< f_stddev_value_of
+    f_probability_above,   //!< f_probability_above
+    f_probability_below,   //!< f_probability_below
+    f_probability_between, //!< f_probability_between
     f_number_above,
     f_number_below,
     f_number_between,
-    f_equivalent_to,  //!< f_equivalent_to
-    f_min_value,  //!< f_min_value
-    f_max_value,  //!< f_max_value
-    f_min_index,  //!< f_min_value
-    f_max_index,  //!< f_max_value
-    f_percentile,  //!< f_percentile
+    f_equivalent_to, //!< f_equivalent_to
+    f_min_value,     //!< f_min_value
+    f_max_value,     //!< f_max_value
+    f_min_index,     //!< f_min_value
+    f_max_index,     //!< f_max_value
+    f_percentile,    //!< f_percentile
     f_neighbour_percentile,
     f_neighbour_mean,
     f_neighbour_probability_above,
+    f_neighbour_probability_above2,
     f_neighbour_probability_below,
+    f_neighbour_probability_below2,
     f_neighbour_max,
     f_neighbour_min,
     f_snow_cm_from_snow_water_tk_td //!< f_snow_cm_from_snow_water_tk_td

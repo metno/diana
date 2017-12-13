@@ -514,9 +514,10 @@ TEST(FieldCalculationsTest, Neighbour)
   const float UNDEF = 123456;
 
   const int NX = 10, NY = 10;
-  float infield[NX * NY], outfield[NX * NY];
+  float infield[NX * NY], outfield[NX * NY], outfield2[NX * NY];
   std::vector<float> constants;
   difield::ValuesDefined fDefined = difield::ALL_DEFINED;
+  difield::ValuesDefined fDefined2 = difield::ALL_DEFINED;
 
   constants.push_back(NX+1);
   EXPECT_FALSE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 2, outfield, fDefined, UNDEF));
@@ -576,18 +577,28 @@ TEST(FieldCalculationsTest, Neighbour)
   }
 
   fDefined = difield::ALL_DEFINED;
+  fDefined2 = difield::ALL_DEFINED;
   std::fill(infield, infield + NX * NY, 0);
   infield[25] = 6;
   infield[26] = 6;
   infield[35] = 6;
   infield[36] = 6;
   std::fill(outfield, outfield + NX * NY, UNDEF / 2);
+  std::fill(outfield2, outfield2 + NX * NY, UNDEF / 2);
   constants.clear();
   constants.push_back(5);
   constants.push_back(2);
   constants.push_back(1);
   EXPECT_TRUE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 5, outfield, fDefined, UNDEF));
   EXPECT_EQ(difield::SOME_DEFINED, fDefined);
+  EXPECT_TRUE(FieldCalculations::neighbourProbFunctions(NX, NY, infield, constants, 5, outfield2, fDefined2, UNDEF));
+  EXPECT_EQ(difield::SOME_DEFINED, fDefined2);
+
+  for (int i = 0; i < NX; i++) {
+    for (int j = 0; j < NY; j++) {
+      EXPECT_FLOAT_EQ(outfield[i + j * NX], outfield2[i + j * NX]) << "i=" << i << " j=" << j;
+    }
+  }
 
   for (int i = 0; i < NX; i++) {
     for (int j = 0; j < NY; j++) {
@@ -606,4 +617,40 @@ TEST(FieldCalculationsTest, Neighbour)
     }
   }
 
+  fDefined = difield::ALL_DEFINED;
+  fDefined2 = difield::ALL_DEFINED;
+  std::fill(infield, infield + NX * NY, 0);
+  infield[25] = 6;
+  infield[26] = 6;
+  infield[35] = 6;
+  infield[36] = 6;
+  std::fill(outfield, outfield + NX * NY, UNDEF / 2);
+  std::fill(outfield2, outfield2 + NX * NY, UNDEF / 2);
+  constants.clear();
+  constants.push_back(5);
+  constants.push_back(3);
+  constants.push_back(1);
+  EXPECT_TRUE(FieldCalculations::neighbourFunctions(NX, NY, infield, constants, 6, outfield, fDefined, UNDEF));
+  EXPECT_EQ(difield::SOME_DEFINED, fDefined);
+  EXPECT_TRUE(FieldCalculations::neighbourProbFunctions(NX, NY, infield, constants, 6, outfield2, fDefined2, UNDEF));
+  EXPECT_EQ(difield::SOME_DEFINED, fDefined2);
+
+  for (int i = 0; i < NX; i++) {
+    for (int j = 0; j < NY; j++) {
+      EXPECT_FLOAT_EQ(outfield[i + j * NX], outfield2[i + j * NX]) << "i=" << i << " j=" << j;
+    }
+  }
+
+  for (int i = 0; i < NX; i++) {
+    for (int j = 0; j < NY; j++) {
+      float expected;
+      if (i < 3 || i >= NX - 3 || j < 3 || j >= NY - 3)
+        expected = UNDEF;
+      else if (j < 6)
+        expected = 45. / 49.;
+      else
+        expected = 47. / 49.;
+      EXPECT_FLOAT_EQ(expected, outfield[i + j * NX]) << "i=" << i << " j=" << j;
+    }
+  }
 }

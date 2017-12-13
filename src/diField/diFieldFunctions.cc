@@ -369,7 +369,9 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_neighbour_percentile, "neighbour_percentile(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_mean, "neighbour_mean(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_probability_above, "neighbour_probability_above(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_probability_above2, "neighbour_probability_above2(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_probability_below, "neighbour_probability_below(field,const:value,...)");
+  ok &= registerFunction(f, f_neighbour_probability_below2, "neighbour_probability_below2(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_max, "neighbour_max(field,const:value,...)");
   ok &= registerFunction(f, f_neighbour_min, "neighbour_min(field,const:value,...)");
   ok &= registerFunction(f, f_snow_cm_from_snow_water_tk_td, "snow.cm.from.snow.water(snow,tk,td)");
@@ -1624,6 +1626,17 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     res = neighbourFunctions(nx, ny, finp[0], constants, compute, fout[0],
         fDefined, undef);
+    break;
+
+  case f_neighbour_probability_above2:
+    if (compute == 0)
+      compute = 6;
+  case f_neighbour_probability_below2:
+    if (compute == 0)
+      compute = 5;
+    if (ninp != 1 || nout != 1 || nconst < 2)
+      break;
+    res = neighbourProbFunctions(nx, ny, finp[0], constants, compute, fout[0], fDefined, undef);
     break;
 
   case f_snow_cm_from_snow_water_tk_td:
