@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -477,15 +477,15 @@ vector<miTime> FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request
 {
   METLIBS_LOG_SCOPE();
 
-  for (size_t i = 0; i <request.size(); ++i ) {
-    if (request[i].plotDefinition) {
-      std::vector<FieldRequest> fr = getParamNames(request[i].paramName, request[i]);
+  for (FieldRequest& frq : request) {
+    if (frq.plotDefinition) {
+      std::vector<FieldRequest> fr = getParamNames(frq.paramName, frq);
       if (!fr.empty()) {
-        request[i].paramName = fr[0].paramName;
-        request[i].standard_name = fr[0].standard_name;
+        frq.paramName = fr[0].paramName;
+        frq.standard_name = fr[0].standard_name;
       }
     }
-    flightlevel2pressure(request[i]);
+    flightlevel2pressure(frq);
   }
 
   return fieldManager->getFieldTime(request, updateSources);

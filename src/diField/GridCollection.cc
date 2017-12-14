@@ -1,4 +1,33 @@
 /*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/*
  * GridCollection.cc
  *
  *  Created on: Mar 15, 2010
@@ -194,7 +223,7 @@ bool GridCollection::makeGridIOinstances()
 bool GridCollection::makeInventory(const std::string& refTime,
     bool updateSourceList)
 {
-  METLIBS_LOG_TIME();
+  METLIBS_LOG_TIME(LOGVAL(refTime) << LOGVAL(updateSourceList));
 
   bool ok = true;
   // decide if we should make new GridIO instances
@@ -205,7 +234,7 @@ bool GridCollection::makeInventory(const std::string& refTime,
   inventoryOK.clear();
   inventory.clear();
 
-  for(gridsources_t::const_iterator it_io=gridsources.begin(); it_io!=gridsources.end(); ++it_io) {
+  for (GridIO* io : gridsources) {
     // enforce the reference time limits
     //    (*itr)->setReferencetimeLimits(limit_min, limit_max); // not used yet
 
@@ -214,19 +243,19 @@ bool GridCollection::makeInventory(const std::string& refTime,
 
     // make referencetime inventory from referencetime given in filename, if possible
     if (refTime.empty()) {
-      const std::string reftime_from_filename = (*it_io)->getReferenceTime();
+      const std::string reftime_from_filename = io->getReferenceTime();
       if (!reftime_from_filename.empty()) {
         result = true;
         refTimes.insert(reftime_from_filename);
       }
     }
 
-    if (!result && (*it_io)->referenceTimeOK(refTime)) {
-      result = (*it_io)->makeInventory(refTime);
+    if (!result && io->referenceTimeOK(refTime)) {
+      result = io->makeInventory(refTime);
       METLIBS_LOG_DEBUG(LOGVAL(refTime));
       inventoryOK[refTime] = result;
       if (result)
-        inventory = inventory.merge((*it_io)->getInventory());
+        inventory = inventory.merge(io->getInventory());
     }
     ok |= result;
 
@@ -245,8 +274,8 @@ bool GridCollection::makeInventory(const std::string& refTime,
 
 bool GridCollection::sourcesChanged()
 {
-  for(gridsources_t::const_iterator it_io=gridsources.begin(); it_io!=gridsources.end(); ++it_io)
-    if ((*it_io)->sourceChanged(false))
+  for (GridIO* io : gridsources)
+    if (io->sourceChanged(false))
       return true;
   return false;
 }
@@ -254,8 +283,8 @@ bool GridCollection::sourcesChanged()
 std::vector<gridinventory::Inventory> GridCollection::getInventories() const
 {
   std::vector<gridinventory::Inventory> invs;
-  for(gridsources_t::const_iterator it_io=gridsources.begin(); it_io!=gridsources.end(); ++it_io)
-    invs.push_back((*it_io)->getInventory());
+  for (GridIO* io : gridsources)
+    invs.push_back(io->getInventory());
   return invs;
 }
 
@@ -377,7 +406,7 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
  */
 std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, const std::string& paramname)
 {
-  METLIBS_LOG_SCOPE(paramname);
+  METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
 
   std::set<miutil::miTime> settime;
 

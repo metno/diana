@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013 met.no
+ Copyright (C) 2013-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -558,20 +558,15 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
     bool updateSource)
 {
   METLIBS_LOG_SCOPE();
-  const int nfields = fieldrequest.size();
 
   std::set<miTime> tNormal;
-  miTime refTime;
   std::set<miTime> tn;
   bool allTimeSteps = false;
 
-  for (int n = 0; n < nfields; n++) {
-    const FieldRequest& frq = fieldrequest[n];
+  for (const FieldRequest& frq : fieldrequest) {
     allTimeSteps |= frq.allTimeSteps;
 
-    METLIBS_LOG_DEBUG(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName));
-    METLIBS_LOG_DEBUG(LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
-
+    METLIBS_LOG_DEBUG(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
 
     GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSource);
     if (pgc) {
@@ -585,7 +580,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
       std::string paramName = frq.paramName;
       // if fieldrequest.paramName is a standard_name, find variable_name
       if (frq.standard_name) {
-        if ( !pgc->standardname2variablename(refTimeStr, frq.paramName, paramName) )
+        if (!pgc->standardname2variablename(refTimeStr, frq.paramName, paramName))
           continue;
       }
       tNormal = pgc->getTimes(refTimeStr, paramName);
@@ -593,7 +588,7 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
     METLIBS_LOG_DEBUG(LOGVAL(tNormal.size()));
 
     if (!tNormal.empty() ) {
-      if ((frq.hourOffset != 0 || frq.minOffset != 0) ) {
+      if ((frq.hourOffset != 0 || frq.minOffset != 0)) {
         set<miTime> twork;
         for (set<miTime>::iterator pt = tNormal.begin(); pt != tNormal.end(); pt++) {
           miTime tt = *pt;
@@ -611,12 +606,10 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
         } else {
           vector<miTime> vt(tn.size());
           vector<miTime>::iterator pvt2, pvt1 = vt.begin();
-          pvt2 = set_intersection(tn.begin(), tn.end(), tNormal.begin(),
-              tNormal.end(), pvt1);
+          pvt2 = set_intersection(tn.begin(), tn.end(), tNormal.begin(), tNormal.end(), pvt1);
           tn = set<miTime>(pvt1, pvt2);
         }
       }
-
     }
   }
 
