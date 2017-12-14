@@ -141,23 +141,16 @@ void SetupParser::cleanstr(std::string& s)
 
 void SetupParser::substituteAll(std::string& s) const
 {
-  std::string::size_type p;
-  if ((p = s.find("#")) != std::string::npos)
-    s.erase(p);
-
   // substitute environment/shell variables
   checkEnvironment(s);
 
   // substitute local/setupfile variables
   checkSubstitutions(s);
 
-  miutil::remove(s, '\n');
-  miutil::trim(s);
-
   // prepare strings for easy split on '=' and ' '
   // : remove leading and trailing " " for each '='
   if (miutil::contains(s, "=") && miutil::contains(s, " ")) {
-    p = 0;
+    std::string::size_type p = 0;
     while ((p = s.find_first_of("=", p)) != std::string::npos) {
       // check for "" - do not clean out blanks inside these
       std::vector<int> sf1, sf2;
@@ -313,12 +306,12 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
   diutil::GetLineConverter convertline("#");
   std::string line;
   while (convertline(file, line)) {
+    diutil::remove_comment_and_trim(line);
     if (!lm.push(line))
       // FIXME this discards the last line if it ends with '\'
       continue;
 
-    std::string str = miutil::trimmed(lm.mergedline());
-    if (str.empty())
+    if (lm.mergedline().empty())
       continue;
 
     /*
@@ -327,6 +320,7 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
      Remove blanks around '='
      Do variable substitutions
      */
+    std::string str = lm.mergedline();
     cleanstr(str);
     if (str.empty())
       continue;

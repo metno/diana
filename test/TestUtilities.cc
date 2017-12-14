@@ -346,3 +346,22 @@ TEST(TestUtilities, LineMerger3)
   EXPECT_EQ("bad end", lines[1]);
   EXPECT_EQ(3, linenos[1]);
 }
+
+TEST(TestUtilities, RemoveCommentAndTrim)
+{
+  {
+    std::string t1 = "hei";
+    diutil::remove_comment_and_trim(t1);
+    EXPECT_EQ("hei", t1);
+  }
+  {
+    std::string t1 = "  yes # no ";
+    diutil::remove_comment_and_trim(t1);
+    EXPECT_EQ("yes", t1);
+  }
+  {
+    std::string t1 = "  hello  world ";
+    diutil::remove_comment_and_trim(t1);
+    EXPECT_EQ("hello  world", t1);
+  }
+}

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2017 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -43,11 +43,12 @@
 #include "diField/VcrossData.h"
 #include "diField/VcrossUtil.h"
 
-#include "vcross_v2/VcrossEvaluate.h"
-#include "vcross_v2/VcrossComputer.h"
 #include "diUtilities.h"
 #include "util/charsets.h"
 #include "util/math_util.h"
+#include "util/string_util.h"
+#include "vcross_v2/VcrossComputer.h"
+#include "vcross_v2/VcrossEvaluate.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puTools/TimeFilter.h>
@@ -633,7 +634,7 @@ void VprofData::renameStations()
 void VprofData::readStationList()
 {
   METLIBS_LOG_SCOPE(LOGVAL(stationsFileName));
-  stationList= true;
+  stationList = true;
 
   if (stationsFileName.empty())
     return;
@@ -647,39 +648,32 @@ void VprofData::readStationList()
   const float notFound=9999.;
   std::string str;
   diutil::GetLineConverter convertline("#");
-  while (convertline(file,str)) {
-    const std::string::size_type n= str.find('#');
-    if (n!=0) {
-      if (n!=string::npos)
-        str= str.substr(0,n);
-      miutil::trim(str);
-      if (not str.empty()) {
-        const vector<std::string> vstr = miutil::split_protected(str, '"', '"');
-        float latitude=notFound, longitude=notFound;
-        std::string name;
-        for (size_t i=0; i<vstr.size(); i++) {
-          const vector<std::string> vstr2 = miutil::split(vstr[i], "=");
-          if (vstr2.size()==2) {
-            str= miutil::to_lower(vstr2[0]);
-            if (str=="latitude")
-              latitude= atof(vstr2[1].c_str());
-            else if (str=="longitude")
-              longitude= atof(vstr2[1].c_str());
-            else if (str=="name") {
-              name= vstr2[1];
-              if (name[0]=='"' && name.length()>=3 && name[name.length()-1] == '"')
-                name= name.substr(1,name.length()-2);
-            }
-          }
-        }
-        if (latitude!=notFound && longitude!=notFound && not name.empty()) {
-          stationLatitude.push_back(latitude);
-          stationLongitude.push_back(longitude);
-          stationName.push_back(name);
+  while (convertline(file, str)) {
+    diutil::remove_comment_and_trim(str);
+    if (str.empty())
+      continue;
+
+    float latitude = notFound, longitude = notFound;
+    std::string name;
+    for (const std::string& vs : miutil::split_protected(str, '"', '"')) {
+      const vector<std::string> kv = miutil::split(vs, "=");
+      if (kv.size() == 2) {
+        const std::string key = miutil::to_lower(kv[0]);
+        if (key == "latitude")
+          latitude = miutil::to_float(kv[1]);
+        else if (key == "longitude")
+          longitude = miutil::to_float(kv[1]);
+        else if (key == "name") {
+          name = kv[1];
+          if (name[0] == '"' && name.length() >= 3 && name[name.length() - 1] == '"')
+            name = name.substr(1, name.length() - 2);
         }
       }
     }
+    if (latitude != notFound && longitude != notFound && not name.empty()) {
+      stationLatitude.push_back(latitude);
+      stationLongitude.push_back(longitude);
+      stationName.push_back(name);
+    }
   }
-
-  file.close();
 }

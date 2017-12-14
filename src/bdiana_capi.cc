@@ -295,20 +295,6 @@ static void expandTime(std::string& text, const miutil::miTime& time)
 } // namespace
 
 /*
- clean an input-string: remove preceding and trailing blanks,
- remove comments
- */
-static void cleanstr(std::string& s)
-{
-  std::string::size_type p;
-  if ((p = s.find("#")) != string::npos)
-    s.erase(p);
-
-  miutil::remove(s, '\n');
-  miutil::trim(s);
-}
-
-/*
  Recursively unpack one (or several nested) LOOP-section(s)
  1) convert a LOOP-section to multiple copies of original text
  with VARIABLES set from ARGUMENTS
@@ -497,7 +483,7 @@ int Bdiana::prepareInput(istream& is)
   diutil::LineMerger lm;
   std::string line;
   while (convertline(is, line)) {
-    cleanstr(line);
+    diutil::remove_comment_and_trim(line);
     if (lm.push(line) && !lm.mergedline().empty()) {
       tmplines.push_back(lm.mergedline());
       tmplinenumbers.push_back(lm.lineno());
