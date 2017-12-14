@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014 met.no
+  Copyright (C) 2014-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -29,6 +29,7 @@
 
 #include <diUtilities.h>
 #include <util/charsets.h>
+#include <util/diLineMerger.h>
 #include <util/format_int.h>
 #include <util/math_util.h>
 #include <util/polygon_util.h>
@@ -273,4 +274,75 @@ TEST(TestUtilities, Execute)
 
   EXPECT_EQ(1, diutil::execute("false", QStringList(), &output));
   EXPECT_TRUE(output.isEmpty());
+}
+
+TEST(TestUtilities, LineMerger)
+{
+  diutil::LineMerger lm;
+  EXPECT_TRUE(lm.push("hei"));
+
+  EXPECT_FALSE(lm.push("hell\\"));
+  EXPECT_FALSE(lm.push("o, w\\"));
+  EXPECT_TRUE(lm.push("orld!"));
+  EXPECT_EQ("hello, world!", lm.mergedline());
+
+  EXPECT_FALSE(lm.push("banana\\"));
+  EXPECT_TRUE(lm.push(""));
+  EXPECT_EQ("banana", lm.mergedline());
+
+  EXPECT_TRUE(lm.push(""));
+  EXPECT_EQ("", lm.mergedline());
+
+  EXPECT_TRUE(lm.push("\\ok"));
+  EXPECT_EQ("\\ok", lm.mergedline());
+}
+
+TEST(TestUtilities, LineMerger2)
+{
+  std::vector<std::string> lines;
+  std::vector<size_t> linenos;
+  diutil::LineMerger lm;
+  std::istringstream is("good \\\nstart\n\ngood\\\n end\n");
+  std::string line;
+  while (std::getline(is, line)) {
+    if (lm.push(line)) {
+      lines.push_back(lm.mergedline());
+      linenos.push_back(lm.lineno());
+    }
+  }
+  if (!lm.complete()) {
+    lines.push_back(lm.mergedline());
+    linenos.push_back(lm.lineno());
+  }
+
+  ASSERT_EQ(3, lines.size());
+  EXPECT_EQ("good start", lines[0]);
+  EXPECT_EQ(1, linenos[0]);
+  EXPECT_EQ("good end", lines[2]);
+  EXPECT_EQ(4, linenos[2]);
+}
+
+TEST(TestUtilities, LineMerger3)
+{
+  std::vector<std::string> lines;
+  std::vector<size_t> linenos;
+  diutil::LineMerger lm;
+  std::istringstream is("good \\\nstart\nbad end\\");
+  std::string line;
+  while (std::getline(is, line)) {
+    if (lm.push(line)) {
+      lines.push_back(lm.mergedline());
+      linenos.push_back(lm.lineno());
+    }
+  }
+  if (!lm.complete()) {
+    lines.push_back(lm.mergedline());
+    linenos.push_back(lm.lineno());
+  }
+
+  ASSERT_EQ(2, lines.size());
+  EXPECT_EQ("good start", lines[0]);
+  EXPECT_EQ(1, linenos[0]);
+  EXPECT_EQ("bad end", lines[1]);
+  EXPECT_EQ(3, linenos[1]);
 }

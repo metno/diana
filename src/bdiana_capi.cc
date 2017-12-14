@@ -41,13 +41,13 @@
 #include <iostream>
 #include <sstream>
 
+#include "diQuickMenues.h"
 #include <diAnnotationPlot.h>
 #include <diController.h>
 #include <diFieldPlot.h>
 #include <diObsManager.h>
 #include <diObsPlot.h>
 #include <diPlotModule.h>
-#include "diQuickMenues.h"
 #include <diSatManager.h>
 #include <diSatPlot.h>
 
@@ -60,6 +60,7 @@
 #include "diField/diRectangle.h"
 
 #include "util/charsets.h"
+#include "util/diLineMerger.h"
 #include "util/fimex_logging.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
@@ -486,37 +487,27 @@ int Bdiana::prepareInput(istream& is)
   lines.clear();
   linenumbers.clear();
 
-  std::string s;
-  bool merge = false, newmerge;
-
   /*
    read inputfile
    - skip blank lines
    - strip lines for comments and left/right whitespace
    - merge lines (ending with \)
    */
-
   diutil::GetLineConverter convertline("#");
-  size_t linenum = 0;
-  while (convertline(is, s)) {
-    linenum++;
-    cleanstr(s);
-    const size_t n = s.length();
-    if (n > 0) {
-      newmerge = false;
-      if (s[n - 1] == '\\') {
-        newmerge = true;
-        s = s.substr(0, s.length() - 1);
-      }
-      if (merge) {
-        tmplines[tmplines.size() - 1] += s;
-      } else {
-        tmplines.push_back(s);
-        tmplinenumbers.push_back(linenum);
-      }
-      merge = newmerge;
+  diutil::LineMerger lm;
+  std::string line;
+  while (convertline(is, line)) {
+    cleanstr(line);
+    if (lm.push(line) && !lm.mergedline().empty()) {
+      tmplines.push_back(lm.mergedline());
+      tmplinenumbers.push_back(lm.lineno());
     }
   }
+  if (!lm.complete() && !lm.mergedline().empty()) {
+    tmplines.push_back(lm.mergedline());
+    tmplinenumbers.push_back(lm.lineno());
+  }
+
   // unpack loops and lists
   unpackinput(tmplines, tmplinenumbers, lines, linenumbers);
 

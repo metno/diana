@@ -33,6 +33,7 @@
 
 #include "diUtilities.h"
 #include "util/charsets.h"
+#include "util/diLineMerger.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -295,9 +296,6 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
   std::string sectname = origsect;
   std::list<std::string> sectstack;
 
-  std::string str;
-  int n, ln = 0, linenum;
-
   // open filestream
   std::ifstream file(filename.c_str());
   if (!file) {
@@ -311,43 +309,17 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
    - merge lines ending with \
     - accumulate strings for each section
    */
-  std::string tmpstr;
-  int tmpln=0;
-  bool merge = false, newmerge;
-
+  diutil::LineMerger lm;
   diutil::GetLineConverter convertline("#");
-  while (convertline(file, str)) {
-    ln++;
-    miutil::trim(str);
-    n = str.length();
-    if (n == 0)
+  std::string line;
+  while (convertline(file, line)) {
+    if (!lm.push(line))
+      // FIXME this discards the last line if it ends with '\'
       continue;
 
-    /*
-     check for linemerging
-     */
-    newmerge = false;
-    if (str[n - 1] == '\\') {
-      newmerge = true;
-      str = str.substr(0, str.length() - 1);
-    }
-    if (merge) { // this is at least the second merge-line..
-      tmpstr += str;
-      if (newmerge)
-        continue; // and there is more, go to next line
-      str = tmpstr; // We are finished: go to checkout
-      linenum = tmpln;
-      merge = false;
-
-    } else if (newmerge) { // This is the start of a merge
-      tmpln = ln;
-      tmpstr = str;
-      merge = true;
-      continue; // go to next line
-
-    } else { // no merge at all
-      linenum = ln;
-    }
+    std::string str = miutil::trimmed(lm.mergedline());
+    if (str.empty())
+      continue;
 
     /*
      Remove preceding and trailing blanks.
@@ -356,9 +328,10 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
      Do variable substitutions
      */
     cleanstr(str);
-    n = str.length();
-    if (n == 0)
+    if (str.empty())
       continue;
+
+    const size_t n = str.length();
 
     /*
      Check each line..
@@ -382,7 +355,7 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
     } else if (diutil::startswith(str, "%include")) {
       //  include other setupfiles
       if (n < 10) {
-        internalErrorMsg(filename, linenum, "Missing filename for include");
+        internalErrorMsg(filename, lm.lineno(), "Missing filename for include");
         return false;
       }
       const std::string nextfile = miutil::trimmed(str.substr(8));
@@ -405,8 +378,7 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
        Only valid inside a section
        */
       if (sectname == undefsect) {
-        std::string error = "CLEAR only valid within a section";
-        internalErrorMsg(filename, linenum, error);
+        internalErrorMsg(filename, lm.lineno(), "CLEAR only valid within a section");
         continue;
       }
       std::map<std::string,SetupSection>::iterator its = sectionm.find(sectname);
@@ -425,15 +397,13 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
           const std::string key_up = miutil::to_upper(key);
           substitutions.insert(std::make_pair(key_up, value)); // map.insert does not overwrite!
         } else {
-          METLIBS_LOG_WARN("setupfile line " << linenum << " in file "
-              << filename
-              << " is no variabledefinition, and is outside all sections:");
+          METLIBS_LOG_WARN("setupfile line " << lm.lineno() << " in file " << filename << " is no variabledefinition, and is outside all sections:");
         }
         continue;
       }
       // add strings to appropriate section
       sectionm[sectname].strlist.push_back(str);
-      sectionm[sectname].linenum.push_back(linenum);
+      sectionm[sectname].linenum.push_back(lm.lineno());
       sectionm[sectname].filenum.push_back(activefile);
     }
   }
@@ -442,9 +412,7 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
 
   // File should start and end in same section
   if (sectname != origsect) {
-    std::string error = "File started in section " + origsect
-        + " and ended in section " + sectname;
-    internalErrorMsg(filename, linenum, error);
+    internalErrorMsg(filename, lm.lineno(), "File started in section " + origsect + " and ended in section " + sectname);
     return false;
   }
   return true;

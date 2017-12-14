@@ -178,6 +178,7 @@ SET (LIBDIANA_SOURCES
   util/charsets.cc
   util/debug_timer.cc
   util/diKeyValue.cc
+  util/diLineMerger.cc
   util/fimex_logging.cc
   util/format_int.cc
   util/math_util.cc
