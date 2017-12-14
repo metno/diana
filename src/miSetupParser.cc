@@ -1,8 +1,39 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include "diana_config.h"
 
 #include "miSetupParser.h"
 
+#include "diUtilities.h"
 #include "util/charsets.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -251,26 +282,13 @@ std::vector<KeyValue> SetupParser::splitManyKeyValue(const std::string& line, bo
   return kvs;
 }
 
-/*
- * parse one setupfile
- *
- */
-
-bool SetupParser::parseFile(const std::string& filename, // name of file
-    const std::string& section, // inherited section
-    int level) // recursive level
+bool SetupParser::parseFile(const std::string& filename, const std::string& section, const int level)
 {
+  METLIBS_LOG_INFO(" " << std::string(level + 1, '.') << " reading \t[" << filename << "]");
+
   // list of filenames, index to them
   sfilename.push_back(filename);
   int activefile = sfilename.size() - 1;
-
-  // ====== just output
-  level++;
-  std::string dummy = " ";
-  for (int i = 0; i <= level; i++)
-    dummy += ".";
-  METLIBS_LOG_INFO(dummy << " reading \t[" << filename << "] ");
-  // ===================
 
   const std::string undefsect = "_UNDEF_";
   std::string origsect = (not section.empty() ? section : undefsect);
@@ -361,19 +379,25 @@ bool SetupParser::parseFile(const std::string& filename, // name of file
         sectname = str.substr(1, n - 2);
       }
 
-    } else if (str.substr(0, 8) == "%include") {
-      /*
-       include another setupfile
-       */
+    } else if (diutil::startswith(str, "%include")) {
+      //  include other setupfiles
       if (n < 10) {
-        std::string error = "Missing filename for include";
-        internalErrorMsg(filename, linenum, error);
+        internalErrorMsg(filename, linenum, "Missing filename for include");
         return false;
       }
-      std::string nextfile = str.substr(8, n);
-      miutil::trim(nextfile);
-      if (!parseFile(nextfile, sectname, level))
+      const std::string nextfile = miutil::trimmed(str.substr(8));
+#if 1
+      if (!parseFile(nextfile, sectname, level + 1))
         return false;
+#else
+      // support glob pattern in %include
+      std::vector<std::string> nextfiles = diutil::glob(nextfile);
+      std::sort(nextfiles.begin(), nextfiles.end());
+      for (const std::string& nf : nextfiles) {
+        if (!parseFile(nf, sectname, level + 1))
+          return false;
+      }
+#endif
 
     } else if (miutil::to_upper(str) == "CLEAR") {
       /*
@@ -457,10 +481,7 @@ bool SetupParser::parseFile(const std::string& mainfilename)
      }
    }
 
-  if (!parseFile(mainfilename, "", -1))
-    return false;
-
-  return true;
+   return parseFile(mainfilename, "", 0);
 }
 
 // report an error with filename and linenumber

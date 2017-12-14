@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2017 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -67,8 +67,13 @@ private:
   void substituteAll(std::string& s) const;
 
   bool parseFile(const std::string& mainfilename);
-  bool parseFile(const std::string& filename,
-      const std::string& section, int level);
+
+  /*! parse one setupfile
+   * \param filename name of file
+   * \param section inherited section
+   * \param level recursive level, 0 == top level file
+   */
+  bool parseFile(const std::string& filename, const std::string& section, const int level);
 
   SetupParser();
   SetupParser& operator=(const SetupParser&);
