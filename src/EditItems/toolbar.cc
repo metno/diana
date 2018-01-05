@@ -154,9 +154,12 @@ ToolBar::ToolBar(QWidget *parent)
     polyLineList_->addItem(item);
   }
 
-  polyLineList_->setCurrentRow(0);
-  polyLineList_->item(0)->setSelected(true);
-  setPolyLineType(polyLineList_->item(0));
+  if (polyLineList_->count() > 0) {
+    polyLineList_->setCurrentRow(0);
+    QListWidgetItem* i0 = polyLineList_->item(0);
+    i0->setSelected(true);
+    setPolyLineType(i0);
+  }
 
   // *** create symbol ***
   symbolWidget = new QDockWidget("Symbols",parent,Qt::WindowStaysOnTopHint);
@@ -187,9 +190,14 @@ ToolBar::ToolBar(QWidget *parent)
     addSymbols(section, names);
   }
 
-  symbolList_->setCurrentRow(0);
-  symbolList_->item(0)->setSelected(true);
-  setSymbolType(symbolList_->item(0));
+  if (symbolList_->count() > 0) {
+    symbolList_->setCurrentRow(0);
+    QListWidgetItem* i0 = symbolList_->item(0);
+    i0->setSelected(true);
+    setSymbolType(i0);
+    //  symbolList_->item(0)->setSelected(true);
+    //  setSymbolType(symbolList_->item(0));
+  }
 
   // *** create text ***
   textWidget = new QDockWidget("Texts",parent,Qt::WindowStaysOnTopHint);
