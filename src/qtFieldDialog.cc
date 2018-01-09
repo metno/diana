@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1942,10 +1942,14 @@ void FieldDialog::enableFieldOptions()
         ncv = miutil::find(vpcopt, PlotOptions::key_linevalues),
         nclv = miutil::find(vpcopt, PlotOptions::key_loglinevalues);
     if (nci  != npos or ncv != npos or nclv != npos) {
+      bool enable_values = true;
       if (nci != npos && CommandParser::isFloat(vpcopt[nci].value())) {
         float ekv = vpcopt[nci].toFloat();
         lineintervals = numberList(lineintervalCbox, ekv,true);
         lineintervals2 = numberList(interval2ComboBox, ekv,true);
+        enable_values = false;
+      } else {
+        lineintervalCbox->setCurrentIndex(0);
       }
       if (ncv != npos) {
         linevaluesField->setText(QString::fromStdString(vpcopt[ncv].value()));
@@ -1954,8 +1958,8 @@ void FieldDialog::enableFieldOptions()
         linevaluesField->setText(QString::fromStdString(vpcopt[nclv].value()));
         linevaluesLogCheckBox->setChecked(true);
       }
-      linevaluesField->setEnabled(nci != npos);
-      linevaluesLogCheckBox->setEnabled(nci != npos);
+      linevaluesField->setEnabled(enable_values);
+      linevaluesLogCheckBox->setEnabled(enable_values);
     }
     if ((nc = miutil::find(vpcopt, PlotOptions::key_lineinterval_2)) != npos
         && (CommandParser::isFloat(vpcopt[nc].value()))) {
@@ -3525,70 +3529,68 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
   ivstr++;
 }
 
-void FieldDialog::checkFieldOptions(miutil::KeyValue_v& vplog)
+// static
+void FieldDialog::mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(vplog));
+  if (opts.empty())
+    return;
 
-  //merging fieldOptions from str whith current fieldOptions from same field
+  miutil::KeyValue_v new_fieldopts;
+  for (const miutil::KeyValue& kv : fieldopts) {
+    if (cp__idnum1.count(kv.key()))
+      new_fieldopts.push_back(kv);
+  }
 
-  std::string fieldname;
+  // skip "line.interval" from default options if "(log.)line.values" are given
+  if (miutil::find(fieldopts, PlotOptions::key_linevalues) != npos || miutil::find(fieldopts, PlotOptions::key_loglinevalues) != npos) {
+    size_t i_interval;
+    while ((i_interval = miutil::find(opts, PlotOptions::key_lineinterval)) != npos) {
+      opts.erase(opts.begin() + i_interval);
+    }
+  }
 
-  miutil::KeyValue_v newstr;
-  int nlog = vplog.size();
+  // loop through current options, replace the value if the new string has same option with different value
+  for (miutil::KeyValue& opt : opts) {
+    const size_t i = miutil::find(fieldopts, opt.key());
+    if (i != npos) {
+      // there is no option with variable no. of values, YET !!!!!
+      if (fieldopts[i].value() != opt.value())
+        opt = fieldopts[i];
+    }
+  }
+
+  // loop through new options, add new option if it is not a part of current options
+  for (miutil::KeyValue& fopt : fieldopts) {
+    if (fopt.key() == "level" || fopt.key() == "idnum")
+      continue;
+
+    const size_t j = miutil::find(opts, fopt.key());
+    if (j == npos) {
+      opts.push_back(fopt);
+    }
+  }
+
+  diutil::insert_all(new_fieldopts, opts);
+  std::swap(new_fieldopts, fieldopts);
+}
+
+void FieldDialog::checkFieldOptions(miutil::KeyValue_v& fieldopts)
+{
+  // merging fieldOptions from fieldopts whith current fieldOptions from same field
+  METLIBS_LOG_SCOPE(LOGVAL(fieldopts));
 
   // find fieldname
-  for (unsigned int j = 0; j < vplog.size(); j++) {
-    if (vplog[j].key() == "plot" || vplog[j].key() == "parameter") {
-      fieldname = vplog[j].value();
-      break;
-    }
+  std::string fieldname;
+  size_t i_fn = miutil::find(fieldopts, "plot");
+  if (i_fn == npos)
+    i_fn = miutil::find(fieldopts, "parameter");
+  if (i_fn != npos)
+    fieldname = fieldopts[i_fn].value();
+
+  if (!fieldname.empty()) {
+    // merge with options from setup/logfile for this fieldname
+    mergeFieldOptions(fieldopts, getFieldOptions(fieldname, true));
   }
-
-  if ( !fieldname.empty() ) {
-    miutil::KeyValue_v vpopt = getFieldOptions(fieldname, true);
-
-    if (!vpopt.empty()) {
-      int nopt = vpopt.size();
-      //##################################################################
-      //      METLIBS_LOG_DEBUG("    nopt= " << nopt << "  nlog= " << nlog);
-      //      for (int j=0; j<nlog; j++)
-      //        METLIBS_LOG_DEBUG("        log " << j << " : id " << vplog[j].idNumber
-      //        << "  " << vplog[j].key << " = " << vplog[j].allValue);
-      //##################################################################
-
-      for (const miutil::KeyValue& kv : vplog) {
-        if (cp__idnum1.count(kv.key()))
-          newstr.push_back(kv);
-      }
-
-      //loop through current options, replace the value if the new string has same option with different value
-      for (int j = 0; j < nopt; j++) {
-        int i = 0;
-        while (i < nlog && vplog[i].key() != vpopt[j].key())
-          i++;
-        if (i < nlog) {
-          // there is no option with variable no. of values, YET !!!!!
-          if (vplog[i].value() != vpopt[j].value())
-            vpopt[j] = vplog[i];
-        }
-      }
-
-      //loop through new options, add new option if it is not a part of current options
-      for (int i = 2; i < nlog; i++) {
-        if (vplog[i].key() != "level" && vplog[i].key() != "idnum") {
-          int j = 0;
-          while (j < nopt && vpopt[j].key() != vplog[i].key())
-            j++;
-          if (j == nopt) {
-            vpopt.push_back(vplog[i]);
-          }
-        }
-      }
-
-      diutil::insert_all(newstr, vpopt);
-    }
-  }
-  std::swap(newstr, vplog);
 }
 
 void FieldDialog::deleteSelected()

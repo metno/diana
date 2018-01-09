@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2016 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -145,6 +145,12 @@ public:
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
 
+  /*! Merge field options from command (e.g. quick menu) and setup/logfile.
+   * \param fieldopts options from command, will be updated
+   * \param opts options from setup/logfile
+   */
+  static void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts);
+
 protected:
   void closeEvent(QCloseEvent*) override;
 
@@ -168,9 +174,8 @@ private:
   void updateTime();
   void setLevel();
   void setIdnum();
-  void getFieldGroups(const std::string& model, const std::string& refTime,
-      bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
-  void checkFieldOptions(miutil::KeyValue_v &str);
+  void getFieldGroups(const std::string& model, const std::string& refTime, bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
+  void checkFieldOptions(miutil::KeyValue_v& fieldopts);
   miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
 
   void toolTips();

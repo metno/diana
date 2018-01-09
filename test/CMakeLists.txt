@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017 met.no
+#  Copyright (C) 2017-2018 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -58,10 +58,8 @@ METNO_HEADERS(dianaUnitTests_QTHEADERS   "cc" "h" ${dianaUnitTests_QTSOURCES})
 
 SET (dianaUnitTests_SOURCES
   ${dianaUnitTests_QTSOURCES}
-  TestDianaLevels.cc
-  TestVcrossComputer.cc
-  TestVprofData.cc
   TestCommandParser.cc
+  TestDianaLevels.cc
   TestLogFileIO.cc
   TestPlotCommands.cc
   TestPlotOptions.cc
@@ -70,6 +68,8 @@ SET (dianaUnitTests_SOURCES
   TestSatImg.cc
   TestSetupParser.cc
   TestUtilities.cc
+  TestVcrossComputer.cc
+  TestVprofData.cc
   TestWebMap.cc
   gtestMainQCA.cc
 
@@ -126,6 +126,7 @@ ADD_TEST(NAME diFieldTest
 ########################################################################
 
 SET (dianaGuiTests_SOURCES
+  TestFieldDialog.cc
   TestGLPainter.cc
   TestPdfSink.cc
   TestVcrossGui.cc
