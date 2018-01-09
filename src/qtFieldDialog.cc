@@ -188,9 +188,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   editName = tr("EDIT").toStdString();
 
-
-  int i;
-
   // get all field plot options from setup file
   vector<std::string> fieldNames;
   m_ctrl->getAllFieldNames(fieldNames);
@@ -232,13 +229,13 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // density (of arrows etc, 0=automatic)
   QString qs;
   densityStringList << "Auto";
-  for (i = 1; i < 10; i++) {
+  for (int i = 1; i < 10; i++) {
     densityStringList << qs.setNum(i);
   }
-  for (i = 10; i < 30; i += 5) {
+  for (int i = 10; i < 30; i += 5) {
     densityStringList << qs.setNum(i);
   }
-  for (i = 30; i < 60; i += 10) {
+  for (int i = 30; i < 60; i += 10) {
     densityStringList << qs.setNum(i);
   }
   densityStringList << qs.setNum(100);
@@ -2302,7 +2299,7 @@ void FieldDialog::setDefaultFieldOptions()
   hourDiffSpinBox->blockSignals(false);
 }
 
-void FieldDialog::enableWidgets(std::string plottype)
+void FieldDialog::enableWidgets(const std::string& plottype)
 {
   METLIBS_LOG_SCOPE("plottype="<<plottype);
 
@@ -2391,9 +2388,9 @@ vector<std::string> FieldDialog::numberList(QComboBox* cBox, float number, bool 
 
 void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
 {
-  float ekv=10;
-  if (lineintervalCbox->currentIndex() >0 && !lineintervalCbox->currentText().isNull()) {
-    ekv = atof(lineintervalCbox->currentText().toLatin1());
+  float ekv = 10;
+  if (lineintervalCbox->currentIndex() > 0 && !lineintervalCbox->currentText().isNull()) {
+    ekv = lineintervalCbox->currentText().toFloat();
   }
 
   int n;
@@ -2473,18 +2470,17 @@ void FieldDialog::lineTypeCboxActivated(int index)
 
 void FieldDialog::lineintervalCboxActivated(int index)
 {
-  if (index == 0) {
+  const bool interval_off = (index == 0);
+  linevaluesField->setEnabled(interval_off);
+  linevaluesLogCheckBox->setEnabled(interval_off);
+  if (interval_off) {
     updateFieldOptions(PlotOptions::key_lineinterval, REMOVE);
-    linevaluesField->setEnabled(true);
-    linevaluesLogCheckBox->setEnabled(true);
     linevaluesFieldEdited();
   } else {
     updateFieldOptions(PlotOptions::key_lineinterval, lineintervals[index]);
     // update the list (with selected value in the middle)
-    float a = atof(lineintervals[index].c_str());
+    float a = miutil::to_float(lineintervals[index]);
     lineintervals = numberList(lineintervalCbox, a, true);
-    linevaluesField->setEnabled(false);
-    linevaluesLogCheckBox->setEnabled(false);
     updateFieldOptions(PlotOptions::key_linevalues, REMOVE);
     updateFieldOptions(PlotOptions::key_loglinevalues, REMOVE);
   }

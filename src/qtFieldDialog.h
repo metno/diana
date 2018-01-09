@@ -161,7 +161,7 @@ protected:
 private:
   void updateModelBoxes();
   void setDefaultFieldOptions();
-  void enableWidgets(std::string plottype);
+  void enableWidgets(const std::string& plottype);
   void enableFieldOptions();
   void enableType2Options(bool);
   void updateFieldOptions(const std::string& key, const std::string& value);
