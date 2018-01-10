@@ -2976,24 +2976,23 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   enum { NONE, MIN, MAX, BOTH } extremeValue = NONE;
   std::string extremeType = miutil::to_upper(poptions.extremeType);
   vector<std::string> vextremetype = miutil::split(extremeType, "+");
-  if (vextremetype.size() > 0 && !miutil::contains(vextremetype[0], "VALUE")) {
-    pmarks[0] = vextremetype[0];
-    extremeString = true;
-  }
-  if (vextremetype.size() > 1 && !miutil::contains(vextremetype[1], "VALUE")) {
-    pmarks[1] = vextremetype[1];
-    extremeString = true;
-  }
-  if (vextremetype.size() > 0
-      && vextremetype[vextremetype.size() - 1] == "MINVALUE") {
-    extremeValue = MIN;
-  } else if (vextremetype.size() > 0
-      && vextremetype[vextremetype.size() - 1] == "MAXVALUE") {
-    extremeValue = MAX;
-    pmarks[1] = pmarks[0];
-  } else if (vextremetype.size() > 0
-      && vextremetype[vextremetype.size() - 1] == "VALUE") {
-    extremeValue = BOTH;
+  if (vextremetype.size() > 0) {
+    if (!miutil::contains(vextremetype[0], "VALUE")) {
+      pmarks[0] = vextremetype[0];
+      extremeString = true;
+    }
+    if (vextremetype.size() > 1 && !miutil::contains(vextremetype[1], "VALUE")) {
+      pmarks[1] = vextremetype[1];
+      extremeString = true;
+    }
+    if (vextremetype.back() == "MINVALUE") {
+      extremeValue = MIN;
+    } else if (vextremetype.back() == "MAXVALUE") {
+      extremeValue = MAX;
+      pmarks[1] = pmarks[0];
+    } else if (vextremetype.back() == "VALUE") {
+      extremeValue = BOTH;
+    }
   }
 
   gl->setColour(poptions.linecolour, false);
