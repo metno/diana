@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -2972,9 +2972,8 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   iy2++;
 
   std::string pmarks[2];
-  //int bextremevalue=0;
   bool extremeString = false;
-  std::string extremeValue = "none";
+  enum { NONE, MIN, MAX, BOTH } extremeValue = NONE;
   std::string extremeType = miutil::to_upper(poptions.extremeType);
   vector<std::string> vextremetype = miutil::split(extremeType, "+");
   if (vextremetype.size() > 0 && !miutil::contains(vextremetype[0], "VALUE")) {
@@ -2987,14 +2986,14 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   }
   if (vextremetype.size() > 0
       && vextremetype[vextremetype.size() - 1] == "MINVALUE") {
-    extremeValue = "min";
+    extremeValue = MIN;
   } else if (vextremetype.size() > 0
       && vextremetype[vextremetype.size() - 1] == "MAXVALUE") {
-    extremeValue = "max";
+    extremeValue = MAX;
     pmarks[1] = pmarks[0];
   } else if (vextremetype.size() > 0
       && vextremetype[vextremetype.size() - 1] == "VALUE") {
-    extremeValue = "both";
+    extremeValue = BOTH;
   }
 
   gl->setColour(poptions.linecolour, false);
@@ -3081,9 +3080,7 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
             fmax = f;
         }
 
-        if (fmax != fieldUndef
-            && ((fmin >= fpos && extremeValue != "max")
-                || (fmax <= fpos && extremeValue != "min")) && fmin != fmax) {
+        if (fmax != fieldUndef && ((fmin >= fpos && extremeValue != MAX) || (fmax <= fpos && extremeValue != MIN)) && fmin != fmax) {
           // scan a larger area
 
           j = (iy - nscan > 0) ? iy - nscan : 0;
@@ -3185,7 +3182,7 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
                 } else {
                   gl->drawText(pmarks[etype], gx - chrx * 0.5,
                       gy - chry * 0.5, 0.0);
-                  if (extremeValue != "none") {
+                  if (extremeValue != NONE) {
                     float fontsize = 18. * poptions.extremeSize;
                     gl->setFont(poptions.fontname, poptions.fontface, fontsize);
                     const QString str = QString::number(fpos, 'f', poptions.precision);
