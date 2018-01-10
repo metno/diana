@@ -2996,8 +2996,9 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
 
   gl->setColour(poptions.linecolour, false);
 
-  float fontsize = 28. * poptions.extremeSize;
-  gl->setFont(poptions.fontname, poptions.fontface, fontsize);
+  const float fontsizeHuge = 28. * poptions.extremeSize;
+  const float fontsizeBig = 18. * poptions.extremeSize;
+  gl->setFont(poptions.fontname, poptions.fontface, fontsizeHuge);
 
   float chrx, chry;
   gl->getCharSize('L', chrx, chry);
@@ -3178,16 +3179,13 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
                   const QString str = QString::number(fpos, 'f', poptions.precision);
                   gl->drawText(str, gx - chrx * 0.5, gy - chry * 0.5, 0.0);
                 } else {
-                  gl->drawText(pmarks[etype], gx - chrx * 0.5,
-                      gy - chry * 0.5, 0.0);
+                  gl->drawText(pmarks[etype], gx - chrx * 0.5, gy - chry * 0.5, 0.0);
                   if (extremeValue != NONE) {
-                    float fontsize = 18. * poptions.extremeSize;
-                    gl->setFont(poptions.fontname, poptions.fontface, fontsize);
+                    gl->setFontSize(fontsizeBig);
                     const QString str = QString::number(fpos, 'f', poptions.precision);
                     gl->drawText(str, gx - chrx * (-0.6), gy - chry * 0.8, 0.0);
+                    gl->setFontSize(fontsizeHuge);
                   }
-                  float fontsize = 28. * poptions.extremeSize;
-                  gl->setFont(poptions.fontname, poptions.fontface, fontsize);
                 }
               }
             }
