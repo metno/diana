@@ -2919,47 +2919,13 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   int nx = fields[0]->area.nx;
   int ny = fields[0]->area.ny;
 
-  int ix1, ix2, iy1, iy2;
 
   // convert gridpoints to correct projection
   float *x, *y;
+  int ix1, ix2, iy1, iy2;
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
-  int ix, iy, n, i, j, k;
-  float dx, dy, avgdist;
-
-  //find avg. dist. between grid points
-  int i1 = (ix1 > 1) ? ix1 : 1;
-  int i2 = (ix2 < nx - 2) ? ix2 : nx - 2;
-  int j1 = (iy1 > 1) ? iy1 : 1;
-  int j2 = (iy2 < ny - 2) ? iy2 : ny - 2;
-  int ixstp = (i2 - i1) / 5;
-  if (ixstp < 1)
-    ixstp = 1;
-  int iystp = (j2 - j1) / 5;
-  if (iystp < 1)
-    iystp = 1;
-  avgdist = 0.;
-  n = 0;
-  for (iy = j1; iy < j2; iy += iystp) {
-    for (ix = i1; ix < i2; ix += ixstp) {
-      i = iy * nx + ix;
-      dx = x[i + 1] - x[i];
-      dy = y[i + 1] - y[i];
-      avgdist += diutil::absval(dx , dy);
-      dx = x[i + nx] - x[i];
-      dy = y[i + nx] - y[i];
-      avgdist += diutil::absval(dx , dy);
-      n += 2;
-    }
-  }
-  if (n > 0)
-    avgdist = avgdist / float(n);
-  else
-    avgdist = 1.;
-
-  //
   if (ix1 < 1)
     ix1 = 1;
   if (ix2 > nx - 2)
@@ -2968,6 +2934,29 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
     iy1 = 1;
   if (iy2 > ny - 2)
     iy2 = ny - 2;
+
+  //find avg. dist. between grid points
+  int ixstp = std::max((ix2 - ix1) / 5, 1);
+  int iystp = std::max((iy2 - iy1) / 5, 1);
+  float avgdist = 0;
+  int navg = 0;
+  for (int iy = iy1; iy < iy2; iy += iystp) {
+    for (int ix = ix1; ix < ix2; ix += ixstp) {
+      int i = iy * nx + ix;
+      float dx = x[i + 1] - x[i];
+      float dy = y[i + 1] - y[i];
+      avgdist += diutil::absval(dx , dy);
+      dx = x[i + nx] - x[i];
+      dy = y[i + nx] - y[i];
+      avgdist += diutil::absval(dx , dy);
+      navg += 2;
+    }
+  }
+  if (navg > 0)
+    avgdist = avgdist / float(navg);
+  else
+    avgdist = 1.;
+
   ix2++;
   iy2++;
 
@@ -3002,36 +2991,30 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
 
   float chrx, chry;
   gl->getCharSize('L', chrx, chry);
-  // approx. real height for the character (width is ok)
-  chry *= 0.75;
-  float size = chry < chrx ? chrx : chry;
+  chry *= 0.75; // approx. real height for the character (width is ok)
+  const float size = std::max(chry, chrx);
 
-  float radius = 3.0 * size * poptions.extremeRadius;
-  //int nscan = int(radius/avgdist+0.9);
-  int nscan = int(radius / avgdist);
-  if (nscan < 2)
-    nscan = 2;
-  float rg = float(nscan);
+  const float radius = 3.0 * size * poptions.extremeRadius;
+  const int nscan = std::max(int(radius / avgdist), 2);
+  const float rg = float(nscan), rg2 = diutil::square(rg);
 
   // for scan of surrounding positions
-  int mscan = nscan * 2 + 1;
-  int *iscan = new int[mscan];
-  float rg2 = rg * rg;
+  const int mscan = nscan * 2 + 1;
+  std::unique_ptr<int[]> iscan(new int[mscan]);
   iscan[nscan] = nscan;
-  for (j = 1; j <= nscan; j++) {
-    dy = float(j);
-    dx = sqrtf(rg2 - dy * dy);
-    i = int(dx + 0.5);
+  for (int j = 1; j <= nscan; j++) {
+    float dx = sqrtf(rg2 - diutil::square(j));
+    int i = int(dx + 0.5);
     iscan[nscan - j] = i;
     iscan[nscan + j] = i;
   }
 
   // for test of gradients in the field
   int igrad[4][6];
-  int nscan45degrees = int(sqrtf(rg2 * 0.5) + 0.5);
+  const int nscan45degrees = int(sqrtf(rg2 * 0.5) + 0.5);
 
-  for (k = 0; k < 4; k++) {
-    i = j = 0;
+  for (int k = 0; k < 4; k++) {
+    int i = 0, j = 0;
     if (k == 0)
       j = nscan;
     else if (k == 1)
@@ -3051,28 +3034,31 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   }
 
   // the nearest grid points
-  int near[8] = { -nx - 1, -nx, -nx + 1, -1, 1, nx - 1, nx, nx + 1 };
-
-  float gx, gy, fpos, fmin, fmax, f, f1, f2, gbest, fgrad;
-  int p, pp, l, iend, jend, ibest, jbest, ngrad, etype;
-  bool ok;
+  const int near[8] = {-nx - 1, -nx, -nx + 1, -1, 1, nx - 1, nx, nx + 1};
 
   Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(-size * 0.5);
 
-  for (iy = iy1; iy < iy2; iy++) {
-    for (ix = ix1; ix < ix2; ix++) {
-      p = iy * nx + ix;
-      gx = x[p];
-      gy = y[p];
-      if (fields[0]->data[p] != fieldUndef && ms.isnear(gx, gy)) {
-        fpos = fields[0]->data[p];
+  for (int iy = iy1; iy < iy2; iy++) {
+    for (int ix = ix1; ix < ix2; ix++) {
+      const int p = iy * nx + ix;
+      const float fpos = fields[0]->data[p];
+      if (fpos == fieldUndef)
+        continue;
+      if (!(fpos < poptions.maxvalue && fpos > poptions.minvalue))
+        continue;
 
+      const float gx = x[p];
+      const float gy = y[p];
+      if (!ms.isnear(gx, gy))
+        continue;
+
+      {
         // first check the nearest gridpoints
-        fmin = fieldUndef;
-        fmax = -fieldUndef;
-        for (j = 0; j < 8; j++) {
-          f = fields[0]->data[p + near[j]];
+        float fmin = fieldUndef;
+        float fmax = -fieldUndef;
+        for (int j = 0; j < 8; j++) {
+          const float f = fields[0]->data[p + near[j]];
           if (fmin > f)
             fmin = f;
           if (fmax < f)
@@ -3082,52 +3068,31 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
         if (fmax != fieldUndef && ((fmin >= fpos && extremeValue != MAX) || (fmax <= fpos && extremeValue != MIN)) && fmin != fmax) {
           // scan a larger area
 
-          j = (iy - nscan > 0) ? iy - nscan : 0;
-          jend = (iy + nscan + 1 < ny) ? iy + nscan + 1 : ny;
-          ok = true;
-          etype = -1;
+          bool ok = true;
+          const bool is_minimum = (fmin >= fpos); // minimum at pos ix,iy
           vector<int> pequal;
 
-          if (fmin >= fpos) {
-            // minimum at pos ix,iy
-            etype = 0;
-            while (j < jend && ok) {
-              n = iscan[nscan + iy - j];
-              i = (ix - n > 0) ? ix - n : 0;
-              iend = (ix + n + 1 < nx) ? ix + n + 1 : nx;
-              for (; i < iend; i++) {
-                f = fields[0]->data[j * nx + i];
-                if (f != fieldUndef) {
-                  if (f < fpos)
-                    ok = false;
-                  else if (f == fpos)
-                    pequal.push_back(j * nx + i);
-                }
+          const int jbeg = std::max(iy - nscan, 0);
+          const int jend = std::min(iy + nscan + 1, ny);
+          for (int j = jbeg; j < jend && ok; ++j) {
+            const int n = iscan[nscan + iy - j];
+            const int ibeg = std::max(ix - n, 0);
+            const int iend = std::min(ix + n + 1, nx);
+            for (int i = ibeg; i < iend; i++) {
+              const int ppp = j * nx + i;
+              const float f = fields[0]->data[ppp];
+              if (f != fieldUndef) {
+                if ((is_minimum && f < fpos) || (!is_minimum && f > fpos))
+                  ok = false;
+                else if (f == fpos)
+                  pequal.push_back(ppp);
               }
-              j++;
-            }
-          } else {
-            // maximum at pos ix,iy
-            etype = 1;
-            while (j < jend && ok) {
-              n = iscan[nscan + iy - j];
-              i = (ix - n > 0) ? ix - n : 0;
-              iend = (ix + n + 1 < nx) ? ix + n + 1 : nx;
-              for (; i < iend; i++) {
-                f = fields[0]->data[j * nx + i];
-                if (f != fieldUndef) {
-                  if (f > fpos)
-                    ok = false;
-                  else if (f == fpos)
-                    pequal.push_back(j * nx + i);
-                }
-              }
-              j++;
             }
           }
 
           if (ok) {
-            n = pequal.size();
+            int ibest, jbest;
+            const int n = pequal.size();
             if (n < 2) {
               ibest = ix;
               jbest = iy;
@@ -3135,23 +3100,22 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
               // more than one pos with the same extreme value,
               // select the one with smallest surrounding
               // gradients in the field (seems to work...)
-              gbest = fieldUndef;
+              float gbest = fieldUndef;
               ibest = jbest = -1;
-              for (l = 0; l < n; l++) {
-                pp = pequal[l];
-                j = pp / nx;
-                i = pp - j * nx;
-                fgrad = 0.;
-                ngrad = 0;
-                for (k = 0; k < 4; k++) {
-                  i1 = i + igrad[k][0];
-                  j1 = j + igrad[k][1];
-                  i2 = i + igrad[k][2];
-                  j2 = j + igrad[k][3];
-                  if (i1 >= 0 && j1 >= 0 && i1 < nx && j1 < ny && i2 >= 0
-                      && j2 >= 0 && i2 < nx && j2 < ny) {
-                    f1 = fields[0]->data[pp + igrad[k][4]];
-                    f2 = fields[0]->data[pp + igrad[k][5]];
+              for (int l = 0; l < n; l++) {
+                const int pp = pequal[l];
+                int j = pp / nx;
+                int i = pp - j * nx;
+                float fgrad = 0;
+                int ngrad = 0;
+                for (int k = 0; k < 4; k++) {
+                  int i1 = i + igrad[k][0];
+                  int j1 = j + igrad[k][1];
+                  int i2 = i + igrad[k][2];
+                  int j2 = j + igrad[k][3];
+                  if (i1 >= 0 && j1 >= 0 && i1 < nx && j1 < ny && i2 >= 0 && j2 >= 0 && i2 < nx && j2 < ny) {
+                    const float f1 = fields[0]->data[pp + igrad[k][4]];
+                    const float f2 = fields[0]->data[pp + igrad[k][5]];
                     if (f1 != fieldUndef && f2 != fieldUndef) {
                       fgrad += fabsf(f1 - f2);
                       ngrad++;
@@ -3173,20 +3137,18 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
             }
 
             if (ibest == ix && jbest == iy) {
-              if (fpos < poptions.maxvalue && fpos > poptions.minvalue) {
                 // mark extreme point
                 if (!extremeString) {
                   const QString str = QString::number(fpos, 'f', poptions.precision);
                   gl->drawText(str, gx - chrx * 0.5, gy - chry * 0.5, 0.0);
                 } else {
-                  gl->drawText(pmarks[etype], gx - chrx * 0.5, gy - chry * 0.5, 0.0);
+                  gl->drawText(pmarks[is_minimum ? 0 : 1], gx - chrx * 0.5, gy - chry * 0.5, 0.0);
                   if (extremeValue != NONE) {
                     gl->setFontSize(fontsizeBig);
                     const QString str = QString::number(fpos, 'f', poptions.precision);
                     gl->drawText(str, gx - chrx * (-0.6), gy - chry * 0.8, 0.0);
                     gl->setFontSize(fontsizeHuge);
                   }
-                }
               }
             }
           }
@@ -3194,8 +3156,6 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
       }
     }
   }
-
-  delete[] iscan;
 
   return true;
 }
