@@ -2971,18 +2971,18 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   ix2++;
   iy2++;
 
-  std::string pmarks[2];
+  QString pmarks[2];
   bool extremeString = false;
   enum { NONE, MIN, MAX, BOTH } extremeValue = NONE;
   std::string extremeType = miutil::to_upper(poptions.extremeType);
   vector<std::string> vextremetype = miutil::split(extremeType, "+");
   if (vextremetype.size() > 0) {
     if (!miutil::contains(vextremetype[0], "VALUE")) {
-      pmarks[0] = vextremetype[0];
+      pmarks[0] = QString::fromStdString(vextremetype[0]);
       extremeString = true;
     }
     if (vextremetype.size() > 1 && !miutil::contains(vextremetype[1], "VALUE")) {
-      pmarks[1] = vextremetype[1];
+      pmarks[1] = QString::fromStdString(vextremetype[1]);
       extremeString = true;
     }
     if (vextremetype.back() == "MINVALUE") {
