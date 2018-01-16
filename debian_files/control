@@ -14,8 +14,7 @@ Build-Depends: debhelper (>= 9),
  libftgl-dev,
  metlibs-qutilities-qt5-dev (>= 8.0.0),
  metlibs-coserver-qt5-dev (>= 3.0.0),
- metlibs-putools-dev (>= 7.1.0),
- metlibs-putools-dev (<< 8.0.0),
+ metlibs-putools-dev (>= 8.0.0),
  metlibs-milogger-dev (>= 6.0.0),
  metlibs-pudatatypes-dev (>= 6.0.0),
  libfimex-0.64-dev (>= 0.64.0),
@@ -31,7 +30,6 @@ Build-Depends: debhelper (>= 9),
  libemos-dev,
  cmake,
  libgtest-dev
-Build-Conflicts: metlibs-putools-dev (>= 8.0.0)
 Standards-Version: 3.9.2
 
 Package: diana-@METNO_VERSION@

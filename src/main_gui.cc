@@ -148,8 +148,7 @@ void setupLanguage(QCoreApplication* app, QString lang)
     // language from setup
     lang = QString::fromStdString(LocalSetupParser::basicValue("language"));
 
-  miTime x;
-  x.setDefaultLanguage(lang.toStdString().c_str());
+  miTime::setDefaultLanguage(lang.toStdString());
 
   setupQtLanguage(app, lang);
 }

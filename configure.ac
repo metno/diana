@@ -95,7 +95,7 @@ METNO_CHECK_PKGS([FIMEX], [fimex-0.64 >= 0.64.0])
 AS_IF([test "x$FIMEX_FOUND" = x], [
     METNO_REQUIRE_PKGS([FIMEX], [fimex >= 0.64.0])
 ])
-METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 7.1.0 metlibs-pudatatypes >= 6.0.0])
+METNO_REQUIRE_PKGS([METLIBS], [metlibs-milogger >= 6.0.0 metlibs-putools >= 8.0.0 metlibs-pudatatypes >= 6.0.0])
 
 
 # for Qt5:
