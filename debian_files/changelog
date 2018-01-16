@@ -1,3 +1,9 @@
+diana-3.43 (3.43.10-1) unstable; urgency=low
+
+  * use metlibs-putools >= 8.0.0
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 16 Jan 2018 08:00:08 +0100
+
 diana-3.43 (3.43.9-1) unstable; urgency=low
 
   * install WMO TotalCloudCover symbol
