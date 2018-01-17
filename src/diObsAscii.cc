@@ -29,11 +29,10 @@
 
 #include "diana_config.h"
 
+#include "diObsAscii.h"
 
-#include <diObsAscii.h>
-#include <diObsPlot.h>
-#include <diObsMetaData.h>
 #include "diLabelPlotCommand.h"
+#include "diObsMetaData.h"
 #include "diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
@@ -58,7 +57,7 @@ const std::vector<ObsData>& ObsAscii::getObsData(const miTime &filetime, const m
 {
   METLIBS_LOG_SCOPE();
   plotTime = time;
-  timeDiff= td;
+  timeDiff = td;
   fileTime = filetime;
 
   readDecodeData();

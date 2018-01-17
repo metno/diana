@@ -29,7 +29,7 @@
 #ifndef diObsMetaData_h
 #define diObsMetaData_h
 
-#include <diObsData.h>
+#include "diObsData.h"
 
 #include <map>
 #include <string>
@@ -40,16 +40,17 @@
 class ObsMetaData
 {
 public:
-  typedef std::map<std::string, ObsData > string_ObsData_m;
-  
+  typedef std::map<std::string, ObsData> string_ObsData_m;
+
   void setObsData(const std::vector<ObsData>& obsdata);
-  const string_ObsData_m& getMetaData() const
-    { return metaData; }
+  const string_ObsData_m& getMetaData() const { return metaData; }
 
   void addStationsToUrl(std::string& url) const;
 
 private:
   string_ObsData_m metaData;
 };
+
+typedef std::shared_ptr<ObsMetaData> ObsMetaData_p;
 
 #endif

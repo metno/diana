@@ -30,6 +30,7 @@
 #define _diCommonTypes_h
 
 #include "diColour.h"
+#include "diSliderValues.h"
 
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
@@ -38,15 +39,6 @@
 #include <set>
 #include <vector>
 
-/**
-   \brief GUI slider data
-*/
-struct SliderValues{
-   int minValue;
-   int maxValue;
-   int value;
-   float scale;
-};
 
 //--------------------------------------------------
 // image
@@ -121,52 +113,6 @@ struct ObjFileInfo{
 //--------------------------------------------------
 // Observation structures
 //--------------------------------------------------
-
-/**
-   \brief GUI data for all observations
-*/
-struct ObsDialogInfo{
-
-  /// list of prioritized stations
-  struct PriorityList{
-    std::string file;
-    std::string name;
-  };
-
-  /// list of plotting criterias
-  struct CriteriaList{
-    std::string name;
-    std::vector<std::string> criteria;
-  };
-  /// observation data type
-  struct DataType {
-    std::string name;
-    std::vector<bool> active;///< same length as button
-  };
-
-  /// data button info for observation dialogue
-  struct Button {
-    std::string name;
-    std::string tooltip;
-    int high,low;
-    bool Default;
-  };
-
-  /// observation plot type
-  struct PlotType {
-    std::string name;
-    std::vector<DataType> datatype;
-    std::vector<Button> button;
-    std::string misc;
-    std::vector<int> pressureLevels; ///<Only used for PlotType "Pressure levels"
-    std::vector<CriteriaList> criteriaList;
-  };
-
-  std::vector<PlotType> plottype;
-  std::vector<PriorityList> priority;
-  SliderValues density, size, timediff;
-  std::string defValues;
-};
 
 //--------------------------------------------------
 // Station structures

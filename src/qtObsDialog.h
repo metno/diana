@@ -109,7 +109,6 @@ signals:
 
 private:
   void makeExtension();
-  void markButton(std::string& );
   std::string makeCriteriaString();
   bool newCriteriaString();
   void updateExtension();
@@ -118,7 +117,6 @@ private:
 
  //ATTRIBUTES
   int nr_plot;
-  std::vector<std::string> m_name;
   std::vector<miutil::KeyValue_v> savelog;
   int m_selected;
   QColor* colour;
@@ -155,8 +153,10 @@ private:
   QLineEdit* lineedit;
   std::vector<Colour::ColourInfo> cInfo;
   std::vector<std::string> markerName;
-  Controller* m_ctrl;
   bool freeze;
+
+  Controller* m_ctrl;
+  ObsDialogInfo dialog;
 };
 
 #endif

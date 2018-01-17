@@ -34,6 +34,7 @@
 #include "diDrawingTypes.h"
 #include "diMapInfo.h"
 #include "diMapMode.h"
+#include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
 
 #include <puTools/miTime.h>
@@ -278,7 +279,7 @@ public:
   /// return button names for ObsDialog
   ObsDialogInfo initObsDialog();
   /// return button names for ObsDialog ... ascii files (when activated)
-  ObsDialogInfo updateObsDialog(const std::string& name);
+  void updateObsDialog(ObsDialogInfo::PlotType& pt, const std::string& name);
   /// get observation times for plot types name
   std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& name);
 

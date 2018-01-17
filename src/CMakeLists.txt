@@ -116,11 +116,21 @@ SET (LIBDIANA_SOURCES
   diObjectPoint.cc
   diObsAscii.cc
   diObsData.cc
+  diObsDialogInfo.cc
   diObsManager.cc
   diObsMetaData.cc
   diObsPlot.cc
   diObsPlotCluster.cc
+  diObsPlotType.cc
   diObsPositions.cc
+  diObsReader.cc
+  diObsReaderAscii.cc
+  diObsReaderBufr.cc
+  diObsReaderFactory.cc
+  diObsReaderFile.cc
+  diObsReaderHqc.cc
+  diObsReaderMetnoUrl.cc
+  diObsReaderRoad.cc
   diPaintGLPainter.cc
   diPaintable.cc
   diPainter.cc
@@ -134,7 +144,6 @@ SET (LIBDIANA_SOURCES
   diPrintOptions.cc
   diQuickMenues.cc
   diRasterPlot.cc
-  diRoadObsPlot.cc
   diSat.cc
   diSatManager.cc
   diSatPlot.cc
@@ -188,6 +197,7 @@ SET (LIBDIANA_SOURCES
   util/qstring_util.cc
   util/string_util.cc
   util/subprocess.cc
+  util/time_util.cc
   util/was_enabled.cc
 
   vcross_v2/VcrossCollector.cc
@@ -394,6 +404,7 @@ METNO_HEADERS(LIBBDIANA_HEADERS    "cc" "h" ${LIBBDIANA_SOURCES})
 
 LIST (APPEND LIBDIANA_HEADERS
   diBuild.h
+  diSliderValues.h
   util/misc_util.h
 )
 LIST (APPEND LIBDIANA_SOURCES

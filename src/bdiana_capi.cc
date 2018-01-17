@@ -1427,10 +1427,11 @@ int Bdiana::handleDescribeCommand(int& k)
       }
     }
 
-    const std::map<std::string, ObsManager::ProdInfo>& obsProducts = main.controller->getObservationManager()->getProductsInfo();
     set<std::string> obsPatterns;
     set<std::string> obsFiles;
 
+#if 0
+    const std::map<std::string, ObsManager::ProdInfo>& obsProducts = main.controller->getObservationManager()->getProductsInfo();
     for (ObsPlot* op : main.controller->getObsPlots()) {
       for (const string& opf : op->getFileNames()) {
         obsFiles.insert(opf);
@@ -1446,6 +1447,7 @@ int Bdiana::handleDescribeCommand(int& k)
         }
       }
     }
+#endif
 
     file << "FILES" << endl;
     for (const std::string& p : fieldPatterns)

@@ -29,13 +29,13 @@
 #ifndef _buttonlayout_h
 #define _buttonlayout_h
 
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
 #include <qbuttongroup.h>
+#include <qlayout.h>
 #include <qpalette.h>
+#include <qpushbutton.h>
+#include <qwidget.h>
 
-#include "diCommonTypes.h"
+#include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
 #include "qtToggleButton.h"
 
@@ -50,44 +50,31 @@ class ButtonLayout : public QWidget
   Q_OBJECT
 
 public:
+  ButtonLayout(QWidget* parent, std::vector<ObsDialogInfo::Button>& button,
+               int nr_col = 3 // number of columns
+               );
 
-  ButtonLayout( QWidget* parent,
-		std::vector<ObsDialogInfo::Button>& button,
-		int nr_col=3            //number of columns
-		);
-
-  bool isChecked(int);
-  void setEnabled( bool enabled );
+  void setEnabled(bool enabled);
+  bool noneChecked();
   int setButtonOn(std::string buttonName);
-  void enableButtons(std::vector<bool>);
 
-  std::vector<std::string> getOKString(bool forLog=false);
+  std::vector<std::string> getOKString(bool forLog = false);
 
 public Q_SLOTS:
-  void setRightClicked(std::string name,bool on);
   void ALLClicked();
   void NONEClicked();
-  void DEFAULTClicked();
 
-private slots:
- void groupClicked( int );
- void rightButtonClicked(ToggleButton* butto);
+private Q_SLOTS:
+  void rightButtonClicked(ToggleButton* butto);
 
-signals:
-  void inGroupClicked( int );
-  void outGroupClicked( int );
-  void rightClickedOn( std::string );
-  void rightClickedOff( std::string );
+Q_SIGNALS:
+  void rightClickedOn(std::string);
+  void buttonClicked(int id);
 
 private:
-
-  void setButton( int tt );
-
   ToggleButton** b;
   QButtonGroup* bgroup;
 
-  std::vector<bool> buttonOn;
-  std::vector<bool> buttonRightOn;
   std::vector<ObsDialogInfo::Button> buttonList;
 };
 

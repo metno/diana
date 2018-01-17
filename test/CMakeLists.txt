@@ -61,6 +61,9 @@ SET (dianaUnitTests_SOURCES
   TestCommandParser.cc
   TestDianaLevels.cc
   TestLogFileIO.cc
+  TestObsReaderAscii.cc
+  TestObsReaderBufr.cc
+  TestObsReaderFile.cc
   TestPlotCommands.cc
   TestPlotOptions.cc
   TestPoint.cc

@@ -30,7 +30,6 @@
 #include "diana_config.h"
 
 #include "diObsPlot.h"
-#include "diRoadObsPlot.h"
 
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
@@ -42,8 +41,8 @@
 #include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/qstring_util.h"
+#include "util/string_util.h"
 
-#include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QPolygonF>
@@ -163,7 +162,6 @@ bool ObsPlotCollider::collision(const Box& box) const
 
 ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   : m_plottype(plottype)
-  , mTextCodec(0)
 {
   setPlotInfo(pin);
 
@@ -189,7 +187,7 @@ ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   next = false;
   previous = false;
   thisObs = false;
-  current = -1;
+  wind_scale = -1;
   firstplot = true;
   beendisabled = false;
   itab = 0;
@@ -202,218 +200,6 @@ ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   qualityFlag = false;
   wmoFlag = false;
   annotations = true;
-
-  knotParameters.insert("ff");
-  knotParameters.insert("ffk");
-  knotParameters.insert("911ff");
-  knotParameters.insert("fxfx");
-  knotParameters.insert("fmfm");
-
-  Parameter p;
-  p.name = "pos";
-  vparam.push_back(p);
-
-  p.name = "dd";
-  p.symbol = -1;
-  p.precision =0;
-  vparam.push_back(p);
-
-  p.name = "ff";
-  p.knotParam = true;
-  p.precision =0;
-  vparam.push_back(p);
-
-  p.name = "TTT";
-  p.knotParam = false;
-  p.tempParam = true;
-  p.symbol = -1;
-  p.precision =1;
-  vparam.push_back(p);
-
-  p.name = "TdTdTd";
-  p.symbol = -1;
-  p.precision =1;
-  vparam.push_back(p);
-
-  p.name = "PPPP";
-  p.tempParam = false;
-  p.precision =1;
-  vparam.push_back(p);
-
-  p.name = "PPP_mslp";
-  p.precision =1;
-  vparam.push_back(p);
-
-  p.name = "ppp";
-  p.precision =1;
-  vparam.push_back(p);
-
-  p.name = "a";
-  p.symbol = 201;
-  vparam.push_back(p);
-
-  p.name = "h";
-  p.symbol = -1;
-  p.precision =0;
-  vparam.push_back(p);
-
-  p.name = "VV";
-  p.precision =0;
-  vparam.push_back(p);
-
-  p.name = "N";
-  p.precision =0;
-  vparam.push_back(p);
-
-  p.name = "RRR";
-  p.precision =1;
-  vparam.push_back(p);
-
-  p.name = "ww";
-  p.symbol = 0;
-  vparam.push_back(p);
-
-  p.name = "W1";
-  p.symbol = 0;
-  vparam.push_back(p);
-
-  p.name = "W2";
-  p.symbol = 0;
-  vparam.push_back(p);
-
-  p.name = "Nh";
-  p.symbol = -1;
-  p.precision = 0;
-  vparam.push_back(p);
-
-  p.name = "Ch";
-  p.symbol = 190;
-  vparam.push_back(p);
-
-  p.name = "Cm";
-  p.symbol = 180;
-  vparam.push_back(p);
-
-  p.name = "Cl";
-  p.symbol = 170;
-  vparam.push_back(p);
-
-  p.name = "vs";
-  p.symbol = 170;
-  vparam.push_back(p);
-
-  p.name = "ds";
-  p.symbol = 170;
-  vparam.push_back(p);
-
-  p.name = "TwTwTw";
-  p.tempParam = true;
-  p.precision = 1;
-  p.symbol = -1;
-  vparam.push_back(p);
-
-  p.name = "PwaHwa";
-  p.tempParam = false;
-  p.precision = 0;
-  p.symbol = 0;
-  vparam.push_back(p);
-
-  p.name = "dw1dw1";
-  p.symbol = 0;
-  vparam.push_back(p);
-
-  p.name = "Pw1Hw1";
-  p.symbol = 0;
-  vparam.push_back(p);
-
-  p.name = "TxTn";
-  p.tempParam = true;
-  p.precision = 1;
-  p.symbol = -1;
-  vparam.push_back(p);
-
-  p.name = "sss";
-  p.tempParam = false;
-  p.precision = 0;
-  vparam.push_back(p);
-
-  p.name = "911ff";
-  p.knotParam = true;
-  vparam.push_back(p);
-
-  p.name = "s";
-  p.knotParam = false;
-  vparam.push_back(p);
-
-  p.name = "fxfx";
-  p.knotParam = true;
-  vparam.push_back(p);
-
-  p.name = "Id";
-  p.tempParam = false;
-  p.knotParam = false;
-  vparam.push_back(p);
-
-  p.name = "T_red";
-  p.tempParam = true;
-  vparam.push_back(p);
-
-  p.name = "Date";
-  vparam.push_back(p);
-
-  p.name = "Time";
-  vparam.push_back(p);
-
-  p.name = "HHH";
-  vparam.push_back(p);
-
-  p.name = "Height";
-  vparam.push_back(p);
-
-  p.name = "Zone";
-  vparam.push_back(p);
-
-  p.name = "Name";
-  vparam.push_back(p);
-
-  p.name = "RRR_1";
-  vparam.push_back(p);
-
-  p.name = "RRR_6";
-  vparam.push_back(p);
-
-  p.name = "RRR_12";
-  vparam.push_back(p);
-
-  p.name = "RRR_24";
-  vparam.push_back(p);
-
-  p.name = "depth";
-  p.precision =0;
-  vparam.push_back(p);
-
-  p.name = "TTTT";
-  p.precision =2;
-  vparam.push_back(p);
-
-  p.name = "SSSS";
-  vparam.push_back(p);
-
-  p.name = "TE";
-  vparam.push_back(p);
-
-  p.name = "QI";
-  vparam.push_back(p);
-
-  p.name = "QI_NM";
-  vparam.push_back(p);
-
-  p.name = "QI_RFF";
-  vparam.push_back(p);
-
-  p.name = "quality";
-  p.precision =0;
-  vparam.push_back(p);
 }
 
 ObsPlot::~ObsPlot()
@@ -423,45 +209,53 @@ ObsPlot::~ObsPlot()
   delete[] y;
 }
 
-QString ObsPlot::decodeText(const std::string& text) const
+void ObsPlot::getAnnotation(string& str, Colour& col) const
 {
-  if (mTextCodec != 0)
-    return mTextCodec->toUnicode(text.c_str());
-  else
-    return QString::fromLatin1(text.c_str());
-}
-
-void ObsPlot::setTextCodec(QTextCodec* codec)
-{
-  mTextCodec = codec;
-}
-
-void ObsPlot::setTextCodec(const char* codecName)
-{
-  setTextCodec(QTextCodec::codecForName(codecName));
-}
-
-void ObsPlot::getAnnotation(string &str, Colour &col) const
-{
-  //Append to number of plots to the annotation string
-  if (not annotation.empty()) {
-    string anno_str = (" ( " + miutil::from_number(numVisiblePositions())
-                       + " / " + miutil::from_number(numPositions()) + " )");
-    str = annotation + anno_str;
-  } else
-    str = annotation;
+  METLIBS_LOG_SCOPE();
+  str = makeAnnotationString();
   col = origcolour;
+}
+
+std::string ObsPlot::makeAnnotationString() const
+{
+  std::string str;
+  if (!readernames.empty()) {
+
+    for (const string& rn : readernames) {
+      diutil::appendText(str, rn);
+    }
+
+    if (level != -10) {
+      str += " ";
+      str += miutil::from_number(level);
+      str += levelsuffix;
+    }
+
+    if (!obsTime.undef()) {
+      str += obsTime.isoTime();
+      if (getTimeDiff() > 0) {
+        miutil::miTime minTime = getStaticPlot()->getTime();
+        miutil::miTime maxTime = getStaticPlot()->getTime();
+        minTime.addMin(-getTimeDiff());
+        maxTime.addMin(getTimeDiff());
+        str += " (" + minTime.format("%H:%M", "", true) + " - " + maxTime.format("%H:%M", "", true) + " ) ";
+      }
+    }
+
+    str += (" ( " + miutil::from_number(numVisiblePositions()) + " / " + miutil::from_number(numPositions()) + " )");
+  }
+  return str;
 }
 
 bool ObsPlot::getDataAnnotations(vector<string>& anno)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!isEnabled() || !annotations || numPositions() == 0 || current < 0)
+  if (!isEnabled() || !annotations || numPositions() == 0 || wind_scale < 0)
     return false;
 
   const std::string vectorAnnotationSize = miutil::from_number(21 * getStaticPlot()->getPhysToMapScaleX());
-  const std::string vectorAnnotationText = miutil::from_number(2.5f * current, 2) + "m/s";
+  const std::string vectorAnnotationText = miutil::from_number(2.5f * wind_scale, 2) + "m/s";
   for (const string& a : anno) {
     if (miutil::contains(a, "arrow")) {
       if (miutil::contains(a, "arrow="))
@@ -487,51 +281,47 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
 
 const PlotCommand_cpv ObsPlot::getObsExtraAnnotations() const
 {
-  if ( isEnabled() && annotations ) {
-    return labels;
+  if (isEnabled() && annotations) {
+    return extraAnnotations;
   }
   return PlotCommand_cpv();
 }
 
-void ObsPlot::mergeMetaData(const std::map<std::string, ObsData>& metaData)
-{
-  //METLIBS_LOG_DEBUG(__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size());
-  for (size_t i = 0; i < obsp.size(); ++i) {
-    const std::map<std::string, ObsData>::const_iterator itM = metaData.find(obsp[i].id);
-    if (itM != metaData.end()) {
-      obsp[i].xpos = itM->second.xpos;
-      obsp[i].ypos = itM->second.ypos;
-    }
-  }
-}
-
 void ObsPlot::addObsData(const std::vector<ObsData>& obs)
 {
+  METLIBS_LOG_SCOPE();
   diutil::insert_all(obsp, obs);
 }
 
 void ObsPlot::replaceObsData(const std::vector<ObsData>& obs)
 {
-  obsp = obs;
+  obsp.clear();
+  addObsData(obs);
 }
 
-void ObsPlot::updateLevel(const std::string& dataType)
+int ObsPlot::getLevel()
 {
-  METLIBS_LOG_SCOPE("dataType: " << dataType);
-  if (level < -1) {
-    return; //no levels
-  }
 
   if (levelAsField) //from field
     level = getStaticPlot()->getVerticalLevel();
-  if (level == -1) { //set default
-    if (dataType == "aireps")
-      level = 500;
-    else if (dataType == "ocea")
-      level = 0;
-    else
-      level = 1000;
+
+  // Default level
+  if (level == -1) {
+    level = 1000;
   }
+
+  return level;
+}
+
+void ObsPlot::setObsTime(const miutil::miTime& t)
+{
+  if (obsTime.undef()) {
+    obsTime = t;
+    return;
+  }
+
+  if (abs(miTime::minDiff(getStaticPlot()->getTime(), t)) < abs(miTime::minDiff(getStaticPlot()->getTime(), obsTime)))
+    obsTime = t;
 }
 
 int ObsPlot::numVisiblePositions() const
@@ -550,46 +340,6 @@ int ObsPlot::numVisiblePositions() const
 int ObsPlot::getObsCount() const
 {
   return obsp.size();
-}
-
-long ObsPlot::findModificationTime(const std::string& fname)
-{
-  pu_struct_stat buf;
-  if (pu_stat(fname.c_str(), &buf) == 0) {
-    return buf.st_ctime; // FIXME using ctime here and mtime below
-  } else {
-    return 0;
-  }
-}
-
-void ObsPlot::setModificationTime(const std::string& fname)
-{
-  METLIBS_LOG_SCOPE("fname: " << fname);
-  fileNames.push_back(fname);
-  modificationTime.push_back(findModificationTime(fname));
-}
-
-bool ObsPlot::isFileUpdated(const std::string& fname, long now, long mod_time)
-{
-  pu_struct_stat buf;
-  if (pu_stat(fname.c_str(), &buf) != 0)
-    return true;
-  if (mod_time != (long) buf.st_mtime) // FIXME using mtime here and ctime above
-    return true;
-  return false;
-}
-
-bool ObsPlot::updateObs()
-{
-  METLIBS_LOG_SCOPE();
-
-  const long now = time(0);
-  for (size_t i = 0; i < fileNames.size(); i++) {
-    if (isFileUpdated(fileNames[i], now, modificationTime[i]))
-      return true;
-  }
-
-  return false; // no update needed
 }
 
 // static
@@ -612,19 +362,12 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     if (dialogname.empty())
       METLIBS_LOG_WARN("probably malformed observation plot specification '" << cmd->value(i_plot) << "'");
     const std::string valp = miutil::to_lower(dialogname);
-    if (valp == "pressure"|| valp == "list"
-        || valp == "tide" || valp == "ocean")
-    {
-      plottype = OPT_LIST;
-    } else if (valp == "synop") {
+    if (valp == "synop") {
       plottype = OPT_SYNOP;
     } else if (valp == "metar") {
       plottype = OPT_METAR;
     } else if (valp == "hqc_synop") {
       plottype = OPT_SYNOP;
-      is_hqc = true;
-    } else if (valp == "hqc_list") {
-      plottype = OPT_ASCII;
       is_hqc = true;
     }
 #ifdef ROADOBS
@@ -634,7 +377,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     }
 #endif // !ROADOBS
     else {
-      plottype = OPT_ASCII;
+      plottype = OPT_LIST;
     }
   }
 
@@ -653,15 +396,17 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
   vector<std::string> parameter;
   for (const miutil::KeyValue& kv : cmd->all()) {
     const std::string& key = kv.key();
-    const std::string& orig_value = kv.value();
-    const std::string value = miutil::to_lower(orig_value);
-
+    const std::string& value = kv.value();
+    const std::string value_lower_case = miutil::to_lower(value);
     if (key == "plot") {
-      continue;
+      if (value == "pressure")
+        op->levelsuffix = "hPa";
+      else if (value == "ocean")
+        op->levelsuffix = "m";
     } else if (key == "data") {
-      op->datatypes = miutil::split(value, ",");
+      op->readernames = miutil::split(value, ",");
     } else if (key == "parameter") {
-      parameter = miutil::split(orig_value, 0, ",");
+      parameter = miutil::split(value, 0, ",");
     } else if (key == "scale") {
       op->textSize = kv.toFloat();
       if (op->markerSize < 0)
@@ -671,15 +416,15 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     } else if (key == "text.size") {
       op->textSize = kv.toFloat();
     } else if (key == "density") {
-      if (value == "allobs")
+      if (value_lower_case == "allobs")
         op->allObs = true;
       else
         op->density = kv.toFloat();
     } else if (key == "priority") {
-      op->priorityFile = orig_value;
+      op->priorityFile = value;
       op->priority = true;
     } else if (key == "colour") {
-      op->origcolour = Colour(orig_value);
+      op->origcolour = Colour(value);
     } else if (key == "devfield") {
       if (kv.toBool()) {
         op->devfield.reset(new ObsPositions);
@@ -687,9 +432,9 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
         op->devfield.reset(0);
       }
     } else if (key == "devcolour1") {
-      op->mslpColour1 = Colour(orig_value);
+      op->mslpColour1 = Colour(value);
     } else if (key == "devcolour2") {
-      op->mslpColour2 = Colour(orig_value);
+      op->mslpColour2 = Colour(value);
     } else if (key == "tempprecision") {
       op->tempPrecision = kv.toBool();
     } else if (key == "unit_ms") {
@@ -705,47 +450,47 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     } else if (key == "moretimes") {
       op->moretimes = kv.toBool();
     } else if (key == "sort") {
-      op->decodeSort(orig_value);
+      op->decodeSort(value);
     } else if (key == "timediff")
-      if (value == "alltimes")
+      if (value_lower_case == "alltimes")
         op->timeDiff = -1;
       else
         op->timeDiff = kv.toInt();
     else if (key == "level") {
-      if (value == "asfield") {
+      if (value_lower_case == "asfield") {
         op->levelAsField = true;
         op->level = -1;
       } else
         op->level = kv.toInt();
-      //      } else if (key == "leveldiff") {
-      //        leveldiff = kv.toInt();
     } else if (key == "onlypos") {
       op->onlypos = true;
     } else if (key == "showonlyprioritized") {
       op->showOnlyPrioritized = true;
     } else if (key == "image") {
-      op->image = orig_value;
+      op->image = value;
     } else if (key == "showpos") {
      op->showpos = true;
     } else if (key == "orientation") {
-      if (value == "horizontal")
+      if (value_lower_case == "horizontal")
         op->vertical_orientation = false;
     } else if (key == "alignment") {
-      if (value == "right")
+      if (value_lower_case == "right")
         op->left_alignment = false;
     } else if (key == "criteria") {
-      op->decodeCriteria(orig_value);
+      op->decodeCriteria(value);
     } else if (key == "arrowstyle") {
-      if (value == "wind")
+      if (value_lower_case == "wind")
         op->poptions.arrowstyle = arrow_wind;
-      else if (value == "wind_arrow")
+      else if (value_lower_case == "wind_arrow")
         op->poptions.arrowstyle = arrow_wind_arrow;
+    } else if (key == "wind_scale") {
+      op->wind_scale = kv.toFloat();
     } else if (key == "annotations") {
       op->annotations = kv.toBool();
     } else if (key == "font") {
-      op->poptions.fontname = orig_value;
+      op->poptions.fontname = value;
     } else if (key == "face") {
-      op->poptions.fontface = orig_value;
+      op->poptions.fontface = value;
     }
   }
 
@@ -753,8 +498,8 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     op->markerSize = op->textSize;
   op->parameterDecode("all", false);
   op->numPar = parameter.size();
-  for (int i = 0; i < op->numPar; i++) {
-    op->parameterDecode(parameter[i]);
+  for (const std::string& p : parameter) {
+    op->parameterDecode(p);
   }
   if (op->mslp())
     op->pFlag["pppp_mslp"] = true;
@@ -763,7 +508,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
 
   std::string path = LocalSetupParser::basicValue("obsplotfilepath");
 
-  if (op->isSynopListRoad()) {
+  if (op->isSynopList()) {
     if (itabSynop.empty() || iptabSynop.empty()) {
       if (!readTable(op->plottype(), path + "/itab_synop.txt", path + "/iptab_synop.txt", itabSynop, iptabSynop))
         return 0;
@@ -805,6 +550,14 @@ void ObsPlot::updateObsPositions()
   }
   devfield->convertToGrid = true;
   devfield->obsArea = getStaticPlot()->getMapArea();
+}
+
+void ObsPlot::setParameters(const std::vector<ObsDialogInfo::Par>& vp)
+{
+  if (!vparam.empty())
+    return;
+
+  vparam = vp;
 }
 
 bool ObsPlot::setData()
@@ -895,8 +648,10 @@ bool ObsPlot::setData()
   for (const std::pair<string,bool>& sc : sortcriteria)
     parameter_sort(sc.first, sc.second);
 
-  if (plottype() == OPT_METAR && metarMap.size() == 0)
+  if (plottype() == OPT_METAR && metarMap.empty())
     initMetarMap();
+
+  setPlotName(makeAnnotationString());
 
   return true;
 }
@@ -911,12 +666,11 @@ bool ObsPlot::timeOK(const miTime& t) const
 {
   // called very often METLIBS_LOG_SCOPE("time: " << t.isoTime());
 
-  return (timeDiff < 0 || abs(miTime::minDiff(t, Time)) < timeDiff + 1);
+  return (timeDiff < 0 || std::abs(miTime::minDiff(t, obsTime)) <= timeDiff);
 }
 
-std::vector<int> & ObsPlot::getStationsToPlot()
+std::vector<int>& ObsPlot::getStationsToPlot()
 {
-  // Returns the visible stations
   return stations_to_plot;
 }
 
@@ -994,10 +748,7 @@ void ObsPlot::clear()
   obsp.clear();
   annotation.clear();
   setPlotName("");
-  labels.clear();
-
-  fileNames.clear();
-  modificationTime.clear();
+  extraAnnotations.clear();
 }
 
 void ObsPlot::priority_sort()
@@ -1078,7 +829,7 @@ void ObsPlot::time_sort(void)
   // Data from obs-files or database
   // find mindiff = abs(obsTime-plotTime) for all observations
   for (int i = 0; i < numObs; i++)
-    diff[i] = abs(miTime::minDiff(obsp[i].obsTime, Time));
+    diff[i] = abs(miTime::minDiff(obsp[i].obsTime, obsTime));
 
   //Sorting ...
   for (int i = 0; i < numObs; i++) {
@@ -1338,7 +1089,7 @@ void ObsPlot::setPopupSpec(const std::vector<std::string>& txt)
       }
       vector<std::string> token = miutil::split(t, "=");
       if (token.size() == 2) {
-        datatype = miutil::to_lower(token[1]);
+        datatype = token[1];
       }
     } else {
       data.push_back(t);
@@ -1353,16 +1104,17 @@ void ObsPlot::setPopupSpec(const std::vector<std::string>& txt)
 bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
 {
   METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
+
   if (!popupText)
     return false;
-
   const int min_i = findObs(xx, yy);
   if (min_i < 0)
     return false;
 
   bool found = false;
   const ObsData& dt = obsp[min_i];
-  for (const std::string& datatype : datatypes) {
+
+  for (const std::string& datatype : readernames) {
     std::map<string, vector<std::string> >::const_iterator f_p = popupSpec.find(datatype);
     if (f_p == popupSpec.end())
       continue;
@@ -1378,7 +1130,8 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
       setuptext += "<td>";
       setuptext += "<span style=\"background: red; color: red\">X</span>";
       setuptext += dt.obsTime.isoTime();
-      setuptext += " ";
+      setuptext += "</td>";
+      setuptext += "</tr>";
     }
     for (const std::string& mdat : mdata) {
       setuptext += "<tr>";
@@ -1411,22 +1164,25 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
           setuptext += " ";
         }
       }
+      setuptext += "</td>";
+      setuptext += "</tr>";
     } //end of for mdata
     setuptext += "</table>";
+
   } // end of datatypes
 
   if (!found) {
     setuptext += "<table>";
-    for (const std::string& param : columnName) {
-      if ( pFlag.count( param ) ) {
+    for (const ObsDialogInfo::Par& param : vparam) {
+      if (pFlag.count(param.name)) {
         setuptext += "<tr>";
         setuptext += "<td>";
-        setuptext += param;
+        setuptext += param.name;
         setuptext += "</td>";
         setuptext += "<td>";
         setuptext += "  ";
-        if (miutil::to_int(dt.get_string(param)) != undef )
-          setuptext += dt.get_string(param);
+        if (miutil::to_int(dt.get_string(param.name)) != undef)
+          setuptext += dt.get_string(param.name);
         else
           setuptext += "X";
         setuptext += " ";
@@ -1485,16 +1241,14 @@ void ObsPlot::nextObs(bool Next)
   }
 }
 
-bool ObsPlot::isSynopListRoad() const
+bool ObsPlot::isSynopList() const
 {
-  return plottype() == OPT_SYNOP || plottype() == OPT_LIST
-      || plottype() == OPT_ROADOBS;
+  return plottype() == OPT_SYNOP || plottype() == OPT_LIST;
 }
 
-bool ObsPlot::isSynopMetarRoad() const
+bool ObsPlot::isSynopMetar() const
 {
-  return plottype() == OPT_SYNOP || plottype() == OPT_METAR
-      || plottype() == OPT_ROADOBS;
+  return plottype() == OPT_SYNOP || plottype() == OPT_METAR;
 }
 
 int ObsPlot::calcNum() const
@@ -1502,20 +1256,17 @@ int ObsPlot::calcNum() const
   int num = numPar;
   if (pFlag.count("wind"))
     num--;
-  // I think we should check for roadobsWind here also
-  // OBS!******************************************
-  if (plottype() != OPT_ASCII && plottype() != OPT_ROADOBS) {
-    if (pFlag.count("pos"))
-      num++;
-  }
+  // The parameter "pos" contains both lat and lon TODO: remove this
+  if (pFlag.count("pos"))
+    num++;
   return num;
 }
 
-static float circle_radius = 7;
+static const float circle_radius = 7;
 
 void ObsPlot::drawCircle(DiGLPainter* gl)
 {
-  if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
+  if (plottype() == OPT_LIST) {
     const float d = circle_radius * 0.25;
     gl->drawRect(false, -d, -d, d, d);
   } else {
@@ -1576,10 +1327,10 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   // I think we should plot roadobs like synop here
   // OBS!******************************************
 
-  if (isSynopMetarRoad()) {
+  if (isSynopMetar()) {
     xdist = 100 * scale / density;
     ydist = 90 * scale / density;
-  } else if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
+  } else if (plottype() == OPT_LIST) {
     if (num > 0) {
       if (vertical_orientation) {
         xdist = 58 * scale / density;
@@ -1606,7 +1357,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     //init of areaFreeSetup
     // I think we should plot roadobs like synop here
     // OBS!******************************************
-    if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
+    if (plottype() == OPT_LIST) {
       float w, h;
       gl->getTextSize("0", w, h);
       float space = w * 0.5;
@@ -1723,58 +1474,33 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     nextplot.clear();
     // I think we should plot roadobs like synop here
     // OBS!******************************************
-    if (plottype() == OPT_LIST || plottype() == OPT_ASCII) {
-      for (p = pbegin; p != pend; p++) {
-        int i = *p;
-        if (allObs || areaFree(i)) {
-          //Select parameter with correct accumulation/max value interval
-          if (pFlag.count("911ff")) {
-            checkGustTime(obsp[i]);
-          }
-          if (pFlag.count("rrr")) {
-            checkAccumulationTime(obsp[i]);
-          }
-          if (pFlag.count("fxfx")) {
-            checkMaxWindTime(obsp[i]);
-          }
-          if (checkPlotCriteria(i)) {
-            nextplot.push_back(i);
-            list_plotnr[i] = plotnr;
-          } else {
-            list_plotnr[i] = -2;
+    const bool listplot = (plottype() == OPT_LIST);
+    for (p = pbegin; p != pend; p++) {
+      int i = *p;
+      if (allObs || (listplot && areaFree(i)) || (!listplot && collider_->positionFree(x[i], y[i], xdist, ydist))) {
+        ObsData& dta = obsp[i];
+        // Select parameter with correct accumulation/max value interval
+        if (pFlag.count("911ff")) {
+          checkGustTime(dta);
+        }
+        if (pFlag.count("rrr")) {
+          checkAccumulationTime(dta);
+        }
+        if (pFlag.count("fxfx")) {
+          checkMaxWindTime(dta);
+        }
+        if (checkPlotCriteria(dta)) {
+          nextplot.push_back(i);
+          list_plotnr[i] = plotnr;
+        } else {
+          list_plotnr[i] = -2;
+          if (listplot)
             collider_->areaPop();
-          }
-        } else {
-          notplot.push_back(i);
+          else if (!allObs)
+            collider_->positionPop();
         }
-      }
-    } else {
-      for (p = pbegin; p != pend; p++) {
-        int i = *p;
-        if (allObs || collider_->positionFree(x[i], y[i], xdist, ydist)) {
-          //Select parameter with correct accumulation/max value interval
-          if (plottype() != OPT_ROADOBS) {
-            if (pFlag.count("911ff")) {
-              checkGustTime(obsp[i]);
-            }
-            if (pFlag.count("rrr")) {
-              checkAccumulationTime(obsp[i]);
-            }
-            if (pFlag.count("fxfx")) {
-              checkMaxWindTime(obsp[i]);
-            }
-          }
-          if (checkPlotCriteria(i)) {
-            nextplot.push_back(i);
-            list_plotnr[i] = plotnr;
-          } else {
-            list_plotnr[i] = -2;
-            if (!allObs)
-              collider_->positionPop();
-          }
-        } else {
-          notplot.push_back(i);
-        }
+      } else {
+        notplot.push_back(i);
       }
     }
     if (thisObs) {
@@ -1822,8 +1548,6 @@ void ObsPlot::plotIndex(DiGLPainter* gl, int index)
   } else if (plottype() == OPT_METAR) {
     plotMetar(gl, index);
   } else if (plottype() == OPT_LIST) {
-    plotList(gl, index);
-  } else if (plottype() == OPT_ASCII) {
     plotList(gl, index);
   }
 }
@@ -1932,39 +1656,45 @@ void ObsPlot::advanceByDD(int dd, QPointF& xypos)
   }
 }
 
-void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
-    QPointF& xypos, float yStep, bool align_right, float xshift)
+void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
+                                 float xshift)
 {
-  if (not pFlag.count(miutil::to_lower(param.name)) )
+  METLIBS_LOG_SCOPE(LOGVAL(param.name));
+  if (!pFlag.count(miutil::to_lower(param.name)))
     return;
 
-  if( param.name=="pos") {
+  if (param.name == "pos") {
     printListPos(gl, dta, xypos, yStep, align_right);
     return;
   }
-
   xypos.ry() -= yStep;
 
-  if( miutil::contains(param.name,"RRR")) {
+  if (miutil::contains(param.name, "RRR")) {
     printListRRR(gl, dta,param.name, xypos, align_right);
     return;
   }
-  if ( param.symbol > -1) {
+  if (param.symbol > -1) {
     printListSymbol(gl, dta,param,xypos,yStep,align_right,xshift);
   } else {
+    METLIBS_LOG_DEBUG(LOGVAL(param.name));
     const std::map<string, string>::const_iterator s_p = dta.stringdata.find(param.name);
     if (s_p != dta.stringdata.end()) {
       checkColourCriteria(gl, param.name,undef);
-      printListString(gl, decodeText(s_p->second), xypos, align_right);
+      std::string str = s_p->second;
+      if (parameterName)
+        str = param.name + " " + str;
+      METLIBS_LOG_DEBUG(LOGVAL(param.name) << LOGVAL(str));
+
+      printListString(gl, str, xypos, align_right);
     } else {
       const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
       if (f_p != dta.fdata.end()) {
         checkColourCriteria(gl, param.name, f_p->second);
         if (param.name == "VV") {
           printList(gl, visibility(f_p->second, dta.show_time_id), xypos, 0, align_right, true);
-        } else if ( param.knotParam && !unit_ms) {
+        } else if (param.type == ObsDialogInfo::pt_knot && !unit_ms) {
           printList(gl, diutil::ms2knots(f_p->second), xypos, param.precision, align_right);
-        } else if ( param.tempParam && tempPrecision) {
+        } else if (param.type == ObsDialogInfo::pt_temp && tempPrecision) {
           printList(gl, f_p->second, xypos, 0, align_right);
         } else {
           printList(gl, f_p->second, xypos, param.precision, align_right);
@@ -1976,8 +1706,8 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const Para
   }
 }
 
-void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
-    QPointF& xypos, float yStep, bool align_right, const float& xshift)
+void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
+                              const float& xshift)
 {
   if (param.name == "PwaHwa" || param.name == "Pw1Hw1") {
     ObsData::fdata_t::const_iterator p, q;
@@ -1991,7 +1721,7 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Paramet
     if (p != dta.fdata.end() && q != dta.fdata.end()) {
       checkColourCriteria(gl, param.name, p->second);
       wave(gl, q->second, p->second, xypos, align_right);
-      const QString str = "00/00";
+      const std::string str = "00/00";
       advanceByStringWidth(gl, str, xypos);
     } else {
       printUndef(gl, xypos, align_right);
@@ -2002,9 +1732,9 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Paramet
     if (f_p != dta.fdata.end() ) {
       checkColourCriteria(gl, param.name, f_p->second);
       QPointF spos = xypos*scale - QPointF(xshift, 0);
-      if ( param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
+      if (param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
         symbol(gl, vtab(param.symbol + (int) f_p->second), spos, 0.6 * scale, align_right);
-      } else if((param.name == "W1" || param.name == "W2") &&f_p->second > 2) {
+      } else if ((param.name == "W1" || param.name == "W2") && f_p->second > 2) {
         pastWeather(gl, (int) f_p->second, spos, 0.6 * scale, align_right);
 
       } else if (param.name == "ww") {
@@ -2016,9 +1746,9 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const Paramet
         } else {
           printUndef(gl, xypos, align_right);
         }
-      } else if ( param.name == "ds" ) {
+      } else if (param.name == "ds") {
         arrow(gl, f_p->second, spos, scale * 0.6);
-      } else if ( param.name == "dw1dw1" ) {
+      } else if (param.name == "dw1dw1") {
         zigzagArrow(gl, f_p->second, spos, scale * 0.6);
       }
       if (!vertical_orientation)
@@ -2052,8 +1782,8 @@ void ObsPlot::printListPos(DiGLPainter* gl, const ObsData& dta,
     QPointF& xypos, float yStep, bool align_right)
 {
   xypos.ry() -= yStep;
-  QString str1 = diutil::formatLatitude (dta.ypos, 2, 6);
-  QString str2 = diutil::formatLongitude(dta.xpos, 2, 6);;
+  std::string str1 = diutil::formatLatitude(dta.ypos, 2, 6).toStdString();
+  std::string str2 = diutil::formatLongitude(dta.xpos, 2, 6).toStdString();
   if (yStep <= 0)
     str1.swap(str2); // change order of lon and lat
 
@@ -2087,13 +1817,13 @@ void ObsPlot::printList(DiGLPainter* gl, float f, QPointF& xypos, int precision,
     if (do_fill)
       cs = cs.rightJustified(2, '0');
 
-    printListString(gl, cs, xypos, align_right);
+    printListString(gl, cs.toStdString(), xypos, align_right);
   } else {
     printListString(gl, "X", xypos, align_right);
   }
 }
 
-float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const QString& txt, QPointF& xypos)
+float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const std::string& txt, QPointF& xypos)
 {
   float w, h;
   gl->getTextSize(txt, w, h);
@@ -2102,7 +1832,7 @@ float ObsPlot::advanceByStringWidth(DiGLPainter* gl, const QString& txt, QPointF
   return w;
 }
 
-void ObsPlot::printListString(DiGLPainter* gl, const QString& txt, QPointF& xypos, bool align_right)
+void ObsPlot::printListString(DiGLPainter* gl, const std::string& txt, QPointF& xypos, bool align_right)
 {
   QPointF xy = xypos * scale;
   const float w = advanceByStringWidth(gl, txt, xypos);
@@ -2156,16 +1886,16 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   gl->setColour(origcolour);
   colour = origcolour;
 
-  checkTotalColourCriteria(gl, index);
+  checkTotalColourCriteria(gl, dta);
 
-  const std::string thisImage = checkMarkerCriteria(index);
-  float thisMarkerSize = checkMarkersizeCriteria(index);
+  const std::string thisImage = checkMarkerCriteria(dta);
+  float thisMarkerSize = checkMarkersizeCriteria(dta);
 
   ImageGallery ig;
   float xShift = ig.widthp(image) / 2;
   float yShift = ig.heightp(image) / 2;
 
-  if ( !pFlag.count("Wind") ) {
+  if (!pFlag.count("Wind")) {
     ObsData::stringdata_t::const_iterator it = dta.stringdata.find("image");
     if (it != dta.stringdata.end()) {
       const std::string& thatImage = it->second;
@@ -2207,7 +1937,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", ff);
-    plotWind(gl, dd_adjusted, ff, ddvar, radius, current);
+    plotWind(gl, dd_adjusted, ff, ddvar, radius);
 
     advanceByDD(dd_adjusted, xypos);
   } else  {
@@ -2233,45 +1963,18 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 
     xypos.ry() += -0.2 * yStep;
   }
-
-  if ( plottype() == OPT_LIST ) {
+  if (plottype() == OPT_LIST) {
     if (yStep < 0)
-      for (const auto& p : reverse(vparam))
-        printListParameter(gl, dta,p,xypos,yStep,align_right,xshift);
+      for (const auto& p : reverse(vparam)) {
+
+        printListParameter(gl, dta, p, xypos, yStep, align_right, xshift);
+      }
     else
       for (const auto& p : vparam)
-        printListParameter(gl, dta,p,xypos,yStep,align_right,xshift);
-
-  } else if ( plottype() == OPT_ASCII ) {
-
-    if (yStep < 0)
-      for (const auto& c : reverse(columnName))
-        plotAscii(gl, dta, c,xypos,yStep,align_right);
-    else
-      for (const auto& c : columnName)
-        plotAscii(gl, dta, c,xypos,yStep,align_right);
+        printListParameter(gl, dta, p, xypos, yStep, align_right, xshift);
   }
 }
 
-void ObsPlot::plotAscii(DiGLPainter* gl, const ObsData& dta, const std::string& param,
-    QPointF& xypos, const float& yStep, bool align_right)
-{
-  if (pFlag.count(param) ) {
-    xypos.ry() -= yStep;
-    ObsData::stringdata_t::const_iterator its = dta.stringdata.find(param);
-    if (its != dta.stringdata.end()) {
-      std::string str = its->second;
-      miutil::remove(str, '"');
-      float value = atof(str.c_str());
-      if (parameterName)
-        str = param + " " + str;
-      checkColourCriteria(gl, param, value);
-      printListString(gl, decodeText(str), xypos, align_right);
-    } else {
-      printUndef(gl, xypos, align_right);
-    }
-  }
-}
 
 int ObsPlot::vtab(int idx) const
 {
@@ -2315,8 +2018,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   map<string, float>::iterator ttt_p = dta.fdata.find("TTT");
 
   //Some positions depend on wheather the following parameters are plotted or not
-  bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl"))
-      || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
+  bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn") != fend);
   bool timeFlag = (pFlag.count("time") && dta.show_time_id);
   bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
@@ -2325,7 +2027,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   gl->setColour(origcolour);
   colour = origcolour;
 
-  checkTotalColourCriteria(gl, index);
+  checkTotalColourCriteria(gl, dta);
 
   PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
   PushPopTranslateScale pushpop2(gl, scale);
@@ -2333,8 +2035,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   drawCircle(gl);
 
   // manned / automated station - ix
-  if ((dta.fdata.count("ix") && dta.fdata["ix"] > 3)
-      || (dta.fdata.count("auto") && dta.fdata["auto"] == 0)) {
+  if ((dta.fdata.count("ix") && dta.fdata["ix"] > 3) || (dta.fdata.count("auto") && dta.fdata["auto"] == 0)) {
     y1 = y2 = -1.1 * radius;
     x1 = y1 * sqrtf(3.0);
     x2 = -1 * x1;
@@ -2344,11 +2045,10 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //wind - dd,ff
-  if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")
-      && dta.fdata.count("dd_adjusted") && dta.fdata["dd"] != undef) {
+  if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff") && dta.fdata.count("dd_adjusted") && dta.fdata["dd"] != undef) {
     bool ddvar = false;
-    int dd = (int) dta.fdata["dd"];
-    int dd_adjusted = (int) dta.fdata["dd_adjusted"];
+    int dd = (int)dta.fdata["dd"];
+    int dd_adjusted = (int)dta.fdata["dd_adjusted"];
     if (dd == 990 || dd == 510) {
       ddvar = true;
       dd_adjusted = 270;
@@ -2575,19 +2275,18 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   // Ship or buoy identifier
   if (pFlag.count("id") && dta.show_time_id) {
     checkColourCriteria(gl, "Id", 0);
-    QString kjTegn = decodeText(dta.id);
     if (timeFlag)
-      printString(gl, kjTegn, xytab(lpos + 46) + QPointF(0, 15));
+      printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, 15));
     else
-      printString(gl, kjTegn, xytab(lpos + 46));
+      printString(gl, dta.id, xytab(lpos + 46));
   }
 
   //Wmo block + station number - land stations
   if ((pFlag.count("st.no(5)") || pFlag.count("st.no(3)")) && !dta.show_time_id ) {
     checkColourCriteria(gl, "St.no(5)", 0);
-    QString kjTegn = decodeText(dta.id);
+    std::string kjTegn = dta.id;
     if (!pFlag.count("st.no(5)") && kjTegn.size() > 4) {
-      kjTegn = kjTegn.mid(2, 3);
+      kjTegn = kjTegn.substr(2, 3);
       checkColourCriteria(gl, "St.no(3)", 0);
     }
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
@@ -2629,7 +2328,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       dy += 13;
     if ((pFlag.count("sss") && dta.fdata.count("sss")))
       dy += 13;
-    printString(gl, decodeText(dta.id), xytab(lpos + 46) + QPointF(0, dy));
+    printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, dy));
   }
 
   //Flag + red/yellow/green
@@ -2645,7 +2344,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   //Type of station (replace Cl)
   bool typeFlag = (pFlag.count("st.type") && (not dta.dataType.empty()));
   if (typeFlag)
-    printString(gl, decodeText(dta.dataType), xytab(lpos + 22));
+    printString(gl, dta.dataType, xytab(lpos + 22));
 
   // Man. precip, marked by dot
   if (precip) {
@@ -2664,7 +2363,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       dy += 15;
     if (pFlag.count("sss") && dta.fdata.count("sss"))
       dy += 15; //if snow
-    printString(gl, decodeText(dta.flag[hqcFlag]), xytab(lpos + 46) + QPointF(0, dy));
+    printString(gl, dta.flag[hqcFlag], xytab(lpos + 46) + QPointF(0, dy));
   }
 
   //red circle
@@ -2697,7 +2396,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   gl->setColour(origcolour);
   colour = origcolour;
 
-  checkTotalColourCriteria(gl, index);
+  checkTotalColourCriteria(gl, dta);
 
   PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
 
@@ -2721,7 +2420,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     QString cs = QString("%1V%2")
         .arg(f_p->second / 10)
         .arg(f2_p->second / 10);
-    printString(gl, cs, xytab(lpos + 2) + QPointF(2, 2));
+    printString(gl, cs.toStdString(), xytab(lpos + 2) + QPointF(2, 2));
     dndx = 2;
   }
   //Wind gust
@@ -2820,7 +2519,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     } else { //Clouds
       int ncl = dta.cloud.size();
       for (int i = 0; i < ncl; i++)
-        printString(gl, decodeText(dta.cloud[i]), xytab(lpos + 18 + i * 4) + QPointF(2, 2));
+        printString(gl, dta.cloud[i], xytab(lpos + 18 + i * 4) + QPointF(2, 2));
     }
   }
 
@@ -2837,7 +2536,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   //Id
   if (pFlag.count("id")) {
     checkColourCriteria(gl, "Id", 0);
-    printString(gl, decodeText(dta.metarId), xyid);
+    printString(gl, dta.metarId, xyid);
   }
 }
 
@@ -3254,7 +2953,7 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
     gl->drawLine(x, (y - ch / 6), (x + cw), (y - ch / 6));
 }
 
-void ObsPlot::printString(DiGLPainter* gl, const QString& c, QPointF xy, bool align_right, bool line)
+void ObsPlot::printString(DiGLPainter* gl, const std::string& c, QPointF xy, bool align_right, bool line)
 {
   float x = xy.x() * scale;
   float y = xy.y() * scale;
@@ -3271,8 +2970,7 @@ void ObsPlot::printString(DiGLPainter* gl, const QString& c, QPointF xy, bool al
     gl->drawLine(x, (y - h / 6), (x + w), (y - h / 6));
 }
 
-void ObsPlot::printTime(DiGLPainter* gl, const miTime& time,
-    QPointF xy, bool align_right, const std::string& format)
+void ObsPlot::printTime(DiGLPainter* gl, const miTime& time, QPointF xy, bool align_right, const std::string& format)
 {
   if (time.undef())
     return;
@@ -3562,7 +3260,7 @@ void ObsPlot::checkAccumulationTime(ObsData &dta)
   //    dta.fdata.erase(dta.fdata.find("RRR"));
   //  }
 
-  int hour = Time.hour();
+  int hour = obsTime.hour();
   if ((hour == 6 || hour == 18) && dta.fdata.count("RRR_12")) {
 
     dta.fdata["RRR"] = dta.fdata["RRR_12"];
@@ -3582,7 +3280,7 @@ void ObsPlot::checkGustTime(ObsData &dta)
   //  if (dta.fdata.find("911ff")!= dta.fdata.end()){
   //    dta.fdata.erase(dta.fdata.find("911ff"));
   //  }
-  int hour = Time.hour();
+  int hour = obsTime.hour();
   if ((hour == 0 || hour == 6 || hour == 12 || hour == 18)
       && dta.fdata.count("911ff_360")) {
 
@@ -3602,15 +3300,14 @@ void ObsPlot::checkGustTime(ObsData &dta)
 
 bool ObsPlot::updateDeltaTimes()
 {
-  if (plottype() != OPT_ASCII)
+  if (!pFlag.count("DeltaTime")) {
     return false;
-  if (std::find(columnName.begin(), columnName.end(), "DeltaTime") == columnName.end())
-    return false;
+  }
 
   bool updated = false;
   miutil::miTime nowTime = miutil::miTime::nowTime();
-  for (int i = 0; i < getObsCount(); i++) {
-    if (updateDeltaTime(obsp[i], nowTime))
+  for (ObsData& dta : obsp) {
+    if (updateDeltaTime(dta, nowTime))
       updated = true;
   }
   return updated;
@@ -3621,8 +3318,7 @@ bool ObsPlot::updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime)
   if (dta.obsTime.undef())
     return false;
 
-  dta.stringdata["DeltaTime"] =
-      miutil::from_number(miutil::miTime::secDiff(nowTime, dta.obsTime));
+  dta.stringdata["DeltaTime"] = miutil::from_number(miutil::miTime::secDiff(nowTime, dta.obsTime));
   return true;
 }
 
@@ -3633,7 +3329,7 @@ void ObsPlot::checkMaxWindTime(ObsData &dta)
   //    dta.fdata.erase(dta.fdata.find("fxfx"));
   //  }
 
-  int hour = Time.hour();
+  int hour = obsTime.hour();
   if ((hour == 0 || hour == 6 || hour == 12 || hour == 18)
       && dta.fdata.count("fxfx_360")) {
 
@@ -3796,7 +3492,7 @@ void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radi
     gl->drawCross(0, 0, x, true);
   } else if (N == 9) {
     // some special code.., fog perhaps
-    x = radius / sqrt((float) 2);
+    x = radius / sqrt((float)2);
     gl->drawCross(0, 0, x, true);
   } else if (N >= 6 && N <= 8) {
     DiGLPainter::GLfloat tmp_radius = 0.6 * radius;
@@ -3819,19 +3515,19 @@ void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radi
   }
 }
 
-void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current)
+void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius)
 {
   METLIBS_LOG_SCOPE();
-  //full feather = current
-  if (current > 0)
-    ff_ms = ff_ms * 10.0 / current;
 
-  float ff; //wind in knots (current in m/s)
-
-  if (current < 0)
+  float ff; // wind in knots (if scaled by wind_scale: m/s)
+  if (wind_scale > 0) {
+    // wind_scale is used when the parameter wind is actually current.
+    // Needed to scale the wind arrow
+    ff = int(ff_ms * 10.0 / wind_scale);
+  } else {
+    // wind
     ff = diutil::ms2knots(ff_ms);
-  else
-    ff = int(ff_ms);
+  }
 
   // just a guess of the max possible in plotting below
   if (ff > 200)
@@ -3839,8 +3535,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
 
   diutil::GlMatrixPushPop pushpop1(gl);
 
-  const bool type_list_ascii = (plottype() == OPT_LIST || plottype() == OPT_ASCII);
-  const bool no_cirle = (type_list_ascii || current > 0);
+  const bool no_cirle = (plottype() == OPT_LIST || wind_scale > 0);
   const float r = (no_cirle ? 0 : radius);
 
   // calm
@@ -3861,8 +3556,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
   } else {
     // normal wind arrow
 
-    const bool arrow = poptions.arrowstyle == arrow_wind_arrow
-        && (plottype() == OPT_LIST || plottype() == OPT_ASCII);
+    const bool arrow = poptions.arrowstyle == arrow_wind_arrow && (plottype() == OPT_LIST);
 
     const float angle = (270-dd)*DEG_TO_RAD, ac = std::cos(angle), as = std::sin(angle);
     const float u = ff*ac, v = ff*as;
@@ -3920,8 +3614,7 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_i
   symbol(gl, n, xypos, 0.8 * scale, align_right);
 }
 
-void ObsPlot::pastWeather(DiGLPainter* gl, int w, QPointF xypos, float scale,
-    bool align_right)
+void ObsPlot::pastWeather(DiGLPainter* gl, int w, QPointF xypos, float scale, bool align_right)
 {
   const int auto2man[10] = { 0, 4, 3, 4, 6, 5, 6, 7, 8, 9 };
 
@@ -3950,7 +3643,7 @@ void ObsPlot::wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, QPoint
   } else
     cs += "xx";
 
-  printListString(gl, cs, xypos, align_right);
+  printListString(gl, cs.toStdString(), xypos, align_right);
 }
 
 namespace {
@@ -3997,7 +3690,7 @@ bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename
   ritab.clear();
   riptab.clear();
 
-  if (type == OPT_SYNOP || type == OPT_LIST || type == OPT_ROADOBS)
+  if (type == OPT_SYNOP || type == OPT_LIST)
     psize= 11320;
   else if (type == OPT_METAR)
     psize = 3072;
@@ -4073,7 +3766,7 @@ void ObsPlot::decodeCriteria(const std::string& critStr)
         continue;
       parameter = sstr[0];
       limit = atof(sstr[1].c_str());
-      if (!unit_ms && knotParameters.count(parameter)) {
+      if (!unit_ms && ObsDialogInfo::findPar(parameter).type == ObsDialogInfo::pt_knot) {
         limit = diutil::knots2ms(limit);
       }
     } else {
@@ -4141,16 +3834,18 @@ void ObsPlot::checkColourCriteria(DiGLPainter* gl, const std::string& param, flo
   gl->setColour(col);
 }
 
-bool ObsPlot::getValueForCriteria(int index, const std::string& param,
-    float& value)
+bool ObsPlot::getValueForCriteria(const ObsData& dta, const std::string& param, float& value)
 {
   value = 0;
 
-  if (obsp[index].fdata.count(param)) {
-    value = obsp[index].fdata[param];
-  } else if (obsp[index].stringdata.count(param)) {
-    value = atof(obsp[index].stringdata[param].c_str());
-  } else if (miutil::to_lower(param) != obsp[index].dataType) {
+  ObsData::fdata_t::const_iterator itf;
+  ObsData::stringdata_t::const_iterator its;
+
+  if ((itf = dta.fdata.find(param)) != dta.fdata.end()) {
+    value = itf->second;
+  } else if ((its = dta.stringdata.find(param)) != dta.stringdata.end()) {
+    value = miutil::to_float(its->second);
+  } else if (miutil::to_lower(param) != dta.dataType) {
     return false;
   }
   return true;
@@ -4180,25 +3875,23 @@ bool ObsPlot::baseCriteria::match(float value) const
       || (sign == no_sign);
 }
 
-bool ObsPlot::checkPlotCriteria(int index)
+bool ObsPlot::checkPlotCriteria(const ObsData& dta)
 {
   if (plotcriteria.empty())
     return true;
 
   bool doPlot = false;
 
-  map<std::string, vector<plotCriteria> >::iterator p = plotcriteria.begin();
-
-  for (; p != plotcriteria.end(); p++) {
+  for (const auto& p : plotcriteria) {
     float value = 0;
-    if (not getValueForCriteria(index, p->first, value))
+    if (!getValueForCriteria(dta, p.first, value))
       continue;
-    if (p->first == "RRR")
+    if (p.first == "RRR")
       adjustRRR(value);
 
     bool bplot = true;
-    for (size_t i = 0; i < p->second.size(); i++)
-      bplot &= p->second[i].match(value);
+    for (const plotCriteria& c : p.second)
+      bplot &= c.match(value);
 
     doPlot |= bplot;
   }
@@ -4206,74 +3899,61 @@ bool ObsPlot::checkPlotCriteria(int index)
   return doPlot;
 }
 
-void ObsPlot::checkTotalColourCriteria(DiGLPainter* gl, int index)
+void ObsPlot::checkTotalColourCriteria(DiGLPainter* gl, const ObsData& dta)
 {
   if (totalcolourcriteria.empty())
     return;
 
-  map<std::string, vector<colourCriteria> >::iterator p =
-      totalcolourcriteria.begin();
-
-  for (; p != totalcolourcriteria.end(); p++) {
+  for (const auto& p : totalcolourcriteria) {
     float value = 0;
-    if (not getValueForCriteria(index, p->first, value))
+    if (!getValueForCriteria(dta, p.first, value))
       continue;
-    if (p->first == "RRR")
+    if (p.first == "RRR")
       adjustRRR(value);
 
-    for (size_t i = 0; i < p->second.size(); i++) {
-      if (p->second[i].match(value))
-        colour = p->second[i].colour;
+    for (const colourCriteria& c : p.second) {
+      if (c.match(value))
+        colour = c.colour;
     }
   }
 
   gl->setColour(colour);
 }
 
-std::string ObsPlot::checkMarkerCriteria(int index)
+std::string ObsPlot::checkMarkerCriteria(const ObsData& dta)
 {
   std::string marker = image;
-  if (markercriteria.empty())
-    return marker;
 
-  map<std::string, vector<markerCriteria> >::iterator p =
-      markercriteria.begin();
-
-  for (; p != markercriteria.end(); p++) {
+  for (const auto& p : markercriteria) {
     float value = 0;
-    if (not getValueForCriteria(index, p->first, value))
+    if (!getValueForCriteria(dta, p.first, value))
       continue;
-    if (p->first == "RRR")
+    if (p.first == "RRR")
       adjustRRR(value);
 
-    for (size_t i = 0; i < p->second.size(); i++) {
-      if (p->second[i].match(value))
-        marker = p->second[i].marker;
+    for (const markerCriteria& c : p.second) {
+      if (c.match(value))
+        marker = c.marker;
     }
   }
 
   return marker;
 }
 
-float ObsPlot::checkMarkersizeCriteria(int index)
+float ObsPlot::checkMarkersizeCriteria(const ObsData& dta)
 {
-  if (markersizecriteria.empty())
-    return markerSize;
+  float relSize = 1;
 
-  float relSize = 1.0;
-  map<std::string, vector<markersizeCriteria> >::iterator p =
-      markersizecriteria.begin();
-
-  for (; p != markersizecriteria.end(); p++) {
+  for (const auto& p : markersizecriteria) {
     float value = 0;
-    if (not getValueForCriteria(index, p->first, value))
+    if (!getValueForCriteria(dta, p.first, value))
       continue;
-    if (p->first == "RRR")
+    if (p.first == "RRR")
       adjustRRR(value);
 
-    for (size_t i = 0; i < p->second.size(); i++) {
-      if (p->second[i].match(value))
-        relSize = p->second[i].size;
+    for (const markersizeCriteria& c : p.second) {
+      if (c.match(value))
+        relSize = c.size;
     }
   }
 
@@ -4325,9 +4005,4 @@ void ObsPlot::parameterDecode(const std::string& parameter, bool add)
     pFlag[parameter] = add;
     pFlag[miutil::to_lower(parameter)] = add;
   }
-}
-
-const std::vector<std::string>& ObsPlot::getFileNames() const
-{
-  return fileNames;
 }

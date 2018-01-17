@@ -71,193 +71,112 @@ using namespace std;
   It also includes some sliders, checkboxes, comboboxes etc.
  */
 
-ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
+ObsWidget::ObsWidget(QWidget* parent)
+    : QWidget(parent)
 {
-
-#ifdef dObsDlg
-  METLIBS_LOG_DEBUG("ObsWidget::ObsWidget called");
-#endif
-  initOK=false;
-//  Qt::WA_DeleteOnClose;
+  METLIBS_LOG_SCOPE();
+  initOK = false;
 }
 
-void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
+void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
 {
-#ifdef dObsDlg
-  METLIBS_LOG_DEBUG("ObsWidget::setDialogInfo");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  initOK=true;
-  ObsDialogInfo::PlotType &dialogInfo = dialog.plottype[plottype_nr];
+  initOK = true;
+
+  ObsDialogInfo::PlotType& dialogInfo = dialoginfo;
 
   plotType = dialogInfo.name;
 
-  // Button names and default values
-  nr_dataTypes = dialogInfo.datatype.size();
-  for( int i=0; i<nr_dataTypes; i++ ){
+  // Button names
+  std::vector<ObsDialogInfo::Button> dataTypeButton;
+  nr_dataTypes = dialogInfo.readernames.size();
+  for (const std::string& rn : dialogInfo.readernames) {
     ObsDialogInfo::Button b;
-    b.name = dialogInfo.datatype[i].name;
+    b.name = rn;
     dataTypeButton.push_back(b);
-    datatype.push_back(dialogInfo.datatype[i]);
   }
-  button = dialogInfo.button;
-
 
   // Info about sliders, check boxes etc.
-  pressureLevels = dialogInfo.pressureLevels.size();
-  scaledensity   = dialog.density.scale;
-  maxdensity     = dialog.density.maxValue;
-  scalesize      = dialog.size.scale;
-  scalediff      = dialog.timediff.scale;
-  priorityList   = dialog.priority; //priority list
+  int density_minValue = 5;
+  int density_value = 10;
+  scaledensity = 0.1;
+  maxdensity = 25;
 
-  //Info about colours
+  int size_minValue = 1;
+  int size_maxValue = 35;
+  int size_value = 10;
+  scalesize = 0.1;
+
+  // timer
+  int timediff_minValue = 0;
+  int timediff_maxValue = 48;
+
+  verticalLevels = dialogInfo.verticalLevels.size();
+
+  // Info about colours
   cInfo = Colour::getColourInfo();
+  int colIndex = getIndex(cInfo, "black");
+  int devcol1Index = getIndex(cInfo, "red");
+  int devcol2Index = getIndex(cInfo, "blue");
 
-  vector<std::string> defV = miutil::split(dialog.defValues, " ");
-  int n=defV.size();
-  int colIndex = 0, devcol1Index = 0, devcol2Index = 0;
-  for(int i=0;i<n;i++){
-    vector<std::string> stokens = miutil::split(defV[i], "=");
-    if(stokens.size()==2){
-      if(stokens[0]=="colour")
-        colIndex=getIndex(cInfo,stokens[1]);
-      else if(stokens[0]=="devcolour1")
-        devcol1Index=getIndex(cInfo,stokens[1]);
-      if(stokens[0]=="devcolour2")
-        devcol2Index=getIndex(cInfo,stokens[1]);
-    }
-  }
-
-  nobutton = !button.size();
-  bool devField=false;
-  bool tempPrecision=false;
-  bool unit_ms=false;
-  bool orient=false;
-  bool parameterName=false;
-  bool popupWindow=false;
-  bool moreTimes=false;
-  bool qualityFlag=false;
-  bool wmoFlag=false;
-  markerboxVisible=false;
-  leveldiffs=false;
-  bool criteria=true;
-  vector<std::string> tokens = miutil::split(dialogInfo.misc, " ");
-  n=tokens.size();
-  for(int i=0;i<n;i++){
-    vector<std::string> stokens = miutil::split(tokens[i], "=");
-    bool on = true;
-    if(stokens.size()==2 && miutil::to_lower(stokens[1])=="false") on=false;
-    if(stokens.size()){
-      if(stokens[0]=="dev_field_button")
-        devField = on;
-      else if(stokens[0]=="tempPrecision")
-        tempPrecision = on;
-      else if(stokens[0]=="unit_ms")
-        unit_ms = on;
-      else if(stokens[0]=="markerboxVisible")
-        markerboxVisible = on;
-      else if(stokens[0]=="leveldiff")
-        leveldiffs = on;
-      else if(stokens[0]=="orientation")
-        orient = on;
-      else if(stokens[0]=="parameterName")
-        parameterName = on;
-      else if(stokens[0]=="popup")
-        popupWindow = on;
-      else if(stokens[0]=="more_times")
-        moreTimes = on;
-      else if(stokens[0]=="criteria")
-        criteria = on;
-      else if(stokens[0]=="qualityflag")
-        qualityFlag = on;
-      else if(stokens[0]=="wmoflag")
-        wmoFlag = on;
-    }
-  }
+  bool devField = (dialogInfo.misc & ObsDialogInfo::dev_field_button) != 0;
+  bool tempPrecision = (dialogInfo.misc & ObsDialogInfo::tempPrecision) != 0;
+  bool unit_ms = (dialogInfo.misc & ObsDialogInfo::unit_ms) != 0;
+  bool orient = (dialogInfo.misc & ObsDialogInfo::orientation) != 0;
+  bool parameterName = (dialogInfo.misc & ObsDialogInfo::parameterName) != 0;
+  bool popupWindow = (dialogInfo.misc & ObsDialogInfo::popup) != 0;
+  bool qualityFlag = (dialogInfo.misc & ObsDialogInfo::qualityflag) != 0;
+  bool wmoFlag = (dialogInfo.misc & ObsDialogInfo::wmoflag) != 0;
+  markerboxVisible = (dialogInfo.misc & ObsDialogInfo::markerboxVisible) != 0;
+  bool criteria = (dialogInfo.misc & ObsDialogInfo::criteria) != 0;
 
   // DECLARATION OF BUTTONS
 
-  datatypeButtons =
-    new ButtonLayout(this, dataTypeButton, 3);
+  datatypeButtons = new ButtonLayout(this, dataTypeButton, 3);
 
-  // sv = new QScrollView(this);
-  //     sv->setHScrollBarMode(QScrollView::AlwaysOff);
-  parameterButtons=
-    new ButtonLayout(this, button, 3);
-  //     sv->addChild(parameterButtons);
+  dialoginfo.addExtraParameterButtons();
+  parameterButtons = new ButtonLayout(this, dialogInfo.button, 3);
 
   QScrollArea* scrollArea = new QScrollArea(this);
   scrollArea->setWidget(parameterButtons);
   scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-  connect( datatypeButtons,SIGNAL(outGroupClicked(int)),
-      SLOT(outTopClicked(int)));
-  connect( datatypeButtons, SIGNAL(inGroupClicked(int)),
-      SLOT( inTopClicked(int)));
+  connect(datatypeButtons, SIGNAL(buttonClicked(int)), SLOT(datatypeButtonClicked(int)));
   connect( datatypeButtons, SIGNAL(rightClickedOn(std::string)),
       SLOT(rightClickedSlot(std::string)));
   connect( parameterButtons, SIGNAL(rightClickedOn(std::string)),
       SLOT(rightClickedSlot(std::string)));
-  connect( this,SIGNAL(setRightClicked(std::string,bool)),
-      parameterButtons,SLOT(setRightClicked(std::string,bool)));
 
   //AND-Buttons
   allButton  = NormalPushButton(tr("All"),this);
   noneButton = NormalPushButton(tr("None"),this);
-  defButton  = NormalPushButton(tr("Default"),this);
   QHBoxLayout* andLayout = new QHBoxLayout();
   andLayout->addWidget( allButton  );
   andLayout->addWidget( noneButton );
-  andLayout->addWidget( defButton  );
   connect( allButton,SIGNAL(clicked()),
       parameterButtons,SLOT(ALLClicked()));
   connect( noneButton,SIGNAL(clicked()),
       parameterButtons,SLOT(NONEClicked()));
-  connect( defButton,SIGNAL(clicked()),
-      parameterButtons,SLOT(DEFAULTClicked()));
 
   // PRESSURE LEVELS
   QHBoxLayout* pressureLayout = new QHBoxLayout();
 
-  if(pressureLevels ){
-    QLabel *pressureLabel;
-    if(leveldiffs)
-      pressureLabel = new QLabel(tr("Depth"),this);
-    else
-      pressureLabel = new QLabel(tr("Pressure"),this);
+  if (verticalLevels) {
+    QLabel* pressureLabel = new QLabel(tr("Vertical level"), this);
 
     pressureComboBox = new QComboBox(this);
     pressureComboBox->addItem(tr("As field"));
     levelMap["asfield"] = 0;
-    int psize=dialogInfo.pressureLevels.size();
+    int psize = dialogInfo.verticalLevels.size();
     for(int i=1; i<psize+1; i++){
-      std::string str = miutil::from_number(dialogInfo.pressureLevels[psize-i]);
+      std::string str = miutil::from_number(dialogInfo.verticalLevels[psize - i]);
       pressureComboBox->addItem(str.c_str());
       levelMap[str]=i;
     }
 
     pressureLayout->addWidget( pressureLabel );
     pressureLayout->addWidget( pressureComboBox );
-
-    if(leveldiffs){
-      QLabel* leveldiffLabel = new QLabel(tr("deviation"),this);
-      leveldiffComboBox = new QComboBox(this);
-      for(int i=0;i<4;i++){
-        int aa=(int)pow(10.0,i);
-        std::string tmp= miutil::from_number(aa);
-        leveldiffComboBox->addItem(tmp.c_str());
-        leveldiffMap[tmp]=i*3;
-        tmp = miutil::from_number(aa*2);
-        leveldiffComboBox->addItem(tmp.c_str());
-        leveldiffMap[tmp]=1*3+1;
-        tmp = miutil::from_number(aa*5);
-        leveldiffComboBox->addItem(tmp.c_str());
-        leveldiffMap[tmp]=i*3+2;
-      }
-      pressureLayout->addWidget( leveldiffLabel );
-      pressureLayout->addWidget( leveldiffComboBox );
-    }
     pressureLayout->addStretch();
 
   }
@@ -279,9 +198,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
   if(!parameterName) parameterNameCheckBox->hide();
   popupWindowCheckBox= new QCheckBox(tr("Selected observation in popup window"),this);
   if(!popupWindow) popupWindowCheckBox->hide();
-     moreTimesCheckBox=
-    new QCheckBox(tr("All observations (mixing different times)"),this);
-  if(!moreTimes) moreTimesCheckBox->hide();
   devFieldCheckBox= new QCheckBox(tr("PPPP - MSLP-field"),this);
   if(!devField) devFieldCheckBox->hide();
   devColourBox1 = ColourBox( this, cInfo, true, devcol1Index );
@@ -355,10 +271,8 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
   for(int i=0;i<13;i++)
     time_slider2lcd.push_back(i*15);
 
-  densitySlider = Slider( dialog.density.minValue, dialog.density.maxValue,
-      1, dialog.density.value,Qt::Horizontal, this);
-  sizeSlider = Slider( dialog.size.minValue, dialog.size.maxValue,
-      1, dialog.size.value, Qt::Horizontal, this);
+  densitySlider = Slider(density_minValue, maxdensity, 1, density_value, Qt::Horizontal, this);
+  sizeSlider = Slider(size_minValue, size_maxValue, 1, size_value, Qt::Horizontal, this);
   diffSlider= Slider( 0,time_slider2lcd.size(), 1, 4,
       Qt::Horizontal, this);
 
@@ -393,8 +307,8 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
 
   //Parameter sort
   std::vector<std::string> buttonNames;
-  for(unsigned int i=0; i<button.size(); i++)
-    buttonNames.push_back(button[i].name);
+  for (unsigned int i = 0; i < dialogInfo.button.size(); i++)
+    buttonNames.push_back(dialogInfo.button[i].name);
 
   QLabel *sortLabel = new QLabel( tr("Sort "), this);
   sortBox = ComboBox( this,buttonNames,true);
@@ -458,7 +372,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
   vcommonlayout->addWidget( tempPrecisionCheckBox );
   vcommonlayout->addWidget( unit_msCheckBox );
   vcommonlayout->addWidget( parameterNameCheckBox );
-  vcommonlayout->addWidget( moreTimesCheckBox );
   vcommonlayout->addWidget( qualityCheckBox );
   vcommonlayout->addWidget( wmoCheckBox );
   vcommonlayout->addLayout( devLayout );
@@ -476,14 +389,13 @@ void ObsWidget::setDialogInfo(ObsDialogInfo dialog,int plottype_nr)
     vlayout->addWidget( scrollArea );
   vlayout->addLayout( vcommonlayout );
 
-  densityLcdnum->display(((double)dialog.density.value)*dialog.density.scale);
-  sizeLcdnum->display( ((double)dialog.size.value)*dialog.size.scale) ;
+  densityLcdnum->display(((double)density_value) * scaledensity);
+  sizeLcdnum->display(((double)size_value) * scalesize);
 
   allObs = false;
 
   pri_selected = 0;
 
-  parameterButtons->DEFAULTClicked();
   parameterButtons->setEnabled(false);
 
   ToolTip();
@@ -494,7 +406,6 @@ void ObsWidget::ToolTip()
   datatypeButtons->setToolTip(tr("Data type") );
   devColourBox1->setToolTip(tr("PPPP-MSLP<0"));
   devColourBox2->setToolTip(tr("PPPP-MSLP>0"));
-  moreTimesCheckBox->setToolTip(tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
   qualityCheckBox->setToolTip(tr("Only show stations with quality flag good."));
   wmoCheckBox->setToolTip(tr("Only show stations with wmo number"));
   diffLcdnum->setToolTip(tr("Max time difference"));
@@ -522,11 +433,8 @@ void ObsWidget::onlyposChecked(bool on)
 
 void ObsWidget::criteriaChecked(bool on)
 {
-  if(on) {
+  if (on)
     Q_EMIT criteriaOn();
-  } else {
-    Q_EMIT setRightClicked("ALL_PARAMS", false);
-  }
 }
 
 /***************************************************************************/
@@ -633,46 +541,13 @@ void ObsWidget::diffComboBoxSlot(int number)
 }
 /***************************************************************************/
 
-void ObsWidget::inTopClicked(int id)
+void ObsWidget::datatypeButtonClicked(int id)
 {
-  //  This function is called when datatypeButtons sends a signal
-  // inGroupClicked(int),
-  //      and is sent when a new datatype is selected.
-
-  if(parameterButtons)
-    parameterButtons->enableButtons(datatype[id].active);
+  parameterButtons->setEnabled(!datatypeButtons->noneChecked());
 
   // Names of datatypes selected are sent to controller
   diutil::OverrideCursor waitCursor;
   emit getTimes();
-}
-
-
-void ObsWidget::outTopClicked(int id)
-{
-  // This function is called when datatypeButtons sends a signal
-  //  outGroupClicked(int), and is sent when an already selected
-  //  datatype is unselected, that is the button is pressed out.
-
-  if(parameterButtons)
-    parameterButtons->setEnabled(false); //disable all parameter buttons
-
-  // "click the other buttons again"
-  for(int i=0; i<nr_dataTypes; i++){
-    if(datatypeButtons->isChecked(i))
-      if(parameterButtons)
-        parameterButtons->enableButtons(datatype[i].active);
-  }
-
-  // Names of datatypes selected are sent to controller
-  diutil::OverrideCursor waitCursor;
-  emit getTimes();
-}
-
-void ObsWidget::markButton(const std::string& str,bool on)
-{
-  if(criteriaCheckBox->isChecked())
-    Q_EMIT setRightClicked(str,on);
 }
 
 void ObsWidget::rightClickedSlot(std::string str)
@@ -696,7 +571,7 @@ miutil::KeyValue_v ObsWidget::makeString()
 {
   miutil::KeyValue_v kvs;
   kvs << miutil::KeyValue("plot", plotType);
-
+  METLIBS_LOG_DEBUG(LOGVAL(plotType));
   std::string datastr;
   if (dVariables.data.size()) {
     for (const string& d : dVariables.data)
@@ -722,6 +597,7 @@ miutil::KeyValue_v ObsWidget::makeString()
 KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
 {
   shortname.clear();
+  METLIBS_LOG_DEBUG(LOGVAL(plotType));
 
   dVariables.plotType = plotType;
 
@@ -741,9 +617,6 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
 
   if( parameterNameCheckBox->isChecked() )
     dVariables.misc["parametername"]="true";
-
-  if( moreTimesCheckBox->isChecked() )
-    dVariables.misc["moretimes"]="true";
 
   if( qualityCheckBox->isChecked() )
     dVariables.misc["qualityflag"]="true";
@@ -778,16 +651,12 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
     dVariables.misc["devcolour2"] = cInfo[devColourBox2->currentIndex()].name;
   }
 
-  if( pressureLevels ){
+  if (verticalLevels) {
     if(pressureComboBox->currentIndex()>0 ){
       dVariables.misc["level"] = pressureComboBox->currentText().toStdString();
     } else {
       dVariables.misc["level"] = "asfield";
     }
-  }
-
-  if( leveldiffs ){
-    dVariables.misc["leveldiff"] = leveldiffComboBox->currentText().toStdString();
   }
 
   if( allObs )
@@ -892,6 +761,7 @@ void ObsWidget::updateDialog(bool setChecked)
 
   //plotType
   plotType = dVariables.plotType;
+  METLIBS_LOG_DEBUG(LOGVAL(plotType));
 
   //data types
   if ( setChecked ){
@@ -899,10 +769,8 @@ void ObsWidget::updateDialog(bool setChecked)
     for(j=0; j<m; j++){
       //METLIBS_LOG_DEBUG("updateDialog: "<<dVariables.data[j]);
       int index = datatypeButtons->setButtonOn(dVariables.data[j]);
-      if(index<0) continue;
-      if(parameterButtons)
-        parameterButtons->enableButtons(datatype[index].active);
     }
+    parameterButtons->setEnabled(!datatypeButtons->noneChecked());
   }
 
   //parameter
@@ -948,12 +816,6 @@ void ObsWidget::updateDialog(bool setChecked)
   if (dVariables.misc.count("popup") &&
       dVariables.misc["popup"] == "true"){
     popupWindowCheckBox->setChecked(true);
-  }
-
-  //moreTimes (not from log)
-  if (setChecked && dVariables.misc.count("moretimes") &&
-      dVariables.misc["moretimes"] == "true"){
-    moreTimesCheckBox->setChecked(true);
   }
 
   //Quality flag
@@ -1008,16 +870,9 @@ void ObsWidget::updateDialog(bool setChecked)
   }
 
   //level
-  if (pressureLevels && dVariables.misc.count("level")
-      && levelMap.count(dVariables.misc["level"])){
+  if (verticalLevels && dVariables.misc.count("level") && levelMap.count(dVariables.misc["level"])) {
     number = levelMap[dVariables.misc["level"]];
     pressureComboBox->setCurrentIndex(number);
-  }
-
-  if (leveldiffs && dVariables.misc.count("leveldiff")
-      && leveldiffMap.count(dVariables.misc["leveldiff"])){
-    number = leveldiffMap[dVariables.misc["leveldiff"]];
-    leveldiffComboBox->setCurrentIndex(number);
   }
 
   //density
@@ -1213,8 +1068,6 @@ void ObsWidget::setFalse()
 
   parameterNameCheckBox->setChecked(false);
 
-  moreTimesCheckBox->setChecked(false);
-
   qualityCheckBox->setChecked(false);
 
   wmoCheckBox->setChecked(false);
@@ -1233,18 +1086,8 @@ void ObsWidget::setFalse()
 
   popupWindowCheckBox->setChecked(false);
 
-  if( pressureLevels ){
+  if (verticalLevels) {
     pressureComboBox->setCurrentIndex(0);
-  }
-}
-
-void ObsWidget::setDatatype( const std::string& type)
-{
-  int index = datatypeButtons->setButtonOn(type);
-  if(index<0) return;
-  if(parameterButtons){
-    parameterButtons->enableButtons(datatype[index].active);
-    parameterButtons->DEFAULTClicked();
   }
 }
 

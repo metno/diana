@@ -29,10 +29,11 @@
 #ifndef diObsManager_h
 #define diObsManager_h
 
-#include "diCommonTypes.h"
-#include "diPlot.h"
-#include "diPlotCommand.h"
 #include "diObsData.h"
+#include "diObsDialogInfo.h"
+#include "diObsPlotType.h"
+#include "diObsReader.h"
+#include "diPlotCommand.h"
 
 #include <puTools/TimeFilter.h>
 
@@ -54,158 +55,65 @@ struct ObsDialogInfo;
   - read data
 */
 class ObsManager {
-
-private:
-
-  enum ObsFormat {
-#ifdef ROADOBS
-    ofmt_roadobs,
-#endif
-    ofmt_unknown,
-    ofmt_synop,
-    ofmt_aireps,
-    ofmt_satob,
-    ofmt_dribu,
-    ofmt_temp,
-    ofmt_ocea,
-    ofmt_tide,
-    ofmt_pilot,
-    ofmt_metar,
-    ofmt_ascii,
-    ofmt_hqc,
-    ofmt_url
-  };
-
 public:
-  struct patternInfo {
-    miutil::TimeFilter filter;
-    std::string pattern;
-    bool archive;
-    std::string fileType;  //bufr,miobs...
-  };
-
-  struct FileInfo {
-    std::string filename;
-    miutil::miTime   time;
-    std::string filetype; //bufr,miobs...
-  };
-
   struct ProdInfo {
-    ObsFormat obsformat;
-    std::string dialogName; // mixedcase, always Prod[lowercase]
-    std::string plotFormat;
-    std::vector<patternInfo> pattern;
-    std::vector<FileInfo> fileInfo;
-    std::vector<std::string> headerinfo;
-    std::string timeInfo;// noTime or timeInfo from setup: from=;to=;interval
-    int timeRangeMin;
-    int timeRangeMax;
-    float current;
-    bool synoptic;
-    std::string headerfile;
-    std::string metaData;
-#ifdef ROADOBS
-    std::string stationfile;
-    std::string databasefile;
-    int daysback;
-#endif
-    bool useFileTime;
-    std::vector<std::string> parameter;
-    std::string textCodec;
+    std::string name;
+    std::set<ObsPlotType> plottypes; //! for which style of plotting should this be reader be available?
+    ObsReader_p reader;              //! observation data reader
+    int sort_order;
   };
 
 private:
   typedef std::map<std::string, ProdInfo> string_ProdInfo_m;
-  string_ProdInfo_m defProd;
   string_ProdInfo_m Prod;
-  typedef std::map<std::string, std::shared_ptr<ObsMetaData> > string_ObsMetaData_m;
-  string_ObsMetaData_m metaDataMap;
-  ObsDialogInfo dialog;
-  std::vector<ObsDialogInfo::PriorityList> priority;
-  //one  criterialist pr plot type
-  std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
-  //  set<std::string> dataTypesListed;
+  ObsDialogInfo dialog;
+
+  std::vector<ObsDialogInfo::PriorityList> priority;
+  // one  criterialist pr plot type
+  std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
   std::vector<std::string> popupSpec;  // Parameter data from setupfil
 
   bool useArchive; //read archive files too.
 
-  //HQC - perhaps its own class?
-  std::vector<ObsData> hqcdata;
-  std::vector<std::string> hqc_synop_parameter;
-  miutil::miTime hqcTime;
-  std::string hqcFlag;
-  std::string hqcFlag_old;
-  int hqc_from;
-  std::string selectedStation;
   //--------------------------------------
 
-  bool addStationsAndTimeFromMetaData( const std::string& metaData,
-      std::string& url, const miutil::miTime& time);
-  ObsDialogInfo::Button addButton(const std::string& name, const std::string& tip,
-      int low=-50, int high=50, bool def=true);
-  void addType(ObsDialogInfo::PlotType& dialogInfo,
-      const std::vector<ObsFormat>& obsformat);
-  void setActive(const std::vector<std::string>& name, bool on,
-      std::vector<bool>& active,
-      const std::vector<ObsDialogInfo::Button>& b);
-  void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
-      const std::vector<std::string>& parameter,
-      const std::string& name,
-      const std::vector<ObsDialogInfo::Button>& b);
-  std::vector<FileInfo> getFileName(const miutil::miTime& , const ProdInfo& pi,
-      std::vector<miutil::miTime>& termin,
-      miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
-  bool updateTimes(std::string obsType);
+  void addReaders(ObsDialogInfo::PlotType& dialogInfo);
 
-
-//  HQC
+  // HQC
   bool changeHqcdata(ObsData&, const std::vector<std::string>& param,
       const std::vector<std::string>& data);
 
-  void initProductDefaults();
   bool parseFilesSetup();
   bool parsePrioritySetup();
   bool parseCriteriaSetup();
   bool parsePopupWindowSetup();
-  void printProdInfo(const ProdInfo & pinfo);
 
 public:
   ObsManager();
 
-  //read data
-  bool prepare(ObsPlot *, const miutil::miTime&);
-  ObsDialogInfo initDialog(void);
-  ObsDialogInfo updateDialog(const std::string& name);
   bool parseSetup();
 
-  // return observation times for list of PlotInfo's
+  void archiveMode(bool on) { useArchive = on; }
+
+  ObsDialogInfo initDialog();
+  void updateDialog(ObsDialogInfo::PlotType& pt, const std::string& readername);
+
+  //! read data into an obsplot
+  bool prepare(ObsPlot*, const miutil::miTime&);
+
+  //! \return observation times for a list of "prod"
   std::vector<miutil::miTime> getTimes(const std::vector<std::string>& obsTypes);
 
-  ///returns union or intersection of plot times from all pinfos
+  //! \return union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
       int& timediff, const PlotCommand_cp& pinfo);
 
   //! return observation times for list of obsTypes
   std::vector<miutil::miTime> getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos);
 
-  void archiveMode(bool on)
-    { useArchive=on; }
-
-//  HQC
-  ObsDialogInfo updateHqcDialog(const std::string& plotType);
-  bool initHqcdata(int from,
-      const std::string& commondesc, const std::string& common,
-      const std::string& desc, const std::vector<std::string>&data);
-  bool updateHqcdata(const std::string& commondesc, const std::string& common,
-      const std::string& desc, const std::vector<std::string>&data);
-  bool sendHqcdata(ObsPlot* oplot);
-  void processHqcCommand(const std::string&, const std::string&);
-  // Added for automatic updates
-  bool timeListChanged;
-
-  const std::map<std::string, ProdInfo>& getProductsInfo() const;
+  bool updateTimes(ObsPlot* op);
 };
 
 #endif

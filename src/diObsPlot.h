@@ -30,9 +30,12 @@
 #define diObsPlot_h
 
 #include "diPlot.h"
-#include "diPlotCommand.h"
+
 #include "diGLPainter.h"
 #include "diObsData.h"
+#include "diObsDialogInfo.h"
+#include "diObsPlotType.h"
+#include "diPlotCommand.h"
 
 #include <QPointF>
 
@@ -71,10 +74,6 @@ struct ObsPlotCollider {
  - list plot
  */
 class ObsPlot: public Plot {
-public:
-  enum ObsPlotType {
-    OPT_SYNOP, OPT_METAR, OPT_ROADOBS, OPT_ASCII, OPT_LIST
-  };
 
 protected:
   std::vector<ObsData> obsp;
@@ -82,22 +81,7 @@ protected:
   // obs positions in getStaticPlot()->getMapArea().P() coordinates; updated in setData
   float *x, *y;
 
-  struct Parameter {
-    std::string name;
-    bool knotParam;
-    bool tempParam;
-    bool rrrParam;
-    int symbol;
-    int precision;
-    Parameter():
-    knotParam(0), tempParam(false), rrrParam(false), symbol(-1), precision(0)
-    {
-    }
-  };
-
-  std::vector<Parameter> vparam;
-
-  //from plotInfo
+  // from plotInfo
   float markerSize;
   float textSize;
   bool allObs;     //plot all observations
@@ -113,17 +97,19 @@ protected:
   std::unique_ptr<ObsPositions> devfield;
   bool onlypos;
   bool showOnlyPrioritized;
+  float wind_scale; // used when wind is actually current
   std::string image;
   int level;
+  std::string levelsuffix;
   bool levelAsField;
   bool annotations;
   const ObsPlotType m_plottype;
   std::string dialogname;
-
+  std::vector<ObsDialogInfo::Par> vparam;
   ObsPlotType plottype() const
     { return m_plottype; }
 
-  std::vector<std::string> datatypes;
+  std::vector<std::string> readernames;
   bool priority;
   std::string priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
@@ -140,20 +126,14 @@ protected:
 
   int timeDiff;
   bool moretimes; //if true, sort stations according to obsTime
-  miutil::miTime Time;
+  miutil::miTime obsTime;
   std::string annotation;
-  PlotCommand_cpv labels; // labels from ascii-files or PlotModule(edit)
+  PlotCommand_cpv extraAnnotations; // labels from ascii-files or PlotModule(edit)
   std::map<std::string, std::vector<std::string> > popupSpec;
-  float current; //cuurent, not wind
   bool firstplot;
   bool beendisabled; // obsplot was disabled while area changed
 
-  std::set<std::string> knotParameters;
-  //Name and last modification time of files used
-  std::vector<std::string> fileNames;
-  std::vector<long> modificationTime;
-
-  //Criteria
+  // Criteria
   enum Sign {
     less_than = 0,
     less_than_or_equal_to = 1,
@@ -258,10 +238,6 @@ protected:
   std::string selectedStation;
   std::string mark_parameter;
 
-  QTextCodec* mTextCodec;
-
-  QString decodeText(const std::string& text) const;
-
   void getObsLonLat(int obsidx, float& x, float& y);
 
   int vtab(int idx) const;
@@ -274,13 +250,13 @@ protected:
   void decodeCriteria(const std::string& critStr);
   void decodeSort(const std::string& sortStr);
 
-  bool getValueForCriteria(int index, const std::string& param, float& value);
+  bool getValueForCriteria(const ObsData& dta, const std::string& param, float& value);
   void adjustRRR(float& value);
 
-  bool checkPlotCriteria(int index);
-  void checkTotalColourCriteria(DiGLPainter* gl, int index);
-  std::string checkMarkerCriteria(int index);
-  float checkMarkersizeCriteria(int index);
+  bool checkPlotCriteria(const ObsData& dta);
+  void checkTotalColourCriteria(DiGLPainter* gl, const ObsData& dta);
+  std::string checkMarkerCriteria(const ObsData& dta);
+  float checkMarkersizeCriteria(const ObsData& dta);
   void checkColourCriteria(DiGLPainter* gl, const std::string& param, float value);
   void parameterDecode(const std::string&, bool = true);
 
@@ -290,17 +266,13 @@ protected:
   // used only from plotList
   void printList(DiGLPainter* gl, float f, QPointF& xypos, int precision,
       bool align_right = false, bool fill_2 = false);
-  void printListParameter(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
-      QPointF& xypos, float yStep, bool align_right, float xshift);
-  void printListSymbol(DiGLPainter* gl, const ObsData& dta, const Parameter& param,
-      QPointF& xypos, float yStep, bool align_right, const float& xshift);
+  void printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right, float xshift);
+  void printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
+                       const float& xshift);
   void printListRRR(DiGLPainter* gl, const ObsData& dta, const std::string& param,
       QPointF& xypos, bool align_right);
   void printListPos(DiGLPainter* gl, const ObsData& dta,
       QPointF& xypos, float yStep, bool align_right);
-
-  void plotAscii(DiGLPainter* gl, const ObsData& dta,const std::string& param,
-      QPointF& xypos, const float& yStep, bool align_right);
 
   // used from plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
   void printNumber(DiGLPainter* gl, float, QPointF xypos,
@@ -311,17 +283,15 @@ protected:
       bool align_right = false, const std::string& = "");
 
   // from plotList and plotAscii
-  void printListString(DiGLPainter* gl, const QString& txt,
-      QPointF& xypos, bool align_right = false);
+  void printListString(DiGLPainter* gl, const std::string& txt, QPointF& xypos, bool align_right = false);
 
-  float advanceByStringWidth(DiGLPainter* gl, const QString& txt, QPointF& xypos);
+  float advanceByStringWidth(DiGLPainter* gl, const std::string& txt, QPointF& xypos);
   void advanceByDD(int dd, QPointF& xypos);
   bool checkQuality(const ObsData& dta) const;
   bool checkWMOnumber(const ObsData& dta) const;
 
   // from plotList, plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printString(DiGLPainter* gl, const QString&, QPointF xypos,
-      bool align_right = false, bool = false);
+  void printString(DiGLPainter* gl, const std::string&, QPointF xypos, bool align_right = false, bool = false);
 
   // from plotMetar, ROAD/plotDBMetar (commented)
   void metarSymbol(DiGLPainter* gl, const std::string&, QPointF, int&);
@@ -348,7 +318,7 @@ protected:
   void cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radius);
 
   // from plotList, plotAscii, plotSynop, ROAD/plotDBSynop
-  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, float current=-1);
+  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius);
 
   // used from plotList, plotSynop, ROAD/plotDBSynop, ROAD/plotDBMetar (commented out)
   virtual void weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_id, QPointF xy,
@@ -406,31 +376,27 @@ public:
     { collider_ = collider; }
 
   // return the computed index in stationlist, ROADOBS only
-  std::vector<int> & getStationsToPlot();
-  // clear VisibleStations map from current plottype
-  void clearVisibleStations();
-  // Returns the allObs boolean
-  bool isallObs() {return allObs;};
+  std::vector<int>& getStationsToPlot();
 
-  void setTextCodec(QTextCodec* codec);
-  void setTextCodec(const char* codecName);
+  // clear VisibleStations map from current plottype, ROADOBS only
+  void clearVisibleStations();
+
+  // Returns the allObs boolean
+  bool isallObs() { return allObs; };
 
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
+  void setParameters(const std::vector<ObsDialogInfo::Par>& vp);
   bool setData();
   void clear();
   void getAnnotation(std::string &, Colour &) const;
   bool getDataAnnotations(std::vector<std::string>& anno);
 
-  void setObsAnnotation(const std::string &anno) // from ObsManager::prepare and ObsManager::sendHqcdata
-    { annotation = anno; }
+  std::string makeAnnotationString() const;
 
   void setPopupSpec(const std::vector<std::string> &txt); // from ObsManager::prepare
 
   const PlotCommand_cpv getObsExtraAnnotations() const; // from PlotModule
-
-  // @return true iff update is needed (one or more files are changed)
-  bool updateObs(); // from PlotModule::updateObs
 
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
   void readStations(); // from PlotModule::obsTime
@@ -458,42 +424,24 @@ public:
   bool moreTimes()
     { return moretimes; }
 
-  const std::vector<std::string>& dataTypes() const // only from ObsManager::prepare
-    { return datatypes; }
+  const std::vector<std::string>& readerNames() const { return readernames; }
 
-  void setObsTime(const miutil::miTime& t) // only from ObsManager::prepare
-    { Time = t; }
+  void setObsTime(const miutil::miTime& t);
 
-  void setCurrent(float cur) // only from ObsManager::prepare
-    { current = cur; }
+  int getLevel();
 
-  void setModificationTime(const std::string& fname); // only from ObsManager::prepare
+  int numPositions() const { return getObsCount(); }
 
-  bool LevelAsField() const // from PlotModule
-    { return levelAsField; }
-
-  int getLevel()
-    { return level; }
-
-  int numPositions() const
-    { return getObsCount(); }
-
-  // Dialog info: Name, tooltip and type of parameter buttons. ASCII only
+  void setObsExtraAnnotations(const PlotCommand_cpv& a) { extraAnnotations = a; }
   std::vector<std::string> columnName;
   void addObsData(const std::vector<ObsData>& obs);
-  void replaceObsData(const std::vector<ObsData> &obs);
-  const miutil::miTime& getObsTime() const
-    { return Time; }
-
-  void setLabels(const PlotCommand_cpv& l) // ObsAscii only
-    { labels = l; }
+  void replaceObsData(const std::vector<ObsData>& obs);
+  const miutil::miTime& getObsTime() const { return obsTime; }
 
 protected:
-  virtual long findModificationTime(const std::string& fname);
-  virtual bool isFileUpdated(const std::string& fname, long now, long mod_time);
   int calcNum() const;
-  bool isSynopListRoad() const;
-  bool isSynopMetarRoad() const;
+  bool isSynopList() const;
+  bool isSynopMetar() const;
   bool updateDeltaTimes();
   bool updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime); // ASCII only
   ObsPlot(const ObsPlot &rhs);
@@ -511,9 +459,6 @@ public:
   void setSelectedStation(const std::string& station) // HQC only
     { selectedStation = station; }
 
-  /// copy some xpos and ypos from metaData map to obsp
-  void mergeMetaData(const std::map<std::string, ObsData>& metaData);
-
   int getTimeDiff() const
     { return timeDiff; }
 
@@ -524,11 +469,6 @@ public:
   // if not: use all observations with abs(obsTime-Time)<timediff
   bool timeOK(const miutil::miTime& t) const;
 
-  // get pressure level etc from field (if needed)
-  void updateLevel(const std::string& dataType);
-
-  // Returns the file names containing observation data.
-  const std::vector<std::string>& getFileNames() const;
 };
 
 #endif

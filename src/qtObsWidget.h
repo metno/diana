@@ -29,12 +29,15 @@
 #ifndef _obsWidget_h
 #define _obsWidget_h
 
-#include <qcolor.h>
-#include <qdialog.h>
-#include <QLabel>
-#include "diCommonTypes.h"
+#include "diColour.h"
 #include "diKVListPlotCommand.h"
+#include "diObsDialogInfo.h"
 #include "qtToggleButton.h"
+
+#include <QColor>
+#include <QLabel>
+#include <QWidget>
+
 #include <map>
 
 class QSlider;
@@ -65,7 +68,7 @@ public:
 
   ObsWidget(QWidget* parent );
   ///init dialog
-  void setDialogInfo(ObsDialogInfo, int index);
+  void setDialogInfo(ObsDialogInfo::PlotType);
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings
@@ -76,7 +79,6 @@ public:
   std::string getShortname();
   void readLog(const miutil::KeyValue_v& kvs);
   void setFalse();
-  void setDatatype(const std::string&);
   std::vector<std::string> getDataTypes();
   bool moreToggled(){return moreButton->isChecked();}
   //Criteria
@@ -86,16 +88,12 @@ public:
   int getCurrentCriteria(){return currentCriteria;}
   std::vector<std::string> getCriteriaNames();
   void saveCriteria(const std::vector<std::string>& criteria);
-  bool saveCriteria(const std::vector<std::string>& criteria,
-		    const std::string& name);
+  bool saveCriteria(const std::vector<std::string>& criteria, const std::string& name);
   bool getCriteriaLimits(const std::string& name, int& low, int& high);
-  void markButton(const std::string& name, bool on);
-  bool noButton(){return nobutton;}
 
 private slots:
   void priSelected( int index);
-  void outTopClicked( int id );
-  void inTopClicked( int id );
+  void datatypeButtonClicked(int id);
   void displayDensity( int number );
   void displaySize( int number );
   void displayDiff( int number );
@@ -131,7 +129,6 @@ private:
   QCheckBox* tempPrecisionCheckBox;
   QCheckBox* unit_msCheckBox;
   QCheckBox* parameterNameCheckBox;
-  QCheckBox* moreTimesCheckBox;
   QCheckBox* qualityCheckBox;
   QCheckBox* wmoCheckBox;
   QCheckBox* devFieldCheckBox;
@@ -174,8 +171,6 @@ private:
 
   int nr_dataTypes;
   std::vector<ObsDialogInfo::Button> button;
-  std::vector<ObsDialogInfo::Button> dataTypeButton;
-  std::vector<ObsDialogInfo::DataType> datatype;
   std::vector<int> time_slider2lcd;
 
   struct dialogVariables {
@@ -186,15 +181,12 @@ private:
   };
 
   dialogVariables dVariables;
-
   void decodeString(const miutil::KeyValue_v&, dialogVariables&,bool fromLog=false);
   void updateDialog(bool setOn);
   miutil::KeyValue_v makeString();
 
-  bool pressureLevels;
+  bool verticalLevels;
   std::map<std::string,int> levelMap;
-  bool leveldiffs;
-  std::map<std::string,int> leveldiffMap;
 
   // LCD <-> slider
   float scaledensity;
@@ -210,7 +202,6 @@ private:
   int pri_selected;     // Wich priority file
   std::string plotType;
   std::string shortname;
-  bool nobutton;
 
   QVBoxLayout *vlayout;
   QVBoxLayout *vcommonlayout;

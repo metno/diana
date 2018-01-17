@@ -365,3 +365,22 @@ TEST(TestUtilities, RemoveCommentAndTrim)
     EXPECT_EQ("hello  world", t1);
   }
 }
+
+TEST(TestUtilities, AppendText)
+{
+  {
+    std::string t = "";
+    diutil::appendText(t, "world");
+    EXPECT_EQ("world", t);
+  }
+  {
+    std::string t = "";
+    diutil::appendText(t, "world", "-");
+    EXPECT_EQ("world", t);
+  }
+  {
+    std::string t = "hello";
+    diutil::appendText(t, "world", "-");
+    EXPECT_EQ("hello-world", t);
+  }
+}

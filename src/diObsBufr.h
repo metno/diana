@@ -67,7 +67,7 @@ private:
 
 class ObsDataBufr : public ObsBufr {
 public:
-  ObsDataBufr(const std::string& datatype, int level, const miutil::miTime& time, int timeDiff);
+  ObsDataBufr(int level, const miutil::miTime& time, int timeDiff);
   bool getObsData(std::vector<ObsData>& obsp, const std::string& filename);
 
 protected:
@@ -84,7 +84,6 @@ private:
   bool timeOK(const miutil::miTime& t) const;
 
 private:
-  std::string datatype;
   std::vector<ObsData> obsdata;
 
   int level;

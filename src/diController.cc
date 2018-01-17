@@ -355,7 +355,7 @@ bool Controller::initHqcdata(int from,
     const string& common,
     const string& desc,
     const vector<string>& data){
-  return obsm->initHqcdata(from,commondesc,common,desc,data);
+  return false; // FIXME obsm->initHqcdata(from,commondesc,common,desc,data);
 }
 
 //update hqcData from QSocket
@@ -363,13 +363,13 @@ void Controller::updateHqcdata(const string& commondesc,
     const string& common,
     const string& desc,
     const vector<string>& data){
-  obsm->updateHqcdata(commondesc,common,desc,data);
+  // FIXME obsm->updateHqcdata(commondesc,common,desc,data);
 }
 
 //select obs parameter to flag from QSocket
 void Controller::processHqcCommand(const std::string& command,
     const std::string& str){
-  obsm->processHqcCommand(command, str);
+  // FIXME obsm->processHqcCommand(command, str);
 }
 
 //plot trajectory position
@@ -782,14 +782,14 @@ bool Controller::obsTimeListChanged()
 {
   // returns information about whether list of observation files have changed
   //hence dialog and timeSlider times should change as well
-  return obsm->timeListChanged;
+  return false; // FIXME obsm->timeListChanged;
 }
 
 void Controller::obsTimeListUpdated()
 {
   //called when the dialog and timeSlider updated with info from observation
   //file list
-  obsm->timeListChanged = false;
+  // FIXME obsm->timeListChanged = false;
 }
 
 
@@ -824,9 +824,9 @@ ObsDialogInfo Controller::initObsDialog()
 }
 
 // return button names for ObsDialog ... ascii files (when activated)
-ObsDialogInfo Controller::updateObsDialog(const std::string& name)
+void Controller::updateObsDialog(ObsDialogInfo::PlotType& pt, const std::string& readername)
 {
-  return obsm->updateDialog(name);
+  obsm->updateDialog(pt, readername);
 }
 
 // return button names for SatDialog

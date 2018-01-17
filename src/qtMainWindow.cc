@@ -1096,6 +1096,7 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
   PlotCommand_cpv mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
   map<std::string, PlotCommand_cpv> dialog_com;
   for (PlotCommand_cp c : vstr) {
+    METLIBS_LOG_DEBUG(LOGVAL(c->toString()));
     const std::string& pre = c->commandKey();
     if (pre=="MAP") mapcom.push_back(c);
     else if (pre=="AREA") mapcom.push_back(c);

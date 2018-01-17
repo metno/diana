@@ -68,7 +68,7 @@ bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
   }
   for (size_t i = 0; i < plots_.size(); i++) {
     ObsPlot* op = at(i);
-    if (!ifNeeded || op->updateObs()) {
+    if (!ifNeeded || obsm_->updateTimes(op)) {
       if (obsm_->prepare(op, t)) {
         havedata = true;
       }

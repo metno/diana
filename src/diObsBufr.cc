@@ -240,11 +240,10 @@ ObsBufr::ObsBufr()
 
 // ########################################################################
 
-ObsDataBufr::ObsDataBufr(const std::string& dt, int l, const miutil::miTime &t, int td)
-  : datatype(dt)
-  , level(l)
-  , time(t)
-  , timeDiff(td)
+ObsDataBufr::ObsDataBufr(int l, const miutil::miTime& t, int td)
+    : level(l)
+    , time(t)
+    , timeDiff(td)
 {
 }
 
@@ -493,7 +492,6 @@ ObsBufr::SubsetResult ObsDataBufr::handleBufrSubset(int ktdexl, const int *ktdex
   if (ok)
     ok = timeOK(obs.obsTime);
   if (ok) {
-    obs.dataType = datatype;
     obsdata.push_back(obs);
   }
   return BUFR_CONTINUE;
