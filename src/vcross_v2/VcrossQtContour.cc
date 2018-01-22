@@ -131,20 +131,19 @@ void VCLines::setFillPattern(const std::string& pattern)
 
 void VCLines::drawPolygons(const point_vv& polygons)
 {
-  for (point_vv::const_iterator it = polygons.begin(); it != polygons.end(); ++it)
-    mPainter.drawPolygon(make_polygon(*it));
-}
-
-void VCLines::drawLine(const point_v& line)
-{
-  const QPolygonF p = make_polygon(line);
-  if (line.size() >= 4 and line.front().x == line.back().x and line.front().y == line.back().y)
+  for (const auto& p : polygons)
     mPainter.drawPolygon(p);
-  else
-    mPainter.drawPolyline(p);
 }
 
-void VCLines::drawLabels(const point_v& points, contouring::level_t li)
+void VCLines::drawLine(const QPolygonF& line)
+{
+  if (line.size() >= 4 and line.front() == line.back())
+    mPainter.drawPolygon(line);
+  else
+    mPainter.drawPolyline(line);
+}
+
+void VCLines::drawLabels(const QPolygonF& points, contouring::level_t li)
 {
   if (points.size() < 10)
     return;
@@ -159,33 +158,33 @@ void VCLines::drawLabels(const point_v& points, contouring::level_t li)
     return;
   const float lbl_w2 = lbl_w * lbl_w;
 
-  size_t idx = (size_t)(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
+  int idx = (size_t)(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
   for (; idx + 1 < points.size(); idx += 5) {
-    contouring::point_t p0 = points.at(idx), p1;
+    QPointF p0 = points.at(idx), p1;
     const int idx0 = idx;
     for (idx += 1; idx < points.size(); ++idx) {
       p1 = points.at(idx);
-      const float dy = p1.y - p0.y, dx = p1.x - p0.x;
+      const float dy = p1.y() - p0.y(), dx = p1.x() - p0.x();
       if (diutil::absval2(dx, dy) >= lbl_w2)
         break;
     }
     if (idx >= points.size())
       break;
 
-    if (not (mArea.contains(p0.x, p0.y) and mArea.contains(p1.x, p1.y))) {
+    if (not (mArea.contains(p0.x(), p0.y()) and mArea.contains(p1.x(), p1.y()))) {
       idx += 20;
       continue;
     }
 
-    if (p1.x < p0.x)
+    if (p1.x() < p0.x())
       std::swap(p0, p1);
-    const float angle_deg = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / M_PI;
+    const float angle_deg = atan2f(p1.y() - p0.y(), p1.x() - p0.x()) * 180. / M_PI;
 
     // check that line is somewhat straight under label
-    size_t idx2 = idx0 + 1;
+    int idx2 = idx0 + 1;
     for (; idx2 < idx; ++idx2) {
-      const contouring::point_t& p2 = points.at(idx2);
-      const float a = atan2f(p2.y - p0.y, p2.x - p0.x) * 180. / M_PI;
+      const QPointF& p2 = points.at(idx2);
+      const float a = atan2f(p2.y() - p0.y(), p2.x() - p0.x()) * 180. / M_PI;
       if (std::abs(a - angle_deg) > 15)
         break;
     }
@@ -194,7 +193,7 @@ void VCLines::drawLabels(const point_v& points, contouring::level_t li)
 
     // label angle seems ok, find position
     mPainter.save();
-    mPainter.translate(p0.x, p0.y);
+    mPainter.translate(p0.x(), p0.y());
     mPainter.rotate(angle_deg);
     
     const QRectF rtext(-lbl_w/2, -lbl_h/2, lbl_w, lbl_h);
@@ -215,14 +214,6 @@ void VCLines::clip()
 void VCLines::restore()
 {
   mPainter.restore();
-}
-
-QPolygonF VCLines::make_polygon(const point_v& cpoints)
-{
-  QPolygonF line;
-  for (point_v::const_iterator it = cpoints.begin(); it != cpoints.end(); ++it)
-    line << QPointF(it->x, it->y);
-  return line;
 }
 
 QColor VCLines::QCa(const Colour& colour)

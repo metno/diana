@@ -32,6 +32,8 @@
 
 #include "diPlotOptions.h"
 
+#include <QPolygonF>
+
 #include <map>
 #include <memory>
 #include <string>
@@ -159,8 +161,7 @@ public:
     { mUseOptions2 = uo2; }
 
 protected:
-  typedef std::vector<contouring::point_t> point_v;
-  typedef std::vector<point_v> point_vv;
+  typedef std::vector<QPolygonF> point_vv;
   typedef std::map<contouring::level_t, point_vv> level_points_m;
 
 protected:
@@ -172,9 +173,9 @@ protected:
   virtual void setLine(const Colour& colour, const Linetype& linetype, int linewidth) = 0;
   virtual void setFillColour(const Colour& colour) = 0;
   virtual void setFillPattern(const std::string& pattern) = 0;
-  virtual void drawLine(const point_v& lines) = 0;
+  virtual void drawLine(const QPolygonF& lines) = 0;
   virtual void drawPolygons(const point_vv& polygons) = 0;
-  virtual void drawLabels(const point_v& points, contouring::level_t li) = 0;
+  virtual void drawLabels(const QPolygonF& points, contouring::level_t li) = 0;
 
 protected:
   const PlotOptions& mPlotOptions;

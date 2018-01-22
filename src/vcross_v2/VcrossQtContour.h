@@ -71,14 +71,13 @@ protected:
   void setLine(const Colour& colour, const Linetype& linetype, int linewidth) override;
   void setFillColour(const Colour& colour) override;
   void setFillPattern(const std::string& pattern) override;
-  void drawLine(const point_v& lines) override;
+  void drawLine(const QPolygonF& lines) override;
   void drawPolygons(const point_vv& polygons) override;
-  void drawLabels(const point_v& points, contouring::level_t li) override;
+  void drawLabels(const QPolygonF& points, contouring::level_t li) override;
 
 private:
   void clip();
   void restore();
-  QPolygonF make_polygon(const point_v& cpoints);
   QColor QCa(const Colour& colour);
 
 private:

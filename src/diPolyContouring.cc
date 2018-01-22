@@ -36,7 +36,6 @@
 #include "util/math_util.h"
 #include "util/plotoptions_util.h"
 
-#include <QPolygonF>
 #include <QString>
 
 #include <cmath>
@@ -458,8 +457,8 @@ void DianaLines::paint_lines()
         continue;
     }
     setLineForLevel(li);
-    for (point_vv::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
-      drawLine(*itP);
+    for (const auto& p : it->second)
+      drawLine(p);
   }
 }
 
@@ -471,8 +470,8 @@ void DianaLines::paint_labels()
     if (li == DianaLevels::UNDEF_LEVEL || (skip_level_0 && li == 0))
       continue;
     setLineForLevel(li);
-    for (point_vv::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
-      drawLabels(*itP, li);
+    for (const auto& p : it->second)
+      drawLabels(p, li);
   }
 }
 
@@ -483,10 +482,17 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
   if (li != DianaLevels::UNDEF_LEVEL && (!mPlotOptions.options_1 || (mPaintMode & LINES_LABELS) == 0))
     return;
 
-  point_v points(cpoints.begin(), cpoints.end());
-  if (closed)
-    points.push_back(cpoints.front());
-  m_lines[li].push_back(points);
+  point_vv& m_lines_li = m_lines[li];
+  m_lines_li.push_back(QPolygonF());
+  QPolygonF& line = m_lines_li.back();
+  line.reserve(cpoints.size() + (closed ? 1 : 0));
+
+  for (const auto& cp: cpoints)
+    line << QPointF(cp.x, cp.y);
+  if (closed) {
+    const auto& cp = cpoints.front();
+    line << QPointF(cp.x, cp.y);
+  }
 }
 
 void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
@@ -502,8 +508,13 @@ void DianaLines::add_contour_polygon(contouring::level_t level, const contouring
       return;
   }
 
-  point_v points(cpoints.begin(), cpoints.end());
-  m_polygons[level].push_back(points);
+  point_vv& m_polygons_li = m_polygons[level];
+  m_polygons_li.push_back(QPolygonF());
+  QPolygonF& poly = m_polygons_li.back();
+  poly.reserve(cpoints.size());
+
+  for (const auto& cp: cpoints)
+    poly << QPointF(cp.x, cp.y);
 }
 
 // ########################################################################
@@ -522,9 +533,9 @@ protected:
   void setLine(const Colour& colour, const Linetype& linetype, int linewidth);
   void setFillColour(const Colour& colour);
   void setFillPattern(const std::string& pattern);
-  void drawLine(const point_v& lines);
+  void drawLine(const QPolygonF& lines);
   void drawPolygons(const point_vv& polygons);
-  void drawLabels(const point_v& points, contouring::level_t li);
+  void drawLabels(const QPolygonF& points, contouring::level_t li);
 
 private:
   DiGLPainter* mGL;
@@ -582,26 +593,19 @@ void DianaGLLines::setLine(const Colour& colour, const Linetype& linetype, int l
   mGL->setLineStyle(colour, linewidth, linetype);
 }
 
-void DianaGLLines::drawLine(const point_v& points)
+void DianaGLLines::drawLine(const QPolygonF& points)
 {
-  QPolygonF line;
-  for (point_v::const_iterator it = points.begin(); it != points.end(); ++it)
-    line << QPointF(it->x, it->y);
-  mGL->drawPolyline(line);
+  mGL->drawPolyline(points);
 }
 
 void DianaGLLines::drawPolygons(const point_vv& polygons)
 {
-  // METLIBS_LOG_TIME();
-  for (point_vv::const_iterator itL = polygons.begin(); itL != polygons.end(); ++itL) {
-    QPolygonF polygon;
-    for (point_v::const_iterator p = itL->begin(); p != itL->end(); ++p)
-      polygon << QPointF(p->x, p->y);
-    mGL->drawPolygon(polygon);
+  for (const auto& p : polygons) {
+    mGL->drawPolygon(p);
   }
 }
 
-void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
+void DianaGLLines::drawLabels(const QPolygonF& points, contouring::level_t li)
 {
   if (points.size() < 10)
     return;
@@ -615,28 +619,28 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
     return;
   const float lbl_w2 = lbl_w * lbl_w;
 
-  size_t idx = int(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
+  int idx = int(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
   for (; idx + 1 < points.size(); idx += 5) {
-    contouring::point_t p0 = points.at(idx), p1;
+    QPointF p0 = points.at(idx), p1;
     const int idx0 = idx;
     for (idx += 1; idx < points.size(); ++idx) {
       p1 = points.at(idx);
-      const float dy = p1.y - p0.y, dx = p1.x - p0.x;
+      const float dy = p1.y() - p0.y(), dx = p1.x() - p0.x();
       if (diutil::absval2(dx, dy) >= lbl_w2)
         break;
     }
     if (idx >= points.size())
       break;
 
-    if (p1.x < p0.x)
+    if (p1.x() < p0.x())
       std::swap(p0, p1);
-    const float angle_deg = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / M_PI;
+    const float angle_deg = atan2f(p1.y() - p0.y(), p1.x() - p0.x()) * 180. / M_PI;
 
     // check that line is somewhat straight under label
-    size_t idx2 = idx0 + 1;
+    int idx2 = idx0 + 1;
     for (; idx2 < idx; ++idx2) {
-      const contouring::point_t p2 = points.at(idx2);
-      const float a = atan2f(p2.y - p0.y, p2.x - p0.x) * 180. / M_PI;
+      const QPointF p2 = points.at(idx2);
+      const float a = atan2f(p2.y() - p0.y(), p2.x() - p0.x()) * 180. / M_PI;
       if (std::abs(a - angle_deg) > 15)
         break;
     }
