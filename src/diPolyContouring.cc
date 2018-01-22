@@ -651,11 +651,11 @@ void DianaGLLines::drawLabels(const QPolygonF& points, contouring::level_t li)
 #if 0
     // centered on line
     const float f = lbl_h/(2*lbl_w), tx = p0.x + (p1.y-p0.y)*f, ty = p0.y - (p1.x-p0.x)*f;
+    mGL->drawText(lbl, tx, ty, angle_deg);
 #else
     // sitting on top of line
-    const float tx = p0.x, ty = p0.y;
+    mGL->drawText(lbl, p0, angle_deg);
 #endif
-    mGL->drawText(lbl, tx, ty, angle_deg);
     idx += 10*(idx - idx0);
   }
 }
