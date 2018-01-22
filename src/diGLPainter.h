@@ -262,8 +262,6 @@ public:
   virtual void EndList();
   virtual void NewList(GLuint list, GLenum mode);
   virtual void ShadeModel(GLenum mode) = 0;
-  virtual void Bitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
-      GLfloat xmove, GLfloat ymove, const GLubyte *bitmap) = 0;
   virtual void DrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
       const GLvoid *pixels) = 0;
   virtual void PixelStorei(GLenum pname, GLint param) = 0;

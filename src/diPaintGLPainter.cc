@@ -591,13 +591,6 @@ void DiPaintGLPainter::Begin(GLenum mode)
     this->mode = mode;
 }
 
-void DiPaintGLPainter::Bitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
-              GLfloat xmove, GLfloat ymove, const GLubyte *bitmap)
-{
-    // Diana only uses this to displace bitmaps.
-    this->bitmapMove = this->transform * QPointF(xmove, ymove);
-}
-
 void DiPaintGLPainter::BlendFunc(GLenum sfactor, GLenum dfactor)
 {
     ENSURE_CTX_AND_PAINTER
@@ -792,9 +785,6 @@ void DiPaintGLPainter::DrawPixels(GLsizei width, GLsizei height, GLenum format, 
     this->painter->scale(this->attributes.pixelZoom.x(), -this->attributes.pixelZoom.y());
     this->painter->drawImage(0, 0, destImage);
     this->painter->restore();
-
-    // Update the raster position.
-    this->rasterPos += this->bitmapMove;
 }
 
 void DiPaintGLPainter::EdgeFlag(GLboolean flag)

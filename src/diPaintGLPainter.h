@@ -168,8 +168,6 @@ public:
   void Translatef(GLfloat x, GLfloat y, GLfloat z) override;
   void Viewport(GLint x, GLint y, GLsizei width, GLsizei height) override;
   void ShadeModel(GLenum mode) override;
-  void Bitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
-      GLfloat xmove, GLfloat ymove, const GLubyte *bitmap) override;
   void DrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
       const GLvoid *pixels) override;
   void PixelStorei(GLenum pname, GLint param) override;
@@ -222,7 +220,6 @@ public:
 
   QPointF rasterPos;
   QHash<GLenum,GLint> pixelStore;
-  QPointF bitmapMove;
 
   QColor clearColor;
   bool clear;

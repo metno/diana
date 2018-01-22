@@ -250,10 +250,6 @@ void DiOpenGLPainter::NewList(GLuint list, GLenum mode)
 void DiOpenGLPainter::ShadeModel(GLenum mode)
 { glShadeModel(mode); }
 
-void DiOpenGLPainter::Bitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
-    GLfloat xmove, GLfloat ymove, const GLubyte *bitmap)
-{ glBitmap(width, height, xorig, yorig, xmove, ymove, bitmap); }
-
 void DiOpenGLPainter::DrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
 { glDrawPixels(width, height, format, type, pixels); }
 
