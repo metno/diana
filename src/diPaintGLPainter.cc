@@ -219,7 +219,6 @@ void DiPaintGLPainter::makeCurrent()
   colors.clear();
 
   stack.clear();
-  renderStack.clear();
   transformStack.clear();
   transform = QTransform();
   attributesStack.clear();

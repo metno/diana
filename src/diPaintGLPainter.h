@@ -210,7 +210,6 @@ public:
   QPainter *painter;
 
   QStack<GLenum> stack;
-  QStack<RenderItem> renderStack;
   QStack<QTransform> transformStack;
   QStack<PaintAttributes> attributesStack;
 
