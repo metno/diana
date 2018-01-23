@@ -128,7 +128,7 @@ bool getFromHttp(const std::string &url_, string_v& lines)
 
 bool getFromAny(const std::string &uof, string_v& lines)
 {
-  if (diutil::startswith(uof, "http://"))
+  if (diutil::startswith(uof, "http://") || diutil::startswith(uof, "https://"))
     return getFromHttp(uof, lines);
 
   if (diutil::startswith(uof, "file://"))
