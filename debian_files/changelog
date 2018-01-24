@@ -1,6 +1,14 @@
+diana-3.44 (3.44.0~a2-1) unstable; urgency=low
+
+  * ...
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 24 Jan 2018 08:00:08 +0100
+
 diana-3.44 (3.44.0~a1-1) unstable; urgency=low
 
   * cmake build
+  * vprof reorganization part 1
+  * observation reader reorganization
 
  -- Alexander Bürger <alexander.buerger@met.no>  Tue, 17 Oct 2017 08:00:08 +0200
 
