@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2017 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -61,10 +61,10 @@ using namespace std;
 using namespace miutil;
 
 VprofData::VprofData(const std::string& modelname, const std::string& stationsfilename)
-  : numRealizations(1)
-  , modelName(modelname)
-  , stationsFileName(stationsfilename)
-  , stationList(false)
+    : numRealizations(1)
+    , modelName(modelname)
+    , stationsFileName(stationsfilename)
+    , stationList(false)
 {
   METLIBS_LOG_SCOPE();
 }

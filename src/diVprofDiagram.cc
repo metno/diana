@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2017 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -41,10 +41,10 @@
 #include "diLinetype.h"
 #include "diUtilities.h"
 
+#include "diField/VcrossUtil.h"
 #include "diField/diMetConstants.h"
 #include "diField/diPoint.h"
 #include "diField/diRectangle.h"
-#include "diField/VcrossUtil.h"
 #include <puTools/miStringFunctions.h>
 
 #include <cmath>
@@ -67,7 +67,7 @@ bool is_invalid(float f)
 }
 bool is_invalid_int(int i)
 {
-  const int LIMIT = (1<<30);
+  const int LIMIT = (1 << 30);
   return i < -LIMIT || i > LIMIT;
 }
 
@@ -80,14 +80,18 @@ bool all_valid(const std::vector<int>& data)
   return std::find_if(data.begin(), data.end(), is_invalid_int) == data.end();
 }
 
-struct TextSpacing {
+struct TextSpacing
+{
   float next, last, spacing;
   TextSpacing(float n, float l, float s)
-    : next(n), last(l), spacing(s) { }
-  bool accept(float v) {
-    if ((spacing > 0 && v > next && v < last)
-        || (spacing < 0 && v < next && v > last))
-    {
+      : next(n)
+      , last(l)
+      , spacing(s)
+  {
+  }
+  bool accept(float v)
+  {
+    if ((spacing > 0 && v > next && v < last) || (spacing < 0 && v < next && v > last)) {
       next = v + spacing;
       return true;
     } else {
@@ -153,7 +157,7 @@ PointF_v mixingRatioLine(float qsat, float pmin, float pmax, float pstep, float 
 {
   PointF_v ptline;
   PointF pt0;
-  for (float p = pmin; p <= pmax + pstep/4; p += pstep) {
+  for (float p = pmin; p <= pmax + pstep / 4; p += pstep) {
     const float t = mixingRatioT(qsat, p);
     const PointF pt1(p, t);
     if (t >= tempmin) {
@@ -173,11 +177,11 @@ float iterateWetAdiabat(float pa, float ta_celsius, float pb)
   using namespace MetNo::Constants;
 
   const ewt_calculator ewt(ta_celsius);
-  float esat = (ewt.defined()) ?  ewt.value() : 0;
+  float esat = (ewt.defined()) ? ewt.value() : 0;
   float qsat = eps * esat / pa;
 
   const float pi1 = vcross::util::exnerFunction(pa);
-  const float pi  = vcross::util::exnerFunction(pb);
+  const float pi = vcross::util::exnerFunction(pb);
 
   float tcl = cp * (ta_celsius + t0) * pi / pi1;
   float qcl = qsat;
@@ -201,12 +205,12 @@ float iterateWetAdiabat(float pa, float ta_celsius, float pb)
   return tb_celsius;
 }
 
-PointF_v generateWetAdiabat(float p0, float p1, float pstep, float t0/* degC */, float tempmin)
+PointF_v generateWetAdiabat(float p0, float p1, float pstep, float t0 /* degC */, float tempmin)
 {
   PointF_v wet_pt;
 
   PointF pta(p0, t0);
-  p1 += pstep/4; // try to fix rounding problems
+  p1 += pstep / 4; // try to fix rounding problems
   while ((pstep < 0 && pta.x() >= p1) || (pstep > 0 && pta.x() <= p1)) {
     wet_pt.push_back(pta);
     float pb = pta.x() + pstep;
@@ -304,10 +308,10 @@ void VprofDiagram::plot()
     diutil::adjustRectangle(f, margin * f.width(), margin * f.height());
     const bool fixed_aspect_ratio = true;
     if (fixed_aspect_ratio)
-      diutil::fixAspectRatio(f, plotw/float(ploth), true);
+      diutil::fixAspectRatio(f, plotw / float(ploth), true);
     const float xscale = plotw / f.width(), yscale = ploth / f.height();
     // f.x1 => 0; f.x2 => plotw; px = (f.x - f.x1)/(f.x2-f.x1)*plotw
-    full = Rectangle(-f.x1*xscale, -f.y1*yscale, xscale, yscale);
+    full = Rectangle(-f.x1 * xscale, -f.y1 * yscale, xscale, yscale);
 
     gl->LoadIdentity();
     gl->Ortho(0, plotw, 0, ploth, -1, 1);
@@ -374,7 +378,7 @@ void VprofDiagram::prepare()
 
   // cache for transformP
   y1000 = p_to_y(1000);
-  idy_1000_100 = (vpopt->rsvaxis * height)/(y1000 - p_to_y(100));
+  idy_1000_100 = (vpopt->rsvaxis * height) / (y1000 - p_to_y(100));
   tan_tangle = (std::abs(vpopt->tangle) > 0.1) ? std::tan(vpopt->tangle * DEG_TO_RAD) : 0;
 
   {
@@ -488,7 +492,7 @@ void VprofDiagram::prepare()
 
   // space for flight levels (numbers and ticks on axis)
   if (vpopt->pflevels) {
-    const float dx =  chxlab * (vpopt->plabelflevels ? 5.5 : 1.5);
+    const float dx = chxlab * (vpopt->plabelflevels ? 5.5 : 1.5);
     xysize[BOX_FL][XMIN] = xmin - dx;
     xysize[BOX_FL][XMAX] = xmin;
     xmin -= dx;
@@ -575,7 +579,7 @@ void VprofDiagram::prepare()
     maximize(ymax, xysize[n][YMAX]);
   }
   if (numprog > 1 && (vpopt->pwind || vpopt->pslwind)) {
-    minimize(ymin , ymind - chylab * 2.);
+    minimize(ymin, ymind - chylab * 2.);
   }
   if (vpopt->plabelp || (vpopt->pflevels && vpopt->plabelflevels)) {
     minimize(ymin, ymind - chylab * 2.);
@@ -688,7 +692,7 @@ void VprofDiagram::condensationtrails()
 
   for (k = 1; k < mptab; k++) {
 
-    p = idptab*k;
+    p = idptab * k;
 
     it = itbegin - 1;
     // t(rw=100%)
@@ -777,8 +781,7 @@ void VprofDiagram::drawLine(const diutil::PointF& p1, const diutil::PointF& p2)
   float x1, y1, x2, y2;
   to_pixel(p1).unpack(x1, y1);
   to_pixel(p2).unpack(x2, y2);
-  METLIBS_LOG_DEBUG(LOGVAL(full) << LOGVAL(p1) << LOGVAL(p2)
-                    << LOGVAL(x1) << LOGVAL(y1) << LOGVAL(x2) << LOGVAL(y2));
+  METLIBS_LOG_DEBUG(LOGVAL(full) << LOGVAL(p1) << LOGVAL(p2) << LOGVAL(x1) << LOGVAL(y1) << LOGVAL(x2) << LOGVAL(y2));
   gl->drawLine(x1, y1, x2, y2);
 }
 
@@ -803,8 +806,8 @@ void VprofDiagram::plotDiagram()
   const float xmaxd = xysize[BOX_PT_AXES][XMAX];
   const float ymind = xysize[BOX_PT_AXES][YMIN];
   const float ymaxd = xysize[BOX_PT_AXES][YMAX];
-  //float xmindf= xysize[BOX_PT_LABELS][XMIN];
-  //float xmaxdf= xysize[BOX_PT_LABELS][XMAX];
+  // float xmindf= xysize[BOX_PT_LABELS][XMIN];
+  // float xmaxdf= xysize[BOX_PT_LABELS][XMAX];
   const float ymindf = xysize[BOX_PT][YMIN];
   const float ymaxdf = xysize[BOX_PT][YMAX];
 
@@ -814,7 +817,6 @@ void VprofDiagram::plotDiagram()
   const int itmin = std::ceil(tmin);
   const int itmax = std::floor(tmax);
   int itmin1000 = std::trunc(t_from_xp(xmind, 1000));
-
 
   fpStr.clear();
 
@@ -861,7 +863,7 @@ void VprofDiagram::plotDiagram()
       if (ylev[k] > ymind && ylev[k] < ymaxd) {
         const int lw = !hlev[k] ? vpopt->pLinewidth1 : vpopt->pLinewidth2;
         gl->LineWidth(lw);
-        drawLine(xmind, ylev[k],xmaxd, ylev[k]);
+        drawLine(xmind, ylev[k], xmaxd, ylev[k]);
       }
     }
     gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
@@ -1054,7 +1056,7 @@ void VprofDiagram::plotDiagram()
         p1 = 100;
 
       PointF_v dry_pt;
-      for (float p = p1; p <= pmax + idptab/4; p += idptab) {
+      for (float p = p1; p <= pmax + idptab / 4; p += idptab) {
         float t = (th / cp) * vcross::util::exnerFunction(p) - t0;
         dry_pt.push_back(PointF(p, t));
       }
@@ -1067,14 +1069,13 @@ void VprofDiagram::plotDiagram()
   if (vpopt->pwetadiabat) {
     const int wpmin = std::max(float(vpopt->wetadiabatPmin), pmin);
     if (wpmin < pmax) {
-      gl->setLineStyle(Colour(vpopt->wetadiabatColour), vpopt->wetadiabatLinewidth,
-          Linetype(vpopt->wetadiabatLinetype));
+      gl->setLineStyle(Colour(vpopt->wetadiabatColour), vpopt->wetadiabatLinewidth, Linetype(vpopt->wetadiabatLinetype));
 
       const float tempmin = vpopt->wetadiabatTmin;
       const int mintemp = (tempmin > itmin1000) ? tempmin : itmin1000;
       const int itstep = vpopt->wetadiabatStep >= 1 ? vpopt->wetadiabatStep : 10;
       const int it1 = (mintemp / itstep) * itstep + ((mintemp > 0) ? itstep : 0);
-      const int it2 = (itmax   / itstep) * itstep - ((itmax   < 0) ? itstep : 0);
+      const int it2 = (itmax / itstep) * itstep - ((itmax < 0) ? itstep : 0);
       for (int t = it1; t <= it2; t += itstep) {
         PointF_v wet_pt;
         const float porigin = 1000;
@@ -1100,14 +1101,13 @@ void VprofDiagram::plotDiagram()
     const float qpmin = std::max(float(vpopt->mixingratioPmin), pmin);
     if (qpmin < pmax) {
       const Colour c(vpopt->mixingratioColour);
-      gl->setLineStyle(c, vpopt->mixingratioLinewidth,
-                       Linetype(vpopt->mixingratioLinetype));
+      gl->setLineStyle(c, vpopt->mixingratioLinewidth, Linetype(vpopt->mixingratioLinetype));
 
       // plot labels below the p-t diagram
-      const float xspacing = 2*chxlab * 0.8;
+      const float xspacing = 2 * chxlab * 0.8;
       const float chy = chylab * 0.8;
       const float y = ymind - chy * 1.25;
-      TextSpacing ts (xmind + xspacing, xmaxd - xspacing, 2*xspacing);
+      TextSpacing ts(xmind + xspacing, xmaxd - xspacing, 2 * xspacing);
 
       int set = vpopt->mixingratioSet;
       if (set < 0 || set >= int(vpopt->qtable.size()))
@@ -1139,13 +1139,13 @@ void VprofDiagram::plotDiagram()
     const Colour c(vpopt->cotrailsColour);
     gl->setLineStyle(c, vpopt->cotrailsLinewidth,
         Linetype(vpopt->cotrailsLinetype));
-    const int kmin =  std::max(float(vpopt->cotrailsPmin), pmin) / idptab;
+    const int kmin = std::max(float(vpopt->cotrailsPmin), pmin) / idptab;
     const int kmax = (std::min(float(vpopt->cotrailsPmax), pmax) + idptab - 1) / idptab;
     std::vector<PointF> xyline;
     xyline.reserve(std::max(kmax - kmin, 0));
     for (int n = 0; n < 4; n++) {
       for (int k = kmin; k <= kmax; k++) {
-        xyline.push_back(PointF(k*idptab, cotrails[n][k]));
+        xyline.push_back(PointF(k * idptab, cotrails[n][k]));
       }
       drawPT(xyline);
       xyline.clear();
@@ -1283,10 +1283,8 @@ void VprofDiagram::plotDiagram()
     }
     fpInitStr("+", xysize[BOX_VER_WIND][XMIN] + chx * 0.3, ymind - chy * 1.2, 0., chy, c2);
     fpInitStr("-", xysize[BOX_VER_WIND][XMAX] - chx * 1.3, ymind - chy * 1.2, 0., chy, c2);
-    fpInitStr(str, xysize[BOX_VER_WIND][XMIN] + dx * 0.5, ymind - chy * 1.2, 0., chy,
-        c2, ALIGN_CENTER);
-    fpInitStr("hPa/s", xysize[BOX_VER_WIND][XMIN] + dx * 0.5, ymind - chy * 2.4, 0., chy, c2,
-        ALIGN_CENTER);
+    fpInitStr(str, xysize[BOX_VER_WIND][XMIN] + dx * 0.5, ymind - chy * 1.2, 0., chy, c2, ALIGN_CENTER);
+    fpInitStr("hPa/s", xysize[BOX_VER_WIND][XMIN] + dx * 0.5, ymind - chy * 2.4, 0., chy, c2, ALIGN_CENTER);
     gl->setColour(c, false);
     sepline = true;
   }
@@ -1373,8 +1371,7 @@ void VprofDiagram::plotDiagram()
   }
 }
 
-void VprofDiagram::fpInitStr(const std::string& str, float x, float y, float angle,
-    float size, const Colour& c, Alignment format, Font font)
+void VprofDiagram::fpInitStr(const std::string& str, float x, float y, float angle, float size, const Colour& c, Alignment format, Font font)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1525,9 +1522,9 @@ void VprofDiagram::addCharsize(float chy)
 
 void VprofDiagram::setFontsize(float chy)
 {
-  chy*=0.8;
+  chy *= 0.8;
   float dnear, fsize = 10;
-  for (size_t i=0; i<charsizes.size(); i++) {
+  for (size_t i = 0; i < charsizes.size(); i++) {
     const float d = fabsf(charsizes[i] - chy);
     if (i == 0 || d < dnear) {
       dnear = d;
@@ -1542,16 +1539,16 @@ void VprofDiagram::makeFontsizes()
   const float scale = 18;
   fontsizes.clear();
   for (float cs : charsizes) {
-    fontsizes.push_back(cs*scale);
+    fontsizes.push_back(cs * scale);
   }
 }
 
 float VprofDiagram::p_to_y(float p) const
 {
-  switch(vpopt->diagramtype) {
+  switch (vpopt->diagramtype) {
   case 0: { // amble  (ln(p) under 500 hPa og p over 500 hPa) (under means height under, pressure above)
     const float d5hpa = (std::log(490) - std::log(500)) / 10;
-    return (p > 500) ? std::log(p) : (std::log(500) + (500 - p)*d5hpa);
+    return (p > 500) ? std::log(p) : (std::log(500) + (500 - p) * d5hpa);
   }
   case 1: // exner-funksjonen (pi)
     return vcross::util::exnerFunction(p);
@@ -1584,8 +1581,7 @@ float VprofDiagram::dx_from_y(float y) const
 
 PointF VprofDiagram::to_pixel(const diutil::PointF& xy) const
 {
-  return PointF(full.x1 + xy.x() * full.x2,
-                full.y1 + xy.y() * full.y2);
+  return PointF(full.x1 + xy.x() * full.x2, full.y1 + xy.y() * full.y2);
 }
 
 // transforms (p, t) pair to (x,y) pair in screen coordinates
@@ -1611,7 +1607,7 @@ void VprofDiagram::drawPT(const std::vector<PointF>& pt)
   vector<float> x, y;
   x.reserve(nlevel);
   y.reserve(nlevel);
-  for (size_t k=0; k<nlevel; k++) {
+  for (size_t k = 0; k < nlevel; k++) {
     const PointF xy = to_pixel(transformPT(pt[k].x(), pt[k].y()));
     x.push_back(xy.x());
     y.push_back(xy.y());
@@ -1629,7 +1625,7 @@ void VprofDiagram::drawPT(const std::vector<float>& p, const std::vector<float>&
     vector<float> x, y;
     x.reserve(nlevel);
     y.reserve(nlevel);
-    for (size_t k=0; k<nlevel; k++) {
+    for (size_t k = 0; k < nlevel; k++) {
       const PointF xy = to_pixel(transformPT(p[k], t[k]));
       x.push_back(xy.x());
       y.push_back(xy.y());
@@ -1641,8 +1637,7 @@ void VprofDiagram::drawPT(const std::vector<float>& p, const std::vector<float>&
   }
 }
 
-void VprofDiagram::drawPX(const std::vector<float>& pp, const std::vector<float>& v,
-                          float x0, float scale, float xlim0, float xlim1)
+void VprofDiagram::drawPX(const std::vector<float>& pp, const std::vector<float>& v, float x0, float scale, float xlim0, float xlim1)
 {
   if (!all_valid(v))
     return;
@@ -1651,8 +1646,8 @@ void VprofDiagram::drawPX(const std::vector<float>& pp, const std::vector<float>
   vector<float> x, y;
   x.reserve(nlevel);
   y.reserve(nlevel);
-  for (unsigned int k=0; k<nlevel; k++) {
-    const PointF xy = to_pixel(PointF(x0 + scale*v[k], transformP(pp[k])));
+  for (unsigned int k = 0; k < nlevel; k++) {
+    const PointF xy = to_pixel(PointF(x0 + scale * v[k], transformP(pp[k])));
     x.push_back(xy.x());
     y.push_back(xy.y());
   }
@@ -1667,8 +1662,7 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
   METLIBS_LOG_SCOPE(LOGVAL(nplot) << LOGVAL(isSelectedRealization));
   METLIBS_LOG_DEBUG("start plotting '" << values.text.posName << "'");
 
-  const int nstyles = std::min(vpopt->dataColour.size(),
-      std::min(vpopt->dataLinewidth.size(), vpopt->windLinewidth.size()));
+  const int nstyles = std::min(vpopt->dataColour.size(), std::min(vpopt->dataLinewidth.size(), vpopt->windLinewidth.size()));
   const int istyle = nplot % nstyles;
 
   gl->Enable(DiGLPainter::gl_BLEND);
@@ -1677,8 +1671,8 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
   Colour c(vpopt->dataColour[istyle]);
   if (!isSelectedRealization)
     c.set(Colour::alpha, 0x3F);
-  const float dataWidth= vpopt->dataLinewidth[istyle];
-  const float windWidth= vpopt->windLinewidth[istyle];
+  const float dataWidth = vpopt->dataLinewidth[istyle];
+  const float windWidth = vpopt->windLinewidth[istyle];
   gl->setLineStyle(c, dataWidth, true);
 
   // T
@@ -1689,10 +1683,10 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
   }
 
   // Td
-  if (vpopt->ptdtd && values.td.size()>0) {
+  if (vpopt->ptdtd && values.td.size() > 0) {
     if (all_valid(values.td)) {
       gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
-      gl->LineStipple(1,0xFFC0);
+      gl->LineStipple(1, 0xFFC0);
       drawPT(values.ptd.empty() ? values.ptt : values.ptd, values.td);
     }
   }
@@ -1708,25 +1702,24 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
   // wind (u(e/w) and v(n/s)in unit knots)
   if (isSelectedRealization && vpopt->pwind && values.uu.size() > 0) {
     if (all_valid(values.uu) && all_valid(values.vv)) {
-      float xw= xysize[BOX_WIND][XMAX] - xysize[BOX_WIND][XMIN];
-      float x0= xysize[BOX_WIND][XMIN] + xw*0.5;
+      float xw = xysize[BOX_WIND][XMAX] - xysize[BOX_WIND][XMIN];
+      float x0 = xysize[BOX_WIND][XMIN] + xw * 0.5;
       if (vpopt->windseparate)
-        x0+=xw*float(nplot);
-      float ylim1= xysize[BOX_PT_AXES][YMIN];
-      float ylim2= xysize[BOX_PT_AXES][YMAX];
+        x0 += xw * float(nplot);
+      float ylim1 = xysize[BOX_PT_AXES][YMIN];
+      float ylim2 = xysize[BOX_PT_AXES][YMAX];
       float flagl = xw * 0.5 * 0.85;
 
       gl->setLineStyle(c, windWidth, true);
-      const float windScale = values.windInKnots ? 1 : (3600.0/1852.0);
+      const float windScale = values.windInKnots ? 1 : (3600.0 / 1852.0);
       const vector<float>& pp = values.puv.empty() ? values.ptt : values.puv;
       const size_t nlevel = std::min(pp.size(), std::min(values.uu.size(), values.vv.size()));
-      for (unsigned int k=0; k<nlevel; k++) {
+      for (unsigned int k = 0; k < nlevel; k++) {
         const float yy = transformP(pp[k]);
         if (yy >= ylim1 && yy <= ylim2) {
           float wx, wy;
           to_pixel(PointF(x0, yy)).unpack(wx, wy);
-          gl->drawWindArrow(values.uu[k] * windScale, values.vv[k] * windScale,
-              wx, wy, flagl*full.x2, false);
+          gl->drawWindArrow(values.uu[k] * windScale, values.vv[k] * windScale, wx, wy, flagl * full.x2, false);
         }
       }
     } else {
@@ -1739,44 +1732,46 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
       const vector<float>& pp = values.puv.empty() ? values.ptt : values.puv;
       // significant wind levels, wind as numbers (temp and prog)
       // (other levels also if space)
-      float dchy= chylab*1.3;
-      float ylim1= xysize[BOX_SIG_WIND][YMIN]+dchy*0.5;
-      float ylim2= xysize[BOX_SIG_WIND][YMAX]-dchy*0.5;
-      int k1= -1;
-      int k2= -1;
-      const size_t nlevel = std::min(pp.size(), std::min(values.dd.size(), values.ff.size()));;
-      for (unsigned int k=0; k<nlevel; k++) {
+      float dchy = chylab * 1.3;
+      float ylim1 = xysize[BOX_SIG_WIND][YMIN] + dchy * 0.5;
+      float ylim2 = xysize[BOX_SIG_WIND][YMAX] - dchy * 0.5;
+      int k1 = -1;
+      int k2 = -1;
+      const size_t nlevel = std::min(pp.size(), std::min(values.dd.size(), values.ff.size()));
+      ;
+      for (unsigned int k = 0; k < nlevel; k++) {
         const float yy = transformP(pp[k]);
         if (yy > ylim1 && yy < ylim2) {
-          if (k1==-1) k1= k;
-          k2= k;
+          if (k1 == -1)
+            k1 = k;
+          k2 = k;
         }
       }
 
-      if (k1>=0) {
+      if (k1 >= 0) {
         std::vector<float> used;
-        const float x= xysize[BOX_SIG_WIND][XMIN]+(xysize[BOX_SIG_WIND][XMAX]-xysize[BOX_SIG_WIND][XMIN])*nplot+chxlab*0.5;
+        const float x = xysize[BOX_SIG_WIND][XMIN] + (xysize[BOX_SIG_WIND][XMAX] - xysize[BOX_SIG_WIND][XMIN]) * nplot + chxlab * 0.5;
         setFontsize(chylab);
 
-        for (int sig=3; sig>=0; sig--) {
-          for (int k=k1; k<=k2; k++) {
-            if (values.sigwind[k]==sig) {
+        for (int sig = 3; sig >= 0; sig--) {
+          for (int k = k1; k <= k2; k++) {
+            if (values.sigwind[k] == sig) {
               const float yy = transformP(pp[k]);
-              ylim1= yy-dchy;
-              ylim2= yy+dchy;
-              size_t i= 0;
-              while (i<used.size() && (used[i]<ylim1 || used[i]>ylim2))
+              ylim1 = yy - dchy;
+              ylim2 = yy + dchy;
+              size_t i = 0;
+              while (i < used.size() && (used[i] < ylim1 || used[i] > ylim2))
                 i++;
-              if (i==used.size()) {
+              if (i == used.size()) {
                 used.push_back(yy);
-                int idd= (values.dd[k]+5)/10;
-                int iff= values.ff[k];
-                if (idd==0 && iff>0) idd=36;
+                int idd = (values.dd[k] + 5) / 10;
+                int iff = values.ff[k];
+                if (idd == 0 && iff > 0)
+                  idd = 36;
                 ostringstream ostr;
-                ostr << setw(2) << setfill('0') << idd << "-"
-                     << setw(3) << setfill('0') << iff;
-                std::string str= ostr.str();
-                const float y = yy-chylab*0.5;
+                ostr << setw(2) << setfill('0') << idd << "-" << setw(3) << setfill('0') << iff;
+                std::string str = ostr.str();
+                const float y = yy - chylab * 0.5;
                 drawText(str, x, y, 0.0);
               }
             }
@@ -1792,26 +1787,26 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
 
   // vertical wind, omega
   if (vpopt->pvwind) {
-    float dx= xysize[BOX_VER_WIND][XMAX] - xysize[BOX_VER_WIND][XMIN];
-    float x0= xysize[BOX_VER_WIND][XMIN] + dx*0.5;
-    float scale= -dx/vpopt->rvwind;
+    float dx = xysize[BOX_VER_WIND][XMAX] - xysize[BOX_VER_WIND][XMIN];
+    float x0 = xysize[BOX_VER_WIND][XMIN] + dx * 0.5;
+    float scale = -dx / vpopt->rvwind;
     drawPX(values.pom.empty() ? values.ptt : values.pom, values.om, x0, scale, xysize[BOX_VER_WIND][XMIN], xysize[BOX_VER_WIND][XMAX]);
   }
 
   // relative humidity
   if (vpopt->prelhum) {
-    float dx= xysize[BOX_REL_HUM][XMAX] - xysize[BOX_REL_HUM][XMIN];
-    float x0= xysize[BOX_REL_HUM][XMIN];
-    float scale= dx/100.;
+    float dx = xysize[BOX_REL_HUM][XMAX] - xysize[BOX_REL_HUM][XMIN];
+    float x0 = xysize[BOX_REL_HUM][XMIN];
+    float scale = dx / 100.;
     drawPX(values.ptt, values.rhum, x0, scale, xysize[BOX_REL_HUM][XMIN], xysize[BOX_REL_HUM][XMAX]);
   }
 
   // ducting
   if (vpopt->pducting) {
-    float rd= vpopt->ductingMax - vpopt->ductingMin;
-    float dx= xysize[BOX_DUCTING][XMAX] - xysize[BOX_DUCTING][XMIN];
-    float x0= xysize[BOX_DUCTING][XMIN] + dx * (0.0 - vpopt->ductingMin)/rd;
-    float scale= dx/rd;
+    float rd = vpopt->ductingMax - vpopt->ductingMin;
+    float dx = xysize[BOX_DUCTING][XMAX] - xysize[BOX_DUCTING][XMIN];
+    float x0 = xysize[BOX_DUCTING][XMIN] + dx * (0.0 - vpopt->ductingMin) / rd;
+    float scale = dx / rd;
     drawPX(values.ptt, values.duct, x0, scale, xysize[BOX_DUCTING][XMIN], xysize[BOX_DUCTING][XMAX]);
   }
 

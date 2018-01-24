@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,12 +31,12 @@
 
 #include "diVprofManager.h"
 
-#include "diVprofOptions.h"
-#include "diVprofPlotCommand.h"
-#include "diVprofData.h"
-#include "diVprofDiagram.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "diVprofData.h"
+#include "diVprofDiagram.h"
+#include "diVprofOptions.h"
+#include "diVprofPlotCommand.h"
 #include "miSetupParser.h"
 #include "util/misc_util.h"
 #include "vcross_v2/VcrossSetup.h"
@@ -136,7 +136,7 @@ void VprofManager::parseSetup()
   for (size_t i=0; i<vstr.size(); i++) {
     METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
     std::vector<std::string> tokens = miutil::split(vstr[i]);
-    std::string filetype="standard", model, filename, stationsfilename, db_parameterfile, db_connectfile;
+    std::string filetype = "standard", model, filename, stationsfilename, db_parameterfile, db_connectfile;
 
     //obsolete
     if ( tokens.size() == 1 ) {
@@ -369,8 +369,7 @@ void VprofManager::updateSelectedStations()
   }
 
   for (const stationInfo& s : stationList) {
-    std::vector<std::string>::const_iterator it
-        = std::find(plotStations.begin(), plotStations.end(), s.name);
+    std::vector<std::string>::const_iterator it = std::find(plotStations.begin(), plotStations.end(), s.name);
     if (it != plotStations.end()) {
       selectedStations.push_back(*it);
       break;
@@ -422,7 +421,7 @@ const std::vector<std::string>& VprofManager::getModelNames()
 
 /***************************************************************************/
 
-std::vector <std::string> VprofManager::getReferencetimes(const string &modelName)
+std::vector<std::string> VprofManager::getReferencetimes(const string& modelName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName));
   std::vector <std::string> rf;
@@ -457,10 +456,10 @@ void VprofManager::setSelectedModels(const vector <std::string>& models)
 VprofReader_p VprofManager::getReader(const std::string& modelName)
 {
   const std::string model_part = modelName.substr(0, modelName.find("@"));
-  std::map<std::string,std::string>::const_iterator it = filetypes.find(model_part);
+  std::map<std::string, std::string>::const_iterator it = filetypes.find(model_part);
   if (it != filetypes.end() && it->second == "bufr") {
     return reader_bufr;
-  } else if (it != filetypes.end() && it->second == "roadobs"){
+  } else if (it != filetypes.end() && it->second == "roadobs") {
     return reader_roadobs;
   } else {
     return reader_fimex;
@@ -579,7 +578,7 @@ std::string VprofManager::getAnnotationString()
 {
   std::ostringstream ost;
   ost << "Vertical profiles ";
-  for (vector <VprofSelectedModel>::iterator p=selectedModels.begin(); p!=selectedModels.end(); p++)
+  for (vector<VprofSelectedModel>::iterator p = selectedModels.begin(); p != selectedModels.end(); p++)
     ost << p->model << ' ';
   return ost.str();
 }

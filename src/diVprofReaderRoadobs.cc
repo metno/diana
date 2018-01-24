@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -61,11 +61,36 @@ VprofData_p VprofReaderRoadobs::find(const VprofSelectedModel& vsm, const std::s
   if (now.hour() % 6 != 0) {
     /* Adjust start hour */
     switch (now.hour()) {
-        case  1: case  7: case 13: case 19: now.addHour(-1); break;
-        case  2: case  8: case 14: case 20: now.addHour(-2); break;
-        case  3: case  9: case 15: case 21: now.addHour(-3); break;
-        case  4: case 10: case 16: case 22: now.addHour(-4); break;
-        case  5: case 11: case 17: case 23: now.addHour(-5); break;
+    case 1:
+    case 7:
+    case 13:
+    case 19:
+      now.addHour(-1);
+      break;
+    case 2:
+    case 8:
+    case 14:
+    case 20:
+      now.addHour(-2);
+      break;
+    case 3:
+    case 9:
+    case 15:
+    case 21:
+      now.addHour(-3);
+      break;
+    case 4:
+    case 10:
+    case 16:
+    case 22:
+      now.addHour(-4);
+      break;
+    case 5:
+    case 11:
+    case 17:
+    case 23:
+      now.addHour(-5);
+      break;
     }
   }
   try {

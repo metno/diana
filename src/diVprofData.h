@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2016 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,8 +33,8 @@
 
 #include "diStationInfo.h"
 
-#include <puTools/miTime.h>
 #include <memory>
+#include <puTools/miTime.h>
 #include <vector>
 
 /**
@@ -61,12 +61,10 @@ public:
   const std::string& getModelName() const
     { return modelName; }
 
-  void addValidTime(const miutil::miTime& vt)
-    { validTime.push_back(vt); }
+  void addValidTime(const miutil::miTime& vt) { validTime.push_back(vt); }
 
 protected:
-  const std::string& getStationsFileName() const
-    { return stationsFileName; }
+  const std::string& getStationsFileName() const { return stationsFileName; }
 
   void readStationNames();
   void renameStations();
@@ -75,7 +73,7 @@ protected:
   int numRealizations;
 
   std::vector<stationInfo> mStations;
-  std::map< std::string, std::string > stationMap;
+  std::map<std::string, std::string> stationMap;
 
   VprofValues_cpv cache;
   std::string cachedName;

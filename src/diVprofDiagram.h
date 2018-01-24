@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,10 +29,10 @@
 #ifndef VPROFDIAGRAM_H
 #define VPROFDIAGRAM_H
 
-#include "diVprofOptions.h"
-#include "diGLPainter.h"
-#include "diVprofValues.h"
 #include "diField/diPoint.h"
+#include "diGLPainter.h"
+#include "diVprofOptions.h"
+#include "diVprofValues.h"
 
 #include <QSize>
 
@@ -57,10 +57,10 @@ class VprofDiagram
 
 public:
   // vertical table resolution in hPa
-  static const int idptab= 5;
+  static const int idptab = 5;
 
   // length of vertical tables (0-1300 hPa)
-  static const int mptab= 261;
+  static const int mptab = 261;
 
   void plotValues(int nplot, const VprofValues& values, bool isSelectedRealization);
 
@@ -69,9 +69,7 @@ private:
   diutil::PointF transformPT(float p, float t) const;
 
   diutil::PointF to_pixel(const diutil::PointF& xy) const;
-  diutil::PointF to_pixel(float x, float y) const
-    { return to_pixel(diutil::PointF(x, y)); }
-
+  diutil::PointF to_pixel(float x, float y) const { return to_pixel(diutil::PointF(x, y)); }
 
   float p_to_y(float p) const;
   float dx_from_p(float p) const;
@@ -84,15 +82,13 @@ private:
   void drawPT(const std::vector<diutil::PointF>& pt);
   void drawPT(const std::vector<float>& p, const std::vector<float>& t);
 
-  void drawPX(const std::vector<float>& pp, const std::vector<float>& v,
-              float x0, float scale, float xlim0, float xlim1);
+  void drawPX(const std::vector<float>& pp, const std::vector<float>& v, float x0, float scale, float xlim0, float xlim1);
 
   void drawLine(const diutil::PointF& p1, const diutil::PointF& p2);
-  void drawLine(float x1, float y1, float x2, float y2)
-    { drawLine(diutil::PointF(x1, y1), diutil::PointF(x2, y2)); }
+  void drawLine(float x1, float y1, float x2, float y2) { drawLine(diutil::PointF(x1, y1), diutil::PointF(x2, y2)); }
 
   void drawRect(bool fill, float x1, float y1, float x2, float y2);
-  void drawText(const std::string& text, float x, float y, float angle=0);
+  void drawText(const std::string& text, float x, float y, float angle = 0);
 
 protected:
   float getTextWidth(const std::string& text) const;
@@ -113,20 +109,20 @@ protected:
 
   enum { XMIN, XMAX, YMIN, YMAX, NXYMINMAX };
   enum {
-    BOX_TOTAL,     // n=0 : total
-    BOX_PT_AXES,   // n=1 : p-t diagram
-    BOX_PT,        // n=2 : p-t diagram with labels
-    BOX_FL,        // n=3 : flight levels
-    BOX_SIG_WIND,  // n=4 : significant wind levels
-    BOX_WIND,      // n=5 : wind (first if multiple)
-    BOX_VER_WIND,  // n=6 : vertical wind
-    BOX_REL_HUM,   // n=7 : relative humidity
-    BOX_DUCTING,   // n=8 : ducting
-    BOX_TEXT,      // n=9 : text
+    BOX_TOTAL,    // n=0 : total
+    BOX_PT_AXES,  // n=1 : p-t diagram
+    BOX_PT,       // n=2 : p-t diagram with labels
+    BOX_FL,       // n=3 : flight levels
+    BOX_SIG_WIND, // n=4 : significant wind levels
+    BOX_WIND,     // n=5 : wind (first if multiple)
+    BOX_VER_WIND, // n=6 : vertical wind
+    BOX_REL_HUM,  // n=7 : relative humidity
+    BOX_DUCTING,  // n=8 : ducting
+    BOX_TEXT,     // n=9 : text
     NBOXES
   };
-  float xysize[NBOXES][NXYMINMAX];  // position of diagram parts
-  std::vector<VprofText> vptext; // info for text plotting
+  float xysize[NBOXES][NXYMINMAX]; // position of diagram parts
+  std::vector<VprofText> vptext;   // info for text plotting
 
 public:
   VprofDiagram(VprofOptions *vpop, DiGLPainter* gl);
@@ -141,12 +137,7 @@ private:
   void prepare();
   void condensationtrails();
   void plotDiagram();
-  void fpInitStr(const std::string& str,
-      float x, float y, float angle,
-      float size,
-      const Colour &c,
-      Alignment format = ALIGN_LEFT,
-      Font font = FONT_DEFAULT);
+  void fpInitStr(const std::string& str, float x, float y, float angle, float size, const Colour& c, Alignment format = ALIGN_LEFT, Font font = FONT_DEFAULT);
   void fpDrawStr(bool first=false);
 
   //-----------------------------------------------

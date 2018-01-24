@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -142,10 +142,9 @@ public:
   const std::vector<std::string>& getModelNames();
   const std::vector<std::string>& getModelFiles()
     { return dialogFileNames; }
-  std::vector <std::string> getReferencetimes(const std::string& model);
+  std::vector<std::string> getReferencetimes(const std::string& model);
   void setSelectedModels(const std::vector<std::string>& models);
-  const std::vector<VprofSelectedModel>& getSelectedModels() const
-    { return selectedModels; }
+  const std::vector<VprofSelectedModel>& getSelectedModels() const { return selectedModels; }
 
   bool plot(DiGLPainter* gl);
   void mainWindowTimeChanged(const miutil::miTime& time);

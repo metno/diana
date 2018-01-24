@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -145,7 +145,7 @@ void VprofModelDialog::modelfilelistClicked(QListWidgetItem* item)
     reftimeWidget->setCurrentRow(reftimeWidget->count()-1);
     selectedModelsWidget->addItem(getSelectedModelString());
   }
-  selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
+  selectedModelsWidget->setCurrentRow(selectedModelsWidget->count() - 1);
 }
 
 void VprofModelDialog::reftimeWidgetClicked(QListWidgetItem* item)

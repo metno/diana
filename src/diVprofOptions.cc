@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -417,7 +417,6 @@ std::vector<std::string> VprofOptions::writeOptions()
   return vstr;
 }
 
-
 void VprofOptions::readOptions(const std::vector<miutil::KeyValue_v>& vstr)
 {
 #ifdef DEBUGPRINT
@@ -430,128 +429,212 @@ void VprofOptions::readOptions(const std::vector<miutil::KeyValue_v>& vstr)
         const std::string& key = kv.key();
         const std::string& value = kv.value();
 
-        if      (key=="tttt")       ptttt=    kv.toBool();
-        else if (key=="tdtd")       ptdtd=    kv.toBool();
-        else if (key=="wind")       pwind=    kv.toBool();
-        else if (key=="vwind")      pvwind=   kv.toBool();
-        else if (key=="relhum")     prelhum=  kv.toBool();
-        else if (key=="ducting")    pducting= kv.toBool();
-        else if (key=="kindex")     pkindex=  kv.toBool();
-        else if (key=="slwind")     pslwind=  kv.toBool();
+        if (key == "tttt")
+          ptttt = kv.toBool();
+        else if (key == "tdtd")
+          ptdtd = kv.toBool();
+        else if (key == "wind")
+          pwind = kv.toBool();
+        else if (key == "vwind")
+          pvwind = kv.toBool();
+        else if (key == "relhum")
+          prelhum = kv.toBool();
+        else if (key == "ducting")
+          pducting = kv.toBool();
+        else if (key == "kindex")
+          pkindex = kv.toBool();
+        else if (key == "slwind")
+          pslwind = kv.toBool();
 
-        else if (key=="windseparate") windseparate= kv.toBool();
-        else if (key=="text")         ptext=        kv.toBool();
-        else if (key=="geotext")      pgeotext=     kv.toBool();
-        else if (key=="temptext")     temptext=     kv.toBool();
+        else if (key == "windseparate")
+          windseparate = kv.toBool();
+        else if (key == "text")
+          ptext = kv.toBool();
+        else if (key == "geotext")
+          pgeotext = kv.toBool();
+        else if (key == "temptext")
+          temptext = kv.toBool();
 
-        else if (key=="rvwind")     rvwind=     kv.toFloat();
-        else if (key=="ductingmin") ductingMin= kv.toFloat();
-        else if (key=="ductingmax") ductingMax= kv.toFloat();
-        else if (key=="linetext")   linetext=   kv.toInt();
+        else if (key == "rvwind")
+          rvwind = kv.toFloat();
+        else if (key == "ductingmin")
+          ductingMin = kv.toFloat();
+        else if (key == "ductingmax")
+          ductingMax = kv.toFloat();
+        else if (key == "linetext")
+          linetext = kv.toInt();
 
-        else if (key=="backgroundcolour") backgroundColour= value;
+        else if (key == "backgroundcolour")
+          backgroundColour = value;
 
-        else if (key=="diagramtype") diagramtype= kv.toInt();
-        else if (key=="tangle")      tangle=      kv.toFloat();
+        else if (key == "diagramtype")
+          diagramtype = kv.toInt();
+        else if (key == "tangle")
+          tangle = kv.toFloat();
 
-        else if (key=="pmindiagram")   pminDiagram= kv.toInt();
-        else if (key=="pmaxdiagram")   pmaxDiagram= kv.toInt();
-        else if (key=="tmindiagram")   tminDiagram= kv.toInt();
-        else if (key=="tmaxdiagram")   tmaxDiagram= kv.toInt();
-        else if (key=="trangediagram") trangeDiagram= kv.toInt();
+        else if (key == "pmindiagram")
+          pminDiagram = kv.toInt();
+        else if (key == "pmaxdiagram")
+          pmaxDiagram = kv.toInt();
+        else if (key == "tmindiagram")
+          tminDiagram = kv.toInt();
+        else if (key == "tmaxdiagram")
+          tmaxDiagram = kv.toInt();
+        else if (key == "trangediagram")
+          trangeDiagram = kv.toInt();
 
-        else if (key=="plinesfl")  pplinesfl= kv.toBool();
+        else if (key == "plinesfl")
+          pplinesfl = kv.toBool();
 
-        else if (key=="plines")      pplines= kv.toBool();
-        else if (key=="pcolour")     pColour= value;
-        else if (key=="plinetype")   pLinetype= value;
-        else if (key=="plinewidth1") pLinewidth2= kv.toFloat();
-        else if (key=="plinewidth2") pLinewidth2= kv.toFloat();
+        else if (key == "plines")
+          pplines = kv.toBool();
+        else if (key == "pcolour")
+          pColour = value;
+        else if (key == "plinetype")
+          pLinetype = value;
+        else if (key == "plinewidth1")
+          pLinewidth2 = kv.toFloat();
+        else if (key == "plinewidth2")
+          pLinewidth2 = kv.toFloat();
 
-        else if (key=="tlines")      ptlines=     kv.toBool();
-        else if (key=="tstep")       tStep=       kv.toInt();
-        else if (key=="tcolour")     tColour=     value;
-        else if (key=="tlinetype")   tLinetype=   value;
-        else if (key=="tlinewidth1") tLinewidth2= kv.toFloat();
-        else if (key=="tlinewidth2") tLinewidth2= kv.toFloat();
+        else if (key == "tlines")
+          ptlines = kv.toBool();
+        else if (key == "tstep")
+          tStep = kv.toInt();
+        else if (key == "tcolour")
+          tColour = value;
+        else if (key == "tlinetype")
+          tLinetype = value;
+        else if (key == "tlinewidth1")
+          tLinewidth2 = kv.toFloat();
+        else if (key == "tlinewidth2")
+          tLinewidth2 = kv.toFloat();
 
-        else if (key=="dryadiabat")          pdryadiabat=    kv.toBool();
-        else if (key=="dryadiabatstep")      dryadiabatStep=      kv.toInt();
-        else if (key=="dryadiabatcolour")    dryadiabatColour=    value;
-        else if (key=="dryadiabatlinetype")  dryadiabatLinetype=  value;
-        else if (key=="dryadiabatlinewidth") dryadiabatLinewidth= kv.toFloat();
+        else if (key == "dryadiabat")
+          pdryadiabat = kv.toBool();
+        else if (key == "dryadiabatstep")
+          dryadiabatStep = kv.toInt();
+        else if (key == "dryadiabatcolour")
+          dryadiabatColour = value;
+        else if (key == "dryadiabatlinetype")
+          dryadiabatLinetype = value;
+        else if (key == "dryadiabatlinewidth")
+          dryadiabatLinewidth = kv.toFloat();
 
-        else if (key=="wetadiabat")          pwetadiabat=    kv.toBool();
-        else if (key=="wetadiabatstep")      wetadiabatStep=      kv.toInt();
-        else if (key=="wetadiabatcolour")    wetadiabatColour=    value;
-        else if (key=="wetadiabatlinetype")  wetadiabatLinetype=  value;
-        else if (key=="wetadiabatlinewidth") wetadiabatLinewidth= kv.toFloat();
-        else if (key=="wetadiabatpmin")      wetadiabatPmin=      kv.toInt();
-        else if (key=="wetadiabattmin")      wetadiabatTmin=      kv.toInt();
+        else if (key == "wetadiabat")
+          pwetadiabat = kv.toBool();
+        else if (key == "wetadiabatstep")
+          wetadiabatStep = kv.toInt();
+        else if (key == "wetadiabatcolour")
+          wetadiabatColour = value;
+        else if (key == "wetadiabatlinetype")
+          wetadiabatLinetype = value;
+        else if (key == "wetadiabatlinewidth")
+          wetadiabatLinewidth = kv.toFloat();
+        else if (key == "wetadiabatpmin")
+          wetadiabatPmin = kv.toInt();
+        else if (key == "wetadiabattmin")
+          wetadiabatTmin = kv.toInt();
 
-        else if (key=="mixingratio")          pmixingratio=    kv.toBool();
-        else if (key=="mixingratioset")       mixingratioSet=   kv.toInt();
-        else if (key=="mixingratiocolour")    mixingratioColour=    value;
-        else if (key=="mixingratiolinetype")  mixingratioLinetype=  value;
-        else if (key=="mixingratiolinewidth") mixingratioLinewidth= kv.toFloat();
-        else if (key=="mixingratiopmin")      mixingratioPmin=      kv.toInt();
-        else if (key=="mixingratiotmin")      mixingratioTmin=      kv.toInt();
+        else if (key == "mixingratio")
+          pmixingratio = kv.toBool();
+        else if (key == "mixingratioset")
+          mixingratioSet = kv.toInt();
+        else if (key == "mixingratiocolour")
+          mixingratioColour = value;
+        else if (key == "mixingratiolinetype")
+          mixingratioLinetype = value;
+        else if (key == "mixingratiolinewidth")
+          mixingratioLinewidth = kv.toFloat();
+        else if (key == "mixingratiopmin")
+          mixingratioPmin = kv.toInt();
+        else if (key == "mixingratiotmin")
+          mixingratioTmin = kv.toInt();
 
-        else if (key=="labelp") plabelp= kv.toBool();
-        else if (key=="labelt") plabelt= kv.toBool();
-        else if (key=="labelq") plabelq= kv.toBool();
+        else if (key == "labelp")
+          plabelp = kv.toBool();
+        else if (key == "labelt")
+          plabelt = kv.toBool();
+        else if (key == "labelq")
+          plabelq = kv.toBool();
 
-        else if (key=="frame")          pframe= kv.toBool();
-        else if (key=="framecolour")    frameColour= value;
-        else if (key=="framelinetype")  frameLinetype= value;
-        else if (key=="framelinewidth") frameLinewidth= kv.toFloat();
+        else if (key == "frame")
+          pframe = kv.toBool();
+        else if (key == "framecolour")
+          frameColour = value;
+        else if (key == "framelinetype")
+          frameLinetype = value;
+        else if (key == "framelinewidth")
+          frameLinewidth = kv.toFloat();
 
-        else if (key=="textcolour") textColour= value;
+        else if (key == "textcolour")
+          textColour = value;
 
-        else if (key=="flevels")           pflevels= kv.toBool();
-        else if (key=="flevelscolour")     flevelsColour= value;
-        else if (key=="flevelslinetype")   flevelsLinetype= value;
-        else if (key=="flevelslinewidth1") flevelsLinewidth1= kv.toFloat();
-        else if (key=="flevelslinewidth2") flevelsLinewidth2= kv.toFloat();
+        else if (key == "flevels")
+          pflevels = kv.toBool();
+        else if (key == "flevelscolour")
+          flevelsColour = value;
+        else if (key == "flevelslinetype")
+          flevelsLinetype = value;
+        else if (key == "flevelslinewidth1")
+          flevelsLinewidth1 = kv.toFloat();
+        else if (key == "flevelslinewidth2")
+          flevelsLinewidth2 = kv.toFloat();
 
-        else if (key=="labelflevels") plabelflevels= kv.toBool();
+        else if (key == "labelflevels")
+          plabelflevels = kv.toBool();
 
-        else if (key=="rsvaxis")   rsvaxis=   kv.toFloat();
-        else if (key=="rstext")    rstext=    kv.toFloat();
-        else if (key=="rslabels")  rslabels=  kv.toFloat();
-        else if (key=="rswind")    rswind=    kv.toFloat();
-        else if (key=="rsvwind")   rsvwind=   kv.toFloat();
-        else if (key=="rsrelhum")  rsrelhum=  kv.toFloat();
-        else if (key=="rsducting") rsducting= kv.toFloat();
+        else if (key == "rsvaxis")
+          rsvaxis = kv.toFloat();
+        else if (key == "rstext")
+          rstext = kv.toFloat();
+        else if (key == "rslabels")
+          rslabels = kv.toFloat();
+        else if (key == "rswind")
+          rswind = kv.toFloat();
+        else if (key == "rsvwind")
+          rsvwind = kv.toFloat();
+        else if (key == "rsrelhum")
+          rsrelhum = kv.toFloat();
+        else if (key == "rsducting")
+          rsducting = kv.toFloat();
 
-        else if (key=="rangelinetype")  rangeLinetype= value;
-        else if (key=="rangelinewidth") rangeLinewidth= kv.toFloat();
+        else if (key == "rangelinetype")
+          rangeLinetype = value;
+        else if (key == "rangelinewidth")
+          rangeLinewidth = kv.toFloat();
 
-        else if (key=="cotrails")          pcotrails=    kv.toBool();
-        else if (key=="cotrailscolour")    cotrailsColour=    value;
-        else if (key=="cotrailslinetype")  cotrailsLinetype=  value;
-        else if (key=="cotrailslinewidth") cotrailsLinewidth= kv.toFloat();
-        else if (key=="cotrailspmin")      cotrailsPmin=      kv.toInt();
-        else if (key=="cotrailspmax")      cotrailsPmax=      kv.toInt();
+        else if (key == "cotrails")
+          pcotrails = kv.toBool();
+        else if (key == "cotrailscolour")
+          cotrailsColour = value;
+        else if (key == "cotrailslinetype")
+          cotrailsLinetype = value;
+        else if (key == "cotrailslinewidth")
+          cotrailsLinewidth = kv.toFloat();
+        else if (key == "cotrailspmin")
+          cotrailsPmin = kv.toInt();
+        else if (key == "cotrailspmax")
+          cotrailsPmax = kv.toInt();
 
-        if (key=="datacolour" || key=="datalinewidth" || key=="windlinewidth") {
-          const std::vector<std::string> vs= miutil::split(value, 0, ",");
-          const int nv= vs.size();
-          if (nv>0) {
-            if (key=="datacolour") {
-              if (nv>int(dataColour.size()))
+        if (key == "datacolour" || key == "datalinewidth" || key == "windlinewidth") {
+          const std::vector<std::string> vs = miutil::split(value, 0, ",");
+          const int nv = vs.size();
+          if (nv > 0) {
+            if (key == "datacolour") {
+              if (nv > int(dataColour.size()))
                 dataColour.resize(nv);
-              for (int k=0; k<nv; k++)
-                dataColour[k]= vs[k];
-            } else if (key=="datalinewidth") {
-              if (nv>int(dataLinewidth.size()))
+              for (int k = 0; k < nv; k++)
+                dataColour[k] = vs[k];
+            } else if (key == "datalinewidth") {
+              if (nv > int(dataLinewidth.size()))
                 dataLinewidth.resize(nv);
-              for (int k=0; k<nv; k++)
+              for (int k = 0; k < nv; k++)
                 dataLinewidth[k] = miutil::to_float(vs[k]);
-            } else if (key=="windlinewidth") {
-              if (nv>int(windLinewidth.size()))
+            } else if (key == "windlinewidth") {
+              if (nv > int(windLinewidth.size()))
                 windLinewidth.resize(nv);
-              for (int k=0; k<nv; k++)
+              for (int k = 0; k < nv; k++)
                 windLinewidth[k] = miutil::to_float(vs[k]);
             }
           }

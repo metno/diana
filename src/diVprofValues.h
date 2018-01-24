@@ -3,7 +3,7 @@
 
   $Id$
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,46 +33,45 @@
 
 #include "diColour.h"
 #include "diField/diFieldDefined.h"
-#include <puTools/miTime.h>
 #include <memory>
+#include <puTools/miTime.h>
 #include <vector>
 
 /// Annotation info for Vertical Profile
-struct VprofText {
-  int      index;
-  Colour   colour;
+struct VprofText
+{
+  int index;
+  Colour colour;
   std::string modelName;
   std::string posName;
-  bool     prognostic;
-  int      forecastHour;
-  miutil::miTime   validTime;
-  float    latitude;
-  float    longitude;
-  bool     kindexFound;
-  float    kindexValue;
+  bool prognostic;
+  int forecastHour;
+  miutil::miTime validTime;
+  float latitude;
+  float longitude;
+  bool kindexFound;
+  float kindexValue;
   int realization;
 };
-
 
 struct VprofValues
 {
   VprofValues();
 
-  void setName(const std::string& name) { text.posName=name; }
+  void setName(const std::string& name) { text.posName = name; }
 
-  difield::ValuesDefined isDefined()
-    { return defined_; }
+  difield::ValuesDefined isDefined() { return defined_; }
 
   VprofText text;
-  bool   prognostic;
-  bool   windInKnots;
+  bool prognostic;
+  bool windInKnots;
   size_t maxLevels;
 
   std::vector<float> ptt, tt;
   std::vector<float> ptd, td;
   std::vector<float> puv, uu, vv;
   std::vector<float> pom, om;
-  std::vector<int>   dd, ff, sigwind;
+  std::vector<int> dd, ff, sigwind;
 
   float cloudbase_p, cloudbase_t;
 
@@ -82,14 +81,9 @@ struct VprofValues
   void calculate();
 
 private:
-  void  relhum(const std::vector<float>& tt,
-               const std::vector<float>& td);
-  void ducting(const std::vector<float>& pp,
-               const std::vector<float>& tt,
-               const std::vector<float>& td);
-  void  kindex(const std::vector<float>& pp,
-               const std::vector<float>& tt,
-               const std::vector<float>& td);
+  void relhum(const std::vector<float>& tt, const std::vector<float>& td);
+  void ducting(const std::vector<float>& pp, const std::vector<float>& tt, const std::vector<float>& td);
+  void kindex(const std::vector<float>& pp, const std::vector<float>& tt, const std::vector<float>& td);
   void checkDefined();
 
 private:

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -96,8 +96,8 @@ private:
 
 class VprofBufr : public ObsBufr {
 public:
-  VprofValues_p getVprofPlot(const std::vector<std::string>& bufr_file,
-                             const std::string& modelName, const std::string& station);
+  VprofValues_p getVprofPlot(const std::vector<std::string>& bufr_file, const std::string& modelName, const std::string& station);
+
 protected:
   SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
                                 const char* cvals, int subset, int kelem) override;

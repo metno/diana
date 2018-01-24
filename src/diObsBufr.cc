@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -369,8 +369,7 @@ bool StationBufr::readStationInfo(const vector<std::string>& bufr_file,
   return true;
 }
 
-VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file,
-                                      const std::string& modelName, const std::string& station)
+VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, const std::string& modelName, const std::string& station)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
 

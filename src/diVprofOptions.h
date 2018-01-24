@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,7 +47,7 @@ public:
   std::vector<std::string> writeOptions();
   void readOptions(const std::vector<miutil::KeyValue_v>& vstr);
 
-//...........protected:
+  //...........protected:
 private:
   friend class VprofSetupDialog;
   friend class VprofDiagram;
@@ -131,7 +131,7 @@ private:
   float    mixingratioLinewidth;
   int      mixingratioPmin;
   int      mixingratioTmin;
-  std::vector< std::vector<float> > qtable; // units: g/kg
+  std::vector<std::vector<float>> qtable; // units: g/kg
 
   bool plabelp; // p labels (numbers)
   bool plabelt; // t labels (numbers)
