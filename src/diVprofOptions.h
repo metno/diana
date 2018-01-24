@@ -29,6 +29,7 @@
 #ifndef VPROFOPTIONS_H
 #define VPROFOPTIONS_H
 
+#include "util/diKeyValue.h"
 #include <string>
 #include <vector>
 
@@ -44,7 +45,7 @@ public:
   void checkValues();
   // read/write setup and log
   std::vector<std::string> writeOptions();
-  void readOptions(const std::vector<std::string>& vstr);
+  void readOptions(const std::vector<miutil::KeyValue_v>& vstr);
 
 //...........protected:
 private:
@@ -130,7 +131,7 @@ private:
   float    mixingratioLinewidth;
   int      mixingratioPmin;
   int      mixingratioTmin;
-  std::vector< std::vector<float> > qtable;
+  std::vector< std::vector<float> > qtable; // units: g/kg
 
   bool plabelp; // p labels (numbers)
   bool plabelt; // t labels (numbers)

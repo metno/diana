@@ -38,6 +38,18 @@ ValuesDefined checkDefined(size_t n_undefined, size_t n)
     return SOME_DEFINED;
 }
 
+ValuesDefined combineDefined(ValuesDefined a, ValuesDefined b)
+{
+  switch(a) {
+  case ALL_DEFINED:
+    return b;
+  case NONE_DEFINED:
+    return NONE_DEFINED;
+  case SOME_DEFINED:
+    return b != ALL_DEFINED ? b : SOME_DEFINED;
+  }
+}
+
 } // namespace difield
 
 const float fieldUndef = difield::UNDEF;

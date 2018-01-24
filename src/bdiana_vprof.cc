@@ -29,11 +29,12 @@
 
 #include "bdiana_vprof.h"
 
-#include <puTools/miStringFunctions.h>
-
+#include "diPlotCommandFactory.h"
 #include "diVprofOptions.h"
 #include "diVprofPaintable.h"
 #include "export/PaintableImageSource.h"
+
+#include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.bdiana"
 #include <miLogger/miLogging.h>
@@ -56,49 +57,14 @@ void BdianaVprof::MAKE_VPROF()
 
 void BdianaVprof::set_options(const std::vector<std::string>& opts)
 {
-  int n = opts.size();
-  for (int i = 0; i < n; i++) {
-    std::string line = opts[i];
-    miutil::trim(line);
-    if (line.empty())
-      continue;
-    std::string upline = miutil::to_upper(line);
-
-    if (upline == "OBSERVATION.ON")
-      vprof_plotobs = true;
-    else if (upline == "OBSERVATION.OFF")
-      vprof_plotobs = false;
-    else if (miutil::contains(upline, "MODELS=") || miutil::contains(upline, "MODEL=") || miutil::contains(upline, "STATION=")) {
-      std::vector<std::string> vs = miutil::split(line, "=");
-      if (vs.size() > 1) {
-        std::string key = miutil::to_upper(vs[0]);
-        std::string value = vs[1];
-        if (key == "STATION") {
-          if (miutil::contains(value, "\""))
-            miutil::remove(value, '\"');
-          stations = miutil::split(value, ",");
-        } else if (key == "MODELS" || key == "MODEL") {
-          vprof_models = miutil::split(value, 0, ",");
-        }
-      }
-    } else {
-      // assume plot-options
-      vprof_options.push_back(line);
-      vprof_optionschanged = true;
-    }
-  }
+  const PlotCommand_cpv cmds = makeCommands(opts, PLOTCOMMANDS_VPROF);
+  vprof_options.insert(vprof_options.end(), cmds.begin(), cmds.end());
 }
 
-void BdianaVprof::set_vprof(const std::vector<std::string>& pcom)
+void BdianaVprof::commands(const std::vector<std::string>& pcom)
 {
-  // extract options for plot
-  set_options(pcom);
-
-  if (vprof_optionschanged)
-    manager->getOptions()->readOptions(vprof_options);
-
-  vprof_optionschanged = false;
-  manager->setSelectedModels(vprof_models);
+  manager->parseQuickMenuStrings(vprof_options);
+  manager->parseQuickMenuStrings(makeCommands(pcom, PLOTCOMMANDS_VPROF));
   manager->setModel();
 }
 

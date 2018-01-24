@@ -31,7 +31,7 @@
 
 #include "diObsBufr.h"
 #include "diObsData.h"
-#include "diVprofPlot.h"
+#include "diVprofValues.h"
 #include "util/format_int.h"
 
 #include <puTools/miStringFunctions.h>
@@ -369,13 +369,13 @@ bool StationBufr::readStationInfo(const vector<std::string>& bufr_file,
   return true;
 }
 
-VprofPlot* VprofBufr::getVprofPlot(const vector<std::string>& bufr_file,
-                                   const std::string& modelName, const std::string& station)
+VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file,
+                                      const std::string& modelName, const std::string& station)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
 
   index = izone = istation = 0;
-  vplot = new VprofPlot;
+  vplot = std::make_shared<VprofValues>();
 
   vplot->text.modelName = modelName;
 

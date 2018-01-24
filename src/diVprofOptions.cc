@@ -418,164 +418,145 @@ std::vector<std::string> VprofOptions::writeOptions()
 }
 
 
-void VprofOptions::readOptions(const std::vector<std::string>& vstr)
+void VprofOptions::readOptions(const std::vector<miutil::KeyValue_v>& vstr)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
 
-  std::vector<std::string> vs,tokens;
-  std::string key,value;
+  for (const miutil::KeyValue_v& kvs : vstr) {
+    for (const miutil::KeyValue& kv : kvs) {
+      if (kv.hasValue()) {
+        const std::string& key = kv.key();
+        const std::string& value = kv.value();
 
-  int n= vstr.size();
+        if      (key=="tttt")       ptttt=    kv.toBool();
+        else if (key=="tdtd")       ptdtd=    kv.toBool();
+        else if (key=="wind")       pwind=    kv.toBool();
+        else if (key=="vwind")      pvwind=   kv.toBool();
+        else if (key=="relhum")     prelhum=  kv.toBool();
+        else if (key=="ducting")    pducting= kv.toBool();
+        else if (key=="kindex")     pkindex=  kv.toBool();
+        else if (key=="slwind")     pslwind=  kv.toBool();
 
-  for (int i=0; i<n; i++) {
+        else if (key=="windseparate") windseparate= kv.toBool();
+        else if (key=="text")         ptext=        kv.toBool();
+        else if (key=="geotext")      pgeotext=     kv.toBool();
+        else if (key=="temptext")     temptext=     kv.toBool();
 
-    vs= miutil::split(vstr[i], 0, " ");
+        else if (key=="rvwind")     rvwind=     kv.toFloat();
+        else if (key=="ductingmin") ductingMin= kv.toFloat();
+        else if (key=="ductingmax") ductingMax= kv.toFloat();
+        else if (key=="linetext")   linetext=   kv.toInt();
 
-    int m= vs.size();
+        else if (key=="backgroundcolour") backgroundColour= value;
 
-    for (int j=0; j<m; j++) {
+        else if (key=="diagramtype") diagramtype= kv.toInt();
+        else if (key=="tangle")      tangle=      kv.toFloat();
 
-      tokens= miutil::split(vs[j], 0, "=");
+        else if (key=="pmindiagram")   pminDiagram= kv.toInt();
+        else if (key=="pmaxdiagram")   pmaxDiagram= kv.toInt();
+        else if (key=="tmindiagram")   tminDiagram= kv.toInt();
+        else if (key=="tmaxdiagram")   tmaxDiagram= kv.toInt();
+        else if (key=="trangediagram") trangeDiagram= kv.toInt();
 
-      if (tokens.size()==2) {
+        else if (key=="plinesfl")  pplinesfl= kv.toBool();
 
-        //	key=   miutil::to_lower(tokens[0]);
-        key=   tokens[0];
-        value= tokens[1];
+        else if (key=="plines")      pplines= kv.toBool();
+        else if (key=="pcolour")     pColour= value;
+        else if (key=="plinetype")   pLinetype= value;
+        else if (key=="plinewidth1") pLinewidth2= kv.toFloat();
+        else if (key=="plinewidth2") pLinewidth2= kv.toFloat();
 
-        if      (key=="tttt")       ptttt=    (miutil::to_lower(value)=="on");
-        else if (key=="tdtd")       ptdtd=    (miutil::to_lower(value)=="on");
-        else if (key=="wind")       pwind=    (miutil::to_lower(value)=="on");
-        else if (key=="vwind")      pvwind=   (miutil::to_lower(value)=="on");
-        else if (key=="relhum")     prelhum=  (miutil::to_lower(value)=="on");
-        else if (key=="ducting")    pducting= (miutil::to_lower(value)=="on");
-        else if (key=="kindex")     pkindex=  (miutil::to_lower(value)=="on");
-        else if (key=="slwind")     pslwind=  (miutil::to_lower(value)=="on");
+        else if (key=="tlines")      ptlines=     kv.toBool();
+        else if (key=="tstep")       tStep=       kv.toInt();
+        else if (key=="tcolour")     tColour=     value;
+        else if (key=="tlinetype")   tLinetype=   value;
+        else if (key=="tlinewidth1") tLinewidth2= kv.toFloat();
+        else if (key=="tlinewidth2") tLinewidth2= kv.toFloat();
 
-        else if (key=="windseparate") windseparate= (miutil::to_lower(value)=="on");
-        else if (key=="text")         ptext=        (miutil::to_lower(value)=="on");
-        else if (key=="geotext")      pgeotext=     (miutil::to_lower(value)=="on");
-        else if (key=="temptext")     temptext=     (miutil::to_lower(value)=="on");
+        else if (key=="dryadiabat")          pdryadiabat=    kv.toBool();
+        else if (key=="dryadiabatstep")      dryadiabatStep=      kv.toInt();
+        else if (key=="dryadiabatcolour")    dryadiabatColour=    value;
+        else if (key=="dryadiabatlinetype")  dryadiabatLinetype=  value;
+        else if (key=="dryadiabatlinewidth") dryadiabatLinewidth= kv.toFloat();
 
-        else if (key=="rvwind")     rvwind=     atof(value.c_str());
-        else if (key=="ductingMin") ductingMin= atof(value.c_str());
-        else if (key=="ductingMax") ductingMax= atof(value.c_str());
-        else if (key=="linetext")   linetext=   atoi(value.c_str());
+        else if (key=="wetadiabat")          pwetadiabat=    kv.toBool();
+        else if (key=="wetadiabatstep")      wetadiabatStep=      kv.toInt();
+        else if (key=="wetadiabatcolour")    wetadiabatColour=    value;
+        else if (key=="wetadiabatlinetype")  wetadiabatLinetype=  value;
+        else if (key=="wetadiabatlinewidth") wetadiabatLinewidth= kv.toFloat();
+        else if (key=="wetadiabatpmin")      wetadiabatPmin=      kv.toInt();
+        else if (key=="wetadiabattmin")      wetadiabatTmin=      kv.toInt();
 
-        else if (key=="backgroundColour") backgroundColour= value;
+        else if (key=="mixingratio")          pmixingratio=    kv.toBool();
+        else if (key=="mixingratioset")       mixingratioSet=   kv.toInt();
+        else if (key=="mixingratiocolour")    mixingratioColour=    value;
+        else if (key=="mixingratiolinetype")  mixingratioLinetype=  value;
+        else if (key=="mixingratiolinewidth") mixingratioLinewidth= kv.toFloat();
+        else if (key=="mixingratiopmin")      mixingratioPmin=      kv.toInt();
+        else if (key=="mixingratiotmin")      mixingratioTmin=      kv.toInt();
 
-        else if (key=="diagramtype") diagramtype= atoi(value.c_str());
-        else if (key=="tangle")      tangle=      atof(value.c_str());
+        else if (key=="labelp") plabelp= kv.toBool();
+        else if (key=="labelt") plabelt= kv.toBool();
+        else if (key=="labelq") plabelq= kv.toBool();
 
-        else if (key=="pminDiagram")   pminDiagram= atoi(value.c_str());
-        else if (key=="pmaxDiagram")   pmaxDiagram= atoi(value.c_str());
-        else if (key=="tminDiagram")   tminDiagram= atoi(value.c_str());
-        else if (key=="tmaxDiagram")   tmaxDiagram= atoi(value.c_str());
-        else if (key=="trangeDiagram") trangeDiagram= atoi(value.c_str());
+        else if (key=="frame")          pframe= kv.toBool();
+        else if (key=="framecolour")    frameColour= value;
+        else if (key=="framelinetype")  frameLinetype= value;
+        else if (key=="framelinewidth") frameLinewidth= kv.toFloat();
 
-        else if (key=="plinesfl")  pplinesfl= (miutil::to_lower(value)=="on");
+        else if (key=="textcolour") textColour= value;
 
-        else if (key=="plines")      pplines= (miutil::to_lower(value)=="on");
-        else if (key=="pColour")     pColour= value;
-        else if (key=="pLinetype")   pLinetype= value;
-        else if (key=="pLinewidth1") pLinewidth2= atof(value.c_str());
-        else if (key=="pLinewidth2") pLinewidth2= atof(value.c_str());
+        else if (key=="flevels")           pflevels= kv.toBool();
+        else if (key=="flevelscolour")     flevelsColour= value;
+        else if (key=="flevelslinetype")   flevelsLinetype= value;
+        else if (key=="flevelslinewidth1") flevelsLinewidth1= kv.toFloat();
+        else if (key=="flevelslinewidth2") flevelsLinewidth2= kv.toFloat();
 
-        else if (key=="tlines")      ptlines=     (miutil::to_lower(value)=="on");
-        else if (key=="tStep")       tStep=       atoi(value.c_str());
-        else if (key=="tColour")     tColour=     value;
-        else if (key=="tLinetype")   tLinetype=   value;
-        else if (key=="tLinewidth1") tLinewidth2= atof(value.c_str());
-        else if (key=="tLinewidth2") tLinewidth2= atof(value.c_str());
+        else if (key=="labelflevels") plabelflevels= kv.toBool();
 
-        else if (key=="dryadiabat")          pdryadiabat=    (miutil::to_lower(value)=="on");
-        else if (key=="dryadiabatStep")      dryadiabatStep=      atoi(value.c_str());
-        else if (key=="dryadiabatColour")    dryadiabatColour=    value;
-        else if (key=="dryadiabatLinetype")  dryadiabatLinetype=  value;
-        else if (key=="dryadiabatLinewidth") dryadiabatLinewidth= atof(value.c_str());
+        else if (key=="rsvaxis")   rsvaxis=   kv.toFloat();
+        else if (key=="rstext")    rstext=    kv.toFloat();
+        else if (key=="rslabels")  rslabels=  kv.toFloat();
+        else if (key=="rswind")    rswind=    kv.toFloat();
+        else if (key=="rsvwind")   rsvwind=   kv.toFloat();
+        else if (key=="rsrelhum")  rsrelhum=  kv.toFloat();
+        else if (key=="rsducting") rsducting= kv.toFloat();
 
-        else if (key=="wetadiabat")          pwetadiabat=    (miutil::to_lower(value)=="on");
-        else if (key=="wetadiabatStep")      wetadiabatStep=      atoi(value.c_str());
-        else if (key=="wetadiabatColour")    wetadiabatColour=    value;
-        else if (key=="wetadiabatLinetype")  wetadiabatLinetype=  value;
-        else if (key=="wetadiabatLinewidth") wetadiabatLinewidth= atof(value.c_str());
-        else if (key=="wetadiabatPmin")      wetadiabatPmin=      atoi(value.c_str());
-        else if (key=="wetadiabatTmin")      wetadiabatTmin=      atoi(value.c_str());
+        else if (key=="rangelinetype")  rangeLinetype= value;
+        else if (key=="rangelinewidth") rangeLinewidth= kv.toFloat();
 
-        else if (key=="mixingratio")          pmixingratio=    (miutil::to_lower(value)=="on");
-        else if (key=="mixingratioSet")       mixingratioSet=   atoi(value.c_str());
-        else if (key=="mixingratioColour")    mixingratioColour=    value;
-        else if (key=="mixingratioLinetype")  mixingratioLinetype=  value;
-        else if (key=="mixingratioLinewidth") mixingratioLinewidth= atof(value.c_str());
-        else if (key=="mixingratioPmin")      mixingratioPmin=      atoi(value.c_str());
-        else if (key=="mixingratioTmin")      mixingratioTmin=      atoi(value.c_str());
+        else if (key=="cotrails")          pcotrails=    kv.toBool();
+        else if (key=="cotrailscolour")    cotrailsColour=    value;
+        else if (key=="cotrailslinetype")  cotrailsLinetype=  value;
+        else if (key=="cotrailslinewidth") cotrailsLinewidth= kv.toFloat();
+        else if (key=="cotrailspmin")      cotrailsPmin=      kv.toInt();
+        else if (key=="cotrailspmax")      cotrailsPmax=      kv.toInt();
 
-        else if (key=="labelp") plabelp= (miutil::to_lower(value)=="on");
-        else if (key=="labelt") plabelt= (miutil::to_lower(value)=="on");
-        else if (key=="labelq") plabelq= (miutil::to_lower(value)=="on");
-
-        else if (key=="frame")          pframe= (miutil::to_lower(value)=="on");
-        else if (key=="frameColour")    frameColour= value;
-        else if (key=="frameLinetype")  frameLinetype= value;
-        else if (key=="frameLinewidth") frameLinewidth= atof(value.c_str());
-
-        else if (key=="textColour") textColour= value;
-
-        else if (key=="flevels")           pflevels= (miutil::to_lower(value)=="on");
-        else if (key=="flevelsColour")     flevelsColour= value;
-        else if (key=="flevelsLinetype")   flevelsLinetype= value;
-        else if (key=="flevelsLinewidth1") flevelsLinewidth1= atof(value.c_str());
-        else if (key=="flevelsLinewidth2") flevelsLinewidth2= atof(value.c_str());
-
-        else if (key=="labelflevels") plabelflevels= (miutil::to_lower(value)=="on");
-
-        else if (key=="rsvaxis")   rsvaxis=   atof(value.c_str());
-        else if (key=="rstext")    rstext=    atof(value.c_str());
-        else if (key=="rslabels")  rslabels=  atof(value.c_str());
-        else if (key=="rswind")    rswind=    atof(value.c_str());
-        else if (key=="rsvwind")   rsvwind=   atof(value.c_str());
-        else if (key=="rsrelhum")  rsrelhum=  atof(value.c_str());
-        else if (key=="rsducting") rsducting= atof(value.c_str());
-
-        else if (key=="rangeLinetype")  rangeLinetype= value;
-        else if (key=="rangeLinewidth") rangeLinewidth= atof(value.c_str());
-
-        else if (key=="cotrails")          pcotrails=    (miutil::to_lower(value)=="on");
-        else if (key=="cotrailsColour")    cotrailsColour=    value;
-        else if (key=="cotrailsLinetype")  cotrailsLinetype=  value;
-        else if (key=="cotrailsLinewidth") cotrailsLinewidth= atof(value.c_str());
-        else if (key=="cotrailsPmin")      cotrailsPmin=      atoi(value.c_str());
-        else if (key=="cotrailsPmax")      cotrailsPmax=      atoi(value.c_str());
-
-      }
-
-      if (tokens.size()>=2) {
-
-        //	key=   miutil::to_lower(tokens[0]);
-        key=   tokens[0];
-        value= tokens[1];
-        std::vector<std::string> vs= miutil::split(value, 0, ",");
-        int nv= vs.size();
-
-        if (nv>0) {
-          if (key=="dataColour") {
-            if (nv>int(dataColour.size())) dataColour.resize(nv);
-            for (int k=0; k<nv; k++)
-              dataColour[k]= vs[k];
-          } else if (key=="dataLinewidth") {
-            if (nv>int(dataLinewidth.size())) dataLinewidth.resize(nv);
-            for (int k=0; k<nv; k++)
-              dataLinewidth[k]= atof(vs[k].c_str());
-          } else if (key=="windLinewidth") {
-            if (nv>int(windLinewidth.size())) windLinewidth.resize(nv);
-            for (int k=0; k<nv; k++)
-              windLinewidth[k]= atof(vs[k].c_str());
+        if (key=="datacolour" || key=="datalinewidth" || key=="windlinewidth") {
+          const std::vector<std::string> vs= miutil::split(value, 0, ",");
+          const int nv= vs.size();
+          if (nv>0) {
+            if (key=="datacolour") {
+              if (nv>int(dataColour.size()))
+                dataColour.resize(nv);
+              for (int k=0; k<nv; k++)
+                dataColour[k]= vs[k];
+            } else if (key=="datalinewidth") {
+              if (nv>int(dataLinewidth.size()))
+                dataLinewidth.resize(nv);
+              for (int k=0; k<nv; k++)
+                dataLinewidth[k] = miutil::to_float(vs[k]);
+            } else if (key=="windlinewidth") {
+              if (nv>int(windLinewidth.size()))
+                windLinewidth.resize(nv);
+              for (int k=0; k<nv; k++)
+                windLinewidth[k] = miutil::to_float(vs[k]);
+            }
           }
         }
       }
-
     }
   }
 

@@ -28,6 +28,7 @@
 */
 
 #include "TestVcrossQuickmenues.h"
+#include "diPlotCommandFactory.h"
 #include <vcross_v2/VcrossQtManager.h>
 #include <vcross_v2/VcrossQuickmenues.h>
 
@@ -91,7 +92,7 @@ TEST(TestVcrossQuickmenues, Script)
   string_v qmlines;
   qmlines.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
   qmlines.push_back("CROSSECTION=Nesbyen 6");
-  qm.parse(makeCommands(qmlines, true));
+  qm.parse(makeCommands(qmlines, PLOTCOMMANDS_VCROSS));
 
   // no update here, we ran a script
   EXPECT_EQ(0, qmslots.titles.size());
@@ -152,7 +153,7 @@ TEST(TestVcrossQuickmenues, ChangeTime)
   qmlines.push_back("VCROSS model=AROME field=temperature colour=blue");
   qmlines.push_back("CROSSECTION=ENVA");
   qmlines.push_back("CROSSECTION_LONLAT_DEG=10.7,63.4 10.9,63.5 10.9,63.4 11.1,63.5");
-  qm.parse(makeCommands(qmlines, true));
+  qm.parse(makeCommands(qmlines, PLOTCOMMANDS_VCROSS));
   ASSERT_EQ("ENVA", manager->getCrossectionLabel().toStdString());
 
   ASSERT_EQ(4, manager->getTimeCount());

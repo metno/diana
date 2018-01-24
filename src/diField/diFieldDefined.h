@@ -15,6 +15,8 @@ ValuesDefined checkDefined(const float* data, size_t n);
 
 ValuesDefined checkDefined(size_t n_undefined, size_t n);
 
+ValuesDefined combineDefined(ValuesDefined a, ValuesDefined b);
+
 } // namespace difield
 
 #endif // DIFIELDDEFINED_H

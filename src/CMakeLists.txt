@@ -138,6 +138,7 @@ SET (LIBDIANA_SOURCES
   diPlot.cc
   diPlotCluster.cc
   diPlotCommand.cc
+  diPlotCommandFactory.cc
   diPlotModule.cc
   diPlotOptions.cc
   diPolyContouring.cc
@@ -225,8 +226,12 @@ SET (LIBDIANA_SOURCES
   diVprofManager.cc
   diVprofOptions.cc
   diVprofPaintable.cc
-  diVprofPlot.cc
-  diVprofTables.cc
+  diVprofPlotCommand.cc
+  diVprofReader.cc
+  diVprofReaderBufr.cc
+  diVprofReaderFimex.cc
+  diVprofReaderRoadobs.cc
+  diVprofValues.cc
 
   wmsclient/WebMapPainting.cc
   wmsclient/WebMapUtilities.cc

@@ -32,7 +32,8 @@
 #include "diObsData.h"
 #include "diStationInfo.h"
 
-class VprofPlot;
+class VprofValues;
+typedef std::shared_ptr<VprofValues> VprofValues_p;
 
 /**
   \brief Reading BUFR observation files
@@ -95,9 +96,8 @@ private:
 
 class VprofBufr : public ObsBufr {
 public:
-  VprofPlot* getVprofPlot(const std::vector<std::string>& bufr_file,
-                          const std::string& modelName, const std::string& station);
-
+  VprofValues_p getVprofPlot(const std::vector<std::string>& bufr_file,
+                             const std::string& modelName, const std::string& station);
 protected:
   SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
                                 const char* cvals, int subset, int kelem) override;
@@ -107,7 +107,7 @@ private:
                       const char* cvals, int subset, int kelem);
 
 private:
-  VprofPlot* vplot;
+  VprofValues_p vplot;
 
   int izone;
   int istation;

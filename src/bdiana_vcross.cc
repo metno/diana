@@ -29,6 +29,7 @@
 
 #include "bdiana_vcross.h"
 
+#include "diPlotCommandFactory.h"
 #include "export/VcrossImageSource.h"
 #include "vcross_v2/VcrossQuickmenues.h"
 
@@ -48,7 +49,7 @@ void DianaVcross::MAKE_VCROSS()
 
 void DianaVcross::commands(const std::vector<std::string>& pcom)
 {
-  vcross::VcrossQuickmenues::parse(manager, makeCommands(pcom, true));
+  vcross::VcrossQuickmenues::parse(manager, makeCommands(pcom, PLOTCOMMANDS_VCROSS));
 }
 
 ImageSource* DianaVcross::imageSource()

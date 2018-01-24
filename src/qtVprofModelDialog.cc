@@ -115,6 +115,12 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   vlayout->addLayout(hlayout3);
 }
 
+static QString currentItem(QListWidget* list)
+{
+  QListWidgetItem* i = list->currentItem();
+  return i ? i->text() : QString();
+}
+
 /*********************************************/
 void VprofModelDialog::modelfilelistClicked(QListWidgetItem* item)
 {
@@ -123,32 +129,30 @@ void VprofModelDialog::modelfilelistClicked(QListWidgetItem* item)
   diutil::OverrideCursor waitCursor;
 
   reftimeWidget->clear();
-  vector<std::string> rfv = vprofm->getReferencetimes(item->text().toStdString());
+  const vector<std::string> rfv = vprofm->getReferencetimes(item->text().toStdString());
 
-  for ( size_t i=0; i<rfv.size(); ++i){
-    reftimeWidget->addItem(rfv[i].c_str());
-  }
-
-  if ( rfv.empty() ) {
-    if ( !selectedModelsWidget->count() || modelfileList->currentItem()->text() != selectedModelsWidget->currentItem()->text()) {
-      selectedModelsWidget->addItem(modelfileList->currentItem()->text());
-      selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
+  if (rfv.empty()) {
+    const QString model = currentItem(modelfileList);
+    if (!selectedModelsWidget->count() || model != currentItem(selectedModelsWidget)) {
+      selectedModelsWidget->addItem(model);
+    } else {
+      return;
     }
   } else {
+    for (const std::string& rt : rfv)
+      reftimeWidget->addItem(QString::fromStdString(rt));
+
     reftimeWidget->setCurrentRow(reftimeWidget->count()-1);
-    QString qstr = getSelectedModelString();
-    selectedModelsWidget->addItem(qstr);
-    selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
+    selectedModelsWidget->addItem(getSelectedModelString());
   }
+  selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
 }
 
 void VprofModelDialog::reftimeWidgetClicked(QListWidgetItem* item)
 {
-
-  if ( selectedModelsWidget->count() && selectedModelsWidget->currentItem()->text().contains(modelfileList->currentItem()->text())) {
-    QString qstr = getSelectedModelString();
-    QListWidgetItem* ii = selectedModelsWidget->item(selectedModelsWidget->currentRow());
-    ii->setText(qstr);
+  const QString model = currentItem(modelfileList);
+  if (selectedModelsWidget->count() && currentItem(selectedModelsWidget).contains(model)) {
+    selectedModelsWidget->currentItem()->setText(getSelectedModelString());
   }
 }
 
@@ -186,8 +190,7 @@ void VprofModelDialog::applyClicked()
 {
   METLIBS_LOG_SCOPE();
   setModel();
-  emit ModelApply();
-
+  Q_EMIT ModelApply();
 }
 
 /*********************************************/
@@ -196,9 +199,8 @@ void VprofModelDialog::applyhideClicked()
 {
   METLIBS_LOG_SCOPE();
   setModel();
-  emit ModelHide();
-  emit ModelApply();
-
+  Q_EMIT ModelHide();
+  Q_EMIT ModelApply();
 }
 
 /*********************************************/
@@ -212,14 +214,27 @@ void VprofModelDialog::setModel()
     selectedModels.push_back(selectedModelsWidget->item(i)->text().toStdString());
   }
   vprofm->setSelectedModels(selectedModels);
+}
 
+void VprofModelDialog::getModel()
+{
+  selectedModelsWidget->clear();
+  for (auto& sm : vprofm->getSelectedModels()) {
+    std::string reftime = sm.reftime;
+    if (reftime.empty()) {
+      const vector<std::string> rfv = vprofm->getReferencetimes(sm.model);
+      if (!rfv.empty())
+        reftime = rfv.back();
+    }
+    selectedModelsWidget->addItem(QString::fromStdString(sm.model + " " + reftime));
+  }
 }
 
 QString VprofModelDialog::getSelectedModelString()
 {
   QString qstr;
-  if ( modelfileList->currentItem() && reftimeWidget->currentItem()) {
-    qstr = modelfileList->currentItem()->text() + " " + reftimeWidget->currentItem()->text();
+  if (modelfileList->currentItem() && reftimeWidget->currentItem()) {
+    qstr = currentItem(modelfileList) + " " + currentItem(reftimeWidget);
   }
   return qstr;
 }
@@ -230,38 +245,32 @@ void VprofModelDialog::updateModelfileList()
 {
   METLIBS_LOG_SCOPE();
 
-  //want to keep the selected models
-  int n = modelfileList->count();
-  set<std::string> current;
-  for (int i = 0; i < n; i++)
+  // want to keep the selected models
+  set<QString> current;
+  for (int i = 0; i < modelfileList->count(); i++) {
     if (modelfileList->item(i)->isSelected())
-      current.insert(std::string(modelfileList->item(i)->text().toStdString()));
-
-  //clear box with list of files
-  modelfileList->clear();
-
-  vector<std::string> modelnames = vprofm->getModelNames();
-  vector<std::string> modelfiles = vprofm->getModelFiles();
-  size_t nr_models = modelnames.size();
-  bool tooltip = nr_models == modelfiles.size();
-  for ( size_t i = 0; i < nr_models; i++) {
-    QListWidgetItem* item = new QListWidgetItem(modelnames[i].c_str(),modelfileList);
-    if ( tooltip )
-      item->setToolTip(modelfiles[i].c_str());
+      current.insert(modelfileList->item(i)->text());
   }
 
+  // clear box with list of files
+  modelfileList->clear();
 
-  set<std::string>::iterator pend = current.end();
-  n = modelfileList->count();
-  for (int i = 0; i < n; i++)
-    if (current.find(std::string(modelfileList->item(i)->text().toStdString()))
-        != pend)
+  const std::vector<std::string>& modelnames = vprofm->getModelNames();
+  const std::vector<std::string>& modelfiles = vprofm->getModelFiles();
+  for (size_t i = 0; i < modelnames.size(); i++) {
+    QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(modelnames[i]), modelfileList);
+    if (i < modelfiles.size())
+      item->setToolTip(QString::fromStdString(modelfiles[i]));
+  }
+
+  for (int i = 0; i < modelfileList->count(); i++) {
+    if (current.find(modelfileList->item(i)->text()) != current.end())
       modelfileList->item(i)->setSelected(true);
-
+  }
 }
 
 void VprofModelDialog::closeEvent(QCloseEvent* e)
 {
   METLIBS_LOG_SCOPE();
-  emit ModelHide();
+  Q_EMIT ModelHide();
 }

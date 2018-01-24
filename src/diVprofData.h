@@ -29,12 +29,12 @@
 #ifndef diVprofData_h
 #define diVprofData_h
 
-#include "diVprofPlot.h"
+#include "diVprofValues.h"
 
 #include "diStationInfo.h"
 
 #include <puTools/miTime.h>
-#include "vcross_v2/VcrossCollector.h"
+#include <memory>
 #include <vector>
 
 /**
@@ -44,16 +44,13 @@
 */
 class VprofData
 {
-
 public:
   VprofData(const std::string& modelname,
       const std::string& stationsfilename="");
   ~VprofData();
-  bool readRoadObs(const std::string& databasefile, const std::string& parameterfile);
-  bool readBufr(const std::string& modelname, const std::string& pattern);
-  bool readFimex(vcross::Setup_p setup, const std::string& reftime );
-  VprofPlot* getData(const std::string& name, const miutil::miTime& time, int realization);
-  bool updateStationList(const miutil::miTime& plotTime);
+
+  virtual VprofValues_cpv getValues(const std::string& name, const miutil::miTime& time, int realization) = 0;
+  virtual bool updateStationList(const miutil::miTime& plotTime) = 0;
 
   const std::vector<stationInfo>& getStations() const
     { return mStations; }
@@ -63,64 +60,41 @@ public:
     { return numRealizations; }
   const std::string& getModelName() const
     { return modelName; }
-  const std::vector<std::string>& getFileNames() const
-    { return fileNames; }
-  void readBufrFile(int i, int j, const std::string& model, std::vector<std::string>& namelist,
-      std::vector<float>& latitudelist, std::vector<float>& longitudelist,
-      std::vector<miutil::miTime>& tlist);
 
-private:
-  bool setBufr(const miutil::miTime& plotTime);
-  bool setRoadObs(const miutil::miTime& plotTime);
-  void readStationNames(const std::string& stationsfilename);
+  void addValidTime(const miutil::miTime& vt)
+    { validTime.push_back(vt); }
+
+protected:
+  const std::string& getStationsFileName() const
+    { return stationsFileName; }
+
+  void readStationNames();
   void renameStations();
   void readStationList();
 
-  enum FileFormat {
-    fimex,
-    bufr,
-    roadobs
-  };
-
-  std::string modelName;
-  std::string stationsFileName;
-  std::string db_parameterfile;
-  std::string db_connectfile;
-  FileFormat format;
-
-  int numPos;
-  int numTime;
-  int numParam;
-  int numLevel;
   int numRealizations;
 
   std::vector<stationInfo> mStations;
-  std::vector<miutil::miTime>   validTime;
-  std::vector<int>      forecastHour;
-  std::vector<std::string> progText;
-  std::unique_ptr<VprofPlot> vProfPlot;
-  std::string vProfPlotName;
-  miutil::miTime   vProfPlotTime;
-  std::vector<std::string> currentFiles;
+  std::map< std::string, std::string > stationMap;
 
-  std::vector<std::string> fileNames;
+  VprofValues_cpv cache;
+  std::string cachedName;
+  miutil::miTime cachedTime;
+  int cachedRealization;
 
-  vcross::Collector_p collector;
-  vcross::string_v fields;
-  vcross::Time reftime;
+private:
+  std::string modelName;
+  std::string stationsFileName;
+
+  std::vector<miutil::miTime> validTime;
 
   bool stationList;
   std::vector<float>    stationLatitude;
   std::vector<float>    stationLongitude;
   std::vector<std::string> stationName;
-  std::map< std::string, std::string > stationMap;
 };
 
-extern const char VP_AIR_TEMPERATURE[];
-extern const char VP_DEW_POINT_TEMPERATURE[];
-extern const char VP_X_WIND[];
-extern const char VP_Y_WIND[];
-extern const char VP_RELATIVE_HUMIDITY[];
-extern const char VP_OMEGA[]; // upward air velocity in Pa/s
+typedef std::shared_ptr<VprofData> VprofData_p;
+typedef std::shared_ptr<const VprofData> VprofData_cp;
 
 #endif

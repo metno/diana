@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -25,38 +25,17 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
-#ifndef BDIANA_VPROF_H
-#define BDIANA_VPROF_H
+#include "diana_config.h"
 
-#include "bdiana_source.h"
-#include "diVprofManager.h"
+#include "diVprofReader.h"
 
-#include <string>
-#include <vector>
-
-class VprofPaintable;
-
-struct BdianaVprof : public BdianaSource
+VprofReader::~VprofReader()
 {
-  BdianaVprof();
-  ~BdianaVprof();
+}
 
-  void MAKE_VPROF();
-  void set_options(const std::vector<std::string>& opts);
-  void commands(const std::vector<std::string>& pcom);
-  ImageSource* imageSource() override;
-
-  miutil::miTime getTime() override;
-  void setTime(const miutil::miTime& time) override;
-
-  std::vector<std::string> stations;
-  PlotCommand_cpv vprof_options;
-
-  std::unique_ptr<VprofManager> manager;
-  std::unique_ptr<VprofPaintable> paintable_;
-  std::unique_ptr<ImageSource> imageSource_;
-};
-
-#endif // BDIANA_VPROF_H
+std::vector<std::string> VprofReader::getReferencetimes(const std::string&)
+{
+  return std::vector<std::string>();
+}

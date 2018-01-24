@@ -27,6 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "diPlotCommandFactory.h"
 #include <vcross_v2/VcrossQtManager.h>
 #include <vcross_v2/VcrossQuickmenues.h>
 
@@ -67,7 +68,7 @@ TEST(TestVcrossGui, MicroBdiana)
   qmlines.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
   qmlines.push_back("CROSSECTION=Nesbyen 6");
 
-  vcross::VcrossQuickmenues::parse(manager, makeCommands(qmlines, true));
+  vcross::VcrossQuickmenues::parse(manager, makeCommands(qmlines, PLOTCOMMANDS_VCROSS));
 
   const int width = 600, height = 400;
   manager->setPlotWindow(QSize(width, height));

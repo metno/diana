@@ -35,6 +35,7 @@
 #include "qtQuickAdmin.h"
 #include "qtUtility.h"
 #include "diLocalSetupParser.h"
+#include "diPlotCommandFactory.h"
 #include "diUtilities.h"
 #include "util/string_util.h"
 

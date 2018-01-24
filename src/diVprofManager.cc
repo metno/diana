@@ -32,11 +32,13 @@
 #include "diVprofManager.h"
 
 #include "diVprofOptions.h"
+#include "diVprofPlotCommand.h"
 #include "diVprofData.h"
 #include "diVprofDiagram.h"
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/misc_util.h"
 #include "vcross_v2/VcrossSetup.h"
 
 #include "diField/VcrossUtil.h"
@@ -66,6 +68,11 @@ miutil::miTime nowTime()
 
   cl.setClock(cl.hour(),0,0);
   return  miutil::miTime(plottime.date(),cl);
+}
+
+bool isFimexType(const std::string& filetype)
+{
+  return (filetype == "felt" || filetype == "netcdf" || filetype == "ncml" || filetype == "grbml");
 }
 } // anonymous namespace
 
@@ -97,7 +104,7 @@ VprofManager::~VprofManager()
 
 void VprofManager::cleanup()
 {
-  diutil::delete_all_and_clear(vpdata);
+  vpdata.clear();
   // TODO flush the field cache
 }
 
@@ -110,11 +117,11 @@ void VprofManager::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  filenames.clear();
   stationsfilenames.clear();
   filetypes.clear();
-  db_parameters.clear();
-  db_connects.clear();
+  reader_bufr = std::make_shared<VprofReaderBufr>();
+  reader_fimex = std::make_shared<VprofReaderFimex>();
+  reader_roadobs = std::make_shared<VprofReaderRoadobs>();
   dialogModelNames.clear();
   dialogFileNames.clear();
 
@@ -127,10 +134,9 @@ void VprofManager::parseSetup()
   }
 
   for (size_t i=0; i<vstr.size(); i++) {
-  METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
+    METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
     std::vector<std::string> tokens = miutil::split(vstr[i]);
-    std::string filetype="standard", fileformat, fileconfig, model, filename, stationsfilename, db_parameterfile, db_connectfile;
-    miutil::TimeFilter tf;
+    std::string filetype="standard", model, filename, stationsfilename, db_parameterfile, db_connectfile;
 
     //obsolete
     if ( tokens.size() == 1 ) {
@@ -164,26 +170,28 @@ void VprofManager::parseSetup()
         db_connectfile = tokens1[1];
       }
     }
-    if (filetype == "netcdf" || filetype == "felt" || filetype == "grbml"){
+    if (isFimexType(filetype)) {
       METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
       sources.push_back(vstr[i]);
     }
 
-    filenames[model]= filename;
     stationsfilenames[model]= stationsfilename;
     filetypes[model] = filetype;
-    db_parameters[model] = db_parameterfile;
-    db_connects[model] = db_connectfile;
+
+    reader_bufr->filenames[model] = filename;
+
+    reader_roadobs->db_parameters[model] = db_parameterfile;
+    reader_roadobs->db_connects[model] = db_connectfile;
+
     dialogModelNames.push_back(model);
     dialogFileNames.push_back(filename);
   }
 
-
-
+  std::vector<std::string> computations;
   miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
-  setup = std::make_shared<vcross::Setup>();
-  setup->configureSources(sources);
-  setup->configureComputations(computations);
+  reader_fimex->setup = std::make_shared<vcross::Setup>();
+  reader_fimex->setup->configureSources(sources);
+  reader_fimex->setup->configureComputations(computations);
 }
 
 void VprofManager::setPlotWindow(const QSize& size)
@@ -193,6 +201,29 @@ void VprofManager::setPlotWindow(const QSize& size)
   plotsize = size;
   if (vpdiag)
     vpdiag->setPlotWindow(plotsize);
+}
+
+void VprofManager::parseQuickMenuStrings(const PlotCommand_cpv& vstr)
+{
+  VprofPlotCommand_cp cmd_models, cmd_station;
+  vector<miutil::KeyValue_v> vprof_options;
+  for (PlotCommand_cp c : vstr) {
+    if (VprofPlotCommand_cp pc = std::dynamic_pointer_cast<const VprofPlotCommand>(c)) {
+      if (pc->type() == VprofPlotCommand::OPTIONS)
+        vprof_options.push_back(pc->all());
+      else if (pc->type() == VprofPlotCommand::STATION)
+        cmd_station = pc;
+      else if (pc->type() == VprofPlotCommand::MODELS)
+        cmd_models = pc;
+    }
+  }
+  getOptions()->readOptions(vprof_options);
+  if (cmd_models)
+    setSelectedModels(cmd_models->items());
+  if (cmd_station)
+    setStations(cmd_station->items());
+  if (cmd_models || cmd_station)
+    setModel();
 }
 
 //*********************** end routines from controller ***********************
@@ -205,18 +236,16 @@ void VprofManager::setModel()
   cleanup();
 
   //models from model dialog
-  int m= selectedModels.size();
-  for (int i=0;i<m;i++) {
-    initVprofData(selectedModels[i]);
+  for (VprofSelectedModel& sm : selectedModels) {
+    initVprofData(sm);
   }
 
   initTimes();
   initStations();
 
   if (vpdiag) {
-    int nobs= 0;
     int nmod= vpdata.size();
-    vpdiag->changeNumber(nobs, nmod);
+    vpdiag->changeNumber(nmod);
   }
 }
 
@@ -272,7 +301,7 @@ miTime VprofManager::setTime(int step, int dir)
 {
   METLIBS_LOG_DEBUG(LOGVAL(step) << LOGVAL(dir));
 
-  if (timeList.size()==0)
+  if (timeList.empty())
     return miTime::nowTime();
 
   int n= timeList.size();
@@ -329,21 +358,19 @@ void VprofManager::updateSelectedStations()
 {
   selectedStations.clear();
 
-  std::unique_ptr<VprofPlot> vp;
-  for (size_t i=0; i<vpdata.size(); i++) {
-    for (size_t j=0; j<plotStations.size(); ++j) {
-      METLIBS_LOG_DEBUG(LOGVAL(plotStations[j]));
-      vp.reset(vpdata[i]->getData(plotStations[j], plotTime, realization));
-      if (vp.get()) {
-        selectedStations.push_back(plotStations[j]);
+  for (VprofData_p vpd : vpdata) {
+    for (const std::string& s : plotStations) {
+      METLIBS_LOG_DEBUG(LOGVAL(s));
+      if (!vpd->getValues(s, plotTime, realization).empty()) {
+        selectedStations.push_back(s);
         break;
       }
     }
   }
 
-  for (size_t i=0; i<stationList.size(); i++) {
+  for (const stationInfo& s : stationList) {
     std::vector<std::string>::const_iterator it
-        = std::find(plotStations.begin(), plotStations.end(), stationList[i].name);
+        = std::find(plotStations.begin(), plotStations.end(), s.name);
     if (it != plotStations.end()) {
       selectedStations.push_back(*it);
       break;
@@ -353,14 +380,13 @@ void VprofManager::updateSelectedStations()
 
 bool VprofManager::plot(DiGLPainter* gl)
 {
- // METLIBS_LOG_SCOPE(LOGVAL(plotStations.size()) << LOGVAL(plotTime));
+  METLIBS_LOG_SCOPE(LOGVAL(realization));
 
   if (!vpdiag) {
     vpdiag= new VprofDiagram(vpopt, gl);
     vpdiag->setPlotWindow(plotsize);
-    int nobs= 0;
     int nmod= vpdata.size();
-    vpdiag->changeNumber(nobs,nmod);
+    vpdiag->changeNumber(nmod);
   }
 
   vpdiag->plot();
@@ -368,14 +394,14 @@ bool VprofManager::plot(DiGLPainter* gl)
   bool dataok = false; // true when data are found
 
   if (!plotStations.empty()) {
-
     for (size_t i=0; i<vpdata.size(); i++) {
-      for (size_t j=0; j<plotStations.size(); ++j) {
-        std::unique_ptr<VprofPlot> vp(vpdata[i]->getData(plotStations[j], plotTime, realization));
-        if (vp.get()) {
-          dataok = vp->plot(gl, vpopt, i);
-          break;
+      for (const std::string& s : plotStations) {
+        const VprofValues_cpv vvv = vpdata[i]->getValues(s, plotTime, realization);
+        for (int j = 0; j < (int)vvv.size(); ++j) {
+          const bool selected = (vvv.size() == 1) || (j == realization);
+          vpdiag->plotValues(i, *vvv[j], selected);
         }
+        break;
       }
     }
 
@@ -387,7 +413,7 @@ bool VprofManager::plot(DiGLPainter* gl)
 
 /***************************************************************************/
 
-vector <std::string> VprofManager::getModelNames()
+const std::vector<std::string>& VprofManager::getModelNames()
 {
   METLIBS_LOG_SCOPE();
   init();
@@ -396,28 +422,14 @@ vector <std::string> VprofManager::getModelNames()
 
 /***************************************************************************/
 
-std::vector <std::string> VprofManager::getReferencetimes(const std::string modelName)
+std::vector <std::string> VprofManager::getReferencetimes(const string &modelName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName));
   std::vector <std::string> rf;
-
-  if ( filetypes[modelName] == "netcdf" || filetypes[modelName] == "grbml") {
-
-    vcross::Collector_p collector = std::make_shared<vcross::Collector>(setup);
-
-    collector->getResolver()->getSource(modelName)->update();
-    const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
-    vector<miTime> rtv;
-    rtv.reserve(reftimes.size());
-    for (vcross::Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
-      rf.push_back(vcross::util::to_miTime(*it).isoTime("T"));
-    }
-  }
-
+  if (VprofReader_p reader = getReader(modelName))
+    rf = reader->getReferencetimes(modelName);
   return rf;
-
 }
-
 
 /***************************************************************************/
 
@@ -428,7 +440,7 @@ void VprofManager::setSelectedModels(const vector <std::string>& models)
 
   selectedModels.clear();
   for ( size_t i=0; i<models.size(); ++i ) {
-    SelectedModel selectedModel;
+    VprofSelectedModel selectedModel;
     vector<std::string> vstr = miutil::split(models[i]," ");
     if ( vstr.size() > 0 ) {
       selectedModel.model = vstr[0];
@@ -438,33 +450,36 @@ void VprofManager::setSelectedModels(const vector <std::string>& models)
     }
     selectedModels.push_back(selectedModel);
   }
-
 }
 
 /***************************************************************************/
 
-bool VprofManager::initVprofData(const SelectedModel& selectedModel)
+VprofReader_p VprofManager::getReader(const std::string& modelName)
+{
+  const std::string model_part = modelName.substr(0, modelName.find("@"));
+  std::map<std::string,std::string>::const_iterator it = filetypes.find(model_part);
+  if (it != filetypes.end() && it->second == "bufr") {
+    return reader_bufr;
+  } else if (it != filetypes.end() && it->second == "roadobs"){
+    return reader_roadobs;
+  } else {
+    return reader_fimex;
+  }
+}
+
+bool VprofManager::initVprofData(const VprofSelectedModel& selectedModel)
 {
   METLIBS_LOG_SCOPE();
-  std::string model_part=selectedModel.model.substr(0,selectedModel.model.find("@"));
-  std::unique_ptr<VprofData> vpd(new VprofData(selectedModel.model, stationsfilenames[selectedModel.model]));
-  bool ok = false;
-  if (filetypes[model_part] == "bufr"){
-    ok = vpd->readBufr(selectedModel.model, filenames[selectedModel.model]);
-  } else if (filetypes[model_part] == "roadobs"){
-    ok = vpd->readRoadObs(db_connects[selectedModel.model], db_parameters[selectedModel.model]);
-  } else {
-    ok = vpd->readFimex(setup,selectedModel.reftime);
+  if (VprofReader_p reader = getReader(selectedModel.model)) {
+    if (VprofData_p vpd = reader->find(selectedModel, stationsfilenames[selectedModel.model])) {
+      METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << selectedModel.model << "'");
+      vpdata.push_back(vpd);
+      return true;
+    }
   }
-  if (ok) {
-    METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << selectedModel.model << "' filetype '"
-        << filetypes[model_part] << "'");
-    vpdata.push_back(vpd.release());
-  } else {
-    METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << filenames[selectedModel.model] << "' model '"
-        << selectedModel.model << "' filetype '" << filetypes[model_part] << "'");
-  }
-  return ok;
+
+  METLIBS_LOG_ERROR("VPROFDATA READ ERROR for model '" << selectedModel.model << "'");
+  return false;
 }
 
 /***************************************************************************/
@@ -520,14 +535,13 @@ void VprofManager::initTimes()
   realizationCount = 1;
 
   std::set<miutil::miTime> set_times;
-  for (VprofData* vp : vpdata) {
+  for (VprofData_p vp : vpdata) {
     vcross::util::maximize(realizationCount, vp->getRealizationCount());
-    const vector<miutil::miTime>& tmp_times = vp->getTimes();
-    set_times.insert(tmp_times.begin(), tmp_times.end());
+    diutil::insert_all(set_times, vp->getTimes());
   }
 
   timeList.clear();
-  timeList.insert(timeList.end(), set_times.begin(), set_times.end());
+  diutil::insert_all(timeList, set_times);
 
   std::vector<miutil::miTime>::const_iterator it = std::find(timeList.begin(), timeList.end(), plotTime);
   if (it == timeList.end() && !timeList.empty()) {
@@ -565,7 +579,7 @@ std::string VprofManager::getAnnotationString()
 {
   std::ostringstream ost;
   ost << "Vertical profiles ";
-  for (vector <SelectedModel>::iterator p=selectedModels.begin(); p!=selectedModels.end(); p++)
+  for (vector <VprofSelectedModel>::iterator p=selectedModels.begin(); p!=selectedModels.end(); p++)
     ost << p->model << ' ';
   return ost.str();
 }
@@ -578,6 +592,8 @@ vector<string> VprofManager::writeLog()
 void VprofManager::readLog(const vector<string>& vstr,
     const string& thisVersion, const string& logVersion)
 {
-  vpopt->readOptions(vstr);
+  std::vector<miutil::KeyValue_v> options;
+  for (const std::string& line : vstr)
+    options.push_back(miutil::splitKeyValue(line));
+  vpopt->readOptions(options);
 }
-

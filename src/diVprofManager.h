@@ -29,7 +29,11 @@
 #ifndef VPROFMANAGER_H
 #define VPROFMANAGER_H
 
+#include "diPlotCommand.h"
 #include "diStationInfo.h"
+#include "diVprofReaderBufr.h"
+#include "diVprofReaderFimex.h"
+#include "diVprofReaderRoadobs.h"
 #include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
@@ -42,6 +46,7 @@
 
 class VprofOptions;
 class VprofData;
+typedef std::shared_ptr<VprofData> VprofData_p;
 class VprofDiagram;
 class DiCanvas;
 class DiGLPainter;
@@ -52,37 +57,26 @@ class DiGLPainter;
    \brief will not be used.
 */
 class VprofManager{
-
 private:
-
-
-  struct SelectedModel{
-    std::string model;
-    std::string reftime;
-  };
-
   // std::map<model,filename>
-  std::map<std::string,std::string> filenames;
   std::map<std::string,std::string> stationsfilenames;
   std::map<std::string,std::string> filetypes;
-  std::map<std::string,std::string> db_parameters;
-  std::map<std::string,std::string> db_connects;
-  std::vector<std::string> computations;
+  VprofReaderBufr_p reader_bufr;
+  VprofReaderFimex_p reader_fimex;
+  VprofReaderRoadobs_p reader_roadobs;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
   std::vector<std::string> dialogFileNames;
 
-  vcross::Setup_p setup;
-
   VprofOptions *vpopt;
   VprofDiagram *vpdiag;
-  std::vector<VprofData*> vpdata;
+  std::vector<VprofData_p> vpdata;
 
   std::vector <stationInfo> stationList;
   std::vector <miutil::miTime>   timeList;
 
-  std::vector<SelectedModel> selectedModels;
+  std::vector<VprofSelectedModel> selectedModels;
 
   std::vector<std::string> plotStations;
   std::vector<std::string> selectedStations;
@@ -97,7 +91,8 @@ private:
   QSize plotsize;
   DiCanvas* mCanvas;
 
-  bool initVprofData(const SelectedModel& selectedModel);
+  VprofReader_p getReader(const std::string& modelName);
+  bool initVprofData(const VprofSelectedModel& selectedModel);
   void initStations();
   void initTimes();
 
@@ -122,6 +117,8 @@ public:
   void setPlotWindow(const QSize& size);
   const QSize& plotWindow() const { return plotsize; }
 
+  void parseQuickMenuStrings(const PlotCommand_cpv& vstr);
+
   void parseSetup();
   void setModel();
   void setRealization(int r);
@@ -142,11 +139,13 @@ public:
     { return timeList; }
   int getRealizationCount() const
     { return realizationCount; }
-  std::vector <std::string> getModelNames();
+  const std::vector<std::string>& getModelNames();
   const std::vector<std::string>& getModelFiles()
     { return dialogFileNames; }
-  std::vector <std::string> getReferencetimes(const std::string model);
+  std::vector <std::string> getReferencetimes(const std::string& model);
   void setSelectedModels(const std::vector<std::string>& models);
+  const std::vector<VprofSelectedModel>& getSelectedModels() const
+    { return selectedModels; }
 
   bool plot(DiGLPainter* gl);
   void mainWindowTimeChanged(const miutil::miTime& time);

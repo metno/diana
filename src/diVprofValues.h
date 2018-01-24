@@ -1,6 +1,8 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
+  $Id$
+
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -26,45 +28,41 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diVprofPlot_h
-#define diVprofPlot_h
+#ifndef diVprofValues_h
+#define diVprofValues_h
 
-#include "diGLPainter.h"
-#include "diVprofTables.h"
-#include "diVprofOptions.h"
-
+#include "diColour.h"
+#include "diField/diFieldDefined.h"
 #include <puTools/miTime.h>
+#include <memory>
 #include <vector>
 
-/**
-   \brief Plots observed or prognostic Vertical Profiles (soundings)
+/// Annotation info for Vertical Profile
+struct VprofText {
+  int      index;
+  Colour   colour;
+  std::string modelName;
+  std::string posName;
+  bool     prognostic;
+  int      forecastHour;
+  miutil::miTime   validTime;
+  float    latitude;
+  float    longitude;
+  bool     kindexFound;
+  float    kindexValue;
+  int realization;
+};
 
-   Data preparation and plotting. A few computations can be done.
-   An object holds data for one sounding.
-*/
-class VprofPlot : public VprofTables
+
+struct VprofValues
 {
+  VprofValues();
 
-  friend class VprofData;
-  friend class VprofPilot;
-#ifdef BUFROBS
-  friend class VprofBufr;
-#endif
-#ifdef ROADOBS
-  friend class ObsRoad;
-#endif
-
-public:
-  VprofPlot();
-  ~VprofPlot();
-  bool plot(DiGLPainter* gl, VprofOptions *vpopt, int nplot);
   void setName(const std::string& name) { text.posName=name; }
 
-private:
-  bool idxForValue(float& v, int& i) const;
-  float tabForValue(const float* tab, float x) const;
+  difield::ValuesDefined isDefined()
+    { return defined_; }
 
-private:
   VprofText text;
   bool   prognostic;
   bool   windInKnots;
@@ -76,17 +74,30 @@ private:
   std::vector<float> pom, om;
   std::vector<int>   dd, ff, sigwind;
 
+  float cloudbase_p, cloudbase_t;
+
   std::vector<float> pcom, tcom, tdcom; // common T and Td levels
   std::vector<float> rhum, duct;
 
+  void calculate();
+
+private:
   void  relhum(const std::vector<float>& tt,
-	       const std::vector<float>& td);
+               const std::vector<float>& td);
   void ducting(const std::vector<float>& pp,
-	       const std::vector<float>& tt,
-	       const std::vector<float>& td);
+               const std::vector<float>& tt,
+               const std::vector<float>& td);
   void  kindex(const std::vector<float>& pp,
-	       const std::vector<float>& tt,
-	       const std::vector<float>& td);
+               const std::vector<float>& tt,
+               const std::vector<float>& td);
+  void checkDefined();
+
+private:
+  difield::ValuesDefined defined_;
 };
+
+typedef std::shared_ptr<VprofValues> VprofValues_p;
+typedef std::shared_ptr<const VprofValues> VprofValues_cp;
+typedef std::vector<VprofValues_cp> VprofValues_cpv;
 
 #endif

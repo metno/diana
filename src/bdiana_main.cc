@@ -30,6 +30,7 @@
 #include "bdiana_main.h"
 
 #include "diMainPaintable.h"
+#include "diPlotCommandFactory.h"
 #include "diQuickMenues.h"
 #include "export/DianaImageSource.h"
 

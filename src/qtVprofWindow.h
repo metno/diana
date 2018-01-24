@@ -30,6 +30,7 @@
 #define _qt_vprofmainwindow_
 
 #include "diCommonTypes.h"
+#include "diPlotCommand.h"
 
 #include <QString>
 #include <QMainWindow>
@@ -75,6 +76,8 @@ public:
       int displayWidth, int displayHeight);
 
   bool active;
+
+  void parseQuickMenuStrings(const PlotCommand_cpv& vstr);
 
 protected:
   void closeEvent( QCloseEvent* );

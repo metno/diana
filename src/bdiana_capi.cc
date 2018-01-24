@@ -52,6 +52,7 @@
 #include <diSatPlot.h>
 
 #include "diLocalSetupParser.h"
+#include "diPlotCommandFactory.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include <diOrderBook.h>
@@ -683,7 +684,6 @@ static void printUsage(bool showexample)
     "",
     "VPROF.PLOT               # start of vertical profile plot",
     "",
-    "OBSERVATION.ON           # plot observation: OBSERVATION.ON/OFF",
     "MODELS=AROME-MetCoOp.00, HIRLAM.12KM.00  # comma-separated list of models",
     "STATION=KIRKENES         # station-name",
     "",
@@ -1180,7 +1180,7 @@ int Bdiana::handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- sending plotCommands");
-    vprof.set_vprof(pcom);
+    vprof.commands(pcom);
 
     set_ptime(vprof);
 
@@ -1318,7 +1318,7 @@ int Bdiana::handleTimeVprofCommand(int& k)
     METLIBS_LOG_INFO("- finding times");
 
   vprof.MAKE_VPROF();
-  vprof.set_vprof(FIND_END_COMMAND(k, com_endtime));
+  vprof.commands(FIND_END_COMMAND(k, com_endtime));
 
   ofstream file(outputfilename.c_str());
   if (!file) {

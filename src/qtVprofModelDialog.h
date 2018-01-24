@@ -46,10 +46,9 @@ class VprofModelDialog : public QDialog
   Q_OBJECT
 
 public:
-
-  //the constructor
-  VprofModelDialog( QWidget* parent, VprofManager * vm );
+  VprofModelDialog(QWidget* parent, VprofManager * vm);
   void updateModelfileList();
+  void getModel();
 
 protected:
   void closeEvent( QCloseEvent* );
@@ -61,12 +60,10 @@ private:
   QListWidget* reftimeWidget;
   QListWidget* selectedModelsWidget;
 
-  //functions
   void setModel();
   QString getSelectedModelString();
 
-
-private slots:
+private Q_SLOTS:
   void modelfilelistClicked(QListWidgetItem*);
   void reftimeWidgetClicked(QListWidgetItem*);
   void deleteClicked();
@@ -74,10 +71,10 @@ private slots:
   void applyhideClicked();
   void applyClicked();
 
-public slots:
+public Q_SLOTS:
   void deleteAllClicked();
 
-signals:
+Q_SIGNALS:
   void ModelHide();
   void ModelApply();
   void showsource(const std::string, const std::string="");

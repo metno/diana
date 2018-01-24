@@ -44,6 +44,7 @@
 #include "diStationPlot.h"
 #include "diUtilities.h"
 #include "diVprofManager.h"
+#include "diVprofOptions.h"
 #include "diVprofPaintable.h"
 
 #include "export/PrinterDialog.h"
@@ -550,6 +551,12 @@ void VprofWindow::startUp(const miutil::miTime& t)
 
   changeModel();
   mainWindowTimeChanged(t);
+}
+
+void VprofWindow::parseQuickMenuStrings(const PlotCommand_cpv& vstr)
+{
+  vprofm->parseQuickMenuStrings(vstr);
+  vpModelDialog->getModel();
 }
 
 /***************************************************************************/

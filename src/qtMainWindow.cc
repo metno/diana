@@ -1092,6 +1092,12 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
     return;
   }
 
+  if (!vstr.empty() && vstr.front()->commandKey() == "VPROF") {
+    vprofMenu();
+    vpWindow->parseQuickMenuStrings(vstr);
+    return;
+  }
+
   // strings for each dialog
   PlotCommand_cpv mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
   map<std::string, PlotCommand_cpv> dialog_com;

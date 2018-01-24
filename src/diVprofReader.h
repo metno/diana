@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,36 +27,27 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef BDIANA_VPROF_H
-#define BDIANA_VPROF_H
+#ifndef VPROFREADER_H
+#define VPROFREADER_H
 
-#include "bdiana_source.h"
-#include "diVprofManager.h"
+#include "diVprofData.h"
 
+#include <memory>
 #include <string>
-#include <vector>
 
-class VprofPaintable;
-
-struct BdianaVprof : public BdianaSource
+struct VprofSelectedModel
 {
-  BdianaVprof();
-  ~BdianaVprof();
-
-  void MAKE_VPROF();
-  void set_options(const std::vector<std::string>& opts);
-  void commands(const std::vector<std::string>& pcom);
-  ImageSource* imageSource() override;
-
-  miutil::miTime getTime() override;
-  void setTime(const miutil::miTime& time) override;
-
-  std::vector<std::string> stations;
-  PlotCommand_cpv vprof_options;
-
-  std::unique_ptr<VprofManager> manager;
-  std::unique_ptr<VprofPaintable> paintable_;
-  std::unique_ptr<ImageSource> imageSource_;
+  std::string model;
+  std::string reftime;
 };
 
-#endif // BDIANA_VPROF_H
+struct VprofReader
+{
+  virtual ~VprofReader();
+  virtual std::vector<std::string> getReferencetimes(const std::string& modelName);
+  virtual VprofData_p find(const VprofSelectedModel& vsm, const std::string& stationsfilename) = 0;
+};
+
+typedef std::shared_ptr<VprofReader> VprofReader_p;
+
+#endif
