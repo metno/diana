@@ -51,7 +51,7 @@
 #include "util/charsets.h"
 #include "util/math_util.h"
 #include "util/misc_util.h"
-
+#include "util/subprocess.h"
 #include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
 
@@ -336,6 +336,8 @@ bool EditManager::parseSetup()
         ep.templateFilename = values[0];
       } else if (key=="autoremove" && nval==1 ){
         ep.autoremove = atoi(values[0].c_str());
+      } else if (key == "approved_command" && nval == 1) {
+        ep.approvedCommand = values[0];
       } else {
         ok= false;
       }
@@ -1526,6 +1528,12 @@ bool EditManager::writeEditProduct(QString&  message,
           lastfinnished.open(QIODevice::WriteOnly);
           lastfinnished.write(text.c_str());
           lastfinnished.close();
+        }
+        if (!EdProd.approvedCommand.empty()) {
+          METLIBS_LOG_INFO("Approved product - using command: " << LOGVAL(EdProd.approvedCommand));
+          QByteArray output;
+          diutil::execute(QString::fromStdString(EdProd.approvedCommand), QStringList(QString::fromStdString(EdProd.name)), &output);
+          METLIBS_LOG_INFO("Command stdout: " << LOGVAL(output.data()));
         }
       }
     }

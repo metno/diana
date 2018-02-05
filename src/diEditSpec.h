@@ -30,10 +30,10 @@
 #define _diEditSpec_h
 
 #include "diPlotCommand.h"
-#include <puTools/miTime.h>
 #include <diField/diArea.h>
-#include <vector>
+#include <puTools/miTime.h>
 #include <set>
+#include <vector>
 
 const std::string OBJECTS_ANALYSIS= "Analyse";
 const std::string OBJECTS_SIGMAPS=  "Sigkart";
@@ -129,6 +129,7 @@ struct EditProduct {
   int   minutesStartLate;           ///< latest   start time offset (+/-minutes)
   std::string templateFilename;
   int autoremove;
+  std::string approvedCommand;
 };
 
 #endif
