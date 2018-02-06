@@ -129,20 +129,24 @@ miutil::miTime BdianaMain::getTime()
   if (it == times.end())
     return miutil::miTime();
 
+  const times_t& fieldtimes = it->second;
+  if (fieldtimes.empty())
+    return miutil::miTime::nowTime();
+
   if (use_time == USE_NOWTIME) {
     const miutil::miTime now = miutil::miTime::nowTime();
-    const times_t& fieldtimes = it->second;
     // select closest to now without overstepping
-    const int n = fieldtimes.size();
-    for (int i = 0; i < n; i++) {
+    const size_t n = fieldtimes.size();
+    for (size_t i = 0; i < n; i++) {
       if (fieldtimes[i] >= now)
         return (i > 0 ? fieldtimes[i - 1] : fieldtimes[i]);
     }
-  } else if (use_time == USE_FIRSTTIME) {
-    return it->second.front();
-  } else {
-    return it->second.back();
   }
+  if (use_time == USE_FIRSTTIME)
+    return fieldtimes.front();
+
+  // both USE_LASTTIME and not-found for USE_NOWTIME
+  return fieldtimes.back();
 }
 
 void BdianaMain::setTime(const miutil::miTime& time)
