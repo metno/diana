@@ -86,7 +86,7 @@ float toDecimalDegrees(const std::string& crs)
 
 void swapWms130LatLon(const std::string& crs, float& x1, float& y1, float& x2, float& y2)
 {
-  if (isGeographic(crs)) {
+  if (crs == "EPSG:4326") {
     std::swap(x1, y1);
     std::swap(x2, y2);
   }
