@@ -644,8 +644,12 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     METLIBS_LOG_DEBUG("adding layer '" << sLayerName << "'");
     std::unique_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
     layer->setTitle(qs(eLayer.firstChildElement("Title").text()));
-    for (crs_bbox_m::const_iterator it = crs_bboxes.begin(); it != crs_bboxes.end(); ++it)
-      layer->addCRS(it->first, it->second);
+    for (const QString& crs : lCRS) {
+      const std::string sCRS = qs(crs);
+      crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
+      if (it != crs_bboxes.end())
+        layer->addCRS(it->first, it->second);
+    }
     layer->setDefaultStyle(style, legendUrl);
     layer->setDimensions(dimensions);
     mLayers.push_back(layer.release());
