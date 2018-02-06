@@ -135,18 +135,25 @@ WebMapTile::~WebMapTile()
 void WebMapTile::dummyImage(int tw, int th)
 {
   METLIBS_LOG_SCOPE();
-  mImage = QImage(tw, th, QImage::Format_ARGB32);
-  mImage.fill(Qt::transparent);
+  const bool noimage = mImage.isNull();
+  if (noimage) {
+    mImage = QImage(tw, th, QImage::Format_ARGB32);
+    mImage.fill(Qt::transparent);
+  }
   QPainter p(&mImage);
   const float fontScale = 3;
   QFont f = p.font();
   int fpx = f.pixelSize();
   if (fpx > 0)
     f.setPixelSize(fontScale*fpx);
-    else
-      f.setPointSizeF(fontScale*f.pointSizeF());
+  else
+    f.setPointSizeF(fontScale*f.pointSizeF());
   p.setFont(f);
-  p.fillRect(mImage.rect(), QBrush(QColor((mColumn&1) ? 80 : 255, (mRow&1) ? 80 : 255, 128, 128)));
+  const QColor tilecolor((mColumn&1) ? 80 : 255, (mRow&1) ? 80 : 255, 128, 128);
+  if (noimage)
+    p.fillRect(mImage.rect(), QBrush(tilecolor));
+  else
+    p.setPen(QPen(tilecolor));
   p.drawText(mImage.rect(), Qt::AlignLeft | Qt::AlignVCenter, QString("x=%1 y=%2").arg(mColumn).arg(mRow));
   p.end();
 }
