@@ -55,6 +55,11 @@ namespace /* anonymous */ {
 
 const int TILESIZE = 512;
 
+const char CRS84[] = "CRS:84";
+const char EPSG3857[] = "EPSG:3857";
+const char EPSG4326[] = "EPSG:4326";
+const char EPSG900913[] = "EPSG:900913";
+
 int findZoomForScale(float z0denominator, float denominator)
 {
   if (denominator <= 0)
@@ -73,7 +78,7 @@ bool hasAttributeValue(const QDomElement& e, const QString& a, const QStringList
 
 bool isGeographic(const std::string& crs)
 {
-  return (crs == "EPSG:4326" || crs == "CRS:84");
+  return (crs == EPSG4326 || crs == CRS84);
 }
 
 float toDecimalDegrees(const std::string& crs)
@@ -86,7 +91,7 @@ float toDecimalDegrees(const std::string& crs)
 
 void swapWms130LatLon(const std::string& crs, float& x1, float& y1, float& x2, float& y2)
 {
-  if (crs == "EPSG:4326") {
+  if (crs == EPSG4326) {
     std::swap(x1, y1);
     std::swap(x2, y2);
   }
@@ -489,8 +494,8 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
   QDOM_FOREACH_CHILD(eBoundingBox, eLayer, "BoundingBox") {
     std::string sCRS = qs(eBoundingBox.attribute(aCRS));
     METLIBS_LOG_DEBUG("explicit bbox check" << LOGVAL(sCRS));
-    if (sCRS == "EPSG:900913")
-      sCRS = "EPSG:3857";
+    if (sCRS == EPSG900913)
+      sCRS = EPSG3857;
     const float f = 1 / toDecimalDegrees(sCRS);
     float minx = eBoundingBox.attribute("minx").toFloat();
     float miny = eBoundingBox.attribute("miny").toFloat();
@@ -510,16 +515,16 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     else
       lCRS << eCRS.text();
   }
-  if (lCRS.contains("EPSG:900913")) {
-    lCRS.removeAll("EPSG:900913");
-    lCRS << "EPSG:3857";
+  if (lCRS.contains(EPSG900913)) {
+    lCRS.removeAll(EPSG900913);
+    lCRS << EPSG3857;
   }
   for (const QString& crs : lCRS) {
     float minx, miny, maxx, maxy;
     const std::string sCRS = crs.toStdString();
     METLIBS_LOG_DEBUG("known bbox check" << LOGVAL(sCRS));
     crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
-    if (sCRS == "EPSG:3857") {
+    if (sCRS == EPSG3857) {
       static const float M = 2.00375e+07;
       if (it != crs_bboxes.end()) {
         minx = std::max(-M, it->second.x1);
@@ -530,7 +535,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
         minx = miny = -M;
         maxx = maxy =  M;
       }
-    } else if (sCRS == "EPSG:4326" && it == crs_bboxes.end()) {
+    } else if (sCRS == EPSG4326 && it == crs_bboxes.end()) {
       if (mVersion == WMS_130) {
         QDomElement eBBox = eLayer.firstChildElement("EX_GeographicBoundingBox");
         if (eBBox.isNull())
@@ -548,7 +553,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
         maxx = eBBox.attribute("maxx").toFloat() * DEG_TO_RAD;
         maxy = eBBox.attribute("maxy").toFloat() * DEG_TO_RAD;
       }
-    } else if (sCRS == "CRS:84" && it == crs_bboxes.end()) {
+    } else if (sCRS == CRS84 && it == crs_bboxes.end()) {
       maxx = 180 * DEG_TO_RAD;
       minx = -maxx;
       maxy = 90 * DEG_TO_RAD;
