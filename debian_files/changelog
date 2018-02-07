@@ -1,3 +1,9 @@
+diana-3.43 (3.43.13-1) unstable; urgency=low
+
+  * wms: bugfix WMS 1.3.0 for EPSG:4326
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 07 Feb 2018 08:00:08 +0100
+
 diana-3.43 (3.43.12-2) unstable; urgency=low
 
   * update Build-Depends for curl ssl
