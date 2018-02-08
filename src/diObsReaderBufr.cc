@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,12 +27,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "diana_config.h"
+
 #include "diObsReaderBufr.h"
 
-#include "diObsBufr.h"
 #include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
+
+#ifdef BUFROBS
+#include "diObsBufr.h"
+#endif // BUFROBS
 
 #define MILOGGER_CATEGORY "diana.ObsReaderBufr"
 #include <miLogger/miLogging.h>
@@ -56,6 +61,7 @@ bool ObsReaderBufr::configure(const std::string& key, const std::string& value)
 void ObsReaderBufr::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fi.filename));
+#ifdef BUFROBS
   ObsDataBufr bufr(request->level, request->obstime, request->timeDiff);
   std::vector<ObsData> obsp;
   if (bufr.getObsData(obsp, fi.filename)) {
@@ -63,16 +69,17 @@ void ObsReaderBufr::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reques
       obs.dataType = dataType();
     result->add(obsp);
   }
+#endif
 }
 
 miutil::miTime ObsReaderBufr::getTimeFromFile(const std::string& filename)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename));
   miutil::miTime time;
+#ifdef BUFROBS
   if (ObsBufr::ObsTime(filename, time)) {
     METLIBS_LOG_DEBUG(LOGVAL(time));
-    return time;
-  } else {
-    return miutil::miTime();
   }
+#endif
+  return time;
 }

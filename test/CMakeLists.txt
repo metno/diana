@@ -62,7 +62,6 @@ SET (dianaUnitTests_SOURCES
   TestDianaLevels.cc
   TestLogFileIO.cc
   TestObsReaderAscii.cc
-  TestObsReaderBufr.cc
   TestObsReaderFile.cc
   TestPlotCommands.cc
   TestPlotOptions.cc
@@ -78,6 +77,10 @@ SET (dianaUnitTests_SOURCES
 
   ${dianaUnitTests_MOC_SRCS}
 )
+
+if (ENABLE_OBS_BUFR)
+  LIST (APPEND dianaUnitTests_SOURCES TestObsReaderBufr.cc)
+ENDIF ()
 
 ADD_EXECUTABLE(dianaUnitTests
   ${dianaUnitTests_SOURCES}
