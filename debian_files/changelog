@@ -1,3 +1,10 @@
+diana-3.44 (3.44.0~a2-1) unstable; urgency=low
+
+  * bugfixes
+  * call script to trigger production of edit products
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 12 Feb 2018 2018 08:00:08 +0100
+
 diana-3.44 (3.44.0~a1-2) unstable; urgency=low
 
   * update Build-Depends for curl ssl
