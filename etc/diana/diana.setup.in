@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------------
-# Setupfile for Diana
+# Setupfile for Diana -*- coding: utf-8 -*-
 #----------------------------------------------------------------------------------
 # Organized in sections, each section within a <SSS> </SSS> pair, where
 # SSS is the name of the section
@@ -101,12 +101,19 @@ METSYMBOLFONT=Symbol   # Use this as default font for meteorological symbols
 
 </FONTS>
 
-<LABELS>
+<ANNOTATIONS>
+
+annotation=default
 LABEL data font=BITMAPFONT fontsize=8
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=BITMAPFONT fontsize=8
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=10
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=12
-</LABELS>
+end.annotation
+
+</ANNOTATIONS>
+
+
+
 
 <IMAGE_GALLERY>
 basicpath=$(share_diana_dir)/images
@@ -234,19 +241,21 @@ geopotential_height_pl=divide(geopotential_pl,9.81)
 # computations in pressure levels (".plevel_")
 air_temperature_pl=tk.plevel_th(air_potential_temperature_pl)
 air_potential_temperature_pl=th.plevel_tk(air_temperature_pl:unit=kelvin)
+
+relative_humidity_pl=rh.plevel_tk_q(air_temperature_pl:unit=kelvin,specific_humidity_pl:units=kg/kg)
+relative_humidity_pl=rh.plevel_th_q(air_potential_temperature_pl,specific_humidity_pl:units=kg/kg)
+
 the_pl=the.plevel_tk_rh(air_temperature_pl:unit=kelvin,relative_humidity_pl:unit=0.01)
 the_pl=the.plevel_th_rh(air_potential_temperature_pl,relative_humidity_pl:unit=0.01)
 
 thesat_pl=thesat.plevel_th(air_potential_temperature_pl)
 thesat_pl=thesat.plevel_tk(air_temperature_pl:unit=kelvin)
 
-relative_humidity_pl=rh.plevel_tk_q(air_temperature_pl:unit=kelvin,specific_humidity_pl)
-relative_humidity_pl=rh.plevel_th_q(air_potential_temperature_pl,specific_humidity_pl)
 
-dew_point_temperature_pl=tdc.plevel_th_q(air_potential_temperature_pl,specific_humidity_pl)
-dew_point_temperature_pl=tdc.plevel_tk_q(air_temperature_pl,specific_humidity_pl)
+dew_point_temperature_pl=tdc.plevel_th_q(air_potential_temperature_pl,specific_humidity_pl:units=kg/kg)
+dew_point_temperature_pl=tdc.plevel_tk_q(air_temperature_pl:unit=kelvin,specific_humidity_pl:units=kg/kg)
 dew_point_temperature_pl=tdc.plevel_th_rh(air_potential_temperature_pl,relative_humidity_pl:unit=0.01)
-dew_point_temperature_pl=tdc.plevel_tk_rh(air_temperature_pl,relative_humidity_pl:unit=0.01)
+dew_point_temperature_pl=tdc.plevel_tk_rh(air_temperature_pl:unit=kelvin,relative_humidity_pl:unit=0.01)
 
 specific_humidity_pl=q.plevel_tk_rh(air_temperature_pl:unit=kelvin,relative_humidity_pl:unit=0.01)
 specific_humidity_pl=q.plevel_th_rh(air_potential_temperature_pl,relative_humidity_pl:unit=0.01)
@@ -295,8 +304,8 @@ the_ml=the.hlevel_tk_q_psurf(air_temperature_ml:unit=kelvin,specific_humidity_ml
 thesat_ml=thesat.hlevel_th_psurf(air_potential_temperature_ml,surface_air_pressure:unit=hectopascal)
 thesat_ml=thesat.hlevel_tk_psurf(air_temperature_ml:unit=kelvin,surface_air_pressure:unit=hectopascal)
 
-dew_point_temperature_ml=tdc.hlevel_th_q_psurf(air_potential_temperature_ml,specific_humidity_ml,surface_air_pressure:unit=hectopascal)
-dew_point_temperature_ml=tdc.hlevel_tk_q_psurf(air_temperature_ml:unit=kelvin,specific_humidity_ml,surface_air_pressure:unit=hectopascal)
+dew_point_temperature_ml=tdc.hlevel_th_q_psurf(air_potential_temperature_ml,specific_humidity_ml:units=kg/kg,surface_air_pressure:unit=hectopascal)
+dew_point_temperature_ml=tdc.hlevel_tk_q_psurf(air_temperature_ml:unit=kelvin,specific_humidity_ml:units=kg/kg,surface_air_pressure:unit=hectopascal)
 dew_point_temperature_ml=tdc.hlevel_th_rh_psurf(air_potential_temperature_ml,relative_humidity_ml:unit=0.01,surface_air_pressure:unit=hectopascal)
 dew_point_temperature_ml=tdc.hlevel_tk_rh_psurf(air_temperature_ml:unit=kelvin,relative_humidity_ml:unit=0.01,surface_air_pressure:unit=hectopascal)
 
@@ -345,17 +354,8 @@ air_pressure_at_sea_level=equivalent_to(sea_level_pressure:unit=hectopascal)
 accumprecip.6h_mean=equivalent_to(precipitation_amount_acc_6h)
 altitude=equivalent_to(surface_altitude)
 
-air_temperature_2m=temp_k2c(tk2m)
-air_temperature_0m=temp_k2c(tk0m)
-soil_temperature=temp_k2c(tksoil)
-surface_temperature_where_land=temp_k2c(tk2mland) 
-
-tdk2m=tdk.tk_rh(tk2m,relative_humidity_2m)
-tdc2m=tdc.tk_rh(tk2m,relative_humidity_2m)
-tdc2m=tdc.tk_rh(air_temperature_2m:unit=kelvin,relative_humidity_2m:unit=0.01)
-
-relative_humidity_2m=rh.tk_tdk(tk2m,tdk2m)
-#relative_humidity_2m=rh.tc_tdc(tc2m,tdc2m)
+dew_point_temperature_2m=tdk.tk_rh(air_temperature_2m:units=kelvin,relative_humidity_2m:unit=0.01)
+relative_humidity_2m=rh.tk_tdk(air_temperature_2m:units=kelvin,dew_point_temperature_2m)
 
 tfp1_pl=thermal.front.parameter_tx(air_temperature_pl:unit=kelvin)
 tfp_pl=multiply(tfp1_pl,1.e+11)
@@ -507,27 +507,28 @@ dz.500-850=subtract(geopotential_height_pl:level=500hPa,geopotential_height_pl:l
 dz.300-700=subtract(geopotential_height_pl:level=300hPa,geopotential_height_pl:level=700hPa)
 
 dz.500-1000_mean=subtract(geopotential_height_pl_mean:level=500hPa,geopotential_height_pl_mean:level=1000hPa)
-dz.500-1000_stddev=subtract(geopotential_height_pl_stddev:level=500hPa,geopotential_height_pl_stddev:level=1000hPa)
-
-peps_t.2max_c=temp_k2c(peps_t.2max)
-peps_t.2min_c=temp_k2c(peps_t.2min)
+dz.500-1000_stddev=stddev(dz.500-1000:ecoord=ensemble_member)
 
 height_above_runway_inflight_foot=multiply(height_above_runway_inflight,3.2808399)
 
-ff.maxwind=vector.abs(x_wind_max,y_wind_max)
-ff.maxwind.knot=vector.abs(x_wind_max:unit=knots,y_wind_max:unit=knots)
-flightlevel.maxwind=pressure2FlightLevel(p_wind_max)
+ff_pl=vector.abs(x_wind_pl,y_wind_pl)
+ff_ml=vector.abs(x_wind_ml,y_wind_ml)
+ff10m=vector.abs(x_wind_10m,y_wind_10m)
+ff_inflight=vector.abs(x_wind_inflight,y_wind_inflight)
+ff_at_maximum_wind_speed_level=vector.abs(x_wind_at_maximum_wind_speed_level,x_wind_at_maximum_wind_speed_level)
 
-ff.maxwind_low=vector.abs(x_wind_max_low,y_wind_max_low)
-ff.maxwind_low.knot=vector.abs(x_wind_max_low:unit=knots,y_wind_max_low:unit=knots)
-flightlevel.maxwind_low=pressure2FlightLevel(p_wind_max_low)
+ffknots_pl=vector.abs(x_wind_pl:units=knots,y_wind_pl:units=knots)
+ffknots_ml=vector.abs(x_wind_ml:unit=knots,y_wind_ml:unit=knots)
+ff10mknots=vector.abs(x_wind_10m:units=knots,y_wind_10m:units=knots)
+
+#p_wind_max=max_index(ff_pl:vcoord=pressure)
+
+ff.maxwind=max_value(ff_pl:vcoord=pressure)
+ff.maxwind.knot=max_value(ffknots_pl:vcoord=pressure)
 
 flightlevel_inflight=pressure2FlightLevel(air_pressure_inflight)
 
-flightlevel_theta=pressure2FlightLevel(air_pressure_theta:unit=hectopascal)
 flightlevel_ml=pressure2FlightLevel(air_pressure_ml:unit=hectopascal)
-flightlevel_temp=pressure2FlightLevel(air_pressure_temp:unit=hectopascal)
-flightlevel_pv=pressure2FlightLevel(air_pressure_pv:unit=hectopascal)
 
 fluxs.3h=accum.diff.forecast.hour(surface_upward_sensible_heat_flux_acc,-3,0)
 fluxsens.3h=divide(fluxs.3h,10800)	
@@ -625,12 +626,9 @@ vessel_icing_overland=vessel.icing.overland(air_temperature_2m:unit=kelvin,sea_s
 windcooling_minus=subtract(0,windcooling) 
 
 #2m wetbulb temp from `1/3 rule`
-
-#tctd=subtract(tc2m,tdc2m)
-tctd=subtract(air_temperature_2m:unit=celsius,tdc2m)
+tctd=subtract(air_temperature_2m:units=kelvin,dew_point_temperature_2m:units=kelvin)
 tctd3=divide(tctd,3)
-wetbulb3=subtract(tc2m,tctd3)
-wetbulb3=subtract(air_temperature_2m:unit=celsius,tctd3)
+wetbulb_temperature_2m=subtract(air_temperature_2m:unit=celsius,tctd3)
 
 #total.totals, do not work with milib
 total.totals.1=add(air_temperature_pl:unit=celsius,dew_point_temperature_pl)
@@ -656,65 +654,42 @@ sea.soundspeed=sea.soundspeed.ozlevel_tk_salt(seatemp.k,salinity)
 sea.soundspeed=sea.soundspeed.ozlevel_tk_salt(sea_water_potential_temperature:standard_name:unit=kelvin,salinity)
 ice.speed=vector.abs(x_ice_velocity,y_ice_velocity)
 
-# SNAP
-total.dep=add(dry.dep,wet.dep)
-accum.total.dep=add(accum.dry.dep,accum.wet.dep)
-mass.above.bl.instant=subtract(100.,mass.in.bl.instant)
-mass.above.bl.average=subtract(100.,mass.in.bl.average)
-bomb.total.dep=add(bomb.dry.dep,bomb.wet.dep)
-bomb.accum.total.dep=add(bomb.accum.dry.dep,bomb.accum.wet.dep)
-
 # OSISAF (som felt)
 sea_ice_concentration_classes=values2classes(sea_ice_concentration,0.0,0.1,19.9,39.9,59.9,79.9,99.9,999.)
-
-# Sesong-varsler
-t.2m.season_c=temp_k2c(t.2m.season)
 
 # DZ(850-1000).boyden
 dz.boyden.1=divide(geopotential_height_pl,30)
 dz.boyden.2=multiply(dz.boyden.1,29)
 dz.850-1000.boyden=subtract(geopotential_height_pl:level=850hPa,dz.boyden.2:level=1000hPa)
 
-# WDB
-mslp=divide(mslp.pa,100)
-lwe_precipitation_rate=multiply(accumprecip.1h.m.proff,1000)
-accumprecip=multiply(accumprecip.m,1000)
-cloud_area_fraction=multiply(totcloud.ratio,100)
-
-# icing
-icing.height.scaled=multiply(icing_height,0.001)
-icing.bottom.scaled=multiply(icing_height_bottom,0.001)
-icing.top.scaled=multiply(icing_height_top,0.001)
-
-# contrails
-cont.bottom.scaled=multiply(cont.bottom,0.001)
-cont.top.scaled=multiply(cont.top,0.001)
-
-
 #precipitation percentiles
-precipitation_percentile_1h_20=percentile(lwe_precipitation_rate,20,7)
-precipitation_percentile_1h_50=percentile(lwe_precipitation_rate,50,7)
-precipitation_percentile_1h_90=percentile(lwe_precipitation_rate,90,7)
+precipitation_percentile_1h_20=neighbour_percentile(lwe_precipitation_rate,20,7)
+precipitation_percentile_1h_50=neighbour_percentile(lwe_precipitation_rate,50,7)
+precipitation_percentile_1h_90=neighbour_percentile(lwe_precipitation_rate,90,7)
 
-precipitation_percentile_1h_20=percentile(accumprecip.1h,20,7)
-precipitation_percentile_1h_50=percentile(accumprecip.1h,50,7)
-precipitation_percentile_1h_80=percentile(accumprecip.1h,80,7)
+precipitation_percentile_1h_20=neighbour_percentile(accumprecip.1h,20,7)
+precipitation_percentile_1h_50=neighbour_percentile(accumprecip.1h,50,7)
+precipitation_percentile_1h_80=neighbour_percentile(accumprecip.1h,80,7)
 
-precipitation_percentile_3h_20=percentile(accumprecip.3h,20,7)
-precipitation_percentile_3h_50=percentile(accumprecip.3h,50,7)
-precipitation_percentile_3h_80=percentile(accumprecip.3h,80,7)
+precipitation_percentile_3h_20=neighbour_percentile(accumprecip.3h,20,7)
+precipitation_percentile_3h_50=neighbour_percentile(accumprecip.3h,50,7)
+precipitation_percentile_3h_80=neighbour_percentile(accumprecip.3h,80,7)
 
-precipitation_percentile_6h_20=percentile(accumprecip.6h,20,7)
-precipitation_percentile_6h_50=percentile(accumprecip.6h,50,7)
-precipitation_percentile_6h_80=percentile(accumprecip.6h,80,7)
+precipitation_percentile_6h_20=neighbour_percentile(accumprecip.6h,20,7)
+precipitation_percentile_6h_50=neighbour_percentile(accumprecip.6h,50,7)
+precipitation_percentile_6h_80=neighbour_percentile(accumprecip.6h,80,7)
 
-precipitation_percentile_12h_20=percentile(accumprecip.12h,20,7)
-precipitation_percentile_12h_50=percentile(accumprecip.12h,50,7)
-precipitation_percentile_12h_80=percentile(accumprecip.12h,80,7)
+precipitation_percentile_12h_20=neighbour_percentile(accumprecip.12h,20,7)
+precipitation_percentile_12h_50=neighbour_percentile(accumprecip.12h,50,7)
+precipitation_percentile_12h_80=neighbour_percentile(accumprecip.12h,80,7)
 
-precipitation_percentile_24h_20=percentile(accumprecip.24h,20,7)
-precipitation_percentile_24h_50=percentile(accumprecip.24h,50,7)
-precipitation_percentile_24h_80=percentile(accumprecip.24h,80,7)
+precipitation_percentile_18h_20=neighbour_percentile(accumprecip.18h,20,7)
+precipitation_percentile_18h_50=neighbour_percentile(accumprecip.18h,50,7)
+precipitation_percentile_18h_80=neighbour_percentile(accumprecip.18h,80,7)
+
+precipitation_percentile_24h_20=neighbour_percentile(accumprecip.24h,20,7)
+precipitation_percentile_24h_50=neighbour_percentile(accumprecip.24h,50,7)
+precipitation_percentile_24h_80=neighbour_percentile(accumprecip.24h,80,7)
 
 # sum concentration classes 
 aerosol_conc=sum(aerosol_conc_class0:unit=Bq*h/m3,aerosol_conc_class1:unit=Bq*h/m3,aerosol_conc_class2:unit=Bq*h/m3,aerosol_conc_class3:unit=Bq*h/m3,aerosol_conc_class4:unit=Bq*h/m3,aerosol_conc_class5:unit=Bq*h/m3,aerosol_conc_class6:unit=Bq*h/m3,aerosol_conc_class7:unit=Bq*h/m3,aerosol_conc_class8:unit=Bq*h/m3,aerosol_conc_class9:unit=Bq*h/m3)
@@ -1038,6 +1013,7 @@ field=cloud_area_fraction
 end.field
 
 field=fog
+      fieldgroup=Surface
       colour=red line.values=40,60,80,100 units=0.01
       plot=ALPHA_SHADE(fog_area_fraction)
 end.field
@@ -1248,89 +1224,89 @@ end.field
 field=TH
       #"Potential Temperature"
       colour=red linetype=solid linewidth=1 line.interval=3.
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(air_potential_temperature_pl)
 end.field
 
 field=THE
       #"Equivalent Potential Temperature"
       colour=red linetype=solid linewidth=1 line.interval=2.5
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(the_pl)
 end.field
 
 field=THE_GRADIENT
       colour=red linetype=solid linewidth=1 line.interval=2
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(the.gradient_pl)
 end.field
 
 field=Td
       #"Dewpoint temperature"
       colour=red linetype=solid linewidth=1 line.interval=2.5 units=celsius
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(dew_point_temperature_pl)
 end.field
 
 field=RH
       #"Relative Humidity"
       colour=red linetype=solid linewidth=1 line.interval=10.
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(relative_humidity_pl)
 end.field
 
 field=Q
       #"Specific Humidity"
       colour=red linetype=solid linewidth=1 line.interval=0.05
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(specific_humidity_pl)
 end.field
 
 field=TFP
       colour=red linetype=solid linewidth=1 line.interval=1. zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(tfp_pl)
 end.field
 
 field=vorticity
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(vorticity_pl)
 end.field
 
 field=divergence
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(divergence_pl)
 end.field
 
 field=abs.vorticity
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(absvorticity_pl)
 end.field
 
 field=geostrofic.vorticity
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(gvorticity_pl)
 end.field
 
 field=advection(vorticity)
       colour=red linetype=solid linewidth=1 line.interval=0.0001
       zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(advection.vorticity_pl)
 end.field
 
 field=advection(T)
       colour=red linetype=solid linewidth=1 line.interval=3.
       zero.line=1
-      vcoord=pressure,flightlevel
+      vc_type=pressure
       plot=CONTOUR(advection.t_pl)
 end.field
 
@@ -1420,10 +1396,27 @@ name=Surface group=height
 #  m=NAME t=fimex format=netcdf|grib|ncml|wdb|metnofieldfile  f=filename|database-config|http
 #-------------------------------------------------------------------------------
 
+m=meps_det_pp_2_5km_latest               t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_pp_2_5km_latest.nc
+m=meps_det_extracted_2_5km_latest        t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_latest.nc
+m=meps_allmembers_full_2_5km_latest      t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_allmembers_full_2_5km_latest.nc
+m=meps_allmembers_extracted_2_5km_latest t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_allmembers_extracted_2_5km_latest.nc
+m=arome_arctic_pp_2_5km_latest.nc        t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_pp_2_5km_latest.nc
+m=arome_arctic_extracted_2_5km_latest    t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
-filegroup=Arome
-m=arome-PP    f=http://thredds.met.no/thredds/dodsC/arome25/arome_metcoop_default2_5km_latest.nc  t=netcdf
-m=arome       f=http://thredds.met.no/thredds/dodsC/arome25/arome_metcoop_test2_5km_latest.nc  t=netcdf
+m=norkyst800m_24h_aggregate              t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/norkyst800m/24h/aggregate_be
+m=norkyst800m_1h_aggregate               t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+m=nordic4km_24h_aggregate                t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/nordic4km/24h/aggregate_be
+m=nordic4km_1h_aggregate                 t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+m=arctic20km_24h_aggregate               t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/arctic20km/24h/aggregate_be
+m=arctic20km_1h_aggregate                t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/arctic20km/1h/aggregate_be
+
+m=mywavewam4_aggregate                   t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/mywavewam4/mywavewam4_be
+m=mywavewam800_finnmark_aggregate        t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800f_be
+m=mywavewam800_nordnorge_aggregate       t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800n_be
+m=mywavewam800_midtnorge_aggregate       t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800m_be
+m=mywavewam800_vestlandet_aggregate      t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800v_be
+m=mywavewam800_skagerak_aggregate        t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800s_be
+
 </FIELD_FILES>
 
 
@@ -1431,20 +1424,21 @@ m=arome       f=http://thredds.met.no/thredds/dodsC/arome25/arome_metcoop_test2_
 <OBSERVATION_FILES>
 
 PROD=synop:Synop
+PROD=list:Synop
 bufr=$(OPDATA)/bufr/syno_[yyyymmddHH].bufr
-timerange=-30,30
 
 PROD=metar:Metar
+PROD=synop:Metar
+PROD=list:Metar
 bufr=$(OPDATA)/bufr/meta_[yyyymmddHHMM].bufr
-timerange=-15,15
 
-PROD=dribu:Dribu
+PROD=synop:Dribu
+PROD=list:Dribu
 bufr=$(OPDATA)/bufr/drau_yyyymmddHH.bufr
 timerange=-90,90
 
-PROD=temp:Temp
+PROD=pressure:temp
 bufr=$(OPDATA)/bufr/temp_yyyymmddHH.bufr
-imerange=-30,30
 
 </OBSERVATION_FILES>
 
@@ -1480,7 +1474,6 @@ file=$(OPDATA)/geotiff/met09_yyyymmddHHMM_eurol_rgb_nightfog.tif
 # - font=fixed means "courier"-type font
 #---------------------------------------------------------------------------
 
-name=Obsflagg       file=$(share_diana_dir)/obsflag.html
 
 </TEXT_INFORMATION_FILES>
 
@@ -1628,7 +1621,9 @@ end.product
 
 <VERTICAL_PROFILE_FILES>
 bufr.temp=  $(OPDATA)/bufr/temp_[yyyymmddHH].bufr
-m=arome f=http://thredds.met.no/thredds/dodsC/arome25vc/AROME_MetCoOp_vc_latest.nc t=netcdf
+m=thredds_meps_det_vc_2_5km_latest     t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_vc_2_5km_latest.nc
+m=thredds_arome_arctic_vc_2_5km_latest t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_vc_2_5km_latest.nc
+
 </VERTICAL_PROFILE_FILES>
 
 <VERTICAL_PROFILE_COMPUTATIONS>
@@ -1658,7 +1653,8 @@ vp_omega_pas=multiply(upward_air_velocity_ml,const:-0.01)
 
 
 <VERTICAL_CROSSECTION_FILES>
-m=arome f=http://thredds.met.no/thredds/dodsC/arome25vc/AROME_MetCoOp_vc_latest.nc t=netcdf
+m=thredds_meps_det_vc_2_5km_latest     t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_vc_2_5km_latest.nc
+m=thredds_arome_arctic_vc_2_5km_latest t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_vc_2_5km_latest.nc
 </VERTICAL_CROSSECTION_FILES>
 
 <VERTICAL_CROSSECTION_COMPUTATIONS>
@@ -1767,12 +1763,10 @@ name=Turbulence  plot=CONTOUR(turbulence_index_ml)        colour=blue line.inter
 
 
 <SPECTRUM_FILES>
-
-# prognostic data
-m=WAM.50KM.00  f=$(OPDATA)/wave/wamspec00.dat
-m=WAM.50KM.12  f=$(OPDATA)/wave/wamspec12.dat
-
 </SPECTRUM_FILES>
+
+
+<DRAWING>
 
 
 <DRAWING>
@@ -1993,3 +1987,11 @@ service.id=OSM service.type=slippy service.url=file:$(share_diana_dir)/products/
 service.id=metno-vaerportal-wms service.type=wms service.url=http://public-wms.met.no/verportal/verportal.map?service=WMS&REQUEST=GetCapabilities&VERSION=1.3.0
 service.id=kartverket-wmts service.type=wmts service.url=http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities
 </WEBMAP_SERVICES>
+
+<EXPORT_COMMANDS>
+SAVETO title=File \
+  size=DIANA size="1280x720 (HD)" size="800x600" size="4:3 (TV)" size="16:9 (wide TV)" size=ANY
+SAVETO title=TV \
+  size=16:6 size="2680x1005 (16:6)" \
+  tooltip="Save file in a size suitable for presentation on TV"
+</EXPORT_COMMANDS>
