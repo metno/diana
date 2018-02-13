@@ -1367,6 +1367,40 @@ field=Stokes_Drift
       plot=VECTOR(x_stokes_drift,y_stokes_drift)
 end.field
 
+field=Sea_Surface
+      colour=blue line.interval=0.1
+      plot=CONTOUR(sea_surface_elevation:standard_name)
+end.field
+
+field=barotropic_current
+      colour=red vector.unit=0.2
+      plot=VECTOR(barotropic_sea_water_x_velocity:standard_name,barotropic_sea_water_y_velocity:standard_name)
+end.field
+
+field=Current
+      fieldgroup="Height"
+      colour=red vector.unit=0.2
+      plot=VECTOR(x_sea_water_velocity:standard_name,y_sea_water_velocity:standard_name)
+end.field
+
+field=Current_speed
+      fieldgroup="Height"
+      colour=red line.interval=0.1
+      plot=CONTOUR(current.speed)
+end.field
+
+field=Salinity
+      fieldgroup="Height"
+      colour=red line.interval=0.5
+      plot=CONTOUR(salinity)
+end.field
+
+field=Temperature
+      fieldgroup="Height"
+      colour=red line.interval=0.5 units=celsius
+      plot=CONTOUR(sea_water_potential_temperature:standard_name)
+end.field
+
 field=altitude
       colour=red line.interval=250.
       plot=CONTOUR(altitude)
@@ -1395,7 +1429,7 @@ name=Surface group=height
 #-------------------------------------------------------------------------------
 #  m=NAME t=fimex format=netcdf|grib|ncml|wdb|metnofieldfile  f=filename|database-config|http
 #-------------------------------------------------------------------------------
-
+filegroup=MEPS
 m=meps_det_pp_2_5km_latest               t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_pp_2_5km_latest.nc
 m=meps_det_extracted_2_5km_latest        t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_latest.nc
 m=meps_allmembers_full_2_5km_latest      t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_allmembers_full_2_5km_latest.nc
@@ -1403,6 +1437,7 @@ m=meps_allmembers_extracted_2_5km_latest t=netcdf f=http://thredds.met.no/thredd
 m=arome_arctic_pp_2_5km_latest.nc        t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_pp_2_5km_latest.nc
 m=arome_arctic_extracted_2_5km_latest    t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
+filegroup=ROMS
 m=norkyst800m_24h_aggregate              t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/norkyst800m/24h/aggregate_be
 m=norkyst800m_1h_aggregate               t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 m=nordic4km_24h_aggregate                t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/nordic4km/24h/aggregate_be
@@ -1410,6 +1445,7 @@ m=nordic4km_1h_aggregate                 t=netcdf f=http://thredds.met.no/thredd
 m=arctic20km_24h_aggregate               t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/arctic20km/24h/aggregate_be
 m=arctic20km_1h_aggregate                t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/arctic20km/1h/aggregate_be
 
+filegroup=WAVE
 m=mywavewam4_aggregate                   t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/mywavewam4/mywavewam4_be
 m=mywavewam800_finnmark_aggregate        t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800f_be
 m=mywavewam800_nordnorge_aggregate       t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800n_be
@@ -1760,14 +1796,8 @@ name=Turbulence  plot=CONTOUR(turbulence_index_ml)        colour=blue line.inter
 #name=Vcurr(y_grid)   plot=CONTOUR(vcurr)        colour=blue line.interval=0.1
 </VERTICAL_CROSSECTION_PLOTS>
 
-
-
 <SPECTRUM_FILES>
 </SPECTRUM_FILES>
-
-
-<DRAWING>
-
 
 <DRAWING>
 # Symbol styles
