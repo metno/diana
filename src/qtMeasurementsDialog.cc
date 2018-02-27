@@ -316,7 +316,7 @@ void MeasurementsDialog::calculate()
 
       QString speedresult1 = QString::number(speed_in_ms, 'f', 2) + " m/s";
       QString speedresult2 = QString::number(speed_in_kmh, 'f', 2) + " km/h";
-      QString speedresult3 = QString::number(speed_in_ms, 'f', 2) + " " + tr("knots");
+      QString speedresult3 = QString::number(speed_in_knots, 'f', 2) + " " + tr("knots");
 
       speedbox1->setText(speedresult1);
       speedbox2->setText(speedresult2);
