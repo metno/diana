@@ -256,6 +256,7 @@ ExportImageDialog::ExportImageDialog(QWidget* parent)
 {
   METLIBS_LOG_SCOPE();
 
+  setWindowModality(Qt::WindowModal);
   std::vector<std::string> lines;
   if (miutil::SetupParser::getSection(SECTION, lines)) {
     QStringList cmds;
