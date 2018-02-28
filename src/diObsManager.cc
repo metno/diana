@@ -319,7 +319,7 @@ bool ObsManager::parseFilesSetup()
   vector<std::string> sect_obs;
 
   if (!SetupParser::getSection(obs_name, sect_obs)) {
-    METLIBS_LOG_ERROR(obs_name << " section not found");
+    METLIBS_LOG_WARN(obs_name << " section not found");
     return true;
   }
 
@@ -361,9 +361,7 @@ bool ObsManager::parseFilesSetup()
       }
 
       string_ProdInfo_m::iterator itp = Prod.find(readername);
-      if (itp != Prod.end()) {
-        METLIBS_LOG_WARN("Prod readername '" << readername << "'already in use");
-      } else {
+      if (itp == Prod.end()) {
         itp = Prod.insert(std::make_pair(readername, ProdInfo())).first;
         itp->second.sort_order = sort_order;
         sort_order++;
