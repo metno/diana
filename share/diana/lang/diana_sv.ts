@@ -4,150 +4,205 @@
 <context>
     <name>AddtoDialog</name>
     <message>
+        <location filename="../../../src/qtAddtoDialog.cc" line="+75"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="-18"/>
         <source>Add to objectdialog</source>
-        <translation type="vanished">Lägg till i objektdialogen</translation>
+        <translation>Lägg till i objektdialogen</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Dialog name:</source>
-        <translation type="vanished">Dialognamn:</translation>
+        <translation>Dialognamn:</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>File name:</source>
-        <translation type="vanished">Filnamn:</translation>
+        <translation>Filnamn:</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
     <name>AddtoMenu</name>
     <message>
+        <location filename="../../../src/qtAddtoMenu.cc" line="+59"/>
         <source>Add current plot to a private quickmenu</source>
-        <translation type="vanished">Lägg till gällande plottning i en privat snabbmeny</translation>
+        <translation>Lägg till gällande plottning i en privat snabbmeny</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>&amp;Make new</source>
-        <translation type="vanished">&amp;Skapa ny</translation>
+        <translation>&amp;Skapa ny</translation>
     </message>
     <message>
+        <location line="+13"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
+        <location line="+51"/>
         <source>New Menu</source>
-        <translation type="vanished">Ny meny</translation>
+        <translation>Ny meny</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new menu with name:</source>
-        <translation type="vanished">Skapa ny meny med namn:</translation>
+        <translation>Skapa ny meny med namn:</translation>
     </message>
 </context>
 <context>
     <name>AnnoText</name>
     <message>
+        <location filename="../../../src/qtAnnoText.cc" line="+61"/>
         <source>:Write text</source>
-        <translation type="vanished">:Skriv text</translation>
+        <translation>:Skriv text</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>Exit</source>
-        <translation type="vanished">Avsluta</translation>
+        <translation>Avsluta</translation>
     </message>
 </context>
 <context>
     <name>AnnotationDialog</name>
     <message>
+        <location filename="../../../src/qtAnnotationDialog.cc" line="+55"/>
         <source>Annotations</source>
-        <translation type="vanished">Kommentarer</translation>
+        <translation>Kommentarer</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Default</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply + Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
 </context>
 <context>
     <name>ComplexPressureText</name>
     <message>
+        <location filename="../../../src/qtComplexPressureText.cc" line="+101"/>
         <source>Write text</source>
-        <translation type="vanished">Skriv text</translation>
+        <translation>Skriv text</translation>
     </message>
     <message>
+        <location line="+55"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
     <name>ComplexText</name>
     <message>
+        <location filename="../../../src/qtComplexText.cc" line="+92"/>
         <source>Write text</source>
-        <translation type="vanished">Skriv text</translation>
+        <translation>Skriv text</translation>
     </message>
     <message>
+        <location line="+39"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
     <name>DataDialog</name>
     <message>
+        <location filename="../../../src/qtDataDialog.cc" line="+110"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+37"/>
         <source>Apply* + Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply*</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Apply + Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
+    </message>
+</context>
+<context>
+    <name>DianaApplication</name>
+    <message>
+        <location filename="../../../src/qtDianaApplication.cc" line="+56"/>
+        <source>Severe Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>A severe error has occurred. You MUST exit diana as soon as possible. A reminder will be shown every %1s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Keep Going</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Exit Now</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -161,128 +216,164 @@
         <translation type="obsolete">Spara &amp;bild...</translation>
     </message>
     <message>
+        <location filename="../../../src/qtMainWindow.cc" line="+205"/>
         <source>&amp;Print...</source>
-        <translation type="vanished">&amp;Skriv ut...</translation>
+        <translation>&amp;Skriv ut...</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>&amp;Quit...</source>
-        <translation type="vanished">&amp;Avsluta...</translation>
+        <translation>&amp;Avsluta...</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>S&amp;peed buttons</source>
-        <translation type="vanished">Snabb&amp;knappar</translation>
+        <translation>Snabb&amp;knappar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>A&amp;rchive mode</source>
-        <translation type="vanished">A&amp;rkiv mode</translation>
+        <translation>A&amp;rkiv mode</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Automatic element choice</source>
-        <translation type="vanished">&amp;Automatisk elementval</translation>
+        <translation>&amp;Automatisk elementval</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>A&amp;nnotations</source>
-        <translation type="vanished">&amp;Kommentarer</translation>
+        <translation>&amp;Kommentarer</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Select &amp;Font...</source>
-        <translation type="vanished">Välj &amp;Font...</translation>
+        <translation>Välj &amp;Font...</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Reset area and replot</source>
-        <translation type="vanished">&amp;Återställ område och plotta på nytt</translation>
+        <translation>&amp;Återställ område och plotta på nytt</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Reset all</source>
-        <translation type="vanished">Återställ &amp;allt</translation>
+        <translation>Återställ &amp;allt</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Apply plot</source>
-        <translation type="vanished">Utf&amp;ör plott</translation>
+        <translation>Utf&amp;ör plott</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Add to q&amp;uickmenu</source>
-        <translation type="vanished">A&amp;ddera plott till snabbmeny</translation>
+        <translation>A&amp;ddera plott till snabbmeny</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>P&amp;revious plot</source>
-        <translation type="vanished">Fö&amp;egående plott</translation>
+        <translation>Fö&amp;egående plott</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Next plot</source>
-        <translation type="vanished">&amp;Nästa plott</translation>
+        <translation>&amp;Nästa plott</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Hide All</source>
-        <translation type="vanished">Dö&amp;lj alla</translation>
+        <translation>Dö&amp;lj alla</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Quickmenu</source>
-        <translation type="vanished">&amp;Snabbmeny</translation>
+        <translation>&amp;Snabbmeny</translation>
     </message>
     <message>
+        <location line="+13"/>
         <source>&amp;Fields</source>
-        <translation type="vanished">&amp;Fält</translation>
+        <translation>&amp;Fält</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Observations</source>
-        <translation type="vanished">&amp;Observationer</translation>
+        <translation>&amp;Observationer</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Satellites and Radar</source>
-        <translation type="vanished">&amp;Satellit och Radar</translation>
+        <translation>&amp;Satellit och Radar</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>&amp;Product Editing</source>
-        <translation type="vanished">&amp;Produkteditering</translation>
+        <translation>&amp;Produkteditering</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>O&amp;bjects</source>
-        <translation type="vanished">O&amp;bjekt</translation>
+        <translation>O&amp;bjekt</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Trajectories</source>
-        <translation type="vanished">&amp;Trajektorier</translation>
+        <translation>&amp;Trajektorier</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Annotation</source>
-        <translation type="vanished">&amp;Kommentar</translation>
+        <translation>&amp;Kommentar</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Vertical Profiles</source>
-        <translation type="vanished">&amp;Vertikalprofiler</translation>
+        <translation>&amp;Vertikalprofiler</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>Vertical &amp;Cross sections</source>
-        <translation type="vanished">Vertik&amp;ala tvärsnitt</translation>
+        <translation>Vertik&amp;ala tvärsnitt</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>&amp;Wave spectra</source>
-        <translation type="vanished">V&amp;ågspektra</translation>
+        <translation>V&amp;ågspektra</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>&amp;Uffda Service</source>
-        <translation type="vanished">&amp;Uffda tjeneste</translation>
+        <translation>&amp;Uffda tjeneste</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Measurements</source>
-        <translation type="vanished">&amp;Mätningar</translation>
+        <translation>&amp;Mätningar</translation>
     </message>
     <message>
+        <location line="+21"/>
         <source>&amp;Accelerators</source>
-        <translation type="vanished">&amp;Snabbval</translation>
+        <translation>&amp;Snabbval</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;News</source>
-        <translation type="vanished">&amp;Nyheter</translation>
+        <translation>&amp;Nyheter</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Test &amp;results</source>
-        <translation type="vanished">Test &amp;resultat</translation>
+        <translation>Test &amp;resultat</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>About Diana</source>
-        <translation type="vanished">Om Diana</translation>
+        <translation>Om Diana</translation>
+    </message>
+    <message>
+        <location line="+1975"/>
+        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Run Backwards</source>
@@ -313,56 +404,109 @@
         <translation type="vanished">Tidskontroll</translation>
     </message>
     <message>
+        <location line="-1967"/>
         <source>Level up</source>
-        <translation type="vanished">Nivå opp</translation>
+        <translation>Nivå opp</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Level down</source>
-        <translation type="vanished">Nivå ned</translation>
+        <translation>Nivå ned</translation>
     </message>
     <message>
+        <location line="+1856"/>
+        <source>build: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>commit: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+102"/>
         <source>Error</source>
-        <translation type="vanished">Feil</translation>
+        <translation>Feil</translation>
     </message>
     <message>
+        <location line="+1015"/>
         <source>imported files</source>
-        <translation type="vanished">Importerade filer</translation>
+        <translation>Importerade filer</translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Imported model data to the &quot;%1&quot; field group.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %1 symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %1 drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Added model data to &quot;%1&quot; field group.</source>
         <translation type="obsolete">Adderat model data till &quot;%1&quot; fält grupp.</translation>
     </message>
     <message>
+        <location line="-2937"/>
         <source>O&amp;ptions</source>
-        <translation type="vanished">&amp;Välj</translation>
+        <translation>&amp;Välj</translation>
     </message>
     <message>
+        <location line="-146"/>
         <source>Zoom out</source>
-        <translation type="vanished">Zooma ut</translation>
+        <translation>Zooma ut</translation>
     </message>
     <message>
+        <location line="+188"/>
         <source>Show</source>
-        <translation type="vanished">Visa</translation>
+        <translation>Visa</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>&amp;Help</source>
-        <translation type="vanished">&amp;Hjälp</translation>
+        <translation>&amp;Hjälp</translation>
     </message>
     <message>
+        <location line="-132"/>
         <source>Update observations</source>
-        <translation type="vanished">Uppdatera observationer</translation>
+        <translation>Uppdatera observationer</translation>
     </message>
     <message>
+        <location line="-256"/>
+        <source>&amp;Export image/movie...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+451"/>
         <source>ARCHIVE</source>
-        <translation type="vanished">ARKIV</translation>
+        <translation>ARKIV</translation>
     </message>
     <message>
+        <location line="+73"/>
+        <source>Map and Area</source>
+        <translation type="unfinished">Karta och Område</translation>
+    </message>
+    <message>
+        <location line="+1559"/>
         <source>version:</source>
-        <translation type="vanished">version:</translation>
+        <translation>version:</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>about Diana</source>
-        <translation type="vanished">om Diana</translation>
+        <translation>om Diana</translation>
     </message>
     <message>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
@@ -373,56 +517,65 @@
         <translation type="obsolete">Spara plott som bild</translation>
     </message>
     <message>
+        <location line="-1850"/>
         <source>EPS cluster/member etc up</source>
-        <translation type="vanished">EPS cluster/medlem mm. upp</translation>
+        <translation>EPS cluster/medlem mm. upp</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>EPS cluster/member etc down</source>
-        <translation type="vanished">EPS cluster/medlem mm. ned</translation>
+        <translation>EPS cluster/medlem mm. ned</translation>
     </message>
     <message>
         <source>build:</source>
         <translation type="obsolete">Bygge:</translation>
     </message>
     <message>
+        <location line="+62"/>
         <source>File</source>
-        <translation type="vanished">Fil</translation>
+        <translation>Fil</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>Info</source>
-        <translation type="vanished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Save &amp;animation...</source>
         <translation type="obsolete">Spara &amp;animation...</translation>
     </message>
     <message>
+        <location line="+1737"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
 </source>
-        <translation type="vanished">Diana - ett program för presentation av fält, observationer och satellitbilder med verktyg för fälteditering och ritning av fronter och symboler.</translation>
+        <translation>Diana - ett program för presentation av fält, observationer och satellitbilder med verktyg för fälteditering och ritning av fronter och symboler.</translation>
     </message>
     <message>
+        <location line="-1885"/>
         <source>Documentation</source>
-        <translation type="vanished">Dokumentation</translation>
+        <translation>Dokumentation</translation>
     </message>
     <message>
         <source>&amp;Email picture...</source>
         <translation type="obsolete">Sänd bild som &amp;epost...</translation>
     </message>
     <message>
+        <location line="-157"/>
         <source>Scrollw&amp;heel zooming</source>
-        <translation type="vanished">&amp;Rullhjul zoomning</translation>
+        <translation>&amp;Rullhjul zoomning</translation>
     </message>
     <message>
+        <location line="+48"/>
         <source>Maps</source>
-        <translation type="vanished">Karta</translation>
+        <translation>Karta</translation>
     </message>
     <message>
+        <location line="+1996"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
-        <translation type="vanished">För att rapportera en bugg eller ett förbättringsförslag, vänligen använd https://redmine.smhi.se/ projekt Diana (Endast SMHI användare).</translation>
+        <translation>För att rapportera en bugg eller ett förbättringsförslag, vänligen använd https://redmine.smhi.se/ projekt Diana (Endast SMHI användare).</translation>
     </message>
     <message>
         <source>Making animation</source>
@@ -449,20 +602,24 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">&gt;Filmer (*.mp4 *.mpg *.avi);;Alla (*.*)</translation>
     </message>
     <message>
+        <location line="-2074"/>
         <source>Print pre&amp;view...</source>
-        <translation type="vanished">Förhands&amp;granska...</translation>
+        <translation>Förhands&amp;granska...</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Read setupfile</source>
-        <translation type="vanished">Läs setupfil</translation>
+        <translation>Läs setupfil</translation>
     </message>
     <message>
+        <location line="+99"/>
         <source>Toggle Stations</source>
-        <translation type="vanished">Visa stationer</translation>
+        <translation>Visa stationer</translation>
     </message>
     <message>
+        <location line="+79"/>
         <source>Edit Drawing Mode</source>
-        <translation type="vanished">Editera/Rita</translation>
+        <translation>Editera/Rita</translation>
     </message>
     <message>
         <source>Save animation from current fields, satellite images, etc.</source>
@@ -477,51 +634,171 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="vanished">Dölj</translation>
     </message>
     <message>
+        <location line="+75"/>
         <source>Automatic updates</source>
-        <translation type="vanished">Automatisk uppdatering</translation>
+        <translation>Automatisk uppdatering</translation>
     </message>
 </context>
 <context>
     <name>DrawingDialog</name>
     <message>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="+75"/>
+        <location line="+14"/>
         <source>Drawing Dialog</source>
-        <translation type="obsolete">Rit dialog</translation>
+        <translation type="unfinished">Rit dialog</translation>
     </message>
     <message>
+        <location line="-7"/>
         <source>Products</source>
-        <translation type="obsolete">Produkter</translation>
+        <translation type="unfinished">Produkter</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Display products</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Edit products</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Load new...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>All time steps</source>
-        <translation type="obsolete">Alla tidssteg</translation>
+        <translation type="unfinished">Alla tidssteg</translation>
     </message>
     <message>
+        <location line="+14"/>
+        <source>Edit mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Clear</source>
-        <translation type="obsolete">Ta bort</translation>
+        <translation type="unfinished">Ta bort</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+466"/>
+        <source>Quick save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-457"/>
         <source>Save</source>
-        <translation type="obsolete">Spara</translation>
+        <translation type="unfinished">Spara</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save All Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Filtered Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Visible Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Selected Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Hide</source>
-        <translation type="obsolete">Dölj</translation>
+        <translation type="unfinished">Dölj</translation>
     </message>
     <message>
+        <location line="+248"/>
+        <source>Failed to save file &apos;%1&apos;. Error was &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Clear Existing Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You are already editing some objects. Shall I remove them?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+90"/>
+        <source>Edit %n product(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Remove %n product(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Edit product</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Quick save &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Hide filters &lt;&lt;&lt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-553"/>
         <source>Apply</source>
-        <translation type="obsolete">Utför</translation>
+        <translation type="unfinished">Utför</translation>
     </message>
     <message>
+        <location line="-19"/>
         <source>Reload</source>
-        <translation type="obsolete">Uppdatera</translation>
+        <translation type="unfinished">Uppdatera</translation>
     </message>
     <message>
+        <location line="+68"/>
+        <location line="+504"/>
+        <source>Show filters &gt;&gt;&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-350"/>
         <source>Open File</source>
-        <translation type="obsolete">Öppna fil</translation>
+        <translation type="unfinished">Öppna fil</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Failed to open file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+90"/>
         <source>Save File</source>
-        <translation type="obsolete">Spara fil</translation>
+        <translation type="unfinished">Spara fil</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -546,93 +823,113 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Namn</translation>
     </message>
     <message>
+        <location line="+405"/>
         <source>Source</source>
-        <translation type="obsolete">Källa</translation>
+        <translation type="unfinished">Källa</translation>
     </message>
 </context>
 <context>
     <name>EditComment</name>
     <message>
+        <location filename="../../../src/qtEditComment.cc" line="+76"/>
         <source>Show previous comments</source>
-        <translation type="vanished">Visa tidigare kommentarer</translation>
+        <translation>Visa tidigare kommentarer</translation>
     </message>
 </context>
 <context>
     <name>EditDefineFieldDialog</name>
     <message>
+        <location filename="../../../src/qtEditDefineField.cc" line="+151"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
+        <location line="-90"/>
         <source>Model fields</source>
-        <translation type="vanished">Modellfält</translation>
+        <translation>Modellfält</translation>
     </message>
     <message>
+        <location line="-8"/>
         <source>Objects</source>
-        <translation type="vanished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Pick objects for editing</source>
-        <translation type="vanished">Välj objekt att editering</translation>
+        <translation>Välj objekt att editering</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Pick fields for editing</source>
-        <translation type="vanished">Välj fält att editering</translation>
+        <translation>Välj fält att editering</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>from:</source>
-        <translation type="vanished">från:</translation>
+        <translation>från:</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Official product</source>
-        <translation type="vanished">Officiell produkt</translation>
+        <translation>Officiell produkt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Locally stored</source>
-        <translation type="vanished">Lokalt sparad</translation>
+        <translation>Lokalt sparad</translation>
     </message>
     <message>
+        <location line="+24"/>
         <source>Selected objects</source>
-        <translation type="vanished">Valda objekt</translation>
+        <translation>Valda objekt</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Selected fields</source>
-        <translation type="vanished">Valda fält</translation>
+        <translation>Valda fält</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Fronts</source>
-        <translation type="vanished">Fronter</translation>
+        <translation>Fronter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Symbols</source>
-        <translation type="vanished">Symboler</translation>
+        <translation>Symboler</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Areas</source>
-        <translation type="vanished">Områden</translation>
+        <translation>Områden</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Form</source>
-        <translation type="vanished">Form</translation>
+        <translation>Form</translation>
     </message>
 </context>
 <context>
     <name>EditDialog</name>
     <message>
+        <location filename="../../../src/qtEditDialog.cc" line="+195"/>
         <source>Editing</source>
-        <translation type="vanished">Editering</translation>
+        <translation>Editering</translation>
     </message>
     <message>
         <source>Obs. timestep:</source>
@@ -657,398 +954,513 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation type="obsolete">Avbryt</translation>
     </message>
     <message>
+        <location line="-51"/>
+        <location line="+200"/>
         <source>Circle</source>
-        <translation type="vanished">Cirkel</translation>
+        <translation>Cirkel</translation>
     </message>
     <message>
+        <location line="-135"/>
         <source>Save (local)</source>
-        <translation type="vanished">Spara (lokalt)</translation>
+        <translation>Spara (lokalt)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save product to local disk</source>
-        <translation type="vanished">Spara produkt till lokal disk</translation>
+        <translation>Spara produkt till lokal disk</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Save (common work disk)</source>
-        <translation type="vanished">Spara (gemensam arbetsarea)</translation>
+        <translation>Spara (gemensam arbetsarea)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save product to common work disk, available to other users as input in edit mode</source>
-        <translation type="vanished">Spara produkt till gemensam arbetsarea, tillgänglig för andra användare att använda under editering</translation>
+        <translation>Spara produkt till gemensam arbetsarea, tillgänglig för andra användare att använda under editering</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Approve</source>
-        <translation type="vanished">Godkänn</translation>
+        <translation>Godkänn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Approve product (makes the product available for other users and trigger production)</source>
-        <translation type="vanished">Godkänn produkt (Gör produkten tillgänglig för andra användare och startar produktion av slutprodukter)</translation>
+        <translation>Godkänn produkt (Gör produkten tillgänglig för andra användare och startar produktion av slutprodukter)</translation>
     </message>
     <message>
+        <location line="+127"/>
         <source>Square</source>
-        <translation type="vanished">Fyrkant</translation>
+        <translation>Fyrkant</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Ellipse(focus)</source>
-        <translation type="vanished">Ellips(brännpunkt)</translation>
+        <translation>Ellips(brännpunkt)</translation>
     </message>
     <message>
+        <location line="+18"/>
         <source>Ellipse shape</source>
-        <translation type="vanished">Ellips form</translation>
+        <translation>Ellips form</translation>
     </message>
     <message>
+        <location line="+844"/>
         <source>Problems saving product: </source>
-        <translation type="vanished">Problem med att spara produkt: </translation>
+        <translation>Problem med att spara produkt: </translation>
     </message>
     <message>
         <source>Error approve product</source>
         <translation type="obsolete">Problem att godkänna produkt</translation>
     </message>
     <message>
+        <location line="+116"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
+        <location line="+131"/>
         <source>Error starting edit</source>
-        <translation type="vanished">Fel vid uppstart av editering</translation>
+        <translation>Fel vid uppstart av editering</translation>
     </message>
     <message>
+        <location line="+81"/>
+        <location line="+241"/>
         <source>Undefined</source>
-        <translation type="vanished">Odefinierad</translation>
+        <translation>Odefinierad</translation>
     </message>
     <message>
+        <location line="-236"/>
+        <location line="+241"/>
         <source>New value:</source>
-        <translation type="vanished">Nytt värde:</translation>
+        <translation>Nytt värde:</translation>
     </message>
     <message>
+        <location line="-182"/>
+        <location line="+217"/>
         <source>Not saved</source>
-        <translation type="vanished">Ej sparad</translation>
+        <translation>Ej sparad</translation>
     </message>
     <message>
+        <location line="-1408"/>
         <source>Show extra editing lines</source>
-        <translation type="vanished">Visa editeringslinjer</translation>
+        <translation>Visa editeringslinjer</translation>
     </message>
     <message>
+        <location line="+11"/>
+        <location line="+234"/>
         <source>Undo</source>
-        <translation type="vanished">Ångra</translation>
+        <translation>Ångra</translation>
     </message>
     <message>
+        <location line="-233"/>
+        <location line="+234"/>
         <source>Redo</source>
-        <translation type="vanished">Gör om</translation>
+        <translation>Gör om</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Join fronts</source>
-        <translation type="vanished">Sammanslagning av fronter</translation>
+        <translation>Sammanslagning av fronter</translation>
     </message>
     <message>
+        <location line="+334"/>
         <source>Change borders</source>
-        <translation type="vanished">Ändra gränser</translation>
+        <translation>Ändra gränser</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Set data sources</source>
-        <translation type="vanished">Ange datakälla</translation>
+        <translation>Ange datakälla</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Exit merge</source>
-        <translation type="vanished">Avsluta koppling</translation>
+        <translation>Avsluta koppling</translation>
     </message>
     <message>
+        <location line="+189"/>
         <source>Save error:</source>
-        <translation type="vanished">Fel vid sparning:</translation>
+        <translation>Fel vid sparning:</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Saved</source>
-        <translation type="vanished">Sparad</translation>
+        <translation>Sparad</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>and approved</source>
-        <translation type="vanished">och godkänd</translation>
+        <translation>och godkänd</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>(approved)</source>
-        <translation type="vanished">(godkänd)</translation>
+        <translation>(godkänd)</translation>
     </message>
     <message>
+        <location line="+25"/>
+        <source>Warning - approve product</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Do you really want to approve an unchanged product?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+68"/>
         <source>Exit editing</source>
-        <translation type="vanished">Avsluta editering</translation>
+        <translation>Avsluta editering</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>You have unsaved edits.
  Save before exiting?</source>
-        <translation type="vanished">Du har inte sparat dina ändringar.
+        <translation>Du har inte sparat dina ändringar.
 Vil du spara innan du avslutar?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Save</source>
-        <translation type="vanished">&amp;Spara</translation>
+        <translation>&amp;Spara</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Don&apos;t save</source>
-        <translation type="vanished">Spara &amp;inte</translation>
+        <translation>Spara &amp;inte</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Send analysis</source>
-        <translation type="vanished">Skicka analys</translation>
+        <translation>Skicka analys</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Send last saved analysis to the database?</source>
-        <translation type="vanished">Vill du skicka sista sparade analysen till databasen?</translation>
+        <translation>Vill du skicka sista sparade analysen till databasen?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Send</source>
-        <translation type="vanished">&amp;Skicka</translation>
+        <translation>&amp;Skicka</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">Skicka &amp;inte</translation>
+        <translation>Skicka &amp;inte</translation>
     </message>
     <message>
+        <location line="-123"/>
         <source>saved</source>
-        <translation type="vanished">sparad</translation>
+        <translation>sparad</translation>
     </message>
     <message>
+        <location line="-966"/>
         <source>Exit</source>
-        <translation type="vanished">Avsluta</translation>
+        <translation>Avsluta</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="-17"/>
         <source>Pause</source>
-        <translation type="vanished">Pausa</translation>
+        <translation>Pausa</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Comments</source>
-        <translation type="vanished">Kommentarer</translation>
+        <translation>Kommentarer</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+85"/>
         <source>Ellipse(centre)</source>
-        <translation type="vanished">Ellipse(senter)</translation>
+        <translation>Ellipse(senter)</translation>
     </message>
     <message>
+        <location line="-255"/>
         <source>Field</source>
-        <translation type="vanished">Fält</translation>
+        <translation>Fält</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Objects</source>
-        <translation type="vanished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Merge</source>
-        <translation type="vanished">Koppla</translation>
+        <translation>Koppla</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Cold front</source>
-        <translation type="vanished">Kallfront</translation>
+        <translation>Kallfront</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Warm front</source>
-        <translation type="vanished">Varmfront</translation>
+        <translation>Varmfront</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Occlusion</source>
-        <translation type="vanished">Ocklusion</translation>
+        <translation>Ocklusion</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Warm occlusion</source>
-        <translation type="vanished">Varmfronts ocklusion</translation>
+        <translation>Varmfronts ocklusion</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Stationary front</source>
-        <translation type="vanished">Stationär front</translation>
+        <translation>Stationär front</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Trough</source>
-        <translation type="vanished">Tråg</translation>
+        <translation>Tråg</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Squall line</source>
-        <translation type="vanished">Bylinje</translation>
+        <translation>Bylinje</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Low pressure</source>
-        <translation type="vanished">Lågtryck</translation>
+        <translation>Lågtryck</translation>
     </message>
     <message>
+        <location line="-9"/>
         <source>Cold occlusion</source>
-        <translation type="vanished">Kallfronts ocklusion</translation>
+        <translation>Kallfronts ocklusion</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+37"/>
         <source>Significant weather</source>
-        <translation type="vanished">Signifikant väder</translation>
+        <translation>Signifikant väder</translation>
     </message>
     <message>
+        <location line="-36"/>
         <source>Significant weather TURB/VA/RC</source>
-        <translation type="vanished">Signifikant väder TURB/VA/RC</translation>
+        <translation>Signifikant väder TURB/VA/RC</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Significant weather ICE/TCU/CB</source>
-        <translation type="vanished">Signifikant väder ICE/TCU/CB</translation>
+        <translation>Signifikant väder ICE/TCU/CB</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>High pressure</source>
-        <translation type="vanished">Högtryck</translation>
+        <translation>Högtryck</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Cold</source>
-        <translation type="vanished">Kallt</translation>
+        <translation>Kallt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Warm</source>
-        <translation type="vanished">Varmt</translation>
+        <translation>Varmt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Fog</source>
-        <translation type="vanished">Dimma</translation>
+        <translation>Dimma</translation>
     </message>
     <message>
+        <location line="+27"/>
         <source>Haze</source>
-        <translation type="vanished">Dis</translation>
+        <translation>Dis</translation>
     </message>
     <message>
+        <location line="-26"/>
         <source>Drizzle </source>
-        <translation type="vanished">Duggregn</translation>
+        <translation>Duggregn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Freezing drizzle</source>
-        <translation type="vanished">Underkylt duggregn</translation>
+        <translation>Underkylt duggregn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Freezing rain</source>
-        <translation type="vanished">Underkylt regn</translation>
+        <translation>Underkylt regn</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+21"/>
         <source>Showers</source>
-        <translation type="vanished">Skurar</translation>
+        <translation>Skurar</translation>
     </message>
     <message>
+        <location line="-20"/>
         <source>Rain showers</source>
-        <translation type="vanished">Regnskurar</translation>
+        <translation>Regnskurar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Sleet showers</source>
-        <translation type="vanished">Byar av snöblandat regn</translation>
+        <translation>Byar av snöblandat regn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Hail showers</source>
-        <translation type="vanished">Hagelskurar</translation>
+        <translation>Hagelskurar</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Thunderstorm</source>
-        <translation type="vanished">Åska</translation>
+        <translation>Åska</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Thunderstorm with hail</source>
-        <translation type="vanished">Åska med hagel</translation>
+        <translation>Åska med hagel</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Snow</source>
-        <translation type="vanished">Snö</translation>
+        <translation>Snö</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hurricane</source>
-        <translation type="vanished">Tropisk orkan</translation>
+        <translation>Tropisk orkan</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Disk</source>
-        <translation type="vanished">Skiva</translation>
+        <translation>Skiva</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cross</source>
-        <translation type="vanished">Kryss</translation>
+        <translation>Kryss</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Text</source>
-        <translation type="vanished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Precipitation</source>
-        <translation type="vanished">Nederbörd</translation>
+        <translation>Nederbörd</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Clouds</source>
-        <translation type="vanished">Moln</translation>
+        <translation>Moln</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Ice</source>
-        <translation type="vanished">Is</translation>
+        <translation>Is</translation>
     </message>
     <message>
+        <location line="-20"/>
         <source>Snow showers</source>
-        <translation type="vanished">Snöbyar</translation>
+        <translation>Snöbyar</translation>
     </message>
     <message>
+        <location line="+23"/>
         <source>Generic area</source>
-        <translation type="vanished">Allmänt område</translation>
+        <translation>Allmänt område</translation>
     </message>
     <message>
+        <location line="-19"/>
         <source>Rain</source>
-        <translation type="vanished">Regn</translation>
+        <translation>Regn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Sleet</source>
-        <translation type="vanished">Snöblandat regn</translation>
+        <translation>Snöblandat regn</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Reduced visibility</source>
-        <translation type="vanished">Nedsatt sikt / låga moln</translation>
+        <translation>Nedsatt sikt / låga moln</translation>
     </message>
     <message>
+        <location line="-58"/>
         <source>Change value</source>
-        <translation type="vanished">Ändra värde</translation>
+        <translation>Ändra värde</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Move</source>
-        <translation type="vanished">Flytta</translation>
+        <translation>Flytta</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Change gradient</source>
-        <translation type="vanished">Ändra gradient</translation>
+        <translation>Ändra gradient</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, without smooth</source>
-        <translation type="vanished">Linje, utan utjämning</translation>
+        <translation>Linje, utan utjämning</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, with smooth</source>
-        <translation type="vanished">Linje, med utjämning</translation>
+        <translation>Linje, med utjämning</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, limited, without smooth</source>
-        <translation type="vanished">Linje, begänsad, utan utjämning</translation>
+        <translation>Linje, begänsad, utan utjämning</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, limited, with smooth</source>
-        <translation type="vanished">Linje, begränsad, med utjämning</translation>
+        <translation>Linje, begränsad, med utjämning</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Smooth</source>
-        <translation type="vanished">Utjämna</translation>
+        <translation>Utjämna</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Replace undefined values</source>
-        <translation type="vanished">Ersätt odefinierade värden</translation>
+        <translation>Ersätt odefinierade värden</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line</source>
-        <translation type="vanished">Linje</translation>
+        <translation>Linje</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Copy value</source>
-        <translation type="vanished">Kopiera värde</translation>
+        <translation>Kopiera värde</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Set udefined</source>
-        <translation type="vanished">Sätt till odefinierat värde</translation>
+        <translation>Sätt till odefinierat värde</translation>
     </message>
     <message>
+        <location line="+38"/>
         <source>EditText</source>
-        <translation type="vanished">Editera text</translation>
+        <translation>Editera text</translation>
     </message>
     <message>
         <source>Decreasing pressure</source>
@@ -1059,36 +1471,44 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Stigande lufttryck</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Drifting snow</source>
-        <translation type="vanished">Snödrev</translation>
+        <translation>Snödrev</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>VMC-line</source>
-        <translation type="vanished">VMC-linje</translation>
+        <translation>VMC-linje</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>CAT-line</source>
-        <translation type="vanished">CAT-linje</translation>
+        <translation>CAT-linje</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line of thunderstorms red</source>
-        <translation type="vanished">Åsklinje röd</translation>
+        <translation>Åsklinje röd</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line of thunderstorms green</source>
-        <translation type="vanished">Åsklinje grön</translation>
+        <translation>Åsklinje grön</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line of thunderstorms blue</source>
-        <translation type="vanished">Åsklinje blå</translation>
+        <translation>Åsklinje blå</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Graupel</source>
-        <translation type="vanished">Kornsnö</translation>
+        <translation>Kornsnö</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Jet stream</source>
-        <translation type="vanished">Jet ström</translation>
+        <translation>Jet ström</translation>
     </message>
 </context>
 <context>
@@ -1136,36 +1556,69 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>EditItemManager</name>
     <message>
+        <location filename="../../../src/diEditItemManager.cc" line="+124"/>
         <source>Cut</source>
-        <translation type="vanished">Klipp ut</translation>
+        <translation>Klipp ut</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Ctrl+X</source>
-        <translation type="vanished">Ctrl-X</translation>
+        <translation>Ctrl-X</translation>
     </message>
     <message>
+        <location line="-3"/>
         <source>Copy</source>
-        <translation type="vanished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
+        <location line="-1"/>
         <source>Select All</source>
-        <translation type="obsolete">Markera allt</translation>
+        <translation type="unfinished">Markera allt</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Paste</source>
-        <translation type="vanished">Klistra in</translation>
+        <translation>Klistra in</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+PgDown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Raise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+PgUp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Join</source>
-        <translation type="vanished">Slå samman</translation>
+        <translation>Slå samman</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Unjoin</source>
-        <translation type="vanished">Ta isär</translation>
+        <translation>Ta isär</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Ctrl+J</source>
-        <translation type="vanished">Ctrl+J</translation>
+        <translation>Ctrl+J</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>SIGWX</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Toggle reversed</source>
@@ -1180,36 +1633,52 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Visa egenskaper</translation>
     </message>
     <message>
+        <location line="-24"/>
+        <source>Toggle Reversed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Ctrl+R</source>
-        <translation type="vanished">Ctrl+R</translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Edit Style...</source>
         <translation type="obsolete">Editera Stil</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Select</source>
-        <translation type="vanished">&amp;Välj</translation>
+        <translation>&amp;Välj</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Create &amp;Polyline</source>
-        <translation type="vanished">Skapa &amp;Polyline</translation>
+        <translation>Skapa &amp;Polyline</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Create &amp;Symbol</source>
-        <translation type="vanished">Skapa &amp;Symbol</translation>
+        <translation>Skapa &amp;Symbol</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Text</source>
-        <translation type="vanished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <source>Composite</source>
         <translation type="obsolete">Komposit</translation>
     </message>
     <message>
+        <location line="+1488"/>
         <source>To</source>
-        <translation type="vanished">Till</translation>
+        <translation>Till</translation>
     </message>
 </context>
 <context>
@@ -1219,32 +1688,46 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Editera del</translation>
     </message>
     <message>
+        <location filename="../../../src/EditItems/editcomposite.cc" line="+51"/>
+        <source>Edit composite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+154"/>
         <source>Edit Item</source>
-        <translation type="vanished">Editera del</translation>
+        <translation>Editera del</translation>
     </message>
 </context>
 <context>
     <name>EditItem_PolyLine::PolyLine</name>
     <message>
+        <location filename="../../../src/EditItems/editpolyline.cc" line="+45"/>
         <source>Add point</source>
-        <translation type="vanished">Lägg till punkt</translation>
+        <translation>Lägg till punkt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Remove point</source>
-        <translation type="vanished">Ta bort punkt</translation>
+        <translation>Ta bort punkt</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EditItem_Text::Text</name>
     <message>
+        <location filename="../../../src/EditItems/edittext.cc" line="+44"/>
         <source>Edit text</source>
-        <translation type="vanished">Editera text</translation>
+        <translation>Editera text</translation>
     </message>
 </context>
 <context>
     <name>EditItems::DrawingDialog</name>
     <message>
-        <location filename="../../../src/EditItems/drawingdialog.cc" line="+57"/>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="-775"/>
         <source></source>
         <comment>See the Qt Linguist manual for the reasons for this workaround.</comment>
         <translation></translation>
@@ -1300,8 +1783,9 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>EditItems::ToolBar</name>
     <message>
+        <location filename="../../../src/EditItems/toolbar.cc" line="+97"/>
         <source>Paint Operations</source>
-        <translation type="vanished">Tecknings kommandon</translation>
+        <translation>Tecknings kommandon</translation>
     </message>
 </context>
 <context>
@@ -1349,115 +1833,152 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>EditNewDialog</name>
     <message>
+        <location filename="../../../src/qtEditNewDialog.cc" line="+71"/>
         <source>New product</source>
-        <translation type="vanished">Ny produkt</translation>
+        <translation>Ny produkt</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Product type:</source>
-        <translation type="vanished">Produkttyp:</translation>
+        <translation>Produkttyp:</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Product Id:</source>
-        <translation type="vanished">ProduktId:</translation>
+        <translation>ProduktId:</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Make product from:</source>
-        <translation type="vanished">Gör produkt från:</translation>
+        <translation>Gör produkt från:</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Objects</source>
-        <translation type="vanished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
+        <location line="+51"/>
         <source>Product Ids to combine:</source>
-        <translation type="vanished">ProduktId som skall kombineras:</translation>
+        <translation>ProduktId som skall kombineras:</translation>
     </message>
     <message>
+        <location line="+26"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+430"/>
+        <location line="+26"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
+        <location line="-537"/>
+        <location line="+351"/>
         <source>No startobjects</source>
-        <translation type="vanished">Inga startobjekt</translation>
+        <translation>Inga startobjekt</translation>
     </message>
     <message>
+        <location line="-351"/>
+        <location line="+375"/>
         <source>Field undefined</source>
-        <translation type="vanished">Odefinerat fält</translation>
+        <translation>Odefinerat fält</translation>
     </message>
     <message>
+        <location line="-363"/>
         <source>Product validity time:</source>
-        <translation type="vanished">Produktens giltighetstid:</translation>
+        <translation>Produktens giltighetstid:</translation>
     </message>
     <message>
+        <location line="+23"/>
         <source>Combine products valid at:</source>
-        <translation type="vanished">Kombinera produkter för tid:</translation>
+        <translation>Kombinera produkter för tid:</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Product validity time</source>
-        <translation type="vanished">Produktens giltighetstid</translation>
+        <translation>Produktens giltighetstid</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+108"/>
         <source>Time undefined</source>
-        <translation type="vanished">Tid odefinerad</translation>
+        <translation>Tid odefinerad</translation>
     </message>
     <message>
+        <location line="-87"/>
         <source>Combine</source>
-        <translation type="vanished">Kombinera</translation>
+        <translation>Kombinera</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+35"/>
+        <location line="+82"/>
         <source>OK Start</source>
-        <translation type="vanished">OK Start</translation>
+        <translation>OK Start</translation>
     </message>
     <message>
+        <location line="-80"/>
+        <location line="+82"/>
         <source>OK Combine</source>
-        <translation type="vanished">OK kombinera</translation>
+        <translation>OK kombinera</translation>
     </message>
     <message>
+        <location line="-144"/>
+        <location line="+101"/>
         <source>None</source>
-        <translation type="vanished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
+        <location line="+374"/>
         <source>Product made earlier than normal!</source>
-        <translation type="vanished">Produkten skapad tidigare än normalt!</translation>
+        <translation>Produkten skapad tidigare än normalt!</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Product made later than normal!</source>
-        <translation type="vanished">Produkten skapad senare än normalt!</translation>
+        <translation>Produkten skapad senare än normalt!</translation>
     </message>
     <message>
+        <location line="-22"/>
+        <location line="+26"/>
         <source>Product time</source>
-        <translation type="vanished">Produkttid</translation>
+        <translation>Produkttid</translation>
     </message>
     <message>
+        <location line="-25"/>
+        <location line="+26"/>
         <source>Continue</source>
-        <translation type="vanished">Fortsätt</translation>
+        <translation>Fortsätt</translation>
     </message>
     <message>
+        <location line="-579"/>
         <source>Normal</source>
-        <translation type="vanished">Normal</translation>
+        <translation>Normal</translation>
     </message>
 </context>
 <context>
     <name>EditText</name>
     <message>
+        <location filename="../../../src/qtEditText.cc" line="+103"/>
         <source>Write text for editing</source>
-        <translation type="vanished">Skriv text för editering</translation>
+        <translation>Skriv text för editering</translation>
     </message>
     <message>
+        <location line="+38"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -1550,16 +2071,132 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+79"/>
+        <source>E.g. diana.png or diana.pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>E.g. diana_%1.png or diana_%1.pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>E.g. diana.gif</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>E.g. diana.avi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+188"/>
+        <source>File(s)</source>
+        <translation type="unfinished">Fil(er)</translation>
+    </message>
+    <message>
+        <location line="+82"/>
+        <source>Select image filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Select image filename pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+11"/>
+        <source>Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>PDF Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Select animated image filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Select movie filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Movies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>All</source>
-        <translation type="obsolete">Alla</translation>
+        <translation type="unfinished">Alla</translation>
     </message>
     <message>
+        <location line="+96"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Invalid filename has been changed, please check and press start again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+280"/>
         <source>Error</source>
-        <translation type="obsolete">Feil</translation>
+        <translation type="unfinished">Feil</translation>
     </message>
     <message>
+        <location line="-280"/>
+        <source>Could not create temporary directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+246"/>
+        <location line="+31"/>
         <source>Done</source>
-        <translation type="vanished">Klar</translation>
+        <translation>Klar</translation>
+    </message>
+    <message>
+        <location line="-31"/>
+        <source>Image saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Making animation</source>
+        <translation type="unfinished">Skapar animation</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Creating animation...</source>
+        <translation type="unfinished">Skapa animation…</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Hide</source>
+        <translation type="unfinished">Dölj</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Animation completed.</source>
+        <translation type="unfinished">Animation klar.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Problem with creating animation.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1604,308 +2241,423 @@ Vil du spara innan du avslutar?</translation>
         <source>Ctrl+N</source>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
+    <message>
+        <location filename="../../../src/export/qtExportImagePreview.cc" line="+52"/>
+        <source>Zoom: %1 %</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FieldDialog</name>
     <message>
+        <location filename="../../../src/qtFieldDialog.cc" line="+182"/>
+        <location line="+110"/>
         <source>Fields</source>
-        <translation type="vanished">Fält</translation>
+        <translation>Fält</translation>
     </message>
     <message>
         <source>Model group</source>
         <translation type="obsolete">Modellgrupp</translation>
     </message>
     <message>
+        <location line="-37"/>
         <source>Models</source>
-        <translation type="vanished">Modeller</translation>
+        <translation>Modeller</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Reference time</source>
-        <translation type="vanished">Referenstid</translation>
+        <translation>Referenstid</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Field group</source>
-        <translation type="vanished">Fältgrupp</translation>
+        <translation>Fältgrupp</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Selected fields</source>
-        <translation type="vanished">Valda fält</translation>
+        <translation>Valda fält</translation>
     </message>
     <message>
+        <location line="+74"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="-4"/>
         <source>Copy</source>
-        <translation type="vanished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Delete all</source>
-        <translation type="vanished">Ta bort allt</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Model</source>
-        <translation type="vanished">Modell</translation>
+        <translation>Modell</translation>
     </message>
     <message>
+        <location line="+25"/>
         <source>Plot type</source>
-        <translation type="vanished">Plottype</translation>
+        <translation>Plottype</translation>
     </message>
     <message>
+        <location line="+14"/>
+        <location line="+401"/>
         <source>Line width</source>
-        <translation type="vanished">Linjebredd</translation>
+        <translation>Linjebredd</translation>
     </message>
     <message>
+        <location line="-395"/>
+        <location line="+396"/>
         <source>Line type</source>
-        <translation type="vanished">Linjetype</translation>
+        <translation>Linjetype</translation>
     </message>
     <message>
+        <location line="-390"/>
+        <location line="+382"/>
         <source>Line interval</source>
-        <translation type="vanished">Linjeintervall</translation>
+        <translation>Linjeintervall</translation>
     </message>
     <message>
+        <location line="-376"/>
         <source>Density</source>
-        <translation type="vanished">Täthet</translation>
+        <translation>Täthet</translation>
     </message>
     <message>
+        <location line="-75"/>
+        <location line="+82"/>
         <source>Unit</source>
-        <translation type="vanished">Enhet</translation>
+        <translation>Enhet</translation>
     </message>
     <message>
+        <location line="-47"/>
         <source>Default</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Minus</source>
-        <translation type="vanished">Minus</translation>
+        <translation>Minus</translation>
     </message>
     <message>
+        <location line="+49"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>All time steps</source>
-        <translation type="vanished">Alla tidssteg</translation>
+        <translation>Alla tidssteg</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&lt;&lt;Less</source>
-        <translation type="vanished">&lt;&lt;Mindre</translation>
+        <translation>&lt;&lt;Mindre</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>More&gt;&gt;</source>
-        <translation type="vanished">Mer&gt;&gt;</translation>
+        <translation>Mer&gt;&gt;</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+138"/>
         <source>Show predefined plots or all parameters from file</source>
-        <translation type="vanished">Visa fördefinierade plottar eller alla parametrar från fil</translation>
+        <translation>Visa fördefinierade plottar eller alla parametrar från fil</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>move selected field up</source>
-        <translation type="vanished">flytta valt fält upp</translation>
+        <translation>flytta valt fält upp</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>move selected field down</source>
-        <translation type="vanished">flytta valt fält ner</translation>
+        <translation>flytta valt fält ner</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>delete selected field</source>
-        <translation type="vanished">ta bort valt fält</translation>
+        <translation>ta bort valt fält</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>delete all selected fields</source>
-        <translation type="vanished">ta bort alla valda fält</translation>
+        <translation>ta bort alla valda fält</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>copy field</source>
-        <translation type="vanished">kopiera fält</translation>
+        <translation>kopiera fält</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>reset plot options</source>
-        <translation type="vanished">återställ plotinställningar</translation>
+        <translation>återställ plotinställningar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>selected field minus the field above</source>
-        <translation type="vanished">välj fält att minska med fältet över</translation>
+        <translation>välj fält att minska med fältet över</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>change model/termin</source>
-        <translation type="vanished">ändra modell/termin</translation>
+        <translation>ändra modell/termin</translation>
     </message>
     <message>
+        <location line="+448"/>
         <source>Values</source>
-        <translation type="vanished">Värden</translation>
+        <translation>Värden</translation>
     </message>
     <message>
+        <location line="-447"/>
         <source>all time steps / only common time steps</source>
-        <translation type="vanished">alla tider / gemensamma tider</translation>
+        <translation>alla tider / gemensamma tider</translation>
     </message>
     <message>
+        <location line="-457"/>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+104"/>
+        <source>Type to filter model names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+356"/>
         <source>numbers on the contour lines</source>
-        <translation type="vanished">Siffror på konturlinjen</translation>
+        <translation>Siffror på konturlinjen</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Size of numbers on the countour lines and size of values in the plot type &quot;value&quot;</source>
-        <translation type="vanished">Storlek på siffrorna på konturlinjerna och storlek på plottning av &quot;värden&quot;</translation>
+        <translation>Storlek på siffrorna på konturlinjerna och storlek på plottning av &quot;värden&quot;</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Value precision, used in the plot type &quot;value&quot;</source>
-        <translation type="vanished">Noggranhet, används vid plottyp &quot;värde&quot;</translation>
+        <translation>Noggranhet, används vid plottyp &quot;värde&quot;</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+2"/>
         <source>number of colours in the palette</source>
-        <translation type="vanished">antal färger i paletten</translation>
+        <translation>antal färger i paletten</translation>
     </message>
     <message>
+        <location line="-1"/>
         <source>Palette for values below basis</source>
-        <translation type="vanished">Palett för värden under basnivå</translation>
+        <translation>Palett för värden under basnivå</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour of pattern</source>
-        <translation type="vanished">Färg på mönstret</translation>
+        <translation>Färg på mönstret</translation>
     </message>
     <message>
+        <location line="+21"/>
         <source>Min,max</source>
-        <translation type="vanished">Min,max</translation>
+        <translation>Min,max</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Size</source>
-        <translation type="vanished">Storlek</translation>
+        <translation>Storlek</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Radius</source>
-        <translation type="vanished">Radie</translation>
+        <translation>Radie</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Smooth lines</source>
-        <translation type="vanished">Utjämna linjer</translation>
+        <translation>Utjämna linjer</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+11"/>
+        <location line="+35"/>
+        <location line="+96"/>
+        <location line="+7"/>
+        <location line="+15"/>
+        <location line="+16"/>
+        <location line="+21"/>
+        <location line="+1518"/>
         <source>Off</source>
-        <translation type="vanished">Av</translation>
+        <translation>Av</translation>
     </message>
     <message>
+        <location line="-1713"/>
         <source>Smooth fields</source>
-        <translation type="vanished">Utjämna fält</translation>
+        <translation>Utjämna fält</translation>
     </message>
     <message>
+        <location line="+35"/>
         <source>Grid lines</source>
-        <translation type="vanished">Gridlinjer</translation>
+        <translation>Gridlinjer</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Time offset</source>
-        <translation type="vanished">Tidsavvikelse</translation>
+        <translation>Tidsavvikelse</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+10"/>
         <source> hour(s)</source>
-        <translation type="vanished"> timma(r)</translation>
+        <translation> timma(r)</translation>
     </message>
     <message>
+        <location line="-5"/>
         <source>Time diff.</source>
-        <translation type="vanished">Tidsskillnad.</translation>
+        <translation>Tidsskillnad.</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Undefined</source>
-        <translation type="vanished">Udefinierad</translation>
+        <translation>Udefinierad</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Unmarked</source>
-        <translation type="vanished">Omarkerad</translation>
+        <translation>Omarkerad</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Coloured</source>
-        <translation type="vanished">Färgad</translation>
+        <translation>Färgad</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Lines</source>
-        <translation type="vanished">Linjer</translation>
+        <translation>Linjer</translation>
     </message>
     <message>
+        <location line="+21"/>
         <source>Numbers</source>
-        <translation type="vanished">Tal på linje</translation>
+        <translation>Tal på linje</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Palette</source>
-        <translation type="vanished">Palett</translation>
+        <translation>Palett</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Palette (-)</source>
-        <translation type="vanished">Palett (-)</translation>
+        <translation>Palett (-)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Pattern</source>
-        <translation type="vanished">Mönster</translation>
+        <translation>Mönster</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Alpha</source>
-        <translation type="vanished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Extra contour lines</source>
-        <translation type="vanished">Extra konturlinjer</translation>
+        <translation>Extra konturlinjer</translation>
     </message>
     <message>
+        <location line="-399"/>
+        <location line="+400"/>
         <source>Line colour</source>
-        <translation type="vanished">Linjefärg</translation>
+        <translation>Linjefärg</translation>
     </message>
     <message>
+        <location line="-527"/>
         <source>Predefined plots</source>
-        <translation type="vanished">Fördefinierade plottningar</translation>
+        <translation>Fördefinierade plottningar</translation>
     </message>
     <message>
+        <location line="+529"/>
+        <location line="+3"/>
         <source>Basis value</source>
-        <translation type="vanished">Basvärde</translation>
+        <translation>Basvärde</translation>
     </message>
     <message>
+        <location line="-2"/>
+        <location line="+3"/>
         <source>Min</source>
-        <translation type="vanished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
+        <location line="-2"/>
+        <location line="+3"/>
         <source>Max</source>
-        <translation type="vanished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Repeat</source>
-        <translation type="vanished">Repetera</translation>
+        <translation>Repetera</translation>
     </message>
     <message>
+        <location line="+26"/>
+        <location line="+15"/>
+        <location line="+13"/>
         <source>Auto</source>
-        <translation type="vanished">Auto</translation>
+        <translation>Auto</translation>
     </message>
     <message>
+        <location line="+44"/>
         <source>Log</source>
-        <translation type="vanished">Logga</translation>
+        <translation>Logga</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>Zero line</source>
-        <translation type="vanished">Noll-linje</translation>
+        <translation>Noll-linje</translation>
     </message>
     <message>
+        <location line="-624"/>
         <source>Level</source>
-        <translation type="vanished">Nivå</translation>
+        <translation>Nivå</translation>
     </message>
     <message>
+        <location line="+492"/>
         <source>Table</source>
-        <translation type="vanished">Tabell</translation>
+        <translation>Tabell</translation>
     </message>
     <message>
+        <location line="-464"/>
         <source>Type</source>
-        <translation type="vanished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
+        <location line="-172"/>
         <source>EDIT</source>
-        <translation type="vanished">EDIT</translation>
+        <translation>EDIT</translation>
     </message>
     <message>
         <source>EPS Probability</source>
@@ -1964,40 +2716,57 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Yta m.m.</translation>
     </message>
     <message>
+        <location line="+440"/>
         <source>Undef colour</source>
-        <translation type="vanished">Odefinerad färg</translation>
+        <translation>Odefinerad färg</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Undef linewidth</source>
-        <translation type="vanished">Odefinerad linjetjocklek</translation>
+        <translation>Odefinerad linjetjocklek</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Undef linetype</source>
-        <translation type="vanished">Odefinerad linjetyp</translation>
+        <translation>Odefinerad linjetyp</translation>
     </message>
     <message>
+        <location line="+192"/>
         <source>Three colours</source>
-        <translation type="vanished">Tre färger</translation>
+        <translation>Tre färger</translation>
     </message>
     <message>
+        <location line="-195"/>
         <source>Grid lines, 1=all</source>
-        <translation type="vanished">Gridlinjer, 1=alla</translation>
+        <translation>Gridlinjer, 1=alla</translation>
     </message>
     <message>
+        <location line="+103"/>
         <source>Grid value</source>
-        <translation type="vanished">Gridvärden</translation>
+        <translation>Gridvärden</translation>
     </message>
     <message>
+        <location line="-317"/>
         <source>off</source>
-        <translation type="vanished">av</translation>
+        <translation>av</translation>
     </message>
     <message>
+        <location line="+209"/>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
-        <translation type="vanished">Gridvärden, men bara när gridpunkterna är synliga </translation>
+        <translation>Gridvärden, men bara när gridpunkterna är synliga </translation>
     </message>
     <message>
+        <location line="+328"/>
         <source>Frame</source>
-        <translation type="vanished">Ram</translation>
+        <translation>Ram</translation>
+    </message>
+</context>
+<context>
+    <name>FilterDrawingWidget</name>
+    <message>
+        <location filename="../../../src/EditItems/filterdrawingdialog.cc" line="+61"/>
+        <source>Properties</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2024,6 +2793,26 @@ Vil du spara innan du avslutar?</translation>
     <message>
         <source>Edit Attributes</source>
         <translation type="obsolete">Editera attribut</translation>
+    </message>
+</context>
+<context>
+    <name>LineStyleButton</name>
+    <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="+146"/>
+        <source>Style for %1 lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Line style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+46"/>
+        <source>Color: %1
+Width: %2
+Type: %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2073,23 +2862,47 @@ Vil du spara innan du avslutar?</translation>
         <translation>Karta och Område</translation>
     </message>
     <message>
+        <location filename="../../../src/qtMapDialog.cc" line="+82"/>
+        <source>frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>contour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>lowest</source>
-        <translation type="vanished">lägsta</translation>
+        <translation>lägsta</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>auto</source>
-        <translation type="vanished">auto</translation>
+        <translation>auto</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>highest</source>
-        <translation type="vanished">högsta</translation>
+        <translation>högsta</translation>
     </message>
     <message>
+        <location line="+18"/>
         <source>off</source>
-        <translation type="vanished">av</translation>
+        <translation>av</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location filename="../../../src/mapdialog.ui" line="+6"/>
         <source>Area/Projection</source>
         <translation>Område/Projektion</translation>
     </message>
@@ -2261,23 +3074,26 @@ Vil du spara innan du avslutar?</translation>
         <translation type="vanished">Linjetyp</translation>
     </message>
     <message>
+        <location filename="../../../src/qtMapDialog.cc" line="+1"/>
         <source>left</source>
-        <translation type="vanished">till vänster</translation>
+        <translation>till vänster</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>bottom</source>
-        <translation type="vanished">nederst</translation>
+        <translation>nederst</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>both</source>
-        <translation type="vanished">båda</translation>
+        <translation>båda</translation>
     </message>
     <message>
         <source>Longitude lines</source>
         <translation type="vanished">Longitudlinjer</translation>
     </message>
     <message>
-        <location line="-275"/>
+        <location filename="../../../src/mapdialog.ui" line="-275"/>
         <source>Show longitude-lines on the map</source>
         <translation>Visa longitudlinjer på kartan</translation>
     </message>
@@ -2326,233 +3142,392 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>MeasurementsDialog</name>
     <message>
+        <location filename="../../../src/qtMeasurementsDialog.cc" line="+62"/>
         <source>Measurements</source>
-        <translation type="vanished">Mätningar</translation>
+        <translation>Mätningar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Clear</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Avsluta</translation>
+        <translation>Avsluta</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Start:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+38"/>
+        <source>Lat:</source>
+        <translation type="unfinished">Lat:</translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <location line="+37"/>
+        <source>Date:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-29"/>
+        <location line="+37"/>
+        <source>Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-29"/>
+        <source>End:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>00°00&apos;N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Lon:</source>
+        <translation type="unfinished">Lon:</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>00°00&apos;W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <location line="+4"/>
+        <location line="+4"/>
+        <source>Velocity:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Distance:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Bearing:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>0 knots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>knots</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ModifyItemsCommand</name>
+    <message>
+        <location filename="../../../src/diEditItemManager.cc" line="+337"/>
+        <source>%1 items removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1 items added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1 items modified</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ObjectDialog</name>
     <message>
+        <location filename="../../../src/qtObjectDialog.cc" line="+73"/>
         <source>Weather Objects</source>
-        <translation type="vanished">Väderobjekt</translation>
+        <translation>Väderobjekt</translation>
     </message>
     <message>
+        <location line="+51"/>
         <source>Fronts</source>
-        <translation type="vanished">Fronter</translation>
+        <translation>Fronter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Symbols</source>
-        <translation type="vanished">Symboler</translation>
+        <translation>Symboler</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Areas</source>
-        <translation type="vanished">Områden</translation>
+        <translation>Områden</translation>
     </message>
     <message>
+        <location line="-8"/>
         <source>Selected files</source>
-        <translation type="vanished">Valda filer</translation>
+        <translation>Valda filer</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>    Time diff.</source>
-        <translation type="vanished">Tidsskillnad</translation>
+        <translation>Tidsskillnad</translation>
     </message>
     <message>
+        <location line="+36"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="-14"/>
         <source>Comments</source>
-        <translation type="vanished">Kommentarer</translation>
+        <translation>Kommentarer</translation>
     </message>
     <message>
+        <location line="-108"/>
         <source>Auto</source>
-        <translation type="vanished">Auto</translation>
+        <translation>Auto</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Time</source>
-        <translation type="vanished">Tid</translation>
+        <translation>Tid</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>File</source>
-        <translation type="vanished">Fil</translation>
+        <translation>Fil</translation>
     </message>
     <message>
+        <location line="+33"/>
         <source>Form</source>
-        <translation type="vanished">Form</translation>
+        <translation>Form</translation>
     </message>
     <message>
+        <location line="+42"/>
         <source>Alpha</source>
-        <translation type="vanished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
+        <location line="+41"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="-18"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
 </context>
 <context>
     <name>ObsDialog</name>
     <message>
+        <location filename="../../../src/qtObsDialog.cc" line="+91"/>
         <source>Observations</source>
-        <translation type="vanished">Observationer</translation>
+        <translation>Observationer</translation>
     </message>
     <message>
+        <location line="+47"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply + Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="-6"/>
         <source>Show all</source>
-        <translation type="vanished">Visa alla</translation>
+        <translation>Visa alla</translation>
     </message>
     <message>
+        <location line="-57"/>
+        <source>Tide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ocean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Other</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
         <source>Show all plot types</source>
-        <translation type="vanished">Visa alla plottyper</translation>
+        <translation>Visa alla plottyper</translation>
     </message>
     <message>
+        <location line="+405"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Delete all</source>
-        <translation type="vanished">Ta bort allt</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
+        <location line="+68"/>
         <source>Save</source>
-        <translation type="vanished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save criteria list</source>
-        <translation type="vanished">Spara kriterielista</translation>
+        <translation>Spara kriterielista</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Name of list to save</source>
-        <translation type="vanished">Namn på listan som skall sparas</translation>
+        <translation>Namn på listan som skall sparas</translation>
     </message>
     <message>
+        <location line="-42"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Limit</source>
-        <translation type="vanished">Gräns</translation>
+        <translation>Gräns</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Precision</source>
-        <translation type="vanished">Precision</translation>
+        <translation>Precision</translation>
     </message>
     <message>
+        <location line="-26"/>
         <source>Plot</source>
-        <translation type="vanished">Plot</translation>
+        <translation>Plot</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour - parameter</source>
-        <translation type="vanished">Färg - parameter</translation>
+        <translation>Färg - parameter</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour - observation</source>
-        <translation type="vanished">Färg - observation</translation>
+        <translation>Färg - observation</translation>
     </message>
     <message>
+        <location line="-18"/>
         <source>List of Criteria</source>
-        <translation type="vanished">Kriterielista</translation>
+        <translation>Kriterielista</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Criteria</source>
-        <translation type="vanished">Kriterier</translation>
+        <translation>Kriterier</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Delete selected criteria</source>
-        <translation type="vanished">Ta bort valt kriterium</translation>
+        <translation>Ta bort valt kriterium</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Delete all criteria</source>
-        <translation type="vanished">Ta bort alla kriterier i listan</translation>
+        <translation>Ta bort alla kriterier i listan</translation>
     </message>
     <message>
+        <location line="+22"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
-        <translation type="vanished">Plotta observationer som uppfyller alla kriterier för minst en parameter</translation>
+        <translation>Plotta observationer som uppfyller alla kriterier för minst en parameter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
-        <translation type="vanished">Plotta en parameter i vald färg om den möter minst ett kriterium för denna parameter</translation>
+        <translation>Plotta en parameter i vald färg om den möter minst ett kriterium för denna parameter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
-        <translation type="vanished">Plotta hela observationen i vald färg om en av parametrarna möter minst ett av kriterierna för denna parametern</translation>
+        <translation>Plotta hela observationen i vald färg om en av parametrarna möter minst ett av kriterierna för denna parametern</translation>
     </message>
     <message>
+        <location line="-467"/>
         <source>select plot type</source>
-        <translation type="vanished">välj plottyp</translation>
+        <translation>välj plottyp</translation>
     </message>
     <message>
+        <location line="-25"/>
         <source>Pressure</source>
-        <translation type="vanished">Tryck</translation>
+        <translation>Tryck</translation>
     </message>
     <message>
+        <location line="+478"/>
+        <location line="+18"/>
         <source>Marker</source>
-        <translation type="vanished">Markör</translation>
+        <translation>Markör</translation>
     </message>
     <message>
+        <location line="+13"/>
         <source>Precision of limit</source>
-        <translation type="vanished">Noggranhet för gräns</translation>
+        <translation>Noggranhet för gräns</translation>
     </message>
     <message>
+        <location line="-16"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
-        <translation type="vanished">Plotta vald markör om en parameter möter minst ett kriterium för denna parametern</translation>
+        <translation>Plotta vald markör om en parameter möter minst ett kriterium för denna parametern</translation>
     </message>
 </context>
 <context>
     <name>ObsWidget</name>
     <message>
+        <location filename="../../../src/qtObsWidget.cc" line="+153"/>
         <source>All</source>
-        <translation type="vanished">Alla</translation>
+        <translation>Alla</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>None</source>
-        <translation type="vanished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <source>Depth</source>
@@ -2563,120 +3538,154 @@ Vil du spara innan du avslutar?</translation>
         <translation type="vanished">Trycknivå</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>As field</source>
-        <translation type="vanished">Som fält</translation>
+        <translation>Som fält</translation>
     </message>
     <message>
         <source>deviation</source>
         <translation type="vanished">Avvikelse</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Horisontal orientation</source>
-        <translation type="vanished">Horisontal orientering</translation>
+        <translation>Horisontal orientering</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Align right</source>
-        <translation type="vanished">Justera höger</translation>
+        <translation>Justera höger</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Show all positions</source>
-        <translation type="vanished">Visa alla posisioner</translation>
+        <translation>Visa alla posisioner</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Temperatures as integers</source>
-        <translation type="vanished">Temperaturer i hela grader</translation>
+        <translation>Temperaturer i hela grader</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Wind speed in m/s</source>
-        <translation type="vanished">Wind hastighet i m/s</translation>
+        <translation>Wind hastighet i m/s</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Name of parameter</source>
-        <translation type="vanished">Parameternamn</translation>
+        <translation>Parameternamn</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Selected observation in popup window</source>
-        <translation type="vanished">Vald observation i popup fönster</translation>
+        <translation>Vald observation i popup fönster</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>PPPP - MSLP-field</source>
-        <translation type="vanished">PPPP - MSLP-fält</translation>
+        <translation>PPPP - MSLP-fält</translation>
     </message>
     <message>
         <source>Aireps in all levels</source>
         <translation type="vanished">Aireps i alla nivåer</translation>
     </message>
     <message>
+        <location line="-35"/>
+        <source>Vertical level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+51"/>
         <source>Positions only</source>
-        <translation type="vanished">Bara posisioner</translation>
+        <translation>Bara posisioner</translation>
     </message>
     <message>
+        <location line="+22"/>
         <source>Criterias</source>
-        <translation type="vanished">Kriterier</translation>
+        <translation>Kriterier</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&lt;&lt;Less</source>
-        <translation type="vanished">&lt;&lt;Mindre</translation>
+        <translation>&lt;&lt;Mindre</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>More&gt;&gt;</source>
-        <translation type="vanished">Mer&gt;&gt;</translation>
+        <translation>Mer&gt;&gt;</translation>
     </message>
     <message>
+        <location line="+22"/>
         <source>Density</source>
-        <translation type="vanished">Täthet</translation>
+        <translation>Täthet</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Size</source>
-        <translation type="vanished">Storlek</translation>
+        <translation>Storlek</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Timediff</source>
-        <translation type="vanished">Tidsskillnad</translation>
+        <translation>Tidsskillnad</translation>
     </message>
     <message>
+        <location line="+39"/>
+        <location line="+142"/>
+        <location line="+524"/>
         <source>No priority list</source>
-        <translation type="vanished">Ingen prioritetslista</translation>
+        <translation>Ingen prioritetslista</translation>
     </message>
     <message>
+        <location line="-657"/>
         <source>Sort </source>
-        <translation type="vanished">Sortering</translation>
+        <translation>Sortering</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>No sort criteria</source>
-        <translation type="vanished">Inga kriterier för sortering</translation>
+        <translation>Inga kriterier för sortering</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Asc</source>
-        <translation type="vanished">Ökande</translation>
+        <translation>Ökande</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Desc</source>
-        <translation type="vanished">Fallande</translation>
+        <translation>Fallande</translation>
     </message>
     <message>
+        <location line="+87"/>
         <source>Data type</source>
-        <translation type="vanished">Datatyp</translation>
+        <translation>Datatyp</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>PPPP-MSLP&lt;0</source>
-        <translation type="vanished">PPPP-MSLP&lt;0</translation>
+        <translation>PPPP-MSLP&lt;0</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>PPPP-MSLP&gt;0</source>
-        <translation type="vanished">PPPP-MSLP&gt;0</translation>
+        <translation>PPPP-MSLP&gt;0</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Max time difference</source>
-        <translation type="vanished">Max tidsskillnad</translation>
+        <translation>Max tidsskillnad</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Max value for the slider</source>
-        <translation type="vanished">Maxvärde på dragreglaget</translation>
+        <translation>Maxvärde på dragreglaget</translation>
     </message>
     <message>
+        <location line="-88"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
         <source>All observations (mixing different times)</source>
@@ -2687,44 +3696,53 @@ Vil du spara innan du avslutar?</translation>
         <translation type="vanished">Gäller synoptiska data: Alla observationer i tidsintervallet, observationer med olika terminer blandas</translation>
     </message>
     <message>
+        <location line="+161"/>
         <source>ALL</source>
-        <translation type="vanished">ALLA</translation>
+        <translation>ALLA</translation>
     </message>
     <message>
         <source>Default</source>
         <translation type="vanished">Standardvärde</translation>
     </message>
     <message>
+        <location line="-274"/>
         <source>Quality stations</source>
-        <translation type="vanished">Stationer med god kvalitet (kvalobs)</translation>
+        <translation>Stationer med god kvalitet (kvalobs)</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>WMO stations</source>
-        <translation type="vanished">Stationer med wmo-nummer</translation>
+        <translation>Stationer med wmo-nummer</translation>
     </message>
     <message>
+        <location line="+92"/>
         <source>Priority </source>
-        <translation type="vanished">Prioritet</translation>
+        <translation>Prioritet</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Prioritized only</source>
-        <translation type="vanished">Bara prioriterade</translation>
+        <translation>Bara prioriterade</translation>
     </message>
     <message>
+        <location line="+103"/>
         <source>Only show stations with quality flag good.</source>
-        <translation type="vanished">Visa bara stationer med bra kvalitetsflagga (kvalobs).</translation>
+        <translation>Visa bara stationer med bra kvalitetsflagga (kvalobs).</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Only show stations with wmo number</source>
-        <translation type="vanished">Visa bara stationer med wmo-nummer</translation>
+        <translation>Visa bara stationer med wmo-nummer</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Show only observations in the priority list</source>
-        <translation type="vanished">Visa bara observationer från prioritetslistan</translation>
+        <translation>Visa bara observationer från prioritetslistan</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Colour of the observations</source>
-        <translation type="vanished">Färg på observationen</translation>
+        <translation>Färg på observationen</translation>
     </message>
 </context>
 <context>
@@ -2749,31 +3767,201 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>PropertiesEditor</name>
     <message>
+        <location filename="../../../src/EditItems/properties.cc" line="+307"/>
         <source>Item Properties</source>
-        <translation type="obsolete">Egenskaper</translation>
+        <translation type="unfinished">Egenskaper</translation>
     </message>
     <message>
+        <location line="+14"/>
+        <source>Wind speed (knots)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Beginning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Time</source>
-        <translation type="obsolete">Tid</translation>
+        <translation type="unfinished">Tid</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Text</source>
-        <translation type="obsolete">Text</translation>
+        <translation type="unfinished">Text</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Line colour</source>
-        <translation type="obsolete">Linjefärg</translation>
+        <translation type="unfinished">Linjefärg</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line smooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fill colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fill alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fill pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Closed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reversed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1 colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1 alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1 offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2 colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2 alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2 offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Symbol colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Symbol alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Text colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Text alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Corner segments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Corner radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+104"/>
+        <source>No editable properties</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="+266"/>
         <source>Open File</source>
-        <translation type="obsolete">Öppna fil</translation>
+        <translation type="unfinished">Öppna fil</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+32"/>
+        <location line="+12"/>
+        <location line="+20"/>
+        <location line="+14"/>
         <source>KML files (*.kml);; All files (*)</source>
-        <translation type="obsolete">KML filer (*.kml);; Alla filer (*)</translation>
+        <translation type="unfinished">KML filer (*.kml);; Alla filer (*)</translation>
+    </message>
+    <message>
+        <location line="-47"/>
+        <source>Save All Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Save Filtered Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Save Selected Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Save Visible Items</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save File</source>
@@ -2791,361 +3979,453 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>QuickAdmin</name>
     <message>
+        <location filename="../../../src/qtQuickAdmin.cc" line="+129"/>
         <source>&amp;New</source>
-        <translation type="vanished">&amp;Ny</translation>
+        <translation>&amp;Ny</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>New from &amp;file..</source>
-        <translation type="vanished">Ny från &amp;fil..</translation>
+        <translation>Ny från &amp;fil..</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Change name..</source>
-        <translation type="vanished">&amp;Ändra namn..</translation>
+        <translation>&amp;Ändra namn..</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Remove</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Copy</source>
-        <translation type="vanished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
+        <location line="+8"/>
+        <location line="+404"/>
         <source>Paste</source>
-        <translation type="vanished">Klistra in</translation>
+        <translation>Klistra in</translation>
     </message>
     <message>
+        <location line="-385"/>
         <source>Command field</source>
-        <translation type="vanished">Kommandofält</translation>
+        <translation>Kommandofält</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Dynamic options..</source>
-        <translation type="vanished">&amp;Dynamiska val..</translation>
+        <translation>&amp;Dynamiska val..</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
+        <location line="+59"/>
         <source>&amp;New menu..</source>
-        <translation type="vanished">&amp;Ny meny..</translation>
+        <translation>&amp;Ny meny..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Copy menu</source>
-        <translation type="vanished">Kopiera meny</translation>
+        <translation>Kopiera meny</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Remove menu..</source>
-        <translation type="vanished">Ta bort meny..</translation>
+        <translation>Ta bort meny..</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&amp;New plot..</source>
-        <translation type="vanished">&amp;Ny plott..</translation>
+        <translation>&amp;Ny plott..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Copy plot</source>
-        <translation type="vanished">Kopiera plott</translation>
+        <translation>Kopiera plott</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Remove plot</source>
-        <translation type="vanished">Ta bort plott</translation>
+        <translation>Ta bort plott</translation>
     </message>
     <message>
+        <location line="+147"/>
         <source>Make new menu</source>
-        <translation type="vanished">Skapa ny meny</translation>
+        <translation>Skapa ny meny</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new menu with name:</source>
-        <translation type="vanished">Skapa ny meny med namn:</translation>
+        <translation>Skapa ny meny med namn:</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Make new plot</source>
-        <translation type="vanished">Skapa ny plott</translation>
+        <translation>Skapa ny plott</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new plot with name:</source>
-        <translation type="vanished">Skapa ny plott med namn:</translation>
+        <translation>Skapa ny plott med namn:</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Add new menu from file</source>
-        <translation type="vanished">Lägg till ny meny från fil</translation>
+        <translation>Lägg till ny meny från fil</translation>
     </message>
     <message>
+        <location line="+24"/>
         <source>Change menu name</source>
-        <translation type="vanished">Ändra namn på menyn</translation>
+        <translation>Ändra namn på menyn</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <location line="+8"/>
         <source>New name:</source>
-        <translation type="vanished">Nytt namn:</translation>
+        <translation>Nytt namn:</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>Change plot name</source>
-        <translation type="vanished">Ändra plottnamn</translation>
+        <translation>Ändra plottnamn</translation>
     </message>
     <message>
+        <location line="+54"/>
         <source>Paste menu</source>
-        <translation type="vanished">Klistra in meny</translation>
+        <translation>Klistra in meny</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Paste plot</source>
-        <translation type="vanished">Klistra in plott</translation>
+        <translation>Klistra in plott</translation>
     </message>
     <message>
+        <location line="-428"/>
         <source>Edit quickmenus</source>
-        <translation type="vanished">Editera snabbmenyer</translation>
+        <translation>Editera snabbmenyer</translation>
     </message>
     <message>
+        <location line="+339"/>
         <source>Menus (*.quick);;All (*.*)</source>
-        <translation type="vanished">Menyer (*.quick);;Alla (*.*)</translation>
+        <translation>Menyer (*.quick);;Alla (*.*)</translation>
     </message>
 </context>
 <context>
     <name>QuickEditOptions</name>
     <message>
+        <location filename="../../../src/qtQuickEditOptions.cc" line="+66"/>
         <source>Change Dynamic Options</source>
-        <translation type="vanished">Ändra Dynamiska Val</translation>
+        <translation>Ändra Dynamiska Val</translation>
     </message>
     <message>
+        <location line="+27"/>
         <source>&amp;New Key</source>
-        <translation type="vanished">&amp;Ny nyckel</translation>
+        <translation>&amp;Ny nyckel</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Change name..</source>
-        <translation type="vanished">&amp;Ändra namn..</translation>
+        <translation>&amp;Ändra namn..</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Remove</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Options (comma separated)</source>
-        <translation type="vanished">Val (kommaseparerade)</translation>
+        <translation>Val (kommaseparerade)</translation>
     </message>
     <message>
+        <location line="+13"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
+        <location line="+149"/>
         <source>New key</source>
-        <translation type="vanished">Ny nyckel</translation>
+        <translation>Ny nyckel</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new key with name:</source>
-        <translation type="vanished">Skapa ny nyckel med namn:</translation>
+        <translation>Skapa ny nyckel med namn:</translation>
     </message>
     <message>
+        <location line="+18"/>
         <source>New name</source>
-        <translation type="vanished">Nytt namn</translation>
+        <translation>Nytt namn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Change key name:</source>
-        <translation type="vanished">Ändra namn på nyckel:</translation>
+        <translation>Ändra namn på nyckel:</translation>
     </message>
 </context>
 <context>
     <name>QuickMenu</name>
     <message>
+        <location filename="../../../src/qtQuickMenu.cc" line="+189"/>
         <source>&amp;Demo</source>
-        <translation type="vanished">&amp;Demo</translation>
+        <translation>&amp;Demo</translation>
     </message>
     <message>
+        <location line="-86"/>
         <source>&amp;Update..</source>
-        <translation type="vanished">&amp;Uppdatera..</translation>
+        <translation>&amp;Uppdatera..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Update command with current plot</source>
-        <translation type="vanished">Uppdatera kommando med gällande plott</translation>
+        <translation>Uppdatera kommando med gällande plott</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>&amp;Reset..</source>
-        <translation type="vanished">&amp;Återställ..</translation>
+        <translation>&amp;Återställ..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Reset command to original copy</source>
-        <translation type="vanished">Återställ kommando till original kopia</translation>
+        <translation>Återställ kommando till original kopia</translation>
     </message>
     <message>
+        <location line="+55"/>
         <source>Command field</source>
-        <translation type="vanished">Kommandofält</translation>
+        <translation>Kommandofält</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>&amp;Hide</source>
-        <translation type="vanished">&amp;Dölj</translation>
+        <translation>&amp;Dölj</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Command</source>
-        <translation type="vanished">&amp;Kommando</translation>
+        <translation>&amp;Kommando</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>&amp;Help</source>
-        <translation type="vanished">&amp;Hjälp</translation>
+        <translation>&amp;Hjälp</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>&amp;Apply</source>
-        <translation type="vanished">&amp;Utför</translation>
+        <translation>&amp;Utför</translation>
     </message>
     <message>
+        <location line="+340"/>
         <source>History</source>
-        <translation type="vanished">Historia</translation>
+        <translation>Historia</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>History-vcross</source>
-        <translation type="vanished">Historia-vcross</translation>
+        <translation>Historia-vcross</translation>
     </message>
     <message>
+        <location line="+65"/>
+        <location line="+23"/>
         <source>Do you want to replace the content of this menuitem with current plot?</source>
-        <translation type="vanished">Vill du erstatta innehållet i menyvalet med det som visas på kartan?</translation>
+        <translation>Vill du erstatta innehållet i menyvalet med det som visas på kartan?</translation>
     </message>
     <message>
+        <location line="-21"/>
         <source>This is a static/official menuitem, which can be reset to default value.</source>
-        <translation type="vanished">Detta är ett statiskt/officielt menyval, som kan sättas till standardvärde.</translation>
+        <translation>Detta är ett statiskt/officielt menyval, som kan sättas till standardvärde.</translation>
     </message>
     <message>
+        <location line="+23"/>
         <source>The menu name can be automatically created from the underlying data in the plot</source>
-        <translation type="vanished">Menynamnet kan skapas automatiskt från underliggande data i plottningen.</translation>
+        <translation>Menynamnet kan skapas automatiskt från underliggande data i plottningen.</translation>
     </message>
     <message>
+        <location line="-15"/>
         <source>Yes</source>
-        <translation type="vanished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+23"/>
+        <location line="+89"/>
         <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
+        <location line="-91"/>
         <source>Yes, make new menu name</source>
-        <translation type="vanished">Ja, skapa ett nytt menynamn</translation>
+        <translation>Ja, skapa ett nytt menynamn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Yes, keep menu name</source>
-        <translation type="vanished">Ja, behåll menynamnet</translation>
+        <translation>Ja, behåll menynamnet</translation>
     </message>
     <message>
+        <location line="+89"/>
         <source>Replace command with original copy?</source>
-        <translation type="vanished">Ersätt kommando med original kopia?</translation>
+        <translation>Ersätt kommando med original kopia?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="-540"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="-132"/>
         <source>Quickmenu</source>
-        <translation type="vanished">Snabbmeny</translation>
+        <translation>Snabbmeny</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Menus</source>
-        <translation type="vanished">Menyer</translation>
+        <translation>Menyer</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Edit menus..</source>
-        <translation type="vanished">&amp;Editera menyer..</translation>
+        <translation>&amp;Editera menyer..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Menu editor: Copy, change name and sortorder etc. on your own menus</source>
-        <translation type="vanished">Meny editor: Kopiera, ändra namn och sorteringsårdning etc. på dina egna menyer</translation>
+        <translation>Meny editor: Kopiera, ändra namn och sorteringsårdning etc. på dina egna menyer</translation>
     </message>
 </context>
 <context>
     <name>SatDialog</name>
     <message>
+        <location filename="../../../src/qtSatDialog.cc" line="+108"/>
         <source>Time</source>
-        <translation type="vanished">Tid</translation>
+        <translation>Tid</translation>
     </message>
     <message>
+        <location line="-1"/>
         <source>Auto</source>
-        <translation type="vanished">Auto</translation>
+        <translation>Auto</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>File</source>
-        <translation type="vanished">Fil</translation>
+        <translation>Fil</translation>
     </message>
     <message>
+        <location line="-29"/>
         <source>Satellite and radar</source>
-        <translation type="vanished">Satellit</translation>
+        <translation>Satellit</translation>
     </message>
     <message>
+        <location line="+57"/>
         <source>Channels</source>
-        <translation type="vanished">Kanaler</translation>
+        <translation>Kanaler</translation>
     </message>
     <message>
+        <location line="+36"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Add picture</source>
-        <translation type="vanished">Lägg till bild</translation>
+        <translation>Lägg till bild</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Add new picture if any of above settings change</source>
-        <translation type="vanished">Lägg till bild om någon av inställningarna ändras</translation>
+        <translation>Lägg till bild om någon av inställningarna ändras</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Mosaic</source>
-        <translation type="vanished">Mosaik</translation>
+        <translation>Mosaik</translation>
     </message>
     <message>
+        <location line="+22"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&lt;&lt;Less</source>
-        <translation type="vanished">&lt;&lt;Mindre</translation>
+        <translation>&lt;&lt;Mindre</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>More&gt;&gt;</source>
-        <translation type="vanished">Mer&gt;&gt;</translation>
+        <translation>Mer&gt;&gt;</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+398"/>
         <source>Chosen picture</source>
-        <translation type="vanished">Valda bilder</translation>
+        <translation>Valda bilder</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>No longer available on disk</source>
-        <translation type="vanished">Inte längre tillgänglig på disk</translation>
+        <translation>Inte längre tillgänglig på disk</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Satellite dialog - info</source>
-        <translation type="vanished">Satellit dialog - info</translation>
+        <translation>Satellit dialog - info</translation>
     </message>
     <message>
+        <location line="-467"/>
         <source>Selected pictures</source>
-        <translation type="vanished">Valda bilder</translation>
+        <translation>Valda bilder</translation>
     </message>
     <message>
+        <location line="+29"/>
         <source>Delete All</source>
-        <translation type="vanished">Ta bort allt</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
+        <location line="+35"/>
         <source>Apply+hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="-7"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="-14"/>
         <source>Time diff</source>
-        <translation type="vanished">Tidsskillnad</translation>
+        <translation>Tidsskillnad</translation>
     </message>
 </context>
 <context>
@@ -3155,51 +4435,67 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Kutt</translation>
     </message>
     <message>
+        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+70"/>
         <source>Cut</source>
-        <translation type="obsolete">Klipp ut</translation>
+        <translation type="unfinished">Klipp ut</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Alpha cut</source>
-        <translation type="vanished">Beskär alfa</translation>
+        <translation>Beskär alfa</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Alpha</source>
-        <translation type="vanished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Table</source>
-        <translation type="vanished">Tabell</translation>
+        <translation>Tabell</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Colour cut</source>
-        <translation type="vanished">Beskär färger</translation>
+        <translation>Beskär färger</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Standard</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
+        <location line="-57"/>
         <source>Use stretch from first picture</source>
-        <translation type="vanished">Använd utbredning från första bilden</translation>
+        <translation>Använd utbredning från första bilden</translation>
     </message>
 </context>
 <context>
     <name>SetupDialog</name>
     <message>
+        <location filename="../../../src/qtSetupDialog.cc" line="+53"/>
         <source>Setup</source>
-        <translation type="vanished">Setup</translation>
+        <translation>Setup</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Setupfile</source>
-        <translation type="vanished">Setupfil</translation>
+        <translation>Setupfil</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Choose setup file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3216,162 +4512,205 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>SpectrumModelDialog</name>
     <message>
+        <location filename="../../../src/qtSpectrumModelDialog.cc" line="+73"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="-13"/>
         <source>Diana Wavespectrum</source>
-        <translation type="vanished">Diana Vågskeptrum</translation>
+        <translation>Diana Vågskeptrum</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Referencetime</source>
-        <translation type="vanished">Referenstid</translation>
+        <translation>Referenstid</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Selected models</source>
-        <translation type="vanished">Valda modeller</translation>
+        <translation>Valda modeller</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Delete all</source>
-        <translation type="vanished">Ta bort alla</translation>
+        <translation>Ta bort alla</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="-4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
 </context>
 <context>
     <name>SpectrumSetupDialog</name>
     <message>
+        <location filename="../../../src/qtSpectrumSetupDialog.cc" line="+140"/>
         <source>Text</source>
-        <translation type="vanished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Fixed text</source>
-        <translation type="vanished">Fast text</translation>
+        <translation>Fast text</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Frame</source>
-        <translation type="vanished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Spectrum lines</source>
-        <translation type="vanished">Spektrum linjer</translation>
+        <translation>Spektrum linjer</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Spectrum coloured</source>
-        <translation type="vanished">Spektrum färgat</translation>
+        <translation>Spektrum färgat</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Graph line</source>
-        <translation type="vanished">Graf linje</translation>
+        <translation>Graf linje</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Graph coloured</source>
-        <translation type="vanished">Graf färgat</translation>
+        <translation>Graf färgat</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Wind</source>
-        <translation type="vanished">Vind</translation>
+        <translation>Vind</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Max direction</source>
-        <translation type="vanished">Max riktning</translation>
+        <translation>Max riktning</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Max frequency</source>
-        <translation type="vanished">Max frekvens</translation>
+        <translation>Max frekvens</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Background colour</source>
-        <translation type="vanished">Bakgrundsfärg</translation>
+        <translation>Bakgrundsfärg</translation>
     </message>
     <message>
+        <location line="-116"/>
         <source>Diana Wavespectrum - settings</source>
-        <translation type="vanished">Diana Vågspektra - innställningar</translation>
+        <translation>Diana Vågspektra - innställningar</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+46"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line thickness</source>
-        <translation type="vanished">Linjetjocklek</translation>
+        <translation>Linjetjocklek</translation>
     </message>
     <message>
+        <location line="-51"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+49"/>
         <source>On/off</source>
-        <translation type="vanished">Av/på</translation>
+        <translation>Av/på</translation>
     </message>
 </context>
 <context>
     <name>SpectrumWindow</name>
     <message>
+        <location filename="../../../src/qtSpectrumWindow.cc" line="+73"/>
         <source>Diana Wavespectrum</source>
-        <translation type="vanished">Diana Vågspektra</translation>
+        <translation>Diana Vågspektra</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Model</source>
-        <translation type="vanished">Modell</translation>
+        <translation>Modell</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Settings</source>
-        <translation type="vanished">Innställningar</translation>
+        <translation>Innställningar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Print</source>
-        <translation type="vanished">Skriv ut</translation>
+        <translation>Skriv ut</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Save</source>
-        <translation type="vanished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Avsluta</translation>
+        <translation>Avsluta</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Select ensemble member</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
@@ -3385,40 +4724,49 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>StationDialog</name>
     <message>
+        <location filename="../../../src/qtStationDialog.cc" line="+83"/>
         <source>Sets</source>
-        <translation type="vanished">Stationstyper</translation>
+        <translation>Stationstyper</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Chosen Sets</source>
-        <translation type="vanished">Valda stationstyper</translation>
+        <translation>Valda stationstyper</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Show station names</source>
-        <translation type="vanished">Visa stationsnamn</translation>
+        <translation>Visa stationsnamn</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Show station names on the map</source>
-        <translation type="vanished">Visa stationsnamn på kartan</translation>
+        <translation>Visa stationsnamn på kartan</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Reload</source>
-        <translation type="vanished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
         <source>Name</source>
@@ -3432,47 +4780,89 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>StationDialog::Model</name>
     <message>
+        <location line="+318"/>
         <source>Name</source>
-        <translation type="obsolete">Namn</translation>
+        <translation type="unfinished">Namn</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Source</source>
-        <translation type="obsolete">Källa</translation>
+        <translation type="unfinished">Källa</translation>
     </message>
 </context>
 <context>
     <name>StatusGeopos</name>
     <message>
+        <location filename="../../../src/qtStatusGeopos.cc" line="+67"/>
+        <location line="+82"/>
         <source>Lat:</source>
-        <translation type="vanished">Lat:</translation>
+        <translation>Lat:</translation>
     </message>
     <message>
+        <location line="-78"/>
+        <source> 00°000&apos;N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+72"/>
         <source>Lon:</source>
-        <translation type="vanished">Lon:</translation>
+        <translation>Lon:</translation>
     </message>
     <message>
+        <location line="-91"/>
         <source>Lat/Lon degree</source>
-        <translation type="vanished">Lat/Lon-grader</translation>
+        <translation>Lat/Lon-grader</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Lat/Lon decimal</source>
-        <translation type="vanished">Lat/Lon-decimal</translation>
+        <translation>Lat/Lon-decimal</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Proj coordinates</source>
-        <translation type="vanished">Proj-koordinater</translation>
+        <translation>Proj-koordinater</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Grid coordinates</source>
-        <translation type="vanished">Grid-koordinater</translation>
+        <translation>Grid-koordinater</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Area (km2)</source>
-        <translation type="vanished">Yta (km2)</translation>
+        <translation>Yta (km2)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Distance (km)</source>
-        <translation type="vanished">Avstånd (km)</translation>
+        <translation>Avstånd (km)</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>000°000&apos;W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <source>  Mark:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Window:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>  Vert:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source> Horiz:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3493,136 +4883,220 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>TextDialog</name>
     <message>
+        <location filename="../../../src/qtTextDialog.cc" line="+57"/>
         <source>Close window</source>
-        <translation type="vanished">Stäng fönstret</translation>
+        <translation>Stäng fönstret</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Open file..</source>
-        <translation type="vanished">Öppna fil..</translation>
+        <translation>Öppna fil..</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Use fixed font</source>
-        <translation type="vanished">Använd fast font</translation>
+        <translation>Använd fast font</translation>
     </message>
     <message>
+        <location line="+105"/>
         <source>Textfiles (*.txt *.text *.html);;All (*.*)</source>
-        <translation type="vanished">Textfiler (*.txt *.text *.html);;Alla (*.*)</translation>
+        <translation>Textfiler (*.txt *.text *.html);;Alla (*.*)</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Open file</source>
-        <translation type="vanished">Öppna fil</translation>
+        <translation>Öppna fil</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor</name>
+    <message>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="+82"/>
+        <source>Font size:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TextView</name>
     <message>
+        <location filename="../../../src/qtTextView.cc" line="+65"/>
         <source>Print</source>
-        <translation type="vanished">Skriv ut</translation>
+        <translation>Skriv ut</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
 </context>
 <context>
     <name>TimeControl</name>
     <message>
+        <location filename="../../../src/qtTimeControl.cc" line="+67"/>
         <source>Start</source>
-        <translation type="vanished">Start</translation>
+        <translation>Start</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Stop</source>
-        <translation type="vanished">Stopp</translation>
+        <translation>Stopp</translation>
     </message>
     <message>
+        <location line="-9"/>
         <source>Time interval</source>
-        <translation type="vanished">Tidsintervall</translation>
+        <translation>Tidsintervall</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Use time interval limits</source>
-        <translation type="vanished">Använd gränserna för tidsintervall.</translation>
+        <translation>Använd gränserna för tidsintervall.</translation>
     </message>
     <message>
+        <location line="+27"/>
         <source>Time offset</source>
-        <translation type="vanished">Tidsavvikkels</translation>
+        <translation>Tidsavvikkels</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Use time interval from latest timestamp</source>
-        <translation type="vanished">Använd tidsintervall från fg tidssteg</translation>
+        <translation>Använd tidsintervall från fg tidssteg</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Offset</source>
-        <translation type="vanished">Offset</translation>
+        <translation>Offset</translation>
     </message>
     <message>
+        <location line="+44"/>
         <source>Animation speed (sec):</source>
-        <translation type="vanished">Animationshastighet (sek):</translation>
+        <translation>Animationshastighet (sek):</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Data basis for time slider:</source>
-        <translation type="vanished">Tidbas för tidsreglage:</translation>
+        <translation>Tidbas för tidsreglage:</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Field</source>
-        <translation type="vanished">Fält</translation>
+        <translation>Fält</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Satellite</source>
-        <translation type="vanished">Satellit</translation>
+        <translation>Satellit</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Observations</source>
-        <translation type="vanished">Observationer</translation>
+        <translation>Observationer</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Objects</source>
-        <translation type="vanished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical profiles</source>
-        <translation type="vanished">Vertikalprofiler</translation>
+        <translation>Vertikalprofiler</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical cross-sections</source>
-        <translation type="vanished">Vertikalsnitt</translation>
+        <translation>Vertikalsnitt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Wave spectra</source>
-        <translation type="vanished">Vågspektra</translation>
+        <translation>Vågspektra</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Products</source>
-        <translation type="vanished">Produkter</translation>
+        <translation>Produkter</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
+    </message>
+</context>
+<context>
+    <name>TimeNavigator</name>
+    <message>
+        <location filename="../../../src/qtTimeNavigator.cc" line="+35"/>
+        <source>Run Backwards</source>
+        <translation type="unfinished">Kör Bakåt</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Run Forewards</source>
+        <translation type="unfinished">Kör Framåt</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Step Backwards</source>
+        <translation type="unfinished">Ett steg bakåt</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Step Forewards</source>
+        <translation type="unfinished">Ett steg framåt</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Stop</source>
+        <translation type="unfinished">Stopp</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Run in loop</source>
+        <translation type="unfinished">Loopa</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Time control</source>
+        <translation type="unfinished">Tidskontroll</translation>
     </message>
 </context>
 <context>
     <name>TimeSpinbox</name>
     <message>
+        <location filename="../../../src/qtTimeSpinbox.cc" line="+72"/>
         <source>undefined</source>
-        <translation type="vanished">odefinierad</translation>
+        <translation>odefinierad</translation>
+    </message>
+</context>
+<context>
+    <name>ToolBar</name>
+    <message>
+        <location filename="../../../src/EditItems/toolbar.cc" line="+8"/>
+        <source>Hide or show all drawing dialogs</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TrajectoryDialog</name>
     <message>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="+69"/>
         <source>Trajectories</source>
-        <translation type="vanished">Trajektorier</translation>
+        <translation>Trajektorier</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Line width</source>
-        <translation type="vanished">Linjetjocklek</translation>
+        <translation>Linjetjocklek</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Line type</source>
-        <translation type="vanished">Linjetyp</translation>
+        <translation>Linjetyp</translation>
     </message>
     <message>
         <source>Time marks</source>
@@ -3637,127 +5111,165 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">min</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>No. of positions</source>
-        <translation type="obsolete">Antall positioner</translation>
+        <translation type="unfinished">Antall positioner</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Radius</source>
-        <translation type="obsolete">Radie</translation>
+        <translation type="unfinished">Radie</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>km</source>
-        <translation type="obsolete">km</translation>
+        <translation type="unfinished">km</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Select positions on map</source>
-        <translation type="vanished">Välj positioner på kartan</translation>
+        <translation>Välj positioner på kartan</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Lat Lon (deg:min:sec or decimal)</source>
-        <translation type="vanished">Lat Long (deg:min:sek eller decimalt)</translation>
+        <translation>Lat Long (deg:min:sek eller decimalt)</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Delete all</source>
-        <translation type="vanished">Ta bort allt</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Start computation</source>
-        <translation type="vanished">Starta beräkning</translation>
+        <translation>Starta beräkning</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Avsluta</translation>
+        <translation>Avsluta</translation>
     </message>
     <message>
+        <location line="-38"/>
         <source>Write positions (Lat Lon):</source>
-        <translation type="vanished">Skriv positioner (Lat Lon):</translation>
+        <translation>Skriv positioner (Lat Lon):</translation>
     </message>
     <message>
+        <location line="+29"/>
         <source>Print</source>
-        <translation type="vanished">Skriv ut</translation>
+        <translation>Skriv ut</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Print calc. positions to file: trajectory.txt</source>
-        <translation type="vanished">Skriv beräknade positioner till fil: trajectory.txt</translation>
+        <translation>Skriv beräknade positioner till fil: trajectory.txt</translation>
     </message>
     <message>
+        <location line="+179"/>
         <source>No field selected</source>
-        <translation type="vanished">Inget fält valt</translation>
+        <translation>Inget fält valt</translation>
     </message>
 </context>
 <context>
     <name>UffdaDialog</name>
     <message>
+        <location filename="../../../src/qtUffdaDialog.cc" line="+89"/>
         <source>Selected positions</source>
-        <translation type="vanished">Valda positioner</translation>
+        <translation>Valda positioner</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Delete All</source>
-        <translation type="vanished">Ta bort allt</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Save</source>
-        <translation type="vanished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Send</source>
-        <translation type="vanished">Skicka</translation>
+        <translation>Skicka</translation>
     </message>
     <message>
+        <location line="+97"/>
         <source>Data saved in</source>
-        <translation type="vanished">Data sparade i</translation>
+        <translation>Data sparade i</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Data not saved</source>
-        <translation type="vanished">Data ej sparat</translation>
+        <translation>Data ej sparat</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+45"/>
+        <location line="+67"/>
         <source>Uffda - info</source>
-        <translation type="vanished">Uffda - information</translation>
+        <translation>Uffda - information</translation>
     </message>
     <message>
+        <location line="-81"/>
         <source>Data sent to</source>
-        <translation type="vanished">Data skickat till</translation>
+        <translation>Data skickat till</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Check incoming mail for receipt (up to 2 minutes)!</source>
-        <translation type="vanished">Kontrollera innkommande mail for kvittering (tar upptil 2 minuter)!</translation>
+        <translation>Kontrollera innkommande mail for kvittering (tar upptil 2 minuter)!</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>(Data also saved in local file</source>
-        <translation type="vanished">(Data också sparat på lokal fil</translation>
+        <translation>(Data också sparat på lokal fil</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Data not sent to</source>
-        <translation type="vanished">Data ej skickat till</translation>
+        <translation>Data ej skickat till</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Incomplete information</source>
-        <translation type="vanished">Ofullständig information</translation>
+        <translation>Ofullständig information</translation>
+    </message>
+    <message>
+        <location line="+71"/>
+        <source>You have not sent Uffda data !
+ Send before exiting?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You have not sent Uffda data ! 
@@ -3766,20 +5278,24 @@ Send before exiting?</source>
 Vill du skicka innan du avslutar?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Send</source>
-        <translation type="vanished">&amp;Skicka</translation>
+        <translation>&amp;Skicka</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;Skicka ej</translation>
+        <translation>&amp;Skicka ej</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
+        <location line="-268"/>
         <source>Uffda</source>
-        <translation type="vanished">Uffda</translation>
+        <translation>Uffda</translation>
     </message>
 </context>
 <context>
@@ -3832,39 +5348,47 @@ Vill du skicka innan du avslutar?</translation>
         <translation>skriv för att välja plott</translation>
     </message>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossAddPlotDialog.cc" line="+221"/>
         <source>Chosen model: %1</source>
-        <translation type="vanished">Vald modell: %1</translation>
+        <translation>Vald modell: %1</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Chosen reference time: %1</source>
-        <translation type="vanished">Vald referenstid: %1</translation>
+        <translation>Vald referenstid: %1</translation>
     </message>
 </context>
 <context>
     <name>VcrossLayerButton</name>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossLayerButton.cc" line="+25"/>
         <source>Model: %1 Reftime: %2 Field: %3</source>
-        <translation type="vanished">Modell: %1 Reftid: %2 Fält: %3</translation>
+        <translation>Modell: %1 Reftid: %2 Fält: %3</translation>
     </message>
     <message>
+        <location line="+26"/>
         <source>Style</source>
-        <translation type="vanished">Utseende</translation>
+        <translation>Utseende</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Show/Hide</source>
-        <translation type="vanished">Visa/Dölj</translation>
+        <translation>Visa/Dölj</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Up</source>
-        <translation type="vanished">Upp</translation>
+        <translation>Upp</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Down</source>
-        <translation type="vanished">Ned</translation>
+        <translation>Ned</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Remove</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
 </context>
 <context>
@@ -3893,8 +5417,9 @@ Vill du skicka innan du avslutar?</translation>
         <translation>Välj &amp;referenstid:</translation>
     </message>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossReftimePage.cc" line="+41"/>
         <source>Chosen model: %1</source>
-        <translation type="vanished">Vald modell: %1</translation>
+        <translation>Vald modell: %1</translation>
     </message>
 </context>
 <context>
@@ -3928,144 +5453,179 @@ Vill du skicka innan du avslutar?</translation>
 <context>
     <name>VcrossSetupDialog</name>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="+56"/>
         <source>Diana Vertical Cross Sections - settings</source>
-        <translation type="vanished">Diana Vertikala Tvärsnitt - innställingar</translation>
+        <translation>Diana Vertikala Tvärsnitt - innställingar</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="-12"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+40"/>
         <source>On/off</source>
-        <translation type="vanished">Av/på</translation>
+        <translation>Av/på</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line thickness</source>
-        <translation type="vanished">Linjetjocklek</translation>
+        <translation>Linjetjocklek</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line type</source>
-        <translation type="vanished">Linjetyp</translation>
+        <translation>Linjetyp</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Text</source>
-        <translation type="vanished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Frame</source>
-        <translation type="vanished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Number for level</source>
-        <translation type="vanished">Tal för nivå</translation>
+        <translation>Tal för nivå</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Top level</source>
-        <translation type="vanished">Översta nivån</translation>
+        <translation>Översta nivån</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Bottom level</source>
-        <translation type="vanished">Nedersta nivån</translation>
+        <translation>Nedersta nivån</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Other levels</source>
-        <translation type="vanished">Andrea nivåer</translation>
+        <translation>Andrea nivåer</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Surface Pressure (Topography)</source>
-        <translation type="vanished">Marktryck (PSURF)/(Topografi)</translation>
+        <translation>Marktryck (PSURF)/(Topografi)</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>Geographical positions</source>
-        <translation type="vanished">Geografiska positioner</translation>
+        <translation>Geografiska positioner</translation>
     </message>
     <message>
+        <location line="-27"/>
         <source>Vertical gridlines</source>
-        <translation type="vanished">Vertikala gridlinjer</translation>
+        <translation>Vertikala gridlinjer</translation>
     </message>
     <message>
+        <location line="-3"/>
         <source>Inflight lines</source>
-        <translation type="vanished">Inflygningslinjer</translation>
+        <translation>Inflygningslinjer</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Horizontal gridlines</source>
-        <translation type="vanished">Horisontella gridlinjer</translation>
+        <translation>Horisontella gridlinjer</translation>
     </message>
     <message>
+        <location line="+32"/>
         <source>Direction indicators</source>
-        <translation type="vanished">Riktningsindikator</translation>
+        <translation>Riktningsindikator</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Extrapolate to fixed P</source>
-        <translation type="vanished">Extrapolerat till fast P</translation>
+        <translation>Extrapolerat till fast P</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Extrapolate to ocean floor</source>
-        <translation type="vanished">Extrapolerat till havsbotten</translation>
+        <translation>Extrapolerat till havsbotten</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Fixed vertical/horizontal scaling:</source>
-        <translation type="vanished">Fast vertikal/horisontell scrollning:</translation>
+        <translation>Fast vertikal/horisontell scrollning:</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Default area vertically:</source>
-        <translation type="vanished">Standardområde vertikalt:</translation>
+        <translation>Standardområde vertikalt:</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default area horizontally:</source>
-        <translation type="vanished">Standardområde horisontellt:</translation>
+        <translation>Standardområde horisontellt:</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Background colour</source>
-        <translation type="vanished">Bakgrundsfärg</translation>
+        <translation>Bakgrundsfärg</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Cross sections on map</source>
-        <translation type="vanished">Snitt på kartan</translation>
+        <translation>Snitt på kartan</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Selected cross section on map</source>
-        <translation type="vanished">Valt snitt på kartan</translation>
+        <translation>Valt snitt på kartan</translation>
     </message>
     <message>
+        <location line="-74"/>
         <source>Marker lines</source>
-        <translation type="vanished">Markeringslinjer</translation>
+        <translation>Markeringslinjer</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>Distance</source>
-        <translation type="vanished">Avstånd</translation>
+        <translation>Avstånd</translation>
     </message>
     <message>
+        <location line="+29"/>
         <source>Vertical type</source>
-        <translation type="vanished">Vertikaltyp</translation>
+        <translation>Vertikaltyp</translation>
     </message>
     <message>
+        <location line="-66"/>
         <source>Position names</source>
-        <translation type="vanished">Positionsnamn</translation>
+        <translation>Positionsnamn</translation>
     </message>
     <message>
+        <location line="+28"/>
         <source>Vertical markers</source>
-        <translation type="vanished">Vertikala markeringslinjer</translation>
+        <translation>Vertikala markeringslinjer</translation>
     </message>
 </context>
 <context>
@@ -4096,8 +5656,9 @@ Vill du skicka innan du avslutar?</translation>
         <translation>&amp;Utför</translation>
     </message>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossStyleDialog.cc" line="+99"/>
         <source>M: %1 -- R: %2 -- F: %3</source>
-        <translation type="vanished">M: %1 -- R: %2 -- F: %3</translation>
+        <translation>M: %1 -- R: %2 -- F: %3</translation>
     </message>
 </context>
 <context>
@@ -4229,6 +5790,12 @@ Vill du skicka innan du avslutar?</translation>
     </message>
     <message>
         <location line="+3"/>
+        <location filename="../../../src/vcross_qt/qtVcrossStyleWidget.cc" line="+46"/>
+        <location line="+83"/>
+        <location line="+9"/>
+        <location line="+6"/>
+        <location line="+61"/>
+        <location line="+83"/>
         <source>Off</source>
         <translation>Av</translation>
     </message>
@@ -4268,32 +5835,41 @@ Vill du skicka innan du avslutar?</translation>
         <translation>Visuell skalning av y komponent</translation>
     </message>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossStyleWidget.cc" line="-146"/>
+        <location line="+6"/>
+        <location line="+145"/>
         <source>Auto</source>
-        <translation type="vanished">Auto</translation>
+        <translation>Auto</translation>
     </message>
     <message>
+        <location line="-111"/>
         <source>Level low</source>
-        <translation type="vanished">Lägsta nivå</translation>
+        <translation>Lägsta nivå</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Level high</source>
-        <translation type="vanished">Högsta nivå</translation>
+        <translation>Högsta nivå</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Smooth lines</source>
-        <translation type="vanished">Utjämna linjer</translation>
+        <translation>Utjämna linjer</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Time offset</source>
-        <translation type="vanished">Tidsavvikelse</translation>
+        <translation>Tidsavvikelse</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source> hour(s)</source>
-        <translation type="vanished">timme(r)</translation>
+        <translation>timme(r)</translation>
     </message>
     <message>
+        <location line="+47"/>
         <source>Pattern</source>
-        <translation type="vanished">Mönster</translation>
+        <translation>Mönster</translation>
     </message>
 </context>
 <context>
@@ -4551,230 +6127,293 @@ Vill du skicka innan du avslutar?</translation>
 <context>
     <name>VprofModelDialog</name>
     <message>
+        <location filename="../../../src/qtVprofModelDialog.cc" line="+61"/>
         <source>Diana Vertical Profiles</source>
-        <translation type="vanished">Diana Vertikal Profiler</translation>
+        <translation>Diana Vertikal Profiler</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Referencetime</source>
-        <translation type="vanished">Referenstid</translation>
+        <translation>Referenstid</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Selected models</source>
-        <translation type="vanished">Valda modeller</translation>
+        <translation>Valda modeller</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Delete all</source>
-        <translation type="vanished">Ta bort allt</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="-4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
 </context>
 <context>
     <name>VprofSetupDialog</name>
     <message>
+        <location filename="../../../src/qtVprofSetupDialog.cc" line="+62"/>
         <source>Diana Vertical Profiles - settings</source>
-        <translation type="vanished">Diana Vertikal Profiler - innställningar</translation>
+        <translation>Diana Vertikal Profiler - innställningar</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Apply</source>
-        <translation type="vanished">Utför</translation>
+        <translation>Utför</translation>
     </message>
     <message>
+        <location line="+296"/>
+        <location line="+97"/>
         <source>On/off</source>
-        <translation type="vanished">Av/på</translation>
+        <translation>Av/på</translation>
     </message>
     <message>
+        <location line="-110"/>
+        <location line="+99"/>
         <source>Diagram</source>
-        <translation type="vanished">Diagram</translation>
+        <translation>Diagram</translation>
     </message>
     <message>
+        <location line="+12"/>
+        <location line="+63"/>
         <source>Colour</source>
-        <translation type="vanished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
+        <location line="-62"/>
+        <location line="+63"/>
         <source>Line thickness</source>
-        <translation type="vanished">Linjetjocklek</translation>
+        <translation>Linjetjocklek</translation>
     </message>
     <message>
+        <location line="-62"/>
         <source>Line type</source>
-        <translation type="vanished">Linjetyp</translation>
+        <translation>Linjetyp</translation>
     </message>
     <message>
+        <location line="+49"/>
         <source>Colours</source>
-        <translation type="vanished">Färger</translation>
+        <translation>Färger</translation>
     </message>
     <message>
+        <location line="-457"/>
         <source>Default</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
+        <location line="+315"/>
         <source>Temperature</source>
-        <translation type="vanished">Temperatur</translation>
+        <translation>Temperatur</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Dewpoint</source>
-        <translation type="vanished">Daggpunkt</translation>
+        <translation>Daggpunkt</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Wind</source>
-        <translation type="vanished">Vind</translation>
+        <translation>Vind</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical wind (model)</source>
-        <translation type="vanished">Vertikal vind(modell)</translation>
+        <translation>Vertikal vind(modell)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Relative humidity</source>
-        <translation type="vanished">Relativ fuktighet</translation>
+        <translation>Relativ fuktighet</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refraction index</source>
-        <translation type="vanished">Brytningsindex</translation>
+        <translation>Brytningsindex</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>K-index</source>
-        <translation type="vanished">K-index</translation>
+        <translation>K-index</translation>
     </message>
     <message>
+        <location line="+156"/>
         <source>Data%1</source>
-        <translation type="vanished">Data%1</translation>
+        <translation>Data%1</translation>
     </message>
     <message>
+        <location line="-158"/>
         <source>Significant wind (dd-ff)</source>
-        <translation type="vanished">Signifikant vind (dd-ff)</translation>
+        <translation>Signifikant vind (dd-ff)</translation>
     </message>
     <message>
+        <location line="+100"/>
         <source>Pressure lines</source>
-        <translation type="vanished">Tryck linjer</translation>
+        <translation>Tryck linjer</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Lines in flight levels</source>
-        <translation type="vanished">Linjer i flight nivåer</translation>
+        <translation>Linjer i flight nivåer</translation>
     </message>
     <message>
+        <location line="-3"/>
         <source>Temperature lines</source>
-        <translation type="vanished">Temperatur linjer</translation>
+        <translation>Temperatur linjer</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Dry adiabatic</source>
-        <translation type="vanished">Torradiabat</translation>
+        <translation>Torradiabat</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Wet adiabatic</source>
-        <translation type="vanished">Fuktadiabat</translation>
+        <translation>Fuktadiabat</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Mixing rate</source>
-        <translation type="vanished">Blandningsförhållande</translation>
+        <translation>Blandningsförhållande</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>P and T units</source>
-        <translation type="vanished">P och T enheter</translation>
+        <translation>P och T enheter</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Frame</source>
-        <translation type="vanished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
+        <location line="-116"/>
         <source>Text</source>
-        <translation type="vanished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
+        <location line="+117"/>
         <source>Flight levels</source>
-        <translation type="vanished">Flyg nivåer</translation>
+        <translation>Flyg nivåer</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>FL units</source>
-        <translation type="vanished">FL enheter</translation>
+        <translation>FL enheter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Separate wind columns</source>
-        <translation type="vanished">Separata vind kolumner</translation>
+        <translation>Separata vind kolumner</translation>
     </message>
     <message>
+        <location line="-119"/>
         <source>Geographical position in text</source>
-        <translation type="vanished">Geografisk position i text</translation>
+        <translation>Geografisk position i text</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Pressure range</source>
-        <translation type="vanished">Tryckintervall</translation>
+        <translation>Tryckintervall</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Temperature range</source>
-        <translation type="vanished">Temperaturintervall</translation>
+        <translation>Temperaturintervall</translation>
     </message>
     <message>
+        <location line="+119"/>
         <source>Background colour</source>
-        <translation type="vanished">Bakgrundsfärg</translation>
+        <translation>Bakgrundsfärg</translation>
     </message>
     <message>
+        <location line="-442"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
+        <location line="+439"/>
         <source>Lines for condensation trails</source>
-        <translation type="vanished">Linjer for kondensations strimmor</translation>
+        <translation>Linjer for kondensations strimmor</translation>
     </message>
 </context>
 <context>
     <name>VprofWindow</name>
     <message>
+        <location filename="../../../src/qtVprofWindow.cc" line="+77"/>
         <source>Diana Vertical Profiles</source>
-        <translation type="vanished">Diana Vertikal Profiler</translation>
+        <translation>Diana Vertikal Profiler</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Model</source>
-        <translation type="vanished">Modell</translation>
+        <translation>Modell</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Settings</source>
-        <translation type="vanished">Inställningar</translation>
+        <translation>Inställningar</translation>
     </message>
     <message>
         <source>Refresh</source>
         <translation type="obsolete">Uppdatera</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Print</source>
-        <translation type="vanished">Skriv ut</translation>
+        <translation>Skriv ut</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Save</source>
-        <translation type="vanished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Avsluta</translation>
+        <translation>Avsluta</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
+        <translation>Hjälp</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Select ensemble member</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
@@ -4789,13 +6428,15 @@ Vill du skicka innan du avslutar?</translation>
     <name>WebMapDialog</name>
     <message>
         <location filename="../../../src/wmsclient/webmap_dialog.ui" line="+15"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+136"/>
         <source>Web Maps</source>
         <translation type="unfinished">Nettkart</translation>
     </message>
     <message>
         <location line="+25"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+185"/>
         <source>Add</source>
-        <translation>Lägg till</translation>
+        <translation type="unfinished">Lägg till</translation>
     </message>
     <message>
         <location line="+43"/>
@@ -4981,6 +6622,16 @@ Vill du skicka innan du avslutar?</translation>
         <location line="+23"/>
         <source>&amp;Apply</source>
         <translation type="unfinished">&amp;Utför</translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="-57"/>
+        <source>Choose layer in service %1:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

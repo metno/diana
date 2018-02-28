@@ -4,138 +4,205 @@
 <context>
     <name>AddtoDialog</name>
     <message>
+        <location filename="../../../src/qtAddtoDialog.cc" line="+57"/>
         <source>Add to objectdialog</source>
-        <translation type="vanished">Agregar al objeto de dialogo</translation>
+        <translation>Agregar al objeto de dialogo</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Dialog name:</source>
-        <translation type="vanished">Nombre de dialogo:</translation>
+        <translation>Nombre de dialogo:</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>File name:</source>
-        <translation type="vanished">Nombre del campo:</translation>
+        <translation>Nombre del campo:</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>AddtoMenu</name>
     <message>
+        <location filename="../../../src/qtAddtoMenu.cc" line="+59"/>
         <source>Add current plot to a private quickmenu</source>
-        <translation type="vanished">Agregue figura actual a un menú rápido privado</translation>
+        <translation>Agregue figura actual a un menú rápido privado</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>&amp;Make new</source>
-        <translation type="vanished">&amp;Hacer nuevo</translation>
+        <translation>&amp;Hacer nuevo</translation>
     </message>
     <message>
+        <location line="+13"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
+        <location line="+51"/>
         <source>New Menu</source>
-        <translation type="vanished">Menú nuevo</translation>
+        <translation>Menú nuevo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new menu with name:</source>
-        <translation type="vanished">Crear menu nuevo llamado:</translation>
+        <translation>Crear menu nuevo llamado:</translation>
     </message>
 </context>
 <context>
     <name>AnnoText</name>
     <message>
+        <location filename="../../../src/qtAnnoText.cc" line="+61"/>
         <source>:Write text</source>
-        <translation type="vanished">:Escribir texto</translation>
+        <translation>:Escribir texto</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>Exit</source>
-        <translation type="vanished">Salir</translation>
+        <translation>Salir</translation>
     </message>
 </context>
 <context>
     <name>AnnotationDialog</name>
     <message>
+        <location filename="../../../src/qtAnnotationDialog.cc" line="+55"/>
+        <source>Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Default</source>
-        <translation type="obsolete">Por Defecto</translation>
+        <translation type="unfinished">Por Defecto</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
+        <translation type="unfinished">Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply + Hide</source>
-        <translation type="obsolete">Aplicar+Esconder</translation>
+        <translation type="unfinished">Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="obsolete">Aplicar</translation>
+        <translation type="unfinished">Aplicar</translation>
     </message>
 </context>
 <context>
     <name>ComplexPressureText</name>
     <message>
+        <location filename="../../../src/qtComplexPressureText.cc" line="+101"/>
         <source>Write text</source>
-        <translation type="obsolete">Escribir texto</translation>
+        <translation type="unfinished">Escribir texto</translation>
     </message>
     <message>
+        <location line="+55"/>
         <source>OK</source>
-        <translation type="obsolete">OK</translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
+        <translation type="unfinished">Cancelar</translation>
     </message>
 </context>
 <context>
     <name>ComplexText</name>
     <message>
+        <location filename="../../../src/qtComplexText.cc" line="+92"/>
         <source>Write text</source>
-        <translation type="vanished">Escribir texto</translation>
+        <translation>Escribir texto</translation>
     </message>
     <message>
+        <location line="+39"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>DataDialog</name>
     <message>
+        <location filename="../../../src/qtDataDialog.cc" line="+110"/>
         <source>Help</source>
-        <translation type="obsolete">Ayuda</translation>
+        <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refresh</source>
-        <translation type="obsolete">Refrescar</translation>
+        <translation type="unfinished">Refrescar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
+        <translation type="unfinished">Esconder</translation>
     </message>
     <message>
+        <location line="+37"/>
+        <source>Apply* + Hide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Apply*</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Apply + Hide</source>
-        <translation type="obsolete">Aplicar+Esconder</translation>
+        <translation type="unfinished">Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="obsolete">Aplicar</translation>
+        <translation type="unfinished">Aplicar</translation>
+    </message>
+</context>
+<context>
+    <name>DianaApplication</name>
+    <message>
+        <location filename="../../../src/qtDianaApplication.cc" line="+56"/>
+        <source>Severe Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>A severe error has occurred. You MUST exit diana as soon as possible. A reminder will be shown every %1s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Keep Going</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Exit Now</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -153,136 +220,222 @@
         <translation type="obsolete">Guardar &amp;animación...</translation>
     </message>
     <message>
+        <location filename="../../../src/qtMainWindow.cc" line="+205"/>
         <source>&amp;Print...</source>
-        <translation type="vanished">&amp;Imprimir...</translation>
+        <translation>&amp;Imprimir...</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <source>Print pre&amp;view...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>&amp;Quit...</source>
-        <translation type="vanished">&amp;Salir...</translation>
+        <translation>&amp;Salir...</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>S&amp;peed buttons</source>
-        <translation type="vanished">Botones &amp;Velocidad</translation>
+        <translation>Botones &amp;Velocidad</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>A&amp;rchive mode</source>
-        <translation type="vanished">Modo &amp;Archivo</translation>
+        <translation>Modo &amp;Archivo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Automatic element choice</source>
-        <translation type="vanished">&amp;Selecció automática elemento</translation>
+        <translation>&amp;Selecció automática elemento</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>A&amp;nnotations</source>
-        <translation type="vanished">A&amp;notaciones</translation>
+        <translation>A&amp;notaciones</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Scrollw&amp;heel zooming</source>
-        <translation type="vanished">Perilla &amp;acercamiento</translation>
+        <translation>Perilla &amp;acercamiento</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Select &amp;Font...</source>
-        <translation type="vanished">Seleccionar &amp;Fuente...</translation>
+        <translation>Seleccionar &amp;Fuente...</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Reset area and replot</source>
-        <translation type="vanished">Redefinir área y graficar de nuevo</translation>
+        <translation>Redefinir área y graficar de nuevo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Reset all</source>
-        <translation type="vanished">Reiniciar todo</translation>
+        <translation>Reiniciar todo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Apply plot</source>
-        <translation type="vanished">&amp;Aplicar gráfico</translation>
+        <translation>&amp;Aplicar gráfico</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Add to q&amp;uickmenu</source>
-        <translation type="vanished">Agregar al &amp;menú rápido</translation>
+        <translation>Agregar al &amp;menú rápido</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>P&amp;revious plot</source>
-        <translation type="vanished">Gráfico &amp;anterior</translation>
+        <translation>Gráfico &amp;anterior</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Next plot</source>
-        <translation type="vanished">Gráfico &amp;siguiente</translation>
+        <translation>Gráfico &amp;siguiente</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Hide All</source>
-        <translation type="vanished">&amp;Esconder Todo</translation>
+        <translation>&amp;Esconder Todo</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Quickmenu</source>
-        <translation type="vanished">&amp;Menú rápido</translation>
+        <translation>&amp;Menú rápido</translation>
+    </message>
+    <message>
+        <location line="+446"/>
+        <source>Map and Area</source>
+        <translation type="unfinished">Mapa y Area</translation>
+    </message>
+    <message>
+        <location line="+1663"/>
+        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Maps</source>
         <translation type="obsolete">&amp;Mapas</translation>
     </message>
     <message>
+        <location line="-2096"/>
         <source>&amp;Fields</source>
-        <translation type="vanished">&amp;Campos</translation>
+        <translation>&amp;Campos</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Observations</source>
-        <translation type="vanished">&amp;Observaciones</translation>
+        <translation>&amp;Observaciones</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Satellites and Radar</source>
-        <translation type="obsolete">&amp;Satelites y Radar</translation>
+        <translation type="unfinished">&amp;Satelites y Radar</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>&amp;Product Editing</source>
-        <translation type="vanished">&amp;Editar Producto</translation>
+        <translation>&amp;Editar Producto</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>O&amp;bjects</source>
-        <translation type="vanished">&amp;Objetos</translation>
+        <translation>&amp;Objetos</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Trajectories</source>
-        <translation type="vanished">&amp;Trayectorias</translation>
+        <translation>&amp;Trayectorias</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>&amp;Vertical Profiles</source>
-        <translation type="vanished">&amp;Perfiles Verticales</translation>
+        <translation>&amp;Perfiles Verticales</translation>
     </message>
     <message>
+        <location line="+10"/>
+        <source>Vertical &amp;Cross sections</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>&amp;Wave spectra</source>
-        <translation type="vanished">&amp;Espectro de olas</translation>
+        <translation>&amp;Espectro de olas</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Zoom out</source>
-        <translation type="vanished">Alejarse</translation>
+        <translation>Alejarse</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Uffda Service</source>
-        <translation type="vanished">&amp;Servicio Uffda</translation>
+        <translation>&amp;Servicio Uffda</translation>
     </message>
     <message>
+        <location line="-89"/>
         <source>Maps</source>
-        <translation type="obsolete">Mapas</translation>
+        <translation type="unfinished">Mapas</translation>
+    </message>
+    <message>
+        <location line="-75"/>
+        <source>Read setupfile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+169"/>
+        <source>&amp;Measurements</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Field E&amp;dit</source>
         <translation type="obsolete">&amp;Editar Campo</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Documentation</source>
-        <translation type="vanished">Documentación</translation>
+        <translation>Documentación</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&amp;Accelerators</source>
-        <translation type="vanished">&amp;Aceleradores</translation>
+        <translation>&amp;Aceleradores</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;News</source>
-        <translation type="vanished">&amp;Noticias</translation>
+        <translation>&amp;Noticias</translation>
     </message>
     <message>
+        <location line="-16"/>
+        <source>Edit Drawing Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-188"/>
+        <source>&amp;Export image/movie...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+109"/>
+        <source>Toggle Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Annotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+75"/>
+        <source>Test &amp;results</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>About Diana</source>
-        <translation type="vanished">Acerca de Diana</translation>
+        <translation>Acerca de Diana</translation>
     </message>
     <message>
         <source>Run Backwards</source>
@@ -313,60 +466,109 @@
         <translation type="vanished">Control de tiempo</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Level up</source>
-        <translation type="vanished">Nivel superior</translation>
+        <translation>Nivel superior</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Level down</source>
-        <translation type="vanished">Nivel inferior</translation>
+        <translation>Nivel inferior</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>EPS cluster/member etc up</source>
-        <translation type="vanished">Grupo EPS/miembro etc arriba</translation>
+        <translation>Grupo EPS/miembro etc arriba</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>EPS cluster/member etc down</source>
-        <translation type="vanished">Grupo EPS/miembro etc abajo</translation>
+        <translation>Grupo EPS/miembro etc abajo</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>Update observations</source>
-        <translation type="vanished">Actualizar observaciones</translation>
+        <translation>Actualizar observaciones</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Automatic updates</source>
-        <translation type="vanished">Actualizaciones automáticas</translation>
+        <translation>Actualizaciones automáticas</translation>
     </message>
     <message>
+        <location line="+45"/>
         <source>File</source>
-        <translation type="vanished">Archivo</translation>
+        <translation>Archivo</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>O&amp;ptions</source>
-        <translation type="vanished">O&amp;pciones</translation>
+        <translation>O&amp;pciones</translation>
     </message>
     <message>
+        <location line="+26"/>
         <source>Info</source>
-        <translation type="vanished">Información</translation>
+        <translation>Información</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Show</source>
-        <translation type="vanished">Mostrar</translation>
+        <translation>Mostrar</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>&amp;Help</source>
-        <translation type="vanished">&amp;Ayuda</translation>
+        <translation>&amp;Ayuda</translation>
     </message>
     <message>
+        <location line="+63"/>
         <source>ARCHIVE</source>
-        <translation type="vanished">ARCHIVO</translation>
+        <translation>ARCHIVO</translation>
     </message>
     <message>
         <source>Diana</source>
         <translation type="obsolete">Diana</translation>
     </message>
     <message>
+        <location line="+1633"/>
+        <source>build: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>commit: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+102"/>
         <source>Error</source>
-        <translation type="vanished">Error</translation>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <location line="+1015"/>
+        <source>imported files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Imported model data to the &quot;%1&quot; field group.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %1 symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %1 drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>End Profet</source>
@@ -389,31 +591,35 @@
         <translation type="obsolete">&amp;Cancelar</translation>
     </message>
     <message>
+        <location line="-1174"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
 </source>
-        <translation type="vanished">Diana - un sistema de presentación en 2D para datos meteorológicos, incluyendo campos, observaciones,
+        <translation>Diana - un sistema de presentación en 2D para datos meteorológicos, incluyendo campos, observaciones,
 imágenes de satélite y radar, perfiles y secciones verticales.
 Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frentes, areas, símbolos, etc.
 </translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
-        <translation type="vanished">Para enviar un reporte de un problema del programa o una solicitud de mejora, por favor use el programa se seguimiento de errores en http://diana.bugs.met.no (sólo usuarios de met.no).</translation>
+        <translation>Para enviar un reporte de un problema del programa o una solicitud de mejora, por favor use el programa se seguimiento de errores en http://diana.bugs.met.no (sólo usuarios de met.no).</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>version:</source>
-        <translation type="vanished">versión:</translation>
+        <translation>versión:</translation>
     </message>
     <message>
         <source>build:</source>
         <translation type="obsolete">modelo:</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>about Diana</source>
-        <translation type="vanished">acerca de Diana</translation>
+        <translation>acerca de Diana</translation>
     </message>
     <message>
         <source>Save plot as image</source>
@@ -467,32 +673,175 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
 <context>
     <name>DrawingDialog</name>
     <message>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="+75"/>
+        <location line="+14"/>
+        <source>Drawing Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-7"/>
         <source>Products</source>
-        <translation type="obsolete">Productos</translation>
+        <translation type="unfinished">Productos</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Display products</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Edit products</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Load new...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>All time steps</source>
-        <translation type="obsolete">Todos los pasos de tiempo</translation>
+        <translation type="unfinished">Todos los pasos de tiempo</translation>
     </message>
     <message>
+        <location line="+14"/>
+        <source>Edit mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Clear</source>
-        <translation type="obsolete">Limpiar</translation>
+        <translation type="unfinished">Limpiar</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+466"/>
+        <source>Quick save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-457"/>
         <source>Save</source>
-        <translation type="obsolete">Guardar</translation>
+        <translation type="unfinished">Guardar</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save All Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Filtered Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Visible Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Selected Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
+        <translation type="unfinished">Esconder</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <location line="+504"/>
+        <source>Show filters &gt;&gt;&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-350"/>
+        <source>Open File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to open file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+90"/>
+        <source>Save File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Failed to save file &apos;%1&apos;. Error was &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Clear Existing Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You are already editing some objects. Shall I remove them?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+90"/>
+        <source>Edit %n product(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Remove %n product(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Edit product</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Quick save &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Hide filters &lt;&lt;&lt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-553"/>
         <source>Apply</source>
-        <translation type="obsolete">Aplicar</translation>
+        <translation type="unfinished">Aplicar</translation>
     </message>
     <message>
         <source>Remove</source>
         <translation type="obsolete">Remover</translation>
+    </message>
+</context>
+<context>
+    <name>DrawingModel</name>
+    <message>
+        <location line="+699"/>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -502,294 +851,473 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="obsolete">Comentarios[*]</translation>
     </message>
     <message>
+        <location filename="../../../src/qtEditComment.cc" line="+76"/>
         <source>Show previous comments</source>
-        <translation type="vanished">Mostrar comentarios anteriores</translation>
+        <translation>Mostrar comentarios anteriores</translation>
     </message>
 </context>
 <context>
     <name>EditDefineFieldDialog</name>
     <message>
+        <location filename="../../../src/qtEditDefineField.cc" line="+68"/>
         <source>Objects</source>
-        <translation type="vanished">Objetos</translation>
+        <translation>Objetos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Pick objects for editing</source>
-        <translation type="vanished">Escoja objetos a editar</translation>
+        <translation>Escoja objetos a editar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Pick fields for editing</source>
-        <translation type="vanished">Escoja campos a editar</translation>
+        <translation>Escoja campos a editar</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Model fields</source>
-        <translation type="vanished">Campos de modelo</translation>
+        <translation>Campos de modelo</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>from:</source>
-        <translation type="vanished">de:</translation>
+        <translation>de:</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Official product</source>
-        <translation type="vanished">Producto oficial</translation>
+        <translation>Producto oficial</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Locally stored</source>
-        <translation type="vanished">Almacenado localmente</translation>
+        <translation>Almacenado localmente</translation>
     </message>
     <message>
+        <location line="+24"/>
         <source>Selected objects</source>
-        <translation type="vanished">Objetos seleccionados</translation>
+        <translation>Objetos seleccionados</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Selected fields</source>
-        <translation type="vanished">Campos seleccionados</translation>
+        <translation>Campos seleccionados</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Fronts</source>
-        <translation type="vanished">Frentes</translation>
+        <translation>Frentes</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Symbols</source>
-        <translation type="vanished">Simbolos</translation>
+        <translation>Simbolos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Areas</source>
-        <translation type="vanished">Areas</translation>
+        <translation>Areas</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Form</source>
-        <translation type="vanished">Forma</translation>
+        <translation>Forma</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
+        <translation>Refrescar</translation>
     </message>
     <message>
+        <location line="+10"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>EditDialog</name>
     <message>
+        <location filename="../../../src/qtEditDialog.cc" line="+91"/>
         <source>Field</source>
-        <translation type="vanished">Campo</translation>
+        <translation>Campo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Objects</source>
-        <translation type="vanished">Objetos</translation>
+        <translation>Objetos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Merge</source>
-        <translation type="vanished">Mezclar</translation>
+        <translation>Mezclar</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Change value</source>
-        <translation type="vanished">Cambiar valor</translation>
+        <translation>Cambiar valor</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Move</source>
-        <translation type="vanished">Mover</translation>
+        <translation>Mover</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Change gradient</source>
-        <translation type="vanished">Cambiar gradiente</translation>
+        <translation>Cambiar gradiente</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, without smooth</source>
-        <translation type="vanished">Línea, sin suavizamiento</translation>
+        <translation>Línea, sin suavizamiento</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, with smooth</source>
-        <translation type="vanished">Línea, suavizada</translation>
+        <translation>Línea, suavizada</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, limited, without smooth</source>
-        <translation type="vanished">Línea, limitada, sin suavizamiento</translation>
+        <translation>Línea, limitada, sin suavizamiento</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line, limited, with smooth</source>
-        <translation type="vanished">Línea, limitada, suavizada</translation>
+        <translation>Línea, limitada, suavizada</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Smooth</source>
-        <translation type="vanished">Suavidar</translation>
+        <translation>Suavidar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Replace undefined values</source>
-        <translation type="vanished">Reemplazar valores sin definir</translation>
+        <translation>Reemplazar valores sin definir</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line</source>
-        <translation type="vanished">Línea</translation>
+        <translation>Línea</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Copy value</source>
-        <translation type="vanished">Copiar valor</translation>
+        <translation>Copiar valor</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Set udefined</source>
-        <translation type="vanished">Configuracion indefinida</translation>
+        <translation>Configuracion indefinida</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Cold front</source>
-        <translation type="vanished">Frente frío</translation>
+        <translation>Frente frío</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Warm front</source>
-        <translation type="vanished">Frente cálido</translation>
+        <translation>Frente cálido</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Occlusion</source>
-        <translation type="vanished">oclusión</translation>
+        <translation>oclusión</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Cold occlusion</source>
-        <translation type="vanished">Oclusion fria</translation>
+        <translation>Oclusion fria</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Warm occlusion</source>
-        <translation type="vanished">Oclusion fria</translation>
+        <translation>Oclusion fria</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Stationary front</source>
-        <translation type="vanished">Frente estacionario</translation>
+        <translation>Frente estacionario</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Trough</source>
-        <translation type="vanished">A  traves</translation>
+        <translation>A  traves</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Squall line</source>
-        <translation type="vanished">Linea de chubasco</translation>
+        <translation>Linea de chubasco</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+37"/>
         <source>Significant weather</source>
-        <translation type="vanished">tiempo significativo</translation>
+        <translation>tiempo significativo</translation>
     </message>
     <message>
+        <location line="-36"/>
+        <source>Significant weather TURB/VA/RC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Significant weather ICE/TCU/CB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Low pressure</source>
-        <translation type="vanished">Baja presión</translation>
+        <translation>Baja presión</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>High pressure</source>
-        <translation type="vanished">Alta presión</translation>
+        <translation>Alta presión</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Cold</source>
-        <translation type="vanished">Fríio</translation>
+        <translation>Fríio</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Warm</source>
-        <translation type="vanished">Cálido</translation>
+        <translation>Cálido</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Fog</source>
-        <translation type="vanished">Niebla</translation>
+        <translation>Niebla</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Drizzle </source>
-        <translation type="vanished">Llovizna</translation>
+        <translation>Llovizna</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Freezing drizzle</source>
-        <translation type="vanished">Lloviza congelante</translation>
+        <translation>Lloviza congelante</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Freezing rain</source>
-        <translation type="vanished">LLuvia congelante</translation>
+        <translation>LLuvia congelante</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+21"/>
         <source>Showers</source>
-        <translation type="vanished">Chubascos</translation>
+        <translation>Chubascos</translation>
     </message>
     <message>
+        <location line="-20"/>
         <source>Rain showers</source>
-        <translation type="vanished">Ducha de lluvia</translation>
+        <translation>Ducha de lluvia</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Sleet showers</source>
-        <translation type="vanished">Ducha de agua nieve</translation>
+        <translation>Ducha de agua nieve</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Hail showers</source>
-        <translation type="vanished">LLuvia de granizos</translation>
+        <translation>LLuvia de granizos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Snow showers</source>
-        <translation type="vanished">LLuvia de nieve</translation>
+        <translation>LLuvia de nieve</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Thunderstorm</source>
-        <translation type="vanished">Tormenta eléctrica</translation>
+        <translation>Tormenta eléctrica</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Thunderstorm with hail</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Snow</source>
-        <translation type="vanished">Nieve</translation>
+        <translation>Nieve</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Rain</source>
-        <translation type="vanished">LLuvia</translation>
+        <translation>LLuvia</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Sleet</source>
-        <translation type="vanished">Granizo</translation>
+        <translation>Granizo</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Hurricane</source>
-        <translation type="vanished">Huracán</translation>
+        <translation>Huracán</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Disk</source>
-        <translation type="vanished">Disco</translation>
+        <translation>Disco</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+200"/>
         <source>Circle</source>
-        <translation type="vanished">Círculo</translation>
+        <translation>Círculo</translation>
     </message>
     <message>
+        <location line="-199"/>
         <source>Cross</source>
-        <translation type="vanished">Cruz</translation>
+        <translation>Cruz</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Text</source>
-        <translation type="vanished">Texto</translation>
+        <translation>Texto</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>EditText</source>
-        <translation type="vanished">Editar texto</translation>
+        <translation>Editar texto</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Precipitation</source>
-        <translation type="vanished">Precipitación</translation>
+        <translation>Precipitación</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Clouds</source>
-        <translation type="vanished">Nubes</translation>
+        <translation>Nubes</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Haze</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Ice</source>
-        <translation type="vanished">Hielo</translation>
+        <translation>Hielo</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Reduced visibility</source>
-        <translation type="vanished">Visibildad reducida</translation>
+        <translation>Visibildad reducida</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Generic area</source>
-        <translation type="vanished">Area genérica</translation>
+        <translation>Area genérica</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Drifting snow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>VMC-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CAT-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line of thunderstorms red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line of thunderstorms green</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line of thunderstorms blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Graupel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Jet stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
         <source>Editing</source>
-        <translation type="vanished">Editando</translation>
+        <translation>Editando</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Save (local)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save product to local disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Save (common work disk)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save product to common work disk, available to other users as input in edit mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Approve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Approve product (makes the product available for other users and trigger production)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+991"/>
+        <source>Problems saving product: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Warning - approve product</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Do you really want to approve an unchanged product?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Product</source>
@@ -808,24 +1336,29 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="obsolete">Tiempo de observ.:</translation>
     </message>
     <message>
+        <location line="-1014"/>
         <source>Pause</source>
-        <translation type="vanished">Pausa</translation>
+        <translation>Pausa</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Comments</source>
-        <translation type="vanished">Comentarios</translation>
+        <translation>Comentarios</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Exit</source>
-        <translation type="vanished">Salir</translation>
+        <translation>Salir</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
         <source>New analysis</source>
@@ -846,48 +1379,61 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
+        <location line="+84"/>
         <source>Square</source>
-        <translation type="vanished">Cuadrado</translation>
+        <translation>Cuadrado</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Ellipse(centre)</source>
-        <translation type="vanished">Elipse(centro)</translation>
+        <translation>Elipse(centro)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Ellipse(focus)</source>
-        <translation type="vanished">Elipse(foco)</translation>
+        <translation>Elipse(foco)</translation>
     </message>
     <message>
+        <location line="+18"/>
         <source>Ellipse shape</source>
-        <translation type="vanished">Elipse forma</translation>
+        <translation>Elipse forma</translation>
     </message>
     <message>
+        <location line="+45"/>
         <source>Show extra editing lines</source>
-        <translation type="vanished">Mostrar más lineas de edición</translation>
+        <translation>Mostrar más lineas de edición</translation>
     </message>
     <message>
+        <location line="+11"/>
+        <location line="+234"/>
         <source>Undo</source>
-        <translation type="vanished">Deshacer</translation>
+        <translation>Deshacer</translation>
     </message>
     <message>
+        <location line="-233"/>
+        <location line="+234"/>
         <source>Redo</source>
-        <translation type="vanished">Rehacer</translation>
+        <translation>Rehacer</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Join fronts</source>
-        <translation type="vanished">Unir frentes</translation>
+        <translation>Unir frentes</translation>
     </message>
     <message>
+        <location line="+334"/>
         <source>Change borders</source>
-        <translation type="vanished">Cambiar fronteras</translation>
+        <translation>Cambiar fronteras</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Set data sources</source>
-        <translation type="vanished">Definir fuente de datos</translation>
+        <translation>Definir fuente de datos</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Exit merge</source>
-        <translation type="vanished">Salir mezclar</translation>
+        <translation>Salir mezclar</translation>
     </message>
     <message>
         <source>Send product</source>
@@ -910,8 +1456,9 @@ como aprovado y listo.</translation>
         <translation type="obsolete">&amp;Producto aprobado</translation>
     </message>
     <message>
+        <location line="+303"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Problem saving/sending product
@@ -926,70 +1473,94 @@ como aprovado y listo.</translation>
 </translation>
     </message>
     <message>
+        <location line="-114"/>
         <source>Save error:</source>
-        <translation type="vanished">Error al guardar:</translation>
+        <translation>Error al guardar:</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Saved</source>
-        <translation type="vanished">Guardado</translation>
+        <translation>Guardado</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>saved</source>
-        <translation type="vanished">guardado</translation>
+        <translation>guardado</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>and approved</source>
-        <translation type="vanished">y aprobado</translation>
+        <translation>y aprobado</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>(approved)</source>
-        <translation type="vanished">(aprobado)</translation>
+        <translation>(aprobado)</translation>
     </message>
     <message>
+        <location line="+94"/>
         <source>Exit editing</source>
-        <translation type="vanished">Salir edición</translation>
+        <translation>Salir edición</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>You have unsaved edits.
  Save before exiting?</source>
-        <translation type="vanished">Tiene ediciones sin guardar.
+        <translation>Tiene ediciones sin guardar.
 ¿Quiere guardar antes de salir?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Save</source>
-        <translation type="vanished">&amp;Guardar</translation>
+        <translation>&amp;Guardar</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Don&apos;t save</source>
-        <translation type="vanished">&amp;No guardar</translation>
+        <translation>&amp;No guardar</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Send analysis</source>
-        <translation type="vanished">Enviar análisis</translation>
+        <translation>Enviar análisis</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Send last saved analysis to the database?</source>
-        <translation type="vanished">¿Enviar el último análisis guardado a la base de datos?</translation>
+        <translation>¿Enviar el último análisis guardado a la base de datos?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Send</source>
-        <translation type="vanished">&amp;Enviar</translation>
+        <translation>&amp;Enviar</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;No enviar</translation>
+        <translation>&amp;No enviar</translation>
     </message>
     <message>
+        <location line="+113"/>
+        <source>Error starting edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+81"/>
+        <location line="+241"/>
         <source>Undefined</source>
-        <translation type="vanished">SIn definir</translation>
+        <translation>SIn definir</translation>
     </message>
     <message>
+        <location line="-236"/>
+        <location line="+241"/>
         <source>New value:</source>
-        <translation type="vanished">Valor nuevo:</translation>
+        <translation>Valor nuevo:</translation>
     </message>
     <message>
+        <location line="-182"/>
+        <location line="+217"/>
         <source>Not saved</source>
-        <translation type="vanished">No grabado</translation>
+        <translation>No grabado</translation>
     </message>
 </context>
 <context>
@@ -1021,30 +1592,154 @@ como aprovado y listo.</translation>
 <context>
     <name>EditItemManager</name>
     <message>
+        <location filename="../../../src/diEditItemManager.cc" line="+124"/>
         <source>Cut</source>
-        <translation type="obsolete">Cortar</translation>
+        <translation type="unfinished">Cortar</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-3"/>
         <source>Copy</source>
-        <translation type="obsolete">Copiar</translation>
+        <translation type="unfinished">Copiar</translation>
     </message>
     <message>
+        <location line="-1"/>
+        <source>Select All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Paste</source>
-        <translation type="obsolete">Pegar</translation>
+        <translation type="unfinished">Pegar</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+PgDown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Raise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+PgUp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Join</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Unjoin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+J</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Toggle Reversed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>&amp;Select</source>
-        <translation type="obsolete">&amp;Seleccionar</translation>
+        <translation type="unfinished">&amp;Seleccionar</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <source>Create &amp;Polyline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Create &amp;Symbol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Text</source>
-        <translation type="obsolete">Texto</translation>
+        <translation type="unfinished">Texto</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>SIGWX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1485"/>
+        <source>To</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EditItem_Composite::Composite</name>
+    <message>
+        <location filename="../../../src/EditItems/editcomposite.cc" line="+51"/>
+        <source>Edit composite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+154"/>
+        <source>Edit Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EditItem_PolyLine::PolyLine</name>
+    <message>
+        <location filename="../../../src/EditItems/editpolyline.cc" line="+45"/>
+        <source>Add point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Remove point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EditItem_Text::Text</name>
+    <message>
+        <location filename="../../../src/EditItems/edittext.cc" line="+44"/>
+        <source>Edit text</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EditItems::DrawingDialog</name>
     <message>
-        <location filename="../../../src/EditItems/drawingdialog.cc" line="+57"/>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="-775"/>
         <source></source>
         <comment>See the Qt Linguist manual for the reasons for this workaround.</comment>
         <translation></translation>
@@ -1077,8 +1772,9 @@ como aprovado y listo.</translation>
 <context>
     <name>EditItems::ToolBar</name>
     <message>
+        <location filename="../../../src/EditItems/toolbar.cc" line="+97"/>
         <source>Paint Operations</source>
-        <translation type="obsolete">Operaciones de Dibujo</translation>
+        <translation type="unfinished">Operaciones de Dibujo</translation>
     </message>
 </context>
 <context>
@@ -1126,88 +1822,116 @@ como aprovado y listo.</translation>
 <context>
     <name>EditNewDialog</name>
     <message>
+        <location filename="../../../src/qtEditNewDialog.cc" line="+65"/>
         <source>Normal</source>
-        <translation type="vanished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>New product</source>
-        <translation type="vanished">Producto nuevo</translation>
+        <translation>Producto nuevo</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Product type:</source>
-        <translation type="vanished">Tipo de producto:</translation>
+        <translation>Tipo de producto:</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Product Id:</source>
-        <translation type="vanished">Código de producto:</translation>
+        <translation>Código de producto:</translation>
     </message>
     <message>
         <source>Log in</source>
         <translation type="obsolete">Ingresar</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Make product from:</source>
-        <translation type="vanished">Hacer producto de:</translation>
+        <translation>Hacer producto de:</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Objects</source>
-        <translation type="vanished">Objetos</translation>
+        <translation>Objetos</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+351"/>
         <source>No startobjects</source>
-        <translation type="vanished">Sin objetosiniciales</translation>
+        <translation>Sin objetosiniciales</translation>
     </message>
     <message>
+        <location line="-351"/>
+        <location line="+375"/>
         <source>Field undefined</source>
-        <translation type="vanished">Campo no definido</translation>
+        <translation>Campo no definido</translation>
     </message>
     <message>
+        <location line="-363"/>
         <source>Product validity time:</source>
-        <translation type="vanished">Tiempo de validez del producto:</translation>
+        <translation>Tiempo de validez del producto:</translation>
     </message>
     <message>
+        <location line="+23"/>
         <source>Combine products valid at:</source>
-        <translation type="vanished">Combine productos válidos a las:</translation>
+        <translation>Combine productos válidos a las:</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Product validity time</source>
-        <translation type="vanished">Tiempo de validez del producto</translation>
+        <translation>Tiempo de validez del producto</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+108"/>
         <source>Time undefined</source>
-        <translation type="vanished">Tiempo sin definir</translation>
+        <translation>Tiempo sin definir</translation>
     </message>
     <message>
+        <location line="-104"/>
         <source>Product Ids to combine:</source>
-        <translation type="vanished">Productos identificadores para combinar:</translation>
+        <translation>Productos identificadores para combinar:</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+101"/>
         <source>None</source>
-        <translation type="vanished">Ninguno</translation>
+        <translation>Ninguno</translation>
     </message>
     <message>
+        <location line="-88"/>
         <source>Combine</source>
-        <translation type="vanished">Combinar</translation>
+        <translation>Combinar</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <location line="+430"/>
+        <location line="+26"/>
         <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
+        <location line="-423"/>
+        <location line="+82"/>
         <source>OK Start</source>
-        <translation type="vanished">OK Comenzar</translation>
+        <translation>OK Comenzar</translation>
     </message>
     <message>
+        <location line="-80"/>
+        <location line="+82"/>
         <source>OK Combine</source>
-        <translation type="vanished">OK Combinar</translation>
+        <translation>OK Combinar</translation>
     </message>
     <message>
         <source>product free</source>
@@ -1237,20 +1961,26 @@ como aprovado y listo.</translation>
 </translation>
     </message>
     <message>
+        <location line="+331"/>
         <source>Product made earlier than normal!</source>
-        <translation type="vanished">¡Producto hecho mas temprano de lo normal!</translation>
+        <translation>¡Producto hecho mas temprano de lo normal!</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Product made later than normal!</source>
-        <translation type="vanished">¡Producto hecho mas tarde de lo normal!</translation>
+        <translation>¡Producto hecho mas tarde de lo normal!</translation>
     </message>
     <message>
+        <location line="-22"/>
+        <location line="+26"/>
         <source>Product time</source>
-        <translation type="vanished">Tiempo del producto</translation>
+        <translation>Tiempo del producto</translation>
     </message>
     <message>
+        <location line="-25"/>
+        <location line="+26"/>
         <source>Continue</source>
-        <translation type="vanished">Continuar</translation>
+        <translation>Continuar</translation>
     </message>
     <message>
         <source>Diana database message</source>
@@ -1266,16 +1996,19 @@ como aprovado y listo.</translation>
 <context>
     <name>EditText</name>
     <message>
+        <location filename="../../../src/qtEditText.cc" line="+103"/>
         <source>Write text for editing</source>
-        <translation type="vanished">Escribir texto para editar</translation>
+        <translation>Escribir texto para editar</translation>
     </message>
     <message>
+        <location line="+38"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
@@ -1361,16 +2094,132 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+79"/>
+        <source>E.g. diana.png or diana.pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>E.g. diana_%1.png or diana_%1.pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>E.g. diana.gif</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>E.g. diana.avi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+188"/>
+        <source>File(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+82"/>
+        <source>Select image filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Select image filename pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+11"/>
+        <source>Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-4"/>
+        <source>PDF Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Select animated image filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Select movie filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Movies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>All</source>
-        <translation type="obsolete">Todos</translation>
+        <translation type="unfinished">Todos</translation>
     </message>
     <message>
+        <location line="+96"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Invalid filename has been changed, please check and press start again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+280"/>
         <source>Error</source>
-        <translation type="obsolete">Error</translation>
+        <translation type="unfinished">Error</translation>
     </message>
     <message>
+        <location line="-280"/>
+        <source>Could not create temporary directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+246"/>
+        <location line="+31"/>
         <source>Done</source>
-        <translation type="vanished">Hecho</translation>
+        <translation>Hecho</translation>
+    </message>
+    <message>
+        <location line="-31"/>
+        <source>Image saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Making animation</source>
+        <translation type="unfinished">Haciendo animación</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Creating animation...</source>
+        <translation type="unfinished">Creando animación...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Hide</source>
+        <translation type="unfinished">Esconder</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Animation completed.</source>
+        <translation type="unfinished">Animación terminada.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Problem with creating animation.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1415,16 +2264,24 @@ como aprovado y listo.</translation>
         <source>Ctrl+N</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../../src/export/qtExportImagePreview.cc" line="+52"/>
+        <source>Zoom: %1 %</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FieldDialog</name>
     <message>
+        <location filename="../../../src/qtFieldDialog.cc" line="+182"/>
+        <location line="+110"/>
         <source>Fields</source>
-        <translation type="vanished">Campos</translation>
+        <translation>Campos</translation>
     </message>
     <message>
+        <location line="-103"/>
         <source>EDIT</source>
-        <translation type="vanished">EDITAR</translation>
+        <translation>EDITAR</translation>
     </message>
     <message>
         <source>EPS Probability</source>
@@ -1487,137 +2344,194 @@ como aprovado y listo.</translation>
         <translation type="obsolete">Grupo de modelo</translation>
     </message>
     <message>
+        <location line="+66"/>
         <source>Models</source>
-        <translation type="vanished">Modelos</translation>
+        <translation>Modelos</translation>
     </message>
     <message>
+        <location line="+19"/>
+        <source>Reference time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Field group</source>
-        <translation type="vanished">Grupo de campos</translation>
+        <translation>Grupo de campos</translation>
     </message>
     <message>
+        <location line="+6"/>
+        <source>Predefined plots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Selected fields</source>
-        <translation type="vanished">Campos seleccionados</translation>
+        <translation>Campos seleccionados</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>Level</source>
-        <translation type="vanished">Nivel</translation>
+        <translation>Nivel</translation>
     </message>
     <message>
+        <location line="+28"/>
         <source>Type</source>
-        <translation type="vanished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="-4"/>
         <source>Copy</source>
-        <translation type="vanished">Copiar</translation>
+        <translation>Copiar</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Delete all</source>
-        <translation type="vanished">Borrar todo</translation>
+        <translation>Borrar todo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Model</source>
-        <translation type="vanished">Modelo</translation>
+        <translation>Modelo</translation>
     </message>
     <message>
         <source>R</source>
         <translation type="obsolete">R</translation>
     </message>
     <message>
+        <location line="+25"/>
+        <source>Plot type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+400"/>
         <source>Line colour</source>
-        <translation type="vanished">Color de línea</translation>
+        <translation>Color de línea</translation>
     </message>
     <message>
+        <location line="-399"/>
         <source>off</source>
-        <translation type="vanished">apagar</translation>
+        <translation>apagar</translation>
     </message>
     <message>
+        <location line="+6"/>
+        <location line="+401"/>
         <source>Line width</source>
-        <translation type="vanished">Ancho de línea</translation>
+        <translation>Ancho de línea</translation>
     </message>
     <message>
+        <location line="-395"/>
+        <location line="+396"/>
         <source>Line type</source>
-        <translation type="vanished">Tipo de línea</translation>
+        <translation>Tipo de línea</translation>
     </message>
     <message>
+        <location line="-390"/>
+        <location line="+382"/>
         <source>Line interval</source>
-        <translation type="vanished">Intervalo de línea</translation>
+        <translation>Intervalo de línea</translation>
     </message>
     <message>
+        <location line="-376"/>
         <source>Density</source>
-        <translation type="vanished">Densidad</translation>
+        <translation>Densidad</translation>
     </message>
     <message>
+        <location line="-75"/>
+        <location line="+82"/>
         <source>Unit</source>
-        <translation type="vanished">Unidad</translation>
+        <translation>Unidad</translation>
     </message>
     <message>
+        <location line="-47"/>
         <source>Default</source>
-        <translation type="obsolete">Por Defecto</translation>
+        <translation type="unfinished">Por Defecto</translation>
     </message>
     <message>
+        <location line="+53"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>All time steps</source>
-        <translation type="vanished">Todos los pasos de tiempo</translation>
+        <translation>Todos los pasos de tiempo</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>&lt;&lt;Less</source>
-        <translation type="vanished">&lt;&lt;Menor</translation>
+        <translation>&lt;&lt;Menor</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>More&gt;&gt;</source>
-        <translation type="vanished">Mayor&gt;&gt;</translation>
+        <translation>Mayor&gt;&gt;</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
+        <location line="+138"/>
+        <source>Show predefined plots or all parameters from file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>move selected field up</source>
-        <translation type="vanished">mover campo seleccionado arriba</translation>
+        <translation>mover campo seleccionado arriba</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>move selected field down</source>
-        <translation type="vanished">mover campo seleccionado abajo</translation>
+        <translation>mover campo seleccionado abajo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>delete selected field</source>
-        <translation type="obsolete">borrar campo seleccionado</translation>
+        <translation type="unfinished">borrar campo seleccionado</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>delete all selected fields</source>
-        <translation type="vanished">borrar todos los campos seleccionados</translation>
+        <translation>borrar todos los campos seleccionados</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>copy field</source>
-        <translation type="vanished">copiar campo</translation>
+        <translation>copiar campo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>reset plot options</source>
-        <translation type="vanished">redefinir opciones de gráfico</translation>
+        <translation>redefinir opciones de gráfico</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>selected field minus the field above</source>
-        <translation type="vanished">campo seleccionado menos el campo superior</translation>
+        <translation>campo seleccionado menos el campo superior</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>change model/termin</source>
         <translatorcomment>what is termin short for?</translatorcomment>
-        <translation type="vanished">cambiar modelo/termin</translation>
+        <translation>cambiar modelo/termin</translation>
     </message>
     <message>
         <source>history back</source>
@@ -1632,164 +2546,267 @@ como aprovado y listo.</translation>
         <translation type="obsolete">usar historial mostrado</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>all time steps / only common time steps</source>
-        <translation type="vanished">todos los pasos de tiempo / solo pasos de tiempo comunes</translation>
+        <translation>todos los pasos de tiempo / solo pasos de tiempo comunes</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>numbers on the contour lines</source>
-        <translation type="vanished">números en las líneas de contorno</translation>
+        <translation>números en las líneas de contorno</translation>
     </message>
     <message>
+        <location line="-2"/>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
-        <translation type="vanished">valores de red¨¨Instalar herramienta de consejo( pero solo cuando son visibles algunos puintos de la red)</translation>
+        <translation>valores de red¨¨Instalar herramienta de consejo( pero solo cuando son visibles algunos puintos de la red)</translation>
     </message>
     <message>
+        <location line="-459"/>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+104"/>
+        <source>Type to filter model names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+133"/>
+        <source>Minus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+224"/>
+        <source>Size of numbers on the countour lines and size of values in the plot type &quot;value&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Value precision, used in the plot type &quot;value&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Grid lines, 1=all</source>
-        <translation type="vanished">Lineas de grilla, 1=todas</translation>
+        <translation>Lineas de grilla, 1=todas</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Undef colour</source>
-        <translation type="vanished">Color sin definir</translation>
+        <translation>Color sin definir</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Undef linewidth</source>
-        <translation type="vanished">Ancho de línea sin definir</translation>
+        <translation>Ancho de línea sin definir</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Undef linetype</source>
-        <translation type="vanished">Tipo de línea sin definir</translation>
+        <translation>Tipo de línea sin definir</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+2"/>
         <source>number of colours in the palette</source>
-        <translation type="vanished">número de colores en la paleta</translation>
+        <translation>número de colores en la paleta</translation>
     </message>
     <message>
+        <location line="-1"/>
         <source>Palette for values below basis</source>
-        <translation type="vanished">Paleta para valores debajo de la base</translation>
+        <translation>Paleta para valores debajo de la base</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour of pattern</source>
-        <translation type="vanished">Color de patrón</translation>
+        <translation>Color de patrón</translation>
     </message>
     <message>
+        <location line="+21"/>
         <source>Min,max</source>
-        <translation type="vanished">Min,max</translation>
+        <translation>Min,max</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Size</source>
-        <translation type="vanished">Tamaño</translation>
+        <translation>Tamaño</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Radius</source>
-        <translation type="vanished">Radio</translation>
+        <translation>Radio</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Smooth lines</source>
-        <translation type="vanished">Suavizar lineas</translation>
+        <translation>Suavizar lineas</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+11"/>
+        <location line="+35"/>
+        <location line="+96"/>
+        <location line="+7"/>
+        <location line="+15"/>
+        <location line="+16"/>
+        <location line="+21"/>
+        <location line="+1518"/>
         <source>Off</source>
-        <translation type="vanished">Apagar</translation>
+        <translation>Apagar</translation>
     </message>
     <message>
+        <location line="-1713"/>
         <source>Smooth fields</source>
-        <translation type="vanished">Suavizar campos</translation>
+        <translation>Suavizar campos</translation>
     </message>
     <message>
+        <location line="+29"/>
         <source>Grid value</source>
-        <translation type="vanished">Valor de la grilla</translation>
+        <translation>Valor de la grilla</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Grid lines</source>
-        <translation type="vanished">Lineas de grilla</translation>
+        <translation>Lineas de grilla</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Time offset</source>
-        <translation type="vanished">Compensacion de tiempo</translation>
+        <translation>Compensacion de tiempo</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <location line="+10"/>
         <source> hour(s)</source>
-        <translation type="vanished">hora(s)</translation>
+        <translation>hora(s)</translation>
     </message>
     <message>
+        <location line="-5"/>
         <source>Time diff.</source>
-        <translation type="vanished">Diferencia de tiempo</translation>
+        <translation>Diferencia de tiempo</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Undefined</source>
-        <translation type="vanished">SIn definir</translation>
+        <translation>SIn definir</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Unmarked</source>
-        <translation type="vanished">Sin markar</translation>
+        <translation>Sin markar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Coloured</source>
-        <translation type="vanished">Coloreado</translation>
+        <translation>Coloreado</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Lines</source>
-        <translation type="vanished">Líneas</translation>
+        <translation>Líneas</translation>
     </message>
     <message>
+        <location line="+21"/>
         <source>Numbers</source>
-        <translation type="vanished">Números</translation>
+        <translation>Números</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Palette</source>
-        <translation type="vanished">Paleta</translation>
+        <translation>Paleta</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Palette (-)</source>
-        <translation type="vanished">Paleta (-)</translation>
+        <translation>Paleta (-)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Pattern</source>
-        <translation type="vanished">Patrón</translation>
+        <translation>Patrón</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Alpha</source>
-        <translation type="vanished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Extra contour lines</source>
-        <translation type="vanished">Líneas de contorno extra</translation>
+        <translation>Líneas de contorno extra</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <location line="+3"/>
         <source>Basis value</source>
-        <translation type="vanished">Valor base</translation>
+        <translation>Valor base</translation>
     </message>
     <message>
+        <location line="-2"/>
+        <location line="+3"/>
         <source>Min</source>
-        <translation type="vanished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
+        <location line="-2"/>
+        <location line="+3"/>
         <source>Max</source>
-        <translation type="vanished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Three colours</source>
-        <translation type="vanished">Tres colores</translation>
+        <translation>Tres colores</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Table</source>
-        <translation type="vanished">Tabla</translation>
+        <translation>Tabla</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Repeat</source>
-        <translation type="vanished">Repetir</translation>
+        <translation>Repetir</translation>
     </message>
     <message>
+        <location line="+26"/>
+        <location line="+15"/>
+        <location line="+13"/>
         <source>Auto</source>
-        <translation type="vanished">Automático</translation>
+        <translation>Automático</translation>
     </message>
     <message>
+        <location line="+44"/>
+        <source>Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
         <source>Frame</source>
-        <translation type="vanished">Cuadro</translation>
+        <translation>Cuadro</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Zero line</source>
-        <translation type="vanished">Línea cero</translation>
+        <translation>Línea cero</translation>
+    </message>
+    <message>
+        <location line="+111"/>
+        <source>Values</source>
+        <translation type="unfinished">Valores</translation>
+    </message>
+</context>
+<context>
+    <name>FilterDrawingWidget</name>
+    <message>
+        <location filename="../../../src/EditItems/filterdrawingdialog.cc" line="+61"/>
+        <source>Properties</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1802,18 +2819,21 @@ como aprovado y listo.</translation>
 <context>
     <name>LineStyleButton</name>
     <message>
+        <location filename="../../../src/qtStyleButtons.cc" line="+146"/>
         <source>Style for %1 lines</source>
-        <translation type="obsolete">Stil líneas de %1</translation>
+        <translation type="unfinished">Stil líneas de %1</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Line style</source>
-        <translation type="obsolete">Línea style</translation>
+        <translation type="unfinished">Línea style</translation>
     </message>
     <message>
+        <location line="+46"/>
         <source>Color: %1
 Width: %2
 Type: %3</source>
-        <translation type="obsolete">Color: %1
+        <translation type="unfinished">Color: %1
 Ancho: %2
 Tipo: %3</translation>
     </message>
@@ -1881,51 +2901,62 @@ Tipo: %3</translation>
         <translation>Mapa y Area</translation>
     </message>
     <message>
+        <location filename="../../../src/qtMapDialog.cc" line="+82"/>
         <source>frame</source>
-        <translation type="obsolete">marco</translation>
+        <translation type="unfinished">marco</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>longitude</source>
-        <translation type="obsolete">longitud</translation>
+        <translation type="unfinished">longitud</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>latitude</source>
-        <translation type="obsolete">latitud</translation>
+        <translation type="unfinished">latitud</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>contour</source>
-        <translation type="obsolete">contorno</translation>
+        <translation type="unfinished">contorno</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>lowest</source>
-        <translation type="vanished">más bajo</translation>
+        <translation>más bajo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>auto</source>
-        <translation type="vanished">automático</translation>
+        <translation>automático</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>highest</source>
-        <translation type="vanished">más alto</translation>
+        <translation>más alto</translation>
     </message>
     <message>
+        <location line="+18"/>
         <source>off</source>
-        <translation type="obsolete">apagar</translation>
+        <translation type="unfinished">apagar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>left</source>
-        <translation type="vanished">izquiera</translation>
+        <translation>izquiera</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>bottom</source>
-        <translation type="vanished">fondo</translation>
+        <translation>fondo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>both</source>
-        <translation type="vanished">ambos</translation>
+        <translation>ambos</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location filename="../../../src/mapdialog.ui" line="+6"/>
         <source>Area/Projection</source>
         <translation>Area/Proyección</translation>
     </message>
@@ -2110,229 +3141,392 @@ Tipo: %3</translation>
 <context>
     <name>MeasurementsDialog</name>
     <message>
+        <location filename="../../../src/qtMeasurementsDialog.cc" line="+62"/>
+        <source>Measurements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Clear</source>
-        <translation type="obsolete">Limpiar</translation>
+        <translation type="unfinished">Limpiar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
+        <translation type="unfinished">Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="obsolete">Salir</translation>
+        <translation type="unfinished">Salir</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Start:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+38"/>
+        <source>Lat:</source>
+        <translation type="unfinished">Lat:</translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <location line="+37"/>
+        <source>Date:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-29"/>
+        <location line="+37"/>
+        <source>Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-29"/>
+        <source>End:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>00°00&apos;N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Lon:</source>
+        <translation type="unfinished">Lon:</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>00°00&apos;W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <location line="+4"/>
+        <location line="+4"/>
+        <source>Velocity:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Distance:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Bearing:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>0 knots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>knots</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ModifyItemsCommand</name>
+    <message>
+        <location filename="../../../src/diEditItemManager.cc" line="+337"/>
+        <source>%1 items removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1 items added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1 items modified</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ObjectDialog</name>
     <message>
+        <location filename="../../../src/qtObjectDialog.cc" line="+73"/>
         <source>Weather Objects</source>
-        <translation type="vanished">Objetos del Tiempo</translation>
+        <translation>Objetos del Tiempo</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Auto</source>
-        <translation type="vanished">Automático</translation>
+        <translation>Automático</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Time</source>
-        <translation type="vanished">Tiempo</translation>
+        <translation>Tiempo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>File</source>
-        <translation type="vanished">Archivo</translation>
+        <translation>Archivo</translation>
     </message>
     <message>
+        <location line="+24"/>
         <source>Selected files</source>
-        <translation type="vanished">Archivos seleccionados</translation>
+        <translation>Archivos seleccionados</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Fronts</source>
-        <translation type="vanished">Frentes</translation>
+        <translation>Frentes</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Symbols</source>
-        <translation type="vanished">Símbolos</translation>
+        <translation>Símbolos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Areas</source>
-        <translation type="vanished">Areas</translation>
+        <translation>Areas</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Form</source>
-        <translation type="vanished">Forma</translation>
+        <translation>Forma</translation>
     </message>
     <message>
+        <location line="+25"/>
         <source>    Time diff.</source>
-        <translation type="vanished">    Dif. de tiempo.</translation>
+        <translation>    Dif. de tiempo.</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Alpha</source>
-        <translation type="vanished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
+        <translation>Refrescar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Comments</source>
-        <translation type="vanished">Comentarios</translation>
+        <translation>Comentarios</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
 </context>
 <context>
     <name>ObsDialog</name>
     <message>
+        <location filename="../../../src/qtObsDialog.cc" line="+91"/>
         <source>Observations</source>
-        <translation type="vanished">Observaciones</translation>
+        <translation>Observaciones</translation>
     </message>
     <message>
+        <location line="-14"/>
         <source>Pressure</source>
-        <translation type="vanished">Presión</translation>
+        <translation>Presión</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Tide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ocean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Other</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
         <source>select plot type</source>
-        <translation type="vanished">seleccionar tipo de gráfico</translation>
+        <translation>seleccionar tipo de gráfico</translation>
     </message>
     <message>
+        <location line="+34"/>
         <source>Show all</source>
-        <translation type="vanished">Mostrar todo</translation>
+        <translation>Mostrar todo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Show all plot types</source>
-        <translation type="vanished">Mostrar todos los tipos de gráficos</translation>
+        <translation>Mostrar todos los tipos de gráficos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
+        <translation>Refrescar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply + Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
+        <location line="+393"/>
         <source>List of Criteria</source>
-        <translation type="vanished">Lista de Criterios</translation>
+        <translation>Lista de Criterios</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Criteria</source>
-        <translation type="vanished">Criterios</translation>
+        <translation>Criterios</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Delete all</source>
-        <translation type="vanished">Borrar todo</translation>
+        <translation>Borrar todo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Delete selected criteria</source>
-        <translation type="vanished">Borrar criterios seleccionados</translation>
+        <translation>Borrar criterios seleccionados</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Delete all criteria</source>
-        <translation type="vanished">Borrar todos los criterios</translation>
+        <translation>Borrar todos los criterios</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Plot</source>
-        <translation type="vanished">Graficar</translation>
+        <translation>Graficar</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour - parameter</source>
-        <translation type="vanished">Color - parámetro</translation>
+        <translation>Color - parámetro</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour - observation</source>
-        <translation type="vanished">Color - observación</translation>
+        <translation>Color - observación</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <location line="+18"/>
         <source>Marker</source>
-        <translation type="vanished">Marcador</translation>
+        <translation>Marcador</translation>
     </message>
     <message>
+        <location line="-6"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
-        <translation type="vanished">Obsevacion de graficos que satisfacen todos los criterios por lo menos para un parametro</translation>
+        <translation>Obsevacion de graficos que satisfacen todos los criterios por lo menos para un parametro</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
-        <translation type="vanished">Grafica el parametro con el color espesificado si cumple con cualquien criterio de ese parametro</translation>
+        <translation>Grafica el parametro con el color espesificado si cumple con cualquien criterio de ese parametro</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
-        <translation type="vanished">Grafica las observaciones en el color espesificado si un parametro cumple con cualquier criterio de ese parametro</translation>
+        <translation>Grafica las observaciones en el color espesificado si un parametro cumple con cualquier criterio de ese parametro</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
-        <translation type="vanished">Grafica el marcador espesificado si uno de los parametros cumple cualquie criterio de ese parametro</translation>
+        <translation>Grafica el marcador espesificado si uno de los parametros cumple cualquie criterio de ese parametro</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Limit</source>
-        <translation type="vanished">Límite</translation>
+        <translation>Límite</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Precision</source>
-        <translation type="vanished">Precisión</translation>
+        <translation>Precisión</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Precision of limit</source>
-        <translation type="vanished">Precisión del límite</translation>
+        <translation>Precisión del límite</translation>
     </message>
     <message>
+        <location line="+25"/>
         <source>Save</source>
-        <translation type="vanished">Guardar</translation>
+        <translation>Guardar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save criteria list</source>
-        <translation type="vanished">Guardar lista de criterios</translation>
+        <translation>Guardar lista de criterios</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Name of list to save</source>
-        <translation type="vanished">Nombre de la lista a guardar</translation>
+        <translation>Nombre de la lista a guardar</translation>
     </message>
 </context>
 <context>
     <name>ObsWidget</name>
     <message>
+        <location filename="../../../src/qtObsWidget.cc" line="+153"/>
         <source>All</source>
-        <translation type="vanished">Todos</translation>
+        <translation>Todos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>None</source>
-        <translation type="vanished">Ninguno</translation>
+        <translation>Ninguno</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2347,120 +3541,207 @@ Tipo: %3</translation>
         <translation type="vanished">Presión</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>As field</source>
-        <translation type="vanished">Como campo</translation>
+        <translation>Como campo</translation>
     </message>
     <message>
         <source>deviation</source>
         <translation type="vanished">desviación</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Horisontal orientation</source>
-        <translation type="vanished">Orientación Horizontal</translation>
+        <translation>Orientación Horizontal</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Align right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Show all positions</source>
-        <translation type="vanished">Mostrat todas las posiciones</translation>
+        <translation>Mostrat todas las posiciones</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Temperatures as integers</source>
-        <translation type="vanished">Temperaturas como enteros</translation>
+        <translation>Temperaturas como enteros</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Name of parameter</source>
-        <translation type="vanished">Nombre del parámetro</translation>
+        <translation>Nombre del parámetro</translation>
     </message>
     <message>
         <source>All observations (mixing different times)</source>
         <translation type="vanished">Todas las observaciones (mezclando tiempos distintos)</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>PPPP - MSLP-field</source>
-        <translation type="vanished">PPP- campo MSLP</translation>
+        <translation>PPP- campo MSLP</translation>
     </message>
     <message>
         <source>Aireps in all levels</source>
         <translation type="vanished">Aireps en todos los niveles</translation>
     </message>
     <message>
+        <location line="+10"/>
+        <source>Quality stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>WMO stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+196"/>
+        <source>Only show stations with quality flag good.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only show stations with wmo number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-193"/>
         <source>Positions only</source>
-        <translation type="vanished">Solo posiciones</translation>
+        <translation>Solo posiciones</translation>
     </message>
     <message>
+        <location line="-51"/>
+        <source>Vertical level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Wind speed in m/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Selected observation in popup window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
         <source>Criterias</source>
-        <translation type="vanished">Criterios</translation>
+        <translation>Criterios</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&lt;&lt;Less</source>
-        <translation type="vanished">&lt;&lt;Menor</translation>
+        <translation>&lt;&lt;Menor</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>More&gt;&gt;</source>
-        <translation type="vanished">Mayor&gt;&gt;</translation>
+        <translation>Mayor&gt;&gt;</translation>
     </message>
     <message>
+        <location line="+22"/>
         <source>Density</source>
-        <translation type="vanished">Densidad</translation>
+        <translation>Densidad</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Size</source>
-        <translation type="vanished">Tamaño</translation>
+        <translation>Tamaño</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Timediff</source>
-        <translation type="vanished">Diferencia de tiempo</translation>
+        <translation>Diferencia de tiempo</translation>
     </message>
     <message>
+        <location line="+39"/>
+        <location line="+142"/>
+        <location line="+524"/>
         <source>No priority list</source>
-        <translation type="vanished">Sin lista de prioridades</translation>
+        <translation>Sin lista de prioridades</translation>
     </message>
     <message>
+        <location line="-665"/>
         <source>Priority </source>
-        <translation type="vanished">Prioridad</translation>
+        <translation>Prioridad</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Prioritized only</source>
-        <translation type="vanished">Sólo priorizado</translation>
+        <translation>Sólo priorizado</translation>
     </message>
     <message>
+        <location line="+7"/>
+        <source>Sort </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No sort criteria</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Asc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Desc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="+82"/>
         <source>Data type</source>
-        <translation type="vanished">Tipo de datos</translation>
+        <translation>Tipo de datos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>PPPP-MSLP&lt;0</source>
-        <translation type="vanished">PPPP-MSLP&lt;0</translation>
+        <translation>PPPP-MSLP&lt;0</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>PPPP-MSLP&gt;0</source>
-        <translation type="vanished">PPPP-MSLP&gt;0</translation>
+        <translation>PPPP-MSLP&gt;0</translation>
     </message>
     <message>
         <source>Affecting synoptic data: All observations in the time interval given, mixing observations with different times</source>
         <translation type="vanished">Afectando dato sinoptico: Todas las observaciones  en un intervalo de tiempo dado, mezclar observaciones con distintos tiempos</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Max time difference</source>
-        <translation type="vanished">Diferencia de tiempo máxima</translation>
+        <translation>Diferencia de tiempo máxima</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Max value for the slider</source>
-        <translation type="vanished">Maximo valor para el deslizador</translation>
+        <translation>Maximo valor para el deslizador</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Show only observations in the priority list</source>
-        <translation type="vanished">Mostrar sólo observaciones en la lista de prioridades</translation>
+        <translation>Mostrar sólo observaciones en la lista de prioridades</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Colour of the observations</source>
-        <translation type="vanished">Color de las observaciones</translation>
+        <translation>Color de las observaciones</translation>
     </message>
     <message>
+        <location line="+71"/>
         <source>ALL</source>
-        <translation type="vanished">TODOS</translation>
+        <translation>TODOS</translation>
     </message>
 </context>
 <context>
@@ -2595,20 +3876,201 @@ Tipo: %3</translation>
 <context>
     <name>PropertiesEditor</name>
     <message>
+        <location filename="../../../src/EditItems/properties.cc" line="+307"/>
+        <source>Item Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Wind speed (knots)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Beginning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Time</source>
-        <translation type="obsolete">Tiempo</translation>
+        <translation type="unfinished">Tiempo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Text</source>
-        <translation type="obsolete">Texto</translation>
+        <translation type="unfinished">Texto</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Line colour</source>
-        <translation type="obsolete">Color de línea</translation>
+        <translation type="unfinished">Color de línea</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Line alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Line width</source>
-        <translation type="obsolete">Ancho de línea</translation>
+        <translation type="unfinished">Ancho de línea</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Line smooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fill colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fill alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Fill pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Closed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reversed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1 colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1 alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 1 offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2 colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2 alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Decoration 2 offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Symbol colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Symbol alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Text colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Text alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Corner segments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Corner radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+104"/>
+        <source>No editable properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="+266"/>
+        <source>Open File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+32"/>
+        <location line="+12"/>
+        <location line="+20"/>
+        <location line="+14"/>
+        <source>KML files (*.kml);; All files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-47"/>
+        <source>Save All Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Save Filtered Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Save Selected Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Save Visible Items</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2622,266 +4084,348 @@ Tipo: %3</translation>
 <context>
     <name>QuickAdmin</name>
     <message>
+        <location filename="../../../src/qtQuickAdmin.cc" line="+99"/>
         <source>Edit quickmenus</source>
-        <translation type="vanished">Editar menus rápidos</translation>
+        <translation>Editar menus rápidos</translation>
     </message>
     <message>
+        <location line="+30"/>
         <source>&amp;New</source>
-        <translation type="vanished">&amp;Nuevo</translation>
+        <translation>&amp;Nuevo</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>New from &amp;file..</source>
-        <translation type="vanished">&amp;Nuevo de archivo..</translation>
+        <translation>&amp;Nuevo de archivo..</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Change name..</source>
-        <translation type="vanished">&amp;Cambiar nombre..</translation>
+        <translation>&amp;Cambiar nombre..</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Remove</source>
-        <translation type="vanished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Copy</source>
-        <translation type="vanished">Copiar</translation>
+        <translation>Copiar</translation>
     </message>
     <message>
+        <location line="+8"/>
+        <location line="+404"/>
         <source>Paste</source>
-        <translation type="vanished">Pegar</translation>
+        <translation>Pegar</translation>
     </message>
     <message>
+        <location line="-385"/>
         <source>Command field</source>
-        <translation type="vanished">Campo de comando</translation>
+        <translation>Campo de comando</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Dynamic options..</source>
-        <translation type="vanished">&amp;Opciones dinámicas..</translation>
+        <translation>&amp;Opciones dinámicas..</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
+        <location line="+59"/>
         <source>&amp;New menu..</source>
-        <translation type="vanished">&amp;Menu nuevo..</translation>
+        <translation>&amp;Menu nuevo..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Copy menu</source>
-        <translation type="vanished">Copiar menu</translation>
+        <translation>Copiar menu</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Remove menu..</source>
-        <translation type="vanished">Remover meu..</translation>
+        <translation>Remover meu..</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&amp;New plot..</source>
-        <translation type="vanished">&amp;Grafico nuevo..</translation>
+        <translation>&amp;Grafico nuevo..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Copy plot</source>
-        <translation type="vanished">Copiar figura</translation>
+        <translation>Copiar figura</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Remove plot</source>
-        <translation type="vanished">Remover figura</translation>
+        <translation>Remover figura</translation>
     </message>
     <message>
+        <location line="+147"/>
         <source>Make new menu</source>
-        <translation type="vanished">Hacer menu nuevo</translation>
+        <translation>Hacer menu nuevo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new menu with name:</source>
-        <translation type="vanished">Hacer menu nuevo llamado:</translation>
+        <translation>Hacer menu nuevo llamado:</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Make new plot</source>
-        <translation type="vanished">Hacer gráfico nuevo</translation>
+        <translation>Hacer gráfico nuevo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new plot with name:</source>
-        <translation type="vanished">Hacer gráfico nuevo llamado:</translation>
+        <translation>Hacer gráfico nuevo llamado:</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Menus (*.quick);;All (*.*)</source>
-        <translation type="vanished">Menus (*.Rapido);;Todos (*.*)</translation>
+        <translation>Menus (*.Rapido);;Todos (*.*)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Add new menu from file</source>
-        <translation type="vanished">Agregar menu nuevo desde archivo</translation>
+        <translation>Agregar menu nuevo desde archivo</translation>
     </message>
     <message>
+        <location line="+24"/>
         <source>Change menu name</source>
-        <translation type="vanished">Cambiar nombre menu</translation>
+        <translation>Cambiar nombre menu</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <location line="+8"/>
         <source>New name:</source>
-        <translation type="vanished">Nombre nuevo:</translation>
+        <translation>Nombre nuevo:</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>Change plot name</source>
-        <translation type="vanished">Cambiar nombre figura</translation>
+        <translation>Cambiar nombre figura</translation>
     </message>
     <message>
+        <location line="+54"/>
         <source>Paste menu</source>
-        <translation type="vanished">Copiar menu</translation>
+        <translation>Copiar menu</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Paste plot</source>
-        <translation type="vanished">Copiar figura</translation>
+        <translation>Copiar figura</translation>
     </message>
 </context>
 <context>
     <name>QuickEditOptions</name>
     <message>
+        <location filename="../../../src/qtQuickEditOptions.cc" line="+66"/>
         <source>Change Dynamic Options</source>
-        <translation type="vanished">Cambiar Opciones Dinámicas</translation>
+        <translation>Cambiar Opciones Dinámicas</translation>
     </message>
     <message>
+        <location line="+27"/>
         <source>&amp;New Key</source>
-        <translation type="vanished">&amp;Llave Nueva</translation>
+        <translation>&amp;Llave Nueva</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Change name..</source>
-        <translation type="vanished">&amp;Cambiar nombre..</translation>
+        <translation>&amp;Cambiar nombre..</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Remove</source>
-        <translation type="vanished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Options (comma separated)</source>
-        <translation type="vanished">Opciones (separadas por coma)</translation>
+        <translation>Opciones (separadas por coma)</translation>
     </message>
     <message>
+        <location line="+13"/>
         <source>&amp;OK</source>
-        <translation type="vanished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
+        <location line="+149"/>
         <source>New key</source>
-        <translation type="vanished">Llave nueva</translation>
+        <translation>Llave nueva</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Make new key with name:</source>
-        <translation type="vanished">Hacer llave nueva con nombre:</translation>
+        <translation>Hacer llave nueva con nombre:</translation>
     </message>
     <message>
+        <location line="+18"/>
         <source>New name</source>
-        <translation type="vanished">Nombre nuevo</translation>
+        <translation>Nombre nuevo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Change key name:</source>
-        <translation type="vanished">Cambiar nombre de llave:</translation>
+        <translation>Cambiar nombre de llave:</translation>
     </message>
 </context>
 <context>
     <name>QuickMenu</name>
     <message>
+        <location filename="../../../src/qtQuickMenu.cc" line="+75"/>
         <source>Quickmenu</source>
-        <translation type="vanished">Menú rápido</translation>
+        <translation>Menú rápido</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Menus</source>
-        <translation type="vanished">Menus</translation>
+        <translation>Menus</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Edit menus..</source>
-        <translation type="vanished">&amp;Editar menus..</translation>
+        <translation>&amp;Editar menus..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Menu editor: Copy, change name and sortorder etc. on your own menus</source>
-        <translation type="vanished">Editor de menu: Copiasr;cambiar nombre y clasificar orden ect. en tus propios menus</translation>
+        <translation>Editor de menu: Copiasr;cambiar nombre y clasificar orden ect. en tus propios menus</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>&amp;Update..</source>
-        <translation type="vanished">&amp;Actualizar..</translation>
+        <translation>&amp;Actualizar..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Update command with current plot</source>
-        <translation type="vanished">Actualizar comando con el grafico actual</translation>
+        <translation>Actualizar comando con el grafico actual</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>&amp;Reset..</source>
-        <translation type="vanished">&amp;Redefinir..</translation>
+        <translation>&amp;Redefinir..</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Reset command to original copy</source>
-        <translation type="vanished">Resetear comando a la copia original</translation>
+        <translation>Resetear comando a la copia original</translation>
     </message>
     <message>
+        <location line="+55"/>
         <source>Command field</source>
-        <translation type="vanished">Campo de comando</translation>
+        <translation>Campo de comando</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>&amp;Hide</source>
-        <translation type="vanished">&amp;Esconder</translation>
+        <translation>&amp;Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>&amp;Command</source>
-        <translation type="vanished">&amp;Comando</translation>
+        <translation>&amp;Comando</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Demo</source>
-        <translation type="vanished">&amp;Demostración</translation>
+        <translation>&amp;Demostración</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>&amp;Help</source>
-        <translation type="vanished">&amp;Ayuda</translation>
+        <translation>&amp;Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>&amp;Apply</source>
-        <translation type="vanished">&amp;Aplicar</translation>
+        <translation>&amp;Aplicar</translation>
     </message>
     <message>
+        <location line="+340"/>
         <source>History</source>
-        <translation type="vanished">Historia</translation>
+        <translation>Historia</translation>
     </message>
     <message>
+        <location line="+7"/>
+        <source>History-vcross</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+65"/>
+        <location line="+23"/>
         <source>Do you want to replace the content of this menuitem with current plot?</source>
-        <translation type="vanished">¿Quieres reemplazar el contenido de este item de menu con el grafico actual?</translation>
+        <translation>¿Quieres reemplazar el contenido de este item de menu con el grafico actual?</translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <source>This is a static/official menuitem, which can be reset to default value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>The menu name can be automatically created from the underlying data in the plot</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Be aware that this is a static/official menuitem, and you are not guaranteed to be able to keep all changes.</source>
         <translation type="obsolete">Ten en cuenta que esto es un item de menu estático/oficial; y no se te asegura el poder guardar todos los cambios.</translation>
     </message>
     <message>
+        <location line="-15"/>
         <source>Yes</source>
-        <translation type="vanished">Sí</translation>
+        <translation>Sí</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+23"/>
+        <location line="+89"/>
         <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>The name can also be automatically created from the underlying data in the plot</source>
         <translation type="obsolete">El nombre tambien pude ser creado automaticamente desde los datos subyacentes en el grafico</translation>
     </message>
     <message>
+        <location line="-91"/>
         <source>Yes, make new menu name</source>
-        <translation type="vanished">Sí, hacer nuevo nombre de menú</translation>
+        <translation>Sí, hacer nuevo nombre de menú</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Yes, keep menu name</source>
-        <translation type="vanished">Sí, mantener nombre de menú</translation>
+        <translation>Sí, mantener nombre de menú</translation>
     </message>
     <message>
+        <location line="+89"/>
         <source>Replace command with original copy?</source>
-        <translation type="vanished">¿Reemplazar comando  con una copia original?</translation>
+        <translation>¿Reemplazar comando  con una copia original?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -2930,134 +4474,180 @@ Tipo: %3</translation>
 <context>
     <name>SatDialog</name>
     <message>
+        <location filename="../../../src/qtSatDialog.cc" line="+80"/>
         <source>Satellite and radar</source>
-        <translation type="vanished">Satélite y radar</translation>
+        <translation>Satélite y radar</translation>
     </message>
     <message>
+        <location line="+27"/>
         <source>Auto</source>
-        <translation type="vanished">Automático</translation>
+        <translation>Automático</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Time</source>
-        <translation type="vanished">Tiempo</translation>
+        <translation>Tiempo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>File</source>
-        <translation type="vanished">Archivo</translation>
+        <translation>Archivo</translation>
     </message>
     <message>
+        <location line="+28"/>
         <source>Channels</source>
-        <translation type="vanished">Canales</translation>
+        <translation>Canales</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Selected pictures</source>
-        <translation type="vanished">Figuras seleccionadas</translation>
+        <translation>Figuras seleccionadas</translation>
     </message>
     <message>
+        <location line="+25"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Delete All</source>
-        <translation type="vanished">Borrar Todo</translation>
+        <translation>Borrar Todo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Add picture</source>
-        <translation type="vanished">Agregar figura</translation>
+        <translation>Agregar figura</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Add new picture if any of above settings change</source>
-        <translation type="vanished">Agrega una foto si cambia cualquier configuracion de arriba</translation>
+        <translation>Agrega una foto si cambia cualquier configuracion de arriba</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Mosaic</source>
-        <translation type="vanished">Mosaico</translation>
+        <translation>Mosaico</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Time diff</source>
-        <translation type="vanished">Diferencia de tiempo</translation>
+        <translation>Diferencia de tiempo</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
+        <translation>Refrescar</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>&lt;&lt;Less</source>
-        <translation type="vanished">&lt;&lt;Menor</translation>
+        <translation>&lt;&lt;Menor</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>More&gt;&gt;</source>
-        <translation type="vanished">Mayor&gt;&gt;</translation>
+        <translation>Mayor&gt;&gt;</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply+hide</source>
-        <translation type="vanished">Aplicar+esconder</translation>
+        <translation>Aplicar+esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
+        <location line="+398"/>
         <source>Chosen picture</source>
-        <translation type="vanished">Figura escogida</translation>
+        <translation>Figura escogida</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>No longer available on disk</source>
-        <translation type="vanished">Ya no está disponible en el disco</translation>
+        <translation>Ya no está disponible en el disco</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Satellite dialog - info</source>
-        <translation type="vanished">Diálogo satélite - info</translation>
+        <translation>Diálogo satélite - info</translation>
     </message>
 </context>
 <context>
     <name>SatDialogAdvanced</name>
     <message>
+        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+68"/>
         <source>Use stretch from first picture</source>
-        <translation type="vanished">Usar extension desde la primera foto</translation>
+        <translation>Usar extension desde la primera foto</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Cut</source>
-        <translation type="vanished">Cortar</translation>
+        <translation>Cortar</translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Alpha cut</source>
-        <translation type="vanished">Corte alfa</translation>
+        <translation>Corte alfa</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Alpha</source>
-        <translation type="vanished">Alfa</translation>
+        <translation>Alfa</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Table</source>
-        <translation type="vanished">Tabla</translation>
+        <translation>Tabla</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Colour cut</source>
-        <translation type="vanished">Corte color</translation>
+        <translation>Corte color</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Standard</source>
-        <translation type="vanished">Estandard</translation>
+        <translation>Estandard</translation>
     </message>
 </context>
 <context>
     <name>SetupDialog</name>
     <message>
-        <source>&amp;Cancel</source>
-        <translation type="obsolete">&amp;Cancelar</translation>
+        <location filename="../../../src/qtSetupDialog.cc" line="+53"/>
+        <source>Setup</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+6"/>
+        <source>Setupfile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Cancelar</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>&amp;OK</source>
-        <translation type="obsolete">&amp;OK</translation>
+        <translation type="unfinished">&amp;OK</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Choose setup file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3083,154 +4673,209 @@ Tipo: %3</translation>
         <translation type="obsolete">Archivo</translation>
     </message>
     <message>
+        <location filename="../../../src/qtSpectrumModelDialog.cc" line="+73"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
         <source>Delete All</source>
         <translation type="obsolete">Borrar todo</translation>
     </message>
     <message>
+        <location line="-13"/>
         <source>Diana Wavespectrum</source>
-        <translation type="obsolete">Diana Espectro de ondas</translation>
+        <translation type="unfinished">Diana Espectro de ondas</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Referencetime</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Selected models</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Delete all</source>
-        <translation type="obsolete">Borrar todo</translation>
+        <translation type="unfinished">Borrar todo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
+        <translation>Refrescar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
 </context>
 <context>
     <name>SpectrumSetupDialog</name>
     <message>
+        <location filename="../../../src/qtSpectrumSetupDialog.cc" line="+59"/>
         <source>Diana Wavespectrum - settings</source>
-        <translation type="vanished">Configuracion del espectro de ondas de Diana</translation>
+        <translation>Configuracion del espectro de ondas de Diana</translation>
     </message>
     <message>
+        <location line="+81"/>
         <source>Text</source>
-        <translation type="vanished">Texto</translation>
+        <translation>Texto</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Fixed text</source>
-        <translation type="vanished">Texto fijado</translation>
+        <translation>Texto fijado</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Frame</source>
-        <translation type="vanished">Marco</translation>
+        <translation>Marco</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Spectrum lines</source>
-        <translation type="vanished">Líneas de espectro</translation>
+        <translation>Líneas de espectro</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Spectrum coloured</source>
-        <translation type="vanished">Espectro coloreado</translation>
+        <translation>Espectro coloreado</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Graph line</source>
-        <translation type="vanished">Gráfico de línea</translation>
+        <translation>Gráfico de línea</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Graph coloured</source>
-        <translation type="vanished">Gráfico coloreado</translation>
+        <translation>Gráfico coloreado</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Wind</source>
-        <translation type="vanished">Viento</translation>
+        <translation>Viento</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Max direction</source>
-        <translation type="vanished">Direccion máxima</translation>
+        <translation>Direccion máxima</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Max frequency</source>
-        <translation type="vanished">Frecuencia máxima</translation>
+        <translation>Frecuencia máxima</translation>
     </message>
     <message>
+        <location line="+15"/>
         <source>Background colour</source>
-        <translation type="vanished">Color de fondo</translation>
+        <translation>Color de fondo</translation>
     </message>
     <message>
+        <location line="-107"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default</source>
-        <translation type="vanished">Por Defecto</translation>
+        <translation>Por Defecto</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
+        <location line="+45"/>
         <source>On/off</source>
-        <translation type="vanished">Activar/Desactivar</translation>
+        <translation>Activar/Desactivar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line thickness</source>
-        <translation type="vanished">Ancho de línea</translation>
+        <translation>Ancho de línea</translation>
     </message>
 </context>
 <context>
     <name>SpectrumWindow</name>
     <message>
+        <location filename="../../../src/qtSpectrumWindow.cc" line="+73"/>
         <source>Diana Wavespectrum</source>
-        <translation type="vanished">Diana Espectro de ondas</translation>
+        <translation>Diana Espectro de ondas</translation>
     </message>
     <message>
+        <location line="+20"/>
         <source>Model</source>
-        <translation type="vanished">Modelo</translation>
+        <translation>Modelo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Settings</source>
-        <translation type="vanished">Configuraciones</translation>
+        <translation>Configuraciones</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
+        <translation>Refrescar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Print</source>
-        <translation type="vanished">Imprimir</translation>
+        <translation>Imprimir</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Save</source>
-        <translation type="vanished">Guardar</translation>
+        <translation>Guardar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Salir</translation>
+        <translation>Salir</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Select ensemble member</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save plot as image</source>
@@ -3244,174 +4889,360 @@ Tipo: %3</translation>
 <context>
     <name>StationDialog</name>
     <message>
+        <location filename="../../../src/qtStationDialog.cc" line="+83"/>
+        <source>Sets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Chosen Sets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Show station names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show station names on the map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="obsolete">Ayuda</translation>
+        <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
+        <translation type="unfinished">Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply+Hide</source>
-        <translation type="obsolete">Aplicar+Esconder</translation>
+        <translation type="unfinished">Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Apply</source>
-        <translation type="obsolete">Aplicar</translation>
+        <translation type="unfinished">Aplicar</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StationDialog::Model</name>
+    <message>
+        <location line="+318"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>StatusGeopos</name>
     <message>
+        <location filename="../../../src/qtStatusGeopos.cc" line="+59"/>
         <source>Lat/Lon degree</source>
-        <translation type="vanished">Lat/Lon grados</translation>
+        <translation>Lat/Lon grados</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Lat/Lon decimal</source>
-        <translation type="vanished">Lat/Lon decimales</translation>
+        <translation>Lat/Lon decimales</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Proj coordinates</source>
-        <translation type="vanished">Coordenadas de Proyección</translation>
+        <translation>Coordenadas de Proyección</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Grid coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Area (km2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Distance (km)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>000°000&apos;W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <source>  Mark:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Window:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>  Vert:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source> Horiz:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Field grid</source>
         <translation type="obsolete">Grilla de campo</translation>
     </message>
     <message>
+        <location line="-98"/>
+        <location line="+82"/>
         <source>Lat:</source>
-        <translation type="vanished">Lat:</translation>
+        <translation>Lat:</translation>
     </message>
     <message>
+        <location line="-78"/>
+        <source> 00°000&apos;N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+72"/>
         <source>Lon:</source>
-        <translation type="vanished">Lon:</translation>
+        <translation>Lon:</translation>
     </message>
 </context>
 <context>
     <name>TextDialog</name>
     <message>
+        <location filename="../../../src/qtTextDialog.cc" line="+57"/>
         <source>Close window</source>
-        <translation type="vanished">Cerrar ventana</translation>
+        <translation>Cerrar ventana</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Open file..</source>
-        <translation type="vanished">Abrir archivo..</translation>
+        <translation>Abrir archivo..</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Use fixed font</source>
-        <translation type="vanished">Usar fuente fija</translation>
+        <translation>Usar fuente fija</translation>
     </message>
     <message>
+        <location line="+105"/>
         <source>Textfiles (*.txt *.text *.html);;All (*.*)</source>
-        <translation type="vanished">Archivos de texto (*.txt *.text *.html);;Todos (*.*)</translation>
+        <translation>Archivos de texto (*.txt *.text *.html);;Todos (*.*)</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Open file</source>
-        <translation type="vanished">Abrir archivo</translation>
+        <translation>Abrir archivo</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor</name>
+    <message>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="+82"/>
+        <source>Font size:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TextView</name>
     <message>
+        <location filename="../../../src/qtTextView.cc" line="+65"/>
         <source>Print</source>
-        <translation type="vanished">Imprimir</translation>
+        <translation>Imprimir</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
 </context>
 <context>
     <name>TimeControl</name>
     <message>
+        <location filename="../../../src/qtTimeControl.cc" line="+61"/>
         <source>Time interval</source>
-        <translation type="vanished">Intervalo de tiempo</translation>
+        <translation>Intervalo de tiempo</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Use time interval limits</source>
-        <translation type="vanished">USar los limites de intevalo de tiempo</translation>
+        <translation>USar los limites de intevalo de tiempo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Start</source>
-        <translation type="vanished">Comenzar</translation>
+        <translation>Comenzar</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Stop</source>
-        <translation type="vanished">Detener</translation>
+        <translation>Detener</translation>
     </message>
     <message>
+        <location line="+20"/>
+        <source>Time offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Use time interval from latest timestamp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Offset</source>
-        <translation type="vanished">Compensacion</translation>
+        <translation>Compensacion</translation>
     </message>
     <message>
+        <location line="+44"/>
         <source>Animation speed (sec):</source>
-        <translation type="vanished">Velocidad de animación (seg):</translation>
+        <translation>Velocidad de animación (seg):</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Data basis for time slider:</source>
-        <translation type="vanished">Base de datos para deslizador:</translation>
+        <translation>Base de datos para deslizador:</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Field</source>
-        <translation type="vanished">Campo</translation>
+        <translation>Campo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Satellite</source>
-        <translation type="vanished">Satélite</translation>
+        <translation>Satélite</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Observations</source>
-        <translation type="vanished">Observaciones</translation>
+        <translation>Observaciones</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Objects</source>
-        <translation type="vanished">Objetos</translation>
+        <translation>Objetos</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical profiles</source>
-        <translation type="vanished">Perfiles verticales</translation>
+        <translation>Perfiles verticales</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical cross-sections</source>
-        <translation type="vanished">Secciones tranversales verticales</translation>
+        <translation>Secciones tranversales verticales</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Wave spectra</source>
-        <translation type="vanished">Espectro de onda</translation>
+        <translation>Espectro de onda</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Products</source>
-        <translation type="vanished">Productos</translation>
+        <translation>Productos</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
+    </message>
+</context>
+<context>
+    <name>TimeNavigator</name>
+    <message>
+        <location filename="../../../src/qtTimeNavigator.cc" line="+35"/>
+        <source>Run Backwards</source>
+        <translation type="unfinished">Ejecutar hacia atrás</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Run Forewards</source>
+        <translation type="unfinished">Ejecutar hacia adelante</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Step Backwards</source>
+        <translation type="unfinished">Paso Previo</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Step Forewards</source>
+        <translation type="unfinished">Paso Siguiente</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Stop</source>
+        <translation type="unfinished">Detener</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Run in loop</source>
+        <translation type="unfinished">Ejecutar en un bucle</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Time control</source>
+        <translation type="unfinished">Control de tiempo</translation>
     </message>
 </context>
 <context>
     <name>TimeSpinbox</name>
     <message>
+        <location filename="../../../src/qtTimeSpinbox.cc" line="+72"/>
         <source>undefined</source>
-        <translation type="vanished">sin definir</translation>
+        <translation>sin definir</translation>
+    </message>
+</context>
+<context>
+    <name>ToolBar</name>
+    <message>
+        <location filename="../../../src/EditItems/toolbar.cc" line="+8"/>
+        <source>Hide or show all drawing dialogs</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TrajectoryDialog</name>
     <message>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="+69"/>
         <source>Trajectories</source>
-        <translation type="vanished">Trayectorias</translation>
+        <translation>Trayectorias</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Line width</source>
-        <translation type="vanished">Ancho de línea</translation>
+        <translation>Ancho de línea</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Line type</source>
-        <translation type="vanished">Tipo de línea</translation>
+        <translation>Tipo de línea</translation>
     </message>
     <message>
         <source>Time marks</source>
@@ -3422,149 +5253,186 @@ Tipo: %3</translation>
         <translation type="obsolete">Apagar</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>No. of positions</source>
-        <translation type="obsolete">Número de posiciones</translation>
+        <translation type="unfinished">Número de posiciones</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Radius</source>
-        <translation type="obsolete">Radio</translation>
+        <translation type="unfinished">Radio</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>km</source>
-        <translation type="obsolete">km</translation>
+        <translation type="unfinished">km</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Select positions on map</source>
-        <translation type="vanished">Seleccione posiciones en el mapa</translation>
+        <translation>Seleccione posiciones en el mapa</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Write positions (Lat Lon):</source>
-        <translation type="vanished">Escriba posiciones (Lat Lon):</translation>
+        <translation>Escriba posiciones (Lat Lon):</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Lat Lon (deg:min:sec or decimal)</source>
-        <translation type="vanished">Lat Lon (grad:min:seg o decimal)</translation>
+        <translation>Lat Lon (grad:min:seg o decimal)</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Delete all</source>
-        <translation type="vanished">Borrar todo</translation>
+        <translation>Borrar todo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Start computation</source>
-        <translation type="vanished">Iniciar cálculo</translation>
+        <translation>Iniciar cálculo</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Print</source>
-        <translation type="vanished">Imprimir</translation>
+        <translation>Imprimir</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Print calc. positions to file: trajectory.txt</source>
-        <translation type="vanished">Imprimir calculo de posiciones a un archivo de trayectoria .txt</translation>
+        <translation>Imprimir calculo de posiciones a un archivo de trayectoria .txt</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Salir</translation>
+        <translation>Salir</translation>
     </message>
     <message>
+        <location line="+171"/>
         <source>No field selected</source>
-        <translation type="vanished">Ningun campo seleccionado</translation>
+        <translation>Ningun campo seleccionado</translation>
     </message>
 </context>
 <context>
     <name>UffdaDialog</name>
     <message>
+        <location filename="../../../src/qtUffdaDialog.cc" line="+61"/>
         <source>Uffda</source>
-        <translation type="vanished">Uffda</translation>
+        <translation>Uffda</translation>
     </message>
     <message>
+        <location line="+28"/>
         <source>Selected positions</source>
-        <translation type="vanished">Seleccione posiciones</translation>
+        <translation>Seleccione posiciones</translation>
     </message>
     <message>
+        <location line="+11"/>
         <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
+        <translation>Borrar</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Delete All</source>
-        <translation type="vanished">Borrar Todo</translation>
+        <translation>Borrar Todo</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Save</source>
-        <translation type="vanished">Guardar</translation>
+        <translation>Guardar</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>Send</source>
-        <translation type="vanished">Enviar</translation>
+        <translation>Enviar</translation>
     </message>
     <message>
+        <location line="+97"/>
         <source>Data saved in</source>
-        <translation type="vanished">Datos guardados en</translation>
+        <translation>Datos guardados en</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Data not saved</source>
-        <translation type="vanished">Datos no guardados</translation>
+        <translation>Datos no guardados</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+45"/>
+        <location line="+67"/>
         <source>Uffda - info</source>
-        <translation type="vanished">Informacion Uffda</translation>
+        <translation>Informacion Uffda</translation>
     </message>
     <message>
+        <location line="-81"/>
         <source>Data sent to</source>
-        <translation type="vanished">Datos enviados a</translation>
+        <translation>Datos enviados a</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Check incoming mail for receipt (up to 2 minutes)!</source>
-        <translation type="vanished">!Revisar correos entrates para recibir(hasta dos minutos)!</translation>
+        <translation>!Revisar correos entrates para recibir(hasta dos minutos)!</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>(Data also saved in local file</source>
-        <translation type="vanished">(Datos también guardados en archivo local</translation>
+        <translation>(Datos también guardados en archivo local</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Data not sent to</source>
-        <translation type="vanished">Datos no enviados a</translation>
+        <translation>Datos no enviados a</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Incomplete information</source>
-        <translation type="vanished">Información incompleta</translation>
+        <translation>Información incompleta</translation>
     </message>
     <message>
+        <location line="+71"/>
         <source>You have not sent Uffda data !
  Send before exiting?</source>
-        <translation type="vanished">No has enviado los datos Uffda
+        <translation>No has enviado los datos Uffda
 Enviar antes de salir?</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>&amp;Send</source>
-        <translation type="vanished">&amp;Enviar</translation>
+        <translation>&amp;Enviar</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;No enviar</translation>
+        <translation>&amp;No enviar</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
 </context>
 <context>
@@ -3602,6 +5470,16 @@ Enviar antes de salir?</translation>
     <message>
         <location line="-73"/>
         <source>type to filter plots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/vcross_qt/qtVcrossAddPlotDialog.cc" line="+221"/>
+        <source>Chosen model: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Chosen reference time: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3811,8 +5689,34 @@ Enviar antes de salir?</translation>
 <context>
     <name>VcrossLayerButton</name>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossLayerButton.cc" line="+25"/>
+        <source>Model: %1 Reftime: %2 Field: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Show/Hide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Remove</source>
-        <translation type="obsolete">Remover</translation>
+        <translation type="unfinished">Remover</translation>
     </message>
 </context>
 <context>
@@ -3838,6 +5742,11 @@ Enviar antes de salir?</translation>
     <message>
         <location filename="../../../src/vcross_qt/vcross_reftimepage.ui" line="+30"/>
         <source>Choose a r&amp;eference time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/vcross_qt/qtVcrossReftimePage.cc" line="+41"/>
+        <source>Chosen model: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3872,140 +5781,187 @@ Enviar antes de salir?</translation>
 <context>
     <name>VcrossSetupDialog</name>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="+56"/>
         <source>Diana Vertical Cross Sections - settings</source>
-        <translation type="vanished">Configuracion de lectura de anillos vertical de Diana</translation>
+        <translation>Configuracion de lectura de anillos vertical de Diana</translation>
     </message>
     <message>
+        <location line="+77"/>
         <source>Text</source>
-        <translation type="vanished">Texto</translation>
+        <translation>Texto</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Frame</source>
-        <translation type="vanished">Marco</translation>
+        <translation>Marco</translation>
     </message>
     <message>
+        <location line="-5"/>
         <source>Position names</source>
-        <translation type="vanished">Nombres de posiciones</translation>
+        <translation>Nombres de posiciones</translation>
     </message>
     <message>
+        <location line="+8"/>
         <source>Number for level</source>
-        <translation type="vanished">Número por nivel</translation>
+        <translation>Número por nivel</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Top level</source>
-        <translation type="vanished">Nivel superior</translation>
+        <translation>Nivel superior</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Bottom level</source>
-        <translation type="vanished">Nivel inferior</translation>
+        <translation>Nivel inferior</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Other levels</source>
-        <translation type="vanished">Otros niveles</translation>
+        <translation>Otros niveles</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Surface Pressure (Topography)</source>
-        <translation type="vanished">Presión en superficie (Topografía)</translation>
+        <translation>Presión en superficie (Topografía)</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <source>Inflight lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Horizontal gridlines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Distance</source>
-        <translation type="vanished">Distancia</translation>
+        <translation>Distancia</translation>
     </message>
     <message>
         <source>Grid x,y positions</source>
         <translation type="obsolete">Posicion x,y</translation>
     </message>
     <message>
+        <location line="+16"/>
         <source>Geographical positions</source>
-        <translation type="vanished">Posiciones geográficas</translation>
+        <translation>Posiciones geográficas</translation>
     </message>
     <message>
+        <location line="-27"/>
         <source>Vertical gridlines</source>
-        <translation type="vanished">Division de lineas verticales</translation>
+        <translation>Division de lineas verticales</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Marker lines</source>
-        <translation type="vanished">Marcador de lineas</translation>
+        <translation>Marcador de lineas</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical markers</source>
-        <translation type="vanished">Marcadores verticales</translation>
+        <translation>Marcadores verticales</translation>
     </message>
     <message>
+        <location line="+28"/>
+        <source>Direction indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Extrapolate to fixed P</source>
-        <translation type="vanished">Extrapolar a P fija</translation>
+        <translation>Extrapolar a P fija</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Extrapolate to ocean floor</source>
-        <translation type="vanished">Extrapolar al fondo del océano</translation>
+        <translation>Extrapolar al fondo del océano</translation>
     </message>
     <message>
         <source>Thick arrows</source>
         <translation type="obsolete">Flechas gruesas</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Vertical type</source>
-        <translation type="vanished">Tipo vertical</translation>
+        <translation>Tipo vertical</translation>
     </message>
     <message>
+        <location line="+12"/>
         <source>Fixed vertical/horizontal scaling:</source>
-        <translation type="vanished">Ajuste de escalar vertical/horizontal:</translation>
+        <translation>Ajuste de escalar vertical/horizontal:</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Default area vertically:</source>
-        <translation type="vanished">Area vertical por defecto:</translation>
+        <translation>Area vertical por defecto:</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default area horizontally:</source>
-        <translation type="vanished">Area horizontal por defecto:</translation>
+        <translation>Area horizontal por defecto:</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Background colour</source>
-        <translation type="vanished">Color de fondo</translation>
+        <translation>Color de fondo</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Cross sections on map</source>
-        <translation type="vanished">Secciones tranversales en el mapa</translation>
+        <translation>Secciones tranversales en el mapa</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Selected cross section on map</source>
-        <translation type="vanished">Seleccionar secciones transversales en el mapa</translation>
+        <translation>Seleccionar secciones transversales en el mapa</translation>
     </message>
     <message>
+        <location line="-170"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default</source>
-        <translation type="vanished">Por Defecto</translation>
+        <translation>Por Defecto</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
+        <location line="+40"/>
         <source>On/off</source>
-        <translation type="vanished">Activar/Desactivar</translation>
+        <translation>Activar/Desactivar</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line thickness</source>
-        <translation type="vanished">Ancho de línea</translation>
+        <translation>Ancho de línea</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Line type</source>
-        <translation type="vanished">Tipo de línea</translation>
+        <translation>Tipo de línea</translation>
     </message>
 </context>
 <context>
@@ -4034,6 +5990,11 @@ Enviar antes de salir?</translation>
         <location line="+3"/>
         <source>&amp;Apply</source>
         <translation type="unfinished">&amp;Aplicar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/vcross_qt/qtVcrossStyleDialog.cc" line="+99"/>
+        <source>M: %1 -- R: %2 -- F: %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4209,6 +6170,12 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location line="+3"/>
+        <location filename="../../../src/vcross_qt/qtVcrossStyleWidget.cc" line="+46"/>
+        <location line="+83"/>
+        <location line="+9"/>
+        <location line="+6"/>
+        <location line="+61"/>
+        <location line="+83"/>
         <source>Off</source>
         <translation type="unfinished">Apagar</translation>
     </message>
@@ -4252,16 +6219,41 @@ Enviar antes de salir?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../src/vcross_qt/qtVcrossStyleWidget.cc" line="-146"/>
+        <location line="+6"/>
+        <location line="+145"/>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-111"/>
+        <source>Level low</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Level high</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Smooth lines</source>
-        <translation type="obsolete">Suavizar lineas</translation>
+        <translation type="unfinished">Suavizar lineas</translation>
     </message>
     <message>
+        <location line="+16"/>
+        <source>Time offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source> hour(s)</source>
-        <translation type="obsolete">hora(s)</translation>
+        <translation type="unfinished">hora(s)</translation>
     </message>
     <message>
+        <location line="+47"/>
         <source>Pattern</source>
-        <translation type="obsolete">Patrón</translation>
+        <translation type="unfinished">Patrón</translation>
     </message>
 </context>
 <context>
@@ -4579,214 +6571,293 @@ Enviar antes de salir?</translation>
         <translation type="obsolete">Archivo</translation>
     </message>
     <message>
+        <location filename="../../../src/qtVprofModelDialog.cc" line="+74"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Delete all</source>
-        <translation type="vanished">Borrar todo</translation>
+        <translation>Borrar todo</translation>
     </message>
     <message>
         <source>Refresh</source>
         <translation type="obsolete">Refrescar</translation>
     </message>
     <message>
+        <location line="-19"/>
         <source>Diana Vertical Profiles</source>
-        <translation type="obsolete">Perfiles Verticales Diana</translation>
+        <translation type="unfinished">Perfiles Verticales Diana</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Referencetime</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Selected models</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
 </context>
 <context>
     <name>VprofSetupDialog</name>
     <message>
+        <location filename="../../../src/qtVprofSetupDialog.cc" line="+62"/>
         <source>Diana Vertical Profiles - settings</source>
-        <translation type="vanished">Configuracion de perfiles verticales de Diana</translation>
+        <translation>Configuracion de perfiles verticales de Diana</translation>
     </message>
     <message>
+        <location line="+331"/>
         <source>Temperature</source>
-        <translation type="vanished">Temperatura</translation>
+        <translation>Temperatura</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Dewpoint</source>
-        <translation type="vanished">Punto de rocío</translation>
+        <translation>Punto de rocío</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Wind</source>
-        <translation type="vanished">Viento</translation>
+        <translation>Viento</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Vertical wind (model)</source>
-        <translation type="vanished">Viento vertical (modelo)</translation>
+        <translation>Viento vertical (modelo)</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Relative humidity</source>
-        <translation type="vanished">Humedad relativa</translation>
+        <translation>Humedad relativa</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Refraction index</source>
-        <translation type="vanished">Indice de refracción</translation>
+        <translation>Indice de refracción</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>K-index</source>
-        <translation type="vanished">Indice K</translation>
+        <translation>Indice K</translation>
     </message>
     <message>
+        <location line="-2"/>
         <source>Significant wind (dd-ff)</source>
-        <translation type="vanished">Viento significativo (dd-ff)</translation>
+        <translation>Viento significativo (dd-ff)</translation>
     </message>
     <message>
+        <location line="+100"/>
         <source>Pressure lines</source>
-        <translation type="vanished">Líneas de presión</translation>
+        <translation>Líneas de presión</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Lines in flight levels</source>
-        <translation type="vanished">Líneas en niveles de vuelo</translation>
+        <translation>Líneas en niveles de vuelo</translation>
     </message>
     <message>
+        <location line="-3"/>
         <source>Temperature lines</source>
-        <translation type="vanished">Líneas de temperatura</translation>
+        <translation>Líneas de temperatura</translation>
     </message>
     <message>
+        <location line="+7"/>
         <source>Dry adiabatic</source>
-        <translation type="vanished">Adiabático seco</translation>
+        <translation>Adiabático seco</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Wet adiabatic</source>
-        <translation type="vanished">Adiabático húmedo</translation>
+        <translation>Adiabático húmedo</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Mixing rate</source>
-        <translation type="vanished">Taza de mezcla</translation>
+        <translation>Taza de mezcla</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>P and T units</source>
-        <translation type="vanished">Unidades de P y T</translation>
+        <translation>Unidades de P y T</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Frame</source>
-        <translation type="vanished">Cuadro</translation>
+        <translation>Cuadro</translation>
     </message>
     <message>
+        <location line="-116"/>
         <source>Text</source>
-        <translation type="vanished">Texto</translation>
+        <translation>Texto</translation>
     </message>
     <message>
+        <location line="+117"/>
         <source>Flight levels</source>
-        <translation type="vanished">Niveles de vuelo</translation>
+        <translation>Niveles de vuelo</translation>
     </message>
     <message>
+        <location line="+3"/>
         <source>FL units</source>
-        <translation type="vanished">Unidades FL</translation>
+        <translation>Unidades FL</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Separate wind columns</source>
-        <translation type="vanished">Columnas de viento separadas</translation>
+        <translation>Columnas de viento separadas</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Lines for condensation trails</source>
-        <translation type="vanished">Lineas para caminos de condensación</translation>
+        <translation>Lineas para caminos de condensación</translation>
     </message>
     <message>
+        <location line="-123"/>
         <source>Geographical position in text</source>
-        <translation type="vanished">Posición geográfica en texto</translation>
+        <translation>Posición geográfica en texto</translation>
     </message>
     <message>
+        <location line="+6"/>
         <source>Pressure range</source>
-        <translation type="vanished">Rango de presión</translation>
+        <translation>Rango de presión</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Temperature range</source>
-        <translation type="vanished">Rango de temperatura</translation>
+        <translation>Rango de temperatura</translation>
     </message>
     <message>
+        <location line="+119"/>
         <source>Background colour</source>
-        <translation type="vanished">Color de fondo</translation>
+        <translation>Color de fondo</translation>
     </message>
     <message>
+        <location line="-454"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Default</source>
-        <translation type="vanished">Por Defecto</translation>
+        <translation>Por Defecto</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
+        <translation>Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
+        <translation>Aplicar+Esconder</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
+        <location line="+283"/>
+        <location line="+99"/>
         <source>Diagram</source>
-        <translation type="vanished">Diagrama</translation>
+        <translation>Diagrama</translation>
     </message>
     <message>
+        <location line="-86"/>
+        <location line="+97"/>
         <source>On/off</source>
-        <translation type="vanished">Activar/Desactivar</translation>
+        <translation>Activar/Desactivar</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <location line="+63"/>
         <source>Colour</source>
-        <translation type="vanished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
+        <location line="-62"/>
+        <location line="+63"/>
         <source>Line thickness</source>
-        <translation type="vanished">Ancho de línea</translation>
+        <translation>Ancho de línea</translation>
     </message>
     <message>
+        <location line="-62"/>
         <source>Line type</source>
-        <translation type="vanished">Tipo de línea</translation>
+        <translation>Tipo de línea</translation>
     </message>
     <message>
+        <location line="+49"/>
         <source>Colours</source>
-        <translation type="vanished">Colores</translation>
+        <translation>Colores</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Data%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VprofWindow</name>
     <message>
+        <location filename="../../../src/qtVprofWindow.cc" line="+77"/>
         <source>Diana Vertical Profiles</source>
-        <translation type="vanished">Perfiles Verticales Diana</translation>
+        <translation>Perfiles Verticales Diana</translation>
     </message>
     <message>
+        <location line="+19"/>
         <source>Model</source>
-        <translation type="vanished">Modelo</translation>
+        <translation>Modelo</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Settings</source>
-        <translation type="vanished">Configuraciones</translation>
+        <translation>Configuraciones</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Print</source>
-        <translation type="vanished">Imprimir</translation>
+        <translation>Imprimir</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Save</source>
-        <translation type="vanished">Guardar</translation>
+        <translation>Guardar</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Quit</source>
-        <translation type="vanished">Salir</translation>
+        <translation>Salir</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
+        <translation>Ayuda</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Select ensemble member</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save plot as image</source>
@@ -4801,11 +6872,13 @@ Enviar antes de salir?</translation>
     <name>WebMapDialog</name>
     <message>
         <location filename="../../../src/wmsclient/webmap_dialog.ui" line="+15"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+136"/>
         <source>Web Maps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+25"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+185"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4993,6 +7066,16 @@ Enviar antes de salir?</translation>
         <location line="+23"/>
         <source>&amp;Apply</source>
         <translation type="unfinished">&amp;Aplicar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="-57"/>
+        <source>Choose layer in service %1:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

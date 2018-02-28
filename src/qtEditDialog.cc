@@ -1251,7 +1251,7 @@ void  EditDialog::sendClicked()
 void  EditDialog::approveClicked()
 {
   if (!undoFrontButton->isEnabled() && !undoFieldButton->isEnabled() ) {
-    int ret = QMessageBox::warning(this, tr("Warnig - approve product"),
+    int ret = QMessageBox::warning(this, tr("Warning - approve product"),
         tr("Do you really want to approve an unchanged product?"),
         QMessageBox::Yes | QMessageBox::Cancel,
         QMessageBox::Cancel);
