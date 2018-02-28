@@ -136,6 +136,7 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   datatypeButtons = new ButtonLayout(this, dataTypeButton, 3);
 
   dialoginfo.addExtraParameterButtons();
+  button = dialogInfo.button;
   parameterButtons = new ButtonLayout(this, dialogInfo.button, 3);
 
   QScrollArea* scrollArea = new QScrollArea(this);
