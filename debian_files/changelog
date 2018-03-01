@@ -1,3 +1,12 @@
+diana-3.44 (3.44.0~b1-1) unstable; urgency=low
+
+  * resurrect many translations
+  * ExportImageDialog - Qt::WindowModal
+  * Bugfix - obs criteria
+  * Bugfix - qtMeasurementsDialog.cc speed_in_knots
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 01 Mar 2018 11:53:29 +0100
+
 diana-3.44 (3.44.0~a2-1) unstable; urgency=low
 
   * bugfixes
