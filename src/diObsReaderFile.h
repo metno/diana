@@ -74,6 +74,8 @@ public:
    * 2. select all obs from these files with obstime in [reqtime+-timediff]
    *   (\see ObsReader::getData)
    *
+   * Allways update file/time list
+   *
    * @param request
    * @param result
    */

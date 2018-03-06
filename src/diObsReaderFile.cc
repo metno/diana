@@ -85,11 +85,12 @@ std::set<miutil::miTime> ObsReaderFile::getTimes(bool useArchive)
   METLIBS_LOG_SCOPE(LOGVAL(fileInfo.size()));
   std::set<miutil::miTime> times;
 
-  if (fileInfo.empty())
-    checkForUpdates(useArchive);
+  checkForUpdates(useArchive);
 
-  for (const FileInfo& fi : fileInfo)
-    times.insert(fi.time);
+  for (const FileInfo& fi : fileInfo) {
+    if (!fi.time.undef())
+      times.insert(fi.time);
+  }
   return times;
 }
 
