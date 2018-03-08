@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2015 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,13 +27,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <diDrawingManager.h>
-#include <EditItems/dialogcommon.h>
-#include <EditItems/kml.h>
-#include <EditItems/editpolyline.h>
-#include <EditItems/editsymbol.h>
-#include <EditItems/edittext.h>
-#include <EditItems/editcomposite.h>
+#include "dialogcommon.h"
+
+#include "EditItems/editcomposite.h"
+#include "EditItems/editpolyline.h"
+#include "EditItems/editsymbol.h"
+#include "EditItems/edittext.h"
+#include "EditItems/kml.h"
+#include "diDrawingManager.h"
 
 #include <QApplication>
 #include <QButtonGroup>

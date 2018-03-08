@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -58,7 +58,7 @@ class ToolBar : public QToolBar
 public:
   static ToolBar *instance(QWidget * parent);
 
-public slots:
+public Q_SLOTS:
   void setSelectAction();
   void setCreatePolyLineAction(const QString &);
   void setPolyLineType(QListWidgetItem *item);
@@ -70,7 +70,7 @@ public slots:
   void addSymbol(const QString &section, const QString &name);
   void addSymbols(const QString &section, const QStringList &names);
 
-private slots:
+private Q_SLOTS:
   void showComposites();
   void showPolyLines();
   void showSymbols();

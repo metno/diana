@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,7 +31,8 @@
 
 #include "diana_config.h"
 
-#include "vcross_qt/qtVcrossAddPlotDialog.h"
+#include "qtVcrossAddPlotDialog.h"
+
 #include "vcross_qt/qtVcrossModelPage.h"
 #include "vcross_qt/qtVcrossReftimePage.h"
 

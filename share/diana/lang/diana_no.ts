@@ -782,188 +782,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
 </context>
 <context>
-    <name>DrawingDialog</name>
-    <message>
-        <location filename="../../../src/EditItems/drawingdialog.cc" line="+82"/>
-        <source>Products</source>
-        <translation type="unfinished">Produkter</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Endre</translation>
-    </message>
-    <message>
-        <location line="+97"/>
-        <source>Hide</source>
-        <translation type="unfinished">Skjul</translation>
-    </message>
-    <message>
-        <location line="-46"/>
-        <source>Apply</source>
-        <translation type="unfinished">Utfør</translation>
-    </message>
-    <message>
-        <location line="-58"/>
-        <location line="+14"/>
-        <source>Drawing Dialog</source>
-        <translation type="unfinished">Tegning Dialog</translation>
-    </message>
-    <message>
-        <location line="-6"/>
-        <source>Display products</source>
-        <translation type="unfinished">Visning produkter</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Edit products</source>
-        <translation type="unfinished">Editering produkter</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>Load new...</source>
-        <translation type="unfinished">Last inn nye</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Reload</source>
-        <translation type="unfinished">Les Igjen</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>All time steps</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Edit mode</source>
-        <translation type="unfinished">Editering modus</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Clear</source>
-        <translation type="unfinished">Slett</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <location line="+466"/>
-        <source>Quick save</source>
-        <translation type="unfinished">Hurtig lagre</translation>
-    </message>
-    <message>
-        <location line="-457"/>
-        <source>Save</source>
-        <translation type="unfinished">Lagre</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Save as...</source>
-        <translation type="unfinished">Lagre som</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save All Items...</source>
-        <translation type="unfinished">Lagre alle objekter</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save Filtered Items...</source>
-        <translation type="unfinished">Lagre Visse Objekter</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save Visible Items...</source>
-        <translation type="unfinished">Lagre Synlige Objekter</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save Selected Items...</source>
-        <translation type="unfinished">Lagre Selekterte Objekter</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <location line="+504"/>
-        <source>Show filters &gt;&gt;&gt;</source>
-        <translation type="unfinished">Vis filtre &gt;&gt;&gt;</translation>
-    </message>
-    <message>
-        <location line="-350"/>
-        <source>Open File</source>
-        <translation type="unfinished">Åpne Fil</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Failed to open file: %1</source>
-        <translation type="unfinished">Feilet å åpne fil: %1</translation>
-    </message>
-    <message>
-        <location line="+90"/>
-        <source>Save File</source>
-        <translation type="unfinished">Lagre Fil</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Failed to save file &apos;%1&apos;. Error was &apos;%2&apos;.</source>
-        <translation type="unfinished">Feilet å lagre fil: &apos;%1&apos;. Feilen var &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <location line="+40"/>
-        <source>Clear Existing Objects</source>
-        <translation type="unfinished">Slett Ekisterende Objekter</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>You are already editing some objects. Shall I remove them?</source>
-        <translation type="unfinished">Du editerer noen objekter. Skal jeg slette dem?</translation>
-    </message>
-    <message numerus="yes">
-        <location line="+90"/>
-        <source>Edit %n product(s)</source>
-        <translation type="unfinished">
-            <numerusform>Endre %n objekt</numerusform>
-            <numerusform>Endre %n objekter</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Remove %n product(s)</source>
-        <translation type="unfinished">
-            <numerusform>Slett %n produkt</numerusform>
-            <numerusform>Slett %n produkter</numerusform>
-        </translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Edit product</source>
-        <translation type="unfinished">Endre produkt</translation>
-    </message>
-    <message>
-        <location line="+35"/>
-        <source>Quick save &apos;%1&apos;</source>
-        <translation type="unfinished">Hurtig lagre &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location line="+74"/>
-        <source>Hide filters &lt;&lt;&lt;</source>
-        <translation type="unfinished">Skjul filtre &lt;&lt;&lt;</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Fjern</translation>
-    </message>
-</context>
-<context>
-    <name>DrawingModel</name>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Navn</translation>
-    </message>
-    <message>
-        <location line="+146"/>
-        <source>Source</source>
-        <translation type="unfinished">Kilde</translation>
-    </message>
-</context>
-<context>
     <name>EditComment</name>
     <message>
         <source>Comments-editing</source>
@@ -1881,159 +1699,200 @@ Vil du lagre før du avslutter?</translation>
 <context>
     <name>EditItems::DrawingDialog</name>
     <message>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="+76"/>
+        <location line="+14"/>
         <source>Drawing Dialog</source>
-        <translation type="vanished">Tegning Dialog</translation>
+        <translation>Tegning Dialog</translation>
     </message>
     <message>
+        <location line="-7"/>
         <source>Products</source>
-        <translation type="vanished">Produkter</translation>
+        <translation>Produkter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Display products</source>
-        <translation type="vanished">Visning produkter</translation>
+        <translation>Visning produkter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Edit products</source>
-        <translation type="vanished">Editering produkter</translation>
+        <translation>Editering produkter</translation>
     </message>
     <message>
+        <location line="+26"/>
         <source>Load new...</source>
-        <translation type="vanished">Last inn nye</translation>
+        <translation>Last inn nye...</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Reload</source>
-        <translation type="vanished">Les Igjen</translation>
+        <translation>Les Igjen</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>All time steps</source>
-        <translation type="vanished">Alle tidspunkter</translation>
+        <translation>Alle tidspunkter</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Apply</source>
-        <translation type="vanished">Utfør</translation>
+        <translation>Utfør</translation>
     </message>
     <message>
+        <location line="+9"/>
         <source>Edit mode</source>
-        <translation type="vanished">Editering modus</translation>
+        <translation>Editering modus</translation>
     </message>
     <message>
+        <location line="+4"/>
         <source>Clear</source>
-        <translation type="vanished">Slett</translation>
+        <translation>Slett</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+466"/>
         <source>Quick save</source>
-        <translation type="obsolete">Hurtig lagre</translation>
+        <translation type="unfinished">Hurtig lagre</translation>
     </message>
     <message>
+        <location line="-457"/>
         <source>Save</source>
-        <translation type="obsolete">Lagre</translation>
+        <translation>Lagre</translation>
     </message>
     <message>
+        <location line="+2"/>
         <source>Save as...</source>
-        <translation type="obsolete">Lagre som</translation>
+        <translation>Lagre som...</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save All Items...</source>
-        <translation type="obsolete">Lagre alle objekter</translation>
+        <translation>Lagre alle objekter...</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save Filtered Items...</source>
-        <translation type="obsolete">Lagre Visse Objekter</translation>
+        <translation>Lagre Visse Objekter ...</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save Visible Items...</source>
-        <translation type="obsolete">Lagre Synlige Objekter</translation>
+        <translation>Lagre Synlige Objekter...</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Save Selected Items...</source>
-        <translation type="obsolete">Lagre Selekterte Objekter</translation>
+        <translation>Lagre Selekterte Objekter...</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>Hide</source>
-        <translation type="vanished">Skjul</translation>
+        <translation>Skjul</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <location line="+504"/>
         <source>Show filters &gt;&gt;&gt;</source>
-        <translation type="vanished">Vis filtre &gt;&gt;&gt;</translation>
+        <translation>Vis filtre &gt;&gt;&gt;</translation>
     </message>
     <message>
+        <location line="-350"/>
         <source>Open File</source>
-        <translation type="vanished">Åpne Fil</translation>
+        <translation>Åpne Fil</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>Failed to open file: %1</source>
-        <translation type="vanished">Feilet å åpne fil: %1</translation>
+        <translation>Feilet å åpne fil: %1</translation>
     </message>
     <message>
+        <location line="+90"/>
         <source>Save File</source>
-        <translation type="vanished">Lagre Fil</translation>
+        <translation>Lagre Fil</translation>
     </message>
     <message>
+        <location line="+0"/>
         <source>Failed to save file &apos;%1&apos;. Error was &apos;%2&apos;.</source>
-        <translation type="obsolete">Feilet å lagre fil: &apos;%1&apos;. Feilen var &apos;%2&apos;.</translation>
+        <translation type="unfinished">Feilet å lagre fil: &apos;%1&apos;. Feilen var &apos;%2&apos;.</translation>
     </message>
     <message>
+        <location line="+40"/>
         <source>Clear Existing Objects</source>
-        <translation type="obsolete">Slett Ekisterende Objekter</translation>
+        <translation>Slett Eksisterende Objekter</translation>
     </message>
     <message>
+        <location line="+1"/>
         <source>You are already editing some objects. Shall I remove them?</source>
-        <translation type="obsolete">Du editerer noen objekter. Skal jeg slette dem?</translation>
+        <translation type="unfinished">Du editerer noen objekter. Skal jeg slette dem?</translation>
     </message>
     <message numerus="yes">
+        <location line="+90"/>
         <source>Edit %n product(s)</source>
-        <translation type="obsolete">
+        <translation type="unfinished">
             <numerusform>Endre %n objekt</numerusform>
             <numerusform>Endre %n objekter</numerusform>
         </translation>
     </message>
     <message numerus="yes">
+        <location line="+2"/>
         <source>Remove %n product(s)</source>
-        <translation type="obsolete">
+        <translation type="unfinished">
             <numerusform>Slett %n produkt</numerusform>
             <numerusform>Slett %n produkter</numerusform>
         </translation>
     </message>
     <message>
+        <location line="+17"/>
         <source>Edit product</source>
-        <translation type="obsolete">Endre produkt</translation>
+        <translation type="unfinished">Endre produkt</translation>
     </message>
     <message>
+        <location line="+35"/>
         <source>Quick save &apos;%1&apos;</source>
-        <translation type="obsolete">Hurtig lagre &apos;%1&apos;</translation>
+        <translation type="unfinished">Hurtig lagre &apos;%1&apos;</translation>
     </message>
     <message>
+        <location line="+74"/>
         <source>Hide filters &lt;&lt;&lt;</source>
-        <translation type="obsolete">Skjul filtre &lt;&lt;&lt;</translation>
+        <translation type="unfinished">Skjul filtre &lt;&lt;&lt;</translation>
     </message>
 </context>
 <context>
     <name>EditItems::DrawingModel</name>
     <message>
+        <location line="+146"/>
         <source>Source</source>
-        <translation type="vanished">Kilde</translation>
+        <translation>Kilde</translation>
     </message>
 </context>
 <context>
     <name>EditItems::FilterDrawingWidget</name>
     <message>
+        <location filename="../../../src/EditItems/filterdrawingdialog.cc" line="+63"/>
         <source>Properties</source>
-        <translation type="vanished">Egenskaper</translation>
+        <translation>Egenskaper</translation>
     </message>
 </context>
 <context>
     <name>EditItems::TextEditor</name>
     <message>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="+83"/>
         <source>Font size:</source>
-        <translation type="vanished">Font størrelse:</translation>
+        <translation>Font størrelse:</translation>
     </message>
 </context>
 <context>
     <name>EditItems::ToolBar</name>
     <message>
-        <location filename="../../../src/EditItems/toolbar.cc" line="+97"/>
+        <location filename="../../../src/EditItems/toolbar.cc" line="+98"/>
         <source>Paint Operations</source>
         <translation>Tegneoperasjoner</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Hide or show all drawing dialogs</source>
+        <translation>Skjul eller vis alle tegning dialoger</translation>
     </message>
 </context>
 <context>
@@ -3120,14 +2979,6 @@ Kan ikke starte produksjon</translation>
         <location line="+328"/>
         <source>Frame</source>
         <translation>Ramme</translation>
-    </message>
-</context>
-<context>
-    <name>FilterDrawingWidget</name>
-    <message>
-        <location filename="../../../src/EditItems/filterdrawingdialog.cc" line="+61"/>
-        <source>Properties</source>
-        <translation type="unfinished">Egenskaper</translation>
     </message>
 </context>
 <context>
@@ -4600,26 +4451,7 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>Properties::PropertiesEditor</name>
     <message>
-        <source>Time</source>
-        <translation type="obsolete">Tid</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation type="obsolete">Tekst</translation>
-    </message>
-    <message>
-        <source>Line colour</source>
-        <translation type="obsolete">Linjefarge</translation>
-    </message>
-    <message>
-        <source>Line width</source>
-        <translation type="obsolete">Linjetykkelse</translation>
-    </message>
-</context>
-<context>
-    <name>PropertiesEditor</name>
-    <message>
-        <location filename="../../../src/EditItems/properties.cc" line="+307"/>
+        <location filename="../../../src/EditItems/properties.cc" line="+308"/>
         <source>Item Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4641,142 +4473,142 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <location line="+1"/>
         <source>Time</source>
-        <translation type="unfinished">Tid</translation>
+        <translation>Tid</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Text</source>
-        <translation type="unfinished">Tekst</translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Line colour</source>
-        <translation type="unfinished">Linjefarge</translation>
+        <translation>Linjefarge</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Linje transparens</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line width</source>
-        <translation type="unfinished">Linjetykkelse</translation>
+        <translation>Linjetykkelse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Linje mønster</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Linje glatting</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fill colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Fyll farge</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fill alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Fyll transparens</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fill pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Fyll mønster</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukket</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reversed</source>
-        <translation type="unfinished"></translation>
+        <translation>Snudd</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekorasjon 1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 1 colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekorasjon 1 farge</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 1 alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekorasjon 1 transparens</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 1 offset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dekorasjon 1 offset</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekorasjon 2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 2 colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekorasjon 2 farge</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 2 alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekorasjon 2 transparens</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Decoration 2 offset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dekorasjon 2 offset</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Symbol colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol farge</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Symbol alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol transparens</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Text colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst farge</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Text alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst transparens</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Corner segments</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjørne segmenter</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Corner radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjørne radius</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Font size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst størrelse</translation>
     </message>
     <message>
         <location line="+104"/>
         <source>No editable properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen redigerbare egenskaper</translation>
     </message>
 </context>
 <context>
@@ -4784,7 +4616,7 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <location filename="../../../src/EditItems/drawingdialog.cc" line="-509"/>
         <source>Open File</source>
-        <translation type="unfinished">Åpne Fil</translation>
+        <translation>Åpne Fil</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4793,27 +4625,27 @@ Vil du kjøre dine endringer først?</translation>
         <location line="+20"/>
         <location line="+14"/>
         <source>KML files (*.kml);; All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>KML filer (*.kml);; Alle filer (*)</translation>
     </message>
     <message>
         <location line="-47"/>
         <source>Save All Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre alle elementer</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Save Filtered Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre filtrerte elementer</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Save Selected Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre valgte elementer</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Save Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre synlige elementer</translation>
     </message>
 </context>
 <context>
@@ -5668,7 +5500,7 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="+83"/>
+        <location filename="../../../src/qtStationDialog.cc" line="+87"/>
         <source>Sets</source>
         <translation>Sett</translation>
     </message>
@@ -5722,16 +5554,16 @@ Vil du kjøre dine endringer først?</translation>
     </message>
 </context>
 <context>
-    <name>StationDialog::Model</name>
+    <name>StationDialogModel</name>
     <message>
-        <location line="+318"/>
+        <location filename="../../../src/qtStationDialogModel.cc" line="+151"/>
         <source>Name</source>
-        <translation type="unfinished">Navn</translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Source</source>
-        <translation type="unfinished">Kilde</translation>
+        <translation>Kilde</translation>
     </message>
 </context>
 <context>
@@ -5846,14 +5678,6 @@ Vil du kjøre dine endringer først?</translation>
         <location line="+2"/>
         <source>Open file</source>
         <translation>Åpne fil</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor</name>
-    <message>
-        <location filename="../../../src/EditItems/dialogcommon.cc" line="+82"/>
-        <source>Font size:</source>
-        <translation type="unfinished">Font størrelse:</translation>
     </message>
 </context>
 <context>
@@ -6006,14 +5830,6 @@ Vil du kjøre dine endringer først?</translation>
         <location filename="../../../src/qtTimeSpinbox.cc" line="+72"/>
         <source>undefined</source>
         <translation>udefinert</translation>
-    </message>
-</context>
-<context>
-    <name>ToolBar</name>
-    <message>
-        <location filename="../../../src/EditItems/toolbar.cc" line="+8"/>
-        <source>Hide or show all drawing dialogs</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6287,7 +6103,7 @@ Vil du sende før du avslutter?</translation>
         <translation>tast for å filtrere felt</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossAddPlotDialog.cc" line="+221"/>
+        <location filename="../../../src/vcross_qt/qtVcrossAddPlotDialog.cc" line="+222"/>
         <source>Chosen model: %1</source>
         <translation>Valgt modell: %1</translation>
     </message>

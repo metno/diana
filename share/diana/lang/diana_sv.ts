@@ -640,176 +640,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
 </context>
 <context>
-    <name>DrawingDialog</name>
-    <message>
-        <location filename="../../../src/EditItems/drawingdialog.cc" line="+75"/>
-        <location line="+14"/>
-        <source>Drawing Dialog</source>
-        <translation type="unfinished">Rit dialog</translation>
-    </message>
-    <message>
-        <location line="-7"/>
-        <source>Products</source>
-        <translation type="unfinished">Produkter</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Display products</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Edit products</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>Load new...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+18"/>
-        <source>All time steps</source>
-        <translation type="unfinished">Alla tidssteg</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Edit mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Clear</source>
-        <translation type="unfinished">Ta bort</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <location line="+466"/>
-        <source>Quick save</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-457"/>
-        <source>Save</source>
-        <translation type="unfinished">Spara</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Save as...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save All Items...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save Filtered Items...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save Visible Items...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Save Selected Items...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Hide</source>
-        <translation type="unfinished">Dölj</translation>
-    </message>
-    <message>
-        <location line="+248"/>
-        <source>Failed to save file &apos;%1&apos;. Error was &apos;%2&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+40"/>
-        <source>Clear Existing Objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>You are already editing some objects. Shall I remove them?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location line="+90"/>
-        <source>Edit %n product(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Remove %n product(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Edit product</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+35"/>
-        <source>Quick save &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+74"/>
-        <source>Hide filters &lt;&lt;&lt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-553"/>
-        <source>Apply</source>
-        <translation type="unfinished">Utför</translation>
-    </message>
-    <message>
-        <location line="-19"/>
-        <source>Reload</source>
-        <translation type="unfinished">Uppdatera</translation>
-    </message>
-    <message>
-        <location line="+68"/>
-        <location line="+504"/>
-        <source>Show filters &gt;&gt;&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-350"/>
-        <source>Open File</source>
-        <translation type="unfinished">Öppna fil</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+90"/>
-        <source>Save File</source>
-        <translation type="unfinished">Spara fil</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Ta bort</translation>
-    </message>
-    <message>
-        <source>Active Layers</source>
-        <translation type="obsolete">Aktiva Lager</translation>
-    </message>
-</context>
-<context>
     <name>DrawingLayersPane</name>
     <message>
         <source>Duplicate to editable</source>
@@ -823,9 +653,8 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Namn</translation>
     </message>
     <message>
-        <location line="+405"/>
         <source>Source</source>
-        <translation type="unfinished">Källa</translation>
+        <translation type="obsolete">Källa</translation>
     </message>
 </context>
 <context>
@@ -1727,65 +1556,206 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>EditItems::DrawingDialog</name>
     <message>
-        <location filename="../../../src/EditItems/drawingdialog.cc" line="-775"/>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="+57"/>
         <source></source>
         <comment>See the Qt Linguist manual for the reasons for this workaround.</comment>
         <translation></translation>
     </message>
     <message>
+        <location line="+19"/>
+        <location line="+14"/>
         <source>Drawing Dialog</source>
-        <translation type="obsolete">Rit dialog</translation>
+        <translation type="unfinished">Rit dialog</translation>
     </message>
     <message>
+        <location line="-7"/>
         <source>Products</source>
-        <translation type="obsolete">Produkter</translation>
+        <translation type="unfinished">Produkter</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Display products</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Edit products</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Load new...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Reload</source>
-        <translation type="obsolete">Uppdatera</translation>
+        <translation type="unfinished">Uppdatera</translation>
     </message>
     <message>
+        <location line="+14"/>
         <source>All time steps</source>
-        <translation type="obsolete">Alla tidssteg</translation>
+        <translation type="unfinished">Alla tidssteg</translation>
     </message>
     <message>
+        <location line="+5"/>
         <source>Apply</source>
-        <translation type="obsolete">Utför</translation>
+        <translation type="unfinished">Utför</translation>
     </message>
     <message>
+        <location line="+9"/>
+        <source>Edit mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Clear</source>
-        <translation type="obsolete">Ta bort</translation>
+        <translation type="unfinished">Ta bort</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <location line="+466"/>
+        <source>Quick save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-457"/>
         <source>Save</source>
-        <translation type="obsolete">Spara</translation>
+        <translation type="unfinished">Spara</translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save All Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Filtered Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Visible Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Save Selected Items...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Hide</source>
-        <translation type="obsolete">Dölj</translation>
+        <translation type="unfinished">Dölj</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <location line="+504"/>
+        <source>Show filters &gt;&gt;&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-350"/>
         <source>Open File</source>
-        <translation type="obsolete">Öppna fil</translation>
+        <translation type="unfinished">Öppna fil</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Failed to open file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+90"/>
         <source>Save File</source>
-        <translation type="obsolete">Spara fil</translation>
+        <translation type="unfinished">Spara fil</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Failed to save file &apos;%1&apos;. Error was &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Clear Existing Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You are already editing some objects. Shall I remove them?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+90"/>
+        <source>Edit %n product(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Remove %n product(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Edit product</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Quick save &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Hide filters &lt;&lt;&lt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EditItems::DrawingModel</name>
     <message>
+        <location line="+146"/>
         <source>Source</source>
-        <translation type="obsolete">Källa</translation>
+        <translation type="unfinished">Källa</translation>
+    </message>
+</context>
+<context>
+    <name>EditItems::FilterDrawingWidget</name>
+    <message>
+        <location filename="../../../src/EditItems/filterdrawingdialog.cc" line="+63"/>
+        <source>Properties</source>
+        <translation type="unfinished">Egenskaper</translation>
+    </message>
+</context>
+<context>
+    <name>EditItems::TextEditor</name>
+    <message>
+        <location filename="../../../src/EditItems/dialogcommon.cc" line="+83"/>
+        <source>Font size:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EditItems::ToolBar</name>
     <message>
-        <location filename="../../../src/EditItems/toolbar.cc" line="+97"/>
+        <location filename="../../../src/EditItems/toolbar.cc" line="+98"/>
         <source>Paint Operations</source>
         <translation>Tecknings kommandon</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Hide or show all drawing dialogs</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2759,14 +2729,6 @@ Vil du spara innan du avslutar?</translation>
         <location line="+328"/>
         <source>Frame</source>
         <translation>Ram</translation>
-    </message>
-</context>
-<context>
-    <name>FilterDrawingWidget</name>
-    <message>
-        <location filename="../../../src/EditItems/filterdrawingdialog.cc" line="+61"/>
-        <source>Properties</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3748,26 +3710,7 @@ Type: %3</source>
 <context>
     <name>Properties::PropertiesEditor</name>
     <message>
-        <source>Item Properties</source>
-        <translation type="obsolete">Egenskaper</translation>
-    </message>
-    <message>
-        <source>Time</source>
-        <translation type="obsolete">Tid</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation type="obsolete">Text</translation>
-    </message>
-    <message>
-        <source>Line colour</source>
-        <translation type="obsolete">Linjefärg</translation>
-    </message>
-</context>
-<context>
-    <name>PropertiesEditor</name>
-    <message>
-        <location filename="../../../src/EditItems/properties.cc" line="+307"/>
+        <location filename="../../../src/EditItems/properties.cc" line="+308"/>
         <source>Item Properties</source>
         <translation type="unfinished">Egenskaper</translation>
     </message>
@@ -3794,7 +3737,7 @@ Type: %3</source>
     <message>
         <location line="+1"/>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation type="unfinished">Tekst</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -3809,17 +3752,17 @@ Type: %3</source>
     <message>
         <location line="+1"/>
         <source>Line width</source>
-        <translation type="unfinished"></translation>
+        <translation>Linjetjocklek</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Linjemönster</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Line smooth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Linjeutjämning</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3928,9 +3871,28 @@ Type: %3</source>
     </message>
 </context>
 <context>
+    <name>PropertiesEditor</name>
+    <message>
+        <source>Item Properties</source>
+        <translation type="obsolete">Egenskaper</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="obsolete">Tid</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="obsolete">Text</translation>
+    </message>
+    <message>
+        <source>Line colour</source>
+        <translation type="obsolete">Linjefärg</translation>
+    </message>
+</context>
+<context>
     <name>QObject</name>
     <message>
-        <location filename="../../../src/EditItems/drawingdialog.cc" line="+266"/>
+        <location filename="../../../src/EditItems/drawingdialog.cc" line="-509"/>
         <source>Open File</source>
         <translation type="unfinished">Öppna fil</translation>
     </message>
@@ -4724,7 +4686,7 @@ Type: %3</source>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="+83"/>
+        <location filename="../../../src/qtStationDialog.cc" line="+87"/>
         <source>Sets</source>
         <translation>Stationstyper</translation>
     </message>
@@ -4778,16 +4740,16 @@ Type: %3</source>
     </message>
 </context>
 <context>
-    <name>StationDialog::Model</name>
+    <name>StationDialogModel</name>
     <message>
-        <location line="+318"/>
+        <location filename="../../../src/qtStationDialogModel.cc" line="+151"/>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Source</source>
-        <translation type="unfinished">Källa</translation>
+        <translation>Källa</translation>
     </message>
 </context>
 <context>
@@ -4906,14 +4868,6 @@ Type: %3</source>
         <location line="+2"/>
         <source>Open file</source>
         <translation>Öppna fil</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor</name>
-    <message>
-        <location filename="../../../src/EditItems/dialogcommon.cc" line="+82"/>
-        <source>Font size:</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5066,14 +5020,6 @@ Type: %3</source>
         <location filename="../../../src/qtTimeSpinbox.cc" line="+72"/>
         <source>undefined</source>
         <translation>odefinierad</translation>
-    </message>
-</context>
-<context>
-    <name>ToolBar</name>
-    <message>
-        <location filename="../../../src/EditItems/toolbar.cc" line="+8"/>
-        <source>Hide or show all drawing dialogs</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5348,7 +5294,7 @@ Vill du skicka innan du avslutar?</translation>
         <translation>skriv för att välja plott</translation>
     </message>
     <message>
-        <location filename="../../../src/vcross_qt/qtVcrossAddPlotDialog.cc" line="+221"/>
+        <location filename="../../../src/vcross_qt/qtVcrossAddPlotDialog.cc" line="+222"/>
         <source>Chosen model: %1</source>
         <translation>Vald modell: %1</translation>
     </message>

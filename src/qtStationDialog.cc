@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2011 met.no
+  Copyright (C) 2011-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,22 +27,26 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <diStationManager.h>
-#include <diStationPlot.h>
-#include <qtStationDialog.h>
+#include "qtStationDialog.h"
+
+#include "diStationManager.h"
+#include "diStationPlot.h"
 #include "diStationPlotCommand.h"
+#include "qtStationDialogModel.h"
 #include "qtUtility.h"
 
+#include <QCheckBox>
 #include <QFileInfo>
+#include <QGridLayout>
 #include <QInputDialog>
-#include <QModelIndex>
+#include <QItemDelegate>
+#include <QItemSelection>
 #include <QPushButton>
 #include <QShowEvent>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
-#include <QVariant>
-#include <QGridLayout>
 #include <QVBoxLayout>
-#include <QCheckBox>
+#include <QVariant>
 
 #define MILOGGER_CATEGORY "diana.StationDialog"
 #include <miLogger/miLogging.h>
@@ -78,7 +82,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
   , show_names(false)
   , m_ctrl(llctrl)
 {
-  model = new StationDialog::Model(dialogInfo, this);
+  model = new StationDialogModel(dialogInfo, this);
 
   QLabel *stationPlotLabel = TitleLabel(tr("Sets"), this);
   stationPlotList = new QTreeView();
@@ -86,7 +90,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
   stationPlotList->setSelectionMode(QAbstractItemView::MultiSelection);
   stationPlotList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  chosenModel = new StationDialog::Model(chosenInfo, this);
+  chosenModel = new StationDialogModel(chosenInfo, this);
 
   QLabel *selectedStationPlotLabel = TitleLabel(tr("Chosen Sets"), this);
   selectedStationPlotList = new QTreeView();
@@ -308,184 +312,4 @@ void StationDialog::hideClicked()
 void StationDialog::closeEvent(QCloseEvent *event)
 {
   emit StationHide();
-}
-
-
-/**
- * \class StationDialog::Model
- * \brief Provides a model to reference StationPlot and Station information held in a
- * data structure.
- *
- * The StationDialog::Model class provides a model that encapsulates the data structures
- * describing a collection of StationPlot objects and the Station objects they contain.
- *
- * The model exposes a single level structure to views. The top level contains two columns
- * and a series of rows, each corresponding to a StationPlot object. The model index for the
- * first column of each row can be dereferenced to obtain the name of the StationPlot; the
- * index for the second column can be used to obtain the URL of the data.
- */
-
-/**
- * Constructs a new model for accessing data held by \a info with the given \a parent.
- */
-StationDialog::Model::Model(stationDialogInfo& info, QObject *parent) :
-    QAbstractItemModel(parent), m_info(info)
-{
-}
-
-/**
- * \reimp
- */
-QModelIndex StationDialog::Model::index(int row, int column, const QModelIndex& parent) const
-{
-  if (!parent.isValid()) {
-    if (row >= 0 && (unsigned int)row < m_info.sets.size() && column >= 0 && column < 2)
-      return createIndex(row, column, -1);
-  }
-
-  return QModelIndex();
-}
-
-/**
- * \reimp
- */
-QModelIndex StationDialog::Model::parent(const QModelIndex& index) const
-{
-  return QModelIndex();
-}
-
-/**
- * \reimp
- * Returns the number of rows contained by the item corresponding to the given
- * \a parent index.
- *
- * For top-level items, this function returns the total number of StationPlot
- * objects. For child items, it returns the total number of Station objects held
- * by the StationPlot corresponding to \a parent.
- */
-int StationDialog::Model::rowCount(const QModelIndex& parent) const
-{
-  if (!parent.isValid())
-    return m_info.sets.size();
-
-  return 0;
-}
-
-/**
- * \reimp
- */
-int StationDialog::Model::columnCount(const QModelIndex& parent) const
-{
-  return 2;
-}
-
-/**
- * \reimp
- * Returns the data for the item corresponding to the given \a index, for
- * the specified \a role.
- *
- * For top-level items, this function returns the name of the corresponding
- * StationPlot object. For child items, it returns the relevant property for
- * the corresponding Station object.
- */
-QVariant StationDialog::Model::data(const QModelIndex& index, int role) const
-{
-  if (!index.isValid())
-    return QVariant();
-
-  if (role != Qt::DisplayRole && role != Qt::UserRole)
-    return QVariant();
-
-  if (index.internalId() == -1) {
-    // Top level item
-    if (index.row() >= 0 && (unsigned int)index.row() < m_info.sets.size()) {
-      if (index.column() == 0) {
-        if (role == Qt::DisplayRole)
-          return QVariant(QString::fromStdString(m_info.sets[index.row()].name));
-        else {
-          return QVariant(m_info.chosen[m_info.sets[index.row()].url]);
-        }
-      } else if (index.column() == 1) {
-        if (role == Qt::DisplayRole)
-          return QVariant(QString::fromStdString(m_info.sets[index.row()].url));
-        else
-          return QVariant(m_info.chosen[m_info.sets[index.row()].url]);
-      }
-    }
-  }
-
-  return QVariant();
-}
-
-QVariant StationDialog::Model::headerData(int section, Qt::Orientation orientation, int role) const
-{
-  if (role != Qt::DisplayRole)
-    return QVariant();
-
-  if (section == 0)
-    return tr("Name");
-  else if (section == 1)
-    return tr("Source");
-
-  return QVariant();
-}
-
-/**
- * Updates the model with the new data specified by \a info and resets the model
- * to ensure that attached views display the new data.
- */
-void StationDialog::Model::updateData(stationDialogInfo& info)
-{
-  beginResetModel();
-  m_info = info;
-  endResetModel();
-}
-
-/**
- * \reimp
- */
-Qt::ItemFlags StationDialog::Model::flags(const QModelIndex& index) const
-{
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-}
-
-/**
- * Sets new data for the item corresponding to the given \a index.
- * The data given by \a value is stored according to the specified \a role.
- *
- * For top-level items, the data stored in the first column is the name of
- * the corresponding StationPlot object.
- *
- * For child items, the data stored in each column is the value of the relevant
- * property of the corresponding Station object.
- */
-bool StationDialog::Model::setData(const QModelIndex& index, const QVariant& value, int role)
-{
-  if (!index.isValid() || !value.isValid())
-    return false;
-  else if (role != Qt::EditRole)
-    return false;
-  else if (index.row() < 0 || (unsigned int)index.row() >= m_info.sets.size())
-    return false;
-
-  if (index.internalId() == -1) {
-    // Top level item
-
-    if (index.column() == 0)
-      m_info.sets[index.row()].name = value.toString().toStdString();
-    else if (index.column() == 1)
-      m_info.sets[index.row()].url = value.toString().toStdString();
-    else
-      return false;
-
-    emit dataChanged(index, index);
-    return true;
-  }
-
-  return false;
-}
-
-stationSetInfo& StationDialog::Model::set(int row) const
-{
-  return m_info.sets[row];
 }
