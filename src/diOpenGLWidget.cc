@@ -128,7 +128,6 @@ void DiOpenGLWidget::initializeGL()
 void DiOpenGLWidget::paintGL()
 {
   if (paintable) {
-    diutil::OverrideCursor waitCursor;
     paintUnderlay();
     paintOverlay();
     swapBuffers();

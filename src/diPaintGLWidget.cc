@@ -129,7 +129,6 @@ void DiPaintGLWidget::paint(QPainter& wpainter)
       << LOGVAL((!background_buffer))
       << LOGVAL(paintable->update_background_buffer));
 
-  diutil::OverrideCursor waitCursor;
   glpainter->clear = true;
   if (paintable->enable_background_buffer) {
     if (!background_buffer || paintable->update_background_buffer) {
