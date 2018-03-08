@@ -92,14 +92,7 @@ private:
 
 protected:
   float getTextWidth(const std::string& text) const;
-  void clearCharsizes();
-  void addCharsize(float chy);
   void setFontsize(float chy);
-  void makeFontsizes();
-
-  // fontpack and sizes
-  std::vector<float> charsizes;
-  std::vector<float> fontsizes;
 
   //---------------------------------------------------------------
 

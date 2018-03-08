@@ -315,9 +315,6 @@ void VprofDiagram::plot()
 
     gl->LoadIdentity();
     gl->Ortho(0, plotw, 0, ploth, -1, 1);
-
-    if (redraw)
-      makeFontsizes();
   }
 
   if (redraw) {
@@ -439,15 +436,6 @@ void VprofDiagram::prepare()
   chxtxt = chxbas * vpopt->rstext;
   chytxt = chybas * vpopt->rstext;
 
-  clearCharsizes();
-  addCharsize(chytxt);
-  addCharsize(chylab);
-  addCharsize(chylab * 0.8);
-  addCharsize(chylab * 0.75);
-  addCharsize(chylab * 0.7);
-  addCharsize(chylab * 0.6);
-  addCharsize(chylab * 0.5);
-
   float xmindf = xmind;
   float xmaxdf = xmaxd;
   float ymindf = ymind;
@@ -527,16 +515,6 @@ void VprofDiagram::prepare()
     xysize[BOX_VER_WIND][YMIN] = ymind - chylab * 2.5;
     xysize[BOX_VER_WIND][YMAX] = ymaxd + chylab * 2.5;
     xmax += dx;
-    ostringstream ostr;
-    ostr << vpopt->rvwind;
-    int k = ostr.str().length();
-    float chx = chxlab;
-    float chy = chylab;
-    if (chx * (k + 4) > dx) {
-      chx = dx / (k + 4);
-      chy = chx * chylab / chxlab;
-      addCharsize(chy);
-    }
   }
 
   // space for relative humidity
@@ -547,13 +525,6 @@ void VprofDiagram::prepare()
     xysize[BOX_REL_HUM][YMIN] = ymind - chylab * 1.5;
     xysize[BOX_REL_HUM][YMAX] = ymaxd + chylab * 1.5;
     xmax += dx;
-    float chx = chxlab;
-    float chy = chylab;
-    if (chx * 3. > dx) {
-      chx = dx / 3.;
-      chy = chx * chylab / chxlab;
-      addCharsize(chy);
-    }
   }
 
   // space for ducting
@@ -564,13 +535,6 @@ void VprofDiagram::prepare()
     xysize[BOX_DUCTING][YMIN] = ymind - chylab * 1.5;
     xysize[BOX_DUCTING][YMAX] = ymaxd + chylab * 1.5;
     xmax += dx;
-    float chx = chxlab;
-    float chy = chylab;
-    if (chx * 5. > dx) {
-      chx = dx / 5.;
-      chy = chx * chylab / chxlab;
-      addCharsize(chy);
-    }
   }
 
   // adjustments
@@ -1509,38 +1473,11 @@ float VprofDiagram::getTextWidth(const std::string& text) const
   return w;
 }
 
-void VprofDiagram::clearCharsizes()
-{
-  charsizes.clear();
-  fontsizes.clear();
-}
-
-void VprofDiagram::addCharsize(float chy)
-{
-  charsizes.push_back(chy);
-}
-
 void VprofDiagram::setFontsize(float chy)
 {
   chy *= 0.8;
-  float dnear, fsize = 10;
-  for (size_t i = 0; i < charsizes.size(); i++) {
-    const float d = fabsf(charsizes[i] - chy);
-    if (i == 0 || d < dnear) {
-      dnear = d;
-      fsize = fontsizes[i];
-    }
-  }
-  gl->setFontSize(fsize);
-}
-
-void VprofDiagram::makeFontsizes()
-{
-  const float scale = 18;
-  fontsizes.clear();
-  for (float cs : charsizes) {
-    fontsizes.push_back(cs * scale);
-  }
+  const float fs = vcross::util::constrain_value(chy * full.y2, 5.0f, 35.0f);
+  gl->setFontSize(fs);
 }
 
 float VprofDiagram::p_to_y(float p) const
