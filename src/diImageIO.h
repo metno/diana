@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -61,7 +61,6 @@ namespace imageIO {
      PNG routines
   */
   bool read_png(Image_data& img);
-  bool write_png(const Image_data& img);
   
   
   /**
