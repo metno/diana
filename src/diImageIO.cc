@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -525,6 +525,8 @@ bool imageIO::read_xpm(Image_data& img)
 
   // OBS: free !!!!!!!!!!!!!!!!!!!!!!!!
 
+  for (unsigned int i = 0; i < vs.size(); i++)
+    free(data[i]);
   delete[] data;
 
   return res;

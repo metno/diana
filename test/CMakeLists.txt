@@ -60,6 +60,7 @@ SET (dianaUnitTests_SOURCES
   ${dianaUnitTests_QTSOURCES}
   TestCommandParser.cc
   TestDianaLevels.cc
+  TestImageIO.cc
   TestLogFileIO.cc
   TestObsReaderAscii.cc
   TestObsReaderFile.cc
