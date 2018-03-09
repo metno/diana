@@ -1,3 +1,11 @@
+diana-3.44 (3.44.0~rc2-1) unstable; urgency=low
+
+  * vprof: font scaling
+  * fix some translation problems
+  * show wait cursor less often
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 09 Mar 2018 09:34:53 +0100
+
 diana-3.44 (3.44.0~rc1-1) unstable; urgency=low
 
   * ObsReader - update file/time list
