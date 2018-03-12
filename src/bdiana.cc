@@ -2,10 +2,14 @@
 
 int main(int argc, char* argv[])
 {
+  int status = 0;
+  try {
     if (diana_init(argc, argv) != DIANA_OK)
-        return 1;
-    if (diana_dealloc() != DIANA_OK)
-        return 2;
+      status = 1;
+  } catch (...) {
+    status = 1;
+  }
+  diana_dealloc();
 
-    return 0;
+  return status;
 }
