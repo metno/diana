@@ -1977,7 +1977,6 @@ int diana_init(int _argc, char** _argv)
   if (setupfilegiven) {
     if (!(bdiana()->setupread = readSetup(bdiana()->setupfile))) {
       METLIBS_LOG_ERROR("ERROR, unable to read setup:" << bdiana()->setupfile);
-      diana_dealloc();
       return 99;
     }
   }
