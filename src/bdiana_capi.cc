@@ -180,6 +180,14 @@ struct stringlist {
 namespace {
 QApplication * application = 0; // The Qt Application object
 
+std::string format_time(const miutil::miTime& time)
+{
+  if (time.undef())
+    return "--no time found--";
+  else
+    return time.isoTime();
+}
+
 struct Bdiana
 {
   enum output_format_t { output_graphics, output_shape, output_json };
@@ -864,13 +872,15 @@ void Bdiana::set_ptime(BdianaSource& src)
   if (fixedtime.undef()) {
     fixedtime = src.getTime();
     if (verbose)
-      METLIBS_LOG_INFO("using default time:" << fixedtime);
+      METLIBS_LOG_INFO("using default time:" << format_time(fixedtime));
   }
   ptime = fixedtime;
-  ptime.addHour(addhour);
-  ptime.addMin(addminute);
+  if (!ptime.undef()) {
+    ptime.addHour(addhour);
+    ptime.addMin(addminute);
+  }
   if (verbose)
-    METLIBS_LOG_INFO("- using time: " << ptime);
+    METLIBS_LOG_INFO("- using time: " << format_time(ptime));
   src.setTime(ptime);
 }
 

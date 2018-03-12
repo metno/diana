@@ -709,7 +709,12 @@ int SatManager::getFileName(Sat* satdata, std::string &name)
 
 int SatManager::getFileName(Sat* satdata, const miTime &time)
 {
-  METLIBS_LOG_SCOPE(time);
+  METLIBS_LOG_SCOPE();
+  if (time.undef()) {
+    METLIBS_LOG_DEBUG("undefined time");
+    return -1;
+  }
+  METLIBS_LOG_DEBUG(LOGVAL(time));
 
   int diff= satdata->maxDiff+1;
 
