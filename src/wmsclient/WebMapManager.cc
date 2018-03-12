@@ -61,6 +61,13 @@ WebMapManager* WebMapManager::instance()
   return self;
 }
 
+// static
+void WebMapManager::destroy()
+{
+  delete self;
+  self = 0;
+}
+
 WebMapManager::WebMapManager()
   : network(0)
 {
@@ -73,7 +80,8 @@ WebMapManager::~WebMapManager()
   clearMaps();
   diutil::delete_all_and_clear(webmapservices);
 
-  network->deleteLater();
+  if (network)
+    network->deleteLater();
   self = 0;
 }
 

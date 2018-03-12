@@ -100,7 +100,7 @@ Controller::~Controller()
   delete objm;
   delete editm;
 
-  delete WebMapManager::instance();
+  WebMapManager::destroy();
 }
 
 void Controller::setCanvas(DiCanvas* canvas)

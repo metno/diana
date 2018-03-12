@@ -107,6 +107,7 @@ private:
 
 public:
   static WebMapManager* instance();
+  static void destroy();
 
 private:
   static WebMapManager* self;
