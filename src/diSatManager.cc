@@ -264,7 +264,7 @@ bool SatManager::getGridResolution(float& rx, float& ry)
 bool SatManager::setData()
 {
   METLIBS_LOG_SCOPE();
-  bool allok = true;
+  bool allok = !vsp.empty();
   for (size_t i = 0; i < vsp.size(); i++) {
     if (not setData(vsp[i]))
       allok = false;
