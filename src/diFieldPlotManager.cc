@@ -418,7 +418,9 @@ miTime FieldPlotManager::getFieldReferenceTime(const miutil::KeyValue_v& pinfo)
   vector<std::string> paramNames;
   parseString(pinfo, request, paramNames, plotName);
 
-  std::string timestr = fieldManager->getBestReferenceTime(request.modelName, request.refoffset, request.refhour);
+  const std::string timestr = fieldManager->getBestReferenceTime(request.modelName, request.refoffset, request.refhour);
+  if (timestr.empty())
+    return miTime();
   return miTime(timestr);
 }
 
