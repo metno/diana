@@ -59,8 +59,6 @@ private:
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
     virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
-    virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(DrawingItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
-
     virtual void drawIncomplete(DiGLPainter* gl) const;
     virtual void drawHoverHighlightingBG(DiGLPainter* gl, bool, bool) const;
     virtual void drawHoverHighlighting(DiGLPainter* gl, bool, bool) const;

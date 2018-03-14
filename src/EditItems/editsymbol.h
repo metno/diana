@@ -61,8 +61,6 @@ private:
   virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
   virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
-  virtual QString infoString() const { return QString("%1 type=%2").arg(DrawingItemBase::infoString()).arg(metaObject()->className()); }
-
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();
   virtual void setPoints(const QList<QPointF> &);

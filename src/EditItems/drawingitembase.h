@@ -66,8 +66,6 @@ public:
   // Copies state from another item.
   void setState(const DrawingItemBase *);
 
-  virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
-
   bool isVisible() const;
   void setVisible(bool visible);
 
