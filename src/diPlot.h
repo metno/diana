@@ -278,10 +278,6 @@ public:
   const PlotOptions& getPlotOptions() const
     { return poptions; }
 
-  /// return the current PlotOptions
-  PlotOptions& getPlotOptions()
-    { return poptions; }
-
   /// set name of this plot object
   void setPlotName(const std::string& name)
     { plotname= name; }
