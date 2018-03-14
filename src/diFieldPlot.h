@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -88,7 +88,8 @@ private:
   miutil::miTime ftime;          // current field time
 
   // plotting parameters
-  bool pshade;          // shaded (true) or line drawing (false)
+  bool praster; //!< true iff raster plot
+  bool pshade;  //!< shaded (true) or line drawing (false)
 
   // from plotting routines to annotations
   float    vectorAnnotationSize;

@@ -259,6 +259,39 @@ void RasterGrid::rasterPixels(int n, const diutil::PointD &xy0, const diutil::Po
 
 // ------------------------------------------------------------------------
 
+class RasterUndef : public RasterGrid
+{
+public:
+  RasterUndef(StaticPlot* staticPlot, const std::vector<Field*>& f, const PlotOptions& po);
+  void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
+
+private:
+  const std::vector<Field*>& fields;
+  QRgb pixelUndef;
+};
+
+RasterUndef::RasterUndef(StaticPlot* sp, const std::vector<Field*>& f, const PlotOptions& po)
+    : RasterGrid(sp, f.front())
+    , fields(f)
+{
+  const Colour& u = po.undefColour;
+  pixelUndef = qRgba(u.R(), u.G(), u.B(), u.A());
+}
+
+void RasterUndef::colorizePixel(QRgb& pixel, const diutil::PointI& i)
+{
+  const int nx = fields[0]->area.nx;
+  for (size_t k = 0; k < fields.size(); k++) {
+    const float v = fields[k]->data[i.x() + i.y() * nx];
+    if (v == fieldUndef) {
+      pixel = pixelUndef;
+      return;
+    }
+  }
+}
+
+// ------------------------------------------------------------------------
+
 class RasterRGB : public RasterGrid {
 public:
   RasterRGB(StaticPlot* staticPlot, const std::vector<Field*>& f, const PlotOptions& po);
@@ -552,9 +585,10 @@ void RasterAlarmBox::pixelQuad(const diutil::PointI &s, const diutil::PointD& px
 // ========================================================================
 
 FieldPlot::FieldPlot(FieldPlotManager* fieldplotm)
-  : fieldplotm_(fieldplotm)
-  , pshade(false)
-  , vectorAnnotationSize(0)
+    : fieldplotm_(fieldplotm)
+    , praster(false)
+    , pshade(false)
+    , vectorAnnotationSize(0)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -680,10 +714,8 @@ bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
       return false;
   }
 
-  pshade = (plottype() == fpt_alpha_shade || plottype() == fpt_rgb || plottype() == fpt_alarm_box
-      || plottype() == fpt_fill_cell)
-      || (poptions.contourShading > 0 && (plottype() == fpt_contour
-              || plottype() == fpt_contour1 || plottype() == fpt_contour2));
+  praster = (plottype() == fpt_alpha_shade || plottype() == fpt_rgb || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell);
+  pshade = praster || (poptions.contourShading > 0 && (plottype() == fpt_contour || plottype() == fpt_contour1 || plottype() == fpt_contour2));
 
   return true;
 }
@@ -1124,7 +1156,7 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
     ok = plotVector(gl);
   else if (plottype() == fpt_direction)
     ok = plotDirection(gl);
-  else if (plottype() == fpt_alpha_shade || plottype() == fpt_rgb || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell)
+  else if (praster)
     ok = plotRaster(gl);
   else if (plottype() == fpt_frame)
     ok = plotFrameOnly(gl);
@@ -3222,6 +3254,14 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
     return false;
   if (plottype() == fpt_contour || plottype() == fpt_contour2) {
     plotContour2(gl, SHADE_BACKGROUND);
+    return true;
+  }
+
+  if (praster) {
+    RasterUndef raster(getStaticPlot(), fields, poptions);
+    QImage target = raster.rasterPaint();
+    if (!target.isNull())
+      gl->drawScreenImage(QPointF(0, 0), target);
     return true;
   }
 
