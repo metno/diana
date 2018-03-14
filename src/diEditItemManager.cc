@@ -1607,7 +1607,7 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
   editPropertiesAction_->setEnabled(canEditProperties);
 
   QMenu styleTypeMenu;
-  styleTypeMenu.setTitle("Convert");
+  styleTypeMenu.setTitle(tr("Convert"));
   // Disable conversion if only composite items are selected.
   styleTypeMenu.setEnabled((selectedCategories.size() == 1) && !selectedCategories.contains(DrawingItemBase::Composite));
   if (styleTypeMenu.isEnabled()) {

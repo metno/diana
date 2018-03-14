@@ -1450,6 +1450,11 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+1450"/>
+        <source>Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Toggle reversed</source>
         <translation type="obsolete">Toggla omvänt</translation>
     </message>
@@ -1462,7 +1467,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Visa egenskaper</translation>
     </message>
     <message>
-        <location line="-24"/>
+        <location line="-1474"/>
         <source>Toggle Reversed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1505,7 +1510,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Komposit</translation>
     </message>
     <message>
-        <location line="+1488"/>
+        <location line="+1482"/>
         <source>To</source>
         <translation>Till</translation>
     </message>
@@ -3197,7 +3202,7 @@ Type: %3</source>
 <context>
     <name>ModifyItemsCommand</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="+337"/>
+        <location filename="../../../src/diEditItemManager.cc" line="+340"/>
         <source>%1 items removed</source>
         <translation type="unfinished"></translation>
     </message>

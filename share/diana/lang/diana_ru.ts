@@ -1530,7 +1530,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished">Текст</translation>
     </message>
     <message>
-        <location line="+1488"/>
+        <location line="+1453"/>
+        <source>Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>To</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3256,7 +3261,7 @@ Type: %3</source>
 <context>
     <name>ModifyItemsCommand</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="+337"/>
+        <location filename="../../../src/diEditItemManager.cc" line="+340"/>
         <source>%1 items removed</source>
         <translation type="unfinished"></translation>
     </message>

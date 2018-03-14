@@ -1652,7 +1652,12 @@ Vil du lagre før du avslutter?</translation>
         <translation>Tekst</translation>
     </message>
     <message>
-        <location line="+1488"/>
+        <location line="+1453"/>
+        <source>Convert</source>
+        <translation>Konvertér</translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>To</source>
         <translation></translation>
     </message>
@@ -3483,7 +3488,7 @@ Type: %3</translation>
 <context>
     <name>ModifyItemsCommand</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="+337"/>
+        <location filename="../../../src/diEditItemManager.cc" line="+340"/>
         <source>%1 items removed</source>
         <translation>%1 objekter slettet</translation>
     </message>
