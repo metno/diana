@@ -1554,21 +1554,17 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
 {
   // Get actions contributed by a hit item (if any) if the position is a
   // valid one in widget coordinates.
-  QList<DrawingItemBase *> missedItems;
-  QList<DrawingItemBase *> hitItems;
-  DrawingItemBase *hitItem = 0; // consider only this item to be hit
-
-  if (pos.x() >= 0 && pos.y() >= 0) {
-    hitItems = findHitItems(pos, hitItemTypes_, missedItems);
-    if (!hitItems.empty())
-      hitItem = hitItems.first();
-  }
-
   QList<QAction *> hitItemActions;
-  if (hitItem) {
-    selectItem(hitItem);
-    emit repaintNeeded();
-    hitItemActions = Editing(hitItem)->actions(pos);
+  if (pos.x() >= 0 && pos.y() >= 0) {
+    QList<DrawingItemBase *> missedItems;
+    QList<DrawingItemBase *> hitItems = findHitItems(pos, hitItemTypes_, missedItems);
+    if (!hitItems.empty()) {
+      DrawingItemBase* hitItem = hitItems.first(); // consider only the first item
+      selectItem(hitItem);
+      Q_EMIT repaintNeeded();
+      if (EditItemBase* editItem = Editing(hitItem))
+        hitItemActions = editItem->actions(pos);
+    }
   }
 
   // populate the menu
