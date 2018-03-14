@@ -172,18 +172,12 @@ bool FontFamily::_calcScaling()
   return _checkFont();
 }
 
-void FontFamily::setGlSize(const float glw, const float glh)
-{
-  glWidth = glw;
-  glHeight = glh;
-
-  _calcScaling();
-}
-
-void FontFamily::setVpSize(int vpw, int vph)
+void FontFamily::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   vpWidth = vpw;
   vpHeight = vph;
+  glWidth = glw;
+  glHeight = glh;
 
   _calcScaling();
 }

@@ -92,12 +92,8 @@ public:
   bool getStringRect(const std::string& s, float& x, float& y, float& w, float& h);
   bool getStringRect(const std::wstring& s, float& x, float& y, float& w, float& h);
 
-  /// set viewport size in GL coordinates
-  void setGlSize(float glw, float glh);
-  void setGlSize(float glx1, float glx2, float gly1, float gly2);
-
-  /// set viewport size in physical coordinates (pixels)
-  void setVpSize(int vpw, int vph);
+  /// set viewport size in physical coordinates (pixels) and GL coordinates
+  void setVpGlSize(int vpw, int vph, float glw, float glh);
 
   /// return current font face
   FontFamily::FontFace getFontFace();

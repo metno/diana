@@ -156,24 +156,11 @@ bool FontManager::drawStr(const std::wstring& s, float x, float y, float a)
   return currentFamily->drawStr(s, x, y, a);
 }
 
-// set viewport size in GL coordinates
-void FontManager::setGlSize(float glx1, float glx2, float gly1, float gly2)
-{
-  setGlSize(glx2 - glx1, gly2 - gly1);
-}
-
-// set viewport size in GL coordinates
-void FontManager::setGlSize(float glw, float glh)
-{
-  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
-    it->second->setGlSize(glw, glh);
-}
-
 // set viewport size in physical coordinates (pixels)
-void FontManager::setVpSize(int vpw, int vph)
+void FontManager::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   for (families_t::iterator it = families.begin(); it != families.end(); ++it)
-    it->second->setVpSize(vpw, vph);
+    it->second->setVpGlSize(vpw, vph, glw, glh);
 }
 
 bool FontManager::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)

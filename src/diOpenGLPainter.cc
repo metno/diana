@@ -51,8 +51,7 @@ void DiOpenGLCanvas::initializeFP()
 void DiOpenGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vph) << LOGVAL(glw) << LOGVAL(glh));
-  fp()->setVpSize(vpw, vph);
-  fp()->setGlSize(glw, glh);
+  fp()->setVpGlSize(vpw, vph, glw, glh);
 }
 
 bool DiOpenGLCanvas::setFont(const std::string& font)

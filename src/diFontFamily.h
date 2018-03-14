@@ -65,8 +65,7 @@ public:
   bool drawStr(const std::wstring& s, float x, float y, float a = 0);
 
   // Metric commands
-  void setGlSize(float, float);
-  void setVpSize(int, int);
+  void setVpGlSize(int, int, float, float);
   bool getStringRect(const std::string& s,  float& x, float&y, float& w, float& h);
   bool getStringRect(const std::wstring& s, float& x, float&y, float& w, float& h);
 
