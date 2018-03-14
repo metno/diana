@@ -1610,7 +1610,6 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
   styleTypeMenu.setTitle("Convert");
   // Disable conversion if only composite items are selected.
   styleTypeMenu.setEnabled((selectedCategories.size() == 1) && !selectedCategories.contains(DrawingItemBase::Composite));
-
   if (styleTypeMenu.isEnabled()) {
 
     // Obtain a list of style names for the first category of the selected items.
@@ -1627,14 +1626,13 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
     QStringList filteredTypes;
     foreach (QString styleType, styleTypes) {
       QStringList pieces = styleType.split("|");
-      if (pieces.size() == 1)
-        filteredTypes.append(styleType);
-      else if (sections.contains(pieces.first()))
+      if (pieces.size() == 1 || sections.contains(pieces.first()))
         filteredTypes.append(styleType);
     }
 
     qSort(filteredTypes);
 
+    bool haveStyleTypeActions = false;
     // Add each of the available style types to the menu.
     foreach (QString styleType, filteredTypes) {
       QString styleName = styleType.split("|").last();
@@ -1652,11 +1650,14 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
       action->setData(data);
       connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
       styleTypeMenu.addAction(action);
+      haveStyleTypeActions = true;
+    }
+    if (haveStyleTypeActions) {
+      contextMenu.addSeparator();
+      contextMenu.addMenu(&styleTypeMenu);
     }
   }
-  contextMenu.addMenu(&styleTypeMenu);
 
-  contextMenu.addSeparator();
   if (!hitItemActions.isEmpty()) {
     contextMenu.addSeparator();
     foreach (QAction *action, hitItemActions)
