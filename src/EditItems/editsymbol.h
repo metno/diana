@@ -39,7 +39,6 @@ namespace EditItem_Symbol {
 class Symbol : public EditItemBase, public DrawingItem_Symbol::Symbol
 {
   Q_OBJECT
-  friend class SetGeometryCommand;
 
 public:
   Symbol(int = -1);

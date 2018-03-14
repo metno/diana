@@ -40,7 +40,7 @@ namespace EditItem_PolyLine {
 class PolyLine : public EditItemBase, public DrawingItem_PolyLine::PolyLine
 {
     Q_OBJECT
-    friend class SetGeometryCommand;
+
 public:
     PolyLine(int = -1);
     virtual ~PolyLine();
