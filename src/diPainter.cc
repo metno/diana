@@ -27,6 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "diana_config.h"
+
 #include "diPainter.h"
 
 #include "diLocalSetupParser.h"
@@ -96,9 +98,6 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   const std::string key_texture = "texture";
 
   mP->aliases.clear();
-  mP->aliases[diutil::BITMAPFONT] = "Helvetica";
-  mP->aliases[diutil::SCALEFONT] = "Arial";
-  mP->aliases[diutil::METSYMBOLFONT] = "Symbol";
 
   std::string fontpath = LocalSetupParser::basicValue("fontpath");
   if (fontpath.empty())
@@ -146,6 +145,24 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
     {
       defineFont(fontfam, fontfilename, diutil::fontFaceFromString(fontface), use_bitmap);
     }
+  }
+
+  const std::string dianafontpath = DATAROOTDIR "/diana/" PVERSION "/fonts";
+  const std::string& symbolfont = lookupFontAlias(diutil::METSYMBOLFONT);
+  if (!hasFont(symbolfont)) {
+    const std::string file = dianafontpath + "/metsymbols.ttf";
+    METLIBS_LOG_WARN("adding default symbol font '" << symbolfont << "' from '" << file << "'");
+    defineFont(symbolfont, file, diutil::F_NORMAL, false);
+  }
+
+  const std::string& scalefont = lookupFontAlias(diutil::SCALEFONT); // also fallback for BITMAPFONT
+  if (!hasFont(scalefont)) {
+    const std::string file = dianafontpath + "/Vera.ttf";
+    METLIBS_LOG_WARN("adding default scale font '" << scalefont << "' from '" << file << "'");
+    defineFont(scalefont, file, diutil::F_NORMAL, false);
+    defineFont(scalefont, dianafontpath + "/VeraBd.ttf", diutil::F_BOLD, false);
+    defineFont(scalefont, dianafontpath + "/VeraIt.ttf", diutil::F_ITALIC, false);
+    defineFont(scalefont, dianafontpath + "/VeraBI.ttf", diutil::F_BOLD_ITALIC, false);
   }
 }
 
