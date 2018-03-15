@@ -1607,7 +1607,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
   Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
 
-  gl->setFont("BITMAPFONT", poptions.fontface, 10. * poptions.labelSize);
+  gl->setFont(diutil::BITMAPFONT, poptions.fontface, 10. * poptions.labelSize);
 
   float chx, chy;
   gl->getCharSize('0', chx, chy);
@@ -1723,7 +1723,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   ms.setExtension(flagl);
   float fontsize = 7. * poptions.labelSize;
 
-  gl->setFont("BITMAPFONT", poptions.fontface, fontsize);
+  gl->setFont(diutil::BITMAPFONT, poptions.fontface, fontsize);
 
   float chx, chy;
   gl->getTextSize("ps00", chx, chy);
@@ -2124,7 +2124,7 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
 
   float fontsize = 8. * poptions.labelSize;
 
-  gl->setFont("BITMAPFONT", poptions.fontface, fontsize);
+  gl->setFont(diutil::BITMAPFONT, poptions.fontface, fontsize);
 
   float chx, chy;
   gl->getCharSize('0', chx, chy);
@@ -3397,7 +3397,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
   iy2++;
 
   float fontsize = 16.;
-  gl->setFont("BITMAPFONT", DiCanvas::F_BOLD, fontsize);
+  gl->setFont(diutil::BITMAPFONT, diutil::F_BOLD, fontsize);
 
   float chx, chy;
   gl->getCharSize('0', chx, chy);

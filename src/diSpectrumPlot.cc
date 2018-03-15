@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -450,7 +450,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
 
       poptions.contourShading= 0;
 
-      gl->setFont("SCALEFONT");
+      gl->setFont(diutil::SCALEFONT);
       gl->setFontSize(fontSizeLabel);
       gl->getCharSize('0',chxlab,chylab);
       // the real height (x ok)
@@ -522,7 +522,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
 
   //---------------------
 
-  gl->setFont("BITMAPFONT");
+  gl->setFont(diutil::BITMAPFONT);
   if (spopt->pText) {
 
     float cx,cy;

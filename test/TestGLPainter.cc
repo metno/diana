@@ -81,9 +81,9 @@ TestPaintable::TestPaintable()
 void TestPaintable::setCanvas(DiCanvas* c)
 {
   Paintable::setCanvas(c);
-  c->defineFont("BITMAPFONT",    TEST_FONTDIR "Vera.ttf",       "NORMAL", true);
-  c->defineFont("SCALEFONT" ,    TEST_FONTDIR "Vera.ttf",       "NORMAL", false);
-  c->defineFont("METSYMBOLFONT", TEST_FONTDIR "metsymbols.ttf", "NORMAL", false);
+  c->defineFont("BITMAPFONT",    TEST_FONTDIR "Vera.ttf",       diutil::F_NORMAL, true);
+  c->defineFont("SCALEFONT" ,    TEST_FONTDIR "Vera.ttf",       diutil::F_NORMAL, false);
+  c->defineFont("METSYMBOLFONT", TEST_FONTDIR "metsymbols.ttf", diutil::F_NORMAL, false);
 }
 
 void TestPaintable::resize(const QSize& size)

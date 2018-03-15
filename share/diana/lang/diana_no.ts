@@ -5058,7 +5058,7 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>SatDialog</name>
     <message>
-        <location filename="../../../src/qtSatDialog.cc" line="+108"/>
+        <location filename="../../../src/qtSatDialog.cc" line="+109"/>
         <source>Time</source>
         <translation>Tid</translation>
     </message>

@@ -45,7 +45,7 @@ Text::Text(int id)
   propertiesRef().insert("style:margin", defaultMargin());
   propertiesRef().insert("style:spacing", defaultSpacing());
   propertiesRef().insert("style:fontname", QString::fromStdString(PlotOptions::defaultFontName()));
-  propertiesRef().insert("style:fontface", QString::fromStdString(PlotOptions::defaultFontFace()));
+  propertiesRef().insert("style:fontface", QString::fromStdString(diutil::fontFaceToString(PlotOptions::defaultFontFace())));
   propertiesRef().insert("style:fontsize", PlotOptions::defaultFontSize());
   propertiesRef().insert("style:cornersegments", 0);
   propertiesRef().insert("style:cornerradius", defaultMargin());

@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #define GL_GLEXT_PROTOTYPES // needed for glWindowPos2i, which is OpenGL 1.4
 #include "diOpenGLPainter.h"
@@ -35,8 +63,7 @@ void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   DiGLCanvas::parseFontSetup(sect_fonts);
 }
 
-void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,
-    const std::string& face, bool use_bitmap)
+void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace face, bool use_bitmap)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename));
   fp()->defineFont(fontfam, fontfilename, face, use_bitmap);
@@ -59,10 +86,9 @@ bool DiOpenGLCanvas::selectFont(const std::string& family)
   return fp()->setFont(family);
 }
 
-bool DiOpenGLCanvas::selectFont(const std::string& family, FontFace face, float size)
+bool DiOpenGLCanvas::selectFont(const std::string& family, diutil::FontFace face, float size)
 {
-  // assume that DiPainter::FontFace == glText::FontFace
-  return fp()->set(family, (FontFamily::FontFace)face, size);
+  return fp()->set(family, face, size);
 }
 
 bool DiOpenGLCanvas::setFontSize(float size)

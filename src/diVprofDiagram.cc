@@ -1354,8 +1354,7 @@ void VprofDiagram::fpInitStr(const std::string& str, float x, float y, float ang
 void VprofDiagram::fpDrawStr(bool first)
 {
   METLIBS_LOG_SCOPE();
-  static const std::string font_scaled = "SCALEFONT";
-  gl->setFont(font_scaled);
+  gl->setFont(diutil::SCALEFONT);
 
   for (fpStrInfo& s : fpStr) {
     setFontsize(s.size);

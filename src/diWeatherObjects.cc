@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -278,7 +278,7 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
 
     // The font Helvetica is not supported if X-fonts are not enabled, use BITMAPFONT defined in setup
     if (miutil::contains(str, "Helvetica")) {
-      miutil::replace(str, "Helvetica","BITMAPFONT");
+      miutil::replace(str, "Helvetica", diutil::BITMAPFONT);
     }
     // check if this is a LABEL string
     if (diutil::startswith(str, "LABEL")) {

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -446,7 +446,7 @@ void ComplexSymbolPlot::drawSymbol(DiGLPainter* gl, int index,float x,float y)
 {
   METLIBS_LOG_SCOPE();
   float cw,ch;
-  gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+  gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
   gl->getCharSize(index,cw,ch);
   gl->drawChar(index,x-cw/2,y-ch/2,0.0);
 }
@@ -470,9 +470,7 @@ void ComplexSymbolPlot::drawSigTextBoxString(DiGLPainter* gl, float& x,float& y,
   METLIBS_LOG_SCOPE();
   float cw,ch;
   getComplexSize(gl, 1999,cw,ch);
-  //gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot/3);
-  gl->setFont("Helvetica","BOLD",12);
- // gl->setFont("Arial","NORMAL",12);
+  gl->setFont(diutil::SCALEFONT, diutil::F_BOLD, 12);
   gl->drawText(sigString,x+0.45 ,y-0.4,0.0);
   METLIBS_LOG_DEBUG(LOGVAL(sigString));
   nstringsvisible=10;
@@ -907,7 +905,7 @@ void ComplexSymbolPlot::drawSig33(DiGLPainter* gl, float x, float y)
   //  if (whiteBox) drawBox(gl, 1000,x,y,true);
   drawBox(gl, 1000,x,y,false);
 
-  poptions.fontface="italic";
+  poptions.fontface = diutil::F_ITALIC;
   drawSigString(gl, x,y);
   nstringsvisible=1;
 }
@@ -1211,7 +1209,7 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
   diffx=0;
   diffy=0;
   if (index < 1000){
-    gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+    gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
     gl->getCharSize(index,cw,ch);
     sw=ch; sh=ch;
   }
@@ -1225,7 +1223,7 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       break;
     case 3001:
       if (symbolStrings.size()>1){
-        gl->setFont("Helvetica","BOLD",12);
+        gl->setFont(diutil::SCALEFONT, diutil::F_BOLD, 12);
         cw2=ch2=0;
         for (unsigned int i=0; i<symbolStrings.size(); i++){
           METLIBS_LOG_DEBUG(LOGVAL(cw2) << LOGVAL(ch2));
@@ -1260,32 +1258,32 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       }
       break;
     case 1001:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(SIG2SYMBOL,cw,ch);
       sw=1.4*cw; sh=1.8*ch;
       break;
     case 1002:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(SIG2SYMBOL,cw,ch);
       sw=1.4*cw; sh=1.8*ch;
       break;
     case 1003:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(SIG3SYMBOL,cw,ch);
       sw=1.2*cw; sh=ch;
       break;
     case 1004:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(SIG3SYMBOL,cw,ch);
       sw=1.2*cw; sh=1.4*ch;
       break;
     case 1005:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       getComplexSize(gl, 1001,cw,ch);
       sw=1.8*cw; sh=1.5*ch;
       break;
     case 1006:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       getComplexSize(gl, 1003,cw,ch);
       sw=1.8*cw; sh=2.8*ch;
       break;
@@ -1412,37 +1410,37 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
         sh=ch2;
       break;
     case 1018:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(RIGHTARROW,cw,ch);
       sw=cw/2; sh=ch/2;
       break;
     case 1019:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(LOWSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1020:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(HIGHSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1021:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(THUNDERSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1022:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(CROSS,cw,ch);
       sw=cw; sh=0.5*ch;
       break;
     case 1025:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(MOUNTAINWAVESYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1026:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(VULCANOSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
@@ -1456,7 +1454,7 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       getComplexSize(gl, 1000,sw,sh);
       break;
     case 1030:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(FOGSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
@@ -1486,7 +1484,7 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       sh = ch2 * 1.3;
       break;
     case 1035:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(NEW_CROSS,cw,ch);
       sw=cw; sh=0.5*ch;
       break;
@@ -1504,7 +1502,7 @@ void ComplexSymbolPlot::getComplexSize(DiGLPainter* gl, int index, float& sw, fl
       }
       break;
     case 1037:
-      gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
       gl->getCharSize(WIDESPREADBRSYMBOL,cw,ch);
       sh =ch;
       sw=cw;

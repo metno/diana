@@ -268,7 +268,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (plot_lon || plot_lat) {
 
     if (mapinfo.lon.showvalue || mapinfo.lat.showvalue)
-      gl->setFont("BITMAPFONT");
+      gl->setFont(diutil::BITMAPFONT);
 
     plotGeoGrid(gl, mapinfo, plot_lon, plot_lat);
   }

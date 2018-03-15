@@ -169,7 +169,7 @@ bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
   if (!cmd)
     return false;
 
-  poptions.fontname = "BITMAPFONT"; //default
+  poptions.fontname = diutil::BITMAPFONT;
   poptions.textcolour = Colour("black");
   setPlotInfo(cmd->all());
   if (cmd->size() < 2)
@@ -432,7 +432,7 @@ bool AnnotationPlot::decodeElement(const std::string& elementstring, element& e)
       else if (subtokens[0] == "font")
         e.eFont = subtokens[1];
       else if (subtokens[0] == "face")
-        e.eFace = subtokens[1];
+        e.eFace = diutil::fontFaceFromString(subtokens[1]);
       else if (subtokens[0] == "tcolour")
         e.textcolour = subtokens[1];
       else if (subtokens[0] == "size")
@@ -1145,8 +1145,8 @@ std::string AnnotationPlot::writeElement(const element& annoEl)
   if (annoEl.textcolour != "black") {
     str += ",tcolour=" + annoEl.textcolour;
   }
-  if (!annoEl.eFace.empty() && annoEl.eFace != poptions.fontface)
-    str += ",face=" + annoEl.eFace;
+  if (annoEl.eFace != diutil::F_NORMAL && annoEl.eFace != poptions.fontface)
+    str += ",face=" + diutil::fontFaceToString(annoEl.eFace);
   if (annoEl.eHalign == align_right)
     str += ",hal=right";
   else if (annoEl.eHalign == align_center)

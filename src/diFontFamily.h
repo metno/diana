@@ -1,7 +1,7 @@
 /*
  based on libglText - OpenGL Text Rendering Library
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -28,6 +28,7 @@
 #ifndef DIFONTFAMILY_H
 #define DIFONTFAMILY_H 1
 
+#include "diFont.h"
 #include <string>
 
 class FTFont; // either from miFTGL or standard FTGL
@@ -37,24 +38,16 @@ public:
   enum {
     MAXFONTFACES = 4, MAXFONTSIZES = 40
   };
-  enum FontFace {
-    F_NORMAL = 0, F_BOLD = 1, F_ITALIC = 2, F_BOLD_ITALIC = 3
-  };
 
 public:
   FontFamily(bool bitmap);
 
-  FontFace getFontFace() const
-    { return Face; }
-  float getFontSize() const
-    { return numSizes ?  Sizes[SizeIndex] : 0; }
-
   // define new font (family,name,face,size)
-  bool defineFont(const std::string& fname, FontFace face, int size);
+  bool defineFont(const std::string& fname, diutil::FontFace face, int size);
 
   // choose font, size and face
-  bool set(FontFace face, float size);
-  bool setFontFace(FontFace);
+  bool set(diutil::FontFace face, float size);
+  bool setFontFace(diutil::FontFace face);
   bool setFontSize(float size);
 
   // drawing commands
@@ -90,7 +83,7 @@ private:
 private:
   bool mUseBitmap;
 
-  FontFace Face; // current font face
+  diutil::FontFace Face; // current font face
 
   int Sizes[MAXFONTSIZES];
   int numSizes; // number of defined fontsizes

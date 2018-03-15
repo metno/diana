@@ -399,12 +399,12 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
   if (useStationNameNormal && !stations[i]->isSelected) {
     float cw, ch;
     gl->Color3ub(0, 0, 0); //black
-    gl->setFont("BITMAPFONT", "normal", 10);
+    gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
     gl->getTextSize(stations[i]->name, cw, ch);
     gl->drawText(stations[i]->name, x - cw / 2, y + h / 2, 0.0);
   } else if (useStationNameSelected && stations[i]->isSelected) {
     float cw, ch;
-    gl->setFont("BITMAPFONT", "normal", 10);
+    gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
     gl->getTextSize(stations[i]->name, cw, ch);
     gl->Color3ub(255, 255, 255); //white
     glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1);
@@ -419,7 +419,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       float cw, ch;
       gl->setColour(textColour);
       const std::string& text = stations[i]->vsText[it].text;
-      gl->setFont("BITMAPFONT", textStyle, textSize);
+      gl->setFont(diutil::BITMAPFONT, textStyle, textSize);
       gl->getTextSize(text, cw, ch);
       if (stations[i]->vsText[it].hAlign == align_center)
         gl->drawText(text, x - cw / 2, y - ch / 4, 0.0);
@@ -1242,7 +1242,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
   pushpop.PopMatrix();
 
   if (ff > 0 && !classic) {
-    gl->setFont("BITMAPFONT", "normal", 10);
+    gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
     float sW, sH;
     const QString ost = QString::number(ff);
     gl->getTextSize(ost, sW, sH);
@@ -1254,7 +1254,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
 
   if (stations[ii]->isSelected) {
     //wind direction
-    gl->setFont("BITMAPFONT", "normal", 10);
+    gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
     float sW, sH;
     dd = (dd - stations[ii]->north);
     float df = dd;

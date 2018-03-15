@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2011 met.no
+ Copyright (C) 2011-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -62,7 +62,7 @@ DiPaintGLCanvas::~DiPaintGLCanvas()
     QFontDatabase::removeApplicationFont(fontHandles.at(i));
 }
 
-bool DiPaintGLCanvas::selectFont(const std::string& family, const FontFace face, float size)
+bool DiPaintGLCanvas::selectFont(const std::string& family, diutil::FontFace face, float size)
 {
   selectFont(family);
   setFontFace(face);
@@ -90,13 +90,13 @@ bool DiPaintGLCanvas::hasFont(const std::string& family)
   return (fontMap.find(family) != fontMap.end());
 }
 
-bool DiPaintGLCanvas::setFontFace(FontFace face)
+bool DiPaintGLCanvas::setFontFace(diutil::FontFace face)
 {
-  if (face & 1)
+  if (diutil::isBoldFont(face))
     mFont.setWeight(QFont::Bold);
   else
     mFont.setWeight(QFont::Normal);
-  mFont.setItalic((face & 2) != 0);
+  mFont.setItalic(diutil::isItalicFont(face));
   return true;
 }
 
@@ -122,10 +122,9 @@ void DiPaintGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   DiGLCanvas::parseFontSetup(sect_fonts);
 }
 
-void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename,
-    const std::string& face, bool use_bitmap)
+void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace /*face*/, bool /*use_bitmap*/)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename) << LOGVAL(face));
+  METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename));
 
   int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
   if (handle == -1)

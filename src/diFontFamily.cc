@@ -1,7 +1,7 @@
 /*
  based on libglText - OpenGL Text Rendering Library
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -61,7 +61,7 @@ void FontFamily::ttfont::destroy()
 
 FontFamily::FontFamily(bool bitmap)
     : mUseBitmap(bitmap)
-    , Face(F_NORMAL)
+    , Face(diutil::F_NORMAL)
     , numSizes(0)
     , SizeIndex(0)
     , reqSize(1.0)
@@ -98,7 +98,7 @@ bool FontFamily::_addSize(const int size, int &index)
   return true;
 }
 
-bool FontFamily::defineFont(const std::string& filename, FontFace face, int size)
+bool FontFamily::defineFont(const std::string& filename, diutil::FontFace face, int size)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename) << LOGVAL(face) << LOGVAL(size));
   fonts[face][0].fontname = filename;
@@ -106,7 +106,7 @@ bool FontFamily::defineFont(const std::string& filename, FontFace face, int size
 }
 
 // choose font, size and face
-bool FontFamily::set(FontFace face, float size)
+bool FontFamily::set(diutil::FontFace face, float size)
 {
   Face = face;
   reqSize = size;
@@ -115,7 +115,7 @@ bool FontFamily::set(FontFace face, float size)
   return _calcScaling();
 }
 
-bool FontFamily::setFontFace(FontFace face)
+bool FontFamily::setFontFace(diutil::FontFace face)
 {
   Face = face;
   return _calcScaling();
@@ -176,8 +176,6 @@ FontFamily::ttfont* FontFamily::getFont()
 
 bool FontFamily::_checkFont()
 {
-  const char* facenames[MAXFONTFACES] = { "Normal", "Bold", "Italic", "Bold_Italic" };
-
   const std::string& fontname = fonts[Face][0].fontname;
   if (!fontname.size()) {
     METLIBS_LOG_ERROR("empty fontname");
@@ -185,13 +183,12 @@ bool FontFamily::_checkFont()
   }
   ttfont *tf = getFont();
   if (!tf) {
-    METLIBS_LOG_ERROR("font not defined Face:" << facenames[Face]
-        << " SizeIndex=" << SizeIndex << "/" << numSizes);
+    METLIBS_LOG_ERROR("font not defined Face:" << diutil::fontFaceToString(Face) << " SizeIndex=" << SizeIndex << "/" << numSizes);
     return false;
   }
   if (!(tf->created)) {
     METLIBS_LOG_INFO("creating font from file '" << fontname << "'"
-        << " Face:" << facenames[Face] << " Size:" << Sizes[SizeIndex]);
+                                                 << " Face:" << diutil::fontFaceToString(Face) << " Size:" << Sizes[SizeIndex]);
     tf->created = true;
     if (mUseBitmap)
       tf->pfont = new FTGLBitmapFont(fontname.c_str());

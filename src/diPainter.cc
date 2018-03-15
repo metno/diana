@@ -50,13 +50,6 @@
 #define MILOGGER_CATEGORY "diana.DiPainter"
 #include <miLogger/miLogging.h>
 
-namespace {
-const std::string BITMAPFONT = "bitmapfont";
-const std::string SCALEFONT = "scalefont";
-const std::string METSYMBOLFONT = "metsymbolfont";
-const std::string METSYMBOL = "metsymbol";
-}
-
 struct DiCanvasPrivate
 {
   typedef std::map<std::string, std::string, boost::locale::comparator<char, boost::locale::collator_base::secondary>> aliases_t;
@@ -80,7 +73,7 @@ void DiCanvas::parseFontSetup()
   std::vector<std::string> sect_fonts;
   if (miutil::SetupParser::getSection(sf_name, sect_fonts))
     parseFontSetup(sect_fonts);
-  setFont("BITMAPFONT", F_NORMAL, 10);
+  setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
 }
 
 void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
@@ -103,9 +96,9 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   const std::string key_texture = "texture";
 
   mP->aliases.clear();
-  mP->aliases[BITMAPFONT] = "Helvetica";
-  mP->aliases[SCALEFONT] = "Arial";
-  mP->aliases[METSYMBOLFONT] = "Symbol";
+  mP->aliases[diutil::BITMAPFONT] = "Helvetica";
+  mP->aliases[diutil::SCALEFONT] = "Arial";
+  mP->aliases[diutil::METSYMBOLFONT] = "Symbol";
 
   std::string fontpath = LocalSetupParser::basicValue("fontpath");
   if (fontpath.empty())
@@ -151,7 +144,7 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
     } else if (fonttype_lc == key_scaleable || use_bitmap || fonttype_lc == key_ttpixmap
         || fonttype_lc == key_tttexture || fonttype_lc == key_texture)
     {
-      defineFont(fontfam, fontfilename, fontface, use_bitmap);
+      defineFont(fontfam, fontfilename, diutil::fontFaceFromString(fontface), use_bitmap);
     }
   }
 }
@@ -166,9 +159,10 @@ const std::string& DiCanvas::lookupFontAlias(const std::string& family)
     f = &family;
   if (!hasFont(*f)) {
     // try to fallback to some font alias that is likely defined
-    if (!boost::iequals(*f, METSYMBOLFONT) && !boost::iequals(*f, SCALEFONT)) {
+    if (!boost::iequals(*f, diutil::METSYMBOLFONT) && !boost::iequals(*f, diutil::SCALEFONT)) {
+      static const std::string METSYMBOL = "metsymbol";
       const bool sym = boost::icontains(*f, METSYMBOL);
-      const std::string& fallback = sym ? METSYMBOLFONT : SCALEFONT;
+      const std::string& fallback = sym ? diutil::METSYMBOLFONT : diutil::SCALEFONT;
       it = mP->aliases.find(fallback);
       if (it != mP->aliases.end())
         f = &it->second;
@@ -182,21 +176,14 @@ bool DiCanvas::setFont(const std::string& family)
   return selectFont(lookupFontAlias(family));
 }
 
-bool DiCanvas::setFont(const std::string& family, FontFace face, float size)
+bool DiCanvas::setFont(const std::string& family, diutil::FontFace face, float size)
 {
   return selectFont(lookupFontAlias(family), face, size);
 }
 
 bool DiCanvas::setFont(const std::string& family, const std::string& face, float size)
 {
-  FontFace f = F_NORMAL;
-  if (boost::iequals(face, "bold"))
-    f = F_BOLD;
-  else if (boost::iequals(face, "bold_italic"))
-    f = F_BOLD_ITALIC;
-  else if (boost::iequals(face, "italic"))
-    f = F_ITALIC;
-  return setFont(family, f, size);
+  return setFont(family, diutil::fontFaceFromString(face), size);
 }
 
 bool DiCanvas::getTextSize(const std::string& text, float& w, float& h)
@@ -260,7 +247,7 @@ bool DiPainter::setFont(const std::string& font)
   return canvas()->setFont(font);
 }
 
-bool DiPainter::setFont(const std::string& font, float size, DiCanvas::FontFace face)
+bool DiPainter::setFont(const std::string& font, float size, diutil::FontFace face)
 {
   if (!canvas())
     return false;

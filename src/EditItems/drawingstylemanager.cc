@@ -1146,7 +1146,7 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item) const
   // Fill in the default font settings from the plot options object. These
   // will be overridden if equivalent properties are found.
   const QString fontName = style.value("fontname", QString::fromStdString(PlotOptions::defaultFontName())).toString();
-  const QString fontFace = style.value("fontface", QString::fromStdString(PlotOptions::defaultFontFace())).toString();
+  const QString fontFace = style.value("fontface", QString::fromStdString(diutil::fontFaceToString(PlotOptions::defaultFontFace()))).toString();
   const float fontSize = style.value("fontsize", PlotOptions::defaultFontSize()).toFloat();
 
   if (mCanvas)

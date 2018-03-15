@@ -30,6 +30,7 @@
 #ifndef DIPAINTER_H
 #define DIPAINTER_H 1
 
+#include "diFont.h"
 #include "diPoint.h"
 
 #include <QList>
@@ -55,20 +56,14 @@ public:
   DiCanvas();
   virtual ~DiCanvas();
 
-  enum FontFace {
-    // same as glText.h
-    F_NORMAL = 0, F_BOLD = 1, F_ITALIC = 2, F_BOLD_ITALIC = 3
-  };
-
   void parseFontSetup();
   virtual void parseFontSetup(const std::vector<std::string>& sect_fonts);
-  virtual void defineFont(const std::string& font, const std::string& fontfilename,
-      const std::string& face, bool use_bitmap) = 0;
+  virtual void defineFont(const std::string& font, const std::string& fontfilename, diutil::FontFace face, bool use_bitmap) = 0;
 
   virtual void setVpGlSize(int vpw, int vph, float glw, float glh) = 0;
 
   bool setFont(const std::string& family);
-  bool setFont(const std::string& family, FontFace face, float size);
+  bool setFont(const std::string& family, diutil::FontFace face, float size);
   bool setFont(const std::string& family, const std::string& face, float size);
 
   virtual bool setFontSize(float size) = 0;
@@ -86,7 +81,7 @@ public:
 
 protected:
   virtual bool selectFont(const std::string& family) = 0;
-  virtual bool selectFont(const std::string& family, FontFace face, float size) = 0;
+  virtual bool selectFont(const std::string& family, diutil::FontFace face, float size) = 0;
   virtual bool hasFont(const std::string& family) = 0;
 
 private:
@@ -112,9 +107,8 @@ public:
   void setVpGlSize(int vpw, int vph, float glw, float glh);
 
   bool setFont(const std::string& font);
-  bool setFont(const std::string& font, float size, DiCanvas::FontFace face=DiCanvas::F_NORMAL);
-  bool setFont(const std::string& font, DiCanvas::FontFace face, float size)
-    { return setFont(font, size, face); }
+  bool setFont(const std::string& font, float size, diutil::FontFace face = diutil::F_NORMAL);
+  bool setFont(const std::string& font, diutil::FontFace face, float size) { return setFont(font, size, face); }
   bool setFont(const std::string& font, const std::string& face, float size);
 
   bool setFontSize(float size);

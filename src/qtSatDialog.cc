@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 
 #include "qtSatDialog.h"
 
+#include "diFont.h"
 #include "diUtilities.h"
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
@@ -787,7 +788,7 @@ miutil::KeyValue_v SatDialog::makeOKString(state & okVar)
 
   diutil::insert_all(cmd, okVar.advanced);
 
-  cmd.push_back(miutil::KeyValue("font", "BITMAPFONT"));
+  cmd.push_back(miutil::KeyValue("font", diutil::BITMAPFONT));
   cmd.push_back(miutil::KeyValue("face", "normal"));
 
   diutil::insert_all(cmd, okVar.external);

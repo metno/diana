@@ -390,8 +390,8 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
   op->dialogname = dialogname;
   op->is_hqc = is_hqc;
 
-  op->poptions.fontname = "BITMAPFONT";
-  op->poptions.fontface = "normal";
+  op->poptions.fontname = diutil::BITMAPFONT;
+  op->poptions.fontface = diutil::F_NORMAL;
 
   vector<std::string> parameter;
   for (const miutil::KeyValue& kv : cmd->all()) {
@@ -490,7 +490,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     } else if (key == "font") {
       op->poptions.fontname = value;
     } else if (key == "face") {
-      op->poptions.fontface = value;
+      op->poptions.fontface = diutil::fontFaceFromString(value);
     }
   }
 

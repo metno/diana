@@ -329,7 +329,7 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
 
         } else if (drawIndex>0) {
           // this is a normal symbol
-          gl->setFont("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+          gl->setFont(diutil::METSYMBOLFONT, poptions.fontface, symbolSizeToPlot);
           gl->getCharSize(drawIndex,cw,ch);
           gl->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
 

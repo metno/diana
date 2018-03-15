@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -184,25 +184,75 @@ std::map< std::string, unsigned int> PlotOptions::enabledOptions;
 static const Colour WhiteC(255,255,255);
 static const Colour BlackC(0,0,0);
 
-PlotOptions::PlotOptions():
-  options_1(true),options_2(false),
-  textcolour(BlackC), linecolour(BlackC), linecolour_2(BlackC),
-  fillcolour(BlackC), bordercolour(BlackC), table(1),alpha(255), repeat(0),
-  linewidth(1), linewidth_2(1), colourcut(0.02), lineinterval(10.0), lineinterval_2(10.0),
-  base(0.0), base_2(0.0), minvalue(-fieldUndef), minvalue_2(-fieldUndef),
-  maxvalue(fieldUndef), maxvalue_2(fieldUndef), density(0), densityFactor(1.0),
-  vectorunit(1.0), vectorunitname("m/s"), vectorscale_x(1), vectorscale_y(1), vectorthickness(0.1),
-  extremeType("None"), extremeSize(1.0), extremeRadius(1.0),
-  lineSmooth(0), fieldSmooth(0), frame(1), zeroLine(-1), valueLabel(1), labelSize(1.0),
-  gridValue(0),gridLines(0), gridLinesMax(0),
-  undefMasking(0), undefColour(WhiteC), undefLinewidth(1),
-  plottype(fpt_contour), rotateVectors(1), discontinuous(0), contourShading(0),
-  polystyle(poly_fill), arrowstyle(arrow_wind), h_align(align_left), v_align(align_bottom),
-  alignX(0), alignY(0),
-  fontname(defaultFontName()), fontface(defaultFontFace()), fontsize(defaultFontSize()), precision(0),
-  dimension(1), enabled(true), contourShape(0), tableHeader(true),
-  antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
-    , vector_example_x(-1), vector_example_y(-1)
+PlotOptions::PlotOptions()
+    : options_1(true)
+    , options_2(false)
+    , textcolour(BlackC)
+    , linecolour(BlackC)
+    , linecolour_2(BlackC)
+    , fillcolour(BlackC)
+    , bordercolour(BlackC)
+    , table(1)
+    , alpha(255)
+    , repeat(0)
+    , linewidth(1)
+    , linewidth_2(1)
+    , colourcut(0.02)
+    , lineinterval(10.0)
+    , lineinterval_2(10.0)
+    , base(0.0)
+    , base_2(0.0)
+    , minvalue(-fieldUndef)
+    , minvalue_2(-fieldUndef)
+    , maxvalue(fieldUndef)
+    , maxvalue_2(fieldUndef)
+    , density(0)
+    , densityFactor(1.0)
+    , vectorunit(1.0)
+    , vectorunitname("m/s")
+    , vectorscale_x(1)
+    , vectorscale_y(1)
+    , vectorthickness(0.1)
+    , extremeType("None")
+    , extremeSize(1.0)
+    , extremeRadius(1.0)
+    , lineSmooth(0)
+    , fieldSmooth(0)
+    , frame(1)
+    , zeroLine(-1)
+    , valueLabel(1)
+    , labelSize(1.0)
+    , gridValue(0)
+    , gridLines(0)
+    , gridLinesMax(0)
+    , undefMasking(0)
+    , undefColour(WhiteC)
+    , undefLinewidth(1)
+    , plottype(fpt_contour)
+    , rotateVectors(1)
+    , discontinuous(0)
+    , contourShading(0)
+    , polystyle(poly_fill)
+    , arrowstyle(arrow_wind)
+    , h_align(align_left)
+    , v_align(align_bottom)
+    , alignX(0)
+    , alignY(0)
+    , fontname(defaultFontName())
+    , fontface(defaultFontFace())
+    , fontsize(defaultFontSize())
+    , precision(0)
+    , dimension(1)
+    , enabled(true)
+    , contourShape(0)
+    , tableHeader(true)
+    , antialiasing(false)
+    , use_stencil(false)
+    , update_stencil(false)
+    , plot_under(false)
+    , maxDiagonalInMeters(-1.0)
+    , vector_example_x(-1)
+    , vector_example_y(-1)
 {
 }
 
@@ -669,7 +719,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
         po.fontname= value;
 
       } else if (key==key_fontface){
-        po.fontface= value;
+        po.fontface = diutil::fontFaceFromString(value);
 
       } else if (key==key_fontsize){
         if (miutil::is_number(value))
@@ -1111,4 +1161,22 @@ const std::map< std::string, unsigned int>& PlotOptions::getEnabledOptions()
     enabledOptions[fpt_wind_value] = POE_DENSITY | POE_LINE | POE_UNIT | POE_FONT;
   }
   return enabledOptions;
+}
+
+// static
+const std::string& PlotOptions::defaultFontName()
+{
+  return diutil::SCALEFONT;
+}
+
+// static
+diutil::FontFace PlotOptions::defaultFontFace()
+{
+  return diutil::F_NORMAL;
+}
+
+// static
+float PlotOptions::defaultFontSize()
+{
+  return 10.0;
 }

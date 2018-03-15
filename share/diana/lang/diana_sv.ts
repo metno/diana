@@ -4285,7 +4285,7 @@ Type: %3</source>
 <context>
     <name>SatDialog</name>
     <message>
-        <location filename="../../../src/qtSatDialog.cc" line="+108"/>
+        <location filename="../../../src/qtSatDialog.cc" line="+109"/>
         <source>Time</source>
         <translation>Tid</translation>
     </message>

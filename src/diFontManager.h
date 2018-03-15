@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -52,9 +52,6 @@ private:
   families_t families;
   FontFamily *currentFamily;
 
-  //! convert font face text to constant
-  static FontFamily::FontFace fontFace(const std::string&);
-
   //! find font family and update currentFamily
   void findFamily(const std::string& family);
 
@@ -62,16 +59,12 @@ public:
   FontManager();
   ~FontManager();
 
-  void defineFont(const std::string& fontfam, const std::string& fontfilename,
-      const std::string& face, bool use_bitmap);
+  void defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace face, bool use_bitmap);
 
   void clearFamilies();
 
   /// choose fonttype, face and size
-  bool set(const std::string& family, FontFamily::FontFace, float);
-
-  /// choose fonttype, face and size
-  bool set(const std::string& family, const std::string&, float);
+  bool set(const std::string& family, diutil::FontFace, float);
 
   /// choose fonttype
   bool setFont(const std::string& family);
@@ -80,10 +73,7 @@ public:
   bool hasFont(const std::string& family);
 
   /// choose fontface from type
-  bool setFontFace(FontFamily::FontFace);
-
-  /// choose fontface from name
-  bool setFontFace(const std::string&);
+  bool setFontFace(diutil::FontFace);
 
   /// choose fontsize
   bool setFontSize(float);
@@ -97,12 +87,6 @@ public:
 
   /// set viewport size in physical coordinates (pixels) and GL coordinates
   void setVpGlSize(int vpw, int vph, float glw, float glh);
-
-  /// return current font face
-  FontFamily::FontFace getFontFace();
-
-  /// return current font size
-  float getFontSize();
 };
 
 #endif

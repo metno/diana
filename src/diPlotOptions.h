@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,7 @@
 #define diPlotOptions_h
 
 #include "diColour.h"
+#include "diFont.h"
 #include "diLinetype.h"
 #include "miSetupParser.h"
 
@@ -332,7 +333,7 @@ public:
   int      alignX;       // shift position of plotted numbers with ex.alignX=10000
   int      alignY;       // shift position of plotted numbers with ex.alignY=10000
   std::string  fontname;
-  std::string  fontface;
+  diutil::FontFace fontface;
   float     fontsize;
   float     precision;
   int       dimension;
@@ -378,9 +379,9 @@ public:
   };
   static const std::map<std::string, unsigned int>& getEnabledOptions();
 
-  static std::string defaultFontName() { return "SCALEFONT"; }
-  static std::string defaultFontFace() { return "NORMAL"; }
-  static float defaultFontSize() { return 10.0; }
+  static const std::string& defaultFontName();
+  static diutil::FontFace defaultFontFace();
+  static float defaultFontSize();
 
 public:
   //! fill in values and "..." in a float vector (error if size==0)

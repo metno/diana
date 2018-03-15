@@ -4693,7 +4693,7 @@ Do you want to run your changes first?</source>
 <context>
     <name>SatDialog</name>
     <message>
-        <location filename="../../../src/qtSatDialog.cc" line="+80"/>
+        <location filename="../../../src/qtSatDialog.cc" line="+81"/>
         <source>Satellite and radar</source>
         <translation>Спутники и радары</translation>
     </message>

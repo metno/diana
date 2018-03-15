@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -55,26 +55,7 @@ void FontManager::clearFamilies()
   currentFamily = 0;
 }
 
-// static
-FontFamily::FontFace FontManager::fontFace(const std::string& s)
-{
-  std::string suface = miutil::to_upper(s);
-  miutil::trim(suface);
-  FontFamily::FontFace face = FontFamily::F_NORMAL;
-  if (suface != "NORMAL") {
-    if (suface == "ITALIC")
-      face = FontFamily::F_ITALIC;
-    else if (suface == "BOLD")
-      face = FontFamily::F_BOLD;
-    else if (suface == "BOLD_ITALIC")
-      face = FontFamily::F_BOLD_ITALIC;
-  }
-
-  return face;
-}
-
-void FontManager::defineFont(const std::string& fontfam, const std::string& fontfilename,
-    const std::string& fontface, bool use_bitmap)
+void FontManager::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace fontface, bool use_bitmap)
 {
   families_t::iterator it = families.find(fontfam);
   FontFamily* f;
@@ -87,7 +68,7 @@ void FontManager::defineFont(const std::string& fontfam, const std::string& font
   } else {
     f = it->second;
   }
-  f->defineFont(fontfilename, fontFace(fontface), 20);
+  f->defineFont(fontfilename, fontface, 20);
 }
 
 void FontManager::findFamily(const std::string& family)
@@ -101,19 +82,12 @@ void FontManager::findFamily(const std::string& family)
   }
 }
 
-// choose font, size and face
-bool FontManager::set(const std::string& fam, FontFamily::FontFace face, float size)
+bool FontManager::set(const std::string& fam, diutil::FontFace face, float size)
 {
   findFamily(fam);
   if (!currentFamily)
     return false;
   return currentFamily->set(face, size);
-}
-
-// choose font, size and face
-bool FontManager::set(const std::string& fam, const std::string& face, float size)
-{
-  return set(fam, fontFace(face), size);
 }
 
 bool FontManager::setFont(const std::string& fam)
@@ -127,16 +101,11 @@ bool FontManager::hasFont(const std::string& family)
   return (families.find(family) != families.end());
 }
 
-bool FontManager::setFontFace(FontFamily::FontFace face)
+bool FontManager::setFontFace(diutil::FontFace face)
 {
   if (!currentFamily)
     return false;
   return currentFamily->setFontFace(face);
-}
-
-bool FontManager::setFontFace(const std::string& face)
-{
-  return setFontFace(fontFace(face));
 }
 
 bool FontManager::setFontSize(const float size)
@@ -179,18 +148,4 @@ bool FontManager::getStringRect(const std::wstring& s, float& x, float& y, float
   if (!currentFamily)
     return false;
   return currentFamily->getStringRect(s, x, y, w, h);
-}
-
-FontFamily::FontFace FontManager::getFontFace()
-{
-  if (!currentFamily)
-    return FontFamily::F_NORMAL;
-  return currentFamily->getFontFace();
-}
-
-float FontManager::getFontSize()
-{
-  if (!currentFamily)
-    return 0;
-  return currentFamily->getFontSize();
 }

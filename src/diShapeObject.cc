@@ -417,7 +417,7 @@ bool ShapeObject::plot(DiGLPainter* gl,
       const QPolygonF& p = s->contours.at(0);
       if (s->nparts() == 0 && special==true && s->nvertices()==1) {
         // METLIBS_LOG_DEBUG("plotting a special SHPT_POINT");
-        gl->setFont(poptions.fontname, fontSizeToPlot, DiCanvas::F_NORMAL);
+        gl->setFont(poptions.fontname, diutil::F_NORMAL, fontSizeToPlot);
         gl->drawText("SSS", s->shape->padfX[0], s->shape->padfY[0], 0.0);
         gl->setLineStyle(lcolour, 2);
         gl->drawCircle(true, p.at(0).x(), p.at(0).y(), symbol_rad);
