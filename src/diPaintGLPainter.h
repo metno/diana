@@ -74,9 +74,6 @@ public:
 
   void setVpGlSize(int vpw, int vph, float glw, float glh) override;
 
-  bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) override;
-  bool setFont(const std::string& font) override;
-
   bool setFontSize(float size) override;
 
   bool getTextRect(const QString& str, float& x, float& y, float& w, float& h) override;
@@ -92,11 +89,10 @@ public:
   const QFont& font() const
     { return mFont; }
 
+  bool fontValid() const { return mFontValid; }
+
   QPaintDevice* device() const
     { return mDevice; }
-
-  void setPrinting(bool printing=true)
-    { mPrinting = printing; }
 
   using DiGLCanvas::parseFontSetup;
   void parseFontSetup(const std::vector<std::string>& sect_fonts) Q_DECL_OVERRIDE;
@@ -104,15 +100,21 @@ public:
   void defineFont(const std::string& fontfam, const std::string& fontfilename,
       const std::string& face, bool use_bitmap) override;
 
+protected:
+  bool selectFont(const std::string& family, FontFace face, float size) override;
+  bool selectFont(const std::string& family) override;
+  bool hasFont(const std::string& family) override;
+
 private:
   bool setFontFace(FontFace face);
 
 private:
   QPaintDevice* mDevice;
   QFont mFont;
+  bool mFontValid;
 
   float mFontScaleX, mFontScaleY;
-  QHash<QString,QString> fontMap;
+  std::map<std::string, QString> fontMap;
   QList<int> fontHandles;
 };
 

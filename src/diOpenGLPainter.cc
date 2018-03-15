@@ -54,20 +54,25 @@ void DiOpenGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
   fp()->setVpGlSize(vpw, vph, glw, glh);
 }
 
-bool DiOpenGLCanvas::setFont(const std::string& font)
+bool DiOpenGLCanvas::selectFont(const std::string& family)
 {
-  return fp()->setFont(lookupFontAlias(font));
+  return fp()->setFont(family);
 }
 
-bool DiOpenGLCanvas::setFont(const std::string& font, float size, FontFace face)
+bool DiOpenGLCanvas::selectFont(const std::string& family, FontFace face, float size)
 {
   // assume that DiPainter::FontFace == glText::FontFace
-  return fp()->set(lookupFontAlias(font), (FontFamily::FontFace)face, size);
+  return fp()->set(family, (FontFamily::FontFace)face, size);
 }
 
 bool DiOpenGLCanvas::setFontSize(float size)
 {
   return fp()->setFontSize(size);
+}
+
+bool DiOpenGLCanvas::hasFont(const std::string& family)
+{
+  return fp()->hasFont(family);
 }
 
 bool DiOpenGLCanvas::getTextRect(const QString& text, float& x, float& y, float& w, float& h)

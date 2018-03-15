@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef DIPAINTER_H
 #define DIPAINTER_H 1
@@ -9,6 +37,7 @@
 #include <qglobal.h>
 
 #include <map>
+#include <memory>
 #include <string>
 
 class Colour;
@@ -19,10 +48,12 @@ class QImage;
 class QPolygonF;
 class QString;
 
+struct DiCanvasPrivate;
+
 class DiCanvas {
 public:
   DiCanvas();
-  virtual ~DiCanvas() { }
+  virtual ~DiCanvas();
 
   enum FontFace {
     // same as glText.h
@@ -36,12 +67,9 @@ public:
 
   virtual void setVpGlSize(int vpw, int vph, float glw, float glh) = 0;
 
-  virtual bool setFont(const std::string& font) = 0;
-  virtual bool setFont(const std::string& font, float size, FontFace face=F_NORMAL) = 0;
-
-  bool setFont(const std::string& font, FontFace face, float size)
-    { return setFont(font, size, face); }
-  bool setFont(const std::string& font, const std::string& face, float size);
+  bool setFont(const std::string& family);
+  bool setFont(const std::string& family, FontFace face, float size);
+  bool setFont(const std::string& family, const std::string& face, float size);
 
   virtual bool setFontSize(float size) = 0;
 
@@ -53,15 +81,19 @@ public:
   bool getTextSize(const QString& text, float& w, float& h);
   virtual bool getTextRect(const QString& text, float& x, float& y, float& w, float& h) = 0;
 
-  bool isPrinting() const
-    { return mPrinting; }
+  bool isPrinting() const;
+  void setPrinting(bool printing = true);
 
 protected:
-  std::string lookupFontAlias(const std::string& name);
+  virtual bool selectFont(const std::string& family) = 0;
+  virtual bool selectFont(const std::string& family, FontFace face, float size) = 0;
+  virtual bool hasFont(const std::string& family) = 0;
 
-protected:
-  std::map<std::string, std::string> fontFamilyAliases;
-  bool mPrinting;
+private:
+  const std::string& lookupFontAlias(const std::string& name);
+
+private:
+  std::unique_ptr<DiCanvasPrivate> mP;
 };
 
 class DiPainter {

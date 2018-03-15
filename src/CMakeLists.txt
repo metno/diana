@@ -699,7 +699,7 @@ TARGET_LINK_LIBRARIES(libdiana
   ${shp_LIB}
   ${udunits2_LIB}
   ${QT_LIBRARIES} # includes Qt5::Gui :-(
-  ${BOOST_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(libdianaui libdiana ${PCUI_LIBRARIES})
 TARGET_LINK_LIBRARIES(libbdiana libdiana)

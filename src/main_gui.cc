@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -53,6 +53,8 @@
 #include <QStringList>
 #include <QString>
 
+#include <boost/locale/generator.hpp>
+
 #include <iostream>
 
 #define MILOGGER_CATEGORY "diana.main_gui"
@@ -72,7 +74,7 @@ void printUsage()
        << "vertical profiles and cross sections. Diana has tools for"     << endl
        << "on-screen fieldediting and drawing of objects (fronts, areas," << endl
        << "symbols etc." << endl
-       << "Copyright (C) 2006-2015 met.no" << endl
+       << "Copyright (C) 2006-2018 met.no" << endl
        << "----------------------------------------------------------" << endl
        << "Command line arguments:"                                    << endl
        << "  -h            :  Show help"                               << endl
@@ -184,6 +186,9 @@ int main(int argc, char **argv)
   // see http://doc.qt.io/qt-4.8/qcoreapplication.html#locale-settings
   setlocale(LC_NUMERIC, "C");
   setenv("LC_NUMERIC", "C", 1);
+
+  boost::locale::generator locale_gen;
+  std::locale::global(locale_gen(""));
 
   string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
   QString lang;

@@ -55,8 +55,8 @@ private:
   //! convert font face text to constant
   static FontFamily::FontFace fontFace(const std::string&);
 
-  //! find font family, return 0 on error
-  FontFamily* findFamily(const std::string& family);
+  //! find font family and update currentFamily
+  void findFamily(const std::string& family);
 
 public:
   FontManager();
@@ -75,6 +75,9 @@ public:
 
   /// choose fonttype
   bool setFont(const std::string& family);
+
+  /// check fonttype
+  bool hasFont(const std::string& family);
 
   /// choose fontface from type
   bool setFontFace(FontFamily::FontFace);

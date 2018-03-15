@@ -1,3 +1,30 @@
+# Diana - A Free Meteorological Visualisation Tool
+#
+# Copyright (C) 2017-2018 met.no
+#
+# Contact information:
+# Norwegian Meteorological Institute
+# Box 43 Blindern
+# 0313 OSLO
+# NORWAY
+# email: diana@met.no
+#
+# This file is part of Diana
+#
+# Diana is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# Diana is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Diana; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
 PROJECT(diana)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
@@ -28,7 +55,7 @@ OPTION(ENABLE_OBS_BUFR "Enable observation from BUFR files" ON)
 OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
 
 
-FIND_PACKAGE(Boost COMPONENTS date_time system REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS date_time locale system REQUIRED)
 
 METNO_FIND_QT(Gui Network OpenGL PrintSupport Svg Xml XmlPatterns)
 

@@ -20,8 +20,6 @@ public:
       const std::string& face, bool use_bitmap) Q_DECL_OVERRIDE;
 
   void setVpGlSize(int vpw, int vph, float glw, float glh) override;
-  bool setFont(const std::string& font) override;
-  bool setFont(const std::string& font, float size, FontFace face) override;
   bool setFontSize(float size) override;
   bool getTextRect(const QString& text, float& x, float& y, float& w, float& h) override;
 
@@ -34,6 +32,11 @@ public:
   bool supportsDrawLists() const Q_DECL_OVERRIDE;
 
   QImage convertToGLFormat(const QImage& i) Q_DECL_OVERRIDE;
+
+protected:
+  bool selectFont(const std::string& family) override;
+  bool selectFont(const std::string& family, FontFace face, float size) override;
+  bool hasFont(const std::string& family) override;
 
 private:
   void initializeFP();

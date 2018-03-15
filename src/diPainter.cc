@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "diPainter.h"
 
@@ -13,13 +41,36 @@
 #include <QPointF>
 #include <QPolygonF>
 
+#include <boost/algorithm/string/find.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/locale/collator.hpp>
+
 #include <cmath>
 
 #define MILOGGER_CATEGORY "diana.DiPainter"
 #include <miLogger/miLogging.h>
 
+namespace {
+const std::string BITMAPFONT = "bitmapfont";
+const std::string SCALEFONT = "scalefont";
+const std::string METSYMBOLFONT = "metsymbolfont";
+const std::string METSYMBOL = "metsymbol";
+}
+
+struct DiCanvasPrivate
+{
+  typedef std::map<std::string, std::string, boost::locale::comparator<char, boost::locale::collator_base::secondary>> aliases_t;
+  aliases_t aliases;
+  bool printing;
+};
+
 DiCanvas::DiCanvas()
-  : mPrinting(false)
+    : mP(new DiCanvasPrivate)
+{
+  mP->printing = false;
+}
+
+DiCanvas::~DiCanvas()
 {
 }
 
@@ -29,7 +80,7 @@ void DiCanvas::parseFontSetup()
   std::vector<std::string> sect_fonts;
   if (miutil::SetupParser::getSection(sf_name, sect_fonts))
     parseFontSetup(sect_fonts);
-  setFont("BITMAPFONT", 10, F_NORMAL);
+  setFont("BITMAPFONT", F_NORMAL, 10);
 }
 
 void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
@@ -51,23 +102,19 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   const std::string key_tttexture = "tt_texture";
   const std::string key_texture = "texture";
 
-  const std::string key_bitmapfont = "bitmapfont";
-  const std::string key_scalefont = "scalefont";
-  const std::string key_metsymbolfont = "metsymbolfont";
-
-  fontFamilyAliases.clear();
-  fontFamilyAliases[key_bitmapfont] = "Helvetica";
-  fontFamilyAliases[key_scalefont] = "Arial";
-  fontFamilyAliases[key_metsymbolfont] = "Symbol";
+  mP->aliases.clear();
+  mP->aliases[BITMAPFONT] = "Helvetica";
+  mP->aliases[SCALEFONT] = "Arial";
+  mP->aliases[METSYMBOLFONT] = "Symbol";
 
   std::string fontpath = LocalSetupParser::basicValue("fontpath");
   if (fontpath.empty())
     fontpath = "fonts/";
 
   for (std::vector<std::string>::const_iterator it = sect_fonts.begin(); it != sect_fonts.end(); ++it) {
-    std::string fontfam = "";
-    std::string fontname = "";
-    std::string fonttype = "";
+    std::string fontfam;
+    std::string fontname;
+    std::string fonttype;
     std::string fontface = "NORMAL";
 
     std::vector<std::string> stokens = miutil::split(*it, " ");
@@ -89,7 +136,7 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
       else if (key == key_fontpath)
         fontpath = val;
       else
-        fontFamilyAliases[key] = val;
+        mP->aliases[key] = val;
     }
 
     if (fonttype.empty() || fontfam.empty() || fontname.empty())
@@ -109,37 +156,47 @@ void DiCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   }
 }
 
-std::string DiCanvas::lookupFontAlias(const std::string& name)
+const std::string& DiCanvas::lookupFontAlias(const std::string& family)
 {
-  std::map<std::string, std::string>::const_iterator it
-      = fontFamilyAliases.find(miutil::to_lower(name));
-  if (it != fontFamilyAliases.end())
-    return it->second;
+  DiCanvasPrivate::aliases_t::const_iterator it = mP->aliases.find(family);
+  const std::string* f;
+  if (it != mP->aliases.end())
+    f = &it->second;
   else
-    return name;
+    f = &family;
+  if (!hasFont(*f)) {
+    // try to fallback to some font alias that is likely defined
+    if (!boost::iequals(*f, METSYMBOLFONT) && !boost::iequals(*f, SCALEFONT)) {
+      const bool sym = boost::icontains(*f, METSYMBOL);
+      const std::string& fallback = sym ? METSYMBOLFONT : SCALEFONT;
+      it = mP->aliases.find(fallback);
+      if (it != mP->aliases.end())
+        f = &it->second;
+    }
+  }
+  return *f;
 }
 
-bool DiCanvas::setFont(const std::string& font, const std::string& face, float size)
+bool DiCanvas::setFont(const std::string& family)
+{
+  return selectFont(lookupFontAlias(family));
+}
+
+bool DiCanvas::setFont(const std::string& family, FontFace face, float size)
+{
+  return selectFont(lookupFontAlias(family), face, size);
+}
+
+bool DiCanvas::setFont(const std::string& family, const std::string& face, float size)
 {
   FontFace f = F_NORMAL;
-  if (face == "NORMAL") {
-    // nothing
-  } else if (face == "BOLD") {
+  if (boost::iequals(face, "bold"))
     f = F_BOLD;
-  } else if (face == "BOLD_ITALIC") {
+  else if (boost::iequals(face, "bold_italic"))
     f = F_BOLD_ITALIC;
-  } else if (face == "ITALIC") {
+  else if (boost::iequals(face, "italic"))
     f = F_ITALIC;
-  } else {
-    const std::string lface = miutil::to_lower(face);
-    if (lface == "bold")
-      f = F_BOLD;
-    else if (lface == "bold_italic")
-      f = F_BOLD_ITALIC;
-    else if (lface == "italic")
-      f = F_ITALIC;
-  }
-  return setFont(font, size, f);
+  return setFont(family, f, size);
 }
 
 bool DiCanvas::getTextSize(const std::string& text, float& w, float& h)
@@ -166,6 +223,16 @@ bool DiCanvas::getTextSize(const QString& str, float& w, float& h)
 {
   float dummy_x, dummy_y;
   return getTextRect(str, dummy_x, dummy_y, w, h);
+}
+
+bool DiCanvas::isPrinting() const
+{
+  return mP->printing;
+}
+
+void DiCanvas::setPrinting(bool printing)
+{
+  mP->printing = printing;
 }
 
 bool DiCanvas::getCharSize(int c, float& w, float& h)
@@ -197,7 +264,7 @@ bool DiPainter::setFont(const std::string& font, float size, DiCanvas::FontFace 
 {
   if (!canvas())
     return false;
-  return canvas()->setFont(font, size, face);
+  return canvas()->setFont(font, face, size);
 }
 
 bool DiPainter::setFont(const std::string& font, const std::string& face, float size)

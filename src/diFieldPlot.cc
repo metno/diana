@@ -3397,7 +3397,7 @@ bool FieldPlot::plotNumbers(DiGLPainter* gl)
   iy2++;
 
   float fontsize = 16.;
-  gl->setFont("BITMAPFONT", fontsize, DiCanvas::F_BOLD);
+  gl->setFont("BITMAPFONT", DiCanvas::F_BOLD, fontsize);
 
   float chx, chy;
   gl->getCharSize('0', chx, chy);

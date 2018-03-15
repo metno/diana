@@ -46,17 +46,12 @@
 #define IFDEBUG(x) do { } while (false)
 #endif
 
-namespace {
-
-const int TEXTURE_CACHE_SIZE = 16;
-
-} // namespace
-
 DiPaintGLCanvas::DiPaintGLCanvas(QPaintDevice* device)
-  : mDevice(device)
-  , mFont(QFont(), mDevice)
-  , mFontScaleX(1)
-  , mFontScaleY(1)
+    : mDevice(device)
+    , mFont(QFont(), mDevice)
+    , mFontValid(false)
+    , mFontScaleX(1)
+    , mFontScaleY(1)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -67,27 +62,32 @@ DiPaintGLCanvas::~DiPaintGLCanvas()
     QFontDatabase::removeApplicationFont(fontHandles.at(i));
 }
 
-bool DiPaintGLCanvas::setFont(const std::string& name, const float size,
-    const FontFace face)
+bool DiPaintGLCanvas::selectFont(const std::string& family, const FontFace face, float size)
 {
-  setFont(name);
+  selectFont(family);
   setFontFace(face);
   setFontSize(size);
   return true;
 }
 
-bool DiPaintGLCanvas::setFont(const std::string& name)
+bool DiPaintGLCanvas::selectFont(const std::string& family)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(name));
+  METLIBS_LOG_SCOPE(LOGVAL(family));
 
-  const std::string family = lookupFontAlias(name);
-  QHash<QString,QString>::const_iterator it = fontMap.constFind(QString::fromStdString(family));
-  if (it == fontMap.constEnd())
-    return false;
+  std::map<std::string, QString>::const_iterator it = fontMap.find(family);
+  if (it == fontMap.end()) {
+    mFontValid = false;
+  } else {
+    mFontValid = true;
+    mFont.setFamily(it->second);
+    mFont.setStyleStrategy(QFont::NoFontMerging);
+  }
+  return mFontValid;
+}
 
-  mFont.setFamily(it.value());
-  mFont.setStyleStrategy(QFont::NoFontMerging);
-  return true;
+bool DiPaintGLCanvas::hasFont(const std::string& family)
+{
+  return (fontMap.find(family) != fontMap.end());
 }
 
 bool DiPaintGLCanvas::setFontFace(FontFace face)
@@ -100,7 +100,7 @@ bool DiPaintGLCanvas::setFontFace(FontFace face)
   return true;
 }
 
-bool DiPaintGLCanvas::setFontSize(const float size)
+bool DiPaintGLCanvas::setFontSize(float size)
 {
   mFont.setPointSizeF(size);
   return true;
@@ -137,15 +137,14 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
   if (families.isEmpty())
     return;
 
-  const QString qfont = QString::fromStdString(fontfam);
   for (const QString& family : families) {
-    fontMap[qfont] = family;
+    fontMap[fontfam] = family;
   }
 }
 
 bool DiPaintGLCanvas::getTextRect(const QString& str, float& x, float& y, float& w, float& h)
 {
-  if (str.length() == 0) {
+  if (str.length() == 0 || !mFontValid) {
     x = y = w = h = 0;
     return false;
   }
@@ -1298,11 +1297,14 @@ bool DiPaintGLPainter::drawText(const QString& str,
   if (!this->colorMask)
     return true;
 
+  DiPaintGLCanvas* c = (DiPaintGLCanvas*)canvas();
+  if (!c->fontValid())
+    return false;
+
   this->painter->save();
   // Set the clip path, but don't unset it - the state will be restored.
   this->setClipPath();
 
-  DiPaintGLCanvas* c = (DiPaintGLCanvas*)canvas();
   const QFont& font = c->font();
   this->painter->setFont(font);
   QFontMetricsF fm = painter->fontMetrics();

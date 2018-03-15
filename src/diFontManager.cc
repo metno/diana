@@ -90,25 +90,24 @@ void FontManager::defineFont(const std::string& fontfam, const std::string& font
   f->defineFont(fontfilename, fontFace(fontface), 20);
 }
 
-FontFamily* FontManager::findFamily(const std::string& family)
+void FontManager::findFamily(const std::string& family)
 {
   const families_t::iterator itF = families.find(family);
   if (itF != families.end()) {
     currentFamily = itF->second;
-    return currentFamily;
+  } else {
+    METLIBS_LOG_ERROR("unknown font family: '" << family << "'");
+    currentFamily = 0;
   }
-
-  METLIBS_LOG_ERROR("unknown font family: '" << family << "'");
-  return 0;
 }
 
 // choose font, size and face
 bool FontManager::set(const std::string& fam, FontFamily::FontFace face, float size)
 {
-  FontFamily* family = findFamily(fam);
-  if (!family)
+  findFamily(fam);
+  if (!currentFamily)
     return false;
-  return family->set(face, size);
+  return currentFamily->set(face, size);
 }
 
 // choose font, size and face
@@ -119,8 +118,13 @@ bool FontManager::set(const std::string& fam, const std::string& face, float siz
 
 bool FontManager::setFont(const std::string& fam)
 {
-  FontFamily* family = findFamily(fam);
-  return family != 0;
+  findFamily(fam);
+  return currentFamily != 0;
+}
+
+bool FontManager::hasFont(const std::string& family)
+{
+  return (families.find(family) != families.end());
 }
 
 bool FontManager::setFontFace(FontFamily::FontFace face)
