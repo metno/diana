@@ -122,9 +122,11 @@ void DiPaintGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   DiGLCanvas::parseFontSetup(sect_fonts);
 }
 
-void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace /*face*/, bool /*use_bitmap*/)
+void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace face, bool /*use_bitmap*/)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fontfam) << LOGVAL(fontfilename));
+  if (face != diutil::F_NORMAL)
+    return;
 
   int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
   if (handle == -1)
