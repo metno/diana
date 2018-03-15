@@ -49,9 +49,6 @@ public:
   float getFontSize() const
     { return numSizes ?  Sizes[SizeIndex] : 0; }
 
-  // requested-size/actual-size
-  float getSizeDiv();
-
   // define new font (family,name,face,size)
   bool defineFont(const std::string& fname, FontFace face, int size);
 
@@ -100,8 +97,6 @@ private:
   int SizeIndex; // current fontsize index
 
   float reqSize; // last requested font size
-  int vpWidth, vpHeight; // viewport size in pixels
-  float glWidth, glHeight; // viewport size in gl-coord.
   float pixWidth, pixHeight; // size of pixel in gl-coord.
   float scalex, scaley; // font scaling
   float xscale; // finetuning

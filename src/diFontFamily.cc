@@ -45,7 +45,6 @@
 #include <GL/gl.h>
 
 #include <cmath>
-#include <fstream>
 
 #define MILOGGER_CATEGORY "diana.FontFamily"
 #include <miLogger/miLogging.h>
@@ -61,15 +60,16 @@ void FontFamily::ttfont::destroy()
 }
 
 FontFamily::FontFamily(bool bitmap)
-  : mUseBitmap(bitmap)
-  , Face(F_NORMAL)
-  , numSizes(0)
-  , SizeIndex(0)
-  , reqSize(1.0)
-  , vpWidth(1.0), vpHeight(1.0)
-  , glWidth(1.0), glHeight(1.0)
-  , pixWidth(1.0), pixHeight(1.0)
-  , scalex(1.0), scaley(1.0), xscale(1.0)
+    : mUseBitmap(bitmap)
+    , Face(F_NORMAL)
+    , numSizes(0)
+    , SizeIndex(0)
+    , reqSize(1.0)
+    , pixWidth(1.0)
+    , pixHeight(1.0)
+    , scalex(1.0)
+    , scaley(1.0)
+    , xscale(1.0)
 {
 }
 
@@ -96,17 +96,6 @@ bool FontFamily::_addSize(const int size, int &index)
   Sizes[index] = size;
   numSizes++;
   return true;
-}
-
-float FontFamily::getSizeDiv()
-{
-  if (SizeIndex >= 0 && SizeIndex < numSizes) {
-    int s = Sizes[SizeIndex];
-    if (s > 0) {
-      return reqSize / float(s);
-    }
-  }
-  return 1.0;
 }
 
 bool FontFamily::defineFont(const std::string& filename, FontFace face, int size)
@@ -142,9 +131,6 @@ bool FontFamily::setFontSize(float size)
 
 bool FontFamily::_calcScaling()
 {
-  pixWidth = glWidth / float(vpWidth);
-  pixHeight = glHeight / float(vpHeight);
-
   float xy;
   if (mUseBitmap) {
     xy = scalex = 1.0;
@@ -158,13 +144,13 @@ bool FontFamily::_calcScaling()
 
   scalex = truesize / size;
   scaley = scalex * xy;
+  xscale = 1;
 
   // find correct sizeindex
   if (!_findSize(size, SizeIndex, true)) {
     if (!_addSize(size, SizeIndex)) {
-      if (!_findSize(size, SizeIndex, false)) {
-        SizeIndex = 0;
-      }
+      xscale = size / float(Sizes[SizeIndex]);
+      METLIBS_LOG_DEBUG("font size not found, using GL scaling factor " << xscale);
     }
   }
 
@@ -174,10 +160,8 @@ bool FontFamily::_calcScaling()
 
 void FontFamily::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
-  vpWidth = vpw;
-  vpHeight = vph;
-  glWidth = glw;
-  glHeight = glh;
+  pixWidth = glw / float(vpw);
+  pixHeight = glh / float(vph);
 
   _calcScaling();
 }
@@ -250,15 +234,13 @@ bool FontFamily::drawStr(const std::string& s, float x, float y, float angle)
   if (s.length() == 0)
     return false;
 
-  glPushMatrix();
-  prepareDraw(x, y, angle);
-
   ttfont *tf = getFont();
-  if (tf && tf->pfont)
+  if (tf && tf->pfont) {
+    glPushMatrix();
+    prepareDraw(x, y, angle);
     tf->pfont->Render(s.c_str());
-
-  glPopMatrix();
-
+    glPopMatrix();
+  }
   return true;
 }
 
@@ -267,14 +249,13 @@ bool FontFamily::drawStr(const std::wstring& s, float x, float y, float angle)
   if (s.length() == 0)
     return false;
 
-  glPushMatrix();
-  prepareDraw(x, y, angle);
-
   ttfont *tf = getFont();
-  if (tf && tf->pfont)
+  if (tf && tf->pfont) {
+    glPushMatrix();
+    prepareDraw(x, y, angle);
     tf->pfont->Render(s.c_str());
-
-  glPopMatrix();
+    glPopMatrix();
+  }
 
   return true;
 }
