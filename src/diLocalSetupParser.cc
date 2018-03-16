@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -175,14 +175,15 @@ bool LocalSetupParser::parseBasics(const std::string& sectname){
   const std::string key_setenv= "setenv";
 
   // default values
-  std::string langpaths="lang:/metno/local/translations:${QTDIR}/translations";
-  std::string language="en";
-  basic_values[key_fontpath]   = "share/diana/" PVERSION "/fonts";
-  basic_values[key_docpath]    = "share/doc/diana-" PVERSION;
-  basic_values[key_obspath]    = "share/diana/" PVERSION;
-  basic_values[key_qserver]    = "/usr/bin/coserver";
-  basic_values[key_imagepath]  = "share/diana/" PVERSION "/images";
-  basic_values[key_language]   = language;
+  const std::string SHAREDIR = DATAROOTDIR "/diana/" PVERSION;
+  std::string langpaths = SHAREDIR + "/lang:${QTDIR}/translations";
+  std::string language = "en";
+  basic_values[key_fontpath] = SHAREDIR + "/fonts";
+  basic_values[key_docpath] = "share/doc/diana-" PVERSION;
+  basic_values[key_obspath] = SHAREDIR;
+  basic_values[key_qserver] = "/usr/bin/coserver";
+  basic_values[key_imagepath] = SHAREDIR + "/images";
+  basic_values[key_language] = language;
 
   vector<std::string> list,tokens;
   std::string key,value;
