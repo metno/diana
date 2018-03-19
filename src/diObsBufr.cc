@@ -388,6 +388,7 @@ VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, cons
     index = atoi(token[1].c_str());
 
   strStation = token[0];
+  miutil::trim(strStation);
 
   if (miutil::is_int(token[0])) {
     int ii = atoi(station.c_str());
@@ -1817,7 +1818,6 @@ bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* valu
         if ( !found ) {
           int iindex = int(values[j]) / 1000 - 1;
           station = substr(cvals, iindex, 6);
-          miutil::trim(strStation);
           miutil::trim(station);
           if (strStation != station) {
             return false;
