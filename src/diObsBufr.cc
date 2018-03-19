@@ -1973,6 +1973,7 @@ bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* valu
   vplot->text.latitude = lat;
   vplot->text.longitude = lon;
   vplot->text.kindexFound = false;
+  vplot->text.realization = -1;
 
   if (kmax >= 0)
     vplot->sigwind[kmax] = 3;

@@ -1747,12 +1747,14 @@ void VprofDiagram::plotValues(int nplot, const VprofValues& values, bool isSelec
   }
 
   if (isSelectedRealization) {
-    // text indicating which realization, below PT diagram
-    const float x = xysize[BOX_PT_AXES][XMIN] + 3.0 * chxlab;
-    const float y = xysize[BOX_PT_AXES][YMIN] - 2.5 * chylab;
-    ostringstream ostr;
-    ostr << "member " << values.text.realization;
-    drawText(ostr.str(), x, y, 0.0);
+    if (values.text.realization >= 0) {
+      // text indicating which realization, below PT diagram
+      const float x = xysize[BOX_PT_AXES][XMIN] + 3.0 * chxlab;
+      const float y = xysize[BOX_PT_AXES][YMIN] - 2.5 * chylab;
+      ostringstream ostr;
+      ostr << "member " << values.text.realization;
+      drawText(ostr.str(), x, y, 0.0);
+    }
 
     // text from data values
     vptext.push_back(values.text);
