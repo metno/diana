@@ -400,7 +400,8 @@ bool VprofManager::plot(DiGLPainter* gl)
           const bool selected = (vvv.size() == 1) || (j == realization);
           vpdiag->plotValues(i, *vvv[j], selected);
         }
-        break;
+        if (!vvv.empty())
+          break;
       }
     }
 
