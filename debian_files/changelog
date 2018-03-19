@@ -1,3 +1,11 @@
+diana-3.44 (3.44.1-1) unstable; urgency=low
+
+  * bugfix vprof, plot all selected stations
+  * bugfix default paths in LocalSetupParser
+  * bugfixes / improvements fonts
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 19 Mar 2018 08:00:08 +0100
+
 diana-3.44 (3.44.0-1) unstable; urgency=low
 
   * bugfix undefined values for raster plot
