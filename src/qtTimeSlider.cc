@@ -188,9 +188,7 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
   return time != current;
 }
 
-void TimeSlider::insert(const std::string& datatype,
-                        const std::vector<miutil::miTime>& vt,
-                        bool use)
+void TimeSlider::insert(const std::string& datatype, const std::vector<miutil::miTime>& vt, bool use)
 {
   tlist[datatype]= vt;
   usetlist[datatype] = use;

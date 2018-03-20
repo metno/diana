@@ -198,9 +198,7 @@ void TimeNavigator::timerEvent(QTimerEvent *e)
   }
 }
 
-void TimeNavigator::insert(const std::string& datatype,
-                       const std::vector<miutil::miTime>& vt,
-                       bool use)
+void TimeNavigator::insert(const std::string& datatype, const std::vector<miutil::miTime>& vt, bool use)
 {
   tslider->insert(datatype, vt, use);
 }

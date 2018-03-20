@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -55,14 +55,13 @@ class TimeControl : public QDialog {
   Q_OBJECT
 
 public:
-
   TimeControl(QWidget*);
   /// Set data basis for time slider
   void useData(const std::string& type, int id=-1);
   /// Remove one data type
   std::vector<std::string> deleteType(int id);
 
-  signals:
+Q_SIGNALS:
   ///Animation speed (sec)
   void timeoutChanged(float);
   ///Animation interval
@@ -73,11 +72,11 @@ public:
   void data(std::string);
   void timecontrolHide();
 
-public slots:
+public Q_SLOTS:
   /// Set times for start/stop sliders
   void setTimes( std::vector<miutil::miTime>& times );
 
-private slots:
+private Q_SLOTS:
   void timeoffsetCheckBoxClicked();
   void timerangeCheckBoxClicked();
   void StartValue(int);
@@ -88,12 +87,10 @@ private slots:
   void OffsetValue(int);
 
 private:
-
   std::vector<std::string> dataname;
   std::map<int,std::string> external_id;
 
   std::vector<miutil::miTime> m_times;
-  QFont m_font;
   QCheckBox* timerangeCheckBox;
   QLabel* startTimeLabel;
   QLabel* stopTimeLabel;
@@ -105,7 +102,6 @@ private:
   QCheckBox* timeoffsetCheckBox;
   QLabel* offsetTimeLabel;
   QSlider* offsetSlider;
-
 };
 
 #endif

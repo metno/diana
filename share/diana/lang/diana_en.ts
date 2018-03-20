@@ -4389,7 +4389,7 @@ Type: %3</translation>
 <context>
     <name>TimeControl</name>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="+61"/>
+        <location filename="../../../src/qtTimeControl.cc" line="+54"/>
         <source>Time interval</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4409,7 +4409,7 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+17"/>
         <source>Time offset</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4424,7 +4424,7 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+37"/>
         <source>Animation speed (sec):</source>
         <translation type="unfinished"></translation>
     </message>

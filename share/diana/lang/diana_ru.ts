@@ -5285,7 +5285,7 @@ Do you want to run your changes first?</source>
 <context>
     <name>TimeControl</name>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="+61"/>
+        <location filename="../../../src/qtTimeControl.cc" line="+54"/>
         <source>Time interval</source>
         <translation>Врем. интервал</translation>
     </message>
@@ -5305,7 +5305,7 @@ Do you want to run your changes first?</source>
         <translation>Стоп</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+17"/>
         <source>Time offset</source>
         <translation>Врем. отступ</translation>
     </message>
@@ -5320,7 +5320,7 @@ Do you want to run your changes first?</source>
         <translation>Отступ</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+37"/>
         <source>Animation speed (sec):</source>
         <translation>Скорость анимации (сек):</translation>
     </message>

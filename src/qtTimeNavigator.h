@@ -42,7 +42,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
   ///add new times for datatype
-  void insert(const std::string& datatype, const std::vector<miutil::miTime>&,bool =true);
+  void insert(const std::string& datatype, const std::vector<miutil::miTime>&, bool use = true);
 
   /// force new value
   void setTime(const miutil::miTime&);

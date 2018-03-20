@@ -4891,7 +4891,7 @@ Type: %3</source>
 <context>
     <name>TimeControl</name>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="+67"/>
+        <location filename="../../../src/qtTimeControl.cc" line="+60"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
@@ -4911,7 +4911,7 @@ Type: %3</source>
         <translation>Använd gränserna för tidsintervall.</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+24"/>
         <source>Time offset</source>
         <translation>Tidsavvikkels</translation>
     </message>
@@ -4926,7 +4926,7 @@ Type: %3</source>
         <translation>Offset</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+37"/>
         <source>Animation speed (sec):</source>
         <translation>Animationshastighet (sek):</translation>
     </message>

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -38,7 +38,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
-#include <QToolTip>
 #include <QCheckBox>
 #include <QFrame>
 #include <QGroupBox>
@@ -50,13 +49,7 @@ using namespace std;
 TimeControl::TimeControl(QWidget* parent)
   : QDialog( parent)
 {
-  //m_font= QFont( IQ.fontName.c_str(), IQ.fontSize, IQ.fontWeight );
-  m_font= QFont( "Helvetica", 12, 75 );
-
-  //  QFrame* frame= new QFrame(this);
   QGroupBox* frame= new QGroupBox("Time Control", this);
-
-  //  frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   timerangeCheckBox = new  QCheckBox( tr("Time interval"),frame);
   timerangeCheckBox->setChecked(false);
@@ -83,9 +76,6 @@ TimeControl::TimeControl(QWidget* parent)
 
   stopSlider= new QSlider( Qt::Horizontal, frame);
   stopSlider->setMinimumWidth(150);
-
-  //  QFrame* offsetframe= new QFrame(this);
-  //  offsetframe->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   timeoffsetCheckBox = new  QCheckBox( tr("Time offset"), frame);
   timeoffsetCheckBox->setChecked(false);
@@ -130,13 +120,6 @@ TimeControl::TimeControl(QWidget* parent)
   QHBoxLayout* timerangelayout = new QHBoxLayout();
   timerangelayout->addWidget(frame);
 
-  /*  QVBoxLayout* vblayout2 = new QVBoxLayout( offsetframe);
-  vblayout2->addLayout( offsetLayout );
-
-  QHBoxLayout* offsetrangelayout = new QHBoxLayout();
-  offsetrangelayout->addWidget(offsetframe);
-  */
-
   QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this);
   timeoutBox= new QComboBox(this);
   for (int f10=2; f10<21; ++f10) {
@@ -172,13 +155,8 @@ TimeControl::TimeControl(QWidget* parent)
   QPushButton* hideButton = new QPushButton(tr("Hide"),this);
   connect(hideButton, SIGNAL(clicked()), SIGNAL(timecontrolHide()));
 
-  // Create a horizontal frame line
-//   QFrame *line = new QFrame( this );
-//   line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-
   QVBoxLayout* vlayout=new QVBoxLayout(this);
   vlayout->addLayout( timerangelayout );
-  //  vlayout->addLayout( offsetrangelayout );
   vlayout->addSpacing(5);
   vlayout->addWidget( timeoutLabel );
   vlayout->addWidget( timeoutBox );
@@ -187,7 +165,6 @@ TimeControl::TimeControl(QWidget* parent)
   vlayout->addSpacing(5);
   vlayout->addWidget( hideButton );
   vlayout->activate();
-  //  vlayout->freeze();
 
   vector<miutil::miTime> t;
   setTimes( t );
@@ -339,7 +316,6 @@ void TimeControl::useData(const std::string& type, int id)
 vector<std::string> TimeControl::deleteType(int id)
 {
   //id=-1 means remove all external types
-  //  cerr <<"TimeControl::deleteType:"<<id<<endl;
   vector<std::string>::iterator p = dataname.begin();
   map<int,std::string>::iterator q = external_id.begin();
   map<int,std::string>::iterator qend = external_id.end();

@@ -5701,7 +5701,7 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>TimeControl</name>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="+67"/>
+        <location filename="../../../src/qtTimeControl.cc" line="+60"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
@@ -5721,7 +5721,7 @@ Vil du kjøre dine endringer først?</translation>
         <translation>Bruk tidsintervallgrenser</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+24"/>
         <source>Time offset</source>
         <translation>Tidsavvik</translation>
     </message>
@@ -5736,7 +5736,7 @@ Vil du kjøre dine endringer først?</translation>
         <translation></translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+37"/>
         <source>Animation speed (sec):</source>
         <translation>Animasjonshastighet (sek):</translation>
     </message>
