@@ -45,7 +45,7 @@ VprofData_p VprofReaderRoadobs::find(const VprofSelectedModel& vsm, const std::s
   METLIBS_LOG_SCOPE();
 #ifdef ROADOBS
   VprofDataRoadobs_p vpd = std::make_shared<VprofDataRoadobs>(vsm.model, stationsfilename);
-  vpd->db_parameterfile = db_connects[vsm.model];
+  vpd->db_parameterfile = db_parameters[vsm.model];
   vpd->db_connectfile = db_connects[vsm.model];
 
   // Due to the fact that we have a database insteda of an archive,
@@ -100,6 +100,7 @@ VprofData_p VprofReaderRoadobs::find(const VprofSelectedModel& vsm, const std::s
   try {
     // Dummy filename
     std::string filename;
+    METLIBS_LOG_DEBUG("Parameters: " << vpd->db_connectfile << "," << stationsfilename << "," << vpd->db_parameterfile << "," << starttime); 
     // read stationlist and init the api.
     ObsRoad road = ObsRoad(filename, vpd->db_connectfile, stationsfilename, vpd->db_parameterfile, starttime, NULL, false);
 
@@ -144,6 +145,7 @@ bool VprofDataRoadobs::setRoadObs(const miutil::miTime& plotTime)
     // Dummy filename
     std::string filename;
     // read stationlist and init the api.
+    METLIBS_LOG_DEBUG("Parameters: " << db_connectfile << "," << getStationsFileName() << "," << db_parameterfile << "," << plotTime);
     // does nothing if already done
     ObsRoad road = ObsRoad(filename, db_connectfile, getStationsFileName(), db_parameterfile, plotTime, NULL, false);
     road.getStationList(mStations);
@@ -162,6 +164,7 @@ VprofValues_cpv VprofDataRoadobs::getValues(const std::string& name, const miuti
 
   METLIBS_LOG_SCOPE(name << "  " << time << "  " << getModelName());
   METLIBS_LOG_DEBUG(LOGVAL(getTimes().size()) << LOGVAL(mStations.size()));
+  METLIBS_LOG_DEBUG("Parameters: " << db_connectfile << "," << getStationsFileName() << "," << db_parameterfile << "," << time);
 
 #ifdef ROADOBS
   try {
