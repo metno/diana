@@ -31,6 +31,10 @@
 
 #include "diVprofReaderRoadobs.h"
 
+#ifdef ROADOBS
+#include "diObsRoad.h"
+#endif
+
 #define MILOGGER_CATEGORY "diana.VprofReaderRoadobs"
 #include <miLogger/miLogging.h>
 

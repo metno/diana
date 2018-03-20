@@ -1,6 +1,8 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
+  $Id: diObsAscii.h 1 2007-09-12 08:06:42Z lisbethb $
+
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -26,7 +28,6 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #ifndef diObsRoad_h
 #define diObsRoad_h
 
@@ -34,12 +35,14 @@
 //#define ROADOBS 1
 #ifdef ROADOBS
 #include "diStationInfo.h"
-#include "diRoadObsPlot.h"
+#include "diObsPlot.h"
 #include "diObsData.h"
 #include "diObsMetaData.h"
-#include "diVprofPlot.h"
+#include "diVprofData.h"
 #include "diCommonTypes.h"
 #include "diStationInfo.h"
+
+#include <newarkAPI/diStation.h>
 
 #include <puTools/miTime.h>
 
@@ -61,9 +64,9 @@ private:
 	// This defines a set of stations, eg synop,metar,ship observations
   std::vector<road::diStation> * stationlist;
   miutil::miTime filetime_;
-  void readHeader(RoadObsPlot *oplot);
-  void readRoadData(RoadObsPlot *oplot);
-  void initRoadData(RoadObsPlot *oplot);
+  void readHeader(ObsPlot *oplot);
+  void readRoadData(ObsPlot *oplot);
+  void initRoadData(ObsPlot *oplot);
 	bool headerRead;
 
 	// from ObsAscii class
@@ -106,15 +109,17 @@ private:
   void parseHeaderBrackets(const std::string& str);
 
   void addStationsToUrl(std::string& filename);
+  
+  VprofValues_p vp;
 
 
 
 public:
   ObsRoad(const std::string &filename, const std::string &databasefile,
 	  const std::string &stationfile, const std::string &headerfile,
-	  const miutil::miTime &filetime, RoadObsPlot *oplot, bool breadData);
-  void readData(RoadObsPlot *oplot);
-  void initData(RoadObsPlot *oplot);
+	  const miutil::miTime &filetime, ObsPlot *oplot, bool breadData);
+  void readData(ObsPlot *oplot);
+  void initData(ObsPlot *oplot);
   
   void cloud_type_string(ObsData& d, double v);
   std::string height_of_clouds_string(double height);
@@ -125,7 +130,7 @@ public:
   float percent2oktas(float v);
 
 	// from ObsAscii
-	void yoyoPlot(const miutil::miTime &filetime, RoadObsPlot *oplot);
+	void yoyoPlot(const miutil::miTime &filetime, ObsPlot *oplot);
   void yoyoMetadata(ObsMetaData *metaData);
 
   bool asciiOK() const
@@ -139,7 +144,7 @@ public:
   std::string columnTooltip(int idx) const
     { return m_columnTooltip.at(idx); }
     
-  VprofPlot* getVprofPlot(const std::string& modelName,
+  VprofValues_p getVprofPlot(const std::string& modelName,
 	     const std::string& station,
 			 const miutil::miTime& time);
        

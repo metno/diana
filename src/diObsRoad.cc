@@ -60,12 +60,14 @@
 
 //#define DEBUGPRINT 1
 
+#define _undef -32767.0
+
 using namespace road;
 using namespace miutil;
 using namespace std;
 
 ObsRoad::ObsRoad(const std::string &filename, const std::string &databasefile, const std::string &stationfile, const std::string &headerfile,
-		   const miTime &filetime, RoadObsPlot *oplot, bool breadData)
+		   const miTime &filetime, ObsPlot *oplot, bool breadData)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::ObsRoad() ++");
@@ -86,7 +88,7 @@ ObsRoad::ObsRoad(const std::string &filename, const std::string &databasefile, c
 		readData(oplot);
 }
 
-void ObsRoad::readHeader(RoadObsPlot *oplot)
+void ObsRoad::readHeader(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsRoad::readHeader( headerfile: " << headerfile_ << " ) ++");
@@ -194,7 +196,7 @@ void ObsRoad::getStationList(vector<stationInfo> & stations)
   }
 }
 
-void ObsRoad::initData(RoadObsPlot *oplot)
+void ObsRoad::initData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -207,7 +209,7 @@ void ObsRoad::initData(RoadObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::initRoadData(RoadObsPlot *oplot)
+void ObsRoad::initRoadData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -216,7 +218,9 @@ void ObsRoad::initRoadData(RoadObsPlot *oplot)
 	//if (!oplot->isallObs())
 	//	oplot->clear(); // ???
 	//oplot->clearVisibleStations();
+#if 0
 	oplot->setLabels(labels);
+#endif
   oplot->columnName = m_columnName;
 
   plotTime = oplot->getObsTime();
@@ -290,14 +294,16 @@ void ObsRoad::initRoadData(RoadObsPlot *oplot)
   // clear plot positions
   //oplot->clearVisibleStations();
   // make a dummy plot to compute a list of stations to be plotted
+#if 0
   oplot->preparePlot();
+#endif
 
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData()done ++ ");
 #endif
 }
 
-void ObsRoad::readData(RoadObsPlot *oplot)
+void ObsRoad::readData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::readData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
@@ -310,53 +316,41 @@ void ObsRoad::readData(RoadObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::readRoadData(RoadObsPlot *oplot)
+void ObsRoad::readRoadData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::readRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 
-  
+#if 0  
 	oplot->setLabels(labels);
+#endif
   oplot->columnName = m_columnName;
    
   plotTime = oplot->getObsTime();
   timeDiff= oplot->getTimeDiff();
   fileTime = filetime_;
 
-  Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, filetime_); 
-  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
-  if (its != diStation::station_map.end())
-  {
-	  stationlist = its->second;
+  lines.clear();
+  ifstream ifs(filename_.c_str(),ios::in);
+  char buf[1024];
+	if (ifs.is_open())
+	{ 
+	  while (ifs.good())
+		{
+			ifs.getline(buf,1024);
+			string str(buf);
+      miutil::trim(str);
+		  // Append every non empty line to lines
+      if (!str.empty())    
+       lines.push_back(str);
+		}
+		ifs.close();
   }
-  // FIXME: For now, does nothing...
-  road.open();
+	// decode the header part and data...
   
-  //vector<std::string> lines;
-	// FIXME: I think we must keep stations_to_plot!
-  map<int, std::string> lines_map;
-  // Members in the global stationlist that is not in the stations_to_plot list are not read from road
-  // This should improve performancestd::cerr << "Nextplot.size() " << nextplot.size() << std::endl;
-  const std::vector<int> & plot_stations = oplot->getStationsToPlot();
-  METLIBS_LOG_DEBUG("plot_stations.size() " << plot_stations.size());
-  road.getData(plot_stations, lines_map);
-	// FIXME: For now, does nothing...
-	road.close();
-
-	// decode the data...
-  int stnid;
-	std::string str;
-	map<int, std::string>::iterator it=lines_map.begin();	
-  for(;it!=lines_map.end(); it++) {
-		//FIXME: Stnid !!!!
-		//INDEX in station list
-	stnid = it->first;
-	str = it->second;
-	miutil::trim(str);
-		// Append every line to 
-		lines.push_back(str);
-	}
+  decodeHeader();
+  
 	separator = "|";
 
 	// remove the fake data....
@@ -380,10 +374,12 @@ void ObsRoad::readRoadData(RoadObsPlot *oplot)
 
 // from ObsAscii
 // FIXME: Not used for now...
-void ObsRoad::yoyoPlot(const miTime &filetime, RoadObsPlot *oplot)
+void ObsRoad::yoyoPlot(const miTime &filetime, ObsPlot *oplot)
 {
   METLIBS_LOG_SCOPE();
+#if 0
   oplot->setLabels(labels);
+#endif
   oplot->columnName = m_columnName;
 
   plotTime = oplot->getObsTime();
@@ -782,7 +778,6 @@ void ObsRoad::decodeData()
     ii += 1;
   }
 
-  int index = 0;
   for (; ii < lines.size(); ++ii) {
     METLIBS_LOG_DEBUG("read '" << lines[ii] << "'");
 		//cerr << "read '" << lines[ii] << "'" << endl;
@@ -797,17 +792,23 @@ void ObsRoad::decodeData()
       pstr = miutil::split_protected(lines[ii], '"', '"');
 
     ObsData  obsData;
-		// Set metadata for station...
-		obsData.stringdata["data_type"] = (*stationlist)[index].station_type();
-		obsData.fdata["auto"] = (*stationlist)[index].environmentid();
-		obsData.fdata["isdata"] = (*stationlist)[index].data();
-    index ++;
     const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
     // fill both stringdata and fdata
     // stringdata
     for (size_t i=0; i<tmp_nColumn; i++) {
       if (not asciiColumnUndefined.count(pstr[i])) {
-        if (m_columnName[i] == "Cl" || m_columnName[i] == "Cm" ||  m_columnName[i] == "Ch") {
+        // Set metadata for station...
+        if (m_columnName[i] == "data_type") {
+          if (pstr[i] != undef_string)
+            obsData.stringdata[m_columnName[i]] = pstr[i];
+        } else if (m_columnName[i] == "auto") {
+          if (pstr[i] != undef_string)
+            obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
+        } else if (m_columnName[i] == "isdata") {
+          if (pstr[i] != undef_string)
+            obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
+          // End of metadata
+        } else if (m_columnName[i] == "Cl" || m_columnName[i] == "Cm" ||  m_columnName[i] == "Ch") {
           if (pstr[i] != undef_string)
             if (miutil::is_number(pstr[i])) {
               // Convert to the symbol dataspace
@@ -868,18 +869,18 @@ void ObsRoad::decodeData()
     float value;
     std::string text;
     if (getColumnValue("x", pstr, value)||getColumnValue("Lon", pstr, value))
-      if (value != undef)
+      if (value != _undef)
         obsData.xpos = value;
     if (getColumnValue("y", pstr, value)||getColumnValue("Lat", pstr, value))
-      if (value != undef)
+      if (value != _undef)
         obsData.ypos = value;
     if (getColumnValue("Name", pstr, text))
       obsData.id = text;
     if (getColumnValue("ff", pstr, value))
-      if (value != undef)  
+      if (value != _undef)  
         obsData.fdata["ff"] = knots ? diutil::knots2ms(value) : value;
     if (getColumnValue("dd", pstr, value))
-      if (value != undef)
+      if (value != _undef)
         obsData.fdata["dd"] = value;
     if (getColumnValue("image", pstr, text))
       obsData.stringdata["image"] = text;
@@ -887,15 +888,22 @@ void ObsRoad::decodeData()
 	if (useTime) {
       miClock clock;
       miDate date;
+      int hour=0, min=0, sec=0;
       if (isoTime) {
         if (getColumnValue("time", pstr, text)) {
-          clock = miClock(text);
-	  } else {
+          METLIBS_LOG_DEBUG("time: " << text);
+          vector<std::string> tpart = miutil::split(text,":");
+          hour = miutil::to_int(tpart[0]);
+          if ( tpart.size() > 1 )
+            min = miutil::to_int(tpart[1]);
+          if ( tpart.size() > 2 )
+            sec = miutil::to_int(tpart[2]);
+          clock = miClock(hour, min, sec);
+        } else {
           METLIBS_LOG_WARN("time column missing");
           continue;
-	  }
-	  } else {
-        int hour=0, min=0, sec=0;
+        }
+      } else {
         if (getColumnValue("hour", pstr, hour)) {
           getColumnValue("min", pstr, min); // no problem if missing, assume min = sec = 00
           getColumnValue("sec", pstr, sec);
@@ -903,16 +911,17 @@ void ObsRoad::decodeData()
         } else {
           METLIBS_LOG_WARN("hour column missing");
           continue;
-	  }
-	  }
-	  
+        }
+      }
+
       if (isoDate) {
         if (getColumnValue("date", pstr, text)) {
+          METLIBS_LOG_DEBUG("date: " << text);
           date = miDate(text);
-	} else {
+        } else {
           METLIBS_LOG_WARN("date column missing");
           continue;
-	}
+        }
       } else if (allTime) {
         int year=0,month=0,day=0;
         if (getColumnValue("year", pstr, year) and getColumnValue("month", pstr, month) and getColumnValue("day", pstr, day)) {
@@ -920,10 +929,10 @@ void ObsRoad::decodeData()
         } else {
           METLIBS_LOG_WARN("year/month/day column missing");
           continue;
-      }
+        }
       } else  {
         date = filedate;
-    }
+      }
       obstime = miTime(date,clock);
       
       if (not allTime) {
@@ -935,8 +944,7 @@ void ObsRoad::decodeData()
       }
       
       METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
-
-      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime)) < timeDiff || (timeDiff == 0 && abs(miTime::minDiff(obstime, plotTime)) == 0))
+      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime))< timeDiff)
         obsData.obsTime = obstime;
       else
         continue;
@@ -963,12 +971,14 @@ void ObsRoad::decodeData()
   }
 }
 
-VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
+VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName,
     const std::string& station, const miutil::miTime& time)
 {
+  vp = std::make_shared<VprofValues>();
+  
   if (modelName=="AMDAR" || modelName=="PILOT") {
     METLIBS_LOG_WARN("This model is not implemented yet: " << modelName);
-    return 0;
+    return vp;
   }
   // This creates the stationlist
   // We must also init the connect string to mora db
@@ -979,12 +989,12 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
   if (its == diStation::station_map.end()) {
     METLIBS_LOG_ERROR("Unable to find stationlist: " <<stationfile_);
-    return 0;
+    return vp;
   }
   stations = its->second;
   if (stations == 0) {
     METLIBS_LOG_ERROR("Empty stationlist: " <<stationfile_);
-    return 0;
+    return vp;
   }
   int nStations = stations->size();
   // Return if empty station list
@@ -996,11 +1006,9 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   if (n==nStations)
   {
 	  METLIBS_LOG_ERROR("Unable to find station: " << station << " in stationlist!");
-	  return 0;
+	  return vp;
   }
   const diStation& station_n = (*stations)[n];
-
-  std::unique_ptr<VprofPlot> vp(new VprofPlot());
 
   vp->text.index= -1;
   vp->text.modelName = modelName;
@@ -1046,11 +1054,11 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   map<std::string, vector<diParam> * >::iterator itp = diParam::params_map.find(headerfile_);
   if (itp == diParam::params_map.end()) {
     // the code below would try to use 'params'
-    return 0;
+    return vp;
   }
   params = itp->second;
   if (params == 0)
-    return 0;
+    return vp;
   /* map the data and sort them */
   map < std::string, map<float, RDKCOMBINEDROW_2 > > data_map;
   int no_of_data_rows = raw_data.size();
@@ -1165,7 +1173,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   {
     vp->prognostic= false;
     vp->maxLevels= 0;
-    return vp.release();
+    return vp;
   }
 
   ittd = data_map.find("TdTdTd");
@@ -1175,7 +1183,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   {
     vp->prognostic= false;
     vp->maxLevels= 0;
-    return vp.release();
+    return vp;
   }
 
   itdd = data_map.find("dd");
@@ -1185,7 +1193,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   {
     vp->prognostic= false;
     vp->maxLevels= 0;
-    return vp.release();
+    return vp;
   }
 
   itff = data_map.find("ff");
@@ -1195,7 +1203,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
   {
     vp->prognostic= false;
     vp->maxLevels= 0;
-    return vp.release();
+    return vp;
   }
 
   /* Significant vind levels */
@@ -1345,7 +1353,7 @@ VprofPlot* ObsRoad::getVprofPlot(const std::string& modelName,
     vp->sigwind[kmax]= 3;
   vp->prognostic= false;
   vp->maxLevels = std::max(vp->ptt.size(), vp->puv.size());
-  return vp.release();
+  return vp;
 }
 
 //#endif //ROADOBS
