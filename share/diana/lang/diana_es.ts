@@ -310,7 +310,7 @@
         <translation type="unfinished">Mapa y Area</translation>
     </message>
     <message>
-        <location line="+1663"/>
+        <location line="+1662"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -319,7 +319,7 @@
         <translation type="obsolete">&amp;Mapas</translation>
     </message>
     <message>
-        <location line="-2096"/>
+        <location line="-2095"/>
         <source>&amp;Fields</source>
         <translation>&amp;Campos</translation>
     </message>
@@ -530,7 +530,7 @@
         <translation type="obsolete">Diana</translation>
     </message>
     <message>
-        <location line="+1633"/>
+        <location line="+1632"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -545,7 +545,7 @@
         <translation>Error</translation>
     </message>
     <message>
-        <location line="+1015"/>
+        <location line="+985"/>
         <source>imported files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -591,7 +591,7 @@
         <translation type="obsolete">&amp;Cancelar</translation>
     </message>
     <message>
-        <location line="-1174"/>
+        <location line="-1144"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.

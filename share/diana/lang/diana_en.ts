@@ -403,12 +403,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1975"/>
+        <location line="+1974"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1967"/>
+        <location line="-1966"/>
         <source>Level up</source>
         <translation type="unfinished"></translation>
     </message>
@@ -473,7 +473,7 @@
         <translation type="unfinished">Map and Area</translation>
     </message>
     <message>
-        <location line="+1663"/>
+        <location line="+1662"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
@@ -490,12 +490,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2079"/>
+        <location line="-2078"/>
         <source>&amp;Export image/movie...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2081"/>
+        <location line="+2080"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation type="unfinished"></translation>
@@ -521,7 +521,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1115"/>
+        <location line="+1085"/>
         <source>imported files</source>
         <translation type="unfinished"></translation>
     </message>

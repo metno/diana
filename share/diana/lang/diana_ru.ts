@@ -407,7 +407,7 @@
         <translation type="unfinished">Карта и область</translation>
     </message>
     <message>
-        <location line="+1560"/>
+        <location line="+1559"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -427,7 +427,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1015"/>
+        <location line="+985"/>
         <source>imported files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -459,7 +459,7 @@
         <translation type="obsolete">&amp;Редактирование поля</translation>
     </message>
     <message>
-        <location line="-3059"/>
+        <location line="-3028"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
@@ -592,7 +592,7 @@
         <translation type="obsolete">&amp;Отмена</translation>
     </message>
     <message>
-        <location line="+1628"/>
+        <location line="+1627"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.

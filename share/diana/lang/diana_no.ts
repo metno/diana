@@ -302,7 +302,7 @@
         <translation>&amp;Hurtigmeny</translation>
     </message>
     <message>
-        <location line="+2109"/>
+        <location line="+2108"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -311,7 +311,7 @@
         <translation type="obsolete">&amp;Kart</translation>
     </message>
     <message>
-        <location line="-2096"/>
+        <location line="-2095"/>
         <source>&amp;Fields</source>
         <translation>&amp;Felter</translation>
     </message>
@@ -438,7 +438,7 @@
         <translation type="unfinished">Kart og Område</translation>
     </message>
     <message>
-        <location line="+1560"/>
+        <location line="+1559"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -457,7 +457,7 @@
         <translation type="vanished">Problem med å lagre animasjon.</translation>
     </message>
     <message>
-        <location line="+1015"/>
+        <location line="+985"/>
         <source>imported files</source>
         <translation>importerte filer</translation>
     </message>
@@ -519,7 +519,7 @@
         <translation type="obsolete">&amp;Fil</translation>
     </message>
     <message>
-        <location line="-2937"/>
+        <location line="-2906"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Valg</translation>
     </message>
@@ -573,7 +573,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
-        <location line="+1632"/>
+        <location line="+1631"/>
         <source>version:</source>
         <translation>versjon:</translation>
     </message>
@@ -591,7 +591,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation type="obsolete">Lagre plott som bilde</translation>
     </message>
     <message>
-        <location line="-1850"/>
+        <location line="-1849"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS cluster/medlem e.l. opp</translation>
     </message>
@@ -627,7 +627,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation type="obsolete">Lagre &amp;animasjon...</translation>
     </message>
     <message>
-        <location line="+1737"/>
+        <location line="+1736"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -663,7 +663,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Felt E&amp;ditering</translation>
     </message>
     <message>
-        <location line="-1885"/>
+        <location line="-1884"/>
         <source>Documentation</source>
         <translation>Dokumentasjon</translation>
     </message>
@@ -699,7 +699,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">&amp;Rapporter feil</translation>
     </message>
     <message>
-        <location line="+1996"/>
+        <location line="+1995"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation></translation>
@@ -717,7 +717,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="vanished">Animasjon klar.</translation>
     </message>
     <message>
-        <location line="-2074"/>
+        <location line="-2073"/>
         <source>Print pre&amp;view...</source>
         <translation type="unfinished"></translation>
     </message>
