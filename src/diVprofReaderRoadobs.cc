@@ -100,7 +100,7 @@ VprofData_p VprofReaderRoadobs::find(const VprofSelectedModel& vsm, const std::s
   try {
     // Dummy filename
     std::string filename;
-    METLIBS_LOG_DEBUG("Parameters: " << vpd->db_connectfile << "," << stationsfilename << "," << vpd->db_parameterfile << "," << starttime); 
+    METLIBS_LOG_DEBUG("Parameters: " << vpd->db_connectfile << "," << stationsfilename << "," << vpd->db_parameterfile << "," << starttime);
     // read stationlist and init the api.
     ObsRoad road = ObsRoad(filename, vpd->db_connectfile, stationsfilename, vpd->db_parameterfile, starttime, NULL, false);
 
