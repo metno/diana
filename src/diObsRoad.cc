@@ -993,6 +993,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   vp->text.latitude = station_n.lat();
   vp->text.longitude = station_n.lon();
   vp->text.kindexFound = false;
+  vp->text.realization = -1;
 
   /* HERE we should get the data from road */
 
