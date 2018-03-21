@@ -2472,7 +2472,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   if (!popupText.isEmpty()) {
     // undo reverted y coordinate from MainPaintable::handleMouseEvents
     QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
-    QWhatsThis::showText(popupPos, popupText, this);
+    QToolTip::showText(popupPos, popupText, this);
   }
 }
 
