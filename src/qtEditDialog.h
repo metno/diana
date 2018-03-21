@@ -252,8 +252,6 @@ private:
   bool getText(std::string &, Colour::ColourInfo &);
   bool getEditText(std::vector<std::string> &);
   bool getComplexText(std::vector<std::string> &, std::vector<std::string> &);
-  bool getComplexColoredText(std::vector<std::string>&, std::vector<std::string>&, Colour::ColourInfo &);
-
 
   QString TABNAME_FIELD;
   QString TABNAME_OBJECTS;

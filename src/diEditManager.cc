@@ -3023,31 +3023,11 @@ void EditManager::initEditTools(){
       edit_replace_undef));
 
   // draw_mode types
-#ifdef SMHI
-  fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
-  fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
-  fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("Cold occlusion",Occluded,"blue"));
-  fronts.push_back(newEditToolInfo("Warm occlusion",Occluded,"red"));
-  fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Trough",TroughLine,"black"));
-#else
   fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
   fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
   fronts.push_back(newEditToolInfo("Trough",Line,"blue"));
   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
-#endif
-#ifdef SMHI
-  //fronts.push_back(newEditToolInfo("Signifikant vÃ¯Â¿Â½der",SigweatherFront,"green"));
-  fronts.push_back(newEditToolInfo("Clouds",SigweatherFront,"green4"));
-  fronts.push_back(newEditToolInfo("VMC-line",Line,"black","black",-2,true,"dash2"));
-  fronts.push_back(newEditToolInfo("CAT-line",Line,"black","black",-2,true,"longlongdash"));
-  fronts.push_back(newEditToolInfo("Jet stream",ArrowLine,"grey50"));
-  fronts.push_back(newEditToolInfo("Line of thunderstorms red",Line,"red","red",0,false));
-  fronts.push_back(newEditToolInfo("Line of thunderstorms green",Line,"green","green",0,false,"dash3"));
-  fronts.push_back(newEditToolInfo("Line of thunderstorms blue",Line,"blue","blue",0,false,"dot"));
-#else
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
   fronts.push_back(newEditToolInfo("Significant weather TURB/VA/RC",SigweatherFront,"red"));
   fronts.push_back(newEditToolInfo("Significant weather ICE/TCU/CB",SigweatherFront,"blue"));
@@ -3078,39 +3058,7 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Red smooth arrow",ArrowLine,"red"));
   fronts.push_back(newEditToolInfo("Blue sharp arrow",ArrowLine,"blue","blue",0,false));
   fronts.push_back(newEditToolInfo("Blue smooth arrow",ArrowLine,"blue"));
-#endif
 
-
-#ifdef SMHI
-  symbols.push_back(newEditToolInfo("Drizzle",180,"green4"));
-  //symbols.push_back(newEditToolInfo("Duggregn",79,"green4"));
-  symbols.push_back(newEditToolInfo( "Snow",254,"green4"));
-  //symbols.push_back(newEditToolInfo( "Regnskurar",1044,"green4","green4",4));
-  symbols.push_back(newEditToolInfo( "Rain showers",109,"green4"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
-  //symbols.push_back(newEditToolInfo("Torrdis",88,"black"));
-  //symbols.push_back(newEditToolInfo("RÃ¶k",42,"black"));
-  //symbols.push_back(newEditToolInfo("SnÃ¶blandad regn",78,"green4"));
-  symbols.push_back(newEditToolInfo( "Sleet showers",43,"green4"));
-  symbols.push_back(newEditToolInfo( "Snow showers",114,"green4","green4",4));
-  //symbols.push_back(newEditToolInfo( "SnÃ¶by",1043,"green4","green4",3));
-  symbols.push_back(newEditToolInfo( "Freezing drizzle",83,"red"));
-  symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
-  symbols.push_back(newEditToolInfo( "Hail showers",118,"green4"));
-  symbols.push_back(newEditToolInfo( "Graupel",44,"red"));
-  symbols.push_back(newEditToolInfo( "Drifting snow",46,"black"));
-  //symbols.push_back(newEditToolInfo("Mountain waves",130,"black"));
-  //symbols.push_back(newEditToolInfo( "Dimma",1041,"gulbrun"));
-  symbols.push_back(newEditToolInfo( "Fog",62,"gulbrun"));
-  //symbols.push_back(newEditToolInfo( "LÃ¥gtryck",1019,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Low pressure",242,"black","black",1));
-  //symbols.push_back(newEditToolInfo( "HÃ¶gtryck",1020,"black","black",1));
-  symbols.push_back(newEditToolInfo( "High pressure",243,"black","black",1));
-  //symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
-  symbols.push_back(newEditToolInfo( TOOL_DECREASING,900,"red"));
-  symbols.push_back(newEditToolInfo( TOOL_INCREASING,900,"blue"));
-#else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
   symbols.push_back(newEditToolInfo("Fog",62,"darkYellow"));
@@ -3133,15 +3081,8 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
   symbols.push_back(newEditToolInfo( "Circle",35,"blue"));
   symbols.push_back(newEditToolInfo( "Cross",255,"red"));
-#endif
   symbols.push_back(newEditToolInfo("Text",0,"black"));
 
-#ifdef SMHI
-  areas.push_back(newEditToolInfo("Haze",Genericarea_constline,"red", "red", 0, true, "solid", "vdiagleft"));
-  areas.push_back(newEditToolInfo("Fog",Genericarea_constline,"red", "red", 0, true, "solid", "vldiagcross_little"));
-  areas.push_back(newEditToolInfo("Precipitation",Genericarea_constline,"green4","blank", 0, true, "solid", "ldiagleft2"));
-  sigsymbols.push_back(newEditToolInfo("Sig18",247,"black","black",-1));
-#else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4","green4"));
   areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
   areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"empty","zigzag"));
@@ -3165,7 +3106,6 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Blue smooth area stipple",Genericarea,"blue","blue",0,true,"dash2"));
   areas.push_back(newEditToolInfo("Generic area",Genericarea,"red","red",0,false,"solid"));
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
-#endif
   //arrow
 
   //sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
@@ -3226,48 +3166,6 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
   //Fog
   sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
-#ifdef SMHI
-  //High
-  //High
-  sigsymbols.push_back(newEditToolInfo("Sig20",243,"black","black",1));
-  //Low
-  sigsymbols.push_back(newEditToolInfo("Sig19",242,"black","black",1));
-  //BR
-  //sigsymbols.push_back(newEditToolInfo("Sig_br",1037,"gulbrun","gulbrun",2));
-  sigsymbols.push_back(newEditToolInfo("Sig_br",39,"gulbrun","gulbrun",2));
-  //sigsymbols.push_back(newEditToolInfo("Sig38",1038,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig38",106,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red","black",1));
-  sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
-  //Fog
-  //sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun","gulbrun",2));
-  sigsymbols.push_back(newEditToolInfo("Sig_fg",62,"gulbrun","gulbrun",2));
-  //precipitation, green lines
-  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green4"));
-  //snow
-  //ari  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
-  sigsymbols.push_back(newEditToolInfo("Snow",254,"green4"));
-  //snow showers
-  //sigsymbols.push_back(newEditToolInfo( "Snow_showers",1043,"green4","green4",4));
-  sigsymbols.push_back(newEditToolInfo("Snow showers",114,"green4","green4",4));
-  // Freezing fog
-  sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
-  //showers
-  //sigsymbols.push_back(newEditToolInfo( "Rainshower",1044,"green4","green4",4));
-  sigsymbols.push_back(newEditToolInfo("Rain showers",109,"green4","green4",4));
-  sigsymbols.push_back(newEditToolInfo("Snow_rain",78,"green4","green4",2));
-  sigsymbols.push_back(newEditToolInfo("Snow_rain_showers",43,"green4","green4",2));
-  sigsymbols.push_back(newEditToolInfo("Drizzle",79,"green4","green4",2));
-  sigsymbols.push_back(newEditToolInfo("Freezing drizzle",83,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Graupel",44,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Hail showers",118,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Thunderstorm",119,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Thunderstorm with hail",122,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Drifting snow",46,"black"));
-  sigsymbols.push_back(newEditToolInfo("Haze",88,"black"));
-  sigsymbols.push_back(newEditToolInfo("Smoke",42,"black"));
-  sigsymbols.push_back(newEditToolInfo( "FZRA",93,"red"));
-#else
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green"));
   //snow
@@ -3276,7 +3174,6 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo( "Sig_snow_showers",1043,"green","green",2));
   //showers
   sigsymbols.push_back(newEditToolInfo( "Sig_showers",1044,"green","green",2));
-#endif
   //Freezing precip
   sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
 

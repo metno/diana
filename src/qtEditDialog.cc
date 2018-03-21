@@ -55,7 +55,6 @@
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "qtComplexText.h"
-#include "qtComplexPressureText.h"
 #include "qtEditText.h"
 #include "qtAnnoText.h"
 #include "diLocalSetupParser.h"
@@ -156,17 +155,6 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.v�r
   editTranslations["Generic area"]=tr("Generic area"); //
   
-  // SMHI specific
-  editTranslations[TOOL_DECREASING]=tr(TOOL_DECREASING); //Pressure tendency, falling
-  editTranslations[TOOL_INCREASING]=tr(TOOL_INCREASING); //Pressure tendency, increasing
-  editTranslations["Drifting snow"]=tr("Drifting snow"); //Drifting snow
-  editTranslations["VMC-line"]=tr("VMC-line"); //VMC-line
-  editTranslations["CAT-line"]=tr("CAT-line"); //CAT-line
-  editTranslations["Line of thunderstorms red"]=tr("Line of thunderstorms red");
-  editTranslations["Line of thunderstorms green"]=tr("Line of thunderstorms green");
-  editTranslations["Line of thunderstorms blue"]=tr("Line of thunderstorms blue");
-  editTranslations["Graupel"]=tr("Graupel");
-  editTranslations["Jet stream"]=tr("Jet stream");
   // --------------------------------------------------------------------
   editAction = new QAction(this);
   editAction->setShortcut(Qt::CTRL+Qt::Key_E);
@@ -414,10 +402,6 @@ void  EditDialog::FieldTab()
   connect( exlineCheckBox, SIGNAL( toggled(bool) ),
       SLOT( exlineCheckBoxToggled(bool) ) );
 
-  // NOT USED YET....
-  // QCheckBox* visible = new QCheckBox( "synlig", fieldtab );
-
-
   undoFieldButton = NormalPushButton( tr("Undo"), this);
   redoFieldButton = NormalPushButton( tr("Redo"), this);
 
@@ -600,10 +584,6 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 
     m_Fieldeditmethods->blockSignals(true);
 
-    //    m_Fieldeditmethods->clearSelection();
-    //    m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
-    //    m_Fieldeditmethods->item(currFieldEditToolIndex)->setSelected(true);
-
     if (classValuesLocked[n]) {
       m_Fieldeditmethods->item(index)->setIcon(QIcon(openValuePixmap));
       classValuesLocked[n]= false;
@@ -726,27 +706,14 @@ void EditDialog::FrontEditClicked()
           m_objm->setCurrentColour(colour);
         }
       }
-    }
-    else if (m_objm->inComplexTextMode()){
+    } else if (m_objm->inComplexTextMode()) {
       vector <string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
         m_objm->setCurrentComplexText(symbolText,xText);
       }
-    } 
-    else if (m_objm->inComplexTextColorMode()){
-      vector<string> symbolText,xText;
-      m_objm->initCurrentComplexText();
-      m_objm->getCurrentComplexText(symbolText,xText);
-      Colour::ColourInfo colour=m_objm->getCurrentColour();
-      if (getComplexColoredText(symbolText,xText,colour)){
-        m_objm->setCurrentComplexText(symbolText,xText);
-        m_objm->setCurrentColour(colour);
-      }
-
-    }
-    else if (m_objm->inEditTextMode()){
+    } else if (m_objm->inEditTextMode()) {
       vector<string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
@@ -762,6 +729,7 @@ void EditDialog::FrontEditClicked()
 
 void EditDialog::FrontEditDoubleClicked()
 {
+  METLIBS_LOG_SCOPE();
   //called when am item in the objects list box doubleclicked
   if (m_objm->inTextMode()){
     std::string text = m_objm->getCurrentText();
@@ -777,16 +745,6 @@ void EditDialog::FrontEditDoubleClicked()
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
     }
-
-  } else if (m_objm->inComplexTextColorMode()){
-    vector<string> symbolText,xText;
-    m_objm->getCurrentComplexText(symbolText,xText);
-    Colour::ColourInfo colour=m_objm->getCurrentColour();
-    if (getComplexColoredText(symbolText,xText,colour)){
-      m_objm->setCurrentComplexText(symbolText,xText);
-      m_objm->setCurrentColour(colour);
-    }
-
   } else if (m_objm->inEditTextMode()){
     vector<string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
@@ -848,7 +806,7 @@ void EditDialog::EditMarkedText()
   //changes all marked texts and objectmanagers current text !
   vector <string> symbolText,xText,eText, mText;
   std::string text = m_objm->getMarkedText();
-  //METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = "  << text);
+  METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = " << text);
   if (!text.empty()){
     //get new text from inputdialog box
     Colour::ColourInfo colour=m_objm->getMarkedColour();
@@ -871,28 +829,15 @@ void EditDialog::EditMarkedText()
   }
   m_objm->getMarkedComplexText(symbolText,xText);
   if (symbolText.size()||xText.size()){
-    //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedComplexText returns nonempty strings" );
-    //METLIBS_LOG_DEBUG();
+    METLIBS_LOG_DEBUG("-----EditDialog::getMarkedComplexText returns nonempty strings");
     if (getComplexText(symbolText,xText))
       m_objm->changeMarkedComplexText(symbolText,xText);
   }
   m_objm->getMarkedMultilineText(mText);
   if (mText.size()){
-    //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedMultilineText returns nonempty strings" );
+    METLIBS_LOG_DEBUG("-----EditDialog::getMarkedMultilineText returns nonempty strings");
     if (getEditText(mText))
       m_objm->changeMarkedMultilineText(mText);
-  }
-
-
-  m_objm->getMarkedComplexTextColored(symbolText,xText);
-  if (symbolText.size()==1 && xText.size()==1){
-    //METLIBS_LOG_DEBUG("------EditDialog::getMarkedComplexTextColored returns nonempty strings" );
-    Colour::ColourInfo colour=m_objm->getMarkedTextColour();
-    if (getComplexColoredText(symbolText,xText,colour)){
-      m_objm->changeMarkedComplexTextColored(symbolText,xText);
-      m_objm->changeMarkedTextColour(colour);
-      m_objm->setCurrentColour(colour);
-    }
   }
 
 }
@@ -921,35 +866,6 @@ bool EditDialog::getText(std::string & text, Colour::ColourInfo & colour)
   }
   delete cText;
 
-  return ok;
-}
-
-bool EditDialog::getComplexColoredText(vector<string>& symbolText,
-    vector<string>& xText,Colour::ColourInfo & colour)
-{
-  //METLIBS_LOG_DEBUG("EditDialog::getComplexColoredText called" );
-  bool ok=false;
-  if (symbolText.size() && xText.size()){
-    set<string> complexList = m_ctrl->getComplexList();
-    /*   ComplexText * cText =new ComplexText(this,
-    		m_ctrl,
-    		symbolText,xText,
-    		complexList,true);*/
-    ComplexPressureText * cText =new ComplexPressureText(this,
-        m_ctrl,
-        symbolText,
-        xText,
-        complexList,
-        currEdittool,
-        true);
-    cText->setColour(colour);
-    if (cText->exec()){
-      cText->getComplexText(symbolText,xText);
-      cText->getColour(colour);
-      ok=true;
-    }
-    delete cText;
-  }
   return ok;
 }
 
@@ -1013,11 +929,6 @@ void  EditDialog::CombineTab()
 
   connect( m_SelectAreas, SIGNAL( itemClicked ( QListWidgetItem *  ) ),
       SLOT( selectAreas(QListWidgetItem * ) ));
-
-  //   QHBoxLayout* hbox = new QHBoxLayout(combinetab);
-  //   hbox->setMargin( mymargin );
-  //   hbox->setSpacing( myspacing );
-  //   combinetab->setStretchFactor(hbox, 20);
 
   stopCombineButton = new QPushButton( tr("Exit merge"), combinetab);
   connect(stopCombineButton, SIGNAL(clicked()), SLOT(stopCombine()));

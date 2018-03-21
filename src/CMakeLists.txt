@@ -298,7 +298,6 @@ SET(LIBDIANAUI_QTSOURCES
   qtAnnotationDialog.cc
   qtBrowserBox.cc
   qtButtonLayout.cc
-  qtComplexPressureText.cc
   qtComplexText.cc
   qtDataDialog.cc
   qtDianaApplication.cc

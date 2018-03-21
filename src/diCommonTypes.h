@@ -155,20 +155,6 @@ struct editToolInfo {
 };
 
 /**
-  \brief global define for the ComplexPressureText tool
-*/
-
-#ifndef TOOL_DECREASING
-#define TOOL_DECREASING "Decreasing pressure"
-#endif
-
-#ifndef TOOL_INCREASING
-#define TOOL_INCREASING "Increasing pressure"
-#endif
-
-
-
-/**
    \brief data for one edit mode (field-editing, object-drawing)
 */
 struct editModeInfo {

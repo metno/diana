@@ -205,20 +205,12 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex)
   case 1023:
     currentXStrings.push_back("");
     currentXStrings.push_back("");
-#ifdef SMHI
-    currentSymbolStrings.push_back("BKN/OVC");
-#else
     currentSymbolStrings.push_back("BKN/OVC STF");
-#endif
     break;
   case 1024:
     currentXStrings.push_back("");
     currentXStrings.push_back("");
-#ifdef SMHI
-    currentSymbolStrings.push_back("BKN/OVC");
-#else
     currentSymbolStrings.push_back("BKN/OVC STF");
-#endif
     break;
   case 1027:
     currentSymbolStrings.push_back("");
@@ -1803,27 +1795,6 @@ std::string ComplexSymbolPlot::writeComplexText(){
 
 void ComplexSymbolPlot::initComplexList()
 {
-#ifdef SMHI
-  clist.insert("SCT");
-  clist.insert("SCT/BKN");
-  clist.insert("SKC");
-  clist.insert("SKC/FEW");
-  clist.insert("FEW");
-  clist.insert("BKN");
-  clist.insert("BKN/OVC");
-  clist.insert("OVC");
-  clist.insert("ISOL CB");
-  clist.insert("OCNL CB");
-  clist.insert("FRQ CB");
-  clist.insert("ISOL EMBD CB");
-  clist.insert("OCNL EMBD CB");
-  clist.insert("FRQ EMBD CB");
-  clist.insert("LCA");
-  clist.insert("LAN");
-  clist.insert("COT");
-  clist.insert("MAR");
-  clist.insert("MON");
-#else
   clist.insert("BKN/OVC STF");
   clist.insert("RA");
   clist.insert("RADZ");
@@ -1846,7 +1817,6 @@ void ComplexSymbolPlot::initComplexList()
   clist.insert("EMBD CB");
   clist.insert("SCT/BKN");
   clist.insert("CB/TCU");
-#endif
 }
 
 

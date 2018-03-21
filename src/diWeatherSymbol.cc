@@ -304,8 +304,6 @@ void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
     //enable blending and set colour
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-    // SMHI
-    //if (drawIndex == 900 ) setObjectColor(currentColour);
     gl->setColour(objectColour);
 
     if (drawIndex == 3001) {
