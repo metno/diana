@@ -1,3 +1,9 @@
+diana-3.44 (3.44.2-1) unstable; urgency=low
+
+  * bugfix area objects infinite loop
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 22 Mar 2018 08:00:08 +0100
+
 diana-3.44 (3.44.1-1) unstable; urgency=low
 
   * bugfix vprof, plot all selected stations
