@@ -62,15 +62,29 @@
 using namespace road;
 using namespace miutil;
 using namespace std;
+/*
+struct ObsDataRequest
+{
+  miutil::miTime obstime;
+  int timeDiff;
+  int level;
+  bool useArchive;
+  ObsDataRequest();
+};
+
+typedef std::shared_ptr<ObsDataRequest> ObsDataRequest_p;
+typedef std::shared_ptr<const ObsDataRequest> ObsDataRequest_cp;
+*/
+
 
 ObsRoad::ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
-                 const miTime& filetime, ObsPlot* oplot, bool breadData)
+                 const miTime& filetime, ObsDataRequest_cp request, bool breadData)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
   // clear members
-
+  
   headerRead = false;
   filename_ = filename;
   databasefile_ = databasefile;
@@ -78,13 +92,13 @@ ObsRoad::ObsRoad(const std::string& filename, const std::string& databasefile, c
   headerfile_ = headerfile;
   filetime_ = filetime;
   if (!breadData) {
-    readHeader(oplot);
+    readHeader(request);
     headerRead = true;
   } else
-    readData(oplot);
+    readData(vObsData,request);
 }
 
-void ObsRoad::readHeader(ObsPlot* oplot)
+void ObsRoad::readHeader(ObsDataRequest_cp request)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE("headerfile: " << headerfile_);
@@ -92,9 +106,11 @@ void ObsRoad::readHeader(ObsPlot* oplot)
   int n, i;
   vector<std::string> vstr, pstr;
   std::string str;
-  if (oplot) {
-    plotTime = oplot->getObsTime();
-    timeDiff = oplot->getTimeDiff();
+  plotTime = filetime_;
+  timeDiff = 60;
+  if (request) {
+    plotTime = request->obstime;
+    timeDiff = request->timeDiff;
   }
   fileTime = filetime_;
   // Dont tamper with the plot object...
@@ -188,18 +204,18 @@ void ObsRoad::getStationList(vector<stationInfo>& stations)
   }
 }
 
-void ObsRoad::initData(ObsPlot* oplot)
+void ObsRoad::initData(ObsDataRequest_cp request)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE("filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_
                                  << " filetime= " << filetime_.isoTime());
 #endif
   // read the headerfile if needed
-  readHeader(oplot);
-  initRoadData(oplot);
+  readHeader(request);
+  initRoadData(request);
 }
 
-void ObsRoad::initRoadData(ObsPlot* oplot)
+void ObsRoad::initRoadData(ObsDataRequest_cp request)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE("filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_
@@ -210,12 +226,15 @@ void ObsRoad::initRoadData(ObsPlot* oplot)
 //	oplot->clear(); // ???
 // oplot->clearVisibleStations();
 #if 0
-  	 oplot->setLabels(labels);
-#endif
+  oplot->setLabels(labels);
   oplot->columnName = m_columnName;
-
-  plotTime = oplot->getObsTime();
-  timeDiff = oplot->getTimeDiff();
+#endif
+  plotTime = filetime_;
+  timeDiff = 60;
+  if (request) {
+    plotTime = request->obstime;
+    timeDiff = request->timeDiff;
+  }
   fileTime = filetime_;
 
   Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, filetime_);
@@ -270,7 +289,8 @@ void ObsRoad::initRoadData(ObsPlot* oplot)
   separator = "|";
 
   decodeData();
-
+// FIXME, no longer use of dummy data  
+#if 0
   oplot->addObsData(vObsData);
 
   // Force setting of dummy data
@@ -278,36 +298,40 @@ void ObsRoad::initRoadData(ObsPlot* oplot)
 // clear plot positions
 // oplot->clearVisibleStations();
 // make a dummy plot to compute a list of stations to be plotted
-#if 0
    oplot->preparePlot();
 #endif
 }
 
-void ObsRoad::readData(ObsPlot* oplot)
+void ObsRoad::readData(std::vector<ObsData>& obsdata, ObsDataRequest_cp request)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE("filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_
                                  << " filetime= " << filetime_.isoTime());
 #endif
   // read the headerfile if needed
-  readHeader(oplot);
-  readRoadData(oplot);
+  readHeader(request);
+  readRoadData(request);
+  obsdata=vObsData;
 }
 
-void ObsRoad::readRoadData(ObsPlot* oplot)
+void ObsRoad::readRoadData(ObsDataRequest_cp request)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE("filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_
                                  << " filetime= " << filetime_.isoTime());
 #endif
 
- #if 0  
-    	oplot->setLabels(labels);
-#endif
+#if 0  
+  oplot->setLabels(labels);
   oplot->columnName = m_columnName;
+#endif
 
-  plotTime = oplot->getObsTime();
-  timeDiff = oplot->getTimeDiff();
+  plotTime = filetime_;
+  timeDiff = 60;
+  if (request) {
+    plotTime = request->obstime;
+    timeDiff = request->timeDiff;
+  }
   fileTime = filetime_;
 
   lines.clear();
@@ -335,23 +359,25 @@ void ObsRoad::readRoadData(ObsPlot* oplot)
   mObsData.clear();
 
   decodeData();
-
+  
+  // Dont set data here, the obsReaderRoad will do that...
+  // HERE, we should be finished!
+#if 0
   oplot->replaceObsData(vObsData);
 
   oplot->clearVisibleStations();
-
-  // Dont set data here, the manager will do that...
-  // HERE, we should be finished!
+#endif
+  
 }
 
 // from ObsAscii
 // FIXME: Not used for now...
-void ObsRoad::yoyoPlot(const miTime& filetime, ObsPlot* oplot)
+void ObsRoad::yoyoPlot(const miTime& filetime, ObsDataRequest_cp request)
 {
   METLIBS_LOG_SCOPE();
+  //FIXME: not used!
 #if 0
    oplot->setLabels(labels);
-#endif
   oplot->columnName = m_columnName;
 
   plotTime = oplot->getObsTime();
@@ -361,6 +387,8 @@ void ObsRoad::yoyoPlot(const miTime& filetime, ObsPlot* oplot)
   readDecodeData();
 
   oplot->addObsData(vObsData);
+ 
+ #endif
 }
 
 // FIXME: Should be used ?
@@ -716,7 +744,32 @@ float ObsRoad::percent2oktas(float v)
     return v / 12.5; //% -> oktas
   }
 }
-
+float ObsRoad::convertWW(float ww)
+{
+  if (ww == 508.0)
+    ww = 0.0;
+  // Check if new BUFR code, not supported yet!
+  // FIXME, see OBS_200+.xlsx
+  if (ww > 199.0)
+    return 0.0;
+  
+  const int auto2man[100] = {
+      /*100-199*/ 0, 1, 2, 3, 5, 5, 0, 0, 0, 0,
+      10, 76, 13, 0, 0, 0, 0, 0, 18, 0,
+      28, 21, 20, 21, 22, 24, 29, 38, 38, 39,
+      45, 41, 43, 45, 47, 49, 0, 0, 0, 0,
+      63, 63, 65, 63, 65, 73, 75, 66, 67, 0,
+      53, 51, 53, 55, 56, 57, 57, 58, 59, 0,
+      63, 61, 63, 65, 66, 67, 67, 68, 69, 0,
+      73, 71, 73, 75, 79, 79, 79, 0, 0, 0,
+      81,80, 81, 81, 82, 85, 86, 86, 0, 0,
+      17, 17, 95, 96, 17, 97, 99, 0, 0, 19};
+      
+  if (ww > 99.0)  {
+    ww = auto2man[(int)(ww-100.0)];
+  }
+  return ww;
+}
 void ObsRoad::decodeData()
 {
   METLIBS_LOG_SCOPE();
@@ -798,6 +851,11 @@ void ObsRoad::decodeData()
             if (miutil::is_number(pstr[i]))
               // Convert to clouds dataspace
               obsData.stringdata[m_columnName[i]] = miutil::from_number(ms2code4451(miutil::to_float(pstr[i])));
+        } else if (m_columnName[i] == "ww") {
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i]))
+              // Convert to manual synop dataspace
+              obsData.stringdata[m_columnName[i]] = miutil::from_number(convertWW(miutil::to_float(pstr[i])));
         } else {
           if (pstr[i] != undef_string)
             obsData.stringdata[m_columnName[i]] = pstr[i];
@@ -828,6 +886,11 @@ void ObsRoad::decodeData()
             if (miutil::is_number(pstr[i]))
               // Convert to vs dataspace
               obsData.fdata[m_columnName[i]] = ms2code4451(miutil::to_float(pstr[i]));
+        } else if (m_columnName[i] == "ww") {
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i]))
+              // Convert to malual synop dataspace
+              obsData.fdata[m_columnName[i]] = convertWW(miutil::to_float(pstr[i]));
         } else {
           if (pstr[i] != undef_string)
             if (miutil::is_number(pstr[i]))

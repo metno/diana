@@ -1,3 +1,5 @@
+#include "diana_config.h"
+
 
 #include "diObsReaderRoad.h"
 
@@ -7,6 +9,9 @@
 #include <diObsRoad.h>
 
 #include <puTools/miStringFunctions.h>
+
+#define MILOGGER_CATEGORY "diana.ObsReaderRoad"
+#include <miLogger/miLogging.h>
 
 using namespace miutil;
 using namespace std;
@@ -36,40 +41,42 @@ bool ObsReaderRoad::configure(const std::string& key, const std::string& value)
 
 void ObsReaderRoad::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result)
 {
-#ifdef OBSROAD
-  ObsRoad obsRoad(fi.filename, databasefile, stationfile, headerfile, fi.time, dynamic_cast<RoadObsPlot*>(oplot), false);
-  // initData inits the internal data structures in oplot, eg the roadobsp and stationlist.
-  obsRoad.initData(dynamic_cast<RoadObsPlot*>(oplot));
-  // readData reads the data from road.
-  // it shoukle be complemented by a method on the ObsPlot objects that reads data from a single station from road,
-  // after ObsPlt has computed wich stations to plot.
-  std::vector<ObsData> obsdata = obsRoad.readData(dynamic_cast<RoadObsPlot*>(oplot));
+#ifdef ROADOBS
+  METLIBS_LOG_DEBUG(fi.filename << ", " << databasefile << ", " << stationfile << ", " << headerfile << ", " << fi.time);
+  // The constructor with last argument false init the internal datastructures, but reads no data.
+  ObsRoad obsRoad(fi.filename, databasefile, stationfile, headerfile, fi.time, request, false);
+  // readData reads the data from the SMHI database.
+  std::vector<ObsData> obsdata;
+  obsRoad.readData(obsdata,request);
   for (ObsData& obs : obsdata)
-    obs.dataType = request->dataType;
+    obs.dataType = dataType();
   result->add(obsdata);
 #endif
 }
 
 std::vector<ObsDialogInfo::Par> ObsReaderRoad::getParameters()
 {
-#ifdef OBSROAD
+#ifdef ROADOBS
   // The road format must have a header file, defined in prod
   // This file, defines the parameters as well as the mapping
   // between diana and road parameter space.
 
   std::string filename; // just dummy here
   miTime filetime;      // just dummy here
-  ObsRoad obsRoad = ObsRoad(filename, databasefile, stationfile, headerfile, filetime, NULL, false);
-  bool found = obsRoad.asciiOK();
-
-  if (obsRoad.parameterType("dd") && obsRoad.parameterType("ff")) {
-    pt.addButton("Wind", "");
-    pt.datatype[0].active.push_back(true); // only one datatype, yet!
-  }
+  ObsDataRequest_cp request; // just dummy here
+  
+  METLIBS_LOG_DEBUG(databasefile << ", " << stationfile << ", " << headerfile);
+  
+  ObsRoad obsRoad = ObsRoad(filename, databasefile, stationfile, headerfile, filetime, request, false);
+  std::vector<ObsDialogInfo::Par> parameters;
+  
   for (size_t c = 0; c < obsRoad.columnCount(); c++) {
-    pt.addButton(obsRoad.columnName(c), obsRoad.columnTooltip(c), -100, 100, true);
-    pt.datatype[0].active.push_back(true); // only one datatype, yet!
+    ObsDialogInfo::Par pt(obsRoad.columnName(c),ObsDialogInfo::ParType::pt_std,0,0,obsRoad.columnTooltip(c),0,1);
+    parameters.push_back(pt);
   }
+
+  
+  return parameters;
 #else
   return ObsReader::getParameters();
 #endif

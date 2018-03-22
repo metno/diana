@@ -31,6 +31,7 @@
 #define diObsRoad_h
 
 #ifdef ROADOBS
+#include "diObsReader.h"
 #include "diCommonTypes.h"
 #include "diObsData.h"
 #include "diObsMetaData.h"
@@ -61,9 +62,9 @@ private:
   // This defines a set of stations, eg synop,metar,ship observations
   std::vector<road::diStation>* stationlist;
   miutil::miTime filetime_;
-  void readHeader(ObsPlot* oplot);
-  void readRoadData(ObsPlot* oplot);
-  void initRoadData(ObsPlot* oplot);
+  void readHeader(ObsDataRequest_cp request);
+  void readRoadData(ObsDataRequest_cp request);
+  void initRoadData(ObsDataRequest_cp request);
   bool headerRead;
 
   // from ObsAscii class
@@ -110,9 +111,9 @@ private:
 
 public:
   ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
-          const miutil::miTime& filetime, ObsPlot* oplot, bool breadData);
-  void readData(ObsPlot* oplot);
-  void initData(ObsPlot* oplot);
+          const miutil::miTime& filetime, ObsDataRequest_cp request, bool breadData);
+  void readData(std::vector<ObsData>& obsdata,ObsDataRequest_cp request);
+  void initData(ObsDataRequest_cp request);
 
   void cloud_type_string(ObsData& d, double v);
   std::string height_of_clouds_string(double height);
@@ -121,9 +122,10 @@ public:
   float height_of_clouds(double height);
   float ms2code4451(float v);
   float percent2oktas(float v);
+  float convertWW(float ww);
 
   // from ObsAscii
-  void yoyoPlot(const miutil::miTime& filetime, ObsPlot* oplot);
+  void yoyoPlot(const miutil::miTime& filetime, ObsDataRequest_cp request);
   void yoyoMetadata(ObsMetaData* metaData);
 
   bool asciiOK() const { return fileOK; }

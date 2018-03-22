@@ -375,7 +375,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     else if (valp == "synop_wmo" || valp == "synop_ship") {
       plottype = OPT_SYNOP;
     } else if (valp == "metar_icao") {
-      plottype = OPT_SYNOP;
+      plottype = OPT_METAR;
     }
 #endif // !ROADOBS
     else {

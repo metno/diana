@@ -61,6 +61,7 @@ bool ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
   oplot->clear();
   oplot->setPopupSpec(popupSpec);
   for (const std::string& rn : oplot->readerNames()) {
+    METLIBS_LOG_DEBUG("reader name: '" << rn << "'");
     string_ProdInfo_m::const_iterator itP = Prod.find(rn);
     if (itP == Prod.end()) {
       METLIBS_LOG_ERROR("no reader named '" << rn << "'");

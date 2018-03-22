@@ -107,6 +107,7 @@ void ObsReaderFile::addPattern(const std::string& p, bool archive)
 
 void ObsReaderFile::getData(ObsDataRequest_cp request, ObsDataResult_p result)
 {
+  METLIBS_LOG_SCOPE();
   if (fileInfo.empty())
     checkForUpdates(request->useArchive);
 
