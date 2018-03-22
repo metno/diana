@@ -98,6 +98,8 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
           }
         }
       }
+    } else {
+      ++it;
     }
   }
 }
