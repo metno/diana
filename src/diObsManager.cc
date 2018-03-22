@@ -54,21 +54,29 @@ ObsManager::ObsManager()
   useArchive = false;
 }
 
+std::vector<ObsReader_p> ObsManager::readers(ObsPlot* oplot)
+{
+  std::vector<ObsReader_p> readers;
+  readers.reserve(oplot->readerNames().size());
+  for (const std::string& rn : oplot->readerNames()) {
+    METLIBS_LOG_DEBUG("reader name: '" << rn << "'");
+    string_ProdInfo_m::const_iterator itP = Prod.find(rn);
+    if (itP == Prod.end()) {
+      METLIBS_LOG_ERROR("no reader named '" << rn << "'");
+    } else {
+      readers.push_back(itP->second.reader);
+    }
+  }
+  return readers;
+}
+
 bool ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
 
   oplot->clear();
   oplot->setPopupSpec(popupSpec);
-  for (const std::string& rn : oplot->readerNames()) {
-    METLIBS_LOG_DEBUG("reader name: '" << rn << "'");
-    string_ProdInfo_m::const_iterator itP = Prod.find(rn);
-    if (itP == Prod.end()) {
-      METLIBS_LOG_ERROR("no reader named '" << rn << "'");
-      continue;
-    }
-    ObsReader_p reader = itP->second.reader;
-
+  for (ObsReader_p reader : readers(oplot)) {
     ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
     req->obstime = time;
     req->timeDiff = oplot->getTimeDiff();
@@ -76,8 +84,8 @@ bool ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
     req->useArchive = useArchive;
     ObsDataResult_p res = std::make_shared<ObsDataResult>();
     reader->getData(req, res);
-
     oplot->addObsData(res->data());
+
     if (!res->time().undef())
       oplot->setObsTime(res->time());
     oplot->setParameters(reader->getParameters());
@@ -92,11 +100,8 @@ bool ObsManager::updateTimes(ObsPlot* op)
 {
   METLIBS_LOG_SCOPE();
   bool updated = false;
-  for (const std::string& dataType : op->readerNames()) {
-    string_ProdInfo_m::const_iterator itP = Prod.find(dataType);
-    if (itP == Prod.end())
-      continue;
-    if (itP->second.reader->checkForUpdates(useArchive))
+  for (ObsReader_p reader : readers(op)) {
+    if (reader->checkForUpdates(useArchive))
       updated = true;
   }
   return updated;

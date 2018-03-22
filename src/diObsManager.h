@@ -81,6 +81,8 @@ private:
 
   void addReaders(ObsDialogInfo::PlotType& dialogInfo);
 
+  std::vector<ObsReader_p> readers(ObsPlot* oplot);
+
   // HQC
   bool changeHqcdata(ObsData&, const std::vector<std::string>& param,
       const std::vector<std::string>& data);

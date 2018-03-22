@@ -180,7 +180,6 @@ private Q_SLOTS:
   void catchKeyPress(QKeyEvent*);
   void catchMouseDoubleClick(QMouseEvent*);
   void catchElement(QMouseEvent*);
-  void sendSelectedStations(const std::string& command);
   void undo();
   void redo();
   void save();

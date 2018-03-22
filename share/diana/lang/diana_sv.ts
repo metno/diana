@@ -371,7 +371,7 @@
         <translation>Om Diana</translation>
     </message>
     <message>
-        <location line="+1975"/>
+        <location line="+1974"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -404,7 +404,7 @@
         <translation type="vanished">Tidskontroll</translation>
     </message>
     <message>
-        <location line="-1967"/>
+        <location line="-1966"/>
         <source>Level up</source>
         <translation>Nivå opp</translation>
     </message>
@@ -414,7 +414,7 @@
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location line="+1856"/>
+        <location line="+1855"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -429,7 +429,7 @@
         <translation>Feil</translation>
     </message>
     <message>
-        <location line="+1015"/>
+        <location line="+985"/>
         <source>imported files</source>
         <translation>Importerade filer</translation>
     </message>
@@ -459,7 +459,7 @@
         <translation type="obsolete">Adderat model data till &quot;%1&quot; fält grupp.</translation>
     </message>
     <message>
-        <location line="-2937"/>
+        <location line="-2906"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Välj</translation>
     </message>
@@ -499,7 +499,7 @@
         <translation type="unfinished">Karta och Område</translation>
     </message>
     <message>
-        <location line="+1559"/>
+        <location line="+1558"/>
         <source>version:</source>
         <translation>version:</translation>
     </message>
@@ -517,7 +517,7 @@
         <translation type="obsolete">Spara plott som bild</translation>
     </message>
     <message>
-        <location line="-1850"/>
+        <location line="-1849"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS cluster/medlem mm. upp</translation>
     </message>
@@ -545,7 +545,7 @@
         <translation type="obsolete">Spara &amp;animation...</translation>
     </message>
     <message>
-        <location line="+1737"/>
+        <location line="+1736"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -553,7 +553,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Diana - ett program för presentation av fält, observationer och satellitbilder med verktyg för fälteditering och ritning av fronter och symboler.</translation>
     </message>
     <message>
-        <location line="-1885"/>
+        <location line="-1884"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
@@ -572,7 +572,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Karta</translation>
     </message>
     <message>
-        <location line="+1996"/>
+        <location line="+1995"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation>För att rapportera en bugg eller ett förbättringsförslag, vänligen använd https://redmine.smhi.se/ projekt Diana (Endast SMHI användare).</translation>
@@ -602,7 +602,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">&gt;Filmer (*.mp4 *.mpg *.avi);;Alla (*.*)</translation>
     </message>
     <message>
-        <location line="-2074"/>
+        <location line="-2073"/>
         <source>Print pre&amp;view...</source>
         <translation>Förhands&amp;granska...</translation>
     </message>

@@ -1911,7 +1911,6 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     contr->makeStationPlot(commondesc, common,
         description, fromId, letter.data);
 
-    //    sendSelectedStations(qmstrings::selectposition);
     return;
   }
 
@@ -2473,7 +2472,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   if (!popupText.isEmpty()) {
     // undo reverted y coordinate from MainPaintable::handleMouseEvents
     QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
-    QWhatsThis::showText(popupPos, popupText, this);
+    QToolTip::showText(popupPos, popupText, this);
   }
 }
 
@@ -2660,36 +2659,6 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   if (needupdate)
     requestBackgroundBufferUpdate();
 }
-
-void DianaMainWindow::sendSelectedStations(const std::string& command)
-{
-  vector< vector<std::string> > data;
-  contr->getStationData(data);
-  // data contains name, name, ..., name, dataset, id (as string) where "name" are selected station names
-
-  const int n=data.size();
-  for (int i=0;i<n;i++) {
-    const vector<string>& token = data[i];
-    const int m = token.size();
-    if (m < 2)
-      continue;
-
-    const int id = miutil::to_int(token[m-1]);
-    const std::string& dataset = token[m-2];
-
-    QStringList desc, values;
-    for (int j=0; j<m-2; ++j) { // skip dataset and id
-      desc << "name";
-      values << QString::fromStdString(token[j]);
-    }
-
-    miQMessage letter(QString::fromStdString(command));
-    letter.addCommon("dataset", QString::fromStdString(dataset));
-    letter.setData(desc, QList<QStringList>() << values);
-    sendLetter(letter, id);
-  }
-}
-
 
 void DianaMainWindow::catchKeyPress(QKeyEvent* ke)
 {
