@@ -632,7 +632,6 @@ ADD_LIBRARY(libdianaui SHARED
 
   ${LIBDIANAUI_MOC_SRCS}
   ${LIBDIANAUI_UIS}
-  ${LIBDIANAUI_QM}
 
   ${LIBDIANAUI_XPM}
 )
@@ -681,6 +680,8 @@ INSTALL (TARGETS diana bdiana
 INSTALL(FILES ${LIBDIANAUI_QM}
   DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${PROJECT_NAME}/${PVERSION}/lang"
 )
+
+ADD_CUSTOM_TARGET(lupdate DEPENDS ${LIBDIANAUI_QM})
 
 ########################################################################
 
