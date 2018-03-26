@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -29,7 +29,9 @@
 #ifndef _diAreaObjects_h
 #define _diAreaObjects_h
 
-#include <diWeatherObjects.h>
+#include "diWeatherObjects.h"
+
+#include "diAreaTypes.h"
 
 #include <string>
 #include <vector>
@@ -44,16 +46,16 @@
 */
 class AreaObjects : public WeatherObjects {
 public:
-
   AreaObjects();
-  ~AreaObjects(){}
-  /// assign name,icon and id, and read areastring to make WeatherArea objects  
-  void makeAreas(const std::string& name, const std::string& icon, 
-		 const std::string& areastring, int id, const Area& );
+  ~AreaObjects();
+
+  /// assign name,icon and id, and read areastring to make WeatherArea objects
+  void makeAreas(const std::string& name, const std::string& icon, const std::string& areastring, int id, const Area&);
   /// apply a command
   bool areaCommand(const std::string& command, const std::vector<std::string>& data);
+
   /// returns a vector of selectArea which x and y are inside
-  std::vector<selectArea> findAreas(float x, float y, bool newArea=false);
+  std::vector<selectArea> findAreas(float x, float y, bool newArea = false);
 
   /// returns id
   int getId() const { return itsId; }

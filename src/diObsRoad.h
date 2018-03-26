@@ -36,7 +36,7 @@
 #include "diObsData.h"
 #include "diObsMetaData.h"
 #include "diObsPlot.h"
-#include "diStationInfo.h"
+#include "diStationTypes.h"
 #include "diVprofData.h"
 
 #include <newarkAPI/diStation.h>

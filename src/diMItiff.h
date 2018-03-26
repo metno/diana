@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,8 +29,10 @@
 #ifndef diMItiff_h
 #define diMItiff_h
 
-#include <diSat.h>
+#include "diSat.h"
+
 #include <miRaster/satimg.h>
+
 #include <vector>
 
 /**

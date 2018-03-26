@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,7 +29,7 @@
 #ifndef QTEDITTEXT_H
 #define QTEDITTEXT_H
 
-#include "diCommonTypes.h"
+#include "diColour.h"
 
 #include <qdialog.h>
 #include <qlineedit.h>
@@ -51,22 +51,21 @@ class Controller;
 class EditText :public QDialog
 {
   Q_OBJECT
-public:
 
-  /// constructor, symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
-  EditText( QWidget* parent, Controller* llctrl, std::vector<std::string>& symbolText,
-      std::set<std::string> cList, bool useColour=false);
+public:
+  /// symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
+  EditText(QWidget* parent, Controller* llctrl, std::vector<std::string>& symbolText, std::set<std::string> cList, bool useColour = false);
+  ~EditText();
+
   /// get text from dialogs input boxes
   void getEditText(std::vector<std::string> & symbolText );
   /// set colourbox colour
   void setColour(Colour::ColourInfo & colour);
   /// get colour from colourbox
   void getColour(Colour::ColourInfo & colour);
-  ~EditText();
-
 
 private:
-  Controller*    m_ctrl;
+  Controller* m_ctrl;
 
   QTextEdit* vSymbolEdit;
 

@@ -36,9 +36,11 @@
 #include "polyStipMasks.h"
 #include "util/math_util.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <QPolygonF>
 
-#include <puTools/miStringFunctions.h>
+#include <set>
 
 #define MILOGGER_CATEGORY "diana.WeatherArea"
 #include <miLogger/miLogging.h>
@@ -398,7 +400,7 @@ void WeatherArea::setSelected(bool s)
 
 bool WeatherArea::isInsideArea(float x, float y)
 {
-  multiset<float> xset;
+  std::multiset<float> xset;
   int n;
   float px, py, xc;
 
@@ -431,7 +433,7 @@ bool WeatherArea::isInsideArea(float x, float y)
     return false;
   }
 
-  multiset<float>::iterator p = xset.begin(), pend = xset.end();
+  std::multiset<float>::iterator p = xset.begin(), pend = xset.end();
   int c = 0;
   while (p != pend && *p <= x) {
     c++;

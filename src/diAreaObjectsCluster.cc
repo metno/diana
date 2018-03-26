@@ -29,6 +29,7 @@
 
 #include "diAreaObjectsCluster.h"
 
+#include "diPlotElement.h"
 #include "diPlotModule.h"
 #include "util/misc_util.h"
 

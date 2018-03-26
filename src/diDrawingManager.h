@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,11 +30,12 @@
 #define _diDrawingManager_h
 
 #include "diManager.h"
-#include "EditItems/drawingitembase.h"
 
-#include <diField/diGridConverter.h>
-#include <EditItems/drawingitembase.h>
-#include <EditItems/itemgroup.h>
+#include "EditItems/drawingitembase.h"
+#include "EditItems/itemgroup.h"
+#include "diCommonTypes.h"
+#include "diField/diGridConverter.h"
+
 #include <QHash>
 #include <QList>
 #include <QMap>

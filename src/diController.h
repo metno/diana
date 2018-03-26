@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,13 +29,20 @@
 #ifndef diController_h
 #define diController_h
 
+#include "diAreaTypes.h"
 #include "diColour.h"
 #include "diCommonTypes.h"
 #include "diDrawingTypes.h"
+#include "diEditTypes.h"
 #include "diMapInfo.h"
 #include "diMapMode.h"
+#include "diObjTypes.h"
 #include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
+#include "diQuickMenuTypes.h"
+#include "diRectangle.h"
+#include "diSatTypes.h"
+#include "diStationTypes.h"
 
 #include <puTools/miTime.h>
 
@@ -43,31 +50,33 @@
 #include <vector>
 #include <set>
 
-class Area;
 class AnnotationPlot;
+class Area;
 class DiCanvas;
 class DiGLPainter;
-class PlotModule;
-struct LocationData;
-class FieldManager;
-class FieldPlotManager;
-class ObsManager;
-class SatManager;
 class DrawingManager;
 class EditManager;
+class FieldManager;
+class FieldPlot;
+class FieldPlotManager;
 class Manager;
+class MapManager;
 class ObjectManager;
+class ObsManager;
+class ObsPlot;
+class PlotElement;
+class PlotModule;
+class SatManager;
+class SatPlot;
 class StationManager;
 class StationPlot;
-class MapManager;
-class FieldPlot;
-class ObsPlot;
-class SatPlot;
+
+struct LocationData;
 
 // from diCommonFieldTypes.h
-struct FieldRequest;
 struct FieldDialogInfo;
 struct FieldGroupInfo;
+struct FieldRequest;
 
 class QKeyEvent;
 class QMouseEvent;

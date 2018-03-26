@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -29,14 +29,14 @@
 #ifndef _diObjectManager_h
 #define _diObjectManager_h
 
-#include "diMapMode.h"
-#include "diWeatherObjects.h"
-#include "diEditObjects.h"
-#include "diDisplayObjects.h"
 #include "diAreaBorder.h"
-#include "diCommonTypes.h"
+#include "diDisplayObjects.h"
+#include "diEditObjects.h"
+#include "diMapMode.h"
+#include "diObjTypes.h"
 #include "diPlotCommand.h"
 #include "diUndoFront.h"
+#include "diWeatherObjects.h"
 
 #include "diField/diArea.h"
 
@@ -48,6 +48,7 @@
 #include <set>
 
 class PlotModule;
+class PlotElement;
 
 /**
    \brief list of object files

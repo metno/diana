@@ -30,7 +30,8 @@
 #ifndef qtStationDialogModel_h
 #define qtStationDialogModel_h
 
-#include "diCommonTypes.h"
+#include "diStationTypes.h"
+
 #include <QAbstractItemModel>
 
 class StationDialogModel : public QAbstractItemModel

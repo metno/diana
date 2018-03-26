@@ -30,7 +30,7 @@
 #define _diObsBufr_h
 
 #include "diObsData.h"
-#include "diStationInfo.h"
+#include "diStationTypes.h"
 
 class VprofValues;
 typedef std::shared_ptr<VprofValues> VprofValues_p;

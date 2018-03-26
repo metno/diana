@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,26 +29,28 @@
 #ifndef _diEditManager_h
 #define _diEditManager_h
 
-#include <diCommonTypes.h>
-#include <diDrawingTypes.h>
-#include <diMapMode.h>
-#include <diObjectManager.h>
+#include "diDrawingTypes.h"
+#include "diEditSpec.h"
+#include "diEditTypes.h"
+#include "diFieldEdit.h"
+#include "diMapMode.h"
+#include "diObjectManager.h"
 #include "diPlot.h"
-#include <diFieldEdit.h>
-#include <diEditSpec.h>
 
-#include <diField/diGridConverter.h>
+#include "diField/diGridConverter.h"
+
+#include <QString>
 
 #include <vector>
-#include <QString>
 
 class AnnotationPlot;
 class DiGLPainter;
-class PlotModule;
-class ObjectManager;
-struct ObsPositions;
-class FieldPlotManager;
 class Field;
+class FieldPlotManager;
+class ObjectManager;
+class PlotModule;
+
+struct ObsPositions;
 
 class QKeyEvent;
 class QMouseEvent;

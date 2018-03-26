@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,17 +29,20 @@
 #ifndef _qt_mainwindow_
 #define _qt_mainwindow_
 
+#include "EditItems/toolbar.h"
+#include "diAreaTypes.h"
 #include "diCommonTypes.h"
+#include "diField/diRectangle.h"
 #include "diMapMode.h"
 #include "diPlotCommand.h"
+#include "diPlotElement.h"
 #include "diPrintOptions.h"
-#include <EditItems/toolbar.h>
+
+#include <puTools/miTime.h>
 
 #include <QMainWindow>
 #include <QLabel>
 #include <QFocusEvent>
-
-#include <diField/diRectangle.h>
 
 #include <vector>
 #include <deque>

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,7 +29,7 @@
 #ifndef QTCOMPLEXTEXT_H
 #define QTCOMPLEXTEXT_H
 
-#include "diCommonTypes.h"
+#include "diColour.h"
 
 #include <qdialog.h>
 #include <qlineedit.h>

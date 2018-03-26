@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,7 +30,7 @@
 #ifndef diSat_h
 #define diSat_h
 
-#include "diCommonTypes.h"
+#include "diSatTypes.h"
 #include "util/diKeyValue.h"
 
 #include <diField/diArea.h>

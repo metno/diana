@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,8 +29,9 @@
 #ifndef _qt_vprofmainwindow_
 #define _qt_vprofmainwindow_
 
-#include "diCommonTypes.h"
 #include "diPlotCommand.h"
+
+#include <puTools/miTime.h>
 
 #include <QString>
 #include <QMainWindow>
@@ -41,13 +42,13 @@ class QComboBox;
 class QSpinBox;
 class QToolBar;
 
+class StationPlot;
 class ToggleButton;
-class VprofUiEventHandler;
-class VprofPaintable;
 class VprofManager;
 class VprofModelDialog;
+class VprofPaintable;
 class VprofSetupDialog;
-class StationPlot;
+class VprofUiEventHandler;
 
 /**
   \brief Window for Vertical Profiles (soundings)

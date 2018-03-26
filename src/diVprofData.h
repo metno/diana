@@ -31,7 +31,7 @@
 
 #include "diVprofValues.h"
 
-#include "diStationInfo.h"
+#include "diStationTypes.h"
 
 #include <memory>
 #include <puTools/miTime.h>

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,12 +29,12 @@
 #ifndef _editdialog_h
 #define _editdialog_h
 
+#include "diColour.h"
+#include "diEditSpec.h"
+#include "diEditTypes.h"
 
 #include <QDialog>
 #include <qpixmap.h>
-
-#include <diCommonTypes.h>
-#include <diEditSpec.h>
 
 #include <vector>
 
@@ -64,7 +64,8 @@ class ObjectManager;
 */
 class EditDialog: public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
+
 private:
     enum { prodb = 0, saveb=  1, sendb=  2 };
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,7 +51,9 @@ AreaObjects::AreaObjects()
  currentArea = NULL;
 }
 
-
+AreaObjects::~AreaObjects()
+{
+}
 
 void AreaObjects::makeAreas(const std::string& name, const std::string& icon,
     const std::string& areastring, int id,const Area& area)

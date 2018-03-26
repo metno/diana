@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,11 +29,11 @@
 #ifndef StationPlot_h
 #define StationPlot_h
 
-#include "diStationInfo.h"
 #include "diColour.h"
 #include "diImageGallery.h"
 #include "diPlot.h"
 #include "diPlotOptions.h"
+#include "diStationTypes.h"
 
 #include <puDatatypes/miCoordinates.h>
 #include <diField/diArea.h>

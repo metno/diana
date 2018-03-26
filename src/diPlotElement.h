@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 20016 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,36 +26,32 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef DISTATIONINFO_H
-#define DISTATIONINFO_H
+
+#ifndef DIANA_DIPLOTELEMENT_H
+#define DIANA_DIPLOTELEMENT_H
 
 #include <string>
 
-struct stationInfo {
-    std::string name;
-    std::string url;
-    float lat;
-    float lon;
-    stationInfo(const std::string& n, float lo, float la)
-      : name(n), lat(la), lon(lo) { }
+/**
+   \brief metadata on one data layer (on map)
+*/
+struct PlotElement
+{
+  std::string type;
+  std::string str;
+  std::string icon;
+  bool enabled;
+  PlotElement()
+      : enabled(false)
+  {
+  }
+  PlotElement(std::string t, std::string s, std::string i, bool e)
+      : type(t)
+      , str(s)
+      , icon(i)
+      , enabled(e)
+  {
+  }
 };
 
-namespace diutil {
-
-/** Equality comparator for stationInfo, comparing by name. */
-struct eq_StationName {
-  eq_StationName(const std::string& name) : name_(name) { }
-  bool operator()(const stationInfo& si) const
-    { return si.name == name_; }
-  const std::string& name_;
-};
-
-/** Less-than comparator for stationInfo, comparing by name. */
-struct lt_StationName {
-  bool operator()(const stationInfo& s1, const stationInfo& s2) const
-    { return s1.name < s2.name; }
-};
-
-} // namespace diutil
-
-#endif // DISTATIONINFO_H
+#endif // DIANA_DIPLOTELEMENT_H

@@ -411,7 +411,15 @@ METNO_HEADERS(LIBBDIANA_HEADERS    "cc" "h" ${LIBBDIANA_SOURCES})
 
 LIST (APPEND LIBDIANA_HEADERS
   diBuild.h
+  diAreaTypes.h
+  diCommonTypes.h
+  diEditTypes.h
+  diObjTypes.h
+  diPlotElement.h
+  diSatTypes.h
+  diQuickMenuTypes.h
   diSliderValues.h
+  diStationTypes.h
   util/misc_util.h
 )
 LIST (APPEND LIBDIANA_SOURCES

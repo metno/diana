@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,10 +30,11 @@
 #define ObjectPlot_h
 
 #include "diPlot.h"
-#include "diCommonTypes.h"
+
 #include "diColour.h"
-#include "diObjectPoint.h"
 #include "diLinetype.h"
+#include "diObjTypes.h"
+#include "diObjectPoint.h"
 
 #include <vector>
 #include <deque>

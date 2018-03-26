@@ -26,34 +26,29 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#ifndef DIANA_DIOBJTYPES_H
+#define DIANA_DIOBJTYPES_H
 
-#ifndef DIANA_DICOMMONTYPES_H
-#define DIANA_DICOMMONTYPES_H
-
-#include <puDatatypes/miCoordinates.h>
+#include <puTools/miTime.h>
 
 #include <string>
-#include <vector>
+
+//--------------------------------------------------
+// info about object files
+//--------------------------------------------------
 
 /**
-   \brief text information sources
+   \brief GUI data for object file
 */
-struct InfoFile {
-  std::string name;    ///< name of source
-  std::string filename;///< name of file
-  std::string doctype; ///< documenttype: auto,xml,html,text
-  std::string fonttype;///< fonttype: auto, fixed
+struct ObjFileInfo
+{
+  std::string name;    ///< name of the file
+  miutil::miTime time; ///< time of the file
 };
 
 /**
-   \brief information about polylines
+   \brief front types and options
  */
-struct PolyLineInfo {
-  int id;
-  std::string name;
-  std::vector<LonLat> points;
-  PolyLineInfo(int i, std::string n, std::vector<LonLat> p)
-    : id(i), name(n), points(p) {}
-};
+enum frontType { Cold, Warm, Occluded, Stationary, TroughLine, ArrowLine, SquallLine, SigweatherFront, Line };
 
-#endif // DIANA_DICOMMONTYPES_H
+#endif

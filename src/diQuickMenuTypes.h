@@ -27,33 +27,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIANA_DICOMMONTYPES_H
-#define DIANA_DICOMMONTYPES_H
-
-#include <puDatatypes/miCoordinates.h>
+#ifndef DIANA_DIQUICKMENUTYPES_H
+#define DIANA_DIQUICKMENUTYPES_H
 
 #include <string>
-#include <vector>
 
 /**
-   \brief text information sources
+   \brief quick menu type
 */
-struct InfoFile {
-  std::string name;    ///< name of source
-  std::string filename;///< name of file
-  std::string doctype; ///< documenttype: auto,xml,html,text
-  std::string fonttype;///< fonttype: auto, fixed
+struct QuickMenuDefs
+{
+  std::string filename;
 };
 
-/**
-   \brief information about polylines
- */
-struct PolyLineInfo {
-  int id;
-  std::string name;
-  std::vector<LonLat> points;
-  PolyLineInfo(int i, std::string n, std::vector<LonLat> p)
-    : id(i), name(n), points(p) {}
-};
-
-#endif // DIANA_DICOMMONTYPES_H
+#endif // DIANA_DIQUICKMENUTYPES_H

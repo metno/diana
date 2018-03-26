@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2011 met.no
+  Copyright (C) 2011-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,8 +29,9 @@
 #ifndef diStationManager_h
 #define diStationManager_h
 
-#include "diCommonTypes.h"
 #include "diPlotCommand.h"
+#include "diStationTypes.h"
+
 #include <QString>
 
 class StationPlot;

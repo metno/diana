@@ -30,7 +30,7 @@
 #define VPROFMANAGER_H
 
 #include "diPlotCommand.h"
-#include "diStationInfo.h"
+#include "diStationTypes.h"
 #include "diVprofReaderBufr.h"
 #include "diVprofReaderFimex.h"
 #include "diVprofReaderRoadobs.h"

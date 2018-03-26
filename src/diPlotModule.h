@@ -29,11 +29,12 @@
 #ifndef diPlotModule_h
 #define diPlotModule_h
 
-#include "diPlot.h"
-#include "diPlotCommand.h"
+#include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
 #include "diMapMode.h"
-#include "diDisplayObjects.h"
+#include "diPlot.h"
+#include "diPlotCommand.h"
+#include "diPlotElement.h"
 
 #include <puTools/miTime.h>
 
