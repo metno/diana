@@ -1505,6 +1505,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       for (int n : notplot) {
         if (list_plotnr[n] == plotnr)
           list_plotnr[n] = -1;
+      }
     }
   }
 
@@ -1519,9 +1520,8 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     float d = 4.5 * scale;
     for (int j : notplot)
       gl->drawCross(x[j], y[j], d, true);
-    }
-    gl->setColour(origcolour);
   }
+  gl->setColour(origcolour);
 
   for (size_t n : nextplot) {
     plotIndex(gl, n);
