@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2016 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -36,6 +36,7 @@
 #include "diKVListPlotCommand.h"
 #include "diLocalSetupParser.h"
 #include "diObsPositions.h"
+#include "diStaticPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/math_util.h"
@@ -1280,7 +1281,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   if (!isEnabled()) {
     // make sure plot-densities etc are recalc. next time
-    if (getStaticPlot()->getDirty())
+    if (getStaticPlot()->isDirty())
       beendisabled = true;
     return;
   }
@@ -1349,7 +1350,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   vector<int> ptmp;
   vector<int>::iterator p, pbegin, pend;
 
-  if (getStaticPlot()->getDirty() || firstplot || beendisabled) { //new area
+  if (getStaticPlot()->isDirty() || firstplot || beendisabled) { //new area
 
     //init of areaFreeSetup
     // I think we should plot roadobs like synop here

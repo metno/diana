@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,8 +31,9 @@
 
 #include "diSatManager.h"
 
-#include "diSatPlot.h"
 #include "diKVListPlotCommand.h"
+#include "diSatPlot.h"
+#include "diStaticPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/was_enabled.h"

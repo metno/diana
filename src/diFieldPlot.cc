@@ -44,6 +44,7 @@
 #include "diPaintGLPainter.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
+#include "diStaticPlot.h"
 #include "diUtilities.h"
 #include "util/charsets.h"
 #include "util/math_util.h"

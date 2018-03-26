@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,16 +29,17 @@
 
 #include "diana_config.h"
 
-#include "diObjectManager.h"
-#include "diPlotModule.h"
-#include "diDrawingTypes.h"
-#include "diObjectPlot.h"
-#include "diWeatherObjects.h"
-#include "diEditObjects.h"
 #include "diDisplayObjects.h"
-#include "diWeatherSymbol.h"
+#include "diDrawingTypes.h"
+#include "diEditObjects.h"
 #include "diKVListPlotCommand.h" // split_kv
+#include "diObjectManager.h"
+#include "diObjectPlot.h"
+#include "diPlotModule.h"
+#include "diStaticPlot.h"
 #include "diUtilities.h"
+#include "diWeatherObjects.h"
+#include "diWeatherSymbol.h"
 #include "miSetupParser.h"
 
 #include "util/charsets.h"

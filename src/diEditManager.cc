@@ -42,6 +42,7 @@
 #include "diObsPositions.h"
 #include "diPlotCommandFactory.h"
 #include "diPlotModule.h"
+#include "diStaticPlot.h"
 #include "diUndoFront.h"
 #include "diUtilities.h"
 #include "diWeatherArea.h"

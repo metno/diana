@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -33,6 +33,7 @@
 
 #include "diKVListPlotCommand.h"
 #include "diMapManager.h"
+#include "diStaticPlot.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -294,7 +295,7 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
   if (!mCanvas || !mCanvas->supportsDrawLists()) {
     // do not use display lists: always make a new plot from scratch
     makenew = true;
-  } else if ((getStaticPlot()->getDirty() && !getStaticPlot()->isPanning())
+  } else if ((getStaticPlot()->isDirty() && !getStaticPlot()->isPanning())
       || mapchanged || !mCanvas->IsList(drawlist[zorder]))
   {
     // Making new map drawlist for this zorder
@@ -316,7 +317,7 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
         mapchanged= false;
     }
     // make new plot anyway during panning
-  } else if (getStaticPlot()->getDirty()) { // && mapinfo.type!="triangles"
+  } else if (getStaticPlot()->isDirty()) { // && mapinfo.type!="triangles"
     makenew= true;
   }
 

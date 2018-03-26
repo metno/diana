@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -197,12 +197,10 @@ public:
   }
 
   /// get static maparea in plot superclass
-  const Area& getMapArea()
-    { return staticPlot_->getMapArea(); }
+  const Area& getMapArea();
 
   /// get plotwindow rectangle
-  const Rectangle& getPlotSize()
-    { return staticPlot_->getPlotSize(); }
+  const Rectangle& getPlotSize();
 
   /// get the size of the plot window
   void getPlotWindow(int &width, int &height);

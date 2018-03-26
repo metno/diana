@@ -151,6 +151,7 @@ SET (LIBDIANA_SOURCES
   diSatPlot.cc
   diShapeObject.cc
   diStationManager.cc
+  diStaticPlot.cc
   diStationPlot.cc
   diStationPlotCommand.cc
   diStringPlotCommand.cc

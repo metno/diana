@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -32,11 +32,6 @@
 #include "diPlotModule.h"
 
 #include "diAreaObjectsCluster.h"
-#include "diObsManager.h"
-#include "diObsPlotCluster.h"
-#include "diSatManager.h"
-#include "diStationManager.h"
-#include "diObjectManager.h"
 #include "diEditManager.h"
 #include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
@@ -46,6 +41,12 @@
 #include "diMapManager.h"
 #include "diMapPlot.h"
 #include "diMeasurementsPlot.h"
+#include "diObjectManager.h"
+#include "diObsManager.h"
+#include "diObsPlotCluster.h"
+#include "diSatManager.h"
+#include "diStaticPlot.h"
+#include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
@@ -667,7 +668,7 @@ void PlotModule::plot(DiGLPainter* gl, bool under, bool over)
 #endif
 
   //if plotarea has changed, calculate great circle distance...
-  if (staticPlot_->getDirty())
+  if (staticPlot_->isDirty())
     staticPlot_->updateGcd(gl);
 
   if (under)
@@ -1801,6 +1802,18 @@ void PlotModule::readLog(const vector<std::string>& vstr,
   }
 
   areaIndex = areaQ.size() - 1;
+}
+
+/// get static maparea in plot superclass
+const Area& PlotModule::getMapArea()
+{
+  return staticPlot_->getMapArea();
+}
+
+/// get plotwindow rectangle
+const Rectangle& PlotModule::getPlotSize()
+{
+  return staticPlot_->getPlotSize();
 }
 
 void PlotModule::getPlotWindow(int &width, int &height)

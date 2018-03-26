@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014 met.no
+  Copyright (C) 2014-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,12 +27,13 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <qmath.h>
-#include "diDrawingManager.h"
 #include "EditItems/drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
-#include "diPlotModule.h"
+#include "diDrawingManager.h"
 #include "diGLPainter.h"
+#include "diPlotModule.h"
+#include "diStaticPlot.h"
+#include <qmath.h>
 
 #define MILOGGER_CATEGORY "diana.DrawingItem.Text"
 #include <miLogger/miLogging.h>

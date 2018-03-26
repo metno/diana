@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,7 @@
 #include "diana_config.h"
 
 #include "diLocationPlot.h"
+#include "diStaticPlot.h"
 #include "util/math_util.h"
 
 #include "diGLPainter.h"

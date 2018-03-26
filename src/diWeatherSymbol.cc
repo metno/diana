@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,11 +29,12 @@
 
 #include "diana_config.h"
 
-#include "diWeatherSymbol.h"
 #include "diColour.h"
 #include "diComplexSymbolPlot.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
+#include "diStaticPlot.h"
+#include "diWeatherSymbol.h"
 
 #include <puTools/miStringFunctions.h>
 
