@@ -365,7 +365,7 @@ Field * GridCollection::getData(const std::string& reftime, const std::string& p
       {
         Field* f = ip->second->getData(reftime, param, level, actualtime, elevel, unit);
         if (f!=0)
-          f->validFieldTime = time;
+          f->validFieldTime = actualtime;
         return f;
       }
     }
