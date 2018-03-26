@@ -27,6 +27,12 @@
 
 #################### miRaster
 
+INCLUDE_DIRECTORIES(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  diField
+)
+
 SET (MIRASTER_SOURCES
   miRaster/satimg.cc
 )
@@ -590,22 +596,28 @@ SET (LIBDIANAUI_XPM
 QT5_WRAP_UI(LIBDIANAUI_UIS ${LIBDIANAUI_QTFORMS})
 QT5_WRAP_UI(DIANA_UIS      ${DIANA_QTFORMS})
 
+SET(TS_DIR "${CMAKE_SOURCE_DIR}/share/diana/lang")
 METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
-  ${LIBDIANAUI_SOURCES}
-  ${LIBDIANAUI_QTSOURCES}
-  ${DIANA_SOURCES}
+  TSFILES
+   ${TS_DIR}/diana_en.ts
+   ${TS_DIR}/diana_es.ts
+   ${TS_DIR}/diana_no.ts
+   ${TS_DIR}/diana_ru.ts
+   ${TS_DIR}/diana_sv.ts
 
-  ${LIBDIANAUI_QTFORMS}
-  ${DIANA_QTFORMS}
+  UPDATE_SOURCES
+   ${LIBDIANAUI_SOURCES}
+   ${LIBDIANAUI_QTSOURCES}
+   ${DIANA_SOURCES}
 
-  ../share/diana/lang/diana_en.ts
-  ../share/diana/lang/diana_es.ts
-  ../share/diana/lang/diana_no.ts
-  ../share/diana/lang/diana_ru.ts
-  ../share/diana/lang/diana_sv.ts
+   ${LIBDIANAUI_QTFORMS}
+   ${DIANA_QTFORMS}
 
-  OPTIONS
+  UPDATE_OPTIONS
    -locations relative
+
+  UPDATE_TARGET
+   lupdate
 )
 
 LINK_DIRECTORIES(${PC_LIBRARY_DIRS} ${PCUI_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
@@ -641,6 +653,7 @@ ADD_LIBRARY(libdianaui SHARED
 
   ${LIBDIANAUI_MOC_SRCS}
   ${LIBDIANAUI_UIS}
+  ${LIBDIANAUI_QM}
 
   ${LIBDIANAUI_XPM}
 )
@@ -690,15 +703,11 @@ INSTALL(FILES ${LIBDIANAUI_QM}
   DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${PROJECT_NAME}/${PVERSION}/lang"
 )
 
-ADD_CUSTOM_TARGET(lupdate DEPENDS ${LIBDIANAUI_QM})
-
 ########################################################################
 
 INCLUDE_DIRECTORIES(
   ${PC_INCLUDE_DIRS}
   ${PCUI_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
   diField
 )
 
