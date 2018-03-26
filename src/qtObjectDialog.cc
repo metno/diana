@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -301,8 +301,8 @@ void ObjectDialog::timefileListSlot(QListWidgetItem* item)
   times.clear();
   int index = timefileList->currentRow();
   if (index>0) {
-    times.push_back(files[index].time);
-    emit emitTimes("obj", times, false);
+    times.insert(files[index].time);
+    Q_EMIT emitTimes("obj", times, false);
   }
 }
 
@@ -439,15 +439,12 @@ void ObjectDialog::updateTimefileList(bool refresh)
   // Put times into vector, sort, and emit
   times.clear();
   for (int i=0; i<nr_file; i++)
-    times.push_back(files[i].time);
-
-  sort(times.begin(),times.end());
+    times.insert(files[i].time);
 
   if (autoButton->isChecked()) {
-    emit emitTimes( "obj",times, true );
+    Q_EMIT emitTimes("obj", times, true);
   } else {
-    vector<miutil::miTime> noTimes; //Emit empty time list
-    emit emitTimes( "obj",noTimes,false );
+    Q_EMIT emitTimes("obj", plottimes_t(), false);
   }
 
   //update time/file list

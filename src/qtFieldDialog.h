@@ -31,13 +31,12 @@
 
 #include "qtDataDialog.h"
 
-#include <diCommandParser.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include "diColourShading.h"
+#include "diCommandParser.h"
+#include "diField/diCommonFieldTypes.h"
+#include "diPattern.h"
+#include "diTimeTypes.h"
 #include "util/diKeyValue.h"
-
-#include <puTools/miTime.h>
-#include <diField/diCommonFieldTypes.h>
 
 #include <vector>
 #include <map>
@@ -73,12 +72,11 @@ class FieldColourDialog;
   The dialog displays all quckmenu commands for easy adjustment.
   Keeps user settings in the diana log file between sessions.
 */
-class FieldDialog: public ShowMoreDialog
+class FieldDialog : public ShowMoreDialog
 {
   Q_OBJECT
 
 private:
-
   struct SelectedField {
     bool inEdit;
     bool external;     // from QuickMenu,...
@@ -121,7 +119,6 @@ private:
   };
 
 public:
-
   FieldDialog( QWidget* parent, Controller* lctrl);
 
   /// follows levelUp/levelDown in main window toolbar
@@ -297,7 +294,7 @@ Q_SIGNALS:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void emitTimes(const std::string&, const plottimes_t&);
   void fieldPlotOptionsChanged(std::map<std::string,std::string>&);
 
 private Q_SLOTS:

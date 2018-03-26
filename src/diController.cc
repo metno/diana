@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -284,7 +284,7 @@ const miutil::miTime& Controller::getPlotTime()
   return plotm->getPlotTime();
 }
 
-void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times)
+void Controller::getPlotTimes(std::map<std::string, plottimes_t>& times)
 {
   plotm->getPlotTimes(times);
 }
@@ -731,8 +731,7 @@ const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
 }
 
 //returns union or intersection of plot times from all pinfos
-void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-    const PlotCommand_cpv& pinfos, bool allTimes)
+void Controller::getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes)
 {
   plotm->getCapabilitiesTime(okTimes,pinfos,allTimes);
 }
@@ -892,7 +891,7 @@ std::map<std::string,std::string> Controller::getFieldGlobalAttributes(const std
   return fieldm->getGlobalAttributes(modelName, refTime);
 }
 
-vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
+plottimes_t Controller::getFieldTime(vector<FieldRequest>& request)
 {
   return fieldplotm->getFieldTime(request);
 }
@@ -934,7 +933,7 @@ bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
   return LocalSetupParser::getQuickMenus(qm);
 }
 
-vector<miTime> Controller::getObsTimes(const vector<string>& name)
+plottimes_t Controller::getObsTimes(const vector<string>& name)
 {
   return obsm->getTimes(name);
 }

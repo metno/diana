@@ -370,11 +370,9 @@ void SatDialog::timefileListSlot(QListWidgetItem *)
     return;
 
   m_time = files[index].time;
-  vector<miutil::miTime> tt;
-  tt.push_back(m_time);emit
-  emitTimes("sat", tt, false);
-
-  //  m_timefileListIndex = index;
+  plottimes_t tt;
+  tt.insert(m_time);
+  Q_EMIT emitTimes("sat", tt, false);
 
   updateChannelBox(true);
 }
@@ -542,9 +540,9 @@ void SatDialog::picturesSlot(QListWidgetItem*)
           fileListWidget->currentItem()->text().toStdString());
       updateTimefileList();
       timefileList->setCurrentRow(m_state[index].ifiletime);
-      vector<miutil::miTime> tt;
-      tt.push_back(files[m_state[index].ifiletime].time);
-      emit emitTimes("sat", tt, false);
+      plottimes_t tt;
+      tt.insert(files[m_state[index].ifiletime].time);
+      Q_EMIT emitTimes("sat", tt, false);
     }
     updateChannelBox(false);
     channelbox->setCurrentRow(m_state[index].ichannel);
@@ -721,8 +719,8 @@ void SatDialog::DeleteAllClicked()
   upPictureButton->setEnabled(false);
 
   //Emit empty time list
-  times.clear();emit
-  emitTimes("sat", times, false);
+  times.clear();
+  Q_EMIT emitTimes("sat", times, false);
 }
 
 /*********************************************/
@@ -1219,7 +1217,6 @@ void SatDialog::emitSatTimes(bool update)
   METLIBS_LOG_SCOPE();
   diutil::OverrideCursor waitCursor;
   times.clear();
-  set<miutil::miTime> timeset;
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
     if (m_state[i].filename.empty() || update) {
@@ -1228,15 +1225,9 @@ void SatDialog::emitSatTimes(bool update)
       vector<SatFileInfo> f = m_ctrl->getSatFiles(m_state[i].name,
           m_state[i].area, update);
       for (unsigned int i = 0; i < f.size(); i++)
-        timeset.insert(f[i].time);
+        times.insert(f[i].time);
     } else
-      timeset.insert(m_state[i].filetime);
-  }
-
-  if (timeset.size() > 0) {
-    set<miutil::miTime>::iterator p = timeset.begin();
-    for (; p != timeset.end(); p++)
-      times.push_back(*p);
+      times.insert(m_state[i].filetime);
   }
 
   bool useTimes = (times.size() > m_state.size());

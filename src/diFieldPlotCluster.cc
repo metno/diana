@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -104,7 +104,7 @@ void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
   }
 }
 
-std::vector<miutil::miTime> FieldPlotCluster::getTimes()
+plottimes_t FieldPlotCluster::getTimes()
 {
   std::vector<miutil::KeyValue_v> pinfos;
   for (const Plot* p : plots_) {
@@ -115,7 +115,7 @@ std::vector<miutil::miTime> FieldPlotCluster::getTimes()
   if (!pinfos.empty())
     return fieldplotm_->getFieldTime(pinfos, false);
   else
-    return std::vector<miutil::miTime>();
+    return plottimes_t();
 }
 
 const std::string& FieldPlotCluster::keyPlotElement() const
@@ -123,11 +123,13 @@ const std::string& FieldPlotCluster::keyPlotElement() const
   return FIELD;
 }
 
-std::vector<miutil::miTime> FieldPlotCluster::fieldAnalysisTimes() const
+plottimes_t FieldPlotCluster::fieldAnalysisTimes() const
 {
-  std::vector<miutil::miTime> fat;
+  plottimes_t fat;
   for (size_t i = 0; i < plots_.size(); i++) {
-    fat.push_back(at(i)->getAnalysisTime());
+    const miutil::miTime& ti = at(i)->getAnalysisTime();
+    if (!ti.undef())
+      fat.insert(ti);
   }
   return fat;
 }

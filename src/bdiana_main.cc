@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -98,8 +98,7 @@ QRectF BdianaMain::cutout()
   return static_cast<DianaImageSource*>(imageSource())->annotationsCutout();
 }
 
-typedef std::vector<miutil::miTime> times_t;
-typedef std::map<std::string, times_t> type_times_t;
+typedef std::map<std::string, plottimes_t> type_times_t;
 
 static type_times_t::const_iterator find_times(const type_times_t& times, const std::string& key)
 {
@@ -129,24 +128,23 @@ miutil::miTime BdianaMain::getTime()
   if (it == times.end())
     return miutil::miTime();
 
-  const times_t& fieldtimes = it->second;
+  const plottimes_t& fieldtimes = it->second;
   if (fieldtimes.empty())
     return miutil::miTime::nowTime();
 
   if (use_time == USE_NOWTIME) {
     const miutil::miTime now = miutil::miTime::nowTime();
     // select closest to now without overstepping
-    const size_t n = fieldtimes.size();
-    for (size_t i = 0; i < n; i++) {
-      if (fieldtimes[i] >= now)
-        return (i > 0 ? fieldtimes[i - 1] : fieldtimes[i]);
+    for (plottimes_t::const_iterator it = fieldtimes.begin(); it != fieldtimes.end(); ++it) {
+      if (*it >= now)
+        return *((it != fieldtimes.begin()) ? (--it) : it);
     }
   }
   if (use_time == USE_FIRSTTIME)
-    return fieldtimes.front();
+    return *fieldtimes.begin();
 
   // both USE_LASTTIME and not-found for USE_NOWTIME
-  return fieldtimes.back();
+  return *fieldtimes.rbegin();
 }
 
 void BdianaMain::setTime(const miutil::miTime& time)

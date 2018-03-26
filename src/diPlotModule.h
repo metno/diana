@@ -35,8 +35,7 @@
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
-
-#include <puTools/miTime.h>
+#include "diTimeTypes.h"
 
 #include <vector>
 #include <set>
@@ -231,7 +230,7 @@ public:
   const miutil::miTime& getPlotTime() const;
 
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
+  void getPlotTimes(std::map<std::string, plottimes_t>& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
       const PlotCommand_cpv& pinfos, bool allTimes = true);

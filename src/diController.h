@@ -43,6 +43,7 @@
 #include "diRectangle.h"
 #include "diSatTypes.h"
 #include "diStationTypes.h"
+#include "diTimeTypes.h"
 
 #include <puTools/miTime.h>
 
@@ -167,11 +168,9 @@ public:
   const miutil::miTime& getPlotTime();
 
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times);
+  void getPlotTimes(std::map<std::string, plottimes_t>& times);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      const PlotCommand_cpv &pinfos,
-      bool allTimes=true);
+  void getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes = true);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
@@ -290,7 +289,7 @@ public:
   /// return button names for ObsDialog ... ascii files (when activated)
   void updateObsDialog(ObsDialogInfo::PlotType& pt, const std::string& name);
   /// get observation times for plot types name
-  std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& name);
+  plottimes_t getObsTimes(const std::vector<std::string>& name);
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
@@ -310,7 +309,7 @@ public:
   /// return GlobalAttributes for one model
   std::map<std::string,std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
   /// Returns available times for the requested fields.
-  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
+  plottimes_t getFieldTime(std::vector<FieldRequest>& request);
   ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);
 

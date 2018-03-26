@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013-2017 met.no
+ Copyright (C) 2013-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -47,6 +47,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include <iterator>
 #include <set>
 #include <sstream>
 
@@ -552,15 +553,11 @@ gridinventory::Grid FieldManager::getGrid(const std::string& modelName)
   return grid;
 }
 
-
-std::vector<miutil::miTime> FieldManager::getFieldTime(
-    const std::vector<FieldRequest>& fieldrequest,
-    bool updateSource)
+plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldrequest, bool updateSource)
 {
   METLIBS_LOG_SCOPE();
 
-  std::set<miTime> tNormal;
-  std::set<miTime> tn;
+  plottimes_t tNormal, tn;
   bool allTimeSteps = false;
 
   for (const FieldRequest& frq : fieldrequest) {
@@ -589,14 +586,13 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
 
     if (!tNormal.empty() ) {
       if ((frq.hourOffset != 0 || frq.minOffset != 0)) {
-        set<miTime> twork;
-        for (set<miTime>::iterator pt = tNormal.begin(); pt != tNormal.end(); pt++) {
-          miTime tt = *pt;
+        plottimes_t twork;
+        for (miTime tt : tNormal) {
           tt.addHour(-frq.hourOffset);
           tt.addMin(-frq.minOffset);
           twork.insert(tt);
         }
-        std::swap(twork, tNormal);
+        tNormal = std::move(twork);
       }
       if (allTimeSteps) {
         diutil::insert_all(tn, tNormal);
@@ -604,16 +600,15 @@ std::vector<miutil::miTime> FieldManager::getFieldTime(
         if (tn.empty()) {
           tn = tNormal;
         } else {
-          vector<miTime> vt(tn.size());
-          vector<miTime>::iterator pvt2, pvt1 = vt.begin();
-          pvt2 = set_intersection(tn.begin(), tn.end(), tNormal.begin(), tNormal.end(), pvt1);
-          tn = set<miTime>(pvt1, pvt2);
+          plottimes_t twork;
+          set_intersection(tn.begin(), tn.end(), tNormal.begin(), tNormal.end(), std::insert_iterator<plottimes_t>(twork, twork.begin()));
+          tn = std::move(twork);
         }
       }
     }
   }
 
-  return vector<miTime>(tn.begin(), tn.end());
+  return tn;
 }
 
 std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelName)

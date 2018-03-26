@@ -1186,7 +1186,7 @@ void SatManager::setSatAuto(bool autoFile, const std::string& satellite,
     vsp[j]->setSatAuto(autoFile, satellite, file);
 }
 
-std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
+plottimes_t SatManager::getSatTimes(bool updateFileList, bool openFiles)
 {
   //  * PURPOSE:   return times for list of PlotInfo's
   METLIBS_LOG_SCOPE();
@@ -1233,11 +1233,10 @@ std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
     }
   }
 
-  return std::vector<miTime>(timeset.begin(), timeset.end());
+  return timeset;
 }
 
-void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
-    int& timediff, const PlotCommand_cp& pinfo)
+void SatManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
@@ -1265,7 +1264,7 @@ void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
     const std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
     int nfinfo=finfo.size();
     for (int k=0; k<nfinfo; k++) {
-      normalTimes.push_back(finfo[k].time);
+      normalTimes.insert(finfo[k].time);
     }
   }
 }

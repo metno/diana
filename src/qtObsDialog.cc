@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -250,8 +250,7 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
   }
 
   //Emit empty time list
-  vector<miutil::miTime> noTimes;
-  Q_EMIT emitTimes("obs", noTimes);
+  Q_EMIT emitTimes("obs", plottimes_t());
 
   //criteria
   if (obsWidget[m_selected]->moreToggled()) {
@@ -296,7 +295,7 @@ void ObsDialog::getTimes()
     dataName = obsWidget[m_selected]->getDataTypes();
   }
 
-  vector<miutil::miTime> times = m_ctrl->getObsTimes(dataName);
+  plottimes_t times = m_ctrl->getObsTimes(dataName);
   Q_EMIT emitTimes("obs", times);
 }
 
@@ -446,8 +445,7 @@ void ObsDialog::putOKString(const PlotCommand_cpv& vstr)
   multiplot=false;
 
   //Emit empty time list
-  vector<miutil::miTime> noTimes;
-  emit emitTimes( "obs",noTimes );
+  Q_EMIT emitTimes("obs", plottimes_t());
 
   if (vstr.size() > 1) {
     multiplot=true;

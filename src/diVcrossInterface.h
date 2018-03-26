@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014 met.no
+  Copyright (C) 2014-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 #define DIVCROSSINTERFACE_H 1
 
 #include "diPlotCommand.h"
+#include "diTimeTypes.h"
 
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
@@ -84,7 +85,7 @@ Q_SIGNALS: // emitted by vcross
   void vcrossHistoryNext();
 
   //! time list from crossections updated
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
+  void emitTimes(const std::string&, const plottimes_t&);
 
   //! currently selected time has changed in vcross
   void setTime(const std::string&, const miutil::miTime&);

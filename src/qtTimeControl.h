@@ -29,13 +29,13 @@
 #ifndef _qtTimeControl_h
 #define _qtTimeControl_h
 
+#include "diTimeTypes.h"
+
 #include <qdialog.h>
 #include <QLabel>
-#include <puTools/miTime.h>
 
 #include <map>
 #include <vector>
-
 
 class QLabel;
 class QSlider;
@@ -74,7 +74,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
   /// Set times for start/stop sliders
-  void setTimes( std::vector<miutil::miTime>& times );
+  void setTimes(const plottimes_t& times);
 
 private Q_SLOTS:
   void timeoffsetCheckBoxClicked();

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -107,7 +107,7 @@ bool ObsManager::updateTimes(ObsPlot* op)
   return updated;
 }
 
-vector<miTime> ObsManager::getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos)
+plottimes_t ObsManager::getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos)
 {
   vector<std::string> obsTypes;
 
@@ -123,7 +123,7 @@ vector<miTime> ObsManager::getObsTimes(const std::vector<miutil::KeyValue_v>& pi
   return getTimes(obsTypes);
 }
 
-void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes, int& timediff, const PlotCommand_cp& pinfo)
+void ObsManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo)
 {
   timediff = 0;
   KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo);
@@ -142,9 +142,9 @@ void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes, int& timediff,
   normalTimes = getTimes(obsTypes);
 }
 
-vector<miTime> ObsManager::getTimes(const std::vector<std::string>& readernames)
+plottimes_t ObsManager::getTimes(const std::vector<std::string>& readernames)
 {
-  std::set<miTime> timeset;
+  plottimes_t timeset;
 
   for (const std::string& rn : readernames) {
     string_ProdInfo_m::iterator it = Prod.find(rn);
@@ -154,7 +154,7 @@ vector<miTime> ObsManager::getTimes(const std::vector<std::string>& readernames)
       METLIBS_LOG_ERROR("no reader named '" << rn << "'");
   }
 
-  return vector<miTime>(timeset.begin(), timeset.end());
+  return timeset;
 }
 
 static void addButtons(ObsDialogInfo::PlotType& pt, const std::vector<std::string>& parnames)

@@ -33,6 +33,7 @@
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
 #include "diSat.h"
+#include "diTimeTypes.h"
 
 #include <puCtools/stat.h>
 #include <puTools/TimeFilter.h>
@@ -148,7 +149,7 @@ public:
   void setFileListChanged(bool flc)
     { fileListChanged = flc; }
 
-  std::vector<miutil::miTime> getSatTimes(bool updateFileList=false, bool openFiles=false);
+  plottimes_t getSatTimes(bool updateFileList = false, bool openFiles = false);
 
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
@@ -160,9 +161,7 @@ public:
   void setSatAuto(bool, const std::string&, const std::string&);
 
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(std::vector<miutil::miTime>& progTimes,
-                           int& timediff,
-                           const PlotCommand_cp &pinfo);
+  void getCapabilitiesTime(plottimes_t& progTimes, int& timediff, const PlotCommand_cp& pinfo);
 
   const std::vector<SatFileInfo> & getFiles(const std::string &,
 				       const std::string &,

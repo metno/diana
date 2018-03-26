@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,6 +34,7 @@
 #include "diObsPlotType.h"
 #include "diObsReader.h"
 #include "diPlotCommand.h"
+#include "diTimeTypes.h"
 
 #include <puTools/TimeFilter.h>
 
@@ -106,14 +107,13 @@ public:
   bool prepare(ObsPlot*, const miutil::miTime&);
 
   //! \return observation times for a list of "prod"
-  std::vector<miutil::miTime> getTimes(const std::vector<std::string>& obsTypes);
+  plottimes_t getTimes(const std::vector<std::string>& obsTypes);
 
   //! \return union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const PlotCommand_cp& pinfo);
+  void getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo);
 
   //! return observation times for list of obsTypes
-  std::vector<miutil::miTime> getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos);
+  plottimes_t getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos);
 
   bool updateTimes(ObsPlot* op);
 };

@@ -231,9 +231,7 @@ std::string DrawingDialog::name() const
 
 void DrawingDialog::updateTimes()
 {
-  std::vector<miutil::miTime> times;
-  times = drawm_->getTimes();
-  emit emitTimes("DRAWING", times);
+  emitTimes("DRAWING", drawm_->getTimes());
 }
 
 void DrawingDialog::updateDialog()

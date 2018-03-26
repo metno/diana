@@ -34,9 +34,9 @@
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
+#include "diTimeTypes.h"
 
-#include <diField/diArea.h>
-#include <puTools/miTime.h>
+#include "diField/diArea.h"
 
 #include <QObject>
 
@@ -60,7 +60,7 @@ public:
 
   virtual bool parseSetup() = 0;
 
-  virtual std::vector<miutil::miTime> getTimes() const = 0;
+  virtual plottimes_t getTimes() const = 0;
   virtual bool changeProjection(const Area& newArea) = 0;
   virtual bool prepare(const miutil::miTime &time) = 0;
 

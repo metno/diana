@@ -166,8 +166,7 @@ TimeControl::TimeControl(QWidget* parent)
   vlayout->addWidget( hideButton );
   vlayout->activate();
 
-  vector<miutil::miTime> t;
-  setTimes( t );
+  setTimes(plottimes_t());
 }
 
 void TimeControl::timeoffsetCheckBoxClicked()
@@ -180,7 +179,7 @@ void TimeControl::timerangeCheckBoxClicked()
   timeoffsetCheckBox->setChecked(false);
 }
 
-void TimeControl::setTimes(vector<miutil::miTime>& times)
+void TimeControl::setTimes(const plottimes_t& times)
 {
   int n= times.size();
   int m= m_times.size();
@@ -198,7 +197,7 @@ void TimeControl::setTimes(vector<miutil::miTime>& times)
 
   //reset times
   if (times.size()>0) {
-    m_times= times;
+    m_times = std::vector<miutil::miTime>(times.begin(), times.end());
   } else {
     m_times.clear();
     m_times.push_back(miutil::miTime::nowTime());
@@ -211,11 +210,11 @@ void TimeControl::setTimes(vector<miutil::miTime>& times)
   offsetSlider->setRange(0,n);
   if (resetSlider) {
     int i = n;
-    while(i>0 && times[i]>start)
+    while (i > 0 && m_times[i] > start)
       i--;
     StartValue(i);
     i=0;
-    while(i<n && times[i]<stop)
+    while (i < n && m_times[i] < stop)
       i++;
     StopValue(i);
     // no need to reset offset

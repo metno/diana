@@ -234,8 +234,7 @@ bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
   return true;
 }
 
-void AnnotationPlot::setData(const vector<Annotation>& a,
-    const vector<miTime>& fieldAnalysisTime)
+void AnnotationPlot::setData(const vector<Annotation>& a, const plottimes_t& fieldAnalysisTime)
 {
   if (atype != anno_text)
     annotations = a;

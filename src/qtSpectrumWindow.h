@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,7 +29,7 @@
 #ifndef _qt_spectrummainwindow_
 #define _qt_spectrummainwindow_
 
-#include "diCommonTypes.h"
+#include "diTimeTypes.h"
 
 #include <QMainWindow>
 #include <QString>
@@ -132,7 +132,7 @@ Q_SIGNALS:
   void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void emitTimes(const std::string&, const plottimes_t&);
   void setTime(const std::string&, const miutil::miTime&);
 };
 

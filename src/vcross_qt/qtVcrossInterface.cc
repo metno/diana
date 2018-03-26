@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -174,12 +174,12 @@ void VcrossWindowInterface::timeListChangedSlot()
 {
   METLIBS_LOG_SCOPE();
 
-  std::vector<miutil::miTime> times;
+  plottimes_t times;
   const int count = vcrossm->getTimeCount();
   METLIBS_LOG_DEBUG(LOGVAL(count));
   for (int i=0; i<count; ++i) {
     METLIBS_LOG_DEBUG(LOGVAL(i));
-    times.push_back(vcrossm->getTimeValue(i));
+    times.insert(vcrossm->getTimeValue(i));
   }
 
   Q_EMIT emitTimes("vcross", times);

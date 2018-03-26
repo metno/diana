@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,33 +49,32 @@ class SatDialogAdvanced;
 /**
   \brief Dialogue for plotting satellite and radar pictures 
 */
-class SatDialog: public QDialog
+class SatDialog : public QDialog
 {
     Q_OBJECT
-public:
 
-
-/**
-  \brief struct state describing selected picture
-*/  
-  struct state{
-    miutil::KeyValue_v OKString;
-    int iname;
-    int iarea;
-    int ifiletime;
-    int ichannel;
-    int iautotimefile;
-    std::string name; ///<satellite name
-    std::string area; ///>filetype
-    miutil::miTime filetime; ///<time
-    std::string channel; ///<selected channel
-    std::string filename; ///<filename
-    miutil::KeyValue_v advanced; ///<plotting options
-    miutil::KeyValue_v external; ///<nothing to do whith the dialog
-    bool mosaic; ///<plot mosaic of pictures       
-    int totalminutes;///<timediff
+  public:
+    /**
+      \brief struct state describing selected picture
+    */
+    struct state
+    {
+      miutil::KeyValue_v OKString;
+      int iname;
+      int iarea;
+      int ifiletime;
+      int ichannel;
+      int iautotimefile;
+      std::string name;            ///<satellite name
+      std::string area;            ///>filetype
+      miutil::miTime filetime;     ///<time
+      std::string channel;         ///<selected channel
+      std::string filename;        ///<filename
+      miutil::KeyValue_v advanced; ///<plotting options
+      miutil::KeyValue_v external; ///<nothing to do whith the dialog
+      bool mosaic;                 ///<plot mosaic of pictures
+      int totalminutes;            ///<timediff
   };
-
 
   SatDialog( QWidget* parent, Controller* llctrl );
   ///return command strings
@@ -88,21 +87,20 @@ public:
   void RefreshList();
   /// set mode to read files from archive
   void archiveMode(){emitSatTimes(true); updateTimefileList();}
-  std::vector<std::string> writeLog() ;
+  std::vector<std::string> writeLog();
   /// read log string
-  void readLog(const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion);
+  void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
   ///called when the dialog is closed by the window manager
+
 protected:
   void closeEvent( QCloseEvent* );
 
 private:
-
   typedef std::map< std::string, miutil::KeyValue_v> areaoptions_t;
   typedef std::map< std::string, areaoptions_t> satoptions_t;
   satoptions_t satoptions;
   std::vector<state> m_state; //pictures to plot
-  std::vector<miutil::miTime> times;    //emitted to TimeSlider 
+  plottimes_t times;          // emitted to TimeSlider
   static miutil::miTime ztime;
 
 
@@ -145,14 +143,13 @@ private slots:
   void downPicture();
   void updateColours();
 
-signals:
+Q_SIGNALS:
   void SatApply();
   void SatHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool );
+  void emitTimes(const std::string&, const plottimes_t&, bool);
 
 private:
-
   Controller* m_ctrl;
   
   int m_nr_image;

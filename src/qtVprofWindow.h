@@ -30,6 +30,7 @@
 #define _qt_vprofmainwindow_
 
 #include "diPlotCommand.h"
+#include "diTimeTypes.h"
 
 #include <puTools/miTime.h>
 
@@ -136,7 +137,7 @@ Q_SIGNALS:
   void showsource(const std::string, const std::string=""); // activate help
   void stationChanged(const std::vector<std::string>& );
   void modelChanged();
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void emitTimes(const std::string&, const plottimes_t&);
   void setTime(const std::string&, const miutil::miTime&);
 };
 #endif

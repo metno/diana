@@ -107,7 +107,8 @@ TrajectoryData_v TrajectoryGenerator::compute()
   pinfo = fp->getPlotInfo();
   METLIBS_LOG_DEBUG(LOGVAL(pinfo));
 
-  const std::vector<miutil::miTime> times = fpm->getFieldTime(std::vector<miutil::KeyValue_v>(1, pinfo), false);
+  const plottimes_t ftimes = fpm->getFieldTime(std::vector<miutil::KeyValue_v>(1, pinfo), false);
+  const std::vector<miutil::miTime> times(ftimes.begin(), ftimes.end());
   const int nTimes = times.size();
   METLIBS_LOG_DEBUG(LOGVAL(nTimes));
   if (nTimes == 0)

@@ -1,3 +1,32 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include "qtTimeNavigator.h"
 
 #include "qtTimeSlider.h"
@@ -115,8 +144,7 @@ void TimeNavigator::createUi(QWidget* parent)
       tslider, SLOT(setMinMax(const miutil::miTime&, const miutil::miTime&)));
   connect(timecontrol, SIGNAL(clearMinMax()),
       tslider, SLOT(clearMinMax()));
-  connect(tslider, SIGNAL(newTimes(std::vector<miutil::miTime>&)),
-      timecontrol, SLOT(setTimes(std::vector<miutil::miTime>&)));
+  connect(tslider, &TimeSlider::newTimes, timecontrol, &TimeControl::setTimes);
   connect(timecontrol, SIGNAL(data(std::string)),
       tslider, SLOT(useData(std::string)));
   connect(timecontrol, SIGNAL(timecontrolHide()),
@@ -198,7 +226,12 @@ void TimeNavigator::timerEvent(QTimerEvent *e)
   }
 }
 
-void TimeNavigator::insert(const std::string& datatype, const std::vector<miutil::miTime>& vt, bool use)
+void TimeNavigator::insertAndUse(const std::string& datatype, const plottimes_t& times)
+{
+  insert(datatype, times, true);
+}
+
+void TimeNavigator::insert(const std::string& datatype, const plottimes_t& vt, bool use)
 {
   tslider->insert(datatype, vt, use);
 }

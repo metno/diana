@@ -1,7 +1,7 @@
 /* -*- c++ -*-
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013 met.no
+ Copyright (C) 2013-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -29,13 +29,14 @@
 #ifndef diFieldManager_h
 #define diFieldManager_h
 
-#include "diField.h"
-#include "diCommonFieldTypes.h"
-#include "diFieldFunctions.h"
-#include "diGridConverter.h"
-#include "diFieldCache.h"
 #include "GridDataKey.h"
 #include "GridInventoryTypes.h"
+#include "diCommonFieldTypes.h"
+#include "diField.h"
+#include "diFieldCache.h"
+#include "diFieldFunctions.h"
+#include "diGridConverter.h"
+#include "diTimeTypes.h"
 
 #include "puTools/miTime.h"
 
@@ -119,8 +120,7 @@ public:
   gridinventory::Grid getGrid(const std::string& modelName);
 
   /// return available times for the requested models and fields
-  std::vector<miutil::miTime> getFieldTime(const std::vector<FieldRequest>& fieldrequest,
-      bool updateSource = false);
+  plottimes_t getFieldTime(const std::vector<FieldRequest>& fieldrequest, bool updateSource = false);
 
   /// return the reference time, time of analysis if a forecast
   std::set<std::string> getReferenceTimes(const std::string& modelName);

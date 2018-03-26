@@ -410,10 +410,9 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) con
 /**
  * Returns a vector containing the times for which the manager has data.
 */
-std::vector<miutil::miTime> DrawingManager::getTimes() const
+plottimes_t DrawingManager::getTimes() const
 {
-  std::vector<miutil::miTime> output;
-  std::set<miutil::miTime> times;
+  plottimes_t times;
 
   // Query the layer groups to find the available times.
   QMap<QString, EditItems::ItemGroup *>::const_iterator it;
@@ -423,12 +422,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
       times.insert(miutil::miTime(time.toStdString()));
   }
 
-  output.assign(times.begin(), times.end());
-
-  // Sort the times.
-  std::sort(output.begin(), output.end());
-
-  return output;
+  return times;
 }
 
 /**
@@ -440,10 +434,8 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   bool found = false;
 
   // Check the requested time against the available times.
-  std::vector<miutil::miTime>::const_iterator it;
-  std::vector<miutil::miTime> times = getTimes();
-
-  found = find(times.begin(), times.end(), time) != times.end();
+  plottimes_t times = getTimes();
+  found = (times.find(time) != times.end());
 
   QDateTime dateTime;
   if (!time.undef()) {

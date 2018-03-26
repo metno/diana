@@ -31,7 +31,8 @@
 
 #include "diPlot.h"
 #include "diPlotCommand.h"
-#include <puTools/miTime.h>
+#include "diTimeTypes.h"
+
 #include <vector>
 #include <map>
 
@@ -142,7 +143,7 @@ private:
   float maxwid;
 
   bool useAnaTime;
-  std::vector<miutil::miTime> fieldAnaTime;
+  plottimes_t fieldAnaTime;
   Colour currentColour;
 
   //called from constructor
@@ -182,8 +183,7 @@ public:
   ///decode plot info strings
   bool prepare(const PlotCommand_cp&);
   ///set data annotations
-  void setData(const std::vector<Annotation>& a,
-      const std::vector<miutil::miTime>& fieldAnalysisTime);
+  void setData(const std::vector<Annotation>& a, const plottimes_t& fieldAnalysisTime);
   void setfillcolour(const Colour& c);
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);

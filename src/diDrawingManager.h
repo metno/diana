@@ -127,8 +127,9 @@ public:
   EditItems::ItemGroup *itemGroup(const QString &name);
   void removeItemGroup(const QString &name);
 
+  plottimes_t getTimes() const override;
+
 public slots:
-  std::vector<miutil::miTime> getTimes() const override;
   void setAllItemsVisible(bool enable);
 
 signals:

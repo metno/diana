@@ -961,11 +961,12 @@ bool EditManager::getProductTime(miTime& t) const
     return false;
 }
 
-std::vector<miutil::miTime> EditManager::getTimes() const
+plottimes_t EditManager::getTimes() const
 {
-  std::vector<miutil::miTime> times(1);
-  if (!getProductTime(times.back()))
-    times.clear();
+  plottimes_t times;
+  miutil::miTime t;
+  if (!getProductTime(t))
+    times.insert(t);
   return times;
 }
 

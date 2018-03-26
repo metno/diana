@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,7 +52,7 @@ TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent)
 
 void TimeSlider::init()
 {
-  vector<miutil::miTime> tmp;
+  plottimes_t tmp;
   tlist["field"]= tmp;
   tlist["sat"]= tmp;
   tlist["obs"]= tmp;
@@ -89,17 +89,16 @@ void TimeSlider::setInterval(int in)
 
 void TimeSlider::setMinMax(const miutil::miTime& t1, const miutil::miTime& t2)
 {
-  const miutil::miTime& last = orig_times.back();
-  if (t1>=orig_times[0] && t1<=last && t2>=t1 && t2<=last) {
-    start = t1;
-    stop = t2;
-    useminmax= true;
-    // change colours..
-//     QColorGroup cg= pal.active();
-//     cg.setColor(QColorGroup::Foreground,Qt::red);
-//     cg.setColor(QColorGroup::Button,Qt::red);
-    QPalette p(Qt::red);
-    setPalette(p);
+  if (!orig_times.empty()) {
+    const miutil::miTime& first = *orig_times.begin();
+    const miutil::miTime& last = *orig_times.rbegin();
+    if (t1 >= first && t1 <= last && t2 >= t1 && t2 <= last) {
+      start = t1;
+      stop = t2;
+      useminmax = true;
+      QPalette p(Qt::red);
+      setPalette(p);
+    }
   }
 
   updateList();
@@ -188,110 +187,85 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
   return time != current;
 }
 
-void TimeSlider::insert(const std::string& datatype, const std::vector<miutil::miTime>& vt, bool use)
+bool TimeSlider::useDataType(const std::string& dt, bool ifUsed)
 {
-  tlist[datatype]= vt;
-  usetlist[datatype] = use;
-  updateList();
-  emit newTimes(orig_times);
+  tlist_t::const_iterator it = tlist.find(dt);
+  if (it == tlist.end())
+    return false;
+  if (ifUsed) {
+    usetlist_t::const_iterator ut = usetlist.find(dataType);
+    if (ut == usetlist.end() || !ut->second)
+      return false;
+  }
+  if (it->second.empty())
+    return false;
+  orig_times = it->second;
+  dataTypeUsed = dt;
+  return true;
 }
+
+static const struct DataTypeUse
+{
+  std::string dataType;
+  bool ifUsed;
+} dataTypeOrder[] = {{"field", false}, {"sat", true},       {"obs", false},    {"obj", true},  {"product", false},
+                     {"vprof", false}, {"spectrum", false}, {"vcross", false}, {"sat", false}, {"obj", false}};
 
 void TimeSlider::updateList()
 {
   const int maxticks= 20;
 
-  // FIXME this is very similar to bdiana_capi.cc:selectTime / BdianaMain::getTime
   times.clear();
-  if( tlist[dataType].size()>0 && usetlist[dataType]){
-    times = tlist[dataType];
-    dataTypeUsed = dataType;
+
+  // FIXME this is very similar to bdiana_capi.cc:selectTime / BdianaMain::getTime
+  bool found = false;
+  if (!dataType.empty())
+    found = useDataType(dataType, true);
+  if (!found) {
+    for (const DataTypeUse& dtu : dataTypeOrder) {
+      if ((found = useDataType(dtu.dataType, dtu.ifUsed)))
+        break;
+    }
   }
-  else if( tlist["field"].size()>0 ){
-    times = tlist["field"];
-    dataTypeUsed = "field";
-  }
-  else if( tlist["sat"].size()>0 && usetlist["sat"]){
-    times = tlist["sat"];
-    dataTypeUsed = "sat";
-  }
-  else if( tlist["obs"].size()>0 ){
-    times = tlist["obs"];
-    dataTypeUsed = "obs";
-  }
-  else if ( tlist["obj"].size()>0 && usetlist["obj"]) {
-    times = tlist["obj"];
-    dataTypeUsed = "obj";
-  }
-  else if( tlist["product"].size()>0 ){
-    times = tlist["product"];
-    dataTypeUsed = "product";
-  }
-  else if( tlist["vprof"].size()>0 ){
-    times = tlist["vprof"];
-    dataTypeUsed = "vprof";
-  }
-  else if( tlist["spectrum"].size()>0 ){
-    times = tlist["spectrum"];
-    dataTypeUsed = "spectrum";
-  }
-  else if( tlist["vcross"].size()>0 ){
-    times = tlist["vcross"];
-    dataTypeUsed = "vcross";
-  }
-  else if ( tlist["sat"].size()>0) {
-    times = tlist["sat"];
-    dataTypeUsed = "sat";
-  }
-  else if ( tlist["obj"].size()>0) {
-    times = tlist["obj"];
-    dataTypeUsed = "obj";
-  }
-  else {
+  if (!found) {
     // Just use the first list of times in the collection.
-    map<std::string,vector<miutil::miTime> >::iterator it;
-    for (it = tlist.begin(); it != tlist.end(); ++it) {
-      if (it->second.size() > 0) {
-        times = it->second;
-        dataTypeUsed = it->first;
+    for (const auto& tt : tlist) {
+      if (!tt.second.empty()) {
+        orig_times = tt.second;
+        dataTypeUsed = tt.first;
+        found = true;
         break;
       }
     }
   }
 
-  orig_times = times; // orig_times = all times
-
+  plottimes_t::const_iterator qs, qe;
   if (useminmax) {
-    vector<miutil::miTime>::iterator q;
-    for (q=times.begin(); q!=times.end() && *q<start; q++)
-      ;
-    times.erase(times.begin(), q);
-
-    for (q=times.begin(); q!=times.end() && *q<stop; q++)
-      ;
-    if (q!=times.end())
-      q++;
-    times.erase(q, times.end());
+    qs = std::lower_bound(orig_times.begin(), orig_times.end(), start);
+    qe = std::lower_bound(qs, orig_times.end(), stop);
+    if (qe != orig_times.end())
+      ++qe;
+  } else {
+    qs = orig_times.begin();
+    qe = orig_times.end();
   }
-
 
   // make sure productimes are included
-  const vector<miutil::miTime>& vpt = tlist["product"];
-  if (!vpt.empty()){
-    for (size_t i=0; i<vpt.size(); i++) {
-      vector<miutil::miTime>::iterator q;
-      for (q=times.begin(); q!=times.end() && *q<vpt[i]; q++)
-        ;
-      if ((q==times.end()) || (vpt[i]!=*q))
-        times.insert(q, vpt[i]);
-    }
+  tlist_t::const_iterator pt = tlist.find("product");
+  plottimes_t timeset;
+  if (pt != tlist.end() && !pt->second.empty()) {
+    timeset.insert(qs, qe);
+    timeset.insert(pt->second.begin(), pt->second.end());
+    qs = timeset.begin();
+    qe = timeset.end();
   }
+  times = std::vector<miutil::miTime>(qs, qe);
 
-  int i,n;
-  n= times.size();
+  const int n= times.size();
   if (n>1) {
     // find time-intervals
     int iv, miniv=INT_MAX, maxiv=0;
-    for (i=1; i<n; i++){
+    for (int i=1; i<n; i++){
       iv= miutil::miTime::minDiff(times[i],times[i-1]);
       if (iv<miniv)
         miniv= iv;
@@ -311,8 +285,7 @@ void TimeSlider::updateList()
     while (n/iv>maxticks)
       iv*= 2;
 
-    // qt4 fix: Edited the line below (old line commented out)
-    setTickPosition(TicksBelow); //setTickmarks(TickSetting(Below));
+    setTickPosition(TicksBelow);
     setTickInterval(iv);
     setSingleStep(1);
     setPageStep(iv);
@@ -452,16 +425,24 @@ void TimeSlider::set(const miutil::miTime& t)
   setSliderValue(v);
 }
 
+void TimeSlider::insert(const std::string& datatype, const plottimes_t& vt, bool use)
+{
+  tlist[datatype] = vt;
+  usetlist[datatype] = use;
+  updateList();
+  Q_EMIT newTimes(orig_times);
+}
+
 void TimeSlider::useData(const std::string& datatype)
 {
   dataType = datatype;
   updateList();
-  emit newTimes(orig_times);
+  Q_EMIT newTimes(orig_times);
 }
 
 void TimeSlider::deleteType(const std::string& type)
 {
-  map< std::string, vector<miutil::miTime> >::iterator p = tlist.find(type);
+  tlist_t::iterator p = tlist.find(type);
   if (p != tlist.end())
     tlist.erase(p);
 }

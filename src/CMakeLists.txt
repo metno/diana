@@ -420,6 +420,7 @@ LIST (APPEND LIBDIANA_HEADERS
   diQuickMenuTypes.h
   diSliderValues.h
   diStationTypes.h
+  diTimeTypes.h
   util/misc_util.h
 )
 LIST (APPEND LIBDIANA_SOURCES

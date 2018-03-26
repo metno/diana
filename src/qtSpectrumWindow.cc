@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -325,8 +325,7 @@ void SpectrumWindow::quitClicked()
 
   active = false;
   Q_EMIT SpectrumHide();
-  vector<miutil::miTime> t;
-  Q_EMIT emitTimes("spectrum",t);
+  Q_EMIT emitTimes("spectrum", plottimes_t());
 }
 
 
@@ -434,14 +433,12 @@ void SpectrumWindow::updateTimeBox()
   METLIBS_LOG_SCOPE();
 
   timeBox->clear();
-  vector<miutil::miTime> times= spectrumm->getTimeList();
-
-  int n =times.size();
-  for (int i=0; i<n; i++){
-    timeBox->addItem(QString::fromStdString(times[i].isoTime(false,false)));
+  const vector<miutil::miTime>& times = spectrumm->getTimeList();
+  for (const miutil::miTime& t : times) {
+    timeBox->addItem(QString::fromStdString(t.isoTime(false, false)));
   }
 
-  Q_EMIT emitTimes("spectrum",times);
+  Q_EMIT emitTimes("spectrum", plottimes_t(times.begin(), times.end()));
 }
 
 void SpectrumWindow::stationBoxActivated(int)

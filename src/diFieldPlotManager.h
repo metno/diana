@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -29,10 +29,11 @@
 #ifndef diFieldPlotManager_h
 #define diFieldPlotManager_h
 
-#include <diField/diCommonFieldTypes.h>
-#include <diField/diFieldManager.h>
+#include "diField/diCommonFieldTypes.h"
+#include "diField/diFieldManager.h"
 #include "diPlotCommand.h"
 #include "diPlotOptions.h"
+#include "diTimeTypes.h"
 
 #include <set>
 #include <string>
@@ -88,7 +89,7 @@ public:
   /// return available times for the requested models and fields
   void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel=false);
 
-  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool updateSources=false);
+  plottimes_t getFieldTime(std::vector<FieldRequest>& request, bool updateSources = false);
 
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldGroups(const std::string& modelName, std::string refTime, bool plotdefienitions, std::vector<FieldGroupInfo>& vfgi);
@@ -100,14 +101,12 @@ public:
   gridinventory::Grid getFieldGrid(const std::string& model);
 
   /// Returns the available times for the selected models and fields.
-  std::vector<miutil::miTime> getFieldTime(const std::vector<miutil::KeyValue_v>& pinfos,
-      bool updateSources=false);
+  plottimes_t getFieldTime(const std::vector<miutil::KeyValue_v>& pinfos, bool updateSources = false);
 
   miutil::miTime getFieldReferenceTime(const miutil::KeyValue_v& pinfo);
 
   /// Returns the union or intersection of plot times from all pinfos.
-  void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const PlotCommand_cp& pc);
+  void getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pc);
 
   ///return levels
   std::vector<std::string> getFieldLevels(const miutil::KeyValue_v& pinfo);

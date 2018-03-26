@@ -159,26 +159,24 @@ vector<std::string> ObjectManager::getObjectNames(bool archive)
 }
 
 //  * PURPOSE:   return times for list of PlotInfo's
-vector<miTime> ObjectManager::getTimes()
+plottimes_t ObjectManager::getTimes()
 {
   METLIBS_LOG_SCOPE();
-  vector<miTime> timevec;
+  plottimes_t times;
 
   for (const miutil::KeyValue& kv : objects.getPlotInfo()){
     if (kv.key() == "name") {
       for (const ObjFileInfo& ofi : getObjectFiles(kv.value(), true)) {
-        timevec.push_back(ofi.time);
+        times.insert(ofi.time);
       }
       break;
     }
   }
 
-  std::sort(timevec.begin(), timevec.end());
-  return timevec;
+  return times;
 }
 
-void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const PlotCommand_cp& pinfo)
+void ObjectManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
@@ -206,7 +204,7 @@ void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     vector<ObjFileInfo> ofi= getObjectFiles(objectname,true);
     int nfinfo=ofi.size();
     for (int k=0; k<nfinfo; k++){
-      normalTimes.push_back(ofi[k].time);
+      normalTimes.insert(ofi[k].time);
     }
   }
 }

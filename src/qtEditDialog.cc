@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -1289,8 +1289,7 @@ void EditDialog::exitClicked()
   emit EditHide();
   emit editApply();
   // empty timeslider producttime
-  vector<miutil::miTime> noTimes;
-  emit emitTimes("product",noTimes);
+  emit emitTimes("product", plottimes_t());
   inEdit= false;
   productApproved= false;
   enew->newActive=false;
@@ -1513,11 +1512,11 @@ void EditDialog::EditNewOk(EditProduct& ep,
   // set timeslider producttime
   miutil::miTime t;
   m_editm->getProductTime(t);
-  vector<miutil::miTime> Times;
-  if (!t.undef() ) {
-    Times.push_back(t);
+  plottimes_t Times;
+  if (!t.undef()) {
+    Times.insert(t);
   }
-  emit emitTimes("product",Times);
+  Q_EMIT emitTimes("product", Times);
 
   // update field dialog
   for (unsigned int i=0; i<currprod.fields.size(); i++){
@@ -1730,9 +1729,9 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   // set timeslider producttime
   miutil::miTime t;
   if (m_editm->getProductTime(t)){
-    vector<miutil::miTime> Times;
-    Times.push_back(t);
-    emit emitTimes("product",Times);
+    plottimes_t Times;
+    Times.insert(t);
+    Q_EMIT emitTimes("product", Times);
     // update field dialog
     for (unsigned int i=0; i<currprod.fields.size(); i++){
       // add a new selected field in the field dialog

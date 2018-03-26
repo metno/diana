@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -111,8 +111,8 @@ private:
   bool useArchive;
   std::vector<std::string> objectnames;
 
-  //Emitted to TimeSlider 
-  std::vector<miutil::miTime> times;  
+  // Emitted to TimeSlider
+  plottimes_t times;
   //list of object files currently selected
   std::vector <ObjFileInfo> files;
   //LB: current variables (only used for external)
@@ -188,16 +188,11 @@ private slots:
   void commentClicked(bool);
   void hideComment();
 
-signals:
+Q_SIGNALS:
   void ObjHide();
   void ObjApply();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>& ,bool );
-
+  void emitTimes(const std::string&, const plottimes_t&, bool);
 };
 
 #endif
-
-
-
-

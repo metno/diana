@@ -438,7 +438,7 @@ void PlotModule::setAnnotations()
   vector<AnnotationPlot::Annotation> annotations;
   AnnotationPlot::Annotation ann;
 
-  const std::vector<miutil::miTime> fieldAnalysisTimes = fieldplots_->fieldAnalysisTimes();
+  const plottimes_t fieldAnalysisTimes = fieldplots_->fieldAnalysisTimes();
 
   fieldplots_->addAnnotations(annotations);
 
@@ -1156,7 +1156,6 @@ const miutil::miTime& PlotModule::getPlotTime() const
 }
 
 namespace {
-typedef std::vector<miutil::miTime> plottimes_t;
 typedef std::map<std::string, plottimes_t> times_t;
 void insertTimes(times_t& times, const std::string& plotkey, const plottimes_t& plottimes)
 {
@@ -1165,7 +1164,7 @@ void insertTimes(times_t& times, const std::string& plotkey, const plottimes_t& 
 }
 } // namespace
 
-void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times)
+void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
 {
   times.clear();
 
@@ -1180,9 +1179,9 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times)
 }
 
 //returns union or intersection of plot times from all pinfos
-void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const PlotCommand_cpv& pinfos, bool allTimes)
+void PlotModule::getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes)
 {
-  vector<miTime> normalTimes;
+  plottimes_t normalTimes;
   int timediff = -1;
   bool normalTimesFound = false;
   bool moreTimes = true;
@@ -1211,9 +1210,9 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const PlotCommand_cpv
 
       } else { //intersection
 
-        set<miTime> tmptimes;
-        for (set<miTime>::const_iterator p = okTimes.begin(); p != okTimes.end(); p++) {
-          vector<miTime>::const_iterator itn = normalTimes.begin();
+        plottimes_t tmptimes;
+        for (plottimes_t::const_iterator p = okTimes.begin(); p != okTimes.end(); p++) {
+          plottimes_t::const_iterator itn = normalTimes.begin();
           while (itn != normalTimes.end() and abs(miTime::minDiff(*p, *itn)) > timediff)
             ++itn;
           if (itn != normalTimes.end())

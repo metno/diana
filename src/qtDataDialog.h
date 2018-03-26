@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,9 +29,11 @@
 #ifndef _datadialog_h
 #define _datadialog_h
 
-#include <puTools/miTime.h>
-#include <QDialog>
 #include "diPlotCommand.h"
+#include "diTimeTypes.h"
+
+#include <QDialog>
+
 #include <vector>
 
 class Controller;
@@ -84,13 +86,16 @@ public slots:
   /// Update the dialog after re-reading the setup file.
   virtual void updateDialog() = 0;
 
-signals:
-  void emitTimes(const std::string &, const std::vector<miutil::miTime> &);
-  void emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool);
+Q_SIGNALS:
+  void sendTimes(const std::string& datatype, const plottimes_t& times, bool use);
   void applyData();
   void hideData();
   void showsource(const std::string, const std::string="");
   void updated();
+
+protected:
+  void emitTimes(const std::string& datatype, const plottimes_t& times, bool use) { sendTimes(datatype, times, use); }
+  void emitTimes(const std::string& datatype, const plottimes_t& times) { sendTimes(datatype, times, true); }
 
 private:
   QPushButton *applyhideButton;

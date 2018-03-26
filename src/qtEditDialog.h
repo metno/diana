@@ -32,32 +32,32 @@
 #include "diColour.h"
 #include "diEditSpec.h"
 #include "diEditTypes.h"
+#include "diTimeTypes.h"
 
 #include <QDialog>
 #include <qpixmap.h>
 
 #include <vector>
 
+class QAction;
+class QButtonGroup;
+class QCheckBox;
 class QComboBox;
+class QLabel;
 class QListWidget;
 class QListWidgetItem;
-class QLabel;
-class QSlider;
-class ToggleButton;
-class QButtonGroup;
+class QMessageBox;
 class QPushButton;
 class QRadioButton;
+class QSlider;
 class QTabWidget;
-class EditNewDialog;
-class EditComment;
-class QMessageBox;
-class QCheckBox;
-class QAction;
 
 class Controller;
+class EditComment;
 class EditManager;
+class EditNewDialog;
 class ObjectManager;
-
+class ToggleButton;
 
 /**
    \brief Dialogue for editing fields and weather objects and for combining
@@ -161,7 +161,7 @@ Q_SIGNALS:
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
+  void emitTimes(const std::string&, const plottimes_t&);
   /// update field dialog
   void emitFieldEditUpdate(std::string);
   /// editing on or off

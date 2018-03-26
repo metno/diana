@@ -35,12 +35,12 @@
 #include "diMapMode.h"
 #include "diObjTypes.h"
 #include "diPlotCommand.h"
+#include "diTimeTypes.h"
 #include "diUndoFront.h"
 #include "diWeatherObjects.h"
 
 #include "diField/diArea.h"
 
-#include <puTools/miTime.h>
 #include <puTools/TimeFilter.h>
 
 #include <vector>
@@ -339,11 +339,10 @@ public:
   /// returns list of objectfiles for use in dialog
   std::vector <ObjFileInfo> getObjectFiles(const std::string& objectname, bool refresh);
   /// returns list of times
-  std::vector<miutil::miTime> getTimes();
+  plottimes_t getTimes();
 
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      int& timediff, const PlotCommand_cp& pinfo);
+  void getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo);
 
   /// returns plot options for object file with name objectname
   const PlotOptions &getPlotOptions(std::string objectName);

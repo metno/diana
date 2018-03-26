@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -100,11 +100,11 @@ private slots:
   void deleteAllSlot();
   void saveSlot();
 
-signals:
+Q_SIGNALS:
   void ObsApply();
   void ObsHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void emitTimes(const std::string&, const plottimes_t&);
   void setCriteria( std::string, bool );
 
 private:

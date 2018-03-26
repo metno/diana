@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -941,39 +941,23 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect(browser, SIGNAL(nextlist()), this, SLOT(nextList()));
   browser->hide();
 
-  connect(fm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-
-  connect(om, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-
-  connect(sm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool)),
-          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
-
-  connect(em, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-
-  connect(objm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool)),
-          timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
-
+  connect(fm, &FieldDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+  connect(om, &ObsDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+  connect(sm, &SatDialog::emitTimes, timeNavigator, &TimeNavigator::insert);
+  connect(em, &EditDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+  connect(objm, &ObjectDialog::emitTimes, timeNavigator, &TimeNavigator::insert);
   if (vpWindow) {
-    connect(vpWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-            timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-
+    connect(vpWindow, &VprofWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
     connect(vpWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
             timeNavigator, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
   if (vcInterface.get()) {
-    connect(vcInterface.get(), SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-        timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-    
+    connect(vcInterface.get(), &VcrossInterface::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
     connect(vcInterface.get(), SIGNAL(setTime(const std::string&, const miutil::miTime&)),
         timeNavigator, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
   if (spWindow) {
-    connect(spWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-            timeNavigator, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-
+    connect(spWindow, &SpectrumWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
     connect( spWindow ,SIGNAL(setTime(const std::string&, const miutil::miTime&)),
         timeNavigator,SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
@@ -2097,10 +2081,10 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     const std::string l_common = qletter.getCommonValue(0).toStdString();
     if (qletter.findCommonDesc("datatype") == 0) {
       timeNavigator->useData(l_common, fromId);
-      vector<miutil::miTime> times;
+      plottimes_t times;
       for(int i=0;i<n;i++)
-        times.push_back(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
-      timeNavigator->insert(l_common, times);
+        times.insert(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
+      timeNavigator->insertAndUse(l_common, times);
       contr->initHqcdata(fromId, letter.commondesc,
           l_common, letter.description, letter.data);
 
@@ -3308,10 +3292,7 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
 
   dialogNames[dialog->name()] = dialog;
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
-  connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &)),
-      timeNavigator, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &)));
-  connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
-      timeNavigator, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
+  connect(dialog, &DataDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(dialog, SIGNAL(updated()), this, SLOT(requestBackgroundBufferUpdate()));
 
   if (QAction *action = dialog->action()) {

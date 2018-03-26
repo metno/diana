@@ -3944,11 +3944,10 @@ void FieldDialog::minusField(bool on)
 
 void FieldDialog::updateTime()
 {
-  vector<miutil::miTime> fieldtime;
+  plottimes_t fieldtime;
   size_t m = selectedFields.size();
 
   if (m > 0) {
-
     vector<FieldRequest> request;
     FieldRequest ftr;
 
@@ -3971,16 +3970,14 @@ void FieldDialog::updateTime()
     }
 
     if (!request.empty()) {
-      fieldtime = m_ctrl->getFieldTime(request);
+      diutil::insert_all(fieldtime, m_ctrl->getFieldTime(request));
     }
   }
 
   METLIBS_LOG_DEBUG("FieldDialog::updateTime emit emitTimes  fieldtime.size="
       <<fieldtime.size());
 
-  emit emitTimes("field", fieldtime);
-
-  //  allTimeStepButton->setChecked(false);
+  Q_EMIT emitTimes("field", fieldtime);
 }
 
 void FieldDialog::fieldEditUpdate(std::string str)

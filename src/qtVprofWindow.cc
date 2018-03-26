@@ -354,8 +354,7 @@ void VprofWindow::quitClicked()
 
   active = false;
   Q_EMIT VprofHide();
-  vector<miutil::miTime> t;
-  Q_EMIT emitTimes("vprof",t);
+  Q_EMIT emitTimes("vprof", plottimes_t());
 }
 
 /***************************************************************************/
@@ -452,10 +451,10 @@ void VprofWindow::updateTimeBox()
 
   timeBox->clear();
   const std::vector<miutil::miTime>& times = vprofm->getTimeList();
-  for (size_t i=0; i<times.size(); i++)
-    timeBox->addItem(QString::fromStdString(times[i].isoTime(false,false)));
+  for (const miutil::miTime& t : times)
+    timeBox->addItem(QString::fromStdString(t.isoTime(false, false)));
 
-  Q_EMIT emitTimes("vprof", times);
+  Q_EMIT emitTimes("vprof", plottimes_t(times.begin(), times.end()));
 }
 
 /***************************************************************************/

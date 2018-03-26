@@ -483,10 +483,10 @@ bool FieldEdit::readEditfield(const std::string& filename)
   std::vector<miutil::KeyValue_v> vpin(1, pin);
 
   bool dummy = false;
-  vector<miTime> times = fieldPlotManager->getFieldTime(vpin,dummy);
+  plottimes_t times = fieldPlotManager->getFieldTime(vpin, dummy);
   miTime time;
-  if (times.size()) {
-    time= times[0];
+  if (!times.empty()) {
+    time = *times.begin();
   }
   if (fieldPlotManager->makeFields(pin, time, vfout) && vfout.size() ) {
     editfield = vfout[0];

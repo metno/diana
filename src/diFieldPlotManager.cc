@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2017 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -379,8 +379,7 @@ vector<std::string> FieldPlotManager::getFields()
   return vector<std::string>(paramSet.begin(), paramSet.end());
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(const vector<miutil::KeyValue_v>& pinfos,
-    bool updateSources)
+plottimes_t FieldPlotManager::getFieldTime(const vector<miutil::KeyValue_v>& pinfos, bool updateSources)
 {
   METLIBS_LOG_SCOPE();
 
@@ -398,7 +397,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miutil::KeyValue_v>& 
   }
 
   if (request.empty())
-    return std::vector<miutil::miTime>();
+    return plottimes_t();
 
   return getFieldTime(request, updateSources);
 }
@@ -424,8 +423,7 @@ miTime FieldPlotManager::getFieldReferenceTime(const miutil::KeyValue_v& pinfo)
   return miTime(timestr);
 }
 
-void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    int& timediff, const PlotCommand_cp& pc)
+void FieldPlotManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pc)
 {
   METLIBS_LOG_SCOPE(LOGVAL(pc->toString()));
   //Finding times from pinfo
@@ -474,8 +472,7 @@ vector<std::string> FieldPlotManager::getFieldLevels(const miutil::KeyValue_v& p
   return levels;
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request,
-    bool updateSources)
+plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request, bool updateSources)
 {
   METLIBS_LOG_SCOPE();
 

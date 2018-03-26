@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,9 +29,10 @@
 #ifndef _qtTimeSlider_h
 #define _qtTimeSlider_h
 
+#include "diTimeTypes.h"
+
 #include <qslider.h>
 #include <qpalette.h>
-#include <puTools/miTime.h>
 
 #include <map>
 #include <vector>
@@ -69,7 +70,7 @@ public Q_SLOTS:
   void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);
   void clearMinMax();
   ///add new times for datatype
-  void insert(const std::string& datatype, const std::vector<miutil::miTime>&,bool =true);
+  void insert(const std::string& datatype, const plottimes_t&, bool = true);
   /// force new value
   void setTime(const miutil::miTime&);
   /// force new value if datatype match
@@ -88,19 +89,22 @@ Q_SIGNALS:
   void enableSpin(bool);
   void sliderSet();
   /// emits times
-  void newTimes(std::vector<miutil::miTime>&);
+  void newTimes(const plottimes_t&);
 
 private:
   void set(const miutil::miTime&);
   void init();
   void setFirstTime(const miutil::miTime&);
+  bool useDataType(const std::string& dt, bool ifUsed);
   void updateList();
   bool setSliderValue(int v);
 
 private:
-  std::map<std::string,std::vector<miutil::miTime> > tlist; // times
-  std::map<std::string,bool>  usetlist; // false if only one spesific time is set
-  std::vector<miutil::miTime> orig_times; // the actual timepoints (all)
+  typedef std::map<std::string, plottimes_t> tlist_t;
+  tlist_t tlist; // times
+  typedef std::map<std::string, bool> usetlist_t;
+  usetlist_t usetlist;               // false if only one spesific time is set
+  plottimes_t orig_times;            // the actual timepoints (all)
   std::vector<miutil::miTime> times; // the actual timepoints (min-max)
   miutil::miTime prevtime; // previous selected time
   float interval;  // timeinterval in hours
