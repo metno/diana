@@ -297,7 +297,7 @@ public:
   /// return button names for ObsDialog ... ascii files (when activated)
   void updateObsDialog(ObsDialogInfo::PlotType& pt, const std::string& name);
   /// get observation times for plot types name
-  plottimes_t getObsTimes(const std::vector<std::string>& name);
+  plottimes_t getObsTimes(const std::vector<std::string>& name, bool update);
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog

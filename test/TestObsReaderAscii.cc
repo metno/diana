@@ -43,7 +43,7 @@ TEST(TestObsReaderAscii, Configure)
   EXPECT_TRUE(ascii->configure("ascii", LYN_LX + "lx-opendata.[yyyymmddTHHMMSS]Z"));
   EXPECT_TRUE(ascii->configure("headerfile", LYN_LX + "lx.header"));
 
-  const std::set<miutil::miTime> times = ascii->getTimes(false);
+  const std::set<miutil::miTime> times = ascii->getTimes(false, true);
   EXPECT_EQ(24, times.size());
   EXPECT_TRUE(times.count(t_11_00));
   EXPECT_TRUE(times.count(t_19_10));

@@ -54,7 +54,7 @@ bool ObsReaderMetnoUrl::configure(const std::string& key, const std::string& val
   return true;
 }
 
-std::set<miutil::miTime> ObsReaderMetnoUrl::getTimes(bool)
+std::set<miutil::miTime> ObsReaderMetnoUrl::getTimes(bool, bool)
 {
   return timeset_;
 }

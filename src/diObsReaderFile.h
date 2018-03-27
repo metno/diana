@@ -61,7 +61,7 @@ public:
   bool configure(const std::string& key, const std::string& value) override;
   bool checkForUpdates(bool useArchive) override;
 
-  std::set<miutil::miTime> getTimes(bool useArchive) override;
+  std::set<miutil::miTime> getTimes(bool useArchive, bool update) override;
   /**
    * @brief getData Read observation data from files.
    *

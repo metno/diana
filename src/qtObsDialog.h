@@ -80,7 +80,7 @@ protected:
 
 public slots:
   void archiveMode( bool on );
-  void getTimes();
+  void getTimes(bool update = true);
 
 private slots:
   void plotSelected( int index , bool sendTimes=true);

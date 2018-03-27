@@ -2125,7 +2125,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     if (doAutoUpdate) {
       // running animation
       if (timeNavigator->isTimerOn() != 0) {
-        om->getTimes();
+        om->getTimes(true);
         sm->RefreshList();
         if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
           //METLIBS_LOG_DEBUG("new satfile or satfile deleted!");
@@ -2139,7 +2139,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
         // Avoid not needed updates
         diutil::OverrideCursor waitCursor;
         // what to do with om->getTimes() ?
-        om->getTimes();
+        om->getTimes(false);
         sm->RefreshList();
         miutil::miTime tp = timeNavigator->selectedTime();
         timeNavigator->setLastTimeStep();

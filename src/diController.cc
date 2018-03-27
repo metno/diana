@@ -930,11 +930,10 @@ bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
   return LocalSetupParser::getQuickMenus(qm);
 }
 
-plottimes_t Controller::getObsTimes(const vector<string>& name)
+plottimes_t Controller::getObsTimes(const vector<string>& name, bool update)
 {
-  return obsm->getTimes(name);
+  return obsm->getTimes(name, update);
 }
-
 
 //********** plotting and selecting stations on the map***************
 

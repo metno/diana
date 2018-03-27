@@ -13,7 +13,7 @@ public:
 
   bool configure(const std::string& key, const std::string& value) override;
 
-  std::set<miutil::miTime> getTimes(bool useArchive) override;
+  std::set<miutil::miTime> getTimes(bool useArchive, bool update) override;
   void getData(ObsDataRequest_cp request, ObsDataResult_p result) override;
   std::vector<ObsDialogInfo::Par> getParameters() override;
   bool checkForUpdates(bool useArchive) override;

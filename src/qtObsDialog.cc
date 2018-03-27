@@ -118,7 +118,7 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
     ObsWidget* ow = new ObsWidget(this);
     if (!dialog.plottype[i].button.empty()) {
       ow->setDialogInfo(dialog.plottype[i]);
-      connect(ow, SIGNAL(getTimes()), SLOT(getTimes()));
+      connect(ow, SIGNAL(getTimes(bool)), SLOT(getTimes(bool)));
       connect(ow, SIGNAL(rightClicked(std::string)), SLOT(rightButtonClicked(std::string)));
       connect(ow, SIGNAL(extensionToggled(bool)), SLOT(extensionToggled(bool)));
       connect(ow, SIGNAL(criteriaOn()), SLOT(criteriaOn()));
@@ -207,7 +207,7 @@ void ObsDialog::updateDialog()
     ObsWidget* ow = new ObsWidget(this);
     if (!dialog.plottype[i].button.empty()) {
       ow->setDialogInfo(dialog.plottype[i]);
-      connect(ow, SIGNAL(getTimes()), SLOT(getTimes()));
+      connect(ow, SIGNAL(getTimes(bool)), SLOT(getTimes(bool)));
       connect(ow, SIGNAL(rightClicked(std::string)), SLOT(rightButtonClicked(std::string)));
       connect(ow, SIGNAL(extensionToggled(bool)), SLOT(extensionToggled(bool)));
       connect(ow, SIGNAL(criteriaOn()), SLOT(criteriaOn()));
@@ -238,7 +238,7 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
     m_ctrl->updateObsDialog(dialog.plottype[index], plotbox->itemText(index).toStdString());
 
     ow->setDialogInfo(dialog.plottype[index]);
-    connect(ow, SIGNAL(getTimes()), SLOT(getTimes()));
+    connect(ow, SIGNAL(getTimes(bool)), SLOT(getTimes(bool)));
     connect(ow, SIGNAL(rightClicked(std::string)), SLOT(rightButtonClicked(std::string)));
     connect(ow, SIGNAL(extensionToggled(bool)), SLOT(extensionToggled(bool)));
     connect(ow, SIGNAL(criteriaOn()), SLOT(criteriaOn()));
@@ -269,10 +269,10 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
   updateExtension();
 
   if (sendTimes)
-    getTimes();
+    getTimes(false);
 }
 
-void ObsDialog::getTimes()
+void ObsDialog::getTimes(bool update)
 {
   // Names of datatypes selected are sent to controller,
   // and times are returned
@@ -295,7 +295,7 @@ void ObsDialog::getTimes()
     dataName = obsWidget[m_selected]->getDataTypes();
   }
 
-  plottimes_t times = m_ctrl->getObsTimes(dataName);
+  plottimes_t times = m_ctrl->getObsTimes(dataName, update);
   Q_EMIT emitTimes("obs", times);
 }
 
@@ -330,9 +330,8 @@ void ObsDialog::criteriaOn()
 
 void ObsDialog::archiveMode(bool on)
 {
-  getTimes();
+  getTimes(true);
 }
-
 
 /*******************************************************/
 PlotCommand_cpv ObsDialog::getOKString()
@@ -513,7 +512,7 @@ bool ObsDialog::setPlottype(const std::string& name, bool on)
 
   } else if (obsWidget[l]->initialized()) {
     obsWidget[l]->setFalse();
-    getTimes();
+    getTimes(false);
   }
 
   return true;

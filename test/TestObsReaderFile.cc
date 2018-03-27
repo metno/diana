@@ -72,13 +72,13 @@ TEST(TestObsReaderFile, Configure)
   fake->addPattern(BUFR_SYNO, false);
   fake->addPattern(BUFR_SYNO_ARCHIVE, true);
 
-  const std::set<miutil::miTime> times = fake->getTimes(false);
+  const std::set<miutil::miTime> times = fake->getTimes(false, true);
   EXPECT_EQ(13, times.size());
   EXPECT_TRUE(times.count(t_06_00));
   EXPECT_TRUE(times.count(t_11_00));
 
   EXPECT_TRUE(fake->checkForUpdates(true)); // change from no-archive to archive => changed file list
-  EXPECT_EQ(13 + 6, fake->getTimes(true).size());
+  EXPECT_EQ(13 + 6, fake->getTimes(true, true).size());
 }
 
 TEST(TestObsReaderFile, GetData)

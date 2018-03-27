@@ -80,12 +80,13 @@ void ObsReaderFile::setTimeRange(int tmin, int tmax)
   timeRangeMax_ = tmax;
 }
 
-std::set<miutil::miTime> ObsReaderFile::getTimes(bool useArchive)
+std::set<miutil::miTime> ObsReaderFile::getTimes(bool useArchive, bool update)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fileInfo.size()));
   std::set<miutil::miTime> times;
 
-  checkForUpdates(useArchive);
+  if (update || fileInfo.empty())
+    checkForUpdates(useArchive);
 
   for (const FileInfo& fi : fileInfo) {
     if (!fi.time.undef())
@@ -159,8 +160,8 @@ bool ObsReaderFile::checkForUpdates(bool useArchive)
   fileInfo.clear();
 
   for (const patternInfo& pit : pattern) {
-    METLIBS_LOG_DEBUG(LOGVAL(pit.pattern));
     if (!pit.archive || useArchive) {
+      METLIBS_LOG_DEBUG(LOGVAL(pit.pattern));
       bool ok = pit.filter.ok();
       const diutil::string_v matches = diutil::glob(pit.pattern);
       if (matches.empty())

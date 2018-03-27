@@ -120,7 +120,7 @@ plottimes_t ObsManager::getObsTimes(const std::vector<miutil::KeyValue_v>& pinfo
     }
   }
 
-  return getTimes(obsTypes);
+  return getTimes(obsTypes, true);
 }
 
 void ObsManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo)
@@ -139,17 +139,17 @@ void ObsManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, co
     }
   }
 
-  normalTimes = getTimes(obsTypes);
+  normalTimes = getTimes(obsTypes, true);
 }
 
-plottimes_t ObsManager::getTimes(const std::vector<std::string>& readernames)
+plottimes_t ObsManager::getTimes(const std::vector<std::string>& readernames, bool update)
 {
   plottimes_t timeset;
 
   for (const std::string& rn : readernames) {
     string_ProdInfo_m::iterator it = Prod.find(rn);
     if (it != Prod.end())
-      diutil::insert_all(timeset, it->second.reader->getTimes(useArchive));
+      diutil::insert_all(timeset, it->second.reader->getTimes(useArchive, update));
     else
       METLIBS_LOG_ERROR("no reader named '" << rn << "'");
   }

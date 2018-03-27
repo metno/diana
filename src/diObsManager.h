@@ -107,7 +107,7 @@ public:
   bool prepare(ObsPlot*, const miutil::miTime&);
 
   //! \return observation times for a list of "prod"
-  plottimes_t getTimes(const std::vector<std::string>& obsTypes);
+  plottimes_t getTimes(const std::vector<std::string>& obsTypes, bool update);
 
   //! \return union or intersection of plot times from all pinfos
   void getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo);

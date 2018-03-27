@@ -96,7 +96,7 @@ public:
    * this is a kind of time grouping, i.e. not observations times
    * time t from this set may contain observation with times in t+timeRangeMin, t+timeRangeMax
    */
-  virtual std::set<miutil::miTime> getTimes(bool useArchive) = 0;
+  virtual std::set<miutil::miTime> getTimes(bool useArchive, bool update) = 0;
 
   /**
    * @brief List parameters available in the dataset.

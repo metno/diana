@@ -105,7 +105,7 @@ private slots:
   void rightClickedSlot(std::string str);
 
 signals:
-  void getTimes();
+  void getTimes(bool);
   void rightClicked(std::string);
   void setRightClicked(std::string,bool);
   void extensionToggled(bool);

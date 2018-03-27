@@ -548,7 +548,7 @@ void ObsWidget::datatypeButtonClicked(int id)
 
   // Names of datatypes selected are sent to controller
   diutil::OverrideCursor waitCursor;
-  emit getTimes();
+  emit getTimes(true);
 }
 
 void ObsWidget::rightClickedSlot(std::string str)
@@ -743,7 +743,7 @@ void ObsWidget::putOKString(const PlotCommand_cp& str)
     decodeString(cmd->all(), dVariables, false);
   updateDialog(true);
 
-  Q_EMIT getTimes();
+  Q_EMIT getTimes(true);
 }
 
 void ObsWidget::readLog(const miutil::KeyValue_v& kvs)

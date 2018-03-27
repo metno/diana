@@ -50,10 +50,10 @@ TEST(TestObsReaderBufr, Configure)
   EXPECT_TRUE(bufr->configure("bufr", BUFR_SYNO));
   EXPECT_TRUE(bufr->configure("archive_bufr", BUFR_SYNO_ARCHIVE));
 
-  EXPECT_EQ(13, bufr->getTimes(false).size());
+  EXPECT_EQ(13, bufr->getTimes(false, true).size());
 
   EXPECT_TRUE(bufr->checkForUpdates(true)); // change from no-archive to archive => changed file list
-  EXPECT_EQ(13 + 6, bufr->getTimes(true).size());
+  EXPECT_EQ(13 + 6, bufr->getTimes(true, true).size());
 }
 
 TEST(TestObsReaderBufr, GetData)
