@@ -121,9 +121,8 @@ mapModeInfo newMapModeInfo(const std::string & newmode,
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
 : plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
-  combinematrix(0),numregs(0), hiddenObjects(false),
+  numregs(0), hiddenObjects(false),
   hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
-, apEditmessage(0)
 , producttimedefined(false)
 {
   if (plotm==0 || objm==0){
@@ -138,8 +137,6 @@ EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm
 
 EditManager::~EditManager()
 {
-  delete apEditmessage;
-  apEditmessage = 0;
 }
 
 bool EditManager::parseSetup()
@@ -878,11 +875,8 @@ bool EditManager::notifyEditEvent(const EditEvent& ee){
   if (nf>0) return fedits[0]->notifyEditEvent(ee);
 
   // no objects, probably only setting static members (not often)
-  FieldEdit* fed= new FieldEdit( fieldPlotManager );
-  bool res= fed->notifyEditEvent(ee);
-  delete fed;
-
-  return res;
+  std::unique_ptr<FieldEdit> fed(new FieldEdit(fieldPlotManager));
+  return fed->notifyEditEvent(ee);
 }
 
 
@@ -1213,7 +1207,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
   for (unsigned int j=0; j<EdProd.fields.size(); j++) {
     // spec. used when reading and writing field
-    FieldEdit *fed= new FieldEdit( fieldPlotManager );
+    std::unique_ptr<FieldEdit> fed(new FieldEdit(fieldPlotManager));
     fed->setSpec(EdProd, j);
 
     const std::string& fieldname= EdProd.fields[j].name;
@@ -1239,7 +1233,6 @@ bool EditManager::startEdit(const EditProduct& ep,
 
       }
       fed->setData(vf, fieldname, producttime);
-      fedits.push_back(fed);
 
     } else {
 
@@ -1248,9 +1241,9 @@ bool EditManager::startEdit(const EditProduct& ep,
       METLIBS_LOG_DEBUG("filename for saved field file to open:" << filename);
       if(!fed->readEditFieldFile(filename, fieldname, producttime))
         return false;
-      fedits.push_back(fed);
 
     }
+    fedits.push_back(fed.release());
 
     //make new local file from template
     if (!makeNewFile(j,true, message)){
@@ -1693,7 +1686,7 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
   int np= ei.combineids.size();
   int j,ip;
 
-  bool *table= new bool[mf*np];
+  std::unique_ptr<bool[]> table(new bool[mf * np]);
   for (j=0; j<mf*np; j++) table[j]= false;
 
   for (int i=ibegin; i<iend; i++) {
@@ -1711,8 +1704,6 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
     while (j<mf && table[ip*mf+j]) j++;
     if (j==mf) okpids.push_back(ei.combineids[ip]);
   }
-
-  delete[] table;
 
   // and finally: one pid is nothing to combine!
   if (okpids.size()==1) okpids.clear();
@@ -2033,10 +2024,10 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
   // init editfield(s)
   for (j=0; j<nf; j++) {
-    FieldEdit *fed= new FieldEdit( fieldPlotManager );
+    std::unique_ptr<FieldEdit> fed(new FieldEdit(fieldPlotManager));
     *(fed)= *(combinefields[j][0]);
     fed->setConstantValue(fieldUndef);
-    fedits.push_back(fed);
+    fedits.push_back(fed.release());
     if (EdProdId.sendable) {
       //make new prd file from template
       if (!makeNewFile(j, false, message)){
@@ -2080,10 +2071,8 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   // the list is needed later (editmanager or editdialog)
   combineprods.clear();
 
-  delete[] combinematrix;
-
   long fsize= matrix_nx*matrix_ny;
-  combinematrix= new int[fsize];
+  combinematrix.reset(new int[fsize]);
   for (int i=0; i<fsize; i++)
     combinematrix[i]= -1;
 
@@ -2140,7 +2129,7 @@ bool EditManager::editCombine()
   for (int i=0; i<numregs; i++)
     combineobjects[i].changeProjection(newarea);
 
-  int *regindex= new int[nparts];
+  std::unique_ptr<int[]> regindex(new int[nparts]);
 
   for (int i=0; i<nparts; i++)
     regindex[i]=-1;
@@ -2152,7 +2141,7 @@ bool EditManager::editCombine()
   for (int j=0; j<cosize; j++){
     ObjectPlot * pobject = objm->getCombiningObjects().objects[j];
     if (!pobject->objectIs(RegionName)) continue;
-    int idxold= pobject->combIndex(matrix_nx,matrix_ny,gridResolutionX,gridResolutionY,combinematrix);
+    int idxold = pobject->combIndex(matrix_nx, matrix_ny, gridResolutionX, gridResolutionY, combinematrix.get());
     int idxnew= pobject->getType();
     if (idxold<0 || idxold>=nparts || idxnew<0 || idxnew>=nparts){
       error= true;
@@ -2167,7 +2156,6 @@ bool EditManager::editCombine()
     if(regindex[i]==-1) error= true;
 
   if (error) {
-    delete[] regindex;
     // convert all objects to map area again
     objm->getCombiningObjects().changeProjection(plotm->getMapArea());
     objm->getEditObjects().changeProjection(plotm->getMapArea());
@@ -2179,8 +2167,6 @@ bool EditManager::editCombine()
   for (int i=0; i<fsize; i++)
     combinematrix[i]= regindex[combinematrix[i]];
 
-  delete[] regindex;
-
   //loop over regions , VA ,VV, VNN
   for (int i=0; i<numregs; i++){
 
@@ -2188,16 +2174,16 @@ bool EditManager::editCombine()
     int obsize = combineobjects[i].objects.size();
     for (int j = 0;j<obsize;j++){
       ObjectPlot * pobject = combineobjects[i].objects[j];
-      if (pobject->isInRegion(i,matrix_nx, matrix_ny,gridResolutionX,gridResolutionY,combinematrix)){
-        ObjectPlot * newobject = 0;
+      if (pobject->isInRegion(i, matrix_nx, matrix_ny, gridResolutionX, gridResolutionY, combinematrix.get())) {
+        std::unique_ptr<ObjectPlot> newobject;
         if (pobject->objectIs(wFront))
-          newobject = new WeatherFront(*((WeatherFront*)(pobject)));
+          newobject.reset(new WeatherFront(*((WeatherFront*)(pobject))));
         else if (pobject->objectIs(wSymbol))
-          newobject = new WeatherSymbol(*((WeatherSymbol*)(pobject)));
+          newobject.reset(new WeatherSymbol(*((WeatherSymbol*)(pobject))));
         else if (pobject->objectIs(wArea))
-          newobject = new WeatherArea(*((WeatherArea*)(pobject)));
+          newobject.reset(new WeatherArea(*((WeatherArea*)(pobject))));
         if (newobject)
-          objm->getEditObjects().objects.push_back(newobject);
+          objm->getEditObjects().objects.push_back(newobject.release());
       }
     }
   }
@@ -2251,11 +2237,10 @@ void EditManager::stopCombine()
   cleanCombineData(false);
 
   //delete combinematrix
-  if (matrix_nx > 0 && matrix_ny > 0 && combinematrix!=0){
-    delete[] combinematrix;
+  if (matrix_nx > 0 && matrix_ny > 0 && combinematrix) {
     matrix_nx= 0;
     matrix_ny= 0;
-    combinematrix= 0;
+    combinematrix.reset(0);
   }
 
   if (!fieldsCombined) {
@@ -2300,7 +2285,7 @@ bool EditManager::combineFields(float zoneWidth) {
   // (much faster than calling standard smoothing functions
   //  that computes something at every gridpoint)
 
-  bool *mark= new bool[size];
+  std::unique_ptr<bool[]> mark(new bool[size]);
 
   int ij,io,jo,j,i1,i2,j1,j2;
 
@@ -2330,21 +2315,15 @@ bool EditManager::combineFields(float zoneWidth) {
   n= 0;
   for (ij=0; ij<size; ij++) if (mark[ij]) n++;
 
-  int *xdir= new int[n];
-  int *ydir= new int[n];
-  int *xdircp= new int[n];
-  int *ydircp= new int[n];
+  std::unique_ptr<int[]> xdir(new int[n]);
+  std::unique_ptr<int[]> ydir(new int[n]);
+  std::unique_ptr<int[]> xdircp(new int[n]);
+  std::unique_ptr<int[]> ydircp(new int[n]);
 
-  float *f2= new float[size];
+  std::unique_ptr<float[]> f2(new float[size]);
 
-  if (xdir==NULL || ydir==NULL || xdircp==NULL || ydircp==NULL || f2==NULL) {
-    delete[] xdir;
-    delete[] ydir;
-    delete[] xdircp;
-    delete[] ydircp;
-    delete[] f2;
-    METLIBS_LOG_ERROR("ERROR: OUT OF MEMORY in combineFields !!!!!!!!");
-    METLIBS_LOG_ERROR("       NOT ABLE TO SMOOTH the result field !!!");
+  if (!xdir || !ydir || !xdircp || !ydircp || !f2) {
+    METLIBS_LOG_ERROR("ERROR: OUT OF MEMORY in combineFields !!!!!!!! NOT ABLE TO SMOOTH the result field !!!");
     return true;
   }
 
@@ -2410,14 +2389,6 @@ bool EditManager::combineFields(float zoneWidth) {
       }
     }
   }
-
-  delete[] mark;
-
-  delete[] xdir;
-  delete[] ydir;
-  delete[] xdircp;
-  delete[] ydircp;
-  delete[] f2;
 
   return true;
 }
@@ -2782,10 +2753,7 @@ void EditManager::setEditMessage(const string& str)
 {
   // set or remove (if empty string) an edit message
 
-  if (apEditmessage) {
-    delete apEditmessage;
-    apEditmessage = 0;
-  }
+  apEditmessage.reset(0);
 
   if (!str.empty()) {
     LabelPlotCommand_p cmd = std::make_shared<LabelPlotCommand>();
@@ -2799,11 +2767,9 @@ void EditManager::setEditMessage(const string& str)
     cmd->add("xoffset", "0.01");
     cmd->add("yoffset", "0.1");
     cmd->add("fontsize", "30");
-    apEditmessage = new AnnotationPlot();
-    if (!apEditmessage->prepare(cmd)) {
-      delete apEditmessage;
-      apEditmessage = 0;
-    }
+    apEditmessage.reset(new AnnotationPlot());
+    if (!apEditmessage->prepare(cmd))
+      apEditmessage.reset(0);
   }
 }
 
@@ -2889,8 +2855,8 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
       for (int i=0; i<n; i++)
         if (objm->getCombiningObjects().objects[i]->objectIs(Border))
           npos+=objm->getCombiningObjects().objects[i]->getXYZsize();
-      float *x= new float[npos*2];
-      float *y= new float[npos*2];
+      std::unique_ptr<float[]> x(new float[npos * 2]);
+      std::unique_ptr<float[]> y(new float[npos * 2]);
       npos= 0;
       for (int i=0; i<n; i++) {
         if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
@@ -2904,7 +2870,7 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
           }
         }
       }
-      if (plotm->getStaticPlot()->MapToProj(fedits[0]->editfield->area.P(),npos,x,y)) {
+      if (plotm->getStaticPlot()->MapToProj(fedits[0]->editfield->area.P(), npos, x.get(), y.get())) {
         float s= 0.;
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];
@@ -2915,8 +2881,6 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
       } else {
         METLIBS_LOG_ERROR("EditManager::plot : getPoints error");
       }
-      delete[] x;
-      delete[] y;
     }
 
     objm->getCombiningObjects().setScaleToField(scale);

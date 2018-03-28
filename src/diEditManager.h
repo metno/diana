@@ -90,7 +90,7 @@ private:
   int matrix_ny;
   double gridResolutionX;
   double gridResolutionY;
-  int *combinematrix;
+  std::unique_ptr<int[]> combinematrix;
   std::vector< std::vector<FieldEdit*> > combinefields;
   std::vector<EditObjects> combineobjects;
   int numregs;
@@ -100,7 +100,7 @@ private:
   bool hiddenCombineObjects;
   int  showRegion;
 
-  AnnotationPlot* apEditmessage; // special edit message (region shown,...)
+  std::unique_ptr<AnnotationPlot> apEditmessage; // special edit message (region shown,...)
 
   bool producttimedefined;          //! producttime is set
   miutil::miTime producttime;       //! proper product time
