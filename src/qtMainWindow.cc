@@ -3212,12 +3212,6 @@ void DianaMainWindow::chooseFont()
   }
 }
 
-void DianaMainWindow::zoomTo(const Rectangle& r)
-{
-  if (contr)
-    contr->zoomTo(r);
-}
-
 void DianaMainWindow::zoomOut()
 {
   contr->zoomOut();
