@@ -102,7 +102,6 @@ private:
 
   AnnotationPlot* apEditmessage; // special edit message (region shown,...)
 
-  bool inEdit;                      //! edit in progress
   bool producttimedefined;          //! producttime is set
   miutil::miTime producttime;       //! proper product time
 
@@ -150,8 +149,8 @@ public:
   EditManager(PlotModule*, ObjectManager*, FieldPlotManager*);
   ~EditManager();
 
-  bool isInEdit() const
-    { return inEdit; }
+  //! true if edit in progress
+  bool isInEdit() const { return getMapMode() != normal_mode; }
   bool isObsEdit() const
     { return isInEdit() && (getMapMode() == fedit_mode || getMapMode() == combine_mode); }
 

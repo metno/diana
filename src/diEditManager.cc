@@ -124,7 +124,6 @@ EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm
   combinematrix(0),numregs(0), hiddenObjects(false),
   hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 , apEditmessage(0)
-, inEdit(false)
 , producttimedefined(false)
 {
   if (plotm==0 || objm==0){
@@ -477,10 +476,7 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
 
   if (mapmode==normal_mode){
     editmode= edittool= 0;
-    inEdit = false;
     return;
-  } else {
-    inEdit = true;
   }
 
   int n= mapmodeinfo.size();
@@ -1806,7 +1802,7 @@ void EditManager::stopEdit()
 
   producttimedefined = false;
 
-  if (!inEdit)
+  if (!isInEdit())
     return;
 
   cleanCombineData(true);
