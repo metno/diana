@@ -425,7 +425,6 @@ private:
   int hqcTo;
   bool qsocket;
   std::map<int,bool> autoredraw;
-  StationPlot *stationPlot;
 
   void levelChange(int increment, int axis);
 
