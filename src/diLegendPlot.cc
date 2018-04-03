@@ -360,7 +360,6 @@ float LegendPlot::height(DiGLPainter* gl)
       vtitlestring.push_back(titlestring);
     }
     ntitle = vtitlestring.size();
-    titlewidth = 0;
     for (int i=0; i<ntitle; i++){
       getStringSize(gl, vtitlestring[i], width, height);
       if (height>maxheight)   maxheight= height;

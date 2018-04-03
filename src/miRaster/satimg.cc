@@ -413,7 +413,6 @@ int satimg::JulianDay(usi yy, usi mm, usi dd)
 short satimg::selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin) {
 
   int i, countx, county, overcompensated[2];
-  int size;
   float inclination, hourangle, coszenith, sunh, xval, yval;
   float max = 0., min = 0.;
   float northings,  eastings,  latitude,  longitude;
@@ -427,7 +426,6 @@ short satimg::selalg(const dto& d, const ucs& upos, const float& hmax, const flo
   radian = Pi/180.;
   TrueLatRad = TrueScaleLat*radian;
   DistPolEkv = 6378.*(1.+sin(TrueLatRad));
-  size = upos.iw*upos.ih;
 
   /*
    * Decode day and time information for use in formulas.
@@ -508,6 +506,3 @@ short satimg::selalg(const dto& d, const ucs& upos, const float& hmax, const flo
   }
   return(0);
 }
-
-
-

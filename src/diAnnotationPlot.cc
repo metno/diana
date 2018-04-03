@@ -584,8 +584,8 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
     if (not e.textcolour.empty())
       gl->setColour(Colour(e.textcolour));
 
+    wid = hei = 0.0;
     if (e.eType == box) {
-      wid = hei = 0.0;
       //keeping coor. of the bottom left corner
       float tmpx = x, tmpy = y;
       if (horizontal && !e.horizontal)

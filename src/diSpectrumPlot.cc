@@ -273,7 +273,6 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt, DiGLPainter* gl)
 
     // the real size (x ok)
     chy*=0.75;
-    chy2*=0.75;
 
     QString str = "F(f,dir) [m2/Hz/rad]";
     gl->getTextSize(str, dx, dy);
@@ -546,7 +545,6 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
 
     gl->getCharSize('0',cx,cy);
     // the real height (x ok)
-    cy*=0.75;
 
     const QString str1 = QString("Position: %1   Time: %2 UTC (%3%4)")
         .arg(QString::fromStdString(posName))

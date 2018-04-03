@@ -611,7 +611,6 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
     xstart= x_s[i-1] + dxs * fraction;
     ystart= y_s[i-1] + dys * fraction;
 
-    istart= i-1;
     s= 0.;
     slim= r*2.;
 
@@ -736,7 +735,6 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
     xstart= x_s[i-1] + dxs * fraction;
     ystart= y_s[i-1] + dys * fraction;
 
-    istart= i-1;
     s= 0.;
     slim= r*2.;
 

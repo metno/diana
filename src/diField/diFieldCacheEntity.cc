@@ -41,7 +41,7 @@ FieldCacheEntity::~FieldCacheEntity()
   }
 }
 
-void FieldCacheEntity::set(Field* f,bool setlock) throw(ModifyFieldCacheException&)
+void FieldCacheEntity::set(Field* f, bool setlock)
 {
   if (field) {
     try {
@@ -65,7 +65,7 @@ Field* FieldCacheEntity::get()
   return field;
 }
 
-void FieldCacheEntity::replace(Field* f, bool deleteOriginal) throw(ModifyFieldCacheException&)
+void FieldCacheEntity::replace(Field* f, bool deleteOriginal)
 {
   if (f) {
     if (!field)
@@ -81,7 +81,7 @@ void FieldCacheEntity::replace(Field* f, bool deleteOriginal) throw(ModifyFieldC
   }
 }
 
-void FieldCacheEntity::clear(bool forced) throw(ModifyFieldCacheException&)
+void FieldCacheEntity::clear(bool forced)
 {
   if(locks && !forced)
     throw ModifyFieldCacheException("trying to delete a locked field");
@@ -98,7 +98,7 @@ void FieldCacheEntity::unlock()
     locks -= 1;
 }
 
-Field* FieldCacheEntity::copy(const std::string& name) throw(ModifyFieldCacheException&)
+Field* FieldCacheEntity::copy(const std::string& name)
 {
   if (!field)
     throw ModifyFieldCacheException("trying to copy an empty field");

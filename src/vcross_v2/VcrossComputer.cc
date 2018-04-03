@@ -475,8 +475,10 @@ namespace /*anonymous*/ {
 void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index,
     Values::value_t& vlon, Values::value_t& vlat, Values::value_t& vbrng, Values::value_t& vstep, Values::value_t& vcor)
 {
-  if (cs_index >= cs->length())
+  if (cs_index >= cs->length()) {
+    vlon = vlat = vbrng = vstep = vcor = 0;
     return;
+  }
 
   const LonLat &p0 = cs->point(cs_index);
   vlon = p0.lon();

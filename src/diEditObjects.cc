@@ -678,7 +678,6 @@ bool EditObjects::editCheckPosition(const float x, const float y)
         pfront->unmarkAllPoints();
       if (pfront->getMarkedChanged()) changed=true ;
     }
-    if (foundJoined) found = true;
   }
 
   return changed;

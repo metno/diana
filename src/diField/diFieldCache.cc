@@ -139,7 +139,6 @@ bool FieldCache::parseSetup(const std::vector<std::string>& lines,
 }
 
 void FieldCache::set(Field* f, bool setlock)
-throw(ModifyFieldCacheException&)
 {
   METLIBS_LOG_SCOPE();
   if (!f)
@@ -196,7 +195,6 @@ Field* FieldCache::get(const FieldCacheKeyset& keyset)
 }
 
 void FieldCache::copy(const FieldCacheKeyset& keyset, const std::string& newModelName, bool forced)
-  throw(ModifyFieldCacheException&)
 {
   METLIBS_LOG_SCOPE();
 
@@ -241,7 +239,6 @@ void FieldCache::copy(const FieldCacheKeyset& keyset, const std::string& newMode
 }
 
 void FieldCache::replace(const FieldCacheKeyset& keyset, Field* f, bool deleteOriginal)
-  throw(ModifyFieldCacheException&)
 {
   METLIBS_LOG_SCOPE();
   if (not f)
@@ -263,7 +260,6 @@ void FieldCache::replace(const FieldCacheKeyset& keyset, Field* f, bool deleteOr
 }
 
 void FieldCache::erase(const FieldCacheKeyset& keyset)
-  throw(ModifyFieldCacheException&)
 {
   METLIBS_LOG_DEBUG(LOGVAL(keyset));
 
@@ -282,7 +278,7 @@ void FieldCache::erase(const FieldCacheKeyset& keyset)
   fields.erase(keyset);
 }
 
-void FieldCache::freeField(Field* f) throw(ModifyFieldCacheException&)
+void FieldCache::freeField(Field* f)
 {
   METLIBS_LOG_SCOPE();
   if(!f || !f->data)
@@ -324,7 +320,6 @@ bool FieldCache::unlock(const FieldCacheKeyset& keyset)
 
 
 void FieldCache::setMaximumsize(unsigned long s, FieldCache::sizetype st)
-  throw(ModifyFieldCacheException&)
 {
   if (st == FieldCache::KILOBYTE)
     s*=1024;
@@ -347,7 +342,6 @@ void FieldCache::setMaximumsize(unsigned long s, FieldCache::sizetype st)
 
 
 int FieldCache::cleanOverflow(long overflowsize)
-  throw(ModifyFieldCacheException&)
 {
   if(fields.empty())
     return 0;
@@ -398,7 +392,6 @@ int FieldCache::cleanOverflow(long overflowsize)
 }
 
 int FieldCache::cleanbyAge(long age)
-  throw(ModifyFieldCacheException&)
 {
   map<FieldCacheKeyset,FieldCacheEntity>::iterator itr=fields.begin();
   int removedfields=0;

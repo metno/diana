@@ -198,7 +198,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
            } else {
                vector<std::string> stokens = miutil::split(line, " ", true);
                std::string token, oldtoken;
-               int slength;
+               int slength = 0;
                int mtokens = stokens.size();
                for (int k = 0; k < mtokens; k++) {
                    int len = stokens[k].length();

@@ -947,7 +947,7 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
 
         //cold colours
         float max = poptions.base;
-        float min = max;
+        float min;
         for (int i = ncold - 1; i > -1; i--) {
           min = max - poptions.lineinterval;
           ostringstream ostr;
@@ -1687,7 +1687,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
-  int xstep = step;
+  int xstep;
 
   int i, ix, iy;
   const int nx = fields[0]->area.nx;
@@ -2101,7 +2101,7 @@ bool FieldPlot::plotValues(DiGLPainter* gl)
   int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, step, sdist);
-  int xstep = step;
+  int xstep;
 
   const int nx = fields[0]->area.nx;
   const int ny = fields[0]->area.ny;
@@ -2311,7 +2311,7 @@ bool FieldPlot::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
   int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
-  int xstep = step;
+  int xstep;
 
   const int nx = fields[0]->area.nx;
   const int ny = fields[0]->area.ny;

@@ -391,7 +391,6 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     //plot crosses and circles for selected/normal stations
     if (!plotted) {
       glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
-      plotted = true;
     }
   } else if (stations[i]->status != Station::noStatus) {
     glPlot(gl, stations[i]->status, x, y, stations[i]->isSelected);

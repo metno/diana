@@ -233,7 +233,6 @@ void TimeSlider::updateList()
       if (!tt.second.empty()) {
         orig_times = tt.second;
         dataTypeUsed = tt.first;
-        found = true;
         break;
       }
     }

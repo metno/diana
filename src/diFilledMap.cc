@@ -42,7 +42,9 @@
 #define MILOGGER_CATEGORY "diana.FilledMap"
 #include <miLogger/miLogging.h>
 
+#ifndef DEG_TO_RAD
 #define DEG_TO_RAD  .0174532925199432958
+#endif
 
 /* Created at Wed Aug  8 09:54:14 2001 */
 

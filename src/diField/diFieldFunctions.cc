@@ -1501,8 +1501,7 @@ bool FieldFunctions::fieldComputer(Function function,
     break;
 
   case f_sum_f:
-    if (compute == 0)
-      compute = 5; // field + field + field +
+    // field + field + field +
     res = sumFields(nx, ny, finp, fout[0],
         fDefined, undef);
     break;

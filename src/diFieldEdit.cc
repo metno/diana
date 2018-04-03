@@ -2211,7 +2211,6 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     // smooth line (insert linesmoothed points)
     int nfirst,nlast;
     k= xtmp.size();
-    n= k;
     if (closed) {
       n= k+1;
       m= n + (n-1)*nsmooth;

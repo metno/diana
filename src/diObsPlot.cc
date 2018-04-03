@@ -2590,7 +2590,6 @@ void ObsPlot::metarSymbol(DiGLPainter* gl, const std::string& ww, QPointF xypos,
   dx = xypos.x() + idx;
   if (sign > 0) {
     symbol(gl, vtab(40 + sign), QPointF(dx+2, dy));
-    dy -= 2;
   }
   dx += 10;
 
@@ -3246,7 +3245,6 @@ void ObsPlot::amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, 
       ost = "x";
 
     gl->drawText(ost, x * scale, y * scale, 0.0);
-    y -= 12;
   }
 }
 

@@ -647,7 +647,7 @@ void PlotModule::defineMapArea()
 
   if (!mapdefined) {
     newMapArea.setDefault();
-    mapdefined = mapDefinedByView = true;
+    mapDefinedByView = true;
   }
 
   staticPlot_->setMapArea(newMapArea);

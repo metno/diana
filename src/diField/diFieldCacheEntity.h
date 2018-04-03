@@ -65,20 +65,20 @@ public:
   /// functions -------------------------------
 
   /// set a field (construction)
-  void set(Field*, bool setlock=false)     throw(ModifyFieldCacheException&);
+  void set(Field*, bool setlock = false);
 
   /// replace this field, but keep all keys and the original pointer
-  void replace(Field*, bool deleteOriginal=false) throw(ModifyFieldCacheException&);
+  void replace(Field*, bool deleteOriginal = false);
 
   /// delete the field, only possible if there is no lock!
   /// (forced is called by the destructor...)
-  void clear(bool forced=false)  throw(ModifyFieldCacheException&);
+  void clear(bool forced = false);
 
   /// open a lock
   void unlock();
 
   /// make a local copy of your field for instance profet to profet.tmp.1
-  Field* copy(const std::string& name) throw(ModifyFieldCacheException&);
+  Field* copy(const std::string& name);
 
   /// get a field
 

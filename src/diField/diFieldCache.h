@@ -92,37 +92,31 @@ public:
   /// manipulation functions-------------------------------------------
 
   /// put a new Field into the cache
-  void set(Field*, bool setlock=false) throw(ModifyFieldCacheException&);
+  void set(Field*, bool setlock = false);
 
   /// make a local copy of your field for instance profet to profet.tmp.1
-  void copy(const FieldCacheKeyset& keyset, const std::string& newModelName, bool forced=false)
-    throw(ModifyFieldCacheException&);
+  void copy(const FieldCacheKeyset& keyset, const std::string& newModelName, bool forced = false);
 
   /// replace this field, but keep all keys and the pointer
-  void replace(const FieldCacheKeyset& keyset, Field*, bool deleteOriginal=false)
-    throw(ModifyFieldCacheException&);
+  void replace(const FieldCacheKeyset& keyset, Field*, bool deleteOriginal = false);
 
   /// delete the field, only possible if there is no lock!
-  void erase(const FieldCacheKeyset& keyset)
-    throw(ModifyFieldCacheException&);
+  void erase(const FieldCacheKeyset& keyset);
 
   /// free a lock or delete the field if its not in the cache
-  void freeField(Field* f) throw(ModifyFieldCacheException&);
+  void freeField(Field* f);
 
   /// get a particular field - returns NULL if the field does not exist
   Field* get(const FieldCacheKeyset& keyset);
 
   /// set new maximum size in kb and refacturate thelibs/diField/src/ cache
 
-  void setMaximumsize(unsigned long s, FieldCache::sizetype st=KILOBYTE)
-   throw(ModifyFieldCacheException&);
+  void setMaximumsize(unsigned long s, FieldCache::sizetype st = KILOBYTE);
 
   /// clean functions - return value is the number of removed fields
 
-  int  cleanOverflow(long overflowsize)
-    throw(ModifyFieldCacheException&);
-  int cleanbyAge(long age = 300)
-    throw(ModifyFieldCacheException&);
+  int cleanOverflow(long overflowsize);
+  int cleanbyAge(long age = 300);
 
   /// inventory functions -------------------------------------------------
   bool hasField(const FieldCacheKeyset& keyset);
