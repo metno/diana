@@ -125,7 +125,14 @@ private:
   bool dorubberband;
   bool keepcurrentarea;
 
+  /*! Initialize plotting.
+   * Common for normal plot and annotation-only plot.
+   * Sets gl matrix and clears background with bg colour.
+   */
+  void plotInit(DiGLPainter* gl);
+
   void plotUnder(DiGLPainter* gl);
+
   void plotOver(DiGLPainter* gl);
 
   static PlotModule *self;

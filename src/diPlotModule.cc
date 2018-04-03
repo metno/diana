@@ -676,36 +676,26 @@ void PlotModule::plot(DiGLPainter* gl, bool under, bool over)
   staticPlot_->setDirty(false);
 }
 
+void PlotModule::plotInit(DiGLPainter* gl)
+{
+  // set correct worldcoordinates
+  gl->LoadIdentity();
+  const Rectangle& plotr = staticPlot_->getPlotSize();
+  gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
+
+  gl->ClearStencil(0);
+  const Colour& cback = staticPlot_->getBackgroundColour();
+  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
+  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
+}
+
 void PlotModule::plotUnder(DiGLPainter* gl)
 {
 #ifdef DEBUGREDRAW
   METLIBS_LOG_SCOPE();
 #endif
 
-  const Rectangle& plotr = staticPlot_->getPlotSize();
-
-  const Colour& cback = staticPlot_->getBackgroundColour();
-
-  // set correct worldcoordinates
-  gl->LoadIdentity();
-  gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
-
-  gl->Enable(DiGLPainter::gl_BLEND);
-  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-
-  // Set the default stencil buffer value.
-  gl->ClearStencil(0);
-
-  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
-  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
-
-  // draw background (for hardcopy)
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Color4f(cback.fR(), cback.fG(), cback.fB(), cback.fA());
-  const float d = 0;
-  gl->Rectf(plotr.x1 + d, plotr.y1 + d, plotr.x2 - d, plotr.y2 - d);
-  gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
-  gl->Disable(DiGLPainter::gl_BLEND);
+  plotInit(gl);
 
   callManagersChangeProjection(true);
 
@@ -858,24 +848,14 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
 {
   staticPlot_->updateGcd(gl); // FIXME add mCanvas to staticPlot_ and drop this
 
-  // set correct worldcoordinates
-  gl->LoadIdentity();
-  const Rectangle& plotr = staticPlot_->getPlotSize();
-  gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
+  plotInit(gl);
 
-  const Colour& cback = staticPlot_->getBackgroundColour();
-  gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
-  gl->Clear(DiGLPainter::gl_COLOR_BUFFER_BIT | DiGLPainter::gl_DEPTH_BUFFER_BIT | DiGLPainter::gl_STENCIL_BUFFER_BIT);
-
-  vector<Rectangle> rectangles;
-
-  unsigned int n = vap.size();
-  for (unsigned int i = 0; i < n; i++) {
-    //	METLIBS_LOG_DEBUG("i:"<<i);
-    vap[i]->plot(gl, Plot::LINES);
-    rectangles.push_back(vap[i]->getBoundingBox());
+  std::vector<Rectangle> rectangles;
+  rectangles.reserve(vap.size());
+  for (AnnotationPlot* ap : vap) {
+    ap->plot(gl, Plot::LINES);
+    rectangles.push_back(ap->getBoundingBox());
   }
-
   return rectangles;
 }
 
