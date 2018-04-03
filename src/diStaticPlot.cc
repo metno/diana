@@ -31,6 +31,7 @@
 
 #include "diStaticPlot.h"
 
+#include "diField/VcrossUtil.h"
 #include "diGLPainter.h"
 #include "util/math_util.h"
 
@@ -40,7 +41,8 @@
 GridConverter StaticPlot::gc; // Projection-converter
 
 StaticPlot::StaticPlot()
-    : mPhys(0, 0) // physical plot size
+    : mapborder(0)
+    , mPhys(0, 0) // physical plot size
     , mPhysToMapScale(1, 1)
     , dirty(true)       // plotsize has changed
     , verticalLevel(-1) // current vertical level
@@ -76,7 +78,7 @@ void StaticPlot::setMapArea(const Area& a)
 
   // change plot-Area
   area = a;
-  setDirty(true);
+  PlotAreaSetup();
 }
 
 inline float oneIf0(float f)
@@ -89,15 +91,28 @@ void StaticPlot::updatePhysToMapScale()
   mPhysToMapScale = XY(oneIf0(plotsize.width()) / oneIf0(mPhys.x()), oneIf0(plotsize.height()) / oneIf0(mPhys.y()));
 }
 
-void StaticPlot::setMapPlotSize(const Rectangle& mr, const Rectangle& pr)
+void StaticPlot::PlotAreaSetup()
 {
+  METLIBS_LOG_SCOPE();
+  setDirty(true);
+  if (!hasPhysSize())
+    return;
+
+  const Rectangle& mapr = getMapArea().R();
+
+  const float waspr = getPhysWidth() / float(getPhysHeight());
+  const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
+
+  // update full plot area -- add border
+  const Rectangle pr = diutil::adjustedRectangle(mr, mapborder, mapborder);
+
   if (plotsize != pr) {
     plotsize = pr;
     updatePhysToMapScale();
     setDirty(true);
   }
-  if (maprect != mr) {
-    maprect = mr;
+  if (mapsize != mr) {
+    mapsize = mr;
     setDirty(true);
   }
 }
@@ -106,7 +121,7 @@ void StaticPlot::setPhysSize(int w, int h)
 {
   mPhys = diutil::PointI(w, h);
   updatePhysToMapScale();
-  setDirty(true);
+  PlotAreaSetup();
 }
 
 float StaticPlot::getPhysDiagonal() const
@@ -116,46 +131,32 @@ float StaticPlot::getPhysDiagonal() const
 
 Area StaticPlot::findBestMatch(const Area& newa)
 {
-
-  if (!area.P().isDefined())
+  if (!getMapProjection().isDefined())
     return newa;
 
-  const int npos = 4;
-  float xpos[npos], ypos[npos];
-  xpos[0] = area.R().x1;
-  ypos[0] = area.R().y1;
-  xpos[1] = area.R().x1;
-  ypos[1] = area.R().y2;
-  xpos[2] = area.R().x2;
-  ypos[2] = area.R().y2;
-  xpos[3] = area.R().x2;
-  ypos[3] = area.R().y1;
+  if (getMapProjection() == newa.P())
+    return area;
 
-  if (!gc.getPoints(area.P(), newa.P(), npos, xpos, ypos)) {
-    METLIBS_LOG_ERROR("findBestMatch: getPoints error");
+  const int npos = 4;
+  float xpos[npos] = {area.R().x1, area.R().x1, area.R().x2, area.R().x2};
+  float ypos[npos] = {area.R().y1, area.R().y2, area.R().y2, area.R().y1};
+  if (!newa.P().convertPoints(getMapProjection(), npos, xpos, ypos)) {
+    METLIBS_LOG_ERROR("findBestMatch: convertPoints error");
     return newa;
   }
 
   const float MAX = 100000000;
-  float maxx = -100000000, maxy = -1000000000, minx = 100000000, miny = 1000000000;
+  float maxx = xpos[0], minx = xpos[0], maxy = ypos[0], miny = ypos[0];
   for (int i = 0; i < npos; i++) {
-    // check for impossible numbers
-    if (xpos[i] < -MAX || xpos[i] > MAX) {
+    // check for invalid numbers
+    if (xpos[i] < -MAX || xpos[i] > MAX || ypos[i] < -MAX || ypos[i] > MAX) {
       return newa;
     }
-    if (xpos[i] < minx)
-      minx = xpos[i];
-    if (ypos[i] < miny)
-      miny = ypos[i];
-    if (xpos[i] > maxx)
-      maxx = xpos[i];
-    if (ypos[i] > maxy)
-      maxy = ypos[i];
+    vcross::util::minimaximize(minx, maxx, xpos[i]);
+    vcross::util::minimaximize(miny, maxy, ypos[i]);
   }
 
-  Area a = newa;
-  a.setR(Rectangle(minx, miny, maxx, maxy));
-  return a;
+  return Area(newa.P(), Rectangle(minx, miny, maxx, maxy));
 }
 
 void StaticPlot::setDirty(bool f)
@@ -177,27 +178,26 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
   float x1, y1, x2, y2;
   GeoToPhys(lat1, lon1, x1, y1);
   GeoToPhys(lat2, lon2, x2, y2);
-  float distGeoSq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+  float distGeoSq = diutil::absval2(x2 - x1, y2 - y1);
   float width = getPhysWidth(), height = getPhysHeight();
-  float distWindowSq = width * width + height * height;
+  float distWindowSq = diutil::absval2(width, height);
   float ratio = sqrtf(distWindowSq / distGeoSq);
   gcd = ngcd * ratio;
 }
 
-// panning in progress
-void StaticPlot::panPlot(bool b)
+void StaticPlot::setPanning(bool p)
 {
-  panning = b;
+  panning = p;
 }
 
 bool StaticPlot::GeoToMap(int n, float* x, float* y) const
 {
-  return gc.geo2xy(getMapArea(), n, x, y);
+  return getMapProjection().convertFromGeographic(n, x, y);
 }
 
 bool StaticPlot::GeoToMap(int n, const float* x, const float* y, float* u, float* v) const
 {
-  return gc.geov2xy(getMapArea(), n, x, y, u, v);
+  return getMapProjection().convertVectors(Projection::geographic(), n, x, y, u, v);
 }
 
 XY StaticPlot::GeoToMap(const XY& lonlatdeg) const
@@ -209,7 +209,7 @@ XY StaticPlot::GeoToMap(const XY& lonlatdeg) const
 
 bool StaticPlot::MapToGeo(int n, float* x, float* y) const
 {
-  return gc.xy2geo(getMapArea(), n, x, y);
+  return getMapProjection().convertToGeographic(n, x, y);
 }
 
 XY StaticPlot::MapToGeo(const XY& map) const
@@ -257,20 +257,20 @@ XY StaticPlot::MapToPhys(const XY& map) const
 
 bool StaticPlot::ProjToMap(const Projection& srcProj, int n, float* x, float* y) const
 {
-  return gc.getPoints(srcProj, getMapArea().P(), n, x, y);
+  return getMapProjection().convertPoints(srcProj, n, x, y);
 }
 
 bool StaticPlot::ProjToMap(const Area& srcArea, int n, const float* x, const float* y, float* u, float* v) const
 {
-  return gc.getVectors(srcArea, getMapArea().P(), n, x, y, u, v);
+  return gc.getVectors(srcArea, getMapProjection(), n, x, y, u, v);
 }
 
 bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float* y) const
 {
-  return gc.getPoints(getMapArea().P(), targetProj, n, x, y);
+  return targetProj.convertPoints(getMapProjection(), n, x, y);
 }
 
 bool StaticPlot::MapToProj(const Projection& targetProj, int n, diutil::PointD* xy) const
 {
-  return targetProj.convertPoints(getMapArea().P(), n, xy);
+  return targetProj.convertPoints(getMapProjection(), n, xy);
 }

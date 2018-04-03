@@ -40,15 +40,15 @@ class DiGLPainter;
 
 /**
    StaticPlot keeps all previously static data shared by the various plotting classes.
-   - postscript generation initiated here
 */
 class StaticPlot
 {
 private:
   Area area;                 // Projection and size of current grid
   Area requestedarea;        // Projection and size of requested grid
-  Rectangle maprect;         // Size of map plot area
-  Rectangle plotsize;        // Size of full plot area
+  Rectangle mapsize;         //!< size of map plot area, excluding \ref mapborder \see getMapSize()
+  Rectangle plotsize;        //!< size of the plot area, including \ref mapborder \see getPlotSize()
+  float mapborder;           //!< size of border outside mapsize (\ref mapsize + \ref mapborder = \ref plotsize)
   miutil::miTime ctime;      // current time
   diutil::PointI mPhys;      // physical size of plotarea
   XY mPhysToMapScale;        // ratio of plot size to physical size
@@ -57,6 +57,7 @@ private:
   Colour backgroundColour;   // background colour
   Colour backContrastColour; // suitable contrast colour
   float gcd;                 // great circle distance
+
   bool panning;              // panning in progress
 
 public:
@@ -66,8 +67,16 @@ public:
   StaticPlot();
   ~StaticPlot();
 
-  /// return current area on map
+  //! Return current area on map.
+  /*! Note: the rectangle is not the visible map area, which is available via getPlotSize().
+   * \see getMapSize() getPlotSize()
+   */
   const Area& getMapArea() const { return area; }
+
+  //! Get current projection of map.
+  /*! \see getMapArea()
+   */
+  const Projection& getMapProjection() const { return getMapArea().P(); }
 
   /// set area
   void setMapArea(const Area&);
@@ -123,22 +132,26 @@ public:
   /// this is the area we really wanted
   const Area& getRequestedarea() { return requestedarea; }
 
-  /// this is the full size of the plot in the current projection
-  const Rectangle& getPlotSize() const { return plotsize; }
-
-  /*! \param mr the size of the data grid
-   * \param pr the full size of the plot in the current projection
+  //! Get the size of the map plot area / data grid, excluding \ref mapborder, in coordinates of getMapProjection().
+  /*! This is the rectangle from getMapArea() extended to the aspect ratio of getPhysSize().
    */
-  void setMapPlotSize(const Rectangle& mr, const Rectangle& pr);
+  const Rectangle& getMapSize() const { return mapsize; }
+
+  //! Get the size of the border of the map in units of getMapProjection() coordinates .
+  /*! Note: this is projection dependent and thus not very useful.
+   */
+  float getMapBorder() const { return mapborder; }
+
+  //! Get the full size of the plot, including \ref mapborder, in coordinates of getMapProjection().
+  /*! This is the rectangle from getMapSize() extended by \ref getMapBorder().
+   */
+  const Rectangle& getPlotSize() const { return plotsize; }
 
   const XY& getPhysToMapScale() const { return mPhysToMapScale; }
 
   float getPhysToMapScaleX() const { return mPhysToMapScale.x(); }
 
   float getPhysToMapScaleY() const { return mPhysToMapScale.y(); }
-
-  /// this is size of the data grid
-  const Rectangle& getMapSize() const { return maprect; }
 
   /// set the physical size of the map in pixels
   void setPhysSize(int w, int h);
@@ -189,13 +202,17 @@ public:
 
   float getGcd() { return gcd; }
 
-  /// toggle panning
-  void panPlot(bool pan);
+  //! Set flag indicating if panning is in progress.
+  void setPanning(bool pan);
 
+  //! Get flag indicating if panning is in progress.
+  /*! \return true if currently panning
+   */
   bool isPanning() { return panning; }
 
 private:
   void updatePhysToMapScale();
+  void PlotAreaSetup();
 };
 
 #endif // diStaticPlot_h

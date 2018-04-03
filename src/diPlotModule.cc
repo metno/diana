@@ -78,7 +78,7 @@ using namespace std;
 
 namespace {
 
-float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
+double GreatCircleDistance(double lat1, double lat2, double lon1, double lon2)
 {
   return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
 }
@@ -528,7 +528,6 @@ bool PlotModule::updatePlots()
 
   bool nodata = vmp.empty(); // false when data are found
 
-
   if (fieldplots_->update()) {
     nodata = false;
     // level for vertical level observations "as field"
@@ -584,13 +583,30 @@ bool PlotModule::updatePlots()
 
   setAnnotations();
 
-  PlotAreaSetup();
-
   // Update drawing items - this needs to be after the PlotAreaSetup call
   // because we need to reproject the items to screen coordinates.
-  callManagersChangeProjection();
+  callManagersChangeProjection(false);
 
   return !nodata;
+}
+
+bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)
+{
+  if (satm->getSatArea(newMapArea)) {
+    // set area equal to first EXISTING sat-area
+    allowKeepCurrentArea = true;
+    return true;
+  }
+  if (editm->isInEdit() && editm->getFieldArea(newMapArea)) {
+    // set area equal to editfield-area
+    allowKeepCurrentArea = false;
+    return true;
+  }
+  if (fieldplots_->getRealFieldArea(newMapArea)) {
+    allowKeepCurrentArea = true;
+    return true;
+  }
+  return false;
 }
 
 void PlotModule::defineMapArea()
@@ -598,15 +614,11 @@ void PlotModule::defineMapArea()
   bool mapdefined = false;
   Area newMapArea;
 
-  if (mapDefinedByUser) {     // area != "modell/sat-omr."
+  if (mapDefinedByUser) { // area != "modell/sat-omr."
 
-    if (!keepcurrentarea) { // show def. area
-      newMapArea = staticPlot_->getRequestedarea();
-    } else if( getMapArea().P() != staticPlot_->getRequestedarea().P() // or user just selected new area
-        || previousrequestedarea.R() != staticPlot_->getRequestedarea().R())
-    {
-      newMapArea = staticPlot_->findBestMatch(staticPlot_->getRequestedarea());
-    }
+    newMapArea = staticPlot_->getRequestedarea();
+    if (keepcurrentarea)
+      newMapArea = staticPlot_->findBestMatch(newMapArea);
     mapdefined = true;
 
   } else if (keepcurrentarea && previousrequestedarea != staticPlot_->getRequestedarea()) {
@@ -618,24 +630,9 @@ void PlotModule::defineMapArea()
     mapdefined = true;
 
   if (!mapdefined) {
-    if (satm->getSatArea(newMapArea)) {
-      // set area equal to first EXISTING sat-area
-      if (keepcurrentarea)
-        newMapArea = staticPlot_->findBestMatch(newMapArea);
-      mapdefined = mapDefinedByData = true;
-    }
-  }
-
-  if (!mapdefined && editm->isInEdit()) {
-    // set area equal to editfield-area
-    if (editm->getFieldArea(newMapArea)) {
-      mapdefined = mapDefinedByData = true;
-    }
-  }
-
-  if (!mapdefined) {
-    if (fieldplots_->getRealFieldArea(newMapArea)) {
-      if (keepcurrentarea)
+    bool allowKeepCurrentArea = true;
+    if (defineMapAreaFromData(newMapArea, allowKeepCurrentArea)) {
+      if (allowKeepCurrentArea && keepcurrentarea)
         newMapArea = staticPlot_->findBestMatch(newMapArea);
       mapdefined = mapDefinedByData = true;
     }
@@ -710,10 +707,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
   gl->Disable(DiGLPainter::gl_BLEND);
 
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled())
-      m->changeProjection(staticPlot_->getMapArea());
-  }
+  callManagersChangeProjection(true);
 
   // plot map-elements for lowest zorder
   for (size_t i = 0; i < vmp.size(); i++)
@@ -833,8 +827,8 @@ void PlotModule::plotOver(DiGLPainter* gl)
   for (MapPlot* mp : vmp)
     mp->plot(gl, Plot::OVERLAY);
 
-  // frame (not needed if maprect==fullrect)
-  if (staticPlot_->getMapSize() != staticPlot_->getPlotSize()) {
+  // draw frame if map has a border
+  if (staticPlot_->getMapBorder() > 0) {
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->setLineStyle(Colour(0, 0, 0), 1.0);
     const Rectangle mr = diutil::adjustedRectangle(staticPlot_->getMapSize(), -0.0001, -0.0001);
@@ -885,35 +879,9 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
   return rectangles;
 }
 
-void PlotModule::PlotAreaSetup()
-{
-  METLIBS_LOG_SCOPE();
-
-  if (!staticPlot_->hasPhysSize())
-    return;
-
-  const Area& ma = staticPlot_->getMapArea();
-  const Rectangle& mapr = ma.R();
-
-  const float waspr = staticPlot_->getPhysWidth() / float(staticPlot_->getPhysHeight());
-  const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
-
-  // update full plot area -- add border
-  const float border = 0.0;
-  const Rectangle fr = diutil::adjustedRectangle(mr, border, border);
-
-  staticPlot_->setMapPlotSize(mr, fr);
-}
-
 void PlotModule::setPlotWindow(int w, int h)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE(LOGVAL(w) << LOGVAL(h));
-#endif
-
   staticPlot_->setPhysSize(w, h);
-
-  PlotAreaSetup();
 }
 
 void PlotModule::cleanup()
@@ -948,46 +916,36 @@ Rectangle PlotModule::getPhysRectangle() const
   return Rectangle(0, 0, pw, ph);
 }
 
-void PlotModule::callManagersChangeProjection()
+void PlotModule::callManagersChangeProjection(bool onlyIfEnabled)
 {
   for (Manager* m : boost::adaptors::values(managers))
-    m->changeProjection(staticPlot_->getMapArea());
+    if (!onlyIfEnabled || m->isEnabled())
+      m->changeProjection(staticPlot_->getMapArea());
 }
 
 void PlotModule::setMapArea(const Area& area)
 {
-  const bool projChanged = (staticPlot_->getMapArea().P() != area.P());
+  const bool projChanged = (staticPlot_->getMapProjection() != area.P());
 
   staticPlot_->setMapArea(area);
-  PlotAreaSetup();
 
   if (projChanged) {
     updatePlots();
   } else {
-    callManagersChangeProjection();
+    callManagersChangeProjection(false);
   }
 }
 
 void PlotModule::setMapAreaFromMap(const Rectangle& rectangle)
 {
-  const Area a(staticPlot_->getMapArea().P(), rectangle);
-
-  staticPlot_->setMapArea(a);
-  PlotAreaSetup();
-
-  updatePlots();
+  const Area ma(staticPlot_->getMapProjection(), rectangle);
+  setMapArea(ma);
 }
 
 void PlotModule::setMapAreaFromPhys(const Rectangle& phys)
 {
-  if (!staticPlot_->hasPhysSize())
-    return;
-
-  const Rectangle newr = makeRectangle(staticPlot_->PhysToMap(XY(phys.x1, phys.y1)),
-      staticPlot_->PhysToMap(XY(phys.x2, phys.y2)));
-  const Area ma(staticPlot_->getMapArea().P(), newr);
-
-  setMapArea(ma);
+  if (staticPlot_->hasPhysSize())
+    setMapAreaFromMap(makeRectangle(staticPlot_->PhysToMap(XY(phys.x1, phys.y1)), staticPlot_->PhysToMap(XY(phys.x2, phys.y2))));
 }
 
 bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
@@ -1010,7 +968,7 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
     float& gridx, float& gridy)
 {
   Area a;
-  if (satm->getSatArea(a) and staticPlot_->getMapArea().P() == a.P()) {
+  if (satm->getSatArea(a) and staticPlot_->getMapProjection() == a.P()) {
     float rx=0, ry=0;
     if (satm->getGridResolution(rx, ry)) {
       gridx = xmap/rx;
@@ -1019,7 +977,7 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
     }
   }
 
-  if (fieldplots_->MapToGrid(staticPlot_->getMapArea().P(), xmap, ymap, gridx, gridy))
+  if (fieldplots_->MapToGrid(staticPlot_->getMapProjection(), xmap, ymap, gridx, gridy))
     return true;
 
   return false;
@@ -1027,15 +985,14 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
 
 double PlotModule::getWindowDistances(float x1, float y1, float x2, float y2, bool horizontal)
 {
-  float flat1, flat3, flat4, flon1, flon3, flon4;
+  float flat3, flat4, flon3, flon4;
   PhysToGeo(x1, y2, flat3, flon3);
   if (horizontal) {
     PhysToGeo(x2, y2, flat4, flon4);
-    return GreatCircleDistance(flat3, flat4, flon3, flon4);
   } else {
-    PhysToGeo(x1, y1, flat1, flon1);
-    return GreatCircleDistance(flat3, flat1, flon3, flon1);
+    PhysToGeo(x1, y1, flat4, flon4);
   }
+  return GreatCircleDistance(flat3, flat4, flon3, flon4);
 }
 
 double PlotModule::getEntireWindowDistances(const bool horizontal)
@@ -1053,7 +1010,7 @@ double PlotModule::getWindowDistances(float x, float y, bool horizontal)
     return getWindowDistances(startx, starty, x, y, horizontal);
 }
 
-double PlotModule::getMarkedArea(const float& x, const float& y)
+double PlotModule::getMarkedArea(float x, float y)
 {
   if (!dorubberband)
     return 0;
@@ -1078,6 +1035,7 @@ double PlotModule::getWindowArea(int x1, int y1, int x2, int y2)
   return getArea(flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4);
 }
 
+// static
 double PlotModule::calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag)
 {
   /*Calculates the area as two triangles
@@ -1090,8 +1048,8 @@ double PlotModule::calculateArea(double hLSide, double hUSide, double vLSide, do
   return sqrt(nonsqrt1) + sqrt(nonsqrt2);
 }
 
-double PlotModule::getArea(const float& flat1, const float& flat2, const float& flat3, const float& flat4, const float& flon1, const float& flon2,
-                           const float& flon3, const float& flon4)
+// static
+double PlotModule::getArea(float flat1, float flat2, float flat3, float flat4, float flon1, float flon2, float flon3, float flon4)
 {
   //Calculate distance vertical left side with earth radius in mind
   double vLSide = GreatCircleDistance(flat1,flat3,flon1,flon3);
@@ -1571,7 +1529,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
     } else if (me->button() == Qt::MidButton) {
       areaInsert(true);
-      staticPlot_->panPlot(true);
+      staticPlot_->setPanning(true);
       res.newcursor = paint_move_cursor;
       return;
     }
@@ -1652,7 +1610,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       startx = starty = 0;
 
     } else if (me->button() == Qt::MidButton) {
-      staticPlot_->panPlot(false);
+      staticPlot_->setPanning(false);
       res.enable_background_buffer = false;
       res.update_background_buffer = false;
       res.repaint = true;

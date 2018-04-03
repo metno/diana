@@ -79,12 +79,15 @@ public:
   bool convertPoints(const Projection& srcProj, size_t npos, float * x, float * y,
       bool silent = false) const;
 
+  /// Convert Points to this projection
   bool convertPoints(const Projection& srcProj, size_t npos, double* x, double* y,
       bool silent = false) const;
 
+  /// Convert Points to this projection
   bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy,
       bool silent = false) const;
 
+  /// Convert Points to this projection
   bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy,
       bool silent = false) const;
 

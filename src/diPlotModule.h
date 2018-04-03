@@ -149,22 +149,21 @@ private:
   /// receive rectangle in pixels
   void setMapAreaFromPhys(const Rectangle& phys);
 
+  double getWindowDistances(float x1, float y1, float x2, float y2, bool horizontal);
   double getEntireWindowDistances(const bool horizontal);
+  double getWindowArea(int x1, int y1, int x2, int y2);
 
-  double getArea(const float& flat1, const float& flat2, const float& flat3,
-      const float& flat4, const float& flon1, const float& flon2,
-      const float& flon3, const float& flon4);
-  double calculateArea(double hLSide, double hUSide, double vLSide,
-      double vRSide, double diag);
+  static double getArea(float flat1, float flat2, float flat3, float flat4, float flon1, float flon2, float flon3, float flon4);
+  static double calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag);
 
   /// create a Rectangle from staticPlot phys size
   Rectangle getPhysRectangle() const;
 
   void setMapArea(const Area& area);
 
-  void callManagersChangeProjection();
+  void callManagersChangeProjection(bool onlyIfEnabled);
+  bool defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea);
   void defineMapArea();
-  void PlotAreaSetup();
 
 public:
   PlotModule();
@@ -215,10 +214,8 @@ public:
   /// return field grid x,y from map x,y if field defined and map proj = field proj
   bool MapToGrid(const float, const float, float&, float&);
 
-  double getWindowDistances(float x1, float y1, float x2, float y2, bool horizontal);
   double getWindowDistances(float x, float y, bool horizontal);
-  double getMarkedArea(const float& x, const float& y);
-  double getWindowArea(int x1, int y1, int x2, int y2);
+  double getMarkedArea(float x, float y);
   double getWindowArea();
 
   /// set managers
