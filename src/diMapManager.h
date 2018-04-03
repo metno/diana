@@ -47,29 +47,14 @@
 */
 class MapManager {
 private:
-  static std::vector<Area> mapareas;
-  static std::vector<Area> mapareas_Fkeys;
   static std::vector<MapInfo> mapfiles;
 
-  // parse section containing definitions of map-areas
-  bool parseMapAreas();
-  // parse section containing definitions of map-types
-  bool parseMapTypes();
-
 public:
-  MapManager()
-  {
-  }
+  MapManager();
 
   /// parse the maps section in the setup file
   bool parseSetup();
 
-  /// get list of predefined areas (names)
-  std::vector<std::string> getMapAreaNames();
-  /// get predefined area from name
-  bool getMapAreaByName(const std::string&, Area&);
-  /// get predefined area from accelerator
-  bool getMapAreaByFkey(const std::string&, Area&);
   /// get list of defined maps
   const std::vector<MapInfo>& getMapInfo();
   /// get information on one specific map

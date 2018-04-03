@@ -32,6 +32,7 @@
 #include "diMapManager.h"
 
 #include "diKVListPlotCommand.h"
+#include "diMapAreaSetup.h"
 #include "miSetupParser.h"
 
 #include <puTools/miStringFunctions.h>
@@ -44,83 +45,15 @@
 using namespace::miutil;
 using namespace std;
 
-vector<Area> MapManager::mapareas;
-vector<Area> MapManager::mapareas_Fkeys;
 vector<MapInfo> MapManager::mapfiles;
 
-const std::string SectMapAreas = "MAP_AREA";
 const std::string SectMapTypes = "MAP_TYPE";
 
+MapManager::MapManager()
+{
+}
+
 bool MapManager::parseSetup()
-{
-  if (!parseMapAreas())
-    return false;
-  if (!parseMapTypes())
-    return false;
-  return true;
-}
-
-// parse section containing definitions of map-areas
-bool MapManager::parseMapAreas()
-{
-  mapareas.clear();
-
-  vector<std::string> setuplist;
-  if (!SetupParser::getSection(SectMapAreas, setuplist)) {
-    return true;
-  }
-
-  for (size_t i = 0; i < setuplist. size(); i++) {
-    Area area;
-
-    if (area.setAreaFromString(setuplist[i])) {
-      std::string name = area.Name();
-      if (miutil::contains(name, "[F5]") || miutil::contains(name, "[F6]") || miutil::contains(name, 
-          "[F7]") || miutil::contains(name, "[F8]")) {
-        std::string Fkey = name.substr(name.find("["), 4);
-        miutil::replace(name, Fkey, "");
-        Fkey.erase(0, 1);
-        Fkey.erase(2, 1);
-        Area area_Fkey = area;
-        area_Fkey.setName(Fkey);;
-        area.setName(name);;
-
-        // find duplicate
-        size_t q = 0;
-        for (; q < mapareas_Fkeys.size(); q++) {
-          if (mapareas_Fkeys[q].Name() == Fkey)
-            break;
-        }
-        if (q != mapareas_Fkeys.size()) {
-          mapareas_Fkeys[q] = area_Fkey;
-        } else {
-          mapareas_Fkeys.push_back(area_Fkey);
-        }
-      }
-
-      // find duplicate
-      size_t q = 0;
-      for (q = 0; q < mapareas.size(); q++) {
-        if (mapareas[q].Name() == name)
-          break;
-      }
-      if (q != mapareas.size()) {
-        mapareas[q] = area;
-      } else {
-        mapareas.push_back(area);
-      }
-      //cerr << "Adding area:" << name << " defined by:" << area << endl;
-
-    } else {
-      SetupParser::errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
-      return true;
-    }
-
-  }
-  return true;
-}
-
-bool MapManager::parseMapTypes()
 {
   MapInfo mapinfo;
 
@@ -166,43 +99,6 @@ bool MapManager::parseMapTypes()
   }
 
   return true;
-}
-
-vector<std::string> MapManager::getMapAreaNames()
-{
-  vector<std::string> areanames;
-  for (size_t i = 0; i < mapareas.size(); i++)
-    areanames.push_back(mapareas[i].Name());
-
-  return areanames;
-}
-
-bool MapManager::getMapAreaByName(const std::string& name, Area& a)
-{
-  //return first map
-  if (miutil::to_lower(name) == "default" and not mapareas.empty()) {
-    a = mapareas[0];
-    return true;
-  }
-  for (size_t i = 0; i < mapareas.size(); i++) {
-    if (name == mapareas[i].Name()) {
-      a = mapareas[i];
-      return true;
-    }
-  }
-  return false;
-}
-
-bool MapManager::getMapAreaByFkey(const std::string& name, Area& a)
-{
-  //     cerr<<"getMapAreaByFkey:"<<name<<endl;
-  for (size_t i = 0; i < mapareas_Fkeys.size(); i++) {
-    if (name == mapareas_Fkeys[i].Name()) {
-      a = mapareas_Fkeys[i];
-      return true;
-    }
-  }
-  return false;
 }
 
 const vector<MapInfo>& MapManager::getMapInfo()
@@ -453,7 +349,7 @@ miutil::KeyValue_v MapManager::MapExtra2str(const MapInfo& mi)
 MapDialogInfo MapManager::getMapDialogInfo()
 {
   MapDialogInfo MapDI;
-  MapDI.areas = getMapAreaNames();
+  MapDI.areas = MapAreaSetup::instance()->getMapAreaNames();
   MapDI.maps = getMapInfo();
 
   MapDI.default_area = (MapDI.areas.size() > 0 ? MapDI.areas[0] : "");

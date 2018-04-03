@@ -114,6 +114,7 @@ SET (LIBDIANA_SOURCES
   diLogFile.cc
   diMItiff.cc
   diMainPaintable.cc
+  diMapAreaSetup.cc
   diMapInfo.cc
   diMapManager.cc
   diMapPlot.cc
@@ -156,8 +157,8 @@ SET (LIBDIANA_SOURCES
   diSatManager.cc
   diSatPlot.cc
   diShapeObject.cc
-  diStationManager.cc
   diStaticPlot.cc
+  diStationManager.cc
   diStationPlot.cc
   diStationPlotCommand.cc
   diStringPlotCommand.cc

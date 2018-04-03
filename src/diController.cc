@@ -32,22 +32,23 @@
 #include <diController.h>
 
 #include "diAreaObjectsCluster.h"
-#include "diManager.h"
-#include "diPlotModule.h"
-#include "diKVListPlotCommand.h"
-#include "diFieldPlotCluster.h"
-#include "diFieldPlotManager.h"
-#include "diObsManager.h"
-#include "diObsPlotCluster.h"
-#include "diSatManager.h"
-#include "diObjectManager.h"
 #include "diDrawingManager.h"
 #include "diEditManager.h"
+#include "diFieldPlotCluster.h"
+#include "diFieldPlotManager.h"
+#include "diImageGallery.h"
+#include "diKVListPlotCommand.h"
+#include "diLocalSetupParser.h"
+#include "diManager.h"
+#include "diMapAreaSetup.h"
+#include "diMapManager.h"
+#include "diObjectManager.h"
+#include "diObsManager.h"
+#include "diObsPlotCluster.h"
+#include "diPlotModule.h"
+#include "diSatManager.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
-#include "diImageGallery.h"
-#include "diMapManager.h"
-#include "diLocalSetupParser.h"
 #include "miSetupParser.h"
 #include "wmsclient/WebMapManager.h"
 
@@ -168,6 +169,9 @@ bool Controller::parseSetup()
     if (!it->second->parseSetup())
       return false;
   }
+
+  if (!MapAreaSetup::instance()->parseSetup())
+    return false;
 
   MapManager mapm;
   if (!mapm.parseSetup()) return false;

@@ -38,6 +38,7 @@
 #include "diKVListPlotCommand.h"
 #include "diLocationPlot.h"
 #include "diManager.h"
+#include "diMapAreaSetup.h"
 #include "diMapManager.h"
 #include "diMapPlot.h"
 #include "diMeasurementsPlot.h"
@@ -186,8 +187,6 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
-  MapManager mapm;
-
   if (!inp.size())
     return;
   if (inp.size() > 1)
@@ -208,7 +207,7 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
   for (const miutil::KeyValue& kv : cmd->all()) {
     if (!kv.value().empty()) {
       if (kv.key() == key_name) {
-        if (!mapm.getMapAreaByName(kv.value(), requestedarea)) {
+        if (!MapAreaSetup::instance()->getMapAreaByName(kv.value(), requestedarea)) {
           METLIBS_LOG_WARN("Unknown AREA definition '"<< kv.value() << "'");
         }
 
@@ -1523,18 +1522,17 @@ void PlotModule::changeArea(ChangeAreaCommand ca)
     }
     a = areaQ[areaIndex];
   } else {
-    MapManager mapm;
     areaInsert(true);
     if (ca == CA_RECALL_MYAREA) {
       a = myArea;
     } else if (ca == CA_RECALL_F5) { //get predefined areas
-      mapm.getMapAreaByFkey("F5", a);
+      MapAreaSetup::instance()->getMapAreaByFkey("F5", a);
     } else if (ca == CA_RECALL_F6) {
-      mapm.getMapAreaByFkey("F6", a);
+      MapAreaSetup::instance()->getMapAreaByFkey("F6", a);
     } else if (ca == CA_RECALL_F7) {
-      mapm.getMapAreaByFkey("F7", a);
+      MapAreaSetup::instance()->getMapAreaByFkey("F7", a);
     } else if (ca == CA_RECALL_F8) {
-      mapm.getMapAreaByFkey("F8", a);
+      MapAreaSetup::instance()->getMapAreaByFkey("F8", a);
     }
   }
 
