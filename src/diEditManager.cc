@@ -30,8 +30,10 @@
 
 #include "diana_config.h"
 
-#include "diAnnotationPlot.h"
 #include "diEditManager.h"
+
+#include "diAnnotationPlot.h"
+#include "diEventResult.h"
 #include "diFieldEdit.h"
 #include "diFieldPlot.h"
 #include "diFieldPlotCluster.h"

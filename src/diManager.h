@@ -30,7 +30,6 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-#include "diMapMode.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
@@ -44,6 +43,7 @@
 #include <vector>
 
 class PlotModule;
+class EventResult;
 class QKeyEvent;
 class QMouseEvent;
 

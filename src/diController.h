@@ -57,10 +57,12 @@ class DiCanvas;
 class DiGLPainter;
 class DrawingManager;
 class EditManager;
+class EventResult;
 class FieldManager;
 class FieldPlot;
 class FieldPlotManager;
 class Manager;
+class MapAreaNavigator;
 class MapManager;
 class ObjectManager;
 class ObsManager;
@@ -98,6 +100,8 @@ class Controller {
 
 private:
   PlotModule    *plotm;
+  std::unique_ptr<MapAreaNavigator> man_;
+
   FieldManager  *fieldm;
   FieldPlotManager  *fieldplotm;
   ObsManager    *obsm;
@@ -140,13 +144,16 @@ public:
   /// plot annotations only
   std::vector<Rectangle> plotAnnotations(DiGLPainter* gl);
   /// get plotwindow corners in GL-coordinates
-  void getPlotSize(float& x1, float& y1, float& x2, float& y2);
+  const Rectangle& getPlotSize();
   /// get plot area (incl. projection)
   const Area& getMapArea();
-  /// zoom to rectangle r
-  void zoomTo(const Rectangle & r);
-  /// zoom out map
+
+  //! Zoom at position, \see MapAreaNavigator::zoomAt
+  void zoomAt(int steps, float frac_x, float frac_y);
+
+  //! Zoom out map, \see MapAreaNavigator::zoomOut
   void zoomOut();
+
   /// set plotwindow size in pixels (from MainPaintable..)
   void setPlotWindow(const QSize& size);
   /// return latitude,longitude from physical x,y
@@ -243,6 +250,7 @@ public:
 
   /// mouse events
   void sendMouseEvent(QMouseEvent* me, EventResult& res);
+  bool sendMouseEventToManagers(QMouseEvent* me, EventResult& res);
   /// keyboard events
   void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
 

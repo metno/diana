@@ -26,6 +26,7 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef _diMapMode_h
 #define _diMapMode_h
 
@@ -55,46 +56,4 @@ enum combine_modes{
   set_borders     // edit border
 };
 
-/// suggestive use of cursors
-enum cursortype{
-  keep_it,
-  normal_cursor,
-  edit_cursor,
-  edit_move_cursor,
-  edit_value_cursor,
-  draw_cursor,
-  paint_select_cursor,
-  paint_move_cursor,
-  paint_draw_cursor,
-  paint_add_cursor,
-  paint_remove_cursor,
-  paint_forbidden_cursor
-};
-
-enum actiontype {
-  no_action,
-  pointclick,
-  rightclick,
-  browsing,
-  quick_browsing,
-  objects_changed,
-  fields_changed,
-  keypressed,
-  doubleclick
-};
-
-/// returned to GUI after sent keyboard/mouse-events
-struct EventResult{
-  bool repaint;          //! do a repaint
-  bool enable_background_buffer;
-  bool update_background_buffer; //! update background buffer during repaint
-  cursortype newcursor;  // set to new cursor or 'keep_it'
-  actiontype action;     // should the event trigger a GUI-action
-
-  EventResult() { do_nothing(); }
-
-  void do_nothing()
-    { repaint = enable_background_buffer = update_background_buffer = false; newcursor = keep_it; action = no_action; }
-};
-
-#endif
+#endif // _diMapMode_h

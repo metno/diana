@@ -62,8 +62,6 @@
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 
-#include <QMouseEvent>
-
 #include <boost/range/adaptor/map.hpp>
 
 #include <memory>
@@ -78,6 +76,12 @@ using namespace std;
 
 namespace {
 
+// line width used for drawing rubberband
+const float RUBBER_LINEWIDTH = 2;
+
+// minimum rubberband size for drawing (in pixels)
+const float RUBBER_LIMIT = 3 * RUBBER_LINEWIDTH;
+
 double GreatCircleDistance(double lat1, double lat2, double lon1, double lon2)
 {
   return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
@@ -88,21 +92,16 @@ double GreatCircleDistance(double lat1, double lat2, double lon1, double lon2)
 PlotModule *PlotModule::self = 0;
 
 PlotModule::PlotModule()
-  : showanno(true)
-  , staticPlot_(new StaticPlot())
-  , mCanvas(0)
-  , dorubberband(false)
-  , keepcurrentarea(true)
+    : showanno(true)
+    , staticPlot_(new StaticPlot())
+    , mCanvas(0)
+    , dorubberband(false)
+    , keepcurrentarea(true)
 {
   self = this;
-  oldx = newx = oldy = newy = startx = starty = 0;
   mapDefinedByUser = false;
   mapDefinedByData = false;
   mapDefinedByView = false;
-
-  // used to detect map area changes
-  areaIndex = -1;
-  areaSaved = false;
 }
 
 PlotModule::~PlotModule()
@@ -291,7 +290,7 @@ void PlotModule::prepareAnnotation(const PlotCommand_cpv& inp)
   annotationCommands = inp;
 }
 
-void PlotModule::prepareTrajectory(const PlotCommand_cpv& inp)
+void PlotModule::prepareTrajectory(const PlotCommand_cpv&)
 {
   METLIBS_LOG_SCOPE();
   // vtp.push_back(new TrajectoryPlot());
@@ -826,15 +825,11 @@ void PlotModule::plotOver(DiGLPainter* gl)
   }
 
   // plot rubberbox
-  if (dorubberband) {
-#ifdef DEBUGREDRAW
-    METLIBS_LOG_DEBUG("PlotModule::plot rubberband oldx,oldy,newx,newy: "
-        <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy);
-#endif
-    const XY pold = staticPlot_->PhysToMap(XY(oldx, oldy));
-    const XY pnew = staticPlot_->PhysToMap(XY(newx, newy));
+  if (dorubberband && std::abs(rubberband.x2 - rubberband.x1) > RUBBER_LIMIT && std::abs(rubberband.y2 - rubberband.y1) > RUBBER_LIMIT) {
+    const XY pold = staticPlot_->PhysToMap(XY(rubberband.x1, rubberband.y1));
+    const XY pnew = staticPlot_->PhysToMap(XY(rubberband.x2, rubberband.y2));
 
-    gl->setLineStyle(staticPlot_->getBackContrastColour(), 2);
+    gl->setLineStyle(staticPlot_->getBackContrastColour(), RUBBER_LINEWIDTH);
     gl->drawRect(false, pold.x(), pold.y(), pnew.x(), pnew.y());
   }
 }
@@ -888,12 +883,6 @@ void PlotModule::cleanup()
   annotationCommands.clear();
 
   diutil::delete_all_and_clear(vap);
-}
-
-Rectangle PlotModule::getPhysRectangle() const
-{
-  const float pw = staticPlot_->getPhysWidth(), ph = staticPlot_->getPhysHeight();
-  return Rectangle(0, 0, pw, ph);
 }
 
 void PlotModule::callManagersChangeProjection(bool onlyIfEnabled)
@@ -987,7 +976,7 @@ double PlotModule::getWindowDistances(float x, float y, bool horizontal)
   if (!dorubberband)
     return getEntireWindowDistances(horizontal);
   else
-    return getWindowDistances(startx, starty, x, y, horizontal);
+    return getWindowDistances(rubberband.x1, rubberband.y1, x, y, horizontal);
 }
 
 double PlotModule::getMarkedArea(float x, float y)
@@ -995,7 +984,7 @@ double PlotModule::getMarkedArea(float x, float y)
   if (!dorubberband)
     return 0;
   else
-    return getWindowArea(startx, starty, x, y);
+    return getWindowArea(rubberband.x1, rubberband.y1, x, y);
 }
 
 double PlotModule::getWindowArea()
@@ -1414,253 +1403,6 @@ void PlotModule::setObjAuto(bool autoF)
   objm->setObjAuto(autoF);
 }
 
-void PlotModule::areaInsert(bool newArea)
-{
-  if (newArea && areaSaved) {
-    areaSaved = false;
-    return;
-  }
-  if (!newArea) {
-    if (areaSaved)
-      return;
-    else
-      areaSaved = true;
-  }
-
-  if(areaIndex>-1){
-    areaQ.erase(areaQ.begin() + areaIndex + 1, areaQ.end());
-  }
-  if (areaQ.size() > 20)
-    areaQ.pop_front();
-  else
-    areaIndex++;
-
-  areaQ.push_back(staticPlot_->getMapArea());
-}
-
-void PlotModule::changeArea(ChangeAreaCommand ca)
-{
-  if (ca == CA_DEFINE_MYAREA) {
-    myArea = staticPlot_->getMapArea();
-    return;
-  }
-
-  Area a;
-
-  if (ca == CA_HISTORY_PREVIOUS || ca == CA_HISTORY_NEXT) {
-    areaInsert(false);
-    if (ca == CA_HISTORY_PREVIOUS) {
-      if (areaIndex < 1)
-        return;
-      areaIndex--;
-    } else { // go to next area
-      if (areaIndex + 2 > int(areaQ.size()))
-        return;
-      areaIndex++;
-    }
-    a = areaQ[areaIndex];
-  } else {
-    areaInsert(true);
-    if (ca == CA_RECALL_MYAREA) {
-      a = myArea;
-    } else if (ca == CA_RECALL_F5) { //get predefined areas
-      MapAreaSetup::instance()->getMapAreaByFkey("F5", a);
-    } else if (ca == CA_RECALL_F6) {
-      MapAreaSetup::instance()->getMapAreaByFkey("F6", a);
-    } else if (ca == CA_RECALL_F7) {
-      MapAreaSetup::instance()->getMapAreaByFkey("F7", a);
-    } else if (ca == CA_RECALL_F8) {
-      MapAreaSetup::instance()->getMapAreaByFkey("F8", a);
-    }
-  }
-
-  setMapArea(a);
-}
-
-void PlotModule::zoomOut()
-{
-  const float scale = 0.15;
-  const float dx = scale * staticPlot_->getPhysWidth(),
-      dy = scale * staticPlot_->getPhysHeight();
-
-  areaInsert(true);
-  setMapAreaFromPhys(diutil::adjustedRectangle(getPhysRectangle(), dx, dy));
-}
-
-// keyboard/mouse events
-void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
-{
-  newx = me->x();
-  newy = me->y();
-
-  // ** mousepress
-  if (me->type() == QEvent::MouseButtonPress) {
-    oldx = me->x();
-    oldy = me->y();
-
-    if (me->button() == Qt::LeftButton) {
-      dorubberband = true;
-      res.enable_background_buffer = true;
-      res.update_background_buffer = false;
-      res.repaint = true;
-      startx = me->x();
-      starty = me->y();
-      return;
-
-    } else if (me->button() == Qt::MidButton) {
-      areaInsert(true);
-      staticPlot_->setPanning(true);
-      res.newcursor = paint_move_cursor;
-      return;
-    }
-
-    else if (me->button() == Qt::RightButton) {
-      res.action = rightclick;
-    }
-
-    return;
-  }
-  // ** mousemove
-  else if (me->type() == QEvent::MouseMove) {
-
-    res.action = browsing;
-
-    if (dorubberband) {
-      res.action = quick_browsing;
-      res.enable_background_buffer = true;
-      res.update_background_buffer = false;
-      res.repaint = true;
-      return;
-
-    } else if (staticPlot_->isPanning()) {
-      const float dx = oldx - me->x(), dy = oldy - me->y();
-      setMapAreaFromPhys(diutil::translatedRectangle(getPhysRectangle(), dx, dy));
-      oldx = me->x();
-      oldy = me->y();
-
-      res.action = quick_browsing;
-      res.enable_background_buffer = true;
-      res.update_background_buffer = true;
-      res.repaint = true;
-      res.newcursor = paint_move_cursor;
-      return;
-    }
-
-  }
-  // ** mouserelease
-  else if (me->type() == QEvent::MouseButtonRelease) {
-
-    bool plotnew = false;
-
-    res.enable_background_buffer = false;
-    res.update_background_buffer = false;
-
-    float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-    // minimum rubberband size for zooming (in pixels)
-    const float rubberlimit = 15.;
-
-    if (me->button() == Qt::RightButton) { // zoom out
-
-      //end of popup
-      //res.action= rightclick;
-
-    } else if (me->button() == Qt::LeftButton) {
-
-      x1 = oldx;
-      y1 = oldy;
-      x2 = me->x();
-      y2 = me->y();
-
-      if (oldx > x2) {
-        x1 = x2;
-        x2 = oldx;
-      }
-      if (oldy > y2) {
-        y1 = y2;
-        y2 = oldy;
-      }
-      if (fabsf(x2 - x1) > rubberlimit && fabsf(y2 - y1) > rubberlimit) {
-        if (dorubberband)
-          plotnew = true;
-      } else {
-        res.action = pointclick;
-      }
-
-      dorubberband = false;
-      startx = starty = 0;
-
-    } else if (me->button() == Qt::MidButton) {
-      staticPlot_->setPanning(false);
-      res.enable_background_buffer = false;
-      res.update_background_buffer = false;
-      res.repaint = true;
-      return;
-    }
-    if (plotnew) {
-      //define new plotarea, first save the old one
-      areaInsert(true);
-      setMapAreaFromPhys(Rectangle(x1, y1, x2, y2));
-
-      res.enable_background_buffer = false;
-      res.update_background_buffer = true;
-      res.repaint = true;
-    }
-
-    return;
-  }
-  // ** mousedoubleclick
-  else if (me->type() == QEvent::MouseButtonDblClick) {
-    res.action = doubleclick;
-  }
-}
-
-void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventResult& res)
-{
-  static int arrowKeyDirection = 1;
-
-  float dx = 0, dy = 0;
-  float zoom = 0.;
-
-  if (anav == ANAV_HOME) {
-    keepcurrentarea = false;
-    updatePlots();
-    keepcurrentarea = true;
-  } else if (anav == ANAV_TOGGLE_DIRECTION) {
-    arrowKeyDirection *= -1;
-    return;
-  } else if (anav == ANAV_PAN_LEFT)
-    dx = -staticPlot_->getPhysWidth() / 8.0f;
-  else if (anav == ANAV_PAN_RIGHT)
-    dx = staticPlot_->getPhysWidth() / 8.0f;
-  else if (anav == ANAV_PAN_DOWN)
-    dy = -staticPlot_->getPhysHeight() / 8.0f;
-  else if (anav == ANAV_PAN_UP)
-    dy = staticPlot_->getPhysHeight() / 8.0f;
-  else if (anav == ANAV_ZOOM_OUT)
-    zoom = 1.3;
-  else if (anav == ANAV_ZOOM_IN)
-    zoom = 1. / 1.3;
-
-  if (zoom > 0. || dx != 0 || dy != 0) {
-    Rectangle r;
-    if (dx != 0 || dy != 0) {
-      dx *= arrowKeyDirection;
-      dy *= arrowKeyDirection;
-      r = diutil::translatedRectangle(getPhysRectangle(), dx, dy);
-    } else {
-      dx = staticPlot_->getPhysWidth()*(zoom-1);
-      dy = staticPlot_->getPhysHeight()*(zoom-1);
-      r = diutil::adjustedRectangle(getPhysRectangle(), dx, dy);
-    }
-    //define new plotarea, first save the old one
-    areaInsert(true);
-    setMapAreaFromPhys(r);
-  }
-
-  res.enable_background_buffer = false;
-  res.repaint = true;
-}
-
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();
@@ -1695,48 +1437,6 @@ bool PlotModule::printTrajectoryPositions(const std::string& filename)
     return vtp[0]->printTrajectoryPositions(filename);
 
   return false;
-}
-
-/********************* reading and writing log file *******************/
-
-vector<std::string> PlotModule::writeLog()
-{
-  //put last area in areaQ
-  areaInsert(true);
-
-  vector<std::string> vstr;
-
-  //Write self-defined area (F2)
-  std::string aa = "name=F2 " + myArea.getAreaString();
-  vstr.push_back(aa);
-
-  //Write all araes in list (areaQ)
-  for (size_t i = 0; i < areaQ.size(); i++) {
-    aa = "name=" + miutil::from_number(int(i)) + " " + areaQ[i].getAreaString();
-    vstr.push_back(aa);
-  }
-
-  return vstr;
-}
-
-void PlotModule::readLog(const vector<std::string>& vstr,
-    const std::string& thisVersion, const std::string& logVersion)
-{
-  areaQ.clear();
-  Area area;
-  for (size_t i = 0; i < vstr.size(); i++) {
-
-    if(!area.setAreaFromString(vstr[i])) {
-      continue;
-    }
-    if (area.Name() == "F2") {
-      myArea = area;
-    } else {
-      areaQ.push_back(area);
-    }
-  }
-
-  areaIndex = areaQ.size() - 1;
 }
 
 /// get static maparea in plot superclass

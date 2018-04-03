@@ -77,7 +77,7 @@ public:
   std::vector<std::string> getAnnotations() const override;
 
   void sendMouseEvent(QMouseEvent* event, EventResult& res) override;
-  void sendKeyboardEvent(QKeyEvent* /*event*/, EventResult& /*res*/) override {}
+  void sendKeyboardEvent(QKeyEvent* event, EventResult& res) override;
 
   QList<DrawingItemBase *> findHitItems(const QPointF &pos,
     QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > &hitItemTypes,

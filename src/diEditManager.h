@@ -46,6 +46,7 @@
 
 class AnnotationPlot;
 class DiGLPainter;
+class EventResult;
 class Field;
 class FieldPlotManager;
 class ObjectManager;

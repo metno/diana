@@ -28,6 +28,7 @@
 */
 
 #include "diEditItemManager.h"
+
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/editcomposite.h"
 #include "EditItems/edititembase.h"
@@ -38,6 +39,7 @@
 #include "EditItems/kml.h"
 #include "EditItems/properties.h"
 #include "EditItems/toolbar.h"
+#include "diEventResult.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diPlotModule.h"

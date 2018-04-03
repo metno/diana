@@ -29,7 +29,7 @@
 #ifndef _qtMainPaintableUiEventHandler_h
 #define _qtMainPaintableUiEventHandler_h
 
-#include "diMapMode.h" // for EventResult, cursortype
+#include "diEventResult.h"
 #include "qtUiEventHandler.h"
 
 #include <map>

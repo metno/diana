@@ -706,15 +706,11 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   const int w_margin = 1;
   centralWidget()->layout()->setContentsMargins(w_margin, w_margin, w_margin, w_margin);
 
-  connect(w->Gli(), SIGNAL(mouseGridPos(QMouseEvent*)), SLOT(catchMouseGridPos(QMouseEvent*)));
-
-  connect(w->Gli(), SIGNAL(mouseRightPos(QMouseEvent*)), SLOT(catchMouseRightPos(QMouseEvent*)));
-
-  connect(w->Gli(), SIGNAL(mouseMovePos(QMouseEvent*, bool)), SLOT(catchMouseMovePos(QMouseEvent*, bool)));
-
-  connect(w->Gli(), SIGNAL(keyPress(QKeyEvent*)), SLOT(catchKeyPress(QKeyEvent*)));
-
-  connect(w->Gli(), SIGNAL(mouseDoubleClick(QMouseEvent*)), SLOT(catchMouseDoubleClick(QMouseEvent*)));
+  connect(w->Gli(), &MainUiEventHandler::mouseGridPos, this, &DianaMainWindow::catchMouseGridPos);
+  connect(w->Gli(), &MainUiEventHandler::mouseRightPos, this, &DianaMainWindow::catchMouseRightPos);
+  connect(w->Gli(), &MainUiEventHandler::mouseMovePos, this, &DianaMainWindow::catchMouseMovePos);
+  connect(w->Gli(), &MainUiEventHandler::mouseDoubleClick, this, &DianaMainWindow::catchMouseDoubleClick);
+  connect(w->Gli(), &MainUiEventHandler::keyPress, this, &DianaMainWindow::catchKeyPress);
 
   // ----------- init dialog-objects -------------------
 

@@ -114,6 +114,7 @@ SET (LIBDIANA_SOURCES
   diLogFile.cc
   diMItiff.cc
   diMainPaintable.cc
+  diMapAreaNavigator.cc
   diMapAreaSetup.cc
   diMapInfo.cc
   diMapManager.cc
@@ -421,6 +422,7 @@ LIST (APPEND LIBDIANA_HEADERS
   diAreaTypes.h
   diCommonTypes.h
   diEditTypes.h
+  diEventResult.h
   diObjTypes.h
   diPlotElement.h
   diSatTypes.h

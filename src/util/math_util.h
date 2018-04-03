@@ -2,6 +2,7 @@
 #ifndef DIANA_UTIL_MATH_UTIL_H
 #define DIANA_UTIL_MATH_UTIL_H 1
 
+#include <algorithm>
 #include <cmath>
 
 namespace diutil {
@@ -23,6 +24,12 @@ inline T absval2(T x, T y)
 template<typename T>
 inline T absval(T x, T y)
 { return std::sqrt(absval2(x, y)); }
+
+template <typename T> inline void sort2(T& a, T& b)
+{
+  if (b < a)
+    std::swap(a, b);
+}
 
 float GreatCircleDistance(float lat1_deg, float lat2_deg, float lon1_deg, float lon2_deg);
 

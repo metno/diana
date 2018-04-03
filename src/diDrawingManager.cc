@@ -678,7 +678,7 @@ bool DrawingManager::enablePlotElement(const PlotElement &pe)
 /**
  * Handles mouse events when used as part of Diana instead of bdiana.
  */
-void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
+void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult&)
 {
   if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
     // Find a list of items at the point passed in the event.
@@ -688,6 +688,10 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
     if (hit.size() > 0)
       emit itemsHovered(hit);
   }
+}
+
+void DrawingManager::sendKeyboardEvent(QKeyEvent*, EventResult&)
+{
 }
 
 QList<DrawingItemBase *> DrawingManager::findHitItems(const QPointF &pos,

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2017 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -69,34 +69,32 @@ bool MainUiEventHandler::handleMouseEvents(QMouseEvent* me)
   setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
-  if (res.action != no_action) {
-    switch (res.action) {
-    case browsing:
-      emit mouseMovePos(&me2, false);
-      break;
-    case quick_browsing:
-      emit mouseMovePos(&me2, true);
-      break;
-    case pointclick:
-      emit mouseGridPos(&me2);
-      break;
-    case rightclick:
-      emit mouseRightPos(&me2);
-      break;
-    case objects_changed:
-      emit objectsChanged();
-      break;
-    case fields_changed:
-      emit fieldsChanged();
-      break;
-    case doubleclick:
-      emit mouseDoubleClick(&me2);
-      break;
-    case keypressed:
-      break;
-    case no_action:
-      break;
-    }
+  switch (res.action) {
+  case browsing:
+    emit mouseMovePos(&me2, false);
+    break;
+  case quick_browsing:
+    emit mouseMovePos(&me2, true);
+    break;
+  case pointclick:
+    emit mouseGridPos(&me2);
+    break;
+  case rightclick:
+    emit mouseRightPos(&me2);
+    break;
+  case objects_changed:
+    emit objectsChanged();
+    break;
+  case fields_changed:
+    emit fieldsChanged();
+    break;
+  case doubleclick:
+    emit mouseDoubleClick(&me2);
+    break;
+  case keypressed:
+    break;
+  case no_action:
+    break;
   }
 
   return res.repaint;
@@ -111,7 +109,6 @@ bool MainUiEventHandler::handleKeyEvents(QKeyEvent* ke)
   setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
-  if (res.action != no_action) {
     switch (res.action) {
     case objects_changed:
       emit objectsChanged();
@@ -121,7 +118,6 @@ bool MainUiEventHandler::handleKeyEvents(QKeyEvent* ke)
       break;
     default:
       break;
-    }
   }
 
   return res.repaint;
@@ -132,26 +128,19 @@ bool MainUiEventHandler::handleKeyEvents(QKeyEvent* ke)
 bool MainUiEventHandler::handleWheelEvents(QWheelEvent* we)
 {
   if (useScrollwheelZoom() && we->orientation() == Qt::Vertical) {
-    int numDegrees = we->delta() / 8;
-    int numSteps = numDegrees / 15;
-    if (numSteps > 0) {
-      float x1, y1, x2, y2;
-      float xmap, ymap;
+    const int numDegrees = we->delta() / 8;
+    const int numSteps = numDegrees / 15;
+    if (numSteps != 0) {
+      // convert wheel event position to "phys" coordinate system used by PlotModule
+      const int we_phys_x = we->x(), we_phys_y = -(we->y() - p->size().height());
+      const float frac_x = we_phys_x / float(p->size().width());
+      const float frac_y = we_phys_y / float(p->size().height());
 
-      p->controller()->getPlotSize(x1, y1, x2, y2);
-      /// (why -(y-height())? I have no idea ...)
-      p->controller()->PhysToMap(we->x(), -(we->y() - p->size().height()), xmap, ymap);
+      p->controller()->zoomAt(numSteps, frac_x, frac_y);
 
-      int wd = static_cast<int>((x2 - x1) / 3.);
-      int hd = static_cast<int>((y2 - y1) / 3.);
-
-      Rectangle r(xmap - wd, ymap - hd, xmap + wd, ymap + hd);
-      p->controller()->zoomTo(r);
-    } else {
-      p->controller()->zoomOut();
+      p->update_background_buffer = true;
+      return true;
     }
-    p->update_background_buffer = true;
-    return true;
   }
   return false;
 }

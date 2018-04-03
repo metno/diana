@@ -31,7 +31,6 @@
 
 #include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
-#include "diMapMode.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
@@ -42,11 +41,11 @@
 #include <deque>
 #include <memory>
 
-class ObsPlot;
 class MapPlot;
 class AnnotationPlot;
 class AreaObjectsCluster;
 class FieldManager;
+class ObsPlot;
 class FieldPlotManager;
 class FieldPlotCluster;
 struct LocationData;
@@ -114,14 +113,9 @@ private:
 
   std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
-  // event-handling
-  float oldx, oldy;
-  float newx, newy;
-  float startx, starty;
-  Area myArea;
-  std::deque<Area> areaQ;
-  int areaIndex;
-  bool areaSaved;
+  //! Rectangle with phys coordinates of rubberband.
+  Rectangle rubberband;
+
   bool dorubberband;
   bool keepcurrentarea;
 
@@ -153,20 +147,12 @@ private:
   /// handles annotation plot info strings
   void prepareAnnotation(const PlotCommand_cpv&);
 
-  /// receive rectangle in pixels
-  void setMapAreaFromPhys(const Rectangle& phys);
-
   double getWindowDistances(float x1, float y1, float x2, float y2, bool horizontal);
   double getEntireWindowDistances(const bool horizontal);
   double getWindowArea(int x1, int y1, int x2, int y2);
 
   static double getArea(float flat1, float flat2, float flat3, float flat4, float flon1, float flon2, float flon3, float flon4);
   static double calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag);
-
-  /// create a Rectangle from staticPlot phys size
-  Rectangle getPhysRectangle() const;
-
-  void setMapArea(const Area& area);
 
   void callManagersChangeProjection(bool onlyIfEnabled);
   bool defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea);
@@ -197,10 +183,10 @@ public:
   bool updatePlots();
 
   /// toggle conservative map area
-  void keepCurrentArea(bool b)
-  {
-    keepcurrentarea = b;
-  }
+  void setKeepCurrentArea(bool b) { keepcurrentarea = b; }
+
+  //! query conservative map area
+  bool isKeepCurrentArea() const { return keepcurrentarea; }
 
   /// get static maparea in plot superclass
   const Area& getMapArea();
@@ -304,55 +290,25 @@ public:
   ///objects follow main plot time
   void setObjAuto(bool autoF);
 
-  /// push a new area onto the area stack
-  void areaInsert(bool);
+  void setRubberband(bool enable) { dorubberband = enable; }
+  bool isRubberband() const { return dorubberband; }
 
-  enum ChangeAreaCommand {
-    CA_HISTORY_PREVIOUS,
-    CA_HISTORY_NEXT,
-    CA_DEFINE_MYAREA,
-    CA_RECALL_MYAREA,
-    CA_RECALL_F5,
-    CA_RECALL_F6,
-    CA_RECALL_F7,
-    CA_RECALL_F8,
-  };
+  //! Set rectangle with phys coordinates of rubberband.
+  void setRubberbandRectangle(const Rectangle& rr) { rubberband = rr; }
 
-  /// respond to shortcuts to move to predefined areas
-  void changeArea(ChangeAreaCommand ca);
+  void setMapArea(const Area& area);
 
-  /// zoom to specified rectangle
+  /// zoom to specified rectangle, using the same projection as before
   void setMapAreaFromMap(const Rectangle& rectangle);
-  /// zoom out (about 1.3 times)
-  void zoomOut();
+
+  /// receive rectangle in pixels
+  void setMapAreaFromPhys(const Rectangle& phys);
 
   // plotelements methods
   /// return PlotElement data (for the speedbuttons)
   std::vector<PlotElement> getPlotElements();
   /// enable one PlotElement
   void enablePlotElement(const PlotElement& pe);
-
-  // keyboard/mouse events
-  /// send one mouse event
-  void sendMouseEvent(QMouseEvent* me, EventResult& res);
-
-  enum AreaNavigationCommand {
-    ANAV_HOME,
-    ANAV_TOGGLE_DIRECTION,
-    ANAV_PAN_LEFT,
-    ANAV_PAN_RIGHT,
-    ANAV_PAN_DOWN,
-    ANAV_PAN_UP,
-    ANAV_ZOOM_OUT,
-    ANAV_ZOOM_IN
-  };
-  void areaNavigation(AreaNavigationCommand anav, EventResult& res);
-
-  // return settings formatted for log file
-  std::vector<std::string> writeLog();
-  // read settings from log file data
-  void readLog(const std::vector<std::string>& vstr,
-      const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
   FieldPlotCluster* fieldplots()

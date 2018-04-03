@@ -29,17 +29,19 @@
 
 #include "diana_config.h"
 
-#include <diController.h>
+#include "diController.h"
 
 #include "diAreaObjectsCluster.h"
 #include "diDrawingManager.h"
 #include "diEditManager.h"
+#include "diEventResult.h"
 #include "diFieldPlotCluster.h"
 #include "diFieldPlotManager.h"
 #include "diImageGallery.h"
 #include "diKVListPlotCommand.h"
 #include "diLocalSetupParser.h"
 #include "diManager.h"
+#include "diMapAreaNavigator.h"
 #include "diMapAreaSetup.h"
 #include "diMapManager.h"
 #include "diObjectManager.h"
@@ -61,6 +63,8 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
+#include <boost/range/adaptor/map.hpp>
+
 #define MILOGGER_CATEGORY "diana.Controller"
 #include <miLogger/miLogging.h>
 
@@ -81,6 +85,7 @@ Controller::Controller()
   stam=       new StationManager;
   // plot central
   plotm= new PlotModule();
+  man_.reset(new MapAreaNavigator(plotm));
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
@@ -165,8 +170,8 @@ bool Controller::parseSetup()
   if (!editm->parseSetup()) return false;
   if (!stam->parseSetup()) return false;
 
-  for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-    if (!it->second->parseSetup())
+  for (Manager* m : boost::adaptors::values(plotm->managers)) {
+    if (!m->parseSetup())
       return false;
   }
 
@@ -210,13 +215,9 @@ vector<Rectangle> Controller::plotAnnotations(DiGLPainter* gl)
 }
 
 // get plotwindow corners in GL-coordinates
-void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2)
+const Rectangle& Controller::getPlotSize()
 {
-  const Rectangle& r = plotm->getPlotSize();
-  x1= r.x1;
-  x2= r.x2;
-  y1= r.y1;
-  y2= r.y2;
+  return plotm->getPlotSize();
 }
 
 // get plot area (incl. projection)
@@ -225,14 +226,14 @@ const Area& Controller::getMapArea()
   return plotm->getMapArea();
 }
 
-void Controller::zoomTo(const Rectangle& r)
+void Controller::zoomAt(int steps, float frac_x, float frac_y)
 {
-  plotm->setMapAreaFromMap(r);
+  man_->zoomAt(steps, frac_x, frac_y);
 }
 
 void Controller::zoomOut()
 {
-  plotm->zoomOut();
+  man_->zoomOut();
 }
 
 // plotwindow size from MainPaintable..
@@ -317,7 +318,7 @@ void Controller::setPlotTime(const miTime& t)
 // toggle area conservatism
 void Controller::keepCurrentArea(bool b)
 {
-  plotm->keepCurrentArea(b);
+  plotm->setKeepCurrentArea(b);
 }
 
 // update plot-classes with new data
@@ -488,6 +489,24 @@ void Controller::archiveMode(bool on)
 
 // keyboard/mouse events
 
+bool Controller::sendMouseEventToManagers(QMouseEvent* me, EventResult& res)
+{
+  if (editm->isInEdit() && !editm->getEditPause()) {
+    editm->sendMouseEvent(me, res);
+    return true;
+  }
+
+  // Send the event to the other managers to see if one of them will handle it.
+  for (Manager* m : boost::adaptors::values(plotm->managers)) {
+    if (m->isEnabled()) {
+      m->sendMouseEvent(me, res);
+      if (me->isAccepted())
+        return true;
+    }
+  }
+  return false;
+}
+
 //------------------------------------------------------------
 // the mouseevents are sent from GUI to controller
 //
@@ -507,45 +526,24 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
   me->setAccepted(false);
 
-  mapMode mm= editm->getMapMode();
-  bool inEdit = (mm != normal_mode);
-  bool editpause= editm->getEditPause();
+  const bool shiftmodifier = (me->modifiers() & Qt::ShiftModifier);
+  const bool inEdit = editm->isInEdit();
 
   // first check events independent of mode
   //-------------------------------------
-  if (me->type() == QEvent::MouseButtonPress && me->modifiers() & Qt::ShiftModifier){
+  if (me->type() == QEvent::MouseButtonPress && shiftmodifier) {
     // turn off editing functions temporarily until mouse-release
     // event. Pan and Zoom will now work when editing
     editoverride= true;
   }
-  // catch events to editmanager
-  //-------------------------------------
-  if (inEdit && !editoverride && !editpause){
-    if (inEdit){
-      editm->sendMouseEvent(me,res);
-#ifdef DEBUGREDRAW
-      METLIBS_LOG_DEBUG(LOGVAL(res.repaint) << LOGVAL(res.enable_background_buffer)
-          << LOGVAL(res.savebackground) << LOGVAL(res.action));
-#endif
-    }
-  } else {
-    // Send the event to the other managers to see if one of them will handle it.
-    bool handled = false;
-    if (!editoverride) {
-      for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-        if (it->second->isEnabled()) {
-          it->second->sendMouseEvent(me, res);
-          if (me->isAccepted()) {
-            handled = true;
-            break;
-          }
-        }
-      }
-    }
-    if (!handled) {
-      res.newcursor= normal_cursor;
-      plotm->sendMouseEvent(me,res);
-    }
+
+  bool handled = false;
+  if (!editoverride) {
+    handled = sendMouseEventToManagers(me, res);
+  }
+  if (!handled) {
+    res.newcursor = normal_cursor;
+    man_->sendMouseEvent(me, res);
   }
 
   // final mode-independent checks
@@ -554,7 +552,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     editoverride= false;
   }
 
-  if (editoverride || me->modifiers() & Qt::ShiftModifier){ // set normal cursor
+  if (editoverride || shiftmodifier) { // set normal cursor
     res.newcursor= normal_cursor;
   }
 
@@ -573,28 +571,29 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 //
 void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
-  bool keyoverride = false;
   res.do_nothing();
 
-  if (ke->key() == Qt::Key_unknown) return;
-
-  // Old editing checks to override normal keypress behaviour.
-  mapMode mm = editm->getMapMode();
-  bool inEdit = (mm != normal_mode);
+  if (ke->key() == Qt::Key_unknown)
+    return;
 
   // A more general way to override normal keypress behaviour is to query
   // the managers to find any that are in editing mode.
-  for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-    if (it->second->isEnabled() && it->second->isEditing()) {
-      it->second->sendKeyboardEvent(ke, res);
-      if (ke->isAccepted() || it->second->hasFocus())
+  for (Manager* m : boost::adaptors::values(plotm->managers)) {
+    if (m->isEnabled() && m->isEditing()) {
+      m->sendKeyboardEvent(ke, res);
+      if (ke->isAccepted() || m->hasFocus())
         return;
     }
   }
 
+  const bool shiftmodifier = (ke->modifiers() & Qt::ShiftModifier);
+  // Old editing checks to override normal keypress behaviour.
+  const bool inEdit = editm->isInEdit();
+
   // Access to normal keypress behaviour is obtained by holding down the Shift key
   // when in the old editing mode, or when editing is paused.
-  if ((ke->type() == QEvent::KeyPress && ke->modifiers() & Qt::ShiftModifier) ||editm->getEditPause()) {
+  bool keyoverride = false;
+  if ((ke->type() == QEvent::KeyPress && shiftmodifier) || editm->getEditPause()) {
     keyoverride= true;
   }
 
@@ -602,7 +601,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   //-------------------------------------
   if (ke->type() == QEvent::KeyPress){
     if (ke->key() == Qt::Key_PageUp or ke->key() == Qt::Key_PageDown) {
-      const bool forward = ke->key() == Qt::Key_PageDown;
+      const bool forward = (ke->key() == Qt::Key_PageDown);
       plotm->obsplots()->nextObs(forward);  // browse through observations
       res.repaint= true;
       res.update_background_buffer = true;
@@ -616,26 +615,25 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
             ke->key() == Qt::Key_F8)) {
 
       const int key = ke->key();
-      PlotModule::ChangeAreaCommand caco;
-      if (key == Qt::Key_F2 && ke->modifiers() & Qt::ShiftModifier)
-        caco = PlotModule::CA_DEFINE_MYAREA;
-      else if (key == Qt::Key_F3)
-        caco = PlotModule::CA_HISTORY_PREVIOUS;
+      if (key == Qt::Key_F2) {
+        if (ke->modifiers() & Qt::ShiftModifier)
+          man_->defineUserArea();
+        else
+          man_->recallUserArea();
+      } else if (key == Qt::Key_F3)
+        man_->recallPreviousArea();
       else if (key == Qt::Key_F4)
-        caco = PlotModule::CA_HISTORY_NEXT;
-      else if (key == Qt::Key_F2)
-        caco = PlotModule::CA_RECALL_MYAREA;
+        man_->recallNextArea();
       else if (key == Qt::Key_F5)
-        caco = PlotModule::CA_RECALL_F5;
+        man_->recallFkeyArea("F5");
       else if (key == Qt::Key_F6)
-        caco = PlotModule::CA_RECALL_F6;
+        man_->recallFkeyArea("F6");
       else if (key == Qt::Key_F7)
-        caco = PlotModule::CA_RECALL_F7;
+        man_->recallFkeyArea("F7");
       else if (key == Qt::Key_F8)
-        caco = PlotModule::CA_RECALL_F8;
+        man_->recallFkeyArea("F8");
       else
         return;
-      plotm->changeArea(caco);
       res.repaint= true;
       res.update_background_buffer = true;
       if (inEdit)
@@ -659,33 +657,30 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
             ke->key() == Qt::Key_Home))
     {
       if (ke->type() == QEvent::KeyPress) {
-        PlotModule::AreaNavigationCommand anav;
         if (ke->key() == Qt::Key_Home)
-          anav = PlotModule::ANAV_HOME;
+          man_->areaHome();
         else if (ke->key() == Qt::Key_Left)
-          anav = PlotModule::ANAV_PAN_LEFT;
+          man_->panStep(-1, 0);
         else if (ke->key() == Qt::Key_Right)
-          anav = PlotModule::ANAV_PAN_RIGHT;
+          man_->panStep(+1, 0);
         else if (ke->key() == Qt::Key_Down)
-          anav = PlotModule::ANAV_PAN_DOWN;
+          man_->panStep(0, -1);
         else if (ke->key() == Qt::Key_Up)
-          anav = PlotModule::ANAV_PAN_UP;
+          man_->panStep(0, +1);
         else if (ke->key() == Qt::Key_X)
-          anav = PlotModule::ANAV_ZOOM_OUT;
+          man_->zoomOut();
         else if (ke->key() == Qt::Key_Z)
-          anav = PlotModule::ANAV_ZOOM_IN;
+          man_->zoomIn();
         else
           return;
 
-        plotm->areaNavigation(anav, res);
         res.repaint= true;
+        res.enable_background_buffer = inEdit;
         res.update_background_buffer = true;
-        if (inEdit)
-          res.enable_background_buffer = true;
       }
       return;
     } else if (ke->key() == Qt::Key_R) {
-      plotm->areaNavigation(PlotModule::ANAV_TOGGLE_DIRECTION, res);
+      man_->togglePanStepDirection();
       return;
     }
   }
@@ -698,15 +693,13 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
   // catch events to PlotModule
   //-------------------------------------
-  if( !inEdit || keyoverride ) {
+  if (!inEdit || keyoverride) {
     if (ke->type() == QEvent::KeyPress)
       res.action = keypressed;
   }
 
   if (inEdit) // always use underlay when in edit-mode
     res.enable_background_buffer = true;
-
-  return;
 }
 
 // ----- edit and drawing methods ----------
@@ -1085,14 +1078,14 @@ void Controller::enablePlotElement(const PlotElement& pe)
 
 vector<string> Controller::writeLog()
 {
-  return plotm->writeLog();
+  return man_->writeLog();
 }
 
 void Controller::readLog(const vector<string>& vstr,
     const string& thisVersion,
     const string& logVersion)
 {
-  plotm->readLog(vstr,thisVersion,logVersion);
+  man_->readLog(vstr, thisVersion, logVersion);
 }
 
 // Miscellaneous get methods
