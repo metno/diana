@@ -1274,7 +1274,7 @@ bool FieldFunctions::fieldComputer(Function function,
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = log10(finp[0][i]);
+        fout[0][i] = std::log10(finp[0][i]);
       else
         fout[0][i] = difield::UNDEF;
     }
@@ -1287,7 +1287,7 @@ bool FieldFunctions::fieldComputer(Function function,
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = pow10(finp[0][i]);
+        fout[0][i] = std::pow(10, finp[0][i]);
       else
         fout[0][i] = difield::UNDEF;
     }
@@ -1300,7 +1300,7 @@ bool FieldFunctions::fieldComputer(Function function,
     DIUTIL_OPENMP_PARALLEL(fsize, for)
     for (int i = 0; i < fsize; i++) {
       if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = log(finp[0][i]);
+        fout[0][i] = std::log(finp[0][i]);
       else
         fout[0][i] = difield::UNDEF;
     }
