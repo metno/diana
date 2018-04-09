@@ -138,6 +138,9 @@ WebMapDialog::WebMapDialog(QWidget *parent, Controller *ctrl)
 
   setupUi();
   initializeAddServicePage(true);
+
+  if (WebMapManager* wmm = WebMapManager::instance())
+    connect(wmm, &WebMapManager::serviceRefreshFinished, this, &DataDialog::updateTimes);
 }
 
 WebMapDialog::~WebMapDialog()
@@ -557,4 +560,6 @@ KVListPlotCommand_cp WebMapDialog::plotCommand(size_t idx) const
 
 void WebMapDialog::updateTimes()
 {
+  if (WebMapManager* wmm = WebMapManager::instance())
+    emitTimes(WEBMAP, wmm->getTimes(), false);
 }

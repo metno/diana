@@ -339,6 +339,24 @@ void WebMapPlot::setFixedTime(const std::string& fixedTime)
   mFixedTime = fixedTime;
 }
 
+plottimes_t WebMapPlot::getTimes()
+{
+  findLayerAndTimeDimension();
+
+  plottimes_t times;
+  if (mLayer && (mTimeIndex >= 0)) {
+    const WebMapDimension& timeDim = mLayer->dimension(mTimeIndex);
+    for (size_t i = 0; i < timeDim.count(); ++i) {
+      const miutil::miTime t = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
+      if (!t.undef()) {
+        METLIBS_LOG_DEBUG(LOGVAL(t));
+        times.insert(t);
+      }
+    }
+  }
+  return times;
+}
+
 void WebMapPlot::serviceRefreshStarting()
 {
   METLIBS_LOG_SCOPE();
@@ -348,7 +366,16 @@ void WebMapPlot::serviceRefreshStarting()
 
 void WebMapPlot::serviceRefreshFinished()
 {
+  findLayerAndTimeDimension();
+  Q_EMIT update();
+}
+
+void WebMapPlot::findLayerAndTimeDimension()
+{
   METLIBS_LOG_SCOPE(LOGVAL(mLayerId));
+  if (mLayer)
+    return;
+
   mLayer = mService->findLayerByIdentifier(mLayerId);
   mTimeIndex = -1;
   mTimeSelected = -1;
@@ -366,5 +393,4 @@ void WebMapPlot::serviceRefreshFinished()
       }
     }
   }
-  Q_EMIT update();
 }

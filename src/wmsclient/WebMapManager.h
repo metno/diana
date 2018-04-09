@@ -80,7 +80,7 @@ public:
 
   bool parseSetup() Q_DECL_OVERRIDE;
 
-  plottimes_t getTimes() const Q_DECL_OVERRIDE { return plottimes_t(); }
+  plottimes_t getTimes() const Q_DECL_OVERRIDE;
 
   bool changeProjection(const Area&) Q_DECL_OVERRIDE;
 
@@ -112,8 +112,6 @@ public:
   WebMapService* getService(int i) const
     { return webmapservices.at(i); }
 
-  void addPlot(WebMapService* service, const WebMapLayer* layer);
-
   int getPlotCount() const
     { return webmaps.size(); }
   WebMapPlot* getPlot(int i) const
@@ -122,6 +120,9 @@ public:
 Q_SIGNALS:
   //! sent when a webmap has finished its request
   void webMapsReady();
+
+  //! sent when a webmap service has refreshed
+  void serviceRefreshFinished();
 
 private:
   WebMapPlot* createPlot(KVListPlotCommand_cp qmstring);

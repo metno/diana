@@ -31,6 +31,7 @@
 #define WebMapPlot_h 1
 
 #include "diPlot.h"
+#include "diTimeTypes.h"
 
 #include <QObject>
 
@@ -99,6 +100,9 @@ public:
   /*! set to a fixed time; empty == no fixed time */
   void setFixedTime(const std::string& time);
 
+  //! get a list of times for this plot
+  plottimes_t getTimes();
+
 Q_SIGNALS:
   void update();
 
@@ -109,6 +113,7 @@ private Q_SLOTS:
 
 private:
   void dropRequest();
+  void findLayerAndTimeDimension();
 
 private:
   WebMapService* mService;

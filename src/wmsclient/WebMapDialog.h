@@ -75,10 +75,10 @@ public:
   WebMapDialog(QWidget *parent, Controller *ctrl);
   ~WebMapDialog();
 
-  std::string name() const;
-  void updateDialog();
-  PlotCommand_cpv getOKString();
-  void putOKString(const PlotCommand_cpv& vstr);
+  std::string name() const override;
+  void updateDialog() override;
+  PlotCommand_cpv getOKString() override;
+  void putOKString(const PlotCommand_cpv& vstr) override;
 
   size_t plotCommandCount() const
     { return mOk.size(); }
@@ -86,7 +86,7 @@ public:
   KVListPlotCommand_cp plotCommand(size_t idx) const;
 
 public /*Q_SLOTS*/:
-  void updateTimes();
+  void updateTimes() override;
 
 private Q_SLOTS:
   void onServiceRefreshStarting();

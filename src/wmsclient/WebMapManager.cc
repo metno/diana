@@ -32,9 +32,10 @@
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/misc_util.h"
 #include "wmsclient/WebMapPlot.h"
-#include "wmsclient/WebMapUtilities.h"
 #include "wmsclient/WebMapSlippyOSM.h"
+#include "wmsclient/WebMapUtilities.h"
 #include "wmsclient/WebMapWMS.h"
 #include "wmsclient/WebMapWMTS.h"
 
@@ -155,6 +156,7 @@ bool WebMapManager::parseSetup()
           s->setBasicAuth(service_basicauth);
         for (auto&& kv : service_extra_query_items)
           s->addExtraQueryItem(kv.first, kv.second);
+        connect(s, &WebMapService::refreshFinished, this, &WebMapManager::serviceRefreshFinished);
         webmapservices.push_back(s);
       }
     }
@@ -254,17 +256,8 @@ bool WebMapManager::processInput(const PlotCommand_cpv& input)
     if (KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(input[i]))
       addMap(createPlot(c));
   }
+  Q_EMIT serviceRefreshFinished(); // FIXME this is a hack to update time lists
   return true;
-}
-
-void WebMapManager::addPlot(WebMapService* service, const WebMapLayer* layer)
-{
-  METLIBS_LOG_SCOPE();
-  if (!service || !layer)
-    return;
-  METLIBS_LOG_DEBUG(LOGVAL(service->identifier()) << LOGVAL(layer->identifier()));
-
-  addMap(new WebMapPlot(service, layer->identifier()));
 }
 
 void WebMapManager::addMap(WebMapPlot* plot)
@@ -322,6 +315,14 @@ std::vector<std::string> WebMapManager::getAnnotations() const
     annotations.push_back(anno);
   }
   return annotations;
+}
+
+plottimes_t WebMapManager::getTimes() const
+{
+  plottimes_t times;
+  for (WebMapPlot* wmp : webmaps)
+    diutil::insert_all(times, wmp->getTimes());
+  return times;
 }
 
 bool WebMapManager::changeProjection(const Area&)

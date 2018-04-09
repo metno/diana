@@ -230,9 +230,7 @@ void TimeSlider::updateList()
   if (!found) {
     // Just use the first list of times in the collection.
     for (const auto& tt : tlist) {
-      if (!tt.second.empty()) {
-        orig_times = tt.second;
-        dataTypeUsed = tt.first;
+      if (useDataType(tt.first, false)) {
         break;
       }
     }
