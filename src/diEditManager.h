@@ -228,9 +228,9 @@ public:
   /// sets pause in editing on or off
   void setEditPause(bool on){editpause=on;}
   /// handle mouse event
-  void sendMouseEvent(QMouseEvent* me, EventResult& res);
+  bool sendMouseEvent(QMouseEvent* me, EventResult& res);
   /// handle keyboard event
-  void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
+  bool sendKeyboardEvent(QKeyEvent* me, EventResult& res);
   /// notifies field edits about EditEvent
   bool notifyEditEvent(const EditEvent& ee);
   /// activated field edit index

@@ -236,7 +236,7 @@ void MapAreaNavigator::stopPanning(int, int, EventResult& res)
 }
 
 // keyboard/mouse events
-void MapAreaNavigator::sendMouseEvent(QMouseEvent* me, EventResult& res)
+bool MapAreaNavigator::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
   if (me->type() == QEvent::MouseButtonPress) {
     if (me->button() == Qt::LeftButton) {
@@ -245,13 +245,18 @@ void MapAreaNavigator::sendMouseEvent(QMouseEvent* me, EventResult& res)
       startPanning(me->x(), me->y(), res);
     } else if (me->button() == Qt::RightButton) {
       res.action = rightclick;
+    } else {
+      return false;
     }
   } else if (me->type() == QEvent::MouseMove) {
-    res.action = browsing;
     if (plotm->isRubberband()) {
+      res.action = browsing;
       moveRubberOrClick(me->x(), me->y(), res);
     } else if (plotm->getStaticPlot()->isPanning()) {
+      res.action = browsing;
       movePanning(me->x(), me->y(), res);
+    } else {
+      return false;
     }
   } else if (me->type() == QEvent::MouseButtonRelease) {
     if (me->button() == Qt::LeftButton) {
@@ -260,10 +265,83 @@ void MapAreaNavigator::sendMouseEvent(QMouseEvent* me, EventResult& res)
       stopPanning(me->x(), me->y(), res);
     } else if (me->button() == Qt::RightButton) { // zoom out
       // end of popup
+    } else {
+      return false;
     }
   } else if (me->type() == QEvent::MouseButtonDblClick) {
     res.action = doubleclick;
   }
+  return true;
+}
+
+bool MapAreaNavigator::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+{
+  if (ke->type() != QEvent::KeyPress)
+    return false;
+
+  const int key = ke->key();
+  if (key == Qt::Key_R && (ke->modifiers() & ~Qt::ShiftModifier) == 0) { // ignore Shift modifier
+    togglePanStepDirection();
+    // no repaint needed
+    return true;
+  }
+
+  bool handled = false;
+  if ((ke->modifiers() & Qt::AltModifier) == 0) {
+    handled = true;
+    if (key == Qt::Key_F2) {
+      if (ke->modifiers() & Qt::ShiftModifier)
+        defineUserArea();
+      else
+        recallUserArea();
+    } else if (key == Qt::Key_F3) {
+      recallPreviousArea();
+    } else if (key == Qt::Key_F4) {
+      recallNextArea();
+    } else if (key == Qt::Key_F5) {
+      recallFkeyArea("F5");
+    } else if (key == Qt::Key_F6) {
+      recallFkeyArea("F6");
+    } else if (key == Qt::Key_F7) {
+      recallFkeyArea("F7");
+    } else if (key == Qt::Key_F8) {
+      recallFkeyArea("F8");
+    } else {
+      // if (key == Qt::Key_F9)
+      //    METLIBS_LOG_WARN("F9 - not defined");
+      // if (key == Qt::Key_F10){
+      //    METLIBS_LOG_WARN("Show previus plot (apply)");
+      // if (key == Qt::Key_F11){
+      //    METLIBS_LOG_WARN("Show next plot (apply)");
+      handled = false;
+    }
+  }
+
+  if (!handled && !(ke->modifiers() & Qt::ControlModifier) && !(ke->modifiers() & Qt::GroupSwitchModifier)) { // "Alt Gr" modifier
+    handled = true;
+    if (key == Qt::Key_Home)
+      areaHome();
+    else if (key == Qt::Key_Left)
+      panStep(-1, 0);
+    else if (key == Qt::Key_Right)
+      panStep(+1, 0);
+    else if (key == Qt::Key_Down)
+      panStep(0, -1);
+    else if (key == Qt::Key_Up)
+      panStep(0, +1);
+    else if (key == Qt::Key_X)
+      zoomOut();
+    else if (key == Qt::Key_Z)
+      zoomIn();
+    else
+      handled = false;
+  }
+
+  if (handled) {
+    res.repaint = true;
+    res.update_background_buffer = true;
+  }
+  return handled;
 }
 
 void MapAreaNavigator::zoomAt(int steps, float frac_x, float frac_y)

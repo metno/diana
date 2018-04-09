@@ -492,8 +492,8 @@ void Controller::archiveMode(bool on)
 bool Controller::sendMouseEventToManagers(QMouseEvent* me, EventResult& res)
 {
   if (editm->isInEdit() && !editm->getEditPause()) {
-    editm->sendMouseEvent(me, res);
-    return true;
+    if (editm->sendMouseEvent(me, res))
+      return true;
   }
 
   // Send the event to the other managers to see if one of them will handle it.
@@ -543,14 +543,14 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   }
   if (!handled) {
     res.newcursor = normal_cursor;
-    man_->sendMouseEvent(me, res);
+    handled = man_->sendMouseEvent(me, res);
   }
-
-  // final mode-independent checks
   if (me->type() == QEvent::MouseButtonRelease){
     // mouse released: turn on editing functions again
     editoverride= false;
+    handled = true;
   }
+  me->setAccepted(handled);
 
   if (editoverride || shiftmodifier) { // set normal cursor
     res.newcursor= normal_cursor;
@@ -558,6 +558,24 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
   if (inEdit) // always use underlay when in edit-mode
     res.enable_background_buffer = true;
+}
+
+bool Controller::sendKeyboardEventToManagers(QKeyEvent* ke, EventResult& res)
+{
+  if (editm->isInEdit() && !editm->getEditPause()) {
+    if (editm->sendKeyboardEvent(ke, res))
+      return true;
+  }
+
+  for (Manager* m : boost::adaptors::values(plotm->managers)) {
+    if (m->isEnabled() && m->isEditing()) {
+      m->sendKeyboardEvent(ke, res);
+      if (ke->isAccepted() || m->hasFocus())
+        return true;
+    }
+  }
+
+  return false;
 }
 
 //------------------------------------------------------------
@@ -571,132 +589,46 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 //
 void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
+  METLIBS_LOG_SCOPE();
   res.do_nothing();
 
   if (ke->key() == Qt::Key_unknown)
     return;
 
-  // A more general way to override normal keypress behaviour is to query
-  // the managers to find any that are in editing mode.
-  for (Manager* m : boost::adaptors::values(plotm->managers)) {
-    if (m->isEnabled() && m->isEditing()) {
-      m->sendKeyboardEvent(ke, res);
-      if (ke->isAccepted() || m->hasFocus())
-        return;
-    }
-  }
-
   const bool shiftmodifier = (ke->modifiers() & Qt::ShiftModifier);
   // Old editing checks to override normal keypress behaviour.
   const bool inEdit = editm->isInEdit();
+  res.enable_background_buffer = inEdit;
 
   // Access to normal keypress behaviour is obtained by holding down the Shift key
   // when in the old editing mode, or when editing is paused.
-  bool keyoverride = false;
-  if ((ke->type() == QEvent::KeyPress && shiftmodifier) || editm->getEditPause()) {
-    keyoverride= true;
+  const bool keyoverride = ((ke->type() == QEvent::KeyPress && shiftmodifier) || editm->getEditPause());
+  METLIBS_LOG_DEBUG(LOGVAL(shiftmodifier) << LOGVAL(inEdit) << LOGVAL(keyoverride));
+
+  bool handled = sendKeyboardEventToManagers(ke, res);
+  METLIBS_LOG_DEBUG("managers:" << LOGVAL(handled));
+  if (!handled && ke->type() == QEvent::KeyPress) {
+    const bool pageup = (ke->key() == Qt::Key_PageUp), pagedown = (ke->key() == Qt::Key_PageDown);
+    if (pageup || pagedown) {
+      const bool forward = pagedown;
+      plotm->obsplots()->nextObs(forward); // browse through observations
+      handled = true;
+      res.repaint = true;
+      res.update_background_buffer = true;
+    }
+    METLIBS_LOG_DEBUG("obsplots:" << LOGVAL(handled));
   }
-
-  // first check keys independent of mode
-  //-------------------------------------
-  if (ke->type() == QEvent::KeyPress){
-    if (ke->key() == Qt::Key_PageUp or ke->key() == Qt::Key_PageDown) {
-      const bool forward = (ke->key() == Qt::Key_PageDown);
-      plotm->obsplots()->nextObs(forward);  // browse through observations
-      res.repaint= true;
-      res.update_background_buffer = true;
-      if (inEdit)
-        res.enable_background_buffer = true;
-      return;
-    } else if (!(ke->modifiers() & Qt::AltModifier) &&
-        (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||
-            ke->key() == Qt::Key_F4 || ke->key() == Qt::Key_F5 ||
-            ke->key() == Qt::Key_F6 || ke->key() == Qt::Key_F7 ||
-            ke->key() == Qt::Key_F8)) {
-
-      const int key = ke->key();
-      if (key == Qt::Key_F2) {
-        if (ke->modifiers() & Qt::ShiftModifier)
-          man_->defineUserArea();
-        else
-          man_->recallUserArea();
-      } else if (key == Qt::Key_F3)
-        man_->recallPreviousArea();
-      else if (key == Qt::Key_F4)
-        man_->recallNextArea();
-      else if (key == Qt::Key_F5)
-        man_->recallFkeyArea("F5");
-      else if (key == Qt::Key_F6)
-        man_->recallFkeyArea("F6");
-      else if (key == Qt::Key_F7)
-        man_->recallFkeyArea("F7");
-      else if (key == Qt::Key_F8)
-        man_->recallFkeyArea("F8");
-      else
-        return;
-      res.repaint= true;
-      res.update_background_buffer = true;
-      if (inEdit)
-        res.enable_background_buffer = true;
-      return;
-    } else if (ke->key() == Qt::Key_F9){
-      //    METLIBS_LOG_WARN("F9 - not defined");
-      return;
-    } else if (ke->key() == Qt::Key_F10){
-      //    METLIBS_LOG_WARN("Show previus plot (apply)");
-      return;
-    } else if (ke->key() == Qt::Key_F11){
-      //    METLIBS_LOG_WARN("Show next plot (apply)");
-      return;
-      //####################################################################
-    } else if (!(ke->modifiers() & Qt::ControlModifier) &&
-        !(ke->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier
-        (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
-            ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
-            ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||
-            ke->key() == Qt::Key_Home))
-    {
-      if (ke->type() == QEvent::KeyPress) {
-        if (ke->key() == Qt::Key_Home)
-          man_->areaHome();
-        else if (ke->key() == Qt::Key_Left)
-          man_->panStep(-1, 0);
-        else if (ke->key() == Qt::Key_Right)
-          man_->panStep(+1, 0);
-        else if (ke->key() == Qt::Key_Down)
-          man_->panStep(0, -1);
-        else if (ke->key() == Qt::Key_Up)
-          man_->panStep(0, +1);
-        else if (ke->key() == Qt::Key_X)
-          man_->zoomOut();
-        else if (ke->key() == Qt::Key_Z)
-          man_->zoomIn();
-        else
-          return;
-
-        res.repaint= true;
-        res.enable_background_buffer = inEdit;
-        res.update_background_buffer = true;
-      }
-      return;
-    } else if (ke->key() == Qt::Key_R) {
-      man_->togglePanStepDirection();
-      return;
+  if (!handled) {
+    handled = man_->sendKeyboardEvent(ke, res);
+    METLIBS_LOG_DEBUG("m-a-n:" << LOGVAL(handled));
+  }
+  if (!inEdit || keyoverride) {
+    if (ke->type() == QEvent::KeyPress) {
+      res.action = keypressed;
+      handled = true;
     }
   }
-
-  // catch events to editmanager
-  //-------------------------------------
-  if (inEdit ){
-    editm->sendKeyboardEvent(ke,res);
-  }
-
-  // catch events to PlotModule
-  //-------------------------------------
-  if (!inEdit || keyoverride) {
-    if (ke->type() == QEvent::KeyPress)
-      res.action = keypressed;
-  }
+  ke->setAccepted(handled);
 
   if (inEdit) // always use underlay when in edit-mode
     res.enable_background_buffer = true;

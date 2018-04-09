@@ -517,7 +517,7 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
 ----------------------------  keyboard/mouse event ----------------------
  -----------------------------------------------------------------------*/
 
-void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
+bool EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
   //  METLIBS_LOG_SCOPE();
   res.enable_background_buffer = true;
@@ -526,14 +526,12 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
   res.newcursor= edit_cursor;
 
   if (showRegion>=0 && mapmode!=combine_mode)
-    return;
+    return false;
 
   plotm->PhysToMap(me->x(),me->y(),newx,newy);
   objm->getEditObjects().setMouseCoordinates(newx,newy);
 
-  if (mapmode== fedit_mode){
-
-    //field editing
+  if (mapmode == fedit_mode) { // field editing
     if (me->type() == QEvent::MouseButtonPress){
       if (me->button() == Qt::LeftButton){         // LEFT MOUSE-BUTTON
         EditEvent ee;                     // send an editevent
@@ -556,6 +554,8 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         ee.x= newx;
         ee.y= newy;
         res.repaint= notifyEditEvent(ee);
+      } else {
+        return false;
       }
     } else if (me->type() == QEvent::MouseMove){
       res.action = quick_browsing;
@@ -587,6 +587,8 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         ee.x= newx;
         ee.y= newy;
         res.repaint= notifyEditEvent(ee);
+      } else {
+        return false;
       }
     }
     else if (me->type() == QEvent::MouseButtonRelease){
@@ -599,6 +601,8 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         res.repaint= notifyEditEvent(ee);
         if (res.repaint)
           res.action = fields_changed;
+      } else {
+        return false;
       }
     } else if (me->type() == QEvent::MouseButtonDblClick){
       if (me->button() == Qt::LeftButton) {
@@ -608,12 +612,11 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         ee.x= newx;
         ee.y= newy;
         res.repaint= notifyEditEvent(ee);
+      } else {
+        return false;
       }
     }
-
-  } else {
-
-    //draw_mode or combine mode
+  } else { // draw_mode or combine mode
     if (me->type() == QEvent::MouseButtonPress){
       if (me->button() == Qt::LeftButton){         // LEFT MOUSE-BUTTON
         if (objm->inDrawing()){
@@ -637,6 +640,8 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         objm->editStopDrawing();
         res.newcursor= edit_cursor;
         res.repaint= true;
+      } else {
+        return false;
       }
     } else if (me->type() == QEvent::MouseMove){
       //METLIBS_LOG_DEBUG("mousemove ");
@@ -672,6 +677,8 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
               editCombine();
           }
         }
+      } else {
+        return false;
       }
     } else if (me->type() == QEvent::MouseButtonRelease){
       if (me->button() == Qt::LeftButton || me->button() == Qt::MidButton){
@@ -692,14 +699,15 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
       objm->editStopDrawing();
       res.newcursor= edit_cursor;
       res.repaint= true;
+    } else {
+      return false;
     }
   }
 
-  //  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent return res.repaint= "<<res.repaint);
+  return true;
 }
 
-
-void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+bool EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
   //  METLIBS_LOG_SCOPE();
   res.enable_background_buffer = true;
@@ -707,19 +715,22 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   res.repaint= false;
 
   // numregs==0 if not combine (and then edit)
-  int keyRegMin= Qt::Key_1;
-  int keyRegMax= (numregs<10) ? Qt::Key_0 + numregs : Qt::Key_9;
+  const int keyRegMin = Qt::Key_1;
+  const int keyRegMax = std::min((Qt::Key)(Qt::Key_0 + numregs), Qt::Key_9);
 
+  const bool isKeyReg = (ke->key() >= keyRegMin && ke->key() <= keyRegMax);
   if (showRegion>=0 && mapmode!=combine_mode) {
-    if (ke->type() != QEvent::KeyPress || ke->key() < keyRegMin || ke->key() > keyRegMax)
-      return;
+    if (ke->type() != QEvent::KeyPress || !isKeyReg)
+      return false;
   }
 
   if (ke->type() == QEvent::KeyPress){
     if (ke->key() == Qt::Key_Shift) {
       res.newcursor= normal_cursor; // show user possible mode-change
-      return;
-    } else if (ke->key() == Qt::Key_G) {
+      return true;
+    }
+    bool handled = true;
+    if (ke->key() == Qt::Key_G) {
       //hide/show all objects.
       if (hiddenObjects || hiddenCombineObjects) {
         objm->editUnHideAll();
@@ -740,26 +751,31 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         objm->editHideCombining();
       hiddenCombining= !hiddenCombining;
       res.update_background_buffer = true;
-    }
-    else if (ke->key() >= keyRegMin && ke->key() <= keyRegMax){
+    } else if (isKeyReg) {
       // show objects and fields from one region (during and after combine)
-      std::string msg;
       int reg= ke->key() - keyRegMin;
       if (reg!=showRegion) {
         showRegion= reg;
-        msg=regnames[showRegion];
+        setEditMessage(regnames[showRegion]);
       } else {
         showRegion= -1;
+        setEditMessage(std::string());
       }
       res.update_background_buffer = true;
-      setEditMessage(msg);
+    } else {
+      handled = false;
     }
-    res.repaint= true;
+    if (handled) {
+      res.repaint = true;
+      return true;
+    }
   }
 
   if (mapmode!= fedit_mode){
     // first keypress events
+    bool handled = false;
     if (ke->type() == QEvent::KeyPress){
+      handled = true;
       if (ke->key() == Qt::Key_N){
         objm->createNewObject();
         res.newcursor= draw_cursor;
@@ -832,36 +848,39 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       else if (ke->key()==Qt::Key_B)
         //set marked objects to default size...
         objm->editDefaultSize();
-      else {
-        return;
-      }
+      else
+        handled = false;
     }
-    res.repaint= true;
-    if(mapmode==combine_mode){
-      objm->setAllPassive();
-      if (objm->toDoCombine())
-        editCombine();
-    } else { //OK?
-      if (objm->haveObjectsChanged())
-        res.action = objects_changed;
+    if (handled) {
+      if (mapmode == combine_mode) {
+        objm->setAllPassive();
+        if (objm->toDoCombine())
+          editCombine();
+      } else { // OK?
+        if (objm->haveObjectsChanged())
+          res.action = objects_changed;
+      }
+      res.repaint = true;
+      return true;
     }
   }
 
-
   // then key release events
-  if (ke->type() == QEvent::KeyRelease){
-
-    if (ke->key() == Qt::Key_Shift){ // reset cursor
-      if (mapmode!=fedit_mode){
-        res.newcursor= (objm->inDrawing()?draw_cursor:edit_cursor);
+  if (ke->type() == QEvent::KeyRelease) {
+    if (ke->key() == Qt::Key_Shift) { // reset cursor
+      if (mapmode != fedit_mode) {
+        res.newcursor = (objm->inDrawing() ? draw_cursor : edit_cursor);
       } else {                            // field-editing
         if (edittool != 0)                // ..just set correct cursor
           res.newcursor= edit_move_cursor;
         else
           res.newcursor= edit_value_cursor;
       }
+      return true;
     }
   }
+
+  return false;
 }
 
 

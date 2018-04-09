@@ -253,6 +253,7 @@ public:
   bool sendMouseEventToManagers(QMouseEvent* me, EventResult& res);
   /// keyboard events
   void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
+  bool sendKeyboardEventToManagers(QKeyEvent* ke, EventResult& res);
 
   // edit and drawing methods
   /// get mode of main workarea

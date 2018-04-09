@@ -36,6 +36,7 @@
 
 class EventResult;
 class PlotModule;
+class QKeyEvent;
 class QMouseEvent;
 
 class MapAreaNavigator
@@ -80,8 +81,9 @@ public:
 
   bool recallNextArea();
 
-  /// send one mouse event
-  void sendMouseEvent(QMouseEvent* me, EventResult& res);
+  bool sendMouseEvent(QMouseEvent* me, EventResult& res);
+
+  bool sendKeyboardEvent(QKeyEvent* ke, EventResult& res);
 
   // return settings formatted for log file
   std::vector<std::string> writeLog();
