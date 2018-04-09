@@ -215,7 +215,7 @@ void TimeSlider::updateList()
 {
   const int maxticks= 20;
 
-  times.clear();
+  orig_times.clear();
 
   // FIXME this is very similar to bdiana_capi.cc:selectTime / BdianaMain::getTime
   bool found = false;
