@@ -62,7 +62,7 @@ const std::vector<ObsDialogInfo::Par> pars = {
     {"TTT", ObsDialogInfo::pt_temp, -1, 1, "Temperature", -50, 50},
     {"TdTdTd", ObsDialogInfo::pt_temp, -1, 1, "Dew point temperature", -50, 50},
     {"PPPP", ObsDialogInfo::pt_std, -1, 1, "Pressure ", 100, 1050},
-    {"PPP_mslp", ObsDialogInfo::pt_std, -1, 1, "", -50, -50},
+    {"PPPP_mslp", ObsDialogInfo::pt_std, -1, 1, "", -50, -50},
     {"ppp", ObsDialogInfo::pt_std, -1, 1, " 3 hour pressure change", -10, 10},
     {"a", ObsDialogInfo::pt_std, 201, 1, "Characteristic of pressure tendency", 0, 9},
     {"h", ObsDialogInfo::pt_std, -1, 0, "height of base of cloud", 1, 9},

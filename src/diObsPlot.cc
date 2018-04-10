@@ -500,7 +500,7 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
     op->parameterDecode(p);
   }
   if (op->mslp())
-    op->pFlag["pppp_mslp"] = true;
+    op->parameterDecode("PPPP_mslp");
 
   // static tables, read once
 
@@ -1658,6 +1658,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
                                  float xshift)
 {
   METLIBS_LOG_SCOPE(LOGVAL(param.name));
+
   if (!pFlag.count(miutil::to_lower(param.name)))
     return;
 
