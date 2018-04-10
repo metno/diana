@@ -102,7 +102,7 @@ void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastrin
 
   //check if dataset with this id/name already exist
   areaobjects_v::iterator it =
-      std::find_if(vareaobjects.begin(), vareaobjects.end(), [&](const AreaObjects& ao) { return id != ao.getId() || name != ao.getName(); });
+      std::find_if(vareaobjects.begin(), vareaobjects.end(), [&](const AreaObjects& ao) { return id == ao.getId() && name == ao.getName(); });
   if (it == vareaobjects.end())
     // not found, add new at end
     it = vareaobjects.insert(it, AreaObjects());
