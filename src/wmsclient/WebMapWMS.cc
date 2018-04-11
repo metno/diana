@@ -266,10 +266,13 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
     const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h)
 {
   METLIBS_LOG_SCOPE(LOGVAL(layerIdentifier));
-  WebMapWMSLayer_cx layer = static_cast<WebMapWMSLayer_cx>
-      (findLayerByIdentifier(layerIdentifier));
-  if (!layer || layer->countCRS() == 0) {
-    METLIBS_LOG_DEBUG("no layer, or no CRS");
+  WebMapWMSLayer_cx layer = static_cast<WebMapWMSLayer_cx>(findLayerByIdentifier(layerIdentifier));
+  if (!layer) {
+    METLIBS_LOG_DEBUG("no layer, cannot create request");
+    return 0;
+  }
+  if (layer->countCRS() == 0) {
+    METLIBS_LOG_DEBUG("#CRS=" << layer->countCRS() << ", cannot create request");
     return 0;
   }
 
@@ -471,15 +474,15 @@ bool WebMapWMS::parseReply()
   const crs_bbox_m top_crs_bboxes;
   const WebMapDimension_v top_dimensions;
   QDOM_FOREACH_CHILD(eLayer, eCapability, "Layer") {
-    if (!parseLayer(eLayer, top_style, top_legendUrl, top_crs_bboxes, top_dimensions))
+    if (!parseLayer(eLayer, top_style, top_legendUrl, QStringList(), top_crs_bboxes, top_dimensions))
       return false;
   }
 
   return true;
 }
 
-bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl,
-    crs_bbox_m crs_bboxes, std::vector<WebMapDimension> dimensions)
+bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl, QStringList lCRS, crs_bbox_m crs_bboxes,
+                           std::vector<WebMapDimension> dimensions)
 {
   METLIBS_LOG_SCOPE();
   using diutil::qs;
@@ -508,7 +511,6 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
   }
 
   // loop over SRS/CRS elements to extract known bbox'es
-  QStringList lCRS;
   QDOM_FOREACH_CHILD(eCRS, eLayer, aCRS) {
     if (mVersion == WMS_111)
       lCRS << eCRS.text().split(" ", QString::SkipEmptyParts);
@@ -658,7 +660,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
   }
 
   QDOM_FOREACH_CHILD(eChildLayer, eLayer, "Layer") {
-    if (!parseLayer(eChildLayer, style, legendUrl, crs_bboxes, dimensions))
+    if (!parseLayer(eChildLayer, style, legendUrl, lCRS, crs_bboxes, dimensions))
       return false;
   }
 

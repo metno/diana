@@ -200,8 +200,7 @@ private:
   enum WmsVersion { WMS_111, WMS_130 };
 
   bool parseReply();
-  bool parseLayer(QDomElement& eLayer, std::string style,  std::string legendUrl,
-      crs_bbox_m crs_bboxes, WebMapDimension_v dimensions);
+  bool parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl, QStringList lCRS, crs_bbox_m crs_bboxes, WebMapDimension_v dimensions);
   void parseDimensionValues(WebMapDimension& dim, const QString& text, const QString& defaultValue);
 
 private Q_SLOTS:
