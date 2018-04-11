@@ -88,8 +88,7 @@ public:
   const std::vector<std::string>& dimensionValues(size_t idx) const;
 
   /*! index of time dimension; < 0 if no time dimension */
-  int timeDimension() const
-    { return mTimeIndex; }
+  int timeDimension() const { return mTimeDimensionIdx; }
 
   void setDimensionValue(const std::string& dimId, const std::string& dimValue);
 
@@ -120,7 +119,7 @@ private:
   std::string mLayerId;
   const WebMapLayer* mLayer;
 
-  int mTimeIndex;
+  int mTimeDimensionIdx; //!< index of time dimension in layer's dimension list
   int mTimeSelected;
   int mTimeTolerance; // time tolerance in seconds
   int mTimeOffset; // time offset in seconds
@@ -132,6 +131,8 @@ private:
   PlotOrder mPlotOrder;
 
   std::map<std::string, std::string> mDimensionValues;
+  typedef std::map<miutil::miTime, size_t> TimeDimensionValues_t;
+  TimeDimensionValues_t mTimeDimensionValues; //!< maps time value to index along time dimension
 
   WebMapRequest* mRequest;
   bool mRequestCompleted;

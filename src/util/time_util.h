@@ -34,7 +34,9 @@
 
 namespace miutil {
 
+miTime addSec(const miTime& t, int seconds);
 miTime addMin(const miTime& t, int minutes);
+miTime addHour(const miTime& t, int hours);
 
 } // namespace miutil
 

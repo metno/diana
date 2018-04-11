@@ -31,10 +31,24 @@
 
 namespace miutil {
 
+miTime addSec(const miTime& t, int seconds)
+{
+  miTime tt(t);
+  tt.addSec(seconds);
+  return tt;
+}
+
 miTime addMin(const miTime& t, int minutes)
 {
   miTime tt(t);
   tt.addMin(minutes);
+  return tt;
+}
+
+miTime addHour(const miTime& t, int hours)
+{
+  miTime tt(t);
+  tt.addHour(hours);
   return tt;
 }
 

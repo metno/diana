@@ -2,6 +2,7 @@
 #include "VcrossUtil.h"
 
 #include "../util/string_util.h"
+#include "../util/time_util.h"
 
 #include "diMetConstants.h"
 #include <udunits2.h>
@@ -230,26 +231,15 @@ Time from_miTime(const miutil::miTime& mitime)
 
 miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
 {
-  if (unit.empty())
-    return miutil::miTime();
-
-  if (diutil::startswith(unit, "days")) {
-    if (UnitsConverterPtr uconv = unitConverter(unit, DAYS_SINCE_1900)) {
-      value = uconv->convert(value);
-      miutil::miTime t(day0);
-      t.addHour(value*24);
-      return t;
+  if (!unit.empty()) {
+    if (diutil::startswith(unit, "days")) {
+      if (UnitsConverterPtr uconv = unitConverter(unit, DAYS_SINCE_1900))
+        return miutil::addHour(day0, 24 * uconv->convert(value));
     }
+    if (UnitsConverterPtr uconv = unitConverter(unit, SECONDS_SINCE_1970))
+      return miutil::addSec(time0, uconv->convert(value));
   }
-  UnitsConverterPtr uconv = unitConverter(unit, SECONDS_SINCE_1970);
-  if (uconv) {
-    value = uconv->convert(value);
-    miutil::miTime t(time0);
-    t.addSec(value);
-    return t;
-  } else {
-    return miutil::miTime();
-  }
+  return miutil::miTime();
 }
 
 // ------------------------------------------------------------------------

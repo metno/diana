@@ -39,6 +39,7 @@
 
 #include "diField/diGridReprojection.h"
 #include "util/string_util.h"
+#include "util/time_util.h"
 
 #include <QImage>
 
@@ -52,18 +53,18 @@ static const std::vector<std::string> EMPTY_STRING_V;
 static const bool DEBUG_TILE_BORDERS = true;
 
 WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
-  : mService(service)
-  , mLayerId(layer)
-  , mLayer(0)
-  , mTimeIndex(-1)
-  , mTimeSelected(-1)
-  , mTimeTolerance(-1)
-  , mTimeOffset(0)
-  , mAlphaOffset(0)
-  , mAlphaScale(1)
-  , mMakeGrey(false)
-  , mPlotOrder(LINES)
-  , mRequest(0)
+    : mService(service)
+    , mLayerId(layer)
+    , mLayer(0)
+    , mTimeDimensionIdx(-1)
+    , mTimeSelected(-1)
+    , mTimeTolerance(-1)
+    , mTimeOffset(0)
+    , mAlphaOffset(0)
+    , mAlphaScale(1)
+    , mMakeGrey(false)
+    , mPlotOrder(LINES)
+    , mRequest(0)
 {
   if (mService) {
     serviceRefreshFinished();
@@ -175,7 +176,7 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     return;
 
   setTimeValue(getStaticPlot()->getTime());
-  if (mTimeIndex >= 0 && mTimeSelected < 0)
+  if (mTimeDimensionIdx >= 0 && mTimeSelected < 0)
     return; // has time axis, but time not found within tolerance
 
   if (!mRequest) {
@@ -197,8 +198,8 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     }
     for (auto& dv : mDimensionValues)
       mRequest->setDimensionValue(dv.first, dv.second);
-    if (mTimeIndex >= 0 && !mFixedTime.empty())
-      mRequest->setDimensionValue(mLayer->dimension(mTimeIndex).identifier(), mFixedTime);
+    if (mTimeDimensionIdx >= 0 && !mFixedTime.empty())
+      mRequest->setDimensionValue(mLayer->dimension(mTimeDimensionIdx).identifier(), mFixedTime);
     connect(mRequest, SIGNAL(completed()), this, SLOT(requestCompleted()));
     mRequest->submit();
   } else if (mRequestCompleted) {
@@ -291,42 +292,49 @@ void WebMapPlot::setDimensionValue(const std::string& dimId, const std::string& 
 
 void WebMapPlot::setTimeValue(const miutil::miTime& time)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(time) << LOGVAL(mTimeIndex));
-  if (!mLayer || mTimeIndex < 0) {
+  METLIBS_LOG_SCOPE(LOGVAL(time) << LOGVAL(mTimeDimensionIdx));
+  if (!mLayer || mTimeDimensionIdx < 0) {
     METLIBS_LOG_DEBUG("no layer, or no time dimension");
     return;
   }
 
-  int bestIndex = -1, bestDifference = 0;
+  const miutil::miTime actualTime = miutil::addSec(time, mTimeOffset);
+  METLIBS_LOG_DEBUG(LOGVAL(actualTime));
 
-  miutil::miTime actualTime = time;
-  actualTime.addSec(mTimeOffset);
-  const WebMapDimension& timeDim = mLayer->dimension(mTimeIndex);
-  for (size_t i=0; i<timeDim.count(); ++i) {
-    const miutil::miTime dimTime
-        = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
-    METLIBS_LOG_DEBUG(LOGVAL(timeDim.value(i)) << LOGVAL(dimTime));
-    if (dimTime.undef()) {
-      METLIBS_LOG_DEBUG("undef time");
-      continue;
-    }
-    const int diff = abs(miutil::miTime::secDiff(dimTime, actualTime));
-    if ((mTimeTolerance < 0 || diff < mTimeTolerance)
-        && (bestIndex < 0 || diff < bestDifference))
-    {
-      bestIndex = i;
-      bestDifference = diff;
-      METLIBS_LOG_DEBUG(LOGVAL(bestDifference));
+  TimeDimensionValues_t::const_iterator itBest = mTimeDimensionValues.lower_bound(actualTime); // itBest->first is first >= actualTime
+  int diffBest = -1;
+  if (itBest == mTimeDimensionValues.end()) { // after last, nearest must be last unless empty
+    if (itBest != mTimeDimensionValues.begin())
+      --itBest;
+  } else if (itBest != mTimeDimensionValues.begin() && itBest->first != actualTime) {
+    TimeDimensionValues_t::const_iterator itBefore = itBest;
+    std::advance(itBefore, -1);
+    diffBest = std::abs(miutil::miTime::secDiff(itBest->first, actualTime));
+    const int diffBefore = std::abs(miutil::miTime::secDiff(itBefore->first, actualTime));
+    if (diffBest > diffBefore) {
+      diffBest = diffBefore;
+      itBest = itBefore;
     }
   }
+  if (mTimeTolerance >= 0 && itBest != mTimeDimensionValues.end()) { // reject if above max tolerance
+    if (diffBest < 0)
+      diffBest = std::abs(miutil::miTime::secDiff(itBest->first, actualTime));
+    if (diffBest > mTimeTolerance)
+      itBest = mTimeDimensionValues.end();
+  }
+
+  const int bestIndex = (itBest != mTimeDimensionValues.end()) ? itBest->second : -1;
   METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << LOGVAL(mTimeSelected));
   if (bestIndex == mTimeSelected)
     return;
   mTimeSelected = bestIndex;
+
+  const WebMapDimension& timeDim = mLayer->dimension(mTimeDimensionIdx);
   const std::string& timeId = timeDim.identifier();
-  if (bestIndex >= 0) {
-    METLIBS_LOG_DEBUG(LOGVAL(bestIndex) << "='" << timeDim.value(bestIndex) << "'");
-    setDimensionValue(timeId, timeDim.value(bestIndex));
+  if (mTimeSelected >= 0) {
+    const std::string& value = timeDim.value(mTimeSelected);
+    METLIBS_LOG_DEBUG(LOGVAL(mTimeSelected) << "=> '" << value << "'");
+    setDimensionValue(timeId, value);
   } else {
     METLIBS_LOG_DEBUG("time = empty");
     setDimensionValue(timeId, EMPTY_STRING);
@@ -344,16 +352,8 @@ plottimes_t WebMapPlot::getTimes()
   findLayerAndTimeDimension();
 
   plottimes_t times;
-  if (mLayer && (mTimeIndex >= 0)) {
-    const WebMapDimension& timeDim = mLayer->dimension(mTimeIndex);
-    for (size_t i = 0; i < timeDim.count(); ++i) {
-      const miutil::miTime t = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
-      if (!t.undef()) {
-        METLIBS_LOG_DEBUG(LOGVAL(t));
-        times.insert(t);
-      }
-    }
-  }
+  for (const auto& ti : mTimeDimensionValues)
+    times.insert(ti.first);
   return times;
 }
 
@@ -377,20 +377,33 @@ void WebMapPlot::findLayerAndTimeDimension()
     return;
 
   mLayer = mService->findLayerByIdentifier(mLayerId);
-  mTimeIndex = -1;
+  mTimeDimensionIdx = -1;
   mTimeSelected = -1;
+  mTimeDimensionValues.clear();
 
   if (!mLayer) {
     METLIBS_LOG_INFO("layer '" << mLayerId << "' not found");
-  } else {
-    // search new time index
-    for (size_t i=0; i<mLayer->countDimensions(); ++i) {
-      METLIBS_LOG_DEBUG(LOGVAL(mLayer->dimension(i).identifier()));
-      if (mLayer->dimension(i).isTime()) {
-        mTimeIndex = i;
-        METLIBS_LOG_DEBUG(LOGVAL(mTimeIndex));
-        break;
-      }
+    return;
+  }
+
+  // search time dimension
+  for (size_t i = 0; i < mLayer->countDimensions(); ++i) {
+    METLIBS_LOG_DEBUG(LOGVAL(mLayer->dimension(i).identifier()));
+    if (mLayer->dimension(i).isTime()) {
+      mTimeDimensionIdx = i;
+      METLIBS_LOG_DEBUG(LOGVAL(mTimeDimensionIdx));
+      break;
     }
+  }
+  if (mTimeDimensionIdx < 0) {
+    METLIBS_LOG_INFO("time dimension for layer '" << mLayerId << "' not found");
+    return;
+  }
+
+  const WebMapDimension& timeDim = mLayer->dimension(mTimeDimensionIdx);
+  for (size_t i = 0; i < timeDim.count(); ++i) {
+    const miutil::miTime t = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
+    if (!t.undef())
+      mTimeDimensionValues.insert(std::make_pair(t, i));
   }
 }
