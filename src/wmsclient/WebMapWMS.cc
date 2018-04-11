@@ -488,8 +488,9 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
   using diutil::qs;
 
   QDomElement eLayerName = eLayer.firstChildElement("Name");
-  METLIBS_LOG_DEBUG("layer name='" << eLayerName.text().toStdString() << "'");
-  const bool hasContent = !eLayerName.isNull();
+  const std::string sLayerName = qs(eLayerName.text());
+  METLIBS_LOG_DEBUG("layer name='" << sLayerName << "'");
+  const bool hasContent = !sLayerName.empty();
 
   const QString aCRS = ((mVersion == WMS_111) ? "SRS" : "CRS");
 
@@ -631,7 +632,6 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
       legendUrl = qs(eStyle1LegendUrl.attribute("xlink:href"));
   }
 
-  const std::string sLayerName = qs(eLayerName.text());
   const bool goodName = !sLayerName.empty();
   const bool unusedName = findLayerByIdentifier(sLayerName) == 0;
   const bool tileable =
