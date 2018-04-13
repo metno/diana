@@ -431,7 +431,6 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
     return settime;
 
   if (dataExists_reftime(computed_inventory, paramname,gp)) {
-
     const size_t idx_colon = gp.nativekey.find(':');
     if (idx_colon != std::string::npos) {
       const int functionIndex = miutil::to_int(gp.nativekey.substr(idx_colon + 1));
@@ -893,7 +892,7 @@ struct compare_name {
   compare_name(const std::string& c)
     : compare_to_(c) { }
   bool operator() (const gridinventory::GridParameter& p) const
-    { return compare_to_ == p.name; }
+    { return compare_to_ == p.key.name; }
 
   const std::string& compare_to_;
 };
@@ -915,15 +914,17 @@ void GridCollection::addComputedParameters()
   for (const FieldFunctions::FieldCompute& fc : FieldFunctions::fieldComputes()) {
     i += 1;
     const std::string& computeParameterName = fc.name;
-    METLIBS_LOG_DEBUG(LOGVAL(fc.name));
-    METLIBS_LOG_DEBUG(LOGVAL(rinventory.parameters.size()));
+
     //check if parameter exists
     set<gridinventory::GridParameter>::iterator pitr = std::find_if(rinventory.parameters.begin(), rinventory.parameters.end(),
                                                                     compare_name(computeParameterName));
-    METLIBS_LOG_DEBUG("not in inventory");
     if (pitr != rinventory.parameters.end()) {
-      break;
+      METLIBS_LOG_DEBUG(LOGVAL(fc.name) << " found in inventory");
+      continue;
     }
+
+    METLIBS_LOG_DEBUG(LOGVAL(fc.name) << "not found in inventory");
+
     //Compute parameter?
     //find input parameters and check
 
