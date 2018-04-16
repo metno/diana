@@ -201,6 +201,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   addStandardDialog(fm = new FieldDialog(this, contr));
   addStandardDialog(om = new ObsDialog(this, contr));
   addStandardDialog(sm = new SatDialog(this, contr));
+  addStandardDialog(objm = new ObjectDialog(this, contr));
 
   //-------- The Actions ---------------------------------
 
@@ -308,12 +309,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   showEditDialogAction->setCheckable(true);
   showEditDialogAction->setIconVisibleInMenu(true);
   connect( showEditDialogAction, SIGNAL( triggered() ) ,  SLOT( editMenu() ) );
-  // --------------------------------------------------------------------
-  showObjectDialogAction = new QAction( QIcon(QPixmap(front_xpm )),tr("O&bjects"), this );
-  showObjectDialogAction->setShortcut(Qt::ALT+Qt::Key_J);
-  showObjectDialogAction->setCheckable(true);
-  showObjectDialogAction->setIconVisibleInMenu(true);
-  connect( showObjectDialogAction, SIGNAL( triggered() ) ,  SLOT( objMenu() ) );
   // --------------------------------------------------------------------
   showTrajecDialogAction = new QAction( QIcon(QPixmap( traj_xpm)),tr("&Trajectories"), this );
   showTrajecDialogAction->setShortcut(Qt::ALT+Qt::Key_T);
@@ -550,7 +545,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   showmenu->addAction(sm->action());
   showmenu->addAction( showStationDialogAction      );
   showmenu->addAction( showEditDialogAction         );
-  showmenu->addAction( showObjectDialogAction       );
+  showmenu->addAction(objm->action());
   showmenu->addAction( showTrajecDialogAction       );
   showmenu->addAction( showAnnotationDialogAction       );
   showmenu->addAction( showMeasurementsDialogAction    );
@@ -711,9 +706,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   stm->hide();
   mainToolbar->addAction( showStationDialogAction     );
 
-  objm = new ObjectDialog(this,contr);
-  objm->hide();
-  mainToolbar->addAction( showObjectDialogAction      );
+  mainToolbar->addAction(objm->action());
 
   trajm = new TrajectoryDialog(this,contr);
   trajm->hide();
@@ -777,7 +770,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   connect( stm, SIGNAL(StationApply()), SLOT(MenuOK()));
   connect( mm, SIGNAL(MapApply()),   SLOT(MenuOK()));
-  connect( objm, SIGNAL(ObjApply()), SLOT(MenuOK()));
   connect( em, SIGNAL(editApply()),  SLOT(editApply()));
   connect( annom, SIGNAL(AnnotationApply()),  SLOT(MenuOK()));
 
@@ -788,8 +780,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect( em, SIGNAL(EditHide()),   SLOT(editMenu()));
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( qm, SIGNAL(finished(int)),  SLOT(quickMenu(int)));
-  connect( objm, SIGNAL(ObjHide()),  SLOT(objMenu()));
-  connect( objm, SIGNAL(finished(int)),  SLOT(objMenu(int)));
   connect( trajm, SIGNAL(TrajHide()),SLOT(trajMenu()));
   connect( trajm, SIGNAL(finished(int)),  SLOT(trajMenu(int)));
   connect( annom, SIGNAL(AnnotationHide()),SLOT(AnnotationMenu()));
@@ -816,8 +806,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect( em, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
   connect( qm, SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
-  connect( objm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
   connect( trajm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
@@ -895,7 +883,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect(om, &ObsDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(sm, &SatDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(em, &EditDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
-  connect(objm, &ObjectDialog::emitTimes, timeNavigator, &TimeNavigator::insert);
+  connect(objm, &ObjectDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   if (vpWindow) {
     connect(vpWindow, &VprofWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
     connect(vpWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
@@ -1335,7 +1323,8 @@ void DianaMainWindow::toggleDialogs()
     if ((visi[4] = sm->isVisible()))
       sm->setVisible(false);
     //    if ((visi[5]= em->isVisible()))    editMenu();
-    if ((visi[6]= objm->isVisible()))  objMenu();
+    if ((visi[6] = objm->isVisible()))
+      objm->setVisible(false);
     if ((visi[7]= trajm->isVisible())) trajMenu();
     if ((visi[8]= measurementsm->isVisible())) measurementsMenu();
     if ((visi[9]= stm->isVisible())) stationMenu();
@@ -1349,7 +1338,8 @@ void DianaMainWindow::toggleDialogs()
     if (visi[4])
       sm->setVisible(true);
     //    if (visi[5]) editMenu();
-    if (visi[6]) objMenu();
+    if (visi[6])
+      objm->setVisible(true);
     if (visi[7]) trajMenu();
     if (visi[8]) measurementsMenu();
     if (visi[9]) stationMenu();
@@ -1417,12 +1407,6 @@ void DianaMainWindow::editMenu()
 
   b = !b;
   showEditDialogAction->setChecked( b );
-}
-
-
-void DianaMainWindow::objMenu(int result)
-{
-  toggleDialogVisibility(objm, showObjectDialogAction, result);
 }
 
 void DianaMainWindow::trajMenu(int result)

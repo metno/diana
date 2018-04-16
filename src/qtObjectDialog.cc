@@ -29,31 +29,36 @@
 
 #include "diana_config.h"
 
-#include "qtToggleButton.h"
 #include "qtObjectDialog.h"
-#include "qtEditComment.h"
+
+#include "diController.h"
 #include "diObjectManager.h"
+#include "qtEditComment.h"
+#include "qtToggleButton.h"
 #include "qtUtility.h"
 
 #include "diKVListPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
+#include <QAction>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLCDNumber>
+#include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
-#include <QLabel>
-#include <QCheckBox>
 #include <QSlider>
-#include <QLCDNumber>
-#include <QGridLayout>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QButtonGroup>
-#include <QGroupBox>
 
 #include <iomanip>
 #include <sstream>
+
+#include "front.xpm"
 
 #define MILOGGER_CATEGORY "diana.ObjectDialog"
 #include <miLogger/miLogging.h>
@@ -62,17 +67,18 @@ using namespace std;
 
 /***************************************************************************/
 ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
-  : QDialog(parent)
-  , m_ctrl(llctrl)
+    : DataDialog(parent, llctrl)
 {
   METLIBS_LOG_SCOPE();
 
-  m_objm = m_ctrl->getObjectManager();
-
-  //caption to appear on top of dialog
   setWindowTitle(tr("Weather Objects"));
+  m_action = new QAction(QIcon(QPixmap(front_xpm)), windowTitle(), this);
+  m_action->setShortcut(Qt::ALT + Qt::Key_J);
+  m_action->setCheckable(true);
+  m_action->setIconVisibleInMenu(true);
+  helpFileName = "ug_objectdialogue.html";
 
-  //initialization
+  m_objm = m_ctrl->getObjectManager();
 
   useArchive=false;
 //********** create the various QT widgets to appear in dialog ***********
@@ -188,33 +194,10 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   QPushButton* deleteButton = NormalPushButton( tr("Delete"), this );
   connect( deleteButton, SIGNAL(clicked()), SLOT(DeleteClicked()));
 
-  //push button to refresh filelistsw
-  QPushButton* refresh =NormalPushButton( tr("Refresh"), this );
-  connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() ));
-
-  //push button to show help
-  QPushButton* objhelp = NormalPushButton( tr("Help"), this);
-  connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));
-
   //toggle button for comments
   commentbutton = new ToggleButton(this, tr("Comments"));
   connect(  commentbutton, SIGNAL(toggled(bool)),
 	    SLOT( commentClicked(bool) ));
-
-
-  //push button to hide dialog
-  QPushButton* objhide = NormalPushButton( tr("Hide"), this);
-  connect( objhide, SIGNAL(clicked()), SIGNAL(ObjHide()));
-
-   //push button to apply the selected command and then hide dialog
-  QPushButton* objapplyhide = NormalPushButton(tr("Apply+Hide"), this );
-  connect( objapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
-
-  //push button to apply the selected command
-  QPushButton* objapply = NormalPushButton( tr("Apply"), this );
-  objapply->setDefault( true );
-  connect(objapply, SIGNAL(clicked()), SIGNAL( ObjApply()) );
-
 
 // ********************* place all the widgets in layouts ****************
 
@@ -226,12 +209,7 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   gridlayout->addWidget( alpha,    1,0 );
   gridlayout->addWidget( alphalcd, 1,1 );
   gridlayout->addWidget( salpha,   1,2 );
-  gridlayout->addWidget( objhelp,2,0 );
-  gridlayout->addWidget( refresh,2,1  );
   gridlayout->addWidget( commentbutton,2,2 );
-  gridlayout->addWidget( objhide, 3, 0 );
-  gridlayout->addWidget( objapplyhide, 3,1 );
-  gridlayout->addWidget( objapply, 3,2 );
 
   //now create a vertical layout to put all the other layouts in
   QVBoxLayout* vlayout = new QVBoxLayout( this);
@@ -243,7 +221,7 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   vlayout->addWidget( deleteButton );
   vlayout->addWidget( bgroupobjects );
   vlayout->addLayout( gridlayout );
-
+  vlayout->addLayout(createStandardButtons(true));
 
   objcomment = new EditComment( this, m_ctrl,false );
   connect(objcomment,SIGNAL(CommentHide()),SLOT(hideComment()));
@@ -258,8 +236,18 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   doubleDisplayDiff(timediff_value);
 }
 
+std::string ObjectDialog::name() const
+{
+  static const std::string OBJ_DATATYPE = "obj";
+  return OBJ_DATATYPE;
+}
+
+void ObjectDialog::updateDialog()
+{
+}
+
 /*********************************************/
-void ObjectDialog::nameListClicked(  QListWidgetItem * item)
+void ObjectDialog::nameListClicked(QListWidgetItem*)
 {
   /* DESCRIPTION: This function is called when a value in namebox is
      selected (region names or file prefixes), and is returned without doing
@@ -288,7 +276,7 @@ void ObjectDialog::timefileClicked(int tt)
 }
 
 /*********************************************/
-void ObjectDialog::timefileListSlot(QListWidgetItem* item)
+void ObjectDialog::timefileListSlot(QListWidgetItem*)
 {
   /* DESCRIPTION: This function is called when the signal highlighted() is
      sent from the list of time/file and a new list item is highlighted
@@ -302,7 +290,7 @@ void ObjectDialog::timefileListSlot(QListWidgetItem* item)
   int index = timefileList->currentRow();
   if (index>0) {
     times.insert(files[index].time);
-    Q_EMIT emitTimes("obj", times, false);
+    emitTimes(times, false);
   }
 }
 
@@ -322,12 +310,12 @@ void ObjectDialog::DeleteClicked()
 
   //Emit empty time list
   times.clear();
-  emit emitTimes("obj",times,false );
+  emitTimes(times, false);
 }
 
 /*********************************************/
 
-void ObjectDialog::Refresh()
+void ObjectDialog::updateTimes()
 {
   METLIBS_LOG_SCOPE();
 
@@ -336,20 +324,6 @@ void ObjectDialog::Refresh()
 
   //update the selectedFileList box
   updateSelectedFileList();
-}
-
-/********************************************/
-void ObjectDialog::applyhideClicked()
-{
-  METLIBS_LOG_SCOPE();
-  emit ObjHide();
-  emit ObjApply();
-}
-
-/********************************************/
-void ObjectDialog::helpClicked()
-{
-  emit showsource("ug_objectdialogue.html");
 }
 
 /*********************************************/
@@ -442,9 +416,9 @@ void ObjectDialog::updateTimefileList(bool refresh)
     times.insert(files[i].time);
 
   if (autoButton->isChecked()) {
-    Q_EMIT emitTimes("obj", times, true);
+    emitTimes(times, true);
   } else {
-    Q_EMIT emitTimes("obj", plottimes_t(), false);
+    emitTimes(plottimes_t(), false);
   }
 
   //update time/file list
@@ -764,6 +738,7 @@ void ObjectDialog::archiveMode(bool on)
 
 /*************************************************************************/
 
+// static
 std::string ObjectDialog::stringFromTime(const miutil::miTime& t)
 {
   ostringstream ostr;
@@ -774,13 +749,6 @@ std::string ObjectDialog::stringFromTime(const miutil::miTime& t)
        << setw(2) << setfill('0') << t.min();
   return ostr.str();
 }
-
-
-void ObjectDialog::closeEvent(QCloseEvent* e)
-{
-  emit ObjHide();
-}
-
 
 void ObjectDialog::hideComment()
 {

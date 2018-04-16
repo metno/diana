@@ -154,7 +154,6 @@ private Q_SLOTS:
   void editMenu();
   void stationMenu(int result = -1);
   void uffMenu(int result = -1);
-  void objMenu(int result = -1);
   void vprofMenu();
   void spectrumMenu();
   void trajMenu(int result = -1);
@@ -302,7 +301,6 @@ private:
   QAction * showMapDialogAction;
   QAction * showStationDialogAction;
   QAction * showEditDialogAction;
-  QAction * showObjectDialogAction;
   QAction * showTrajecDialogAction;
   QAction * showAnnotationDialogAction;
   QAction * showMeasurementsDialogAction;

@@ -29,10 +29,11 @@
 #ifndef _objectDialog_h
 #define _objectDialog_h
 
-#include "diController.h"
+#include "qtDataDialog.h"
+
+#include "diObjTypes.h"
 #include "util/diKeyValue.h"
 
-#include <QDialog>
 #include <vector>
 
 class PushButton;
@@ -49,56 +50,58 @@ class ObjectManager;
 class ToggleButton;
 
 /**
-
   \brief Dialog for plotting weather objects
-   
-   Analyses, prognoses, sigcharts etc.
-
+  Analyses, prognoses, sigcharts etc.
 */
-class ObjectDialog: public QDialog
+class ObjectDialog : public DataDialog
 {
   Q_OBJECT
 
 public:
+  ObjectDialog(QWidget* parent, Controller* llctrl);
 
-  //the constructor
-  ObjectDialog( QWidget* parent, Controller* llctrl );
+  std::string name() const override;
+
   /// the plot info strings
-  PlotCommand_cpv getOKString();
+  PlotCommand_cpv getOKString() override;
+
   /// set the dialogue elements from a plot info string
-  void putOKString(const PlotCommand_cpv& vstr);
+  void putOKString(const PlotCommand_cpv& vstr) override;
+
   /// creates a short name for the current settings (used in quick menues)
   std::string getShortname();
+
   /// read comment belonging to objects
   void commentUpdate();
+
   /// show dialog
   void showAll();
+
   /// hide dialog
   void hideAll();
+
   /// set mode to read files from archive
   void archiveMode( bool on );
-  ///called when the dialog is closed by the window manager
 
-/**
-
-  \brief Variables to plot an object file
-   
-   Name, file etc.
-
-*/
+  /**
+   * \brief Variables to plot an object file
+   * Name, file etc.
+  */
   struct PlotVariables {
     //variables for each plot
     std::string objectname;
     std::string file,time;
     int totalminutes;
     float alphanr;
-    std::map <std::string,bool> useobject;    
+    std::map<std::string, bool> useobject;
     miutil::KeyValue_v external;
   };
-  
-private:
 
-  Controller* m_ctrl;
+public /*Q_SLOTS*/:
+  void updateTimes() override;
+  void updateDialog() override;
+
+private:
   ObjectManager* m_objm;
 
   //max total time diff. between selected time and file time
@@ -127,11 +130,11 @@ private:
   static PlotVariables decodeString(const miutil::KeyValue_v &tokens);
   // make string from plotVariables
   std::string makeOKString(PlotVariables & okVar);
+
   // get the time string on the form yyyymmddhhmn from time
-  std::string stringFromTime(const miutil::miTime& t);
+  static std::string stringFromTime(const miutil::miTime& t);
 
-
-//************** q tWidgets that appear in the dialog  *******************
+  //************** q tWidgets that appear in the dialog  *******************
 
   // Combobox for selecting region name
   QListWidget * namebox;
@@ -171,28 +174,16 @@ private:
 
   EditComment* objcomment;
 
-protected:
-  void closeEvent( QCloseEvent* );
-
 private slots:
   void nameListClicked(  QListWidgetItem * );
   void timefileClicked(int tt);
   void timefileListSlot( QListWidgetItem * item );
   void DeleteClicked();
-  void Refresh();
   void doubleDisplayDiff( int number );
-  void applyhideClicked();
-  void helpClicked();
   void greyAlpha( bool on );
   void alphaDisplay( int number );
   void commentClicked(bool);
   void hideComment();
-
-Q_SIGNALS:
-  void ObjHide();
-  void ObjApply();
-  void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const plottimes_t&, bool);
 };
 
 #endif
