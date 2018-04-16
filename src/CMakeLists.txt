@@ -457,6 +457,7 @@ SET (LIBDIANAUI_QTFORMS
 
 SET (LIBDIANAUI_XPM
   active_object.xpm
+  apply.xpm
   autoupdate.xpm
   back.xpm
   bakover.xpm
@@ -500,6 +501,8 @@ SET (LIBDIANAUI_XPM
   forover.xpm
   forward.xpm
   front.xpm
+  help.xpm
+  hideapply.xpm
   idnumDown.xpm
   idnumUp.xpm
   inactive_object.xpm

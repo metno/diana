@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,13 +27,21 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "qtDataDialog.h"
+
+#include "qtUtility.h"
+
 #include <QAction>
 #include <QApplication>
 #include <QLayout>
 #include <QPushButton>
+#include <QToolButton>
 
-#include "qtDataDialog.h"
-#include "qtUtility.h"
+#include "apply.xpm"
+#include "help.xpm"
+#include "hideapply.xpm"
+#include "loop.xpm"
+#include "paint_hide.xpm"
 
 ShowMoreDialog::ShowMoreDialog(QWidget* parent)
   : QDialog(parent)
@@ -69,18 +77,20 @@ void ShowMoreDialog::showMore(bool more)
   resize(s);
 }
 
-void ShowMoreDialog::doShowMore(bool more)
+void ShowMoreDialog::doShowMore(bool)
 {
 }
 
 // ========================================================================
 
-DataDialog::DataDialog(QWidget *parent, Controller *ctrl)
-  : ShowMoreDialog(parent)
-  , applyhideButton(0)
-  , applyButton(0)
-  , m_ctrl(ctrl)
-  , m_action(0)
+DataDialog::DataDialog(QWidget* parent, Controller* ctrl)
+    : ShowMoreDialog(parent)
+    , m_ctrl(ctrl)
+    , m_action(0)
+    , applyhideButton(0)
+    , applyButton(0)
+    , refreshButton(0)
+    , helpButton(0)
 {
   connect(this, SIGNAL(finished(int)), SLOT(unsetAction()));
 }
@@ -102,42 +112,60 @@ void DataDialog::closeEvent(QCloseEvent *event)
 
 void DataDialog::unsetAction()
 {
-  if (m_action) m_action->setChecked(false);
+  if (m_action)
+    m_action->setChecked(false);
 }
 
-QLayout *DataDialog::createStandardButtons()
+void DataDialog::setVisible(bool visible)
 {
-  QPushButton *helpButton = NormalPushButton(tr("Help"), this);
-  QPushButton *refreshButton = NormalPushButton(tr("Refresh"), this);
-  QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
+  ShowMoreDialog::setVisible(visible);
+  if (m_action)
+    m_action->setChecked(visible);
+}
 
-  applyhideButton = NormalPushButton("", this);
-  applyButton = NormalPushButton("", this);
+QLayout* DataDialog::createStandardButtons(bool refresh)
+{
+  QAbstractButton* hideButton = createButton(tr("Hide"), QPixmap(paint_hide_xpm));
+  applyhideButton = createButton(tr("Apply + Hide"), QPixmap(hideapply_xpm));
+  applyButton = new QPushButton(tr("Apply"), this);
+  applyButton->setIcon(QPixmap(apply_xpm));
+  applyButton->setDefault(true);
   indicateUnappliedChanges(false);
 
-  applyButton->setDefault(true);
+  connect(hideButton, &QAbstractButton::clicked, this, &DataDialog::close);
+  connect(applyButton, &QAbstractButton::clicked, this, &DataDialog::applyData);
+  connect(applyhideButton, &QAbstractButton::clicked, this, &DataDialog::applyhideClicked);
 
-  connect(hideButton, SIGNAL(clicked()), SLOT(close()));
-  connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
-  connect(refreshButton, SIGNAL(clicked()), SLOT(updateTimes()));
-  connect(applyhideButton, SIGNAL(clicked()), SLOT(applyhideClicked()));
-  connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
+  QLayout* layout = new QHBoxLayout();
+  layout->setSpacing(1);
 
-  QHBoxLayout* helplayout = new QHBoxLayout();
-  helplayout->addWidget(helpButton);
-  helplayout->addWidget(refreshButton);
+  if (!helpFileName.empty()) {
+    helpButton = createButton(tr("Help"), QPixmap(help_xpm));
+    connect(helpButton, &QPushButton::clicked, this, &DataDialog::helpClicked);
+    helpButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    layout->addWidget(helpButton);
+  }
+  if (refresh) {
+    refreshButton = createButton(tr("Refresh"), QPixmap(loop_xpm));
+    connect(refreshButton, &QPushButton::clicked, this, &DataDialog::updateTimes);
+    layout->addWidget(refreshButton);
+  }
 
-  QHBoxLayout* applylayout = new QHBoxLayout();
-  applylayout->addWidget(hideButton);
-  applylayout->addWidget(applyhideButton);
-  applylayout->addWidget(applyButton);
+  layout->addWidget(hideButton);
+  layout->addWidget(applyhideButton);
+  layout->addWidget(applyButton);
+  // layout->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-  QVBoxLayout* vlayout = new QVBoxLayout();
-  vlayout->setSpacing(1);
-  vlayout->addLayout(helplayout);
-  vlayout->addLayout(applylayout);
+  return layout;
+}
 
-  return vlayout;
+QAbstractButton* DataDialog::createButton(const QString& tooltip, const QIcon& icon)
+{
+  QToolButton* button = new QToolButton(this);
+  button->setToolTip(tooltip);
+  button->setIcon(icon);
+  button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  return button;
 }
 
 void DataDialog::indicateUnappliedChanges(bool on)
@@ -146,10 +174,10 @@ void DataDialog::indicateUnappliedChanges(bool on)
     return;
 
   if (on) {
-    applyhideButton->setText(tr("Apply* + Hide"));
+    applyhideButton->setToolTip(tr("Apply* + Hide"));
     applyButton->setText(tr("Apply*"));
   } else {
-    applyhideButton->setText(tr("Apply + Hide"));
+    applyhideButton->setToolTip(tr("Apply + Hide"));
     applyButton->setText(tr("Apply"));
   }
 }
@@ -162,5 +190,6 @@ void DataDialog::applyhideClicked()
 
 void DataDialog::helpClicked()
 {
-  emit showsource(helpFileName);
+  if (!helpFileName.empty())
+    Q_EMIT showsource(helpFileName);
 }

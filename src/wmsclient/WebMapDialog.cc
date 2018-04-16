@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -25,7 +25,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 #include "WebMapDialog.h"
 
@@ -561,5 +561,5 @@ KVListPlotCommand_cp WebMapDialog::plotCommand(size_t idx) const
 void WebMapDialog::updateTimes()
 {
   if (WebMapManager* wmm = WebMapManager::instance())
-    emitTimes(WEBMAP, wmm->getTimes(), false);
+    emitTimes(wmm->getTimes(), false);
 }

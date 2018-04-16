@@ -231,7 +231,7 @@ std::string DrawingDialog::name() const
 
 void DrawingDialog::updateTimes()
 {
-  emitTimes("DRAWING", drawm_->getTimes());
+  emitTimes(drawm_->getTimes());
 }
 
 void DrawingDialog::updateDialog()

@@ -38,6 +38,8 @@
 
 class Controller;
 class QAction;
+class QPushButton;
+class QAbstractButton;
 
 class ShowMoreDialog : public QDialog
 {
@@ -69,20 +71,26 @@ public:
   virtual ~DataDialog();
 
   virtual QAction *action() const;
+
   /// Returns the name of the data source that the dialog displays. This should
   /// be the same as the name used by the corresponding manager.
   virtual std::string name() const = 0;
 
   /// Returns the vector of command strings in use.
   virtual PlotCommand_cpv getOKString() = 0;
+
   /// Set new command strings, representing them in the dialog.
   virtual void putOKString(const PlotCommand_cpv& vstr) = 0;
 
-public slots:
+  void setVisible(bool show) override;
+
+public Q_SLOTS:
   /// Unsets the dialog action in order to make the dialog ready for opening.
   void unsetAction();
+
   /// Update the times that the dialog knows about.
   virtual void updateTimes() = 0;
+
   /// Update the dialog after re-reading the setup file.
   virtual void updateDialog() = 0;
 
@@ -94,25 +102,30 @@ Q_SIGNALS:
   void updated();
 
 protected:
-  void emitTimes(const std::string& datatype, const plottimes_t& times, bool use) { sendTimes(datatype, times, use); }
-  void emitTimes(const std::string& datatype, const plottimes_t& times) { sendTimes(datatype, times, true); }
+  void emitTimes(const plottimes_t& times, bool use) { sendTimes(name(), times, use); }
+  void emitTimes(const plottimes_t& times) { sendTimes(name(), times, true); }
 
-private:
-  QPushButton *applyhideButton;
-  QPushButton *applyButton;
-
-protected:
-  virtual void closeEvent(QCloseEvent *event);
-  QLayout *createStandardButtons();
+  void closeEvent(QCloseEvent* event) override;
+  QLayout* createStandardButtons(bool refresh);
   void indicateUnappliedChanges(bool);
 
-  Controller *m_ctrl;
-  QAction *m_action;
-  std::string helpFileName;
+private:
+  QAbstractButton* createButton(const QString& tooltip, const QIcon& icon);
 
 private slots:
   void applyhideClicked();
   void helpClicked();
+
+protected:
+  Controller* m_ctrl;
+  QAction* m_action;
+  std::string helpFileName;
+
+private:
+  QAbstractButton* applyhideButton;
+  QPushButton* applyButton;
+  QAbstractButton* refreshButton;
+  QAbstractButton* helpButton;
 };
 
 #endif
