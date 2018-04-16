@@ -221,9 +221,9 @@ public:
 
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(std::map<std::string, plottimes_t>& times);
-  ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      const PlotCommand_cpv& pinfos, bool allTimes = true);
+
+  //! returns union or intersection of plot times from all pinfos
+  void getCapabilitiesTime(std::set<miutil::miTime>& okTimes, const PlotCommand_cpv& pinfos, bool time_union = true);
 
   /// set plottime (forwarded to staticPlot_)
   void setPlotTime(const miutil::miTime&);

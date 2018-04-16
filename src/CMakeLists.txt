@@ -431,6 +431,7 @@ LIST (APPEND LIBDIANA_HEADERS
   diStationTypes.h
   diTimeTypes.h
   util/misc_util.h
+  util/nearest_element.h
 )
 LIST (APPEND LIBDIANA_SOURCES
   ${BUILDINFO_CC}

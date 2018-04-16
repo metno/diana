@@ -279,8 +279,16 @@ private:
   void clearGridSources();
   /// update the gridsources vector
   void updateGridSources();
-  bool getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time,
-      const int & time_tolerance, miutil::miTime& actualtime);
+
+  //! find nearest time within time tolerance
+  /*!
+   * \param time time to search for
+   * \param time_tolerance tolerance in minutes
+   * \param actualtime found time, changed only if returning true
+   * \return true if time was found within time_tolerance
+   */
+  bool getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time, int time_tolerance, miutil::miTime& actualtime);
+
   bool dataExists_reftime(const gridinventory::ReftimeInventory& reftimInv,
       const std::string& paramname, gridinventory::GridParameter& gp);
   void addComputedParameters();

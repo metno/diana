@@ -38,6 +38,7 @@
 #include "diStaticPlot.h"
 
 #include "diField/diGridReprojection.h"
+#include "util/nearest_element.h"
 #include "util/string_util.h"
 #include "util/time_util.h"
 
@@ -301,25 +302,9 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
   const miutil::miTime actualTime = miutil::addSec(time, mTimeOffset);
   METLIBS_LOG_DEBUG(LOGVAL(actualTime));
 
-  TimeDimensionValues_t::const_iterator itBest = mTimeDimensionValues.lower_bound(actualTime); // itBest->first is first >= actualTime
-  int diffBest = -1;
-  if (itBest == mTimeDimensionValues.end()) { // after last, nearest must be last unless empty
-    if (itBest != mTimeDimensionValues.begin())
-      --itBest;
-  } else if (itBest != mTimeDimensionValues.begin() && itBest->first != actualTime) {
-    TimeDimensionValues_t::const_iterator itBefore = itBest;
-    std::advance(itBefore, -1);
-    diffBest = std::abs(miutil::miTime::secDiff(itBest->first, actualTime));
-    const int diffBefore = std::abs(miutil::miTime::secDiff(itBefore->first, actualTime));
-    if (diffBest > diffBefore) {
-      diffBest = diffBefore;
-      itBest = itBefore;
-    }
-  }
+  TimeDimensionValues_t::const_iterator itBest = diutil::nearest_element(mTimeDimensionValues, actualTime, miutil::miTime::secDiff);
   if (mTimeTolerance >= 0 && itBest != mTimeDimensionValues.end()) { // reject if above max tolerance
-    if (diffBest < 0)
-      diffBest = std::abs(miutil::miTime::secDiff(itBest->first, actualTime));
-    if (diffBest > mTimeTolerance)
+    if (std::abs(miutil::miTime::secDiff(itBest->first, actualTime)) > mTimeTolerance)
       itBest = mTimeDimensionValues.end();
   }
 

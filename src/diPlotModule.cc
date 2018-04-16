@@ -55,6 +55,7 @@
 #include "diWeatherArea.h"
 
 #include "util/misc_util.h"
+#include "util/nearest_element.h"
 #include "util/string_util.h"
 #include "util/was_enabled.h"
 
@@ -1104,50 +1105,45 @@ void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
   }
 }
 
-//returns union or intersection of plot times from all pinfos
-void PlotModule::getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes)
+void PlotModule::getCapabilitiesTime(plottimes_t& ctimes, const PlotCommand_cpv& pinfos, bool time_union)
 {
-  plottimes_t normalTimes;
-  int timediff = -1;
-  bool normalTimesFound = false;
-  bool moreTimes = true;
+  bool first_time = true;
   for (PlotCommand_cp pc : pinfos) {
+    int timediff = -1;
+    plottimes_t ntimes;
+
     const std::string& type = pc->commandKey();
     if (type == "FIELD")
-      fieldplotm->getCapabilitiesTime(normalTimes, timediff, pc);
+      fieldplotm->getCapabilitiesTime(ntimes, timediff, pc);
     else if (type == "SAT")
-      satm->getCapabilitiesTime(normalTimes, timediff, pc);
+      satm->getCapabilitiesTime(ntimes, timediff, pc);
     else if (type == "OBS")
-      obsm->getCapabilitiesTime(normalTimes, timediff, pc);
+      obsm->getCapabilitiesTime(ntimes, timediff, pc);
     else if (type == "OBJECTS")
-      objm->getCapabilitiesTime(normalTimes, timediff, pc);
+      objm->getCapabilitiesTime(ntimes, timediff, pc);
+    else
+      continue;
 
-    if (moreTimes) { //insert okTimes
+    if (time_union || first_time) { // union or first el. of intersection
+      ctimes.insert(ntimes.begin(), ntimes.end());
 
-      if ((!normalTimesFound && normalTimes.size()))
-        normalTimesFound = true;
+    } else { // intersection
 
-      //if intersection and no common times, no need to look for more times
-      if ((!allTimes && normalTimesFound && !normalTimes.size()))
-        moreTimes = false;
+      // no common times, no need to look for more times
+      if (ntimes.empty())
+        break;
 
-      if (allTimes || okTimes.empty()) { // union or first el. of intersection
-        okTimes.insert(normalTimes.begin(), normalTimes.end());
-
-      } else { //intersection
-
-        plottimes_t tmptimes;
-        for (plottimes_t::const_iterator p = okTimes.begin(); p != okTimes.end(); p++) {
-          plottimes_t::const_iterator itn = normalTimes.begin();
-          while (itn != normalTimes.end() and abs(miTime::minDiff(*p, *itn)) > timediff)
-            ++itn;
-          if (itn != normalTimes.end())
-            tmptimes.insert(*p); //time ok
-        }
-        okTimes = tmptimes;
+      plottimes_t tmptimes;
+      for (const miutil::miTime& p : ctimes) {
+        // NOTE possible improvement: remember iterator to previous nearest time
+        plottimes_t::const_iterator it = diutil::nearest_element(ntimes, p, miTime::minDiff);
+        if (it != ntimes.end() && abs(miTime::minDiff(p, *it)) <= timediff)
+          tmptimes.insert(p); // time ok
       }
-    } // if neither normalTimes nor constatTime, product is ignored
-    normalTimes.clear();
+      ctimes = tmptimes;
+    }
+
+    first_time = false;
   }
 }
 

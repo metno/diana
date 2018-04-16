@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -45,6 +45,7 @@
 #include "../diUtilities.h"
 
 #include "util/misc_util.h"
+#include "util/nearest_element.h"
 
 #include <puCtools/puCglob.h>
 #include <puTools/miTime.h>
@@ -401,6 +402,7 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
   METLIBS_LOG_WARN("giving up .. returning 0");
   return vcross::Values_p();
 }
+
 /**
  * Get times
  */
@@ -853,20 +855,18 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
   return fresult;
 }
 
-bool GridCollection::getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time,
-    const int & time_tolerance, miutil::miTime& actualtime)
+bool GridCollection::getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time, int time_tolerance,
+                                   miutil::miTime& actualtime)
 {
-  // find nearest time within time tolerance
-  int mdiff = time_tolerance + 1;
-  for (const miutil::miTime& t : getTimes(reftime, paramname)) {
-    const int d = std::abs(miutil::miTime::minDiff(time, t));
-    if (d < mdiff) {
-      mdiff = d;
-      actualtime = t;
-    }
-  }
+  typedef std::set<miutil::miTime> times_t;
+  const times_t times = getTimes(reftime, paramname);
 
-  return (mdiff <= time_tolerance);
+  const times_t::const_iterator itBest = diutil::nearest_element(times, time, miutil::miTime::minDiff);
+  if (itBest == times.end())
+    return false;
+
+  actualtime = *itBest;
+  return (std::abs(miutil::miTime::minDiff(*itBest, time)) <= time_tolerance);
 }
 
 

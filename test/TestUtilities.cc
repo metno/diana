@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2017 met.no
+  Copyright (C) 2014-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,14 +32,19 @@
 #include <util/diLineMerger.h>
 #include <util/format_int.h>
 #include <util/math_util.h>
+#include <util/nearest_element.h>
 #include <util/polygon_util.h>
 #include <util/string_util.h>
 #include <util/subprocess.h>
+#include <util/time_util.h>
 
 #include <diField/diRectangle.h>
 #include <puCtools/puCglob.h> // for GLOB_BRACE
 #include <gtest/gtest.h>
+
 #include <cstring>
+#include <map>
+#include <set>
 
 static const std::string SRC_TEST = TEST_SRCDIR "/";
 
@@ -383,4 +388,44 @@ TEST(TestUtilities, AppendText)
     diutil::appendText(t, "world", "-");
     EXPECT_EQ("hello-world", t);
   }
+}
+
+TEST(TestUtilities, NearestElementSet)
+{
+  using diutil::nearest_element;
+
+  const std::set<int> data = {2, 5, 7, 13};
+  EXPECT_EQ(data.begin(), nearest_element(data, 0));
+  EXPECT_EQ(data.begin(), nearest_element(data, 3));
+  EXPECT_EQ(++data.begin(), nearest_element(data, 4));
+  EXPECT_EQ(--data.end(), nearest_element(data, 14));
+}
+
+TEST(TestUtilities, NearestElementMap)
+{
+  using diutil::nearest_element;
+
+  const std::map<int, int> data = {{2, 0}, {5, 0}, {7, 0}, {13, 0}};
+  EXPECT_EQ(data.begin(), nearest_element(data, 0));
+  EXPECT_EQ(data.begin(), nearest_element(data, 3));
+  EXPECT_EQ(++data.begin(), nearest_element(data, 4));
+  EXPECT_EQ(--data.end(), nearest_element(data, 14));
+}
+
+TEST(TestUtilities, NearestElementMiTime)
+{
+  using diutil::nearest_element;
+  using namespace miutil;
+
+  const miTime t0(2018, 4, 1, 0, 0, 0);
+  std::map<miTime, int> data;
+  data.insert(std::make_pair(addHour(t0, 2), 0));
+  data.insert(std::make_pair(addHour(t0, 5), 0));
+  data.insert(std::make_pair(addHour(t0, 7), 0));
+  data.insert(std::make_pair(addHour(t0, 13), 0));
+
+  EXPECT_EQ(data.begin(), nearest_element(data, addHour(t0, 0), miTime::minDiff));
+  EXPECT_EQ(data.begin(), nearest_element(data, addHour(t0, 3), miTime::minDiff));
+  EXPECT_EQ(++data.begin(), nearest_element(data, addHour(t0, 4), miTime::minDiff));
+  EXPECT_EQ(--data.end(), nearest_element(data, addHour(t0, 14), miTime::minDiff));
 }
