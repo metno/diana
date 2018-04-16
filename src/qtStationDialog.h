@@ -30,9 +30,9 @@
 #ifndef qtStationDialog_h
 #define qtStationDialog_h
 
-#include "diCommonTypes.h"
-#include "diController.h"
-#include "diImageGallery.h"
+#include "qtDataDialog.h"
+
+#include "diStationTypes.h"
 
 #include <QDialog>
 
@@ -44,7 +44,7 @@ class QCheckBox;
 
 class StationDialogModel;
 
-class StationDialog : public QDialog
+class StationDialog : public DataDialog
 {
   Q_OBJECT
 
@@ -52,42 +52,48 @@ public:
   explicit StationDialog(QWidget* parent, Controller* llctrl);
   ~StationDialog();
 
-  void updateDialog();
+  std::string name() const override;
 
   //! @return command strings for current dialog state
-  PlotCommand_cpv getOKString();
+  PlotCommand_cpv getOKString() override;
 
   //! insert command strings
-  void putOKString(const PlotCommand_cpv& vstr);
+  void putOKString(const PlotCommand_cpv& vstr) override;
 
   //! @return short name of current command
   std::string getShortname();
 
   bool show_names;
 
-Q_SIGNALS:
-  void StationApply();
-  void StationHide();
-  void showsource(const std::string, const std::string="");
+public Q_SLOTS:
+  //! Updates the contents of the dialog with new data which is obtained from the manager.
+  /*! This is only performed when the dialog is shown.
+   */
+  void updateDialog() override;
+
+  void updateTimes() override;
 
 protected:
-  void showEvent(QShowEvent *event);
-  void closeEvent(QCloseEvent *event);
+  void showEvent(QShowEvent* event) override;
 
-private slots:
+private Q_SLOTS:
+  //! Populates the selected set model with the selected items from the set model.
+  /*! This is performed whenever the selection changes in the station set view.
+   */
   void chooseSet();
+
+  //! Handles the change to a new set of stations.
   void selectSet(const QItemSelection& current);
+
+  //! Reloads the stations for the selected sets in the chosen set list view.
   void reloadSets();
 
+  //! Populates the selected set model with the selected items from the set model.
+  /*! This is performed whenever the selection changes in the station set view.
+   */
   void showStationNamesActivated(bool);
-  void applyClicked();
-  void applyHideClicked();
-  void helpClicked();
-  void hideClicked();
 
 private:
-  Controller* m_ctrl;
-
   stationDialogInfo dialogInfo;
   stationDialogInfo chosenInfo;
 
@@ -97,10 +103,6 @@ private:
   QTreeView* selectedStationPlotList;
   QTreeView* stationPlotList;
   QCheckBox* showStationNames;
-  QPushButton* fieldApply;
-  QPushButton* fieldApplyHide;
-  QPushButton* fieldHide;
-  QPushButton* reloadButton;
 };
 
 #endif

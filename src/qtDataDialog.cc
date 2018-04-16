@@ -182,6 +182,12 @@ void DataDialog::indicateUnappliedChanges(bool on)
   }
 }
 
+void DataDialog::setRefreshEnabled(bool enabled)
+{
+  if (refreshButton)
+    refreshButton->setEnabled(enabled);
+}
+
 void DataDialog::applyhideClicked()
 {
   emit applyData();

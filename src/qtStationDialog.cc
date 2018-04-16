@@ -29,12 +29,14 @@
 
 #include "qtStationDialog.h"
 
+#include "diController.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diStationPlotCommand.h"
 #include "qtStationDialogModel.h"
 #include "qtUtility.h"
 
+#include <QAction>
 #include <QCheckBox>
 #include <QFileInfo>
 #include <QGridLayout>
@@ -47,6 +49,8 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QVariant>
+
+#include "station.xpm"
 
 #define MILOGGER_CATEGORY "diana.StationDialog"
 #include <miLogger/miLogging.h>
@@ -78,10 +82,16 @@ using namespace std;
  * StationManager object.
  */
 StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
-  : QDialog(parent)
-  , show_names(false)
-  , m_ctrl(llctrl)
+    : DataDialog(parent, llctrl)
+    , show_names(false)
 {
+  setWindowTitle(tr("Stations"));
+  m_action = new QAction(QIcon(QPixmap(station_xpm)), windowTitle(), this);
+  m_action->setShortcut(Qt::ALT + Qt::Key_A);
+  m_action->setCheckable(true);
+  m_action->setIconVisibleInMenu(true);
+  helpFileName = "ug_stationdialogue.html";
+
   model = new StationDialogModel(dialogInfo, this);
 
   QLabel *stationPlotLabel = TitleLabel(tr("Sets"), this);
@@ -103,19 +113,19 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
   connect(showStationNames, SIGNAL(toggled(bool)), SLOT(showStationNamesActivated(bool)));
   showStationNames->setChecked(show_names);
 
-  QPushButton *helpButton = NormalPushButton(tr("Help"), this);
+  //  QPushButton *helpButton = NormalPushButton(tr("Help"), this);
 
-  fieldHide = NormalPushButton(tr("Hide"), this);
-  fieldApplyHide = NormalPushButton(tr("Apply+Hide"), this);
-  fieldApply = NormalPushButton(tr("Apply"), this);
+  //  fieldHide = NormalPushButton(tr("Hide"), this);
+  //  fieldApplyHide = NormalPushButton(tr("Apply+Hide"), this);
+  //  fieldApply = NormalPushButton(tr("Apply"), this);
 
-  reloadButton = NormalPushButton(tr("Reload"), this);
-  reloadButton->setEnabled(false);
+  //  reloadButton = NormalPushButton(tr("Reload"), this);
+  //  reloadButton->setEnabled(false);
 
-  connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
-  connect(fieldHide, SIGNAL(clicked()), SLOT(hideClicked()));
-  connect(fieldApplyHide, SIGNAL(clicked()), SLOT(applyHideClicked()));
-  connect(fieldApply, SIGNAL(clicked()), SLOT(applyClicked()));
+  //  connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
+  //  connect(fieldHide, SIGNAL(clicked()), SLOT(hideClicked()));
+  //  connect(fieldApplyHide, SIGNAL(clicked()), SLOT(applyHideClicked()));
+  //  connect(fieldApply, SIGNAL(clicked()), SLOT(applyClicked()));
 
   connect(stationPlotList->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -125,15 +135,15 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this, SLOT(selectSet(const QItemSelection &)));
 
-  connect(reloadButton, SIGNAL(clicked()), SLOT(reloadSets()));
+  //  connect(reloadButton, SIGNAL(clicked()), SLOT(updateTimes()));
 
   QGridLayout* buttonLayout = new QGridLayout();
   buttonLayout->addWidget(showStationNames, 0, 1);
-  buttonLayout->addWidget(reloadButton, 0, 2);
-  buttonLayout->addWidget(helpButton, 1, 0);
-  buttonLayout->addWidget(fieldHide, 2, 0);
-  buttonLayout->addWidget(fieldApplyHide, 2, 1);
-  buttonLayout->addWidget(fieldApply, 2, 2);
+  //  buttonLayout->addWidget(reloadButton, 0, 2);
+  //  buttonLayout->addWidget(helpButton, 1, 0);
+  //  buttonLayout->addWidget(fieldHide, 2, 0);
+  //  buttonLayout->addWidget(fieldApplyHide, 2, 1);
+  //  buttonLayout->addWidget(fieldApply, 2, 2);
 
   QVBoxLayout* mainLayout = new QVBoxLayout();
   mainLayout->addWidget(stationPlotLabel);
@@ -141,23 +151,21 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
   mainLayout->addWidget(selectedStationPlotLabel);
   mainLayout->addWidget(selectedStationPlotList);
   mainLayout->addLayout(buttonLayout);
+  mainLayout->addLayout(createStandardButtons(true));
 
   setLayout(mainLayout);
 }
 
-/**
- * Destroys the application-wide station dialog.
- */
 StationDialog::~StationDialog()
 {
 }
 
-/**
- * Updates the contents of the dialog with new data which is obtained from the
- * manager.
- *
- * This is only performed when the dialog is shown.
- */
+std::string StationDialog::name() const
+{
+  static const std::string STATION_DATATYPE = "station";
+  return STATION_DATATYPE;
+}
+
 void StationDialog::updateDialog()
 {
   dialogInfo = m_ctrl->initStationDialog();
@@ -174,11 +182,6 @@ void StationDialog::updateDialog()
   }
 }
 
-/**
- * Populates the selected set model with the selected items from the set model.
- *
- * This is performed whenever the selection changes in the station set view.
- */
 void StationDialog::chooseSet()
 {
   stationDialogInfo info;
@@ -193,28 +196,22 @@ void StationDialog::chooseSet()
 
   chosenModel->updateData(info);
 }
-/**
- * Populates the selected set model with the selected items from the set model.
- *
- * This is performed whenever the selection changes in the station set view.
- */
-void StationDialog::showStationNamesActivated(bool on)
+
+void StationDialog::showStationNamesActivated(bool)
 {
   show_names = showStationNames->isChecked();
 }
 
-/**
- * Handles the change to a new set of stations.
- */
 void StationDialog::selectSet(const QItemSelection& current)
 {
-  reloadButton->setEnabled(!current.indexes().isEmpty());
-  //emit StationApply();
+  setRefreshEnabled(!current.indexes().isEmpty());
 }
 
-/**
- * Reloads the stations for the selected sets in the chosen set list view.
- */
+void StationDialog::updateTimes()
+{
+  reloadSets();
+}
+
 void StationDialog::reloadSets()
 {
   QItemSelectionModel* selectionModel = selectedStationPlotList->selectionModel();
@@ -230,10 +227,6 @@ void StationDialog::reloadSets()
   }
 }
 
-/**
- * Returns a vector of strings describing each set of stations and the
- * stations themselves.
- */
 PlotCommand_cpv StationDialog::getOKString()
 {
   // Clear the set of chosen sets and add the new chosen sets to it.
@@ -281,35 +274,5 @@ std::string StationDialog::getShortname()
 void StationDialog::showEvent(QShowEvent *event)
 {
   updateDialog();
-  event->accept();
-}
-
-void StationDialog::applyClicked()
-{
-  //if (historyOkButton->isEnabled())
-  //  historyOk();
-  emit StationApply();
-}
-
-void StationDialog::applyHideClicked()
-{
-  //if (historyOkButton->isEnabled())
-  //  historyOk();
-  emit StationHide();
-  emit StationApply();
-}
-
-void StationDialog::helpClicked()
-{
-  emit showsource("ug_stationdialogue.html");
-}
-
-void StationDialog::hideClicked()
-{
-  emit StationHide();
-}
-
-void StationDialog::closeEvent(QCloseEvent *event)
-{
-  emit StationHide();
+  DataDialog::showEvent(event);
 }

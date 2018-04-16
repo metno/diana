@@ -109,6 +109,8 @@ protected:
   QLayout* createStandardButtons(bool refresh);
   void indicateUnappliedChanges(bool);
 
+  void setRefreshEnabled(bool enabled);
+
 private:
   QAbstractButton* createButton(const QString& tooltip, const QIcon& icon);
 

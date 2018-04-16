@@ -201,6 +201,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   addStandardDialog(fm = new FieldDialog(this, contr));
   addStandardDialog(om = new ObsDialog(this, contr));
   addStandardDialog(sm = new SatDialog(this, contr));
+  addStandardDialog(stm = new StationDialog(this, contr));
   addStandardDialog(objm = new ObjectDialog(this, contr));
 
   //-------- The Actions ---------------------------------
@@ -297,12 +298,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   showMapDialogAction->setCheckable(true);
   showMapDialogAction->setIconVisibleInMenu(true);
   connect( showMapDialogAction, SIGNAL( triggered() ) ,  SLOT( mapMenu() ) );
-  // --------------------------------------------------------------------
-  showStationDialogAction = new QAction( QIcon(QPixmap(station_xpm )),tr("Toggle Stations"), this );
-  showStationDialogAction->setShortcut(Qt::ALT+Qt::Key_A);
-  showStationDialogAction->setCheckable(true);
-  showStationDialogAction->setIconVisibleInMenu(true);
-  connect( showStationDialogAction, SIGNAL( triggered() ) ,  SLOT( stationMenu() ) );
   // --------------------------------------------------------------------
   showEditDialogAction = new QAction( QPixmap(editmode_xpm ),tr("&Product Editing"), this );
   showEditDialogAction->setShortcut(Qt::ALT+Qt::Key_E);
@@ -543,7 +538,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   showmenu->addAction(fm->action());
   showmenu->addAction(om->action());
   showmenu->addAction(sm->action());
-  showmenu->addAction( showStationDialogAction      );
+  showmenu->addAction(stm->action());
   showmenu->addAction( showEditDialogAction         );
   showmenu->addAction(objm->action());
   showmenu->addAction( showTrajecDialogAction       );
@@ -702,9 +697,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   mainToolbar->addAction(sm->action());
 
-  stm= new StationDialog(this, contr);
-  stm->hide();
-  mainToolbar->addAction( showStationDialogAction     );
+  mainToolbar->addAction(stm->action());
 
   mainToolbar->addAction(objm->action());
 
@@ -768,13 +761,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
-  connect( stm, SIGNAL(StationApply()), SLOT(MenuOK()));
   connect( mm, SIGNAL(MapApply()),   SLOT(MenuOK()));
   connect( em, SIGNAL(editApply()),  SLOT(editApply()));
   connect( annom, SIGNAL(AnnotationApply()),  SLOT(MenuOK()));
 
-  connect( stm, SIGNAL(StationHide()), SLOT(stationMenu()));
-  connect( stm, SIGNAL(finished(int)),  SLOT(stationMenu(int)));
   connect( mm, SIGNAL(MapHide()),    SLOT(mapMenu()));
   connect( mmdock, SIGNAL(visibilityChanged(bool)),  SLOT(mapDockVisibilityChanged(bool)));
   connect( em, SIGNAL(EditHide()),   SLOT(editMenu()));
@@ -1327,7 +1317,8 @@ void DianaMainWindow::toggleDialogs()
       objm->setVisible(false);
     if ((visi[7]= trajm->isVisible())) trajMenu();
     if ((visi[8]= measurementsm->isVisible())) measurementsMenu();
-    if ((visi[9]= stm->isVisible())) stationMenu();
+    if ((visi[9] = stm->isVisible()))
+      stm->setVisible(false);
   } else {
     if (visi[0]) quickMenu();
     if (visi[1]) mapMenu();
@@ -1342,7 +1333,8 @@ void DianaMainWindow::toggleDialogs()
       objm->setVisible(true);
     if (visi[7]) trajMenu();
     if (visi[8]) measurementsMenu();
-    if (visi[9]) stationMenu();
+    if (visi[9])
+      stm->setVisible(true);
   }
 }
 
@@ -1361,11 +1353,6 @@ static void toggleDialogVisibility(QWidget* dialog, QAction* dialogAction, int r
 void DianaMainWindow::quickMenu(int result)
 {
   toggleDialogVisibility(qm, showQuickmenuAction, result);
-}
-
-void DianaMainWindow::stationMenu(int result)
-{
-  toggleDialogVisibility(stm, showStationDialogAction, result);
 }
 
 void DianaMainWindow::uffMenu(int result)

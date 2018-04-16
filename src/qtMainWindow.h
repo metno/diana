@@ -152,7 +152,6 @@ private Q_SLOTS:
   void mapMenu(int result = -1);
   void mapDockVisibilityChanged(bool visible);
   void editMenu();
-  void stationMenu(int result = -1);
   void uffMenu(int result = -1);
   void vprofMenu();
   void spectrumMenu();
@@ -299,7 +298,6 @@ private:
   QAction * showHideAllAction;
   QAction * showQuickmenuAction;
   QAction * showMapDialogAction;
-  QAction * showStationDialogAction;
   QAction * showEditDialogAction;
   QAction * showTrajecDialogAction;
   QAction * showAnnotationDialogAction;
