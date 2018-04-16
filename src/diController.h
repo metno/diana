@@ -367,8 +367,6 @@ public:
   ///send command to right area object
   void areaObjectsCommand(const std::string& command, const std::string& dataSet,
       const std::vector<std::string>& data, int id);
-  ///find areas in position x,y
-  std::vector <selectArea> findAreaObjects(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);

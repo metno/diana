@@ -56,9 +56,6 @@ public:
   void areaObjectsCommand(const std::string& command, const std::string& dataSet,
       const std::vector<std::string>& data, int id);
 
-  ///find areas in position x,y
-  std::vector<selectArea> findAreaObjects(int x, int y, bool newArea = false);
-
 private:
   PlotModule* plot_;
 

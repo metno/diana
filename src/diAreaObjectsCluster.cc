@@ -35,6 +35,9 @@
 
 #include <puTools/miStringFunctions.h>
 
+#define MILOGGER_CATEGORY "diana.AreaObjectsCluster"
+#include <miLogger/miLogging.h>
+
 AreaObjectsCluster::AreaObjectsCluster(PlotModule* plot)
   : plot_(plot)
 {
@@ -89,9 +92,7 @@ bool AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
 
 void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastring, int id)
 {
-  //   METLIBS_LOG_DEBUG("makeAreas:"<<n);
-  //   METLIBS_LOG_DEBUG("name:"<<name);
-  //   METLIBS_LOG_DEBUG("areastring:"<<areastring);
+  METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(areastring) << LOGVAL(id));
   //name can be name:icon
   std::vector<std::string> tokens = miutil::split(name, ":");
   std::string icon;
@@ -121,12 +122,6 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
       } else {
         ++it;
         ao.areaCommand(command, data);
-        //zoom to selected area
-        if (command == "select" && ao.autoZoom()) {
-          if (data.size() == 2 && data[1] == "on") {
-            plot_->setMapAreaFromMap(ao.getBoundBox(data[0])); // TODO try to move this away from here
-          }
-        }
       }
     } else {
       ++it;
@@ -134,16 +129,3 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
   }
 }
 
-std::vector<selectArea> AreaObjectsCluster::findAreaObjects(int x, int y, bool newArea)
-{
-  std::vector<selectArea> vsA;
-  //METLIBS_LOG_DEBUG("AreaObjectsCluster::findAreas"  << x << " " << y);
-  float xm = 0, ym = 0;
-  plot_->PhysToMap(x, y, xm, ym);
-  for (AreaObjects& ao : vareaobjects) {
-    if (!ao.isEnabled())
-      continue;
-    diutil::insert_all(vsA, ao.findAreas(xm, ym, newArea));
-  }
-  return vsA;
-}

@@ -950,11 +950,6 @@ void Controller::areaObjectsCommand(const std::string& command,const std::string
   plotm->areaobjects()->areaObjectsCommand(command,dataSet,data,id);
 }
 
-vector <selectArea> Controller::findAreaObjects(int x, int y, bool newArea)
-{
-  return plotm->areaobjects()->findAreaObjects(x,y,newArea);
-}
-
 //********** plotting and selecting locationPlots on the map **************
 void Controller::putLocation(const LocationData& locationdata)
 {

@@ -529,16 +529,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   optAutoElementAction->setChecked( autoselect );
   optAnnotationAction->setChecked( true );
 
-
-  rightclickmenu = new QMenu(this);
-  rightclickmenu->addAction(zoomOutAction);
-  for (int i=0; i<MaxSelectedAreas; i++){
-    selectAreaAction[i] = new QAction(this);
-    selectAreaAction[i]->setVisible(false);
-    connect(selectAreaAction[i], SIGNAL( triggered() ), SLOT(selectedAreas()));
-    rightclickmenu->addAction(selectAreaAction[i]);
-  }
-
   uffda=contr->getUffdaEnabled();
 
   QMenu* infomenu= new QMenu(tr("Info"),this);
@@ -1980,39 +1970,6 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     }
   }
 
-  else if (command == qmstrings::selectarea) {
-    //commondesc dataSet
-    //description name,on/off
-    int n = qletter.countDataRows();
-    for (int i=0;i<n;i++) {
-      contr->areaObjectsCommand("select", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
-    }
-  }
-
-  else if (command == qmstrings::showarea) {
-    //commondesc dataSet
-    //description name,on/off
-    int n = qletter.countDataRows();
-    for (int i=0;i<n;i++) {
-      contr->areaObjectsCommand("show", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
-    }
-  }
-
-  else if (command == qmstrings::changearea) {
-    //commondesc dataSet
-    //description name,colour
-    int n = qletter.countDataRows();
-    for (int i=0;i<n;i++) {
-      contr->areaObjectsCommand("setcolour", letter.common, diutil::toVector(qletter.getDataValues(i)), fromId);
-    }
-  }
-
-  else if (command == qmstrings::deletearea) {
-    //commondesc dataSet
-    contr->areaObjectsCommand("delete", letter.common, std::vector<std::string>(1, "all"), fromId);
-    updatePlotElements();
-  }
-
   else if (command == qmstrings::showtext) {
     //description: station:text
     if (qletter.countDataRows() && qletter.countDataColumns() >= 2) {
@@ -2461,24 +2418,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 {
   METLIBS_LOG_SCOPE();
-
-  for (int i=0; i<MaxSelectedAreas; i++){
-    selectAreaAction[i]->setVisible(false);
-  }
-
-  vselectAreas = contr->findAreaObjects(mev->x(), mev->y());
-  int nAreas=vselectAreas.size();
-  if ( nAreas>0 ) {
-    zoomOutAction->setVisible(true);
-    for (int i=1; i<=nAreas && i<MaxSelectedAreas; i++){
-      selectAreaAction[i]->setText(vselectAreas[i-1].name.c_str());
-      selectAreaAction[i]->setData(i-1);
-      selectAreaAction[i]->setVisible(true);
-    }
-    rightclickmenu->popup(mev->globalPos(), 0);
-  } else {
-    zoomOut();
-  }
+  zoomOut();
 }
 
 
@@ -2521,7 +2461,7 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 
 void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(mev->x()) << LOGVAL(mev->y()));
+  // METLIBS_LOG_SCOPE(LOGVAL(mev->x()) << LOGVAL(mev->y()));
 
   int x = mev->x();
   int y = mev->y();
@@ -2605,19 +2545,6 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
       sendLetter(letter, id[n-1]);
 
       needupdate=true;
-    }
-
-    //send area to plugin connected
-    vector <selectArea> areas=contr->findAreaObjects(x,y,true);
-    int nareas = areas.size();
-    if (nareas) {
-      miQMessage letter(qmstrings::selectarea);
-      const QStringList dataColumns = QStringList() << "name" << "on/off";
-      for(int i=0;i<nareas;i++){
-        const QStringList dataRow = QStringList() << QString::fromStdString(areas[i].name) << "on";
-        letter.setData(dataColumns, QList<QStringList>() << dataRow);
-        sendLetter(letter, areas[i].id);
-      }
     }
 
     if (hqcTo > 0) {
@@ -3232,23 +3159,6 @@ void DianaMainWindow::showUffda()
     ylast=yclick;
     requestBackgroundBufferUpdate();
   }
-}
-
-//this is called after an area selected from rightclickmenu
-void DianaMainWindow::selectedAreas()
-{
-  QAction *action = qobject_cast<QAction *>(sender());
-  if (!action){
-    return;
-  }
-
-  const int ia = action->data().toInt();
-  const selectArea& a = vselectAreas[ia];
-
-  miQMessage letter(qmstrings::selectarea);
-  letter.addDataDesc("name").addDataDesc("on/off");
-  letter.addDataValues(QStringList() << QString::fromStdString(a.name) << (a.selected ? "off" : "on"));
-  sendLetter(letter, a.id);
 }
 
 void DianaMainWindow::inEdit(bool inedit)

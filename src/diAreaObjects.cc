@@ -36,7 +36,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.AreaObjects"
 #include <miLogger/miLogging.h>
 
@@ -44,11 +43,8 @@ using namespace std;
 
 AreaObjects::AreaObjects()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
  init();
- currentArea = NULL;
 }
 
 AreaObjects::~AreaObjects()
@@ -58,24 +54,17 @@ AreaObjects::~AreaObjects()
 void AreaObjects::makeAreas(const std::string& name, const std::string& icon,
     const std::string& areastring, int id,const Area& area)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("name=" << name);
-  METLIBS_LOG_DEBUG("areastring=" << areastring);
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(name));
+  METLIBS_LOG_DEBUG(LOGVAL(areastring));
 
   //  clear();
-
-  clickSelect=false;
   itsId=id;
   itsName=name;
   iconName=icon;
-  currentArea = NULL;
-  autozoom = false;
 
   if (readEditDrawString(areastring,area,true))
     METLIBS_LOG_DEBUG("AreaObjects " << itsName << " id=" << itsId << " read OK!");
-
   else
     METLIBS_LOG_DEBUG("Areaobjects not read OK");
 
@@ -93,27 +82,15 @@ void AreaObjects::makeAreas(const std::string& name, const std::string& icon,
 
 }
 
-
 bool AreaObjects::areaCommand(const std::string& command, const std::vector<std::string>& data)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("command=" << command);
-  METLIBS_LOG_DEBUG("#data=" << data.size());
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(command));
+  METLIBS_LOG_DEBUG(LOGVAL(data.size()));
 
   bool on = false;
   if ((data.size() == 2 || data.size() == 1) && data.back() == "on")
     on = true;
-
-  if (command == "clickselect") {
-    clickSelect = on;
-    return true;
-  }
-  if (command == "autozoom") {
-    autozoom = on;
-    return true;
-  }
 
   if (data.empty())
     return false;
@@ -128,10 +105,6 @@ bool AreaObjects::areaCommand(const std::string& command, const std::vector<std:
     pobject->setVisible(on);
   }else if (command=="select"){
     pobject->setSelected(on);
-    if (on)
-      currentArea = pobject;
-    else if (currentArea == pobject)
-      currentArea = 0;
   } else if (command=="setcolour" && data.size()==2) {
     pobject->setObjectRGBColor(data[1]);
   } else if (command=="delete") {
@@ -141,68 +114,3 @@ bool AreaObjects::areaCommand(const std::string& command, const std::vector<std:
   return true;
 }
 
-
-vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea)
-{
-  vector <selectArea> vsA;
-
-  //return first area, not selected and (x,y) inside
-  if(newArea){
-    //select by click disabled
-    if(!clickSelect) return vsA;
-
-    //nothing new
-    if(currentArea && currentArea->isInsideArea(x,y)){
-      return vsA;
-    }
-
-    vector <ObjectPlot*>::iterator p = objects.begin();
-    while (p!= objects.end()){
-      ObjectPlot * pobject = *p;
-      if (pobject->visible() &&
-	  !pobject->selected() &&
-	  pobject->isInsideArea(x,y)){
-	selectArea sA;
-	sA.name=pobject->getName();
-	sA.selected=pobject->selected();
-	sA.id=itsId;
-	vsA.push_back(sA);
-	break;
-      }
-      p++;
-    }
-  return vsA;
-
-  }
-
-  //return areas if selected or (x,y) inside
-  vector <ObjectPlot*>::iterator p = objects.begin();
-  while (p!= objects.end()){
-    ObjectPlot * pobject = *p;
-    if (pobject->selected() || pobject->isInsideArea(x,y) ){
-      selectArea sA;
-      sA.name=pobject->getName();
-      sA.selected=pobject->selected();
-      sA.id=itsId;
-      vsA.push_back(sA);
-    }
-    p++;
-  }
-  return vsA;
-}
-
-
-Rectangle AreaObjects::getBoundBox(const std::string& name){
-  //METLIBS_LOG_DEBUG("AreaObjects::getBoundBox " << name);
-  Rectangle box;
-  vector <ObjectPlot*>::iterator p = objects.begin();
-  while (p!= objects.end()){
-    ObjectPlot * pobject = *p;
-    if (pobject->getName()==name){
-      box=pobject->getBoundBox();
-      break;
-    }
-    p++;
-  }
-  return box;
-}

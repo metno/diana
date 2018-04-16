@@ -48,9 +48,7 @@
 #include <deque>
 
 class QAction;
-class QButton;
 class QDockWidget;
-class QErrorMessage;
 class QMenu;
 class QMenuBar;
 class QLabel;
@@ -246,7 +244,6 @@ private Q_SLOTS:
 
   void zoomOut();
   void showUffda();
-  void selectedAreas();
 
   void winResize(int, int);
   void inEdit(bool);
@@ -340,9 +337,6 @@ private:
   QAction * redoAction;
   QAction * saveAction;
 
-  enum { MaxSelectedAreas = 5 };
-  QAction * selectAreaAction[MaxSelectedAreas];
-
   QShortcut * leftBrowsingAction;
   QShortcut * rightBrowsingAction;
   QShortcut * upBrowsingAction;
@@ -354,8 +348,6 @@ private:
   QMenu * optmenu;
   QMenu * showmenu;
   QMenu * helpmenu;
-
-  QMenu * rightclickmenu;
 
   QToolBar * menuToolbar;
   QToolBar * mainToolbar;
@@ -397,7 +389,6 @@ private:
   ExportImageDialog* exportImageDialog_;
 
   // statusbar widgets
-  QLabel            * smsg;
   StatusGeopos      * sgeopos;
   StatusPlotButtons * statusbuttons;
   ShowSatValues     * showsatval;
@@ -405,7 +396,6 @@ private:
   QLabel            * archiveL;
   ClientSelection   * pluginB;
 
-  QButton* mwhelp;
   Controller* contr;
 
   std::unique_ptr<DianaImageSource> imageSource_;
@@ -417,8 +407,6 @@ private:
   int xclick,yclick;
   // x,y position of last uffda action
   int xlast,ylast;
-
-  std::vector <selectArea> vselectAreas; //selected areas for rightclickmenu
 
   //QSocket
   TextView *textview;
