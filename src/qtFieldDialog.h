@@ -72,7 +72,7 @@ class FieldColourDialog;
   The dialog displays all quckmenu commands for easy adjustment.
   Keeps user settings in the diana log file between sessions.
 */
-class FieldDialog : public ShowMoreDialog
+class FieldDialog : public DataDialog
 {
   Q_OBJECT
 
@@ -121,23 +121,33 @@ private:
 public:
   FieldDialog( QWidget* parent, Controller* lctrl);
 
+  bool showsMore() override;
+
+  std::string name() const override;
+
+  /// returns fiels command strings, one for each field
+  PlotCommand_cpv getOKString() override;
+
+  void putOKString(const PlotCommand_cpv& vstr) override;
+
   /// follows levelUp/levelDown in main window toolbar
   void changeLevel(int increment, int type = 0);
 
   void archiveMode(bool on);
-  /// returns fiels command strings, one for each field
-  PlotCommand_cpv getOKString();
+
   /// return a short text for quickmenue
   std::string getShortname();
+
   bool levelsExists(bool up, int type=0);
-  void putOKString(const PlotCommand_cpv& vstr,
-      bool checkOptions=true, bool external=true);
+
   bool decodeString(const miutil::KeyValue_v &kvs, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
   void getEditPlotOptions(std::map< std::string, std::map<std::string,std::string> >& po);
+
   /// make contents for the diana log file
   std::vector<std::string> writeLog();
+
   /// digest contents from the diana log file (a previous session)
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
@@ -148,18 +158,98 @@ public:
    */
   static void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts);
 
-protected:
-  void closeEvent(QCloseEvent*) override;
+public /*Q_SLOTS*/:
+  void updateTimes() override;
+
+  void updateDialog() override;
 
 public Q_SLOTS:
   void fieldEditUpdate(std::string str);
-  void updateModels();
-
-public:
-  bool showsMore() override;
 
 protected:
   void doShowMore(bool more) override;
+
+Q_SIGNALS:
+  void fieldPlotOptionsChanged(std::map<std::string, std::string>&);
+
+private Q_SLOTS:
+  void modelboxClicked(const QModelIndex& index);
+  void filterModels(const QString& filtertext);
+
+  void updateFieldGroups();
+  void fieldGRboxActivated(int index);
+  void fieldboxChanged(QListWidgetItem*);
+
+  void selectedFieldboxClicked(QListWidgetItem* item);
+
+  void upField();
+  void downField();
+  void minusField(bool on);
+  void deleteSelected();
+  void deleteAllSelected();
+  void copySelectedField();
+  void resetOptions();
+  void changeModel();
+  void unitEditingFinished();
+  void plottypeComboBoxActivated(int index);
+  void colorCboxActivated(int index);
+  void lineWidthCboxActivated(int index);
+  void lineTypeCboxActivated(int index);
+  void lineintervalCboxActivated(int index);
+  void densityCboxActivated(int index);
+  void vectorunitCboxActivated(int index);
+  void extremeTypeActivated(int index);
+
+  void levelChanged(int number);
+  void updateLevel();
+  void levelPressed();
+
+  void idnumChanged(int number);
+  void updateIdnum();
+  void idnumPressed();
+
+  void allTimeStepToggled(bool on);
+
+  void extremeSizeChanged(int value);
+  void extremeRadiusChanged(int value);
+  void lineSmoothChanged(int value);
+  void fieldSmoothChanged(int value);
+  void labelSizeChanged(int value);
+  void valuePrecisionBoxActivated(int index);
+  void gridValueCheckBoxToggled(bool on);
+  void gridLinesChanged(int value);
+  //  void gridLinesMaxChanged(int value);
+  void hourOffsetChanged(int value);
+  void hourDiffChanged(int value);
+  void undefMaskingActivated(int index);
+  void undefColourActivated(int index);
+  void undefLinewidthActivated(int index);
+  void undefLinetypeActivated(int index);
+  void frameCheckBoxToggled(bool on);
+  void zeroLineCheckBoxToggled(bool on);
+  void valueLabelCheckBoxToggled(bool on);
+  void colour2ComboBoxToggled(int index);
+  void tableCheckBoxToggled(bool on);
+  void repeatCheckBoxToggled(bool on);
+  void shadingChanged();
+  void threeColoursChanged();
+  void patternComboBoxToggled(int index);
+  void patternColourBoxToggled(int index);
+  void alphaChanged(int index);
+  void interval2ComboBoxToggled(int index);
+  void zero1ComboBoxToggled(int index);
+  void zero2ComboBoxToggled(int index);
+  void min1ComboBoxToggled(int index);
+  void max1ComboBoxToggled(int index);
+  void min2ComboBoxToggled(int index);
+  void max2ComboBoxToggled(int index);
+  void linevaluesFieldEdited();
+  void linevaluesLogCheckBoxToggled(bool);
+  void linewidth1ComboBoxToggled(int index);
+  void linewidth2ComboBoxToggled(int index);
+  void linetype1ComboBoxToggled(int index);
+  void linetype2ComboBoxToggled(int index);
+  void updatePaletteString();
 
 private:
   void updateModelBoxes();
@@ -183,8 +273,10 @@ private:
 
   miutil::KeyValue_v getParamString(int i);
 
-  Controller* m_ctrl;
+  void CreateAdvanced();
+  void addModelGroup(int modelgroupIndex);
 
+private:
   bool useArchive;
 
   bool levelInMotion;
@@ -279,109 +371,8 @@ private:
 
   QComboBox* vectorunitCbox;
 
-  QPushButton* fieldapply;
-  QPushButton* fieldapplyhide;
-  QPushButton* fieldhide;
-  QPushButton* fieldhelp;
-
   ToggleButton* advanced;
   ToggleButton* allTimeStepButton;
-
-  void CreateAdvanced();
-  void addModelGroup(int modelgroupIndex);
-
-Q_SIGNALS:
-  void FieldApply();
-  void FieldHide();
-  void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const plottimes_t&);
-  void fieldPlotOptionsChanged(std::map<std::string,std::string>&);
-
-private Q_SLOTS:
-  void modelboxClicked(const QModelIndex& index);
-  void filterModels(const QString& filtertext);
-
-  void updateFieldGroups();
-  void fieldGRboxActivated( int index );
-  void fieldboxChanged(QListWidgetItem*);
-
-  void selectedFieldboxClicked( QListWidgetItem * item );
-
-  void upField();
-  void downField();
-  void minusField( bool on );
-  void deleteSelected();
-  void deleteAllSelected();
-  void copySelectedField();
-  void resetOptions();
-  void changeModel();
-  void unitEditingFinished();
-  void plottypeComboBoxActivated( int index );
-  void colorCboxActivated( int index );
-  void lineWidthCboxActivated( int index );
-  void lineTypeCboxActivated( int index );
-  void lineintervalCboxActivated( int index );
-  void densityCboxActivated( int index );
-  void vectorunitCboxActivated( int index );
-  void extremeTypeActivated(int index);
-
-  void levelChanged( int number );
-  void updateLevel();
-  void levelPressed();
-
-  void idnumChanged( int number );
-  void updateIdnum();
-  void idnumPressed();
-
-  void applyClicked();
-  void applyhideClicked();
-  void hideClicked();
-  void helpClicked();
-
-  void allTimeStepToggled( bool on );
-
-  void extremeSizeChanged(int value);
-  void extremeRadiusChanged(int value);
-  void lineSmoothChanged(int value);
-  void fieldSmoothChanged(int value);
-  void labelSizeChanged(int value);
-  void valuePrecisionBoxActivated( int index );
-  void gridValueCheckBoxToggled(bool on);
-  void gridLinesChanged(int value);
-  //  void gridLinesMaxChanged(int value);
-  void hourOffsetChanged(int value);
-  void hourDiffChanged(int value);
-  void undefMaskingActivated(int index);
-  void undefColourActivated(int index);
-  void undefLinewidthActivated(int index);
-  void undefLinetypeActivated(int index);
-  void frameCheckBoxToggled(bool on);
-  void zeroLineCheckBoxToggled(bool on);
-  void valueLabelCheckBoxToggled(bool on);
-  void colour2ComboBoxToggled(int index);
-  void tableCheckBoxToggled(bool on);
-  void repeatCheckBoxToggled(bool on);
-  void shadingChanged();
-  void threeColoursChanged();
-  void patternComboBoxToggled(int index);
-  void patternColourBoxToggled(int index);
-  void alphaChanged(int index);
-  void interval2ComboBoxToggled(int index);
-  void zero1ComboBoxToggled(int index);
-  void zero2ComboBoxToggled(int index);
-  void min1ComboBoxToggled(int index);
-  void max1ComboBoxToggled(int index);
-  void min2ComboBoxToggled(int index);
-  void max2ComboBoxToggled(int index);
-  void linevaluesFieldEdited();
-  void linevaluesLogCheckBoxToggled(bool);
-  void linewidth1ComboBoxToggled(int index);
-  void linewidth2ComboBoxToggled(int index);
-  void linetype1ComboBoxToggled(int index);
-  void linetype2ComboBoxToggled(int index);
-  void updatePaletteString();
-
-private:
 
   QWidget*   advFrame;
   QSpinBox*  extremeSizeSpinBox;

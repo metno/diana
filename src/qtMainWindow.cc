@@ -195,6 +195,11 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   createHelpDialog();
 
+  timeNavigator = new TimeNavigator(this);
+  connect(timeNavigator, &TimeNavigator::timeSelected, this, &DianaMainWindow::setPlotTime);
+
+  addStandardDialog(fm = new FieldDialog(this, contr));
+
   //-------- The Actions ---------------------------------
 
   // file ========================
@@ -289,12 +294,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   showMapDialogAction->setCheckable(true);
   showMapDialogAction->setIconVisibleInMenu(true);
   connect( showMapDialogAction, SIGNAL( triggered() ) ,  SLOT( mapMenu() ) );
-  // --------------------------------------------------------------------
-  showFieldDialogAction = new QAction( QIcon(QPixmap(felt_xpm )),tr("&Fields"), this );
-  showFieldDialogAction->setShortcut(Qt::ALT+Qt::Key_F);
-  showFieldDialogAction->setCheckable(true);
-  showFieldDialogAction->setIconVisibleInMenu(true);
-  connect( showFieldDialogAction, SIGNAL( triggered() ) ,  SLOT( fieldMenu() ) );
   // --------------------------------------------------------------------
   showObsDialogAction = new QAction( QIcon(QPixmap(synop_xpm )),tr("&Observations"), this );
   showObsDialogAction->setShortcut(Qt::ALT+Qt::Key_O);
@@ -556,7 +555,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   showmenu->addAction( showHideAllAction            );
   showmenu->addAction( showQuickmenuAction          );
   showmenu->addAction( showMapDialogAction          );
-  showmenu->addAction( showFieldDialogAction        );
+  showmenu->addAction(fm->action());
   showmenu->addAction( showObsDialogAction          );
   showmenu->addAction( showSatDialogAction          );
   showmenu->addAction( showStationDialogAction      );
@@ -585,10 +584,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   helpmenu->addAction ( helpTestAction );
   helpmenu->addSeparator();
   helpmenu->addAction ( helpAboutAction );
-
-  timeNavigator = new TimeNavigator(this);
-  connect(timeNavigator, SIGNAL(timeSelected(const miutil::miTime&)),
-          this, SLOT(setPlotTime(const miutil::miTime&)));
 
   /*
     ----------------------------------------------------------
@@ -716,9 +711,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   mmdock->hide();
   mainToolbar->addAction( showMapDialogAction         );
 
-  fm= new FieldDialog(this, contr);
-  fm->hide();
-  mainToolbar->addAction( showFieldDialogAction       );
+  mainToolbar->addAction(fm->action());
 
   om= new ObsDialog(this, contr);
   om->hide();
@@ -796,7 +789,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
-  connect( fm, SIGNAL(FieldApply()), SLOT(MenuOK()));
   connect( om, SIGNAL(ObsApply()),   SLOT(MenuOK()));
   connect( sm, SIGNAL(SatApply()),   SLOT(MenuOK()));
   connect( stm, SIGNAL(StationApply()), SLOT(MenuOK()));
@@ -805,8 +797,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect( em, SIGNAL(editApply()),  SLOT(editApply()));
   connect( annom, SIGNAL(AnnotationApply()),  SLOT(MenuOK()));
 
-  connect( fm, SIGNAL(FieldHide()),  SLOT(fieldMenu()));
-  connect( fm, SIGNAL(finished(int)),  SLOT(fieldMenu(int)));
   connect( om, SIGNAL(ObsHide()),    SLOT(obsMenu()));
   connect( om, SIGNAL(finished(int)),  SLOT(obsMenu(int)));
   connect( sm, SIGNAL(SatHide()),    SLOT(satMenu()));
@@ -839,8 +829,6 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
       this, SLOT(winResize(int, int)));
 
   // HELP
-  connect( fm, SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
   connect( om, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
   connect( sm, SIGNAL(showsource(const std::string, const std::string)),
@@ -927,7 +915,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   connect(browser, SIGNAL(nextlist()), this, SLOT(nextList()));
   browser->hide();
 
-  connect(fm, &FieldDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+  connect(fm, &FieldDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(om, &ObsDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
   connect(sm, &SatDialog::emitTimes, timeNavigator, &TimeNavigator::insert);
   connect(em, &EditDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
@@ -1364,7 +1352,8 @@ void DianaMainWindow::toggleDialogs()
   if (b){
     if ((visi[0]= qm->isVisible()))    quickMenu();
     if ((visi[1]= mm->isVisible()))     mapMenu();
-    if ((visi[2]= fm->isVisible()))    fieldMenu();
+    if ((visi[2] = fm->isVisible()))
+      fm->setVisible(false);
     if ((visi[3]= om->isVisible()))    obsMenu();
     if ((visi[4]= sm->isVisible()))    satMenu();
 //    if ((visi[5]= em->isVisible()))    editMenu();
@@ -1375,7 +1364,8 @@ void DianaMainWindow::toggleDialogs()
   } else {
     if (visi[0]) quickMenu();
     if (visi[1]) mapMenu();
-    if (visi[2]) fieldMenu();
+    if (visi[2])
+      fm->setVisible(true);
     if (visi[3]) obsMenu();
     if (visi[4]) satMenu();
     //    if (visi[5]) editMenu();
@@ -1401,11 +1391,6 @@ static void toggleDialogVisibility(QWidget* dialog, QAction* dialogAction, int r
 void DianaMainWindow::quickMenu(int result)
 {
   toggleDialogVisibility(qm, showQuickmenuAction, result);
-}
-
-void DianaMainWindow::fieldMenu(int result)
-{
-  toggleDialogVisibility(fm, showFieldDialogAction, result);
 }
 
 void DianaMainWindow::obsMenu(int result)
@@ -2335,7 +2320,7 @@ void DianaMainWindow::parseSetup()
     if (spWindow)
       spWindow->parseSetup();
 
-    fm->updateModels();
+    fm->updateDialog();
     om->updateDialog();
   }
 }
@@ -3186,19 +3171,27 @@ bool DianaMainWindow::event(QEvent* event)
   return QMainWindow::event(event);
 }
 
-void DianaMainWindow::addDialog(DataDialog *dialog)
+void DianaMainWindow::addStandardDialog(DataDialog* dialog)
 {
   dialog->hide();
 
-  dialogNames[dialog->name()] = dialog;
-  connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
+  connect(dialog, &DataDialog::applyData, this, &DianaMainWindow::MenuOK);
   connect(dialog, &DataDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
-  connect(dialog, SIGNAL(updated()), this, SLOT(requestBackgroundBufferUpdate()));
+  connect(dialog, &DataDialog::updated, this, &DianaMainWindow::requestBackgroundBufferUpdate);
+  connect(dialog, &DataDialog::showsource, help, &HelpDialog::showsource);
 
   if (QAction *action = dialog->action()) {
+    connect(action, &QAction::toggled, dialog, &QDialog::setVisible);
+    connect(action, &QAction::toggled, this, &DianaMainWindow::requestBackgroundBufferUpdate);
+  }
+}
+
+void DianaMainWindow::addDialog(DataDialog* dialog)
+{
+  addStandardDialog(dialog);
+  dialogNames[dialog->name()] = dialog;
+  if (QAction* action = dialog->action()) {
     dialogs[action] = dialog;
-    connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(requestBackgroundBufferUpdate()));
     showmenu->addAction(action);
     mainToolbar->addAction(action);
   }
@@ -3297,7 +3290,7 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
   }
 
   if (fieldsAdded > 0) {
-    fm->updateModels();
+    fm->updateDialog();
     statusBar()->showMessage(tr("Imported model data to the \"%1\" field group.").arg(filegroup), 2000);
   } else if (symbolsAdded > 0) {
     statusBar()->showMessage(tr("Imported %1 symbol(s).", "", symbolsAdded).arg(symbolsAdded), 2000);

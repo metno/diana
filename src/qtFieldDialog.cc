@@ -39,7 +39,8 @@
 #include "util/misc_util.h"
 #include "util/string_util.h"
 
-#include <qcheckbox.h>
+#include <QAction>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -47,17 +48,17 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QListWidgetItem>
-#include <qpainter.h>
+#include <QPainter>
 #include <QPixmap>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSlider>
 #include <QSortFilterProxyModel>
-#include <qspinbox.h>
-#include <qsplitter.h>
+#include <QSpinBox>
+#include <QSplitter>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <qtooltip.h>
+#include <QToolTip>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -71,9 +72,9 @@
 #define MILOGGER_CATEGORY "diana.FieldDialog"
 #include <miLogger/miLogging.h>
 
-#include "up12x12.xpm"
 #include "down12x12.xpm"
-//#include "minus12x12.xpm"
+#include "felt.xpm"
+#include "up12x12.xpm"
 
 //#define DEBUGPRINT
 
@@ -171,15 +172,18 @@ const char* const modelGlobalAttributes[][2] = {
 // ========================================================================
 
 FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
-  : ShowMoreDialog(parent)
+    : DataDialog(parent, lctrl)
 {
   METLIBS_LOG_SCOPE();
 
-  m_ctrl = lctrl;
+  setWindowTitle(tr("Fields"));
+  m_action = new QAction(QIcon(QPixmap(felt_xpm)), windowTitle(), this);
+  m_action->setCheckable(true);
+  m_action->setShortcut(Qt::ALT + Qt::Key_F);
+  m_action->setIconVisibleInMenu(true);
+  helpFileName = "ug_fielddialogue.html";
 
   m_modelgroup = m_ctrl->initFieldDialog();
-
-  setWindowTitle(tr("Fields"));
 
   useArchive = false;
 
@@ -447,10 +451,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   connect( vectorunitCbox, SIGNAL( activated(int) ),
       SLOT( vectorunitCboxActivated(int) ) );
 
-  // help
-  fieldhelp = NormalPushButton(tr("Help"), this);
-  connect(fieldhelp, SIGNAL(clicked()), SLOT(helpClicked()));
-
   // allTimeStep
   allTimeStepButton = new ToggleButton(this, tr("All time steps"));
   allTimeStepButton->setCheckable(true);
@@ -460,20 +460,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // advanced
   advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);
-  connect(advanced, SIGNAL(toggled(bool)), SLOT(showMore(bool)));
-
-  // hide
-  fieldhide = NormalPushButton(tr("Hide"), this);
-  connect(fieldhide, SIGNAL(clicked()), SLOT(hideClicked()));
-
-  // applyhide
-  fieldapplyhide = NormalPushButton(tr("Apply+Hide"), this);
-  connect(fieldapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
-
-  // apply
-  fieldapply = NormalPushButton(tr("Apply"), this);
-  fieldapply->setDefault( true );
-  connect(fieldapply, SIGNAL(clicked()), SLOT(applyClicked()));
+  connect(advanced, &QAbstractButton::toggled, this, &DataDialog::showMore);
 
   // layout
   QHBoxLayout* grouplayout = new QHBoxLayout();
@@ -571,14 +558,10 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   h4layout->addLayout(idnumlayout);
 
   QHBoxLayout* h5layout = new QHBoxLayout();
-  h5layout->addWidget(fieldhelp);
   h5layout->addWidget(allTimeStepButton);
   h5layout->addWidget(advanced);
 
-  QHBoxLayout* h6layout = new QHBoxLayout();
-  h6layout->addWidget(fieldhide);
-  h6layout->addWidget(fieldapplyhide);
-  h6layout->addWidget(fieldapply);
+  QLayout* h6layout = createStandardButtons(false);
 
   QVBoxLayout* v6layout = new QVBoxLayout();
   v6layout->addLayout(h5layout);
@@ -644,6 +627,16 @@ void FieldDialog::doShowMore(bool more)
 bool FieldDialog::showsMore()
 {
   return advanced->isChecked();
+}
+
+std::string FieldDialog::name() const
+{
+  static const std::string FIELD_DATATYPE = "field";
+  return FIELD_DATATYPE;
+}
+
+void FieldDialog::updateTimes()
+{
 }
 
 void FieldDialog::CreateAdvanced()
@@ -1179,7 +1172,7 @@ void FieldDialog::filterModels(const QString& filtertext)
   }
 }
 
-void FieldDialog::updateModels()
+void FieldDialog::updateDialog()
 {
   m_modelgroup = m_ctrl->initFieldDialog();
   updateModelBoxes();
@@ -3207,10 +3200,10 @@ bool FieldDialog::levelsExists(bool up, int type)
   return false;
 }
 
-void FieldDialog::putOKString(const PlotCommand_cpv& vstr,
-    bool checkOptions, bool external)
+void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE();
+  const bool checkOptions = true, external = true;
 
   deleteAllSelected();
 
@@ -3944,6 +3937,7 @@ void FieldDialog::minusField(bool on)
 
 void FieldDialog::updateTime()
 {
+  METLIBS_LOG_SCOPE();
   plottimes_t fieldtime;
   size_t m = selectedFields.size();
 
@@ -3974,10 +3968,8 @@ void FieldDialog::updateTime()
     }
   }
 
-  METLIBS_LOG_DEBUG("FieldDialog::updateTime emit emitTimes  fieldtime.size="
-      <<fieldtime.size());
-
-  Q_EMIT emitTimes("field", fieldtime);
+  METLIBS_LOG_DEBUG(LOGVAL(fieldtime.size()));
+  emitTimes(fieldtime);
 }
 
 void FieldDialog::fieldEditUpdate(std::string str)
@@ -4034,7 +4026,7 @@ void FieldDialog::fieldEditUpdate(std::string str)
 
       METLIBS_LOG_DEBUG("FieldDialog::fieldEditUpdate emit FieldApply");
 
-      emit FieldApply();
+      Q_EMIT applyData();
     }
 
   } else {
@@ -4122,30 +4114,4 @@ void FieldDialog::fieldEditUpdate(std::string str)
 void FieldDialog::allTimeStepToggled(bool on)
 {
   updateTime();
-}
-
-void FieldDialog::applyClicked()
-{
-  emit FieldApply();
-}
-
-void FieldDialog::applyhideClicked()
-{
-  emit FieldHide();
-  emit FieldApply();
-}
-
-void FieldDialog::hideClicked()
-{
-  emit FieldHide();
-}
-
-void FieldDialog::helpClicked()
-{
-  emit showsource("ug_fielddialogue.html");
-}
-
-void FieldDialog::closeEvent(QCloseEvent* e)
-{
-  emit FieldHide();
 }

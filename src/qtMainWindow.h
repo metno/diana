@@ -117,6 +117,9 @@ public:
   /// Adds a dialog for use with a manager.
   void addDialog(DataDialog *dialog);
 
+  /// Adds a standard dialog (fields, ...)
+  void addStandardDialog(DataDialog* dialog);
+
   /// Returns the application's main window instance.
   static DianaMainWindow *instance();
 
@@ -153,7 +156,6 @@ private Q_SLOTS:
   void satMenu(int result = -1);
   void stationMenu(int result = -1);
   void uffMenu(int result = -1);
-  void fieldMenu(int result = -1);
   void objMenu(int result = -1);
   void vprofMenu();
   void spectrumMenu();
@@ -300,7 +302,6 @@ private:
   QAction * showHideAllAction;
   QAction * showQuickmenuAction;
   QAction * showMapDialogAction;
-  QAction * showFieldDialogAction;
   QAction * showObsDialogAction;
   QAction * showSatDialogAction;
   QAction * showStationDialogAction;
