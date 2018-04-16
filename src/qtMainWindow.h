@@ -152,7 +152,6 @@ private Q_SLOTS:
   void mapMenu(int result = -1);
   void mapDockVisibilityChanged(bool visible);
   void editMenu();
-  void obsMenu(int result = -1);
   void stationMenu(int result = -1);
   void uffMenu(int result = -1);
   void objMenu(int result = -1);
@@ -301,7 +300,6 @@ private:
   QAction * showHideAllAction;
   QAction * showQuickmenuAction;
   QAction * showMapDialogAction;
-  QAction * showObsDialogAction;
   QAction * showStationDialogAction;
   QAction * showEditDialogAction;
   QAction * showObjectDialogAction;

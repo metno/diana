@@ -29,15 +29,17 @@
 
 #include "diana_config.h"
 
+#include "diController.h"
 #include "qtObsDialog.h"
 #include "qtObsWidget.h"
-#include "qtUtility.h"
 #include "qtToggleButton.h"
+#include "qtUtility.h"
 
 #include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -58,6 +60,8 @@
 
 #include <qpushbutton.h>
 #include <math.h>
+
+#include "synop.xpm"
 
 #define MILOGGER_CATEGORY "diana.ObsDialog"
 #include <miLogger/miLogging.h>
@@ -85,10 +89,14 @@ static QString labelForObsPlotType(ObsPlotType opt)
 }
 
 ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
-    : QDialog(parent)
-    , m_ctrl(llctrl)
+    : DataDialog(parent, llctrl)
 {
   setWindowTitle(tr("Observations"));
+  m_action = new QAction(QIcon(QPixmap(synop_xpm)), windowTitle(), this);
+  m_action->setShortcut(Qt::ALT + Qt::Key_O);
+  m_action->setCheckable(true);
+  m_action->setIconVisibleInMenu(true);
+  helpFileName = "ug_obsdialogue.html";
 
   dialog = m_ctrl->initObsDialog();
 
@@ -135,29 +143,13 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
 
   multiplotButton = new ToggleButton(this, tr("Show all"));
   multiplotButton->setToolTip(tr("Show all plot types"));
-  obshelp = NormalPushButton(tr("Help"), this);
-  obsrefresh = NormalPushButton(tr("Refresh"), this);
-  obshide = NormalPushButton(tr("Hide"), this);
-  obsapplyhide = NormalPushButton(tr("Apply + Hide"), this);
-  obsapply = NormalPushButton(tr("Apply"), this);
-  obsapply->setDefault(true);
 
   connect(multiplotButton, SIGNAL(toggled(bool)), SLOT(multiplotClicked(bool)));
-  connect(obshide, SIGNAL(clicked()), SIGNAL(ObsHide()));
-  connect(obsapply, SIGNAL(clicked()), SIGNAL(ObsApply()));
-  connect(obsrefresh, SIGNAL(clicked()), SLOT(getTimes()));
-  connect(obsapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
-  connect(obshelp, SIGNAL(clicked()), SLOT(helpClicked()));
 
   QHBoxLayout* helplayout = new QHBoxLayout();
-  helplayout->addWidget(obshelp);
-  helplayout->addWidget(obsrefresh);
   helplayout->addWidget(multiplotButton);
 
-  QHBoxLayout* applylayout = new QHBoxLayout();
-  applylayout->addWidget(obshide);
-  applylayout->addWidget(obsapplyhide);
-  applylayout->addWidget(obsapply);
+  QLayout* applylayout = createStandardButtons(true);
 
   QVBoxLayout* vlayout = new QVBoxLayout(this);
   vlayout->setSpacing(1);
@@ -176,6 +168,12 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
   makeExtension();
   setExtension(extension);
   showExtension(false);
+}
+
+std::string ObsDialog::name() const
+{
+  static const std::string OBS_DATATYPE = "obs";
+  return OBS_DATATYPE;
 }
 
 void ObsDialog::updateDialog()
@@ -250,7 +248,7 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
   }
 
   //Emit empty time list
-  Q_EMIT emitTimes("obs", plottimes_t());
+  emitTimes(plottimes_t());
 
   //criteria
   if (obsWidget[m_selected]->moreToggled()) {
@@ -270,6 +268,11 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
 
   if (sendTimes)
     getTimes(false);
+}
+
+void ObsDialog::updateTimes()
+{
+  getTimes(true);
 }
 
 void ObsDialog::getTimes(bool update)
@@ -296,19 +299,7 @@ void ObsDialog::getTimes(bool update)
   }
 
   plottimes_t times = m_ctrl->getObsTimes(dataName, update);
-  Q_EMIT emitTimes("obs", times);
-}
-
-void ObsDialog::applyhideClicked()
-{
-  emit ObsHide();
-  emit ObsApply();
-}
-
-void ObsDialog::helpClicked()
-{
-  //  emit setSource("ug_obsdialogue.html");
-  emit showsource("ug_obsdialogue.html");
+  emitTimes(times);
 }
 
 void ObsDialog::multiplotClicked(bool b)
@@ -321,6 +312,11 @@ void ObsDialog::extensionToggled(bool b)
   if (b)
     updateExtension();
   showExtension(b);
+}
+
+void ObsDialog::doShowMore(bool show)
+{
+  extensionToggled(show);
 }
 
 void ObsDialog::criteriaOn()
@@ -444,7 +440,7 @@ void ObsDialog::putOKString(const PlotCommand_cpv& vstr)
   multiplot=false;
 
   //Emit empty time list
-  Q_EMIT emitTimes("obs", plottimes_t());
+  emitTimes(plottimes_t());
 
   if (vstr.size() > 1) {
     multiplot=true;
@@ -516,11 +512,6 @@ bool ObsDialog::setPlottype(const std::string& name, bool on)
   }
 
   return true;
-}
-
-void ObsDialog::closeEvent(QCloseEvent*)
-{
-  Q_EMIT ObsHide();
 }
 
 void ObsDialog::makeExtension()

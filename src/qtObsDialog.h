@@ -29,9 +29,11 @@
 #ifndef _obsdialog_h
 #define _obsdialog_h
 
-#include <diController.h>
+#include "qtDataDialog.h"
+
+#include "diColour.h"
+#include "diObsDialogInfo.h"
 #include "util/diKeyValue.h"
-#include <QDialog>
 
 class QComboBox;
 class ObsWidget;
@@ -54,38 +56,47 @@ class QStackedWidget;
 
    Dialogue for selection of plot styles, data types, parameters etc.
 */
-class ObsDialog: public QDialog
+class ObsDialog : public DataDialog
 {
   Q_OBJECT
-public:
 
-  ObsDialog( QWidget* parent, Controller* llctrl );
+public:
+  ObsDialog(QWidget* parent, Controller* llctrl);
+
+  std::string name() const override;
+
   /// update dialog after re-reading setupfile
-  void updateDialog();
+  void updateDialog() override;
+
   ///return command strings
-  PlotCommand_cpv getOKString();
+  PlotCommand_cpv getOKString() override;
+
   ///insert command strings
-  void putOKString(const PlotCommand_cpv& vstr);
+  void putOKString(const PlotCommand_cpv& vstr) override;
+
   ///return short name of current command
   std::string getShortname();
+
   ///change plottype
   bool setPlottype(const std::string& name, bool on);
 
   std::vector<std::string> writeLog();
+
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
-///called when the dialog is closed by the window manager
-protected:
-  void closeEvent( QCloseEvent* );
 
-public slots:
+public /*Q_SLOTS*/:
+  void updateTimes() override;
+
+public Q_SLOTS:
   void archiveMode( bool on );
   void getTimes(bool update = true);
 
-private slots:
+protected:
+  void doShowMore(bool show) override;
+
+private Q_SLOTS:
   void plotSelected( int index , bool sendTimes=true);
-  void applyhideClicked();
-  void helpClicked();
   void multiplotClicked(bool);
   void extensionToggled(bool);
   void criteriaOn();
@@ -101,10 +112,6 @@ private slots:
   void saveSlot();
 
 Q_SIGNALS:
-  void ObsApply();
-  void ObsHide();
-  void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const plottimes_t&);
   void setCriteria( std::string, bool );
 
 private:
@@ -127,11 +134,6 @@ private:
   QLabel * label;
   bool multiplot;
   ToggleButton* multiplotButton;
-  QPushButton* obsapply;
-  QPushButton* obshide;
-  QPushButton* obsapplyhide;
-  QPushButton* obsrefresh;
-  QPushButton* obshelp;
 
   //Extension
   QWidget* extension;
@@ -155,7 +157,6 @@ private:
   std::vector<std::string> markerName;
   bool freeze;
 
-  Controller* m_ctrl;
   ObsDialogInfo dialog;
 };
 
