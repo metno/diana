@@ -31,6 +31,7 @@
 
 #include "qtSatDialog.h"
 
+#include "diController.h"
 #include "diFont.h"
 #include "diUtilities.h"
 #include "qtSatDialogAdvanced.h"
@@ -41,26 +42,28 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
-#include <QSlider>
-#include <QRadioButton>
+#include <QAction>
+#include <QButtonGroup>
 #include <QComboBox>
+#include <QHBoxLayout>
+#include <QLCDNumber>
+#include <QLabel>
+#include <QLayout>
 #include <QListWidget>
 #include <QListWidgetItem>
-#include <QLayout>
-#include <QLabel>
-#include <QLCDNumber>
-#include <qmessagebox.h>
-#include <QToolTip>
-#include <QButtonGroup>
-#include <QHBoxLayout>
 #include <QPixmap>
+#include <QRadioButton>
+#include <QSlider>
+#include <QToolTip>
 #include <QVBoxLayout>
+#include <qmessagebox.h>
 
 #include <iomanip>
 #include <sstream>
 
-#include "up12x12.xpm"
 #include "down12x12.xpm"
+#include "sat.xpm"
+#include "up12x12.xpm"
 
 #define MILOGGER_CATEGORY "diana.SatDialog"
 #include <miLogger/miLogging.h>
@@ -73,12 +76,17 @@ using namespace std;
 miutil::miTime SatDialog::ztime = miutil::miTime(1970,1,1,0,0,0);
 
 /*********************************************/
-SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
-  : QDialog(parent), m_ctrl(llctrl)
+SatDialog::SatDialog(QWidget* parent, Controller* llctrl)
+    : DataDialog(parent, llctrl)
 {
   METLIBS_LOG_SCOPE();
 
   setWindowTitle(tr("Satellite and radar"));
+  m_action = new QAction(QIcon(QPixmap(sat_xpm)), windowTitle(), this);
+  m_action->setShortcut(Qt::ALT + Qt::Key_S);
+  m_action->setCheckable(true);
+  m_action->setIconVisibleInMenu(true);
+  helpFileName = "ug_satdialogue.html";
 
   dialogInfo = llctrl->initSatDialog();
 
@@ -202,24 +210,9 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   difflayout->addWidget( diffSlider,0,0  );
   connect( diffSlider, SIGNAL( valueChanged(int)), SLOT( doubleDisplayDiff(int) ));
 
-
-  QPushButton* sathelp = NormalPushButton( tr("Help"), this );
-  refresh = NormalPushButton(tr("Refresh"), this);
-
   advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);
-
-  QPushButton* sathide = NormalPushButton( tr("Hide"), this );
-  QPushButton* satapplyhide = NormalPushButton( tr("Apply+hide"), this );
-  QPushButton* satapply = NormalPushButton( tr("Apply"), this);
-  satapply->setDefault( true );
-
-  connect(  sathelp, SIGNAL(clicked()), SLOT( helpClicked()));
-  connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() ));
-  connect( advanced, SIGNAL( toggled(bool)),SLOT( advancedtoggled( bool ) ));
-  connect( sathide, SIGNAL(clicked()), SLOT(hideClicked()));
-  connect( satapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
-  connect( satapply, SIGNAL(clicked()), SIGNAL( SatApply()) );
+  connect(advanced, &QAbstractButton::toggled, this, &DataDialog::showMore);
 
   QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget(upPictureButton);
@@ -232,14 +225,9 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   hlayout1->addWidget( mosaic );
 
   QHBoxLayout* hlayout4 = new QHBoxLayout();
-  hlayout4->addWidget( sathelp );
-  hlayout4->addWidget( refresh  );
   hlayout4->addWidget( advanced );
 
-  QHBoxLayout* hlayout3 = new QHBoxLayout();
-  hlayout3->addWidget( sathide );
-  hlayout3->addWidget( satapplyhide );
-  hlayout3->addWidget( satapply );
+  QLayout* hlayout3 = createStandardButtons(true);
 
   QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->setMargin(10);
@@ -267,15 +255,27 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   setOrientation(Qt::Horizontal);
   sda = new SatDialogAdvanced( this,  dialogInfo);
   setExtension(sda);
-  advancedtoggled(false);
+  showMore(false);
   connect(sda,SIGNAL(getSatColours()),SLOT(updateColours()));
   connect(sda,SIGNAL(SatChanged()),SLOT(advancedChanged()));
-
-  //****
 
   times.clear();
 }
 
+std::string SatDialog::name() const
+{
+  static const std::string SAT_DATATYPE = "sat";
+  return SAT_DATATYPE;
+}
+
+void SatDialog::doShowMore(bool show)
+{
+  showExtension(show);
+}
+
+void SatDialog::updateDialog()
+{
+}
 
 /*********************************************/
 void SatDialog::nameActivated(int in)
@@ -372,7 +372,7 @@ void SatDialog::timefileListSlot(QListWidgetItem *)
   m_time = files[index].time;
   plottimes_t tt;
   tt.insert(m_time);
-  Q_EMIT emitTimes("sat", tt, false);
+  emitTimes(tt, false);
 
   updateChannelBox(true);
 }
@@ -542,7 +542,7 @@ void SatDialog::picturesSlot(QListWidgetItem*)
       timefileList->setCurrentRow(m_state[index].ifiletime);
       plottimes_t tt;
       tt.insert(files[m_state[index].ifiletime].time);
-      Q_EMIT emitTimes("sat", tt, false);
+      emitTimes(tt, false);
     }
     updateChannelBox(false);
     channelbox->setCurrentRow(m_state[index].ichannel);
@@ -622,7 +622,7 @@ void SatDialog::RefreshList()
 
 /*********************************************/
 
-void SatDialog::Refresh()
+void SatDialog::updateTimes()
 {
   METLIBS_LOG_SCOPE();
   diutil::OverrideCursor waitCursor;
@@ -720,7 +720,7 @@ void SatDialog::DeleteAllClicked()
 
   //Emit empty time list
   times.clear();
-  Q_EMIT emitTimes("sat", times, false);
+  emitTimes(times, false);
 }
 
 /*********************************************/
@@ -979,37 +979,6 @@ std::string SatDialog::getShortname()
   return name;
 }
 
-/********************************************/
-
-/*********************************************
- ****  end of quickMenu functions***************
- **********************************************/
-
-void SatDialog::applyhideClicked()
-{
-  emit SatHide();
-  emit SatApply();
-}
-
-/********************************************/
-void SatDialog::helpClicked()
-{
-  emit showsource("ug_satdialogue.html");
-}
-
-/********************************************/
-void SatDialog::advancedtoggled(bool on)
-{
-  showExtension(on);
-  return;
-}
-
-/********************************************/
-void SatDialog::hideClicked()
-{
-  emit SatHide();
-}
-
 /**********************************************/
 
 void SatDialog::updateFileListWidget(int in)
@@ -1023,7 +992,6 @@ void SatDialog::updateFileListWidget(int in)
     for (int k = 0; k < nfile; k++) {
       fileListWidget->addItem(dialogInfo.image[in].file[k].name.c_str());
     }
-
   }
 }
 
@@ -1231,7 +1199,7 @@ void SatDialog::emitSatTimes(bool update)
   }
 
   bool useTimes = (times.size() > m_state.size());
-  Q_EMIT emitTimes("sat", times, useTimes);
+  emitTimes(times, useTimes);
 }
 
 /*********************************************/
@@ -1280,9 +1248,4 @@ void SatDialog::readLog(const vector<string>& vstr,
     if (kvs.size() >= 4)
       satoptions[kvs[1].key()][kvs[2].key()] = kvs;
   }
-}
-
-void SatDialog::closeEvent(QCloseEvent* e)
-{
-  emit SatHide();
 }

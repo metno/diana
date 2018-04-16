@@ -29,9 +29,10 @@
 #ifndef _satdialog_h
 #define _satdialog_h
 
+#include "qtDataDialog.h"
+
 #include "diKVListPlotCommand.h"
-#include <diController.h>
-#include <QDialog>
+#include "diSatTypes.h"
 
 #include <vector>
 #include <map>
@@ -45,11 +46,12 @@ class QListWidget;
 class QListWidgetItem;
 class QLCDNumber;
 class SatDialogAdvanced;
+class Controller;
 
 /**
   \brief Dialogue for plotting satellite and radar pictures 
 */
-class SatDialog : public QDialog
+class SatDialog : public DataDialog
 {
     Q_OBJECT
 
@@ -76,34 +78,37 @@ class SatDialog : public QDialog
       int totalminutes;            ///<timediff
   };
 
-  SatDialog( QWidget* parent, Controller* llctrl );
+  SatDialog(QWidget* parent, Controller* llctrl);
+
+  std::string name() const override;
+
   ///return command strings
-  PlotCommand_cpv getOKString();
+  PlotCommand_cpv getOKString() override;
+
   ///insert command strings
-  void putOKString(const PlotCommand_cpv& vstr);
+  void putOKString(const PlotCommand_cpv& vstr) override;
+
   ///return short name of current commonad
   std::string getShortname();
   /// refresh list of files in timefilelist
   void RefreshList();
   /// set mode to read files from archive
   void archiveMode(){emitSatTimes(true); updateTimefileList();}
+
   std::vector<std::string> writeLog();
+
   /// read log string
   void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
-  ///called when the dialog is closed by the window manager
+
+public /*Q_SLOTS*/:
+  void updateTimes() override;
+
+  void updateDialog() override;
 
 protected:
-  void closeEvent( QCloseEvent* );
+  void doShowMore(bool show) override;
 
 private:
-  typedef std::map< std::string, miutil::KeyValue_v> areaoptions_t;
-  typedef std::map< std::string, areaoptions_t> satoptions_t;
-  satoptions_t satoptions;
-  std::vector<state> m_state; //pictures to plot
-  plottimes_t times;          // emitted to TimeSlider
-  static miutil::miTime ztime;
-
-
   void updateFileListWidget(int);
   void updateTimefileList();
   void updateChannelBox(bool select);
@@ -122,36 +127,30 @@ private:
   //get time from string
   miutil::miTime timeFromString(const std::string & timeString);
 
-private slots:
+private Q_SLOTS:
   void DeleteClicked();
   void DeleteAllClicked();
   void nameActivated( int in );
   void timefileClicked(int tt);
-  void Refresh();
   void timefileListSlot(QListWidgetItem * item);
   void fileListWidgetClicked(QListWidgetItem * item);
   void channelboxSlot(QListWidgetItem * item);
   void picturesSlot(QListWidgetItem * item);
   void doubleDisplayDiff( int number );
   void mosaicToggled(bool on);
-  void helpClicked();
-  void applyhideClicked();
-  void advancedtoggled( bool on );
-  void hideClicked();
   void advancedChanged();
   void upPicture();
   void downPicture();
   void updateColours();
 
-Q_SIGNALS:
-  void SatApply();
-  void SatHide();
-  void showsource(const std::string, const std::string="");
-  void emitTimes(const std::string&, const plottimes_t&, bool);
-
 private:
-  Controller* m_ctrl;
-  
+  typedef std::map<std::string, miutil::KeyValue_v> areaoptions_t;
+  typedef std::map<std::string, areaoptions_t> satoptions_t;
+  satoptions_t satoptions;
+  std::vector<state> m_state; // pictures to plot
+  plottimes_t times;          // emitted to TimeSlider
+  static miutil::miTime ztime;
+
   int m_nr_image;
  
   std::string m_channelstr;
@@ -168,8 +167,6 @@ private:
   QLCDNumber* diffLcdnum;
   QSlider* diffSlider;
   
-  QPushButton* refresh;
-  //  ToggleButton* onoff;
   ToggleButton* multiPicture;
   ToggleButton* mosaic;
   QPushButton* Delete;
@@ -188,7 +185,6 @@ private:
     
   SatDialogAdvanced* sda;
   ToggleButton* advanced;
-  
 };
 
 #endif
