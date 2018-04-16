@@ -1,3 +1,33 @@
+diana-3.44 (3.45.0~rc1-1) unstable; urgency=low
+
+  * DataDialog improvements
+  * AreaObjects - removed unused functionality
+  * binary search in time list
+  * webmap: send time list to main UI
+  * handle some keyboard events in MapAreaNavigator
+  * ObsPlot - checkForUpdates
+  * change map area via new class MapAreaNavigator
+  * simplifications in PlotModule and StaticPlot
+  * extract class MapAreaSetup
+  * move StaticPlot to separate file
+  * Replaced QWhatsThis with QToolTip
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Apr 2018 14:52:38 +0200
+
+diana-3.44 (3.44.2-1) unstable; urgency=low
+
+  * bugfix area objects infinite loop
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 22 Mar 2018 08:00:08 +0100
+
+diana-3.44 (3.44.1-1) unstable; urgency=low
+
+  * bugfix vprof, plot all selected stations
+  * bugfix default paths in LocalSetupParser
+  * bugfixes / improvements fonts
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 19 Mar 2018 08:00:08 +0100
+
 diana-3.44 (3.44.0-1) unstable; urgency=low
 
   * bugfix undefined values for raster plot
