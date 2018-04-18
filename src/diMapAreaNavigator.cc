@@ -249,11 +249,10 @@ bool MapAreaNavigator::sendMouseEvent(QMouseEvent* me, EventResult& res)
       return false;
     }
   } else if (me->type() == QEvent::MouseMove) {
+    res.action = browsing;
     if (plotm->isRubberband()) {
-      res.action = browsing;
       moveRubberOrClick(me->x(), me->y(), res);
     } else if (plotm->getStaticPlot()->isPanning()) {
-      res.action = browsing;
       movePanning(me->x(), me->y(), res);
     } else {
       return false;
