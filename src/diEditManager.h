@@ -75,7 +75,6 @@ private:
   std::vector<mapModeInfo> mapmodeinfo;
   mapMode mapmode;
   int editmode; // edit mode index
-  int edittool; // edit tools index
   bool editpause; //pause in editing.....
 
   GridConverter gc;   // gridconverter class

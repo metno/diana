@@ -120,12 +120,18 @@ mapModeInfo newMapModeInfo(const std::string & newmode,
 
 } // namespace
 
-
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
-: plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
-  numregs(0), hiddenObjects(false),
-  hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
-, producttimedefined(false)
+    : plotm(pm)
+    , objm(om)
+    , fieldPlotManager(fm)
+    , mapmode(normal_mode)
+    , editpause(false)
+    , numregs(0)
+    , hiddenObjects(false)
+    , hiddenCombining(false)
+    , hiddenCombineObjects(false)
+    , showRegion(-1)
+    , producttimedefined(false)
 {
   if (plotm==0 || objm==0){
     METLIBS_LOG_WARN("Catastrophic error: plotm or objm == 0");
@@ -474,7 +480,7 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
   bool modeChange= (oldMapMode!=mapmode);
 
   if (mapmode==normal_mode){
-    editmode= edittool= 0;
+    editmode = 0;
     return;
   }
 
@@ -484,13 +490,13 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
   if (mmidx==n){
     METLIBS_LOG_ERROR("diEditManager::setEditMode  no info for mapmode:"
         << mmode);
-    editmode=edittool=0;
+    editmode = 0;
     return;
   }
 
   n= mapmodeinfo[mmidx].editmodeinfo.size();
   if (n==0){ // no defined modes or tools for this mapmode
-    editmode=edittool=0;
+    editmode = 0;
     return;
   }
   int emidx=0;
@@ -498,7 +504,7 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
       emode!=mapmodeinfo[mmidx].editmodeinfo[emidx].editmode) emidx++;
   if (emidx==n){
     METLIBS_LOG_ERROR("diEditManager::setEditMode  unknown editmode:" << emode);
-    editmode=edittool=0;
+    editmode = 0;
     return;
   }
   editmode= emidx;
@@ -560,11 +566,7 @@ bool EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
     } else if (me->type() == QEvent::MouseMove){
       res.action = quick_browsing;
       if (me->buttons() == Qt::NoButton){
-        //HK ??? edittool=0, alltid
-        if (edittool != 0)                // ..just set correct cursor
-          res.newcursor= edit_move_cursor;
-        else
-          res.newcursor= edit_value_cursor;
+        res.newcursor = edit_value_cursor;
         res.action = browsing;
       } else if (me->buttons() & Qt::LeftButton){  // LEFT MOUSE-BUTTON
         EditEvent ee;                     // send an edit-event
@@ -871,10 +873,7 @@ bool EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       if (mapmode != fedit_mode) {
         res.newcursor = (objm->inDrawing() ? draw_cursor : edit_cursor);
       } else {                            // field-editing
-        if (edittool != 0)                // ..just set correct cursor
-          res.newcursor= edit_move_cursor;
-        else
-          res.newcursor= edit_value_cursor;
+        res.newcursor = edit_value_cursor;
       }
       return true;
     }
