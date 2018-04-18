@@ -98,7 +98,7 @@ void MapAreaNavigator::defineUserArea()
 void MapAreaNavigator::recallUserArea()
 {
   areaInsert(true);
-  plotm->getStaticPlot()->setMapArea(myArea);
+  plotm->setMapArea(myArea);
 }
 
 bool MapAreaNavigator::recallPreviousArea()
