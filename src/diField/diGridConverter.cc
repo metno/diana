@@ -331,9 +331,8 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   vcross::util::minimize(iy2, ny - 1 - gdxy);
 }
 
-// convert set of points
-bool GridConverter::getPoints(const Projection& projection, const Projection& map_projection,
-    int npos, float* x, float* y) const
+// static
+bool GridConverter::getPoints(const Projection& projection, const Projection& map_projection, int npos, float* x, float* y)
 {
   return map_projection.convertPoints(projection, npos, x, y, false);
 }
@@ -437,16 +436,19 @@ bool GridConverter::getDirectionVector(const Area& map_area, const bool turn,
   return getDirectionVectors(map_area, turn, 1, &x[index], &y[index], &u, &v);
 }
 
+// static
 bool GridConverter::geo2xy(const Area& area, int npos, float* x, float* y)
 {
   return area.P().convertFromGeographic(npos, x, y);
 }
 
+// static
 bool GridConverter::xy2geo(const Area& area, int npos, float* x, float* y)
 {
   return area.P().convertToGeographic(npos, x, y);
 }
 
+// static
 bool GridConverter::geov2xy(const Area& area, int npos,
     const float* x, const float* y, float *u, float *v)
 {

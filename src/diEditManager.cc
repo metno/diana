@@ -2463,7 +2463,7 @@ bool EditManager::recalcCombineMatrix(){
 
   const Area& oldArea= plotm->getMapArea();
   const Area& newArea= fedits[0]->editfield->area;
-  if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis.get(),yposis.get())) {
+  if (!GridConverter::getPoints(oldArea.P(), newArea.P(), npos, xposis.get(), yposis.get())) {
     METLIBS_LOG_ERROR("changeProjection: getPoints error");
     return false;
   }
@@ -2945,8 +2945,7 @@ bool EditManager::interpolateEditField(ObsPositions* obsPositions)
 
   // change projection if needed
   if (obsPositions->obsArea.P() != ef->area.P()) {
-    gc.getPoints(obsPositions->obsArea.P(), ef->area.P(),
-        obsPositions->numObs, obsPositions->xpos, obsPositions->ypos);
+    GridConverter::getPoints(obsPositions->obsArea.P(), ef->area.P(), obsPositions->numObs, obsPositions->xpos, obsPositions->ypos);
     obsPositions->obsArea= ef->area;
   }
 

@@ -36,7 +36,6 @@
 #include "diEditSpec.h"
 
 #include <diField/diField.h>
-#include <diField/diGridConverter.h>
 
 #include <vector>
 #include <set>
@@ -88,8 +87,6 @@ private:
   static int      def_influencetype;
   static float    def_ecellipse;
   static bool     drawExtraLines;
-
-  GridConverter gc;   // gridconverter class
 
   FieldPlotManager* fieldPlotManager;
 

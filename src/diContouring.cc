@@ -4252,8 +4252,6 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   projfile << projStr << endl;
   projfile.close();
 
-  GridConverter gc;
-
   int nSHPType= SHPT_POLYGON;
   int iShape= 0;
   SHPObject *psShape;
@@ -4315,7 +4313,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
 			}
 		  }
 
-		  gc.xy2geo(fieldArea, nposis, fxshape, fyshape);
+		  GridConverter::xy2geo(fieldArea, nposis, fxshape, fyshape);
 
 		  double *xshape= new double[nposis];
 		  double *yshape= new double[nposis];

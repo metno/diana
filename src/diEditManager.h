@@ -38,8 +38,6 @@
 #include "diPlot.h"
 #include "diTimeTypes.h"
 
-#include "diField/diGridConverter.h"
-
 #include <QString>
 
 #include <vector>
@@ -76,8 +74,6 @@ private:
   mapMode mapmode;
   int editmode; // edit mode index
   bool editpause; //pause in editing.....
-
-  GridConverter gc;   // gridconverter class
 
   float first_x;
   float first_y;

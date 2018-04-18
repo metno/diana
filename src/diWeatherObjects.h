@@ -34,7 +34,6 @@
 #include "diPlotCommand.h"
 
 #include "diField/diArea.h"
-#include "diField/diGridConverter.h"
 
 #include <vector>
 
@@ -149,7 +148,6 @@ public:
 private:
   std::map<std::string,bool> useobject;
   static const miutil::miTime ztime;
-  GridConverter gc;              // gridconverter class
   bool enabled;
 
 protected:

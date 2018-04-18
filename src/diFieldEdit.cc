@@ -662,7 +662,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       maparea = getStaticPlot()->getMapArea();
       if (maparea.P()!=editfield->area.P()) {
         int npos= 1;
-        if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
+        if (!GridConverter::getPoints(maparea.P(), editfield->area.P(), npos, &gx, &gy)) {
           METLIBS_LOG_ERROR("EDIT: getPoints error");
           return false;
         }
@@ -855,7 +855,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
     if (convertpos) {
       int npos= 1;
-      if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
+      if (!GridConverter::getPoints(maparea.P(), editfield->area.P(), npos, &gx, &gy)) {
         METLIBS_LOG_ERROR("EDIT: getPoints error");
         return false;
       }
@@ -921,7 +921,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
                         editfield->area.fromGridY(gy-ayellipse*0.5f),
                         editfield->area.fromGridY(gy+ayellipse*0.5f) };
         int npos= 3;
-        if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
+        if (!GridConverter::getPoints(maparea.P(), editfield->area.P(), npos, rx, ry)) {
           METLIBS_LOG_ERROR("EDIT: getPoints error");
           return false;
         }
@@ -974,7 +974,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         float ry[4] = { rec.y1, rec.y2, rec.y2, rec.y1 };
         if (convertpos) {
           int npos= 4;
-          if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
+          if (!GridConverter::getPoints(maparea.P(), editfield->area.P(), npos, rx, ry)) {
             METLIBS_LOG_ERROR("EDIT: getPoints error");
             return false;
           }
@@ -1176,7 +1176,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           float ry[2] = { (gy-ayellipse*0.5f)*fry,
                           (gy+ayellipse*0.5f)*fry };
           int npos= 2;
-          if (!gc.getPoints(editfield->area.P(),maparea.P(),npos,rx,ry)) {
+          if (!GridConverter::getPoints(editfield->area.P(), maparea.P(), npos, rx, ry)) {
             METLIBS_LOG_ERROR("EDIT: getPoints error");
             return false;
           }
@@ -1357,7 +1357,7 @@ void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
   if (geo) {
     int npos= 2;
     const Area& maparea = getStaticPlot()->getMapArea();
-    gc.geo2xy(maparea,npos,rx,ry);
+    GridConverter::geo2xy(maparea, npos, rx, ry);
   }
   float dx= (rx[1] - rx[0])/frx;
   float dy= (ry[1] - ry[0])/fry;
@@ -1391,7 +1391,7 @@ FieldInfluence FieldEdit::getFieldInfluence(bool geo)
   if (geo) {
     int npos=3;
     const Area& maparea = getStaticPlot()->getMapArea();
-    gc.xy2geo(maparea,npos,rx,ry);
+    GridConverter::xy2geo(maparea, npos, rx, ry);
   }
 
   FieldInfluence fi;
@@ -3450,7 +3450,8 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->LineWidth(3.0);
     gl->Begin(DiGLPainter::gl_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
-      if (!gc.getPoints(editfield->area.P(),maparea.P(),n,xplot,yplot)) n=0;
+      if (!GridConverter::getPoints(editfield->area.P(), maparea.P(), n, xplot, yplot))
+        n = 0;
     }
     for (int i=0; i<n; ++i) {
       gl->Vertex2f(xplot[i],yplot[i]);
@@ -3477,7 +3478,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->LineWidth(1.0);
     gl->Begin(DiGLPainter::gl_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
-      if (!gc.getPoints(editfield->area.P(),maparea.P(),n,xplot,yplot))
+      if (!GridConverter::getPoints(editfield->area.P(), maparea.P(), n, xplot, yplot))
         n=0;
     }
     for (int i=0; i<n; ++i) {

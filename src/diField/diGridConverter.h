@@ -135,7 +135,8 @@ public:
     { doFindGridLimits(area, maprect, gridboxes, x, y, 1, ix1, ix2, iy1, iy2); }
 
   /// convert arbitrary set of points
-  bool getPoints(const Projection&, const Projection&, int, float*, float*) const;
+  static bool getPoints(const Projection&, const Projection&, int, float*, float*);
+
   /// convert u,v vector coordinates for points x,y - obsolete syntax, to be removed
   bool getVectors(const Area&, const Projection&, int,
       const float*, const float*, float*, float*);
@@ -146,12 +147,15 @@ public:
   /// Specific point given by index
   bool getDirectionVector(const Area&, const bool, int,
       const float *, const float *, int index, float &, float &);
+
   /// convert from geo to xy
-  bool geo2xy(const Area&, int, float*, float*);
+  static bool geo2xy(const Area&, int, float*, float*);
+
   /// convert from xy to geo
-  bool xy2geo(const Area&, int, float*, float*);
+  static bool xy2geo(const Area&, int, float*, float*);
+
   /// convert geographical u,v vector coordinates for points x,y
-  bool geov2xy(const Area&, int, const float*, const float*, float*, float*);
+  static bool geov2xy(const Area&, int, const float*, const float*, float*, float*);
 
   /// map ratio and/or coriolis parameter fields
   bool getMapFields(const GridArea& gridarea,
