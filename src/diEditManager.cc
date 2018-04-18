@@ -126,6 +126,7 @@ EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm
     , fieldPlotManager(fm)
     , mapmode(normal_mode)
     , editpause(false)
+    , moved(false)
     , numregs(0)
     , hiddenObjects(false)
     , hiddenCombining(false)
@@ -139,8 +140,6 @@ EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm
 
   initEditTools();
   ObjectPlot::defineTranslations();
-  unsentProduct = false;
-  moved=false;
 }
 
 EditManager::~EditManager()
@@ -952,12 +951,6 @@ bool EditManager::unsavedEditChanges(){
 
 
   return (editc || drawc || commentc || labelc);
-}
-
-
-bool EditManager::unsentEditChanges(){
-  //returns true if objects or fields changed since last send
-  return unsentProduct;
 }
 
 
@@ -1825,8 +1818,6 @@ void EditManager::stopEdit()
 
   objm->setObjectsSaved(true);
   objm->undofrontClear();
-
-  unsentProduct = false;
 }
 
 vector<std::string> EditManager::getEditProductNames(){

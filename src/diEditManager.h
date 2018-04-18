@@ -129,8 +129,6 @@ private:
 				       const EditProductId& ei);
 
 
-  bool unsentProduct; // true if last saved product has not been sent !
-
   void plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder);
 
   void initEditTools();

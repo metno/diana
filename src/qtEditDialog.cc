@@ -1247,18 +1247,6 @@ bool EditDialog::okToExit()
       break;
     }
   }
-  if(m_editm->unsentEditChanges()){
-    raise(); //put dialog on top
-    switch(QMessageBox::information(this,tr("Send analysis"),
-        tr("Send last saved analysis to the database?"),
-        tr("&Send"), tr("&Don't send"),0,1)){
-    case 0: // send clicked
-      saveEverything(true,false);
-      break;
-    case 1: // don't send, but exit
-      break;
-    }
-  }
   return true;
 }
 
