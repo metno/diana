@@ -584,9 +584,8 @@ bool FimexIO::makeInventory(const std::string& reftime)
       return false;
   }
 
-  std::string  try_reftime_from_file= fallbackGetReferenceTime();
-  if (!try_reftime_from_file.empty()) {
-    reftime_from_file = try_reftime_from_file;
+  if (reftime_from_file.empty()) {
+    reftime_from_file = fallbackGetReferenceTime();
   }
 
   // checking timestamp for previous makeInventory, WDB only. TODO: ask fimex if wdb has canged
@@ -728,13 +727,13 @@ bool FimexIO::makeInventory(const std::string& reftime)
           // if no reference Time axis, get unique refTime
           if (referenceTime.empty() && values.size() > 1)
             referenceTime = fallbackGetReferenceTime();
-          
+
           // if no reference Time, use first time value
             if (referenceTime.empty() && values.size() > 1 && !noOfClimateTimes)
               referenceTime = isoFromTimeT(timedata[0]);
         }
       }
-      
+
       // ReferenceTime; if no reference Time axis, get uniqe refTime
       if (referenceTime.empty())
         referenceTime = fallbackGetReferenceTime();
