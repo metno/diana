@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -136,55 +136,20 @@ void Field::shallowMemberCopy(const Field& rhs)
 void Field::memberCopy(const Field& rhs)
 {
   METLIBS_LOG_SCOPE();
-
-  // the isPartOfCache variable is always false in copy actions.
-  // the Cache is (as a friend) the only instance to set this
-  // marker to true... copying a field outside the cache is possible
-  // sets this marker to false
-  isPartOfCache=false;
-  lastAccessed=miTime::nowTime();
-
-  if (area.nx != rhs.area.nx || area.ny != rhs.area.ny) {
+  const int rhs_size = rhs.area.gridSize();
+  if (area.gridSize() != rhs_size) {
     delete[] data;
-    data= 0;
+    data = 0;
+  }
+  if (!data && rhs_size) {
+    data = new float[rhs_size];
+    METLIBS_LOG_DEBUG(LOGVAL(data) << LOGVAL(rhs_size));
   }
 
-  const int fsize = rhs.area.gridSize();
-  if (!data && fsize)
-    data= new float[fsize];
-
-  for (int i=0; i<fsize; i++)
+  for (int i = 0; i < rhs_size; i++)
     data[i] = rhs.data[i];
 
-  area=           rhs.area;
-  defined_ =      rhs.defined_;
-  level=          rhs.level;
-  idnum=          rhs.idnum;
-  forecastHour=   rhs.forecastHour;
-  validFieldTime= rhs.validFieldTime;
-  analysisTime=   rhs.analysisTime;
-
-  aHybrid=        rhs.aHybrid;
-  bHybrid=        rhs.bHybrid;
-  unit =          rhs.unit;
-  discontinuous =rhs.discontinuous;
-  palette       =rhs.palette;
-
-  numSmoothed=    rhs.numSmoothed;
-  gridChanged=    rhs.gridChanged;
-  validFieldTime= rhs.validFieldTime;
-  turnWaveDirection= rhs.turnWaveDirection;
-
-  name=           rhs.name;
-  text=           rhs.text;
-  fulltext=       rhs.fulltext;
-  modelName=      rhs.modelName;
-  paramName=      rhs.paramName;
-  fieldText=      rhs.fieldText;
-  leveltext=      rhs.leveltext;
-  idnumtext=      rhs.idnumtext;
-  progtext=       rhs.progtext;
-  timetext=       rhs.timetext;
+  shallowMemberCopy(rhs);
 }
 
 // estimate the size of this particular field in bytes
