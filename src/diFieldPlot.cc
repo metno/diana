@@ -3475,6 +3475,13 @@ bool FieldPlot::checkFields(size_t count) const
     if (not (fields[i] and fields[i]->data))
       return false;
   }
+  if (count > 1) {
+    const int gridsize0 = fields[0]->area.gridSize();
+    for (size_t i = 1; i < count; ++i) { // start from 1
+      if (fields[i]->area.gridSize() != gridsize0)
+        return false;
+    }
+  }
   return true;
 }
 
