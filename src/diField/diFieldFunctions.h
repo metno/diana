@@ -296,12 +296,10 @@ public:
     f_momentum_x_coordinate,      //!< f_momentum_x_coordinate; geographic
     f_momentum_y_coordinate,      //!< f_momentum_y_coordinate; geographic
     f_jacobian,                   //!< f_jacobian; geographic
-    f_vessel_icing_overland,      //!< f_vessel_icing_overland - obsolete
-    f_vessel_icing_mertins,       //!< f_vessel_icing_mertins - obsolete
-    f_vessel_icing_overland2,     //!< f_vessel_icing_overland
-    f_vessel_icing_mertins2,      //!< f_vessel_icing_mertins
+    f_vessel_icing_overland,      //!< f_vessel_icing_overland
+    f_vessel_icing_mertins,       //!< f_vessel_icing_mertins
     f_vessel_icing_modstall,      //!< f_vessel_icing_modstall
-    f_vessel_icing_testmod,       //!< f_vessel_icing_testmod
+    f_vessel_icing_mincog,        //!< f_vessel_icing_mincog
     f_replace_undefined,          //!< f_replace_undefined
     f_replace_defined,            //!< f_replace_defined
     f_replace_all,                //!< f_replace_all

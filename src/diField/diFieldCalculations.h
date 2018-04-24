@@ -263,31 +263,21 @@ bool momentumYcoordinate(int nx, int ny, const float *u, float *nxy, const float
 bool jacobian(int nx, int ny, const float *field1, const float *field2, float *fjacobian,
     const float *xmapr, const float *ymapr, difield::ValuesDefined& fDefined, float undef);
 
-//obsolete - will be replaced by vesselIcingOverland2
 bool vesselIcingOverland(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
-    const float *v, float *icing, float freezingpoint, difield::ValuesDefined& fDefined, float undef);
-
-//obsolete - will be replaced by vesselIcingMertins2
-bool vesselIcingMertins(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
-    const float *v, float *icing, float freezingpoint, difield::ValuesDefined& fDefined, float undef);
-
-bool vesselIcingOverland2(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
     const float *v, const float *sal, const float *aice, float *icing, difield::ValuesDefined& fDefined,
     float undef);
 
-bool vesselIcingMertins2(int nx, int ny, const float *airtemp, const float *seatemp, const float *u,
-    const float *v, const float *sal, const float *aice, float *icing, difield::ValuesDefined& fDefined,
-    float undef);
+bool vesselIcingMertins(int nx, int ny, const float* airtemp, const float* seatemp, const float* u, const float* v, const float* sal, const float* aice,
+                        float* icing, difield::ValuesDefined& fDefined, float undef);
 
 bool vesselIcingModStall(int nx, int ny, const float *sal, const float *wave, const float *x_wind,
     const float *y_wind, const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw,
     const float *aice, const float *depth, float *icing,
     const float vs, const float alpha, const float zmin, const float zmax, difield::ValuesDefined& fDefined, float undef);
 
-bool vesselIcingTestMod(int nx, int ny, const float *sal, const float *wave, const float *x_wind,
-    const float *y_wind, const float *airtemp, const float *rh, const float *sst, const float *p, const float *Pw,
-    const float *aice, const float *depth, float *icing,
-    const float vs, const float alpha, const float zmin, const float zmax, difield::ValuesDefined& fDefined, float undef);
+bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, const float* x_wind, const float* y_wind, const float* airtemp, const float* rh,
+                       const float* sst, const float* p, const float* Pw, const float* aice, const float* depth, float* icing, const float vs,
+                       const float alpha, const float zmin, const float zmax, const float alt, difield::ValuesDefined& fDefined, float undef);
 
 bool values2classes(int nx, int ny, const float *fvalue, float *fclass,
     const std::vector<float>& values, difield::ValuesDefined& fDefined, float undef);

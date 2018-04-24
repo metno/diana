@@ -331,12 +331,12 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_windcooling_tc_u_v, "windcooling_tc_u_v(tc2m,u10m,v10m)");
   ok &= registerFunction(f, f_undercooled_rain, "undercooled.rain(precip,snow,tk,const:precipMin,const:snowRateMax,const:tcMax)");
   ok &= registerFunction(f, f_pressure2flightlevel, "pressure2flightlevel(p)");
-  ok &= registerFunction(f, f_vessel_icing_overland, "vessel.icing.overland(airtemp,seatemp,u10m,v10m,const:freezingPoint)");
-  ok &= registerFunction(f, f_vessel_icing_mertins, "vessel.icing.mertins(airtemp,seatemp,u10m,v10m,const:freezingPoint)");
-  ok &= registerFunction(f, f_vessel_icing_overland2, "vessel.icing.overland2(airtemp,seatemp,u10m,v10m,salinity0m,aice)");
-  ok &= registerFunction(f, f_vessel_icing_mertins2, "vessel.icing.mertins2(airtemp,seatemp,u10m,v10m,salinity0m,aice)");
+  ok &= registerFunction(f, f_vessel_icing_overland, "vessel.icing.overland(airtemp,seatemp,u10m,v10m,salinity0m,aice)");
+  ok &= registerFunction(f, f_vessel_icing_mertins, "vessel.icing.mertins(airtemp,seatemp,u10m,v10m,salinity0m,aice)");
   ok &= registerFunction(f, f_vessel_icing_modstall, "vessel.icing.modstall(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,temperature0m,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)");
-  ok &= registerFunction(f, f_vessel_icing_testmod, "vessel.icing.testmod(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,sst,air_pressure_at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax)");
+  ok &=
+      registerFunction(f, f_vessel_icing_mincog, "vessel.icing.mincog(salinity0m,significant_wave_height,u10m,v10m,tc2m,relative_humidity_2m,sst,air_pressure_"
+                                                 "at_sea_level,significant_wave_period,aice,depth,const:vs,const:alpha,const:zmin,const:zmax,const:alt)");
   ok &= registerFunction(f, f_replace_undefined, "replace.undefined(f,const:value)");
   ok &= registerFunction(f, f_replace_defined, "replace.defined(f,const:value)");
   ok &= registerFunction(f, f_replace_all, "replace.all(f,const:value)");
@@ -1384,32 +1384,15 @@ bool FieldFunctions::fieldComputer(Function function,
     break;
 
   case f_vessel_icing_overland:
-    if (ninp != 4 || nout != 1 || nconst != 1)
+    if (ninp != 6 || nout != 1)
       break;
-    res = vesselIcingOverland(nx, ny, finp[0], finp[1], finp[2], finp[3], fout[0],
-        constants[0], fDefined, undef);
+    res = vesselIcingOverland(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], fout[0], fDefined, undef);
     break;
 
   case f_vessel_icing_mertins:
-    if (ninp != 4 || nout != 1 || nconst != 1)
-      break;
-    res = vesselIcingMertins(nx, ny, finp[0], finp[1], finp[2], finp[3], fout[0],
-        constants[0], fDefined, undef);
-    break;
-
-
-  case f_vessel_icing_overland2:
     if (ninp != 6 || nout != 1)
       break;
-    res = vesselIcingOverland2(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], fout[0],
-        fDefined, undef);
-    break;
-
-  case f_vessel_icing_mertins2:
-    if (ninp != 6 || nout != 1)
-      break;
-    res = vesselIcingMertins2(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], fout[0],
-        fDefined, undef);
+    res = vesselIcingMertins(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], fout[0], fDefined, undef);
     break;
 
   case f_vessel_icing_modstall:
@@ -1420,12 +1403,11 @@ bool FieldFunctions::fieldComputer(Function function,
         constants[0], constants[1], constants[2], constants[3], fDefined, undef);
     break;
 
-  case f_vessel_icing_testmod:
-    if (ninp != 11 || nout != 1 || nconst != 4)
+  case f_vessel_icing_mincog:
+    if (ninp != 11 || nout != 1 || nconst != 5)
       break;
-    res = vesselIcingTestMod(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
-        finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
-        constants[0], constants[1], constants[2], constants[3], fDefined, undef);
+    res = vesselIcingMincog(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0], constants[0],
+                            constants[1], constants[2], constants[3], constants[4], fDefined, undef);
     break;
 
   case f_replace_undefined:
