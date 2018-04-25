@@ -1168,7 +1168,7 @@ bool FieldPlot::plotMe(DiGLPainter* gl, PlotOrder zorder)
   return ok;
 }
 
-std::vector<float*> FieldPlot::doPrepareVectors(float* x, float* y, bool direction)
+std::vector<float*> FieldPlot::prepareVectors(float* x, float* y)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1179,51 +1179,84 @@ std::vector<float*> FieldPlot::doPrepareVectors(float* x, float* y, bool directi
 
   int nf = tmpfields.size();
 
-  const Projection& mapP = getStaticPlot()->getMapArea().P();
-  if (!rotateVectors || fields[0]->area.P() == mapP) {
+  if (!rotateVectors || fields[0]->area.P() == getStaticPlot()->getMapArea().P()) {
     u = fields[0]->data;
     v = fields[1]->data;
-    diutil::delete_all_and_clear(tmpfields);
-  } else if (nf == 2 && tmpfields[0]->numSmoothed == fields[0]->numSmoothed && tmpfields[0]->area.P() == mapP) {
+    if (nf == 2) {
+      delete tmpfields[0];
+      delete tmpfields[1];
+      tmpfields.clear();
+    }
+  } else if (nf == 2 && tmpfields[0]->numSmoothed == fields[0]->numSmoothed
+      && tmpfields[0]->area.P() == getStaticPlot()->getMapArea().P()) {
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
   } else {
     if (nf == 0) {
-      tmpfields.push_back(new Field());
-      tmpfields.push_back(new Field());
+      Field* utmp = new Field();
+      Field* vtmp = new Field();
+      tmpfields.push_back(utmp);
+      tmpfields.push_back(vtmp);
     }
     *(tmpfields[0]) = *(fields[0]);
     *(tmpfields[1]) = *(fields[1]);
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
     int npos = fields[0]->area.gridSize();
-    bool ok = false;
-    if (direction) {
-      for (int i = 0; i < npos; i++)
-        v[i] = 1.0f;
-      bool turn = fields[0]->turnWaveDirection;
-      ok = getStaticPlot()->gc.getDirectionVectors(getStaticPlot()->getMapArea(), turn, npos, x, y, u, v);
-    } else {
-      ok = getStaticPlot()->ProjToMap(tmpfields[0]->area, npos, x, y, u, v);
-    }
-    if (!ok)
+    if (!getStaticPlot()->ProjToMap(tmpfields[0]->area, npos, x, y, u, v)) {
       return uv;
-    tmpfields[0]->area.setP(mapP);
-    tmpfields[1]->area.setP(mapP);
+    }
+    tmpfields[0]->area.setP(getStaticPlot()->getMapArea().P());
+    tmpfields[1]->area.setP(getStaticPlot()->getMapArea().P());
   }
   uv.push_back(u);
   uv.push_back(v);
   return uv;
 }
 
-std::vector<float*> FieldPlot::prepareVectors(float* x, float* y)
+vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y)
 {
-  return doPrepareVectors(x, y, false);
-}
+  METLIBS_LOG_SCOPE();
 
-std::vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y)
-{
-  return doPrepareVectors(x, y, true);
+  vector<float*> uv;
+
+  float *u = 0, *v = 0;
+
+  //tmpfields: fields in current projection
+  int nf = tmpfields.size();
+
+  if (nf == 2 && tmpfields[0]->numSmoothed == fields[0]->numSmoothed
+      && tmpfields[0]->area.P() == getStaticPlot()->getMapArea().P()) {
+    //use fields in current projection
+    u = tmpfields[0]->data;
+    v = tmpfields[1]->data;
+  } else {
+    if (nf == 0) {
+      Field* utmp = new Field();
+      Field* vtmp = new Field();
+      tmpfields.push_back(utmp);
+      tmpfields.push_back(vtmp);
+    }
+    //calc fields in current projection
+    *(tmpfields[0]) = *(fields[0]);
+    *(tmpfields[1]) = *(fields[0]);
+    u = tmpfields[0]->data;
+    v = tmpfields[1]->data;
+    int npos = fields[0]->area.gridSize();
+    for (int i = 0; i < npos; i++)
+      v[i] = 1.0f;
+
+    bool turn = fields[0]->turnWaveDirection;
+    if (!getStaticPlot()->gc.getDirectionVectors(getStaticPlot()->getMapArea(), turn, npos, x, y, u, v)) {
+      return uv;
+    }
+
+    tmpfields[0]->area.setP(getStaticPlot()->getMapArea().P());
+    tmpfields[1]->area.setP(getStaticPlot()->getMapArea().P());
+  }
+  uv.push_back(u);
+  uv.push_back(v);
+  return uv;
 }
 
 void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
