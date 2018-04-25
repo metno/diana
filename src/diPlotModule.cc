@@ -683,6 +683,8 @@ void PlotModule::plotInit(DiGLPainter* gl)
   const Rectangle& plotr = staticPlot_->getPlotSize();
   gl->Ortho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+
   gl->ClearStencil(0);
   const Colour& cback = staticPlot_->getBackgroundColour();
   gl->ClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
