@@ -2329,14 +2329,17 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     sendLetter(letter);
   }
 
-  QString popupText = contr->getStationManager()->getStationsText(x, y);
-  if (popupText.isEmpty()) {
-    popupText = QString::fromStdString(contr->getObsPopupText(x, y));
-  }
-  if (!popupText.isEmpty()) {
+  QString stationText = contr->getStationManager()->getStationsText(x, y);
+  QString obsText = QString::fromStdString(contr->getObsPopupText(x, y));
+  if (!stationText.isEmpty() || !obsText.isEmpty()) {
     // undo reverted y coordinate from MainPaintable::handleMouseEvents
     QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
-    QToolTip::showText(popupPos, popupText, this);
+    if (!stationText.isEmpty()) {
+      QWhatsThis::showText(popupPos, stationText, this);
+    }
+    if (!obsText.isEmpty()) {
+      QToolTip::showText(popupPos, obsText, this);
+    }
   }
 }
 
