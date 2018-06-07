@@ -1,3 +1,9 @@
+diana-3.45 (3.45.2-1) unstable; urgency=low
+
+  * WMS: bugfix time dimensions
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 07 Jun 2018 08:00:08 +0200
+
 diana-3.45 (3.45.1-1) unstable; urgency=low
 
   * WhatsThis - Partly reverted 512a70e1554cbad3ce7806bb47ed76b3e268bb4e
