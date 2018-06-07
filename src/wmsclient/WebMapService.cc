@@ -80,6 +80,11 @@ bool WebMapDimension::isElevation() const
   return miutil::to_lower(identifier()) == "elevation";
 }
 
+bool WebMapDimension::isTimeDimension() const
+{
+  return units() == "ISO8601";
+}
+
 // ========================================================================
 
 WebMapLayer::WebMapLayer(const std::string& identifier)

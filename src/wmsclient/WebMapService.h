@@ -93,6 +93,9 @@ public:
   /*! true iff this is the elevation dimension */
   bool isElevation() const;
 
+  /*! true iff this is a dimension with ISO8601 time values*/
+  bool isTimeDimension() const;
+
 private:
   std::string mIdentifier;
   std::string mTitle;

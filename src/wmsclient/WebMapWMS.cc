@@ -674,7 +674,7 @@ void WebMapWMS::parseDimensionValues(WebMapDimension& dim, const QString& text, 
 
   dim.clearValues();
 
-  const bool isTime = dim.isTime();
+  const bool isTime = dim.isTimeDimension();
   const QStringList values = text.trimmed().split(QRegExp(",\\s*"));
   for (const QString& v : values) {
     if (v.contains("/")) {
