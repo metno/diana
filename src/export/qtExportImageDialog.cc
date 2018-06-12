@@ -75,6 +75,7 @@ const SizeSpecs imageSizes = SizeSpecs()
     << SizeSpec("16:9 (wide TV)", Size_AspectRatio, QSize(16,9))
     << SizeSpec("Custom", Size_Any, QSize(600,400));
 
+// must match enum Product
 static const char * const dummyFilenameHints[] = {
   QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana.png or diana.pdf"),
   QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana_%1.png or diana_%1.pdf"),
@@ -82,6 +83,9 @@ static const char * const dummyFilenameHints[] = {
   QT_TRANSLATE_NOOP("ExportImageDialog", "E.g. diana.avi"),
   0
 };
+
+// must match enum Product
+static const QString defaultFilename[] = {"diana.png", "diana_%1.png", "diana.gif", "diana.avi"};
 
 enum Product {
   PRODUCT_IMAGE,
@@ -318,6 +322,10 @@ void ExportImageDialog::onProductChanged(int)
   updateComboSize();
   enableStartButton();
   updateFilenameHint();
+
+  QString filename = ui->editFilename->text();
+  if (!checkFilename(filename))
+    ui->editFilename->setText(filename);
 }
 
 void ExportImageDialog::onSaveToChanged(int current)
@@ -474,21 +482,7 @@ void ExportImageDialog::onStart()
       QMessageBox::warning(this, tr("Error"), tr("Could not create temporary directory."));
       return;
     }
-    // TODO create temp filename
-    switch (product) {
-    case PRODUCT_MOVIE: {
-      filename = tmp.filePath("diana.avi");
-      break; }
-    case PRODUCT_IMAGE_ANIMATION: {
-      filename = tmp.filePath("diana.gif");
-     break; }
-    case PRODUCT_IMAGE_SERIES: {
-      filename = tmp.filePath("diana_%1.png");
-      break; }
-    case PRODUCT_IMAGE: {
-      filename = tmp.filePath("diana.png");
-      break; }
-    }
+    filename = tmp.filePath(defaultFilename[product]);
   }
 
   if (product == PRODUCT_IMAGE) {
@@ -550,8 +544,11 @@ void ExportImageDialog::onStart()
 
 bool ExportImageDialog::checkFilename(QString& filename)
 {
-  if (filename.isEmpty())
+  const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
+  if (filename.isEmpty()) {
+    filename = defaultFilename[product];
     return false;
+  }
 
   const QFileInfo fi(filename);
   if (!fi.dir().exists())
@@ -560,28 +557,39 @@ bool ExportImageDialog::checkFilename(QString& filename)
   const QString suffix = fi.suffix().toLower();
   bool filename_ok = true;
 
-  const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
+  const int patternidx = filename.indexOf("%1");
+  if (product == PRODUCT_IMAGE_SERIES) {
+    // add pattern if missing
+    if (patternidx == -1) {
+      filename = filename.left(filename.length() - suffix.length() - 1 /*dot*/) + "_%1." + suffix;
+      filename_ok = false;
+    }
+  } else {
+    // remove pattern if present
+    if (patternidx != -1) {
+      filename = filename.replace("_%1.", ".").remove("%1");
+      filename_ok = false;
+    }
+  }
+
+  if (fi.fileName().isEmpty())
+    filename_ok = false;
+
   switch (product) {
     case PRODUCT_MOVIE:
       if (suffix != "avi" && suffix != "mp4" && suffix != "mpg") {
-        filename += ".mpg";
+        filename = filename.left(filename.length() - suffix.length()) + "mpg";
         filename_ok = false;
       }
       break;
     case PRODUCT_IMAGE_ANIMATION:
       // check or add gif extension
       if (suffix != "gif") {
-        filename += ".gif";
+        filename = filename.left(filename.length() - suffix.length()) + "gif";
         filename_ok = false;
       }
       break;
     case PRODUCT_IMAGE_SERIES:
-      // check for pattern; if missing: add, dialog, return and ask for new start
-      if (filename.indexOf("%1") == -1) {
-        filename  = fi.fileName() + "_%1" + fi.suffix();
-        filename_ok = false;
-      }
-      // fallthrough
     case PRODUCT_IMAGE: {
       bool found = (suffix == "pdf");
       for (size_t i=0; !found && i<sizeof(IMAGE_FILE_SUFFIXES)/sizeof(IMAGE_FILE_SUFFIXES[0]); ++i) {
@@ -589,7 +597,7 @@ bool ExportImageDialog::checkFilename(QString& filename)
           found = true;
       }
       if (!found) {
-        filename += ".png";
+        filename = filename.left(filename.length() - suffix.length()) + "png";
         filename_ok = false;
       }
       break; }
@@ -604,6 +612,8 @@ void ExportImageDialog::updateFilenameHint()
   const bool saveToFile = ec.command.isEmpty();
   const int product = ui->comboProduct->currentIndex();
   if (saveToFile && isValidProduct(product)) {
+    if (ui->editFilename->text().isEmpty())
+      ui->editFilename->setText(defaultFilename[product]);
     ui->labelFilenameHint->setText(tr(dummyFilenameHints[product]));
     ui->labelFilenameHint->show();
   } else {
