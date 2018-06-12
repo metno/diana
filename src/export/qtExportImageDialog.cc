@@ -44,6 +44,7 @@
 #include <QProgressDialog>
 #include <QStandardItemModel>
 #include <QStringListModel>
+#include <QTimer>
 
 #include <cmath>
 
@@ -256,6 +257,7 @@ ExportImageDialog::ExportImageDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui_ExportImageDialog)
     , p(new P_ExportImageDialog)
+    , messageTimer(new QTimer(this))
     , imageSource(0)
 {
   METLIBS_LOG_SCOPE();
@@ -282,6 +284,10 @@ ExportImageDialog::ExportImageDialog(QWidget* parent)
   }
 
   setupUi();
+
+  messageTimer->setInterval(10 * 1000 /* milliseconds */);
+  messageTimer->setSingleShot(true);
+  connect(messageTimer, &QTimer::timeout, this, &ExportImageDialog::showMessageStart);
 }
 
 ExportImageDialog::~ExportImageDialog()
@@ -425,6 +431,7 @@ void ExportImageDialog::onSizeWidthChanged(int)
         * static_cast<double>(size.size.height()) / static_cast<double>(size.size.width());
     ui->spinHeight->setValue(static_cast<int>(round(h)));
   }
+  showMessageStart();
 }
 
 void ExportImageDialog::onSizeHeightChanged(int)
@@ -435,6 +442,7 @@ void ExportImageDialog::onSizeHeightChanged(int)
         * static_cast<double>(size.size.width()) / static_cast<double>(size.size.height());
     ui->spinWidth->setValue(static_cast<int>(round(w)));
   }
+  showMessageStart();
 }
 
 void ExportImageDialog::onPreview()
@@ -455,7 +463,7 @@ void ExportImageDialog::onPreview()
   preview.exec();
 }
 
-void ExportImageDialog::onStart()
+void ExportImageDialog::onExport()
 {
   if (!imageSource)
     return;
@@ -637,7 +645,8 @@ void ExportImageDialog::enableStartButton()
         enable = false;
     }
   }
-  ui->buttonStart->setEnabled(enable);
+  ui->buttonExport->setEnabled(enable);
+  showMessageStart();
 }
 
 void ExportImageDialog::updateComboSize()
@@ -727,8 +736,20 @@ QStringList ExportImageDialog::saveSingle(const QString& filename)
   sink->endPage();
   imageSource->finish();
   sink->finish();
-  QMessageBox::information(this, tr("Done"), tr("Image saved."));
+  showMessageExported();
   return QStringList(filename);
+}
+
+void ExportImageDialog::showMessageExported()
+{
+  ui->labelMessage->setText(tr("Export finished."));
+  messageTimer->start();
+}
+
+void ExportImageDialog::showMessageStart()
+{
+  messageTimer->stop();
+  ui->labelMessage->setText(tr("Use the export button to start image production."));
 }
 
 QStringList ExportImageDialog::saveMultiple(const QString& format, const QString& filename)
@@ -758,7 +779,6 @@ QStringList ExportImageDialog::saveMultiple(const QString& format, const QString
   if (!moviemaker.finish())
     ok = false;
   if (ok) {
-    QMessageBox::information(this, tr("Done"), tr("Animation completed."));
     return moviemaker.outputFiles();
   } else {
     QMessageBox::warning(this, tr("Error"), tr("Problem with creating animation."));

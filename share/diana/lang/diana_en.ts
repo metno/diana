@@ -1745,14 +1745,14 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Speed:</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+32"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Start</source>
-        <translation>Start</translation>
+        <source>Export</source>
+        <translation>Export</translation>
     </message>
     <message>
         <location line="+69"/>
@@ -1770,7 +1770,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Filename (pattern)</translation>
     </message>
     <message>
-        <location line="-158"/>
+        <location line="-165"/>
         <source>Animated Image</source>
         <translation>Animated Image</translation>
     </message>
@@ -1780,7 +1780,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Movie</translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+80"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+81"/>
         <source>E.g. diana.png or diana.pdf</source>
         <translation>E.g. diana.png or diana.pdf</translation>
     </message>
@@ -1800,12 +1800,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>E.g. diana.avi</translation>
     </message>
     <message>
-        <location line="+191"/>
+        <location line="+192"/>
         <source>File(s)</source>
         <translation>File(s)</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+90"/>
         <source>Select image filename</source>
         <translation>Select image filename</translation>
     </message>
@@ -1846,7 +1846,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>All</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+98"/>
         <source>Warning</source>
         <translation>Warning</translation>
     </message>
@@ -1857,28 +1857,35 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+5"/>
-        <location line="+282"/>
+        <location line="+294"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location line="-282"/>
+        <location line="-294"/>
         <source>Could not create temporary directory.</source>
         <translation>Could not create temporary directory.</translation>
     </message>
     <message>
-        <location line="+248"/>
-        <location line="+31"/>
+        <location line="+255"/>
+        <source>Export finished.</source>
+        <translation>Export finished.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Use the export button to start image production.</source>
+        <translation>Use the export button to start image production.</translation>
+    </message>
+    <message>
         <source>Done</source>
-        <translation>Done</translation>
+        <translation type="vanished">Done</translation>
     </message>
     <message>
-        <location line="-31"/>
         <source>Image saved.</source>
-        <translation>Image saved.</translation>
+        <translation type="vanished">Image saved.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+5"/>
         <source>Making animation</source>
         <translation>Making animation</translation>
     </message>
@@ -1898,12 +1905,11 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Hide</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Animation completed.</source>
-        <translation>Animation completed.</translation>
+        <translation type="vanished">Animation completed.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+19"/>
         <source>Problem with creating animation.</source>
         <translation>Problem with creating animation.</translation>
     </message>
@@ -1918,7 +1924,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+49"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Close</translation>
     </message>
     <message>
         <location line="+33"/>

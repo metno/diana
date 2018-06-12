@@ -2048,7 +2048,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+14"/>
         <source>Image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2068,14 +2068,14 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+32"/>
         <source>Close</source>
         <translation type="unfinished">Закрыть</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Start</source>
-        <translation type="unfinished">Старт</translation>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+69"/>
@@ -2093,7 +2093,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-158"/>
+        <location line="-165"/>
         <source>Animated Image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2103,7 +2103,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+79"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+81"/>
         <source>E.g. diana.png or diana.pdf</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2123,12 +2123,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+188"/>
+        <location line="+192"/>
         <source>File(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+82"/>
+        <location line="+90"/>
         <source>Select image filename</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2169,7 +2169,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished">Все</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+98"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2180,28 +2180,31 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+5"/>
-        <location line="+280"/>
+        <location line="+294"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-280"/>
+        <location line="-294"/>
         <source>Could not create temporary directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+246"/>
-        <location line="+31"/>
-        <source>Done</source>
-        <translation>Готово</translation>
-    </message>
-    <message>
-        <location line="-31"/>
-        <source>Image saved.</source>
+        <location line="+255"/>
+        <source>Export finished.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
+        <source>Use the export button to start image production.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation type="vanished">Готово</translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Making animation</source>
         <translation type="unfinished">Подготовка анимации</translation>
     </message>
@@ -2221,12 +2224,11 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Animation completed.</source>
-        <translation type="unfinished">Анимация завершена.</translation>
+        <translation type="obsolete">Анимация завершена.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+19"/>
         <source>Problem with creating animation.</source>
         <translation type="unfinished"></translation>
     </message>
