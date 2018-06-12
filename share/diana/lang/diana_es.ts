@@ -2015,7 +2015,7 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Save to:</source>
+        <source>Save &amp;to:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2030,7 +2030,7 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+19"/>
-        <source>WxH:</source>
+        <source>&amp;WxH:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2045,7 +2045,7 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+18"/>
-        <source>Product:</source>
+        <source>&amp;Product:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2065,12 +2065,12 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+69"/>
-        <source>Preview</source>
+        <source>Pre&amp;view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+9"/>
-        <source>Size:</source>
+        <source>Siz&amp;e:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

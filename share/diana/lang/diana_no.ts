@@ -2150,7 +2150,7 @@ Kan ikke starte produksjon</translation>
     <name>ExportCommandsModel</name>
     <message>
         <source>File(s)</source>
-        <translation type="vanished">Fil(er)</translation>
+        <translation>Fil(er)</translation>
     </message>
 </context>
 <context>
@@ -2158,12 +2158,12 @@ Kan ikke starte produksjon</translation>
     <message>
         <location filename="../../../src/export/export_image_dialog.ui" line="+6"/>
         <source>Export image/movie …</source>
-        <translation>Eksporter bilde/animasjon …</translation>
+        <translation>Eksportér bilde/animasjon …</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Save to:</source>
-        <translation>Lagre til:</translation>
+        <source>Save &amp;to:</source>
+        <translation>Lagre &amp;til:</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -2177,16 +2177,16 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <location line="+19"/>
-        <source>WxH:</source>
-        <translation>BxH:</translation>
+        <source>&amp;WxH:</source>
+        <translation>&amp;BxH:</translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+270"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+274"/>
         <source>File(s)</source>
         <translation type="unfinished">Fil(er)</translation>
     </message>
     <message>
-        <location filename="../../../src/export/export_image_dialog.ui" line="+11"/>
+        <location filename="../../../src/export/export_image_dialog.ui" line="+14"/>
         <source>Image</source>
         <translation>Bilde</translation>
     </message>
@@ -2201,8 +2201,8 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <location line="+18"/>
-        <source>Product:</source>
-        <translation>Produkt:</translation>
+        <source>&amp;Product:</source>
+        <translation>&amp;Produkt:</translation>
     </message>
     <message>
         <source>as Diana</source>
@@ -2225,13 +2225,13 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <location line="+69"/>
-        <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <source>Pre&amp;view</source>
+        <translation>Forhånds&amp;vis</translation>
     </message>
     <message>
         <location line="+9"/>
-        <source>Size:</source>
-        <translation>Størrelse:</translation>
+        <source>Siz&amp;e:</source>
+        <translation>Størrels&amp;e:</translation>
     </message>
     <message>
         <location line="+22"/>
@@ -2249,7 +2249,7 @@ Kan ikke starte produksjon</translation>
         <translation>Film</translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="-191"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="-194"/>
         <source>E.g. diana.png or diana.pdf</source>
         <translation>F.eks. diana.png eller diana.pdf</translation>
     </message>
@@ -2269,7 +2269,7 @@ Kan ikke starte produksjon</translation>
         <translation>F.eks. diana.avi</translation>
     </message>
     <message>
-        <location line="+270"/>
+        <location line="+277"/>
         <source>Select image filename</source>
         <translation>Velg filnavn for bildet</translation>
     </message>
@@ -2321,17 +2321,17 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+280"/>
+        <location line="+282"/>
         <source>Error</source>
         <translation>Feil</translation>
     </message>
     <message>
-        <location line="-280"/>
+        <location line="-282"/>
         <source>Could not create temporary directory.</source>
         <translation>Kunne ikke lage midlertidig katalog.</translation>
     </message>
     <message>
-        <location line="+246"/>
+        <location line="+248"/>
         <location line="+31"/>
         <source>Done</source>
         <translation>Ferdig</translation>
@@ -2359,17 +2359,17 @@ Kan ikke starte produksjon</translation>
     <message>
         <location line="+0"/>
         <source>Hide</source>
-        <translation type="unfinished">Skjul</translation>
+        <translation>Skjul</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Animation completed.</source>
-        <translation type="unfinished">Animasjon klar.</translation>
+        <translation>Animasjon klar.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Problem with creating animation.</source>
-        <translation type="unfinished">Problem med å lagre animasjon.</translation>
+        <translation>Problem med å lagre animasjon.</translation>
     </message>
 </context>
 <context>

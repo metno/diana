@@ -1702,210 +1702,210 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location filename="../../../src/export/export_image_dialog.ui" line="+6"/>
         <source>Export image/movie …</source>
-        <translation type="unfinished"></translation>
+        <translation>Export image/movie …</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Save to:</source>
-        <translation type="unfinished"></translation>
+        <source>Save &amp;to:</source>
+        <translation>Save &amp;to:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Frame rate in frames per second</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame rate in frames per second</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>fps</source>
-        <translation type="unfinished"></translation>
+        <translation>fps</translation>
     </message>
     <message>
         <location line="+19"/>
-        <source>WxH:</source>
-        <translation type="unfinished"></translation>
+        <source>&amp;WxH:</source>
+        <translation>&amp;WxH:</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+14"/>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Image</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Image series</source>
-        <translation type="unfinished"></translation>
+        <translation>Image series</translation>
     </message>
     <message>
         <location line="+18"/>
-        <source>Product:</source>
-        <translation type="unfinished"></translation>
+        <source>&amp;Product:</source>
+        <translation>&amp;Product:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Speed:</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Close</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Start</translation>
     </message>
     <message>
         <location line="+69"/>
-        <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <source>Pre&amp;view</source>
+        <translation>Pre&amp;view</translation>
     </message>
     <message>
         <location line="+9"/>
-        <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <source>Siz&amp;e:</source>
+        <translation>Siz&amp;e:</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Filename (pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation>Filename (pattern)</translation>
     </message>
     <message>
         <location line="-158"/>
         <source>Animated Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Animated Image</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Movie</source>
-        <translation type="unfinished"></translation>
+        <translation>Movie</translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+79"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+80"/>
         <source>E.g. diana.png or diana.pdf</source>
-        <translation type="unfinished"></translation>
+        <translation>E.g. diana.png or diana.pdf</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>E.g. diana_%1.png or diana_%1.pdf</source>
-        <translation type="unfinished"></translation>
+        <translation>E.g. diana_%1.png or diana_%1.pdf</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>E.g. diana.gif</source>
-        <translation type="unfinished"></translation>
+        <translation>E.g. diana.gif</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>E.g. diana.avi</source>
-        <translation type="unfinished"></translation>
+        <translation>E.g. diana.avi</translation>
     </message>
     <message>
-        <location line="+188"/>
+        <location line="+191"/>
         <source>File(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>File(s)</translation>
     </message>
     <message>
-        <location line="+82"/>
+        <location line="+86"/>
         <source>Select image filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Select image filename</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select image filename pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Select image filename pattern</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+11"/>
         <source>Images</source>
-        <translation type="unfinished"></translation>
+        <translation>Images</translation>
     </message>
     <message>
         <location line="-4"/>
         <source>PDF Files</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF Files</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Select animated image filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Select animated image filename</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Select movie filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Select movie filename</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Movies</source>
-        <translation type="unfinished"></translation>
+        <translation>Movies</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>All</translation>
     </message>
     <message>
         <location line="+96"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Warning</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Invalid filename has been changed, please check and press start again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Invalid filename has been changed, please check and press start again.</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+280"/>
+        <location line="+282"/>
         <source>Error</source>
-        <translation type="unfinished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
-        <location line="-280"/>
+        <location line="-282"/>
         <source>Could not create temporary directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Could not create temporary directory.</translation>
     </message>
     <message>
-        <location line="+246"/>
+        <location line="+248"/>
         <location line="+31"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation>Done</translation>
     </message>
     <message>
         <location line="-31"/>
         <source>Image saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Image saved.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Making animation</source>
-        <translation type="unfinished"></translation>
+        <translation>Making animation</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation type="unfinished"></translation>
+        <translation>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Creating animation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Creating animation...</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation>Hide</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Animation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Animation completed.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Problem with creating animation.</source>
-        <translation type="unfinished">Problem with creating animation.</translation>
+        <translation>Problem with creating animation.</translation>
     </message>
 </context>
 <context>
