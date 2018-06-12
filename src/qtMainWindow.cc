@@ -209,6 +209,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
   // file ========================
   // --------------------------------------------------------------------
   fileSavePictAction = new QAction( tr("&Export image/movie..."),this );
+  fileSavePictAction->setShortcut(tr("Ctrl+Shift+P"));
   connect( fileSavePictAction, SIGNAL( triggered() ) , SLOT( saveraster() ) );
   // --------------------------------------------------------------------
   filePrintAction = new QAction( tr("&Print..."),this );

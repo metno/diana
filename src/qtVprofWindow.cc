@@ -102,10 +102,12 @@ VprofWindow::VprofWindow()
 
   //button to print - starts print dialog
   QPushButton* printButton = NormalPushButton(tr("Print"),this);
+  printButton->setShortcut(tr("Ctrl+P"));
   connect( printButton, SIGNAL(clicked()), SLOT( printClicked() ));
 
   //button to save - starts save dialog
   QPushButton* saveButton = NormalPushButton(tr("Save"),this);
+  saveButton->setShortcut(tr("Ctrl+Shift+P"));
   connect( saveButton, SIGNAL(clicked()), SLOT( saveClicked() ));
 
   //button for quit
