@@ -405,6 +405,7 @@ private:
   TextView *textview;
   int hqcTo;
   bool qsocket;
+  int sendingTime;
   std::map<int,bool> autoredraw;
 
   void levelChange(int increment, int axis);

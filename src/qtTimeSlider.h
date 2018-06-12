@@ -55,6 +55,8 @@ public:
   void setLastTimeStep();
   ///Current time
   miutil::miTime Value();
+  //! return true iff given time is in time list
+  bool hasTime(const miutil::miTime& time) const;
   /// get start time
   const miutil::miTime& getStartTime() { return start; };
   ///Number of times currently in the slider

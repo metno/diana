@@ -47,6 +47,10 @@
 #include <stopp.xpm>
 #include <slutt.xpm>
 
+namespace {
+const QString styleTimeFound("QLabel { color : black; }");
+const QString styleTimeMissing("QLabel { color : red; }");
+} // namespace
 
 TimeNavigator::TimeNavigator(QWidget *parent)
   : QObject(parent)
@@ -118,9 +122,9 @@ void TimeNavigator::createUi(QWidget* parent)
   tslider= new TimeSlider(Qt::Horizontal, parent);
   tslider->setMinimumWidth(90);
   //tslider->setMaximumWidth(90);
-  connect(tslider, SIGNAL(valueChanged(int)), SLOT(updateTimeLabel()));
-  connect(tslider, SIGNAL(sliderReleased()), SLOT(timeSliderReleased()));
-  connect(tslider, SIGNAL(sliderSet()), SLOT(updateTimeLabel()));
+  connect(tslider, &TimeSlider::valueChanged, this, &TimeNavigator::updateTimeLabelFromSlider);
+  connect(tslider, &TimeSlider::sliderReleased, this, &TimeNavigator::timeSliderReleased);
+  connect(tslider, &TimeSlider::sliderSet, this, &TimeNavigator::updateTimeLabelFromSlider);
 
   timestep= new TimeStepSpinbox(parent);
   connect(tslider,SIGNAL(minInterval(int)),
@@ -164,7 +168,7 @@ void TimeNavigator::createUi(QWidget* parent)
   toolbar_->addWidget(timestep);
   toolbar_->addWidget(timelabel);
 
-  updateTimeLabel();
+  updateTimeLabelFromTime(selectedTime());
 }
 
 bool TimeNavigator::hasTimes() const
@@ -236,17 +240,24 @@ void TimeNavigator::insert(const std::string& datatype, const plottimes_t& vt, b
   tslider->insert(datatype, vt, use);
 }
 
+void TimeNavigator::requestTime(const miutil::miTime& t)
+{
+  updateTimeLabelFromTime(t);
+  if (t != selectedTime())
+    setTime(t);
+}
+
 void TimeNavigator::setTime(const miutil::miTime& t)
 {
+  updateTimeLabelFromTime(t);
   tslider->setTime(t);
-  updateTimeLabel();
   Q_EMIT timeSelected(t);
 }
 
 void TimeNavigator::setTime(const std::string& datatype, const miutil::miTime& t)
 {
   if (tslider->setTime(datatype, t)) {
-    updateTimeLabel();
+    updateTimeLabelFromTime(t);
     Q_EMIT timeSelected(t);
   }
 }
@@ -256,7 +267,24 @@ void TimeNavigator::timeSliderReleased()
   setTime(selectedTime());
 }
 
-void TimeNavigator::updateTimeLabel()
+void TimeNavigator::updateTimeLabelFromTime(const miutil::miTime& t)
+{
+  updateTimeLabelText();
+  updateTimeLabelStyle(tslider->hasTime(t));
+}
+
+void TimeNavigator::updateTimeLabelFromSlider()
+{
+  updateTimeLabelText();
+  updateTimeLabelStyle(true);
+}
+
+void TimeNavigator::updateTimeLabelStyle(bool found)
+{
+  timelabel->setStyleSheet(found ? styleTimeFound : styleTimeMissing);
+}
+
+void TimeNavigator::updateTimeLabelText()
 {
   const miutil::miTime t = selectedTime();
   timelabel->setText(QString::fromStdString(t.isoTime()));

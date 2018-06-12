@@ -175,17 +175,21 @@ using namespace std;
 
 DianaMainWindow *DianaMainWindow::self = 0;
 
-DianaMainWindow::DianaMainWindow(Controller *co, const QString& instancename)
-  : QMainWindow(),
-    push_command(true),browsing(false),
-    markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
-  , vcrossEditManagerConnected(false)
-  , spWindow(0)
-  , exportImageDialog_(0)
-  , pluginB(0)
-  , contr(co)
-  , showelem(true)
-  , autoselect(false)
+DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
+    : QMainWindow()
+    , push_command(true)
+    , browsing(false)
+    , markTrajPos(false)
+    , markMeasurementsPos(false)
+    , vpWindow(0)
+    , vcrossEditManagerConnected(false)
+    , spWindow(0)
+    , exportImageDialog_(0)
+    , pluginB(0)
+    , contr(co)
+    , showelem(true)
+    , autoselect(false)
+    , sendingTime(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1956,22 +1960,19 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     requestBackgroundBufferUpdate();
   }
 
-  else if (command == qmstrings::settime) {
-    const int n = qletter.countDataRows();
+  else if (command == qmstrings::settime && qletter.findCommonDesc("datatype") == 0) {
     const std::string l_common = qletter.getCommonValue(0).toStdString();
-    if (qletter.findCommonDesc("datatype") == 0) {
-      timeNavigator->useData(l_common, fromId);
-      plottimes_t times;
-      for(int i=0;i<n;i++)
-        times.insert(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
-      timeNavigator->insertAndUse(l_common, times);
-      contr->initHqcdata(fromId, letter.commondesc,
-          l_common, letter.description, letter.data);
-
-    } else if (qletter.findCommonDesc("time") == 0) {
-      miutil::miTime t(l_common);
-      timeNavigator->setTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
-    }
+    timeNavigator->useData(l_common, fromId);
+    plottimes_t times;
+    for (int i = 0; i < qletter.countDataRows(); i++)
+      times.insert(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
+    timeNavigator->insertAndUse(l_common, times);
+    contr->initHqcdata(fromId, letter.commondesc, l_common, letter.description, letter.data);
+  } else if (sendingTime == 0 && ((command == qmstrings::settime && qletter.findCommonDesc("time") == 0) ||
+                                  (command == qmstrings::timechanged && qletter.findCommonDesc("time") == 0))) {
+    const std::string l_common = qletter.getCommonValue(0).toStdString();
+    miutil::miTime t(l_common);
+    timeNavigator->requestTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
   }
 
   else if (command == qmstrings::getcurrentplotcommand) {
@@ -2175,7 +2176,9 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
   if (qsocket) {
     miQMessage letter(qmstrings::timechanged);
     letter.addCommon("time", QString::fromStdString(t.isoTime()));
+    sendingTime += 1;
     sendLetter(letter);
+    sendingTime -= 1;
   }
 
   QCoreApplication::sendPostedEvents();

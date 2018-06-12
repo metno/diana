@@ -51,6 +51,7 @@ class TimeNavigator : public QObject
 public:
   explicit TimeNavigator(QWidget *parent = 0);
 
+  void requestTime(const miutil::miTime&);
   bool hasTimes() const;
   miutil::miTime selectedTime();
   void removeTimes(int id);
@@ -91,12 +92,15 @@ public Q_SLOTS:
   void decreaseTimeStep();
   void increaseTimeStep();
   void timeSliderReleased();
-  void updateTimeLabel();
+  void updateTimeLabelFromSlider();
 
 private:
   void createUi(QWidget* parent);
   void stepTime(int direction);
   void startAnimation(int direction);
+  void updateTimeLabelFromTime(const miutil::miTime& t);
+  void updateTimeLabelText();
+  void updateTimeLabelStyle(bool found);
 
 private:
   QToolBar* toolbar_;

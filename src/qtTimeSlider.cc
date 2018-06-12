@@ -74,6 +74,10 @@ miutil::miTime TimeSlider::Value()
     return miutil::miTime::nowTime();
 }
 
+bool TimeSlider::hasTime(const miutil::miTime& time) const
+{
+  return (std::find(times.begin(), times.end(), time) != times.end());
+}
 
 void TimeSlider::setLastTimeStep()
 {
