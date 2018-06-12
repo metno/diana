@@ -14,33 +14,69 @@
    <string>Export Preview</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
      <item>
-      <widget class="QToolButton" name="buttonZoomOut">
+      <widget class="QLabel" name="labelZoom">
        <property name="text">
-        <string notr="true">-</string>
+        <string>&amp;Zoom:</string>
+       </property>
+       <property name="buddy">
+        <cstring>sliderZoom</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="buttonZoom100">
+      <widget class="QSlider" name="sliderZoom">
+       <property name="minimum">
+        <number>10</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelZoomValue">
        <property name="text">
         <string notr="true">100%</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="buttonZoomIn">
-       <property name="text">
-        <string notr="true">+</string>
+      <widget class="QToolButton" name="buttonFit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labelZoom">
        <property name="text">
-        <string notr="true">Zoom: 123%</string>
+        <string>&amp;Fit</string>
        </property>
       </widget>
      </item>
@@ -75,6 +111,14 @@
       <set>Qt::AlignCenter</set>
      </property>
      <widget class="QLabel" name="preview">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>594</width>
+        <height>419</height>
+       </rect>
+      </property>
       <property name="text">
        <string notr="true"/>
       </property>
@@ -85,55 +129,12 @@
     </widget>
    </item>
   </layout>
-  <action name="actionZoomIn">
-   <property name="text">
-    <string notr="true">+</string>
-   </property>
-   <property name="iconText">
-    <string notr="true">+</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom in</string>
-   </property>
-   <property name="shortcut">
-    <string>+</string>
-   </property>
-  </action>
-  <action name="actionZoomOut">
-   <property name="text">
-    <string notr="true">-</string>
-   </property>
-   <property name="iconText">
-    <string notr="true">-</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom out</string>
-   </property>
-   <property name="shortcut">
-    <string>-</string>
-   </property>
-  </action>
-  <action name="actionZoom100">
-   <property name="text">
-    <string notr="true">100%</string>
-   </property>
-   <property name="iconText">
-    <string notr="true">100%</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom to 100%</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
-  </action>
  </widget>
  <tabstops>
-  <tabstop>buttonClose</tabstop>
-  <tabstop>buttonZoomIn</tabstop>
-  <tabstop>buttonZoom100</tabstop>
-  <tabstop>buttonZoomOut</tabstop>
+  <tabstop>sliderZoom</tabstop>
+  <tabstop>buttonFit</tabstop>
   <tabstop>scroll</tabstop>
+  <tabstop>buttonClose</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -144,8 +145,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>22</y>
+     <x>596</x>
+     <y>23</y>
     </hint>
     <hint type="destinationlabel">
      <x>282</x>
@@ -154,57 +155,40 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionZoomIn</sender>
-   <signal>triggered()</signal>
+   <sender>buttonFit</sender>
+   <signal>clicked()</signal>
    <receiver>ExportImagePreview</receiver>
-   <slot>onZoomIn()</slot>
+   <slot>onZoomFit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>300</x>
+     <y>11</y>
     </hint>
     <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
+     <x>324</x>
+     <y>6</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>actionZoomOut</sender>
-   <signal>triggered()</signal>
+   <sender>sliderZoom</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>ExportImagePreview</receiver>
-   <slot>onZoomOut()</slot>
+   <slot>onZoomSliderChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>72</x>
+     <y>14</y>
     </hint>
     <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionZoom100</sender>
-   <signal>triggered()</signal>
-   <receiver>ExportImagePreview</receiver>
-   <slot>onZoom100()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
+     <x>29</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>onZoomIn()</slot>
-  <slot>onZoomOut()</slot>
-  <slot>onZoom100()</slot>
+  <slot>onZoomFit()</slot>
+  <slot>onZoomSliderChanged(int)</slot>
  </slots>
 </ui>

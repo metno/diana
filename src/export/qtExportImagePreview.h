@@ -20,19 +20,15 @@ protected:
   void changeEvent(QEvent *e);
 
 private Q_SLOTS:
-  void onZoomIn();
-  void onZoomOut();
-  void onZoom100();
+  void onZoomSliderChanged(int);
+  void onZoomFit();
 
 private:
   void updatePreview();
 
 private:
   Ui::ExportImagePreview *ui;
-
   QImage image_;
-  int zoom_;
-
 };
 
 #endif // EXPORTIMAGEPREVIEW_H

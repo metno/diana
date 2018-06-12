@@ -8,12 +8,8 @@ ExportImagePreview::ExportImagePreview(QImage image, QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::ExportImagePreview)
   , image_(image)
-  , zoom_(100)
 {
   ui->setupUi(this);
-  ui->buttonZoomIn->setDefaultAction(ui->actionZoomIn);
-  ui->buttonZoomOut->setDefaultAction(ui->actionZoomOut);
-  ui->buttonZoom100->setDefaultAction(ui->actionZoom100);
 
   updatePreview();
 }
@@ -23,36 +19,30 @@ ExportImagePreview::~ExportImagePreview()
   delete ui;
 }
 
-void ExportImagePreview::onZoomOut()
+void ExportImagePreview::onZoomFit()
 {
-  if (zoom_ > 10) {
-    zoom_ -= 10;
-    updatePreview();
-  }
-}
-
-void ExportImagePreview::onZoomIn()
-{
-  zoom_ += 10;
+  float scaleX = ui->scroll->viewport()->width() / (float)image_.width();
+  float scaleY = ui->scroll->viewport()->height() / (float)image_.height();
+  int zoom = (int)(100 * std::min(scaleX, scaleY));
+  if (zoom < 10)
+    zoom = 10;
+  else if (zoom > 100)
+    zoom = 100;
+  ui->sliderZoom->setValue(zoom);
   updatePreview();
 }
 
-void ExportImagePreview::onZoom100()
+void ExportImagePreview::onZoomSliderChanged(int)
 {
-  zoom_ = 100;
   updatePreview();
 }
 
 void ExportImagePreview::updatePreview()
 {
-  QImage scaled = image_.scaled(image_.size() * (zoom_ / 100.0),
-                                Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  int zoom = ui->sliderZoom->value();
+  QImage scaled = image_.scaled(image_.size() * (zoom / 100.0), Qt::KeepAspectRatio, Qt::SmoothTransformation);
   ui->preview->setPixmap(QPixmap::fromImage(scaled));
-
-  ui->labelZoom->setText(tr("Zoom: %1 %").arg(zoom_));
-
-  ui->actionZoomIn->setEnabled(zoom_ > 10);
-  ui->actionZoom100->setEnabled(zoom_ != 100);
+  ui->labelZoomValue->setText(QString("%1 %").arg(zoom));
 }
 
 void ExportImagePreview::changeEvent(QEvent *e)
