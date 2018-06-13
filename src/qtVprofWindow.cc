@@ -70,7 +70,7 @@
 using namespace std;
 
 VprofWindow::VprofWindow()
-    : QMainWindow(DianaMainWindow::instance())
+    : QMainWindow()
 {
   vprofm = new VprofManager();
 

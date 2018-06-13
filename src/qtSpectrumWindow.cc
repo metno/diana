@@ -66,7 +66,7 @@
 using namespace std;
 
 SpectrumWindow::SpectrumWindow()
-    : QMainWindow(DianaMainWindow::instance())
+    : QMainWindow()
 {
   spectrumm = new SpectrumManager();
 
