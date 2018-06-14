@@ -106,19 +106,16 @@
 <context>
     <name>ComplexPressureText</name>
     <message>
-        <location filename="../../../src/qtComplexPressureText.cc" line="+101"/>
         <source>Write text</source>
-        <translation>Skriv text</translation>
+        <translation type="vanished">Skriv text</translation>
     </message>
     <message>
-        <location line="+55"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Cancel</source>
-        <translation>Avbryt</translation>
+        <translation type="vanished">Avbryt</translation>
     </message>
 </context>
 <context>
@@ -147,22 +144,22 @@
 <context>
     <name>DataDialog</name>
     <message>
-        <location filename="../../../src/qtDataDialog.cc" line="+110"/>
+        <location filename="../../../src/qtDataDialog.cc" line="+143"/>
         <source>Help</source>
         <translation>Hjälp</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+6"/>
         <source>Refresh</source>
         <translation>Uppdatera</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-21"/>
         <source>Hide</source>
         <translation>Dölj</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+49"/>
         <source>Apply* + Hide</source>
         <translation>Utför+Dölj</translation>
     </message>
@@ -172,12 +169,14 @@
         <translation>Utför</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-49"/>
+        <location line="+51"/>
         <source>Apply + Hide</source>
         <translation>Utför+Dölj</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-50"/>
+        <location line="+51"/>
         <source>Apply</source>
         <translation>Utför</translation>
     </message>
@@ -216,7 +215,7 @@
         <translation type="obsolete">Spara &amp;bild...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+205"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+219"/>
         <source>&amp;Print...</source>
         <translation>&amp;Skriv ut...</translation>
     </message>
@@ -291,29 +290,25 @@
         <translation>&amp;Snabbmeny</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>&amp;Fields</source>
-        <translation>&amp;Fält</translation>
+        <translation type="vanished">&amp;Fält</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>&amp;Observations</source>
-        <translation>&amp;Observationer</translation>
+        <translation type="vanished">&amp;Observationer</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>&amp;Satellites and Radar</source>
-        <translation>&amp;Satellit och Radar</translation>
+        <translation type="vanished">&amp;Satellit och Radar</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Produkteditering</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>O&amp;bjects</source>
-        <translation>O&amp;bjekt</translation>
+        <translation type="vanished">O&amp;bjekt</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -371,7 +366,7 @@
         <translation>Om Diana</translation>
     </message>
     <message>
-        <location line="+1974"/>
+        <location line="+1857"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -404,7 +399,7 @@
         <translation type="vanished">Tidskontroll</translation>
     </message>
     <message>
-        <location line="-1966"/>
+        <location line="-1849"/>
         <source>Level up</source>
         <translation>Nivå opp</translation>
     </message>
@@ -414,7 +409,7 @@
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location line="+1855"/>
+        <location line="+1736"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -424,12 +419,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+104"/>
         <source>Error</source>
         <translation>Feil</translation>
     </message>
     <message>
-        <location line="+985"/>
+        <location line="+941"/>
         <source>imported files</source>
         <translation>Importerade filer</translation>
     </message>
@@ -459,7 +454,7 @@
         <translation type="obsolete">Adderat model data till &quot;%1&quot; fält grupp.</translation>
     </message>
     <message>
-        <location line="-2906"/>
+        <location line="-2745"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Välj</translation>
     </message>
@@ -469,7 +464,7 @@
         <translation>Zooma ut</translation>
     </message>
     <message>
-        <location line="+188"/>
+        <location line="+178"/>
         <source>Show</source>
         <translation>Visa</translation>
     </message>
@@ -479,27 +474,32 @@
         <translation>&amp;Hjälp</translation>
     </message>
     <message>
-        <location line="-132"/>
+        <location line="-122"/>
         <source>Update observations</source>
         <translation>Uppdatera observationer</translation>
     </message>
     <message>
-        <location line="-256"/>
+        <location line="-227"/>
         <source>&amp;Export image/movie...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+451"/>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+407"/>
         <source>ARCHIVE</source>
         <translation>ARKIV</translation>
     </message>
     <message>
-        <location line="+73"/>
+        <location line="+69"/>
         <source>Map and Area</source>
         <translation type="unfinished">Karta och Område</translation>
     </message>
     <message>
-        <location line="+1558"/>
+        <location line="+1457"/>
         <source>version:</source>
         <translation>version:</translation>
     </message>
@@ -517,7 +517,7 @@
         <translation type="obsolete">Spara plott som bild</translation>
     </message>
     <message>
-        <location line="-1849"/>
+        <location line="-1730"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS cluster/medlem mm. upp</translation>
     </message>
@@ -536,7 +536,7 @@
         <translation>Fil</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+24"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
@@ -545,7 +545,7 @@
         <translation type="obsolete">Spara &amp;animation...</translation>
     </message>
     <message>
-        <location line="+1736"/>
+        <location line="+1627"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -553,7 +553,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Diana - ett program för presentation av fält, observationer och satellitbilder med verktyg för fälteditering och ritning av fronter och symboler.</translation>
     </message>
     <message>
-        <location line="-1884"/>
+        <location line="-1765"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
@@ -562,7 +562,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Sänd bild som &amp;epost...</translation>
     </message>
     <message>
-        <location line="-157"/>
+        <location line="-127"/>
         <source>Scrollw&amp;heel zooming</source>
         <translation>&amp;Rullhjul zoomning</translation>
     </message>
@@ -572,7 +572,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Karta</translation>
     </message>
     <message>
-        <location line="+1995"/>
+        <location line="+1846"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation>För att rapportera en bugg eller ett förbättringsförslag, vänligen använd https://redmine.smhi.se/ projekt Diana (Endast SMHI användare).</translation>
@@ -602,7 +602,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">&gt;Filmer (*.mp4 *.mpg *.avi);;Alla (*.*)</translation>
     </message>
     <message>
-        <location line="-2073"/>
+        <location line="-1924"/>
         <source>Print pre&amp;view...</source>
         <translation>Förhands&amp;granska...</translation>
     </message>
@@ -612,12 +612,11 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Läs setupfil</translation>
     </message>
     <message>
-        <location line="+99"/>
         <source>Toggle Stations</source>
-        <translation>Visa stationer</translation>
+        <translation type="vanished">Visa stationer</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+148"/>
         <source>Edit Drawing Mode</source>
         <translation>Editera/Rita</translation>
     </message>
@@ -756,7 +755,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 <context>
     <name>EditDialog</name>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="+195"/>
+        <location filename="../../../src/qtEditDialog.cc" line="+183"/>
         <source>Editing</source>
         <translation>Editering</translation>
     </message>
@@ -783,8 +782,8 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation type="obsolete">Avbryt</translation>
     </message>
     <message>
-        <location line="-51"/>
-        <location line="+200"/>
+        <location line="-40"/>
+        <location line="+189"/>
         <source>Circle</source>
         <translation>Cirkel</translation>
     </message>
@@ -834,7 +833,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Ellips form</translation>
     </message>
     <message>
-        <location line="+844"/>
+        <location line="+767"/>
         <source>Problems saving product: </source>
         <translation>Problem med att spara produkt: </translation>
     </message>
@@ -848,7 +847,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>&amp;Avbryt</translation>
     </message>
     <message>
-        <location line="+131"/>
+        <location line="+118"/>
         <source>Error starting edit</source>
         <translation>Fel vid uppstart av editering</translation>
     </message>
@@ -871,19 +870,19 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Ej sparad</translation>
     </message>
     <message>
-        <location line="-1408"/>
+        <location line="-1318"/>
         <source>Show extra editing lines</source>
         <translation>Visa editeringslinjer</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <location line="+234"/>
+        <location line="+7"/>
+        <location line="+230"/>
         <source>Undo</source>
         <translation>Ångra</translation>
     </message>
     <message>
-        <location line="-233"/>
-        <location line="+234"/>
+        <location line="-229"/>
+        <location line="+230"/>
         <source>Redo</source>
         <translation>Gör om</translation>
     </message>
@@ -893,7 +892,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Sammanslagning av fronter</translation>
     </message>
     <message>
-        <location line="+334"/>
+        <location line="+270"/>
         <source>Change borders</source>
         <translation>Ändra gränser</translation>
     </message>
@@ -903,7 +902,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Ange datakälla</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+15"/>
         <source>Exit merge</source>
         <translation>Avsluta koppling</translation>
     </message>
@@ -960,32 +959,28 @@ Vil du spara innan du avslutar?</translation>
         <translation>Spara &amp;inte</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Send analysis</source>
-        <translation>Skicka analys</translation>
+        <translation type="vanished">Skicka analys</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Send last saved analysis to the database?</source>
-        <translation>Vill du skicka sista sparade analysen till databasen?</translation>
+        <translation type="vanished">Vill du skicka sista sparade analysen till databasen?</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>&amp;Send</source>
-        <translation>&amp;Skicka</translation>
+        <translation type="vanished">&amp;Skicka</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>&amp;Don&apos;t send</source>
-        <translation>Skicka &amp;inte</translation>
+        <translation type="vanished">Skicka &amp;inte</translation>
     </message>
     <message>
-        <location line="-123"/>
+        <location line="-105"/>
         <source>saved</source>
         <translation>sparad</translation>
     </message>
     <message>
-        <location line="-966"/>
+        <location line="-889"/>
         <source>Exit</source>
         <translation>Avsluta</translation>
     </message>
@@ -1015,7 +1010,7 @@ Vil du spara innan du avslutar?</translation>
         <translation>Ellipse(senter)</translation>
     </message>
     <message>
-        <location line="-255"/>
+        <location line="-244"/>
         <source>Field</source>
         <translation>Fält</translation>
     </message>
@@ -1300,44 +1295,36 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Stigande lufttryck</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>Drifting snow</source>
-        <translation>Snödrev</translation>
+        <translation type="vanished">Snödrev</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>VMC-line</source>
-        <translation>VMC-linje</translation>
+        <translation type="vanished">VMC-linje</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>CAT-line</source>
-        <translation>CAT-linje</translation>
+        <translation type="vanished">CAT-linje</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Line of thunderstorms red</source>
-        <translation>Åsklinje röd</translation>
+        <translation type="vanished">Åsklinje röd</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Line of thunderstorms green</source>
-        <translation>Åsklinje grön</translation>
+        <translation type="vanished">Åsklinje grön</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Line of thunderstorms blue</source>
-        <translation>Åsklinje blå</translation>
+        <translation type="vanished">Åsklinje blå</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Graupel</source>
-        <translation>Kornsnö</translation>
+        <translation type="vanished">Kornsnö</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Jet stream</source>
-        <translation>Jet ström</translation>
+        <translation type="vanished">Jet ström</translation>
     </message>
 </context>
 <context>
@@ -1385,7 +1372,7 @@ Vil du spara innan du avslutar?</translation>
 <context>
     <name>EditItemManager</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="+124"/>
+        <location filename="../../../src/diEditItemManager.cc" line="+127"/>
         <source>Cut</source>
         <translation>Klipp ut</translation>
     </message>
@@ -1619,12 +1606,12 @@ Vil du spara innan du avslutar?</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+466"/>
+        <location line="+464"/>
         <source>Quick save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-457"/>
+        <location line="-455"/>
         <source>Save</source>
         <translation type="unfinished">Spara</translation>
     </message>
@@ -1660,7 +1647,7 @@ Vil du spara innan du avslutar?</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+504"/>
+        <location line="+502"/>
         <source>Show filters &gt;&gt;&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2001,27 +1988,27 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+21"/>
         <source>&amp;Product:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+10"/>
         <source>Speed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+25"/>
         <source>Close</source>
         <translation>Stäng</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+644"/>
         <source>Export</source>
         <translation>Eksport</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location filename="../../../src/export/export_image_dialog.ui" line="+85"/>
         <source>Pre&amp;view</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2036,7 +2023,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-165"/>
+        <location line="-167"/>
         <source>Animated Image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2046,7 +2033,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+81"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="-563"/>
         <source>E.g. diana.png or diana.pdf</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2066,7 +2053,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+193"/>
         <source>File(s)</source>
         <translation type="unfinished">Fil(er)</translation>
     </message>
@@ -2112,7 +2099,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished">Alla</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+96"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2123,23 +2110,18 @@ Vil du spara innan du avslutar?</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+294"/>
+        <location line="+288"/>
         <source>Error</source>
         <translation type="unfinished">Feil</translation>
     </message>
     <message>
-        <location line="-294"/>
+        <location line="-288"/>
         <source>Could not create temporary directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+255"/>
-        <source>Export finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Use the export button to start image production.</source>
+        <location line="+153"/>
+        <source>Exporting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2147,17 +2129,11 @@ Vil du spara innan du avslutar?</translation>
         <translation type="vanished">Klar</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Making animation</source>
-        <translation type="unfinished">Skapar animation</translation>
+        <translation type="obsolete">Skapar animation</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location line="+116"/>
         <source>Creating animation...</source>
         <translation type="unfinished">Skapa animation…</translation>
     </message>
@@ -2184,51 +2160,34 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+26"/>
+        <source>&amp;Zoom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>&amp;Fit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Close</source>
         <translation type="unfinished">Stäng</translation>
     </message>
     <message>
-        <location line="+33"/>
-        <source>Zoom in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>+</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Zooma ut</translation>
+        <translation type="obsolete">Zooma ut</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Zoom to 100%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished">Ctrl+N</translation>
-    </message>
-    <message>
-        <location filename="../../../src/export/qtExportImagePreview.cc" line="+52"/>
-        <source>Zoom: %1 %</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Ctrl+N</translation>
     </message>
 </context>
 <context>
     <name>FieldDialog</name>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="+182"/>
-        <location line="+110"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="+179"/>
+        <location line="+117"/>
         <source>Fields</source>
         <translation>Fält</translation>
     </message>
@@ -2283,24 +2242,24 @@ Vil du spara innan du avslutar?</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+401"/>
+        <location line="+390"/>
         <source>Line width</source>
         <translation>Linjebredd</translation>
     </message>
     <message>
-        <location line="-395"/>
-        <location line="+396"/>
+        <location line="-384"/>
+        <location line="+385"/>
         <source>Line type</source>
         <translation>Linjetype</translation>
     </message>
     <message>
-        <location line="-390"/>
-        <location line="+382"/>
+        <location line="-379"/>
+        <location line="+371"/>
         <source>Line interval</source>
         <translation>Linjeintervall</translation>
     </message>
     <message>
-        <location line="-376"/>
+        <location line="-365"/>
         <source>Density</source>
         <translation>Täthet</translation>
     </message>
@@ -2321,12 +2280,11 @@ Vil du spara innan du avslutar?</translation>
         <translation>Minus</translation>
     </message>
     <message>
-        <location line="+49"/>
         <source>Help</source>
-        <translation>Hjälp</translation>
+        <translation type="vanished">Hjälp</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+49"/>
         <source>All time steps</source>
         <translation>Alla tidssteg</translation>
     </message>
@@ -2341,22 +2299,19 @@ Vil du spara innan du avslutar?</translation>
         <translation>Mer&gt;&gt;</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Hide</source>
-        <translation>Dölj</translation>
+        <translation type="vanished">Dölj</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation>Utför+Dölj</translation>
+        <translation type="vanished">Utför+Dölj</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply</source>
-        <translation>Utför</translation>
+        <translation type="vanished">Utför</translation>
     </message>
     <message>
-        <location line="+138"/>
+        <location line="+134"/>
         <source>Show predefined plots or all parameters from file</source>
         <translation>Visa fördefinierade plottar eller alla parametrar från fil</translation>
     </message>
@@ -2401,17 +2356,17 @@ Vil du spara innan du avslutar?</translation>
         <translation>ändra modell/termin</translation>
     </message>
     <message>
-        <location line="+448"/>
+        <location line="+458"/>
         <source>Values</source>
         <translation>Värden</translation>
     </message>
     <message>
-        <location line="-447"/>
+        <location line="-457"/>
         <source>all time steps / only common time steps</source>
         <translation>alla tider / gemensamma tider</translation>
     </message>
     <message>
-        <location line="-457"/>
+        <location line="-439"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2421,12 +2376,12 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+104"/>
+        <location line="+107"/>
         <source>Type to filter model names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+356"/>
+        <location line="+335"/>
         <source>numbers on the contour lines</source>
         <translation>Siffror på konturlinjen</translation>
     </message>
@@ -2457,7 +2412,7 @@ Vil du spara innan du avslutar?</translation>
         <translation>Färg på mönstret</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+31"/>
         <source>Min,max</source>
         <translation>Min,max</translation>
     </message>
@@ -2566,18 +2521,18 @@ Vil du spara innan du avslutar?</translation>
         <translation>Extra konturlinjer</translation>
     </message>
     <message>
-        <location line="-399"/>
-        <location line="+400"/>
+        <location line="-388"/>
+        <location line="+389"/>
         <source>Line colour</source>
         <translation>Linjefärg</translation>
     </message>
     <message>
-        <location line="-527"/>
+        <location line="-516"/>
         <source>Predefined plots</source>
         <translation>Fördefinierade plottningar</translation>
     </message>
     <message>
-        <location line="+529"/>
+        <location line="+518"/>
         <location line="+3"/>
         <source>Basis value</source>
         <translation>Basvärde</translation>
@@ -2617,17 +2572,17 @@ Vil du spara innan du avslutar?</translation>
         <translation>Noll-linje</translation>
     </message>
     <message>
-        <location line="-624"/>
+        <location line="-613"/>
         <source>Level</source>
         <translation>Nivå</translation>
     </message>
     <message>
-        <location line="+492"/>
+        <location line="+481"/>
         <source>Table</source>
         <translation>Tabell</translation>
     </message>
     <message>
-        <location line="-464"/>
+        <location line="-453"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
@@ -2693,7 +2648,7 @@ Vil du spara innan du avslutar?</translation>
         <translation type="obsolete">Yta m.m.</translation>
     </message>
     <message>
-        <location line="+440"/>
+        <location line="+419"/>
         <source>Undef colour</source>
         <translation>Odefinerad färg</translation>
     </message>
@@ -2708,32 +2663,32 @@ Vil du spara innan du avslutar?</translation>
         <translation>Odefinerad linjetyp</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+202"/>
         <source>Three colours</source>
         <translation>Tre färger</translation>
     </message>
     <message>
-        <location line="-195"/>
+        <location line="-205"/>
         <source>Grid lines, 1=all</source>
         <translation>Gridlinjer, 1=alla</translation>
     </message>
     <message>
-        <location line="+103"/>
+        <location line="+113"/>
         <source>Grid value</source>
         <translation>Gridvärden</translation>
     </message>
     <message>
-        <location line="-317"/>
+        <location line="-306"/>
         <source>off</source>
         <translation>av</translation>
     </message>
     <message>
-        <location line="+209"/>
+        <location line="+188"/>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
         <translation>Gridvärden, men bara när gridpunkterna är synliga </translation>
     </message>
     <message>
-        <location line="+328"/>
+        <location line="+338"/>
         <source>Frame</source>
         <translation>Ram</translation>
     </message>
@@ -3111,7 +3066,7 @@ Type: %3</source>
 <context>
     <name>MeasurementsDialog</name>
     <message>
-        <location filename="../../../src/qtMeasurementsDialog.cc" line="+62"/>
+        <location filename="../../../src/qtMeasurementsDialog.cc" line="+64"/>
         <source>Measurements</source>
         <translation>Mätningar</translation>
     </message>
@@ -3222,12 +3177,12 @@ Type: %3</source>
 <context>
     <name>ObjectDialog</name>
     <message>
-        <location filename="../../../src/qtObjectDialog.cc" line="+73"/>
+        <location filename="../../../src/qtObjectDialog.cc" line="+74"/>
         <source>Weather Objects</source>
         <translation>Väderobjekt</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+56"/>
         <source>Fronts</source>
         <translation>Fronter</translation>
     </message>
@@ -3257,27 +3212,24 @@ Type: %3</source>
         <translation>Ta bort</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Help</source>
-        <translation>Hjälp</translation>
+        <translation type="vanished">Hjälp</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Hide</source>
-        <translation>Dölj</translation>
+        <translation type="vanished">Dölj</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Apply</source>
-        <translation>Utför</translation>
+        <translation type="vanished">Utför</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="+4"/>
         <source>Comments</source>
         <translation>Kommentarer</translation>
     </message>
     <message>
-        <location line="-108"/>
+        <location line="-100"/>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
@@ -3302,55 +3254,48 @@ Type: %3</source>
         <translation>Alfa</translation>
     </message>
     <message>
-        <location line="+41"/>
         <source>Apply+Hide</source>
-        <translation>Utför+Dölj</translation>
+        <translation type="vanished">Utför+Dölj</translation>
     </message>
     <message>
-        <location line="-18"/>
         <source>Refresh</source>
-        <translation>Uppdatera</translation>
+        <translation type="vanished">Uppdatera</translation>
     </message>
 </context>
 <context>
     <name>ObsDialog</name>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="+91"/>
+        <location filename="../../../src/qtObsDialog.cc" line="+94"/>
         <source>Observations</source>
         <translation>Observationer</translation>
     </message>
     <message>
-        <location line="+47"/>
         <source>Help</source>
-        <translation>Hjälp</translation>
+        <translation type="vanished">Hjälp</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Refresh</source>
-        <translation>Uppdatera</translation>
+        <translation type="vanished">Uppdatera</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Hide</source>
-        <translation>Dölj</translation>
+        <translation type="vanished">Dölj</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply + Hide</source>
-        <translation>Utför+Dölj</translation>
+        <translation type="vanished">Utför+Dölj</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation>Utför</translation>
+        <translation type="vanished">Utför</translation>
     </message>
     <message>
-        <location line="-6"/>
+        <location line="+50"/>
         <source>Show all</source>
         <translation>Visa alla</translation>
     </message>
     <message>
-        <location line="-57"/>
+        <location line="-61"/>
         <source>Tide</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3365,12 +3310,12 @@ Type: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+58"/>
         <source>Show all plot types</source>
         <translation>Visa alla plottyper</translation>
     </message>
     <message>
-        <location line="+405"/>
+        <location line="+385"/>
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>
@@ -3460,17 +3405,17 @@ Type: %3</source>
         <translation>Plotta hela observationen i vald färg om en av parametrarna möter minst ett av kriterierna för denna parametern</translation>
     </message>
     <message>
-        <location line="-467"/>
+        <location line="-447"/>
         <source>select plot type</source>
         <translation>välj plottyp</translation>
     </message>
     <message>
-        <location line="-25"/>
+        <location line="-29"/>
         <source>Pressure</source>
         <translation>Tryck</translation>
     </message>
     <message>
-        <location line="+478"/>
+        <location line="+462"/>
         <location line="+18"/>
         <source>Marker</source>
         <translation>Markör</translation>
@@ -4287,7 +4232,7 @@ Type: %3</source>
 <context>
     <name>SatDialog</name>
     <message>
-        <location filename="../../../src/qtSatDialog.cc" line="+109"/>
+        <location filename="../../../src/qtSatDialog.cc" line="+117"/>
         <source>Time</source>
         <translation>Tid</translation>
     </message>
@@ -4302,12 +4247,12 @@ Type: %3</source>
         <translation>Fil</translation>
     </message>
     <message>
-        <location line="-29"/>
+        <location line="-34"/>
         <source>Satellite and radar</source>
         <translation>Satellit</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+62"/>
         <source>Channels</source>
         <translation>Kanaler</translation>
     </message>
@@ -4332,12 +4277,11 @@ Type: %3</source>
         <translation>Mosaik</translation>
     </message>
     <message>
-        <location line="+22"/>
         <source>Refresh</source>
-        <translation>Uppdatera</translation>
+        <translation type="vanished">Uppdatera</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+20"/>
         <source>&lt;&lt;Less</source>
         <translation>&lt;&lt;Mindre</translation>
     </message>
@@ -4347,17 +4291,15 @@ Type: %3</source>
         <translation>Mer&gt;&gt;</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Hide</source>
-        <translation>Dölj</translation>
+        <translation type="vanished">Dölj</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Apply</source>
-        <translation>Utför</translation>
+        <translation type="vanished">Utför</translation>
     </message>
     <message>
-        <location line="+398"/>
+        <location line="+397"/>
         <source>Chosen picture</source>
         <translation>Valda bilder</translation>
     </message>
@@ -4372,7 +4314,7 @@ Type: %3</source>
         <translation>Satellit dialog - info</translation>
     </message>
     <message>
-        <location line="-467"/>
+        <location line="-457"/>
         <source>Selected pictures</source>
         <translation>Valda bilder</translation>
     </message>
@@ -4382,17 +4324,15 @@ Type: %3</source>
         <translation>Ta bort allt</translation>
     </message>
     <message>
-        <location line="+35"/>
         <source>Apply+hide</source>
-        <translation>Utför+Dölj</translation>
+        <translation type="vanished">Utför+Dölj</translation>
     </message>
     <message>
-        <location line="-7"/>
         <source>Help</source>
-        <translation>Hjälp</translation>
+        <translation type="vanished">Hjälp</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="+14"/>
         <source>Time diff</source>
         <translation>Tidsskillnad</translation>
     </message>
@@ -4662,9 +4602,19 @@ Type: %3</source>
         <translation>Skriv ut</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Save</source>
         <translation>Spara</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4693,7 +4643,12 @@ Type: %3</source>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="+87"/>
+        <location filename="../../../src/qtStationDialog.cc" line="+88"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Sets</source>
         <translation>Stationstyper</translation>
     </message>
@@ -4713,29 +4668,24 @@ Type: %3</source>
         <translation>Visa stationsnamn på kartan</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Help</source>
-        <translation>Hjälp</translation>
+        <translation type="vanished">Hjälp</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Hide</source>
-        <translation>Dölj</translation>
+        <translation type="vanished">Dölj</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply+Hide</source>
-        <translation>Utför+Dölj</translation>
+        <translation type="vanished">Utför+Dölj</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation>Utför</translation>
+        <translation type="vanished">Utför</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Reload</source>
-        <translation>Uppdatera</translation>
+        <translation type="vanished">Uppdatera</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4986,7 +4936,7 @@ Type: %3</source>
 <context>
     <name>TimeNavigator</name>
     <message>
-        <location filename="../../../src/qtTimeNavigator.cc" line="+35"/>
+        <location filename="../../../src/qtTimeNavigator.cc" line="+68"/>
         <source>Run Backwards</source>
         <translation type="unfinished">Kör Bakåt</translation>
     </message>
@@ -5853,6 +5803,11 @@ Vill du skicka innan du avslutar?</translation>
         <translation>Skriv ut…</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+7"/>
         <source>Save vertical cross section as image</source>
         <translation>Spara vertikalsnitt som bild</translation>
@@ -5861,6 +5816,11 @@ Vill du skicka innan du avslutar?</translation>
         <location line="+3"/>
         <source>Save…</source>
         <translation>Spara…</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+20"/>
@@ -6349,9 +6309,19 @@ Vill du skicka innan du avslutar?</translation>
         <translation>Skriv ut</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Save</source>
         <translation>Spara</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6387,7 +6357,7 @@ Vill du skicka innan du avslutar?</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+185"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+188"/>
         <source>Add</source>
         <translation type="unfinished">Lägg till</translation>
     </message>

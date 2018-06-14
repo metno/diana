@@ -106,19 +106,12 @@
 <context>
     <name>ComplexPressureText</name>
     <message>
-        <location filename="../../../src/qtComplexPressureText.cc" line="+101"/>
-        <source>Write text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+55"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="obsolete">Cancel</translation>
     </message>
 </context>
 <context>
@@ -147,22 +140,22 @@
 <context>
     <name>DataDialog</name>
     <message>
-        <location filename="../../../src/qtDataDialog.cc" line="+110"/>
+        <location filename="../../../src/qtDataDialog.cc" line="+143"/>
         <source>Help</source>
         <translation type="unfinished">Help</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+6"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-21"/>
         <source>Hide</source>
         <translation type="unfinished">Hide</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+49"/>
         <source>Apply* + Hide</source>
         <translation type="unfinished"></translation>
     </message>
@@ -172,12 +165,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-49"/>
+        <location line="+51"/>
         <source>Apply + Hide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-50"/>
+        <location line="+51"/>
         <source>Apply</source>
         <translation type="unfinished">Apply</translation>
     </message>
@@ -208,7 +203,7 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+205"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+219"/>
         <source>&amp;Print...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -304,32 +299,7 @@
     </message>
     <message>
         <location line="+6"/>
-        <source>&amp;Fields</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>&amp;Observations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>&amp;Satellites and Radar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Toggle Stations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
         <source>&amp;Product Editing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>O&amp;bjects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -403,17 +373,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1974"/>
+        <location line="+1857"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1966"/>
+        <location line="-1849"/>
         <source>Level up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-190"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+198"/>
         <source>Level down</source>
         <translation type="unfinished"></translation>
     </message>
@@ -448,7 +423,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+16"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -463,17 +438,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+59"/>
         <source>ARCHIVE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+73"/>
+        <location line="+69"/>
         <source>Map and Area</source>
         <translation type="unfinished">Map and Area</translation>
     </message>
     <message>
-        <location line="+1662"/>
+        <location line="+1563"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
@@ -482,7 +457,7 @@
         <translation type="vanished">Problem with creating animation.</translation>
     </message>
     <message>
-        <location line="-108"/>
+        <location line="-110"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -490,12 +465,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2078"/>
+        <location line="-1930"/>
         <source>&amp;Export image/movie...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2080"/>
+        <location line="+1932"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation type="unfinished"></translation>
@@ -521,7 +496,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1085"/>
+        <location line="+1043"/>
         <source>imported files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -646,7 +621,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 <context>
     <name>EditDialog</name>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="+91"/>
+        <location filename="../../../src/qtEditDialog.cc" line="+90"/>
         <source>Field</source>
         <translation type="unfinished"></translation>
     </message>
@@ -879,12 +854,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+1"/>
-        <location line="+200"/>
+        <location line="+189"/>
         <source>Circle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-199"/>
+        <location line="-188"/>
         <source>Cross</source>
         <translation type="unfinished"></translation>
     </message>
@@ -929,47 +904,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Drifting snow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>VMC-line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>CAT-line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Line of thunderstorms red</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Line of thunderstorms green</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Line of thunderstorms blue</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Graupel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Jet stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+26"/>
+        <location line="+27"/>
         <source>Editing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1054,14 +989,14 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
-        <location line="+234"/>
+        <location line="+7"/>
+        <location line="+230"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-233"/>
-        <location line="+234"/>
+        <location line="-229"/>
+        <location line="+230"/>
         <source>Redo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1071,7 +1006,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+334"/>
+        <location line="+270"/>
         <source>Change borders</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1081,7 +1016,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+15"/>
         <source>Exit merge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1152,27 +1087,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
-        <source>Send analysis</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Send last saved analysis to the database?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>&amp;Send</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+113"/>
+        <location line="+118"/>
         <source>Error starting edit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1198,7 +1113,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 <context>
     <name>EditItemManager</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="+121"/>
+        <location filename="../../../src/diEditItemManager.cc" line="+124"/>
         <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1402,12 +1317,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+4"/>
-        <location line="+466"/>
+        <location line="+464"/>
         <source>Quick save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-457"/>
+        <location line="-455"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1443,7 +1358,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+3"/>
-        <location line="+504"/>
+        <location line="+502"/>
         <source>Show filters &gt;&gt;&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1735,27 +1650,27 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Image series</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+21"/>
         <source>&amp;Product:</source>
         <translation>&amp;Product:</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+10"/>
         <source>Speed:</source>
         <translation>Speed:</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+25"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+644"/>
         <source>Export</source>
         <translation>Export</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location filename="../../../src/export/export_image_dialog.ui" line="+85"/>
         <source>Pre&amp;view</source>
         <translation>Pre&amp;view</translation>
     </message>
@@ -1770,7 +1685,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Filename (pattern)</translation>
     </message>
     <message>
-        <location line="-165"/>
+        <location line="-167"/>
         <source>Animated Image</source>
         <translation>Animated Image</translation>
     </message>
@@ -1780,7 +1695,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Movie</translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+81"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="-563"/>
         <source>E.g. diana.png or diana.pdf</source>
         <translation>E.g. diana.png or diana.pdf</translation>
     </message>
@@ -1800,7 +1715,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>E.g. diana.avi</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+193"/>
         <source>File(s)</source>
         <translation>File(s)</translation>
     </message>
@@ -1846,7 +1761,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>All</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+96"/>
         <source>Warning</source>
         <translation>Warning</translation>
     </message>
@@ -1857,45 +1772,22 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+5"/>
-        <location line="+294"/>
+        <location line="+288"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location line="-294"/>
+        <location line="-288"/>
         <source>Could not create temporary directory.</source>
         <translation>Could not create temporary directory.</translation>
     </message>
     <message>
-        <location line="+255"/>
-        <source>Export finished.</source>
-        <translation>Export finished.</translation>
+        <location line="+153"/>
+        <source>Exporting...</source>
+        <translation>Exporting...</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Use the export button to start image production.</source>
-        <translation>Use the export button to start image production.</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">Done</translation>
-    </message>
-    <message>
-        <source>Image saved.</source>
-        <translation type="vanished">Image saved.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Making animation</source>
-        <translation>Making animation</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location line="+116"/>
         <source>Creating animation...</source>
         <translation>Creating animation...</translation>
     </message>
@@ -1903,10 +1795,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+0"/>
         <source>Hide</source>
         <translation>Hide</translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="vanished">Animation completed.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -1922,50 +1810,25 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+26"/>
+        <source>&amp;Zoom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>&amp;Fit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Close</source>
         <translation type="unfinished">Close</translation>
-    </message>
-    <message>
-        <location line="+33"/>
-        <source>Zoom in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>+</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Zoom out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Zoom to 100%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/export/qtExportImagePreview.cc" line="+52"/>
-        <source>Zoom: %1 %</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FieldDialog</name>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="+164"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="+165"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1975,8 +1838,8 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+17"/>
-        <location line="+110"/>
+        <location line="+13"/>
+        <location line="+117"/>
         <source>Fields</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2068,45 +1931,44 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+7"/>
-        <location line="+400"/>
+        <location line="+389"/>
         <source>Line colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-399"/>
+        <location line="-388"/>
         <source>off</source>
         <translation type="unfinished">off</translation>
     </message>
     <message>
         <location line="+6"/>
-        <location line="+401"/>
+        <location line="+390"/>
         <source>Line width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-395"/>
-        <location line="+396"/>
+        <location line="-384"/>
+        <location line="+385"/>
         <source>Line type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-390"/>
-        <location line="+382"/>
+        <location line="-379"/>
+        <location line="+371"/>
         <source>Line interval</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-376"/>
+        <location line="-365"/>
         <source>Density</source>
         <translation type="unfinished">Density</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="obsolete">Help</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+13"/>
         <source>All time steps</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2121,22 +1983,19 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="obsolete">Hide</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="obsolete">Apply+Hide</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="obsolete">Apply</translation>
     </message>
     <message>
-        <location line="+138"/>
+        <location line="+134"/>
         <source>Show predefined plots or all parameters from file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2242,7 +2101,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+31"/>
         <source>Min,max</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2710,7 +2569,7 @@ Type: %3</translation>
 <context>
     <name>MeasurementsDialog</name>
     <message>
-        <location filename="../../../src/qtMeasurementsDialog.cc" line="+62"/>
+        <location filename="../../../src/qtMeasurementsDialog.cc" line="+64"/>
         <source>Measurements</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2821,12 +2680,12 @@ Type: %3</translation>
 <context>
     <name>ObjectDialog</name>
     <message>
-        <location filename="../../../src/qtObjectDialog.cc" line="+73"/>
+        <location filename="../../../src/qtObjectDialog.cc" line="+74"/>
         <source>Weather Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+24"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2881,14 +2740,8 @@ Type: %3</translation>
         <translation type="unfinished">Delete</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Refresh</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="obsolete">Help</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -2896,30 +2749,27 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="obsolete">Hide</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="obsolete">Apply+Hide</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
     <name>ObsDialog</name>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="+91"/>
+        <location filename="../../../src/qtObsDialog.cc" line="+94"/>
         <source>Observations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="-13"/>
         <source>Pressure</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2939,7 +2789,7 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+23"/>
         <source>select plot type</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2954,32 +2804,19 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="obsolete">Help</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Refresh</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="obsolete">Hide</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Apply + Hide</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="obsolete">Apply</translation>
     </message>
     <message>
-        <location line="+393"/>
+        <location line="+378"/>
         <source>List of Criteria</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3090,7 +2927,7 @@ Type: %3</translation>
     <message>
         <location filename="../../../src/qtObsWidget.cc" line="+153"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">All</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3835,12 +3672,12 @@ Type: %3</translation>
 <context>
     <name>SatDialog</name>
     <message>
-        <location filename="../../../src/qtSatDialog.cc" line="+81"/>
+        <location filename="../../../src/qtSatDialog.cc" line="+84"/>
         <source>Satellite and radar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+32"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3895,17 +3732,11 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="obsolete">Help</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Refresh</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+13"/>
         <source>&lt;&lt;Less</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3915,22 +3746,15 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="obsolete">Hide</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Apply+hide</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="obsolete">Apply</translation>
     </message>
     <message>
-        <location line="+398"/>
+        <location line="+397"/>
         <source>Chosen picture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4195,8 +4019,18 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4218,7 +4052,12 @@ Type: %3</translation>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="+87"/>
+        <location filename="../../../src/qtStationDialog.cc" line="+88"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Sets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4238,29 +4077,20 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="obsolete">Help</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="obsolete">Hide</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="obsolete">Apply+Hide</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Reload</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -4488,7 +4318,7 @@ Type: %3</translation>
 <context>
     <name>TimeNavigator</name>
     <message>
-        <location filename="../../../src/qtTimeNavigator.cc" line="+35"/>
+        <location filename="../../../src/qtTimeNavigator.cc" line="+68"/>
         <source>Run Backwards</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5325,6 +5155,11 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+7"/>
         <source>Save vertical cross section as image</source>
         <translation type="unfinished"></translation>
@@ -5332,6 +5167,11 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Save…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl+Shift+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5352,7 +5192,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Close</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -5797,8 +5637,18 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5827,7 +5677,7 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+185"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+188"/>
         <source>Add</source>
         <translation>Add</translation>
     </message>

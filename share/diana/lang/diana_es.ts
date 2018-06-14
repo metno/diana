@@ -106,19 +106,16 @@
 <context>
     <name>ComplexPressureText</name>
     <message>
-        <location filename="../../../src/qtComplexPressureText.cc" line="+101"/>
         <source>Write text</source>
-        <translation type="unfinished">Escribir texto</translation>
+        <translation type="obsolete">Escribir texto</translation>
     </message>
     <message>
-        <location line="+55"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation type="obsolete">Cancelar</translation>
     </message>
 </context>
 <context>
@@ -147,22 +144,22 @@
 <context>
     <name>DataDialog</name>
     <message>
-        <location filename="../../../src/qtDataDialog.cc" line="+110"/>
+        <location filename="../../../src/qtDataDialog.cc" line="+143"/>
         <source>Help</source>
         <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+6"/>
         <source>Refresh</source>
         <translation type="unfinished">Refrescar</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-21"/>
         <source>Hide</source>
         <translation type="unfinished">Esconder</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+49"/>
         <source>Apply* + Hide</source>
         <translation type="unfinished"></translation>
     </message>
@@ -172,12 +169,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-49"/>
+        <location line="+51"/>
         <source>Apply + Hide</source>
         <translation type="unfinished">Aplicar+Esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-50"/>
+        <location line="+51"/>
         <source>Apply</source>
         <translation type="unfinished">Aplicar</translation>
     </message>
@@ -220,7 +219,7 @@
         <translation type="obsolete">Guardar &amp;animación...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+205"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+219"/>
         <source>&amp;Print...</source>
         <translation>&amp;Imprimir...</translation>
     </message>
@@ -305,12 +304,12 @@
         <translation>&amp;Menú rápido</translation>
     </message>
     <message>
-        <location line="+446"/>
+        <location line="+398"/>
         <source>Map and Area</source>
         <translation type="unfinished">Mapa y Area</translation>
     </message>
     <message>
-        <location line="+1662"/>
+        <location line="+1563"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -319,29 +318,25 @@
         <translation type="obsolete">&amp;Mapas</translation>
     </message>
     <message>
-        <location line="-2095"/>
         <source>&amp;Fields</source>
-        <translation>&amp;Campos</translation>
+        <translation type="vanished">&amp;Campos</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>&amp;Observations</source>
-        <translation>&amp;Observaciones</translation>
+        <translation type="vanished">&amp;Observaciones</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>&amp;Satellites and Radar</source>
-        <translation type="unfinished">&amp;Satelites y Radar</translation>
+        <translation type="obsolete">&amp;Satelites y Radar</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="-1948"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Editar Producto</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>O&amp;bjects</source>
-        <translation>&amp;Objetos</translation>
+        <translation type="vanished">&amp;Objetos</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -374,17 +369,22 @@
         <translation>&amp;Servicio Uffda</translation>
     </message>
     <message>
-        <location line="-89"/>
+        <location line="-59"/>
         <source>Maps</source>
         <translation type="unfinished">Mapas</translation>
     </message>
     <message>
-        <location line="-75"/>
+        <location line="-85"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Read setupfile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+169"/>
+        <location line="+139"/>
         <source>&amp;Measurements</source>
         <translation type="unfinished"></translation>
     </message>
@@ -413,17 +413,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-188"/>
+        <location line="-159"/>
         <source>&amp;Export image/movie...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+109"/>
-        <source>Toggle Stations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+24"/>
+        <location line="+104"/>
         <source>Annotation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -506,7 +501,7 @@
         <translation>O&amp;pciones</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+16"/>
         <source>Info</source>
         <translation>Información</translation>
     </message>
@@ -521,7 +516,7 @@
         <translation>&amp;Ayuda</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+59"/>
         <source>ARCHIVE</source>
         <translation>ARCHIVO</translation>
     </message>
@@ -530,7 +525,7 @@
         <translation type="obsolete">Diana</translation>
     </message>
     <message>
-        <location line="+1632"/>
+        <location line="+1527"/>
         <source>build: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -540,12 +535,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+104"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location line="+985"/>
+        <location line="+941"/>
         <source>imported files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -591,7 +586,7 @@
         <translation type="obsolete">&amp;Cancelar</translation>
     </message>
     <message>
-        <location line="-1144"/>
+        <location line="-1102"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -773,7 +768,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
 <context>
     <name>EditDialog</name>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="+91"/>
+        <location filename="../../../src/qtEditDialog.cc" line="+90"/>
         <source>Field</source>
         <translation>Campo</translation>
     </message>
@@ -1006,12 +1001,12 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
     </message>
     <message>
         <location line="+1"/>
-        <location line="+200"/>
+        <location line="+189"/>
         <source>Circle</source>
         <translation>Círculo</translation>
     </message>
     <message>
-        <location line="-199"/>
+        <location line="-188"/>
         <source>Cross</source>
         <translation>Cruz</translation>
     </message>
@@ -1056,47 +1051,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Area genérica</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Drifting snow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>VMC-line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>CAT-line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Line of thunderstorms red</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Line of thunderstorms green</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Line of thunderstorms blue</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Graupel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Jet stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+26"/>
+        <location line="+27"/>
         <source>Editing</source>
         <translation>Editando</translation>
     </message>
@@ -1131,7 +1086,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+991"/>
+        <location line="+914"/>
         <source>Problems saving product: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1162,7 +1117,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="obsolete">Tiempo de observ.:</translation>
     </message>
     <message>
-        <location line="-1014"/>
+        <location line="-937"/>
         <source>Pause</source>
         <translation>Pausa</translation>
     </message>
@@ -1230,14 +1185,14 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Mostrar más lineas de edición</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <location line="+234"/>
+        <location line="+7"/>
+        <location line="+230"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
-        <location line="-233"/>
-        <location line="+234"/>
+        <location line="-229"/>
+        <location line="+230"/>
         <source>Redo</source>
         <translation>Rehacer</translation>
     </message>
@@ -1247,7 +1202,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Unir frentes</translation>
     </message>
     <message>
-        <location line="+334"/>
+        <location line="+270"/>
         <source>Change borders</source>
         <translation>Cambiar fronteras</translation>
     </message>
@@ -1257,7 +1212,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Definir fuente de datos</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+15"/>
         <source>Exit merge</source>
         <translation>Salir mezclar</translation>
     </message>
@@ -1346,27 +1301,23 @@ como aprovado y listo.</translation>
         <translation>&amp;No guardar</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Send analysis</source>
-        <translation>Enviar análisis</translation>
+        <translation type="vanished">Enviar análisis</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Send last saved analysis to the database?</source>
-        <translation>¿Enviar el último análisis guardado a la base de datos?</translation>
+        <translation type="vanished">¿Enviar el último análisis guardado a la base de datos?</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>&amp;Send</source>
-        <translation>&amp;Enviar</translation>
+        <translation type="vanished">&amp;Enviar</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>&amp;Don&apos;t send</source>
-        <translation>&amp;No enviar</translation>
+        <translation type="vanished">&amp;No enviar</translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+118"/>
         <source>Error starting edit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1418,7 +1369,7 @@ como aprovado y listo.</translation>
 <context>
     <name>EditItemManager</name>
     <message>
-        <location filename="../../../src/diEditItemManager.cc" line="+124"/>
+        <location filename="../../../src/diEditItemManager.cc" line="+127"/>
         <source>Cut</source>
         <translation type="unfinished">Cortar</translation>
     </message>
@@ -1628,12 +1579,12 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+466"/>
+        <location line="+464"/>
         <source>Quick save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-457"/>
+        <location line="-455"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
@@ -1669,7 +1620,7 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+504"/>
+        <location line="+502"/>
         <source>Show filters &gt;&gt;&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2044,27 +1995,27 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+21"/>
         <source>&amp;Product:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+10"/>
         <source>Speed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+25"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+644"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location filename="../../../src/export/export_image_dialog.ui" line="+85"/>
         <source>Pre&amp;view</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2079,7 +2030,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-165"/>
+        <location line="-167"/>
         <source>Animated Image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2089,7 +2040,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+81"/>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="-563"/>
         <source>E.g. diana.png or diana.pdf</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2109,7 +2060,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+193"/>
         <source>File(s)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2155,7 +2106,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished">Todos</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+96"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2166,23 +2117,18 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+294"/>
+        <location line="+288"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
     <message>
-        <location line="-294"/>
+        <location line="-288"/>
         <source>Could not create temporary directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+255"/>
-        <source>Export finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Use the export button to start image production.</source>
+        <location line="+153"/>
+        <source>Exporting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2190,17 +2136,11 @@ como aprovado y listo.</translation>
         <translation type="vanished">Hecho</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Making animation</source>
-        <translation type="unfinished">Haciendo animación</translation>
+        <translation type="obsolete">Haciendo animación</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location line="+116"/>
         <source>Creating animation...</source>
         <translation type="unfinished">Creando animación...</translation>
     </message>
@@ -2227,51 +2167,30 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+26"/>
+        <source>&amp;Zoom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>&amp;Fit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+33"/>
-        <source>Zoom in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>+</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Alejarse</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Zoom to 100%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/export/qtExportImagePreview.cc" line="+52"/>
-        <source>Zoom: %1 %</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Alejarse</translation>
     </message>
 </context>
 <context>
     <name>FieldDialog</name>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="+182"/>
-        <location line="+110"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="+179"/>
+        <location line="+117"/>
         <source>Fields</source>
         <translation>Campos</translation>
     </message>
@@ -2406,35 +2325,35 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+400"/>
+        <location line="+389"/>
         <source>Line colour</source>
         <translation>Color de línea</translation>
     </message>
     <message>
-        <location line="-399"/>
+        <location line="-388"/>
         <source>off</source>
         <translation>apagar</translation>
     </message>
     <message>
         <location line="+6"/>
-        <location line="+401"/>
+        <location line="+390"/>
         <source>Line width</source>
         <translation>Ancho de línea</translation>
     </message>
     <message>
-        <location line="-395"/>
-        <location line="+396"/>
+        <location line="-384"/>
+        <location line="+385"/>
         <source>Line type</source>
         <translation>Tipo de línea</translation>
     </message>
     <message>
-        <location line="-390"/>
-        <location line="+382"/>
+        <location line="-379"/>
+        <location line="+371"/>
         <source>Line interval</source>
         <translation>Intervalo de línea</translation>
     </message>
     <message>
-        <location line="-376"/>
+        <location line="-365"/>
         <source>Density</source>
         <translation>Densidad</translation>
     </message>
@@ -2450,12 +2369,11 @@ como aprovado y listo.</translation>
         <translation type="unfinished">Por Defecto</translation>
     </message>
     <message>
-        <location line="+53"/>
         <source>Help</source>
-        <translation>Ayuda</translation>
+        <translation type="vanished">Ayuda</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+53"/>
         <source>All time steps</source>
         <translation>Todos los pasos de tiempo</translation>
     </message>
@@ -2470,22 +2388,19 @@ como aprovado y listo.</translation>
         <translation>Mayor&gt;&gt;</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Hide</source>
-        <translation>Esconder</translation>
+        <translation type="vanished">Esconder</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation>Aplicar+Esconder</translation>
+        <translation type="vanished">Aplicar+Esconder</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation type="vanished">Aplicar</translation>
     </message>
     <message>
-        <location line="+138"/>
+        <location line="+134"/>
         <source>Show predefined plots or all parameters from file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2558,7 +2473,7 @@ como aprovado y listo.</translation>
         <translation>valores de red¨¨Instalar herramienta de consejo( pero solo cuando son visibles algunos puintos de la red)</translation>
     </message>
     <message>
-        <location line="-459"/>
+        <location line="-441"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2568,7 +2483,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+104"/>
+        <location line="+107"/>
         <source>Type to filter model names</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2578,7 +2493,7 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+224"/>
+        <location line="+203"/>
         <source>Size of numbers on the countour lines and size of values in the plot type &quot;value&quot;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2624,7 +2539,7 @@ como aprovado y listo.</translation>
         <translation>Color de patrón</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+31"/>
         <source>Min,max</source>
         <translation>Min,max</translation>
     </message>
@@ -3130,7 +3045,7 @@ Tipo: %3</translation>
 <context>
     <name>MeasurementsDialog</name>
     <message>
-        <location filename="../../../src/qtMeasurementsDialog.cc" line="+62"/>
+        <location filename="../../../src/qtMeasurementsDialog.cc" line="+64"/>
         <source>Measurements</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3241,12 +3156,12 @@ Tipo: %3</translation>
 <context>
     <name>ObjectDialog</name>
     <message>
-        <location filename="../../../src/qtObjectDialog.cc" line="+73"/>
+        <location filename="../../../src/qtObjectDialog.cc" line="+74"/>
         <source>Weather Objects</source>
         <translation>Objetos del Tiempo</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+24"/>
         <source>Auto</source>
         <translation>Automático</translation>
     </message>
@@ -3301,14 +3216,12 @@ Tipo: %3</translation>
         <translation>Borrar</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Refresh</source>
-        <translation>Refrescar</translation>
+        <translation type="vanished">Refrescar</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Help</source>
-        <translation>Ayuda</translation>
+        <translation type="vanished">Ayuda</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -3316,30 +3229,27 @@ Tipo: %3</translation>
         <translation>Comentarios</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Hide</source>
-        <translation>Esconder</translation>
+        <translation type="vanished">Esconder</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation>Aplicar+Esconder</translation>
+        <translation type="vanished">Aplicar+Esconder</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation type="vanished">Aplicar</translation>
     </message>
 </context>
 <context>
     <name>ObsDialog</name>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="+91"/>
+        <location filename="../../../src/qtObsDialog.cc" line="+94"/>
         <source>Observations</source>
         <translation>Observaciones</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="-13"/>
         <source>Pressure</source>
         <translation>Presión</translation>
     </message>
@@ -3359,7 +3269,7 @@ Tipo: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+23"/>
         <source>select plot type</source>
         <translation>seleccionar tipo de gráfico</translation>
     </message>
@@ -3374,32 +3284,27 @@ Tipo: %3</translation>
         <translation>Mostrar todos los tipos de gráficos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Help</source>
-        <translation>Ayuda</translation>
+        <translation type="vanished">Ayuda</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Refresh</source>
-        <translation>Refrescar</translation>
+        <translation type="vanished">Refrescar</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Hide</source>
-        <translation>Esconder</translation>
+        <translation type="vanished">Esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply + Hide</source>
-        <translation>Aplicar+Esconder</translation>
+        <translation type="vanished">Aplicar+Esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation type="vanished">Aplicar</translation>
     </message>
     <message>
-        <location line="+393"/>
+        <location line="+378"/>
         <source>List of Criteria</source>
         <translation>Lista de Criterios</translation>
     </message>
@@ -4444,12 +4349,12 @@ Tipo: %3</translation>
 <context>
     <name>SatDialog</name>
     <message>
-        <location filename="../../../src/qtSatDialog.cc" line="+81"/>
+        <location filename="../../../src/qtSatDialog.cc" line="+84"/>
         <source>Satellite and radar</source>
         <translation>Satélite y radar</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+32"/>
         <source>Auto</source>
         <translation>Automático</translation>
     </message>
@@ -4504,17 +4409,15 @@ Tipo: %3</translation>
         <translation>Diferencia de tiempo</translation>
     </message>
     <message>
-        <location line="+14"/>
         <source>Help</source>
-        <translation>Ayuda</translation>
+        <translation type="vanished">Ayuda</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Refresh</source>
-        <translation>Refrescar</translation>
+        <translation type="vanished">Refrescar</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+13"/>
         <source>&lt;&lt;Less</source>
         <translation>&lt;&lt;Menor</translation>
     </message>
@@ -4524,22 +4427,19 @@ Tipo: %3</translation>
         <translation>Mayor&gt;&gt;</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Hide</source>
-        <translation>Esconder</translation>
+        <translation type="vanished">Esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply+hide</source>
-        <translation>Aplicar+esconder</translation>
+        <translation type="vanished">Aplicar+esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation type="vanished">Aplicar</translation>
     </message>
     <message>
-        <location line="+398"/>
+        <location line="+397"/>
         <source>Chosen picture</source>
         <translation>Figura escogida</translation>
     </message>
@@ -4828,9 +4728,19 @@ Tipo: %3</translation>
         <translation>Imprimir</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Save</source>
         <translation>Guardar</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4859,7 +4769,12 @@ Tipo: %3</translation>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="+87"/>
+        <location filename="../../../src/qtStationDialog.cc" line="+88"/>
+        <source>Stations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Sets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4879,29 +4794,20 @@ Tipo: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Ayuda</translation>
+        <translation type="obsolete">Ayuda</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Hide</source>
-        <translation type="unfinished">Esconder</translation>
+        <translation type="obsolete">Esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Aplicar+Esconder</translation>
+        <translation type="obsolete">Aplicar+Esconder</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation type="unfinished">Aplicar</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Reload</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Aplicar</translation>
     </message>
 </context>
 <context>
@@ -5133,7 +5039,7 @@ Tipo: %3</translation>
 <context>
     <name>TimeNavigator</name>
     <message>
-        <location filename="../../../src/qtTimeNavigator.cc" line="+35"/>
+        <location filename="../../../src/qtTimeNavigator.cc" line="+68"/>
         <source>Run Backwards</source>
         <translation type="unfinished">Ejecutar hacia atrás</translation>
     </message>
@@ -6266,6 +6172,11 @@ Enviar antes de salir?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+7"/>
         <source>Save vertical cross section as image</source>
         <translation type="unfinished"></translation>
@@ -6273,6 +6184,11 @@ Enviar antes de salir?</translation>
     <message>
         <location line="+3"/>
         <source>Save…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl+Shift+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6794,9 +6710,19 @@ Enviar antes de salir?</translation>
         <translation>Imprimir</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Save</source>
         <translation>Guardar</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6832,7 +6758,7 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+185"/>
+        <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+188"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
