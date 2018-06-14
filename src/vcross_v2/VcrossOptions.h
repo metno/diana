@@ -105,6 +105,7 @@ public:
   float    verticalMarkerLimit;
 
   bool     pDistance;
+  bool     distanceTickmarks;
   std::string distanceColour;
   std::string distanceUnit;
   std::string distanceStep;
@@ -113,6 +114,7 @@ public:
   std::string xyposColour;
 
   bool     pGeoPos;
+  bool     geoposTickmarks;
   std::string geoposColour;
 
   bool     pCompass;

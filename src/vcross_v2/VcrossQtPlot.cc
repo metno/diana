@@ -898,6 +898,9 @@ void QtPlot::plotXLabels(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
   const float lines_1 = LINES_1*mCharSize.height();
+  const float tickLen = mCharSize.height()/2;
+  const float tickTop = mAxisY->getPaintMax(), tickTopIn = tickTop + tickLen, tickTopOut = tickTop - tickLen/2;
+  const float tickBot = mAxisY->getPaintMin(), tickBotIn = tickBot - tickLen, tickBotOut = tickBot + tickLen/2;
 
   const float referenceDistance = fractionalRequestedDistance(mReferencePosition);
 
@@ -917,8 +920,6 @@ void QtPlot::plotXLabels(QPainter& painter)
         uname = "km";
       }
 
-      const float tickTopEnd = mAxisY->getPaintMax(), tickTopStart = tickTopEnd + 0.5*mCharSize.height();
-      const float tickBotStart = mAxisY->getPaintMin(), tickBotEnd = tickBotStart - 0.5*mCharSize.height();
       float nextLabelX = mAxisX->getPaintMin();
       size_t requestedIndex = 0;
       const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
@@ -960,11 +961,12 @@ void QtPlot::plotXLabels(QPainter& painter)
             }
           }
 
-          // FIXME this makes thick tick marks for if distance is shown, and no ticks if no distance
-          pen.setWidth(tickLineWidth);
-          painter.setPen(pen);
-          painter.drawLine(QLineF(tickX, tickBotStart, tickX, tickBotEnd));
-          painter.drawLine(QLineF(tickX, tickTopStart, tickX, tickTopEnd));
+          if (mOptions->distanceTickmarks) {
+            pen.setWidth(tickLineWidth);
+            painter.setPen(pen);
+            painter.drawLine(QLineF(tickX, tickBot, tickX, tickBotIn));
+            painter.drawLine(QLineF(tickX, tickTop, tickX, tickTopIn));
+          }
         }
 
         // draw vertical line for requested points
@@ -1012,6 +1014,11 @@ void QtPlot::plotXLabels(QPainter& painter)
             painter.drawText(tickX - labelWx/2, lY, x_str);
             painter.drawText(tickX - labelWy/2, lY + lines_1, y_str);
             nextLabelX += std::max(labelWx, std::max(labelWy, labelWb)) + mCharSize.width();
+
+            if (mOptions->geoposTickmarks) {
+              painter.drawLine(QLineF(tickX, tickBot, tickX, tickBotOut));
+              painter.drawLine(QLineF(tickX, tickTop, tickX, tickTopOut));
+            }
           }
         }
       }
@@ -1034,6 +1041,15 @@ void QtPlot::plotXLabels(QPainter& painter)
             painter.drawText(tickX - labelWt/2, labelY, t_str);
             painter.drawText(tickX - labelWd/2, labelY + lines_1, d_str);
             nextLabelX += std::min(labelWt, labelWd) + mCharSize.width();
+
+            if (mOptions->distanceTickmarks) {
+              painter.drawLine(QLineF(tickX, tickBot, tickX, tickBotIn));
+              painter.drawLine(QLineF(tickX, tickTop, tickX, tickTopIn));
+            }
+            if (mOptions->geoposTickmarks) {
+              painter.drawLine(QLineF(tickX, tickBot, tickX, tickBotOut));
+              painter.drawLine(QLineF(tickX, tickTop, tickX, tickTopOut));
+            }
           }
         }
       }

@@ -79,6 +79,7 @@ const char key_inflightLinetype[] = "inflightlinetype";
 const char key_inflightLinewidth[] = "inflightlinewidth";
 
 const char key_Distance[] = "distance";
+const char key_distanceTickmarks[] = "distancetickmarks";
 const char key_distanceColour[] = "distancecolour";
 const char key_distanceUnit[] = "distanceunit";
 const char key_distanceStep[] = "distancestep";
@@ -87,6 +88,7 @@ const char key_XYpos[] = "xypos";
 const char key_xyposColour[] = "xyposcolour";
 
 const char key_GeoPos[] = "geopos";
+const char key_geoposTickmarks[] = "geopostickmarks";
 const char key_geoposColour[] = "geoposcolour";
 
 const char key_Compass[] = "compass";
@@ -219,6 +221,7 @@ void VcrossOptions::setDefaults()
   verticalMarkerLimit= 1.;
 
   pDistance= false;
+  distanceTickmarks= false;
   distanceColour= "black";
   distanceUnit=   "km";
   distanceStep=   "grid";
@@ -227,6 +230,7 @@ void VcrossOptions::setDefaults()
   xyposColour= "black";
 
   pGeoPos= true;
+  geoposTickmarks= true;
   geoposColour= "black";
 
   pCompass= true;
@@ -349,6 +353,7 @@ std::vector<miutil::KeyValue_v> VcrossOptions::writeOptions() const
 
   vkvs.push_back(KeyValue_v());
   vkvs.back() << kv(key_Distance, pDistance)
+              << kv(key_distanceTickmarks, distanceTickmarks)
               << kv(key_distanceColour, distanceColour)
               << kv(key_distanceUnit, distanceUnit);
 
@@ -358,6 +363,7 @@ std::vector<miutil::KeyValue_v> VcrossOptions::writeOptions() const
 
   vkvs.push_back(KeyValue_v());
   vkvs.back() << kv(key_GeoPos, pGeoPos)
+              << kv(key_geoposTickmarks, geoposTickmarks)
               << kv(key_geoposColour, geoposColour);
 
   vkvs.push_back(KeyValue_v());
@@ -484,6 +490,7 @@ void VcrossOptions::readOptions(const std::vector<miutil::KeyValue_v>& vkvs)
       else if (key==key_inflightLinewidth) inflightLinewidth= kv.toDouble();
 
       else if (key==key_Distance)       pDistance = kv.toBool();
+      else if (key==key_distanceTickmarks) distanceTickmarks= kv.toBool();
       else if (key==key_distanceColour) distanceColour= value;
       else if (key==key_distanceUnit)   distanceUnit= value;
       else if (key==key_distanceStep)   distanceStep= value;
@@ -492,6 +499,7 @@ void VcrossOptions::readOptions(const std::vector<miutil::KeyValue_v>& vkvs)
       else if (key==key_xyposColour)    xyposColour= value;
 
       else if (key==key_GeoPos)         pGeoPos = kv.toBool();
+      else if (key==key_geoposTickmarks)        geoposTickmarks = kv.toBool();
       else if (key==key_geoposColour)   geoposColour= value;
 
       else if (key==key_Compass)        pCompass = kv.toBool();
