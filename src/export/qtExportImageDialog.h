@@ -66,8 +66,7 @@ private Q_SLOTS:
   void onPreview();
   void onExport();
 
-  void showMessageExported();
-  void showMessageStart();
+  void doneExporting();
 
 private:
   void setupUi();
@@ -88,7 +87,8 @@ private:
 private:
   std::unique_ptr<Ui_ExportImageDialog> ui;
   std::unique_ptr<P_ExportImageDialog> p;
-  QTimer* messageTimer;
+  QTimer* exportDoneTimer;
+  int exporting;
   ImageSource* imageSource;
 };
 

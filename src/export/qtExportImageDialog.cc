@@ -257,7 +257,8 @@ ExportImageDialog::ExportImageDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui_ExportImageDialog)
     , p(new P_ExportImageDialog)
-    , messageTimer(new QTimer(this))
+    , exportDoneTimer(new QTimer(this))
+    , exporting(0)
     , imageSource(0)
 {
   METLIBS_LOG_SCOPE();
@@ -285,9 +286,9 @@ ExportImageDialog::ExportImageDialog(QWidget* parent)
 
   setupUi();
 
-  messageTimer->setInterval(10 * 1000 /* milliseconds */);
-  messageTimer->setSingleShot(true);
-  connect(messageTimer, &QTimer::timeout, this, &ExportImageDialog::showMessageStart);
+  exportDoneTimer->setInterval(1000 /* milliseconds */);
+  exportDoneTimer->setSingleShot(true);
+  connect(exportDoneTimer, &QTimer::timeout, this, &ExportImageDialog::doneExporting);
 }
 
 ExportImageDialog::~ExportImageDialog()
@@ -431,7 +432,6 @@ void ExportImageDialog::onSizeWidthChanged(int)
         * static_cast<double>(size.size.height()) / static_cast<double>(size.size.width());
     ui->spinHeight->setValue(static_cast<int>(round(h)));
   }
-  showMessageStart();
 }
 
 void ExportImageDialog::onSizeHeightChanged(int)
@@ -442,7 +442,6 @@ void ExportImageDialog::onSizeHeightChanged(int)
         * static_cast<double>(size.size.width()) / static_cast<double>(size.size.height());
     ui->spinWidth->setValue(static_cast<int>(round(w)));
   }
-  showMessageStart();
 }
 
 void ExportImageDialog::onPreview()
@@ -492,6 +491,11 @@ void ExportImageDialog::onExport()
     }
     filename = tmp.filePath(defaultFilename[product]);
   }
+
+  exporting = 2;
+  enableStartButton();
+  QCoreApplication::sendPostedEvents();
+  exportDoneTimer->start();
 
   if (product == PRODUCT_IMAGE) {
     filenames = saveSingle(filename);
@@ -548,6 +552,7 @@ void ExportImageDialog::onExport()
   }
 
   // ~TempDir will remove temporary dir if necessary
+  doneExporting();
 }
 
 bool ExportImageDialog::checkFilename(QString& filename)
@@ -631,22 +636,28 @@ void ExportImageDialog::updateFilenameHint()
 
 void ExportImageDialog::enableStartButton()
 {
+  METLIBS_LOG_SCOPE(LOGVAL(exporting));
   bool enable = false;
-  const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
-  const int saveTo = ui->comboSaveTo->currentIndex();
-  if (product >= 0 && saveTo >= 0) {
-    const ExportCommand& ec = p->ecs[saveTo];
-    enable = ec.supportedProducts.isEmpty()
-        || ec.supportedProducts.contains(product);
-    const bool saveToFile = ec.command.isEmpty();
-    if (saveToFile) {
-      QString filename = ui->editFilename->text();
-      if (!checkFilename(filename))
-        enable = false;
+  if (exporting > 0) {
+    ui->buttonExport->setText(tr("Exporting..."));
+  } else {
+    ui->buttonExport->setText(tr("Export"));
+    const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
+    const int saveTo = ui->comboSaveTo->currentIndex();
+    if (product >= 0 && saveTo >= 0) {
+      const ExportCommand& ec = p->ecs[saveTo];
+      enable = ec.supportedProducts.isEmpty()
+               || ec.supportedProducts.contains(product);
+      const bool saveToFile = ec.command.isEmpty();
+      if (saveToFile) {
+        QString filename = ui->editFilename->text();
+        if (!checkFilename(filename))
+          enable = false;
+      }
     }
   }
+  METLIBS_LOG_DEBUG(LOGVAL(enable));
   ui->buttonExport->setEnabled(enable);
-  showMessageStart();
 }
 
 void ExportImageDialog::updateComboSize()
@@ -736,29 +747,11 @@ QStringList ExportImageDialog::saveSingle(const QString& filename)
   sink->endPage();
   imageSource->finish();
   sink->finish();
-  showMessageExported();
   return QStringList(filename);
-}
-
-void ExportImageDialog::showMessageExported()
-{
-  ui->labelMessage->setText(tr("Export finished."));
-  messageTimer->start();
-}
-
-void ExportImageDialog::showMessageStart()
-{
-  messageTimer->stop();
-  ui->labelMessage->setText(tr("Use the export button to start image production."));
 }
 
 QStringList ExportImageDialog::saveMultiple(const QString& format, const QString& filename)
 {
-  QMessageBox::information(this, tr("Making animation"), tr("This may take some time, depending on the number of timesteps and selected delay."
-                                                            " Diana cannot be used until this process is completed."
-                                                            " A message will be displayed upon completion."
-                                                            " Press OK to begin."));
-
   const float framerate = ui->spinFrameRate->value();
   MovieMaker moviemaker(filename, format, framerate, exportSize());
   imageSource->prepare(moviemaker.isPrinting(), false);
@@ -784,4 +777,11 @@ QStringList ExportImageDialog::saveMultiple(const QString& format, const QString
     QMessageBox::warning(this, tr("Error"), tr("Problem with creating animation."));
     return QStringList();
   }
+}
+
+void ExportImageDialog::doneExporting()
+{
+  if (exporting > 0)
+    exporting -= 1;
+  enableStartButton();
 }
