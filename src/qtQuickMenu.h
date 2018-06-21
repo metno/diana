@@ -110,7 +110,6 @@ private:
   void setCommand();
   void getCommand(std::vector<std::string>&);   // get command-text from comedit
   void timerEvent(QTimerEvent*) override;       // timer for demo-mode
-  void replaceDynamicOptions(const std::vector<std::string>& oldCommand, std::vector<std::string>& newCommand);
 
   QString instanceNameSuffix() const;
 

@@ -49,6 +49,16 @@
 using namespace::miutil;
 using namespace std;
 
+quickMenu::quickMenu()
+    : type(QM_USER)
+    , item_index(0)
+{
+}
+
+quickMenu::~quickMenu()
+{
+}
+
 bool quickMenu::step_item(int delta)
 {
   int pi = item_index + delta;
@@ -67,6 +77,16 @@ const std::vector<std::string>& quickMenu::command() const
     return menuitems[item_index].command;
   else
     return EMPTY;
+}
+
+bool quickMenu::write() const
+{
+  return writeQuickMenu(*this);
+}
+
+bool quickMenu::read()
+{
+  return readQuickMenu(*this);
 }
 
 bool writeQuickMenu(const quickMenu& qm)
@@ -217,7 +237,7 @@ bool readQuickMenu(quickMenu& qm)
 
   //if old syntax changed, update file
   if (updates)
-    writeQuickMenu(qm);
+    qm.write();
 
   return true;
 }

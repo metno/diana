@@ -414,7 +414,7 @@ void QuickAdmin::newfileClicked()
   tmp.type = quickMenu::QM_USER;
   tmp.filename = s.toStdString();
   tmp.item_index = 0;
-  if (readQuickMenu(tmp)) {
+  if (tmp.read()) {
     initQmName(tmp);
     menus.insert(menus.begin() + active_list + 1, tmp);
   }

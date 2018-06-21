@@ -67,7 +67,38 @@ using namespace std;
 
 namespace { // anonymous
 
-const std::string vprefix= "@";
+const std::string QM_DYNAMIC_OPTION_PREFIX = "@";
+
+void replaceDynamicQuickMenuOptions(const std::vector<string>& oldCommand, vector<string>& newCommand)
+{
+  int nold=oldCommand.size();
+  int nnew=newCommand.size();
+
+  for(int i=0;i<nold && i<nnew;i++){
+    if (not miutil::contains(oldCommand[i], QM_DYNAMIC_OPTION_PREFIX))
+      continue;
+    vector<string> token =miutil::split(oldCommand[i], 0, " ");
+    int ntoken = token.size();
+    for(int j=0;j<ntoken;j++){
+      if (not miutil::contains(token[j], QM_DYNAMIC_OPTION_PREFIX))
+        continue;
+      vector<string> stoken = miutil::split(token[j], 0, "=");
+      if(stoken.size()!=2 || not miutil::contains(stoken[1], QM_DYNAMIC_OPTION_PREFIX))
+        continue;
+      //found item to replace
+      vector<string> newtoken =miutil::split(newCommand[i], 0, " ");
+      int nnewtoken = newtoken.size();
+      if(nnewtoken<2 || token[0]!=newtoken[0])
+        continue;
+      for(int k=1;k<nnewtoken;k++){
+        vector<string> snewtoken = miutil::split(newtoken[k], "=");
+        if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
+          miutil::replace(newCommand[i], newtoken[k], token[j]);
+        }
+      }
+    }
+  }
+}
 
 } // anonymous namespace
 
@@ -231,7 +262,7 @@ void QuickMenu::addMenu(const std::string& name)
   qtmp.filename = LocalSetupParser::basicValue("homedir") + "/";
   qtmp.filename += qtmp.name + ".quick";
   qtmp.item_index = 0;
-  writeQuickMenu(qtmp);
+  qtmp.write();
 
   std::vector<quickMenu>::iterator itq = qm.begin();
   while (itq != qm.end() && itq->is_history())
@@ -255,7 +286,7 @@ bool QuickMenu::addToMenu(const std::string& name)
   for (quickMenu& q : qm) {
     if (q.type == quickMenu::QM_USER && q.name == name) {
       q.menuitems.push_back(qm[plotted_list].menuitems[plotted_item]);
-      writeQuickMenu(q);
+      q.write();
       fillMenuList();
       return true;
     }
@@ -489,7 +520,7 @@ void QuickMenu::adminButton()
     // save custom/history quickmenus to file
     for (const quickMenu& q : qm) {
       if (q.type != quickMenu::QM_SHARED)
-        writeQuickMenu(q);
+        q.write();
     }
   }
 }
@@ -525,14 +556,14 @@ void QuickMenu::fillHistoryMenus()
   qm[HISTORY_MAP].name = tr("History").toStdString();
   qm[HISTORY_MAP].filename = home + "/History" + ins + ".quick";
   qm[HISTORY_MAP].item_index = 0;
-  readQuickMenu(qm[HISTORY_MAP]);
+  qm[HISTORY_MAP].read();
 
   qm.push_back(qtmp);
   qm[HISTORY_VCROSS].type = quickMenu::QM_HISTORY_VCROSS;
   qm[HISTORY_VCROSS].name = tr("History-vcross").toStdString();
   qm[HISTORY_VCROSS].filename = home + "/History-vcross" + ins + ".quick";
   qm[HISTORY_VCROSS].item_index = 0;
-  readQuickMenu(qm[HISTORY_VCROSS]);
+  qm[HISTORY_VCROSS].read();
 }
 
 void QuickMenu::fillPrivateMenus()
@@ -548,7 +579,7 @@ void QuickMenu::fillPrivateMenus()
     qtmp.name = "";
     qtmp.filename = qf;
     qtmp.item_index = 0;
-    if (readQuickMenu(qtmp)) {
+    if (qtmp.read()) {
       bool collision = false;
       for (const quickMenu& q : qm) {
         if (q.is_history() && q.name == qtmp.name)
@@ -569,8 +600,7 @@ void QuickMenu::fillStaticMenus(const std::vector<QuickMenuDefs>& qdefs)
       qtmp.name = "";
       qtmp.filename = quickfile;
       qtmp.item_index = 0;
-      qtmp.menuitems.clear();
-      if (readQuickMenu(qtmp))
+      if (qtmp.read())
         qm.push_back(qtmp);
     }
   }
@@ -640,47 +670,16 @@ void QuickMenu::updateButton()
   if (q.type == quickMenu::QM_SHARED) {
     qi.command = vs;
   } else {
-    replaceDynamicOptions(qi.command, vs);
+    replaceDynamicQuickMenuOptions(qi.command, vs);
     qi.command = vs;
     if (changename)
       qi.name = pi.name;
 
     if (q.type == quickMenu::QM_USER)
-      writeQuickMenu(q);
+      q.write();
   }
 
   selectList(selected_list);
-}
-
-void QuickMenu::replaceDynamicOptions(const std::vector<string>& oldCommand, vector<string>& newCommand)
-{
-  int nold=oldCommand.size();
-  int nnew=newCommand.size();
-
-  for(int i=0;i<nold && i<nnew;i++){
-    if (not miutil::contains(oldCommand[i], "@"))
-      continue;
-    vector<string> token =miutil::split(oldCommand[i], 0, " ");
-    int ntoken = token.size();
-    for(int j=0;j<ntoken;j++){
-      if (not miutil::contains(token[j], "@"))
-        continue;
-      vector<string> stoken = miutil::split(token[j], 0, "=");
-      if(stoken.size()!=2 || not miutil::contains(stoken[1], "@"))
-        continue;
-      //found item to replace
-      vector<string> newtoken =miutil::split(newCommand[i], 0, " ");
-      int nnewtoken = newtoken.size();
-      if(nnewtoken<2 || token[0]!=newtoken[0])
-        continue;
-      for(int k=1;k<nnewtoken;k++){
-        vector<string> snewtoken = miutil::split(newtoken[k], "=");
-        if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
-          miutil::replace(newCommand[i], newtoken[k], token[j]);
-        }
-      }
-    }
-  }
 }
 
 void QuickMenu::readLog(const vector<string>& vstr, const string&, const string&)
@@ -695,7 +694,7 @@ vector<string> QuickMenu::writeLog()
   for (const quickMenu& q : qm) {
     if (q.is_history()) {
       // history menu, write to file
-      writeQuickMenu(q);
+      q.write();
     }
   }
 
@@ -840,7 +839,7 @@ void QuickMenu::comChanged()
   // sort keys by length - make index-list
   vector<int> keys = sortKeys();
   for (int i=0; i<m; i++){
-    std::string key = vprefix + q.opt[keys[i]].key;
+    std::string key = QM_DYNAMIC_OPTION_PREFIX + q.opt[keys[i]].key;
     bool enable= miutil::contains(ts, key);
     optionmenu[keys[i]]->setEnabled(enable);
     optionlabel[keys[i]]->setEnabled(enable);
@@ -874,7 +873,7 @@ void QuickMenu::varExpand(vector<string>& com)
   vector<int> keys = sortKeys();
 
   for (int j=0; j<m; j++){
-    std::string key = vprefix + qm[selected_list].opt[keys[j]].key;
+    std::string key = QM_DYNAMIC_OPTION_PREFIX + qm[selected_list].opt[keys[j]].key;
     std::string val= optionmenu[keys[j]]->currentText().toStdString();
     for (int i=0; i<n; i++)
       miutil::replace(com[i], key, val);

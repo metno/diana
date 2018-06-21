@@ -58,6 +58,9 @@ struct quickMenu
   std::vector<quickMenuOption> opt;   /// any quickMenuOption
   std::deque<quickMenuItem> menuitems;/// all items in this menu
 
+  quickMenu();
+  ~quickMenu();
+
   bool is_history() const { return type == QM_HISTORY_MAIN || type == QM_HISTORY_VCROSS; }
 
   const quickMenuItem& item(int i) const { return menuitems[i]; }
@@ -75,6 +78,9 @@ struct quickMenu
   bool valid_item() const { return valid_item(item_index); }
 
   const std::vector<std::string>& command() const;
+
+  bool write() const;
+  bool read();
 };
 
 /// write a quick-menu to file
