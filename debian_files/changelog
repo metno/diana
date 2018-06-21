@@ -1,3 +1,22 @@
+diana-3.46 (3.46.0~rc1-1) unstable; urgency=low
+
+  * quickmenu
+    - remove some obsolete functionality/code
+    - add search/filter box
+    - support glob pattern for shared quickmenus
+  * export
+    - message in "export" button
+    - "fit" button for preview
+    - default filename
+    - shortcuts
+  * vcross
+    - tickmarks for geopos / time
+  * other
+    - no parent for vprof and spectrum windows
+    - heed timechanged message from coserver
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 21 Jun 2018 08:00:08 +0200
+
 diana-3.45 (3.45.2-1) unstable; urgency=low
 
   * WMS: bugfix time dimensions
