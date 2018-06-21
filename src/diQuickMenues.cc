@@ -49,6 +49,43 @@
 using namespace::miutil;
 using namespace std;
 
+namespace { // anonymous
+
+const std::string QM_DYNAMIC_OPTION_PREFIX = "@";
+
+} // anonymous namespace
+
+void replaceDynamicQuickMenuOptions(const std::vector<std::string>& oldCommand, std::vector<std::string>& newCommand)
+{
+  int nold = oldCommand.size();
+  int nnew = newCommand.size();
+
+  for (int i = 0; i < nold && i < nnew; i++) {
+    if (not miutil::contains(oldCommand[i], QM_DYNAMIC_OPTION_PREFIX))
+      continue;
+    vector<string> token = miutil::split(oldCommand[i], 0, " ");
+    int ntoken = token.size();
+    for (int j = 0; j < ntoken; j++) {
+      if (not miutil::contains(token[j], QM_DYNAMIC_OPTION_PREFIX))
+        continue;
+      vector<string> stoken = miutil::split(token[j], 0, "=");
+      if (stoken.size() != 2 || not miutil::contains(stoken[1], QM_DYNAMIC_OPTION_PREFIX))
+        continue;
+      // found item to replace
+      vector<string> newtoken = miutil::split(newCommand[i], 0, " ");
+      int nnewtoken = newtoken.size();
+      if (nnewtoken < 2 || token[0] != newtoken[0])
+        continue;
+      for (int k = 1; k < nnewtoken; k++) {
+        vector<string> snewtoken = miutil::split(newtoken[k], "=");
+        if (snewtoken.size() == 2 && snewtoken[0] == stoken[0]) {
+          miutil::replace(newCommand[i], newtoken[k], token[j]);
+        }
+      }
+    }
+  }
+}
+
 quickMenu::quickMenu()
     : type(QM_USER)
     , item_index(0)
@@ -77,6 +114,47 @@ const std::vector<std::string>& quickMenu::command() const
     return menuitems[item_index].command;
   else
     return EMPTY;
+}
+
+// sort keys by length - make index-list
+std::vector<int> quickMenu::sorted_keys() const
+{
+  vector<int> keys;
+  for (size_t i = 0; i < opt.size(); i++) {
+    const size_t key_length = opt[i].key.length();
+    vector<int>::iterator it = keys.begin();
+    for (; it != keys.end() && key_length < opt[*it].key.length(); it++)
+      ;
+    keys.insert(it, i);
+  }
+  return keys;
+}
+
+std::set<int> quickMenu::used_options(const std::string& c) const
+{
+  METLIBS_LOG_SCOPE();
+  std::set<int> used;
+  std::string ts = c; // make a copy as we need to modify the string
+  const vector<int> keys = sorted_keys();
+  for (size_t i = 0; i < opt.size(); i++) {
+    const int ki = keys[i];
+    const std::string key = QM_DYNAMIC_OPTION_PREFIX + opt[ki].key;
+    if (miutil::contains(ts, key)) {
+      used.insert(ki);
+      miutil::replace(ts, key, ""); // avoid finding it again with shorter key
+    }
+  }
+  return used;
+}
+
+void quickMenu::expand_options(std::vector<std::string>& com) const
+{
+  const vector<int> keys = sorted_keys();
+  for (size_t i = 0; i < opt.size(); i++) {
+    const quickMenuOption& o = opt[keys[i]];
+    for (std::string& c : com)
+      miutil::replace(c, QM_DYNAMIC_OPTION_PREFIX + o.key, o.def);
+  }
 }
 
 bool quickMenu::write() const

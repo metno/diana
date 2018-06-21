@@ -49,6 +49,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegExp>
+#include <QSignalMapper>
 #include <QSpinBox>
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -65,49 +66,13 @@
 
 using namespace std;
 
-namespace { // anonymous
-
-const std::string QM_DYNAMIC_OPTION_PREFIX = "@";
-
-void replaceDynamicQuickMenuOptions(const std::vector<string>& oldCommand, vector<string>& newCommand)
-{
-  int nold=oldCommand.size();
-  int nnew=newCommand.size();
-
-  for(int i=0;i<nold && i<nnew;i++){
-    if (not miutil::contains(oldCommand[i], QM_DYNAMIC_OPTION_PREFIX))
-      continue;
-    vector<string> token =miutil::split(oldCommand[i], 0, " ");
-    int ntoken = token.size();
-    for(int j=0;j<ntoken;j++){
-      if (not miutil::contains(token[j], QM_DYNAMIC_OPTION_PREFIX))
-        continue;
-      vector<string> stoken = miutil::split(token[j], 0, "=");
-      if(stoken.size()!=2 || not miutil::contains(stoken[1], QM_DYNAMIC_OPTION_PREFIX))
-        continue;
-      //found item to replace
-      vector<string> newtoken =miutil::split(newCommand[i], 0, " ");
-      int nnewtoken = newtoken.size();
-      if(nnewtoken<2 || token[0]!=newtoken[0])
-        continue;
-      for(int k=1;k<nnewtoken;k++){
-        vector<string> snewtoken = miutil::split(newtoken[k], "=");
-        if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
-          miutil::replace(newCommand[i], newtoken[k], token[j]);
-        }
-      }
-    }
-  }
-}
-
-} // anonymous namespace
-
 // ========================================================================
 
 QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
     : QDialog(parent)
     , timerinterval(10)
     , timeron(false)
+    , updating_options(false)
     , selected_list(0)
     , plotted_list(HISTORY_MAP)
     , plotted_item(0)
@@ -158,6 +123,8 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
   vlayout->addWidget(menubox, 1);
 
   // Create variables/options layout manager
+  QSignalMapper* mapper = new QSignalMapper(this);
+  connect(mapper, SIGNAL(mapped(int)), this, SLOT(optionChanged(int)));
   QGridLayout* varlayout = new QGridLayout();
   for (int i = 0; i < maxoptions; i++) {
     optionlabel[i] = new QLabel("", this);
@@ -165,6 +132,8 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
     optionmenu[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     const int row = i / 4;
     const int col = 2 * (i % 4);
+    mapper->setMapping(optionmenu[i], i);
+    connect(optionmenu[i], SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
     varlayout->addWidget(optionlabel[i], row, col, Qt::AlignRight);
     varlayout->addWidget(optionmenu[i], row, col + 1);
   }
@@ -743,7 +712,7 @@ void QuickMenu::updateOptions()
   METLIBS_LOG_SCOPE();
   if (!isValidList(selected_list))
     return;
-  quickMenu& am = qm[selected_list];
+  quickMenu& q = qm[selected_list];
 
   // hide old options
   for (int i=0; i<maxoptions; i++){
@@ -751,34 +720,35 @@ void QuickMenu::updateOptions()
     optionlabel[i]->hide();
     optionmenu[i]->hide();
   }
+  updating_options = true;
   // add options
-  int n= std::min(am.opt.size(), (size_t)maxoptions);
-  optionsexist = n > 0;
-  if (optionsexist) {
-    for (int i = 0; i < n; ++i) {
-      quickMenuOption& o = am.opt[i];
-      optionlabel[i]->setText(QString::fromStdString(o.key));
-      optionlabel[i]->show();
+  const int n = std::min(q.opt.size(), (size_t)maxoptions);
+  for (int i = 0; i < n; ++i) {
+    quickMenuOption& o = q.opt[i];
+    optionlabel[i]->setText(QString::fromStdString(o.key));
+    optionlabel[i]->show();
 
-      const int nopts = o.options.size();
-      optionmenu[i]->clear();
-      optionmenu[i]->setEnabled(nopts > 0);
-      if (nopts > 0) {
-        int defidx = 0;
-        for (int j = 0; j < nopts; j++) {
-          optionmenu[i]->addItem(QString::fromStdString(o.options[j]));
-          if (o.options[j] == o.def)
-            defidx = j;
-        }
-        if (defidx >= 0)
-          optionmenu[i]->setCurrentIndex(defidx);
+    const int nopts = o.options.size();
+    optionmenu[i]->clear();
+    optionmenu[i]->setEnabled(nopts > 0);
+    if (nopts > 0) {
+      int defidx = -1;
+      for (int j = 0; j < nopts; j++) {
+        optionmenu[i]->addItem(QString::fromStdString(o.options[j]));
+        if (o.options[j] == o.def)
+          defidx = j;
       }
-      optionmenu[i]->adjustSize();
-      optionmenu[i]->show();
+      if (defidx < 0) {
+        defidx = 0;
+        o.def = o.options[defidx];
+      }
+      optionmenu[i]->setCurrentIndex(defidx);
     }
+    optionmenu[i]->adjustSize();
+    optionmenu[i]->show();
   }
-
-  updatebut->setEnabled(am.type == quickMenu::QM_USER);
+  updating_options = false;
+  updatebut->setEnabled(q.type == quickMenu::QM_USER);
 }
 
 void QuickMenu::saveChanges(int list, int item)
@@ -832,19 +802,11 @@ void QuickMenu::comChanged()
 {
   METLIBS_LOG_SCOPE();
   std::string ts = comedit->toPlainText().toStdString();
-  const quickMenu& q = qm[selected_list];
-
-  // check if any variables to set here
-  const int m = std::min(qm[selected_list].opt.size(), (size_t)maxoptions);
-  // sort keys by length - make index-list
-  vector<int> keys = sortKeys();
-  for (int i=0; i<m; i++){
-    std::string key = QM_DYNAMIC_OPTION_PREFIX + q.opt[keys[i]].key;
-    bool enable= miutil::contains(ts, key);
-    optionmenu[keys[i]]->setEnabled(enable);
-    optionlabel[keys[i]]->setEnabled(enable);
-    if (enable)
-      miutil::replace(ts, key, "");
+  const std::set<int> uo = qm[selected_list].used_options(ts);
+  for (int i = 0; i < maxoptions; i++) {
+    const bool enable = (uo.count(i) > 0);
+    optionmenu[i]->setEnabled(enable);
+    optionlabel[i]->setEnabled(enable);
   }
 }
 
@@ -865,38 +827,7 @@ void QuickMenu::getCommand(vector<string>& commands)
 
 void QuickMenu::varExpand(vector<string>& com)
 {
-  quickMenu& q = qm[selected_list];
-  int n= com.size();
-  int m = std::min(q.opt.size(), (size_t)maxoptions);
-
-  // sort keys by length - make index-list
-  vector<int> keys = sortKeys();
-
-  for (int j=0; j<m; j++){
-    std::string key = QM_DYNAMIC_OPTION_PREFIX + qm[selected_list].opt[keys[j]].key;
-    std::string val= optionmenu[keys[j]]->currentText().toStdString();
-    for (int i=0; i<n; i++)
-      miutil::replace(com[i], key, val);
-    // keep for later default
-    q.opt[keys[j]].def = val;
-  }
-}
-
-vector<int> QuickMenu::sortKeys()
-{
-  const quickMenu& am = qm[selected_list];
-  int m = std::min(am.opt.size(), (size_t)maxoptions);
-
-  // sort keys by length - make index-list
-  vector<int> keys;
-  for (int i=0; i<m; i++){
-    const size_t key_length = am.opt[i].key.length();
-    vector<int>::iterator it= keys.begin();
-    for (; it!=keys.end() && key_length < am.opt[*it].key.length(); it++)
-      ;
-    keys.insert(it, i);
-  }
-  return keys;
+  qm[selected_list].expand_options(com);
 }
 
 void QuickMenu::plotActiveMenu()
@@ -907,8 +838,7 @@ void QuickMenu::plotActiveMenu()
   METLIBS_LOG_DEBUG(LOGVAL(com.size()));
 
   if (!com.empty()) {
-    if (optionsexist)
-      varExpand(com);
+    varExpand(com);
     Q_EMIT Apply(makeCommands(com), true);
     plotted_list = selected_list;
     plotted_item = qm[selected_list].item_index;
@@ -965,6 +895,19 @@ void QuickMenu::intervalChanged(int value)
   if (timeron) {
     killTimer(demoTimer);
     demoTimer= startTimer(timerinterval*1000);
+  }
+}
+
+void QuickMenu::optionChanged(int option)
+{
+  if (updating_options)
+    return;
+  const int choice = optionmenu[option]->currentIndex();
+  if (isValidList(selected_list)) {
+    quickMenuOption& o = qm[selected_list].opt[option];
+    if (choice >= 0 && choice < (int)o.options.size()) {
+      o.def = o.options[choice];
+    }
   }
 }
 

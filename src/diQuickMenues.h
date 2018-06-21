@@ -29,9 +29,10 @@
 #ifndef _diQuickMenues_h
 #define _diQuickMenues_h
 
+#include <deque>
+#include <set>
 #include <string>
 #include <vector>
-#include <deque>
 
 /// options for plot-commands: Example: UTC= 0,6,12,18
 struct quickMenuOption{
@@ -79,8 +80,18 @@ struct quickMenu
 
   const std::vector<std::string>& command() const;
 
+  //! check if any variables are used in c
+  std::set<int> used_options(const std::string& c) const;
+
+  //! replace variables in com with "def" value
+  void expand_options(std::vector<std::string>& com) const;
+
   bool write() const;
   bool read();
+
+  // private:
+  //! sort keys by length - make index-list
+  std::vector<int> sorted_keys() const;
 };
 
 /// write a quick-menu to file
@@ -99,5 +110,7 @@ void readQuickMenuLog(std::vector<quickMenu>& qm, const std::vector<std::string>
 
 /// if old syntax, update
 bool updateCommandSyntax(std::vector<std::string>& lines);
+
+void replaceDynamicQuickMenuOptions(const std::vector<std::string>& oldCommand, std::vector<std::string>& newCommand);
 
 #endif

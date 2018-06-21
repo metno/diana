@@ -72,11 +72,11 @@ private:
   QLabel* comlabel;                  // ..label for this
   QPushButton* updatebut;            // update static menu-item
 
-  bool optionsexist; // defined options in quickmenu
-
   int timerinterval;  // for demo
   bool timeron;       // for demo
   int demoTimer;      // for demo
+
+  bool updating_options;
 
   std::vector<quickMenu> qm;        // datastructure for quickmenus
 
@@ -172,6 +172,7 @@ private Q_SLOTS:
   void intervalChanged(int value);  // demo-timer changed
   void comButton(bool on);          // show/hide command-text
   void helpClicked();               // help-button callback
+  void optionChanged(int index);
 
   void onInstanceNameChanged(const QString& name);
 };

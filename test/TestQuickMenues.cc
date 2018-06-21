@@ -174,6 +174,24 @@ std::vector<quickMenu> makeQM()
       o.def = "hadet";
       q1.opt.push_back(o);
     }
+    {
+      quickMenuOption o;
+      o.key = "greeting";
+      o.options.push_back("hello");
+      o.options.push_back("hi");
+      o.options.push_back("ciao");
+      o.def = "hello";
+      q1.opt.push_back(o);
+    }
+    {
+      quickMenuOption o;
+      o.key = "hellothere";
+      o.options.push_back("anton");
+      o.options.push_back("bob");
+      o.options.push_back("claus");
+      o.def = "claus";
+      q1.opt.push_back(o);
+    }
     qm.push_back(q1);
   }
 
@@ -188,7 +206,8 @@ TEST(TestQuickMenues, WriteQuickMenuLog)
 {
   const std::vector<quickMenu> qm = makeQM();
   const std::vector<std::string> actual = writeQuickMenuLog(qm);
-  const std::vector<std::string> expected = {">name=haheho", "%this=he", QM_LOG_SEP, ">name=hihihi", "%hello=hi", "%bye=hadet", QM_LOG_SEP};
+  const std::vector<std::string> expected = {">name=haheho", "%this=he",        QM_LOG_SEP,          ">name=hihihi", "%hello=hi",
+                                             "%bye=hadet",   "%greeting=hello", "%hellothere=claus", QM_LOG_SEP};
   EXPECT_EQ(expected, actual);
 }
 
@@ -208,4 +227,22 @@ TEST(TestQuickMenues, ReadQuickMenuLogIgnorePlotCommands)
   const std::vector<std::string> loglines = {">name=hihihi", "%hello=hihihi", "PLOTCOMMAND not known", QM_LOG_SEP};
   readQuickMenuLog(qm, loglines);
   EXPECT_EQ("hihihi", qm[1].opt[0].def);
+}
+
+TEST(TestQuickMenues, UsedOptions)
+{
+  std::vector<quickMenu> qm = makeQM();
+  const std::set<int> ac = qm[1].used_options("PLOT @hellothere\nMAP area=@bye\n");
+  const std::set<int> ex = {1 /*bye*/, 3 /*hellothere*/};
+  EXPECT_EQ(ex, ac);
+}
+
+TEST(TestQuickMenues, ExpandOptions)
+{
+  const std::vector<quickMenu> qm = makeQM();
+  std::vector<std::string> cmd = {"PLOT @hellothere", "MAP area=@greeting"};
+  qm[1].expand_options(cmd);
+
+  const std::vector<std::string> ex = {"PLOT claus", "MAP area=hello"};
+  EXPECT_EQ(ex, cmd);
 }
