@@ -3542,7 +3542,7 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+20"/>
-        <source>Menus</source>
+        <source>&amp;Menus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

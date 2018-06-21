@@ -4168,8 +4168,8 @@ Tipo: %3</translation>
     </message>
     <message>
         <location line="+20"/>
-        <source>Menus</source>
-        <translation>Menus</translation>
+        <source>&amp;Menus</source>
+        <translation>&amp;Menus</translation>
     </message>
     <message>
         <location line="+4"/>

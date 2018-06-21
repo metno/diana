@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,11 +29,9 @@
 #ifndef _qtQuickEditOptions_h
 #define _qtQuickEditOptions_h
 
+#include "diQuickMenues.h"
 #include <QDialog>
-
 #include <vector>
-#include <diCommonTypes.h>
-#include <diQuickMenues.h>
 
 class QLabel;
 class QPushButton;

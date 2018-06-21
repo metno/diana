@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,11 +49,11 @@
 using namespace::miutil;
 using namespace std;
 
-bool quickMenu::step_plotindex(int delta)
+bool quickMenu::step_item(int delta)
 {
-  int pi = plotindex + delta;
-  if (valid_plotindex() && valid_plotindex(pi)) {
-    plotindex = pi;
+  int pi = item_index + delta;
+  if (valid_item() && valid_item(pi)) {
+    item_index = pi;
     return true;
   } else {
     return false;
@@ -63,8 +63,8 @@ bool quickMenu::step_plotindex(int delta)
 const std::vector<std::string>& quickMenu::command() const
 {
   static const std::vector<std::string> EMPTY;
-  if (valid_plotindex())
-    return menuitems[plotindex].command;
+  if (valid_item())
+    return menuitems[item_index].command;
   else
     return EMPTY;
 }
@@ -138,14 +138,13 @@ bool readQuickMenu(quickMenu& qm)
   std::string value;
   bool updates = false;
 
-  std::string filename= qm.filename;
-  std::ifstream menufile(qm.filename.c_str());
   int numitems=0;
   qm.menuitems.clear();
   qm.opt.clear();
-  qm.plotindex= 0;
+  qm.item_index = 0;
 
-  if (!menufile){ // menufile not ok
+  std::ifstream menufile(qm.filename.c_str());
+  if (!menufile) { // menufile not ok
     METLIBS_LOG_WARN("Could not open quickmenu file '" << qm.filename << "'");
     return false;
   }
@@ -182,8 +181,7 @@ bool readQuickMenu(quickMenu& qm)
         // add a new option
         qm.opt.push_back(op);
       } else {
-        METLIBS_LOG_ERROR("QuickMenu Error: defined option without items in file "
-            << filename);
+        METLIBS_LOG_ERROR("QuickMenu Error: defined option without items in file " << qm.filename);
         menufile.close();
         return false;
       }
@@ -202,7 +200,7 @@ bool readQuickMenu(quickMenu& qm)
       if (numitems>0) {
         qm.menuitems[numitems-1].command.push_back(line);
       } else {
-        METLIBS_LOG_ERROR("command line without defined menuitem in file '" << filename << "'");
+        METLIBS_LOG_ERROR("command line without defined menuitem in file '" << qm.filename << "'");
         menufile.close();
         return false;
       }
@@ -397,4 +395,56 @@ bool updateCommandSyntax(std::vector<std::string>& lines)
     std::swap(lines, updated);
     return true;
   }
+}
+
+void readQuickMenuLog(std::vector<quickMenu>& qm, const std::vector<std::string>& loglines)
+{
+  quickMenu* q_name = 0;
+  for (const std::string& ll : loglines) {
+    const std::string line = miutil::trimmed(ll);
+    if (line.empty() or line[0] == '#')
+      continue;
+
+    if (diutil::startswith(line, ">name=") || diutil::startswith(line, ">update=")) { // new menu name
+      const std::string name = line.substr(line.find("=") + 1);
+      q_name = 0;
+      for (quickMenu& q : qm) {
+        if (q.name == name) {
+          q_name = &q;
+          break;
+        }
+      }
+    } else if (line[0] == '%') { // dynamic options
+      if (q_name && line.length() > 1) {
+        const std::vector<std::string> key_val = miutil::split(line.substr(1), "=");
+        if (key_val.size() == 2) {
+          const std::string &key = key_val[0], &val = key_val[1];
+          for (quickMenuOption& o : q_name->opt) {
+            if (key == o.key) {
+              o.def = val;
+              break;
+            }
+          }
+        }
+      }
+    } else if (line[0] == '=') {
+      q_name = 0;
+    }
+  }
+}
+
+std::vector<std::string> writeQuickMenuLog(const std::vector<quickMenu>& qm)
+{
+  vector<string> loglines;
+  for (const quickMenu& q : qm) {
+    if (q.is_history() || q.opt.empty())
+      continue;
+
+    // write defaults for dynamic options
+    loglines.push_back(">name=" + q.name);
+    for (const quickMenuOption& o : q.opt)
+      loglines.push_back("%" + o.key + "=" + o.def);
+    loglines.push_back("=======================");
+  }
+  return loglines;
 }

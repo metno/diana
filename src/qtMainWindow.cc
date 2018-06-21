@@ -684,7 +684,9 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   // ----------- init dialog-objects -------------------
 
-  qm= new QuickMenu(this, contr);
+  std::vector<QuickMenuDefs> qdefs;
+  contr->getQuickMenus(qdefs);
+  qm = new QuickMenu(this, qdefs);
   qm->hide();
   mainToolbar->addAction( showQuickmenuAction         );
 
@@ -866,12 +868,12 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   // browse plots
   browser= new BrowserBox(this);
-  connect(browser, SIGNAL(selectplot()),this,SLOT(browserSelect()));
-  connect(browser, SIGNAL(cancel()),   this, SLOT(browserCancel()));
-  connect(browser, SIGNAL(prevplot()), this, SLOT(prevQPlot()));
-  connect(browser, SIGNAL(nextplot()), this, SLOT(nextQPlot()));
-  connect(browser, SIGNAL(prevlist()), this, SLOT(prevList()));
-  connect(browser, SIGNAL(nextlist()), this, SLOT(nextList()));
+  connect(browser, &BrowserBox::selectplot, this, &DianaMainWindow::browserSelect);
+  connect(browser, &BrowserBox::cancel, this, &DianaMainWindow::browserCancel);
+  connect(browser, &BrowserBox::prevplot, this, &DianaMainWindow::prevQPlot);
+  connect(browser, &BrowserBox::nextplot, this, &DianaMainWindow::nextQPlot);
+  connect(browser, &BrowserBox::prevlist, this, &DianaMainWindow::prevList);
+  connect(browser, &BrowserBox::nextlist, this, &DianaMainWindow::nextList);
   browser->hide();
 
   connect(fm, &FieldDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
@@ -1188,13 +1190,13 @@ void DianaMainWindow::MenuOK()
     std::string plotname;
     for (const std::string& sn : shortnames)
       diutil::appendText(plotname, sn);
-    qm->pushPlot(plotname, pstr, QuickMenu::MAP);
+    qm->addPlotToHistory(plotname, pstr, QuickMenu::HISTORY_MAP);
   }
 }
 
 void DianaMainWindow::updateVcrossQuickMenuHistory(const std::string& plotname, const PlotCommand_cpv& pstr)
 {
-  qm->pushPlot(plotname, pstr, QuickMenu::VCROSS);
+  qm->addPlotToHistory(plotname, pstr, QuickMenu::HISTORY_VCROSS);
 }
 
 // recall previous QuickMenu plot (if exists)
@@ -1222,23 +1224,24 @@ void DianaMainWindow::nextQPlot()
 // recall previous plot in plot-stack (if exists)
 void DianaMainWindow::prevHPlot()
 {
-  qm->prevHPlot(QuickMenu::MAP);
+  qm->prevHPlot(QuickMenu::HISTORY_MAP);
 }
 
 // recall next plot in plot-stack (if exists)
 void DianaMainWindow::nextHPlot()
 {
-  qm->nextHPlot(QuickMenu::MAP);
+  qm->nextHPlot(QuickMenu::HISTORY_MAP);
 }
+
 void DianaMainWindow::prevHVcrossPlot()
 {
-  qm->prevHPlot(QuickMenu::VCROSS);
+  qm->prevHPlot(QuickMenu::HISTORY_VCROSS);
 }
 
 // recall next plot in plot-stack (if exists)
 void DianaMainWindow::nextHVcrossPlot()
 {
-  qm->nextHPlot(QuickMenu::VCROSS);
+  qm->nextHPlot(QuickMenu::HISTORY_VCROSS);
 }
 
 // switch to next quick-list
@@ -1286,9 +1289,7 @@ void DianaMainWindow::browserCancel()
 // select signal from browser-window
 void DianaMainWindow::browserSelect()
 {
-  browsing= false;
-  browser->hide();
-  browser->releaseKeyboard();
+  browserCancel();
   qm->applyPlot();
 }
 

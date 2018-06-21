@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -29,33 +29,31 @@
 #ifndef _qtQuickMenu_h
 #define _qtQuickMenu_h
 
-#include <diController.h>
-#include <diQuickMenues.h>
-#include <diCommonTypes.h>
+#include "diPlotCommand.h"
+#include "diQuickMenuTypes.h"
+#include "diQuickMenues.h"
 
 #include <QDialog>
-#include <QTimerEvent>
 
 #include <vector>
 #include <deque>
 
 class QComboBox;
-class QListWidget;
-class QListWidgetItem;
+class QTreeView;
+class QSortFilterProxyModel;
+class QStandardItemModel;
+class QLineEdit;
 class QLabel;
 class QTextEdit;
+class QItemSelection;
 
-class DianaMainWindow;
-
-/**
+/*!
    \brief Quick menu
-   
+
    Main quick menu viewer
    - show all menus for selection of items
    - autoviewer
-
 */
-
 class QuickMenu : public QDialog {
   Q_OBJECT
 
@@ -63,48 +61,56 @@ private:
   enum { maxoptions= 20 };      // maximum options
   enum { maxplotsinstack= 100}; // size of history-stack
 
-  QComboBox* menulist;     // main quickmenu-combobox
-  QListWidget* list;          // list of plots in quickmenu
-  bool optionsexist;       // defined options in quickmenu
+  QTreeView* menubox;
+  QSortFilterProxyModel* menuFilter;
+  QStandardItemModel* menuItems;
+  QLineEdit* menuFilterEdit;
+
   QComboBox* optionmenu[maxoptions]; // options for quickmenu
   QLabel* optionlabel[maxoptions];   // ..label for this
   QTextEdit* comedit;                // editor for command-text
   QLabel* comlabel;                  // ..label for this
-  QPushButton* resetbut;             // reset static menu-item
   QPushButton* updatebut;            // update static menu-item
 
-  Controller* contr;
+  bool optionsexist; // defined options in quickmenu
 
-  bool comset;        // command area text is set
-  int activemenu;     // index to active quickmenu
   int timerinterval;  // for demo
   bool timeron;       // for demo
   int demoTimer;      // for demo
 
   std::vector<quickMenu> qm;        // datastructure for quickmenus
-  std::vector<quickMenu> orig_qm;   // original copies of static menus
-  std::vector<quickMenu> chng_qm;   // changed static menus
 
-  int prev_plotindex;  // last plotted command
-  int prev_listindex;  // -- " --
+  //! index to selected quickmenu in qm
+  int selected_list;
 
-  int firstcustom;     // first and last custom menus
-  int lastcustom;
-  int firststatic;     // first static menu
-  bool instaticmenu;   // inside static menu
+  //! menu index used for last plot
+  /*! Used together with plotted_item. Changed by apply, adding to history, and admin. */
+  int plotted_list;
 
-  void setCurrentMenu(int i);           // set active menu
-  void fillPrivateMenus();              // read menus from $HOMEDIR
-  void fillStaticMenus();              // read initial menus from setup
+  //! item index used for last plot
+  /*! Used together with plotted_list. */
+  int plotted_item;
+
+  int old_list;
+  int old_item;
+
+  void selectList(int i); //! set active menu
+  void updateOptions();   //! update option gui after changing selecting active menu
+
+  void fillHistoryMenus();                                       // read history menus from $HOMEDIR
+  void fillPrivateMenus();                                       // read user menus from $HOMEDIR
+  void fillStaticMenus(const std::vector<QuickMenuDefs>& qdefs); // read initial menus from setup
+
+  bool isValidList(int menu) const;
+
   void saveChanges(int,int);            // save command-text into qm
   void varExpand(std::vector<std::string>&);    // expand variables in command-text
   std::vector<int> sortKeys();           // sort keys by length
   void fillMenuList();                  // fill main menu combobox
+  void setCommand();
   void getCommand(std::vector<std::string>&);   // get command-text from comedit
-  void timerEvent(QTimerEvent*);        // timer for demo-mode
-  bool itemChanged(int menu, int item); // check changes in static menus
-  void replaceDynamicOptions(std::vector<std::string>& oldCommand,
-      std::vector<std::string>& newCommand);
+  void timerEvent(QTimerEvent*) override;       // timer for demo-mode
+  void replaceDynamicOptions(const std::vector<std::string>& oldCommand, std::vector<std::string>& newCommand);
 
   QString instanceNameSuffix() const;
 
@@ -112,49 +118,42 @@ Q_SIGNALS:
   void QuickHide();   // request hide for this dialog
 
 protected:
-  void closeEvent( QCloseEvent* );
+  void closeEvent(QCloseEvent*) override;
 
 public:
+  enum { HISTORY_MAP, HISTORY_VCROSS };
 
-  enum {
-    MAP,
-    VCROSS,
-    QMENU
-  };
-
-  QuickMenu(DianaMainWindow *main, Controller* c);
+  QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs);
 
   void start();
 
-  void readLog(const std::vector<std::string>& vstr,
-      const std::string& thisVersion, const std::string& logVersion);
+  void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
   std::vector<std::string> writeLog();
 
-  /// add command to history
-  void pushPlot(const std::string& name,
-      const PlotCommand_cpv& pstr, int index=0);
+  //! Push a new command on the history-stack
+  /*! Keeps at most maxplotsinstack history items. */
+  void addPlotToHistory(const std::string& name, const PlotCommand_cpv& pstr, int list = HISTORY_MAP);
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
   bool stepQPlot(int delta);
   bool prevHPlot(int index=0); ///< previous History plot
   bool nextHPlot(int index=0); ///< next History plot
-  bool stepHPlot(int menu, int delta); ///< previous/next History plot
+  bool stepHistoryPlot(int menu, int delta); ///< previous/next History plot
   bool prevList();  ///< previous Menu
   bool nextList();  ///< next Menu
 
   bool applyItem(const std::string &list, const std::string &item); 
 
   void applyPlot();
-  
-  void getDetails(int& plotidx,
-		  std::string& listname,
-		  std::string& plotname);
 
-  // quick-quick menu methods
-  std::vector<std::string> getCustomMenus();
-  bool addMenu(const std::string& name);
-  bool addToMenu(const int idx);
+  void getDetails(int& item_index, std::string& listname, std::string& itemname);
+
+  //! get list with names of user-defined quickmenues
+  std::vector<std::string> getUserMenus();
+
+  void addMenu(const std::string& name);
+  bool addToMenu(const std::string& name);
   std::string getCurrentName();
 
 Q_SIGNALS:
@@ -162,14 +161,14 @@ Q_SIGNALS:
   void showsource(const std::string, const std::string=""); ///< activate help
 
 private Q_SLOTS:
-  void menulistActivate(int);       // quick-menu combobox activated
-  void listClicked( QListWidgetItem *);       // single plot selected
-  void listDoubleClicked( QListWidgetItem *); // single plot double-clicked
+  void menuboxSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected); // list selected
+  void menuboxItemActivated(const QModelIndex& index);                                            // list item double-clicked
+  void filterMenus(const QString& filtertext);
+
   void comChanged();                // command-text changed callback
   void adminButton();               // start admin dialog
-  void resetButton();               // reset menu-item
   void updateButton();              // update menu-item
-  void plotButton();                // send current plotcommand
+  void plotActiveMenu();            // send current plotcommand
   void demoButton(bool on);         // start/stop demo-mode
   void intervalChanged(int value);  // demo-timer changed
   void comButton(bool on);          // show/hide command-text

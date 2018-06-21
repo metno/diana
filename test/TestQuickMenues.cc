@@ -28,6 +28,7 @@
 */
 
 #include <diQuickMenues.h>
+#include <puTools/miStringFunctions.h>
 
 #include <gtest/gtest.h>
 
@@ -130,4 +131,81 @@ TEST(TestQuickMenues, UpdateField2)
     EXPECT_TRUE(updateCommandSyntax(lines));
     EXPECT_EQ(expect, lines);
   }
+}
+
+namespace {
+
+std::vector<quickMenu> makeQM()
+{
+  std::vector<quickMenu> qm;
+  {
+    quickMenu q0;
+    q0.name = "haheho";
+    {
+      quickMenuOption o;
+      o.key = "this";
+      o.options.push_back("ha");
+      o.options.push_back("he");
+      o.options.push_back("ho");
+      o.def = "he";
+      q0.opt.push_back(o);
+    }
+    qm.push_back(q0);
+  }
+
+  {
+    quickMenu q1;
+    q1.name = "hihihi";
+    {
+      quickMenuOption o;
+      o.key = "hello";
+      o.options.push_back("hi");
+      o.options.push_back("hihi");
+      o.options.push_back("hihihi");
+      o.def = "hi";
+      q1.opt.push_back(o);
+    }
+    {
+      quickMenuOption o;
+      o.key = "bye";
+      o.options.push_back("ha");
+      o.options.push_back("hadet");
+      o.options.push_back("hadetbra");
+      o.def = "hadet";
+      q1.opt.push_back(o);
+    }
+    qm.push_back(q1);
+  }
+
+  return qm;
+}
+
+const static string QM_LOG_SEP = "=======================";
+
+} // namespace
+
+TEST(TestQuickMenues, WriteQuickMenuLog)
+{
+  const std::vector<quickMenu> qm = makeQM();
+  const std::vector<std::string> actual = writeQuickMenuLog(qm);
+  const std::vector<std::string> expected = {">name=haheho", "%this=he", QM_LOG_SEP, ">name=hihihi", "%hello=hi", "%bye=hadet", QM_LOG_SEP};
+  EXPECT_EQ(expected, actual);
+}
+
+TEST(TestQuickMenues, ReadQuickMenuLogSimple)
+{
+  std::vector<quickMenu> qm = makeQM();
+  const std::vector<std::string> loglines = {">name=hihihi", "%nosuchoptions=ignore", "%hello=hihi", QM_LOG_SEP, ">update=haheho", "%this=ha", QM_LOG_SEP};
+  readQuickMenuLog(qm, loglines);
+  EXPECT_EQ("ha", qm[0].opt[0].def);
+  EXPECT_EQ("hihi", qm[1].opt[0].def);
+  EXPECT_EQ("hadet", qm[1].opt[1].def);
+}
+
+TEST(TestQuickMenues, ReadQuickMenuLogIgnorePlotCommands)
+{
+  std::vector<quickMenu> qm = makeQM();
+  const std::vector<std::string> loglines = {">name=hihihi", "%hello=hihihi", "PLOTCOMMAND not known", QM_LOG_SEP};
+  readQuickMenuLog(qm, loglines);
+  EXPECT_EQ("hihihi", qm[1].opt[0].def);
 }

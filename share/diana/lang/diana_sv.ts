@@ -4215,8 +4215,8 @@ Type: %3</source>
     </message>
     <message>
         <location line="+20"/>
-        <source>Menus</source>
-        <translation>Menyer</translation>
+        <source>&amp;Menus</source>
+        <translation>&amp;Menyer</translation>
     </message>
     <message>
         <location line="+4"/>

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,9 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "qtQuickEditOptions.h"
+
 #include "qtUtility.h"
 
 #include <puTools/miStringFunctions.h>
@@ -61,27 +60,20 @@ QuickEditOptions::QuickEditOptions(QWidget* parent, vector<quickMenuOption>& opt
   , options(opt)
   , keynum(-1)
 {
-  QFont m_font= QFont("Helvetica", 12, 75);
-
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Change Dynamic Options")+"</b></em>", this);
   mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
   // up
-  QPixmap upPicture = QPixmap(up12x12_xpm);
-  upButton = PixmapButton( upPicture, this, 14, 12 );
+  upButton = PixmapButton(QPixmap(up12x12_xpm), this, 14, 12);
   upButton->setEnabled( false );
-  //  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
-  QShortcut* upButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_Up,this );
-  connect( upButtonShortcut, SIGNAL( activated() ),SLOT(upClicked()));
-  connect( upButton, SIGNAL(clicked()), SLOT(upClicked()));
+  upButton->setShortcut(tr("Ctrl+Up"));
+  connect(upButton, &QPushButton::clicked, this, &QuickEditOptions::upClicked);
+
   // down
-  QPixmap downPicture = QPixmap(down12x12_xpm);
-  downButton = PixmapButton( downPicture, this, 14, 12 );
+  downButton = PixmapButton(QPixmap(down12x12_xpm), this, 14, 12);
   downButton->setEnabled( false );
-  //  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
-  QShortcut* downButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_Down,this );
-  connect( downButtonShortcut, SIGNAL( activated() ),SLOT(downClicked()));
-  connect( downButton, SIGNAL(clicked()), SLOT(downClicked()));
+  downButton->setShortcut(tr("Ctrl+Down"));
+  connect(downButton, &QPushButton::clicked, this, &QuickEditOptions::downClicked);
 
   list= new QListWidget(this);
   connect(list, SIGNAL(itemClicked ( QListWidgetItem * )),
@@ -92,40 +84,34 @@ QuickEditOptions::QuickEditOptions(QWidget* parent, vector<quickMenuOption>& opt
   // new
   newButton = new QPushButton(QPixmap(filenew_xpm), tr("&New Key"), this );
   newButton->setEnabled( true );
-  connect( newButton, SIGNAL(clicked()), SLOT(newClicked()));
+  connect(newButton, &QPushButton::clicked, this, &QuickEditOptions::newClicked);
 
   // rename
   renameButton = new QPushButton( tr("&Change name.."), this );
   renameButton->setEnabled( false );
-  connect( renameButton, SIGNAL(clicked()), SLOT(renameClicked()));
+  connect(renameButton, &QPushButton::clicked, this, &QuickEditOptions::renameClicked);
 
   // erase
   eraseButton = new QPushButton(QPixmap(editcut_xpm), tr("Remove"), this );
   eraseButton->setEnabled( false );
-  //  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
-  QShortcut* eraseButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_X,this );
-  connect( eraseButtonShortcut, SIGNAL( activated() ),SLOT(eraseClicked()));
-  connect( eraseButton, SIGNAL(clicked()), SLOT(eraseClicked()));
+  eraseButton->setShortcut(tr("Ctrl+X"));
+  connect(eraseButton, &QPushButton::clicked, this, &QuickEditOptions::eraseClicked);
 
   QLabel* clabel= new QLabel(tr("Options (comma separated)"), this);
   // the choices
   choices= new QLineEdit(this);
   choices->setEnabled(false);
-  connect(choices, SIGNAL(textChanged(const QString&)),
-      this, SLOT(chChanged(const QString&)));
+  connect(choices, &QLineEdit::textChanged, this, &QuickEditOptions::chChanged);
 
   // a horizontal frame line
   QFrame* line = new QFrame( this );
   line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
-
   // last row of buttons
-  QPushButton* ok= new QPushButton( tr("&OK"), this);
-  QPushButton* cancel= new QPushButton( tr("&Cancel"), this );
-  //QPushButton* help=PushButton( "&Hjelp", this, m_font );
-  connect( ok, SIGNAL(clicked()), SLOT(accept()) );
-  connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
-  //connect( help, SIGNAL(clicked()), SLOT(helpClicked()) );
+  QPushButton* ok = new QPushButton(tr("&OK"), this);
+  QPushButton* cancel = new QPushButton(tr("&Cancel"), this);
+  connect(ok, &QPushButton::clicked, this, &QuickEditOptions::accept);
+  connect(cancel, &QPushButton::clicked, this, &QuickEditOptions::reject);
 
   QVBoxLayout* vl1= new QVBoxLayout();
   vl1->addWidget(upButton);
@@ -167,10 +153,9 @@ QuickEditOptions::QuickEditOptions(QWidget* parent, vector<quickMenuOption>& opt
 vector<quickMenuOption> QuickEditOptions::getOptions()
 {
   vector<quickMenuOption> opt;
-  int n=options.size();
-  for(int i=0;i<n;i++){
-    if( options[i].options.size() > 0 )
-      opt.push_back(options[i]);
+  for (quickMenuOption& o : options) {
+    if (!o.options.empty())
+      opt.push_back(o);
   }
   return opt;
 }
@@ -186,12 +171,12 @@ void QuickEditOptions::updateList()
   int origkeynum= keynum;
 
   list->clear();
-  int n= options.size();
-  for (int i=0; i<n; i++){
-    list->addItem(options[i].key.c_str());
+  for (quickMenuOption& o : options) {
+    list->addItem(QString::fromStdString(o.key));
   }
   keynum= origkeynum;
 
+  const int n = options.size();
   if (n==0){
     keynum= -1;
     choices->setEnabled(false);

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,6 +49,7 @@ class QTextEdit;
 */
 class QuickAdmin : public QDialog {
   Q_OBJECT
+
 private:
   std::vector<quickMenu> menus; // datastructure for quickmenus
 
@@ -65,30 +66,25 @@ private:
   QTextEdit* comedit;                // editor for command-text
   bool autochange;
 
-  int activeMenu;
-  int activeElement;
+  int active_list;
+  int active_item;
 
   quickMenu MenuCopy;
   quickMenuItem MenuItemCopy;
   int copyMenu;
   int copyElement;
 
-  int firstcustom;
-  int lastcustom;
-
   void updateWidgets();
   void updateCommand();
+  void updateButtonTexts();
 
 public:
-  QuickAdmin(QWidget*, std::vector<quickMenu>& qm,
-	     int fc, int lc);
+  QuickAdmin(QWidget*, std::vector<quickMenu>& qm);
 
-  std::vector<quickMenu> getMenus() const;
-  int FirstCustom() const {return firstcustom;}
-  int LastCustom() const {return lastcustom;}
+  const std::vector<quickMenu>& getMenus() const;
 
-  signals:
-  void help(const char* );  ///< activate help
+Q_SIGNALS:
+  void showsource(const std::string, const std::string = ""); ///< activate help
 
 private slots:
   void selectionChanged(QTreeWidgetItem * ,int); // new selection in menutree

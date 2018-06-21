@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -115,13 +115,12 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
 void AddtoMenu::fillMenu()
 {
   list->clear();
-  if (!quick) return;
-  vector<std::string> vs= quick->getCustomMenus();
-
-  for (unsigned int i=0; i<vs.size(); i++){
-    list->addItem(QString(vs[i].c_str()));
-  }
-  if (vs.size()>0){
+  if (!quick)
+    return;
+  const vector<std::string> vs = quick->getUserMenus();
+  for (const std::string& qn : vs)
+    list->addItem(QString::fromStdString(qn));
+  if (!vs.empty()) {
     list->setCurrentRow(0);
     list->item(0)->setSelected(true);
     okButton->setEnabled(true);
@@ -130,30 +129,22 @@ void AddtoMenu::fillMenu()
 
 void AddtoMenu::okClicked( )
 {
-  int idx= list->currentRow();
-  if (quick->addToMenu(idx))
+  std::string name = list->currentItem()->text().toStdString();
+  if (quick->addToMenu(name))
     accept();
 }
 
 void AddtoMenu::newClicked()
 {
   bool ok = false;
-  QString text = QInputDialog::getText(this,
-      tr("New Menu"),
-      tr("Make new menu with name:"),
-      QLineEdit::Normal,
-      QString::null, &ok );
-  if ( ok && !text.isEmpty() ){
-    if (quick->addMenu(text.toStdString())){
-      fillMenu();
-      QListWidgetItem* item=list->item(list->count()-1);
-      list->setCurrentItem(item);
-      item->setSelected(true);
-    }
+  QString text = QInputDialog::getText(this, tr("New Menu"), tr("Make new menu with name:"), QLineEdit::Normal, QString::null, &ok);
+  if (ok && !text.isEmpty()) {
+    quick->addMenu(text.toStdString());
+    fillMenu();
   }
 }
 
-void AddtoMenu::menuSelected( QListWidgetItem * item )
+void AddtoMenu::menuSelected(QListWidgetItem*)
 {
   okButton->setEnabled(true);
 }

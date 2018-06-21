@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -47,20 +47,32 @@ struct quickMenuItem{
 };
 
 /// contents of one quickmenu
-struct quickMenu{
+struct quickMenu
+{
+  enum Type { QM_SHARED, QM_USER, QM_HISTORY_MAIN, QM_HISTORY_VCROSS };
+
   std::string filename; ///< file containing menu definitions
   std::string name;     ///< name of menuitem
-  int plotindex;        ///< index of the "current" item for this quickMenu
+  Type type;
+  int item_index;                     ///< index of the "current" item for this quickMenu
   std::vector<quickMenuOption> opt;   /// any quickMenuOption
   std::deque<quickMenuItem> menuitems;/// all items in this menu
 
-  bool step_plotindex(int delta);
+  bool is_history() const { return type == QM_HISTORY_MAIN || type == QM_HISTORY_VCROSS; }
 
-  bool valid_plotindex(int pi) const
-    { return pi >= 0 && pi < (int)menuitems.size(); }
+  const quickMenuItem& item(int i) const { return menuitems[i]; }
 
-  bool valid_plotindex() const
-    { return valid_plotindex(plotindex); }
+  quickMenuItem& item(int i) { return menuitems[i]; }
+
+  const quickMenuItem& item() const { return item(item_index); }
+
+  quickMenuItem& item() { return item(item_index); }
+
+  bool step_item(int delta);
+
+  bool valid_item(int pi) const { return pi >= 0 && pi < (int)menuitems.size(); }
+
+  bool valid_item() const { return valid_item(item_index); }
 
   const std::vector<std::string>& command() const;
 };
@@ -70,6 +82,14 @@ bool writeQuickMenu(const quickMenu& qm);
 
 /// read quick-menu file, and fill struct
 bool readQuickMenu(quickMenu& qm);
+
+//! write quickmenu log
+/*! Log contains option values. */
+std::vector<std::string> writeQuickMenuLog(const std::vector<quickMenu>& qm);
+
+//! read quickmenu log
+/*! Log as written by writeQuickMenuLog. */
+void readQuickMenuLog(std::vector<quickMenu>& qm, const std::vector<std::string>& loglines);
 
 /// if old syntax, update
 bool updateCommandSyntax(std::vector<std::string>& lines);

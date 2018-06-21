@@ -4728,7 +4728,7 @@ Vil du kjøre dine endringer først?</translation>
         <translation>Editer hurtigmenyer</translation>
     </message>
     <message>
-        <source>Menus</source>
+        <source>&amp;Menus</source>
         <translation type="obsolete">Menyer</translation>
     </message>
     <message>
@@ -4925,8 +4925,8 @@ Vil du kjøre dine endringer først?</translation>
     </message>
     <message>
         <location line="+20"/>
-        <source>Menus</source>
-        <translation>Menyer</translation>
+        <source>&amp;Menus</source>
+        <translation>&amp;Menyer</translation>
     </message>
     <message>
         <location line="+4"/>

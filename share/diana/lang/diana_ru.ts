@@ -4465,8 +4465,8 @@ Do you want to run your changes first?</source>
     </message>
     <message>
         <location line="+20"/>
-        <source>Menus</source>
-        <translation>Меню</translation>
+        <source>&amp;Menus</source>
+        <translation>&amp;Меню</translation>
     </message>
     <message>
         <location line="+4"/>

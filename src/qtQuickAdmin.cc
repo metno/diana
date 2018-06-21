@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -26,8 +26,6 @@
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
-#include "diana_config.h"
 
 #include "qtQuickAdmin.h"
 #include "qtQuickEditOptions.h"
@@ -90,9 +88,14 @@ public:
   }
 };
 
-QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
-  QDialog(parent), menus(qm), autochange(true),  activeMenu(-1),
-  activeElement(-1), copyMenu(-1), copyElement(-1),firstcustom(fc), lastcustom(lc)
+QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
+    : QDialog(parent)
+    , menus(qm)
+    , autochange(true)
+    , active_list(-1)
+    , active_item(-1)
+    , copyMenu(-1)
+    , copyElement(-1)
 {
   setModal(true);
 
@@ -104,66 +107,52 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
   menutree->setSortingEnabled(false);
   menutree->setColumnCount(1);
 
-  connect(menutree, SIGNAL(itemClicked(QTreeWidgetItem * ,int)),
-      this, SLOT(selectionChanged(QTreeWidgetItem * ,int)));
+  connect(menutree, &QTreeWidget::itemClicked, this, &QuickAdmin::selectionChanged);
 
   // up
-  QPixmap upPicture(up12x12_xpm);
-  upButton = PixmapButton(upPicture, this, 14, 12);
+  upButton = PixmapButton(QPixmap(up12x12_xpm), this, 14, 12);
   upButton->setEnabled(false);
-  //  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
-  QShortcut* upButtonShortcut = new QShortcut(Qt::CTRL + Qt::Key_Up, this);
-  connect(upButtonShortcut, SIGNAL(activated()), SLOT(upClicked()));
-  connect(upButton, SIGNAL(clicked()), SLOT(upClicked()));
+  upButton->setShortcut(tr("Ctrl+Up"));
+  connect(upButton, &QPushButton::clicked, this, &QuickAdmin::upClicked);
+
   // down
-  QPixmap downPicture(down12x12_xpm);
-  downButton = PixmapButton(downPicture, this, 14, 12);
+  downButton = PixmapButton(QPixmap(down12x12_xpm), this, 14, 12);
   downButton->setEnabled(false);
-  //  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
-  QShortcut* downButtonShortcut = new QShortcut(Qt::CTRL + Qt::Key_Down, this);
-  connect(downButtonShortcut, SIGNAL(activated()), SLOT(downClicked()));
-  connect(downButton, SIGNAL(clicked()), SLOT(downClicked()));
+  downButton->setShortcut(tr("Ctrl+Down"));
+  connect(downButton, &QPushButton::clicked, this, &QuickAdmin::downClicked);
 
   // Command buttons for menu-elements
   // new
   newButton = new QPushButton(QPixmap(filenew_xpm), tr("&New"), this);
   newButton->setEnabled(false);
-  connect(newButton, SIGNAL(clicked()), SLOT(newClicked()));
+  connect(newButton, &QPushButton::clicked, this, &QuickAdmin::newClicked);
 
   // new from file
-  newfileButton = new QPushButton(QPixmap(fileopen_xpm),
-      tr("New from &file.."), this);
+  newfileButton = new QPushButton(QPixmap(fileopen_xpm), tr("New from &file.."), this);
   newfileButton->setEnabled(false);
-  connect(newfileButton, SIGNAL(clicked()), SLOT(newfileClicked()));
+  connect(newfileButton, &QPushButton::clicked, this, &QuickAdmin::newfileClicked);
 
   // rename
   renameButton = new QPushButton(tr("&Change name.."), this);
   renameButton->setEnabled(false);
-  connect(renameButton, SIGNAL(clicked()), SLOT(renameClicked()));
+  connect(renameButton, &QPushButton::clicked, this, &QuickAdmin::renameClicked);
 
   // erase
-  eraseButton = new QPushButton(QPixmap(editcut_xpm), tr("Remove"), this);
+  eraseButton = new QPushButton(QPixmap(editcut_xpm), "", this);
   eraseButton->setEnabled(false);
-  //  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
-  QShortcut* eraseButtonShortcut = new QShortcut(Qt::CTRL + Qt::Key_X, this);
-  connect(eraseButtonShortcut, SIGNAL(activated()), SLOT(eraseClicked()));
-  connect(eraseButton, SIGNAL(clicked()), SLOT(eraseClicked()));
+  connect(eraseButton, &QPushButton::clicked, this, &QuickAdmin::eraseClicked);
 
   // copy
-  copyButton = new QPushButton(QPixmap(editcopy_xpm), tr("Copy"), this);
+  copyButton = new QPushButton(QPixmap(editcopy_xpm), "", this);
   copyButton->setEnabled(false);
-  //  copyButton->setAccel(Qt::CTRL+Qt::Key_C);
-  QShortcut* copyButtonShortcut = new QShortcut(Qt::CTRL + Qt::Key_C, this);
-  connect(copyButtonShortcut, SIGNAL(activated()), SLOT(upClicked()));
-  connect(copyButton, SIGNAL(clicked()), SLOT(copyClicked()));
+  connect(copyButton, &QPushButton::clicked, this, &QuickAdmin::copyClicked);
 
   // paste
-  pasteButton = new QPushButton(QPixmap(editpaste_xpm), tr("Paste"), this);
+  pasteButton = new QPushButton(QPixmap(editpaste_xpm), "", this);
   pasteButton->setEnabled(false);
-  //  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
-  QShortcut* pasteButtonShortcut = new QShortcut(Qt::CTRL + Qt::Key_V, this);
-  connect(pasteButtonShortcut, SIGNAL(activated()), SLOT(pasteClicked()));
-  connect(pasteButton, SIGNAL(clicked()), SLOT(pasteClicked()));
+  connect(pasteButton, &QPushButton::clicked, this, &QuickAdmin::pasteClicked);
+
+  updateButtonTexts();
 
   // a horizontal frame line
   QFrame* line = new QFrame(this);
@@ -240,84 +229,76 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
 
   updateWidgets();
   resize(500, 550);
-  }
+}
 
-void QuickAdmin::selectionChanged(QTreeWidgetItem *p, int i)
+void QuickAdmin::updateButtonTexts()
 {
-  if (p) {
-    QuickTreeWidgetItem* qp = (QuickTreeWidgetItem*) (p);
-    activeMenu = qp->Menu();
-    activeElement = qp->Item();
+  if (active_item == -1) {
+    newButton->setText(tr("&New menu.."));
+    copyButton->setText(tr("Copy menu"));
+    eraseButton->setText(tr("Remove menu.."));
+  } else {
+    newButton->setText(tr("&New plot.."));
+    copyButton->setText(tr("Copy plot"));
+    eraseButton->setText(tr("Remove plot"));
+  }
+  if (copyMenu == -1)
+    pasteButton->setText(tr("Paste"));
+  else if (copyElement == -1)
+    pasteButton->setText(tr("Paste menu"));
+  else
+    pasteButton->setText(tr("Paste plot"));
 
-    if (activeElement == -1) {
-      newButton->setText(tr("&New menu.."));
-      copyButton->setText(tr("Copy menu"));
-      eraseButton->setText(tr("Remove menu.."));
-    } else {
-      newButton->setText(tr("&New plot.."));
-      copyButton->setText(tr("Copy plot"));
-      eraseButton->setText(tr("Remove plot"));
-    }
-    updateCommand();
+  // need to set shortcuts after changing text
+  copyButton->setShortcut(tr("Ctrl+C"));
+  eraseButton->setShortcut(tr("Ctrl+X"));
+  pasteButton->setShortcut(tr("Ctrl+V"));
+}
 
-    int nitems = menus[activeMenu].menuitems.size();
+void QuickAdmin::selectionChanged(QTreeWidgetItem* p, int)
+{
+  if (!p)
+    return;
+  QuickTreeWidgetItem* qp = (QuickTreeWidgetItem*)(p);
+  active_list = qp->Menu();
+  active_item = qp->Item();
+  updateButtonTexts();
+  updateCommand();
 
-    if (activeMenu >= firstcustom && activeMenu <= lastcustom) {
-      // up
-      upButton->setEnabled((activeElement > 0)
-          || (activeElement == -1 && activeMenu > firstcustom));
-      // down
-      downButton->setEnabled((activeElement >= 0 && activeElement < nitems - 1)
-          || (activeElement == -1 && activeMenu < lastcustom));
-      // new, erase, copy, rename
-      newButton->setEnabled(true);
-      newfileButton->setEnabled(true);
-      renameButton->setEnabled(true);
-      eraseButton->setEnabled(true);
-      copyButton->setEnabled(true);
-      // paste
-      if (copyMenu != -1)
-        pasteButton->setEnabled(true);
-      else
-        pasteButton->setEnabled(false);
-      // edit options
-      optionButton->setEnabled(true);
+  const int nitems = menus[active_list].menuitems.size();
 
-    } else if (activeMenu == 0) { // history
-      // up
-      upButton->setEnabled(activeElement > 0);
-      // down
-      downButton->setEnabled(activeElement >= 0 && activeElement < nitems - 1);
-      // new
-      newButton->setEnabled(activeElement == -1);
-      // new from file
-      newfileButton->setEnabled(true);
-      // rename
-      renameButton->setEnabled(false);
-      // erase
-      if (activeElement != -1)
-        eraseButton->setEnabled(true);
-      else
-        eraseButton->setEnabled(false);
-      // copy
-      copyButton->setEnabled(true);
-      // paste
-      pasteButton->setEnabled(copyMenu != -1 && activeElement == -1);
-      // edit options
-      optionButton->setEnabled(false);
+  if (menus[active_list].type == quickMenu::QM_USER) {
+    upButton->setEnabled(active_item > 0);
+    downButton->setEnabled(active_item >= 0 && active_item < nitems - 1);
+    newButton->setEnabled(true);
+    newfileButton->setEnabled(true);
+    renameButton->setEnabled(true);
+    eraseButton->setEnabled(true);
+    copyButton->setEnabled(true);
+    pasteButton->setEnabled(copyMenu != -1);
+    optionButton->setEnabled(true);
 
-    } else { // standard menus
-      upButton->setEnabled(false);
-      downButton->setEnabled(false);
-      newButton->setEnabled(false);
-      newfileButton->setEnabled(false);
-      renameButton->setEnabled(false);
-      eraseButton->setEnabled(false);
-      copyButton->setEnabled(true);
-      pasteButton->setEnabled(false);
-      // edit options
-      optionButton->setEnabled(false);
-    }
+  } else if (menus[active_list].is_history()) {
+    upButton->setEnabled(active_item > 0);
+    downButton->setEnabled(active_item >= 0 && active_item < nitems - 1);
+    newButton->setEnabled(active_item == -1);
+    newfileButton->setEnabled(true);
+    renameButton->setEnabled(false);
+    eraseButton->setEnabled(active_item != -1);
+    copyButton->setEnabled(true);
+    pasteButton->setEnabled(copyMenu != -1 && active_item == -1);
+    optionButton->setEnabled(false);
+
+  } else { // standard menus
+    upButton->setEnabled(false);
+    downButton->setEnabled(false);
+    newButton->setEnabled(false);
+    newfileButton->setEnabled(false);
+    renameButton->setEnabled(false);
+    eraseButton->setEnabled(false);
+    copyButton->setEnabled(true);
+    pasteButton->setEnabled(false);
+    optionButton->setEnabled(false);
   }
 }
 
@@ -333,14 +314,14 @@ void QuickAdmin::updateWidgets()
   for (int i = 0; i < n; i++) {
     QString mname(menus[i].name.c_str());
     QuickTreeWidgetItem* pp = new QuickTreeWidgetItem(menutree, QStringList(mname), i, -1);
-    if (activeMenu == i && activeElement == -1)
+    if (active_list == i && active_item == -1)
       active = pp;
     int m = menus[i].menuitems.size();
     for (int j = 0; j < m; j++) {
       QString qstr = QString::fromStdString(menus[i].menuitems[j].name);
       qstr.replace(QRegExp("</*font[^>]*>"), "");
       QTreeWidgetItem *tmp = new QuickTreeWidgetItem(pp, QStringList(qstr), i, j);
-      if (activeMenu == i && activeElement == j)
+      if (active_list == i && active_item == j)
         active = tmp;
     }
   }
@@ -352,38 +333,32 @@ void QuickAdmin::updateWidgets()
   }
 }
 
-vector<quickMenu> QuickAdmin::getMenus() const
+const std::vector<quickMenu>& QuickAdmin::getMenus() const
 {
   return menus;
 }
 
 void QuickAdmin::helpClicked()
 {
-  emit help("quickadmin");
+  Q_EMIT showsource("quickadmin", "");
 }
 
 void QuickAdmin::upClicked()
 {
-  if (activeElement == -1) {
-    std::swap(menus[activeMenu - 1], menus[activeMenu]);
-    activeMenu--;
-  } else {
-    std::swap(menus[activeMenu].menuitems[activeElement - 1],
-        menus[activeMenu].menuitems[activeElement]);
-    activeElement--;
+  if (active_item != -1) {
+    quickMenu& q = menus[active_list];
+    std::swap(q.item(active_item - 1), q.item(active_item));
+    active_item--;
   }
   updateWidgets();
 }
 
 void QuickAdmin::downClicked()
 {
-  if (activeElement == -1) {
-    std::swap(menus[activeMenu + 1], menus[activeMenu]);
-    activeMenu++;
-  } else {
-    std::swap(menus[activeMenu].menuitems[activeElement + 1],
-        menus[activeMenu].menuitems[activeElement]);
-    activeElement++;
+  if (active_item != -1) {
+    quickMenu& q = menus[active_list];
+    std::swap(q.item(active_item + 1), q.item(active_item));
+    active_item++;
   }
   updateWidgets();
 }
@@ -402,21 +377,17 @@ static void initQmName(quickMenu& qm)
 void QuickAdmin::newClicked()
 {
   bool ok = false;
-  if (activeElement == -1) {
+  if (active_item == -1) {
     QString text = QInputDialog::getText(this, tr("Make new menu"),
         tr("Make new menu with name:"), QLineEdit::Normal, QString::null, &ok);
     if (ok && !text.trimmed().isEmpty()) {
       quickMenu tmp;
+      tmp.type = quickMenu::QM_USER;
       tmp.name = text.toStdString();
       initQmName(tmp);
-      tmp.plotindex = 0;
+      tmp.item_index = 0;
 
-      menus.insert(menus.begin() + activeMenu + 1, tmp);
-      if (firstcustom < 0) {
-        firstcustom = 1;
-        lastcustom = 0;
-      }
-      lastcustom++;
+      menus.insert(menus.begin() + active_list + 1, tmp);
     }
 
   } else {
@@ -425,8 +396,7 @@ void QuickAdmin::newClicked()
     if (ok && !text.isEmpty()) {
       quickMenuItem tmp;
       tmp.name = text.toStdString();
-      menus[activeMenu].menuitems.insert(menus[activeMenu].menuitems.begin()
-          + activeElement, tmp);
+      menus[active_list].menuitems.insert(menus[active_list].menuitems.begin() + active_item, tmp);
     }
   }
   if (ok)
@@ -441,17 +411,12 @@ void QuickAdmin::newfileClicked()
     return;
 
   quickMenu tmp;
+  tmp.type = quickMenu::QM_USER;
   tmp.filename = s.toStdString();
-  tmp.plotindex = 0;
+  tmp.item_index = 0;
   if (readQuickMenu(tmp)) {
     initQmName(tmp);
-
-    menus.insert(menus.begin() + activeMenu + 1, tmp);
-    if (firstcustom < 0) {
-      firstcustom = 1;
-      lastcustom = 0;
-    }
-    lastcustom++;
+    menus.insert(menus.begin() + active_list + 1, tmp);
   }
   updateWidgets();
 }
@@ -459,20 +424,20 @@ void QuickAdmin::newfileClicked()
 void QuickAdmin::renameClicked()
 {
   bool ok = false;
-  if (activeElement == -1) {
-    QString text = QInputDialog::getText(this, tr("Change menu name"), tr("New name:"),
-        QLineEdit::Normal, QString::fromStdString(menus[activeMenu].name), &ok);
+  if (active_item == -1) {
+    QString text =
+        QInputDialog::getText(this, tr("Change menu name"), tr("New name:"), QLineEdit::Normal, QString::fromStdString(menus[active_list].name), &ok);
     text = text.trimmed();
     if (ok && !text.isEmpty())
-      menus[activeMenu].name = text.toStdString();
-    initQmName(menus[activeMenu]);
+      menus[active_list].name = text.toStdString();
+    initQmName(menus[active_list]);
 
   } else {
-    QString text = QInputDialog::getText(this, tr("Change plot name"), tr("New name:"),
-        QLineEdit::Normal, QString::fromStdString(menus[activeMenu].menuitems[activeElement].name), &ok);
+    QString text = QInputDialog::getText(this, tr("Change plot name"), tr("New name:"), QLineEdit::Normal,
+                                         QString::fromStdString(menus[active_list].menuitems[active_item].name), &ok);
     text = text.trimmed();
     if (ok && !text.isEmpty())
-      menus[activeMenu].menuitems[activeElement].name = text.toStdString();
+      menus[active_list].menuitems[active_item].name = text.toStdString();
   }
   if (ok)
     updateWidgets();
@@ -481,26 +446,21 @@ void QuickAdmin::renameClicked()
 void QuickAdmin::eraseClicked()
 {
   copyClicked();
-  if (activeElement == -1) {
+  if (active_item == -1) {
     // remove file
-    QFile qmfile(QString::fromStdString(menus[activeMenu].filename));
+    QFile qmfile(QString::fromStdString(menus[active_list].filename));
     if (!qmfile.remove()) {
-      METLIBS_LOG_INFO("Could not remove file: '" << menus[activeMenu].filename << "'");
+      METLIBS_LOG_INFO("Could not remove file: '" << menus[active_list].filename << "'");
     }
-    menus.erase(menus.begin() + activeMenu);
-    lastcustom--;
-    if (lastcustom < firstcustom) {
-      firstcustom = -1;
-    }
+    menus.erase(menus.begin() + active_list);
 
   } else {
-    menus[activeMenu].menuitems.erase(menus[activeMenu].menuitems.begin()
-        + activeElement);
-    if (activeElement == int(menus[activeMenu].menuitems.size())) {
-      if (activeElement == 0)
-        activeElement = -1;
+    menus[active_list].menuitems.erase(menus[active_list].menuitems.begin() + active_item);
+    if (active_item == int(menus[active_list].menuitems.size())) {
+      if (active_item == 0)
+        active_item = -1;
       else
-        activeElement--;
+        active_item--;
     }
   }
   updateWidgets();
@@ -508,77 +468,56 @@ void QuickAdmin::eraseClicked()
 
 void QuickAdmin::copyClicked()
 {
-
-  copyMenu = activeMenu;
-  copyElement = activeElement;
+  copyMenu = active_list;
+  copyElement = active_item;
 
   if (copyElement == -1) {
-    //     METLIBS_LOG_DEBUG("Copy menu:" << copyMenu);
     MenuCopy = menus[copyMenu];
   } else {
-    //     METLIBS_LOG_DEBUG("Copy item:" << copyElement
-    // 	 << " from menu:" << copyMenu);
     MenuItemCopy = menus[copyMenu].menuitems[copyElement];
   }
 
-  if (copyElement == -1)
-    pasteButton->setText(tr("Paste menu"));
-  else
-    pasteButton->setText(tr("Paste plot"));
+  updateButtonTexts();
 
-  //  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
-
-  if ((activeMenu >= firstcustom && activeMenu <= lastcustom) || (activeMenu
-      == 0 && activeElement == -1))
+  if (menus[active_list].type == quickMenu::QM_USER || (active_list == 0 && active_item == -1))
     pasteButton->setEnabled(true);
 }
 
 void QuickAdmin::pasteClicked()
 {
   if (copyElement == -1) {
-    METLIBS_LOG_DEBUG("Paste menu:" << copyMenu << " after menu:" << activeMenu);
+    METLIBS_LOG_DEBUG("Paste menu:" << copyMenu << " after menu:" << active_list);
     quickMenu tmp = MenuCopy;
+    tmp.type = quickMenu::QM_USER;
     tmp.name += "2";
     initQmName(tmp);
-    tmp.plotindex = 0;
-    menus.insert(menus.begin() + activeMenu + 1, tmp);
-    if (firstcustom < 0) {
-      firstcustom = 1;
-      lastcustom = 0;
-    }
-    lastcustom++;
-    activeMenu++;
-    activeElement = -1; // move to start of menu
+    tmp.item_index = 0;
+    menus.insert(menus.begin() + active_list + 1, tmp);
+    active_list++;
+    active_item = -1; // move to start of menu
   } else {
-    //     METLIBS_LOG_DEBUG("Paste item:" << copyElement
-    //     	 << " from menu:" << copyMenu
-    //      	 << " to item:" << activeElement << ", menu:" << activeMenu);
     quickMenuItem tmp = MenuItemCopy;
-    int pos = (activeElement != -1 ? activeElement + 1 : 0);
-    menus[activeMenu].menuitems.insert(menus[activeMenu].menuitems.begin()
-        + pos, tmp);
-    activeElement = pos;
+    int pos = (active_item != -1 ? active_item + 1 : 0);
+    menus[active_list].menuitems.insert(menus[active_list].menuitems.begin() + pos, tmp);
+    active_item = pos;
   }
   copyMenu = -1;
   copyElement = -1;
 
-  pasteButton->setText(tr("Paste"));
   pasteButton->setEnabled(false);
+  updateButtonTexts();
   updateWidgets();
 }
 
 void QuickAdmin::updateCommand()
 {
   autochange = true;
-  if (activeMenu >= 0 && activeElement >= 0) {
+  if (active_list >= 0 && active_item >= 0) {
     std::string ts;
-    int n = menus[activeMenu].menuitems[activeElement].command.size();
-    for (int i = 0; i < n; i++) {
-      ts += menus[activeMenu].menuitems[activeElement].command[i];
-      ts += "\n";
-    }
+    for (const std::string& c : menus[active_list].menuitems[active_item].command)
+      ts += c + "\n";
     // set command into command-edit
-    comedit->setText(ts.c_str());
+    comedit->setText(QString::fromStdString(ts));
   } else
     comedit->clear();
   autochange = false;
@@ -588,19 +527,19 @@ void QuickAdmin::comChanged()
 {
   if (autochange)
     return;
-  if (activeElement < 0 || activeMenu < 0)
+  if (active_item < 0 || active_list < 0)
     return;
   vector<string> s;
   string str = comedit->toPlainText().toStdString();
-  if (not str.empty())
+  if (!str.empty())
     s.push_back(str);
-  menus[activeMenu].menuitems[activeElement].command = s;
+  menus[active_list].menuitems[active_item].command = s;
 }
 
 void QuickAdmin::optionClicked()
 {
-  std::unique_ptr<QuickEditOptions> qeo(new QuickEditOptions(this, menus[activeMenu].opt));
+  std::unique_ptr<QuickEditOptions> qeo(new QuickEditOptions(this, menus[active_list].opt));
   if (qeo->exec()) {
-    menus[activeMenu].opt = qeo->getOptions();
+    menus[active_list].opt = qeo->getOptions();
   }
 }
