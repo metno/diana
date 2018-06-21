@@ -590,22 +590,23 @@ void QuickMenu::fillPrivateMenus()
 
 void QuickMenu::fillStaticMenus()
 {
-
-  quickMenu qtmp;
   orig_qm.clear();
+
   vector<QuickMenuDefs> qdefs;
   contr->getQuickMenus(qdefs);
 
-  int n= qdefs.size();
-  for (int i=0; i<n; i++){
-    qtmp.name= "";
-    qtmp.filename= qdefs[i].filename;
-    qtmp.plotindex= 0;
-    qtmp.menuitems.clear();
-    if (readQuickMenu(qtmp)){
-      qm.push_back(qtmp);
-      orig_qm.push_back(qtmp);
-      chng_qm.push_back(qtmp);
+  quickMenu qtmp;
+  for (const QuickMenuDefs& qdef : qdefs) {
+    for (const std::string& quickfile : diutil::glob(qdef.filename)) {
+      qtmp.name = "";
+      qtmp.filename = quickfile;
+      qtmp.plotindex = 0;
+      qtmp.menuitems.clear();
+      if (readQuickMenu(qtmp)) {
+        qm.push_back(qtmp);
+        orig_qm.push_back(qtmp);
+        chng_qm.push_back(qtmp);
+      }
     }
   }
 }
