@@ -498,9 +498,8 @@ void QuickMenu::applyPlot()
 
 void QuickMenu::adminButton()
 {
-  QuickAdmin* admin= new QuickAdmin(this, qm, firstcustom, lastcustom);
-  //connect(admin, SIGNAL(help(const char*)), this, SIGNAL(help(const char*)));
-  if (admin->exec() ){
+  std::unique_ptr<QuickAdmin> admin(new QuickAdmin(this, qm, firstcustom, lastcustom));
+  if (admin->exec()) {
     // get updated list of menus
     qm= admin->getMenus();
     firstcustom= admin->FirstCustom();

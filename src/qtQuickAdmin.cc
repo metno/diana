@@ -599,7 +599,7 @@ void QuickAdmin::comChanged()
 
 void QuickAdmin::optionClicked()
 {
-  QuickEditOptions* qeo = new QuickEditOptions(this, menus[activeMenu].opt);
+  std::unique_ptr<QuickEditOptions> qeo(new QuickEditOptions(this, menus[activeMenu].opt));
   if (qeo->exec()) {
     menus[activeMenu].opt = qeo->getOptions();
   }
