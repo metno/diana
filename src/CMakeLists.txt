@@ -349,6 +349,7 @@ SET(LIBDIANAUI_QTSOURCES
   qtTimeStepSpinbox.cc
   qtToggleButton.cc
   qtTrajectoryDialog.cc
+  qtTreeFilterProxyModel.cc
   qtUffdaDialog.cc
   qtUiEventHandler.cc
   qtWorkArea.cc

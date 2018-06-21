@@ -35,6 +35,7 @@
 #include "diController.h"
 #include "diKVListPlotCommand.h"
 #include "qtToggleButton.h"
+#include "qtTreeFilterProxyModel.h"
 #include "qtUtility.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
@@ -53,7 +54,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSlider>
-#include <QSortFilterProxyModel>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QStandardItem>
@@ -81,48 +81,6 @@
 using namespace std;
 
 namespace { // anonymous
-
-class ModelFilterProxyModel : public QSortFilterProxyModel
-{
-public:
-  ModelFilterProxyModel(QObject* parent=0)
-    : QSortFilterProxyModel(parent) { }
-
-protected:
-  bool filterAcceptsRow(int row, const QModelIndex &parent) const;
-
-private:
-  bool acceptIndex(const QModelIndex& idx) const;
-};
-
-bool ModelFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
-{
-  if (!parent.isValid()) {
-    // accept highest level (model groups) if group name matches
-    const QModelIndex group = sourceModel()->index(row, 0, parent);
-    if (acceptIndex(group))
-      return true;
-
-    // also accept if any child (model name) matches
-    const int modelnames = sourceModel()->rowCount(group);
-    for (int r=0; r<modelnames; ++r) {
-      if (acceptIndex(group.child(r, 0)))
-        return true;
-    }
-  } else {
-    // accept if model group or model name match
-    if (acceptIndex(parent) || acceptIndex(parent.child(row, 0)))
-      return true;
-
-  }
-  return false;
-}
-
-bool ModelFilterProxyModel::acceptIndex(const QModelIndex &idx) const
-{
-  const QString text = sourceModel()->data(idx).toString();
-  return (filterRegExp().indexIn(text) >= 0); // match anywhere
-}
 
 const int ROLE_MODELGROUP = Qt::UserRole + 1;
 
@@ -262,7 +220,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   modelbox->setSelectionMode(QAbstractItemView::SingleSelection);
   modelbox->setSelectionBehavior(QAbstractItemView::SelectRows);
   modelItems = new QStandardItemModel(this);
-  modelFilter = new ModelFilterProxyModel(this);
+  modelFilter = new TreeFilterProxyModel(this);
   modelFilter->setDynamicSortFilter(true);
   modelFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
   modelFilter->setSourceModel(modelItems);
