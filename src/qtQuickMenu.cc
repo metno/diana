@@ -209,8 +209,7 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
 
 void QuickMenu::start()
 {
-  fillMenuList();
-  selectList(0);
+  fillMenuList(false);
 }
 
 vector<std::string> QuickMenu::getUserMenus()
@@ -317,16 +316,15 @@ void QuickMenu::addPlotToHistory(const std::string& name, const PlotCommand_cpv&
 void QuickMenu::selectList(int i)
 {
   METLIBS_LOG_SCOPE(LOGVAL(i));
-  if (!isValidList(i))
-    return;
-  selected_list = i;
+  if (isValidList(i)) {
+    selected_list = i;
 
-  int parentRow = selected_list;
-  int childRow = qm[selected_list].item_index;
-  QModelIndex parent = menuItems->index(parentRow, 0);
-  QModelIndex child = menuItems->index(childRow, 0, parent);
-  menubox->setCurrentIndex(menuFilter->mapFromSource(child));
-
+    int parentRow = selected_list;
+    int childRow = qm[selected_list].item_index;
+    QModelIndex parent = menuItems->index(parentRow, 0);
+    QModelIndex child = menuItems->index(childRow, 0, parent);
+    menubox->setCurrentIndex(menuFilter->mapFromSource(child));
+  }
   updateOptions();
   setCommand();
 }
@@ -670,7 +668,7 @@ vector<string> QuickMenu::writeLog()
   return writeQuickMenuLog(qm);
 }
 
-void QuickMenu::fillMenuList()
+void QuickMenu::fillMenuList(bool select)
 {
   menuItems->clear();
   if (qm.empty())
@@ -691,10 +689,15 @@ void QuickMenu::fillMenuList()
   }
   menubox->collapseAll();
 
-  // set active menu
   if (selected_list >= int(qm.size()))
     selected_list = qm.size() - 1;
-  selectList(selected_list);
+  if (select) {
+    // set active menu
+    selectList(selected_list);
+  } else {
+    updateOptions();
+    setCommand();
+  }
 }
 
 void QuickMenu::filterMenus(const QString& filtertext)
@@ -710,18 +713,18 @@ void QuickMenu::filterMenus(const QString& filtertext)
 void QuickMenu::updateOptions()
 {
   METLIBS_LOG_SCOPE();
-  if (!isValidList(selected_list))
-    return;
-  quickMenu& q = qm[selected_list];
-
   // hide old options
   for (int i=0; i<maxoptions; i++){
     optionmenu[i]->adjustSize();
     optionlabel[i]->hide();
     optionmenu[i]->hide();
   }
-  updating_options = true;
+
   // add options
+  updating_options = true;
+  if (!isValidList(selected_list))
+    return;
+  quickMenu& q = qm[selected_list];
   const int n = std::min(q.opt.size(), (size_t)maxoptions);
   for (int i = 0; i < n; ++i) {
     quickMenuOption& o = q.opt[i];
@@ -793,8 +796,10 @@ void QuickMenu::setCommand()
 {
   METLIBS_LOG_SCOPE();
   QString ts;
-  for (const std::string& c : qm[selected_list].item().command)
-    ts += QString::fromStdString(c) + "\n";
+  if (isValidList(selected_list)) {
+    for (const std::string& c : qm[selected_list].item().command)
+      ts += QString::fromStdString(c) + "\n";
+  }
   comedit->setText(ts);
 }
 

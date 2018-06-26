@@ -106,7 +106,7 @@ private:
   void saveChanges(int,int);            // save command-text into qm
   void varExpand(std::vector<std::string>&);    // expand variables in command-text
   std::vector<int> sortKeys();           // sort keys by length
-  void fillMenuList();                  // fill main menu combobox
+  void fillMenuList(bool select = true); // fill main menu combobox
   void setCommand();
   void getCommand(std::vector<std::string>&);   // get command-text from comedit
   void timerEvent(QTimerEvent*) override;       // timer for demo-mode
