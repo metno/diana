@@ -1,3 +1,10 @@
+diana-3.46 (3.46.0~rc2-1) unstable; urgency=low
+
+  * do not expand history quickmenu on start
+  * prevent loops when handling timechanged messages
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 26 Jun 2018 08:00:08 +0200
+
 diana-3.46 (3.46.0~rc1-1) unstable; urgency=low
 
   * quickmenu
