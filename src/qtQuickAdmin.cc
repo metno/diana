@@ -91,7 +91,7 @@ public:
 QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
     : QDialog(parent)
     , menus(qm)
-    , autochange(true)
+    , autochange(false)
     , active_list(-1)
     , active_item(-1)
     , copyMenu(-1)
