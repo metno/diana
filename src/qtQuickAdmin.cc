@@ -512,14 +512,16 @@ void QuickAdmin::pasteClicked()
 void QuickAdmin::updateCommand()
 {
   autochange = true;
+  QString ts;
+  bool enable = false;
   if (active_list >= 0 && active_item >= 0) {
-    std::string ts;
-    for (const std::string& c : menus[active_list].menuitems[active_item].command)
-      ts += c + "\n";
-    // set command into command-edit
-    comedit->setText(QString::fromStdString(ts));
-  } else
-    comedit->clear();
+    const quickMenu& q = menus[active_list];
+    enable = (q.type != quickMenu::QM_SHARED);
+    for (const std::string& c : q.menuitems[active_item].command)
+      ts += QString::fromStdString(c) + "\n";
+  }
+  comedit->setEnabled(enable);
+  comedit->setText(ts);
   autochange = false;
 }
 
