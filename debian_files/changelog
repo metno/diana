@@ -1,3 +1,11 @@
+diana-3.46 (3.46.0~rc3-1) unstable; urgency=low
+
+  * send timechanged message earlier
+  * qm: disable command editor for shared menus
+  * qm: bugfix admin command text changes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 28 Jun 2018 08:00:08 +0200
+
 diana-3.46 (3.46.0~rc2-1) unstable; urgency=low
 
   * do not expand history quickmenu on start
