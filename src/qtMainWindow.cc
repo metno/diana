@@ -2160,6 +2160,18 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
 {
   METLIBS_LOG_TIME();
   diutil::OverrideCursor waitCursor;
+
+  // broadcast new time first, such that other diana instances can plot in parallel
+  /* NOTE
+   * clients sending replies depending on the result of updatePlots might cause
+   * issues if some Qt signal processing is done before the end of this function
+   */
+  if (qsocket && !handlingTimeMessage) {
+    miQMessage letter(qmstrings::timechanged);
+    letter.addCommon("time", QString::fromStdString(t.isoTime()));
+    sendLetter(letter);
+  }
+
   contr->setPlotTime(t);
   contr->updatePlots();
   requestBackgroundBufferUpdate();
@@ -2175,12 +2187,6 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
   //update sat channels in statusbar
   vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
-
-  if (qsocket && !handlingTimeMessage) {
-    miQMessage letter(qmstrings::timechanged);
-    letter.addCommon("time", QString::fromStdString(t.isoTime()));
-    sendLetter(letter);
-  }
 
   QCoreApplication::sendPostedEvents();
 }
