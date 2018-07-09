@@ -1823,7 +1823,10 @@ int diana_parseAndProcessString(const char* string)
   stringstream ss;
   ss << string;
   METLIBS_LOG_INFO("start processing");
-  return bdiana()->parseAndProcess(ss) ? DIANA_OK : DIANA_ERROR;
+  if (bdiana()->parseAndProcess(ss) == 0)
+    return DIANA_OK;
+  else
+    return DIANA_ERROR;
 }
 
 
