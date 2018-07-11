@@ -797,8 +797,11 @@ void QuickMenu::setCommand()
   METLIBS_LOG_SCOPE();
   QString ts;
   if (isValidList(selected_list)) {
-    for (const std::string& c : qm[selected_list].item().command)
-      ts += QString::fromStdString(c) + "\n";
+    quickMenu& sm = qm[selected_list];
+    if (sm.valid_item()) {
+      for (const std::string& c : sm.item().command)
+        ts += QString::fromStdString(c) + "\n";
+    }
   }
   comedit->setText(ts);
 }
