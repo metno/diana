@@ -161,7 +161,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
 
   if (clearSources) {
     gridSources.clear();
-    fieldDialogInfo.clear();
+    fieldModelGroups.clear();
   }
 
   std::string groupName = "First Group"; // default
@@ -251,14 +251,14 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
 
     //delete models from current model group
     if (clearFiles) {
-      std::vector<FieldDialogInfo>::iterator p = fieldDialogInfo.begin();
-      while (p != fieldDialogInfo.end() and p->groupName != groupName)
+      FieldModelGroupInfo_v::iterator p = fieldModelGroups.begin();
+      while (p != fieldModelGroups.end() and p->groupName != groupName)
         p++;
-      if (p != fieldDialogInfo.end()) {
+      if (p != fieldModelGroups.end()) {
         if (clearFileGroup) {
-          fieldDialogInfo.erase(p); //remove group and models
+          fieldModelGroups.erase(p); // remove group and models
         } else {
-          p->modelNames.clear(); //remove models
+          p->models.clear(); // remove models
         }
       }
     }
@@ -301,18 +301,23 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
       }
 
       unsigned int groupIndex = 0;
-      while (groupIndex < fieldDialogInfo.size()
-          && fieldDialogInfo[groupIndex].groupName != groupName)
+      while (groupIndex < fieldModelGroups.size() && fieldModelGroups[groupIndex].groupName != groupName)
         groupIndex++;
-      if (groupIndex == fieldDialogInfo.size()) {
-        FieldDialogInfo fdi;
+      if (groupIndex == fieldModelGroups.size()) {
+        FieldModelGroupInfo fdi;
         fdi.groupName = groupName;
-        fdi.groupType = groupType;
+        if (groupType == "archivefilegroup")
+          fdi.groupType = FieldModelGroupInfo::ARCHIVE_GROUP;
+        else {
+          if (groupType != "filegroup")
+            METLIBS_LOG_WARN("group type '" << groupType << "' unknown, using standard group");
+          fdi.groupType = FieldModelGroupInfo::STANDARD_GROUP;
+        }
         if (top) {
-          fieldDialogInfo.insert(fieldDialogInfo.begin(), fdi);
+          fieldModelGroups.insert(fieldModelGroups.begin(), fdi);
           groupIndex = 0;
         } else {
-          fieldDialogInfo.push_back(fdi);
+          fieldModelGroups.push_back(fdi);
         }
       }
 
@@ -333,8 +338,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
         {
           gridSources[mn] = gridcollection;
           if (!miutil::contains(miutil::to_lower(guiOptions), "notingui")) {
-            fieldDialogInfo[groupIndex].modelNames.push_back(mn);
-            fieldDialogInfo[groupIndex].setupInfo.push_back(lines[l]);
+            fieldModelGroups[groupIndex].models.push_back(FieldModelInfo(mn, lines[l]));
           }
         } else {
           ostringstream ost;
@@ -466,16 +470,14 @@ std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::s
     return std::map<std::string,std::string>();
 }
 
-
-void FieldManager::getFieldInfo(const std::string& modelName, const std::string& refTime,
-    std::map<std::string,FieldInfo>& fieldInfo)
+void FieldManager::getFieldPlotInfo(const std::string& modelName, const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
 
   fieldInfo.clear();
 
   if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false))
-    pgc->getFieldInfo(refTime, fieldInfo);
+    pgc->getFieldPlotInfo(refTime, fieldInfo);
 }
 
 

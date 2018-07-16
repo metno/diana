@@ -90,7 +90,7 @@ public:
   plottimes_t getFieldTime(std::vector<FieldRequest>& request, bool updateSources = false);
 
   /// return all field groups for one model/file (to FieldDialog)
-  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotdefienitions, std::vector<FieldGroupInfo>& vfgi);
+  void getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi);
 
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);

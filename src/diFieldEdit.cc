@@ -467,8 +467,8 @@ bool FieldEdit::readEditfield(const std::string& filename)
       format,config, option);
 
   std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
-  vector<FieldGroupInfo> fgi;
-  fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
+  FieldPlotGroupInfo_v fgi;
+  fieldPlotManager->getFieldPlotGroups(modelName, reftime, true, fgi);
   vector<Field*> vfout;
 
   miutil::KeyValue_v pin;

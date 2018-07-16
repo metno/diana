@@ -455,15 +455,15 @@ vector<std::string> FieldPlotManager::getFieldLevels(const miutil::KeyValue_v& p
   std::string plotName;
   parsePin(pin, vfieldrequest,plotName);
 
-  if ( !vfieldrequest.size() )
+  if (!vfieldrequest.size())
     return levels;
 
-  map<std::string,FieldInfo> fieldInfo;
-  fieldManager->getFieldInfo(vfieldrequest[0].modelName, vfieldrequest[0].refTime, fieldInfo);
-  map<std::string,FieldInfo>::const_iterator ip =  fieldInfo.find(vfieldrequest[0].paramName);
+  std::map<std::string, FieldPlotInfo> fieldPlotInfo;
+  fieldManager->getFieldPlotInfo(vfieldrequest[0].modelName, vfieldrequest[0].refTime, fieldPlotInfo);
+  std::map<std::string, FieldPlotInfo>::const_iterator ip = fieldPlotInfo.find(vfieldrequest[0].paramName);
 
-  if ( ip != fieldInfo.end() ) {
-    levels = ip->second.vlevels;
+  if (ip != fieldPlotInfo.end()) {
+    levels = ip->second.vlevels();
   }
 
   return levels;
@@ -474,7 +474,7 @@ plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request, b
   METLIBS_LOG_SCOPE();
 
   for (FieldRequest& frq : request) {
-    if (frq.plotDefinition) {
+    if (frq.predefinedPlot) {
       std::vector<FieldRequest> fr = getParamNames(frq.paramName, frq);
       if (!fr.empty()) {
         frq.paramName = fr[0].paramName;
@@ -759,36 +759,32 @@ bool FieldPlotManager::makeDifferenceField(const miutil::KeyValue_v& fspec1,
   return fieldManager->makeDifferenceFields(fv, fv2);
 }
 
-void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string refTime, bool plotdefinitions, vector<FieldGroupInfo>& vfgi)
+void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi)
 {
   vfgi.clear();
 
-  map<std::string,FieldInfo> fieldInfo;
-  fieldManager->getFieldInfo(modelName, refTime, fieldInfo);
-  //fieldManager->getFieldGroups(modelName, refTime, vfgi);
-  map<std::string,FieldGroupInfo>mfgi;
+  map<std::string, FieldPlotInfo> fieldInfo;
+  fieldManager->getFieldPlotInfo(modelName, refTime, fieldInfo);
+  map<std::string, FieldPlotGroupInfo> mfgi;
 
-  if (!plotdefinitions) {
+  if (!predefinedPlots) {
     for (auto&& vi : fieldInfo) {
-      const FieldInfo& plotInfo = vi.second;
+      const FieldPlotInfo& plotInfo = vi.second;
 
       // add plot to FieldGroup
-      FieldGroupInfo& fgi = mfgi[plotInfo.groupName];
-      fgi.fieldNames.push_back(plotInfo.fieldName);
-      fgi.fields[plotInfo.fieldName] = plotInfo;
-      fgi.groupName = plotInfo.groupName;
-      fgi.plotDefinitions = false;
+      FieldPlotGroupInfo& fgi = mfgi[plotInfo.groupName];
+      fgi.plots.push_back(plotInfo);
     }
 
   } else {
 
     for (unsigned int j = 0; j < vPlotField.size(); j++) {
-      FieldInfo plotInfo;
+      FieldPlotInfo plotInfo;
 
       size_t ninput = 0; // number of input fields found
       for (size_t k = 0; k < vPlotField[j].input.size(); k++) {
         const std::string& fieldName = vPlotField[j].input[k];
-        map<std::string,FieldInfo>::const_iterator ip;
+        map<std::string, FieldPlotInfo>::const_iterator ip;
         std::vector<std::string> tokens = miutil::split(fieldName,":");
         if ( tokens.size()==2 && tokens[1]=="standard_name") {
           ip = fieldInfo.begin();
@@ -800,7 +796,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
 
         if (ip == fieldInfo.end())
           break;
-        if (vPlotField[j].vcoord.size() > 0 && !vPlotField[j].vcoord.count(ip->second.vcoord)  )
+        if (!vPlotField[j].vcoord.empty() && !vPlotField[j].vcoord.count(ip->second.vcoord()))
           break;
 
         if ( ninput == 0) {
@@ -810,12 +806,12 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           if( !vPlotField[j].fieldgroup.empty() )
             plotInfo.groupName = vPlotField[j].fieldgroup;
         } else {
-          if ( plotInfo.vlevels != ip->second.vlevels ) {
+          if (plotInfo.vlevels() != ip->second.vlevels()) {
             // if the input parameters have different vlevels, but no. of levels are 0 or 1, ignore vlevels
-            if ( plotInfo.vlevels.size() < 2 && ip->second.vlevels.size() < 2) {
-                plotInfo.vlevels.clear();
-                plotInfo.default_vlevel.clear();
-                plotInfo.vcoord.clear();
+            if (plotInfo.vlevels().size() < 2 && ip->second.vlevels().size() < 2) {
+              plotInfo.vertical_axis.values.clear();
+              plotInfo.vertical_axis.default_value_index = -1;
+              plotInfo.vertical_axis.name.clear();
               } else {
                 break;
               }
@@ -827,36 +823,31 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
       if (ninput == vPlotField[j].input.size()) {
 
         //add flightlevels
-        if ( plotInfo.vcoord == "pressure" ) {
-          FieldInfo plotInfo_fl = plotInfo;
+        if (plotInfo.vcoord() == "pressure") {
+          FieldPlotInfo plotInfo_fl = plotInfo;
           miutil::replace(plotInfo_fl.groupName,"pressure","flightlevel");
-          plotInfo_fl.vcoord = "flightlevel";
-          for (size_t i=0; i<plotInfo.vlevels.size(); ++i)
-            plotInfo_fl.vlevels[i] = FlightLevel::getFlightLevel(plotInfo.vlevels[i]);
+          plotInfo_fl.vertical_axis.name = "flightlevel";
+          for (size_t i = 0; i < plotInfo.vlevels().size(); ++i)
+            plotInfo_fl.vertical_axis.values[i] = FlightLevel::getFlightLevel(plotInfo.vertical_axis.values[i]);
           const std::map<std::string, std::string>::const_iterator itFL = groupNames.find(plotInfo_fl.groupName);
           if (itFL != groupNames.end())
             plotInfo_fl.groupName = itFL->second;
 
-          mfgi[plotInfo_fl.groupName].fieldNames.push_back(plotInfo_fl.fieldName);
-          mfgi[plotInfo_fl.groupName].fields[plotInfo_fl.fieldName]=plotInfo_fl;
-          mfgi[plotInfo_fl.groupName].groupName = plotInfo_fl.groupName;
+          mfgi[plotInfo_fl.groupName].plots.push_back(plotInfo_fl);
         }
 
         // add plot to FieldGroup
         const std::map<std::string, std::string>::const_iterator it = groupNames.find(plotInfo.groupName);
         if (it != groupNames.end())
           plotInfo.groupName = it->second;
-        mfgi[plotInfo.groupName].fieldNames.push_back(plotInfo.fieldName);
-        mfgi[plotInfo.groupName].fields[plotInfo.fieldName]=plotInfo;
-        mfgi[plotInfo.groupName].groupName = plotInfo.groupName;
+        mfgi[plotInfo.groupName].plots.push_back(plotInfo);
       }
 
     }
   }
 
-  map<std::string,FieldGroupInfo>::iterator ifgi = mfgi.begin();
-  for(;ifgi !=mfgi.end();ifgi++){
-    vfgi.push_back(ifgi->second);
+  for (auto& name_fpgi : mfgi) {
+    vfgi.push_back(name_fpgi.second);
   }
 }
 
@@ -885,10 +876,10 @@ void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
         fieldrequest.modelName = kv.value();
       }else if (key == "parameter") {
         paramNames.push_back(kv.value());
-        fieldrequest.plotDefinition=false;
+        fieldrequest.predefinedPlot = false;
       }else if (key == "plot") {
         plotName = kv.value();
-        fieldrequest.plotDefinition=true;
+        fieldrequest.predefinedPlot = true;
       } else if (key == "vcoord") {
         fieldrequest.zaxis = kv.value();
       } else if (key == "tcoor") {
@@ -964,7 +955,7 @@ void FieldPlotManager::parsePin(const miutil::KeyValue_v& pin, vector<FieldReque
   parseString(pin, fieldrequest, paramNames, plotName);
 
   //  //plotName -> fieldName
-  if (fieldrequest.plotDefinition) {
+  if (fieldrequest.predefinedPlot) {
     vfieldrequest = getParamNames(plotName,fieldrequest);
   } else {
     for (size_t i=0; i<paramNames.size(); i++) {

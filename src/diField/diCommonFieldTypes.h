@@ -2,7 +2,7 @@
 
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,69 +40,101 @@
 // fields
 //--------------------------------------------------
 
+struct FieldPlotAxis
+{
+  std::string name;
+  std::vector<std::string> values;
+  int default_value_index;
+
+  FieldPlotAxis();
+  const std::string& default_value() const;
+};
+
 /**
-   \brief  detailed data for one variable
+   \brief data for one plot/variable
 */
-struct FieldInfo {
+struct FieldPlotInfo
+{
   std::string fieldName;
   std::string variableName;
   std::string groupName;
   std::string standard_name;
   std::string units;
-  std::vector<std::string>  vlevels;
-  std::vector<std::string> elevels; //(EPS clusters, EPS single runs etc.)
-  std::string default_vlevel;
-  std::string default_elevel;
-  std::string vcoord;
-  std::string ecoord;
+  FieldPlotAxis vertical_axis;
+  FieldPlotAxis realization_axis; //(EPS clusters, EPS single runs etc.)
+
+  const std::vector<std::string>& vlevels() const { return vertical_axis.values; }
+  const std::vector<std::string>& elevels() const { return realization_axis.values; }
+  const std::string& default_vlevel() const { return vertical_axis.default_value(); }
+  const std::string& default_elevel() const { return realization_axis.default_value(); }
+  const std::string& vcoord() const { return vertical_axis.name; }
+  const std::string& ecoord() const { return realization_axis.name; };
 };
-/**
-   \brief GUI detailed data for one fieldgroup
-*/
-struct FieldGroupInfo {
-  std::string groupName;
-  bool plotDefinitions;
-  std::vector<std::string> fieldNames;
-  std::map<std::string,FieldInfo> fields;
-  FieldGroupInfo() : plotDefinitions(true) {}
-};
+typedef std::vector<FieldPlotInfo> FieldPlotInfo_v;
 
 /**
-   \brief GUI data for one file/model group
+   \brief data for one plot group
 */
-struct FieldDialogInfo {
-  std::string groupName;
-  std::string groupType;
-  std::vector<std::string> modelNames;
-  std::vector<std::string> setupInfo;
+struct FieldPlotGroupInfo
+{
+  FieldPlotInfo_v plots;
+  FieldPlotGroupInfo();
+  const std::string& groupName() const;
 };
+typedef std::vector<FieldPlotGroupInfo> FieldPlotGroupInfo_v;
+
+/**
+   \brief data for one model
+*/
+struct FieldModelInfo
+{
+  std::string modelName;
+  std::string setupInfo;
+  FieldModelInfo(const std::string& mn, const std::string& si);
+};
+typedef std::vector<FieldModelInfo> FieldModelInfo_v;
+
+/**
+   \brief data for one file/model group
+*/
+struct FieldModelGroupInfo
+{
+  std::string groupName;
+  enum { STANDARD_GROUP, ARCHIVE_GROUP } groupType;
+  FieldModelInfo_v models;
+};
+typedef std::vector<FieldModelGroupInfo> FieldModelGroupInfo_v;
 
 struct FieldRequest {
   std::string modelName;
-  std::string paramName;
-  std::string zaxis;
-  std::string eaxis;
-  std::string taxis;
-  std::string plevel;
-  std::string elevel;
   std::string refTime;
-  miutil::miTime ptime;
+  int refhour;
+  int refoffset;
+  bool checkSourceChanged;
+
+  std::string paramName;
+  bool standard_name;
+  bool predefinedPlot;
   std::string unit;
-  std::string palette;
+
+  std::string zaxis;
+  std::string plevel;
+  bool flightlevel;
+
+  std::string eaxis;
+  std::string elevel;
+
+  std::string taxis;
+  miutil::miTime ptime;
   int hourOffset;
   int minOffset;
   int time_tolerance;
-  int refhour;
-  int refoffset;
   std::string output_time;
   bool allTimeSteps;
-  bool standard_name;
-  bool plotDefinition;
-  bool checkSourceChanged;
-  bool flightlevel;
-  FieldRequest() : hourOffset(0), minOffset(0), time_tolerance(0), refhour(-1),
-      refoffset(0), allTimeSteps(false), standard_name(false),
-      plotDefinition(true), checkSourceChanged(true), flightlevel(false){}
+
+  std::string palette;
+
+  FieldRequest();
 };
 
 #endif

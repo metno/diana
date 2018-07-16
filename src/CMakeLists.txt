@@ -54,6 +54,7 @@ SET (DIFIELD_SOURCES
   diField/VcrossSource.cc
   diField/VcrossUtil.cc
   diField/diArea.cc
+  diField/diCommonFieldTypes.cc
   diField/diField.cc
   diField/diFieldCache.cc
   diField/diFieldCacheEntity.cc

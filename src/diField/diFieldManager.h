@@ -101,10 +101,7 @@ public:
       const std::vector<std::string>& option);
 
   /// return info about model/file groups (to FieldDialog)
-  const std::vector<FieldDialogInfo>& getFieldDialogInfo() const
-  {
-    return fieldDialogInfo;
-  }
+  const FieldModelGroupInfo_v& getFieldModelGroups() const { return fieldModelGroups; }
 
   /// check if model exists
   bool modelOK(const std::string& modelName);
@@ -112,8 +109,7 @@ public:
   std::map<std::string,std::string> getGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
   /// return all variables/levels for one model/file (to FieldDialog)
-  void getFieldInfo(const std::string& modelName, const std::string& refTime,
-      std::map<std::string,FieldInfo>& fieldInfo);
+  void getFieldPlotInfo(const std::string& modelName, const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo);
 
   /// return grid from requested model, if the model contains more grids, the first one is returned
   gridinventory::Grid getGrid(const std::string& modelName);
@@ -153,7 +149,7 @@ private:
 private:
   FieldCachePtr fieldcache;
 
-  std::vector<FieldDialogInfo> fieldDialogInfo;
+  FieldModelGroupInfo_v fieldModelGroups;
 
   GridSources_t gridSources;
 

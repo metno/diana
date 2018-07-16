@@ -1138,10 +1138,10 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
     fieldPlotManager->addGridCollection(fileType, modelName, filenames, format, config, option);
 
-    vector<FieldGroupInfo> fgi;
+    FieldPlotGroupInfo_v fgi;
     std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName, 0, -1);
     METLIBS_LOG_INFO(LOGVAL(modelName) << LOGVAL(reftime));
-    fieldPlotManager->getFieldGroups(modelName, reftime, true, fgi);
+    fieldPlotManager->getFieldPlotGroups(modelName, reftime, true, fgi);
   }
   return true;
 

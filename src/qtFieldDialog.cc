@@ -211,14 +211,12 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // fieldGRbox
   QLabel *fieldGRlabel = TitleLabel(tr("Field group"), this);
   fieldGRbox = new QComboBox(this);
-  connect( fieldGRbox, SIGNAL( activated( int ) ),
-      SLOT( fieldGRboxActivated( int ) ) );
+  connect(fieldGRbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialog::fieldGRboxActivated);
 
   //fieldGroupCheckBox
-  fieldGroupCheckBox = new QCheckBox(tr("Predefined plots"));
-  fieldGroupCheckBox->setChecked(true);
-  connect( fieldGroupCheckBox, SIGNAL( toggled(bool) ),
-      SLOT( updateFieldGroups(  ) ) );
+  predefinedPlotsCheckBox = new QCheckBox(tr("Predefined plots"));
+  predefinedPlotsCheckBox->setChecked(true);
+  connect(predefinedPlotsCheckBox, SIGNAL(toggled(bool)), SLOT(updateFieldGroups()));
 
   // fieldbox
   QLabel *fieldlabel = TitleLabel(tr("Fields"), this);
@@ -393,7 +391,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // layout
   QHBoxLayout* grouplayout = new QHBoxLayout();
   grouplayout->addWidget(fieldGRbox);
-  grouplayout->addWidget(fieldGroupCheckBox);
+  grouplayout->addWidget(predefinedPlotsCheckBox);
 
   QHBoxLayout* modellayout = new QHBoxLayout();
   modellayout->addWidget(modellabel);
@@ -520,7 +518,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
 void FieldDialog::toolTips()
 {
-  fieldGroupCheckBox->setToolTip(tr("Show predefined plots or all parameters from file"));
+  predefinedPlotsCheckBox->setToolTip(tr("Show predefined plots or all parameters from file"));
   upFieldButton->setToolTip(tr("move selected field up"));
   downFieldButton->setToolTip(tr("move selected field down"));
   deleteButton->setToolTip(tr("delete selected field"));
@@ -1054,14 +1052,14 @@ void FieldDialog::updateModelBoxes()
 
   if (useArchive) {
     for (int i = 0; i < nr_m; i++) {
-      if (m_modelgroup[i].groupType == "archivefilegroup") {
+      if (m_modelgroup[i].groupType == FieldModelGroupInfo::ARCHIVE_GROUP) {
         addModelGroup(i);
       }
     }
   }
   for (int i = 0; i < nr_m; i++) {
-    if (m_modelgroup[i].groupType == "filegroup") {
-        addModelGroup(i);
+    if (m_modelgroup[i].groupType == FieldModelGroupInfo::STANDARD_GROUP) {
+      addModelGroup(i);
     }
   }
 
@@ -1075,15 +1073,15 @@ void FieldDialog::updateModelBoxes()
 void FieldDialog::addModelGroup(int modelgroupIndex)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelgroupIndex));
-  const FieldDialogInfo& mgr = m_modelgroup[modelgroupIndex];
+  const FieldModelGroupInfo& mgr = m_modelgroup[modelgroupIndex];
   METLIBS_LOG_DEBUG(LOGVAL(mgr.groupName));
   QStandardItem* group = new QStandardItem(QString::fromStdString(mgr.groupName));
   group->setData(modelgroupIndex, ROLE_MODELGROUP);
   group->setFlags(Qt::ItemIsEnabled);
-  for (size_t i = 0; i < mgr.modelNames.size(); i++) {
-    METLIBS_LOG_DEBUG(LOGVAL(mgr.modelNames[i]));
-    QStandardItem* child = new QStandardItem(QString::fromStdString(mgr.modelNames[i]));
-    child->setToolTip(QString(mgr.setupInfo[i].c_str()).split(" ",QString::SkipEmptyParts).join("\n"));
+  for (const FieldModelInfo& fdmi : mgr.models) {
+    METLIBS_LOG_DEBUG(LOGVAL(fdmi.modelName));
+    QStandardItem* child = new QStandardItem(QString::fromStdString(fdmi.modelName));
+    child->setToolTip(QString::fromStdString(fdmi.setupInfo).split(" ", QString::SkipEmptyParts).join("\n"));
     child->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     group->appendRow(child);
   }
@@ -1102,7 +1100,7 @@ void FieldDialog::filterModels(const QString& filtertext)
 
 void FieldDialog::updateDialog()
 {
-  m_modelgroup = m_ctrl->initFieldDialog();
+  m_modelgroup = m_ctrl->getFieldModelGroups();
   updateModelBoxes();
 }
 
@@ -1134,13 +1132,12 @@ void FieldDialog::modelboxClicked(const QModelIndex& filterIndex)
   const int indexMGR = parentItem->data(ROLE_MODELGROUP).toInt();
   METLIBS_LOG_DEBUG(LOGVAL(indexMGR) << LOGVAL(indexM));
 
-  currentModel = m_modelgroup[indexMGR].modelNames[indexM];
+  currentModel = m_modelgroup[indexMGR].models[indexM].modelName;
 
   const set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(currentModel);
 
-  set<std::string>::const_iterator ip=refTimes.begin();
-  for (; ip != refTimes.end(); ++ip) {
-    refTimeComboBox->addItem(QString((*ip).c_str()));
+  for (const std::string& rt : refTimes) {
+    refTimeComboBox->addItem(QString::fromStdString(rt));
   }
   if ( refTimeComboBox->count() ) {
     refTimeComboBox->setCurrentIndex(refTimeComboBox->count()-1);
@@ -1155,25 +1152,25 @@ void FieldDialog::updateFieldGroups()
   fieldGRbox->clear();
   fieldbox->clear();
 
-  getFieldGroups(currentModel, refTimeComboBox->currentText().toStdString(), fieldGroupCheckBox->isChecked(), vfgi);
+  getFieldGroups(currentModel, refTimeComboBox->currentText().toStdString(), predefinedPlotsCheckBox->isChecked(), vfgi);
 
   int nvfgi = vfgi.size();
 
   if (nvfgi > 0) {
     for (int i = 0; i < nvfgi; i++) {
-      fieldGRbox->addItem(QString(vfgi[i].groupName.c_str()));
+      fieldGRbox->addItem(QString::fromStdString(vfgi[i].groupName()));
     }
 
     int indexFGR = -1;
     int i = 0;
-    while (i < nvfgi && vfgi[i].groupName != lastFieldGroupName)
+    while (i < nvfgi && vfgi[i].groupName() != lastFieldGroupName)
       i++;
     if (i < nvfgi) {
       indexFGR = i;
     }
     if (indexFGR < 0)
       indexFGR = 0;
-    lastFieldGroupName = vfgi[indexFGR].groupName;
+    lastFieldGroupName = vfgi[indexFGR].groupName();
     fieldGRbox->setCurrentIndex(indexFGR);
     fieldGRboxActivated(indexFGR);
   }
@@ -1193,11 +1190,11 @@ void FieldDialog::fieldGRboxActivated(int indexFGR)
   fieldbox->blockSignals(true);
 
   if (!vfgi.empty()) {
-    lastFieldGroupName = vfgi[indexFGR].groupName;
-    for (size_t i=0; i<vfgi[indexFGR].fieldNames.size();i++) {
-      std::string fieldName = vfgi[indexFGR].fieldNames[i];
-      QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(fieldName));
-      item->setToolTip(QString::fromStdString(vfgi[indexFGR].fields[fieldName].variableName));
+    FieldPlotGroupInfo& fpgi = vfgi[indexFGR];
+    lastFieldGroupName = fpgi.groupName();
+    for (const FieldPlotInfo& plot : fpgi.plots) {
+      QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(plot.fieldName));
+      item->setToolTip(QString::fromStdString(plot.variableName));
       fieldbox->addItem(item);
     }
   }
@@ -1228,8 +1225,7 @@ void FieldDialog::setLevel()
     levelSlider->setRange(0, n - 1);
     levelSlider->setValue(l);
     levelSlider->setEnabled(true);
-    QString qstr = lastLevel.c_str();
-    levelLabel->setText(qstr);
+    levelLabel->setText(QString::fromStdString(lastLevel));
   } else {
     currentLevels.clear();
     // keep slider in a fixed position when disabled
@@ -1253,9 +1249,8 @@ void FieldDialog::levelChanged(int index)
 
   int n = currentLevels.size();
   if (index >= 0 && index < n) {
-    QString qstr = currentLevels[index].c_str();
-    levelLabel->setText(qstr);
     lastLevel = currentLevels[index];
+    levelLabel->setText(QString::fromStdString(lastLevel));
   }
 
   if (!levelInMotion)
@@ -1378,8 +1373,7 @@ void FieldDialog::setIdnum()
     idnumSlider->setRange(0, n - 1);
     idnumSlider->setValue(l);
     idnumSlider->setEnabled(true);
-    QString qstr = lastIdnum.c_str();
-    idnumLabel->setText(qstr);
+    idnumLabel->setText(QString::fromStdString(lastIdnum));
   } else {
     currentIdnums.clear();
     // keep slider in a fixed position when disabled
@@ -1403,9 +1397,8 @@ void FieldDialog::idnumChanged(int index)
 
   int n = currentIdnums.size();
   if (index >= 0 && index < n) {
-    QString qstr = currentIdnums[index].c_str();
-    idnumLabel->setText(qstr);
     lastIdnum = currentIdnums[index];
+    idnumLabel->setText(QString::fromStdString(lastIdnum));
   }
 
   if (!idnumInMotion)
@@ -1447,14 +1440,14 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     sf.modelName = currentModel;
     sf.fieldName = fieldbox->currentItem()->text().toStdString();
     sf.refTime = refTimeComboBox->currentText().toStdString();
-    const FieldInfo& fi = vfgi[indexFGR].fields[sf.fieldName];
-    sf.levelOptions = fi.vlevels;
-    sf.idnumOptions = fi.elevels;
-    sf.zaxis = fi.vcoord;
-    sf.extraaxis = fi.ecoord;;
+    const FieldPlotInfo& fi = vfgi[indexFGR].plots[fieldbox->currentRow()];
+    sf.levelOptions = fi.vlevels();
+    sf.idnumOptions = fi.elevels();
+    sf.zaxis = fi.vcoord();
+    sf.extraaxis = fi.ecoord();
     sf.unit = fi.units;
 
-    sf.plotDefinition = fieldGroupCheckBox->isChecked();
+    sf.predefinedPlot = predefinedPlotsCheckBox->isChecked();
     sf.minus = false;
 
     int n = sf.levelOptions.size();
@@ -1464,21 +1457,21 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     if (i < n) {
       sf.level = lastLevel;
     } else {
-      if (!fi.default_vlevel.empty()) {
-        sf.level = fi.default_vlevel;
+      if (!fi.default_vlevel().empty()) {
+        sf.level = fi.default_vlevel();
       } else if (sf.levelOptions.size() ) {
         sf.level = sf.levelOptions[sf.levelOptions.size()-1];
       }
     }
-    n = fi.elevels.size();
+    n = fi.elevels().size();
     i = 0;
-    while (i < n && fi.elevels[i] != lastIdnum)
+    while (i < n && fi.elevels()[i] != lastIdnum)
       i++;
     if (i < n) {
       sf.idnum = lastIdnum;
     } else {
-      if (!fi.default_elevel.empty()) {
-        sf.idnum = fi.default_elevel;
+      if (!fi.default_elevel().empty()) {
+        sf.idnum = fi.default_elevel();
       } else if (sf.idnumOptions.size() ) {
         sf.idnum = sf.idnumOptions[0];
       }
@@ -1742,7 +1735,7 @@ void FieldDialog::enableFieldOptions()
       // Need to set this here otherwise the signal is changing
       // the vpcopt[nc].value() variable to off
       if (stokens.size() == 2)
-        shadingSpinBox->setValue(::atoi(stokens[1].c_str()));
+        shadingSpinBox->setValue(miutil::to_int(stokens[1]));
       else
         shadingSpinBox->setValue(0);
 
@@ -1750,7 +1743,7 @@ void FieldDialog::enableFieldOptions()
         shadingcoldComboBox->setCurrentIndex(j + 1);
 
         if (coldStokens.size() == 2)
-          shadingcoldSpinBox->setValue(::atoi(coldStokens[1].c_str()));
+          shadingcoldSpinBox->setValue(miutil::to_int(coldStokens[1]));
         else
           shadingcoldSpinBox->setValue(0);
       }
@@ -2335,8 +2328,7 @@ void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
     if (fabs(e) < ekv / 2)
       cBox->addItem("0");
     else {
-      std::string estr = miutil::from_number(e);
-      cBox->addItem(estr.c_str());
+      cBox->addItem(QString::fromStdString(miutil::from_number(e)));
     }
   }
 
@@ -2417,7 +2409,7 @@ void FieldDialog::vectorunitCboxActivated(int index)
 {
   updateFieldOptions(PlotOptions::key_vectorunit, vectorunit[index]);
   // update the list (with selected value in the middle)
-  float a = atof(vectorunit[index].c_str());
+  float a = miutil::to_float(vectorunit[index]);
   vectorunit = numberList(vectorunitCbox, a, false);
 }
 
@@ -2671,29 +2663,24 @@ void FieldDialog::interval2ComboBoxToggled(int index)
   } else {
     updateFieldOptions(PlotOptions::key_lineinterval_2, lineintervals2[index]);
     // update the list (with selected value in the middle)
-    float a = atof(lineintervals2[index].c_str());
+    float a = miutil::to_float(lineintervals2[index]);
     lineintervals2 = numberList(interval2ComboBox, a, true);
   }
 }
 
-void FieldDialog::zero1ComboBoxToggled(int index)
+void FieldDialog::zero1ComboBoxToggled(int)
 {
   if (!zero1ComboBox->currentText().isNull()) {
-    std::string str = zero1ComboBox->currentText().toStdString();
-    float a = atof(str.c_str());
-    baseList(zero1ComboBox, a);
-    str = zero1ComboBox->currentText().toStdString();
-    updateFieldOptions(PlotOptions::key_basevalue, str);
+    baseList(zero1ComboBox, zero1ComboBox->currentText().toFloat());
+    updateFieldOptions(PlotOptions::key_basevalue, zero1ComboBox->currentText().toStdString());
   }
 }
 
-void FieldDialog::zero2ComboBoxToggled(int index)
+void FieldDialog::zero2ComboBoxToggled(int)
 {
   if (!zero2ComboBox->currentText().isNull()) {
-    std::string str = zero2ComboBox->currentText().toStdString();
-    updateFieldOptions(PlotOptions::key_basevalue_2, str);
-    float a = atof(str.c_str());
-    str = zero2ComboBox->currentText().toStdString();
+    const float a = zero2ComboBox->currentText().toFloat();
+    updateFieldOptions(PlotOptions::key_basevalue_2, zero2ComboBox->currentText().toStdString());
     baseList(zero2ComboBox, a);
   }
 }
@@ -2703,9 +2690,7 @@ void FieldDialog::min1ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions(PlotOptions::key_minvalue, "off");
   else if (!min1ComboBox->currentText().isNull()) {
-    std::string str = min1ComboBox->currentText().toStdString();
-    float a = atof(str.c_str());
-    baseList(min1ComboBox, a, true);
+    baseList(min1ComboBox, min1ComboBox->currentText().toFloat(), true);
     updateFieldOptions(PlotOptions::key_minvalue, min1ComboBox->currentText().toStdString());
   }
 }
@@ -2715,9 +2700,7 @@ void FieldDialog::max1ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions(PlotOptions::key_maxvalue, "off");
   else if (!max1ComboBox->currentText().isNull()) {
-    std::string str = max1ComboBox->currentText().toStdString();
-    float a = atof(str.c_str());
-    baseList(max1ComboBox, a, true);
+    baseList(max1ComboBox, max1ComboBox->currentText().toFloat(), true);
     updateFieldOptions(PlotOptions::key_maxvalue, max1ComboBox->currentText().toStdString());
   }
 }
@@ -2728,9 +2711,7 @@ void FieldDialog::min2ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions(PlotOptions::key_minvalue_2, REMOVE);
   else if (!min2ComboBox->currentText().isNull()) {
-    std::string str = min2ComboBox->currentText().toStdString();
-    float a = atof(str.c_str());
-    baseList(min2ComboBox, a, true);
+    baseList(min2ComboBox, min2ComboBox->currentText().toFloat(), true);
     updateFieldOptions(PlotOptions::key_minvalue_2, min2ComboBox->currentText().toStdString());
   }
 }
@@ -2740,9 +2721,7 @@ void FieldDialog::max2ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions(PlotOptions::key_maxvalue_2, REMOVE);
   else if (!max2ComboBox->currentText().isNull()) {
-    std::string str = max2ComboBox->currentText().toStdString();
-    float a = atof(str.c_str());
-    baseList(max2ComboBox, a, true);
+    baseList(max2ComboBox, max2ComboBox->currentText().toFloat(), true);
     updateFieldOptions(PlotOptions::key_maxvalue_2, max2ComboBox->currentText().toStdString());
   }
 }
@@ -2858,13 +2837,12 @@ void FieldDialog::updateFieldOptions(const std::string& name, const std::string&
   }
 }
 
-void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime,
-    bool plotOptions, vector<FieldGroupInfo>& vfg)
+void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfg)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName));
 
   { diutil::OverrideCursor waitCursor;
-    m_ctrl->getFieldGroups(modelName, refTime, plotOptions, vfg);
+    m_ctrl->getFieldPlotGroups(modelName, refTime, predefinedPlots, vfg);
     QString tooltip;
     const std::map<std::string,std::string> globalAttributes = m_ctrl->getFieldGlobalAttributes(modelName, refTime);
     for (const char* const* mga : modelGlobalAttributes) {
@@ -2894,14 +2872,14 @@ PlotCommand_cpv FieldDialog::getOKString()
     return vstr;
 
   bool allTimeSteps = allTimeStepButton->isChecked();
-
+  vstr.reserve(n);
   for (int i = 0; i < n; i++) {
-
-    if (selectedFields[i].minus)
+    const SelectedField& sf = selectedFields[i];
+    if (sf.minus)
       continue;
 
     std::string commandKey;
-    if (selectedFields[i].inEdit) {
+    if (sf.inEdit) {
       commandKey = "EDITFIELD";
     } else {
       commandKey = "FIELD";
@@ -2921,13 +2899,13 @@ PlotCommand_cpv FieldDialog::getOKString()
       cmd->add(miutil::KeyValue(")"));
     }
 
-    cmd->add(selectedFields[i].fieldOpts);
+    cmd->add(sf.fieldOpts);
 
     if (allTimeSteps)
       cmd->add("allTimeSteps", "on");
 
-    if (!selectedFields[i].time.empty()) {
-      cmd->add("time" , selectedFields[i].time);
+    if (!sf.time.empty()) {
+      cmd->add("time", sf.time);
     }
 
     vstr.push_back(cmd);
@@ -2952,7 +2930,7 @@ miutil::KeyValue_v FieldDialog::getParamString(int i)
     miutil::add(ostr, "reftime", sf.refTime);
   }
 
-  if (sf.plotDefinition) {
+  if (sf.predefinedPlot) {
     miutil::add(ostr, "plot", sf.fieldName);
   } else {
     miutil::add(ostr, "parameter", sf.fieldName);
@@ -3204,12 +3182,8 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
     enableFieldOptions();
   }
 
-  if (m > 0 && allTimeSteps != allTimeStepButton->isChecked()) {
-    allTimeStepButton->setChecked(allTimeSteps);
-    allTimeStepToggled(allTimeSteps);
-  } else {
-    updateTime();
-  }
+  allTimeStepButton->setChecked(allTimeSteps);
+  updateTime();
 }
 
 bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf, bool& allTimeSteps )
@@ -3232,7 +3206,7 @@ bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf,
       sf.fieldName = kv.value();
     } else if (kv.key() == "parameter") {
       sf.fieldName = kv.value();
-      sf.plotDefinition = false;
+      sf.predefinedPlot = false;
     } else if (kv.key() == "level") {
       sf.level = kv.value();
     } else if (kv.key() == "vlevel") {
@@ -3256,47 +3230,36 @@ bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf,
     }
   }
 
-  //find referencetime
-  if ( sf.refTime.empty() ) {
+  // find referencetime
+  if (sf.refTime.empty())
     sf.refTime = m_ctrl->getBestFieldReferenceTime(sf.modelName, refOffset, refHour);
-  }
 
-  //######################################################################
-    METLIBS_LOG_DEBUG(" ->" << sf.modelName << " " << sf.fieldName << " l= " << sf.level << " l2= "
-        << sf.idnum);
-  //######################################################################
+  METLIBS_LOG_DEBUG(LOGVAL(sf.modelName) << LOGVAL(sf.fieldName) << LOGVAL(sf.level) << LOGVAL(sf.idnum));
 
-  vector<FieldGroupInfo> vfg;
-
-  //find index of modelgroup and model. Keep name of model and reuse info if same model
-  getFieldGroups(sf.modelName, sf.refTime, sf.plotDefinition, vfg);
+  FieldPlotGroupInfo_v vfg;
+  getFieldGroups(sf.modelName, sf.refTime, sf.predefinedPlot, vfg);
 
   //find index of fieldgroup
-  bool fieldFound = false;
-  int nvfg = vfg.size();
-  int indexFGR = 0;
-  while (indexFGR < nvfg) {
-    std::map<std::string,FieldInfo>::const_iterator it_fi = vfg[indexFGR].fields.find(sf.fieldName);
-    if (it_fi != vfg[indexFGR].fields.end()
-        && (sf.zaxis == it_fi->second.vcoord
-            || (sf.zaxis.empty() && it_fi->second.vlevels.size() == 1))
-        && (sf.idnum.empty() == (it_fi->second.elevels.size()==0) ))
-    {
-      fieldFound = true;
+  const FieldPlotInfo* fi_found = 0;
+  for (FieldPlotGroupInfo& fgi : vfg) {
+    const FieldPlotInfo_v& fgip = fgi.plots;
+    FieldPlotInfo_v::const_iterator it = std::find_if(fgip.begin(), fgip.end(), [&](const FieldPlotInfo& f) { return f.fieldName == sf.fieldName; });
+    if (it == fgip.end())
+      continue;
+    const FieldPlotInfo& p = *it;
+    if ((sf.zaxis == p.vcoord() || (sf.zaxis.empty() && p.vlevels().size() == 1)) && (sf.idnum.empty() == p.elevels().empty())) {
+      fi_found = &(*it);
       break;
     }
-
-    indexFGR++;
   }
 
-  if (fieldFound) {
-    const FieldInfo& fi = vfg[indexFGR].fields[sf.fieldName];
-    sf.levelOptions = fi.vlevels;
-    sf.idnumOptions = fi.elevels;
+  if (fi_found) {
+    sf.levelOptions = fi_found->vlevels();
+    sf.idnumOptions = fi_found->elevels();
     sf.minus = false;
     return true;
   } else {
-    METLIBS_LOG_DEBUG("  Field not found: "<<LOGVAL(kvs));
+    METLIBS_LOG_DEBUG("Field not found for command:" << LOGVAL(kvs));
   }
 
   return false;
@@ -3314,13 +3277,15 @@ void FieldDialog::getEditPlotOptions(map<std::string, map<
   //loop through parameters
   for (; p != po.end(); p++) {
     miutil::KeyValue_v options;
-    std::string parameter = p->first;
-    if (editFieldOptions.count(parameter)) {
-      options = editFieldOptions[parameter];
-    } else if (fieldOptions.count(parameter)) {
-      options = fieldOptions[parameter];
-    } else if (setupFieldOptions.count(parameter)) {
-      options = setupFieldOptions[parameter];
+
+    fieldoptions_m::const_iterator it;
+    const std::string& parameter = p->first;
+    if ((it = editFieldOptions.find(parameter)) != editFieldOptions.end()) {
+      options = it->second;
+    } else if ((it = fieldOptions.find(parameter)) != fieldOptions.end()) {
+      options = it->second;
+    } else if ((it = setupFieldOptions.find(parameter)) != setupFieldOptions.end()) {
+      options = it->second;
     } else {
       continue; //parameter not found
     }
@@ -3539,7 +3504,7 @@ void FieldDialog::deleteAllSelected()
     // show edit fields
     for (int i = 0; i < numEditFields; i++) {
       std::string str = editName + " " + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
-      selectedFieldbox->addItem(QString(str.c_str()));
+      selectedFieldbox->addItem(QString::fromStdString(str));
     }
     selectedFieldbox->setCurrentRow(0);
     selectedFieldbox->item(0)->setSelected(true);
@@ -3618,15 +3583,13 @@ void FieldDialog::changeModel()
       int gbest = -1,fbest = -1;
       for ( int j=0; j < nvfgi;++j) {
 
-        int m = vfgi[j].fieldNames.size();
+        const int m = vfgi[j].plots.size();
         int k = 0;
-        while (k < m &&
-            !(vfgi[j].fieldNames[k] == selectedFields[i].fieldName )) {
+        while (k < m && !(vfgi[j].plots[k].fieldName == selectedFields[i].fieldName)) {
           k++;
         }
         // Check if parameters have same vcoord, ignore if no. levels == 0,1
-        if (k < m && ( (vfgi[j].fields[vfgi[j].fieldNames[k]].vcoord == selectedFields[i].zaxis )
-            || selectedFields[i].levelOptions.size() < 2) ) {
+        if (k < m && ((vfgi[j].plots[k].vcoord() == selectedFields[i].zaxis) || selectedFields[i].levelOptions.size() < 2)) {
           gbest = j;
           fbest = k;
           break;
@@ -3640,15 +3603,15 @@ void FieldDialog::changeModel()
           }
         }
 
+        const FieldPlotInfo& fi_best = vfgi[gbest].plots[fbest];
         selectedFields[i].modelName = newModel;
         selectedFields[i].refTime = newRefTime;
-        selectedFields[i].levelOptions = vfgi[gbest].fields[selectedFields[i].fieldName].vlevels;
-        selectedFields[i].idnumOptions = vfgi[gbest].fields[selectedFields[i].fieldName].elevels;
-        selectedFields[i].plotDefinition = fieldGroupCheckBox->isChecked();
+        selectedFields[i].levelOptions = fi_best.vlevels();
+        selectedFields[i].idnumOptions = fi_best.elevels();
+        selectedFields[i].predefinedPlot = predefinedPlotsCheckBox->isChecked();
 
-        std::string str = selectedFields[i].modelName + " "
-            + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
-        selectedFieldbox->item(i)->setText(QString(str.c_str()));
+        std::string str = selectedFields[i].modelName + " " + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
+        selectedFieldbox->item(i)->setText(QString::fromStdString(str));
       }
     }
   }
@@ -3742,13 +3705,14 @@ void FieldDialog::resetOptions()
   if (index < 0 || index >= n)
     return;
 
-  const miutil::KeyValue_v fopts = getFieldOptions(selectedFields[index].fieldName, true);
+  SelectedField& sf = selectedFields[index];
+  const miutil::KeyValue_v fopts = getFieldOptions(sf.fieldName, true);
   if (fopts.empty())
     return;
 
-  selectedFields[index].fieldOpts = fopts;
-  selectedFields[index].hourOffset = 0;
-  selectedFields[index].hourDiff = 0;
+  sf.fieldOpts = fopts;
+  sf.hourOffset = 0;
+  sf.hourDiff = 0;
   enableWidgets("none");
   currentFieldOpts.clear();
   enableFieldOptions();
@@ -3756,10 +3720,9 @@ void FieldDialog::resetOptions()
 
 miutil::KeyValue_v FieldDialog::getFieldOptions(const std::string& fieldName, bool reset) const
 {
-  map<std::string, miutil::KeyValue_v>::const_iterator pfopt;
+  fieldoptions_m::const_iterator pfopt;
 
   if (!reset) {
-
     // try private options used
     pfopt = fieldOptions.find(fieldName);
     if (pfopt != fieldOptions.end())
@@ -3816,33 +3779,27 @@ void FieldDialog::updateTime()
 {
   METLIBS_LOG_SCOPE();
   plottimes_t fieldtime;
-  size_t m = selectedFields.size();
 
-  if (m > 0) {
-    vector<FieldRequest> request;
-    FieldRequest ftr;
-
-    for (size_t i = 0; i < m; i++) {
-      const SelectedField& sf = selectedFields[i];
-      if (!sf.inEdit) {
-        request.push_back(ftr);
-        FieldRequest& fr = request.back();
-        fr.modelName = sf.modelName;
-        fr.paramName = sf.fieldName;
-        fr.plevel = sf.level;
-        fr.elevel = sf.idnum;
-        fr.hourOffset = sf.hourOffset;
-        fr.refTime = sf.refTime;
-        fr.zaxis = sf.zaxis;
-        fr.eaxis = sf.extraaxis;
-        fr.plotDefinition = sf.plotDefinition;
-        fr.allTimeSteps = allTimeStepButton->isChecked();
-      }
+  std::vector<FieldRequest> request;
+  for (const SelectedField& sf : selectedFields) {
+    if (!sf.inEdit) {
+      request.push_back(FieldRequest());
+      FieldRequest& fr = request.back();
+      fr.modelName = sf.modelName;
+      fr.paramName = sf.fieldName;
+      fr.plevel = sf.level;
+      fr.elevel = sf.idnum;
+      fr.hourOffset = sf.hourOffset;
+      fr.refTime = sf.refTime;
+      fr.zaxis = sf.zaxis;
+      fr.eaxis = sf.extraaxis;
+      fr.predefinedPlot = sf.predefinedPlot;
+      fr.allTimeSteps = allTimeStepButton->isChecked();
     }
+  }
 
-    if (!request.empty()) {
-      diutil::insert_all(fieldtime, m_ctrl->getFieldTime(request));
-    }
+  if (!request.empty()) {
+    diutil::insert_all(fieldtime, m_ctrl->getFieldTime(request));
   }
 
   METLIBS_LOG_DEBUG(LOGVAL(fieldtime.size()));
@@ -3870,10 +3827,8 @@ void FieldDialog::fieldEditUpdate(std::string str)
         keep.push_back(i);
       } else if (i < m && selectedField2edit_exists[i]) {
         selectedFields[i] = selectedField2edit[i];
-        std::string text = selectedFields[i].modelName + " "
-            + selectedFields[i].fieldName;
-        QString qtext = text.c_str();
-        selectedFieldbox->item(i)->setText(qtext);
+        std::string text = selectedFields[i].modelName + " " + selectedFields[i].fieldName;
+        selectedFieldbox->item(i)->setText(QString::fromStdString(text));
         keep.push_back(i);
         change = true;
       }
@@ -3975,7 +3930,7 @@ void FieldDialog::fieldEditUpdate(std::string str)
     selectedFields[numEditFields] = sf;
 
     std::string text = editName + " " + sf.fieldName;
-    selectedFieldbox->insertItem(numEditFields, QString(text.c_str()));
+    selectedFieldbox->insertItem(numEditFields, QString::fromStdString(text));
     selectedFieldbox->setCurrentRow(numEditFields);
     numEditFields++;
 
@@ -3988,7 +3943,7 @@ void FieldDialog::fieldEditUpdate(std::string str)
     enableWidgets("none");
 }
 
-void FieldDialog::allTimeStepToggled(bool on)
+void FieldDialog::allTimeStepToggled(bool)
 {
   updateTime();
 }

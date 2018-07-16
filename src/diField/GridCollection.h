@@ -214,7 +214,7 @@ public:
 
   std::map<std::string,std::string> getGlobalAttributes(const std::string& refTime);
 
-  void getFieldInfo(const std::string& refTime, std::map<std::string,FieldInfo>& fieldInfo);
+  void getFieldPlotInfo(const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo);
 
   Field* getField(const FieldRequest& fieldrequest);
 

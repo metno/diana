@@ -95,12 +95,18 @@ private:
     std::string zaxis;
     std::string extraaxis;
     std::string unit;
-    bool plotDefinition;
+    bool predefinedPlot;
     bool levelmove;
     bool idnummove;
-    SelectedField() : inEdit(false), external(false),
-        hourOffset(0), hourDiff(0), minus(false),
-        plotDefinition(true), levelmove(true), idnummove(true)
+    SelectedField()
+        : inEdit(false)
+        , external(false)
+        , hourOffset(0)
+        , hourDiff(0)
+        , minus(false)
+        , predefinedPlot(true)
+        , levelmove(true)
+        , idnummove(true)
     {
     }
   };
@@ -252,7 +258,7 @@ private:
   void updateTime();
   void setLevel();
   void setIdnum();
-  void getFieldGroups(const std::string& model, const std::string& refTime, bool plotDefinitions, std::vector<FieldGroupInfo>& vfg);
+  void getFieldGroups(const std::string& model, const std::string& refTime, bool plotDefinitions, FieldPlotGroupInfo_v& vfg);
   void checkFieldOptions(miutil::KeyValue_v& fieldopts);
   miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
 
@@ -280,9 +286,10 @@ private:
   std::string editName;  // replacing the modelName during editing
 
   // map<fieldName,fieldOptions>
-  std::map<std::string,miutil::KeyValue_v> setupFieldOptions;
-  std::map<std::string,miutil::KeyValue_v> fieldOptions;
-  std::map<std::string,miutil::KeyValue_v> editFieldOptions;
+  typedef std::map<std::string, miutil::KeyValue_v> fieldoptions_m;
+  fieldoptions_m setupFieldOptions;
+  fieldoptions_m fieldOptions;
+  fieldoptions_m editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
   std::set<std::string> fieldPrefixes;
@@ -310,9 +317,9 @@ private:
 
   // info about selected model, fields, levels, idnums and plot options
   std::string currentModel;
-  std::vector<FieldGroupInfo> vfgi;
+  FieldPlotGroupInfo_v vfgi;
 
-  std::vector<FieldDialogInfo> m_modelgroup;
+  FieldModelGroupInfo_v m_modelgroup;
 
   std::string lastLevel;
   std::string lastIdnum;
@@ -327,7 +334,7 @@ private:
   QLineEdit* modelFilterEdit;
   QComboBox* refTimeComboBox;
   QComboBox* fieldGRbox;
-  QCheckBox* fieldGroupCheckBox;
+  QCheckBox* predefinedPlotsCheckBox;
   QListWidget*  fieldbox;
   QListWidget*  selectedFieldbox;
 

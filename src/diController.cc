@@ -708,9 +708,9 @@ EditDialogInfo Controller::initEditDialog()
   return editm->getEditDialogInfo();
 }
 
-vector<FieldDialogInfo> Controller::initFieldDialog()
+FieldModelGroupInfo_v Controller::getFieldModelGroups()
 {
-  return fieldm->getFieldDialogInfo();
+  return fieldm->getFieldModelGroups();
 }
 
 void Controller::getAllFieldNames(vector<std::string> & fieldNames)
@@ -741,12 +741,9 @@ miutil::miTime Controller::getFieldReferenceTime()
   return plotm->fieldplots()->getFieldReferenceTime();
 }
 
-void Controller::getFieldGroups(const std::string& modelName,
-    std::string refTime,
-    bool plotGroups,
-    vector<FieldGroupInfo>& vfgi)
+void Controller::getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi)
 {
-  fieldplotm->getFieldGroups(modelName, refTime, plotGroups, vfgi);
+  fieldplotm->getFieldPlotGroups(modelName, refTime, predefinedPlots, vfgi);
 }
 
 std::map<std::string,std::string> Controller::getFieldGlobalAttributes(const std::string& modelName,

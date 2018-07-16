@@ -584,7 +584,7 @@ std::map<std::string,std::string> GridCollection::getGlobalAttributes(const std:
   return ritr->second.globalAttributes;
 }
 
-void GridCollection::getFieldInfo(const std::string& refTime, std::map<std::string,FieldInfo>& fieldInfo)
+void GridCollection::getFieldPlotInfo(const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo)
 {
   METLIBS_LOG_SCOPE(LOGVAL(refTime));
 
@@ -602,34 +602,34 @@ void GridCollection::getFieldInfo(const std::string& refTime, std::map<std::stri
   }
 
   for (const gridinventory::GridParameter& gp : ritr->second.parameters) {
-    FieldInfo vi;
+    FieldPlotInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
 
     set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(Zaxis(gp.zaxis_id));
     if (zitr != ritr->second.zaxes.end()) {
-      vi.vlevels= zitr->getStringValues();
-      vi.vcoord = zitr->verticalType;
+      vi.vertical_axis.values = zitr->getStringValues();
+      vi.vertical_axis.name = zitr->verticalType;
       if (zitr->vc_type == FieldFunctions::vctype_oceandepth) {
-        vi.default_vlevel = vi.vlevels.front();
+        vi.vertical_axis.default_value_index = 0;
       }
     }
 
     set<gridinventory::ExtraAxis>::iterator eitr = ritr->second.extraaxes.find(ExtraAxis(gp.extraaxis_id));
     if (eitr!=ritr->second.extraaxes.end()) {
-      vi.ecoord = eitr->name;
-      vi.elevels = eitr->getStringValues();
+      vi.realization_axis.name = eitr->name;
+      vi.realization_axis.values = eitr->getStringValues();
     }
 
     // groupname based on coordinates
-    if ( vi.ecoord.empty() && vi.vcoord.empty()) {
+    if (vi.ecoord().empty() && vi.vcoord().empty()) {
       vi.groupName = "Surface";
-    } else if ( vi.vcoord.empty() ) {
-      vi.groupName = vi.ecoord;
-    } else if ( vi.ecoord.empty() ) {
-      vi.groupName = vi.vcoord;
+    } else if (vi.vcoord().empty()) {
+      vi.groupName = vi.ecoord();
+    } else if (vi.ecoord().empty()) {
+      vi.groupName = vi.vcoord();
     } else {
-      vi.groupName = vi.vcoord + "_" + vi.ecoord;
+      vi.groupName = vi.vcoord() + "_" + vi.ecoord();
     }
 
     fieldInfo[vi.fieldName]=vi;

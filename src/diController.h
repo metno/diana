@@ -77,8 +77,10 @@ class StationPlot;
 struct LocationData;
 
 // from diCommonFieldTypes.h
-struct FieldDialogInfo;
-struct FieldGroupInfo;
+struct FieldModelGroupInfo;
+typedef std::vector<FieldModelGroupInfo> FieldModelGroupInfo_v;
+struct FieldPlotGroupInfo;
+typedef std::vector<FieldPlotGroupInfo> FieldPlotGroupInfo_v;
 struct FieldRequest;
 
 class QKeyEvent;
@@ -286,7 +288,7 @@ public:
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
-  std::vector<FieldDialogInfo> initFieldDialog();
+  FieldModelGroupInfo_v getFieldModelGroups();
   ///return all reference times for the given model
   std::set<std::string> getFieldReferenceTimes(const std::string& model);
   ///return the reference time given by refOffset and refhour or the last reference time for the given model
@@ -297,8 +299,8 @@ public:
   void getAllFieldNames(std::vector<std::string>& fieldNames);
   ///return levels
   std::vector<std::string> getFieldLevels(const PlotCommand_cp& pinfo);
-  /// return FieldGroupInfo for one model to FieldDialog
-  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+  /// return plot/parameter info for one model to FieldDialog
+  void getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi);
   /// return GlobalAttributes for one model
   std::map<std::string,std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
   /// Returns available times for the requested fields.
