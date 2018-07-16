@@ -35,14 +35,13 @@
 #include "diAnnotationPlot.h" // AnnotationPlot::Annotation
 #include "diTimeTypes.h"
 
-class FieldManager;
 class FieldPlot;
 class FieldPlotManager;
 
 class FieldPlotCluster : public PlotCluster
 {
 public:
-  FieldPlotCluster(FieldManager* fieldm, FieldPlotManager* fieldplotm);
+  FieldPlotCluster(FieldPlotManager* fieldplotm);
   ~FieldPlotCluster();
 
   const std::string& plotCommandKey() const override;
@@ -79,7 +78,6 @@ protected:
   FieldPlot* at(size_t i) const;
 
 private:
-  FieldManager* fieldm_;
   FieldPlotManager* fieldplotm_;
 };
 

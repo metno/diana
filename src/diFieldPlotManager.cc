@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2017 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 
 #include "diFieldPlot.h"
 #include "diFieldPlotManager.h"
+#include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "miSetupParser.h"
@@ -72,6 +73,11 @@ FieldPlot* FieldPlotManager::createPlot(const PlotCommand_cp& pc)
     return 0;
 }
 
+void FieldPlotManager::flushPlotCache()
+{
+  fieldManager->flushCache();
+}
+
 void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
 {
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
@@ -85,6 +91,7 @@ bool FieldPlotManager::parseSetup()
     return false;
   if (!parseFieldGroupSetup())
     return false;
+  fieldManager->setFieldNames(getFields());
   return true;
 }
 
@@ -1011,35 +1018,6 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   fieldrequest.paramName = plotName;
   vfieldrequest.push_back(fieldrequest);
   return vfieldrequest;
-}
-
-bool FieldPlotManager::splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2)
-{
-  const size_t npos = size_t(-1);
-  const size_t p1 = find(pin, "(");
-  if (p1 == npos)
-    return false;
-
-  const size_t p2 = find(pin, "-", p1+1);
-  if (p2 == npos)
-    return false;
-
-  const size_t p3 = find(pin, ")", p2+1);
-  if (p3 == npos)
-    return false;
-
-  const miutil::KeyValue_v common_start(pin.begin(), pin.begin()+p1);
-  const miutil::KeyValue_v common_end(pin.begin()+p3+1, pin.end());
-
-  fspec1 = common_start;
-  fspec1.insert(fspec1.end(), pin.begin()+p1+1, pin.begin()+p2);
-  diutil::insert_all(fspec1, common_end);
-
-  fspec2 = common_start;
-  fspec2.insert(fspec2.end(), pin.begin()+p2+1, pin.begin()+p3);
-  diutil::insert_all(fspec2, common_end);
-
-  return true;
 }
 
 // ---------------- fieldPlotOptions management --------------------

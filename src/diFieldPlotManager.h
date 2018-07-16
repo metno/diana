@@ -61,11 +61,9 @@ public:
   FieldPlotManager(FieldManager* fm);
 
   FieldPlot* createPlot(const PlotCommand_cp& cmd);
+  void flushPlotCache();
 
   void getAllFieldNames(std::vector<std::string>& fieldNames);
-
-  /// return lists of inputfields
-  std::vector<std::string> getFields();
 
   /// read setup section for field plots
   bool parseSetup();
@@ -131,12 +129,13 @@ public:
   static void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v &fdo);
   static std::string getFieldClassSpecs(const std::string& fieldplotname);
 
-  static bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2);
-
 private:
   std::vector<PlotField> vPlotField;
 
   std::vector<std::string> splitComStr(const std::string& s, bool splitall);
+
+  /// return lists of inputfields
+  std::vector<std::string> getFields();
 
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 

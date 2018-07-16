@@ -33,7 +33,6 @@
 #include "GridInventoryTypes.h"
 #include "diCommonFieldTypes.h"
 #include "diField.h"
-#include "diFieldCache.h"
 #include "diFieldFunctions.h"
 #include "diGridConverter.h"
 #include "diTimeTypes.h"
@@ -48,6 +47,9 @@
 
 class GridIOsetup;
 class GridCollection;
+
+class FieldCache;
+typedef std::shared_ptr<FieldCache> FieldCachePtr;
 
 /**
  \brief Managing fields and "models"
@@ -130,8 +132,7 @@ public:
   bool writeField(FieldRequest fieldrequest, const Field* field);
   bool freeField(Field* field);
   bool freeFields(std::vector<Field*>& fields);
-  void flushCache()
-    { fieldcache->flush(); }
+  void flushCache();
 
   /// read and compute a difference field (fv1 = fv1-fv2)
   bool makeDifferenceFields(std::vector<Field*>& fv1, std::vector<Field*>& fv2);

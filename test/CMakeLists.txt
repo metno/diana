@@ -133,7 +133,7 @@ ADD_TEST(NAME diFieldTest
 ########################################################################
 
 SET (dianaGuiTests_SOURCES
-  TestFieldDialog.cc
+  TestFieldUtil.cc
   TestGLPainter.cc
   TestPdfSink.cc
   TestVcrossGui.cc

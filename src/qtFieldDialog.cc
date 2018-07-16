@@ -34,6 +34,7 @@
 
 #include "diController.h"
 #include "diFieldPlotManager.h"
+#include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "qtToggleButton.h"
@@ -89,35 +90,6 @@ const std::string UNITS = "units";
 const std::string UNIT = "unit";
 
 const size_t npos = size_t(-1);
-
-void cleanupFieldOptions(miutil::KeyValue_v& vpopt)
-{
-  size_t ncus = miutil::rfind(vpopt, UNITS);
-  size_t ncu = miutil::rfind(vpopt, UNIT);
-  if (ncu != npos && ncus != npos) {
-    const std::string value = vpopt[std::max(ncus, ncu)].value();
-    while (ncus != npos) {
-      vpopt.erase(vpopt.begin() + ncus);
-      ncus = miutil::rfind(vpopt, UNITS, ncus-1);
-    }
-    if (!vpopt.empty()) {
-      ncu = miutil::rfind(vpopt, UNIT);
-      while (ncu != npos) {
-        vpopt.erase(vpopt.begin() + ncu);
-        ncu = miutil::rfind(vpopt, UNIT, ncu-1);
-      }
-    }
-    vpopt.push_back(miutil::KeyValue(UNIT, value));
-  }
-}
-
-// these had idNumber == 1 with CommandParser
-// these are put into FieldRequest by FieldPlotManager::parseString
-const std::set<std::string> cp__idnum1 = {
-  "model", "plot", "parameter", "vlevel", "elevel",
-  "vcoord", "ecoord", UNITS, "reftime", "refhour",
-  "refoffset", "hour.offset", "hour.diff", "MINUS"
-};
 
 const char* const modelGlobalAttributes[][2] = {
   { "title",   QT_TRANSLATE_NOOP("FieldDialog", "Title") },
@@ -3182,7 +3154,7 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
 
     //if (field1 - field2)
     miutil::KeyValue_v field1, field2;
-    if (FieldPlotManager::splitDifferenceCommandString(str, field1, field2))
+    if (splitDifferenceCommandString(str, field1, field2))
       str = field1;
 
     SelectedField sf;
@@ -3470,51 +3442,6 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
     }
   }
   ivstr++;
-}
-
-// static
-void FieldDialog::mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts)
-{
-  if (opts.empty())
-    return;
-
-  miutil::KeyValue_v new_fieldopts;
-  for (const miutil::KeyValue& kv : fieldopts) {
-    if (cp__idnum1.count(kv.key()))
-      new_fieldopts.push_back(kv);
-  }
-
-  // skip "line.interval" from default options if "(log.)line.values" are given
-  if (miutil::find(fieldopts, PlotOptions::key_linevalues) != npos || miutil::find(fieldopts, PlotOptions::key_loglinevalues) != npos) {
-    size_t i_interval;
-    while ((i_interval = miutil::find(opts, PlotOptions::key_lineinterval)) != npos) {
-      opts.erase(opts.begin() + i_interval);
-    }
-  }
-
-  // loop through current options, replace the value if the new string has same option with different value
-  for (miutil::KeyValue& opt : opts) {
-    const size_t i = miutil::find(fieldopts, opt.key());
-    if (i != npos) {
-      // there is no option with variable no. of values, YET !!!!!
-      if (fieldopts[i].value() != opt.value())
-        opt = fieldopts[i];
-    }
-  }
-
-  // loop through new options, add new option if it is not a part of current options
-  for (miutil::KeyValue& fopt : fieldopts) {
-    if (fopt.key() == "level" || fopt.key() == "idnum")
-      continue;
-
-    const size_t j = miutil::find(opts, fopt.key());
-    if (j == npos) {
-      opts.push_back(fopt);
-    }
-  }
-
-  diutil::insert_all(new_fieldopts, opts);
-  std::swap(new_fieldopts, fieldopts);
 }
 
 void FieldDialog::checkFieldOptions(miutil::KeyValue_v& fieldopts)

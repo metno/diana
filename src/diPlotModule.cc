@@ -1039,8 +1039,7 @@ double PlotModule::getArea(float flat1, float flat2, float flat3, float flat4, f
 
 
 // set managers
-void PlotModule::setManagers(FieldManager* fieldm, FieldPlotManager* fpm,
-    ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm)
+void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm)
 {
   METLIBS_LOG_SCOPE();
   fieldplotm = fpm;
@@ -1050,8 +1049,6 @@ void PlotModule::setManagers(FieldManager* fieldm, FieldPlotManager* fpm,
   objm = obm;
   editm = edm;
 
-  if (!fieldm)
-    METLIBS_LOG_ERROR("fieldmanager==0");
   if (!fieldplotm)
     METLIBS_LOG_ERROR("fieldplotmanager==0");
   if (!obsm)
@@ -1066,7 +1063,7 @@ void PlotModule::setManagers(FieldManager* fieldm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("editmanager==0");
 
   obsplots_.reset(new ObsPlotCluster(obsm, editm));
-  fieldplots_.reset(new FieldPlotCluster(fieldm, fieldplotm));
+  fieldplots_.reset(new FieldPlotCluster(fieldplotm));
 }
 
 Manager *PlotModule::getManager(const std::string &name)

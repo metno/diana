@@ -47,9 +47,8 @@ const std::string FIELD = "FIELD";
 // FieldPlotManagers destructor, which comes before this destructor. Basically we try to
 // destroy something in a dead pointer here....
 
-FieldPlotCluster::FieldPlotCluster(FieldManager* fieldm, FieldPlotManager* fieldplotm)
-  : fieldm_(fieldm)
-  , fieldplotm_(fieldplotm)
+FieldPlotCluster::FieldPlotCluster(FieldPlotManager* fieldplotm)
+    : fieldplotm_(fieldplotm)
 {
 }
 
@@ -75,7 +74,7 @@ void FieldPlotCluster::prepare(const PlotCommand_cpv& inp)
   // to avoid memory consumption!
   if (inp.empty()) {
     // No fields will be used any more...
-    fieldm_->flushCache();
+    fieldplotm_->flushPlotCache();
     return;
   }
 

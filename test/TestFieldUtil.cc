@@ -27,8 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <diFieldUtil.h>
 #include <gtest/gtest.h>
-#include <qtFieldDialog.h>
 
 using miutil::kv;
 
@@ -41,7 +41,7 @@ TEST(FieldDialog, mergeFieldOptions1)
   miutil::KeyValue_v expectedopts = cmdopts;
   expectedopts.insert(expectedopts.begin() + 2, setupopts[2]); // linetype.solid is the only one that is merged
 
-  FieldDialog::mergeFieldOptions(cmdopts, setupopts);
+  mergeFieldOptions(cmdopts, setupopts);
 
   ASSERT_EQ(expectedopts.size(), cmdopts.size()) << "expected: " << expectedopts << " actual:" << cmdopts;
   for (size_t i = 0; i < expectedopts.size(); ++i) {
@@ -58,7 +58,7 @@ TEST(FieldDialog, mergeFieldOptions2)
   miutil::KeyValue_v expectedopts = cmdopts;
   expectedopts.insert(expectedopts.begin() + 2, setupopts[2]); // linetype.solid is the only one that is merged
 
-  FieldDialog::mergeFieldOptions(cmdopts, setupopts);
+  mergeFieldOptions(cmdopts, setupopts);
 
   ASSERT_EQ(expectedopts.size(), cmdopts.size()) << "expected: " << expectedopts << " actual:" << cmdopts;
   for (size_t i = 0; i < expectedopts.size(); ++i) {
@@ -76,7 +76,7 @@ TEST(FieldDialog, mergeFieldOptions3)
   expectedopts.insert(expectedopts.begin() + 2, setupopts[2]); // linetype is merged
   expectedopts.insert(expectedopts.begin() + 3, setupopts[3]); // linewidth is merged
 
-  FieldDialog::mergeFieldOptions(cmdopts, setupopts);
+  mergeFieldOptions(cmdopts, setupopts);
 
   ASSERT_EQ(expectedopts.size(), cmdopts.size()) << "expected: " << expectedopts << " actual:" << cmdopts;
   for (size_t i = 0; i < expectedopts.size(); ++i) {

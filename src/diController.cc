@@ -89,7 +89,7 @@ Controller::Controller()
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
-  plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
+  plotm->setManagers(fieldplotm, obsm, satm, stam, objm, editm);
 
   addManager("DRAWING", DrawingManager::instance());
   addManager("WEBMAP", WebMapManager::instance());
@@ -153,7 +153,6 @@ bool Controller::parseSetup()
 
   //parse some setup sections
   if (!fieldplotm->parseSetup()) return false;
-  fieldm->setFieldNames(fieldplotm->getFields());
   if (!obsm->parseSetup()) return false;
   if (!satm->parseSetup()) return false;
   if (!objm->parseSetup()) return false;

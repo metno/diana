@@ -739,6 +739,11 @@ bool FieldManager::freeFields(std::vector<Field*>& fields)
   return all_ok;
 }
 
+void FieldManager::flushCache()
+{
+  fieldcache->flush();
+}
+
 /*
  YE: It seems that the ptime is not used to determine which fields to be used when computing, why?
  */

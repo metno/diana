@@ -149,12 +149,6 @@ public:
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
 
-  /*! Merge field options from command (e.g. quick menu) and setup/logfile.
-   * \param fieldopts options from command, will be updated
-   * \param opts options from setup/logfile
-   */
-  static void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts);
-
 public /*Q_SLOTS*/:
   void updateTimes() override;
 

@@ -212,8 +212,7 @@ public:
   double getWindowArea();
 
   /// set managers
-  void setManagers(FieldManager*, FieldPlotManager*, ObsManager*, SatManager*,
-      StationManager*, ObjectManager*, EditManager*);
+  void setManagers(FieldPlotManager*, ObsManager*, SatManager*, StationManager*, ObjectManager*, EditManager*);
   Manager *getManager(const std::string &name);
 
   /// return current plottime
