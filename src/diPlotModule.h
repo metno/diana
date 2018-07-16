@@ -188,24 +188,29 @@ public:
   //! query conservative map area
   bool isKeepCurrentArea() const { return keepcurrentarea; }
 
-  /// get static maparea in plot superclass
+  /// get maparea for plot
   const Area& getMapArea();
 
   /// get plotwindow rectangle
   const Rectangle& getPlotSize();
 
-  /// get the size of the plot window
-  void getPlotWindow(int &width, int &height);
-  /// new size of plotwindow
-  void setPlotWindow(int, int);
+  /// get the physical size of the plot window (pixels)
+  const diutil::PointI& getPhysSize() const;
+
+  /// resize physical plot window (pixels)
+  void setPhysSize(int, int);
+
   /// return latitude,longitude from physical x,y
-  bool PhysToGeo(const float, const float, float&, float&);
+  bool PhysToGeo(float xphys, float yphys, float& lat, float& lon);
+
   /// return physical x,y from physical latitude,longitude
-  bool GeoToPhys(const float, const float, float&, float&);
+  bool GeoToPhys(float lat, float lon, float& xphys, float& yphys);
+
   /// return map x,y from physical x,y
-  void PhysToMap(const float, const float, float&, float&);
+  void PhysToMap(float xphys, float yphys, float& xmap, float& ymap);
+
   /// return field grid x,y from map x,y if field defined and map proj = field proj
-  bool MapToGrid(const float, const float, float&, float&);
+  bool MapToGrid(float xmap, float ymap, float& gridx, float& gridy);
 
   double getWindowDistances(float x, float y, bool horizontal);
   double getMarkedArea(float x, float y);
@@ -288,6 +293,9 @@ public:
   //Objects
   ///objects follow main plot time
   void setObjAuto(bool autoF);
+
+  void setPanning(bool pan);
+  bool isPanning() const;
 
   void setRubberband(bool enable) { dorubberband = enable; }
   bool isRubberband() const { return dorubberband; }

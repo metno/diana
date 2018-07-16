@@ -34,7 +34,6 @@
 #include "diEventResult.h"
 #include "diMapAreaSetup.h"
 #include "diPlotModule.h"
-#include "diStaticPlot.h"
 #include "util/math_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -92,7 +91,7 @@ void MapAreaNavigator::areaInsert(bool newArea)
 
 void MapAreaNavigator::defineUserArea()
 {
-  myArea = plotm->getStaticPlot()->getMapArea();
+  myArea = plotm->getMapArea();
 }
 
 void MapAreaNavigator::recallUserArea()
@@ -149,8 +148,9 @@ void MapAreaNavigator::panStep(int dx, int dy)
     return;
 
   areaInsert(true);
-  dx *= arrowKeyDirection * PAN_FRACTION * plotm->getStaticPlot()->getPhysWidth();
-  dy *= arrowKeyDirection * PAN_FRACTION * plotm->getStaticPlot()->getPhysHeight();
+  const diutil::PointI& ps = plotm->getPhysSize();
+  dx *= arrowKeyDirection * PAN_FRACTION * ps.x();
+  dy *= arrowKeyDirection * PAN_FRACTION * ps.y();
   Rectangle r = diutil::translatedRectangle(getPhysRectangle(), dx, dy);
   plotm->setMapAreaFromPhys(r);
 }
@@ -209,7 +209,7 @@ void MapAreaNavigator::startPanning(int x, int y, EventResult& res)
   panPreviousY = y;
 
   areaInsert(true);
-  plotm->getStaticPlot()->setPanning(true);
+  plotm->setPanning(true);
   res.newcursor = paint_move_cursor;
 }
 
@@ -229,7 +229,7 @@ void MapAreaNavigator::movePanning(int x, int y, EventResult& res)
 
 void MapAreaNavigator::stopPanning(int, int, EventResult& res)
 {
-  plotm->getStaticPlot()->setPanning(false);
+  plotm->setPanning(false);
   res.enable_background_buffer = false;
   res.update_background_buffer = false;
   res.repaint = true;
@@ -252,7 +252,7 @@ bool MapAreaNavigator::sendMouseEvent(QMouseEvent* me, EventResult& res)
     res.action = browsing;
     if (plotm->isRubberband()) {
       moveRubberOrClick(me->x(), me->y(), res);
-    } else if (plotm->getStaticPlot()->isPanning()) {
+    } else if (plotm->isPanning()) {
       movePanning(me->x(), me->y(), res);
     } else {
       return false;
@@ -418,6 +418,6 @@ void MapAreaNavigator::readLog(const std::vector<std::string>& vstr, const std::
 
 Rectangle MapAreaNavigator::getPhysRectangle() const
 {
-  const float pw = plotm->getStaticPlot()->getPhysWidth(), ph = plotm->getStaticPlot()->getPhysHeight();
-  return Rectangle(0, 0, pw, ph);
+  const diutil::PointI& ps = plotm->getPhysSize();
+  return Rectangle(0, 0, ps.x(), ps.y());
 }

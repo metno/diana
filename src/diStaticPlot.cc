@@ -219,7 +219,7 @@ XY StaticPlot::MapToGeo(const XY& map) const
   return lonlatdeg;
 }
 
-bool StaticPlot::PhysToGeo(const float x, const float y, float& lat, float& lon) const
+bool StaticPlot::PhysToGeo(float x, float y, float& lat, float& lon) const
 {
   bool ret = false;
   if (hasPhysSize()) {

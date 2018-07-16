@@ -47,7 +47,7 @@ QImage RasterPlot::rasterPaint()
   METLIBS_LOG_SCOPE();
 
   StaticPlot* sp = rasterStaticPlot();
-  const diutil::PointI size(sp->getPhysWidth(), sp->getPhysHeight());
+  const diutil::PointI& size = sp->getPhysSize();
   cached_ = QImage(size.x(), size.y(), QImage::Format_ARGB32);
   cached_.fill(Qt::transparent);
 

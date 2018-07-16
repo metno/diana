@@ -479,7 +479,7 @@ void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
 void ObjectManager::plotObjects(DiGLPainter* gl, Plot::PlotOrder zorder)
 {
   if (zorder == Plot::LINES) {
-    objects.changeProjection(plotm->getStaticPlot()->getMapArea());
+    objects.changeProjection(plotm->getMapArea());
     objects.plot(gl, zorder);
   }
 }

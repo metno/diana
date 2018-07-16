@@ -228,7 +228,7 @@ void Controller::zoomOut()
 // plotwindow size from MainPaintable..
 void Controller::setPlotWindow(const QSize& size)
 {
-  plotm->setPlotWindow(size.width(), size.height());
+  plotm->setPhysSize(size.width(), size.height());
 }
 
 // return latitude,longitude from physical x,y
@@ -258,7 +258,7 @@ bool Controller::MapToGrid(const float xmap, const float ymap,
   return plotm->MapToGrid(xmap,ymap,gridx,gridy);
 }
 
-double Controller::getWindowDistances(const float& x, const float& y, const bool horizontal)
+double Controller::getWindowDistances(float x, float y, bool horizontal)
 {
   return plotm->getWindowDistances(x, y, horizontal);
 }

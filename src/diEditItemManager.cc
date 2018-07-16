@@ -1680,7 +1680,7 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
 void EditItemManager::getViewportDisplacement(int &w, int &h, float &dx, float &dy)
 {
   // Transform the mouse position into the original coordinate system used for the objects.
-  PLOTM->getPlotWindow(w, h);
+  PLOTM->getPhysSize().unpack(w, h);
   const Rectangle& plotRect_ = PLOTM->getPlotSize();
 
   if (selectedItems().isEmpty())

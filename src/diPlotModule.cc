@@ -857,7 +857,7 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
   return rectangles;
 }
 
-void PlotModule::setPlotWindow(int w, int h)
+void PlotModule::setPhysSize(int w, int h)
 {
   staticPlot_->setPhysSize(w, h);
 }
@@ -886,6 +886,16 @@ void PlotModule::cleanup()
   annotationCommands.clear();
 
   diutil::delete_all_and_clear(vap);
+}
+
+void PlotModule::setPanning(bool pan)
+{
+  staticPlot_->setPanning(pan);
+}
+
+bool PlotModule::isPanning() const
+{
+  return staticPlot_->isPanning();
 }
 
 void PlotModule::callManagersChangeProjection(bool onlyIfEnabled)
@@ -920,24 +930,23 @@ void PlotModule::setMapAreaFromPhys(const Rectangle& phys)
     setMapAreaFromMap(makeRectangle(staticPlot_->PhysToMap(XY(phys.x1, phys.y1)), staticPlot_->PhysToMap(XY(phys.x2, phys.y2))));
 }
 
-bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
+bool PlotModule::PhysToGeo(float xphys, float yphys, float& lat, float& lon)
 {
-  return staticPlot_->PhysToGeo(x, y, lat, lon);
+  return staticPlot_->PhysToGeo(xphys, yphys, lat, lon);
 }
 
-bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
+bool PlotModule::GeoToPhys(float lat, float lon, float& xphys, float& yphys)
 {
-  return staticPlot_->GeoToPhys(lat, lon, x, y);
+  return staticPlot_->GeoToPhys(lat, lon, xphys, yphys);
 }
 
-void PlotModule::PhysToMap(const float x, const float y, float& xmap, float& ymap)
+void PlotModule::PhysToMap(float xphys, float yphys, float& xmap, float& ymap)
 {
-  staticPlot_->PhysToMap(x, y, xmap, ymap);
+  staticPlot_->PhysToMap(xphys, yphys, xmap, ymap);
 }
 
 /// return field grid x,y from map x,y if field defined and map proj = field proj
-bool PlotModule::MapToGrid(const float xmap, const float ymap,
-    float& gridx, float& gridy)
+bool PlotModule::MapToGrid(float xmap, float ymap, float& gridx, float& gridy)
 {
   Area a;
   if (satm->getSatArea(a) and staticPlot_->getMapProjection() == a.P()) {
@@ -969,9 +978,8 @@ double PlotModule::getWindowDistances(float x1, float y1, float x2, float y2, bo
 
 double PlotModule::getEntireWindowDistances(const bool horizontal)
 {
-  int x1, y2;
-  getPlotWindow(x1, y2);
-  return getWindowDistances(x1, 0, 0, y2, horizontal);
+  const diutil::PointI& ps = getPhysSize();
+  return getWindowDistances(ps.x(), 0, 0, ps.y(), horizontal);
 }
 
 double PlotModule::getWindowDistances(float x, float y, bool horizontal)
@@ -992,9 +1000,8 @@ double PlotModule::getMarkedArea(float x, float y)
 
 double PlotModule::getWindowArea()
 {
-  int x1, y2;
-  getPlotWindow(x1, y2);
-  return getWindowArea(x1, 0, 0, y2);
+  const diutil::PointI& ps = getPhysSize();
+  return getWindowArea(ps.x(), 0, 0, ps.y());
 }
 
 double PlotModule::getWindowArea(int x1, int y1, int x2, int y2)
@@ -1434,20 +1441,17 @@ bool PlotModule::printTrajectoryPositions(const std::string& filename)
   return false;
 }
 
-/// get static maparea in plot superclass
 const Area& PlotModule::getMapArea()
 {
   return staticPlot_->getMapArea();
 }
 
-/// get plotwindow rectangle
 const Rectangle& PlotModule::getPlotSize()
 {
   return staticPlot_->getPlotSize();
 }
 
-void PlotModule::getPlotWindow(int &width, int &height)
+const diutil::PointI& PlotModule::getPhysSize() const
 {
-  width = staticPlot_->getPhysWidth();
-  height = staticPlot_->getPhysHeight();
+  return staticPlot_->getPhysSize();
 }

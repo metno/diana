@@ -163,6 +163,8 @@ public:
 
   int getPhysHeight() const { return mPhys.y(); }
 
+  const diutil::PointI& getPhysSize() const { return mPhys; }
+
   float getPhysDiagonal() const;
 
   /// set the current data time

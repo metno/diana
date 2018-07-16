@@ -165,7 +165,7 @@ public:
   /// return field grid x,y from map x,y if field defined and map proj = field proj
   bool MapToGrid(const float,const float,float&,float&);
   /// return distance marked by the rubberband or entire window in m
-  double getWindowDistances(const float& x, const float& y, const bool horizontal);
+  double getWindowDistances(float x, float y, bool horizontal);
   /// return area marked by the rubberband in m2
   double getMarkedArea(const float& x, const float& y);
   /// return area of entire window in m2
