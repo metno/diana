@@ -1,3 +1,11 @@
+diana-3.46 (3.46.0-1) unstable; urgency=low
+
+  * operational version
+  * bugfix quickmenu browser
+  * bugfix bdiana perl return code
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 16 Jul 2018 08:00:08 +0200
+
 diana-3.46 (3.46.0~rc3-1) unstable; urgency=low
 
   * send timechanged message earlier
