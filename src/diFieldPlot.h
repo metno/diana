@@ -102,6 +102,7 @@ private:
 
   std::vector<float*> prepareVectors(float* x, float* y);
   std::vector<float*> prepareDirectionVectors(float* x, float* y);
+  std::vector<float*> doPrepareVectors(float* x, float* y, bool direction);
 
   void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
       int maxElementsX, int& step, float& dist);
