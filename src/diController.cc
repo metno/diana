@@ -137,22 +137,12 @@ bool Controller::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  // plotm->getStaticPlot()->initFontManager();
-
   //Parse field sections
-  vector<std::string> fieldSubSect = fieldm->subsections();
-  int nsect = fieldSubSect.size();
   vector<std::string> errors;
-  for( int i=0; i<nsect; i++){
-    vector<std::string> lines;
-    if (!SetupParser::getSection(fieldSubSect[i],lines)) {
-      //      METLIBS_LOG_WARN("Missing section "<<fieldSubSect[i]<<" in setupfile.");
-    }
-    vector<std::string> string_lines;
-    for (size_t j=0; j<lines.size(); j++) {
-      string_lines.push_back(lines[j]);
-    }
-    fieldm->parseSetup(string_lines,fieldSubSect[i],errors);
+  vector<std::string> lines;
+  for (const std::string& suse : fieldm->subsections()) {
+    SetupParser::getSection(suse, lines);
+    fieldm->parseSetup(lines, suse, errors);
   }
   //Write error messages
   int nerror = errors.size();
@@ -791,7 +781,7 @@ vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
     return std::vector<std::string>();
 }
 
-set<std::string> Controller::getFieldReferenceTimes(const std::string model)
+set<std::string> Controller::getFieldReferenceTimes(const std::string& model)
 {
   return fieldm->getReferenceTimes(model);
 }

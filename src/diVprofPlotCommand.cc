@@ -57,7 +57,7 @@ VprofPlotCommand::VprofPlotCommand(Type type)
 {
 }
 
-const std::string VprofPlotCommand::toString() const
+std::string VprofPlotCommand::toString() const
 {
   std::ostringstream out;
   if (type() == OPTIONS) {

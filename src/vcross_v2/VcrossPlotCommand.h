@@ -22,7 +22,7 @@ public:
 
   VcrossPlotCommand(Type type);
 
-  const std::string toString() const override;
+  std::string toString() const override;
   static VcrossPlotCommand_cp fromString(const std::string& text);
 
   Type type() const

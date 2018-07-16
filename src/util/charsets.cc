@@ -189,12 +189,16 @@ GetLineConverter::GetLineConverter(const std::string& comment, const std::string
 
 std::istream& GetLineConverter::operator()(std::istream& in, std::string& line)
 {
-  if (std::getline(in, line)) {
-    if (diutil::CharsetConverter_p c = diutil::findConverterFromCoding(line, cs_internal_, comment_))
-      converter_ = c;
-    converter_->apply(line);
-  }
+  if (!std::getline(in, line))
+    apply(line);
   return in;
+};
+
+void GetLineConverter::apply(std::string& line)
+{
+  if (diutil::CharsetConverter_p c = diutil::findConverterFromCoding(line, cs_internal_, comment_))
+    converter_ = c;
+  converter_->apply(line);
 };
 
 } // namespace diutil

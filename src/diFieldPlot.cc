@@ -709,9 +709,9 @@ bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
   setPlotInfo(opts);
 
   if (poptions.maxDiagonalInMeters > -1) {
-    METLIBS_LOG_INFO(
-      " FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<getStaticPlot()->getRequestedarea().getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters);
-    if (getStaticPlot()->getRequestedarea().getDiagonalInMeters() > poptions.maxDiagonalInMeters)
+    const double diagonal = getStaticPlot()->getRequestedarea().getDiagonalInMeters();
+    METLIBS_LOG_INFO("requestedarea.getDiagonalInMeters():" << diagonal << "  max:" << poptions.maxDiagonalInMeters);
+    if (diagonal > poptions.maxDiagonalInMeters)
       return false;
   }
 

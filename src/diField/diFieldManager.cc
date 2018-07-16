@@ -34,8 +34,9 @@
 
 #include "diFieldManager.h"
 
-#include "diMetConstants.h"
 #include "GridCollection.h"
+#include "diFieldCache.h"
+#include "diMetConstants.h"
 
 #include "../diUtilities.h"
 #include "util/misc_util.h"
@@ -633,99 +634,80 @@ std::string FieldManager::getBestReferenceTime(const std::string& modelName,
     return "";
 
   //if refime is not a valid time, return string
-  if (!miTime::isValid(*(refTimes.rbegin()))) {
-    return (*(refTimes.rbegin()));
+  const std::string& last = *(refTimes.rbegin());
+  if (!miTime::isValid(last)) {
+    return last;
   }
 
-  miTime refTime(*(refTimes.rbegin()));
+  miTime refTime(last);
 
   if (refHour > -1) {
     miDate date = refTime.date();
     miClock clock(refHour, 0, 0);
     refTime = miTime(date, clock);
   }
-
-  refTime.addDay(refOffset);
-  std::string refString = refTime.isoTime("T");
-
-  set<std::string>::iterator p = refTimes.begin();
-  while (p != refTimes.end() && *p != refString)
-    ++p;
-  if (p != refTimes.end()) {
-    return *p;
+  if (refOffset != 0) {
+    refTime.addDay(refOffset);
   }
 
-  //referencetime not found. If refHour is given and no refoffset, try yesterday
+  std::set<std::string>::const_iterator p = refTimes.find(refTime.isoTime("T"));
+  if (p != refTimes.end())
+    return *p;
+
+  // referencetime not found. If refHour is given and no refoffset, try yesterday
   if (refHour > -1 && refOffset == 0) {
     refTime.addDay(-1);
-    refString = refTime.isoTime("T");
-    p = refTimes.begin();
-    while (p != refTimes.end() && *p != refString)
-      ++p;
-    if (p != refTimes.end()) {
+    p = refTimes.find(refTime.isoTime("T"));
+    if (p != refTimes.end())
       return *p;
-    }
   }
   return "";
 }
 
-bool FieldManager::makeField(Field*& fout, FieldRequest fieldrequest,
-    int cacheOptions)
+bool FieldManager::makeField(Field*& fout, FieldRequest frq, int cacheOptions)
 {
-  METLIBS_LOG_TIME(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.paramName)
-      << LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.refTime)
-      << LOGVAL(fieldrequest.ptime) << LOGVAL(fieldrequest.plevel)
-      << LOGVAL(fieldrequest.elevel) << LOGVAL(fieldrequest.unit));
-
+  METLIBS_LOG_TIME(LOGVAL(frq.modelName) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.refTime) << LOGVAL(frq.ptime) << LOGVAL(frq.plevel)
+                                         << LOGVAL(frq.elevel) << LOGVAL(frq.unit));
 
   //Find best reference time
-  if (fieldrequest.refTime.empty()) {
-    fieldrequest.refTime = getBestReferenceTime(fieldrequest.modelName,
-        fieldrequest.refoffset, fieldrequest.refhour);
+  if (frq.refTime.empty()) {
+    frq.refTime = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
   }
 
-    // If READ_RESULT, try to read from cache
-    if ((cacheOptions & (READ_RESULT | READ_ALL)) != 0
-        && miTime::isValid(fieldrequest.refTime) && !fieldrequest.ptime.undef()) {
-      FieldCacheKeyset keyset;
-      miTime reftime(fieldrequest.refTime);
-      keyset.setKeys(fieldrequest.modelName, reftime, fieldrequest.paramName,
-          fieldrequest.plevel, fieldrequest.elevel, fieldrequest.ptime);
+  // If READ_RESULT, try to read from cache
+  if ((cacheOptions & (READ_RESULT | READ_ALL)) != 0 && miTime::isValid(frq.refTime) && !frq.ptime.undef()) {
+    FieldCacheKeyset keyset;
+    miTime reftime(frq.refTime);
+    keyset.setKeys(frq.modelName, reftime, frq.paramName, frq.plevel, frq.elevel, frq.ptime);
 
-      METLIBS_LOG_DEBUG("SEARCHING FOR :" << keyset << " in CACHE");
+    METLIBS_LOG_DEBUG("SEARCHING FOR :" << keyset << " in CACHE");
 
-      if (fieldcache->hasField(keyset)) {
-        return fieldcache->get(keyset);
-      }
-
+    if (fieldcache->hasField(keyset)) {
+      return fieldcache->get(keyset);
     }
+  }
 
-  GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName, fieldrequest.refTime,
-      false, fieldrequest.checkSourceChanged);
+  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false, frq.checkSourceChanged);
   if (!pgc) {
-    METLIBS_LOG_WARN("could not find grid collection for model=" << fieldrequest.modelName
-        << " reftime=" << fieldrequest.refTime);
+    METLIBS_LOG_WARN("could not find grid collection for model=" << frq.modelName << " reftime=" << frq.refTime);
     return false;
   }
 
-  fout = pgc->getField(fieldrequest);
+  fout = pgc->getField(frq);
 
   if (fout == 0) {
-    METLIBS_LOG_WARN(
-        "No field read: model: " << fieldrequest.modelName << ", parameter:"
-            << fieldrequest.paramName << ", level:" << fieldrequest.plevel
-            << ", time:" << fieldrequest.ptime << ", referenceTime:"
-            << fieldrequest.refTime);
+    METLIBS_LOG_WARN("No field read: model: " << frq.modelName << ", parameter:" << frq.paramName << ", level:" << frq.plevel << ", time:" << frq.ptime
+                                              << ", referenceTime:" << frq.refTime);
     return false;
   }
 
-  fout->leveltext = fieldrequest.plevel;
-  fout->idnumtext = fieldrequest.elevel;
-  fout->paramName = fieldrequest.paramName;
-  fout->modelName = fieldrequest.modelName;
+  fout->leveltext = frq.plevel;
+  fout->idnumtext = frq.elevel;
+  fout->paramName = frq.paramName;
+  fout->modelName = frq.modelName;
 
-  if (!fieldrequest.palette.empty()) {
-    fout->palette = pgc->getVariable(fieldrequest.refTime, fieldrequest.palette);
+  if (!frq.palette.empty()) {
+    fout->palette = pgc->getVariable(frq.refTime, frq.palette);
   }
 
   if ((cacheOptions & (WRITE_ALL | WRITE_RESULT)) != 0) {

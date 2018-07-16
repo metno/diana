@@ -42,6 +42,10 @@ Plot::Plot()
   METLIBS_LOG_SCOPE();
 }
 
+Plot::~Plot()
+{
+}
+
 void Plot::setCanvas(DiCanvas*)
 {
 }
@@ -71,8 +75,7 @@ void Plot::setPlotInfo(const miutil::KeyValue_v& kvs)
   // fill poptions with values from pinfo
   ooptions.clear();
   PlotOptions::parsePlotOption(kvs, poptions, ooptions);
-
-  enabled= poptions.enabled;
+  enabled = poptions.enabled;
 }
 
 miutil::KeyValue_v Plot::getPlotInfo(int n) const

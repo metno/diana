@@ -15,7 +15,7 @@ public:
   const std::string& command() const
     { return command_; }
 
-  const std::string toString() const override
+  std::string toString() const override
     { return command_; }
 
 private:

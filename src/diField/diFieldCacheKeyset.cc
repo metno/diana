@@ -45,8 +45,8 @@ FieldCacheKeyset::FieldCacheKeyset(const FieldCacheKeyset& fck)
 
 void FieldCacheKeyset::setModel(const std::string& m)
 {
- model_ = m;
- makeKey();
+  model_ = m;
+  makeKey();
 }
 
 void FieldCacheKeyset::setReference (const miutil::miTime& r)
@@ -103,7 +103,7 @@ void FieldCacheKeyset::setKeys(const Field* field)
 
 void FieldCacheKeyset::makeKey()
 {
-  key_=model_+reference_.isoTime()+name_+level_+idnum_+valid_.isoTime();
+  key_ = model_ + reference_.isoTime() + name_ + level_ + idnum_ + valid_.isoTime();
 }
 
 std::ostream& operator<<(std::ostream& out,const FieldCacheKeyset& e )

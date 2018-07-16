@@ -145,12 +145,12 @@ void FieldCache::set(Field* f)
   FieldCacheKeyset keyset;
   keyset.setKeys(f);
 
-  if(fields.count(keyset))
+  if (fields.count(keyset))
     throw ModifyFieldCacheException("Trying to set an existing Field");
 
-    cleanbyAge();
+  cleanbyAge();
 
-  unsigned long tmpsize=bytesize_+f->bytesize();
+  unsigned long tmpsize = bytesize_ + f->bytesize();
   if (maximumsize_)
     if (tmpsize > maximumsize_) {
       long overflowsize = tmpsize - maximumsize_;
@@ -158,11 +158,11 @@ void FieldCache::set(Field* f)
       METLIBS_LOG_DEBUG("calling cleanOverFlow to make room for " << keyset);
       METLIBS_LOG_DEBUG("State of cache\n"  << *(this));
 
-        cleanOverflow(overflowsize*2);
+      cleanOverflow(overflowsize * 2);
     }
 
   fields[keyset].set(f);
-  bytesize_+=fields[keyset].bytesize();
+  bytesize_ += fields[keyset].bytesize();
 
   METLIBS_LOG_DEBUG("set() " << keyset  << ": new total size " << size());
 }

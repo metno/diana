@@ -33,7 +33,9 @@
 #include "qtFieldDialog.h"
 
 #include "diController.h"
+#include "diFieldPlotManager.h"
 #include "diKVListPlotCommand.h"
+#include "diPlotOptions.h"
 #include "qtToggleButton.h"
 #include "qtTreeFilterProxyModel.h"
 #include "qtUtility.h"
@@ -63,8 +65,6 @@
 #include <QVBoxLayout>
 
 #include <diField/diRectangle.h>
-#include <diPlotOptions.h>
-#include "diFieldPlotManager.h"
 #include <puTools/miStringFunctions.h>
 
 #include <sstream>
@@ -140,8 +140,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   m_action->setShortcut(Qt::ALT + Qt::Key_F);
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_fielddialogue.html";
-
-  m_modelgroup = m_ctrl->initFieldDialog();
 
   useArchive = false;
 
@@ -544,7 +542,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   // tool tips
   toolTips();
 
-  updateModelBoxes();
+  updateDialog();
   setDefaultFieldOptions();
 }
 
@@ -1215,27 +1213,21 @@ void FieldDialog::updateFieldGroups()
   updateTime();
 }
 
-void FieldDialog::fieldGRboxActivated(int index)
+void FieldDialog::fieldGRboxActivated(int indexFGR)
 {
   METLIBS_LOG_SCOPE();
 
   fieldbox->clear();
   fieldbox->blockSignals(true);
 
-
-  if (vfgi.size() > 0) {
-
-    int indexFGR = index;
-
+  if (!vfgi.empty()) {
     lastFieldGroupName = vfgi[indexFGR].groupName;
-
     for (size_t i=0; i<vfgi[indexFGR].fieldNames.size();i++) {
       std::string fieldName = vfgi[indexFGR].fieldNames[i];
       QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(fieldName));
       item->setToolTip(QString::fromStdString(vfgi[indexFGR].fields[fieldName].variableName));
       fieldbox->addItem(item);
     }
-
   }
 
   fieldbox->blockSignals(false);

@@ -16,7 +16,7 @@ public:
   const std::string& commandKey() const override
     { return commandKey_; }
 
-  const std::string toString() const override;
+  std::string toString() const override;
 
   virtual KVListPlotCommand& add(const std::string& key, const std::string& value);
 

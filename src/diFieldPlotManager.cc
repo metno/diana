@@ -413,11 +413,11 @@ miTime FieldPlotManager::getFieldReferenceTime(const miutil::KeyValue_v& pinfo)
     fspec1 = pinfo;
 
   std::string plotName;
-  FieldRequest request;
+  FieldRequest frq;
   vector<std::string> paramNames;
-  parseString(pinfo, request, paramNames, plotName);
+  parseString(pinfo, frq, paramNames, plotName);
 
-  const std::string timestr = fieldManager->getBestReferenceTime(request.modelName, request.refoffset, request.refhour);
+  const std::string timestr = fieldManager->getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
   if (timestr.empty())
     return miTime();
   return miTime(timestr);
@@ -776,10 +776,11 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
       const FieldInfo& plotInfo = vi.second;
 
       // add plot to FieldGroup
-      mfgi[plotInfo.groupName].fieldNames.push_back(plotInfo.fieldName);
-      mfgi[plotInfo.groupName].fields[plotInfo.fieldName]=plotInfo;
-      mfgi[plotInfo.groupName].groupName = plotInfo.groupName;
-      mfgi[plotInfo.groupName].plotDefinitions = false;
+      FieldGroupInfo& fgi = mfgi[plotInfo.groupName];
+      fgi.fieldNames.push_back(plotInfo.fieldName);
+      fgi.fields[plotInfo.fieldName] = plotInfo;
+      fgi.groupName = plotInfo.groupName;
+      fgi.plotDefinitions = false;
     }
 
   } else {
@@ -835,8 +836,9 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
           plotInfo_fl.vcoord = "flightlevel";
           for (size_t i=0; i<plotInfo.vlevels.size(); ++i)
             plotInfo_fl.vlevels[i] = FlightLevel::getFlightLevel(plotInfo.vlevels[i]);
-          if ( groupNames.count(plotInfo_fl.groupName))
-            plotInfo_fl.groupName = groupNames[plotInfo_fl.groupName];
+          const std::map<std::string, std::string>::const_iterator itFL = groupNames.find(plotInfo_fl.groupName);
+          if (itFL != groupNames.end())
+            plotInfo_fl.groupName = itFL->second;
 
           mfgi[plotInfo_fl.groupName].fieldNames.push_back(plotInfo_fl.fieldName);
           mfgi[plotInfo_fl.groupName].fields[plotInfo_fl.fieldName]=plotInfo_fl;
@@ -844,8 +846,9 @@ void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string 
         }
 
         // add plot to FieldGroup
-        if ( groupNames.count(plotInfo.groupName))
-          plotInfo.groupName = groupNames[plotInfo.groupName];
+        const std::map<std::string, std::string>::const_iterator it = groupNames.find(plotInfo.groupName);
+        if (it != groupNames.end())
+          plotInfo.groupName = it->second;
         mfgi[plotInfo.groupName].fieldNames.push_back(plotInfo.fieldName);
         mfgi[plotInfo.groupName].fields[plotInfo.fieldName]=plotInfo;
         mfgi[plotInfo.groupName].groupName = plotInfo.groupName;

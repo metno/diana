@@ -12,7 +12,7 @@ public:
   virtual ~PlotCommand();
 
   virtual const std::string& commandKey() const = 0;
-  virtual const std::string toString() const = 0;
+  virtual std::string toString() const = 0;
 };
 
 typedef std::shared_ptr<PlotCommand> PlotCommand_p;

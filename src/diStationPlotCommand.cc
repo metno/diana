@@ -15,7 +15,7 @@ const std::string& StationPlotCommand::commandKey() const
   return STATION;
 }
 
-const std::string StationPlotCommand::toString() const
+std::string StationPlotCommand::toString() const
 {
   std::ostringstream s;
   s << STATION

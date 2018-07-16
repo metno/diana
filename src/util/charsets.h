@@ -40,6 +40,9 @@ public:
 
   std::istream& operator()(std::istream& in, std::string& line);
 
+  void apply(std::string& line);
+  inline void operator()(std::string& line) { apply(line); }
+
 private:
   std::string comment_;
   std::string cs_internal_;

@@ -16,7 +16,7 @@ KVListPlotCommand::KVListPlotCommand(const std::string& commandKey, const std::s
   add(miutil::splitKeyValue(command));
 }
 
-const std::string KVListPlotCommand::toString() const
+std::string KVListPlotCommand::toString() const
 {
   std::ostringstream out;
   out << commandKey_;

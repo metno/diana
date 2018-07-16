@@ -109,15 +109,15 @@ bool MainUiEventHandler::handleKeyEvents(QKeyEvent* ke)
   setFlagsFromEventResult(res);
 
   // check if any specific GUI-action requested
-    switch (res.action) {
-    case objects_changed:
-      emit objectsChanged();
-      break;
-    case keypressed:
-      emit keyPress(ke);
-      break;
-    default:
-      break;
+  switch (res.action) {
+  case objects_changed:
+    emit objectsChanged();
+    break;
+  case keypressed:
+    emit keyPress(ke);
+    break;
+  default:
+    break;
   }
 
   return res.repaint;

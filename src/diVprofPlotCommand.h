@@ -44,7 +44,7 @@ public:
 
   VprofPlotCommand(Type type);
 
-  const std::string toString() const override;
+  std::string toString() const override;
   static VprofPlotCommand_cp fromString(const std::string& text);
 
   Type type() const { return type_; }

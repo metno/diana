@@ -661,8 +661,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       float gy= ee.y;
       maparea = getStaticPlot()->getMapArea();
       if (maparea.P()!=editfield->area.P()) {
-        int npos= 1;
-        if (!GridConverter::getPoints(maparea.P(), editfield->area.P(), npos, &gx, &gy)) {
+        if (!GridConverter::getPoints(maparea.P(), editfield->area.P(), 1, &gx, &gy)) {
           METLIBS_LOG_ERROR("EDIT: getPoints error");
           return false;
         }
@@ -682,7 +681,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         ny= editfield->area.ny;
         int nsmooth=0;
         isoline= findIsoLine(gx,gy,fv,nsmooth,nx,ny,workfield->data,discontinuous);
-        if (!isoline.x.size()) {
+        if (isoline.x.empty()) {
           repaint= false;
         } else {
           drawIsoline= true;

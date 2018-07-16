@@ -12,7 +12,7 @@ VcrossPlotCommand::VcrossPlotCommand(Type type)
 {
 }
 
-const std::string VcrossPlotCommand::toString() const
+std::string VcrossPlotCommand::toString() const
 {
   std::ostringstream out;
   if (type() == FIELD) {

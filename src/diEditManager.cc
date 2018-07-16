@@ -1148,38 +1148,39 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
   }
 
   //  outputFilename += EdProd.fields[fnum].filename;
-  for (size_t i=0; i<outputFilenames.size();++i) {
-	if ( QFile::exists(outputFilenames[i].c_str()) && !QFile::remove(outputFilenames[i].c_str()) ){
-	  message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed. (File exsists, but can't be overwritten.)";
-	  return false;
-	}
-	if (!qfile.copy(outputFilenames[i].c_str())){
-      message = "Copy from "  + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilenames[i].c_str()) + "  failed";
+  for (const std::string& ofi : outputFilenames) {
+    const QString qofi = QString::fromStdString(ofi);
+    const QString qtfi = QString::fromStdString(EdProd.templateFilename);
+    if (QFile::exists(qofi) && !QFile::remove(qofi)) {
+      message = "Copy from " + qtfi + " to " + qofi + "  failed. (File exsists, but can't be overwritten.)";
       return false;
-	}
+    }
+    if (!qfile.copy(qofi)) {
+      message = "Copy from " + qtfi + " to " + qofi + "  failed";
+      return false;
+    }
 
-	std::string fileType = "fimex";
+    std::string fileType = "fimex";
 
-	std::vector<std::string> filenames;
-	std::string modelName = outputFilenames[i];
-	filenames.push_back(outputFilenames[i]);
+    std::vector<std::string> filenames;
+    std::string modelName = ofi;
+    filenames.push_back(ofi);
 
-	std::vector<std::string> format;
-	format.push_back("netcdf");
+    std::vector<std::string> format;
+    format.push_back("netcdf");
 
-	std::vector<std::string> config;
+    std::vector<std::string> config;
 
-	std::vector<std::string> option;
-	std::string opt = "writeable=true";
-	option.push_back(opt);
+    std::vector<std::string> option;
+    std::string opt = "writeable=true";
+    option.push_back(opt);
 
-	fieldPlotManager->addGridCollection(fileType, modelName, filenames,
-			format,config, option);
+    fieldPlotManager->addGridCollection(fileType, modelName, filenames, format, config, option);
 
-	vector<FieldGroupInfo> fgi;
-	std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
-	METLIBS_LOG_INFO(LOGVAL(modelName)<<LOGVAL(reftime));
-	fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
+    vector<FieldGroupInfo> fgi;
+    std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName, 0, -1);
+    METLIBS_LOG_INFO(LOGVAL(modelName) << LOGVAL(reftime));
+    fieldPlotManager->getFieldGroups(modelName, reftime, true, fgi);
   }
   return true;
 

@@ -49,9 +49,7 @@ class StaticPlot;
 class Plot {
 public:
   Plot();
-
-  // "implemented" below
-  virtual ~Plot() = 0;
+  virtual ~Plot();
 
   bool operator==(const Plot &rhs) const;
 
@@ -112,9 +110,5 @@ private:
   bool enabled;               // plot enabled
   std::string plotname;       // name of plot
 };
-
-inline Plot::~Plot()
-{
-}
 
 #endif

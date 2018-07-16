@@ -9,7 +9,7 @@ public:
   StationPlotCommand();
 
   const std::string& commandKey() const override;
-  const std::string toString() const override;
+  std::string toString() const override;
 
   std::string name;
   std::string url;
