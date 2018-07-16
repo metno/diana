@@ -59,29 +59,24 @@ private:
 
 public:
   FieldCacheEntity() : field(0), locks(0) {}
-  FieldCacheEntity(Field* f) : field(0), locks(0) { set(f); }
   ~FieldCacheEntity();
 
   /// functions -------------------------------
 
   /// set a field (construction)
-  void set(Field*, bool setlock = false);
+  void set(Field*);
 
   /// replace this field, but keep all keys and the original pointer
-  void replace(Field*, bool deleteOriginal = false);
+  void replace(Field*);
 
   /// delete the field, only possible if there is no lock!
   /// (forced is called by the destructor...)
-  void clear(bool forced = false);
+  void clear();
 
   /// open a lock
   void unlock();
 
-  /// make a local copy of your field for instance profet to profet.tmp.1
-  Field* copy(const std::string& name);
-
   /// get a field
-
   Field* get();
 
 

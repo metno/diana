@@ -39,12 +39,14 @@ using namespace miutil;
 using namespace std;
 
 FieldCache::FieldCache()
-: exists(1), maximumsize_(0), bytesize_(0)
+    : maximumsize_(0)
+    , bytesize_(0)
 {
 }
 
 FieldCache::FieldCache(unsigned int s, sizetype st)
-: exists(1) ,  maximumsize_(0), bytesize_(0)
+    : maximumsize_(0)
+    , bytesize_(0)
 {
   setMaximumsize(s,st);
 }
@@ -52,10 +54,6 @@ FieldCache::FieldCache(unsigned int s, sizetype st)
 FieldCache::~FieldCache()
 {
   METLIBS_LOG_SCOPE();
-  if (!exists) {
-    METLIBS_LOG_ERROR("trying to delete field cache twice");
-    return;
-  }
 }
 
 // This method empties the cache when user no longer looks at field....
@@ -138,7 +136,7 @@ bool FieldCache::parseSetup(const std::vector<std::string>& lines,
   return true;
 }
 
-void FieldCache::set(Field* f, bool setlock)
+void FieldCache::set(Field* f)
 {
   METLIBS_LOG_SCOPE();
   if (!f)
@@ -150,11 +148,7 @@ void FieldCache::set(Field* f, bool setlock)
   if(fields.count(keyset))
     throw ModifyFieldCacheException("Trying to set an existing Field");
 
-  try {
     cleanbyAge();
-  } catch (ModifyFieldCacheException& e) {
-    throw;
-  }
 
   unsigned long tmpsize=bytesize_+f->bytesize();
   if (maximumsize_)
@@ -164,22 +158,10 @@ void FieldCache::set(Field* f, bool setlock)
       METLIBS_LOG_DEBUG("calling cleanOverFlow to make room for " << keyset);
       METLIBS_LOG_DEBUG("State of cache\n"  << *(this));
 
-      try {
         cleanOverflow(overflowsize*2);
-      } catch (ModifyFieldCacheException& e) {
-        throw;
-      }
     }
 
-  FieldCacheEntity entity;
-  fields[keyset] = entity;
-
-  try {
-    fields[keyset].set(f, setlock);
-  } catch (ModifyFieldCacheException& e) {
-    throw;
-  }
-
+  fields[keyset].set(f);
   bytesize_+=fields[keyset].bytesize();
 
   METLIBS_LOG_DEBUG("set() " << keyset  << ": new total size " << size());
@@ -194,51 +176,7 @@ Field* FieldCache::get(const FieldCacheKeyset& keyset)
     return 0;
 }
 
-void FieldCache::copy(const FieldCacheKeyset& keyset, const std::string& newModelName, bool forced)
-{
-  METLIBS_LOG_SCOPE();
-
-  if(!fields.count(keyset))
-    throw ModifyFieldCacheException("Trying to copy a non-existing Field");
-
-  FieldCacheKeyset newk = keyset;
-  newk.setModel(newModelName);
-  METLIBS_LOG_DEBUG(keyset <<  " --- to " << newk);
-
-  bool fieldexists=fields.count(newk);
-  if(fieldexists){
-    if ( !forced )
-      throw ModifyFieldCacheException("Trying to copy to an existing Field");
-  }
-
-  Field* newfield=NULL;
-
-  try {
-    newfield=fields[keyset].copy(newModelName);
-  }
-  catch(ModifyFieldCacheException(e)) {
-    throw;
-  }
-
-  if ( !fieldexists ){
-    try {
-      set(newfield);
-    }
-    catch(ModifyFieldCacheException(e)) {
-      throw;
-    }
-
-  } else {
-    try {
-      replace(newk,newfield,true);
-    }
-    catch(ModifyFieldCacheException(e)) {
-      throw;
-    }
-  }
-}
-
-void FieldCache::replace(const FieldCacheKeyset& keyset, Field* f, bool deleteOriginal)
+void FieldCache::replace(const FieldCacheKeyset& keyset, Field* f)
 {
   METLIBS_LOG_SCOPE();
   if (not f)
@@ -246,36 +184,27 @@ void FieldCache::replace(const FieldCacheKeyset& keyset, Field* f, bool deleteOr
 
   FieldCacheKeyset newk(f);
 
-  METLIBS_LOG_DEBUG("replace" << keyset << " with: " << newk << LOGVAL(deleteOriginal));
+  METLIBS_LOG_DEBUG("replace" << keyset << " with: " << newk);
 
   Fields_t::iterator it = fields.find(keyset);
   if (it == fields.end())
     throw ModifyFieldCacheException("Trying to replace a non-existing Field");
 
-  try {
-    it->second.replace(f, deleteOriginal);
-  } catch(ModifyFieldCacheException& e) {
-    throw;
-  }
+  it->second.replace(f);
 }
 
 void FieldCache::erase(const FieldCacheKeyset& keyset)
 {
   METLIBS_LOG_DEBUG(LOGVAL(keyset));
 
-  if (!fields.count(keyset))
+  Fields_t::iterator it = fields.find(keyset);
+  if (it == fields.end())
     throw ModifyFieldCacheException("Trying to erase a non-existing Field");
 
-  long tmpsize=fields[keyset].bytesize();
+  bytesize_ -= it->second.bytesize();
 
-  try {
-    fields[keyset].clear();
-  } catch(ModifyFieldCacheException& e) {
-    throw;
-  }
-
-  bytesize_-=tmpsize;
-  fields.erase(keyset);
+  it->second.clear();
+  fields.erase(it);
 }
 
 void FieldCache::freeField(Field* f)
@@ -310,9 +239,10 @@ void FieldCache::freeField(Field* f)
 
 bool FieldCache::unlock(const FieldCacheKeyset& keyset)
 {
-  if (fields.count(keyset)) {
-    fields[keyset].unlock();
-    METLIBS_LOG_DEBUG(keyset << (fields[keyset].isLocked() ? " [STILL LOCKED] " : " [ UNLOCKED ] "));
+  Fields_t::iterator it = fields.find(keyset);
+  if (it != fields.end()) {
+    it->second.unlock();
+    METLIBS_LOG_DEBUG(keyset << (it->second.isLocked() ? " [STILL LOCKED] " : " [ UNLOCKED ] "));
     return true;
   }
   return false;

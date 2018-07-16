@@ -773,7 +773,7 @@ void FieldManager::writeToCache(Field*& fout)
         "FieldManager: Adding field " << fkey << " with size "
             << fout->bytesize() << " to cache");
     try {
-      fieldcache->set(fout, true);
+      fieldcache->set(fout);
     } catch (ModifyFieldCacheException& e) {
       METLIBS_LOG_INFO(e.what());
     }
@@ -870,11 +870,6 @@ void FieldManager::updateSources()
   for (GridSources_t::iterator it_gs = gridSources.begin();
       it_gs != gridSources.end(); ++it_gs)
     it_gs->second->updateSources();
-}
-
-void FieldManager::updateSource(const std::string& modelName)
-{
-  getGridCollection(modelName, "", true);
 }
 
 std::vector<std::string> FieldManager::getFileNames(const std::string& modelName)

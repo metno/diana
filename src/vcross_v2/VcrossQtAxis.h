@@ -62,10 +62,6 @@ struct Axis {
   bool increasing() const;
 
 private:
-  float fDataMin() const
-    { return function(dataMin); }
-  float fDataMax() const
-    { return function(dataMax); }
   float fValueMin() const
     { return function(valueMin); }
   float fValueMax() const

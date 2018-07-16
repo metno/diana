@@ -41,7 +41,7 @@ FieldCacheEntity::~FieldCacheEntity()
   }
 }
 
-void FieldCacheEntity::set(Field* f, bool setlock)
+void FieldCacheEntity::set(Field* f)
 {
   if (field) {
     try {
@@ -52,7 +52,7 @@ void FieldCacheEntity::set(Field* f, bool setlock)
   }
   field     = f;
   keyset_.setKeys(field);
-  locks     = (setlock ? 1 : 0);
+  locks = 1;
   bytesize_ =  field->bytesize();
   field->isPartOfCache=true;
   field->lastAccessed=miTime::nowTime();
@@ -65,7 +65,7 @@ Field* FieldCacheEntity::get()
   return field;
 }
 
-void FieldCacheEntity::replace(Field* f, bool deleteOriginal)
+void FieldCacheEntity::replace(Field* f)
 {
   if (f) {
     if (!field)
@@ -75,15 +75,12 @@ void FieldCacheEntity::replace(Field* f, bool deleteOriginal)
 
     field->isPartOfCache = true;
     field->lastAccessed = miTime::nowTime();
-
-    if (deleteOriginal)
-      delete f;
   }
 }
 
-void FieldCacheEntity::clear(bool forced)
+void FieldCacheEntity::clear()
 {
-  if(locks && !forced)
+  if (locks)
     throw ModifyFieldCacheException("trying to delete a locked field");
 
   field->isPartOfCache = false;
@@ -97,22 +94,6 @@ void FieldCacheEntity::unlock()
   if (locks)
     locks -= 1;
 }
-
-Field* FieldCacheEntity::copy(const std::string& name)
-{
-  if (!field)
-    throw ModifyFieldCacheException("trying to copy an empty field");
-
-  Field* cp = new Field(*field);
-
-  // update strings containing modelName
-  cp->modelName = name;
-  cp->fieldText = name + " " + field->name;
-  cp->text      = cp->fieldText + " " + field->progtext;
-  cp->fulltext  = cp->fieldText + " " + field->progtext + " " + field->timetext;
-  return cp;
-}
-
 
 std::ostream& operator<<(std::ostream& out,const FieldCacheEntity& e)
 {

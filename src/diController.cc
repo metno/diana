@@ -825,11 +825,6 @@ plottimes_t Controller::getFieldTime(vector<FieldRequest>& request)
   return fieldplotm->getFieldTime(request);
 }
 
-void Controller::updateFieldSource(const std::string & modelName)
-{
-  fieldm->updateSource(modelName);
-}
-
 //object dialog
 
 vector<std::string> Controller::getObjectNames(bool useArchive)

@@ -319,8 +319,6 @@ public:
   std::map<std::string,std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
   /// Returns available times for the requested fields.
   plottimes_t getFieldTime(std::vector<FieldRequest>& request);
-  ///update list of fieldsources (field files)
-  void updateFieldSource(const std::string & modelName);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui

@@ -47,7 +47,6 @@ Field::Field()
   , bHybrid(-1.)
   , discontinuous(false)
   , numSmoothed(0)
-  , gridChanged(false)
   , difference(false)
   , turnWaveDirection(false)
   , defined_(difield::NONE_DEFINED)
@@ -117,7 +116,6 @@ void Field::shallowMemberCopy(const Field& rhs)
   unit = rhs.unit;
 
   numSmoothed= rhs.numSmoothed;
-  gridChanged= rhs.gridChanged;
   validFieldTime= rhs.validFieldTime;
   turnWaveDirection= rhs.turnWaveDirection;
 
@@ -861,8 +859,6 @@ bool Field::changeGrid(const GridArea& anew, bool fine_interpolation)
   area = anew;
 
   checkDefined();
-
-  gridChanged= true;
 
   return true;
 }

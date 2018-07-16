@@ -77,7 +77,6 @@ public:
   //.................................................................................
 
   int numSmoothed;
-  bool gridChanged;
   bool difference;
   bool turnWaveDirection; //In some fields wave direction need to be turned
 
@@ -119,8 +118,6 @@ public:
 
   Field(const Field &rhs);
   Field& operator=(const Field &rhs);
-
-  bool isInCache() const { return isPartOfCache;}
 
   // Equality operator (only checking gridarea)
   bool operator==(const Field &rhs) const;

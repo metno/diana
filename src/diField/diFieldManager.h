@@ -61,9 +61,6 @@ private:
   FieldFunctions ffunc;
 
 public:
-  typedef boost::shared_array<float> FloatArray;
-
-public:
   FieldManager();
 
   ~FieldManager();
@@ -140,7 +137,6 @@ public:
   bool makeDifferenceFields(std::vector<Field*>& fv1, std::vector<Field*>& fv2);
 
   void updateSources();
-  void updateSource(const std::string& modelName);
 
   std::vector<std::string> getFileNames(const std::string& modelName);
 
@@ -173,7 +169,6 @@ private:
       bool checkSourceChanged = true);
 
   void writeToCache(Field*& fout);
-
 };
 
 #endif

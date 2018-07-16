@@ -62,7 +62,6 @@ class QVBoxLayout;
 
 class ToggleButton;
 class Controller;
-class FieldColourDialog;
 
 /**
   \brief Dialogue for field plotting
@@ -80,7 +79,6 @@ private:
   struct SelectedField {
     bool inEdit;
     bool external;     // from QuickMenu,...
-    int indexRefTime; //index reference time
     std::string modelName;
     std::string fieldName;
     std::string level;
@@ -96,7 +94,6 @@ private:
     std::string refTime;
     std::string zaxis;
     std::string extraaxis;
-    std::string taxis;
     std::string unit;
     bool plotDefinition;
     bool levelmove;
@@ -416,7 +413,6 @@ private:
   QComboBox* linewidth2ComboBox;
   QComboBox* linetype1ComboBox;
   QComboBox* linetype2ComboBox;
-  FieldColourDialog* colourLineDialog;
 
   std::vector<std::string> undefMasking;
 };

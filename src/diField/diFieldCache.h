@@ -53,8 +53,6 @@ public:
   enum sizetype{BYTE,KILOBYTE,MEGABYTE};
 
 private:
-  int exists;
-
   typedef boost::multi_index::multi_index_container<
     FieldCacheEntity,
     boost::multi_index::indexed_by<
@@ -92,13 +90,10 @@ public:
   /// manipulation functions-------------------------------------------
 
   /// put a new Field into the cache
-  void set(Field*, bool setlock = false);
-
-  /// make a local copy of your field for instance profet to profet.tmp.1
-  void copy(const FieldCacheKeyset& keyset, const std::string& newModelName, bool forced = false);
+  void set(Field*);
 
   /// replace this field, but keep all keys and the pointer
-  void replace(const FieldCacheKeyset& keyset, Field*, bool deleteOriginal = false);
+  void replace(const FieldCacheKeyset& keyset, Field*);
 
   /// delete the field, only possible if there is no lock!
   void erase(const FieldCacheKeyset& keyset);
