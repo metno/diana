@@ -456,11 +456,9 @@ void EditDialog::undoFieldsDisable()
 
 void EditDialog::undofield()
 {
-  EditEvent ee;
+  EditEvent ee(0, 0);
   ee.type= edit_undo;
   ee.order= normal_event;
-  ee.x= 0.;
-  ee.y= 0.;
   if (!m_editm->notifyEditEvent(ee))
     undoFieldButton->setEnabled( false );
   redoFieldButton->setEnabled( true );
@@ -470,11 +468,9 @@ void EditDialog::undofield()
 
 void EditDialog::redofield()
 {
-  EditEvent ee;
+  EditEvent ee(0, 0);
   ee.type= edit_redo;
   ee.order= normal_event;
-  ee.x= 0.;
-  ee.y= 0.;
   if(!m_editm->notifyEditEvent(ee))
     redoFieldButton->setEnabled( false );
   undoFieldButton->setEnabled( true );
@@ -484,14 +480,12 @@ void EditDialog::redofield()
 
 void EditDialog::changeInfluence( int index )
 {
-  EditEvent ee;
+  EditEvent ee(0, 0);
   if      (index==0) ee.type= edit_circle;
   else if (index==1) ee.type= edit_square;
   else if (index==2) ee.type= edit_ellipse1;
   else if (index==3) ee.type= edit_ellipse2;
   ee.order= normal_event;
-  ee.x= 0.;
-  ee.y= 0.;
   m_editm->notifyEditEvent(ee);
   if (inEdit) emit editUpdate();
 }
@@ -506,11 +500,9 @@ void EditDialog::fieldEllipseChanged( int index )
 void EditDialog::fieldEllipseShape()
 {
   int index= ellipseslider->value();
-  EditEvent ee;
+  EditEvent ee(ellipsenumbers[index], 0);
   ee.type= edit_ecellipse;
   ee.order= normal_event;
-  ee.x= ellipsenumbers[index];
-  ee.y= 0.;
   m_editm->notifyEditEvent(ee);
   if (inEdit) emit editUpdate();
 }
@@ -518,16 +510,13 @@ void EditDialog::fieldEllipseShape()
 
 void EditDialog::exlineCheckBoxToggled(bool on)
 {
-  EditEvent ee;
+  EditEvent ee(0, 0);
   ee.type= (on) ? edit_exline_on : edit_exline_off;
   ee.order= normal_event;
-  ee.x= 0.;
-  ee.y= 0.;
   m_editm->notifyEditEvent(ee);
 }
 
-
-void EditDialog::FieldEditMethods( QListWidgetItem * item  )
+void EditDialog::FieldEditMethods(QListWidgetItem*)
 {
   METLIBS_LOG_SCOPE();
 
@@ -552,12 +541,9 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 
     m_editm->setEditMode(currMapmode,currEditmode,currEdittool);
 
-    EditEvent ee;
-
+    EditEvent ee(0, 0);
     ee.type= editType(tool);
     ee.order= normal_event;
-    ee.x= 0.;
-    ee.y= 0.;
 
     m_editm->notifyEditEvent(ee);
 
@@ -567,12 +553,9 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
     //    currFieldEditToolIndex= index;
 
     int n= index - numFieldEditTools;
-    EditEvent ee;
-
+    EditEvent ee(classValues[n], 0);
     ee.type= edit_class_value;
     ee.order= normal_event;
-    ee.x= classValues[n];
-    ee.y= 0.;
 
     m_editm->notifyEditEvent(ee);
 
@@ -580,10 +563,10 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
       index<numFieldEditTools+numClassValues*2) {
 
     int n= index - numFieldEditTools - numClassValues;
-    EditEvent ee;
+    EditEvent ee(classValues[n], 0);
+    ee.order = normal_event;
 
     m_Fieldeditmethods->blockSignals(true);
-
     if (classValuesLocked[n]) {
       m_Fieldeditmethods->item(index)->setIcon(QIcon(openValuePixmap));
       classValuesLocked[n]= false;
@@ -593,15 +576,9 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
       classValuesLocked[n]= true;
       ee.type= edit_lock_value;
     }
-
     m_Fieldeditmethods->blockSignals(false);
 
-    ee.order= normal_event;
-    ee.x= classValues[n];
-    ee.y= 0.;
-
     m_editm->notifyEditEvent(ee);
-
   }
 }
 
@@ -965,7 +942,7 @@ void EditDialog::combine_action(int idx)
   CombineEditMethods();
 }
 
-void EditDialog::selectAreas(QListWidgetItem * item )
+void EditDialog::selectAreas(QListWidgetItem*)
 {
   int index = m_SelectAreas->currentRow();
   std::string tmp= std::string( m_SelectAreas->item(index)->text().toStdString());
@@ -1092,8 +1069,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   return;
 }
 
-
-void EditDialog::ComboBoxData(QComboBox* box, int mindex)
+void EditDialog::ComboBoxData(QComboBox*, int mindex)
 {
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo.size();
   vector<std::string> vstr;
@@ -1455,14 +1431,12 @@ void EditDialog::EditNewOk(EditProduct& ep,
   }
 
   //########################################################################
-  EditEvent ee;
+  EditEvent ee(0, 0);
   if (fieldEditToolGroup==2)
     ee.type= edit_show_numbers_on;
   else
     ee.type= edit_show_numbers_off;
   ee.order= normal_event;
-  ee.x= 0.;
-  ee.y= 0.;
   m_editm->notifyEditEvent(ee);
   //########################################################################
 
@@ -1749,8 +1723,7 @@ void EditDialog::EditNewCancel()
 {
 }
 
-
-void EditDialog::closeEvent( QCloseEvent* e)
+void EditDialog::closeEvent(QCloseEvent*)
 {
   emit EditHide();
 }

@@ -79,6 +79,11 @@ struct EditEvent {
   eventOrder order; ///< start, stop or normal event
   float x;          ///< mouse x position in map coordinates
   float y;          ///< mouse y position in map coordinates
+  EditEvent(float xx, float yy)
+      : x(xx)
+      , y(yy)
+  {
+  }
 };
 
 const int numObjectTypes= 5;

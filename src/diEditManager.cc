@@ -537,85 +537,46 @@ bool EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
   objm->getEditObjects().setMouseCoordinates(newx,newy);
 
   if (mapmode == fedit_mode) { // field editing
+    if (me->type() == QEvent::MouseMove && me->buttons() == Qt::NoButton) {
+      res.newcursor = edit_value_cursor;
+      res.action = browsing;
+      return true;
+    }
+    EditEvent ee(newx, newy);
+    if (me->button() == Qt::LeftButton) {
+      ee.type = edit_pos;
+    } else if (me->button() == Qt::MidButton) {
+      ee.type = edit_inspection;
+    } else if (me->button() == Qt::RightButton) {
+      ee.type = edit_size;
+    }
     if (me->type() == QEvent::MouseButtonPress){
-      if (me->button() == Qt::LeftButton){         // LEFT MOUSE-BUTTON
-        EditEvent ee;                     // send an editevent
-        ee.type= edit_pos;                // ..type edit_pos
-        ee.order= start_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else if (me->button() == Qt::MidButton){
-        EditEvent ee;                     // send an edit-event
-        ee.type= edit_inspection;         // ..type edit_inspection
-        ee.order= start_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else if (me->button() == Qt::RightButton){ // RIGHT MOUSE-BUTTON
-        EditEvent ee;                     // send an editevent
-        ee.type= edit_size;               // ..type edit_size
-        ee.order= start_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else {
+      if (me->button() != Qt::LeftButton && me->button() != Qt::MidButton && me->button() != Qt::RightButton) {
         return false;
       }
+      ee.order = start_event;
+      res.repaint = notifyEditEvent(ee);
     } else if (me->type() == QEvent::MouseMove){
       res.action = quick_browsing;
-      if (me->buttons() == Qt::NoButton){
-        res.newcursor = edit_value_cursor;
-        res.action = browsing;
-      } else if (me->buttons() & Qt::LeftButton){  // LEFT MOUSE-BUTTON
-        EditEvent ee;                     // send an edit-event
-        ee.type= edit_pos;                // ...type edit_pos
-        ee.order= normal_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else if (me->buttons() & Qt::MidButton){
-        EditEvent ee;                     // send an edit-event
-        ee.type= edit_inspection;         // ..type edit_inspection
-        ee.order= normal_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else if (me->buttons() & Qt::RightButton){ // RIGHT MOUSE-BUTTON
-        EditEvent ee;                     // send an edit-event
-        ee.type= edit_size;               // ..type edit_size
-        ee.order= normal_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else {
+      if (me->button() != Qt::LeftButton && me->button() != Qt::MidButton && me->button() != Qt::RightButton) {
         return false;
       }
-    }
-    else if (me->type() == QEvent::MouseButtonRelease){
-      if (me->button() == Qt::LeftButton){         // LEFT MOUSE-BUTTON
-        EditEvent ee;                     // send an edit-event
-        ee.type= edit_pos;                // ..type edit_pos
-        ee.order= stop_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-        if (res.repaint)
-          res.action = fields_changed;
-      } else {
+      ee.order = normal_event;
+      res.repaint = notifyEditEvent(ee);
+    } else if (me->type() == QEvent::MouseButtonRelease) {
+      if (me->button() != Qt::LeftButton) {
         return false;
       }
-    } else if (me->type() == QEvent::MouseButtonDblClick){
-      if (me->button() == Qt::LeftButton) {
-        EditEvent ee;                     // send an editevent
-        ee.type= edit_pos;                // ..type edit_pos
-        ee.order= start_event;
-        ee.x= newx;
-        ee.y= newy;
-        res.repaint= notifyEditEvent(ee);
-      } else {
+      ee.order = stop_event;
+      res.repaint = notifyEditEvent(ee);
+      if (res.repaint)
+        res.action = fields_changed;
+    } else if (me->type() == QEvent::MouseButtonDblClick) {
+      if (me->button() != Qt::LeftButton) {
         return false;
       }
+      ee.order = start_event;
+      res.repaint = notifyEditEvent(ee);
     }
   } else { // draw_mode or combine mode
     if (me->type() == QEvent::MouseButtonPress){
