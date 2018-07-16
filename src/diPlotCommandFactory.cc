@@ -123,12 +123,15 @@ PlotCommand_cpv makeCommands(const std::vector<std::string>& text, PlotCommandMo
     else if (t == "VPROF")
       mode = PLOTCOMMANDS_VPROF; // remaining commands are vprof, too
 
+    PlotCommand_cp cmd;
     if (mode == PLOTCOMMANDS_VCROSS)
-      cmds.push_back(VcrossPlotCommand::fromString(tt));
+      cmd = VcrossPlotCommand::fromString(tt);
     else if (mode == PLOTCOMMANDS_VPROF)
-      cmds.push_back(VprofPlotCommand::fromString(tt));
+      cmd = VprofPlotCommand::fromString(tt);
     else
-      cmds.push_back(makeCommand(tt));
+      cmd = makeCommand(tt);
+    if (cmd)
+      cmds.push_back(cmd);
   }
   return cmds;
 }
