@@ -812,9 +812,6 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
   }
 
   if (res) {
-    for (j = 0; j < dim; j++)
-      fv1[j]->difference = true;
-
     if (fv1[0]->validFieldTime < fv2[0]->validFieldTime)
       fv1[0]->validFieldTime = fv2[0]->validFieldTime;   // or maybe not ???
 

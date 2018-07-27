@@ -76,7 +76,6 @@ public:
   //.................................................................................
 
   int numSmoothed;
-  bool difference;
   bool turnWaveDirection; //In some fields wave direction need to be turned
 
   std::string name;
