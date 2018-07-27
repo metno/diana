@@ -45,7 +45,6 @@ Field::Field()
   , forecastHour(0)
   , aHybrid(-1.)
   , bHybrid(-1.)
-  , discontinuous(false)
   , numSmoothed(0)
   , difference(false)
   , turnWaveDirection(false)
@@ -111,7 +110,6 @@ void Field::shallowMemberCopy(const Field& rhs)
 
   aHybrid= rhs.aHybrid;
   bHybrid= rhs.bHybrid;
-  discontinuous= rhs.discontinuous;
   palette= rhs.palette;
   unit = rhs.unit;
 

@@ -72,7 +72,6 @@ public:
   float aHybrid;        // pressure[] = aHybrid + bHybrid * pSurface[]  ("eta levels")
   float bHybrid;        //
   std::string unit;     //unit of field (celsius, kelvin, m, mm, ...?)
-  bool discontinuous;    //data values are discontinuous/classes
   vcross::Values_p palette; //colour palette from file
   //.................................................................................
 
