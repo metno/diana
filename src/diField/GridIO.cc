@@ -138,7 +138,7 @@ Field * GridIO::initializeField(const std::string& modelname,
     const std::string& elevel, const::string& unit)
 {
   // find the grid
-  gridinventory::Grid grid = getGrid(reftime, param.grid);
+  const gridinventory::Grid& grid = getGrid(reftime, param.grid);
   if (grid.nx < 1 || grid.ny < 1) {
     METLIBS_LOG_DEBUG(LOGVAL(grid.nx) << LOGVAL(grid.ny));
     return (Field*) (0);

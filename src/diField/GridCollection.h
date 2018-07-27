@@ -234,7 +234,7 @@ public:
 
   void getFieldInfo(const std::string& refTime, std::map<std::string,FieldInfo>& fieldInfo);
 
-  Field* getField(FieldRequest fieldrequest);
+  Field* getField(const FieldRequest& fieldrequest);
 
 private:
   static GridConverter gc;

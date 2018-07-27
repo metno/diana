@@ -647,7 +647,7 @@ void GridCollection::getFieldInfo(const std::string& refTime, std::map<std::stri
   }
 }
 
-Field* GridCollection::getField(FieldRequest fieldrequest)
+Field* GridCollection::getField(const FieldRequest& fieldrequest)
 {
   METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : "
       << fieldrequest.zaxis << " : " << fieldrequest.plevel);
@@ -657,9 +657,10 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
     return 0;
 
 
+  std::string param_name = fieldrequest.paramName;
   // if fieldrequest.paramName is a standard_name, find key.name
   if (fieldrequest.standard_name) {
-    if (!standardname2variablename(fieldrequest.refTime, fieldrequest.paramName, fieldrequest.paramName))
+    if (!standardname2variablename(fieldrequest.refTime, param_name, param_name))
       return 0;
   }
 
@@ -669,14 +670,14 @@ Field* GridCollection::getField(FieldRequest fieldrequest)
 
   // check if param is in inventory
 
-  if (!dataExists(fieldrequest.refTime, fieldrequest.paramName, param)) {
-    METLIBS_LOG_INFO("parameter '" << fieldrequest.paramName << "' not found by dataExists");
+  if (!dataExists(fieldrequest.refTime, param_name, param)) {
+    METLIBS_LOG_INFO("parameter '" << param_name << "' not found by dataExists");
     return 0;
   }
 
   set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(param);
   if (pitr == ritr->second.parameters.end()) {
-    METLIBS_LOG_INFO("parameter " << fieldrequest.paramName
+    METLIBS_LOG_INFO("parameter " << param_name
         << "  not found in inventory even if dataExists returned true");
     return 0;
   }
