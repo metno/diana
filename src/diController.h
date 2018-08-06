@@ -281,12 +281,6 @@ public:
   bool obsTimeListChanged();
   /// satellite follows main plot time
   void setSatAuto(bool,const std::string &, const std::string &);
-  /// get satellite classes for uffda dialog
-  void getUffdaClasses(std::vector<std::string>&, std::vector<std::string>&);
-  /// returns true if uffda option enables
-  bool getUffdaEnabled();
-  /// returns adress to send mail from uffda dialog
-  std::string getUffdaMailAddress();
   /// return button names for SatDialog
   SatDialogInfo initSatDialog();
 

@@ -716,24 +716,6 @@ void Controller::setSatAuto(bool autoFile,const std::string& satellite,
   satm->setSatAuto(autoFile,satellite,file);
 }
 
-
-void Controller::getUffdaClasses(vector <std::string> & vUffdaClass,
-    vector <std::string> &vUffdaClassTip)
-{
-  vUffdaClass=satm->vUffdaClass;
-  vUffdaClassTip=satm->vUffdaClassTip;
-}
-
-bool Controller::getUffdaEnabled()
-{
-  return satm->uffdaEnabled;
-}
-
-std::string Controller::getUffdaMailAddress()
-{
-  return satm->uffdaMailAddress;
-}
-
 // return button names for ObsDialog
 ObsDialogInfo Controller::initObsDialog()
 {

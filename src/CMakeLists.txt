@@ -355,7 +355,6 @@ SET(LIBDIANAUI_QTSOURCES
   qtToggleButton.cc
   qtTrajectoryDialog.cc
   qtTreeFilterProxyModel.cc
-  qtUffdaDialog.cc
   qtUiEventHandler.cc
   qtWorkArea.cc
 

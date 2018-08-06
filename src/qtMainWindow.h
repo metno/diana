@@ -69,7 +69,6 @@ class ObjectDialog;
 class TrajectoryDialog;
 class AnnotationDialog;
 class MeasurementsDialog;
-class UffdaDialog;
 
 class Controller;
 class DataDialog;
@@ -152,7 +151,6 @@ private Q_SLOTS:
   void mapMenu(int result = -1);
   void mapDockVisibilityChanged(bool visible);
   void editMenu();
-  void uffMenu(int result = -1);
   void vprofMenu();
   void spectrumMenu();
   void trajMenu(int result = -1);
@@ -241,7 +239,6 @@ private Q_SLOTS:
   void addToMenu();
 
   void zoomOut();
-  void showUffda();
 
   void winResize(int, int);
   void inEdit(bool);
@@ -270,7 +267,6 @@ private:
   bool browsing;       // user browsing through plot-stack
   BrowserBox* browser; // shows plot-stack
   bool updateBrowser();// update browser-window
-  bool uffda;
   bool doAutoUpdate;
 
   int displayWidth,displayHeight;
@@ -306,8 +302,6 @@ private:
   QAction * showCrossSectionDialogAction;
   QAction * showWaveSpectrumDialogAction;
   QAction * zoomOutAction;
-  QAction * showUffdaDialogAction;
-  QShortcut * uffdaAction;
 
   QAction * toggleEditDrawingModeAction;
 
@@ -364,7 +358,6 @@ private:
   TrajectoryDialog  * trajm;
   AnnotationDialog  * annom;
   MeasurementsDialog   * measurementsm;
-  UffdaDialog       * uffm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
   EditItems::ToolBar * editDrawingToolBar;
@@ -398,8 +391,6 @@ private:
 
   // x,y position of right mouse click or move
   int xclick,yclick;
-  // x,y position of last uffda action
-  int xlast,ylast;
 
   //QSocket
   TextView *textview;

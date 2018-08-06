@@ -55,7 +55,6 @@
 #include "qtTextView.h"
 #include "qtTimeNavigator.h"
 #include "qtTrajectoryDialog.h"
-#include "qtUffdaDialog.h"
 #include "qtUtility.h"
 #include "qtVprofWindow.h"
 #include "qtWorkArea.h"
@@ -120,6 +119,7 @@
 #include <QStringList>
 #include <QToolBar>
 #include <QToolButton>
+#include <QToolTip>
 #include <QUrl>
 #include <QWhatsThis>
 
@@ -357,20 +357,11 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   zoomOutAction->setVisible(false);
   connect( zoomOutAction, SIGNAL( triggered() ), SLOT( zoomOut() ) );
   // --------------------------------------------------------------------
-  showUffdaDialogAction = new QAction( tr("&Uffda Service"), this );
-  showUffdaDialogAction->setShortcut(Qt::ALT+Qt::Key_U);
-  showUffdaDialogAction->setCheckable(true);
-  connect( showUffdaDialogAction, SIGNAL( triggered() ), SLOT( uffMenu() ) );
-  // --------------------------------------------------------------------
   showMeasurementsDialogAction = new QAction( QPixmap( ruler),tr("&Measurements"), this );
   showMeasurementsDialogAction->setShortcut(Qt::ALT+Qt::Key_M);
   showMeasurementsDialogAction->setCheckable(true);
   connect( showMeasurementsDialogAction, SIGNAL( triggered() ) ,  SLOT( measurementsMenu() ) );
   // ----------------------------------------------------------------
-  //uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
-  //connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
-  // ----------------------------------------------------------------
-
   toggleEditDrawingModeAction = new QAction( tr("Edit Drawing Mode"), this );
   toggleEditDrawingModeAction->setShortcut(Qt::CTRL+Qt::Key_B);
   connect(toggleEditDrawingModeAction, SIGNAL(triggered()), SLOT(toggleEditDrawingMode()));
@@ -513,8 +504,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   optAutoElementAction->setChecked( autoselect );
   optAnnotationAction->setChecked( true );
 
-  uffda=contr->getUffdaEnabled();
-
   QMenu* infomenu= new QMenu(tr("Info"),this);
   infomenu->setIcon(QPixmap(info_xpm));
   connect(infomenu, SIGNAL(triggered(QAction *)),
@@ -553,9 +542,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   showmenu->addAction( showCrossSectionDialogAction );
   showmenu->addAction( showWaveSpectrumDialogAction );
 
-  if (uffda){
-    showmenu->addAction( showUffdaDialogAction );
-  }
   showmenu->addMenu( infomenu );
 
   showmenu->addAction(toggleEditDrawingModeAction);
@@ -720,9 +706,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   measurementsm->hide();
   mainToolbar->addAction( showMeasurementsDialogAction   );
 
-  uffm = new UffdaDialog(this,contr);
-  uffm->hide();
-
   EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
   addDialog(drawingDialog);
 
@@ -766,8 +749,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect(em, SIGNAL(editUpdate()), SLOT(requestBackgroundBufferUpdate()));
   connect(em, SIGNAL(editMode(bool)), SLOT(inEdit(bool)));
 
-  connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
-
   connect( mm, SIGNAL(MapApply()),   SLOT(MenuOK()));
   connect( em, SIGNAL(editApply()),  SLOT(editApply()));
   connect( annom, SIGNAL(AnnotationApply()),  SLOT(MenuOK()));
@@ -783,8 +764,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect( annom, SIGNAL(finished(int)),  SLOT(AnnotationMenu(int)));
   connect( measurementsm, SIGNAL(MeasurementsHide()),SLOT(measurementsMenu()));
   connect( measurementsm, SIGNAL(finished(int)),  SLOT(measurementsMenu(int)));
-  connect( uffm, SIGNAL(uffdaHide()), SLOT(uffMenu()));
-  connect( uffm, SIGNAL(finished(int)), SLOT(uffMenu(int)));
 
   // update field dialog when editing field
   connect( em, SIGNAL(emitFieldEditUpdate(std::string)),
@@ -805,8 +784,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect( qm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
   connect( trajm, SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
-  connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
 
   connect(w->Gli(), &MainUiEventHandler::objectsChanged, em, &EditDialog::undoFrontsEnable);
@@ -1360,23 +1337,6 @@ void DianaMainWindow::quickMenu(int result)
 {
   toggleDialogVisibility(qm, showQuickmenuAction, result);
 }
-
-void DianaMainWindow::uffMenu(int result)
-{
-  // If the dialog returned a non-negative result then it must be open.
-  bool b = uffm->isVisible() | (result != -1);
-  if( b ){
-    uffm->hide();
-    uffm->clearSelection();
-    contr->stationCommand("hide","uffda");
-  } else {
-    uffm->show();
-    contr->stationCommand("show","uffda");
-  }
-  requestBackgroundBufferUpdate();
-  showUffdaDialogAction->setChecked( !b );
-}
-
 
 void DianaMainWindow::mapMenu(int result)
 {
@@ -2326,11 +2286,6 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     catchElement(mev);
   }
 
-  if (mev->modifiers() & Qt::ControlModifier){
-    if (uffda && contr->getSatnames().size()){
-      showUffda();
-    }
-  }
   //send position to all clients
   if(qsocket){
     miQMessage letter(qmstrings::positions);
@@ -2408,10 +2363,6 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   int y = mev->y();
 
   bool needupdate= false; // updateGL necessary
-
-  std::string uffstation = contr->findStation(x,y,"uffda");
-  if (!uffstation.empty())
-    uffm->pointClicked(uffstation);
 
   //show closest observation
   if (contr->findObs(x,y)) {
@@ -2561,7 +2512,7 @@ void DianaMainWindow::toggleStatusBar()
 
 void DianaMainWindow::filequit()
 {
-  if (em->cleanupForExit() && uffm->okToExit()){
+  if (em->cleanupForExit()) {
     // quit sends aboutToQuit SIGNAL, which is connected to slot writeLogFile
     qApp->quit();
   }
@@ -3080,26 +3031,6 @@ void DianaMainWindow::zoomOut()
 {
   contr->zoomOut();
   requestBackgroundBufferUpdate();
-}
-
-void DianaMainWindow::showUffda()
-{
-  if (uffda && contr->getSatnames().size()) {
-    if (xclick==xlast && yclick==ylast) {
-      uffMenu();
-      xlast=xclick;
-      ylast=yclick;
-      return;
-    }
-    float lat=0,lon=0;
-    contr->PhysToGeo(xclick,yclick,lat,lon);
-    uffm->addPosition(lat,lon);
-    if (!uffm->isVisible())
-      uffMenu();
-    xlast=xclick;
-    ylast=yclick;
-    requestBackgroundBufferUpdate();
-  }
 }
 
 void DianaMainWindow::inEdit(bool inedit)

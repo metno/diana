@@ -1485,38 +1485,6 @@ bool SatManager::parseSetup()
   Dialog.timediff.value=4;
   Dialog.timediff.scale=15;
 
-
-  //read UFFDA classes
-  const std::string section = "UFFDA";
-  std::vector<std::string> vstr;
-
-  if (!SetupParser::getSection(section, vstr)) {
-    uffdaEnabled=false;
-  } else {
-    uffdaEnabled=true;
-  }
-  int i, n, nv, nvstr=vstr.size();
-  for (nv=0; nv<nvstr; nv++) {
-    std::vector<std::string> tokens = miutil::split_protected(vstr[nv], '\"', '\"', " ", true);
-    n=tokens.size();
-    for (i=0; i<n; i++) {
-      std::vector<std::string> stokens = miutil::split_protected(tokens[i], '\"', '\"', "=", true);
-      if (stokens.size()==2) {
-        key=stokens[0];
-        value=stokens[1];
-        miutil::trim(key);
-        miutil::trim(value);
-        if (value[0]=='"')
-          value= value.substr(1, value.length()-2);
-        if (key=="class")
-          vUffdaClass.push_back(value);
-        else if (key=="desc")
-          vUffdaClassTip.push_back(value);
-        else if (key=="mailto")
-          uffdaMailAddress=value;
-      }
-    }
-  }
   return true;
 }
 

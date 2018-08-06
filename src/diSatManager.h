@@ -184,11 +184,6 @@ public:
   void archiveMode(bool on)
     { useArchive = on; updateFiles(); }
 
-  std::vector <std::string> vUffdaClass;
-  std::vector <std::string> vUffdaClassTip;
-  std::string uffdaMailAddress;
-  bool uffdaEnabled;
-
   const Prod_t& getProductsInfo() const;
 
   const std::vector<SatPlot*>& getSatellitePlots() const
