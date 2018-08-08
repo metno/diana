@@ -319,11 +319,6 @@ bool Controller::findObs(int x, int y)
   return plotm->obsplots()->findObs(x,y);
 }
 
-bool Controller::getObsName(int x, int y, std::string& name)
-{
-  return plotm->obsplots()->getObsName(x,y,name);
-}
-
 std::string Controller::getObsPopupText(int x, int y)
 {
   return plotm->obsplots()->getObsPopupText(x,y);
@@ -333,29 +328,6 @@ std::string Controller::getObsPopupText(int x, int y)
 void Controller::nextObs(bool next)
 {
   plotm->obsplots()->nextObs(next);
-}
-
-//init hqcData from QSocket
-bool Controller::initHqcdata(int from,
-    const string& commondesc,
-    const string& common,
-    const string& desc,
-    const vector<string>& data){
-  return false; // FIXME obsm->initHqcdata(from,commondesc,common,desc,data);
-}
-
-//update hqcData from QSocket
-void Controller::updateHqcdata(const string& commondesc,
-    const string& common,
-    const string& desc,
-    const vector<string>& data){
-  // FIXME obsm->updateHqcdata(commondesc,common,desc,data);
-}
-
-//select obs parameter to flag from QSocket
-void Controller::processHqcCommand(const std::string& command,
-    const std::string& str){
-  // FIXME obsm->processHqcCommand(command, str);
 }
 
 //plot trajectory position

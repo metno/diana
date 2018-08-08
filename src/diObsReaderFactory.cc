@@ -92,11 +92,6 @@ void initProductDefaults()
   defProd["ascii"].timeRangeMax = 180;
   defProd["ascii"].synoptic = false;
 
-  defProd["hqc"].obsformat = ObsManager::ofmt_hqc;
-  defProd["hqc"].timeRangeMin = -180;
-  defProd["hqc"].timeRangeMax = 180;
-  defProd["hqc"].synoptic = false;
-
   defProd["url"].obsformat = ObsManager::ofmt_url;
 
 #ifdef ROADOBS

@@ -403,7 +403,7 @@ void ObsDialog::readLog(const vector<string>& vstr, const string& thisVersion, c
         }
         obsWidget[index]->readLog(kvs);
       }
-      // save until (ascii/hqc obs) dialog activated, or until writeLog
+      // save until ascii dialog activated, or until writeLog
       savelog[index] = kvs;
 
     }

@@ -64,8 +64,6 @@ public:
 
   bool findObs(int x, int y);
 
-  bool getObsName(int x, int y, std::string& name);
-
   std::string getObsPopupText(int x, int y);
 
   void nextObs(bool next);

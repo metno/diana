@@ -182,15 +182,6 @@ bool ObsPlotCluster::findObs(int x, int y)
   return found;
 }
 
-bool ObsPlotCluster::getObsName(int x, int y, std::string& name)
-{
-  for (size_t i = 0; i < plots_.size(); i++)
-    if (at(i)->getObsName(x, y, name))
-      return true;
-
-  return false;
-}
-
 std::string ObsPlotCluster::getObsPopupText(int x, int y)
 {
   size_t n = plots_.size();

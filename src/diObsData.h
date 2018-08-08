@@ -65,9 +65,6 @@ public:
   const std::string& get_string(const std::string& key) const;
   float get_float(const std::string& key) const;
 
-  //Hqc
-  std::map<std::string,std::string> flag;
-  std::map<std::string,Colour> flagColour;
 };
 
 #endif

@@ -394,7 +394,6 @@ private:
 
   //QSocket
   TextView *textview;
-  int hqcTo;
   bool qsocket;
   bool handlingTimeMessage;
   std::map<int,bool> autoredraw;

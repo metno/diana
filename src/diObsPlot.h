@@ -230,14 +230,6 @@ protected:
   float areaFreeXsize, areaFreeYsize;
   float areaFreeXmove[4], areaFreeYmove[4];
 
-  //Hqc
-  std::string hqcFlag;  //which parameter is flagged
-  bool is_hqc;
-  Colour flagColour;
-  std::map<std::string, Colour> paramColour;
-  std::string selectedStation;
-  std::string mark_parameter;
-
   void getObsLonLat(int obsidx, float& x, float& y);
 
   int vtab(int idx) const;
@@ -412,9 +404,6 @@ public:
   int findObs(int x, int y, const std::string& type="");
   bool showpos_findObs(int x, int y);
 
-  // find name of observation near screen coordinates x, y
-  bool getObsName(int xx, int yy, std::string& station);
-
   // switch to next layer of symbols / text
   void nextObs(bool forward);
 
@@ -448,17 +437,6 @@ protected:
   ObsPlot& operator=(const ObsPlot &rhs);
 
 public:
-  void changeParamColour(const std::string& param, bool select); // HQC only
-
-  bool isHqcPlot() const // HQC only
-    { return is_hqc; }
-
-  void setHqcFlag(const std::string& flag) // HQC only
-    { hqcFlag = flag; }
-
-  void setSelectedStation(const std::string& station) // HQC only
-    { selectedStation = station; }
-
   int getTimeDiff() const
     { return timeDiff; }
 

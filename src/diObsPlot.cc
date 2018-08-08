@@ -195,7 +195,6 @@ ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   iptab = 0;
   onlypos = false;
   showOnlyPrioritized = false;
-  is_hqc = false;
   parameterName = false;
   popupText = false;
   qualityFlag = false;
@@ -354,7 +353,6 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
 
   ObsPlotType plottype = OPT_SYNOP;
   std::string dialogname;
-  bool is_hqc = false;
   const size_t i_plot = cmd->rfind("plot");
   if (i_plot != KVListPlotCommand::npos && !cmd->value(i_plot).empty()) {
     const std::vector<std::string> vstr = miutil::split(cmd->value(i_plot), ":");
@@ -367,9 +365,6 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
       plottype = OPT_SYNOP;
     } else if (valp == "metar") {
       plottype = OPT_METAR;
-    } else if (valp == "hqc_synop") {
-      plottype = OPT_SYNOP;
-      is_hqc = true;
     }
 #ifdef ROADOBS
     // To avoid that roadobs will be set to ascii below
@@ -386,7 +381,6 @@ ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
   std::unique_ptr<ObsPlot> op(new ObsPlot(cmd->all(), plottype));
 
   op->dialogname = dialogname;
-  op->is_hqc = is_hqc;
 
   op->poptions.fontname = diutil::BITMAPFONT;
   op->poptions.fontface = diutil::F_NORMAL;
@@ -1193,37 +1187,6 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
   return !setuptext.empty();
 }
 
-//***********************************************************************
-bool ObsPlot::getObsName(int xx, int yy, string& name)
-{
-  METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
-
-  int min_i = -1;
-
-  if (onlypos) {
-    min_i =  findObs(xx,yy);
-    if (min_i < 0)
-      return false;
-  } else {
-    min_i =  findObs(xx,yy,"nextplot");
-    if (min_i < 0)
-      return false;
-    min_i = nextplot[min_i];
-  }
-  name = obsp[min_i].id;
-
-  static std::string lastName;
-  if (name == lastName)
-    return false;
-
-  lastName = name;
-
-  selectedStation = name;
-  return true;
-}
-
-//***********************************************************************
-
 void ObsPlot::nextObs(bool Next)
 {
   METLIBS_LOG_SCOPE();
@@ -1908,11 +1871,6 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 
   PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
 
-  if ((not dta.id.empty()) && dta.id == selectedStation) {
-     Colour c("red");
-     gl->setColour(c);
-   }
-
   if (windOK) {
     int dd = int(dta.fdata.find("dd")->second);
     int dd_adjusted = int(dta.fdata.find("dd_adjusted")->second);
@@ -2313,70 +2271,6 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     wave(gl, f_p->second, h_p->second, xytab(lpos + 28));
   }
 
-  if (!is_hqc) {
-    return;
-  }
-
-  //----------------- HQC only ----------------------------------------
-  //Flag colour
-
-  if (pFlag.count("id")) {
-    gl->setColour(colour);
-    int dy = 0;
-    if (timeFlag)
-      dy += 13;
-    if ((pFlag.count("sss") && dta.fdata.count("sss")))
-      dy += 13;
-    printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, dy));
-  }
-
-  //Flag + red/yellow/green
-  if (pFlag.count("flag") && not hqcFlag.empty()
-      && dta.flagColour.count(hqcFlag)) {
-    PushPopTranslateScale pushpop2(gl, scale);
-    gl->setColour(dta.flagColour[hqcFlag]);
-    drawCircle(gl);
-    cloudCover(gl, 8, radius);
-    gl->setColour(colour);
-  }
-
-  //Type of station (replace Cl)
-  bool typeFlag = (pFlag.count("st.type") && (not dta.dataType.empty()));
-  if (typeFlag)
-    printString(gl, dta.dataType, xytab(lpos + 22));
-
-  // Man. precip, marked by dot
-  if (precip) {
-    PushPopTranslateScale pushpop2(gl, scale * 0.3);
-    drawCircle(gl);
-    cloudCover(gl, 8, radius);
-  }
-
-  //id
-  if (pFlag.count("flag") && not hqcFlag.empty() && dta.flag.count(hqcFlag)) {
-    gl->setColour(paramColour["flag"]);
-    int dy = 0;
-    if (pFlag.count("id") || typeFlag)
-      dy += 15;
-    if (timeFlag)
-      dy += 15;
-    if (pFlag.count("sss") && dta.fdata.count("sss"))
-      dy += 15; //if snow
-    printString(gl, dta.flag[hqcFlag], xytab(lpos + 46) + QPointF(0, dy));
-  }
-
-  //red circle
-  if (pFlag.count("id") && dta.id == selectedStation) {
-    PushPopTranslateScale pushpop2(gl, scale * 1.3);
-    DiGLPainter::GLfloat lwidth;
-    gl->GetFloatv(DiGLPainter::gl_LINE_WIDTH, &lwidth);
-    gl->LineWidth(2 * lwidth);
-    Colour c("red");
-    gl->setColour(c);
-    drawCircle(gl);
-    gl->LineWidth(lwidth);
-  }
-  //----------------- end HQC only ----------------------------------------
 }
 
 void ObsPlot::plotMetar(DiGLPainter* gl, int index)
@@ -3957,30 +3851,8 @@ float ObsPlot::checkMarkersizeCriteria(const ObsData& dta)
   return relSize * markerSize;
 }
 
-void ObsPlot::changeParamColour(const std::string& param, bool select)
-{
-  if (select) {
-    colourCriteria cc;
-    cc.sign = no_sign;
-    cc.colour = Colour("red");
-    colourcriteria[param].push_back(cc);
-  } else {
-    colourcriteria.erase(param);
-  }
-}
-
 void ObsPlot::parameterDecode(const std::string& parameter, bool add)
 {
-  paramColour[parameter] = colour;
-  if (parameter == "txtxtx")
-    paramColour["tntntn"] = colour;
-  if (parameter == "tntntn")
-    paramColour["txtxtx"] = colour;
-  if (parameter == "pwapwa")
-    paramColour["hwahwa"] = colour;
-  if (parameter == "hwahwa")
-    paramColour["pwapwa"] = colour;
-
   std::string par;
   if (parameter == "txtxtx" || parameter == "tntntn")
     par = "txtn";

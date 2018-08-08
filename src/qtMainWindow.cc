@@ -887,7 +887,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
 void DianaMainWindow::initCoserverClient()
 {
-  hqcTo = -1;
   qsocket = false;
   pluginB = new ClientSelection("Diana", this);
   pluginB->client()->setServerCommand(QString::fromStdString(LocalSetupParser::basicValue("qserver")));
@@ -1633,9 +1632,6 @@ void DianaMainWindow::connectionClosed()
   timeNavigator->removeTimes(-1);
 
   textview->hide();
-  contr->processHqcCommand("remove");
-  om->setPlottype("Hqc_synop",false);
-  om->setPlottype("Hqc_list",false);
   MenuOK();
   updatePlotElements();
 }
@@ -1652,36 +1648,6 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   const QString& command = qletter.command();
   if (command == "menuok") {
     MenuOK();
-  }
-
-  else if (command == qmstrings::init_HQC_params) {
-    if( contr->initHqcdata(fromId,
-        letter.commondesc,
-        letter.common,
-        letter.description,
-        letter.data) ){
-      if(letter.common.find("synop") !=std::string::npos )
-        om->setPlottype("Hqc_synop",true);
-      else
-        om->setPlottype("Hqc_list",true);
-      hqcTo = fromId;
-    }
-  }
-
-  else if (command == qmstrings::update_HQC_params){
-    contr->updateHqcdata(letter.commondesc,letter.common,
-        letter.description,letter.data);
-    MenuOK();
-  }
-
-  else if (command == qmstrings::select_HQC_param) {
-    contr->processHqcCommand("flag",letter.common);
-    contr->updatePlots();
-  }
-
-  else if (command == qmstrings::station){
-    contr->processHqcCommand("station",letter.common);
-    contr->updatePlots();
   }
 
   else if (command == qmstrings::apply_quickmenu) {
@@ -1896,13 +1862,6 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     textview->deleteTab(id);
     //     if(textview && id == textview_id )
     //       textview->hide();
-    //remove observations from hqc
-    if (qletter.getCommonValue(0).toLower() == "hqc") {
-      contr->processHqcCommand("remove");
-      om->setPlottype("Hqc_synop",false);
-      om->setPlottype("Hqc_list",false);
-      MenuOK();
-    }
     updatePlotElements();
   }
 
@@ -1921,16 +1880,8 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     requestBackgroundBufferUpdate();
   }
 
-  else if (command == qmstrings::settime && qletter.findCommonDesc("datatype") == 0) {
-    const std::string l_common = qletter.getCommonValue(0).toStdString();
-    timeNavigator->useData(l_common, fromId);
-    plottimes_t times;
-    for (int i = 0; i < qletter.countDataRows(); i++)
-      times.insert(miutil::miTime(qletter.getDataValue(i, 0).toStdString()));
-    timeNavigator->insertAndUse(l_common, times);
-    contr->initHqcdata(fromId, letter.commondesc, l_common, letter.description, letter.data);
-  } else if (!handlingTimeMessage && ((command == qmstrings::settime && qletter.findCommonDesc("time") == 0) ||
-                                      (command == qmstrings::timechanged && qletter.findCommonDesc("time") == 0))) {
+  else if (!handlingTimeMessage && ((command == qmstrings::settime && qletter.findCommonDesc("time") == 0) ||
+                                    (command == qmstrings::timechanged && qletter.findCommonDesc("time") == 0))) {
     const std::string l_common = qletter.getCommonValue(0).toStdString();
     miutil::miTime t(l_common);
     handlingTimeMessage = true;
@@ -2439,20 +2390,6 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
       needupdate=true;
     }
 
-    if (hqcTo > 0) {
-      std::string name;
-      if (contr->getObsName(x,y,name)) {
-        const miutil::miTime& t = contr->getPlotTime();
-
-        QStringList cd = QStringList() << "name" << "time";
-        QStringList cv = QStringList() << QString::fromStdString(name) << QString::fromStdString(t.isoTime());
-
-        miQMessage letter(qmstrings::station);
-        letter.setCommon(QStringList() << cd.join(","), QStringList() << cv.join(","));
-        // new version, to be enabled later: letter.setCommon(cd, cv);
-        sendLetter(letter, hqcTo);
-      }
-    }
   }
 
   if (needupdate)

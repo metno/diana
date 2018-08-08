@@ -143,7 +143,6 @@ SET (LIBDIANA_SOURCES
   diObsReaderBufr.cc
   diObsReaderFactory.cc
   diObsReaderFile.cc
-  diObsReaderHqc.cc
   diObsReaderMetnoUrl.cc
   diObsReaderRoad.cc
   diPaintGLPainter.cc
