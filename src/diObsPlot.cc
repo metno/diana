@@ -2238,17 +2238,12 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //Wmo block + station number - land stations
-  if ((pFlag.count("st.no(5)") || pFlag.count("st.no(3)")) && !dta.show_time_id ) {
-    checkColourCriteria(gl, "St.no(5)", 0);
-    std::string kjTegn = dta.id;
-    if (!pFlag.count("st.no(5)") && kjTegn.size() > 4) {
-      kjTegn = kjTegn.substr(2, 3);
-      checkColourCriteria(gl, "St.no(3)", 0);
-    }
+  if (pFlag.count("st.no") && !dta.show_time_id) {
+    checkColourCriteria(gl, "st.no", 0);
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
-      printString(gl, kjTegn, xytab(lpos + 46) + QPointF(0, 15));
+      printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, 15));
     else
-      printString(gl, kjTegn, xytab(lpos + 46));
+      printString(gl, dta.id, xytab(lpos + 46));
   }
 
   //Sea temperature

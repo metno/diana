@@ -165,9 +165,9 @@ static void addButtons(ObsDialogInfo::PlotType& pt, const std::vector<std::strin
   }
 }
 
-static const std::vector<std::string> pp_synop = {"Wind",   "TTT",  "TdTdTd", "PPPP",  "ppp", "a",    "h",  "VV",       "N",        "RRR",    "ww",
-                                                  "W1",     "W2",   "Nh",     "Cl",    "Cm",  "Ch",   "vs", "ds",       "TwTwTw",   "PwaHwa", "dw1dw1",
-                                                  "Pw1Hw1", "TxTn", "sss",    "911ff", "s",   "fxfx", "Id", "St.no(3)", "St.no(5)", "Time"};
+static const std::vector<std::string> pp_synop = {"Wind",   "TTT",  "TdTdTd", "PPPP",  "ppp", "a",    "h",  "VV",    "N",      "RRR",    "ww",
+                                                  "W1",     "W2",   "Nh",     "Cl",    "Cm",  "Ch",   "vs", "ds",    "TwTwTw", "PwaHwa", "dw1dw1",
+                                                  "Pw1Hw1", "TxTn", "sss",    "911ff", "s",   "fxfx", "Id", "st.no", "Time"};
 static const std::vector<std::string> pp_metar = {"Wind", "dndx", "fmfm", "TTT", "TdTdTd", "ww", "REww", "VVVV/Dv", "VxVxVxVx/Dvx", "Clouds", "PHPHPHPH", "Id"};
 static const std::vector<std::string> pp_list = {"Pos", "dd",     "ff",     "TTT",    "TdTdTd", "PPPP", "ppp",   "a",      "h",      "VV",
                                                  "N",   "RRR",    "ww",     "W1",     "W2",     "Nh",   "Cl",    "Cm",     "Ch",     "vs",

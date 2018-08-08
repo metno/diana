@@ -437,10 +437,8 @@ std::string updateLine(std::string line)
   miutil::replace(line, "test.contour.shading=1", "palettecolours=standard");
   miutil::replace(line, " test.contour.shading=0", "");
 
-  if (miutil::contains(line, "st.nr("))
-    miutil::replace(line, "st.nr", "st.no");
-  else if (miutil::contains(line, "st.nr"))
-    miutil::replace(line, "st.nr","st.no(5)");
+  miutil::replace(line, "St.nr(3)", "st.no");
+  miutil::replace(line, "St.nr(5)", "st.no");
 
   miutil::replace(line, "(74,504)", "(uk)");
   miutil::replace(line, "(74,533)", "(uk)");
