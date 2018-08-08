@@ -1978,7 +1978,6 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn") != fend);
   bool timeFlag = (pFlag.count("time") && dta.show_time_id);
-  bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
 
   //reset colour
   gl->setColour(origcolour);
@@ -1991,8 +1990,8 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   drawCircle(gl);
 
-  // manned / automated station - ix
-  if ((dta.fdata.count("ix") && dta.fdata["ix"] > 3) || (dta.fdata.count("auto") && dta.fdata["auto"] == 0)) {
+  // manned / automated station
+  if (dta.fdata.count("auto") && dta.fdata["auto"] == 0) {
     y1 = y2 = -1.1 * radius;
     x1 = y1 * sqrtf(3.0);
     x2 = -1 * x1;
@@ -2023,7 +2022,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if ((f_p = dta.fdata.find("N")) != fend) {
     checkColourCriteria(gl, "N", f_p->second);
     cloudCover(gl, f_p->second, radius);
-  } else if (!precip) {
+  } else {
     gl->setColour(colour);
     cloudCover(gl, undef, radius);
   }
