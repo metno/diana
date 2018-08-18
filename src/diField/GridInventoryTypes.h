@@ -82,10 +82,7 @@ public:
   }
 
   std::vector<std::string> getStringValues() const;
-  std::vector<double> getSortedValues() const;
-  std::set<long> getSetValues() const;
   bool valueExists(std::string) const;
-  long getMinStep() const;
 
   friend bool operator==(const InventoryBase& lhs, const InventoryBase& rhs)
   {
@@ -199,7 +196,6 @@ public:
   {
   }
 
-  long getForecastLength() const;
 };
 
 /**

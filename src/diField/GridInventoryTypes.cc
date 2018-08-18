@@ -31,29 +31,6 @@ std::vector<std::string> InventoryBase::getStringValues() const
   return stringvalues;
 }
 
-std::vector<double> InventoryBase::getSortedValues() const
-{
-
-  std::vector<double> sortedvalues = values;
-
-  std::sort(sortedvalues.begin(), sortedvalues.end());
-
-  return sortedvalues;
-}
-
-std::set<long> InventoryBase::getSetValues() const
-{
-  std::set<long> lvalues;
-
-  std::vector<double>::const_iterator itr = values.begin();
-  for (; itr != values.end(); ++itr) {
-    lvalues.insert(long(*itr));
-  }
-
-  return lvalues;
-}
-
-
 bool InventoryBase::valueExists(std::string value) const
 {
 
@@ -65,42 +42,6 @@ bool InventoryBase::valueExists(std::string value) const
   }
 
   return false;
-}
-
-long InventoryBase::getMinStep() const
-{
-
-  std::set<long> sorted = getSetValues();
-
-  long minValue = LONG_MAX;
-
-  std::set<long>::const_iterator itr1 =sorted.begin();
-  std::set<long>::const_iterator itr2 = sorted.begin();
-  if(itr2 != sorted.end())   ++itr2;
-  for (; itr2 != sorted.end(); ++itr1, ++itr2) {
-    if (minValue > (*itr2 - *itr1) ) {
-      minValue = int(*itr2 - *itr1) ;
-    }
-  }
-
-  return minValue;
-}
-
-long Taxis::getForecastLength() const
-{
-
-  std::set<long> sorted = getSetValues();
-  size_t n = sorted.size();
-
-  if (n<2) {
-    return -1;
-  }
-
-  std::set<long>::const_iterator itr1 =sorted.begin();
-  std::set<long>::const_reverse_iterator itr2 =sorted.rbegin();
-
-  return (*itr2 - *itr1);
-
 }
 
 void Zaxis::setStringValues()

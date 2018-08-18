@@ -41,8 +41,9 @@
 #ifdef FIMEX
 #include "FimexIO.h"
 #endif
-#include "diFieldFunctions.h"
 #include "../diUtilities.h"
+#include "VcrossUtil.h"
+#include "diFieldFunctions.h"
 
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
@@ -897,8 +898,33 @@ struct compare_name {
 
   const std::string& compare_to_;
 };
+
+long getMinStep(const std::set<miutil::miTime>& sorted)
+{
+  long minValue = LONG_MAX;
+
+  std::set<miutil::miTime>::const_iterator itr1 = sorted.begin();
+  std::set<miutil::miTime>::const_iterator itr2 = sorted.begin();
+  if (itr2 != sorted.end())
+    ++itr2;
+  for (; itr2 != sorted.end(); ++itr1, ++itr2) {
+    vcross::util::minimize(minValue, miutil::miTime::hourDiff(*itr2, *itr1));
+  }
+
+  return minValue;
 }
 
+long getForecastLength(const std::set<miutil::miTime>& sorted)
+{
+  if (sorted.size() < 2)
+    return -1;
+
+  std::set<miutil::miTime>::const_iterator first = sorted.begin();
+  std::set<miutil::miTime>::const_reverse_iterator last = sorted.rbegin();
+
+  return miutil::miTime::hourDiff(*last, *first);
+}
+} // namespace
 
 void GridCollection::addComputedParameters()
 {
@@ -998,9 +1024,10 @@ void GridCollection::addComputedParameters()
     }
 
     if (inputOk) {
-      METLIBS_LOG_DEBUG("check time");
+
       //   check time axis
       if (FieldFunctions::isTimeStepFunction(fc.function)) {
+        METLIBS_LOG_DEBUG("check time");
         // sort function constants
         int minConst=0,maxConst=0;
         if ( !fchour.empty() ) {
@@ -1011,12 +1038,10 @@ void GridCollection::addComputedParameters()
           minConst = int(sortedconstants.front());
           maxConst = int(sortedconstants.back());
         }
-        //Find time axis
-        set<gridinventory::Taxis>::iterator titr = rinventory.taxes.find(Taxis(pitr->taxis_id));
-        long minTimeStep = titr->getMinStep()/3600;
-        long forecastLength = titr->getForecastLength()/3600;
-        if (minTimeStep !=0 &&
-            (minConst%minTimeStep!=0 || maxConst%minTimeStep != 0 || maxConst-minConst > forecastLength)) {
+
+        const std::set<miutil::miTime> sorted = getTimes(rinventory.referencetime, pitr->key.name);
+        const long minTimeStep = getMinStep(sorted);
+        if (minTimeStep != 0 && (minConst % minTimeStep != 0 || maxConst % minTimeStep != 0 || maxConst - minConst > getForecastLength(sorted))) {
           continue;
         }
       }
