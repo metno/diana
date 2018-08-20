@@ -29,6 +29,24 @@
 
 #include "RasterFileSink.h"
 
+#include "QImagePNGWriter.h"
+#include <QFileInfo>
+
+namespace {
+bool save(const QImage& image, const QString& filename)
+{
+  const QString suffix = QFileInfo(filename).suffix().toLower();
+  if (suffix == "png") {
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly);
+    QImagePNGWriter writer(&file);
+    return writer.write(image);
+  } else {
+    return image.save(filename);
+  }
+}
+} // namespace
+
 RasterFileSink::RasterFileSink(const QSize& size, const QString& filename)
     : image_(size, QImage::Format_ARGB32_Premultiplied)
     , filename_(filename)
@@ -69,7 +87,7 @@ bool RasterFileSink::finish()
 bool RasterFileSink::saveTo(const QString& filename)
 {
   if (!filename.isEmpty())
-    return image_.save(filename);
+    return save(image_, filename);
   else
     return false;
 }

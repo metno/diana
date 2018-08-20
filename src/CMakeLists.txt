@@ -85,6 +85,7 @@ ADD_CUSTOM_TARGET(buildinfo
 )
 
 SET (LIBDIANA_SOURCES
+  QImagePNGWriter.cc
   diAnnotationPlot.cc
   diAreaBorder.cc
   diAreaObjects.cc
