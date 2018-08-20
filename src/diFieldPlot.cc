@@ -1453,8 +1453,7 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(flagl);
+  const Rectangle msex = diutil::extendedRectangle(getStaticPlot()->getMapSize(), flagl);
 
   const Projection& projection = getStaticPlot()->getMapArea().P();
 
@@ -1465,7 +1464,7 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
     for (int ix = ix1; ix < ix2; ix += xstep) {
       const int i = iy * nx + ix;
 
-      if (u[i] == fieldUndef || v[i] == fieldUndef || !ms.isnear(x[i], y[i]))
+      if (u[i] == fieldUndef || v[i] == fieldUndef || !msex.isinside(x[i], y[i]))
         continue;
 
       if (colours) {
@@ -1572,8 +1571,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
 
   gl->setColour(poptions.linecolour, false);
 
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(flagl);
+  const Rectangle msex = diutil::extendedRectangle(getStaticPlot()->getMapSize(), flagl);
 
   gl->setFont(diutil::BITMAPFONT, poptions.fontface, 10. * poptions.labelSize);
 
@@ -1586,9 +1584,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
     for (int ix = ix1; ix < ix2; ix += xstep) {
       const int i = iy * nx + ix;
       const float gx = x[i], gy = y[i], value = field[i];
-      if (value != fieldUndef && ms.isnear(gx, gy)
-          && value >= poptions.minvalue && value <= poptions.maxvalue)
-      {
+      if (value != fieldUndef && msex.isinside(gx, gy) && value >= poptions.minvalue && value <= poptions.maxvalue) {
         if (poptions.colours.size() > 2) {
           if (value < poptions.base) {
             gl->setColour(poptions.colours[0], false);
@@ -1687,8 +1683,8 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(flagl);
+  const Rectangle& ms = getStaticPlot()->getMapSize();
+  const Rectangle msex = diutil::extendedRectangle(ms, flagl);
   float fontsize = 7. * poptions.labelSize;
 
   gl->setFont(diutil::BITMAPFONT, poptions.fontface, fontsize);
@@ -1751,8 +1747,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
       i = iy * nx + ix;
       gx = x[i];
       gy = y[i];
-      if (u[i] != fieldUndef && v[i] != fieldUndef && ms.isnear(gx, gy)
-          && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
+      if (u[i] != fieldUndef && v[i] != fieldUndef && msex.isinside(gx, gy) && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
         ff = diutil::absval(u[i] , v[i]);
         if (ff > 0.00001) {
 
@@ -2312,8 +2307,7 @@ bool FieldPlot::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(arrowlength * 1.5);
+  const Rectangle msex = diutil::extendedRectangle(getStaticPlot()->getMapSize(), arrowlength * 1.5);
 
   gl->setLineStyle(poptions.linecolour, poptions.linewidth, false);
 
@@ -2323,9 +2317,7 @@ bool FieldPlot::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
       const int i = iy * nx + ix;
 
       const float gx = x[i], gy = y[i];
-      if (u[i] == fieldUndef || v[i] == fieldUndef
-          || (u[i] == 0 && v[i] == 0)
-          || !ms.isnear(gx, gy))
+      if (u[i] == fieldUndef || v[i] == fieldUndef || (u[i] == 0 && v[i] == 0) || !msex.isinside(gx, gy))
         continue;
 
       if (colourfield && colours) {
@@ -3036,8 +3028,7 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
   // the nearest grid points
   const int near[8] = {-nx - 1, -nx, -nx + 1, -1, 1, nx - 1, nx, nx + 1};
 
-  Rectangle ms = getStaticPlot()->getMapSize();
-  ms.setExtension(-size * 0.5);
+  const Rectangle msex = diutil::extendedRectangle(getStaticPlot()->getMapSize(), -size * 0.5);
 
   for (int iy = iy1; iy < iy2; iy++) {
     for (int ix = ix1; ix < ix2; ix++) {
@@ -3050,7 +3041,7 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
 
       const float gx = x[p];
       const float gy = y[p];
-      if (!ms.isnear(gx, gy))
+      if (!msex.isinside(gx, gy))
         continue;
 
       {

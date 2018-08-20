@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -94,7 +94,7 @@ void Area::memberCopy(const Area& rhs)
 void Area::setDefault()
 {
   proj.setDefault();
-  rect.setDefault();
+  rect = Rectangle(0, 0, 1.63188, 1.31772);
 }
 
 bool Area::setAreaFromString(const std::string& areaString)

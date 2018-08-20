@@ -2458,9 +2458,8 @@ bool EditManager::recalcCombineMatrix(){
   // find crossing with fieldarea
   vector<int> crossp, quadr; // 0=Down, 1=Left, 2=Up, 3=Right
   vector<float> crossx, crossy;
-  Rectangle r= fedits[0]->editfield->area.R();
-
-  r.setExtension(0.5*gridResolutionX);
+  const Rectangle& r = fedits[0]->editfield->area.R();
+  const Rectangle rex = diutil::extendedRectangle(r, 0.5 * gridResolutionX);
 
   bool crossing;
 
@@ -2471,7 +2470,7 @@ bool EditManager::recalcCombineMatrix(){
     crossy.push_back(-1);
     crossing = false;
     for (int j=startv[i]; j<numv[i]+startv[i]; j++){
-      if (!r.isnear(xpos[j],ypos[j])){
+      if (!rex.isinside(xpos[j], ypos[j])) {
         if (j==startv[i]) break;
         crossing= true;
         crossp[i]= j-1;

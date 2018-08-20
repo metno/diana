@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -43,19 +43,12 @@ class Rectangle {
 public:
   float x1, y1, x2, y2;
 
-private:
-  // extended area for isnear
-  float ex1, ey1, ex2, ey2;
-
 public:
   Rectangle();
   Rectangle(float x1, float y1, float x2, float y2);
 
   bool operator==(const Rectangle &rhs) const;
-  bool operator!=(const Rectangle &rhs) const;
-  friend std::ostream& operator<<(std::ostream& output, const Rectangle& r);
-
-  void setDefault();
+  inline bool operator!=(const Rectangle& rhs) const { return !(*this == rhs); }
 
   /// set tolerance for 'near' positions
   void setExtension(const float);
@@ -77,18 +70,16 @@ public:
   /// move rectangle so that x,y is inside
   void putinside(float x, float y);
 
-  /// return whether a point is 'near' rectangle (see setExtension())
-  inline bool isnear(float x, float y) const
-    { return ((x>ex1)&&(x<ex2)&&(y>ey1)&&(y<ey2)); }
-
   /// set rectangle from string (x1:x2:y1:y2) or (x2:y2)
   bool setRectangle(const std::string& rectangleString);
 
   /// get string (x1:x2:y1:y2)
   std::string toString() const;
 
-  /// comparing floats
-  static bool AlmostEqual(float A, float B);
+  static const float EQUAL_TOLERANCE;
 };
+
+/// insert Rectangle into stream in the format "rectangle=x1:x2:y1:y2" (using toString)
+std::ostream& operator<<(std::ostream& output, const Rectangle& r);
 
 #endif

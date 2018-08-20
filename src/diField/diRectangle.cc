@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -34,53 +34,40 @@
 #include <puTools/miString.h>
 #include <cmath>
 
-Rectangle::Rectangle() :
-  x1(0), y1(0), x2(0), y2(0), ex1(0), ey1(0), ex2(0), ey2(0)
+const float Rectangle::EQUAL_TOLERANCE = 1e-7;
+
+namespace {
+/// comparing floats
+bool AlmostEqual(float A, float B)
+{
+  return (fabs(A - B) < Rectangle::EQUAL_TOLERANCE);
+}
+} // namespace
+
+Rectangle::Rectangle()
+    : x1(0)
+    , y1(0)
+    , x2(0)
+    , y2(0)
 {
 }
 
-Rectangle::Rectangle(float _x1, float _y1, float _x2, float _y2) :
-  x1(_x1), y1(_y1), x2(_x2), y2(_y2), ex1(_x1), ey1(_y1), ex2(_x2), ey2(_y2)
+Rectangle::Rectangle(float _x1, float _y1, float _x2, float _y2)
+    : x1(_x1)
+    , y1(_y1)
+    , x2(_x2)
+    , y2(_y2)
 {
 }
 
-bool Rectangle::operator==(const Rectangle &rhs) const
+bool Rectangle::operator==(const Rectangle& rhs) const
 {
-  return (AlmostEqual(x1, rhs.x1) && AlmostEqual(x2, rhs.x2) &&
-      AlmostEqual(y1,rhs.y1) && AlmostEqual(y2, rhs.y2));
-}
-
-bool Rectangle::operator!=(const Rectangle &rhs) const
-{
-  return (!AlmostEqual(x1, rhs.x1) || !AlmostEqual(x2, rhs.x2) ||
-      !AlmostEqual(y1, rhs.y1) || !AlmostEqual(y2, rhs.y2));
+  return AlmostEqual(x1, rhs.x1) && AlmostEqual(x2, rhs.x2) && AlmostEqual(y1, rhs.y1) && AlmostEqual(y2, rhs.y2);
 }
 
 std::ostream& operator<<(std::ostream& output, const Rectangle& r)
 {
-#if 1
-  return output << "rectangle=" << r.x1 << ":" << r.x2 << ":" << r.y1 << ":"
-      << r.y2;
-#else
-  return output << "Rectangle(" << r.x1 << ',' << r.y1 << ',' << r.x2 << ',' << r.y2 << ')';
-#endif
-}
-
-void Rectangle::setDefault()
-{
-  x1 = 0;
-  x2 = 1.63188;
-  y1 = 0;
-  y2 = 1.31772;
-}
-
-void Rectangle::setExtension(float extend)
-{
-  // may use extend<0 ...
-  ex1 = x1 - extend;
-  ey1 = y1 - extend;
-  ex2 = x2 + extend;
-  ey2 = y2 + extend;
+  return output << "rectangle=" << r.toString();
 }
 
 void Rectangle::putinside(float x, float y)
@@ -131,22 +118,6 @@ std::string Rectangle::toString() const
       + ":" + miutil::from_number(x2, 5)
       + ":" + miutil::from_number(y1, 5)
       + ":" + miutil::from_number(y2, 5);
-}
-
-// static
-bool Rectangle::AlmostEqual(float A, float B)
-{
-  const float absDiff = fabs(A - B);
-  if (absDiff < 0.0000001)
-    return true;
-
-#ifdef ABSOLUTE_VALUES_MIGHT_BE_NEGATIVE
-  const float absA = fabs(A), absB = fabs(B);
-  const float relativeError = absDiff / std::max(absB, absA);
-  return (relativeError <= -0.00001);
-#else
-  return false;
-#endif
 }
 
 bool Rectangle::intersects(const Rectangle& other) const
