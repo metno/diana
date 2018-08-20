@@ -76,8 +76,8 @@ public:
   Colour();
   explicit Colour(const std::string&);
   explicit Colour(const values&);
-  explicit Colour(unsigned char, unsigned char, unsigned char, unsigned char = maxv);
-  static Colour fromF(float, float, float, float = 1.0f);
+  explicit Colour(unsigned char r, unsigned char g, unsigned char b, unsigned char a = maxv);
+  static Colour fromF(float r, float g, float b, float a = 1.0f);
   Colour(const Colour &rhs);
 
   ~Colour() { }

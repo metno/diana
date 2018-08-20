@@ -57,28 +57,26 @@ Colour::Colour()
 
 Colour::Colour(const std::string& name_)
 {
-  //  METLIBS_LOG_DEBUG(name_);
-
-  std::string lname= miutil::to_lower(name_);
-  vector<std::string> vstr = miutil::split(lname, ":");
-  int n = vstr.size();
-  if (n<2){
-    if(cmap.count(lname))
-      memberCopy(cmap[lname]);
-    else{
+  const std::string lname = miutil::to_lower(name_);
+  const std::vector<std::string> vstr = miutil::split(lname, ":");
+  const size_t n = vstr.size();
+  if (n < 2) {
+    map<std::string, Colour>::const_iterator it = cmap.find(lname);
+    if (it != cmap.end())
+      memberCopy(it->second);
+    else {
       METLIBS_LOG_DEBUG("Colour:"<<lname<<" unknown");
       set(0,0,0);
       name = "black";
     }
-  } else if(n<3) {
+  } else if (n < 3) {
     memberCopy(cmap[vstr[0]]);
-    v.rgba[alpha]= atoi(vstr[1].c_str());
-  } else if(n<4){
-    set(atoi(vstr[0].c_str()),atoi(vstr[1].c_str()),atoi(vstr[2].c_str()));
+    v.rgba[alpha] = miutil::to_int(vstr[1]);
+  } else if (n < 4) {
+    set(miutil::to_int(vstr[0]), miutil::to_int(vstr[1]), miutil::to_int(vstr[2]));
     name = lname;
   } else {
-    set(atoi(vstr[0].c_str()),atoi(vstr[1].c_str()),
-        atoi(vstr[2].c_str()),atoi(vstr[3].c_str()));
+    set(miutil::to_int(vstr[0]), miutil::to_int(vstr[1]), miutil::to_int(vstr[2]), miutil::to_int(vstr[3]));
     name = lname;
   }
 }
@@ -124,25 +122,24 @@ bool Colour::operator==(const Colour &rhs) const
 
 void Colour::memberCopy(const Colour& rhs)
 {
-  v= rhs.v;
-  name= rhs.name;
+  v = rhs.v;
+  name = rhs.name;
 }
 
-void Colour::define(const std::string& name_,
-    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void Colour::define(const std::string& name_, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
   Colour c(r,g,b,a);
-  std::string lname= miutil::to_lower(name_);
-  c.name= lname;
-  cmap[lname]= c;
+  const std::string lname = miutil::to_lower(name_);
+  c.name = lname;
+  cmap[lname] = c;
 }
 
 void Colour::define(const std::string name_, const values& va)
 {
   Colour c(va);
-  std::string lname= miutil::to_lower(name_);
-  c.name= lname;
-  cmap[lname]= c;
+  const std::string lname = miutil::to_lower(name_);
+  c.name = lname;
+  cmap[lname] = c;
 }
 
 void Colour::defineColourFromString(const std::string& rgba_string)
@@ -150,11 +147,11 @@ void Colour::defineColourFromString(const std::string& rgba_string)
   unsigned char r,g,b,a;
   vector<std::string> stokens = miutil::split(rgba_string, ":");
   if (stokens.size()>2 ) {
-    r= atoi(stokens[0].c_str());
-    g= atoi(stokens[1].c_str());
-    b= atoi(stokens[2].c_str());
+    r = miutil::to_int(stokens[0]);
+    g = miutil::to_int(stokens[1]);
+    b = miutil::to_int(stokens[2]);
     if (stokens.size()>3) {
-      a= atoi(stokens[3].c_str());
+      a = miutil::to_int(stokens[3]);
     } else {
       a= 255;
     }
@@ -165,10 +162,10 @@ void Colour::defineColourFromString(const std::string& rgba_string)
 
 void Colour::addColourInfo(const ColourInfo& ci)
 {
-  if (not ci.name.empty()) {
-    for (unsigned int q=0; q<colours.size(); q++)
-      if (colours[q].name == ci.name) {
-        colours[q] = ci;
+  if (!ci.name.empty()) {
+    for (ColourInfo& q : colours)
+      if (q.name == ci.name) {
+        q = ci;
         return;
       }
   }
@@ -177,7 +174,7 @@ void Colour::addColourInfo(const ColourInfo& ci)
 
 Colour Colour::contrastColour() const
 {
-  const int sum = R() + G() + B();
+  const unsigned int sum = R() + G() + B();
   if (sum > 255 * 3 / 2)
     return Colour(0, 0, 0);
   else
@@ -186,10 +183,10 @@ Colour Colour::contrastColour() const
 
 ostream& operator<<(ostream& out, const Colour& rhs)
 {
-  return out <<
-    " name: "  << rhs.name <<
-    " red: "   << setw(3) << setfill('0') << int(rhs.v.rgba[0]) <<
-    " green: " << setw(3) << setfill('0') << int(rhs.v.rgba[1]) <<
-    " blue: "  << setw(3) << setfill('0') << int(rhs.v.rgba[2]) <<
-    " alpha: " << setw(3) << setfill('0') << int(rhs.v.rgba[3]);
+  out << " name: " << rhs.name                                        // name
+      << " red: " << setw(3) << setfill('0') << int(rhs.v.rgba[0])    // r
+      << " green: " << setw(3) << setfill('0') << int(rhs.v.rgba[1])  // g
+      << " blue: " << setw(3) << setfill('0') << int(rhs.v.rgba[2])   // b
+      << " alpha: " << setw(3) << setfill('0') << int(rhs.v.rgba[3]); // alpha
+  return out;
 }
