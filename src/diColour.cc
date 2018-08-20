@@ -126,7 +126,6 @@ void Colour::memberCopy(const Colour& rhs)
 {
   v= rhs.v;
   name= rhs.name;
-  colourindex= rhs.colourindex;
 }
 
 void Colour::define(const std::string& name_,
@@ -164,13 +163,6 @@ void Colour::defineColourFromString(const std::string& rgba_string)
 
 }
 
-// hack: colourindex is platform-dependent
-void Colour::setindex(const std::string& name_, const unsigned char index)
-{
-  std::string lname= miutil::to_lower(name_);
-  cmap[lname].colourindex= index;
-}
-
 void Colour::addColourInfo(const ColourInfo& ci)
 {
   if (not ci.name.empty()) {
@@ -199,6 +191,5 @@ ostream& operator<<(ostream& out, const Colour& rhs)
     " red: "   << setw(3) << setfill('0') << int(rhs.v.rgba[0]) <<
     " green: " << setw(3) << setfill('0') << int(rhs.v.rgba[1]) <<
     " blue: "  << setw(3) << setfill('0') << int(rhs.v.rgba[2]) <<
-    " alpha: " << setw(3) << setfill('0') << int(rhs.v.rgba[3]) <<
-    " Index: " << int(rhs.colourindex) ;
+    " alpha: " << setw(3) << setfill('0') << int(rhs.v.rgba[3]);
 }

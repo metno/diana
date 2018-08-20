@@ -66,7 +66,6 @@ public:
 private:
   std::string name;
   values v;
-  unsigned char colourindex;
   static std::map<std::string,Colour> cmap;
   static std::vector<ColourInfo> colours;
 
@@ -91,7 +90,6 @@ public:
       const unsigned char, const unsigned char =maxv);
   static void define(const std::string, const values&);
   static void defineColourFromString(const std::string& rgba_string);
-  static void setindex(const std::string&, const unsigned char);
 
   // static functions for static vector <ColourInfo> colours
   static void addColourInfo(const ColourInfo& ci);
@@ -124,7 +122,6 @@ public:
 
   const unsigned char* RGBA() const {return v.rgba; }
   const unsigned char* RGB()  const {return v.rgba; }
-  unsigned char Index() const {return colourindex; }
 
   const std::string& Name() const {return name;}
 

@@ -119,14 +119,6 @@ DiCanvas* Controller::canvas()
   return DrawingManager::instance()->canvas(); // FIXME store elsewhere
 }
 
-// hack: indices for colorIndex mode set from gui
-void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
-  int n= vc.size();
-  for (int i=0; i<n; i++){
-    Colour::setindex(vc[i].name,vc[i].rgb[0]);
-  }
-}
-
 bool Controller::updateFieldFileSetup(const std::vector<std::string>& lines,
     std::vector<std::string>& errors)
 {
