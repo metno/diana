@@ -91,7 +91,6 @@ private:
   int pmaxDiagram;   // max pressure
   int tminDiagram;   // min temperature at 1000 hPa
   int tmaxDiagram;   // max temperature at 1000 hPa
-  int trangeDiagram; // temperature range  0=fixed  1=fixed.max-min  2=minimum
 
   bool pplines;   // pressure lines
   bool pplinesfl; // false=at pressure levels  true=at flight levels

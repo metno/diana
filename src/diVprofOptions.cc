@@ -86,7 +86,6 @@ void VprofOptions::setDefaults()
   pmaxDiagram= 1050;  // max pressure
   tminDiagram=  -30;  // min temperature (C) at 1000 hPa
   tmaxDiagram=  +30;  // max temperature (C) at 1000 hPa
-  trangeDiagram=  0;  // temperature range  0=fixed  1=fixed.max-min  2=minimum
 
   pplines= true;   // pressure lines
   pplinesfl= false; // false=at pressure levels  true=at flight levels
@@ -229,7 +228,6 @@ void VprofOptions::checkValues()
   if (tangle>80.) tangle=80.;
 
   if (tmaxDiagram-tminDiagram<5) tminDiagram= tmaxDiagram-5;
-  if (trangeDiagram<0 || trangeDiagram>2) trangeDiagram=0;
 
   if (rsvaxis<0.01)   rsvaxis=  0.01;
   if (rsvaxis>100.)   rsvaxis=  100.;
@@ -322,8 +320,7 @@ std::vector<std::string> VprofOptions::writeOptions()
   + " pmaxDiagram=" + miutil::from_number(pmaxDiagram);
   vstr.push_back(str);
   str=   "tminDiagram=" + miutil::from_number(tminDiagram)
-  + " tmaxDiagram=" + miutil::from_number(tmaxDiagram)
-  + " trangeDiagram=" + miutil::from_number(trangeDiagram);
+  + " tmaxDiagram=" + miutil::from_number(tmaxDiagram);
   vstr.push_back(str);
 
   str=  "plinesfl=" + std::string(pplinesfl ? "on" : "off");
@@ -480,8 +477,6 @@ void VprofOptions::readOptions(const std::vector<miutil::KeyValue_v>& vstr)
           tminDiagram = kv.toInt();
         else if (key == "tmaxdiagram")
           tmaxDiagram = kv.toInt();
-        else if (key == "trangediagram")
-          trangeDiagram = kv.toInt();
 
         else if (key == "plinesfl")
           pplinesfl = kv.toBool();
