@@ -1133,7 +1133,6 @@ void VprofDiagram::plotDiagram()
     gl->setLineStyle(c, vpopt->flevelsLinewidth1);
     // flevelsLinetype....
     const size_t kk = vpopt->pflightlevels.size();
-    gl->Begin(DiGLPainter::gl_LINES);
     for (size_t k = 0; k < kk; k++) {
       const float y = transformP(vpopt->pflightlevels[k]);
       const bool level50 = (vpopt->flightlevels[k] % 50 == 0);
