@@ -50,9 +50,6 @@ public:
   bool operator==(const Rectangle &rhs) const;
   inline bool operator!=(const Rectangle& rhs) const { return !(*this == rhs); }
 
-  /// set tolerance for 'near' positions
-  void setExtension(const float);
-
   /// return width of rectangle
   inline float width() const
     { return (x2-x1); }
