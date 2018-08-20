@@ -49,19 +49,10 @@ vector<Colour::ColourInfo> Colour::colours;
 Colour::Colour(const values& va) : v(va){
 }
 
-Colour::Colour(unsigned long int hexv)
+Colour::Colour()
 {
-  unsigned long int h= hexv;
-
-  unsigned char a= 255;
-  if (h>0xFFFFFF){
-    a= (h & 0xFF); h = (h >> 8);
-  }
-  unsigned char b= (h & 0xFF); h = (h >> 8);
-  unsigned char g= (h & 0xFF); h = (h >> 8);
-  unsigned char r= (h & 0xFF);
-
-  set(r,g,b,a);
+  set(0, 0, 0);
+  name = "black";
 }
 
 Colour::Colour(const std::string& name_)

@@ -74,9 +74,9 @@ private:
   void generateName();
 
 public:
+  Colour();
   explicit Colour(const std::string&);
   explicit Colour(const values&);
-  explicit Colour(unsigned long int =0);
   explicit Colour(unsigned char, unsigned char, unsigned char, unsigned char = maxv);
   static Colour fromF(float, float, float, float = 1.0f);
   Colour(const Colour &rhs);
