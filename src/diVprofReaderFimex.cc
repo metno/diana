@@ -77,11 +77,14 @@ std::vector<std::string> VprofReaderFimex::getReferencetimes(const std::string& 
   std::vector<std::string> rf;
 
   vcross::Collector_p collector = std::make_shared<vcross::Collector>(setup);
-  collector->getResolver()->getSource(modelName)->update();
-  const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
-  for (const vcross::Time& t : reftimes)
-    rf.push_back(vcross::util::to_miTime(t).isoTime("T"));
-
+  if (vcross::Source_p source = collector->getResolver()->getSource(modelName)) {
+    source->update();
+    const vcross::Time_s reftimes = source->getReferenceTimes();
+    for (const vcross::Time& t : reftimes)
+      rf.push_back(vcross::util::to_miTime(t).isoTime("T"));
+  } else {
+    METLIBS_LOG_WARN("no source for model '" << modelName << "'");
+  }
   return rf;
 }
 
