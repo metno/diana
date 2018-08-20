@@ -32,6 +32,7 @@
 #include "diGLPainter.h"
 #include "diStaticPlot.h"
 #include "diTrajectoryPlot.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -194,10 +195,7 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
             }
           }
         } else if (key == "field" ) {
-          if (orig_value[0]=='"')
-            fieldStr= orig_value.substr(1,orig_value.length()-2);
-          else
-            fieldStr = orig_value;
+          fieldStr = diutil::quote_removed(orig_value);
         } else if (key == "colour" )
           colourPast = Colour(value);
         else if (key == "linewidth" )

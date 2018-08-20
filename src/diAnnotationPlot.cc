@@ -36,6 +36,7 @@
 #include "diLegendPlot.h"
 #include "diStaticPlot.h"
 #include "util/charsets.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -410,15 +411,11 @@ bool AnnotationPlot::decodeElement(const std::string& elementstring, element& e)
       if (subtokens.size() != 2)
         continue;
       if (subtokens[0] == "text" || subtokens[0] == "input") {
-        e.eText = subtokens[1];
+        e.eText = diutil::quote_removed(subtokens[1]);
         editable = true;
-        if (e.eText[0] == '"')
-          e.eText = e.eText.substr(1, e.eText.length() - 2);
       }
       if (subtokens[0] == "title" && e.eType == table) {
-        if (subtokens[1][0] == '"')
-          subtokens[1] = subtokens[1].substr(1, subtokens[1].length() - 2);
-        e.classplot->setTitle(subtokens[1]);
+        e.classplot->setTitle(diutil::quote_removed(subtokens[1]));
       } else if (subtokens[0] == "image")
         e.eImage = subtokens[1];
       else if (subtokens[0] == "arrow")

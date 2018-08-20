@@ -48,6 +48,39 @@ void remove_comment_and_trim(std::string& s)
   remove_comment_and_trim(s, "#");
 }
 
+void remove_quote(std::string& s, char quote)
+{
+  const size_t l = s.length();
+  if (l >= 2 && s[0] == quote && s[l - 1] == quote) {
+    s = s.substr(1, l - 2);
+  }
+}
+
+std::string quote_removed(const std::string& s, char quote)
+{
+  std::string r = s;
+  remove_quote(r, quote);
+  return r;
+}
+
+void remove_start_end_mark(std::string& s, char start, char end)
+{
+  const size_t l = s.length();
+  if (l >= 1 && s[0] == start) {
+    if (l >= 2 && s[l - 1] == end)
+      s = s.substr(1, l - 2);
+    else
+      s = s.substr(1, l - 1);
+  }
+}
+
+std::string start_end_mark_removed(const std::string& s, char start, char end)
+{
+  std::string r = s;
+  remove_start_end_mark(r, start, end);
+  return r;
+}
+
 static bool startsOrEndsWith(const std::string& txt, const std::string& sub,
     int startcompare)
 {

@@ -267,9 +267,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
   for (miutil::KeyValue kv : opts) {
     if (!kv.value().empty()) {
       const string& key = kv.key();
-      string value = kv.value();
-      if (value[0]=='\'' && value[value.length()-1]=='\'')
-        value= value.substr(1,value.length()-2);
+      string value = diutil::quote_removed(kv.value(), '\'');
 
       if (key==key_colour){
         po.colours.clear();
@@ -570,7 +568,6 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
           po.plottype = fpt_wind_value;
         } else  if(value == "number") {
           po.plottype = fpt_value;
-          METLIBS_LOG_DEBUG("po.plottype ="<< value);
         } else {
           result= false;
         }

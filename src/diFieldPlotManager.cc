@@ -141,11 +141,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
       if (key == key_loop && n >= 4) {
         vpar.clear();
         for (unsigned int i = 3; i < vstr.size(); i++) {
-          if (vstr[i][0] == '"') {
-            vpar.push_back(vstr[i].substr(1, vstr[i].length() - 2));
-          } else {
-            vpar.push_back(vstr[i]);
-          }
+          vpar.push_back(diutil::quote_removed(vstr[i]));
         }
         loopname.push_back(vstr[1]);
         loopvars.push_back(vpar);
@@ -191,10 +187,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
               SetupParser::errorMsg(sect_name, i, errm);
               continue;
             }
-            name = vstr[1];
-            if (name[0] == '"' && name[name.length() - 1] == '"') {
-              name = name.substr(1, name.length() - 2);
-            }
+            name = diutil::quote_removed(vstr[1]);
           } else {
             vstr = splitComStr(str, false);
             nv = vstr.size();
@@ -223,10 +216,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
                   break;
                 }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
-                fieldgroup = vstr[j + 2];
-                if (fieldgroup[0] == '"' && fieldgroup[fieldgroup.length() - 1] == '"') {
-                  fieldgroup = fieldgroup.substr(1, fieldgroup.length() - 2);
-                }
+                fieldgroup = diutil::quote_removed(vstr[j + 2]);
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
                 vector<std::string> vcoordTokens = miutil::split(vstr[j+2], ",");
                 for( size_t ii=0; ii<vcoordTokens.size(); ++ii ) {

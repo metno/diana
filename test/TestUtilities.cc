@@ -371,6 +371,54 @@ TEST(TestUtilities, RemoveCommentAndTrim)
   }
 }
 
+TEST(TestUtilities, RemoveQuote)
+{
+  {
+    std::string t1 = "\"hei\"";
+    diutil::remove_quote(t1);
+    EXPECT_EQ("hei", t1);
+  }
+  {
+    std::string t1 = "\"no\" ", ex = t1;
+    diutil::remove_quote(t1);
+    EXPECT_EQ(ex, t1); // unchanged, space at end
+  }
+  {
+    std::string t1 = "\"hello world", ex = t1;
+    diutil::remove_quote(t1);
+    EXPECT_EQ(ex, t1); // unchanged, no quote at end
+  }
+  {
+    std::string t1 = "\"", ex = t1;
+    diutil::remove_quote(t1);
+    EXPECT_EQ(ex, t1); // unchanged, too short
+  }
+}
+
+TEST(TestUtilities, RemoveStartEnd)
+{
+  {
+    std::string t1 = "[hei]";
+    diutil::remove_start_end_mark(t1, '[', ']');
+    EXPECT_EQ("hei", t1);
+  }
+  {
+    std::string t1 = "[hei";
+    diutil::remove_start_end_mark(t1, '[', ']');
+    EXPECT_EQ("hei", t1);
+  }
+  {
+    std::string t1 = "\"no\" ";
+    diutil::remove_start_end_mark(t1);
+    EXPECT_EQ("no\" ", t1); // weird, only start removed
+  }
+  {
+    std::string t1 = "hello world\"", ex = t1;
+    diutil::remove_start_end_mark(t1);
+    EXPECT_EQ(ex, t1); // unchanged, no start mark
+  }
+}
+
 TEST(TestUtilities, AppendText)
 {
   {

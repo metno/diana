@@ -32,12 +32,12 @@
 #include "qtObjectDialog.h"
 
 #include "diController.h"
+#include "diKVListPlotCommand.h"
 #include "diObjectManager.h"
 #include "qtEditComment.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
-
-#include "diKVListPlotCommand.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -637,10 +637,7 @@ ObjectDialog::PlotVariables ObjectDialog::decodeString(const miutil::KeyValue_v&
       const std::string& key = kv.key();
       const std::string& value = kv.value();
       if (key == "name") {
-        if (value[0]=='"')
-          okVar.objectname = value.substr(1,value.length()-2);
-        else
-          okVar.objectname = value;
+        okVar.objectname = diutil::quote_removed(value);
       } else if (key == "types") {
         okVar.useobject = WeatherObjects::decodeTypeString(value);
       } else if (key == "time") {

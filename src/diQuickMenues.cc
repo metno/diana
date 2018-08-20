@@ -259,17 +259,11 @@ bool readQuickMenu(quickMenu& qm)
 
     if (line[0]=='"'){
       // name of quickmenu
-      if (line[line.length()-1]=='"')
-        qm.name = line.substr(1,line.length()-2);
-      else
-        qm.name = line.substr(1,line.length()-1);
+      qm.name = diutil::start_end_mark_removed(line, '"', '"');
 
     } else if (line[0]=='['){
       // variable/options
-      if (line[line.length()-1]==']')
-        line = line.substr(1,line.length()-2);
-      else
-        line = line.substr(1,line.length()-1);
+      diutil::remove_start_end_mark(line, '[', ']');
       vector<std::string> tokens = miutil::split(line, "=");
       if (tokens.size()>1){
         op.key= tokens[0];

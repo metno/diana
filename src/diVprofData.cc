@@ -227,9 +227,7 @@ void VprofData::readStationList()
         else if (key == "longitude")
           longitude = miutil::to_float(kv[1]);
         else if (key == "name") {
-          name = kv[1];
-          if (name[0] == '"' && name.length() >= 3 && name[name.length() - 1] == '"')
-            name = name.substr(1, name.length() - 2);
+          name = diutil::quote_removed(kv[1]);
         }
       }
     }

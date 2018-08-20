@@ -256,10 +256,7 @@ void SetupParser::splitKeyValue(const std::string& s, std::string& key, string_v
     string_v vv = miutil::split(vs[1], 0, ",", true);
     int n = vv.size();
     for (int i = 0; i < n; i++) {
-      if (vv[i][0] == '"' && vv[i][vv[i].length() - 1] == '"')
-        value.push_back(vv[i].substr(1, vv[i].length() - 2));
-      else
-        value.push_back(vv[i]);
+      value.push_back(diutil::quote_removed(vv[i]));
     }
   } else {
     key = miutil::to_lower(s); // assuming pure keyword (without value)

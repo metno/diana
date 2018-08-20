@@ -41,6 +41,18 @@ void remove_comment_and_trim(std::string& s, const std::string& commentmarker);
 //! remove #-comment, remove preceding and trailing blanks
 void remove_comment_and_trim(std::string& s);
 
+//! remove quote at start and end if present at both start and end
+void remove_quote(std::string& s, char quote = '"');
+
+//! use remove_quote to remove quotes
+std::string quote_removed(const std::string& s, char quote = '"');
+
+//! remove char at start and end if present at start and optionally at end
+void remove_start_end_mark(std::string& s, char start = '"', char end = '"');
+
+//! use remove_start_end_mark to remove start and end marks
+std::string start_end_mark_removed(const std::string& s, char start = '"', char end = '"');
+
 bool startswith(const std::string& txt, const std::string& start);
 bool endswith(const std::string& txt, const std::string& end);
 
