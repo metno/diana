@@ -356,23 +356,6 @@ DrawingItemBase *EditItemManager::createItem(const QString &type)
   return Drawing(item);
 }
 
-DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString &error)
-{
-  Q_ASSERT(!vmap.empty());
-  Q_ASSERT(vmap.contains("type"));
-  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
-
-  QString type = vmap.value("type").toString().split("::").last();
-  DrawingItemBase *item = createItem(type);
-
-  if (item) {
-    item->setProperties(vmap);
-    setFromLatLonPoints(item, item->getLatLonPoints());
-  }
-
-  return Drawing(item);
-}
-
 void EditItemManager::editItem(DrawingItemBase *item)
 {
   incompleteItem_ = item;

@@ -298,8 +298,10 @@ DrawingItemBase *DrawingManager::createItem(const QString &type)
 
 DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString &error)
 {
-  if (vmap.empty() || !vmap.contains("type") || !vmap.value("type").canConvert(QVariant::String))
+  if (vmap.empty() || !vmap.contains("type") || !vmap.value("type").canConvert(QVariant::String)) {
+    error = "'type' not in properties map, cannot create item";
     return 0;
+  }
 
   QString type = vmap.value("type").toString().split("::").last();
   DrawingItemBase *item = createItem(type);

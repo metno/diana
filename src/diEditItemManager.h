@@ -83,7 +83,6 @@ public:
   QList<DrawingItemBase *> selectedItems() const;
 
   DrawingItemBase *createItem(const QString &type) override;
-  DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString &error) override;
   QString loadDrawing(const QString &name, const QString &fileName) override;
 
   QUndoStack *undoStack();
