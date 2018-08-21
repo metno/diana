@@ -307,10 +307,6 @@ DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, Q
   if (item) {
     item->setProperties(vmap);
     setFromLatLonPoints(item, item->getLatLonPoints());
-
-    DrawingItem_Composite::Composite *c = dynamic_cast<DrawingItem_Composite::Composite *>(item);
-    if (c)
-      c->createElements();
   }
 
   return item;

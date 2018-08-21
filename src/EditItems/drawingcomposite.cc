@@ -129,7 +129,7 @@ void Composite::setProperties(const QVariantMap &properties, bool ignorePoints)
 
   writeExtraProperties();
   readExtraProperties();
-  arrangeElements();
+  createElements();
 }
 
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
