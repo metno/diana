@@ -31,17 +31,9 @@ std::vector<std::string> InventoryBase::getStringValues() const
   return stringvalues;
 }
 
-bool InventoryBase::valueExists(std::string value) const
+bool InventoryBase::valueExists(const std::string& value) const
 {
-
-  std::vector<std::string>::const_iterator itr = stringvalues.begin();
-  for (; itr != stringvalues.end(); ++itr) {
-    if (*itr == value) {
-      return true;
-    }
-  }
-
-  return false;
+  return (std::find(stringvalues.begin(), stringvalues.end(), value) != stringvalues.end());
 }
 
 void Zaxis::setStringValues()

@@ -82,7 +82,7 @@ public:
   }
 
   std::vector<std::string> getStringValues() const;
-  bool valueExists(std::string) const;
+  bool valueExists(const std::string&) const;
 
   friend bool operator==(const InventoryBase& lhs, const InventoryBase& rhs)
   {
