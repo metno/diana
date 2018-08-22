@@ -243,7 +243,7 @@ TEST(TestUtilities, Utf8ToLatin1)
   EXPECT_EQ("\xC5r\xF8", c->convert("Årø"));
 }
 
-TEST(TestUtilities, GetLineConverter)
+TEST(TestUtilities, GetLineConverterUTF8)
 {
   std::istringstream stream(
         "# -*- coding: utf-8 -*-\n"
@@ -257,6 +257,22 @@ TEST(TestUtilities, GetLineConverter)
     found = l;
   }
   EXPECT_EQ("blueberry = blåbær", found);
+}
+
+TEST(TestUtilities, GetLineConverterLatin1)
+{
+  std::istringstream stream(
+        // no coding specified, expecting iso8859-1
+        "blue = bl\xE5\n"
+        );
+  diutil::GetLineConverter convertline("#");
+  std::string l, found;
+  while (convertline(stream, l)) {
+    if (l.empty() || l[0]=='#')
+      continue;
+    found = l;
+  }
+  EXPECT_EQ("blue = bl\xC3\xA5", found); // this is utf-8
 }
 
 TEST(TestUtilities, GreatCircleDistance)

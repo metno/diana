@@ -189,7 +189,7 @@ GetLineConverter::GetLineConverter(const std::string& comment, const std::string
 
 std::istream& GetLineConverter::operator()(std::istream& in, std::string& line)
 {
-  if (!std::getline(in, line))
+  if (std::getline(in, line))
     apply(line);
   return in;
 };
