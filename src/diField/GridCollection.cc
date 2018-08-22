@@ -116,10 +116,6 @@ void GridCollection::clearGridSources()
   inventoryOK.clear();
 }
 
-void GridCollection::updateGridSources()
-{
-}
-
 // unpack the raw sources and make one or more GridIO instances
 bool GridCollection::makeGridIOinstances()
 {
@@ -280,14 +276,6 @@ bool GridCollection::sourcesChanged()
     if (io->sourceChanged(false))
       return true;
   return false;
-}
-
-std::vector<gridinventory::Inventory> GridCollection::getInventories() const
-{
-  std::vector<gridinventory::Inventory> invs;
-  for (GridIO* io : gridsources)
-    invs.push_back(io->getInventory());
-  return invs;
 }
 
 /**

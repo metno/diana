@@ -33,16 +33,16 @@
 #define GRIDCOLLECTION_H_
 
 #include "GridInventoryTypes.h"
-#include "GridIO.h"
+#include "VcrossData.h"
 #include "diCommonFieldTypes.h"
 #include "diGridConverter.h"
-#include "diFieldFunctions.h"
 
 #include <puTools/miTime.h>
-#include <boost/shared_array.hpp>
+
 #include <string>
 #include <vector>
 
+class GridIO;
 class GridIOsetup;
 class Field;
 
@@ -107,24 +107,6 @@ public:
   const gridinventory::ReftimeInventory & getComputedInventory() const
   {
     return computed_inventory;
-  }
-
-  /**
-   * Get the individual inventories
-   * @return list of inventories
-   */
-  std::vector<gridinventory::Inventory> getInventories() const;
-
-  /**
-   * Set reference time limits
-   * @param min
-   * @param max
-   */
-  void setReferencetimeLimits(const std::string& min,
-      const std::string& max)
-  {
-    limit_min = min;
-    limit_max = max;
   }
 
   /**
@@ -258,10 +240,6 @@ private:
   GridIOsetup * gridsetup;
   /// inventory made, and ok
   std::map< std::string, bool > inventoryOK;
-  /// lower limit on reference times
-  std::string limit_min;
-  /// upper limit on reference times
-  std::string limit_max;
   /// No complete inventory, only reftimes from filename
   std::set<std::string> refTimes;
   /// the combined inventory
@@ -277,8 +255,6 @@ private:
   bool makeGridIOinstances();
   /// clear the gridsources vector
   void clearGridSources();
-  /// update the gridsources vector
-  void updateGridSources();
 
   //! find nearest time within time tolerance
   /*!
