@@ -159,7 +159,14 @@ SET (LIBDIANA_SOURCES
   diPolyContouring.cc
   diPrintOptions.cc
   diQuickMenues.cc
+  diRasterAlarmBox.cc
+  diRasterAlpha.cc
+  diRasterFillCell.cc
+  diRasterGrid.cc
   diRasterPlot.cc
+  diRasterRGB.cc
+  diRasterUndef.cc
+  diRasterUtil.cc
   diSat.cc
   diSatManager.cc
   diSatPlot.cc

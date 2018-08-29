@@ -33,33 +33,28 @@
 
 #include "diFieldPlot.h"
 
-#include "diColour.h"
-#include "diColourShading.h"
 #include "diContouring.h"
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
 #include "diKVListPlotCommand.h"
-#include "diPaintGLPainter.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
+#include "diRasterAlarmBox.h"
+#include "diRasterAlpha.h"
+#include "diRasterFillCell.h"
+#include "diRasterGrid.h"
+#include "diRasterRGB.h"
+#include "diRasterUndef.h"
+#include "diRasterUtil.h"
 #include "diStaticPlot.h"
 #include "diUtilities.h"
-#include "util/charsets.h"
 #include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
 
-#include <diField/VcrossUtil.h> // minimize + maximize
 #include <puTools/miStringFunctions.h>
-
-#include <QPainter>
-
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlot"
 #include <miLogger/miLogging.h>
@@ -70,516 +65,11 @@
 #define IF_DEBUG_UNDEF(x) /* */
 #endif
 
-
 using namespace std;
 using namespace miutil;
 
 const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
-
-namespace {
-
-class is_undef {
-public:
-  is_undef(const float* fd, int w)
-    : fielddata(fd), width(w) { }
-  inline bool operator()(int ix, int iy) const
-    { return diutil::is_undefined(fielddata[diutil::index(width, ix, iy)]); }
-private:
-  const float* fielddata;
-  int width;
-};
-
-bool mini_maxi(const float* data, size_t n, float UNDEF, float& mini, float& maxi)
-{
-  bool is_set = false;
-  for (size_t i = 0; i < n; ++i) {
-    const float v = data[i];
-    if (v == UNDEF)
-      continue;
-    if (!is_set || mini > v)
-      mini = v;
-    if (!is_set || maxi < v)
-      maxi = v;
-    is_set = true;
-  }
-  return is_set;
-}
-
-void mincut_maxcut(const float* image, size_t size, float UNDEF, float cut, float& mincut, float& maxcut)
-{
-  const int N = 256;
-  int nindex[N];
-  for (int i=0; i<N; i++)
-    nindex[i]=0;
-  int nundef = 0;
-
-  const float cdiv = (N-1) / (maxcut - mincut);
-
-  for (size_t i=0; i<size; i++) {
-    if (image[i] == UNDEF) {
-      nundef += 1;
-    } else {
-      const int j = (int)((image[i]-mincut)*cdiv);
-      if (j >= 0 && j < N)
-        nindex[j] += 1;
-    }
-  }
-
-  const float npixel = size - nundef - nindex[0]; //number of pixels, drop index=0
-  const int ncut = (int) (npixel*cut); //number of pixels to cut   +1?
-  int mini = 1;
-  int maxi = N-1;
-  int ndropped = 0; //number of pixels dropped
-
-  while (ndropped < ncut && mini<maxi) {
-    if (nindex[mini] < nindex[maxi]) {
-      ndropped += nindex[mini];
-      mini++;
-    } else {
-      ndropped += nindex[maxi];
-      maxi--;
-    }
-  }
-  mincut = mini;
-  maxcut = maxi;
-}
-
-
-class ColourLimits {
-public:
-  ColourLimits()
-    : colours(0), limits(0), ncl(0) { }
-
-  void initialize(const PlotOptions& poptions, float mini, float maxi);
-  void setColour(DiPainter* gl, float c) const;
-
-  operator bool() const
-    { return ncl > 0; }
-
-private:
-  const std::vector<Colour>* colours;
-  const std::vector<float>* limits;
-  std::vector<Colour> colours_default;
-  std::vector<float> limits_default;
-  size_t ncl;
-};
-
-void ColourLimits::initialize(const PlotOptions& poptions, float mini, float maxi)
-{
-  METLIBS_LOG_SCOPE();
-  colours = &poptions.colours;
-  limits = &poptions.limits;
-
-  if (colours->size() < 2) {
-    METLIBS_LOG_DEBUG("using default colours");
-    colours_default.push_back(Colour::fromF(0.5, 0.5, 0.5));
-    colours_default.push_back(Colour::fromF(0, 0, 0));
-    colours_default.push_back(Colour::fromF(0, 1, 1));
-    colours_default.push_back(Colour::fromF(1, 0, 0));
-    colours = &colours_default;
-  }
-
-  if (limits->size() < 1) {
-    // default, should be handled when reading setup, if allowed...
-    const int nlim = 3;
-    const float dlim = (maxi - mini) / colours->size();
-    for (int i = 1; i <= nlim; i++) {
-      limits_default.push_back(mini + dlim*i);
-      METLIBS_LOG_DEBUG("using default limit[" << (i-1) << "]=" << limits_default.back());
-    }
-
-    limits = &limits_default;
-  }
-
-  ncl = std::min(colours->size()-1, limits->size());
-  METLIBS_LOG_DEBUG(LOGVAL(ncl));
-}
-
-void ColourLimits::setColour(DiPainter* gl, float c) const
-{
-  if (ncl > 0) {
-    size_t l = 0;
-    while (l < ncl && c > (*limits)[l]) // TODO binary search
-      l++;
-    gl->setColour(colours->at(l), false);
-  }
-}
-
-// ------------------------------------------------------------------------
-
-class RasterGrid : public RasterPlot {
-public:
-  RasterGrid(StaticPlot* staticPlot, const Field* f);
-  void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) override;
-  const PlotArea& rasterPlotArea() override { return staticPlot->plotArea(); }
-  const GridArea& rasterArea() override
-    { return field->area; }
-  virtual void colorizePixel(QRgb& pixel, const diutil::PointI& i) = 0;
-
-protected:
-  StaticPlot* staticPlot;
-  const Field* field;
-};
-
-RasterGrid::RasterGrid(StaticPlot* sp, const Field* f)
-  : staticPlot(sp)
-  , field(f)
-{
-}
-
-inline diutil::PointI rnd(const diutil::PointD& p)
-{
-  const double OX = -0.5, OY = 0.5;
-  return diutil::PointI(int(p.x()+OX), int(p.y()+OY));
-}
-
-void RasterGrid::rasterPixels(int n, const diutil::PointD &xy0, const diutil::PointD &dxy, QRgb* pixels)
-{
-  const int nx = field->area.nx, ny = field->area.ny;
-  const diutil::PointD fxy0(field->area.R().x1, field->area.R().y1);
-  const diutil::PointD res(field->area.resolutionX, field->area.resolutionY);
-  const diutil::PointD step = dxy/res;
-  diutil::PointD ixy = (xy0 - fxy0) / res;
-  diutil::PointI lxy;
-  int li = -1;
-  for (int i=0; i<n; ++i, ixy += step) {
-    const diutil::PointI rxy = rnd(ixy);
-    if (rxy.x()<0 || rxy.x()>=nx || rxy.y()<0 || rxy.y()>=ny)
-      continue;
-    if (li >= 0 && rxy == lxy) {
-      pixels[i] = pixels[li];
-    } else {
-      colorizePixel(pixels[i], rxy);
-      li = i;
-      lxy = rxy;
-    }
-  }
-}
-
-// ------------------------------------------------------------------------
-
-class RasterUndef : public RasterGrid
-{
-public:
-  RasterUndef(StaticPlot* staticPlot, const std::vector<Field*>& f, const PlotOptions& po);
-  void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
-
-private:
-  const std::vector<Field*>& fields;
-  QRgb pixelUndef;
-};
-
-RasterUndef::RasterUndef(StaticPlot* sp, const std::vector<Field*>& f, const PlotOptions& po)
-    : RasterGrid(sp, f.front())
-    , fields(f)
-{
-  const Colour& u = po.undefColour;
-  pixelUndef = qRgba(u.R(), u.G(), u.B(), u.A());
-}
-
-void RasterUndef::colorizePixel(QRgb& pixel, const diutil::PointI& i)
-{
-  const int nx = fields[0]->area.nx;
-  for (size_t k = 0; k < fields.size(); k++) {
-    const float v = fields[k]->data[i.x() + i.y() * nx];
-    if (v == fieldUndef) {
-      pixel = pixelUndef;
-      return;
-    }
-  }
-}
-
-// ------------------------------------------------------------------------
-
-class RasterRGB : public RasterGrid {
-public:
-  RasterRGB(StaticPlot* staticPlot, const std::vector<Field*>& f, const PlotOptions& po);
-  void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
-
-private:
-  const std::vector<Field*>& fields;
-  const PlotOptions& poptions;
-  float value_div[3], value_min[3];
-};
-
-RasterRGB::RasterRGB(StaticPlot* sp, const std::vector<Field*>& f, const PlotOptions& po)
-  : RasterGrid(sp, f.front())
-  , fields(f)
-  , poptions(po)
-{
-  const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
-  for (int k=0; k<3; k++) {
-    float v_min = 0, v_max = 1;
-    if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
-      v_min = poptions.minvalue;
-      v_max = poptions.maxvalue;
-    } else {
-      mini_maxi(fields[k]->data, nx*ny, fieldUndef, v_min, v_max);
-    }
-
-    float c_min = v_min, c_max = v_max;
-    mincut_maxcut(fields[k]->data, nx*ny, fieldUndef, poptions.colourcut, c_min, c_max);
-
-    float v_div = 255 / (v_max - v_min);
-    float c_div = 255 / (c_max - c_min);
-    value_min[k] = v_min + c_min/v_div;
-    value_div[k] = c_div * v_div;
-  }
-}
-
-void RasterRGB::colorizePixel(QRgb& pixel, const diutil::PointI& i)
-{
-  const int nx = fields[0]->area.nx;
-  unsigned char ch[3];
-  for (int k=0; k<3; k++) {
-    const float v0 = fields[k]->data[i.x() + i.y()*nx];
-    if (v0 != fieldUndef) {
-      const long val = std::lround((v0 - value_min[k]) * value_div[k]);
-      const int col = vcross::util::constrain_value(val, 0L, 255L);
-      ch[k] = (unsigned char)col;
-    } else {
-      ch[k]=0;
-    }
-  }
-  pixel = qRgb(ch[0], ch[1], ch[2]);
-}
-
-// ------------------------------------------------------------------------
-
-class RasterAlpha : public RasterGrid {
-public:
-  RasterAlpha(StaticPlot* staticPlot, Field* f, const PlotOptions& po);
-  void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
-
-private:
-  const PlotOptions& poptions;
-  float cmin, cdiv;
-};
-
-RasterAlpha::RasterAlpha(StaticPlot* sp, Field* f, const PlotOptions& po)
-  : RasterGrid(sp, f)
-  , poptions(po)
-{
-  const int nx = field->area.nx, ny = field->area.ny;
-  float cmax = 0;
-  if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
-    cmin = poptions.minvalue;
-    cmax = poptions.maxvalue;
-  } else {
-    mini_maxi(field->data,nx*ny,fieldUndef,cmin,cmax);
-  }
-  cdiv = 255 / (cmax - cmin);
-}
-
-void RasterAlpha::colorizePixel(QRgb& pixel, const diutil::PointI &i)
-{
-  const int nx = field->area.nx;
-  const unsigned char red = poptions.linecolour.R(),
-      green = poptions.linecolour.G(),
-      blue = poptions.linecolour.B();
-  const float value = field->data[i.x() + i.y()*nx];
-  if (value != fieldUndef IF_DEBUG_UNDEF(&& !fake_undefined(i.x(), i.y()))) {
-    unsigned char alpha = (unsigned char)((value - cmin) * cdiv);
-    pixel = qRgba(red, green, blue, alpha);
-  }
-}
-
-// ------------------------------------------------------------------------
-
-class RasterFillCell : public RasterGrid {
-public:
-  RasterFillCell(StaticPlot* staticPlot, Field* f, PlotOptions& po);
-  void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
-
-  const Colour* colourForValue(float value) const;
-
-private:
-  PlotOptions& poptions;
-};
-
-RasterFillCell::RasterFillCell(StaticPlot* sp, Field* f, PlotOptions& po)
-  : RasterGrid(sp, f)
-  , poptions(po)
-{
-  if (poptions.palettecolours.empty())
-    poptions.palettecolours = ColourShading::getColourShading("standard");
-}
-
-void RasterFillCell::colorizePixel(QRgb& pixel, const diutil::PointI &i)
-{
-  const int nx = field->area.nx;
-  const float value = field->data[i.x() + i.y()*nx];
-  const Colour* c = 0;
-  if (value != fieldUndef IF_DEBUG_UNDEF(&& !fake_undefined(i.x(), i.y())))
-    c = colourForValue(value);
-  if (c != 0)
-    pixel = qRgba(c->R(), c->G(), c->B(), poptions.alpha);
-}
-
-const Colour* RasterFillCell::colourForValue(float value) const
-{
-  if (value < poptions.minvalue || value > poptions.maxvalue)
-    return 0;
-
-  const int npalettecolours = poptions.palettecolours.size(),
-      npalettecolours_cold = poptions.palettecolours_cold.size();
-
-  if (poptions.linevalues.empty()) {
-    if (poptions.lineinterval <= 0)
-      return 0;
-    int index = int((value - poptions.base) / poptions.lineinterval);
-    if (value > poptions.base) {
-      if (npalettecolours == 0)
-        return 0;
-      index = diutil::find_index(poptions.repeat, npalettecolours, index);
-      return &poptions.palettecolours[index];
-    } else if (npalettecolours_cold != 0) {
-      index = diutil::find_index(poptions.repeat, npalettecolours_cold, -index);
-      return &poptions.palettecolours_cold[index];
-    } else {
-      if (npalettecolours == 0)
-        return 0;
-      // Use index 0...
-      return &poptions.palettecolours[0];
-    }
-  } else {
-    if (npalettecolours == 0)
-      return 0;
-    std::vector<float>::const_iterator it
-        = std::lower_bound(poptions.linevalues.begin(), poptions.linevalues.end(), value);
-    if (it == poptions.linevalues.begin())
-      return 0;
-    int index = std::min(int(it - poptions.linevalues.begin()), npalettecolours) - 1;
-    return &poptions.palettecolours[index];
-  }
-  return 0;
-}
-
-// ------------------------------------------------------------------------
-
-class RasterAlarmBox : public RasterPlot {
-public:
-  RasterAlarmBox(StaticPlot* staticPlot, Field* f, const PlotOptions& po);
-  void rasterPixels(int, const diutil::PointD&, const diutil::PointD&, QRgb*) override { /* never called */ }
-  void pixelQuad(const diutil::PointI& s, const diutil::PointD& pxy00, const diutil::PointD& pxy10,
-                 const diutil::PointD& pxy01, const diutil::PointD& pxy11, int w) override;
-  const PlotArea& rasterPlotArea() override { return staticPlot->plotArea(); }
-  const GridArea& rasterArea() override
-    { return field->area; }
-
-private:
-  StaticPlot* staticPlot;
-  const Field* field;
-  const PlotOptions& poptions;
-  float vmin, vmax;
-  bool valid;
-  QRgb c_alarm;
-};
-
-RasterAlarmBox::RasterAlarmBox(StaticPlot* sp, Field* f, const PlotOptions& po)
-  : staticPlot(sp)
-  , field(f)
-  , poptions(po)
-  , valid(false)
-{
-  vmin = -fieldUndef;
-  vmax = fieldUndef;
-
-  const std::vector<int>& fcl = poptions.forecastLength;
-
-  const size_t sf = fcl.size(), s1 = poptions.forecastValueMin.size(),
-      s2 = poptions.forecastValueMax.size();
-  METLIBS_LOG_DEBUG(LOGVAL(sf) << LOGVAL(s1) << LOGVAL(s2));
-  if (sf > 1) {
-    const int fc = field->forecastHour;
-    std::vector<int>::const_iterator it = std::lower_bound(fcl.begin(), fcl.end(), fc);
-    if (it == fcl.begin() || it == fcl.end())
-      return;
-    const  int i = (it - fcl.begin());
-    const float r1 = float(fcl[i] - fc) / float(fcl[i] - fcl[i - 1]);
-    const float r2 = 1 - r1;
-    METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(r1) << LOGVAL(r2));
-
-    if (sf == s1)
-      vmin = r1 * poptions.forecastValueMin[i-1] + r2 * poptions.forecastValueMin[i];
-    if (sf == s2)
-      vmax = r1 * poptions.forecastValueMax[i-1] + r2 * poptions.forecastValueMax[i];
-  } else if (sf == 0 && s1 == 0 && s2 == 0) {
-    vmin = poptions.minvalue;
-    vmax = poptions.maxvalue;
-    METLIBS_LOG_DEBUG("no fc values" << LOGVAL(vmin) << LOGVAL(vmax));
-  } else {
-    METLIBS_LOG_ERROR("ERROR in setup!");
-    return;
-  }
-
-  const Colour& ca = poptions.linecolour;
-  c_alarm = qRgba(ca.R(), ca.G(), ca.B(), 255);
-
-  valid = true;
-}
-
-void RasterAlarmBox::pixelQuad(const diutil::PointI &s, const diutil::PointD& pxy00, const diutil::PointD& pxy10,
-                               const diutil::PointD& pxy01, const diutil::PointD& pxy11, int n)
-{
-  // analyse unscaled data!
-  // FIXME box is too large
-
-  QRgb* pixels = RasterPlot::pixels(s);
-  const int nx = field->area.nx, ny = field->area.ny;
-  const QRgb c_ok = 0;
-
-  const diutil::PointD pdxy0 = (pxy10-pxy00)/n;
-  const diutil::PointD pdxy1 = (pxy11-pxy01)/n;
-
-  const diutil::PointD fxy0(field->area.R().x1, field->area.R().y1);
-  const diutil::PointD resi = 1.0 / diutil::PointD(field->area.resolutionX, field->area.resolutionY);
-  for (int i=0; i<n; ++i) {
-    const diutil::PointD c00 = (pxy00+pdxy0*i - fxy0) * resi;
-    const diutil::PointD c10 = (pxy00+pdxy0*(i+1) - fxy0) * resi;
-    const diutil::PointD c01 = (pxy01+pdxy1*i - fxy0) * resi;
-    const diutil::PointD c11 = (pxy01+pdxy1*(i+1) - fxy0) * resi;
-
-    const float SAFETY = 0.1f;
-    int ix_min = int(c00.x()-SAFETY);
-    vcross::util::minimize(ix_min, int(c10.x()-SAFETY));
-    vcross::util::minimize(ix_min, int(c01.x()-SAFETY));
-    vcross::util::minimize(ix_min, int(c11.x()-SAFETY));
-    int ix_max = int(c00.x()+SAFETY);
-    vcross::util::maximize(ix_max, int(c10.x()+SAFETY));
-    vcross::util::maximize(ix_max, int(c01.x()+SAFETY));
-    vcross::util::maximize(ix_max, int(c11.x()+SAFETY));
-
-    int iy_min = int(c00.y()-SAFETY);
-    vcross::util::minimize(iy_min, int(c10.y()-SAFETY));
-    vcross::util::minimize(iy_min, int(c01.y()-SAFETY));
-    vcross::util::minimize(iy_min, int(c11.y()-SAFETY));
-    int iy_max = int(c00.y()+SAFETY);
-    vcross::util::maximize(iy_max, int(c10.y()+SAFETY));
-    vcross::util::maximize(iy_max, int(c01.y()+SAFETY));
-    vcross::util::maximize(iy_max, int(c11.y()+SAFETY));
-
-    vcross::util::maximize(ix_min, 0);
-    vcross::util::minimize(ix_max, nx-1);
-    vcross::util::maximize(iy_min, 0);
-    vcross::util::minimize(iy_max, ny-1);
-
-    bool is_alarm = false;
-    // this box is a square in the field projection, but we need only the points
-    // inside pxy00..pxy11
-    for (int iyy = iy_min; !is_alarm && iyy <= iy_max; ++iyy) {
-      for (int ixx = ix_min; !is_alarm && ixx <= ix_max; ++ixx) {
-        const float v = field->data[ixx + iyy*nx];
-        if (v != fieldUndef && v >= vmin && v <= vmax)
-          is_alarm = true;
-      }
-    }
-    pixels[i] = is_alarm ? c_alarm : c_ok;
-  }
-}
-
-} // namespace
 
 // ========================================================================
 
@@ -1427,10 +917,10 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
     plotFrame(gl, nx, ny, x, y);
   }
 
-  ColourLimits colours;
+  diutil::ColourLimits colours;
   if (fields.size() == 3 && fields[2] && fields[2]->data) {
     float mini, maxi;
-    if (!mini_maxi(fields[2]->data, nx * ny, fieldUndef, mini, maxi))
+    if (!diutil::mini_maxi(fields[2]->data, nx * ny, fieldUndef, mini, maxi))
       return false;
     colours.initialize(poptions, mini, maxi);
   }
@@ -2279,10 +1769,10 @@ bool FieldPlot::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
     plotFrame(gl, nx, ny, x, y);
   }
 
-  ColourLimits colours;
+  diutil::ColourLimits colours;
   if (colourfield) {
     float mini, maxi;
-    if (!mini_maxi(colourfield, nx * ny, fieldUndef, mini, maxi))
+    if (!diutil::mini_maxi(colourfield, nx * ny, fieldUndef, mini, maxi))
       return false;
     colours.initialize(poptions, mini, maxi);
   }
@@ -2764,17 +2254,17 @@ bool FieldPlot::plotRaster(DiGLPainter* gl)
   QImage target;
   if (plottype() == fpt_rgb) {
     if (checkFields(3)) {
-      RasterRGB raster(getStaticPlot(), fields, poptions);
+      RasterRGB raster(getStaticPlot()->plotArea(), fields, poptions);
       target = raster.rasterPaint();
     }
   } else if (plottype() == fpt_alpha_shade) {
-    RasterAlpha raster(getStaticPlot(), fields[0], poptions);
+    RasterAlpha raster(getStaticPlot()->plotArea(), fields[0], poptions);
     target = raster.rasterPaint();
   } else if (plottype() == fpt_fill_cell) {
-    RasterFillCell raster(getStaticPlot(), fields[0], poptions);
+    RasterFillCell raster(getStaticPlot()->plotArea(), fields[0], poptions);
     target = raster.rasterPaint();
   } else if (plottype() == fpt_alarm_box) {
-    RasterAlarmBox raster(getStaticPlot(), fields[0], poptions);
+    RasterAlarmBox raster(getStaticPlot()->plotArea(), fields[0], poptions);
     target = raster.rasterPaint();
   }
   if (!target.isNull())
@@ -3214,7 +2704,7 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   }
 
   if (praster) {
-    RasterUndef raster(getStaticPlot(), fields, poptions);
+    RasterUndef raster(getStaticPlot()->plotArea(), fields, poptions);
     QImage target = raster.rasterPaint();
     if (!target.isNull())
       gl->drawScreenImage(QPointF(0, 0), target);
@@ -3235,7 +2725,7 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   if (ix1 >= nx_fld || ix2 < 0 || iy1 >= ny_fld || iy2 < 0)
     return false;
 
-  const is_undef undef_f0(fields[0]->data, nx_fld);
+  const diutil::is_undef undef_f0(fields[0]->data, nx_fld);
 
   const Colour undefC = getStaticPlot()->notBackgroundColour(poptions.undefColour);
 
