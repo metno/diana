@@ -51,7 +51,6 @@ struct BdianaVprof : public BdianaSource
   miutil::miTime getTime() override;
   void setTime(const miutil::miTime& time) override;
 
-  std::vector<std::string> stations;
   PlotCommand_cpv vprof_options;
 
   std::unique_ptr<VprofManager> manager;

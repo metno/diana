@@ -1195,11 +1195,6 @@ int Bdiana::handlePlotCommand(int& k)
 
     set_ptime(vprof);
 
-    if (verbose)
-      METLIBS_LOG_INFO("- setting station:" << vprof.stations.size());
-    if (vprof.stations.size())
-      vprof.manager->setStations(vprof.stations);
-
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
 
