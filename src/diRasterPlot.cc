@@ -46,12 +46,12 @@ QImage RasterPlot::rasterPaint()
 {
   METLIBS_LOG_SCOPE();
 
-  StaticPlot* sp = rasterStaticPlot();
-  const diutil::PointI& size = sp->getPhysSize();
+  const PlotArea& pa = rasterPlotArea();
+  const diutil::PointI& size = pa.getPhysSize();
   cached_ = QImage(size.x(), size.y(), QImage::Format_ARGB32);
   cached_.fill(Qt::transparent);
 
-  GridReprojection::instance()->reproject(size, sp->getPlotSize(), sp->getMapArea().P(), rasterArea().P(), *this);
+  GridReprojection::instance()->reproject(size, pa.getPlotSize(), pa.getMapArea().P(), rasterArea().P(), *this);
   return cached_;
 }
 

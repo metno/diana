@@ -348,8 +348,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
         plotWind(gl, i, x, y);
       } else {
         h = ig.height_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleY();
-        if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image, x, y, true, stations[i]->scale,
-            stations[i]->alpha))
+        if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x, y, true, stations[i]->scale, stations[i]->alpha))
           plotted = false;
       }
       if (stations[i]->isSelected && stations[i]->image != "wind")
@@ -363,22 +362,20 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       float w2 = ig.width_(stations[i]->image2);
       gl->Color3ub(128, 128, 128); //grey
       glPlot(gl, Station::noStatus, x, y);
-      if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image, x - w1 / 2, y, true, stations[i]->scale,
-          stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x - w1 / 2, y, true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
-      if (!ig.plotImage(gl, getStaticPlot(), stations[i]->image2, x + w2 / 2, y, true, stations[i]->scale,
-          stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image2, x + w2 / 2, y, true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
       if (stations[i]->isSelected)
         gl->Color3ub(255, 0, 0); //red
       glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
-      if (!ig.plotImage(gl, getStaticPlot(), imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
       h = ig.height_(imageNormal) * getStaticPlot()->getPhysToMapScaleY();
     } else if (stations[i]->isSelected && !imageSelected.empty()) {
-      if (!ig.plotImage(gl, getStaticPlot(), imageSelected, x, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageSelected, x, y, true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
       h = ig.height_(imageSelected) * getStaticPlot()->getPhysToMapScaleY();
     } else {

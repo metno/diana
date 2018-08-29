@@ -27,9 +27,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include "diStaticPlot.h"
+
+#include "diana_config.h"
 
 #include "diField/VcrossUtil.h"
 #include "diGLPainter.h"
@@ -41,10 +41,7 @@
 GridConverter StaticPlot::gc; // Projection-converter
 
 StaticPlot::StaticPlot()
-    : mapborder(0)
-    , mPhys(0, 0) // physical plot size
-    , mPhysToMapScale(1, 1)
-    , dirty(true)       // plotsize has changed
+    : dirty(true)       // plotsize has changed
     , verticalLevel(-1) // current vertical level
     , gcd(0)            // great circle distance (corner to corner)
     , panning(false)    // panning in progress
@@ -69,64 +66,21 @@ const Colour& StaticPlot::notBackgroundColour(const Colour& c) const
     return c;
 }
 
-void StaticPlot::setMapArea(const Area& a)
+float StaticPlot::getPhysDiagonal() const
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_INFO(LOGVAL(a));
-  if (!a.P().isDefined())
-    return;
-
-  // change plot-Area
-  area = a;
-  PlotAreaSetup();
+  return diutil::absval(getPhysWidth(), getPhysHeight());
 }
 
-inline float oneIf0(float f)
+void StaticPlot::setMapArea(const Area& area)
 {
-  return (f <= 0) ? 1 : f;
-}
-
-void StaticPlot::updatePhysToMapScale()
-{
-  mPhysToMapScale = XY(oneIf0(plotsize.width()) / oneIf0(mPhys.x()), oneIf0(plotsize.height()) / oneIf0(mPhys.y()));
-}
-
-void StaticPlot::PlotAreaSetup()
-{
-  METLIBS_LOG_SCOPE();
+  pa_.setMapArea(area);
   setDirty(true);
-  if (!hasPhysSize())
-    return;
-
-  const Rectangle& mapr = getMapArea().R();
-
-  const float waspr = getPhysWidth() / float(getPhysHeight());
-  const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
-
-  // update full plot area -- add border
-  const Rectangle pr = diutil::adjustedRectangle(mr, mapborder, mapborder);
-
-  if (plotsize != pr) {
-    plotsize = pr;
-    updatePhysToMapScale();
-    setDirty(true);
-  }
-  if (mapsize != mr) {
-    mapsize = mr;
-    setDirty(true);
-  }
 }
 
 void StaticPlot::setPhysSize(int w, int h)
 {
-  mPhys = diutil::PointI(w, h);
-  updatePhysToMapScale();
-  PlotAreaSetup();
-}
-
-float StaticPlot::getPhysDiagonal() const
-{
-  return diutil::absval(getPhysWidth(), getPhysHeight());
+  pa_.setPhysSize(w, h);
+  setDirty(true);
 }
 
 Area StaticPlot::findBestMatch(const Area& newa)
@@ -134,6 +88,7 @@ Area StaticPlot::findBestMatch(const Area& newa)
   if (!getMapProjection().isDefined())
     return newa;
 
+  const Area& area = pa_.getMapArea();
   if (getMapProjection() == newa.P())
     return area;
 
@@ -167,7 +122,7 @@ void StaticPlot::setDirty(bool f)
 
 void StaticPlot::updateGcd(DiGLPainter* gl)
 {
-  gl->setVpGlSize(mPhys.x(), mPhys.y(), plotsize.width(), plotsize.height());
+  gl->setVpGlSize(getPhysWidth(), getPhysHeight(), pa_.getPlotSize().width(), pa_.getPlotSize().height());
 
   // lat3,lon3, point where ratio between window scale and geographical scale
   // is computed, set to Oslo coordinates, can be changed according to area
@@ -222,7 +177,7 @@ XY StaticPlot::MapToGeo(const XY& map) const
 bool StaticPlot::PhysToGeo(float x, float y, float& lat, float& lon) const
 {
   bool ret = false;
-  if (hasPhysSize()) {
+  if (pa_.hasPhysSize()) {
     PhysToMap(x, y, lon, lat);
     ret = MapToGeo(1, &lon, &lat);
   }
@@ -232,27 +187,11 @@ bool StaticPlot::PhysToGeo(float x, float y, float& lat, float& lon) const
 bool StaticPlot::GeoToPhys(float lat, float lon, float& x, float& y) const
 {
   bool ret = false;
-  if (hasPhysSize()) {
+  if (pa_.hasPhysSize()) {
     ret = GeoToMap(1, &lon, &lat);
     MapToPhys(lon, lat, x, y);
   }
   return ret;
-}
-
-XY StaticPlot::PhysToMap(const XY& phys) const
-{
-  if (hasPhysSize())
-    return phys * mPhysToMapScale + XY(getPlotSize().x1, getPlotSize().y1);
-  else
-    return phys;
-}
-
-XY StaticPlot::MapToPhys(const XY& map) const
-{
-  if (hasPhysSize())
-    return (map - XY(getPlotSize().x1, getPlotSize().y1)) / mPhysToMapScale;
-  else
-    return map;
 }
 
 bool StaticPlot::ProjToMap(const Projection& srcProj, int n, float* x, float* y) const

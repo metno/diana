@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,14 +39,14 @@
 #include <boost/shared_array.hpp>
 
 class DiPainter;
-class StaticPlot;
+class PlotArea;
 
 class RasterPlot : protected GridReprojectionCB {
 protected:
   RasterPlot();
   virtual ~RasterPlot();
 
-  virtual StaticPlot* rasterStaticPlot() = 0;
+  virtual const PlotArea& rasterPlotArea() = 0;
   virtual const GridArea& rasterArea() = 0;
   virtual void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) = 0;
 

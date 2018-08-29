@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -29,8 +29,8 @@
 #ifndef _diImageGallery_h
 #define _diImageGallery_h
 
-#include "diPlot.h"
 #include "diGLPainter.h"
+#include "diPlotArea.h"
 
 #include <QPolygonF>
 
@@ -38,7 +38,7 @@
 #include <string>
 #include <vector>
 
-class StaticPlot;
+class PlotArea;
 
 /**
    \brief image cache and OpenGl plotting
@@ -101,11 +101,9 @@ private:
   static std::map<std::string,pattern> Patterns;
   static std::map< int, std::vector<std::string> > Type;
 
-  bool plotImage_(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
-      float gx, float gy, float scalex, float scaley, int alpha);
+  bool plotImage_(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float gx, float gy, float scalex, float scaley, int alpha);
 
-  bool plotMarker_(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
-      float x, float y, float scale);
+  bool plotMarker_(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float x, float y, float scale);
 
   bool readImage(const std::string& name);
   bool readImage(image& name); //read data from file once
@@ -143,20 +141,15 @@ public:
   int   heightp(const std::string& name);
 
   /// plot one image at gl-pos
-  bool plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
-      float x, float y, bool center = true, float scale = 1.0, int alpha = 255);
+  bool plotImage(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float x, float y, bool center = true, float scale = 1.0, int alpha = 255);
   /// plot several images at gl-positions (different images)
-  bool plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
-      const std::vector<std::string>& vn,
-      const float* x, const float* y,
-      bool center = true, float scale = 1.0, int alpha = 255);
+  bool plotImages(DiGLPainter* gl, const PlotArea& pa, const int n, const std::vector<std::string>& vn, const float* x, const float* y, bool center = true,
+                  float scale = 1.0, int alpha = 255);
   /// plot several images at gl-positions (same image)
-  bool plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
-      const std::string& name, const float* x, const float* y,
-      bool center = true, float scale = 1.0, int alpha = 255);
+  bool plotImages(DiGLPainter* gl, const PlotArea& pa, const int n, const std::string& name, const float* x, const float* y, bool center = true,
+                  float scale = 1.0, int alpha = 255);
   /// plot one image at pixel-pos
-  bool plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
-      float x, float y, bool center = true, float scale = 1.0, int alpha = 255);
+  bool plotImageAtPixel(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float x, float y, bool center = true, float scale = 1.0, int alpha = 255);
   void printInfo() const;
   /// return all image-names of one type
   void ImageNames(std::vector<std::string>& vnames, int type) const;

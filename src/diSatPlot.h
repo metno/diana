@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +33,7 @@
 
 #include "diRasterPlot.h"
 #include "diSat.h"
+#include "diStaticPlot.h"
 
 /**
   \brief Plot satellite and radar images
@@ -64,8 +65,7 @@ public:
   void setSatAuto(bool, const std::string&, const std::string&);
 
 protected:
-  StaticPlot* rasterStaticPlot() override
-    { return getStaticPlot(); }
+  const PlotArea& rasterPlotArea() override { return getStaticPlot()->plotArea(); }
   const GridArea& rasterArea() override
     { return satdata->area; }
 

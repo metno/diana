@@ -212,8 +212,7 @@ class RasterGrid : public RasterPlot {
 public:
   RasterGrid(StaticPlot* staticPlot, const Field* f);
   void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) override;
-  StaticPlot* rasterStaticPlot() override
-    { return staticPlot; }
+  const PlotArea& rasterPlotArea() override { return staticPlot->plotArea(); }
   const GridArea& rasterArea() override
     { return field->area; }
   virtual void colorizePixel(QRgb& pixel, const diutil::PointI& i) = 0;
@@ -465,8 +464,7 @@ public:
   void rasterPixels(int, const diutil::PointD&, const diutil::PointD&, QRgb*) override { /* never called */ }
   void pixelQuad(const diutil::PointI& s, const diutil::PointD& pxy00, const diutil::PointD& pxy10,
                  const diutil::PointD& pxy01, const diutil::PointD& pxy11, int w) override;
-  StaticPlot* rasterStaticPlot() override
-    { return staticPlot; }
+  const PlotArea& rasterPlotArea() override { return staticPlot->plotArea(); }
   const GridArea& rasterArea() override
     { return field->area; }
 
@@ -1598,8 +1596,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
         if (!classImages.empty()) { //plot symbol
           std::map<int, std::string>::const_iterator it = classImages.find(int(value));
           if (it != classImages.end()) {
-            ig.plotImage(gl, getStaticPlot(), it->second, gx, gy, true,
-                poptions.labelSize * 0.25);
+            ig.plotImage(gl, getStaticPlot()->plotArea(), it->second, gx, gy, true, poptions.labelSize * 0.25);
           }
         } else { // plot value
           QString ost;

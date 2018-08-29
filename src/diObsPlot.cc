@@ -1279,7 +1279,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   //Plot markers only
   if (onlypos) {
     ImageGallery ig;
-    ig.plotImages(gl, getStaticPlot(), numObs, image, x, y, true, markerSize);
+    ig.plotImages(gl, getStaticPlot()->plotArea(), numObs, image, x, y, true, markerSize);
     return;
   }
 
@@ -1863,9 +1863,9 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       const std::string& thatImage = it->second;
       xShift = ig.widthp(thatImage) / 2;
       yShift = ig.heightp(thatImage) / 2;
-      ig.plotImage(gl, getStaticPlot(), thatImage, x[index], y[index], true, thisMarkerSize);
+      ig.plotImage(gl, getStaticPlot()->plotArea(), thatImage, x[index], y[index], true, thisMarkerSize);
     } else {
-      ig.plotImage(gl, getStaticPlot(), thisImage, x[index], y[index], true, thisMarkerSize);
+      ig.plotImage(gl, getStaticPlot()->plotArea(), thisImage, x[index], y[index], true, thisMarkerSize);
     }
   }
 

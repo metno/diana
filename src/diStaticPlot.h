@@ -26,14 +26,15 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef diStaticPlot_h
 #define diStaticPlot_h
 
-#include "diColour.h"
-#include "diPoint.h"
+#include "diPlotArea.h"
 
-#include <diField/diArea.h>
-#include <diField/diGridConverter.h>
+#include "diColour.h"
+#include "diField/diGridConverter.h"
+
 #include <puTools/miTime.h>
 
 class DiGLPainter;
@@ -44,14 +45,9 @@ class DiGLPainter;
 class StaticPlot
 {
 private:
-  Area area;                 // Projection and size of current grid
+  PlotArea pa_;
   Area requestedarea;        // Projection and size of requested grid
-  Rectangle mapsize;         //!< size of map plot area, excluding \ref mapborder \see getMapSize()
-  Rectangle plotsize;        //!< size of the plot area, including \ref mapborder \see getPlotSize()
-  float mapborder;           //!< size of border outside mapsize (\ref mapsize + \ref mapborder = \ref plotsize)
   miutil::miTime ctime;      // current time
-  diutil::PointI mPhys;      // physical size of plotarea
-  XY mPhysToMapScale;        // ratio of plot size to physical size
   bool dirty;                // plotarea has changed
   int verticalLevel;         // current vertical level
   Colour backgroundColour;   // background colour
@@ -67,11 +63,13 @@ public:
   StaticPlot();
   ~StaticPlot();
 
+  const PlotArea& plotArea() const { return pa_; }
+
   //! Return current area on map.
   /*! Note: the rectangle is not the visible map area, which is available via getPlotSize().
    * \see getMapSize() getPlotSize()
    */
-  const Area& getMapArea() const { return area; }
+  const Area& getMapArea() const { return pa_.getMapArea(); }
 
   //! Get current projection of map.
   /*! \see getMapArea()
@@ -79,7 +77,7 @@ public:
   const Projection& getMapProjection() const { return getMapArea().P(); }
 
   /// set area
-  void setMapArea(const Area&);
+  void setMapArea(const Area& area);
 
   /// with a new projection: find the best matching physical area with the current one
   Area findBestMatch(const Area&);
@@ -99,8 +97,8 @@ public:
   void PhysToMap(float x, float y, float& xmap, float& ymap) const { PhysToMap(XY(x, y)).unpack(xmap, ymap); }
   void MapToPhys(float xmap, float ymap, float& x, float& y) const { MapToPhys(XY(xmap, ymap)).unpack(x, y); }
 
-  XY PhysToMap(const XY& phys) const;
-  XY MapToPhys(const XY& map) const;
+  XY PhysToMap(const XY& phys) const { return pa_.PhysToMap(phys); }
+  XY MapToPhys(const XY& map) const { return pa_.MapToPhys(map); }
 
   /// convert from geographic coordinates in lon-lat degrees to map xy
   bool GeoToMap(int n, float* x, float* y) const;
@@ -135,35 +133,35 @@ public:
   //! Get the size of the map plot area / data grid, excluding \ref mapborder, in coordinates of getMapProjection().
   /*! This is the rectangle from getMapArea() extended to the aspect ratio of getPhysSize().
    */
-  const Rectangle& getMapSize() const { return mapsize; }
+  const Rectangle& getMapSize() const { return pa_.getMapSize(); }
 
   //! Get the size of the border of the map in units of getMapProjection() coordinates .
   /*! Note: this is projection dependent and thus not very useful.
    */
-  float getMapBorder() const { return mapborder; }
+  float getMapBorder() const { return pa_.getMapBorder(); }
 
   //! Get the full size of the plot, including \ref mapborder, in coordinates of getMapProjection().
   /*! This is the rectangle from getMapSize() extended by \ref getMapBorder().
    */
-  const Rectangle& getPlotSize() const { return plotsize; }
+  const Rectangle& getPlotSize() const { return pa_.getPlotSize(); }
 
-  const XY& getPhysToMapScale() const { return mPhysToMapScale; }
+  const XY& getPhysToMapScale() const { return pa_.getPhysToMapScale(); }
 
-  float getPhysToMapScaleX() const { return mPhysToMapScale.x(); }
+  float getPhysToMapScaleX() const { return pa_.getPhysToMapScale().x(); }
 
-  float getPhysToMapScaleY() const { return mPhysToMapScale.y(); }
+  float getPhysToMapScaleY() const { return pa_.getPhysToMapScale().y(); }
 
   /// set the physical size of the map in pixels
   void setPhysSize(int w, int h);
 
   /// this is  the physical size of the map in pixels
-  bool hasPhysSize() const { return mPhys.x() > 0 && mPhys.y() > 0; }
+  bool hasPhysSize() const { return pa_.hasPhysSize(); }
 
-  int getPhysWidth() const { return mPhys.x(); }
+  int getPhysWidth() const { return pa_.getPhysSize().x(); }
 
-  int getPhysHeight() const { return mPhys.y(); }
+  int getPhysHeight() const { return pa_.getPhysSize().y(); }
 
-  const diutil::PointI& getPhysSize() const { return mPhys; }
+  const diutil::PointI& getPhysSize() const { return pa_.getPhysSize(); }
 
   float getPhysDiagonal() const;
 
@@ -211,10 +209,6 @@ public:
   /*! \return true if currently panning
    */
   bool isPanning() { return panning; }
-
-private:
-  void updatePhysToMapScale();
-  void PlotAreaSetup();
 };
 
 #endif // diStaticPlot_h

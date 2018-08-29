@@ -408,12 +408,10 @@ bool ImageGallery::delPattern(const std::string& name)
   return true;
 }
 
-bool ImageGallery::plotImage_(DiGLPainter* gl, StaticPlot* sp,
-    const std::string& name, float gx, float gy,
-    float scalex, float scaley, int alpha)
+bool ImageGallery::plotImage_(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float gx, float gy, float scalex, float scaley, int alpha)
 {
   METLIBS_LOG_SCOPE();
-  if (!sp->getPlotSize().isinside(gx, gy)) // FIXME should care about width + height
+  if (!pa.getPlotSize().isinside(gx, gy)) // FIXME should care about width + height
     return true;
 
   std::map<std::string,image>::const_iterator it = Images.find(name);
@@ -459,11 +457,10 @@ bool ImageGallery::plotImage_(DiGLPainter* gl, StaticPlot* sp,
   return true;
 }
 
-bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
-    const std::string& name, float x, float y, float scale)
+bool ImageGallery::plotMarker_(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float x, float y, float scale)
 {
   METLIBS_LOG_SCOPE(LOGVAL(name));
-  if (!sp->getPlotSize().isinside(x, y)) // FIXME should care about width + height
+  if (!pa.getPlotSize().isinside(x, y)) // FIXME should care about width + height
     return true;
 
   std::map<std::string,image>::const_iterator it = Images.find(name);
@@ -476,7 +473,7 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, StaticPlot* sp,
   if (!im.line.empty()) {
     diutil::GlMatrixPushPop pushpop(gl);
     gl->Translatef(x,y,0.0);
-    float Scalex= scale*sp->getPhysToMapScaleX()*0.7f;
+    float Scalex = scale * pa.getPhysToMapScale().x() * 0.7f;
     float Scaley= Scalex;
     gl->Scalef(Scalex,Scaley,0.0);
 
@@ -568,8 +565,7 @@ bool ImageGallery::readFile(const std::string& name, const std::string& filename
   return !lines.empty();
 }
 
-bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string& name,
-    float x, float y, bool center, float scale, int alpha)
+bool ImageGallery::plotImage(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float x, float y, bool center, float scale, int alpha)
 {
   METLIBS_LOG_SCOPE();
   if(!readImage(name))
@@ -583,7 +579,7 @@ bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string&
   const image& im = it->second;
 
   if(im.type == marker)
-    return plotMarker_(gl, sp, name, x, y, scale);
+    return plotMarker_(gl, pa, name, x, y, scale);
 
   if (im.data==0) {
     METLIBS_LOG_ERROR("no image-data:" << name);
@@ -597,8 +593,8 @@ bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string&
 
   if (center){
     // center image on x,y: find scale
-    float sx= sp->getPhysToMapScaleX() * 0.5f;
-    float sy= sp->getPhysToMapScaleY() * 0.5f;
+    float sx = pa.getPhysToMapScale().x() * 0.5f;
+    float sy = pa.getPhysToMapScale().y() * 0.5f;
     gx-= nx*sx*scale;
     gy-= ny*sy*scale;
   }
@@ -611,7 +607,7 @@ bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string&
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
   gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);
 
-  bool res= plotImage_(gl, sp, name, gx, gy, scalex, scaley, alpha);
+  bool res = plotImage_(gl, pa, name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);
@@ -623,11 +619,8 @@ bool ImageGallery::plotImage(DiGLPainter* gl, StaticPlot* sp, const std::string&
   return res;
 }
 
-
-bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
-    const vector<std::string>& vn,
-    const float* x, const float* y,
-    bool center, float scale, int alpha)
+bool ImageGallery::plotImages(DiGLPainter* gl, const PlotArea& pa, int n, const vector<std::string>& vn, const float* x, const float* y, bool center,
+                              float scale, int alpha)
 {
   METLIBS_LOG_SCOPE();
   if (n == 0){
@@ -643,8 +636,8 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
   int ny = 0;
   float scalex=scale, scaley=scale;
   std::string oldname;
-  float sx= scale*0.5f*sp->getPhysToMapScaleX();
-  float sy= scale*0.5f*sp->getPhysToMapScaleY();
+  float sx = scale * 0.5f * pa.getPhysToMapScale().x();
+  float sy = scale * 0.5f * pa.getPhysToMapScale().y();
 
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
@@ -665,7 +658,7 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
       return false;
 
     if (im.type == marker) {
-      plotMarker_(gl, sp, vn[j], x[j], y[j], scale);
+      plotMarker_(gl, pa, vn[j], x[j], y[j], scale);
       continue;
     }
 
@@ -687,7 +680,7 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
       gy-= ny*sy;
     }
 
-    plotImage_(gl, sp, vn[j], gx, gy, scalex, scaley, alpha);
+    plotImage_(gl, pa, vn[j], gx, gy, scalex, scaley, alpha);
     oldname = vn[j];
   }
 
@@ -701,10 +694,8 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, int n,
   return true;
 }
 
-bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
-    const std::string& name,
-    const float* x, const float* y,
-    bool center, float scale, int alpha)
+bool ImageGallery::plotImages(DiGLPainter* gl, const PlotArea& pa, const int n, const std::string& name, const float* x, const float* y, bool center,
+                              float scale, int alpha)
 {
   METLIBS_LOG_SCOPE();
   if(!readImage(name))
@@ -716,13 +707,10 @@ bool ImageGallery::plotImages(DiGLPainter* gl, StaticPlot* sp, const int n,
   }
 
   const std::vector<std::string> vn(n, name);
-  return plotImages(gl, sp, n, vn, x, y, center, scale, alpha);
+  return plotImages(gl, pa, n, vn, x, y, center, scale, alpha);
 }
 
-
-bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
-    const std::string& name, float x, float y,
-    bool center, float scale, int alpha)
+bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, const PlotArea& pa, const std::string& name, float x, float y, bool center, float scale, int alpha)
 {
   METLIBS_LOG_SCOPE();
   if(!readImage(name))
@@ -736,7 +724,7 @@ bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
   const image& im = it->second;
 
   if(im.type == marker)
-    return plotMarker_(gl, sp, name, x, y, scale);
+    return plotMarker_(gl, pa, name, x, y, scale);
 
   if (im.data==0) {
     METLIBS_LOG_ERROR("no image-data:" << name);
@@ -754,7 +742,7 @@ bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
     gy-=  ny*scale/2;
   }
 
-  sp->PhysToMap(XY(gx, gy)).unpack(gx, gy);
+  pa.PhysToMap(XY(gx, gy)).unpack(gx, gy);
 
   gl->Enable(DiGLPainter::gl_BLEND);
   gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
@@ -764,7 +752,7 @@ bool ImageGallery::plotImageAtPixel(DiGLPainter* gl, StaticPlot* sp,
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_PIXELS,0);
   gl->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH,nx);
 
-  bool res= plotImage_(gl, sp, name, gx, gy, scalex, scaley, alpha);
+  bool res = plotImage_(gl, pa, name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
   gl->PixelStorei(DiGLPainter::gl_UNPACK_SKIP_ROWS,0);

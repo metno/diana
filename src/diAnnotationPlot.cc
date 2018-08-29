@@ -641,8 +641,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       float scale = e.eSize * scaleFactor;
       hei = ig.height_(e.eImage) * getStaticPlot()->getPhysToMapScaleY() * scale;
       wid = ig.width_(e.eImage) * getStaticPlot()->getPhysToMapScaleX() * scale;
-      ig.plotImage(gl, getStaticPlot(), e.eImage, x + wid / 2, y + hei / 2, true, scale,
-          e.eAlpha);
+      ig.plotImage(gl, getStaticPlot()->plotArea(), e.eImage, x + wid / 2, y + hei / 2, true, scale, e.eAlpha);
     } else if (e.eType == table) {
       hei = e.classplot->height(gl);
       if (poptions.v_align == align_top)

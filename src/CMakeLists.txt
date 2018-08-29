@@ -150,6 +150,7 @@ SET (LIBDIANA_SOURCES
   diPainter.cc
   diPattern.cc
   diPlot.cc
+  diPlotArea.cc
   diPlotCluster.cc
   diPlotCommand.cc
   diPlotCommandFactory.cc
