@@ -149,11 +149,11 @@ void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
   }
 }
 
-void MeasurementsPlot::plot(DiGLPainter* gl, Plot::PlotOrder porder)
+void MeasurementsPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!isEnabled() || porder != LINES)
+  if (!isEnabled() || porder != PO_LINES)
     return;
 
   if (needReprojection)

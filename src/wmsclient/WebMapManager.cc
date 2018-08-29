@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -25,7 +25,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 #include "WebMapManager.h"
 
@@ -206,7 +206,7 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
   std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
   float style_alpha_offset = 0, style_alpha_scale = 1;
   bool style_grey = false;
-  Plot::PlotOrder plotorder = Plot::LINES;
+  PlotOrder plotorder = PO_LINES;
   for (const miutil::KeyValue& kv : qmstring->all()) {
     const std::string& key = kv.key();
     const std::string& value = kv.value();
@@ -222,15 +222,15 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
       plot->setTimeOffset(miutil::to_int(value));
     } else if (key == "webmap.zorder") {
       if (value == "background")
-        plotorder = Plot::BACKGROUND;
+        plotorder = PO_BACKGROUND;
       else if (value == "shade_background")
-        plotorder = Plot::SHADE_BACKGROUND;
+        plotorder = PO_SHADE_BACKGROUND;
       else if (value == "shade")
-        plotorder = Plot::SHADE;
+        plotorder = PO_SHADE;
       else if (value == "lines_background")
-        plotorder = Plot::LINES_BACKGROUND;
+        plotorder = PO_LINES_BACKGROUND;
       else
-        plotorder = Plot::LINES;
+        plotorder = PO_LINES;
     } else if (key == "style.alpha_scale") {
       style_alpha_scale = miutil::to_float(value);
     } else if (key == "style.alpha_offset") {
@@ -268,7 +268,7 @@ void WebMapManager::addMap(WebMapPlot* plot)
   webmaps.push_back(plot);
 }
 
-void WebMapManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
+void WebMapManager::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
   for (size_t i = 0; i < webmaps.size(); i++)

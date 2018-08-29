@@ -242,7 +242,7 @@ void SatManager::getDataAnnotations(std::vector<std::string>& anno)
     vsp[j]->getAnnotations(anno);
 }
 
-void SatManager::plot(DiGLPainter* gl, Plot::PlotOrder porder)
+void SatManager::plot(DiGLPainter* gl, PlotOrder porder)
 {
   for (size_t i = 0; i < vsp.size(); i++)
     vsp[i]->plot(gl, porder);

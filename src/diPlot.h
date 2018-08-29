@@ -30,11 +30,12 @@
 #define diPlot_h
 
 #include "diColour.h"
-#include "diPoint.h"
+#include "diField/diArea.h"
+#include "diField/diGridConverter.h"
 #include "diPlotOptions.h"
+#include "diPlotOrder.h"
+#include "diPoint.h"
 
-#include <diField/diArea.h>
-#include <diField/diGridConverter.h>
 #include <puTools/miTime.h>
 
 #include <vector>
@@ -54,15 +55,6 @@ public:
   bool operator==(const Plot &rhs) const;
 
   StaticPlot* getStaticPlot() const;
-
-  enum PlotOrder {
-    BACKGROUND,
-    SHADE_BACKGROUND,
-    SHADE,
-    LINES_BACKGROUND,
-    LINES,
-    OVERLAY
-  };
 
   virtual void setCanvas(DiCanvas* canvas);
 

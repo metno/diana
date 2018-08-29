@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -212,7 +212,7 @@ public:
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }
-  void plot(DiGLPainter* gl, Plot::PlotOrder porder, bool showinfluence);
+  void plot(DiGLPainter* gl, PlotOrder porder, bool showinfluence);
   bool getAnnotations(std::vector<std::string>& anno);
 };
 

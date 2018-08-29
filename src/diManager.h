@@ -69,8 +69,7 @@ public:
     { return mCanvas; }
 
   virtual void plot(DiGLPainter* gl, bool under, bool over) = 0;
-  virtual void plot(DiGLPainter* gl, Plot::PlotOrder zorder)
-    { plot(gl, zorder == Plot::LINES, zorder == Plot::OVERLAY); }
+  virtual void plot(DiGLPainter* gl, PlotOrder zorder) { plot(gl, zorder == PO_LINES, zorder == PO_OVERLAY); }
 
   virtual bool processInput(const PlotCommand_cpv& inp) = 0;
 

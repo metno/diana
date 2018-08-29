@@ -2745,11 +2745,10 @@ void EditManager::setEditMessage(const string& str)
   }
 }
 
-
-void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
+void EditManager::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  const bool under = (zorder == Plot::LINES);
-  const bool over = (zorder == Plot::OVERLAY);
+  const bool under = (zorder == PO_LINES);
+  const bool over = (zorder == PO_OVERLAY);
 
   if (!isInEdit() || !(under || over))
     return;
@@ -2863,8 +2862,7 @@ void EditManager::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
   }
 }
 
-
-void EditManager::plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder)
+void EditManager::plotSingleRegion(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 

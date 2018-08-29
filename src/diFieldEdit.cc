@@ -3489,10 +3489,10 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
   }
 }
 
-void FieldEdit::plot(DiGLPainter* gl, Plot::PlotOrder porder, bool showinfluence)
+void FieldEdit::plot(DiGLPainter* gl, PlotOrder porder, bool showinfluence)
 {
   METLIBS_LOG_SCOPE(LOGVAL(active));
-  editfieldplot->plot(gl, Plot::SHADE_BACKGROUND);
+  editfieldplot->plot(gl, PO_SHADE_BACKGROUND);
 
   editfieldplot->plot(gl, porder);
   if (active && showinfluence)

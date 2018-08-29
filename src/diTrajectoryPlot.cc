@@ -223,7 +223,7 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!plot_on || !isEnabled() || zorder != LINES)
+  if (!plot_on || !isEnabled() || zorder != PO_LINES)
     return;
 
   prepare();

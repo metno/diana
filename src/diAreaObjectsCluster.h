@@ -43,7 +43,7 @@ public:
   AreaObjectsCluster(PlotModule* pm);
   ~AreaObjectsCluster();
 
-  void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
 
   void addPlotElements(std::vector<PlotElement>& pel);
 

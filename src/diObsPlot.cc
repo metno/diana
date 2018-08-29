@@ -1239,7 +1239,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (zorder != LINES && zorder != OVERLAY)
+  if (zorder != PO_LINES && zorder != PO_OVERLAY)
     return;
 
   if (!isEnabled()) {

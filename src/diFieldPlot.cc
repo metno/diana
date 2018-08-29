@@ -1100,7 +1100,7 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   else
     gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
-  if (zorder == SHADE_BACKGROUND) {
+  if (zorder == PO_SHADE_BACKGROUND) {
     // should be below all real fields
     if (poptions.gridLines > 0)
       plotGridLines(gl);
@@ -1108,13 +1108,13 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       plotNumbers(gl);
 
     plotUndefined(gl);
-  } else if (zorder == SHADE) {
+  } else if (zorder == PO_SHADE) {
     if (getShadePlot())
       plotMe(gl, zorder);
-  } else if (zorder == LINES) {
+  } else if (zorder == PO_LINES) {
     if (!getShadePlot())
       plotMe(gl, zorder);
-  } else if (zorder == OVERLAY) {
+  } else if (zorder == PO_OVERLAY) {
     plotMe(gl, zorder);
   }
 }
@@ -2661,19 +2661,19 @@ bool FieldPlot::plotContour2(DiGLPainter* gl, PlotOrder zorder)
   METLIBS_LOG_SCOPE();
 
   int paintMode;
-  if (zorder == SHADE_BACKGROUND) {
+  if (zorder == PO_SHADE_BACKGROUND) {
     if (poptions.undefMasking <= 0)
       return true;
     paintMode = DianaLines::UNDEFINED;
-  } else if (zorder == SHADE) {
+  } else if (zorder == PO_SHADE) {
     if (!getShadePlot())
       return true;
     paintMode = DianaLines::FILL | DianaLines::LINES_LABELS;
-  } else if (zorder == LINES) {
+  } else if (zorder == PO_LINES) {
     if (getShadePlot())
       return true;
     paintMode = DianaLines::LINES_LABELS;
-  } else if (zorder == OVERLAY) {
+  } else if (zorder == PO_OVERLAY) {
     paintMode = DianaLines::UNDEFINED | DianaLines::FILL | DianaLines::LINES_LABELS;
   } else {
     return true;
@@ -3212,7 +3212,7 @@ bool FieldPlot::plotUndefined(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
   if (plottype() == fpt_contour || plottype() == fpt_contour2) {
-    plotContour2(gl, SHADE_BACKGROUND);
+    plotContour2(gl, PO_SHADE_BACKGROUND);
     return true;
   }
 

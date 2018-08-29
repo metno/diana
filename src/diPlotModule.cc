@@ -703,85 +703,85 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   // plot map-elements for lowest zorder
   for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(gl, Plot::BACKGROUND);
+    vmp[i]->plot(gl, PO_BACKGROUND);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled())
-      m->plot(gl, Plot::BACKGROUND);
+      m->plot(gl, PO_BACKGROUND);
   }
 
   // plot satellite images
-  satm->plot(gl, Plot::SHADE_BACKGROUND);
+  satm->plot(gl, PO_SHADE_BACKGROUND);
 
   // mark undefined areas/values in field (before map)
-  fieldplots_->plot(gl, Plot::SHADE_BACKGROUND);
+  fieldplots_->plot(gl, PO_SHADE_BACKGROUND);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled())
-      m->plot(gl, Plot::SHADE_BACKGROUND);
+      m->plot(gl, PO_SHADE_BACKGROUND);
   }
 
   // plot fields (shaded fields etc. before map)
-  fieldplots_->plot(gl, Plot::SHADE);
+  fieldplots_->plot(gl, PO_SHADE);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled())
-      m->plot(gl, Plot::SHADE);
+      m->plot(gl, PO_SHADE);
   }
 
   // plot map-elements for auto zorder
   for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(gl, Plot::LINES_BACKGROUND);
+    vmp[i]->plot(gl, PO_LINES_BACKGROUND);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled())
-      m->plot(gl, Plot::LINES_BACKGROUND);
+      m->plot(gl, PO_LINES_BACKGROUND);
   }
 
   // plot locationPlots (vcross,...)
   for (size_t i = 0; i < locationPlots.size(); i++)
-    locationPlots[i]->plot(gl, Plot::LINES);
+    locationPlots[i]->plot(gl, PO_LINES);
 
   // plot fields (isolines, vectors etc. after map)
-  fieldplots_->plot(gl, Plot::LINES);
+  fieldplots_->plot(gl, PO_LINES);
 
   // next line also calls objects.changeProjection
-  objm->plotObjects(gl, Plot::LINES);
+  objm->plotObjects(gl, PO_LINES);
 
   if (areaobjects_.get())
-    areaobjects_->plot(gl, Plot::LINES);
+    areaobjects_->plot(gl, PO_LINES);
 
   // plot station plots
   const std::vector<StationPlot*>& stam_plots = stam->plots();
   for (size_t j = 0; j < stam_plots.size(); j++)
-    stam_plots[j]->plot(gl, Plot::LINES);
+    stam_plots[j]->plot(gl, PO_LINES);
 
   // plot inactive edit fields/objects under observations
-  editm->plot(gl, Plot::LINES);
+  editm->plot(gl, PO_LINES);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled())
-      m->plot(gl, Plot::LINES);
+      m->plot(gl, PO_LINES);
   }
 
-  obsplots_->plot(gl, Plot::LINES);
+  obsplots_->plot(gl, PO_LINES);
 
   //plot trajectories
   for (size_t i = 0; i < vtp.size(); i++)
-    vtp[i]->plot(gl, Plot::LINES);
+    vtp[i]->plot(gl, PO_LINES);
 
   for (size_t i = 0; i < vMeasurementsPlot.size(); i++)
-    vMeasurementsPlot[i]->plot(gl, Plot::LINES);
+    vMeasurementsPlot[i]->plot(gl, PO_LINES);
 
   if (showanno && !editm->isInEdit()) {
     // plot Annotations
     for (size_t i = 0; i < vap.size(); i++)
-      vap[i]->plot(gl, Plot::LINES);
+      vap[i]->plot(gl, PO_LINES);
   }
 }
 
@@ -793,31 +793,31 @@ void PlotModule::plotOver(DiGLPainter* gl)
 #endif
 
   // plot active draw- and editobjects here
-  editm->plot(gl, Plot::OVERLAY);
+  editm->plot(gl, PO_OVERLAY);
 
-  obsplots_->plot(gl, Plot::OVERLAY);
+  obsplots_->plot(gl, PO_OVERLAY);
 
   if (editm->isInEdit()) {
     // Annotations
     if (showanno) {
       for (AnnotationPlot* ap : vap)
-        ap->plot(gl, Plot::OVERLAY);
+        ap->plot(gl, PO_OVERLAY);
     }
     for (AnnotationPlot* ap : editVap)
-      ap->plot(gl, Plot::OVERLAY);
+      ap->plot(gl, PO_OVERLAY);
 
   } // if editm->isInEdit()
 
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled()) {
       m->changeProjection(staticPlot_->getMapArea());
-      m->plot(gl, Plot::OVERLAY);
+      m->plot(gl, PO_OVERLAY);
     }
   }
 
   // plot map-elements for highest zorder
   for (MapPlot* mp : vmp)
-    mp->plot(gl, Plot::OVERLAY);
+    mp->plot(gl, PO_OVERLAY);
 
   // draw frame if map has a border
   if (staticPlot_->getMapBorder() > 0) {
@@ -851,7 +851,7 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
   std::vector<Rectangle> rectangles;
   rectangles.reserve(vap.size());
   for (AnnotationPlot* ap : vap) {
-    ap->plot(gl, Plot::LINES);
+    ap->plot(gl, PO_LINES);
     rectangles.push_back(ap->getBoundingBox());
   }
   return rectangles;

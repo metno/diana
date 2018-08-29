@@ -57,9 +57,9 @@ public:
   bool empty();
 
   /// plot all weather objects
-  void plot(DiGLPainter* gl, Plot::PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder);
 
- /// check if objectplots are enabled
+  /// check if objectplots are enabled
   bool isEnabled();
 
  /// enable/disable objectplots

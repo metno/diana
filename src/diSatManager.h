@@ -137,7 +137,7 @@ public:
   bool enablePlotElement(const PlotElement& pe);
   void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
   void getDataAnnotations(std::vector<std::string>& anno);
-  void plot(DiGLPainter* gl, Plot::PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder);
   void clear();
   bool getGridResolution(float& rx, float& ry);
 

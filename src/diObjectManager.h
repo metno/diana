@@ -200,7 +200,7 @@ public:
     { objects.getAnnotations(anno); }
   const PlotCommand_cpv& getObjectLabels()
     { return objects.getObjectLabels(); }
-  void plotObjects(DiGLPainter* gl, Plot::PlotOrder zorder);
+  void plotObjects(DiGLPainter* gl, PlotOrder zorder);
   void clearObjects()
     { objects.clear(); }
   void setObjAuto(bool autoF)

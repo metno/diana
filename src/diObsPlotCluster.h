@@ -52,7 +52,7 @@ public:
   //! returns true iff there are any obs plots with data
   bool update(bool ifNeeded, const miutil::miTime& t);
 
-  void plot(DiGLPainter* gl, Plot::PlotOrder zorder) override;
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
   void getDataAnnotations(std::vector<std::string>& anno) const;
 

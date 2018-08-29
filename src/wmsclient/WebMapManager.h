@@ -89,7 +89,7 @@ public:
   void plot(DiGLPainter*, bool, bool) Q_DECL_OVERRIDE
     { }
 
-  void plot(DiGLPainter* gl, Plot::PlotOrder zorder) Q_DECL_OVERRIDE;
+  void plot(DiGLPainter* gl, PlotOrder zorder) Q_DECL_OVERRIDE;
 
   std::vector<PlotElement> getPlotElements() Q_DECL_OVERRIDE;
 

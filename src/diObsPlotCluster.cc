@@ -109,9 +109,9 @@ bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
   return havedata;
 }
 
-void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
+void ObsPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  if (zorder != Plot::LINES && zorder != Plot::OVERLAY)
+  if (zorder != PO_LINES && zorder != PO_OVERLAY)
     return;
 
   collider_->clear();
@@ -119,8 +119,8 @@ void ObsPlotCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
   // plot observations (if in fieldEditMode  and the option obs_mslp is true, plot observations in overlay)
 
   const bool obsedit = (hasDevField_ && editm_->isObsEdit());
-  const bool plotoverlay = (zorder == Plot::OVERLAY && obsedit);
-  const bool plotunderlay = (zorder == Plot::LINES && !obsedit);
+  const bool plotoverlay = (zorder == PO_OVERLAY && obsedit);
+  const bool plotunderlay = (zorder == PO_LINES && !obsedit);
 
   if (plotoverlay) {
     for (size_t i = 0; i < plots_.size(); i++) {

@@ -31,9 +31,10 @@
 #define PLOTCLUSTER_H
 
 #include "diAnnotationPlot.h" // AnnotationPlot::Annotation
-#include "diPlot.h"           // Plot, Plot::PlotOrder
-#include "diPlotCommand.h"    // PlotCommand
-#include "diPlotElement.h"    // PlotElement
+#include "diPlot.h"
+#include "diPlotCommand.h"
+#include "diPlotElement.h"
+#include "diPlotOrder.h"
 
 #include <vector>
 
@@ -51,7 +52,7 @@ public:
 
   virtual void setCanvas(DiCanvas* canvas);
 
-  virtual void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
+  virtual void plot(DiGLPainter* gl, PlotOrder zorder);
 
   virtual void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
 

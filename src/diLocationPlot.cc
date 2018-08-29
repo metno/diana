@@ -274,7 +274,7 @@ std::string LocationPlot::find(int x, int y)
 void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
-  if (zorder != LINES || !isEnabled())
+  if (zorder != PO_LINES || !isEnabled())
     return;
 
   if (numPos<1)

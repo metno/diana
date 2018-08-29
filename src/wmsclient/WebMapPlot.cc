@@ -64,7 +64,7 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
     , mAlphaOffset(0)
     , mAlphaScale(1)
     , mMakeGrey(false)
-    , mPlotOrder(LINES)
+    , mPlotOrder(PO_LINES)
     , mRequest(0)
 {
   if (mService) {

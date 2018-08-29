@@ -121,7 +121,7 @@ void SatPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_TIME();
 
-  if (porder != SHADE_BACKGROUND)
+  if (porder != PO_SHADE_BACKGROUND)
     return;
 
   if (!isEnabled())

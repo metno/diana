@@ -430,6 +430,7 @@ LIST (APPEND LIBDIANA_HEADERS
   diEventResult.h
   diObjTypes.h
   diPlotElement.h
+  diPlotOrder.h
   diSatTypes.h
   diQuickMenuTypes.h
   diSliderValues.h

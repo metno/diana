@@ -47,7 +47,7 @@ AreaObjectsCluster::~AreaObjectsCluster()
 {
 }
 
-void AreaObjectsCluster::plot(DiGLPainter* gl, Plot::PlotOrder zorder)
+void AreaObjectsCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   for (size_t i = 0; i < vareaobjects.size(); i++) {
     vareaobjects[i].changeProjection(plot_->getMapArea()); // TODO move this somewhere else

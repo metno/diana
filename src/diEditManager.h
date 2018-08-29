@@ -124,8 +124,7 @@ private:
 				       const EditProduct& ep,
 				       const EditProductId& ei);
 
-
-  void plotSingleRegion(DiGLPainter* gl, Plot::PlotOrder zorder);
+  void plotSingleRegion(DiGLPainter* gl, PlotOrder zorder);
 
   void initEditTools();
   void setMapmodeinfo();
@@ -235,7 +234,7 @@ public:
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
-  void plot(DiGLPainter* gl, Plot::PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder);
   /// show difference between observed mslp and edited mslp
   bool interpolateEditField(ObsPositions* obsPositions);
   /// shows all hidden edit objects

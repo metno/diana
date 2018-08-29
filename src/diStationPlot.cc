@@ -298,7 +298,7 @@ void StationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   METLIBS_LOG_SCOPE(LOGVAL(name));
 
-  if (!isEnabled() || !visible || zorder != LINES)
+  if (!isEnabled() || !visible || zorder != PO_LINES)
     return;
 
   map<Station::Status, vector<int> > selected; //index of selected stations for each status

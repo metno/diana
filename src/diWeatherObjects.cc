@@ -104,11 +104,11 @@ bool WeatherObjects::empty()
 
 /*********************************************/
 
-void WeatherObjects::plot(DiGLPainter* gl, Plot::PlotOrder porder)
+void WeatherObjects::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!enabled || ( porder != Plot::LINES && porder != Plot::OVERLAY) )
+  if (!enabled || (porder != PO_LINES && porder != PO_OVERLAY))
     return;
 
   const int n = objects.size();

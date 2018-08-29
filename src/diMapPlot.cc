@@ -240,11 +240,11 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   METLIBS_LOG_SCOPE();
 
   int zorder;
-  if (porder == BACKGROUND)
+  if (porder == PO_BACKGROUND)
     zorder = 0;
-  else if (porder == LINES_BACKGROUND)
+  else if (porder == PO_LINES_BACKGROUND)
     zorder = 1;
-  else if (porder == OVERLAY)
+  else if (porder == PO_OVERLAY)
     zorder = 2;
   else
     return;

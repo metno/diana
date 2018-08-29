@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -57,7 +57,7 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  void plot(DiGLPainter* gl, Plot::PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder);
 
   void changeProjection();
 
