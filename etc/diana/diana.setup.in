@@ -1457,6 +1457,35 @@ m=mywavewam800_skagerak_aggregate        t=netcdf f=http://thredds.met.no/thredd
 
 
 
+<OBSERVATION_PLOTTYPES>
+type=synop \
+ parameters=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,st.no,Time \
+ misc=dev_field_button,tempPrecision,unit_ms,criteria
+
+type=metar \
+ parameters=Wind,dndx,fmfm,TTT,TdTdTd,ww,REww,VVVV/Dv,VxVxVxVx/Dvx,Clouds,PHPHPHPH,Id \
+ misc=tempPrecision,criteria
+
+type=list \
+ parameters=Pos,dd,ff,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Date,Time,Height,Zone,Name,RRR_6,RRR_12,RRR_24,quality \
+ misc=dev_field_button,tempPrecision,unit_ms,markerboxVisible,orientation,criteria,qualityflag,wmoflag,parameterName
+
+type=pressure \
+ parameters=Pos,dd,ff,TTT,TdTdTd,PPPP,Id,Date,Time,HHH,QI,QI_NM,QI_RFF \
+ misc=markerboxVisible,asFieldButton,orientation,parameterName,criteria \
+ vertical_levels=10,30,50,70,100,150,200,250,300,400,500,700,850,925,1000
+
+type=tide \
+ parameters=Pos,Date,Time,Name,TE \
+ misc=markerboxVisible,orientation,criteria
+
+type=ocean \
+ parameters=Pos,Id,Date,Time,depth,TTTT,SSSS \
+ vertical_levels=0,10,20,30,50,75,100,125,150,200,250,300,400,500,600,700,800,900,1000,1200,1500,2000,3000,4000 \
+ misc=markerboxVisible,asFieldButton,orientation,parameterName,criteria
+
+</OBSERVATION_PLOTTYPES>
+
 <OBSERVATION_FILES>
 
 PROD=synop:Synop
