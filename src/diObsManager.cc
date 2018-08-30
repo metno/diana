@@ -165,23 +165,6 @@ static void addButtons(ObsDialogInfo::PlotType& pt, const std::vector<std::strin
   }
 }
 
-static const std::vector<std::string> pp_synop = {"Wind",   "TTT",  "TdTdTd", "PPPP",  "ppp", "a",    "h",  "VV",    "N",      "RRR",    "ww",
-                                                  "W1",     "W2",   "Nh",     "Cl",    "Cm",  "Ch",   "vs", "ds",    "TwTwTw", "PwaHwa", "dw1dw1",
-                                                  "Pw1Hw1", "TxTn", "sss",    "911ff", "s",   "fxfx", "Id", "st.no", "Time"};
-static const std::vector<std::string> pp_metar = {"Wind", "dndx", "fmfm", "TTT", "TdTdTd", "ww", "REww", "VVVV/Dv", "VxVxVxVx/Dvx", "Clouds", "PHPHPHPH", "Id"};
-static const std::vector<std::string> pp_list = {"Pos", "dd",     "ff",     "TTT",    "TdTdTd", "PPPP", "ppp",   "a",      "h",      "VV",
-                                                 "N",   "RRR",    "ww",     "W1",     "W2",     "Nh",   "Cl",    "Cm",     "Ch",     "vs",
-                                                 "ds",  "TwTwTw", "PwaHwa", "dw1dw1", "Pw1Hw1", "TxTn", "sss",   "911ff",  "s",      "fxfx",
-                                                 "Id",  "Date",   "Time",   "Height", "Zone",   "Name", "RRR_6", "RRR_12", "RRR_24", "quality"};
-static const std::vector<std::string> pp_pressure = {"Pos", "dd", "ff", "TTT", "TdTdTd", "PPPP", "Id", "Date", "Time", "HHH", "QI", "QI_NM", "QI_RFF"};
-static const std::vector<int> levels_pressure = {10, 30, 50, 70, 100, 150, 200, 250, 300, 400, 500, 700, 850, 925, 1000};
-
-static const std::vector<std::string> pp_tide = {"Pos", "Date", "Time", "Name", "TE"};
-
-static const std::vector<std::string> pp_ocean = {"Pos", "Id", "Date", "Time", "depth", "TTTT", "SSSS"};
-static const std::vector<int> levels_ocean = {0,   10,  20,  30,  50,  75,  100,  125,  150,  200,  250,  300,
-                                              400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 3000, 4000};
-
 void ObsManager::addReaders(ObsDialogInfo::PlotType& dialogInfo)
 {
   std::map<int, std::string> sorted_readernames; // we want the readers in the same order as in the setup file
@@ -196,52 +179,12 @@ void ObsManager::addReaders(ObsDialogInfo::PlotType& dialogInfo)
 
 ObsDialogInfo ObsManager::initDialog()
 {
-  { //+++++++++Plot type = Synop+++++++++++++++
-    ObsDialogInfo::PlotType psynop;
-    psynop.plottype = OPT_SYNOP;
-    psynop.name = obsPlotTypeToText(OPT_SYNOP);
-    psynop.misc = ObsDialogInfo::dev_field_button | ObsDialogInfo::tempPrecision | ObsDialogInfo::unit_ms | ObsDialogInfo::criteria |
-                  ObsDialogInfo::qualityflag | ObsDialogInfo::wmoflag;
-    psynop.criteriaList = criteriaList["synop"];
-    addButtons(psynop, pp_synop);
-    addReaders(psynop);
-    dialog.plottype.push_back(psynop);
-  }
-
-  { //+++++++++Plot type = Metar+++++++++++++++
-    ObsDialogInfo::PlotType pmetar;
-    pmetar.plottype = OPT_METAR;
-    pmetar.name = obsPlotTypeToText(OPT_METAR);
-    pmetar.misc = ObsDialogInfo::tempPrecision | ObsDialogInfo::criteria;
-    pmetar.criteriaList = criteriaList["metar"];
-    addButtons(pmetar, pp_metar);
-    addReaders(pmetar);
-    dialog.plottype.push_back(pmetar);
-  }
-
-  { //+++++++++Plot type = List+++++++++++++++
-    ObsDialogInfo::PlotType plist;
-    plist.plottype = OPT_LIST;
-    plist.name = obsPlotTypeToText(OPT_LIST);
-    plist.misc = ObsDialogInfo::dev_field_button | ObsDialogInfo::tempPrecision | ObsDialogInfo::unit_ms | ObsDialogInfo::markerboxVisible |
-                 ObsDialogInfo::orientation | ObsDialogInfo::criteria | ObsDialogInfo::qualityflag | ObsDialogInfo::wmoflag | ObsDialogInfo::parameterName;
-    plist.criteriaList = criteriaList["list"];
-    addButtons(plist, pp_list);
-    addReaders(plist);
-    dialog.plottype.push_back(plist);
-  }
-
-  { //+++++++++Plot type = Pressure levels+++++++++++++++
-    ObsDialogInfo::PlotType ppressure;
-    ppressure.plottype = OPT_PRESSURE;
-    ppressure.name = obsPlotTypeToText(OPT_PRESSURE);
-    ppressure.misc =
-        ObsDialogInfo::markerboxVisible | ObsDialogInfo::asFieldButton | ObsDialogInfo::orientation | ObsDialogInfo::parameterName | ObsDialogInfo::criteria;
-    ppressure.criteriaList = criteriaList["pressure"];
-    ppressure.verticalLevels = levels_pressure;
-    addButtons(ppressure, pp_pressure);
-    addReaders(ppressure);
-    dialog.plottype.push_back(ppressure);
+  for (ObsDialogInfo::PlotType pt : setupPlotTypes_) { // make copies!
+    const std::map<std::string, ObsDialogInfo::CriteriaList_v>::const_iterator it = criteriaList.find(pt.name);
+    if (it != criteriaList.end())
+      pt.criteriaList = it->second;
+    addReaders(pt);
+    dialog.addPlotType(pt, pt.plottype == OPT_OTHER);
   }
 
   for (const auto& pr : Prod) {
@@ -253,34 +196,9 @@ ObsDialogInfo ObsManager::initDialog()
 
       pother.misc =
           ObsDialogInfo::markerboxVisible | ObsDialogInfo::orientation | ObsDialogInfo::parameterName | ObsDialogInfo::popup | ObsDialogInfo::criteria;
-      pother.criteriaList = criteriaList["ascii"];
-
+      pother.criteriaList = criteriaList[pother.name];
       dialog.plottype.push_back(pother);
     }
-  }
-
-  { //+++++++++Plot type = Tide+++++++++++++++
-    ObsDialogInfo::PlotType ptide;
-    ptide.plottype = OPT_TIDE;
-    ptide.name = obsPlotTypeToText(OPT_TIDE);
-    ptide.misc = ObsDialogInfo::markerboxVisible | ObsDialogInfo::orientation | ObsDialogInfo::criteria;
-    ptide.criteriaList = criteriaList["tide"];
-    addButtons(ptide, pp_tide);
-    addReaders(ptide);
-    dialog.plottype.push_back(ptide);
-  }
-
-  { //+++++++++Plot type = Ocean levels+++++++++++++++
-    ObsDialogInfo::PlotType pocean;
-    pocean.plottype = OPT_OCEAN;
-    pocean.name = obsPlotTypeToText(OPT_OCEAN);
-    pocean.misc =
-        ObsDialogInfo::markerboxVisible | ObsDialogInfo::asFieldButton | ObsDialogInfo::orientation | ObsDialogInfo::parameterName | ObsDialogInfo::criteria;
-    pocean.criteriaList = criteriaList["ocean"];
-    pocean.verticalLevels = levels_ocean;
-    addButtons(pocean, pp_ocean);
-    addReaders(pocean);
-    dialog.plottype.push_back(pocean);
   }
 
   return dialog;
@@ -315,6 +233,7 @@ bool ObsManager::parseSetup()
   parsePrioritySetup();
   parseCriteriaSetup();
   parsePopupWindowSetup();
+  parsePlotTypeSetup();
   return true;
 }
 
@@ -484,6 +403,52 @@ bool ObsManager::parsePopupWindowSetup()
 
   if (SetupParser::getSection(obs_popup_data, sect_popup_data)) {
     popupSpec = sect_popup_data;
+  }
+
+  return true;
+}
+
+bool ObsManager::parsePlotTypeSetup()
+{
+  METLIBS_LOG_SCOPE();
+  setupPlotTypes_.clear();
+
+  const std::string obs_plottype_data = "OBSERVATION_PLOTTYPES";
+  std::vector<std::string> sect_plottype_data;
+  if (!SetupParser::getSection(obs_plottype_data, sect_plottype_data))
+    return false;
+
+  for (const std::string& sptd : sect_plottype_data) {
+    ObsDialogInfo::PlotType pt;
+    std::vector<std::string> parameters;
+    for (auto kv : miutil::splitKeyValue(sptd)) {
+      if (kv.key() == "type") {
+        pt.plottype = obsPlotTypeFromText(kv.value());
+      } else if (kv.key() == "name") {
+        pt.name = kv.value();
+      } else if (kv.key() == "parameters") {
+        parameters = miutil::split(kv.value(), ",");
+      } else if (kv.key() == "vertical_levels") {
+        pt.verticalLevels.clear();
+        for (auto lt : miutil::split(kv.value(), ",")) {
+          pt.verticalLevels.push_back(miutil::to_int(lt));
+        }
+      } else if (kv.key() == "misc") {
+        pt.misc = 0;
+        for (auto mt : miutil::split(kv.value(), ",")) {
+          pt.misc |= ObsDialogInfo::miscFromText(mt);
+        }
+      }
+    }
+    if (pt.plottype == OPT_OTHER) {
+      METLIBS_LOG_WARN("adding observation plottype 'other' is not supported");
+      continue;
+    }
+
+    if (pt.name.empty())
+      pt.name = obsPlotTypeToText(pt.plottype);
+    addButtons(pt, parameters);
+    setupPlotTypes_.push_back(pt);
   }
 
   return true;

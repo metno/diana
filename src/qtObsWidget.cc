@@ -73,6 +73,7 @@ using namespace std;
 
 ObsWidget::ObsWidget(QWidget* parent)
     : QWidget(parent)
+    , moreButton(0)
 {
   METLIBS_LOG_SCOPE();
   initOK = false;

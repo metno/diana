@@ -1,3 +1,32 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #ifndef DIOBSDIALOGINFO_H
 #define DIOBSDIALOGINFO_H
 
@@ -44,6 +73,7 @@ struct ObsDialogInfo
     std::string name;
     std::vector<std::string> criteria;
   };
+  typedef std::vector<CriteriaList> CriteriaList_v;
 
   /// data button info for observation dialogue
   struct Button
@@ -54,6 +84,7 @@ struct ObsDialogInfo
   };
 
   enum Misc {
+    none = 0,
     dev_field_button = 1 << 0,
     tempPrecision = 1 << 1,
     unit_ms = 1 << 2,
@@ -67,6 +98,7 @@ struct ObsDialogInfo
     asFieldButton = 1 << 10,
     leveldiffs = 1 << 11,
   };
+  static Misc miscFromText(const std::string& text);
 
   /// observation plot type
   struct PlotType
@@ -84,9 +116,11 @@ struct ObsDialogInfo
     void setAllActive(const std::vector<std::string>& parameter, const std::string& name, const std::vector<Button>& b);
     void addExtraParameterButtons();
   };
+  typedef std::vector<PlotType> PlotType_v;
 
-  typedef std::vector<PlotType> plottype_v;
-  plottype_v plottype;
+  void addPlotType(const ObsDialogInfo::PlotType& p, bool addIfNoReaders);
+
+  PlotType_v plottype;
   std::vector<PriorityList> priority;
 };
 

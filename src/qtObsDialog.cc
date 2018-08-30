@@ -232,7 +232,7 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
     return;
 
   ObsWidget* ow = obsWidget[index];
-  if (!ow->initialized()) {
+  if (ow && !ow->initialized()) {
     m_ctrl->updateObsDialog(dialog.plottype[index], plotbox->itemText(index).toStdString());
 
     ow->setDialogInfo(dialog.plottype[index]);
@@ -386,7 +386,6 @@ vector<string> ObsDialog::writeLog()
 
 void ObsDialog::readLog(const vector<string>& vstr, const string& thisVersion, const string& logVersion)
 {
-
   int n=0, nvstr= vstr.size();
   bool first=true;
 

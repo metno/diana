@@ -80,7 +80,7 @@ public:
   void readLog(const miutil::KeyValue_v& kvs);
   void setFalse();
   std::vector<std::string> getDataTypes();
-  bool moreToggled(){return moreButton->isChecked();}
+  bool moreToggled(){return moreButton && moreButton->isChecked();}
   //Criteria
   ObsDialogInfo::CriteriaList getSavedCriteria(){return savedCriteria;}
   ObsDialogInfo::CriteriaList getCriteriaList();

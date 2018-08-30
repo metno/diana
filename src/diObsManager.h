@@ -72,9 +72,11 @@ private:
 
   std::vector<ObsDialogInfo::PriorityList> priority;
   // one  criterialist pr plot type
-  std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
+  std::map<std::string, ObsDialogInfo::CriteriaList_v> criteriaList;
 
-  std::vector<std::string> popupSpec;  // Parameter data from setupfil
+  std::vector<std::string> popupSpec; // Parameter data from setupfile
+
+  ObsDialogInfo::PlotType_v setupPlotTypes_;
 
   bool useArchive; //read archive files too.
 
@@ -88,6 +90,7 @@ private:
   bool parsePrioritySetup();
   bool parseCriteriaSetup();
   bool parsePopupWindowSetup();
+  bool parsePlotTypeSetup();
 
 public:
   ObsManager();
