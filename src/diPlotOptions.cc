@@ -268,6 +268,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
     if (!kv.value().empty()) {
       const string& key = kv.key();
       string value = diutil::quote_removed(kv.value(), '\'');
+      value = diutil::quote_removed(kv.value(), '\"');
 
       if (key==key_colour){
         po.colours.clear();
