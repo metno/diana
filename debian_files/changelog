@@ -1,3 +1,9 @@
+diana-3.46 (3.47.0~rc1-1) unstable; urgency=low
+
+  * code refactoring
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 03 Sep 2018 09:07:43 +0200
+
 diana-3.46 (3.46.0-1) unstable; urgency=low
 
   * operational version
