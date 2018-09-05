@@ -87,7 +87,6 @@ private:
   int plotw, ploth;
 
   std::string plotStation;
-  std::string lastStation;
   miutil::miTime   plotTime;
   miutil::miTime   ztime;
 
@@ -126,7 +125,6 @@ public:
 
   const miutil::miTime& getTime(){return plotTime;}
   const std::string& getStation() { return plotStation; }
-  const std::string& getLastStation() { return lastStation; }
   const std::vector<std::string>& getStationList() { return nameList; }
   const std::vector<float>& getLatitudes() { return latitudeList; }
   const std::vector<float>& getLongitudes() { return longitudeList; }

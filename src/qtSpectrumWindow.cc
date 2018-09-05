@@ -285,7 +285,7 @@ void SpectrumWindow::stationChanged()
   raise();
 
   //get current station
-  const QString qs = spectrumm->getLastStation().c_str();
+  const QString qs = spectrumm->getStation().c_str();
 
   Q_EMIT spectrumChanged(qs); //name of current stations (to mainWindow)
 }

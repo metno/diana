@@ -513,28 +513,6 @@ void SpectrumManager::initStations()
   latitudeList= latitudelist;
   longitudeList=longitudelist;
 
-  // remember station
-  if (!plotStation.empty()) lastStation = plotStation;
-
-  METLIBS_LOG_DEBUG("lastStation"  << lastStation);
-
-  //if it's the first time, plotStation is first in list
-  if (lastStation.empty() && nameList.size())
-    plotStation=nameList[0];
-  else{
-    int n = nameList.size();
-    bool found = false;
-    //find plot station
-    for (int i=0;i<n;i++){
-      if(nameList[i]== lastStation){
-        plotStation=nameList[i];
-        found=true;
-      }
-    }
-    if (!found) plotStation.clear();
-    dataChange= true;
-  }
-
   METLIBS_LOG_DEBUG("plotStation" << plotStation);
 }
 
