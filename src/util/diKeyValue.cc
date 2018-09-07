@@ -72,6 +72,30 @@ bool KeyValue::toBool(bool& ok, bool def) const
   return def;
 }
 
+std::vector<int> KeyValue::toInts() const
+{
+  const std::vector<std::string> values = miutil::split(mValue, ",");
+  std::vector<int> ints;
+  ints.reserve(values.size());
+  for (const std::string& v : values) {
+    if (miutil::is_int(v))
+      ints.push_back(miutil::to_int(v));
+  }
+  return ints;
+}
+
+std::vector<float> KeyValue::toFloats() const
+{
+  const std::vector<std::string> values = miutil::split(mValue, ",");
+  std::vector<float> floats;
+  floats.reserve(values.size());
+  for (const std::string& v : values) {
+    if (miutil::is_number(v))
+      floats.push_back(miutil::to_float(v));
+  }
+  return floats;
+}
+
 KeyValue kv(const std::string& key, bool value)
 {
   return KeyValue(key, value ? "true" : "false");
@@ -97,13 +121,23 @@ KeyValue kv(const std::string& key, const char* value)
   return KeyValue(key, value);
 }
 
+KeyValue kv(const std::string& key, const std::vector<int>& values)
+{
+  std::ostringstream ov;
+  std::vector<int>::const_iterator it = values.begin();
+  ov << *it++;
+  for (; it != values.end(); ++it)
+    ov << ',' << *it;
+  return kv(key, ov.str());
+}
+
 KeyValue kv(const std::string& key, const std::vector<float>& values)
 {
   std::ostringstream ov;
   std::vector<float>::const_iterator it = values.begin();
   ov << *it++;
   for (; it != values.end(); ++it)
-    ov << ',' << *it;
+    ov << ',' << miutil::from_number(*it);
   return kv(key, ov.str());
 }
 

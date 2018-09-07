@@ -42,6 +42,9 @@ public:
   bool operator==(const KeyValue& other) const
     { return mKey == other.mKey && mValue == other.mValue && mHasValue == other.mHasValue; }
 
+  std::vector<int> toInts() const;
+  std::vector<float> toFloats() const;
+
 private:
   std::string mKey, mValue;
   bool mHasValue, mKeptQuotes;
@@ -54,6 +57,7 @@ KeyValue kv(const std::string& key, int value);
 KeyValue kv(const std::string& key, float value);
 KeyValue kv(const std::string& key, const std::string& value);
 KeyValue kv(const std::string& key, const char* value);
+KeyValue kv(const std::string& key, const std::vector<int>& values);
 KeyValue kv(const std::string& key, const std::vector<float>& values);
 KeyValue kv(const std::string& key, const std::vector<std::string>& values);
 
@@ -61,6 +65,11 @@ KeyValue kv(const std::string& key, const std::vector<std::string>& values);
 inline KeyValue_v& operator<<(KeyValue_v& ostr, const KeyValue& kv)
 { ostr.push_back(kv); return ostr; }
 
+inline KeyValue_v operator<<(KeyValue_v&& ostr, const KeyValue& kv)
+{
+  ostr.push_back(kv);
+  return ostr;
+}
 
 inline void add(KeyValue_v& ostr, const std::string& key, bool value)
 { ostr.push_back(kv(key, value)); }
