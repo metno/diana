@@ -109,14 +109,12 @@ void DiGLPainter::drawTriangle(bool fill, const QPointF& p1, const QPointF& p2, 
   End();
 }
 
-void DiGLPainter::drawWindArrow(float u, float v, float x, float y,
-    float arrowSize, bool withArrowHead, int turnBarbs)
+void DiGLPainter::drawWindArrow(float u_knots, float v_knots, float x, float y, float arrowSize, bool withArrowHead, int turnBarbs)
 {
   QVector<QLineF> lines;
   std::vector<QPointF> trianglePoints;
   // beware of y direction!
-  vcross::PaintWindArrow::makeArrowPrimitives(lines, trianglePoints,
-      arrowSize, withArrowHead, -1, u, v, x, y, turnBarbs);
+  vcross::PaintWindArrow::makeArrowPrimitives(lines, trianglePoints, arrowSize, withArrowHead, -1, u_knots, v_knots, x, y, turnBarbs);
 
   for (int i=0; i<lines.size(); ++i) {
     const QLineF& line = lines.at(i);

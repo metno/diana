@@ -34,6 +34,7 @@
 #include "diFieldPlot.h"
 
 #include "diContouring.h"
+#include "diField/VcrossUtil.h"
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
@@ -967,9 +968,7 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
       float xx = x[i], yy = y[i];
       projection.convertToGeographic(1, &xx, &yy);
       const int turnBarbs = (yy < 0) ? -1 : 1;
-      const float KNOT = 3600.0 / 1852.0;
-      const float gu = u[i] * KNOT, gv = v[i] * KNOT;
-      gl->drawWindArrow(gu, gv, x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow, turnBarbs);
+      gl->drawWindArrow(diutil::ms2knots(u[i]), diutil::ms2knots(v[i]), x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow, turnBarbs);
     }
   }
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
@@ -1148,7 +1147,6 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   }
 
   float unitlength = poptions.vectorunit / 10;
-  int n50, n10, n05;
   float ff, gu, gv, gx, gy, dx, dy, dxf, dyf;
   float flagl = sdist * 0.85 / unitlength;
   float flagstep = flagl / 10.;
@@ -1241,32 +1239,9 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
           gu = u[i] / ff;
           gv = v[i] / ff;
 
-          ff *= 3600.0 / 1852.0;
+          ff = diutil::ms2knots(ff);
 
-          // find no. of 50,10 and 5 knot flags
-          if (ff < 182.49) {
-            n05 = int(ff * 0.2 + 0.5);
-            n50 = n05 / 10;
-            n05 -= n50 * 10;
-            n10 = n05 / 2;
-            n05 -= n10 * 2;
-          } else if (ff < 190.) {
-            n50 = 3;
-            n10 = 3;
-            n05 = 0;
-          } else if (ff < 205.) {
-            n50 = 4;
-            n10 = 0;
-            n05 = 0;
-          } else if (ff < 225.) {
-            n50 = 4;
-            n10 = 1;
-            n05 = 0;
-          } else {
-            n50 = 5;
-            n10 = 0;
-            n05 = 0;
-          }
+          const vcross::util::WindArrowFeathers waf = vcross::util::countFeathers(ff);
 
           dx = flagstep * gu;
           dy = flagstep * gv;
@@ -1287,8 +1262,8 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
           yb[nb++][1] = gy;
 
           // 50-knot flags, store for plot below
-          if (n50 > 0) {
-            for (int n = 0; n < n50; n++) {
+          if (waf.n50 > 0) {
+            for (int n = 0; n < waf.n50; n++) {
               xb[nb][0] = gx;
               yb[nb][0] = gy;
               vx.push_back(gx);
@@ -1311,7 +1286,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
           }
 
           // 10-knot flags
-          for (int n = 0; n < n10; n++) {
+          for (int n = 0; n < waf.n10; n++) {
             gl->Vertex2f(gx, gy);
             gl->Vertex2f(gx + dxf, gy + dyf);
             xb[nb][0] = gx;
@@ -1322,8 +1297,8 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
             gy += dy;
           }
           // 5-knot flag
-          if (n05 > 0) {
-            if (n50 + n10 == 0) {
+          if (waf.n05 > 0) {
+            if (waf.n50 + waf.n10 == 0) {
               gx += dx;
               gy += dy;
             }

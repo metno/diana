@@ -31,11 +31,12 @@
 
 #include "diSpectrumPlot.h"
 
-#include "diSpectrumOptions.h"
-#include "diGLPainter.h"
-#include "diPlotOptions.h"
 #include "diColour.h"
 #include "diContouring.h"
+#include "diGLPainter.h"
+#include "diPlotOptions.h"
+#include "diSpectrumOptions.h"
+#include "diUtilities.h"
 
 #include <QPolygonF>
 #include <QString>
@@ -484,10 +485,9 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
   // wind .....................................................
   if (spopt->pWind && wspeed>0.001){
     const float dd_rad = wdir*DEG_TO_RAD;
-    const float ff_ms = wspeed * 3600.0/1852.0;
+    const float ff_knots = diutil::ms2knots(wspeed);
     gl->setLineStyle(Colour(spopt->windColour), spopt->windLinewidth);
-    gl->drawWindArrow(ff_ms*sin(dd_rad), ff_ms*cos(dd_rad), xwind, ywind,
-        rwind*0.85, false);
+    gl->drawWindArrow(ff_knots * sin(dd_rad), ff_knots * cos(dd_rad), xwind, ywind, rwind * 0.85, false);
   }
 
   //...........................................................

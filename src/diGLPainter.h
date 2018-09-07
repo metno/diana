@@ -291,8 +291,7 @@ public:
   void drawCircle(bool fill, float centerx, float centery, float radius) override;
   void drawTriangle(bool fill, const QPointF& p1, const QPointF& p2, const QPointF& p3) override;
 
-  void drawWindArrow(float u, float v, float x, float y,
-      float arrowSize, bool withArrowHead, int turnBarbs=1) override;
+  void drawWindArrow(float u_knots, float v_knots, float x, float y, float arrowSize, bool withArrowHead, int turnBarbs = 1) override;
 };
 
 #endif // DIGLPAINTER_H
