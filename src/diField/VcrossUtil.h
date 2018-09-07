@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef VCROSSUTIL_HH
 #define VCROSSUTIL_HH 1
@@ -8,6 +36,14 @@
 
 namespace vcross {
 namespace util {
+
+/** Mapping for amble diagram, linear for p < 500hPa, logarithmic for p > 500hPa.
+ * \param p pressure in hPa
+ */
+float ambleFunction(float p);
+
+//! Inverse of ambleFunction.
+float ambleFunctionInverse(float x);
 
 float exnerFunction(float p);
 
@@ -136,9 +172,13 @@ struct WindArrowFeathers {
 
 /*!
  * Count feathers for a wind arrow.
- * \param ff_knot wind speed in knot
+ * \param ff_knots wind speed in knots
  */
-WindArrowFeathers countFeathers(float ff_knot);
+WindArrowFeathers countFeathers(float ff_knots);
+
+float FL_to_hPa(float fl);
+
+float hPa_to_FL(float hPa);
 
 } // namespace util
 } // namespace vcross

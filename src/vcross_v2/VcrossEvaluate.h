@@ -40,6 +40,8 @@ model_values_m vc_fetch_timegraph(Collector_p manager, const LonLat& position, i
 
 EvaluatedPlot_cpv vc_evaluate_plots(Collector_p manager, model_values_m& model_values, Z_AXIS_TYPE z_type=Z_TYPE_PRESSURE);
 
+Values_cp vc_evaluate_z(ZAxisData_cp zaxis, Z_AXIS_TYPE z_type, name2value_t& n2v);
+
 void vc_evaluate_surface(Collector_p manager, model_values_m& model_values, const ModelReftime& model);
 
 Values_cp vc_evaluate_field(model_values_m& model_values,

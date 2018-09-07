@@ -16,30 +16,45 @@
 
 using namespace vcross;
 
+namespace {
+
 const char AROME_FILE[] = "arome_vprof.nc";
 const int AROME_N_CS = 6;
 const int AROME_N_TIME = 2;
 const char AROME_RTT[] = "2014-10-20 00:00:00";
 
-static const char BANGKOK_FILE[] = "bangkok_sonde.nc";
-static const int BANGKOK_N_CS = 1;
-static const int BANGKOK_N_TIME = 30;
-static const int BANGKOK_N_Z = 15;
+const char BANGKOK_FILE[] = "bangkok_sonde.nc";
+const int BANGKOK_N_CS = 1;
+const int BANGKOK_N_TIME = 30;
+const int BANGKOK_N_Z = 15;
 
-static const char modelName[] = "testmodel";
+const char NORDIC_FILE[] = "nordic_sg.nc";
+const int NORDIC_N_CS = 4;
+const int NORDIC_CS_LEN[NORDIC_N_CS] = {11, 5, 1, 1};
+const int NORDIC_N_TIME = 3;
+const int NORDIC_N_Z = 35;
+
+const char modelName[] = "testmodel";
+
+Source_p configureSources(Setup_p setup, const std::string& ncfile)
+{
+  string_v sources;
+  sources.push_back("m=" + std::string(modelName)
+      + " f=" + std::string(TEST_SRCDIR) + "/" + ncfile
+      + " t=netcdf");
+  if (!setup->configureSources(sources).empty())
+    return Source_p();
+  return setup->findSource(modelName);
+}
+
+} // namespace
 
 TEST(VprofDataTest, TestSetup)
 {
   Setup_p setup = std::make_shared<vcross::Setup>();
   Collector_p collector = std::make_shared<Collector>(setup);
 
-  string_v sources;
-  sources.push_back("m=" + std::string(modelName)
-      + " f=" + std::string(TEST_SRCDIR) + "/" + std::string(AROME_FILE)
-      + " t=netcdf");
-  EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
-
-  Source_p src = setup->findSource(modelName);
+  const Source_p src = configureSources(setup, AROME_FILE);
   ASSERT_TRUE(bool(src));
   EXPECT_EQ(1, src->getReferenceTimes().size());
 
@@ -118,12 +133,8 @@ TEST(VprofDataTest, TestBangkok)
   Setup_p setup = std::make_shared<vcross::Setup>();
   Collector_p collector = std::make_shared<Collector>(setup);
 
-  string_v sources;
-  sources.push_back("m=" + std::string(modelName)
-      + " f=" TEST_SRCDIR "/" + std::string(BANGKOK_FILE)
-      + " t=netcdf");
-  EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
-  Source_p src = setup->findSource(modelName);
+  const Source_p src = configureSources(setup, BANGKOK_FILE);
+  ASSERT_TRUE(bool(src));
   ASSERT_TRUE(bool(src));
   const Time reftime = src->getLatestReferenceTime();
   EXPECT_EQ("2014-11-10 12:00:00", util::to_miTime(reftime).isoTime())
@@ -176,13 +187,6 @@ TEST(VprofDataTest, TestBangkok)
     EXPECT_EQ(BANGKOK_Z_VALUES[i], zvalues->values()[i]) << "i=" << i;
 
   vc_evaluate_fields(collector, model_values, mr, field_ids);
-
-  if(0){ name2value_t::const_iterator itN = n2v.find("x_wind_pl");
-    ASSERT_TRUE(itN != n2v.end());
-    Values_cp xwind_values = itN->second;
-    ASSERT_TRUE(bool(xwind_values));
-    EXPECT_EQ(1, xwind_values->shape().rank());
-  }
 
   { name2value_t::const_iterator itN = n2v.find("air_temperature");
     ASSERT_TRUE(itN != n2v.end());

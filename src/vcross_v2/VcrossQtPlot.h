@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2017 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,13 +29,14 @@
 #ifndef VcrossQtPlot_h
 #define VcrossQtPlot_h
 
-#include "VcrossQtPaint.h"
-#include <diField/VcrossData.h>
 #include "VcrossEvaluate.h"
 #include "VcrossOptions.h"
-
+#include "VcrossQtPaint.h"
+#include "VcrossVerticalTicks.h"
 #include "diColour.h"
 #include "diPlotOptions.h"
+
+#include "diField/VcrossData.h"
 
 #include <puTools/miTime.h>
 
@@ -150,10 +151,6 @@ public:
 
 private:
   bool plotBackground(const std::vector<std::string>& labels);
-
-  typedef std::vector<float> ticks_t;
-  typedef float (*tick_to_axis_f)(float);
-  void generateYTicks(ticks_t& ticks, tick_to_axis_f& tta);
 
   void plotFrame(QPainter& painter,
       const ticks_t& tickValues, tick_to_axis_f& tta);

@@ -14,17 +14,27 @@ static const double MAX_DISTANCE_M = 10000;
 
 namespace vcross {
 
-ZAxisType zAxisTypeFromUnitAndDirection(InventoryBase::Unit_t unit, Z_DIRECTION direction)
+ZAxisType zAxisTypeFromUnitAndDirection(const InventoryBase::Unit_t& unit, Z_DIRECTION direction)
 {
   Z_AXIS_TYPE t = Z_TYPE_UNKNOWN;
   if (unit.empty())
     t = Z_TYPE_LEVEL;
   if (util::unitsConvertible(unit, "hPa"))
     t = Z_TYPE_PRESSURE;
-  else if (util::unitsConvertible(unit, "m"))
-    t = Z_TYPE_ALTITUDE;
+  else if (util::unitsConvertible(unit, "m")) {
+    if (direction == Z_DIRECTION_UP)
+      t = Z_TYPE_ALTITUDE;
+    else
+      t = Z_TYPE_DEPTH;
+  }
 
   return ZAxisType(t, direction);
+}
+
+const InventoryBase::Unit_t& zAxisUnit(Z_AXIS_TYPE zType)
+{
+  static const std::string units[] = {"", "hPa", "m", "m", ""};
+  return units[zType];
 }
 
 // ================================================================================
@@ -74,6 +84,20 @@ void ZAxisData::setHybridParameterId(std::string hybridParameterName, InventoryB
 ZAxisType ZAxisData::zAxisType() const
 {
   return zAxisTypeFromUnitAndDirection(unit(), zdirection());
+}
+
+InventoryBase_cp ZAxisData::getField(Z_AXIS_TYPE t) const
+{
+  fields_t::const_iterator it = mFields.find(t);
+  if (it != mFields.end())
+    return it->second;
+  else
+    return InventoryBase_cp();
+}
+
+void ZAxisData::setField(Z_AXIS_TYPE t, InventoryBase_cp f)
+{
+  mFields.insert(std::make_pair(t, f));
 }
 
 std::string ZAxisData::DATA_TYPE()

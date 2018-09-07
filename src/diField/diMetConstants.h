@@ -50,6 +50,8 @@ namespace Constants {
 
   const double ft_per_m = 3.2808399; // feet per meter
 
+  const double ms2knots = 3600.0 / 1852.0, knots2ms = 1 / ms2knots;
+
   // saturation pressure (water) for t=-100,-95,-90,...+100 deg.Celsius
   const int N_EWT = 41;
   const float ewt[N_EWT] = {

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,9 +30,9 @@
 #include "bdiana_vprof.h"
 
 #include "diPlotCommandFactory.h"
-#include "diVprofOptions.h"
-#include "diVprofPaintable.h"
 #include "export/PaintableImageSource.h"
+#include "util/misc_util.h"
+#include "vprof/diVprofPaintable.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -63,9 +63,10 @@ void BdianaVprof::set_options(const std::vector<std::string>& opts)
 
 void BdianaVprof::commands(const std::vector<std::string>& pcom)
 {
-  manager->parseQuickMenuStrings(vprof_options);
-  manager->parseQuickMenuStrings(makeCommands(pcom, PLOTCOMMANDS_VPROF));
-  manager->setModel();
+  PlotCommand_cpv cmds = vprof_options;
+  diutil::insert_all(cmds, makeCommands(pcom, PLOTCOMMANDS_VPROF));
+
+  manager->applyPlotCommands(cmds);
 }
 
 ImageSource* BdianaVprof::imageSource()

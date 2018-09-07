@@ -62,6 +62,8 @@ public:
   bool operator!=(const Values2& p) const
     { return !(*this == p); }
 
+  Values2 flipped() const { return Values2(mY, mX); }
+
   Values2& operator+=(const Values2& p)
     { mX += p.x(); mY += p.y(); return *this; }
   Values2 operator+(const Values2& p) const

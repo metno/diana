@@ -47,9 +47,8 @@ struct PaintWindArrow : public PaintArrow {
    */
   virtual void paint(QPainter& painter, float u, float v, float px, float py) const;
 
-  static void makeArrowPrimitives(QVector<QLineF>& lines,
-      std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
-      float u, float v, float gx, float gy, int turnBarbs=1);
+  static void makeArrowPrimitives(QVector<QLineF>& lines, std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor, float u_knots,
+                                  float v_knots, float gx, float gy, int turnBarbs = 1);
 
   bool mWithArrowHead;
   float mSize;

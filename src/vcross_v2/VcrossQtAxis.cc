@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2013-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "VcrossQtAxis.h"
 
@@ -9,6 +37,8 @@
 namespace vcross {
 namespace detail {
 
+static const float INVALID = -1e35;
+
 Axis::Axis(bool h)
   : horizontal(h)
   , mType(LINEAR)
@@ -19,6 +49,7 @@ Axis::Axis(bool h)
   , paintMax(1)
   , mScale(1)
 {
+  setDefaultLabel();
 }
 
 bool Axis::legalPaint(float p) const
@@ -38,15 +69,35 @@ bool Axis::legalData(float d) const
 
 float Axis::function(float x) const
 {
-  if (mType == EXNER and mQuantity == PRESSURE)
-    return vcross::util::exnerFunction(x);
+  if (mQuantity == PRESSURE) {
+    if (mType == EXNER)
+      return vcross::util::exnerFunction(x);
+    else if (mType == AMBLE)
+      return vcross::util::ambleFunction(x);
+  }
+  if (mType == LOGARITHMIC) {
+    if (x > 0)
+      return std::log(x);
+    else
+      return INVALID;
+  }
   return x; // LINEAR
 }
 
 float Axis::functionInverse(float x) const
 {
-  if (mType == EXNER and mQuantity == PRESSURE)
-    return vcross::util::exnerFunctionInverse(x);
+  if (mQuantity == PRESSURE) {
+    if (mType == EXNER)
+      return vcross::util::exnerFunctionInverse(x);
+    else if (mType == AMBLE)
+      return vcross::util::ambleFunctionInverse(x);
+  }
+  if (mType == LOGARITHMIC) {
+    if (x != INVALID)
+      return std::exp(x);
+    else
+      return INVALID;
+  }
   return x; // LINEAR
 }
 
@@ -60,7 +111,7 @@ void Axis::calculateScale()
 float Axis::value2paint(float v, bool check) const
 {
   if (check and not legalValue(v))
-    return -1e35;
+    return INVALID;
 
   const float vv = function(v)-fValueMin(),
       sfvv = mScale * vv,
@@ -71,7 +122,7 @@ float Axis::value2paint(float v, bool check) const
 float Axis::paint2value(float p, bool check) const
 {
   if (check and not legalPaint(p))
-    return -1e35;
+    return INVALID;
 
   const float pp = (p-paintMin),
       spp = pp/mScale + fValueMin(),
@@ -131,15 +182,28 @@ bool Axis::pan(float delta)
 bool Axis::setType(const std::string& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(t));
-  if (t == "exner")
-    mType = EXNER;
+  if (mQuantity == PRESSURE) {
+    if (t == "exner")
+      setType(EXNER);
+    else if (t == "amble")
+      setType(AMBLE);
+  }
+  if (t == "log")
+    setType(LOGARITHMIC);
   else if (t == "linear")
-    mType = LINEAR;
+    setType(LINEAR);
   else
     return false;
-
-  calculateScale();
   return true;
+}
+
+void Axis::setType(Type t)
+{
+  if (mQuantity != PRESSURE && (mType == EXNER || mType == AMBLE))
+    mType = LINEAR;
+  else
+    mType = t;
+  calculateScale();
 }
 
 bool Axis::setQuantity(const std::string& q)
@@ -151,17 +215,35 @@ bool Axis::setQuantity(const std::string& q)
     mQuantity = DISTANCE;
   else if (q == "Altitude")
     mQuantity = ALTITUDE;
+  else if (q == "Depth")
+    mQuantity = DEPTH;
   else if (q == "Pressure")
     mQuantity = PRESSURE;
   else
     return false;
 
+  setType(mType);
+  setDefaultLabel();
+
   return true;
+}
+
+void Axis::setDefaultLabel()
+{
+  if (mQuantity == ALTITUDE || mQuantity == DEPTH)
+    mLabel = "m";
+  else if (mQuantity == PRESSURE)
+    mLabel = "hPa";
+  else
+    mLabel.clear();
 }
 
 bool Axis::increasing() const
 {
-  return mQuantity != PRESSURE; // FIXME
+  if (mQuantity == PRESSURE || mQuantity == DEPTH)
+    return false;
+  // FIXME
+  return true;
 }
 
 } /*namespace detail*/

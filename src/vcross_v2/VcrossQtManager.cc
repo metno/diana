@@ -738,11 +738,10 @@ void QtManager::preparePlot()
   { std::string surface_id, surface_unit;
     if (zType == vcross::Z_TYPE_PRESSURE) {
       surface_id = VC_SURFACE_PRESSURE;
-      surface_unit = "hPa";
     } else if (zType == vcross::Z_TYPE_ALTITUDE) {
       surface_id = VC_SURFACE_ALTITUDE;
-      surface_unit = "m";
     }
+    surface_unit = zAxisUnit(zType);
     if (not surface_id.empty()) {
       if (InventoryBase_cp surface = mCollector->getResolvedField(model1, surface_id)) {
         METLIBS_LOG_DEBUG(LOGVAL(surface->unit()) << LOGVAL(surface_unit));
@@ -756,11 +755,10 @@ void QtManager::preparePlot()
     std::string inflight_id, inflight_unit;
     if (zType == vcross::Z_TYPE_PRESSURE) {
       inflight_id = VC_INFLIGHT_PRESSURE;
-      inflight_unit = "hPa";
     } else if (zType == vcross::Z_TYPE_ALTITUDE) {
       inflight_id = VC_INFLIGHT_ALTITUDE;
-      inflight_unit = "m";
     }
+    inflight_unit = zAxisUnit(zType);
     if (not inflight_id.empty()) {
       if (InventoryBase_cp inflight = mCollector->getResolvedField(model1, inflight_id)) {
         METLIBS_LOG_DEBUG("resolved '" << inflight_id << "'");

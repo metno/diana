@@ -115,6 +115,7 @@ SET (LIBDIANA_SOURCES
   diKVListPlotCommand.cc
   diLabelPlotCommand.cc
   diLegendPlot.cc
+  diLinestyle.cc
   diLinetype.cc
   diLocalSetupParser.cc
   diLocationPlot.cc
@@ -237,6 +238,7 @@ SET (LIBDIANA_SOURCES
   vcross_v2/VcrossQtUtil.cc
   vcross_v2/VcrossResolver.cc
   vcross_v2/VcrossSetup.cc
+  vcross_v2/VcrossVerticalTicks.cc
 
   diSpectrumData.cc
   diSpectrumFile.cc
@@ -245,17 +247,36 @@ SET (LIBDIANA_SOURCES
   diSpectrumPaintable.cc
   diSpectrumPlot.cc
 
-  diVprofData.cc
-  diVprofDiagram.cc
-  diVprofManager.cc
-  diVprofOptions.cc
-  diVprofPaintable.cc
-  diVprofPlotCommand.cc
-  diVprofReader.cc
-  diVprofReaderBufr.cc
-  diVprofReaderFimex.cc
-  diVprofReaderRoadobs.cc
-  diVprofValues.cc
+  vprof/diVprofAxes.cc
+  vprof/diVprofAxesPT.cc
+  vprof/diVprofAxesStandard.cc
+  vprof/diVprofBox.cc
+  vprof/diVprofBoxFactory.cc
+  vprof/diVprofBoxFL.cc
+  vprof/diVprofBoxLine.cc
+  vprof/diVprofBoxPT.cc
+  vprof/diVprofBoxSigWind.cc
+  vprof/diVprofBoxVerticalWind.cc
+  vprof/diVprofBoxWind.cc
+  vprof/diVprofBoxZ.cc
+  vprof/diVprofCalculations.cc
+  vprof/diVprofData.cc
+  vprof/diVprofDiagram.cc
+  vprof/diVprofGraphData.cc
+  vprof/diVprofManager.cc
+  vprof/diVprofModelSettings.cc
+  vprof/diVprofOptions.cc
+  vprof/diVprofPaintable.cc
+  vprof/diVprofPainter.cc
+  vprof/diVprofPlotCommand.cc
+  vprof/diVprofReader.cc
+  vprof/diVprofReaderBufr.cc
+  vprof/diVprofReaderFimex.cc
+  vprof/diVprofReaderRoadobs.cc
+  vprof/diVprofSimpleData.cc
+  vprof/diVprofSimpleValues.cc
+  vprof/diVprofUtils.cc
+  vprof/diVprofValues.cc
 
   wmsclient/WebMapPainting.cc
   wmsclient/WebMapUtilities.cc
@@ -397,10 +418,10 @@ SET(LIBDIANAUI_QTSOURCES
   vcross_qt/qtVcrossStyleWidget.cc
   vcross_qt/qtVcrossWindow.cc
 
-  qtVprofModelDialog.cc
-  qtVprofSetupDialog.cc
-  qtVprofUiEventHandler.cc
-  qtVprofWindow.cc
+  vprof/qtVprofModelDialog.cc
+  vprof/qtVprofSetupDialog.cc
+  vprof/qtVprofUiEventHandler.cc
+  vprof/qtVprofWindow.cc
 
   wmsclient/WebMapDialog.cc
 )
@@ -433,6 +454,7 @@ METNO_HEADERS(LIBBDIANA_HEADERS    "cc" "h" ${LIBBDIANA_SOURCES})
 
 LIST (APPEND LIBDIANA_HEADERS
   diBuild.h
+
   diAreaTypes.h
   diCommonTypes.h
   diEditTypes.h
@@ -440,11 +462,14 @@ LIST (APPEND LIBDIANA_HEADERS
   diObjTypes.h
   diPlotElement.h
   diPlotOrder.h
-  diSatTypes.h
   diQuickMenuTypes.h
+  diSatTypes.h
   diSliderValues.h
   diStationTypes.h
   diTimeTypes.h
+
+  vprof/diVprofText.h
+
   util/misc_util.h
   util/nearest_element.h
 )

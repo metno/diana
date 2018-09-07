@@ -120,6 +120,8 @@ int verticalTypeFromId(const std::string& id)
   const std::string verticalTypeText = id.substr(doubleslash+2);
   if (verticalTypeText == "altitude")
     return MIFI_VINT_ALTITUDE;
+  if (verticalTypeText == "depth")
+    return MIFI_VINT_DEPTH;
   else if (verticalTypeText == "pressure")
     return MIFI_VINT_PRESSURE;
   else
@@ -407,8 +409,8 @@ FimexReftimeSource::CoordinateSystem_p FimexReftimeSource::findCsForVariable(con
 {
   METLIBS_LOG_SCOPE(LOGVAL(v->id()) << LOGVAL(v->dataType()));
   vcross::FimexReftimeSource::CoordinateSystem_p cs;
-  const int vtype = verticalTypeFromId(v->id());
-  if (vtype >= 0) {
+  const int verticalType = verticalTypeFromId(v->id());
+  if (verticalType >= 0) {
     const std::string& ztid = transformedZAxisName(v->id());
     zaxis_cs_m::const_iterator itCsId = zaxis_cs.find(ztid);
     if (itCsId != zaxis_cs.end()) {
@@ -567,7 +569,7 @@ void FimexReftimeSource::getWaveSpectrumValues(Crossection_cp crossection, size_
   }
 }
 
-// converted must be one of zaxis->altitudeField() or pressureField()
+// converted must be one of zaxis->getField(...)
 Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, CoordinateSystem_p cs,
     const Values::ShapeSlice& sliceCdm, const Values::Shape& shapeOut, InventoryBase_cp converted)
 {
@@ -836,25 +838,23 @@ bool FimexReftimeSource::makeInventory()
             znew->setNlevel(cdm.getDimension(zName).getLength());
             if (VerticalTransformation_cp vt = cs->getVerticalTransformation()) {
               METLIBS_LOG_DEBUG("z axis '" << zName << "' has vertical transformation '" <<  vt->getName() << "'");
-              try {
-                if (ToVLevelConverter_p pc = vt->getConverter(mReader, MIFI_VINT_PRESSURE, 0, cs)) {
-                  METLIBS_LOG_DEBUG("got pressure converter for '" << zName << "'");
-                  FieldData_p pressure(new FieldData(zName + "//pressure", "hPa"));
-                  pressure->setNlevel(znew->nlevel());
-                  znew->setPressureField(pressure);
+              const int n_z_types = 3;
+              const int mifi_z_types[n_z_types] = {MIFI_VINT_PRESSURE, MIFI_VINT_ALTITUDE, MIFI_VINT_DEPTH};
+              const Z_AXIS_TYPE vcross_z_types[n_z_types] = {Z_TYPE_PRESSURE, Z_TYPE_ALTITUDE, Z_TYPE_DEPTH};
+              const std::string vcross_z_ids[n_z_types] = {"pressure", "altitude", "depth"};
+              const std::string vcross_z_units[n_z_types] = {"hPa", "m", "m"};
+              for (int i = 0; i < n_z_types; ++i) {
+                try {
+                  if (ToVLevelConverter_p pc = vt->getConverter(mReader, mifi_z_types[i], 0, cs)) {
+                    METLIBS_LOG_DEBUG("got " << vcross_z_ids[i] << " converter for '" << zName << "'");
+                    FieldData_p zfield(new FieldData(zName + "//" + vcross_z_ids[i], vcross_z_units[i]));
+                    zfield->setNlevel(znew->nlevel());
+                    znew->setField(vcross_z_types[i], zfield);
+                  }
+                } catch (CDMException& ex) {
+                  METLIBS_LOG_DEBUG("problem with " << vcross_z_ids[i] << " converter for '" << zName << "', no " << vcross_z_ids[i]
+                                                    << " field; exception=" << ex.what());
                 }
-              } catch (CDMException& ex) {
-                METLIBS_LOG_DEBUG("problem with pressure converter for '" << zName << "', no pressure field; exception=" << ex.what());
-              }
-              try {
-                if (ToVLevelConverter_p ac = vt->getConverter(mReader, MIFI_VINT_ALTITUDE, 0, cs)) {
-                  METLIBS_LOG_DEBUG("got altitude converter for '" << zName << "'");
-                  FieldData_p altitude(new FieldData(zName + "//altitude", "m"));
-                  altitude->setNlevel(znew->nlevel());
-                  znew->setAltitudeField(altitude);
-                }
-              } catch (CDMException& ex) {
-                METLIBS_LOG_DEBUG("problem with altitude converter for '" << zName << "', no altitude field");
               }
             }
 

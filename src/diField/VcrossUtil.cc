@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "VcrossUtil.h"
 
@@ -14,6 +42,25 @@
 
 namespace vcross {
 namespace util {
+
+static const float ambleLimit = 500, ambleLimitLog = std::log(ambleLimit), ambleD = 10;
+static const float ambleDelta = (std::log(ambleLimit - ambleD) - ambleLimitLog) / ambleD;
+
+float ambleFunction(float p)
+{
+  if (p > ambleLimit)
+    return std::log(p);
+  else
+    return ambleLimitLog + (ambleLimit - p) * ambleDelta;
+}
+
+float ambleFunctionInverse(float x)
+{
+  if (x > ambleLimitLog)
+    return std::exp(x);
+  else
+    return ambleLimit - (x - ambleLimitLog) / ambleDelta;
+}
 
 float exnerFunction(float p)
 {
@@ -244,7 +291,7 @@ miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
 
 // ------------------------------------------------------------------------
 
-WindArrowFeathers countFeathers(float ff)
+WindArrowFeathers countFeathers(float ff /* knots */)
 {
   WindArrowFeathers waf;
   if (ff < 182.49) {
@@ -265,6 +312,18 @@ WindArrowFeathers countFeathers(float ff)
     waf.n50 = 5;
   }
   return waf;
+}
+
+float FL_to_hPa(float fl)
+{
+  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
+  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
+}
+
+float hPa_to_FL(float hPa)
+{
+  const double a = MetNo::Constants::ICAO_geo_altitude_from_pressure(hPa);
+  return MetNo::Constants::FL_from_geo_altitude(a);
 }
 
 } // namespace util

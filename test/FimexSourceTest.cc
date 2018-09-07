@@ -49,6 +49,18 @@ static const int BANGLADESH_CS_LEN[BANGLADESH_N_CS] = { 1, 1, 96, 124 };
 static const int BANGLADESH_N_TIME = 5;
 static const int BANGLADESH_N_Z = 15;
 
+static const char NORKYST_FILE[] = "norkyst_z.nc";
+static const int NORKYST_N_CS = 4;
+static const int NORKYST_CS_LEN[NORKYST_N_CS] = {59, 24, 1, 1};
+static const int NORKYST_N_TIME = 3;
+static const int NORKYST_N_Z = 12;
+
+static const char NORDIC_FILE[] = "nordic_sg.nc";
+static const int NORDIC_N_CS = 5;
+static const int NORDIC_CS_LEN[NORDIC_N_CS] = {11, 5, 1, 1, 1};
+static const int NORDIC_N_TIME = 3;
+static const int NORDIC_N_Z = 35;
+
 static const char WAVE_FILE[] = "wavespec.nc";
 
 static const char S1970[] = "seconds since 1970-01-01 00:00:00";
@@ -1036,6 +1048,111 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
     idx.set("freq", 2);
     EXPECT_FLOAT_EQ(0.04177283, freq_values->value(idx));
   }
+}
+
+TEST(FimexReftimeSourceTest, DepthProfileZ)
+{
+  ReftimeSource_p fs = openFimexFile(NORKYST_FILE);
+  ASSERT_TRUE(bool(fs));
+
+  Inventory_cp inv = fs->getInventory();
+  ASSERT_TRUE(bool(inv));
+  ASSERT_EQ(NORKYST_N_TIME, inv->times.npoint());
+  ASSERT_EQ(NORKYST_N_CS, inv->crossections.size());
+
+  Crossection_cp cs0 = inv->crossections.at(0);
+  ASSERT_TRUE(bool(cs0));
+  EXPECT_EQ(NORKYST_CS_LEN[0], cs0->length());
+
+  FieldData_cp temperature = inv->findFieldById("temperature");
+  ASSERT_TRUE(bool(temperature));
+  ZAxisData_cp vertical = temperature->zaxis();
+  ASSERT_TRUE(bool(vertical));
+  EXPECT_EQ("depth", vertical->id());
+
+  const Time& time = inv->times.at(1);
+
+  InventoryBase_cps request;
+  request.insert(temperature);
+  request.insert(vertical);
+  name2value_t n2v;
+  fs->getPointValues(cs0, 0, time, request, n2v, 0);
+
+  Values_cp vertical_values = n2v[vertical->id()];
+  ASSERT_TRUE(bool(vertical_values));
+  Values_cp temperature_values = n2v[temperature->id()];
+  ASSERT_TRUE(bool(temperature_values));
+
+  const Values::Shape& shape(vertical_values->shape());
+  ASSERT_EQ(1, shape.rank());
+  EXPECT_EQ(Values::GEO_Z, shape.name(0));
+  EXPECT_EQ(NORKYST_N_Z, shape.length(0));
+
+  ASSERT_EQ(shape.names(), vertical_values->shape().names());
+  ASSERT_EQ(shape.lengths(), vertical_values->shape().lengths());
+
+  Values::ShapeIndex idx(vertical_values->shape());
+  idx.set(Values::GEO_Z, 5);
+  EXPECT_FLOAT_EQ(50, vertical_values->value(idx));
+  EXPECT_FLOAT_EQ(8.93, temperature_values->value(idx));
+
+  idx.set(Values::GEO_Z, 9);
+  EXPECT_FLOAT_EQ(200, vertical_values->value(idx));
+  EXPECT_FLOAT_EQ(6.78, temperature_values->value(idx));
+}
+
+TEST(FimexReftimeSourceTest, DepthProfileSG)
+{
+  ReftimeSource_p fs = openFimexFile(NORDIC_FILE);
+  ASSERT_TRUE(bool(fs));
+
+  Inventory_cp inv = fs->getInventory();
+  ASSERT_TRUE(bool(inv));
+  ASSERT_EQ(NORDIC_N_TIME, inv->times.npoint());
+  ASSERT_EQ(NORDIC_N_CS, inv->crossections.size());
+
+  Crossection_cp cs0 = inv->crossections.at(0);
+  ASSERT_TRUE(bool(cs0));
+  EXPECT_EQ(NORDIC_CS_LEN[0], cs0->length());
+
+  FieldData_cp temperature = inv->findFieldById("temp");
+  ASSERT_TRUE(bool(temperature));
+  ZAxisData_cp vertical = temperature->zaxis();
+  ASSERT_TRUE(bool(vertical));
+  EXPECT_EQ("s_rho", vertical->id());
+  InventoryBase_cp vertical_depth = temperature->zaxis()->depthField();
+  ASSERT_TRUE(bool(vertical_depth));
+  EXPECT_EQ("s_rho//depth", vertical_depth->id());
+
+  const Time& time = inv->times.at(1);
+
+  InventoryBase_cps request;
+  request.insert(temperature);
+  request.insert(vertical_depth);
+  name2value_t n2v;
+  fs->getPointValues(cs0, 0, time, request, n2v, 0);
+
+  Values_cp vertical_depth_values = n2v[vertical_depth->id()];
+  ASSERT_TRUE(bool(vertical_depth_values));
+  Values_cp temperature_values = n2v[temperature->id()];
+  ASSERT_TRUE(bool(temperature_values));
+
+  const Values::Shape& shape(vertical_depth_values->shape());
+  ASSERT_EQ(1, shape.rank());
+  EXPECT_EQ(Values::GEO_Z, shape.name(0));
+  EXPECT_EQ(NORDIC_N_Z, shape.length(0));
+
+  ASSERT_EQ(shape.names(), vertical_depth_values->shape().names());
+  ASSERT_EQ(shape.lengths(), vertical_depth_values->shape().lengths());
+
+  Values::ShapeIndex idx(vertical_depth_values->shape());
+  idx.set(Values::GEO_Z, 5);
+  EXPECT_FLOAT_EQ(133.85757, vertical_depth_values->value(idx));
+  EXPECT_FLOAT_EQ(7.2303705, temperature_values->value(idx));
+
+  idx.set(Values::GEO_Z, 25);
+  EXPECT_FLOAT_EQ(11.73487, vertical_depth_values->value(idx));
+  EXPECT_FLOAT_EQ(12.436813, temperature_values->value(idx));
 }
 
 TEST(FimexSourceTest, TestAromeReftimes)

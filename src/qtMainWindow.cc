@@ -56,7 +56,6 @@
 #include "qtTimeNavigator.h"
 #include "qtTrajectoryDialog.h"
 #include "qtUtility.h"
-#include "qtVprofWindow.h"
 #include "qtWorkArea.h"
 
 #include "diBuild.h"
@@ -76,6 +75,7 @@
 #include "util/qstring_util.h"
 #include "util/string_util.h"
 #include "vcross_qt/qtVcrossInterface.h"
+#include "vprof/qtVprofWindow.h"
 #include "wmsclient/WebMapDialog.h"
 #include "wmsclient/WebMapManager.h"
 
@@ -795,13 +795,11 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   // create a new main window
 #ifndef DISABLE_VPROF
   vpWindow = new VprofWindow();
-  connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
-  connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
-  connect(vpWindow,SIGNAL(stationChanged(const std::vector<std::string> &)),
-      SLOT(stationChangedSlot(const std::vector<std::string> &)));
-  connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
-  mainToolbar->addAction( showProfilesDialogAction    );
+  connect(vpWindow, &VprofWindow::VprofHide, this, &DianaMainWindow::hideVprofWindow);
+  connect(vpWindow, &VprofWindow::showsource, help, &HelpDialog::showsource);
+  connect(vpWindow, &VprofWindow::stationChanged, this, &DianaMainWindow::stationChangedSlot);
+  connect(vpWindow, &VprofWindow::modelChanged, this, &DianaMainWindow::modelChangedSlot);
+  mainToolbar->addAction(showProfilesDialogAction);
 #endif
 
   // vertical crossections
@@ -989,7 +987,7 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
 
   if (!vstr.empty() && vstr.front()->commandKey() == "VPROF") {
     vprofMenu();
-    vpWindow->parseQuickMenuStrings(vstr);
+    vpWindow->applyPlotCommands(vstr);
     return;
   }
 
@@ -1504,7 +1502,6 @@ void DianaMainWindow::hideSpectrumWindow()
   contr->stationCommand("hide","spectrum");
   updateGLSlot();
 }
-
 
 void DianaMainWindow::stationChangedSlot(const vector<std::string>& station)
 {

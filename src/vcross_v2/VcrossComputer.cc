@@ -565,21 +565,15 @@ void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item,
 {
   if (item->dataType() != FieldData::DATA_TYPE())
     return;
+
   FieldData_cp field = std::static_pointer_cast<const FieldData>(item);
 
-  if (zType == Z_TYPE_PRESSURE) {
-    if (ZAxisData_cp zaxis = field->zaxis()) {
-      if (util::unitsConvertible(zaxis->unit(), "hPa"))
-        required.insert(zaxis);
-      else if (InventoryBase_cp pfield = zaxis->pressureField())
-        required.insert(pfield);
-    }
-  } else if (zType == Z_TYPE_ALTITUDE) {
-    if (ZAxisData_cp zaxis = field->zaxis()) {
-      if (util::unitsConvertible(zaxis->unit(), "m"))
-        required.insert(zaxis);
-      else if (InventoryBase_cp afield = zaxis->altitudeField())
-        required.insert(afield);
+  if (ZAxisData_cp zaxis = field->zaxis()) {
+    const std::string& zUnit = zAxisUnit(zType);
+    if (!zUnit.empty() && util::unitsConvertible(zaxis->unit(), zUnit)) {
+      required.insert(zaxis);
+    } else if (InventoryBase_cp zfield = zaxis->getField(zType)) {
+      required.insert(zfield);
     }
   }
 }

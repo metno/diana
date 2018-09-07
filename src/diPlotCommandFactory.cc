@@ -33,8 +33,8 @@
 #include "diLabelPlotCommand.h"
 #include "diStationPlotCommand.h"
 #include "diStringPlotCommand.h"
-#include "diVprofPlotCommand.h"
 #include "vcross_v2/VcrossPlotCommand.h"
+#include "vprof/diVprofPlotCommand.h"
 
 #include "util/string_util.h"
 

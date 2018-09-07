@@ -31,9 +31,8 @@
 
 #include "diObsData.h"
 #include "diStationTypes.h"
-
-class VprofValues;
-typedef std::shared_ptr<VprofValues> VprofValues_p;
+#include "vprof/diVprofSimpleData.h"
+#include "vprof/diVprofSimpleValues.h"
 
 /**
   \brief Reading BUFR observation files
@@ -96,7 +95,8 @@ private:
 
 class VprofBufr : public ObsBufr {
 public:
-  VprofValues_p getVprofPlot(const std::vector<std::string>& bufr_file, const std::string& modelName, const std::string& station);
+  enum VerticalAxis { PRESSURE, ALTITUDE };
+  VprofValues_p getVprofPlot(const std::vector<std::string>& bufr_file, const std::string& station, VerticalAxis vertical_axis);
 
 protected:
   SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
@@ -105,10 +105,15 @@ protected:
 private:
   bool get_data_level(int ktdexl, const int *ktdexp, const double* values,
                       const char* cvals, int subset, int kelem);
+  bool setVerticalValue(float& vertical_value, float bufr_value, float scale_factor = 1);
+  void addValues(float p, float& tt, float& td, float& dd, float& ff, int& bpart, float& ffmax, int& kmax);
 
 private:
-  VprofValues_p vplot;
+  VprofSimpleValues_p vplot;
 
+  VprofSimpleData_p temperature, dewpoint_temperature, wind_dd, wind_ff, wind_sig;
+
+  VerticalAxis vertical_axis_;
   int izone;
   int istation;
   int index;

@@ -162,6 +162,8 @@ vcross::Z_AXIS_TYPE VcrossOptions::getVerticalType() const
 {
   if (verticalCoordinate == "Pressure")
     return vcross::Z_TYPE_PRESSURE;
+  else if (verticalCoordinate == "Depth")
+    return vcross::Z_TYPE_DEPTH;
   else
     return vcross::Z_TYPE_ALTITUDE;
 }

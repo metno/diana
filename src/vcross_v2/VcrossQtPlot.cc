@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2017 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -51,6 +51,7 @@
 #include <QtGui/QPainter>
 
 #include <boost/algorithm/string/join.hpp>
+#include <boost/range/size.hpp>
 
 #include <cmath>
 #include <iterator>
@@ -73,66 +74,13 @@ bool eq_LonLat(const LonLat& a, const LonLat& b)
       && EPS > fabs(a.lat() - b.lat());
 }
 
-const int   NFLTABLE = 14;
-const float FLTABLE[NFLTABLE] =  {
-  25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 600, 700, 800, 999
-};
+const float FLTABLE[] = {25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 600, 700, 800, 999};
 
 namespace Unit {
 const float m = 1;
 const float nm = 1852 * m; // nautical mile
 const float km = 1000 * m;
 }
-
-// begin utility functions for y ticks
-
-float identity(float x)
-{
-  return x;
-}
-
-float foot_to_meter(float ft)
-{
-  return ft / MetNo::Constants::ft_per_m;
-}
-
-float meter_to_foot(float m)
-{
-  return m * MetNo::Constants::ft_per_m;
-}
-
-float FL_to_hPa(float fl)
-{
-  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
-  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
-}
-
-float hPa_to_FL(float hPa)
-{
-  const double a = MetNo::Constants::ICAO_geo_altitude_from_pressure(hPa);
-  return MetNo::Constants::FL_from_geo_altitude(a);
-}
-
-typedef std::vector<float> ticks_t;
-
-ticks_t ticks_table(const float* table, int size)
-{
-  return ticks_t(table, table + size);
-}
-
-ticks_t ticks_auto(float start, float end, float scale, float offset)
-{
-  scale = std::abs(scale);
-  if ((start > end) != (offset < 0))
-    offset *= -1;
-  ticks_t ticks(1, start);
-  while ((offset > 0 && ticks.back() < end)
-      || (offset < 0 && ticks.back() > end))
-    ticks.push_back(ticks.back()*scale + offset);
-  return ticks;
-}
-
-// end utility functions for y ticks
 
 bool isPlotOk(vcross::EvaluatedPlot_cp ep, int npoint, std::string& error, bool timegraph)
 {
@@ -320,7 +268,7 @@ QString QtPlot::axisPosition(int x, int y)
 
     if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
       if (unit == "FL") {
-        tta = hPa_to_FL;
+        tta = vcross::util::hPa_to_FL;
         text += unit;
         unit = QString();
       }
@@ -425,16 +373,14 @@ void QtPlot::viewStandard()
     yMin += range * mOptions->minVerticalArea;
     yMax -= range * (100-mOptions->maxVerticalArea);
   } else {
-    const float STD_MAX_HEIGHT_VALUE = 16000 /* m */, STD_MIN_P_VALUE = 100 /* hPa */;
-    if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE
-        && yMin <= 0.75*STD_MAX_HEIGHT_VALUE
-        && yMax > STD_MAX_HEIGHT_VALUE)
-    {
-      yMax = STD_MAX_HEIGHT_VALUE;
-    } else if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE
-        && yMax < STD_MIN_P_VALUE
-        && yMin >= 3 * STD_MIN_P_VALUE)
-    {
+    const float STD_MAX_ALTITUDE_VALUE = 16000 /* m */;
+    const float STD_MAX_DEPTH_VALUE = 5000 /* m */;
+    const float STD_MIN_P_VALUE = 100 /* hPa */;
+    if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE && yMin <= 0.75 * STD_MAX_ALTITUDE_VALUE && yMax > STD_MAX_ALTITUDE_VALUE) {
+      yMax = STD_MAX_ALTITUDE_VALUE;
+    } else if (mAxisY->quantity() == vcross::detail::Axis::DEPTH && yMin <= 0.75 * STD_MAX_DEPTH_VALUE && yMax > STD_MAX_DEPTH_VALUE) {
+      yMax = STD_MAX_DEPTH_VALUE;
+    } else if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE && yMax < STD_MIN_P_VALUE && yMin >= 3 * STD_MIN_P_VALUE) {
       yMax = STD_MIN_P_VALUE;
     }
   }
@@ -826,7 +772,7 @@ void QtPlot::plot(QPainter& painter)
 
   ticks_t tickValues;
   tick_to_axis_f tta = identity;
-  generateYTicks(tickValues, tta);
+  generateVerticalTicks(mAxisY, tickValues, tta);
 
   plotVerticalGridLines(painter);
   plotHorizontalGridLines(painter, tickValues, tta);
@@ -1139,8 +1085,7 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
   }
 }
 
-void QtPlot::plotHorizontalGridLines(QPainter& painter,
-    const ticks_t& tickValues, tick_to_axis_f& tta)
+void QtPlot::plotHorizontalGridLines(QPainter& painter, const ticks_t& tickValues, vcross::tick_to_axis_f& tta)
 {
   if (not mOptions->pHorizontalGridLines)
     return;
@@ -1158,68 +1103,6 @@ void QtPlot::plotHorizontalGridLines(QPainter& painter,
 
     // paint tick mark
     painter.drawLine(QLineF(tickX0, axisY, tickX1, axisY));
-  }
-}
-
-void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
-{
-  using namespace MetNo::Constants;
-
-  tickValues.clear();
-  tta = identity;
-
-  float autotick_offset = 0, autotick_scale = 1;
-
-  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
-    if (mAxisY->label() == "hPa") {
-      tickValues = ticks_table(pLevelTable, nLevelTable);
-      autotick_offset = -5;
-    } else if (mAxisY->label() == "FL") {
-      tickValues = ticks_table(FLTABLE, NFLTABLE);
-      tta = FL_to_hPa;
-      autotick_offset = 10;
-    } else {
-      METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
-      return;
-    }
-  } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE) {
-    if (mAxisY->label() == "m") {
-      const int nzsteps = 12;
-      const float zsteps[nzsteps] =
-          { 100., 500., 1000., 2500., 5000., 10000, 15000,
-            20000, 25000, 30000, 35000, 40000 };
-      tickValues = ticks_table(zsteps, nzsteps);
-      autotick_offset = 100;
-    } else if (mAxisY->label() == "Ft") {
-      const int nftsteps = 12;
-      const float ftsteps[nftsteps] =
-          { 0, 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
-            70000, 80000, 90000 };
-      tickValues = ticks_table(ftsteps, nftsteps);
-      tta = foot_to_meter;
-      autotick_offset = 500;
-    } else {
-      METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
-      return;
-    }
-  } else {
-    METLIBS_LOG_WARN("unsupported y axis quantity");
-    return;
-  }
-
-  { int visibleTicks = 0;
-    for (size_t i=0; i<tickValues.size(); ++i) {
-      const float axisValue = tta(tickValues[i]);
-      const float axisY = mAxisY->value2paint(axisValue);
-      if (mAxisY->legalPaint(axisY))
-        visibleTicks += 1;
-    }
-    METLIBS_LOG_DEBUG(LOGVAL(visibleTicks));
-    if (visibleTicks < 6) {
-      tickValues = ticks_auto(tickValues.front(), tickValues.back(),
-          autotick_scale, autotick_offset);
-      METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
-    }
   }
 }
 

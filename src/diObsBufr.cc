@@ -29,10 +29,11 @@
 
 #include "diana_config.h"
 
+#include "diField/diMetConstants.h"
 #include "diObsBufr.h"
 #include "diObsData.h"
-#include "diVprofValues.h"
 #include "util/format_int.h"
+#include "vprof/diVprofValues.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
@@ -81,8 +82,6 @@ const double bufrMissing = 1.6e+38;
 
 // constants for changing to met.no units
 const double pa2hpa = 0.01;
-const double t0 = 273.15;
-const double ms2knots = 3600.0 / 1852.0, knots2ms = 1 / ms2knots;
 
 
 const int len_cnames = 64, len_cunits = 24, len_cvals = 80;
@@ -210,6 +209,7 @@ void cloud_type(ObsData& d, double v)
 
 float ms2code4451(float v)
 {
+  using MetNo::Constants::knots2ms;
   if (v < knots2ms)
     return 0.0;
   if (v < 5 * knots2ms)
@@ -369,14 +369,20 @@ bool StationBufr::readStationInfo(const vector<std::string>& bufr_file,
   return true;
 }
 
-VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, const std::string& modelName, const std::string& station)
+VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, const std::string& station, VerticalAxis vertical_axis)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
 
   index = izone = istation = 0;
-  vplot = std::make_shared<VprofValues>();
 
-  vplot->text.modelName = modelName;
+  vertical_axis_ = vertical_axis;
+  const std::string zUnit = (vertical_axis_ == PRESSURE) ? "hPa" : "m";
+  vplot = std::make_shared<VprofSimpleValues>();
+  vplot->add(temperature = std::make_shared<VprofSimpleData>(vprof::VP_AIR_TEMPERATURE, zUnit, "degree_Celsius"));
+  vplot->add(dewpoint_temperature = std::make_shared<VprofSimpleData>(vprof::VP_DEW_POINT_TEMPERATURE, zUnit, "degree_Celsius"));
+  vplot->add(wind_dd = std::make_shared<VprofSimpleData>(vprof::VP_WIND_DD, zUnit, vprof::VP_UNIT_COMPASS_DEGREES));
+  vplot->add(wind_ff = std::make_shared<VprofSimpleData>(vprof::VP_WIND_FF, zUnit, "m/s"));
+  vplot->add(wind_sig = std::make_shared<VprofSimpleData>(vprof::VP_WIND_SIG, zUnit, ""));
 
   //if station(no)
   vector<std::string> token = miutil::split(station, "(");
@@ -399,6 +405,7 @@ VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, cons
   for (size_t i=0; i< bufr_file.size(); i++) {
     //init returns true when reaching end of file, returns false when station is found
     if (!init(bufr_file[i])) {
+      vplot->calculate();
       return vplot;
     }
   }
@@ -505,6 +512,8 @@ bool ObsDataBufr::timeOK(const miutil::miTime& t) const
 bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* values,
                                  const char* cvals, int subset, int kelem, ObsData &d)
 {
+  using MetNo::Constants::t0;
+
   d.fdata.clear();
 
   int wmoBlock = 0;
@@ -777,7 +786,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 10008:
     case 10003:
       if (values[j] < bufrMissing) {
-        d.fdata["HHH"] = values[j] / 9.8;
+        d.fdata["HHH"] = values[j] / MetNo::Constants::g;
       }
       break;
       // 010009 GEOPOTENTIAL HEIGHT
@@ -1387,7 +1396,8 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
 bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const double* values,
                                        const char* cvals, int subset, int kelem, ObsData &d)
 {
-  //    METLIBS_LOG_DEBUG("get_diana_data");
+  using MetNo::Constants::t0;
+
   d.fdata.clear();
   d.id.clear();
   d.ship_buoy = 0;
@@ -1622,7 +1632,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       case 10008:
       case 10003:
         if (values[j] < bufrMissing)
-          d.fdata["HHH"] = values[j] / 9.8;
+          d.fdata["HHH"] = values[j] / MetNo::Constants::g;
         break;
         //   10009 GEOPOTENTIAL HEIGHT
       case 10009:
@@ -1705,9 +1715,26 @@ ObsBufr::SubsetResult VprofBufr::handleBufrSubset(int ktdexl, const int *ktdexp,
     return BUFR_ERROR;
 }
 
+bool VprofBufr::setVerticalValue(float& vertical_value, float bufr_value, float scale_factor)
+{
+  if (bufr_value < bufrMissing) {
+    vertical_value = bufr_value * scale_factor;
+    if (vertical_axis_ == PRESSURE) {
+      return (vertical_value > 0 && vertical_value < 1300);
+    } else if (vertical_axis_ == ALTITUDE) {
+      return (vertical_value > -500 && vertical_value < 2e5);
+    }
+  }
+  vertical_value = -12345;
+  return false;
+}
+
 bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* values,
                                const char* cvals, int subset, int kelem)
 {
+  METLIBS_LOG_SCOPE();
+  using MetNo::Constants::t0;
+
   //  int wmoBlock = 0;
   //  int wmoStation = 0;
   std::string station;
@@ -1716,254 +1743,207 @@ bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* valu
   int day = 0;
   int hour = 0;
   int minute = 0;
-  float p = 0, tt = -30000, td = -30000;
-  float fff, ddd;
-  int dd=-1, ff=-1, bpart;
+  float vertical = -12345;
+  bool vertical_ok = false;
+  float tt = -30000, td = -30000, dd = -1, ff = -1;
+  int wind_lvl = 0;
   float lat = 0., lon = 0.;
-  int ffmax = -1, kmax = -1;
+  float ffmax = -1;
+  int kmax = -1;
 
   static int ii = 0;
 
-  bool ok = false;
-  bool found = false;
-  bool sounding_significance_ok = true;
+  bool station_found = false;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
+    const int bufr_element = ktdexp[i];
+    const double bufr_value = values[j];
 
-    if (ktdexp[i] < 7000 // station info
-        || ok // pressure ok
-        || ktdexp[i] == 8042  //       sounding significance
-        || ktdexp[i] == 7004) { // next pressure level
+    const bool element_is_pressure = (vertical_axis_ == PRESSURE) && (bufr_element == 7004    // PRESSURE
+                                                                      || bufr_element == 7011 // PRESSURE (HIGH PRECISION)
+                                                                      );
+    const bool element_is_altitude = (vertical_axis_ == ALTITUDE) && (bufr_element == 7002     // HEIGHT OR ALTITUDE
+                                                                      || bufr_element == 7003  // GEOPOTENTIAL
+                                                                      || bufr_element == 7008  // GEOPOTENTIAL (HIGHER PRECISION)
+                                                                      || bufr_element == 7009  // GEOPOTENTIAL HEIGHT
+                                                                      || bufr_element == 10003 // GEOPOTENTIAL (non-coordinate)
+                                                                      || bufr_element == 10008 // GEOPOTENTIAL (non-coordinate, HIGHER PRECISION)
+                                                                      || bufr_element == 10009 // GEOPOTENTIAL HEIGHT (non-coordinate)
+                                                                      );
+    const bool element_is_z = element_is_pressure || element_is_altitude;
 
-      if (ktdexp[i] == 7004) { //new pressure level, save data
-        if(!found)   {
+    if (bufr_element < 7000 // station info
+        || vertical_ok      // vertical coordinate found in previous BUFR element
+        || element_is_z)    // next vertical level
+    {
+      if (element_is_z) { // new vertical level, save data
+        if (!station_found)
           return false;
-        }
 
-        if (p > 0. && p < 1300.) {
-          if (tt > -30000.) {
-            vplot->ptt.push_back(p);
-            vplot->tt.push_back(tt);
-            if (td > -30000.) {
-              vplot->ptd.push_back(p);
-              vplot->td.push_back(td);
-              vplot->pcom.push_back(p);
-              vplot->tcom.push_back(tt);
-              vplot->tdcom.push_back(td);
-              td = -31000.;
-            }
-            tt = -31000.;
-          }
-          if (dd >= 0 && dd <= 360 && ff >= 0) {
-            vplot->puv.push_back(p);
-            vplot->dd.push_back(dd);
-            vplot->ff.push_back(ff);
-            // convert to east/west and north/south component
-            fff = float(ff);
-            ddd = (float(dd) + 90.) * DEG_TO_RAD;
-            vplot->uu.push_back(fff * cosf(ddd));
-            vplot->vv.push_back(-fff * sinf(ddd));
-            vplot->sigwind.push_back(bpart);
-            if (ff > ffmax) {
-              ffmax = ff;
-              kmax = vplot->sigwind.size() - 1;
-            }
-            dd = ff = -1;
-            bpart = 1;
-          }
-        }
+        if (vertical_ok)
+          addValues(vertical, tt, td, dd, ff, wind_lvl, ffmax, kmax);
       }
 
-      //skip data if 008042 EXTENDED VERTICAL SOUNDING SIGNIFICANCE = 0
-      if ( !sounding_significance_ok && ktdexp[i] != 8042 ) {
-        ok = false;
-        continue;
-      }
-
-      switch (ktdexp[i]) {
+      switch (bufr_element) {
 
       //   1001  WMO BLOCK NUMBER
-      case 1001:
-      {
-        if (izone != int(values[j])) {
+      case 1001: {
+        if (izone != int(bufr_value))
           return false;
-        }
-        found = true;
+        station_found = true;
+        break;
       }
-      break;
 
       //   1002  WMO STATION NUMBER
-      case 1002:
-      {
-        if (istation != int(values[j])) {
+      case 1002: {
+        if (istation != int(bufr_value))
           return false;
-        }
         if (index != ii) {
           ii++;
           return false;
         }
         ii = 0;
-        found = true;
+        station_found = true;
+        break;
       }
-      break;
-
-
 
       // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
       case 1006:
       case 1011:
-      case 1194:
-
-      {
-        if ( !found ) {
-          int iindex = int(values[j]) / 1000 - 1;
+      case 1194: {
+        if (!station_found) {
+          int iindex = int(bufr_value) / 1000 - 1;
           station = substr(cvals, iindex, 6);
           miutil::trim(station);
-          if (strStation != station) {
+          if (strStation != station)
             return false;
-          }
           if (index != ii) {
             ii++;
             return false;
           }
-          if (not station.empty()) {
+          if (!station.empty())
             ii=0;
-          }
-          found = true;
+          station_found = true;
         }
+        break;
       }
-      break;
 
       //   4001  YEAR
       case 4001:
-        year = int(values[j]);
+        year = int(bufr_value);
         break;
 
         //   4002  MONTH
       case 4002:
-        month = int(values[j]);
+        month = int(bufr_value);
         break;
 
         //   4003  DAY
       case 4003:
-        day = int(values[j]);
+        day = int(bufr_value);
         break;
 
         //   4004  HOUR
       case 4004:
-        hour = int(values[j]);
+        hour = int(bufr_value);
         break;
 
         //   4005  MINUTE
       case 4005:
-        minute = int(values[j]);
+        minute = int(bufr_value);
         break;
 
         //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
         //   5002  LATITUDE (COARSE ACCURACY), DEGREE
       case 5001:
-      case 5002:{
-        lat = values[j];
-      }
-      break;
+      case 5002:
+        lat = bufr_value;
+        break;
 
       //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
       //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
       case 6001:
       case 6002:
-      {
-        lon = values[j];
-      }
-      break;
+        lon = bufr_value;
+        break;
 
-      //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
-      case 7004:
-        if (values[j] < bufrMissing) {
-          p = int(values[j] * pa2hpa);
-          ok = (p > 0. && p < 1300.);
-        } else {
-          p=-1;
-          ok=false;
+      case 7004: // PRESSURE (Pa)
+      case 7011: // PRESSURE (HIGH PRECISION) (Pa)
+        if (vertical_axis_ == PRESSURE)
+          vertical_ok = setVerticalValue(vertical, bufr_value, pa2hpa); // convert from Pa to hPa
+        break;
+
+      case 7002: // HEIGHT OR ALTITUDE / m
+        if (vertical_axis_ == ALTITUDE)
+          vertical_ok = setVerticalValue(vertical, bufr_value);
+        break;
+
+      case 7003:  // GEOPOTENTIAL
+      case 7008:  // GEOPOTENTIAL (HIGHER PRECISION)
+      case 10003: // GEOPOTENTIAL (non-coordinate)
+      case 10008: // GEOPOTENTIAL (non-coordinate, HIGHER PRECISION)
+        // value in  m**2/s**2, convert to m (approximate)
+        if (vertical_axis_ == ALTITUDE)
+          vertical_ok = setVerticalValue(vertical, bufr_value, 1 / MetNo::Constants::g);
+        break;
+
+      case 7009:  // GEOPOTENTIAL HEIGHT / m
+      case 10009: // GEOPOTENTIAL HEIGHT (non-coordinate) / m
+        if (vertical_axis_ == ALTITUDE)
+          vertical_ok = setVerticalValue(vertical, bufr_value);
+        break;
+
+      case 8001: // VERTICAL SOUNDING SIGNIFICANCE
+        if (bufr_value < bufrMissing) {
+          const int flags = int(bufr_value);
+          if (flags & 0x2) // significant wind level
+            wind_lvl = 1;
         }
         break;
 
-        //   VERTICAL SOUNDING SIGNIFICANCE
-      case 8001:
-        if (values[j] > 31. && values[j] < 64)
-          bpart = 0;
-        else
-          bpart = 1;
-        break;
-
-        //   008042 EXTENDED VERTICAL SOUNDING SIGNIFICE
-      case 8042:
-        if (values[j] < bufrMissing )
-          sounding_significance_ok = (values[j] != 0 );
+      case 8042: // EXTENDED VERTICAL SOUNDING SIGNIFICANCE
+        if (bufr_value < bufrMissing) {
+          const int flags = int(bufr_value);
+          if (flags & 0x800) // significant wind level
+            wind_lvl = 1;
+        }
         break;
 
         //   11001  WIND DIRECTION
       case 11001:
-        if (values[j] < bufrMissing)
-          dd = int(values[j]);
+        if (bufr_value < bufrMissing)
+          dd = bufr_value; // compass degrees
         break;
 
         //   11002  WIND SPEED
       case 11002:
-        if (values[j] < bufrMissing)
-          ff = int(values[j] * ms2knots + 0.5); //should be done elsewhere
+        if (bufr_value < bufrMissing)
+          ff = bufr_value; // m/s
         break;
 
-        //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits), K->Celsius
-        //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits), K->Celsius
+      //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits)
+      //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits)
       case 12101:
       case 12001:
-        if (values[j] < bufrMissing)
-          tt = values[j] - t0;
+        if (bufr_value < bufrMissing)
+          tt = bufr_value - t0; // convert from K to degC
         break;
 
-        //   12103  DEW POINT TEMPERATURE (16 bits), K->Celsius
-        //   12003  DEW POINT TEMPERATURE (12 bits), K->Celsius
+      //   12103  DEW POINT TEMPERATURE (16 bits)
+      //   12003  DEW POINT TEMPERATURE (12 bits)
       case 12103:
       case 12003:
-        if (values[j] < bufrMissing)
-          td = values[j] - t0;
+        if (bufr_value < bufrMissing)
+          td = bufr_value - t0; // convert from K to degC
         break;
-
       }
     }
 
     // right pressure level found and corresponding parameters read
   }
 
-  //right pressure level not found
-  if (p > 0. && p < 1300.) {
-    if (tt > -30000.) {
-      vplot->ptt.push_back(p);
-      vplot->tt.push_back(tt);
-      if (td > -30000.) {
-        vplot->ptd.push_back(p);
-        vplot->td.push_back(td);
-        vplot->pcom.push_back(p);
-        vplot->tcom.push_back(tt);
-        vplot->tdcom.push_back(td);
-      }
-    }
-    if (dd >= 0 && dd <= 360 && ff >= 0) {
-      vplot->puv.push_back(p);
-      vplot->dd.push_back(dd);
-      vplot->ff.push_back(ff);
-      // convert to east/west and north/south component
-      fff = float(ff);
-      ddd = (float(dd) + 90.) * DEG_TO_RAD;
-      vplot->uu.push_back(fff * cosf(ddd));
-      vplot->vv.push_back(-fff * sinf(ddd));
-      vplot->sigwind.push_back(bpart);
-      if (ff > ffmax) {
-        ffmax = ff;
-        kmax = vplot->sigwind.size() - 1;
-      }
-    }
-  }
+  if (vertical_ok)
+    addValues(vertical, tt, td, dd, ff, wind_lvl, ffmax, kmax);
 
   vplot->text.posName = strStation;
   miutil::trim(vplot->text.posName);
@@ -1976,10 +1956,34 @@ bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* valu
   vplot->text.realization = -1;
 
   if (kmax >= 0)
-    vplot->sigwind[kmax] = 3;
+    wind_sig->setX(kmax, 3);
 
   vplot->prognostic = false;
-  vplot->maxLevels = std::max(vplot->ptt.size(), vplot->puv.size());
 
   return true;
+}
+
+void VprofBufr::addValues(float z, float& tt, float& td, float& dd, float& ff, int& wind_lvl, float& ffmax, int& kmax)
+{
+  if (tt > -30000.) {
+    temperature->add(z, tt);
+    tt = -31000.;
+    if (td > -30000.) {
+      dewpoint_temperature->add(z, td);
+      td = -31000.;
+    }
+  }
+
+  if (dd < 0 || dd > 360 || ff < 0)
+    return;
+
+  wind_dd->add(z, dd);
+  wind_ff->add(z, ff);
+  wind_sig->add(z, wind_lvl);
+  if (ff > ffmax) {
+    ffmax = ff;
+    kmax = wind_sig->length() - 1;
+  }
+  dd = ff = -1;
+  wind_lvl = 0;
 }

@@ -21,22 +21,20 @@ PaintWindArrow::PaintWindArrow()
 }
 
 // static
-void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines,
-    std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
-    float u, float v, float gx, float gy, int turnBarbs)
+void PaintWindArrow::makeArrowPrimitives(QVector<QLineF>& lines, std::vector<QPointF>& trianglePoints, float size, bool withArrowHead, float yFactor,
+                                         float u_knots, float v_knots, float gx, float gy, int turnBarbs)
 {
   // step and size for flags
   const float fStep = size / 10.0, fSize = size * 0.35;
   const float KN5_SCALE = 0.6;
 
-  const float ff = diutil::absval(u, v);
-  if (ff <= 0.00001 or std::isnan(ff))
+  const float ff_knots = diutil::absval(u_knots, v_knots);
+  if (ff_knots <= 0.00001 or std::isnan(ff_knots))
     return;
 
-  const util::WindArrowFeathers waf = util::countFeathers(ff);
+  const util::WindArrowFeathers waf = util::countFeathers(ff_knots);
 
-  const float unitX = u / ff,
-      unitY = -v / ff; // -v because v is up, y coordinate increases down
+  const float unitX = u_knots / ff_knots, unitY = -v_knots / ff_knots; // -v because v is up, y coordinate increases down
 
   const float flagDX = fStep * unitX, flagDY = yFactor*(fStep * unitY);
   const float flagEndDX = turnBarbs*fSize * unitY - flagDX, flagEndDY = -yFactor*turnBarbs*(fSize * unitX) - flagDY;

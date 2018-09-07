@@ -204,8 +204,10 @@ void VcrossSetupDialog::initOptions()
   vchoice.push_back("Standard/FL");
   vchoice.push_back("Pressure/hPa");
   vchoice.push_back("Pressure/FL");
+  vchoice.push_back("Amble/hPa");
   vchoice.push_back("Altitude/m");
   vchoice.push_back("Altitude/Ft");
+  vchoice.push_back("Depth/m");
   mSetupVERTICALTYPE->defineTextChoice(vchoice,0);
 
   nrow++;
@@ -470,6 +472,9 @@ void VcrossSetupDialog::applySetup()
     if ( tokens.size() == 2 ) {
       if ( tokens[0] == "Standard" ) {
         vcopt->verticalScale = "exner";
+        vcopt->verticalCoordinate = "Pressure";
+      } else if (tokens[0] == "Amble") {
+        vcopt->verticalScale = "amble";
         vcopt->verticalCoordinate = "Pressure";
       } else {
         vcopt->verticalScale = "linear";

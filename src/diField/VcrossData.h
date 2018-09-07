@@ -28,12 +28,7 @@ enum Z_DIRECTION {
 
 // ================================================================================
 
-enum Z_AXIS_TYPE {
-  Z_TYPE_UNKNOWN  = 0,
-  Z_TYPE_PRESSURE = 1,
-  Z_TYPE_ALTITUDE = 2,
-  Z_TYPE_LEVEL    = 3
-};
+enum Z_AXIS_TYPE { Z_TYPE_UNKNOWN, Z_TYPE_PRESSURE, Z_TYPE_ALTITUDE, Z_TYPE_DEPTH, Z_TYPE_LEVEL };
 
 // ================================================================================
 
@@ -43,10 +38,6 @@ struct ZAxisType {
   ZAxisType(Z_AXIS_TYPE t, Z_DIRECTION d)
     : type(t), direction(d) { }
 };
-
-// ================================================================================
-
-ZAxisType zAxisTypeFromUnitAndDirection(std::string unit, Z_DIRECTION direction);
 
 // ================================================================================
 
@@ -123,15 +114,17 @@ public:
     { return DATA_TYPE(); }
   static std::string DATA_TYPE();
 
-  InventoryBase_cp pressureField() const
-    { return mPressureField; }
-  void setPressureField(InventoryBase_cp p)
-    { mPressureField = p; };
+  InventoryBase_cp pressureField() const { return getField(Z_TYPE_PRESSURE); }
+  void setPressureField(InventoryBase_cp f) { setField(Z_TYPE_PRESSURE, f); };
 
-  InventoryBase_cp altitudeField() const
-    { return mAltitudeField; }
-  void setAltitudeField(InventoryBase_cp h)
-    { mAltitudeField = h; }
+  InventoryBase_cp altitudeField() const { return getField(Z_TYPE_ALTITUDE); }
+  void setAltitudeField(InventoryBase_cp f) { setField(Z_TYPE_ALTITUDE, f); };
+
+  InventoryBase_cp depthField() const { return getField(Z_TYPE_DEPTH); }
+  void setDepthField(InventoryBase_cp f) { setField(Z_TYPE_DEPTH, f); };
+
+  InventoryBase_cp getField(Z_AXIS_TYPE t) const;
+  void setField(Z_AXIS_TYPE t, InventoryBase_cp f);
 
 private:
   Z_DIRECTION mZDirection;
@@ -139,7 +132,8 @@ private:
   typedef std::map<std::string, Id_t> hybridparameterids_t;
   hybridparameterids_t mHybridParameterIds;
 
-  InventoryBase_cp mPressureField, mAltitudeField;
+  typedef std::map<Z_AXIS_TYPE, InventoryBase_cp> fields_t;
+  fields_t mFields;
 };
 
 typedef std::shared_ptr<ZAxisData>       ZAxisData_p;
@@ -430,6 +424,11 @@ typedef std::shared_ptr<const Inventory> Inventory_cp;
 // ================================================================================
 
 std::ostream& operator<<(std::ostream& out, const Values::Shape& shp);
+
+// ================================================================================
+
+ZAxisType zAxisTypeFromUnitAndDirection(const InventoryBase::Unit_t& unit, Z_DIRECTION direction);
+const vcross::InventoryBase::Unit_t& zAxisUnit(Z_AXIS_TYPE zType);
 
 } // namespace vcross
 

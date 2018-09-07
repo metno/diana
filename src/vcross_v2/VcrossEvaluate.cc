@@ -180,6 +180,17 @@ void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, co
 
 // ########################################################################
 
+Values_cp vc_evaluate_z(ZAxisData_cp zaxis, Z_AXIS_TYPE z_type, name2value_t& n2v)
+{
+  const std::string& zUnit = zAxisUnit(z_type);
+  if (!zUnit.empty() && util::unitsConvertible(zaxis->unit(), zUnit)) {
+    return util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), zUnit);
+  } else if (InventoryBase_cp zfield = zaxis->getField(z_type)) {
+    return vc_evaluate_field(zfield, n2v);
+  }
+  return Values_cp();
+}
+
 EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model_values, Z_AXIS_TYPE z_type)
 {
   METLIBS_LOG_SCOPE();
@@ -199,19 +210,8 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
     EvaluatedPlot_p ep(new EvaluatedPlot(sp));
     FieldData_cp arg0 = sp->resolved->arguments.at(0);
     if (ZAxisData_cp zaxis = arg0->zaxis()) {
-      Values_cp z_values;
-      if (z_type == Z_TYPE_PRESSURE) {
-        if (util::unitsConvertible(zaxis->unit(), "hPa"))
-          z_values = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
-        else if (InventoryBase_cp pfield = zaxis->pressureField())
-          z_values = vc_evaluate_field(pfield, n2v);
-      } else if (z_type == Z_TYPE_ALTITUDE) {
-        if (util::unitsConvertible(zaxis->unit(), "m"))
-          z_values = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "m");
-        else if (InventoryBase_cp afield = zaxis->altitudeField())
-          z_values = vc_evaluate_field(afield, n2v);
-      }
-      ep->z_values = z_values; // FIXME these values do not match zaxis' units
+      // FIXME these values do not match zaxis' units
+      ep->z_values = vc_evaluate_z(zaxis, z_type, n2v);
     }
 
     ep->argument_values = vc_evaluate_fields(n2v, sp->resolved->arguments);

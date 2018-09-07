@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,7 +31,7 @@
 #define BDIANA_VPROF_H
 
 #include "bdiana_source.h"
-#include "diVprofManager.h"
+#include "vprof/diVprofManager.h"
 
 #include <string>
 #include <vector>
