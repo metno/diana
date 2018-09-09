@@ -506,13 +506,6 @@ void SatManager::setPalette(Sat* satdata, SatFileInfo &fInfo)
     for (int i=0; i<colmapsize; i++)
       colmap[k][i]= satdata->paletteInfo.cmap[k][i];
 
-  //clean up fInfo
-  fInfo.col.clear();
-  //colours to return to sat dialog
-  int ncolours = satdata->paletteInfo.noofcl;
-  for (int i=0; i<=ncolours; i++)
-    fInfo.col.push_back(Colour(colmap[0][i], colmap[1][i], colmap[2][i]));
-
   //convert image from palette to RGBA
   for (int j=0; j<ny; j++) {
     for (int i=0; i<nx; i++) {

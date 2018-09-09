@@ -54,14 +54,9 @@ struct SatFileInfo
   std::string paletteinfo;
   int hdf5type;
   miutil::miTime time;
-  miutil::miClock clock;
-  int day;
   bool opened;
   std::vector<std::string> channel;
-  std::string default_channel;
   bool palette;            // palette or rgb file
-  std::vector<Colour> col; // vector of colours used
-  std::string fileformat;
   SatFileInfo()
       : opened(false)
       , palette(false)
