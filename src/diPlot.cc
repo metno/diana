@@ -67,7 +67,7 @@ void Plot::setEnabled(bool e)
 
 std::string Plot::getEnabledStateKey() const
 {
-  return miutil::mergeKeyValue(getPlotInfo());
+  return miutil::mergeKeyValue(ooptions);
 }
 
 void Plot::setPlotInfo(const miutil::KeyValue_v& kvs)
@@ -76,13 +76,6 @@ void Plot::setPlotInfo(const miutil::KeyValue_v& kvs)
   ooptions.clear();
   PlotOptions::parsePlotOption(kvs, poptions, ooptions);
   enabled = poptions.enabled;
-}
-
-miutil::KeyValue_v Plot::getPlotInfo(int n) const
-{
-  miutil::KeyValue_v::const_iterator itB = ooptions.begin(), itE = itB;
-  std::advance(itE, std::min(size_t(n), ooptions.size()));
-  return miutil::KeyValue_v(itB, itE);
 }
 
 void Plot::getAnnotation(std::string& s, Colour& c) const

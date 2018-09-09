@@ -73,13 +73,6 @@ public:
   /// set the plot info string
   virtual void setPlotInfo(const miutil::KeyValue_v& kvs);
 
-  /// return current plot info string
-  const miutil::KeyValue_v& getPlotInfo() const
-    { return ooptions; }
-
-  /// return n elements of the current plot info string
-  miutil::KeyValue_v getPlotInfo(int n) const;
-
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const
     { return poptions; }
