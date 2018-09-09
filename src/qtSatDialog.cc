@@ -33,6 +33,7 @@
 
 #include "diController.h"
 #include "diFont.h"
+#include "diSatDialogData.h"
 #include "diUtilities.h"
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
@@ -75,8 +76,9 @@ using namespace std;
 
 
 /*********************************************/
-SatDialog::SatDialog(QWidget* parent, Controller* llctrl)
-    : DataDialog(parent, llctrl)
+SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
+    : DataDialog(parent, 0)
+    , sdd_(sdd)
 {
   METLIBS_LOG_SCOPE();
 
@@ -87,7 +89,7 @@ SatDialog::SatDialog(QWidget* parent, Controller* llctrl)
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_satdialogue.html";
 
-  dialogInfo = llctrl->initSatDialog();
+  dialogInfo = sdd->initSatDialog();
 
   //put satellite names (NOAA,Meteosat,radar) in namebox
   vector<std::string> name;
@@ -261,6 +263,10 @@ SatDialog::SatDialog(QWidget* parent, Controller* llctrl)
   times.clear();
 }
 
+SatDialog::~SatDialog()
+{
+}
+
 std::string SatDialog::name() const
 {
   static const std::string SAT_DATATYPE = "sat";
@@ -334,8 +340,7 @@ void SatDialog::timefileClicked(int tt)
   if (tt == 0) {
     // AUTO clicked
 
-    m_ctrl->setSatAuto(true, namebox->currentText().toStdString(),
-        fileListWidget->currentItem()->text().toStdString());
+    sdd_->setSatAuto(true, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
 
     //    timefileList->setEnabled( false );
     updateChannelBox(true);
@@ -343,8 +348,7 @@ void SatDialog::timefileClicked(int tt)
   } else {
     // "time"/"file" clicked
 
-    m_ctrl->setSatAuto(false, namebox->currentText().toStdString(),
-        fileListWidget->currentItem()->text().toStdString());
+    sdd_->setSatAuto(false, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
 
     //    timefileList->setEnabled ( true );
 
@@ -462,8 +466,7 @@ int SatDialog::addSelectedPicture()
     if (i > -1 && i < int(m_state.size())) {
       //replace existing picture(same sat). advanced options saved
       // get info about picture we are replacing
-      vector<SatFileInfo> f = m_ctrl->getSatFiles(m_state[i].name,
-          m_state[i].area, false);
+      vector<SatFileInfo> f = sdd_->getSatFiles(m_state[i].name, m_state[i].area, false);
       lstate.mosaic = m_state[i].mosaic;
       lstate.totalminutes = m_state[i].totalminutes;
       if ((f.size() && f[0].palette && !files[0].palette) || (f.size()
@@ -528,15 +531,13 @@ void SatDialog::picturesSlot(QListWidgetItem*)
     fileListWidget->setCurrentItem(fileListWidget->item(m_state[index].iarea));
     if (m_state[index].iautotimefile == 0) {
       autoButton->setChecked(true);
-      m_ctrl->setSatAuto(true, namebox->currentText().toStdString(),
-          fileListWidget->currentItem()->text().toStdString());
+      sdd_->setSatAuto(true, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
     } else {
       if (m_state[index].iautotimefile == 1)
         timeButton->setChecked(true);
       else if (m_state[index].iautotimefile == 2)
         fileButton->setChecked(true);
-      m_ctrl->setSatAuto(false, namebox->currentText().toStdString(),
-          fileListWidget->currentItem()->text().toStdString());
+      sdd_->setSatAuto(false, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
       updateTimefileList();
       timefileList->setCurrentRow(m_state[index].ifiletime);
       plottimes_t tt;
@@ -600,8 +601,7 @@ void SatDialog::updateTimes()
     if (m_state[i].filename.empty()) {
       found = true;
     } else {
-      vector<SatFileInfo> f = m_ctrl->getSatFiles(m_state[i].name,
-          m_state[i].area, false);
+      vector<SatFileInfo> f = sdd_->getSatFiles(m_state[i].name, m_state[i].area, false);
       int n = f.size();
       for (int j = 0; j < n; j++)
         if (m_state[i].filename == f[j].name) {
@@ -998,8 +998,7 @@ void SatDialog::updateTimefileList()
 
   //get new list of sat files
   { diutil::OverrideCursor waitCursor;
-    files = m_ctrl->getSatFiles(namebox->currentText().toStdString(),
-        fileListWidget->currentItem()->text().toStdString(), true);
+    files = sdd_->getSatFiles(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), true);
   }
 
   if (autoButton->isChecked())
@@ -1065,8 +1064,7 @@ void SatDialog::updateChannelBox(bool select)
   else
     index = timefileList->currentRow();
 
-  vstr = m_ctrl->getSatChannels(namebox->currentText().toStdString(),
-      fileListWidget->currentItem()->text().toStdString(), index);
+  vstr = sdd_->getSatChannels(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), index);
 
   int nr_channel = vstr.size();
   if (nr_channel <= 0)
@@ -1160,7 +1158,7 @@ void SatDialog::updateColours()
   int index = pictures->currentRow();
   if (index > -1) {
     state lstate = m_state[index];
-    vector<Colour> colours = m_ctrl->getSatColours(lstate.name, lstate.area);
+    vector<Colour> colours = sdd_->getSatColours(lstate.name, lstate.area);
     sda->setColours(colours);
   }
 }
@@ -1176,8 +1174,7 @@ void SatDialog::emitSatTimes(bool update)
     if (m_state[i].filename.empty() || update) {
       //auto option for this state
       //get times to send to timeslider
-      vector<SatFileInfo> f = m_ctrl->getSatFiles(m_state[i].name,
-          m_state[i].area, update);
+      vector<SatFileInfo> f = sdd_->getSatFiles(m_state[i].name, m_state[i].area, update);
       for (unsigned int i = 0; i < f.size(); i++)
         times.insert(f[i].time);
     } else

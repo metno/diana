@@ -590,42 +590,10 @@ set<string> Controller::getComplexList()
 // ------------ Dialog Info Routines ----------------
 
 
-// return satfileinfo
-const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
-    const std::string& file,
-    bool update)
-{
-  return satm->getFiles(satellite,file,update);
-}
-
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes)
 {
   plotm->getCapabilitiesTime(okTimes,pinfos,allTimes);
-}
-
-const vector<Colour>& Controller::getSatColours(const std::string& satellite,
-    const std::string& file)
-{
-  return satm->getColours(satellite,file);
-}
-
-
-const vector<std::string>& Controller::getSatChannels(const std::string& satellite,
-    const std::string& file, int index)
-{
-  return satm->getChannels(satellite,file,index);
-}
-
-bool Controller::isMosaic(const std::string & satellite, const std::string & file)
-{
-  return satm->isMosaic(satellite,file);
-}
-
-void Controller::setSatAuto(bool autoFile,const std::string& satellite,
-    const std::string& file)
-{
-  satm->setSatAuto(autoFile,satellite,file);
 }
 
 // return button names for ObsDialog
@@ -638,12 +606,6 @@ ObsDialogInfo Controller::initObsDialog()
 void Controller::updateObsDialog(ObsDialogInfo::PlotType& pt, const std::string& readername)
 {
   obsm->updateDialog(pt, readername);
-}
-
-// return button names for SatDialog
-SatDialogInfo Controller::initSatDialog()
-{
-  return satm->initDialog();
 }
 
 stationDialogInfo Controller::initStationDialog()

@@ -337,6 +337,7 @@ SET(LIBDIANAUI_QTSOURCES
   diEditItemManager.cc
   diFieldDialogData.cc
   diPaintGLWidget.cc
+  diSatDialogData.cc
 
   qtActionButton.cc
   qtAddtoDialog.cc
@@ -368,6 +369,7 @@ SET(LIBDIANAUI_QTSOURCES
   qtQuickMenu.cc
   qtSatDialog.cc
   qtSatDialogAdvanced.cc
+  qtSatDialogData.cc
   qtSetupDialog.cc
   qtShowSatValues.cc
   qtSpectrumModelDialog.cc

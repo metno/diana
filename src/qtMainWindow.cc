@@ -46,6 +46,7 @@
 #include "qtObsDialog.h"
 #include "qtQuickMenu.h"
 #include "qtSatDialog.h"
+#include "qtSatDialogData.h"
 #include "qtSetupDialog.h"
 #include "qtShowSatValues.h"
 #include "qtSpectrumWindow.h"
@@ -203,7 +204,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   addStandardDialog(fm = new FieldDialog(this, new DianaFieldDialogData(contr->getFieldPlotManager())));
   addStandardDialog(om = new ObsDialog(this, contr));
-  addStandardDialog(sm = new SatDialog(this, contr));
+  addStandardDialog(sm = new SatDialog(new DianaSatDialogData(contr->getSatelliteManager()), this));
   addStandardDialog(stm = new StationDialog(this, contr));
   addStandardDialog(objm = new ObjectDialog(this, contr));
   connect(timeNavigator, &TimeNavigator::lastStep, om, &ObsDialog::updateTimes);

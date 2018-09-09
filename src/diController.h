@@ -249,21 +249,6 @@ public:
   /// get mode of main workarea
   mapMode getMapMode();
 
-  // Sat-dialog routines
-  /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  const std::vector<SatFileInfo>& getSatFiles(const std::string & satellite, const std::string & file,bool update);
-  /// returns colour palette for subproduct of class satellite and subclass file
-  const std::vector<Colour>& getSatColours(const std::string & satellite, const std::string & file);
-  /// returns channels for subproduct of class satellite and subclass file
-  const std::vector<std::string>& getSatChannels(const std::string & satellite, const std::string &file ,
-      int index=-1);
-  /// returns true if satellite picture is a mosaic
-  bool isMosaic(const std::string &, const std::string &);
-  /// satellite follows main plot time
-  void setSatAuto(bool,const std::string &, const std::string &);
-  /// return button names for SatDialog
-  SatDialogInfo initSatDialog();
-
   stationDialogInfo initStationDialog();
 
   // Obs-dialog methods

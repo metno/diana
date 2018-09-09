@@ -152,8 +152,7 @@ public:
 				      int index=-1);
   bool isMosaic(const std::string &satellite, const std::string & file);
 
-  SatDialogInfo initDialog()
-    { return Dialog; }
+  const SatDialogInfo& initDialog() { return Dialog; }
   bool parseSetup();
 
   void archiveMode(bool on) { useArchive = on; }

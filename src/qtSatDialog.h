@@ -46,7 +46,7 @@ class QListWidget;
 class QListWidgetItem;
 class QLCDNumber;
 class SatDialogAdvanced;
-class Controller;
+class SatDialogData;
 
 /**
   \brief Dialogue for plotting satellite and radar pictures 
@@ -78,7 +78,8 @@ class SatDialog : public DataDialog
       int totalminutes;            ///<timediff
   };
 
-  SatDialog(QWidget* parent, Controller* llctrl);
+  SatDialog(SatDialogData* sdd, QWidget* parent = 0);
+  ~SatDialog();
 
   std::string name() const override;
 
@@ -138,6 +139,8 @@ private Q_SLOTS:
   void updateColours();
 
 private:
+  std::unique_ptr<SatDialogData> sdd_;
+
   typedef std::map<std::string, miutil::KeyValue_v> areaoptions_t;
   typedef std::map<std::string, areaoptions_t> satoptions_t;
   satoptions_t satoptions;
