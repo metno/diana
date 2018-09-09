@@ -87,8 +87,6 @@ protected:
   void closeEvent( QCloseEvent* );
 
 private:
-  void ConstructorCernel( const EditDialogInfo mdi );
-
   void FieldTab();
   void FrontTab();
   void CombineTab();

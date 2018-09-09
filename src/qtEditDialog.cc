@@ -168,16 +168,6 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   connect(deleteAction, SIGNAL( triggered() ) , SLOT(DeleteMarkedAnnotation()));
   addAction( deleteAction );
 
-  ConstructorCernel( ll );
-}
-
-
-
-/*********************************************/
-void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
-{
-  METLIBS_LOG_SCOPE();
-
   m_editm= m_ctrl->getEditManager();
   m_objm=  m_ctrl->getObjectManager();
 
@@ -276,7 +266,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   //   vlayout->activate();
   //   vlayout->freeze();
 
-  enew = new EditNewDialog( static_cast<QWidget*>(parent()), m_ctrl );
+  enew = new EditNewDialog(parent, m_ctrl);
   enew->hide();
   connect(enew,
       SIGNAL(EditNewOk(EditProduct&, EditProductId&, miutil::miTime&)),
