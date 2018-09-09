@@ -32,7 +32,7 @@
 
 using miutil::kv;
 
-TEST(FieldDialog, mergeFieldOptions1)
+TEST(FieldUtil, mergeFieldOptions1)
 {
   miutil::KeyValue_v cmdopts, setupopts;
   cmdopts << kv("colour", "red") << kv("plottype", "fill_cell") << kv("linewidth", 2) << kv("line.values", "1,2,4,8");
@@ -49,7 +49,7 @@ TEST(FieldDialog, mergeFieldOptions1)
   }
 }
 
-TEST(FieldDialog, mergeFieldOptions2)
+TEST(FieldUtil, mergeFieldOptions2)
 {
   miutil::KeyValue_v cmdopts, setupopts;
   cmdopts << kv("colour", "red") << kv("plottype", "fill_cell") << kv("linewidth", 2) << kv("log.line.values", "0.1,0.2,0.5");
@@ -66,7 +66,7 @@ TEST(FieldDialog, mergeFieldOptions2)
   }
 }
 
-TEST(FieldDialog, mergeFieldOptions3)
+TEST(FieldUtil, mergeFieldOptions3)
 {
   miutil::KeyValue_v cmdopts, setupopts;
   cmdopts << kv("colour", "red") << kv("plottype", "fill_cell") << kv("line.interval", 1);

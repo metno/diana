@@ -60,6 +60,7 @@ SET (dianaUnitTests_SOURCES
   ${dianaUnitTests_QTSOURCES}
   TestCommandParser.cc
   TestDianaLevels.cc
+  TestFieldUtil.cc
   TestImageIO.cc
   TestLogFileIO.cc
   TestObsReaderAscii.cc
@@ -133,7 +134,6 @@ ADD_TEST(NAME diFieldTest
 ########################################################################
 
 SET (dianaGuiTests_SOURCES
-  TestFieldUtil.cc
   TestGLPainter.cc
   TestPdfSink.cc
   TestVcrossGui.cc
