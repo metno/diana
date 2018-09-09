@@ -119,20 +119,10 @@ bool ObsManager::updateTimes(ObsPlot* op)
   return updated;
 }
 
-plottimes_t ObsManager::getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos)
+plottimes_t ObsManager::getObsTimes(const std::set<std::string>& readernames)
 {
-  vector<std::string> obsTypes;
-
-  for (const miutil::KeyValue_v& pinfo : pinfos) {
-    for (const miutil::KeyValue& kv : pinfo) {
-      if (kv.key() == "data") {
-        obsTypes = miutil::split(kv.value(), 0, ",");
-        break;
-      }
-    }
-  }
-
-  return getTimes(obsTypes, true);
+  const std::vector<std::string> rn(readernames.begin(), readernames.end());
+  return getTimes(rn, true);
 }
 
 void ObsManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo)

@@ -113,7 +113,7 @@ public:
   void getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo);
 
   //! return observation times for list of obsTypes
-  plottimes_t getObsTimes(const std::vector<miutil::KeyValue_v>& pinfos);
+  plottimes_t getObsTimes(const std::set<std::string>& readernames);
 
   bool updateTimes(ObsPlot* op);
 };

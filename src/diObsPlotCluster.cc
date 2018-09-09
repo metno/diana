@@ -35,6 +35,7 @@
 #include "diObsPlot.h"
 #include "diUtilities.h"
 #include "util/was_enabled.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -166,11 +167,11 @@ void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 
 plottimes_t ObsPlotCluster::getTimes()
 {
-  std::vector<miutil::KeyValue_v> pinfos;
+  std::set<std::string> readernames;
   for (Plot* p : plots_)
-    pinfos.push_back(p->getPlotInfo());
-  if (!pinfos.empty()) {
-    return obsm_->getObsTimes(pinfos);
+    diutil::insert_all(readernames, static_cast<const ObsPlot*>(p)->readerNames());
+  if (!readernames.empty()) {
+    return obsm_->getObsTimes(readernames);
   } else {
     return plottimes_t();
   }
