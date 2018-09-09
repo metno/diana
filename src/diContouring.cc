@@ -4314,7 +4314,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
 			}
 		  }
 
-		  GridConverter::xy2geo(fieldArea, nposis, fxshape, fyshape);
+                  fieldArea.P().convertToGeographic(nposis, fxshape, fyshape);
 
 		  double *xshape= new double[nposis];
 		  double *yshape= new double[nposis];

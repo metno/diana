@@ -22,7 +22,7 @@ struct Reprojection {
     : p_map(pm), p_data(pd) { }
 
   bool operator()(size_t n, PointD* xy) const
-    { return p_data.convertPoints(p_map, n, xy, false); }
+    { return p_data.convertPoints(p_map, n, xy); }
 };
 
 inline bool is_undef(double d)

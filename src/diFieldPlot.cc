@@ -696,7 +696,7 @@ std::vector<float*> FieldPlot::doPrepareVectors(float* x, float* y, bool directi
       bool turn = fields[0]->turnWaveDirection;
       ok = getStaticPlot()->gc.getDirectionVectors(getStaticPlot()->getMapArea(), turn, npos, x, y, u, v);
     } else {
-      ok = getStaticPlot()->ProjToMap(tmpfields[0]->area, npos, x, y, u, v);
+      ok = getStaticPlot()->gc.getVectors(tmpfields[0]->area, getStaticPlot()->getMapProjection(), npos, x, y, u, v);
     }
     if (!ok)
       return uv;

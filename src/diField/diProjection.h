@@ -76,20 +76,16 @@ public:
   void setDefault();
 
   /// Convert Points to this projection
-  bool convertPoints(const Projection& srcProj, size_t npos, float * x, float * y,
-      bool silent = false) const;
+  bool convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const;
 
   /// Convert Points to this projection
-  bool convertPoints(const Projection& srcProj, size_t npos, double* x, double* y,
-      bool silent = false) const;
+  bool convertPoints(const Projection& srcProj, size_t npos, double* x, double* y) const;
 
   /// Convert Points to this projection
-  bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy,
-      bool silent = false) const;
+  bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy) const;
 
   /// Convert Points to this projection
-  bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy,
-      bool silent = false) const;
+  bool convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy) const;
 
   bool convertVectors(const Projection& srcProj, size_t nvec,
       const float * from_x, const float * from_y,
@@ -154,7 +150,7 @@ public:
   static const Projection& geographic();
 
 private:
-  bool transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y, bool silent) const;
+  bool transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y) const;
 
   static bool areDefined(const Projection& srcProj, const Projection& tgtProj);
 

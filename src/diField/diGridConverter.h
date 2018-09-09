@@ -103,18 +103,16 @@ private:
   bool getVectorRotationElements(const Area& data_area, const Projection& map_proj,
       int nvec, const float *x, const float *y, float ** cosx, float ** sinx);
 
-public:
-  GridConverter();
-  GridConverter(const int s, const int smf);
-  GridConverter(const int s);
-  ~GridConverter();
-
   /// set size of cache for lists of x/y values
   void setBufferSize(const int);
   /// set size of cache for lists of rotation/angle values
   void setAngleBufferSize(const int);
   /// set size of cache for map fields data
   void setBufferSizeMapFields(const int);
+
+public:
+  GridConverter();
+  ~GridConverter();
 
   bool getGridPoints(const GridArea& area, const Area& map_area,
       bool gridboxes, float**x, float**y);
@@ -125,37 +123,17 @@ public:
       float** x, float** y, int& ix1, int& ix2, int& iy1, int& iy2);
 
   static void findGridLimits(const GridArea& area, const Rectangle& maprect,
-      bool gridboxes, const float* xy,
-      int& ix1, int& ix2, int& iy1, int& iy2)
-    { doFindGridLimits(area, maprect, gridboxes, xy, xy+1, 2, ix1, ix2, iy1, iy2); }
-
-  static void findGridLimits(const GridArea& area, const Rectangle& maprect,
       bool gridboxes, const float* x, const float* y,
       int& ix1, int& ix2, int& iy1, int& iy2)
     { doFindGridLimits(area, maprect, gridboxes, x, y, 1, ix1, ix2, iy1, iy2); }
 
-  /// convert arbitrary set of points
-  static bool getPoints(const Projection&, const Projection&, int, float*, float*);
-
   /// convert u,v vector coordinates for points x,y - obsolete syntax, to be removed
   bool getVectors(const Area&, const Projection&, int,
       const float*, const float*, float*, float*);
+
   /// convert true north direction and velocity (dd,ff) to u,v vector coordinates for points x,y
   bool getDirectionVectors(const Area&, const bool, int,
       const float*, const float*, float*, float*);
-  /// convert true north direction and velocity (dd,ff) to u,v vector coordinates for one point
-  /// Specific point given by index
-  bool getDirectionVector(const Area&, const bool, int,
-      const float *, const float *, int index, float &, float &);
-
-  /// convert from geo to xy
-  static bool geo2xy(const Area&, int, float*, float*);
-
-  /// convert from xy to geo
-  static bool xy2geo(const Area&, int, float*, float*);
-
-  /// convert geographical u,v vector coordinates for points x,y
-  static bool geov2xy(const Area&, int, const float*, const float*, float*, float*);
 
   /// map ratio and/or coriolis parameter fields
   bool getMapFields(const GridArea& gridarea,

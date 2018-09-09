@@ -198,11 +198,6 @@ bool StaticPlot::ProjToMap(const Projection& srcProj, int n, float* x, float* y)
   return getMapProjection().convertPoints(srcProj, n, x, y);
 }
 
-bool StaticPlot::ProjToMap(const Area& srcArea, int n, const float* x, const float* y, float* u, float* v) const
-{
-  return gc.getVectors(srcArea, getMapProjection(), n, x, y, u, v);
-}
-
 bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float* y) const
 {
   return targetProj.convertPoints(getMapProjection(), n, x, y);

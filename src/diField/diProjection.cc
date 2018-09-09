@@ -104,8 +104,7 @@ std::ostream& operator<<(std::ostream& output, const Projection& p)
   return output;
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, float * x,
-    float * y, bool silent) const
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const
 {
   if (!areDefined(srcProj, *this))
     return false;
@@ -131,7 +130,7 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, float * x
     yd[i] = y[i];
   }
 
-  if (!transformAndCheck(srcProj, npos, 1, xd, yd, silent))
+  if (!transformAndCheck(srcProj, npos, 1, xd, yd))
     return false;
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
@@ -143,16 +142,15 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, float * x
   return true;
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, double* xd,
-    double* yd, bool silent) const
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, double* xd, double* yd) const
 {
   if (!areDefined(srcProj, *this))
     return false;
 
-  return transformAndCheck(srcProj, npos, 1, xd, yd, silent);
+  return transformAndCheck(srcProj, npos, 1, xd, yd);
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy, bool silent) const
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy) const
 {
   if (!areDefined(srcProj, *this))
     return false;
@@ -178,7 +176,7 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::P
     yd[i] = xy[i].y();
   }
 
-  if (!transformAndCheck(srcProj, npos, 1, xd, yd, silent))
+  if (!transformAndCheck(srcProj, npos, 1, xd, yd))
     return false;
 
   DIUTIL_OPENMP_PARALLEL(npos, for)
@@ -189,7 +187,7 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::P
   return true;
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy, bool silent) const
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy) const
 {
   if (!areDefined(srcProj, *this))
     return false;
@@ -199,10 +197,10 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::P
   double* yd = xd + 1;
   assert(reinterpret_cast<double*>(&xy[1]) == (xd + 2));
   assert(yd[0] == xy[0].y());
-  return transformAndCheck(srcProj, npos, 2, xd, yd, silent);
+  return transformAndCheck(srcProj, npos, 2, xd, yd);
 }
 
-bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y, bool silent) const
+bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y) const
 {
   // actual transformation -- here we spend most of the time when large matrixes.
   double* z = 0;
@@ -210,7 +208,7 @@ bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t of
   if (ret != 0 && ret !=-20) {
     //ret=-20 :"tolerance condition error"
     //ret=-14 : "latitude or longitude exceeded limits"
-    if (!silent && ret != -14) {
+    if (ret != -14) {
       METLIBS_LOG_ERROR("error in pj_transform = " << pj_strerrno(ret) << "  " << ret);
     }
     return false;

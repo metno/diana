@@ -168,7 +168,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   } else if (newArea.P() == geoArea.P()) {
     converted = itsArea.P().convertToGeographic(npos,xpos,ypos);
   } else {
-    converted = GridConverter::getPoints(itsArea.P(),newArea.P(),npos,xpos,ypos);
+    converted = newArea.P().convertPoints(itsArea.P(), npos, xpos, ypos);
   }
 
   if (!converted) {

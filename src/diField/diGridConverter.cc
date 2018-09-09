@@ -87,21 +87,6 @@ GridConverter::GridConverter() :
 {
 }
 
-GridConverter::GridConverter(const int s, const int smf) :
-  pointbuffer(0), anglebuffer(0), mapfieldsbuffer(0)
-{
-  setBufferSize(s);
-  setAngleBufferSize(s);
-  setBufferSizeMapFields(smf);
-}
-
-GridConverter::GridConverter(const int s) :
-  pointbuffer(0), anglebuffer(0), mapfieldsbuffer(0)
-{
-  setBufferSize(s);
-  setAngleBufferSize(s);
-}
-
 GridConverter::~GridConverter()
 {
   delete pointbuffer;
@@ -331,12 +316,6 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   vcross::util::minimize(iy2, ny - 1 - gdxy);
 }
 
-// static
-bool GridConverter::getPoints(const Projection& projection, const Projection& map_projection, int npos, float* x, float* y)
-{
-  return map_projection.convertPoints(projection, npos, x, y, false);
-}
-
 // get arrays of vector rotation elements
 bool GridConverter::getVectorRotationElements(const Area& data_area,
     const Projection& map_proj, int nvec, const float *x, const float *y,
@@ -423,36 +402,6 @@ bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
   }
 
   return getVectors(geo_area, map_area.P(), nvec, x, y, u, v);
-}
-
-// convert true north direction and velocity (dd=u,ff=v)
-// to u,v vector coordinates for one point
-// Specific point given by index
-bool GridConverter::getDirectionVector(const Area& map_area, const bool turn,
-    int nvec, const float *x, const float *y, int index, float & u, float & v)
-{
-  if (index < 0 || index >= nvec)
-    return false;
-  return getDirectionVectors(map_area, turn, 1, &x[index], &y[index], &u, &v);
-}
-
-// static
-bool GridConverter::geo2xy(const Area& area, int npos, float* x, float* y)
-{
-  return area.P().convertFromGeographic(npos, x, y);
-}
-
-// static
-bool GridConverter::xy2geo(const Area& area, int npos, float* x, float* y)
-{
-  return area.P().convertToGeographic(npos, x, y);
-}
-
-// static
-bool GridConverter::geov2xy(const Area& area, int npos,
-    const float* x, const float* y, float *u, float *v)
-{
-  return area.P().convertVectors(Projection::geographic(), npos, x, y, u, v);
 }
 
 bool GridConverter::getMapFields(const GridArea& area,

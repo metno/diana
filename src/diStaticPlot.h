@@ -119,7 +119,6 @@ public:
   XY MapToGeo(const XY& map) const;
 
   bool ProjToMap(const Projection& srcProj, int n, float* x, float* y) const;
-  bool ProjToMap(const Area& srcArea, int n, const float* x, const float* y, float* u, float* v) const;
 
   bool MapToProj(const Projection& targetProj, int n, float* x, float* y) const;
   bool MapToProj(const Projection& targetProj, int n, diutil::PointD* xy) const;
