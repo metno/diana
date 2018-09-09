@@ -2937,18 +2937,3 @@ bool FieldPlot::checkFields(size_t count) const
   }
   return true;
 }
-
-int FieldPlot::resamplingFactor(int nx, int ny) const
-{
-  float cx[2], cy[2];
-  cx[0] = fields[0]->area.R().x1;
-  cy[0] = fields[0]->area.R().y1;
-  cx[1] = fields[0]->area.R().x2;
-  cy[1] = fields[0]->area.R().y2;
-  getPoints(2, cx, cy);
-
-  double xs = getStaticPlot()->getPlotSize().width() / fabs(cx[1] - cx[0]);
-  double ys = getStaticPlot()->getPlotSize().height() / fabs(cy[1] - cy[0]);
-  double resamplingF = min(xs, ys);
-  return int(resamplingF);
-}

@@ -132,8 +132,6 @@ private:
   bool markExtreme(DiGLPainter* gl);
   bool plotGridLines(DiGLPainter* gl);
 
-  int resamplingFactor(int nx, int ny) const;
-
   /** Return true if fields 0..count-1 are non-0 and have data.
    *  If count == 0, check that at least one field exists an that all fields have data.
    */
