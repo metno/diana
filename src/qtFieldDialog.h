@@ -163,9 +163,6 @@ public Q_SLOTS:
 protected:
   void doShowMore(bool more) override;
 
-Q_SIGNALS:
-  void fieldPlotOptionsChanged(std::map<std::string, std::string>&);
-
 private Q_SLOTS:
   void modelboxClicked(const QModelIndex& index);
   void filterModels(const QString& filtertext);
