@@ -1741,7 +1741,7 @@ void FieldDialog::enableFieldOptions()
   }
   //pattern
   if ((nc = miutil::find(vpcopt, PlotOptions::key_patterns)) != npos) {
-    std::string value = vpcopt[nc].value();
+    const std::string& value = vpcopt[nc].value();
     size_t nr_p = patternInfo.size(), i = 0;
     std::string str;
     while (i < nr_p && value != patternInfo[i].name)
@@ -1755,7 +1755,6 @@ void FieldDialog::enableFieldOptions()
     }
     updateFieldOptions(PlotOptions::key_patterns, str);
   } else {
-    updateFieldOptions(PlotOptions::key_patterns, "off");
     patternComboBox->setCurrentIndex(0);
   }
 
@@ -3295,75 +3294,65 @@ vector<std::string> FieldDialog::writeLog()
 void FieldDialog::readLog(const std::vector<std::string>& vstr,
     const std::string& thisVersion, const std::string& logVersion)
 {
-  std::string str, fieldname, fopts;
-  size_t pos, end;
-
-  int nopt, nlog;
-  bool changed;
-
-  int nvstr = vstr.size();
-  int ivstr = 0;
 
   // field options:
   // do not destroy any new options in the program
   bool editOptions = false;
-  for (; ivstr < nvstr; ivstr++) {
-    if (vstr[ivstr].substr(0, 4) == "====")
+  for (const std::string& ls : vstr) {
+    if (ls.empty())
+      continue;
+    if (ls.substr(0, 4) == "====")
       break;
-    if (vstr[ivstr] == "--- EDIT ---") {
+    if (ls == "--- EDIT ---") {
       editOptions = true;
       continue;
     }
-    str = vstr[ivstr];
-    end = str.length();
-    pos = str.find_first_of(' ');
-    if (pos > 0 && pos < end) {
-      fieldname = str.substr(0, pos);
-      pos++;
-      fopts = str.substr(pos);
+    const size_t first_space = ls.find_first_of(' ');
+    if (first_space > 0 && first_space != std::string::npos) {
+      const std::string fieldname = ls.substr(0, first_space);
 
       // get options from setup
-      const miutil::KeyValue_v sopts = getFieldOptions(fieldname, true);
+      miutil::KeyValue_v setup_opts = getFieldOptions(fieldname, true);
+      if (setup_opts.empty())
+        continue;
 
-      if (!sopts.empty()) {
-        // update options from setup, if necessary
-        miutil::KeyValue_v vpopt = sopts;
-        const miutil::KeyValue_v vplog = miutil::splitKeyValue(fopts);
-        nopt = vpopt.size();
-        nlog = vplog.size();
-        changed = false;
-        for (int i = 0; i < nopt; i++) {
-          int j = 0;
-          while (j < nlog && vplog[j].key() != vpopt[i].key())
-            j++;
-          if (j < nlog) {
-            if (vplog[j].value() != vpopt[i].value()) {
-              vpopt[i] = vplog[j];
-              changed = true;
-            }
-          }
-        }
-        for (int i = 0; i < nlog; i++) {
-          int j = 0;
-          while (j < nopt && vpopt[j].key() != vplog[i].key())
-            j++;
-          if (j == nopt) {
-            vpopt.push_back(vplog[i]);
+      // update options from setup, if necessary
+      const miutil::KeyValue_v log_opts = miutil::splitKeyValue(ls.substr(first_space + 1));
+
+      // FIXME this almost the same as mergeFieldOptions in diFieldUtil.cc
+      const size_t n_setup_opts = setup_opts.size();
+      const size_t n_log_opts = log_opts.size();
+      bool changed = false;
+      for (size_t i = 0; i < n_setup_opts; i++) {
+        size_t j = 0;
+        while (j < n_log_opts && log_opts[j].key() != setup_opts[i].key())
+          j++;
+        if (j < n_log_opts) {
+          if (log_opts[j].value() != setup_opts[i].value()) {
+            setup_opts[i] = log_opts[j];
             changed = true;
           }
         }
-        if (changed) {
-          cleanupFieldOptions(vpopt);
-          if (editOptions) {
-            editFieldOptions[fieldname] = vpopt;
-          } else {
-            fieldOptions[fieldname] = vpopt;
-          }
+      }
+      for (size_t i = 0; i < n_log_opts; i++) {
+        size_t j = 0;
+        while (j < n_setup_opts && setup_opts[j].key() != log_opts[i].key())
+          j++;
+        if (j == n_setup_opts) {
+          setup_opts.push_back(log_opts[i]);
+          changed = true;
+        }
+      }
+      if (changed) {
+        cleanupFieldOptions(setup_opts);
+        if (editOptions) {
+          editFieldOptions[fieldname] = setup_opts;
+        } else {
+          fieldOptions[fieldname] = setup_opts;
         }
       }
     }
   }
-  ivstr++;
 }
 
 void FieldDialog::checkFieldOptions(miutil::KeyValue_v& fieldopts)
