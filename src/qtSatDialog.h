@@ -31,7 +31,7 @@
 
 #include "qtDataDialog.h"
 
-#include "diKVListPlotCommand.h"
+#include "diSatPlotCommand.h"
 #include "diSatTypes.h"
 
 #include <vector>
@@ -61,7 +61,6 @@ class SatDialog : public DataDialog
     */
     struct state
     {
-      miutil::KeyValue_v OKString;
       int iname;
       int iarea;
       int ifiletime;
@@ -117,10 +116,10 @@ private:
   //decode part of OK string
   state decodeString(const miutil::KeyValue_v &tokens);
   // make string from state
-  miutil::KeyValue_v makeOKString(state & okVar);
+  SatPlotCommand_p makeOKString(state& okVar);
   void putOptions(const state& okVar);
 
-  std::string pictureString(state,bool);  
+  std::string pictureString(const state&, bool);
 
 private Q_SLOTS:
   void DeleteClicked();
@@ -148,21 +147,21 @@ private:
   plottimes_t times;          // emitted to TimeSlider
 
   int m_nr_image;
- 
+
   std::string m_channelstr;
-  miutil::miTime m_time;  
+  miutil::miTime m_time;
   std::vector<SatFileInfo> files;
-  
+
   float m_scalediff;
 
   SatDialogInfo dialogInfo;
-  
+
   QComboBox* namebox;
   QListWidget* fileListWidget;
-  
+
   QLCDNumber* diffLcdnum;
   QSlider* diffSlider;
-  
+
   ToggleButton* multiPicture;
   ToggleButton* mosaic;
   QPushButton* Delete;
@@ -170,7 +169,6 @@ private:
   QPushButton* upPictureButton;
   QPushButton* downPictureButton;
 
-  
   QButtonGroup* timefileBut;
   ToggleButton* autoButton;
   ToggleButton* timeButton;
@@ -178,7 +176,7 @@ private:
   QListWidget*  timefileList;
   QListWidget*  channelbox;
   QListWidget*  pictures;
-    
+
   SatDialogAdvanced* sda;
   ToggleButton* advanced;
 };

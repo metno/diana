@@ -281,7 +281,7 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
     // check if this is a LABEL string
     if (diutil::startswith(str, "LABEL")) {
       if (useobject["anno"]) {
-        itsOldLabels.push_back(std::make_shared<LabelPlotCommand>(str.substr(5)));
+        itsOldLabels.push_back(LabelPlotCommand::fromString(str.substr(5)));
       }
     } else {
       fileString += str;

@@ -32,6 +32,7 @@
 #include "diFieldPlotCommand.h"
 #include "diKVListPlotCommand.h"
 #include "diLabelPlotCommand.h"
+#include "diSatPlotCommand.h"
 #include "diStationPlotCommand.h"
 #include "diStringPlotCommand.h"
 #include "vcross_v2/VcrossPlotCommand.h"
@@ -72,49 +73,34 @@ size_t identify(const std::string& commandKey, const std::string& text)
   return 0;
 }
 
-const std::vector<std::string> commandKeysKV = {"MAP", "AREA", "DRAWING", "SAT", "OBJECTS", "OBS", "WEBMAP"};
-
-PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)
+template <class Command, class... Args>
+PlotCommand_cp identifyCommand(const std::string& key, const std::string& text, Args... args)
 {
-  if (size_t start = identify(commandKey, text))
-    return std::make_shared<const KVListPlotCommand>(commandKey, text.substr(start));
-  else
-    return PlotCommand_cp();
-}
-
-PlotCommand_cp identifyLabel(const std::string& text)
-{
-  if (size_t start = identify("LABEL", text))
-    return std::make_shared<LabelPlotCommand>(text.substr(start));
-  else
-    return PlotCommand_cp();
-}
-
-PlotCommand_cp identifyField(const std::string& text)
-{
-  if (size_t start = identify("FIELD", text))
-    return FieldPlotCommand::fromString(false, text.substr(start));
-  if (size_t start = identify("EDITFIELD", text))
-    return FieldPlotCommand::fromString(true, text.substr(start));
+  if (size_t start = identify(key, text))
+    return Command::fromString(text.substr(start), args...);
   return PlotCommand_cp();
 }
+
+const std::vector<std::string> commandKeysKV = {"MAP", "AREA", "DRAWING", "OBJECTS", "OBS", "WEBMAP"};
 } // namespace
 
 PlotCommand_cp makeCommand(const std::string& text)
 {
   for (const std::string& ck : commandKeysKV) {
-    if (PlotCommand_cp c = identifyKeyValue(ck, text))
+    if (PlotCommand_cp c = identifyCommand<KVListPlotCommand>(ck, text, ck))
       return c;
   }
 
-  if (PlotCommand_cp c = identifyField(text))
+  if (PlotCommand_cp c = identifyCommand<FieldPlotCommand>("FIELD", text, false))
     return c;
-
-  if (PlotCommand_cp c = identifyLabel(text))
+  if (PlotCommand_cp c = identifyCommand<FieldPlotCommand>("EDITFIELD", text, true))
     return c;
-
-  if (identify("STATION", text))
-    return StationPlotCommand::parseLine(text);
+  if (PlotCommand_cp c = identifyCommand<LabelPlotCommand>("LABEL", text))
+    return c;
+  if (PlotCommand_cp c = identifyCommand<StationPlotCommand>("STATION", text))
+    return c;
+  if (PlotCommand_cp c = identifyCommand<SatPlotCommand>("SAT", text))
+    return c;
 
   return std::make_shared<StringPlotCommand>(text);
 }

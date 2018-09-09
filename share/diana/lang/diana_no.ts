@@ -5097,22 +5097,22 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>SatDialogAdvanced</name>
     <message>
-        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+70"/>
+        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+69"/>
         <source>Cut</source>
         <translation>Kutt</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
         <source>Alpha cut</source>
         <translation>Alfakutt</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+13"/>
         <source>Alpha</source>
         <translation>Alfa</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+13"/>
         <source>Table</source>
         <translation>Tabell</translation>
     </message>
@@ -5131,7 +5131,7 @@ Vil du kjøre dine endringer først?</translation>
         <translation type="obsolete">Skjul farger</translation>
     </message>
     <message>
-        <location line="-57"/>
+        <location line="-52"/>
         <source>Use stretch from first picture</source>
         <translation>Bruk strekkverdier fra første bilde</translation>
     </message>

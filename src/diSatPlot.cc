@@ -32,11 +32,14 @@
 #include "diSatPlot.h"
 
 #include "diGLPainter.h"
-#include "diKVListPlotCommand.h"
 #include "diPaintGLPainter.h"
+#include "diSat.h"
+#include "diSatPlotCommand.h"
 #include "diStaticPlot.h"
 
 #include <puTools/miStringFunctions.h>
+
+#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.SatPlot"
 #include <miLogger/miLogging.h>
@@ -54,9 +57,35 @@ SatPlot::~SatPlot()
   delete satdata;
 }
 
+void SatPlot::setCommand(SatPlotCommand_cp cmd)
+{
+  command_ = cmd;
+  setPlotInfo(cmd->all());
+}
+
+Area& SatPlot::getSatArea()
+{
+  return satdata->area;
+}
+
+double SatPlot::getGridResolutionX() const
+{
+  return satdata->area.resolutionX;
+}
+
+double SatPlot::getGridResolutionY() const
+{
+  return satdata->area.resolutionY;
+}
+
 std::string SatPlot::getEnabledStateKey() const
 {
-  return miutil::mergeKeyValue(getPlotInfo(4));
+  if (!command_)
+    return "ARGHHH!";
+
+  std::ostringstream oks;
+  oks << command_->satellite << command_->filetype << command_->plotChannels << command_->filename;
+  return oks.str();
 }
 
 void SatPlot::getAnnotation(std::string &str, Colour &col) const
@@ -131,6 +160,16 @@ void SatPlot::plot(DiGLPainter* gl, PlotOrder porder)
     return;
 
   gl->drawScreenImage(QPointF(0,0), rasterPaint());
+}
+
+const PlotArea& SatPlot::rasterPlotArea()
+{
+  return getStaticPlot()->plotArea();
+}
+
+const GridArea& SatPlot::rasterArea()
+{
+  return satdata->area;
 }
 
 void SatPlot::rasterPixels(int n, const diutil::PointD &xy0, const diutil::PointD &dxy, QRgb* pixels)

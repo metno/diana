@@ -27,45 +27,51 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diStationPlotCommand.h"
+#include "diSatPlotCommand.h"
 
-#include <puTools/miStringFunctions.h>
-#include <boost/algorithm/string/join.hpp>
 #include <sstream>
 
-static const std::string STATION = "STATION";
+static const std::string SAT = "SAT";
 
-StationPlotCommand::StationPlotCommand()
+SatPlotCommand::SatPlotCommand()
+    : KVListPlotCommand(SAT)
 {
 }
 
-const std::string& StationPlotCommand::commandKey() const
-{
-  return STATION;
-}
-
-std::string StationPlotCommand::toString() const
+std::string SatPlotCommand::toString() const
 {
   std::ostringstream s;
-  s << STATION
-    << ' ' << name // may contain spaces -- no quotes here!
-    << ' ' << url
-    << ' ' << select;
+  s << SAT << ' ' << satellite // may contain spaces -- no quotes here!
+    << ' ' << filetype << ' ' << plotChannels;
+  if (!filename.empty())
+    s << ' ' << miutil::kv("file", filename);
+  if (!all().empty())
+    s << ' ' << all();
   return s.str();
 }
 
 // static
-StationPlotCommand_cp StationPlotCommand::fromString(const std::string& line)
+SatPlotCommand_cp SatPlotCommand::fromString(const std::string& line)
 {
-  StationPlotCommand_p cmd = std::make_shared<StationPlotCommand>();
-  std::vector<std::string> pieces = miutil::split(line, " ");
+  SatPlotCommand_p cmd;
 
-  cmd->select = pieces.back();
-  pieces.pop_back();
+  miutil::KeyValue_v pin = miutil::splitKeyValue(line);
+  if (pin.size() >= 3) {
+    cmd = std::make_shared<SatPlotCommand>();
 
-  cmd->url = pieces.back();
-  pieces.pop_back();
+    cmd->satellite = pin[0].key();
+    cmd->filetype = pin[1].key();
+    cmd->plotChannels = pin[2].key();
 
-  cmd->name = boost::algorithm::join(pieces, " ");
+    size_t skip = 3;
+    if (pin.size() > skip && pin[skip].key() == "file") {
+      cmd->filename = pin[skip].value();
+      skip += 1;
+    }
+
+    pin.erase(pin.begin(), pin.begin() + skip);
+    cmd->add(pin);
+  }
+
   return cmd;
 }

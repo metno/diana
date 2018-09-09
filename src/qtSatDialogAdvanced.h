@@ -57,13 +57,13 @@ class SatDialogAdvanced: public QWidget
    Q_OBJECT
 
 public:
-   SatDialogAdvanced( QWidget* parent,  SatDialogInfo info);
+  SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info);
   /// the plot info strings
   miutil::KeyValue_v getOKString();
   /// set the dialogue elements from a plot info string
   miutil::KeyValue_v putOKString(const miutil::KeyValue_v &);
   /// set picture string
-  void setPictures(std::string);
+  void setPictures(const std::string&);
   /// set colours from palette in colourlist (to hide colours in picture)
   void setColours(const std::vector<Colour>&);
   /// disable/enable options according to type of picture
@@ -75,9 +75,9 @@ public:
 
 protected:
   ///called when the dialog is closed by the window manager
-  void closeEvent( QCloseEvent* );
+  void closeEvent(QCloseEvent*);
 
-signals:
+Q_SIGNALS:
   /// emit when close selected
   void SatHide();
   ///emitted when dialog changed
@@ -85,7 +85,7 @@ signals:
   ///emitted when colourcut clicked
   void getSatColours();
 
-  private slots:
+private Q_SLOTS:
   void cutCheckBoxSlot( bool on );
   void greyCut( bool on );
   void greyAlphaCut( bool on );
@@ -96,10 +96,9 @@ signals:
   void colourcutClicked(bool);
   void colourcutOn();
 
-public slots:
+public Q_SLOTS:
   void setStandard();
   void setOff();
-
 
 private:
   float m_cutscale;
@@ -139,6 +138,3 @@ private:
 };
 
 #endif
-
-
-

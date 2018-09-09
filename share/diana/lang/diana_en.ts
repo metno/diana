@@ -3772,7 +3772,7 @@ Type: %3</translation>
 <context>
     <name>SatDialogAdvanced</name>
     <message>
-        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+68"/>
+        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+67"/>
         <source>Use stretch from first picture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3782,17 +3782,17 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
         <source>Alpha cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+13"/>
         <source>Alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+13"/>
         <source>Table</source>
         <translation type="unfinished"></translation>
     </message>

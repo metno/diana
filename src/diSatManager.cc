@@ -31,8 +31,8 @@
 
 #include "diSatManager.h"
 
-#include "diKVListPlotCommand.h"
 #include "diSatPlot.h"
+#include "diSatPlotCommand.h"
 #include "diStaticPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
@@ -121,12 +121,12 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
   // loop through all PlotInfo's
   bool first = true;
   for (PlotCommand_cp pc : pinfo) {
-    KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+    SatPlotCommand_cp cmd = std::dynamic_pointer_cast<const SatPlotCommand>(pc);
     if (!cmd)
       continue;
 
     // make a new SatPlot with a new Sat
-    Sat* satdata = new Sat(cmd->all());
+    Sat* satdata = new Sat(cmd);
 
     bool isok= false;
     if (not vsp.empty()) { // if satplots exists
@@ -194,7 +194,7 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
           // rgb and alpha cuts must be redone
           isok= true;
           inuse[j]= true;
-          vsp[j]->setPlotInfo(cmd->all());
+          vsp[j]->setCommand(cmd);
           new_vsp.push_back(vsp[j]);
           break;
         }
@@ -203,7 +203,7 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
     if (!isok) { // make new satplot
       SatPlot *sp = new SatPlot;
       sp->setData(satdata); //new sat, with no images
-      sp->setPlotInfo(cmd->all());
+      sp->setCommand(cmd);
       new_vsp.push_back(sp);
     }
     first = false;
@@ -1120,12 +1120,10 @@ plottimes_t SatManager::getSatTimes()
 
   std::set<miTime> timeset;
   for (size_t i = 0; i < vsp.size(); i++) {
-    const miutil::KeyValue_v& pinfo = vsp[i]->getPlotInfo();
-    if (pinfo.size() < 2)
-      continue;
+    SatPlotCommand_cp cmd = vsp[i]->command();
 
-    const std::string& satellite = pinfo[0].key();
-    const std::string& file = pinfo[1].key();
+    const std::string& satellite = cmd->satellite;
+    const std::string& file = cmd->filetype;
 
     if (Prod.find(satellite)==Prod.end()) {
       METLIBS_LOG_WARN("Product doesn't exist:" << satellite);

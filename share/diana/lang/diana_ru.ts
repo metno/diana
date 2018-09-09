@@ -4704,7 +4704,7 @@ Do you want to run your changes first?</source>
 <context>
     <name>SatDialogAdvanced</name>
     <message>
-        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+68"/>
+        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+67"/>
         <source>Use stretch from first picture</source>
         <translation>Использовать растяжения с перв. рис.</translation>
     </message>
@@ -4714,17 +4714,17 @@ Do you want to run your changes first?</source>
         <translation type="unfinished">Вырезать</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
         <source>Alpha cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+13"/>
         <source>Alpha</source>
         <translation type="unfinished">Альфа</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+13"/>
         <source>Table</source>
         <translation type="unfinished">Таблица</translation>
     </message>

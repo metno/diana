@@ -1,9 +1,42 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2018 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #ifndef DIKVLISTPLOTCOMMAND_H
 #define DIKVLISTPLOTCOMMAND_H
 
 #include "diPlotCommand.h"
 
 #include "util/diKeyValue.h"
+
+class KVListPlotCommand;
+typedef std::shared_ptr<KVListPlotCommand> KVListPlotCommand_p;
+typedef std::shared_ptr<const KVListPlotCommand> KVListPlotCommand_cp;
 
 class KVListPlotCommand : public PlotCommand
 {
@@ -12,6 +45,8 @@ public:
 
   // FIXME parsing should be done somewhere else
   KVListPlotCommand(const std::string& commandKey, const std::string& command);
+
+  static KVListPlotCommand_p fromString(const std::string& text, const std::string& commandKey);
 
   const std::string& commandKey() const override
     { return commandKey_; }
@@ -49,8 +84,5 @@ private:
 
   miutil::KeyValue_v keyValueList_;
 };
-
-typedef std::shared_ptr<KVListPlotCommand> KVListPlotCommand_p;
-typedef std::shared_ptr<const KVListPlotCommand> KVListPlotCommand_cp;
 
 #endif // DIKVLISTPLOTCOMMAND_H

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -166,7 +166,7 @@ void ObsAscii::parseHeaderBrackets(const std::string& str)
   } else if (pstr[0] == "SKIP_DATA_LINES" && pstr.size()>1) {
     asciiSkipDataLines = miutil::to_int(pstr[1]);
   } else if (pstr[0] == "LABEL") {
-    labels.push_back(std::make_shared<LabelPlotCommand>(str.substr(5)));
+    labels.push_back(LabelPlotCommand::fromString(str.substr(5)));
   } else if (pstr[0] == "SEPARATOR") {
     separator = pstr[1];
   }

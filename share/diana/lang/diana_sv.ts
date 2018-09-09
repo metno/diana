@@ -4344,22 +4344,22 @@ Type: %3</source>
         <translation type="obsolete">Kutt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+70"/>
+        <location filename="../../../src/qtSatDialogAdvanced.cc" line="+69"/>
         <source>Cut</source>
         <translation type="unfinished">Klipp ut</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
         <source>Alpha cut</source>
         <translation>Beskär alfa</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+13"/>
         <source>Alpha</source>
         <translation>Alfa</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+13"/>
         <source>Table</source>
         <translation>Tabell</translation>
     </message>
@@ -4374,7 +4374,7 @@ Type: %3</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location line="-57"/>
+        <location line="-52"/>
         <source>Use stretch from first picture</source>
         <translation>Använd utbredning från första bilden</translation>
     </message>

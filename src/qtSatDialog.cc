@@ -33,6 +33,7 @@
 
 #include "diController.h"
 #include "diFont.h"
+#include "diPlotOptions.h"
 #include "diSatDialogData.h"
 #include "diUtilities.h"
 #include "qtSatDialogAdvanced.h"
@@ -489,7 +490,6 @@ int SatDialog::addSelectedPicture()
     }
   }
 
-  lstate.OKString = makeOKString(lstate);
   if (newIndex == -1) {
     //new picture (new sat)
     sda->setStandard();
@@ -502,7 +502,7 @@ int SatDialog::addSelectedPicture()
 }
 
 /*********************************************/
-std::string SatDialog::pictureString(state i_state, bool timefile)
+std::string SatDialog::pictureString(const state& i_state, bool timefile)
 {
   /* make a string of the picture in m_state[i]*/
   METLIBS_LOG_SCOPE();
@@ -522,64 +522,46 @@ void SatDialog::picturesSlot(QListWidgetItem*)
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("m_state.size:"<<m_state.size());
 
-  vector<Colour> colours;
-  int index = pictures->currentRow();
-
+  const int index = pictures->currentRow();
   if (index > -1) {
-    namebox->setCurrentIndex(m_state[index].iname);
-    nameActivated(m_state[index].iname); // update fileListWidget
-    fileListWidget->setCurrentItem(fileListWidget->item(m_state[index].iarea));
-    if (m_state[index].iautotimefile == 0) {
+    state& s = m_state[index];
+    namebox->setCurrentIndex(s.iname);
+    nameActivated(s.iname); // update fileListWidget
+    fileListWidget->setCurrentItem(fileListWidget->item(s.iarea));
+    if (s.iautotimefile == 0) {
       autoButton->setChecked(true);
       sdd_->setSatAuto(true, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
     } else {
-      if (m_state[index].iautotimefile == 1)
+      if (s.iautotimefile == 1)
         timeButton->setChecked(true);
-      else if (m_state[index].iautotimefile == 2)
+      else if (s.iautotimefile == 2)
         fileButton->setChecked(true);
       sdd_->setSatAuto(false, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
       updateTimefileList();
-      timefileList->setCurrentRow(m_state[index].ifiletime);
+      timefileList->setCurrentRow(s.ifiletime);
       plottimes_t tt;
       tt.insert(files[m_state[index].ifiletime].time);
       emitTimes(tt, false);
     }
     updateChannelBox(false);
-    channelbox->setCurrentRow(m_state[index].ichannel);
-    m_channelstr = m_state[index].channel;
+    channelbox->setCurrentRow(s.ichannel);
+    m_channelstr = s.channel;
     updateColours();
     sda->setPictures(pictureString(m_state[index], false));
-    sda->putOKString(m_state[index].advanced);
+    sda->putOKString(s.advanced);
     sda->greyOptions();
-    int number = int(m_state[index].totalminutes / m_scalediff);
+    int number = int(s.totalminutes / m_scalediff);
     diffSlider->setValue(number);
-    bool mon = m_state[index].mosaic;
-    mosaic->setChecked(mon);
+    mosaic->setChecked(s.mosaic);
     mosaic->setEnabled(true);
   } else {
     sda->setPictures("");
-    //colours is empty
-    sda->setColours(colours);
+    sda->setColours(vector<Colour>());
   }
 
   //check if up and down buttons should be enabled
-  if (m_state.size() > 1) {
-    if (index == 0) {
-      //downbutton
-      downPictureButton->setEnabled(true);
-      upPictureButton->setEnabled(false);
-    } else if (index == int(m_state.size()) - 1) {
-      //upbutton
-      upPictureButton->setEnabled(true);
-      downPictureButton->setEnabled(false);
-    } else {
-      downPictureButton->setEnabled(true);
-      upPictureButton->setEnabled(true);
-    }
-  } else {
-    downPictureButton->setEnabled(false);
-    upPictureButton->setEnabled(false);
-  }
+  upPictureButton->setEnabled(index > 1);
+  downPictureButton->setEnabled(index >= 0 && index < (int)m_state.size() - 1);
 }
 
 /*********************************************/
@@ -738,8 +720,7 @@ PlotCommand_cpv SatDialog::getOKString()
   PlotCommand_cpv vstr;
   if (pictures->count()) {
     for (unsigned int i = 0; i < m_state.size(); i++) {
-      KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("SAT");
-      cmd->add(makeOKString(m_state[i]));
+      SatPlotCommand_p cmd = makeOKString(m_state[i]);
       satoptions[m_state[i].name][m_state[i].area] = cmd->all();
       vstr.push_back(cmd);
     }
@@ -749,31 +730,30 @@ PlotCommand_cpv SatDialog::getOKString()
 
 /********************************************/
 
-miutil::KeyValue_v SatDialog::makeOKString(state & okVar)
+SatPlotCommand_p SatDialog::makeOKString(state& okVar)
 {
   /* This function is called by getOKString,
    makes the part of OK string corresponding to state okVar  */
   METLIBS_LOG_SCOPE();
 
-  miutil::KeyValue_v cmd;
+  SatPlotCommand_p cmd = std::make_shared<SatPlotCommand>();
 
-  cmd.push_back(miutil::KeyValue(okVar.name));
-  cmd.push_back(miutil::KeyValue(okVar.area));
-  cmd.push_back(miutil::KeyValue(okVar.channel));
+  cmd->satellite = okVar.name;
+  cmd->filetype = okVar.area;
+  cmd->filename = okVar.filename;
+  cmd->plotChannels = okVar.channel;
 
-  if (!okVar.filename.empty())
-    cmd.push_back(miutil::KeyValue("file", okVar.filename));
+  cmd->add("timediff", miutil::from_number(okVar.totalminutes));
 
-  cmd.push_back(miutil::KeyValue("timediff", miutil::from_number(okVar.totalminutes)));
+  cmd->add("mosaic", okVar.mosaic ? "1" : "0");
 
-  cmd.push_back(miutil::KeyValue("mosaic", okVar.mosaic ? "1" : "0"));
+  cmd->add(okVar.advanced);
 
-  diutil::insert_all(cmd, okVar.advanced);
+  cmd->add(miutil::KeyValue(PlotOptions::key_fontname, diutil::BITMAPFONT));
+  cmd->add(miutil::KeyValue(PlotOptions::key_fontface, "normal"));
 
-  cmd.push_back(miutil::KeyValue("font", diutil::BITMAPFONT));
-  cmd.push_back(miutil::KeyValue("face", "normal"));
+  cmd->add(okVar.external);
 
-  diutil::insert_all(cmd, okVar.external);
   //should only be cleared if something has changed at this picture
   okVar.external.clear();
 
@@ -798,16 +778,19 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
   multiPicture->setChecked(true);
 
   m_state.clear();
-  // loop through all PlotInfo's
   for (PlotCommand_cp pc : vstr) {
-    KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+    SatPlotCommand_cp cmd = std::dynamic_pointer_cast<const SatPlotCommand>(pc);
     if (!cmd)
       continue;
 
     state okVar = decodeString(cmd->all());
-
+    okVar.name = cmd->satellite;
+    okVar.area = cmd->filetype;
+    okVar.filename = cmd->filename;
+    okVar.channel = cmd->plotChannels;
     if (okVar.name.empty() || okVar.area.empty() || okVar.channel.empty())
       break;
+
     bool found = false;
     int ns = namebox->count();
     for (int j = 0; j < ns; j++) {
@@ -917,26 +900,14 @@ SatDialog::state SatDialog::decodeString(const miutil::KeyValue_v& tokens)
   METLIBS_LOG_SCOPE();
 
   state okVar;
-  okVar.name = "";
-
-  if (tokens.size() < 3)
-    return okVar;
-
-  miutil::KeyValue_v::const_iterator it = tokens.begin();
-  okVar.name = (it++)->key();
-  okVar.area = (it++)->key();
-  okVar.channel = (it++)->key();
   okVar.totalminutes = -1;
   okVar.mosaic = false;
 
-  for (; it != tokens.end(); ++it) {
-    const miutil::KeyValue& kv = *it;
+  for (const miutil::KeyValue& kv : tokens) {
     const std::string& key = kv.key();
     const std::string& value = kv.value();
     if (key == "time") {
       okVar.filetime = miutil::timeFromString(value);
-    } else if (key == "file") {
-      okVar.filename = value;
     } else if (key == "timediff") {
       okVar.totalminutes = kv.toInt();
     } else if (key == "mosaic") {

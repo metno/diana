@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -206,7 +206,7 @@ PlotCommand_cpv AnnotationDialog::getOKString()
     miutil::trim(s);
     // we only want to create LABEL commands
     if (diutil::startswith(s, "LABEL "))
-      cmd.push_back(std::make_shared<LabelPlotCommand>(s.substr(6))); // split after "LABEL "
+      cmd.push_back(LabelPlotCommand::fromString(s.substr(6))); // split after "LABEL "
   }
   return cmd;
 }

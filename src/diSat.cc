@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2018 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,7 +31,7 @@
 
 #include "diSat.h"
 
-#include "diKVListPlotCommand.h" // for operator<<
+#include "diSatPlotCommand.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -43,25 +43,34 @@
 using namespace::miutil;
 
 //static values that should be set from SatManager
-float Sat::defaultCut=-1;
-int Sat::defaultAlphacut=0;
-int Sat::defaultAlpha=255;
-int Sat::defaultTimediff=60;
-bool Sat::defaultClasstable=false;
+float Sat::defaultCut = -1;
+int Sat::defaultAlphacut = 0;
+int Sat::defaultAlpha = 255;
+int Sat::defaultTimediff = 60;
+bool Sat::defaultClasstable = false;
 
-Sat::Sat() :
-  approved(false),  autoFile(true),
-  cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
-  maxDiff(defaultTimediff), classtable(defaultClasstable),
-  palette(false), mosaic(false),
-  commonColourStretch(false), image(0), calibidx(-1),
-  channelschanged(true), rgboperchanged(true),
-  alphaoperchanged(true),mosaicchanged(true)
+Sat::Sat()
+    : approved(false)
+    , autoFile(true)
+    , cut(defaultCut)
+    , alphacut(defaultAlphacut)
+    , alpha(defaultAlpha)
+    , maxDiff(defaultTimediff)
+    , classtable(defaultClasstable)
+    , palette(false)
+    , mosaic(false)
+    , commonColourStretch(false)
+    , image(0)
+    , calibidx(-1)
+    , channelschanged(true)
+    , rgboperchanged(true)
+    , alphaoperchanged(true)
+    , mosaicchanged(true)
 {
   METLIBS_LOG_SCOPE();
-  for (int i=0; i<maxch; i++)
+  for (int i = 0; i < maxch; i++)
     rawimage[i] = 0;
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
     origimage[i] = 0;
 }
 
@@ -71,39 +80,43 @@ Sat::Sat(const Sat &rhs)
   memberCopy(rhs);
 }
 
-Sat::Sat (const miutil::KeyValue_v& pin) :
-  approved(false),  autoFile(true),
-  cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
-  maxDiff(defaultTimediff), classtable(defaultClasstable),
-  palette(false), mosaic(false),
-  commonColourStretch(false), image(0), calibidx(-1),
-  channelschanged(true), rgboperchanged(true),
-  alphaoperchanged(true),mosaicchanged(true)
+Sat::Sat(SatPlotCommand_cp cmd)
+    : approved(false)
+    , autoFile(true)
+    , cut(defaultCut)
+    , alphacut(defaultAlphacut)
+    , alpha(defaultAlpha)
+    , maxDiff(defaultTimediff)
+    , classtable(defaultClasstable)
+    , palette(false)
+    , mosaic(false)
+    , commonColourStretch(false)
+    , image(0)
+    , calibidx(-1)
+    , channelschanged(true)
+    , rgboperchanged(true)
+    , alphaoperchanged(true)
+    , mosaicchanged(true)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(pin)<<LOGVAL(cut));
+  METLIBS_LOG_SCOPE(LOGVAL(cmd) << LOGVAL(cut));
 
   for (int i=0; i<maxch; i++)
     rawimage[i] = 0;
   for (int i=0; i<3; i++)
     origimage[i] = 0;
 
-  if (pin.size() < 3) {
-    METLIBS_LOG_WARN("Wrong syntax: "<<pin);
-  }
+  satellite = cmd->satellite;
+  filetype = cmd->filetype;
+  plotChannels = cmd->plotChannels;
+  filename = cmd->filename;
+  if (!filename.empty())
+    autoFile = false;
 
-  satellite = pin[0].key();
-  filetype = pin[1].key();
-  plotChannels = pin[2].key();
-
-  for (size_t i=3; i<pin.size(); i++) { // search through plotinfo
-    const miutil::KeyValue& kv = pin[i];
+  for (const miutil::KeyValue& kv : cmd->all()) { // search through plotinfo
     if (kv.hasValue()) {
       const std::string& key = kv.key();
       const std::string& value = kv.value();
-      if (key=="file") {
-        filename = value;
-        autoFile = false;
-      } else if (key=="mosaic")
+      if (key == "mosaic")
         mosaic = kv.toBool();
       else if (key=="cut")
         cut = kv.toFloat();
@@ -285,7 +298,7 @@ void Sat::setCalibration()
 {
   //decode calibration strings from TIFF file
 
-  METLIBS_LOG_DEBUG("Sat::setCalibration satellite_name: "<< satellite_name);
+  METLIBS_LOG_SCOPE(LOGVAL(satellite_name));
 
   cal_channels.clear();
   calibrationTable.clear();
@@ -296,7 +309,7 @@ void Sat::setCalibration()
 
   std::string start = satellite_name + " " + filetype +"|";
 
-  METLIBS_LOG_DEBUG("Sat::setCalibration -- palette: " << palette);
+  METLIBS_LOG_DEBUG(LOGVAL(palette));
 
   if (palette) {
     std::string name = start + paletteInfo.name;
@@ -310,7 +323,7 @@ void Sat::setCalibration()
     return;
   }
 
-  METLIBS_LOG_DEBUG("Sat::setCalibration -- cal_table.size(): " << cal_table.size());
+  METLIBS_LOG_DEBUG(LOGVAL(cal_table.size()));
 
   //Table
   if (cal_table.size()>0) {
@@ -338,7 +351,7 @@ void Sat::setCalibration()
     return;
   }
 
-  METLIBS_LOG_DEBUG("Sat::setCalibration -- cal_vis.exists(): " << !cal_vis.empty());
+  METLIBS_LOG_DEBUG(LOGVAL(!cal_vis.empty()));
 
   //Visual
   bool vis=false;
@@ -354,7 +367,7 @@ void Sat::setCalibration()
     }
   }
 
-  METLIBS_LOG_DEBUG("Sat::setCalibration -- cal_ir.exists(): " << !cal_ir.empty());
+  METLIBS_LOG_DEBUG(LOGVAL(!cal_ir.empty()));
 
   //Infrared
   bool ir = false;
@@ -400,50 +413,47 @@ void Sat::setCalibration()
 
     }
 
-  METLIBS_LOG_DEBUG("Sat::setCalibration -- vch.size(): " << vch.size());
+    METLIBS_LOG_DEBUG(LOGVAL(vch.size()));
 
-  //channel "3", "4" and "5" are infrared, the rest are visual
-  int n = vch.size();
-  for (int j=0; j<n; j++) {
+    // channel "3", "4" and "5" are infrared, the rest are visual
+    int n = vch.size();
+    for (int j = 0; j < n; j++) {
 
-    METLIBS_LOG_DEBUG("Sat::setCalibration -- vch["<< j << "]: " << vch[j]);
+      METLIBS_LOG_DEBUG("vch[" << j << "]: " << vch[j]);
 
-    /* hdf5type == 0 => radar or mitiff
-     * hdf5type == 1 => NOAA (HDF5)
-     * hdf5type == 2 => MSG (HDF5)
-     * and channels 4 and 7-11 ar infrared
-     */
-    if(miutil::contains(vch[j], "-")) {
-      ir=false;
-      vis=false;
-    }
-    bool isIRchannel=(((hdf5type == 0) && (vch[j]=="3" ||vch[j]=="4" || vch[j]=="5"))
-        || (hdf5type == 2 && (miutil::contains(vch[j], "4") || miutil::contains(vch[j], "7") ||
-            miutil::contains(vch[j], "8") || miutil::contains(vch[j], "9") || miutil::contains(vch[j], "10") ||
-            miutil::contains(vch[j], "11"))) || (hdf5type == 1 && (miutil::contains(vch[j], "4"))));
-    table_cal ct;
-    if (ir && isIRchannel) {
-      ct.channel = start + "Infrared (" + vch[j] + "):";
-      ct.a= AIr;
-      ct.b= BIr-273.0;//use degrees celsius instead of Kelvin
+      /* hdf5type == 0 => radar or mitiff
+       * hdf5type == 1 => NOAA (HDF5)
+       * hdf5type == 2 => MSG (HDF5)
+       * and channels 4 and 7-11 ar infrared
+       */
+      if (miutil::contains(vch[j], "-")) {
+        ir = false;
+        vis = false;
+      }
+      bool isIRchannel = (((hdf5type == 0) && (vch[j] == "3" || vch[j] == "4" || vch[j] == "5")) ||
+                          (hdf5type == 2 && (miutil::contains(vch[j], "4") || miutil::contains(vch[j], "7") || miutil::contains(vch[j], "8") ||
+                                             miutil::contains(vch[j], "9") || miutil::contains(vch[j], "10") || miutil::contains(vch[j], "11"))) ||
+                          (hdf5type == 1 && (miutil::contains(vch[j], "4"))));
+      table_cal ct;
+      if (ir && isIRchannel) {
+        ct.channel = start + "Infrared (" + vch[j] + "):";
+        ct.a = AIr;
+        ct.b = BIr - 273.0; // use degrees celsius instead of Kelvin
 
-      METLIBS_LOG_DEBUG("Sat::setCalibration -- ir ct.a: " << ct.a);
-      METLIBS_LOG_DEBUG("Sat::setCalibration -- ir ct.b: " << ct.a);
+        METLIBS_LOG_DEBUG(LOGVAL(ct.a) << LOGVAL(ct.b));
 
-      calibrationTable[j]=ct;
-      cal_channels.push_back(ct.channel);
-    } else if (vis) {
-      ct.channel = start + "Visual (" + vch[j] + "):";
-      ct.a= AVis;
-      ct.b= BVis;
+        calibrationTable[j] = ct;
+        cal_channels.push_back(ct.channel);
+      } else if (vis) {
+        ct.channel = start + "Visual (" + vch[j] + "):";
+        ct.a = AVis;
+        ct.b = BVis;
 
-      METLIBS_LOG_DEBUG("Sat::setCalibration -- vis ct.a: " << ct.a);
-      METLIBS_LOG_DEBUG("Sat::setCalibration -- vis ct.b: " << ct.a);
+        METLIBS_LOG_DEBUG(LOGVAL(ct.a) << LOGVAL(ct.b));
 
-      calibrationTable[j]=ct;
-      cal_channels.push_back(ct.channel);
-    }
-
+        calibrationTable[j] = ct;
+        cal_channels.push_back(ct.channel);
+      }
   }
 }
 

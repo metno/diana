@@ -36,6 +36,9 @@
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
 
+class SatPlotCommand;
+typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
+
 /**
   \brief Satellite and radar data
 
@@ -153,16 +156,12 @@ private:
   static bool defaultClasstable;
 
 public:
-  // Constructors
   Sat();
   Sat(const Sat &rhs);
-  Sat(const miutil::KeyValue_v &pin);
-  // Destructor
+  Sat(SatPlotCommand_cp cmd);
   ~Sat();
 
-  // Assignment operator
   Sat& operator=(const Sat &rhs);
-  // Equality operator
   bool operator==(const Sat &rhs) const;
 
   void cleanup();

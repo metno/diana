@@ -176,7 +176,7 @@ std::string FieldPlotCommand::toString() const
 }
 
 // static
-FieldPlotCommand_cp FieldPlotCommand::fromKV(bool edit, const miutil::KeyValue_v& kvs)
+FieldPlotCommand_cp FieldPlotCommand::fromKV(const miutil::KeyValue_v& kvs, bool edit)
 {
   FieldPlotCommand_p cmd = std::make_shared<FieldPlotCommand>(edit);
   miutil::KeyValue_v field, minus;
@@ -191,7 +191,7 @@ FieldPlotCommand_cp FieldPlotCommand::fromKV(bool edit, const miutil::KeyValue_v
 }
 
 // static
-FieldPlotCommand_cp FieldPlotCommand::fromString(bool edit, const std::string& text)
+FieldPlotCommand_cp FieldPlotCommand::fromString(const std::string& text, bool edit)
 {
-  return fromKV(edit, miutil::splitKeyValue(text));
+  return fromKV(miutil::splitKeyValue(text), edit);
 }

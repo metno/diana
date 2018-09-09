@@ -27,27 +27,27 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DISTATIONPLOTCOMMAND_H
-#define DISTATIONPLOTCOMMAND_H
+#ifndef DISATPLOTCOMMAND_H
+#define DISATPLOTCOMMAND_H
 
-#include "diPlotCommand.h"
+#include "diKVListPlotCommand.h"
 
-class StationPlotCommand : public PlotCommand
+class SatPlotCommand : public KVListPlotCommand
 {
 public:
-  StationPlotCommand();
+  SatPlotCommand();
 
-  const std::string& commandKey() const override;
   std::string toString() const override;
 
-  std::string name;
-  std::string url;
-  std::string select;
+  std::string satellite;    ///< main product name
+  std::string filetype;     ///< subproduct
+  std::string filename;     ///< filename
+  std::string plotChannels; ///< channelname for annotation
 
-  static std::shared_ptr<const StationPlotCommand> fromString(const std::string& line);
+  static std::shared_ptr<const SatPlotCommand> fromString(const std::string& line);
 };
 
-typedef std::shared_ptr<StationPlotCommand> StationPlotCommand_p;
-typedef std::shared_ptr<const StationPlotCommand> StationPlotCommand_cp;
+typedef std::shared_ptr<SatPlotCommand> SatPlotCommand_p;
+typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 
-#endif // DISTATIONPLOTCOMMAND_H
+#endif // DISATPLOTCOMMAND_H

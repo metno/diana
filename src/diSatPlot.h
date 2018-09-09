@@ -30,10 +30,12 @@
 #define diSatPlot_h
 
 #include "diPlot.h"
-
 #include "diRasterPlot.h"
-#include "diSat.h"
-#include "diStaticPlot.h"
+#include "diSatTypes.h"
+
+class Sat;
+class SatPlotCommand;
+typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 
 /**
   \brief Plot satellite and radar images
@@ -47,14 +49,14 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   std::string getEnabledStateKey() const override;
-  void setData(Sat *);
+  void setData(Sat*);
   void clearData();
-  Area& getSatArea()
-    { return satdata->area; }
-  double getGridResolutionX() const
-    { return satdata->area.resolutionX; }
-  double getGridResolutionY() const
-    { return satdata->area.resolutionY; }
+  void setCommand(SatPlotCommand_cp cmd);
+  SatPlotCommand_cp command() const { return command_; }
+
+  Area& getSatArea();
+  double getGridResolutionX() const;
+  double getGridResolutionY() const;
   void getAnnotation(std::string &, Colour &) const override;
   void getSatName(std::string &);
   void getCalibChannels(std::vector<std::string>& channels );
@@ -65,15 +67,15 @@ public:
   void setSatAuto(bool, const std::string&, const std::string&);
 
 protected:
-  const PlotArea& rasterPlotArea() override { return getStaticPlot()->plotArea(); }
-  const GridArea& rasterArea() override
-    { return satdata->area; }
-
+  const PlotArea& rasterPlotArea() override;
+  const GridArea& rasterArea() override;
   void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) override;
 
 private:
   SatPlot(const SatPlot &rhs);  // not implemented
   SatPlot& operator=(const SatPlot &rhs); // not implemented
+
+  SatPlotCommand_cp command_;
 };
 
 #endif

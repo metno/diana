@@ -38,10 +38,12 @@ LabelPlotCommand::LabelPlotCommand()
 {
 }
 
-LabelPlotCommand::LabelPlotCommand(const std::string& text)
-    : KVListPlotCommand(LABEL)
+// static
+LabelPlotCommand_p LabelPlotCommand::fromString(const std::string& text)
 {
-  add(miutil::splitKeyValue(text, true)); // keep quotes
+  LabelPlotCommand_p cmd = std::make_shared<LabelPlotCommand>();
+  cmd->add(miutil::splitKeyValue(text, true)); // keep quotes
+  return cmd;
 }
 
 LabelPlotCommand& LabelPlotCommand::add(const std::string& key, const std::string& value)

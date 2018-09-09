@@ -77,8 +77,8 @@ public:
   miutil::KeyValue_v toKV() const;
   bool hasMinusField() const { return !minus.model.empty(); }
 
-  static FieldPlotCommand_cp fromKV(bool edit, const miutil::KeyValue_v& kvs);
-  static FieldPlotCommand_cp fromString(bool edit, const std::string& text);
+  static FieldPlotCommand_cp fromKV(const miutil::KeyValue_v& kvs, bool edit);
+  static FieldPlotCommand_cp fromString(const std::string& text, bool edit);
 
 public:
   bool isEdit;
