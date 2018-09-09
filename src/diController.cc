@@ -656,16 +656,6 @@ EditDialogInfo Controller::initEditDialog()
   return editm->getEditDialogInfo();
 }
 
-FieldModelGroupInfo_v Controller::getFieldModelGroups()
-{
-  return fieldplotm->getFieldModelGroups();
-}
-
-void Controller::getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions)
-{
-  fieldplotm->getSetupFieldOptions(fieldoptions);
-}
-
 vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
 {
   if (KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo))
@@ -674,35 +664,9 @@ vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
     return std::vector<std::string>();
 }
 
-set<std::string> Controller::getFieldReferenceTimes(const std::string& model)
-{
-  return fieldplotm->getFieldReferenceTimes(model);
-}
-
-std::string Controller::getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour)
-{
-  return fieldplotm->getBestFieldReferenceTime(model, refOffset, refHour);
-}
-
 miutil::miTime Controller::getFieldReferenceTime()
 {
   return plotm->fieldplots()->getFieldReferenceTime();
-}
-
-void Controller::getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi)
-{
-  fieldplotm->getFieldPlotGroups(modelName, refTime, predefinedPlots, vfgi);
-}
-
-std::map<std::string,std::string> Controller::getFieldGlobalAttributes(const std::string& modelName,
-    const std::string& refTime)
-{
-  return fieldplotm->getFieldGlobalAttributes(modelName, refTime);
-}
-
-plottimes_t Controller::getFieldTime(vector<FieldRequest>& request)
-{
-  return fieldplotm->getFieldTime(request);
 }
 
 //object dialog

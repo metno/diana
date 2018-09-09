@@ -274,24 +274,11 @@ public:
   /// get observation times for plot types name
   plottimes_t getObsTimes(const std::vector<std::string>& name, bool update);
 
-  // Field-dialog methods
-  /// return model/file groups and contents to FieldDialog
-  FieldModelGroupInfo_v getFieldModelGroups();
-  ///return all reference times for the given model
-  std::set<std::string> getFieldReferenceTimes(const std::string& model);
-  ///return the reference time given by refOffset and refhour or the last reference time for the given model
-  std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
-  ///return referenceTime of first FieldPlot
+  // bdiana methods
+  /// return referenceTime of first FieldPlot
   miutil::miTime getFieldReferenceTime();
-  void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions);
   ///return levels
   std::vector<std::string> getFieldLevels(const PlotCommand_cp& pinfo);
-  /// return plot/parameter info for one model to FieldDialog
-  void getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi);
-  /// return GlobalAttributes for one model
-  std::map<std::string,std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
-  /// Returns available times for the requested fields.
-  plottimes_t getFieldTime(std::vector<FieldRequest>& request);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui

@@ -37,6 +37,7 @@
 #include "qtDataDialog.h"
 #include "qtEditDialog.h"
 #include "qtFieldDialog.h"
+#include "qtFieldDialogData.h"
 #include "qtImageGallery.h"
 #include "qtMainUiEventHandler.h"
 #include "qtMapDialog.h"
@@ -200,7 +201,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   timeNavigator = new TimeNavigator(this);
   connect(timeNavigator, &TimeNavigator::timeSelected, this, &DianaMainWindow::setPlotTime);
 
-  addStandardDialog(fm = new FieldDialog(this, contr));
+  addStandardDialog(fm = new FieldDialog(this, new DianaFieldDialogData(contr->getFieldPlotManager())));
   addStandardDialog(om = new ObsDialog(this, contr));
   addStandardDialog(sm = new SatDialog(this, contr));
   addStandardDialog(stm = new StationDialog(this, contr));

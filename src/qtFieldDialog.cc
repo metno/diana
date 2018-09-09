@@ -32,11 +32,11 @@
 
 #include "qtFieldDialog.h"
 
-#include "diController.h"
-#include "diFieldPlotManager.h"
+#include "diCommandParser.h"
 #include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
+
 #include "qtToggleButton.h"
 #include "qtTreeFilterProxyModel.h"
 #include "qtUtility.h"
@@ -101,8 +101,9 @@ const char* const modelGlobalAttributes[][2] = {
 
 // ========================================================================
 
-FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
-    : DataDialog(parent, lctrl)
+FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
+    : DataDialog(parent, 0)
+    , m_data(data)
 {
   METLIBS_LOG_SCOPE();
 
@@ -120,14 +121,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   editName = tr("EDIT").toStdString();
 
-  m_ctrl->getSetupFieldOptions(setupFieldOptions);
-
-  //#################################################################
-  //  map<std::string,std::string>::iterator pfopt, pfend= setupFieldOptions.end();
-  //  for (pfopt=setupFieldOptions.begin(); pfopt!=pfend; pfopt++)
-  //    METLIBS_LOG_DEBUG(pfopt->first << "   " << pfopt->second);
-  //#################################################################
-
+  m_data->getSetupFieldOptions(setupFieldOptions);
 
   // Colours
   csInfo = ColourShading::getColourShadingInfo();
@@ -1097,7 +1091,7 @@ void FieldDialog::filterModels(const QString& filtertext)
 
 void FieldDialog::updateDialog()
 {
-  m_modelgroup = m_ctrl->getFieldModelGroups();
+  m_modelgroup = m_data->getFieldModelGroups();
   updateModelBoxes();
 }
 
@@ -1109,7 +1103,7 @@ void FieldDialog::archiveMode(bool on)
 
 void FieldDialog::modelboxClicked(const QModelIndex& filterIndex)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   diutil::OverrideCursor waitCursor;
 
@@ -1131,7 +1125,7 @@ void FieldDialog::modelboxClicked(const QModelIndex& filterIndex)
 
   currentModel = m_modelgroup[indexMGR].models[indexM].modelName;
 
-  const set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(currentModel);
+  const set<std::string> refTimes = m_data->getFieldReferenceTimes(currentModel);
 
   for (const std::string& rt : refTimes) {
     refTimeComboBox->addItem(QString::fromStdString(rt));
@@ -1144,7 +1138,7 @@ void FieldDialog::modelboxClicked(const QModelIndex& filterIndex)
 
 void FieldDialog::updateFieldGroups()
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   fieldGRbox->clear();
   fieldbox->clear();
@@ -2835,16 +2829,15 @@ void FieldDialog::updateFieldOptions(const std::string& name, const std::string&
 
 void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfg)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(modelName));
+  METLIBS_LOG_TIME(LOGVAL(modelName));
 
   { diutil::OverrideCursor waitCursor;
-    m_ctrl->getFieldPlotGroups(modelName, refTime, predefinedPlots, vfg);
+    m_data->getFieldPlotGroups(modelName, refTime, predefinedPlots, vfg);
     QString tooltip;
-    const std::map<std::string,std::string> globalAttributes = m_ctrl->getFieldGlobalAttributes(modelName, refTime);
     for (const char* const* mga : modelGlobalAttributes) {
-      std::map<std::string,std::string>::const_iterator it = globalAttributes.find(mga[0]);
-      if (it != globalAttributes.end()) {
-        tooltip += QString("<tr><td>%1</td><td>%2</td></tr>").arg(tr(mga[1]), QString::fromStdString(it->second));
+      const std::string a = m_data->getFieldGlobalAttribute(modelName, refTime, mga[0]);
+      if (!a.empty()) {
+        tooltip += QString("<tr><td>%1</td><td>%2</td></tr>").arg(tr(mga[1]), QString::fromStdString(a));
       }
     }
     if (!tooltip.isEmpty())
@@ -3228,7 +3221,7 @@ bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf,
 
   // find referencetime
   if (sf.refTime.empty())
-    sf.refTime = m_ctrl->getBestFieldReferenceTime(sf.modelName, refOffset, refHour);
+    sf.refTime = m_data->getBestFieldReferenceTime(sf.modelName, refOffset, refHour);
 
   METLIBS_LOG_DEBUG(LOGVAL(sf.modelName) << LOGVAL(sf.fieldName) << LOGVAL(sf.level) << LOGVAL(sf.idnum));
 
@@ -3763,7 +3756,7 @@ void FieldDialog::updateTime()
   }
 
   if (!request.empty()) {
-    diutil::insert_all(fieldtime, m_ctrl->getFieldTime(request));
+    diutil::insert_all(fieldtime, m_data->getFieldTime(request));
   }
 
   METLIBS_LOG_DEBUG(LOGVAL(fieldtime.size()));

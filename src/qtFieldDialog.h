@@ -29,6 +29,7 @@
 #ifndef _fielddialog_h
 #define _fielddialog_h
 
+#include "diFieldDialogData.h"
 #include "qtDataDialog.h"
 
 #include "diColourShading.h"
@@ -61,7 +62,6 @@ class QTreeView;
 class QVBoxLayout;
 
 class ToggleButton;
-class Controller;
 
 /**
   \brief Dialogue for field plotting
@@ -122,7 +122,7 @@ private:
   };
 
 public:
-  FieldDialog( QWidget* parent, Controller* lctrl);
+  FieldDialog(QWidget* parent, FieldDialogData* data);
 
   bool showsMore() override;
 
@@ -142,8 +142,6 @@ public:
   std::string getShortname();
 
   bool levelsExists(bool up, int type=0);
-
-  bool decodeString(const miutil::KeyValue_v &kvs, SelectedField& sf, bool& allTimeSteps);
 
   /// make contents for the diana log file
   std::vector<std::string> writeLog();
@@ -243,6 +241,8 @@ private Q_SLOTS:
   void updatePaletteString();
 
 private:
+  bool decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf, bool& allTimeSteps);
+
   void updateModelBoxes();
   void setDefaultFieldOptions();
   void enableWidgets(const std::string& plottype);
@@ -268,6 +268,7 @@ private:
   void addModelGroup(int modelgroupIndex);
 
 private:
+  std::unique_ptr<FieldDialogData> m_data;
   bool useArchive;
 
   bool levelInMotion;

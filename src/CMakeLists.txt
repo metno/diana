@@ -335,6 +335,7 @@ SET (LIBDIANAUI_SOURCES
 
 SET(LIBDIANAUI_QTSOURCES
   diEditItemManager.cc
+  diFieldDialogData.cc
   diPaintGLWidget.cc
 
   qtActionButton.cc
@@ -353,6 +354,7 @@ SET(LIBDIANAUI_QTSOURCES
   qtEditNewDialog.cc
   qtEditText.cc
   qtFieldDialog.cc
+  qtFieldDialogData.cc
   qtGeoPosLineEdit.cc
   qtMainUiEventHandler.cc
   qtMainWindow.cc
