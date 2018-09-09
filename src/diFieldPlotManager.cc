@@ -977,7 +977,7 @@ bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
   return PlotOptions::parsePlotOption(opts, fieldPlotOptions[name], fieldDataOptions[name]);
 }
 
-void FieldPlotManager::getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions)
+void FieldPlotManager::getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions) const
 {
   // The selected PlotOptions elements are used to activate elements
   // in the FieldDialog (any remaining will be used unchanged from setup)
@@ -997,18 +997,14 @@ void FieldPlotManager::getSetupFieldOptions(std::map<std::string, miutil::KeyVal
   }
 }
 
-void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo)
+void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo) const
 {
   map<std::string, PlotOptions>::const_iterator p = fieldPlotOptions.find(name);
   if (p != fieldPlotOptions.end()) {
     po = p->second;
-  } else {
-    fieldPlotOptions[name]= po;
   }
   map<std::string, miutil::KeyValue_v>::const_iterator ido = fieldDataOptions.find(name);
   if (ido != fieldDataOptions.end()) {
     fdo = ido->second;
-  } else {
-    fieldDataOptions[name]= fdo;
   }
 }

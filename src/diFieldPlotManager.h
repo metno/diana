@@ -79,11 +79,11 @@ public:
   FieldModelGroupInfo_v getFieldModelGroups();
   std::set<std::string> getFieldReferenceTimes(const std::string& model);
 
-  void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions);
+  void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions) const;
 
   /** fill a field's PlotOptions from static map, and substitute values
       from a string containing plotoptions */
-  void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo);
+  void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo) const;
 
   std::map<std::string, std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
