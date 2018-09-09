@@ -137,6 +137,7 @@ SET (dianaGuiTests_SOURCES
   TestFieldDialog.cc
   TestGLPainter.cc
   TestPdfSink.cc
+  TestSatDialog.cc
   TestVcrossGui.cc
   gtestMainQA.cc
 )
