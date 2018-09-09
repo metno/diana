@@ -33,8 +33,8 @@
 
 #include "diField/diFieldManager.h"
 #include "diFieldPlot.h"
+#include "diFieldPlotCommand.h"
 #include "diFieldUtil.h"
-#include "diKVListPlotCommand.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
 
@@ -77,12 +77,11 @@ FieldPlotManager::~FieldPlotManager()
 
 FieldPlot* FieldPlotManager::createPlot(const PlotCommand_cp& pc)
 {
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
   if (!cmd)
     return 0;
-  const std::string plotName = extractPlotName(cmd->all());
   std::unique_ptr<FieldPlot> fp(new FieldPlot(this));
-  if (fp->prepare(plotName, cmd))
+  if (fp->prepare(cmd->field.plot, cmd))
     return fp.release();
   else
     return 0;
@@ -395,43 +394,32 @@ vector<std::string> FieldPlotManager::getFields()
   return vector<std::string>(paramSet.begin(), paramSet.end());
 }
 
-plottimes_t FieldPlotManager::getFieldTime(const vector<miutil::KeyValue_v>& pinfos, bool updateSources)
+plottimes_t FieldPlotManager::getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos, bool updateSources)
 {
   METLIBS_LOG_SCOPE();
 
-  std::vector<FieldRequest> request;
-  for (size_t i = 0; i < pinfos.size(); i++) {
-    miutil::KeyValue_v fspec1,fspec2;
-    if (!splitDifferenceCommandString(pinfos[i],fspec1,fspec2))
-      // if difference, use first field
-      fspec1 = pinfos[i];
-
+  std::vector<FieldRequest> requests;
+  for (FieldPlotCommand_cp cmd : pinfos) {
     std::vector<FieldRequest> fieldrequest;
     std::string plotName;
-    parsePin(fspec1, fieldrequest,plotName);
-    diutil::insert_all(request,fieldrequest);
+    parsePin(cmd, cmd->field, fieldrequest, plotName);
+    diutil::insert_all(requests, fieldrequest);
   }
 
-  if (request.empty())
+  if (requests.empty())
     return plottimes_t();
 
-  return getFieldTime(request, updateSources);
+  return getFieldTime(requests, updateSources);
 }
 
-miTime FieldPlotManager::getFieldReferenceTime(const miutil::KeyValue_v& pinfo)
+miTime FieldPlotManager::getFieldReferenceTime(FieldPlotCommand_cp cmd)
 {
   METLIBS_LOG_SCOPE();
-
-  miutil::KeyValue_v fspec1,fspec2;
-
-  // if difference, use first field
-  if (!splitDifferenceCommandString(pinfo,fspec1,fspec2))
-    fspec1 = pinfo;
 
   std::string plotName;
   FieldRequest frq;
   vector<std::string> paramNames;
-  parseString(pinfo, frq, paramNames, plotName);
+  parseString(cmd, cmd->field, frq, paramNames, plotName);
 
   const std::string timestr = fieldManager->getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
   if (timestr.empty())
@@ -445,13 +433,13 @@ void FieldPlotManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timedi
   //Finding times from pinfo
   //TODO: find const time
 
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
+  FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
   if (!cmd)
     return;
 
   //finding timediff
   timediff = 0;
-  for (const KeyValue& kv : cmd->all()) {
+  for (const KeyValue& kv : cmd->options()) {
     if (kv.key() == "ignore_times" && kv.toBool() == true) {
       normalTimes.clear();
       return;
@@ -462,17 +450,18 @@ void FieldPlotManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timedi
   }
 
   //getting times
-  normalTimes = getFieldTime(std::vector<miutil::KeyValue_v>(1, cmd->all()), true);
+  normalTimes = getFieldTime(std::vector<FieldPlotCommand_cp>(1, cmd), true);
 
   METLIBS_LOG_DEBUG("no. of times"<<normalTimes.size());
 }
 
-vector<std::string> FieldPlotManager::getFieldLevels(const miutil::KeyValue_v& pin)
+vector<std::string> FieldPlotManager::getFieldLevels(FieldPlotCommand_cp cmd)
 {
-  vector<std::string> levels;
-  vector<FieldRequest> vfieldrequest;
+  std::vector<std::string> levels;
+
+  std::vector<FieldRequest> vfieldrequest;
   std::string plotName;
-  parsePin(pin, vfieldrequest,plotName);
+  parsePin(cmd, cmd->field, vfieldrequest, plotName);
 
   if (!vfieldrequest.size())
     return levels;
@@ -534,38 +523,38 @@ std::map<std::string, std::string> FieldPlotManager::getFieldGlobalAttributes(co
   return fieldManager->getGlobalAttributes(modelName, refTime);
 }
 
-bool FieldPlotManager::makeFields(const miutil::KeyValue_v& kvs,
-    const miTime& const_ptime, vector<Field*>& vfout)
+bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const miTime& const_ptime, vector<Field*>& vfout)
 {
   METLIBS_LOG_SCOPE();
+  if (cmd->hasMinusField())
+    return makeDifferenceField(cmd, const_ptime, vfout);
+  else
+    return makeFields(cmd, cmd->field, const_ptime, vfout);
+}
 
-  // if difference
-  miutil::KeyValue_v fspec1,fspec2;
-  if (splitDifferenceCommandString(kvs,fspec1,fspec2)) {
-    return makeDifferenceField(fspec1, fspec2, const_ptime, vfout);
-  }
-
+bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, const miTime& const_ptime, vector<Field*>& vfout)
+{
+  METLIBS_LOG_SCOPE();
   vfout.clear();
 
-  vector<FieldRequest> vfieldrequest;
+  std::vector<FieldRequest> vfieldrequest;
   std::string plotName;
-  parsePin(kvs, vfieldrequest, plotName);
+  parsePin(cmd, fs, vfieldrequest, plotName);
 
-  for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
+  for (FieldRequest& fr : vfieldrequest) {
+    if (fr.ptime.undef())
+      fr.ptime = const_ptime;
 
-    if (vfieldrequest[i].ptime.undef())
-      vfieldrequest[i].ptime = const_ptime;
-
-    if (vfieldrequest[i].hourOffset != 0)
-      vfieldrequest[i].ptime.addHour(vfieldrequest[i].hourOffset);
-    if (vfieldrequest[i].minOffset != 0)
-      vfieldrequest[i].ptime.addMin(vfieldrequest[i].minOffset);
+    if (fr.hourOffset != 0)
+      fr.ptime.addHour(fr.hourOffset);
+    if (fr.minOffset != 0)
+      fr.ptime.addMin(fr.minOffset);
 
     Field* fout = 0;
-    if (!fieldManager->makeField(fout, vfieldrequest[i], FieldManager::READ_ALL))
+    if (!fieldManager->makeField(fout, fr, FieldManager::READ_ALL))
       return false;
 
-    makeFieldText(fout, plotName, vfieldrequest[i].flightlevel);
+    makeFieldText(fout, plotName, fr.flightlevel);
     vfout.push_back(fout);
   }
 
@@ -578,15 +567,14 @@ void FieldPlotManager::freeFields(const std::vector<Field*>& fv)
     fieldManager->freeField(fv[i]);
 }
 
-bool FieldPlotManager::makeDifferenceField(const miutil::KeyValue_v& fspec1,
-    const miutil::KeyValue_v& fspec2, const miTime& const_ptime, vector<Field*>& fv)
+bool FieldPlotManager::makeDifferenceField(FieldPlotCommand_cp cmd, const miTime& const_ptime, vector<Field*>& fv)
 {
   fv.clear();
   vector<Field*> fv1;
   vector<Field*> fv2;
 
-  if (makeFields(fspec1, const_ptime, fv1)) {
-    if (!makeFields(fspec2, const_ptime, fv2)) {
+  if (makeFields(cmd, cmd->field, const_ptime, fv1)) {
+    if (!makeFields(cmd, cmd->minus, const_ptime, fv2)) {
       freeFields(fv1);
       return false;
     }
@@ -846,52 +834,43 @@ gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
   return fieldManager->getGrid(model);
 }
 
-void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
-    FieldRequest& fieldrequest,
-    vector<std::string>& paramNames,
-    std::string& plotName)
+void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, FieldRequest& fieldrequest,
+                                   std::vector<std::string>& paramNames, std::string& plotName)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(pin));
+  METLIBS_LOG_SCOPE(LOGVAL(cmd->toString()));
 
-  for (const miutil::KeyValue& kv : pin) {
+  fieldrequest.modelName = fs.model;
+  fieldrequest.refTime = fs.reftime;
+  if (fs.isPredefinedPlot()) {
+    plotName = fs.plot;
+    fieldrequest.predefinedPlot = true;
+  } else {
+    paramNames = fs.parameters;
+    fieldrequest.predefinedPlot = false;
+  }
+  fieldrequest.zaxis = fs.vcoord;
+  fieldrequest.plevel = fs.vlevel;
+  fieldrequest.eaxis = fs.ecoord;
+  fieldrequest.elevel = fs.elevel;
+  fieldrequest.unit = fs.units;
+  if (!cmd->time.empty())
+    fieldrequest.ptime = miutil::miTime(cmd->time);
+  fieldrequest.hourOffset = fs.hourOffset;
+  fieldrequest.time_tolerance = fs.hourDiff * 60; // time_tolerance in minutes, hourDiff in hours
+
+  for (const miutil::KeyValue& kv : cmd->options()) {
     if (!kv.value().empty()) {
       const std::string& key = kv.key();
-      if (key == "model") {
-        fieldrequest.modelName = kv.value();
-      }else if (key == "parameter") {
-        paramNames.push_back(kv.value());
-        fieldrequest.predefinedPlot = false;
-      }else if (key == "plot") {
-        plotName = kv.value();
-        fieldrequest.predefinedPlot = true;
-      } else if (key == "vcoord") {
-        fieldrequest.zaxis = kv.value();
-      } else if (key == "tcoor") {
+      if (key == "tcoor") {
         fieldrequest.taxis = kv.value();
-      } else if (key == "ecoord") {
-        fieldrequest.eaxis = kv.value();
-      } else if (key == "vlevel") {
-        fieldrequest.plevel = kv.value();
-      } else if (key == "elevel") {
-        fieldrequest.elevel = kv.value();
-      } else if (key == "unit" || key == "units") {
-        fieldrequest.unit = kv.value();
       } else if (key == "vunit" && kv.value() == "FL") {
         fieldrequest.flightlevel=true;
-      } else if (key == "time") {
-        fieldrequest.ptime = miTime(kv.value());
-      } else if (key == "reftime") {
-        fieldrequest.refTime = kv.value();
       } else if (key == "refhour") {
         fieldrequest.refhour = kv.toInt();
       } else if (key == "refoffset") {
         fieldrequest.refoffset = kv.toInt();
-      } else if (key == "hour.offset") {
-        fieldrequest.hourOffset = kv.toInt();
       } else if (key == "min.offset") {
         fieldrequest.minOffset = kv.toInt();
-      } else if (key == "hour.diff") {
-        fieldrequest.time_tolerance = kv.toInt() * 60; //time_tolerance in minutes, hour.diff in hours
       } else if (key == "alltimesteps") {
         fieldrequest.allTimeSteps = kv.toBool();
       } else if (key == "file.palette") {
@@ -904,35 +883,21 @@ void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
   METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.plevel));
 }
 
-std::string FieldPlotManager::extractPlotName(const miutil::KeyValue_v& pin)
+void FieldPlotManager::parsePin(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, std::vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
-  std::string plotName;
-  vector<FieldRequest> vfieldrequest;
-  parsePin(pin, vfieldrequest, plotName);
-  return plotName;
-}
-
-void FieldPlotManager::parsePin(const miutil::KeyValue_v& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(pin));
-
-  // if difference
-  miutil::KeyValue_v fspec1,fspec2;
-  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
-    parsePin(fspec1, vfieldrequest, plotName);
-    return;
-  }
+  METLIBS_LOG_SCOPE(LOGVAL(cmd->toString()));
 
   FieldRequest fieldrequest;
   vector<std::string> paramNames;
-  parseString(pin, fieldrequest, paramNames, plotName);
+  parseString(cmd, fs, fieldrequest, paramNames, plotName);
 
-  //  //plotName -> fieldName
+  // plotName -> fieldName
   if (fieldrequest.predefinedPlot) {
-    vfieldrequest = getParamNames(plotName,fieldrequest);
+    vfieldrequest = getParamNames(plotName, fieldrequest);
   } else {
-    for (size_t i=0; i<paramNames.size(); i++) {
-      fieldrequest.paramName = paramNames[i];
+    vfieldrequest.reserve(paramNames.size());
+    for (const std::string& pn : paramNames) {
+      fieldrequest.paramName = pn;
       vfieldrequest.push_back(fieldrequest);
     }
   }

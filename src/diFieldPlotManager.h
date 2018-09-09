@@ -31,7 +31,7 @@
 
 #include "diField/GridInventoryTypes.h"
 #include "diField/diCommonFieldTypes.h"
-#include "diPlotCommand.h"
+#include "diFieldPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diTimeTypes.h"
 
@@ -60,12 +60,7 @@ public:
   /// read setup section for field plots
   bool parseSetup();
 
-  bool makeDifferenceField(const miutil::KeyValue_v& fspec1,
-      const miutil::KeyValue_v& fspec2, const miutil::miTime& ptime,
-      std::vector<Field*>& fv);
-
-  bool makeFields(const miutil::KeyValue_v& pin, const miutil::miTime& ptime,
-      std::vector<Field*>& vfout);
+  bool makeFields(FieldPlotCommand_cp cmd, const miutil::miTime& ptime, std::vector<Field*>& vfout);
 
   bool updateFieldFileSetup(const std::vector<std::string>& lines, std::vector<std::string>& errors);
 
@@ -94,21 +89,18 @@ public:
   gridinventory::Grid getFieldGrid(const std::string& model);
 
   /// Returns the available times for the selected models and fields.
-  plottimes_t getFieldTime(const std::vector<miutil::KeyValue_v>& pinfos, bool updateSources = false);
+  plottimes_t getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos, bool updateSources = false);
 
-  miutil::miTime getFieldReferenceTime(const miutil::KeyValue_v& pinfo);
+  miutil::miTime getFieldReferenceTime(FieldPlotCommand_cp cmd);
 
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pc);
 
   ///return levels
-  std::vector<std::string> getFieldLevels(const miutil::KeyValue_v& pinfo);
+  std::vector<std::string> getFieldLevels(FieldPlotCommand_cp cmd);
 
   /// Parse plotInfo string into FieldReqests and plotName
-  void parsePin(const miutil::KeyValue_v& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
-
-  /// helper function to extract plot name using parsePin
-  std::string extractPlotName(const miutil::KeyValue_v& pin);
+  void parsePin(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
 
   /// Write field to file
   bool writeField(const FieldRequest& fieldrequest, const Field* field);
@@ -121,7 +113,10 @@ private:
   bool parseFieldPlotSetup();
   bool parseFieldGroupSetup();
 
-  std::vector<std::string> splitComStr(const std::string& s, bool splitall);
+  bool makeFields(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, const miutil::miTime& ptime, std::vector<Field*>& vfout);
+  bool makeDifferenceField(FieldPlotCommand_cp cmd, const miutil::miTime& ptime, std::vector<Field*>& fv);
+
+  static std::vector<std::string> splitComStr(const std::string& s, bool splitall);
 
   /// update static fieldplotoptions
   bool updateFieldPlotOptions(const std::string& name, const miutil::KeyValue_v& optstr);
@@ -131,7 +126,8 @@ private:
 
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
-  void parseString(const miutil::KeyValue_v &pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
+  void parseString(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, FieldRequest& fieldrequest, std::vector<std::string>& paramNames,
+                   std::string& plotName);
 
   std::map<std::string, std::string> groupNames;
 

@@ -32,8 +32,9 @@
 #include "diPlot.h"
 
 #include "diCommonTypes.h"
-#include "diPlotCommand.h"
+#include "diFieldPlotCommand.h"
 #include "diRasterPlot.h"
+#include "diTimeTypes.h"
 
 #include <diField/diField.h>
 #include <puTools/miTime.h>
@@ -65,16 +66,25 @@ public:
   std::string getEnabledStateKey() const override;
 
   bool updateIfNeeded();
-  bool prepare(const std::string& fname, const PlotCommand_cp&);
+
+  //! Extract plotting-parameters from plot command
+  //* Also fetches some default options from FieldPlotManager. */
+  bool prepare(const std::string& fname, const FieldPlotCommand_cp&);
+
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
   void getAnnotation(std::string&, Colour&) const override;
   const std::vector<Field*>& getFields() const {return fields; }
+  FieldPlotCommand_cp command() const { return cmd_; }
 
   //! time of model analysis
   const miutil::miTime& getAnalysisTime() const;
+
+  plottimes_t getFieldTimes() const;
+
+  miutil::miTime getReferenceTime() const;
 
   bool plotUndefined(DiGLPainter* gl);
   bool plotNumbers(DiGLPainter* gl);
@@ -83,6 +93,7 @@ public:
 
 private:
   FieldPlotManager* fieldplotm_;
+  FieldPlotCommand_cp cmd_;
   std::vector<Field*> fields; // fields, stored elsewhere
   std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time

@@ -104,6 +104,7 @@ SET (LIBDIANA_SOURCES
   diFieldEdit.cc
   diFieldPlot.cc
   diFieldPlotCluster.cc
+  diFieldPlotCommand.cc
   diFieldPlotManager.cc
   diFieldUtil.cc
   diFilledMap.cc

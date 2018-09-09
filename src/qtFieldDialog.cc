@@ -34,7 +34,6 @@
 
 #include "diCommandParser.h"
 #include "diFieldUtil.h"
-#include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 
 #include "qtToggleButton.h"
@@ -2849,97 +2848,62 @@ PlotCommand_cpv FieldDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
-  const int n = selectedFields.size();
-  for (int i = 0; i < n; i++) {
-    selectedFields[i].levelmove = true;
-    selectedFields[i].idnummove = true;
-  }
-
   PlotCommand_cpv vstr;
   if (selectedFields.empty())
     return vstr;
 
+  for (SelectedField& sf : selectedFields) {
+    sf.levelmove = true;
+    sf.idnummove = true;
+  }
+
   bool allTimeSteps = allTimeStepButton->isChecked();
+  const int n = selectedFields.size();
   vstr.reserve(n);
   for (int i = 0; i < n; i++) {
     const SelectedField& sf = selectedFields[i];
     if (sf.minus)
       continue;
 
-    std::string commandKey;
-    if (sf.inEdit) {
-      commandKey = "EDITFIELD";
-    } else {
-      commandKey = "FIELD";
-    }
-    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>(commandKey);
+    FieldPlotCommand_p cmd = std::make_shared<FieldPlotCommand>(sf.inEdit);
 
-    bool minus = false;
-    if (i + 1 < n && selectedFields[i + 1].minus) {
-      minus = true;
-      cmd->add(miutil::KeyValue("("));
-    }
+    const bool minus = (i + 1 < n && selectedFields[i + 1].minus);
+    getParamString(sf, cmd->field);
+    if (minus)
+      getParamString(selectedFields[i + 1], cmd->minus);
 
-    cmd->add(getParamString(i));
-    if (minus) {
-      cmd->add(miutil::KeyValue("-"));
-      cmd->add(getParamString(i+1));
-      cmd->add(miutil::KeyValue(")"));
-    }
-
-    cmd->add(sf.fieldOpts);
-
-    if (allTimeSteps)
-      cmd->add("allTimeSteps", "on");
-
-    if (!sf.time.empty()) {
-      cmd->add("time", sf.time);
-    }
+    cmd->addOptions(sf.fieldOpts);
+    cmd->allTimeSteps = allTimeSteps;
+    cmd->time = selectedFields[i].time;
 
     vstr.push_back(cmd);
-
     METLIBS_LOG_DEBUG("OK: " << cmd->toString());
   }
 
   return vstr;
 }
 
-miutil::KeyValue_v FieldDialog::getParamString(int i)
+void FieldDialog::getParamString(const SelectedField& sf, FieldPlotCommand::FieldSpec& fs)
 {
   miutil::KeyValue_v ostr;
 
-  const SelectedField& sf = selectedFields[i];
-  if (sf.inEdit)
-    miutil::add(ostr, "model", editName);
+  fs.model = (sf.inEdit) ? editName : sf.modelName;
+  fs.reftime = sf.refTime;
+  if (sf.predefinedPlot)
+    fs.plot = sf.fieldName;
   else
-    miutil::add(ostr, "model", sf.modelName);
-
-  if (!sf.refTime.empty()) {
-    miutil::add(ostr, "reftime", sf.refTime);
-  }
-
-  if (sf.predefinedPlot) {
-    miutil::add(ostr, "plot", sf.fieldName);
-  } else {
-    miutil::add(ostr, "parameter", sf.fieldName);
-  }
+    fs.parameters = std::vector<std::string>(1, sf.fieldName);
 
   if (!sf.level.empty()) {
-    if (!sf.zaxis.empty()) {
-      miutil::add(ostr, "vcoord", sf.zaxis);
-    }
-    miutil::add(ostr, "vlevel", sf.level);
+    fs.vcoord = sf.zaxis;
+    fs.vlevel = sf.level;
   }
-  if (!sf.idnum.empty()) {
-    miutil::add(ostr, "elevel", sf.idnum);
-  }
-  if (sf.hourOffset != 0)
-    miutil::add(ostr, "hour.offset", sf.hourOffset);
+  fs.elevel = sf.idnum;
 
-  if (sf.hourDiff != 0)
-    miutil::add(ostr, "hour.diff", sf.hourDiff);
+  fs.hourOffset = sf.hourOffset;
+  fs.hourDiff = sf.hourDiff;
 
-  return ostr;
+  fs.units = sf.unit;
 }
 
 std::string FieldDialog::getShortname()
@@ -3091,75 +3055,33 @@ bool FieldDialog::levelsExists(bool up, int type)
 void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE();
-  const bool checkOptions = true, external = true;
 
   deleteAllSelected();
-
-  bool allTimeSteps = false;
-
-  int nc = vstr.size();
-
-  if (nc == 0) {
+  if (vstr.empty()) {
     updateTime();
     return;
   }
 
-  bool minus = false;
-  miutil::KeyValue_v str;
-
-  for (int ic = 0; ic < nc; ic++) {
-    if (str.empty()) {
-      if (KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(vstr[ic]))
-        str = c->all();
-      else
-        continue;
-    }
-    //######################################################################
-                METLIBS_LOG_DEBUG("P.OK>> " << vstr[ic]);
-    //######################################################################
-
-    //if (field1 - field2)
-    miutil::KeyValue_v field1, field2;
-    if (splitDifferenceCommandString(str, field1, field2))
-      str = field1;
+  bool allTimeSteps = false;
+  for (PlotCommand_cp pc : vstr) {
+    FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
+    if (!cmd)
+      continue;
 
     SelectedField sf;
-    sf.external = external; // from QuickMenu
+    sf.external = true;
+    if (decodeCommand(cmd, cmd->field, sf, allTimeSteps))
+      addSelectedField(sf);
 
-    if (checkOptions) {
-      checkFieldOptions(str);
-      if (str.empty())
-        continue;
-    }
-
-    if (decodeString(str, sf, allTimeSteps)) {
-
-      selectedFields.push_back(sf);
-
-      std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
-      selectedFieldbox->addItem(QString::fromStdString(text));
-
-      selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
-      selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
-
-      //############################################################################
-      //           METLIBS_LOG_DEBUG("  ok: " << str << " " << fOpts);
-      //############################################################################
-    }
-
-    if (minus) {
-      minus = false;
+    if (cmd->hasMinusField()) {
       minusField(true);
+      SelectedField sfsubtract;
+      sfsubtract.external = true;
+      if (decodeCommand(cmd, cmd->minus, sfsubtract, allTimeSteps)) {
+        sf.minus = true;
+        addSelectedField(sfsubtract);
+      }
     }
-
-    if (!field2.empty()) {
-      str = field2;
-      ic--;
-      minus = true;
-    } else {
-      str.clear();
-    }
-
   }
 
   int m = selectedFields.size();
@@ -3174,47 +3096,59 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
   updateTime();
 }
 
-bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf, bool& allTimeSteps )
+void FieldDialog::addSelectedField(const SelectedField& sf)
+{
+  selectedFields.push_back(sf);
+
+  std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
+  selectedFieldbox->addItem(QString::fromStdString(text));
+
+  selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
+  selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
+}
+
+bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf, bool& allTimeSteps)
 {
   sf.inEdit = false;
+
+  sf.modelName = fs.model;
+  sf.fieldName = fs.name();
+  if (sf.fieldName.empty())
+    return false;
+  sf.predefinedPlot = fs.isPredefinedPlot();
+  sf.refTime = fs.reftime;
+
+  sf.zaxis = fs.vcoord;
+  sf.level = fs.vlevel;
+  sf.extraaxis = fs.ecoord;
+  sf.idnum = fs.elevel;
+  sf.unit = fs.units;
+
+  sf.hourOffset = fs.hourOffset;
+  sf.hourDiff = fs.hourDiff;
+
+  sf.fieldOpts = cmd->options();
+
+  // merge with options from setup/logfile for this fieldname
+  mergeFieldOptions(sf.fieldOpts, getFieldOptions(fs.name(), true));
 
   int refOffset = 0;
   int refHour = -1;
 
-  for (const miutil::KeyValue& kv : kvs) {
-    if (kv.key() == "model") {
-      sf.modelName = kv.value();
-    } else if (kv.key() == "reftime") {
-      sf.refTime = kv.value();
-    } else if (kv.key() == "refoffset" && CommandParser::isInt(kv.value()))  {
-      refOffset = kv.toInt();
-    } else if (kv.key() == "refhour" && CommandParser::isInt(kv.value()))  {
-      refHour = kv.toInt();
-    } else if (kv.key() == "plot") {
-      sf.fieldName = kv.value();
-    } else if (kv.key() == "parameter") {
-      sf.fieldName = kv.value();
-      sf.predefinedPlot = false;
-    } else if (kv.key() == "level") {
-      sf.level = kv.value();
-    } else if (kv.key() == "vlevel") {
-      sf.level = kv.value();
-    } else if (kv.key() == "elevel") {
-      sf.idnum = kv.value();
-    } else if (kv.key() == "vcoord" || kv.key() == "vccor") {
-      sf.zaxis = kv.value();
-    } else if (kv.key() == UNITS || kv.key() == "unit") {
-      sf.unit = kv.value();
-    } else if (kv.key() == "ecoord") {
-      sf.extraaxis = kv.value();
-    } else if (kv.key() == "hour.offset" && CommandParser::isInt(kv.value())) {
-      sf.hourOffset = kv.toInt();
-    } else if (kv.key() == "hour.diff" && CommandParser::isInt(kv.value())) {
-      sf.hourDiff = kv.toInt();
-    } else if (kv.key() == "alltimesteps") {
-      allTimeSteps |= kv.toBool();
-    } else if (kv.key() != "unknown") {
-      miutil::add(sf.fieldOpts, kv.key(), kv.value());
+  for (miutil::KeyValue_v::iterator it = sf.fieldOpts.begin(); it != sf.fieldOpts.end(); /* nothing */) {
+    const miutil::KeyValue& kv = *it;
+    if (kv.key() == "refoffset") {
+      if (CommandParser::isInt(kv.value()))
+        refOffset = kv.toInt();
+      it = sf.fieldOpts.erase(it);
+    } else if (kv.key() == "refhour") {
+      if (CommandParser::isInt(kv.value()))
+        refHour = kv.toInt();
+      it = sf.fieldOpts.erase(it);
+    } else {
+      if (kv.key() == "alltimesteps")
+        allTimeSteps |= kv.toBool();
+      ++it;
     }
   }
 
@@ -3241,16 +3175,15 @@ bool FieldDialog::decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf,
     }
   }
 
-  if (fi_found) {
-    sf.levelOptions = fi_found->vlevels();
-    sf.idnumOptions = fi_found->elevels();
-    sf.minus = false;
-    return true;
-  } else {
-    METLIBS_LOG_DEBUG("Field not found for command:" << LOGVAL(kvs));
+  if (!fi_found) {
+    METLIBS_LOG_DEBUG("Field not found: " << LOGVAL(fs.plot));
+    return false;
   }
 
-  return false;
+  sf.levelOptions = fi_found->vlevels();
+  sf.idnumOptions = fi_found->elevels();
+  sf.minus = false;
+  return true;
 }
 
 inline std::string sub(const std::string& s, std::string::size_type begin, std::string::size_type end)
@@ -3352,25 +3285,6 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
         }
       }
     }
-  }
-}
-
-void FieldDialog::checkFieldOptions(miutil::KeyValue_v& fieldopts)
-{
-  // merging fieldOptions from fieldopts whith current fieldOptions from same field
-  METLIBS_LOG_SCOPE(LOGVAL(fieldopts));
-
-  // find fieldname
-  std::string fieldname;
-  size_t i_fn = miutil::find(fieldopts, "plot");
-  if (i_fn == npos)
-    i_fn = miutil::find(fieldopts, "parameter");
-  if (i_fn != npos)
-    fieldname = fieldopts[i_fn].value();
-
-  if (!fieldname.empty()) {
-    // merge with options from setup/logfile for this fieldname
-    mergeFieldOptions(fieldopts, getFieldOptions(fieldname, true));
   }
 }
 

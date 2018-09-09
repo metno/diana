@@ -37,6 +37,7 @@
 #include "diFieldEdit.h"
 #include "diFieldPlot.h"
 #include "diFieldPlotCluster.h"
+#include "diFieldPlotCommand.h"
 #include "diFieldPlotManager.h"
 #include "diLabelPlotCommand.h"
 #include "diMapMode.h"
@@ -2682,11 +2683,11 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
   if (!isInEdit() || inp.empty())
     return;
 
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(inp[0]);
+  FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[0]);
   if (!cmd)
     return;
 
-  const std::string plotName = fieldPlotManager->extractPlotName(cmd->all());
+  const std::string& plotName = cmd->field.plot;
 
   // setting plot options
 
@@ -2695,7 +2696,8 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 
   const size_t npif = std::min(inp.size(), fedits.size());
   for (size_t i=0; i<npif; i++) {
-    fedits[i]->editfieldplot->prepare(plotName, inp[i]);
+    if (FieldPlotCommand_cp cmdi = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[i]))
+      fedits[i]->editfieldplot->prepare(plotName, cmdi);
   }
 
   // for showing single region during and after combine
@@ -2703,7 +2705,8 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
   for (size_t i=0; i<npic; i++) {
     size_t nreg = combinefields[i].size();
     for (size_t r=0; r<nreg; r++) {
-      combinefields[i][r]->editfieldplot->prepare(plotName, inp[i]);
+      if (FieldPlotCommand_cp cmdi = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[i]))
+        combinefields[i][r]->editfieldplot->prepare(plotName, cmdi);
     }
   }
 }

@@ -620,8 +620,8 @@ EditDialogInfo Controller::initEditDialog()
 
 vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
 {
-  if (KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo))
-    return fieldplotm->getFieldLevels(cmd->all());
+  if (FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pinfo))
+    return fieldplotm->getFieldLevels(cmd);
   else
     return std::vector<std::string>();
 }

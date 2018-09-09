@@ -35,6 +35,7 @@
 #include "diColourShading.h"
 #include "diCommandParser.h"
 #include "diField/diCommonFieldTypes.h"
+#include "diFieldPlotCommand.h"
 #include "diPattern.h"
 #include "diTimeTypes.h"
 #include "util/diKeyValue.h"
@@ -241,7 +242,7 @@ private Q_SLOTS:
   void updatePaletteString();
 
 private:
-  bool decodeString(const miutil::KeyValue_v& kvs, SelectedField& sf, bool& allTimeSteps);
+  void addSelectedField(const SelectedField& sf);
 
   void updateModelBoxes();
   void setDefaultFieldOptions();
@@ -253,8 +254,8 @@ private:
   void setLevel();
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime, bool plotDefinitions, FieldPlotGroupInfo_v& vfg);
-  void checkFieldOptions(miutil::KeyValue_v& fieldopts);
   miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
+  bool decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf, bool& allTimeSteps);
 
   void toolTips();
 
@@ -262,7 +263,7 @@ private:
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
 
-  miutil::KeyValue_v getParamString(int i);
+  void getParamString(const SelectedField& sf, FieldPlotCommand::FieldSpec& fs);
 
   void CreateAdvanced();
   void addModelGroup(int modelgroupIndex);

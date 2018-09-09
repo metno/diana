@@ -451,16 +451,13 @@ bool FieldEdit::readEditfield(const std::string& filename)
   fieldPlotManager->getFieldPlotGroups(modelName, reftime, true, fgi);
   vector<Field*> vfout;
 
-  miutil::KeyValue_v pin;
-  pin.push_back(KeyValue("model", modelName));
-  pin.push_back(KeyValue("plot", plotName));
-  if (!vcoord.empty())
-    pin.push_back(KeyValue("vcoord", vcoord));
-  if (!vlevel.empty())
-      pin.push_back(KeyValue("vlevel", vlevel));
-  if (!fieldUnit.empty())
-    pin.push_back(KeyValue("unit", fieldUnit));
-  std::vector<miutil::KeyValue_v> vpin(1, pin);
+  FieldPlotCommand_p cmd = std::make_shared<FieldPlotCommand>(true);
+  cmd->field.model = modelName;
+  cmd->field.plot = plotName;
+  cmd->field.vcoord = vcoord;
+  cmd->field.vlevel = vlevel;
+  cmd->field.units = fieldUnit;
+  std::vector<FieldPlotCommand_cp> vpin(1, cmd);
 
   bool dummy = false;
   plottimes_t times = fieldPlotManager->getFieldTime(vpin, dummy);
@@ -468,7 +465,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
   if (!times.empty()) {
     time = *times.begin();
   }
-  if (fieldPlotManager->makeFields(pin, time, vfout) && vfout.size() ) {
+  if (fieldPlotManager->makeFields(cmd, time, vfout) && vfout.size()) {
     editfield = vfout[0];
     return true;
   }

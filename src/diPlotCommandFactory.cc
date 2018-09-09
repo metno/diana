@@ -29,6 +29,7 @@
 
 #include "diPlotCommandFactory.h"
 
+#include "diFieldPlotCommand.h"
 #include "diKVListPlotCommand.h"
 #include "diLabelPlotCommand.h"
 #include "diStationPlotCommand.h"
@@ -71,7 +72,7 @@ size_t identify(const std::string& commandKey, const std::string& text)
   return 0;
 }
 
-const std::vector<std::string> commandKeysKV = {"MAP", "AREA", "DRAWING", "FIELD", "EDITFIELD", "SAT", "OBJECTS", "OBS", "WEBMAP"};
+const std::vector<std::string> commandKeysKV = {"MAP", "AREA", "DRAWING", "SAT", "OBJECTS", "OBS", "WEBMAP"};
 
 PlotCommand_cp identifyKeyValue(const std::string& commandKey, const std::string& text)
 {
@@ -88,6 +89,15 @@ PlotCommand_cp identifyLabel(const std::string& text)
   else
     return PlotCommand_cp();
 }
+
+PlotCommand_cp identifyField(const std::string& text)
+{
+  if (size_t start = identify("FIELD", text))
+    return FieldPlotCommand::fromString(false, text.substr(start));
+  if (size_t start = identify("EDITFIELD", text))
+    return FieldPlotCommand::fromString(true, text.substr(start));
+  return PlotCommand_cp();
+}
 } // namespace
 
 PlotCommand_cp makeCommand(const std::string& text)
@@ -96,6 +106,9 @@ PlotCommand_cp makeCommand(const std::string& text)
     if (PlotCommand_cp c = identifyKeyValue(ck, text))
       return c;
   }
+
+  if (PlotCommand_cp c = identifyField(text))
+    return c;
 
   if (PlotCommand_cp c = identifyLabel(text))
     return c;

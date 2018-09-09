@@ -39,7 +39,6 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
-#include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diPolyContouring.h"
 #include "diRasterAlarmBox.h"
@@ -103,31 +102,9 @@ void FieldPlot::clearFields()
 
 std::string FieldPlot::getEnabledStateKey() const
 {
-  miutil::KeyValue_v mppr;
-
-  const size_t npos = size_t(-1);
-
-  size_t i = find(getPlotInfo(), "model");
-  if (i != npos)
-    mppr.push_back(getPlotInfo().at(i));
-
-  i = find(getPlotInfo(), "parameter");
-  if (i != npos)
-    mppr.push_back(getPlotInfo().at(i));
-
-  i = find(getPlotInfo(), "plot");
-  if (i != npos)
-    mppr.push_back(getPlotInfo().at(i));
-
-  i = find(getPlotInfo(), "reftime");
-  if (i != npos)
-    mppr.push_back(getPlotInfo().at(i));
-
-  //probably old FIELD string syntax
-  if (mppr.empty())
-    mppr = getPlotInfo(3);
-
-  return miutil::mergeKeyValue(mppr);
+  std::ostringstream ost;
+  ost << cmd_->field.model << ':' << cmd_->field.name() << ':' << cmd_->field.reftime;
+  return ost.str();
 }
 
 const Area& FieldPlot::getFieldArea() const
@@ -158,17 +135,14 @@ bool FieldPlot::updateIfNeeded()
 {
   const miTime& t = getStaticPlot()->getTime();
   bool update, data = false;
-  if (ftime.undef()
-      || (ftime != t && find(getPlotInfo(), "time") == KVListPlotCommand::npos)
-      || fields.size() == 0)
-  {
+  if (ftime.undef() || (ftime != t && cmd_->time.empty()) || fields.empty()) {
     update = true;
   } else {
     update = false;
   }
   if (update && fieldplotm_ != 0) {
     std::vector<Field*> fv;
-    data = fieldplotm_->makeFields(getPlotInfo(), t, fv);
+    data = fieldplotm_->makeFields(cmd_, t, fv);
     setData(fv, t);
   } else {
     data = !fields.empty();
@@ -186,19 +160,20 @@ void FieldPlot::getAnnotation(string& s, Colour& c) const
   s = getPlotName();
 }
 
-// Extract plotting-parameters from PlotInfo.
-bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
+bool FieldPlot::prepare(const std::string& fname, const FieldPlotCommand_cp& cmd)
 {
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
-  if (!cmd)
-    return false;
-
-  // merge current plotOptions (from pin) with plotOptions form setup
+  // merge current plotOptions (from pin) with plotOptions from setup
   miutil::KeyValue_v opts;
   fieldplotm_->getFieldPlotOptions(fname, poptions, opts);
-  diutil::insert_all(opts, cmd->all());
-
+  diutil::insert_all(opts, cmd->options());
   setPlotInfo(opts);
+
+  // FIXME merging options should be done earlier, we should no longer modify the plot command here
+  FieldPlotCommand_p cmd_opts = std::make_shared<FieldPlotCommand>(*cmd);
+  cmd_opts->clearOptions();
+  cmd_opts->addOptions(ooptions);
+  ooptions = cmd->options();
+  cmd_ = cmd_opts;
 
   if (poptions.maxDiagonalInMeters > -1) {
     const double diagonal = getStaticPlot()->getRequestedarea().getDiagonalInMeters();
@@ -220,6 +195,16 @@ const miutil::miTime& FieldPlot::getAnalysisTime() const
     return fields[0]->analysisTime;
   else
     return UNDEF;
+}
+
+plottimes_t FieldPlot::getFieldTimes() const
+{
+  return fieldplotm_->getFieldTime(std::vector<FieldPlotCommand_cp>(1, cmd_), false);
+}
+
+miutil::miTime FieldPlot::getReferenceTime() const
+{
+  return fieldplotm_->getFieldReferenceTime(cmd_);
 }
 
 //  set list of field-pointers, update datatime

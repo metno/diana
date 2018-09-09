@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,7 +27,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <diFieldPlotCommand.h>
 #include <diKVListPlotCommand.h>
+#include <diPlotCommandFactory.h>
 #include <diStringPlotCommand.h>
 
 #include <gtest/gtest.h>
@@ -81,4 +83,41 @@ TEST(TestPlotCommands, KVListPlotCommand)
 
     EXPECT_EQ("GO straight right=bad left=\"also bad\"", c.toString());
   }
+}
+
+TEST(TestPlotCommands, FieldFromFactory)
+{
+  const std::string model = "hei", plot = "ho";
+  miutil::KeyValue_v options;
+  options << miutil::KeyValue("colour", "blue") << miutil::KeyValue("plottype", "contour") << miutil::KeyValue("alltimesteps", "1");
+  const std::string text = "FIELD model=" + model + " plot=" + plot + " " + miutil::mergeKeyValue(options);
+
+  PlotCommand_cp pc = makeCommand(text);
+  FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
+  ASSERT_TRUE(!!cmd);
+  EXPECT_FALSE(cmd->isEdit);
+  EXPECT_FALSE(cmd->hasMinusField());
+  EXPECT_EQ(model, cmd->field.model);
+  EXPECT_EQ(options, cmd->options());
+  EXPECT_EQ(text, cmd->toString());
+}
+
+TEST(TestPlotCommands, FieldDifferenceFromFactory)
+{
+  const std::string model1 = "no", plot1 = "hei", model2 = "de", plot2 = "hallo";
+  miutil::KeyValue_v options;
+  options << miutil::KeyValue("colour", "blue") << miutil::KeyValue("plottype", "contour");
+  const std::string text = "FIELD ( model=" + model1 + " plot=" + plot1 + " - model=" + model2 + " plot=" + plot2 + " ) " + miutil::mergeKeyValue(options);
+
+  PlotCommand_cp pc = makeCommand(text);
+  FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
+  ASSERT_TRUE(!!cmd);
+  EXPECT_FALSE(cmd->isEdit);
+  EXPECT_TRUE(cmd->hasMinusField());
+  EXPECT_EQ(model1, cmd->field.model);
+  EXPECT_EQ(plot1, cmd->field.plot);
+  EXPECT_EQ(model2, cmd->minus.model);
+  EXPECT_EQ(plot2, cmd->minus.plot);
+  EXPECT_EQ(options, cmd->options());
+  EXPECT_EQ(text, cmd->toString());
 }

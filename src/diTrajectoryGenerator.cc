@@ -104,10 +104,7 @@ TrajectoryData_v TrajectoryGenerator::compute()
     return trajectories;
 
   // 1. get field times
-  pinfo = fp->getPlotInfo();
-  METLIBS_LOG_DEBUG(LOGVAL(pinfo));
-
-  const plottimes_t ftimes = fpm->getFieldTime(std::vector<miutil::KeyValue_v>(1, pinfo), false);
+  const plottimes_t ftimes = fp->getFieldTimes();
   const std::vector<miutil::miTime> times(ftimes.begin(), ftimes.end());
   const int nTimes = times.size();
   METLIBS_LOG_DEBUG(LOGVAL(nTimes));
@@ -174,7 +171,7 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
     return;
 
   std::vector<Field*> fv0, fv1;
-  fpm->makeFields(pinfo, times[i0], fv0);
+  fpm->makeFields(fp->command(), times[i0], fv0);
   while (fv0.size() < 2 && i0 >= 0 && i0-di >= 0 && i0 < nTimes && i0-di < nTimes) {
     freeFields(fpm, fv0);
     i0 += di;
@@ -185,7 +182,7 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
       break;
     METLIBS_LOG_DEBUG(LOGVAL(i1));
     const miutil::miTime& t1 = times[i1];
-    fpm->makeFields(pinfo, t1, fv1);
+    fpm->makeFields(fp->command(), t1, fv1);
     if (fv1.size() >= 2) {
       const miutil::miTime& t0 = times[i0];
       computeSingleStep(t0, t1, fv0, fv1, trajectories);
