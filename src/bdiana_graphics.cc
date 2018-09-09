@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 
 #include "bdiana_graphics.h"
 
+#include "export/ExportUtil.h"
 #include "export/PdfSink.h"
 #include "export/QPictureSink.h"
 #include "export/RasterFileSink.h"
@@ -96,14 +97,8 @@ bool BdianaGraphics::render(BdianaSource& src)
 
 bool BdianaGraphics::render(ImageSource* is, ImageSink* sink)
 {
-  // TODO same as end of ExportImageDialog::saveSingle
-  is->prepare(sink->isPrinting(), true);
   const bool data_ok = true; // FIXME
-  sink->beginPage();
-  is->paint(sink->paintPage());
-  sink->endPage();
-  is->finish();
-  sink->finish();
+  diutil::renderSingle(*is, *sink);
   return data_ok;
 }
 

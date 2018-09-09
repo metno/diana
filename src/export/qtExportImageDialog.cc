@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2016 MET Norway
+  Copyright (C) 2016-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -25,10 +25,11 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 #include "qtExportImageDialog.h"
 
+#include "export/ExportUtil.h"
 #include "export/MovieMaker.h"
 #include "export/PdfSink.h"
 #include "export/RasterFileSink.h"
@@ -741,12 +742,7 @@ QStringList ExportImageDialog::saveSingle(const QString& filename)
     sink.reset(new RasterFileSink(size, filename));
   }
 
-  imageSource->prepare(sink->isPrinting(), true);
-  sink->beginPage();
-  imageSource->paint(sink->paintPage());
-  sink->endPage();
-  imageSource->finish();
-  sink->finish();
+  diutil::renderSingle(*imageSource, *sink);
   return QStringList(filename);
 }
 

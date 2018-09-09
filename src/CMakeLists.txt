@@ -198,17 +198,18 @@ SET (LIBDIANA_SOURCES
   EditItems/kml.cc
   EditItems/timefilesextractor.cc
 
+  export/DianaImageSource.cc
+  export/ExportUtil.cc
   export/ImageSink.cc
   export/MovieMaker.cc
   export/PaintGLImageSource.cc
+  export/PaintableImageSource.cc
   export/PdfSink.cc
   export/QPictureSink.cc
-  export/qtTempDir.cc
   export/RasterFileSink.cc
   export/SvgFileSink.cc
   export/VcrossImageSource.cc
-  export/PaintableImageSource.cc
-  export/DianaImageSource.cc
+  export/qtTempDir.cc
 
   util/charsets.cc
   util/debug_timer.cc
