@@ -1442,7 +1442,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     sf.idnumOptions = fi.elevels();
     sf.zaxis = fi.vcoord();
     sf.extraaxis = fi.ecoord();
-    sf.unit = fi.units;
 
     sf.predefinedPlot = predefinedPlotsCheckBox->isChecked();
     sf.minus = false;
