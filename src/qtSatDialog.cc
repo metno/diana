@@ -611,7 +611,7 @@ void SatDialog::updateTimes()
         }
       if (!found) {
         QString tmp1 = "<nobr>" + tr("Chosen picture") + " <i>";
-        QString tmp2 = pictureString(m_state[i], true).c_str();
+        QString tmp2 = QString::fromStdString(pictureString(m_state[i], true));
         QString tmp3 = " </i></nobr> <br>" + tr("No longer available on disk");
         QString messagestring = tmp1 + tmp2 + tmp3;
         QMessageBox::information(this, tr("Satellite dialog - info"),
@@ -677,8 +677,7 @@ void SatDialog::doubleDisplayDiff(int number)
   int minutes = totalminutes - hours * 60;
   ostringstream ostr;
   ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-  std::string str = ostr.str();
-  diffLcdnum->display(str.c_str());
+  diffLcdnum->display(QString::fromStdString(ostr.str()));
 }
 
 /*********************************************/
@@ -978,7 +977,7 @@ void SatDialog::updateFileListWidget(int in)
     //insert in fileListWidget the list of files.. Europa,N-Europa etc...
     int nfile = dialogInfo.image[in].file.size();
     for (int k = 0; k < nfile; k++) {
-      fileListWidget->addItem(dialogInfo.image[in].file[k].name.c_str());
+      fileListWidget->addItem(QString::fromStdString(dialogInfo.image[in].file[k].name));
     }
   }
 }
@@ -1015,13 +1014,13 @@ void SatDialog::updateTimefileList()
   if (timeButton->isChecked()) {
 
     for (int i = 0; i < nr_file; i++) {
-      timefileList->addItem(QString(files[i].time.isoTime().c_str()));
+      timefileList->addItem(QString::fromStdString(files[i].time.isoTime()));
     }
 
   } else if (fileButton->isChecked()) {
 
     for (int i = 0; i < nr_file; i++) {
-      timefileList->addItem(QString(files[i].name.c_str()));
+      timefileList->addItem(QString::fromStdString(files[i].name));
     }
 
   }
@@ -1111,9 +1110,7 @@ void SatDialog::updatePictures(int index, bool updateAbove)
   pictures->clear();
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
-    //insert item into picturebox
-    std::string str = pictureString(m_state[i], true);
-    pictures->addItem(str.c_str());
+    pictures->addItem(QString::fromStdString(pictureString(m_state[i], true)));
   }
 
   if (index > -1 && index < int(m_state.size())) {
