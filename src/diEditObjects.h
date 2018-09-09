@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -219,7 +219,7 @@ public:
   /// check all fronts for join points...
   void checkJoinPoints();
   /// put prefix, name and time at start of comments
-  void putCommentStartLines(const std::string name, const std::string prefix, const std::string lines);
+  void putCommentStartLines(const std::string& name, const std::string& prefix, const std::string& lines);
   ///returns true if comment differ from startlines
   bool hasComments();
   /// returns the comments

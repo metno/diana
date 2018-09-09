@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 
 #include "diSpectrumManager.h"
 
+#include "diField/VcrossUtil.h"
 #include "diSpectrumData.h"
 #include "diSpectrumFile.h"
 #include "diSpectrumOptions.h"
@@ -42,11 +43,8 @@
 #include "vcross_v2/VcrossCollector.h"
 #include "vcross_v2/VcrossSetup.h"
 
-#include <diField/VcrossUtil.h>
-
 #include <QSize>
 
-#include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.SpectrumManager"
@@ -63,9 +61,6 @@ SpectrumManager::SpectrumManager()
   , dataChange(true)
 {
   METLIBS_LOG_SCOPE();
-
-  //zero time = 00:00:00 UTC Jan 1 1970
-  ztime = miTime(1970,1,1,0,0,0);
 
   plotTime= miTime::nowTime();
 }

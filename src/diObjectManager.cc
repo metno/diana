@@ -43,6 +43,7 @@
 #include "miSetupParser.h"
 
 #include "util/charsets.h"
+#include "util/time_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -56,11 +57,6 @@
 
 using namespace std;
 using namespace::miutil;
-
-namespace {
-//zero time = 00:00:00 UTC Jan 1 1970
-const miutil::miTime ztime = miTime(1970,1,1,0,0,0);
-} // namespace
 
 ObjectManager::ObjectManager(PlotModule* pl)
   : plotm(pl), mapmode(normal_mode)
@@ -262,7 +258,7 @@ bool ObjectManager::prepareObjects(const miTime& t, const Area& area)
     return false;
 
   //if autoFile or wrong time, set correct time
-  if (objects.isAutoFile() || objects.getTime() ==ztime)
+  if (objects.isAutoFile() || objects.getTime().undef())
     objects.setTime(t);
 
   if (objects.isAutoFile() || objects.filename.empty()){
@@ -320,8 +316,8 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
   const diutil::string_v matches = diutil::glob(fileString);
   for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
     const std::string& name = *it;
-    miTime time = timeFilterFileName(name, ol.filter);
-    if(!time.undef() && time!=ztime){
+    const miTime time = timeFilterFileName(name, ol.filter);
+    if (!time.undef()) {
       ObjFileInfo info;
       info.name = name;
       info.time = time;
@@ -369,12 +365,7 @@ miTime ObjectManager::timeFileName(const std::string& fileName)
   //get time from a file with name *.yyyymmddhh
   const vector <std::string> parts= miutil::split(fileName, 0, ".");
   int nparts= parts.size();
-  //if (parts.size() != 2) {
-  //if (parts.size() < 2) {
-  //return ztime ;
-  //}
   if (parts[nparts-1].length() < 10) {
-
     size_t pos1 = fileName.find_last_of("_");
     size_t pos2 = fileName.find_last_of(".");
     if ( pos1 != string::npos && pos2 != string::npos && pos2 > pos1 + 10 ) {
@@ -385,33 +376,14 @@ miTime ObjectManager::timeFileName(const std::string& fileName)
     }
     return miTime();
   }
-  return timeFromString(parts[nparts-1]);
+  return miutil::timeFromString(parts[nparts - 1]);
 }
-
-// static
-miTime ObjectManager::timeFromString(const std::string& timeString)
-{
-  //get time from a string with yyyymmddhhmm
-  if (timeString.size() < 10)
-    return miTime();
-  int year= atoi(timeString.substr(0,4).c_str());
-  int mon=  atoi(timeString.substr(4,2).c_str());
-  int day=  atoi(timeString.substr(6,2).c_str());
-  int hour= atoi(timeString.substr(8,2).c_str());
-  int min= 0;
-  if (timeString.length() >= 12)
-    min= atoi(timeString.substr(10,2).c_str());
-  if (year<0 || mon <0 || day<0 || hour<0 || min < 0)
-    return ztime;
-  return miTime(year,mon,day,hour,min,0);
-}
-
 
 bool ObjectManager::getFileName(DisplayObjects& wObjects)
 {
   METLIBS_LOG_SCOPE();
 
-  if (wObjects.getObjectName().empty() || wObjects.getTime()==ztime)
+  if (wObjects.getObjectName().empty() || wObjects.getTime().undef())
     return false;
 
 
@@ -424,23 +396,23 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects)
     po->second.updated= true;
   }
 
-  int n= po->second.files.size();
-
-  int fileno=-1;
-  int d, diff=wObjects.getTimeDiff() + 1;
-
-  miTime t = wObjects.getTime();
-  for (int i=0; i<n; i++) {
-    d= abs(miTime::minDiff(t,po->second.files[i].time));
-    if (d<diff) {
-      diff= d;
-      fileno= i;
+  const ObjFileInfo* best = 0;
+  const miutil::miTime& t = wObjects.getTime();
+  if (!t.undef()) {
+    int diff = 0;
+    for (const auto& f : po->second.files) {
+      const int d = abs(miTime::minDiff(t, f.time));
+      if (!best || d < diff) {
+        diff = d;
+        best = &f;
+      }
     }
   }
-  if (fileno<0) return false;
+  if (!best)
+    return false;
 
-  wObjects.filename= po->second.files[fileno].name;
-  wObjects.setTime(po->second.files[fileno].time);
+  wObjects.filename = best->name;
+  wObjects.setTime(best->time);
 
   return true;
 }
@@ -1228,32 +1200,10 @@ void ObjectManager::undofrontClear()
   editobjects.undofrontClear();
 }
 
-
 map <std::string,bool> ObjectManager::decodeTypeString(std::string token)
 {
   return WeatherObjects::decodeTypeString(token);
 }
-
-
-std::string ObjectManager::stringFromTime(const miTime& t,bool addMinutes)
-{
-  int yyyy= t.year();
-  int mm  = t.month();
-  int dd  = t.day();
-  int hh  = t.hour();
-  int mn  = t.min();
-
-  ostringstream ostr;
-  ostr << setw(4) << setfill('0') << yyyy
-       << setw(2) << setfill('0') << mm
-       << setw(2) << setfill('0') << dd
-       << setw(2) << setfill('0') << hh;
-  if (addMinutes)
-       ostr << setw(2) << setfill('0') << mn;
-
-  return ostr.str();
-}
-
 
 bool ObjectManager::_isafile(const std::string& name)
 {
@@ -1264,7 +1214,6 @@ bool ObjectManager::_isafile(const std::string& name)
   } else
     return false;
 }
-
 
 bool ObjectManager::checkFileName(const std::string& fileName)
 {

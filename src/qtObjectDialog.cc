@@ -38,6 +38,7 @@
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "util/string_util.h"
+#include "util/time_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -495,7 +496,7 @@ PlotCommand_cpv ObjectDialog::getOKString()
         if (timeButton->isChecked()){
           const miutil::miTime& time=file.time;
           if (!time.undef())
-            add(kvs, "time", stringFromTime(time));
+            add(kvs, "time", miutil::stringFromTime(time, true));
         } else if (fileButton->isChecked()) {
           if (!file.name.empty())
             add(kvs, "file", file.name);
@@ -568,7 +569,7 @@ void ObjectDialog::putOKString(const PlotCommand_cpv& vstr)
     //METLIBS_LOG_DEBUG("time =" << plotVariables.time);
     int nt=files.size();
     for (int j=0;j<nt;j++ ){
-      std::string listtime=stringFromTime(files[j].time);
+      std::string listtime = stringFromTime(files[j].time, true);
       if (plotVariables.time==listtime){
         timefileBut->button(1)->setChecked(true);
         timefileClicked(1);
@@ -731,20 +732,6 @@ void ObjectDialog::archiveMode(bool on)
 
   //everything is unselected and listboxes refreshed
   DeleteClicked();
-}
-
-/*************************************************************************/
-
-// static
-std::string ObjectDialog::stringFromTime(const miutil::miTime& t)
-{
-  ostringstream ostr;
-  ostr << setw(4) << setfill('0') << t.year()
-       << setw(2) << setfill('0') << t.month()
-       << setw(2) << setfill('0') << t.day()
-       << setw(2) << setfill('0') << t.hour()
-       << setw(2) << setfill('0') << t.min();
-  return ostr.str();
 }
 
 void ObjectDialog::hideComment()

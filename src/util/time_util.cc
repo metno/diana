@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,7 +30,14 @@
 #include "time_util.h"
 #include "nearest_element.h"
 
+#include <puTools/miStringFunctions.h>
+
+#include <iomanip>
+#include <sstream>
+
 namespace miutil {
+
+const miutil::miTime unix_t0(1970, 1, 1, 0, 0, 0);
 
 miTime addSec(const miTime& t, int seconds)
 {
@@ -90,6 +97,20 @@ plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& ti
   if (it == times.end() && !times.empty())
     it = --times.end();
   return it;
+}
+
+std::string stringFromTime(const miutil::miTime& t, bool addMinutes)
+{
+  static const std::string fmt = "%Y%m%d%H", fmt_min = fmt + "%M";
+  return t.format(addMinutes ? fmt_min : fmt);
+}
+
+miutil::miTime timeFromString(const std::string& timeString)
+{
+  if (timeString.length() == 10 || timeString.length() == 12)
+    return miutil::miTime(timeString);
+  else
+    return miutil::miTime();
 }
 
 } // namespace miutil

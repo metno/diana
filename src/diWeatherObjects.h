@@ -74,8 +74,7 @@ public:
     { itsTime=t; }
 
   /// gets the object time
-  const miutil::miTime& getTime()
-    {if (itsTime.undef()) return ztime; else return itsTime;}
+  const miutil::miTime& getTime() const;
 
   /// returns number of object plots
   int getSize()
@@ -147,7 +146,6 @@ public:
 
 private:
   std::map<std::string,bool> useobject;
-  static const miutil::miTime ztime;
   bool enabled;
 
 protected:
@@ -159,10 +157,6 @@ protected:
   std::string itsOldComments;       // the comment string to edit
   PlotCommand_cpv itsLabels;            //edited labels
   PlotCommand_cpv itsOldLabels;         //labels read in from object file
-
-  //static members
-  static miutil::miTime timeFromString(const std::string& timeString);
-  static std::string stringFromTime(const miutil::miTime& t, bool addMinutes);
 };
 
 #endif

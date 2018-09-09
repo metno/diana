@@ -38,6 +38,7 @@
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "util/misc_util.h"
+#include "util/time_util.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
@@ -72,8 +73,6 @@ using namespace std;
 
 #define HEIGHTLISTBOX 45
 
-//static
-miutil::miTime SatDialog::ztime = miutil::miTime(1970,1,1,0,0,0);
 
 /*********************************************/
 SatDialog::SatDialog(QWidget* parent, Controller* llctrl)
@@ -849,7 +848,9 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
 
 void SatDialog::putOptions(const state& okVar)
 {
-  if (!okVar.filetime.undef() && okVar.filetime != ztime) {
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(okVar.filetime) << LOGVAL(okVar.filename));
+  if (!okVar.filetime.undef()) {
     timefileBut->button(1)->setChecked(true);
     updateTimefileList();
     int nt = files.size();
@@ -934,7 +935,7 @@ SatDialog::state SatDialog::decodeString(const miutil::KeyValue_v& tokens)
     const std::string& key = kv.key();
     const std::string& value = kv.value();
     if (key == "time") {
-      okVar.filetime = timeFromString(value);
+      okVar.filetime = miutil::timeFromString(value);
     } else if (key == "file") {
       okVar.filename = value;
     } else if (key == "timediff") {
@@ -1185,34 +1186,6 @@ void SatDialog::emitSatTimes(bool update)
 
   bool useTimes = (times.size() > m_state.size());
   emitTimes(times, useTimes);
-}
-
-/*********************************************/
-
-std::string SatDialog::stringFromTime(const miutil::miTime& t)
-{
-  ostringstream ostr;
-  ostr << setw(4) << setfill('0') << t.year()
-       << setw(2) << setfill('0') << t.month()
-       << setw(2) << setfill('0') << t.day()
-       << setw(2) << setfill('0') << t.hour()
-       << setw(2) << setfill('0') << t.min();
-  return ostr.str();
-}
-
-miutil::miTime SatDialog::timeFromString(const std::string &timeString)
-{
-  //get time from a string with yyyymmddhhmm
-  int year = atoi(timeString.substr(0, 4).c_str());
-  int mon = atoi(timeString.substr(4, 2).c_str());
-  int day = atoi(timeString.substr(6, 2).c_str());
-  int hour = atoi(timeString.substr(8, 2).c_str());
-  int min = 0;
-  if (timeString.length() >= 12)
-    min = atoi(timeString.substr(10, 2).c_str());
-  if (year < 0 || mon < 0 || day < 0 || hour < 0 || min < 0)
-    return ztime;
-  return miutil::miTime(year, mon, day, hour, min, 0);
 }
 
 vector<string> SatDialog::writeLog()

@@ -120,10 +120,6 @@ private:
   void putOptions(const state& okVar);
 
   std::string pictureString(state,bool);  
-  // get the time string on the form yyyymmddhhmn from time
-  std::string stringFromTime(const miutil::miTime& t);
-  //get time from string
-  miutil::miTime timeFromString(const std::string & timeString);
 
 private Q_SLOTS:
   void DeleteClicked();
@@ -147,7 +143,6 @@ private:
   satoptions_t satoptions;
   std::vector<state> m_state; // pictures to plot
   plottimes_t times;          // emitted to TimeSlider
-  static miutil::miTime ztime;
 
   int m_nr_image;
  

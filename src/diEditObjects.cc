@@ -31,9 +31,10 @@
 #include "diana_config.h"
 
 #include "diEditObjects.h"
+#include "diWeatherArea.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
-#include "diWeatherArea.h"
+#include "util/string_util.h"
 
 #include <cmath>
 
@@ -1401,11 +1402,13 @@ void EditObjects::setScaleToField(float s){
  *  Methods for reading and writing comments                *
  ************************************************************/
 
-void EditObjects::putCommentStartLines(const std::string name, const std::string prefix, const std::string lines)
+void EditObjects::putCommentStartLines(const std::string& name, const std::string& prefix, const std::string& lines)
 {
   //return the startline of the comments file to read
-  startlines = prefix + std::string(" ") + name +
-  std::string(" ") + itsTime.isoTime()+ std::string("\n");
+  startlines = prefix + std::string(" ") + name;
+  if (!itsTime.undef())
+    diutil::appendText(startlines, itsTime.isoTime());
+  startlines += "\n";
   itsComments+=
     "*************************************************\n";
   itsComments+=startlines;

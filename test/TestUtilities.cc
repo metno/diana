@@ -542,3 +542,22 @@ TEST(TestUtilities, StepTimeT)
   EXPECT_EQ(times.begin(), step_time(times, t0600, addHour(t0600, -12)));
   EXPECT_EQ(--times.end(), step_time(times, t0600, addHour(t0600, 24)));
 }
+
+TEST(TestUtilities, StringFromTime)
+{
+  using namespace miutil;
+
+  const miTime t0(2018, 4, 1, 12, 34, 56);
+  EXPECT_EQ("2018040112", stringFromTime(t0, false));
+  EXPECT_EQ("201804011234", stringFromTime(t0, true));
+}
+
+TEST(TestUtilities, TimeFromString)
+{
+  using namespace miutil;
+  EXPECT_TRUE(timeFromString("201804").undef());
+  EXPECT_TRUE(timeFromString("201804-1").undef());
+  EXPECT_TRUE(timeFromString("20180401").undef());
+  EXPECT_EQ(miTime(2018, 4, 1, 12, 0, 0), timeFromString("2018040112"));
+  EXPECT_EQ(miTime(2018, 4, 1, 12, 34, 0), timeFromString("201804011234"));
+}

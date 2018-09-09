@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -91,7 +91,6 @@ private:
 
   std::string plotStation;
   miutil::miTime   plotTime;
-  miutil::miTime   ztime;
 
   int realizationCount;
   int realization;

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -42,6 +42,14 @@ plottimes_t::const_iterator nearest(const plottimes_t& times, const miTime& time
 
 plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& time, int steps);
 plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& time, const miTime& newTime);
+
+extern const miutil::miTime unix_t0;
+
+//! format a time as string with yyyymmddhhmm
+std::string stringFromTime(const miutil::miTime& t, bool addMinutes);
+
+//! get time from a string with yyyymmddhhmm
+miutil::miTime timeFromString(const std::string& timeString);
 
 } // namespace miutil
 

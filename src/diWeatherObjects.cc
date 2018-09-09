@@ -41,6 +41,7 @@
 
 #include "util/charsets.h"
 #include "util/string_util.h"
+#include "util/time_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -54,18 +55,10 @@
 using namespace::miutil;
 using namespace std;
 
-//static
-const miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);
-
-/*********************************************/
-
 WeatherObjects::WeatherObjects()
 : xcopy(0), ycopy(0)
 {
   METLIBS_LOG_SCOPE();
-
-  //zero time = 00:00:00 UTC Jan 1 1970
-  itsTime=ztime;
 
   // correct spec. when making Projection for long/lat coordinates
   geoArea.setP(Projection::geographic());
@@ -79,6 +72,11 @@ WeatherObjects::WeatherObjects()
 
 WeatherObjects::~WeatherObjects()
 {
+}
+
+const miutil::miTime& WeatherObjects::getTime() const
+{
+  return itsTime;
 }
 
 /*********************************************/
@@ -328,7 +326,6 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString,
       continue;
     }
     if (key == "date"){
-      //METLIBS_LOG_DEBUG("date of object file = " << timeFromString(value));
     } else if (key == "object"){
       ObjectPlot * tObject;
       if (value == "Front") {
@@ -379,7 +376,7 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
   changeProjection(geoArea);
 
   ostringstream ostr;
-  ostr << "Date=" << stringFromTime(t, true) << ';' << endl << endl;
+  ostr << "Date=" << miutil::stringFromTime(t, true) << ';' << endl << endl;
 
   for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p)
     ostr << (*p)->writeObjectString();
@@ -536,48 +533,6 @@ void WeatherObjects::addObject(ObjectPlot* object, bool replace)
 vector<ObjectPlot*>::iterator WeatherObjects::removeObject(vector<ObjectPlot*>::iterator p)
 {
   return objects.erase(p);
-}
-
-/*********************************************/
-
-// static
-std::string WeatherObjects::stringFromTime(const miTime& t, bool addMinutes)
-{
-  int yyyy= t.year();
-  int mm  = t.month();
-  int dd  = t.day();
-  int hh  = t.hour();
-  int mn  = t.min();
-
-  ostringstream ostr;
-  ostr << setw(4) << setfill('0') << yyyy
-       << setw(2) << setfill('0') << mm
-       << setw(2) << setfill('0') << dd
-       << setw(2) << setfill('0') << hh;
-  if (addMinutes)
-    ostr << setw(2) << setfill('0') << mn;
-
-  return ostr.str();
-}
-
-/*********************************************/
-
-// static
-miTime WeatherObjects::timeFromString(const std::string& timeString)
-{
-  if (timeString.length()<10)
-    return ztime;
-  //get time from a string with yyyymmddhhmm
-  int year= atoi(timeString.substr(0,4).c_str());
-  int mon=  atoi(timeString.substr(4,2).c_str());
-  int day=  atoi(timeString.substr(6,2).c_str());
-  int hour= atoi(timeString.substr(8,2).c_str());
-  int min= 0;
-  if (timeString.length() >= 12)
-    min= atoi(timeString.substr(10,2).c_str());
-  if (year<0 || mon <0 || day<0 || hour<0 || min < 0)
-    return ztime;
-  return miTime(year,mon,day,hour,min,0);
 }
 
 /*********************************************/

@@ -94,9 +94,6 @@ private:
 
   bool getFileName(DisplayObjects &wObjects);
   miutil::miTime timeFilterFileName(const std::string& fileName, const miutil::TimeFilter& filter);
-  static miutil::miTime timeFromString(const std::string& timeString);
-  //get time string yyyymmddhh or yyyymmddhhmm from time
-  std::string stringFromTime(const miutil::miTime& t,bool addMinutes);
 
   bool checkFileName(const std::string &fileName);
 

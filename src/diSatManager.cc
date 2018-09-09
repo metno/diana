@@ -36,6 +36,7 @@
 #include "diStaticPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/time_util.h"
 #include "util/was_enabled.h"
 
 #include <puTools/miStringFunctions.h>
@@ -59,7 +60,6 @@ using namespace miutil;
 
 namespace {
 const std::vector<SatFileInfo> emptyfile;
-const miutil::miTime ztime(1970, 1, 1, 0, 0, 0); //zero time = 00:00:00 UTC Jan 1 1970
 
 int _filestat(const std::string fname, pu_struct_stat& filestat)
 {
@@ -1009,7 +1009,6 @@ void SatManager::listFiles(subProdInfo &subp)
       subp.file.insert(p, ft);
     }
   }
-
 
   if (subp.formattype == "mitiff") {
     //update Prod[satellite][file].colours

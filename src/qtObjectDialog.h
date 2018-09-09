@@ -131,9 +131,6 @@ private:
   // make string from plotVariables
   std::string makeOKString(PlotVariables & okVar);
 
-  // get the time string on the form yyyymmddhhmn from time
-  static std::string stringFromTime(const miutil::miTime& t);
-
   //************** q tWidgets that appear in the dialog  *******************
 
   // Combobox for selecting region name

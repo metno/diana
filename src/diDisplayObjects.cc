@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,6 +36,8 @@
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
 #include "util/misc_util.h"
+#include "util/string_util.h"
+#include "util/time_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -90,12 +92,12 @@ bool DisplayObjects::define(const PlotCommand_cp& pc)
         int l= value.length();
         int f= value.rfind('.') + 1;
         std::string tstr= value.substr(f,l-f);
-        itsTime= timeFromString(tstr);
+        itsTime = miutil::timeFromString(tstr);
         autoFile= false;
       } else if (key=="name") {
         objectname = value;
       } else if (key=="time") {
-        itsTime = timeFromString(value);
+        itsTime = miutil::timeFromString(value);
         autoFile= false;
       } else if (key == "timediff") {
         timeDiff = kv.toInt();
@@ -165,7 +167,9 @@ bool DisplayObjects::prepareObjects()
 void DisplayObjects::getObjAnnotation(string &str, Colour &col)
 {
   if (approved) {
-    str = objectname + " " + itsTime.format("%D %H:%M", "", true);
+    str = objectname;
+    if (!itsTime.undef())
+      diutil::appendText(str, itsTime.format("%D %H:%M", "", true));
     col = Colour("black");
   } else {
     str.erase();
@@ -202,8 +206,8 @@ std::string DisplayObjects::getName() const
   std::string name;
   if (approved) {
     name = objectname;
-    if (!autoFile)
-      name += " " + itsTime.isoTime();
+    if (!autoFile && !itsTime.undef())
+      diutil::appendText(name, itsTime.isoTime());
   }
   return name;
 }

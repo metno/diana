@@ -264,7 +264,7 @@ int vc_select_cs(const std::string& ucs, Inventory_cp inv)
 const char SECONDS_SINCE_1970[] = "seconds since 1970-01-01 00:00:00";
 const char DAYS_SINCE_1900[] = "days since 1900-01-01 00:00:00";
 
-static const miutil::miTime time0("1970-01-01 00:00:00"), day0("1900-01-01 00:00:00");
+static const miutil::miTime time0 = miutil::unix_t0, day0("1900-01-01 00:00:00");
 
 Time from_miTime(const miutil::miTime& mitime)
 {
