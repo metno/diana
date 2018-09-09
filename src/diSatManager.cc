@@ -57,7 +57,32 @@
 
 using namespace miutil;
 
-static const std::vector<SatFileInfo> emptyfile;
+namespace {
+const std::vector<SatFileInfo> emptyfile;
+const miutil::miTime ztime(1970, 1, 1, 0, 0, 0); //zero time = 00:00:00 UTC Jan 1 1970
+
+int _filestat(const std::string fname, pu_struct_stat& filestat)
+{
+  return pu_stat(fname.c_str(), &filestat);
+}
+
+bool _isafile(const std::string& name)
+{
+  pu_struct_stat filestat;
+  // first check if fname is a proper file
+  int result = _filestat(name, filestat);
+  if (!result) {
+    return true;
+  }
+  else
+  {
+    //stat() is not able to get the file attributes,
+    //so the file obviously does not exist or
+    //more capabilities is required
+    return false;
+  }
+}
+} // namespace
 
 SatManager::SatManager()
     : useArchive(false)
@@ -1348,42 +1373,6 @@ bool SatManager::parseSetup()
   Dialog.timediff.scale=15;
 
   return true;
-}
-
-/*********************************************************************/
-bool SatManager::_isafile(const std::string name)
-{
-  pu_struct_stat filestat;
-  // first check if fname is a proper file
-  int result = _filestat(name, filestat);
-  if (!result) {
-    return true;
-  }
-  else
-  {
-    //stat() is not able to get the file attributes,
-    //so the file obviously does not exist or
-    //more capabilities is required
-    return false;
-  }
-}
-
-/*********************************************************************/
-unsigned long SatManager::_modtime(const std::string fname)
-{
-  pu_struct_stat filestat;
-  // first check if fname is a proper file
-  int result = _filestat(fname, filestat);
-  if (!result) {
-    return (unsigned long)filestat.st_mtime;
-  } else
-    return 1;
-}
-
-/*********************************************************************/
-int SatManager::_filestat(const std::string fname, pu_struct_stat& filestat)
-{
-  return pu_stat(fname.c_str(), &filestat);
 }
 
 void SatManager::init_rgbindex(Sat& sd)

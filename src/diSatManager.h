@@ -35,7 +35,6 @@
 #include "diSat.h"
 #include "diTimeTypes.h"
 
-#include <puCtools/stat.h>
 #include <puTools/TimeFilter.h>
 
 #include <map>
@@ -84,8 +83,6 @@ private:
 
   bool useArchive; //read archive files too.
 
-/************************************************************************/
-
   void getMosaicfiles(Sat* satdata, const miutil::miTime& t);
   void addMosaicfiles(Sat* satdata);
   std::vector<SatFileInfo> mosaicfiles;
@@ -96,9 +93,6 @@ private:
   void listFiles(subProdInfo &subp);
   bool readHeader(SatFileInfo &, std::vector<std::string> &);
 
-  bool _isafile(const std::string name);
-  unsigned long _modtime(const std::string fname);
-  int _filestat(const std::string fname, pu_struct_stat& filestat);
   bool parseChannels(Sat* satdata, SatFileInfo &info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
 
