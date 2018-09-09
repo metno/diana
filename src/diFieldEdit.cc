@@ -60,15 +60,31 @@ int      FieldEdit::def_influencetype= 0;
 float    FieldEdit::def_ecellipse= 0.88;
 bool     FieldEdit::drawExtraLines= false;
 
-
 FieldEdit::FieldEdit(FieldPlotManager* fm)
-  : fieldPlotManager(fm), workfield(0), editfield(0), editfieldplot(0),
-    showNumbers(false), numbersDisplayed(false),
-    specset(false),minValue(fieldUndef), maxValue(fieldUndef),
-    lastFileWritten(""), numundo(0), unsavedChanges(false), active(false),
-    editStarted(false), operationStarted(false),
-    posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), odata(0),
-    numUndefReplaced(0), discontinuous(false),drawIsoline(false)
+    : fieldPlotManager(fm)
+    , workfield(0)
+    , editfield(0)
+    , editfieldplot(0)
+    , showNumbers(false)
+    , numbersDisplayed(false)
+    , specset(false)
+    , minValue(fieldUndef)
+    , maxValue(fieldUndef)
+    , lastFileWritten("")
+    , numundo(0)
+    , unsavedChanges(false)
+    , active(false)
+    , editStarted(false)
+    , operationStarted(false)
+    , posx(0)
+    , posy(0)
+    , showArrow(false)
+    , convertpos(false)
+    , justDoneUndoRedo(false)
+    , odata(0)
+    , numUndefReplaced(0)
+    , discontinuous(false)
+    , drawIsoline(false)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -242,18 +258,10 @@ void FieldEdit::getFieldSize(int &nx, int &ny) {
   }
 }
 
-
-void FieldEdit::setSpec( EditProduct& ep, int fnum) {
-
+void FieldEdit::setSpec(EditProduct& ep, int fnum)
+{
   //read template file and extract grid info
-  vector<std::string> filenames;
-  filenames.push_back(ep.templateFilename);
-  vector<std::string> format;
-  format.push_back("netcdf");
-  vector<std::string> option;
-  vector<std::string> config;
-  fieldPlotManager->addGridCollection("fimex",ep.templateFilename , filenames,
-      format,config, option);
+  fieldPlotManager->addGridCollection(ep.templateFilename, ep.templateFilename, false);
   gridinventory::Grid grid = fieldPlotManager->getFieldGrid(ep.templateFilename);
   const float x0 = grid.x_0, y0 = grid.y_0;
   Rectangle r(x0,y0,x0+(grid.nx-1)*grid.x_resolution,y0+(grid.ny-1)*grid.y_resolution);
@@ -270,7 +278,6 @@ void FieldEdit::setSpec( EditProduct& ep, int fnum) {
   vcoord = ep.fields[fnum].vcoord_cdm;
   vlevel = ep.fields[fnum].vlevel_cdm;
   specset= true;
-
 }
 
 
@@ -438,35 +445,11 @@ bool FieldEdit::readEditfield(const std::string& filename)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename));
 
-  std::string fileType = "fimex";
-  std::vector<std::string> filenames;
-  std::vector<std::string> format;
-  std::vector<std::string> config;
-  std::vector<std::string> option;
-
-
   //read input file
-  std::string modelName = "SOURCE_" + filename;
-  filenames.clear();
-  filenames.push_back(filename);
+  const std::string modelName = "SOURCE_" + filename;
+  fieldPlotManager->addGridCollection(modelName, filename, false);
 
-  format.clear();
-  if ( !inputFieldFormat.empty() ) {
-    format.push_back(inputFieldFormat);
-  } else if (filename.find(".nc") != string::npos ){
-    format.push_back("netcdf");
-  } else {
-    format.push_back("felt");
-  }
-
-  if ( format[0] == "felt" && !inputFieldConfig.empty() ) {
-    config.push_back(inputFieldConfig);
-  }
-
-  fieldPlotManager->addGridCollection(fileType, modelName, filenames,
-      format,config, option);
-
-  std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
+  const std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName, 0, -1);
   FieldPlotGroupInfo_v fgi;
   fieldPlotManager->getFieldPlotGroups(modelName, reftime, true, fgi);
   vector<Field*> vfout;

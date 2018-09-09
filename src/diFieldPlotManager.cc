@@ -506,15 +506,17 @@ plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request, b
   return fieldManager->getFieldTime(request, updateSources);
 }
 
-bool FieldPlotManager::addGridCollection(const std::string fileType,
-    const std::string& modelName,
-    const std::vector<std::string>& filenames,
-    const std::vector<std::string>& format,
-    std::vector<std::string> config,
-    const std::vector<std::string>& option)
+bool FieldPlotManager::addGridCollection(const std::string& modelname, const std::string& filename, bool writeable)
 {
-  return fieldManager->addGridCollection(fileType, modelName, filenames,
-      format,config, option);
+  const std::string gridiotype("fimex");
+
+  std::vector<std::string> config;
+  const std::vector<std::string> filenames(1, filename);
+  const std::vector<std::string> format(1, "netcdf");
+  std::vector<std::string> option;
+  if (writeable)
+    option.push_back("writeable=true");
+  return fieldManager->addGridCollection(gridiotype, modelname, filenames, format, config, option);
 }
 
 FieldModelGroupInfo_v FieldPlotManager::getFieldModelGroups()

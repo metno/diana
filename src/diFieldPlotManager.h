@@ -69,12 +69,7 @@ public:
 
   bool updateFieldFileSetup(const std::vector<std::string>& lines, std::vector<std::string>& errors);
 
-  bool addGridCollection(const std::string fileType,
-      const std::string& modelName,
-      const std::vector<std::string>& filenames,
-      const std::vector<std::string>& format,
-      std::vector<std::string> config,
-      const std::vector<std::string>& option);
+  bool addGridCollection(const std::string& modelname, const std::string& filename, bool writeable);
 
   FieldModelGroupInfo_v getFieldModelGroups();
   std::set<std::string> getFieldReferenceTimes(const std::string& model);

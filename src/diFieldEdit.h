@@ -40,9 +40,6 @@
 #include <vector>
 #include <set>
 
-class DiGLPainter;
-class FieldPlotManager;
-
 /// info about influence of field edit operations
 struct FieldInfluence {
   float posx,posy;

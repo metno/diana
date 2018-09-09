@@ -1135,22 +1135,8 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
       return false;
     }
 
-    std::string fileType = "fimex";
-
-    std::vector<std::string> filenames;
-    std::string modelName = ofi;
-    filenames.push_back(ofi);
-
-    std::vector<std::string> format;
-    format.push_back("netcdf");
-
-    std::vector<std::string> config;
-
-    std::vector<std::string> option;
-    std::string opt = "writeable=true";
-    option.push_back(opt);
-
-    fieldPlotManager->addGridCollection(fileType, modelName, filenames, format, config, option);
+    const std::string modelName = ofi;
+    fieldPlotManager->addGridCollection(modelName, ofi, true);
 
     FieldPlotGroupInfo_v fgi;
     std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName, 0, -1);
