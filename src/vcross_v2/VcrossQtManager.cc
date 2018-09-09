@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2017 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,13 +29,14 @@
 
 #include "VcrossQtManager.h"
 
+#include "VcrossComputer.h"
+#include "VcrossOptions.h"
+#include "VcrossQtPlot.h"
+#include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
-#include "VcrossComputer.h"
-#include "VcrossOptions.h"
-#include "VcrossQtPlot.h"
 #include "util/string_util.h"
 
 #include "diField/VcrossUtil.h"
@@ -70,39 +71,6 @@ bool lt_LocationElement::operator() (const LocationElement& a, const LocationEle
   if (a.ypos < b.ypos)
     return true;
   return false;
-}
-
-miutil::miTime getBestReferenceTime(const std::vector<miutil::miTime>& reftimes,
-    int refOffset, int refHour)
-{
-  // FIXME this is an almost verbatim copy of diField FieldManager::getBestReferenceTime
-
-  if (reftimes.empty())
-    return miutil::miTime();
-
-  //if refime is not a valid time, return string
-  miutil::miTime reftime = reftimes.back();
-  if (reftime.undef()) {
-    return reftime;
-  }
-
-  if (refHour > -1) {
-    miutil::miDate date = reftime.date();
-    miutil::miClock clock(refHour, 0, 0);
-    reftime = miutil::miTime(date, clock);
-  }
-
-  reftime.addDay(refOffset);
-  if (std::find(reftimes.begin(), reftimes.end(), reftime) != reftimes.end())
-    return reftime;
-
-  //referencetime not found. If refHour is given and no refoffset, try yesterday
-  if (refHour > -1 && refOffset == 0) {
-    reftime.addDay(-1);
-    if (std::find(reftimes.begin(), reftimes.end(), reftime) != reftimes.end())
-      return reftime;
-  }
-  return miutil::miTime();
 }
 
 bool operator!=(const LonLat& a, const LonLat& b)
@@ -1135,8 +1103,14 @@ void QtManager::selectFields(const std::vector<miutil::KeyValue_v>& to_plot)
         const vctime_v reftimes = getModelReferenceTimes(model);
         if (reftimes.empty())
           METLIBS_LOG_WARN("empty reference time list for model '" << model << "'");
-        if (refhour != -1)
-          reftime = getBestReferenceTime(reftimes, refoffset, refhour);
+        if (refhour != -1) {
+          std::set<std::string> reftimes_txt;
+          for (const miutil::miTime& rt : reftimes)
+            reftimes_txt.insert(rt.isoTime("T"));
+          const std::string reftime_txt = getBestReferenceTime(reftimes_txt, refoffset, refhour);
+          if (!reftime_txt.empty())
+            reftime = miutil::miTime(reftime_txt);
+        }
         if (reftime.undef() && !reftimes.empty())
           reftime = reftimes.back();
       }

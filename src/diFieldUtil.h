@@ -32,6 +32,8 @@
 
 #include "util/diKeyValue.h"
 
+#include <set>
+
 class Field;
 /*! Merge field options from command (e.g. quick menu) and setup/logfile.
  * \param fieldopts options from command, will be updated
@@ -44,5 +46,7 @@ bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValu
 void cleanupFieldOptions(miutil::KeyValue_v& vpopt);
 
 void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel);
+
+std::string getBestReferenceTime(const std::set<std::string>& refTimes, int refOffset, int refHour);
 
 #endif // difieldutil_h

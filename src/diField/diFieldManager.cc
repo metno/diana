@@ -38,6 +38,7 @@
 #include "diFieldCache.h"
 #include "diMetConstants.h"
 
+#include "../diFieldUtil.h"
 #include "../diUtilities.h"
 #include "util/misc_util.h"
 
@@ -626,44 +627,7 @@ std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelNa
 std::string FieldManager::getBestReferenceTime(const std::string& modelName,
     int refOffset, int refHour)
 {
-  set<std::string> refTimes;
-  GridCollectionPtr pgc = getGridCollection(modelName, "", true);
-
-  if (pgc)
-    refTimes = pgc->getReferenceTimes();
-
-  if (refTimes.empty())
-    return "";
-
-  //if refime is not a valid time, return string
-  const std::string& last = *(refTimes.rbegin());
-  if (!miTime::isValid(last)) {
-    return last;
-  }
-
-  miTime refTime(last);
-
-  if (refHour > -1) {
-    miDate date = refTime.date();
-    miClock clock(refHour, 0, 0);
-    refTime = miTime(date, clock);
-  }
-  if (refOffset != 0) {
-    refTime.addDay(refOffset);
-  }
-
-  std::set<std::string>::const_iterator p = refTimes.find(refTime.isoTime("T"));
-  if (p != refTimes.end())
-    return *p;
-
-  // referencetime not found. If refHour is given and no refoffset, try yesterday
-  if (refHour > -1 && refOffset == 0) {
-    refTime.addDay(-1);
-    p = refTimes.find(refTime.isoTime("T"));
-    if (p != refTimes.end())
-      return *p;
-  }
-  return "";
+  return ::getBestReferenceTime(getReferenceTimes(modelName), refOffset, refHour);
 }
 
 bool FieldManager::makeField(Field*& fout, FieldRequest frq, int cacheOptions)
