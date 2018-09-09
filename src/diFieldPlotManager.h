@@ -55,7 +55,6 @@ public:
   ~FieldPlotManager();
 
   FieldPlot* createPlot(const PlotCommand_cp& cmd);
-  void flushPlotCache();
 
   /// read setup section for field plots
   bool parseSetup();

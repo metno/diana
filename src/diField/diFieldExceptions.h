@@ -48,18 +48,6 @@ public:
   {return (message.empty() ? "DatabaseException" :  message.c_str()); }
 };
 
-
-/**
- * An exception thrown when an attempt to modify the cache fails
- */
-
-class ModifyFieldCacheException : public DiFieldException{
-public:
-  ModifyFieldCacheException(std::string m="") {setMessage("Failed to modify FieldCache: "+m);}
-  ~ModifyFieldCacheException() throw() {}
-};
-
-
 class FieldDataException : public DiFieldException {
 public:
   FieldDataException(std::string m="") {setMessage("Field Data Error: "+m);}
@@ -67,8 +55,5 @@ public:
   { setMessage(intro + std::string(", reason:") + message);}
   ~FieldDataException() throw(){}
 };
-
-
-
 
 #endif /* DIFIELDEXCEPTIONS_H_ */

@@ -48,9 +48,6 @@
 class GridIOsetup;
 class GridCollection;
 
-class FieldCache;
-typedef std::shared_ptr<FieldCache> FieldCachePtr;
-
 /**
  \brief Managing fields and "models"
 
@@ -66,14 +63,6 @@ public:
   FieldManager();
 
   ~FieldManager();
-
-  enum FieldCacheOptions {
-    NO_CACHE = 1,
-    READ_RESULT = 2,
-    READ_ALL = 4,
-    WRITE_RESULT = 8,
-    WRITE_ALL = 16
-  };
 
   /// read Field sections in setup
   bool parseSetup();
@@ -117,11 +106,10 @@ public:
       int refHour);
 
   /// read and compute one field
-  bool makeField(Field*& fout, FieldRequest fieldrequest, int cacheOptions = 0);
+  bool makeField(Field*& fout, FieldRequest fieldrequest);
   bool writeField(const FieldRequest& fieldrequest, const Field* field);
   bool freeField(Field* field);
   bool freeFields(std::vector<Field*>& fields);
-  void flushCache();
 
   /// read and compute a difference field (fv1 = fv1-fv2)
   bool makeDifferenceFields(std::vector<Field*>& fv1, std::vector<Field*>& fv2);
@@ -144,8 +132,6 @@ private:
   std::vector<std::string> subsections();
 
 private:
-  FieldCachePtr fieldcache;
-
   FieldModelGroupInfo_v fieldModelGroups;
 
   GridSources_t gridSources;
@@ -161,8 +147,6 @@ private:
   GridCollectionPtr getGridCollection(const std::string& modelName,
       const std::string& refTime = "", bool rescan = false,
       bool checkSourceChanged = true);
-
-  void writeToCache(Field*& fout);
 };
 
 #endif

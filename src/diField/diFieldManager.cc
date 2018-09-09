@@ -35,7 +35,6 @@
 #include "diFieldManager.h"
 
 #include "GridCollection.h"
-#include "diFieldCache.h"
 #include "diMetConstants.h"
 #include "miSetupParser.h"
 
@@ -80,18 +79,9 @@ const std::string FIELD_FILES = "FIELD_FILES";
 // static class members
 GridConverter FieldManager::gc;    // Projection-converter
 
-FieldManager::FieldManager() :
-    fieldcache(new FieldCache())
+FieldManager::FieldManager()
 {
   METLIBS_LOG_SCOPE();
-  // test - this has to come by the GUI/setup/log...
-  // test with 1 GBYTE
-  // test with 0, the fields are deleted after 5 minutes
-  try {
-    fieldcache->setMaximumsize(1024, FieldCache::MEGABYTE);
-  } catch (ModifyFieldCacheException& e) {
-    METLIBS_LOG_WARN("createCacheSize(): " << e.what());
-  }
 
   // Initialize setup-types for each GridIO type
 #ifdef FIMEX
@@ -118,8 +108,6 @@ std::vector<std::string> FieldManager::subsections()
   subs.push_back(FieldFunctions::FIELD_COMPUTE_SECTION());
 
   subs.push_back(FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION());
-
-  subs.push_back(FieldCache::section());
 
   return subs;
 }
@@ -169,9 +157,6 @@ bool FieldManager::parseSetup(const std::vector<std::string>& lines,
 
   if (token == FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION())
     return FieldFunctions::parseVerticalSetup(lines, errors);
-
-  if (token == FieldCache::section())
-    return fieldcache->parseSetup(lines, errors);
 
   return true;
 }
@@ -653,7 +638,7 @@ std::string FieldManager::getBestReferenceTime(const std::string& modelName,
   return ::getBestReferenceTime(getReferenceTimes(modelName), refOffset, refHour);
 }
 
-bool FieldManager::makeField(Field*& fout, FieldRequest frq, int cacheOptions)
+bool FieldManager::makeField(Field*& fout, FieldRequest frq)
 {
   METLIBS_LOG_TIME(LOGVAL(frq.modelName) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.refTime) << LOGVAL(frq.ptime) << LOGVAL(frq.plevel)
                                          << LOGVAL(frq.elevel) << LOGVAL(frq.unit));
@@ -661,19 +646,6 @@ bool FieldManager::makeField(Field*& fout, FieldRequest frq, int cacheOptions)
   //Find best reference time
   if (frq.refTime.empty()) {
     frq.refTime = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
-  }
-
-  // If READ_RESULT, try to read from cache
-  if ((cacheOptions & (READ_RESULT | READ_ALL)) != 0 && miTime::isValid(frq.refTime) && !frq.ptime.undef()) {
-    FieldCacheKeyset keyset;
-    miTime reftime(frq.refTime);
-    keyset.setKeys(frq.modelName, reftime, frq.paramName, frq.plevel, frq.elevel, frq.ptime);
-
-    METLIBS_LOG_DEBUG("SEARCHING FOR :" << keyset << " in CACHE");
-
-    if (fieldcache->hasField(keyset)) {
-      return fieldcache->get(keyset);
-    }
   }
 
   GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false, frq.checkSourceChanged);
@@ -699,21 +671,13 @@ bool FieldManager::makeField(Field*& fout, FieldRequest frq, int cacheOptions)
     fout->palette = pgc->getVariable(frq.refTime, frq.palette);
   }
 
-  if ((cacheOptions & (WRITE_ALL | WRITE_RESULT)) != 0) {
-    writeToCache(fout);
-  }
-
   return true;
 }
 
 bool FieldManager::freeField(Field* field)
 {
-  try {
-    fieldcache->freeField(field);
-    return true;
-  } catch (ModifyFieldCacheException&) {
-    return false;
-  }
+  delete field;
+  return true;
 }
 
 bool FieldManager::freeFields(std::vector<Field*>& fields)
@@ -726,45 +690,6 @@ bool FieldManager::freeFields(std::vector<Field*>& fields)
   }
   fields.clear();
   return all_ok;
-}
-
-void FieldManager::flushCache()
-{
-  fieldcache->flush();
-}
-
-/*
- YE: It seems that the ptime is not used to determine which fields to be used when computing, why?
- */
-
-void FieldManager::writeToCache(Field*& fout)
-{
-  METLIBS_LOG_SCOPE();
-
-  FieldCacheKeyset fkey(fout);
-
-  // check if in cache
-  if (!fieldcache->hasField(fkey)) {
-    METLIBS_LOG_DEBUG(
-        "FieldManager: Adding field " << fkey << " with size "
-            << fout->bytesize() << " to cache");
-    try {
-      fieldcache->set(fout);
-    } catch (ModifyFieldCacheException& e) {
-      METLIBS_LOG_INFO(e.what());
-    }
-  } else {
-    METLIBS_LOG_WARN(
-        "FieldManager: Replacing field " << fkey << " with size "
-            << fout->bytesize() << " to cache");
-    try {
-      fieldcache->replace(fkey, fout);
-    } catch (ModifyFieldCacheException& e) {
-      METLIBS_LOG_INFO(e.what());
-    }
-    delete fout;
-    fout = fieldcache->get(fkey);
-  }
 }
 
 bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,

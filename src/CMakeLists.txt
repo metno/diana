@@ -56,9 +56,6 @@ SET (DIFIELD_SOURCES
   diField/diArea.cc
   diField/diCommonFieldTypes.cc
   diField/diField.cc
-  diField/diFieldCache.cc
-  diField/diFieldCacheEntity.cc
-  diField/diFieldCacheKeyset.cc
   diField/diFieldCalculations.cc
   diField/diFieldDefined.cc
   diField/diFieldFunctions.cc

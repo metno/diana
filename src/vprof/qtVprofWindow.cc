@@ -344,7 +344,7 @@ void VprofWindow::quitClicked()
   tsToolbar->hide();
   modelButton->setChecked(false);
   setupButton->setChecked(false);
-  // NOTE: flush the fieldCache...
+  // NOTE: flush the cache...
   vprofm->cleanup();
 
   vpModelDialog->deleteAllClicked();

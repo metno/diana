@@ -87,11 +87,6 @@ FieldPlot* FieldPlotManager::createPlot(const PlotCommand_cp& pc)
     return 0;
 }
 
-void FieldPlotManager::flushPlotCache()
-{
-  fieldManager->flushCache();
-}
-
 bool FieldPlotManager::parseSetup()
 {
   fieldManager->parseSetup(); // FIXME this ignores errors
@@ -551,7 +546,7 @@ bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotComman
       fr.ptime.addMin(fr.minOffset);
 
     Field* fout = 0;
-    if (!fieldManager->makeField(fout, fr, FieldManager::READ_ALL))
+    if (!fieldManager->makeField(fout, fr))
       return false;
 
     makeFieldText(fout, plotName, fr.flightlevel);

@@ -65,20 +65,12 @@ void FieldPlotCluster::prepare(const PlotCommand_cpv& inp)
   diutil::was_enabled plotenabled;
 
   // for now -- erase all fieldplots
-  for (unsigned int i = 0; i < plots_.size(); i++)
-    plotenabled.save(plots_[i]);
+  for (auto p : plots_)
+    plotenabled.save(p);
   cleanup();
 
-  // NOTE: If we use the fieldCache, we must clear it here
-  // to avoid memory consumption!
-  if (inp.empty()) {
-    // No fields will be used any more...
-    fieldplotm_->flushPlotCache();
-    return;
-  }
-
-  for (size_t i=0; i < inp.size(); i++) {
-    std::unique_ptr<FieldPlot> fp(fieldplotm_->createPlot(inp[i]));
+  for (auto pc : inp) {
+    std::unique_ptr<FieldPlot> fp(fieldplotm_->createPlot(pc));
     if (fp.get()) {
       plotenabled.restore(fp.get());
       fp->setCanvas(canvas_);

@@ -47,8 +47,6 @@
   using more than one scalar field, only the first contains annotation info.
 */
 class Field {
-  friend class FieldCacheEntity;
-  friend class FieldCache;
 public:
   //.................... set when reading: ..........................................
   float *data;
@@ -103,12 +101,6 @@ private:
   void memberCopy(const Field& rhs);
 
   difield::ValuesDefined defined_;
-
-  // this member is set by its friends diFieldCache(Entity) and noone else...
-  bool isPartOfCache;
-  // this member is set by its friends diFieldCache(Entity) and noone else...
-  miutil::miTime lastAccessed;
-
 
 public:
   Field();

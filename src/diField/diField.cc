@@ -48,10 +48,8 @@ Field::Field()
   , numSmoothed(0)
   , turnWaveDirection(false)
   , defined_(difield::NONE_DEFINED)
-  , isPartOfCache(false)
 {
   METLIBS_LOG_SCOPE();
-  lastAccessed = miTime::nowTime();
 }
 
 Field::Field(const Field &rhs)
@@ -64,9 +62,6 @@ Field::Field(const Field &rhs)
 Field::~Field()
 {
   METLIBS_LOG_SCOPE();
-  if (isPartOfCache)
-    METLIBS_LOG_ERROR("Somebody tries to delete a Field owned by Cache!");
-
   cleanup();
 }
 
@@ -91,13 +86,6 @@ bool Field::operator!=(const Field &rhs) const
 void Field::shallowMemberCopy(const Field& rhs)
 {
   METLIBS_LOG_SCOPE();
-
-  // the isPartOfCache variable is always false in copy actions.
-  // the Cache is (as a friend) the only instance to set this
-  // marker to true... copying a field outside the cache is possible
-  // sets this marker to false
-  isPartOfCache=false;
-  lastAccessed=miTime::nowTime();
 
   area= rhs.area;
   defined_ = rhs.defined_;
