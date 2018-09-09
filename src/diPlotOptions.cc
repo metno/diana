@@ -1065,7 +1065,8 @@ miutil::KeyValue_v PlotOptions::toKeyValueList()
     if ( alpha < 255)
       miutil::add(ostr, key_alpha, alpha);
 
-    miutil::add(ostr, key_patterns, !patterns.empty() ? patternname : OFF);
+    if (!patternname.empty() && patternname != OFF)
+      miutil::add(ostr, key_patterns, patternname);
 
     miutil::add(ostr, key_table, table);
     miutil::add(ostr, key_repeat, repeat);
