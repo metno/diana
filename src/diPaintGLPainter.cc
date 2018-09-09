@@ -128,16 +128,15 @@ void DiPaintGLCanvas::defineFont(const std::string& fontfam, const std::string& 
   if (face != diutil::F_NORMAL)
     return;
 
-  int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
-  if (handle == -1)
+  const int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
+  if (handle == -1) {
+    METLIBS_LOG_WARN("Could not load font from '" << fontfilename << "'");
     return;
+  }
 
   fontHandles << handle;
 
-  QStringList families = QFontDatabase::applicationFontFamilies(handle);
-  if (families.isEmpty())
-    return;
-
+  const QStringList families = QFontDatabase::applicationFontFamilies(handle);
   for (const QString& family : families) {
     fontMap[fontfam] = family;
   }
