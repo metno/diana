@@ -923,13 +923,15 @@ SatDialog::state SatDialog::decodeString(const miutil::KeyValue_v& tokens)
   if (tokens.size() < 3)
     return okVar;
 
-  okVar.name = tokens[0].key();
-  okVar.area = tokens[1].key();
-  okVar.channel = tokens[2].key();
+  miutil::KeyValue_v::const_iterator it = tokens.begin();
+  okVar.name = (it++)->key();
+  okVar.area = (it++)->key();
+  okVar.channel = (it++)->key();
   okVar.totalminutes = -1;
   okVar.mosaic = false;
 
-  for (const miutil::KeyValue& kv : tokens) {
+  for (; it != tokens.end(); ++it) {
+    const miutil::KeyValue& kv = *it;
     const std::string& key = kv.key();
     const std::string& value = kv.value();
     if (key == "time") {

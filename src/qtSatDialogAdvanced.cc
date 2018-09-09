@@ -437,9 +437,8 @@ miutil::KeyValue_v SatDialogAdvanced::putOKString(const miutil::KeyValue_v& str)
         }else{
           alpha->setChecked(false); greyAlpha(false);
         }
-      }else if ( key=="table" && palette){
-        if (atoi(value.c_str())!=0) legendButton->setChecked(true);
-        else legendButton->setChecked(false);
+      } else if (key == "table" && palette) {
+        legendButton->setChecked(kv.toBool());
       }
       else if (key=="hide" && palette){
         colourcut->setChecked(true);
