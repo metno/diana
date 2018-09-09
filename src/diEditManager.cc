@@ -2704,7 +2704,7 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 
   // setting plot options
 
-  if (fedits.size()==0)
+  if (fedits.empty())
     return;
 
   const size_t npif = std::min(inp.size(), fedits.size());
@@ -2722,16 +2722,14 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
   }
 }
 
-
 bool EditManager::getFieldArea(Area& a)
 {
-  for (unsigned int i=0; i<fedits.size(); i++) {
-    if (fedits[i]->editfield) {
-      a= fedits[i]->editfield->area;
+  for (FieldEdit* fe : fedits) {
+    if (fe->editfield) {
+      a = fe->editfield->area;
       return true;
     }
   }
-
   return false;
 }
 

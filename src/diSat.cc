@@ -111,7 +111,7 @@ Sat::Sat (const miutil::KeyValue_v& pin) :
         maxDiff = kv.toInt();
       else if (key=="alphacut" || key=="alfacut")
         alphacut = int(kv.toFloat()*255);
-      else if (key=="alpha" || key=="alpha")
+      else if (key == "alpha")
         alpha = (int) (kv.toFloat()*255);
       else if (key=="table")
         classtable = kv.toBool();

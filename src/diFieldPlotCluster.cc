@@ -82,7 +82,7 @@ void FieldPlotCluster::prepare(const PlotCommand_cpv& inp)
     std::unique_ptr<FieldPlot> fp(fieldplotm_->createPlot(inp[i]));
     if (fp.get()) {
       plotenabled.restore(fp.get());
-      fp.get()->setCanvas(canvas_);
+      fp->setCanvas(canvas_);
       plots_.push_back(fp.release());
     }
   }

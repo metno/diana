@@ -125,7 +125,7 @@ public:
 
   /// read and compute one field
   bool makeField(Field*& fout, FieldRequest fieldrequest, int cacheOptions = 0);
-  bool writeField(FieldRequest fieldrequest, const Field* field);
+  bool writeField(const FieldRequest& fieldrequest, const Field* field);
   bool freeField(Field* field);
   bool freeFields(std::vector<Field*>& fields);
   void flushCache();

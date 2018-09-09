@@ -2868,7 +2868,7 @@ PlotCommand_cpv FieldDialog::getOKString()
   }
 
   PlotCommand_cpv vstr;
-  if (selectedFields.size() == 0)
+  if (selectedFields.empty())
     return vstr;
 
   bool allTimeSteps = allTimeStepButton->isChecked();

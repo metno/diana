@@ -453,9 +453,8 @@ METNO_HEADERS(LIBDIANAUI_QTHEADERS "cc" "h" ${LIBDIANAUI_QTSOURCES})
 METNO_HEADERS(LIBBDIANA_HEADERS    "cc" "h" ${LIBBDIANA_SOURCES})
 
 LIST (APPEND LIBDIANA_HEADERS
-  diBuild.h
-
   diAreaTypes.h
+  diBuild.h
   diCommonTypes.h
   diEditTypes.h
   diEventResult.h

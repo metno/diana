@@ -999,7 +999,6 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
     return false;
 
   // plot symbol
-  ImageGallery ig;
   std::map<float, std::string> classImages;
   if (plottype() == fpt_symbol) {
     std::vector<float> classValues;
@@ -1060,6 +1059,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
   gl->getCharSize('0', chx, chy);
   chy *= 0.75;
 
+  ImageGallery ig;
   for (int iy = iy1; iy < iy2; iy += step) {
     const int xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
     for (int ix = ix1; ix < ix2; ix += xstep) {

@@ -617,11 +617,10 @@ plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldreq
 
 std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelName)
 {
-  set<std::string> refTimes;
-  GridCollectionPtr pgc = getGridCollection(modelName, "", true);
-  if (pgc)
-    refTimes = pgc->getReferenceTimes();
-  return refTimes;
+  if (GridCollectionPtr pgc = getGridCollection(modelName, "", true))
+    return pgc->getReferenceTimes();
+  else
+    return set<std::string>();
 }
 
 std::string FieldManager::getBestReferenceTime(const std::string& modelName,
@@ -793,8 +792,7 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
   return res;
 }
 
-
-bool FieldManager::writeField(FieldRequest fieldrequest, const Field* field)
+bool FieldManager::writeField(const FieldRequest& fieldrequest, const Field* field)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.paramName)
       << LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.refTime)
