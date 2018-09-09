@@ -63,6 +63,7 @@ SET (DIFIELD_SOURCES
   diField/diFieldDefined.cc
   diField/diFieldFunctions.cc
   diField/diFieldManager.cc
+  diField/diFieldUtil.cc
   diField/diFlightLevel.cc
   diField/diGridConverter.cc
   diField/diGridReprojection.cc

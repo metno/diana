@@ -7,6 +7,7 @@
 
 #include "GridIO.h"
 
+#include "diField/diFieldUtil.h"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/bind.hpp>
@@ -144,14 +145,9 @@ Field * GridIO::initializeField(const std::string& modelname,
     return (Field*) (0);
   }
 
-  // make the projection and area types
-  Projection proj(grid.projection);
-  const float x0 = grid.x_0, y0 = grid.y_0;
-  const Rectangle rect(x0, y0, x0 + (grid.nx -1) * grid.x_resolution, y0 + (grid.ny - 1) * grid.y_resolution);
-
   Field * field = new Field();
   field->data = new float[grid.nx * grid.ny];
-  field->area = GridArea(Area(proj, rect), grid.nx, grid.ny, grid.x_resolution, grid.y_resolution);
+  field->area = diutil::makeGridArea(grid);
   field->level = atoi(level.c_str());
   field->idnum = atoi(elevel.c_str());
   field->forecastHour = -32767;

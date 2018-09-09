@@ -34,6 +34,7 @@
 
 #include "diana_config.h"
 
+#include "diField/diFieldUtil.h"
 #include "diFieldEdit.h"
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
@@ -262,11 +263,7 @@ void FieldEdit::setSpec(EditProduct& ep, int fnum)
 {
   //read template file and extract grid info
   fieldPlotManager->addGridCollection(ep.templateFilename, ep.templateFilename, false);
-  gridinventory::Grid grid = fieldPlotManager->getFieldGrid(ep.templateFilename);
-  const float x0 = grid.x_0, y0 = grid.y_0;
-  Rectangle r(x0,y0,x0+(grid.nx-1)*grid.x_resolution,y0+(grid.ny-1)*grid.y_resolution);
-  Projection p(grid.projection);
-  areaspec = GridArea(Area(p,r), grid.nx, grid.ny, grid.x_resolution, grid.y_resolution);
+  areaspec = diutil::makeGridArea(fieldPlotManager->getFieldGrid(ep.templateFilename));
 
   minValue=     ep.fields[fnum].minValue;
   maxValue=     ep.fields[fnum].maxValue;
