@@ -3267,38 +3267,6 @@ inline std::string sub(const std::string& s, std::string::size_type begin, std::
   return s.substr(begin, end - begin);
 }
 
-void FieldDialog::getEditPlotOptions(map<std::string, map<
-    std::string, std::string> >& po)
-{
-  map<std::string, map<std::string, std::string> >::iterator p = po.begin();
-  //loop through parameters
-  for (; p != po.end(); p++) {
-    miutil::KeyValue_v options;
-
-    fieldoptions_m::const_iterator it;
-    const std::string& parameter = p->first;
-    if ((it = editFieldOptions.find(parameter)) != editFieldOptions.end()) {
-      options = it->second;
-    } else if ((it = fieldOptions.find(parameter)) != fieldOptions.end()) {
-      options = it->second;
-    } else if ((it = setupFieldOptions.find(parameter)) != setupFieldOptions.end()) {
-      options = it->second;
-    } else {
-      continue; //parameter not found
-    }
-
-    map<std::string, std::string>::iterator q = p->second.begin();
-    //loop through options
-    for (; q != p->second.end(); q++) {
-      const std::string opt = miutil::to_lower(q->first);
-      const size_t pcpos = miutil::find(options, opt);
-      if (pcpos != npos) {
-        q->second = options[pcpos].value();
-      }
-    }
-  }
-}
-
 vector<std::string> FieldDialog::writeLog()
 {
   vector<std::string> vstr;

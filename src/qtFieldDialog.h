@@ -145,9 +145,6 @@ public:
 
   bool decodeString(const miutil::KeyValue_v &kvs, SelectedField& sf, bool& allTimeSteps);
 
-  /// insert editoption values of <field,option> specified
-  void getEditPlotOptions(std::map< std::string, std::map<std::string,std::string> >& po);
-
   /// make contents for the diana log file
   std::vector<std::string> writeLog();
 
