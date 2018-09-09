@@ -29,8 +29,8 @@
 #ifndef diFieldPlotManager_h
 #define diFieldPlotManager_h
 
+#include "diField/GridInventoryTypes.h"
 #include "diField/diCommonFieldTypes.h"
-#include "diField/diFieldManager.h"
 #include "diPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diTimeTypes.h"
@@ -39,7 +39,11 @@
 #include <string>
 #include <vector>
 
+class Field;
 class FieldPlot;
+class FieldManager;
+
+struct FieldPlotManagerPlotField;
 
 /**
  \brief FieldPlotManager
@@ -47,28 +51,14 @@ class FieldPlot;
 class FieldPlotManager {
 
 public:
-  struct PlotField {
-    std::string name; ///< the field name in dialog etc.
-    std::string fieldgroup; ///< special fieldgroup name (to separate some fields)
-    //miutil::std::string text;            ///< not used, yet...
-    std::string plot; ///< the plot type, for debugging only
-    std::vector<std::string> input; ///< the input fields, read or computed
-    std::string inputstr; //same as above, used as tooltip
-    std::set< std::string > vcoord;
-    FieldFunctions::VerticalType vctype;
-  };
-
-  FieldPlotManager(FieldManager* fm);
+  FieldPlotManager();
+  ~FieldPlotManager();
 
   FieldPlot* createPlot(const PlotCommand_cp& cmd);
   void flushPlotCache();
 
-  void getAllFieldNames(std::vector<std::string>& fieldNames);
-
   /// read setup section for field plots
   bool parseSetup();
-  bool parseFieldPlotSetup();
-  bool parseFieldGroupSetup();
 
   bool makeDifferenceField(const miutil::KeyValue_v& fspec1,
       const miutil::KeyValue_v& fspec2, const miutil::miTime& ptime,
@@ -77,12 +67,25 @@ public:
   bool makeFields(const miutil::KeyValue_v& pin, const miutil::miTime& ptime,
       std::vector<Field*>& vfout);
 
+  bool updateFieldFileSetup(const std::vector<std::string>& lines, std::vector<std::string>& errors);
+
   bool addGridCollection(const std::string fileType,
       const std::string& modelName,
       const std::vector<std::string>& filenames,
       const std::vector<std::string>& format,
       std::vector<std::string> config,
       const std::vector<std::string>& option);
+
+  FieldModelGroupInfo_v getFieldModelGroups();
+  std::set<std::string> getFieldReferenceTimes(const std::string& model);
+
+  void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions);
+
+  /** fill a field's PlotOptions from static map, and substitute values
+      from a string containing plotoptions */
+  void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo);
+
+  std::map<std::string, std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
   plottimes_t getFieldTime(std::vector<FieldRequest>& request, bool updateSources = false);
 
@@ -113,22 +116,20 @@ public:
   std::string extractPlotName(const miutil::KeyValue_v& pin);
 
   /// Write field to file
-  bool writeField(FieldRequest fieldrequest, const Field* field);
-
+  bool writeField(const FieldRequest& fieldrequest, const Field* field);
   void freeFields(const std::vector<Field*>& fields);
 
-  /// update static fieldplotoptions
-  static bool updateFieldPlotOptions(const std::string& name, const miutil::KeyValue_v& optstr);
-  static void getAllFieldOptions(const std::vector<std::string>&,
-      std::map<std::string, miutil::KeyValue_v> &fieldoptions);
-  /** fill a field's PlotOptions from static map, and substitute values
-      from a string containing plotoptions */
-  static void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v &fdo);
-
 private:
-  std::vector<PlotField> vPlotField;
+  typedef std::shared_ptr<FieldPlotManagerPlotField> PlotField_p;
+  std::vector<PlotField_p> vPlotField;
+
+  bool parseFieldPlotSetup();
+  bool parseFieldGroupSetup();
 
   std::vector<std::string> splitComStr(const std::string& s, bool splitall);
+
+  /// update static fieldplotoptions
+  bool updateFieldPlotOptions(const std::string& name, const miutil::KeyValue_v& optstr);
 
   /// return lists of inputfields
   std::vector<std::string> getFields();
@@ -139,10 +140,10 @@ private:
 
   std::map<std::string, std::string> groupNames;
 
-  static std::map<std::string, PlotOptions> fieldPlotOptions;
-  static std::map<std::string, miutil::KeyValue_v> fieldDataOptions;
+  std::map<std::string, PlotOptions> fieldPlotOptions;
+  std::map<std::string, miutil::KeyValue_v> fieldDataOptions;
 
-  FieldManager* fieldManager;
+  std::unique_ptr<FieldManager> fieldManager;
 };
 
 #endif

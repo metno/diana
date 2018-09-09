@@ -54,7 +54,7 @@ class FieldPlotManager;
 class FieldPlot : public Plot {
 
 public:
-  FieldPlot(FieldPlotManager* fieldplotm=0);
+  FieldPlot(FieldPlotManager* fieldplotm);
   ~FieldPlot();
 
   bool getDataAnnotations(std::vector<std::string>& anno);

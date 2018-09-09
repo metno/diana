@@ -130,8 +130,6 @@
 #include <iomanip>
 #include <sstream>
 
-#include <diField/diFieldManager.h>
-
 #include "EditItems/drawingdialog.h"
 #include "EditItems/kml.h"
 #include "EditItems/toolbar.h"

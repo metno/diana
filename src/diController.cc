@@ -56,7 +56,6 @@
 
 #include "diField/diArea.h"
 #include "diField/diRectangle.h"
-#include "diField/diFieldManager.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -72,14 +71,17 @@ using namespace miutil;
 using namespace std;
 
 Controller::Controller()
-: plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),
-  objm(0), editm(0),editoverride(false)
+    : plotm(0)
+    , fieldplotm(new FieldPlotManager())
+    , obsm(0)
+    , satm(0)
+    , objm(0)
+    , editm(0)
+    , editoverride(false)
 {
   METLIBS_LOG_SCOPE();
 
   // data managers
-  fieldm=     new FieldManager;
-  fieldplotm= new FieldPlotManager(fieldm);
   obsm=       new ObsManager;
   satm=       new SatManager;
   stam=       new StationManager;
@@ -88,8 +90,8 @@ Controller::Controller()
   man_.reset(new MapAreaNavigator(plotm));
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
-  editm= new EditManager(plotm,objm,fieldplotm);
-  plotm->setManagers(fieldplotm, obsm, satm, stam, objm, editm);
+  editm = new EditManager(plotm, objm, fieldplotm.get());
+  plotm->setManagers(fieldplotm.get(), obsm, satm, stam, objm, editm);
 
   addManager("DRAWING", DrawingManager::instance());
   addManager("WEBMAP", WebMapManager::instance());
@@ -98,8 +100,6 @@ Controller::Controller()
 Controller::~Controller()
 {
   delete plotm;
-  delete fieldm;
-  delete fieldplotm;
   delete obsm;
   delete satm;
   delete stam;
@@ -122,26 +122,12 @@ DiCanvas* Controller::canvas()
 bool Controller::updateFieldFileSetup(const std::vector<std::string>& lines,
     std::vector<std::string>& errors)
 {
-  return getFieldManager()->updateFileSetup(lines, errors);
+  return fieldplotm->updateFieldFileSetup(lines, errors);
 }
 
 bool Controller::parseSetup()
 {
   METLIBS_LOG_SCOPE();
-
-  //Parse field sections
-  vector<std::string> errors;
-  vector<std::string> lines;
-  for (const std::string& suse : fieldm->subsections()) {
-    SetupParser::getSection(suse, lines);
-    fieldm->parseSetup(lines, suse, errors);
-  }
-  //Write error messages
-  int nerror = errors.size();
-  for( int i=0; i<nerror; i++){
-    vector<std::string> token = miutil::split(errors[i],"|");
-    SetupParser::errorMsg(token[0],atoi(token[1].c_str()),token[2]);
-  }
 
   //parse some setup sections
   if (!fieldplotm->parseSetup()) return false;
@@ -672,12 +658,12 @@ EditDialogInfo Controller::initEditDialog()
 
 FieldModelGroupInfo_v Controller::getFieldModelGroups()
 {
-  return fieldm->getFieldModelGroups();
+  return fieldplotm->getFieldModelGroups();
 }
 
-void Controller::getAllFieldNames(vector<std::string> & fieldNames)
+void Controller::getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions)
 {
-  fieldplotm->getAllFieldNames(fieldNames);
+  fieldplotm->getSetupFieldOptions(fieldoptions);
 }
 
 vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
@@ -690,12 +676,12 @@ vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
 
 set<std::string> Controller::getFieldReferenceTimes(const std::string& model)
 {
-  return fieldm->getReferenceTimes(model);
+  return fieldplotm->getFieldReferenceTimes(model);
 }
 
 std::string Controller::getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour)
 {
-  return fieldm->getBestReferenceTime(model, refOffset, refHour);
+  return fieldplotm->getBestFieldReferenceTime(model, refOffset, refHour);
 }
 
 miutil::miTime Controller::getFieldReferenceTime()
@@ -711,7 +697,7 @@ void Controller::getFieldPlotGroups(const std::string& modelName, const std::str
 std::map<std::string,std::string> Controller::getFieldGlobalAttributes(const std::string& modelName,
     const std::string& refTime)
 {
-  return fieldm->getGlobalAttributes(modelName, refTime);
+  return fieldplotm->getFieldGlobalAttributes(modelName, refTime);
 }
 
 plottimes_t Controller::getFieldTime(vector<FieldRequest>& request)

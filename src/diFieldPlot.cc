@@ -195,7 +195,7 @@ bool FieldPlot::prepare(const std::string& fname, const PlotCommand_cp& pc)
 
   // merge current plotOptions (from pin) with plotOptions form setup
   miutil::KeyValue_v opts;
-  FieldPlotManager::getFieldPlotOptions(fname, poptions, opts);
+  fieldplotm_->getFieldPlotOptions(fname, poptions, opts);
   diutil::insert_all(opts, cmd->all());
 
   setPlotInfo(opts);

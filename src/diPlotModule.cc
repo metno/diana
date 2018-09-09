@@ -59,7 +59,6 @@
 #include "util/string_util.h"
 #include "util/was_enabled.h"
 
-#include "diField/diFieldManager.h"
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 

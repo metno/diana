@@ -31,6 +31,7 @@
 
 #include "diana_config.h"
 
+#include "diField/diFieldManager.h"
 #include "diFieldPlot.h"
 #include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
@@ -49,8 +50,28 @@
 using namespace std;
 using namespace miutil;
 
-FieldPlotManager::FieldPlotManager(FieldManager* fm) :
-      fieldManager(fm)
+struct PlotFieldInput
+{
+  std::string name;
+  bool is_standard_name;
+};
+
+struct FieldPlotManagerPlotField
+{
+  std::string name;                  ///< the field name in dialog etc.
+  std::string fieldgroup;            ///< special fieldgroup name (to separate some fields)
+  std::vector<PlotFieldInput> input; ///< the input fields, read or computed
+  std::string inputstr;              // same as above, used as tooltip
+  std::set<std::string> vcoord;
+  FieldFunctions::VerticalType vctype;
+};
+
+FieldPlotManager::FieldPlotManager()
+    : fieldManager(new FieldManager)
+{
+}
+
+FieldPlotManager::~FieldPlotManager()
 {
 }
 
@@ -72,15 +93,10 @@ void FieldPlotManager::flushPlotCache()
   fieldManager->flushCache();
 }
 
-void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
-{
-  for (unsigned int i = 0; i < vPlotField.size(); i++) {
-    fieldNames.push_back(vPlotField[i].name);
-  }
-}
-
 bool FieldPlotManager::parseSetup()
 {
+  fieldManager->parseSetup(); // FIXME this ignores errors
+
   if (!parseFieldPlotSetup())
     return false;
   if (!parseFieldGroupSetup())
@@ -237,14 +253,21 @@ bool FieldPlotManager::parseFieldPlotSetup()
         }
 
         if (!name.empty() && !input.empty()) {
-            PlotField pf;
-            pf.name = name;
-            pf.fieldgroup = fieldgroup;
-            pf.input = input;
-            pf.inputstr = inputstr;
-            pf.vcoord = vcoord;
-            pf.vctype = vctype;
-            vPlotField.push_back(pf);
+          PlotField_p pf = std::make_shared<FieldPlotManagerPlotField>();
+          pf->name = name;
+          pf->fieldgroup = fieldgroup;
+          pf->input.reserve(input.size());
+          for (const auto& i : input) {
+            const std::vector<std::string> ii = miutil::split(i, ":");
+            PlotFieldInput pfi;
+            pfi.name = ii[0];
+            pfi.is_standard_name = (ii.size() == 2 && ii[1] == "standard_name");
+            pf->input.push_back(pfi);
+          }
+          pf->inputstr = inputstr;
+          pf->vcoord = vcoord;
+          pf->vctype = vctype;
+          vPlotField.push_back(pf);
         }
       }
 
@@ -289,6 +312,12 @@ bool FieldPlotManager::parseFieldGroupSetup()
   return true;
 }
 
+bool FieldPlotManager::updateFieldFileSetup(const std::vector<std::string>& lines, std::vector<std::string>& errors)
+{
+  return fieldManager->updateFileSetup(lines, errors);
+}
+
+// static
 vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool splitall)
 {
   // split commandstring into tokens.
@@ -358,13 +387,9 @@ vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool spl
 vector<std::string> FieldPlotManager::getFields()
 {
   set<std::string> paramSet;
-  for (unsigned int i = 0; i < vPlotField.size(); i++) {
-    for (unsigned int j = 0; j < vPlotField[i].input.size(); j++) {
-      //remove extra info like ":standard_name"
-      const std::string& input = vPlotField[i].input[j];
-      vector<std::string> vstr = miutil::split(input,":");
-      paramSet.insert(vstr[0]);
-    }
+  for (const auto& pf : vPlotField) {
+    for (const auto& input : pf->input)
+      paramSet.insert(input.name);
   }
 
   return vector<std::string>(paramSet.begin(), paramSet.end());
@@ -492,6 +517,20 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
       format,config, option);
 }
 
+FieldModelGroupInfo_v FieldPlotManager::getFieldModelGroups()
+{
+  return fieldManager->getFieldModelGroups();
+}
+
+set<std::string> FieldPlotManager::getFieldReferenceTimes(const std::string& model)
+{
+  return fieldManager->getReferenceTimes(model);
+}
+
+std::map<std::string, std::string> FieldPlotManager::getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime)
+{
+  return fieldManager->getGlobalAttributes(modelName, refTime);
+}
 
 bool FieldPlotManager::makeFields(const miutil::KeyValue_v& kvs,
     const miTime& const_ptime, vector<Field*>& vfout)
@@ -723,33 +762,31 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
 
   } else {
 
-    for (unsigned int j = 0; j < vPlotField.size(); j++) {
+    for (PlotField_p pf : vPlotField) {
       FieldPlotInfo plotInfo;
 
       size_t ninput = 0; // number of input fields found
-      for (size_t k = 0; k < vPlotField[j].input.size(); k++) {
-        const std::string& fieldName = vPlotField[j].input[k];
+      for (const auto& input : pf->input) {
         map<std::string, FieldPlotInfo>::const_iterator ip;
-        std::vector<std::string> tokens = miutil::split(fieldName,":");
-        if ( tokens.size()==2 && tokens[1]=="standard_name") {
+        if (input.is_standard_name) {
           ip = fieldInfo.begin();
-          while ( ip != fieldInfo.end() && ip->second.standard_name != tokens[0])
+          while (ip != fieldInfo.end() && ip->second.standard_name != input.name)
             ip++;
         } else {
-          ip =fieldInfo.find(fieldName);
+          ip = fieldInfo.find(input.name);
         }
 
         if (ip == fieldInfo.end())
           break;
-        if (!vPlotField[j].vcoord.empty() && !vPlotField[j].vcoord.count(ip->second.vcoord()))
+        if (!pf->vcoord.empty() && !pf->vcoord.count(ip->second.vcoord()))
           break;
 
         if ( ninput == 0) {
           plotInfo = ip->second;
-          plotInfo.fieldName = vPlotField[j].name;
-          plotInfo.variableName = vPlotField[j].inputstr;
-          if( !vPlotField[j].fieldgroup.empty() )
-            plotInfo.groupName = vPlotField[j].fieldgroup;
+          plotInfo.fieldName = pf->name;
+          plotInfo.variableName = pf->inputstr;
+          if (!pf->fieldgroup.empty())
+            plotInfo.groupName = pf->fieldgroup;
         } else {
           if (plotInfo.vlevels() != ip->second.vlevels()) {
             // if the input parameters have different vlevels, but no. of levels are 0 or 1, ignore vlevels
@@ -765,7 +802,7 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
         ninput++;
       }
 
-      if (ninput == vPlotField[j].input.size()) {
+      if (ninput == pf->input.size()) {
 
         //add flightlevels
         if (plotInfo.vcoord() == "pressure") {
@@ -899,7 +936,7 @@ void FieldPlotManager::parsePin(const miutil::KeyValue_v& pin, vector<FieldReque
   }
 }
 
-bool FieldPlotManager::writeField(FieldRequest fieldrequest, const Field* field)
+bool FieldPlotManager::writeField(const FieldRequest& fieldrequest, const Field* field)
 {
   return fieldManager->writeField(fieldrequest, field);
 }
@@ -912,16 +949,12 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
 
   vector<FieldRequest> vfieldrequest;
 
-  for (const PlotField& pf : vPlotField) {
-    if ((pf.name == plotName)
-        && ((pf.vcoord.empty() && pf.vctype == FieldFunctions::vctype_none)
-            || pf.vcoord.count(fieldrequest.zaxis)
-            || pf.vctype==FieldFunctions::Zaxis_info_map[fieldrequest.zaxis].vctype))
-    {
-      for (const std::string& inputIJ : pf.input) {
-        const vector<std::string> vstr = miutil::split(inputIJ, ":");
-        fieldrequest.paramName = vstr[0];
-        fieldrequest.standard_name = (vstr.size() == 2 && vstr[1] == "standard_name");
+  for (PlotField_p pf : vPlotField) {
+    if ((pf->name == plotName) && ((pf->vcoord.empty() && pf->vctype == FieldFunctions::vctype_none) || pf->vcoord.count(fieldrequest.zaxis) ||
+                                   pf->vctype == FieldFunctions::Zaxis_info_map[fieldrequest.zaxis].vctype)) {
+      for (const auto& input : pf->input) {
+        fieldrequest.paramName = input.name;
+        fieldrequest.standard_name = input.is_standard_name;
         vfieldrequest.push_back(fieldrequest);
       }
 
@@ -937,9 +970,6 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
 
 // ---------------- fieldPlotOptions management --------------------
 
-std::map<std::string, PlotOptions> FieldPlotManager::fieldPlotOptions;
-std::map<std::string, miutil::KeyValue_v> FieldPlotManager::fieldDataOptions;
-
 // update static fieldplotoptions
 bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
     const miutil::KeyValue_v& opts)
@@ -947,16 +977,16 @@ bool FieldPlotManager::updateFieldPlotOptions(const std::string& name,
   return PlotOptions::parsePlotOption(opts, fieldPlotOptions[name], fieldDataOptions[name]);
 }
 
-void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
-    map<std::string, miutil::KeyValue_v>& fieldoptions)
+void FieldPlotManager::getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions)
 {
   // The selected PlotOptions elements are used to activate elements
   // in the FieldDialog (any remaining will be used unchanged from setup)
   // Also return any field prefixes and suffixes used.
 
   fieldoptions.clear();
+  for (const auto& pf : vPlotField) {
+    const std::string& fn = pf->name;
 
-  for (const std::string& fn : fieldNames) {
     miutil::KeyValue_v fdo;
     PlotOptions po;
     getFieldPlotOptions(fn, po, fdo);
@@ -969,13 +999,13 @@ void FieldPlotManager::getAllFieldOptions(const vector<std::string>& fieldNames,
 
 void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo)
 {
-  map<std::string,PlotOptions>::iterator p = fieldPlotOptions.find(name);
+  map<std::string, PlotOptions>::const_iterator p = fieldPlotOptions.find(name);
   if (p != fieldPlotOptions.end()) {
     po = p->second;
   } else {
     fieldPlotOptions[name]= po;
   }
-  map<std::string,miutil::KeyValue_v>::iterator ido = fieldDataOptions.find(name);
+  map<std::string, miutil::KeyValue_v>::const_iterator ido = fieldDataOptions.find(name);
   if (ido != fieldDataOptions.end()) {
     fdo = ido->second;
   } else {

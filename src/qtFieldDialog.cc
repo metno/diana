@@ -120,10 +120,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   editName = tr("EDIT").toStdString();
 
-  // get all field plot options from setup file
-  vector<std::string> fieldNames;
-  m_ctrl->getAllFieldNames(fieldNames);
-  FieldPlotManager::getAllFieldOptions(fieldNames, setupFieldOptions);
+  m_ctrl->getSetupFieldOptions(setupFieldOptions);
 
   //#################################################################
   //  map<std::string,std::string>::iterator pfopt, pfend= setupFieldOptions.end();

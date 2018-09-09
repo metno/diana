@@ -44,7 +44,6 @@
 class MapPlot;
 class AnnotationPlot;
 class AreaObjectsCluster;
-class FieldManager;
 class ObsPlot;
 class FieldPlotManager;
 class FieldPlotCluster;

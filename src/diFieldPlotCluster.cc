@@ -29,7 +29,6 @@
 
 #include "diFieldPlotCluster.h"
 
-#include "diField/diFieldManager.h"
 #include "diFieldPlot.h"
 #include "diFieldPlotManager.h"
 #include "util/was_enabled.h"

@@ -37,6 +37,7 @@
 #include "GridCollection.h"
 #include "diFieldCache.h"
 #include "diMetConstants.h"
+#include "miSetupParser.h"
 
 #include "../diFieldUtil.h"
 #include "../diUtilities.h"
@@ -70,6 +71,12 @@ using namespace std;
 using namespace miutil;
 using namespace MetNo::Constants;
 
+namespace {
+
+const std::string FIELD_FILES = "FIELD_FILES";
+
+} // namespace
+
 // static class members
 GridConverter FieldManager::gc;    // Projection-converter
 
@@ -101,7 +108,7 @@ FieldManager::~FieldManager()
 std::vector<std::string> FieldManager::subsections()
 {
   std::vector<std::string> subs;
-  subs.push_back(section());
+  subs.push_back(FIELD_FILES);
 
   // new GridIO structure
   for (gridio_sections_t::const_iterator it_gs = gridio_sections.begin();
@@ -117,6 +124,25 @@ std::vector<std::string> FieldManager::subsections()
   return subs;
 }
 
+bool FieldManager::parseSetup()
+{
+  // Parse field sections
+  vector<std::string> errors;
+  vector<std::string> lines;
+  for (const std::string& suse : subsections()) {
+    SetupParser::getSection(suse, lines);
+    parseSetup(lines, suse, errors);
+  }
+  // Write error messages
+  int nerror = errors.size();
+  for (int i = 0; i < nerror; i++) {
+    vector<std::string> token = miutil::split(errors[i], "|");
+    SetupParser::errorMsg(token[0], atoi(token[1].c_str()), token[2]);
+  }
+
+  return true; // FIXME this ignores errors
+}
+
 bool FieldManager::parseSetup(const std::vector<std::string>& lines,
     const std::string& token, std::vector<std::string>& errors)
 {
@@ -125,7 +151,7 @@ bool FieldManager::parseSetup(const std::vector<std::string>& lines,
 
   METLIBS_LOG_SCOPE(LOGVAL(token));
 
-  if (token == section())
+  if (token == FIELD_FILES)
     return updateFileSetup(lines, errors, true);
 
   for (gridio_sections_t::iterator sitr = gridio_sections.begin();
@@ -205,8 +231,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
 
       std::vector<std::string> stokens = miutil::split_protected(tokens[j], '"', '"', "=", true);
       if (stokens.size() < 2) {
-        std::string error = section() + "|" + miutil::from_number(l)
-            + "|Missing argument to keyword: " + tokens[j];
+        std::string error = FIELD_FILES + "|" + miutil::from_number(l) + "|Missing argument to keyword: " + tokens[j];
         errors.push_back(error);
         continue;
       }
@@ -343,8 +368,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
           }
         } else {
           ostringstream ost;
-          ost << section() << "|" << l << "|Bad or no GridIO with type= "
-              << gridioType << "  for model='" << mn << "'";
+          ost << FIELD_FILES << "|" << l << "|Bad or no GridIO with type= " << gridioType << "  for model='" << mn << "'";
           errors.push_back(ost.str());
         }
       }

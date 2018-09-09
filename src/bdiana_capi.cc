@@ -57,7 +57,6 @@
 #include "miSetupParser.h"
 #include <diOrderBook.h>
 
-#include "diField/diFieldManager.h"
 #include "diField/diRectangle.h"
 
 #include "util/charsets.h"
@@ -1109,7 +1108,7 @@ int Bdiana::handlePlotCommand(int& k)
       return 99;
 
     vector<std::string> field_errors;
-    if (!main.controller->getFieldManager()->updateFileSetup(main.extra_field_lines, field_errors)) {
+    if (!main.controller->updateFieldFileSetup(main.extra_field_lines, field_errors)) {
       METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
       for (const std::string& fe : field_errors)
         METLIBS_LOG_ERROR(fe);
@@ -1416,12 +1415,6 @@ int Bdiana::handleDescribeCommand(int& k)
       return 1;
     }
 
-    FieldManager* fieldManager = main.controller->getFieldManager();
-    std::set<std::string> fieldPatterns;
-    for (FieldPlot* fp : main.controller->getFieldPlots()) {
-      diutil::insert_all(fieldPatterns, fieldManager->getFileNames(fp->getModelName()));
-    }
-
     const SatManager::Prod_t& satProducts = main.controller->getSatelliteManager()->getProductsInfo();
     set<std::string> satPatterns;
     set<std::string> satFiles;
@@ -1442,38 +1435,10 @@ int Bdiana::handleDescribeCommand(int& k)
       }
     }
 
-    set<std::string> obsPatterns;
-    set<std::string> obsFiles;
-
-#if 0
-    const std::map<std::string, ObsManager::ProdInfo>& obsProducts = main.controller->getObservationManager()->getProductsInfo();
-    for (ObsPlot* op : main.controller->getObsPlots()) {
-      for (const string& opf : op->getFileNames()) {
-        obsFiles.insert(opf);
-
-        for (auto obsprod : obsProducts) {
-          const ObsManager::ProdInfo& pi = obsprod.second;
-          for (const ObsManager::FileInfo& fi : pi.fileInfo) {
-            if (opf == fi.filename) {
-              for (const ObsManager::patternInfo& pin : pi.pattern)
-                obsPatterns.insert(pin.pattern);
-            }
-          }
-        }
-      }
-    }
-#endif
-
     file << "FILES" << endl;
-    for (const std::string& p : fieldPatterns)
-      file << p << endl;
     for (const std::string& p : satFiles)
       file << p << endl;
     for (const std::string& p : satPatterns)
-      file << p << endl;
-    for (const std::string& p : obsFiles)
-      file << p << endl;
-    for (const std::string& p : obsPatterns)
       file << p << endl;
 
     file.close();

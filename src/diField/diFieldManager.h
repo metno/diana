@@ -76,14 +76,7 @@ public:
   };
 
   /// read Field sections in setup
-  bool parseSetup(const std::vector<std::string>& lines,
-      const std::string& token, std::vector<std::string>& errors);
-
-  std::string section() const
-  {
-    return "FIELD_FILES";
-  }
-  std::vector<std::string> subsections();
+  bool parseSetup();
 
   void setFieldNames(const std::vector<std::string>& vfieldname);
 
@@ -145,6 +138,10 @@ private:
   typedef std::shared_ptr<GridIOsetup> GridIOsetupPtr;
 
   typedef std::map<std::string, GridCollectionPtr> GridSources_t;
+
+private:
+  bool parseSetup(const std::vector<std::string>& lines, const std::string& token, std::vector<std::string>& errors);
+  std::vector<std::string> subsections();
 
 private:
   FieldCachePtr fieldcache;

@@ -112,7 +112,7 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   vf.push_back(editfield);
 
   // fieldPlot
-  editfieldplot= new FieldPlot();
+  editfieldplot = new FieldPlot(fieldPlotManager);
   editfieldplot->setData(vf, tprod);
 
   // all the other members...
@@ -308,7 +308,7 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
 
   if (editfieldplot)
     delete editfieldplot;
-  editfieldplot= new FieldPlot();
+  editfieldplot = new FieldPlot(fieldPlotManager);
   editfieldplot->setData(vf, tprod);
 
   return true;

@@ -58,7 +58,6 @@ class DiGLPainter;
 class DrawingManager;
 class EditManager;
 class EventResult;
-class FieldManager;
 class FieldPlot;
 class FieldPlotManager;
 class Manager;
@@ -104,8 +103,7 @@ private:
   PlotModule    *plotm;
   std::unique_ptr<MapAreaNavigator> man_;
 
-  FieldManager  *fieldm;
-  FieldPlotManager  *fieldplotm;
+  std::unique_ptr<FieldPlotManager> fieldplotm;
   ObsManager    *obsm;
   SatManager    *satm;
   StationManager    *stam;
@@ -122,9 +120,9 @@ public:
   void setCanvas(DiCanvas* canvas);
   DiCanvas* canvas();
 
+  FieldPlotManager* getFieldPlotManager() { return fieldplotm.get(); };
   EditManager*   getEditManager()   { return editm; };
   ObjectManager* getObjectManager() { return objm; };
-  FieldManager* getFieldManager() { return fieldm; };
   StationManager* getStationManager() { return stam; };
   SatManager* getSatelliteManager() { return satm; };
   ObsManager* getObservationManager() { return obsm; };
@@ -285,8 +283,7 @@ public:
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   ///return referenceTime of first FieldPlot
   miutil::miTime getFieldReferenceTime();
-  /// return plot options for all defined plot fields in setup
-  void getAllFieldNames(std::vector<std::string>& fieldNames);
+  void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions);
   ///return levels
   std::vector<std::string> getFieldLevels(const PlotCommand_cp& pinfo);
   /// return plot/parameter info for one model to FieldDialog
