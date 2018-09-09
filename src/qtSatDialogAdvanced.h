@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -65,7 +65,7 @@ public:
   /// set picture string
   void setPictures(std::string);
   /// set colours from palette in colourlist (to hide colours in picture)
-  void setColours(std::vector<Colour>&);
+  void setColours(const std::vector<Colour>&);
   /// disable/enable options according to type of picture
   void greyOptions();
  // true if selected picture is palette file

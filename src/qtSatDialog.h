@@ -86,7 +86,7 @@ class SatDialog : public DataDialog
   ///return command strings
   PlotCommand_cpv getOKString() override;
 
-  ///insert command strings
+  //! called from MainWindow to put values into dialog
   void putOKString(const PlotCommand_cpv& vstr) override;
 
   ///return short name of current commonad

@@ -786,7 +786,6 @@ miutil::KeyValue_v SatDialog::makeOKString(state & okVar)
 
 void SatDialog::putOKString(const PlotCommand_cpv& vstr)
 {
-  /* Called from MainWindow to put vstr values into dialog  */
   METLIBS_LOG_SCOPE();
 
   //update dialog
@@ -1057,22 +1056,20 @@ void SatDialog::updateChannelBox(bool select)
 
   channelbox->clear();
 
-  vector<std::string> vstr;
   int index;
   if (autoButton->isChecked())
     index = -1;
   else
     index = timefileList->currentRow();
 
-  vstr = sdd_->getSatChannels(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), index);
-
-  int nr_channel = vstr.size();
+  std::vector<std::string> vstr = sdd_->getSatChannels(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), index);
+  const int nr_channel = vstr.size();
   if (nr_channel <= 0)
     return;
 
-  for (int i = 0; i < nr_channel; i++) {
-    miutil::trim(vstr[i]);
-    channelbox->addItem(QString(vstr[i].c_str()));
+  for (auto& ch : vstr) {
+    miutil::trim(ch);
+    channelbox->addItem(QString::fromStdString(ch));
   }
 
   //insert string list in channelbox
@@ -1084,7 +1081,7 @@ void SatDialog::updateChannelBox(bool select)
 
   miutil::trim(m_channelstr);
 
-  //selct same channel as last time, if possible ...
+  // select same channel as last time, if possible ...
   for (int i = 0; i < nr_channel; i++) {
     if (m_channelstr == vstr[i]) {
       channelbox->setCurrentRow(i);
@@ -1158,7 +1155,7 @@ void SatDialog::updateColours()
   int index = pictures->currentRow();
   if (index > -1) {
     state lstate = m_state[index];
-    vector<Colour> colours = sdd_->getSatColours(lstate.name, lstate.area);
+    const std::vector<Colour>& colours = sdd_->getSatColours(lstate.name, lstate.area);
     sda->setColours(colours);
   }
 }

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -365,27 +365,23 @@ void SatDialogAdvanced::greyOptions(){
 
 /*********************************************/
 
-void SatDialogAdvanced::setColours(vector <Colour> &colours){
-
+void SatDialogAdvanced::setColours(const std::vector<Colour>& colours)
+{
   colourList->clear();
-  palette = colours.size();
-  if (colours.size()){
+  palette = !colours.empty();
+  if (palette) {
     int nr_colours=colours.size();
-    QPixmap* pmap = new QPixmap( 20, 20 );
+    QPixmap pmap(20, 20);
     for(int i=0;i<nr_colours;i++){
-      pmap->fill( QColor(colours[i].R(),colours[i].G(),colours[i].B()) );
-      QIcon qicon( *pmap );
+      pmap.fill(QColor(colours[i].R(), colours[i].G(), colours[i].B()));
+      QIcon qicon(pmap);
       QString qs;
       QListWidgetItem* item= new QListWidgetItem(qicon,qs);
       colourList->addItem(item);
     }
-    delete pmap;
-    pmap=0;
-
   } else {
     colourcut->setChecked(false);
   }
-
 }
 
 /*********************************************/
