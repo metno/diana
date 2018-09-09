@@ -3419,8 +3419,8 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
 
   if ((drawExtraLines || drawIsoline) && isoline.x.size()>1) {
     int n= isoline.x.size();
-    float *xplot= new float[n];
-    float *yplot= new float[n];
+    std::unique_ptr<float[]> xplot(new float[n]);
+    std::unique_ptr<float[]> yplot(new float[n]);
     for (int i=0; i<n; ++i) {
       xplot[i]= editfield->area.fromGridX(isoline.x[i]);
       yplot[i]= editfield->area.fromGridY(isoline.y[i]);
@@ -3429,15 +3429,13 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->LineWidth(3.0);
     gl->Begin(DiGLPainter::gl_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
-      if (!maparea.P().convertPoints(editfield->area.P(), n, xplot, yplot))
+      if (!maparea.P().convertPoints(editfield->area.P(), n, xplot.get(), yplot.get()))
         n = 0;
     }
     for (int i=0; i<n; ++i) {
       gl->Vertex2f(xplot[i],yplot[i]);
     }
     gl->End();
-    delete[] xplot;
-    delete[] yplot;
 
     if (drawIsoline) {
       isoline.x.clear();
@@ -3448,8 +3446,8 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
 
   if (drawExtraLines && xline.size()>1) {
     int n= xline.size();
-    float *xplot= new float[n];
-    float *yplot= new float[n];
+    std::unique_ptr<float[]> xplot(new float[n]);
+    std::unique_ptr<float[]> yplot(new float[n]);
     for (int i=0; i<n; ++i) {
       xplot[i]= editfield->area.fromGridX(xline[i]);
       yplot[i]= editfield->area.fromGridY(yline[i]);
@@ -3457,15 +3455,13 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->LineWidth(1.0);
     gl->Begin(DiGLPainter::gl_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
-      if (!maparea.P().convertPoints(editfield->area.P(), n, xplot, yplot))
+      if (!maparea.P().convertPoints(editfield->area.P(), n, xplot.get(), yplot.get()))
         n=0;
     }
     for (int i=0; i<n; ++i) {
       gl->Vertex2f(xplot[i],yplot[i]);
     }
     gl->End();
-    delete[] xplot;
-    delete[] yplot;
   }
 }
 
