@@ -29,11 +29,14 @@
 
 #include "diFieldUtil.h"
 
+#include "diField/diCommonFieldTypes.h"
 #include "diField/diField.h"
 #include "diField/diFlightLevel.h"
 #include "diPlotOptions.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <sstream>
 
@@ -228,4 +231,15 @@ std::string getBestReferenceTime(const std::set<std::string>& refTimes, int refO
     }
   }
   return "";
+}
+
+void flightlevel2pressure(FieldRequest& frq)
+{
+  if (frq.zaxis == "flightlevel") {
+    frq.zaxis = "pressure";
+    frq.flightlevel = true;
+    if (miutil::contains(frq.plevel, "FL")) {
+      frq.plevel = FlightLevel::getPressureLevel(frq.plevel);
+    }
+  }
 }

@@ -138,8 +138,6 @@ private:
 
   void parseString(const miutil::KeyValue_v &pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
 
-  void flightlevel2pressure(FieldRequest& frq);
-
   std::map<std::string, std::string> groupNames;
 
   static std::map<std::string, PlotOptions> fieldPlotOptions;

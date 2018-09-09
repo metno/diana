@@ -35,6 +35,8 @@
 #include <set>
 
 class Field;
+struct FieldRequest;
+
 /*! Merge field options from command (e.g. quick menu) and setup/logfile.
  * \param fieldopts options from command, will be updated
  * \param defaultopts options from setup/logfile
@@ -48,5 +50,7 @@ void cleanupFieldOptions(miutil::KeyValue_v& vpopt);
 void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel);
 
 std::string getBestReferenceTime(const std::set<std::string>& refTimes, int refOffset, int refHour);
+
+void flightlevel2pressure(FieldRequest& frq);
 
 #endif // difieldutil_h

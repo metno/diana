@@ -865,17 +865,6 @@ void FieldPlotManager::parseString(const miutil::KeyValue_v& pin,
   METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.plevel));
 }
 
-void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
-{
-  if ( frq.zaxis == "flightlevel") {
-    frq.zaxis = "pressure";
-    frq.flightlevel=true;
-    if ( miutil::contains(frq.plevel,"FL") ) {
-      frq.plevel = FlightLevel::getPressureLevel(frq.plevel);
-    }
-  }
-}
-
 std::string FieldPlotManager::extractPlotName(const miutil::KeyValue_v& pin)
 {
   std::string plotName;
